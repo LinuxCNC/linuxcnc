@@ -99,6 +99,33 @@ static void exit_on_signal(int signum) {
     exit_from_hal();
     exit(1);
 }
+
+/* Read just the SAMPLES value from config file before loading scope_rt */
+static int read_samples_from_config(const char *filename)
+{
+    FILE *fp;
+    char buf[100];
+    int samples = 0;
+
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+	return 0;  /* file doesn't exist, use default */
+    }
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* Support both "SAMPLES nnn" and "# SAMPLES nnn" for backward compatibility */
+	/* Older halscope versions will ignore "# SAMPLES" as a comment */
+	if (strncasecmp(buf, "SAMPLES ", 8) == 0) {
+	    samples = atoi(buf + 8);
+	    break;
+	} else if (strncasecmp(buf, "# SAMPLES ", 10) == 0) {
+	    samples = atoi(buf + 10);
+	    break;
+	}
+    }
+    fclose(fp);
+    return samples;
+}
+
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
 ************************************************************************/
@@ -141,9 +168,30 @@ int main(int argc, gchar * argv[])
             break;
         }
     }
-    if(argc > optind) num_samples = atoi(argv[argc-1]);
+    /* first try to read samples from config file */
+    num_samples = read_samples_from_config(ifilename);
+    /* command line num_samples overrides config file, but only if it's a valid number */
+    if(argc > optind) {
+	int cmdline_samples = atoi(argv[optind]);
+	if(cmdline_samples > 0) {
+	    num_samples = cmdline_samples;
+	}
+    }
+    /* apply defaults and bounds */
     if(num_samples <= 0)
 	num_samples = SCOPE_NUM_SAMPLES_DEFAULT;
+    if(num_samples < SCOPE_NUM_SAMPLES_MIN) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "SCOPE: num_samples %d too small, using %d\n",
+	    num_samples, SCOPE_NUM_SAMPLES_MIN);
+	num_samples = SCOPE_NUM_SAMPLES_MIN;
+    }
+    if(num_samples > SCOPE_NUM_SAMPLES_MAX) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "SCOPE: num_samples %d too large, using %d\n",
+	    num_samples, SCOPE_NUM_SAMPLES_MAX);
+	num_samples = SCOPE_NUM_SAMPLES_MAX;
+    }
 
     /* connect to the HAL */
     comp_id = hal_init("halscope");
@@ -161,6 +209,10 @@ int main(int argc, gchar * argv[])
 	    hal_exit(comp_id);
 	    exit(1);
 	}
+    } else {
+	/* scope_rt already loaded - we'll check if sample count matches later */
+	rtapi_print_msg(RTAPI_MSG_DBG,
+	    "SCOPE: scope_rt already loaded, requested %d samples\n", num_samples);
     }
     /* set up a shared memory region for the scope data */
     shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, sizeof(scope_shm_control_t));
@@ -190,6 +242,16 @@ int main(int argc, gchar * argv[])
     /* init control structure */
     ctrl_usr = &ctrl_struct;
     init_usr_control_struct(shm_base);
+
+    /* check if loaded scope_rt has different sample count than requested */
+    if (ctrl_shm->buf_len != num_samples) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "SCOPE: scope_rt was loaded with %d samples, but config requested %d.\n"
+	    "To change sample count, unload scope_rt first or restart LinuxCNC.\n",
+	    ctrl_shm->buf_len, num_samples);
+    }
+    /* store requested samples for saving to config */
+    ctrl_usr->horiz.requested_samples = num_samples;
 
     /* init watchdog */
     ctrl_shm->watchdog = 10;
@@ -278,6 +340,33 @@ void start_capture(void)
 	/* already running! */
 	return;
     }
+
+    /* Check if data is from log file */
+    if (ctrl_usr->data_from_log_file) {
+        GtkWidget *dialog = gtk_message_dialog_new(
+            GTK_WINDOW(ctrl_usr->main_win),
+            GTK_DIALOG_MODAL,
+            GTK_MESSAGE_WARNING,
+            GTK_BUTTONS_OK_CANCEL,
+            _("Overwrite loaded log file data?"));
+
+        gtk_message_dialog_format_secondary_text(
+            GTK_MESSAGE_DIALOG(dialog),
+            _("Starting acquisition will clear the data loaded from the CSV file. Continue?"));
+
+        int response = gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+
+        if (response != GTK_RESPONSE_OK) {
+            /* User cancelled, switch back to STOP mode */
+            set_run_mode(STOP);
+            return;
+        }
+
+        /* Clear the flag */
+        ctrl_usr->data_from_log_file = 0;
+    }
+
     for (n = 0; n < 16; n++) {
 	/* point to user space channel data */
 	chan = &(ctrl_usr->chan[n]);
@@ -436,12 +525,41 @@ static void init_usr_control_struct(void *shmem)
     /* set all 16 channels to "no source assigned" */
     for (n = 0; n < 16; n++) {
 	ctrl_usr->chan[n].data_source_type = -1;
+	ctrl_usr->chan[n].is_phantom = 0;
     }
+    ctrl_usr->data_from_log_file = 0;
     /* done */
 }
 
 static void menuitem_response(gchar *string) {
-    printf("%s\n", string);
+    if (strcmp(string, "file/open datafile") == 0) {
+        open_log_cb(GTK_WINDOW(ctrl_usr->main_win));
+    } else {
+        printf("%s\n", string);
+    }
+}
+
+void open_log_cb(GtkWindow *parent)
+{
+    GtkWidget *filew;
+    GtkFileChooser *chooser;
+
+    filew = gtk_file_chooser_dialog_new(_("Open Log File:"),
+                                        parent,
+                                        GTK_FILE_CHOOSER_ACTION_OPEN,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        _("_Open"), GTK_RESPONSE_ACCEPT,
+                                        NULL);
+
+    chooser = GTK_FILE_CHOOSER(filew);
+    set_file_filter(chooser, "Text CSV (.csv)", "*.csv");
+
+    if (gtk_dialog_run(GTK_DIALOG(filew)) == GTK_RESPONSE_ACCEPT) {
+        char *filename = gtk_file_chooser_get_filename(chooser);
+        read_log_file(filename);
+        g_free(filename);
+    }
+    gtk_widget_destroy(filew);
 }
 
 static void about(void) {
@@ -546,7 +664,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopendatafile);
     g_signal_connect_swapped(fileopendatafile, "activate",
             G_CALLBACK(menuitem_response), "file/open datafile");
-    gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), FALSE); // XXX
+    gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), TRUE);
     gtk_widget_show(fileopendatafile);
 
     filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Log File"));
@@ -626,9 +744,9 @@ static void define_scope_windows(void)
 {
     GtkWidget *vbox, *hbox, *vboxtop, *vboxbottom, *vboxleft, *vboxright, *hboxright;
 
-    /* create main window, set its minimum size and title */
+    /* create main window, set its default size and title */
     ctrl_usr->main_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_size_request(GTK_WIDGET(ctrl_usr->main_win), 650, 400);
+    gtk_window_set_default_size(GTK_WINDOW(ctrl_usr->main_win), 1050, 550);
     gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), _("HAL Oscilloscope"));
 
     /* top level - big vbox, menu above, everything else below */

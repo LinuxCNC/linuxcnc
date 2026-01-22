@@ -77,6 +77,9 @@ typedef struct {
     GtkWidget *sample_period_label;
     GtkAdjustment *mult_adj;
     GtkWidget *mult_spinbutton;
+    GtkAdjustment *samples_adj;
+    GtkWidget *samples_spinbutton;
+    int requested_samples;	/* samples requested for next restart */
 } scope_horiz_t;
 
 /* this struct holds control data related to a single channel */
@@ -96,6 +99,7 @@ typedef struct {
     int min_index;
     double scale;		/* scaling (units/div) */
     double position;		/* vertical pos (0.0-1.0) */
+    int is_phantom;		/* TRUE if loaded from CSV without HAL source */
 } scope_chan_t;
 
 /* this struct holds control data related to vertical control */
@@ -195,6 +199,7 @@ typedef struct {
     scope_run_mode_t run_mode;	/* current run mode */
     scope_run_mode_t old_run_mode;	/* run mode to restore*/
     int pending_restart;        /* nonzero if run mode to be restored */
+    int data_from_log_file;	/* TRUE if current data loaded from CSV */
     /* top level windows */
     GtkWidget *main_win;
     GtkWidget *horiz_info_win;
@@ -256,6 +261,8 @@ void write_horiz_config(FILE *fp);
 void write_vert_config(FILE *fp);
 void write_trig_config(FILE *fp);
 void write_log_file (char *filename);
+void read_log_file (char *filename);
+void open_log_cb(GtkWindow *parent);
 
 /* the following functions set various parameters, they are normally
    called by the GUI, but can also be called by code reading a file
