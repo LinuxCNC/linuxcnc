@@ -1205,7 +1205,7 @@ class HandlerClass:
     # show ngcgui info tab (in the stackedWidget) if ngcgui utilites
     # tab is selected
     def tab_utilities_changed(self, num):
-        if num == 2:
+        if 'ngc' in self.w.tabWidget_utilities.tabText(num).lower():
             self.w.stackedWidget.setCurrentIndex(PAGE_NGCGUI)
         else:
             self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)

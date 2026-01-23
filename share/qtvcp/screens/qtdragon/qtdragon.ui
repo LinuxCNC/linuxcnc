@@ -7862,7 +7862,7 @@ LOG</string>
                           <number>0</number>
                          </property>
                          <item>
-                          <widget class="QTabWidget" name="tabWidget_utilities">
+                          <widget class="DetachTabWidget" name="tabWidget_utilities">
                            <property name="currentIndex">
                             <number>0</number>
                            </property>
@@ -18273,6 +18273,11 @@ SCROLL</string>
    <class>VirtualKeyboard</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.virtualkeyboard</header>
+  </customwidget>
+  <customwidget>
+   <class>DetachTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>qtvcp.widgets.detach_tabs</header>
   </customwidget>
   <customwidget>
    <class>QWebView</class>
