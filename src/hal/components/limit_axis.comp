@@ -65,11 +65,11 @@ FUNCTION(_){
 
   // Check all ranges
   for (i = 0; i < personality; i++){
-    if (max_range(i) < min_range(i)){
-      if(! enable(i)){
-        continue;
-      }
+    if(! enable(i)){
+      continue;
+    }
 
+    if (max_range(i) < min_range(i)){
       // Throw Error and skip this range
       if (! error_range(i) ){
         rtapi_print_msg(RTAPI_MSG_ERR,
