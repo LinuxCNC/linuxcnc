@@ -245,12 +245,13 @@ void tooldata_format_toolline (int idx,
     space -= len;
 // format zero float values as %.0f for brevity
 #define F_ITEM(item,letter) if (!ignore_zero_values || tdata.item) { \
+                                char local_tmp[64] = {}; \
                                 if (tdata.item) { \
-                                    len = snprintf(tmp,sizeof(tmp)," " letter "%+f", tdata.item); \
+                                    len = snprintf(local_tmp,sizeof(local_tmp)," " letter "%+f", tdata.item); \
                                 } else { \
-                                    len = snprintf(tmp,sizeof(tmp)," " letter "%.0f",tdata.item); \
+                                    len = snprintf(local_tmp,sizeof(local_tmp)," " letter "%.0f",tdata.item); \
                                 } \
-                                strncat(formatted_line,tmp,space); \
+                                strncat(formatted_line,local_tmp,space); \
                                 space -= len; \
                             }
 #define I_ITEM(item,letter) if (!ignore_zero_values || tdata.item) { \

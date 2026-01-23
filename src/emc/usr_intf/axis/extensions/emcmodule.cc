@@ -466,6 +466,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"queue_full", T_BOOL, O(motion.traj.queueFull), READONLY, NULL},
     {(char*)"motion_id", T_INT, O(motion.traj.id), READONLY, NULL},
     {(char*)"paused", T_BOOL, O(motion.traj.paused), READONLY, NULL},
+    {(char*)"single_stepping", T_BOOL, O(motion.traj.single_stepping), READONLY, NULL},
     {(char*)"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY, NULL},
     {(char*)"rapidrate", T_DOUBLE, O(motion.traj.rapid_scale), READONLY, NULL},
     {(char*)"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY, NULL},
@@ -2596,7 +2597,7 @@ static struct PyModuleDef linuxcnc_moduledef = {
 PyMODINIT_FUNC PyInit_linuxcnc(void);
 PyMODINIT_FUNC PyInit_linuxcnc(void)
 {
-        
+
     verbose_nml_error_messages = 0;
     clear_rcs_print_flag(~0);
 

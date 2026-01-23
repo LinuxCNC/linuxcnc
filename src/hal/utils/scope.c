@@ -112,8 +112,13 @@ static int read_samples_from_config(const char *filename)
 	return 0;  /* file doesn't exist, use default */
     }
     while (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* Support both "SAMPLES nnn" and "# SAMPLES nnn" for backward compatibility */
+	/* Older halscope versions will ignore "# SAMPLES" as a comment */
 	if (strncasecmp(buf, "SAMPLES ", 8) == 0) {
 	    samples = atoi(buf + 8);
+	    break;
+	} else if (strncasecmp(buf, "# SAMPLES ", 10) == 0) {
+	    samples = atoi(buf + 10);
 	    break;
 	}
     }
@@ -335,6 +340,33 @@ void start_capture(void)
 	/* already running! */
 	return;
     }
+
+    /* Check if data is from log file */
+    if (ctrl_usr->data_from_log_file) {
+        GtkWidget *dialog = gtk_message_dialog_new(
+            GTK_WINDOW(ctrl_usr->main_win),
+            GTK_DIALOG_MODAL,
+            GTK_MESSAGE_WARNING,
+            GTK_BUTTONS_OK_CANCEL,
+            _("Overwrite loaded log file data?"));
+
+        gtk_message_dialog_format_secondary_text(
+            GTK_MESSAGE_DIALOG(dialog),
+            _("Starting acquisition will clear the data loaded from the CSV file. Continue?"));
+
+        int response = gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+
+        if (response != GTK_RESPONSE_OK) {
+            /* User cancelled, switch back to STOP mode */
+            set_run_mode(STOP);
+            return;
+        }
+
+        /* Clear the flag */
+        ctrl_usr->data_from_log_file = 0;
+    }
+
     for (n = 0; n < 16; n++) {
 	/* point to user space channel data */
 	chan = &(ctrl_usr->chan[n]);
@@ -493,12 +525,41 @@ static void init_usr_control_struct(void *shmem)
     /* set all 16 channels to "no source assigned" */
     for (n = 0; n < 16; n++) {
 	ctrl_usr->chan[n].data_source_type = -1;
+	ctrl_usr->chan[n].is_phantom = 0;
     }
+    ctrl_usr->data_from_log_file = 0;
     /* done */
 }
 
 static void menuitem_response(gchar *string) {
-    printf("%s\n", string);
+    if (strcmp(string, "file/open datafile") == 0) {
+        open_log_cb(GTK_WINDOW(ctrl_usr->main_win));
+    } else {
+        printf("%s\n", string);
+    }
+}
+
+void open_log_cb(GtkWindow *parent)
+{
+    GtkWidget *filew;
+    GtkFileChooser *chooser;
+
+    filew = gtk_file_chooser_dialog_new(_("Open Log File:"),
+                                        parent,
+                                        GTK_FILE_CHOOSER_ACTION_OPEN,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        _("_Open"), GTK_RESPONSE_ACCEPT,
+                                        NULL);
+
+    chooser = GTK_FILE_CHOOSER(filew);
+    set_file_filter(chooser, "Text CSV (.csv)", "*.csv");
+
+    if (gtk_dialog_run(GTK_DIALOG(filew)) == GTK_RESPONSE_ACCEPT) {
+        char *filename = gtk_file_chooser_get_filename(chooser);
+        read_log_file(filename);
+        g_free(filename);
+    }
+    gtk_widget_destroy(filew);
 }
 
 static void about(void) {
@@ -603,7 +664,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopendatafile);
     g_signal_connect_swapped(fileopendatafile, "activate",
             G_CALLBACK(menuitem_response), "file/open datafile");
-    gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), FALSE); // XXX
+    gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), TRUE);
     gtk_widget_show(fileopendatafile);
 
     filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Log File"));

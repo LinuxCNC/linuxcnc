@@ -1134,6 +1134,9 @@ static void write_chan_config(FILE *fp, scope_chan_t *chan)
     } else if ( chan->data_source_type == 2 ) {
 	// pin
 	fprintf(fp, "PARAM %s\n", chan->name);
+    } else if ( chan->is_phantom ) {
+	// phantom channel - save as comment for reference
+	fprintf(fp, "# PHANTOM %s\n", chan->name);
     } else {
 	// not configured
 	return;

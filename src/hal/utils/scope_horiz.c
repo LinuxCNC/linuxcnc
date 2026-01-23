@@ -320,7 +320,12 @@ void write_horiz_config(FILE *fp)
     /* save requested_samples if set, otherwise current buf_len */
     samples_to_save = (horiz->requested_samples > 0) ?
 	horiz->requested_samples : ctrl_shm->buf_len;
-    fprintf(fp, "SAMPLES %d\n", samples_to_save);
+    /* Write SAMPLES as a comment for backward compatibility with old halscope */
+    /* Old versions will ignore "# SAMPLES", new versions parse it in read_samples_from_config() */
+    fprintf(fp, "# SAMPLES %d\n", samples_to_save);
+    /* Also write MAXCHAN for backward compatibility with old halscope */
+    /* Old versions use MAXCHAN, new versions ignore it (always use 16 channels) */
+    fprintf(fp, "MAXCHAN 16\n");
     fprintf(fp, "THREAD %s\n", horiz->thread_name);
     fprintf(fp, "HMULT %d\n", ctrl_shm->mult);
     fprintf(fp, "HZOOM %d\n", horiz->zoom_setting);
