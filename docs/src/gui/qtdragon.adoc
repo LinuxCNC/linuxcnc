@@ -1468,12 +1468,16 @@ The settings tab is used to set running options, probing/touchplate/laser/camera
 
 === Utilities Tab
 
-This tabs will display another stab election of G-code utility programs:
+This tab will display another tab selection of G-code utility programs (and any embedded panels):
 
 * 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees.
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of definable diameter and number of holes.
 * 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector, see <<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>.
+* 'Hole Enlarge': allows milling a preexisting hole larger.
 
+These tabs are detachable from the main screen by pressing the small arrow key on the far right of the tab header. +
+You can close the panel by pressing the arrow again or closing the window with the x button. +
+The last size and location of the detached window will be remembered each time the window is closed. +
 Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to `tabWidget_utilities`
 
 === User Tab
