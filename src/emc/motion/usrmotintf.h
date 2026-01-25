@@ -20,6 +20,7 @@ struct emcmot_command_t;
 struct emcmot_config_t;
 struct emcmot_internal_t;
 struct emcmot_error_t;
+struct TP_STRUCT;
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,6 +41,28 @@ extern "C" {
 /* usrmotReadEmcmotInternal() gets the Internal info out of
    the emcmot controller and puts it in arg */
     extern int usrmotReadEmcmotInternal(emcmot_internal_t * s);
+
+/* usrmotGetEmcmotInternal() returns a direct pointer to the internal
+   structure in shared memory (for 9D planner optimization).
+   Returns NULL if shared memory is not initialized. */
+    extern emcmot_internal_t *usrmotGetEmcmotInternal(void);
+
+/* usrmotGetEmcmotStatus() returns a direct pointer to the status
+   structure in shared memory.
+   Returns NULL if shared memory is not initialized. */
+    extern emcmot_status_t *usrmotGetEmcmotStatus(void);
+
+/* usrmotGetTPDataPtr() returns a direct pointer to the trajectory
+   planner structure (coord_tp) in shared memory. This enables
+   dual-layer architecture where userspace calls TP functions directly.
+   Returns NULL if shared memory is not initialized.
+   WARNING: This is the actual TP struct shared with RT - use carefully! */
+    extern TP_STRUCT *usrmotGetTPDataPtr(void);
+
+/* usrmotGetEmcmotConfig() returns a direct pointer to the config
+   structure in shared memory (for TP global initialization).
+   Returns NULL if shared memory is not initialized. */
+    extern emcmot_config_t *usrmotGetEmcmotConfig(void);
 
 /* usrmotReadEmcmotError() gets the earliest queued error string out of
    the emcmot controller and puts it in arg */

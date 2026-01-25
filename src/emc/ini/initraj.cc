@@ -152,13 +152,48 @@ static int loadTraj(const IniFile &ini)
         return -1;
     }
 
-    // Planner: 0 = trapezoidal, 1 = S-curve
+    // Planner: 0 = trapezoidal, 1 = S-curve, 2 = 9D (EXPERIMENTAL)
     // Default = 0
-    int planner_type = ini.findIntV("PLANNER_TYPE", "TRAJ", 0, 0, 1);
-    // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
+    int planner_type = ini.findIntV("PLANNER_TYPE", "TRAJ", 0, 0, 2);
+    // Force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
     if (planner_type == 1 && jerk < 1.0) {
-        // FIXME: Should write a warning message to the user
         planner_type = 0;
+    }
+    if (planner_type == 2) {
+        rcs_print("PLANNER_TYPE 2 (9D) is EXPERIMENTAL. Use with caution.\n");
+
+        // Parse 9D-specific parameters
+        int optimization_depth = ini.findIntV("OPTIMIZATION_DEPTH", "TRAJ", 8);
+        double ramp_frequency = ini.findRealV("RAMP_FREQUENCY", "TRAJ", 10.0);
+        int smoothing_passes = ini.findIntV("SMOOTHING_PASSES", "TRAJ", 2);
+        int tc_queue_size = ini.findIntV("TC_QUEUE_SIZE", "TRAJ", 50);
+
+        // Validate 9D parameters
+        if (optimization_depth < 4 || optimization_depth > 200) {
+            rcs_print("Warning: OPTIMIZATION_DEPTH %d out of range [4,200], using default 8\n", optimization_depth);
+            optimization_depth = 8;
+        }
+        if (ramp_frequency < 1.0 || ramp_frequency > 1000.0) {
+            rcs_print("Warning: RAMP_FREQUENCY %.1f out of range [1.0,1000.0], using default 10.0\n", ramp_frequency);
+            ramp_frequency = 10.0;
+        }
+        if (smoothing_passes < 1 || smoothing_passes > 10) {
+            rcs_print("Warning: SMOOTHING_PASSES %d out of range [1,10], using default 2\n", smoothing_passes);
+            smoothing_passes = 2;
+        }
+        if (tc_queue_size < 32 || tc_queue_size > 400) {
+            rcs_print("Warning: TC_QUEUE_SIZE %d out of range [32,400], using default 50\n", tc_queue_size);
+            tc_queue_size = 50;
+        }
+
+        rcs_print("9D Planner Configuration:\n");
+        rcs_print("  OPTIMIZATION_DEPTH = %d\n", optimization_depth);
+        rcs_print("  RAMP_FREQUENCY = %.1f Hz\n", ramp_frequency);
+        rcs_print("  SMOOTHING_PASSES = %d\n", smoothing_passes);
+        rcs_print("  TC_QUEUE_SIZE = %d\n", tc_queue_size);
+
+        // TODO: Pass these parameters to motion controller
+        // For now, they will be hardcoded in motion_planning_9d.cc
     }
     if (0 != emcTrajPlannerType(planner_type)) {
         print_dbg_config("emcTrajPlannerType");
@@ -196,6 +231,17 @@ static int loadTraj(const IniFile &ini)
     if (0 != emcSetProbeErrorInhibit(j_inhibit, h_inhibit)) {
         print_dbg_config("emcSetProbeErrorInhibit");
         return -1;
+    }
+
+    // Dual-layer architecture: 1 = send NML after userspace planning (backward compat)
+    // 0 = userspace only mode (new dual-layer architecture)
+    int emulate_legacy = ini.findIntV("EMULATE_LEGACY_MOVE_COMMANDS", "TRAJ", 1);
+    if (0 != emcSetEmulateLegacyMoveCommands(emulate_legacy)) {
+        print_dbg_config("emcSetEmulateLegacyMoveCommands");
+        return -1;
+    }
+    if (!emulate_legacy) {
+        rcs_print("Dual-layer architecture enabled: NML motion commands disabled\n");
     }
 
     if (auto inistring = ini.findString("HOME", "TRAJ")) {
