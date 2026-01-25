@@ -182,7 +182,7 @@ SUBDIRS := \
     emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
     emc/usr_intf/gmoccapy emc/usr_intf/qtplasmac emc/usr_intf/mdro\
     emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/tp emc/canterp \
-    emc/motion emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
+    emc/motion emc/motion_planning emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
     emc \
@@ -1242,6 +1242,7 @@ tpmod-objs += emc/tp/cruckig/velocity_second_step1.o
 tpmod-objs += emc/tp/cruckig/velocity_second_step2.o
 tpmod-objs += emc/tp/cruckig/velocity_third_step1.o
 tpmod-objs += emc/tp/cruckig/velocity_third_step2.o
+tpmod-objs += emc/tp/tc_9d.o
 tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
