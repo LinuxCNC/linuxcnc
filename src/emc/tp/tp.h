@@ -19,6 +19,10 @@
 #include "tp_types.h"
 #include "tcq.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // functions not used by motmod:
 int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp);
 int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos);
@@ -41,6 +45,8 @@ int tpGetExecId(TP_STRUCT * tp);
 struct state_tag_t tpGetExecTag(TP_STRUCT * const tp);
 int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
 int tpSetPos(TP_STRUCT * tp, EmcPose const * const pos);
+int tpSyncGoalPos_9D(TP_STRUCT * tp, EmcPose const * const pos);
+int tpCleanupAfterAbort_9D(TP_STRUCT * const tp);
 int tpRunCycle(TP_STRUCT * tp, long period);
 int tpPause(TP_STRUCT * tp);
 int tpResume(TP_STRUCT * tp);
@@ -85,7 +91,13 @@ void tpMotFunctions(void(*pDioWrite)(int,char)
 
 void tpMotData(emcmot_status_t *
               ,emcmot_config_t *
+              ,struct emcmot_struct_t *
+              ,struct emcmot_internal_t *
               );
 //---------------------------------------------------------------------
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif				/* TP_H */

@@ -1338,25 +1338,30 @@ static void get_pos_cmds(long period)
     case EMCMOT_MOTION_COORD:
         axis_jog_abort_all(1);
 
-	/* check joint 0 to see if the interpolators are empty */
 	coord_cubic_active = 1;
+
+	/* CRITICAL FIX: ALWAYS progress trajectory segments every RT cycle.
+	 * Previously, tpRunCycle was only called when cubic buffer needed points,
+	 * creating long gaps (15-18 cycles) where segments in queue didn't progress.
+	 * This caused premature "done" detection and motion stops at ~92% complete.
+	 */
+	tpRunCycle(&emcmotInternal->coord_tp, period);
+	/* get new commanded traj pos */
+	tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
+
+	if (axis_update_coord_with_bound(pcmd_p, servo_period)) {
+	    ext_offset_coord_limit = 1;
+	} else {
+	    ext_offset_coord_limit = 0;
+	}
+
+	/* Fill cubic buffer if needed (may need multiple points per cycle) */
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
-	    /* they're empty, pull next point(s) off Cartesian planner */
-	    /* run coordinated trajectory planning cycle */
-
-	    tpRunCycle(&emcmotInternal->coord_tp, period);
-            /* get new commanded traj pos */
-            tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
-
-            if (axis_update_coord_with_bound(pcmd_p, servo_period)) {
-                ext_offset_coord_limit = 1;
-            } else {
-                ext_offset_coord_limit = 0;
-            }
+	    /* Use current trajectory position (already updated above) */
+	    EmcPose current_pos = emcmotStatus->carte_pos_cmd;
 
 	    /* OUTPUT KINEMATICS - convert to joints in local array */
-	    result = kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
-		&iflags, &fflags);
+	    result = kinematicsInverse(&current_pos, positions, &iflags, &fflags);
 	    if(result == 0)
 	    {
 		/* copy to joint structures and spline them up */
@@ -1386,10 +1391,18 @@ static void get_pos_cmds(long period)
 	       break;
 	    }
 
+	    /* If cubic STILL needs more points, get next trajectory point */
+	    if (cubicNeedNextPoint(&(joints[0].cubic))) {
+		tpRunCycle(&emcmotInternal->coord_tp, period);
+		tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
+	    } else {
+		break;  // Buffer full, exit loop
+	    }
+
 	    /* END OF OUTPUT KINS */
 	} // while
 	/* there is data in the interpolators */
-	/* run interpolation */
+	/* run interpolation (consumes one point per RT cycle) */
 	for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
