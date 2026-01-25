@@ -4268,7 +4268,7 @@ else:
 
 set_motion_teleop(0) # start in joint mode
 
-root_window.tk.call("trace", "variable", "metric", "w", "update_units")
+root_window.tk.call("trace", "add", "variable", "metric", "write", "update_units")
 install_help(root_window)
 
 widgets.numbers_text.bind("<Configure>", commands.redraw_soon)

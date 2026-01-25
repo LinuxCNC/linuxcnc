@@ -78,7 +78,7 @@
 #undef Tcl_InitHashTable
 #define Tcl_InitHashTable (tclStubsPtr->tcl_InitHashTable)
 #endif
-#if (TK_MAJOR_VERSION>=8 && TK_MINOR_VERSION>=4)
+#if TK_MAJOR_VERSION * 100 + TK_MINOR_VERSION >= 804
 #  define HAVE_TK_SETCLASSPROCS
 #endif
 
@@ -86,6 +86,14 @@
  * Copy of TkClassProcs declarations form tkInt.h
  * (this is needed for Tcl ver =< 8.4a3)
  */
+
+#ifndef _ANSI_ARGS_
+#define _ANSI_ARGS_(x)	x
+#endif
+
+#ifndef Tk_Offset
+#define Tk_Offset	offsetof
+#endif
 
 typedef int (TkBindEvalProc) _ANSI_ARGS_((ClientData clientData,
 	Tcl_Interp *interp, XEvent *eventPtr, Tk_Window tkwin,
@@ -700,10 +708,10 @@ int Togl_Init(Tcl_Interp *interp)
    int major,minor,patchLevel,releaseType;
 
 #ifdef USE_TCL_STUBS
-   if (Tcl_InitStubs(interp, "8.1", 0) == NULL) {return TCL_ERROR;}
+   if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL) {return TCL_ERROR;}
 #endif
 #ifdef USE_TK_STUBS
-   if (Tk_InitStubs(interp, "8.1", 0) == NULL) {return TCL_ERROR;}
+   if (Tk_InitStubs(interp, TK_VERSION, 0) == NULL) {return TCL_ERROR;}
 #endif
 
    /* Skip all this on Tcl/Tk 8.0 or older.  Seems to work */
@@ -711,7 +719,7 @@ int Togl_Init(Tcl_Interp *interp)
    Tcl_GetVersion(&major,&minor,&patchLevel,&releaseType);
 
 #ifndef HAVE_TK_SETCLASSPROCS
-   if (major >= 8 && minor >= 4) {
+   if (major * 100 + minor >= 804) {
      TCL_ERR(interp,"Sorry, this instance of Togl was not compiled to work with Tcl/Tk 8.4 or higher.");
    }
 #endif
@@ -1049,13 +1057,26 @@ int Togl_Configure(Tcl_Interp *interp, struct Togl *togl,
    int oldStencilSize = togl->StencilSize;
    int oldAuxNumber   = togl->AuxNumber;
 
-#ifndef CONST84
-#define CONST84
+#if TCL_MAJOR_VERSION >= 9
+   // Version 9+ uses Tcl_Obj* array as config whereas older uses a char* array
+   Tcl_Obj **optr = calloc(argc+1, sizeof(*optr));  // argc+1 to terminate list with a NULL pointer
+   for(int u = 0; u < argc; u++) {
+      optr[u] = Tcl_NewStringObj(argv[u], -1);
+   }
+#else
+   char **optr = argv;
 #endif
    if (Tk_ConfigureWidget(interp, togl->TkWin, configSpecs,
-                          argc, (CONST84 char**)argv, (char *)togl, flags) == TCL_ERROR) {
+                          argc, (void *)optr, (char *)togl, flags) == TCL_ERROR) {
       return(TCL_ERROR);
    }
+#if TCL_VERSION_MAJOR >= 9
+   for(int u = 0; u < argc; u++) {
+      Tcl_DecrRefCount(optr[u]);
+   }
+   free(optr);
+#endif
+
 #ifndef USE_OVERLAY
    if (togl->OverlayFlag) {
      TCL_ERR(interp,"Sorry, overlay was disabled");
@@ -1126,7 +1147,7 @@ int Togl_Widget(ClientData clientData, Tcl_Interp *interp,
       return TCL_ERROR;
    }
 
-   Tk_Preserve((ClientData)togl);
+   Tcl_Preserve((ClientData)togl);
 
    if (!strncmp(argv[1], "configure", MAX(1, strlen(argv[1])))) {
       if (argc == 2) {
@@ -1237,11 +1258,9 @@ int Togl_Widget(ClientData clientData, Tcl_Interp *interp,
       }
    }
 
-   Tk_Release((ClientData)togl);
+   Tcl_Release((ClientData)togl);
    return result;
 }
-
-
 
 /*
  * Togl_Cmd
@@ -1421,7 +1440,7 @@ static int Togl_Cmd(ClientData clientData, Tcl_Interp *interp,
 
    /* If defined, setup timer */
    if (togl->TimerProc){
-      Tk_CreateTimerHandler( togl->TimerInterval, Togl_Timer, (ClientData)togl );
+      Tcl_CreateTimerHandler( togl->TimerInterval, Togl_Timer, (ClientData)togl );
    }
 
    Tcl_AppendResult(interp, Tk_PathName(tkwin), NULL);
@@ -2153,7 +2172,11 @@ static void ToglCmdDeletedProc( ClientData clientData )
  * Gets called when an Togl widget is destroyed.
  */
 #if (TK_MAJOR_VERSION * 100 + TK_MINOR_VERSION) >= 401
+#if TK_MAJOR_VERSION >= 9
+static void Togl_Destroy( void *clientData )
+#else
 static void Togl_Destroy( char *clientData )
+#endif
 #else
 static void Togl_Destroy( ClientData clientData )
 #endif
@@ -2284,7 +2307,7 @@ void Togl_PostRedisplay( struct Togl *togl )
 {
    if (!togl->UpdatePending) {
       togl->UpdatePending = GL_TRUE;
-      Tk_DoWhenIdle( Togl_Render, (ClientData) togl );
+      Tcl_DoWhenIdle( Togl_Render, (ClientData) togl );
    }
 }
 
@@ -2863,7 +2886,7 @@ void Togl_PostOverlayRedisplay( struct Togl *togl )
 {
    if (!togl->OverlayUpdatePending
        && togl->OverlayWindow && togl->OverlayDisplayProc) {
-      Tk_DoWhenIdle( RenderOverlay, (ClientData) togl );
+      Tcl_DoWhenIdle( RenderOverlay, (ClientData) togl );
       togl->OverlayUpdatePending = 1;
    }
 }
