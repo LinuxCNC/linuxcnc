@@ -19,14 +19,29 @@
 
 #include "tcq.h"
 #include <stddef.h>
+#include "motion.h"
+#include "atomic_9d.h"
+#include "rtapi.h"
+
+/* Access to global emcmotStatus for planner_type checking */
+extern emcmot_status_t *emcmotStatus;
+
+#ifndef GET_TRAJ_PLANNER_TYPE
+#define GET_TRAJ_PLANNER_TYPE() (emcmotStatus->planner_type)
+#endif
+
+/* Queue margin constants */
+#define TCQ_REVERSE_MARGIN 200
+#define TC_QUEUE_MARGIN (TCQ_REVERSE_MARGIN+20)
 
 /** Return 0 if queue is valid, -1 if not */
 static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
 {
-    if ((0 == tcq) || (0 == tcq->queue))
+    if (0 == tcq)
     {
         return -1;
     }
+    /* queue is embedded in struct, no need to check for NULL */
     return 0;
 }
 
@@ -34,21 +49,21 @@ static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
  *
  * \brief Creates a new queue for TC elements.
  *
- * This function creates a new queue for TC elements.
+ * This function initializes a queue for TC elements.
+ * The queue array is embedded in the TC_QUEUE_STRUCT.
  * It gets called by tpCreate()
  *
- * @param    tcq       pointer to the new TC_QUEUE_STRUCT
- * @param	 _size	   size of the new queue
- * @param	 tcSpace   holds the space allocated for the new queue, allocated in motion.c
+ * @param    tcq       pointer to the TC_QUEUE_STRUCT
+ * @param	 _size	   size of the queue
  *
  * @return	 int	   returns success or failure
  */
-int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
+int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size)
 {
-    if (!tcq || !tcSpace || _size < 1) {
+    if (!tcq || _size < 1) {
         return -1;
     }
-	tcq->queue = tcSpace;
+    /* queue array is now embedded in struct, no pointer assignment needed */
 	tcq->size = _size;
     tcqInit(tcq);
 
@@ -70,11 +85,8 @@ int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
  */
 int tcqDelete(TC_QUEUE_STRUCT * const tcq)
 {
-    if (!tcqCheck(tcq)) {
-        /* free(tcq->queue); */
-        tcq->queue = 0;
-    }
-
+    /* Queue is embedded in struct, nothing to free or clear */
+    (void)tcq;  /* suppress unused parameter warning */
     return 0;
 }
 
@@ -100,6 +112,10 @@ int tcqInit(TC_QUEUE_STRUCT * const tcq)
     tcq->_rlen = 0;
     tcq->allFull = 0;
 
+    /* Initialize atomic indices for planner_type 2 */
+    __atomic_store_n(&tcq->start_atomic, 0, __ATOMIC_SEQ_CST);
+    __atomic_store_n(&tcq->end_atomic, 0, __ATOMIC_SEQ_CST);
+
     return 0;
 }
 
@@ -119,6 +135,32 @@ int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
 {
     /* check for initialized */
     if (tcqCheck(tcq)) return -1;
+
+    /* For planner_type 2, use atomic lock-free queue */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        /* Load current indices atomically */
+        int current_end = __atomic_load_n(&tcq->end_atomic, __ATOMIC_ACQUIRE);
+        int current_start = __atomic_load_n(&tcq->start_atomic, __ATOMIC_ACQUIRE);
+
+        /* Calculate next end index */
+        int next_end = (current_end + 1) % tcq->size;
+
+        /* Check if queue is full (with margin for reverse history) */
+        int available_space = (current_start - next_end + tcq->size) % tcq->size;
+        if (available_space < TCQ_REVERSE_MARGIN + 20) {
+            return -1;  /* Queue full */
+        }
+
+        /* Copy TC element to queue */
+        tcq->queue[current_end] = *tc;
+
+        /* Atomically update end index (producer) - use exchange for stronger visibility */
+        __atomic_exchange_n(&tcq->end_atomic, next_end, __ATOMIC_ACQ_REL);
+
+        return 0;
+    }
+
+    /* Original mutex-based implementation for planner_type 0/1 */
 
     /* check for allFull, so we don't overflow the queue */
     if (tcq->allFull) {
@@ -166,8 +208,6 @@ int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
     return 0;
 }
 
-#define TCQ_REVERSE_MARGIN 200
-
 int tcqPop(TC_QUEUE_STRUCT * const tcq)
 {
 
@@ -175,7 +215,30 @@ int tcqPop(TC_QUEUE_STRUCT * const tcq)
         return -1;
     }
 
-    if (tcq->_len < 1 && !tcq->allFull) {	
+    /* For planner_type 2, use atomic lock-free queue */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        /* Load indices atomically */
+        int current_start = __atomic_load_n(&tcq->start_atomic, __ATOMIC_ACQUIRE);
+        int current_end = __atomic_load_n(&tcq->end_atomic, __ATOMIC_ACQUIRE);
+
+        /* Check if queue is empty */
+        if (current_start == current_end) {
+            return -1;
+        }
+
+        /* Atomically increment start index (RT consumer) - use exchange for stronger visibility */
+        int new_start = (current_start + 1) % tcq->size;
+        __atomic_exchange_n(&tcq->start_atomic, new_start, __ATOMIC_ACQ_REL);
+
+        /* Note: For planner_type 2, reverse history is managed differently
+         * by the userspace planning layer, so we don't update rend/rlen here */
+
+        return 0;
+    }
+
+    /* Original implementation for planner_type 0/1 */
+
+    if (tcq->_len < 1 && !tcq->allFull) {
         return -1;
     }
 
@@ -268,6 +331,18 @@ int tcqLen(TC_QUEUE_STRUCT const * const tcq)
 {
     if (tcqCheck(tcq)) return -1;
 
+    /* For planner_type 2, use atomic lock-free queue */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        /* Read producer index first (end), then consumer index (start) */
+        int current_end = __atomic_load_n(&tcq->end_atomic, __ATOMIC_ACQUIRE);
+        int current_start = __atomic_load_n(&tcq->start_atomic, __ATOMIC_ACQUIRE);
+
+        /* Calculate length with circular buffer wraparound */
+        int len = (current_end - current_start + tcq->size) % tcq->size;
+        return len;
+    }
+
+    /* Original implementation for planner_type 0/1 */
     return tcq->_len;
 }
 
@@ -283,16 +358,26 @@ int tcqLen(TC_QUEUE_STRUCT const * const tcq)
  */
 TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
 {
-    if (tcqCheck(tcq) || (n < 0) || (n >= tcq->_len)) return NULL;
+    if (tcqCheck(tcq) || (n < 0)) return NULL;
 
+    /* For planner_type 2, use atomic lock-free queue */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        /* Load indices atomically */
+        int current_end = __atomic_load_n(&tcq->end_atomic, __ATOMIC_ACQUIRE);
+        int current_start = __atomic_load_n(&tcq->start_atomic, __ATOMIC_ACQUIRE);
+
+        /* Calculate length and check bounds */
+        int len = (current_end - current_start + tcq->size) % tcq->size;
+        if (n >= len) return NULL;
+
+        /* Return item at offset n from start */
+        return &(tcq->queue[(current_start + n) % tcq->size]);
+    }
+
+    /* Original implementation for planner_type 0/1 */
+    if (n >= tcq->_len) return NULL;
     return &(tcq->queue[(tcq->start + n) % tcq->size]);
 }
-
-/*!
- * \def TC_QUEUE_MARGIN
- * sets up a margin at the end of the queue, to reduce effects of race conditions
- */
-#define TC_QUEUE_MARGIN (TCQ_REVERSE_MARGIN+20)
 
 /*! tcqFull() function
  *
@@ -310,6 +395,32 @@ int tcqFull(TC_QUEUE_STRUCT const * const tcq)
     if (tcqCheck(tcq)) {
 	   return 1;		/* null queue is full, for safety */
     }
+
+    /* For planner_type 2, use atomic lock-free queue */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        /* Load indices atomically */
+        int current_end = __atomic_load_n(&tcq->end_atomic, __ATOMIC_ACQUIRE);
+        int current_start = __atomic_load_n(&tcq->start_atomic, __ATOMIC_ACQUIRE);
+
+        /* Calculate length */
+        int len = (current_end - current_start + tcq->size) % tcq->size;
+
+        /* Check if queue is into the margin */
+        if (tcq->size <= TC_QUEUE_MARGIN) {
+            /* No margin available, so full means really all full */
+            return (len >= tcq->size - 1);
+        }
+
+        if (len >= tcq->size - TC_QUEUE_MARGIN) {
+            /* We're into the margin, so call it full */
+            return 1;
+        }
+
+        /* We're not into the margin */
+        return 0;
+    }
+
+    /* Original implementation for planner_type 0/1 */
 
     /* call the queue full if the length is into the margin, so reduce the
        effect of a race condition where the appending process may not see the
@@ -343,6 +454,24 @@ TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
     if (tcqCheck(tcq)) {
         return NULL;
     }
+
+    /* For planner_type 2, use atomic lock-free queue */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        /* Load indices atomically */
+        int current_end = __atomic_load_n(&tcq->end_atomic, __ATOMIC_ACQUIRE);
+        int current_start = __atomic_load_n(&tcq->start_atomic, __ATOMIC_ACQUIRE);
+
+        /* Check if queue is empty */
+        if (current_end == current_start) {
+            return NULL;
+        }
+
+        /* Get last element (end - 1), fix for negative modulus error */
+        int n = current_end - 1 + tcq->size;
+        return &(tcq->queue[n % tcq->size]);
+    }
+
+    /* Original implementation for planner_type 0/1 */
     if (tcq->_len == 0) {
         return NULL;
     }
@@ -350,5 +479,82 @@ TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
     int n = tcq->end-1 + tcq->size;
     return &(tcq->queue[n % tcq->size]);
 
+}
+
+/*! tcqBack() function
+ *
+ * \brief gets the n-th item from the back of the queue
+ *
+ * This function allows backward iteration from the end of the queue.
+ * n=0 is the most recently added item (same as tcqLast)
+ * n=-1 is the second-to-last item
+ * n=-2 is the third-to-last item, etc.
+ *
+ * Used by the backward velocity pass optimization in planner_type 2.
+ *
+ * @param    tcq       pointer to the TC_QUEUE_STRUCT
+ * @param    n         negative offset from end (0, -1, -2, ...)
+ *
+ * @return	 TC_STRUCT returns the TC element, or NULL if invalid
+ */
+TC_STRUCT * tcqBack(TC_QUEUE_STRUCT * const tcq, int n)
+{
+    if (tcqCheck(tcq)) {
+        return NULL;
+    }
+
+    /* For planner_type 2, use atomic lock-free queue */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        /* Load producer index first (end), then consumer index (start) */
+        int current_end = __atomic_load_n(&tcq->end_atomic, __ATOMIC_ACQUIRE);
+        int current_start = __atomic_load_n(&tcq->start_atomic, __ATOMIC_ACQUIRE);
+
+        /* Calculate length */
+        int len = (current_end - current_start + tcq->size) % tcq->size;
+
+        /* Check for empty queue */
+        if (0 == len) {
+            return NULL;
+        }
+        /* Only allow negative indices (from back) */
+        else if (n > 0) {
+            return NULL;
+        }
+        /* Check if index is within valid range */
+        else if (n > -len) {
+            /* Calculate index from end: end + n - 1
+             * Fix for negative modulus error by adding tcq->size */
+            int k = current_end + n - 1 + tcq->size;
+            int idx = k % tcq->size;
+            return &(tcq->queue[idx]);
+        }
+        else {
+            return NULL;
+        }
+    }
+
+    /* Original implementation for planner_type 0/1 */
+    /* Uses same logic as atomic version but with _len and end */
+    if (0 == tcq->_len) {
+        return NULL;
+    } else if (n > 0) {
+        return NULL;
+    } else if (n > -tcq->_len) {
+        int k = tcq->end + n - 1 + tcq->size;
+        int idx = k % tcq->size;
+        return &(tcq->queue[idx]);
+    } else {
+        return NULL;
+    }
+}
+
+/*! tcqBackConst() function
+ *
+ * \brief const-correct version of tcqBack
+ */
+TC_STRUCT const * tcqBackConst(TC_QUEUE_STRUCT const * const tcq, int n)
+{
+    /* Cast away const for the pointer, not the data */
+    return (TC_STRUCT const *)tcqBack((TC_QUEUE_STRUCT *)tcq, n);
 }
 

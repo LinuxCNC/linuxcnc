@@ -125,7 +125,7 @@ extern "C" {
 	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_JERK,	/* set the max jerk for moves (tooltip) */
-	EMCMOT_SET_PLANNER_TYPE,	/* set planner type (0=trapezoidal, 1=S-curve) */
+	EMCMOT_SET_PLANNER_TYPE,	/* set planner type (0=trapezoidal, 1=S-curve, 2=9D EXPERIMENTAL) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_NUM_JOINTS,	/* set the number of joints */
 	EMCMOT_SET_NUM_SPINDLES, /* set the number of spindles */
@@ -147,6 +147,7 @@ extern "C" {
         EMCMOT_SETUP_ARC_BLENDS,
 
 	EMCMOT_SET_PROBE_ERR_INHIBIT,
+	EMCMOT_SET_EMULATE_LEGACY_MOVE_COMMANDS, /* set dual-layer architecture mode */
 	EMCMOT_ENABLE_WATCHDOG,         /* enable watchdog sound, parport */
 	EMCMOT_DISABLE_WATCHDOG,        /* enable watchdog sound, parport */
 	EMCMOT_JOG_CONT,	/* continuous jog */
@@ -222,7 +223,17 @@ extern "C" {
 	double acc;		/* max acceleration */
 	double jerk;			/* jerk for traj */
     double ini_maxjerk;
-    int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
+    /* planner_type: Trajectory planning algorithm
+     * 0 = Trapezoidal velocity profile (default, most tested)
+     * 1 = S-curve (jerk-limited) velocity profile
+     * 2 = Tormach 9D dual-layer lookahead planner (EXPERIMENTAL)
+     *     - Userspace planning with RT execution, lock-free queue
+     *     - Backward velocity pass optimization ("rising tide")
+     *     - Peak smoothing for reduced jerk
+     *     - Requires [TRAJ] OPTIMIZATION_DEPTH, RAMP_FREQUENCY, etc. in INI
+     *     - See src/emc/motion_planning/motion_planning_9d.hh for details
+     */
+    int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve, 2 = 9D (EXPERIMENTAL) */
 	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
@@ -253,6 +264,7 @@ extern "C" {
                                  |2 = move until probe clears */
     int probe_jog_err_inhibit;  // setting to inhibit probe tripped while jogging error.
     int probe_home_err_inhibit;  // setting to inhibit probe tripped while homeing error.
+    int emulate_legacy_move_commands; // 1 = send NML after userspace planning (dual-layer mode)
     EmcPose tool_offset;        /* TLO */
     double  orientation;    /* angle for spindle orient */
     int state; /*spindle state  seems to just be 0 for off and 1 for on andypugh 2025-04-03*/
@@ -269,6 +281,7 @@ extern "C" {
     double ext_offset_vel;	/* velocity for an external axis offset */
     double ext_offset_acc;	/* acceleration for an external axis offset */
     struct state_tag_t tag;
+    int userspace_already_queued;  /* 1 if userspace called tpAddLine/Circle/RigidTap directly */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -642,7 +655,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
 	double jerk;		/* jerk for traj */
-    int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
+    int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve, 2 = 9D (EXPERIMENTAL) */
 
 	int motionType;
 	double distance_to_go;  /* in this move */
@@ -736,6 +749,7 @@ Suggestion: Split this in to an Error and a Status flag register..
         double maxFeedScale;
         int inhibit_probe_jog_error;
         int inhibit_probe_home_error;
+        int emulate_legacy_move_commands; /* 1 = send NML after userspace planning (backward compat) */
     } emcmot_config_t;
 
 /* error structure - A ring buffer used to pass formatted printf strings to usr space */

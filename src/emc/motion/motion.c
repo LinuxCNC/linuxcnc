@@ -245,6 +245,8 @@ static int module_intfc() {
 
     tpMotData(emcmotStatus
              ,emcmotConfig
+             ,emcmotStruct
+             ,emcmotInternal
              );
     return 0;
 }
@@ -882,6 +884,7 @@ static int init_comm_buffers(void)
     ZERO_EMC_POSE(emcmotStatus->carte_pos_fb);
     emcmotStatus->vel = 0.0;
     emcmotConfig->limitVel = 0.0;
+    emcmotConfig->emulate_legacy_move_commands = 1; /* Default: send NML for backward compat */
     emcmotStatus->acc = 0.0;
     emcmotStatus->feed_scale = 1.0;
     emcmotStatus->rapid_scale = 1.0;

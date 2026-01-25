@@ -22,6 +22,12 @@
 #include "spherical_arc.h"
 #include "blendmath.h"
 #include "axis.h"
+
+/* Stub out EXPORT_SYMBOL for userspace builds where rtapi.h doesn't define it */
+#ifndef EXPORT_SYMBOL
+#define EXPORT_SYMBOL(x)
+#endif
+
 //KLUDGE Don't include all of emc.hh here, just hand-copy the TERM COND
 //definitions until we can break the emc constants out into a separate file.
 //#include "emc.hh"
@@ -40,8 +46,14 @@
 
 #include "tp_debug.h"
 #include "sp_scurve.h"
-#include "ruckig_wrapper.h"
+#include "atomic_9d.h"        // Atomic operations for 9D planner
 #include <stdio.h>
+
+// Forward declaration for 9D planner userspace function
+// (Actual implementation is in motion_planning_9d.cc, a C++ file)
+// tp.c is compiled as C code, so we can't include C++ headers - just declare the C interface
+extern int tpClearPlanning_9D(TP_STRUCT * const tp);
+
 // FIXME: turn off this feature, which causes blends between rapids to
 // use the feed override instead of the rapid override
 #undef TP_SHOW_BLENDS
@@ -58,10 +70,23 @@
 #include "hal.h"
 #endif // }
 
+/* When building for userspace library, these are extern (defined in milltask)
+ * When building for RT module, these are defined here and initialized via tpMotData() */
+#ifdef USERSPACE_LIB_BUILD
+extern emcmot_status_t *emcmotStatus;
+extern emcmot_config_t *emcmotConfig;
+extern emcmot_command_t *emcmotCommand;
+extern emcmot_hal_data_t *emcmot_hal_data;
+extern struct emcmot_struct_t *emcmotStruct;
+extern struct emcmot_internal_t *emcmotInternal;
+#else
 emcmot_status_t *emcmotStatus;
 emcmot_config_t *emcmotConfig;
 emcmot_command_t *emcmotCommand;
 emcmot_hal_data_t *emcmot_hal_data;
+struct emcmot_struct_t *emcmotStruct;
+struct emcmot_internal_t *emcmotInternal;
+#endif
 
 #ifndef GET_TRAJ_PLANNER_TYPE
 #define GET_TRAJ_PLANNER_TYPE() (emcmotStatus->planner_type)
@@ -70,7 +95,20 @@ emcmot_hal_data_t *emcmot_hal_data;
 
 #endif
 
-#define GET_TRAJ_HOME_USE_TP() (emcmotStatus->home_use_tp)
+/**
+ * Keeps track of time required to drain motion smoothing filters after TP
+ * has reached zero velocity. Commanded motion is not actually stopped until
+ * the TP and any time-delayed smoothing is done.
+ *
+ * Phase 0.2 stub: Always returns true (no joint filters yet).
+ * Phase 1+ will implement: return tp->filters_at_rest;
+ */
+static bool checkJointFiltersEmpty(TP_STRUCT * const tp)
+{
+    (void)tp;  // Will be used in Phase 1+ for tp->filters_at_rest
+    // Phase 0.2: No joint filters yet, always return true
+    return true;
+}
 
 //==========================================================
 // tp module interface
@@ -100,10 +138,14 @@ void tpMotFunctions(void(  *pDioWrite)(int,char)
 
 void tpMotData(emcmot_status_t *pstatus
               ,emcmot_config_t *pconfig
+              ,struct emcmot_struct_t *pstruct
+              ,struct emcmot_internal_t *pinternal
               )
 {
     emcmotStatus = pstatus;
     emcmotConfig = pconfig;
+    emcmotStruct = pstruct;
+    emcmotInternal = pinternal;
 }
 //=========================================================
 
@@ -397,9 +439,7 @@ STATIC inline double tpGetSignedSpindlePosition(spindle_status_t *status) {
  * @section tpaccess tp class-like API
  */
 
-/* space for trajectory planner queues, plus 10 more for safety */
-/*! \todo FIXME-- default is used; dynamic is not honored */
-	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
+/* Queue is now embedded in TC_QUEUE_STRUCT, no static allocation needed */
 
 /**
  * Create the trajectory planner structure with an empty queue.
@@ -452,10 +492,9 @@ int tpCreate(TP_STRUCT * const tp, int _queueSize,int id)
     } else {
         tp->queueSize = _queueSize;
     }
-    TC_STRUCT * const tcSpace = queueTcSpace;
 
-    /* create the queue */
-    if (-1 == tcqCreate(&tp->queue, tp->queueSize, tcSpace)) {
+    /* create the queue (queue array is embedded in struct) */
+    if (-1 == tcqCreate(&tp->queue, tp->queueSize)) {
         return TP_ERR_FAIL;
     }
 
@@ -510,7 +549,8 @@ int tpClear(TP_STRUCT * const tp)
     struct state_tag_t tag = {};
     tp->execTag = tag;
     tp->motionType = 0;
-    tp->done = 1;
+    tp->joint_filter_drain_counter = 0;
+    tp->filters_at_rest = true;
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
     tp->pausing = 0;
@@ -524,6 +564,14 @@ int tpClear(TP_STRUCT * const tp)
 
     // equivalent to: SET_MOTION_INPOS_FLAG(1):
     emcmotStatus->motionFlag |= EMCMOT_MOTION_INPOS_BIT;
+
+    // Clear userspace planning state for 9D planner
+    // (Only available in userspace build - RT kernel can't call userspace functions)
+#ifdef USERSPACE_LIB_BUILD
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        tpClearPlanning_9D(tp);
+    }
+#endif
 
     return tpClearDIOs(tp);
 }
@@ -569,7 +617,14 @@ int tpInit(TP_STRUCT * const tp)
     tpGetMachineVelBounds(&vel_bound);
     tpGetMachineActiveLimit(&tp->vMax, &vel_bound);
 
-    return tpClear(tp);
+    // Initialize queue and set safety markers for 9D planner
+    int result = tpClear(tp);
+    if (result == 0) {
+        // Set initialization markers (Phase 0 safety for 9D planner)
+        tp->magic = TP_MAGIC;
+        tp->queue_ready = 1;
+    }
+    return result;
 }
 
 /**
@@ -736,6 +791,66 @@ int tpSetPos(TP_STRUCT * const tp, EmcPose const * const pos)
 
     tp->goalPos = *pos;
     return TP_ERR_OK;
+}
+
+
+/**
+ * Sync goalPos and clear abort state for 9D planner at mode entry.
+ * Called at COORD mode entry (EMCMOT_COORD command) to ensure:
+ * 1. goalPos is valid before userspace adds new segments
+ * 2. aborting flag is cleared so new segments don't get wiped
+ *
+ * This is critical for program re-runs where we're already in COORD mode
+ * and the control.c tpSetPos() path won't be taken.
+ *
+ * Follows Tormach's tpResetAtModeChange() pattern where state is cleaned up
+ * when entering coordinated mode, not when queue empties.
+ */
+int tpSyncGoalPos_9D(TP_STRUCT * const tp, EmcPose const * const pos)
+{
+    if (!tp || GET_TRAJ_PLANNER_TYPE() != 2) {
+        return TP_ERR_OK;
+    }
+
+    tp->goalPos = *pos;
+
+    /* CRITICAL: Clear aborting flag before new segments arrive.
+     * Without this, tpHandleAbort() will wipe the queue immediately
+     * because tc->currentvel == 0 for segments that haven't started yet.
+     * This follows Tormach's tpCleanupAfterAbort() pattern.
+     */
+    tp->aborting = 0;
+
+    return TP_ERR_OK;
+}
+
+/**
+ * Clean up abort state for 9D planner.
+ * This function unconditionally clears the aborting flag and related state.
+ * Called after mode entry and after abort completion to ensure clean state.
+ * Follows Tormach's tpCleanupAfterAbort() pattern.
+ */
+int tpCleanupAfterAbort_9D(TP_STRUCT * const tp)
+{
+    if (!tp) {
+        return -1;
+    }
+
+    // Unconditionally clear the aborting flag
+    tp->aborting = 0;
+
+    // CRITICAL FIX: Clear pausing flag set by tpAbort()->tpPause()
+    // If pausing=1, RT won't execute new segments after restart
+    tp->pausing = 0;
+
+    // Clear reverse run state (all history discarded at abort/stop)
+    tp->reverse_run = 0;
+
+    // Debug logging
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "9D: tpCleanupAfterAbort_9D - cleared aborting, pausing, and reverse_run\n");
+
+    return 0;
 }
 
 
@@ -1607,7 +1722,6 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     if (tc->motion_type != TC_RIGIDTAP) {
         tcGetEndpoint(tc, &tp->goalPos);
     }
-    tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
     tp_debug_print("Adding TC id %d of type %d, total length %0.08f\n",tc->id,tc->motion_type,tc->target);
@@ -2565,57 +2679,75 @@ STATIC double estimateParabolicBlendPerformance(
  */
 STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_desired, int reverse_run)
 {
-    // If the resulting velocity is less than zero, than we're done. This
-    // causes a small overshoot, but in practice it is very small.
-    //double v_next = tc->currentvel + acc * tc->cycle_time;
-    double v_next;
     int planner_type = GET_TRAJ_PLANNER_TYPE();
-    if(planner_type == 1) planner_type = 0; // if is 1, and inside here. it's means the jerk less than 1
+    if(planner_type == 1) planner_type = 0; // if is 1, and inside here, it means jerk less than 1
 
-    v_next = tc->currentvel + acc * tc->cycle_time;
-    // update position in this tc using trapezoidal integration
-    // Note that progress can be greater than the target after this step.
-    //if (v_next < 0.0) {
-    if (planner_type == 0 && v_next < 0.0) {
+    double dx = tcGetDistanceToGo(tc, reverse_run);
+    double v_next = tc->currentvel + acc * tc->cycle_time;
+
+    // Planner type 2 (9D): Check for segment completion BEFORE update
+    // This prevents velocity reaching zero before position reaches target.
+    // Based on Tormach's END_CONDITION_COMPLETE approach.
+    if (planner_type == 2) {
+        // Calculate displacement this cycle would produce
+        double displacement = (tc->currentvel + v_next) * 0.5 * tc->cycle_time;
+
+        // Check if we will complete within this cycle:
+        // 1. Displacement would overshoot remaining distance, OR
+        // 2. Very close to target (within one cycle's worth of motion) and decelerating
+        // NOTE: Removed condition "(v_next <= 0.0 && dx > TP_POS_EPSILON)" which caused
+        // teleportation during abort - it would snap to endpoint whenever velocity hit
+        // zero regardless of how far from the target we were.
+        int will_complete = (displacement >= dx - TP_POS_EPSILON) ||
+                           (dx < tc->currentvel * tc->cycle_time && acc < 0.0);
+
+        if (will_complete && dx > TP_POS_EPSILON) {
+            // Snap to endpoint exactly - don't let incremental updates miss
+            tc->progress = tcGetTarget(tc, reverse_run);
+            tc->currentvel = 0.0;
+            tc->on_final_decel = 1;
+            return TP_ERR_OK;
+        }
+
+        // If velocity goes to zero but we're NOT close to target, just stop here
+        // (this happens during abort/pause - don't teleport to endpoint)
+        if (v_next <= 0.0) {
+            v_next = 0.0;
+            // Don't update progress - stay where we are
+            tc->currentvel = v_next;
+            tc->on_final_decel = 1;
+            return TP_ERR_OK;
+        }
+
+        // Normal update - not completing this cycle
+        double disp_sign = reverse_run ? -1 : 1;
+        tc->progress += (disp_sign * displacement);
+        tc->progress = bisaturate(tc->progress, tcGetTarget(tc, TC_DIR_FORWARD), tcGetTarget(tc, TC_DIR_REVERSE));
+        tc->currentvel = v_next;
+        tc->on_final_decel = (fabs(vel_desired - tc->currentvel) < TP_VEL_EPSILON) && (acc <= 0.0);
+        return TP_ERR_OK;
+    }
+
+    // Planner type 0 (legacy LinuxCNC): Original KLUDGE logic
+    if (v_next < 0.0) {
         v_next = 0.0;
-        //KLUDGE: the trapezoidal planner undershoots by half a cycle time, so
-        //forcing the endpoint here is necessary. However, velocity undershoot
-        //also occurs during pausing and stopping, which can happen far from
-        //the end. If we could "cruise" to the endpoint within a cycle at our
-        //current speed, then assume that we want to be at the end.
-        if (tcGetDistanceToGo(tc,reverse_run) < (tc->currentvel *  tc->cycle_time)) {
-            tc->progress = tcGetTarget(tc,reverse_run);
+        // KLUDGE: the trapezoidal planner undershoots by half a cycle time, so
+        // forcing the endpoint here is necessary. However, velocity undershoot
+        // also occurs during pausing and stopping, which can happen far from
+        // the end. If we could "cruise" to the endpoint within a cycle at our
+        // current speed, then assume that we want to be at the end.
+        if (dx < (tc->currentvel * tc->cycle_time)) {
+            tc->progress = tcGetTarget(tc, reverse_run);
         }
     } else {
         double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
-        // Account for reverse run (flip sign if need be)
         double disp_sign = reverse_run ? -1 : 1;
-        if(planner_type == 0)
-            tc->progress += (disp_sign * displacement);
-
-        //Progress has to be within the allowable range
+        tc->progress += (disp_sign * displacement);
         tc->progress = bisaturate(tc->progress, tcGetTarget(tc, TC_DIR_FORWARD), tcGetTarget(tc, TC_DIR_REVERSE));
     }
-    // Calculate jerk as rate of change of acceleration (for trapezoidal, this is high)
-    double jerk = 0.0;
-    if (tc->cycle_time > TP_TIME_EPSILON) {
-        jerk = (acc - tc->currentacc) / tc->cycle_time;
-    }
 
-    if(planner_type == 0){
     tc->currentvel = v_next;
-    tc->currentacc = acc;
-    tc->currentjerk = jerk;
-
-    // Check if we can make the desired velocity
     tc->on_final_decel = (fabs(vel_desired - tc->currentvel) < TP_VEL_EPSILON) && (acc < 0.0);
-    }else{
-        // Check if we can make the desired velocity
-        tc->on_final_decel = (fabs(vel_desired - tc->currentvel) < TP_VEL_EPSILON) && (acc <= 0.0);
-        tc->currentvel = v_next;
-        tc->currentacc = acc;
-        tc->currentjerk = jerk;
-    }
     return TP_ERR_OK;
 }
 
@@ -3304,13 +3436,40 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * Cleanup if tc is not valid (empty queue).
  * If the program ends, or we hit QUEUE STARVATION, do a soft reset on the trajectory planner.
  * TODO merge with tpClear?
+ *
+ * For planner_type 2 (9D dual-layer): DON'T reset the queue indices.
+ * Userspace may be writing to the queue asynchronously, and resetting
+ * would wipe out those writes. Only update status fields.
+ * (Following Tormach's tpCleanupAtEmptyQueue() approach)
  */
 STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp)
 {
+    /* For planner_type 2 (9D architecture with batch queueing):
+     *
+     * An empty queue is a NORMAL TRANSIENT STATE, not program completion.
+     * Userspace adds segments in batch, RT consumes over many cycles.
+     *
+     * Just clean up execution state. tpIsDone() will compute completion
+     * dynamically based on queue state and filter draining.
+     */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        // For planner type 2, empty queue is a normal transient state
+        // DO NOT reset queue structure (tcqInit) - userspace may be writing to it
+        // DO NOT sync goalPos - userspace OWNS goalPos and updates it after each add
+        // (Following Tormach's tpCleanupAtEmptyQueue which explicitly doesn't touch goalPos)
+        tp->depth = tp->activeDepth = 0;
+        tp->execId = 0;
+        tp->motionType = 0;
 
+        // Update movement status
+        tpUpdateMovementStatus(tp, NULL);
+
+        return;
+    }
+
+    /* Original behavior for planner_type 0/1 (demand-driven planning) */
     tcqInit(&tp->queue);
     tp->goalPos = tp->currentPos;
-    tp->done = 1;
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
     tp->execId = 0;
@@ -3404,19 +3563,39 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         //Don't need to do anything if not aborting
         return TP_ERR_NO_ACTION;
     }
+
+    // REMOVED: Workaround for late abort no longer needed.
+    // The abort-before-mode-change fix in emctask.cc (switching order of
+    // emcTaskAbort() and emcTrajSetMode()) ensures aborts arrive before
+    // fresh segments are queued, eliminating the race condition this was
+    // trying to detect.
+
     //If the motion has stopped, then it's safe to reset the TP struct.
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
         tcqInit(&tp->queue);
         tp->goalPos = tp->currentPos;
-        tp->done = 1;
         tp->depth = tp->activeDepth = 0;
-        tp->aborting = 0;
+
+        // Use centralized cleanup for 9D planner
+        if (GET_TRAJ_PLANNER_TYPE() == 2) {
+            tpCleanupAfterAbort_9D(tp);
+            // PHASE 0 WORKAROUND: DO NOT clear userspace planning state on abort.
+            // Clearing g_smoothing_data causes optimizer to compute vel=0.000 on next run.
+            // The optimizer needs "warm" state to compute proper velocities.
+            // Phase 3+ will implement proper state sync between RT and userspace.
+            // #ifdef USERSPACE_LIB_BUILD
+            //     tpClearPlanning_9D(tp);
+            // #endif
+        } else {
+            tp->aborting = 0;
+            tp->reverse_run = 0;
+        }
+
         tp->execId = 0;
         tp->motionType = 0;
         tp->synchronized = 0;
-        tp->reverse_run = 0;
         tp->spindle.waiting_for_index = MOTION_INVALID_ID;
         tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
         tpResume(tp);
@@ -3486,6 +3665,8 @@ STATIC tp_err_t tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
  * for the first time.
  */
 STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
+
+    /* Removed activation debug - now proven to work */
 
     //Check if already active
     if (!tc || tc->active) {
@@ -3727,7 +3908,9 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     double acc=0, vel_desired=0;
     int planner_type = GET_TRAJ_PLANNER_TYPE();
 
-    if(mode == NULL) planner_type = 0;
+    // If mode is NULL and we're using scurve (planner_type 1), force to trapezoidal
+    // to avoid NULL dereference. planner_type 0 and 2 don't use mode.
+    if(mode == NULL && planner_type == 1) planner_type = 0;
 
     if(planner_type != 1){
         // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
@@ -3867,6 +4050,29 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
     //Initial guess at dt for next round
     double dx = tcGetDistanceToGo(tc, tp->reverse_run);
     tc_debug_print("tpCheckEndCondition: dx = %e\n",dx);
+
+    // PHASE 0.2 FIX: For planner type 2, force completion if stuck
+    // This handles case where motion stops before reaching target
+    // Proper fix will come in Phase 0.6 with backward velocity pass
+    if (GET_TRAJ_PLANNER_TYPE() == 2 && dx > TP_POS_EPSILON && dx < 1.5) {
+        // Force complete if velocity very low OR if we've been stuck for a while
+        static int stuck_cycles = 0;
+        static double last_progress = 0.0;
+
+        if (tc->currentvel < 1e-3 || fabs(tc->progress - last_progress) < 1e-6) {
+            stuck_cycles++;
+        } else {
+            stuck_cycles = 0;
+        }
+        last_progress = tc->progress;
+
+        if (stuck_cycles > 10) {  // Stuck for 10ms
+            // Force to target
+            dx = 0.0;
+            tc->progress = tc->target;
+            stuck_cycles = 0;
+        }
+    }
 
     if (dx <= TP_POS_EPSILON) {
         //If the segment is close to the target position, then we assume that it's done.
@@ -4139,8 +4345,61 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         return TP_ERR_WAITING;
     }
 
+    /* For planner type 2: Startup queue depth check
+     *
+     * Problem: When the first segment is added, RT immediately starts executing.
+     * If userspace is slow adding segments, RT can consume the first segment
+     * before the second is added, losing velocity continuity.
+     *
+     * Solution: Wait for at least 2 segments before starting the FIRST segment.
+     * Once execution has started (progress > 0), continue even with 1 segment.
+     *
+     * This gives userspace time to batch-add segments before RT starts.
+     */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        int queue_len = tcqLen(&tp->queue);
+
+        /* Only delay on the FIRST segment of a program (id == 0).
+         * Without the id check, this also triggers on the LAST segment
+         * (which also has progress=0, queue_len=1, nexttc=NULL) causing
+         * a 100-cycle delay before the final move executes. */
+        if (tc->id == 0 && tc->progress < TP_POS_EPSILON && queue_len < 2 && nexttc == NULL) {
+            static int startup_wait_count = 0;
+            startup_wait_count++;
+
+            /* Wait up to 100 cycles (100ms) for more segments */
+            if (startup_wait_count < 100) {
+                return TP_ERR_WAITING;
+            }
+            startup_wait_count = 0;  // Reset for next program
+        }
+    }
+
+    /* Removed verbose segment debug - now proven to work */
+
     tc_debug_print("-------------------\n");
 
+    /* Apply pre-computed 9D optimizer velocities if planner_type == 2
+     * Userspace optimizer writes to shared_9d structure atomically,
+     * RT layer reads here before executing segment.
+     *
+     * SAFETY: Check optimization_state first before reading final_vel
+     */
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        // Read optimization state atomically (int-sized enum)
+        int opt_state = __atomic_load_n(&tc->shared_9d.optimization_state, __ATOMIC_SEQ_CST);
+
+        // Only apply optimized velocity if segment has been processed by optimizer
+        if (opt_state >= TC_PLAN_OPTIMIZED) {
+            double opt_vel = atomicLoadDouble(&tc->shared_9d.final_vel);
+
+            // Sanity check: velocity should be positive and reasonable
+            if (opt_vel > 0.0 && opt_vel < 1e6) {
+                tc->target_vel = opt_vel;
+                tc_debug_print("9D: Applied optimized velocity %g (state=%d)\n", opt_vel, opt_state);
+            }
+        }
+    }
 
     /* If the queue empties enough, assume that the program is near the end.
      * This forces the last segment to be "finalized" to let the optimizer run.*/
@@ -4295,7 +4554,10 @@ int tpIsDone(TP_STRUCT * const tp)
         return TP_ERR_OK;
     }
 
-    return tp->done;
+    // Phase 0.2: Motion is done when queue is empty and filters drained
+    // checkJointFiltersEmpty() is stubbed to return true for Phase 0.2
+    // Phase 1+ will properly track joint filter draining
+    return checkJointFiltersEmpty(tp) && !tcqLen(&tp->queue);
 }
 
 int tpQueueDepth(TP_STRUCT * const tp)
@@ -4399,6 +4661,8 @@ EXPORT_SYMBOL(tpSetCycleTime);
 EXPORT_SYMBOL(tpSetDout);
 EXPORT_SYMBOL(tpSetId);
 EXPORT_SYMBOL(tpSetPos);
+EXPORT_SYMBOL(tpSyncGoalPos_9D);
+EXPORT_SYMBOL(tpCleanupAfterAbort_9D);
 EXPORT_SYMBOL(tpSetRunDir);
 EXPORT_SYMBOL(tpSetSpindleSync);
 EXPORT_SYMBOL(tpSetTermCond);

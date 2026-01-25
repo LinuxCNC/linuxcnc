@@ -116,6 +116,32 @@ typedef struct {
     RIGIDTAP_STATE state;
 } PmRigidTap;
 
+/**
+ * Planning state for 9D optimizer
+ * Tracks optimization status of segments
+ */
+typedef enum {
+    TC_PLAN_UNTOUCHED = 0,    // Segment not yet optimized
+    TC_PLAN_OPTIMIZED = 1,    // Velocity limits computed
+    TC_PLAN_SMOOTHED = 2,     // Peak smoothing applied
+    TC_PLAN_FINALIZED = 3     // Ready for execution
+} TCPlanningState;
+
+/**
+ * Shared optimization data for 9D planner
+ *
+ * This structure holds data that is shared between the userspace
+ * planning layer and the RT execution layer using atomic operations.
+ *
+ * Used only when planner_type == 2 (9D planner)
+ */
+typedef struct {
+    TCPlanningState optimization_state;  // Atomic state flag
+    double final_vel;                    // Target exit velocity
+    double final_vel_limit;              // Max reachable exit velocity
+    double computed_acc;                 // Computed acceleration limit
+} shared_optimization_data_9d_t;
+
 typedef struct {
     double cycle_time;
     //Position stuff
@@ -183,6 +209,11 @@ typedef struct {
     int indexer_jnum;  // which joint to unlock (for a locking indexer) to make this move, -1 for none
     int optimization_state;             // At peak velocity during blends)
     int on_final_decel;
+
+    // 9D planner shared optimization data (planner_type == 2 only)
+    // Shared between userspace planning layer and RT execution layer
+    // Access via atomic operations only
+    shared_optimization_data_9d_t shared_9d;
     int blend_prev;
     int accel_mode;
     int splitting;          // the segment is less than 1 cycle time

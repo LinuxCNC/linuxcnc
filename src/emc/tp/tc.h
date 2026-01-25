@@ -22,6 +22,10 @@
 #include "tc_types.h"
 #include "tp_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 double tcGetMaxTargetVel(TC_STRUCT const * const tc,
         double max_scale);
 
@@ -118,10 +122,8 @@ int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ);
 
 int tcClearFlags(TC_STRUCT * const tc);
 
-/**
- * Clean up Ruckig planner resources in a TC_STRUCT.
- * Called when the trajectory segment is removed or reset.
- */
-void tcCleanupRuckig(TC_STRUCT * const tc);
+#ifdef __cplusplus
+}
+#endif
 
 #endif				/* TC_H */

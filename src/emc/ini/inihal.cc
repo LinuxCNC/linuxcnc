@@ -309,10 +309,10 @@ int check_ini_hal_items(int numjoints)
     if (CHANGED(traj_planner_type)) {
         if (debug) SHOW_CHANGE_INT(traj_planner_type)
         UPDATE(traj_planner_type);
-        // Only 0 and 1 are supported, set to 0 if invalid
-        // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
+        // Planner types: 0=trapezoidal, 1=scurve, 2=9D (experimental)
+        // Force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
         int planner_type = NEW(traj_planner_type);
-        if (planner_type != 0 && planner_type != 1) {
+        if (planner_type < 0 || planner_type > 2) {
             planner_type = 0;
         }
         if (planner_type == 1 && NEW(traj_max_jerk) < 1.0) {

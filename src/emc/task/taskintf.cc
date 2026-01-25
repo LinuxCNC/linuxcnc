@@ -20,6 +20,8 @@
 #include "usrmotintf.h"		// usrmotInit(), usrmotReadEmcmotStatus(),
 				// etc.
 #include "motion.h"		// emcmot_command_t,STATUS, etc.
+#include "tp.h"                 // tpAddLine(), tpAddCircle(), tpSetId() for dual-layer arch
+#include "motion_planning_9d.hh"  // tpOptimizePlannedMotions_9D() for planner_type 2
 #include "homing.h"
 #include "emc.hh"
 #include "emccfg.h"		// EMC_INIFILE
@@ -1371,6 +1373,8 @@ int emcTrajInit()
 	if (0 != usrmotInit("emc2_task")) {
 	    return -1;
 	}
+	// Note: tpMotData() call removed - direct TP calls disabled until
+	// queue storage is moved to shared memory (see emcTrajLinearMove comment)
     }
     TrajConfig.Inited = 1;
     // initialize parameters from INI file
@@ -1490,7 +1494,7 @@ int emcTrajSetTermCond(int cond, double tolerance)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk, 
+int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
                       int indexer_jnum)
 {
 #ifdef ISNAN_TRAP
@@ -1502,10 +1506,35 @@ int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxve
     }
 #endif
 
+    // Check if planner_type is 2 (9D dual-layer architecture)
+    emcmot_status_t *status = usrmotGetEmcmotStatus();
+    if (status && status->planner_type == 2) {
+        // Use direct userspace planning for 9D planner
+        TP_STRUCT *tp = usrmotGetTPDataPtr();
+        if (tp) {
+            int result = tpAddLine_9D(tp, end, type, vel, ini_maxvel, acc, localEmcTrajTag);
+
+            if (result == 0) {
+                // Success - motion queued in userspace
+                // Tell RT to skip re-queuing (but RT still executes from queue)
+                emcmotCommand.command = EMCMOT_SET_LINE;
+                emcmotCommand.pos = end;
+                emcmotCommand.id = TrajConfig.MotionId;
+                emcmotCommand.tag = localEmcTrajTag;
+                emcmotCommand.motion_type = type;
+                emcmotCommand.userspace_already_queued = 1;  // Skip RT queuing
+                return usrmotWriteEmcmotCommand(&emcmotCommand);
+            }
+
+            // If userspace planning failed, fall back to NML
+            rcs_print("9D userspace planning failed, falling back to RT queuing\n");
+        }
+        // Fall through to NML path if TP pointer unavailable
+    }
+
+    // Default path: Use NML messaging for planner_type 0 and 1 (or fallback for type 2)
     emcmotCommand.command = EMCMOT_SET_LINE;
-
     emcmotCommand.pos = end;
-
     emcmotCommand.id = TrajConfig.MotionId;
     emcmotCommand.tag = localEmcTrajTag;
     emcmotCommand.motion_type = type;
@@ -1514,6 +1543,7 @@ int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxve
     emcmotCommand.acc = acc;
     emcmotCommand.ini_maxjerk = ini_maxjerk;
     emcmotCommand.turn = indexer_jnum;
+    emcmotCommand.userspace_already_queued = 0;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1532,23 +1562,19 @@ int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
     }
 #endif
 
+    // TODO: Direct TP calls disabled - see emcTrajLinearMove comment
     emcmotCommand.command = EMCMOT_SET_CIRCLE;
-
     emcmotCommand.pos = end;
     emcmotCommand.motion_type = type;
-
     emcmotCommand.center.x = center.x;
     emcmotCommand.center.y = center.y;
     emcmotCommand.center.z = center.z;
-
     emcmotCommand.normal.x = normal.x;
     emcmotCommand.normal.y = normal.y;
     emcmotCommand.normal.z = normal.z;
-
     emcmotCommand.turn = turn;
     emcmotCommand.id = TrajConfig.MotionId;
     emcmotCommand.tag = localEmcTrajTag;
-
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
@@ -1598,6 +1624,7 @@ int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double ac
     }
 #endif
 
+    // TODO: Direct TP calls disabled - see emcTrajLinearMove comment
     emcmotCommand.command = EMCMOT_RIGID_TAP;
     emcmotCommand.pos.tran = pos.tran;
     emcmotCommand.id = TrajConfig.MotionId;
@@ -2060,6 +2087,15 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     if (0 != usrmotReadEmcmotStatus(&emcmotStatus)) {
 	return -1;
     }
+
+    // ========================================================================
+    // REMOVED: MDI idle detection workaround (no longer needed)
+    //
+    // The workaround was compensating for tp->pausing flag not being cleared
+    // on abort. That bug is now fixed in tpCleanupAfterAbort_9D() which sets
+    // pausing=0. Keeping the workaround causes busy loops during abort.
+    // ========================================================================
+
     new_config = 0;
     if (emcmotStatus.config_num != emcmotConfig.config_num) {
 	if (0 != usrmotReadEmcmotConfig(&emcmotConfig)) {
@@ -2172,6 +2208,12 @@ int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit) {
     emcmotCommand.command = EMCMOT_SET_PROBE_ERR_INHIBIT;
     emcmotCommand.probe_jog_err_inhibit = j_inhibit;
     emcmotCommand.probe_home_err_inhibit = h_inhibit;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcSetEmulateLegacyMoveCommands(int emulate) {
+    emcmotCommand.command = EMCMOT_SET_EMULATE_LEGACY_MOVE_COMMANDS;
+    emcmotCommand.emulate_legacy_move_commands = emulate;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

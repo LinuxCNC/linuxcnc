@@ -232,6 +232,9 @@ int emcTaskAbort()
 {
     emcMotionAbort();
 
+    // REMOVED: Immediate FREE mode call (no longer needed)
+    // Was part of workaround for pausing flag bug, now fixed in tpCleanupAfterAbort_9D()
+
     // clear out the pending command
     emcTaskCommand = 0;
     interp_list.clear();
@@ -288,16 +291,22 @@ int emcTaskSetMode(EMC_TASK_MODE mode)
 
     case EMC_TASK_MODE::MDI:
 	// go to mdi mode
-	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
+	// IMPORTANT: Abort BEFORE entering COORD mode to ensure clean state.
+	// If COORD is sent first, ABORT may arrive late (after segments are
+	// queued) and wipe fresh segments that haven't started moving yet.
 	emcTaskAbort();
+	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE::MDI;
 	break;
 
     case EMC_TASK_MODE::AUTO:
 	// go to auto mode
-	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
+	// IMPORTANT: Abort BEFORE entering COORD mode to ensure clean state.
+	// If COORD is sent first, ABORT may arrive late (after segments are
+	// queued) and wipe fresh segments that haven't started moving yet.
 	emcTaskAbort();
+	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE::AUTO;
 	break;

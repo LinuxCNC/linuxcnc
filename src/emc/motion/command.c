@@ -578,6 +578,18 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	       controller cycle */
 
 	    rtapi_print_msg(RTAPI_MSG_DBG, "COORD");
+
+	    /* 9D planner: Sync goalPos BEFORE setting coordinating flag.
+	     * This ensures goalPos is valid before userspace adds any segments.
+	     * Critical for program re-runs where we're already in COORD mode
+	     * and the control.c tpSetPos() path won't be taken.
+	     * (Following Tormach's tpResetAtModeChange pattern)
+	     */
+	    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+		tpSyncGoalPos_9D(&emcmotInternal->coord_tp,
+				 &emcmotStatus->carte_pos_cmd);
+	    }
+
 	    emcmotInternal->coordinating = 1;
 	    emcmotInternal->teleoperating = 0;
 	    if (emcmotConfig->kinType != KINEMATICS_IDENTITY) {
@@ -587,6 +599,14 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		    emcmotInternal->coordinating = 0;
 		    break;
 		}
+	    }
+
+	    /* 9D planner: Clean up any abort state after mode entry.
+	     * This ensures spurious abort commands from userspace during
+	     * mode transitions don't wipe fresh segments.
+	     */
+	    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+		tpCleanupAfterAbort_9D(&emcmotInternal->coord_tp);
 	    }
 	    break;
 
@@ -998,6 +1018,12 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* emcmotInternal->coord_tp up a linear move */
 	    /* requires motion enabled, coordinated mode, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_LINE");
+	    /* Check if userspace already queued this move (dual-layer architecture) */
+	    if (emcmotCommand->userspace_already_queued) {
+		rtapi_print_msg(RTAPI_MSG_DBG, "SET_LINE: userspace already queued, skipping tpAddLine");
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
+		break;
+	    }
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError(_("need to be enabled, in coord mode for linear move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
@@ -1067,6 +1093,12 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* emcmotInternal->coord_tp up a circular move */
 	    /* requires coordinated mode, enable on, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_CIRCLE");
+	    /* Check if userspace already queued this move (dual-layer architecture) */
+	    if (emcmotCommand->userspace_already_queued) {
+		rtapi_print_msg(RTAPI_MSG_DBG, "SET_CIRCLE: userspace already queued, skipping tpAddCircle");
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
+		break;
+	    }
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError(_("need to be enabled, in coord mode for circular move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
@@ -1191,14 +1223,21 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		break;
 
 	case EMCMOT_SET_PLANNER_TYPE:
-		/* set the type of planner: 0 = trapezoidal, 1 = S-curve */
+		/* set the type of planner: 0 = trapezoidal, 1 = S-curve, 2 = 9D (EXPERIMENTAL) */
 		/* can do it at any time */
 		rtapi_print_msg(RTAPI_MSG_DBG, "SET_PLANNER_TYPE, type(%d)", emcmotCommand->planner_type);
-		// Only 0 and 1 are supported, set to 0 if invalid
-		if (emcmotCommand->planner_type != 0 && emcmotCommand->planner_type != 1) {
-			emcmotStatus->planner_type = 0;
-		} else {
+		// Support types 0, 1, and 2 (9D experimental)
+		if (emcmotCommand->planner_type >= 0 && emcmotCommand->planner_type <= 2) {
 			emcmotStatus->planner_type = emcmotCommand->planner_type;
+			if (emcmotCommand->planner_type == 2) {
+				rtapi_print_msg(RTAPI_MSG_WARN,
+					"PLANNER_TYPE 2 (9D) is EXPERIMENTAL. Use with caution.\n");
+			}
+		} else {
+			// Invalid planner type, default to 0
+			emcmotStatus->planner_type = 0;
+			rtapi_print_msg(RTAPI_MSG_ERR,
+				"Invalid PLANNER_TYPE %d, defaulting to 0\n", emcmotCommand->planner_type);
 		}
 		break;
 				
@@ -1519,6 +1558,12 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    /* emcmotInternal->coord_tp up a linear move */
 	    /* requires coordinated mode, enable off, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "RIGID_TAP");
+	    /* Check if userspace already queued this move (dual-layer architecture) */
+	    if (emcmotCommand->userspace_already_queued) {
+		rtapi_print_msg(RTAPI_MSG_DBG, "RIGID_TAP: userspace already queued, skipping tpAddRigidTap");
+		emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
+		break;
+	    }
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError(_("need to be enabled, in coord mode for rigid tap move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
@@ -1953,6 +1998,13 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
         case EMCMOT_SET_PROBE_ERR_INHIBIT:
             emcmotConfig->inhibit_probe_jog_error = emcmotCommand->probe_jog_err_inhibit;
             emcmotConfig->inhibit_probe_home_error = emcmotCommand->probe_home_err_inhibit;
+            break;
+
+        case EMCMOT_SET_EMULATE_LEGACY_MOVE_COMMANDS:
+            /* Set dual-layer architecture mode: 1 = send NML after userspace planning */
+            rtapi_print_msg(RTAPI_MSG_DBG, "SET_EMULATE_LEGACY_MOVE_COMMANDS(%d)",
+                emcmotCommand->emulate_legacy_move_commands);
+            emcmotConfig->emulate_legacy_move_commands = emcmotCommand->emulate_legacy_move_commands;
             break;
 
 	}			/* end of: command switch */
