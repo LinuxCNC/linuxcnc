@@ -1057,7 +1057,7 @@ int Togl_Configure(Tcl_Interp *interp, struct Togl *togl,
    int oldStencilSize = togl->StencilSize;
    int oldAuxNumber   = togl->AuxNumber;
 
-#if TCL_MAJOR_VERSION >= 9
+#if TK_MAJOR_VERSION >= 9
    // Version 9+ uses Tcl_Obj* array as config whereas older uses a char* array
    Tcl_Obj **optr = calloc(argc+1, sizeof(*optr));  // argc+1 to terminate list with a NULL pointer
    for(int u = 0; u < argc; u++) {
@@ -1070,7 +1070,7 @@ int Togl_Configure(Tcl_Interp *interp, struct Togl *togl,
                           argc, (void *)optr, (char *)togl, flags) == TCL_ERROR) {
       return(TCL_ERROR);
    }
-#if TCL_VERSION_MAJOR >= 9
+#if TK_VERSION_MAJOR >= 9
    for(int u = 0; u < argc; u++) {
       Tcl_DecrRefCount(optr[u]);
    }
