@@ -235,6 +235,10 @@ int lcec_el1918_logic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_r
       // find slave
       index = p->value.u32;
       fsoe_slave = lcec_slave_by_index(master, index);
+      if (fsoe_slave == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "%s.%s: slave index %d not found\n", master->name, slave->name, index);
+        return -EINVAL;
+      }
       fsoe_data->fsoe_slave = fsoe_slave;
       fsoe_slave->fsoe_slave_offset = &fsoe_data->fsoe_slave_cmd_os;
       fsoe_slave->fsoe_master_offset = &fsoe_data->fsoe_master_cmd_os;
@@ -245,7 +249,7 @@ int lcec_el1918_logic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_r
         rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for fsoe_slave %s.%s crc data failed\n", master->name, fsoe_slave->name);
         return -EIO;
       }
-      memset(fsoe_data->fsoe_crc, 0, sizeof(lcec_el1918_logic_fsoe_crc_t));
+      memset(fsoe_data->fsoe_crc, 0, fsoeConf->data_channels * sizeof(lcec_el1918_logic_fsoe_crc_t));
 
       // initialize POD entries
       LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7080 + (fsoe_idx << 4), 0x01, &fsoe_data->fsoe_slave_cmd_os, NULL);
