@@ -1582,7 +1582,6 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
 
     case MODPARAM_TYPE_STRING:
       strncpy(p->value.str, pval, LCEC_CONF_STR_MAXLEN - 1);
-      p->value.str[LCEC_CONF_STR_MAXLEN - 1] = '\0';
       break;
 
     default:
