@@ -518,6 +518,7 @@ class GlCanonDraw:
         self.foam_z_height = 0
         self.hide_icons = False
         self.disable_cone_scaling = False
+        self.view_tool_min_dia = 0.0
 
         try:
             system_memory_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
@@ -567,6 +568,9 @@ class GlCanonDraw:
                     self.max_file_size = int(temp) * 1024 * 1024
 
                 self.disable_cone_scaling = bool(self.inifile.find("DISPLAY", "DISABLE_CONE_SCALING"))
+                tool_min_dia = (self.inifile.find("DISPLAY", "GCODE_VIEW_TOOL_MIN_DIA") or None)
+                if tool_min_dia is not None:
+                    self.view_tool_min_dia = float(tool_min_dia)
 
         except:
             # Probably started in an editor so no INI
@@ -1496,7 +1500,7 @@ class GlCanonDraw:
                 glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
 
                 current_tool = self.get_current_tool()
-                if current_tool is None or current_tool.diameter == 0:
+                if current_tool is None or current_tool.diameter < self.view_tool_min_dia:
                     if self.canon and not self.disable_cone_scaling:
                         g = self.canon
 
