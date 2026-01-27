@@ -383,25 +383,25 @@ static int commandHello(connectionRecType *context)
 
 static int checkOnOff(char *s)
 {
-  static const char *onStr = "ON";
-  static const char *offStr = "OFF";
+  static const onStr[] = "ON";
+  static const offStr[] = "OFF";
   
   if (s == NULL) return -1;
   strupr(s);
-  if (strcmp(s, onStr) == 0) return 0;
-  if (strcmp(s, offStr) == 0) return 1;
+  if (strcmp(s, onStr, sizeof(onStr)) == 0) return 0;
+  if (strcmp(s, offStr, sizeof(offStr)) == 0) return 1;
   return -1;
 }
 
 static int checkBinaryASCII(char *s)
 {
-  static const char *binaryStr = "BINARY";
-  static const char *ASCIIStr = "ASCII";
+  static const char binaryStr[] = "BINARY";
+  static const char ASCIIStr[] = "ASCII";
   
   if (s == NULL) return -1;
   strupr(s);
-  if (strcmp(s, ASCIIStr) == 0) return 0;
-  if (strcmp(s, binaryStr) == 0) return 1;
+  if (strcmp(s, ASCIIStr, sizeof(ASCIIStr)) == 0) return 0;
+  if (strcmp(s, binaryStr, sizeof(binaryStr)) == 0) return 1;
   return -1;
 }
 
@@ -446,7 +446,7 @@ static cmdResponseType setVerbose(char *s, connectionRecType *context)
 static cmdResponseType setEnable(char *s, connectionRecType *context)
 {
   
-   if (strcmp(s, enablePWD) == 0) {
+   if (strcmp(s, enablePWD, sizeof(enablePWD)) == 0) {
      enabledConn = context->cliSock;
      context->enabled = true;
      return rtNoError;
@@ -487,9 +487,7 @@ static cmdResponseType setCommMode(char *s, connectionRecType *context)
 
 static cmdResponseType setCommProt(char * /*s*/, connectionRecType *context)
 {
-  char *pVersion;
-  
-  pVersion = strtok(NULL, delims);
+  const char *pVersion = strtok(NULL, delims);
   if (pVersion == NULL) return rtStandardError;
   rtapi_strxcpy(context->version, pVersion);
   return rtNoError;
@@ -499,7 +497,7 @@ static cmdResponseType setQMode(char *s, connectionRecType * /*context*/)
 {
   queueStatusType st;
 
-  st = checkMode(s);
+  st = checkMode(s); // transcribes s to all caps
   switch (st) {
     case qsStop: queueStop(); break;
     case qsRun: queueStart(); break;
@@ -633,9 +631,9 @@ static cmdResponseType setPollRate(char *s, connectionRecType * /*context*/)
 
 int commandSet(connectionRecType *context)
 {
-  static const char *setNakStr = "SET NAK\n\r";
-  static const char *setCmdNakStr = "SET %s NAK\n\r";
-  static const char *ackStr = "SET %s ACK\n\r";
+  static const char setNakStr[] = "SET NAK\n\r";
+  static const char setCmdNakStr[] = "SET %s NAK\n\r";
+  static const char ackStr[] = "SET %s ACK\n\r";
   setCommandType cmd;
   char *pch;
   cmdResponseType ret = rtNoError;
@@ -698,7 +696,7 @@ int commandSet(connectionRecType *context)
 
 static cmdResponseType getEcho(char * /*s*/, connectionRecType *context)
 {
-  const char *pEchoStr = "ECHO %s";
+  const char pEchoStr[] = "ECHO %s";
   
   if (context->echo) snprintf(context->outBuf, sizeof(context->outBuf), pEchoStr, "ON");
   else snprintf(context->outBuf, sizeof(context->outBuf), pEchoStr, "OFF");
@@ -707,7 +705,7 @@ static cmdResponseType getEcho(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getVerbose(char * /*s*/, connectionRecType *context)
 {
-  const char *pVerboseStr = "VERBOSE %s";
+  const char pVerboseStr[] = "VERBOSE %s";
   
   if (context->verbose) snprintf(context->outBuf, sizeof(context->outBuf), pVerboseStr, "ON");
   else snprintf(context->outBuf, sizeof(context->outBuf), pVerboseStr, "OFF");
@@ -716,7 +714,7 @@ static cmdResponseType getVerbose(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getEnable(char * /*s*/, connectionRecType *context)
 {
-  const char *pEnableStr = "ENABLE %s";
+  const char pEnableStr[] = "ENABLE %s";
   
   if (context->cliSock == enabledConn) 
 //  if (context->enabled == true)
@@ -727,7 +725,7 @@ static cmdResponseType getEnable(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getConfig(char * /*s*/, connectionRecType *context)
 {
-  const char *pConfigStr = "CONFIG";
+  const char pConfigStr[] = "CONFIG";
 
   rtapi_strxcpy(context->outBuf, pConfigStr);
   return rtNoError;
@@ -735,7 +733,7 @@ static cmdResponseType getConfig(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getCommMode(char * /*s*/, connectionRecType *context)
 {
-  const char *pCommModeStr = "COMM_MODE %s";
+  const char pCommModeStr[] = "COMM_MODE %s";
   
   switch (context->commMode) {
     case 0: snprintf(context->outBuf, sizeof(context->outBuf), pCommModeStr, "ASCII"); break;
@@ -746,7 +744,7 @@ static cmdResponseType getCommMode(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getCommProt(char * /*s*/, connectionRecType *context)
 {
-  const char *pCommProtStr = "COMM_PROT %s";
+  const char pCommProtStr[] = "COMM_PROT %s";
   
   snprintf(context->outBuf, sizeof(context->outBuf), pCommProtStr, context->version);
   return rtNoError;
@@ -754,7 +752,7 @@ static cmdResponseType getCommProt(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getDebug(char * /*s*/, connectionRecType *context)
 {
-  const char *pUpdateStr = "DEBUG %d";
+  const char pUpdateStr[] = "DEBUG %d";
   
   snprintf(context->outBuf, sizeof(context->outBuf), pUpdateStr, emcStatus->debug);
   return rtNoError;
@@ -762,7 +760,7 @@ static cmdResponseType getDebug(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getIniFile(char * /*s*/, connectionRecType *context)
 {
-  const char *pIniFile = "INIFILE %s";
+  const char pIniFile[] = "INIFILE %s";
   
   snprintf(context->outBuf, sizeof(context->outBuf), pIniFile, emc_inifile);
   return rtNoError;
@@ -770,7 +768,7 @@ static cmdResponseType getIniFile(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getPlat(char * /*s*/, connectionRecType *context)
 {
-  const char *pPlatStr = "PLAT %s";
+  const char pPlatStr[] = "PLAT %s";
   
   snprintf(context->outBuf, sizeof(context->outBuf), pPlatStr, "Linux");
   return rtNoError;  
@@ -778,7 +776,7 @@ static cmdResponseType getPlat(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getQMode(char * /*s*/, connectionRecType *context)
 {
-  const char *pQMode = "QMODE %s";
+  const char pQMode[] = "QMODE %s";
 
   switch (getStatus()) {
     case qsStop: snprintf(context->outBuf, sizeof(context->outBuf), pQMode, "STOP"); break;
@@ -792,7 +790,7 @@ static cmdResponseType getQMode(char * /*s*/, connectionRecType *context)
 
 static cmdResponseType getQStatus(connectionRecType *context)
 {
-  const char *pQStatus = "QSTATUS %d %d %d %d";
+  const char pQStatus[] = "QSTATUS %d %d %d %d";
 
   snprintf(context->outBuf, sizeof(context->outBuf), pQStatus, getQueueSize(), getFirstTagId(), getLastTagId(), getQueueCRC());
   return rtNoError;
@@ -800,7 +798,7 @@ static cmdResponseType getQStatus(connectionRecType *context)
 
 static cmdResponseType getTagId(connectionRecType *context)
 {
-  const char *pTagId = "AUTOTAGID %d";
+  const char pTagId[] = "AUTOTAGID %d";
 
   snprintf(context->outBuf, sizeof(context->outBuf), pTagId, getNextTagId());
   return rtNoError;
@@ -881,8 +879,8 @@ static cmdResponseType getPollRate(connectionRecType *context)
 
 int commandGet(connectionRecType *context)
 {
-  static const char *setNakStr = "GET NAK\r\n";
-  static const char *setCmdNakStr = "GET %s NAK\r\n";
+  static const char setNakStr[] = "GET NAK\r\n";
+  static const char setCmdNakStr[] = "GET %s NAK\r\n";
   setCommandType cmd;
   char *pch;
   cmdResponseType ret = rtNoError;
@@ -1278,6 +1276,9 @@ int main(int argc, char *argv[])
         case 's': sscanf(optarg, "%d", &maxSessions); break;
         case 'w': snprintf(pwd, sizeof(pwd), "%s", optarg); break;
         case 'd': snprintf(defaultPath, sizeof(defaultPath), "%s", optarg); break;
+        default:
+          fprintf(stderr,"Usage: %s [ -e enable-PWD ] [ -n server-name ] [ -p port ] [ -s max-sessions ] [ -w pwd ] [ -d default-path ]\n", argv[0]);
+          exit(EXIT_FAILURE);
         }
       }
 
