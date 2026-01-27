@@ -20,30 +20,6 @@
 #include <string.h>
 #endif
 
-unsigned getPhase(double v, double a, double j)  {
-    if (!v) return 0;
-    // Handle negative velocity
-    //double v = this->v;
-    //double a = this->a;
-    if (v < 0) {
-        v = -v;
-        a = -a;
-    }
-
-    if (0 < a) {
-    if (0 < j) return 1;
-    if (!j) return 2;
-    return 3;
-    }
-
-    if (!a) return 4;
-    if (j < 0) return 5;
-    if (!j) return 6;
-
-    return 7;
-}
-
-
 /*
 a cubic coefficient
 b quadratic coefficient
@@ -181,300 +157,6 @@ int solve_cubic(double a, double b, double c, double d, double res[3], int* len)
     }
     
     return *len;
-}
-
-
-/*
- Continuous form
- PT = P0 + V0T + 1/2A0T2 + 1/6JT3
- VT = PT' = V0 + A0T + 1/2 JT2
- AT = VT' = PT'' = A0 + JT
-
- Discrete time form (let T be 1, then T^2 == 1, T^3 == 1)
- PT = PT + VT + 1/2AT + 1/6J
- VT = VT + AT + 1/2JT
- AT = AT + JT
- */
-int getTargetV(double distence, double v, double a, double period, double maxV, double maxA, double maxJ, double* req_v, double* req_a){
-  if(distence == 0) return 0;
-  double T1 = maxA / maxJ;
-  double V1 = maxJ * T1 * T1 / 2;
-  int phase = 0;
-  //double tT = 0;
-  
-  if(V1 >= maxV / 2){ // Handle case where jerk is small, causing T2 and T6 segments to not exist
-    T1 = sqrt(maxV / maxJ);
-  }
-
-  double S1 = maxJ * T1 * T1 * T1 / 6.0;
-  double S2 = S1;
-  double S3 = S2;
-  double V2 = V1;
-  double T2 = 0;
-  double T3 = 0;
-  double needTime = 0;
-
-  if (distence < 0) {   // Due to symmetry, only consider one case
-    distence = -distence;
-    v = -v;
-    a = -a;
-  }
-  
-  double calc_v = 0;
-  double calc_a = a;
-
-  if(distence <= S1){  
-    double t1;
-    //rtai
-    t1 = pow(6.0 * distence / maxJ, 1.0/3.0);
-    //uspace
-    //t1 = cbrt(6.0 * distence / maxJ) ;
-
-
-    //if(t1 -period > 0)
-    //  t1 = t1 - period; 
-    
-
-    calc_a = maxJ * t1;
-    calc_v = (calc_a * t1) / 2;
-    //tT = t1;
-    
-    phase = 1; 
-
-    //double p = calc_v * period;
-    //double cp = calc_v * t1 + maxJ * t1 * t1 * t1 / 6;
-    //double cpNext = calc_v * (t1 - period) + maxJ * (t1 - period) * (t1 - period) * (t1 - period) / 6;
-    //if(t1 - period > 0)
-    //  calc_v = (distence - cpNext) / period;
-    needTime = t1;
-    //printf("S1 | D: %.10f | CP: %f | CNP: %f | P: %f | T: %f | J: %f | V: %f | calc_a: %f | RV: %f | t1: %f \n",  distence, cp, cpNext, p, period, maxJ, calc_v, calc_a, v, t1);
-  }
-
-  if(phase == 0){
-    if(V1 < maxV / 2){ // T2 and T6 segments exist
-      T2 = (maxV / maxA) - T1;
-      S2 = S1 + V1 * T2 + maxJ * T1 * T2 * T2 / 2;
-      V2 = V1 + maxA * T2;
-      if(distence < S2){
-        double t2;
-        double A = maxJ * T1 / 2;
-        double B = V1;
-        double C = S1 - distence;
-        double dt = sqrt(B * B - 4 * A * C);
-        t2 = (-B + dt) / (2 * A);
-        //printf("In S2 segment ");
-        //t2 = t2 - period;
-        //if(t2 < 0){
-          //calc_v = V1;
-        //  calc_a = maxJ * t2;
-        //  calc_v = (calc_a * t2) / 2;
-        //}else{
-          //Vt = Vs + J * T1^2 - 0.5 * J * (t - 2 * T1) ^2
-          calc_a = maxA;
-          calc_v = V1 + maxA * t2;
-        //}
-        //tT = t2;
-        phase = 2;
-
-        //double p = calc_v * period;
-        //printf("P: %f, Ov: %f Nv: %f Oa: %f, Na: %f ",  p * 1000, v, calc_v, a, calc_a);
-        
-        //double p = calc_v * period;
-        //t2 = t2 - period;
-        // S2 = S1 + V1 * T2 + maxJ * T1 * T2 * T2 / 2;
-        //double cp = S1 + V1 * t2 + 0.5 * maxJ * T1 * t2 * t2;
-        //double cpNext = S1 + V1 * (t2 - period) + 0.5 * maxJ * T1 * (t2 - period) *  (t2 - period);
-        needTime = T1 + t2;
-        //printf("S2 | D: %.10f | CP: %f | CNP: %f | P: %f | T: %f | J: %f | V: %f | calc_a: %f | RV: %f | t2: %f \n",  distence, cp, cpNext, p, period, maxJ, calc_v, calc_a, v, T1 + t2);
-      }
-   
-    }
-  }
-
-  if(phase == 0){
-    S3 = S2 + V2 * T1 + S1 * 2;
-    T3 = T1;
-    if(distence <= S3){ // Solving cubic equation is expensive 
-      double A = - maxJ / 6;
-      double B = maxJ * T1 / 2;
-      double C = V2;
-      double D = S2 - distence;
-      double t3 = 0;//solute(A,B,C,D,T2);
-      //double x1, x2, x3;
-      //int n;
-      //x1 = x2 = x3 = 0;
-      //n = solve_cubic(A, B, C, D, &x1, &x2, &x3);
-      //double temp;
-      double xo[10];
-      int len;
-      int i = 0;
-      solve_cubic(A, B, C, D, xo, &len);
-      if(len > 0){
-        t3 = xo[0];
-        for (; i < len; i++)
-        {
-          if(i == 0)continue;
-          t3 = fmax(xo[i], t3);
-        }
-      }
-      //t3 = fmax(fmax(xo[0], x2), x3);
-      if(t3 < 0){
-        t3 = 0.001;
-      }
-      //if(x1>x2) temp=x1,x1=x2,x2=temp;
-      //if(x2>x3) temp=x2,x2=x3,x3=temp;
-      //if(x1>x2) temp=x1,x1=x2,x2=temp;
-      //if(x1 > 0) t3 = x1;
-      //else if(x2 > 0) t3 = x2;
-      //else if(x3 > 0) t3 = x3;
-      //else t3 = 0.001;
-      //printf("S3 t3: %f n: %d x1: %f x2: %f x3: %f  A: %f B: %f C: %f D: %f\n" , t3, n, x1, x2, x3, A, B, C, D);
-      //JT1 - J ( t - T1 )
-      //t3 = t3 - period;
-      //if(t3 <= 0 ){
-      //  calc_a = maxA;
-      //  calc_v = V1 + maxA *  (T2 + t3);
-     // }else{
-        calc_v = V2 + maxA * t3 - 0.5 * maxJ * t3 * t3;
-        calc_a = maxA - maxJ * t3;
-      //}
-      //tT = t3;
-
-      //double p = calc_v * period;
-      //t3 = t3 - period;
-      //double cp = 0;
-      //if(t3 < 0){
-
-      //}else{
-      //cp = S2 + calc_v * t3 + 0.5 * maxJ * T1 * t3* t3 - maxJ * t3 * t3 * t3 / 6;
-      //double cpNext = S2 + calc_v * (t3 - period) + 0.5 * maxJ * T1 * (t3 - period) * (t3 - period) - maxJ * (t3 - period) * (t3 - period) * (t3 - period) / 6;
-         //(cp - distence) / period;
-      //}
-      //double rp =
-      //printf("P: %f, Ov: %f Nv: %f Oa: %f, Na: %f ",  p * 1000, v, calc_v, a, calc_a);
-      needTime = T1 + T2 + t3;
-      //printf("S3 | D: %.10f | CP: %f | CNP: %f | P: %f | T: %f | J: %f | T1: %f | V: %f | calc_a: %f | RV: %f | t3: %f \n",  distence, cp, cpNext, p, period, maxJ, T1, calc_v, calc_a, v, T1 + T2 + t3);
-      phase = 3;
-    }
-  }
-  //printf("In constant velocity phase ");
-  // Need to enter S3 early by one period
-
-  //*req_v = calc_v;
-  if(phase == 0)
-    phase = 4;
-
-  // PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
-  // VT = V0 + A0 * T + J * T^2 /2
-  // AT = A0 + J * T
-  // After discretization:
-  // PT = PT + VT + 0.5 * AT + J / 6
-  // VT = VT + AT + 0.5 * J * T
-  // AT = AT + J * T
-
-  if(phase == 4){//
-    if(v < maxV){ // Need to accelerate to target speed
-      double tt = fabs(a / maxJ);
-      double ve = v + (a - maxJ * period) * tt - maxJ * tt * tt / 2;
-      // a * t + 1/2 * j * t^2
-      if(ve >=  maxV ){
-        phase = 5;
-        calc_a = a - maxJ * period;
-      }
-      else{
-        phase = 7;
-        calc_a = a + maxJ * period;
-      }
-
-      if(calc_a >= maxA){
-        calc_a = maxA;
-        phase = 6;
-      }
-      //double p = 0;
-      // VT = V0 + A0 * T + J * T^2 /2
-      // AT = A0 + J * T
-      if(phase == 7){
-        //p = v * period + 0.5 * calc_a * period * period + maxJ * period * period* period / 6;
-        calc_v = v + calc_a * period + maxJ * period * period / 2;
-      }
-      else if(phase == 6){
-        if(a != maxA){
-          double J = (maxA - a) / period;
-          calc_v = v + maxA * period + J * period * period / 2;
-        }else
-          calc_v = v + calc_a * period;
-      }
-      else if(phase == 5){ // Need compensation; after discretization each segment is s = v * t, so distance may be more reliable
-        // V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
-        //p = v * period + 0.5 * calc_a * period * period - maxJ * period * period* period / 6;
-        calc_v = v + calc_a * period - maxJ * period * period / 2;
-      }
-      
-      if(calc_v >= maxV){
-        calc_v = maxV;
-      }
-      //printf("VE: %f, OV: %f NV: %f P: %f OA: %f, NA: %f ", ve, v, calc_v, p * 1000, a, calc_a);
-    }else if(v > maxV){// Need to decelerate to target speed; triangular acceleration algorithm used here; entered when velocity is modified
-      double tt = fabs(a) / maxJ;
-      double ve = v + a * tt + maxJ * tt * tt / 2;
-      if(ve <= maxV) {
-        phase = 8;
-        calc_a = a + maxJ * period;
-      }
-      else{
-        phase = 9;
-        calc_a = a - maxJ * period;
-      }
-
-      if(calc_a < -maxA){
-        calc_a = -maxA;
-      }
-        
-      calc_v = v + calc_a * period - maxJ * period * period / 2;
-      if(calc_v < maxV){
-        calc_v = maxV;
-      }
-    }else{ // Constant velocity motion, forced
-      phase = 4;
-      calc_v = maxV;
-    }
-  }else{ // This section is intended for optimizing the stopping segment, very important, may be used to smooth the curve
-    //if(a)
-
-    if(needTime == 0){ // Constant velocity or acceleration phase
-      // Decelerate a few periods early
-    }else if(needTime > T1 + T2 && needTime <= T1 + T2 +T3){ // Handle S3 segment
-
-    }else if(needTime > T1 && needTime <= T1 + T2){ // Handle S2 segment
-
-    }else if(needTime >= 0 && needTime <= T1){ // Handle S1 segment
-      
-    }
-
-
-  }
-
-
-  if(calc_v > maxV)
-    calc_v = maxV;
-  *req_a = calc_a;
-  //*req_a = (calc_v - v) / period;
-
-#define MAX_A_OVERRIDE 1.5
-  double ra = (calc_v - v) / period;
-  if(ra > maxA * MAX_A_OVERRIDE){ // This is not an ideal solution
-    *req_a = maxA* MAX_A_OVERRIDE;
-    calc_v = v + *req_a * period;
-  }else if(ra < -maxA * MAX_A_OVERRIDE){
-    *req_a = -maxA * MAX_A_OVERRIDE;
-    calc_v = v + *req_a * period;
-  }
-#undef MAX_A_OVERRIDE
-
-  *req_v = calc_v;
-  //if(phase == 1 || phase == 2 || phase == 3)
-  //  printf("S%d L: %.10f, ACC %f V: %f *req_v:  %f v: %f S3: %f A: %f CA: %f\n", phase, distence , *req_a, calc_v, *req_v, v, S3, (calc_v - v) / period, ov);
-  return phase;
 }
 
 
@@ -778,66 +460,6 @@ tp->prograss = 0;
 return 0;
 }
 
-double getNextPoint(simple_tp_t *tp, int n, double T, double* req_v, double* req_a){
-  double cal_v;
-  double cal_a;
-  int phase = 0;
-  if(n <= tp->n0){                                           // S0 segment
-    cal_v = tp->vc + tp->jm * T * T * n * (n + 1) / 2;
-    cal_a = n * tp->jm * T;
-    phase = 0;
-  }else if(tp->n1 != 0 && n <= tp->n0 + tp->n1){              // S1 segment
-    cal_v = tp->v1 + (n - tp->n0) * tp->a1 * T;
-    cal_a = tp->a1;
-    phase = 1;
-  }else if(n <= tp->n0 + tp->n1 + tp->n2){                    // S2 segment
-    //Vm - ∑(k * J1 * Tp^2)
-    double x = tp->n0 + tp->n1 + tp->n2 - n;
-    cal_v = tp->v3 - fabs(tp->j2) * T * T * x * (x + 1) / 2;
-    cal_a = tp->a3 - x * fabs(tp->j2) * T;
-    phase = 2;
-  }else if(n <= tp->n0 + tp->n1 + tp->n2 + tp->n3){           // S3 segment
-    cal_v = tp->vm;
-    cal_a = 0;
-    phase = 3;
-  }else if(n <= tp->n0 + tp->n1 + tp->n2 + tp->n3 + tp->n4){  // S4 segment
-    double x = n - (tp->n0 + tp->n1 + tp->n2 + tp->n3) ;
-    cal_v = tp->vm - tp->jm * T * T * x * (x + 1) / 2;
-    cal_a = - x * tp->jm * T;
-    phase = 4;
-  }else if(tp->n5 != 0  &&n <= tp->n0 + tp->n1 + tp->n2 + tp->n3 + tp->n4 + tp->n5){
-    phase = 5;
-    double x = n - (tp->n0 + tp->n1 + tp->n2 + tp->n3 + tp->n4);
-    cal_v = tp->v5 + x * tp->a6 * T;
-    cal_a = tp->a6;
-  }else if(n <= tp->n0 + tp->n1 + tp->n2 + tp->n3 + tp->n4 + tp->n5 + tp->n6){
-    phase = 6;
-    double x = tp->n0 + tp->n1 + tp->n2 + tp->n3 + tp->n4 + tp->n5 + tp->n6 - n;
-    cal_v = tp->v7 + fabs(tp->j4) * T * T *  x * (x + 1) / 2.0;
-    cal_a = tp->a6 - x * fabs(tp->j4) * T;
-  }else{
-    if( tp->n0 + tp->n1 + tp->n2 + tp->n3 + tp->n4 + tp->n5 + tp->n6 == n + 1 ){
-      tp->curr_n++ ;
-      phase = 7;
-      cal_v = tp->ve;
-      cal_a = tp->a7;
-    }
-    return 0;
-  }
-  if(phase > 3 && tp->fix_verr == 0 && cal_v < tp->verr){
-    tp->fix_verr = 1;  // Insert additional residual velocity
-    cal_v = tp->verr;
-    //printf("ver: %f | acc: %f | n: %d | phase: %d | prograss: %.10f F\n", cal_v, cal_a, n, phase, tp->prograss);
-  }else{
-    tp->curr_n++ ;
-    //printf("ver: %f | acc: %f | n: %d | phase: %d | prograss: %.10f TN: %d\n", cal_v, cal_a, n, phase, tp->prograss, tp->n0 + tp->n1 + tp->n2 + tp->n3 + tp->n4 + tp->n5 + tp->n6);
-  }
-  tp->prograss += cal_v * T;
-  *req_v = cal_v;
-  *req_a = cal_a;
-  return 0;
-}
-
 
 // PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
 // VT = V0 + A0 * T + J * T^2 /2
@@ -895,15 +517,6 @@ double nextSpeed(double v, double a, double t, double targetV, double maxA, doub
   return v;
 }
 
-double getStoppingDist(simple_tp_t *tp) {
-    double maxJ = tp->max_jerk ;
-    double v = tp->curr_vel;
-    double a = tp->curr_acc;
-    double maxA = tp->max_acc;
-    //double phase;
-    return stoppingDist(v, a, maxA, maxJ/*, &phase*/);
-}
-
 double stoppingDist(double v, double a, double maxA, double maxJ/*, int* phase*/) {
     // Already stopped
     //*phase = 0;
@@ -924,7 +537,7 @@ double stoppingDist(double v, double a, double maxA, double maxJ/*, int* phase*/
       // velocity => a * t + 1/2 * j * t^2
       double t = a / maxJ;
       d += sc_distance(t, v, a, -maxJ);
-      v += velocity(t, a, -maxJ);
+      v += delta_velocity(t, a, -maxJ);
       a = 0;
       //if(*phase == 0) *phase = 3;
     }
@@ -955,7 +568,7 @@ double stoppingDist(double v, double a, double maxA, double maxJ/*, int* phase*/
     if (maxDeccel < a) {
         double t = (a - maxDeccel) / maxJ;
         d += sc_distance(t, v, a, -maxJ);
-        v += velocity(t, a, -maxJ);
+        v += delta_velocity(t, a, -maxJ);
         a = maxDeccel;
     }
 
@@ -971,7 +584,7 @@ double stoppingDist(double v, double a, double maxA, double maxJ/*, int* phase*/
       // velocity => a * t + 1/2 * j * t^2
         double t = (v - deltaV) / -a;
         d += sc_distance(t, v, a, 0);
-        v += velocity(t, a, 0);
+        v += delta_velocity(t, a, 0);
         //if(*phase == 0) *phase = 6;
     }
 
@@ -1003,7 +616,7 @@ double finishWithSpeedDist(double v, double ve, double a, double maxA, double ma
         if (a < 0) {
             double t = -a / maxJ;
             d += sc_distance(t, v, a, maxJ);
-            v += velocity(t, a, maxJ);
+            v += delta_velocity(t, a, maxJ);
             a = 0;
         }
 
@@ -1018,7 +631,7 @@ double finishWithSpeedDist(double v, double ve, double a, double maxA, double ma
         if (maxAccel > a) {
             double t = (maxAccel - a) / maxJ;
             d += sc_distance(t, v, a, maxJ);
-            v += velocity(t, a, maxJ);
+            v += delta_velocity(t, a, maxJ);
             a = maxAccel;
         }
 
@@ -1029,7 +642,7 @@ double finishWithSpeedDist(double v, double ve, double a, double maxA, double ma
         if (v < deltaV && a > 0.0001) {
             double t = (deltaV - v) / a;
             d += sc_distance(t, v, a, 0);
-            v += velocity(t, a, 0);
+            v += delta_velocity(t, a, 0);
         }
 
         // Phase 4: Decrease a from maxAccel to 0, velocity reaches ve
@@ -1047,7 +660,7 @@ double finishWithSpeedDist(double v, double ve, double a, double maxA, double ma
     if (a > 0) {
         double t = a / maxJ;
         d += sc_distance(t, v, a, -maxJ);
-        v += velocity(t, a, -maxJ);
+        v += delta_velocity(t, a, -maxJ);
         a = 0;
     }
 
@@ -1062,7 +675,7 @@ double finishWithSpeedDist(double v, double ve, double a, double maxA, double ma
     if (maxDeccel < a) {
         double t = (a - maxDeccel) / maxJ;
         d += sc_distance(t, v, a, -maxJ);
-        v += velocity(t, a, -maxJ);
+        v += delta_velocity(t, a, -maxJ);
         a = maxDeccel;
     }
 
@@ -1074,7 +687,7 @@ double finishWithSpeedDist(double v, double ve, double a, double maxA, double ma
     if (deltaV < v && a < -0.0001) {
         double t = (v - deltaV) / (-a);
         d += sc_distance(t, v, a, 0);
-        v += velocity(t, a, 0);
+        v += delta_velocity(t, a, 0);
     }
 
     // Phase 4: Increase a from maxDeccel to 0, velocity reaches ve
@@ -1093,7 +706,7 @@ double finishWithSpeedDist(double v, double ve, double a, double maxA, double ma
 double nextAccel(double t, double targetV, double v, double a, double maxA,
                         double maxJ) {
   int increasing = v < targetV;
-  double deltaA = acceleration(t, maxJ);
+  double deltaA = delta_accel(t, maxJ);
 
   if (increasing && a < -deltaA)
     return a + deltaA; // negative accel, increasing speed
@@ -1143,7 +756,7 @@ double nextAccel(double t, double targetV, double v, double a, double maxA,
 double nextAccel(double t, double targetV, double v, double a, double maxA,
                         double maxJ) {
   double max_da, tiny_da, vel_err, acc_req;
-  max_da = acceleration(t, maxJ);
+  max_da = delta_accel(t, maxJ);
   tiny_da = max_da * t * 0.001;
   vel_err = targetV - v;
   if (vel_err > tiny_da){
@@ -1173,18 +786,27 @@ double nextAccel(double t, double targetV, double v, double a, double maxA,
 }
 
 double sc_distance(double t, double v, double a, double j) {
-  // v * t + 1/2 * a * t^2 + 1/6 * j * t^3
+    // P = v*t + (1/2)*a*t² + (1/6)*j*t³
   return t * (v + t * (0.5 * a + 1.0 / 6.0 * j * t));
 }
 
+/**
+ * Trapezoidal integration for displacement calculation
+ * Uses average jerk assumption for more stable integration
+ */
+double trapz_distance(double t, double v, double a, double j) {
+  // v * t + 1/2 * a * t^2 + 1/4 * j * t^3
+  return t * (v + t * (0.5 * a + 0.25 * j * t));
+}
 
-double velocity(double t, double a, double j) {
+
+double delta_velocity(double t, double a, double j) {
   // a * t + 1/2 * j * t^2
   return t * (a + 0.5 * j * t);
 }
 
 
-double acceleration(double t, double j) {return j * t;}
+double delta_accel(double t, double j) {return j * t;}
 
 #include "tp_types.h"
 
@@ -1377,53 +999,4 @@ double calcSCurveSpeedWithT(double amax, double jerk, double T) {
 
     // Use fma to optimize multiply-add operations, improving numerical stability
     return fma(jerk * T1, T1 + T2, 0.0);
-}
-
-/**
- * Conservative S-curve reachable velocity calculation (for lookahead optimization)
- *
- * Unlike findSCurveVSpeedWithEndSpeed which assumes decel starts from a=0,
- * this function considers worst case: decel starting from a=maxA state.
- *
- * This ensures lookahead-computed velocities can smoothly decel to target
- * regardless of current acc state, avoiding acc discontinuities.
- *
- * @param distance   Available decel distance
- * @param Ve         Target end velocity
- * @param maxA       Maximum acceleration
- * @param maxJ       Maximum jerk
- * @param req_v      [output] Computed conservative reachable velocity
- * @return           1 success, -1 failure
- */
-int findSCurveVSpeedConservative(double distance, double Ve, double maxA, double maxJ, double* req_v) {
-    if (distance <= 0 || maxA <= 0 || maxJ <= 0) {
-        *req_v = Ve;
-        return -1;
-    }
-
-    // Extra distance needed to bring a from maxA to 0 (velocity still increasing during this)
-    // t = maxA / maxJ, v_increase = 0.5 * maxA^2 / maxJ
-    double v_increase = 0.5 * maxA * maxA / maxJ;
-    double d_extra = maxA * maxA / (2.0 * maxJ);
-
-    // Effective decel distance = total - extra
-    double effective_distance = distance - d_extra;
-
-    if (effective_distance <= 0) {
-        *req_v = Ve;
-        return -1;
-    }
-
-    double vs_from_zero;
-    int res = findSCurveVSpeedWithEndSpeed(effective_distance, Ve, maxA, maxJ, &vs_from_zero);
-
-    if (res != 1) {
-        *req_v = Ve;
-        return -1;
-    }
-
-    // Conservative estimate: subtract velocity increase during acc ramp-down
-    *req_v = fmax(vs_from_zero - v_increase * 0.5, Ve);
-
-    return 1;
 }

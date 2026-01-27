@@ -354,29 +354,6 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
 }
 
 /**
- * Get acceleration for a tc based on the trajectory planner state.
- */
-STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp __attribute__((unused)),
-        TC_STRUCT const * const tc) {
-    double a_scale = tc->maxaccel;
-    /* Parabolic blending conditions: If the next segment or previous segment
-     * has a parabolic blend with this one, acceleration is scaled down by 1/2
-     * so that the sum of the two does not exceed the maximum.
-     */
-    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
-        a_scale *= 0.5;
-    }
-    else {
-        a_scale *= 8.0/15.0;
-    }
-    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
-        //Limit acceleration for cirular arcs to allow for normal acceleration
-        a_scale *= tc->acc_ratio_tan;
-    }
-    return a_scale;
-}
-
-/**
  * Convert the 2-part spindle position and sign to a signed double.
  */
 STATIC inline double tpGetSignedSpindlePosition(spindle_status_t *status) {
@@ -2481,7 +2458,7 @@ STATIC int tpComputeBlendSCurveVelocity(
         double tblend_vel;
         /* Minimum value of cos(theta) to prevent numerical instability */
         const double min_cos_theta = cos(PM_PI / 2.0 - TP_MIN_ARC_ANGLE);
-        if (cos_theta > min_cos_theta && (maxjerk > 0 || maxjerk < 99999)) {
+        if (cos_theta > min_cos_theta) {
             //tblend_vel = 2.0 * pmSqrt(acc_this * tc->tolerance / cos_theta);
             //*v_blend_this = fmin(*v_blend_this, tblend_vel);
             //*v_blend_next = fmin(*v_blend_next, tblend_vel);
@@ -2722,47 +2699,49 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
  */
 STATIC int tcUpdateDistFromSCurveAccel(TC_STRUCT *const tc, double acc, double jerk, double vel_desired, double perror __attribute__((unused)), int reverse_run, int dec)
 {
-    // If the resulting velocity is less than zero, than we're done. This
-    // causes a small overshoot, but in practice it is very small.
     double v_next = vel_desired;
+    double dx = tcGetDistanceToGo(tc, reverse_run);
 
-    // update position in this tc using trapezoidal integration
-    // Note that progress can be greater than the target after this step.
-    double dx = tcGetDistanceToGo(tc,reverse_run) ;
     if (v_next < 0.0) {
         v_next = 0.0;
-        //KLUDGE: the trapezoidal planner undershoots by half a cycle time, so
-        //forcing the endpoint here is necessary. However, velocity undershoot
-        //also occurs during pausing and stopping, which can happen far from
-        //the end. If we could "cruise" to the endpoint within a cycle at our
-        //current speed, then assume that we want to be at the end.
-        if (dx < (fabs(tc->currentvel) *  tc->cycle_time)) {
-            tc->progress = tcGetTarget(tc,reverse_run);
-        }
-    } else {
-        if(dx < TP_POS_EPSILON){
-            tc->progress = tcGetTarget(tc,reverse_run);
-        }else{
-            // sc_distance(double t, double v, double a, double j);
-            double displacement = sc_distance(tc->cycle_time, tc->currentvel, tc->currentacc, jerk);
-            // Account for reverse run (flip sign if need be)
-            double disp_sign = reverse_run ? -1 : 1;
+    }
 
-            // Update position using calculated displacement
-            // Note: perror is actually margin (dx - dlen1), not position error,
-            // so it should not be used for position correction
-            tc->last_move_length = displacement;
-            tc->progress += (disp_sign * displacement);
-
-            //Progress has to be within the allowable range
-            tc->progress = bisaturate(tc->progress, tcGetTarget(tc, TC_DIR_FORWARD), tcGetTarget(tc, TC_DIR_REVERSE));
+    if (dx < TP_POS_EPSILON) {
+        tc->progress = tcGetTarget(tc, reverse_run);
+        tc->last_move_length = dx;
+        if (dec) {
+            v_next = 0.0;
+            acc = 0.0;
+            jerk = 0.0;
         }
     }
+    else if (v_next < TP_VEL_EPSILON && tc->currentvel < TP_VEL_EPSILON && dx < 1e-4) {
+        tc->progress = tcGetTarget(tc, reverse_run);
+        tc->last_move_length = dx;
+        if (dec) {
+            v_next = 0.0;
+            acc = 0.0;
+            jerk = 0.0;
+        }
+    }
+    else {
+        // Use trapezoidal integration for displacement calculation
+        // displacement = (v_current + v_next) * dt / 2
+        double displacement = (tc->currentvel + v_next) * tc->cycle_time / 2.0;
+
+        double disp_sign = reverse_run ? -1 : 1;
+
+        tc->last_move_length = displacement;
+        tc->progress += (disp_sign * displacement);
+
+        // Progress has to be within the allowable range
+        tc->progress = bisaturate(tc->progress, tcGetTarget(tc, TC_DIR_FORWARD), tcGetTarget(tc, TC_DIR_REVERSE));
+    }
+
     tc->currentvel = v_next;
     tc->currentacc = acc;
-
-    // Check if we can make the desired velocity
-    tc->on_final_decel = dec; 
+    tc->currentjerk = jerk;
+    tc->on_final_decel = dec;
 
     return TP_ERR_OK;
 }
@@ -2830,7 +2809,7 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
         a_for_dlen2 = 0;
     }
     double dlen2 = finishWithSpeedDist(v_for_dlen2, tc_finalvel, a_for_dlen2, maxaccel, maxjerk);
-    double moveL = sc_distance(tc->cycle_time, tc->currentvel, tc->currentacc, req_j);
+    double moveL = (tc->currentvel + req_v) * tc->cycle_time / 2.0;
 
     // margin = remaining distance - decel distance
     // margin > 0: can continue accelerating
@@ -3511,12 +3490,12 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     }else{ 
         double jerk;
         double perror;
-        if(*mode == 1){      
+        if(*mode == 1){
             tc->cycle_time = tp->cycleTime;
             int is_dec = tpCalculateSCurveAccel(tp, tc, nexttc, &acc, &jerk, &vel_desired, &perror, 1);
 
             if(is_dec == TP_SCURVE_ACCEL_ERROR){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
-                *mode = -5;
+                *mode = TP_SCURVE_ACCEL_ERROR;
                 res_accel = 1;
                 acc=0, vel_desired=0;
                 if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
@@ -3533,7 +3512,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         }else{
             int is_dec = tpCalculateSCurveAccel(tp, tc, nexttc, &acc, &jerk, &vel_desired, &perror, 0);
             if(is_dec == TP_SCURVE_ACCEL_ERROR){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
-                *mode = -5;
+                *mode = TP_SCURVE_ACCEL_ERROR;
                 res_accel = 1;
                 acc=0, vel_desired=0;
                 if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
@@ -3837,7 +3816,7 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
     double target_vel_this = tpGetRealTargetVel(tp, tc);
     double target_vel_next = tpGetRealTargetVel(tp, nexttc);
 
-    if(mode != -5 && GET_TRAJ_PLANNER_TYPE() == 1)
+    if(mode != TP_SCURVE_ACCEL_ERROR && GET_TRAJ_PLANNER_TYPE() == 1)
         tpComputeBlendSCurveVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, NULL);
     else
         tpComputeBlendVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, NULL);

@@ -21,20 +21,16 @@
 
 double nextAccel(double t, double targetV, double v, double a, double maxA, double maxJ);
 double sc_distance(double t, double v, double a, double j);
-double velocity(double t, double a, double j);
-double acceleration(double t, double j);
-unsigned getPhase(double v, double a, double j);
+double trapz_distance(double t, double v, double a, double j);
+double delta_velocity(double t, double a, double j);
+double delta_accel(double t, double j);
 double nextSpeed(double v, double a, double t, double targetV, double maxA, double maxJ, double* req_v, double* req_a, double* req_j);
-double getStoppingDist(simple_tp_t *tp) ;
 double stoppingDist(double v, double a, double maxA, double maxJ) ;
 double finishWithSpeedDist(double v, double ve, double a, double maxA, double maxJ) ;
-int getTargetV(double distence, double v, double a, double period, double maxV, double maxA, double maxJ, double* req_v, double* req_a);
 
 int getNext( simple_tp_t *tp, double Vs, double Ve, double period);
-double getNextPoint(simple_tp_t *tp, int n, double T, double* req_v, double* req_a);
 int findSCurveVSpeed(double distence,/* double maxV, */double maxA, double maxJ, double *req_v);
 int findSCurveVSpeedWithEndSpeed(double distence, double Ve, double maxA, double maxJ, double* req_v);
-int findSCurveVSpeedConservative(double distance, double Ve, double maxA, double maxJ, double* req_v);
 double calcDecelerateTimes(double v, double amax, double jerk, double* t1, double* t2);
 double calcSCurveSpeedWithT(double amax, double jerk, double T);
 
