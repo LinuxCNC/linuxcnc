@@ -292,8 +292,14 @@ int check_ini_hal_items(int numjoints)
                 rcs_print("check_ini_hal_items:bad return value from emcTrajSetMaxJerk\n");
             }
         }
+        // Re-apply default_jerk with new max limit (in case it was set before max_jerk)
+        if (0 != emcTrajSetJerk(NEW(traj_default_jerk))) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("check_ini_hal_items:bad return value from emcTrajSetJerk\n");
+            }
+        }
     }
-    
+
     if (CHANGED(traj_planner_type)) {
         if (debug) SHOW_CHANGE_INT(traj_planner_type)
         UPDATE(traj_planner_type);
