@@ -217,17 +217,18 @@ MULTIMESSAGE_VFD_ICON = INFO
 
 === Embed Custom VCP Panels
 
-You can optionally embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
+You can optionally embed QtVCP Virtual Control Panels into the QtDragon screens. +
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
 See QtVCP/VCP panels for other available builtin panels.
 
 The `EMBED_TAB_NAME` entry will used as the title for the new tab.(must be unique) +
-Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab`. +
+Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab` and `WINDOW`. +
 Tab `EMBED_TAB_COMMAND` specifies what embed-able program to run, including any of its command line options.
 
 If using the `tabWidget_utilities` or `tabWidget_setup` locations, an extra tab will appear with the panel. +
 If using `stackedWidget_mainTab`, a button labelled 'User' will appear. +
-Pressing this button will cycle through displaying all available panels (specified for this location) on the main tab area.
+Pressing this button will cycle through displaying all available panels (specified for this location) on the main tab area. +
+You also use `WINDOW` to create a pop up window that cab be shown/hidden with an arrow button that will appear near the machine on button
 
 ==== Embedding Vismach Mill
 .Sample adding a builtin panel to the utilities tab, i.e., a graphical animated machine using the vismach library.
@@ -1468,12 +1469,16 @@ The settings tab is used to set running options, probing/touchplate/laser/camera
 
 === Utilities Tab
 
-This tabs will display another stab election of G-code utility programs:
+This tab will display another tab selection of G-code utility programs (and any embedded panels):
 
 * 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees.
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of definable diameter and number of holes.
 * 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector, see <<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>.
+* 'Hole Enlarge': allows milling a preexisting hole larger.
 
+These tabs are detachable from the main screen by pressing the small arrow key on the far right of the tab header. +
+You can close the panel by pressing the arrow again or closing the window with the x button. +
+The last size and location of the detached window will be remembered each time the window is closed. +
 Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to `tabWidget_utilities`
 
 === User Tab
