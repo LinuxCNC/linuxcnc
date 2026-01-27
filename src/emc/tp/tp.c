@@ -2258,6 +2258,9 @@ int tpAddCircle(TP_STRUCT * const tp,
     //Reduce max velocity to match sample rate
     tcClampVelocityByLength(&tc);
 
+    // Apply acceleration and jerk limits for circular motion
+    tcUpdateArcLimits(&tc);
+
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
 

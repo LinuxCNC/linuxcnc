@@ -1156,7 +1156,7 @@ int blendComputeParameters(BlendParameters * const param)
 
     // Find maximum velocity allowed by accel and radius
     double v_normal;
-    
+
     if(GET_TRAJ_PLANNER_TYPE() == 1){
         v_normal = findSCurveVPeak(param->a_n_max, emcmotStatus->jerk, R_geom);
     }else{
@@ -1179,7 +1179,38 @@ int blendComputeParameters(BlendParameters * const param)
     double s_blend = t_blend * param->v_plan;
     double R_blend = fmin(s_blend / param->phi, R_geom);   //Clamp by limiting radius
 
-    param->R_plan = fmax(pmSq(param->v_plan) / param->a_n_max, R_blend);
+    // Calculate minimum radius needed to keep jerk within limits at v_plan
+    // For circular motion: j = v³/R² (worst case at corner transitions)
+    // Therefore: R_min = v^(3/2) / sqrt(j_max)
+    double R_jerk_min = 0.0;
+    if (GET_TRAJ_PLANNER_TYPE() == 1 && emcmotStatus->jerk > TP_POS_EPSILON) {
+        // R_min = v^(3/2) / sqrt(j)
+        double v_32 = pmSqrt(param->v_plan) * param->v_plan;  // v^(3/2)
+        double j_sqrt = pmSqrt(emcmotStatus->jerk);
+        R_jerk_min = v_32 / j_sqrt;
+
+        tp_debug_print("R_jerk_min = %f (for v=%f, j=%f)\n",
+                       R_jerk_min, param->v_plan, emcmotStatus->jerk);
+    }
+
+    // Calculate radius from acceleration constraint
+    double R_accel = pmSq(param->v_plan) / param->a_n_max;
+
+    // Apply jerk constraint - use the larger of R_blend and R_jerk_min
+    double R_min = fmax(R_blend, R_jerk_min);
+
+    // Final radius must satisfy both acceleration and minimum (blend/jerk) constraints
+    param->R_plan = fmax(R_accel, R_min);
+
+    // Calculate arc length
+    param->s_arc = param->R_plan * param->phi;
+
+    tp_debug_print("R_accel=%f, R_blend=%f, R_jerk_min=%f, R_plan=%f\n",
+                   R_accel, R_blend, R_jerk_min, param->R_plan);
+
+    // Note: Velocity jerk limiting for blend arcs is now handled uniformly
+    // in tcUpdateArcLimits() during segment finalization, along with TC_CIRCULAR arcs.
+
     param->d_plan = param->R_plan / tan(param->theta);
 
     tp_debug_print("v_plan = %f\n", param->v_plan);
@@ -1662,43 +1693,6 @@ double pmCartAbsMax(PmCartesian const * const v)
 }
 
 
-PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
-        double v_max,
-        double a_max)
-{
-    double a_n_max_cutoff = BLEND_ACC_RATIO_NORMAL * a_max;
-
-    double eff_radius = pmCircleEffectiveMinRadius(circle);
-    // Find the acceleration necessary to reach the maximum velocity
-    double a_n_vmax = pmSq(v_max) / fmax(eff_radius, DOUBLE_FUZZ);
-    // Find the maximum velocity that still obeys our desired tangential / total acceleration ratio
-    double v_max_cutoff = pmSqrt(a_n_max_cutoff * eff_radius);
-
-    double v_max_actual = v_max;
-    double acc_ratio_tan = BLEND_ACC_RATIO_TANGENTIAL;
-
-    if (a_n_vmax > a_n_max_cutoff) {
-        v_max_actual = v_max_cutoff;
-    } else {
-        acc_ratio_tan = pmSqrt(1.0 - pmSq(a_n_vmax / a_max));
-    }
-
-    tp_debug_json_start(pmCircleActualMaxVel);
-    tp_debug_json_double(eff_radius);
-    tp_debug_json_double(v_max);
-    tp_debug_json_double(v_max_cutoff);
-    tp_debug_json_double(a_n_max_cutoff);
-    tp_debug_json_double(a_n_vmax);
-    tp_debug_json_double(acc_ratio_tan);
-    tp_debug_json_end();
-
-    PmCircleLimits limits = {
-        v_max_actual,
-        acc_ratio_tan
-    };
-
-    return limits;
-}
 
 
 /** @section spiralfuncs Functions to approximate spiral arc length */
