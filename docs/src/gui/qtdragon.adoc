@@ -217,17 +217,18 @@ MULTIMESSAGE_VFD_ICON = INFO
 
 === Embed Custom VCP Panels
 
-You can optionally embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
+You can optionally embed QtVCP Virtual Control Panels into the QtDragon screens. +
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
 See QtVCP/VCP panels for other available builtin panels.
 
 The `EMBED_TAB_NAME` entry will used as the title for the new tab.(must be unique) +
-Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab`. +
+Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab` and `WINDOW`. +
 Tab `EMBED_TAB_COMMAND` specifies what embed-able program to run, including any of its command line options.
 
 If using the `tabWidget_utilities` or `tabWidget_setup` locations, an extra tab will appear with the panel. +
 If using `stackedWidget_mainTab`, a button labelled 'User' will appear. +
-Pressing this button will cycle through displaying all available panels (specified for this location) on the main tab area.
+Pressing this button will cycle through displaying all available panels (specified for this location) on the main tab area. +
+You also use `WINDOW` to create a pop up window that cab be shown/hidden with an arrow button that will appear near the machine on button
 
 ==== Embedding Vismach Mill
 .Sample adding a builtin panel to the utilities tab, i.e., a graphical animated machine using the vismach library.
