@@ -354,29 +354,6 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
 }
 
 /**
- * Get acceleration for a tc based on the trajectory planner state.
- */
-STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp __attribute__((unused)),
-        TC_STRUCT const * const tc) {
-    double a_scale = tc->maxaccel;
-    /* Parabolic blending conditions: If the next segment or previous segment
-     * has a parabolic blend with this one, acceleration is scaled down by 1/2
-     * so that the sum of the two does not exceed the maximum.
-     */
-    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
-        a_scale *= 0.5;
-    }
-    else {
-        a_scale *= 8.0/15.0;
-    }
-    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
-        //Limit acceleration for cirular arcs to allow for normal acceleration
-        a_scale *= tc->acc_ratio_tan;
-    }
-    return a_scale;
-}
-
-/**
  * Convert the 2-part spindle position and sign to a signed double.
  */
 STATIC inline double tpGetSignedSpindlePosition(spindle_status_t *status) {
@@ -1764,11 +1741,20 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double acc_this = tcGetTangentialMaxAccel(tc);
 
     // Find the reachable velocity of tc, moving backwards in time
-    double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
-    if(GET_TRAJ_PLANNER_TYPE() == 1 || GET_TRAJ_PLANNER_TYPE() == 2){
-        double vs_back2;
-        if(findSCurveVSpeedWithEndSpeed(tc->target * 2.0 , tc->finalvel, acc_this, emcmotStatus->jerk, &vs_back2) == 1)
-            vs_back = vs_back2;
+    double vs_back;
+    if(GET_TRAJ_PLANNER_TYPE() == 1){
+        // S-curve mode: use S-curve kinematics calculations
+        // Starting from finalvel, maximum starting speed achievable within distance tc->target
+        // During actual execution, tpCalculateSCurveAccel will adjust dynamically based on current state (including current acceleration)
+        // Use minimum of segment's max jerk and system max jerk to ensure limits are not exceeded
+        double maxjerk = fmin(tc->maxjerk, emcmotStatus->jerk);
+        if(findSCurveVSpeedWithEndSpeed(tc->target, tc->finalvel, acc_this, maxjerk, &vs_back) != 1){
+            // S-curve calculation failed, use conservative estimate (at least maintain finalvel)
+            vs_back = tc->finalvel;
+        }
+    } else {
+        // Trapezoidal acceleration/deceleration mode: use trapezoidal kinematics formula
+        vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
     }
     // Find the reachable velocity of prev1_tc, moving forwards in time
 
@@ -1890,7 +1876,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             tp_debug_print("Segment %d, type %d not finalized, continuing\n",tc->id,tc->motion_type);
             // use worst-case final velocity that allows for up to 1/2 of a segment to be consumed.
 
-            if(GET_TRAJ_PLANNER_TYPE() == 1 || GET_TRAJ_PLANNER_TYPE() == 2)
+            if(GET_TRAJ_PLANNER_TYPE() == 1)
                 prev1_tc->finalvel = fmin(prev1_tc->maxvel, tpCalculateOptimizationSCurveInitialVel(tp,tc));
             else
                 prev1_tc->finalvel = fmin(prev1_tc->maxvel, tpCalculateOptimizationInitialVel(tp,tc));
@@ -2272,6 +2258,9 @@ int tpAddCircle(TP_STRUCT * const tp,
     //Reduce max velocity to match sample rate
     tcClampVelocityByLength(&tc);
 
+    // Apply acceleration and jerk limits for circular motion
+    tcUpdateArcLimits(&tc);
+
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
 
@@ -2472,7 +2461,7 @@ STATIC int tpComputeBlendSCurveVelocity(
         double tblend_vel;
         /* Minimum value of cos(theta) to prevent numerical instability */
         const double min_cos_theta = cos(PM_PI / 2.0 - TP_MIN_ARC_ANGLE);
-        if (cos_theta > min_cos_theta && (maxjerk > 0 || maxjerk < 99999)) {
+        if (cos_theta > min_cos_theta) {
             //tblend_vel = 2.0 * pmSqrt(acc_this * tc->tolerance / cos_theta);
             //*v_blend_this = fmin(*v_blend_this, tblend_vel);
             //*v_blend_next = fmin(*v_blend_next, tblend_vel);
@@ -2506,7 +2495,7 @@ STATIC double estimateParabolicBlendPerformance(
     double target_vel_next = tpGetMaxTargetVel(tp, nexttc);
 
     double v_net = 0.0;
-    if(GET_TRAJ_PLANNER_TYPE() == 1 || GET_TRAJ_PLANNER_TYPE() == 2)
+    if(GET_TRAJ_PLANNER_TYPE() == 1)
         tpComputeBlendSCurveVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, &v_net);
     else
         tpComputeBlendVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, &v_net);
@@ -2711,54 +2700,51 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
 /**
  * Calculate distance update from velocity and acceleration.
  */
-STATIC int tcUpdateDistFromSCurveAccel(TC_STRUCT *const tc, double acc, double jerk, double vel_desired, double perror, int reverse_run, int dec)
+STATIC int tcUpdateDistFromSCurveAccel(TC_STRUCT *const tc, double acc, double jerk, double vel_desired, double perror __attribute__((unused)), int reverse_run, int dec)
 {
-    // If the resulting velocity is less than zero, than we're done. This
-    // causes a small overshoot, but in practice it is very small.
-    //double v_next = vel_desired;//velocity(tc->cycle_time, acc, jerk); //tc->currentvel + acc * tc->cycle_time; double velocity(double t, double a, double j);
-    double v_next = vel_desired;//velocity(tc->cycle_time, acc, jerk);
+    double v_next = vel_desired;
+    double dx = tcGetDistanceToGo(tc, reverse_run);
 
-    // update position in this tc using trapezoidal integration
-    // Note that progress can be greater than the target after this step.
-    double dx = tcGetDistanceToGo(tc,reverse_run) ;
     if (v_next < 0.0) {
         v_next = 0.0;
-        //KLUDGE: the trapezoidal planner undershoots by half a cycle time, so
-        //forcing the endpoint here is necessary. However, velocity undershoot
-        //also occurs during pausing and stopping, which can happen far from
-        //the end. If we could "cruise" to the endpoint within a cycle at our
-        //current speed, then assume that we want to be at the end.
-        if (dx < (fabs(tc->currentvel) *  tc->cycle_time)) {
-            tc->progress = tcGetTarget(tc,reverse_run);
-        }
-    } else {
-        if(dx < 1e-6){
-            tc->progress = tcGetTarget(tc,reverse_run);
-        }else{
-            // sc_distance(double t, double v, double a, double j);
-            double displacement = sc_distance(tc->cycle_time, tc->currentvel, tc->currentacc, jerk); 
-            // Account for reverse run (flip sign if need be)
-            double disp_sign = reverse_run ? -1 : 1;
+    }
 
-            if(perror > 0 && tc->last_move_length >= perror && displacement <= perror){
-                tc->progress += (disp_sign * perror);
-                tc->last_move_length = perror;
-                //printf("TRY TO FIX ERROR: %.15f \n", perror);
-                return TP_ERR_OK;
-            }
-            tc->last_move_length = displacement;
-
-            tc->progress += (disp_sign * displacement);
-            
-            //Progress has to be within the allowable range
-            tc->progress = bisaturate(tc->progress, tcGetTarget(tc, TC_DIR_FORWARD), tcGetTarget(tc, TC_DIR_REVERSE));
+    if (dx < TP_POS_EPSILON) {
+        tc->progress = tcGetTarget(tc, reverse_run);
+        tc->last_move_length = dx;
+        if (dec) {
+            v_next = 0.0;
+            acc = 0.0;
+            jerk = 0.0;
         }
     }
-    tc->currentvel = v_next;// v_next;
-    tc->currentacc = acc;
+    else if (v_next < TP_VEL_EPSILON && tc->currentvel < TP_VEL_EPSILON && dx < 1e-4) {
+        tc->progress = tcGetTarget(tc, reverse_run);
+        tc->last_move_length = dx;
+        if (dec) {
+            v_next = 0.0;
+            acc = 0.0;
+            jerk = 0.0;
+        }
+    }
+    else {
+        // Use trapezoidal integration for displacement calculation
+        // displacement = (v_current + v_next) * dt / 2
+        double displacement = (tc->currentvel + v_next) * tc->cycle_time / 2.0;
 
-    // Check if we can make the desired velocity
-    tc->on_final_decel = dec;//(fabs(vel_desired - tc->currentvel) < TP_VEL_EPSILON) && (acc < 0.0); //dec && (acc < 0.0); 
+        double disp_sign = reverse_run ? -1 : 1;
+
+        tc->last_move_length = displacement;
+        tc->progress += (disp_sign * displacement);
+
+        // Progress has to be within the allowable range
+        tc->progress = bisaturate(tc->progress, tcGetTarget(tc, TC_DIR_FORWARD), tcGetTarget(tc, TC_DIR_REVERSE));
+    }
+
+    tc->currentvel = v_next;
+    tc->currentacc = acc;
+    tc->currentjerk = jerk;
+    tc->on_final_decel = dec;
 
     return TP_ERR_OK;
 }
@@ -2790,7 +2776,7 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
         maxjerk = 1;
         //rtapi_print_msg(RTAPI_MSG_ERR,
         //        "ERROR!!! maxjerk Is less than 1\n");
-        return -5;
+        return TP_SCURVE_ACCEL_ERROR;
     }
 
     // Find maximum allowed velocity from feed and machine limits
@@ -2809,32 +2795,53 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
         *acc = tc->currentacc;
         *vel_desired = tc->currentvel;
         *jerk =0;//(maxnewaccel - tc->currentacc) / dt;
-        return 0;
+        return TP_SCURVE_ACCEL_ACCEL;
     }
-    int res = 1;
+    int res = TP_SCURVE_ACCEL_DECEL;
 
 
     nextSpeed(tc->currentvel, tc->currentacc, tc->cycle_time, tc_target_vel, maxaccel, maxjerk, &req_v, &req_a, &req_j);
     double dlen1 = finishWithSpeedDist(tc->currentvel, tc_finalvel, tc->currentacc, maxaccel, maxjerk);
-    double dlen2 = finishWithSpeedDist(saturate(req_v, tc_target_vel), tc_finalvel, saturate(req_a, maxaccel), maxaccel, maxjerk);
-    double moveL = sc_distance(tc->cycle_time, tc->currentvel, tc->currentacc, req_j);
-    double error = fabs(dx) - dlen1; //误差
-    *pos_error = error;
 
+    // When velocity exceeds target, correct acceleration
+    // Since velocity is limited to target, acceleration should be 0 (maintain speed) or decel
+    double v_for_dlen2 = req_v;
+    double a_for_dlen2 = req_a;
+    if (req_v > tc_target_vel) {
+        v_for_dlen2 = tc_target_vel;
+        a_for_dlen2 = 0;
+    }
+    double dlen2 = finishWithSpeedDist(v_for_dlen2, tc_finalvel, a_for_dlen2, maxaccel, maxjerk);
+    double moveL = (tc->currentvel + req_v) * tc->cycle_time / 2.0;
 
-    if(tc->currentvel < 1e-6 && dx > TP_POS_EPSILON && dx < 1e-4){
-        //nextSpeed(tc->currentvel, tc->currentacc, tc->cycle_time, tc_target_vel, maxaccel, maxjerk, &req_v, &req_a, &req_j); 
-        res = 1;
+    // margin = remaining distance - decel distance
+    // margin > 0: can continue accelerating
+    // margin <= 0: must decelerate
+    double margin = dx - dlen1;
+    *pos_error = margin;
+
+    // Handle special case: position overshoot or reached endpoint
+    if (dx <= TP_POS_EPSILON) {
+        // Already reached or exceeded endpoint, must decelerate/stop
+        nextSpeed(tc->currentvel, tc->currentacc, tc->cycle_time, tc_finalvel, maxaccel, maxjerk, &req_v, &req_a, &req_j);
+        res = TP_SCURVE_ACCEL_DECEL;
+    }
+    else if(tc->currentvel < TP_VEL_EPSILON && dx > TP_POS_EPSILON && dx < 1e-4){
+        // Very low velocity and close to target
+        res = TP_SCURVE_ACCEL_DECEL;
     }else{
-        //fabs(fabs(pos_err) - decLen) <= 0.000001 || fabs(pos_err) - moveL * dir <= decLen2 || fabs(pos_err) <= decLen 
-        if (fabs(error) <= 0.0001 || dx - moveL <= dlen2 || dx < dlen1){
+        // Decel conditions:
+        // Condition 1: margin <= 0 - decel distance already >= remaining distance, must decelerate
+        // Condition 2: dx - moveL <= dlen2 - if we continue accel, next cycle remaining <= decel dist
+        int need_decel = (margin <= TP_POS_EPSILON) || (dx - moveL <= dlen2);
+
+        if (need_decel){
             nextSpeed(tc->currentvel, tc->currentacc, tc->cycle_time, tc_finalvel, maxaccel, maxjerk, &req_v, &req_a, &req_j);
         }else{
             if(tc_finalvel > TP_VEL_EPSILON || tc_target_vel > TP_VEL_EPSILON)
-            res = 0;
+            res = TP_SCURVE_ACCEL_ACCEL;
         }
     }
-    //}
 
     maxnewvel = req_v;
     maxnewacc = req_a;
@@ -2848,8 +2855,7 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
     maxnewaccel = saturate(maxnewaccel, maxaccel);
     *acc = maxnewaccel;
     *vel_desired = maxnewvel;
-    *jerk =maxnewjerk;//(maxnewaccel - tc->currentacc) / dt;
-    //*vel_desired = tc->currentvel + velocity(dt, *acc, *jerk);
+    *jerk = maxnewjerk;
 
     return res;
 }
@@ -3470,7 +3476,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
     if(mode == NULL) planner_type = 0;
 
-    if(planner_type != 1 && planner_type != 2){
+    if(planner_type != 1){
         // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
         // Also, don't ramp up for parabolic blends
         if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
@@ -3487,11 +3493,12 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     }else{ 
         double jerk;
         double perror;
-        if(*mode == 1){      
+        if(*mode == 1){
             tc->cycle_time = tp->cycleTime;
             int is_dec = tpCalculateSCurveAccel(tp, tc, nexttc, &acc, &jerk, &vel_desired, &perror, 1);
-            if(is_dec == -5){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
-                *mode = -5;
+
+            if(is_dec == TP_SCURVE_ACCEL_ERROR){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
+                *mode = TP_SCURVE_ACCEL_ERROR;
                 res_accel = 1;
                 acc=0, vel_desired=0;
                 if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
@@ -3507,8 +3514,8 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
             }
         }else{
             int is_dec = tpCalculateSCurveAccel(tp, tc, nexttc, &acc, &jerk, &vel_desired, &perror, 0);
-            if(is_dec == -5){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
-                *mode = -5;
+            if(is_dec == TP_SCURVE_ACCEL_ERROR){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
+                *mode = TP_SCURVE_ACCEL_ERROR;
                 res_accel = 1;
                 acc=0, vel_desired=0;
                 if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
@@ -3739,8 +3746,21 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     switch (tc->term_cond) {
         case TC_TERM_COND_TANGENT:
             nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
-            nexttc->currentvel = tc->term_vel;
-            tp_debug_print("Doing tangent split\n");
+            // In S-curve mode, use actual current velocity instead of expected term_vel
+            // S-curve can't change velocity instantly, term_vel is just desired value
+            if (GET_TRAJ_PLANNER_TYPE() == 1) {
+                nexttc->currentvel = tc->currentvel;
+                // Inherit acceleration, but limit to nexttc's allowed range
+                // Important for line-to-arc transitions where arc has lower tangential accel
+                double maxacc_next = tcGetTangentialMaxAccel(nexttc);
+                nexttc->currentacc = saturate(tc->currentacc, maxacc_next);
+                tp_debug_print("Doing tangent split (S-curve): vel=%f, acc=%f (limited by %f)\n",
+                              nexttc->currentvel, nexttc->currentacc, maxacc_next);
+            } else {
+                // Trapezoidal: can use term_vel (assumes instant velocity change)
+                nexttc->currentvel = tc->term_vel;
+                tp_debug_print("Doing tangent split (trapezoidal): vel=%f\n", nexttc->currentvel);
+            }
             break;
         case TC_TERM_COND_PARABOLIC:
             break;
@@ -3799,7 +3819,7 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
     double target_vel_this = tpGetRealTargetVel(tp, tc);
     double target_vel_next = tpGetRealTargetVel(tp, nexttc);
 
-    if(mode != -5 && (GET_TRAJ_PLANNER_TYPE() == 1 || GET_TRAJ_PLANNER_TYPE() == 2))
+    if(mode != TP_SCURVE_ACCEL_ERROR && GET_TRAJ_PLANNER_TYPE() == 1)
         tpComputeBlendSCurveVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, NULL);
     else
         tpComputeBlendVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, NULL);

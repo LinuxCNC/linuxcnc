@@ -704,13 +704,16 @@ static double getStraightJerk(double x, double y, double z,
     }
 
     // Pure linear move:
+    // For jerk-limited motion: d = (1/6)*j*t³, so t = cbrt(6*d/j)
+    // We use t = cbrt(d/j) as a characteristic time (omitting the constant factor,
+    // which cancels out when we compute path jerk = dtot / tmax³)
     if (canon.cartesian_move && !canon.angular_move) {
-        tx = dx? (dx / FROM_EXT_LEN(emcAxisGetMaxJerk(0))): 0.0;
-        ty = dy? (dy / FROM_EXT_LEN(emcAxisGetMaxJerk(1))): 0.0;
-        tz = dz? (dz / FROM_EXT_LEN(emcAxisGetMaxJerk(2))): 0.0;
-        tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxJerk(6))): 0.0;
-        tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxJerk(7))): 0.0;
-        tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxJerk(8))): 0.0;
+        tx = dx? cbrt(dx / FROM_EXT_LEN(emcAxisGetMaxJerk(0))): 0.0;
+        ty = dy? cbrt(dy / FROM_EXT_LEN(emcAxisGetMaxJerk(1))): 0.0;
+        tz = dz? cbrt(dz / FROM_EXT_LEN(emcAxisGetMaxJerk(2))): 0.0;
+        tu = du? cbrt(du / FROM_EXT_LEN(emcAxisGetMaxJerk(6))): 0.0;
+        tv = dv? cbrt(dv / FROM_EXT_LEN(emcAxisGetMaxJerk(7))): 0.0;
+        tw = dw? cbrt(dw / FROM_EXT_LEN(emcAxisGetMaxJerk(8))): 0.0;
             out.tmax = MAX3(tx, ty ,tz);
             out.tmax = MAX4(tu, tv, tw, out.tmax);
 
@@ -720,38 +723,38 @@ static double getStraightJerk(double x, double y, double z,
                 out.dtot = sqrt(du * du + dv * dv + dw * dw);
 
         if (out.tmax > 0.0) {
-            out.jerk = out.dtot / (out.tmax * out.tmax);
+            out.jerk = out.dtot / (out.tmax * out.tmax * out.tmax);
         }
     }
     // Pure angular move:
     else if (!canon.cartesian_move && canon.angular_move) {
-        ta = da? (da / FROM_EXT_ANG(emcAxisGetMaxJerk(3))): 0.0;
-        tb = db? (db / FROM_EXT_ANG(emcAxisGetMaxJerk(4))): 0.0;
-        tc = dc? (dc / FROM_EXT_ANG(emcAxisGetMaxJerk(5))): 0.0;
+        ta = da? cbrt(da / FROM_EXT_ANG(emcAxisGetMaxJerk(3))): 0.0;
+        tb = db? cbrt(db / FROM_EXT_ANG(emcAxisGetMaxJerk(4))): 0.0;
+        tc = dc? cbrt(dc / FROM_EXT_ANG(emcAxisGetMaxJerk(5))): 0.0;
             out.tmax = MAX3(ta, tb, tc);
 
         out.dtot = sqrt(da * da + db * db + dc * dc);
         if (out.tmax > 0.0) {
-            out.jerk = out.dtot / (out.tmax * out.tmax);
+            out.jerk = out.dtot / (out.tmax * out.tmax * out.tmax);
         }
     }
     // Combination angular and linear move:
     else if (canon.cartesian_move && canon.angular_move) {
-        tx = dx? (dx / FROM_EXT_LEN(emcAxisGetMaxJerk(0))): 0.0;
-        ty = dy? (dy / FROM_EXT_LEN(emcAxisGetMaxJerk(1))): 0.0;
-        tz = dz? (dz / FROM_EXT_LEN(emcAxisGetMaxJerk(2))): 0.0;
-        ta = da? (da / FROM_EXT_ANG(emcAxisGetMaxJerk(3))): 0.0;
-        tb = db? (db / FROM_EXT_ANG(emcAxisGetMaxJerk(4))): 0.0;
-        tc = dc? (dc / FROM_EXT_ANG(emcAxisGetMaxJerk(5))): 0.0;
-        tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxJerk(6))): 0.0;
-        tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxJerk(7))): 0.0;
-        tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxJerk(8))): 0.0;
+        tx = dx? cbrt(dx / FROM_EXT_LEN(emcAxisGetMaxJerk(0))): 0.0;
+        ty = dy? cbrt(dy / FROM_EXT_LEN(emcAxisGetMaxJerk(1))): 0.0;
+        tz = dz? cbrt(dz / FROM_EXT_LEN(emcAxisGetMaxJerk(2))): 0.0;
+        ta = da? cbrt(da / FROM_EXT_ANG(emcAxisGetMaxJerk(3))): 0.0;
+        tb = db? cbrt(db / FROM_EXT_ANG(emcAxisGetMaxJerk(4))): 0.0;
+        tc = dc? cbrt(dc / FROM_EXT_ANG(emcAxisGetMaxJerk(5))): 0.0;
+        tu = du? cbrt(du / FROM_EXT_LEN(emcAxisGetMaxJerk(6))): 0.0;
+        tv = dv? cbrt(dv / FROM_EXT_LEN(emcAxisGetMaxJerk(7))): 0.0;
+        tw = dw? cbrt(dw / FROM_EXT_LEN(emcAxisGetMaxJerk(8))): 0.0;
             out.tmax = MAX9(tx, ty, tz,
                         ta, tb, tc,
                         tu, tv, tw);
 
         if(debug_velacc)
-            printf("getStraightJerk t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
+            printf("getStraightJerk t tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
                 tx, ty, tz, ta, tb, tc, tu, tv, tw);
 
         if(dx || dy || dz)
@@ -760,7 +763,7 @@ static double getStraightJerk(double x, double y, double z,
             out.dtot = sqrt(du * du + dv * dv + dw * dw);
 
         if (out.tmax > 0.0) {
-            out.jerk = out.dtot / (out.tmax * out.tmax);
+            out.jerk = out.dtot / (out.tmax * out.tmax * out.tmax);
         }
     }
     //if(debug_velacc)

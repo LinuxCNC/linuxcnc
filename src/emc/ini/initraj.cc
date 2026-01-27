@@ -225,6 +225,10 @@ static int loadTraj(EmcIniFile *trajInifile)
         old_inihal_data.traj_default_jerk = jerk;
         planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve
         trajInifile->Find(&planner_type, "PLANNER_TYPE", "TRAJ");
+        // Only 0 and 1 are supported, set to 0 if invalid
+        if (planner_type != 0 && planner_type != 1) {
+            planner_type = 0;
+        }
         if (0 != emcTrajPlannerType(planner_type)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajPlannerType\n");

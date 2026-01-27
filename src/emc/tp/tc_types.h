@@ -141,6 +141,7 @@ typedef struct {
     //S-curve jerk limiting
     double maxjerk;         // max jerk for S-curve motion
     double currentacc;      // current acceleration for S-curve planning
+    double currentjerk;     // current jerk for S-curve planning
     double initialvel;      // initial velocity when segment activated
     int accel_phase;        // current phase of S-curve acceleration
     double elapsed_time;    // time elapsed since segment activation

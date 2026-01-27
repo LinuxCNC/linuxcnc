@@ -243,15 +243,6 @@ int blendPoints3Print(BlendPoints3 const * const points);
 
 double pmCartAbsMax(PmCartesian const * const v);
 
-typedef struct {
-    double v_max;
-    double acc_ratio;
-} PmCircleLimits;
-
-PmCircleLimits pmCircleActualMaxVel(const PmCircle *circle,
-        double v_max_nominal,
-        double a_max_nominal);
-
 int findSpiralArcLengthFit(PmCircle const * const circle,
         SpiralArcLengthFit * const fit);
 int pmCircleAngleFromProgress(PmCircle const * const circle,

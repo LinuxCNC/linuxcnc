@@ -1194,7 +1194,12 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		/* set the type of planner: 0 = trapezoidal, 1 = S-curve */
 		/* can do it at any time */
 		rtapi_print_msg(RTAPI_MSG_DBG, "SET_PLANNER_TYPE, type(%d)", emcmotCommand->planner_type);
-		emcmotStatus->planner_type = emcmotCommand->planner_type;
+		// Only 0 and 1 are supported, set to 0 if invalid
+		if (emcmotCommand->planner_type != 0 && emcmotCommand->planner_type != 1) {
+			emcmotStatus->planner_type = 0;
+		} else {
+			emcmotStatus->planner_type = emcmotCommand->planner_type;
+		}
 		break;
 				
 	case EMCMOT_PAUSE:

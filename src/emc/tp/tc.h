@@ -105,7 +105,7 @@ int tcSetupMotion(TC_STRUCT * const tc,
 
 int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp);
 
-int tcUpdateCircleAccRatio(TC_STRUCT * tc);
+int tcUpdateArcLimits(TC_STRUCT * tc);
 
 int tcFinalizeLength(TC_STRUCT * const tc);
 

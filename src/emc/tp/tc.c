@@ -23,9 +23,17 @@
 #include "tp_types.h"
 #include "spherical_arc.h"
 #include "motion_types.h"
+#include "motion.h"
 
 //Debug output
 #include "tp_debug.h"
+
+// For jerk-limited arc velocity (planner_type 1)
+extern emcmot_status_t *emcmotStatus;
+
+#ifndef GET_TRAJ_PLANNER_TYPE
+#define GET_TRAJ_PLANNER_TYPE() (emcmotStatus->planner_type)
+#endif
 
 
 double tcGetMaxTargetVel(TC_STRUCT const * const tc,
@@ -748,18 +756,111 @@ double pmCircle9Target(PmCircle9 const * const circ9)
     return helical_length;
 }
 
-int tcUpdateCircleAccRatio(TC_STRUCT * tc)
+/**
+ * Apply acceleration and jerk limits to circular/spherical arc segments.
+ *
+ * For any arc (TC_CIRCULAR or TC_SPHERICAL), this function:
+ * 1. Limits velocity based on centripetal acceleration budget
+ * 2. For planner_type 1 (S-curve), applies three jerk constraints:
+ *    - Steady-state rotational jerk: v³/R²
+ *    - Normal jerk from tangential acceleration coupling: 3·v·a_t/R
+ *    - Entry/exit transition jerk at arc boundaries
+ * 3. Calculates the tangential acceleration ratio for the arc
+ *
+ * This unified approach ensures consistent jerk limiting for both
+ * programmed arcs (G2/G3) and blend arcs at segment corners.
+ */
+int tcUpdateArcLimits(TC_STRUCT * tc)
 {
-    if (tc->motion_type == TC_CIRCULAR) {
-        PmCircleLimits limits = pmCircleActualMaxVel(&tc->coords.circle.xyz,
-                             tc->maxvel,
-                             tcGetOverallMaxAccel(tc));
-        tc->maxvel = limits.v_max;
-        tc->acc_ratio_tan = limits.acc_ratio;
-        return 0;
+    double radius, angle;
+
+    // Extract radius and angle based on motion type
+    switch (tc->motion_type) {
+        case TC_CIRCULAR:
+            radius = pmCircleEffectiveMinRadius(&tc->coords.circle.xyz);
+            angle = tc->coords.circle.xyz.angle;
+            break;
+        case TC_SPHERICAL:
+            radius = tc->coords.arc.xyz.radius;
+            angle = tc->coords.arc.xyz.angle;
+            break;
+        default:
+            return 1; // Not an arc, nothing to do
     }
-    // TODO handle blend arc here too?
-    return 1; //nothing to do, but not an error
+
+    if (radius < DOUBLE_FUZZ || angle < TP_ANGLE_EPSILON) {
+        return 1; // Degenerate arc
+    }
+
+    double a_max = tcGetOverallMaxAccel(tc);
+    double a_n_max_cutoff = BLEND_ACC_RATIO_NORMAL * a_max;
+
+    // Find the acceleration necessary to reach the maximum velocity
+    double a_n_vmax = pmSq(tc->maxvel) / radius;
+
+    // Find the maximum velocity that still obeys our desired normal/total acceleration ratio
+    double v_max_cutoff = pmSqrt(a_n_max_cutoff * radius);
+
+    double v_max_actual = tc->maxvel;
+    double acc_ratio_tan = BLEND_ACC_RATIO_TANGENTIAL;
+
+    if (a_n_vmax > a_n_max_cutoff) {
+        v_max_actual = v_max_cutoff;
+    } else {
+        acc_ratio_tan = pmSqrt(1.0 - pmSq(a_n_vmax / a_max));
+    }
+
+    // Jerk-based velocity limiting for S-curve planner (planner_type 1)
+    if (GET_TRAJ_PLANNER_TYPE() == 1 && emcmotStatus->jerk > TP_POS_EPSILON &&
+        tc->cycle_time > TP_TIME_EPSILON) {
+
+        double jerk = emcmotStatus->jerk;
+        double R_sq = pmSq(radius);
+
+        // Constraint 1: Steady-state rotational jerk + entry/exit transitions
+        // The jerk budget is shared between steady-state (v³/R²) and transitions.
+        // Solving: v³ ≤ R² × j × φ / (2 + φ)
+        // The (2 + φ) term: 2 for two transitions, φ for steady-state budget
+        double v_max_jerk_steady = cbrt(R_sq * jerk * angle / (2.0 + angle));
+
+        // Constraint 2: Normal jerk from tangential acceleration coupling
+        // During S-curve ramps on arc: j_n = 3·v·a_t/R
+        // Using BLEND_ACC_RATIO_TANGENTIAL as max tangential accel ratio
+        double a_t_max = BLEND_ACC_RATIO_TANGENTIAL * a_max;
+        double v_max_jerk_tan = jerk * radius / (3.0 * a_t_max);
+
+        // Constraint 3: Entry/exit transition jerk (centripetal accel ramp)
+        // At line-arc boundary, centripetal accel changes from 0 to v²/R
+        // j_entry = (v²/R) / cycle_time ≤ j_max
+        double v_max_jerk_entry = pmSqrt(jerk * radius * tc->cycle_time);
+
+        double v_max_jerk = fmin(fmin(v_max_jerk_steady, v_max_jerk_tan), v_max_jerk_entry);
+
+        tp_debug_print("tcUpdateArcLimits: type=%d R=%f phi=%f j=%f\n",
+                       tc->motion_type, radius, angle, jerk);
+        tp_debug_print("  v_jerk: steady=%f tan=%f entry=%f => min=%f\n",
+                       v_max_jerk_steady, v_max_jerk_tan, v_max_jerk_entry, v_max_jerk);
+
+        if (v_max_jerk < v_max_actual) {
+            tp_debug_print("  Limiting v_max from %f to %f for jerk\n",
+                           v_max_actual, v_max_jerk);
+            v_max_actual = v_max_jerk;
+
+            // Recalculate acc_ratio_tan for jerk-limited velocity
+            double a_n_at_jerk_vel = pmSq(v_max_actual) / radius;
+            if (a_n_at_jerk_vel < a_max) {
+                acc_ratio_tan = pmSqrt(1.0 - pmSq(a_n_at_jerk_vel / a_max));
+            }
+        }
+    }
+
+    tc->maxvel = v_max_actual;
+    tc->acc_ratio_tan = acc_ratio_tan;
+
+    tp_debug_print("tcUpdateArcLimits: final v_max=%f acc_ratio_tan=%f\n",
+                   tc->maxvel, tc->acc_ratio_tan);
+
+    return 0;
 }
 
 /**
@@ -785,7 +886,7 @@ int tcFinalizeLength(TC_STRUCT * const tc)
 
     tcClampVelocityByLength(tc);
 
-    tcUpdateCircleAccRatio(tc);
+    tcUpdateArcLimits(tc);
 
     tc->finalized = 1;
     return TP_ERR_OK;
