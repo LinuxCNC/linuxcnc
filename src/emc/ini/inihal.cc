@@ -159,7 +159,7 @@ int ini_hal_init(int numjoints)
         MAKE_FLOAT_PIN_IDX(joint_max_limit,max_limit,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_max_velocity,max_velocity,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_max_acceleration,max_acceleration,HAL_IN,idx);
-        MAKE_FLOAT_PIN_IDX(joint_jerk,jerk,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_jerk,max_jerk,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_home,home,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_home_offset,home_offset,HAL_IN,idx);
         MAKE_S32_PIN_IDX(  joint_home_sequence,home_sequence,HAL_IN,idx);
@@ -170,7 +170,7 @@ int ini_hal_init(int numjoints)
         MAKE_FLOAT_PIN_LETTER(axis_max_limit,max_limit,HAL_IN,idx,letter);
         MAKE_FLOAT_PIN_LETTER(axis_max_velocity,max_velocity,HAL_IN,idx,letter);
         MAKE_FLOAT_PIN_LETTER(axis_max_acceleration,max_acceleration,HAL_IN,idx,letter);
-        MAKE_FLOAT_PIN_LETTER(axis_jerk,jerk,HAL_IN,idx,letter);
+        MAKE_FLOAT_PIN_LETTER(axis_jerk,max_jerk,HAL_IN,idx,letter);
     }
 
     MAKE_FLOAT_PIN(traj_default_velocity,HAL_IN);
