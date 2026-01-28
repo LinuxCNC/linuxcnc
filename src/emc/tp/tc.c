@@ -349,6 +349,10 @@ int tcGetCurrentTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * cons
                 pmCircleTangentVector(&tc->coords.circle.xyz, current_angle, out);
             }
             break;
+        case TC_SPHERICAL:
+            // Spherical arcs used for blending - tangent calculation at arbitrary
+            // progress not yet implemented, direction will be zeroed in caller
+            return -1;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n", tc->motion_type);
             return -1;
