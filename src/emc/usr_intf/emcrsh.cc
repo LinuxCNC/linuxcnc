@@ -22,6 +22,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <getopt.h>
+#include <atomic>		// for sessions counter
+#include <mutex>		// parseCommand is not reentrant
 
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "inifile.hh"		// INIFILE
@@ -449,7 +451,7 @@ int enabledConn = -1;
 char pwd[16] = "EMC\0";
 char enablePWD[16] = "EMCTOO\0";
 char serverName[24] = "EMCNETSVR\0";
-int sessions = 0;
+std::atomic_int sessions = 0;
 int maxSessions = -1;
 
 const char *cmdTokens[] = {
@@ -478,6 +480,8 @@ struct option longopts[] = {
   {"enablepw", 1, NULL, 'e'},
   {"path", 1, NULL, 'd'},
   {0,0,0,0}};
+
+std::mutex queue_mtx; // controls access to queue
 
 /* format string to outputbuffer (will be presented to user as result of command) */
 #define OUT(...) snprintf(context->outBuf, sizeof(context->outBuf), __VA_ARGS__)
@@ -2917,6 +2921,8 @@ cmdType lookupCommand(char *s)
 // handle the linuxcncrsh command in context->inBuf
 int parseCommand(connectionRecType *context)
 {
+  std::lock_guard<std::mutex> lck(queue_mtx); // Only one thread enters this function at a time.
+                                              // Caveat: Change strtok to strtok_r if this ever changes.
   int ret = 0;
   char *cmdStr;
 
@@ -3041,14 +3047,8 @@ int sockMain()
         sessions++;
         // enforce limited amount of clients that can connect simultaneously
         if ((maxSessions == -1) || (sessions <= maxSessions)) {
-            pthread_t *thrd;
+            pthread_t thrd;
             connectionRecType *context;
-
-            thrd = (pthread_t *)calloc(1, sizeof(pthread_t));
-            if (!thrd) {
-                fprintf(stderr, "linuxcncrsh: out of memory\n");
-                exit(1);
-            }
 
             context = (connectionRecType *)malloc(sizeof(connectionRecType));
             if (!context) {
@@ -3067,7 +3067,10 @@ int sockMain()
             context->commProt = 0;
             context->inBuf[0] = 0;
 
-            res = pthread_create(thrd, NULL, readClient, (void *)context);
+            res = pthread_create(&thrd, NULL, readClient, (void *)context);
+            if (!res) {
+                pthread_detach(thrd);
+            }
         } else {
             fprintf(stderr, "linuxcncrsh: maximum amount of sessions exceeded: %d\n", maxSessions);
             res = -1;
