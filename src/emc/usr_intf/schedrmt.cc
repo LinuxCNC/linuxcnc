@@ -1096,6 +1096,8 @@ commandTokenType lookupToken(char *s)
   
 int parseCommand(connectionRecType *context)
 {
+  std::lock_guard<std::mutex> lck(queue_mtx); // Only one thread enters this function at a time.
+                                              // Caveat: Change strtok to strtok_r if this ever changes.
   int ret = 0;
   char *pch;
   char s[64];
@@ -1109,7 +1111,6 @@ int parseCommand(connectionRecType *context)
 
   if (pch != NULL) {
     strupr(pch);
-    std::lock_guard<std::mutex> lck(queue_mtx);
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
