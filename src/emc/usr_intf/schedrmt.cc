@@ -272,10 +272,8 @@ const char *setCommands[] = {
    "QMODE", "QSTATUS", "AUTOTAGID", "PGMADD", "PGMBYID", "PGMBYINDEX", "PGMALL", "PRIORITYBYID", 
    "PRIORITYBYINDEX", "DELETEBYID", "DELETEBYINDEX", "POLLRATE",
    ""};
-const unsigned char setCommands_max_length = 16;
 
 const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
-const unsigned char commands_max_length = 8;
 
 struct option longopts[] = {
   {"port", 1, NULL, 'p'},
@@ -354,7 +352,7 @@ static setCommandType lookupSetCommand(char *s)
   int temp;
   
   while (i < scUnknown) {
-    if (strncmp(setCommands[i], s, setCommands_max_length+1) == 0) return i;
+    if (strcmp(setCommands[i], s) == 0) return i;
 //    (int)i += 1;
       temp = i;
       temp++;
@@ -383,13 +381,13 @@ static int commandHello(connectionRecType *context)
 
 static int checkOnOff(char *s)
 {
-  static const onStr[] = "ON";
-  static const offStr[] = "OFF";
+  static const char onStr[] = "ON";
+  static const char offStr[] = "OFF";
   
   if (s == NULL) return -1;
   strupr(s);
-  if (strcmp(s, onStr, sizeof(onStr)) == 0) return 0;
-  if (strcmp(s, offStr, sizeof(offStr)) == 0) return 1;
+  if (strcmp(s, onStr) == 0) return 0;
+  if (strcmp(s, offStr) == 0) return 1;
   return -1;
 }
 
@@ -400,8 +398,8 @@ static int checkBinaryASCII(char *s)
   
   if (s == NULL) return -1;
   strupr(s);
-  if (strcmp(s, ASCIIStr, sizeof(ASCIIStr)) == 0) return 0;
-  if (strcmp(s, binaryStr, sizeof(binaryStr)) == 0) return 1;
+  if (strcmp(s, ASCIIStr) == 0) return 0;
+  if (strcmp(s, binaryStr) == 0) return 1;
   return -1;
 }
 
@@ -446,7 +444,7 @@ static cmdResponseType setVerbose(char *s, connectionRecType *context)
 static cmdResponseType setEnable(char *s, connectionRecType *context)
 {
   
-   if (strcmp(s, enablePWD, sizeof(enablePWD)) == 0) {
+   if (strcmp(s, enablePWD) == 0) {
      enabledConn = context->cliSock;
      context->enabled = true;
      return rtNoError;
@@ -1085,7 +1083,7 @@ commandTokenType lookupToken(char *s)
   int temp;
   
   while (i < cmdUnknown) {
-    if (strncmp(commands[i], s, commands_max_length+1) == 0) {
+    if (strcmp(commands[i], s) == 0) {
       return i;
     }
 //    (int)i += 1;
