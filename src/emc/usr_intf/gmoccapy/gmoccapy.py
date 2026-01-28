@@ -1979,6 +1979,8 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
         for axis in self.axis_list:
             self.widgets.tooledit1.set_visible("{0}".format(axis), True)
+        # hide select column
+        self.widgets.tooledit1.wTree.get_object("s1").set_visible(False)
         # disconnect the key_press handler in the widget
         tv = self.widgets.tooledit1.wTree.get_object("treeview1")
         tv.disconnect_by_func(self.widgets.tooledit1.on_tree_navigate_key_press)
@@ -2053,6 +2055,7 @@ class gmoccapy(object):
                 temp.connect('edited', self.on_tool_col_edited)
         self.widgets.tooledit1.edited = False
         # override 'tooledit_widget' method 'set_selected_tool' so we can set the label text
+        self.tooledit1_set_selected_tool = self.widgets.tooledit1.set_selected_tool
         self.widgets.tooledit1.set_selected_tool = self.set_selected_tool
         # override 'tooledit_widget' method 'toolfile_stale' so we can also update toolinfo
         self.widgets.tooledit1.toolfile_stale = self.toolfile_stale
@@ -2063,8 +2066,9 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_selected_tool(self.widgets.tooledit1.toolinfo_num)
 
     def set_selected_tool(self, toolnumber):
-        lbl_tool_text = "Tool loaded: " + str(toolnumber)
+        lbl_tool_text = _("Tool loaded: ") + str(toolnumber)
         self.widgets.tooledit1.lbl_tool.set_text(lbl_tool_text)
+        self.tooledit1_set_selected_tool(toolnumber)
 
     def on_tree_navigate_key_press(self, treeview, event, filter):
         keyname = Gdk.keyval_name(event.keyval)
@@ -5488,15 +5492,13 @@ class gmoccapy(object):
             self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
-        selected_tools = self.widgets.tooledit1.get_selected_tool()
-        if not isinstance(selected_tools, list):
-            selected_tools = [selected_tools]
-        if self.stat.tool_in_spindle in selected_tools:
+        selected_tool = self.widgets.tooledit1.get_selected_row()
+        if self.stat.tool_in_spindle == selected_tool:
             message = _("You are trying to delete the tool mounted in the spindle\n")
             message += _("This is not allowed, please change tool prior to delete it")
             self.dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
             return
-        self.widgets.tooledit1.delete(widget)
+        self.widgets.tooledit1.delete_selected_row(widget)
         self.widgets.tooledit1.edited = True
 
     def on_btn_add_tool_clicked(self, widget, data=None):

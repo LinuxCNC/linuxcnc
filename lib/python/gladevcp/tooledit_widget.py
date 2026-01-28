@@ -181,7 +181,7 @@ class ToolEdit(Gtk.Box):
             return not data
         return data
 
-        # delete the selected tools
+        # delete tools selected by checkbox
     def delete(self,widget):
         liststore  = self.model
         def match_value_cb(model, path, iter, pathlist):
@@ -195,6 +195,11 @@ class ToolEdit(Gtk.Box):
         pathlist.reverse()
         for path in pathlist:
             liststore.remove(liststore.get_iter(path))
+
+        # delete tool of selected row
+    def delete_selected_row(self,widget):
+        model, iter = self.view1.get_selection().get_selected()
+        model.remove(iter)
 
         # return tool numbers of all rows with checked checkboxes
     def get_selected_tool(self):
