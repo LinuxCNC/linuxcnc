@@ -528,7 +528,7 @@ static int initSocket()
   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
   server_address.sin_port = htons(port);
   server_len = sizeof(server_address);
-  err = bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
+  err = bind(server_sockfd, reinterpret_cast<struct sockaddr*>(&server_address), server_len);
   if (err) {
       rcs_print_error("error initializing sockets: %s\n", strerror(errno));
       return err;

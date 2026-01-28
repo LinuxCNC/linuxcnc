@@ -328,7 +328,7 @@ static int initSockets()
   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
   server_address.sin_port = htons(port);
   server_len = sizeof(server_address);
-  bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
+  bind(server_sockfd, reinterpret_cast<struct sockaddr*>(&server_address), server_len);
   listen(server_sockfd, 5);
   signal(SIGCHLD, SIG_IGN);
   return 0;
@@ -1210,7 +1210,7 @@ void sockMain()
         int res = -1;
         struct sockaddr_in client_address;
         socklen_t client_len = sizeof(client_address);
-        int client_sockfd = accept(server_sockfd, (struct sockaddr *)&client_address, &client_len);
+        int client_sockfd = accept(server_sockfd, reinterpret_cast<struct sockaddr*>(&client_address), &client_len);
         if (client_sockfd < 0) {
             perror("sockMain: accept failed\n");
             exit(EXIT_FAILURE);
