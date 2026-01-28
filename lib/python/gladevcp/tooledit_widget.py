@@ -181,7 +181,7 @@ class ToolEdit(Gtk.Box):
             return not data
         return data
 
-        # delete the selected tools
+        # delete tools selected by checkbox
     def delete(self,widget):
         liststore  = self.model
         def match_value_cb(model, path, iter, pathlist):
@@ -196,6 +196,11 @@ class ToolEdit(Gtk.Box):
         for path in pathlist:
             liststore.remove(liststore.get_iter(path))
 
+        # delete tool of selected row
+    def delete_selected_row(self,widget):
+        model, iter = self.view1.get_selection().get_selected()
+        model.remove(iter)
+
         # return tool numbers of all rows with checked checkboxes
     def get_selected_tool(self):
         liststore  = self.model
@@ -206,10 +211,16 @@ class ToolEdit(Gtk.Box):
         pathlist = []
         liststore.foreach(match_value_cb, pathlist)
         # foreach works in a depth first fashion
-        if len(pathlist) != 1:
+        if len(pathlist) == 0:
             return None
-        else:
+        elif len(pathlist) == 1:
             return(liststore.get_value(liststore.get_iter(pathlist[0]),1))
+        else:
+            selected_tools = []
+            for path in pathlist:
+                tool = (liststore.get_value(liststore.get_iter(path[0]),1))
+                selected_tools.append(tool)
+            return selected_tools
 
         # return tool number of the highlighted (ie selected) row
     def get_selected_row(self):
@@ -222,7 +233,7 @@ class ToolEdit(Gtk.Box):
 
     def set_selected_tool(self,toolnumber):
         try:
-            treeselection = self.view2.get_selection()
+            treeselection = self.view1.get_selection()
             liststore  = self.model
             def match_tool(model, path, iter, pathlist):
                 if model.get_value(iter, 1) == toolnumber:
@@ -234,6 +245,7 @@ class ToolEdit(Gtk.Box):
             if len(pathlist) == 1:
                 liststore.set_value(liststore.get_iter(pathlist[0]),0,1)
                 treeselection.select_path(pathlist[0])
+                self.view1.scroll_to_cell(pathlist[0], None, True, 0.5, 0.0)
         except:
             print(_("tooledit_widget error: cannot select tool number"),toolnumber)
 
