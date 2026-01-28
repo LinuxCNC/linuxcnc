@@ -233,7 +233,7 @@ class ToolEdit(Gtk.Box):
 
     def set_selected_tool(self,toolnumber):
         try:
-            treeselection = self.view2.get_selection()
+            treeselection = self.view1.get_selection()
             liststore  = self.model
             def match_tool(model, path, iter, pathlist):
                 if model.get_value(iter, 1) == toolnumber:
@@ -245,6 +245,7 @@ class ToolEdit(Gtk.Box):
             if len(pathlist) == 1:
                 liststore.set_value(liststore.get_iter(pathlist[0]),0,1)
                 treeselection.select_path(pathlist[0])
+                self.view1.scroll_to_cell(pathlist[0], None, True, 0.5, 0.0)
         except:
             print(_("tooledit_widget error: cannot select tool number"),toolnumber)
 
