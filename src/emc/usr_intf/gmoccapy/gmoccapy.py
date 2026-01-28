@@ -1997,7 +1997,7 @@ class gmoccapy(object):
         btn_delete.set_size_request(56, 56)
         btn_delete.set_label("")
         btn_delete.set_image(self.widgets.img_tool_delete)
-        btn_delete.set_tooltip_text(_("Select tools to delete"))
+        btn_delete.set_tooltip_text(_("Delete selected tools"))
         btn_delete.set_always_show_image(True)
         btn_delete.disconnect_by_func(self.widgets.tooledit1.delete)
         btn_delete.connect("clicked",self.on_btn_delete_tool_clicked)
@@ -2042,7 +2042,6 @@ class gmoccapy(object):
         btn_calculator.set_active(self.toolpage_use_calc)
         btn_calculator.connect("toggled", self.on_toolpage_use_calc_toggled)
         buttonbox.pack_start(btn_calculator,False,False,50)
-        self.widgets.tooledit1.wTree.get_object("s1").set_visible(False)
         column_cell_ids = ["toggle", "tool#1", "pos1",
                            "x1", "y1", "z1", "a1", "b1", "c1", "u1", "v1", "w1",
                            "d1", "front1", "back1", "orient1", "comments1"]
@@ -5489,11 +5488,6 @@ class gmoccapy(object):
             self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
-        btn_delete = self.widgets.tooledit1.wTree.get_object("delete")
-        if not self.widgets.tooledit1.wTree.get_object("s1").get_visible():
-            self.widgets.tooledit1.wTree.get_object("s1").set_visible(True)
-            btn_delete.set_tooltip_text(_("Delete selected tools"))
-            return
         selected_tools = self.widgets.tooledit1.get_selected_tool()
         if not isinstance(selected_tools, list):
             selected_tools = [selected_tools]
@@ -5502,8 +5496,6 @@ class gmoccapy(object):
             message += _("This is not allowed, please change tool prior to delete it")
             self.dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
             return
-        self.widgets.tooledit1.wTree.get_object("s1").set_visible(False)
-        btn_delete.set_tooltip_text(_("Select tools to delete"))
         self.widgets.tooledit1.delete(widget)
         self.widgets.tooledit1.edited = True
 
