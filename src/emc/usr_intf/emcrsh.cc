@@ -481,6 +481,8 @@ struct option longopts[] = {
   {"path", 1, NULL, 'd'},
   {0,0,0,0}};
 
+std::mutex queue_mtx; // controls access to queue
+
 /* format string to outputbuffer (will be presented to user as result of command) */
 #define OUT(...) snprintf(context->outBuf, sizeof(context->outBuf), __VA_ARGS__)
 
