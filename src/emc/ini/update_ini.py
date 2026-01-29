@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-THIS_VERSION = "1.1"
+THIS_VERSION = "1.2"
 
 import sys
 import os
@@ -165,16 +165,11 @@ for halfile in halfiles:
 
 print("halpaths = ", halpaths)
 
-if version == "1.0":
-    #Just update the version in the INI
-    inistring = open(filename,'r').read()
-    newini = open(filename, 'w')
-    inistring = re.sub("VERSION *= *(.*)", "VERSION = %s" % THIS_VERSION, inistring)
-    newini.write(inistring)
-    newini.close()
 
-if version == "$Revision$" or version < "1.0":
-    
+def ini_preamble():
+    """
+    The part which is equal for the conversions up from version 1.1
+    """
     inistring = open(filename,'r').read()
     newini = open(filename, 'w')
     # Get a list of all sections
@@ -209,6 +204,18 @@ if version == "$Revision$" or version < "1.0":
     else:
          newini.write("VERSION = %s\n" % THIS_VERSION)
 
+    return inistring, newini, all_sections
+
+if version == "1.0":
+    #Just update the version in the INI
+    inistring = open(filename,'r').read()
+    newini = open(filename, 'w')
+    inistring = re.sub("VERSION *= *(.*)", "VERSION = %s" % THIS_VERSION, inistring)
+    newini.write(inistring)
+    newini.close()
+
+if version == "$Revision$" or version < "1.0":
+    inistring, newini, all_sections = ini_preamble()
     #These sections don't need any work.
     copysection("DISPLAY")
     copysection("FILTER")
@@ -416,6 +423,48 @@ if version == "$Revision$" or version < "1.0":
     #That's the INI file done:
     newini.close()
 
+if version < "1.2":
+    inistring, newini, all_sections = ini_preamble()
+
+    all_sections.remove("DISPLAY")
+    section = re.search(r"\[DISPLAY\](.+?)\n\[", inistring, re.DOTALL)
+    if section: section = section.group(1)
+    newini.write("\n[DISPLAY]\n")
+    # if section != None:
+    #     if not re.search("DEFAULT_SPINDLE_0_SPEED", section):
+    #         if re.search("DEFAULT_SPINDLE_SPEED", section):
+    #             section = re.sub("DEFAULT_SPINDLE_SPEED", "DEFAULT_SPINDLE_0_SPEED", section)
+    #         else:
+    #             mv = re.findall(r"DEFAULT_SPINDLE_SPEED[\s=]+(\d*(\.\d+)?)", inistring, re.MULTILINE)
+    #             section = ("\n# start value for spindle speed " +
+    #                       "\nDEFAULT_SPINDLE_0_SPEED = %s" % max(mv)[0] + section)
+    #     # if not re.search("DEFAULT_LINEAR_VELOCITY", section):
+    #     #     section = re.sub("DEFAULT_VELOCITY", "DEFAULT_LINEAR_VELOCITY", section)
+    #     # if not re.search("MAX_LINEAR_ACCELERATION", section):
+    #     #     section = re.sub("MAX_ACCELERATION", "MAX_LINEAR_ACCELERATION", section)
+    #     # if not re.search("DEFAULT_ACCELERATION", section):
+    #     #     section = re.sub("DEFAULT_ACCELERATION", "DEFAULT_LINEAR_ACCELERATION", section)
+    #     # print("COORDINATES = %s\n" % ''.join(coordinates))
+    #     # section = re.sub("COORDINATES.*", "COORDINATES = %s" % ''.join(coordinates[: joints]), section)
+    #     # section = re.sub("CYCLE_TIME.*?\n", "", section)
+    #     # section = re.sub("AXES *=.*\n", "", section)
+    #     newini.write(section)
+
+    #     # 'DEFAULT_SPINDLE_SPEED'                 : 'DEFAULT_SPINDLE_0_SPEED',
+    #     # 'MIN_SPINDLE_OVERRIDE'                  : 'MIN_SPINDLE_0_OVERRIDE',
+    #     # 'MAX_SPINDLE_OVERRIDE'                  : 'MAX_SPINDLE_0_OVERRIDE',
+       
+    
+    #These sections don't need any work.
+    copysection("FILTER")
+    copysection("RS274NGC")
+    copysection("PYTHON")
+    copysection("EMCMOT")
+    copysection("TASK")
+    copysection("HAL")
+    copysection("HALUI")
+    copysection("TRAJ")
+    copysection("EMCIO")
 
 
     # Now change all the pin names etc in the linked HAL files.
