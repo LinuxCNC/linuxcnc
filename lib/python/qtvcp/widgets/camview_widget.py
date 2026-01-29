@@ -62,7 +62,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.grabbed = None
         self.frame = None
         self._camNum = 0
-        self.api = CV.CAP_ANY
+        self.api = DEFAULT_API
         self.resolution=None
         self.diameter = 20
         self.rotation = 0
@@ -430,6 +430,8 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     # if data is a string or int, search for name/int in library and use it.
     def setAPI(self, data):
+        if not LIB_GOOD:
+            return
         camera_backends = CV.videoio_registry.getCameraBackends()
 
         if isinstance(data,str):
@@ -495,7 +497,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     camera_number = QtCore.pyqtProperty(int, get_camnum, set_camnum, reset_camnum)
 
 class WebcamVideoStream:
-    def __init__(self, src=0, api=CV.CAP_ANY, res=None):
+    def __init__(self, src=0, api=DEFAULT_API, res=None):
         self.possible_resolutions = []
         # initialize the video camera stream and read the first frame
         # from the stream
