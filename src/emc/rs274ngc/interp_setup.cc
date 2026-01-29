@@ -24,7 +24,6 @@
 #include "rs274ngc_interp.hh"
 #include <boost/python/object.hpp>
 
-#pragma GCC diagnostic error "-Wmissing-field-initializers"
 setup::setup() :
     AA_axis_offset(0.0),
     AA_current(0.0),
@@ -64,6 +63,8 @@ setup::setup() :
     control_mode(CANON_EXACT_STOP),
     tolerance(0.0),
     naivecam_tolerance(0.0),
+    tolerance_default(0.0),
+    naivecam_tolerance_default(0.0),
     current_pocket(0),
 
     current_x (0.0),
