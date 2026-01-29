@@ -223,7 +223,11 @@ static int loadTraj(EmcIniFile *trajInifile)
         planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve
         trajInifile->Find(&planner_type, "PLANNER_TYPE", "TRAJ");
         // Only 0 and 1 are supported, set to 0 if invalid
+        // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
         if (planner_type != 0 && planner_type != 1) {
+            planner_type = 0;
+        }
+        if (planner_type == 1 && jerk < 1.0) {
             planner_type = 0;
         }
         if (0 != emcTrajPlannerType(planner_type)) {
