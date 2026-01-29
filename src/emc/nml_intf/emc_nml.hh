@@ -735,6 +735,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
         vel(0.0),
         ini_maxvel(0.0),
         acc(0.0),
+        ini_maxjerk(0.0),
         feed_mode(0),
         indexer_jnum(0)
     {};
@@ -763,6 +764,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
         vel(0.0),
         ini_maxvel(0.0),
         acc(0.0),
+        ini_maxjerk(0.0),
         feed_mode(0)
     {};
 
@@ -913,6 +915,7 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
         vel(0.0),
         ini_maxvel(0.0),
         acc(0.0),
+        ini_maxjerk(0.0),
         probe_type(0)
     {};
 
@@ -935,7 +938,8 @@ class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
         vel(0.0),
         ini_maxvel(0.0),
         acc(0.0),
-        scale(1.0)
+        scale(1.0),
+        ini_maxjerk(0.0)
     {};
 
     // For internal NML/CMS use only.

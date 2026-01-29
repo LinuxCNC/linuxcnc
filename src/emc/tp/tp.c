@@ -2980,6 +2980,13 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
         emcmotStatus->current_vel = 0;
         emcmotStatus->spindleSync = 0;
 
+        // Clear S-curve motion state
+        emcmotStatus->current_acc = 0;
+        emcmotStatus->current_jerk = 0;
+        emcmotStatus->current_dir.x = 0;
+        emcmotStatus->current_dir.y = 0;
+        emcmotStatus->current_dir.z = 0;
+
         emcPoseZero(&emcmotStatus->dtg);
 
         tp->motionType = 0;
@@ -3000,6 +3007,21 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
     tp->execId = tc->id;
     emcmotStatus->requested_vel = tc->reqvel;
     emcmotStatus->current_vel = tc->currentvel;
+
+    // Output accurate S-curve motion state (for accurate jerk calculation)
+    emcmotStatus->current_acc = tc->currentacc;
+    emcmotStatus->current_jerk = tc->currentjerk;
+
+    // Get current motion direction unit vector (precise tangent at current progress)
+    PmCartesian dir;
+    if (tcGetCurrentTangentUnitVector(tc, &dir) == 0) {
+        emcmotStatus->current_dir = dir;
+    } else {
+        // If direction unavailable, use zero vector
+        emcmotStatus->current_dir.x = 0;
+        emcmotStatus->current_dir.y = 0;
+        emcmotStatus->current_dir.z = 0;
+    }
 
     emcPoseSub(&tc_pos, &tp->currentPos, &emcmotStatus->dtg);
     return TP_ERR_OK;

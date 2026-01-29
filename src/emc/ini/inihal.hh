@@ -52,7 +52,6 @@ int ini_hal_init_pins(int numjoints);
     FIELD(hal_float_t,traj_max_velocity) \
     FIELD(hal_float_t,traj_default_acceleration) \
     FIELD(hal_float_t,traj_max_acceleration) \
-    FIELD(hal_float_t,traj_default_jerk) \
     FIELD(hal_float_t,traj_max_jerk) \
     FIELD(hal_s32_t,traj_planner_type) \
 \

@@ -648,6 +648,14 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double current_vel;
 	double requested_vel;
 
+	/* S-curve motion state - for accurate jerk output */
+	double current_acc;     /* current path acceleration */
+	double current_jerk;    /* current path jerk (accurate value from TP) */
+	double decel_dist;      /* S-curve deceleration distance (dlen1) for debugging */
+	double tc_finalvel;     /* S-curve segment final velocity for debugging */
+	double tc_maxaccel;     /* S-curve segment max tangential accel for debugging */
+	PmCartesian current_dir; /* current motion direction unit vector */
+
 	unsigned int tcqlen;
 	EmcPose tool_offset;
 	int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */

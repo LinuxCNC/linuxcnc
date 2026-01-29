@@ -373,14 +373,13 @@ S-curve trajectory planning pins (sampled continuously, can be changed at runtim
 
 * 'ini.traj_planner_type' - (s32, in) [TRAJ]PLANNER_TYPE
 * 'ini.traj_max_jerk' - (float, in) [TRAJ]MAX_LINEAR_JERK
-* 'ini.traj_default_jerk' - (float, in) [TRAJ]DEFAULT_LINEAR_JERK
 
 Per-axis jerk limit pins (where _L_ is x, y, z, a, b, c, u, v, or w):
 
-* 'ini._L_.jerk' - (float, in) [AXIS__L_]MAX_JERK
+* 'ini._L_.max_jerk' - (float, in) [AXIS__L_]MAX_JERK
 
 Per-joint jerk limit pins (where _N_ is the joint number 0-8):
 
-* 'ini._N_.jerk' - (float, in) [JOINT__N_]MAX_JERK
+* 'ini._N_.max_jerk' - (float, in) [JOINT__N_]MAX_JERK
 
 // vim: set syntax=asciidoc:
