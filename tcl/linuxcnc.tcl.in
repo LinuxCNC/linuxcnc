@@ -25,7 +25,7 @@ namespace eval linuxcnc {
     variable TCL_SCRIPT_DIR @EMC2_TCL_DIR@/scripts
     variable HELP_DIR @EMC2_HELP_DIR@
     variable RTLIB_DIR @EMC2_RTLIB_DIR@
-    variable CONFIG_PATH {@LINUXCNC_CONFIG_PATH@}
+    variable CONFIG_PATH {@LINUXCNC_CONFIG_PATH_TCL@}
     variable NCFILES_DIR @EMC2_NCFILES_DIR@
     variable LANG_DIR @EMC2_LANG_DIR@
     variable IMAGEDIR @EMC2_IMAGE_DIR@
@@ -33,7 +33,7 @@ namespace eval linuxcnc {
     variable RTS @RTS@
     variable CONFIG_DIR {}
     variable _dir
-    foreach _dir  [split {@LINUXCNC_CONFIG_PATH@} :] {
+    foreach _dir  [split {@LINUXCNC_CONFIG_PATH_TCL@} :] {
 	lappend CONFIG_DIR [file normalize $_dir]
     }
     unset _dir

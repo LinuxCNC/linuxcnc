@@ -39,6 +39,10 @@
 
 #define setresult(t,s) Tcl_SetObjResult((t), Tcl_NewStringObj((s),-1))
 
+#ifndef CONST
+#define CONST const
+#endif
+
 /*
   Using tcl package Linuxcnc:
   Using emcsh:
@@ -3421,7 +3425,7 @@ extern "C"
 int Linuxcnc_Init(Tcl_Interp * interp);
 int Linuxcnc_Init(Tcl_Interp * interp)
 {
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL)
+    if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL)
     {
         return TCL_ERROR;
     }

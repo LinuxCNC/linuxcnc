@@ -1660,7 +1660,7 @@ class _prompt_float:
         self.buttons = f = Tkinter.Frame(t)
         self.ok = Tkinter.Button(f, text=_("OK"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
         self.cancel = Tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
-        v.trace("w", self.check_valid)
+        v.trace_add("write", self.check_valid)
         t.wm_protocol("WM_DELETE_WINDOW", self.cancel.invoke)
         t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
         t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
@@ -1769,7 +1769,7 @@ class _prompt_touchoff(_prompt_float):
         f = Frame(t)
         self.c = c = StringVar(t)
         c.set(defaultsystem)
-        c.trace_variable("w", self.change_system)
+        c.trace_add("write", self.change_system)
         if not tool_only:
             l = Label(f, text=_("Coordinate System:"))
             mb = OptionMenu(f, c, *systems)
@@ -4268,7 +4268,7 @@ else:
 
 set_motion_teleop(0) # start in joint mode
 
-root_window.tk.call("trace", "variable", "metric", "w", "update_units")
+root_window.tk.call("trace", "add", "variable", "metric", "write", "update_units")
 install_help(root_window)
 
 widgets.numbers_text.bind("<Configure>", commands.redraw_soon)
