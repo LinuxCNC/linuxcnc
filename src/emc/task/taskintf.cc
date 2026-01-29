@@ -1228,6 +1228,9 @@ int emcTrajSetMaxJerk(double jerk)
 {
     if (jerk < 0.0) {
 	jerk = 0.0;
+    } else if (jerk > 1e9) {
+	// Clamp to 1e9 to prevent numerical instability in S-curve calculations
+	jerk = 1e9;
     }
 
     TrajConfig.MaxJerk = jerk;

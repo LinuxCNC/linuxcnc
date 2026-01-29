@@ -203,8 +203,8 @@ static int loadTraj(EmcIniFile *trajInifile)
         }
         old_inihal_data.traj_max_acceleration = acc;
 
-        // Set max jerk (default to 10000 if not specified in INI)
-        jerk = 10000.0;
+        // Set max jerk (default to 1e9 if not specified in INI)
+        jerk = 1e9;
         trajInifile->Find(&jerk, "MAX_LINEAR_JERK", "TRAJ");
         if (0 != emcTrajSetMaxJerk(jerk)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {

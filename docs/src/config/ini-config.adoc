@@ -863,8 +863,10 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
 * `PLANNER_TYPE = 0` - (((PLANNER TYPE))) Selects the trajectory planner type: 0 = trapezoidal (default), 1 = S-curve with jerk limiting.
   S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK > 0`.
 * `MAX_LINEAR_JERK = 10000.0` - (((MAX JERK))) The maximum jerk (rate of change of acceleration) for coordinated moves, in 'machine units' per second cubed.
-  Default is 10000.0.
+  Default is 1e9 (1 billion) if not specified, which effectively disables jerk limiting while avoiding numerical instability.
+  Values are clamped to a maximum of 1e9 to prevent numerical issues in S-curve calculations.
   When `PLANNER_TYPE = 1`, this enables S-curve trajectory planning.
+  Note: Not specifying MAX_LINEAR_JERK (defaulting to 1e9) produces motion similar to trapezoidal planning (PLANNER_TYPE = 0) but not identical, as extremely high jerk still uses S-curve calculations.
 * `POSITION_FILE =` _position.txt_ - If set to a non-empty value, the joint positions are stored between runs in this file.
   This allows the machine to start with the same coordinates it had on shutdown.
   This assumes there was no movement of the machine while powered off.
