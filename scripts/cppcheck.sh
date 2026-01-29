@@ -29,9 +29,6 @@ CXSTD=( --std=c++17 --language=c++ )
 CPPCHKCC=( "${CPPCHKOPT[@]}" "${CCSTD[@]}" )
 CPPCHKCX=( "${CPPCHKOPT[@]}" "${CXSTD[@]}" )
 
-# Do this from the source directory
-cd "$(dirname "$0")/../src" || { echo "Could not change directory to '$(dirname "$0")/../src'"; exit 1; }
-
 # Only process individual files if passed on the command line.
 if [ $# -gt 0 ]; then
     retval=0
@@ -52,6 +49,9 @@ if [ $# -gt 0 ]; then
     done
     exit $retval
 fi
+
+# Do the rest from the source directory
+cd "$(dirname "$0")/../src" || { echo "Could not change directory to '$(dirname "$0")/../src'"; exit 1; }
 
 docheck() {
     local rv
