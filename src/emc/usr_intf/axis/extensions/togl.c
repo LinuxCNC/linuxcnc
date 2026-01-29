@@ -1070,7 +1070,7 @@ int Togl_Configure(Tcl_Interp *interp, struct Togl *togl,
                           argc, (void *)optr, (char *)togl, flags) == TCL_ERROR) {
       return(TCL_ERROR);
    }
-#if TK_VERSION_MAJOR >= 9
+#if TK_MAJOR_VERSION >= 9
    for(int u = 0; u < argc; u++) {
       Tcl_DecrRefCount(optr[u]);
    }
