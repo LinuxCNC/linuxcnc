@@ -177,7 +177,6 @@ int ini_hal_init(int numjoints)
     MAKE_FLOAT_PIN(traj_max_velocity,HAL_IN);
     MAKE_FLOAT_PIN(traj_default_acceleration,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_acceleration,HAL_IN);
-    MAKE_FLOAT_PIN(traj_default_jerk,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_jerk,HAL_IN);
     MAKE_S32_PIN(traj_planner_type,HAL_IN);
 
@@ -198,7 +197,6 @@ int ini_hal_init_pins(int numjoints)
     INIT_PIN(traj_max_velocity);
     INIT_PIN(traj_default_acceleration);
     INIT_PIN(traj_max_acceleration);
-    INIT_PIN(traj_default_jerk);
     INIT_PIN(traj_max_jerk);
     INIT_PIN(traj_planner_type);
 
@@ -292,8 +290,8 @@ int check_ini_hal_items(int numjoints)
                 rcs_print("check_ini_hal_items:bad return value from emcTrajSetMaxJerk\n");
             }
         }
-        // Re-apply default_jerk with new max limit (in case it was set before max_jerk)
-        if (0 != emcTrajSetJerk(NEW(traj_default_jerk))) {
+        // Also update the current jerk to the new max value
+        if (0 != emcTrajSetJerk(NEW(traj_max_jerk))) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("check_ini_hal_items:bad return value from emcTrajSetJerk\n");
             }
@@ -314,16 +312,6 @@ int check_ini_hal_items(int numjoints)
             }
         }
     }
-
-    if (CHANGED(traj_default_jerk)) {
-        if (debug) SHOW_CHANGE(traj_default_jerk)
-        UPDATE(traj_default_jerk);
-        if (0 != emcTrajSetJerk(NEW(traj_default_jerk))) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("check_ini_hal_items:bad return value from emcTrajSetJerk\n");
-            }
-        }
-    } 
 
     if (   CHANGED(traj_arc_blend_enable)
         || CHANGED(traj_arc_blend_fallback_enable)

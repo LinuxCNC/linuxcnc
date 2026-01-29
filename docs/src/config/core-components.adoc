@@ -373,7 +373,6 @@ S-curve trajectory planning pins (sampled continuously, can be changed at runtim
 
 * 'ini.traj_planner_type' - (s32, in) [TRAJ]PLANNER_TYPE
 * 'ini.traj_max_jerk' - (float, in) [TRAJ]MAX_LINEAR_JERK
-* 'ini.traj_default_jerk' - (float, in) [TRAJ]DEFAULT_LINEAR_JERK
 
 Per-axis jerk limit pins (where _L_ is x, y, z, a, b, c, u, v, or w):
 
