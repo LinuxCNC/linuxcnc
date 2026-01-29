@@ -37,6 +37,7 @@ import array, time, atexit, tempfile, shutil, errno, select, re, getopt
 import traceback
 
 import tkinter as Tkinter
+import tkdar
 import _thread
 gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
@@ -119,9 +120,26 @@ inifile = linuxcnc.ini(sys.argv[2])
 
 ap = AxisPreferences()
 
+# Handle repeated key press events
+pressed_keys_list = []
+def key_pressed(ev):
+    if ev.keysym in pressed_keys_list:
+        return True
+    pressed_keys_list.append(ev.keysym)
+    return False
+
+def key_released(ev):
+    # KeyRelease without KeyPress may happen when a modifier is active when
+    # the key is pressed without a KeyPress handler. No KeyPress event is
+    # generated, but releasing the actual key while still holding the modifier
+    # generates a KeyRelease event that may be handled if there is a handler
+    # installed. Therefore, we test the list to prevent an exception.
+    if ev.keysym in pressed_keys_list:
+        pressed_keys_list.remove(ev.keysym)
+
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
-os.system("xset r off")
 root_window = Tkinter.Tk(className="Axis")
+tkdar.enable(root_window)  # Set detectable key repeat
 dpi_value = root_window.winfo_fpixels('1i')
 root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
 root_window.withdraw()
@@ -154,7 +172,6 @@ except TclError:
 def General_Halt():
     text = _("Do you really want to close LinuxCNC?")
     if not root_window.tk.call("nf_dialog", ".error", _("Confirm Close"), text, "warning", 1, _("Yes"), _("No")):
-        os.system("xset r on")
         root_window.destroy()
 
 root_window.protocol("WM_DELETE_WINDOW", General_Halt)
@@ -2685,17 +2702,22 @@ class TclCommands(nf.TclCommands):
 
     # The next three don't have 'manual_ok' because that's done in jog_on /
     # jog_off
-    def jog_plus(incr=False):
+    def jog_plus(event):
+        if key_pressed(event):
+            return  # Ignore repeated press events
         a = ja_from_rbutton()
         speed = get_jog_speed(a)
         jog_on(a, speed)
 
-    def jog_minus(incr=False):
+    def jog_minus(event):
+        if key_pressed(event):
+            return  # Ignore repeated press events
         a = ja_from_rbutton()
         speed = get_jog_speed(a)
         jog_on(a, -speed)
 
-    def jog_stop(event=None):
+    def jog_stop(event):
+        key_released(event)
         a = ja_from_rbutton()
         jog_off(a)
 
@@ -3304,7 +3326,9 @@ def jog_off_all():
         if jogging[i]:
             jog_off_actual(i)
 
-def jog_on_map(num, speed):
+def jog_on_map(ev, num, speed):
+    if key_pressed(ev):
+        return  # Ignore repeated press events
     if not get_jog_mode():
         if num >= len(jog_order): return
         axis_letter = jog_order[num]
@@ -3322,7 +3346,8 @@ def jog_on_map(num, speed):
         if axis_letter in jog_invert: speed = -speed
     return jog_on(num, speed)
 
-def jog_off_map(num):
+def jog_off_map(ev, num):
+    key_released(ev)
     if not get_jog_mode():
         if num >= len(jog_order): return
         num = "XYZABCUVW".index(jog_order[num])
@@ -3337,12 +3362,12 @@ def jog_off_map(num):
     return jog_off(num)
 
 def bind_axis(a, b, d):
-    root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on_map(d, -get_jog_speed_map(d)), "KeyPress"))
-    root_window.bind("<KeyPress-%s>" % b, kp_wrap(lambda e: jog_on_map(d, get_jog_speed_map(d)), "KeyPress"))
-    root_window.bind("<Shift-KeyPress-%s>" % a, lambda e: jog_on_map(d, -get_max_jog_speed_map(d)))
-    root_window.bind("<Shift-KeyPress-%s>" % b, lambda e: jog_on_map(d, get_max_jog_speed_map(d)))
-    root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off_map(d))
-    root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off_map(d))
+    root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on_map(e, d, -get_jog_speed_map(d)), "KeyPress"))
+    root_window.bind("<KeyPress-%s>" % b, kp_wrap(lambda e: jog_on_map(e, d, get_jog_speed_map(d)), "KeyPress"))
+    root_window.bind("<Shift-KeyPress-%s>" % a, lambda e: jog_on_map(e, d, -get_max_jog_speed_map(d)))
+    root_window.bind("<Shift-KeyPress-%s>" % b, lambda e: jog_on_map(e, d, get_max_jog_speed_map(d)))
+    root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off_map(e, d))
+    root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off_map(e, d))
 
 root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
 
