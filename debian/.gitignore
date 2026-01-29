@@ -22,3 +22,5 @@ autoreconf.after
 autoreconf.before
 debhelper-build-stamp
 
+# from debian/tests
+*.out
