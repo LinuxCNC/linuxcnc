@@ -6,7 +6,7 @@ siggen - signal generator
 
 == SYNOPSIS
 
-**loadrt siggen **[**num_chan=**_num_* | **names=**_name1_[,_name2_...]]
+**loadrt siggen**[**num_chan=**_num_ | **names=**_name1_[,_name2_...]]
 
 == DESCRIPTION
 

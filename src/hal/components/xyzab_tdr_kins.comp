@@ -28,7 +28,6 @@ document chapter (docs/src/motion/kinematics.txt) and for
 switchable kinematics in particular see the switchkins document
 chapter (docs/src/motion/switchkins.txt)
 
-.if \\n[.g] .mso www.tmac
 """;
 
 pin out s32 dummy=0"one pin needed to satisfy halcompile requirement";
@@ -144,6 +143,8 @@ int kinematicsForward(const double *j,
                       KINEMATICS_INVERSE_FLAGS * iflags)
 
 {
+    (void)fflags;
+    (void)iflags;
     double x_rot_point = *(haldata->x_rot_point);
     double y_rot_point = *(haldata->y_rot_point);
     double z_rot_point = *(haldata->z_rot_point);
@@ -206,6 +207,8 @@ int kinematicsInverse(const EmcPose * pos,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    (void)iflags;
+    (void)fflags;
     double x_rot_point = *(haldata->x_rot_point);
     double y_rot_point = *(haldata->y_rot_point);
     double z_rot_point = *(haldata->z_rot_point);

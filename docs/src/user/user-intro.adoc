@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:linuxcnc-user-introduction]]
-= LinuxCNC User Introduction(((LinuxCNC User Introduction,User Introduction)))
+= LinuxCNC User Introduction
+
+(((LinuxCNC User Introduction,User Introduction)))
 
 == Introduction
 
@@ -37,7 +39,7 @@ and a second signal that defines the speed at which that stepper motor rotates.
 
 While a stepper motor system under parallel port control is illustrated,
 a LinuxCNC system can also take advantage of a wide variety of dedicated hardware motion control interfaces for increased speed and I/O capabilities.
-A full list of interfaces supported by LinuxCNC can be found on the https://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[Supported Hardware] page of the Wiki.
+A full list of interfaces supported by LinuxCNC can be found on the http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[Supported Hardware] page of the Wiki.
 
 In most circumstances,
 users will create a configuration specific to their mill setup using either the <<cha:stepconf-wizard,Stepper Configuration Wizard>>
@@ -89,8 +91,9 @@ the folders created by the wizard would typically contain the following files:
   It also includes a number of subfolders with G-code examples.
 
 [[sec:graphical-user-interfaces]]
-== Graphical User Interfaces(((Graphical User Interfaces)))
+== Graphical User Interfaces
 
+(((Graphical User Interfaces)))
 A graphical user interface is the part of the LinuxCNC that the machine tool operator interacts with.
 LinuxCNC comes with several types of user interfaces
 which may be chosen from by editing certain fields contained in the <<cha:ini-configuration,INI file>>:

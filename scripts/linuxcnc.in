@@ -98,7 +98,7 @@ if test "xyes" != "x@RUN_IN_PLACE@"; then
     if [ -z "$TCLLIBPATH" ]; then
          TCLLIBPATH=$LINUXCNC_HOME/lib/tcltk
     else
-        TCLLIBPATH=$LINUXCNC_HOME/lib/tcltk:"$TCLLIBPATH"
+        TCLLIBPATH="$LINUXCNC_HOME/lib/tcltk $TCLLIBPATH"
     fi
     export TCLLIBPATH
 fi
@@ -296,7 +296,12 @@ EXTRA_ARGS=("$@")
 RUN_IN_PLACE=@RUN_IN_PLACE@
 echo "RUN_IN_PLACE=$RUN_IN_PLACE" >> "$PRINT_FILE"
 
+if [ RUN_IN_PLACE = "yes" ]; then
+    LINUXCNC_RIP_FLAG="True"; export LINUXCNC_RIP_FLAG
+fi
+
 LINUXCNCVERSION="@EMC2VERSION@"; export LINUXCNCVERSION
+
 
 # common from here..
 INIVAR=inivar
@@ -570,6 +575,10 @@ EMCSERVER=linuxcncsvr
 GetFromIniQuiet HALUI HAL
 HALUI=$retval
 
+# 2.7.1 get halbridge info from INI
+GetFromIniQuiet HALBRIDGE HAL
+HALBRIDGE=$retval
+
 # 2.8. get display information
 GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=$( (set -- $retval ; echo "$1") )
@@ -715,7 +724,7 @@ function Cleanup() {
     echo "Unloading hal components" >> "$DEBUG_FILE"
     $HALCMD unload all
 
-    # Unused vaiable 'i', just a counter
+    # Unused variable 'i', just a counter
     # shellcheck disable=SC2034
     for i in $(seq 10); do
         # (the one component is the halcmd itself)
@@ -865,6 +874,12 @@ if [ -n "$HALUI" ] ; then
 	exit 1
     fi
     $HALCMD loadusr -Wn halui "$HALUI" -ini "$INIFILE"
+fi
+
+# run hal bridge program IF requested
+if [ -n "$HALBRIDGE" ] ; then
+    echo "Starting HAL User Interface program: $HALBRIDGE" >> "$PRINT_FILE"
+    $HALCMD loadusr -Wn bridge $HALBRIDGE
 fi
 
 # 4.3.6. execute HALCMD config files (if any)

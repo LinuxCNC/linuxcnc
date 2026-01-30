@@ -25,7 +25,7 @@ from gi.repository import GObject as gobject
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 
 _ = lambda x: x
 

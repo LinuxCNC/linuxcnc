@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_div_u64(3rtapi)
+= rtapi_div_u64(3)
 
 == NAME
 

@@ -541,6 +541,8 @@ static char *loadrt_generator(const char *text, int state) {
         if(startswith(ent->d_name, "rtapi.")) continue;
         if(strncmp(text, ent->d_name, len) != 0) continue;
         result = strdup(ent->d_name);
+        if(!result)
+            return NULL;
         result[strlen(result) - strlen(MODULE_EXT)] = 0;
         return result;
     }

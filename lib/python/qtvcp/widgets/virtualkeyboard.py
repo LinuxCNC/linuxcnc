@@ -2,19 +2,21 @@
 import sys
 import os
 from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtCore import Qt, QEvent, pyqtSignal
 
-from qtvcp.core import Info
+from qtvcp.core import Info, Path
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
-INFO = Info()
+PATH = Path()
 
 class VirtualKeyboard(QtWidgets.QWidget):
+    hideKeyboard = pyqtSignal()
+
     def __init__(self, parent=None):
         super(VirtualKeyboard, self).__init__(parent)
         # Load the widgets UI file:
-        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'virtual_keyboard.ui')
+        self.filename = os.path.join(PATH.SHAREDIR,'widgets_ui', 'virtual_keyboard.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
@@ -93,6 +95,7 @@ class VirtualKeyboard(QtWidgets.QWidget):
         self.numbers_buttonGroup.buttonClicked.connect(self.special_clicked)
         self.special_buttonGroup.buttonClicked.connect(self.special_clicked)
         self.control_buttonGroup.buttonClicked.connect(self.button_clicked)
+        self.btn_hide.clicked.connect(lambda: self.hideKeyboard.emit())
 
     def init_letters(self):
         for val in self.letter_list:

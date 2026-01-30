@@ -14,7 +14,8 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QToolButton, QMenu, QAction
+from PyQt5.QtWidgets import (QToolButton, QMenu, QAction,
+    QComboBox, QWidgetAction)
 from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QIcon
 
@@ -39,17 +40,61 @@ LOG = logger.getLogger(__name__)
 class ActionToolButton(QToolButton, IndicatedMixIn):
     def __init__(self, parent=None):
         super(ActionToolButton, self).__init__(parent)
+        self._gridSize = 0
         self._userView = True
+        self._optionMenu = False
 
     def buildMenu(self):
         if self._userView:
-            SettingMenu = QMenu(self)
-            self.settingMenu = SettingMenu
-            self.recordButton = QAction(QIcon('exit24.png'), 'Record View', self)
+            settingMenu = QMenu(self)
+            self.settingMenu = settingMenu
+            self.recordButton = QAction(QIcon('exit24.png'), 'Record View', settingMenu)
             self.recordButton.triggered.connect(self.recordView)
-            SettingMenu.addAction(self.recordButton)
-            self.setMenu(SettingMenu)
+            settingMenu.addAction(self.recordButton)
+            self.setMenu(settingMenu)
             self.clicked.connect(self.setView)
+
+        elif self._optionMenu:
+            settingMenu = QMenu(self)
+            self.settingMenu = settingMenu
+
+            self.showGridAct = QAction( 'Show Grid', settingMenu, checkable=True)
+            self.showGridAct.setChecked(True)
+            self.showGridAct.triggered.connect(self.showGrid)
+            settingMenu.addAction(self.showGridAct)
+
+            self.comboBox = QComboBox(self)
+
+            for i in (INFO.GRID_INCREMENTS):
+                self.comboBox.addItem(i)
+            self.comboBox.currentTextChanged.connect(self.setGridSize)
+
+            wid = QWidgetAction(self)
+            wid.setDefaultWidget(self.comboBox)
+            settingMenu.addAction(wid)
+
+            self.showDimsAct = QAction( 'Show Dimensions', settingMenu, checkable=True)
+            self.showDimsAct.setChecked(True)
+            self.showDimsAct.triggered.connect(self.showDims)
+            settingMenu.addAction(self.showDimsAct)
+
+            self.showDROAct = QAction( 'Show DRO', settingMenu, checkable=True)
+            self.showDROAct.setChecked(False)
+            self.showDROAct.triggered.connect(self.showDRO)
+            settingMenu.addAction(self.showDROAct)
+
+            self.showDTGAct = QAction( 'Show DTG', settingMenu, checkable=True)
+            self.showDTGAct.setChecked(False)
+            self.showDTGAct.triggered.connect(self.showDTG)
+            settingMenu.addAction(self.showDTGAct)
+
+            self.showLargeAct = QAction( 'Large Font', settingMenu, checkable=True)
+            self.showLargeAct.setChecked(False)
+            self.showLargeAct.triggered.connect(self.showLarge)
+            settingMenu.addAction(self.showLargeAct)
+
+            self.setMenu(settingMenu)
+
 
     # Override setText function so we can toggle displayed text
     def setText(self, text):
@@ -79,6 +124,85 @@ class ActionToolButton(QToolButton, IndicatedMixIn):
     def setView(self):
         ACTION.SET_GRAPHICS_VIEW('set-recorded-view')
 
+    def showDims(self, data):
+        if data:
+            ACTION.SET_GRAPHICS_VIEW('dimensions-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('dimensions-off')
+
+    def showGrid(self, data):
+        if data:
+            ACTION.SET_GRAPHICS_GRID_SIZE(self._gridSize)
+        else:
+            ACTION.SET_GRAPHICS_VIEW('grid-off')
+
+    def setGridSize(self, data):
+        size = self.parse_increment(data)
+        self._gridSize = size
+        if self.showGridAct.isChecked():
+            ACTION.SET_GRAPHICS_GRID_SIZE(size)
+
+    def showDRO(self, data):
+        if data:
+            ACTION.SET_GRAPHICS_VIEW('overlay-dro-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('overlay-dro-off')
+
+    def showDTG(self, data):
+        if data:
+            ACTION.SET_GRAPHICS_VIEW('dtg-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('dtg-off')
+
+    def showLarge(self, data):
+        if data:
+            ACTION.SET_GRAPHICS_VIEW('set-large-dro')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('set-small-dro')
+
+    ###################################################
+    # helper functions
+    ###################################################
+
+    # We convert INI parced increments to machine units
+    def parse_increment(self, gridincr):
+        if gridincr.endswith("mm"):
+            scale = self.conversion(1)
+        elif gridincr.endswith("cm"):
+            scale = self.conversion(10)
+        elif gridincr.endswith("um"):
+            scale = self.conversion(.001)
+        elif gridincr.endswith("in") or gridincr.endswith("inch"):
+            scale = self.conversion(1., metric = False)
+        elif gridincr.endswith("mil"):
+            scale = self.conversion(.001, metric = False)
+        else:
+            scale = 1
+        incr = gridincr.rstrip(" inchmuil")
+        try:
+            if "/" in incr:
+                p, q = incr.split("/")
+                incr = float(p) / float(q)
+            else:
+                incr = float(incr)
+        except:
+            return None
+        LOG.verbose("parsed: text: {} Increment: {} scaled: {}".format(gridincr, incr, (incr * scale)))
+        return incr * scale
+
+    # This does the conversion
+    # calling function must tell us if the data is metric or not.
+    def conversion(self, data, metric = True):
+        if STATUS.is_metric_mode():
+            if metric:
+                return INFO.convert_metric_to_machine(data)
+            else:
+                return INFO.convert_imperial_to_machine(data)
+        else:
+            if metric:
+                return INFO.convert_metric_to_machine(data)
+            else:
+                return INFO.convert_imperial_to_machine(data)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -93,6 +217,13 @@ class ActionToolButton(QToolButton, IndicatedMixIn):
     def getViewAction(self):
         return self._userView
     userViewAction = pyqtProperty(bool, getViewAction, setViewAction)
+
+    # option menu
+    def setOptionMenu(self, state):
+        self._optionMenu = state
+    def getOptionMenu(self):
+        return self._optionMenu
+    OptionMenuAction = pyqtProperty(bool, getOptionMenu, setOptionMenu)
 
 # for testing without editor:
 def main():

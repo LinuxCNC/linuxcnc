@@ -67,6 +67,7 @@ class CMS_UPDATER {
 						   header.size */
     virtual int set_mode(CMS_UPDATER_MODE);
     virtual CMS_UPDATER_MODE get_mode();
+    // cppcheck-suppress virtualCallInConstructor
     virtual void set_encoded_data(void *, long _encoded_data_size);
 
   protected:

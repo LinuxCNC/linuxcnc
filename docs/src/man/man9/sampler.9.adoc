@@ -10,55 +10,50 @@ sampler - sample data from HAL in real time
 
 == DESCRIPTION
 
-*sampler* and **halsampler**(1) are used together to sample HAL data in
-real time and store it in a file. *sampler* is a realtime HAL component
-that exports HAL pins and creates a FIFO in shared memory. It then
-begins sampling data from the HAL and storing it to the FIFO.
-*halsampler* is a non-realtime program that copies data from the FIFO to
-stdout, where it can be redirected to a file or piped to some other
-program.
+The HAL component *sampler* and the program **halsampler**(1) are used together
+to sample HAL data in real time and store it in a file.
+Of these, *sampler* performs in realtime, exporting HAL pins and creates a FIFO (first-in, first out queue) in shared memory.
+It then samples data from the HAL and sends these to the FIFO.
+The application *halsampler* copies data from the FIFO to stdout,
+where it can be redirected to a file or piped to some other program.
 
 == OPTIONS
 
-*depth=*_depth1_[,_depth2_...]::
-  sets the depth of the realtime->non-realtime FIFO that *sampler*
+**depth=**_depth1_[,_depth2_...]::
+  sets the depth of the realtime`->`non-realtime FIFO that *sampler*
   creates to buffer the realtime data. Multiple values of _depth_
   (separated by commas) can be specified if you need more than one FIFO
   (for example if you want to sample data from two different realtime
   threads).
-*cfg=*_string1_[,_string2_...]::
+**cfg=**_string1_[,_string2_...]::
   defines the set of HAL pins that *sampler* exports and later samples
   data from. One _string_ must be supplied for each FIFO, separated by
   commas. *sampler* exports one pin for each character in _string._
   Legal characters are:
 
-::
-  *F, f* (float pin)
-::
-  *B, b* (bit pin)
-::
-  *S, s* (s32 pin)
-::
-  *U, u* (u32 pin)
+- *F, f* (float pin)
+- *B, b* (bit pin)
+- *S, s* (s32 pin)
+- *U, u* (u32 pin)
 
 == FUNCTIONS
 
-*sampler.*_N_::
+**sampler.**_N_::
   One function is created per FIFO, numbered from zero.
 
 == PINS
 
-*sampler.*_N_*.pin.*_M_ input::
+**sampler.**_N_**.pin.**_M_ input::
   Pin for the data that will wind up in column _M_ of FIFO _N_ (and in
   column _M_ of the output file). The pin type depends on the config
   string.
-*sampler.*_N_*.curr-depth* s32 output::
+**sampler.**_N_**.curr-depth** s32 output::
   Current number of samples in the FIFO. When this reaches _depth_ new
   data will begin overwriting old data, and some samples will be lost.
-*sampler.*_N_*.full* bit output::
+**sampler.**_N_**.full** bit output::
   TRUE when the FIFO _N_ is full, FALSE when there is room for another
   sample.
-*sampler.*_N_*.enable* bit input::
+**sampler.**_N_**.enable** bit input::
   When TRUE, samples are captured and placed in FIFO _N_, when FALSE, no
   samples are acquired. Defaults to TRUE.
 

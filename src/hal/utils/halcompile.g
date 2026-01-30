@@ -55,9 +55,9 @@ parser Hal:
 
     rule Header: STRING {{ return STRING }} | HEADER {{ return HEADER }}
 
-    rule String: TSTRING {{ return eval(TSTRING) }} 
+    rule String: TSTRING {{ return eval(TSTRING) }}
             | STRING {{ return eval(STRING) }}
- 
+
     rule OptPersonality: "if" Personality {{ return Personality }}
             | {{ return None }}
     rule Personality: {{ pp = [] }} (PersonalityPart {{ pp.append(PersonalityPart) }} )* {{ return " ".join(pp) }}
@@ -68,8 +68,8 @@ parser Hal:
     rule OptArray: "\\[" NUMBER OptArrayPersonality "\\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
             | {{ return 0 }}
     rule OptArrayPersonality: ":" Personality {{ return Personality }}
-            | {{ return None }} 
-    rule OptString: TSTRING {{ return eval(TSTRING) }} 
+            | {{ return None }}
+    rule OptString: TSTRING {{ return eval(TSTRING) }}
             | STRING {{ return eval(STRING) }}
             | {{ return '' }}
     rule OptAssign: "=" Value {{ return Value; }}
@@ -77,15 +77,15 @@ parser Hal:
     rule OptSAssign: "=" SValue {{ return SValue; }}
                 | {{ return None }}
     rule OptFP: "fp" {{ return 1 }} | "nofp" {{ return 0 }} | {{ return 1 }}
-    rule Value: "yes" {{ return 1 }} | "no" {{ return 0 }}  
-                | "true" {{ return 1 }} | "false" {{ return 0 }}  
-                | "TRUE" {{ return 1 }} | "FALSE" {{ return 0 }}  
+    rule Value: "yes" {{ return 1 }} | "no" {{ return 0 }}
+                | "true" {{ return 1 }} | "false" {{ return 0 }}
+                | "TRUE" {{ return 1 }} | "FALSE" {{ return 0 }}
                 | NAME {{ return NAME }}
                 | FPNUMBER {{ return float(FPNUMBER.rstrip("f")) }}
                 | NUMBER {{ return int(NUMBER,0) }}
-    rule SValue: "yes" {{ return "yes" }} | "no" {{ return "no" }}  
-                | "true" {{ return "true" }} | "false" {{ return "false" }}  
-                | "TRUE" {{ return "TRUE" }} | "FALSE" {{ return "FALSE" }}  
+    rule SValue: "yes" {{ return "yes" }} | "no" {{ return "no" }}
+                | "true" {{ return "true" }} | "false" {{ return "false" }}
+                | "TRUE" {{ return "TRUE" }} | "FALSE" {{ return "FALSE" }}
                 | NAME {{ return NAME }}
                 | FPNUMBER {{ return FPNUMBER }}
                 | NUMBER {{ return NUMBER }}
@@ -98,6 +98,7 @@ parser Hal:
 %%
 
 import os, sys, tempfile, shutil, getopt, time
+import subprocess
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 BINDIR = os.getenv('USER_MODULE_DIR', None) or os.path.join(BASE, "bin")
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
@@ -142,6 +143,10 @@ def parse(filename):
     if require_license:
         if not finddoc('license'):
             raise SystemExit("%s:0: License not specified" % filename)
+
+    if not "period" in options:
+        options["period"] = 1    # Option period defaults to on
+
     return a, b
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
@@ -197,7 +202,7 @@ def notes(doc):
 def type2type(type):
     # When we start warning about s32/u32 this is where the warning goes
     return typemap.get(type, type)
-    
+
 def checkarray(name, array):
     hashes = len(re.findall("#+", name))
     if array:
@@ -324,7 +329,7 @@ static int comp_id;
             if default: print("= %s;" % default, file=f)
             else: print(";", file=f)
             print("%s(%s, %s);" % (decl, name, q(doc)), file=f)
-            
+
     print("", file=f)
     print("struct __comp_state {", file=f)
     print("    struct __comp_state *_next;", file=f)
@@ -361,12 +366,20 @@ static int comp_id;
         print("#include <stdlib.h>", file=f)
 
     print("struct __comp_state *__comp_first_inst=0, *__comp_last_inst=0;", file=f)
-    
+
     print("", file=f)
     for name, fp in functions:
         if name in names:
             Error("Duplicate item name: %s" % name)
-        print("static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name), file=f)
+        if options.get("period"):
+            print("static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name), file=f)
+        else:
+            print("static void __no_period_%s(struct __comp_state *__comp_inst);" % to_c(name), file=f)
+            # Define a tail-call function that the compiler can eliminate. It
+            # hides the period parameter from the user function. Worst case it
+            # becomes a jump instruction.
+            print("static void %s(struct __comp_state *__comp_inst, long period)" % to_c(name), file=f)
+            print("{ (void)period; __no_period_%s(__comp_inst); }" % to_c(name), file=f)
         names[name] = 1
 
     print("static int __comp_get_data_size(void);", file=f)
@@ -719,13 +732,17 @@ int __comp_parse_names(int *argc, char **argv) {
     print("", file=f)
     if not options.get("no_convenience_defines"):
         print("#undef FUNCTION", file=f)
-        print("#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)", file=f)
+        if options.get("period"):
+            print("#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)", file=f)
+        else:
+            print("#define FUNCTION(name) static void __no_period_##name(struct __comp_state *__comp_inst)", file=f)
         print("#undef EXTRA_SETUP", file=f)
         print("#define EXTRA_SETUP() static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg)", file=f)
         print("#undef EXTRA_CLEANUP", file=f)
         print("#define EXTRA_CLEANUP() static void extra_cleanup(void)", file=f)
-        print("#undef fperiod", file=f)
-        print("#define fperiod (period * 1e-9)", file=f)
+        if options.get("period"):
+            print("#undef fperiod", file=f)
+            print("#define fperiod (period * 1e-9)", file=f)
         for name, type, array, dir, value, personality in pins:
             print("#undef %s" % to_c(name), file=f)
             print("#undef %s_ptr" % to_c(name), file=f)
@@ -852,33 +869,31 @@ def finddocs(section=None, name=None):
                 (name == None or name == item[1])):
                     yield item
 
-def to_hal_man_unnumbered(s):
-    s = "%s.%s" % (comp_name, s)
-    s = s.replace("_", "-")
-    s = s.rstrip("-")
-    s = s.rstrip(".")
-    s = re.sub("#+", lambda m: "\\fI" + "M" * len(m.group(0)) + "\\fB", s)
-    # s = s.replace("-", "\\-")
-    return s
-
+######
 
 def to_hal_man(s):
-    if options.get("singleton"):
-        s = "%s.%s" % (comp_name, s)
-    else:
-        s = "%s.\\fIN\\fB.%s" % (comp_name, s)
+    fn = s
     s = s.replace("_", "-")
-    s = s.rstrip("-")
-    s = s.rstrip(".")
-    s = re.sub("#+", lambda m: "\\fI" + "M" * len(m.group(0)) + "\\fB", s)
-    # s = s.replace("-", "\\-")
+    c = comp_name.replace("_", "-")
+    if options.get("singleton"):
+        s = "**%s**.**%s**" % (c, s)
+    elif "_" == fn:
+        s = "**%s**.__N__" % (c)
+    else:
+        s = "**%s**.__N__.**%s**" % (c, s)
+    s = s.rstrip("-").rstrip(".")
+    s = re.sub("#+", lambda m: "__" + "M" * len(m.group(0)) + "__", s)
     return s
 
-def document(filename, outfilename):
-
+# Generate an adoc file from the embedded declarations, defines and
+# documentation.
+def document(filename, outfilebase):
     a, b = parse(filename)
-    if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".1" if options.get("userspace") else ".9"
+    if outfilebase is None:
+        outfilename = os.path.splitext(filename)[0] + ".1.adoc" if options.get("userspace") else ".9.adoc"
+    else:
+        outfilename = outfilebase
+        outfilename += ".1.adoc" if options.get("userspace") else ".9.adoc"
 
     f = open(outfilename, "w")
 
@@ -890,57 +905,57 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print(""".\\" -*- mode: troff; coding: utf-8 -*-
-.\\"*******************************************************************
-.\\"
-.\\" This file was extracted from %s using halcompile.g.
-.\\" Modify the source file.
-.\\"
-.\\"*******************************************************************
+    print("""//
+// *******************************************************************
+//
+// This file was extracted from %s using halcompile.g.
+// Modify the source file.
+//
+// *******************************************************************
+//
 """ % filename, file=f)
 
-    print(".TH %s \"%s\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
-        comp_name.upper(), "1" if options.get("userspace") else "9",
-        time.strftime("%F")), file=f)
+    # = manpage(section)
+    print("= {}({})".format(comp_name.upper(), "1" if options.get("userspace") else "9"), file=f)
 
-    print(".SH NAME\n", file=f)
-    doc = finddoc('component')    
+    print("\n== NAME\n", file=f)
+    doc = finddoc('component')
     if doc and doc[2]:
         if '\n' in doc[2]:
             firstline, rest = doc[2].split('\n', 1)
         else:
             firstline = doc[2]
             rest = ''
-        print("%s \\- %s" % (doc[1], firstline), file=f)
+        print("%s - %s" % (doc[1], firstline), file=f)
     else:
         rest = ''
-        print("%s" % doc[1], file=f)
+        # A valid NAME section is formatted like "compname - brief description"
+        # Missing the brief description would fail conversion
+        print("%s - ." % doc[1], file=f)
 
-
-    print(".SH SYNOPSIS", file=f)
+    print("\n== SYNOPSIS\n", file=f)
     if options.get("userspace"):
-        print(".B %s" % comp_name, file=f)
+        print("*%s*" % comp_name, file=f)
     else:
         if rest:
             print(rest, file=f)
         else:
-            print(".HP", file=f)
             if options.get("homemod"):
-                print("Custom Homing module loaded with \\fB[EMCMOT]HOMEMOD=%s\\fR"%comp_name, file=f)
+                print("Custom Homing module loaded with *[EMCMOT]HOMEMOD=_%s_*"%comp_name, file=f)
             elif options.get("tpmod"):
-                print("Custom Trajectory Planning module loaded with \\fB[TRAJ]TPMOD=%s\\fR"%comp_name, file=f)
+                print("Custom Trajectory Planning module loaded with *[TRAJ]TPMOD=_%s_*"%comp_name, file=f)
             elif options.get("singleton") or options.get("count_function"):
                 if has_personality:
-                    print(".B loadrt %s personality=\\fIP\\fB" % comp_name, end='', file=f)
+                    print("*loadrt %s* *personality*=_P_" % comp_name, end='', file=f)
                 else:
-                    print(".B loadrt %s" % comp_name, end='', file=f)
+                    print("*loadrt %s*" % comp_name, end='', file=f)
             else:
                 if has_personality:
-                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP1,P2,...\\fB]" % comp_name, end='', file=f)
+                    print("*loadrt %s* [*count*=_N_|*names*=_name1_[,_name2_...]] [*personality*=_P1_[,_P2_...]]" % comp_name, end='', file=f)
                 else:
-                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name, end='', file=f)
+                    print("*loadrt %s* [*count*=_N_|*names*=_name1_[,_name2_...]]" % comp_name, end='', file=f)
             for type, name, default, doc in modparams:
-                print(" [%s=\\fIN\\fB]" % name, end='', file=f)
+                print(" [*%s*=_N_]" % name, end='', file=f)
             print("", file=f)
 
             hasparamdoc = False
@@ -948,41 +963,39 @@ def document(filename, outfilename):
                 if doc: hasparamdoc = True
 
             if hasparamdoc:
-                print(".RS 4", file=f)
                 for type, name, default, doc in modparams:
-                    print(".TP", file=f)
-                    print("\\fB%s\\fR" % name, end='', file=f)
+                    print("\n*%s*" % name, end='', file=f)
                     if default:
-                        print(" [default: %s]" % default, file=f)
+                        print(" [default: %s]::" % default, file=f)
                     else:
-                        print("", file=f)
+                        print("::", file=f)
                     print(doc, file=f)
-                print(".RE", file=f)
 
         if options.get("constructable") and not options.get("singleton"):
-            print(".PP\n.B newinst %s \\fIname\\fB" % comp_name, file=f)
+            print("\n*newinst %s* _name_" % comp_name, file=f)
 
-    doc = finddoc('descr')    
+    doc = finddoc('descr')
     if doc and doc[1]:
-        print(".SH DESCRIPTION\n", file=f)
+        print("\n== DESCRIPTION\n", file=f)
         print("%s" % doc[1], file=f)
 
     if functions:
-        print(".SH FUNCTIONS", file=f)
+        print("\n== FUNCTIONS\n", file=f)
         for _, name, fp, doc in finddocs('funct'):
-            print(".TP", file=f)
-            print("\\fB%s\\fR" % to_hal_man(name), end='', file=f)
+            print("%s" % to_hal_man(name), end='', file=f)
             if fp:
-                print(" (requires a floating-point thread)", file=f)
+                print(" (requires a floating-point thread)::", file=f)
             else:
-                print("", file=f)
-            print(doc, file=f)
+                print("::", file=f)
+            if doc:
+                print(doc, file=f)
+            else:
+                # Need something to follow ::
+                print("// missing description\n", file=f)
 
-    lead = ".TP"
-    print(".SH PINS", file=f)
+    print("\n== PINS\n", file=f)
     for _, name, type, array, dir, doc, value, personality in finddocs('pin'):
-        print(lead, file=f)
-        print(".B %s\\fR" % to_hal_man(name), end=' ', file=f)
+        print("%s" % to_hal_man(name), end=' ', file=f)
         print(type, dir, end=' ', file=f)
         if array:
             sz = name.count("#")
@@ -993,21 +1006,19 @@ def document(filename, outfilename):
         if personality:
             print(" [if %s]" % personality, end=' ', file=f)
         if value:
-            print("\\fR(default: \\fI%s\\fR)" % value, file=f)
+            print("(default: _%s_)::" % value, file=f)
         else:
-            print("\\fR", file=f)
+            print("::", file=f)
         if doc:
             print(doc, file=f)
-            lead = ".TP"
         else:
-            lead = ".br\n.ns\n.TP"
+            # Need something to follow ::
+            print("// missing description\n", file=f)
 
-    lead = ".TP"
     if params:
-        print(".SH PARAMETERS", file=f)
+        print("\n== PARAMETERS\n", file=f)
         for _, name, type, array, dir, doc, value, personality in finddocs('param'):
-            print(lead, file=f)
-            print(".B %s\\fR" % to_hal_man(name), end=' ', file=f)
+            print("%s" % to_hal_man(name), end=' ', file=f)
             print(type, dir, end=' ', file=f)
             if array:
                 sz = name.count("#")
@@ -1018,39 +1029,78 @@ def document(filename, outfilename):
             if personality:
                 print(" [if %s]" % personality, end=' ', file=f)
             if value:
-                print("\\fR(default: \\fI%s\\fR)" % value, file=f)
+                print("(default: _%s_)::" % value, file=f)
             else:
-                print("\\fR", file=f)
+                print("::", file=f)
             if doc:
                 print(doc, file=f)
-                lead = ".TP"
             else:
-                lead = ".br\n.ns\n.TP"
+                # Need something to follow ::
+                print("// missing description\n", file=f)
 
     doc = finddoc('examples')
     if doc and doc[1]:
-        print(".SH EXAMPLES\n", file=f)
+        print("\n== EXAMPLES\n", file=f)
         print("%s" % doc[1], file=f)
 
-    doc = finddoc('see_also')    
+    doc = finddoc('see_also')
     if doc and doc[1]:
-        print(".SH SEE ALSO\n", file=f)
+        print("\n== SEE ALSO\n", file=f)
         print("%s" % doc[1], file=f)
 
-    doc = finddoc('notes')    
+    doc = finddoc('notes')
     if doc and doc[1]:
-        print(".SH NOTES\n", file=f)
+        print("\n== NOTES\n", file=f)
         print("%s" % doc[1], file=f)
 
-    doc = finddoc('author')    
+    doc = finddoc('author')
     if doc and doc[1]:
-        print(".SH AUTHOR\n", file=f)
+        print("\n== AUTHOR\n", file=f)
         print("%s" % doc[1], file=f)
 
-    doc = finddoc('license')    
+    doc = finddoc('license')
     if doc and doc[1]:
-        print(".SH LICENSE\n", file=f)
+        print("\n== LICENSE\n", file=f)
         print("%s" % doc[1], file=f)
+
+    f.close()
+    return outfilename
+######
+
+def make_manpage(fdir, fname):
+    # Conversion to manpage format required
+    try:
+        # Try asciidoctor
+        args = ["asciidoctor",
+                "--doctype=manpage",
+                "--backend=manpage",
+                "--destination-dir=" + fdir,
+                "-a", "mansource=LinuxCNC",
+                "-a", "manmanual=LinuxCNC Documentation",
+                fname]
+        subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except:
+        try:
+            # Alternative, try a2x
+            #opts += ["--format=manpage", "--xsltproc-opts=--nonet"]
+            args = ["a2x",
+                    "--doctype=manpage",
+                    "--format=manpage",
+                    "--destination-dir=" + fdir,
+                    "--xsltproc-opts=--nonet",
+                    "-a", "mansource=LinuxCNC",
+                    "-a", "manmanual=LinuxCNC Documentation",
+                    fname]
+            subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except:
+            raise SystemExit("Error: Missing asciidoctor or a2x for adoc-to-manpage conversion or use --adoc for asciidoc file only")
+
+    # We should have a file with the extension removed
+    manfile = os.path.join(fdir, os.path.basename(fname).removesuffix(".adoc"))
+    if not os.access(manfile, os.R_OK):
+        raise SystemExit("Error: Manpage '%s' not generated" % manfile)
+    return manfile
+######
 
 def process(filename, mode, outfilename):
     tempdir = tempfile.mkdtemp()
@@ -1071,6 +1121,7 @@ def process(filename, mode, outfilename):
 
         if options.get("homemod"): options["singleton"] = 1
         if options.get("tpmod"):   options["singleton"] = 1
+        if options.get("no_convenience_defines"): options["period"] = 1
 
         if options.get("userinit") and not options.get("userspace"):
             print("Warning: comp '%s' sets 'userinit' without 'userspace', ignoring" % filename, file=sys.stderr)
@@ -1109,13 +1160,13 @@ def process(filename, mode, outfilename):
                 build_rt(tempdir, outfilename, mode, filename)
 
     finally:
-        shutil.rmtree(tempdir) 
+        shutil.rmtree(tempdir)
 
 def usage(exitval=0):
     print("""%(name)s: Build, compile, and install LinuxCNC HAL components
 
 Usage:
-           %(name)s [--compile|--preprocess|--document|--view-doc] compfile...
+           %(name)s [--compile|--preprocess|--document|--adoc|--view-doc] compfile...
     [sudo] %(name)s [--install|--install-doc] compfile...
            %(name)s --compile --userspace cfile...
     [sudo] %(name)s --install --userspace cfile...
@@ -1142,14 +1193,16 @@ def main():
     global require_unix_line_endings
     require_unix_line_endings = False
     mode = PREPROCESS
+    adoc = False
+    keepadoc = None
     outfile = None
     userspace = False
     global options
     options = {}
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?P:",
+        opts, args = getopt.getopt(sys.argv[1:], "UluijJcpdak:o:h?P:",
                            ['unix', 'install', 'compile', 'preprocess', 'outfile=',
-                            'document', 'help', 'userspace', 'install-doc',
+                            'document', 'adoc', 'keep-adoc=', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc',
                             'personalities=', "extra-compile-args=",
                             'extra-link-args='])
@@ -1168,9 +1221,16 @@ def main():
             mode = PREPROCESS
         if k in ("-d", "--document"):
             mode = DOCUMENT
+        if k in ("-a", "--adoc"):
+            mode = DOCUMENT
+            adoc = True
+        if k in ("-k", "--keep-adoc"):
+            if len(args) != 1:
+                raise SystemExit("Cannot specify -k with multiple input files")
+            keepadoc = v
         if k in ("-j", "--install-doc"):
             mode = INSTALLDOC
-        if k in ("-j", "--view-doc"):
+        if k in ("-J", "--view-doc"):
             mode = VIEWDOC
         if k in ("--print-modinc",):
             mode = MODINC
@@ -1179,7 +1239,7 @@ def main():
         if k in ("-o", "--outfile"):
             if len(args) != 1:
                 raise SystemExit("Cannot specify -o with multiple input files")
-            outfile = v 
+            outfile = v
         if k in ("-P", "--personalities"):
             try:
                 MAX_PERSONALITIES = int(v)
@@ -1207,22 +1267,47 @@ def main():
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".comp") and mode == DOCUMENT:
-                document(f, outfile)            
+                tempdir = tempfile.mkdtemp()
+                try:
+                    docfile = document(f, os.path.join(tempdir, basename))
+                    if adoc:    # Adoc is created
+                        if None == outfile:
+                            outfile = os.path.join(os.path.dirname(f), os.path.basename(docfile))
+                        shutil.move(docfile, outfile)
+                    else:       # Else we do manpage conversion
+                        manfile = make_manpage(tempdir, docfile)
+                        if None == outfile:
+                            outfile = os.path.join(os.path.dirname(f), os.path.basename(manfile))
+                        shutil.move(manfile, outfile)
+                        if keepadoc:
+                            shutil.move(docfile, keepadoc)
+                finally:
+                    shutil.rmtree(tempdir)
             elif f.endswith(".comp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
-                    outfile = os.path.join(tempdir, basename + ".9")
-                    document(f, outfile)
-                    os.spawnvp(os.P_WAIT, "man", ["man", outfile])
+                    docfile = document(f, os.path.join(tempdir, basename))
+                    manfile = make_manpage(tempdir, docfile)
+                    os.spawnvp(os.P_WAIT, "man", ["man", manfile])
                 finally:
                     shutil.rmtree(tempdir)
             elif f.endswith(".comp") and mode == INSTALLDOC:
-                manpath = os.path.join(BASE, "share/man/man9")
-                if not os.path.isdir(manpath):
-                    manpath = os.path.join(BASE, "docs/man/man9")
-                outfile = os.path.join(manpath, basename + ".9")
+                tempdir = tempfile.mkdtemp()
                 print("INSTALLDOC", outfile)
-                document(f, outfile)            
+                try:
+                    docfile = document(f, os.path.join(tempdir, basename))
+                    manfile = make_manpage(tempdir, docfile)
+                    section = "1" if options.get("userspace") else "9"
+                    manpath = os.path.join(BASE, "share/man/man" + section)
+                    sharepath = manpath
+                    if not os.path.isdir(manpath):
+                        manpath = os.path.join(BASE, "docs/man/man" + section)
+                        if not os.path.isdir(manpath):
+                            raise SystemExit("Error: directory '%s' (nor alternative '%s') found" % (sharepath, manpath))
+                    outfile = os.path.join(manpath, basename + "." + section)
+                    shutil.move(manfile, outfile)
+                finally:
+                    shutil.rmtree(tempdir)
             elif f.endswith(".comp"):
                 process(f, mode, outfile)
             elif f.endswith(".py") and mode == INSTALL:
@@ -1244,7 +1329,7 @@ def main():
                     else:
                         build_rt(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
                 finally:
-                    shutil.rmtree(tempdir) 
+                    shutil.rmtree(tempdir)
             else:
                 raise SystemExit("Unrecognized file type for mode %s: %r" % (modename[mode], f))
         except Exception as e:
@@ -1256,4 +1341,4 @@ def main():
 if __name__ == '__main__':
     main()
 
-# vim:sw=4:sts=4:et
+# vim:sw=4:sts=4:et:syn=python

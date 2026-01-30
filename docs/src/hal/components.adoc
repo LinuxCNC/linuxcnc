@@ -2,7 +2,9 @@
 :tab_options: cols="15s,85,0,0", frame="none", grid="none"
 
 [[cha:hal-components]]
-= HAL Component List((("HAL Component List")))
+= HAL Component List
+
+((("HAL Component List")))
 
 == Components
 
@@ -19,7 +21,7 @@ man axis
 
 The one or other setup of a UNIX system may require to explicitly specify the section of the man page.
 If you do not find the man page or the name of the man page is already taken by another UNIX tool with the LinuxCNC man page residing in another section,
-then try to explicitly specify the section, as in `man _sectionno_ axis`, with _sectionno_ = 1 for non-realtime and 9 for realtime components.
+then try to explicitly specify the section, as in `man _section-no_ axis`, with _section-no_ = 1 for non-realtime and 9 for realtime components.
 
 [NOTE]
 See also the 'Man Pages' section of the link:../index.html[docs main page] or the link:../man/[directory listing].
@@ -47,7 +49,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 [{tab_options}]
 |===
 | link:../man/man1/gladevcp.1.html[gladevcp]           |Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets ||
-| link:../man/man1/gladevcp_demo.1.html[gladevcp_demo] |GladeVCP - used by sample configs to deonstrate Glade Virtual_demo     ||
+| link:../man/man1/gladevcp_demo.1.html[gladevcp_demo] |GladeVCP - used by sample configs to demonstrate Glade Virtual_demo     ||
 | link:../man/man1/gremlin_view.1.html[gremlin_view]   |G-code graphical preview                                               ||
 | link:../man/man1/moveoff_gui.1.html[moveoff_gui]     |GUI for the moveoff component                                          ||
 | link:../man/man1/pyui.1.html[pyui]                   |Utility for panelui                                                    ||
@@ -88,7 +90,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 ==== VFD & Communication Interfaces (non-realtime)
 [{tab_options}]
 |===
-| link:../man/man1/elbpcom.1.html[elbpcom] |Communicate with Mesa ethernet cards                                                                                                   ||
+| link:../man/man1/elbpcom.1.html[elbpcom] |Communicate with Mesa Ethernet cards                                                                                                   ||
 | link:../man/man1/gs2_vfd.1.html[gs2_vfd] |HAL non-realtime component for Automation Direct GS2 VFDs                                                                              ||
 | link:../man/man1/hy_gt_vfd.1.html[hy_gt_vfd] |HAL non-realtime component for Huanyang GT-series VFDs                                                                             ||
 | link:../man/man1/hy_vfd.1.html[hy_vfd] |HAL non-realtime component for Huanyang VFDs                                                                                             ||
@@ -102,7 +104,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/svd-ps_vfd.1.html[svd-ps_vfd] |HAL non-realtime component for SVD-P(S) VFDs                                                                                     ||
 | link:../man/man1/vfdb_vfd.1.html[vfdb_vfd] |HAL non-realtime component for Delta VFD-B Variable Frequency Drives                                                                 ||
 | link:../man/man1/vfs11_vfd.1.html[vfs11_vfd] |HAL non-realtime component for Toshiba-Schneider VF-S11 Variable Frequency Drives                                                  ||
-| link:../man/man1/wj200_vfd.1.html[wj200_vfd] |Hitachi wj200 modbus driver                                                                                                        ||
+| link:../man/man1/wj200_vfd.1.html[wj200_vfd] |Hitachi wj200 Modbus driver                                                                                                        ||
 | link:../man/man1/xhc-hb04.1.html[xhc-hb04] |Non-realtime HAL component for the xhc-hb04 pendant                                                                                  ||
 | link:../man/man1/xhc-hb04-accels.1.html[xhc-hb04-accels] |Obsolete script for jogging wheel                                                                                      ||
 | link:../man/man1/xhc-whb04b-6.1.html[xhc-whb04b-6] |Non-realtime jog dial HAL component for the wireless XHC WHB04B-6 USB device                                                 ||
@@ -112,7 +114,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 [{tab_options}]
 |===
 | hal_ppmc | Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller ||
-| link:../man/man9/hal_bb_gpio.9.html[hal_bb_gpio] |Driver for beaglebone GPIO pins ||
+| link:../man/man9/hal_bb_gpio.9.html[hal_bb_gpio] |Driver for BeagleBone GPIO pins ||
 | link:../man/man9/hal_parport.9.html[hal_parport] |Realtime HAL component to communicate with one or more PC parallel ports ||
 | link:../man/man9/hm2_7i43.9.html[hm2_7i43] |Mesa Electronics driver for the 7I43 EPP Anything IO board with HostMot2. (See the man page for more information) ||
 | link:../man/man9/hm2_7i90.9.html[hm2_7i90] |LinuxCNC HAL driver for the Mesa Electronics 7I90 EPP Anything IO board with HostMot2 firmware ||
@@ -176,11 +178,11 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/linuxcnctop.1.html[linuxcnctop] |Live LinuxCNC status description||
 | link:../man/man1/rs274.1.html[rs274] |Standalone G-code interpreter||
 | link:../man/man1/schedrmt.1.html[schedrmt] |Telnet based scheduler for LinuxCNC||
-| link:../man/man1/setup_designer.1.html[setup_designer] |A script to configure the system for use of QTdesigner||
+| link:../man/man1/setup_designer.1.html[setup_designer] |A script to configure the system for use of Qt Designer||
 | link:../man/man1/teach-in.1.html[teach-in] |Jog the machine to a position, and record the state||
 | link:../man/man1/tool_mmap_read.1.html[tool_mmap_read] |A component of the tool database system (an alternative to the classic tooltable)||
 | link:../man/man1/tool_watch.1.html[tool_watch] |A component of the tool database system (an alternative to the classic tooltable)||
-| link:../man/man1/tooledit.1.html[tooledit] |Tool table editor||
+| link:../man/man1/tooledit.1.html[tooledit] |Tooltable editor||
 |===
 
 === Signal processing (Realtime)
@@ -225,7 +227,6 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man9/biquad.9.html[biquad]     |Biquad IIR filter | |
 | link:../man/man9/blend.9.html[blend]       |Perform linear interpolation between two values ||
 | link:../man/man9/comp.9.html[comp]         |Two input comparator with hysteresis ||
-| link:../man/man9/constant.9.html[constant] |Uses parameter to set the value of a pin ||
 | link:../man/man9/counter.9.html[counter]   |Counts input pulses (deprecated). Use the <<sec:encoder,encoder>> component. | |
 | link:../man/man9/ddt.9.html[ddt]           |Computes the derivative of the input function. ||
 | link:../man/man9/deadzone.9.html[deadzone] |Returns the center if within the threshold. ||
@@ -239,11 +240,9 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man9/led_dim.9.html[led_dim]   |HAL component for dimming LEDs ||
 | link:../man/man9/lowpass.9.html[lowpass]   |Low-pass filter | |
 | link:../man/man9/limit1.9.html[limit1]     |Limits the output signal to fall between min and max. footnote:[When the input is a position, this means that the 'position' is limited.] ||
-| link:../man/man9/limit2.9.html[limit2]     |Limits the output signal to fall between min and max.  Limit its slew rate to less than maxv per second.
-footnote:[When the input is a position, this means that 'position' and 'velocity' are limited.] ||
+| link:../man/man9/limit2.9.html[limit2]     |Limits the output signal to fall between min and max.  Limit its slew rate to less than maxv per second.  footnote:[When the input is a position, this means that 'position' and 'velocity' are limited.] ||
 | link:../man/man9/limit3.9.html[limit3]     |Limit the output signal to fall between min and max.
-Limit its slew rate to less than maxv per second. Limit its second derivative to less than MaxA per second squared footnote:[When
-the input is a position, this means that 'position', 'velocity', and 'acceleration' are limited.]. ||
+Limit its slew rate to less than maxv per second. Limit its second derivative to less than MaxA per second squared footnote:[When the input is a position, this means that 'position', 'velocity', and 'acceleration' are limited.]. ||
 | link:../man/man9/lincurve.9.html[lincurve] |One-dimensional lookup table ||
 | link:../man/man9/maj3.9.html[maj3]         |Compute the majority of 3 inputs ||
 | link:../man/man9/minmax.9.html[minmax]     |Tracks the minimum and maximum values of the input to the outputs. ||
@@ -283,6 +282,7 @@ the input is a position, this means that 'position', 'velocity', and 'accelerati
 [{tab_options}]
 |===
 | link:../man/man9/bin2gray.9.html[bin2gray] |Converts a number to the gray-code representation ||
+| link:../man/man9/bitmerge.9.html[bitmerge] |Converts individual input bits into an unsigned-32 ||
 | link:../man/man9/bitslice.9.html[bitslice] |Converts an unsigned-32 input into individual bits ||
 | link:../man/man9/conv_bit_float.9.html[conv_bit_float] |Converts from bit to float         ||
 | link:../man/man9/conv_bit_s32.9.html[conv_bit_s32]     |Converts from bit to s32           ||
@@ -360,7 +360,7 @@ the input is a position, this means that 'position', 'velocity', and 'accelerati
 | link:../man/man9/at_pid.9.html[at_pid] | Proportional/integral/derivative controller with auto tuning. ||
 | link:../man/man9/bldc.9.html[bldc] |BLDC and AC-servo control component ||
 | link:../man/man9/clarke2.9.html[clarke2] | Two input version of Clarke transform ||
-| link:../man/man9/clarke3.9.html[clarke3] | Clarke (3 phase to cartesian) transform ||
+| link:../man/man9/clarke3.9.html[clarke3] | Clarke (3 phase to Cartesian) transform ||
 | link:../man/man9/clarkeinv.9.html[clarkeinv] | Inverse Clarke transform ||
 | link:../man/man9/encoder.9.html[encoder] | Software counting of quadrature encoder signals, see <<sec:encoder,description>>. ||
 | link:../man/man9/pid.9.html[pid] | Proportional/integral/derivative controller, <<sec:pid,description>>. ||
@@ -372,12 +372,12 @@ the input is a position, this means that 'position', 'velocity', and 'accelerati
 === Simulation/Testing
 [{tab_options}]
 |===
-| link:../man/man9/axistest.9.html[axistest] |Used to allow testing of an axis. Used In PnCconf.||
+| link:../man/man9/axistest.9.html[axistest] |Used to allow testing of an axis. Used In PnCConf.||
 | link:../man/man1/rtapi_app.1.html[rtapi_app] |creates a simulated real time environment||
 | link:../man/man1/sim-torch.1.html[sim-torch] |A simulated plasma torch||
 | link:../man/man9/sim_axis_hardware.9.html[sim_axis_hardware] |A component to simulate home and limit switches||
 | link:../man/man9/sim_home_switch.9.html[sim_home_switch] |Home switch simulator||
-| link:../man/man9/sim_matrix_kb.9.html[sim_matrix_kb] |convert HAL pin inputs to keycodes||
+| link:../man/man9/sim_matrix_kb.9.html[sim_matrix_kb] |convert HAL pin inputs to key codes||
 | link:../man/man9/sim_parport.9.html[sim_parport] |A component to simulate the pins of the hal_parport component||
 | link:../man/man9/sim_spindle.9.html[sim_spindle] |Simulated spindle with index pulse||
 | link:../man/man1/simulate_probe.1.html[simulate_probe] |simulate a probe input||
@@ -387,7 +387,6 @@ the input is a position, this means that 'position', 'velocity', and 'accelerati
 [{tab_options}]
 |===
 | link:../man/man9/anglejog.9.html[anglejog] |Jog two axes (or joints) at an angle ||
-| link:../man/man9/comp.9.html[comp] | Build, compile and install LinuxCNC HAL components. ||
 | link:../man/man9/classicladder.9.html[classicladder] | Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
 | link:../man/man9/charge_pump.9.html[charge_pump] | Creates a square-wave for the 'charge pump' input of some controller boards. ||
 | link:../man/man9/encoder_ratio.9.html[encoder_ratio] | Electronic gear to synchronize two axes. ||
@@ -447,105 +446,104 @@ include::components_gen.adoc[]
 
 == HAL API calls
 ....
-hal_add_funct_to_thread.3hal
-hal_bit_t.3hal
-hal_create_thread.3hal
-hal_del_funct_from_thread.3hal
-hal_exit.3hal
-hal_export_funct.3hal
-hal_export_functf.3hal
-hal_float_t.3hal
-hal_get_lock.3hal
-hal_init.3hal
-hal_link.3hal
-hal_malloc.3hal
-hal_param_bit_new.3hal
-hal_param_bit_newf.3hal
-hal_param_float_new.3hal
-hal_param_float_newf.3hal
-hal_param_new.3hal
-hal_param_s32_new.3hal
-hal_param_s32_newf.3hal
-hal_param_u32_new.3hal
-hal_param_u32_newf.3hal
-hal_parport.3hal
-hal_pin_bit_new.3hal
-hal_pin_bit_newf.3hal
-hal_pin_float_new.3hal
-hal_pin_float_newf.3hal
-hal_pin_new.3hal
-hal_pin_s32_new.3hal
-hal_pin_s32_newf.3hal
-hal_pin_u32_new.3hal
-hal_pin_u32_newf.3hal
-hal_ready.3hal
-hal_s32_t.3hal
-hal_set_constructor.3hal
-hal_set_lock.3hal
-hal_signal_delete.3hal
-hal_signal_new.3hal
-hal_start_threads.3hal
-hal_type_t.3hal
-hal_u32_t.3hal
-hal_unlink.3hal
+hal_add_funct_to_thread.3
+hal_bit_t.3
+hal_create_thread.3
+hal_del_funct_from_thread.3
+hal_exit.3
+hal_export_funct.3
+hal_export_functf.3
+hal_float_t.3
+hal_get_lock.3
+hal_init.3
+hal_link.3
+hal_malloc.3
+hal_param_bit_new.3
+hal_param_bit_newf.3
+hal_param_float_new.3
+hal_param_float_newf.3
+hal_param_new.3
+hal_param_s32_new.3
+hal_param_s32_newf.3
+hal_param_u32_new.3
+hal_param_u32_newf.3
+hal_parport.3
+hal_pin_bit_new.3
+hal_pin_bit_newf.3
+hal_pin_float_new.3
+hal_pin_float_newf.3
+hal_pin_new.3
+hal_pin_s32_new.3
+hal_pin_s32_newf.3
+hal_pin_u32_new.3
+hal_pin_u32_newf.3
+hal_ready.3
+hal_s32_t.3
+hal_set_constructor.3
+hal_set_lock.3
+hal_signal_delete.3
+hal_signal_new.3
+hal_start_threads.3
+hal_type_t.3
+hal_u32_t.3
+hal_unlink.3
 hal.3
-undocumented.3hal
 ....
 
 == RTAPI calls
 ....
-EXPORT_FUNCTION.3rtapi
-MODULE_AUTHOR.3rtapi
-MODULE_DESCRIPTION.3rtapi
-MODULE_LICENSE.3rtapi
-RTAPI_MP_ARRAY_INT.3rtapi
-RTAPI_MP_ARRAY_LONG.3rtapi
-RTAPI_MP_ARRAY_STRING.3rtapi
-RTAPI_MP_INT.3rtapi
-RTAPI_MP_LONG.3rtapi
-RTAPI_MP_STRING.3rtapi
+EXPORT_FUNCTION.3
+MODULE_AUTHOR.3
+MODULE_DESCRIPTION.3
+MODULE_LICENSE.3
+RTAPI_MP_ARRAY_INT.3
+RTAPI_MP_ARRAY_LONG.3
+RTAPI_MP_ARRAY_STRING.3
+RTAPI_MP_INT.3
+RTAPI_MP_LONG.3
+RTAPI_MP_STRING.3
 rtapi.3
-rtapi_app_exit.3rtapi
-rtapi_app_main.3rtapi
-rtapi_clock_set_period.3rtapi
-rtapi_delay.3rtapi
-rtapi_delay_max.3rtapi
-rtapi_exit.3rtapi
-rtapi_get_clocks.3rtapi
-rtapi_get_msg_level.3rtapi
-rtapi_get_time.3rtapi
-rtapi_inb.3rtapi
-rtapi_init.3rtapi
-rtapi_module_param.3rtapi
-RTAPI_MP_ARRAY_INT.3rtapi
-RTAPI_MP_ARRAY_LONG.3rtapi
-RTAPI_MP_ARRAY_STRING.3rtapi
-RTAPI_MP_INT.3rtapi
-RTAPI_MP_LONG.3rtapi
-RTAPI_MP_STRING.3rtapi
-rtapi_mutex.3rtapi
-rtapi_outb.3rtapi
-rtapi_print.3rtap
-rtapi_prio.3rtapi
-rtapi_prio_highest.3rtapi
-rtapi_prio_lowest.3rtapi
-rtapi_prio_next_higher.3rtapi
-rtapi_prio_next_lower.3rtapi
-rtapi_region.3rtapi
-rtapi_release_region.3rtapi
-rtapi_request_region.3rtapi
-rtapi_set_msg_level.3rtapi
-rtapi_shmem.3rtapi
-rtapi_shmem_delete.3rtapi
-rtapi_shmem_getptr.3rtapi
-rtapi_shmem_new.3rtapi
-rtapi_snprintf.3rtapi
-rtapi_task_delete.3rtpi
-rtapi_task_new.3rtapi
-rtapi_task_pause.3rtapi
-rtapi_task_resume.3rtapi
-rtapi_task_start.3rtapi
-rtapi_task_wait.3rtapi
+rtapi_app_exit.3
+rtapi_app_main.3
+rtapi_clock_set_period.3
+rtapi_delay.3
+rtapi_delay_max.3
+rtapi_exit.3
+rtapi_get_clocks.3
+rtapi_get_msg_level.3
+rtapi_get_time.3
+rtapi_inb.3
+rtapi_init.3
+rtapi_module_param.3
+RTAPI_MP_ARRAY_INT.3
+RTAPI_MP_ARRAY_LONG.3
+RTAPI_MP_ARRAY_STRING.3
+RTAPI_MP_INT.3
+RTAPI_MP_LONG.3
+RTAPI_MP_STRING.3
+rtapi_mutex.3
+rtapi_outb.3
+rtapi_print.3
+rtapi_prio.3
+rtapi_prio_highest.3
+rtapi_prio_lowest.3
+rtapi_prio_next_higher.3
+rtapi_prio_next_lower.3
+rtapi_region.3
+rtapi_release_region.3
+rtapi_request_region.3
+rtapi_set_msg_level.3
+rtapi_shmem.3
+rtapi_shmem_delete.3
+rtapi_shmem_getptr.3
+rtapi_shmem_new.3
+rtapi_snprintf.3
+rtapi_task_delete.3
+rtapi_task_new.3
+rtapi_task_pause.3
+rtapi_task_resume.3
+rtapi_task_start.3
+rtapi_task_wait.3
 ....
 
 // vim: set syntax=asciidoc:

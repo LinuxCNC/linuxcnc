@@ -170,7 +170,7 @@ If not set, half of 'MAX_LINEAR_VELOCITY' will be used.
 If that value is also not given, it will default to 180.
 
 - _MAX_LINEAR_VELOCITY = 230.0_ - Sets the maximal velocity of the machine.
-This value will also be the maximum linear jog velocity.
+  This value will also be the maximum linear jog velocity.
 +
 [NOTE]
 Defaults to 600 if not set.
@@ -299,14 +299,14 @@ All you have to take care of, is that you include for every tab or side panel th
 
 * EMBED_TAB_NAME = Represents the name of the tab or side panel, it is up to you what name you use, but it must be present!
 * EMBED_TAB_LOCATION = The place where your program will be placed in the GUI, see figure <<fig:gmoccapy_emb_tab_locations,Embedded tab locations>>. Valid values are:
-** *ntb_user_tabs*            (as main tab, covering the complete screen)
+** *ntb_user_tabs*            (as main tab, covering the complete screen *(7)*)
 ** *ntb_preview*              (as tab on the preview side *(1)*)
 ** *hbox_jog*                 (will hide the jog buttons and introduce your glade file here *(2)*)
-** *box_left*                 (on the left, complete high of the screen)
-** *box_right*                (on the right, in between the normal screen and the button list)
+** *box_left*                 (on the left, complete height of the screen *(10)*)
+** *box_right*                (on the right, in between the normal screen and the button list *(11)*)
 ** *box_tool_and_code_info*   (will hide the Tool information and G-code frames and introduce your glade file here *(3)*)
-** *box_tool_info*            (will hide the Tool information frame and introduce your glade file here)
-** *box_code_info*            (will hide the G-code information frame and introduce your glade file here)
+** *box_tool_info*            (will hide the Tool information frame and introduce your glade file here *(3a)*)
+** *box_code_info*            (will hide the G-code information frame and introduce your glade file here *(3b)*)
 ** *box_vel_info*             (will hide the velocity frames and introduce your glade file *(4)*)
 ** *box_coolant_and_spindle*  (will hide the coolant and spindle frames and introduce your glade file here *(5)+(6)*)
 ** *box_cooling*              (will hide the cooling frame and introduce your glade file *(5)*)
@@ -315,7 +315,8 @@ All you have to take care of, is that you include for every tab or side panel th
 ** *box_custom_2*             (will introduce your glade file left of cooling_frame)
 ** *box_custom_3*             (will introduce your glade file left of spindle_frame)
 ** *box_custom_4*             (will introduce your glade file right of spindle_frame)
-** *box_dro_side*             (will introduce your glade file right of the DRO)
+** *box_dro_side*             (will introduce your glade file right of the DRO *(8)*)
+** *ntb_setup*                (as tab on the setup page *(9)*)
 
 [NOTE]
 See also the included sample INI files to see the differences.
@@ -351,7 +352,7 @@ will hide the chosen box.
 
 [[fig:gmoccapy_emb_tab_locations]]
 .Embedded tab locations
-image::images/gmoccapy_embedded_tabs.png[align="left"]
+image::images/gmoccapy_embedded_tabs_small.png[align="left",link="images/gmoccapy_embedded_tabs.png"]
 
 [NOTE]
 If you make any HAL connections to your custom glade panel, you need to do that in the HAL file specified in the EMBED_TAB_COMMAND line,
@@ -654,11 +655,11 @@ To connect encoders, the following pins are exported:
 - *gmoccapy.jog.jog-velocity.count-enable*          _(bit IN)_ - Must be True, to enable counts
 - *gmoccapy.feed.feed-override.counts*              _(s32 IN)_ - feed override
 - *gmoccapy.feed.feed-override.count-enable*        _(bit IN)_ - Must be True, to enable counts
-- *gmoccapy.feed.reset-feed-override*               _(bit IN)_ - reset the feed override to *0%
+- *gmoccapy.feed.reset-feed-override*               _(bit IN)_ - reset the feed override to 0%
 - *gmoccapy.spindle.spindle-override.counts*        _(s32 IN)_ - spindle override
 - *gmoccapy.spindle.spindle-override.count-enable*  _(bit IN)_ - Must be True, to enable counts
-- *gmoccapy.spindle.reset-spindle-override*         _(bit IN)_ - reset the spindle override to *0%
-- *gmoccapy.rapid.rapid-override.counts*            _(s32 IN)_ - Maximal Velocity of the *chine
+- *gmoccapy.spindle.reset-spindle-override*         _(bit IN)_ - reset the spindle override to 0%
+- *gmoccapy.rapid.rapid-override.counts*            _(s32 IN)_ - Maximal velocity of the machine
 - *gmoccapy.rapid.rapid-override.count-enable*      _(bit IN)_ - Must be True, to enable counts
 
 To connect potentiometers, use the following pins:
@@ -684,18 +685,21 @@ In a future release it will be integrated in the settings page.
 - *gmoccapy.spc_jog_vel.scale*         _(float IN)_  - A value to scale the output value (handy to change units/min to units/sec)
 - *gmoccapy.spc_jog_vel.value*         _(float OUT)_ - Value of the widget
 - *gmoccapy.spc_jog_vel.scaled-value*  _(float OUT)_ - Scaled value of the widget
+
 .FEED
 - *gmoccapy.spc_feed.increase*         _(bit IN)_    - As long as True the value of the slider will increase
 - *gmoccapy.spc_feed.decrease*         _(bit IN)_    - As long as True the value of the slider will decrease
 - *gmoccapy.spc_feed.scale*            _(float IN)_  - A value to scale the output value (handy to change units/min to units/sec)
 - *gmoccapy.spc_feed.value*            _(float OUT)_ - Value of the widget
 - *gmoccapy.spc_feed.scaled-value*     _(float OUT)_ - Scaled value of the widget
+
 .SPINDLE
 - *gmoccapy.spc_spindle.increase*      _(bit IN)_    - As long as True the value of the slider will increase
 - *gmoccapy.spc_spindle.decrease*      _(bit IN)_    - As long as True the value of the slider will decrease
 - *gmoccapy.spc_spindle.scale*         _(float IN)_  - A value to scale the output value (handy to change units/min to units/sec)
 - *gmoccapy.spc_spindle.value*         _(float OUT)_ - Value of the widget
 - *gmoccapy.spc_spindle.scaled-value*  _(float OUT)_ - Scaled value of the widget
+
 .RAPIDS
 - *gmoccapy.spc_rapid.increase*        _(bit IN)_    - As long as True the value of the slider will increase
 - *gmoccapy.spc_rapid.decrease*        _(bit IN)_    - As long as True the value of the slider will decrease

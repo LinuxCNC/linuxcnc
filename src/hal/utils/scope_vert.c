@@ -133,7 +133,6 @@ void init_vert(void)
 
 int set_active_channel(int chan_num)
 {
-    int n, count;
     scope_vert_t *vert;
     scope_chan_t *chan;
     if (( chan_num < 1 ) || ( chan_num > 16 )) {
@@ -147,16 +146,6 @@ int set_active_channel(int chan_num)
 	if (ctrl_shm->state != IDLE) {
 	    /* acquisition in progress, must restart it */
             prepare_scope_restart();
-	}
-	count = 0;
-	for (n = 0; n < 16; n++) {
-	    if (vert->chan_enabled[n]) {
-		count++;
-	    }
-	}
-	if (count >= ctrl_shm->sample_len) {
-	    /* max number of channels already enabled */
-	    return -2;
 	}
 	if (chan->name == NULL) {
 	    /* no signal source */
@@ -788,10 +777,8 @@ static void offset_activated(GtkEntry *entry, GtkWidget *dialog)
 static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 {
     long chan_num;
-    int n, count;
     scope_vert_t *vert;
     scope_chan_t *chan;
-    GtkWidget *dialog;
 
     vert = &(ctrl_usr->vert);
     chan_num = (long) gdata;
@@ -807,31 +794,6 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
         if (ctrl_shm->state != IDLE) {
             /* acquisition in progress, must restart it */
             prepare_scope_restart();
-        }
-        count = 0;
-        for (n = 0; n < 16; n++) {
-            if (vert->chan_enabled[n]) {
-            count++;
-            }
-        }
-        if (count >= ctrl_shm->sample_len) {
-            /* max number of channels already enabled */
-            /* force the button to pop back out */
-            ignore_click = 1;
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
-            dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
-                                            GTK_DIALOG_MODAL,
-                                            GTK_MESSAGE_INFO,
-                                            GTK_BUTTONS_CLOSE,
-                                            _("Too many channels"));
-            gtk_message_dialog_format_secondary_text(
-                    GTK_MESSAGE_DIALOG(dialog),
-                    _("You cannot add another channel.\n\n"
-                    "Either turn off one or more channels, or shorten\n"
-                    "the record length to allow for more channels"));
-            gtk_dialog_run(GTK_DIALOG(dialog));
-            gtk_widget_destroy(dialog);
-            return;
         }
         if (chan->name == NULL) {
             /* need to assign a source */
@@ -1085,11 +1047,11 @@ void channel_changed(void)
     vert = &(ctrl_usr->vert);
     /* add a name to apply CSS for highlighted channel */
     if (last_channel != vert->selected) {
-        if (last_channel) {
-            gtk_widget_set_name(chan_buttons[last_channel-1],"");
+        if ((last_channel >= 1) && (last_channel <= 16)) {
+            gtk_widget_set_name(chan_buttons[last_channel - 1], "");
         }
-        if (vert->selected) {
-            gtk_widget_set_name(chan_buttons[vert->selected-1],"selected");
+        if ((vert->selected >= 1) && (vert->selected <= 16)) {
+            gtk_widget_set_name(chan_buttons[vert->selected - 1], "selected");
         }
         last_channel = vert->selected;
     }
@@ -1172,6 +1134,9 @@ static void write_chan_config(FILE *fp, scope_chan_t *chan)
     } else if ( chan->data_source_type == 2 ) {
 	// pin
 	fprintf(fp, "PARAM %s\n", chan->name);
+    } else if ( chan->is_phantom ) {
+	// phantom channel - save as comment for reference
+	fprintf(fp, "# PHANTOM %s\n", chan->name);
     } else {
 	// not configured
 	return;
@@ -1193,12 +1158,13 @@ static void style_with_css(GtkWidget *widget, int color_index)
     GtkStyleContext *context;
     GtkCssProvider *provider;
 
-    char buf[270];
+    char buf[310];
     snprintf(buf, sizeof(buf), "* {margin: 1px; border-style:solid; border-width: 2px;}\n"
                                "#selected {border-color: black; font-weight: bold;}\n"
                                "*:checked, *:active {background: rgb(%d,%d,%d);}\n"
                                "*:hover {background: rgba(%d,%d,%d,0.3);}\n"
-                               "*:hover#selected {background: rgba(%d,%d,%d,0.6);}\n",
+                               "*:hover#selected {background: rgba(%d,%d,%d,0.6);}\n"
+                               "button {padding-left: 0; padding-right: 0;}",
                                normal_colors[color_index][0],normal_colors[color_index][1],
                                normal_colors[color_index][2],
                                normal_colors[color_index][0],normal_colors[color_index][1],

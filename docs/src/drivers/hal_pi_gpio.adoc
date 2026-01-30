@@ -69,23 +69,23 @@ Depending on the dir and exclude masks.
 
 == Parameters
 
-Only the standard timing parameters which are created for all components exist.
+Only the standard timing parameters which are created for all components exist:
 
-*hal_pi_gpio.read.tmax
-*hal_pi_gpio.read.tmax-increased
-*hal_pi_gpio.write.tmax
-*hal_pi_gpio.write.tmax-increased
+* hal_pi_gpio.read.tmax
+* hal_pi_gpio.read.tmax-increased
+* hal_pi_gpio.write.tmax
+* hal_pi_gpio.write.tmax-increased
 
-For unknown reasons the driver also creates HAL _pins_ to indicate timing
+For unknown reasons the driver also creates HAL _pins_ to indicate timing:
 
-*hal_pi_gpio.read.time
-*hal_pi_gpio.write.time
+* hal_pi_gpio.read.time
+* hal_pi_gpio.write.time
 
 
 == Functions
 
-* 'hal_pi_gpio.read' - Add this to the base thread to update the HAL pin values to match the physical input values.
-* 'hal_pi_gpio.write' - Add this to the base thread to update the physical pins to match the HAL values.
+* `hal_pi_gpio.read` - Add this to the base thread to update the HAL pin values to match the physical input values.
+* `hal_pi_gpio.write` - Add this to the base thread to update the physical pins to match the HAL values.
 
 Typically the 'read' function will be early in the call list, before any encoder counters and the 'write' function will be later in the call list, after stepgen.make-pulses.
 

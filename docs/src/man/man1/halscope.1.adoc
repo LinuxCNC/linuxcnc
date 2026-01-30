@@ -18,7 +18,9 @@ Digital oscilloscope for viewing real time waveforms of HAL pins and signals
 
 linuxcnc(1)
 
-Much more information about LinuxCNC and HAL is available in the
+Find more information in the HAL tutorial: 
+https://linuxcnc.org/docs/html/hal/tutorial.html#sec:tutorial-halscope.
+More information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
 
 == BUGS

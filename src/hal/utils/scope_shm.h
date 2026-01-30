@@ -42,7 +42,9 @@
 ************************************************************************/
 
 #define SCOPE_SHM_KEY  0x130CF406
-#define SCOPE_NUM_SAMPLES_DEFAULT 16000
+#define SCOPE_NUM_SAMPLES_DEFAULT 32000
+#define SCOPE_NUM_SAMPLES_MIN     1000
+#define SCOPE_NUM_SAMPLES_MAX     1000000
 
 typedef enum {
     IDLE = 0,			/* waiting for run command */

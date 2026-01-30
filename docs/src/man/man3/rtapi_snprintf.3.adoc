@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_snprintf(3rtapi)
+= rtapi_snprintf(3)
 
 == NAME
 

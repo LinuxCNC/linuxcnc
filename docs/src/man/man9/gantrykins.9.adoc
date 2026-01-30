@@ -2,7 +2,7 @@
 
 == NAME
 
-gantrykins - *Superseded* by the general purpose *trivkins* kinematics module.
+gantrykins - Superseded by the general purpose 'trivkins' kinematics module.
 
 == SYNOPSIS
 

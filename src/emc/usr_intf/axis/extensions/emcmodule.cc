@@ -212,6 +212,9 @@ static PyTypeObject Ini_Type = {
     0,                      /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                      /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                      /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -463,6 +466,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"queue_full", T_BOOL, O(motion.traj.queueFull), READONLY, NULL},
     {(char*)"motion_id", T_INT, O(motion.traj.id), READONLY, NULL},
     {(char*)"paused", T_BOOL, O(motion.traj.paused), READONLY, NULL},
+    {(char*)"single_stepping", T_BOOL, O(motion.traj.single_stepping), READONLY, NULL},
     {(char*)"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY, NULL},
     {(char*)"rapidrate", T_DOUBLE, O(motion.traj.rapid_scale), READONLY, NULL},
     {(char*)"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY, NULL},
@@ -891,6 +895,9 @@ static PyTypeObject Stat_Type = {
     0,                      /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                      /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                      /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -1685,6 +1692,9 @@ static PyTypeObject Command_Type = {
     0,                      /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                      /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                      /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -1807,6 +1817,9 @@ static PyTypeObject Error_Type = {
     0,                      /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                      /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                      /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -2042,6 +2055,10 @@ static PyObject *pydraw_lines(PyObject * /*s*/, PyObject *o) {
             if(!first) glEnd();
             return NULL;
         }
+
+        // Suppress cppcheck false positive:
+        // 'first' == 1 when 'pl' is undefined and therefore not a problem.
+        // cppcheck-suppress uninitvar
         if(first || memcmp(p1, pl, sizeof(p1))
                 || (for_selection && n != nl)) {
             if(!first) glEnd();
@@ -2538,6 +2555,9 @@ static PyTypeObject PositionLoggerType = {
     0,                      /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                      /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                      /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -2577,7 +2597,7 @@ static struct PyModuleDef linuxcnc_moduledef = {
 PyMODINIT_FUNC PyInit_linuxcnc(void);
 PyMODINIT_FUNC PyInit_linuxcnc(void)
 {
-        
+
     verbose_nml_error_messages = 0;
     clear_rcs_print_flag(~0);
 

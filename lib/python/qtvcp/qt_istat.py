@@ -153,6 +153,9 @@ class _IStat(object):
         self.VALID_PROGRAM_EXTENSIONS = self.get_all_valid_extensions()
 
         self.PARAMETER_FILE = (self.INI.find("RS274NGC", "PARAMETER_FILE")) or None
+        if self.PARAMETER_FILE is None and self.LINUXCNC_IS_RUNNING:
+            log.critical('Missing PARAMETER_FILE setting in RS274NGC section')
+
         try:
             # check the INI file if UNITS are set to mm"
             # first check the global settings
@@ -175,11 +178,13 @@ class _IStat(object):
             self.MACHINE_IS_METRIC = True
             self.MACHINE_UNIT_CONVERSION = 1.0 / 25.4
             self.MACHINE_UNIT_CONVERSION_9 = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3
+            self.MACHINE_UNIT_CONVERSION_10 = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3 + [1]
             log.debug('Machine is METRIC based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
         else:
             self.MACHINE_IS_METRIC = False
             self.MACHINE_UNIT_CONVERSION = 25.4
             self.MACHINE_UNIT_CONVERSION_9 = [25.4] * 3 + [1] * 3 + [25.4] * 3
+            self.MACHINE_UNIT_CONVERSION_10 = [25.4] * 3 + [1] * 3 + [25.4] * 3 + [1]
             log.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
 
         axes = self.INI.find("TRAJ", "COORDINATES")
@@ -659,7 +664,7 @@ class _IStat(object):
     ###################
     # return a found string or else None by default, anything else by option
     # since this is used in this file there are some workarounds for plasma machines
-    def get_error_safe_setting(self, heading, detail, default=None):
+    def get_error_safe_setting(self, heading, detail, default=None, warning = True):
         result = self.INI.find(heading, detail)
         if result:
             return result
@@ -667,7 +672,7 @@ class _IStat(object):
             if ('SPINDLE' in detail and self.MACHINE_IS_QTPLASMAC) or \
                ('ANGULAR' in detail and not self.HAS_ANGULAR_JOINT):
                 return default
-            else:
+            elif warning:
                 log.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
             return default
 
@@ -730,6 +735,10 @@ class _IStat(object):
 
     def convert_units_9(self, v):
         c = self.MACHINE_UNIT_CONVERSION_9
+        return list(map(lambda x, y: x * y, v, c))
+
+    def convert_units_10(self, v):
+        c = self.MACHINE_UNIT_CONVERSION_10
         return list(map(lambda x, y: x * y, v, c))
 
     # This finds the filter program's initializing

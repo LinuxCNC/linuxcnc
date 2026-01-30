@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:hal-tools]]
-= HAL Tools(((HAL Tools)))
+= HAL Tools
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,9 +10,12 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((HAL Tools)))
+
 [[sec:halcmd]]
 == Halcmd
 
+(((HAL Tools)))
 `halcmd` is a command line tool for manipulating the HAL.
 There is a rather complete man page for link:../man/man1/halcmd.1.html[`halcmd`], which will be installed if you have installed LinuxCNC from either source or a package.
 The manpage provides usage info:
@@ -34,8 +37,9 @@ The <<cha:hal-tutorial,HAL Tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for `halcmd`.
 
 [[sec:halmeter]]
-== Halmeter(((Halmeter)))
+== Halmeter
 
+(((Halmeter)))
 Halmeter is a 'voltmeter' for the HAL.
 It lets you look at a pin, signal, or parameter, and displays the current value of that item.
 It is pretty simple to use.
@@ -135,7 +139,7 @@ Blank lines and lines beginning with a # character are ignored.
 
 `Halscope` is an 'oscilloscope' for the HAL. It lets you capture the value of pins, signals, and parameters as a function of time.
 Complete operating instructions should be located here eventually.
-For now, refer to section  <<sec:tutorial-halscope>> in the tutorial chapter, which explains the basics.
+For now, refer to section  <<sec:tutorial-halscope,Halscope>> in the tutorial chapter, which explains the basics.
 
 The halscope "File" menu selector provides buttons to save a configuration or open a previously saved configuration.
 When halscope is terminated, the last configuration is saved in a file named autosave.halscope.
@@ -153,7 +157,7 @@ Usage:
 
 sim_pin is a command line utility to display and update any number of writable pins, parameters or signals.
 
-.`sim_pin` Usage
+.sim_pin Usage
 ----
 Usage:
         sim_pin [Options] name1 [name2 ...] &
@@ -190,13 +194,13 @@ For complete information, see the man page:
 man sim_pin
 ----
 
-.`sim_pin` Example (with LinuxCNC running)
+.sim_pin Example (with LinuxCNC running)
 ----
 halcmd loadrt mux2 names=example; halcmd net sig_example example.in0
 sim_pin example.sel example.in1 sig_example &
 ----
 
-.`sim_pin` Window
+.sim_pin Window
 image::images/sim_pin.png["sim_pin Window"]
 
 == Simulate Probe
@@ -208,14 +212,14 @@ Usage:
 simulate_probe &
 ----
 
-.`simulate_probe` Window
+.simulate_probe Window
 image::images/simulate_probe.png["simulate_probe Window"]
 
 == HAL Histogram
 
 `hal-histogram` is a command line utility to display histograms for HAL pins.
 
-.`hal-histogram` Usage
+.hal-histogram Usage
 .Usage:
    hal-histogram --help | -?
 or
@@ -244,7 +248,7 @@ or
  5. The pin must be associated with a thread supporting floating point.
     For a base thread, this may require using `loadrt motmod ... base_thread_fp=1` .
 
-.`hal-histogram` Window
+.hal-histogram Window
 image::images/hal-histogram.png["hal-histogram Window"]
 
 == Halreport
@@ -266,7 +270,7 @@ Information included:
 
 The report can be generated from the command line and directed to an output file (or stdout if no outfilename is specified):
 
-.`halreport` Usage
+.halreport Usage
 ----
 Usage:
   halreport -h | --help (this help)
@@ -276,7 +280,7 @@ or
 
 To generate the report for every LinuxCNC startup, include halreport and an output filename as an [APPLICATIONS]APP entry in the INI file.
 
-.`halreport` Example
+.halreport Example
 [source,{ini}]
 ----
 [APPLICATIONS]

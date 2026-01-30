@@ -517,6 +517,7 @@ class GlCanonDraw:
         self.foam_w_height = 1.5
         self.foam_z_height = 0
         self.hide_icons = False
+        self.disable_cone_scaling = False
 
         try:
             system_memory_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
@@ -553,8 +554,8 @@ class GlCanonDraw:
                         self.dro_mm = temp
                         self.dro_in = temp
 
-                self.foam_w_height = float(self.inifile.find("[DISPLAY]", "FOAM_W") or 1.5)
-                self.foam_z_height = float(self.inifile.find("[DISPLAY]", "FOAM_Z") or 0)
+                self.foam_w_height = float(self.inifile.find("DISPLAY", "FOAM_W") or 1.5)
+                self.foam_z_height = float(self.inifile.find("DISPLAY", "FOAM_Z") or 0)
 
                 size = (self.inifile.find("DISPLAY", "CONE_BASESIZE") or None)
                 if size is not None:
@@ -564,6 +565,8 @@ class GlCanonDraw:
                 temp = self.inifile.find("DISPLAY", "GRAPHICAL_MAX_FILE_SIZE")
                 if not temp is None:
                     self.max_file_size = int(temp) * 1024 * 1024
+
+                self.disable_cone_scaling = bool(self.inifile.find("DISPLAY", "DISABLE_CONE_SCALING"))
 
         except:
             # Probably started in an editor so no INI
@@ -640,7 +643,7 @@ class GlCanonDraw:
         if self.get_show_rapids():
             glCallList(self.dlist('select_rapids', gen=self.make_selection_list))
         glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
-        
+
         try:
             buffer = glRenderMode(GL_RENDER)
         except:
@@ -1188,20 +1191,29 @@ class GlCanonDraw:
     def draw_grid(self):
 
         view = self.get_view()
-        if view == VP: return
         rotation = math.radians(self.stat.rotation_xy % 90)
-        if rotation != 0 and view != VZ and self.get_show_relative(): return
-        permutations = [
+
+        # perspective view (code stolen from the QtPlasmac crew)
+        if view == VP:
+            def permutation(x_y_z2):
+                return x_y_z2[0], x_y_z2[1], x_y_z2[2]  # XY Z
+            def inverse_permutation(x_y_z3):
+                return x_y_z3[0], x_y_z3[1], x_y_z3[2]  # XY Z
+            self.draw_grid_permuted(rotation, permutation, inverse_permutation)
+
+        # all other views
+        else:
+            permutations = [
                 lambda x_y_z: (x_y_z[2], x_y_z[1], x_y_z[0]),  # YZ X
                 lambda x_y_z1: (x_y_z1[2], x_y_z1[0], x_y_z1[1]),  # ZX Y
                 lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2]),  # XY Z
-        ]
-        inverse_permutations = [
+            ]
+            inverse_permutations = [
                 lambda z_y_x: (z_y_x[2], z_y_x[1], z_y_x[0]),  # YZ X
                 lambda z_x_y: (z_x_y[1], z_x_y[2], z_x_y[0]),  # ZX Y
                 lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2]),  # XY Z
-        ]
-        self.draw_grid_permuted(rotation, permutations[view],
+            ]
+            self.draw_grid_permuted(rotation, permutations[view],
                 inverse_permutations[view])
 
     def all_joints_homed(self):
@@ -1485,7 +1497,7 @@ class GlCanonDraw:
 
                 current_tool = self.get_current_tool()
                 if current_tool is None or current_tool.diameter == 0:
-                    if self.canon:
+                    if self.canon and not self.disable_cone_scaling:
                         g = self.canon
 
                         cone_scale = max(g.max_extents[X] - g.min_extents[X],
@@ -1493,7 +1505,7 @@ class GlCanonDraw:
                                        g.max_extents[Z] - g.min_extents[Z],
                                        2 ) * self.cone_basesize
                     else:
-                        cone_scale = 1
+                        cone_scale = self.cone_basesize
                     if self.is_lathe():
                         glRotatef(90, 0, 1, 0)
                         # if Rotation = 180 - back tool

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        The Waveshare "Modbus RTU Relay (D)" has been pre-configured manually to
+        answer to Modbus Device ID 0x02.
+        You must write 0x0002 to register address 0x4000 with the W_REGISTER(6)
+        function for setting Modbus device ID 0x02.
+
+        Factory default seems to be input/relay linkage mode. To separate the
+        inputs and outputs you need to write the value 0x0000 to addresses
+        0x1000, 0x1001, 0x1002...0x1007 by using the W_REGISTERS(16) function or
+        individually using the W_REGISTER(6) function.
+
+	Note on setting baudrate on this device:
+        Setting 57600 works. However, faster does not seem to work stably,
+        especially when parity is enabled. Also take note that the parity even
+        has the value 0x01. The documentation specifies two tables with
+        contradicting information.
+        The 8E1@57600 setting was achieved by writing value 0x0104 to register
+        address 0x2000 using the W_REGISTER(6) function.
+
+        See also: https://www.waveshare.com/wiki/Modbus_RTU_Relay_(D)
+-->
+<mesamodbus baudrate="57600" parity="E" stopbits="1" interval="50000">
+  <devices> <!-- Devices on the same bus -->
+    <device address="0x02" name="wavebox"><description>A Waveshare "Modbus RTU Relay (D)" box</description></device>
+    <device address="0x55" name="dummy"><description>Dummy device, not actual on the bus</description></device>
+  </devices>
+  <initlist> <!-- Initialization sequences -->
+<!--
+        The Waveshare "Modbus RTU Relay (D)" (wavebox) has the nasty habit of
+        not answering the very first packet it receives after power-up. It is
+        probably something in the firmware that causes the very first character
+        to be received with an error after boot.
+        We simply send a packet to a dummy device and mark it that no answer
+        will be received. The wavebox will automatically ignore it and will
+        enter a known responsive state.
+-->
+    <command device="dummy" function="W_COIL" address="0x0000" noanswer="1"><data value="0xff00" /></command>
+  </initlist>
+  <commands> <!-- Command function sequences and HAL pin assignments -->
+    <command device="wavebox" function="R_INPUTS" address="0x0000" count="8" name="switch" />
+    <!-- Gives us the following pins:
+        - Eight switch inputs on the box are HAL output pins
+            * hm2_modbus.0.wavebox.switch-00 (out, HAL_BIT)
+            * ...
+            * hm2_modbus.0.wavebox.switch-07 (out, HAL_BIT)
+    -->
+
+    <!--
+        Note: We write at the /end/ of the list because writing only occurs if a
+        pin changes. Doing it last in the list makes the previous command more
+        timing stable because it is "seen" first every time when the timer runs.
+        Assuming that the interval is longer than the time it takes for the
+        commands to be handled.
+    -->
+    <command device="wavebox" function="W_COILS" address="0x0000" count="8" name="relay" />
+    <!-- Gives us the following pins:
+        - Eight relay outputs on the box are HAL input pins
+            * hm2_modbus.0.wavebox.relay-00 (in, HAL_BIT)
+            * ...
+            * hm2_modbus.0.wavebox.relay-07 (in, HAL_BIT)
+    -->
+  </commands>
+</mesamodbus>

@@ -7,8 +7,7 @@ lineardelta - Vismach Virtual Machine GUI
 == DESCRIPTION
 
 *lineardelta* is one of the sample *Vismach* GUIs for LinuxCNC,
-simulating a delta robot with linear actuators
-
+simulating a delta robot with linear actuators.
 
 == SEE ALSO
 

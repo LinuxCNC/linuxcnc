@@ -2,14 +2,15 @@
 
 == NAME
 
-hm2_rpspi - LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO
-boards, with HostMot2 firmware.
+hm2_rpspi - This driver has been superseded by the hm2_spix driver. LinuxCNC
+HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2
+firmware.
+
 
 == SYNOPSIS
 
 *loadrt hm2_rpspi*
 
-____
 *config* [default: ""]::
   HostMot2 config strings, described in the *hostmot2*(9) manpage.
 *spiclk_rate* [default: 31250]::
@@ -36,29 +37,31 @@ ____
   2 means pull-up. The chip enable line(s) are always pull-up enabled.
 *spi_probe* [default: 1]::
   Probe SPI port and CE lines for a card. This is a bit-field indicating
-  which combinations of SPI and CE should be probed: - 1 = SPI0/CE0, - 2
-  = SPI0/CE1, - 4 = SPI1/CE0, - 8 = SPI1/CE1, - 16 = SPI1/CE2.
+  which combinations of SPI and CE should be probed:
+  - 1 = SPI0/CE0,
+  - 2 = SPI0/CE1,
+  - 4 = SPI1/CE0,
+  - 8 = SPI1/CE1,
+  - 16 = SPI1/CE2.
 
 The probe is performed exactly in above order. Any boards found will be
-numbered 0...4 in the order found. See also *INTERFACE CONFIGURATION*
-below.
+numbered 0...4 in the order found. See also *INTERFACE CONFIGURATION* below.
 
 It is an error if a probe fails and the driver will abort. The SPI0/SPI1
 peripherals are located at GPIO pins (with 40-pin I/O header pin-number
-in parentheses): - SPI0: MOSI=10(19), MISO=9(21), SCLK=11(23),
-CE0=8(24), CE1=7(26) - SPI1: MOSI=20(38), MISO=19(35), SCLK=21(40),
-CE0=18(12), CE1=17(11), CE2=16(36)
+in parentheses):
+ - SPI0: MOSI=10(19), MISO=9(21), SCLK=11(23), CE0=8(24), CE1=7(26)
+ - SPI1: MOSI=20(38), MISO=19(35), SCLK=21(40), CE0=18(12), CE1=17(11), CE2=16(36)
 
 *spi_debug* [default: -1]::
-  Set the message level of the running process. The message level is set
-  if *spi_debug* is set to a positive value between 0 and 5, where 0
-  means no messages at all and 5 means everything. A value of -1 does
-  not touch the current message level.
+  Set the message level of the running process.
+  The message level is set if *spi_debug* is set to a positive value between 0 and 5,
+  where 0 means no messages at all and 5 means everything.
+  A value of -1 does not touch the current message level.
 
-Caveat Emptor: changing the message level is process-wide and all
-modules within the process will spit out messages at the requested
-level. This may cause quite some clutter in your terminal.
-____
+Caveat Emptor: Changing the message level is process-wide and all
+modules within the process will spit out messages at the requested level.
+This may cause quite some clutter in your terminal.
 
 == DESCRIPTION
 
@@ -95,19 +98,53 @@ TBD.
 == SPI CLOCK RATES
 
 The maximum SPI clock of the BCM2835-SPI driver and the 7i90 is
-documented over 32MHz. The SPI driver can provide frequencies well
+documented over 32&#8239;MHz. The SPI driver can provide frequencies well
 beyond what is acceptable for the 7i90. A safe value to start with would
-be 12.5 MHz (spiclk_rate=12500) and then work your way up from there.
+be 12.5&#8239;MHz (spiclk_rate=12500) and then work your way up from there.
 
 The SPI driver generates (very) discrete clock frequency values,
 especially in the MHz range because of a simple clock divider structure.
-The base frequency is 250 MHz and the divider for SPI0/SPI1 scales using
+The base frequency is 250&#8239;MHz and the divider for SPI0/SPI1 scales using
 discrete factors. The following list specifies the *spiclk_rate* setting
-and the discrete SPI clock frequency (250 MHz / (2n) for n > 1): - 62500
-- 62.500 MHz, - 41667 - 41.667 MHz, - 31250 - 31.250 MHz, - 25000 -
-25.000 MHz, - 20834 - 20.833 MHz, - 17858 - 17.857 MHz, - 15625 - 15.625
-MHz, - 13889 - 13.889 MHz, - 12500 - 12.500 MHz, - 11364 - 11.364 MHz, -
-10417 - 10.417 MHz, - 9616 - 9.615 MHz, - ....
+and the discrete SPI clock frequency (250&#8239;MHz / (2__n__) for _n_ > 1):
+
+:table-frame: ends
+:table-grid: none
+:table-option: header
+
+.SPI clock rate and corresponding SPI clock frequency
+[cols="1,1,1"]
+|===
+^| Divider
+^| spiclk_rate (kHz)
+^| actual frequency
+
+|   2 | 62500 | 62.500&#8239;MHz
+
+|   3 | 41667 | 41.667&#8239;MHz
+
+|   4 | 31250 | 31.250&#8239;MHz
+
+|   5 | 25000 | 25.000&#8239;MHz
+
+|   6 | 20834 | 20.833&#8239;MHz
+
+|   7 | 17858 | 17.857&#8239;MHz
+
+|   8 | 15625 | 15.625&#8239;MHz
+
+|   9 | 13889 | 13.889&#8239;MHz
+
+|  10 | 12500 | 12.500&#8239;MHz
+
+|  11 | 11364 | 11.364&#8239;MHz
+
+|  12 | 10417 | 10.417&#8239;MHz
+
+|  13 |  9616 |  9.615&#8239;MHz
+
+| 14+ | ....
+|===
 
 The lowest selectable SPI clock frequency is 30 kHz (spiclk_rate=30) for
 SPI0 and SPI1. Theoretically, the SPI0 port could go slower, but there
@@ -125,19 +162,18 @@ direction only).
 
 Writing to the 7i90 may be done faster than reading. This is especially
 important if you have "long" wires or any buffers on the SPI-bus path.
-You can set the read clock frequency to a lower value (using
-*spiclk_rate_rd*) to counter the effects of the SPI-bus round-trip
-needed for read actions. For example, you can write at 41.67 MHz and
-read at 25.00 MHz.
+You can set the read clock frequency to a lower value (using *spiclk_rate_rd*)
+to counter the effects of the SPI-bus round-trip needed for read actions.
+For example, you can write at 41.67&#8239;MHz and read at 25.00&#8239;MHz.
 
-It should be noted that the Rpi3 *must* have an adequate 5V power supply
-and the power should be properly decoupled right on the 40-pin I/O
-header. At high speeds and noise on the supply, there is the possibility
-of noise throwing off the SoC's PLL(s), resulting in strange behaviour.
+It should be noted that the RPi3 *must* have an adequate 5V power supply
+and the power should be properly decoupled right on the 40-pin I/O header.
+At high speeds and noise on the supply, there is the possibility of noise
+throwing off the SoC's PLL(s), resulting in strange behaviour.
 
-For optimal performance on the Rpi3, you must disable the "ondemand" CPU
-frequency governor. You may add the following to your /etc/rc.local
-file:
+For optimal performance on the RPi3, you must disable the "ondemand" CPU
+frequency governor. You may add the following to your /etc/rc.local file:
+
 ```
 echo -n 1200000 > /sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq
 echo -n performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
@@ -145,9 +181,14 @@ echo -n performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
 
 Be sure to have a proper heatsink mounted on the SoC or it will get too warm and crashes.
 
+== NOTE
+
+This driver has been superseded for most purposes by the hm2_spix driver.
+
 == SEE ALSO
 
 hostmot2(9)
+hm2_spix(9)
 
 == LICENSE
 

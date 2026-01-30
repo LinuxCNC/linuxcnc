@@ -39,6 +39,10 @@
 
 #define setresult(t,s) Tcl_SetObjResult((t), Tcl_NewStringObj((s),-1))
 
+#ifndef CONST
+#define CONST const
+#endif
+
 /*
   Using tcl package Linuxcnc:
   Using emcsh:
@@ -135,7 +139,7 @@
 
   emc_spindle (spindle_number) (none) | forward | reverse | increase | decrease | constant | off
   With no spindle_number defaults to spindle 0. This is a little different
-  from the default behaviour elsewhere where specifyin no spindle affects all spindles.
+  from the default behaviour elsewhere where specifying no spindle affects all spindles.
   With no arg, returns the value of the spindle state as "forward",
   "reverse", "increase", "decrease", or "off". With arg, sends the spindle
   command. Note that "increase" and "decrease" will cause a speed change in
@@ -3203,6 +3207,7 @@ static int emc_pendant(ClientData /*clientdata*/,
 		if (strcmp(port, "/dev/psaux")) {	// For Serial mice
 		    inBytes[1] = fgetc(inFile);	// read the first Byte
 		    if (inBytes[1] != 77) {	// If first byte not "M"
+			fseek(inFile, 0, SEEK_CUR); // C standard: write-after-read needs this
 			fputc(77, inFile);	// Request data resent
 			fflush(inFile);
 			inBytes[1] = fgetc(inFile);	// and hope it is
@@ -3212,8 +3217,8 @@ static int emc_pendant(ClientData /*clientdata*/,
 		inBytes[4] = fgetc(inFile);	// Status byte
 		inBytes[2] = fgetc(inFile);	// Horizontal movement
 		inBytes[3] = fgetc(inFile);	// Vertical Movement
+	        fclose(inFile);
 	    }
-	    fclose(inFile);
 
 	    if (!strcmp(port, "/dev/psaux")) {	// For PS/2
 		inBytes[0] = (inBytes[4] & 0x01);	// Left button
@@ -3420,7 +3425,7 @@ extern "C"
 int Linuxcnc_Init(Tcl_Interp * interp);
 int Linuxcnc_Init(Tcl_Interp * interp)
 {
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL)
+    if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL)
     {
         return TCL_ERROR;
     }

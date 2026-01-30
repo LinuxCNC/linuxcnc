@@ -16,6 +16,7 @@
 static bool funct_flag = false;
 
 static void hm2_absenc_trigger(void *void_hm2, long period){
+    (void)period;
     hostmot2_t *hm2 = void_hm2;
     rtapi_u32 buff = 0xFFFFFFFF;
     if (hm2->absenc.ssi_global_start_addr){
@@ -236,6 +237,7 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
     char* AA64 = "%5pbatt_fail%1b%2ppos_invalid%1b%9plow%16l%2pencoder%16h%2pcomm%10u%7pcrc%5u";
     char* format = def->string;
     char name[HM2_SSERIAL_MAX_STRING_LENGTH+1] = "";
+    char *nameptr = name;
     
     if (chan->myinst == HM2_GTAG_FABS && strncmp(format, "AA64",4) == 0){
         format = AA64;
@@ -329,7 +331,6 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                                   " paired with one of the other data types\n");
                     return -EINVAL;
                 }
-                
             }
             else
             {
@@ -337,13 +338,16 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                 return -EINVAL;
             }
             //Start a new name
-            rtapi_strxcpy(name, "");
+            nameptr = name;
+            *nameptr = 0;
             //move to the next string
             format++;
         }
         else
         {
-            strncat(name, format++, 1);
+            // Not a % format, append name
+            *nameptr++ = *format++;
+            *nameptr = 0;
         }
     }
     return 0;
@@ -485,6 +489,7 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
 }
 
 void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period) {
+    (void)period;
     int i;
     static int err_count[MAX_ABSENCS];
     static int err_tag[MAX_ABSENCS];

@@ -641,7 +641,7 @@ int halui_hal_init(void)
 	    if (retval < 0) return retval;
 	    retval = hal_pin_s32_newf(HAL_IN,  &(halui_data->so_counts[spindle]), comp_id, "halui.spindle.%i.override.counts", spindle);
 	    if (retval < 0) return retval;
-	    *halui_data->so_counts = 0;
+	    *halui_data->so_counts[spindle] = 0;
 	    retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_count_enable[spindle]), comp_id, "halui.spindle.%i.override.count-enable", spindle);
 	    if (retval < 0) return retval;
 	    *halui_data->so_count_enable[spindle] = 1;
@@ -691,23 +691,25 @@ int halui_hal_init(void)
     retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_is_homed[num_joints]), comp_id, "halui.joint.selected.is-homed");
     if (retval < 0) return retval;
 
+    bool first_axis = true;
     for (axis_num=0; axis_num < EMCMOT_MAX_AXIS ; axis_num++) {
         if ( !(axis_mask & (1 << axis_num)) ) { continue; }
         char c = "xyzabcuvw"[axis_num];
-
         retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->axis_is_selected[axis_num]), comp_id, "halui.axis.%c.is-selected", c);
         if (retval < 0) return retval;
-	retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_commanded[axis_num]), comp_id, "halui.axis.%c.pos-commanded", c);
+	    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_commanded[axis_num]), comp_id, "halui.axis.%c.pos-commanded", c);
         if (retval < 0) return retval;
-	retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_feedback[axis_num]), comp_id, "halui.axis.%c.pos-feedback", c);
+	    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_feedback[axis_num]), comp_id, "halui.axis.%c.pos-feedback", c);
         if (retval < 0) return retval;
-	retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_relative[axis_num]), comp_id, "halui.axis.%c.pos-relative", c);
+	    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_relative[axis_num]), comp_id, "halui.axis.%c.pos-relative", c);
         if (retval < 0) return retval;
+        if (first_axis) {
+            // at startup, indicate first item is selected:
+            *halui_data->joint_is_selected[0] = 1;
+            *halui_data->axis_is_selected[axis_num] = 1;
+        }
+        first_axis = false;
     }
-
-    // at startup, indicate [0] item is selected:
-    *halui_data->joint_is_selected[0] = 1;
-    *halui_data->axis_is_selected[0] = 1;
 
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->mv_value), comp_id, "halui.max-velocity.value");
     if (retval < 0) return retval;
@@ -872,20 +874,20 @@ int halui_hal_init(void)
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         char c = "xyzabcuvw"[axis_num];
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->axis_nr_select[axis_num]), comp_id, "halui.axis.%c.select", c);
-	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_plus[axis_num]), comp_id, "halui.axis.%c.plus", c);
-	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_minus[axis_num]), comp_id, "halui.axis.%c.minus", c);
-	if (retval < 0) return retval;
-	retval =  hal_pin_float_newf(HAL_IN, &(halui_data->ajog_analog[axis_num]), comp_id, "halui.axis.%c.analog", c);
-	if (retval < 0) return retval;
-	retval =  hal_pin_float_newf(HAL_IN, &(halui_data->ajog_increment[axis_num]), comp_id, "halui.axis.%c.increment", c);
-	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_increment_plus[axis_num]), comp_id, "halui.axis.%c.increment-plus", c);
-	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_increment_minus[axis_num]), comp_id, "halui.axis.%c.increment-minus", c);
-	if (retval < 0) return retval;
+        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->axis_nr_select[axis_num]), comp_id, "halui.axis.%c.select", c);
+        if (retval < 0) return retval;
+        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_plus[axis_num]), comp_id, "halui.axis.%c.plus", c);
+        if (retval < 0) return retval;
+        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_minus[axis_num]), comp_id, "halui.axis.%c.minus", c);
+        if (retval < 0) return retval;
+        retval =  hal_pin_float_newf(HAL_IN, &(halui_data->ajog_analog[axis_num]), comp_id, "halui.axis.%c.analog", c);
+        if (retval < 0) return retval;
+        retval =  hal_pin_float_newf(HAL_IN, &(halui_data->ajog_increment[axis_num]), comp_id, "halui.axis.%c.increment", c);
+        if (retval < 0) return retval;
+        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_increment_plus[axis_num]), comp_id, "halui.axis.%c.increment-plus", c);
+        if (retval < 0) return retval;
+        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_increment_minus[axis_num]), comp_id, "halui.axis.%c.increment-minus", c);
+        if (retval < 0) return retval;
     }
 
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[num_joints]), comp_id, "halui.joint.selected.home");

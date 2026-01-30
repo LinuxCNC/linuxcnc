@@ -49,13 +49,14 @@ pin in  bit     reset_bit    = false  "Bit reset value";
 pin in  bit     retriggerable = true  "Allow additional edges to reset";
 pin in  bit     rising        = true  "Trigger on rising edge";
 pin in  bit     falling       = false "Trigger on falling edge";
+option period no;
 function _  fp "Update the output value";
 description """
 Component to reset IO signals.
 
 This function works like a conditional sets - it is fed with a float
 and/or bit/s32/u32 pins that are I/O, but are save the value only if
-the "trigger" pin is set. The values assigned to those signals are
+the *trigger* pin is set. The values assigned to those signals are
 passed via the input pins reset_float/s32/u32/bit.
 """;
 license "GPL";

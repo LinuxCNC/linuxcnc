@@ -869,6 +869,9 @@ int Interp::init()
   _setup.call_state = CS_NORMAL;
   _setup.num_spindles = 1;
 
+  _setup.tolerance_default = 0;
+  _setup.naivecam_tolerance_default = 0;
+
   // default arc radius tolerances
   // we'll try to override these from the INI file below
   _setup.center_arc_radius_tolerance_inch = CENTER_ARC_RADIUS_TOLERANCE_INCH;
@@ -891,6 +894,9 @@ int Interp::init()
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
           inifile.Find(&_setup.num_spindles, "SPINDLES", "TRAJ");
+
+          inifile.Find(&_setup.tolerance_default, "G64_DEFAULT_TOLERANCE", "RS274NGC");
+          inifile.Find(&_setup.naivecam_tolerance_default, "G64_DEFAULT_NAIVETOLERANCE", "RS274NGC");
 
           // First the features that default to ON
           opt = true;
@@ -924,8 +930,8 @@ int Interp::init()
               _setup.c_indexer_jnum = atol(*inistring);
           }
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
-          inifile.Find(&_setup.parameter_g73_peck_clearance, "PARAMETER_G73_PECK_CLEARANCE", "RS274NGC");
-          inifile.Find(&_setup.parameter_g83_peck_clearance, "PARAMETER_G83_PECK_CLEARANCE", "RS274NGC");
+          inifile.Find(&_setup.parameter_g73_peck_clearance, "G73_PECK_CLEARANCE", "RS274NGC");
+          inifile.Find(&_setup.parameter_g83_peck_clearance, "G83_PECK_CLEARANCE", "RS274NGC");
 
           inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
 
@@ -1953,6 +1959,13 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   infile = fopen(filename, "r");
   if(!infile)
     infile = fopen("/dev/null", "r");
+  if(!infile) {
+    // If we can't open the 'filename', we may not be able to open "/dev/null"
+    // either. If so, print an error, close 'outfile' and continue.
+    perror("Interp::save_parameters(): fopen(/dev/null)");
+    fclose(outfile);
+    return INTERP_OK;
+  }
 
   k = 0;
   index = 0;

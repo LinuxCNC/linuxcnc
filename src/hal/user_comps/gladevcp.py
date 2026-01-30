@@ -46,10 +46,17 @@ from gi.repository import Gdk
 from gi.repository import GLib
 
 import signal
+
+from gladevcp.core import Info, Status
+import gladevcp.makepins
+from gladevcp.gladebuilder import GladeBuilder
+from gladevcp import xembed
+from gladevcp.gladevcppath import search, find_panel_dirs
+
 # Set up the base logger
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
-from qtvcp import logger
+from common import logger
 LOG = None
 
 options = [ Option( '-c', dest='component', metavar='NAME'
@@ -177,19 +184,27 @@ def main():
     global gladevcp_debug
     (progdir, progname) = os.path.split(sys.argv[0])
 
-    usage = "usage: %prog [options] myfile.ui"
+    usage = "usage: %prog [options] myfile.ui\nOr\nusage: %prog [options] built_in_panel_name"
     parser = OptionParser(usage=usage)
     parser.disable_interspersed_args()
     parser.add_options(options)
 
     (opts, args) = parser.parse_args()
-    if not args:
-        parser.print_help()
-        sys.exit(1)
 
-    temp = os.path.splitext(os.path.basename(args[0]))[0]
+    if args:
+        temp = os.path.splitext(os.path.basename(args[0]))[0]
+    else:
+        temp = ''
+
     global LOG
     LOG = logger.initBaseLogger('GladeVCP-'+ temp, log_file=None, log_level=logger.INFO)
+
+    if not args:
+        parser.print_help()
+        print("")
+        LOG.critical('Available built-in VCP Panels:')
+        print(find_panel_dirs())
+        sys.exit(1)
 
     gladevcp_debug = debug = opts.debug
     if opts.debug:
@@ -207,11 +222,6 @@ def main():
     else:
         logger.setGlobalLevel(logger.WARNING)
 
-    from gladevcp.core import Info, Status
-    import gladevcp.makepins
-    from gladevcp.gladebuilder import GladeBuilder
-    from gladevcp import xembed
-
     if opts.ini_path:
         # set INI path for INI info class before widgets are loaded
         INFO = Info(ini=opts.ini_path)
@@ -219,7 +229,13 @@ def main():
         INFO = Info()
     LOG.verbose('INI path = {}'.format(opts.ini_path))
 
-    xmlname = args[0]
+    # search for alternate locations glade file locations
+    # if no extension given
+    if os.path.splitext(args[0])[1] == '':
+        LOG.info(f'looking for a builtin panel: {args[0]}')
+        xmlname = search(args[0], 1)
+    else:
+        xmlname = args[0]
 
     #if there was no component name specified use the xml file name
     if opts.component is None:
@@ -257,8 +273,21 @@ def main():
 
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
 
+    # search for alternate locations py file locations
+    # if no extension given; maybe this is a builtin panel request
+    if os.path.splitext(args[0])[1] == '':
+       opts.usermod = [search(args[0],2)]
+
+    LOG.verbose(f"usermode-> {opts.usermod}")
+    LOG.verbose(f"halcomp-> {halcomp}")
+    LOG.verbose(f"builder-> {builder}")
+    LOG.verbose(f"useropts-> {opts.useropts}")
+
     # at this point, any glade HL widgets and their pins are set up.
     handlers, mod, obj = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
+
+    LOG.verbose('Object: {}'.format(obj))
+    LOG.verbose('mod {}'.format( mod))
 
     # so widgets can call handler functions - give them refeence to the handler object
     panel.set_handler(obj)

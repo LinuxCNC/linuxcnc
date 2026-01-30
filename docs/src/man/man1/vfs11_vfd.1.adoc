@@ -156,7 +156,7 @@ This component reads and writes to the vfs11 via a Modbus connection.
   Do-not-exceed soft limit for motor RPM (defaults to __nameplate-RPM__).
 
 <name>.tolerance (float, RW)::
-  Speed tolerance (default 0.01) for determining whether spindle is at speed (0.01 meaning: output frequency is within 1% of target frequency)
+  Speed tolerance (default 0.01) for determining whether spindle is at speed (0.01 meaning: output frequency is within 1% of target frequency).
 
 == USAGE
 
@@ -169,7 +169,7 @@ Operating parameters are still read while bus control is disabled.
 Exiting the vfs11_vfd driver in a controlled will release the VFD from the bus and restore panel control.
 
 See the LinuxCNC Integrators Manual for more information.
-For a detailed register description of the Toshiba VFD's,
+For a detailed register description of the Toshiba VFDs,
 see the "TOSVERT VF-S11 Communications Function Instruction Manual" (Toshiba document number E6581222)
 and the "TOSVERT VF-S11 Instruction manual" (Toshiba document number E6581158).
 

@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_prio(3rtapi)
+= rtapi_prio(3)
 
 == NAME
 
@@ -49,4 +49,4 @@ Returns an opaque real-time priority number.
 
 == SEE ALSO
 
-rtapi_task_new(3rtapi)
+rtapi_task_new(3)

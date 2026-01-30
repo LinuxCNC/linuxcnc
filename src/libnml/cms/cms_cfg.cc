@@ -69,9 +69,10 @@ extern "C" {
 #include "linklist.hh"		/* LinkedList */
 
 struct CONFIG_FILE_INFO {
-    CONFIG_FILE_INFO() {
-	lines_list = NULL;
-    };
+    CONFIG_FILE_INFO()
+      : lines_list(NULL),
+        file_name{}
+    {};
 
     ~CONFIG_FILE_INFO() {
 	if (NULL != lines_list) {
@@ -113,6 +114,8 @@ int load_nml_config_file(const char *file)
     if (strlen(file) >= 80) {
         rcs_print_error("cms_config: file name too long\n");
         loading_config_file = 0;
+	delete info->lines_list; // info is a struct
+	delete info;
         return -1;
     }
     rtapi_strlcpy(info->file_name, file, 80);
@@ -121,9 +124,8 @@ int load_nml_config_file(const char *file)
     if (fp == NULL) {
 	rcs_print_error("cms_config: can't open '%s'. Error = %d -- %s\n",
 	    file, errno, strerror(errno));
-	if (NULL != info) {
-	    delete info;
-	}
+	delete info->lines_list; // info is a struct
+	delete info;
 	loading_config_file = 0;
 	return -1;
     }
@@ -496,7 +498,7 @@ int hostname_matches_bufferline(char *bufline)
     }
     while (j < num_my_hostent_addresses && j < 16) {
 	k = 0;
-	while (buffer_hostent_ptr->h_addr_list[k] != 0 && k < 16) {
+	while (k < 16 && buffer_hostent_ptr->h_addr_list[k] != 0) {
 	    if (!memcmp
 		(my_hostent_addresses[j], buffer_hostent_ptr->h_addr_list[k],
 		    my_hostent.h_length)) {

@@ -1,5 +1,7 @@
 import os, time
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWidgets import QAction, QMenu
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QCoreApplication
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.gcode_graphics import GCodeGraphics as GRAPHICS
@@ -62,9 +64,13 @@ PAGE_NGCGUI = 1
 MACRO = True
 NO_MACRO = False
 
+# message constants
 DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
+DEBUG = 3
+SUCCESS = 4
+ERROR = 5
 
 VERSION ='1.5'
 
@@ -144,6 +150,10 @@ class HandlerClass:
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
         STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
         STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
+        STATUS.connect('runstop-line-changed', lambda w, l :self.lastRunLine(l))
+        STATUS.connect('cycle-start-request', lambda w, state :self.btn_start_clicked(state))
+        STATUS.connect('cycle-pause-request', lambda w, state: self.btn_pause_clicked(state))
+        STATUS.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
 
         txt1 = _translate("HandlerClass","Setup Tab")
         txt2 = _translate("HandlerClass","If you select a file with .html as a file ending, it will be shown here.")
@@ -189,7 +199,6 @@ class HandlerClass:
         self.w.stackedWidget_dro.setCurrentIndex(0)
         if self.probe is not None:
             self.probe.hide()
-        self.w.btn_dimensions.setChecked(True)
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.selectButtonGroup.buttonClicked.connect(self.MPG_select_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
@@ -231,24 +240,7 @@ class HandlerClass:
 
         self.w.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
-        # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
-        flag = True
-        for b in range(0,10):
-            button = self.w['macrobutton{}'.format(b)]
-            # prefer named INI MDI commands
-            key = button.property('ini_mdi_key')
-            if key == '' or INFO.get_ini_mdi_command(key) is None:
-                # fallback to legacy nth line
-                key = button.property('ini_mdi_number')
-            try:
-                code = INFO.get_ini_mdi_command(key)
-                if code is None: raise Exception
-                flag = False
-            except:
-                button.hide()
-        # no buttons hide frame
-        if flag:
-            self.w.frame_macro_buttons.hide()
+        self.configureMacroButtons()
 
         self.log_version()
 
@@ -257,58 +249,58 @@ class HandlerClass:
     #############################
     def init_pins(self):
         # spindle control pins
-        pin = QHAL.newpin("spindle-amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
-        pin.value_changed.connect(self.spindle_pwr_changed)
+        pin = QHAL.newPin("spindle-amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.spindle_pwr_changed(v))
 
-        pin = QHAL.newpin("spindle-volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
-        pin.value_changed.connect(self.spindle_pwr_changed)
+        pin = QHAL.newPin("spindle-volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.spindle_pwr_changed(v))
 
-        pin = QHAL.newpin("spindle-fault-u32", QHAL.HAL_U32, QHAL.HAL_IN)
-        pin.value_changed.connect(self.spindle_fault_changed)
-        pin = QHAL.newpin("spindle-fault", QHAL.HAL_S32, QHAL.HAL_IN)
-        pin.value_changed.connect(self.spindle_fault_changed)
+        pin = QHAL.newPin("spindle-fault-u32", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.spindle_fault_changed(v))
+        pin = QHAL.newPin("spindle-fault", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.spindle_fault_changed(v))
 
-        pin = QHAL.newpin("spindle-modbus-errors-u32", QHAL.HAL_U32, QHAL.HAL_IN)
-        pin.value_changed.connect(self.mb_errors_changed)
-        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_S32, QHAL.HAL_IN)
-        pin.value_changed.connect(self.mb_errors_changed)
+        pin = QHAL.newPin("spindle-modbus-errors-u32", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.mb_errors_changed(v))
+        pin = QHAL.newPin("spindle-modbus-errors", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.mb_errors_changed(v))
 
-        pin = QHAL.newpin("spindle-modbus-connection", QHAL.HAL_BIT, QHAL.HAL_IN)
-        pin.value_changed.connect(self.mb_connection_changed)
+        pin = QHAL.newPin("spindle-modbus-connection", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.mb_connection_changed(v))
 
-        QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newPin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
 
-        pin = QHAL.newpin("external-pause", QHAL.HAL_BIT, QHAL.HAL_IN)
-        pin.value_changed.connect(self.btn_pause_clicked)
+        pin = QHAL.newPin("external-pause", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.btn_pause_clicked(v))
 
         # external offset control pins
-        QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
         self.h['eoffset-clear'] = False
-        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        pin = QHAL.newpin("eoffset-is-active", QHAL.HAL_BIT, QHAL.HAL_IN)
+        QHAL.newPin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        QHAL.newPin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        pin = QHAL.newPin("eoffset-is-active", QHAL.HAL_BIT, QHAL.HAL_IN)
 
 
         # total external offsets
-        pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
-        pin.value_changed.connect(self.external_offset_state_changed)
+        pin = QHAL.newPin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.external_offset_state_changed(v))
 
-        pin = QHAL.newpin("eoffset-zlevel-count", QHAL.HAL_S32, QHAL.HAL_IN)
-        pin.value_changed.connect(self.comp_count_changed)
-        QHAL.newpin("comp-on", Qhal.HAL_BIT, Qhal.HAL_OUT)
-        QHAL.newpin("spindle-lift-on", Qhal.HAL_BIT, Qhal.HAL_OUT)
+        pin = QHAL.newPin("eoffset-zlevel-count", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.comp_count_changed(v))
+        QHAL.newPin("comp-on", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newPin("spindle-lift-on", QHAL.HAL_BIT, QHAL.HAL_OUT)
 
         # MPG scrolling pin
-        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
-        self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
+        self.pin_mpg_in = QHAL.newPin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in.pinValueChanged.connect(lambda p,v: self.external_mpg(v))
 
         # dialog answer pins
-        pin = QHAL.newpin("dialog-ok", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newPin("dialog-ok", QHAL.HAL_BIT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,1))
-        pin = QHAL.newpin("dialog-no", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newPin("dialog-no", QHAL.HAL_BIT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,2))
-        pin = QHAL.newpin("dialog-cancel", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newPin("dialog-cancel", QHAL.HAL_BIT, QHAL.HAL_IN)
         pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,0))
 
     def init_preferences(self):
@@ -347,6 +339,8 @@ class HandlerClass:
         self.cam_xscale_changed(self.w.PREFS_.getpref('Camview xscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
         self.cam_yscale_changed(self.w.PREFS_.getpref('Camview yscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
         self.w.camview._camNum = self.w.PREFS_.getpref('Camview cam number', 0, int, 'CUSTOM_FORM_ENTRIES')
+        self.w.camview.setAPI(self.w.PREFS_.getpref('Camview cam api', 'ANY', str, 'CUSTOM_FORM_ENTRIES'))
+        self.w.camview.setResolution(self.w.PREFS_.getpref('Camview cam resolution', 'DEFAULT', str, 'CUSTOM_FORM_ENTRIES'))
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
@@ -474,6 +468,38 @@ class HandlerClass:
         # hide user tab button if no user tabs
         if self.w.stackedWidget_mainTab.count() == 10:
             self.w.btn_user.hide()
+
+        # see if a popup window panels is required
+        self.Btn = None
+        if not INFO.ZIPPED_TABS is None:
+            for name, loc, cmd in INFO.ZIPPED_TABS:
+                if loc =='WINDOW':
+
+                    # add panel to a dialog window
+                    self.w['popup'] = d = QtWidgets.QDialog(self.w)
+                    temp = self.w[name.replace(' ','_')]
+                    # set to apropriate size for panel
+                    d.setMinimumSize(600,400)
+                    d.setWindowTitle(name)
+                    d.setWindowFlags(d.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+                    d.finished.connect(self.onClosePopup)
+                    d._lastgeometry = None
+
+                    layout = QtWidgets.QGridLayout(d)
+                    layout.setContentsMargins(0,0,0,0)
+                    layout.addWidget(temp, 0, 0)
+
+                    # add launch button to screen
+                    self.btn = QtWidgets.QPushButton(self.w)
+                    self.btn.setEnabled(True)
+                    self.btn.setMinimumSize(64, 40)
+                    self.btn.setIconSize(QtCore.QSize(38, 38))
+                    self.btn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/up-32.png'))
+                    self.btn.clicked.connect(self.togglePopup)
+                    self.w.layout_buttonbar.insertWidget(len(self.w.layout_buttonbar) - 1, self.btn)
+
+                    # only one allowed
+                    break
 
     def init_probe(self):
         probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
@@ -858,12 +884,14 @@ class HandlerClass:
         self.w.btn_home_all.setText(_translate("HandlerClass","HOME ALL"))
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
-        self.add_status(_translate("HandlerClass","Hard limits tripped"), CRITICAL)
-        self.w.chk_override_limits.setEnabled(tripped)
-        if not tripped:
+        if tripped:
+            self.add_status(_translate("HandlerClass","Hard limits tripped"), CRITICAL)
+            self.w.chk_override_limits.setEnabled(tripped)
+        else:
             self.w.chk_override_limits.setChecked(False)
+            self.add_status(_translate("HandlerClass","Hard Limits Clear"))
 
-    # keep check button in synch of external changes
+    # keep check button in sync of external changes
     def _check_override_limits(self,state,data):
         if 0 in data:
             self.w.chk_override_limits.setChecked(False)
@@ -881,6 +909,38 @@ class HandlerClass:
         if log:
             STATUS.emit('update-machine-log', "{}\n{}".format(title, logtext), 'TIME')
 
+    # Log the last run line (in auto mode) if stopped
+    def lastRunLine(self, line):
+        if line >0:
+            self.add_status(_translate("HandlerClass",'last running line before stoppage: {}'.format(line)))
+
+    # called from hal_glib to run macros from external event
+    def request_macro_call(self, data):
+        if not STATUS.is_mdi_mode():
+            self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), CRITICAL)
+            return
+
+        for b in range(0,10):
+            button = self.w['macrobutton{}'.format(b)]
+            # prefer named INI MDI commands
+            key = button.property('ini_mdi_key')
+            code = INFO.get_ini_mdi_command(key)
+            if key == '' or code is None:
+                # fallback to legacy nth line
+                key = button.property('ini_mdi_number')
+                code = INFO.get_ini_mdi_command(key)
+                if code is None:
+                    continue
+            if str(key) == data:
+                #print('match',button.objectName())
+                text = button.text().replace('\n',' ')
+                self.add_status(_translate("HandlerClass",'Running macro: {} {}'.format(key, text)))
+                try:
+                    button.click()
+                except Exception as e:
+                    self.add_status(_translate("HandlerClass",'Running macro: {} {}\n{}'.format(key, text, e)))
+                break
+
     #######################
     # CALLBACKS FROM FORM #
     #######################
@@ -891,13 +951,13 @@ class HandlerClass:
 
         if index == TAB_USER:
             pass
-        elif index == self.w.stackedWidget_mainTab.currentIndex():
-            self.w.stackedWidget_dro.setCurrentIndex(0)
-
         if index is None: return
 
         # adjust the stack widgets depending on modes
         self.adjust_stacked_widgets(index)
+
+    def hideVirtualKeyboard(self):
+        self.w.stackedWidget_dro.setCurrentIndex(0)
 
     # gcode frame
     def cmb_gcode_history_clicked(self):
@@ -1149,20 +1209,16 @@ class HandlerClass:
 
     def btn_save_status_clicked(self):
         if self.w.stackedWidget_log.currentIndex():
-            text = self.w.integrator_log.toPlainText()
+            text = self.w.integrator_log.getLogText()
             name = 'sysLog_'
         else:
-            text = self.w.machinelog.toPlainText()
+            text = self.w.machinelog.getLogText()
             name = 'mchnLog_'
         filename = self.w.lbl_clock.text()
         filename = name + filename.replace(' ','_') + '.txt'
         self.add_status("{} {}".format(_translate("HandlerClass","Saving Log file to"), filename))
         with open(filename, 'w') as f:
             f.write(text)
-
-    def btn_dimensions_clicked(self, state):
-        self.w.gcodegraphics.show_extents_option = state
-        self.w.gcodegraphics.clear_live_plotter()
         
     # camview tab
     def cam_zoom_changed(self, value):
@@ -1188,7 +1244,7 @@ class HandlerClass:
     # settings tab
 
     def chk_override_limits_checked(self, state):
-        # only toggle override if it's not in synch with the button
+        # only toggle override if it's not in sync with the button
         if state and not STATUS.is_limits_override_set():
             self.add_status(_translate("HandlerClass","Override limits set"), WARNING)
             ACTION.TOGGLE_LIMITS_OVERRIDE()
@@ -1583,19 +1639,34 @@ class HandlerClass:
                 rate = rate * 2
             ACTION.JOG(joint, direction, rate, distance)
         else:
+            # incremental jogging?
+            if joint in (3,4,5,'A','B','C'): # angualar axis
+                if STATUS.get_jog_increment_angular() != 0: return
+            elif STATUS.get_jog_increment() != 0: return
+
+            # otherwise stop jogging when key released
             ACTION.JOG(joint, 0, 0, 0)
 
     def add_status(self, message, alertLevel = DEFAULT, noLog = False):
+        opt = 'TIME'
         if alertLevel==DEFAULT:
             self.set_style_default()
+        elif alertLevel==SUCCESS:
+            opt += ',SUCCESS'
+            self.set_style_default()
         elif alertLevel==WARNING:
+            opt += ',WARNING'
+            self.set_style_warning()
+        elif alertLevel==ERROR:
+            opt += ',ERROR'
             self.set_style_warning()
         else:
+            opt += ',CRITICAL'
             self.set_style_critical()
         self.w.statusbar.setText(message)
         if noLog:
             return
-        STATUS.emit('update-machine-log', message, 'TIME')
+        STATUS.emit('update-machine-log', message, opt)
 
     def enable_auto(self, state):
         if state is True:
@@ -1607,10 +1678,13 @@ class HandlerClass:
 
     def enable_onoff(self, state):
         if state:
-            self.add_status(_translate("HandlerClass","Machine ON"))
+            self.add_status(_translate("HandlerClass","Machine ON"), SUCCESS)
         else:
-            self.add_status(_translate("HandlerClass","Machine OFF"))
-            self.w.btn_spindle_pause.setChecked(False)
+            if not STATUS.estop_is_clear():
+                self.add_status(_translate("HandlerClass","ESTOP!"), CRITICAL)
+            else:
+                self.add_status(_translate("HandlerClass","MACHINE OFF"), ERROR)
+        self.w.btn_spindle_pause.setChecked(False)
         self.h['eoffset-spindle-count'] = 0
         for widget in self.onoff_list:
             self.w[widget].setEnabled(state)
@@ -1832,7 +1906,8 @@ class HandlerClass:
         # show ngcgui info tab if utilities tab is selected
         # but only if the utilities tab has ngcgui selected
         if main_index == TAB_UTILS:
-            if self.w.tabWidget_utilities.currentIndex() == 2:
+            num = self.w.tabWidget_utilities.currentIndex()
+            if 'ngc' in self.w.tabWidget_utilities.tabText(num).lower():
                 self.w.stackedWidget.setCurrentIndex(PAGE_NGCGUI)
             else:
                 self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
@@ -1866,7 +1941,8 @@ class HandlerClass:
 
         # if indexes don't match then request is disallowed
         # give a warning and reset the button check
-        if main_index != requestedIndex and not main_index in(TAB_CAMVIEW,TAB_GCODES,TAB_SETUP):
+        if main_index != requestedIndex and not main_index in(TAB_CAMVIEW, TAB_GCODES,
+                TAB_STATUS, TAB_SETUP):
             self.add_status(_translate("HandlerClass","Cannot switch pages while in AUTO mode"), WARNING)
             self.w.stackedWidget_mainTab.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
@@ -2006,6 +2082,81 @@ class HandlerClass:
                  t)
         self.add_status(mess, CRITICAL,noLog=True)
         STATUS.emit('update-machine-log', mess, None)
+
+    # show/hide macro buttons depending on the INI definitions
+    def configureMacroButtons(self):
+        # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
+        flag = True
+        for b in range(0,10):
+            button = self.w['macrobutton{}'.format(b)]
+            # prefer named INI MDI commands
+            key = button.property('ini_mdi_key')
+            if key == '' or INFO.get_ini_mdi_command(key) is None:
+                # fallback to legacy nth line
+                key = button.property('ini_mdi_number')
+            try:
+                code = INFO.get_ini_mdi_command(key)
+                if code is None: raise Exception
+                flag = False
+            except:
+                button.hide()
+        # no buttons hide frame
+        if flag:
+            self.w.frame_macro_buttons.hide()
+
+        # if there are more then 10 add a menu to the last button for selection
+        if len(INFO.MDI_COMMAND_DICT)>10:
+            button.setText(_translate("HandlerClass",'MORE\nMACROS'))
+            button.setProperty('ini_mdi_command_action', False)
+            button.setProperty('no_action', True)
+            button.setToolTip('')
+            SettingMenu = QMenu(button)
+            button.setMenu(SettingMenu)
+            for i in range(0,len(INFO.MDI_COMMAND_DICT)-10):
+                try:
+                    name = 'MACRO{}'.format(i+10)
+                    label = INFO.MDI_COMMAND_DICT[name]['label']
+                except:
+                    label = INFO.MDI_COMMAND_LABEL_LIST[i+10]
+
+                action = QAction(QIcon.fromTheme('application-exit'), label.replace("\\n"," "), button)
+                action.triggered.connect(lambda s, i=i, b=button : self.midiAction(b, i+10))
+                # tooltips don't work on Qmenu items unless in toolbar
+                #tooltiplabel = 'INI MDI CMD {}:\n'.format(name)
+                #tooltiplabel += INFO.get_ini_mdi_command(key).replace(';', '\n')
+                #action.setToolTip(tooltiplabel)
+
+                SettingMenu.addAction(action)
+
+    # use the button to run macros selected from the buttons menu
+    def midiAction(self, button, num):
+        name = 'MACRO{}'.format(num)
+        try:
+            code = INFO.MDI_COMMAND_DICT[name]['cmd']
+            button.setProperty('ini_mdi_key', name)
+        except:
+            code = INFO.MDI_COMMAND_LIST[num]
+            button.setProperty('ini_mdi_key', '')
+            button.setProperty('ini_mdi_number', num)
+            print('number',num,button.ini_mdi_num)
+        button.setProperty('ini_mdi_command_action', True)
+
+        button.pressed.emit()
+        button.setProperty('ini_mdi_command_action', False)
+
+    # show/hide a popup window panel (if defined in the INI)
+    def togglePopup(self):
+        if self.w['popup'].isVisible():
+            self.w['popup']._lastgeometry = self.w['popup'].geometry()
+            self.w['popup'].hide()
+        else:
+            self.w['popup'].show()
+            if not self.w['popup']._lastgeometry is None:
+                self.w['popup'].setGeometry(self.w['popup']._lastgeometry)
+
+
+    def onClosePopup(self, *args):
+        self.w['popup']._lastgeometry = self.w['popup'].geometry()
 
     #####################
     # KEY BINDING CALLS #

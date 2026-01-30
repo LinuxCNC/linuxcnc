@@ -5,8 +5,8 @@ description
 After tripping home switch, travel in opposite direction is
 required (amount set by the hysteresis pin).
 A pin (index-enable) is provided for use when
-\\fB[JOINT_n]HOME_USE_INDEX\\fR is specified to reset
-the I/O pin \\fBjoint.N.index-enable\\fR.
+*[JOINT_n]HOME_USE_INDEX* is specified to reset
+the I/O pin *joint.N.index-enable*.
 """;
 pin in float cur_pos "Current position (typically: joint.n.motor-pos-fb)";
 pin in float home_pos = 1 "Home switch position";

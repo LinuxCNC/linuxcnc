@@ -258,6 +258,41 @@ an 'over-damped' closed-loop system is required, which will require a P
 setting significantly less than half that of the P setting causing
 oscillation.
 
+== S-Curve Trajectory Planning
+
+S-curve trajectory planning limits jerk (the rate of change of acceleration)
+to provide smoother motion. This can reduce machine vibration and improve
+surface finish, but requires tuning additional parameters.
+
+=== Enabling
+
+Set in the INI file:
+
+----
+[TRAJ]
+PLANNER_TYPE = 1              # 0=trapezoidal (default), 1=S-curve
+MAX_LINEAR_JERK = 1000.0      # Machine units/s^3
+
+[JOINT_n]
+MAX_JERK = 1000.0
+----
+
+S-curve planning is only active when `PLANNER_TYPE = 1` and `MAX_LINEAR_JERK > 0`.
+
+=== Tuning
+
+Start with a conservative jerk value and increase gradually:
+
+----
+MAX_JERK ≈ 10 to 100 × MAX_ACCELERATION
+----
+
+Typical values: 100-100,000 units/s^3^ depending on machine rigidity and units
+(mm values are typically 1000x larger than inch values).
+
+Increase `MAX_LINEAR_JERK` until motion becomes sluggish or following errors
+increase, then reduce slightly. Test with coordinated moves and arcs.
+
 == RTAI
 
 The Real Time Application Interface (RTAI) is used to provide the best

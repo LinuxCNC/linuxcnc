@@ -146,7 +146,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         axis, now = self._a_from_j(self._axis)
         if axis:
             ACTION.SET_AXIS_ORIGIN(axis, 0)
-            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME')
+            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME,SUCCESS')
 
     def SetOrigin(self):
         axis, now = self._a_from_j(self._axis)
@@ -168,7 +168,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             LOG.debug('message return:{}'.format (message))
             axis = message.get('AXIS')
             ACTION.SET_AXIS_ORIGIN(axis, num)
-            STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
+            STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME,SUCCESS')
 
     def Divide(self):
         axis, now = self._a_from_j(self._axis)
@@ -177,7 +177,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
                 x = now/2.0
                 ACTION.SET_AXIS_ORIGIN(axis, x)
                 text = 'Divided Axis %s in Half - %f'% (axis, x)
-                STATUS.emit('update-machine-log', text, 'TIME')
+                STATUS.emit('update-machine-log', text, 'TIME,SUCCESS')
             except ZeroDivisionError:
                 pass
 
@@ -187,19 +187,19 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             last = ACTION.GET_LAST_RECORDED_ORIGIN(axis)
             ACTION.SET_AXIS_ORIGIN(axis, last)
             text = 'Reset Axis %s from %f to Last Value: %f' %(axis, now, last)
-            STATUS.emit('update-machine-log', text, 'TIME')
+            STATUS.emit('update-machine-log', text, 'TIME,SUCCESS')
 
     def Home(self):
         #axis, now = self._a_from_j(self._axis)
         #if axis:
             ACTION.SET_MACHINE_HOMING(self._joint)
-            STATUS.emit('update-machine-log', 'Homed Axis %s' % self._joint, 'TIME')
+            STATUS.emit('update-machine-log', 'Homed Axis %s' % self._joint, 'TIME,SUCCESS')
 
     def Unhome(self):
         #axis, now = self._a_from_j(self._axis)
         #if axis:
             ACTION.SET_MACHINE_UNHOMED(self._joint)
-            STATUS.emit('update-machine-log', 'Unhomed Axis %s' % self._joint, 'TIME')
+            STATUS.emit('update-machine-log', 'Unhomed Axis %s' % self._joint, 'TIME,WARNING')
 
     def goToG53(self):
         ACTION.CALL_MDI('G53 G0 {}0'.format(self._axis))
@@ -251,6 +251,8 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
                 self.hal_pin_axis.set(False)
 
     def ChangeState(self, joint = None, axis = None):
+        #print(self.objectName(),'change',joint,axis,self._axis)
+        # joint mode
         if STATUS.is_joint_mode():
             if int(joint) != self._joint:
                 self._block_signal = True
@@ -258,21 +260,29 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
                 self._block_signal = False
                 if self._halpin_option and self._joint != -1:
                     self.hal_pin_joint.set(False)
+            else:
+                self._block_signal = True
+                self.setChecked(True)
+                self._block_signal = False
+                if self._halpin_option and self._axis != '':
+                    self.hal_pin_joint.set(True)
+        # axis mode
         else:
-            if str(axis) != self._axis:
+            if str(axis) != self._axis and self.isChecked():
                 self._block_signal = True
                 self.setChecked(False)
                 self._block_signal = False
                 if self._halpin_option and self._axis != '':
                     self.hal_pin_joint.set(False)
+            elif str(axis) == self._axis and not self.isChecked():
+                self._block_signal = True
+                self.setChecked(True)
+                self._block_signal = False
+                if self._halpin_option and self._axis != '':
+                    self.hal_pin_joint.set(True)
 
     def modeChanged(self, mode):
         self.selectJoint()
-        return
-        if mode == STATUS.linuxcnc.TRAJ_MODE_FREE:
-            ACTION.SET_SELECTED_JOINT(self._joint)
-        else:
-            ACTION.SET_SELECTED_AXIS(self._axis)
 
     def _switch_units(self, widget, data):
         self.display_units_mm = data
@@ -301,6 +311,9 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             self.goToG53Button.setText(text)
             text = 'Go To G5x Origin in {}'.format(self._axis)
             self.goToG5xButton.setText(text)
+        else:
+             self._axis = str('')
+
     def get_axis(self):
         return self._axis
     def reset_axis(self):

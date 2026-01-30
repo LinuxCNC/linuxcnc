@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import (QDesktopWidget, QLabel,QMessageBox)
+from PyQt5.QtWidgets import (QDesktopWidget, QMessageBox)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp import logger
 
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
     #########################################
     # geometry helper functions

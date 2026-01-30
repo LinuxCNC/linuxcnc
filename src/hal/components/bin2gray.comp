@@ -4,6 +4,7 @@ pin in unsigned in "binary code in";
 pin out unsigned out "gray code out";
 license "GPL";
 author "Andy Pugh";
+option period no;
 function _ nofp;
 ;;
 out = (in >> 1) ^ in;

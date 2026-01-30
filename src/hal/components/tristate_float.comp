@@ -4,7 +4,8 @@ pin in float in_ "Input value";
 pin io float out "Output value";
 pin in bit enable "When TRUE, copy in to out";
 
-function _  "If \\fBenable\\fR is TRUE, copy \\fBin\\fR to \\fBout\\fR.";
+option period no;
+function _  "If *enable* is TRUE, copy *in* to *out*.";
 license "GPL";
 author "Jeff Epler";
 ;;

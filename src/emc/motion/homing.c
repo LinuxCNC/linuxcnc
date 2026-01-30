@@ -37,8 +37,8 @@ void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
                      ,int (*pGetRotaryIsUnlocked)(int)
                      )
 {
-    SetRotaryUnlock     = *pSetRotaryUnlock;
-    GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
+    SetRotaryUnlock     = pSetRotaryUnlock;
+    GetRotaryIsUnlocked = pGetRotaryIsUnlocked;
 }
 
 //========================================================
@@ -757,7 +757,8 @@ static int base_1joint_state_machine(int joint_num)
             if (H[joint_num].home_flags & HOME_IS_SHARED && home_sw_active) {
                 rtapi_print_msg(RTAPI_MSG_ERR, _("Cannot home while shared home switch is closed j=%d"),
                                 joint_num);
-                H[joint_num].home_state = HOME_IDLE;
+                H[joint_num].home_state = HOME_ABORT;
+                immediate_state = 1;
                 break;
             }
             /* set flags that communicate with the rest of EMC */
@@ -815,7 +816,8 @@ static int base_1joint_state_machine(int joint_num)
                 } else {
                     rtapi_print_msg(RTAPI_MSG_ERR,
                          _("invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or USE_INDEX"));
-                    H[joint_num].home_state = HOME_IDLE;
+                    H[joint_num].home_state = HOME_ABORT;
+                    immediate_state = 1;
                 }
             } else {
                 if (H[joint_num].home_latch_vel != 0.0) {
@@ -825,7 +827,8 @@ static int base_1joint_state_machine(int joint_num)
                 } else {
                     rtapi_print_msg(RTAPI_MSG_ERR,
                          _("invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"));
-                    H[joint_num].home_state = HOME_IDLE;
+                    H[joint_num].home_state = HOME_ABORT;
+                    immediate_state = 1;
                 }
             }
             break;
@@ -974,7 +977,8 @@ static int base_1joint_state_machine(int joint_num)
                 rtapi_print_msg(RTAPI_MSG_ERR,
                      _("Home switch inactive before start of backoff move j=%d"),
                      joint_num);
-                H[joint_num].home_state = HOME_IDLE;
+                H[joint_num].home_state = HOME_ABORT;
+                immediate_state = 1;
                 break;
             }
             /* set up a move at '-search_vel' to back off of switch */
@@ -1022,7 +1026,8 @@ static int base_1joint_state_machine(int joint_num)
             if (home_sw_active) {
                 rtapi_print_msg(RTAPI_MSG_ERR, _("Home switch active before start of latch move j=%d"),
                                 joint_num);
-                H[joint_num].home_state = HOME_IDLE;
+                H[joint_num].home_state = HOME_ABORT;
+                immediate_state = 1;
                 break;
             }
             /* set up a move at 'latch_vel' to locate the switch */
@@ -1079,7 +1084,8 @@ static int base_1joint_state_machine(int joint_num)
                 rtapi_print_msg(RTAPI_MSG_ERR,
                      _("Home switch inactive before start of latch move j=%d"),
                      joint_num);
-                H[joint_num].home_state = HOME_IDLE;
+                H[joint_num].home_state = HOME_ABORT;
+                immediate_state = 1;
                 break;
             }
             /* set up a move at 'latch_vel' to locate the switch */
@@ -1351,12 +1357,14 @@ static int base_1joint_state_machine(int joint_num)
             break;
 
         case HOME_ABORT:
-            H[joint_num].homing = 0;
-            H[joint_num].homed = 0;
-            H[joint_num].joint_in_sequence = 0;
-            joint->free_tp.enable = 0;
-            H[joint_num].home_state = HOME_IDLE;
-            H[joint_num].index_enable = 0;
+            for(int i = 0; i < all_joints; i++) {
+                H[i].homing = 0;
+                H[i].homed = 0;
+                H[i].joint_in_sequence = 0;
+                joint[i].free_tp.enable = 0;
+                H[i].home_state = HOME_IDLE;
+                H[i].index_enable = 0;
+            }
             immediate_state = 1;
             break;
 

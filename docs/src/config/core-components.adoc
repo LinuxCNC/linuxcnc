@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:core-components]]
-= Core Components(((Core components)))
+= Core Components
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,11 +10,13 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((Core components)))
 See also the man pages 'motion(9)'.
 
 [[sec:motion]]
-== Motion (((Motion)))
+== Motion
 
+(((Motion)))
 These pins and parameters are created by the realtime 'motmod' module.
 
 This module provides a HAL interface for LinuxCNC's motion planner.
@@ -93,10 +95,10 @@ unlock_joints_mask=0x38 selects joints 3,4,5
 ----
 
 [[sec:motion-pins]]
-=== Pins(((motion (HAL pins))))
+=== Pins
 
-These pins, parameters, and functions are created by the realtime 'motmod'
-module.
+(((motion:HAL pins)))
+These pins, parameters, and functions are created by the realtime 'motmod' module.
 
 * 'motion.adaptive-feed' - (float, in) When adaptive feed is enabled with 'M52 P1' , the
   commanded velocity is multiplied by this value. This effect is
@@ -109,13 +111,10 @@ module.
   controlled by M67 or M68.
 * 'motion.coord-error' - (bit, out) TRUE when motion has encountered an error, such as
   exceeding a soft limit
-* 'motion.coord-mode' - (bit, out) TRUE when motion is in 'coordinated mode', as opposed to
-  'teleop mode'
+* 'motion.coord-mode' - (bit, out) TRUE when motion is in 'coordinated mode', as opposed to 'teleop mode'
 * 'motion.current-vel' - (float, out) The current tool velocity in user units per second.
-* 'motion.digital-in-00' - (bit, in) These pins (00, 01, 02, 03 or more if configured) are
-  controlled by M62-65.
-* 'motion.digital-out-00' - (bit, out) These pins (00, 01, 02, 03 or more if configured) are
-  controlled by the 'M62-65'.
+* 'motion.digital-in-00' - (bit, in) These pins (00, 01, 02, 03 or more if configured) are controlled by M62-65.
+* 'motion.digital-out-00' - (bit, out) These pins (00, 01, 02, 03 or more if configured) are controlled by the 'M62-65'.
 * 'motion.distance-to-go' - (float,out) The distance remaining in the current move.
 * 'motion.enable' - (bit, in) If this bit is driven FALSE, motion stops, the machine is
   placed in the 'machine off' state, and a message is displayed for the
@@ -147,32 +146,18 @@ module.
 * 'motion.teleop-mode' - (bit, out) TRUE when motion is in 'teleop mode', as opposed to 'coordinated mode'
 * 'motion.tooloffset.x ... motion.tooloffset.w' - (float, out, one per axis) shows the tool offset in effect;
   it could come from the tool table ('G43' active), or it could come from the G-code ('G43.1' active)
-
-* 'motion.on-soft-limit' -
-  (bit, out) TRUE when the machine is on a soft limit.
-* 'motion.probe-input' -
-  (bit, in) 'G38.n'  uses the value on this pin to determine when the
-  probe has made contact.
+* 'motion.on-soft-limit' - (bit, out) TRUE when the machine is on a soft limit.
+* 'motion.probe-input' - (bit, in) 'G38.n'  uses the value on this pin to determine when the probe has made contact.
   TRUE for probe contact closed (touching),
   FALSE for probe contact open.
-* 'motion.program-line' -
-  (s32, out) The current program line while executing. Zero if not
-  running or between lines while single stepping.
-* 'motion.requested-vel' -
-  (float, out) The current requested velocity in user units per
-  second.  This value is the F-word setting from the G-code file,
-  possibly reduced to accommodate machine velocity and acceleration
-  limits. The value on this pin does not reflect the feed override or
-  any other adjustments.
-
-* 'motion.teleop-mode' -
-  (bit, out) TRUE when motion is in 'teleop mode', as opposed to
-  'coordinated mode'
-
-* 'motion.tooloffset.x ... motion.tooloffset.w' -
-  (float, out, one per axis) shows the tool offset in effect;
-  it could come from the tool table ('G43' active), or it could
-  come from the G-code ('G43.1' active)
+* 'motion.program-line' - (s32, out) The current program line while executing.
+  Zero if not running or between lines while single stepping.
+* 'motion.requested-vel' - (float, out) The current requested velocity in user units per second.
+  This value is the F-word setting from the G-code file, possibly reduced to accommodate machine velocity and acceleration limits.
+  The value on this pin does not reflect the feed override or any other adjustments.
+* 'motion.teleop-mode' - (bit, out) TRUE when motion is in 'teleop mode', as opposed to 'coordinated mode'
+* 'motion.tooloffset.x ... motion.tooloffset.w' - (float, out, one per axis) shows the tool offset in effect;
+  it could come from the tool table ('G43' active), or it could come from the G-code ('G43.1' active)
 
 === Parameters
 
@@ -191,10 +176,9 @@ change or removal at any time.
 * 'motion.debug-float-3' - (float, RO) This is used for debugging purposes.
 * 'motion.debug-s32-0' - (s32, RO) This is used for debugging purposes.
 * 'motion.debug-s32-1' - (s32, RO) This is used for debugging purposes.
-* 'motion.servo.last-period' - (u32, RO) The number of CPU cycles between invocations of the servo
-  thread. Typically, this number divided by the CPU speed gives the time
-  in seconds, and can be used to determine whether the realtime motion
-  controller is meeting its timing constraints
+* 'motion.servo.last-period' - (u32, RO) The number of CPU cycles between invocations of the servo thread.
+  Typically, this number divided by the CPU speed gives the time in seconds,
+  and can be used to determine whether the realtime motion controller is meeting its timing constraints
 * 'motion.servo.last-period-ns' - (float, RO)
 
 === Functions
@@ -212,8 +196,9 @@ Motion will produce the following pins:
 The __N__ (integer between 0 and 7) substitutes the spindle number.
 
 [[sec:spindle-pins]]
-=== Pins(((spindle (HAL pins))))
+=== Pins
 
+(((spindle (HAL pins))))
 * 'spindle.__N__.at-speed' - (bit, in)
   Motion will pause until this pin is TRUE, under the following conditions:
 ** before the first feed move after each spindle start or speed change;
@@ -316,12 +301,13 @@ See the motion man page 'motion(9)' for details on the pins and parameters.
 
 == iocontrol
 
-iocontrol - accepts non-realtime I/O commands via NML, interacts with HAL .
+iocontrol - accepts non-realtime I/O commands via NML, interacts with HAL.
 
 iocontrol's HAL pins are turned on and off in non-realtime context.  If you have strict timing requirements or simply need more I/O, consider using the realtime synchronized I/O provided by <<sec:motion,motion>> instead.
 
-=== Pins (((iocontrol (HAL pins))))
+=== Pins
 
+(((iocontrol (HAL pins))))
 * 'iocontrol.0.coolant-flood' (bit, out) TRUE when flood coolant is requested.
 * 'iocontrol.0.coolant-mist' (bit, out) TRUE when mist coolant is requested.
 * 'iocontrol.0.emc-enable-in' (bit, in) Should be driven FALSE when an external E-Stop condition exists.
@@ -338,8 +324,9 @@ iocontrol's HAL pins are turned on and off in non-realtime context.  If you have
 
 A number of INI settings are made available as HAL input pins.
 
-=== Pins (((INI settings (HAL pins))))
+=== Pins
 
+(((INI settings (HAL pins))))
 _N_ refers to a joint number, _L_ refers to an axis letter.
 
 * 'ini.__N__.ferror' - (float, in) [JOINT_N]FERROR
@@ -381,5 +368,19 @@ of commands.
 * 'ini.traj_default_acceleration' - (float, in) [TRAJ]DEFAULT_ACCELERATION
 * 'ini.traj_default_velocity' - (float, in) [TRAJ]DEFAULT_VELOCITY
 * 'ini.traj_max_acceleration' - (float, in) [TRAJ]MAX_ACCELERATION
+
+S-curve trajectory planning pins (sampled continuously, can be changed at runtime):
+
+* 'ini.traj_planner_type' - (s32, in) [TRAJ]PLANNER_TYPE
+* 'ini.traj_max_jerk' - (float, in) [TRAJ]MAX_LINEAR_JERK
+* 'ini.traj_default_jerk' - (float, in) [TRAJ]DEFAULT_LINEAR_JERK
+
+Per-axis jerk limit pins (where _L_ is x, y, z, a, b, c, u, v, or w):
+
+* 'ini._L_.jerk' - (float, in) [AXIS__L_]MAX_JERK
+
+Per-joint jerk limit pins (where _N_ is the joint number 0-8):
+
+* 'ini._N_.jerk' - (float, in) [JOINT__N_]MAX_JERK
 
 // vim: set syntax=asciidoc:

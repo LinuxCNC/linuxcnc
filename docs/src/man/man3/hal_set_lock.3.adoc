@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= hal_set_lock(3hal)
+= hal_set_lock(3)
 
 == NAME
 

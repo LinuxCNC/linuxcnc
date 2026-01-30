@@ -39,7 +39,7 @@ class RCS_STAT_MSG:public NMLmsg {
         RCS_STATUS status;
         int status_int;
     };
-    int state;
+    int _state;
 };
 
 extern int RCS_STAT_MSG_format(NMLTYPE, void *, CMS *);
@@ -49,6 +49,8 @@ class RCS_STAT_CHANNEL:public NML {
     RCS_STAT_CHANNEL(NML_FORMAT_PTR, const char *, const char *, const char *,
 	int set_to_server = 0);
      ~RCS_STAT_CHANNEL();
+    // Sub-class calls base-class
+    // cppcheck-suppress duplInheritedMember
     RCS_STAT_MSG *get_address() {
 	return ((RCS_STAT_MSG *) NML::get_address());
     };

@@ -97,6 +97,7 @@ static void set_namef(const char *fmt, ...) {
 
     va_start(ap, fmt);
     if (vasprintf(&buf, fmt, ap) < 0) {
+        va_end(ap);
         return;
     }
     va_end(ap);
@@ -145,7 +146,7 @@ static std::map<string, void*> modules;
 static int instance_count = 0;
 static int force_exit = 0;
 
-static int do_newinst_cmd(string type, string name, string arg) {
+static int do_newinst_cmd(const string& type, const string& name, const string& arg) {
     void *module = modules["hal_lib"];
     if(!module) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -269,7 +270,7 @@ static int do_comp_args(void *module, vector<string> args) {
     return 0;
 }
 
-static int do_load_cmd(string name, vector<string> args) {
+static int do_load_cmd(const string& name, const vector<string>& args) {
     void *w = modules[name];
     if(w == NULL) {
         char what[LINELEN+1];
@@ -313,7 +314,7 @@ static int do_load_cmd(string name, vector<string> args) {
     }
 }
 
-static int do_unload_cmd(string name) {
+static int do_unload_cmd(const string& name) {
     void *w = modules[name];
     if(w == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: not loaded\n", name.c_str());
@@ -373,12 +374,12 @@ static void write_number(string &buf, int num) {
     buf = buf + numbuf;
 }
 
-static void write_string(string &buf, string s) {
+static void write_string(string &buf, const string& s) {
     write_number(buf, s.size());
     buf += s;
 }
 
-static void write_strings(int fd, vector<string> strings) {
+static void write_strings(int fd, const vector<string>& strings) {
     string buf;
     write_number(buf, strings.size());
     for(unsigned int i=0; i<strings.size(); i++) {
@@ -410,7 +411,7 @@ static int handle_command(vector<string> args) {
     }
 }
 
-static int slave(int fd, vector<string> args) {
+static int slave(int fd, const vector<string>& args) {
     try {
         write_strings(fd, args);
     }
@@ -456,7 +457,7 @@ static int callback(int fd)
 
 static pthread_t main_thread{};
 
-static int master(int fd, vector<string> args) {
+static int master(int fd, const vector<string>& args) {
     main_thread = pthread_self();
     int result;
     if((result = pthread_create(&queue_thread, nullptr, &queue_function, nullptr)) != 0) {
@@ -511,10 +512,11 @@ get_fifo_path() {
 
 static int
 get_fifo_path(char *buf, size_t bufsize) {
+	int len;
     const char *s = get_fifo_path();
     if(!s) return -1;
-    snprintf(buf, bufsize, "%s", s);
-    return 0;
+    len=snprintf(buf+1, bufsize-1, "%s", s);
+    return len;
 }
 
 int main(int argc, char **argv) {
@@ -523,9 +525,12 @@ int main(int argc, char **argv) {
         int fallback_uid = fallback_uid_str ? atoi(fallback_uid_str) : 0;
         if(fallback_uid == 0)
         {
+	    // Cppcheck cannot see EMC2_BIN_DIR when RTAPI is defined, but that
+	    // doesn't happen in uspace.
             fprintf(stderr,
                 "Refusing to run as root without fallback UID specified\n"
                 "To run under a debugger with I/O, use e.g.,\n"
+                // cppcheck-suppress unknownMacro
                 "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }
@@ -544,37 +549,40 @@ int main(int argc, char **argv) {
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
 become_master:
+    int len=0;
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if(fd == -1) { perror("socket"); exit(1); }
 
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
     struct sockaddr_un addr;
+	memset(&addr, 0x0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    if(get_fifo_path(addr.sun_path, sizeof(addr.sun_path)) < 0)
+    if((len=get_fifo_path(addr.sun_path, sizeof(addr.sun_path))) < 0)
        exit(1);
-    int result = ::bind(fd, (sockaddr*)&addr, sizeof(addr));
+	
+	// plus one because we use the abstract namespace, it will show up in
+	// /proc/net/unix prefixed with an @
+    int result = ::bind(fd, (sockaddr*)&addr, len+sizeof(addr.sun_family)+1); 
 
     if(result == 0) {
         int result = listen(fd, 10);
         if(result != 0) { perror("listen"); exit(1); }
         setsid(); // create a new session if we can...
         result = master(fd, args);
-        unlink(get_fifo_path());
         return result;
     } else if(errno == EADDRINUSE) {
         struct timeval t0, t1;
         gettimeofday(&t0, NULL);
         gettimeofday(&t1, NULL);
         for(int i=0; i < 3 || (t1.tv_sec < 3 + t0.tv_sec) ; i++) {
-            result = connect(fd, (sockaddr*)&addr, sizeof(addr));
+            result = connect(fd, (sockaddr*)&addr, len+sizeof(addr.sun_family)+1);
             if(result == 0) break;
             if(i==0) srand48(t0.tv_sec ^ t0.tv_usec);
             usleep(lrand48() % 100000);
             gettimeofday(&t1, NULL);
         }
         if(result < 0 && errno == ECONNREFUSED) {
-            unlink(get_fifo_path());
             fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
             close(fd);
             goto become_master;
@@ -601,9 +609,11 @@ struct rtapi_module {
 #define MODULE_OFFSET 32768
 
 rtapi_task::rtapi_task()
-    : magic{}, id{}, owner{}, stacksize{}, prio{},
+    : magic{}, id{}, owner{}, uses_fp{}, stacksize{}, prio{},
       period{}, nextstart{},
-      ratio{}, arg{}, taskcode{}
+      ratio{}, pll_correction{}, pll_correction_limit{},
+      arg{}, taskcode{}
+
 {}
 
 namespace
@@ -1174,6 +1184,7 @@ unsigned char Posix::do_inb(unsigned int port)
 #ifdef HAVE_SYS_IO_H
     return inb(port);
 #else
+    (void)port;
     return 0;
 #endif
 }
@@ -1182,6 +1193,9 @@ void Posix::do_outb(unsigned char val, unsigned int port)
 {
 #ifdef HAVE_SYS_IO_H
     return outb(val, port);
+#else
+    (void)val;
+    (void)port;
 #endif
 }
 

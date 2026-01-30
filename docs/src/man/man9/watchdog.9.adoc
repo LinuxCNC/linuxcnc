@@ -6,7 +6,7 @@ watchdog - monitor multiple inputs for a "heartbeat"
 
 == SYNOPSIS
 
-*loadrt watchdog num_inputs=*__N__
+**loadrt watchdog num_inputs=**_N_
 
 You must specify the number of inputs, from 1 to 32.
 Each input has a separate timeout value.

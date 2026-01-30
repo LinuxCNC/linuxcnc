@@ -3,7 +3,7 @@
 :toclevels: 3
 
 [[cha:qtdragon-gui]]
-= QtDragon GUI(((QtDragon)))
+= QtDragon GUI
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -11,11 +11,12 @@
 
 == Introduction
 
+(((QtDragon)))
 QtDragon and QtDragon_hd are built with the QtVCP framework.
 It is the creative vision of forum personality Persei8.
 Much of it is based on the excellent work of others in the LinuxCNC community.
 LinuxCNC's version is adapted from Persei8's Github versions.
-It is primarily meant for 3/4 axes machines such as mills or routers.
+It is primarily meant for 3-5 axes machines such as mills or routers.
 It works well with a touchscreen and/or mouse.
 QtDragon supports multiple ways to touch off tools and probing work pieces.
 You can use LinuxCNC's external offsets capability to automatically raise the spindle during a pause.
@@ -28,15 +29,22 @@ Please forward reports to the forum or maillist.
 
 === QtDragon
 
-.QtDragon - 3 or 4 axis sample (1440x860) in silver theme
+.QtDragon - 3 to 5 axis sample (1440x860) in silver theme
 image::images/silverdragon.png["QtDragon Router",scale="25%"]
 
 QtDragon is resizable from a resolution of 1280x768 to 1680x1200.
 It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.
 
+=== QtDragon_lathe
+image::images/qtdragon_lathe.png["QtDragon Lathe",scale="25%"]
+
+QtDragon_lathe is a modified version of QtDragon more suitable for lathes. +
+It is resizable from a resolution of 1280x768 to 1680x1200. +
+It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.
+
 === QtDragon_hd
 
-.QtDragon_hd - 3 or 4 axis sample for larger monitors (1920x1056) in dark theme
+.QtDragon_hd - 3 to 5 axis sample for larger monitors (1920x1056) in dark theme
 image::images/qtdragon_hd.png["QtDragon_hd",scale="25%"]
 
 QtDragon_hd is a similar design as QtDragon but modified to utilize the extra space of modern larger monitors.
@@ -44,6 +52,10 @@ There are some small differences in layout and utility.
 
 QtDragon_hd has a resolution of 1920x1056 and is not resizeable.
 It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.
+
+=== QtDragon_hd_vertical
+
+QtDragon_hd_vertical is a vertical orientated version. It is not resizable.
 
 == Getting Started - The INI File
 
@@ -135,6 +147,19 @@ INCREMENTS = Continuous, .001 mm, .01 mm, .1 mm, 1 mm, 1.0 inch, 0.1 inch, 0.01 
 ANGULAR_INCREMENTS = 1, 5, 10, 30, 45, 90, 180, 360
 ----
 
+=== Grid Increments
+Set the available optional grid sizes for graphics display. +
+This will override the default sizes. +
+'mm' and 'in' are used to specify units. +
+The grid selection box is shown when clicking the 'OPTN' button 
+on the graphics display.
+
+[source,{ini}]
+----
+[DISPLAY]
+GRIDS = 0, .1 mm, 1 mm, 2 mm, 5 mm, 10 mm, .25 in, .5 in
+----
+
 === Jog speed
 
 Set jog speed controls (in units per second)
@@ -192,17 +217,18 @@ MULTIMESSAGE_VFD_ICON = INFO
 
 === Embed Custom VCP Panels
 
-You can optionally embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
+You can optionally embed QtVCP Virtual Control Panels into the QtDragon screens. +
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
 See QtVCP/VCP panels for other available builtin panels.
 
 The `EMBED_TAB_NAME` entry will used as the title for the new tab.(must be unique) +
-Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab`. +
+Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab` and `WINDOW`. +
 Tab `EMBED_TAB_COMMAND` specifies what embed-able program to run, including any of its command line options.
 
 If using the `tabWidget_utilities` or `tabWidget_setup` locations, an extra tab will appear with the panel. +
 If using `stackedWidget_mainTab`, a button labelled 'User' will appear. +
-Pressing this button will cycle through displaying all available panels (specified for this location) on the main tab area.
+Pressing this button will cycle through displaying all available panels (specified for this location) on the main tab area. +
+You also use `WINDOW` to create a pop up window that cab be shown/hidden with an arrow button that will appear near the machine on button
 
 ==== Embedding Vismach Mill
 .Sample adding a builtin panel to the utilities tab, i.e., a graphical animated machine using the vismach library.
@@ -409,13 +435,50 @@ These optional HAL commands will be run after QtDragon has loaded everything els
 You can add multiple line. Each one will be called in the order they appear. +
 Any HAL command can be used.
 
-.Sample with typical files in INI file to load modules after the GUI is available. Adjusti these to match your actual requirements.
+.Sample with typical files in INI file to load modules after the GUI is available. Adjust these to match your actual requirements.
 [source,{ini}]
 ----
 [HAL]
 POSTGUI_HALCMD = loadusr qtvcp test_probe
 POSTGUI_HALCMD = loadusr qtvcp test_led
 POSTGUI_HALCMD = loadusr halmeter
+----
+=== HAL Bridge
+Hal Bridge is similar to HALUI - it has HAL pins that communicate with QtDragon. +
+These pins could be used with HALUI to built a more friendly control panel. +
+
+- It can report/change the current selected Axis button. +
+- The jog rate/increments will be reported. +
+- There is a cycle start and pause pin - these call the code in QtDragon rather then the motion controller. +
+- If there are macros defined in the INI, there will be pins available to initiate them. +
+
+.Sample entry. Remove '-d' to quiet debugging messages.
+[source,{ini}]
+----
+[HAL]
+HALBRIDGE= hal_bridge -d
+----
+
+.Typical HAL pins avaialble:
+----
+Component Pins:
+Owner   Type  Dir                 Value  Name
+    38  s32   OUT                     0  base-thread.time
+    29  bit   OUT                 FALSE  bridge.axis-x-is-selected
+    29  bit   IN                  FALSE  bridge.axis-x-select
+    29  bit   OUT                 FALSE  bridge.axis-y-is-selected
+    29  bit   IN                  FALSE  bridge.axis-y-select
+    29  bit   OUT                 FALSE  bridge.axis-z-is-selected
+    29  bit   IN                  FALSE  bridge.axis-z-select
+    29  bit   IN                  FALSE  bridge.cycle-pause-in
+    29  bit   IN                  FALSE  bridge.cycle-start-in
+    29  float OUT                     0  bridge.jog-increment
+    29  float OUT                     0  bridge.jog-increment-angular
+    29  float OUT                    15  bridge.jog-rate
+    29  float OUT                   360  bridge.jog-rate-angular
+    29  s32   OUT                    -1  bridge.joint-selected
+    29  bit   IN                  FALSE  bridge.macro-cmd-MACRO0
+    29  bit   IN                  FALSE  bridge.macro-cmd-MACRO1
 ----
 
 === Builtin Sample Configurations
@@ -450,8 +513,8 @@ To enable the keyboard, check the Use Virtual Keyboard checkbox in the Settings 
 Clicking on any input field, such as probe parameters or tool table entries, will show the keyboard.
 To hide the keyboard, do one of the following:
 
+- press the 'HIDE' button on the virtual keyboard.
 - click the MAIN page button
-- The currently selected page button.
 - go into AUTO mode
 
 It should be noted that keyboard jogging is disabled when using the virtual keyboard.
@@ -943,6 +1006,17 @@ Sequence after pressing the probe button: +
 . rapid back to starting corner (now calculated using the probed walls),
 . if auto zero button is enabled, set X and Y of the current user system to zero.
 
+=== Customizing Probe Screen Widget
+It is possible to load a customized version of the probe widget. +
+
+There should be a folder in the config folder; for screens: named <CONFIG FOLDER>/qtvcp/. +
+There may be (or can be added) a folder 'lib/' and 'widgets/' +
+In the widgets folder you can copy 'basic_probe.py' (or 'versa_probe.py') and 'probe_subprog.py' +
+In the lib folder copy 'touchoff_subprogram.py' +
+If these files are found they will be used instead of the originals. +
+You can modify the files to change behaviour. +
+
+
 [[sub:touch-plate]]
 == Touch plate
 
@@ -1277,9 +1351,10 @@ which then sets the X and Y offsets to the values indicated by the LASER OFFSET 
 == Tabs Description
 
 Tabs allow the user to select the most appropriate info/control on the top three panels.
-If the on screen keyboard is showing and the user wishes to hide it but keep the current tab, they can do that by pressing the current show tab.
+If the on screen keyboard is showing and the user wishes to hide it but keep the current tab, they can do that by pressing the 'HIDE' button on the virtual keyboard.
 In QtDragon, there is a splitter handle between the G-code text display and the G-code graphical display.
 One can use this to split the size between the two areas. This can be set differently in each tab and in each mode.
+The positions will be remembered.
 
 === Main tab
 
@@ -1337,17 +1412,26 @@ QtDragon_hd will also show a smaller graphics display window.
 If the recognized webcam is connected, this tab will display the video image overlaid with a cross-hair, circle and degree readout.
 This can be adjusted to suit a part feature for such things as touchoff.
 The underlying library uses openCV Python module to connect to the webcam. +
-To adjust the X or Y size aspect ratio, or camera number, look in the preference file for: +
+To adjust the X or Y size aspect ratio (in percent), camera port number,
+API backend, or requested resolution look in the preference file for: +
 
 ----
 [CUSTOM_FORM_ENTRIES]
 Camview xscale = 100
 Camview yscale = 100
 Camview cam number = 0
+Camview cam api = V4L2
+Camview cam resolution = 1280,720
 ----
 
-These are in percent, usually the range will be 100 - 200 in one axis. +
+Scales are in percent, usually the range will be 100 - 200 in one axis. +
 Negating these scales can be used to flip the image in X, Y or both axes. +
+API comes from openCV, the available backends will be listed if -V debugging is used.
+Set to 'ANY' for opencv to choose. +
+Set resolution to DEFAULT for opencv to choose.
+Available resolutions will be listed if -V debugging is used.
+
+[NOTE]
 The preference file can only be edited when QtDragon is not running.
 
 === G-codes Tab
@@ -1385,12 +1469,16 @@ The settings tab is used to set running options, probing/touchplate/laser/camera
 
 === Utilities Tab
 
-This tabs will display another stab election of G-code utility programs:
+This tab will display another tab selection of G-code utility programs (and any embedded panels):
 
 * 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees.
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of definable diameter and number of holes.
 * 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector, see <<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>.
+* 'Hole Enlarge': allows milling a preexisting hole larger.
 
+These tabs are detachable from the main screen by pressing the small arrow key on the far right of the tab header. +
+You can close the panel by pressing the arrow again or closing the window with the x button. +
+The last size and location of the detached window will be remembered each time the window is closed. +
 Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to `tabWidget_utilities`
 
 === User Tab
@@ -1599,7 +1687,6 @@ Change the G-code text display colors/fonts:
 
 [source,{ini}]
 ----
-}
 EditorBase{
 background:black;
 qproperty-styleColorCursor:white;
@@ -1640,20 +1727,17 @@ To have the manual spindle buttons also incrementally increase/decrease speed:
 
 === Qt Designer and Python code
 
-All aspects of the GUI are fully customization through Qt Designer and/or Python code.
-This capability is included with the QtVCP development environment.
-The extensive use of QtVCP widgets keeps the amount of required Python code to a minimum, allowing relatively easy modifications.
-The LinuxCNC website has extensive documentation on the installation and use of QtVCP libraries.
+All aspects of the GUI are fully customization through Qt Designer and/or Python code. +
+This capability is included with the QtVCP development environment. +
+The extensive use of QtVCP widgets keeps the amount of required Python code to a minimum, allowing relatively easy modifications. +
+The LinuxCNC website has extensive documentation on the installation and use of QtVCP libraries. +
 See <<cha:qtvcp,QtVCP>> for more information about QtVCP in general. +
+Custom modifications can be added by 'subclassing' the handler file. This adds code on top of the original. +
 QtDragon can also utilize QtVCP's rc file to do minor python code modifications without using a custom handler file.
 
-[source,{ini}]
-----
-[DISPLAY]
-USER_COMMAND_FILE = CONFIGFOLDER/qtdragonrc.py
-----
-
 See <<cha:qtvcp:modifying-screens,Modifying Screens>> for more information about customization.
+
+Some widget customization is available for basic probe and versa probe.
 
 .QtDragon - Customized QtDragon
 image::images/silverdragon_custom.png["QtDragon customized",scale=25]

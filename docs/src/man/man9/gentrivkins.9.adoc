@@ -2,7 +2,7 @@
 
 == NAME
 
-gentrivkins - *Superseded* by the general purpose *trivkins* kinematics module.
+gentrivkins - Superseded by the general purpose 'trivkins' kinematics module.
 
 == SEE ALSO
 

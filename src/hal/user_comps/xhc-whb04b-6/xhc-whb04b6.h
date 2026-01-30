@@ -74,6 +74,7 @@ public:
     void setLeadModeSpindle(bool enable);
     void setLeadModeFeed(bool enable);
     void setStepMode_5_10(bool enable);
+    void setUsbProductId(uint16_t usbProductId);
 
 private:
     const char* mName;

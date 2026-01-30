@@ -10,9 +10,10 @@ halmeter - observe HAL pins, signals, and parameters
 
 == DESCRIPTION
 
-*halmeter* is used to observe HAL (Hardware Abstraction Layer) pins,
+The tool *halmeter* is used to observe HAL (Hardware Abstraction Layer) pins,
 signals, or parameters. It serves the same purpose as a multimeter does
-when working on physical systems.
+when working on physical systems. It is an self-contained application and
+connects independently to HAL.
 
 == OPTIONS
 
@@ -59,9 +60,8 @@ dialog without changing the displayed item.
   "Select" button to choose an item. Runs in the background leaving the
   shell free for other commands.
 *halmeter pin* _parport.0.pin-03-out_ *&*::
-  Open a meter window, initially displaying HAL pin
-  _parport.0.pin-03-out_. The "Select" button can be used to display
-  other items. Runs in background.
+  Open a meter window, initially displaying HAL pin _parport.0.pin-03-out_.
+  The "Select" button can be used to display other items. Runs in background.
 *halmeter -s pin* _parport.0.pin-03-out_ *&*::
   Open a small meter window, displaying HAL pin _parport.0.pin-03-out_.
   The displayed item cannot be changed. Runs in background.

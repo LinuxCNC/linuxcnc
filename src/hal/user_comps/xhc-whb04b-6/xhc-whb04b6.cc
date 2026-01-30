@@ -619,6 +619,11 @@ void XhcWhb04b6Component::setWaitWithTimeout(uint8_t waitSecs)
     mUsb.setWaitWithTimeout(waitSecs);
 }
 // ----------------------------------------------------------------------
+void XhcWhb04b6Component::setUsbProductId(uint16_t usbProductId)
+{
+    mUsb.setUsbProductId(usbProductId);
+}
+// ----------------------------------------------------------------------
 bool XhcWhb04b6Component::isSimulationModeEnabled() const
 {
     return mIsSimulationMode;

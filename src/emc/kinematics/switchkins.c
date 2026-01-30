@@ -100,7 +100,7 @@ static int gui_forward_kins(const double *joints)
     // genhexkins and identity kinematic types
     // (similar needs for many parallel kinemtic machines)
     int res;
-    KINEMATICS_FORWARD_FLAGS  fflags;
+    KINEMATICS_FORWARD_FLAGS  fflags = 0;
     KINEMATICS_INVERSE_FLAGS  iflags;
     switch (kp.gui_kinstype) {
         case 0: res = kfwd0(joints, &lastpose[0], &fflags, &iflags);break;

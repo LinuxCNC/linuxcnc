@@ -7,7 +7,7 @@ HID devices
 
 == SYNOPSIS
 
-*loadusr*_ *hal_input* [*-KRAL*] _inputspec_ ...
+loadusr *hal_input* [*-KRAL*] _inputspec_ ...
 
 == DESCRIPTION
 
@@ -25,23 +25,19 @@ A string _S_::
   "name" of the device, the "phys" (which gives information about how it
   is connected), and the "id", which is a string of the form "Bus=...
   Vendor=... Product=... Version=...". You can view the name, phys, and
-  id of attached devices by executing `less /proc/bus/input/devices` . +
-  +
+  id of attached devices by executing  \'less /proc/bus/input/devices'.
   Examples:
-  +
-  SpaceBall
-  +
-  "Vendor=001f Product=0001"
-  +
-  serio*/input0
+  - SpaceBall
+  - "Vendor=001f Product=0001"
+  - serio*/input0
 
 A number _N_::
-  This opens */dev/input/event*_N_.
+  This opens **/dev/input/event**_N_.
   Except for devices that are always attached to the system,
   this number may change over reboots or when the device is removed.
   For this reason, using an integer is not recommended.
 
-When several devices are identified by the same string, add "*:*_N_"
+When several devices are identified by the same string, add "**:**_N_"
 where _N_ is the index of the desired device. For example, if *Mouse*
 matches *input3* and *input10*, then *Mouse* and *Mouse:0* select *input3*.
 Specifying *mouse:1* selects input10.
@@ -76,34 +72,33 @@ ____
 
 === For buttons
 
-**input.**_N_**.btn-**_name_ bit out::
-   +
+**input.**_N_**.btn-**_name_ bit out
 
 **input.**_N_**.btn-**_name_**-not** bit out::
   Created for each button on the device.
 
 === For keys
 
-**input.**_N_**.key-**_name_::
+**input.**_N_**.key-**_name_
 
 **input**_N_**.key-**_name_**-not**::
   Created for each key on the device.
 
 === For absolute axes
 
-**input.**_N_**.abs-**_name_**-counts** s32 out::
+**input.**_N_**.abs-**_name_**-counts** s32 out
 
-**input.**_N_**.abs-**_name_**-position** float out::
+**input.**_N_**.abs-**_name_**-position** float out
 
-**input.**_N_**.abs-**_name_**-scale** parameter float rw::
+**input.**_N_**.abs-**_name_**-scale** parameter float rw
 
-**input.**_N_**.abs-**_name_**-offset** parameter float rw::
+**input.**_N_**.abs-**_name_**-offset** parameter float rw
 
-**input.**_N_**.abs-**_name_**-fuzz** parameter s32 rw::
+**input.**_N_**.abs-**_name_**-fuzz** parameter s32 rw
 
-**input.**_N_**.abs-**_name_**-flat** parameter s32 rw::
+**input.**_N_**.abs-**_name_**-flat** parameter s32 rw
 
-**input.**_N_**.abs-**_name_**-min** parameter s32 r::
+**input.**_N_**.abs-**_name_**-min** parameter s32 r
 
 **input.**_N_**.abs-**_name_**-max** parameter s32 r::
   Created for each absolute axis on the device.
@@ -116,17 +111,17 @@ ____
 
 === For relative axes
 
-**input.**_N_**.rel-**_name_**-counts** s32 out::
+**input.**_N_**.rel-**_name_**-counts** s32 out
 
-**input.**_N_**.rel-**_name_**-position** float out::
+**input.**_N_**.rel-**_name_**-position** float out
 
-**input.**_N_**.rel-**_name_**-reset** bit in::
+**input.**_N_**.rel-**_name_**-reset** bit in
 
-**input.**_N_**.rel-**_name_**-scale** parameter float rw::
+**input.**_N_**.rel-**_name_**-scale** parameter float rw
 
-**input.**_N_**.rel-**_name_**-absolute** parameter s32 rw::
+**input.**_N_**.rel-**_name_**-absolute** parameter s32 rw
 
-**input.**_N_**.rel-**_name_**-precision** parameter s32 rw::
+**input.**_N_**.rel-**_name_**-precision** parameter s32 rw
 
 **input.**_N_**.rel-**_name_**-last** parameter s32 rw::
   Created for each relative axis on the device.
@@ -141,7 +136,7 @@ ____
 
 === For LEDs
 
-**input.**_N_**.led-**_name_ bit out::
+**input.**_N_**.led-**_name_ bit out
 
 **input.**_N_**.led-**_name_**-invert** parameter bit rw::
   Created for each LED on the device.

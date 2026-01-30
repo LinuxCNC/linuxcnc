@@ -38,7 +38,7 @@ int NML_INTERP_LIST::append(std::unique_ptr<NMLmsg>&& nml_msg_ptr)
         return -1;
     }
 
-    if (0 == nml_msg_ptr->type) {
+    if (0 == nml_msg_ptr->_type) {
         rcs_print_error("NML_INTERP_LIST::append : attempt to append 0 type\n");
         return -1;
     }
@@ -58,7 +58,7 @@ int NML_INTERP_LIST::append(std::unique_ptr<NMLmsg>&& nml_msg_ptr)
                   "line_number=%d\n",
                   this,
                   linked_list.front().command->size,
-                  emc_symbol_lookup(linked_list.front().command->type),
+                  emc_symbol_lookup(linked_list.front().command->_type),
                   linked_list.size(),
                   linked_list.front().line_number);
     }
@@ -84,7 +84,7 @@ std::unique_ptr<NMLmsg> NML_INTERP_LIST::get()
         rcs_print("NML_INTERP_LIST(%p)::get(): {size=%ld, type=%s}, list_size=%lu\n",
                   this,
                   node.command->size,
-                  emc_symbol_lookup(node.command->type),
+                  emc_symbol_lookup(node.command->_type),
                   linked_list.size());
     }
 
@@ -104,7 +104,7 @@ void NML_INTERP_LIST::print()
     rcs_print("NML_INTERP_LIST::print(): list size=%lu\n", linked_list.size());
     for (auto& i : linked_list) {
         auto& msg = *(i.command);
-        rcs_print("--> type=%s,  line_number=%d\n", emc_symbol_lookup(msg.type), i.line_number);
+        rcs_print("--> type=%s,  line_number=%d\n", emc_symbol_lookup(msg._type), i.line_number);
     }
     rcs_print("\n");
 }

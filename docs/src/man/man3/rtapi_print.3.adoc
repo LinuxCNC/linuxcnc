@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_print(3rtapi)
+= rtapi_print(3)
 
 == NAME
 
@@ -25,7 +25,7 @@ handler::
   A function to call from *rtapi_print* or *rtapi_print_msg* to actually
   output the message.
 fmt, ...::
-  Other arguments are as for _rtapi_vsnprintf(3rtapi)_.
+  Other arguments are as for _rtapi_vsnprintf(3)_.
 
 == DESCRIPTION
 
@@ -55,5 +55,5 @@ None.
 
 == SEE ALSO
 
-rtapi_set_msg_level(3rtapi), rtapi_get_msg_level(3rtapi),
-rtapi_vsnprintf(3rtapi)
+rtapi_set_msg_level(3), rtapi_get_msg_level(3),
+rtapi_vsnprintf(3)

@@ -96,7 +96,7 @@ int configure_gpio_port(int n) {
 	    return -errno;
 	}
 	// point at CM_PER_GPIOn_CLKCTRL register for port n
-	regptr = cm_per + CM_PER_GPIO1_CLKCTRL_OFFSET + 4*(n-1);
+	regptr = (void *)((char *)cm_per + CM_PER_GPIO1_CLKCTRL_OFFSET + 4*(n-1));
 	regvalue = *regptr;
 	// check for port enabled
 	if ( (regvalue & CM_PER_GPIO_CLKCTRL_MODMODE_MASK ) != CM_PER_GPIO_CLKCTRL_MODMODE_ENABLED ) {
@@ -113,10 +113,10 @@ int configure_gpio_port(int n) {
         return -errno;
     }
 
-    gpio_ports[n]->oe_reg = gpio_ports[n]->gpio_addr + GPIO_OE;
-    gpio_ports[n]->setdataout_reg = gpio_ports[n]->gpio_addr + GPIO_SETDATAOUT;
-    gpio_ports[n]->clrdataout_reg = gpio_ports[n]->gpio_addr + GPIO_CLEARDATAOUT;
-    gpio_ports[n]->datain_reg = gpio_ports[n]->gpio_addr + GPIO_DATAIN;
+    gpio_ports[n]->oe_reg = (void *)((char *)gpio_ports[n]->gpio_addr + GPIO_OE);
+    gpio_ports[n]->setdataout_reg = (void *)((char *)gpio_ports[n]->gpio_addr + GPIO_SETDATAOUT);
+    gpio_ports[n]->clrdataout_reg = (void *)((char *)gpio_ports[n]->gpio_addr + GPIO_CLEARDATAOUT);
+    gpio_ports[n]->datain_reg = (void *)((char *)gpio_ports[n]->gpio_addr + GPIO_DATAIN);
 
 
     rtapi_print("memmapped gpio port %d to %p, oe: %p, set: %p, clr: %p\n", n, gpio_ports[n]->gpio_addr, gpio_ports[n]->oe_reg, gpio_ports[n]->setdataout_reg, gpio_ports[n]->clrdataout_reg);
@@ -218,20 +218,18 @@ int rtapi_app_main(void) {
             if (pin < 300)
                 pin += 700;
 
-            if(pin < 801 || pin > 946 || (pin > 846 && pin < 901)) {
-                rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 801-846 for P8 pins, 901-946 for P9 pins.\n", modname, pin);
-                hal_exit(comp_id);
-                return -1;
-            }
-
-            if(pin < 900) {
+            if(pin >= 801 && pin <= 846) {
                 pin -= 800;
                 bbpin = &p8_pins[pin];
                 header = 8;
-            } else {
+            } else if(pin >= 901 && pin <= 946) {
                 pin -= 900;
                 bbpin = &p9_pins[pin];
                 header = 9;
+            } else {
+                rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 801-846 for P8 pins, 901-946 for P9 pins.\n", modname, pin);
+                hal_exit(comp_id);
+                return -1;
             }
 
             if(bbpin->claimed != 0) {
@@ -294,20 +292,18 @@ int rtapi_app_main(void) {
             if (pin < 300)
                 pin += 700;
 
-            if(pin < 801 || pin > 946 || (pin > 846 && pin < 901)) {
-                rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 801-846 for P8 pins, 901-946 for P9 pins.\n", modname, pin);
-                hal_exit(comp_id);
-                return -1;
-            }
-
-            if(pin < 900) {
+            if(pin >= 801 && pin <= 846) {
                 pin -= 800;
                 bbpin = &p8_pins[pin];
                 header = 8;
-            } else {
+            } else if(pin >= 901 && pin <= 946) {
                 pin -= 900;
                 bbpin = &p9_pins[pin];
                 header = 9;
+            } else {
+                rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 801-846 for P8 pins, 901-946 for P9 pins.\n", modname, pin);
+                hal_exit(comp_id);
+                return -1;
             }
 
             if(bbpin->claimed != 0) {
@@ -385,6 +381,7 @@ void rtapi_app_exit(void) {
 }
 
 static void write_port(void *arg, long period) {
+    (void)period;
     int i;
     port_data_t *port = (port_data_t *)arg;
 
@@ -424,6 +421,7 @@ static void write_port(void *arg, long period) {
 
 
 static void read_port(void *arg, long period) {
+    (void)period;
     int i;
     port_data_t *port = (port_data_t *)arg;
 
@@ -470,7 +468,7 @@ off_t start_addr_for_port(int port) {
 
 
 void configure_pin(bb_gpio_pin *pin, char mode) {
-    volatile unsigned int *control_reg = control_module + pin->control_offset;
+    volatile unsigned int *control_reg = (void *)((char *)control_module + pin->control_offset);
     pin->claimed = mode;
     switch(mode) {
         case 'O':

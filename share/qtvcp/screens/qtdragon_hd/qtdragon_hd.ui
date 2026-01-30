@@ -1135,6 +1135,34 @@
                       <number>0</number>
                      </property>
                      <item>
+                      <widget class="ActionToolButton" name="actiontoolbutton_2">
+                       <property name="minimumSize">
+                        <size>
+                         <width>50</width>
+                         <height>36</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>50</width>
+                         <height>50</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>OPTN</string>
+                       </property>
+                       <property name="popupMode">
+                        <enum>QToolButton::InstantPopup</enum>
+                       </property>
+                       <property name="userViewAction" stdset="0">
+                        <bool>false</bool>
+                       </property>
+                       <property name="OptionMenuAction" stdset="0">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
                       <widget class="ActionToolButton" name="actiontoolbutton">
                        <property name="minimumSize">
                         <size>
@@ -1152,14 +1180,17 @@
                         <string>Hold to save current view</string>
                        </property>
                        <property name="text">
-                        <string>User
-View</string>
+                        <string>USER
+VIEW</string>
                        </property>
                        <property name="checkable">
                         <bool>true</bool>
                        </property>
                        <property name="autoExclusive">
                         <bool>true</bool>
+                       </property>
+                       <property name="popupMode">
+                        <enum>QToolButton::InstantPopup</enum>
                        </property>
                        <property name="autoRaise">
                         <bool>false</bool>
@@ -1497,37 +1528,6 @@ View</string>
                        </property>
                        <property name="alt_textTemplate" stdset="0">
                         <string>%1.2f mm</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="btn_dimensions">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="minimumSize">
-                        <size>
-                         <width>50</width>
-                         <height>40</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>50</width>
-                         <height>40</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>D</string>
-                       </property>
-                       <property name="checkable">
-                        <bool>true</bool>
-                       </property>
-                       <property name="checked">
-                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -2033,6 +2033,13 @@ View</string>
                     </property>
                     <property name="_dtg" stdset="0">
                      <bool>false</bool>
+                    </property>
+                    <property name="grid_color" stdset="0">
+                     <color>
+                      <red>200</red>
+                      <green>137</green>
+                      <blue>138</blue>
+                     </color>
                     </property>
                     <property name="background_color" stdset="0">
                      <color>
@@ -2799,7 +2806,7 @@ ROTATION</string>
                      <enum>QFrame::Sunken</enum>
                     </property>
                     <property name="currentIndex">
-                     <number>1</number>
+                     <number>0</number>
                     </property>
                     <widget class="QWidget" name="page_machine">
                      <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -2826,20 +2833,11 @@ ROTATION</string>
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                        <property name="frameShape">
-                         <enum>QFrame::NoFrame</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Plain</enum>
-                        </property>
-                        <property name="documentTitle">
-                         <string>Machine Log</string>
-                        </property>
-                        <property name="readOnly">
+                        <property name="machine_log_severity_option" stdset="0">
                          <bool>true</bool>
                         </property>
-                        <property name="placeholderText">
-                         <string>Machine Log</string>
+                        <property name="integrator_log_option" stdset="0">
+                         <bool>false</bool>
                         </property>
                        </widget>
                       </item>
@@ -2869,21 +2867,6 @@ ROTATION</string>
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
-                        </property>
-                        <property name="frameShape">
-                         <enum>QFrame::NoFrame</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Plain</enum>
-                        </property>
-                        <property name="documentTitle">
-                         <string>Integrator Log</string>
-                        </property>
-                        <property name="readOnly">
-                         <bool>true</bool>
-                        </property>
-                        <property name="placeholderText">
-                         <string>Integrator Log</string>
                         </property>
                         <property name="integrator_log_option" stdset="0">
                          <bool>true</bool>
@@ -6286,7 +6269,7 @@ LOG</string>
                    <number>3</number>
                   </property>
                   <item>
-                   <widget class="QTabWidget" name="tabWidget_utilities">
+                   <widget class="DetachTabWidget" name="tabWidget_utilities">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
@@ -6457,6 +6440,34 @@ LOG</string>
                    <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -6551,6 +6562,34 @@ LOG</string>
                    <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -6641,6 +6680,34 @@ LOG</string>
                    </property>
                    <property name="autoExclusive">
                     <bool>false</bool>
+                   </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
                    </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
@@ -6733,6 +6800,34 @@ LOG</string>
                    <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -6824,6 +6919,34 @@ LOG</string>
                    <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -6913,6 +7036,37 @@ LOG</string>
                     <bool>false</bool>
                    </property>
                    <property name="autoExclusive">
+                    <bool>false</bool>
+                   </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="is_homed_status" stdset="0">
                     <bool>false</bool>
                    </property>
                    <property name="view_change_action" stdset="0">
@@ -7012,6 +7166,34 @@ LOG</string>
                    <property name="autoRepeatInterval">
                     <number>100</number>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -7109,6 +7291,34 @@ LOG</string>
                    <property name="autoRepeatInterval">
                     <number>100</number>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -7200,6 +7410,34 @@ LOG</string>
                    <property name="checkable">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -7290,6 +7528,34 @@ LOG</string>
                    </property>
                    <property name="checkable">
                     <bool>false</bool>
+                   </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
                    </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
@@ -16917,7 +17183,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>08:27:08 PM</string>
+         <string>08:16:39 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -17024,7 +17290,7 @@ ANGULAR</string>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
-   <extends>QTextEdit</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
@@ -17133,6 +17399,11 @@ ANGULAR</string>
    <class>Gauge</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.round_gauge</header>
+  </customwidget>
+  <customwidget>
+   <class>DetachTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>qtvcp.widgets.detach_tabs</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -17243,8 +17514,8 @@ ANGULAR</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>92</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -17275,8 +17546,8 @@ ANGULAR</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>87</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -17291,8 +17562,8 @@ ANGULAR</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>78</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>708</x>
@@ -17323,8 +17594,8 @@ ANGULAR</string>
    <slot>disable_spindle_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>80</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>678</x>
@@ -17339,8 +17610,8 @@ ANGULAR</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>88</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -17355,8 +17626,8 @@ ANGULAR</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>91</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>623</x>
@@ -17371,8 +17642,8 @@ ANGULAR</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>586</x>
-     <y>191</y>
+     <x>548</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
      <x>1784</x>
@@ -17387,8 +17658,8 @@ ANGULAR</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>586</x>
-     <y>197</y>
+     <x>548</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
      <x>1703</x>
@@ -17403,8 +17674,8 @@ ANGULAR</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>586</x>
-     <y>204</y>
+     <x>548</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
      <x>1737</x>
@@ -17451,8 +17722,8 @@ ANGULAR</string>
    <slot>chk_run_from_line_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>85</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>-17</x>
@@ -17467,7 +17738,7 @@ ANGULAR</string>
    <slot>btn_home_all_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1110</x>
+     <x>1106</x>
      <y>707</y>
     </hint>
     <hint type="destinationlabel">
@@ -17515,8 +17786,8 @@ ANGULAR</string>
    <slot>chk_use_touchplate_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>89</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>635</x>
@@ -17739,8 +18010,8 @@ ANGULAR</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>79</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -17835,8 +18106,8 @@ ANGULAR</string>
    <slot>btn_spindle_z_up_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>616</x>
-     <y>143</y>
+     <x>568</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>829</x>
@@ -17851,8 +18122,8 @@ ANGULAR</string>
    <slot>btn_spindle_z_down_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>616</x>
-     <y>143</y>
+     <x>568</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -17867,8 +18138,8 @@ ANGULAR</string>
    <slot>btn_gcode_zoomout_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>615</x>
-     <y>139</y>
+     <x>568</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>1289</x>
@@ -17883,8 +18154,8 @@ ANGULAR</string>
    <slot>btn_gcode_zoomin_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>612</x>
-     <y>139</y>
+     <x>568</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>878</x>
@@ -17905,22 +18176,6 @@ ANGULAR</string>
     <hint type="destinationlabel">
      <x>-80</x>
      <y>663</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_dimensions</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_dimensions_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1134</x>
-     <y>386</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1188</x>
-     <y>-106</y>
     </hint>
    </hints>
   </connection>
@@ -18020,6 +18275,22 @@ ANGULAR</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>virtualkeyboard</sender>
+   <signal>hideKeyboard()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>hideVirtualKeyboard()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1108</x>
+     <y>926</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1048</x>
+     <y>1119</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -18103,10 +18374,11 @@ ANGULAR</string>
   <slot>btn_gcode_zoomin_clicked()</slot>
   <slot>btn_pause_clicked()</slot>
   <slot>btn_systemtool_toggled()</slot>
+  <slot>hideVirtualKeyboard()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="selectButtonGroup"/>
  </buttongroups>
 </ui>

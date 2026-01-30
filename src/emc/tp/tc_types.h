@@ -137,7 +137,16 @@ typedef struct {
     //Acceleration
     double maxaccel;        // accel calc'd by task
     double acc_ratio_tan;// ratio between normal and tangential accel
-    
+
+    //S-curve jerk limiting
+    double maxjerk;         // max jerk for S-curve motion
+    double currentacc;      // current acceleration for S-curve planning
+    double currentjerk;     // current jerk for S-curve planning
+    double initialvel;      // initial velocity when segment activated
+    int accel_phase;        // current phase of S-curve acceleration
+    double elapsed_time;    // time elapsed since segment activation
+    double last_move_length; // length of last move step for S-curve
+
     int id;                 // segment's serial number
     struct state_tag_t tag; // state tag corresponding to running motion
 

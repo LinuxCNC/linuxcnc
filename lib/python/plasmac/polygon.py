@@ -128,42 +128,44 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
     outNgc = open(fNgc, 'w')
     inWiz = open(fNgcBkp, 'r')
     for line in inWiz:
-        if '(new conversational file)' in line:
-            if('\\n') in preAmble:
-                outNgc.write('(preamble)\n')
-                for l in preAmble.split('\\n'):
-                    outNgc.write(f'{l}\n')
-            else:
-                outNgc.write(f'\n{preAmble} (preamble)\n')
-            break
-        elif '(postamble)' in line:
-            break
-        elif 'm2' in line.lower() or 'm30' in line.lower():
-            continue
-        outNgc.write(line)
+        line = line.strip()
+        if line and line[0] not in ';':
+            if '(new conversational file)' in line:
+                if('\\n') in preAmble:
+                    outNgc.write('(preamble)\n')
+                    for l in preAmble.split('\\n'):
+                        outNgc.write(f'{l}\n')
+                else:
+                    outNgc.write(f'\n{preAmble} (preamble)\n')
+                break
+            elif '(postamble)' in line:
+                break
+            elif 'M2' in line.upper() or 'M02' in line.upper() or 'M30' in line.upper():
+                continue
+        outNgc.write(f"{line}\n")
     outTmp.write(f'\n(conversational polygon {sides})\n')
     outTmp.write(f';using material #{matNumber}: {matName}\n')
     outTmp.write(f'M190 P{matNumber}\n')
     outTmp.write('M66 P3 L3 Q1\n')
-    outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+    outTmp.write('F#<_hal[plasmac.cut-feed-rate]>\n')
     if leadInOffset > 0:
         xlCentre = xCentre + (leadInOffset * math.cos(angle + dir[0]))
         ylCentre = yCentre + (leadInOffset * math.sin(angle + dir[0]))
         xlStart = xlCentre + (leadInOffset * math.cos(angle + dir[1]))
         ylStart = ylCentre + (leadInOffset * math.sin(angle + dir[1]))
-        outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
-        outTmp.write('m3 $0 s1\n')
-        outTmp.write(f'g3 x{xCentre:.6f} y{yCentre:.6f} i{xlCentre - xlStart:.6f} j{ylCentre - ylStart:.6f}\n')
+        outTmp.write(f'G00 X{xlStart:.6f} Y{ylStart:.6f}\n')
+        outTmp.write('M03 $0 S1\n')
+        outTmp.write(f'G03 X{xCentre:.6f} Y{yCentre:.6f} I{xlCentre - xlStart:.6f} J{ylCentre - ylStart:.6f}\n')
     else:
-        outTmp.write(f'g0 x{xCentre:.6f} y{yCentre:.6f}\n')
-        outTmp.write('m3 $0 s1\n')
+        outTmp.write(f'G00 X{xCentre:.6f} Y{yCentre:.6f}\n')
+        outTmp.write('M03 $0 S1\n')
     if isExternal:
         for i in range(sides, 0, -1):
-            outTmp.write(f'g1 x{pList[i - 1][0]} y{pList[i - 1][1]}\n')
+            outTmp.write(f'G01 X{pList[i - 1][0]} Y{pList[i - 1][1]}\n')
     else:
         for i in range(sides):
-            outTmp.write(f'g1 x{pList[i][0]} y{pList[i][1]}\n')
-    outTmp.write(f'g1 x{xCentre} y{yCentre}\n')
+            outTmp.write(f'G01 X{pList[i][0]} Y{pList[i][1]}\n')
+    outTmp.write(f'G01 X{xCentre} Y{yCentre}\n')
     if leadOutOffset > 0:
         if isExternal:
             dir = [down, left]
@@ -173,20 +175,20 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
         ylCentre = yCentre + (leadOutOffset * math.sin(angle + dir[0]))
         xlEnd = xlCentre + (leadOutOffset * math.cos(angle + dir[1]))
         ylEnd = ylCentre + (leadOutOffset * math.sin(angle + dir[1]))
-        outTmp.write(f'g3 x{xlEnd:.6f} y{ylEnd:.6f} i{xlCentre - xCentre:.6f} j{ylCentre - yCentre:.6f}\n')
-    outTmp.write('m5 $0\n')
+        outTmp.write(f'G03 X{xlEnd:.6f} Y{ylEnd:.6f} I{xlCentre - xCentre:.6f} J{ylCentre - yCentre:.6f}\n')
+    outTmp.write('M05 $0\n')
     outTmp.close()
     outTmp = open(fTmp, 'r')
     for line in outTmp:
         outNgc.write(line)
     outTmp.close()
     if('\\n') in postAmble:
-        outNgc.write('(postamble)\n')
+        outNgc.write('\n(postamble)\n')
         for l in postAmble.split('\\n'):
             outNgc.write(f'{l}\n')
     else:
         outNgc.write(f'\n{postAmble} (postamble)\n')
-    outNgc.write('m2\n')
+    outNgc.write('M02\n')
     outNgc.close()
     return False
 

@@ -21,14 +21,14 @@ supported.
 If the named input is a numerical type, the GUI displays:
 
 *Entry* Entry widget for value or a valid Tcl expression. +
-*Set* Pushbutton to set new value from Entry (or use <RETURN>) +
+*Set* Pushbutton to set new value from Entry (or use <RETURN>). +
 *Reset* Pushbutton to reset to the value present on initiation If the
 input is a *bit* type, the GUI shows a single pushbutton that is
 controlled by radio-button selectors:
 
-mode=**pulse** Pulse input to 1 for each pushbutton press +
-mode=**toggle** Toggle input for each pushbutton press +
-mode=**hold** Set input to 1 while pushbutton pressed
+mode=**pulse** Pulse input to 1 for each pushbutton press. +
+mode=**toggle** Toggle input for each pushbutton press. +
+mode=**hold** Set input to 1 while pushbutton pressed.
 
 If the bit item mode begins with an uppercase letter, the radio buttons
 for selecting other modes are not shown

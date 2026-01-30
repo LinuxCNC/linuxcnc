@@ -7,7 +7,7 @@ IO boards, with HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_eth* [**config="**_str_[,_str_...]**"** ] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ]
+*loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ]
 
 ____
 *config* [default: ""]::
@@ -57,7 +57,7 @@ mitigate most accidental causes of interference.
 === Configure network with static address
 
 Add these lines to the file /etc/network/interfaces to configure the
-Ethernet interface eth1 with a static address:
+ethernet interface eth1 with a static address:
 
 ----
 auto eth1

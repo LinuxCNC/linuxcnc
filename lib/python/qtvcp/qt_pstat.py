@@ -26,7 +26,7 @@ from . import logger
 LOG = logger.getLogger(__name__)
 
 
-# Force the log level for this modul
+# Force the log level for this module
 # LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # BASE is the absolute path to linuxcnc base
@@ -63,7 +63,8 @@ class _PStat(object):
             # catch all
             if BASE is None:
                 BASE = '/usr'
-                LOG.debug('Linuxcnc Home directory found in environmental variable: {}'.format(BASE))
+
+            LOG.debug('Linuxcnc Home directory found in environmental variable: {}'.format(BASE))
 
             # share directory moves when using RIP vrs installed
             self.SHAREDIR = os.path.join(BASE,"share", "qtvcp")
@@ -146,14 +147,14 @@ class _PStat(object):
             LOG.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
             if os.path.exists(local_handler_path):
                 self.HANDLER = local_handler_path
-                LOG.info("Using LOCAL handler file path: yellow<{}>".format(self.HANDLER))
+                LOG.info("bggreen<Using LOCAL handler file path:> yellow<{}>".format(self.HANDLER))
                 break
         # if no break
         else:
             LOG.debug("Checking for default handler file in: yellow<{}>".format(self._default_handler_path))
             if os.path.exists(self._default_handler_path):
                 self.HANDLER = self._default_handler_path
-                LOG.info("Using DEFAULT handler file path: yellow<{}>".format(self.HANDLER))
+                LOG.info("bggreen<Using DEFAULT handler file path:> yellow<{}>".format(self.HANDLER))
             else:
                 self.HANDLER = None
                 LOG.info("No handler file found.")
@@ -178,14 +179,14 @@ class _PStat(object):
         for localui in local:
             LOG.debug("Checking for .ui in: yellow<{}>".format(localui))
             if os.path.exists(localui):
-                LOG.info("Using LOCAL ui file from: yellow<{}>".format(localui))
+                LOG.info("bggreen<Using LOCAL ui file from:> yellow<{}>".format(localui))
                 self.XML = localui
                 break
         # if no break
         else:
             LOG.debug("Checking for .ui in: yellow<{}>".format(defaultui))
             if os.path.exists(defaultui):
-                LOG.info("Using DEFAULT ui file from: yellow<{}>".format(defaultui))
+                LOG.info("bggreen<Using DEFAULT ui file from:> yellow<{}>".format(defaultui))
                 self.XML = defaultui
             else:
                 # error
@@ -213,14 +214,14 @@ class _PStat(object):
         for localqss in local:
             LOG.debug("Checking for .qss in: yellow<{}>".format(localqss))
             if os.path.exists(localqss):
-                LOG.info("Using LOCAL qss file from: yellow<{}>".format(localqss))
+                LOG.info("bggreen<Using LOCAL qss file as default stylesheet:> yellow<{}>".format(localqss))
                 self.QSS = localqss
                 break
         # if no break
         else:
             LOG.debug("Checking for .qss in: yellow<{}>".format(defaultqss))
             if os.path.exists(defaultqss):
-                LOG.debug("Using DEFAULT qss file from: yellow<{}>".format(defaultqss))
+                LOG.debug("bggreen<Using DEFAULT qss file as default stylesheet:> yellow<{}>".format(defaultqss))
                 self.QSS = defaultqss
             else:
                 self.QSS = None
@@ -242,7 +243,7 @@ class _PStat(object):
         for localqrc in local:
             LOG.debug("Checking for .qrc in: yellow<{}>".format(localqrc))
             if os.path.exists(localqrc):
-                LOG.info("Using LOCAL qrc file from: yellow<{}>".format(localqrc))
+                LOG.info("bggreen<Using LOCAL qrc file from:> yellow<{}>".format(localqrc))
                 self.QRC = localqrc
                 self.QRC_IS_LOCAL = True
                 break
@@ -250,7 +251,7 @@ class _PStat(object):
         else:
             LOG.debug("Checking for .qrc in: yellow<{}>".format(defaultqrc))
             if os.path.exists(defaultqrc):
-                LOG.debug("Using DEFAULT qrc file from: yellow<{}>".format(defaultqrc))
+                LOG.debug("bggreen<Using DEFAULT qrc file from:> yellow<{}>".format(defaultqrc))
                 self.QRC = defaultqrc
                 self.QRC_IS_LOCAL = False
             else:
@@ -269,7 +270,7 @@ class _PStat(object):
         # if there is a local resource file or a QRC to compile it from:
         if os.path.exists(localqrcpy) or self.QRC is not None:
             if os.path.exists(localqrcpy):
-                LOG.info("Using LOCAL resources.py file from: yellow<{}>".format(localqrcpy))
+                LOG.info("bggreen<Using LOCAL resources.py file from:> yellow<{}>".format(localqrcpy))
             else:
                 LOG.info("Resources.py file needs to be compiled at: {}".format(localqrcpy))
             self.QRCPY = localqrcpy
@@ -283,23 +284,23 @@ class _PStat(object):
         qm_fn = "languages/{}_{}.qm".format(self.BASEPATH,lang)
         defaultqm = os.path.join(self.SCREENDIR, self.BASEPATH, qm_fn)
         local = []
-        local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, qrc_fn))
+        local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, qm_fn))
         local.append( os.path.join(self.CONFIGPATH, self.BASEPATH, qm_fn))
 
         for localqm in local:
             LOG.debug("Checking for translation file in: yellow<{}>".format(localqm))
             if os.path.exists(localqm):
-                LOG.info("Using LOCAL translation file from: yellow<{}>".format(localqm))
+                LOG.info("bggreen<Using LOCAL translation file from:> yellow<{}>".format(localqm))
                 self.LOCALEDIR = localqm
                 break
         # if no break
         else:
             LOG.debug("Checking for translation file in: yellow<{}>".format(defaultqm))
             if os.path.exists(defaultqm):
-                LOG.debug("Using DEFAULT translation file from: yellow<{}>".format(defaultqm))
+                LOG.debug("bggreen<Using DEFAULT translation file from:> yellow<{}>".format(defaultqm))
                 self.LOCALEDIR = defaultqm
             else:
-                LOG.info("Using no translations, default system locale is: yellow<{}>".format(lang))
+                LOG.info("bggreen<Using no translations, default system locale is:> yellow<{}>".format(lang))
                 self.LOCALEDIR = None
 
         # look for ABOUT files:
@@ -318,13 +319,13 @@ class _PStat(object):
             LOG.debug("Checking for LOCAL about file in: yellow<{}>".format(localabout))
             if os.path.exists(localabout):
                 self.ABOUT = localabout
-                LOG.info("Using LOCAL about file path: yellow<{}>".format(self.ABOUT))
+                LOG.info("bggreen<Using LOCAL about file path:> yellow<{}>".format(self.ABOUT))
                 break
         else:
             LOG.debug("Checking for DEFAULT about file in: yellow<{}>".format(default_about_path))
             if os.path.exists(default_about_path):
                 self.ABOUT = default_about_path
-                LOG.debug("Using DEFAULT about file path: yellow<{}>".format(self.ABOUT))
+                LOG.debug("bggreen<Using DEFAULT about file path:> yellow<{}>".format(self.ABOUT))
             else:
                 self.ABOUT = ""
                 LOG.debug("No about file found.")
@@ -347,7 +348,7 @@ class _PStat(object):
             local = os.path.join(self.CONFIGPATH, 'qtvcp/widgets_ui', uifile)
             LOG.verbose("Checking for widget file in: yellow<{}>".format(local))
             if os.path.exists(local):
-                LOG.info("Using LOCAL widget file from: yellow<{}>".format(local))
+                LOG.info("bggreen<Using LOCAL widget file from:> yellow<{}>".format(local))
                 return local
         except:
             pass
@@ -355,8 +356,26 @@ class _PStat(object):
         default = os.path.join(self.WIDGETUI,uifile)
         LOG.verbose("Checking for widget file in: yellow<{}>".format(default))
         if os.path.exists(default):
-            LOG.verbose("Using default widget file from: yellow<{}>".format(default))
+            LOG.verbose("bggreen<Using default widget file from:> yellow<{}>".format(default))
             return default
+
+    # search for local widget path or default to standard
+    def find_custom_widget_path(self,widfile,klass):
+        try:
+            local = os.path.join(self.CONFIGPATH, 'qtvcp/widgets', widfile)
+            LOG.verbose("Checking for custom widget file in: yellow<{}>".format(local))
+            if os.path.exists(local):
+                LOG.info("bggreen<Using LOCAL custom widget file from:> yellow<{}>".format(local))
+                import importlib
+                sys.path.insert(0,  os.path.join(self.CONFIGPATH, 'qtvcp/widgets'))
+                justname = widfile[:widfile.index('.')]
+                print(justname)
+                mod = importlib.import_module(justname, os.path.join(self.CONFIGPATH, 'qtvcp/widgets'))
+                sys.path.remove(os.path.join(self.CONFIGPATH, 'qtvcp/widgets'))
+                return getattr(mod, klass)
+        except Exception as e:
+            print('oops',e)
+            pass
 
     # search for local image paths or default to standard
     def find_image_path(self,imagefile=''):
@@ -364,7 +383,7 @@ class _PStat(object):
             local = os.path.join(self.CONFIGPATH, 'qtvcp/images', imagefile)
             LOG.verbose("Checking for images path in: yellow<{}>".format(local))
             if os.path.exists(local):
-                LOG.info("Using LOCAL images path from: yellow<{}>".format(local))
+                LOG.info("bggreen<Using LOCAL images path from:> yellow<{}>".format(local))
                 return local
         except:
             pass
@@ -372,7 +391,7 @@ class _PStat(object):
         default = os.path.join(self.IMAGEDIR,imagefile)
         LOG.verbose("Checking for image path in: yellow<{}>".format(default))
         if os.path.exists(default):
-            LOG.verbose("Using default image path from: yellow<{}>".format(default))
+            LOG.verbose("bggreen<Using default image path from:> yellow<{}>".format(default))
             return default
 
     def find_embed_panel_path(self, name):
@@ -386,14 +405,14 @@ class _PStat(object):
         for localui in local:
             LOG.debug("(embed) Checking for .ui in: yellow<{}>".format(localui))
             if os.path.exists(localui):
-                LOG.info("(embed) Using LOCAL ui file from: yellow<{}>".format(localui))
+                LOG.info("(embed) bggreen<Using LOCAL ui file from:> yellow<{}>".format(localui))
                 XML = localui
                 return XML
         # if no break
         else:
             LOG.debug("(embed) Checking for .ui in: yellow<{}>".format(defaultui))
             if os.path.exists(defaultui):
-                LOG.info("(embed) Using DEFAULT ui file from: yellow<{}>".format(defaultui))
+                LOG.info("(embed) bggreen<Using DEFAULT ui file from:> yellow<{}>".format(defaultui))
                 XML = defaultui
                 return XML
             else:
@@ -416,14 +435,14 @@ class _PStat(object):
             LOG.debug("(embed) Checking for handler file in: yellow<{}>".format(local_handler_path))
             if os.path.exists(local_handler_path):
                 HANDLER = local_handler_path
-                LOG.info("(embed) Using LOCAL handler file path: yellow<{}>".format(HANDLER))
+                LOG.info("(embed) bggreen<Using LOCAL handler file path:> yellow<{}>".format(HANDLER))
                 return HANDLER
         # if no break
         else:
             LOG.debug("(embed) Checking for default handler file in: yellow<{}>".format(default_handler_path))
             if os.path.exists(default_handler_path):
                 HANDLER = default_handler_path
-                LOG.info("(embed) Using DEFAULT handler file path: yellow<{}>".format(HANDLER))
+                LOG.info("(embed) bggreen<Using DEFAULT handler file path:> yellow<{}>".format(HANDLER))
                 return HANDLER
             else:
                 HANDLER = None

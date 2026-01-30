@@ -138,7 +138,7 @@ You can select between the two options in the functions that take these entries:
   `hal_comp`;; The _HAL component Object_ or None. +
     In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
   `hal_pin`;; The _name of the BIT HAL IN pin_ that will change the color. +
-    if hal_comp is 'None' then this must be the full name of a system pin otherwise this is the pin name excluding the component name
+    If hal_comp is 'None' then this must be the full name of a system pin otherwise this is the pin name excluding the component name.
 
 [[sec:qtvcp:vismach:parts]]
 == Creating Parts
@@ -309,7 +309,7 @@ Either by adding the component object as the first variable and substituting the
 by substituting the full component/pinname string for a coordinate. +
 
 This example creates a _rectangular prism with opposite corners_ at the specified positions and edges parallel to the XYZ axes. +
-the Z start coordinate will be controlled by the HAL pin 'Zstart'
+The Z start coordinate will be controlled by the HAL pin 'Zstart'.
 
 [source,python]
 ----
@@ -409,7 +409,7 @@ Sets the _display color of the part based on a designated HAL bit pin state_. +
   `hal_comp`;; The _HAL component Object_ or None. +
     In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
   `hal_pin`;; The _name of the BIT HAL IN pin_ that will change the color. +
-    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name
+    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name.
 
 === HALColorRGB
 Sets the _display color of the part based on a designated HAL U32 pin value_. +
@@ -424,7 +424,7 @@ combined as 0xXXBBGGRR +
   `hal_comp`;; The _HAL component Object_ or None. +
     In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
   `hal_pin`;; The _name of the U32 HAL IN pin_ that will change the color. +
-    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name +
+    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name. +
   `alpha=`;; Sets the opacity. (0-1.0)
 
 === Heads Up Display
@@ -474,14 +474,13 @@ comp.newpin("hide-chuck", hal.HAL_BIT, hal.HAL_IN)
 # <snip make a machine with an A axis chuck assembly>
 chuckassembly = HideCollection([chuckassembly],comp,'hide-chuck')
 # also can be used like this
-chuckassembly = HideCollection([chuckassembly],None,'myvismach.hide-chuck') 
+chuckassembly = HideCollection([chuckassembly],None,'myvismach.hide-chuck')
 ----
 
-=== Plot Color Based on Mtotion Type
-If you wish to plot different colors for different motions you need to add some more python code. +
+=== Plot Color Based on Motion Type
+If you wish to plot different colors for different motions you need to add some more Python code.
 
-
-add this at the top of the file:
+Add this at the top of the file:
 
 [source,python]
 ----
@@ -493,19 +492,24 @@ and this to the Window class:
 
 [source,python]
 ----
-        STATUS.connect('motion-type-changed', lambda w, data: v.choosePlotColor(data))
+STATUS.connect('motion-type-changed', lambda w, data: v.choosePlotColor(data))
 
-        # uncomment to change feed color and to see all colors printed to the terminal
-        #v.setColorsAttribute('FEED',(0,1,0))
-        #print(v.colors)
+# uncomment to change feed color and to see all colors printed to the terminal
+#v.setColorsAttribute('FEED',(0,1,0))
+#print(v.colors)
 ----
-You can set DEFAULT, FEED, TRAVERSE, ARC, PROBE, ROTARYINDEX, TOOLCHANGE colors with setColorsAttribute()
+
+You can set DEFAULT, FEED, TRAVERSE, ARC, PROBE, ROTARYINDEX, TOOLCHANGE colors with setColorsAttribute().
 
 === Capture
-This sets the current position in the model.
-
-*`part = Capture()`*
-
+** `tooltip = Capture()` +
+  Think of this as an invisible part that needs to be attached to the
+  tooltip to track the position and orientation of the tool coordinate system.
+  It is actually a transformation matrix that is constantly updated as the
+  model moves.
+** `work = Capture()` +
+  Same as above but attached to the work table to track the work coordinate
+  system.
 
 === main
 This is the command that makes it all happen, creates the display, etc. if invoked directly from Python. +
@@ -513,7 +517,8 @@ Usually this file is imported by QtVCP and the `window()` object is instantiated
 
 *`main(model, tooltip, work, size=10, hud=myhud, rotation_vectors=None, lat=0, lon=0)`*::
   `_model_`;; Should be a collection that contains all the machine parts.
-  `_tooltip_` and `_work_`;; Need to be created by `Capture()` to visualize their motion in the backplot.
+  `_tooltip_` and `_work_`;; Need to be created by `Capture()` to draw the backplot which is basically the tooltip
+   position drawn in the work coordinate system.
     See `mill_xyz.py` for an example of how to connect the tool tip to a tool and the tool to the model.
   `_size_`;; Sets the extent of the volume visualized in the initial view.
   `_hud_`;; refers to a head-up display.
@@ -603,7 +608,7 @@ class Window(QWidget):
 
         # uncomment to change feed color
         #v.setColorsAttribute('FEED',(0,1,0))
-        #  and to see all colors printed to the terminal
+        # and to see all colors printed to the terminal
         #print(v.colors)
 
         v.model = Collection([model, world])

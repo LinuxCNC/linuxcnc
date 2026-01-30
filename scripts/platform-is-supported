@@ -110,7 +110,7 @@ if distributor == 'Ubuntu':
         sys.exit(1)
 
 if distributor == 'Debian':
-    if release_major < 11:
+    if release_major < 12:
         print("release is too old!")
         sys.exit(1)
 

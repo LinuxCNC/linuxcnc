@@ -76,7 +76,7 @@ GLADE_ICON_THEME_PATH=$EMC2_HOME/share/glade/pixmaps:"$GLADE_ICON_THEME_PATH"; e
 if [ -z "$TCLLIBPATH" ]; then
     TCLLIBPATH=$EMC2_HOME/tcl
 else
-    TCLLIBPATH=$EMC2_HOME/tcl:$TCLLIBPATH
+    TCLLIBPATH="$EMC2_HOME/tcl $TCLLIBPATH"
 fi
 
 if [ -z "$LD_LIBRARY_PATH" ]; then

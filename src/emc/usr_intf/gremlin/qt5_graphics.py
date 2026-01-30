@@ -397,7 +397,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
             unitcode = "G%d" % (20 + (s.linear_units == 1))
-            initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+            initcode = ""
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
@@ -570,9 +570,12 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def get_show_distance_to_go(self): return self.show_dtg
     def get_grid_size(self): return self.grid_size
     def get_show_offsets(self): return self.show_offsets
+    def getEnableDRO(self): return self.enable_dro
     def get_view(self):
         view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)
+    def get_current_view(self):
+        return self.current_view
     def get_geometry(self):
         temp = self.inifile.find("DISPLAY", "GEOMETRY") or 'XYZABCUVW'
         if temp:
@@ -802,7 +805,11 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def setZoom(self, zoom):
         self.distance = zoom/100.0
         self.update()
-        
+
+    def setEnableDRO(self,data):
+        self.enable_dro = data
+        self.update()
+
     def qglColor(self, color):
         glColor4f(color.redF(), color.greenF(), color.blueF(), color.alphaF())          
 
@@ -813,7 +820,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glEnable(GL.GL_CULL_FACE)
         return
 
-    # redraws the screen aprox every 100ms
+    # redraws the screen approx every 100ms
     def paintGL(self):
         #GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         #GL.glLoadIdentity() # reset the model-view matrix

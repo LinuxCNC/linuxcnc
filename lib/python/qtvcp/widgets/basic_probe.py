@@ -46,9 +46,9 @@ DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
 
-class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
+class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(BasicProbe, self).__init__(parent)
+        super(BasicProbeParent, self).__init__(parent)
         self.proc = None
         self._cmd = None
         self._runImmediately = True
@@ -137,7 +137,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                         obj.clearFocus()
                         event.accept()
                         return True
-        return super(BasicProbe, self).eventFilter(obj, event)
+        return super(BasicProbeParent, self).eventFilter(obj, event)
 
     # update the probe loaded HAL pin
     # can be used to inhibit the spindle
@@ -307,7 +307,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         if t != STATUS.get_current_tool():
             msg = "Probe tool # {}. not mounted in spindle".format(t)
             if not self.set_statusbar(msg,CRITICAL):
-                STATUS.emit('update-machine-log', msg, 'TIME')
+                STATUS.emit('update-machine-log', msg, 'TIME,CRITICAL')
                 ACTION.SET_ERROR_MESSAGE(msg)
             return
 
@@ -630,7 +630,7 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
                 file.open(QtCore.QFile.ReadOnly)
                 html = file.readAll()
                 html = str(html, encoding='utf8')
-                html = html.replace("../images/widgets/","{}/widgets/".format(INFO.IMAGE_PATH))
+                html = html.replace("../images/widgets/","{}/widgets/".format(PATH.IMAGEDIR))
                 t.setHtml(html)
                 if t.verticalScrollBar().isVisible():
                     t.verticalScrollBar().setPageStep(100)
@@ -666,6 +666,14 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         retval = self.exec_()
         LOG.debug('Value of pressed button: {}'.format(retval))
 
+# look for a custom version of basicProbe
+module = PATH.find_custom_widget_path('basic_probe.py','BasicProbeCustom')
+if not module:
+    module = BasicProbeParent
+
+class BasicProbe(module):
+    def __init__(self, parent=None):
+        super(BasicProbe, self).__init__(parent)
 
     #############################
     # Testing                   #

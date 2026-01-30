@@ -207,10 +207,12 @@ All `<options>` must appear before the `cam_align` panel name.
 
 * `-c NAME` HAL component name. Default is to use the UI file name.
 * `-d` Debugging on. or remove for no minimum output
+* `-v` Verbose debugging on. You can find all available resolutions.
 * `-x {XID}` used for embedding into AXIS  or Gmoccapy
-* `-o <option>` Options passed to cam_align
+* `-o <option>` Options passed to cam_align. can use multiple -o entries
 
 .Cam_align Options
+These are the available -o option:
 
 * `size=400,400` Size of the embedded window (width,height)
 * `imagesize=300,300` Size of the image inside the window (width,height)
@@ -218,6 +220,8 @@ All `<options>` must appear before the `cam_align` panel name.
 * `xscale=100` Scales the image in X. A negative value will flip the image in X (percent)
 * `yscale=100` Scales the image in Y. A negative value will flip the image in Y (percent)
 * `camnumber=1` Sets what system camera to use
+* `api=V4L2` Sets the opencv backend library for the camera
+* `res=1280,720` Sets the requested resolution (width,height)
 
 For instance you can add window width and height size, rotation increment, and camera number from the INI with -o options.
 ----

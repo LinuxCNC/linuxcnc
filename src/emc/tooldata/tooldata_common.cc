@@ -236,22 +236,28 @@ void tooldata_format_toolline (int idx,
                                )
 {
     char tmp[CANON_TOOL_ENTRY_LEN-1] = {0};
-    snprintf(tmp,sizeof(tmp),"T%-3d P%-3d"
+    int space = sizeof(tmp);
+    int len;
+    len = snprintf(tmp,sizeof(tmp),"T%-3d P%-3d"
             ,tdata.toolno
             ,is_random_toolchanger ? idx : tdata.pocketno);
-    strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1);
+    strncat(formatted_line,tmp,space);
+    space -= len;
 // format zero float values as %.0f for brevity
 #define F_ITEM(item,letter) if (!ignore_zero_values || tdata.item) { \
+                                char local_tmp[64] = {}; \
                                 if (tdata.item) { \
-                                    snprintf(tmp,sizeof(tmp)," " letter "%+f", tdata.item); \
+                                    len = snprintf(local_tmp,sizeof(local_tmp)," " letter "%+f", tdata.item); \
                                 } else { \
-                                    snprintf(tmp,sizeof(tmp)," " letter "%.0f",tdata.item); \
+                                    len = snprintf(local_tmp,sizeof(local_tmp)," " letter "%.0f",tdata.item); \
                                 } \
-                                strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1); \
+                                strncat(formatted_line,local_tmp,space); \
+                                space -= len; \
                             }
 #define I_ITEM(item,letter) if (!ignore_zero_values || tdata.item) { \
-                                snprintf(tmp,sizeof(tmp)," " letter "%d",tdata.item); \
-                                strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1); \
+                                len = snprintf(tmp,sizeof(tmp)," " letter "%d",tdata.item); \
+                                strncat(formatted_line,tmp,space); \
+                                space -= len; \
                             }
 
     F_ITEM(diameter,       "D");
@@ -269,10 +275,13 @@ void tooldata_format_toolline (int idx,
     I_ITEM(orientation,    "Q");
 #undef F_ITEM
 #undef I_ITEM
+    // Stop tracking len and space here for current tool table format
     if (tdata.comment[0]) {
-        snprintf(tmp,sizeof(tmp)," ;%s\n",tdata.comment); \
-        strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1); \
-    } 
+        snprintf(tmp,space," ;%s\n",tdata.comment);
+    } else {
+        snprintf(tmp,space,"\n");
+    }
+    strncat(formatted_line,tmp,space);
     return;
 } // tooldata_format_toolline()
 

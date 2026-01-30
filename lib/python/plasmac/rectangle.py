@@ -212,248 +212,246 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
     outNgc = open(fNgc, 'w')
     inWiz = open(fNgcBkp, 'r')
     for line in inWiz:
-        if '(new conversational file)' in line:
-            if('\\n') in preAmble:
-                outNgc.write('(preamble)\n')
-                for l in preAmble.split('\\n'):
-                    outNgc.write(f'{l}\n')
-            else:
-                outNgc.write(f'\n{preAmble} (preamble)\n')
-            break
-        elif '(postamble)' in line:
-            break
-        elif 'm2' in line.lower() or 'm30' in line.lower():
-            continue
-        outNgc.write(line)
+        line = line.strip()
+        if line and line[0] not in ';':
+            if '(new conversational file)' in line:
+                if('\\n') in preAmble:
+                    outNgc.write('(preamble)\n')
+                    for l in preAmble.split('\\n'):
+                        outNgc.write(f'{l}\n')
+                else:
+                    outNgc.write(f'\n{preAmble} (preamble)\n')
+                break
+            elif '(postamble)' in line:
+                break
+            elif 'M2' in line.upper() or 'M02' in line.upper() or 'M30' in line.upper():
+                continue
+        outNgc.write(f"{line}\n")
     outTmp.write('\n(conversational rectangle)\n')
     outTmp.write(f';using material #{matNumber}: {matName}\n')
     outTmp.write(f'M190 P{matNumber}\n')
     outTmp.write('M66 P3 L3 Q1\n')
-    outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+    outTmp.write('F#<_hal[plasmac.cut-feed-rate]>\n')
     if isExternal:
         if leadInOffset > 0:
             xlCentre = xS + (leadInOffset * math.cos(angle + right))
             ylCentre = yS + (leadInOffset * math.sin(angle + right))
             xlStart = xlCentre + (leadInOffset * math.cos(angle + up))
             ylStart = ylCentre + (leadInOffset * math.sin(angle + up))
-            outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
-            outTmp.write('m3 $0 s1\n')
-            outTmp.write(f'g3 x{xS:.6f} y{yS:.6f} i{xlCentre - xlStart:.6f} j{ylCentre - ylStart:.6f}\n')
+            outTmp.write(f'G00 X{xlStart:.6f} Y{ylStart:.6f}\n')
+            outTmp.write('M03 $0 S1\n')
+            outTmp.write(f'G03 X{xS:.6f} Y{yS:.6f} I{xlCentre - xlStart:.6f} J{ylCentre - ylStart:.6f}\n')
         else:
-            outTmp.write(f'g0 x{xS:.6f} y{yS:.6f}\n')
-            outTmp.write('m3 $0 s1\n')
+            outTmp.write(f'G00 X{xS:.6f} Y{yS:.6f}\n')
+            outTmp.write('M03 $0 S1\n')
         x1 = xS + yLR * math.cos(angle + down)
         y1 = yS + yLR * math.sin(angle + down)
-        outTmp.write(f'g1 x{x1:.6f} y{y1:.6f}\n')
+        outTmp.write(f'G01 X{x1:.6f} Y{y1:.6f}\n')
         if radius4:
             if styleR4 == 'intRadius':
                 xrCentre = x1 + (radius4 * math.cos(angle + down))
                 yrCentre = y1 + (radius4 * math.sin(angle + down))
                 xrEnd = xrCentre + (radius4 * math.cos(angle + left))
                 yrEnd = yrCentre + (radius4 * math.sin(angle + left))
-                outTmp.write(f'g3 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x1:.6f} j{yrCentre - y1:.6f}\n')
+                outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x1:.6f} J{yrCentre - y1:.6f}\n')
             else:
                 xrCentre = x1 + (radius4 * math.cos(angle + left))
                 yrCentre = y1 + (radius4 * math.sin(angle + left))
                 xrEnd = xrCentre + (radius4 * math.cos(angle + down))
                 yrEnd = yrCentre + (radius4 * math.sin(angle + down))
             if styleR4 == 'extRadius':
-                outTmp.write(f'g2 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x1:.6f} j{yrCentre - y1:.6f}\n')
+                outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x1:.6f} J{yrCentre - y1:.6f}\n')
             else:
-                outTmp.write(f'g1 x{xrEnd:.6f} y{yrEnd:.6f}\n')
+                outTmp.write(f'G01 X{xrEnd:.6f} Y{yrEnd:.6f}\n')
             x2 = xrEnd + xLB * math.cos(angle + left)
             y2 = yrEnd + xLB * math.sin(angle + left)
         else:
             x2 = x1 + xLB * math.cos(angle + left)
             y2 = y1 + xLB * math.sin(angle + left)
-        outTmp.write(f'g1 x{x2:.6f} y{y2:.6f}\n')
+        outTmp.write(f'G01 X{x2:.6f} Y{y2:.6f}\n')
         if radius3:
             if styleR3 == 'intRadius':
                 xrCentre = x2 + (radius3 * math.cos(angle + left))
                 yrCentre = y2 + (radius3 * math.sin(angle + left))
                 xrEnd = xrCentre + (radius3 * math.cos(angle + up))
                 yrEnd = yrCentre + (radius3 * math.sin(angle + up))
-                outTmp.write(f'g3 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x2:.6f} j{yrCentre - y2:.6f}\n')
+                outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x2:.6f} J{yrCentre - y2:.6f}\n')
             else:
                 xrCentre = x2 + (radius3 * math.cos(angle + up))
                 yrCentre = y2 + (radius3 * math.sin(angle + up))
                 xrEnd = xrCentre + (radius3 * math.cos(angle + left))
                 yrEnd = yrCentre + (radius3 * math.sin(angle + left))
             if styleR3 == 'extRadius':
-                outTmp.write(f'g2 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x2:.6f} j{yrCentre - y2:.6f}\n')
+                outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x2:.6f} J{yrCentre - y2:.6f}\n')
             else:
-                outTmp.write(f'g1 x{xrEnd:.6f} y{yrEnd:.6f}\n')
+                outTmp.write(f'G01 X{xrEnd:.6f} Y{yrEnd:.6f}\n')
             x3 = xrEnd + yLL * math.cos(angle + up)
             y3 = yrEnd + yLL * math.sin(angle + up)
         else:
             x3 = x2 + yLL * math.cos(angle + up)
             y3 = y2 + yLL * math.sin(angle + up)
-        outTmp.write(f'g1 x{x3:.6f} y{y3:.6f}\n')
+        outTmp.write(f'G01 X{x3:.6f} Y{y3:.6f}\n')
         if radius1:
             if styleR1 == 'intRadius':
                 xrCentre = x3 + (radius1 * math.cos(angle + up))
                 yrCentre = y3 + (radius1 * math.sin(angle + up))
                 xrEnd = xrCentre + (radius1 * math.cos(angle + right))
                 yrEnd = yrCentre + (radius1 * math.sin(angle + right))
-                outTmp.write(f'g3 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x3:.6f} j{yrCentre - y3:.6f}\n')
+                outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x3:.6f} J{yrCentre - y3:.6f}\n')
             else:
                 xrCentre = x3 + (radius1 * math.cos(angle + right))
                 yrCentre = y3 + (radius1 * math.sin(angle + right))
                 xrEnd = xrCentre + (radius1 * math.cos(angle + up))
                 yrEnd = yrCentre + (radius1 * math.sin(angle + up))
             if styleR1 == 'extRadius':
-                outTmp.write(f'g2 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x3:.6f} j{yrCentre - y3:.6f}\n')
+                outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x3:.6f} J{yrCentre - y3:.6f}\n')
             else:
-                outTmp.write(f'g1 x{xrEnd:.6f} y{yrEnd:.6f}\n')
+                outTmp.write(f'G01 X{xrEnd:.6f} Y{yrEnd:.6f}\n')
             x4 = xrEnd + xLT * math.cos(angle + right)
             y4 = yrEnd + xLT * math.sin(angle + right)
         else:
             x4 = x3 + xLT * math.cos(angle + right)
             y4 = y3 + xLT * math.sin(angle + right)
-        outTmp.write(f'g1 x{x4:.6f} y{y4:.6f}\n')
+        outTmp.write(f'G01 X{x4:.6f} Y{y4:.6f}\n')
         if radius2:
             if styleR2 == 'intRadius':
                 xrCentre = x4 + (radius2 * math.cos(angle + right))
                 yrCentre = y4 + (radius2 * math.sin(angle + right))
                 xrEnd = xrCentre + (radius2 * math.cos(angle + down))
                 yrEnd = yrCentre + (radius2 * math.sin(angle + down))
-                outTmp.write(f'g3 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x4:.6f} j{yrCentre - y4:.6f}\n')
+                outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x4:.6f} J{yrCentre - y4:.6f}\n')
             else:
                 xrCentre = x4 + (radius2 * math.cos(angle + down))
                 yrCentre = y4 + (radius2 * math.sin(angle + down))
                 xrEnd = xrCentre + (radius2 * math.cos(angle + right))
                 yrEnd = yrCentre + (radius2 * math.sin(angle + right))
             if styleR2 == 'extRadius':
-                outTmp.write(f'g2 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x4:.6f} j{yrCentre - y4:.6f}\n')
+                outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x4:.6f} J{yrCentre - y4:.6f}\n')
             else:
-                outTmp.write(f'g1 x{xrEnd:.6f} y{yrEnd:.6f}\n')
+                outTmp.write(f'G01 X{xrEnd:.6f} Y{yrEnd:.6f}\n')
     else:
         if leadInOffset > 0:
             xlCentre = xS + (leadInOffset * math.cos(angle + down))
             ylCentre = yS + (leadInOffset * math.sin(angle + down))
             xlStart = xlCentre + (leadInOffset * math.cos(angle + right))
             ylStart = ylCentre + (leadInOffset * math.sin(angle + right))
-            outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
-            outTmp.write('m3 $0 s1\n')
-            outTmp.write(f'g3 x{xS:.6f} y{yS:.6f} i{xlCentre - xlStart:.6f} j{ylCentre - ylStart:.6f}\n')
+            outTmp.write(f'G00 X{xlStart:.6f} Y{ylStart:.6f}\n')
+            outTmp.write('M03 $0 S1\n')
+            outTmp.write(f'G03 X{xS:.6f} Y{yS:.6f} I{xlCentre - xlStart:.6f} J{ylCentre - ylStart:.6f}\n')
         else:
-            outTmp.write(f'g0 x{xS:.6f} y{yS:.6f}\n')
-            outTmp.write('m3 $0 s1\n')
-        if radius1:
-            x1 = xS + ((xLT - (radius1 - radius2)) / 2) * math.cos(angle + left)
-            y1 = yS + ((xLT - (radius1 - radius2)) / 2) * math.sin(angle + left)
-        else:
-            x1 = xS - (width / 2)
-            y1 = yS
-        outTmp.write(f'g1 x{x1:.6f} y{y1:.6f}\n')
+            outTmp.write(f'G00 X{xS:.6f} Y{yS:.6f}\n')
+            outTmp.write('M03 $0 S1\n')
+        x1 = xS + ((xLT - (radius1 - radius2)) / 2) * math.cos(angle + left)
+        y1 = yS + ((xLT - (radius1 - radius2)) / 2) * math.sin(angle + left)
+        outTmp.write(f'G01 X{x1:.6f} Y{y1:.6f}\n')
         if radius1:
             if styleR1 == 'intRadius':
                 xrCentre = x1 + (radius1 * math.cos(angle + left))
                 yrCentre = y1 + (radius1 * math.sin(angle + left))
                 xrEnd = xrCentre + (radius1 * math.cos(angle + down))
                 yrEnd = yrCentre + (radius1 * math.sin(angle + down))
-                outTmp.write(f'g2 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x1:.6f} j{yrCentre - y1:.6f}\n')
+                outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x1:.6f} J{yrCentre - y1:.6f}\n')
             else:
                 xrCentre = x1 + (radius1 * math.cos(angle + down))
                 yrCentre = y1 + (radius1 * math.sin(angle + down))
                 xrEnd = xrCentre + (radius1 * math.cos(angle + left))
                 yrEnd = yrCentre + (radius1 * math.sin(angle + left))
             if styleR1 == 'extRadius':
-                outTmp.write(f'g3 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x1:.6f} j{yrCentre - y1:.6f}\n')
+                outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x1:.6f} J{yrCentre - y1:.6f}\n')
             else:
-                outTmp.write(f'g1 x{xrEnd:.6f} y{yrEnd:.6f}\n')
+                outTmp.write(f'G01 X{xrEnd:.6f} Y{yrEnd:.6f}\n')
             x2 = xrEnd + yLL * math.cos(angle + down)
             y2 = yrEnd + yLL * math.sin(angle + down)
         else:
             x2 = x1 + yLL * math.cos(angle + down)
             y2 = y1 + yLL * math.sin(angle + down)
-        outTmp.write(f'g1 x{x2:.6f} y{y2:.6f}\n')
+        outTmp.write(f'G01 X{x2:.6f} Y{y2:.6f}\n')
         if radius3:
             if styleR3 == 'intRadius':
                 xrCentre = x2 + (radius3 * math.cos(angle + down))
                 yrCentre = y2 + (radius3 * math.sin(angle + down))
                 xrEnd = xrCentre + (radius3 * math.cos(angle + right))
                 yrEnd = yrCentre + (radius3 * math.sin(angle + right))
-                outTmp.write(f'g2 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x2:.6f} j{yrCentre - y2:.6f}\n')
+                outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x2:.6f} J{yrCentre - y2:.6f}\n')
             else:
                 xrCentre = x2 + (radius3 * math.cos(angle + right))
                 yrCentre = y2 + (radius3 * math.sin(angle + right))
                 xrEnd = xrCentre + (radius3 * math.cos(angle + down))
                 yrEnd = yrCentre + (radius3 * math.sin(angle + down))
             if styleR3 == 'extRadius':
-                outTmp.write(f'g3 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x2:.6f} j{yrCentre - y2:.6f}\n')
+                outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x2:.6f} J{yrCentre - y2:.6f}\n')
             else:
-                outTmp.write(f'g1 x{xrEnd:.6f} y{yrEnd:.6f}\n')
+                outTmp.write(f'G01 X{xrEnd:.6f} Y{yrEnd:.6f}\n')
             x3 = xrEnd + xLB * math.cos(angle + right)
             y3 = yrEnd + xLB * math.sin(angle + right)
         else:
             x3 = x2 + xLB * math.cos(angle + right)
             y3 = y2 + xLB * math.sin(angle + right)
-        outTmp.write(f'g1 x{x3:.6f} y{y3:.6f}\n')
+        outTmp.write(f'G01 X{x3:.6f} Y{y3:.6f}\n')
         if radius4:
             if styleR4 == 'intRadius':
                 xrCentre = x3 + (radius4 * math.cos(angle + right))
                 yrCentre = y3 + (radius4 * math.sin(angle + right))
                 xrEnd = xrCentre + (radius4 * math.cos(angle + up))
                 yrEnd = yrCentre + (radius4 * math.sin(angle + up))
-                outTmp.write(f'g2 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x3:.6f} j{yrCentre - y3:.6f}\n')
+                outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x3:.6f} J{yrCentre - y3:.6f}\n')
             else:
                 xrCentre = x3 + (radius4 * math.cos(angle + up))
                 yrCentre = y3 + (radius4 * math.sin(angle + up))
                 xrEnd = xrCentre + (radius4 * math.cos(angle + right))
                 yrEnd = yrCentre + (radius4 * math.sin(angle + right))
             if styleR4 == 'extRadius':
-                outTmp.write(f'g3 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x3:.6f} j{yrCentre - y3:.6f}\n')
+                outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x3:.6f} J{yrCentre - y3:.6f}\n')
             else:
-                outTmp.write(f'g1 x{xrEnd:.6f} y{yrEnd:.6f}\n')
+                outTmp.write(f'G01 X{xrEnd:.6f} Y{yrEnd:.6f}\n')
             x4 = xrEnd + yLR * math.cos(angle + up)
             y4 = yrEnd + yLR * math.sin(angle + up)
         else:
             x4 = x3 + yLR * math.cos(angle + up)
             y4 = y3 + yLR * math.sin(angle + up)
-        outTmp.write(f'g1 x{x4:.6f} y{y4:.6f}\n')
+        outTmp.write(f'G01 X{x4:.6f} Y{y4:.6f}\n')
         if radius2:
             if styleR2 == 'intRadius':
                 xrCentre = x4 + (radius2 * math.cos(angle + up))
                 yrCentre = y4 + (radius2 * math.sin(angle + up))
                 xrEnd = xrCentre + (radius2 * math.cos(angle + left))
                 yrEnd = yrCentre + (radius2 * math.sin(angle + left))
-                outTmp.write(f'g2 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x4:.6f} j{yrCentre - y4:.6f}\n')
+                outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x4:.6f} J{yrCentre - y4:.6f}\n')
             else:
                 xrCentre = x4 + (radius2 * math.cos(angle + left))
                 yrCentre = y4 + (radius2 * math.sin(angle + left))
                 xrEnd = xrCentre + (radius2 * math.cos(angle + up))
                 yrEnd = yrCentre + (radius2 * math.sin(angle + up))
             if styleR2 == 'extRadius':
-                outTmp.write(f'g3 x{xrEnd:.6f} y{yrEnd:.6f} i{xrCentre - x4:.6f} j{yrCentre - y4:.6f}\n')
+                outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x4:.6f} J{yrCentre - y4:.6f}\n')
             else:
-                outTmp.write(f'g1 x{xrEnd:.6f} y{yrEnd:.6f}\n')
-    outTmp.write(f'g1 x{xS:.6f} y{yS:.6f}\n')
+                outTmp.write(f'G01 X{xrEnd:.6f} Y{yrEnd:.6f}\n')
+    outTmp.write(f'G01 X{xS:.6f} Y{yS:.6f}\n')
     if leadOutOffset > 0:  # and not (isExternal and radius2):
         if isExternal and not radius2:
-            dir = ['g2', down, right]
+            dir = ['G02', down, right]
         elif isExternal and radius2:
-            dir = ['g3', right, down]
+            dir = ['G03', right, down]
         else:
-            dir = ['g3', down, left]
+            dir = ['G03', down, left]
         xlCentre = xS + (leadOutOffset * math.cos(angle + dir[1]))
         ylCentre = yS + (leadOutOffset * math.sin(angle + dir[1]))
         xlEnd = xlCentre + (leadOutOffset * math.cos(angle + dir[2]))
         ylEnd = ylCentre + (leadOutOffset * math.sin(angle + dir[2]))
-        outTmp.write(f'{dir[0]} x{xlEnd:.6f} y{ylEnd:.6f} i{xlCentre - xS:.6f} j{ylCentre - yS:.6f}\n')
-    outTmp.write('g40\n')
-    outTmp.write('m5 $0\n')
+        outTmp.write(f'{dir[0]} X{xlEnd:.6f} Y{ylEnd:.6f} I{xlCentre - xS:.6f} J{ylCentre - yS:.6f}\n')
+    outTmp.write('G40\n')
+    outTmp.write('M05 $0\n')
     outTmp.close()
     outTmp = open(fTmp, 'r')
     for line in outTmp:
         outNgc.write(line)
     outTmp.close()
     if('\\n') in postAmble:
-        outNgc.write('(postamble)\n')
+        outNgc.write('\n(postamble)\n')
         for l in postAmble.split('\\n'):
             outNgc.write(f'{l}\n')
     else:
         outNgc.write(f'\n{postAmble} (postamble)\n')
-    outNgc.write('m2\n')
+    outNgc.write('M02\n')
     outNgc.close()
     return False

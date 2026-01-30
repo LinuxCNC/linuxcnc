@@ -31,14 +31,14 @@ else:
     from .hal_actions import _EMC_ActionBase, ensure_mode
 
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 from gladevcp.core import Info
 
 GSTAT = GStat()
 INFO = Info()
 
 # Set up logging
-from qtvcp import logger
+from common import logger
 LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 

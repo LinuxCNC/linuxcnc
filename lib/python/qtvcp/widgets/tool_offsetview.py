@@ -23,7 +23,7 @@ from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
 QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate, qApp)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Action, Info, Tool
+from qtvcp.core import Status, Action, Info, Tool, Path
 from qtvcp import logger
 
 #BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
@@ -39,12 +39,13 @@ STATUS = Status()
 ACTION = Action()
 INFO = Info()
 TOOL = Tool()
+PATH = Path()
 LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-ICONPATH = os.path.join(INFO.LIB_PATH, 'images/widgets/tool_offsetview')
+ICONPATH = os.path.join(PATH.SHAREDIR, 'images/widgets/tool_offsetview')
 
 # custom spinbox controls for editing
 class ItemEditorFactory(QItemEditorFactory):

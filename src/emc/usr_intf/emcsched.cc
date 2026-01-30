@@ -74,9 +74,9 @@ class SchedEntry {
     void setOffsets(float x, float y, float z);
     int getZone() const;
     void setZone(int z);
-    string getFileName() const;
+    const string& getFileName() const;
     void setFileName(const string& s);
-    string getProgramName() const;
+    const string& getProgramName() const;
     void setProgramName(const string& s);
     float getFeedOverride() const;
     void setFeedOverride(float f);
@@ -146,7 +146,7 @@ void SchedEntry::setZone(int z) {
   zone = z;
   }
 
-string SchedEntry::getFileName() const {
+const string& SchedEntry::getFileName() const {
   return fileName;
   }
 
@@ -154,7 +154,7 @@ void SchedEntry::setFileName(const string& s) {
   fileName = s;
   }
 
-string SchedEntry::getProgramName() const {
+const string& SchedEntry::getProgramName() const {
   return programName;
   }
 
@@ -369,7 +369,7 @@ int getProgramById(int id, qRecType *qRec) {
   for (i=q.begin(); i!=q.end(); ++i) {
     if (i->getTagId() == id) break;
     }
-  if (i->getTagId() != id) return -1;
+  if (i == q.end() || i->getTagId() != id) return -1;
   qRec->priority = i->getPriority();
   qRec->tagId = i->getTagId();
   i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);
@@ -384,14 +384,11 @@ int getProgramById(int id, qRecType *qRec) {
 
 int getProgramByIndex(int idx, qRecType *qRec) {
   list<SchedEntry>::iterator i;
-  int index;
 
-  if ((unsigned int) idx >= q.size()) return -1;
-  index = 0;
-  for (i=q.begin(); i!=q.end(); ++i) {
-    if (index == idx) break;
-    index++;
-    }
+  for(i = q.begin(); idx > 0; ++i) {
+    if(i == q.end()) return -1;  // return if idx was larger than number of entries
+    --idx;
+  }
   qRec->priority = i->getPriority();
   qRec->tagId = i->getTagId();
   i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);

@@ -70,14 +70,14 @@ public:
     int plugin_status() { return status; };
     bool usable() { return (status >= PLUGIN_OK); }
     int initialize();
-    std::string last_exception() { return exception_msg; };
-    std::string last_errmsg() { return error_msg; };
+    const std::string& last_exception() { return exception_msg; };
+    const std::string& last_errmsg() { return error_msg; };
     boost::python::object main_namespace;
 
 private:
     PythonPlugin(struct _inittab *inittab);       // nb: no public constructor
-    PythonPlugin(const PythonPlugin &) {};        // not copyable
-    PythonPlugin & operator=(const PythonPlugin&) { return *this; };  // not assignable
+    PythonPlugin(const PythonPlugin &) = delete;        // not copyable
+    PythonPlugin & operator=(const PythonPlugin&) = delete;  // not assignable
     ~PythonPlugin() {};
 
     int reload();

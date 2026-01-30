@@ -25,6 +25,7 @@
 #include "physmem.hh"           // PHYSMEM_HANDLE
 
 CMS_DIAGNOSTICS_INFO::CMS_DIAGNOSTICS_INFO()
+  : CMS_DIAG_HEADER()
 {
     last_writer_dpi = NULL;
     last_reader_dpi = NULL;

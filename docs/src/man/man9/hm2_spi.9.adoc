@@ -2,12 +2,12 @@
 
 == NAME
 
-hm2_spi - LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO
-boards, with HostMot2 firmware.
+hm2_spi - This driver has been superseded by the hm2_spix driver. LinuxCNC HAL
+driver for the Mesa Electronics SPI Anything IO boards, with HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_spi* [**config="**__str__[,__str__...]**"** ] [ **spidev_path=**_path_[,_path_...] ] [**spidev_rate=**__rate__[,__rate__...] ]
+*loadrt hm2_spi* [**config=**"__str__[,__str__...]"] [ **spidev_path=**_path_[,_path_...] ] [**spidev_rate=**__rate__[,__rate__...] ]
 
 ____
 *config* [default: ""]::
@@ -52,9 +52,14 @@ https://github.com/jepler/odroid-linux/tree/odroid-3.8.13-rt[on github].
 The maximum SPI clock of the 7i90 is documented as 50MHz. Other elements
 of the data path between HAL and the 7i90 may impose other limitations.
 
+== NOTE
+
+This driver has been superseded for most purposes by the hm2_spix driver.
+
 == SEE ALSO
 
 hostmot2(9)
+hm2_spix(9)
 
 == LICENSE
 

@@ -67,7 +67,7 @@ static char the_command_args[LINELEN] = { 0 };	// just the args part
 
 class Canterp : public InterpBase {
 public:
-    Canterp () : f(0) {}
+    Canterp () : f(0), filename{} {}
     char *error_text(int errcode, char *buf, size_t buflen) override;
     char *stack_name(int index, char *buf, size_t buflen) override;
     char *line_text(char *buf, size_t buflen) override;
@@ -586,7 +586,7 @@ int Canterp::execute(const char *line) {
     }
 
     if (!strcmp(the_command_name, "ORIENT_SPINDLE")) {
-	if (3 != sscanf(the_command_args, "%d %lf %s", &i1, &d1, s1)) {
+	if (3 != sscanf(the_command_args, "%d %lf %255s", &i1, &d1, s1)) {
 	    return INTERP_ERROR;
 	}
 	if (!strcmp(s1, "CANON_CLOCKWISE")) {

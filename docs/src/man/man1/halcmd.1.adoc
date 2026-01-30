@@ -66,7 +66,7 @@ used to read commands from a file, *halcmd* reads each line of the file
 as a new command. Anything following '*#*' on a line is a comment.
 
 *loadrt* _modname_::
- (short for _load_ __r__eal__t__ime module)
+ (short for "load realtime module")
  Loads a realtime HAL module called _modname_.
  *halcmd* looks for the module in a directory specified at compile time.
 
@@ -141,7 +141,7 @@ requested component with a call to *dlopen(3)*.
   (OBSOLETE - use *net* instead) (_link_ __p__in to __s__ignal)
   Establishes a link between a HAL component pin _pinname_ and a HAL
   signal _signame_. Any previous link to _pinname_ will be broken.
-  _arrow_ can be "*=>*", "*<=*", "*<=>*", or omitted. *halcmd* ignores
+  _arrow_ can be "`=>`", "`<=`", "`<=>`", or omitted. *halcmd* ignores
   arrows, but they can be useful in command files to document the
   direction of data flow. Arrows should not be used on the command line
   since the shell might try to interpret them. Fails if either _pinname_
@@ -214,34 +214,34 @@ _pinname_ *=* _value_::
   commands can be redirected to a file and later executed using *halcmd
   -f* to restore the saved configuration. _item_ can be one of the
   following:
-
++
 "*comp*" generates a *loadrt* command for realtime component.
-
++
 "*alias*" generates an *alias* command for each pin or parameter alias pairing
-
++
 "*sig*" (or "*signal*") generates a *newsig* command for each signal,
 and "*sigu*" generates a *newsig* command for each unlinked signal (for
 use with *netl* and *netla*).
-
++
 "*link*" and "*linka*" both generate *linkps* commands for each link.
 (*linka* includes arrows, while *link* does not.)
-
++
 "*net*" and "*neta*" both generate one *newsig* command for each signal,
 followed by *linksp* commands for each pin linked to that signal.
 (*neta* includes arrows.)
-
++
 "*netl*" generates one *net* command for each linked signal, and
 "*netla*" (or "*netal*") generates a similar command using arrows.
-
++
 "*param*" (or "*parameter*) "generates one *setp* command for each parameter.
-
++
 "*thread*" generates one *addf* command for each function in each
 realtime thread.
-
++
 "*unconnectedinpins*" generates a setp command for each unconnected HAL input pin.
-
-If _item_ is *allu*), *save* does the equivalent of *comp*, *alias*, *sigu*, *netla*, *param*, *thread*, and *unconnectedinpins*.
-
++
+If _item_ is *allu*, *save* does the equivalent of *comp*, *alias*, *sigu*, *netla*, *param*, *thread*, and *unconnectedinpins*.
++
 If _item_ is omitted (or *all*), *save* does the equivalent of *comp*, *alias*, *sigu*, *netla*, *param*, and *thread*.
 
 *source* _filename.hal_::

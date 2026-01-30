@@ -122,79 +122,81 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
     outNgc = open(fNgc, 'w')
     inWiz = open(fNgcBkp, 'r')
     for line in inWiz:
-        if '(new conversational file)' in line:
-            if('\\n') in preAmble:
-                outNgc.write('(preamble)\n')
-                for l in preAmble.split('\\n'):
-                    outNgc.write(f'{l}\n')
-            else:
-                outNgc.write(f'\n{preAmble} (preamble)\n')
-            break
-        elif '(postamble)' in line:
-            break
-        elif 'm2' in line.lower() or 'm30' in line.lower():
-            continue
-        outNgc.write(line)
+        line = line.strip()
+        if line and line[0] not in ';':
+            if '(new conversational file)' in line:
+                if('\\n') in preAmble:
+                    outNgc.write('(preamble)\n')
+                    for l in preAmble.split('\\n'):
+                        outNgc.write(f'{l}\n')
+                else:
+                    outNgc.write(f'\n{preAmble} (preamble)\n')
+                break
+            elif '(postamble)' in line:
+                break
+            elif 'M2' in line.upper() or 'M02' in line.upper() or 'M30' in line.upper():
+                continue
+        outNgc.write(f"{line}\n")
     outTmp.write(f'\n(conversational star {points})\n')
     outTmp.write(f';using material #{matNumber}: {matName}\n')
     outTmp.write(f'M190 P{matNumber}\n')
     outTmp.write('M66 P3 L3 Q1\n')
-    outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+    outTmp.write('F#<_hal[plasmac.cut-feed-rate]>\n')
     if isExternal:
         if leadinLength > 0:
             lAngle = math.atan2(pList[0][1] - pList[-1][1],
                                 pList[0][0] - pList[-1][0])
             xlStart = pList[0][0] + leadinLength * math.cos(lAngle)
             ylStart = pList[0][1] + leadinLength * math.sin(lAngle)
-            outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
-            outTmp.write('m3 $0 s1\n')
-            outTmp.write(f'g1 x{pList[0][0]} y{pList[0][1]}\n')
+            outTmp.write(f'G00 X{xlStart:.6f} Y{ylStart:.6f}\n')
+            outTmp.write('M03 $0 S1\n')
+            outTmp.write(f'G01 X{pList[0][0]} Y{pList[0][1]}\n')
         else:
-            outTmp.write(f'g0 x{pList[0][0]} y{pList[0][1]}\n')
-            outTmp.write('m3 $0 s1\n')
+            outTmp.write(f'G00 X{pList[0][0]} Y{pList[0][1]}\n')
+            outTmp.write('M03 $0 S1\n')
         for i in range(points * 2, 0, -1):
-            outTmp.write(f'g1 x{pList[i - 1][0]} y{pList[i - 1][1]}\n')
+            outTmp.write(f'G01 X{pList[i - 1][0]} Y{pList[i - 1][1]}\n')
         if leadoutLength > 0:
             lAngle = math.atan2(pList[0][1] - pList[1][1],
                                 pList[0][0] - pList[1][0])
             xlEnd = pList[0][0] + leadoutLength * math.cos(lAngle)
             ylEnd = pList[0][1] + leadoutLength * math.sin(lAngle)
-            outTmp.write(f'g1 x{xlEnd:.6f} y{ylEnd:.6f}\n')
+            outTmp.write(f'G01 X{xlEnd:.6f} Y{ylEnd:.6f}\n')
     else:
         if leadinLength > 0:
             lAngle = math.atan2(pList[-1][1] - pList[0][1],
                                 pList[-1][0] - pList[0][0])
             xlStart = pList[points * 2 - 1][0] + leadinLength * math.cos(lAngle)
             ylStart = pList[points * 2 - 1][1] + leadinLength * math.sin(lAngle)
-            outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
-            outTmp.write('m3 $0 s1\n')
-            outTmp.write(f'g1 x{pList[points * 2 - 1][0]} y{pList[points * 2 - 1][1]}\n')
-            outTmp.write(f'g1 x{pList[0][0]} y{pList[0][1]}\n')
+            outTmp.write(f'G00 X{xlStart:.6f} Y{ylStart:.6f}\n')
+            outTmp.write('M03 $0 S1\n')
+            outTmp.write(f'G01 X{pList[points * 2 - 1][0]} Y{pList[points * 2 - 1][1]}\n')
+            outTmp.write(f'G01 X{pList[0][0]} Y{pList[0][1]}\n')
         else:
-            outTmp.write(f'g0 x{pList[points * 2 - 1][0]} y{pList[points * 2 - 1][1]}\n')
-            outTmp.write('m3 $0 s1\n')
-            outTmp.write(f'g1 x{pList[0][0]} y{pList[0][1]}\n')
+            outTmp.write(f'G00 X{pList[points * 2 - 1][0]} Y{pList[points * 2 - 1][1]}\n')
+            outTmp.write('M03 $0 S1\n')
+            outTmp.write(f'G01 X{pList[0][0]} Y{pList[0][1]}\n')
         for i in range(1, points * 2):
-            outTmp.write(f'g1 x{pList[i][0]} y{pList[i][1]}\n')
+            outTmp.write(f'G01 X{pList[i][0]} Y{pList[i][1]}\n')
         if leadoutLength > 0:
             lAngle = math.atan2(pList[-1][1] - pList[-2][1],
                                 pList[-1][0] - pList[-2][0])
             xlEnd = pList[-1][0] + leadoutLength * math.cos(lAngle)
             ylEnd = pList[-1][1] + leadoutLength * math.sin(lAngle)
-            outTmp.write(f'g1 x{xlEnd:.6f} y{ylEnd:.6f}\n')
-    outTmp.write('m5 $0\n')
+            outTmp.write(f'G01 X{xlEnd:.6f} Y{ylEnd:.6f}\n')
+    outTmp.write('M05 $0\n')
     outTmp.close()
     outTmp = open(fTmp, 'r')
     for line in outTmp:
         outNgc.write(line)
     outTmp.close()
     if('\\n') in postAmble:
-        outNgc.write('(postamble)\n')
+        outNgc.write('\n(postamble)\n')
         for l in postAmble.split('\\n'):
             outNgc.write(f'{l}\n')
     else:
         outNgc.write(f'\n{postAmble} (postamble)\n')
-    outNgc.write('m2\n')
+    outNgc.write('M02\n')
     outNgc.close()
     return False
 

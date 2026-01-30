@@ -182,6 +182,10 @@ class CMS {
       CMS(const char *bufline, const char *procline, int set_to_server = 0);
       virtual ~ CMS();
 
+    // Don't copy me.
+    CMS(const CMS & cms) = delete;
+    CMS& operator=(const CMS & cms) = delete;
+
     /* Simple read/write interface functions. */
     virtual CMS_STATUS clear();	/* Has the buffer been read recently? */
     virtual int check_if_read();	/* Has the buffer been read recently? 
@@ -456,6 +460,7 @@ class CMS {
     CMS_DIAG_PROC_INFO *dpi;
     virtual CMS_DIAG_PROC_INFO *get_diag_proc_info();
     virtual void set_diag_proc_info(CMS_DIAG_PROC_INFO *);
+    // cppcheck-suppress virtualCallInConstructor
     virtual void setup_diag_proc_info();
     virtual void calculate_and_store_diag_info(PHYSMEM_HANDLE * _handle,
 	void *);
@@ -477,10 +482,6 @@ class CMS {
     int last_id_side1;
     int use_autokey_for_connection_number;
     /* RCS_CMD_MSG, RCS_STAT_MSG stuff */
-
-  private:
-      CMS(CMS & cms);		// Don't copy me.
-
 };
 
 class CMS_HOST_ALIAS_ENTRY {

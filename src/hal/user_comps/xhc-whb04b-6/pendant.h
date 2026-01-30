@@ -227,6 +227,7 @@ public:
     const KeyCode                           percent_60;
     const KeyCode                           percent_100;
     const KeyCode                           lead;
+    const KeyCode                           lead9B;
     const KeyCode                           undefined;
     const std::map<uint8_t, const KeyCode*> codeMap;
 

@@ -40,7 +40,7 @@ AUX_PRGM = Aux_program_loader()
 LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class ActionButton(IndicatedPushButton):
     def __init__(self, parent=None):
@@ -48,6 +48,7 @@ class ActionButton(IndicatedPushButton):
         self._block_signal = False
         self._designer_block_signal = False
         self._designer_running = False
+        self._no_action = False
         self.estop = False
         self.machine_on = False
         self.home = False
@@ -64,6 +65,7 @@ class ActionButton(IndicatedPushButton):
         self.macro_dialog = False
         self.origin_offset_dialog = False
         self.tool_offset_dialog = False
+        self.tool_chooser_dialog = False
         self.camview_dialog = False
         self.machine_log_dialog = False
         self.jog_joint_pos = False
@@ -107,7 +109,7 @@ class ActionButton(IndicatedPushButton):
         self.exit = False
         self.template_label = False
         self.lathe_mirror_x = False
-
+        self.home_no_unhome = False
         self.toggle_float = False
         self._toggle_state = 0
         self.joint = -1
@@ -276,7 +278,7 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('all-homed', lambda w: self._safecheck(True))
 
         elif self.camview_dialog or self.macro_dialog or self.origin_offset_dialog or \
-                self.tool_offset_dialog:
+                self.tool_offset_dialog or self.tool_chooser_dialog:
             pass
         elif self.jog_joint_pos or self.jog_joint_neg or \
                     self.jog_selected_pos or self.jog_selected_neg:
@@ -366,7 +368,8 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('state-on', lambda w: self._safecheck(True))
             STATUS.connect('state-off', lambda w: self._safecheck(False))
         elif self.view_change:
-            pass
+            if self.view_type.lower() in('x', 'y', 'y2', 'z', 'z2', 'p'):
+                STATUS.connect('graphics-view-changed', lambda w,v,d: self.view_check(v))
         elif self.spindle_fwd or self.spindle_rev or self.spindle_up or self.spindle_down:
             STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
             STATUS.connect('mode-mdi', lambda w: self.setEnabled(False))
@@ -430,6 +433,8 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
+        elif self._no_action:
+            pass
 
         # connect a signal and callback function to the button
         if self.isCheckable():
@@ -448,13 +453,21 @@ class ActionButton(IndicatedPushButton):
             self.setText(None)
         self._block_signal = False
 
+    def view_check(self,data):
+        if data.lower() == self.view_type.lower():
+            self._safecheck(True)
+        else:
+            self._safecheck(False)
+
     ###################################
     # Here we do the actions
     ###################################
     def action(self, state=None):
         # don't do anything if the signal is blocked
         if self._block_signal: return
-        if self.estop:
+        if self._no_action:
+            pass
+        elif self.estop:
             if self.isCheckable():
                 if STATUS.estop_is_clear():
                     ACTION.SET_ESTOP_STATE(STATUS.STATE_ESTOP)
@@ -473,15 +486,19 @@ class ActionButton(IndicatedPushButton):
                 if state:
                     ACTION.SET_MACHINE_HOMING(self.joint)
                 else:
-                    ACTION.SET_MACHINE_UNHOMED(self.joint)
+                    if not self.home_no_unhome:
+                        ACTION.SET_MACHINE_UNHOMED(self.joint)
             else:
                 if self.joint == -1:
                     if STATUS.is_all_homed():
-                        ACTION.SET_MACHINE_UNHOMED(-1)
+                        if not self.home_no_unhome:
+                            ACTION.SET_MACHINE_UNHOMED(-1)
                     else:
                         ACTION.SET_MACHINE_HOMING(-1)
                 elif STATUS.is_joint_homed(self.joint):
-                    ACTION.SET_MACHINE_UNHOMED(self.joint)
+                    if not self.home_no_unhome:
+                        ACTION.SET_MACHINE_UNHOMED(self.joint)
+                    pass
                 else:
                     ACTION.SET_MACHINE_HOMING(self.joint)
         elif self.unhome:
@@ -510,6 +527,8 @@ class ActionButton(IndicatedPushButton):
             STATUS.emit('dialog-request', {'NAME':'ORIGINOFFSET', 'ID':'_%s_'% self.objectName()})
         elif self.tool_offset_dialog:
             STATUS.emit('dialog-request', {'NAME':'TOOLOFFSET', 'ID':'_%s_'% self.objectName()})
+        elif self.tool_chooser_dialog:
+            STATUS.emit('dialog-request', {'NAME':'TOOLCHOOSER', 'ID':'_%s_'% self.objectName()})
         elif self.zero_axis:
             axis = self.axis
             if axis == '':
@@ -521,7 +540,7 @@ class ActionButton(IndicatedPushButton):
                 except IndexError:
                     LOG.error("can't zero origin for specified joint {}".format(self.joint))
             ACTION.SET_AXIS_ORIGIN(axis, 0)
-            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME')
+            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME,SUCCESS')
         elif self.zero_g5x:
             ACTION.ZERO_G5X_OFFSET(0)
         elif self.zero_g92:
@@ -684,17 +703,25 @@ class ActionButton(IndicatedPushButton):
             self.command_text = str(self.command_text)
             LOG.debug("MDI STRING COMMAND: {}".format(self.command_text))
             ACTION.CALL_MDI(self.command_text)
+
         elif self.ini_mdi_command:
             # we prefer named INI MDI commands:
             if not self.ini_mdi_keystring == '' and \
                     not INFO.get_ini_mdi_command(self.ini_mdi_keystring) is None:
                 LOG.debug("INI MDI COMMAND #: {}".format(self.ini_mdi_keystring))
                 ACTION.CALL_INI_MDI(self.ini_mdi_keystring)
+
             # legacy version (nth line)
             elif not self.ini_mdi_num <0 and \
                     not INFO.get_ini_mdi_command(self.ini_mdi_num) is None:
                 LOG.debug("INI MDI COMMAND #: {}".format(self.ini_mdi_num))
                 ACTION.CALL_INI_MDI(self.ini_mdi_num)
+
+            # set the indicator that the MDI command is running
+            # if the indicator option is turned on and a command is started running
+            if not STATUS.get_current_command() == '':
+                if self._is_mdi_command_finished:
+                    self._watch_command_flag = True
 
         elif self.dro_absolute:
             STATUS.emit('dro-reference-change-request', 0)
@@ -716,7 +743,7 @@ class ActionButton(IndicatedPushButton):
             if state is not None:
                 self.safecheck(state)
             if not self._python_command:
-                LOG.error('No action recognised')
+                LOG.debug('No action recognised for {}'.format(self.objectName()))
 
 
         # This is check after because action buttons can do an action plus
@@ -878,13 +905,22 @@ class ActionButton(IndicatedPushButton):
                 'launch_calibration',
                  'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot',
                  'origin_offset_dialog', 'run_from_status', 'run_from_slot',
-                 'lathe_mirror_x')
+                 'tool_chooser_dialog', 'lathe_mirror_x', 'no')
 
         for i in data:
             if not i == picked:
                 self[i+'_action'] = False
 
     # BOOL VARIABLES----------------------
+    def set_no_action(self, data):
+        self._no_action = data
+        if data:
+            self._toggle_properties('no')
+    def get_no_action(self):
+        return self._no_action
+    def reset_no_action(self):
+        self._no_action = False
+
     def set_estop(self, data):
         self.estop = data
         if data:
@@ -1011,6 +1047,15 @@ class ActionButton(IndicatedPushButton):
         return self.tool_offset_dialog
     def reset_tool_offset_dialog(self):
         self.tool_offset_dialog = False
+
+    def set_tool_chooser_dialog(self, data):
+        self.tool_chooser_dialog = data
+        if data:
+            self._toggle_properties('tool_chooser_dialog')
+    def get_tool_chooser_dialog(self):
+        return self.tool_chooser_dialog
+    def reset_tool_chooser_dialog(self):
+        self.tool_chooser_dialog = False
 
     def set_camview_dialog(self, data):
         self.camview_dialog = data
@@ -1422,6 +1467,14 @@ class ActionButton(IndicatedPushButton):
     def reset_lathe_mirror_x(self):
         self.lathe_mirror_x = False
 
+    def set_home_no_unhome(self, data):
+        self.home_no_unhome = data
+    def get_home_no_unhome(self):
+        return self.home_no_unhome
+    def reset_home_no_unhome(self):
+        self.home_no_unhome = False
+
+
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -1503,6 +1556,7 @@ class ActionButton(IndicatedPushButton):
 
     # designer will show these properties in this order:
     # BOOL
+    no_action = QtCore.pyqtProperty(bool, get_no_action, set_no_action, reset_no_action)
     estop_action = QtCore.pyqtProperty(bool, get_estop, set_estop, reset_estop)
     machine_on_action = QtCore.pyqtProperty(bool, get_machine_on, set_machine_on, reset_machine_on)
     auto_action = QtCore.pyqtProperty(bool, get_auto, set_auto, reset_auto)
@@ -1523,6 +1577,9 @@ class ActionButton(IndicatedPushButton):
     tool_offset_dialog_action = QtCore.pyqtProperty(bool,
                                                       get_tool_offset_dialog, set_tool_offset_dialog,
                                                       reset_tool_offset_dialog)
+    tool_chooser_dialog_action = QtCore.pyqtProperty(bool,
+                                                      get_tool_chooser_dialog, set_tool_chooser_dialog,
+                                                      reset_tool_chooser_dialog)
     macro_dialog_action = QtCore.pyqtProperty(bool, get_macro_dialog, set_macro_dialog, reset_macro_dialog)
     launch_halmeter_action = QtCore.pyqtProperty(bool, get_launch_halmeter, set_launch_halmeter, reset_launch_halmeter)
     launch_status_action = QtCore.pyqtProperty(bool, get_launch_status, set_launch_status, reset_launch_status)
@@ -1567,6 +1624,9 @@ class ActionButton(IndicatedPushButton):
     machine_log_dialog_action = QtCore.pyqtProperty(bool, get_machine_log_dialog, set_machine_log_dialog, reset_machine_log_dialog)
     lathe_mirror_x_action = QtCore.pyqtProperty(bool, get_lathe_mirror_x, set_lathe_mirror_x, reset_lathe_mirror_x)
 
+
+    home_no_unhome_option = QtCore.pyqtProperty(bool, get_home_no_unhome, set_home_no_unhome, reset_home_no_unhome)
+
     def set_template_label(self, data):
         self.template_label = data
     def get_template_label(self):
@@ -1574,6 +1634,7 @@ class ActionButton(IndicatedPushButton):
     def reset_template_label(self):
         self.template_label = False
     template_label_option = QtCore.pyqtProperty(bool, get_template_label, set_template_label, reset_template_label)
+
 
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)

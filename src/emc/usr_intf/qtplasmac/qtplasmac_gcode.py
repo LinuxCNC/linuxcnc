@@ -2,7 +2,7 @@
 '''
 plasmac_gcode.py
 
-Copyright (C) 2019 - 2024 Phillip A Carter
+Copyright (C) 2019 - 2025 Phillip A Carter
 Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,8 @@ import math
 import shutil
 import time
 from subprocess import run as RUN
+from shutil import copy as COPY
+import plasmac.block as CONVERT
 
 INI = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 DIR = os.path.dirname(os.environ['INI_FILE_NAME'])
@@ -39,11 +41,10 @@ else:
     from PyQt5.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLayout, QLabel, QPushButton, QStyle, QFrame
     GUI = 'qtplasmac'
 
-
 class Filter():
     def __init__(self, *args):
         super().__init__()
-        self.inFile = sys.argv[1]
+        self.inFile = args[0][1]
         # run-from-line files do not require processing
         if os.path.basename(self.inFile) == 'rfl.ngc':
             with open(self.inFile, 'r') as inLines:
@@ -65,10 +66,9 @@ class Filter():
         self.currentMat = int(response.stdout.decode())
         response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output=True)
         zMaxOffset = float(response.stdout.decode())
-        RUN(['halcmd', 'setp', self.convBlockPin, '0'])
         RUN(['halcmd', 'setp', 'plasmac.tube-cut', '0'])
         self.metric = ['mm', 4]
-        self.imperial = ['in', 6]
+        self.imperial = ['in', 5]
         self.units, self.fmt = self.imperial if INI.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else self.metric
         if self.units == 'mm':
             self.minDiameter = 32
@@ -113,7 +113,6 @@ class Filter():
         self.zBypass = False
         self.tubeCut = False
         self.pathBlend = False
-        self.convBlock = {'active': False, 'setup': False}
         self.firstMove = False
         self.subList = []
         self.pierceList = {'active': False, 'X': [], 'Y': []}
@@ -135,6 +134,8 @@ class Filter():
         self.errorFirstMove = []
         self.errorLines = []
         self.errorG92Offset = []
+        self.errorBlockHead = []
+        self.errorBlockFormat = []
         self.codeWarn = False
         self.warnings = 'The following warnings may affect the quality of the process.\n'
         self.warnings += 'It is recommended that all warnings are fixed before running this file.\n'
@@ -147,6 +148,24 @@ class Filter():
         self.warnCompVel = []
         self.warnFeed = []
         self.warnChar = []
+       # if this is a conversational block file and it is not a current version then upgrade it
+        with open(self.inFile, 'r') as inLines:
+            line = inLines.readline().strip()
+            if line[:21] == ';conversational block':
+                if line == ';conversational block':
+                    inputs, preCode, gCode, postCode = CONVERT.convert_v1_code(self.inFile)
+                    if gCode:
+                        name, ext = os.path.splitext(self.inFile)
+                        COPY(self.inFile, f'{name}_conv_block_v1{ext}')
+                        CONVERT.write_block(self.inFile, inputs, preCode, gCode, postCode)
+                    else:
+                        self.set_code_error()
+                        self.errorBlockFormat.append(1)
+                        self.errorLines.append(1)
+                elif line[22:24] != 'V2':
+                    self.set_code_error()
+                    self.errorBlockHead.append(0)
+                    self.errorLines.append(0)
         # create a dict of material numbers and kerf widths
         self.get_materials()
         # setup for custom filtering
@@ -165,12 +184,8 @@ class Filter():
             self.gcodeList.append('M02 (END)')
         # remove last G00 coordinates if no pierce afterwards
         if self.pierceList['active']:
-            if self.convBlock['active']:
-                elements = self.convBlock['array_columns'] * self.convBlock['array_rows']
-            else:
-                elements = 1
-            del self.pierceList['X'][-elements:]
-            del self.pierceList['Y'][-elements:]
+            del self.pierceList['X'][-1:]
+            del self.pierceList['Y'][-1:]
             self.pierceList['active'] = False
         # write the pierce extents hal pins
         if GUI == 'axis':
@@ -192,50 +207,41 @@ class Filter():
         # write the final g-code
         self.write_gcode()
 
+
+    def log(self, text):
+        ''' helpful for debugging '''
+        with open('/tmp/qtplasmac/filter.log', 'a') as logger:
+            logger.write(f"{text}\n")
+
+
     def process_file(self):
         ''' process the file and parse any lines of code
         '''
         with open(self.inFile, 'r') as inLines:
+            lines = inLines.readlines()
+            text = ';qtplasmac filtered G-code file\n'
+            # no need to process an already filtered file
+            if text in lines:
+                for line in lines:
+                    self.gcodeList.append(line.strip())
+                return
+        with open(self.inFile, 'r') as inLines:
             for line in inLines:
                 self.lineNum += 1
                 self.lineNumOrg += 1
+                # if conversational block header is found on any line other than #1 then it is an error
+                if ';conversational block' in line and self.lineNum > 1:
+                    self.gcodeList.append(line.strip())
+                    self.gcodeList.append('; move the line above to line #1\n')
+                    self.set_code_error()
+                    self.errorBlockHead.append(self.lineNum)
+                    self.errorLines.append(self.lineNumOrg)
+                    return
                 # allow custom processing before standard processing
                 if self.cfFile:
                     line = self.custom_pre_process(line)
                     if not line:
                         continue
-                # get conversational block information if required
-                if self.convBlock['active']:
-                    if line.startswith('#<array_columns>'):
-                        self.convBlock['array_columns'] = int(line.split('=')[1].strip())
-                    elif line.startswith('#<array_rows>'):
-                        self.convBlock['array_rows'] = int(line.split('=')[1].strip())
-                    elif line.startswith('#<array_x_offset>'):
-                        self.convBlock['array_x_offset'] = float(line.split('=')[1].strip())
-                    elif line.startswith('#<array_y_offset>'):
-                        self.convBlock['array_y_offset'] = float(line.split('=')[1].strip())
-                    elif line.startswith('#<array_columns>'):
-                        self.convBlock['array_columns'] = int(line.split('=')[1].strip())
-                    elif line.startswith('#<array_rows>'):
-                        self.convBlock['array_rows'] = int(line.split('=')[1].strip())
-                    elif line.startswith('#<origin_x_offset>'):
-                        self.convBlock['origin_x_offset'] = float(line.split('=')[1].strip())
-                    elif line.startswith('#<origin_y_offset>'):
-                        self.convBlock['origin_y_offset'] = float(line.split('=')[1].strip())
-                    elif line.startswith('#<array_angle>'):
-                        self.convBlock['array_angle'] = float(line.split('=')[1].strip())
-                    elif line.startswith('#<blk_scale>'):
-                        self.convBlock['blk_scale'] = float(line.split('=')[1].strip())
-                    elif line.startswith('#<shape_angle>'):
-                        self.convBlock['shape_angle'] = float(line.split('=')[1].strip())
-                    elif line.startswith('#<shape_mirror>'):
-                        self.convBlock['shape_mirror'] = int(line.split('=')[1].strip())
-                    elif line.startswith('#<shape_flip>'):
-                        self.convBlock['shape_flip'] = int(line.split('=')[1].strip())
-                # check if original is a conversational block
-                if line.startswith(';conversational block'):
-                    self.convBlock['active'] = True
-                    RUN(['halcmd', 'setp', self.convBlockPin, '1'])
                 # remove leading and trailing whitespace and trailing periods
                 line = line.strip().rstrip('.')
                 # if empty line then no need to process
@@ -303,44 +309,6 @@ class Filter():
                         self.lastX, self.lastY = self.set_last_coordinates(line, self.lastX, self.lastY)
                     self.gcodeList.append(line)
 
-    def conv_block_setup(self):
-        ''' find the zero point for the four extreme blocks '''
-        sinX = self.convBlock['array_x_offset'] * self.convBlock['blk_scale'] * math.sin(math.radians(self.convBlock['array_angle']))
-        cosX = self.convBlock['array_x_offset'] * self.convBlock['blk_scale'] * math.cos(math.radians(self.convBlock['array_angle']))
-        sinY = self.convBlock['array_y_offset'] * self.convBlock['blk_scale'] * math.sin(math.radians(self.convBlock['array_angle']))
-        cosY = self.convBlock['array_y_offset'] * self.convBlock['blk_scale'] * math.cos(math.radians(self.convBlock['array_angle']))
-        cols = self.convBlock['array_columns'] - 1
-        rows = self.convBlock['array_rows'] - 1
-        self.convBlock['zero00X'] = (0 * cosX) - (0 * sinY) + self.convBlock['origin_x_offset']
-        self.convBlock['zero00Y'] = (0 * cosY) + (0 * sinX) + self.convBlock['origin_y_offset']
-        self.convBlock['zero01X'] = (0 * cosX) - (rows * sinY) + self.convBlock['origin_x_offset']
-        self.convBlock['zero01Y'] = (rows * cosY) + (0 * sinX) + self.convBlock['origin_y_offset']
-        self.convBlock['zero10X'] = (cols * cosX) - (0 * sinY) + self.convBlock['origin_x_offset']
-        self.convBlock['zero10Y'] = (0 * cosY) + (cols * sinX) + self.convBlock['origin_y_offset']
-        self.convBlock['zero11X'] = (cols * cosX) - (rows * sinY) + self.convBlock['origin_x_offset']
-        self.convBlock['zero11Y'] = (rows * cosY) + (cols * sinX) + self.convBlock['origin_y_offset']
-        self.convBlock['setup'] = True
-
-    def conv_block_pierce(self, data):
-        ''' find the pierce points for the four extreme blocks'''
-        x = self.get_axis_value(data, 'X', True)
-        y = self.get_axis_value(data, 'Y', True)
-        if x is not None and y is not None:
-            x = x * self.convBlock['shape_mirror']
-            y = y * self.convBlock['shape_flip']
-            cos_ = math.cos(math.radians(self.convBlock['array_angle'] + self.convBlock['shape_angle']))
-            sin_ = math.sin(math.radians(self.convBlock['array_angle'] + self.convBlock['shape_angle']))
-            for point in ['00', '01', '10', '11']:
-                pierceX = (x * cos_ - y * sin_) + self.convBlock[f'zero{point}X']
-                pierceY = (x * sin_ + y * cos_) + self.convBlock[f'zero{point}Y']
-                self.pierceList['X'].append(pierceX)
-                self.pierceList['Y'].append(pierceY)
-            self.pierceList['active'] = True
-        else:
-            self.codeWarn = True
-            if self.lineNum not in self.warnPierceLimit:
-                self.warnPierceLimit.append(self.lineNum)
-                self.errorLines.append(self.lineNumOrg)
 
     def parse_code(self, data):
         # set g and m codes to upper case
@@ -369,20 +337,15 @@ class Filter():
         data = tmp
         # get all G00 coordinates
         if (data[:3] == 'G00' and ('X' in data or 'Y' in data)):
-            if self.convBlock['active']:
-                if not self.convBlock['setup']:
-                    self.conv_block_setup()
-                self.conv_block_pierce(data)
-            else:
-                pierceX = self.lastX
-                pierceY = self.lastY
-                if 'X' in data and not self.check_math(data, 'X', 'pierce'):
-                    pierceX = self.get_axis_value(data, 'X')
-                if 'Y' in data and not self.check_math(data, 'Y', 'pierce'):
-                    pierceY = self.get_axis_value(data, 'Y')
-                self.pierceList['X'].append(pierceX)
-                self.pierceList['Y'].append(pierceY)
-                self.pierceList['active'] = True
+            pierceX = self.lastX
+            pierceY = self.lastY
+            if 'X' in data and not self.check_math(data, 'X', 'pierce'):
+                pierceX = self.get_axis_value(data, 'X')
+            if 'Y' in data and not self.check_math(data, 'Y', 'pierce'):
+                pierceY = self.get_axis_value(data, 'Y')
+            self.pierceList['X'].append(pierceX)
+            self.pierceList['Y'].append(pierceY)
+            self.pierceList['active'] = True
         # reset G00 active flag
         if data[:3] == 'M03' and self.pierceList['active']:
             self.pierceList['active'] = False
@@ -405,10 +368,10 @@ class Filter():
         if data.replace(' ', '').startswith('#<keep-z-motion>='):
             self.set_keep_z_motion(data)
         # remove any existing z max moves
-        if '[#<_ini[axis_z]max_limit>' in data:  # and self.zSetup:
+        if '[#<_ini[axis_z]max_limit>' in data and not self.zBypass:  # and self.zSetup:
             return(None)
         # set first movement flag
-        if not self.firstMove and (('G00' in data or 'G01' in data) and ('X' in data or 'Y' in data)):
+        if not self.firstMove and not self.zBypass and (('G00' in data or 'G01' in data) and ('X' in data or 'Y' in data)):
             self.set_first_move()
         # is there an m3 before motion started
         if not self.firstMove and 'M03' in data:
@@ -537,9 +500,6 @@ class Filter():
 
     def get_axis_value(self, data, axis, block=False):
         tmp1 = data.split(axis)[1].replace(' ', '')
-        # we can use default math in conversational block code
-        if block and tmp1[0] == '[':
-            tmp1 = tmp1[1:]
         # if first char is not valid return None
         if not tmp1[0].isdigit() and not tmp1[0] == '.' and not tmp1[0] == '-':
             return None
@@ -700,8 +660,8 @@ class Filter():
         self.firstMove = True
         if not self.zSetup and not self.zBypass:
             self.lineNum += 1
-            moveTopZ = 'G53 G0 Z[[#<_ini[axis_z]max_limit> - '
-            moveTopZ += f'{self.offsetTopZ}] * {self.unitMultiplier:.3f}]'
+            moveTopZ = 'G53 G00 Z[[#<_ini[axis_z]max_limit> - '
+            moveTopZ += f'{self.offsetTopZ:0.{self.fmt}f}] * {self.unitMultiplier:0.{self.fmt}f}]'
             moveTopZ += ' (Z just below max height)'
             self.gcodeList.append(moveTopZ)
             self.zSetup = True
@@ -888,7 +848,7 @@ class Filter():
         matFeed = float(self.materialDict[self.currentMaterial[0]][0]) * self.unitMultiplier
         # this may need scaling ...
         diff = 1
-        if (codeFeed < matFeed - diff or codeFeed > matFeed + diff):
+        if (codeFeed < matFeed - diff or codeFeed > matFeed + diff) and matFeed != 0:
             self.codeWarn = True
             self.warnFeed.append([self.lineNum, rawFeed, self.currentMaterial[0], self.materialDict[self.currentMaterial[0]][0]])
             self.errorLines.append(self.lineNumOrg)
@@ -947,7 +907,6 @@ class Filter():
             self.tmpPath = '/tmp/plasmac'
             self.cutTypePin = 'axisui.cut-type'
             self.matNumPin = 'axisui.material-change-number'
-            self.convBlockPin = 'axisui.conv-block-loaded'
             self.matTmpPin = 'axisui.material-temp'
             self.matReloadPin = 'axisui.material-reload'
         else:
@@ -955,7 +914,6 @@ class Filter():
             self.tmpPath = '/tmp/qtplasmac'
             self.cutTypePin = 'qtplasmac.cut_type'
             self.matNumPin = 'qtplasmac.material_change_number'
-            self.convBlockPin = 'qtplasmac.conv_block_loaded'
             self.matTmpPin = 'qtplasmac.material_temp'
             self.matReloadPin = 'qtplasmac.material_reload'
 
@@ -963,7 +921,7 @@ class Filter():
 # HOLES AND ARCS
 ##############################################################################
     def do_arc(self, data):
-        if self.holeEnable and not self.convBlock['active']:
+        if self.holeEnable:
             stop = False
             # check if we can read the values correctly
             if 'X' in data:
@@ -1061,7 +1019,7 @@ class Filter():
             elif not self.holeActive:
                 if diameter <= self.minDiameter:
                     self.lineNum += 1
-                    self.gcodeList.append(f'M67 E3 Q{self.holeVelocity} (arc diameter:{diameter:0.3f}, velocity:{self.holeVelocity}%)')
+                    self.gcodeList.append(f'M67 E3 Q{self.holeVelocity} (arc diameter:{diameter:0.{self.fmt}f}, velocity:{self.holeVelocity}%)')
                 self.holeActive = True
             if data[:3] == 'G02' and isHole:
                 self.codeWarn = True
@@ -1121,20 +1079,20 @@ class Filter():
         if 'X' in data and 'Y' in data:
             x = self.get_axis_value(data, 'X')
             if x is not None:
-                newData += f'X{x - self.oBurnX:0.4f}'
+                newData += f'X{x - self.oBurnX:0.{self.fmt}f}'
             y = self.get_axis_value(data, 'Y')
             if y is not None:
-                newData += f'Y{y - self.oBurnY:0.4f}'
+                newData += f'Y{y - self.oBurnY:0.{self.fmt}f}'
             return newData
         elif 'X' in data:
             x = self.get_axis_value(data, 'X')
             if x is not None:
-                newData += f'X{x - self.oBurnX:0.4f} Y{self.oBurnY:0.4f}'
+                newData += f'X{x - self.oBurnX:0.{self.fmt}f} Y{self.oBurnY:0.{self.fmt}f}'
             return newData
         elif 'Y' in data:
             y = self.get_axis_value(data, 'Y')
             if y is not None:
-                newData += f'X{self.oBurnX:0.4f} Y{y - self.oBurnY:0.4f}'
+                newData += f'X{self.oBurnX:0.{self.fmt}f} Y{y - self.oBurnY:0.{self.fmt}f}'
             return newData
         else:
             return data
@@ -1182,7 +1140,7 @@ class Filter():
         tmpMaterial = False
         newMaterial = []
         th = 0
-        kw = jh = jd = pe = gp = 0.0
+        kw = jh = jd = pe = gp = mt = 0.0
         cm = 1
         ca = 15
         cv = 100
@@ -1234,7 +1192,7 @@ class Filter():
                         elif 'jh=' in item:
                             jh = float(item.split('=')[1])
                             if self.unitMultiplier != 1:
-                                jh = ph / self.unitMultiplier
+                                jh = jh / self.unitMultiplier
                         elif 'jd=' in item:
                             jd = float(item.split('=')[1])
                         elif 'ca=' in item:
@@ -1247,7 +1205,11 @@ class Filter():
                             gp = float(item.split('=')[1])
                         elif 'cm=' in item:
                             cm = float(item.split('=')[1])
-                    for i in [nu, na, kw, th, ph, pd, jh, jd, ch, fr, ca, cv, pe, gp, cm]:
+                        elif 'mt=' in item:
+                            mt = float(item.split('=')[1])
+                            if self.unitMultiplier != 1:
+                                mt = mt / self.unitMultiplier
+                    for i in [nu, na, kw, th, ph, pd, jh, jd, ch, fr, ca, cv, pe, gp, cm, mt]:
                         newMaterial.append(i)
                     if newMaterial[0] == 0:
                         self.set_temporary_material(newMaterial)
@@ -1328,7 +1290,8 @@ class Filter():
                 self.errorLines.append(self.lineNumOrg)
                 break
             response = RUN(['halcmd', 'getp', self.matReloadPin], capture_output=True)
-            if not int(response.stdout.decode()):
+            raw = response.stdout.decode().strip().upper()
+            if raw in ['0', 'FALSE']:
                 break
 
     def write_one_material(self, mat, file, err):
@@ -1348,6 +1311,7 @@ class Filter():
             file.write(f'PAUSE_AT_END       = {mat[13]}\n')
             file.write(f'GAS_PRESSURE       = {mat[14]}\n')
             file.write(f'CUT_MODE           = {mat[15]}\n')
+            file.write(f'THICKNESS          = {mat[16]}\n')
             file.write('\n')
         except:
             self.set_code_error()
@@ -1451,6 +1415,16 @@ class Filter():
             if self.errorG92Offset:
                 msg = 'G92 offsets are not allowed.\n'
                 errorText += self.message_set(self.errorG92Offset, msg)
+            if self.errorBlockHead:
+                if self.errorLines[0] == 0:
+                    msg = 'Conversational block header is invalid.\n'
+                    errorText += self.message_set(self.errorBlockHead, msg)
+                else:
+                    errorText = f'Conversational block header must be line 1, it is currently line {self.errorLines[0]}:\n'
+            if self.errorBlockFormat:
+                msg = 'Conversational block code format is inconsistent with header or is invalid.\n'
+                errorText += self.message_set(self.errorBlockFormat, msg)
+                errorText = msg
         if self.codeWarn:
             if self.warnUnitsDep:
                 msg = '<m_diameter> and #<i_diameter> are deprecated in favour of #<h_diameter>.\n'
@@ -1480,7 +1454,7 @@ class Filter():
                 for n in range(0, len(self.warnFeed)):
                     msg0 = 'Line'
                     msg1 = 'does not match Material'
-                    msg2 = 'feed rate of '
+                    msg2 = 'feed rate of'
                     warnText += f'{msg0} {self.warnFeed[n][0]:0.0f}: F{self.warnFeed[n][1]} {msg1}_{self.warnFeed[n][2]}\'s {msg2} {self.warnFeed[n][3]:0.0f}\n'
             if self.warnChar:
                 msg = 'Invalid characters, data has been commented out.\n'

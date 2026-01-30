@@ -13,14 +13,15 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 
 from linuxcnc import OPERATOR_ERROR, NML_ERROR
-from qtvcp.core import Info, Status, Action
+from qtvcp.core import Info, Status, Action, Path
 
 INFO = Info()
 STATUS = Status()
 ACTION = Action()
+PATH = Path()
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-IMAGES = os.path.join(INFO.IMAGE_PATH, 'gcode_utility')
+IMAGES = os.path.join(PATH.IMAGEDIR, 'gcode_utility')
 
 class Preview(QtWidgets.QWidget):
     def __init__(self):
@@ -223,6 +224,14 @@ class Hole_Circle(QtWidgets.QWidget):
                 self.valid = False
         except:
             self.valid = False
+
+        try:
+            angle = (180/self.num_holes)
+            chord_length = (2 * self.radius) * math.sin(math.radians(angle))
+            self.label_chord_length.setText('{:.3f}'.format(chord_length))
+        except Exception as e:
+            print(e)
+            self.label_chord_length.setText('')
 
         try:
             self.first = float(self.lineEdit_first.text())

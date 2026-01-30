@@ -15,6 +15,8 @@ export LANGUAGES=
 
 TOPDIR="$(realpath "$(dirname "$0")/..")"
 
+# $prefix is used in the substitutions of @...@ strings below
+# shellcheck disable=SC2034
 prefix=@prefix@
 # Shellcheck does not know about substitutions
 # shellcheck disable=SC2050
@@ -54,6 +56,41 @@ clean () {
 	-print0 | xargs -0 rm -f
 }
 
+wait_for_result_close() {
+    # Test for the 'result' and 'stderr' files in the current testdir to be
+    # closed. The 'checkresult' script cannot be run if these files are still
+    # in use and would cause a race condition.
+    # This function should be called with the test's directory as CWD.
+    presult="$(realpath -e -q "./result")"
+    pstderr="$(realpath -e -q "./stderr")"
+    if [ -z "$presult" ] || [ -z "$pstderr" ]; then
+        echo "Internal error: Missing 'result' or 'stderr' in wait_for_result_close()"
+        exit 2
+    fi
+    timeoutcnt=0
+    while true; do
+        lsof -- "$presult" > /dev/null 2>&1; resresult=$?
+        lsof -- "$pstderr" > /dev/null 2>&1; resstderr=$?
+        if [ $resresult -ne 0 ] && [ $resstderr -ne 0 ]; then
+            # Neither 'result' nor 'stderr' are open anymore
+            break
+        fi
+        if [ $timeoutcnt -ge 30 ]; then
+            if [ $resresult -eq 0 ]; then
+                echo "*** Timeout waiting for 'result' file to close"
+            fi
+            if [ $resstderr -eq 0 ]; then
+                echo "*** Timeout waiting for 'stderr' file to close"
+            fi
+            echo "*** Test results may be invalid when checked."
+            return 1
+        fi
+        sleep 1
+        timeoutcnt=$((timeoutcnt + 1))
+    done
+    return 0
+}
+
 run_shell_script () {
     testname=$(basename "$1")
     testdir=$(dirname "$1")
@@ -65,6 +102,7 @@ run_shell_script () {
         bash -x "$testname" > result 2> stderr
     fi
     exitcode=$?
+    wait_for_result_close
     popd > /dev/null || exit 2
     return "$exitcode"
 }
@@ -80,6 +118,7 @@ run_executable () {
         ./"$testname" > result 2> stderr
     fi
     exitcode=$?
+    wait_for_result_close
     popd > /dev/null || exit 2
     return "$exitcode"
 }
@@ -97,6 +136,7 @@ run_without_overruns () {
             halrun -f "$testname" > result 2> stderr
         fi
         exitcode=$?
+        wait_for_result_close
         popd > /dev/null || exit 2
 
         if ! grep -q '^overrun$' "$testdir/result"; then return "$exitcode"; fi
@@ -173,11 +213,23 @@ run_tests () {
         exit 1;
     fi
 
-    find "$*" -name test.hal -or -name test.sh -or -name test \
+    find "$@" -name test.hal -or -name test.sh -or -name test \
 	| sort > "$TMPDIR/alltests"
 
     while read -r testname; do
 	testdir=$(dirname "$testname")
+        # check if there's a "musthave" file with prerequisites from config.h
+        if [ -e "$testdir/musthave" ] ; then
+            # one prerequisite per line
+            while IFS= read -r prereq ; do
+                if ! grep --quiet --regexp "^#define HAVE_$prereq.*" "$TOPDIR/src/config.h" ; then
+                    echo "Skipping test for missing prerequisite \"$prereq\": $testdir" 1>&2
+                    SKIP=$((SKIP + 1))
+                    continue 3
+                fi
+            done < "$testdir/musthave"
+        fi
+        # skip test if there's a "skip" file
 	if [ -e "$testdir/skip" ]; then
 	    if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
 		echo "Skipping disabled test: $testdir" 1>&2

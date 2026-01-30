@@ -2,7 +2,7 @@
 
 G20 (imperial units)
 G64 P0.005 (path tolerance)
-M52 P1 (enable reverse-run)
+M52 P1 (enable adaptive feed)
 
 M190 P1 (material #1)
 M66 P3 L3 Q1 (wait for material ready)

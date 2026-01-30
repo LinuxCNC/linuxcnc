@@ -523,7 +523,7 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 #
 # check for libgpiod
 #
-PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 2.0.0],
+PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 3.0.0],
             [AC_DEFINE_UNQUOTED([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`,
             [libgpiod version, undefined if not present])
             LDFLAGS="$LDFLAGS $LIBGPIOD_LIBS"
@@ -700,6 +700,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:$EMC2_HOME/configs"
+    LINUXCNC_CONFIG_PATH_TCL="$::env(HOME)/linuxcnc/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
@@ -722,6 +723,7 @@ else
 	*) EMC2_RTLIB_DIR=$MODULE_DIR/linuxcnc
     esac
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
+    LINUXCNC_CONFIG_PATH_TCL="$::env(HOME)/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=${prefix}/lib/linuxcnc/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
@@ -746,6 +748,7 @@ AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
 AC_SUBST([EMC2_LANG_DIR])
 AC_SUBST([LINUXCNC_CONFIG_PATH])
+AC_SUBST([LINUXCNC_CONFIG_PATH_TCL])
 AC_SUBST([EMC2_NCFILES_DIR])
 AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
@@ -1354,9 +1357,9 @@ if test -z "$TKCONFIG"; then
 fi
 if (test "x$TKCONFIG" = "x"); then
     # search for tkConfig.sh
-    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | sort -r | head -n1)
+    TKCONFIG=$(find /usr/lib* -maxdepth 2 -name tkConfig.sh | sort -r | head -n1)
     if (test "x$TKCONFIG" = "x"); then
-	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+	TKCONFIG=$(find /usr/local/lib* -maxdepth 2 -name tkConfig.sh | head -n1)
     fi
 fi
 
@@ -1378,6 +1381,14 @@ if ! test -z "$TCL_VERSION" && ! test -z "$TK_VERSION" && ! test "$TCL_VERSION" 
     AC_MSG_ERROR([Tcl and Tk versions must be the same, but configure found
 Tcl $TCL_VERSION and Tk $TK_VERSION.  You can use --with-tkConfig= and --with-tclConfig=
 to override the autodetected versions.])
+fi
+
+if test -z "$TCL_MAJOR_VERSION" || test -z "$TCL_MINOR_VERSION" ; then
+    AC_MSG_ERROR([tclConfig was not found or did not export TCL_MAJOR_VERSION/TCL_MINOR_VERSION. Cannot determine exact Tcl version.])
+fi
+
+if test "(" "$TCL_MAJOR_VERSION" -lt 8 ")" -o "(" "(" "$TCL_MAJOR_VERSION" -eq 8 ")" -a "(" "$TCL_MINOR_VERSION" -lt 4 ")" ")" ; then
+    AC_MSG_ERROR([Tcl version must be 8.4 or better. Your Tcl version ${TCL_MAJOR_VERSION}.${TCL_MINOR_VERSION} is too old.])
 fi
 
 if test -f $TCL_EXEC_PREFIX/bin/wish$TCL_VERSION; then
@@ -1424,13 +1435,16 @@ if test "$RUNTIME_CHECK" = "yes"; then
         AC_MSG_RESULT([not found])
     fi
 
-    AC_MSG_CHECKING([for tclX using $TCLSH])
-    if (unset DISPLAY; echo ["catch { package require Tclx }; exit [expr [lsearch [package names] Tclx] == -1]"] | $TCLSH); then
-        AC_MSG_RESULT([found])
-    else
-        AC_MSG_RESULT(no)
-        AC_MSG_ERROR([Tclx not found!
-    install with "sudo apt-get install tclx"])
+    # Don't need tclX anymore in Tcl9
+    if test "$TCL_MAJOR_VERSION" -lt 9; then
+        AC_MSG_CHECKING([for tclX using $TCLSH])
+        if (unset DISPLAY; echo ["catch { package require Tclx }; exit [expr [lsearch [package names] Tclx] == -1]"] | $TCLSH); then
+            AC_MSG_RESULT([found])
+        else
+            AC_MSG_RESULT(no)
+            AC_MSG_ERROR([Tclx not found!
+        install with "sudo apt-get install tclx"])
+        fi
     fi
 
     AC_MSG_CHECKING([for python pango module])

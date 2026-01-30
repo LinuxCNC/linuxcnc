@@ -115,10 +115,10 @@ class GcodeLexer(QsciLexerCustom):
 
         re_tokens = {
             1: r"(?:[N]\d+|\(.*?\)|;.*)",                                       # LineNo and Comment
-            2: r"[G]\d{1,2}\.\d|[G]\d{1,2}",                                    # Gcode
-            3: r"[M]\d{1,3}",                                                   # Mcode
-            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.]+|\#\<.*\>|\[.*\]|\#\d+)",         # Axis
-            5: r"[EFHIJKDQLRPST$]{1}(?:[+-]?[\d\.]+|\#\<.*\>|\[.*\]|\#\d+)",    # Other (feed,rpm,radius,etc)
+            2: r"[G]\s*\d{1,2}\.\d\s|[G]\s*\d{1,2}",                            # Gcode
+            3: r"[M]\s*\d{1,3}",                                                # Mcode
+            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.\s\][+-]+|\#\<.*\>|\[.*\]|\#\d+)",  # Axis
+            5: r"[EFHIJKDQLRPST$]{1}(?:[+-]?[\d\.\s]+|\#\<.*\>|\[.*\]|\#\d+)",  # Other (feed,rpm,radius,etc)
             0: r"\s+|\w+|\W",                                                   # Default (fallback)
         }
 
@@ -637,7 +637,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def load_program(self, w, filename=None):
         if filename is None:
             filename = self._last_filename
-        elif 'program_clear.ngc' in filename:
+        elif 'file_clear.ngc' in filename:
             self._last_filename = None
         else:
             self._last_filename = filename
@@ -691,7 +691,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if STATUS.is_auto_running():
             self.highlight_line(None, line-1)
             return
-        LOG.debug('editor: got external highlight {}'.format(line))
+        LOG.verbose('editor: got external highlight {}'.format(line))
         #self.highlight_line(None, line-1)
         self.ensureLineVisible(line-1)
         #self.setSelection(line-1,0,line-1,self.lineLength(line-1)-1)
@@ -740,20 +740,20 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
     def select_lineup(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line-1, 0)
         self.highlight_line(None, line-1)
 
     def select_linedown(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line+1, 0)
         self.highlight_line(None, line+1)
 
     def jump_line(self, jump):
         line, col = self.getCursorPosition()
         line = line + jump
-        LOG.debug(line)
+        LOG.verbose(line)
         if line <0:
             line = 0
         elif line > self.lines()-1:
@@ -1216,3 +1216,4 @@ N98765 G0 Z30"""
         w.label.setText('<b>Edit mode title label</b>')
     w.show()
     sys.exit( app.exec_() )
+

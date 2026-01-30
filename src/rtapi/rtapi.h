@@ -809,6 +809,13 @@ RTAPI_BEGIN_DECLS
 *                        I/O RELATED FUNCTIONS                         *
 ************************************************************************/
 
+#if 0
+/*
+ * These prototypes interfere with non-x86 systems that do not have IO-mapped
+ * IO instructions.
+ * Also, the prototype is wrong because the port parameter is declared
+ * "unsigned short" in sys/io.h.
+ */
 /**
  * @brief Write @c byte to a hardware I/O @c port.
  * @param byte Byte to write.
@@ -828,6 +835,7 @@ RTAPI_BEGIN_DECLS
  * @note Many platforms provide an inline inb() that is faster.
  */
     extern unsigned char rtapi_inb(unsigned int port);
+#endif
 
 #if defined(__KERNEL__)
 #include <linux/version.h>

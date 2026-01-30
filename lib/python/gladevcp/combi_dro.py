@@ -29,7 +29,7 @@ import os
 import sys
 import math
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 import re
 
 # constants
@@ -164,7 +164,12 @@ class Combi_DRO(Gtk.Box):
         vbox_main.set_orientation(Gtk.Orientation.VERTICAL)
         eventbox.add(vbox_main)
         hbox_up = Gtk.Box(homogeneous = False, spacing = 5)
+        hbox_up.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        hbox_up.get_style_context().add_class('background')
         vbox_main.pack_start(hbox_up, True, True, 0)
+        vbox_main.set_margin_start(self.margin_left)
+        vbox_main.set_margin_end(self.margin_right)
+        self.widgets["hbox_up"] = hbox_up
         self.widgets["eventbox"] = eventbox
 
         lbl_axisletter = Gtk.Label(label = _AXISLETTERS[self.axis_no])
@@ -172,7 +177,6 @@ class Combi_DRO(Gtk.Box):
         lbl_axisletter.get_style_context().add_class('background')
         lbl_axisletter.get_style_context().add_class('labelcolor')
         lbl_axisletter.get_style_context().add_class('size_big')
-        lbl_axisletter.set_margin_left(self.margin_left)
         hbox_up.pack_start(lbl_axisletter, False, False, 0)
         self.widgets["lbl_axisletter"] = lbl_axisletter
 
@@ -197,7 +201,6 @@ class Combi_DRO(Gtk.Box):
         main_dro.get_style_context().add_class('labelcolor')
         main_dro.get_style_context().add_class("size_big")
         main_dro.set_xalign(1.0)
-        main_dro.set_margin_right(self.margin_right)
         hbox_up.pack_start(main_dro, True, True, 0)
         self.widgets["main_dro"] = main_dro
 
@@ -210,7 +213,6 @@ class Combi_DRO(Gtk.Box):
         lbl_sys_left.get_style_context().add_class('background')
         lbl_sys_left.get_style_context().add_class('labelcolor')
         lbl_sys_left.get_style_context().add_class('size_small')
-        lbl_sys_left.set_margin_left(self.margin_left)
         hbox_down.pack_start(lbl_sys_left, True, True, 0)
         self.widgets["lbl_sys_left"] = lbl_sys_left
 
@@ -238,7 +240,6 @@ class Combi_DRO(Gtk.Box):
         dro_right.get_style_context().add_class('labelcolor')
         dro_right.get_style_context().add_class('size_small')
         dro_right.set_xalign(1.0)
-        dro_right.set_margin_right(self.margin_right)
         hbox_down.pack_start(dro_right, True, True, 0)
         self.widgets["dro_right"] = dro_right
 
@@ -275,7 +276,10 @@ class Combi_DRO(Gtk.Box):
     # or just emit a signal to allow GUI to do what ever they want with that
     # signal- gmoccapy uses this signal to open the touch off dialog
     def _on_eventbox_clicked(self, widget, event):
-        if event.x <= self.widgets["lbl_axisletter"].get_allocation().width + self.widgets["lbl_sys_main"].get_allocation().width:
+        sensible_width = self.widgets["lbl_axisletter"].get_allocation().width \
+                      + self.widgets["lbl_sys_main"].get_allocation().width \
+                      + self.widgets["hbox_up"].get_spacing() + self.margin_left
+        if event.x <= sensible_width:
             self.emit('axis_clicked', self.widgets["lbl_axisletter"].get_text().lower())
             #self.set_style("labelcolor", "#00FF00")
         else:

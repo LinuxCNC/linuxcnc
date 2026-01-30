@@ -89,6 +89,8 @@ static int loadTraj(EmcIniFile *trajInifile)
     EmcAngularUnits angularUnits;
     double vel;
     double acc;
+    double jerk;
+    int planner_type;
 
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
@@ -201,6 +203,40 @@ static int loadTraj(EmcIniFile *trajInifile)
         }
         old_inihal_data.traj_max_acceleration = acc;
 
+        // has to set MAX_* before DEFAULT_*
+        jerk = 0; 
+        trajInifile->Find(&jerk, "MAX_LINEAR_JERK", "TRAJ");
+        if (0 != emcTrajSetMaxJerk(jerk)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetMaxJerk\n");
+            }
+            return -1;
+        }
+        old_inihal_data.traj_max_jerk = jerk;
+                
+        jerk = 0; 
+        trajInifile->Find(&jerk, "DEFAULT_LINEAR_JERK", "TRAJ");
+        if (0 != emcTrajSetJerk(jerk)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetJerk\n");
+            }
+            return -1;
+        }
+        old_inihal_data.traj_default_jerk = jerk;
+        planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve
+        trajInifile->Find(&planner_type, "PLANNER_TYPE", "TRAJ");
+        // Only 0 and 1 are supported, set to 0 if invalid
+        if (planner_type != 0 && planner_type != 1) {
+            planner_type = 0;
+        }
+        if (0 != emcTrajPlannerType(planner_type)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajPlannerType\n");
+            }
+            return -1;
+        }
+        old_inihal_data.traj_planner_type = planner_type;
+
         int arcBlendEnable = 1;
         int arcBlendFallbackEnable = 0;
         int arcBlendOptDepth = 50;
@@ -280,7 +316,7 @@ static int loadTraj(EmcIniFile *trajInifile)
                     continue;    // position t at index of next non-zero mark
                 }
                 // there is a mark, so read the string for a value
-                if (1 == sscanf(&homes[len], "%s", home) &&
+                if (1 == sscanf(&homes[len], "%254s", home) &&
                     1 == sscanf(home, "%lf", &d)) {
                     // got an entry, index into coordinateMark[] is 't'
                     if (t == 0)
@@ -295,12 +331,15 @@ static int loadTraj(EmcIniFile *trajInifile)
                         homePose.b = d;
                     else if (t == 5)
                         homePose.c = d;
+/*
+ * The following have no effect. The loop only counts [0..5].
                     else if (t == 6)
                         homePose.u = d;
                     else if (t == 7)
                         homePose.v = d;
                     else
                         homePose.w = d;
+*/
 
                     // position string ptr past this value
                     len += strlen(home);

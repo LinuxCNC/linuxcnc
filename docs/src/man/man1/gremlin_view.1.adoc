@@ -15,26 +15,82 @@ gremlin_view - G-code graphical preview
 PGremlinView for gremlin with buttons for simpler embedding Standalone
 functionality if linuxcnc running A default ui file (gremlin_view.ui) is
 provided for a default button arrangement but a user may provide their
-own by supplying the glade_file argument. The following objects are
-mandatory:
-`gremlin_view_window`:: toplevel window
-`gremlin_view_hal_gremlin`:: hal_gremlin
-`gremlin_view_box`:: HBox or VBox containing hal_gremlin
+own by supplying the glade_file argument.
+The following objects are mandatory:
 
-Optional radiobutton group names:: 'select_p_view'
-'select_x_view' 'select_y_view' 'select_z_view' 'select_z2_view'
-Optional checkbuttons names:: 'enable_dro' 'show_machine_speed
-'show_distance_to_go' 'show_limits' 'show_extents' 'show_tool'
-'show_metric'
-Callbacks are provided for the following button actions::
-on_clear_live_plotter_clicked on_enable_dro_clicked on_zoomin_pressed
-on_zoomout_pressed on_pan_x_minus_pressed on_pan_x_plus_pressed
-on_pan_y_minus_pressed on_pan_y_plus_pressed on_show_tool_clicked
-on_show_metric_clicked on_show_extents_clicked on_select_p_view_clicked
-on_select_x_view_clicked on_select_y_view_clicked
-on_select_z_view_clicked on_select_z2_view_clicked
-on_show_distance_to_go_clicked on_show_machine_speed_clicked
-on_show_limits_clicked
+gremlin_view_window:: toplevel window
+
+gremlin_view_hal_gremlin:: hal_gremlin
+
+gremlin_view_box:: HBox or VBox containing hal_gremlin
+
+Optional radiobutton group names:
+
+- 'select_p_view'
+
+- 'select_x_view'
+
+- 'select_y_view'
+
+- 'select_z_view'
+
+- 'select_z2_view'
+
+Optional checkbuttons names:
+
+- 'enable_dro'
+
+- 'show_machine_speed'
+
+- 'show_distance_to_go'
+
+- 'show_limits'
+
+- 'show_extents'
+
+- 'show_tool'
+
+- 'show_metric'
+
+Callbacks are provided for the following button actions:
+
+- on_clear_live_plotter_clicked
+
+- on_enable_dro_clicked
+
+- on_zoomin_pressed
+
+- on_zoomout_pressed
+
+- on_pan_x_minus_pressed
+
+- on_pan_x_plus_pressed
+
+- on_pan_y_minus_pressed
+
+- on_pan_y_plus_pressed
+
+- on_show_tool_clicked
+
+- on_show_metric_clicked
+
+- on_show_extents_clicked
+
+- on_select_p_view_clicked
+
+- on_select_x_view_clicked
+
+- on_select_y_view_clicked
+
+- on_select_z_view_clicked
+
+- on_select_z2_view_clicked
+
+- on_show_distance_to_go_clicked
+
+- on_show_machine_speed_clicked
+
+- on_show_limits_clicked
 
 == SEE ALSO
 

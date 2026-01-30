@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Info, Tool
+from qtvcp.core import Status, Info, Tool, Path
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -31,15 +31,15 @@ from qtvcp import logger
 STATUS = Status()
 INFO = Info()
 TOOL = Tool()
+PATH = Path()
 LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-if INFO.IMAGE_PATH is not None:
-    DEFAULTIMAGE = (os.path.join(INFO.IMAGE_PATH,'applet-critical.png')) or ''
+if PATH.IMAGEDIR is not None:
+    DEFAULTIMAGE = (os.path.join(PATH.IMAGEDIR,'applet-critical.png')) or ''
 else:
-    INFO.IMAGE_PATH = ''
     DEFAULTIMAGE = ''
 
 class ImageSwitcher(QLabel, _HalWidgetBase):
@@ -97,7 +97,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
         # if path doesn't exist try referencing
         # from the built in image folder
         if not os.path.exists(path):
-            path = os.path.join(INFO.IMAGE_PATH, path)
+            path = os.path.join(PATH.IMAGEDIR, path)
             if not os.path.exists(path):
                 LOG.debug('No Path: {}'.format(path))
         pixmap = QPixmap(path)
@@ -148,9 +148,9 @@ class StatusImageSwitcher(ImageSwitcher):
 
     def __init__(self, parent=None):
         super(StatusImageSwitcher, self).__init__(parent)
-        self._imagePath = [os.path.join(INFO.IMAGE_PATH,'applet-critical.png'),
-                    os.path.join(INFO.IMAGE_PATH,'spindle_ccw.gif'),
-                    os.path.join(INFO.IMAGE_PATH,'spindle_cw.gif')]
+        self._imagePath = [os.path.join(PATH.IMAGEDIR,'applet-critical.png'),
+                    os.path.join(PATH.IMAGEDIR,'spindle_ccw.gif'),
+                    os.path.join(PATH.IMAGEDIR,'spindle_cw.gif')]
         self.spindle = True
         self.all_homed = False
         self.axis_homed = False

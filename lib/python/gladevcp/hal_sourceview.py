@@ -17,7 +17,7 @@
 
 # Norberts comments
 # self.gstat ist nirgends festgelegt, auch wenn GStat importiert wurde
-
+# self.gstat comes from _EMC_ActionBase
 
 
 import os, time
@@ -34,7 +34,6 @@ from gi.repository import GLib
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
-from hal_glib import GStat
 from .hal_actions import _EMC_ActionBase, _EMC_Action
 from .hal_filechooser import _EMC_FileChooser
 

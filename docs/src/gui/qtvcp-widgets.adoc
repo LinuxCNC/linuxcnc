@@ -457,7 +457,7 @@ Allows one to *adjust a HAL pin value using a sliding pointer*.
 
 [[sub:qtvcp:widgets:tabwidget]]
 === `TabWidget` - Tab Widget
-This widget allows the tab height to be adjusted with stylesheets
+This widget allows the tab height to be adjusted with stylesheets.
 
 The `TabWidget` properties can be defined in a _stylesheet_ with the following code added to the `.qss` file. +
 `name_of_tab` being the widget name defined in Qt Designer's editor. +
@@ -719,22 +719,22 @@ usually this is selected from the screenOptions widget.
 *`halpin_option`*::
   Will set a HAL pin true when the axis is selected.
 *`joint_number`*::
-  Should be set to the appropriate joint number
+  Should be set to the appropriate joint number.
 *`axis_letter`*::
-  Should be set to the appropriate axis letter
+  Should be set to the appropriate axis letter.
 
 These are the click-and-hold menu properties: +
 
 *`showLast`*::
-  show the 'Set to last' action
+  Show the 'Set to last' action.
 *`showDivide`*::
-  show the 'Divide by 2' action
+  Show the 'Divide by 2' action.
 *`showGotoOrigin`*::
-  show the 'Go to G53/G5x origin' action
+  Show the 'Go to G53/G5x origin' action.
 *`showZeroOrigin`*::
-  show the 'Zero Origin' action
+  Show the 'Zero Origin' action.
 *`showSetOrigin`*::
-  show the 'Set Origin' action
+  Show the 'Set Origin' action.
 *`dialog_code_string`*::
   Sets which dialog will pop up with numerical entry,
   i.e. 'ENTRY' or 'CALCULATOR' to call a typing only entry dialog or a touch/typing calculator type entry dialog.
@@ -803,7 +803,7 @@ You can also click on the label and see a list of actions. +
 *`always_display_radius`*::
   Toggles display option
 *`display_as_per_m7m8`*::
-  Toggles display option. Will follow the current M7/8 mode
+  Toggles display option. Will follow the current M7/8 mode.
 *`follow_reference_changes`*::
   Toggles display option. Will follow the STATUS message reference mode,
   i.e. you can use Action buttons to set how it is currently displayed.
@@ -811,15 +811,15 @@ You can also click on the label and see a list of actions. +
 These are the click-on-menu options:
 
 *`showLast`*::
-  show the 'Set to last' action
+  Show the 'Set to last' action.
 *`showDivide`*::
-  show the 'Divide by 2' action
+  Show the 'Divide by 2' action.
 *`showGotoOrigin`*::
-  show the 'Go to G53/G5x origin' action
+  Show the 'Go to G53/G5x origin' action.
 *`showZeroOrigin`*::
-  show the 'Zero Origin' action
+  Show the 'Zero Origin' action.
 *`showSetOrigin`*::
-  show the 'Set Origin' action
+  Show the 'Set Origin' action.
 *`dialogName`*::
   Sets which dialog window will pop up with numerical entry, i.e. ENTRY or CALCULATOR.
 
@@ -1363,7 +1363,13 @@ This must be the _second line_ in the O-word file.
 
 It is a *comma separated list of the default values for each variable* in the O-word function.
 
-If you use the word `true` or `false` in the list, a `*checkbutton*` will be shown.
+If you use the word `radiotrue`, `radiofalse`, `true` or `false` in the list, a `*radiobutton*` will be shown. +
+If you use the word `checktrue` or `checkfalse` in the list, a `*checkbox*` will be shown. +
+If you use the word `buttontrue` or `buttonfalse` in the list, a `*Checkable Pushbutton*` will be shown. +
+If the default has a decimal, macroTab assumes you want a float value otherwise an integer.
+
+NOTE: When using radiobuttons, only set one radiobutton as true. Radio button are used for exclusive 
+choices.
 
 .`MACROIMAGE`
 
@@ -1414,12 +1420,93 @@ If the keyword is present but the entries are missing, no images will be used.
 
 This _optional line must be the fourth_ line in the O-word file.
 
-It is a comma separated list of keyword and data:
+It is a comma separated list of keyword and data, all of which are optional:
 
 *`LOAD:yes`*::
   Shows a load button.
  *`SAVE:yes`*::
   Shows a save button.
+*`DEFAULT:ThisMacroData.txt`*::
+  Sets the default preselected filename when loading/saving data for this macro. +
+  It can be any valid filename but must end in '.txt'.
+*`PATH:~/linuxcnc/nc_files/mySavedMacrosData`*::
+  Sets the default directory folder to preselect when loading/saving data for this macro.
+
+==== MacroTab Stylesheets
+
+Here are stylesheet hints for adjusting the MacroTab widget.
+
+[source,{css}]
+----
+MacroTab CustomButton{
+    width: 20px;
+    height: 40px;
+}
+
+MacroTab QPushButton {
+    width: 80px;
+    height: 40px;
+}
+
+MacroTab QLabel {
+    font: 24pt "Lato Heavy";
+}
+
+TouchSpinBox  LineEdit {
+    font: 12pt "Lato Heavy";
+}
+
+TouchSpinBox  QPushButton {
+    width: 60px;
+    height: 100px;
+}
+----
+[[sub:qtvcp:widgets:operatorvalueline]]
+=== `OperatorValueLine` - Operator Value Line Entry Widget
+
+The operator enters values into this widget, which will be applied to a template and then optionally issued to the MDI either immediately or applied at a later time.  The widget supports the optional popup calculator, keyboard, or tool chooser for touchscreen-friendly entry by setting the `dialog_keyboard_option`.  To change which type of dialog is presented, edit the `dialog_code_option`.
+
+image::images/qtvcp_operator_value.png["QtVCP OperatorValueLine",scale="25%"]
+
+
+==== Formatting MDI Command
+The widget supports a formatting option which is passed to Python's string `format()` to produce the final output for the MDI command.  The special token `{value}` can be inserted anywhere in this format string where the value should appear.  The formatting property is called `mdi_command_format_option`, e.g.:
+
+* `M3 S{value}` to start the spindle at the speed entered by the operator.
+* `M6 T{value} G43 H{value}` to issue a tool change and tool length offset change from the tool number entered
+
+==== Automatic vs Deferred MDI Issue
+The widget may be configured to automatically issue the MDI command upon submit when `issue_mdi_on_submit_option` is set to `True`. If `False` issuing the command may be done at a later time via a signal or function call from another widget.
+
+In cases where `issue_mdi_on_submit_option` is `False`, calling the `issue_mdi()` function will issue the command.  Slots attached to widgets such as PushButtons can trigger the MDI command when pressed, e.g.:
+
+----
+    def setSpindleSpeed(self, event):
+        self.w.lineSpindleSpeed.issue_mdi()
+        ACTION.SET_MANUAL_MODE()
+
+    def setToolNumber(self, event):
+        self.w.lineToolNumber.issue_mdi()
+        ACTION.SET_MANUAL_MODE()
+----
+
+==== Pending State Styling Example
+
+The widget tracks whether a value entered is pending and has not yet been issued via the property `isPendingValue`.  This may be used to style the widget via the stylesheet.  This can be used to alert the operator that they entered a value but another action must be taken to apply it.
+
+The following style sheet excerpt will highlight the entry widget with a cyan background when values are pending and have not been applied.
+
+----
+#lineSpindleSpeed[isPendingValue=true],
+#lineToolNumber[isPendingValue=true] {
+    background: cyan;
+}
+
+#lineSpindleSpeed[isPendingValue=false],
+#lineToolNumber[isPendingValue=false] {
+    background: none;
+}
+----
 
 [[sub:qtvcp:widgets:mdiline]]
 === `MDILine` - MDI Commands Line Entry Widget
@@ -2595,11 +2682,54 @@ When using `STATUS` 's `request-dialog` function, the default launch name is *`T
 
 It is based on PyQt's _QDialog_.
 
+[[sub:qtvcp:widgets:toolchooserdialog]]
+=== `ToolChooserDialog` - Tool Chooser Dialog Widget
+
+.QtVCP `ToolChooserDialog`: Tool Chooser Dialog Widget
+image::images/qtvcp_toolChooser.png["QtVCP `ToolChooserDialog`: Tool Chooser Dialog Widget",scale="25%"]
+
+This widget allows the operator to select one of the tools defined in the tool table.  If a tool is selected and 'Apply' is pressed or the tool is double-clicked, the dialog will return the tool number selected.  This can be used in conjunction with the `OperatorValueLine` widget to create a tool change widget, for example.
+
+If there is an Focus Overlay widget present, it will signal it to display.
+
+When using `STATUS` 's `request-dialog` function, the default launch name is *`TOOLCHOOSER`*. 
+
+It is based on PyQt's _QDialog_.
+
+
 [[sub:qtvcp:widgets:machinelog]]
 === `MachineLog` - Machine Events Journal Display Widget
 
-//TODO MachineLog widget capture/example
-FIXME MachineLog documentation
+This widget displays various *log event messages* that have been output by the system during the current session.  This includes informational messages as well as errors.
+
+.QtVCP `MachineLog`: Machine Events Log in `machine_log` (plain) mode
+image::images/qtvcp_machinelog_plain.png["QtVCP `MachineLog`: Machine Log Widget",scale="25%"]
+
+
+.QtVCP `MachineLog`: Machine Events Log in `machine_log_severity` mode
+image::images/qtvcp_machinelog.png["QtVCP `MachineLog`: Machine Log Widget",scale="25%"]
+
+Two distinct types of logs may be displayed:
+
+- machine log (plain text or severity highlighted)
+- integrator log (plain text only)
+
+The type of log shown by the widget is controlled by the option properties of the widget.  By selecting `machine_log_option` or `integrator_log_option` the appropriate log will be displayed.  These options will display plain styled logs in a Qt `QTextEdit` widget.
+
+Additionally, there is a `machine_log_severity_option` property that may be chosen that will display the machine log in a variety of colors depending on the severity of the message, by using a `QTableWidget`.  The colors may be configured with the properties of the widget.
+
+==== Emitting Log messages with Severity
+
+Severity is conveyed via the `option` value sent along with the `STATUS` signal called `update-machine-log`.  The `option` parameter is a comma-delimited list, containing typically   
+
+```
+text = 'an error has occurred.'
+STATUS.emit('update-machine-log', text, 'TIME,ERROR')
+```
+
+==== Clearing the Log
+
+The log may be cleared by calling the `clear()` method of the widget.
 
 [[sub:qtvcp:widgets:macrotabdialog]]
 === `MacroTabDialog` - Macro Launch Dialog Widget
@@ -2645,10 +2775,10 @@ It is based on PyQt's _QDialog_.
 [[sub:qtvcp:widgets:calculatordialog]]
 === `CalculatorDialog` - Calculator Dialog Widget
 
+This is a dialog to *display a calculator for numeric entry*, such as origin offset, spindle RPM, etc.  It is primarily intended for touchscreen use, but it has support for physical keyboard input as well.
+
 .QtVCP `CalculatorDialog`: Calculator Dialog Widget
 image::images/qtvcp_calculator.png["QtVCP CalculatorDialog: Calculator Dialog Widget",scale="25%"]
-
-This is a dialog to *display a calculator for numeric entry*, such as origin offset.
 
 It returns the entry via `STATUS` messages using a Python `DICT`.
 
@@ -2657,6 +2787,26 @@ The `DICT` contains at minimum, the name of the dialog requested and an ID code.
 When using ``STATUS``'s `request-dialog` function, the default launch name is *`CALCULATOR`*.
 
 It is based on PyQt's _QDialog_.
+
+==== Preferences file options
+
+In the `CALCULATOR` section of the preferences file the following options may be set:
+
+* `constValuesList` - A comma-delimited list of common values you might enter, that will appear on a dedicated row of buttons at the bottom of the calculator.  e.g. setting to `0.100, -0.100` would provide two buttons for +0.100 and -0.100 which are commonly used when edge-finding on inch mills.  Up to six (6) values may be entered, beyond that the list will be truncated.  Values must be valid floating point or integer.
+* `onShowBehavior` - A list of optional behaviors that will be triggered when the calculator dialog is shown.  Each option must be separated by a comma.
+  - `CLEAR_ALL` to issue a *Clear All* each time the calculator is shown.  This will clear any previously entered values from the last time the calculator was used and open with the display value set to `0`
+  - `FORCE_FOCUS` will force the focus to the calculator input field when the widget is shown.  This will allow a physical keyboard to provide input to the widget properly without additional clicks.  Also, it has the side-effect of selecting the current value, such that typing from a physical keyboard will replace the existing value unless the text selection is changed.
+* `acceptOnReturnKey` - If set to `True`, the calculator will accept the current value and close the dialog when the keyboard return/enter key is pressed.  If set to `False`, the return key will be ignored and the *Apply* button must be clicked.  For cases where the *Apply Next* button is available, the return key will perform this action instead, and the dialog will remain open.
+
+==== Physical keyboard support
+
+While the intent of this widget is to provide a touchscreen-friendly interface, it is possible to use a physical keyboard to enter values, typically via a numeric keypad. The keys perform mostly as one would expect, but a few special key functions also exist:
+
+* the *Enter* or *Return* key is equivalent to the *Equal* (=) operator in the cases where a calculation is pending.  Otherwise it will perform the *Apply* function if it is enabled via the `acceptOnReturnKey` preference.
+* the *minus key* ('-') will toggle the sign of the current number in the calculator display when it is hit twice in a row.  Otherwise when hit only once it will perform a subtraction operator as expected.
+* *Alt+Left Arrow* will perform *Back* function, moving to the previous field for cases where this is supported.
+* *Alt+Right Arrow* will perform a *Next* function, moving to the next field for cases where this is supported.
+* *Alt+Backspace* will cancel out of the calculator and not provide a return value to the calling widget.
 
 [[sub:qtvcp:widgets:runfromlinedialog]]
 === `RunFromLine` - Run-From-Line Dialog Widget
@@ -2682,7 +2832,7 @@ It is based on PyQt's _QDialog_.
 === `MachineLogDialog` - Machine and Debugging Logs Dialog Widget
 
 .QtVCP `MachineLogDialog`: Machine and Debugging Logs Dialog Widget
-image::images/qtvcp_machineLog.png["QtVCP MachineLogDialog: Machine and Debugging Logs Dialog Widget",scale="25%"]
+image::images/qtvcp_machineLogDialog.png["QtVCP MachineLogDialog: Machine and Debugging Logs Dialog Widget",scale="25%"]
 
 This is a dialog to *display the machine log and QtVCP's debugging log*.
 
@@ -2888,12 +3038,13 @@ This class *modifies `QPushButton` behaviour*.
 
 *`indicator_option`* _puts a 'LED' on the top of the button_.
 
-.QtVCP `PushButton`: Indicated Action Button, LED Indicator Option
-image::images/qtvcp_actionButton.png["QtVCP PushButton: Indicated Action Button, LED Indicator Option",scale="25%",align="center"]
+.QtVCP `PushButton`: IndicatedPushButton Button, LED Indicator Option
+image::images/qtvcp_indicatorButton.png["QtVCP IndicatedPushButton: Indicated Action Button, LED Indicator Option",scale="25%",align="center"]
 
 //FIXME Better document IndicatedPushButton
 // https://github.com/LinuxCNC/linuxcnc/blob/master/lib/python/qtvcp/widgets/simple_widgets.py#L317
 It can be a _triangle_, _circle_, _top bar_, or _side bar_. +
+The _triangle_ and _circle_ LEDs can display double vertical LEDs optionally each with it's own HAL pin. + 
 The _size_ and _position_ can be adjusted.
 
 It will indicate:
@@ -2905,17 +3056,18 @@ It will indicate:
 .Properties
 These properties are available to customize the indicator (not all are applicable to every LED shape):
 
+*`doubleIndicator`*:: With triangle or round LEDs add a second vertical LED.
 *`on_color`*::
 *`off_color`*::
-*`flashIndicator`*::
-*`flashRate`*::
-*`indicator_size`*::
-*`circle_diameter`*::
-*`shape_option`*::
-*`right_edge_offset`*::
-*`top_edge_offset`*::
-*`height_fraction`*::
-*`width_fraction`*::
+*`flashIndicator`*:: When the indicator is true, flash the LED on and off.
+*`flashRate`*:: Rate of the flashing
+*`indicator_size`*:: Size of triangle LED
+*`circle_diameter`*:: Diameter of round LED
+*`shape_option`*:: 0-4 LED shape type
+*`right_edge_offset`*:: Space from right edge
+*`top_edge_offset`*:: Space from top edge
+*`height_fraction`*:: Used for bar Leds
+*`width_fraction`*:: Used for bar Leds
 *`corner_radius`*:: Indicator corner radius.
 
 The LED indicator color can be defined in a _stylesheet_ with the following code added to the `.qss` file:
@@ -3090,12 +3242,20 @@ Widgets for performing common machining processes.
 [[sub:qtvcp:widgets:facing]]
 === Facing
 
+image::images/qtvcp_facing.png["QtVCP Facing: Shown from QtDragon",scale="25%"]
 Slab or face a definable area with different strategies.
 
 [[sub:qtvcp:widgets:hole-circle]]
 === Hole Circle
 
+image::images/qtvcp_boltholecircle.png["QtVCP BHC: Shown from QtDragon",scale="25%"]
 Drill multiple holes on a bolt hole circle.
+
+[[sub:qtvcp:widgets:hole-enlarge]]
+=== Hole Enlarge
+
+image::images/qtvcp_holeenlarge.png["QtVCP Facing: Shown from QtDragon",scale="25%"]
+Use an end mill to enlarge a drilled hole.
 
 [[sub:qtvcp:widgets:qt-ngcgui]]
 === Qt NGCGUI

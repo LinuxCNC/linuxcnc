@@ -10,12 +10,12 @@ debuglevel - sets the debug level for the non-realtime part of LinuxCNC
 
 == DESCRIPTION
 
-*debuglevel* displays a checkbox to select the current debug level
+*debuglevel* displays a checkbox GUI to select the current debug level
 of some parts of LinuxCNC.
 
 == SEE ALSO
 
-halcmd(1) - debug subcommand linuxcnc(1)*
+halcmd(1) - debug subcommand *linuxcnc(1)*
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.

@@ -38,7 +38,6 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 if not INFO.LINUXCNC_IS_RUNNING:
     LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
-LOG.setLevel(logger.DEBUG)
 try:
     from PyQt5 import QtSvg
 except:
@@ -140,11 +139,11 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         hbox = QtWidgets.QHBoxLayout()
         self.runButton = QtWidgets.QPushButton("Run")
         self.runButton.pressed.connect(self.runChecked)
-        self.saveButton = QtWidgets.QPushButton("save")
+        self.saveButton = QtWidgets.QPushButton("Save")
         self.saveButton.pressed.connect(self.saveChecked)
         self.saveButton.setVisible(False)
 
-        self.loadButton = QtWidgets.QPushButton("load")
+        self.loadButton = QtWidgets.QPushButton("Load")
         self.loadButton.pressed.connect(self.loadChecked)
         self.loadButton.setVisible(False)
         self.closeButton = QtWidgets.QPushButton("Close")
@@ -236,6 +235,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     # add labels and edits
                     # self[tName][0] is the list of name text and defaults pairs
                     for n, name in enumerate(self[tName][0]):
+                        LOG.verbose('{} {}'.format(tName, name))
                         #print('int------>',self[tName])
                         # if no list of names then continue looking
                         if name[0]=='':continue
@@ -246,16 +246,30 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         l = QtWidgets.QLabel(name[0])
 
                         # make appropriate entries:
-                        # radio buttons?
-                        if name[1].lower() in('false', 'true'):
-                            self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
-                            if name[1].lower() == 'true':
-                                self['%s%d' % (tName, n)].setChecked(True)
+                        # radio/check/push buttons?
+                        if 'false' in name[1].lower() or 'true' in name[1].lower():
+                            if 'check' in name[1].lower():
+                                self['%s%d' % (tName, n)] = QtWidgets.QCheckBox()
+                                if 'true' in name[1].lower():
+                                    self['%s%d' % (tName, n)].setChecked(True)
+                            elif 'radio' in name[1].lower():
+                                self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
+                                if 'true' in name[1].lower():
+                                    self['%s%d' % (tName, n)].setChecked(True)
+                            elif 'button' in name[1].lower():
+                                self['%s%d' % (tName, n)] = QtWidgets.QPushButton()
+                                self['%s%d' % (tName, n)].setCheckable(True)
+                                if 'true' in name[1].lower():
+                                    self['%s%d' % (tName, n)].setChecked(True)
+                            # legacy default
+                            else:
+                                self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
+                                if 'true' in name[1].lower():
+                                    self['%s%d' % (tName, n)].setChecked(True)
+
                         # line edits that will pop an entry dialog:
                         else:
                             if checkIfFloat(name[1]):
-                                #self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
-                                #self['%s%d' % (tName, n)].setText(name[1])
                                 self['%s%d' % (tName, n)] = TouchDoubleSpinBox()
                                 self['%s%d' % (tName, n)].callDialog = self.getNumbers
                                 self['%s%d' % (tName, n)].setValue(float(name[1]))
@@ -274,7 +288,6 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
                             self['%s%d' % (tName, n)]._label = name[0]
                             self['%s%d' % (tName, n)]._tabName = tName
-                            #self.set_style(self['%s%d' % (tName, n)])
                             self['%s%d' % (tName, n)].keyboard_type = 'numeric'
 
                         hbox2.addWidget(l)
@@ -433,11 +446,12 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                             option_dict={}
                             if 'MACROOPTIONS' in fourth_line:
                                 options = fourth_line.split('=')[1]
+                                options = options.lstrip(' ')
                                 o = options.split(',')
                                 for i in(o):
                                     h,g = i.split(':')
                                     option_dict['%s'%h.upper()]=g
-                                #print option_dict
+                                #print (option_dict)
 
                             # add the list then add svg info, then options
                             self[name] = [temp]
@@ -471,9 +485,11 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         for num, i in enumerate(self[name][0]):
             # check for macro that needs no data
             if i == ('', ''):break
-            # Look for a radio button instance so we can convert to integers
+            # Look for button widget instance so we can convert to integers
             # other wise we assume text
-            if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):
+            if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton) or \
+              isinstance(self['%s%d' % (name, num)], QtWidgets.QCheckBox) or \
+              isinstance(self['%s%d' % (name, num)], QtWidgets.QPushButton):
                 data = str(1 * int(self['%s%d' % (name, num)].isChecked()))
             else:
                 data = str(self['%s%d' % (name, num)].text())
@@ -524,7 +540,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         self.loadButton.setVisible(True)
                     if name == 'SAVE':
                         self.saveButton.setVisible(True)
-            except: pass
+            except Exception as e:
+                print(e)
 
         return calluser
 
@@ -548,13 +565,15 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 # Python v3.
                 readLine = str(readLine, encoding='utf8')
             widget,data,title = readLine.split(',')
-            #print widget,data,title,name
+            #print (widget,data,bool(data),title,name)
             if name in widget:
                 # set widgets to data:
                 # Look for a radio button instance so we can convert to integers
                 # other wise we assume text
-                if isinstance(self[widget], QtWidgets.QRadioButton):
-                    self[widget].setChecked(bool(data))
+                if isinstance(self[widget], QtWidgets.QRadioButton) or \
+                    isinstance(self[widget], QtWidgets.QCheckBox) or \
+                    isinstance(self[widget], QtWidgets.QPushButton):
+                    self[widget].setChecked(int(data))
                 else:
                     self[widget].setText(str(data))
 
@@ -570,7 +589,9 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 widgetname = '%s%d' % (name, num)
                 # Look for a radio button instance so we can convert to bool
                 # other wise we assume text
-                if isinstance(self[widgetname], QtWidgets.QRadioButton):
+                if isinstance(self[widgetname], QtWidgets.QRadioButton) or \
+                    isinstance(self[widgetname], QtWidgets.QCheckBox) or \
+                    isinstance(self[widgetname], QtWidgets.QPushButton):
                     data = str(1 * int(self[widgetname].isChecked()))
                 else:
                     data = str(self[widgetname].text())
@@ -611,20 +632,40 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # do this so the system is consistent and things like dialog
     # placement are done.
     def getFileName(self):
+        macro = self.stack.currentWidget().objectName()
+        dirct = self[macro][2].get('PATH')
+        defaultfilename = self[macro][2].get('DEFAULT')
+
         mess = {'NAME':self.load_dialog_code,'ID':'%s__' % self.objectName(),
             'TITLE':'Load Macro',
-            'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName()),
             'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'
             }
+        if not defaultfilename is None:
+            mess['FILENAME'] = defaultfilename
+        else:
+            mess['FILENAME'] = '{}_data.txt'.format( str(self.stack.currentWidget().objectName()))
+        if not dirct is None:
+            mess['DIRECTORY'] = dirct
         STATUS.emit('dialog-request', mess)
 
     # request the system to pop a save path picker dialog
     # do this so the system is consistent and things like dialog
     # placement are done.
     def getSaveFileName(self):
+        macro = self.stack.currentWidget().objectName()
+        dirct = self[macro][2].get('PATH')
+        defaultfilename = self[macro][2].get('DEFAULT')
+
         mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
-            'TITLE':'Save Macro', 'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName()),
-            'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'}
+            'TITLE':'Save Macro',
+            'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'
+            }
+        if not defaultfilename is None:
+            mess['FILENAME'] = defaultfilename
+        else:
+            mess['FILENAME'] = '{}_data.txt'.format( str(self.stack.currentWidget().objectName()))
+        if not dirct is None:
+            mess['DIRECTORY'] = dirct
         STATUS.emit('dialog-request', mess)
 
     # process the STATUS return message from dialogs

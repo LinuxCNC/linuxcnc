@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:coordinate-system]]
-= Coordinate Systems(((Coordinate Systems)))
+= Coordinate Systems
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -12,6 +12,7 @@
 
 == Introduction
 
+(((Coordinate Systems)))
 In this chapter, we will try to demystify coordinate systems.
 It is a very important concept to understand the operation of a CNC
 machine, its configuration and its use.
@@ -148,17 +149,17 @@ command would not have been modal and any commands issued after it would
 have returned to using the G55 offsets because that coordinate system
 would still be in effect.
 
-[source,{ngc}]
+[source,{ngc}](((G54)))(((G55)))(((G56)))(((G57)))(((G58)))(((G59)))(((G59.1)))(((G59.2)))(((G59.3)))
 ----
-G54	uses parameters of coordinate system 1(((G54)))
-G55	uses parameters of coordinate system 2(((G55)))
-G56	uses parameters of coordinate system 3(((G56)))
-G57	uses parameters of coordinate system 4(((G57)))
-G58	uses parameters of coordinate system 5(((G58)))
-G59	uses parameters of coordinate system 6(((G59)))
-G59.1	uses parameters of coordinate system 7(((G59.1)))
-G59.2	uses parameters of coordinate system 8(((G59.2)))
-G59.3	uses parameters of coordinate system 9(((G59.3)))
+G54	uses parameters of coordinate system 1
+G55	uses parameters of coordinate system 2
+G56	uses parameters of coordinate system 3
+G57	uses parameters of coordinate system 4
+G58	uses parameters of coordinate system 5
+G59	uses parameters of coordinate system 6
+G59.1	uses parameters of coordinate system 7
+G59.2	uses parameters of coordinate system 8
+G59.3	uses parameters of coordinate system 9
 ----
 
 === Default Coordinate System

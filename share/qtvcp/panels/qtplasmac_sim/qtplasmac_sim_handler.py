@@ -43,10 +43,9 @@ class HandlerClass:
                               QtCore.Qt.WindowTitleHint |
                               QtCore.Qt.WindowStaysOnTopHint)
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
-        self.prefs = Access(os.path.join(self.paths.CONFIGPATH, self.machineName + '.prefs'))
-        self.styleFile = f'{paths.CONFIGPATH}/qtplasmac_sim.qss'
-        self.set_estop()
+        self.styleFile = f'{self.paths.CONFIGPATH}/qtplasmac_sim.qss'
         self.set_style()
+        self.set_estop()
 
     def initialized__(self):
         self.w.setWindowTitle('QtPlasmaC Sim')
@@ -54,14 +53,15 @@ class HandlerClass:
         appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
         self.iconBase = '/usr' if appPath == '/usr/bin' else appPath.replace('/bin', '/debian/extras/usr')
         self.w.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
+        self.arcVoltsOffsetPin = self.hal.newpin('arc_voltage_offset-f', hal.HAL_FLOAT, hal.HAL_OUT)
         self.breakPin = self.hal.newpin('sensor_breakaway', hal.HAL_BIT, hal.HAL_OUT)
         self.floatPin = self.hal.newpin('sensor_float', hal.HAL_BIT, hal.HAL_OUT)
+        self.materialPin = self.hal.newpin('material_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.ohmicPin = self.hal.newpin('sensor_ohmic', hal.HAL_BIT, hal.HAL_OUT)
         self.torchPin = self.hal.newpin('torch_on', hal.HAL_BIT, hal.HAL_IN)
         self.statePin = self.hal.newpin('state', hal.HAL_S32, hal.HAL_IN)
+        self.stylePin = self.hal.newpin('style_update', hal.HAL_BIT, hal.HAL_IN)
         self.zPosPin = self.hal.newpin('z_position', hal.HAL_FLOAT, hal.HAL_IN)
-        self.materialPin = self.hal.newpin('material_height', hal.HAL_FLOAT, hal.HAL_IN)
-        self.arcVoltsOffsetPin = self.hal.newpin('arc_voltage_offset-f', hal.HAL_FLOAT, hal.HAL_OUT)
         simStepconf = False
         for sig in hal.get_info_signals():
             if sig['NAME'] == 'Zjoint-pos-fb':
@@ -72,6 +72,8 @@ class HandlerClass:
         else:
             RUN(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
         RUN(['halcmd', 'net', 'plasmac:state', 'qtplasmac_sim.state'])
+        RUN(['halcmd', 'net', 'qtplasmac:sim_style_update', 'qtplasmac.sim_style_update','qtplasmac_sim.style_update'])
+        self.stylePin.value_changed.connect(self.update_style)
         self.torchPin.value_changed.connect(self.torch_changed)
         self.zPosPin.value_changed.connect(lambda v: self.z_position_changed(v))
         self.statePin.value_changed.connect(lambda v: self.plasmac_state_changed(v))
@@ -102,7 +104,7 @@ class HandlerClass:
         hal.set_p('estop_or.in0', '1')
         self.height = 5 if hal.get_value('halui.machine.units-per-mm') == 1 else 0.2
         self.materialPin.set(self.height)
-        self.w.estop.setStyleSheet(f'color: {self.foreColor}; background: {self.estopColor}')
+        self.w.estop.setStyleSheet(f'color: {self.backColor}; background: {self.estopColor}; border: solid {self.estopColor}')
         self.floatLatched = False
         self.ohmicLatched = False
 
@@ -112,13 +114,16 @@ class HandlerClass:
             RUN(['halcmd', 'net', 'sim:estop-1-in', 'estop_not_1.out', 'estop_or.in1'])
 
     def set_style(self):
+        self.prefs = Access(os.path.join(self.paths.CONFIGPATH, self.machineName + '.prefs'))
         self.foreColor = self.prefs.getpref('Foreground', '', str, 'COLOR_OPTIONS')
+        self.fore1Color = self.prefs.getpref('Highlight', '', str, 'COLOR_OPTIONS')
         self.backColor = self.prefs.getpref('Background', '', str, 'COLOR_OPTIONS')
-        self.backAlt = self.prefs.getpref('Background Alt', '', str, 'COLOR_OPTIONS')
+        self.back1Color = self.prefs.getpref('Background Alt', '', str, 'COLOR_OPTIONS')
+        self.disabledColor = self.prefs.getpref('Disabled', '', str, 'COLOR_OPTIONS')
         self.estopColor = self.prefs.getpref('Estop', '', str, 'COLOR_OPTIONS')
         with open(self.styleFile, 'w') as outFile:
             outFile.write(
-                '\n/****** DEFAULT ************/\n'
+                '/****** DEFAULT ************/\n'
                 f'* {{\n'
                 f'    color: {self.foreColor};\n'
                 f'    background: {self.backColor};\n'
@@ -128,8 +133,14 @@ class HandlerClass:
                 f'    color: {self.foreColor};\n'
                 f'    background: {self.backColor};\n'
                 f'    border: 1px solid {self.foreColor};\n'
-                '    border-radius: 4px;\n'
-                f'}}\n'
+                f'    border-radius: 4px }}\n'
+                f'\nQPushButton:checked {{\n'
+                f'    color: {self.backColor};\n'
+                f'    background: {self.fore1Color} }}\n'
+                '\n#move_down:pressed,\n'
+                f'#move_up:pressed {{\n'
+                f'color: {self.backColor};\n'
+                f'background: {self.fore1Color} }}\n'
                 '\n/****** SLIDER ************/\n'
                 f'QSlider::groove:horizontal {{\n'
                 '    background: gray;\n'
@@ -140,37 +151,59 @@ class HandlerClass:
                 f'    border: 0px solid {self.foreColor};\n'
                 '    border-radius: 4px;\n'
                 f'    width: 24px }}\n'
-                f'\nQSlider::handle:horizontal:disabled {{\n'
-                f'    background: {self.backColor} }}\n'
-                f'\nQSlider::add-page:horizontal {{\n'
-                f'    background: {self.backAlt};\n'
-                f'    border: 1px solid {self.backAlt};\n'
+                '\nQSlider::add-page:horizontal:disabled,'
+                '\nQSlider::sub-page:horizontal:disabled,'
+                '\nQSlider::handle:horizontal:disabled,'
+                f'\nQSlider::groove:horizontal:disabled {{\n'
+                f'    color: {self.disabledColor};\n'
+                f'    background: {self.back1Color};\n'
+                f'    border: 1px solid {self.disabledColor};\n'
                 f'    border-radius: 4px }}\n'
+                '\nQSlider::add-page:horizontal,'
                 f'\nQSlider::sub-page:horizontal {{\n'
-                f'    background: {self.backAlt};\n'
-                f'    border: 1px solid {self.backAlt};\n'
+                f'    background: {self.back1Color};\n'
+                f'    border: 1px solid {self.back1Color};\n'
                 f'    border-radius: 4px }}\n'
-                f'\nLine {{\n'
-                '    color: red;\n'
-                f'    background: red }}\n'
-                f'\nQCheckBox {{\n'
+                '\n/****** LINE ***************/\n'
+                '\n#arc_ok_line,'
+                '\n#arc_voltage_line,'
+                '\n#line,'
+                '\n#mode_line,'
+                f'\n#sensor_line {{\n'
+                f'    background: {self.foreColor} }}\n'
+                '\n/****** CHECKBOX ***********/\n'
+                f'QCheckBox {{\n'
                 f'    spacing: 20px }}\n'
                 f'\nQCheckBox::indicator {{\n'
                 f'    border: 1px solid {self.foreColor};\n'
                 '    border-radius: 4px;\n'
                 '    width: 20px;\n'
                 f'    height: 20px }}\n'
-                f'\nQCheckBox::indicator:pressed {{\n'
-                f'    background: {self.foreColor} }}\n'
-                f'\nQCheckBox::indicator:checked {{\n'
-                f'    background: {self.foreColor} }}\n'
+                '\nQCheckBox::indicator:pressed,'
+                '\nQCheckBox::indicator:checked,'
                 f'\nQCheckBox::indicator:checked:pressed {{\n'
-                f'    background: {self.foreColor} }}\n'
+                f'    background: {self.fore1Color} }}\n'
             )
+
+    def update_style(self):
+        self.set_style()
+        self.w.setStyleSheet('')
+        with open(self.styleFile, 'r') as set_style:
+            self.w.setStyleSheet(set_style.read())
+        estop_color = self.estopColor if hal.get_value('estop_or.in0') == 1 else self.foreColor
+        self.w.estop.setStyleSheet(f'color: {self.backColor}; background: {estop_color}; border: solid {estop_color}')
+        conditions = {
+            self.w.arc_ok: self.w.arc_ok.isChecked(),
+            self.w.sensor_brk: self.breakPin.get() == 1,
+            self.w.sensor_flt: self.floatPin.get() == 1,
+            self.w.sensor_ohm: self.ohmicPin.get() == 1 }
+        for button, condition in conditions.items():
+            if condition:
+                button.setStyleSheet(f'color: {self.backColor}; background: {self.fore1Color}')
 
     def arc_ok_clicked(self):
         if self.w.arc_ok.isChecked():
-            self.w.arc_ok.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
+            self.w.arc_ok.setStyleSheet(f'color: {self.backColor}; background: {self.fore1Color}')
         else:
             self.w.arc_ok.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
 
@@ -223,7 +256,7 @@ class HandlerClass:
 
     def float_set(self):
         self.floatPin.set(1)
-        self.w.sensor_flt.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
+        self.w.sensor_flt.setStyleSheet(f'color: {self.backColor}; background: {self.fore1Color}')
 
     def float_reset(self):
         self.floatPin.set(0)
@@ -231,7 +264,7 @@ class HandlerClass:
 
     def ohmic_set(self):
         self.ohmicPin.set(1)
-        self.w.sensor_ohm.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
+        self.w.sensor_ohm.setStyleSheet(f'color: {self.backColor}; background: {self.fore1Color}')
 
     def ohmic_reset(self):
         self.ohmicPin.set(0)
@@ -249,7 +282,7 @@ class HandlerClass:
         if self.bTimer.isActive():
             self.bTimer.stop()   # stop timer so next click can start it again
             self.breakPin.set(1)
-            self.w.sensor_brk.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
+            self.w.sensor_brk.setStyleSheet(f'color: {self.backColor}; background: {self.fore1Color}')
         else:
             if self.breakPin.get():
                 self.bTimer.stop()
@@ -257,16 +290,16 @@ class HandlerClass:
                 self.w.sensor_brk.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
             else:
                 self.breakPin.set(1)
-                self.w.sensor_brk.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
+                self.w.sensor_brk.setStyleSheet(f'color: {self.backColor}; background: {self.fore1Color}')
                 self.bTimer.start()
 
     def estop_pressed(self):
         if hal.get_value('estop_or.in0') == 0:
             hal.set_p('estop_or.in0', '1')
-            self.w.estop.setStyleSheet(f'color: {self.foreColor}; background: {self.estopColor}')
+            self.w.estop.setStyleSheet(f'color: {self.backColor}; background: {self.estopColor}; border: solid {self.estopColor}')
         else:
             hal.set_p('estop_or.in0', '0')
-            self.w.estop.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
+            self.w.estop.setStyleSheet(f'color: {self.backColor}; background: {self.foreColor}')
 
     def set_mode(self, mode):
         mode0 = [self.w.sensor_line,
@@ -336,6 +369,7 @@ class HandlerClass:
         msg = QMessageBox(self.w)
         buttonY = msg.addButton(QMessageBox.Ok)
         buttonY.setText('OK')
+        buttonY.setFocusPolicy(QtCore.Qt.NoFocus)
         msg.setIcon(QMessageBox.Information)
         msg.setWindowTitle('Sim Panel Help')
         message = 'This panel provides buttons for simulating basic plasma signals.\n'

@@ -2195,21 +2195,26 @@ int Interp::convert_control_mode(
     SET_MOTION_CONTROL_MODE(CANON_EXACT_STOP, 0);
     settings->control_mode = CANON_EXACT_STOP;
   } else if (g_code == G_64) {
-      if (tolerance_in >= 0)
-	  tolerance = tolerance_in;
-      else
-	  tolerance = 0;
+      if (tolerance_in >= 0){
+	      tolerance = tolerance_in;
+      }
+      else{
+	      tolerance = _setup.tolerance_default;
+      }
       settings->control_mode = CANON_CONTINUOUS;
       settings->tolerance = tolerance;
       SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
 
-      if (naivecam_tolerance_in >= 0)
-	  naivecam_tolerance = naivecam_tolerance_in;
-      else if (tolerance_in >= 0)
-	  // if no naivecam_tolerance specified use same for both
-	  naivecam_tolerance = tolerance_in;
-      else
-	  naivecam_tolerance = 0;
+      if (naivecam_tolerance_in >= 0){
+	      naivecam_tolerance = naivecam_tolerance_in;
+      }
+      else if (tolerance_in >= 0){
+	      // if no naivecam_tolerance specified use same for both
+	      naivecam_tolerance = tolerance_in;
+      }
+      else{
+	      naivecam_tolerance = _setup.naivecam_tolerance_default;
+      }
       settings->naivecam_tolerance = naivecam_tolerance;
       SET_NAIVECAM_TOLERANCE(naivecam_tolerance);
 

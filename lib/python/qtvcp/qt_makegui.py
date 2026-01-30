@@ -86,6 +86,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
             return
         self.__class__._instanceNum += 1
 
+        self._idName = "TopObject" # initial name, will be replaced
         self.halcomp = halcomp
         self.has_closing_handler = False
         self.setFocus(True)
@@ -124,7 +125,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
     def shutdown(self):
         for i in (self._VCPWindowList):
             if 'closing_cleanup__' in dir(i):
-                log.debug('Calling handler file Closing_cleanup__ function of {}.'.format(i))
+                log.debug('Calling handler file closing_cleanup__ function of {}.'.format(i._idName))
                 i.closing_cleanup__()
 
     def sync_qsettings(self):
@@ -222,6 +223,7 @@ Python Error:\n {}'''.format(str(e))
         # apply one word system theme
         if fname in (list(QtWidgets.QStyleFactory.keys())):
             QtWidgets.qApp.setStyle(fname)
+            log.info('Applied System Style name: yellow<{}>'.format(fname))
             return
 
         # Check for Preference file specified qss
@@ -254,6 +256,7 @@ Python Error:\n {}'''.format(str(e))
             # qss files aren't friendly about changing image paths
             qss_file = qss_file.replace('url(:/newPrefix/images', 'url({}'.format(self.PATHS.IMAGEDIR))
             self.setStyleSheet(qss_file)
+            log.info('Applied Style Sheet path: yellow<{}>'.format(qssname))
             return
         except:
             if fname:
@@ -380,7 +383,7 @@ class MainPage(QtWidgets.QMainWindow):
                 self.PATHS = value.PATHS
                 self.MAIN = value
             elif key == 'name':
-                self._name = value
+                self._idName = value
 
     def instance(self, filename):
         try:
@@ -388,11 +391,11 @@ class MainPage(QtWidgets.QMainWindow):
         except AttributeError as e:
             formatted_lines = traceback.format_exc().splitlines()
             if 'slotname' in formatted_lines[-2]:
-                log.critical('{}: Missing slot name in handler file: {}'.format(self._name, e))
+                log.critical('{}: Missing slot name in handler file: {}'.format(self._idName, e))
                 message = '''A widget in the ui file, {} was assigned a signal \
 call to a missing function name in the handler file?\n
 There may be more. Some functions might not work.\n
-Python Error:\n {}'''.format(self._name, str(e))
+Python Error:\n {}'''.format(self._idName, str(e))
                 rtn = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message)
             else:
                 log.critical(e)
@@ -424,33 +427,33 @@ Python Error:\n {}'''.format(self._name, str(e))
                 directory = '.'
             if directory not in sys.path:
                 sys.path.insert(0, directory)
-                log.debug('{}: adding import dir: yellow<{}>'.format(self._name, directory))
+                log.debug('{}: adding import dir: yellow<{}>'.format(self._idName, directory))
 
             try:
                 mod = __import__(basename)
             except ImportError as e:
                 log.critical("{}: module '{}' skipped - import error: "
-                        .format(self._name, basename), exc_info=e)
+                        .format(self._idName, basename), exc_info=e)
                 raise
                 continue
-            log.debug("{}: module '{}' imported green<OK>".format(self._name, mod.__name__))
+            log.debug("{}: module '{}' imported green<OK>".format(self._idName, mod.__name__))
 
             try:
                 # look for 'get_handlers' function
                 h = getattr(mod, hdl_func, None)
                 if h and callable(h):
-                    log.debug("{}: module '{}' : '{}' function found".format(self._name, mod.__name__, hdl_func))
+                    log.debug("{}: module '{}' : '{}' function found".format(self._idName, mod.__name__, hdl_func))
                     objlist = h(halcomp, widgets, self.PATHS)  # this sets the handler class signature
                 else:
                     # the module has no get_handlers() callable.
                     # in this case we permit any callable except class Objects in the module to register as handler
                     log.debug("{}: module '{}': no '{}' function - registering only functions as callbacks"
-                              .format(self._name, mod.__name__, hdl_func))
+                              .format(self._idName, mod.__name__, hdl_func))
                     objlist = [mod]
                 # extract callback candidates
                 for object in objlist:
                     log.debug("{}: Registering handlers in module {} object {}"
-                            .format(self._name, mod.__name__, object))
+                            .format(self._idName, mod.__name__, object))
                     if isinstance(object, dict):
                         methods = list(dict.items())
                     else:
@@ -459,12 +462,12 @@ Python Error:\n {}'''.format(self._name, str(e))
                         if method.startswith('_'):
                             continue
                         if callable(f):
-                            log.debug("{}: Register callback '{}'".format(self._name, method))
+                            log.debug("{}: Register callback '{}'".format(self._idName, method))
                             add_handler(method, f)
 
             except Exception as e:
                 log.exception("{}: Trouble looking for handlers in '{}':"
-                        .format(self._name, basename), exc_info=e)
+                        .format(self._idName, basename), exc_info=e)
                 # we require a working handler file!
                 raise
 

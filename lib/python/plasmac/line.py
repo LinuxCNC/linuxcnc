@@ -62,7 +62,7 @@ def do_line_point_to_point(Conv, xStart, yStart, xEnd, yEnd):
         error += f'{msg}\n\n'
     if error:
         return True, error
-    code = f'g1 x{float(xEnd):.6f} y{float(yEnd):.6f}\n'
+    code = f'G01 X{float(xEnd):.6f} Y{float(yEnd):.6f}\n'
     return False, xEnd, yEnd, code
 
 
@@ -95,7 +95,7 @@ def do_line_by_angle(Conv, xStart, yStart, length, angle):
     ang = math.radians(angle)
     x = xStart + (length * math.cos(ang))
     y = yStart + (length * math.sin(ang))
-    code = f'g1 x{x:.6f} y{y:.6f}\n'
+    code = f'G01 X{x:.6f} Y{y:.6f}\n'
     return False, x, y, code
 
 
@@ -151,13 +151,13 @@ def do_arc_3_points(Conv, xStart, yStart, xNext, yNext, xEnd, yEnd):
         b3 = c*c * (a*a + b*b - c*c)
         p = numpy.column_stack((A, B, C)).dot(numpy.hstack((b1, b2, b3)))
         p /= b1 + b2 + b3
-        G = '3' if (xNext - xStart) * (yEnd - yStart) - (yNext - yStart) * (xEnd - xStart) > 0 else '2'
+        G = '03' if (xNext - xStart) * (yEnd - yStart) - (yNext - yStart) * (xEnd - xStart) > 0 else '02'
         if numpy.isnan(p[0] - xStart) or numpy.isnan(p[1] - yStart):
             msg0 = _('Unknown calculation error')
             msg1 = _('Ensure entries are correct')
             error = f'{msg0},\n\n{msg1}'
             return True, error
-        code = f'g{G} x{xEnd:.6f} y{yEnd:.6f} i{p[0] - xStart:.6f} j{p[1] - yStart:.6f}\n'
+        code = f'G{G} X{xEnd:.6f} Y{yEnd:.6f} I{p[0] - xStart:.6f} J{p[1] - yStart:.6f}\n'
         return False, xEnd, yEnd, code
     except Exception as e:
         msg = _('SYSTEM ERROR')
@@ -209,7 +209,7 @@ def do_arc_2_points_radius(Conv, xStart, yStart, xEnd, yEnd, radius, arcType):
         yLineCentre = (yStart + yEnd) / 2
         xArcCentre = xLineCentre + length * math.cos(angle + dir)
         yArcCentre = yLineCentre + length * math.sin(angle + dir)
-        code = (f'g{arcType} x{xEnd:.6f} y{yEnd:.6f} i{xArcCentre - xStart:.6f} j{yArcCentre - yStart:.6f}\n')
+        code = (f'G{arcType} X{xEnd:.6f} Y{yEnd:.6f} I{xArcCentre - xStart:.6f} J{yArcCentre - yStart:.6f}\n')
         return False, xEnd, yEnd, code
     except Exception as e:
         msg = _('SYSTEM ERROR')
@@ -257,31 +257,33 @@ def do_arc_by_angle_radius(Conv, xStart, yStart, length, angle, radius, arcType)
     return result
 
 
-def first_segment(fTmp, fNgc, fNgcBkp, preAmble, lineType, xStart, yStart, matNumber, matName):
+def first_segment(fTmp, fNgc, fNgcBkp, preAmble, xStart, yStart, matNumber, matName):
     with open(fTmp, 'w') as outTmp:
         with open(fNgc, 'w') as outNgc:
             with open(fNgcBkp, 'r') as inWiz:
                 for line in inWiz:
-                    if '(new conversational file)' in line:
-                        if('\\n') in preAmble:
-                            outNgc.write('(preamble)\n')
-                            for l in preAmble.split('\\n'):
-                                outNgc.write(f'{l}\n')
-                        else:
-                            outNgc.write(f'\n{preAmble} (preamble)\n')
-                        break
-                    elif '(postamble)' in line:
-                        break
-                    elif 'm2' in line.lower() or 'm30' in line.lower():
-                        continue
-                    outNgc.write(line)
+                    line = line.strip()
+                    if line and line[0] not in ';':
+                        if '(new conversational file)' in line:
+                            if('\\n') in preAmble:
+                                outNgc.write('(preamble)\n')
+                                for l in preAmble.split('\\n'):
+                                    outNgc.write(f'{l}\n')
+                            else:
+                                outNgc.write(f'\n{preAmble} (preamble)\n')
+                            break
+                        elif '(postamble)' in line:
+                            break
+                        elif 'M2' in line.upper() or 'M02' in line.upper() or 'M30' in line.upper():
+                            continue
+                    outNgc.write(f"{line}\n")
         outTmp.write('\n(conversational line/arc)\n')
         outTmp.write(f';using material #{matNumber}: {matName}\n')
         outTmp.write(f'M190 P{matNumber}\n')
         outTmp.write('M66 P3 L3 Q1\n')
-        outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
-        outTmp.write(f'g0 x{xStart:.6f} y{yStart:.6f}\n')
-        outTmp.write('m3 $0 s1\n')
+        outTmp.write('F#<_hal[plasmac.cut-feed-rate]>\n')
+        outTmp.write(f'G00 X{xStart:.6f} Y{yStart:.6f}\n')
+        outTmp.write('M03 $0 S1\n')
 
 
 def next_segment(fTmp, fNgc):
@@ -289,7 +291,7 @@ def next_segment(fTmp, fNgc):
         with open(fNgc, 'r') as inNgc:
             while(1):
                 line = inNgc.readline()
-                if not line or 'M5 $0' in line:
+                if not line or 'M05 $0' in line:
                     break
                 else:
                     outTmp.write(line)
@@ -299,15 +301,15 @@ def next_segment(fTmp, fNgc):
 def last_segment(fTmp, fNgc, code, postAmble):
     with open(fTmp, 'a') as outTmp:
         outTmp.write(code)
-        outTmp.write('M5 $0\n')
+        outTmp.write('M05 $0\n')
     with open(fNgc, 'a') as outNgc:
         with open(fTmp, 'r') as inTmp:
             for line in inTmp:
                 outNgc.write(line)
         if('\\n') in postAmble:
-            outNgc.write('(postamble)\n')
+            outNgc.write('\n(postamble)\n')
             for l in postAmble.split('\\n'):
                 outNgc.write(f'{l}\n')
         else:
             outNgc.write(f'\n{postAmble} (postamble)\n')
-        outNgc.write('m2\n')
+        outNgc.write('M02\n')

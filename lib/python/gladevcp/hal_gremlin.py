@@ -41,7 +41,7 @@ if __name__ == "__main__":
     from hal_actions import _EMC_ActionBase
 else:
     from .hal_actions import _EMC_ActionBase
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 
 def get_linuxcnc_ini_file():
     """find LinuxCNC INI file with pgrep"""

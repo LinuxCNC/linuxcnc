@@ -277,6 +277,10 @@ class Pages:
              self.w.radio_pp1.set_active(True)
         else:
              self.w.radio_none.set_active(True)
+        self.w.debounce_probe.set_active(self.d.debounce_probe)
+        self.w.debounce_cycle_probe.set_value(self.d.debounce_cycle_probe)
+        self.w.debounce_estop.set_active(self.d.debounce_estop)
+        self.w.debounce_cycle_estop.set_value(self.d.debounce_cycle_estop)
         self.w.require_homing.set_active(self.d.require_homing)
         self.w.individual_homing.set_active(self.d.individual_homing)
         self.w.restore_joint_position.set_active(self.d.restore_joint_position)
@@ -332,6 +336,10 @@ class Pages:
         if self.d.number_pports == 0 and self.d.number_mesa== 0 :
            self.a.warning_dialog(_("You need to designate a parport and/or mesa I/O device before continuing."),True)
            return True
+        self.d.debounce_probe = self.w.debounce_probe.get_active()
+        self.d.debounce_cycle_probe = self.w.debounce_cycle_probe.get_value_as_int()
+        self.d.debounce_estop = self.w.debounce_estop.get_active()
+        self.d.debounce_cycle_estop = self.w.debounce_cycle_estop.get_value_as_int()
         self.d.require_homing = self.w.require_homing.get_active()
         self.d.individual_homing = self.w.individual_homing.get_active()
         self.d.restore_joint_position = self.w.restore_joint_position.get_active()
@@ -423,6 +431,18 @@ class Pages:
             # This erases any entered data that would make sense to change
             self.d.set_axis_unit_defaults(not widget.get_active())
 
+    def on_debounce_probe_toggled(self,widget):
+        if self.w.debounce_probe.get_active():
+            self.w.debounce_cycle_probe.set_sensitive(True)
+        else:
+            self.w.debounce_cycle_probe.set_sensitive(False)
+
+    def on_debounce_estop_toggled(self,widget):
+        if self.w.debounce_estop.get_active():
+            self.w.debounce_cycle_estop.set_sensitive(True)
+        else:
+            self.w.debounce_cycle_estop.set_sensitive(False)
+
 #************
 # SCREEN PAGE
 #************
@@ -510,6 +530,10 @@ class Pages:
         if os.path.exists(self._p.THEMEDIR):
             self.a.get_installed_themes()
 
+        # gmoccapy
+        self.w.gmcpy_probescreen.set_active(self.d.gmcpy_probescreen)
+        self.w.gmcpy_mesascreen.set_active(self.d.gmcpy_mesascreen)
+
     def screen_finish(self):
         # Sanity checks
 
@@ -569,6 +593,10 @@ class Pages:
             self.d.classicladder = True
             if not self.w.ladderexist.get_active():
                 self.w.laddertouchz.set_active(True)
+
+        # set the gmoccapy variables
+        self.d.gmcpy_probescreen = self.w.gmcpy_probescreen.get_active()
+        self.d.gmcpy_mesascreen = self.w.gmcpy_mesascreen.get_active()
 
     # callbacks
     def on_loadladder_clicked(self, *args):self.t.load_ladder(self)
@@ -631,7 +659,7 @@ class Pages:
             self.w.touchy_info.hide()
             self.page_set_state('vcp', False)
             self.page_set_state('ubuttons', True)
-            if self.d._arcvpin:
+            if self.d._arcvpin != None:
                 self.page_set_state('thcad', True)
             else:
                 self.page_set_state('thcad', False)
@@ -1296,7 +1324,7 @@ class Pages:
     def thcad_prepare(self):
         self.d.help = "help-thcad.txt"
         self.w.voltsbox.hide()
-        if self.d._arcvpin:
+        if self.d._arcvpin != None:
             self.w.voltsbox.show()
         self.w.voltsmodel.set_active(["2 (W1 down)", "2 (W1 up)", "5", "10", "300"].index(self.d.voltsmodel))
         self.w.voltsfjumper.set_active(["1", "32", "64", "128"].index(self.d.voltsfjumper))

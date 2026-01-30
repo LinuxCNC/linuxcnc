@@ -3,7 +3,8 @@ TARGETS += ../bin/motion-logger
 MOTION_LOGGER_SRCS := \
 	$(addprefix emc/motion-logger/, motion-logger.c) \
 	emc/motion/axis.c \
-	emc/motion/simple_tp.c
+	emc/motion/simple_tp.c \
+	emc/tp/sp_scurve.c
 
 USERSRCS += $(MOTION_LOGGER_SRCS)
 

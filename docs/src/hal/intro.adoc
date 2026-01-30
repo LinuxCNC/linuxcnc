@@ -3,7 +3,7 @@
 
 [[cha:hal-introduction]]
 
-= HAL Introduction(((HAL Introduction)))
+= HAL Introduction
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -11,6 +11,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((HAL Introduction)))
 LinuxCNC is about interacting with hardware. But few users have the same exact hardware specifications - similar, but not the same.
 And even for the exact same hardware, there may be different ways to use it, say for different materials or with different mills, which would require adaptations to the control of an already running system.
 An abstraction was needed to make it easier to configure LinuxCNC for a wide variety of hardware devices.
@@ -20,8 +21,9 @@ This chapter introduces to that Hardware Abstraction Layer.
 You will see that many of the building blocks are indeed, drivers for hardware devices.
 However, HAL can do more than just configure hardware drivers.
 
-== HAL Overview(((HAL)))
+== HAL Overview
 
+(((HAL)))
 The Hardware Abstraction Layer (or with a reference to the link:https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_(film)[2001 Space Odyssey movie] just "HAL") is a software to
 
 * provide the infrastructure for the communication with and between the many software and hardware components of the system.
@@ -167,8 +169,9 @@ The remainder of this introduction presents
   - developing over time.
 
 [[sec:hal-system-design]]
-== HAL System Design(((HAL System Design)))
+== HAL System Design
 
+(((HAL System Design)))
 .HAL is based on traditional system design techniques.
 
 HAL is based on the same principles that are used to design hardware circuits and systems, so it is useful to examine those principles first.
@@ -188,8 +191,9 @@ net signal-red     component.0.pin3-out     component.1.pin3-in     component.1.
 ----
 
 [[sub:hal-part-selection]]
-=== Part Selection(((HAL Part selection)))
+=== Part Selection
 
+(((HAL Part selection)))
 The machine builder does not need to worry about how each individual part works.
 He treats them as black boxes. During the design stage,
 he decides which parts he is going to use - steppers or servos, which brand of servo amp, what kind of limit switches and how many, etc.
@@ -202,8 +206,9 @@ Usually every interface card will require a driver.
 Additional components may be needed for software generation of step pulses, PLC functionality, and a wide variety of other tasks.
 
 [[sub:hal-interconnections-design]]
-=== Interconnection Design(((HAL: Interconnections Design)))
+=== Interconnection Design
 
+(((HAL: Interconnections Design)))
 The designer of a hardware system not only selects the parts, he also decides how those parts will be interconnected.
 Each black box has terminals, perhaps only two for a simple switch, or dozens for a servo drive or PLC.  They need to be wired together.
 The motors connect to the servo amps, the limit switches connect to the controller, and so on.
@@ -213,8 +218,9 @@ When using HAL, components are interconnected by signals.
 The designer must decide which signals are needed, and what they should connect.
 
 [[sub:hal-implementation]]
-=== Implementation(((HAL: Implementation)))
+=== Implementation
 
+(((HAL: Implementation)))
 Once the wiring diagram is complete it is time to build the machine.
 The pieces need to be acquired and mounted, and then they are interconnected according to the wiring diagram.
 In a physical system, each interconnection is a piece of wire that needs to be cut and connected to the appropriate terminals.
@@ -224,8 +230,9 @@ Some of the tools allow you to 'connect' (or disconnect) a single 'wire'.
 Other tools allow you to save a complete list of all the parts, wires, and other information about the system, so that it can be 'rebuilt' with a single command.
 
 [[sub:hal-testing]]
-=== Testing(((HAL: Testing)))
+=== Testing
 
+(((HAL: Testing)))
 Very few machines work right the first time.
 While testing, the builder may use a meter to see whether a limit switch is working or to measure the DC voltage going to a servo motor.
 He may hook up an oscilloscope to check the tuning of a drive, or to look for electrical noise.
@@ -235,8 +242,9 @@ HAL provides the software equivalents of a voltmeter, oscilloscope, signal gener
 The same commands used to build the system can be used to make changes as needed.
 
 [[sub:hal-basics]]
-=== Summary(((HAL Basics Summary)))
+=== Summary
 
+(((HAL Basics Summary)))
 This document is aimed at people who already know how to do this kind of hardware system integration, but who do not know how to connect the hardware to LinuxCNC.
 See the <<sec:halui-remote-start,Remote Start Example>> section in the HAL UI Examples documentation.
 
@@ -262,12 +270,14 @@ This idea of extending the wiring diagram to the inside of the controller is wha
 If you are comfortable with the idea of interconnecting hardware black boxes, you will probably have little trouble using HAL to interconnect software black boxes.
 
 [[sec:hal-concepts]]
-== HAL Concepts(((HAL Concepts)))
+== HAL Concepts
 
+(((HAL Concepts)))
 This section is a glossary that defines key HAL terms but it is a bit different than a traditional glossary because these terms are not arranged in alphabetical order.
 They are arranged by their relationship or flow in the HAL way of things.
 
-Component:: (((HAL Component)))
+(((HAL Component)))
+Component::
   When we talked about hardware design, we referred to the individual pieces as 'parts', 'building blocks', 'black boxes', etc.
   The HAL equivalent is a 'component' or 'HAL component'.
   This document uses 'HAL component' when there is likely to be confusion with other kinds of components, but normally just uses 'component'.
@@ -283,7 +293,8 @@ Component:: (((HAL Component)))
   And it is common to add buttons to the imaginary retrofit that *signal* an action, like an emergency stop.
   LinuxCNC and the machine become one. And that is through the HAL.
 
-Parameter:: (((HAL Parameter)))
+(((HAL Parameter)))
+Parameter::
   Many hardware components have adjustments that are not connected to any other components but still need to be accessed.
   For example, servo amps often have trim pots to allow for tuning adjustments, and test points where a meter or scope can be attached to view the tuning results.
   HAL components also can have such items, which are referred to as 'parameters'.
@@ -291,14 +302,16 @@ Parameter:: (((HAL Parameter)))
   Input parameters are equivalent to trim pots - they are values that can be adjusted by the user, and remain fixed once they are set.
   Output parameters cannot be adjusted by the user - they are equivalent to test points that allow internal signals to be monitored.
 
-Pin:: (((HAL Pin)))
+(((HAL Pin)))
+Pin::
   Hardware components have terminals which are used to interconnect them.
   The HAL equivalent is a 'pin' or 'HAL pin'.
   'HAL pin' is used when needed to avoid confusion.
   All HAL pins are named, and the pin names are used when interconnecting them.
   HAL pins are software entities that exist only inside the computer.
 
-Physical_Pin:: (((HAL Physical Pin)))
+(((HAL Physical Pin)))
+Physical_Pin::
   Many I/O devices have real physical pins or terminals that connect to external hardware, for example the pins of a parallel port connector.
   To avoid confusion, these are referred to as 'physical pins'.
   These are the things that 'stick out' into the real world.
@@ -308,13 +321,15 @@ Physical_Pin:: (((HAL Physical Pin)))
 You may be wondering what relationship there is between the HAL_pins, physical_pins and external elements like encoders or a STG card: we are dealing here with interfaces of data translation/conversion type.
 ====
 
-Signal:: (((HAL Signal)))
+(((HAL Signal)))
+Signal::
   In a physical machine, the terminals of real hardware components are interconnected by wires.
   The HAL equivalent of a wire is a 'signal' or 'HAL signal'.
   HAL signals connect HAL pins together as required by the machine builder.
   HAL signals can be disconnected and reconnected at will (even while the machine is running).
 
-Type:: (((HAL Type)))
+(((HAL Type)))
+Type::
   When using real hardware, you would not connect a 24 Volt relay output to the +/-10&#8239;V analog input of a servo amp.
   HAL pins have the same restrictions, which are based upon their type.
   Both pins and signals have types, and signals can only be connected to pins of ffvthe same type.
@@ -330,7 +345,8 @@ Type:: (((HAL Type)))
 - s64 - a 64 bit signed integer, legal values are -9,223,372,036,854,775,808 to
   +9,223,372,036,854,775,807
 
-Function:: (((HAL:Function)))
+(((HAL:Function)))
+Function::
   Real hardware components tend to act immediately on their inputs.
   For example, if the input voltage to a servo amp changes, the output also changes automatically.
   However software components cannot act 'automatically'.
@@ -343,7 +359,8 @@ Function:: (((HAL:Function)))
   Each function is a block of code that performs a specific action.
   The system integrator can use 'threads' to schedule a series of functions to be executed in a particular order and at specific time intervals.
 
-Thread:: (((HAL:Thread)))
+(((HAL:Thread)))
+Thread::
   A 'thread' is a list of functions that runs at specific intervals as part of a realtime task.
   When a thread is first created, it has a specific time interval (period), but no functions.
   Functions can be added to the thread, and will be executed in order every time the thread runs.
@@ -359,14 +376,16 @@ One to read the physical input pins and update the HAL pins, the other to take d
 Both of these functions are part of the parport driver.
 
 [[sec:hal-components]]
-== HAL components(((HAL Components)))
+== HAL components
 
+(((HAL Components)))
 Each HAL component is a piece of software with well-defined inputs, outputs, and behavior, that can be installed and interconnected as needed.
 The section <<sec:hal-components,HAL Components List>> lists all available components and a brief description of what each does.
 
 [[sec:hal-timing-issues]]
-== Timing Issues In HAL(((HAL Timing Issues)))
+== Timing Issues In HAL
 
+(((HAL Timing Issues)))
 Unlike the physical wiring models between black boxes that we have said that HAL is based upon,
 simply connecting two pins with a HAL-signal falls far short of the action of the physical case.
 

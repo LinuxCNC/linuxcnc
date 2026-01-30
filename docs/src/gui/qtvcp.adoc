@@ -45,8 +45,9 @@ image::images/qtvcp-cam-align.png["Qtscreen x1mill",align="center"]
 image::images/test_panel.png["Test Panel",align="center"]
 
 [[sec:qtvcp-overview]]
-== Overview(((QtVCP Overview)))
+== Overview
 
+(((QtVCP Overview)))
 _Two files are used, individually or in combination_, to add customizations:
 
 * A *UI file* that is a _XML_ file made with _Qt Designer_ graphical editor.
@@ -233,7 +234,7 @@ Subclassing just means our handler file first loads the original handler file an
 This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories.
 
 You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
-See 'custom handler file'
+See 'custom handler file'.
 
 There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/<SCREEN NAME>/' +
 add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py, +
@@ -304,8 +305,8 @@ This file will be read and executed as Python code in the *handler file context*
 *Only local functions and local attributes* can be referenced. +
 Global libraries defined in the screen's handler file can be referenced by importing the handler file. +
 These are usually seen as all capital words with no preceding self. +
-'self' references the window class functions +
-'self.w' typically references the widgets
+'self' references the window class functions. +
+'self.w' typically references the widgets.
 
 What can be used can vary by screen and development cycle.
 
@@ -974,8 +975,8 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   _Class patching_, also known as _monkey patching_, allows to *override function calls in an imported module*. +
   Class patching must be done _before the module is instantiated_, and it _modifies all instances_ made after that. +
   An example might be patching button calls from the G-code editor to call functions in the handler file instead. +
-  Class patching function redefined here, will be called with the HandlerClass instance as 'self' rather then +
-  the patched class instance. This can make access to the patched class function/variables more difficult. +
+  Class patching function redefined here, will be called with the HandlerClass instance as 'self' rather than the patched class instance.
+  This can make access to the patched class function/variables more difficult. +
   When class patching outside of the HandlerClass class, the function call will use the patched class instance as 'self'. 
 
 *`initialized__(self):`*::

@@ -2,6 +2,7 @@ component mult2 "Product of two inputs";
 pin in float in0;
 pin in float in1;
 pin out float out "out = in0 * in1";
+option period no;
 function _;
 license "GPL";
 author "John Kasunich";

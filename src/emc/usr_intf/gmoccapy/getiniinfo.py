@@ -29,7 +29,7 @@ import os
 import operator
 
 # Set up logging
-from qtvcp import logger
+from common import logger
 
 LOG = logger.getLogger(__name__)
 # Force the log level for this module

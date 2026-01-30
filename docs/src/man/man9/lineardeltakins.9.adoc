@@ -24,11 +24,11 @@ extruder.
 
 *lineardeltakins.R* float in::
   Effective diameter of the platform.
-
++
 The radius R is different than the distance from the center of the table to the
 center of the belt/smooth rod/extrusion that the joints ride on. In
 RepRap delta parlance, R is DELTA_RADIUS which is computed as
-
++
 DELTA_SMOOTH_ROD_OFFSET - DELTA_EFFECTOR_OFFSET - DELTA_CARRIAGE_OFFSET.
 
 *lineardeltakins.L* float in::

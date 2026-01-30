@@ -48,7 +48,7 @@ None
 
 The existence of *threads* might be considered a bug. Ideally, creation
 and deletion of threads would be done directly with *halcmd* commands,
-such as "*newthread *_name period_", "*delthread *_name_", or similar.
+such as "*newthread* _name period_", "*delthread* _name_", or similar.
 However, limitations in the current HAL implementation require thread
 creation to take place in kernel space, and loading a component is the
 most straightforward way to do that.

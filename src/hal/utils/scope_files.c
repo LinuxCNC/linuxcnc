@@ -43,6 +43,7 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
+#include "../hal_priv.h"	/* HAL private API decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
@@ -60,8 +61,9 @@
 */
 
 /*
+   # SAMPLES <int>	total sample buffer size (written as comment for compatibility)
    THREAD <string>	name of thread to sample in
-   MAXCHAN <int>	1,2,4,8,16, maximum channel count
+   MAXCHAN <int>	1,2,4,8,16, maximum channel count (ignored, kept for compatibility)
    HMULT <int>		multiplier, sample every N runs of thread
    HZOOM <int>		1-9, horizontal zoom setting
    HPOS <float>		0.0-1.0, horizontal position setting
@@ -144,8 +146,11 @@ static char *rmode_cmd(void * arg);
 *                         LOCAL VARIABLES                              *
 ************************************************************************/
 
-static const cmd_lut_entry_t cmd_lut[25] =
+static char *samples_cmd(void * arg);
+
+static const cmd_lut_entry_t cmd_lut[26] =
 {
+  { "samples",	INT,	samples_cmd },
   { "thread",	STRING,	thread_cmd },
   { "maxchan",	INT,	maxchan_cmd },
   { "hmult",	INT,	hmult_cmd },
@@ -246,7 +251,7 @@ void write_log_file(char *filename)
     scope_vert_t *vert;
     hal_type_t type[16];
 
-    char *label[16];
+    char *label[16] = {};
     char *old_locale, *saved_locale;
     int sample_len, chan_active, chan_num, sample_period_ns, samples, n;
     FILE *fp;
@@ -287,6 +292,36 @@ void write_log_file(char *filename)
         fprintf(fp, "%s", label[chan_num]);
         if (chan_num < chan_active - 1) {
             fprintf(fp, ";");
+        }
+    }
+    fprintf(fp, "\n");
+
+    /* write channel positions */
+    fprintf(fp, "# Position: ");
+    chan_active = 0;
+    for (chan_num = 0; chan_num < 16; chan_num++) {
+        if (vert->chan_enabled[chan_num] == 1) {
+            chan = &(ctrl_usr->chan[chan_num]);
+            fprintf(fp, "%.6f", chan->position);
+            chan_active++;
+            if (chan_active < sample_len) {
+                fprintf(fp, ";");
+            }
+        }
+    }
+    fprintf(fp, "\n");
+
+    /* write channel scale indices */
+    fprintf(fp, "# Scale: ");
+    chan_active = 0;
+    for (chan_num = 0; chan_num < 16; chan_num++) {
+        if (vert->chan_enabled[chan_num] == 1) {
+            chan = &(ctrl_usr->chan[chan_num]);
+            fprintf(fp, "%d", chan->scale_index);
+            chan_active++;
+            if (chan_active < sample_len) {
+                fprintf(fp, ";");
+            }
         }
     }
     fprintf(fp, "\n");
@@ -333,6 +368,456 @@ void write_log_file(char *filename)
     setlocale(LC_NUMERIC, saved_locale);
     free(saved_locale);
     printf("Log file '%s' written.\n", filename);
+}
+
+/* reads captured data from disk and loads it into display buffer */
+void read_log_file(char *filename)
+{
+    scope_chan_t *chan;
+    scope_horiz_t *horiz;
+    scope_vert_t *vert;
+
+    char line[16384];  /* buffer for reading lines */
+    char *token;
+    char *channel_names[16];
+    hal_type_t channel_types[16];
+    double channel_positions[16];
+    int channel_scales[16];
+    int has_position_config = 0;
+    int has_scale_config = 0;
+    int channel_count = 0;
+    int sample_period_ns = 0;
+    int sample_count = 0;
+    int line_num = 0;
+    char *old_locale, *saved_locale;
+    FILE *fp;
+    int i;
+    scope_data_t *dptr;
+
+    /* Open file */
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+        fprintf(stderr, "ERROR: log file '%s' could not be opened\n", filename);
+        return;
+    }
+
+    /* Parse line 1: sample period comment */
+    if (fgets(line, sizeof(line), fp) == NULL) {
+        fprintf(stderr, "ERROR: log file is empty\n");
+        fclose(fp);
+        return;
+    }
+    line_num++;
+
+    /* Expected format: "# Sampling period is 12345 ns" */
+    if (sscanf(line, "# Sampling period is %d ns", &sample_period_ns) != 1) {
+        fprintf(stderr, "ERROR: line %d: invalid sample period format\n", line_num);
+        fclose(fp);
+        return;
+    }
+
+    if (sample_period_ns <= 0) {
+        fprintf(stderr, "ERROR: invalid sample period %d ns\n", sample_period_ns);
+        fclose(fp);
+        return;
+    }
+
+    /* Parse line 2: channel names (semicolon-separated) */
+    if (fgets(line, sizeof(line), fp) == NULL) {
+        fprintf(stderr, "ERROR: log file missing channel header\n");
+        fclose(fp);
+        return;
+    }
+    line_num++;
+
+    /* Remove trailing newline */
+    line[strcspn(line, "\n")] = 0;
+
+    /* Parse channel names */
+    token = strtok(line, ";");
+    while (token != NULL && channel_count < 16) {
+        /* Allocate and store channel name */
+        channel_names[channel_count] = strdup(token);
+        channel_count++;
+        token = strtok(NULL, ";");
+    }
+
+    if (channel_count == 0) {
+        fprintf(stderr, "ERROR: no channels found in header\n");
+        fclose(fp);
+        return;
+    }
+
+    if (token != NULL) {
+        fprintf(stderr, "WARNING: CSV has more than 16 channels, loading first 16 only\n");
+    }
+
+    /* Initialize default values for position and scale */
+    for (i = 0; i < channel_count; i++) {
+        channel_positions[i] = 0.5;  /* Default center position */
+        channel_scales[i] = 0;       /* Default scale index */
+    }
+
+    /* Try to parse optional position line */
+    long optional_line_pos = ftell(fp);
+    if (fgets(line, sizeof(line), fp) != NULL) {
+        line_num++;
+        if (strncmp(line, "# Position: ", 12) == 0) {
+            /* Parse position values */
+            char *pos_start = line + 12;
+            pos_start[strcspn(pos_start, "\n")] = 0;
+            token = strtok(pos_start, ";");
+            i = 0;
+            while (token != NULL && i < channel_count) {
+                if (sscanf(token, "%lf", &channel_positions[i]) == 1) {
+                    has_position_config = 1;
+                }
+                i++;
+                token = strtok(NULL, ";");
+            }
+
+            /* Try to parse optional scale line */
+            optional_line_pos = ftell(fp);
+            if (fgets(line, sizeof(line), fp) != NULL) {
+                line_num++;
+                if (strncmp(line, "# Scale: ", 9) == 0) {
+                    /* Parse scale values */
+                    char *scale_start = line + 9;
+                    scale_start[strcspn(scale_start, "\n")] = 0;
+                    token = strtok(scale_start, ";");
+                    i = 0;
+                    while (token != NULL && i < channel_count) {
+                        if (sscanf(token, "%d", &channel_scales[i]) == 1) {
+                            has_scale_config = 1;
+                        }
+                        i++;
+                        token = strtok(NULL, ";");
+                    }
+                } else {
+                    /* Not a scale line, rewind */
+                    fseek(fp, optional_line_pos, SEEK_SET);
+                    line_num--;
+                }
+            }
+        } else {
+            /* Not a position line, rewind */
+            fseek(fp, optional_line_pos, SEEK_SET);
+            line_num--;
+        }
+    }
+
+    /* Count samples by reading through the file */
+    long data_start_pos = ftell(fp);
+    sample_count = 0;
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        sample_count++;
+    }
+
+    if (sample_count == 0) {
+        fprintf(stderr, "ERROR: no data samples found in file\n");
+        fclose(fp);
+        for (i = 0; i < channel_count; i++) {
+            free(channel_names[i]);
+        }
+        return;
+    }
+
+    /* Check if samples exceed buffer capacity */
+    if (sample_count > ctrl_shm->buf_len) {
+        fprintf(stderr, "WARNING: CSV has %d samples but buffer is %d, truncating\n",
+                sample_count, ctrl_shm->buf_len);
+        sample_count = ctrl_shm->buf_len;
+    }
+
+    /* Set locale for consistent number parsing */
+    old_locale = setlocale(LC_NUMERIC, NULL);
+    if (old_locale == NULL) {
+        fprintf(stderr, "ERROR: Could not read locale.\n");
+        fclose(fp);
+        for (i = 0; i < channel_count; i++) {
+            free(channel_names[i]);
+        }
+        return;
+    }
+    saved_locale = strdup(old_locale);
+    if (saved_locale == NULL) {
+        fprintf(stderr, "ERROR: Could not copy old locale.\n");
+        fclose(fp);
+        for (i = 0; i < channel_count; i++) {
+            free(channel_names[i]);
+        }
+        return;
+    }
+    setlocale(LC_NUMERIC, "C");
+
+    /* Setup channels - try to match names to HAL entities */
+    vert = &(ctrl_usr->vert);
+
+    /* Disable all channels and mark data offsets as invalid */
+    for (i = 0; i < 16; i++) {
+        vert->chan_enabled[i] = 0;
+        vert->data_offset[i] = -1;
+        ctrl_usr->chan[i].data_source_type = -1;
+        ctrl_usr->chan[i].is_phantom = 0;
+    }
+
+    for (i = 0; i < channel_count; i++) {
+        chan = &(ctrl_usr->chan[i]);
+        int matched = 0;
+
+        /* Try to find matching HAL pin */
+        hal_pin_t *pin = halpr_find_pin_by_name(channel_names[i]);
+        if (pin != NULL) {
+            chan->data_source_type = 0;
+            chan->data_source = SHMOFF(pin);
+            chan->data_type = pin->type;
+            chan->name = pin->name;
+            matched = 1;
+        } else {
+            /* Try to find matching HAL signal */
+            hal_sig_t *sig = halpr_find_sig_by_name(channel_names[i]);
+            if (sig != NULL) {
+                chan->data_source_type = 1;
+                chan->data_source = SHMOFF(sig);
+                chan->data_type = sig->type;
+                chan->name = sig->name;
+                matched = 1;
+            } else {
+                /* Try to find matching HAL parameter */
+                hal_param_t *param = halpr_find_param_by_name(channel_names[i]);
+                if (param != NULL) {
+                    chan->data_source_type = 2;
+                    chan->data_source = SHMOFF(param);
+                    chan->data_type = param->type;
+                    chan->name = param->name;
+                    matched = 1;
+                }
+            }
+        }
+
+        /* If no match found, create phantom channel */
+        if (!matched) {
+            char *phantom_name = malloc(strlen(channel_names[i]) + 8);
+            if (phantom_name != NULL) {
+                snprintf(phantom_name, strlen(channel_names[i]) + 8,
+                         "[CSV] %s", channel_names[i]);
+
+                chan->data_source_type = -1;  /* No source */
+                chan->data_source = 0;
+                chan->data_type = HAL_FLOAT;  /* Default to float for CSV data */
+                chan->name = phantom_name;
+                chan->is_phantom = 1;
+            }
+        }
+
+        /* Set up channel data length and scale limits based on type */
+        switch (chan->data_type) {
+        case HAL_BIT:
+            chan->data_len = sizeof(hal_bit_t);
+            chan->min_index = -2;
+            chan->max_index = 2;
+            break;
+        case HAL_FLOAT:
+            chan->data_len = sizeof(hal_float_t);
+            chan->min_index = -36;
+            chan->max_index = 36;
+            break;
+        case HAL_S32:
+            chan->data_len = sizeof(hal_s32_t);
+            chan->min_index = -2;
+            chan->max_index = 30;
+            break;
+        case HAL_U32:
+            chan->data_len = sizeof(hal_u32_t);
+            chan->min_index = -2;
+            chan->max_index = 30;
+            break;
+        default:
+            chan->data_len = 0;
+            chan->min_index = -1;
+            chan->max_index = 1;
+        }
+
+        /* Set default scale and offset */
+        chan->vert_offset = 0.0;
+        chan->ac_offset = 0;
+
+        /* Apply position and scale from CSV if available */
+        if (has_position_config) {
+            chan->position = channel_positions[i];
+        } else {
+            chan->position = 0.5;  /* Center position */
+        }
+
+        if (has_scale_config) {
+            chan->scale_index = channel_scales[i];
+            /* Clamp to valid range for this data type */
+            if (chan->scale_index < chan->min_index) {
+                chan->scale_index = chan->min_index;
+            }
+            if (chan->scale_index > chan->max_index) {
+                chan->scale_index = chan->max_index;
+            }
+        } else {
+            chan->scale_index = 0;
+        }
+
+        /* Compute the actual scale factor from scale_index */
+        {
+            double scale = 1.0;
+            int index = chan->scale_index;
+            while (index >= 3) {
+                scale *= 10.0;
+                index -= 3;
+            }
+            while (index <= -3) {
+                scale *= 0.1;
+                index += 3;
+            }
+            switch (index) {
+            case 2:
+                scale *= 5.0;
+                break;
+            case 1:
+                scale *= 2.0;
+                break;
+            case -1:
+                scale *= 0.5;
+                break;
+            case -2:
+                scale *= 0.2;
+                break;
+            default:
+                break;
+            }
+            chan->scale = scale;
+        }
+
+        /* Enable this channel */
+        vert->chan_enabled[i] = 1;
+        vert->data_offset[i] = i;  /* Sequential offsets */
+
+        channel_types[i] = chan->data_type;
+    }
+
+    /* Update channel selection buttons to show enabled state */
+    for (i = 0; i < channel_count; i++) {
+        if (vert->chan_sel_buttons[i] != NULL) {
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vert->chan_sel_buttons[i]), TRUE);
+        }
+    }
+
+    /* Update shared memory settings */
+    ctrl_shm->sample_len = channel_count;
+    ctrl_usr->samples = sample_count;
+
+    /* Allocate/clear display buffer */
+    memset(ctrl_usr->disp_buf, 0, sizeof(scope_data_t) * ctrl_shm->buf_len);
+
+    /* Rewind to start of data section */
+    fseek(fp, data_start_pos, SEEK_SET);
+
+    /* Read and parse data rows */
+    int row = 0;
+    while (row < sample_count && fgets(line, sizeof(line), fp) != NULL) {
+        /* Remove trailing newline */
+        line[strcspn(line, "\n")] = 0;
+
+        /* Parse values for this sample */
+        token = strtok(line, ";");
+        for (i = 0; i < channel_count && token != NULL; i++) {
+            double value;
+            if (sscanf(token, "%lf", &value) != 1) {
+                fprintf(stderr, "WARNING: invalid data at row %d, channel %d\n",
+                        row + 1, i + 1);
+                value = 0.0;
+            }
+
+            /* Calculate buffer position (interleaved format) */
+            dptr = ctrl_usr->disp_buf + (row * channel_count) + i;
+
+            /* Convert to appropriate type */
+            switch (channel_types[i]) {
+            case HAL_BIT:
+                dptr->d_u8 = (value != 0.0) ? 1 : 0;
+                break;
+            case HAL_FLOAT:
+                dptr->d_real = (real_t)value;
+                break;
+            case HAL_S32:
+                dptr->d_s32 = (rtapi_s32)value;
+                break;
+            case HAL_U32:
+                dptr->d_u32 = (rtapi_u32)value;
+                break;
+            default:
+                break;
+            }
+
+            token = strtok(NULL, ";");
+        }
+        row++;
+    }
+
+    /* Restore locale */
+    setlocale(LC_NUMERIC, saved_locale);
+    free(saved_locale);
+
+    /* Close file */
+    fclose(fp);
+
+    /* Free channel name copies */
+    for (i = 0; i < channel_count; i++) {
+        if (channel_names[i] != NULL && !ctrl_usr->chan[i].is_phantom) {
+            free(channel_names[i]);
+        }
+        /* Don't free phantom names - they're stored in chan->name */
+    }
+
+    /* Restore horizontal timing settings */
+    horiz = &(ctrl_usr->horiz);
+
+    /* Back-calculate thread period and multiplier
+     * We'll use a reasonable default thread period and calculate mult
+     * For example, assume 1ms (1000000ns) base thread period
+     */
+    if (horiz->thread_period_ns > 0) {
+        /* Use existing thread period */
+        ctrl_shm->mult = sample_period_ns / horiz->thread_period_ns;
+        if (ctrl_shm->mult < 1) ctrl_shm->mult = 1;
+    } else {
+        /* No thread selected, use a default */
+        horiz->thread_period_ns = 1000000;  /* 1ms default */
+        ctrl_shm->mult = sample_period_ns / horiz->thread_period_ns;
+        if (ctrl_shm->mult < 1) {
+            /* Sample period is shorter than thread period, adjust */
+            horiz->thread_period_ns = sample_period_ns;
+            ctrl_shm->mult = 1;
+        }
+    }
+
+    /* Update horizontal display settings */
+    horiz->sample_period_ns = sample_period_ns;
+    horiz->sample_period = (double)sample_period_ns * 1.0e-9;
+
+    /* Mark that data is from log file */
+    ctrl_usr->data_from_log_file = 1;
+
+    /* Switch to STOP mode to prevent overwriting the data */
+    set_run_mode(STOP);
+
+    /* Select the first loaded channel so user can see the data */
+    if (channel_count > 0) {
+        vert->selected = 1;  /* Select first channel (1-based index) */
+    }
+
+    /* Update channel and display */
+    channel_changed();
+    refresh_display();
+    redraw_window();
+
+    printf("Log file '%s' loaded: %d channels, %d samples, %d ns period\n",
+           filename, channel_count, sample_count, sample_period_ns);
 }
 
 /* format the data and print it */
@@ -453,13 +938,21 @@ static char *thread_cmd(void * arg)
 
 static char *maxchan_cmd(void * arg)
 {
-    int *argp, rv;
+    /* maxchan is now ignored - we always use 16 channels */
+    /* kept for backwards compatibility with old config files */
+    (void)arg;
+    return NULL;
+}
 
+static char *samples_cmd(void * arg)
+{
+    int *argp;
+    /* SAMPLES is handled early in main() before scope_rt is loaded */
+    /* Here we just store it in requested_samples so it gets saved back */
+    /* This handles both "SAMPLES nnn" from config files */
+    /* The "# SAMPLES nnn" comment version is handled by read_samples_from_config() */
     argp = (int *)(arg);
-    rv = set_rec_len(*argp);
-    if ( rv < 0 ) {
-	return "could not set record length";
-    }
+    ctrl_usr->horiz.requested_samples = *argp;
     return NULL;
 }
 

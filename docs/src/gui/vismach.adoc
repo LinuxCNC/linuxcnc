@@ -253,15 +253,21 @@ model = Collection([base, saddle, head, carousel])
 ////
 Need to play around with this to see how it works.
 ////
-* `part = Capture()` +
-  I have no idea what this does ! But it seems to be important for tool
-  tip visualization...
+* `tooltip = Capture()` +
+  Think of this as an invisible part that needs to be attached to the
+  tooltip to track the position and orientation of the tool coordinate system.
+  It is actually a transformation matrix that is constantly updated as the
+  model moves.
+* `work = Capture()` +
+  Same as above but attached to the work table to track the work coordinate
+  system.
 * `main(model, tooltip, work, size=10, hud=0, rotation_vectors=None,
   lat=0, lon=0)` +
   This is the command that makes it all happen, creates the display etc.
 ** _model_ should be a collection that contains all the machine parts.
-** _tooltip_ and _work_ need to be created by `Capture()` to visualize
-   their motion in the back plot. +
+** _tooltip_ and _work_ need to be created by `Capture()`. Vismach needs
+   this information to draw the backplot which is basically the tooltip
+   position drawn in the work coordinate system. +
    See `scaragui.py` for an example of how to connect the tool tip to a
    tool and the tool to the model.
 ** Either _rotation_vectors_ or _latitude/longitude_ can be used to set

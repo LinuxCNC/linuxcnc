@@ -47,7 +47,7 @@ typedef struct {
 
 typedef struct {
     lcd_page_t *pages;
-    int num_pages;
+    unsigned num_pages;
     hal_u32_t *page_num;
     hal_u32_t last_page;
     hal_u32_t *out;
@@ -75,7 +75,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp);
 char *digits = "0123456789ABCDEF";
 
 char *fmt_strings[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(fmt_strings, MAX_CHAN, "screen formatting scancodes")
+RTAPI_MP_ARRAY_STRING(fmt_strings, MAX_CHAN, "screen formatting scancodes");
 
 #ifndef do_div
 # define do_div(n,base) ({					 \
@@ -255,6 +255,7 @@ int rtapi_app_main(void){
 }
 
 void write(void *arg, long period){
+    (void)period;
     lcd_t *lcd;
     int i;
     

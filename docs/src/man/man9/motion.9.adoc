@@ -18,32 +18,31 @@ The limits for the following items are compile-time settings:
 *names_dout*:: A comma-separated list of names for digital output pins.
   This parameter is mutually exclusive with *num_dio*, but can be combined with *names_din*.
   A maximum of *EMCMOT_MAX_DIO* names can be specified.
-  The default digital output pin has names like *motion.digital-out-00* whereas *names_dout=*_is-homing-x,is-homing-y_
+  The default digital output pin has names like *motion.digital-out-00* whereas **names_dout=**_is-homing-x,is-homing-y_
   will create the HAL pins `motion.dout-is-homing-x` and `motion.dout-is-homing-y`.
 
 *names_din*:: A comma-separated list of names for digital input pins.
   This parameter is mutually exclusive with *num_dio*, but can be
   combined with *names_dout*. A maximum of *EMCMOT_MAX_DIO* names can be
   specified. The default digital input pin has names like
-  *motion.digital-in-00* whereas *names_din=*_homed-x,homed-y_ will
+  *motion.digital-in-00* whereas **names_din=**_homed-x,homed-y_ will
   create the HAL pins `motion.din-homed-x` and `motion.din-homed-y`.
 
-*num_aio*:: Maximum number of analog IO pins is set by
-*EMCMOT_MAX_AIO*.
+*num_aio*:: Maximum number of analog IO pins is set by *EMCMOT_MAX_AIO*.
   Minimum is 1, if *num_aio* is not specified, it defaults to *DEFAULT_AIO*.
 
 *names_aout*:: A comma-separated list of names for analog output pins.
   This parameter is mutually exclusive with *num_aio*, but can be
   combined with *names_ain*. A maximum of *EMCMOT_MAX_AIO* names can be
   specified. The default analog output pin has names like
-  *motion.analog-out-00* whereas *names_aout=*_feedrate1,feedrate2_ will
+  *motion.analog-out-00* whereas **names_aout=**_feedrate1,feedrate2_ will
   create the HAL pins `motion.aout-feedrate1` and `motion.aout-feedrate2`.
 
 *names_ain*:: A comma-separated list of names for analog input pins.
   This parameter is mutually exclusive with *num_aio*, but can be
   combined with *names_aout*. A maximum of *EMCMOT_MAX_AIO* names can be
   specified. The default analog input pin has names like
-  *motion.analog-in-00* whereas *names_ain=*_proxy1,proxy2_ will create
+  *motion.analog-in-00* whereas **names_ain=**_proxy1,proxy2_ will create
   the HAL pins `motion.ain-proxy1` and `motion.ain-proxy2`.
 
 *num_misc_error*:: Maximum number of extra error inputs is set by *EMCMOT_MAX_MISC_ERRORS*.
@@ -216,10 +215,10 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   low coolant warnings, custom HAL component errors.
   If driven TRUE this will disable a machine. Similar to spindle.amp-fault-in.
 *motion.motion-enabled* OUT BIT::
-*motion.motion-type* OUT S32::
-  These values are from src/emc/nml_intf/motion_types.h.
   +
-  ____
+*motion.motion-type* OUT S32::
+  These values are from src/emc/nml_intf/motion_types.h:
+
   0: Idle (no motion)
 
   1: Traverse
@@ -233,7 +232,7 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   5: Probing
 
   6: Rotary unlock for traverse
-  ____
+  
 
 *motion.on-soft-limit* OUT BIT::
 *motion.probe-input* IN BIT::
@@ -287,23 +286,19 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 **axis.**_L_**.eoffset-scale** IN FLOAT::
   Scale for external offset.
 **axis.**_L_**.jog-accel-fraction** IN FLOAT::
-  Sets acceleration for wheel jogging to a fraction of the INI
-  max_acceleration for the axis. Values greater than 1 or less than zero
-  are ignored.
+  Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for the axis.
+  Values greater than 1 or less than zero are ignored.
 **axis.**_L_**.jog-counts** IN S32::
   Connect to the "counts" pin of an external encoder to use a physical jog wheel.
 **axis.**_L_**.jog-enable** IN BIT::
   When TRUE (and in manual mode), any change to "jog-counts" will result in motion.
   When false, "jog-counts" is ignored.
 **axis.**_L_**.jog-scale** IN FLOAT::
-  Sets the distance moved for each count on "jog-counts", in machine
-  units.
+  Sets the distance moved for each count on "jog-counts", in machine units.
 **axis.**_L_**.jog-vel-mode** IN BIT::
   When FALSE (the default), the jogwheel operates in position mode.
-  The axis will move exactly jog-scale units for each count, regardless of
-  how long that might take. When TRUE, the wheel operates in velocity
-  mode - motion stops when the wheel stops, even if that means the
-  commanded motion is not completed.
+  The axis will move exactly jog-scale units for each count, regardless of how long that might take.
+  When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 **axis.**_L_**.kb-jog-active** OUT BIT::
   (free planner axis jogging active (keyboard or halui))
 **axis.**_L_**.pos-cmd** OUT FLOAT::
@@ -314,11 +309,12 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 **axis.**_L_**.teleop-pos-cmd** OUT FLOAT::
 **axis.**_L_**.teleop-tp-enable** OUT BIT::
   TRUE when the "teleop planner" is enabled for this axis.
-**axis.**_L_**.teleop-vel-cmd* OUT FLOAT::
+**axis.**_L_**.teleop-vel-cmd** OUT FLOAT::
   The axis's commanded velocity.
 **axis.**_L_**.teleop-vel-lim** OUT FLOAT::
   The velocity limit for the teleop planner.
 **axis.**_L_**.wheel-jog-active** OUT BIT::
+  +
 
 == JOINT PINS
 
@@ -376,16 +372,14 @@ Note: Pins marked *(DEBUG)* serve as debugging aids and are subject to change or
 **joint.**_N_**.jog-counts** IN S32::
   Connect to the "counts" pin of an external encoder to use a physical jog wheel.
 **joint.**_N_**.jog-enable** IN BIT::
-  When TRUE (and in manual mode), any change to "jog-counts" will result
-  in motion. When false, "jog-counts" is ignored.
+  When TRUE (and in manual mode), any change to "jog-counts" will result in motion.
+  When false, "jog-counts" is ignored.
 **joint.**_N_**.jog-scale** IN FLOAT::
   Sets the distance moved for each count on "jog-counts", in machine units.
 **joint.**_N_**.jog-vel-mode** IN BIT::
   When FALSE (the default), the jogwheel operates in position mode.
-  The joint will move exactly jog-scale units for each count, regardless of
-  how long that might take. When TRUE, the wheel operates in velocity
-  mode - motion stops when the wheel stops, even if that means the
-  commanded motion is not completed.
+  The joint will move exactly jog-scale units for each count, regardless of how long that might take.
+  When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 **joint.**_N_**.kb-jog-active** OUT BIT *(DEBUG)*::
   (free planner joint jogging active (keyboard or halui))
 **joint.**_N_**.motor-offset** OUT FLOAT *(DEBUG)*::
@@ -408,14 +402,18 @@ Note: Pins marked *(DEBUG)* serve as debugging aids and are subject to change or
 **joint.**_N_**.pos-hard-limit** OUT BIT *(DEBUG)*::
   The positive hard limit for the joint.
 **joint.**_N_**.pos-lim-sw-in** IN BIT::
-  Should be driven TRUE if the positive limit switch for this joint is
-  tripped.
+  Should be driven TRUE if the positive limit switch for this joint is tripped.
 **joint.**_N_**.unlock** OUT BIT::
   TRUE if the axis is a locked joint (typically a rotary) and a move is
   commanded (see JOINT UNLOCK PINS).
 **joint.**_N_**.vel-cmd** OUT FLOAT *(DEBUG)*::
   The joint's commanded velocity.
+**joint.**_N_**.jerk-cmd** OUT FLOAT *(DEBUG)*::
+  The joint's commanded jerk (rate of change of acceleration).
+  Only active when S-curve trajectory planning is enabled (INI file [TRAJ]PLANNER_TYPE=1 and [TRAJ]MAX_LINEAR_JERK>0).
+  Jerk limits are set via INI file [JOINT_N]MAX_JERK or via the ini.N.jerk HAL pin.
 **joint.**_N_**.wheel-jog-active** OUT BIT *(DEBUG)*::
+  +
 
 == JOINT posthome pins
 
@@ -509,8 +507,9 @@ Many of the parameters serve as debugging aids, and are subject to change or rem
   Show information about the execution time of these HAL functions in CPU clocks.
 
 *motion-controller.tmax-increased* RO BIT::
+  +
 
-*motion.debug-*_*_::
+**motion.debug-**_*_::
   These values are used for debugging purposes.
 
 == FUNCTIONS

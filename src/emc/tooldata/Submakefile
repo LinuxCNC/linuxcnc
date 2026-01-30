@@ -30,6 +30,9 @@ $(call TOOBJSDEPS, $(LIBTOOLDATA_SRCS)) : EXTRAFLAGS=-fPIC
 	@rm -f $@
 	@$(CXX) $(CXXFLAGS) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(LIBDL)
 
+$(patsubst ./emc/tooldata/%,../include/%,$(wildcard ./emc/tooldata/*.hh)): ../include/%.hh: ./emc/tooldata/%.hh
+	cp $^ $@
+
 ifdef TOOL_NML_FLAG
 else
 TOOL_MMAP_READ_SRCS = emc/tooldata/tool_mmap_read.cc

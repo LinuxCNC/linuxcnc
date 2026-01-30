@@ -6,7 +6,7 @@ hbmgui - Vismach Virtual Machine GUI
 
 == DESCRIPTION
 
-*hbmgui* is one of the sample *Vismach* GUIs for LinuxCNC, simulating a Horizontal Boring Machine.
+The *hbmgui* is one of the sample *Vismach* GUIs for LinuxCNC, simulating a Horizontal Boring Machine.
 
 See the main LinuxCNC documentation for more details.
 

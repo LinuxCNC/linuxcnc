@@ -51,11 +51,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def __init__(self, parent=None):
         super( GCodeGraphics, self).__init__(parent)
 
-        self.colors['overlay_background'] = (0.0, 0.0, 0.0)  # blue
         self._overlayColor = QColor(0, 0, 0, 0)
         self.colors['overlay_alpha'] = 0.75
         self._overlayAlpha = 0.75
-        self.colors['back'] = (0.0, 0.0, 0.75)  # blue
+        self._gridColor = QColor(0, 138, 138)
         self._backgroundColor = QColor(0, 0, 191, 150)
         self._jogColor = QColor(0, 0, 0, 0)
         self._feedColor = QColor(0, 0, 0, 0)
@@ -116,7 +115,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             lon = self.PREFS_.getpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
             self.presetViewSettings(v,z,x,y,lat,lon)
 
-    # when qtvcp closes this gets called
+            self.set_preferred_view()
+
+    # when qtvcp closes, this gets called
     def _hal_cleanup(self):
         if self.PREFS_:
             v,z,x,y,lat,lon = self.getRecordedViewSettings()
@@ -127,6 +128,15 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.PREFS_.putpref(self.HAL_NAME_+'-user-pany', y, float, 'SCREEN_CONTROL_LAST_SETTING')
             self.PREFS_.putpref(self.HAL_NAME_+'-user-lat', lat, float, 'SCREEN_CONTROL_LAST_SETTING')
             self.PREFS_.putpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-current-view', self.get_current_view(), str, 'SCREEN_CONTROL_LAST_SETTING')
+
+    def set_preferred_view(self):
+        if self.PREFS_:
+            view = self.PREFS_.getpref(self.HAL_NAME_+'-current-view', 'p', str, 'SCREEN_CONTROL_LAST_SETTING')
+            # set graphics view variable
+            self.current_view = view
+            # tell any other interested widgets that the view changed
+            STATUS.emit('graphics-view-changed', self.current_view, None)
 
     # external source asked for highlight,
     # make sure we block the propagation
@@ -140,6 +150,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self.set_highlight_line(None)
 
     def set_view_signal(self, view, args):
+        #print(view,args)
         v = view.lower()
         if v == 'clear':
             self.clear_live_plotter()
@@ -176,13 +187,22 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'overlay-offsets-off':
             self.setShowOffsets(False)
         elif v == 'overlay-dro-on':
-            self.setdro(True)
+            self.setProperty('_dro',True)
         elif v == 'overlay-dro-off':
-            self.setdro(False)
+            self.setProperty('_dro',False)
+        elif v == 'dtg-on':
+            self.setProperty('_dtg',True)
+        elif v == 'dtg-off':
+            self.setProperty('_dtg',False)
         elif v == 'pan-view':
             self.panView(args.get('X'),args.get('Y'))
         elif v == 'rotate-view':
             self.rotateView(args.get('X'),args.get('Y'))
+        elif v == 'grid-color':
+            self.setProperty('grid_color',args.get('COLOR'))
+        elif v == 'grid-off':
+            self.grid_size = 0.0
+            self.update()
         elif v == 'grid-size':
             self.grid_size = args.get('SIZE')
             self.update()
@@ -211,8 +231,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'scroll-mode':
             m = args.get('MODE')
             self.setScrollMode(int(m))
-        else:
+        elif v in('x', 'y', 'y2', 'z', 'z2', 'p'):
             self.set_view(v)
+        else:
+            LOG.error('view signal not recognized: {}'.format(v))
 
     def load_program(self, g, fname):
         LOG.debug('load the display: {}'.format(fname))
@@ -378,10 +400,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     # DRO
     def setdro(self, state):
-        self.enable_dro = state
-        self.update()
+        self.setEnableDRO(state)
     def getdro(self):
-        return self.enable_dro
+        return self.getEnableDRO()
     _dro = pyqtProperty(bool, getdro, setdro)
 
     # DTG
@@ -425,6 +446,16 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def getShowSmallOrigin(self):
         return self.show_small_origin
     _small_origin = pyqtProperty(bool, getShowSmallOrigin, setShowSmallOrigin)
+
+    def getGridColor(self):
+        return self._gridColor
+    def setGridColor(self, value):
+        self._gridColor = value
+        self.colors['grid'] = (value.redF(), value.greenF(), value.blueF())
+        self.update()
+    def resetGridColor(self):
+        self._gridColor = QColor(200, 138, 138)
+    grid_color = pyqtProperty(QColor, getGridColor, setGridColor, resetGridColor)
 
     def getOverlayColor(self):
         return self._overlayColor

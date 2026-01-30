@@ -12,6 +12,21 @@ class DetachTabWidget(QTabWidget):
 
         self.setTabBar(self.tabBar)
 
+        self.btn = QPushButton(self)
+        self.btn.setEnabled(True)
+        #self.btn.setMinimumSize(64, 40)
+        #self.btn.setIconSize(QSize(38, 38))
+        self.btn.setIcon(QIcon(':/qt-project.org/styles/commonstyle/images/up-32.png'))
+        self.btn.clicked.connect(self.invokeDetachTab)
+        self.setCornerWidget(self.btn)
+
+        self._lastgeometry = None
+
+    @pyqtSlot(bool)
+    def invokeDetachTab(self, **args):
+        x = self.btn.geometry().x()
+        y = self.btn.geometry().y()
+        self.detachTab(self.currentIndex(), QPoint(x,y))
 
     ##
     #  The default movable functionality of QTabWidget must remain disabled
@@ -58,62 +73,14 @@ class DetachTabWidget(QTabWidget):
         detachedTab.setWindowTitle(name + '  - Close to reattach')
         detachedTab.setWindowIcon(icon)
         detachedTab.setObjectName(name)
-        detachedTab.setGeometry(contentWidgetRect)
+        if self._lastgeometry is None:
+            detachedTab.setGeometry(contentWidgetRect)
+            detachedTab.move(point)
+        else:
+            detachedTab.setGeometry(self._lastgeometry)
+
         detachedTab.onCloseSignal.connect(self.attachTab)
-        detachedTab.move(point)
         detachedTab.show()
-
-    def attachTab1(self, contentWidget, name, icon):
-
-        # Make the content widget a child of this widget
-        contentWidget.setParent(self)
-
-
-        # Create an image from the given icon
-        if not icon.isNull():
-            tabIconPixmap = icon.pixmap(icon.availableSizes()[0])
-            tabIconImage = tabIconPixmap.toImage()
-        else:
-            tabIconImage = None
-
-
-        # Create an image of the main window icon
-        if not icon.isNull():
-            windowIconPixmap = self.window().windowIcon().pixmap(icon.availableSizes()[0])
-            windowIconImage = windowIconPixmap.toImage()
-        else:
-            windowIconImage = None
-
-
-        # Determine if the given image and the main window icon are the same.
-        # If they are, then do not add the icon to the tab
-        if name  == 'Model Selection':
-            index = 0
-        elif name  == "Model' Parameters":
-            index = 1
-        elif name  == 'Stim settings':
-            index = 2
-        elif name  == 'Parameter evolution settings':
-            index = 3
-        elif name  == 'LambdaE':
-            index = 4
-        elif name  == 'Simulation settings':
-            index = 5
-        elif name  == 'LFP + PPS + Pulse Results':
-            index = 6
-        if tabIconImage == windowIconImage:
-            index = self.insertTab(index,contentWidget, name)
-            # index = self.addTab(contentWidget, name)
-        else:
-            # index = self.addTab(contentWidget, icon, name)
-            index = self.insertTab(index,contentWidget, icon, name)
-
-
-
-        # Make this tab the current tab
-        if index > -1:
-            self.setCurrentIndex(index)
-
 
     ##
     #  Re-attach the tab by removing the content from the DetachedTab dialog,
@@ -122,8 +89,10 @@ class DetachTabWidget(QTabWidget):
     #  @param    contentWidget    the content widget from the DetachedTab dialog
     #  @param    name             the name of the detached tab
     #  @param    icon             the window icon for the detached tab
-    @pyqtSlot(QWidget, type(''), QIcon)
-    def attachTab(self, contentWidget, name, icon):
+    @pyqtSlot(QWidget, type(''), QIcon, QRect)
+    def attachTab(self, contentWidget, name, icon, geometry):
+
+        self._lastgeometry = geometry
 
         # Make the content widget a child of this widget
         contentWidget.setParent(self)
@@ -163,7 +132,7 @@ class DetachTabWidget(QTabWidget):
     #  can be re-attached by closing the dialog or by double clicking on its
     #  window frame.
     class DetachedTab(QDialog):
-        onCloseSignal = pyqtSignal(QWidget,type(''), QIcon)
+        onCloseSignal = pyqtSignal(QWidget,type(''), QIcon, QRect)
 
         def __init__(self, contentWidget, parent=None):
             QDialog.__init__(self, parent)
@@ -198,7 +167,7 @@ class DetachTabWidget(QTabWidget):
         #
         #  @param    event    a close event
         def closeEvent(self, event):
-            self.onCloseSignal.emit(self.contentWidget, self.objectName(), self.windowIcon())
+            self.onCloseSignal.emit(self.contentWidget, self.objectName(), self.windowIcon(),self.geometry())
 
 
     ##
@@ -326,8 +295,8 @@ class SurfViewer(QMainWindow):
         self.parent = parent
         self.centralTabs= DetachTabWidget()
         self.setCentralWidget(self.centralTabs)
-        self.setFixedWidth(200)
-        self.setFixedHeight(200)
+       # self.setFixedWidth(200)
+        #self.setFixedHeight(200)
 
         #tab 1
         self.tab_1 = QWidget()

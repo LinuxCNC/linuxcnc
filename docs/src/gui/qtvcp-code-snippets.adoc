@@ -264,6 +264,9 @@ from qtvcp.core import Qhal
 ----
 
 This is to allow access to *QtVCP's HAL component*.
+<<cha:qtvcp:Qhal,For more info: Qhal>> +
+Qhal's newPin function returns a QPin object.
+<<cha:qtvcp:QPin,For more info: QPin>>
 
 .Instantiate `Qhal` in the `INSTANTIATE LIBRARY SECTION`
 [source,python]
@@ -272,7 +275,7 @@ QHAL = Qhal()
 ----
 
 .Add a function that gets called when the pin state changes
-Under the `initialised__` function, make sure there is an entry similar to this:
+Under the `initialized__` function, make sure there is an entry similar to this:
 
 [source,python]
 ----
@@ -284,8 +287,8 @@ Under the `initialised__` function, make sure there is an entry similar to this:
 # the widgets are instantiated.
 # the HAL pins are built but HAL is not set ready
 def initialized__(self):
-    self.pin_cycle_start_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
-    self.pin_cycle_start_in.value_changed.connect(lambda s: self.cycleStart(s))
+    self.pin_cycle_start_in = QHAL.newPin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+    self.pin_cycle_start_in.pinValueChanged.connect(lambda o,s: self.cycleStart(s))
 ----
 
 .Define the function called by pin state change in the `GENERAL FUNCTIONS SECTION`
@@ -312,6 +315,35 @@ that has tabs with the names `tab_auto`, `tab_graphics`, `tab_filemanager` and `
 In this way the cycle start button works differently depending on what tab is shown.
 
 This is simplified - _checking state and error trapping might be helpful_.
+
+== Read/Write System HAL Pins Directly
+Sometimes you need to read a system pin and creating a HAL pin and connecting to it,
+is more work then required. You can read it directly without connecting to it.
+
+Here is how to read a pin, parameter, or signal:
+
+[source,python]
+----
+self.h.hal.get_value('spindle.0.at-speed')
+
+# or use the Qhal library like this:
+QHAL.getValue('spindle.0.at-speed')
+----
+
+Here is how to write to an unconnected pin or a non driven signal:
+
+[source,python]
+----
+self.h.hal.set_p('componentName.pinName','10')
+self.h.hal.set_s('componentName.signalName','10')
+
+# or use the Qhal library like this:
+QHAL.setPin('componentName.pinName', '10')
+QHAL.setSignal('componentName.signalName', '10')
+----
+
+Using 'self.h.hal' or 'QHAL.hal' allows access to the HAL python module functions:
+ <<cha:python-hal-interface, Python HAL Interface>>
 
 == Add A Special Max Velocity Slider Based On Percent
 
@@ -416,8 +448,8 @@ def toggle_continuous_clicked(self, state):
 == Class Patch The File Manager Widget
 
 [NOTE]
-Class patching (monkey patching) is a little like _black magic_ - so use it _only if needed_.
-The Major problem is if the widget library functions are changed during development, thw function might be broken. +
+Class patching (monkey patching) is a little like _black magic_ - so use it _only when needed_.
+The Major problem is if the widget library functions are changed during development, the functions may break. +
 The File manager widget is designed to load a selected program in LinuxCNC. +
 But maybe you want to print the file name first.
 
@@ -839,7 +871,7 @@ We assume the `ScreenOptions` widget is called `screen_options` in Qt Designer:
 ########################
 # **** INITIALIZE **** #
 ########################
-# widgets allows access to  widgets from the QtVCP files
+# 'widgets' allows access to  widgets from the QtVCP files
 # at this point the widgets and hal pins are not instantiated
 def __init__(self, halcomp,widgets,paths):
     # directly select ZMQ message sending
@@ -881,7 +913,7 @@ sock = context.socket(zmq.SUB)
 
 # Define subscription and messages with topic to accept.
 topic = "" # all topics
-sock.setsockopt(zmq.SUBSCRIBE, topic)
+sock.setsockopt_string(zmq.SUBSCRIBE, topic)
 sock.connect("tcp://127.0.0.1:5690")
 
 while True:
@@ -1027,9 +1059,9 @@ You must parse and define what is accepted and what to do with it.
         self.w.camview._camNum = number
 ----
 
-== Gcode to read qt preferences
-Here is how to create an Oword program to read a qtdragon preference file entry and add it as a gcode parameter +
-Calling this oword will update the param 'toolToLoad' +
+== G-code to read Qt preferences
+Here is how to create an O-word program to read a QtDragon preference file entry and add it as a G-code parameter. +
+Calling this O-word will update the param 'toolToLoad' +
 This uses 'Python hot comment' to communicate with the embedded python instance. +
 See the Remap section of the Documents for a description.
 

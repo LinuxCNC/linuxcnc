@@ -105,27 +105,27 @@ static const uint32_t iocookie[3] = {
  * Configuration parameters forwarded to hostmot2 hm2_register() call
  */
 static char *config[SPIX_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, SPIX_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+RTAPI_MP_ARRAY_STRING(config, SPIX_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
 /*
  * SPI clock rates for read and write.
  */
 static int spiclk_rate[SPIX_MAX_BOARDS] = { 25000 };
 static int spiclk_rate_rd[SPIX_MAX_BOARDS];
-RTAPI_MP_ARRAY_INT(spiclk_rate, SPIX_MAX_BOARDS, "SPI clock rates in kHz (default 25000 kHz)")
-RTAPI_MP_ARRAY_INT(spiclk_rate_rd, SPIX_MAX_BOARDS, "SPI clock rates for reading in kHz (default same as spiclk_rate)")
+RTAPI_MP_ARRAY_INT(spiclk_rate, SPIX_MAX_BOARDS, "SPI clock rates in kHz (default 25000 kHz)");
+RTAPI_MP_ARRAY_INT(spiclk_rate_rd, SPIX_MAX_BOARDS, "SPI clock rates for reading in kHz (default same as spiclk_rate)");
 
 /*
  * Forcefully specify the hardware driver
  */
 static const char *force_driver = NULL;
-RTAPI_MP_STRING(force_driver, "Force one specific hardware driver (default empty, auto detecting hardware))")
+RTAPI_MP_STRING(force_driver, "Force one specific hardware driver (default empty, auto detecting hardware))");
 
 /*
  * Which SPI port(s) to probe
  */
 static int spi_probe = SPIX_PROBE_SPI0_CE0;
-RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe (default 1 (SPI0/CE0))")
+RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe (default 1 (SPI0/CE0))");
 
 /*
  * Normally, all requests are queued if requested by upstream and sent in one
@@ -133,7 +133,7 @@ RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe 
  * each transfer visible and more easily debugable.
  */
 static int spi_noqueue = 0;
-RTAPI_MP_INT(spi_noqueue, "Disable queued SPI requests, use for debugging only (default 0 (off))")
+RTAPI_MP_INT(spi_noqueue, "Disable queued SPI requests, use for debugging only (default 0 (off))");
 
 /*
  * Set the message level for debugging purpose. This has the (side-)effect that
@@ -142,13 +142,13 @@ RTAPI_MP_INT(spi_noqueue, "Disable queued SPI requests, use for debugging only (
  * The upstream message level is not touched if spi_debug == -1.
  */
 static int spi_debug = -1;
-RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)")
+RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)");
 
 /*
  * Spidev driver device node path overrides
  */
 static char *spidev_path[SPIX_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(spidev_path, SPIX_MAX_BOARDS, "The device node path override(s) for the spidev driver (default /dev/spidev{0.[01],1.[012]})")
+RTAPI_MP_ARRAY_STRING(spidev_path, SPIX_MAX_BOARDS, "The device node path override(s) for the spidev driver (default /dev/spidev{0.[01],1.[012]})");
 
 /*
  * We have these for compatibility with the hm2_rpspi driver. You can simply
@@ -158,9 +158,9 @@ RTAPI_MP_ARRAY_STRING(spidev_path, SPIX_MAX_BOARDS, "The device node path overri
 static int spi_pull_miso = -1;
 static int spi_pull_mosi = -1;
 static int spi_pull_sclk = -1;
-RTAPI_MP_INT(spi_pull_miso, "Obsolete parameter")
-RTAPI_MP_INT(spi_pull_mosi, "Obsolete parameter")
-RTAPI_MP_INT(spi_pull_sclk, "Obsolete parameter")
+RTAPI_MP_INT(spi_pull_miso, "Obsolete parameter");
+RTAPI_MP_INT(spi_pull_mosi, "Obsolete parameter");
+RTAPI_MP_INT(spi_pull_sclk, "Obsolete parameter");
 
 /*********************************************************************/
 /*
@@ -527,7 +527,6 @@ ssize_t spix_read_file(const char *fname, void *buffer, size_t bufsize)
 
 static int spix_setup(void)
 {
-	int i, j;
 	char buf[256];
 	ssize_t buflen;
 	char *cptr;
@@ -536,7 +535,7 @@ static int spix_setup(void)
 
 	// Setup the clock rate settings from the arguments.
 	// The driver is responsible for actual checking min/max clock frequency.
-	for(i = 0; i < SPIX_MAX_BOARDS; i++) {
+	for(unsigned i = 0; i < SPIX_MAX_BOARDS; i++) {
 		if(spiclk_rate[i] < 1)	// If not specified
 			spiclk_rate[i] = spiclk_rate[0];	// use first
 
@@ -573,10 +572,18 @@ static int spix_setup(void)
 
 	// Decompose the device-tree buffer into a string-list with the pointers to
 	// each string in dtcs. Don't go beyond the buffer's size.
+	// Note on cppcheck: it thinks that cptr can be NULL, but it cannot. It is
+	// initialized at the start of the buffer and moves inside it. The cptr is
+	// set to NULL when the double NUL character is detected at the end of the
+	// buffer. The loop terminates if cptr becomes NULL and cannot cause
+	// strlen() to be fed a NULL-pointer.
 	memset(dtcs, 0, sizeof(dtcs));
-	for(i = 0, cptr = buf; i < DTC_MAX && cptr; i++) {
+	cptr = buf;
+	for(unsigned i = 0; i < DTC_MAX && cptr; i++) {
 		dtcs[i] = cptr;
-		j = strlen(cptr);
+		// cppcheck-suppress nullPointer
+		int j = strlen(cptr);
+		// cppcheck-suppress nullPointerArithmetic
 		if((cptr - buf) + j + 1 < buflen)
 			cptr += j + 1;
 		else
@@ -585,6 +592,7 @@ static int spix_setup(void)
 
 	// If the driver is forced, check if it actually exists
 	if(force_driver) {
+		unsigned i;
 		for(i = 0; i < NELEM(drivers); i++) {
 			if(!strcmp(force_driver, drivers[i]->name))
 				break;
@@ -596,7 +604,7 @@ static int spix_setup(void)
 	}
 
 	// Let each driver do a detect and stop when a match is found.
-	for(i = 0; i < NELEM(drivers); i++) {
+	for(unsigned i = 0; i < NELEM(drivers); i++) {
 		if(force_driver && strcmp(force_driver, drivers[i]->name))
 			continue;
 		if(!drivers[i]->detect(dtcs)) {
@@ -607,13 +615,14 @@ static int spix_setup(void)
 
 	if(!hwdriver) {
 		if(force_driver) {
-			LL_ERR("Unsupported platform: '%s' for forced driver '%s'\n", buf, hwdriver->name);
+			LL_ERR("Unsupported platform: '%s' for forced driver '%s'\n", buf, force_driver);
 		} else {
 			LL_ERR("Unsupported platform: '%s'\n", buf);
 		}
 		return -ENODEV;
 	}
 
+	int i, j;
 	if((i = hwdriver->setup(spi_probe)) < 0) {	// Let the hardware driver do its thing
 		LL_INFO("Failed to initialize hardware driver\n");
 		return i;

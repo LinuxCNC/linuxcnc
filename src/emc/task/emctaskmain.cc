@@ -7,7 +7,7 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 ********************************************************************/
@@ -217,7 +217,7 @@ int emcOperatorError(const char *fmt, ...)
     error_msg.error[0] = 0;
     // append error string
     va_start(ap, fmt);
-    vsnprintf(&error_msg.error[strlen(error_msg.error)], 
+    vsnprintf(&error_msg.error[strlen(error_msg.error)],
 	      sizeof(error_msg.error) - strlen(error_msg.error), fmt, ap);
     va_end(ap);
 
@@ -459,14 +459,14 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
     while (il->len() > 0) {
 	auto cmd = il->get();
 
-	switch (cmd->type) {
+	switch (cmd->_type) {
 
 	case EMC_OPERATOR_ERROR_TYPE: {
 	    auto error_msg = static_cast<EMC_OPERATOR_ERROR*>(cmd.get());
     	    emcOperatorError("%s", error_msg->error);
     	    break;
 	}
-	
+
 	//FIXME: there was limit checking tests below, see if they were needed
 	case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	    break;
@@ -535,7 +535,7 @@ interpret_again:
 				    EMC_TASK_INTERP::WAITING;
 				interp_list.clear();
 				emcAbortCleanup(EMC_ABORT::INTERPRETER_ERROR,
-						"interpreter error"); 
+						"interpreter error");
 			    } else if (execRetval == -1
 				    || execRetval == INTERP_EXIT ) {
 				emcStatus->task.interpState =
@@ -585,7 +585,7 @@ interpret_again:
 
 			    if (emcStatus->task.readLine < programStartLine &&
 				emcTaskPlanLevel() == 0) {
-			    
+
 				//update the position with our current position, as the other positions are only skipped through
 				CANON_UPDATE_END_POINT(emcStatus->motion.traj.actualPosition.tran.x,
 						       emcStatus->motion.traj.actualPosition.tran.y,
@@ -648,7 +648,7 @@ static void mdi_execute_hook(void)
 	    emcTaskCommand == 0 &&
 	    emcStatus->task.execState ==
 	    EMC_TASK_EXEC::DONE) {
-	    emcTaskPlanClearWait(); 
+	    emcTaskPlanClearWait();
 	    mdi_execute_wait = 0;
 	    mdi_execute_hook();
 	}
@@ -670,11 +670,11 @@ static void mdi_execute_hook(void)
     // determine when a MDI command actually finishes normally.
     if (interp_list.len() == 0 &&
 	emcTaskCommand == 0 &&
-	emcStatus->task.execState ==  EMC_TASK_EXEC::DONE && 
-	emcStatus->task.interpState != EMC_TASK_INTERP::IDLE && 
+	emcStatus->task.execState ==  EMC_TASK_EXEC::DONE &&
+	emcStatus->task.interpState != EMC_TASK_INTERP::IDLE &&
 	emcStatus->motion.traj.queue == 0 &&
-	emcStatus->io.status == RCS_STATUS::DONE && 
-	!mdi_execute_wait && 
+	emcStatus->io.status == RCS_STATUS::DONE &&
+	!mdi_execute_wait &&
 	!mdi_execute_next) {
 
 	// finished. Check for dequeuing of queued MDI command is done in emcTaskPlan().
@@ -731,7 +731,7 @@ static bool allow_while_idle_type() {
     // expect immediate command
     RCS_CMD_MSG *emcCommand;
     emcCommand = emcCommandBuffer->get_address();
-    switch(emcCommand->type) {
+    switch(emcCommand->_type) {
       case EMC_JOG_CONT_TYPE:
       case EMC_JOG_INCR_TYPE:
       case EMC_JOG_STOP_TYPE:
@@ -756,7 +756,7 @@ static int emcTaskPlan(void)
     // check for new command
     if (emcCommand->serial_number != emcStatus->echo_serial_number) {
         // flag it here locally as a new command
-	type = emcCommand->type;
+	type = emcCommand->_type;
     } else {
 	// no new command-- reset local flag
 	type = 0;
@@ -1076,7 +1076,7 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    // handles case where first action is to step the program
 		    taskPlanRunCmd.line = 0;	// run from start
-		    /*! \todo FIXME-- can have GUI set this; send a run instead of a 
+		    /*! \todo FIXME-- can have GUI set this; send a run instead of a
 		       step */
 		    retval = emcTaskIssueCommand(&taskPlanRunCmd);
 		    if(retval != 0) break;
@@ -1174,6 +1174,7 @@ static int emcTaskPlan(void)
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
+		    emcStatus->motion.traj.single_stepping = 1;
 		    stepping = 1;	// set stepping mode in case it's not
 		    steppingWait = 0;	// clear the wait
 		    break;
@@ -1188,7 +1189,7 @@ static int emcTaskPlan(void)
 
                // handle interp readahead logic
                 readahead_reading();
-                
+
 		break;		// EMC_TASK_INTERP::READING
 
 	    case EMC_TASK_INTERP::PAUSED:	// ON, AUTO, PAUSED
@@ -1249,6 +1250,7 @@ static int emcTaskPlan(void)
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
+		    emcStatus->motion.traj.single_stepping = 1;
 		    stepping = 1;
 		    steppingWait = 0;
 		    if (emcStatus->motion.traj.paused &&
@@ -1324,6 +1326,7 @@ static int emcTaskPlan(void)
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
+		    emcStatus->motion.traj.single_stepping = 1;
 		    stepping = 1;	// set stepping mode in case it's not
 		    steppingWait = 0;	// clear the wait
 		    break;
@@ -1498,7 +1501,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::DONE;
     }
 
-    switch (cmd->type) {
+    switch (cmd->_type) {
 	// operator messages, if queued, will go out when everything before
 	// them is done
     case EMC_OPERATOR_ERROR_TYPE:
@@ -1604,7 +1607,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("preconditions: unrecognized command %d:%s\n",
-			    (int)cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::ERROR;
 	break;
@@ -1638,10 +1641,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	return 0;
     }
     if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	rcs_print("Issuing %s -- \t (%s)\n", emcSymbolLookup(cmd->type),
+	rcs_print("Issuing %s -- \t (%s)\n", emcSymbolLookup(cmd->_type),
 		  emcCommandBuffer->msg2str(cmd));
     }
-    switch (cmd->type) {
+    switch (cmd->_type) {
 	// general commands
 
     case EMC_OPERATOR_ERROR_TYPE:
@@ -1818,7 +1821,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
                                    emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
-                                   emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc,
+                                   emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc, emcTrajLinearMoveMsg->ini_maxjerk,
                                    emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
@@ -1830,7 +1833,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                 emcTrajCircularMoveMsg->turn, emcTrajCircularMoveMsg->type,
                 emcTrajCircularMoveMsg->vel,
                 emcTrajCircularMoveMsg->ini_maxvel,
-                emcTrajCircularMoveMsg->acc);
+                emcTrajCircularMoveMsg->acc, emcTrajCircularMoveMsg->ini_maxjerk);
 	break;
 
     case EMC_TRAJ_PAUSE_TYPE:
@@ -1892,11 +1895,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_PROBE_TYPE:
 	retval = emcTrajProbe(
-	    ((EMC_TRAJ_PROBE *) cmd)->pos, 
+	    ((EMC_TRAJ_PROBE *) cmd)->pos,
 	    ((EMC_TRAJ_PROBE *) cmd)->type,
 	    ((EMC_TRAJ_PROBE *) cmd)->vel,
-            ((EMC_TRAJ_PROBE *) cmd)->ini_maxvel,  
+            ((EMC_TRAJ_PROBE *) cmd)->ini_maxvel,
 	    ((EMC_TRAJ_PROBE *) cmd)->acc,
+		((EMC_TRAJ_PROBE *) cmd)->ini_maxjerk,
             ((EMC_TRAJ_PROBE *) cmd)->probe_type);
 	break;
 
@@ -1907,7 +1911,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    emcAuxInputWaitIndex = -1;
 	    taskExecDelayTimeout = 0.0;
 	} else {
-	    emcAuxInputWaitType = emcAuxInputWaitMsg->wait_type; // remember what we are waiting for 
+	    emcAuxInputWaitType = emcAuxInputWaitMsg->wait_type; // remember what we are waiting for
 	    emcAuxInputWaitIndex = emcAuxInputWaitMsg->index; // remember the input to look at
 	    emcStatus->task.input_timeout = 2; // set timeout flag, gets cleared if input changes before timeout happens
 	    // set the timeout clock to expire at 'now' + delay time
@@ -1924,8 +1928,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTrajUpdateTag(((EMC_TRAJ_LINEAR_MOVE *) cmd)->tag);
 	retval = emcTrajRigidTap(((EMC_TRAJ_RIGID_TAP *) cmd)->pos,
 	        ((EMC_TRAJ_RIGID_TAP *) cmd)->vel,
-        	((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxvel,  
+        	((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxvel,
 		((EMC_TRAJ_RIGID_TAP *) cmd)->acc,
+		((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxjerk,
 		((EMC_TRAJ_RIGID_TAP *) cmd)->scale);
 	break;
 
@@ -2123,6 +2128,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// clear out the interpreter state
 		emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
 		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+		emcStatus->motion.traj.single_stepping = 0;
 		stepping = 0;
 		steppingWait = 0;
 
@@ -2217,6 +2223,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_PLAN_EXECUTE_TYPE:
+	emcStatus->motion.traj.single_stepping = 0;
 	stepping = 0;
 	steppingWait = 0;
 	execute_msg = (EMC_TASK_PLAN_EXECUTE *) cmd;
@@ -2312,6 +2319,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             retval = -1;
             break;
         }
+	emcStatus->motion.traj.single_stepping = 0;
 	stepping = 0;
 	steppingWait = 0;
 	if (!taskplanopen && emcStatus->task.file[0] != 0) {
@@ -2360,6 +2368,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTrajResume();
 	emcStatus->task.interpState = interpResumeState;
 	emcStatus->task.task_paused = 0;
+	emcStatus->motion.traj.single_stepping = 0;
 	stepping = 0;
 	steppingWait = 0;
 	retval = 0;
@@ -2399,7 +2408,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("ignoring issue of unknown command %d:%s\n",
-			    (int)cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	retval = 0;		// don't consider this an error
 	break;
@@ -2407,8 +2416,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     if (retval == -1) {
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("error executing command %d:%s\n", (int)cmd->type,
-			    emc_symbol_lookup(cmd->type));
+	    rcs_print_error("error executing command %d:%s\n", (int)cmd->_type,
+			    emc_symbol_lookup(cmd->_type));
 	}
     }
     /* debug */
@@ -2433,7 +2442,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::DONE;
     }
 
-    switch (cmd->type) {
+    switch (cmd->_type) {
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
@@ -2510,7 +2519,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("postconditions: unrecognized command %d:%s\n",
-			    (int)cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::DONE;
 	break;
@@ -2590,6 +2599,7 @@ static int emcTaskExecute(void)
 	// clear out the interpreter state
 	emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
 	emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+	emcStatus->motion.traj.single_stepping = 0;
 	stepping = 0;
 	steppingWait = 0;
 
@@ -2738,7 +2748,7 @@ static int emcTaskExecute(void)
 	}
 	// delay can be also be because we wait for an input
 	// if the index is set (not -1)
-	if (emcAuxInputWaitIndex >= 0) { 
+	if (emcAuxInputWaitIndex >= 0) {
 	    switch (emcAuxInputWaitType) {
 		case WAIT_MODE_HIGH:
 		    if (emcStatus->motion.synch_di[emcAuxInputWaitIndex] != 0) {
@@ -2749,12 +2759,12 @@ static int emcTaskExecute(void)
 		    }
 		    break;
 
-    		case WAIT_MODE_RISE: 
+    		case WAIT_MODE_RISE:
 		    if (emcStatus->motion.synch_di[emcAuxInputWaitIndex] == 0) {
 			emcAuxInputWaitType = WAIT_MODE_HIGH;
 		    }
 		    break;
-		    
+
 		case WAIT_MODE_LOW:
 		    if (emcStatus->motion.synch_di[emcAuxInputWaitIndex] == 0) {
 			emcStatus->task.input_timeout = 0; // clear timeout flag
@@ -2776,7 +2786,7 @@ static int emcTaskExecute(void)
 		    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 		    emcStatus->task.delayLeft = 0;
 		    break;
-		
+
 		default:
 		    emcOperatorError("Unknown Wait Mode");
 	    }
@@ -3435,7 +3445,7 @@ int main(int argc, char *argv[])
 
 	// check for subordinate errors, and halt task if so
         if (   emcStatus->motion.status == RCS_STATUS::ERROR
-            && emcStatus->motion.on_soft_limit) { 
+            && emcStatus->motion.on_soft_limit) {
            if (!gave_soft_limit_message) {
                 emcOperatorError("On Soft Limit");
                 // if gui does not provide a means to switch to joint mode
@@ -3464,7 +3474,7 @@ int main(int argc, char *argv[])
 	    }
 	    // motion already should have reported this condition (and set RCS_STATUS::ERROR?)
 	    // an M19 orient failed to complete within timeout
-	    // if ((emcStatus->motion.status == RCS_STATUS::ERROR) && 
+	    // if ((emcStatus->motion.status == RCS_STATUS::ERROR) &&
 	    // 	(emcStatus->motion.spindle.orient_state == EMCMOT_ORIENT_FAULTED) &&
 	    // 	(emcStatus->motion.spindle.orient_fault != 0)) {
 	    // 	emcOperatorError("wait for orient complete timed out");
@@ -3497,6 +3507,7 @@ int main(int argc, char *argv[])
 	    // clear out the interpreter state
 	    emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
 	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+		emcStatus->motion.traj.single_stepping = 0;
 	    stepping = 0;
 	    steppingWait = 0;
 
@@ -3511,11 +3522,11 @@ int main(int argc, char *argv[])
 	// is not an NML_MODULE and they won't be set automatically
 
 	// do task
-	emcStatus->task.command_type = emcCommand->type;
+	emcStatus->task.command_type = emcCommand->_type;
 	emcStatus->task.echo_serial_number = emcCommand->serial_number;
 
 	// do top level
-	emcStatus->command_type = emcCommand->type;
+	emcStatus->command_type = emcCommand->_type;
 	emcStatus->echo_serial_number = emcCommand->serial_number;
 
 	if (taskPlanError || taskExecuteError ||

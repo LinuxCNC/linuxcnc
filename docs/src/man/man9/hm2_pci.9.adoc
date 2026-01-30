@@ -7,7 +7,7 @@ Anything IO boards, with HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_pci* [ **config="**__str__[,__str__...]**"** ]
+*loadrt hm2_pci* [**config=**"__str__[,__str__...]"]
 
 ____
 *config* [default: ""]::

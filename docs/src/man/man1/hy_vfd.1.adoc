@@ -169,28 +169,50 @@ You will need to log out and back in again for this to take effect.
 
 _<name>_.enable (bit, in)::
   Enable communication from the hy_vfd driver to the VFD.
-_<name>_.SetF (float, out)::
-_<name>_.OutF (float, out)::
-_<name>_.OutA (float, out)::
-_<name>_.Rott (float, out)::
-_<name>_.DCV (float, out)::
-_<name>_.ACV (float, out)::
-_<name>_.Cont (float, out)::
-_<name>_.Tmp (float, out)::
-_<name>_.spindle-forward (bit, in)::
-_<name>_.spindle-reverse (bin, in)::
-_<name>_.spindle-on (bin, in)::
-_<name>_.CNTR (float, out)::
-_<name>_.CNST (float, out)::
-_<name>_.CNST-run (bit, out)::
-_<name>_.CNST-jog (bit, out)::
-_<name>_.CNST-command-rf (bit, out)::
-_<name>_.CNST-running (bit, out)::
-_<name>_.CNST-jogging (bit, out)::
-_<name>_.CNST-running-rf (bit, out)::
-_<name>_.CNST-bracking (bit, out)::
-_<name>_.CNST-track-start (bit, out)::
-_<name>_.speed-command (float, in)::
+_<name>_.SetF (float, out)
+
+_<name>_.OutF (float, out)
+
+_<name>_.OutA (float, out)
+
+_<name>_.Rott (float, out)
+
+_<name>_.DCV (float, out)
+
+_<name>_.ACV (float, out)
+
+_<name>_.Cont (float, out)
+
+_<name>_.Tmp (float, out)
+
+_<name>_.spindle-forward (bit, in)
+
+_<name>_.spindle-reverse (bin, in)
+
+_<name>_.spindle-on (bin, in)
+
+_<name>_.CNTR (float, out)
+
+_<name>_.CNST (float, out)
+
+_<name>_.CNST-run (bit, out)
+
+_<name>_.CNST-jog (bit, out)
+
+_<name>_.CNST-command-rf (bit, out)
+
+_<name>_.CNST-running (bit, out)
+
+_<name>_.CNST-jogging (bit, out)
+
+_<name>_.CNST-running-rf (bit, out)
+
+_<name>_.CNST-bracking (bit, out)
+
+_<name>_.CNST-track-start (bit, out)
+
+_<name>_.speed-command (float, in)
+
 _<name>_.spindle-speed-fb (float, out)::
   Current spindle speed as reported by Huanyang VFD (rpm).
 _<name>_.spindle-speed-fb-rps (float, out)::
@@ -203,17 +225,28 @@ _<name>_.spindle-at-speed-tolerance (float, in)::
   the actual speed must be within 2% of the commanded spindle speed.
 _<name>_.spindle-at-speed (bit, out)::
   True when the current spindle speed is within `.spindle-at-speed-tolerance` of the commanded speed.
-_<name>_.frequency-command (float, out)::
-_<name>_.max-freq (float, out)::
-_<name>_.base-freq (float, out)::
-_<name>_.freq-lower-limit (float, out)::
-_<name>_.rated-motor-voltage (float, out)::
-_<name>_.rated-motor-current (float, out)::
-_<name>_.rated-motor-rev (float, out)::
-_<name>_.motor-poles (u32, out)::
-_<name>_.hycomm-ok (bit, out)::
-_<name>_.error-count (s32, RO)::
-_<name>_.retval (u32, R0)::
+
+_<name>_.frequency-command (float, out)
+
+_<name>_.max-freq (float, out)
+
+_<name>_.base-freq (float, out)
+
+_<name>_.freq-lower-limit (float, out)
+
+_<name>_.rated-motor-voltage (float, out)
+
+_<name>_.rated-motor-current (float, out)
+
+_<name>_.rated-motor-rev (float, out)
+
+_<name>_.motor-poles (u32, out)
+
+_<name>_.hycomm-ok (bit, out)
+
+_<name>_.error-count (s32, RO)
+
+_<name>_.retval (u32, R0)
  
 == AUTHOR
 

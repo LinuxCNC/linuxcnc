@@ -6,7 +6,7 @@ hexagui - Vismach Virtual Machine GUI
 
 == DESCRIPTION
 
-*hexagui* is one of the sample *Vismach* GUIs for LinuxCNC, simulating a Horizontal Boring Machine.
+The *hexagui* is one of the sample *Vismach* GUIs for LinuxCNC, simulating a Horizontal Boring Machine.
 
 See the main LinuxCNC documentation for more details.
 

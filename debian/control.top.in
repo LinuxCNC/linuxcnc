@@ -2,7 +2,9 @@ Source: linuxcnc
 Section: misc
 Priority: optional
 Maintainer: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
-Uploaders: Sebastian Kuzminsky <seb@highlab.com>
+Uploaders:
+ Sebastian Kuzminsky <seb@highlab.com>,
+ Andy Pugh <bodgesoc@gmail.com>
 Build-Depends:
     @DEBHELPER@,
     @PYTHON_PACKAGING_DEPENDS@,
@@ -10,17 +12,16 @@ Build-Depends:
     @KERNEL_HEADERS@,
     @MODUTILS_DEPENDS@,
     @EXTRA_BUILD@,
-    docbook-xsl,
+    docbook-xsl <!nodoc>,
     asciidoc,
-    ghostscript,
-    groff-base,
-    imagemagick,
-    asciidoc-dblatex,
+    ghostscript <!nodoc>,
+    groff-base <!nodoc>,
+    imagemagick <!nodoc>,
+    asciidoc-dblatex <!nodoc>,
     autoconf,
     automake,
     bwidget (>= 1.7),
     desktop-file-utils,
-    gettext,
     intltool,
     libboost-python-dev,
     libepoxy-dev,
@@ -35,7 +36,7 @@ Build-Depends:
     libxmu-dev,
     netcat-traditional | netcat-openbsd | netcat,
     netpbm,
-    po4a,
+    po4a <!nodoc>,
     procps,
     psmisc,
     python3,
@@ -49,8 +50,10 @@ Build-Depends:
     yapps2
 Build-Depends-Indep:
     @DOC_DEPENDS@,
-Build-Conflicts: libjpeg8-dev, libtiff4-dev
-Standards-Version: 4.7.0
+Build-Conflicts-Arch:
+    libjpeg8-dev,
+    libtiff4-dev
+Standards-Version: 4.7.2
 Homepage: https://linuxcnc.org/
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git
@@ -59,34 +62,35 @@ Rules-Requires-Root: binary-targets
 Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
 Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
-Depends: ${misc:Depends},
-         ${python3:Depends},
-         @KERNEL_HEADERS@,
-         python3-serial,
-         @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
-         udev,
-         @YAPPS_RUNTIME@
+Depends:
+    ${misc:Depends},
+    ${python3:Depends},
+    @KERNEL_HEADERS@,
+    python3-serial,
+    @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
+    udev,
+    @YAPPS_RUNTIME@
 Section: devel
 Description: PC based motion controller for real-time Linux
  LinuxCNC is a fully-realised CNC machine controller that can interpret
  machine-control programs (such as G-code), plan trajectories and finally
- output low-level signals to machine control hardware
+ output low-level signals to machine control hardware.
  .
- LinuxCNC is modular and in principle the HAL (hardware abstraction layer),
- pluggable interpreters and variety of hardware drivers mean that it can
- control almost any software-defined physical system.
+ LinuxCNC is modular, thus in principle its HAL (hardware abstraction
+ layer) together with pluggable interpreters and variety of hardware
+ drivers can control almost any software-defined physical system.
  .
  LinuxCNC relies on a realtime kernel to support real-time motion control,
- typically updating the position waypoints every 1mS and reacting to
- input within tens of microseconds.
+ typically updating the position waypoints every millisecond and reacting
+ to input within tens of microseconds.
  .
  Modules exist to use the low-level parts of LinuxCNC as a motion-control
  client for OpenPnP. Interfaces exist for ROS (the Robot Operating System)
  with which LinuxCNC has considerable overlap.
  .
  LinuxCNC supports arbitrary kinematics (the mapping between coordinate
- space and actuator space) and can control both parallel (eg Stewart
- platform) and serial (eg robot arm) systems in addition to conventional
+ space and actuator space) and can control both parallel (e.g., Stewart
+ platform) and serial (e.g., robot arm) systems in addition to conventional
  cartesian machine tools.
  .
  LinuxCNC supports 9 cartesian axes and 16 "Joints" (individual actuators)

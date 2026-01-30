@@ -11,11 +11,11 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt
 
 from .ext import *
-from qtvcp.core import Info
+from qtvcp.core import Path
 
-INFO = Info()
-ICONPATH = os.path.join(INFO.LIB_PATH, 'images/widgets/writer')
-IMAGEPATH = os.path.join(INFO.LIB_PATH, 'images')
+PATH = Path()
+ICONPATH = os.path.join(PATH.SHAREDIR, 'images/widgets/writer')
+IMAGEPATH = os.path.join(PATH.SHAREDIR, 'images')
 
 
 class Main(QtWidgets.QMainWindow):

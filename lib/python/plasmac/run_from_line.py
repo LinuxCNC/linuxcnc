@@ -2,7 +2,7 @@
 run_from_line.py
 
 Copyright (C) 2019 - 2024 Phillip A Carter
-Copyright (C) 2020 - 2024 Gregory D Carl
+Copyright (C) 2020 - 2025 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -55,7 +55,7 @@ def run_from_line_get(file, startLine, lastLine=0):
                         codes['move']['isG00'] = False
                         codes['x2'] = get_rfl_pos(line.strip(), codes['x2'], 'X')
                         codes['y2'] = get_rfl_pos(line.strip(), codes['y2'], 'Y')
-                    if 'm03' in line:
+                    if 'M03' in line:
                         if not codes['spindle']['line']:
                             codes['spindle']['line'] = line.strip()
                             continue
@@ -97,9 +97,9 @@ def run_from_line_get(file, startLine, lastLine=0):
                     codes['g9_'] = 'G90'
                 elif t1 == 'G91' and 'G91.1' not in line:
                     codes['g9_'] = 'G91'
-                elif t1 == 'G90.1' in line:
+                elif 'G90.1' in line:
                     codes['g9arc'] = 'G90.1'
-                elif t1 == 'G91.1' in line:
+                elif 'G91.1' in line:
                     codes['g9arc'] = 'G91.1'
         if 'G00' in line and 'G53g00' not in line:
             codes['last']['code'] = 'G0'
@@ -119,8 +119,11 @@ def run_from_line_get(file, startLine, lastLine=0):
             codes['x1'] = get_rfl_pos(line.strip(), codes['x1'], 'X')
         if 'Y' in line:
             codes['y1'] = get_rfl_pos(line.strip(), codes['y1'], 'Y')
-        if 'M03$' in line.replace(' ', '') and not codes['spindle']['line']:
+        # track spindle state: M03 starts, M05 stops
+        if 'M03' in line.replace(' ', ''):
             codes['spindle']['line'] = line.strip()
+        if 'M05' in line.replace(' ', ''):
+            codes['spindle']['line'] = None
         if 'M62P3' in line.replace(' ', ''):
             codes['d3'] = 'M62 P3 (Disable Torch)'
         elif 'M63P3' in line.replace(' ', ''):
@@ -251,13 +254,13 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
     # if no spindle command yet then find the next one for the correct tool
     if not data['codes']['spindle']['line']:
         for line in data['postData']:
-            if 'M3$' in line.replace(' ', ''):
+            if 'M03' in line.replace(' ', ''):
                 data['codes']['spindle']['line'] = line.strip()
                 break
     # add all the code from the selected line to the end
     for line in data['postData']:
         # if we have the first spindle code we don't need it again
-        if 'M03$' in line.replace(' ', '') and data['codes']['spindle']['code']:
+        if 'M03' in line.replace(' ', '') and data['codes']['spindle']['code']:
             data['codes']['spindle']['code'] = False
             continue
         # if G00 is the first motion command after the selected line

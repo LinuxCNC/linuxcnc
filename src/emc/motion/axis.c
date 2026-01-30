@@ -12,6 +12,7 @@ typedef struct {
     double min_pos_limit;           /* lower soft limit on axis pos */
     double vel_limit;               /* upper limit of axis speed */
     double acc_limit;               /* upper limit of axis accel */
+    double jerk_limit;	/* upper limit of axis jerk */
     simple_tp_t teleop_tp;          /* planner for teleop mode motion */
 
     int old_ajog_counts;            /* prior value, used for deltas */
@@ -188,6 +189,11 @@ void axis_set_vel_limit(int axis_num, double vel)
 void axis_set_acc_limit(int axis_num, double acc)
 {
     axis_array[axis_num].acc_limit = acc;
+}
+
+void axis_set_jerk_limit(int axis_num, double jerk)
+{
+    axis_array[axis_num].jerk_limit = jerk;
 }
 
 void axis_set_ext_offset_vel_limit(int axis_num, double vel)
@@ -436,6 +442,7 @@ void axis_sync_teleop_tp_to_carte_pos(int extfactor, double *pcmd_p[])
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         axis_array[n].teleop_tp.curr_pos = *pcmd_p[n]
                             + extfactor * axis_array[n].ext_offset_tp.curr_pos;
+        axis_array[n].teleop_tp.pos_cmd = axis_array[n].teleop_tp.curr_pos;
     }
 }
 
@@ -577,6 +584,7 @@ int axis_update_coord_with_bound(double *pcmd_p[], double servo_period)
         axis = &axis_array[n];
         save_pos_cmd[n]     = *pcmd_p[n];
         save_offset_cmd[n]  = axis->ext_offset_tp.pos_cmd;
+        axis->ext_offset_tp.max_jerk = axis->jerk_limit;
         simple_tp_update(&(axis->ext_offset_tp), servo_period);
     }
     axis_apply_ext_offsets_to_carte_pos(+1, pcmd_p); // add external offsets
@@ -629,6 +637,7 @@ static int update_teleop_with_check(int axis_num, simple_tp_t *the_tp, double se
     emcmot_axis_t *axis = &axis_array[axis_num];
 
     save_curr_pos = the_tp->curr_pos;
+    the_tp->max_jerk = axis->jerk_limit;
     simple_tp_update(the_tp, servo_period);
 
     //workaround: axis letters not in [TRAJ]COORDINATES

@@ -28,10 +28,10 @@ from gi.repository import GObject
 from gi.repository import GLib
 
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 
 # Set up logging
-from qtvcp import logger
+from common import logger
 LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 

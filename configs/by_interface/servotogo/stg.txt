@@ -1,6 +1,6 @@
 This configuration step is intended for servo machines running the ServoToGo card.
 
-Both the STG1 and STG2 are supported, check www.servotogo.com for additional details.
+Both the STG1 and STG2 are supported.
 
 You can have either a standard pinout (LinuxCNC style) or  you could make a new one which would suit your own custom cabling.
 

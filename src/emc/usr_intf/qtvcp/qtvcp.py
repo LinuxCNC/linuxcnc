@@ -277,6 +277,9 @@ Pressing cancel will close linuxcnc.""" % target)
         # initialize the window
         self.w = window = qt_makegui.VCPWindow(self.hal, self.PATH)
 
+        # give the window an id name
+        window._idName = basepath
+
         # give reference to user command line options
         if opts.useropts:
             window.USEROPTIONS_ = opts.useropts
@@ -458,7 +461,6 @@ Pressing cancel will close linuxcnc.""" % target)
         # start loop
         global _app
         _app = APP.exec()
-
         self.shutdown()
 
     # finds the postgui file name and INI file path
@@ -506,14 +508,17 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # call HAL widget 'hal_cleanuo_' functions
         try:
-            self.w.panel_.shutdown()
+            self.panel.shutdown()
         except Exception as e:
             print(e)
             pass
 
         LOG.debug('Exiting HAL')
         if not HAL is None:
-            HAL.exit()
+            try:
+                HAL.exit()
+            except Exception as e:
+                print(e)
 
         # Throws up a dialog with debug info when an error is encountered
     def excepthook(self, exc_type, exc_obj, exc_tb):
@@ -572,7 +577,13 @@ if __name__ == "__main__":
         #   Ex: LOG = logger.getLogger(__name__)
 
         from qtvcp import logger
-        LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.WARNING)
+
+        if '-i' in sys.argv or'-d' in sys.argv or '-v' in sys.argv:
+            state = True
+        else:
+            state = False
+        LOG = logger.initBaseLogger('QTvcp', log_file=None,
+             log_level=logger.WARNING, logToFile=state)
 
         # we set the log level early so the imported modules get the right level
         if '-d' in sys.argv:

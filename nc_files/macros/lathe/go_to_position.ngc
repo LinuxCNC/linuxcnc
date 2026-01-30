@@ -1,6 +1,7 @@
-; MACROCOMMAND=xinc,yinc,zinc
-; MACRODEFAULTS=0,0,0
-; MACROIMAGE=
+; MACROCOMMAND=xinc,zinc
+; MACRODEFAULTS=0.0,0.0
+; MACROIMAGE=go_to_position.png
+; MACROOPTIONS =load:yes,save:yes
 ; Testfile go to position
 ; will jog the machine to a given position
 
@@ -16,11 +17,13 @@ G80
 G90
 
 ;#1 = <X-Pos>
-;#2 = <Y-Pos>
-;#3 = <Z-Pos>
+;#2 = <Z-Pos>
 
-(DEBUG, Will now move machine to X = #1 , Y = #2 , Z = #3)
-G0 X #1 Y #2 Z #3
+(DEBUG, %fWill now move machine to X = #1 , Z = #2)
+(MSG, Unpause To Start Go-To-Position Macro)
+m0
+
+G0 X #1 Z #2
 
 O<go_to_position> endsub
 

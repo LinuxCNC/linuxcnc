@@ -1,27 +1,26 @@
 component carousel """Orient a toolchanger carousel using various encoding schemes
 
-.B loadrt carousel pockets=\\fIN\\fR[,\\fIN\\fR]
-.B encoding=\\fIssss\\fR[,\\fIsss\\fR]\\fB
-.B num_sense=\\fIN\\fR[,\\fIN\\fR]
-.B dir=\\fIN\\fR[,\\fIN]
+*loadrt* *carousel* *pockets*=_N_[,_N_] *encoding*=_ssss_[,_sss_] *num_sense*=_N_[,_N_] *dir*=_N_[,_N_]
 
-.RS 4
-.TP
-\\fBpockets\\fR The number of pockets in each toolchanger.
+*pockets* The number of pockets in each toolchanger::
 Use up to 8 numbers separated by commas to create multiple carousel components.
-.TP
-\\fBencoding\\fR The position encoding.
-gray, binary, bcd, index, edge, counts or single. Default = 'gray'
-.TP
-\\fBnum_sense\\fR The number of position sense pins.
+
+*encoding*::
+The position encoding.
+One of `gray`, `binary`, `bcd`, `index`, `edge`, `counts` or `single`. Default = `gray`.
+
+*num_sense*::
+The number of position sense pins.
 Default = 4.
-.TP
-\\fBdir\\fR Set to 1 for unidirectional or  2 for bidirectional operation.
+
+*dir*::
+Set to 1 for unidirectional or  2 for bidirectional operation.
 Default = bidirectional
-.TP
-\\fBparity\\fR Set to 1 for odd parity, 0 for even parity checking.
+
+*parity*::
+Set to 1 for odd parity, 0 for even parity checking.
 Default = 0 (even)
-.RE""";
+""";
 
 description """This component is intended to help operate various types of
 carousel-type toolchangers. 
@@ -32,7 +31,7 @@ It can alternatively work with an individual sensor for each tool position
 ('single' mode) or with a sensor at each tool position and a separate index
 ('index' mode). Systems using a stepper motor or quadrature encoder are
 also supported ('counts' mode).
-\\fBedge\\fR is a special case of index mode for tool
+*edge* is a special case of index mode for tool
 changers with pockets on both the rising and falling edges of the position sensor.
 (Seen on at least one Denford Orac.)
 
@@ -68,8 +67,8 @@ input needs to be set to set home. Additionally in 'counts' mode the usual index
 logic of the encoder counters is supported.
 
 With some carousel designs the carousel will not stop immediately. To allow for
-this set the \\fBalign-dc\\fR pin to a low velocity to be used for a final latching move, and
-set the \\fBdecel-time\\fR to a suitable value.
+this set the *align-dc* pin to a low velocity to be used for a final latching move, and
+set the *decel-time* to a suitable value.
 Once the decel-time has expired the carousel will, if it was moving forwards, reverse back on
 to the position marker, off of the marker and then back on to the FWD edge. If moving in reverse
 it will continue off the marker and then reverse slowly on to the FWD edge.
@@ -85,9 +84,9 @@ homing on first tool change is not needed then the enable pin can be toggled by
 an axis homing pin or a script and the homing process will continue even if that
 driving signal resets during the carousel homing move.
 
-To operate the component with an encoder or stepgen use mode "C". The \\fBscale\\fR
+To operate the component with an encoder or stepgen use mode "C". The *scale*
 pin should be the number of steps or encoder counts between pocket centres. The
-\\fBwidth\\fR pin can be used to stop the motor some distance before the centre of
+*width* pin can be used to stop the motor some distance before the centre of
 the pocket to allow the motor time to decelerate.
 In mode "C" it is possible to use either the speed/direction control used in other
 modes or to use direct position mode using the counts-target pin. The
@@ -96,7 +95,7 @@ hal component will be needed for encoder applications whereas stepgen
 configurations can use a stepgen in position control mode or in velocity
 control mode with a PID.
 
-For tool changers which lock the carousel against a stop the \\fBrev-pulse\\fR pin can
+For tool changers which lock the carousel against a stop the *rev-pulse* pin can
 be set to a non-zero value. The motor-rev pin will then be set for this many seconds
 at the completion of the tool search and at the same time the reverse duty/cycle
 velocity value will be sent to the motor-vel pin.
@@ -547,6 +546,7 @@ FUNCTION(_){
 }
 
 EXTRA_SETUP(){
+    (void)prefix;
     if (pockets[extra_arg] > 0) default_pockets = pockets[extra_arg];
     if (encoding[extra_arg] == NULL) {
         //it's already default_code

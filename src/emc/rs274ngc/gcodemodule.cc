@@ -174,6 +174,9 @@ static PyTypeObject LineCodeType = {
     0,                      /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                      /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                      /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -190,7 +193,9 @@ static InterpBase *pinterp;
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
 
-static void maybe_new_line(int sequence_number=pinterp->sequence_number());
+static void maybe_new_line(int sequence_number);
+static void maybe_new_line();
+
 static void maybe_new_line(int sequence_number) {
     if(!pinterp) return;
     if(interp_error) return;
@@ -208,6 +213,11 @@ static void maybe_new_line(int sequence_number) {
     Py_DECREF(new_line_code);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
+}
+
+static void maybe_new_line() {
+    if(!pinterp) return;
+    maybe_new_line(pinterp->sequence_number());
 }
 
 //das ist für die Vorschau
@@ -904,11 +914,13 @@ static PyObject *parse_file(PyObject * /*self*/, PyObject *args) {
         if(!RESULT_OK) goto out_error;
         result = pinterp->execute();
     }
+
     if(initcode && RESULT_OK) {
         result = pinterp->read(initcode);
         if(!RESULT_OK) goto out_error;
         result = pinterp->execute();
     }
+
     while(!interp_error && RESULT_OK) {
         error_line_offset = 1;
         result = pinterp->read();

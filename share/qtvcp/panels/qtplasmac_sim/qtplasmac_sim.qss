@@ -9,8 +9,16 @@ QPushButton {
     color: #ffee06;
     background: #16160e;
     border: 1px solid #ffee06;
-    border-radius: 4px;
-}
+    border-radius: 4px }
+
+QPushButton:checked {
+    color: #16160e;
+    background: #ff5500 }
+
+#move_down:pressed,
+#move_up:pressed {
+color: #16160e;
+background: #ff5500 }
 
 /****** SLIDER ************/
 QSlider::groove:horizontal {
@@ -24,16 +32,41 @@ QSlider::handle:horizontal {
     border-radius: 4px;
     width: 24px }
 
-QSlider::add-page:horizontal {
+QSlider::add-page:horizontal:disabled,
+QSlider::sub-page:horizontal:disabled,
+QSlider::handle:horizontal:disabled,
+QSlider::groove:horizontal:disabled {
+    color: #b0b0b0;
     background: #36362e;
-    border: 1px solid #36362e;
+    border: 1px solid #b0b0b0;
     border-radius: 4px }
 
+QSlider::add-page:horizontal,
 QSlider::sub-page:horizontal {
     background: #36362e;
     border: 1px solid #36362e;
     border-radius: 4px }
 
-Line {
-    background: red;
-}
+/****** LINE ***************/
+
+#arc_ok_line,
+#arc_voltage_line,
+#line,
+#mode_line,
+#sensor_line {
+    background: #ffee06 }
+
+/****** CHECKBOX ***********/
+QCheckBox {
+    spacing: 20px }
+
+QCheckBox::indicator {
+    border: 1px solid #ffee06;
+    border-radius: 4px;
+    width: 20px;
+    height: 20px }
+
+QCheckBox::indicator:pressed,
+QCheckBox::indicator:checked,
+QCheckBox::indicator:checked:pressed {
+    background: #ff5500 }

@@ -10,7 +10,7 @@ halcmd_twopass - short description
 
 == DESCRIPTION
 
-*halcmd_twopass* is a utility script used when parsing HAL files.
+*halcmd_twopass* is an utility script used when parsing HAL files.
 It is of little relevance to normal users and is used internally by the system.
 
 == SEE ALSO

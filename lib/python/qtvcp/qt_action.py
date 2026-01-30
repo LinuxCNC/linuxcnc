@@ -153,10 +153,10 @@ class _Lcnc_Action(object):
             # let calling function know we didn't release the limit override
             return False
         elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
-            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Overridden!')
+            STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, 'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Reset To Active!')
+            STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, 'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
@@ -346,7 +346,7 @@ class _Lcnc_Action(object):
         try:
             outfile = open(npath, 'w')
             outfile.write(source)
-            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
+            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME,SUCCESS')
         except Exception as e:
             print(e)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
@@ -587,6 +587,7 @@ class _Lcnc_Action(object):
         return mode
 
     def RESTORE_RECORDED_MODE(self):
+        self.cmd.wait_complete()
         self.ensure_mode(self.last_mode)
 
     def SET_SELECTED_JOINT(self, data):
@@ -689,13 +690,17 @@ class _Lcnc_Action(object):
                             'zoom-in', 'zoom-out', 'pan-up', 'pan-down',
                             'pan-left', 'pan-right', 'rotate-up',
                             'rotate-down', 'rotate-cw', 'rotate-ccw',
-                            'overlay_dro_on', 'overlay_dro_off',
+                            'overlay-dro-on', 'overlay-dro-off',
+                            'dtg-on', 'dtg-off',
                             'overlay-offsets-on', 'overlay-offsets-off',
                             'inhibit-selection-on', 'inhibit-selection-off',
                             'alpha-mode-on', 'alpha-mode-off', 'dimensions-on',
                             'dimensions-off', 'record-view', 'set-recorded-view',
-                            'set-large-dro','set-small-dro'):
+                            'set-large-dro','set-small-dro',"grid-off"):
             STATUS.emit('graphics-view-changed', view, None)
+
+    def SET_GRAPHICS_GRID_COLOR(self, color):
+        STATUS.emit('graphics-view-changed', 'GRID-COLOR', {'COLOR': color})
 
     def SET_GRAPHICS_GRID_SIZE(self, size):
         STATUS.emit('graphics-view-changed', 'GRID-SIZE', {'SIZE': size})
@@ -728,9 +733,15 @@ class _Lcnc_Action(object):
         subprocess.call('shutdown now')
 
     def UPDATE_MACHINE_LOG(self, text, option=None):
-        if option not in ('TIME', 'DATE', 'DELETE', None):
-            LOG.warning("Machine_log option not recognized: {}".format(option))
-        STATUS.emit('update-machine-log', text, option)
+        valid_options = {'INITIAL', 'TIME', 'DATE', 'DELETE', 'CRITICAL', 'ERROR', 'WARNING', 'SUCCESS', 'DEBUG'}
+        options = set(option.split(',')) if option else {None}
+        
+        if not options.issubset(valid_options):
+            invalid_options = options - valid_options
+            LOG.warning("Machine_log option(s) not recognized: {}".format(', '.join(invalid_options)))
+            options = None
+    
+        STATUS.emit('update-machine-log', text, options)
 
     def CALL_DIALOG(self, command):
         try:
@@ -812,8 +823,12 @@ class _Lcnc_Action(object):
     def SET_ERROR_MESSAGE(self, msg):
         self.cmd.error_msg(msg)
 
+    # TODO remove in future
     def SET_TEMPARARY_MESSAGE(self, msg):
-        STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, msg)
+        STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, msg)
+
+    def SET_TEMPORARY_MESSAGE(self, msg):
+        STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, msg)
 
     def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe,
             z_offset, retract_distance, z_safe_travel, rtn_method=None, error_rtn=None):

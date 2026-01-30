@@ -15,38 +15,41 @@ pin out float beta_cmd "typ: command to beta ts motor";
 
 function _;
 description """
-Implement \\fBCoreXY\\fR forward and inverse transformations
-\\fBin HAL\\fR.  This component provides an alternative
-method for implementing \\fBCoreXY\\fR kinematics.
+Implement *CoreXY* forward and inverse transformations
+*in HAL*.  This component provides an alternative
+method for implementing *CoreXY* kinematics.
 
 In the INI file, use:
 
-\\fB[KINS]KINEMATICS=trivkins coordinates=xyz kinstype=both\\fR
+[source,ini]
+----
+[KINS]
+KINEMATICS=trivkins
+coordinates=xyz
+kinstype=both
+----
 
-This component accepts two joint (\\fBj0,j1\\fR) motor
-position commands for a trivkins coordinates=xyz configuration
-and computes equivalent \\fBCoreXY\\fR motor commands for
-two motors identified as \\fBalpha,beta\\fR.  Similarly,
-the component accepts feedback values for the
-\\fBalpha,beta\\fR motor controllers and converts to
-equivalent joint (\\fBj0,j1\\fR) motor position feedback values.
+This component accepts two joint (*j0*, *j1*) motor position commands for a
+trivkins coordinates=xyz configuration and computes equivalent *CoreXY* motor
+commands for two motors identified as *alpha*, *beta*.  Similarly, the
+component accepts feedback values for the *alpha,beta* motor controllers and
+converts to equivalent joint (*j0*, *j1*) motor position feedback values.
 
 Notes:
 
-1) Using \\fBtrivkins\\fR with this module allows home switches
-to trigger according to the \\fBCartesian x,y\\fR positions
+1. Using *trivkins* with this module allows home switches to trigger according
+to the *Cartesian x,y* positions
 
-2) Joint pin names are based on \\fBcoordinates=xyz\\fR and
-the corresponding joint number assignments used by
-\\fBtrivkins\\fR so \\fBj0==x, j1==y\\fR
-(man trivkins for more information)
+2. Joint pin names are based on *coordinates=xyz* and the corresponding joint
+number assignments used by *trivkins* so *j0==x*, *j1==y* (see *trivkins*(9)).
 
-3) \\fBCoreXY\\fR kinematics can also be implemented using
-the kinematics module named \\fBcorexykins\\fR with home
-switches triggered by the \\fB j0,j1 motor\\fR positions.
-(man kins for more information)
+3. *CoreXY* kinematics can also be implemented using the kinematics module
+named *corexykins* with home switches triggered by the *j0*,*j1* *motor*
+positions (see *kins*(9)).
+
 """;
 
+option period no;
 license "GPL";
 author "Dewey Garrett based on forum post from nbremond";
 ;;

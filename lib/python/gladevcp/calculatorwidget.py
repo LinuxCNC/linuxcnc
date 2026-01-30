@@ -46,6 +46,7 @@ class Calculator( Gtk.Box ):
 
     def __init__( self, *a, **kw ):
         Gtk.Box.__init__( self, *a, **kw )
+        self.use_localization = False # Set True for legacay behavior using value conversion using atof()
         self.preset_value = None
         self.eval_string = ""
         self.font = "sans 12"
@@ -87,6 +88,9 @@ class Calculator( Gtk.Box ):
         self.wTree.connect_signals( dic )
         self.entry = self.wTree.get_object( "displayText" )
         self.entry.modify_font( Pango.FontDescription( self.font ) )
+        self.wTree.get_object( "Backspace" ).set_label("\u232B")
+        self.wTree.get_object( "Pi" ).set_label("\u03c0")
+        self.wTree.get_object( "Pi" ).set_name("pi-symbol")
         self.calc_box = self.wTree.get_object( "calc_box" )
         self.calc_box.set_vexpand(True)
         self.calc_box.set_hexpand(True)
@@ -98,9 +102,12 @@ class Calculator( Gtk.Box ):
         # Use CSS style for buttons
         screen = Gdk.Screen.get_default()
         provider = Gtk.CssProvider()
-        style_context = Gtk.StyleContext()
+        self.calc_box.set_name("calc_widget")
+        style_context = self.calc_box.get_style_context()
         style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        css = b"button {padding: 0;}"
+        css = b"""
+        #calc_widget {font-size: 15px;}
+        #pi-symbol {font-size: 18px; font-family: sans-serif;}"""
         provider.load_from_data(css)
 
     def num_pad_only( self, value ):
@@ -152,7 +159,7 @@ class Calculator( Gtk.Box ):
     def get_value( self ):
         self.compute()
         try:
-            value = self.wTree.get_object( "displayText" ).get_text()
+            value = self.entry.get_text()
             return locale.atof( value )
         except:
             return None
@@ -164,19 +171,22 @@ class Calculator( Gtk.Box ):
 
     def compute( self ):
         qualified = ''
-        # print"string:",self.eval_string
         temp = self.eval_string.strip( " " ).replace("Pi", "math.pi")
+        if self.use_localization:
+            pass
+        else:
+            temp = temp.replace(",", ".")
         # this loop adds only spaces around the mentioned operators 
         for i in( '-', '+', '/', '*', 'math.pi', '(', ')' ):
             new = " %s " % i
             temp = temp.replace( i, new )
         for i in temp.split():
-#            print ( "i in compute = ", i )
-            try:
-                i = str( locale.atof( i ) )
-#                print ( "converted i in compute = ", i )
-            except:
-                pass
+            if self.use_localization:
+                try:
+                    # convert to decimal dot format
+                    i = str( locale.atof( i ) )
+                except:
+                    pass
             if i.isdigit():
                 qualified = qualified + str( float( i ) )
             else:
@@ -188,27 +198,25 @@ class Calculator( Gtk.Box ):
                 b = str( eval( qualified ) )
         except:
             b = "Error"
-            print("Calculator widget error, string:", self.eval_string, sys.exc_info()[0])
             self.eval_string = ''
-        else  : self.eval_string = b
-        # if locale.localeconv()["decimal_point" = comma ,
-        # we have to replace the internal dot by a comma,
-        # otherwise it will be interpreted as an thousend separator
-        try:
-            b = locale.format_string( "%f", float( b ) ).rstrip( "0" )
-            if b[-1] == locale.localeconv()["decimal_point"]:
-                b = b.rstrip( locale.localeconv()["decimal_point"] )
-        except:
-            b = "Error"
-        self.wTree.get_object( "displayText" ).set_text( b )
-        self.eval_string = b + " " # add space to indicate that calculation was last
+        if self.use_localization:
+            try:
+                b = locale.format_string( "%f", float( b ) ).rstrip( "0" )
+                if b[-1] == locale.localeconv()["decimal_point"]:
+                    b = b.rstrip( locale.localeconv()["decimal_point"] )
+                else:
+                    self.eval_string = b
+            except:
+                b = "Error"
+        self.entry.set_text( b )
+        self.entry.set_position(len(self.eval_string))
 
     def delete( self ):
         self.eval_string = ''
-        self.wTree.get_object( "displayText" ).set_text( "" )
+        self.entry.set_text( "" )
 
     def displayOperand( self, i ):
-        if self.wTree.get_object( "displayText" ).get_selection_bounds():
+        if self.entry.get_selection_bounds():
             self.delete()
         if "Error" in self.eval_string:
             self.eval_string = ""
@@ -217,9 +225,14 @@ class Calculator( Gtk.Box ):
         if i not in "+-*/" and self.eval_string != "":
             if self.eval_string[-1] == " ":
                 self.eval_string = ""
-
-        self.eval_string = self.eval_string + i
-        self.wTree.get_object( "displayText" ).set_text( str( self.eval_string ) )
+        cursor_pos = self.entry.get_position()
+        self.eval_string = self.eval_string[:cursor_pos] + i + self.eval_string[cursor_pos:]
+        self.entry.set_text( str( self.eval_string ) )
+        if i == 'Pi':
+            cursor_move = 2
+        else:
+            cursor_move = 1
+        self.entry.set_position(cursor_pos + cursor_move)
 
     def displayText_changed( self, widget ):
         self.eval_string = widget.get_text()
@@ -232,14 +245,24 @@ class Calculator( Gtk.Box ):
         self.delete()
 
     def displayBackspace( self, widget ):
-        text = self.wTree.get_object( "displayText" ).get_text()
+        text = self.entry.get_text()
         if(text == "Error"):
             self.delete()
         else:
-            if text[-2:] == "Pi":
-                self.wTree.get_object( "displayText" ).set_text(text[:-2])
+            cursor_pos = self.entry.get_position()
+            text_left = self.eval_string[:cursor_pos]
+            text_right = self.eval_string[cursor_pos:]
+            if text_left[-2:] == "Pi":
+                self.entry.set_text(text_left[:-2] + text_right)
+                cursor_move = -2
+            elif text_left[-1:] == "P":
+                self.entry.set_text(text_left[:-1] + text_right[1:])
+                cursor_move = -1
             else:
-                self.wTree.get_object( "displayText" ).set_text(text[:-1])
+                self.entry.set_text(text_left[:-1] + text_right)
+                cursor_move = -1
+            if cursor_pos > 0:
+                self.entry.set_position(cursor_pos + cursor_move)
 
     def displayLeftBracket( self, widget ):
         self.displayOperand( "(" )
@@ -299,11 +322,11 @@ class Calculator( Gtk.Box ):
         self.displayOperand( "+" )
 
     def displayMmInch( self, widget ):
-        self.eval_string = "("+ self.eval_string + ") / " + locale.format("%f", float(25.4))
+        self.eval_string = "("+ self.eval_string + ") / " + locale.format_string("%f", float(25.4))
         self.compute()
 
     def displayInchMm( self, widget ):
-        self.eval_string = "("+ self.eval_string + ") * " + locale.format("%f", float(25.4))
+        self.eval_string = "("+ self.eval_string + ") * " + locale.format_string("%f", float(25.4))
         self.compute()
 
     def on_ok_button_clicked ( self, widget ):

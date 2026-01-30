@@ -76,6 +76,7 @@ typedef struct {
     hal_float_t *coarse_pos_cmd;/* RPI: commanded position, w/o comp */
     hal_float_t *joint_vel_cmd;	/* RPI: commanded velocity, w/o comp */
     hal_float_t *joint_acc_cmd;	/* RPI: commanded acceleration, w/o comp */
+    hal_float_t *joint_jerk_cmd;/* RPI: commanded jerk, w/o comp */
     hal_float_t *backlash_corr;	/* RPI: correction for backlash */
     hal_float_t *backlash_filt;	/* RPI: filtered backlash correction */
     hal_float_t *backlash_vel;	/* RPI: backlash speed variable */
@@ -298,6 +299,10 @@ int joint_is_lockable(int joint_num);
 #define GET_MOTION_ENABLE_FLAG() (emcmotStatus->motionFlag & EMCMOT_MOTION_ENABLE_BIT ? 1 : 0)
 
 #define SET_MOTION_ENABLE_FLAG(fl) if (fl) emcmotStatus->motionFlag |= EMCMOT_MOTION_ENABLE_BIT; else emcmotStatus->motionFlag &= ~EMCMOT_MOTION_ENABLE_BIT;
+
+#define GET_TRAJ_PLANNER_TYPE() (emcmotStatus->planner_type)
+
+#define SET_TRAK_PLANNER_TYPE(tp) (emcmotStatus->planner_type = tp)
 
 /* joint flags */
 

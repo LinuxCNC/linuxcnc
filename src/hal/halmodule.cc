@@ -376,8 +376,8 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_S64: return to_python(*(item->u->pin.s64));
             case HAL_FLOAT: return to_python(*(item->u->pin.f));
             case HAL_PORT: // HAL_PORT is currently not supported
-            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
-            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+            default:
+                break;
         }
     } else {
         switch(item->type) {
@@ -388,8 +388,8 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_S64: return to_python(item->u->param.s64);
             case HAL_FLOAT: return to_python(item->u->param.f);
             case HAL_PORT: // HAL_PORT is currently not supported
-            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
-            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+            default:
+                break;
         }
     }
     PyErr_Format(pyhal_error_type, "Invalid item type %d", item->type);
@@ -704,6 +704,9 @@ PyTypeObject halobject_type = {
     0,                         /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                         /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                         /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -866,6 +869,9 @@ PyTypeObject halpin_type = {
     0,                         /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                         /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                         /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -1218,8 +1224,8 @@ PyObject *get_value(PyObject * /*self*/, PyObject *args) {
             case HAL_S64: return Py_BuildValue("l",  (long long)*(hal_s64_t *)d_ptr);
             case HAL_FLOAT: return Py_BuildValue("f",  (double)*(hal_float_t *)d_ptr);
             case HAL_PORT: // HAL_PORT is currently not supported
-            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
-            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+            default:
+                break;
         }
     }
     /* not found, search pin list for name */
@@ -1244,8 +1250,8 @@ PyObject *get_value(PyObject * /*self*/, PyObject *args) {
             case HAL_S64: return Py_BuildValue("l",  (long long)*(hal_s64_t *)d_ptr);
             case HAL_FLOAT: return Py_BuildValue("f",  (double)*(hal_float_t *)d_ptr);
             case HAL_PORT: // HAL_PORT is currently not supported
-            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
-            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+            default:
+                break;
         }
     }
     sig = halpr_find_sig_by_name(name);
@@ -1263,8 +1269,8 @@ PyObject *get_value(PyObject * /*self*/, PyObject *args) {
             case HAL_S64: return Py_BuildValue("l",  (long long)*(hal_s64_t *)d_ptr);
             case HAL_FLOAT: return Py_BuildValue("f",  (double)*(hal_float_t *)d_ptr);
             case HAL_PORT: // HAL_PORT is currently not supported
-            case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
-            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
+            default:
+                break;
         }
     }
     /* error if here */
@@ -1671,6 +1677,9 @@ PyTypeObject shm_type = {
     0,                         /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                         /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                         /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -1918,6 +1927,9 @@ PyTypeObject stream_type = {
     0,                         /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                         /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                         /*tp_versions_used*/
+#endif
 #endif
 #endif
 };

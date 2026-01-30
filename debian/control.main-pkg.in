@@ -34,10 +34,12 @@ Depends:
 Recommends:
     linuxcnc-doc-en | linuxcnc-doc,
     librsvg2-dev,
+    x11-xserver-utils,
     @EXTRA_RECOMMENDS@,
     @PYTHON_IMAGING@,
     @PYTHON_IMAGING_TK@
-Suggests: mesaflash,
+Suggests:
+    mesaflash,
     onboard
 Description: motion controller for CNC machines and robots
  LinuxCNC is a fully-realised CNC machine controller that can interpret

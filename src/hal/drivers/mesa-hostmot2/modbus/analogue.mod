@@ -23,3 +23,5 @@ static const hm2_modbus_chan_descriptor_t channels[] = {
    internal workings. 1 is default (errors only)                    */
 
 #define DEBUG 1
+
+// vim: syn=c

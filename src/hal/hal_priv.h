@@ -133,6 +133,8 @@
 RTAPI_BEGIN_DECLS
 extern char *hal_shmem_base;
 extern struct hal_data_t *hal_data;
+// The false error seems to be a cppcheck 2.13 problem
+// cppcheck-suppress unknownMacro
 RTAPI_END_DECLS
 
 #ifdef __cplusplus

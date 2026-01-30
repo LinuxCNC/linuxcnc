@@ -326,8 +326,7 @@ Tx+ to Rx+ and Tx- to Rx-.
 
 Note that there are differing naming standards for Modbus pins.
 Typically Rx+ and TX+ will connect to the B- pin on the modbus device
-and Rx- and Tx- will connect to the A+ pin. (ie, +/- will appear
-reversed.
+and Rx- and Tx- will connect to the A+ pin, i.e., +/- will appear reversed.
 
 
 === Ad-hoc Modbus device access ===

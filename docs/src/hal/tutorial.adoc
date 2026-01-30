@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:hal-tutorial]]
-= HAL Tutorial(((HAL Tutorial)))
+= HAL Tutorial
+
+(((HAL Tutorial)))
 
 == Introduction
 
@@ -15,8 +17,9 @@ It is a command line or text file tool for configuration and tuning.
 The following examples illustrate its setup and operation.
 
 [[haltut-halcmd]]
-== Halcmd(((Halcmd Tutorial)))
+== Halcmd
 
+(((Halcmd Tutorial)))
 `halcmd` is a command line tool for manipulating HAL. A more complete man
 page exists for halcmd and installed together with LinuxCNC, from source
 or from a package. If LinuxCNC has been compiled as _run-in-place_, the
@@ -419,8 +422,9 @@ halrun -U
 ----
 
 [[sec:tutorial-halmeter]]
-== Halmeter(((Halmeter,Tutorial Halmeter)))
+== Halmeter
 
+(((Halmeter,Tutorial Halmeter)))
 You can build very complex HAL systems without ever using a graphical
 interface. However there is something satisfying about seeing the
 result of your work. The first and simplest GUI tool for the HAL is
@@ -522,8 +526,9 @@ time, you can just start more halmeters. The halmeter window was
 intentionally made very small so you could have a lot of them on the
 screen at once.
 
-== Stepgen Example(((stepgen Example)))
+== Stepgen Example
 
+(((stepgen Example)))
 Up till now we have only loaded one HAL component. But the whole idea
 behind the HAL is to allow you to load and connect a number of simple
 components to make up a complex system. The next example will use two
@@ -831,8 +836,9 @@ see how to bring those internal signals out to run motors in the real
 world, but first we want to look at them and see what is happening.
 
 [[sec:tutorial-halscope]]
-== Halscope(((Tutorial Halscope)))
+== Halscope
 
+(((Tutorial Halscope)))
 The previous example generates some very interesting signals. But much
 of what happens is far too fast to see with halmeter. To take a closer
 look at what is going on inside the HAL, we want an oscilloscope.
@@ -858,7 +864,7 @@ left click on the samples box.
 image::images/halscope-01.png["Realtime function not linked dialog",align="center"]
 
 This dialog is where you set the sampling rate for the oscilloscope.
-For now we want to sample once per millisecond, so click on the 989 µs
+For now we want to sample once per millisecond, so click on the 1.00 ms
 thread 'slow' and leave the multiplier at 1. We will also leave the
 record length at 4000 samples, so that we can use up to four channels
 at one time. When you select a thread and then click 'OK', the dialog
@@ -1017,8 +1023,9 @@ image::images/halscope-10.png["Sample Rate Dialog",align="center"]
 Now let's look at the step pulses.
 Halscope has 16 channels, but for this example we are using only 4 at a time.
 Before we select any more channels, we need to turn off a couple.
-Click on the channel 2 button, then click the 'Chan Off' button at the bottom of the 'Vertical' box.
-Then click on channel 3, turn if off, and do the same for channel 4.
+Clicking on a selected channel button (black border) will turn the channel off.
+So click on the channel 2 button, then click again on this button and the channel will turn off.
+Then click twice on channel 3 and do the same for channel 4.
 Even though the channels are turned off, they still remember what they
 are connected to, and in fact we will continue to use channel 3 as the trigger source.
 To add new channels, select channel 5, and choose pin `stepgen.0.dir`, then channel 6, and select `stepgen.0.step`.

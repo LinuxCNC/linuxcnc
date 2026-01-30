@@ -616,6 +616,12 @@ class HandlerClass:
                 rate = rate * 2
             ACTION.JOG(joint, direction, rate, distance)
         else:
+            # incremental jogging?
+            if joint in (3,4,5,'A','B','C'): # angualar axis
+                if STATUS.get_jog_increment_angular() != 0: return
+            elif STATUS.get_jog_increment() != 0: return
+
+            # otherwise stop jogging when key released
             ACTION.JOG(joint, 0, 0, 0)
 
     # add spindle speed bar and at-speed led to tab corner

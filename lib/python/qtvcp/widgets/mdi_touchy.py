@@ -20,7 +20,7 @@ import os
 from PyQt5 import QtCore, QtWidgets, uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Action, Info
+from qtvcp.core import Status, Action, Info, Path
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
@@ -29,6 +29,7 @@ from qtvcp import logger
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+PATH = Path()
 LOG = logger.getLogger(__name__)
 
 class mdi:
@@ -172,7 +173,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         super(MDITouchy, self).__init__(parent)
         self.setMinimumSize(265, 325)
         # Load the widgets UI file:
-        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'mdi_touchy.ui')
+        self.filename = os.path.join(PATH.SHAREDIR,'widgets_ui', 'mdi_touchy.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
@@ -282,7 +283,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
             LOG.debug('message return:{}'.format (message))
             t = self.get_text().rstrip("0123456789.-")
             self.set_text('{}{}'.format(t, num))
-            STATUS.emit('update-machine-log', 'Calculation from MDI {}:'.format(num), 'TIME')
+            STATUS.emit('update-machine-log', 'Calculation from MDI {}:'.format(num), 'TIME,DEBUG')
 
     def run_command(self):
         self.fill_out()

@@ -213,12 +213,13 @@ MODULE_DEVICE_TABLE(pci, hm2_pci_tbl);
 
 static int hm2_pci_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     hm2_pci_t *board = this->private;
-    void *src = board->base + addr;
+    char *src = (char *)board->base + addr;
+    char *dst = buffer;
 
     while (size > 0) {
-        *(rtapi_u32*)buffer = *(rtapi_u32*)src;
+        *(rtapi_u32*)dst = *(rtapi_u32*)src;
         src += 4;
-        buffer += 4;
+        dst += 4;
         size -=4;
     }
 
@@ -227,12 +228,13 @@ static int hm2_pci_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
 
 static int hm2_pci_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     hm2_pci_t *board = this->private;
-    void *dest = board->base + addr;
+    char *dest = (char *)board->base + addr;
+    const char *src = buffer;
 
     while (size > 0) {
-        *(rtapi_u32*)dest = *(rtapi_u32*)buffer;
+        *(rtapi_u32*)dest = *(rtapi_u32*)src;
         dest += 4;
-        buffer += 4;
+        src += 4;
         size -=4;
     }
 
@@ -242,7 +244,6 @@ static int hm2_pci_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *bu
 
 static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
-    int i;
     rtapi_u32 status, control;
 
     // set /WRITE low for data transfer, and turn on LED
@@ -251,7 +252,7 @@ static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
     rtapi_outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
 
     // program the FPGA
-    for (i = 0; i < bitfile->e.size; i ++) {
+    for (unsigned i = 0; i < bitfile->e.size; i ++) {
         rtapi_outb(bitfile_reverse_bits(bitfile->e.data[i]), board->data_base_addr);
     }
 
@@ -362,7 +363,7 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
 
 static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
-    int i;
+    unsigned i;
     rtapi_u32 status;
 
     // program the FPGA
@@ -394,7 +395,7 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
     control = status | DONE_ENABLE_5I22 | _PROG_ENABLE_5I22;
     rtapi_outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
 
-    // Turn off /PROGRAM bit and insure that DONE isn't asserted
+    // Turn off /PROGRAM bit and ensure that DONE is not asserted
     rtapi_outl(control & ~_PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
 
     status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
@@ -411,7 +412,7 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
 
     // Delay for at least 100 uS. to allow the FPGA to finish its reset
     // sequencing.  3300 reads is at least 100 us, could be as long as a
-    // few ms
+    // few ms.
     for (i = 0; i < 3300; i++) {
         status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
     }
@@ -428,6 +429,7 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
 
 
 static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_device_id *id) {
+    (void)id;
     int r;
     hm2_pci_t *board;
     hm2_lowlevel_io_t *this;

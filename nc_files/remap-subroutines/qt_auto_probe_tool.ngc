@@ -32,7 +32,7 @@ o<qt_auto_probe_tool> sub
 ;        of material:" this will set and display on the Probe Settings screen the 
 ;        "Block Ht" = #<_hal[qtversaprobe.blockheight]> value in ABS coordinates.
 ;    5 - Set Coord System (G54): Use the Probe Tool and whichever probe screen is 
-;        appropriate to set the coordiate system XYZ offsets needed for your job. 
+;        appropriate to set the coordinate system XYZ offsets needed for your job. 
 ;        NOTE: Return_Option 3 uses the current local coordinate system, not just ABS coord.
 ;    6 - Prepare to Run: You may then issue a manual TnM6 command to change the tool 
 ;        before starting the job, or if the job begins with a TnM6 command before 
@@ -182,10 +182,10 @@ o510 endif
 F #<_hal[qtversaprobe.probevel]>
 G38.2 Z- [#<_hal[qtversaprobe.backoffdist]> *1.2]
 
-o510 if [#5070 EQ 0]
+o511 if [#5070 EQ 0]
 G90
-o510 return [-3] ; indicate probe contact failure to epilog
-o510 endif
+o511 return [-3] ; indicate probe contact failure to epilog
+o511 endif
 
 ;switch back to absolute distance mode once probing is done
 G90
