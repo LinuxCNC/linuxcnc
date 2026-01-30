@@ -70,6 +70,7 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
     queueFull(OFF),
     id(0),
     paused(OFF),
+    single_stepping(false),
     scale(0.0),
     rapid_scale(0.0),
 
