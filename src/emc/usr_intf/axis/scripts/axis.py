@@ -123,12 +123,16 @@ ap = AxisPreferences()
 # Handle repeated key press events
 pressed_keys_list = []
 def key_pressed(ev):
+    if None == ev:
+        return False
     if ev.keysym in pressed_keys_list:
         return True
     pressed_keys_list.append(ev.keysym)
     return False
 
 def key_released(ev):
+    if None == ev:
+        return
     # KeyRelease without KeyPress may happen when a modifier is active when
     # the key is pressed without a KeyPress handler. No KeyPress event is
     # generated, but releasing the actual key while still holding the modifier
@@ -2702,21 +2706,21 @@ class TclCommands(nf.TclCommands):
 
     # The next three don't have 'manual_ok' because that's done in jog_on /
     # jog_off
-    def jog_plus(event):
+    def jog_plus(event=None):
         if key_pressed(event):
             return  # Ignore repeated press events
         a = ja_from_rbutton()
         speed = get_jog_speed(a)
         jog_on(a, speed)
 
-    def jog_minus(event):
+    def jog_minus(event=None):
         if key_pressed(event):
             return  # Ignore repeated press events
         a = ja_from_rbutton()
         speed = get_jog_speed(a)
         jog_on(a, -speed)
 
-    def jog_stop(event):
+    def jog_stop(event=None):
         key_released(event)
         a = ja_from_rbutton()
         jog_off(a)
