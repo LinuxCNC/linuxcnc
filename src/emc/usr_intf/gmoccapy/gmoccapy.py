@@ -1363,7 +1363,7 @@ class gmoccapy(object):
             num_macros = len(macros)
         LOG.debug("found {0} Macros".format(num_macros))
         if num_macros > 14:
-            message = _("Found more than 16 macros, will use only the first 14.")
+            message = _("Found more than 14 macros, will use only the first 14.")
             LOG.info(message)
             num_macros = 14
         btn = self._new_button_with_predefined_image(
