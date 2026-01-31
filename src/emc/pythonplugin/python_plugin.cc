@@ -339,7 +339,6 @@ int PythonPlugin::configure(const char *iniFilename,
 			   const char *section) 
 {
     IniFile inifile;
-    std::optional<const char*> inistring;
 
     if (section == NULL) {
 	logPP(1, "no section");
@@ -360,16 +359,16 @@ int PythonPlugin::configure(const char *iniFilename,
 
     char real_path[PATH_MAX];
     char expandinistring[PATH_MAX];
-    if ((inistring = inifile.Find("TOPLEVEL", section))) {
-        if (inifile.TildeExpansion(*inistring,expandinistring,sizeof(expandinistring))) {
+    if (auto inistring = inifile.Find("TOPLEVEL", section)) {
+        if (inifile.TildeExpansion(inistring->c_str(),expandinistring,sizeof(expandinistring))) {
 	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
 	        status = PLUGIN_BAD_PATH;
 	        return status;
         }
 	toplevel = strstore(expandinistring);
 
-	if ((inistring = inifile.Find("RELOAD_ON_CHANGE", section)))
-	    reload_on_change = (atoi(*inistring) > 0);
+	if (auto reload_str = inifile.Find("RELOAD_ON_CHANGE", section))
+	    reload_on_change = (atoi(reload_str->c_str()) > 0);
 
 	if (realpath(toplevel, real_path) == NULL) {
 	    logPP(-1, "can\'t resolve path to '%s'", toplevel);
@@ -394,16 +393,16 @@ int PythonPlugin::configure(const char *iniFilename,
 	abs_path = strstore(real_path);
     }
 
-    if ((inistring = inifile.Find("LOG_LEVEL", section)))
-	log_level = atoi(*inistring);
+    if (auto inistring = inifile.Find("LOG_LEVEL", section))
+	log_level = atoi(inistring->c_str());
     else log_level = 0;
 
     char pycmd[PATH_MAX + 64];
     int n = 1;
     int lineno;
-    while ((inistring = inifile.Find("PATH_PREPEND", "PYTHON",
-					     n, &lineno))) {
-        if (inifile.TildeExpansion(*inistring,expandinistring,sizeof(expandinistring))) {
+    while (auto inistring = inifile.Find("PATH_PREPEND", "PYTHON",
+					     n, &lineno)) {
+        if (inifile.TildeExpansion(inistring->c_str(),expandinistring,sizeof(expandinistring))) {
 	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
 	        status = PLUGIN_EXCEPTION_DURING_PATH_PREPEND;
 	        return status;
@@ -420,9 +419,9 @@ int PythonPlugin::configure(const char *iniFilename,
 	n++;
     }
     n = 1;
-    while ((inistring = inifile.Find("PATH_APPEND", "PYTHON",
-					     n, &lineno))) {
-        if (inifile.TildeExpansion(*inistring,expandinistring,sizeof(expandinistring))) {
+    while (auto inistring = inifile.Find("PATH_APPEND", "PYTHON",
+					     n, &lineno)) {
+        if (inifile.TildeExpansion(inistring->c_str(),expandinistring,sizeof(expandinistring))) {
 	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
 	        status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
 	        return status;

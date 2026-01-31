@@ -668,7 +668,6 @@ static int hal_setup()
 int read_ini_file(char *filename)
 {
 	IniFile iniFile;
-	std::optional<const char*> bt;
 	int nb_buttons = 0;
 	if (!iniFile.Open(filename)) {
 		fprintf(stderr, "%s: Could not open configuration file: %s\n",
@@ -676,9 +675,10 @@ int read_ini_file(char *filename)
 		return -1;
 	}
 
-	while ((bt = iniFile.Find("BUTTON", section, nb_buttons+1)) && nb_buttons < NB_MAX_BUTTONS) {
-		if (sscanf(*bt, "%x:%255s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
-			fprintf(stderr, "%s: syntax error\n", *bt);
+	while (auto bt = iniFile.Find("BUTTON", section, nb_buttons+1)) {
+		if (nb_buttons >= NB_MAX_BUTTONS) break;
+		if (sscanf(bt->c_str(), "%x:%255s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
+			fprintf(stderr, "%s: syntax error\n", bt->c_str());
 			return -1;
 		}
 		nb_buttons++;

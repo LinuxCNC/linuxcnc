@@ -675,7 +675,6 @@ usage:
     }
   _sai._external_length_units =  0.03937007874016;
   if (inifile!= 0) {
-      std::optional<const char*> inistring;
       IniFile ini;
       // open it
       if (ini.Open(inifile) == false) {
@@ -683,8 +682,8 @@ usage:
         exit(1);
       }
 
-      if ((inistring = ini.Find("LINEAR_UNITS", "TRAJ"))) {
-          if (!strcmp(*inistring, "mm")) {
+      if (auto inistring = ini.Find("LINEAR_UNITS", "TRAJ")) {
+          if (*inistring == "mm") {
              _sai._external_length_units = 1.0;
           }
       }

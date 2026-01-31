@@ -116,18 +116,17 @@ int emcTaskInit()
     char path[EMC_SYSTEM_CMD_LEN];
     struct stat buf;
     IniFile inifile;
-    std::optional<const char*> inistring;
     ZERO_EMC_POSE(emcStatus->task.toolOffset);
 
     inifile.Open(emc_inifile);
 
     // Identify user_defined_function directories
-    if ((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
-        if (strlen(*inistring) >= sizeof(mdir[0])) {
+    if (auto inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")) {
+        if (inistring->length() >= sizeof(mdir[0])) {
             rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %zu)\n", sizeof(mdir[0]));
             return -1;
         }
-        strncpy(mdir[0], *inistring, sizeof(mdir[0]));
+        rtapi_strlcpy(mdir[0], inistring->c_str(), sizeof(mdir[0]));
     } else {
         // default dir if no PROGRAM_PREFIX
         rtapi_strlcpy(mdir[0], "nc_files", sizeof(mdir[0]));
@@ -136,17 +135,17 @@ int emcTaskInit()
 
     // user can specify a list of directories for user defined functions
     // with a colon (:) separated list
-    if ((inistring = inifile.Find("USER_M_PATH", "RS274NGC"))) {
+    if (auto inistring = inifile.Find("USER_M_PATH", "RS274NGC")) {
         char* nextdir;
         char tmpdirs[PATH_MAX];
 
         for (dct=1; dct < MAX_M_DIRS; dct++) mdir[dct][0] = 0;
 
-        if (strlen(*inistring) >= sizeof(tmpdirs)) {
+        if (inistring->length() >= sizeof(tmpdirs)) {
             rcs_print("[RS274NGC]USER_M_PATH too long (max len %zu)\n", sizeof(tmpdirs));
             return -1;
         }
-        strncpy(tmpdirs, *inistring, sizeof(tmpdirs));
+        rtapi_strlcpy(tmpdirs, inistring->c_str(), sizeof(tmpdirs));
 
         nextdir = strtok(tmpdirs,":");  // first token
         dct = 1;
@@ -431,13 +430,12 @@ int emcTaskPlanInit()
 {
     if(!pinterp) {
 	IniFile inifile;
-	std::optional<const char*> inistring;
 	inifile.Open(emc_inifile);
-	if((inistring = inifile.Find("INTERPRETER", "TASK"))) {
-	    pinterp = interp_from_shlib(*inistring);
+	if(auto inistring = inifile.Find("INTERPRETER", "TASK")) {
+	    pinterp = interp_from_shlib(inistring->c_str());
 	    fprintf(stderr, "interp_from_shlib() -> %p\n", pinterp);
             if (!pinterp) {
-                fprintf(stderr, "failed to load [TASK]INTERPRETER (%s)\n", *inistring);
+                fprintf(stderr, "failed to load [TASK]INTERPRETER (%s)\n", inistring->c_str());
                 return -1;
             }
 	}
