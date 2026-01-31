@@ -76,10 +76,9 @@ public:
                                     return(IniFile::Find(result,
                                                          tag, section, num));
                                 }
-    const char *                Find(const char *tag, const char *section=NULL,
+    std::optional<std::string>  Find(const char *tag, const char *section=NULL,
                                      int num = 1){
-                                    return(IniFile::Find(tag, section, num)
-                                      .value_or(nullptr));
+                                    return(IniFile::Find(tag, section, num));
                                 }
 
 private:
