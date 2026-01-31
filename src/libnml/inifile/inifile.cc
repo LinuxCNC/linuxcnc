@@ -592,19 +592,22 @@ IniFile::Exception::Print(FILE *fp)
 
 
 extern "C" const char *
+iniFindString(FILE *fp, const char *tag, const char *section,
+              char *buf, size_t bufsize)
+{
+    IniFile f(false, fp);
+    auto result = f.FindString(buf, bufsize, tag, section);
+    if (!result) return nullptr;
+    return *result;
+}
+
+extern "C" const char *
 iniFind(FILE *fp, const char *tag, const char *section)
 {
-    IniFile                     f(false, fp);
-
-    // Note: Using static storage for C API backward compatibility.
-    // This preserves the original non-reentrant behavior of the C API.
-    // The returned pointer is only valid until the next call.
-    // Callers needing to preserve the value should copy it immediately.
-    static std::string result_storage;
-    auto result = f.Find(tag, section);
-    if (!result) return nullptr;
-    result_storage = *result;
-    return result_storage.c_str();
+    // Deprecated: This function uses static storage and is not reentrant.
+    // Use iniFindString() instead for thread-safe operation.
+    static char result_storage[LINELEN];
+    return iniFindString(fp, tag, section, result_storage, sizeof(result_storage));
 }
 
 extern "C" int
