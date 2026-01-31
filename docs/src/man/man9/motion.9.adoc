@@ -411,7 +411,7 @@ Note: Pins marked *(DEBUG)* serve as debugging aids and are subject to change or
 **joint.**_N_**.jerk-cmd** OUT FLOAT *(DEBUG)*::
   The joint's commanded jerk (rate of change of acceleration).
   Only active when S-curve trajectory planning is enabled (INI file [TRAJ]PLANNER_TYPE=1 and [TRAJ]MAX_LINEAR_JERK>0).
-  Jerk limits are set via INI file [JOINT_N]MAX_JERK or via the ini.N.jerk HAL pin.
+  Jerk limits are set via INI file [JOINT_N]MAX_JERK or via the ini.N.max_jerk HAL pin.
 **joint.**_N_**.wheel-jog-active** OUT BIT *(DEBUG)*::
   +
 

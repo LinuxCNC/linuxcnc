@@ -203,8 +203,8 @@ static int loadTraj(EmcIniFile *trajInifile)
         }
         old_inihal_data.traj_max_acceleration = acc;
 
-        // has to set MAX_* before DEFAULT_*
-        jerk = 0; 
+        // Set max jerk (default to 1e9 if not specified in INI)
+        jerk = 1e9;
         trajInifile->Find(&jerk, "MAX_LINEAR_JERK", "TRAJ");
         if (0 != emcTrajSetMaxJerk(jerk)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -213,20 +213,21 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
         old_inihal_data.traj_max_jerk = jerk;
-                
-        jerk = 0; 
-        trajInifile->Find(&jerk, "DEFAULT_LINEAR_JERK", "TRAJ");
+        // Also set current jerk to max_jerk
         if (0 != emcTrajSetJerk(jerk)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetJerk\n");
             }
             return -1;
         }
-        old_inihal_data.traj_default_jerk = jerk;
         planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve
         trajInifile->Find(&planner_type, "PLANNER_TYPE", "TRAJ");
         // Only 0 and 1 are supported, set to 0 if invalid
+        // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
         if (planner_type != 0 && planner_type != 1) {
+            planner_type = 0;
+        }
+        if (planner_type == 1 && jerk < 1.0) {
             planner_type = 0;
         }
         if (0 != emcTrajPlannerType(planner_type)) {
