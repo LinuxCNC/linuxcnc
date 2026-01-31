@@ -398,11 +398,12 @@ enum kwdresult {NAME_NOT_FOUND, KEYWORD_INVALID, KEYWORD_FOUND};
 int findkwd(param_pointer p, const char *name, int *result, const char *keyword, int value, ...)
 {
     const char *word;
+    char wordbuf[INI_MAX_LINELEN];
     va_list ap;
     const char *kwds[MAX_KWD], **s;
     int nargs = 0;
 
-    if ((word = iniFind(p->fp, name, p->section)) == NULL)
+    if ((word = iniFindString(p->fp, name, p->section, wordbuf, sizeof(wordbuf))) == NULL)
 	return NAME_NOT_FOUND;
 
     kwds[nargs++] = keyword;
@@ -431,6 +432,7 @@ int findkwd(param_pointer p, const char *name, int *result, const char *keyword,
 int read_ini(param_pointer p)
 {
     const char *s;
+    char sbuf[INI_MAX_LINELEN];
     double f;
     int value;
 
@@ -447,10 +449,10 @@ int read_ini(param_pointer p)
 	iniFindInt(p->fp, "PORT", p->section, &p->tcp_portno);
 	iniFindInt(p->fp, "RECONNECT_DELAY", p->section, &p->reconnect_delay);
 
-	if ((s = iniFind(p->fp, "TCPDEST", p->section))) {
+	if ((s = iniFindString(p->fp, "TCPDEST", p->section, sbuf, sizeof(sbuf)))) {
 	    p->tcp_destip = strdup(s);
 	}
-	if ((s = iniFind(p->fp, "DEVICE", p->section))) {
+	if ((s = iniFindString(p->fp, "DEVICE", p->section, sbuf, sizeof(sbuf)))) {
 	    p->device = strdup(s);
 	}
 	if (iniFindDouble(p->fp, "RESPONSE_TIMEOUT", p->section, &f)) {
@@ -478,10 +480,10 @@ int read_ini(param_pointer p)
 		    (void *)NULL) == KEYWORD_INVALID)
 	    return -1;
 #else
-	if (iniFind(p->fp, "RTS_MODE", p->section) != NULL) {
+	if (iniFindString(p->fp, "RTS_MODE", p->section, sbuf, sizeof(sbuf)) != NULL) {
 	    fprintf(stderr,"%s: warning - the RTS_MODE feature is not available with the installed libmodbus version (%s).\n"
 		    "to enable it, uninstall libmodbus-dev and rebuild with "
-		    "libmodbus built http://github.com/stephane/libmodbus:master .\n", 
+		    "libmodbus built http://github.com/stephane/libmodbus:master .\n",
 		    LIBMODBUS_VERSION_STRING, p->progname);
 	}
 #endif
