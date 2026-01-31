@@ -3735,7 +3735,7 @@ class gmoccapy(object):
     def show_try_errors(self):
         exc_type, exc_value, exc_traceback = sys.exc_info()
         formatted_lines = traceback.format_exc().splitlines()
-        LOG.error(_("{0}").format(formatted_lines[0]))
+        LOG.error("{0}".format(formatted_lines[0]))
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
         LOG.debug(formatted_lines[-1])
 
@@ -4615,7 +4615,7 @@ class gmoccapy(object):
     # this are the MDI thinks we need
     def on_btn_delete_clicked(self, widget, data=None):
         message = _("Do you really want to delete the MDI history?\n")
-        message += _("This will not delete the MDI History file, but will"
+        message += _("This will not delete the MDI History file, but will\n"
                      "delete the listbox entries for this session.")
         result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
@@ -5494,8 +5494,8 @@ class gmoccapy(object):
     def on_btn_delete_tool_clicked(self, widget, data=None):
         selected_tool = self.widgets.tooledit1.get_selected_row()
         if self.stat.tool_in_spindle == selected_tool:
-            message = _("You are trying to delete the tool mounted in the spindle\n")
-            message += _("This is not allowed, please change tool prior to delete it.")
+            message = _("You are trying to delete the tool mounted in the spindle.\n"
+                        "This is not allowed, please change tool prior to delete it.")
             self.dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
             return
         self.widgets.tooledit1.delete_selected_row(widget)
