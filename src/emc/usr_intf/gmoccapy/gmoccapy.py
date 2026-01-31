@@ -548,7 +548,7 @@ class gmoccapy(object):
         messages =[ _("<b>3.5.0 (LinuxCNC 2.10.0): Gmoccapy does no longer automatically retain G43 after a toolchange!</b>\n"\
                     "Automatic reactivation of G43 is possible using a REMAP.\n"\
                     "Examples can be found in the Gmoccapy sim configurations."),
-                    _("<b>3.5.1 (LinuxCNC 2.10.0)</b>\n• The tool table and offset page uses now the calculator for entering values by default. "\
+                    _("<b>3.5.1 (LinuxCNC 2.10.0)</b>\n• The tool table and offset page use now the calculator for entering values by default. "\
                     "This can be changed in the settings/by a button.\n• A button to call the calculator was added in MDI and G-code edit modes."),
                     # _("<b>3.5.2 (LinuxCNC 2.10.x): </b> Example for new feature"),
                     ]
@@ -1420,7 +1420,7 @@ class gmoccapy(object):
             size=_DEFAULT_BB_SIZE,
             image=self.widgets.img_macro_menu_calculator
         )
-        btn.set_property("tooltip-text", _("Press to display the virtual calculator"))
+        btn.set_property("tooltip-text", _("Press to display the calculator"))
         btn.connect("clicked", self.on_btn_show_calc_clicked)
         self.widgets.hbtb_MDI.pack_start(btn,True,True,0)
         btn = self.widgets.btn_macro_menu_toggle_keyboard = self._new_button_with_predefined_image(
@@ -1993,13 +1993,13 @@ class gmoccapy(object):
         # Modify the button box at the bottom
         buttonbox = self.widgets.tooledit1.wTree.get_object("buttonbox")
         buttonbox.set_layout(Gtk.ButtonBoxStyle.EDGE)
-        buttonbox.set_property("homogeneous", True)
+        buttonbox.set_property("homogeneous", False)
         # Delete button
         btn_delete = self.widgets.tooledit1.wTree.get_object("delete")
         btn_delete.set_size_request(56, 56)
         btn_delete.set_label("")
         btn_delete.set_image(self.widgets.img_tool_delete)
-        btn_delete.set_tooltip_text(_("Delete selected tools"))
+        btn_delete.set_tooltip_text(_("Delete selected tool"))
         btn_delete.set_always_show_image(True)
         btn_delete.disconnect_by_func(self.widgets.tooledit1.delete)
         btn_delete.connect("clicked",self.on_btn_delete_tool_clicked)
@@ -2066,7 +2066,7 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_selected_tool(self.widgets.tooledit1.toolinfo_num)
 
     def set_selected_tool(self, toolnumber):
-        lbl_tool_text = _("Tool loaded: ") + str(toolnumber)
+        lbl_tool_text = _("Tool loaded:") + " " + str(toolnumber)
         self.widgets.tooledit1.lbl_tool.set_text(lbl_tool_text)
         self.tooledit1_set_selected_tool(toolnumber)
 
@@ -2129,7 +2129,7 @@ class gmoccapy(object):
         value = self.dialogs.entry_dialog(self,
                                     data=model[row][col],
                                     header=_("Enter value"),
-                                    label=_("Tool %s,  %s:" % (model[row][1], captations[col])),
+                                    label=_("Tool") + f" {model[row][1]}, {captations[col]}:",
                                     integer=col in [1,2,15])
         if value == "ERROR":
             LOG.debug("conversion error")
@@ -2450,7 +2450,7 @@ class gmoccapy(object):
             offset = self.dialogs.entry_dialog(self,
                                         data=offsetpage.store[row][col],
                                         header=_("Enter value for offset"),
-                                        label=_("%s %s-offset:" % (offsetpage.store[row][0], AXISLIST[col])),
+                                        label=f"{offsetpage.store[row][0]} {AXISLIST[col]}-" + _("offset:"),
                                         integer=False)
             if offset == "ERROR":
                 LOG.debug("conversion error")
@@ -4615,8 +4615,8 @@ class gmoccapy(object):
     # this are the MDI thinks we need
     def on_btn_delete_clicked(self, widget, data=None):
         message = _("Do you really want to delete the MDI history?\n")
-        message += _("This will not delete the MDI History file, but will\n")
-        message += _("delete the listbox entries for this session.")
+        message += _("This will not delete the MDI History file, but will"
+                     "delete the listbox entries for this session.")
         result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
@@ -4747,7 +4747,7 @@ class gmoccapy(object):
                           tt.uoffset, tt.voffset, tt.woffset)
             if (new_offset != self.stat.tool_offset) and ("G43" in self.active_gcodes):
                 message = _("Offset values for the tool in the spindle\n" \
-                            "have been changed whith tool compensation (G43) active.\n\n" \
+                            "have been changed with tool compensation (G43) active.\n\n" \
                             "Do you want the new values to be applied as the currently\n" \
                             "active tool offset?")
                 result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
@@ -5495,7 +5495,7 @@ class gmoccapy(object):
         selected_tool = self.widgets.tooledit1.get_selected_row()
         if self.stat.tool_in_spindle == selected_tool:
             message = _("You are trying to delete the tool mounted in the spindle\n")
-            message += _("This is not allowed, please change tool prior to delete it")
+            message += _("This is not allowed, please change tool prior to delete it.")
             self.dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
             return
         self.widgets.tooledit1.delete_selected_row(widget)

@@ -2480,7 +2480,7 @@ uncomment selection</property>
                                                       <object class="GtkLabel" id="lbl_frame_code">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
-                                                        <property name="label" translatable="yes">&lt;b&gt;G-Code&lt;/b&gt;</property>
+                                                        <property name="label" translatable="yes">&lt;b&gt;G-Codes&lt;/b&gt;</property>
                                                         <property name="use-markup">True</property>
                                                       </object>
                                                     </child>
@@ -2819,7 +2819,6 @@ uncomment selection</property>
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
                                                     <property name="has-tooltip">True</property>
-                                                    <property name="tooltip-markup">Displays the current velocity</property>
                                                     <property name="tooltip-text" translatable="yes">Displays the current velocity</property>
                                                     <property name="hexpand">True</property>
                                                     <property name="xpad">5</property>
@@ -2941,7 +2940,6 @@ uncomment selection</property>
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
                                                             <property name="has-tooltip">True</property>
-                                                            <property name="tooltip-markup">Displays the programmed feed rate</property>
                                                             <property name="tooltip-text" translatable="yes">Displays the programmed feed rate</property>
                                                             <property name="label">F 275</property>
                                                             <attributes>
@@ -2972,7 +2970,6 @@ uncomment selection</property>
                                                             <property name="can-focus">True</property>
                                                             <property name="receives-default">True</property>
                                                             <property name="has-tooltip">True</property>
-                                                            <property name="tooltip-markup">reset feed override to 100 %</property>
                                                             <property name="tooltip-text" translatable="yes">reset feed override to 100 %</property>
                                                             <signal name="clicked" handler="on_btn_feed_100_clicked" swapped="no"/>
                                                           </object>
@@ -4027,7 +4024,7 @@ uncomment selection</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
                                         <property name="receives-default">False</property>
-                                        <property name="tooltip-text" translatable="yes">Pup up the calculator when editing numerical values in the offset page</property>
+                                        <property name="tooltip-text" translatable="yes">Pop up the calculator when editing numerical values in the offset page</property>
                                         <property name="active">True</property>
                                         <property name="draw-indicator">True</property>
                                         <signal name="toggled" handler="on_chk_offsetpage_use_calc_toggled" swapped="no"/>
@@ -4645,7 +4642,6 @@ clicking on the DRO</property>
                                         <property name="invisible-char">●</property>
                                         <property name="width-chars">6</property>
                                         <property name="max-width-chars">2</property>
-                                        <property name="text" translatable="yes">40</property>
                                         <property name="xalign">1</property>
                                         <property name="primary-icon-activatable">False</property>
                                         <property name="secondary-icon-activatable">False</property>
@@ -4680,7 +4676,6 @@ clicking on the DRO</property>
                                         <property name="invisible-char">●</property>
                                         <property name="width-chars">6</property>
                                         <property name="max-width-chars">3</property>
-                                        <property name="text" translatable="yes">30</property>
                                         <property name="xalign">1</property>
                                         <property name="primary-icon-activatable">False</property>
                                         <property name="secondary-icon-activatable">False</property>
@@ -7580,7 +7575,7 @@ MDI history</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="receives-default">False</property>
-                    <property name="tooltip-text" translatable="yes">Show the virtual calculator</property>
+                    <property name="tooltip-text" translatable="yes">Show calculator</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="image">img_edit_menu_calculator</property>
