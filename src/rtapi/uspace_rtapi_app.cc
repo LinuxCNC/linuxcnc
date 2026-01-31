@@ -693,7 +693,9 @@ static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/)
                         "rtapi_app: caught signal %d - dumping core\n", sig);
         sleep(1); // let syslog drain
         signal(sig, SIG_DFL);
-        raise(sig);
+        // for reasons unknown raise(sig); doesn't lead to core dump file
+        // but this will
+        kill(getpid(), sig);
         break;
     }
     exit(1);
