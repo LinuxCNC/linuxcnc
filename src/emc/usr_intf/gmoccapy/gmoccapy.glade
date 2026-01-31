@@ -4661,7 +4661,8 @@ clicking on the DRO</property>
                                         <property name="can-focus">False</property>
                                         <property name="xpad">5</property>
                                         <property name="ypad">5</property>
-                                        <property name="label" translatable="yes">Width right pane</property>
+                                        <property name="label" translatable="yes">Width right panel
+(=DRO width)</property>
                                         <property name="xalign">0</property>
                                       </object>
                                       <packing>
@@ -6929,6 +6930,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Reload file</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="use-underline">True</property>
@@ -7073,6 +7075,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Show full screen preview</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="image">img_fullsize_preview1_open</property>
@@ -7453,6 +7456,7 @@ MDI history</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Show preview as split view</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="image">img_split_view</property>
@@ -7472,6 +7476,7 @@ MDI history</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Reload file</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="image">img_edit_menu_reload</property>
