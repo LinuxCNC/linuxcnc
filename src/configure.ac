@@ -987,6 +987,30 @@ if test "x" = "x$BOOST_PYTHON_LIB"; then
     DEPFOUND=false
 fi
 
+# Test for a "maybe uninitialized" in the python::boost library in
+# extract<std::string> when compiled with g++ 15.2.[01] and maybe others.
+# The test needs to have -O2 and -Wall enabled to expose the probem.
+AC_LANG_PUSH([C++])
+CPPFLAGS_SAVED="$CPPFLAGS"
+CPPFLAGS="$PYTHON_CPPFLAGS $BOOST_CPPFLAGS $CPPFLAGS -O2 -Wall -Werror"
+AC_CACHE_CHECK(whether $CXX has a "maybe uninitialized" false positive, ax_cv_cxx_boost_maybe_uninit,
+    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <boost/python/extract.hpp>
+std::string func(boost::python::object& o) {
+	return boost::python::extract<std::string>(o);
+}
+int main() { return 0; }
+]])],
+        [ax_cv_cxx_boost_maybe_uninit=no],
+        [ax_cv_cxx_boost_maybe_uninit=yes])
+    ]
+)
+CPPFLAGS="$CPPFLAGS_SAVED"
+if test x$ax_cv_cxx_boost_maybe_uninit = xyes; then
+    CPPFLAGS="$CPPFLAGS -Wno-maybe-uninitialized"
+fi
+AC_LANG_POP([C++])
+
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
     AS_HELP_STRING(
