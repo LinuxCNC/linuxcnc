@@ -22,22 +22,25 @@
 #include "rtapi.h"
 #include "rtapi_math.h"
 #include "rtapi_app.h"
+#include "rosekins_math.h"
+
+const char* kinematicsGetName(void) { return "rosekins"; }
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
-
-#ifndef hypot
-#define hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
-#endif
 
 struct haldata {
     hal_float_t *revolutions;
     hal_float_t *theta_degrees;
     hal_float_t *bigtheta_degrees;
 } *haldata;
+
+/* State for revolution tracking */
+static rosekins_state_t kins_state;
 
 int kinematicsForward(const double *joints,
                       EmcPose * pos,
@@ -46,23 +49,7 @@ int kinematicsForward(const double *joints,
 {
     (void)fflags;
     (void)iflags;
-    double radius,z,theta;
-
-    radius = joints[0];
-    z      = joints[1];
-    theta  = TO_RAD * joints[2];
-
-    pos->tran.x = radius * cos(theta);
-    pos->tran.y = radius * sin(theta);
-    pos->tran.z = z;
-    pos->a = 0;
-    pos->b = 0;
-    pos->c = 0;
-    pos->u = 0;
-    pos->v = 0;
-    pos->w = 0;
-
-    return 0;
+    return rosekins_forward_math(joints, pos);
 }
 
 int kinematicsInverse(const EmcPose * pos,
@@ -72,45 +59,15 @@ int kinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-// There is a potential problem when accumulating bigtheta -- loss of
-// precision based on size of mantissa -- but in practice, it is probably ok
+    rosekins_output_t output;
+    int result = rosekins_inverse_math(pos, joints, &kins_state, &output);
 
-    static int oldquad;
-    static int revolutions;
+    /* Write diagnostic values to HAL pins */
+    *(haldata->revolutions) = output.revolutions;
+    *(haldata->theta_degrees) = output.theta_degrees;
+    *(haldata->bigtheta_degrees) = output.bigtheta_degrees;
 
-    double     theta,bigtheta;
-    int        nowquad = 0;
-    double     x = pos->tran.x;
-    double     y = pos->tran.y;
-    double     z = pos->tran.z;
-
-    if      (x >= 0 && y >= 0) nowquad = 1;
-    else if (x <  0 && y >= 0) nowquad = 2;
-    else if (x <  0 && y <  0) nowquad = 3;
-    else if (x >= 0 && y <  0) nowquad = 4;
-
-    if (oldquad == 2 && nowquad == 3) {revolutions += 1;}
-    if (oldquad == 3 && nowquad == 2) {revolutions -= 1;}
-
-    theta     = atan2(y,x);
-    bigtheta  = theta + PM_2_PI * revolutions;
-
-    *(haldata->revolutions) = revolutions;
-    *(haldata->theta_degrees) = theta * TO_DEG;
-    *(haldata->bigtheta_degrees) = bigtheta * TO_DEG;
-
-    joints[0] = hypot(x,y);
-    joints[1] = z;
-    joints[2] = TO_DEG * bigtheta;
-    joints[3] = 0;
-    joints[4] = 0;
-    joints[5] = 0;
-    joints[6] = 0;
-    joints[7] = 0;
-    joints[8] = 0;
-
-    oldquad = nowquad;
-    return 0;
+    return result;
 }
 
 KINEMATICS_TYPE kinematicsType()

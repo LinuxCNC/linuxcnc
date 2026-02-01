@@ -19,7 +19,7 @@
 #include "rtapi_math.h"
 #include "rtapi_app.h"
 
-#include "lineardeltakins-common.h"
+#include "lineardeltakins_math.h"
 
 struct haldata
 {
@@ -34,8 +34,10 @@ int kinematicsForward(const double * joints,
                       KINEMATICS_INVERSE_FLAGS * iflags) {
     (void)fflags;
     (void)iflags;
-    set_geometry(*haldata->r, *haldata->l);
-    return kinematics_forward(joints, pos);
+    lineardelta_params_t params;
+    params.radius = *haldata->r;
+    params.rod_length = *haldata->l;
+    return lineardelta_forward_math(&params, joints, pos);
 }
 
 int kinematicsInverse(const EmcPose *pos, double *joints,
@@ -43,8 +45,10 @@ int kinematicsInverse(const EmcPose *pos, double *joints,
         KINEMATICS_FORWARD_FLAGS *fflags) {
     (void)iflags;
     (void)fflags;
-    set_geometry(*haldata->r, *haldata->l);
-    return kinematics_inverse(pos, joints);
+    lineardelta_params_t params;
+    params.radius = *haldata->r;
+    params.rod_length = *haldata->l;
+    return lineardelta_inverse_math(&params, pos, joints);
 }
 
 KINEMATICS_TYPE kinematicsType()
@@ -74,8 +78,8 @@ int rtapi_app_main(void)
 
     if(retval == 0)
     {
-        *haldata->r = DELTA_RADIUS;
-        *haldata->l = DELTA_DIAGONAL_ROD;
+        *haldata->r = LINEARDELTA_DEFAULT_RADIUS;
+        *haldata->l = LINEARDELTA_DEFAULT_ROD_LENGTH;
     }
 
     if(retval == 0)
@@ -91,8 +95,11 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
+const char* kinematicsGetName(void) { return "lineardeltakins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");

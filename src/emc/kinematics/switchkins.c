@@ -232,11 +232,17 @@ RTAPI_MP_STRING(coordinates, "Axes-to-joints-ordering");
 static char *sparm;
 RTAPI_MP_STRING(sparm,  "switchkins module-specific parameter");
 
+const char* kinematicsGetName(void)
+{
+    return kp.kinsname;
+}
+
 EXPORT_SYMBOL(kinematicsSwitchable);
 EXPORT_SYMBOL(kinematicsSwitch);
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 static int    comp_id;

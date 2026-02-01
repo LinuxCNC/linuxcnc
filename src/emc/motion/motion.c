@@ -21,6 +21,7 @@
 #include "rtapi_math.h"
 #include "homing.h"
 #include "axis.h"
+#include "kinematics_params.h"  /* map_kinsname_to_type_id */
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -902,6 +903,22 @@ static int init_comm_buffers(void)
     SET_MOTION_ENABLE_FLAG(0);
     /* record the kinematics type of the machine */
     emcmotConfig->kinType = kinematicsType();
+
+    /* record the kinematics module name and type ID for userspace access */
+    {
+        const char *kins_name = kinematicsGetName();
+        if (kins_name) {
+            rtapi_strxcpy(emcmotConfig->kins_module_name, kins_name);
+            emcmotConfig->kins_type_id = map_kinsname_to_type_id(kins_name);
+        } else {
+            emcmotConfig->kins_module_name[0] = '\0';
+            emcmotConfig->kins_type_id = KINS_TYPE_UNKNOWN;
+        }
+        rtapi_print_msg(RTAPI_MSG_INFO,
+            "MOTION: kinematics module='%s', type_id=%d\n",
+            emcmotConfig->kins_module_name, emcmotConfig->kins_type_id);
+    }
+
     emcmot_config_change();
 
     for (spindle_num = 0; spindle_num < EMCMOT_MAX_SPINDLES; spindle_num++){

@@ -62,27 +62,15 @@
 #include "kinematics.h"
 #include "posemath.h"
 #include "switchkins.h"
+#include "5axiskins_math.h"
 
 struct haldata {
     hal_float_t *pivot_length;
 } *haldata;
 static int fiveaxis_max_joints;
 
-static PmCartesian s2r(double r, double t, double p) {
-    // s2r: spherical coordinates to cartesian coordinates
-    // r       = length of vector
-    // p=phi   = angle of vector wrt z axis
-    // t=theta = angle of vector projected onto xy plane
-    //           (projection length in xy plane is r*sin(p)
-    PmCartesian c;
-    t = TO_RAD*t; p = TO_RAD*p; // degrees to radians
-
-    c.x = r * sin(p) * cos(t);
-    c.y = r * sin(p) * sin(t);
-    c.z = r * cos(p);
-
-    return c;
-} //s2r()
+// Joint mapping struct for math functions
+static fiveaxis_joints_t jmap;
 
 // assignments of principal joints to axis letters:
 // (-1 means not defined (yet))
@@ -103,24 +91,9 @@ static int fiveaxis_KinematicsForward(const double *joints,
 {
     (void)fflags;
     (void)iflags;
-    PmCartesian r = s2r(*(haldata->pivot_length) + joints[JW],
-                        joints[JC],
-                        180.0 - joints[JB]);
-
-    // Note: 'principal' joints are used
-    pos->tran.x = joints[JX] + r.x;
-    pos->tran.y = joints[JY] + r.y;
-    pos->tran.z = joints[JZ] + *(haldata->pivot_length) + r.z;
-    pos->b      = joints[JB];
-    pos->c      = joints[JC];
-    pos->w      = joints[JW];
-
-    // optional letters (specify with coordinates module parameter)
-    pos->a = (JA != -1)? joints[JA] : 0;
-    pos->u = (JU != -1)? joints[JU] : 0;
-    pos->v = (JV != -1)? joints[JV] : 0;
-
-    return 0;
+    fiveaxis_params_t params;
+    params.pivot_length = *(haldata->pivot_length);
+    return fiveaxis_forward_math(&params, &jmap, joints, pos);
 } //fiveaxis_KinematicsForward()
 
 static int fiveaxis_KinematicsInverse(const EmcPose * pos,
@@ -130,23 +103,12 @@ static int fiveaxis_KinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-    PmCartesian r = s2r(*(haldata->pivot_length) + pos->w,
-                        pos->c,
-                        180.0 - pos->b);
+    fiveaxis_params_t params;
+    params.pivot_length = *(haldata->pivot_length);
 
-    EmcPose P;  // computed position
-    P.tran.x = pos->tran.x - r.x;
-    P.tran.y = pos->tran.y - r.y;
-    P.tran.z = pos->tran.z - *(haldata->pivot_length) - r.z;
-
-    P.b = pos->b;
-    P.c = pos->c;
-    P.w = pos->w;
-
-    // optional letters (specify with coordinates module parameter)
-    P.a = (JA != -1)? pos->a : 0;
-    P.u = (JU != -1)? pos->u : 0;
-    P.v = (JV != -1)? pos->v : 0;
+    // Compute axis values using pure math function
+    EmcPose P;
+    fiveaxis_inverse_math(&params, pos, &P);
 
     // update joints with support for
     // multiple-joints per-coordinate letter:
@@ -209,6 +171,11 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
         if (axis_idx_for_jno[jno] == 7) {if (JV == -1) JV=jno;}
         if (axis_idx_for_jno[jno] == 8) {if (JW == -1) JW=jno;}
     }
+
+    // Populate joint map struct for math functions
+    jmap.jx = JX; jmap.jy = JY; jmap.jz = JZ;
+    jmap.ja = JA; jmap.jb = JB; jmap.jc = JC;
+    jmap.ju = JU; jmap.jv = JV; jmap.jw = JW;
 
     haldata = hal_malloc(sizeof(struct haldata));
 

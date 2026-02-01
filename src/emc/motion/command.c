@@ -2007,6 +2007,11 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             emcmotConfig->emulate_legacy_move_commands = emcmotCommand->emulate_legacy_move_commands;
             break;
 
+        case EMCMOT_UPDATE_KINS_PARAMS:
+            /* No longer needed - userspace reads HAL pins directly */
+            rtapi_print_msg(RTAPI_MSG_DBG, "UPDATE_KINS_PARAMS (no-op, userspace reads HAL pins)");
+            break;
+
 	}			/* end of: command switch */
 	if (emcmotStatus->commandStatus != EMCMOT_COMMAND_OK) {
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ERROR: %d",
