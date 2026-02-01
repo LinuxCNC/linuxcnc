@@ -93,14 +93,15 @@ int tooldata_read_entry(const char *input_line,
     orientation = empty.orientation;
     offset      = empty.offset;
 
-    buff = strtok(work_line, ";");
+    char* saveptr;
+    buff = strtok_r(work_line, ";", &saveptr);
     if (strlen(buff) <=1) {
         //fprintf(stderr,"skip blankline %s\n",__FILE__);
         return 0;
     }
-    comment = strtok(NULL, "\n");
+    comment = strtok_r(NULL, "\n", &saveptr);
 
-    token = strtok(buff, " ");
+    token = strtok_r(buff, " ", &saveptr);
     while (token != NULL) {
         switch (toupper(token[0])) {
         case 'T':
@@ -188,7 +189,7 @@ int tooldata_read_entry(const char *input_line,
                 valid = 0;
             break;
         }
-        token = strtok(NULL, " ");
+        token = strtok_r(NULL, " ", &saveptr);
     } // while token
 
     if (valid) {
