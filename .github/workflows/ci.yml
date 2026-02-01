@@ -30,9 +30,9 @@ jobs:
     - name: Build RIP & test
       run: |
         set -x
-        sudo apt-get install -y eatmydata
+        sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
         eatmydata ./scripts/travis-install-build-deps.sh
-        sudo eatmydata apt --quiet --yes upgrade
+        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
@@ -55,10 +55,10 @@ jobs:
     - name: Clang build RIP & test
       run: |
         set -x
-        sudo apt-get install -y eatmydata
+        sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
         eatmydata ./scripts/travis-install-build-deps.sh
-        sudo eatmydata apt-get install -y clang
-        sudo eatmydata apt --quiet --yes upgrade
+        sudo eatmydata apt-get -y -o Acquire::Retries=5 install clang
+        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
         eatmydata ./autogen.sh
         CC=clang CXX=clang++ eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
@@ -81,8 +81,8 @@ jobs:
     - name: Build HTML docmentation
       run: |
         ./scripts/travis-install-build-deps.sh
-        sudo apt-get install -y eatmydata
-        sudo eatmydata apt --quiet --yes upgrade
+        sudo apt-get -y -o Acquire::Retries=5 install eatmydata
+        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
@@ -113,11 +113,11 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --quiet update
-        apt-get --yes --quiet install eatmydata curl
-        eatmydata apt --quiet --yes upgrade
+        apt-get --quiet -o Acquire::Retries=5 update
+        apt-get --yes --quiet -o Acquire::Retries=5 install eatmydata curl
+        eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -138,11 +138,11 @@ jobs:
         esac
         set -e
         set -x
-        eatmydata apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-recommends gpg software-properties-common
         eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
         eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
-        eatmydata apt-get --quiet update
+        eatmydata apt-get --quiet -o Acquire::Retries=5 update
 
     - name: Build architecture-specific Debian packages
       env:
@@ -157,7 +157,7 @@ jobs:
         eatmydata debian/update-dch-from-git
         eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         eatmydata git diff
-        eatmydata apt-get --yes --quiet build-dep --arch-only .
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 build-dep --arch-only .
         eatmydata debuild -us -uc --build=any
     - name: Test debian packages
       env:
@@ -165,8 +165,8 @@ jobs:
       run: |
         set -e
         set -x
-        eatmydata apt-get --yes --quiet install ../*.deb
-        eatmydata apt-get --yes --quiet install sudo # some tests run sudo...
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install sudo # some tests run sudo...
         eatmydata adduser --disabled-password --gecos "" testrunner
         eatmydata passwd -d testrunner
         eatmydata adduser testrunner sudo
@@ -220,11 +220,11 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --quiet update
-        apt-get --yes --quiet install eatmydata curl
-        eatmydata apt --quiet --yes upgrade
+        apt-get --quiet -o Acquire::Retries=5 update
+        apt-get --yes --quiet -o Acquire::Retries=5 install eatmydata curl
+        eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -245,11 +245,11 @@ jobs:
         esac
         set -e
         set -x
-        eatmydata apt-get --yes --quiet install gpg software-properties-common
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install gpg software-properties-common
         eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
         eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
-        eatmydata apt-get --quiet update
+        eatmydata apt-get --quiet -o Acquire::Retries=5 update
 
     - name: Build architecture-independent Debian packages
       env:
@@ -264,7 +264,7 @@ jobs:
         eatmydata debian/update-dch-from-git
         eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         eatmydata git diff
-        eatmydata apt-get --yes --quiet build-dep --indep-only .
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 build-dep --indep-only .
         eatmydata debuild -us -uc --build=all
     - name: Test install debian packages
       env:
@@ -272,7 +272,7 @@ jobs:
       run: |
         set -e
         set -x
-        eatmydata apt-get --yes --quiet install ../*.deb
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
     - name: Gather build artifacts
       run: |
         set -e
@@ -311,7 +311,7 @@ jobs:
       run: |
         set -x
         git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-        sudo apt-get -y install cppcheck shellcheck
+        sudo apt-get --yes -o Acquire::Retries=5 install cppcheck shellcheck
         scripts/cppcheck.sh
     - name: Shellcheck
       continue-on-error: true
