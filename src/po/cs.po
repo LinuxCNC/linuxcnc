@@ -3,20 +3,21 @@
 # This file is distributed under the same license as the PACKAGE package.
 # Jan Mrázek <email@honzamrazek.cz>, 2022.
 # catelixor <catelixor+weblate@proton.me>, 2025.
+# Steffen Möller <steffen_moeller@gmx.de>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2025-11-05 10:16+0000\n"
-"Last-Translator: catelixor <catelixor+weblate@proton.me>\n"
+"PO-Revision-Date: 2026-02-01 01:35+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: \n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14.1-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -1369,9 +1370,9 @@ msgid "F word missing with inverse time g1 move"
 msgstr "Chybí parametr F v módu inverzního času pro pohyb G1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
-#, fuzzy, c-format
+#, c-format
 msgid "File ended with no percent sign (%%)"
-msgstr "Soubor skončil bez znaku procenta (%)"
+msgstr "Soubor skončil bez znaku procenta (%%)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
 #, fuzzy, c-format
@@ -2004,10 +2005,8 @@ msgid ""
 msgstr ""
 
 #: src/hal/utils/scope.c:547
-#, fuzzy
-#| msgid "O_pen Log File"
 msgid "Open Log File:"
-msgstr "O_tevřít soubor protokolu"
+msgstr "Otevřít soubor protokolu:"
 
 #: src/hal/utils/scope.c:550 src/hal/utils/scope.c:593
 #: src/hal/utils/scope.c:616 src/hal/utils/scope_horiz.c:791
@@ -2251,10 +2250,8 @@ msgid "Multiplier:"
 msgstr "Násobič:"
 
 #: src/hal/utils/scope_horiz.c:649
-#, fuzzy
-#| msgid "%5d samples (16 channels)"
 msgid "Samples (16 channels):"
-msgstr "%5d vzorků (16 kanálů)"
+msgstr "Vzorků (16 kanálů):"
 
 #: src/hal/utils/scope_horiz.c:662
 #, fuzzy, c-format
@@ -11474,7 +11471,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
