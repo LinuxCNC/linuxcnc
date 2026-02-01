@@ -36,10 +36,20 @@ class Dialogs(GObject.GObject):
 
     __gsignals__ = {
                 'play_sound': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+                'system-dialog-result': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+                'warning-dialog-result': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING))
                }
 
-    def __init__(self):
+    def __init__(self, caller):
         GObject.GObject.__init__(self)
+        self.sys_dialog = self.system_dialog(caller)
+        self.warn_dialog = self.warning_dialog(caller)
+
+    def dialog_ext_control(self, answer):
+        if self.sys_dialog.get_visible():
+                self.sys_dialog.response(answer)
+        elif self.warn_dialog.get_visible():
+                self.warn_dialog.response(answer)
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
@@ -47,9 +57,12 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.Dialog(_("Enter System Unlock Code"),
                    caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        dialog.set_modal(True)
         label = Gtk.Label(_("Enter System Unlock Code"))
         label.modify_font(Pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
+        dialog._calc = calc
+        dialog._caller = caller
         dialog.vbox.pack_start(label, False, False, 0)
         dialog.vbox.add(calc)
         calc.set_value("")
@@ -57,18 +70,32 @@ class Dialogs(GObject.GObject):
         calc.set_editable(True)
         calc.integer_entry_only(True)
         calc.num_pad_only(True)
-        calc.entry.connect("activate", lambda w : dialog.emit("response", Gtk.ResponseType.ACCEPT))
+        calc.entry.connect("activate", lambda w : self.on_system_response(dialog,Gtk.ResponseType.ACCEPT))
         dialog.parse_geometry("360x400")
         dialog.set_decorated(True)
-        dialog.show_all()
+        dialog.connect("response", self.on_system_response)
+        return dialog
+
+    def show_system_dialog(self):
+        self.sys_dialog._calc.set_value("")
+        self.sys_dialog.show_all()
         self.emit("play_sound", "alert")
-        response = dialog.run()
-        code = calc.get_value()
-        dialog.destroy()
-        if response == Gtk.ResponseType.ACCEPT:
-            if code == int(caller.unlock_code):
-                return True
-        return False
+
+    def on_system_response(self, dialog, result):
+        code = dialog._calc.get_value()
+        print('Code:',code)
+        rtn = -1
+        if result == Gtk.ResponseType.ACCEPT:
+            if code == int(dialog._caller.unlock_code):
+                print('Yes')
+                rtn = 1
+            else:
+                print('No')
+                rtn = 0
+        else:
+            print('Cancelled')
+        self.emit('system-dialog-result',rtn)
+        dialog.hide()
 
     def entry_dialog(self, caller, data = None, header = _("Enter value") , label = _("Enter the value to set"), integer = False):
         dialog = Gtk.Dialog(header,
@@ -108,7 +135,7 @@ class Dialogs(GObject.GObject):
         return "CANCEL"
 
     # display warning dialog
-    def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"),\
+    def warning_dialog(self, caller, message = '', secondary = None, title = _("Operator Message"),\
         sound = True, confirm_pin = 'warning-confirm', active_pin = None):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
@@ -123,11 +150,10 @@ class Dialogs(GObject.GObject):
         box.add(ok_button)
         dialog.action_area.add(box)
         dialog.set_border_width(5)
-        dialog.show_all()
         if sound:
             self.emit("play_sound", "alert")
         dialog.set_title(title)
-
+        dialog.context = []
         def periodic():
             if caller.halcomp[confirm_pin]:
                 dialog.response(Gtk.ResponseType.OK)
@@ -138,10 +164,26 @@ class Dialogs(GObject.GObject):
                     return False
             return True
         GLib.timeout_add(100, periodic)
+        dialog.connect("response", self.on_warning_response)
+        return dialog
 
-        response = dialog.run()
-        dialog.destroy()
-        return response == Gtk.ResponseType.OK
+    def show_warning_dialog(self, title, message, context=None, sound=True,\
+                         confirm_pin = 'warning-confirm', active_pin = None):
+        print(message,context)
+        self.warn_dialog.context.append(context)
+        self.warn_dialog.set_title(title)
+        self.warn_dialog.format_secondary_text(message)
+        self.warn_dialog.set_markup(message)
+        self.warn_dialog.show_all()
+        if sound:
+            self.emit("play_sound", "alert")
+        print(self.warn_dialog.context)
+
+    def on_warning_response(self, dialog, rtn):
+        context = dialog.context.pop()
+        print(context)
+        self.emit('warning-dialog-result', rtn, context)
+        dialog.hide()
 
     def yesno_dialog(self, caller, message, title = _("Operator Message")):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
