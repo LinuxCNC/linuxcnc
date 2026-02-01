@@ -425,6 +425,7 @@ class gmoccapy(object):
         self.GSTAT.connect('cycle-pause-request', lambda w, state: self.request_pause(state))
         self.GSTAT.connect('ok-request', lambda w, state: self.dialogs.dialog_ext_control(Gtk.ResponseType.ACCEPT))
         self.GSTAT.connect('cancel-request', lambda w, state: self.dialogs.dialog_ext_control(Gtk.ResponseType.CANCEL))
+        self.GSTAT.connect('cancel-request', lambda w, state: self._del_notification())
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -6226,6 +6227,9 @@ class gmoccapy(object):
 
     def _del_message_changed(self, pin):
         if pin.get():
+            self._del_notification()
+
+    def _del_notification(self):
             if self.halcomp["error"] == True:
                 number = []
                 messages = self.notification.messages
