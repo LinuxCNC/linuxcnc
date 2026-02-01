@@ -242,7 +242,8 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
     if (getenv( (char*)"DB_SHOW") )  {db_show  = 1;}
     int   child_argc = 0;
     char* child_argv[MAX_DB_PROGRAM_ARGS] = {0};
-    char* token = strtok(progname_plus_args, " ");
+    char* saveptr;
+    char* token = strtok_r(progname_plus_args, " ", &saveptr);
     while (token != NULL) {
         child_argv[child_argc] = token;
         child_argc++;
@@ -251,7 +252,7 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
                    ,MAX_DB_PROGRAM_ARGS);
             return -1;
         }
-        token = strtok(NULL, " ");
+        token = strtok_r(NULL, " ", &saveptr);
     }
     snprintf(db_childname,sizeof(db_childname),"%s",child_argv[0]);
     is_random_toolchanger = random_toolchanger;
