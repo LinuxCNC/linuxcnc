@@ -117,10 +117,10 @@ int main(int argc, char *argv[])
     if (iniString) {
 	if (tildeExpand) {
 	    char expanded[PATH_MAX];
-	    iniFile.TildeExpansion(*iniString, expanded, sizeof(expanded));
+	    iniFile.TildeExpansion(iniString->c_str(), expanded, sizeof(expanded));
 	    printf("%s\n", expanded);
 	} else {
-	    printf("%s\n", *iniString);
+	    printf("%s\n", iniString->c_str());
 	}
 	retval = 0;
     } else {

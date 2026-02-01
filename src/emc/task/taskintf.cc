@@ -1733,14 +1733,14 @@ int emcPositionLoad() {
     ini.Open(emc_inifile);
     auto posfile = ini.Find("POSITION_FILE", "TRAJ");
     ini.Close();
-    if(!posfile || !posfile.value()[0]) return 0;
-    FILE *f = fopen(*posfile, "r");
+    if(!posfile || posfile->empty()) return 0;
+    FILE *f = fopen(posfile->c_str(), "r");
     if(!f) return 0;
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
 	int r = fscanf(f, "%lf", &positions[i]);
 	if(r != 1) {
             fclose(f);
-            rcs_print("%s: failed to load joint %d position from %s, ignoring\n", __FUNCTION__, i, *posfile);
+            rcs_print("%s: failed to load joint %d position from %s, ignoring\n", __FUNCTION__, i, posfile->c_str());
             return -1;
         }
     }
@@ -1748,7 +1748,7 @@ int emcPositionLoad() {
     int result = 0;
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
 	if(emcJointSetMotorOffset(i, -positions[i]) != 0) {
-            rcs_print("%s: failed to set joint %d position (%.6f) from %s, ignoring\n", __FUNCTION__, i, positions[i], *posfile);
+            rcs_print("%s: failed to set joint %d position (%.6f) from %s, ignoring\n", __FUNCTION__, i, positions[i], posfile->c_str());
             result = -1;
         }
     }
@@ -1758,9 +1758,9 @@ int emcPositionLoad() {
 
 int emcPositionSave() {
     IniFile ini;
-    std::optional<const char*> posfile;
 
     ini.Open(emc_inifile);
+    std::optional<std::string> posfile;
     try {
         posfile = ini.Find("POSITION_FILE", "TRAJ");
     } catch (IniFile::Exception e) {
@@ -1769,10 +1769,10 @@ int emcPositionSave() {
     }
     ini.Close();
 
-    if(!posfile || !posfile.value()[0]) return 0;
+    if(!posfile || posfile->empty()) return 0;
     // like the var file, make sure the posfile is recreated according to umask
-    unlink(*posfile);
-    FILE *f = fopen(*posfile, "w");
+    unlink(posfile->c_str());
+    FILE *f = fopen(posfile->c_str(), "w");
     if(!f) return -1;
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
 	int r = fprintf(f, "%.17f\n", emcmotStatus.joint_status[i].pos_fb);

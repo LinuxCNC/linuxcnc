@@ -1250,7 +1250,6 @@ int sendProbe(double x, double y, double z)
 int iniLoad(const char *filename)
 {
     IniFile inifile;
-    std::optional<const char*> inistring;
     char version[LINELEN], machine[LINELEN];
     char displayString[LINELEN] = "";
     int t;
@@ -1263,28 +1262,28 @@ int iniLoad(const char *filename)
 
     // EMC debugging flags
 	emc_debug = 0;  // disabled by default
-    if ((inistring = inifile.Find("DEBUG", "EMC"))) {
+    if (auto inistring = inifile.Find("DEBUG", "EMC")) {
         // parse to global
-        if (sscanf(*inistring, "%x", &emc_debug) < 1) {
+        if (sscanf(inistring->c_str(), "%x", &emc_debug) < 1) {
             perror("failed to parse [EMC] DEBUG");
         }
     }
 
     // set output for RCS messages
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
-    if ((inistring = inifile.Find("RCS_DEBUG_DEST", "EMC"))) {
+    if (auto inistring = inifile.Find("RCS_DEBUG_DEST", "EMC")) {
         static RCS_PRINT_DESTINATION_TYPE type;
-        if (!strcmp(*inistring, "STDOUT")) {
+        if (*inistring == "STDOUT") {
             type = RCS_PRINT_TO_STDOUT;
-        } else if (!strcmp(*inistring, "STDERR")) {
+        } else if (*inistring == "STDERR") {
             type = RCS_PRINT_TO_STDERR;
-        } else if (!strcmp(*inistring, "FILE")) {
+        } else if (*inistring == "FILE") {
             type = RCS_PRINT_TO_FILE;
-        } else if (!strcmp(*inistring, "LOGGER")) {
+        } else if (*inistring == "LOGGER") {
             type = RCS_PRINT_TO_LOGGER;
-        } else if (!strcmp(*inistring, "MSGBOX")) {
+        } else if (*inistring == "MSGBOX") {
             type = RCS_PRINT_TO_MESSAGE_BOX;
-        } else if (!strcmp(*inistring, "NULL")) {
+        } else if (*inistring == "NULL") {
             type = RCS_PRINT_TO_NULL;
         } else {
              type = RCS_PRINT_TO_STDOUT;
@@ -1301,9 +1300,9 @@ int iniLoad(const char *filename)
     }
 
     // set flags if RCS_DEBUG in ini file
-    if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
+    if (auto inistring = inifile.Find("RCS_DEBUG", "EMC")) {
         long unsigned int flags;
-        if (sscanf(*inistring, "%lx", &flags) < 1) {
+        if (sscanf(inistring->c_str(), "%lx", &flags) < 1) {
             perror("failed to parse [EMC] RCS_DEBUG");
         }
         // clear all flags
@@ -1313,20 +1312,20 @@ int iniLoad(const char *filename)
     }
     // output infinite RCS errors by default
     max_rcs_errors_to_print = -1;
-    if ((inistring = inifile.Find("RCS_MAX_ERR", "EMC"))) {
-        if (sscanf(*inistring, "%d", &max_rcs_errors_to_print) < 1) {
+    if (auto inistring = inifile.Find("RCS_MAX_ERR", "EMC")) {
+        if (sscanf(inistring->c_str(), "%d", &max_rcs_errors_to_print) < 1) {
             perror("failed to parse [EMC] RCS_MAX_ERR");
         }
     }
 
     strncpy(version, "unknown", LINELEN-1);
-    if ((inistring = inifile.Find("VERSION", "EMC"))) {
-	    strncpy(version, *inistring, LINELEN-1);
+    if (auto inistring = inifile.Find("VERSION", "EMC")) {
+	    strncpy(version, inistring->c_str(), LINELEN-1);
     }
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        if ((inistring = inifile.Find("MACHINE", "EMC"))) {
-            strncpy(machine, *inistring, LINELEN-1);
+        if (auto inistring = inifile.Find("MACHINE", "EMC")) {
+            strncpy(machine, inistring->c_str(), LINELEN-1);
         } else {
             strncpy(machine, "unknown", LINELEN-1);
         }
@@ -1338,10 +1337,10 @@ int iniLoad(const char *filename)
         );
     }
 
-    if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
+    if (auto inistring = inifile.Find("NML_FILE", "EMC")) {
 
 	// copy to global
-	rtapi_strxcpy(emc_nmlfile, *inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
     } else {
 	// not found, use default
     }
@@ -1349,36 +1348,35 @@ int iniLoad(const char *filename)
     for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	jogPol[t] = 1;		// set to default
 	snprintf(displayString, sizeof(displayString), "JOINT_%d", t);
-	if ((inistring =
-		     inifile.Find("JOGGING_POLARITY", displayString)) &&
-	    1 == sscanf(*inistring, "%d", &i) && i == 0) {
+	auto inistring = inifile.Find("JOGGING_POLARITY", displayString);
+	if (inistring && 1 == sscanf(inistring->c_str(), "%d", &i) && i == 0) {
 	    // it read as 0, so override default
 	    jogPol[t] = 0;
 	}
     }
 
-    if ((inistring = inifile.Find("LINEAR_UNITS", "DISPLAY"))) {
-	if (!strcmp(*inistring, "AUTO")) {
+    if (auto inistring = inifile.Find("LINEAR_UNITS", "DISPLAY")) {
+	if (*inistring == "AUTO") {
 	    linearUnitConversion = LINEAR_UNITS_AUTO;
-	} else if (!strcmp(*inistring, "INCH")) {
+	} else if (*inistring == "INCH") {
 	    linearUnitConversion = LINEAR_UNITS_INCH;
-	} else if (!strcmp(*inistring, "MM")) {
+	} else if (*inistring == "MM") {
 	    linearUnitConversion = LINEAR_UNITS_MM;
-	} else if (!strcmp(*inistring, "CM")) {
+	} else if (*inistring == "CM") {
 	    linearUnitConversion = LINEAR_UNITS_CM;
 	}
     } else {
 	// not found, leave default alone
     }
 
-    if ((inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY"))) {
-	if (!strcmp(*inistring, "AUTO")) {
+    if (auto inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY")) {
+	if (*inistring == "AUTO") {
 	    angularUnitConversion = ANGULAR_UNITS_AUTO;
-	} else if (!strcmp(*inistring, "DEG")) {
+	} else if (*inistring == "DEG") {
 	    angularUnitConversion = ANGULAR_UNITS_DEG;
-	} else if (!strcmp(*inistring, "RAD")) {
+	} else if (*inistring == "RAD") {
 	    angularUnitConversion = ANGULAR_UNITS_RAD;
-	} else if (!strcmp(*inistring, "GRAD")) {
+	} else if (*inistring == "GRAD") {
 	    angularUnitConversion = ANGULAR_UNITS_GRAD;
 	}
     } else {

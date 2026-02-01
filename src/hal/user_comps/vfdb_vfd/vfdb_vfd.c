@@ -278,11 +278,12 @@ enum kwdresult {NAME_NOT_FOUND, KEYWORD_INVALID, KEYWORD_FOUND};
 int findkwd(param_pointer p, const char *name, int *result, const char *keyword, int value, ...)
 {
     const char *word;
+    char wordbuf[INI_MAX_LINELEN];
     va_list ap;
     const char *kwds[MAX_KWD], **s;
     int nargs = 0;
 
-    if ((word = iniFind(p->fp, name, p->section)) == NULL)
+    if ((word = iniFindString(p->fp, name, p->section, wordbuf, sizeof(wordbuf))) == NULL)
         return NAME_NOT_FOUND;
 
     kwds[nargs++] = keyword;
@@ -311,6 +312,7 @@ int findkwd(param_pointer p, const char *name, int *result, const char *keyword,
 int read_ini(param_pointer p)
 {
     const char *s;
+    char sbuf[INI_MAX_LINELEN];
     int value;
 
     if ((p->fp = fopen(p->inifile,"r")) != NULL) {
@@ -328,7 +330,7 @@ int read_ini(param_pointer p)
         iniFindInt(p->fp, "MOTOR_HZ", p->section, &p->motor_hz);
         iniFindInt(p->fp, "MOTOR_RPM", p->section, &p->motor_rpm);
 
-        if ((s = iniFind(p->fp, "DEVICE", p->section))) {
+        if ((s = iniFindString(p->fp, "DEVICE", p->section, sbuf, sizeof(sbuf)))) {
             p->device = strdup(s);
         }
         value = p->parity;

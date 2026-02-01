@@ -93,7 +93,7 @@ IniFile::Find(int *result, StrIntPair *pPair,
     }
 
     int tmp;
-    if(sscanf(*pStr, "%i", &tmp) == 1){
+    if(sscanf(pStr->c_str(), "%i", &tmp) == 1){
         *result = tmp;
 	if (lineno)
 	    *lineno = lineNo;
@@ -101,7 +101,7 @@ IniFile::Find(int *result, StrIntPair *pPair,
     }
 
     while(pPair->pStr != NULL){
-        if(strcasecmp(*pStr, pPair->pStr) == 0){
+        if(strcasecmp(pStr->c_str(), pPair->pStr) == 0){
             *result = pPair->value;
 	    if (lineno)
 		*lineno = lineNo;
@@ -129,7 +129,7 @@ IniFile::Find(double *result, StrDoublePair *pPair,
     }
 
     double tmp;
-    if(sscanf(*pStr, "%lf", &tmp) == 1){
+    if(sscanf(pStr->c_str(), "%lf", &tmp) == 1){
 	if (lineno)
 	    *lineno = lineNo;
         *result = tmp;
@@ -139,7 +139,7 @@ IniFile::Find(double *result, StrDoublePair *pPair,
     }
 
     while(pPair->pStr != NULL){
-        if(strcasecmp(*pStr, pPair->pStr) == 0){
+        if(strcasecmp(pStr->c_str(), pPair->pStr) == 0){
             *result = pPair->value;
 	    if (lineno)
 		*lineno = lineNo;
@@ -163,12 +163,10 @@ IniFile::Find(double *result, StrDoublePair *pPair,
 
    @return pointer to the variable after the '=' delimiter, or @c NULL if not
            found */
-std::optional<const char*>
+std::optional<std::string>
 IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
 {
-    // WTF, return a pointer to the middle of a local buffer?
-    // FIX: this is totally non-reentrant.
-    static char                 line[LINELEN + 2] = "";        /* 1 for newline, 1 for NULL */
+    char                        line[LINELEN + 2] = "";        /* 1 for newline, 1 for NULL */
 
     char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
     char* elineptr;
@@ -345,7 +343,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             }
 	    if (lineno)
 		*lineno = lineNo;
-            return valueString;
+            return std::string(valueString);
         }
         /* else continue */
     }
@@ -372,7 +370,7 @@ IniFile::FindString(char *dest, size_t n, const char *_tag, const char *_section
     auto res = Find(_tag, _section, _num, lineno);
     if(!res)
         return std::nullopt;
-    int r = snprintf(dest, n, "%s", *res);
+    int r = snprintf(dest, n, "%s", res->c_str());
     if(r < 0 || (size_t)r >= n) {
         ThrowException(ERR_CONVERSION);
         return std::nullopt;
@@ -386,7 +384,7 @@ IniFile::FindPath(char *dest, size_t n, const char *_tag, const char *_section, 
     auto res = Find(_tag, _section, _num, lineno);
     if(!res)
         return std::nullopt;
-    if(TildeExpansion(*res, dest, n)) {
+    if(TildeExpansion(res->c_str(), dest, n)) {
         return std::nullopt;
     }
     return dest;
@@ -594,11 +592,22 @@ IniFile::Exception::Print(FILE *fp)
 
 
 extern "C" const char *
+iniFindString(FILE *fp, const char *tag, const char *section,
+              char *buf, size_t bufsize)
+{
+    IniFile f(false, fp);
+    auto result = f.FindString(buf, bufsize, tag, section);
+    if (!result) return nullptr;
+    return *result;
+}
+
+extern "C" const char *
 iniFind(FILE *fp, const char *tag, const char *section)
 {
-    IniFile                     f(false, fp);
-
-    return(f.Find(tag, section).value_or(nullptr));
+    // Deprecated: This function uses static storage and is not reentrant.
+    // Use iniFindString() instead for thread-safe operation.
+    static char result_storage[LINELEN];
+    return iniFindString(fp, tag, section, result_storage, sizeof(result_storage));
 }
 
 extern "C" int

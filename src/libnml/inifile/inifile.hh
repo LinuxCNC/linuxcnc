@@ -58,7 +58,7 @@ public:
     bool                        Close();
     bool                        IsOpen(){ return(fp != nullptr); }
 
-    std::optional<const char*>  Find(const char *tag, const char *section = nullptr,
+    std::optional<std::string>  Find(const char *tag, const char *section = nullptr,
                                      int num = 1, int *lineno = nullptr);
 
     template<typename T>

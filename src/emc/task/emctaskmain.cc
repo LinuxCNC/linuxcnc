@@ -3095,7 +3095,6 @@ static int emctask_shutdown(void)
 static int iniLoad(const char *filename)
 {
     IniFile inifile;
-    std::optional<const char*> inistring;
     char version[LINELEN], machine[LINELEN];
     double saveDouble;
     int saveInt;
@@ -3105,9 +3104,9 @@ static int iniLoad(const char *filename)
 	return -1;
     }
 
-	if ((inistring = inifile.Find("JOINTS", "KINS"))) {
+	if (auto inistring = inifile.Find("JOINTS", "KINS")) {
 	// copy to global
-	if (1 != sscanf(*inistring, "%i", &joints)) {
+	if (1 != sscanf(inistring->c_str(), "%i", &joints)) {
 	    joints = 0;
 	}
     } else {
@@ -3117,28 +3116,28 @@ static int iniLoad(const char *filename)
 
     // EMC debugging flags
     emc_debug = 0;  // disabled by default
-    if ((inistring = inifile.Find("DEBUG", "EMC"))) {
+    if (auto inistring = inifile.Find("DEBUG", "EMC")) {
         // parse to global
-        if (sscanf(*inistring, "%x", &emc_debug) < 1) {
+        if (sscanf(inistring->c_str(), "%x", &emc_debug) < 1) {
             perror("failed to parse [EMC] DEBUG");
         }
     }
 
     // set output for RCS messages
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
-    if ((inistring = inifile.Find("RCS_DEBUG_DEST", "EMC"))) {
+    if (auto inistring = inifile.Find("RCS_DEBUG_DEST", "EMC")) {
         static RCS_PRINT_DESTINATION_TYPE type;
-        if (!strcmp(*inistring, "STDOUT")) {
+        if (*inistring == "STDOUT") {
             type = RCS_PRINT_TO_STDOUT;
-        } else if (!strcmp(*inistring, "STDERR")) {
+        } else if (*inistring == "STDERR") {
             type = RCS_PRINT_TO_STDERR;
-        } else if (!strcmp(*inistring, "FILE")) {
+        } else if (*inistring == "FILE") {
             type = RCS_PRINT_TO_FILE;
-        } else if (!strcmp(*inistring, "LOGGER")) {
+        } else if (*inistring == "LOGGER") {
             type = RCS_PRINT_TO_LOGGER;
-        } else if (!strcmp(*inistring, "MSGBOX")) {
+        } else if (*inistring == "MSGBOX") {
             type = RCS_PRINT_TO_MESSAGE_BOX;
-        } else if (!strcmp(*inistring, "NULL")) {
+        } else if (*inistring == "NULL") {
             type = RCS_PRINT_TO_NULL;
         } else {
              type = RCS_PRINT_TO_STDOUT;
@@ -3155,9 +3154,9 @@ static int iniLoad(const char *filename)
     }
 
     // set flags if RCS_DEBUG in ini file
-    if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
+    if (auto inistring = inifile.Find("RCS_DEBUG", "EMC")) {
         long unsigned int flags;
-        if (sscanf(*inistring, "%lx", &flags) < 1) {
+        if (sscanf(inistring->c_str(), "%lx", &flags) < 1) {
             perror("failed to parse [EMC] RCS_DEBUG");
         }
         // clear all flags
@@ -3167,18 +3166,18 @@ static int iniLoad(const char *filename)
     }
     // output infinite RCS errors by default
     max_rcs_errors_to_print = -1;
-    if ((inistring = inifile.Find("RCS_MAX_ERR", "EMC"))) {
-        if (sscanf(*inistring, "%d", &max_rcs_errors_to_print) < 1) {
+    if (auto inistring = inifile.Find("RCS_MAX_ERR", "EMC")) {
+        if (sscanf(inistring->c_str(), "%d", &max_rcs_errors_to_print) < 1) {
             perror("failed to parse [EMC] RCS_MAX_ERR");
         }
     }
 
 	if (emc_debug & EMC_DEBUG_CONFIG) {
-		inistring = inifile.Find("VERSION", "EMC");
-		rtapi_strlcpy(version, inistring.value_or("unknown"), LINELEN-1);
+		auto ver = inifile.Find("VERSION", "EMC");
+		rtapi_strlcpy(version, ver ? ver->c_str() : "unknown", LINELEN-1);
 
-		inistring = inifile.Find("MACHINE", "EMC");
-		rtapi_strlcpy(machine, inistring.value_or("unknown"), LINELEN-1);
+		auto mach = inifile.Find("MACHINE", "EMC");
+		rtapi_strlcpy(machine, mach ? mach->c_str() : "unknown", LINELEN-1);
 		extern char *program_invocation_short_name;
 		rcs_print(
 		"%s (%d) task: machine '%s'  version '%s'\n",
@@ -3186,16 +3185,16 @@ static int iniLoad(const char *filename)
 		);
 	}
 
-    if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
+    if (auto inistring = inifile.Find("NML_FILE", "EMC")) {
 	// copy to global
-	rtapi_strxcpy(emc_nmlfile, *inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
     } else {
 	// not found, use default
     }
 
     saveInt = emc_task_interp_max_len; //remember default or previously set value
-    if ((inistring = inifile.Find("INTERP_MAX_LEN", "TASK"))) {
-	if (1 == sscanf(*inistring, "%d", &emc_task_interp_max_len)) {
+    if (auto inistring = inifile.Find("INTERP_MAX_LEN", "TASK")) {
+	if (1 == sscanf(inistring->c_str(), "%d", &emc_task_interp_max_len)) {
 	    if (emc_task_interp_max_len <= 0) {
 	    	emc_task_interp_max_len = saveInt;
 	    }
@@ -3204,16 +3203,16 @@ static int iniLoad(const char *filename)
 	}
     }
 
-    if ((inistring = inifile.Find("RS274NGC_STARTUP_CODE", "RS274NGC"))) {
+    if (auto inistring = inifile.Find("RS274NGC_STARTUP_CODE", "RS274NGC")) {
 	// copy to global
-	rtapi_strxcpy(rs274ngc_startup_code, *inistring);
+	rtapi_strxcpy(rs274ngc_startup_code, inistring->c_str());
     }
 
     saveDouble = emc_task_cycle_time;
     EMC_TASK_CYCLE_TIME_ORIG = emc_task_cycle_time;
     emcTaskNoDelay = 0;
-    if ((inistring = inifile.Find("CYCLE_TIME", "TASK"))) {
-	if (1 == sscanf(*inistring, "%lf", &emc_task_cycle_time)) {
+    if (auto inistring = inifile.Find("CYCLE_TIME", "TASK")) {
+	if (1 == sscanf(inistring->c_str(), "%lf", &emc_task_cycle_time)) {
 	    // found it
 	    // if it's <= 0.0, then flag that we don't want to
 	    // wait at all, which will set the EMC_TASK_CYCLE_TIME
@@ -3226,7 +3225,7 @@ static int iniLoad(const char *filename)
 	    emc_task_cycle_time = saveDouble;
 	    rcs_print
 		("invalid [TASK] CYCLE_TIME in %s (%s); using default %f\n",
-		 filename, *inistring, emc_task_cycle_time);
+		 filename, inistring->c_str(), emc_task_cycle_time);
 	}
     } else {
 	// not found, using default
@@ -3235,8 +3234,8 @@ static int iniLoad(const char *filename)
     }
 
 
-    if ((inistring = inifile.Find("NO_FORCE_HOMING", "TRAJ"))) {
-	if (1 == sscanf(*inistring, "%d", &no_force_homing)) {
+    if (auto inistring = inifile.Find("NO_FORCE_HOMING", "TRAJ")) {
+	if (1 == sscanf(inistring->c_str(), "%d", &no_force_homing)) {
 	    // found it
 	    // if it's <= 0.0, then set it 0 so that homing is required before MDI or Auto
 	    if (no_force_homing <= 0) {
@@ -3247,7 +3246,7 @@ static int iniLoad(const char *filename)
 	    no_force_homing = 0;
 	    rcs_print
 		("invalid [TRAJ] NO_FORCE_HOMING in %s (%s); using default %d\n",
-		 filename, *inistring, no_force_homing);
+		 filename, inistring->c_str(), no_force_homing);
 	}
     } else {
 	// not found, using default
@@ -3255,13 +3254,13 @@ static int iniLoad(const char *filename)
     }
 
     // configurable template for iocontrol reason display
-    if ((inistring = inifile.Find("IO_ERROR", "TASK"))) {
-	io_error = strdup(*inistring);
+    if (auto inistring = inifile.Find("IO_ERROR", "TASK")) {
+	io_error = strdup(inistring->c_str());
     }
 
     // max number of queued MDI commands
-    if ((inistring = inifile.Find("MDI_QUEUED_COMMANDS", "TASK"))) {
-	max_mdi_queued_commands = atoi(*inistring);
+    if (auto inistring = inifile.Find("MDI_QUEUED_COMMANDS", "TASK")) {
+	max_mdi_queued_commands = atoi(inistring->c_str());
     }
 
     // close it
