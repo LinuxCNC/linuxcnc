@@ -21,6 +21,8 @@ include::code/nml-messages.adoc[]
 
 include::code/style-guide.adoc[]
 
+include::code/translation.adoc[]
+
 include::gui/gui-dev-reference.adoc[]
 
 include::code/building-linuxcnc.adoc[]
