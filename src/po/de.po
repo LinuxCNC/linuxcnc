@@ -1,4 +1,4 @@
-# Steffen Möller <steffen_moeller@gmx.de>, 2022, 2023, 2024, 2025.
+# Steffen Möller <steffen_moeller@gmx.de>, 2022, 2023, 2024, 2025, 2026.
 # Hans U. <hansunzner@gmail.com>, 2022.
 # Michael Stellmacher <michaelst78@gmail.com>, 2022.
 # mk00002 <codo1983@gmail.com>, 2022, 2024.
@@ -9,10 +9,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-01-28 10:47+0000\n"
-"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2026-02-01 01:35+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -2333,10 +2333,9 @@ msgid "Samples (16 channels):"
 msgstr "%5d Samples (16 Kanäle)"
 
 #: src/hal/utils/scope_horiz.c:662
-#, fuzzy, c-format
-#| msgid "%5d samples (1 channel)"
+#, c-format
 msgid "Current: %d samples (%d per channel)"
-msgstr "%5d Samples (1 Kanal)"
+msgstr "%d Samples (%d je Kanal)"
 
 #: src/hal/utils/scope_horiz.c:693
 #, fuzzy
@@ -2730,18 +2729,18 @@ msgid "%s move on line %d gave non-finite joint location on joint %d"
 msgstr "%s Bewegung auf Zeile %d gab nicht-finite Gelenkposition für Gelenk %d"
 
 #: src/emc/motion/command.c:261
-#, fuzzy, c-format
-#| msgid "%s move on line %d would exceed joint %d's positive limit"
+#, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit max:[%f]"
 msgstr ""
-"Bewegung %s in Zeile %d würde pos. Anschlag von Achse/Gelenk %d überschreiten"
+"Bewegung %s in Zeile %d würde pos. Anschlag von Achse/Gelenk %d "
+"überschreiten bei max:[%f]"
 
 #: src/emc/motion/command.c:267
-#, fuzzy, c-format
-#| msgid "%s move on line %d would exceed joint %d's negative limit"
+#, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit min:[%f]"
 msgstr ""
-"Bewegung %s in Zeile %d würde neg. Anschlag von Achse/Gelenk %d überschreiten"
+"Bewegung %s in Zeile %d würde neg. Anschlag von Achse/Gelenk %d "
+"überschreiten bei min:[%f]"
 
 #: src/emc/motion/command.c:586
 msgid "all joints must be homed before going into coordinated mode"
@@ -11883,7 +11882,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

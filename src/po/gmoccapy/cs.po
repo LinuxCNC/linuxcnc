@@ -10,8 +10,8 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-02-01 19:16+0000\n"
-"Last-Translator: Zdenek Z <zz912@seznam.cz>\n"
+"PO-Revision-Date: 2026-02-01 23:04+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: \n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
@@ -214,9 +214,7 @@ msgstr "neznámý manuální příkaz {0}"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1329
 #, python-brace-format
 msgid "Press to jog axis {0}"
-msgstr ""
-"stiskni pro\n"
-"pohyb osy {0}"
+msgstr "stiskni pro pohyb osy {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1349
 #, python-brace-format
@@ -848,7 +846,7 @@ msgstr "_Skoč na"
 msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
-msgstr "**** Gmoccapy umí pouze 9 os, ale v INI souboru jich je {0}.\n"
+msgstr "**** Gmoccapy umí pouze 9 os, ale v INI souboru jich je {0}. "
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:109
 msgid "gmoccapy will not start ****\n"
