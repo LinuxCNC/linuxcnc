@@ -22,13 +22,7 @@
 #include "hal.h"
 #include "rtapi.h"
 #include "rtapi_math.h"
-
-#define d2r(d) ((d)*PM_PI/180.0)
-#define r2d(r) ((r)*180.0/PM_PI)
-
-#ifndef hypot
-#define hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
-#endif
+#include "maxkins_math.h"
 
 struct haldata {
     hal_float_t *pivot_length;
@@ -42,35 +36,10 @@ int kinematicsForward(const double *joints,
 {
     (void)fflags;
     (void)iflags;
-
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
-
-    // B correction
-    const double zb = (*(haldata->pivot_length) + joints[8]) * cos(d2r(joints[4]));
-    const double xb = (*(haldata->pivot_length) + joints[8]) * sin(d2r(joints[4]));
-        
-    // C correction
-    const double xyr = hypot(joints[0], joints[1]);
-    const double xytheta = atan2(joints[1], joints[0]) + d2r(joints[5]);
-
-    // U correction
-    const double zv = joints[6] * sin(d2r(joints[4]));
-    const double xv = joints[6] * cos(d2r(joints[4]));
-
-    // V correction is always in joint 1 only
-
-    pos->tran.x = xyr * cos(xytheta) - (con * xb) - xv;
-    pos->tran.y = xyr * sin(xytheta) - joints[7];
-    pos->tran.z = joints[2] - zb - (con * zv) + *(haldata->pivot_length);
-
-    pos->a = joints[3];
-    pos->b = joints[4];
-    pos->c = joints[5];
-    pos->u = joints[6];
-    pos->v = joints[7];
-    pos->w = joints[8];
-
-    return 0;
+    maxkins_params_t params;
+    params.pivot_length = *(haldata->pivot_length);
+    params.conventional_directions = *(haldata->conventional_directions);
+    return maxkins_forward_math(&params, joints, pos);
 }
 
 int kinematicsInverse(const EmcPose * pos,
@@ -80,35 +49,10 @@ int kinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
-
-    // B correction
-    const double zb = (*(haldata->pivot_length) + pos->w) * cos(d2r(pos->b));
-    const double xb = (*(haldata->pivot_length) + pos->w) * sin(d2r(pos->b));
-        
-    // C correction
-    const double xyr = hypot(pos->tran.x, pos->tran.y);
-    const double xytheta = atan2(pos->tran.y, pos->tran.x) - d2r(pos->c);
-
-    // U correction
-    const double zv = pos->u * sin(d2r(pos->b));
-    const double xv = pos->u * cos(d2r(pos->b));
-
-    // V correction is always in joint 1 only
-
-    joints[0] = xyr * cos(xytheta) + (con * xb) + xv;
-    joints[1] = xyr * sin(xytheta) + pos->v;
-    joints[2] = pos->tran.z + zb - (con * zv) - *(haldata->pivot_length);
-
-    joints[3] = pos->a;
-    joints[4] = pos->b;
-    joints[5] = pos->c;
-    joints[6] = pos->u;
-    joints[7] = pos->v;
-    joints[8] = pos->w;
-
-    return 0;
+    maxkins_params_t params;
+    params.pivot_length = *(haldata->pivot_length);
+    params.conventional_directions = *(haldata->conventional_directions);
+    return maxkins_inverse_math(&params, pos, joints);
 }
 
 KINEMATICS_TYPE kinematicsType()
@@ -119,10 +63,13 @@ KINEMATICS_TYPE kinematicsType()
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 
+const char* kinematicsGetName(void) { return "maxkins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 int comp_id;

@@ -89,6 +89,23 @@ typedef struct {
     PmCartesian uvw;
 } Arc9;
 
+/**
+ * Joint-space linear segment for userspace kinematics
+ * Stores start/end joint positions for linear interpolation.
+ * Polynomial coefficients may be added later for smoother trajectories.
+ */
+#define JOINT_SPACE_MAX_JOINTS 9
+
+typedef struct {
+    double start[JOINT_SPACE_MAX_JOINTS];  // Joint positions at segment start
+    double end[JOINT_SPACE_MAX_JOINTS];    // Joint positions at segment end
+    double vel_limit_start;                 // Max velocity at start (from Jacobian)
+    double vel_limit_end;                   // Max velocity at end
+    double acc_limit;                       // Max acceleration through segment
+    int num_joints;                         // Number of active joints
+    int valid;                              // True if joint data is valid
+} JointSpaceSegment;
+
 typedef enum {
     RIGIDTAP_START,
     TAPPING, REVERSING, RETRACTION, FINAL_REVERSAL, FINAL_PLACEMENT
@@ -186,6 +203,9 @@ typedef struct {
         PmRigidTap rigidtap;
         Arc9 arc;
     } coords;
+
+    // Joint-space segment data (when using userspace kinematics)
+    JointSpaceSegment joint_space;
 
     int motion_type;       // TC_LINEAR (coords.line) or
                             // TC_CIRCULAR (coords.circle) or

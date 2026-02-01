@@ -23,6 +23,10 @@
 extern "C" {
 #endif
 
+/* Forward declarations */
+struct emcmot_struct_t;
+struct emcmot_internal_t;
+
 // functions not used by motmod:
 int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp);
 int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos);
@@ -68,6 +72,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end, PmCartesian center,
 		double ini_maxvel, double acc, double ini_maxjerk, unsigned char enables,
 		char atspeed, struct state_tag_t tag);
 int tpGetPos(TP_STRUCT const  * const tp, EmcPose * const pos);
+int tpGetJointPositions(TP_STRUCT const * const tp, double * const joints);
 int tpIsDone(TP_STRUCT * const tp);
 int tpQueueDepth(TP_STRUCT * const tp);
 int tpActiveDepth(TP_STRUCT * const tp);

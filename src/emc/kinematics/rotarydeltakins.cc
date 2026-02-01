@@ -16,15 +16,31 @@
 
 #define BOOST_PYTHON_MAX_ARITY 4
 #include <cmath>
-#include "rotarydeltakins-common.h"
+#include "rotarydeltakins_math.h"
 #include <boost/python.hpp>
 using namespace boost::python;
+
+/* Global parameters for Python bindings */
+static rotarydelta_params_t params = {
+    ROTARYDELTA_DEFAULT_PLATFORMRADIUS,
+    ROTARYDELTA_DEFAULT_THIGHLENGTH,
+    ROTARYDELTA_DEFAULT_SHINLENGTH,
+    ROTARYDELTA_DEFAULT_FOOTRADIUS
+};
+
+static void set_geometry(double pfr, double tl, double sl, double fr)
+{
+    params.platformradius = pfr;
+    params.thighlength = tl;
+    params.shinlength = sl;
+    params.footradius = fr;
+}
 
 static object forward(double j0, double j1, double j2)
 {
     double joints[9] = {j0, j1, j2};
     EmcPose pos;
-    int result = kinematics_forward(joints, &pos);
+    int result = rotarydelta_forward_math(&params, joints, &pos);
     if(result == 0)
         return make_tuple(pos.tran.x, pos.tran.y, pos.tran.z);
     return object();
@@ -34,7 +50,7 @@ static object inverse(double x, double y, double z)
 {
     double joints[9];
     EmcPose pos = {{x,y,z}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    int result = kinematics_inverse(&pos, joints);
+    int result = rotarydelta_inverse_math(&params, &pos, joints);
     if(result == 0)
         return make_tuple(joints[0], joints[1], joints[2]);
     return object();
@@ -42,12 +58,12 @@ static object inverse(double x, double y, double z)
 
 static object get_geometry()
 {
-    return make_tuple(platformradius, thighlength, shinlength, footradius);
+    return make_tuple(params.platformradius, params.thighlength,
+                      params.shinlength, params.footradius);
 }
 
 BOOST_PYTHON_MODULE(rotarydeltakins)
 {
-    set_geometry(RDELTA_PFR, RDELTA_TL, RDELTA_SL, RDELTA_FR);
     def("set_geometry", set_geometry);
     def("get_geometry", get_geometry);
     def("forward", forward);

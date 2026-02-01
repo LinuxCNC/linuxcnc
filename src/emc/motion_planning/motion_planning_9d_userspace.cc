@@ -5,10 +5,11 @@
  * This file contains the userspace planning functions (tpAddLine_9D, tpAddCircle_9D)
  * that write segments to the shared memory queue and trigger optimization.
  *
- * Phase 0.1: Minimal implementation - no blending, just queue segments and optimize.
+ * Minimal implementation - no blending, just queue segments and optimize.
  */
 
 #include "motion_planning_9d.hh"
+#include "userspace_kinematics.hh"
 #include <string.h>  // memset
 #include <time.h>    // clock_gettime for timing
 #include "rtapi.h"   // rtapi_print_msg for error reporting
@@ -101,12 +102,11 @@ static int computeLineLengthAndTarget_9D(TC_STRUCT * tc,
 /**
  * @brief Add linear move to shared memory queue (userspace planning)
  *
- * Minimal Phase 0.1 implementation:
  * - Initialize TC_STRUCT
  * - Set geometry
  * - Write to queue
  * - Trigger optimization
- * - NO blending (that's Phase 1+)
+ * - NO blending (requires blend geometry implementation)
  */
 extern "C" int tpAddLine_9D(
     TP_STRUCT * const tp,
@@ -123,7 +123,7 @@ extern "C" int tpAddLine_9D(
         return -1;
     }
 
-    // Phase 1: Comprehensive validation to detect uninitialized shared memory
+    // Comprehensive validation to detect uninitialized shared memory
     // Check magic number (set by tpInit())
     if (tp->magic != TP_MAGIC) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tpAddLine_9D: FAIL - magic number mismatch (got 0x%08x, expected 0x%08x)\n",
@@ -194,12 +194,29 @@ extern "C" int tpAddLine_9D(
         return -1;  // Zero-length segment
     }
 
-    // PHASE 0: Force exact stop - NO blending until Phase 4
+    // Force exact stop - NO blending until blend geometry is implemented
     // Blending requires blend geometry (Bezier arcs) which isn't implemented yet.
     // Using TC_TERM_COND_TANGENT without blend geometry causes velocity discontinuities
     // at segment boundaries, leading to 10x acceleration spikes.
     tc.term_cond = TC_TERM_COND_STOP;  // Force exact stop at end of segment
     tc.finalvel = 0.0;  // Come to complete stop (prevents velocity discontinuity)
+
+    // Compute joint-space segment if userspace kinematics enabled
+    // This populates tc.joint_space with start/end joint positions and
+    // velocity/acceleration limits derived from Jacobian analysis.
+#if 1  // Userspace kinematics with debug output
+    if (motion_planning::userspace_kins_is_enabled()) {
+        if (motion_planning::userspace_kins_compute_joint_segment(&tp->goalPos, &end_pose, &tc) != 0) {
+            // Userspace kinematics computation failed - fall back to RT kinematics
+            // (joint_space.valid will be 0, RT will use kinematicsInverse)
+            tc.joint_space.valid = 0;
+        }
+    } else {
+        tc.joint_space.valid = 0;  // Not using userspace kinematics
+    }
+#else
+    tc.joint_space.valid = 0;  // Userspace kinematics disabled for testing
+#endif
 
     // Write segment to shared memory queue
     result = tcqPut_user(queue, &tc);

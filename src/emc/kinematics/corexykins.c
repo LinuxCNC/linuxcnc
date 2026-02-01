@@ -7,11 +7,10 @@
 #include "motion.h"
 #include "hal.h"
 #include "rtapi.h"
-#include "rtapi.h"
 #include "rtapi_app.h"
-#include "rtapi_math.h"
 #include "rtapi_string.h"
 #include "kinematics.h"
+#include "corexykins_math.h"
 
 static struct data {
     hal_s32_t joints[EMCMOT_MAX_JOINTS];
@@ -24,17 +23,7 @@ int kinematicsForward(const double *joints
                      ) {
     (void)fflags;
     (void)iflags;
-    pos->tran.x = 0.5 * (joints[0] + joints[1]);
-    pos->tran.y = 0.5 * (joints[0] - joints[1]);
-    pos->tran.z = joints[2];
-    pos->a      = joints[3];
-    pos->b      = joints[4];
-    pos->c      = joints[5];
-    pos->u      = joints[6];
-    pos->v      = joints[7];
-    pos->w      = joints[8];
-
-    return 0;
+    return corexy_forward_math(joints, pos);
 }
 
 int kinematicsInverse(const EmcPose *pos
@@ -44,17 +33,7 @@ int kinematicsInverse(const EmcPose *pos
                      ) {
     (void)iflags;
     (void)fflags;
-    joints[0] = pos->tran.x + pos->tran.y;
-    joints[1] = pos->tran.x - pos->tran.y;
-    joints[2] = pos->tran.z;
-    joints[3] = pos->a;
-    joints[4] = pos->b;
-    joints[5] = pos->c;
-    joints[6] = pos->u;
-    joints[7] = pos->v;
-    joints[8] = pos->w;
-
-    return 0;
+    return corexy_inverse_math(pos, joints);
 }
 
 int kinematicsHome(EmcPose *world
@@ -69,10 +48,13 @@ int kinematicsHome(EmcPose *world
 
 KINEMATICS_TYPE kinematicsType() { return KINEMATICS_BOTH; }
 
+const char* kinematicsGetName(void) { return "corexykins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 static int comp_id;

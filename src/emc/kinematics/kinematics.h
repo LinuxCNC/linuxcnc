@@ -102,6 +102,11 @@ extern int kinematicsHome(struct EmcPose * world,
 
 extern KINEMATICS_TYPE kinematicsType(void);
 
+/* Return the kinematics module name (e.g., "trivkins", "5axiskins").
+   This must match the module filename without extension.
+   Returns NULL if no name is available. */
+extern const char* kinematicsGetName(void);
+
 /* parameters for use with switchkins.c */
 typedef struct kinematics_parms {
   char* sparm;     // module string parameter passed to kins
@@ -184,7 +189,7 @@ extern int userkKinematicsInverse(const struct EmcPose * world,
                                   double *joint,
                                   const KINEMATICS_INVERSE_FLAGS * iflags,
                                   KINEMATICS_FORWARD_FLAGS * fflags);
-#endif
+
 //*********************************************************************
 // xyzac,xyzbc;
 extern int trtKinematicsSetup(const int   comp_id,
@@ -213,3 +218,5 @@ extern int xyzbcKinematicsInverse(const EmcPose * pos,
                                   KINEMATICS_FORWARD_FLAGS * fflags);
 
 //*********************************************************************
+
+#endif /* KINEMATICS_H */

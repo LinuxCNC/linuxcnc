@@ -64,6 +64,7 @@
 
 #include "kinematics.h"             /* these decls */
 #include "rtapi_math.h"
+#include "tripodkins_math.h"
 
 /* ident tag */
 #ifndef __GNUC__
@@ -80,8 +81,6 @@ struct haldata {
 #define Bx (*(haldata->bx))
 #define Cx (*(haldata->cx))
 #define Cy (*(haldata->cy))
-
-#define sq(x) ((x)*(x))
 
 /*
   forward kinematics takes three strut lengths and computes Dx, Dy, and Dz
@@ -128,56 +127,11 @@ int kinematicsForward(const double * joints,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
                       KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    (void)iflags;
-#define AD (joints[0])
-#define BD (joints[1])
-#define CD (joints[2])
-#define Dx (pos->tran.x)
-#define Dy (pos->tran.y)
-#define Dz (pos->tran.z)
-  double P, Q, R;
-  double s, t, u;
-
-  P = sq(AD);
-  Q = sq(BD) - sq(Bx);
-  R = sq(CD) - sq(Cx) - sq(Cy);
-  s = -2.0 * Bx;
-  t = -2.0 * Cx;
-  u = -2.0 * Cy;
-
-  if (s == 0.0) {
-    /* points A and B coincident. Fix Bx, #defined up top. */
-    return -1;
-  }
-  Dx = (Q - P) / s;
-
-  if (u == 0.0) {
-    /* points A B C are colinear. Fix Cy, #defined up top. */
-    return -1;
-  }
-  Dy = (R - Q - (t - s) * Dx) / u;
-  Dz = P - sq(Dx) - sq(Dy);
-  if (Dz < 0.0) {
-    /* triangle inequality violated */
-    return -1;
-  }
-  Dz = sqrt(Dz);
-  if (*fflags) {
-    Dz = -Dz;
-  }
-
-  pos->a = 0.0;
-  pos->b = 0.0;
-  pos->c = 0.0;
-
-  return 0;
-
-#undef AD
-#undef BD
-#undef CD
-#undef Dx
-#undef Dy
-#undef Dz
+    tripod_params_t params;
+    params.bx = Bx;
+    params.cx = Cx;
+    params.cy = Cy;
+    return tripod_forward_math(&params, joints, pos, fflags, iflags);
 }
 
 int kinematicsInverse(const EmcPose * pos,
@@ -185,31 +139,11 @@ int kinematicsInverse(const EmcPose * pos,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    (void)iflags;
-#define AD (joints[0])
-#define BD (joints[1])
-#define CD (joints[2])
-#define Dx (pos->tran.x)
-#define Dy (pos->tran.y)
-#define Dz (pos->tran.z)
-
-  AD = sqrt(sq(Dx) + sq(Dy) + sq(Dz));
-  BD = sqrt(sq(Dx - Bx) + sq(Dy) + sq(Dz));
-  CD = sqrt(sq(Dx - Cx) + sq(Dy - Cy) + sq(Dz));
-
-  *fflags = 0;
-  if (Dz < 0.0) {
-    *fflags = 1;
-  }
-
-  return 0;
-
-#undef AD
-#undef BD
-#undef CD
-#undef Dx
-#undef Dy
-#undef Dz
+    tripod_params_t params;
+    params.bx = Bx;
+    params.cx = Cx;
+    params.cy = Cy;
+    return tripod_inverse_math(&params, pos, joints, iflags, fflags);
 }
 
 KINEMATICS_TYPE kinematicsType()
@@ -350,10 +284,13 @@ int main(int argc, char *argv[])
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
+const char* kinematicsGetName(void) { return "tripodkins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 
 MODULE_LICENSE("GPL");
 

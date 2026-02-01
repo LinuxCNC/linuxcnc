@@ -100,13 +100,13 @@ struct emcmot_internal_t *emcmotInternal;
  * has reached zero velocity. Commanded motion is not actually stopped until
  * the TP and any time-delayed smoothing is done.
  *
- * Phase 0.2 stub: Always returns true (no joint filters yet).
- * Phase 1+ will implement: return tp->filters_at_rest;
+ * Stub: Always returns true (no joint filters yet).
+ * Future: return tp->filters_at_rest;
  */
 static bool checkJointFiltersEmpty(TP_STRUCT * const tp)
 {
-    (void)tp;  // Will be used in Phase 1+ for tp->filters_at_rest
-    // Phase 0.2: No joint filters yet, always return true
+    (void)tp;  // Will be used for tp->filters_at_rest when joint filters implemented
+    // No joint filters yet, always return true
     return true;
 }
 
@@ -4548,15 +4548,77 @@ int tpGetPos(TP_STRUCT const * const tp, EmcPose * const pos)
     return TP_ERR_OK;
 }
 
+/**
+ * @brief Get joint positions from userspace kinematics joint-space segment
+ *
+ * Evaluates pre-computed joint-space segment using linear interpolation.
+ * If joint_space data is not valid, returns failure (caller should use kinematicsInverse).
+ *
+ * @param tp     Trajectory planner
+ * @param joints Output array of joint positions [JOINT_SPACE_MAX_JOINTS]
+ * @return TP_ERR_OK on success, TP_ERR_FAIL if joint_space not valid
+ */
+int tpGetJointPositions(TP_STRUCT const * const tp, double * const joints)
+{
+    int j;
+
+    if (0 == tp || 0 == joints) {
+        return TP_ERR_FAIL;
+    }
+
+    // Get current segment
+    TC_STRUCT *tc = tcqItem(&((TP_STRUCT*)tp)->queue, 0);
+    if (!tc) {
+        // No current segment - return current position as joints
+        // (for identity kinematics, world = joints)
+        joints[0] = tp->currentPos.tran.x;
+        joints[1] = tp->currentPos.tran.y;
+        joints[2] = tp->currentPos.tran.z;
+        joints[3] = tp->currentPos.a;
+        joints[4] = tp->currentPos.b;
+        joints[5] = tp->currentPos.c;
+        joints[6] = tp->currentPos.u;
+        joints[7] = tp->currentPos.v;
+        joints[8] = tp->currentPos.w;
+        return TP_ERR_OK;
+    }
+
+    // Check if userspace kinematics joint_space data is valid
+    if (!tc->joint_space.valid) {
+        return TP_ERR_FAIL;  // Caller should use kinematicsInverse
+    }
+
+    // Compute normalized progress [0, 1]
+    double progress = 0.0;
+    if (tc->target > 1e-9) {
+        progress = tc->progress / tc->target;
+        if (progress < 0.0) progress = 0.0;
+        if (progress > 1.0) progress = 1.0;
+    }
+
+    // Linear interpolation between start and end joint positions
+    const JointSpaceSegment *js = &tc->joint_space;
+    for (j = 0; j < js->num_joints && j < JOINT_SPACE_MAX_JOINTS; j++) {
+        joints[j] = js->start[j] + progress * (js->end[j] - js->start[j]);
+    }
+
+    // Zero unused joints
+    for (; j < JOINT_SPACE_MAX_JOINTS; j++) {
+        joints[j] = 0.0;
+    }
+
+    return TP_ERR_OK;
+}
+
 int tpIsDone(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return TP_ERR_OK;
     }
 
-    // Phase 0.2: Motion is done when queue is empty and filters drained
-    // checkJointFiltersEmpty() is stubbed to return true for Phase 0.2
-    // Phase 1+ will properly track joint filter draining
+    // Motion is done when queue is empty and filters drained
+    // checkJointFiltersEmpty() is stubbed to return true (no filters yet)
+    // Future: properly track joint filter draining
     return checkJointFiltersEmpty(tp) && !tcqLen(&tp->queue);
 }
 
@@ -4650,6 +4712,7 @@ EXPORT_SYMBOL(tpGetExecId);
 EXPORT_SYMBOL(tpGetExecTag);
 EXPORT_SYMBOL(tpGetMotionType);
 EXPORT_SYMBOL(tpGetPos);
+EXPORT_SYMBOL(tpGetJointPositions);
 EXPORT_SYMBOL(tpIsDone);
 EXPORT_SYMBOL(tpPause);
 EXPORT_SYMBOL(tpQueueDepth);

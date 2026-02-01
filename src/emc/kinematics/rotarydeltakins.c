@@ -20,7 +20,7 @@
 #include "rtapi_math.h"
 #include "rtapi_app.h"
 
-#include "rotarydeltakins-common.h"
+#include "rotarydeltakins_math.h"
 
 struct haldata
 {
@@ -38,8 +38,12 @@ int kinematicsForward(const double * joints,
                       KINEMATICS_INVERSE_FLAGS * iflags) {
     (void)fflags;
     (void)iflags;
-    set_geometry(*haldata->pfr, *haldata->tl, *haldata->sl, *haldata->fr);
-    return kinematics_forward(joints, pos);
+    rotarydelta_params_t params;
+    params.platformradius = *haldata->pfr;
+    params.thighlength = *haldata->tl;
+    params.shinlength = *haldata->sl;
+    params.footradius = *haldata->fr;
+    return rotarydelta_forward_math(&params, joints, pos);
 }
 
 int kinematicsInverse(const EmcPose *pos, double *joints,
@@ -47,8 +51,12 @@ int kinematicsInverse(const EmcPose *pos, double *joints,
         KINEMATICS_FORWARD_FLAGS *fflags) {
     (void)iflags;
     (void)fflags;
-    set_geometry(*haldata->pfr, *haldata->tl, *haldata->sl, *haldata->fr);
-    return kinematics_inverse(pos, joints);
+    rotarydelta_params_t params;
+    params.platformradius = *haldata->pfr;
+    params.thighlength = *haldata->tl;
+    params.shinlength = *haldata->sl;
+    params.footradius = *haldata->fr;
+    return rotarydelta_inverse_math(&params, pos, joints);
 }
 
 KINEMATICS_TYPE kinematicsType()
@@ -84,10 +92,10 @@ int rtapi_app_main(void)
 
     if(retval == 0)
     {
-        *haldata->pfr = RDELTA_PFR;
-        *haldata->tl = RDELTA_TL;
-        *haldata->sl = RDELTA_SL;
-        *haldata->fr = RDELTA_FR;
+        *haldata->pfr = ROTARYDELTA_DEFAULT_PLATFORMRADIUS;
+        *haldata->tl = ROTARYDELTA_DEFAULT_THIGHLENGTH;
+        *haldata->sl = ROTARYDELTA_DEFAULT_SHINLENGTH;
+        *haldata->fr = ROTARYDELTA_DEFAULT_FOOTRADIUS;
     }
 
     if(retval == 0)
@@ -103,8 +111,11 @@ void rtapi_app_exit(void)
     hal_exit(comp_id);
 }
 
+const char* kinematicsGetName(void) { return "rotarydeltakins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");

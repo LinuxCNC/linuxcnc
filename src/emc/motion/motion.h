@@ -179,6 +179,8 @@ extern "C" {
 
         EMCMOT_SET_SPINDLE_PARAMS, /* One command to set all spindle params */
 
+        EMCMOT_UPDATE_KINS_PARAMS, /* Request RT to re-export kins params to shared memory */
+
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -717,6 +719,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int numSpindles; /* The number of spindles, 1 to EMCMOT_MAX_SPINDLES */
 
 	KINEMATICS_TYPE kinType;
+
+	/* Kinematics module identification for userspace access */
+	char kins_module_name[32];  /* e.g., "trivkins", "5axiskins" */
+	int kins_type_id;           /* kinematics_type_id_t enum value */
 
         int numDIO;             /* userdefined number of digital IO. default is 4. (EMCMOT_MAX_DIO=64),
                                    but can be altered at motmod insmod time */
