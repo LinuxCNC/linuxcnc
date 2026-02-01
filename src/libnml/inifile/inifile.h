@@ -25,7 +25,13 @@ extern "C"
 {
 #endif
 
-extern const char *iniFind(FILE *fp, const char *tag, const char *section);
+// Recommended buffer size for iniFindString()
+#define INI_MAX_LINELEN 256
+
+extern const char *iniFind(FILE *fp, const char *tag, const char *section)
+    __attribute__((deprecated("use iniFindString() instead")));
+extern const char *iniFindString(FILE *fp, const char *tag, const char *section,
+                                 char *buf, size_t bufsize);
 extern int iniFindInt(FILE *fp, const char *tag, const char *section, int *result);
 extern int iniFindDouble(FILE *fp, const char *tag, const char *section, double *result);
 extern int TildeExpansion(const char *file, char *path, size_t size);
