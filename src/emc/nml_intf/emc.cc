@@ -1702,7 +1702,8 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(queue);
     cms->update(activeQueue);
     cms->update(queueFull);
-    cms->update(id);
+    cms->update(id.line_number);
+    cms->update(id.filename_hash);
     cms->update(paused);
     cms->update(single_stepping);
     cms->update(scale);

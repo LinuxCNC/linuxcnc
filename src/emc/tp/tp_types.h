@@ -81,8 +81,8 @@ typedef struct {
 	 int spindle_num;
      double offset;
      double revs;
-     int waiting_for_index;
-     int waiting_for_atspeed;
+     emcmot_motion_id_t waiting_for_index;
+     emcmot_motion_id_t waiting_for_atspeed;
 } tp_spindle_t;
 
 /**
@@ -114,8 +114,8 @@ typedef struct {
 
     double wMax;		/* rotational velocity max */
     double wDotMax;		/* rotational acceleration max */
-    int nextId;
-    int execId;
+    emcmot_motion_id_t nextId;
+    emcmot_motion_id_t execId;
     struct state_tag_t execTag; /* state tag corresponding to running motion */
     int termCond;
     int done;

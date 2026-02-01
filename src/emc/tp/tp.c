@@ -502,8 +502,8 @@ int tpClear(TP_STRUCT * const tp)
     tp->queueSize = 0;
     tp->goalPos = tp->currentPos;
     // Clear out status ID's
-    tp->nextId = 0;
-    tp->execId = 0;
+    tp->nextId.id = 0;
+    tp->execId.id = 0;
     struct state_tag_t tag = {};
     tp->execTag = tag;
     tp->motionType = 0;
@@ -553,8 +553,8 @@ int tpInit(TP_STRUCT * const tp)
 
     tp->spindle.offset = 0.0;
     tp->spindle.revs = 0.0;
-    tp->spindle.waiting_for_index = MOTION_INVALID_ID;
-    tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
+    tp->spindle.waiting_for_index.id = MOTION_INVALID_ID;
+    tp->spindle.waiting_for_atspeed.id = MOTION_INVALID_ID;
 
     tp->reverse_run = TC_DIR_FORWARD;
     tp->termCond = TC_TERM_COND_PARABOLIC;
@@ -640,11 +640,11 @@ int tpSetAmax(TP_STRUCT * const tp, double aMax)
  * ids for each motion, call this before each motion you append and stick what
  * you want in here.
  */
-int tpSetId(TP_STRUCT * const tp, int id)
+int tpSetId(TP_STRUCT * const tp, emcmot_motion_id_t id)
 {
 
     if (!MOTION_ID_VALID(id)) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "tpSetId: invalid motion id %d\n", id);
+        rtapi_print_msg(RTAPI_MSG_ERR, "tpSetId: invalid motion id %ld\n", id.id);
         return TP_ERR_FAIL;
     }
 
@@ -659,10 +659,12 @@ int tpSetId(TP_STRUCT * const tp, int id)
 
 /** Returns the id of the last motion that is currently
   executing.*/
-int tpGetExecId(TP_STRUCT * const tp)
+emcmot_motion_id_t tpGetExecId(TP_STRUCT * const tp)
 {
     if (0 == tp) {
-        return TP_ERR_FAIL;
+        // FIXME return invalid motion id
+        emcmot_motion_id_t ret = {.id = TP_ERR_FAIL};
+        return ret;
     }
 
     return tp->execId;
@@ -744,9 +746,9 @@ int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos)
         tp->currentPos = *pos;
         return TP_ERR_OK;
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpSetCurrentPos on id %d!"
+        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpSetCurrentPos on id %ld!"
                 "pos is %.12g, %.12g, %.12g\n",
-                tp->execId,
+                tp->execId.id,
                 pos->tran.x,
                 pos->tran.y,
                 pos->tran.z);
@@ -765,9 +767,9 @@ int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp)
         emcPoseSelfAdd(&tp->currentPos, disp);
         return TP_ERR_OK;
     } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpAddCurrentPos on id %d!"
+        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpAddCurrentPos on id %ld!"
                 "disp is %.12g, %.12g, %.12g\n",
-                tp->execId,
+                tp->execId.id,
                 disp->tran.x,
                 disp->tran.y,
                 disp->tran.z);
@@ -1588,7 +1590,8 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
         return TP_ERR_FAIL;
     }
     if (inc_id) {
-        tp->nextId++;
+        // FIXME
+        tp->nextId.line_number++;
     }
 
     // Store end of current move as new final goal of TP
@@ -2171,7 +2174,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
             &end);
     tc.target = pmLine9Target(&tc.coords.line);
     if (tc.target < TP_POS_EPSILON) {
-        rtapi_print_msg(RTAPI_MSG_DBG,"failed to create line id %d, zero-length segment\n",tp->nextId);
+        rtapi_print_msg(RTAPI_MSG_DBG,"failed to create line id %ld, zero-length segment\n", tp->nextId.id);
         return TP_ERR_ZERO_LENGTH;
     }
     tc.nominal_length = tc.target;
@@ -2984,8 +2987,8 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
     EmcPose tc_pos;
     tcGetEndpoint(tc, &tc_pos);
 
-    tc_debug_print("tc id = %u canon_type = %u motion_type = %u\n",
-            tc->id, tc->canon_motion_type, tc->motion_type);
+    tc_debug_print("tc id = %ld canon_type = %u motion_type = %u\n",
+            tc->id.id, tc->canon_motion_type, tc->motion_type);
     tp->motionType = tc->canon_motion_type;
     tp->activeDepth = tc->active_depth;
     emcmotStatus->distance_to_go = tc->target - tc->progress;
@@ -3054,7 +3057,7 @@ STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp)
     tp->done = 1;
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
-    tp->execId = 0;
+    tp->execId.id = 0;
     tp->motionType = 0;
 
     tpUpdateMovementStatus(tp, NULL);
@@ -3082,7 +3085,7 @@ STATIC int tpGetRotaryIsUnlocked(int axis) {
 STATIC int tpCompleteSegment(TP_STRUCT * const tp,
         TC_STRUCT * const tc) {
 
-    if (tp->spindle.waiting_for_atspeed == tc->id) {
+    if (tp->spindle.waiting_for_atspeed.id == tc->id.id) {
         return TP_ERR_FAIL;
     }
 
@@ -3150,12 +3153,12 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         tp->done = 1;
         tp->depth = tp->activeDepth = 0;
         tp->aborting = 0;
-        tp->execId = 0;
+        tp->execId.id = 0;
         tp->motionType = 0;
         tp->synchronized = 0;
         tp->reverse_run = 0;
-        tp->spindle.waiting_for_index = MOTION_INVALID_ID;
-        tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
+        tp->spindle.waiting_for_index.id = MOTION_INVALID_ID;
+        tp->spindle.waiting_for_atspeed.id = MOTION_INVALID_ID;
         tpResume(tp);
         return TP_ERR_STOPPED;
     }  //FIXME consistent error codes
@@ -3173,21 +3176,21 @@ STATIC tp_err_t tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
 {
 	int s;
     // this is no longer the segment we were waiting_for_index for
-    if (MOTION_ID_VALID(tp->spindle.waiting_for_index) && tp->spindle.waiting_for_index != tc->id)
+    if (MOTION_ID_VALID(tp->spindle.waiting_for_index) && tp->spindle.waiting_for_index.id != tc->id.id)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                "Was waiting for index on motion id %d, but reached id %d\n",
-                tp->spindle.waiting_for_index, tc->id);
-        tp->spindle.waiting_for_index = MOTION_INVALID_ID;
+                "Was waiting for index on motion id %ld, but reached id %ld\n",
+                tp->spindle.waiting_for_index.id, tc->id.id);
+        tp->spindle.waiting_for_index.id = MOTION_INVALID_ID;
     }
 
-    if (MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) && tp->spindle.waiting_for_atspeed != tc->id)
+    if (MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) && tp->spindle.waiting_for_atspeed.id != tc->id.id)
     {
 
         rtapi_print_msg(RTAPI_MSG_ERR,
-                "Was waiting for atspeed on motion id %d, but reached id %d\n",
-                tp->spindle.waiting_for_atspeed, tc->id);
-        tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
+                "Was waiting for atspeed on motion id %ld, but reached id %ld\n",
+                tp->spindle.waiting_for_atspeed.id, tc->id.id);
+        tp->spindle.waiting_for_atspeed.id = MOTION_INVALID_ID;
     }
 
     if (MOTION_ID_VALID(tp->spindle.waiting_for_atspeed)) {
@@ -3198,7 +3201,7 @@ STATIC tp_err_t tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
             }
         }
         // not waiting any more
-        tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
+        tp->spindle.waiting_for_atspeed.id = MOTION_INVALID_ID;
     }
 
     if (MOTION_ID_VALID(tp->spindle.waiting_for_index)) {
@@ -3209,7 +3212,7 @@ STATIC tp_err_t tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
             rtapi_print_msg(RTAPI_MSG_DBG, "Index seen on spindle %d\n", tp->spindle.spindle_num);
             /* passed index, start the move */
             emcmotStatus->spindleSync = 1;
-            tp->spindle.waiting_for_index = MOTION_INVALID_ID;
+            tp->spindle.waiting_for_index.id = MOTION_INVALID_ID;
             tc->sync_accel = 1;
             tp->spindle.revs = 0;
         }
@@ -3572,8 +3575,8 @@ STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
 {
     tp_debug_print("split time for id %d is %.16g\n", tc->id, split_time);
     if (tc->splitting != 0 && split_time > 0.0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"already splitting on id %d with cycle time %.16g, dx = %.16g, split time %.12g\n",
-                tc->id,
+        rtapi_print_msg(RTAPI_MSG_ERR,"already splitting on id %ld with cycle time %.16g, dx = %.16g, split time %.12g\n",
+                tc->id.id,
                 tc->cycle_time,
                 tc->target-tc->progress,
                 split_time);
@@ -3749,9 +3752,9 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         case TC_TERM_COND_EXACT:
             break;
         default:
-            rtapi_print_msg(RTAPI_MSG_ERR,"unknown term cond %d in segment %d\n",
+            rtapi_print_msg(RTAPI_MSG_ERR,"unknown term cond %d in segment %ld\n",
                     tc->term_cond,
-                    tc->id);
+                    tc->id.id);
     }
 
     // Run split cycle update with remaining time in nexttc
@@ -4085,7 +4088,7 @@ int tpIsMoving(TP_STRUCT const * const tp)
     if (emcmotStatus->current_vel >= TP_VEL_EPSILON ) {
         tp_debug_print("TP moving, current_vel = %.16g\n", emcmotStatus->current_vel);
         return true;
-    } else if (tp->spindle.waiting_for_index != MOTION_INVALID_ID || tp->spindle.waiting_for_atspeed != MOTION_INVALID_ID) {
+    } else if (tp->spindle.waiting_for_index.id != MOTION_INVALID_ID || tp->spindle.waiting_for_atspeed.id != MOTION_INVALID_ID) {
         tp_debug_print("TP moving, waiting for index or atspeed\n");
         return true;
     }

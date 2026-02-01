@@ -982,7 +982,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     // current
     int activeQueue;		// number of motions blending
     bool queueFull;		// non-zero means can't accept another motion
-    int id;			// id of the currently executing motion
+    emcmot_motion_id_t id;			// id of the currently executing motion
     bool paused;			// non-zero means motion paused
     bool single_stepping;    // non-zero means motion stepping single block
     double scale;		// velocity scale factor

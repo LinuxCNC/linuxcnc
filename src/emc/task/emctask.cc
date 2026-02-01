@@ -698,8 +698,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
     // execState set in main
     // interpState set in main
-    if (emcStatus->motion.traj.id > 0) {
-	stat->motionLine = emcStatus->motion.traj.id;
+    if (emcStatus->motion.traj.id.line_number > 0) {
+	//stat->motionLine = emcStatus->motion.traj.tag.fields[GM_FIELD_LINE_NUMBER];
+	stat->motionLine = emcStatus->motion.traj.id.line_number;
     }
     // currentLine set in main
     // readLine set in main

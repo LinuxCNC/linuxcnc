@@ -98,7 +98,7 @@ typedef struct TrajConfig_t {
     int AxisMask;
     double LinearUnits;
     double AngularUnits;
-    int MotionId;
+    emcmot_motion_id_t MotionId;
 } TrajConfig_t;
 
 #ifdef __cplusplus

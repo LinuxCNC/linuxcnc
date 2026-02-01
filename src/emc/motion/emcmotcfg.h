@@ -13,6 +13,8 @@
 #ifndef EMCMOTCFG_H
 #define EMCMOTCFG_H
 
+#include <stdint.h>
+
 /* default name of EMCMOT INI file */
 #define DEFAULT_EMCMOT_INIFILE "emc.ini"	/* same as for EMC-- we're in 
 						   touch */
@@ -71,5 +73,21 @@
 
 /* max following error */
 #define DEFAULT_MAX_FERROR 100
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+typedef union {
+  // note: CMS can't deal with 64bit values nor with bitfields
+	int64_t id;
+	struct {
+		int line_number;
+		unsigned filename_hash;
+	};
+} emcmot_motion_id_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

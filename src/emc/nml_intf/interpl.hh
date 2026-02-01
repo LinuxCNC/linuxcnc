@@ -19,6 +19,7 @@
 
 #include <deque>
 #include <memory>
+#include <string>
 
 class NMLmsg;
 
@@ -35,7 +36,9 @@ class NML_INTERP_LIST
 {
 public:
     void set_line_number(int line);
-    int get_line_number();
+    int get_line_number() const;
+    void set_filename(const std::string& s);
+    const std::string& get_filename() const;
     int append(std::unique_ptr<NMLmsg>&& command);
     std::unique_ptr<NMLmsg> get();
     void clear();
@@ -47,6 +50,7 @@ private:
     int next_line_number = 0;  // line number used to fill temp_node
     int line_number = 0;       // line number of node from get()
                                // NML_INTERP_LIST_NODE node; // pointer returned by get
+    std::string filename;
 };
 
 extern NML_INTERP_LIST interp_list; /* NML Union, for interpreter */

@@ -1042,7 +1042,7 @@ static VelData getStraightVelocity(const CANON_POSITION& pos)
 #include <vector>
 struct pt {
     double x, y, z, a, b, c, u, v, w;
-    int line_no;
+    //int line_no;
     StateTag tag;
 };
 
@@ -1061,7 +1061,7 @@ static void flush_segments(void) {
     double a = pos.a, b = pos.b, c = pos.c;
     double u = pos.u, v = pos.v, w = pos.w;
     
-    int line_no = pos.line_no;
+    //int line_no = pos.line_no;
 
 #ifdef SHOW_JOINED_SEGMENTS
     for(unsigned int i=0; i != chained_points.size(); i++) { printf("."); }
@@ -1114,7 +1114,8 @@ static void flush_segments(void) {
     linearMoveMsg->type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg->indexer_jnum = -1;
     if ((vel && acc) || canon.spindle[canon.spindle_num].synched) {
-        interp_list.set_line_number(line_no);
+        interp_list.set_line_number(pos.tag.fields[GM_FIELD_LINE_NUMBER]);
+        interp_list.set_filename(pos.tag.filename);
         tag_and_send(std::move(linearMoveMsg), pos.tag);
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
@@ -1188,7 +1189,7 @@ see_segment(int line_number,
     if(!chained_points.empty() && !linkable(x, y, z, a, b, c, u, v, w)) {
         flush_segments();
     }
-    pt pos = {x, y, z, a, b, c, u, v, w, line_number, tag};
+    pt pos = {x, y, z, a, b, c, u, v, w, tag};
     chained_points.push_back(pos);
     if(changed_abc || changed_uvw) {
         flush_segments();
@@ -1317,7 +1318,8 @@ void STRAIGHT_TRAVERSE(int line_number,
 	STOP_SPEED_FEED_SYNCH();
 
     if(vel && acc)  {
-        interp_list.set_line_number(line_number);
+        interp_list.set_line_number(_tag.fields[GM_FIELD_LINE_NUMBER]);
+        interp_list.set_filename(_tag.filename);
         tag_and_send(std::move(linearMoveMsg), _tag);
     }
 
@@ -1373,8 +1375,9 @@ void RIGID_TAP(int line_number, double x, double y, double z, double scale)
     flush_segments();
 
     if(ini_maxvel && acc)  {
-        interp_list.set_line_number(line_number);
-        interp_list.append(std::move(rigidTapMsg));
+        interp_list.set_line_number(_tag.fields[GM_FIELD_LINE_NUMBER]);
+        interp_list.set_filename(_tag.filename);
+        tag_and_send(std::move(rigidTapMsg), _tag);
     }
 
     // don't move the endpoint because after this move, we are back where we started
@@ -1432,7 +1435,9 @@ void STRAIGHT_PROBE(int line_number,
     probeMsg->pos = to_ext_pose(x,y,z,a,b,c,u,v,w);
 
     if(vel && acc)  {
-        interp_list.set_line_number(line_number);
+        interp_list.set_line_number(_tag.fields[GM_FIELD_LINE_NUMBER]);
+        interp_list.set_filename(_tag.filename);
+        //interp_list.set_line_number(line_number);
         interp_list.append(std::move(probeMsg));
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
@@ -2909,7 +2914,9 @@ void ARC_FEED(int line_number,
         linearMoveMsg->acc = toExtAcc(a_max);
         linearMoveMsg->indexer_jnum = -1;
         if(vel && a_max){
-            interp_list.set_line_number(line_number);
+            interp_list.set_line_number(_tag.fields[GM_FIELD_LINE_NUMBER]);
+            interp_list.set_filename(_tag.filename);
+            //interp_list.set_line_number(line_number);
             tag_and_send(std::move(linearMoveMsg), _tag);
         }
     } else {
@@ -2936,7 +2943,9 @@ void ARC_FEED(int line_number,
         // The end point is still updated, but nothing is added to the interp list
         // seems to be a crude way to indicate a zero length segment?
         if(vel && a_max) {
-            interp_list.set_line_number(line_number);
+            interp_list.set_line_number(_tag.fields[GM_FIELD_LINE_NUMBER]);
+            interp_list.set_filename(_tag.filename);
+            //interp_list.set_line_number(line_number);
             tag_and_send(std::move(circularMoveMsg), _tag);
         }
     }
@@ -4343,7 +4352,10 @@ int UNLOCK_ROTARY(int line_number, int joint_num)
     int old_feed_mode = canon.feed_mode;
     if(canon.feed_mode)
 	STOP_SPEED_FEED_SYNCH();
-    interp_list.set_line_number(line_number);
+    //interp_list.set_line_number(line_number);
+    interp_list.set_line_number(_tag.fields[GM_FIELD_LINE_NUMBER]);
+    interp_list.set_filename(_tag.filename);
+    // tag and send?
     interp_list.append(std::move(m));
     
     // no need to update endpoint

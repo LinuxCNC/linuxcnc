@@ -68,6 +68,7 @@ to another.
 #include "simple_tp.h"
 #include "rtapi_limits.h"
 #include <stdarg.h>
+#include <stdint.h>
 #include "rtapi_bool.h"
 #include "state_tag.h"
 #include "tp_types.h"
@@ -77,7 +78,7 @@ to another.
 // this should be really be tested for in command.c
 
 #define MOTION_INVALID_ID INT_MIN
-#define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
+#define MOTION_ID_VALID(x) ((x.line_number) != MOTION_INVALID_ID)
 
 #ifdef __cplusplus
 extern "C" {
@@ -222,7 +223,7 @@ extern "C" {
     double ini_maxjerk;
     int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
 	double backlash;	/* amount of backlash */
-	int id;			/* id for motion */
+	emcmot_motion_id_t id;			/* id for motion */
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
 	int joint;		/* which joint index to use for below */
@@ -626,7 +627,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned int heartbeat;
 	int config_num;		/* incremented whenever configuration
 				   changed. */
-	int id;			/* id for executing motion */
+	emcmot_motion_id_t id;			/* id for executing motion */
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
 	int queueFull;		/* Flag to indicate the tc queue is full */
@@ -751,7 +752,7 @@ typedef struct emcmot_internal_t {
     int overriding;     /* non-zero means we've initiated an joint
                            move while overriding limits */
     TP_STRUCT coord_tp; /* coordinated mode planner */
-    int idForStep;      /* status id while stepping */
+    emcmot_motion_id_t idForStep;      /* status id while stepping */
     } emcmot_internal_t;
 
 /* error ring buffer access functions */
