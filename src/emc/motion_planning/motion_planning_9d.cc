@@ -117,15 +117,35 @@ extern "C" int tcqPut_user(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const 
 
 /**
  * @brief Userspace version of tcGetTangentialMaxAccel_9D
+ *
+ * Returns maximum acceleration considering:
+ * 1. Machine acceleration limit (tc->maxaccel)
+ * 2. Joint-space acceleration limit from Jacobian analysis (if valid)
  */
 static double tcGetTangentialMaxAccel_9D_user(TC_STRUCT const * const tc)
 {
     if (!tc) return 0.0;
-    return tc->maxaccel;
+
+    double acc = tc->maxaccel;
+
+    // Apply joint-space acceleration limit from userspace kinematics
+    if (tc->joint_space.valid) {
+        double joint_acc_limit = tc->joint_space.acc_limit;
+        if (joint_acc_limit > 0.0 && joint_acc_limit < acc) {
+            acc = joint_acc_limit;
+        }
+    }
+
+    return acc;
 }
 
 /**
  * @brief Userspace version of tcGetMaxVel_9D
+ *
+ * Returns maximum velocity considering:
+ * 1. Requested velocity with feed override
+ * 2. Machine velocity limit (tc->maxvel)
+ * 3. Joint-space velocity limit from Jacobian analysis (if valid)
  */
 static double tcGetMaxVel_9D_user(TC_STRUCT const * const tc, double max_feed_scale)
 {
@@ -140,6 +160,16 @@ static double tcGetMaxVel_9D_user(TC_STRUCT const * const tc, double max_feed_sc
     // Clamp to machine velocity limit
     if (tc->maxvel > 0.0 && vel > tc->maxvel) {
         vel = tc->maxvel;
+    }
+
+    // Apply joint-space velocity limit from userspace kinematics
+    // This accounts for Jacobian-derived limits near singularities
+    // and joint velocity constraints
+    if (tc->joint_space.valid) {
+        double joint_vel_limit = tc->joint_space.vel_limit_end;
+        if (joint_vel_limit > 0.0 && joint_vel_limit < vel) {
+            vel = joint_vel_limit;
+        }
     }
 
     return vel;

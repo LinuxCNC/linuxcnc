@@ -22,10 +22,18 @@
 
 #include "inihal.hh"
 #include "initraj.hh"
+#include <rtapi_string.h>
+#include "motion.h"       // For emcmotConfig, emcmot_config_t
+
+// Userspace kinematics for trajectory planning
+#include "userspace_kinematics.hh"
 
 using namespace linuxcnc;
 
 extern value_inihal_data old_inihal_data;
+
+/* Access to emcmotConfig from usrmotintf.cc (initialized by usrmotInit()) */
+extern emcmot_config_t *emcmotConfig;
 
 static void inline print_dbg_config(const std::string &s)
 {
@@ -161,6 +169,42 @@ static int loadTraj(const IniFile &ini)
     }
     if (planner_type == 2) {
         rcs_print("PLANNER_TYPE 2 (9D) is EXPERIMENTAL. Use with caution.\n");
+
+        // Check if userspace kinematics is enabled (optional for now)
+        int use_userspace_kinematics = ini.findIntV("USE_USERSPACE_KINEMATICS", "TRAJ", 0);
+
+        if (use_userspace_kinematics) {
+            rcs_print("USE_USERSPACE_KINEMATICS = 1 (userspace kinematics enabled)\n");
+
+            // Read kinematics module name from emcmotConfig (set by motion module)
+            const char *kins_module = emcmotConfig->kins_module_name;
+
+            if (!kins_module || kins_module[0] == '\0') {
+                rcs_print_error("ERROR: No kinematics module name in emcmotConfig\n");
+                rcs_print_error("Userspace kinematics requires a kinematics module to be loaded.\n");
+                rcs_print_error("Ensure your HAL file loads a kinematics module (e.g., loadrt trivkins)\n");
+                return -1;
+            }
+
+            rcs_print("Detected kinematics module: %s (type_id=%d)\n",
+                      kins_module, emcmotConfig->kins_type_id);
+
+            // Get configuration from INI file
+            auto coord = ini.findString("COORDINATES", "TRAJ");
+            int joints = ini.findIntV("JOINTS", "KINS", 3);
+            if (joints <= 0) joints = 3;
+
+            if (motion_planning::userspace_kins_init(kins_module,
+                                                    joints,
+                                                    coord ? coord->c_str() : "XYZ") != 0) {
+                rcs_print_error("ERROR: Failed to initialize userspace kinematics\n");
+                return -1;
+            }
+            rcs_print("Userspace kinematics initialized (module=%s, joints=%d, coords=%s)\n",
+                      kins_module, joints, coord ? coord->c_str() : "XYZ");
+        } else {
+            rcs_print("USE_USERSPACE_KINEMATICS = 0 (using RT kinematics)\n");
+        }
 
         // Parse 9D-specific parameters
         int optimization_depth = ini.findIntV("OPTIMIZATION_DEPTH", "TRAJ", 8);
