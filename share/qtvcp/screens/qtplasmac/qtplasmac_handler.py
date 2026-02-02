@@ -1,4 +1,4 @@
-VERSION = '014.079'
+VERSION = '015.080'
 LCNCVER = '2.10'
 
 '''
@@ -1420,6 +1420,8 @@ class HandlerClass:
                 STATUS.emit('update-machine-log', log, 'TIME')
         else:
             self.w.power.setChecked(False)
+            if self.tpButton and self.torchPulse:
+                self.torch_pulse_abort()
             self.set_buttons_state([self.machineOnList, self.idleOnList, self.idleHomedList], False)
             if self.ptButton and hal.get_value('plasmac.probe-test'):
                 self.probe_test_stop()
@@ -2038,9 +2040,7 @@ class HandlerClass:
             STATUS.emit('update-machine-log', log, 'TIME')
             return
         elif self.torchPulse:
-            self.torch_pulse(True)
-            log = _translate('HandlerClass', 'Torch pulse aborted')
-            STATUS.emit('update-machine-log', log, 'TIME')
+            self.torch_pulse_abort()
         else:
             ACTION.ABORT()
             if hal.get_value('plasmac.cut-recovery'):
@@ -2735,7 +2735,7 @@ class HandlerClass:
             for button in buttonList:
                 if state and STATUS.is_interp_paused() and button not in self.pausedValidList:
                     continue
-                if not state and button == self.tpButton and self.torchTimer.isActive():
+                if not state and button == self.tpButton and self.tpTimer.isActive():
                     continue
                 self.w[button].setEnabled(state)
         if self.laserRecStatePin.get():
@@ -3626,7 +3626,7 @@ class HandlerClass:
                         self.button_normal(button)
 
     def cut_critical_toggle_check(self):
-        # self.halTogglePins format is: button name, run critical flag, button text
+        # self.halTogglePins format is: button name, run critical flag, button text, alt button text
         checkDict = {
             self.halTogglePins[halpin][2].replace('\n', ' '): halpin
             for halpin in self.halTogglePins
@@ -3984,23 +3984,19 @@ class HandlerClass:
             STATUS.emit('update-machine-log', log, 'TIME')
 
     def torch_timeout(self):
-        if self.torchTime:
-            self.torchTime -= 0.1
-            self.torchTimer.start(100)
-            self.w[self.tpButton].setText(f'{self.torchTime:.1f}')
-        if self.torchTime <= 0:
-            self.torchTimer.stop()
-            self.torchTime = 0
-            if not self.w[self.tpButton].isDown() and not self.extPulsePin.get():
-                self.torch_pulse_states(True)
-                log = _translate('HandlerClass', 'Torch pulse completed')
-                STATUS.emit('update-machine-log', log, 'TIME')
-            else:
-                text0 = _translate('HandlerClass', 'TORCH')
-                text1 = _translate('HandlerClass', 'ON')
-                self.w[self.tpButton].setText(f'{text0}\n{text1}')
+        self.tpRemaining = max(0.0, self.tpRemaining - 0.1)
+        self.w[self.tpButton].setText(f'{self.tpRemaining:.1f}')
+        if self.tpRemaining > 0:
+            return
+        self.tpTimer.stop()
+        if not hal.get_value('plasmac.torch-pulse-hold') and not self.extPulsePin.get():
+            self.torch_pulse_states(True)
+            log = _translate('HandlerClass', 'Torch pulse completed')
+            STATUS.emit('update-machine-log', log, 'TIME')
         else:
-            self.torchTimer.start(100)
+            text0 = _translate('HandlerClass', 'TORCH')
+            text1 = _translate('HandlerClass', 'ON')
+            self.w[self.tpButton].setText(f'{text0}\n{text1}')
 
     def pulse_timer_timeout(self):
         # halPulsePins format is: button name, pulse time, button text, remaining time, button number
@@ -4071,10 +4067,11 @@ class HandlerClass:
         self.probeTimer = QTimer()
         self.probeTimer.setSingleShot(True)
         self.probeTimer.timeout.connect(self.probe_timeout)
-        self.torchTime = 0.0
-        self.torchTimer = QTimer()
-        self.torchTimer.setSingleShot(True)
-        self.torchTimer.timeout.connect(self.torch_timeout)
+        self.tpRemaining = 0.0
+        self.tpTimer = QTimer()
+        self.tpTimer.setSingleShot(False)
+        self.tpTimer.setInterval(100)
+        self.tpTimer.timeout.connect(self.torch_timeout)
         self.pulseTime = 0
         self.pulseTimer = QTimer()
         self.pulseTimer.timeout.connect(self.pulse_timer_timeout)
@@ -4163,7 +4160,7 @@ class HandlerClass:
                             msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                             continue
-                        self.tpTime = 3.0 if self.torchTime > 3.0 else self.tpTime
+                        self.tpTime = 3.0 if self.tpTime > 3.0 else self.tpTime
                     else:
                         self.tpTime = 1.0
                     self.tpButton = f'button_{str(bNum)}'
@@ -4561,6 +4558,8 @@ class HandlerClass:
                     not hal.get_value('plasmac.consumable-changing'):
                 self.w[self.tpButton].setEnabled(True)
             else:
+                if self.torchPulse:
+                    self.torch_pulse_abort()
                 self.w[self.tpButton].setEnabled(False)
 
     def ext_torch_enable_changed(self, state):
@@ -4740,28 +4739,47 @@ class HandlerClass:
 
     def torch_pulse(self, state):
         if state:
-            if not self.torchTime and \
-               self.w.torch_enable.isChecked() and not hal.get_value('plasmac.torch-on'):
-                self.torchTime = self.tpTime
-                self.torchTimer.start(100)
-                self.torchPulse = True
-                hal.set_p('plasmac.torch-pulse-time', str(self.torchTime))
-                hal.set_p('plasmac.torch-pulse-start', '1')
-                self.w[self.tpButton].setText(f'{self.torchTime}')
-                self.button_active(self.tpButton)
-                self.torch_pulse_states(False)
-                log = _translate('HandlerClass', 'Torch pulse started')
-                STATUS.emit('update-machine-log', log, 'TIME')
-            else:
-                self.torchTimer.stop()
-                self.torchTime = 0.0
-                self.torch_pulse_states(True)
+            self.torch_pulse_pressed()
         else:
-            hal.set_p('plasmac.torch-pulse-start', '0')
-            if self.torchTime == 0:
-                self.torch_pulse_states(True)
-                log = _translate('HandlerClass', 'Torch pulse ended manually')
-                STATUS.emit('update-machine-log', log, 'TIME')
+            self.torch_pulse_released()
+
+    def torch_pulse_pressed(self):
+        # second press while active aborts
+        if self.tpRemaining > 0:
+            self.torch_pulse_abort()
+            return
+        if hal.get_value('plasmac.torch-on'):
+            return
+        self.tpRemaining = self.tpTime
+        self.torchPulse = True
+        hal.set_p('plasmac.torch-pulse-time', str(self.tpRemaining))
+        hal.set_p('plasmac.torch-pulse-start', '1')
+        hal.set_p('plasmac.torch-pulse-hold', '1')
+        self.tpTimer.start()
+        self.w[self.tpButton].setText(f'{self.tpRemaining}')
+        self.button_active(self.tpButton)
+        self.torch_pulse_states(False)
+        log = _translate('HandlerClass', 'Torch pulse started')
+        STATUS.emit('update-machine-log', log, 'TIME')
+
+    def torch_pulse_released(self):
+        hal.set_p('plasmac.torch-pulse-start', '0')
+        hal.set_p('plasmac.torch-pulse-hold', '0')
+        if self.tpRemaining == 0:
+            self.torch_pulse_states(True)
+            log = _translate('HandlerClass', 'Torch pulse hold released')
+            STATUS.emit('update-machine-log', log, 'TIME')
+
+    def torch_pulse_abort(self):
+        hal.set_p('plasmac.torch-pulse-abort', '1')
+        QTimer.singleShot(50, lambda: hal.set_p('plasmac.torch-pulse-abort', '0'))
+        hal.set_p('plasmac.torch-pulse-start', '0')
+        hal.set_p('plasmac.torch-pulse-hold', '0')
+        self.tpTimer.stop()
+        self.tpRemaining = 0.0
+        self.torch_pulse_states(True)
+        log = _translate('HandlerClass', 'Torch pulse aborted')
+        STATUS.emit('update-machine-log', log, 'TIME')
 
     def torch_pulse_states(self, state):
         self.set_tab_jog_states(state)
@@ -4773,7 +4791,6 @@ class HandlerClass:
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(state)
         if state:
-            hal.set_p('plasmac.torch-pulse-time', '0')
             self.w[self.tpButton].setText(self.tpText)
             self.button_normal(self.tpButton)
             self.torchPulse = False

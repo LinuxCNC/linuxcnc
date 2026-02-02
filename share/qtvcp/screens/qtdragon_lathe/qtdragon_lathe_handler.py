@@ -1887,6 +1887,7 @@ class HandlerClass:
         # show ngcgui info tab if utilities tab is selected
         # but only if the utilities tab has ngcgui selected
         if main_index == TAB_UTILITIES:
+            num = self.w.tabWidget_utilities.currentIndex()
             if 'ngc' in self.w.tabWidget_utilities.tabText(num).lower():
                 self.w.stackedWidget.setCurrentIndex(PAGE_NGCGUI)
             else:
