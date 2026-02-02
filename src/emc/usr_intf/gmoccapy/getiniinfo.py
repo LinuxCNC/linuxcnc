@@ -221,29 +221,6 @@ class GetIniInfo:
     def get_lathe_wear_offsets(self):
         return self.inifile.getbool("DISPLAY", "LATHE_WEAR_OFFSETS", fallback=False)
 
-    def get_jog_vel(self):
-        # get default jog velocity
-        # must convert from INI's units per second to gmoccapy's units per minute
-        temp = self.inifile.getreal("TRAJ", "DEFAULT_LINEAR_VELOCITY")
-        if not temp:
-            temp = self.inifile.getreal("TRAJ", "MAX_LINEAR_VELOCITY" )
-            if temp:
-                temp = temp / 2
-                LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using half on MAX_LINEAR_VELOCITY.")
-            else:
-                temp = 3.0
-                LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using default value of 180 units / min.")
-        return temp * 60
-
-    def get_max_jog_vel(self):
-        # get max jog velocity
-        # must convert from INI's units per second to gmoccapy's units per minute
-        temp = self.inifile.getreal("TRAJ", "MAX_LINEAR_VELOCITY")
-        if not temp:
-            temp = 10.0
-            LOG.warning("No MAX_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using default value of 600 units / min.")
-        return temp * 60
-
     def get_embedded_tabs(self):
         # Check INI file for embed commands
         # NAME is used as the tab label if a notebook is used
