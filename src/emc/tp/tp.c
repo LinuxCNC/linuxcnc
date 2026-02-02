@@ -3051,7 +3051,8 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         nexttc->target_vel = blend_progress * nexttc->blend_vel * blend_scale;
         // Mark the segment as blending so we handle the new target velocity properly
         nexttc->is_blending = true;
-        nexttc->cycle_time = tc->cycle_time;
+        // Don't copy cycle_time - if tc has a partial split time, nexttc gets acc spikes
+        // nexttc->cycle_time = tc->cycle_time;
     } else {
         // Drive the target velocity to zero since we're stopping
         nexttc->target_vel = 0.0;
