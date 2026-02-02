@@ -27,21 +27,21 @@ More details: https://linuxcnc.org/docs/html/install/latency-test.html
 
 *-?*, *--help*::
   Show options and exit.
-*--base*_ ns_::
+*--base* _ns_::
   base thread interval, default: 25000, min: 5000
-*--servo*_ ns_::
+*--servo* _ns_::
   servo thread interval, default: 1000000, min: 25000
-*--bbinsize*_ ns_::
+*--bbinsize* _ns_::
   base bin size, default: 100
-*--sbinsize*_ ns_::
+*--sbinsize* _ns_::
   servo bin size, default: 100
-*--bbins*_ ns_::
+*--bbins* _ns_::
   base bins, default: 200
-*--sbins*_ ns_::
+*--sbins* _ns_::
   servo bins, default: 200
-*--logscale*_ 0|1_::
+*--logscale* _0|1_::
   y axis log scale, default: 1
-*--text*_ note_::
+*--text* _note_::
   additional note, default: ""
 *--show*::
   show count of undisplayed bins

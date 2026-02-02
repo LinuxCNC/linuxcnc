@@ -10,20 +10,20 @@ schedrmt - telnet based scheduler for LinuxCNC
 
 == DESCRIPTION
 
-With -- --port::
+-- --port::
   Waits for socket connections (Telnet) on specified socket, without port uses default port 5007.
-With -- --name _<server name>_::
+-- --name _<server name>_::
   Sets the server name to specified name for Hello.
-With -- --connectpw _<password>_::
+-- --connectpw _<password>_::
   Sets the connection password to _password_.  Default 'EMC'.
-With -- --enablepw _<password>_::
+-- --enablepw _<password>_::
   Sets the enable password to _password_. Default 'EMCTOO'.
-With -- --sessions <max sessions>::
+-- --sessions <max sessions>::
   Sets the maximum number of simultaneous connextions to max sessions.
   Default is no limit (-1).
-With -- --path::
+-- --path::
   Sets the base path to program (G-Code) files, default is "../../nc_files/". Make sure to include the final slash (/).
-With -- -ini _<INI file>_::
+-- -ini _<INI file>_::
   Uses specified _INI file_ instead of default 'emc.ini'.
 
 There are six commands supported, for which the commands set and get contain LinuxCNC-specific sub-commands
@@ -32,6 +32,7 @@ Commands and most parameters are not case-sensitive.
 The exceptions are passwords, file paths and text strings.
 
 The supported commands are as follows:
+
 ==> HELLO <==:: Hello _<password>_ _<client>_ _<version>_ +
 If a valid password was entered the server will respond with HELLO ACK _<Server Name>_ _<Server Version>_,
 here server name and server version are looked up from the implementation.

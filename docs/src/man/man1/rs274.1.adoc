@@ -41,8 +41,12 @@ FIXME: Some good soul please fix the whitespace for the examples below
 test.ngc
 
 ----
-#<test> = 123.352 o101 while [[#<test> MOD 60 ] NE 0]
-(debug,#<test>) #<test> = [#<test> + 1] 101 endwhile M2
+#<test> = 123.352
+o101 while [[#<test> MOD 60 ] NE 0]
+(debug,#<test>)
+#<test> = [#<test> + 1]
+101 endwhile
+M2
 ----
 
 test.tbl

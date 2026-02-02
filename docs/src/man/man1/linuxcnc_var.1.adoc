@@ -16,8 +16,14 @@ FIXME: missing
 
 Option 'all' returns varname=value for all supported varnames
 
-Varnames supported: LINUXCNCVERSION LINUXCNC_AUX_GLADEVCP
-LINUXCNC_AUX_EXAMPLES REALTIME RTS HALLIB_DIR
+Varnames supported:
+
+- LINUXCNCVERSION
+- LINUXCNC_AUX_GLADEVCP
+- LINUXCNC_AUX_EXAMPLES
+- REALTIME
+- RTS
+- HALLIB_DIR
 
 == SEE ALSO
 

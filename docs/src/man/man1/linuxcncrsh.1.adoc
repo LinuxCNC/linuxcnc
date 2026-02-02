@@ -479,40 +479,48 @@ machine out of E-stop (set estop off) and turns it on (set machine on),
 homes all the axes, switches the machine to mdi mode, sends an MDI
 G-code command, then disconnects and shuts down LinuxCNC.
 
- > *telnet localhost 5007* +
- Trying 127.0.0.1... +
- Connected to 127.0.0.1 +
- Escape character is '^]'. +
- *hello EMC user-typing-at-telnet 1.0* +
- HELLO ACK EMCNETSVR 1.1 +
- *set enable EMCTOO* +
- set enable EMCTOO +
- *set mode manual* +
- set mode manual +
- *set estop off* +
- set estop off +
- *set machine on* +
- set machine on +
- *set home 0* +
- set home 0 +
- *set home 1* +
- set home 1 +
- *set home 2* +
- set home 2 +
- *set mode mdi* +
- set mode mdi +
- *set mdi g0x1* +
- set mdi g0x1 +
- *help* +
- help +
- Available commands: Hello <password> <client name> <protocol version>
- Get <emc command> Set <emc command> Shutdown Help <command> +
- *help get* +
- help get +
- Usage: Get <emc command> Get commands require that a hello has been
- successfully negotiated. Emc command may be one of: Abs_act_pos
- Abs_cmd_pos +
- * ... * +
- *shutdown* +
- shutdown +
- Connection closed by foreign host.
+*> telnet localhost 5007* +
+Trying 127.0.0.1... +
+Connected to 127.0.0.1 +
+Escape character is '^]'. +
+*hello EMC user-typing-at-telnet 1.0* +
+HELLO ACK EMCNETSVR 1.1 +
+*set enable EMCTOO* +
+set enable EMCTOO +
+*set mode manual* +
+set mode manual +
+*set estop off* +
+set estop off +
+*set machine on* +
+set machine on +
+*set home 0* +
+set home 0 +
+*set home 1* +
+set home 1 +
+*set home 2* +
+set home 2 +
+*set mode mdi* +
+set mode mdi +
+*set mdi g0x1* +
+set mdi g0x1 +
+*help* +
+  help +
+    Available commands: +
+    Hello <password> <client name> <protocol version> +
+    Get <emc command> +
+    Set <emc command> +
+    Shutdown Help <command> +
+
+*help get* +
+help get +
+  Usage: Get <emc command> +
+    Get commands require that a hello has been +
+    successfully negotiated. +
+    Emc command may be one of: +
+      Abs_act_pos +
+      Abs_cmd_pos +
+
+*...* +
+*shutdown* +
+shutdown +
+  Connection closed by foreign host.

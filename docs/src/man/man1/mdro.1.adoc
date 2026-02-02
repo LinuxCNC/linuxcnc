@@ -82,8 +82,14 @@ _MM_ = _1_::
 Using an example of "XYZA" for an _axes_ argument, these pins will be
 created when *mdro* starts:
 
-mdro.axis.0 mdro.axis.1 mdro.axis.2 mdro.axis.3 mdro.index-enable.0
-mdro.index-enable.1 mdro.index-enable.2 mdro.index-enable.3
+- mdro.axis.0 +
+- mdro.axis.1 +
+- mdro.axis.2 +
+- mdro.axis.3 +
+- mdro.index-enable.0 +
+- mdro.index-enable.1 +
+- mdro.index-enable.2 +
+- mdro.index-enable.3 +
 
 In this example, the first row will be labeled "X" and will show the
 data associated with pin mdro.axis.0. In many configurations,
@@ -94,8 +100,10 @@ index-enable pins from the DRO.
 *mdro* can also be started via a "loadusr" command in a HAL file for a
 trial. Here's an example of a sim setup:
 
-loadusr -W mdro -l sim.var XYZ net x-pos-fb => mdro.axis.0 net y-pos-fb
-=> mdro.axis.1 net z-pos-fb => mdro.axis.2
+  loadusr -W mdro -l sim.var XYZ
+  net x-pos-fb => mdro.axis.0
+  net y-pos-fb => mdro.axis.1
+  net z-pos-fb => mdro.axis.2
 
 == AUTHOR
 
