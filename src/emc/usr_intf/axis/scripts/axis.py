@@ -3414,7 +3414,7 @@ max_linear_speed = (
     or None)
 default_jog_linear_speed = (
     inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY")
-    or inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
+    or inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY") # legacy
     or None)
 
 max_angular_speed = (
