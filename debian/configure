@@ -12,6 +12,26 @@
 
 set -e
 
+if [[ -z "$OSTYPE" ]]; then
+    echo "W: The 'OSTYPE' environment variable is not set."
+    echo "   Failure to confirm Linux as the operating system cannot be determined."
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "I: Found operating system '$OSTYPE'."
+else
+    echo "W: LinuxCNC is not (yet) prepared for the operating system '$OSTYPE'."
+    echo "   Instead of this Debian+derivative-tailored configuration please invoke the compilation directly."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo
+        echo "   LinuxCNC is yet unlikely to be successfully built on MacOS because of missing dependencies."
+        if command -v brew &> /dev/null; then
+            echo "   With brew, we are aware of packages"
+            echo "     autoconf automake libusb libmodbus libtircp pkgconf"
+            echo "   but missing is, e.g., a package for libgpiod."
+        fi
+    fi
+    exit 1;
+fi
+
 usage () {
     P=${0##*/}
     cat 1>&2 <<EOF
