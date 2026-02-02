@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 === VERSION
 
-014
+015
 
 === SUMMARY
 
@@ -141,6 +141,8 @@ pin in  float   thc_sample_threshold = 1    "thc maximum arc voltage deviation a
 pin in  float   thc_threshold               "thc threshold (volts), changes below this have no effect";
 pin in  bit     torch_enable                "enable torch";
 pin in  bit     torch_off                   "turn torch off";
+pin in  bit     torch_pulse_abort           "torch pulse abort";
+pin in  bit     torch_pulse_hold            "torch pulse hold";
 pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  bit     tube_cut                    "set the current job as tube cutting";
@@ -2088,28 +2090,26 @@ FUNCTION(_) {
                 }
                 break;
             case TORCHPULSE:
-                /* single pulse the torch on and off */
-                if(!torch_on){
+                if (torch_pulse_abort || !torch_enable) {
+                    torch_on = FALSE;
+                    torch_pulse_timer = 0;
+                    state = cut_recovering ? CUT_RECOVERY_ON : IDLE;
+                    break;
+                }
+                if (!torch_on) {
                     torch_pulse_timer = torch_pulse_time;
-                    if(torch_enable){
-                        torch_on = TRUE;
-                    }
-                }else{
-                    if(torch_pulse_time == 0){
-                        torch_pulse_timer = 0;
-                    }
-                    if(torch_pulse_timer > 0){
-                        torch_pulse_timer -= fperiod;
-                    }else{
-                        torch_on = FALSE;
-                        if(!torch_pulse_start){
-                            if(cut_recovering){
-                                state = CUT_RECOVERY_ON;
-                            }else{
-                                state = IDLE;
-                            }
-                        }
-                    }
+                    torch_on = TRUE;
+                    break;
+                }
+                if (torch_pulse_timer > 0) {
+                    torch_pulse_timer -= fperiod;
+                    if (torch_pulse_timer < 0) torch_pulse_timer = 0;
+                }
+                if (torch_pulse_timer > 0 || torch_pulse_hold) {
+                    torch_on = TRUE;
+                } else {
+                    torch_on = FALSE;
+                    state = cut_recovering ? CUT_RECOVERY_ON : IDLE;
                 }
                 break;
             case PAUSED_MOTION:
