@@ -44,6 +44,12 @@
   provide motion such as PUMA or SCARA robots.
 * LinuxCNC runs on Linux using real time extensions.
 
+== Architecture - Context diagram
+
+.Architecture
+image::images/LCNC_Architecture_C1.drawio.svg["LinuxCNC Architecture - Context diagram",align="center"]
+
+
 == The Operating System
 
 LinuxCNC is available as ready-to-use packages for Debian
