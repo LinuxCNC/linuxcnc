@@ -375,6 +375,7 @@ int Task::emcAuxEstopOn()//EMC_AUX_ESTOP_ON_TYPE
 {
     /* assert an ESTOP to the outside world (thru HAL) */
     iocontrol_data.user_enable_out = 0; //disable on ESTOP_ON
+    iocontrol_data.user_request_enable = 0;
     hal_init_pins(); //resets all HAL pins to safe valuea
     return 0;
 }
@@ -646,6 +647,11 @@ int Task::read_tool_inputs(void)
 
 void Task::run(){ // called periodically from emctaskmain.cc
     tool_status = read_tool_inputs();
+
+    if (iocontrol_data.emc_enable_in == 1 && iocontrol_data.user_request_enable == 1) {
+        iocontrol_data.user_request_enable = 0;
+    }
+
     if (iocontrol_data.emc_enable_in == 0) //check for estop from HW
         emcioStatus.aux.estop = 1;
     else
