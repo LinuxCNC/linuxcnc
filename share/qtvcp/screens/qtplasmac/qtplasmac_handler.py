@@ -4093,11 +4093,11 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'are both required')
                 msg1 = _translate('HandlerClass', 'only one has been specified for')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\nCODE + NAME {msg0}\n{msg1} BUTTON_{bNum}\n')
-                self.w[f'button_{str(bNum)}'].setText('')
+                self.w[f'button_{bNum}'].setText('')
                 self.iniButtonCodes.append('')
                 continue
             if not bCode:
-                self.w[f'button_{str(bNum)}'].setText('')
+                self.w[f'button_{bNum}'].setText('')
                 self.iniButtonCodes.append('')
                 continue
             code = bCode.lower().strip().split()[0]
@@ -4105,7 +4105,7 @@ class HandlerClass:
                 msg1 = _translate('HandlerClass', 'Duplicate code entry for')
                 msg2 = _translate('HandlerClass', 'Using first instance only of')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg1} BUTTON_{iniButtonCodes.index(code)} + BUTTON_{bNum}\n{msg2} {bCode.split()[0]}\n')
-                self.w[f'button_{str(bNum)}'].setText('')
+                self.w[f'button_{bNum}'].setText('')
                 self.iniButtonCodes.append('')
                 continue
             self.iniButtonCodes.append(bCode)
@@ -4116,7 +4116,7 @@ class HandlerClass:
             if len(bNames) > 1:
                 for name in range(1, len(bNames)):
                     bLabel += f'\n{bNames[name]}'
-            self.w[f'button_{str(bNum)}'].setText(bLabel)
+            self.w[f'button_{bNum}'].setText(bLabel)
             # toggle-laser can be anywhere in the button code
             if 'toggle-laser' in bCode:
                 self.tlButton.append(f'button_{str(bNum)}')
@@ -4244,7 +4244,7 @@ class HandlerClass:
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}" {msg2}\n')
                         continue
                 # halTogglePins format is: button name, run critical flag, button text, alt button text
-                self.halTogglePins[halpin] = [f'button_{str(bNum)}', critical, bLabel, altLabel]
+                self.halTogglePins[halpin] = [f'button_{bNum}', critical, bLabel, altLabel]
             elif code == 'pulse-halpin':
                 if len(bCode.split()) < 4:
                     try:
@@ -4279,7 +4279,7 @@ class HandlerClass:
                             continue
                     # halPulsePins format is: button name, pulse time, button text, remaining time, button number
                     try:
-                        self.halPulsePins[halpin] = [f'button_{str(bNum)}', float(delay), bLabel, 0.0, bNum]
+                        self.halPulsePins[halpin] = [f'button_{bNum}', float(delay), bLabel, 0.0, bNum]
                     except:
                         head = _translate('HandlerClass', 'User Button Error')
                         msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
@@ -4324,7 +4324,7 @@ class HandlerClass:
                         continue
                     else:
                         if len(data) == 5 and data[4].strip().lower() == 'true':
-                            self.w[f'button_{str(bNum)}'].setCheckable(True)
+                            self.w[f'button_{bNum}'].setCheckable(True)
                             checked = True
                         else:
                             checked = True
@@ -4353,7 +4353,7 @@ class HandlerClass:
                             self.alwaysOnList.append(f'button_{str(bNum)}')
                     else:
                         head = _translate('HandlerClass', 'Code Error')
-                        msg1 = self.w[f'button_{str(bNum)}'].text().replace('\n', ' ')
+                        msg1 = self.w[f'button_{bNum}'].text().replace('\n', ' ')
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}: "{command}"\n')
                         if f'button_{str(bNum)}' in self.idleHomedList:
                             self.idleHomedList.remove(f'button_{str(bNum)}')
@@ -4501,7 +4501,7 @@ class HandlerClass:
                         else:
                             head = _translate('HandlerClass', 'Code Error')
                             msg0 = _translate('HandlerClass', 'Value Error in user button')
-                            msg1 = self.w[f'button_{str(bNum)}'].text().replace('\n', ' ')
+                            msg1 = self.w[f'button_{bNum}'].text().replace('\n', ' ')
                             errorCode = f'{subCommand.replace(":", "{")}' + '}'
                             msg2 = _translate('HandlerClass', 'Requires a valid section and option pair')
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum} ({msg1}):\n"{errorCode}"\n{msg2}\n')
@@ -4513,7 +4513,7 @@ class HandlerClass:
                         else:
                             head = _translate('HandlerClass', 'Code Error')
                             msg0 = _translate('HandlerClass', 'Invalid code in user button')
-                            msg1 = self.w[f'button_{str(bNum)}'].text().replace('\n', ' ')
+                            msg1 = self.w[f'button_{bNum}'].text().replace('\n', ' ')
                             errorCode = f'{subCommand.replace(":", "{")}' + '}'
                             msg2 = _translate('HandlerClass', 'Provided section option pair does not exist')
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum} ({msg1}):\n"{errorCode}"\n{msg2}\n')
@@ -4539,7 +4539,7 @@ class HandlerClass:
         else:
             head = _translate('HandlerClass', 'Code Error')
             msg0 = _translate('HandlerClass', 'Invalid code for user button')
-            msg1 = self.w[f'button_{str(bNum)}'].text().replace('\n', ' ')
+            msg1 = self.w[f'button_{bNum}'].text().replace('\n', ' ')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}: "{command}"\n')
 
     def user_button_up(self, bNum):
@@ -5521,8 +5521,8 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'Torch cannot move outside the machine boundary')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n')
                 return
-            hal.set_p('plasmac.laser-x-offset', f'{str(int(self.laserOffsetX / self.oScale))}')
-            hal.set_p('plasmac.laser-y-offset', f'{str(int(self.laserOffsetY / self.oScale))}')
+            hal.set_p('plasmac.laser-x-offset', f'{int(self.laserOffsetX / self.oScale)}')
+            hal.set_p('plasmac.laser-y-offset', f'{int(self.laserOffsetY / self.oScale)}')
             hal.set_p('plasmac.laser-recovery-start', '1')
             hal.set_p('plasmac.cut-recovery', '1')
             self.laserOnPin.set(1)
@@ -6051,8 +6051,8 @@ class HandlerClass:
                 return
             moveX = int(distX / self.oScale)
             moveY = int(distY / self.oScale)
-            hal.set_p('plasmac.x-offset', f'{str(hal.get_value("plasmac.x-offset") + moveX)}')
-            hal.set_p('plasmac.y-offset', f'{str(hal.get_value("plasmac.y-offset") + moveY)}')
+            hal.set_p('plasmac.x-offset', f'{hal.get_value("plasmac.x-offset") + moveX}')
+            hal.set_p('plasmac.y-offset', f'{hal.get_value("plasmac.y-offset") + moveY}')
             hal.set_p('plasmac.cut-recovery', '1')
 
     def cutrec_offset_changed(self, xOffset, yOffset):
