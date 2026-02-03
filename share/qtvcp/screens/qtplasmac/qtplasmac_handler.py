@@ -1609,8 +1609,8 @@ class HandlerClass:
             self.w.gcode_display.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def user_system_changed(self, obj, data):
-        sys = self.systemList[int(data)]
-        self.w.wcs_button.setText(f'WCS\n{sys}')
+        userSys = self.systemList[int(data)]
+        self.w.wcs_button.setText(f'WCS\n{userSys}')
         if ACTION.prefilter_path:
             self.file_reload_clicked()
 
@@ -3425,29 +3425,29 @@ class HandlerClass:
 
     # virtkb: 0=none, 1=alpha~close, 2=num~close, 3=alpha~num, 4=num~num, 5=alpha~alpha, 6=num~alpha
     def dialog_input(self, virtkb, title, text, btn1, btn2, delay=None):
-        input = QInputDialog(self.w)
-        input.setWindowTitle(title)
-        input.setLabelText(f'{text}')
+        dialog = QInputDialog(self.w)
+        dialog.setWindowTitle(title)
+        dialog.setLabelText(f'{text}')
         if btn1:
-            input.setOkButtonText(btn1)
+            dialog.setOkButtonText(btn1)
         if btn2:
-            input.setCancelButtonText(btn2)
+            dialog.setCancelButtonText(btn2)
         if delay is not None:
-            input.setTextValue(f'{delay:0.2f}')
-        for button in input.findChildren(QPushButton):
+            dialog.setTextValue(f'{delay:0.2f}')
+        for button in dialog.findChildren(QPushButton):
             button.setIcon(QIcon())
         if virtkb in (1, 3, 5):
             self.vkb_show(False)
         elif virtkb in (2, 4, 6):
             self.vkb_show(True)
-        valid = input.exec_()
+        valid = dialog.exec_()
         if virtkb < 3:
             self.vkb_hide()
         elif virtkb in (3, 4):
             self.vkb_show(True)
         elif virtkb in (5, 6):
             self.vkb_show(False)
-        out = input.textValue()
+        out = dialog.textValue()
         return valid, out
 
     def dialog_run_from_line(self):
@@ -4441,10 +4441,10 @@ class HandlerClass:
         elif bCode.lower().startswith('latest-file'):
             try:
                 if len(bCode.split()) == 2:
-                    dir = bCode.split()[1]
+                    lastDir = bCode.split()[1]
                 else:
-                    dir = self.w.PREFS_.getpref('last_loaded_directory', '', str, 'BOOK_KEEPING')
-                files = glob.glob(f'{dir}/*.ngc')
+                    lastDir = self.w.PREFS_.getpref('last_loaded_directory', '', str, 'BOOK_KEEPING')
+                files = glob.glob(f'{lastDir}/*.ngc')
                 latest = max(files, key=os.path.getctime)
                 self.overlayProgress.setValue(0)
                 self.remove_temp_materials()
