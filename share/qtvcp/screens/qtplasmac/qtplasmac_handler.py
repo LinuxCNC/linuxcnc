@@ -3542,51 +3542,51 @@ class HandlerClass:
             return {'cancel': True, 'type': 'end'}
 
     def show_cut_critical_dialog(self, rcButtonList):
-            checkStyle = 'QCheckBox::indicator { margin-left: 8px; margin-right: 8px; }\n \
-                            QCheckBox { font-size: 11pt; }'
-            ccr = QDialog(self.w)
-            ccr.setWindowTitle(_translate('HandlerClass', 'Untoggled Cut Critical Buttons'))
-            icon = QApplication.style().standardIcon(QStyle.SP_MessageBoxWarning)
-            iconLabel = QLabel()
-            iconLabel.setPixmap(icon.pixmap(32, 32))
-            msg0 = _translate('HandlerClass', 'The following buttons have not been toggled')
-            msg1 = _translate('HandlerClass', 'Select items to be toggled when CONTINUE is clicked')
-            lbl0 = QLabel(f'\n{msg0}:\n')
-            lbl1 = QLabel('')
-            lbl2 = QLabel(f'\n{msg1}\n')
-            lbl2.setStyleSheet("padding-left: 1px;")
-            buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-            buttonBox.accepted.connect(ccr.accept)
-            buttonBox.rejected.connect(ccr.reject)
-            buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'CONTINUE'))
-            buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
-            buttonBox.button(QDialogButtonBox.Ok).setMinimumWidth(120)
-            buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
-            buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
-            hLayout = QHBoxLayout()
-            hLayout.addWidget(iconLabel)
-            hLayout.addWidget(lbl0)
-            hLayout.addStretch()
-            vLayout = QVBoxLayout()
-            vLayout.addLayout(hLayout)
-            checkBoxes = []
-            for bText in rcButtonList:
-                checkBox = QCheckBox(bText)
-                checkBox.setStyleSheet(checkStyle)
-                vLayout.addWidget(checkBox)
-                checkBoxes.append(checkBox)
-            if len(rcButtonList) > 1:
-                toggleAll = QCheckBox(_translate('HandlerClass', 'TOGGLE ALL'))
-                toggleAll.setStyleSheet(checkStyle)
-                vLayout.addWidget(lbl1)
-                vLayout.addWidget(toggleAll)
-                toggleAll.stateChanged.connect(lambda state: [checkBox.setChecked(state == Qt.Checked) for checkBox in checkBoxes])
-            vLayout.addWidget(lbl2)
-            vLayout.addWidget(buttonBox)
-            ccr.setLayout(vLayout)
-            result = ccr.exec_()
-            checkList = [checkBox.text() for checkBox in checkBoxes if checkBox.isChecked()]
-            return result, checkList
+        checkStyle = 'QCheckBox::indicator { margin-left: 8px; margin-right: 8px; }\n \
+                        QCheckBox { font-size: 11pt; }'
+        ccr = QDialog(self.w)
+        ccr.setWindowTitle(_translate('HandlerClass', 'Untoggled Cut Critical Buttons'))
+        icon = QApplication.style().standardIcon(QStyle.SP_MessageBoxWarning)
+        iconLabel = QLabel()
+        iconLabel.setPixmap(icon.pixmap(32, 32))
+        msg0 = _translate('HandlerClass', 'The following buttons have not been toggled')
+        msg1 = _translate('HandlerClass', 'Select items to be toggled when CONTINUE is clicked')
+        lbl0 = QLabel(f'\n{msg0}:\n')
+        lbl1 = QLabel('')
+        lbl2 = QLabel(f'\n{msg1}\n')
+        lbl2.setStyleSheet("padding-left: 1px;")
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttonBox.accepted.connect(ccr.accept)
+        buttonBox.rejected.connect(ccr.reject)
+        buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'CONTINUE'))
+        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.Ok).setMinimumWidth(120)
+        buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
+        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        hLayout = QHBoxLayout()
+        hLayout.addWidget(iconLabel)
+        hLayout.addWidget(lbl0)
+        hLayout.addStretch()
+        vLayout = QVBoxLayout()
+        vLayout.addLayout(hLayout)
+        checkBoxes = []
+        for bText in rcButtonList:
+            checkBox = QCheckBox(bText)
+            checkBox.setStyleSheet(checkStyle)
+            vLayout.addWidget(checkBox)
+            checkBoxes.append(checkBox)
+        if len(rcButtonList) > 1:
+            toggleAll = QCheckBox(_translate('HandlerClass', 'TOGGLE ALL'))
+            toggleAll.setStyleSheet(checkStyle)
+            vLayout.addWidget(lbl1)
+            vLayout.addWidget(toggleAll)
+            toggleAll.stateChanged.connect(lambda state: [checkBox.setChecked(state == Qt.Checked) for checkBox in checkBoxes])
+        vLayout.addWidget(lbl2)
+        vLayout.addWidget(buttonBox)
+        ccr.setLayout(vLayout)
+        result = ccr.exec_()
+        checkList = [checkBox.text() for checkBox in checkBoxes if checkBox.isChecked()]
+        return result, checkList
 
     def invert_pin_state(self, halpin):
         if 'qtplasmac.ext_out_' in halpin:
