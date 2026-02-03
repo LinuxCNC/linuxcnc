@@ -5980,7 +5980,7 @@ class HandlerClass:
                 '3112': 'PFC module temperature sensor circuit fault',
                 '3200': 'Fill valve',
                 '3201': 'Dump valve',
-                '3201': 'Valve ID',
+                '3202': 'Valve ID',
                 '3203': 'Electronic regulator is disconnected',
                 '3410': 'Drive fault',
                 '3420': '5 or 24 VDC fault',
