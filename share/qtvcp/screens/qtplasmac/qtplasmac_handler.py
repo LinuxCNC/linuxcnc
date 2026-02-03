@@ -1,11 +1,11 @@
-VERSION = '015.080'
+VERSION = '015.081'
 LCNCVER = '2.10'
 
 '''
 qtplasmac_handler.py
 
 Copyright (C) 2020-2025 Phillip A Carter
-Copyright (C) 2020-2025 Gregory D Carl
+Copyright (C) 2020-2026 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -4518,8 +4518,11 @@ class HandlerClass:
                             msg0 = _translate('HandlerClass', 'Invalid code in user button')
                             msg1 = self.w[f'button_{bNum}'].text().replace('\n', ' ')
                             errorCode = f'{subCommand.replace(":", "{")}' + '}'
-                            msg2 = _translate('HandlerClass', 'Provided section option pair does not exist')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum} ({msg1}):\n"{errorCode}"\n{msg2}\n')
+                            msg2 = _translate('HandlerClass', 'Section')
+                            msg3 = _translate('HandlerClass', 'or option')
+                            msg4 = _translate('HandlerClass', 'does not exist in')
+                            msg5 = _translate('HandlerClass', 'Section and option pairs are case sensative')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum} ({msg1}):\n"{errorCode}"\n{msg2}: "[{section}]" {msg3}: "{option}" {msg4}:\n{self.prefsFile}\n{msg5}\n')
                             return
                         subCommand = ''
                     elif subCommand.startswith(':'):
