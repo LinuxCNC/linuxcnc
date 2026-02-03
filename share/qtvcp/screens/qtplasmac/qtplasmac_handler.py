@@ -1653,6 +1653,9 @@ class HandlerClass:
                     self.remove_temp_materials()
                     ACTION.OPEN_PROGRAM(self.oldFile)
                     self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
+                else:
+                    # allows file clear to work on error
+                    self.fileOpened = True
                 self.w[self.scButton].setEnabled(True)
                 self.w.run.setEnabled(False)
         else:
