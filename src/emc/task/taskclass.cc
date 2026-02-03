@@ -648,12 +648,13 @@ int Task::read_tool_inputs(void)
 void Task::run(){ // called periodically from emctaskmain.cc
     tool_status = read_tool_inputs();
 
-    if (iocontrol_data.emc_enable_in == 1 && iocontrol_data.user_request_enable == 1) {
-        iocontrol_data.user_request_enable = 0;
-    }
 
     if (iocontrol_data.emc_enable_in == 0) //check for estop from HW
         emcioStatus.aux.estop = 1;
-    else
+    else {
         emcioStatus.aux.estop = 0;
+        if (iocontrol_data.user_request_enable == 1) {
+            iocontrol_data.user_request_enable = 0;
+        }
+    }
 }
