@@ -647,8 +647,6 @@ int Task::read_tool_inputs(void)
 
 void Task::run(){ // called periodically from emctaskmain.cc
     tool_status = read_tool_inputs();
-
-
     if (iocontrol_data.emc_enable_in == 0) //check for estop from HW
         emcioStatus.aux.estop = 1;
     else {
