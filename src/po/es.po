@@ -7,13 +7,13 @@
 # Roman Jesus Castañeda <rojecas@gmail.com>, 2023.
 # gallegonovato <fran-carro@hotmail.es>, 2023, 2024.
 # Jose Manuel Garcia de Torres <jmgardeto@gmail.com>, 2025.
-# Salvador Peña <salvadorp74@hotmail.com>, 2025.
+# Salvador Peña <salvadorp74@hotmail.com>, 2025, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2025-11-09 19:24+0000\n"
+"PO-Revision-Date: 2026-02-04 12:37+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -138,14 +138,12 @@ msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr "Entre códigos G5.2 y G5.3 solo se permiten códigos G5.2 adicionales."
 
 #: src/emc/rs274ngc/interp_check.cc:261
-#, fuzzy
-#| msgid ""
-#| "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 G73, G83 or G96 to "
 "use it"
 msgstr ""
-"Palabra D sin código G41, G41.1, G42, G42.1 ó G96 con el cual ser usado"
+"Palabra D sin código G41, G41.1, G42, G42.1, G71, G71.1, G71.2 G73, G83 ó "
+"G96 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:272
 msgid ""
@@ -1374,17 +1372,15 @@ msgid "F word missing with inverse time g1 move"
 msgstr "Falta la palabra F con movimiento g1 de tiempo inverso"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
-#, fuzzy, c-format
-#| msgid "File ended with no percent sign (%)"
+#, c-format
 msgid "File ended with no percent sign (%%)"
-msgstr "El archivo terminó sin signo de porcentaje (%)"
+msgstr "El archivo terminó sin signo de porcentaje (%%)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
-#, fuzzy, c-format
-#| msgid "File ended with no percent sign (%) or program end (M2)"
+#, c-format
 msgid "File ended with no percent sign (%%) or program end (M2)"
 msgstr ""
-"El archivo finalizó sin signo de porcentaje (%) o final del programa (M2)"
+"El archivo finalizó sin signo de porcentaje (%%) o final del programa (M2)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
 msgid "File name too long"
@@ -2003,18 +1999,18 @@ msgstr ""
 
 #: src/hal/utils/scope.c:351
 msgid "Overwrite loaded log file data?"
-msgstr ""
+msgstr "¿Sobreescribir los datos del archivo de bitácora cargado?"
 
 #: src/hal/utils/scope.c:355
 msgid ""
 "Starting acquisition will clear the data loaded from the CSV file. Continue?"
 msgstr ""
+"Iniciar la adquisición borrará los datos cargados del archivo CSV. ¿"
+"Continuar?"
 
 #: src/hal/utils/scope.c:547
-#, fuzzy
-#| msgid "O_pen Log File"
 msgid "Open Log File:"
-msgstr "Abrir archivo de Log"
+msgstr "Abrir archivo de bitácora:"
 
 #: src/hal/utils/scope.c:550 src/hal/utils/scope.c:593
 #: src/hal/utils/scope.c:616 src/hal/utils/scope_horiz.c:791
@@ -2259,22 +2255,17 @@ msgid "Multiplier:"
 msgstr "Multiplicador:"
 
 #: src/hal/utils/scope_horiz.c:649
-#, fuzzy
-#| msgid "%5d samples (16 channels)"
 msgid "Samples (16 channels):"
-msgstr "%5d muestras (16 canales)"
+msgstr "Muestras (16 canales):"
 
 #: src/hal/utils/scope_horiz.c:662
-#, fuzzy, c-format
-#| msgid "%5d samples (1 channel)"
+#, c-format
 msgid "Current: %d samples (%d per channel)"
-msgstr "%5d muestras (1 canal)"
+msgstr "Actual: %d muestras (%d por canal)"
 
 #: src/hal/utils/scope_horiz.c:693
-#, fuzzy
-#| msgid "Value out of range"
 msgid "Sample count changed"
-msgstr "Valor fuera de rango"
+msgstr "El conteo de muestras ha cambiado"
 
 #: src/hal/utils/scope_horiz.c:696
 #, c-format
@@ -2284,6 +2275,10 @@ msgid ""
 "\n"
 "The setting has been saved to the configuration file."
 msgstr ""
+"El nuevo conteo de muestras (%d) surtirá efecto\n"
+"la próxima vez que se inicie halscope.\n"
+"\n"
+"La configuración ha sido guardada en el archivo de configuración."
 
 #: src/hal/utils/scope_horiz.c:734
 msgid "Realtime thread(s) not running"
@@ -2660,20 +2655,18 @@ msgstr ""
 "articulacion %d"
 
 #: src/emc/motion/command.c:261
-#, fuzzy, c-format
-#| msgid "%s move on line %d would exceed joint %d's positive limit"
+#, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit max:[%f]"
 msgstr ""
-"el movimiento %s en la línea %d excedería el límite positivo de la "
-"articulacion %d"
+"el movimiento %s en la línea %d excedería el límite positivo máximo de la "
+"articulación %d: [%f]"
 
 #: src/emc/motion/command.c:267
-#, fuzzy, c-format
-#| msgid "%s move on line %d would exceed joint %d's negative limit"
+#, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit min:[%f]"
 msgstr ""
-"el movimiento %s en la línea %d excedería el límite negativo de articulacion "
-"%d's"
+"el movimiento %s en la línea %d excedería el límite negativo mínimo de la "
+"articulación %d: [%f]"
 
 #: src/emc/motion/command.c:586
 msgid "all joints must be homed before going into coordinated mode"
@@ -4429,7 +4422,7 @@ msgstr "Escritura en serie...\n"
 
 #: src/hal/classicladder/serial_linux.c:216
 msgid "Serial port write failed"
-msgstr ""
+msgstr "Falló la escritura en el puerto serie"
 
 #: src/hal/classicladder/serial_linux.c:235
 #, c-format
@@ -7608,6 +7601,8 @@ msgstr "Ejecutar de todos modos"
 #: src/emc/usr_intf/axis/scripts/axis.py:1976
 msgid "Homing not possible until current homing process is finished."
 msgstr ""
+"No es posible hacer homing hasta que el proceso de homing actual haya "
+"terminado."
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2060
 msgid "No file loaded"
@@ -7739,6 +7734,8 @@ msgid ""
 "Touch Off ({'system' if touchoff_actual_position is None else 'system "
 "ACTUAL'})"
 msgstr ""
+"Touch off ({'sistema' si touchoff_actual_position es None, de lo contrario "
+"'ACTUAL de sistema'})"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2801
 #: src/emc/usr_intf/axis/scripts/axis.py:2845
@@ -11793,7 +11790,8 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12084,7 +12082,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:696
 msgid "Don't show this again"
-msgstr ""
+msgstr "No mostrar esto otra vez"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1029
 msgid "LinuxCNC 'PNCconf' configuration files"
@@ -12973,7 +12971,7 @@ msgid ""
 "# ---PLASMA INPUT DEBOUNCE---"
 msgstr ""
 "\n"
-"# ---ANTI-REBOTE DE ENTRADA DE PLASMA---"
+"# ---ANTIRREBOTE DE ENTRADA DE PLASMA---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1914
 msgid "#values for these are in custom.hal"
@@ -13065,7 +13063,7 @@ msgid ""
 "# ---OHMIC SENSE CONTACT DEBOUNCE---"
 msgstr ""
 "\n"
-"# ---ANTIREBOTE DE CONTACTO DE SENSADO ÓHMICO---"
+"# ---ANTIRREBOTE DE CONTACTO DE SENSADO ÓHMICO---"
 
 #: src/emc/usr_intf/pncconf/private_data.py:38
 msgid "PNCconf"
@@ -14069,83 +14067,59 @@ msgstr "Eje en tándem"
 
 #: src/emc/usr_intf/pncconf/private_data.py:491
 msgid "Power"
-msgstr ""
+msgstr "Energía"
 
 #: src/emc/usr_intf/pncconf/private_data.py:491
-#, fuzzy
-#| msgid "Resume"
 msgid "Pause/Resume"
-msgstr "Reanudar"
+msgstr "Pausar/Reanudar"
 
 #: src/emc/usr_intf/pncconf/private_data.py:491
-#, fuzzy
-#| msgid "Pause on M1"
 msgid "Pause Only"
-msgstr "Pausa en M1"
+msgstr "Solo pausar"
 
 #: src/emc/usr_intf/pncconf/private_data.py:492
-#, fuzzy
-#| msgid "Resume"
 msgid "Resume Only"
-msgstr "Reanudar"
+msgstr "Solo reanudar"
 
 #: src/emc/usr_intf/pncconf/private_data.py:492
 msgid "Run/Pause/Resume"
-msgstr ""
+msgstr "Ejecutar/Pausar/Reanudar"
 
 #: src/emc/usr_intf/pncconf/private_data.py:492
-#, fuzzy
-#| msgid "Cycle Start"
 msgid "Cycle Stop"
-msgstr "Inicio del ciclo"
+msgstr "Ciclo de parada"
 
 #: src/emc/usr_intf/pncconf/private_data.py:492
-#, fuzzy
-#| msgid "Touch Off"
 msgid "Touchoff"
-msgstr "Touch Off"
+msgstr "Touch off"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
-#, fuzzy
-#| msgid "# laser touchoff"
 msgid "Laser Touchoff"
-msgstr "# toque láser"
+msgstr "Toque láser"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
-#, fuzzy
-#| msgid "Laser On"
 msgid "Laser Toggle"
-msgstr "Laser ON"
+msgstr "Láser (Enc./Apag.)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
-#, fuzzy
-#| msgid "Jog mode"
 msgid "Jog Slow"
-msgstr "Modo Jog"
+msgstr "Trote lento"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
-#, fuzzy
-#| msgid "POT Enable"
 msgid "THC Enable"
-msgstr "Habilitar POT"
+msgstr "Habilitar THC"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
-#, fuzzy
-#| msgid "Motor Enable"
 msgid "Torch Enable"
-msgstr "Motor habilitado"
+msgstr "Habilitar antorcha"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
-#, fuzzy
-#| msgid "Enable"
 msgid "VAD Enable"
-msgstr "Habilitar"
+msgstr "Habilitar VAD"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
-#, fuzzy
-#| msgid "Spindle Enable"
 msgid "Voidlock Enable"
-msgstr "Activar eje"
+msgstr "Activar bloqueo de vacío"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
 #, fuzzy
@@ -14154,43 +14128,32 @@ msgid "Auto Volts Enable"
 msgstr "Motor habilitado"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
-#, fuzzy
-#| msgid "Ohmic Enable"
 msgid "Ohmic Probe Enable"
-msgstr "Activación óhmica"
+msgstr "Activación de sensor óhmico"
 
 #: src/emc/usr_intf/pncconf/private_data.py:496
-#, fuzzy
-#| msgid "MDI Mode"
 msgid "Mesh Mode"
-msgstr "Modo MDI"
+msgstr "Modo malla"
 
 #: src/emc/usr_intf/pncconf/private_data.py:496
-#, fuzzy
-#| msgid "Ignore M1"
 msgid "Ignore Arc OK"
-msgstr "Ignorar M1"
+msgstr "Ignorar Arc OK"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
-#, fuzzy
-#| msgid "Probe Height"
 msgid "Probe Test"
-msgstr "Sonda de Altura"
+msgstr "Prueba de sonda"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
-#, fuzzy
-#| msgid "Plasma Torch On"
 msgid "Pulse Torch"
-msgstr "Plasma torcha ON"
+msgstr "Pulso de antorcha"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
-#, fuzzy
 msgid "Ohmic Test"
-msgstr "Sonda"
+msgstr "Prueba óhmica"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "Change Consumables"
-msgstr ""
+msgstr "Cambiar consumibles"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "Frame Job"
@@ -14198,23 +14161,19 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:499
 msgid "Plus"
-msgstr ""
+msgstr "Más"
 
 #: src/emc/usr_intf/pncconf/private_data.py:499
 msgid "Minus"
-msgstr ""
+msgstr "Menos"
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
-#, fuzzy
-#| msgid "POT Enable"
 msgid "MPG Enable"
-msgstr "Habilitar POT"
+msgstr "Habilitar MPG"
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
-#, fuzzy
-#| msgid "MPG Jog Controls"
 msgid "MPG Counts"
-msgstr "Controles de desplazamiento de MPG"
+msgstr "Conteos MPG"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
 #: src/emc/usr_intf/pncconf/x_motor.glade:1606
@@ -14227,35 +14186,35 @@ msgstr "Reverso"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "North"
-msgstr ""
+msgstr "Norte"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "South"
-msgstr ""
+msgstr "Sur"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "East"
-msgstr ""
+msgstr "Este"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "West"
-msgstr ""
+msgstr "Oeste"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "NorthEast"
-msgstr ""
+msgstr "Noreste"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "NorthWest"
-msgstr ""
+msgstr "Noroeste"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "SouthEast"
-msgstr ""
+msgstr "Sureste"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "SouthWest"
-msgstr ""
+msgstr "Suroeste"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "Arc OK"
@@ -14278,28 +14237,20 @@ msgid "Move Up"
 msgstr "Subir"
 
 #: src/emc/usr_intf/pncconf/private_data.py:506
-#, fuzzy
-#| msgid "External Controls"
 msgid "External GUI Functions"
-msgstr "Controles externos"
+msgstr "Funciones de GUI externas"
 
 #: src/emc/usr_intf/pncconf/private_data.py:507
-#, fuzzy
-#| msgid "User Buttons"
 msgid "External User Buttons"
-msgstr "Botones de usuario"
+msgstr "Botones de usuario externos"
 
 #: src/emc/usr_intf/pncconf/private_data.py:508
-#, fuzzy
-#| msgid "<b>External Feed Override</b>"
 msgid "External Height Override"
-msgstr "<b> Ajuste de alimentación externa </b>"
+msgstr "Ajuste de altura externa"
 
 #: src/emc/usr_intf/pncconf/private_data.py:509
-#, fuzzy
-#| msgid "External Control"
 msgid "External Cut Recovery"
-msgstr "Control externo"
+msgstr "Recuperación de corte externo"
 
 #: src/emc/usr_intf/pncconf/private_data.py:511
 msgid "Unused Input"
@@ -14606,22 +14557,16 @@ msgid "Laser On"
 msgstr "Laser ON"
 
 #: src/emc/usr_intf/pncconf/private_data.py:574
-#, fuzzy
-#| msgid "# external output signals"
 msgid "External Output 0"
-msgstr "# señales de salida externas"
+msgstr "Salida externa 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:574
-#, fuzzy
-#| msgid "# external output signals"
 msgid "External Output 1"
-msgstr "# señales de salida externas"
+msgstr "Salida externa 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:574
-#, fuzzy
-#| msgid "# external output signals"
 msgid "External Output 2"
-msgstr "# señales de salida externas"
+msgstr "Salida externa 2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:576
 msgid "Unused Output"
@@ -14904,7 +14849,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:1420
 msgid "TB6600"
-msgstr ""
+msgstr "TB6600"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1455
 msgid ""
@@ -17366,11 +17311,11 @@ msgstr "<b> Puertos / placas de control de E / S </b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:642
 msgid "Debounce probe:"
-msgstr ""
+msgstr "Sonda antirrebote:"
 
 #: src/emc/usr_intf/pncconf/base.glade:658
 msgid "Debounce ESTOP:"
-msgstr ""
+msgstr "ESTOP antirrebote:"
 
 #: src/emc/usr_intf/pncconf/base.glade:721
 msgid ""
@@ -17378,12 +17323,13 @@ msgid ""
 "the input has to be true or\n"
 "false before the output changes"
 msgstr ""
+"número de ciclos de hilo \n"
+"que la entrada debe ser verdadera o\n"
+"falsa antes de que cambie la salida"
 
 #: src/emc/usr_intf/pncconf/base.glade:737
-#, fuzzy
-#| msgid "<b>Encoder Scale</b>"
 msgid "<b>Debounce signal</b>"
-msgstr "<b> Escala de encoder</b>"
+msgstr "<b>Señal antirrebote</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:789
 msgid "Force individual manual homing"
@@ -17593,16 +17539,12 @@ msgid "Force Gmoccapy to Maximize after positioning"
 msgstr "Forzar Gmoccapy para maximizar después del posicionamiento"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3978
-#, fuzzy
-#| msgid "Use AXIS Screen"
 msgid "Use probe screen"
-msgstr "Usar gui AXIS"
+msgstr "Usar pantalla de sonda"
 
 #: src/emc/usr_intf/pncconf/screen.glade:4054
-#, fuzzy
-#| msgid "Use Gmoccapy Screen"
 msgid "Use mesa test screen"
-msgstr "Usar gui Gmoccapy"
+msgstr "Usar pantalla de prueba de mesa"
 
 #: src/emc/usr_intf/pncconf/screen.glade:4074
 msgid "Gmoccapy Defaults"
@@ -17627,6 +17569,7 @@ msgstr "Botones XYZ (usa Halui)"
 #: src/emc/usr_intf/pncconf/vcp.glade:358
 msgid "                                                                                                                                 "
 msgstr ""
+"                                                                                                                                 "
 
 #: src/emc/usr_intf/pncconf/vcp.glade:374
 msgid "Geometry Options"
@@ -17659,6 +17602,7 @@ msgstr "Forzar Maximizar"
 #: src/emc/usr_intf/pncconf/vcp.glade:840
 msgid "                                                                                                   "
 msgstr ""
+"                                                                                                   "
 
 #: src/emc/usr_intf/pncconf/vcp.glade:855
 msgid "Display Options"
@@ -17670,7 +17614,7 @@ msgstr "RPM máx."
 
 #: src/emc/usr_intf/pncconf/vcp.glade:930
 msgid "                                                                "
-msgstr ""
+msgstr "                                                                "
 
 #: src/emc/usr_intf/pncconf/vcp.glade:940
 msgid "Spindle Speed Indicator"
@@ -18982,8 +18926,6 @@ msgid "Resolution:"
 msgstr "Resolución:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2862
-#, fuzzy
-#| msgid "Distance to acheave max speed:"
 msgid "Distance to achieve max speed:"
 msgstr "Distancia para alcanzar la velocidad máxima:"
 
@@ -20651,10 +20593,8 @@ msgid "CLR"
 msgstr "CLR"
 
 #: lib/python/gladevcp/calculator.glade:96
-#, fuzzy
-#| msgid "Pin"
 msgid "Pi"
-msgstr "Pin"
+msgstr "Pi"
 
 #: lib/python/gladevcp/calculator.glade:265
 msgid "DEL"
