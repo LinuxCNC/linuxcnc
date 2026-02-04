@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-THIS_VERSION = "1.1"
+THIS_VERSION = "1.2"
 
 import sys
 import os
@@ -21,7 +21,7 @@ def copysection(block):
         newini.write(section.group(1))
         all_sections.remove(block)
     else:
-         newini.write("\n#No Content\n")
+        newini.write("\n#No Content\n")
 
 def writeifexists(file, section, src_item, dest_item = "None"):
     #Writes a new entry to the file, but only if it exists
@@ -62,25 +62,6 @@ asked and the conversion will proceed blindly"""
         print(t)
     exit()
 
-if dialogs:
-    ret = messagebox._show("Confirm automatic update",
-                           "This version of LinuxCNC separates the concepts of Axes and "
-                           "Joints which necessitates changes to the INI and HAL files. "
-                           "The changes required are described here:\n"
-                           "http://linuxcnc.org/docs/2.9/html/ in the section "
-                           "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n"
-                           "The [EMC]VERSION data in your INI file indicates that your "
-                           "configuration requires update.\n"
-                           "A script exists that can attempt to automatically "
-                           "reconfigure your configuration files.\nPress 'Yes' to perform "
-                           "the conversion, 'No' to continue with the current configuration "
-                           "files or 'Cancel' to exit LinuxCNC.\n"
-                           "The process can not be automatically reversed, though a "
-                           "backup version of your entire existing config will be created.",
-                           messagebox.QUESTION, messagebox.YESNOCANCEL)
-    if ret == 'cancel': exit(42)
-    elif ret == 'no': exit(0)
-
 # We want to work with the base INI file here, not the expanded version if #include is used
 filename = re.sub(r'\.expanded', '', filename)
 
@@ -109,20 +90,44 @@ elif version >= THIS_VERSION:
         print(t)
     exit()
 
-if ini.find('KINS', 'JOINTS') and not force and not version == "1.0":
-    if dialogs:
-        if messagebox.askquestion("Already Converted",
-        "The supplied INI file already has a [KINS] section. this probably "
-        "means that it was previously converted by hand. Continue conversion?"
-        "(Change [EMC]VERSION to %s to suppress these messages) "
-        % THIS_VERSION) != 'yes':
-            exit(0)
-    else:
-        if input("The supplied INI file already has a [KINS] section."
-        "this probably means that it was previously converted by hand. "
-        "Continue y/N? (Change [EMC]VERSION to %s to suppress these messages) "
-        % THIS_VERSION) != "y":
-            exit(0)
+# Show start message with abort option
+if dialogs:
+    ret = ''
+    if version == "1.0":
+        ret = messagebox._show("Confirm automatic update",
+                            "This version of LinuxCNC separates the concepts of Axes and "
+                            "Joints which necessitates changes to the INI and HAL files. "
+                            "The changes required are described here:\n"
+                            "http://linuxcnc.org/docs/2.9/html/ in the section "
+                            "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n"
+                            "The [EMC]VERSION data in your INI file indicates that your "
+                            "configuration requires update.\n"
+                            "A script exists that can attempt to automatically "
+                            "reconfigure your configuration files.\nPress 'Yes' to perform "
+                            "the conversion, 'No' to continue with the current configuration "
+                            "files or 'Cancel' to exit LinuxCNC.\n"
+                            "The process can not be automatically reversed, though a "
+                            "backup version of your entire existing config will be created.",
+                            messagebox.QUESTION, messagebox.YESNOCANCEL)
+    if ret == 'cancel': exit(42)
+    elif ret == 'no': exit(0)
+
+# Version specific message
+if version == "1.0":
+    if ini.find('KINS', 'JOINTS') and not force and not version == "1.0":
+        if dialogs:
+            if messagebox.askquestion("Already Converted",
+            "The supplied INI file already has a [KINS] section. This probably "
+            "means that it was previously converted by hand. Continue conversion?"
+            "(Change [EMC]VERSION to %s to suppress these messages) "
+            % THIS_VERSION) != 'yes':
+                exit(0)
+        else:
+            if input("The supplied INI file already has a [KINS] section."
+            "This probably means that it was previously converted by hand. "
+            "Continue y/N? (Change [EMC]VERSION to %s to suppress these messages) "
+            % THIS_VERSION) != "y":
+                exit(0)
 
 # Looks like we are good to go, so first let's put the original configs
 # somewhere safe.
@@ -165,16 +170,14 @@ for halfile in halfiles:
 
 print("halpaths = ", halpaths)
 
-if version == "1.0":
-    #Just update the version in the INI
-    inistring = open(filename,'r').read()
-    newini = open(filename, 'w')
-    inistring = re.sub("VERSION *= *(.*)", "VERSION = %s" % THIS_VERSION, inistring)
-    newini.write(inistring)
-    newini.close()
+###########################################
+############ Convert INI files ############
+###########################################
 
-if version == "$Revision$" or version < "1.0":
-    
+def ini_preamble():
+    """
+    The part which is equal for the conversions up from version 1.1
+    """
     inistring = open(filename,'r').read()
     newini = open(filename, 'w')
     # Get a list of all sections
@@ -198,7 +201,7 @@ if version == "$Revision$" or version < "1.0":
     all_sections.remove("EMC")
     section = re.search(r"\[EMC\](.+?)\n\[", inistring, re.DOTALL)
     if section: section = section.group(1)
-    newini.write("[EMC]\n")
+    newini.write("[EMC]")
     if section != None:
         if version != "0.0":
             section = re.sub("VERSION (.+)", "VERSION = %s" % THIS_VERSION, section)
@@ -209,6 +212,75 @@ if version == "$Revision$" or version < "1.0":
     else:
          newini.write("VERSION = %s\n" % THIS_VERSION)
 
+    return inistring, newini, all_sections
+
+# We need info from TRAJ to get KINS right
+def get_joints_coordinates():
+    joints = ini.find("TRAJ", "JOINTS")
+    coordinates = ini.find("TRAJ", "COORDINATES").replace(" ","")
+    if coordinates != None: joints = len(coordinates)
+    if joints == None: joints = ini.find("TRAJ", "AXES")
+    if joints == None: joints = "3"
+    joints = int(joints)
+    if coordinates == None: coordinates = "XYZABCUVW"
+    coordinates = list(coordinates)
+    return joints, coordinates
+
+def get_kins(joints, coordinates):
+    # Search the Halfiles to find the kinematics.
+    kins = None
+    kinstype = None
+    coords_entry = False
+    if coordinates != "XYZABCUVW"[:joints]: coords_entry = True
+    for halfile in halpaths:
+        hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
+        for line in hal.readlines():
+            match = re.match(r'(?:#autoconverted|loadrt) +(\w+kins)', line)
+            if match:
+                kins = match.group(1)
+                match = re.search(r'coordinates *= *(\w+)', line)
+                if match:
+                    coordinates = list(match.group(1))
+                    coords_entry = 1
+                match = re.search(r'kinstype *= *(\w+)', line)
+                if kinstype: kinstype = match.group(1)
+                break
+        if kins: break
+    if not kins: kins = "trivkins"
+
+    #gantrykins and gentrivkins are gone, so need special treatment
+
+    if kins == "gantrykins":
+        kins = "trivkins"
+        kinstype = "BOTH"
+        coords_entry = True
+        for halfile in halpaths:
+            hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
+            for line in hal.readlines():
+                match = re.match(r'setp +gantrykins.joint-(\d) +(\d)', line)
+                if match:
+                    j = int(match.group(1))
+                    if j > joints: joints = j
+                    a = int(match.group(2))
+                    coordinates[j] = 'XYZABCUVW'[a]
+
+    if kins == "gentrivkins":
+        kins = "trivkins" #trivkins has the same defaults as gentrivkins
+        
+    return kins, kinstype, coords_entry
+
+
+
+if version == "1.0":
+    #Just update the version in the INI
+    inistring = open(filename,'r').read()
+    newini = open(filename, 'w')
+    inistring = re.sub("VERSION *= *(.*)", "VERSION = %s" % THIS_VERSION, inistring)
+    newini.write(inistring)
+    newini.close()
+
+if version == "$Revision$" or version < "1.0":
+    inistring, newini, all_sections = ini_preamble()
     #These sections don't need any work.
     copysection("DISPLAY")
     copysection("FILTER")
@@ -244,57 +316,8 @@ if version == "$Revision$" or version < "1.0":
     copysection("HAL")
     copysection("HALUI")
 
-    # We need info from TRAJ to get KINS right
-
-    joints = ini.find("TRAJ", "JOINTS")
-    coordinates = ini.find("TRAJ", "COORDINATES").replace(" ","")
-    if coordinates != None: joints = len(coordinates)
-    if joints == None: joints = ini.find("TRAJ", "AXES")
-    if joints == None: joints = "3"
-    joints = int(joints)
-    if coordinates == None: coordinates = "XYZABCUVW"
-
-    coordinates = list(coordinates)
-
-    # Search the Halfiles to find the kinematics.
-    kins = None
-    kinstype = None
-    coords_entry = False
-    if coordinates != "XYZABCUVW"[:joints]: coords_entry = True
-    for halfile in halpaths:
-        hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
-        for line in hal.readlines():
-            match = re.match(r'(?:#autoconverted|loadrt) +(\w+kins)', line)
-            if match:
-                kins = match.group(1)
-                match = re.search(r'coordinates *= *(\w+)', line)
-                if match:
-                    coordinates = list(match.group(1))
-                    coords_entry = 1
-                match = re.search(r'kinstype *= *(\w+)', line)
-                if kinstype: kinstype = match.group(1)
-                break
-        if kins: break
-    if not kins: kins = "trivkins"
-
-    #gantrykins and gentrivkins are gone, so need special treatment
-
-    if  kins == "gantrykins":
-        kins = "trivkins"
-        kinstype = "BOTH"
-        coords_entry = True
-        for halfile in halpaths:
-            hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
-            for line in hal.readlines():
-                match = re.match(r'setp +gantrykins.joint-(\d) +(\d)', line)
-                if match:
-                    j = int(match.group(1))
-                    if j > joints: joints = j
-                    a = int(match.group(2))
-                    coordinates[j] = 'XYZABCUVW'[a]
-
-    if kins == "gentrivkins":
-        kins = "trivkins" #trivkins has the same defaults as gentrivkins
+    joints, coordinates = get_joints_coordinates()
+    kins, kinstype, coords_entry = get_kins(joints, coordinates)
 
     # In JA [TRAJ] expects MAX_LINEAR_VELOCITY not MAX_VELOCITY
     all_sections.remove("TRAJ")
@@ -325,6 +348,7 @@ if version == "$Revision$" or version < "1.0":
 
     # Insert the new-fangled [KINS] section
 
+    coords_entry = True
     newini.write("\n\n[KINS]\n")
     newini.write("KINEMATICS = %s" % kins)
     if coords_entry: newini.write(" coordinates=%s" % ''.join(coordinates[: joints]))
@@ -416,11 +440,156 @@ if version == "$Revision$" or version < "1.0":
     #That's the INI file done:
     newini.close()
 
+if version < "1.2":
+    inistring, newini, all_sections = ini_preamble()
+
+    all_sections.remove("DISPLAY")
+    section = re.search(r"\[DISPLAY\](.+?)\n\[", inistring, re.DOTALL)
+    if section: section = section.group(1)
+    newini.write("\n[DISPLAY]\n")
+    if section != None:
+        if re.search("MIN_SPINDLE_OVERRIDE", section):
+            section = re.sub("MIN_SPINDLE_OVERRIDE", "MIN_SPINDLE_0_OVERRIDE", section)
+        if re.search("MAX_SPINDLE_OVERRIDE", section):
+            section = re.sub("MAX_SPINDLE_OVERRIDE", "MAX_SPINDLE_0_OVERRIDE", section)
+        if re.search("DEFAULT_SPINDLE_SPEED", section):
+            section = re.sub("DEFAULT_SPINDLE_SPEED", "DEFAULT_SPINDLE_0_SPEED", section)
+        if re.search("MIN_SPINDLE_SPEED", section):
+            section = re.sub("MIN_SPINDLE_SPEED", "MIN_SPINDLE_0_SPEED", section)
+        if re.search("MAX_SPINDLE_SPEED", section):
+            section = re.sub("MAX_SPINDLE_SPEED", "MAX_SPINDLE_0_SPEED", section)
+        if re.search("MIN_VELOCITY", section):
+            section = re.sub("MIN_VELOCITY", "MIN_LINEAR_VELOCITY", section)
+        newini.write(section)
+
+    # TODO update-ini 1.1 --> 1.2:
+    #
+    # [DISPLAY]
+    # MIN_SPINDLE_OVERRIDE  -> MIN_SPINDLE_0_OVERRIDE
+    # MAX_SPINDLE_OVERRIDE  -> MAX_SPINDLE_0_OVERRIDE
+    # DEFAULT_SPINDLE_SPEED -> DEFAULT_SPINDLE_0_SPEED
+    # MIN_SPINDLE_SPEED     -> MIN_SPINDLE_0_SPEED
+    # MAX_SPINDLE_SPEED     -> MAX_SPINDLE_0_SPEED
+    #
+    # move [TRAJ]DEFAULT_LINEAR_VELOCITY -> [DISPLAY]DEFAULT_LINEAR_VELOCITY
+    # move [TRAJ]MIN_LINEAR_VELOCITY -> [DISPLAY]MIN_LINEAR_VELOCITY
+    # rename [TRAJ, DISPLAY]MIN_VELOCITY --> MIN_LINEAR_VELOCITY
+    # copy [TRAJ]MAX_LINEAR_VELOCITY -> [DISPLAY]MAX_LINEAR_VELOCITY
+    
+    # Problem with commented stuff!
+    
+    #These sections don't need any work.
+    copysection("FILTER")
+    copysection("RS274NGC")
+    copysection("PYTHON")
+    copysection("EMCMOT")
+    copysection("TASK")
+    copysection("HAL")
+    copysection("HALUI")
+    copysection("TRAJ")
+    copysection("EMCIO")
+    
+    joints, coordinates = get_joints_coordinates()
+    kins, kinstype, coords_entry = get_kins(joints, coordinates)
+
+    newini.write("\n\n[KINS]\n")
+    newini.write("KINEMATICS = %s" % kins)
+    if coords_entry: newini.write(" coordinates=%s" % ''.join(coordinates[: joints]))
+    if kinstype: newini.write(" kinstype=%s" % kinstype)
+    newini.write("\n")
+    newini.write("#This is a best-guess at the number of joints, it should be checked\n")
+    newini.write("JOINTS = %i\n" % joints)
+    
+    j = 0
+    lock_mask = 0x0
+    L2J={}
+    while 1:
+         # Search preferentially in "[JOINT_N] in case the file is part-converted already
+        if re.search(r"^(\[JOINT_%i\])"%j, inistring, re.MULTILINE):
+            if re.search(r"^(\[AXIS_%s\])" % "XYZABCUVW"[j], inistring, re.MULTILINE):
+                copysection("AXIS_%s" % "XYZABCUVW"[j])
+            #    copysection("JOINT_%i" % j)
+            elif j < len(coordinates):
+                newini.write("\n[AXIS_%s]\n" % coordinates[j])
+                writeifexists(newini, "JOINT_%i" % j, "HOME")
+                writeifexists(newini, "JOINT_%i" % j, "MIN_LIMIT")
+                writeifexists(newini, "JOINT_%i" % j, "MAX_LIMIT")
+                writeifexists(newini, "JOINT_%i" % j, "MAX_VELOCITY")
+                writeifexists(newini, "JOINT_%i" % j, "MAX_ACCELERATION")
+                copysection("[JOINT_%i]" % j)
+        elif j < len(coordinates):
+            # in this "elif" j is an index in to coordinates. 
+            if coordinates[j] in L2J: # duplicate axis letter
+                L2J[coordinates[j]].append(j) # = [L2J[coordinates[j]], j]
+            else:
+                L2J.update({coordinates[j] : [j]})
+        elif j >= 9:
+            break
+        else:
+            pass
+
+        j += 1
+
+    for L in list("XYZABCUVW"):
+        if L in L2J:
+            axisnum = "XYZABCUVW".index(L)
+            newini.write("\n[AXIS_%s]\n" % L)
+            writeifexists(newini, "AXIS_%i" % axisnum, "MIN_LIMIT")
+            writeifexists(newini, "AXIS_%i" % axisnum, "MAX_LIMIT")
+            writeifexists(newini, "AXIS_%i" % axisnum, "MAX_VELOCITY")
+            writeifexists(newini, "AXIS_%i" % axisnum, "MAX_ACCELERATION")
+            if ini.find("AXIS_%i" % j, "LOCKING_INDEXER"):
+                lock_mask |= 1 << j
+                newini.write("LOCKING_INDEXER_JOINT = %i\n" % j)
+                
+            hs = ini.find("AXIS_%i" % axisnum, "HOME_SEQUENCE")
+            if hs == "-1" or hs == None: # -1 used to exclude a joint now we use no entry
+                sequence = ""
+            elif len(L2J[L]) > 1:  # tandem axis
+                sequence = "HOME_SEQUENCE = -%s" % hs
+            else:
+                sequence = "HOME_SEQUENCE = %s" % hs
+            for J in L2J[L]:
+                # Take the coordinates index as the JOINT_Number
+                newini.write("\n[JOINT_%i]" % J)
+                section = re.search(r"\[AXIS_%i\](.+?)(\n\[|$)" % J, inistring, re.DOTALL)
+                if not section:
+                    section = re.search(r"\[AXIS_%i\](.+?)(\n\[|$)" % "XYZABCUVW".index(coordinates[J]), inistring, re.DOTALL)
+                if section:
+                    section = re.sub("HOME_SEQUENCE.*", sequence, section.group(1))
+                    newini.write(section)
+                    if not r'\[AXIS_%i\]' % axisnum in subs:
+                        subs.update({r'\[AXIS_%i\]' % axisnum : '[JOINT_%i]' % J})
+                        subs2.update({r'joint\.%i\.' % axisnum : 'joint.%i.' % J})
+                    else:
+                        subs.update({r'\[AXIS_%i\]' % J : '[JOINT_%i]' % J})
+                else:
+                    print("File parsing error, found an [AXIS_%i] section, but no content" % J)
+                    exit()
+    # We no longer need the [AXIS_N] data
+    for j in range(0,8):
+         if ("AXIS_%i" % j) in all_sections: all_sections.remove("AXIS_%i" % j)
+
+    # If there were any custom sections, tag them on the end.
+    while all_sections:
+        copysection(all_sections[0])
+
+    # and turn the locking mask into a string
+    if lock_mask:
+        lock_string = 'unlock_joints_mask=%i' % lock_mask
+    else:
+        lock_string = ""
+    
+    #That's the INI file done:
+    newini.close()
 
 
-    # Now change all the pin names etc in the linked HAL files.
-    # Any machine can be jogged in world mode (in theory) but joint-mode jog-enable
-    # is not auto-linked for safety.
+###########################################
+############ Convert HAL files ############
+###########################################
+# Now change all the pin names etc in the linked HAL files.
+# Any machine can be jogged in world mode (in theory)
+# but joint-mode jog-enable is not auto-linked for safety.
 
 if version == "$Revision$" or version < "1.0":
     
