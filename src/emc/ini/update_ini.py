@@ -14,14 +14,14 @@ from tkinter import messagebox
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work
-    regex = r"^\s*\[%s\](.+?)(?:^\s*\[|\Z)" % block
-    section = re.search(regex, inistring, re.M | re.DOTALL)
-    newini.write("\n[%s]" % block)
-    if section != None:
+    regex = r"^\s*\[%s\](\n(?:^(?!\[).*\n?)*)" % block
+    section = re.search(regex, inistring, re.M)
+    newini.write("[%s]" % block)
+    if section is not None:
         newini.write(section.group(1))
         all_sections.remove(block)
     else:
-        newini.write("\n#No Content\n")
+        newini.write("\n#No Content\n\n")
 
 def writeifexists(file, section, src_item, dest_item = "None"):
     #Writes a new entry to the file, but only if it exists
@@ -435,9 +435,10 @@ if version < "1.2":
     inistring, newini, all_sections = ini_preamble()
 
     all_sections.remove("DISPLAY")
-    section = re.search(r"\[DISPLAY\](.+?)\n\[", inistring, re.DOTALL)
+    section = re.search(r"\[DISPLAY\](.+?\n)(?=\[)", inistring, re.DOTALL)
+
     if section: section = section.group(1)
-    newini.write("\n[DISPLAY]\n")
+    newini.write("\n[DISPLAY]")
     if section != None:
         if re.search("MIN_SPINDLE_OVERRIDE", section):
             section = re.sub("MIN_SPINDLE_OVERRIDE", "MIN_SPINDLE_0_OVERRIDE", section)
