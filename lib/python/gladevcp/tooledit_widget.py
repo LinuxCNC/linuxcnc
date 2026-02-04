@@ -65,6 +65,11 @@ class ToolEdit(Gtk.Box):
         self.wTree = Gtk.Builder()
         self.wTree.set_translation_domain("linuxcnc") # for locale translations
         self.wTree.add_from_file(os.path.join(datadir, "tooledit_gtk.glade") )
+        # Track active edit session
+        self.editable = None
+        self.edit_path = None
+        self.edit_column = None
+
         # connect the signals from Glade
         dic = {
             "on_delete_clicked" : self.delete,
@@ -90,6 +95,7 @@ class ToolEdit(Gtk.Box):
             #print name,col
             renderer = self.wTree.get_object(name+'1')
             renderer.connect( 'edited', self.col_editted, col+1, None)
+            renderer.connect( 'editing-started', self.col_editing_started, col+1)
             renderer.props.editable = True
         self.all_label = self.wTree.get_object("all_label")
 
@@ -101,6 +107,7 @@ class ToolEdit(Gtk.Box):
         for name,col in temp:
             renderer = self.wTree.get_object(name)
             renderer.connect( 'edited', self.col_editted, col, 'wear' )
+            renderer.connect( 'editing-started', self.col_editing_started, col+1)
             renderer.props.editable = True
         # Hide columns we don't want to see
         self.set_col_visible(list='spyabcuvwdijq', bool= False, tab= '2')
@@ -114,6 +121,7 @@ class ToolEdit(Gtk.Box):
         for name,col in temp:
             renderer = self.wTree.get_object(name)
             renderer.connect( 'edited', self.col_editted, col, 'tool' )
+            renderer.connect( 'editing-started', self.col_editing_started, col+1)
             renderer.props.editable = True
         # Hide columns we don't want to see
         self.set_col_visible(list='spyabcuvwdij', bool= False, tab= '3')
@@ -341,7 +349,9 @@ class ToolEdit(Gtk.Box):
             self.add(None,array)
 
     def save(self,widget):
-        if self.toolfile == None:return
+        if self.toolfile == None: return
+        # commit the text when click on save while in edit mode
+        self.commit_active_edit()
         liststore = self.model
         # pre check before saving the file
         # if not done before, the file will be saved only until the erroneous line and the rest will be lost
@@ -481,9 +491,24 @@ class ToolEdit(Gtk.Box):
             except:
                 pass
 
+    def commit_active_edit(self):
+        if self.editable:
+            self.validate_input(self.edit_path, self.editable.get_text(), self.edit_column)
+            self.editable = None
+            self.edit_path = None
+            self.edit_column = None
+            
+    def col_editing_started(self, renderer, editable, path, col):
+        self.editable = editable      # Gtk.Entry
+        self.edit_path = path         # row path
+        self.edit_column = col        # column index
+
+    def col_editted(self, widget, path, new_text, col, filter):
+        self.validate_input(path, new_text, col)
+
         # depending what is edited add the right type of info integer,float or text
         # If it's a filtered display then we must convert the path 
-    def col_editted(self, widget, path, new_text, col, filter):
+    def validate_input(self, path, new_text, col):
         if filter == 'wear':
             (store_path,) = self.wear_filter.convert_path_to_child_path(path)
             path = store_path
