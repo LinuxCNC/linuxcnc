@@ -3745,7 +3745,7 @@ uncomment selection</property>
                                     </child>
                                     <child>
                                       <object class="GtkCheckButton" id="chkbtn_hide_titlebar">
-                                        <property name="label" translatable="yes">hide title bar</property>
+                                        <property name="label" translatable="yes">Hide title bar</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
                                         <property name="receives-default">False</property>
@@ -3760,7 +3760,7 @@ uncomment selection</property>
                                     </child>
                                     <child>
                                       <object class="GtkCheckButton" id="chk_hide_cursor">
-                                        <property name="label" translatable="yes">hide cursor</property>
+                                        <property name="label" translatable="yes">Hide cursor</property>
                                         <property name="use-action-appearance">False</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
@@ -3776,7 +3776,7 @@ uncomment selection</property>
                                     </child>
                                     <child>
                                       <object class="GtkCheckButton" id="chk_hide_tooltips">
-                                        <property name="label" translatable="yes">hide tooltips</property>
+                                        <property name="label" translatable="yes">Hide tooltips</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
                                         <property name="receives-default">False</property>
@@ -3807,199 +3807,187 @@ uncomment selection</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_keyboard">
+                              <object class="GtkFrame" id="frm_jog_settings">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="label-xalign">0.5</property>
                                 <child>
-                                  <object class="GtkBox" id="vbox_keyboard">
+                                  <!-- n-columns=2 n-rows=3 -->
+                                  <object class="GtkGrid" id="grid_jog_settings">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="margin-start">3</property>
-                                    <property name="margin-end">3</property>
-                                    <property name="margin-top">5</property>
-                                    <property name="margin-bottom">5</property>
-                                    <property name="orientation">vertical</property>
+                                    <property name="margin-top">3</property>
                                     <child>
-                                      <object class="GtkCheckButton" id="chk_use_kb_on_offset">
-                                        <property name="label" translatable="yes">Show keyboard on offset</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_chk_use_kb_on_offset_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="chk_use_kb_on_tooledit">
-                                        <property name="label" translatable="yes">Show keyboard on tooledit</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_chk_use_kb_on_tooledit_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="chk_use_kb_on_mdi">
-                                        <property name="label" translatable="yes">Show keyboard on MDI</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_chk_use_kb_on_mdi_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">2</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="chk_use_kb_on_edit">
-                                        <property name="label" translatable="yes">Show keyboard on EDIT</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_chk_use_kb_on_edit_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">3</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="chk_use_kb_on_file_selection">
-                                        <property name="label" translatable="yes">Show keyboard on load file</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_chk_use_kb_on_file_selection_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">4</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <!-- n-columns=2 n-rows=2 -->
-                                      <object class="GtkGrid">
+                                      <object class="GtkLabel" id="lbl_jog_btn_size">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="xpad">5</property>
+                                        <property name="ypad">5</property>
+                                        <property name="label" translatable="yes">Jog button size</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSpinButton" id="spbtn_jog_btn_size">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="invisible-char">●</property>
+                                        <property name="width-chars">6</property>
+                                        <property name="max-width-chars">2</property>
+                                        <property name="text" translatable="yes">40</property>
+                                        <property name="xalign">1</property>
+                                        <property name="primary-icon-activatable">False</property>
+                                        <property name="secondary-icon-activatable">False</property>
+                                        <property name="adjustment">adj_jog_btn_size</property>
+                                        <property name="climb-rate">1</property>
+                                        <property name="numeric">True</property>
+                                        <property name="value">32</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">1</property>
+                                        <property name="top-attach">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="lbl_jog_box_width">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="xpad">5</property>
+                                        <property name="ypad">5</property>
+                                        <property name="label" translatable="yes">Width right pane</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSpinButton" id="spbtn_jog_box_width">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="invisible-char">●</property>
+                                        <property name="width-chars">6</property>
+                                        <property name="max-width-chars">3</property>
+                                        <property name="text" translatable="yes">30</property>
+                                        <property name="xalign">1</property>
+                                        <property name="primary-icon-activatable">False</property>
+                                        <property name="secondary-icon-activatable">False</property>
+                                        <property name="adjustment">adj_jog_box_width</property>
+                                        <property name="climb-rate">5</property>
+                                        <property name="numeric">True</property>
+                                        <property name="value">360</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">1</property>
+                                        <property name="top-attach">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFrame" id="frm_turtle_jog">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="margin-start">3</property>
+                                        <property name="margin-end">3</property>
+                                        <property name="margin-top">3</property>
+                                        <property name="margin-bottom">3</property>
+                                        <property name="label-xalign">0.5</property>
                                         <child>
-                                          <object class="GtkBox" id="box_kbd_height">
+                                          <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="hexpand">False</property>
+                                            <property name="orientation">vertical</property>
                                             <child>
-                                              <object class="GtkSpinButton">
+                                              <object class="GtkCheckButton" id="chk_turtle_jog">
+                                                <property name="label" translatable="yes">Hide turtle Jog Button</property>
+                                                <property name="use-action-appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">True</property>
-                                                <property name="adjustment">adj_kbd_height</property>
-                                                <property name="value">250</property>
+                                                <property name="receives-default">False</property>
+                                                <property name="draw-indicator">True</property>
+                                                <signal name="toggled" handler="on_chk_turtle_jog_toggled" swapped="no"/>
                                               </object>
                                               <packing>
-                                                <property name="expand">True</property>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <!-- n-columns=2 n-rows=1 -->
+                                              <object class="GtkGrid" id="grid_turtle_jog_factor">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="margin-start">3</property>
+                                                <property name="margin-end">3</property>
+                                                <property name="hexpand">False</property>
+                                                <property name="column-spacing">3</property>
+                                                <child>
+                                                  <object class="GtkLabel" id="lbl_turtle_jog_factor">
+                                                    <property name="visible">True</property>
+                                                    <property name="can-focus">False</property>
+                                                    <property name="hexpand">True</property>
+                                                    <property name="xpad">5</property>
+                                                    <property name="ypad">5</property>
+                                                    <property name="label" translatable="yes">Factor</property>
+                                                    <property name="xalign">0</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="left-attach">0</property>
+                                                    <property name="top-attach">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkSpinButton" id="spbtn_turtle_jog_factor">
+                                                    <property name="visible">True</property>
+                                                    <property name="can-focus">True</property>
+                                                    <property name="invisible-char">●</property>
+                                                    <property name="xalign">1</property>
+                                                    <property name="primary-icon-activatable">False</property>
+                                                    <property name="secondary-icon-activatable">False</property>
+                                                    <property name="adjustment">adj_turtle_jog_factor</property>
+                                                    <property name="numeric">True</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="left-attach">1</property>
+                                                    <property name="top-attach">0</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
                                                 <property name="fill">True</property>
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
                                           </object>
-                                          <packing>
-                                            <property name="left-attach">1</property>
-                                            <property name="top-attach">0</property>
-                                          </packing>
                                         </child>
-                                        <child>
-                                          <object class="GtkBox" id="box_kbd_width">
+                                        <child type="label">
+                                          <object class="GtkLabel" id="lbl_frm_turtle_jog">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="hexpand">False</property>
-                                            <child>
-                                              <object class="GtkSpinButton">
-                                                <property name="visible">True</property>
-                                                <property name="can-focus">True</property>
-                                                <property name="text">250</property>
-                                                <property name="adjustment">adj_kbd_width</property>
-                                                <property name="value">500</property>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">True</property>
-                                                <property name="fill">True</property>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
+                                            <property name="label" translatable="yes">Turtle Jog</property>
+                                            <property name="use-markup">True</property>
                                           </object>
-                                          <packing>
-                                            <property name="left-attach">1</property>
-                                            <property name="top-attach">1</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_kbd_set_height">
-                                            <property name="label" translatable="yes">Height</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">False</property>
-                                            <property name="draw-indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_kb_set_height_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">0</property>
-                                            <property name="top-attach">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_kbd_set_width">
-                                            <property name="label" translatable="yes">Width</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">False</property>
-                                            <property name="draw-indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_kb_set_width_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">0</property>
-                                            <property name="top-attach">1</property>
-                                          </packing>
                                         </child>
                                       </object>
                                       <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">5</property>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">2</property>
+                                        <property name="width">2</property>
                                       </packing>
                                     </child>
                                   </object>
                                 </child>
                                 <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_keyboard">
+                                  <object class="GtkLabel" id="lbl_frm_jog_settings">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Virtual Keyboard&lt;/b&gt;</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Jog Area&lt;/b&gt;</property>
                                     <property name="use-markup">True</property>
                                   </object>
                                 </child>
@@ -4011,68 +3999,7 @@ uncomment selection</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_ntb_preview">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label-xalign">0.5</property>
-                                <child>
-                                  <object class="GtkBox" id="vbox_keyboard1">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="margin-start">3</property>
-                                    <property name="margin-end">3</property>
-                                    <property name="margin-top">5</property>
-                                    <property name="margin-bottom">5</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkRadioButton" id="rbtn_show_preview">
-                                        <property name="label" translatable="yes">show preview</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_rbtn_show_preview_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkRadioButton" id="rbtn_show_offsets">
-                                        <property name="label" translatable="yes">show offsets</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="draw-indicator">True</property>
-                                        <property name="group">rbtn_show_preview</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_ntb_preview">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;On Touch off&lt;/b&gt;</property>
-                                    <property name="use-markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">2</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
                               <placeholder/>
@@ -4362,7 +4289,7 @@ uncomment selection</property>
                                     </child>
                                     <child>
                                       <object class="GtkCheckButton" id="chk_toggle_readout">
-                                        <property name="label" translatable="yes">toggle DRO mode
+                                        <property name="label" translatable="yes">Toggle DRO mode by
 clicking on the DRO</property>
                                         <property name="use-action-appearance">False</property>
                                         <property name="visible">True</property>
@@ -4503,27 +4430,19 @@ clicking on the DRO</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkSeparator" id="hseparator2">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">4</property>
-                                      </packing>
-                                    </child>
-                                    <child>
                                       <object class="GtkLabel" id="lbl_mouse_mode">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;Mouse Button mode&lt;/b&gt;</property>
+                                        <property name="margin-start">3</property>
+                                        <property name="margin-top">3</property>
+                                        <property name="label" translatable="yes">Mouse Button mode:</property>
                                         <property name="use-markup">True</property>
+                                        <property name="xalign">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">False</property>
-                                        <property name="position">5</property>
+                                        <property name="position">4</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -4544,14 +4463,13 @@ clicking on the DRO</property>
                                         <child internal-child="entry">
                                           <object class="GtkEntry">
                                             <property name="can-focus">False</property>
-                                            <property name="editable">False</property>
                                           </object>
                                         </child>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
                                         <property name="fill">True</property>
-                                        <property name="position">6</property>
+                                        <property name="position">5</property>
                                       </packing>
                                     </child>
                                   </object>
@@ -4572,102 +4490,7 @@ clicking on the DRO</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_jog_settings">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label-xalign">0.5</property>
-                                <child>
-                                  <!-- n-columns=2 n-rows=2 -->
-                                  <object class="GtkGrid" id="grid_jog_settings">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="margin-top">3</property>
-                                    <child>
-                                      <object class="GtkLabel" id="lbl_jog_btn_size">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="xpad">5</property>
-                                        <property name="ypad">5</property>
-                                        <property name="label" translatable="yes">Jog button size</property>
-                                        <property name="xalign">0</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">0</property>
-                                        <property name="top-attach">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkSpinButton" id="spbtn_jog_btn_size">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="invisible-char">●</property>
-                                        <property name="width-chars">6</property>
-                                        <property name="max-width-chars">2</property>
-                                        <property name="text" translatable="yes">40</property>
-                                        <property name="xalign">1</property>
-                                        <property name="primary-icon-activatable">False</property>
-                                        <property name="secondary-icon-activatable">False</property>
-                                        <property name="adjustment">adj_jog_btn_size</property>
-                                        <property name="climb-rate">1</property>
-                                        <property name="numeric">True</property>
-                                        <property name="value">32</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">1</property>
-                                        <property name="top-attach">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="lbl_jog_box_width">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="xpad">5</property>
-                                        <property name="ypad">5</property>
-                                        <property name="label" translatable="yes">Width right pane</property>
-                                        <property name="xalign">0</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">0</property>
-                                        <property name="top-attach">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkSpinButton" id="spbtn_jog_box_width">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="invisible-char">●</property>
-                                        <property name="width-chars">6</property>
-                                        <property name="max-width-chars">3</property>
-                                        <property name="text" translatable="yes">30</property>
-                                        <property name="xalign">1</property>
-                                        <property name="primary-icon-activatable">False</property>
-                                        <property name="secondary-icon-activatable">False</property>
-                                        <property name="adjustment">adj_jog_box_width</property>
-                                        <property name="climb-rate">5</property>
-                                        <property name="numeric">True</property>
-                                        <property name="value">360</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">1</property>
-                                        <property name="top-attach">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_jog_settings">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Jog Area&lt;/b&gt;</property>
-                                    <property name="use-markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">2</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -5133,6 +4956,553 @@ to test your settings.</property>
                       </packing>
                     </child>
                     <child>
+                      <object class="GtkBox" id="hbox_setup_behaviour">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">3</property>
+                        <property name="margin-bottom">3</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkBox" id="vbox_setup_behaviour_1">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkFrame" id="frm_keyboard">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label-xalign">0.5</property>
+                                <child>
+                                  <object class="GtkBox" id="vbox_keyboard">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-start">3</property>
+                                    <property name="margin-end">3</property>
+                                    <property name="margin-top">5</property>
+                                    <property name="margin-bottom">5</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkCheckButton" id="chk_use_kb_on_offset">
+                                        <property name="label" translatable="yes">Show keyboard on offset</property>
+                                        <property name="use-action-appearance">False</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_chk_use_kb_on_offset_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="chk_use_kb_on_tooledit">
+                                        <property name="label" translatable="yes">Show keyboard on tooledit</property>
+                                        <property name="use-action-appearance">False</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_chk_use_kb_on_tooledit_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="chk_use_kb_on_mdi">
+                                        <property name="label" translatable="yes">Show keyboard on MDI</property>
+                                        <property name="use-action-appearance">False</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_chk_use_kb_on_mdi_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="chk_use_kb_on_edit">
+                                        <property name="label" translatable="yes">Show keyboard on EDIT</property>
+                                        <property name="use-action-appearance">False</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_chk_use_kb_on_edit_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">3</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="chk_use_kb_on_file_selection">
+                                        <property name="label" translatable="yes">Show keyboard on load file</property>
+                                        <property name="use-action-appearance">False</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_chk_use_kb_on_file_selection_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">4</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <!-- n-columns=2 n-rows=2 -->
+                                      <object class="GtkGrid">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <child>
+                                          <object class="GtkBox" id="box_kbd_height">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="hexpand">False</property>
+                                            <child>
+                                              <object class="GtkSpinButton">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="adjustment">adj_kbd_height</property>
+                                                <property name="value">250</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkBox" id="box_kbd_width">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="hexpand">False</property>
+                                            <child>
+                                              <object class="GtkSpinButton">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">True</property>
+                                                <property name="text">250</property>
+                                                <property name="adjustment">adj_kbd_width</property>
+                                                <property name="value">500</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">1</property>
+                                            <property name="top-attach">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkCheckButton" id="chk_kbd_set_height">
+                                            <property name="label" translatable="yes">Height</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="draw-indicator">True</property>
+                                            <signal name="toggled" handler="on_chk_kb_set_height_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkCheckButton" id="chk_kbd_set_width">
+                                            <property name="label" translatable="yes">Width</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">False</property>
+                                            <property name="draw-indicator">True</property>
+                                            <signal name="toggled" handler="on_chk_kb_set_width_toggled" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="left-attach">0</property>
+                                            <property name="top-attach">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">5</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="lbl_frm_keyboard">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Virtual Keyboard&lt;/b&gt;</property>
+                                    <property name="use-markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame" id="frm_ntb_preview">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label-xalign">0.5</property>
+                                <child>
+                                  <object class="GtkBox" id="vbox_keyboard1">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-start">3</property>
+                                    <property name="margin-end">3</property>
+                                    <property name="margin-top">5</property>
+                                    <property name="margin-bottom">5</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkRadioButton" id="rbtn_show_preview">
+                                        <property name="label" translatable="yes">show preview</property>
+                                        <property name="use-action-appearance">False</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_rbtn_show_preview_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="rbtn_show_offsets">
+                                        <property name="label" translatable="yes">show offsets</property>
+                                        <property name="use-action-appearance">False</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="draw-indicator">True</property>
+                                        <property name="group">rbtn_show_preview</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="lbl_frm_ntb_preview">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;On Touch off&lt;/b&gt;</property>
+                                    <property name="use-markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame" id="frm_run_from_line">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label-xalign">0.5</property>
+                                <child>
+                                  <object class="GtkBox" id="vbox_run_from_line">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-start">5</property>
+                                    <property name="margin-end">5</property>
+                                    <property name="margin-top">5</property>
+                                    <property name="margin-bottom">5</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkRadioButton" id="rbtn_no_run_from_line">
+                                        <property name="label" translatable="yes">Do not use run from line</property>
+                                        <property name="use-action-appearance">False</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="rbtn_run_from_line">
+                                        <property name="label" translatable="yes">Use run from line</property>
+                                        <property name="use-action-appearance">False</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="draw-indicator">True</property>
+                                        <property name="group">rbtn_no_run_from_line</property>
+                                        <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="lbl_frm_run_from_line">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Run from line&lt;/b&gt;</property>
+                                    <property name="use-markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame" id="frm_kb_shortcuts">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label-xalign">0.5</property>
+                                <child>
+                                  <object class="GtkCheckButton" id="chk_use_kb_shortcuts">
+                                    <property name="label" translatable="yes">Use keyboard shortcuts</property>
+                                    <property name="use-action-appearance">False</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">False</property>
+                                    <property name="margin-start">3</property>
+                                    <property name="margin-end">3</property>
+                                    <property name="margin-top">5</property>
+                                    <property name="margin-bottom">5</property>
+                                    <property name="draw-indicator">True</property>
+                                    <signal name="toggled" handler="on_chk_use_kb_shortcuts_toggled" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="lbl_frm_kb_shortcuts">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Keyboard shortcuts&lt;/b&gt;</property>
+                                    <property name="use-markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">3</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox" id="vbox_setup_behaviour_2">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkFrame" id="frm_file_to_load">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label-xalign">0.5</property>
+                                <child>
+                                  <object class="GtkBox" id="vbox_file_to_load">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-start">3</property>
+                                    <property name="margin-end">3</property>
+                                    <property name="margin-top">5</property>
+                                    <property name="margin-bottom">5</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkFileChooserButton" id="file_to_load_chooser">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="filter">ff_file_to_load</property>
+                                        <signal name="file-set" handler="on_file_to_load_chooser_file_set" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkButtonBox" id="hbtb_file_to_load">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="spacing">10</property>
+                                        <property name="layout-style">center</property>
+                                        <child>
+                                          <object class="GtkButton" id="btn_use_current">
+                                            <property name="label" translatable="yes">current
+   file</property>
+                                            <property name="use-action-appearance">False</property>
+                                            <property name="height-request">56</property>
+                                            <property name="visible">True</property>
+                                            <property name="sensitive">False</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">True</property>
+                                            <signal name="clicked" handler="on_btn_use_current_clicked" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="padding">5</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkButton" id="btn_none">
+                                            <property name="label" translatable="yes">none</property>
+                                            <property name="use-action-appearance">False</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">True</property>
+                                            <signal name="clicked" handler="on_btn_none_clicked" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="padding">5</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="padding">5</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="lbl_frm_file_to_load">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;File to load on start&lt;/b&gt;</property>
+                                    <property name="use-markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame" id="frm_select_jump_to_dir">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label-xalign">0.5</property>
+                                <child>
+                                  <object class="GtkFileChooserButton" id="jump_to_dir_chooser">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-start">3</property>
+                                    <property name="margin-end">3</property>
+                                    <property name="margin-top">5</property>
+                                    <property name="margin-bottom">5</property>
+                                    <property name="action">select-folder</property>
+                                    <property name="show-hidden">True</property>
+                                    <property name="title" translatable="yes">Select user dir</property>
+                                    <signal name="file-set" handler="on_jump_to_dir_chooser_file_set" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="lbl_frm_select_jump_to_dir">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Jump to dir&lt;/b&gt;</property>
+                                    <property name="use-markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child type="tab">
+                      <object class="GtkLabel" id="lbl_ntb_setup_pages_behaviour">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Behaviour</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                        <property name="tab-fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <object class="GtkBox" id="hbox_hardware">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
@@ -5513,96 +5883,7 @@ to test your settings.</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_turtle_jog">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label-xalign">0.5</property>
-                                <child>
-                                  <object class="GtkBox" id="vbox3">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="margin-start">5</property>
-                                    <property name="margin-end">5</property>
-                                    <property name="margin-top">5</property>
-                                    <property name="margin-bottom">5</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkCheckButton" id="chk_turtle_jog">
-                                        <property name="label" translatable="yes">Hide turtle Jog Button</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_chk_turtle_jog_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <!-- n-columns=2 n-rows=1 -->
-                                      <object class="GtkGrid" id="grid_turtle_jog_factor">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="margin-start">3</property>
-                                        <property name="margin-end">3</property>
-                                        <property name="hexpand">False</property>
-                                        <property name="column-spacing">3</property>
-                                        <child>
-                                          <object class="GtkLabel" id="lbl_turtle_jog_factor">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                            <property name="hexpand">True</property>
-                                            <property name="label" translatable="yes">Turtle jog Factor</property>
-                                            <property name="xalign">0</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">0</property>
-                                            <property name="top-attach">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkSpinButton" id="spbtn_turtle_jog_factor">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="invisible-char">●</property>
-                                            <property name="xalign">1</property>
-                                            <property name="primary-icon-activatable">False</property>
-                                            <property name="secondary-icon-activatable">False</property>
-                                            <property name="adjustment">adj_turtle_jog_factor</property>
-                                            <property name="numeric">True</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left-attach">1</property>
-                                            <property name="top-attach">0</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="frm_turtle_jo">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Turtle Jog&lt;/b&gt;</property>
-                                    <property name="use-markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">3</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
                               <placeholder/>
@@ -5636,7 +5917,7 @@ to test your settings.</property>
                         </child>
                       </object>
                       <packing>
-                        <property name="position">1</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child type="tab">
@@ -5646,7 +5927,7 @@ to test your settings.</property>
                         <property name="label" translatable="yes">Hardware</property>
                       </object>
                       <packing>
-                        <property name="position">1</property>
+                        <property name="position">2</property>
                         <property name="tab-fill">False</property>
                       </packing>
                     </child>
@@ -6077,231 +6358,16 @@ is not possible.</property>
                             <property name="orientation">vertical</property>
                             <property name="spacing">5</property>
                             <child>
-                              <object class="GtkFrame" id="frm_file_to_load">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label-xalign">0.5</property>
-                                <child>
-                                  <object class="GtkBox" id="vbox_file_to_load">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="margin-start">3</property>
-                                    <property name="margin-end">3</property>
-                                    <property name="margin-top">5</property>
-                                    <property name="margin-bottom">5</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkFileChooserButton" id="file_to_load_chooser">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="filter">ff_file_to_load</property>
-                                        <signal name="file-set" handler="on_file_to_load_chooser_file_set" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkButtonBox" id="hbtb_file_to_load">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="spacing">10</property>
-                                        <property name="layout-style">center</property>
-                                        <child>
-                                          <object class="GtkButton" id="btn_use_current">
-                                            <property name="label" translatable="yes">current
-   file</property>
-                                            <property name="use-action-appearance">False</property>
-                                            <property name="height-request">56</property>
-                                            <property name="visible">True</property>
-                                            <property name="sensitive">False</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">True</property>
-                                            <signal name="clicked" handler="on_btn_use_current_clicked" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="padding">5</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkButton" id="btn_none">
-                                            <property name="label" translatable="yes">none</property>
-                                            <property name="use-action-appearance">False</property>
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">True</property>
-                                            <property name="receives-default">True</property>
-                                            <signal name="clicked" handler="on_btn_none_clicked" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="padding">5</property>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="padding">5</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_file_to_load">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;File to load on start&lt;/b&gt;</property>
-                                    <property name="use-markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_select_jump_to_dir">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label-xalign">0.5</property>
-                                <child>
-                                  <object class="GtkFileChooserButton" id="jump_to_dir_chooser">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="margin-start">3</property>
-                                    <property name="margin-end">3</property>
-                                    <property name="margin-top">5</property>
-                                    <property name="margin-bottom">5</property>
-                                    <property name="action">select-folder</property>
-                                    <property name="show-hidden">True</property>
-                                    <property name="title" translatable="yes">Select user dir</property>
-                                    <signal name="file-set" handler="on_jump_to_dir_chooser_file_set" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_select_jump_to_dir">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Jump to dir&lt;/b&gt;</property>
-                                    <property name="use-markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_run_from_line">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label-xalign">0.5</property>
-                                <child>
-                                  <object class="GtkBox" id="vbox_run_from_line">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="margin-start">5</property>
-                                    <property name="margin-end">5</property>
-                                    <property name="margin-top">5</property>
-                                    <property name="margin-bottom">5</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkRadioButton" id="rbtn_no_run_from_line">
-                                        <property name="label" translatable="yes">Do not use run from line</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkRadioButton" id="rbtn_run_from_line">
-                                        <property name="label" translatable="yes">Use run from line</property>
-                                        <property name="use-action-appearance">False</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="draw-indicator">True</property>
-                                        <property name="group">rbtn_no_run_from_line</property>
-                                        <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_run_from_line">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Run from line&lt;/b&gt;</property>
-                                    <property name="use-markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">2</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_kb_shortcuts">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label-xalign">0.5</property>
-                                <child>
-                                  <object class="GtkCheckButton" id="chk_use_kb_shortcuts">
-                                    <property name="label" translatable="yes">Use keyboard shortcuts</property>
-                                    <property name="use-action-appearance">False</property>
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
-                                    <property name="receives-default">False</property>
-                                    <property name="margin-start">3</property>
-                                    <property name="margin-end">3</property>
-                                    <property name="margin-top">5</property>
-                                    <property name="margin-bottom">5</property>
-                                    <property name="draw-indicator">True</property>
-                                    <signal name="toggled" handler="on_chk_use_kb_shortcuts_toggled" swapped="no"/>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_kb_shortcuts">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Keyboard shortcuts&lt;/b&gt;</property>
-                                    <property name="use-markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">3</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -6315,18 +6381,17 @@ is not possible.</property>
                         </child>
                       </object>
                       <packing>
-                        <property name="position">2</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                     <child type="tab">
                       <object class="GtkLabel" id="lbl_ntb_setup_pages_advanced">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">Advanced
- Settings</property>
+                        <property name="label" translatable="yes">Advanced</property>
                       </object>
                       <packing>
-                        <property name="position">2</property>
+                        <property name="position">3</property>
                         <property name="tab-fill">False</property>
                       </packing>
                     </child>
