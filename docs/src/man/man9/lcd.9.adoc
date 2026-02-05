@@ -30,7 +30,7 @@ lcd - Stream HAL data to an LCD screen
 
 == PARAMETERS
 
-**lcd.***_NN_**.decimal-separator** (u32) rw::
+**lcd.**_NN_**.decimal-separator** (u32) rw::
   Sets the decimal separator used for floating point numbers. The
   default value is 46 (0x2E) which corresponds to ".". If a comma is
   required then set this parameter to 44 (0x2C).
