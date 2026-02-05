@@ -201,8 +201,11 @@ int read_config_file (char *filename)
 	    cp++;
 	}
 	*cp = '\0';
+    cp = cmd_buf;
+    while (isspace((unsigned char)*cp)) cp++;
+    if (*cp == '\0' || *cp == '#') continue;
 	/* parse and execute the command */
-	retval += parse_command(cmd_buf);
+	retval += parse_command(cp);
     }
     fclose(fp);
     if ( retval < 0 ) {
