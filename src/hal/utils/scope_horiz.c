@@ -690,12 +690,11 @@ static void dialog_realtime_not_linked(void)
 		GTK_DIALOG_MODAL,
 		GTK_MESSAGE_INFO,
 		GTK_BUTTONS_OK,
-		_("Sample count changed"));
+		_("Sample Count Changed - Restart Required"));
 	    gtk_message_dialog_format_secondary_text(
 		GTK_MESSAGE_DIALOG(info_dialog),
-		_("The new sample count (%d) will take effect\n"
-		"the next time halscope is started.\n\n"
-		"The setting has been saved to the configuration file."),
+		_("The new sample count (%d) has been saved to the configuration\n"
+		"file, and will take effect after restarting both LinuxCNC and Halscope.\n\n"),
 		new_samples);
 	    gtk_dialog_run(GTK_DIALOG(info_dialog));
 	    gtk_widget_destroy(info_dialog);
