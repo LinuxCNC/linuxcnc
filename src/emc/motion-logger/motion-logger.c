@@ -464,7 +464,7 @@ int main(int argc, char* argv[]) {
                     c->pos.tran.x, c->pos.tran.y, c->pos.tran.z,
                     c->pos.a, c->pos.b, c->pos.c,
                     c->pos.u, c->pos.v, c->pos.w,
-                    c->id, c->motion_type,
+                    c->id.line_number, c->motion_type,
                     c->vel, c->ini_maxvel,
                     c->acc, c->turn
                 );
@@ -481,7 +481,7 @@ int main(int argc, char* argv[]) {
                 log_print("    center: x=%.6g, y=%.6g, z=%.6g\n", c->center.x, c->center.y, c->center.z);
                 log_print("    normal: x=%.6g, y=%.6g, z=%.6g\n", c->normal.x, c->normal.y, c->normal.z);
                 log_print("    id=%d, motion_type=%d, vel=%.6g, ini_maxvel=%.6g, acc=%.6g, turn=%d\n",
-                    c->id, c->motion_type,
+                    c->id.line_number, c->motion_type,
                     c->vel, c->ini_maxvel,
                     c->acc, c->turn
                 );

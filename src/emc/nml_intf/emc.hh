@@ -354,7 +354,7 @@ extern int emcTrajSetFHEnable(unsigned char mode);   //feed hold enable
 extern int emcTrajSetSpindleScale(int spindle, double scale);
 extern int emcTrajSetSOEnable(unsigned char mode);   //spindle speed override enable
 extern int emcTrajSetAFEnable(unsigned char enable); //adaptive feed enable
-extern int emcTrajSetMotionId(int id);
+extern int emcTrajSetMotionId(emcmot_motion_id_t id);
 extern double emcTrajGetLinearUnits();
 extern double emcTrajGetAngularUnits();
 

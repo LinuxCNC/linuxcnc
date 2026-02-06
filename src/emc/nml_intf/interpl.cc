@@ -114,7 +114,17 @@ int NML_INTERP_LIST::len()
     return ((int)linked_list.size());
 }
 
-int NML_INTERP_LIST::get_line_number()
+int NML_INTERP_LIST::get_line_number() const
 {
     return line_number;
+}
+
+void NML_INTERP_LIST::set_filename(const std::string& s)
+{
+    filename = s;
+}
+
+const std::string& NML_INTERP_LIST::get_filename() const
+{
+    return filename;
 }

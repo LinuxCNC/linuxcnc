@@ -1965,7 +1965,7 @@ static void output_to_hal(void)
 				emcmotStatus->spindle_status[spindle_num].speed / 60.;
     }
 
-    *(emcmot_hal_data->program_line) = emcmotStatus->id;
+    *(emcmot_hal_data->program_line) = emcmotStatus->id.line_number;
     *(emcmot_hal_data->tp_reverse) = emcmotStatus->reverse_run;
     *(emcmot_hal_data->motion_type) = emcmotStatus->motionType;
     *(emcmot_hal_data->distance_to_go) = emcmotStatus->distance_to_go;
@@ -2197,7 +2197,7 @@ static void update_status(void)
     /* check to see if we should pause in order to implement
        single emcmotStatus->stepping */
 
-    if (emcmotStatus->stepping && emcmotInternal->idForStep != emcmotStatus->id) {
+    if (emcmotStatus->stepping && emcmotInternal->idForStep.id != emcmotStatus->id.id) {
       tpPause(&emcmotInternal->coord_tp);
       emcmotStatus->stepping = 0;
       emcmotStatus->paused = 1;

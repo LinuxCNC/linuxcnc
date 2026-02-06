@@ -662,6 +662,8 @@ static void mdi_execute_hook(void)
         && (interp_list.len() == 0)
         && (emcTaskCommand == NULL)
     ) {
+	interp_list.set_line_number(-mdi_execute_queue.len());
+	interp_list.set_filename(":MDI:");
 	interp_list.append(mdi_execute_queue.get());
         emcStatus->task.queuedMDIcommands = mdi_execute_queue.len();
 	return;
@@ -2623,7 +2625,13 @@ static int emcTaskExecute(void)
 		    emcStatus->task.currentLine = interp_list.get_line_number();
 		    emcStatus->task.callLevel = emcTaskPlanLevel();
 		    // and set it for all subsystems which use queued ids
-		    emcTrajSetMotionId(emcStatus->task.currentLine);
+
+		    std::string s_id = emcStatus->task.file;
+		    emcmot_motion_id_t id = { 
+			.line_number = emcStatus->task.currentLine, 
+			.filename_hash = static_cast<unsigned int>(std::hash<std::string>{}(s_id) % UINT_MAX)
+		    };
+		    emcTrajSetMotionId(id);
 		    if (emcStatus->motion.traj.queueFull) {
 			emcStatus->task.execState =
 			    EMC_TASK_EXEC::WAITING_FOR_MOTION_QUEUE;

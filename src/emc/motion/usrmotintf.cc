@@ -78,7 +78,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     double end;
 
     if (!MOTION_ID_VALID(c->id)) {
-        rcs_print("USRMOT: ERROR: invalid motion id: %d\n",c->id);
+        rcs_print("USRMOT: ERROR: invalid motion id: %d %u\n", c->id.line_number, c->id.filename_hash);
 	return EMCMOT_COMM_INVALID_MOTION_ID;
     }
 
@@ -256,8 +256,8 @@ void printTPstruct(TP_STRUCT * tp)
     printf("vLimit=%f\n", tp->vLimit);
     printf("wMax=%f\n", tp->wMax);
     printf("wDotMax=%f\n", tp->wDotMax);
-    printf("nextId=%d\n", tp->nextId);
-    printf("execId=%d\n", tp->execId);
+    printf("nextId=%ld\n", tp->nextId.id);
+    printf("execId=%ld\n", tp->execId.id);
     printf("termCond=%d\n", tp->termCond);
     printf("currentPos :");
     printEmcPose(&tp->currentPos);
@@ -425,7 +425,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 #endif
 	printf("velocity:     \t%f\n", s->vel);
 	printf("accel:        \t%f\n", s->acc);
-	printf("id:           \t%d\n", s->id);
+	printf("id:           \t%ld\n", s->id.id);
 	printf("depth:        \t%d\n", s->depth);
 	printf("active depth: \t%d\n", s->activeDepth);
 	printf("inpos:        \t%d\n",
