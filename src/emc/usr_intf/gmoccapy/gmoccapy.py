@@ -4744,11 +4744,27 @@ class gmoccapy(object):
             new_offset = (tt.xoffset, tt.yoffset, tt.zoffset,
                           tt.aoffset, tt.boffset, tt.coffset,
                           tt.uoffset, tt.voffset, tt.woffset)
-            if (new_offset != self.stat.tool_offset) and ("G43" in self.active_gcodes):
-                message = _("Offset values for the tool in the spindle\n" \
-                            "have been changed with tool compensation (G43) active.\n\n" \
-                            "Do you want the new values to be applied as the currently\n" \
+            message = None
+            new_offset_is_nonzero = any(v != 0.0 for v in new_offset)
+            new_offset_is_zero = all(v == 0.0 for v in new_offset)
+            old_offset_is_zero = all(v == 0.0 for v in self.stat.tool_offset)
+            if new_offset_is_zero and ("G43" in self.active_gcodes):
+                message = _("Offset values for the tool in the spindle\n"
+                            "have been changed to zero.\n\n"
+                            "Do you want the zero values to be applied as the currently\n"
+                            "active tool offset?\n\n"
+                            "This will deactivate tool compensation (G49).")
+            elif (new_offset != self.stat.tool_offset) and ("G43" in self.active_gcodes):
+                message = _("Offset values for the tool in the spindle\n"
+                            "have been changed with tool compensation (G43) active.\n\n"
+                            "Do you want the new values to be applied as the currently\n"
                             "active tool offset?")
+            elif new_offset_is_nonzero and old_offset_is_zero and ("G49" in self.active_gcodes):
+                message = _("Offset values for the tool in the spindle\n"
+                            "have been changed from zero to non-zero.\n\n"
+                            "Do you want to activate tool compensation (G43)\n"
+                            "using the currently active tool offset?")
+            if message:
                 result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
                 if result: # user says YES
                     self.command.mode(linuxcnc.MODE_MDI)
