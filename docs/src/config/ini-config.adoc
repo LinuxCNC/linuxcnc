@@ -312,9 +312,8 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
 ====
 
 * `DEFAULT_LINEAR_VELOCITY = .25` - The default velocity for linear jogs, in <<sub:ini:sec:traj,machine units>> per second.
-* `MIN_VELOCITY = .01` - The approximate lowest value the jog slider.
+* `MIN_LINEAR_VELOCITY = .01` - The minimum velocity for linear jogs, in machine units per second.
 * `MAX_LINEAR_VELOCITY = 1.0` - The maximum velocity for linear jogs, in machine units per second.
-* `MIN_LINEAR_VELOCITY = .01` - The approximate lowest value the jog slider.
 * `DEFAULT_ANGULAR_VELOCITY = .25` - The default velocity for angular jogs, in machine units per second.
 * `MIN_ANGULAR_VELOCITY = .01` - The approximate lowest value the angular jog slider.
 * `MAX_ANGULAR_VELOCITY = 1.0` - The maximum velocity for angular jogs, in machine units per second.
@@ -854,8 +853,6 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
 * `ANGULAR_UNITS =` _<units>_ - (((ANGULAR UNITS))) Specifies the 'machine units' for rotational axes.
   Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian' (2*π per circle), 'grad', or 'gon' (400 per circle).
   This does not affect the angular units of NC code. In RS274NGC, A-, B- and C- words are always expressed in degrees.
-* `DEFAULT_LINEAR_VELOCITY = 0.0167` - The initial rate for jogs of linear axes, in machine units per second.
-  The value shown in 'AXIS' equals machine units per minute.
 * `DEFAULT_LINEAR_ACCELERATION = 2.0` - In machines with nontrivial kinematics, the acceleration used for "teleop" (Cartesian space) jogs, in 'machine units' per second per second.
 * `MAX_LINEAR_VELOCITY = 5.0` - (((MAX VELOCITY))) The maximum velocity for any axis or coordinated move, in 'machine units' per second.
   The value shown equals 300 units per minute.
