@@ -1359,12 +1359,21 @@ class gmoccapy(object):
 
                 self.joints_button_dic[name] = btn
 
+    # halui/external cycle start request
     def request_start(self,data):
-        print('start')
-        self.widgets.btn_run.emit('clicked')
+        print('start request')
+        if self.stat.task_mode == linuxcnc.MODE_MDI:
+            print('Submit MDI')
+            self.widgets.hal_mdihistory.submit()
+        elif self.stat.task_mode == linuxcnc.MODE_MANUAL:
+            self._show_error((13, _("Can't start cycles or submit MDI commands in manual Mode")))
+        else:
+            print('Cycle Start')
+            self.widgets.btn_run.emit('clicked')
 
+    # halui/external pause request
     def request_pause(self,data):
-        print('pause')
+        print('pause request')
         self.widgets.tbtn_pause.emit('clicked')
 
     # call INI macro (from hal_glib message)
