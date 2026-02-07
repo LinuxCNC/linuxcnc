@@ -385,6 +385,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_20">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -401,6 +404,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_19">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -417,6 +423,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_18">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -433,6 +442,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_17">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -449,6 +461,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_16">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -465,6 +480,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_15">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -481,6 +499,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_14">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -497,6 +518,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_13">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -513,6 +537,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_12">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -529,6 +556,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_11">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -545,6 +575,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_10">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -561,6 +594,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_9">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="minimumSize">
                       <size>
                        <width>100</width>
@@ -577,6 +613,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_8">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -599,6 +638,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_7">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -627,6 +669,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_6">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -655,6 +700,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_5">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -683,6 +731,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_4">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -711,6 +762,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_3">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -739,6 +793,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_2">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -767,6 +824,9 @@
                    </item>
                    <item>
                     <widget class="QPushButton" name="button_1">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                        <horstretch>0</horstretch>
@@ -2781,6 +2841,9 @@ ORIGIN</string>
                        </property>
                        <item>
                         <widget class="QPushButton" name="run">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -2809,6 +2872,9 @@ ORIGIN</string>
                        </item>
                        <item>
                         <widget class="ActionButton" name="pause_resume">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -3004,6 +3070,9 @@ ORIGIN</string>
                        </item>
                        <item>
                         <widget class="QPushButton" name="abort">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -3650,6 +3719,9 @@ ORIGIN</string>
                              </property>
                              <item>
                               <widget class="SystemToolButton" name="wcs_button">
+                               <property name="enabled">
+                                <bool>false</bool>
+                               </property>
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -3694,6 +3766,9 @@ ORIGIN</string>
                              </item>
                              <item>
                               <widget class="PushButton" name="camera">
+                               <property name="enabled">
+                                <bool>false</bool>
+                               </property>
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -3722,6 +3797,9 @@ ORIGIN</string>
                              </item>
                              <item>
                               <widget class="PushButton" name="laser">
+                               <property name="enabled">
+                                <bool>false</bool>
+                               </property>
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -15208,6 +15286,9 @@ MOVE</string>
                        </item>
                        <item row="6" column="0">
                         <widget class="QCheckBox" name="chk_override_limits">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -15556,6 +15637,9 @@ MOVE</string>
                        </item>
                        <item row="7" column="0">
                         <widget class="QCheckBox" name="chk_override_jog">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="focusPolicy">
                           <enum>Qt::ClickFocus</enum>
                          </property>
@@ -16673,7 +16757,7 @@ CONFIG</string>
                       <x>0</x>
                       <y>0</y>
                       <width>738</width>
-                      <height>711</height>
+                      <height>715</height>
                      </rect>
                     </property>
                     <property name="sizePolicy">
