@@ -4033,6 +4033,8 @@ class HandlerClass:
                 if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{framingError}\n')
+                    self.laserButtonState = 'reset'
+                    self.button_press_timeout('laser')
                     return
                 newX = STATUS.get_position()[0][0] - STATUS.stat.g5x_offset[0] - self.laserOffsetX
                 newY = STATUS.get_position()[0][1] - STATUS.stat.g5x_offset[1] - self.laserOffsetY
