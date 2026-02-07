@@ -431,6 +431,17 @@ if version == "$Revision$" or version < "1.0":
     #That's the INI file done:
     newini.close()
 
+def insert_after(key, new_line, section):
+    match = re.search(key, section)
+    if match:
+        # Find the end of the line that contains the match
+        line_end = section.find("\n", match.end())
+        if line_end == -1: line_end = len(section) # match is on the last line
+    else:
+        line_end = len(section) # place it at the end
+        new_line += "\n"
+    return section[:line_end + 1] + new_line + section[line_end + 1:]
+
 if version < "1.2":
     inistring, newini, all_sections = ini_preamble()
 
@@ -452,6 +463,22 @@ if version < "1.2":
             section = re.sub("MAX_SPINDLE_SPEED", "MAX_SPINDLE_0_SPEED", section)
         if re.search("MIN_VELOCITY", section):
             section = re.sub("MIN_VELOCITY", "MIN_LINEAR_VELOCITY", section)
+        
+        
+        # Copy values from TRAJ
+        if not re.search("DEFAULT_LINEAR_VELOCITY", section):
+            val = ini.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
+            if val:
+                section = insert_after("MAX_LINEAR_VELOCITY", f"DEFAULT_LINEAR_VELOCITY = {val}\n" , section)
+        if not re.search("MIN_LINEAR_VELOCITY", section):
+            val = ini.find("TRAJ", "MIN_LINEAR_VELOCITY")
+            if val:
+                section = insert_after("MAX_LINEAR_VELOCITY", f"MIN_LINEAR_VELOCITY = {val}\n" , section)
+        if not re.search("MAX_LINEAR_VELOCITY", section):
+            val = ini.find("TRAJ", "MAX_LINEAR_VELOCITY")
+            if val:
+                section = insert_after("MIN_LINEAR_VELOCITY", f"MAX_LINEAR_VELOCITY = {val}\n" , section)
+
         newini.write(section)
 
     # TODO update-ini 1.1 --> 1.2:
@@ -465,10 +492,12 @@ if version < "1.2":
     #
     # move [TRAJ]DEFAULT_LINEAR_VELOCITY -> [DISPLAY]DEFAULT_LINEAR_VELOCITY
     # move [TRAJ]MIN_LINEAR_VELOCITY -> [DISPLAY]MIN_LINEAR_VELOCITY
-    # rename [TRAJ, DISPLAY]MIN_VELOCITY --> MIN_LINEAR_VELOCITY
+    # ~rename [TRAJ, DISPLAY]MIN_VELOCITY --> MIN_LINEAR_VELOCITY~
     # copy [TRAJ]MAX_LINEAR_VELOCITY -> [DISPLAY]MAX_LINEAR_VELOCITY
     
-    # Problem with commented stuff!
+    # Known bugs:
+    # - if there is a commented DISPLAY sections before the DISPLAY section, the comments are used
+    # - DISPLAY section must not be at the end --> empty section
     
     #These sections don't need any work.
     copysection("FILTER")
