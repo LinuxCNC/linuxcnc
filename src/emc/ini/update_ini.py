@@ -214,63 +214,6 @@ def ini_preamble():
 
     return inistring, newini, all_sections
 
-# We need info from TRAJ to get KINS right
-def get_joints_coordinates():
-    joints = ini.find("TRAJ", "JOINTS")
-    coordinates = ini.find("TRAJ", "COORDINATES").replace(" ","")
-    if coordinates != None: joints = len(coordinates)
-    if joints == None: joints = ini.find("TRAJ", "AXES")
-    if joints == None: joints = "3"
-    joints = int(joints)
-    if coordinates == None: coordinates = "XYZABCUVW"
-    coordinates = list(coordinates)
-    return joints, coordinates
-
-def get_kins(joints, coordinates):
-    # Search the Halfiles to find the kinematics.
-    kins = None
-    kinstype = None
-    coords_entry = False
-    if coordinates != "XYZABCUVW"[:joints]: coords_entry = True
-    for halfile in halpaths:
-        hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
-        for line in hal.readlines():
-            match = re.match(r'(?:#autoconverted|loadrt) +(\w+kins)', line)
-            if match:
-                kins = match.group(1)
-                match = re.search(r'coordinates *= *(\w+)', line)
-                if match:
-                    coordinates = list(match.group(1))
-                    coords_entry = 1
-                match = re.search(r'kinstype *= *(\w+)', line)
-                if kinstype: kinstype = match.group(1)
-                break
-        if kins: break
-    if not kins: kins = "trivkins"
-
-    #gantrykins and gentrivkins are gone, so need special treatment
-
-    if kins == "gantrykins":
-        kins = "trivkins"
-        kinstype = "BOTH"
-        coords_entry = True
-        for halfile in halpaths:
-            hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
-            for line in hal.readlines():
-                match = re.match(r'setp +gantrykins.joint-(\d) +(\d)', line)
-                if match:
-                    j = int(match.group(1))
-                    if j > joints: joints = j
-                    a = int(match.group(2))
-                    coordinates[j] = 'XYZABCUVW'[a]
-
-    if kins == "gentrivkins":
-        kins = "trivkins" #trivkins has the same defaults as gentrivkins
-        
-    return kins, kinstype, coords_entry
-
-
-
 if version == "1.0":
     #Just update the version in the INI
     inistring = open(filename,'r').read()
@@ -316,8 +259,57 @@ if version == "$Revision$" or version < "1.0":
     copysection("HAL")
     copysection("HALUI")
 
-    joints, coordinates = get_joints_coordinates()
-    kins, kinstype, coords_entry = get_kins(joints, coordinates)
+    # We need info from TRAJ to get KINS right
+
+    joints = ini.find("TRAJ", "JOINTS")
+    coordinates = ini.find("TRAJ", "COORDINATES").replace(" ","")
+    if coordinates != None: joints = len(coordinates)
+    if joints == None: joints = ini.find("TRAJ", "AXES")
+    if joints == None: joints = "3"
+    joints = int(joints)
+    if coordinates == None: coordinates = "XYZABCUVW"
+
+    coordinates = list(coordinates)
+
+    # Search the Halfiles to find the kinematics.
+    kins = None
+    kinstype = None
+    coords_entry = False
+    if coordinates != "XYZABCUVW"[:joints]: coords_entry = True
+    for halfile in halpaths:
+        hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
+        for line in hal.readlines():
+            match = re.match(r'(?:#autoconverted|loadrt) +(\w+kins)', line)
+            if match:
+                kins = match.group(1)
+                match = re.search(r'coordinates *= *(\w+)', line)
+                if match:
+                    coordinates = list(match.group(1))
+                    coords_entry = 1
+                match = re.search(r'kinstype *= *(\w+)', line)
+                if kinstype: kinstype = match.group(1)
+                break
+        if kins: break
+    if not kins: kins = "trivkins"
+
+    #gantrykins and gentrivkins are gone, so need special treatment
+
+    if  kins == "gantrykins":
+        kins = "trivkins"
+        kinstype = "BOTH"
+        coords_entry = True
+        for halfile in halpaths:
+            hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
+            for line in hal.readlines():
+                match = re.match(r'setp +gantrykins.joint-(\d) +(\d)', line)
+                if match:
+                    j = int(match.group(1))
+                    if j > joints: joints = j
+                    a = int(match.group(2))
+                    coordinates[j] = 'XYZABCUVW'[a]
+
+    if kins == "gentrivkins":
+        kins = "trivkins" #trivkins has the same defaults as gentrivkins
 
     # In JA [TRAJ] expects MAX_LINEAR_VELOCITY not MAX_VELOCITY
     all_sections.remove("TRAJ")
@@ -348,7 +340,6 @@ if version == "$Revision$" or version < "1.0":
 
     # Insert the new-fangled [KINS] section
 
-    coords_entry = True
     newini.write("\n\n[KINS]\n")
     newini.write("KINEMATICS = %s" % kins)
     if coords_entry: newini.write(" coordinates=%s" % ''.join(coordinates[: joints]))
@@ -490,96 +481,9 @@ if version < "1.2":
     copysection("TRAJ")
     copysection("EMCIO")
     
-    joints, coordinates = get_joints_coordinates()
-    kins, kinstype, coords_entry = get_kins(joints, coordinates)
-
-    newini.write("\n\n[KINS]\n")
-    newini.write("KINEMATICS = %s" % kins)
-    if coords_entry: newini.write(" coordinates=%s" % ''.join(coordinates[: joints]))
-    if kinstype: newini.write(" kinstype=%s" % kinstype)
-    newini.write("\n")
-    newini.write("#This is a best-guess at the number of joints, it should be checked\n")
-    newini.write("JOINTS = %i\n" % joints)
-    
-    j = 0
-    lock_mask = 0x0
-    L2J={}
-    while 1:
-         # Search preferentially in "[JOINT_N] in case the file is part-converted already
-        if re.search(r"^(\[JOINT_%i\])"%j, inistring, re.MULTILINE):
-            if re.search(r"^(\[AXIS_%s\])" % "XYZABCUVW"[j], inistring, re.MULTILINE):
-                copysection("AXIS_%s" % "XYZABCUVW"[j])
-            #    copysection("JOINT_%i" % j)
-            elif j < len(coordinates):
-                newini.write("\n[AXIS_%s]\n" % coordinates[j])
-                writeifexists(newini, "JOINT_%i" % j, "HOME")
-                writeifexists(newini, "JOINT_%i" % j, "MIN_LIMIT")
-                writeifexists(newini, "JOINT_%i" % j, "MAX_LIMIT")
-                writeifexists(newini, "JOINT_%i" % j, "MAX_VELOCITY")
-                writeifexists(newini, "JOINT_%i" % j, "MAX_ACCELERATION")
-                copysection("[JOINT_%i]" % j)
-        elif j < len(coordinates):
-            # in this "elif" j is an index in to coordinates. 
-            if coordinates[j] in L2J: # duplicate axis letter
-                L2J[coordinates[j]].append(j) # = [L2J[coordinates[j]], j]
-            else:
-                L2J.update({coordinates[j] : [j]})
-        elif j >= 9:
-            break
-        else:
-            pass
-
-        j += 1
-
-    for L in list("XYZABCUVW"):
-        if L in L2J:
-            axisnum = "XYZABCUVW".index(L)
-            newini.write("\n[AXIS_%s]\n" % L)
-            writeifexists(newini, "AXIS_%i" % axisnum, "MIN_LIMIT")
-            writeifexists(newini, "AXIS_%i" % axisnum, "MAX_LIMIT")
-            writeifexists(newini, "AXIS_%i" % axisnum, "MAX_VELOCITY")
-            writeifexists(newini, "AXIS_%i" % axisnum, "MAX_ACCELERATION")
-            if ini.find("AXIS_%i" % j, "LOCKING_INDEXER"):
-                lock_mask |= 1 << j
-                newini.write("LOCKING_INDEXER_JOINT = %i\n" % j)
-                
-            hs = ini.find("AXIS_%i" % axisnum, "HOME_SEQUENCE")
-            if hs == "-1" or hs == None: # -1 used to exclude a joint now we use no entry
-                sequence = ""
-            elif len(L2J[L]) > 1:  # tandem axis
-                sequence = "HOME_SEQUENCE = -%s" % hs
-            else:
-                sequence = "HOME_SEQUENCE = %s" % hs
-            for J in L2J[L]:
-                # Take the coordinates index as the JOINT_Number
-                newini.write("\n[JOINT_%i]" % J)
-                section = re.search(r"\[AXIS_%i\](.+?)(\n\[|$)" % J, inistring, re.DOTALL)
-                if not section:
-                    section = re.search(r"\[AXIS_%i\](.+?)(\n\[|$)" % "XYZABCUVW".index(coordinates[J]), inistring, re.DOTALL)
-                if section:
-                    section = re.sub("HOME_SEQUENCE.*", sequence, section.group(1))
-                    newini.write(section)
-                    if not r'\[AXIS_%i\]' % axisnum in subs:
-                        subs.update({r'\[AXIS_%i\]' % axisnum : '[JOINT_%i]' % J})
-                        subs2.update({r'joint\.%i\.' % axisnum : 'joint.%i.' % J})
-                    else:
-                        subs.update({r'\[AXIS_%i\]' % J : '[JOINT_%i]' % J})
-                else:
-                    print("File parsing error, found an [AXIS_%i] section, but no content" % J)
-                    exit()
-    # We no longer need the [AXIS_N] data
-    for j in range(0,8):
-         if ("AXIS_%i" % j) in all_sections: all_sections.remove("AXIS_%i" % j)
-
     # If there were any custom sections, tag them on the end.
     while all_sections:
         copysection(all_sections[0])
-
-    # and turn the locking mask into a string
-    if lock_mask:
-        lock_string = 'unlock_joints_mask=%i' % lock_mask
-    else:
-        lock_string = ""
     
     #That's the INI file done:
     newini.close()
