@@ -398,6 +398,7 @@ class CloseDialog(LcncDialog, GeometryMixin):
 class ToolDialog(LcncDialog, GeometryMixin):
     def __init__(self, parent=None):
         super(ToolDialog, self).__init__(parent)
+        self._request_name = 'TOOLCHANGE'
         self.setText('<b>Manual Tool Change Request</b>')
         self.setInformativeText('Please Insert Tool 0')
         self.setStandardButtons(QMessageBox.Ok)
@@ -440,6 +441,8 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.sound_type = self.PREFS_.getpref('toolDialog_sound_type', 'READY', str, 'DIALOG_OPTIONS')
         else:
             self.play_sound = False
+        # can acknowledge from status messages too
+        STATUS.connect('dialog-update', self._status_update)
 
     # process callback from 'change' HAL pin
     def tool_change(self, change):
@@ -490,7 +493,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
     # process callback for 'change-button' HAL pin
     # hide the message dialog or desktop notify message
     def external_acknowledge(self, state):
-        #print('external acklnowledge: {}'.format(state))
+        #print('external acknowledge: {}'.format(state))
         if state:
             if self._useDesktopNotify:
                 self.deskNotice.close()
@@ -498,10 +501,29 @@ class ToolDialog(LcncDialog, GeometryMixin):
                 self.hide()
             self._processChange(True)
 
+    # callback from status 'update-dialog'
+    def _status_update(self, w, message):
+        print(message)
+        if message.get('NAME') == self._request_name:
+            if not self.isVisible(): return
+            print(self._request_name)
+            response = message.get('response')
+            if not response is None:
+                # 'ok'
+                if response == 1:
+                    if self._useDesktopNotify:
+                        self.deskNotice.close()
+                    elif self.isVisible():
+                        self.hide()
+                        self._processChange(True)
+                # 'cancel'
+                elif response == 0:
+                    self.hide()
+                    self._processChange(False)
 
     # This also is called from DesktopDialog
     def _processChange(self,answer):
-        #print('proces change: {}'.format(answer))
+        print('process change: {}'.format(answer))
         if answer == -1:
             self.changed.set(True)
             ACTION.ABORT()
@@ -516,6 +538,16 @@ class ToolDialog(LcncDialog, GeometryMixin):
 
         self.record_geometry()
         STATUS.emit('focus-overlay-changed', False, None, None)
+
+    # decode button presses
+    def msgbtn(self, i):
+        LOG.debug('Button pressed is: {}'.format(i.text()))
+        if self.clickedButton() == self._actionbutton:
+            self._processChange(-1)
+        elif self.standardButton(self.clickedButton()) == QMessageBox.Ok:
+            self._processChange(True)
+        else:
+            self._processChange(False)
 
     ###### overridden functions ################
 
@@ -557,16 +589,6 @@ class ToolDialog(LcncDialog, GeometryMixin):
     def showEvent(self, event):
         self.set_geometry()
         super(LcncDialog, self).showEvent(event)
-
-    # decode button presses
-    def msgbtn(self, i):
-        LOG.debug('Button pressed is: {}'.format(i.text()))
-        if self.clickedButton() == self._actionbutton:
-            self._processChange(-1)
-        elif self.standardButton(self.clickedButton()) == QMessageBox.Ok:
-            self._processChange(True)
-        else:
-            self._processChange(False)
 
     ############################################
 
