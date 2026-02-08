@@ -435,7 +435,7 @@ if version < "1.2":
     inistring, newini, all_sections = ini_preamble()
 
     all_sections.remove("DISPLAY")
-    section = re.search(r"\[DISPLAY\](.+?\n)(?=\[)", inistring, re.DOTALL)
+    section = re.search(r"(?:^|\n)[ \t]*(?!#)\[DISPLAY\](.+?\n)(?=\[|$)", inistring, re.DOTALL)
 
     if section: section = section.group(1)
     newini.write("\n[DISPLAY]")
@@ -467,7 +467,7 @@ if version < "1.2":
     # move [TRAJ]MIN_LINEAR_VELOCITY -> [DISPLAY]MIN_LINEAR_VELOCITY
     # rename [TRAJ, DISPLAY]MIN_VELOCITY --> MIN_LINEAR_VELOCITY
     # copy [TRAJ]MAX_LINEAR_VELOCITY -> [DISPLAY]MAX_LINEAR_VELOCITY
-        
+    
     #These sections don't need any work.
     copysection("FILTER")
     copysection("RS274NGC")
