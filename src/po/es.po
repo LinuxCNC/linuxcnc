@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-02-04 12:37+0000\n"
+"PO-Revision-Date: 2026-02-08 12:28+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -8278,7 +8278,7 @@ msgstr "Mostrar Configuración _Hal"
 
 #: share/axis/tcl/axis.tcl:183
 msgid "H_al Meter"
-msgstr "H_al Meter"
+msgstr "Medidor H_al"
 
 #: share/axis/tcl/axis.tcl:187
 msgid "Ha_l Scope"
@@ -11792,6 +11792,7 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -14122,10 +14123,8 @@ msgid "Voidlock Enable"
 msgstr "Activar bloqueo de vacío"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
-#, fuzzy
-#| msgid "Motor Enable"
 msgid "Auto Volts Enable"
-msgstr "Motor habilitado"
+msgstr "Activar voltaje auto"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
 msgid "Ohmic Probe Enable"
