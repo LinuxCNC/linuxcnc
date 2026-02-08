@@ -384,6 +384,11 @@ int tooldata_save(const char *filename)
     FILE *fp;
     int start_idx;
 
+    // filename == NULL happens without ini entry [EMCIO]TOOL_TABLE
+    // and a Task::emcToolSetOffset is performed.
+    if (!filename)
+        return -1;
+
     if (db_mode == DB_ACTIVE) {
         if (!is_random_toolchanger) {return 0;}
         filename = DB_SPINDLE_SAVE; //one entry tbl (nonran only)
