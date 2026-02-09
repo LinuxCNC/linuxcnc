@@ -40,6 +40,11 @@ def insert_after(key, new_line, section):
         new_line += "\n"
     return section[:line_end + 1] + new_line + section[line_end + 1:]
 
+def find_section(section, inistring):
+    section = re.search(r"(?:^|\n)[ \t]*(?!#)\[{}\](.+?\n)(?=\[|$)".format(section), inistring, re.DOTALL)
+    if section: section = section.group(1)
+    return section
+
 force = 0
 dialogs = 0
 subs = {}
@@ -446,9 +451,7 @@ if version < "1.2":
     inistring, newini, all_sections = ini_preamble()
 
     all_sections.remove("DISPLAY")
-    section = re.search(r"(?:^|\n)[ \t]*(?!#)\[DISPLAY\](.+?\n)(?=\[|$)", inistring, re.DOTALL)
-
-    if section: section = section.group(1)
+    section = find_section("DISPLAY", inistring)
     newini.write("\n[DISPLAY]")
     if section != None:
         if re.search("MIN_SPINDLE_OVERRIDE", section):
@@ -463,8 +466,6 @@ if version < "1.2":
             section = re.sub("MAX_SPINDLE_SPEED", "MAX_SPINDLE_0_SPEED", section)
         if re.search("MIN_VELOCITY", section):
             section = re.sub("MIN_VELOCITY", "MIN_LINEAR_VELOCITY", section)
-        
-        
         # Copy values from TRAJ
         if not re.search("DEFAULT_LINEAR_VELOCITY", section):
             val = ini.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
@@ -472,13 +473,14 @@ if version < "1.2":
                 section = insert_after("MAX_LINEAR_VELOCITY", f"DEFAULT_LINEAR_VELOCITY = {val}\n" , section)
         if not re.search("MIN_LINEAR_VELOCITY", section):
             val = ini.find("TRAJ", "MIN_LINEAR_VELOCITY")
+            if val is None:
+                val = ini.find("TRAJ", "MIN_VELOCITY")
             if val:
                 section = insert_after("MAX_LINEAR_VELOCITY", f"MIN_LINEAR_VELOCITY = {val}\n" , section)
         if not re.search("MAX_LINEAR_VELOCITY", section):
             val = ini.find("TRAJ", "MAX_LINEAR_VELOCITY")
             if val:
                 section = insert_after("MIN_LINEAR_VELOCITY", f"MAX_LINEAR_VELOCITY = {val}\n" , section)
-
         newini.write(section)
 
     # TODO update-ini 1.1 --> 1.2:
@@ -503,10 +505,17 @@ if version < "1.2":
     copysection("TASK")
     copysection("HAL")
     copysection("HALUI")
-    copysection("TRAJ")
-    copysection("EMCIO")
-    
-    # If there were any custom sections, tag them on the end.
+    # copysection("TRAJ")
+    all_sections.remove("TRAJ")
+    section = find_section("TRAJ", inistring)
+    if re.search("MIN_LINEAR_VELOCITY", section):
+        section = re.sub("MIN_LINEAR_VELOCITY.*\n?", "# moved MIN_LINEAR_VELOCITY to [DISPLAY]\n", section)
+    if re.search("MIN_VELOCITY", section):
+        section = re.sub("MIN_VELOCITY.*\n?", "# moved MIN_VELOCITY to DISPLAY]MIN_LINEAR_VELOCITY\n", section)
+    newini.write("\n[TRAJ]")
+    newini.write(section)
+       
+    # Copy the remaining sections
     while all_sections:
         copysection(all_sections[0])
     
