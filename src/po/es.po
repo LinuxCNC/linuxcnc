@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-02-08 12:28+0000\n"
+"PO-Revision-Date: 2026-02-09 14:24+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -406,13 +406,13 @@ msgstr "Posición absoluta inválida %5.2f para eje giratorio %c"
 msgid "Cannot change control mode with cutter radius compensation on"
 msgstr ""
 "No se puede cambiar el modo de control con la compensación del radio de "
-"corte ON"
+"corte activa"
 
 #: src/emc/rs274ngc/interp_convert.cc:2313
 msgid "Cannot change coordinate systems with cutter radius compensation on"
 msgstr ""
 "No se pueden cambiar los sistemas de coordenadas con la compensación del "
-"radio de corte ON"
+"radio de corte activa"
 
 #: src/emc/rs274ngc/interp_convert.cc:2550
 #, c-format
@@ -1553,7 +1553,7 @@ msgstr "Velocidad de husillo negativa"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
 msgid "Negative tool id (tool not found)"
-msgstr "ID de herramienta negativo (herramienta no encontrada)"
+msgstr "Identificador de herramienta negativo (herramienta no encontrada)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:125
 msgid "Nested comment found"
@@ -2531,7 +2531,7 @@ msgstr "Movimiento G38.2 terminado sin hacer contacto."
 
 #: src/emc/motion/control.c:726
 msgid "Probe tripped during non-probe move."
-msgstr "La sonda se disparó durante movimiento no-sonda MDI."
+msgstr "La sonda se disparó durante movimiento no-sonda."
 
 #: src/emc/motion/control.c:769
 msgid "Probe tripped during homing motion."
@@ -4516,7 +4516,7 @@ msgstr "Demasiadas conexiones IP en ejecución...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:258
 msgid "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
-msgstr "INFO CLASSICLADDER- Enviando el marco al módulo de E / S...\n"
+msgstr "INFO CLASSICLADDER-   Enviando el marco al módulo de E/S...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:264
 #, c-format
@@ -14156,7 +14156,7 @@ msgstr "Cambiar consumibles"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "Frame Job"
-msgstr ""
+msgstr "Trabajo de marco"
 
 #: src/emc/usr_intf/pncconf/private_data.py:499
 msgid "Plus"
@@ -18740,7 +18740,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:536
 msgid "<b>frame2</b>"
-msgstr "<b> marco2 </b>"
+msgstr "<b>marco2</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:589
 msgid "Save & Quit"
