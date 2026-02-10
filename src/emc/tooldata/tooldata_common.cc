@@ -388,6 +388,13 @@ int tooldata_save(const char *filename)
         if (!is_random_toolchanger) {return 0;}
         filename = DB_SPINDLE_SAVE; //one entry tbl (nonran only)
     } else {
+        // filename == NULL happens without ini entry [EMCIO]TOOL_TABLE
+        // and a Task::emcToolSetOffset is performed.
+        if (!filename) {
+            fprintf(stderr, "%s: No filename. Are you missing INI-entry [EMCIO]TOOL_TABLE?\n",
+                    __PRETTY_FUNCTION__);
+            return -1;
+        }
         if (filename[0] == 0) {
             UNEXPECTED_MSG;
         }
