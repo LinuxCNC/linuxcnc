@@ -200,11 +200,6 @@ know that the module has moved from `/usr/lib/libcanterp.so` to
 correspondingly needs to change from `libcanterp.so` to `canterp.so`.
 
 
-
-== Updating Configuration Files (for 2.9.y)
-
-No changes should be necessary to configuration files when moving from 2.8.x to 2.9.y.
-
 === Spindle limits in the INI
 
 It is now possible to add settings to the [SPINDLE] section of the INI file
