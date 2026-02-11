@@ -2122,7 +2122,19 @@ static void update_status(void)
 	}
 #endif
 	joint_status->flag = joint->flag;
-	joint_status->homing = get_homing(joint_num);
+	if(!(joint_status->homing && !get_homing(joint_num) && get_homing_is_active())) {
+		// Prevent race condition.
+		// (See also emc/motion/homing.c: base_write_homing_out_pins())
+		// The homing status variable turns false before get_homing_is_active()
+		// turns false. This means that a new homing command on a joint might
+		// fail due to the homing state machine being active while all joints
+		// already are in the 'not homing' state.
+		// Solution:
+		// Do not update the homing status when going from homing --> not homing
+		// and the state machine is still active. The homing status deassertion
+		// must be delayed until the state machine is done.
+		joint_status->homing = get_homing(joint_num);
+	}
 	joint_status->homed  = get_homed(joint_num);
 	joint_status->pos_cmd = joint->pos_cmd;
 	joint_status->pos_fb = joint->pos_fb;
