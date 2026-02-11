@@ -14,9 +14,9 @@ from tkinter import messagebox
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work
-    regex = r"^\s*\[%s\](\n(?:^(?!\[).*\n?)*)" % block
+    regex = r"^\s*\[%s\](\n(?:^(?!\[).*(?:\n(?=^(?!\[))|$))*)" % block
     section = re.search(regex, inistring, re.M)
-    newini.write("[%s]" % block)
+    newini.write("\n[%s]" % block)
     if section is not None:
         newini.write(section.group(1))
         all_sections.remove(block)
@@ -41,7 +41,7 @@ def insert_after(key, new_line, section):
     return section[:line_end + 1] + new_line + section[line_end + 1:]
 
 def find_section(section, inistring):
-    section = re.search(r"(?:^|\n)[ \t]*(?!#)\[{}\](.+?\n)(?=\[|$)".format(section), inistring, re.DOTALL)
+    section = re.search(r"^\s*\[%s\](\n(?:^(?!\[).*(?:\n(?=^(?!\[))|$))*)" % section, inistring, re.M)
     if section: section = section.group(1)
     return section
 
@@ -190,7 +190,7 @@ print("halpaths = ", halpaths)
 ############ Convert INI files ############
 ###########################################
 
-def ini_preamble():
+def ini_preamble(version):
     """
     The part which is equal for the conversions up from version 1.1
     """
@@ -220,26 +220,18 @@ def ini_preamble():
     newini.write("[EMC]")
     if section != None:
         if version != "0.0":
-            section = re.sub("VERSION (.+)", "VERSION = %s" % THIS_VERSION, section)
+            section = re.sub("VERSION (.+)", "VERSION = %s" % version, section)
         else:
             newini.write("# The version string for this INI file.\n")
-            newini.write("VERSION = %s\n" % THIS_VERSION)
+            newini.write("VERSION = %s\n" % version)
         newini.write(section)
     else:
-         newini.write("VERSION = %s\n" % THIS_VERSION)
+         newini.write("VERSION = %s\n" % version)
 
     return inistring, newini, all_sections
 
-if version == "1.0":
-    #Just update the version in the INI
-    inistring = open(filename,'r').read()
-    newini = open(filename, 'w')
-    inistring = re.sub("VERSION *= *(.*)", "VERSION = %s" % THIS_VERSION, inistring)
-    newini.write(inistring)
-    newini.close()
-
 if version == "$Revision$" or version < "1.0":
-    inistring, newini, all_sections = ini_preamble()
+    inistring, newini, all_sections = ini_preamble("1.0")
     #These sections don't need any work.
     copysection("DISPLAY")
     copysection("FILTER")
@@ -447,8 +439,16 @@ if version == "$Revision$" or version < "1.0":
     #That's the INI file done:
     newini.close()
 
+if version == "1.0":
+    #Just update the version in the INI
+    inistring = open(filename,'r').read()
+    newini = open(filename, 'w')
+    inistring = re.sub("VERSION *= *(.*)", "VERSION = 1.1", inistring)
+    newini.write(inistring)
+    newini.close()
+
 if version < "1.2":
-    inistring, newini, all_sections = ini_preamble()
+    inistring, newini, all_sections = ini_preamble("1.2")
 
     all_sections.remove("DISPLAY")
     section = find_section("DISPLAY", inistring)
