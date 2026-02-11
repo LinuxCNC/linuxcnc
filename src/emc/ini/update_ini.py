@@ -108,23 +108,40 @@ elif version >= THIS_VERSION:
 
 # Show start message with abort option
 if dialogs:
-    ret = ''
-    if version == "1.0":
-        ret = messagebox._show("Confirm automatic update",
-                            "This version of LinuxCNC separates the concepts of Axes and "
-                            "Joints which necessitates changes to the INI and HAL files. "
-                            "The changes required are described here:\n"
-                            "http://linuxcnc.org/docs/2.9/html/ in the section "
-                            "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n"
-                            "The [EMC]VERSION data in your INI file indicates that your "
-                            "configuration requires update.\n"
-                            "A script exists that can attempt to automatically "
-                            "reconfigure your configuration files.\nPress 'Yes' to perform "
-                            "the conversion, 'No' to continue with the current configuration "
-                            "files or 'Cancel' to exit LinuxCNC.\n"
-                            "The process can not be automatically reversed, though a "
-                            "backup version of your entire existing config will be created.",
-                            messagebox.QUESTION, messagebox.YESNOCANCEL)
+    message = ""
+    if version == "$Revision$" or version < "1.0":
+        message += "LinuxCNC 2.8: This version of LinuxCNC separates the concepts of Axes and "\
+                "Joints which necessitates changes to the INI and HAL files. "\
+                "The changes required are described here:\n"\
+                "http://linuxcnc.org/docs/2.8/html/ in the section "\
+                "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n\n"
+    
+    if version < "1.1":
+        message += "LinuxCNC 2.9: This version of LinuxCNC adds support for multiple spindles "\
+                "which necessitates changes to the HAL files. "\
+                "The changes required are described here:\n"\
+                "http://linuxcnc.org/docs/2.9/html/ in the section "\
+                "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n\n"
+
+    if version < "1.2":
+         message += "LinuxCNC 2.10: In this version of LinuxCNC some names in "\
+                "the configuration files have changed "\
+                "which necessitates changes to the INI files. "\
+                "The changes required are described here:\n"\
+                "http://linuxcnc.org/docs/2.10/html/ in the section "\
+                "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n\n"
+                
+    message +=  "The [EMC]VERSION data in your INI file indicates that your "\
+                "configuration requires update.\n"\
+                "A script exists that can attempt to automatically "\
+                "reconfigure your configuration files.\nPress 'Yes' to perform "\
+                "the conversion, 'No' to continue with the current configuration "\
+                "files or 'Cancel' to exit LinuxCNC.\n"\
+                "The process can not be automatically reversed, though a "\
+                "backup version of your entire existing config will be created."
+
+    ret = messagebox._show("Confirm automatic update", message,
+                           messagebox.QUESTION, messagebox.YESNOCANCEL)
     if ret == 'cancel': exit(42)
     elif ret == 'no': exit(0)
 
