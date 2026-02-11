@@ -960,7 +960,7 @@ int Interp::init()
           {
             char expandinistring[LINELEN];
             if (inifile.TildeExpansion(inistring->c_str(),expandinistring,sizeof(expandinistring))) {
-                   logDebug("TildeExpansion failed for: %s",inistring);
+                   logDebug("TildeExpansion failed for: %s",inistring->c_str());
             }
             printf("Tried WHIZ ini:%s\n",expandinistring);
             logDebug("[WIZARD]WIZARD_ROOT:%s", expandinistring);
