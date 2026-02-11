@@ -675,10 +675,7 @@ if version < "1.1":
         'halui.spindle.override.value'          : 'halui.spindle.0.override.value'
         })
 
-if subs == {}:
-    print("""This file does not need converting, and furthermore execution
-    should never have reached this spot""")
-else:
+if subs:
     for halfile in halpaths:
         halstring = open(halfile,'r').read()
         for sub in subs:
