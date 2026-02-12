@@ -137,10 +137,14 @@ class TreeItem(object):
         return 0
 
     def canMoveUp(self):
-        print('up?',self.parentItem.childItems.index(self))
-        if self.parentItem.childItems.index(self) == 0:
+        try:
+            print('up?',self.parentItem.childItems.index(self))
+            if self.parentItem.childItems.index(self) == 0:
+                return False
+            return True
+        except ValueError as e:
+            print(e)
             return False
-        return True
 
     def canMoveDown(self):
         print('down?',self.parentItem.childItems.index(self) )
