@@ -1662,7 +1662,7 @@ class NCam():
                             'Refresh -> Accept all new system files (don\'t ask again)\n'
                             'Cancel  -> Keep all local files (don\'t ask again)\n') \
                             % {'frompath':frompath})
-                        ans = self.mes_update_sys(msg,_("NEW file version available"))
+                        ans = mes_update_sys(msg,_("NEW file version available"))
 
                         # set copymode
                         if ans == YES : # yes
@@ -2968,6 +2968,8 @@ class NCam():
                 print('add items',self.items_ts_parent_s,xml.find(".//*[@path='%s']/param[@type='items']" %
                                 self.items_ts_parent_s))
                 # will append to items
+                print('find in xml:',".//*[@path='%s']/param[@type='items']" %
+                                self.items_ts_parent_s)
                 dest = xml.find(".//*[@path='%s']/param[@type='items']" %
                                 self.items_ts_parent_s)
                 opt = 2
