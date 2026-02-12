@@ -505,7 +505,7 @@ int tcSetTermCond(TC_STRUCT *prev_tc, TC_STRUCT *tc, int term_cond) {
 
     }
     if (prev_tc) {
-        tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, prev_tc->id, prev_tc->motion_type);
+        tp_debug_print("setting term condition %d on tc id %ld, type %d\n", term_cond, prev_tc->id.id, prev_tc->motion_type);
         prev_tc->term_cond = term_cond;
     }
     return 0;
@@ -675,7 +675,7 @@ int tcInit(TC_STRUCT * const tc,
     tc->enables = enables;
     tc->cycle_time = cycle_time;
 
-    tc->id = -1; //ID to be set when added to queue (may change before due to blend arcs)
+    tc->id.id = -1; //ID to be set when added to queue (may change before due to blend arcs)
 
     /** Segment settings (given values later during setup / optimization) */
     tc->indexer_jnum = -1;

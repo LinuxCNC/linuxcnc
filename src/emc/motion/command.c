@@ -1003,7 +1003,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Linear")) {
+	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id.line_number, "Linear")) {
 		reportError(_("invalid params in linear command"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotInternal->coord_tp);
@@ -1041,8 +1041,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 					emcmotCommand->tag);
         //KLUDGE ignore zero length line
         if (res_addline < 0) {
-            reportError(_("can't add linear move at line %d, error code %d"),
-                    emcmotCommand->id, res_addline);
+            reportError(_("can't add linear move id %ld at %s line %d, error code %d"),
+                    emcmotCommand->id.id, emcmotCommand->tag.filename, emcmotCommand->tag.fields[0], res_addline);
             emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
             tpAbort(&emcmotInternal->coord_tp);
             SET_MOTION_ERROR_FLAG(1);
@@ -1072,7 +1072,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Circular")) {
+	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id.line_number, "Circular")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1097,8 +1097,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                             emcmotCommand->acc, emcmotCommand->ini_maxjerk, emcmotStatus->enables_new,
 			    issue_atspeed, emcmotCommand->tag);
         if (res_addcircle < 0) {
-            reportError(_("can't add circular move at line %d, error code %d"),
-                    emcmotCommand->id, res_addcircle);
+            reportError(_("can't add circular move id %ld at %s line %d, error code %d"),
+                    emcmotCommand->id.id, emcmotCommand->tag.filename, emcmotCommand->tag.fields[0], res_addcircle);
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1454,7 +1454,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Probe")) {
+	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id.line_number, "Probe")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1524,7 +1524,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
-	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Rigid tap")) {
+	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id.line_number, "Rigid tap")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1550,8 +1550,8 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                                     emcmotCommand->tag);
         if (res_addtap < 0) {
             emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
-            reportError(_("can't add rigid tap move at line %d, error code %d"),
-                    emcmotCommand->id, res_addtap);
+            reportError(_("can't add rigid tap move id %ld at %s line %d, error code %d"),
+                    emcmotCommand->id.id, emcmotCommand->tag.filename, emcmotCommand->tag.fields[0], res_addtap);
 		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;

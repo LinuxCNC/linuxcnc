@@ -147,7 +147,7 @@ typedef struct {
     double elapsed_time;    // time elapsed since segment activation
     double last_move_length; // length of last move step for S-curve
 
-    int id;                 // segment's serial number
+    emcmot_motion_id_t id;                 // segment's serial number
     struct state_tag_t tag; // state tag corresponding to running motion
 
     union {                 // describes the segment's start and end positions

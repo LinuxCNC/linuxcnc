@@ -1338,12 +1338,11 @@ int emcTrajSetAFEnable(unsigned char enable)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajSetMotionId(int id)
+int emcTrajSetMotionId(emcmot_motion_id_t id)
 {
-
     if (EMC_DEBUG_MOTION_TIME & emc_debug) {
-	if (id != TrajConfig.MotionId) {
-	    rcs_print("Outgoing motion id is %d.\n", id);
+	if (id.id != TrajConfig.MotionId.id) {
+	    rcs_print("Outgoing motion id is %d %u.\n", id.line_number, id.filename_hash);
 	}
     }
 
@@ -1362,7 +1361,7 @@ int emcTrajInit()
     TrajConfig.AxisMask = 0;
     TrajConfig.LinearUnits = 1.0;
     TrajConfig.AngularUnits = 1.0;
-    TrajConfig.MotionId = 0;
+    TrajConfig.MotionId = { .id=0 } ;
     TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
 
     // init emcmot interface
@@ -1612,8 +1611,8 @@ int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double ac
 }
 
 
-static int last_id = 0;
-static int last_id_printed = 0;
+static emcmot_motion_id_t last_id = {.id=0};
+static emcmot_motion_id_t last_id_printed = {.id=0};
 static RCS_STATUS last_status = RCS_STATUS::UNINITIALIZED;
 static double last_id_time;
 
@@ -1662,9 +1661,9 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->dtg = emcmotStatus.dtg;
     stat->current_vel = emcmotStatus.current_vel;
     if (EMC_DEBUG_MOTION_TIME & emc_debug) {
-	if (stat->id != last_id) {
-	    if (last_id != last_id_printed) {
-		rcs_print("Motion id %d took %f seconds.\n", last_id,
+	if (stat->id.id != last_id.id) {
+	    if (last_id.id != last_id_printed.id) {
+		rcs_print("Motion id %d %u took %f seconds.\n", last_id.line_number, last_id.filename_hash,
 			  etime() - last_id_time);
 		last_id_printed = last_id;
 	    }
@@ -1695,10 +1694,10 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     if (EMC_DEBUG_MOTION_TIME & emc_debug) {
 	if (stat->status == RCS_STATUS::DONE && last_status != RCS_STATUS::DONE
-	    && stat->id != last_id_printed) {
-	    rcs_print("Motion id %d took %f seconds.\n", last_id,
+	    && stat->id.id != last_id_printed.id) {
+	    rcs_print("Motion id %d %u took %f seconds.\n", last_id.line_number, last_id.filename_hash,
 		      etime() - last_id_time);
-	    last_id_printed = last_id = stat->id;
+	    last_id_printed.id = last_id.id = stat->id.id;
 	    last_id_time = etime();
 	}
     }
@@ -2089,7 +2088,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     r3 = emcTrajUpdate(&stat->traj);
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
     r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axis_mask);
-    r3 = emcTrajUpdate(&stat->traj);
+    //r3 = emcTrajUpdate(&stat->traj);
     r4 = emcSpindleUpdate(&stat->spindle[0], stat->traj.spindles);
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;

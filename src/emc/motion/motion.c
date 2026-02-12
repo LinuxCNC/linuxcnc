@@ -890,7 +890,7 @@ static int init_comm_buffers(void)
        override, and feed hold are on */
     emcmotStatus->enables_new = FS_ENABLED | SS_ENABLED | FH_ENABLED;
     emcmotStatus->enables_queued = emcmotStatus->enables_new;
-    emcmotStatus->id = 0;
+    emcmotStatus->id.id = 0;
     emcmotStatus->depth = 0;
     emcmotStatus->activeDepth = 0;
     emcmotStatus->paused = 0;
