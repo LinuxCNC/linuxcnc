@@ -16,6 +16,8 @@
 #ifndef CMS_HH
 #define CMS_HH
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -269,8 +271,8 @@ class CMS {
     CMS_STATUS update(unsigned short int &x);
     CMS_STATUS update(int &x);                             /* Used by emc2 */
     CMS_STATUS update(unsigned int &x);
-    CMS_STATUS update(long int &x);                        /* Used by emc2 */
-    CMS_STATUS update(unsigned long int &x);               /* Used by emc2 */
+    CMS_STATUS update(int64_t &x);                         /* Used by emc2 */
+    CMS_STATUS update(uint64_t &x);                        /* Used by emc2 */
     CMS_STATUS update(float &x);
     CMS_STATUS update(double &x);                          /* Used by emc2 */
     CMS_STATUS update(long double &x);
@@ -280,8 +282,8 @@ class CMS {
     CMS_STATUS update(unsigned short *x, unsigned int len);
     CMS_STATUS update(int *x, unsigned int len);           /* Used by emc2 */
     CMS_STATUS update(unsigned int *x, unsigned int len);
-    CMS_STATUS update(long *x, unsigned int len);
-    CMS_STATUS update(unsigned long *x, unsigned int len);
+    CMS_STATUS update(int64_t *x, unsigned int len);
+    CMS_STATUS update(uint64_t *x, unsigned int len);
     CMS_STATUS update(float *x, unsigned int len);
     CMS_STATUS update(double *x, unsigned int len);        /* Used by emc2 */
     CMS_STATUS update(long double *x, unsigned int len);

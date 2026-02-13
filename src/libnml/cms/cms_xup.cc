@@ -512,59 +512,59 @@ CMS_STATUS CMS_XDR_UPDATER::update(unsigned int *x, unsigned int len)
 
 /* LONG */
 
-CMS_STATUS CMS_XDR_UPDATER::update(long int &x)
+CMS_STATUS CMS_XDR_UPDATER::update(int64_t &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(long))) {
+    if (-1 == check_pointer((char *) &x, sizeof(int64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_long(current_stream, &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_long failed.\n");
+    if (xdr_int64_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_int64_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(long *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(int64_t *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(long))) {
+    if (-1 == check_pointer((char *) x, len * sizeof(int64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_vector(current_stream, (char *) x, len, sizeof(long),
-	    (xdrproc_t) xdr_long) != TRUE) {
+    if (xdr_vector(current_stream, (char *) x, len, sizeof(int64_t),
+	    (xdrproc_t) xdr_int64_t) != TRUE) {
 	rcs_print_error
-	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_long) failed.\n");
+	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_int64_t) failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned long int &x)
+CMS_STATUS CMS_XDR_UPDATER::update(uint64_t &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(unsigned long))) {
+    if (-1 == check_pointer((char *) &x, sizeof(uint64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_u_long(current_stream, &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_u_long failed.\n");
+    if (xdr_uint64_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_uint64_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
 
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned long *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(uint64_t *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(unsigned long))) {
+    if (-1 == check_pointer((char *) x, len * sizeof(uint64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
     if (xdr_vector(current_stream,
-	    (char *) x, len, sizeof(unsigned long),
-	    (xdrproc_t) xdr_u_long) != TRUE) {
+	    (char *) x, len, sizeof(uint64_t),
+	    (xdrproc_t) xdr_uint64_t) != TRUE) {
 	rcs_print_error
-	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_u_long) failed.\n");
+	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_uint64_t) failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);

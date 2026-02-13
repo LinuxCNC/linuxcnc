@@ -45,8 +45,8 @@ class CMS_UPDATER {
     virtual CMS_STATUS update(unsigned short int &x) = 0;
     virtual CMS_STATUS update(int &x) = 0;
     virtual CMS_STATUS update(unsigned int &x) = 0;
-    virtual CMS_STATUS update(long int &x) = 0;
-    virtual CMS_STATUS update(unsigned long int &x) = 0;
+    virtual CMS_STATUS update(int64_t &x) = 0;
+    virtual CMS_STATUS update(uint64_t &x) = 0;
     virtual CMS_STATUS update(float &x) = 0;
     virtual CMS_STATUS update(double &x) = 0;
     virtual CMS_STATUS update(long double &x) = 0;
@@ -56,8 +56,8 @@ class CMS_UPDATER {
     virtual CMS_STATUS update(unsigned short *x, unsigned int len) = 0;
     virtual CMS_STATUS update(int *x, unsigned int len) = 0;
     virtual CMS_STATUS update(unsigned int *x, unsigned int len) = 0;
-    virtual CMS_STATUS update(long *x, unsigned int len) = 0;
-    virtual CMS_STATUS update(unsigned long *x, unsigned int len) = 0;
+    virtual CMS_STATUS update(int64_t *x, unsigned int len) = 0;
+    virtual CMS_STATUS update(uint64_t *x, unsigned int len) = 0;
     virtual CMS_STATUS update(float *x, unsigned int len) = 0;
     virtual CMS_STATUS update(double *x, unsigned int len) = 0;
     virtual CMS_STATUS update(long double *x, unsigned int len) = 0;

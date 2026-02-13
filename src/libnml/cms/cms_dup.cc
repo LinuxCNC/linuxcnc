@@ -575,33 +575,33 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned int *x,
 
 /* Long functions */
 
-CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(long int &x)
+CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(int64_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(long))) {
+    if (-1 == check_pointer((char *) &x, sizeof(int64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
     if (encoding) {
-	end_current_string[15] = 0;
+	end_current_string[22] = 0;
 	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%+ld,", x);
-	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
+	if (end_current_string[22] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
-		("CMS_DISPLAY_ASCII_UPDATER: (warning) long with value %-14ld caused an overflow\n",
+		("CMS_DISPLAY_ASCII_UPDATER: (warning) int64_t with value %-21ld caused an overflow\n",
 		x);
 	}
-	end_current_string[15] = 0;
+	end_current_string[22] = 0;
     } else {
 	if (0 == end_current_string[0]) {
 	    x = 0;
 	    return status;
 	}
 	errno = 0;
-	long number = strtol(end_current_string, (char **) NULL, 10);
+	int64_t number = strtoll(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_DISPLAY_ASCII_UPDATER: Error %d: %s occurred during strtol of(%s).\n",
+		("CMS_DISPLAY_ASCII_UPDATER: Error %d: %s occurred during strtoll of(%s).\n",
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -612,10 +612,10 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(long int &x)
     return (status);
 }
 
-CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(long *x, unsigned int len)
+CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(int64_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(long) * len)) {
+    if (-1 == check_pointer((char *) x, sizeof(int64_t) * len)) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -627,10 +627,10 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(long *x, unsigned int len)
     return (status);
 }
 
-CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned long int &x)
+CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(uint64_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(unsigned long))) {
+    if (-1 == check_pointer((char *) &x, sizeof(uint64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -643,11 +643,11 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned long int &x)
 	    return status;
 	}
 	errno = 0;
-	unsigned long number =
-	    strtoul(end_current_string, (char **) NULL, 10);
+	uint64_t number =
+	    strtoull(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_DISPLAY_ASCII_UPDATER: Error %d:%s occurred during strtoul of(%s).\n",
+		("CMS_DISPLAY_ASCII_UPDATER: Error %d:%s occurred during strtoull of(%s).\n",
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
@@ -658,11 +658,11 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned long int &x)
     return (status);
 }
 
-CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned long *x,
+CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(uint64_t *x,
     unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(unsigned long) * len)) {
+    if (-1 == check_pointer((char *) x, sizeof(uint64_t) * len)) {
 	return (CMS_UPDATE_ERROR);
     }
 
