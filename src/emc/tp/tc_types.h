@@ -279,9 +279,6 @@ typedef struct {
     double achieved_exit_vel;            // Actual exit velocity we can achieve
     // Phase 4 TODO: With blending, achieved_exit_vel becomes the entry velocity
     // constraint for the next segment, enabling smooth velocity handoff.
-
-    // Metadata for active profile (legacy, may be removed)
-    double active_feed_scale;            // Feed scale of currently active profile
 } shared_optimization_data_9d_t;
 
 typedef struct {
@@ -291,38 +288,30 @@ typedef struct {
     double progress;        // where are we in the segment?  0..target
     double nominal_length;
 
-    //Velocity
-    double reqvel;          // vel requested by F word, calc'd by task
-    double target_vel;      // velocity to actually track, limited by other factors
-    double maxvel;          // max possible vel (feed override stops here)
-    double currentvel;      // keep track of current step (vel * cycle_time)
+    // === Velocity fields ===
+    // All planner types (0=trapezoidal, 1=S-curve, 2=9D Ruckig)
+    double reqvel;          // F-word request velocity, set by task (all planners)
+    double target_vel;      // velocity to track; planner 0/1: from optimizer; planner 2: from shared_9d.final_vel
+    double maxvel;          // absolute velocity cap (feed override cannot exceed this)
+    double currentvel;      // RT execution: current velocity (updated each servo cycle)
     double last_move_length;// last move length
-    double finalvel;        // velocity to aim for at end of segment
-    double term_vel;        // actual velocity at termination of segment
-    double kink_vel;        // Temporary way to store our calculation of maximum velocity we can handle if this segment is declared tangent with the next
-    double kink_accel_reduce_prev; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
-    double kink_accel_reduce; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
+    double finalvel;        // planner 0/1: rising tide backward pass; planner 2: backward pass cap (kink-limited)
+    double term_vel;        // planner 0 only: actual velocity at segment termination (trapezoidal split handoff)
+    double kink_vel;        // junction velocity limit from Jacobian projection (all planners)
+    double kink_accel_reduce_prev; // accel reduction at approximate tangent intersection (predecessor)
+    double kink_accel_reduce;      // accel reduction at approximate tangent intersection (this segment)
 
-    double factor;
+    // === Jerk fields ===
+    double maxjerk;                // max jerk limit (all planners: S-curve native, planner 2 passed to Ruckig)
+    double currentjerk;            // planner 1/2: current jerk (S-curve native, Ruckig for status reporting)
+    double currentacc;             // planner 1/2: current acceleration (S-curve native, Ruckig + split inheritance)
 
-    double targetvel;
-    double vt;
+    // === Acceleration fields ===
+    double maxaccel;        // max acceleration limit, set by task (all planners)
+    double acc_ratio_tan;   // ratio between normal and tangential accel
 
-    //Jerk
-    double maxjerk;                // max jerk for S-curve motion
-    double blend_maxjerk;          // max jerk during blend (set by look-ahead)
-    double currentjerk;            // current jerk for S-curve planning
-    double currentacc;             // current acceleration for S-curve planning
-    double lastacc;
-
-    //Acceleration
-    double maxaccel;        // accel calc'd by task
-    double acc_ratio_tan;// ratio between normal and tangential accel
-
-    //S-curve execution state
-    double initialvel;      // initial velocity when segment activated
-    int accel_phase;        // current phase of S-curve acceleration
-    double elapsed_time;    // time elapsed since segment activation
+    // === Execution state ===
+    double elapsed_time;    // time elapsed since segment activation (all planners)
 
     // Execution state for predictive handoff (owned by RT, atomically readable from userspace)
     double position_base;           // Accumulated offset from profile swaps
@@ -351,12 +340,12 @@ typedef struct {
                             // this segment (g64 mode)
 
     int blending_next;      // segment is being blended into following segment
-    double blend_vel;       // velocity below which we should start blending
+    double blend_vel;       // planner 0/1: velocity to start blending; planner 2: backward pass exit cap
     double tolerance;       // during the blend at the end of this move,
                             // stay within this distance from the path.
     int synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
-    double vel_at_blend_start;
+    double vel_at_blend_start; // planner 0/1 only: velocity when blend phase starts
     int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
     int atspeed;           // wait for the spindle to be at-speed before starting this move

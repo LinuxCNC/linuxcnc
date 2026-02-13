@@ -742,7 +742,6 @@ int tcSetupMotion(TC_STRUCT * const tc,
 
     tc->maxaccel = acc;
     tc->maxjerk = ini_maxjerk;
-    tc->blend_maxjerk = ini_maxjerk;  // default equals maxjerk, look-ahead adjusts as needed
 
     tc->maxvel = ini_maxvel;
 
