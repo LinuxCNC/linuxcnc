@@ -24,6 +24,7 @@
 #include "spherical_arc.h"
 #include "motion_types.h"
 #include "motion.h"
+#include "ruckig_wrapper.h"
 
 //Debug output
 #include "tp_debug.h"
@@ -327,34 +328,55 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
 }
 
 /**
- * Calculate the unit tangent vector at the current progress of a move.
- * For linear moves, this is constant. For circular moves, it varies with progress.
+ * Calculate the unit tangent vector at the current progress position of a move.
+ * This gives the accurate direction at tc->progress, important for accurate jerk output.
  */
 int tcGetCurrentTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
-
     switch (tc->motion_type) {
         case TC_LINEAR:
             *out = tc->coords.line.xyz.uVec;
             break;
         case TC_RIGIDTAP:
-            *out = tc->coords.rigidtap.xyz.uVec;
+            if (tc->progress > 0.5 * tc->target) {
+                // Returning from tap, direction is reversed
+                pmCartScalMult(&tc->coords.rigidtap.xyz.uVec, -1.0, out);
+            } else {
+                *out = tc->coords.rigidtap.xyz.uVec;
+            }
             break;
         case TC_CIRCULAR:
             {
                 // Calculate current angle based on progress
-                double current_angle = 0.0;
-                if (tc->target > 0.0) {
-                    current_angle = (tc->progress / tc->target) * tc->coords.circle.xyz.angle;
+                PmCircle const * const circle = &tc->coords.circle.xyz;
+                double angle = tc->progress / circle->radius;
+                // Handle spiral (radius varies)
+                if (circle->spiral != 0.0) {
+                    // For spiral, use approximation
+                    double r_ratio = circle->spiral * angle / (2.0 * PM_PI);
+                    double avg_radius = circle->radius * (1.0 + r_ratio / 2.0);
+                    angle = tc->progress / avg_radius;
                 }
-                pmCircleTangentVector(&tc->coords.circle.xyz, current_angle, out);
+                pmCircleTangentVector(circle, angle, out);
             }
             break;
         case TC_SPHERICAL:
-            // Spherical arcs used for blending - tangent calculation at arbitrary
-            // progress not yet implemented, direction will be zeroed in caller
-            return -1;
+            {
+                // For spherical blend arcs, calculate current tangent
+                SphericalArc const * const arc = &tc->coords.arc.xyz;
+
+                // Calculate progress fraction (0 to 1)
+                double total_length = arc->radius * arc->angle + arc->line_length;
+                double progress_frac = (total_length > DOUBLE_FUZZ) ?
+                                       tc->progress / total_length : 0.0;
+
+                // Use endpoint tangent as approximation based on progress
+                // (arcTangent only supports at_end=0 or 1)
+                int at_end = (progress_frac > 0.5) ? 1 : 0;
+                arcTangent(arc, out, at_end);
+            }
+            break;
         default:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n", tc->motion_type);
+            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d in tcGetCurrentTangentUnitVector!\n", tc->motion_type);
             return -1;
     }
     return 0;
@@ -684,6 +706,19 @@ int tcInit(TC_STRUCT * const tc,
 
     tc->acc_ratio_tan = BLEND_ACC_RATIO_TANGENTIAL;
 
+    // Initialize Ruckig planner fields
+    tc->ruckig_planner = NULL;
+    tc->ruckig_trajectory_time = 0.0;
+    tc->ruckig_planned = 0;
+    tc->ruckig_last_maxaccel = 0.0;
+    tc->ruckig_last_maxjerk = 0.0;
+    tc->ruckig_last_target_vel = 0.0;
+    tc->ruckig_last_final_vel = 0.0;
+    tc->ruckig_last_target_pos = 0.0;
+    tc->ruckig_last_use_velocity_control = 0;
+    tc->ruckig_last_req_pos = 0.0;
+    tc->ruckig_last_feed_override = 0.0;
+
     return TP_ERR_OK;
 }
 
@@ -701,6 +736,7 @@ int tcSetupMotion(TC_STRUCT * const tc,
 
     tc->maxaccel = acc;
     tc->maxjerk = ini_maxjerk;
+    tc->blend_maxjerk = ini_maxjerk;  // default equals maxjerk, look-ahead adjusts as needed
 
     tc->maxvel = ini_maxvel;
 
@@ -1037,6 +1073,23 @@ int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ)
     tc->target = pmCircle9Target(&tc->coords.circle);
 
     return TP_ERR_OK;
+}
+
+/**
+ * Clean up Ruckig planner resources in a TC_STRUCT.
+ */
+void tcCleanupRuckig(TC_STRUCT * const tc)
+{
+    if (!tc) {
+        return;
+    }
+
+    if (tc->ruckig_planner) {
+        ruckig_destroy(tc->ruckig_planner);
+        tc->ruckig_planner = NULL;
+    }
+    tc->ruckig_planned = 0;
+    tc->ruckig_trajectory_time = 0.0;
 }
 
 int tcClearFlags(TC_STRUCT * const tc)

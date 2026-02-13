@@ -128,24 +128,28 @@ typedef struct {
     double target_vel;      // velocity to actually track, limited by other factors
     double maxvel;          // max possible vel (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
+    double last_move_length;// last move length
     double finalvel;        // velocity to aim for at end of segment
     double term_vel;        // actual velocity at termination of segment
     double kink_vel;        // Temporary way to store our calculation of maximum velocity we can handle if this segment is declared tangent with the next
     double kink_accel_reduce_prev; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
     double kink_accel_reduce; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
 
+    double factor;
+
+    double targetvel;
+    double vt;
+
+    //Jerk
+    double maxjerk;                // max jerk for S-curve motion
+    double blend_maxjerk;          // max jerk during blend (set by look-ahead)
+    double currentjerk;            // current jerk for S-curve planning
+    double currentacc;             // current acceleration for S-curve planning
+    double lastacc;
+
     //Acceleration
     double maxaccel;        // accel calc'd by task
     double acc_ratio_tan;// ratio between normal and tangential accel
-
-    //S-curve jerk limiting
-    double maxjerk;         // max jerk for S-curve motion
-    double currentacc;      // current acceleration for S-curve planning
-    double currentjerk;     // current jerk for S-curve planning
-    double initialvel;      // initial velocity when segment activated
-    int accel_phase;        // current phase of S-curve acceleration
-    double elapsed_time;    // time elapsed since segment activation
-    double last_move_length; // length of last move step for S-curve
 
     int id;                 // segment's serial number
     struct state_tag_t tag; // state tag corresponding to running motion
@@ -191,6 +195,20 @@ typedef struct {
 
     // Temporary status flags (reset each cycle)
     int is_blending;
+
+    // Ruckig trajectory planner support
+    void *ruckig_planner;              // Ruckig planner handle (opaque pointer)
+    double ruckig_trajectory_time;     // current trajectory time (seconds from trajectory start)
+    int ruckig_planned;                // whether Ruckig planning completed (1=planned, 0=not)
+    // Store last planning parameters for detecting parameter changes
+    double ruckig_last_maxaccel;       // max acceleration used in last planning
+    double ruckig_last_maxjerk;        // max jerk used in last planning
+    double ruckig_last_target_vel;     // target velocity used in last planning
+    double ruckig_last_final_vel;      // final velocity used in last planning
+    double ruckig_last_target_pos;     // target position used in last planning
+    int ruckig_last_use_velocity_control;  // control mode used in last planning (1=velocity, 0=position)
+    double ruckig_last_req_pos;        // last req_pos value from Ruckig (for velocity control incremental calc)
+    double ruckig_last_feed_override;  // feed override value at last planning (for debug and change detection)
 } TC_STRUCT;
 
 #endif				/* TC_TYPES_H */

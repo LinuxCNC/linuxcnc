@@ -4,11 +4,26 @@ MOTION_LOGGER_SRCS := \
 	$(addprefix emc/motion-logger/, motion-logger.c) \
 	emc/motion/axis.c \
 	emc/motion/simple_tp.c \
-	emc/tp/sp_scurve.c
+	emc/tp/sp_scurve.c \
+	emc/tp/ruckig_wrapper.cc
 
-USERSRCS += $(MOTION_LOGGER_SRCS)
+RUCKIG_SRCS := \
+	emc/tp/ruckig/src/ruckig/brake.cpp \
+	emc/tp/ruckig/src/ruckig/position_first_step1.cpp \
+	emc/tp/ruckig/src/ruckig/position_first_step2.cpp \
+	emc/tp/ruckig/src/ruckig/position_second_step1.cpp \
+	emc/tp/ruckig/src/ruckig/position_second_step2.cpp \
+	emc/tp/ruckig/src/ruckig/position_third_step1.cpp \
+	emc/tp/ruckig/src/ruckig/position_third_step2.cpp \
+	emc/tp/ruckig/src/ruckig/velocity_second_step1.cpp \
+	emc/tp/ruckig/src/ruckig/velocity_second_step2.cpp \
+	emc/tp/ruckig/src/ruckig/velocity_third_step1.cpp \
+	emc/tp/ruckig/src/ruckig/velocity_third_step2.cpp
 
-../bin/motion-logger: $(call TOOBJS, $(MOTION_LOGGER_SRCS)) ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
+USERSRCS += $(MOTION_LOGGER_SRCS) $(RUCKIG_SRCS)
+
+INCLUDES += emc/tp/ruckig/include
+
+../bin/motion-logger: $(call TOOBJS, $(MOTION_LOGGER_SRCS) $(RUCKIG_SRCS)) ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
-
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lm

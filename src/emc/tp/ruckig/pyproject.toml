@@ -1,0 +1,46 @@
+[project]
+name = "ruckig"
+version = "0.15.5"
+authors = [
+  {name = "Lars Berscheid", email = "lars.berscheid@ruckig.com"},
+]
+readme = "README.md"
+description = "Instantaneous Motion Generation for Robots and Machines."
+keywords = ["robotics", "trajectory-generation", "real-time", "jerk-constrained", "time-optimal"]
+license = {text = "MIT License"}
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Programming Language :: C++",
+]
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://ruckig.com"
+Documentation = "https://docs.ruckig.com"
+Repository = "https://github.com/pantor/ruckig.git"
+Issues = "https://github.com/pantor/ruckig/issues"
+
+
+[build-system]
+requires = ["scikit-build-core", "pybind11>=2.9,<2.10"]
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+cmake.targets = ["python_ruckig"]
+sdist.exclude = [".github"]
+
+[tool.scikit-build.cmake.define]
+BUILD_PYTHON_MODULE = "ON"
+BUILD_SHARED_LIBS = "OFF"
+CMAKE_POSITION_INDEPENDENT_CODE = "ON"
+
+
+[tool.ruff]
+line-length = 160
+lint.select = ["A", "COM", "E", "F", "G", "N", "PIE", "PTH", "PYI", "RSE", "RET", "SIM", "TCH", "W", "Q"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+multiline-quotes = "single"

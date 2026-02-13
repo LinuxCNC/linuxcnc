@@ -1,0 +1,56 @@
+name: CD
+
+on:
+  workflow_dispatch:
+  release:
+    types: [released]
+
+jobs:
+  build-wheels:
+    # if: ${{ false }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Build wheels
+      uses: pypa/cibuildwheel@v3.0.1
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: wheels-${{ matrix.os }}-${{ strategy.job-index }}
+        path: ./wheelhouse/*.whl
+
+
+  make-source-dist:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Build SDist
+      run: pipx run build --sdist
+
+    - uses: actions/upload-artifact@v6
+      with:
+        path: dist/*.tar.gz
+
+
+  upload:
+    # if: ${{ false }}
+    needs: [build-wheels, make-source-dist]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+    - uses: actions/download-artifact@v6
+      with:
+        name: artifact
+        path: dist
+
+    - name: Upload to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1

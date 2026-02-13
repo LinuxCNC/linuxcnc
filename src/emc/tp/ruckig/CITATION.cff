@@ -1,0 +1,19 @@
+# YAML 1.2
+---
+cff-version: "1.2.0"
+message: "If you use this software, please cite it using these metadata."
+type: article
+title: "Jerk-limited Real-time Trajectory Generation with Arbitrary Target States"
+journal: "Robotics - Science and Systems (2021)"
+url: "https://publikationen.bibliothek.kit.edu/1000136018"
+doi: "10.15607/RSS.2021.XVII.015"
+authors:
+  - family-names: Berscheid
+    given-names: Lars
+  - family-names: "Kröger"
+    given-names: Torsten
+date-released: 2021-07-01
+isbn: "978-0-9923747-7-8"
+license: MIT
+repository-code: "https://github.com/pantor/ruckig"
+abstract: "We present Ruckig, an algorithm for Online Trajectory Generation (OTG) respecting third-order constraints and complete kinematic target states. Given any initial state of a system with multiple Degrees of Freedom (DoFs), Ruckig calculates a time-optimal trajectory to an arbitrary target state defined by its position, velocity, and acceleration limited by velocity, acceleration, and jerk constraints. The proposed algorithm and implementation allows three contributions: (1) To the best of our knowledge, we derive the first time-optimal OTG algorithm for arbitrary, multi-dimensional target states, in particular including non-zero target acceleration. (2) This is the first open-source prototype of time-optimal OTG with limited jerk and complete time synchronization for multiple DoFs. (3) Ruckig allows for directional velocity and acceleration limits, enabling robots to better use their dynamical resources. We evaluate the robustness and real-time capability of the proposed algorithm on a test suite with over 1,000,000,000 random trajectories as well as in real-world applications."
