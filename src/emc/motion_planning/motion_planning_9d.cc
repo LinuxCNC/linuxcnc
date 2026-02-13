@@ -1096,7 +1096,7 @@ struct RuckigProfileParams {
  */
 static bool computeAndStoreProfile(TC_STRUCT *tc, const RuckigProfileParams &p)
 {
-    ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
+    static ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
     ruckig::InputParameter<1> input;
     ruckig::Trajectory<1> traj;
 
@@ -1168,7 +1168,7 @@ static double findAchievableExitVelocity(double current_vel, double current_acc,
     if (remaining_dist <= 1e-9) return current_vel;  // No room to change velocity
 
     try {
-        ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
+        static ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
         ruckig::InputParameter<1> input;
         ruckig::Trajectory<1> traj;
 
@@ -1229,7 +1229,13 @@ static double findAchievableExitVelocity(double current_vel, double current_acc,
             }
         }
 
+        // Analytical upper bound: max velocity reachable under constant max_accel
+        // (ignores jerk, so always an overestimate). Tightens bracket for short segments.
+        double v_energy = sqrt(current_vel * current_vel + 2.0 * max_accel * remaining_dist);
+        if (v_energy < v_hi) v_hi = v_energy;
+
         for (int iter = 0; iter < 20; iter++) {
+            if (v_hi - v_lo < 0.5) break;  // 0.5 mm/s precision sufficient (callers use 0.01 tolerance)
             double v_mid = (v_lo + v_hi) * 0.5;
             input.target_velocity = {v_mid};
 
@@ -1865,6 +1871,16 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                     scaled_v_exit, tc->target, max_acc, max_jrk);
                 scaled_v_exit = fmin(scaled_v_exit, v_fwd);
                 scaled_v_entry = fmin(scaled_v_entry, v_bwd);
+            }
+
+            // Skip if profile already matches: same feed, entry velocity, and exit target.
+            // Avoids redundant Ruckig solves when forward pass already wrote correct profiles.
+            if (tc->shared_9d.profile.valid &&
+                fabs(tc->shared_9d.profile.computed_feed_scale - feed_scale) < 0.005 &&
+                fabs(tc->shared_9d.profile.v[0] - scaled_v_entry) < 0.5 &&
+                fabs(tc->shared_9d.profile.computed_desired_fvel - desired_fvel_for_profile) < 0.5) {
+                prev_exit_vel_scaled = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+                continue;
             }
 
             try {
