@@ -127,6 +127,30 @@ public:
      */
     const UserspaceKinematicsConfig& getConfig() const { return config_; }
 
+    /**
+     * Get per-joint jerk limit (for direction-dependent kink velocity computation)
+     */
+    double getJointJerkLimit(int joint) const { return limit_calc_.getJointJerkLimit(joint); }
+
+    /**
+     * Get per-joint acceleration limit
+     */
+    double getJointAccLimit(int joint) const { return limit_calc_.getJointAccLimit(joint); }
+
+    /**
+     * Get number of joints
+     */
+    int getNumJoints() const { return limit_calc_.getNumJoints(); }
+
+    /**
+     * Compute Jacobian at a world pose
+     *
+     * @param pose  World-space pose
+     * @param J     Output 9x9 Jacobian matrix
+     * @return true on success
+     */
+    bool computeJacobian(const EmcPose& pose, double J[9][9]) const;
+
 private:
     UserspaceKinematicsConfig config_;
     bool initialized_;

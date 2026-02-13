@@ -70,12 +70,12 @@ extern int tcqBackStep(TC_QUEUE_STRUCT * const tcq);
 extern int tcqLen(TC_QUEUE_STRUCT const * const tcq);
 
 /* look at nth item, first is 0 */
-extern TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n);
+extern TC_STRUCT * tcqItem(TC_QUEUE_STRUCT * const tcq, int n);
 
 /**
  * Get the "end" of the queue, the most recently added item.
  */
-extern TC_STRUCT * tcqLast(TC_QUEUE_STRUCT const * const tcq);
+extern TC_STRUCT * tcqLast(TC_QUEUE_STRUCT * const tcq);
 
 /**
  * Get item from the back of the queue.
