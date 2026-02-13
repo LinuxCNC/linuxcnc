@@ -498,6 +498,12 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             abc = tc->coords.arc.abc;
             uvw = tc->coords.arc.uvw;
             break;
+        case TC_DWELL:
+            // Dwell holds position - return start point
+            xyz = tc->coords.line.xyz.start;
+            abc = tc->coords.line.abc.start;
+            uvw = tc->coords.line.uvw.start;
+            break;
     }
 
     if (res_fit == TP_ERR_OK) {
@@ -1102,6 +1108,199 @@ int tcClearFlags(TC_STRUCT * const tc)
     tc->is_blending = false;
 
     return TP_ERR_OK;
+}
+
+/**
+ * Sample Ruckig profile at given time
+ *
+ * Evaluates the pre-computed Ruckig trajectory profile at time t.
+ * The profile consists of 7 phases with constant jerk in each phase.
+ * Within each phase, we integrate:
+ *   a(dt) = a0 + j * dt
+ *   v(dt) = v0 + a0*dt + 0.5*j*dt^2
+ *   p(dt) = p0 + v0*dt + 0.5*a0*dt^2 + (1/6)*j*dt^3
+ *
+ * @param profile   Pointer to ruckig_profile_t
+ * @param t         Time since segment start (seconds)
+ * @param pos       Output: position at time t
+ * @param vel       Output: velocity at time t
+ * @param acc       Output: acceleration at time t
+ * @param jerk      Output: jerk at time t
+ * @return          0 on success, -1 if profile invalid
+ */
+int ruckigProfileSample(ruckig_profile_t const * const profile,
+                        double t,
+                        double *pos,
+                        double *vel,
+                        double *acc,
+                        double *jerk)
+{
+    if (!profile || !profile->valid) {
+        return -1;
+    }
+
+    // Clamp time to valid range
+    if (t < 0.0) t = 0.0;
+    if (t >= profile->duration) {
+        // At or past end - return final state with zero jerk
+        *pos = profile->p[RUCKIG_PROFILE_PHASES];
+        *vel = profile->v[RUCKIG_PROFILE_PHASES];
+        *acc = profile->a[RUCKIG_PROFILE_PHASES];
+        *jerk = 0.0;
+        return 0;
+    }
+
+    // Find which phase we're in
+    int phase = 0;
+    double t_phase_start = 0.0;
+
+    for (int i = 0; i < RUCKIG_PROFILE_PHASES; i++) {
+        if (t < profile->t_sum[i]) {
+            phase = i;
+            break;
+        }
+        t_phase_start = profile->t_sum[i];
+        phase = i + 1;
+    }
+
+    // Clamp phase to valid range
+    if (phase >= RUCKIG_PROFILE_PHASES) {
+        phase = RUCKIG_PROFILE_PHASES - 1;
+        t_phase_start = (phase > 0) ? profile->t_sum[phase - 1] : 0.0;
+    }
+
+    // Time within this phase
+    double dt = t - t_phase_start;
+
+    // Get phase boundary conditions
+    double p0 = profile->p[phase];
+    double v0 = profile->v[phase];
+    double a0 = profile->a[phase];
+    double j = profile->j[phase];
+
+    // Polynomial evaluation for phase-based profiles
+    // Constant jerk per phase is exact for Ruckig's native phases
+    *jerk = j;
+    *acc = a0 + j * dt;
+    *vel = v0 + a0 * dt + 0.5 * j * dt * dt;
+    *pos = p0 + v0 * dt + 0.5 * a0 * dt * dt + (1.0/6.0) * j * dt * dt * dt;
+
+    return 0;
+}
+
+/**
+ * RT-safe jerk-limited emergency stop.
+ *
+ * Computes one cycle of jerk-limited deceleration to bring velocity to zero.
+ * Called each RT cycle when abort/pause is active during Ruckig execution.
+ *
+ * Algorithm: sqrt-profile targeting
+ * - Far from stop: ramp up to max deceleration
+ * - Close to stop: use sqrt(2*j*v) to compute smooth approach
+ * - Clamp jerk to limits, prevent velocity overshoot through zero
+ *
+ * Known limitations:
+ * - Not time-optimal (proper 3-phase profile would be better)
+ * - Edge cases near v=0 use heuristic clamping
+ * - Does not pre-compute full stopping trajectory
+ *
+ * Future improvement: Have userspace compute stopping trajectory via
+ * Ruckig when abort detected, hand off to RT via predictive mechanism.
+ */
+void tcComputeJerkLimitedStop(double v0, double a0,
+                              double j_max, double a_max,
+                              double dt,
+                              double *v_out, double *a_out,
+                              double *j_out, double *dist_out)
+{
+    // Handle edge cases
+    if (j_max <= 0.0) j_max = 1e6;
+    if (a_max <= 0.0) a_max = 1e6;
+    if (dt <= 0.0) dt = 0.001;
+
+    // Already stopped?
+    if (fabs(v0) < 1e-9 && fabs(a0) < 1e-9) {
+        *v_out = 0.0;
+        *a_out = 0.0;
+        *j_out = 0.0;
+        *dist_out = 0.0;
+        return;
+    }
+
+    // Direction of motion
+    double sign_v = (v0 >= 0.0) ? 1.0 : -1.0;
+    double v_abs = fabs(v0);
+
+    // Velocity that can be removed in one jerk phase (ramp down accel to 0):
+    // From a = j*t and v = 0.5*j*t^2, we get v = 0.5*a^2/j
+    double v_jerk_phase = 0.5 * a_max * a_max / j_max;
+
+    double j_cmd;
+    double a_target;
+
+    if (v_abs > v_jerk_phase * 2.0) {
+        // Far from stop: build up to max deceleration
+        a_target = -sign_v * a_max;
+    } else {
+        // Close to stop: use sqrt profile for smooth approach
+        // Target accel that will bring us to zero smoothly
+        a_target = -sign_v * sqrt(2.0 * j_max * v_abs);
+        if (fabs(a_target) > a_max) {
+            a_target = -sign_v * a_max;
+        }
+    }
+
+    // Compute jerk needed to move toward target acceleration
+    double a_error = a_target - a0;
+    double j_needed = a_error / dt;
+
+    // Clamp jerk to limits
+    if (j_needed > j_max) j_needed = j_max;
+    if (j_needed < -j_max) j_needed = -j_max;
+    j_cmd = j_needed;
+
+    // Check if we'd overshoot zero velocity this cycle
+    double v_predicted = v0 + a0 * dt + 0.5 * j_cmd * dt * dt;
+    if ((v0 > 0 && v_predicted < 0) || (v0 < 0 && v_predicted > 0)) {
+        // Would cross zero - compute jerk to land exactly at v=0
+        // v0 + a0*dt + 0.5*j*dt^2 = 0
+        // j = -2*(v0 + a0*dt) / dt^2
+        j_cmd = -2.0 * (v0 + a0 * dt) / (dt * dt);
+        if (j_cmd > j_max) j_cmd = j_max;
+        if (j_cmd < -j_max) j_cmd = -j_max;
+
+        // Recompute with clamped jerk
+        v_predicted = v0 + a0 * dt + 0.5 * j_cmd * dt * dt;
+        if ((v0 > 0 && v_predicted < 0) || (v0 < 0 && v_predicted > 0)) {
+            v_predicted = 0.0;
+        }
+    }
+
+    // Integrate one cycle
+    double a_new = a0 + j_cmd * dt;
+    double v_new = v0 + a0 * dt + 0.5 * j_cmd * dt * dt;
+    double d_new = v0 * dt + 0.5 * a0 * dt * dt + (1.0/6.0) * j_cmd * dt * dt * dt;
+
+    // Clamp acceleration
+    if (a_new > a_max) a_new = a_max;
+    if (a_new < -a_max) a_new = -a_max;
+
+    // Final velocity clamp - don't reverse
+    if ((v0 > 0 && v_new < 0) || (v0 < 0 && v_new > 0)) {
+        v_new = 0.0;
+        a_new = 0.0;
+    }
+
+    // If velocity is zero, zero acceleration too
+    if (fabs(v_new) < 1e-9) {
+        v_new = 0.0;
+        a_new = 0.0;
+    }
+
+    *v_out = v_new;
+    *a_out = a_new;
+    *j_out = j_cmd;
+    *dist_out = (d_new > 0) ? d_new : 0.0;  // Don't go backwards
 }
 
 

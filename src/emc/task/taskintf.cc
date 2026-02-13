@@ -1411,6 +1411,17 @@ int emcTrajDisable()
 
 int emcTrajAbort()
 {
+    // For planner_type 2: compute stop branch BEFORE sending abort command.
+    // This guarantees the stop branch is ready when RT processes the abort.
+    // Uses existing branch/merge infrastructure for smooth jerk-limited stop.
+    emcmot_status_t *status = usrmotGetEmcmotStatus();
+    if (status && status->planner_type == 2) {
+        TP_STRUCT *tp = usrmotGetTPDataPtr();
+        if (tp) {
+            tpRequestAbortBranch_9D(tp);
+        }
+    }
+
     emcmotCommand.command = EMCMOT_ABORT;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -1451,10 +1462,119 @@ int emcTrajResume()
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajDelay(double /*delay*/)
+int emcTrajDelay(double delay)
 {
-    /* nothing need be done here - it's done in task controller */
+    // Check if planner_type is 2 (9D dual-layer architecture)
+    emcmot_status_t *status = usrmotGetEmcmotStatus();
+    if (status && status->planner_type == 2) {
+        // Use inline dwell segment for planner_type 2
+        // This keeps dwell in the motion buffer, maintaining proper sync
+        // without forcing queue drain (which breaks velocity continuity)
+        TP_STRUCT *tp = usrmotGetTPDataPtr();
+        if (tp) {
+            int result = tpAddDwell(tp, delay, localEmcTrajTag);
+            if (result == 0) {
+                // Trigger optimization to compute profiles for segments after dwell
+                tpOptimizePlannedMotions_9D(tp, 16);
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "emcTrajDelay: added inline dwell %.3fs for planner_type 2\n", delay);
+                return 0;
+            }
+            // If tpAddDwell failed, fall through to default behavior
+            rtapi_print_msg(RTAPI_MSG_WARN,
+                "emcTrajDelay: tpAddDwell failed, falling back to task-layer delay\n");
+        }
+    }
 
+    /* For planner_type 0 and 1 (or fallback): done in task controller */
+    return 0;
+}
+
+/**
+ * Queue spindle ON action for planner_type 2 inline execution
+ *
+ * For planner_type 2 (9D architecture), spindle commands are queued as
+ * segment actions and fired by RT when the next segment activates.
+ * This maintains velocity continuity by not forcing queue drain.
+ *
+ * @param spindle Spindle number (0-based)
+ * @param speed Speed in RPM (positive)
+ * @param direction 1 for CW, -1 for CCW
+ * @return 0 on success, -1 if not using planner_type 2
+ */
+int emcTrajQueueSpindleOn(int spindle, double speed, int direction)
+{
+    emcmot_status_t *status = usrmotGetEmcmotStatus();
+    if (!status || status->planner_type != 2) {
+        return -1;  // Not planner_type 2, use normal command path
+    }
+
+    TP_STRUCT *tp = usrmotGetTPDataPtr();
+    if (!tp) {
+        return -1;
+    }
+
+    segment_action_type_t action = (direction > 0) ? SEG_ACTION_SPINDLE_CW : SEG_ACTION_SPINDLE_CCW;
+    int result = tpSetSegmentAction(tp, action, spindle, speed);
+    if (result == 0) {
+        rtapi_print_msg(RTAPI_MSG_DBG,
+            "emcTrajQueueSpindleOn: queued spindle %d %s @ %.1f RPM\n",
+            spindle, (direction > 0) ? "CW" : "CCW", speed);
+    }
+    return result;
+}
+
+/**
+ * Queue spindle OFF action for planner_type 2 inline execution
+ */
+int emcTrajQueueSpindleOff(int spindle)
+{
+    emcmot_status_t *status = usrmotGetEmcmotStatus();
+    if (!status || status->planner_type != 2) {
+        return -1;
+    }
+
+    TP_STRUCT *tp = usrmotGetTPDataPtr();
+    if (!tp) {
+        return -1;
+    }
+
+    int result = tpSetSegmentAction(tp, SEG_ACTION_SPINDLE_OFF, spindle, 0.0);
+    if (result == 0) {
+        rtapi_print_msg(RTAPI_MSG_DBG,
+            "emcTrajQueueSpindleOff: queued spindle %d OFF\n", spindle);
+    }
+    return result;
+}
+
+/**
+ * Queue coolant action for planner_type 2 inline execution
+ */
+int emcTrajQueueCoolant(int mist_on, int flood_on)
+{
+    emcmot_status_t *status = usrmotGetEmcmotStatus();
+    if (!status || status->planner_type != 2) {
+        return -1;
+    }
+
+    TP_STRUCT *tp = usrmotGetTPDataPtr();
+    if (!tp) {
+        return -1;
+    }
+
+    // Queue appropriate actions based on requested state
+    if (mist_on) {
+        tpSetSegmentAction(tp, SEG_ACTION_COOLANT_MIST, 0, 0.0);
+    }
+    if (flood_on) {
+        tpSetSegmentAction(tp, SEG_ACTION_COOLANT_FLOOD, 0, 0.0);
+    }
+    if (!mist_on && !flood_on) {
+        tpSetSegmentAction(tp, SEG_ACTION_COOLANT_OFF, 0, 0.0);
+    }
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "emcTrajQueueCoolant: mist=%d flood=%d\n", mist_on, flood_on);
     return 0;
 }
 
@@ -1486,8 +1606,18 @@ int emcTrajSetSpindleSync(int spindle, double fpr, bool wait_for_index)
 
 int emcTrajSetTermCond(int cond, double tolerance)
 {
+    // For planner_type 2: write directly to shared memory so the value is
+    // immediately visible to tpAddLine_9D/tpAddCircle_9D (called from this
+    // same thread). Without this, the RT command queue introduces a race:
+    // moves get added before RT processes the SET_TERM_COND command.
+    TP_STRUCT *tp = usrmotGetTPDataPtr();
+    if (tp) {
+        tp->termCond = cond;
+        tp->tolerance = tolerance;
+    }
+
+    // Also send RT command (needed for planner_type 0/1 and RT-side state)
     emcmotCommand.command = EMCMOT_SET_TERM_COND;
-    // Direct passthrough since TP can handle the distinction now
     emcmotCommand.termCond = cond;
     emcmotCommand.tolerance = tolerance;
 
@@ -1512,7 +1642,10 @@ int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxve
         // Use direct userspace planning for 9D planner
         TP_STRUCT *tp = usrmotGetTPDataPtr();
         if (tp) {
-            int result = tpAddLine_9D(tp, end, type, vel, ini_maxvel, acc, localEmcTrajTag);
+            // Get enables from status (FS_ENABLED, SS_ENABLED, etc.)
+            // This is critical for feed override to work!
+            unsigned char enables = status->enables_new;
+            int result = tpAddLine_9D(tp, end, type, vel, ini_maxvel, acc, enables, localEmcTrajTag);
 
             if (result == 0) {
                 // Success - motion queued in userspace
@@ -1562,7 +1695,48 @@ int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
     }
 #endif
 
-    // TODO: Direct TP calls disabled - see emcTrajLinearMove comment
+    // Check if planner_type is 2 (9D dual-layer architecture)
+    emcmot_status_t *status = usrmotGetEmcmotStatus();
+    if (status && status->planner_type == 2) {
+        // Use direct userspace planning for 9D planner
+        TP_STRUCT *tp = usrmotGetTPDataPtr();
+        if (tp) {
+            // Get enables from status (FS_ENABLED, SS_ENABLED, etc.)
+            unsigned char enables = status->enables_new;
+
+            // Convert PM_CARTESIAN to PmCartesian for tpAddCircle_9D
+            PmCartesian pm_center = {center.x, center.y, center.z};
+            PmCartesian pm_normal = {normal.x, normal.y, normal.z};
+
+            int result = tpAddCircle_9D(tp, end, pm_center, pm_normal, turn, type,
+                                        vel, ini_maxvel, acc, enables, localEmcTrajTag);
+
+            if (result == 0) {
+                // Success - motion queued in userspace
+                // Tell RT to skip re-queuing (but RT still executes from queue)
+                emcmotCommand.command = EMCMOT_SET_CIRCLE;
+                emcmotCommand.pos = end;
+                emcmotCommand.motion_type = type;
+                emcmotCommand.center.x = center.x;
+                emcmotCommand.center.y = center.y;
+                emcmotCommand.center.z = center.z;
+                emcmotCommand.normal.x = normal.x;
+                emcmotCommand.normal.y = normal.y;
+                emcmotCommand.normal.z = normal.z;
+                emcmotCommand.turn = turn;
+                emcmotCommand.id = TrajConfig.MotionId;
+                emcmotCommand.tag = localEmcTrajTag;
+                emcmotCommand.userspace_already_queued = 1;  // Skip RT queuing
+                return usrmotWriteEmcmotCommand(&emcmotCommand);
+            }
+
+            // If userspace planning failed, fall back to NML
+            rcs_print("9D userspace arc planning failed, falling back to RT queuing\n");
+        }
+        // Fall through to NML path if TP pointer unavailable
+    }
+
+    // Default path: Use NML messaging for planner_type 0 and 1 (or fallback for type 2)
     emcmotCommand.command = EMCMOT_SET_CIRCLE;
     emcmotCommand.pos = end;
     emcmotCommand.motion_type = type;
@@ -1579,6 +1753,7 @@ int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
     emcmotCommand.ini_maxjerk = ini_maxjerk;
+    emcmotCommand.userspace_already_queued = 0;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1749,6 +1924,17 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	stat->cycleTime = emcmotConfig.trajCycleTime;
 	stat->kinematics_type = emcmotConfig.kinType;
 	stat->maxVelocity = emcmotConfig.limitVel;
+    }
+
+    // For 9D planner: check for feed override changes during motion
+    // This is called periodically so feed changes are detected even when
+    // no new segments are being added
+    emcmot_status_t *mot_status = usrmotGetEmcmotStatus();
+    if (mot_status && mot_status->planner_type == 2) {
+        TP_STRUCT *tp = usrmotGetTPDataPtr();
+        if (tp) {
+            checkFeedOverride(tp);
+        }
     }
 
     return 0;

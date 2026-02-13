@@ -30,6 +30,9 @@
 // Userspace kinematics for trajectory planning
 #include "userspace_kinematics.hh"
 
+// Predictive handoff configuration for feed override handling
+#include "motion_planning_9d.hh"
+
 extern value_inihal_data old_inihal_data;
 
 /* Access to emcmotConfig from usrmotintf.cc (initialized by usrmotInit()) */
@@ -314,8 +317,85 @@ static int loadTraj(EmcIniFile *trajInifile)
             rcs_print("  SMOOTHING_PASSES = %d\n", smoothing_passes);
             rcs_print("  TC_QUEUE_SIZE = %d\n", tc_queue_size);
 
-            // TODO: Pass these parameters to motion controller
-            // For now, they will be hardcoded in motion_planning_9d.cc
+            // Predictive handoff configuration for feed override handling
+            // All timing values in milliseconds
+            double handoff_horizon_ms = 100.0;
+            double branch_window_ms = 50.0;
+            double min_buffer_time_ms = 100.0;
+            double target_buffer_time_ms = 200.0;
+            double max_buffer_time_ms = 500.0;
+            double feed_override_debounce_ms = 50.0;
+
+            trajInifile->Find(&handoff_horizon_ms, "HANDOFF_HORIZON_MS", "TRAJ");
+            trajInifile->Find(&branch_window_ms, "BRANCH_WINDOW_MS", "TRAJ");
+            trajInifile->Find(&min_buffer_time_ms, "MIN_BUFFER_TIME_MS", "TRAJ");
+            trajInifile->Find(&target_buffer_time_ms, "TARGET_BUFFER_TIME_MS", "TRAJ");
+            trajInifile->Find(&max_buffer_time_ms, "MAX_BUFFER_TIME_MS", "TRAJ");
+            trajInifile->Find(&feed_override_debounce_ms, "FEED_OVERRIDE_DEBOUNCE_MS", "TRAJ");
+
+            // Validate predictive handoff timing parameters
+            if (handoff_horizon_ms < 1.0 || handoff_horizon_ms > 1000.0) {
+                rcs_print("Warning: HANDOFF_HORIZON_MS %.1f out of range [1,1000], using default 100\n", handoff_horizon_ms);
+                handoff_horizon_ms = 100.0;
+            }
+            if (branch_window_ms < 10.0 || branch_window_ms > 500.0) {
+                rcs_print("Warning: BRANCH_WINDOW_MS %.1f out of range [10,500], using default 50\n", branch_window_ms);
+                branch_window_ms = 50.0;
+            }
+            if (min_buffer_time_ms < 10.0 || min_buffer_time_ms > 1000.0) {
+                rcs_print("Warning: MIN_BUFFER_TIME_MS %.1f out of range [10,1000], using default 100\n", min_buffer_time_ms);
+                min_buffer_time_ms = 100.0;
+            }
+            if (target_buffer_time_ms < min_buffer_time_ms || target_buffer_time_ms > 2000.0) {
+                rcs_print("Warning: TARGET_BUFFER_TIME_MS %.1f out of range [%.1f,2000], using default 200\n",
+                          target_buffer_time_ms, min_buffer_time_ms);
+                target_buffer_time_ms = 200.0;
+            }
+            if (max_buffer_time_ms < target_buffer_time_ms || max_buffer_time_ms > 5000.0) {
+                rcs_print("Warning: MAX_BUFFER_TIME_MS %.1f out of range [%.1f,5000], using default 500\n",
+                          max_buffer_time_ms, target_buffer_time_ms);
+                max_buffer_time_ms = 500.0;
+            }
+            if (feed_override_debounce_ms < 1.0 || feed_override_debounce_ms > 500.0) {
+                rcs_print("Warning: FEED_OVERRIDE_DEBOUNCE_MS %.1f out of range [1,500], using default 50\n", feed_override_debounce_ms);
+                feed_override_debounce_ms = 50.0;
+            }
+
+            // Get servo cycle time from motion config (already initialized)
+            // Default to 1ms if not available
+            double servo_cycle_time_sec = 0.001;
+            if (emcmotConfig && emcmotConfig->trajCycleTime > 0) {
+                servo_cycle_time_sec = emcmotConfig->trajCycleTime;
+            }
+
+            // Use max jerk from INI (already parsed above)
+            double default_max_jerk = jerk;
+            if (default_max_jerk < 1.0) {
+                default_max_jerk = 1e9;  // Match initraj.cc default
+            }
+
+            // Apply predictive handoff configuration
+            setHandoffConfig(handoff_horizon_ms,
+                             branch_window_ms,
+                             min_buffer_time_ms,
+                             target_buffer_time_ms,
+                             max_buffer_time_ms,
+                             feed_override_debounce_ms,
+                             servo_cycle_time_sec,
+                             default_max_jerk);
+
+            rcs_print("Predictive Handoff Configuration:\n");
+            rcs_print("  HANDOFF_HORIZON_MS = %.1f\n", handoff_horizon_ms);
+            rcs_print("  BRANCH_WINDOW_MS = %.1f\n", branch_window_ms);
+            rcs_print("  MIN_BUFFER_TIME_MS = %.1f\n", min_buffer_time_ms);
+            rcs_print("  TARGET_BUFFER_TIME_MS = %.1f\n", target_buffer_time_ms);
+            rcs_print("  MAX_BUFFER_TIME_MS = %.1f\n", max_buffer_time_ms);
+            rcs_print("  FEED_OVERRIDE_DEBOUNCE_MS = %.1f\n", feed_override_debounce_ms);
+            rcs_print("  servo_cycle_time = %.3f ms\n", servo_cycle_time_sec * 1000.0);
+            rcs_print("  default_max_jerk = %.0f\n", default_max_jerk);
+
+            // Initialize predictive handoff system
+            initPredictiveHandoff();
         }
         if (0 != emcTrajPlannerType(planner_type)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {

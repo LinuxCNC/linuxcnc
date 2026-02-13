@@ -1355,77 +1355,118 @@ static void get_pos_cmds(long period)
 	    ext_offset_coord_limit = 0;
 	}
 
-	/* Fill cubic buffer if needed (may need multiple points per cycle) */
-	while (cubicNeedNextPoint(&(joints[0].cubic))) {
-	    /* Use current trajectory position (already updated above) */
+	if (emcmotStatus->planner_type == 2) {
+	    /* Planner type 2 (Ruckig): bypass cubic interpolator. */
 	    EmcPose current_pos = emcmotStatus->carte_pos_cmd;
 
-	    /* OUTPUT KINEMATICS - convert to joints in local array */
 	    result = kinematicsInverse(&current_pos, positions, &iflags, &fflags);
-	    if(result == 0)
-	    {
-		/* copy to joint structures and spline them up */
+	    if (result == 0) {
+		double path_vel = emcmotStatus->current_vel;
+		double path_acc = emcmotStatus->current_acc;
+		double path_jerk = emcmotStatus->current_jerk;
+		PmCartesian dir = emcmotStatus->current_dir;
+
 		for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
-		    if(!isfinite(positions[joint_num]))
-		    {
-                       reportError(_("kinematicsInverse gave non-finite joint location on joint %d"),
-                           joint_num);
-                       SET_MOTION_ERROR_FLAG(1);
-                       emcmotInternal->enabling = 0;
-                       break;
+		    if (!isfinite(positions[joint_num])) {
+			reportError(_("kinematicsInverse gave non-finite joint location on joint %d"),
+			    joint_num);
+			SET_MOTION_ERROR_FLAG(1);
+			emcmotInternal->enabling = 0;
+			break;
 		    }
-		    /* point to joint struct */
 		    joint = &joints[joint_num];
 		    joint->coarse_pos = positions[joint_num];
-		    /* spline joints up-- note that we may be adding points
-		       that fail soft limits, but we'll abort at the end of
-		       this cycle so it doesn't really matter */
-		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
+		    joint->pos_cmd = positions[joint_num];
+
+		    /* Decompose path vel/acc/jerk into per-axis using direction vector.
+		     * For Cartesian machines joint 0,1,2 = X,Y,Z */
+		    double d = 0.0;
+		    if (joint_num == 0) d = dir.x;
+		    else if (joint_num == 1) d = dir.y;
+		    else if (joint_num == 2) d = dir.z;
+
+		    joint->vel_cmd = path_vel * d;
+		    joint->acc_cmd = path_acc * d;
+		    joint->jerk_cmd = path_jerk * d;
 		}
-	    }
-	    else
-	    {
-	       reportError(_("kinematicsInverse failed"));
-	       SET_MOTION_ERROR_FLAG(1);
-	       emcmotInternal->enabling = 0;
-	       break;
-	    }
-
-	    /* If cubic STILL needs more points, get next trajectory point */
-	    if (cubicNeedNextPoint(&(joints[0].cubic))) {
-		tpRunCycle(&emcmotInternal->coord_tp, period);
-		tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
+		/* Still feed the cubic so it stays primed if we switch planner types */
+		while (cubicNeedNextPoint(&(joints[0].cubic))) {
+		    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
+			cubicAddPoint(&(joints[joint_num].cubic), positions[joint_num]);
+		    }
+		}
 	    } else {
-		break;  // Buffer full, exit loop
+		reportError(_("kinematicsInverse failed"));
+		SET_MOTION_ERROR_FLAG(1);
+		emcmotInternal->enabling = 0;
+	    }
+	} else {
+	    /* Planner type 0 and 1: use cubic interpolator as before */
+
+	    /* Fill cubic buffer if needed (may need multiple points per cycle) */
+	    while (cubicNeedNextPoint(&(joints[0].cubic))) {
+		/* Use current trajectory position (already updated above) */
+		EmcPose current_pos = emcmotStatus->carte_pos_cmd;
+
+		/* OUTPUT KINEMATICS - convert to joints in local array */
+		result = kinematicsInverse(&current_pos, positions, &iflags, &fflags);
+		if(result == 0)
+		{
+		    /* copy to joint structures and spline them up */
+		    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
+			if(!isfinite(positions[joint_num]))
+			{
+			    reportError(_("kinematicsInverse gave non-finite joint location on joint %d"),
+				joint_num);
+			    SET_MOTION_ERROR_FLAG(1);
+			    emcmotInternal->enabling = 0;
+			    break;
+			}
+			/* point to joint struct */
+			joint = &joints[joint_num];
+			joint->coarse_pos = positions[joint_num];
+			/* spline joints up-- note that we may be adding points
+			   that fail soft limits, but we'll abort at the end of
+			   this cycle so it doesn't really matter */
+			cubicAddPoint(&(joint->cubic), joint->coarse_pos);
+		    }
+		}
+		else
+		{
+		    reportError(_("kinematicsInverse failed"));
+		    SET_MOTION_ERROR_FLAG(1);
+		    emcmotInternal->enabling = 0;
+		    break;
+		}
+
+		/* If cubic STILL needs more points, get next trajectory point */
+		if (cubicNeedNextPoint(&(joints[0].cubic))) {
+		    tpRunCycle(&emcmotInternal->coord_tp, period);
+		    tpGetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
+		} else {
+		    break;  // Buffer full, exit loop
+		}
+
+		/* END OF OUTPUT KINS */
+	    } // while
+	    /* there is data in the interpolators */
+	    /* run interpolation (consumes one point per RT cycle) */
+	    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
+		/* point to joint struct */
+		joint = &joints[joint_num];
+		/* interpolate to get new position and velocity */
+		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd),  &(joint->jerk_cmd));
 	    }
 
-	    /* END OF OUTPUT KINS */
-	} // while
-	/* there is data in the interpolators */
-	/* run interpolation (consumes one point per RT cycle) */
-	for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
-	    /* point to joint struct */
-	    joint = &joints[joint_num];
-	    /* interpolate to get new position and velocity */
-		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd),  &(joint->jerk_cmd));
-	}
-
-	/* Use accurate jerk values from TP output (for Cartesian machines only)
-	 * For standard XYZ machines, joint[0-2] correspond to X, Y, Z axes
-	 * TP outputs: current_jerk (path jerk) and current_dir (direction unit vector)
-	 * Per-axis jerk = path_jerk * direction_component
-	 */
-	if (emcmotStatus->planner_type == 1) {
-	    // S-curve mode: use accurate jerk values
-	    double path_jerk = emcmotStatus->current_jerk;
-	    PmCartesian dir = emcmotStatus->current_dir;
-
-	    // For the first 3 joints (assuming X, Y, Z), use accurate jerk
-	    if (NO_OF_KINS_JOINTS >= 1) joints[0].jerk_cmd = path_jerk * dir.x;
-	    if (NO_OF_KINS_JOINTS >= 2) joints[1].jerk_cmd = path_jerk * dir.y;
-	    if (NO_OF_KINS_JOINTS >= 3) joints[2].jerk_cmd = path_jerk * dir.z;
-	    // Rotary axes (A, B, C) keep the cubic interpolator values for now
-	}
+	    /* Use accurate jerk values from TP output (for Cartesian machines only) */
+	    if (emcmotStatus->planner_type == 1) {
+		double path_jerk = emcmotStatus->current_jerk;
+		PmCartesian dir = emcmotStatus->current_dir;
+		if (NO_OF_KINS_JOINTS >= 1) joints[0].jerk_cmd = path_jerk * dir.x;
+		if (NO_OF_KINS_JOINTS >= 2) joints[1].jerk_cmd = path_jerk * dir.y;
+		if (NO_OF_KINS_JOINTS >= 3) joints[2].jerk_cmd = path_jerk * dir.z;
+	    }
+	} /* end planner type dispatch */
 
 	/* report motion status */
 	SET_MOTION_INPOS_FLAG(0);

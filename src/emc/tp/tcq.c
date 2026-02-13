@@ -356,7 +356,7 @@ int tcqLen(TC_QUEUE_STRUCT const * const tcq)
  *
  * @return	 TC_STRUCT returns the TC elements
  */
-TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
+TC_STRUCT * tcqItem(TC_QUEUE_STRUCT * const tcq, int n)
 {
     if (tcqCheck(tcq) || (n < 0)) return NULL;
 
@@ -449,7 +449,7 @@ int tcqFull(TC_QUEUE_STRUCT const * const tcq)
  *
  * @return	 TC_STRUCT returns the TC element
  */
-TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
+TC_STRUCT *tcqLast(TC_QUEUE_STRUCT * const tcq)
 {
     if (tcqCheck(tcq)) {
         return NULL;

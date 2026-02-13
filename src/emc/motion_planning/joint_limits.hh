@@ -32,7 +32,7 @@ struct JointLimitConfig {
     double min_pos_limit;   // Lower soft limit on joint position
     double vel_limit;       // Maximum joint velocity
     double acc_limit;       // Maximum joint acceleration
-    double jerk_limit;      // Maximum joint jerk (for Phase 2+)
+    double jerk_limit;      // Maximum joint jerk (for S-curve planning)
 
     JointLimitConfig() :
         max_pos_limit(1e9),
@@ -48,10 +48,11 @@ struct JointLimitConfig {
 struct JointLimitResult {
     double max_world_vel;       // Max world velocity respecting joint vel limits
     double max_world_acc;       // Max world accel respecting joint acc limits
-    double max_world_jerk;      // Max world jerk (for Phase 2+)
+    double max_world_jerk;      // Max world jerk (for S-curve planning)
     bool position_ok;           // True if joint positions are within soft limits
     int limiting_joint_vel;     // Joint index that limits velocity (-1 if none)
     int limiting_joint_acc;     // Joint index that limits acceleration
+    int limiting_joint_jerk;    // Joint index that limits jerk
     double condition_number;    // Jacobian condition number (singularity indicator)
 
     JointLimitResult() :
@@ -61,6 +62,7 @@ struct JointLimitResult {
         position_ok(true),
         limiting_joint_vel(-1),
         limiting_joint_acc(-1),
+        limiting_joint_jerk(-1),
         condition_number(1.0) {}
 };
 
@@ -139,7 +141,14 @@ public:
     double getJointAccLimit(int joint) const;
 
     /**
+     * Get jerk limit for a specific joint
+     */
+    double getJointJerkLimit(int joint) const;
+
+    /**
      * Compute world-space limits at a pose given the Jacobian
+     *
+     * Uses conservative direction-independent bound (max |J[j][:]|).
      *
      * @param J             Jacobian matrix [joint][axis]
      * @param joint_pos     Current joint positions (for position limit check)
@@ -151,6 +160,30 @@ public:
                  const double joint_pos[9],
                  JointLimitResult& result,
                  double singularity_threshold = 100.0);
+
+    /**
+     * Compute world-space limits for a specific path tangent direction
+     *
+     * Uses the actual path tangent to compute tight bounds. The tangent
+     * is in world-axis units per unit of the Ruckig path parameter (which
+     * may be XYZ arc length). Rotary components can be >> 1.0 when
+     * rotary axes move much more than linear axes per unit path.
+     *
+     * The bound for each joint is:
+     *   limit[j] / sum(|J[j][a]| * |tangent[a]|)
+     *
+     * @param J             Jacobian matrix [joint][axis]
+     * @param joint_pos     Current joint positions (for position limit check)
+     * @param tangent       Path tangent: d(world_axis)/d(path_param) [9]
+     * @param result        Output limit result
+     * @param singularity_threshold  Condition number threshold for singularity
+     * @return true on success
+     */
+    bool computeForTangent(const double J[9][9],
+                           const double joint_pos[9],
+                           const double tangent[9],
+                           JointLimitResult& result,
+                           double singularity_threshold = 100.0);
 
     /**
      * Check if joint positions are within soft limits
@@ -177,6 +210,18 @@ private:
      * Compute maximum world acceleration from joint accel limits and Jacobian
      */
     double computeMaxAcceleration(const double J[9][9], int& limiting_joint);
+
+    /**
+     * Compute maximum world jerk from joint jerk limits and Jacobian
+     */
+    double computeMaxJerk(const double J[9][9], int& limiting_joint);
+
+    /**
+     * Tangent-aware versions: use sum(|J[j][a]| * |tangent[a]|) instead of max(|J[j][a]|)
+     */
+    double computeMaxVelocityForTangent(const double J[9][9], const double tangent[9], int& limiting_joint);
+    double computeMaxAccelerationForTangent(const double J[9][9], const double tangent[9], int& limiting_joint);
+    double computeMaxJerkForTangent(const double J[9][9], const double tangent[9], int& limiting_joint);
 
     /**
      * Compute Jacobian condition number (simplified)

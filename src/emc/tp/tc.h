@@ -122,6 +122,67 @@ int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ);
 
 int tcClearFlags(TC_STRUCT * const tc);
 
+/**
+ * Sample Ruckig profile at given time
+ *
+ * Evaluates the pre-computed Ruckig trajectory profile at time t.
+ * Uses polynomial integration: p(t) = p0 + v0*dt + 0.5*a0*dt^2 + (1/6)*j*dt^3
+ *
+ * @param profile   Pointer to ruckig_profile_t
+ * @param t         Time since segment start (seconds)
+ * @param pos       Output: position at time t
+ * @param vel       Output: velocity at time t
+ * @param acc       Output: acceleration at time t
+ * @param jerk      Output: jerk at time t
+ * @return          0 on success, -1 if profile invalid
+ */
+int ruckigProfileSample(ruckig_profile_t const * const profile,
+                        double t,
+                        double *pos,
+                        double *vel,
+                        double *acc,
+                        double *jerk);
+
+/**
+ * Compute one cycle of jerk-limited deceleration toward velocity = 0.
+ *
+ * RT-safe jerk-limited emergency stop implementation.
+ *
+ * When abort/pause is triggered during Ruckig profile execution, we can't
+ * follow the pre-computed profile (it would run to segment end). Instead,
+ * we compute jerk-limited deceleration cycle-by-cycle in RT to stop
+ * smoothly along the path.
+ *
+ * Current approach: Simple sqrt-profile targeting. Computes optimal
+ * deceleration each cycle to bring velocity to zero while respecting
+ * jerk and acceleration limits.
+ *
+ * Future refinement: Could use userspace to pre-compute a
+ * proper stopping trajectory via Ruckig when abort is detected, then
+ * hand off to RT via predictive handoff mechanism.
+ *
+ * @param v0        Current velocity (signed, positive = forward)
+ * @param a0        Current acceleration (signed)
+ * @param j_max     Maximum jerk (positive value)
+ * @param a_max     Maximum acceleration (positive value)
+ * @param dt        Time step (cycle time, typically 1ms)
+ * @param v_out     Output: new velocity after this cycle
+ * @param a_out     Output: new acceleration after this cycle
+ * @param j_out     Output: jerk applied this cycle
+ * @param dist_out  Output: distance traveled this cycle (always >= 0)
+ */
+void tcComputeJerkLimitedStop(double v0, double a0,
+                              double j_max, double a_max,
+                              double dt,
+                              double *v_out, double *a_out,
+                              double *j_out, double *dist_out);
+
+/**
+ * Clean up Ruckig planner resources in a TC_STRUCT.
+ * Called when the trajectory segment is removed or reset.
+ */
+void tcCleanupRuckig(TC_STRUCT * const tc);
+
 #ifdef __cplusplus
 }
 #endif
