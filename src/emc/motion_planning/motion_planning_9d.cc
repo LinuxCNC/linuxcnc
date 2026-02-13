@@ -2418,8 +2418,18 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             main_profile.computed_vel_limit = vel_limit;
             main_profile.computed_vLimit = tp->vLimit;
 
-            // Fix A: Reject profile if it contains backward motion
-            if (profileHasNegativeVelocity(&main_profile)) {
+            // Fix A: Reject profile if it contains backward motion.
+            // Exception: when resuming from feed hold at rest (v≈0, a≈0),
+            // Ruckig may produce a trajectory with a brief negative-velocity
+            // "wind-up" in the initial jerk phase.  This is a valid position-
+            // control artefact — the machine is stationary and the trajectory
+            // reaches the target correctly.  Blocking it causes a permanent
+            // freeze because computeBranch sets requested_feed_scale on failure,
+            // which suppresses retry detection in manageBranches.
+            bool skip_negvel_check = (resuming_from_feed_hold || resuming_from_pause)
+                                     && fabs(state.velocity) < 1e-3
+                                     && fabs(state.acceleration) < 1e-3;
+            if (!skip_negvel_check && profileHasNegativeVelocity(&main_profile)) {
                 return false;
             }
 
