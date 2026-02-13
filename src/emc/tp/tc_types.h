@@ -32,8 +32,49 @@ typedef enum {
     TC_LINEAR = 1,
     TC_CIRCULAR = 2,
     TC_RIGIDTAP = 3,
-    TC_SPHERICAL = 4
+    TC_SPHERICAL = 4,
+    TC_DWELL = 5        // Zero-length dwell segment (G4)
 } tc_motion_type_t;
+
+/**
+ * Segment action types for inline M-code execution
+ *
+ * Industrial controllers (Siemens, Fanuc) process M-codes inline with motion.
+ * This enum defines action types that can be attached to segments and fired
+ * by RT when the segment starts, maintaining proper synchronization without
+ * forcing queue drain (which breaks velocity continuity in planner_type 2).
+ *
+ * Actions fire via tpFireSegmentActions() when segment becomes active.
+ */
+typedef enum {
+    SEG_ACTION_NONE = 0,
+    SEG_ACTION_SPINDLE_CW,      // M3: Spindle on clockwise
+    SEG_ACTION_SPINDLE_CCW,     // M4: Spindle on counter-clockwise
+    SEG_ACTION_SPINDLE_OFF,     // M5: Spindle off
+    SEG_ACTION_COOLANT_MIST,    // M7: Mist coolant on
+    SEG_ACTION_COOLANT_FLOOD,   // M8: Flood coolant on
+    SEG_ACTION_COOLANT_OFF,     // M9: All coolant off
+    SEG_ACTION_TOOL_CHANGE,     // M6: Tool change (may need special handling)
+    SEG_ACTION_PROGRAM_STOP,    // M0/M1: Program stop
+    SEG_ACTION_PROBE_START,     // G38.x: Start probe move
+    SEG_ACTION_CUSTOM,          // For future extensibility
+    SEG_ACTION_MAX
+} segment_action_type_t;
+
+/**
+ * Segment action structure
+ *
+ * Attached to TC_STRUCT to fire actions when segment activates.
+ * Multiple actions can be queued by setting multiple flags.
+ * RT fires these via HAL pins or direct calls in tpActivateSegment().
+ */
+typedef struct {
+    unsigned int action_mask;       // Bitmask of segment_action_type_t flags
+    int spindle_num;                // Which spindle (0-based)
+    double spindle_speed;           // RPM for spindle on
+    int custom_action_id;           // For SEG_ACTION_CUSTOM
+    double custom_value;            // Parameter for custom action
+} segment_actions_t;
 
 typedef enum {
     TC_SYNC_NONE = 0,
@@ -145,6 +186,68 @@ typedef enum {
 } TCPlanningState;
 
 /**
+ * Ruckig trajectory profile for a single segment
+ *
+ * Stores the 9-phase jerk-limited profile computed by Ruckig.
+ * RT layer samples this at each servo cycle using polynomial evaluation.
+ *
+ * Phases 0-1: Brake pre-trajectory (brings initial state within limits)
+ *             Zero-duration when no brake needed.
+ * Phases 2-8: Main 7-phase S-curve:
+ *             accel_jerk -> accel_const -> accel_jerk -> cruise ->
+ *             decel_jerk -> decel_const -> decel_jerk
+ *
+ * Each phase has constant jerk from Ruckig's native arrays (not derived).
+ */
+#define RUCKIG_PROFILE_PHASES 9
+
+typedef struct {
+    int valid;                              // Profile has been computed
+    int locked;                             // DEBUG: 1 = Ruckig Working result (non-monotonic risk)
+    volatile int generation;                // Incremented each time profile is rewritten (stopwatch reset detection)
+    double duration;                        // Total profile duration (seconds)
+    double computed_feed_scale;             // Feed scale when profile was computed
+    double computed_vel_limit;              // Velocity limit when profile was computed (for vLimit change detection)
+    double computed_vLimit;                 // tp->vLimit when profile was computed (absolute cap, not scaled by feed)
+    double computed_desired_fvel;            // Desired final velocity when profile was computed (for convergence detection)
+    double t[RUCKIG_PROFILE_PHASES];        // Phase durations
+    double t_sum[RUCKIG_PROFILE_PHASES];    // Cumulative times (t_sum[i] = sum of t[0..i])
+    double j[RUCKIG_PROFILE_PHASES];        // Jerk for each phase
+    double p[RUCKIG_PROFILE_PHASES + 1];    // Position at phase boundaries
+    double v[RUCKIG_PROFILE_PHASES + 1];    // Velocity at phase boundaries
+    double a[RUCKIG_PROFILE_PHASES + 1];    // Acceleration at phase boundaries
+} ruckig_profile_t;
+
+/**
+ * Pending branch for feed override replanning
+ *
+ * Branch/Merge Architecture:
+ * - Userspace computes speculative branches when feed override changes
+ * - RT takes the branch if it reaches handoff_time before window_end_time
+ * - RT sets 'taken' flag when it takes the branch
+ * - Userspace merges (branch becomes canonical) when it sees taken=1
+ * - If RT passes window_end_time without taking, branch is discarded
+ *
+ * Invariants:
+ * - RT never waits - old plan always valid
+ * - Only userspace sets 'valid', only RT sets 'taken'
+ * - Single branch slot per segment (simplicity)
+ */
+typedef struct {
+    ruckig_profile_t profile;           // The main trajectory (position control)
+    ruckig_profile_t brake_profile;     // Optional brake trajectory (velocity control)
+    int has_brake;                      // 1 if brake_profile should execute first
+    double brake_end_position;          // Position where brake ends, main begins
+    double handoff_time;                // When RT should take the branch (elapsed_time)
+    double handoff_position;            // Position at handoff (for merge reconciliation)
+    double feed_scale;                  // Feed scale this branch was computed for
+    double window_end_time;             // Deadline - if RT past this, branch is stale
+    volatile int valid;                 // Userspace sets: branch is ready
+    volatile int taken;                 // RT sets: I took this branch
+    volatile int brake_done;            // RT sets: brake phase complete, now on main
+} pending_branch_t;
+
+/**
  * Shared optimization data for 9D planner
  *
  * This structure holds data that is shared between the userspace
@@ -157,6 +260,28 @@ typedef struct {
     double final_vel;                    // Target exit velocity
     double final_vel_limit;              // Max reachable exit velocity
     double computed_acc;                 // Computed acceleration limit
+    double entry_vel;                    // Computed entry velocity
+    ruckig_profile_t profile;            // Active profile being sampled by RT
+
+    // Branch/Merge architecture for feed override handling
+    pending_branch_t branch;             // Single pending branch slot
+    double canonical_feed_scale;         // Feed scale of current canonical plan
+
+    // Sequence counter for torn read detection during profile copy
+    // RT increments before copy (odd = in progress), after copy (even = complete)
+    // Userspace checks: if odd or changed, retry read
+    volatile unsigned int copy_sequence;
+
+    // Achievable feed cascade
+    // When segment is too short to achieve requested feed, we apply what's
+    // achievable and pass the remainder to the next segment.
+    double requested_feed_scale;         // What user requested (may not be achievable)
+    double achieved_exit_vel;            // Actual exit velocity we can achieve
+    // Phase 4 TODO: With blending, achieved_exit_vel becomes the entry velocity
+    // constraint for the next segment, enabling smooth velocity handoff.
+
+    // Metadata for active profile (legacy, may be removed)
+    double active_feed_scale;            // Feed scale of currently active profile
 } shared_optimization_data_9d_t;
 
 typedef struct {
@@ -194,6 +319,16 @@ typedef struct {
     double maxaccel;        // accel calc'd by task
     double acc_ratio_tan;// ratio between normal and tangential accel
 
+    //S-curve execution state
+    double initialvel;      // initial velocity when segment activated
+    int accel_phase;        // current phase of S-curve acceleration
+    double elapsed_time;    // time elapsed since segment activation
+
+    // Execution state for predictive handoff (owned by RT, atomically readable from userspace)
+    double position_base;           // Accumulated offset from profile swaps
+    int last_profile_generation;    // Last profile generation seen by RT (stopwatch reset detection)
+    volatile int active_segment_id; // Unique ID, atomically updated by RT
+
     int id;                 // segment's serial number
     struct state_tag_t tag; // state tag corresponding to running motion
 
@@ -226,6 +361,14 @@ typedef struct {
     unsigned char enables;  // Feed scale, etc, enable bits for this move
     int atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
+
+    // Inline segment actions (planner_type 2)
+    // Fire when segment activates, without forcing queue drain
+    segment_actions_t actions;
+
+    // Dwell support (TC_DWELL segments)
+    double dwell_time;      // Total dwell duration in seconds
+    double dwell_remaining; // Countdown timer (decremented by RT each cycle)
     int indexer_jnum;  // which joint to unlock (for a locking indexer) to make this move, -1 for none
     int optimization_state;             // At peak velocity during blends)
     int on_final_decel;

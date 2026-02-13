@@ -14,6 +14,11 @@
 #include <cstring>
 #include <algorithm>
 
+extern "C" {
+#include "blendmath.h"  // For pmCircleAngleFromProgress, pmCirclePoint
+#include "tc.h"         // For pmCircle9Target, pmCartLinePoint
+}
+
 namespace motion_planning {
 
 PathSampler::PathSampler()
@@ -158,20 +163,74 @@ int PathSampler::sampleLine(const EmcPose& start,
 
 int PathSampler::sampleCircle(const EmcPose& start,
                               const EmcPose& end,
-                              const EmcPose& center,
-                              int plane,
-                              int direction,
+                              const PmCircle9& circle,
                               std::vector<PathSample>& samples) {
-    // Phase 4: Implement proper arc sampling
-    // For now, tessellate as a chord (straight line)
-    // This is a placeholder that will be replaced with proper arc handling
+    (void)start;  // Arc geometry is fully contained in circle parameter
+    (void)end;
 
-    (void)center;  // Unused for now
-    (void)plane;
-    (void)direction;
+    if (!initialized_) {
+        return -1;
+    }
 
-    // Just sample as a line for now
-    return sampleLine(start, end, samples);
+    samples.clear();
+
+    // Get arc length from circle geometry
+    double arc_length = pmCircle9Target(&circle);
+
+    // Determine number of samples based on arc length
+    int num_samples;
+    if (arc_length < 1e-9) {
+        num_samples = 2;
+    } else {
+        num_samples = static_cast<int>(std::ceil(arc_length / config_.sample_distance)) + 1;
+    }
+
+    // Clamp to min/max
+    num_samples = std::max(num_samples, config_.min_samples);
+    num_samples = std::min(num_samples, config_.max_samples);
+
+    samples.reserve(num_samples);
+
+    // Sample along the arc
+    for (int i = 0; i < num_samples; i++) {
+        double progress = (num_samples > 1) ?
+                          static_cast<double>(i) / (num_samples - 1) * arc_length :
+                          0.0;
+
+        // Get angle from progress (handles spiral arcs)
+        double angle = 0.0;
+        pmCircleAngleFromProgress(&circle.xyz, &circle.fit, progress, &angle);
+
+        // Get XYZ position along arc (does sin/cos)
+        PmCartesian xyz;
+        pmCirclePoint(&circle.xyz, angle, &xyz);
+
+        // Interpolate ABC and UVW linearly
+        double t = (arc_length > 1e-9) ? progress / arc_length : 0.0;
+        PmCartesian abc, uvw;
+        pmCartLinePoint(&circle.abc, t * circle.abc.tmag, &abc);
+        pmCartLinePoint(&circle.uvw, t * circle.uvw.tmag, &uvw);
+
+        // Build EmcPose from components
+        EmcPose pose;
+        pose.tran = xyz;
+        pose.a = abc.x;
+        pose.b = abc.y;
+        pose.c = abc.z;
+        pose.u = uvw.x;
+        pose.v = uvw.y;
+        pose.w = uvw.z;
+
+        PathSample sample;
+        if (!computeJoints(pose, sample)) {
+            sample.valid = false;
+        }
+
+        sample.distance_from_start = progress;
+        samples.push_back(sample);
+    }
+
+    return static_cast<int>(samples.size());
 }
 
 } // namespace motion_planning

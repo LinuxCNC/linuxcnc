@@ -46,6 +46,7 @@
 
 #include "tp_debug.h"
 #include "sp_scurve.h"
+#include "ruckig_wrapper.h"
 #include "atomic_9d.h"        // Atomic operations for 9D planner
 #include <stdio.h>
 
@@ -184,6 +185,11 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
 
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc);
 
+STATIC void tpFireSegmentActions(TC_STRUCT * const tc);
+
+/* Forward declaration - defined later, needed by tpAddSegmentToQueue */
+int tpClearSegmentActions(TP_STRUCT * const tp);
+
 /**
  * @section tpcheck Internal state check functions.
  * These functions compartmentalize some of the messy state checks.
@@ -197,6 +203,7 @@ STATIC int tcRotaryMotionCheck(TC_STRUCT const * const tc) {
     switch (tc->motion_type) {
         //Note lack of break statements due to every path returning
         case TC_RIGIDTAP:
+        case TC_DWELL:        // Dwell has no motion
             return false;
         case TC_LINEAR:
             if (tc->coords.line.abc.tmag_zero && tc->coords.line.uvw.tmag_zero) {
@@ -554,6 +561,7 @@ int tpClear(TP_STRUCT * const tp)
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
     tp->pausing = 0;
+    tp->abort_profiles_written = 0;
     tp->reverse_run = 0;
     tp->synchronized = 0;
     tp->uu_per_rev = 0.0;
@@ -620,7 +628,7 @@ int tpInit(TP_STRUCT * const tp)
     // Initialize queue and set safety markers for 9D planner
     int result = tpClear(tp);
     if (result == 0) {
-        // Set initialization markers (Phase 0 safety for 9D planner)
+        // Set initialization markers (safety validation for 9D planner)
         tp->magic = TP_MAGIC;
         tp->queue_ready = 1;
     }
@@ -820,6 +828,7 @@ int tpSyncGoalPos_9D(TP_STRUCT * const tp, EmcPose const * const pos)
      * This follows Tormach's tpCleanupAfterAbort() pattern.
      */
     tp->aborting = 0;
+    tp->abort_profiles_written = 0;
 
     return TP_ERR_OK;
 }
@@ -838,6 +847,7 @@ int tpCleanupAfterAbort_9D(TP_STRUCT * const tp)
 
     // Unconditionally clear the aborting flag
     tp->aborting = 0;
+    tp->abort_profiles_written = 0;
 
     // CRITICAL FIX: Clear pausing flag set by tpAbort()->tpPause()
     // If pausing=1, RT won't execute new segments after restart
@@ -1709,6 +1719,15 @@ STATIC tp_err_t tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pr
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, int inc_id) {
 
     tc->id = tp->nextId;
+
+    // Attach any pending segment actions (for planner_type 2 inline M-codes)
+    if (tp->pending_actions.action_mask != 0) {
+        tc->actions = tp->pending_actions;
+        tpClearSegmentActions(tp);
+        tp_debug_print("Attached pending actions (mask=0x%x) to segment %d\n",
+                       tc->actions.action_mask, tc->id);
+    }
+
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
         return TP_ERR_FAIL;
@@ -1723,7 +1742,6 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
         tcGetEndpoint(tc, &tp->goalPos);
     }
     tp->depth = tcqLen(&tp->queue);
-    //Fixing issue with duplicate id's?
     tp_debug_print("Adding TC id %d of type %d, total length %0.08f\n",tc->id,tc->motion_type,tc->target);
 
     return TP_ERR_OK;
@@ -3461,6 +3479,12 @@ STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp)
         tp->execId = 0;
         tp->motionType = 0;
 
+        // Safety net: if abort/pause flags are still set when queue empties,
+        // clean them up so the system doesn't get stuck
+        if (tp->aborting || tp->pausing) {
+            tpCleanupAfterAbort_9D(tp);
+        }
+
         // Update movement status
         tpUpdateMovementStatus(tp, NULL);
 
@@ -3472,6 +3496,7 @@ STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp)
     tp->goalPos = tp->currentPos;
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
+    tp->abort_profiles_written = 0;
     tp->execId = 0;
     tp->motionType = 0;
 
@@ -3534,7 +3559,6 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
     tc->currentvel = 0.0;
     tc->term_vel = 0.0;
 
-    // Clean up Ruckig planner resources
     tcCleanupRuckig(tc);
 
     //TODO make progress to match target?
@@ -3573,7 +3597,7 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
     //If the motion has stopped, then it's safe to reset the TP struct.
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
-            (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
+            (fabs(tc->currentvel) < TP_VEL_EPSILON && (!nexttc || fabs(nexttc->currentvel) < TP_VEL_EPSILON))) {
         tcqInit(&tp->queue);
         tp->goalPos = tp->currentPos;
         tp->depth = tp->activeDepth = 0;
@@ -3581,15 +3605,16 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         // Use centralized cleanup for 9D planner
         if (GET_TRAJ_PLANNER_TYPE() == 2) {
             tpCleanupAfterAbort_9D(tp);
-            // PHASE 0 WORKAROUND: DO NOT clear userspace planning state on abort.
+            // WORKAROUND: DO NOT clear userspace planning state on abort.
             // Clearing g_smoothing_data causes optimizer to compute vel=0.000 on next run.
             // The optimizer needs "warm" state to compute proper velocities.
-            // Phase 3+ will implement proper state sync between RT and userspace.
+            // TODO: Implement proper state sync between RT and userspace.
             // #ifdef USERSPACE_LIB_BUILD
             //     tpClearPlanning_9D(tp);
             // #endif
         } else {
             tp->aborting = 0;
+            tp->abort_profiles_written = 0;
             tp->reverse_run = 0;
         }
 
@@ -3743,6 +3768,47 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     tc->blending_next = 0;
     tc->on_final_decel = 0;
 
+    tc->initialvel = tc->currentvel;
+    tc->accel_phase = 0;
+    tc->elapsed_time = 0;
+
+    // Initialize execution state for branch/merge architecture
+    tc->position_base = 0.0;
+    tc->last_profile_generation = __atomic_load_n(
+        &tc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
+
+    // Clear any pending branch from previous segment usage
+    __atomic_store_n(&tc->shared_9d.branch.valid, 0, __ATOMIC_RELEASE);
+    __atomic_store_n(&tc->shared_9d.branch.taken, 0, __ATOMIC_RELEASE);
+
+    // Initialize canonical feed scale based on segment's motion type.
+    // Use feed_scale for feed moves, rapid_scale for traverses — not
+    // net_feed_scale which reflects the *previous* segment's type due
+    // to servo loop ordering (net_feed computed before tpRunCycle).
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        double actual_feed = 1.0;
+        if (emcmotStatus) {
+            if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) {
+                actual_feed = emcmotStatus->rapid_scale;
+            } else {
+                actual_feed = emcmotStatus->feed_scale;
+            }
+            if (actual_feed < 0.0) actual_feed = 0.0;
+            if (actual_feed > 10.0) actual_feed = 10.0;
+        }
+
+        tc->shared_9d.canonical_feed_scale = actual_feed;
+        tc->shared_9d.active_feed_scale = actual_feed;
+        tc->shared_9d.requested_feed_scale = actual_feed;
+        tc->shared_9d.achieved_exit_vel = 0.0;
+
+    } else {
+        tc->shared_9d.canonical_feed_scale = 1.0;
+        tc->shared_9d.active_feed_scale = 1.0;
+        tc->shared_9d.requested_feed_scale = 1.0;
+        tc->shared_9d.achieved_exit_vel = 0.0;
+    }
+
     if (TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
         tp_debug_print("Setting up position sync\n");
         // if we aren't already synced, wait
@@ -3756,6 +3822,12 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     // Update the modal state displayed by the TP
     tp->execTag = tc->tag;
+
+    // Fire any queued segment actions (M-codes, etc.)
+    // This replaces the flush_segments() mechanism for planner_type 2
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        tpFireSegmentActions(tc);
+    }
 
     return TP_ERR_OK;
 }
@@ -3892,6 +3964,33 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         TC_STRUCT * const tc, TC_STRUCT const * const nexttc, int* mode) {
 
+    //===================================================================
+    // TC_DWELL: Handle dwell segments (G4) inline with motion
+    // Dwell holds position for specified duration, then completes
+    //===================================================================
+    if (tc->motion_type == TC_DWELL) {
+        // Count down the dwell timer
+        tc->dwell_remaining -= tc->cycle_time;
+
+        // Keep velocity at zero during dwell
+        tc->currentvel = 0.0;
+        tc->currentacc = 0.0;
+        tc->currentjerk = 0.0;
+
+        // Check if dwell is complete
+        if (tc->dwell_remaining <= 0.0) {
+            tc->dwell_remaining = 0.0;
+            tc->remove = 1;  // Mark for removal from queue
+            tp_debug_print("Dwell complete, id=%d\n", tc->id);
+        }
+
+        // Update status (position unchanged during dwell)
+        emcmotStatus->distance_to_go = 0.0;
+        emcmotStatus->current_vel = 0.0;
+
+        return TP_ERR_OK;
+    }
+
     //placeholders for position for this update
     EmcPose before;
 
@@ -3912,7 +4011,237 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     // to avoid NULL dereference. planner_type 0 and 2 don't use mode.
     if(mode == NULL && planner_type == 1) planner_type = 0;
 
-    if(planner_type != 1){
+    // Planner type 2 with valid Ruckig profile: use pre-computed trajectory
+    // When aborting/pausing: compute jerk-limited deceleration along the path
+    int use_ruckig = 0;
+    int use_ruckig_stopping = 0;
+
+    if (planner_type == 2 && __atomic_load_n(&tc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+        // Always use Ruckig branch/merge path, including for pause/abort
+        // Userspace computes a stop branch (same as 0% feed hold) via manageBranches()
+        // This provides time-optimal jerk-limited deceleration
+        use_ruckig = 1;
+    }
+
+    if (use_ruckig_stopping) {
+        // LEGACY: Cycle-by-cycle jerk-limited stopping (dead code, kept for rollback)
+        // Now pause/abort uses the same Ruckig branch path as feed hold for
+        // time-optimal deceleration. This block is never reached but preserved
+        // for easy rollback if issues arise.
+        // Jerk-limited stopping: decelerate to v=0 while staying on path
+        // Use current state (already set from previous cycles) and compute
+        // one cycle of jerk-limited deceleration
+        double v0 = tc->currentvel;
+        double a0 = tc->currentacc;
+        double j_max = tc->maxjerk > 0 ? tc->maxjerk : 50000.0;
+        double a_max = tc->maxaccel;
+        double dt = tc->cycle_time;
+
+        // Compute jerk-limited deceleration for this cycle
+        double v_new, a_new, j_cmd, dist;
+        tcComputeJerkLimitedStop(v0, a0, j_max, a_max, dt,
+                                 &v_new, &a_new, &j_cmd, &dist);
+
+        // Update segment state
+        tc->progress += dist;
+        tc->currentvel = v_new;
+        tc->currentacc = a_new;
+        tc->currentjerk = j_cmd;
+
+        // Clamp position to segment bounds
+        if (tc->progress > tc->target) tc->progress = tc->target;
+        if (tc->progress < 0.0) tc->progress = 0.0;
+
+        // Check for stop completion
+        if (fabs(v_new) < 1e-6 && fabs(a_new) < 1e-6) {
+            tc->on_final_decel = 1;
+            // Mark as PAUSE-STOPPED (distinct from feed hold which uses 0.0)
+            // -1.0 signals: "stopped via cycle-by-cycle, profile is invalid"
+            // 0.0 signals: "feed hold profile, sample it normally"
+            tc->shared_9d.profile.computed_feed_scale = -1.0;
+            // Update position_base to current stopped position for resume
+            tc->position_base = tc->progress;
+        }
+
+        tpDebugCycleInfo(tp, tc, nexttc, a_new);
+    } else if (use_ruckig) {
+        // === PHASE 3: BRANCH/MERGE - CHECK FOR PENDING BRANCH ===
+        // Check if userspace has committed a branch for feed override
+        int branch_valid = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
+        int branch_taken = __atomic_load_n(&tc->shared_9d.branch.taken, __ATOMIC_ACQUIRE);
+
+        if (branch_valid && !branch_taken) {
+            // A branch is waiting - check if we're in the handoff window
+            double handoff_time = tc->shared_9d.branch.handoff_time;
+            double window_end = tc->shared_9d.branch.window_end_time;
+
+            if (tc->elapsed_time >= handoff_time && tc->elapsed_time < window_end) {
+                // Compute time offset for new profile (maintains continuity)
+                double new_elapsed = tc->elapsed_time - handoff_time;
+
+                // Take the branch - swap profile
+                // Use sequence counter to signal copy in progress (odd = copying)
+                unsigned int seq = __atomic_load_n(&tc->shared_9d.copy_sequence, __ATOMIC_ACQUIRE);
+                __atomic_store_n(&tc->shared_9d.copy_sequence, seq + 1, __ATOMIC_RELEASE);
+                __atomic_thread_fence(__ATOMIC_SEQ_CST);
+
+                // Check if this is a two-stage branch (brake + main)
+                int has_brake = tc->shared_9d.branch.has_brake;
+
+                if (has_brake) {
+                    // TWO-STAGE: Start with brake profile
+                    tc->shared_9d.profile = tc->shared_9d.branch.brake_profile;
+                } else {
+                    // SINGLE-STAGE: Just main profile
+                    tc->shared_9d.profile = tc->shared_9d.branch.profile;
+                }
+
+                tc->shared_9d.active_feed_scale = tc->shared_9d.branch.feed_scale;
+                tc->position_base = tc->shared_9d.branch.handoff_position;
+                // Both two-stage and single-stage use new_elapsed to maintain continuity
+                // This accounts for time past the intended handoff moment
+                tc->elapsed_time = new_elapsed;
+
+                // Signal copy complete (even = done)
+                __atomic_thread_fence(__ATOMIC_SEQ_CST);
+                __atomic_store_n(&tc->shared_9d.copy_sequence, seq + 2, __ATOMIC_RELEASE);
+
+                // Sync generation counter so stopwatch-reset check below
+                // doesn't double-fire on the profile we just installed.
+                tc->last_profile_generation = __atomic_load_n(
+                    &tc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
+
+                // Signal that RT took the branch (userspace will merge)
+                __atomic_store_n(&tc->shared_9d.branch.taken, 1, __ATOMIC_RELEASE);
+                // Clear brake_done flag for fresh two-stage execution
+                __atomic_store_n(&tc->shared_9d.branch.brake_done, 0, __ATOMIC_RELEASE);
+
+            }
+        }
+
+        // === CHECK FOR BRAKE->MAIN TRANSITION (two-stage profiles) ===
+        // If we're in a two-stage branch and brake is complete, switch to main profile
+        // Reload branch_taken since it might have just been set above
+        branch_taken = __atomic_load_n(&tc->shared_9d.branch.taken, __ATOMIC_ACQUIRE);
+        int has_brake = tc->shared_9d.branch.has_brake;
+        int brake_done = __atomic_load_n(&tc->shared_9d.branch.brake_done, __ATOMIC_ACQUIRE);
+
+        if (branch_taken && has_brake && !brake_done) {
+            // Check if brake profile is complete
+            double brake_duration = tc->shared_9d.branch.brake_profile.duration;
+            if (tc->elapsed_time >= brake_duration) {
+                // Brake complete - switch to main profile
+                unsigned int seq = __atomic_load_n(&tc->shared_9d.copy_sequence, __ATOMIC_ACQUIRE);
+                __atomic_store_n(&tc->shared_9d.copy_sequence, seq + 1, __ATOMIC_RELEASE);
+                __atomic_thread_fence(__ATOMIC_SEQ_CST);
+
+                // Update position base to brake end position
+                tc->position_base = tc->shared_9d.branch.brake_end_position;
+
+                // Main profile starts at (elapsed - brake_duration) to maintain continuity
+                // Clamp to 0 to avoid negative elapsed time from floating point rounding
+                double time_past_brake = tc->elapsed_time - brake_duration;
+                tc->elapsed_time = (time_past_brake > 0.0) ? time_past_brake : 0.0;
+                tc->shared_9d.profile = tc->shared_9d.branch.profile;
+
+                __atomic_thread_fence(__ATOMIC_SEQ_CST);
+                __atomic_store_n(&tc->shared_9d.copy_sequence, seq + 2, __ATOMIC_RELEASE);
+
+                // Sync generation counter so stopwatch-reset doesn't double-fire
+                tc->last_profile_generation = __atomic_load_n(
+                    &tc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
+
+                // Mark brake as done
+                __atomic_store_n(&tc->shared_9d.branch.brake_done, 1, __ATOMIC_RELEASE);
+            }
+        }
+
+        // Publish execution state for userspace to read (each cycle)
+        __atomic_store_n(&tc->active_segment_id, tc->id, __ATOMIC_RELEASE);
+
+        // === STOPWATCH RESET: detect profile swap by generation counter ===
+        // When userspace recomputes a profile (backward pass convergence),
+        // the generation counter increments.  If we detect a new generation,
+        // reset the stopwatch so we sample the NEW profile from t=0, with
+        // position_base absorbing all progress made so far.
+        // This mirrors the branch/merge mechanism for feed override.
+        // NOTE: Branch take and brake->main transitions update
+        // last_profile_generation above, so this only fires for
+        // convergence-driven profile rewrites (the intended case).
+        {
+            int prof_gen = __atomic_load_n(&tc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
+            if (prof_gen != tc->last_profile_generation) {
+                // Profile was swapped — reset stopwatch
+                tc->position_base = tc->progress;  // absorb current progress
+                tc->elapsed_time = 0.0;
+                tc->last_profile_generation = prof_gen;
+
+            }
+        }
+
+        // === SAMPLE ACTIVE PROFILE ===
+        // Clamp sample time to profile duration. When elapsed_time overshoots
+        // duration, this ensures we land exactly at the profile's end position
+        // rather than extrapolating, and the displacement naturally covers
+        // the correct fractional time.
+        double sample_time = tc->elapsed_time;
+        double duration = tc->shared_9d.profile.duration;
+        if (sample_time > duration) {
+            sample_time = duration;
+        }
+
+        double pos, vel, acc_ruckig, jerk;
+        int sample_ok = ruckigProfileSample(&tc->shared_9d.profile,
+                                            sample_time,
+                                            &pos, &vel, &acc_ruckig, &jerk);
+
+        if (sample_ok == 0) {
+            // Apply position base offset from profile swaps
+            double total_pos = tc->position_base + pos;
+
+            // Clamp position to segment bounds
+            if (total_pos > tc->target) { total_pos = tc->target; }
+            if (total_pos < 0.0) { total_pos = 0.0; }
+
+
+            tc->progress = total_pos;
+            tc->currentvel = vel;
+            tc->currentacc = acc_ruckig;
+            tc->currentjerk = jerk;
+
+            tc->elapsed_time += tc->cycle_time;
+
+            // Check for segment completion
+            // For two-stage profiles (brake + main), don't complete during brake phase
+            int in_brake_phase = (tc->shared_9d.branch.has_brake &&
+                                  __atomic_load_n(&tc->shared_9d.branch.taken, __ATOMIC_ACQUIRE) &&
+                                  !__atomic_load_n(&tc->shared_9d.branch.brake_done, __ATOMIC_ACQUIRE));
+
+            // Feed hold detection: if computed_feed_scale is ~0, this is a "stop in place"
+            // profile using velocity control. Do NOT complete the segment until:
+            // - Feed is restored (new branch will be computed), OR
+            // - Position actually reaches target (shouldn't happen in feed hold)
+            // This prevents "teleporting" to segment end when feed hold profile completes.
+            int in_feed_hold = (tc->shared_9d.profile.computed_feed_scale < 0.001);
+
+            // Note: For Ruckig, we do NOT snap progress to target here.
+            // The split mechanism (Option E) detects completion one cycle early
+            // via look-ahead in tpCheckEndCondition, and the split handler samples
+            // the profile at duration for the exact final position.
+            // Only set on_final_decel flag for non-tangent segments that need to stop.
+            if (!in_brake_phase && !in_feed_hold &&
+                tc->progress >= tc->target - TP_POS_EPSILON) {
+                tc->progress = tc->target;
+                tc->on_final_decel = 1;
+            }
+
+            tpDebugCycleInfo(tp, tc, nexttc, acc_ruckig);
+        } else {
+            // Ruckig sample failed - fall back to trapezoidal
+            goto fallback_trapezoidal;
+        }
+    } else if(planner_type != 1){
+fallback_trapezoidal:
         // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
         // Also, don't ramp up for parabolic blends
         if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
@@ -3928,7 +4257,8 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
         tcUpdateDistFromAccel(tc, acc, vel_desired, tp->reverse_run);
         tpDebugCycleInfo(tp, tc, nexttc, acc);
-    }else{
+    }
+    else{
         if(*mode == 1){
             double jerk;
             double perror;
@@ -4051,15 +4381,29 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
     double dx = tcGetDistanceToGo(tc, tp->reverse_run);
     tc_debug_print("tpCheckEndCondition: dx = %e\n",dx);
 
-    // PHASE 0.2 FIX: For planner type 2, force completion if stuck
+    // FIX: For planner type 2, force completion if stuck
     // This handles case where motion stops before reaching target
-    // Proper fix will come in Phase 0.6 with backward velocity pass
+    // TODO: Proper fix with backward velocity pass in optimization
     if (GET_TRAJ_PLANNER_TYPE() == 2 && dx > TP_POS_EPSILON && dx < 1.5) {
+        // IMPORTANT: Don't force completion during feed hold!
+        // Feed hold intentionally stops the machine - this is not "stuck"
+        int in_feed_hold = (tc->shared_9d.profile.computed_feed_scale < 0.001);
+
         // Force complete if velocity very low OR if we've been stuck for a while
+        // But NOT during feed hold
         static int stuck_cycles = 0;
         static double last_progress = 0.0;
 
-        if (tc->currentvel < 1e-3 || fabs(tc->progress - last_progress) < 1e-6) {
+        if (in_feed_hold || tp->aborting) {
+            // Reset stuck counter during feed hold or abort - we're stopped on purpose
+            stuck_cycles = 0;
+        } else if (fabs(tc->progress - last_progress) < 1e-6 &&
+                   (fabs(tc->currentvel) < 1e-3 ||
+                    tc->elapsed_time >= tc->shared_9d.profile.duration)) {
+            // Stuck: progress not changing AND either velocity is near zero
+            // or the profile has finished (elapsed >= duration). The second
+            // condition catches TANGENT segments where the profile ends with
+            // non-zero final velocity but landed short of target.
             stuck_cycles++;
         } else {
             stuck_cycles = 0;
@@ -4068,6 +4412,11 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 
         if (stuck_cycles > 10) {  // Stuck for 10ms
             // Force to target
+            printf("STUCK_FORCE seg=%d progress=%.6f target=%.6f dx=%.6f "
+                   "vel=%.6f elapsed=%.6f dur=%.6f pos_base=%.6f\n",
+                   tc->id, tc->progress, tc->target, dx,
+                   tc->currentvel, tc->elapsed_time,
+                   tc->shared_9d.profile.duration, tc->position_base);
             dx = 0.0;
             tc->progress = tc->target;
             stuck_cycles = 0;
@@ -4077,26 +4426,120 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
     if (dx <= TP_POS_EPSILON) {
         //If the segment is close to the target position, then we assume that it's done.
         tp_debug_print("close to target, dx = %.12f\n",dx);
+
         //Force progress to land exactly on the target to prevent numerical errors.
         tc->progress = tcGetTarget(tc, tp->reverse_run);
 
         if (!tp->reverse_run) {
             tcSetSplitCycle(tc, 0.0, tc->currentvel);
         }
-        if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT || tp->reverse_run) {
+        if (tc->term_cond == TC_TERM_COND_STOP || tp->reverse_run ||
+            (tc->term_cond != TC_TERM_COND_TANGENT && tc->finalvel <= TP_VEL_EPSILON)) {
+            // STOP, reverse, or unpromoted EXACT (finalvel=0): remove immediately.
+            // Promoted segments (TANGENT with finalvel > 0) go through split cycle.
             tc->remove = 1;
         }
         return TP_ERR_OK;
     } else if (tp->reverse_run) {
         return TP_ERR_NO_ACTION;
-    } else if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT) {
+    } else if (tc->term_cond == TC_TERM_COND_STOP ||
+               (tc->term_cond != TC_TERM_COND_TANGENT && tc->finalvel <= TP_VEL_EPSILON)) {
+        // STOP or unpromoted (finalvel=0): no split cycle needed, just run normally.
         return TP_ERR_NO_ACTION;
     }
 
 
+    // Ruckig look-ahead: use profile duration to compute exact split time.
+    // At this point elapsed_time has been advanced past the current sample:
+    //   last_sample_time = elapsed_time - cycleTime
+    //   elapsed_time = next sample time
+    // The actual remaining motion time is from last_sample_time to duration:
+    //   actual_remaining = duration - last_sample_time = duration - elapsed + cycleTime
+    // If this fits within one cycleTime, we split now.
+    //
+    // IMPORTANT: Only use duration-based split when the active profile actually
+    // reaches the segment target. Partial profiles — brake phases (speed adjustment),
+    // feed-hold stops (decel to zero mid-segment), or any branch that doesn't cover
+    // the remaining distance — have short durations unrelated to segment completion.
+    // Using their duration would falsely trigger a split, truncating the segment.
+    // These partial profiles complete naturally, a new profile (main phase or resume)
+    // swaps in, and then this check works correctly with the full-distance profile.
+    if (GET_TRAJ_PLANNER_TYPE() == 2 && __atomic_load_n(&tc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+        double duration = tc->shared_9d.profile.duration;
+        double last_sample_time = tc->elapsed_time - tp->cycleTime;
+        double actual_remaining = duration - last_sample_time;
+
+        // Sample profile at its end to see what position/velocity it actually reaches
+        double end_pos, end_vel, end_acc, end_jrk;
+        int end_ok = ruckigProfileSample(&tc->shared_9d.profile, duration,
+                                         &end_pos, &end_vel, &end_acc, &end_jrk);
+        double profile_covers = (end_ok == 0) ? (tc->target - tc->position_base - end_pos) : -1.0;
+
+        // If the profile doesn't reach the segment target, it's a partial profile
+        // (brake, feed-hold stop, or mid-segment branch). Don't use its duration
+        // for split timing — wait for a profile that covers the full remaining distance.
+        double gap_threshold = tc->target * 1e-6;  // relative tolerance
+        if (gap_threshold < TP_POS_EPSILON) gap_threshold = TP_POS_EPSILON;
+        if (end_ok != 0 || profile_covers > gap_threshold) {
+            return TP_ERR_NO_ACTION;
+        }
+
+        if (actual_remaining <= 0.0) {
+            // Profile already completed at last sample — split with zero time
+            double v_f = tpGetRealFinalVel(tp, tc, nexttc);
+            tcSetSplitCycle(tc, 0.0, v_f);
+            return TP_ERR_OK;
+        } else if (actual_remaining < tp->cycleTime) {
+            // Remaining motion fits within one cycle — split with exact time
+            double v_f = tpGetRealFinalVel(tp, tc, nexttc);
+            tcSetSplitCycle(tc, actual_remaining, v_f);
+            return TP_ERR_OK;
+        } else {
+            // More than one cycle remaining based on duration — no split needed.
+            // But check if POSITION will overshoot the segment at next sample.
+            // For stop profiles that overshoot, duration is long but position
+            // reaches the segment boundary before profile ends.
+            double next_sample_time = tc->elapsed_time; // already advanced
+            double next_pos, next_vel, next_acc, next_jrk;
+            int next_ok = ruckigProfileSample(&tc->shared_9d.profile,
+                                              next_sample_time,
+                                              &next_pos, &next_vel, &next_acc, &next_jrk);
+            double next_total = tc->position_base + next_pos;
+            if (next_ok == 0 && next_total > tc->target) {
+                // Position will overshoot segment boundary next cycle.
+                // Binary search for exact crossing time between last sample
+                // and next sample, then split at that time.
+                double remaining_dist = tc->target - tc->position_base;
+                double t_lo = next_sample_time - tp->cycleTime; // last sample time
+                double t_hi = next_sample_time;
+                for (int i = 0; i < 50; i++) {
+                    double t_mid = (t_lo + t_hi) * 0.5;
+                    double p, v, a, j;
+                    ruckigProfileSample(&tc->shared_9d.profile, t_mid, &p, &v, &a, &j);
+                    if (p < remaining_dist) {
+                        t_lo = t_mid;
+                    } else {
+                        t_hi = t_mid;
+                    }
+                    if (t_hi - t_lo < 1e-9) break;
+                }
+                // split_time = time from last sample to crossing
+                double split_time = t_hi - (next_sample_time - tp->cycleTime);
+                if (split_time < 0.0) split_time = 0.0;
+                if (split_time > tp->cycleTime) split_time = tp->cycleTime;
+
+                // (SPLIT_DETECT_OVERSHOOT debug removed — reachability cap eliminated overshoot profiles)
+
+                double v_f = tpGetRealFinalVel(tp, tc, nexttc);
+                tcSetSplitCycle(tc, split_time, v_f);
+                return TP_ERR_OK;
+            }
+            return TP_ERR_NO_ACTION;
+        }
+    }
+
     double v_f = tpGetRealFinalVel(tp, tc, nexttc);
     double v_avg = (tc->currentvel + v_f) / 2.0;
-
     //Check that we have a non-zero "average" velocity between now and the
     //finish. If not, it means that we have to accelerate from a stop, which
     //will take longer than the minimum 2 timesteps that each segment takes, so
@@ -4180,13 +4623,72 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         return TP_ERR_NO_ACTION;
     }
 
+    tp_debug_print("tc id %d splitting\n",tc->id);
+
     //Pose data to calculate movement due to finishing current TC
     EmcPose before;
     tcGetPos(tc, &before);
 
-    tp_debug_print("tc id %d splitting\n",tc->id);
-    //Shortcut tc update by assuming we arrive at end
-    tc->progress = tcGetTarget(tc,tp->reverse_run);
+    if (GET_TRAJ_PLANNER_TYPE() == 2 && __atomic_load_n(&tc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+        // For Ruckig: sample at the exact crossing time (when position reaches
+        // segment target) to get physically correct vel/acc for handoff.
+        // tc->cycle_time was set by tpCheckEndCondition to the time from
+        // last sample to segment boundary crossing.
+        double dur = tc->shared_9d.profile.duration;
+        double last_sample_time = tc->elapsed_time - tp->cycleTime;
+        double crossing_time = last_sample_time + tc->cycle_time;
+        if (crossing_time > dur) crossing_time = dur;
+        if (crossing_time < 0.0) crossing_time = 0.0;
+
+        double pos, vel, acc, jrk;
+        int ok = ruckigProfileSample(&tc->shared_9d.profile, crossing_time,
+                                     &pos, &vel, &acc, &jrk);
+        if (ok == 0) {
+            double total_pos = tc->position_base + pos;
+            int split_clamped = 0;
+            if (total_pos > tc->target) { total_pos = tc->target; split_clamped = 1; }
+            if (total_pos < 0.0) { total_pos = 0.0; split_clamped = -1; }
+
+            tc->progress = total_pos;
+            if (!split_clamped) {
+                // Crossing is within segment — use vel/acc at crossing time
+                tc->currentvel = vel;
+                tc->currentacc = acc;
+                tc->currentjerk = jrk;
+            } else {
+                // Position overshoot: binary search for exact crossing time
+                // between last_sample_time and crossing_time
+                double remaining_dist = tc->target - tc->position_base;
+                double t_lo = last_sample_time;
+                double t_hi = crossing_time;
+                for (int i = 0; i < 50; i++) {
+                    double t_mid = (t_lo + t_hi) * 0.5;
+                    double p, v, a, j;
+                    ruckigProfileSample(&tc->shared_9d.profile, t_mid, &p, &v, &a, &j);
+                    if (p < remaining_dist) {
+                        t_lo = t_mid;
+                    } else {
+                        t_hi = t_mid;
+                    }
+                    if (t_hi - t_lo < 1e-9) break;
+                }
+                // Sample at the converged crossing point for vel/acc
+                double cp, cv, ca, cj;
+                ruckigProfileSample(&tc->shared_9d.profile, t_hi, &cp, &cv, &ca, &cj);
+                tc->currentvel = cv;
+                tc->currentacc = ca;
+                tc->currentjerk = cj;
+            }
+
+
+        } else {
+            tc->progress = tcGetTarget(tc, tp->reverse_run);
+        }
+    } else {
+        //Shortcut tc update by assuming we arrive at end (non-Ruckig path)
+        tc->progress = tcGetTarget(tc, tp->reverse_run);
+    }
+
     //Get displacement from prev. position
     EmcPose displacement;
     tcGetPos(tc, &displacement);
@@ -4198,7 +4700,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
 #ifdef TC_DEBUG
     double mag;
     emcPoseMagnitude(&displacement, &mag);
-    tc_debug_print("cycle movement = %f\n",mag);
+    tc_debug_print("cycle movement = %f\n", mag);
 #endif
 
     // Trigger removal of current segment at the end of the cycle
@@ -4214,15 +4716,15 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
             // In S-curve mode, use actual current velocity instead of expected term_vel
             // S-curve can't change velocity instantly, term_vel is just desired value
-            if (GET_TRAJ_PLANNER_TYPE() == 1) {
+            if (GET_TRAJ_PLANNER_TYPE() == 1 || GET_TRAJ_PLANNER_TYPE() == 2) {
+                // Jerk-limited planners (S-curve / Ruckig): use actual current velocity
+                // These planners can't change velocity instantly; term_vel is just the desired value
                 nexttc->currentvel = tc->currentvel;
                 // Inherit acceleration, but limit to nexttc's allowed range
                 // Important for line-to-arc transitions where arc has lower tangential accel
                 double maxacc_next = tcGetTangentialMaxAccel(nexttc);
                 nexttc->currentacc = saturate(tc->currentacc, maxacc_next);
-                nexttc->currentjerk = tc->currentjerk;
-                tp_debug_print("Doing tangent split (S-curve): vel=%f, acc=%f (limited by %f), jerk=%f\n",
-                              nexttc->currentvel, nexttc->currentacc, maxacc_next, nexttc->currentjerk);
+
             } else {
                 // Trapezoidal: can use term_vel (assumes instant velocity change)
                 nexttc->currentvel = tc->term_vel;
@@ -4241,13 +4743,69 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
                     tc->id);
     }
 
+    // Full split-cycle activation for Ruckig (bypasses tpActivateSegment).
+    // Must replicate all critical initialization that tpActivateSegment performs.
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        nexttc->active = 1;
+        nexttc->on_final_decel = 0;
+        nexttc->blending_next = 0;
+        nexttc->position_base = 0.0;
+
+        // Snapshot current profile generation so stopwatch-reset check
+        // doesn't false-trigger on the first sampling cycle.
+        nexttc->last_profile_generation = __atomic_load_n(
+            &nexttc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
+
+        // SPLIT_ACTIVATE handled
+
+        // Clear any pending branch from previous queue slot usage
+        __atomic_store_n(&nexttc->shared_9d.branch.valid, 0, __ATOMIC_RELEASE);
+        __atomic_store_n(&nexttc->shared_9d.branch.taken, 0, __ATOMIC_RELEASE);
+
+        // Initialize feed override state based on segment's motion type.
+        // Use feed_scale/rapid_scale directly instead of net_feed_scale,
+        // which reflects the previous segment's type due to servo loop ordering.
+        double actual_feed = 1.0;
+        if (emcmotStatus) {
+            if (nexttc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) {
+                actual_feed = emcmotStatus->rapid_scale;
+            } else {
+                actual_feed = emcmotStatus->feed_scale;
+            }
+            if (actual_feed < 0.0) actual_feed = 0.0;
+            if (actual_feed > 10.0) actual_feed = 10.0;
+        }
+        nexttc->shared_9d.canonical_feed_scale = actual_feed;
+        nexttc->shared_9d.active_feed_scale = actual_feed;
+        nexttc->shared_9d.requested_feed_scale = actual_feed;
+        nexttc->shared_9d.achieved_exit_vel = 0.0;
+
+        // Pre-advance so Ruckig samples at remain_time instead of t=0.
+        // Without this, the first sample returns pos=0 (zero displacement).
+        nexttc->elapsed_time = nexttc->cycle_time;
+
+    }
+
+    // Save remain_time before tpUpdateCycle — tpCheckEndCondition inside
+    // tpUpdateCycle will overwrite nexttc->cycle_time to tp->cycleTime.
+    double nexttc_remain_time = nexttc->cycle_time;
+
     // Run split cycle update with remaining time in nexttc
     // KLUDGE: use next cycle after nextc to prevent velocity dip (functions fail gracefully w/ NULL)
     int queue_dir_step = tp->reverse_run ? -1 : 1;
     TC_STRUCT *next2tc = tcqItem(&tp->queue, queue_dir_step*2);
-    
+
     int mode = 0;
     tpUpdateCycle(tp, nexttc, next2tc, &mode);
+
+    // Post-correct elapsed_time for Ruckig split cycle.
+    // tpUpdateCycle sampled at remain_time then advanced by remain_time internally
+    // (because cycle_time was remain_time at sample time), giving elapsed = 2*remain_time.
+    // But tpCheckEndCondition inside tpUpdateCycle then overwrote cycle_time to cycleTime.
+    // The next regular cycle should sample at remain_time + cycleTime.
+    if (GET_TRAJ_PLANNER_TYPE() == 2 && __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+        nexttc->elapsed_time = nexttc_remain_time + tp->cycleTime;
+    }
 
     // Update status for the split portion
     // FIXME redundant tangent check, refactor to switch
@@ -4345,19 +4903,38 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         return TP_ERR_WAITING;
     }
 
-    /* For planner type 2: Startup queue depth check
+    /* For planner type 2: Startup queue depth check and profile validity
      *
-     * Problem: When the first segment is added, RT immediately starts executing.
+     * Problem 1: When the first segment is added, RT immediately starts executing.
      * If userspace is slow adding segments, RT can consume the first segment
      * before the second is added, losing velocity continuity.
      *
-     * Solution: Wait for at least 2 segments before starting the FIRST segment.
-     * Once execution has started (progress > 0), continue even with 1 segment.
+     * Problem 2: If RT starts executing before the Ruckig profile is computed,
+     * it uses trapezoidal fallback. When the profile becomes valid mid-segment,
+     * switching from trapezoidal to Ruckig causes a position discontinuity
+     * because the two methods compute different positions for the same elapsed time.
      *
-     * This gives userspace time to batch-add segments before RT starts.
+     * Solution: Wait for Ruckig profile validity AND queue depth before starting.
      */
     if (GET_TRAJ_PLANNER_TYPE() == 2) {
         int queue_len = tcqLen(&tp->queue);
+
+        /* Wait for Ruckig profile to be computed before starting ANY segment.
+         * This prevents trapezoidal→Ruckig switch mid-execution which causes
+         * position discontinuity in cycles 2-8 after motion start. */
+        if (!__atomic_load_n(&tc->shared_9d.profile.valid, __ATOMIC_ACQUIRE) && tc->progress < TP_POS_EPSILON) {
+            static int profile_wait_count = 0;
+            profile_wait_count++;
+
+            /* Wait up to 200 cycles (200ms at 1kHz) for profile */
+            if (profile_wait_count < 200) {
+                return TP_ERR_WAITING;
+            }
+            /* Timeout - userspace too slow, will use trapezoidal for entire segment */
+            rtapi_print_msg(RTAPI_MSG_WARN,
+                "Ruckig profile timeout seg=%d, using trapezoidal fallback\n", tc->id);
+            profile_wait_count = 0;
+        }
 
         /* Only delay on the FIRST segment of a program (id == 0).
          * Without the id check, this also triggers on the LAST segment
@@ -4449,7 +5026,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     EmcPose pos_before = tp->currentPos;
 #endif
 
-
     tcClearFlags(tc);
     tcClearFlags(nexttc);
     // Update the current tc
@@ -4460,20 +5036,23 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
 #ifdef TC_DEBUG
-    double mag;
-    EmcPose disp;
-    emcPoseSub(&tp->currentPos, &pos_before, &disp);
-    emcPoseMagnitude(&disp, &mag);
-    tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
-            time_elapsed,
-            mag, emcmotStatus->current_vel);
+    {
+        double mag;
+        EmcPose disp;
+        emcPoseSub(&tp->currentPos, &pos_before, &disp);
+        emcPoseMagnitude(&disp, &mag);
+        tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
+                time_elapsed,
+                mag, emcmotStatus->current_vel);
 
-    tc_debug_print("tp_displacement = %.12e %.12e %.12e time = %.12e\n",
-            disp.tran.x,
-            disp.tran.y,
-            disp.tran.z,
-            time_elapsed);
+        tc_debug_print("tp_displacement = %.12e %.12e %.12e time = %.12e\n",
+                disp.tran.x,
+                disp.tran.y,
+                disp.tran.z,
+                time_elapsed);
+    }
 #endif
+
 
     // If TC is complete, remove it from the queue.
     if (tc->remove) {
@@ -4526,6 +5105,31 @@ int tpAbort(TP_STRUCT * const tp)
         /* const to abort, signal a pause and set our abort flag */
         tpPause(tp);
         tp->aborting = 1;
+
+        /* For planner_type 2: do NOT clear the branch slot.
+         * Userspace (tpRequestAbortBranch_9D) has already computed a stop
+         * branch before this command arrives. Clearing it would destroy the
+         * stop trajectory and cause a freeze.
+         *
+         * For other planner types: clear pending branch on abort/E-stop
+         * to ensure E-stop takes priority over feed override replanning. */
+        if (GET_TRAJ_PLANNER_TYPE() != 2) {
+            TC_STRUCT *tc = tcqItem(&tp->queue, 0);
+            if (tc) {
+                __atomic_store_n(&tc->shared_9d.branch.valid, 0, __ATOMIC_RELEASE);
+                __atomic_store_n(&tc->shared_9d.branch.taken, 0, __ATOMIC_RELEASE);
+            }
+        }
+
+        /* FIX: Clear nexttc->currentvel to prevent blocking abort cleanup.
+         * During tangent blending, nexttc->currentvel is set to the blend velocity.
+         * If abort happens mid-blend, this stale velocity blocks tpHandleAbort's
+         * cleanup condition (tc->currentvel==0 && nexttc->currentvel==0).
+         * Since nexttc won't execute during abort, clear its velocity. */
+        TC_STRUCT *nexttc = tcqItem(&tp->queue, 1);
+        if (nexttc) {
+            nexttc->currentvel = 0.0;
+        }
     }
     return tpClearDIOs(tp); //clears out any already cached DIOs
 }
@@ -4697,6 +5301,271 @@ int tpIsMoving(TP_STRUCT const * const tp)
     return false;
 }
 
+//============================================================================
+// SEGMENT ACTIONS (Inline M-code execution for planner_type 2)
+//============================================================================
+
+/**
+ * @brief Queue an action to fire when next segment activates
+ *
+ * Actions are attached to the next motion segment added to the queue.
+ * When that segment activates (starts executing), the actions fire.
+ * This maintains synchronization without forcing queue drain.
+ */
+int tpSetSegmentAction(TP_STRUCT * const tp, segment_action_type_t action_type,
+                       int spindle_num, double value)
+{
+    if (!tp) return TP_ERR_FAIL;
+    if (action_type <= SEG_ACTION_NONE || action_type >= SEG_ACTION_MAX) {
+        return TP_ERR_FAIL;
+    }
+
+    // Set the action bit in the mask
+    tp->pending_actions.action_mask |= (1u << action_type);
+
+    // Store parameters based on action type
+    switch (action_type) {
+        case SEG_ACTION_SPINDLE_CW:
+        case SEG_ACTION_SPINDLE_CCW:
+            tp->pending_actions.spindle_num = spindle_num;
+            tp->pending_actions.spindle_speed = value;
+            break;
+        case SEG_ACTION_SPINDLE_OFF:
+            tp->pending_actions.spindle_num = spindle_num;
+            break;
+        case SEG_ACTION_CUSTOM:
+            tp->pending_actions.custom_value = value;
+            break;
+        default:
+            // Other actions don't need extra parameters
+            break;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "tpSetSegmentAction: queued action %d (mask=0x%x)\n",
+        action_type, tp->pending_actions.action_mask);
+
+    return TP_ERR_OK;
+}
+
+/**
+ * @brief Clear all pending segment actions
+ */
+int tpClearSegmentActions(TP_STRUCT * const tp)
+{
+    if (!tp) return TP_ERR_FAIL;
+
+    tp->pending_actions.action_mask = 0;
+    tp->pending_actions.spindle_num = 0;
+    tp->pending_actions.spindle_speed = 0.0;
+    tp->pending_actions.custom_action_id = 0;
+    tp->pending_actions.custom_value = 0.0;
+
+    return TP_ERR_OK;
+}
+
+/**
+ * @brief Fire segment actions when segment activates
+ *
+ * Called from tpActivateSegment() to execute queued actions.
+ * Actions are fired via HAL pins that the motion controller monitors.
+ *
+ * For now, we set status flags that task layer can read.
+ * Future: Direct HAL pin writes for immediate action.
+ */
+STATIC void tpFireSegmentActions(TC_STRUCT * const tc)
+{
+    if (!tc) return;
+    if (tc->actions.action_mask == 0) return;
+
+    unsigned int mask = tc->actions.action_mask;
+    int spindle_num = tc->actions.spindle_num;
+
+    // Validate spindle number
+    if (spindle_num < 0 || spindle_num >= emcmotConfig->numSpindles) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "tpFireSegmentActions: Invalid spindle %d (max %d)\n",
+            spindle_num, emcmotConfig->numSpindles);
+        tc->actions.action_mask = 0;
+        return;
+    }
+
+    // Fire spindle ON clockwise (M3)
+    if (mask & (1u << SEG_ACTION_SPINDLE_CW)) {
+        double speed = tc->actions.spindle_speed;
+        rtapi_print_msg(RTAPI_MSG_DBG,
+            "tpFireSegmentActions: Spindle %d ON CW @ %.1f RPM\n",
+            spindle_num, speed);
+
+        // Set spindle status - control.c will update HAL pins
+        emcmotStatus->spindle_status[spindle_num].state = 1;
+        emcmotStatus->spindle_status[spindle_num].speed = speed;
+        emcmotStatus->spindle_status[spindle_num].direction = 1;
+        emcmotStatus->spindle_status[spindle_num].brake = 0;
+
+#ifndef USERSPACE_LIB_BUILD
+        // Clear orient flags (RT only - has access to HAL pins)
+        if (emcmot_hal_data) {
+            *(emcmot_hal_data->spindle[spindle_num].spindle_orient) = 0;
+            *(emcmot_hal_data->spindle[spindle_num].spindle_locked) = 0;
+        }
+#endif
+        emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_NONE;
+    }
+
+    // Fire spindle ON counter-clockwise (M4)
+    if (mask & (1u << SEG_ACTION_SPINDLE_CCW)) {
+        double speed = tc->actions.spindle_speed;
+        rtapi_print_msg(RTAPI_MSG_DBG,
+            "tpFireSegmentActions: Spindle %d ON CCW @ %.1f RPM\n",
+            spindle_num, speed);
+
+        // Set spindle status - speed is negative for CCW
+        emcmotStatus->spindle_status[spindle_num].state = 1;
+        emcmotStatus->spindle_status[spindle_num].speed = -speed;
+        emcmotStatus->spindle_status[spindle_num].direction = -1;
+        emcmotStatus->spindle_status[spindle_num].brake = 0;
+
+#ifndef USERSPACE_LIB_BUILD
+        // Clear orient flags (RT only)
+        if (emcmot_hal_data) {
+            *(emcmot_hal_data->spindle[spindle_num].spindle_orient) = 0;
+            *(emcmot_hal_data->spindle[spindle_num].spindle_locked) = 0;
+        }
+#endif
+        emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_NONE;
+    }
+
+    // Fire spindle OFF (M5)
+    if (mask & (1u << SEG_ACTION_SPINDLE_OFF)) {
+        rtapi_print_msg(RTAPI_MSG_DBG,
+            "tpFireSegmentActions: Spindle %d OFF\n", spindle_num);
+
+        emcmotStatus->spindle_status[spindle_num].state = 0;
+        emcmotStatus->spindle_status[spindle_num].speed = 0;
+        emcmotStatus->spindle_status[spindle_num].direction = 0;
+        emcmotStatus->spindle_status[spindle_num].brake = 1;
+
+#ifndef USERSPACE_LIB_BUILD
+        // Clear orient flags (RT only)
+        if (emcmot_hal_data) {
+            *(emcmot_hal_data->spindle[spindle_num].spindle_orient) = 0;
+            *(emcmot_hal_data->spindle[spindle_num].spindle_locked) = 0;
+        }
+#endif
+        emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_NONE;
+    }
+
+    // Fire mist coolant ON (M7)
+    // Note: Coolant is typically controlled via IO, not motion.
+    // For inline sync, we use synched DIO pins. DIO index 0 = mist by convention.
+    if (mask & (1u << SEG_ACTION_COOLANT_MIST)) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "tpFireSegmentActions: Mist coolant ON\n");
+        // Use synched DIO for coolant - can be mapped in HAL
+        if (_DioWrite) {
+            _DioWrite(0, 1);  // DIO 0 = mist on (convention)
+        }
+    }
+
+    // Fire flood coolant ON (M8)
+    if (mask & (1u << SEG_ACTION_COOLANT_FLOOD)) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "tpFireSegmentActions: Flood coolant ON\n");
+        if (_DioWrite) {
+            _DioWrite(1, 1);  // DIO 1 = flood on (convention)
+        }
+    }
+
+    // Fire coolant OFF (M9)
+    if (mask & (1u << SEG_ACTION_COOLANT_OFF)) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "tpFireSegmentActions: Coolant OFF\n");
+        if (_DioWrite) {
+            _DioWrite(0, 0);  // mist off
+            _DioWrite(1, 0);  // flood off
+        }
+    }
+
+    // Clear the mask after firing
+    tc->actions.action_mask = 0;
+}
+
+//============================================================================
+// DWELL SEGMENTS (G4 inline with motion)
+//============================================================================
+
+/**
+ * @brief Add a dwell segment to the queue (G4)
+ *
+ * Creates a zero-length TC_DWELL segment that holds position for the
+ * specified duration. Processed inline with motion, maintaining sync.
+ *
+ * For planner_type 2, this replaces the task-layer EMC_TRAJ_DELAY mechanism
+ * which forces queue drain and breaks velocity continuity.
+ */
+int tpAddDwell(TP_STRUCT * const tp, double seconds, struct state_tag_t tag)
+{
+    if (!tp) return TP_ERR_FAIL;
+    if (seconds < 0.0) seconds = 0.0;
+
+    TC_STRUCT tc = {0};
+
+    // Set up dwell segment
+    tc.motion_type = TC_DWELL;
+    tc.canon_motion_type = EMC_MOTION_TYPE_FEED;  // Treat as feed for status
+    tc.target = 0.0;           // Zero length
+    tc.progress = 0.0;
+    tc.dwell_time = seconds;
+    tc.dwell_remaining = seconds;
+
+    // Copy current position as start/end (no movement)
+    tc.coords.line.xyz.start = tp->goalPos.tran;
+    tc.coords.line.xyz.end = tp->goalPos.tran;
+    tc.coords.line.abc.start = (PmCartesian){tp->goalPos.a, tp->goalPos.b, tp->goalPos.c};
+    tc.coords.line.abc.end = tc.coords.line.abc.start;
+    tc.coords.line.uvw.start = (PmCartesian){tp->goalPos.u, tp->goalPos.v, tp->goalPos.w};
+    tc.coords.line.uvw.end = tc.coords.line.uvw.start;
+
+    // Velocity/accel don't matter for dwell, but set reasonable values
+    tc.reqvel = 0.0;
+    tc.maxvel = tp->vMax;
+    tc.maxaccel = tp->aMax;
+    tc.currentvel = 0.0;
+    tc.finalvel = 0.0;
+
+    // Terminal condition: must stop (no blending through a dwell)
+    tc.term_cond = TC_TERM_COND_STOP;
+
+    // Copy state tag
+    tc.tag = tag;
+
+    // Assign unique ID
+    tc.id = tp->nextId++;
+
+    // Attach any pending segment actions
+    tc.actions = tp->pending_actions;
+    tpClearSegmentActions(tp);
+
+    // Also attach any pending syncdio
+    if (tp->syncdio.anychanged) {
+        tc.syncdio = tp->syncdio;
+        tpClearDIOs(tp);
+    }
+
+    tc.cycle_time = tp->cycleTime;
+
+    // Add to queue
+    int retval = tcqPut(&tp->queue, &tc);
+    if (retval != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "tpAddDwell: queue full\n");
+        return TP_ERR_FAIL;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+        "tpAddDwell: added dwell segment id=%d duration=%.3fs\n",
+        tc.id, seconds);
+
+    return TP_ERR_OK;
+}
+
 // api: functions called by motion:
 EXPORT_SYMBOL(tpMotFunctions);
 EXPORT_SYMBOL(tpMotData);
@@ -4731,6 +5600,9 @@ EXPORT_SYMBOL(tpSetSpindleSync);
 EXPORT_SYMBOL(tpSetTermCond);
 EXPORT_SYMBOL(tpSetVlimit);
 EXPORT_SYMBOL(tpSetVmax);
+EXPORT_SYMBOL(tpAddDwell);
+EXPORT_SYMBOL(tpSetSegmentAction);
+EXPORT_SYMBOL(tpClearSegmentActions);
 
 EXPORT_SYMBOL(tcqFull);
 

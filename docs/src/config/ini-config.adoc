@@ -861,8 +861,13 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
 * `MAX_LINEAR_VELOCITY = 5.0` - (((MAX VELOCITY))) The maximum velocity for any axis or coordinated move, in 'machine units' per second.
   The value shown equals 300 units per minute.
 * `MAX_LINEAR_ACCELERATION = 20.0` - (((MAX ACCELERATION))) The maximum acceleration for any axis or coordinated axis move, in 'machine units' per second per second.
-* `PLANNER_TYPE = 0` - (((PLANNER TYPE))) Selects the trajectory planner type: 0 = trapezoidal (default), 1 = S-curve with jerk limiting.
-  S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK > 0`.
+* `PLANNER_TYPE = 0` - (((PLANNER TYPE))) Selects the trajectory planner type:
+  ** 0 = trapezoidal velocity profile (default)
+  ** 1 = S-curve with jerk limiting
+  ** 2 = 9D jerk-limited planner with Ruckig library (see <<sub:ini:sec:traj:9d-planner,9D Planner>>)
++
+S-curve planning (type 1) is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK > 0`.
+The 9D planner (type 2) provides time-optimal jerk-limited trajectories with responsive feed override handling.
 * `MAX_LINEAR_JERK = 10000.0` - (((MAX JERK))) The maximum jerk (rate of change of acceleration) for coordinated moves, in 'machine units' per second cubed.
   Default is 1e9 (1 billion) if not specified, which effectively disables jerk limiting while avoiding numerical instability.
   Values are clamped to a maximum of 1e9 to prevent numerical issues in S-curve calculations.
@@ -896,6 +901,108 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
   The setting may be overridden from the command line using the -t option ($ linuxcnc -h).
 * `NO_PROBE_JOG_ERROR = 0` - Allow to bypass probe tripped check when you jog manually.
 * `NO_PROBE_HOME_ERROR = 0` - Allow to bypass probe tripped check when homing is in progress.
+
+[[sub:ini:sec:traj:9d-planner]]
+==== 9D Jerk-Limited Planner (PLANNER_TYPE = 2)
+
+The 9D planner is an advanced trajectory planning system that uses the Ruckig library
+for time-optimal, jerk-limited motion profiles. It features a dual-layer architecture
+with userspace planning and real-time execution, providing responsive feed override
+handling without motion discontinuities.
+
+[NOTE]
+====
+The 9D planner is an experimental feature. Use `PLANNER_TYPE = 2` to enable it.
+This planner is recommended for machines that require smooth motion with jerk limiting,
+and responsive feed override changes during motion.
+====
+
+===== Basic 9D Planner Parameters
+
+* `PLANNER_TYPE = 2` - Selects the 9D jerk-limited trajectory planner.
+  This enables the Ruckig-based motion planning with userspace optimization.
+* `OPTIMIZATION_DEPTH = 8` - Number of segments to look ahead for velocity optimization (range: 4-200, default: 8).
+  Higher values allow the planner to achieve higher velocities on longer paths
+  by planning deceleration further in advance.
+* `RAMP_FREQUENCY = 10.0` - Cutoff frequency in Hz for ramped velocity mode (range: 1.0-1000.0, default: 10.0).
+  Segments shorter than 1/RAMP_FREQUENCY seconds use constant acceleration instead
+  of trapezoidal profiles to reduce jerk on very short moves.
+* `SMOOTHING_PASSES = 2` - Number of velocity smoothing passes (range: 1-10, default: 2).
+  Additional passes reduce velocity peaks but may slightly reduce maximum throughput.
+* `TC_QUEUE_SIZE = 50` - Size of the trajectory queue (range: 32-400, default: 50).
+  Larger queues allow more look-ahead but use more memory.
+* `USE_USERSPACE_KINEMATICS = 0` - Set to 1 to enable userspace kinematics computation.
+  When enabled, joint-space trajectories are computed in userspace rather than real-time,
+  reducing RT CPU load for complex kinematics.
+
+===== Predictive Feed Override Handoff Parameters
+
+These parameters control the branch/merge architecture for handling feed override changes.
+When the operator adjusts the feed override, the planner computes a new trajectory
+branch in userspace and hands it off to the real-time layer at a predicted future time.
+This allows smooth velocity transitions without motion discontinuities.
+
+* `HANDOFF_HORIZON_MS = 100` - How far ahead (in milliseconds) to predict the handoff point (range: 1-1000, default: 100).
+  This value must exceed the worst-case userspace latency to ensure the new trajectory
+  is ready before the real-time layer reaches the handoff point.
+  Typical values: 50-200ms depending on system load.
+* `BRANCH_WINDOW_MS = 50` - Window size (in milliseconds) for RT to accept the branch (range: 10-500, default: 50).
+  The real-time layer must reach the handoff point within this window after HANDOFF_HORIZON_MS
+  to accept the new trajectory. If the window expires, the branch is discarded.
+* `MIN_BUFFER_TIME_MS = 100` - Minimum buffered motion time before alarm (range: 10-1000, default: 100).
+  If the motion buffer drops below this value, a warning is generated.
+  Very short buffer times risk motion starvation.
+* `TARGET_BUFFER_TIME_MS = 200` - Target buffered motion time (range: MIN_BUFFER_TIME_MS-2000, default: 200).
+  The optimizer aims to maintain at least this much motion in the buffer.
+* `MAX_BUFFER_TIME_MS = 500` - Maximum buffered motion time (range: TARGET_BUFFER_TIME_MS-5000, default: 500).
+  The optimizer stops adding new segments when the buffer exceeds this value.
+* `FEED_OVERRIDE_DEBOUNCE_MS = 50` - Minimum time between branch computations (range: 1-500, default: 50).
+  When the operator rapidly changes the feed override (e.g., with a rotary knob),
+  this debounce prevents excessive recomputation. After computing a branch,
+  the planner waits this long before computing another.
+
+===== Example 9D Planner Configuration
+
+[source,{ini}]
+----
+[TRAJ]
+# Basic trajectory settings
+LINEAR_UNITS = mm
+ANGULAR_UNITS = degree
+MAX_LINEAR_VELOCITY = 100.0
+MAX_LINEAR_ACCELERATION = 2000.0
+MAX_LINEAR_JERK = 50000.0
+
+# Enable 9D planner
+PLANNER_TYPE = 2
+
+# 9D planner tuning
+OPTIMIZATION_DEPTH = 16
+RAMP_FREQUENCY = 20.0
+SMOOTHING_PASSES = 2
+TC_QUEUE_SIZE = 100
+
+# Optional: Enable userspace kinematics for complex machines
+# USE_USERSPACE_KINEMATICS = 1
+
+# Predictive handoff tuning (optional - defaults work well for most systems)
+# HANDOFF_HORIZON_MS = 100
+# BRANCH_WINDOW_MS = 50
+# MIN_BUFFER_TIME_MS = 100
+# TARGET_BUFFER_TIME_MS = 200
+# MAX_BUFFER_TIME_MS = 500
+# FEED_OVERRIDE_DEBOUNCE_MS = 50
+----
+
+[NOTE]
+====
+The 9D planner automatically uses the servo cycle time from `[EMCMOT]SERVO_PERIOD`
+and jerk limits from `MAX_LINEAR_JERK`. If `MAX_LINEAR_JERK` is not specified,
+a default of 50000 (units per second cubed) is used.
+
+Per-joint jerk limits can also be specified in `[JOINT_N]MAX_JERK` sections.
+The planner uses the most restrictive limit for each move.
+====
 
 
 [[sub:ini:sec:kins]]
