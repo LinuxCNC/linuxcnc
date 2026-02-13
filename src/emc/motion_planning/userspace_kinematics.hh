@@ -165,8 +165,7 @@ private:
 /**
  * Global userspace kinematics planner instance
  *
- * This is initialized when the motion controller starts with
- * USE_USERSPACE_KINEMATICS=1 in the INI file.
+ * This is automatically initialized when PLANNER_TYPE=2 in the INI file.
  */
 extern UserspaceKinematicsPlanner g_userspace_kins_planner;
 
