@@ -1305,14 +1305,22 @@ static double findAchievableExitVelocity(double current_vel, double current_acc,
 static double computeKinematicHandoffMargin(double current_vel, double target_vel,
                                             double max_accel, double max_jerk)
 {
-    // Base margin for RT timing jitter and servo cycle uncertainty
-    const double BASE_MARGIN_SEC = 0.020;  // 20ms base
-    const double MIN_MARGIN_SEC = 0.025;   // 25ms absolute minimum
-    const double MAX_MARGIN_SEC = 0.250;   // 250ms cap to maintain responsiveness
+    // All timing constants derived from servo cycle time:
+    //   1 cycle  — RT detects branch (polls branch->valid each cycle)
+    //   1 cycle  — RT takes branch and starts executing new profile
+    //   1 cycle  — elapsed_time measurement jitter (read vs actual)
+    // = 3 cycles base margin for the handoff mechanics.
+    double servo_sec = g_handoff_config.servo_cycle_time_sec;
+    double base_margin = servo_sec * 3;
+    double min_margin  = base_margin;
+    // Cap: half the branch window — beyond this we're waiting too long
+    // and should defer to the next segment instead.
+    double max_margin  = g_handoff_config.branch_window_ms / 2000.0;
+    if (max_margin < min_margin * 2) max_margin = min_margin * 2;
 
     // If velocity is already at or below target, minimal margin needed
     if (current_vel <= target_vel + 0.01) {
-        return MIN_MARGIN_SEC;
+        return min_margin;
     }
 
     // Delta velocity that needs to be braked
@@ -1329,10 +1337,10 @@ static double computeKinematicHandoffMargin(double current_vel, double target_ve
     // Margin = base + fraction of brake time for stabilization
     // The 0.5 factor accounts for profile needing time to "settle" after
     // the main deceleration phase (final jerk phase + numerical settling)
-    double kinematic_margin = BASE_MARGIN_SEC + t_brake_estimate * 0.5;
+    double kinematic_margin = base_margin + t_brake_estimate * 0.5;
 
     // Clamp to reasonable bounds
-    return fmax(MIN_MARGIN_SEC, fmin(MAX_MARGIN_SEC, kinematic_margin));
+    return fmax(min_margin, fmin(max_margin, kinematic_margin));
 }
 
 //============================================================================
@@ -1658,10 +1666,15 @@ bool commitBranch(shared_optimization_data_9d_t *shared,
  *
  * Finds the earliest queue index where we can guarantee all segments from
  * there forward will be recomputed before RT arrives. If the active segment
- * has >20ms remaining, returns 1 (branch on active). Otherwise scans forward
- * comparing RT arrival time vs our estimated recompute time.
+ * has enough remaining time for a handoff (adaptive horizon + 3 servo cycles),
+ * returns 1 (branch on active). Otherwise scans forward comparing RT arrival
+ * time vs our estimated recompute time.
+ *
+ * Segment durations are scaled by the ratio of their computed feed to the
+ * new requested feed, so RT arrival estimates reflect the actual speed
+ * segments will run at after recomputation.
  */
-static int estimateCommitSegment(TP_STRUCT *tp)
+static int estimateCommitSegment(TP_STRUCT *tp, double new_feed)
 {
     TC_QUEUE_STRUCT *queue = &tp->queue;
     int queue_len = tcqLen_user(queue);
@@ -1675,17 +1688,37 @@ static int estimateCommitSegment(TP_STRUCT *tp)
     // In all cases, treat as infinite arrival time → branch on active (return 1).
     double elapsed = atomicLoadDouble(&active->elapsed_time);
     double active_remaining = 0.0;
+    double active_computed_feed = active->shared_9d.profile.computed_feed_scale;
     if (active->shared_9d.profile.valid && active->shared_9d.profile.duration > 1e-6) {
         active_remaining = active->shared_9d.profile.duration - elapsed;
         if (active_remaining < 0) active_remaining = 0;
+        // Scale active remaining time by feed ratio: profiles were computed at
+        // computed_feed_scale, but RT will run at new_feed after the branch.
+        // Duration scales roughly as 1/feed (exact for cruise-dominated segments,
+        // approximate for accel-dominated — still much better than the stale value).
+        if (active_computed_feed > 0.001 && new_feed > 0.001) {
+            active_remaining *= active_computed_feed / new_feed;
+        }
     } else {
         return 1;  // no schedule → train is parked, must branch on active
     }
     if (active_remaining < 1e-6) return 1;  // schedule expired → train is parked
-    if (active_remaining > 0.020) return 1;  // >20ms remaining: branch on active
 
-    double cycle_time = tp->cycleTime > 0 ? tp->cycleTime : 0.001;
-    double margin = 0.010;  // 10ms safety margin
+    // Minimum remaining time for computeBranch() to succeed:
+    //   adaptive_horizon — time to place the handoff point ahead of current time
+    //   3 servo cycles   — RT detection + taking + jitter (same as
+    //                       computeKinematicHandoffMargin's base margin)
+    // If active has more than this, branch on it directly.
+    // If less, computeBranch would reject anyway — skip to commit-point scan.
+    double servo_sec = g_handoff_config.servo_cycle_time_sec;
+    double horizon_sec = g_adaptive_horizon.get() / 1000.0;
+    double min_branch_remaining = horizon_sec + servo_sec * 3;
+    if (active_remaining > min_branch_remaining) return 1;
+
+    double cycle_time = tp->cycleTime > 0 ? tp->cycleTime : servo_sec;
+    // Safety margin: 10 servo cycles to absorb timing jitter between
+    // userspace computation and RT execution.
+    double margin = servo_sec * 10;
     double spt = g_segments_per_tick > 0.5 ? g_segments_per_tick : 1.0;
 
     double rt_time = active_remaining;  // cumulative time until RT reaches segment i
@@ -1699,10 +1732,16 @@ static int estimateCommitSegment(TP_STRUCT *tp)
         }
 
         // Add segment i's duration to RT arrival time.
-        // No valid profile or zero duration → unknown schedule, assume stuck.
+        // Scale by feed ratio: the stored duration reflects the old feed, but
+        // after recompute these segments will run at new_feed.
         TC_STRUCT *tc = tcqItem_user(queue, i);
         if (tc && tc->shared_9d.profile.valid && tc->shared_9d.profile.duration > 1e-6) {
-            rt_time += tc->shared_9d.profile.duration;
+            double duration = tc->shared_9d.profile.duration;
+            double seg_feed = tc->shared_9d.profile.computed_feed_scale;
+            if (seg_feed > 0.001 && new_feed > 0.001) {
+                duration *= seg_feed / new_feed;
+            }
+            rt_time += duration;
         } else {
             return i;  // blank timetable → train won't pass here soon, commit here
         }
@@ -2689,7 +2728,7 @@ extern "C" void manageBranches(TP_STRUCT *tp)
     if (current_feed < 0.001) {
         commit_seg = 1;
     } else {
-        commit_seg = estimateCommitSegment(tp);
+        commit_seg = estimateCommitSegment(tp, current_feed);
     }
 
     if (commit_seg <= 1) {
@@ -3253,7 +3292,7 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                 // Only start new cursor walk if queued feed differs from committed
                 if (fabs(next_feed - g_committed_feed) > 0.005 ||
                     fabs(next_rapid - g_committed_rapid) > 0.005) {
-                    int commit_seg = estimateCommitSegment(tp);
+                    int commit_seg = estimateCommitSegment(tp, next_feed);
                     if (commit_seg <= 1) {
                         // Big active segment: let manageBranches handle it next cycle
                     } else {
