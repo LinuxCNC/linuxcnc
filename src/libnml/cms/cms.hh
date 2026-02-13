@@ -265,27 +265,28 @@ class CMS {
   /***********************************************/
     /* Access functions for primitive C language data types */
     CMS_STATUS update(bool &x);
-    CMS_STATUS update(char &x);                            /* Used by emc2 */
-    CMS_STATUS update(unsigned char &x);                   /* Used by emc2 */
-    CMS_STATUS update(short int &x);
-    CMS_STATUS update(unsigned short int &x);
-    CMS_STATUS update(int &x);                             /* Used by emc2 */
-    CMS_STATUS update(unsigned int &x);
-    CMS_STATUS update(int64_t &x);                         /* Used by emc2 */
-    CMS_STATUS update(uint64_t &x);                        /* Used by emc2 */
+    CMS_STATUS update(int8_t &x);
+    CMS_STATUS update(uint8_t &x);
+    CMS_STATUS update(int16_t &x);
+    CMS_STATUS update(uint16_t &x);
+    CMS_STATUS update(int32_t &x);
+    CMS_STATUS update(uint32_t &x);
+    CMS_STATUS update(int64_t &x);
+    CMS_STATUS update(uint64_t &x);
     CMS_STATUS update(float &x);
-    CMS_STATUS update(double &x);                          /* Used by emc2 */
+    CMS_STATUS update(double &x);
     CMS_STATUS update(long double &x);
-    CMS_STATUS update(char *x, unsigned int len);          /* Used by emc2 */
-    CMS_STATUS update(unsigned char *x, unsigned int len); /* Used by emc2 */
-    CMS_STATUS update(short *x, unsigned int len);
-    CMS_STATUS update(unsigned short *x, unsigned int len);
-    CMS_STATUS update(int *x, unsigned int len);           /* Used by emc2 */
-    CMS_STATUS update(unsigned int *x, unsigned int len);
+    CMS_STATUS update(char *x, unsigned int len) { return update(reinterpret_cast<int8_t *>(x), len); };
+    CMS_STATUS update(int8_t *x, unsigned int len);
+    CMS_STATUS update(uint8_t *x, unsigned int len);
+    CMS_STATUS update(int16_t *x, unsigned int len);
+    CMS_STATUS update(uint16_t *x, unsigned int len);
+    CMS_STATUS update(int32_t *x, unsigned int len);
+    CMS_STATUS update(uint32_t *x, unsigned int len);
     CMS_STATUS update(int64_t *x, unsigned int len);
     CMS_STATUS update(uint64_t *x, unsigned int len);
     CMS_STATUS update(float *x, unsigned int len);
-    CMS_STATUS update(double *x, unsigned int len);        /* Used by emc2 */
+    CMS_STATUS update(double *x, unsigned int len);
     CMS_STATUS update(long double *x, unsigned int len);
 
   /*************************************************************************

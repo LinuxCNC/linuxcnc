@@ -39,23 +39,23 @@ struct CMS_POINTER_TABLE_ENTRY {
 class CMS_UPDATER {
   public:
     virtual CMS_STATUS update(bool &x) = 0;
-    virtual CMS_STATUS update(char &x) = 0;
-    virtual CMS_STATUS update(unsigned char &x) = 0;
-    virtual CMS_STATUS update(short int &x) = 0;
-    virtual CMS_STATUS update(unsigned short int &x) = 0;
-    virtual CMS_STATUS update(int &x) = 0;
-    virtual CMS_STATUS update(unsigned int &x) = 0;
+    virtual CMS_STATUS update(int8_t &x) = 0;
+    virtual CMS_STATUS update(uint8_t &x) = 0;
+    virtual CMS_STATUS update(int16_t &x) = 0;
+    virtual CMS_STATUS update(uint16_t &x) = 0;
+    virtual CMS_STATUS update(int32_t &x) = 0;
+    virtual CMS_STATUS update(uint32_t &x) = 0;
     virtual CMS_STATUS update(int64_t &x) = 0;
     virtual CMS_STATUS update(uint64_t &x) = 0;
     virtual CMS_STATUS update(float &x) = 0;
     virtual CMS_STATUS update(double &x) = 0;
     virtual CMS_STATUS update(long double &x) = 0;
-    virtual CMS_STATUS update(char *x, unsigned int len) = 0;
-    virtual CMS_STATUS update(unsigned char *x, unsigned int len) = 0;
-    virtual CMS_STATUS update(short *x, unsigned int len) = 0;
-    virtual CMS_STATUS update(unsigned short *x, unsigned int len) = 0;
-    virtual CMS_STATUS update(int *x, unsigned int len) = 0;
-    virtual CMS_STATUS update(unsigned int *x, unsigned int len) = 0;
+    virtual CMS_STATUS update(int8_t *x, unsigned int len) = 0;
+    virtual CMS_STATUS update(uint8_t *x, unsigned int len) = 0;
+    virtual CMS_STATUS update(int16_t *x, unsigned int len) = 0;
+    virtual CMS_STATUS update(uint16_t *x, unsigned int len) = 0;
+    virtual CMS_STATUS update(int32_t *x, unsigned int len) = 0;
+    virtual CMS_STATUS update(uint32_t *x, unsigned int len) = 0;
     virtual CMS_STATUS update(int64_t *x, unsigned int len) = 0;
     virtual CMS_STATUS update(uint64_t *x, unsigned int len) = 0;
     virtual CMS_STATUS update(float *x, unsigned int len) = 0;

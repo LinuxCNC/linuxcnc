@@ -1292,7 +1292,7 @@ CMS_STATUS CMS::update(bool &x)
     }
 }
 
-CMS_STATUS CMS::update(char &x)
+CMS_STATUS CMS::update(int8_t &x)
 {
     if (NULL != updater) {
 	return (updater->update(x));
@@ -1301,7 +1301,7 @@ CMS_STATUS CMS::update(char &x)
     }
 }
 
-CMS_STATUS CMS::update(unsigned char &x)
+CMS_STATUS CMS::update(uint8_t &x)
 {
     if (NULL != updater) {
 	return (updater->update(x));
@@ -1310,7 +1310,7 @@ CMS_STATUS CMS::update(unsigned char &x)
     }
 }
 
-CMS_STATUS CMS::update(short int &x)
+CMS_STATUS CMS::update(int16_t &x)
 {
     if (NULL != updater) {
 	return (updater->update(x));
@@ -1319,7 +1319,7 @@ CMS_STATUS CMS::update(short int &x)
     }
 }
 
-CMS_STATUS CMS::update(unsigned short int &x)
+CMS_STATUS CMS::update(uint16_t &x)
 {
     if (NULL != updater) {
 	return (updater->update(x));
@@ -1328,7 +1328,7 @@ CMS_STATUS CMS::update(unsigned short int &x)
     }
 }
 
-CMS_STATUS CMS::update(int &x)
+CMS_STATUS CMS::update(int32_t &x)
 {
     if (NULL != updater) {
 	return (updater->update(x));
@@ -1337,7 +1337,7 @@ CMS_STATUS CMS::update(int &x)
     }
 }
 
-CMS_STATUS CMS::update(unsigned int &x)
+CMS_STATUS CMS::update(uint32_t &x)
 {
     if (NULL != updater) {
 	return (updater->update(x));
@@ -1391,7 +1391,7 @@ CMS_STATUS CMS::update(long double &x)
     }
 }
 
-CMS_STATUS CMS::update(char *x, unsigned int len)
+CMS_STATUS CMS::update(int8_t *x, unsigned int len)
 {
     if (NULL != updater) {
 	return (updater->update(x, len));
@@ -1400,7 +1400,7 @@ CMS_STATUS CMS::update(char *x, unsigned int len)
     }
 }
 
-CMS_STATUS CMS::update(unsigned char *x, unsigned int len)
+CMS_STATUS CMS::update(uint8_t *x, unsigned int len)
 {
     if (NULL != updater) {
 	return (updater->update(x, len));
@@ -1409,7 +1409,7 @@ CMS_STATUS CMS::update(unsigned char *x, unsigned int len)
     }
 }
 
-CMS_STATUS CMS::update(short *x, unsigned int len)
+CMS_STATUS CMS::update(int16_t *x, unsigned int len)
 {
     if (NULL != updater) {
 	return (updater->update(x, len));
@@ -1418,7 +1418,7 @@ CMS_STATUS CMS::update(short *x, unsigned int len)
     }
 }
 
-CMS_STATUS CMS::update(unsigned short *x, unsigned int len)
+CMS_STATUS CMS::update(uint16_t *x, unsigned int len)
 {
     if (NULL != updater) {
 	return (updater->update(x, len));
@@ -1427,7 +1427,7 @@ CMS_STATUS CMS::update(unsigned short *x, unsigned int len)
     }
 }
 
-CMS_STATUS CMS::update(int *x, unsigned int len)
+CMS_STATUS CMS::update(int32_t *x, unsigned int len)
 {
     if (NULL != updater) {
 	return (updater->update(x, len));
@@ -1436,7 +1436,7 @@ CMS_STATUS CMS::update(int *x, unsigned int len)
     }
 }
 
-CMS_STATUS CMS::update(unsigned int *x, unsigned int len)
+CMS_STATUS CMS::update(uint32_t *x, unsigned int len)
 {
     if (NULL != updater) {
 	return (updater->update(x, len));
