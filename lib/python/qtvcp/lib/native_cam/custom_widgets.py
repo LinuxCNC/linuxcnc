@@ -210,7 +210,7 @@ class ComboDelegate(QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         editorType = index.model().data(index,Qt.UserRole).get_type() 
-        if editorType == 'combo':
+        if editorType in ('combo', 'combo-user'):
             if index.data() =='': return
             combo = QComboBox(parent)
             combo.setFont(QFont("Times New Roman", pointSize = 15, weight=QFont.Bold))
@@ -250,7 +250,7 @@ class ComboDelegate(QStyledItemDelegate):
         editorType = index.model().data(index,Qt.UserRole).get_type()
 
         # set combo box index from treemodel
-        if editorType == 'combo':
+        if editorType in ('combo', 'combo-user'):
             # get model data 'magic number'
             value = index.model().data(index,Qt.UserRole).get_value()
             idx = editor.findData(value) 
@@ -281,7 +281,7 @@ class ComboDelegate(QStyledItemDelegate):
         editorType = index.model().data(index,Qt.UserRole).get_type()
 
         # set model to combobox selection
-        if editorType == 'combo':
+        if editorType in ('combo', 'combo-user'):
             if index.column() == 1:
                 # extract integer user data ('magic number') from combobox
                 data = editor.itemData(editor.currentIndex(), Qt.UserRole)
@@ -358,7 +358,7 @@ class treeModel(QAbstractItemModel):
                 if item.meta.get_type() == 'bool':
                     return None
 
-                elif item.meta.get_type() == 'combo':
+                elif item.meta.get_type() in ('combo', 'combo-user'):
                     def get_data(): # from XML object
                         return item.data(index.column()).value()
                     optionList = item.meta.get_options().split(':')
