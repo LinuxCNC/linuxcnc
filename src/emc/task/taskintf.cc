@@ -22,6 +22,7 @@
 #include "motion.h"		// emcmot_command_t,STATUS, etc.
 #include "tp.h"                 // tpAddLine(), tpAddCircle(), tpSetId() for dual-layer arch
 #include "motion_planning_9d.hh"  // tpOptimizePlannedMotions_9D() for planner_type 2
+#include "userspace_kinematics.hh"  // userspace_kins_is_enabled() for planner_type 2 guard
 #include "homing.h"
 #include "emc.hh"
 #include "emccfg.h"		// EMC_INIFILE
@@ -1178,6 +1179,17 @@ int emcTrajSetJerk(double jerk)
 
 int emcTrajPlannerType(int type)
 {
+    if (type == 2) {
+        // Planner type 2 requires userspace kinematics to be initialized at startup.
+        // If switching via HAL pin and it wasn't configured, reject with a warning.
+        if (!motion_planning::userspace_kins_is_enabled()) {
+            rcs_print_error("Cannot switch to PLANNER_TYPE 2: userspace kinematics not initialized.\n");
+            rcs_print_error("PLANNER_TYPE 2 requires PLANNER_TYPE = 2 in the [TRAJ] section of the INI file.\n");
+            rcs_print_error("Userspace kinematics cannot be initialized at runtime.\n");
+            return -1;
+        }
+    }
+
     emcmotCommand.command = EMCMOT_SET_PLANNER_TYPE;
     emcmotCommand.planner_type = type;
 

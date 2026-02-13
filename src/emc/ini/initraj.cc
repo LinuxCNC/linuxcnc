@@ -244,19 +244,14 @@ static int loadTraj(EmcIniFile *trajInifile)
         if (planner_type == 2) {
             rcs_print("PLANNER_TYPE 2 (9D) is EXPERIMENTAL. Use with caution.\n");
 
-            // Check if userspace kinematics is enabled (optional for now)
-            int use_userspace_kinematics = 0;
-            trajInifile->Find(&use_userspace_kinematics, "USE_USERSPACE_KINEMATICS", "TRAJ");
-
-            if (use_userspace_kinematics) {
-                rcs_print("USE_USERSPACE_KINEMATICS = 1 (userspace kinematics enabled)\n");
-
+            // Planner type 2 requires userspace kinematics - enable automatically
+            {
                 // Read kinematics module name from emcmotConfig (set by motion module)
                 const char *kins_module = emcmotConfig->kins_module_name;
 
                 if (!kins_module || kins_module[0] == '\0') {
                     rcs_print_error("ERROR: No kinematics module name in emcmotConfig\n");
-                    rcs_print_error("Userspace kinematics requires a kinematics module to be loaded.\n");
+                    rcs_print_error("PLANNER_TYPE 2 requires a kinematics module to be loaded.\n");
                     rcs_print_error("Ensure your HAL file loads a kinematics module (e.g., loadrt trivkins)\n");
                     return -1;
                 }
@@ -278,8 +273,6 @@ static int loadTraj(EmcIniFile *trajInifile)
                 }
                 rcs_print("Userspace kinematics initialized (module=%s, joints=%d, coords=%s)\n",
                           kins_module, joints, coord ? coord->c_str() : "XYZ");
-            } else {
-                rcs_print("USE_USERSPACE_KINEMATICS = 0 (using RT kinematics)\n");
             }
 
             // Parse 9D-specific parameters
