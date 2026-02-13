@@ -931,10 +931,6 @@ and responsive feed override changes during motion.
   Additional passes reduce velocity peaks but may slightly reduce maximum throughput.
 * `TC_QUEUE_SIZE = 50` - Size of the trajectory queue (range: 32-400, default: 50).
   Larger queues allow more look-ahead but use more memory.
-* `USE_USERSPACE_KINEMATICS = 0` - Set to 1 to enable userspace kinematics computation.
-  When enabled, joint-space trajectories are computed in userspace rather than real-time,
-  reducing RT CPU load for complex kinematics.
-
 ===== Predictive Feed Override Handoff Parameters
 
 These parameters control the branch/merge architecture for handling feed override changes.
@@ -981,9 +977,6 @@ OPTIMIZATION_DEPTH = 16
 RAMP_FREQUENCY = 20.0
 SMOOTHING_PASSES = 2
 TC_QUEUE_SIZE = 100
-
-# Optional: Enable userspace kinematics for complex machines
-# USE_USERSPACE_KINEMATICS = 1
 
 # Predictive handoff tuning (optional - defaults work well for most systems)
 # HANDOFF_HORIZON_MS = 100
