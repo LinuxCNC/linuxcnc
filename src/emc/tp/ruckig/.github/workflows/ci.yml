@@ -1,0 +1,115 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        cmake_flags: ["", " -DBUILD_CLOUD_CLIENT=OFF "]
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Get cross-platform /dev/null for hidden output
+      run: echo "HIDDEN=$(python3 -c "import os; print(os.devnull)")" >> $GITHUB_ENV
+
+    - name: Install valgrind
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get update && sudo apt-get install -y valgrind
+
+    - name: Configure and make
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON -DBUILD_BENCHMARK=ON ${{ matrix.cmake_flags }} -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. -DCMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE=.
+        cmake --build build --config Release -j2
+
+    - name: Run C++ Examples
+      working-directory: build
+      run: |
+        ./example-01_position > "$HIDDEN"
+        ./example-02_position_offline > "$HIDDEN"
+        ./example-05_velocity > "$HIDDEN"
+        ./example-06_stop > "$HIDDEN"
+        ./example-07_minimum_duration > "$HIDDEN"
+        ./example-09_dynamic_dofs > "$HIDDEN"
+
+    - name: Test
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        ./build/test-target 5000000
+      env:
+        CTEST_OUTPUT_ON_FAILURE: 1
+
+    - name: Memory Test
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        ctest --test-dir ./build -T memcheck
+
+
+  build-python-package:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Get cross-platform /dev/null for hidden output
+      run: echo "HIDDEN=$(python -c "import os; print(os.devnull)")" >> $GITHUB_ENV
+
+    - name: Install ruckig
+      run: pip install .
+
+    - name: Run Python Examples
+      run: |
+        python ./examples/01_position.py > "$HIDDEN"
+        python ./examples/02_position_offline.py > "$HIDDEN"
+        python ./examples/05_velocity.py > "$HIDDEN"
+        python ./examples/06_stop.py > "$HIDDEN"
+        python ./examples/07_minimum_duration.py > "$HIDDEN"
+
+
+  build-debian-package:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Configure and make
+      run: |
+        cmake -B build
+        cmake --build build -j2 -- package
+
+    - name: Install package
+      working-directory: build
+      run: sudo apt-get install ./ruckig-*.deb
+
+    - name: Test building examples
+      working-directory: examples
+      run: |
+        mv CMakeLists-installed.txt CMakeLists.txt
+        cmake -B build
+        cmake --build build -j2
+
+
+  lint-python:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Lint Python
+      run: |
+        python3 -m pip install ruff
+        ruff check examples test --preview

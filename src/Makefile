@@ -213,9 +213,9 @@ PROGRAMS :=
 # file names, but this is what allows 'make src.i' to produce proper
 # preprocessed source when src.c needs a customized compile flag.
 # See Submakefile.skel for an example.
-TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
-TODEPS = $(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1)))
-TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS, $(1)) $(patsubst %.cc,%.ii,$(patsubst %.c,%.i,$(1)))
+TOOBJS = $(patsubst %.cpp,objects/%.o,$(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1))))
+TODEPS = $(patsubst %.cpp,objects/%.d,$(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1))))
+TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS, $(1)) $(patsubst %.cpp,%.ii,$(patsubst %.cc,%.ii,$(patsubst %.c,%.i,$(1))))
 
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 -include $(wildcard $(SUBMAKEFILES))
@@ -223,14 +223,14 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 # This checks that all the things listed in USERSRCS are either C files
 # or C++ files
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
-$(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.cpp, $(USERSRCS)))
 
 $(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC -fno-strict-aliasing
 USERSRCS += $(PYSRCS)
 
 # Find the list of object files for each type of source file
 CUSERSRCS := $(filter %.c,$(USERSRCS))
-CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
+CXXUSERSRCS := $(filter %.cc %.cpp,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
@@ -279,7 +279,35 @@ $(sort $(CUSEROBJS)) : objects/%.o: %.c
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
-$(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
+# Ruckig files need C++20
+RUCKIG_CXX_FILES := $(filter emc/tp/ruckig%,$(CXXUSERSRCS))
+NON_RUCKIG_CXX_FILES := $(filter-out emc/tp/ruckig%,$(CXXUSERSRCS))
+
+$(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(RUCKIG_CXX_FILES)))) : objects/%.o: %.cpp
+	$(ECHO) Compiling $<
+	@mkdir -p $(dir $@)
+	@rm -f $@
+	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
+
+$(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(RUCKIG_CXX_FILES)))) : objects/%.o: %.cc
+	$(ECHO) Compiling $<
+	@mkdir -p $(dir $@)
+	@rm -f $@
+	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
+
+$(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(NON_RUCKIG_CXX_FILES)))) : objects/%.o: %.cpp
+	$(ECHO) Compiling $<
+	@mkdir -p $(dir $@)
+	@rm -f $@
+	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
+
+$(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(NON_RUCKIG_CXX_FILES)))) : objects/%.o: %.cc
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
@@ -292,7 +320,19 @@ $(sort $(patsubst %.c,%.i,$(CUSERSRCS))): %.i: %.c
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CC) -dD $(CFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
-$(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
+$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(RUCKIG_CXX_FILES)))): %.ii: %.cc
+	$(ECHO) Preprocessing $< to $@
+	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 -E $< -o $@
+
+$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(RUCKIG_CXX_FILES)))): %.ii: %.cpp
+	$(ECHO) Preprocessing $< to $@
+	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 -E $< -o $@
+
+$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(NON_RUCKIG_CXX_FILES)))): %.ii: %.cc
+	$(ECHO) Preprocessing $< to $@
+	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
+
+$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(NON_RUCKIG_CXX_FILES)))): %.ii: %.cpp
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
@@ -884,7 +924,7 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD)/../include -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
+EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD)/../include -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist -I$(BASEPWD)/emc/tp/ruckig/include \
 	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
 	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
 	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
@@ -1231,6 +1271,18 @@ motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
 motmod-objs += emc/tp/sp_scurve.o
+motmod-objs += emc/tp/ruckig_wrapper.o
+motmod-objs += emc/tp/ruckig/src/ruckig/brake.o
+motmod-objs += emc/tp/ruckig/src/ruckig/position_first_step1.o
+motmod-objs += emc/tp/ruckig/src/ruckig/position_first_step2.o
+motmod-objs += emc/tp/ruckig/src/ruckig/position_second_step1.o
+motmod-objs += emc/tp/ruckig/src/ruckig/position_second_step2.o
+motmod-objs += emc/tp/ruckig/src/ruckig/position_third_step1.o
+motmod-objs += emc/tp/ruckig/src/ruckig/position_third_step2.o
+motmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step1.o
+motmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step2.o
+motmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step1.o
+motmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step2.o
 
 obj-m += homemod.o
 homemod-objs := emc/motion/homemod.o
@@ -1246,6 +1298,18 @@ tpmod-objs += emc/tp/blendmath.o
 tpmod-objs += emc/nml_intf/emcpose.o
 tpmod-objs += libnml/posemath/_posemath.o
 tpmod-objs += emc/tp/sp_scurve.o
+tpmod-objs += emc/tp/ruckig_wrapper.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/brake.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/position_first_step1.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/position_first_step2.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/position_second_step1.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/position_second_step2.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/position_third_step1.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/position_third_step2.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step1.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step2.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step1.o
+tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step2.o
 tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
@@ -1266,13 +1330,38 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 
 RTFLAGS += -fno-strict-aliasing -fwrapv
 
-# Rules to make .o (object) files
-$(sort $(RTOBJS)) : objects/rt%.o : %.c
+# Rules to make .o (object) files for C files
+$(sort $(filter-out objects/rtemc/tp/ruckig_wrapper.o objects/rtemc/tp/ruckig/src/ruckig/%,$(RTOBJS))) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI \
 		$(EXTRA_CFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
+
+# C++ flags for Ruckig: drop C-only -Wno-declaration-after-statement, and suppress
+# false-positive -Warray-bounds and -Wunused-parameter in Ruckig library
+RUCKIG_CXXFLAGS := $(filter-out -Wno-declaration-after-statement,$(EXTRA_CFLAGS)) \
+	-Wno-array-bounds -Wno-unused-parameter
+
+# Rules for C++ .cc files in realtime modules
+objects/rtemc/tp/ruckig_wrapper.o : emc/tp/ruckig_wrapper.cc
+	$(ECHO) Compiling realtime $<
+	@rm -f $@
+	@mkdir -p $(dir $@)
+	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI -std=c++20 \
+		$(RUCKIG_CXXFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
+
+# Rules for C++ .cpp files in realtime modules
+objects/rtemc/tp/ruckig/src/ruckig/%.o : emc/tp/ruckig/src/ruckig/%.cpp
+	$(ECHO) Compiling realtime $<
+	@rm -f $@
+	@mkdir -p $(dir $@)
+	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI -std=c++20 \
+		$(RUCKIG_CXXFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 endif

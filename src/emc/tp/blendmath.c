@@ -22,11 +22,7 @@
 #include "motion.h"
 #include "sp_scurve.h"
 
-extern emcmot_status_t *emcmotStatus;
-
-#ifndef GET_TRAJ_PLANNER_TYPE
-#define GET_TRAJ_PLANNER_TYPE() (emcmotStatus->planner_type)
-#endif
+#include "mot_priv.h"
 
 /** @section utilityfuncs Utility functions */
 
@@ -1214,8 +1210,6 @@ int blendComputeParameters(BlendParameters * const param)
     param->d_plan = param->R_plan / tan(param->theta);
 
     tp_debug_print("v_plan = %f\n", param->v_plan);
-    tp_debug_print("R_plan = %f\n", param->R_plan);
-    tp_debug_print("d_plan = %f\n", param->d_plan);
 
     /* "Actual" velocity means the velocity when feed override is 1.0.  Recall
      * that v_plan may be greater than v_req by the max feed override. If our
@@ -1228,9 +1222,6 @@ int blendComputeParameters(BlendParameters * const param)
     } else {
         param->v_actual = param->v_plan;
     }
-
-    // Store arc length of blend arc for future checks
-    param->s_arc = param->R_plan * param->phi;
 
     if (param->R_plan < TP_POS_EPSILON) {
         tp_debug_print("#Blend radius too small, aborting arc\n");

@@ -1,0 +1,13 @@
+# A CMakeLists.txt to show how to use Ruckig with CMake when installed via `make install` first.
+
+cmake_minimum_required(VERSION 3.10)
+
+project(ruckig_examples)
+
+find_package(ruckig REQUIRED)
+
+# Build the position example
+add_executable(example-position 01_position.cpp)
+target_compile_features(example-position PUBLIC cxx_std_17)
+
+target_link_libraries(example-position PRIVATE ruckig::ruckig)

@@ -117,4 +117,11 @@ int tcPureRotaryCheck(TC_STRUCT const * const tc);
 int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ);
 
 int tcClearFlags(TC_STRUCT * const tc);
+
+/**
+ * Clean up Ruckig planner resources in a TC_STRUCT.
+ * Called when the trajectory segment is removed or reset.
+ */
+void tcCleanupRuckig(TC_STRUCT * const tc);
+
 #endif				/* TC_H */

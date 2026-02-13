@@ -2,13 +2,13 @@
 * Description: sp_scurve.h
 *   Discriminate-based trajectory planning
 *
-*   Derived from a work by 杨阳
+*   Derived from a work by Yang Yang
 *
-* Author: 杨阳
+* Author: Yang Yang
 * Contact: mika-net@outlook.com
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -19,18 +19,30 @@
 #include "simple_tp.h"
 #include "rtapi_math.h"
 
+/**
+ * Initialize the S-curve planner (call at program entry).
+ *
+ * @param cycle_time  cycle time in seconds
+ * @return 0 on success, -1 on failure
+ */
+int sp_scurve_init(double cycle_time);
+
+/**
+ * Clean up the S-curve planner (call at program exit).
+ */
+void sp_scurve_cleanup(void);
+
+/* Legacy functions kept for simple_tp.c compatibility */
 double nextAccel(double t, double targetV, double v, double a, double maxA, double maxJ);
 double sc_distance(double t, double v, double a, double j);
-double trapz_distance(double t, double v, double a, double j);
 double delta_velocity(double t, double a, double j);
 double delta_accel(double t, double j);
 double nextSpeed(double v, double a, double t, double targetV, double maxA, double maxJ, double* req_v, double* req_a, double* req_j);
-double stoppingDist(double v, double a, double maxA, double maxJ) ;
-double finishWithSpeedDist(double v, double ve, double a, double maxA, double maxJ) ;
+double stoppingDist(double v, double a, double maxA, double maxJ);
 
-int getNext( simple_tp_t *tp, double Vs, double Ve, double period);
 int findSCurveVSpeed(double distence,/* double maxV, */double maxA, double maxJ, double *req_v);
 int findSCurveVSpeedWithEndSpeed(double distence, double Ve, double maxA, double maxJ, double* req_v);
+int findSCurveMaxStartSpeed(double distance, double Ve, double maxA, double maxJ, double* req_v);
 double calcDecelerateTimes(double v, double amax, double jerk, double* t1, double* t2);
 double calcSCurveSpeedWithT(double amax, double jerk, double T);
 

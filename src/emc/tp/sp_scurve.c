@@ -1,9 +1,9 @@
 /*!
 ********************************************************************
 * Description: sp_scurve.c
-*\brief Discriminate-based scurve trajectory planning
+*\brief Ruckig-based S-curve trajectory planning with legacy helpers
 *
-*\author Derived from a work by 杨阳
+*\author Derived from a work by Yang Yang
 *
 * License: GPL Version 2
 * System: Linux
@@ -13,496 +13,561 @@
 * Last change:
 ********************************************************************/
 #include "sp_scurve.h"
+#include "rtapi.h"
 #include "rtapi_math.h"
-#include "mot_priv.h" 
+#include "tp_types.h"
+#include "ruckig_wrapper.h"
 #ifndef __KERNEL__
 #include <stdio.h>
 #include <string.h>
 #endif
 
-/*
-a cubic coefficient
-b quadratic coefficient
-c linear coefficient
-d constant coefficient
-num initial calculation value
-*/
-double solute( double a, double b, double c, double d, double num){
-  double x ,x0 ,f ,f1;
-  //int cnt = 0;
-  x = num;
-  do{
-    x0 = x;
-    f = (( a*x0 + b )*x0 + c )*x0 + d;
-    f1 = ( 3*a*x0 + 2*b )*x0 + c;
-    x = x0 - f / f1;
-    //cnt++;
-  } while ( fabs( x - x0 ) > 1e-6 );
-
-  //printf( "the value is %.14f \r\n", x );
-  return( x );
-}
-
-
-/* my own implementation for solving cubic equation
- * INPUT
- *   a, b, c, d: coefficients of cubic equation ax^3 + bx^2 + cx + d = 0
- * OUTPUT
- *   res: array to store real solutions
- *   len: pointer to store number of real solutions
- * RETURN
- *   number of real solutions
+/* ========== Cached Ruckig planner ==========
+ * Use a static variable to cache the planner, avoiding creation and
+ * destruction on every call.
  */
-int solve_cubic(double a, double b, double c, double d, double res[3], int* len) {
-    // Define precision constants
-    const double EPSILON = 1e-10;
-    const double NEAR_ZERO = 1e-10;
-    
-    // Handle special cases (linear and quadratic equations)
-    if (fabs(a) < EPSILON) {
-        if (fabs(b) < EPSILON) {
-            if (fabs(c) < EPSILON) {
-                *len = 0;
-                return 0;  // No solution
+static RuckigPlanner cached_planner = NULL;
+static double cached_cycle_time = 0.0;  /* cycle time used by the current planner */
+
+/**
+ * @brief Initialize the S-curve planner (call at program entry).
+ *
+ * @param cycle_time  cycle time in seconds
+ * @return 0 on success, -1 on failure
+ */
+int sp_scurve_init(double cycle_time) {
+    /* Parameter validation */
+    if (cycle_time <= 0.0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "sp_scurve_init: invalid cycle_time=%f\n", cycle_time);
+        return -1;
+    }
+
+    /* If planner already exists with the same cycle time, nothing to do */
+    if (cached_planner != NULL && fabs(cached_cycle_time - cycle_time) < 1e-12) {
+        return 0;
+    }
+
+    /* If planner exists but cycle time changed, destroy the old one first */
+    if (cached_planner != NULL) {
+        rtapi_print_msg(RTAPI_MSG_INFO, "sp_scurve_init: cycle time changed from %f to %f, recreating planner\n",
+                        cached_cycle_time, cycle_time);
+        ruckig_destroy(cached_planner);
+        cached_planner = NULL;
+    }
+
+    /* Create new planner */
+    cached_planner = ruckig_create(cycle_time);
+    if (cached_planner == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "sp_scurve_init: ruckig_create() failed with cycle_time=%f\n", cycle_time);
+        return -1;
+    }
+
+    /* Disable log output (used for velocity planning — avoids unnecessary warnings) */
+    ruckig_set_logging(cached_planner, 0);
+
+    cached_cycle_time = cycle_time;
+    rtapi_print_msg(RTAPI_MSG_INFO, "sp_scurve_init: planner created with cycle_time=%f (logging disabled)\n", cycle_time);
+    return 0;
+}
+
+/**
+ * @brief Clean up the S-curve planner (call at program exit).
+ */
+void sp_scurve_cleanup(void) {
+    if (cached_planner != NULL) {
+        ruckig_destroy(cached_planner);
+        cached_planner = NULL;
+        cached_cycle_time = 0.0;
+    }
+}
+
+/**
+ * @brief Get the cached Ruckig planner.
+ *
+ * Note: sp_scurve_init() must be called before using this.
+ *
+ * @return RuckigPlanner handle, or NULL if not initialized
+ */
+static RuckigPlanner get_cached_planner(void) {
+    /* If planner is not initialized, return NULL.
+     * Callers should check the return value and handle the error. */
+    return cached_planner;
+}
+
+/* ================================================================
+ * Ruckig-based S-curve functions
+ * ================================================================ */
+
+/**
+ * @brief Compute the S-curve peak velocity from rest to end-speed
+ *        (using Ruckig planning).
+ *
+ * Given total distance and end velocity, plan a complete trajectory
+ * from (0, 0, 0) to (distance, Ve, 0), then read the peak velocity
+ * directly from the profile — no iteration required.
+ *
+ * @param distance  total distance
+ * @param Ve        end velocity
+ * @param maxA      maximum acceleration
+ * @param maxJ      maximum jerk
+ * @param req_v     [out] computed peak velocity
+ * @return          1 on success, -1 on failure
+ */
+int findSCurveVSpeedWithEndSpeed(double distance, double Ve,
+                                  double maxA, double maxJ, double* req_v) {
+    /* Parameter validation */
+    if (distance <= 0 || maxA <= 0 || maxJ <= 0) {
+        *req_v = fabs(Ve);
+        return -1;
+    }
+
+    /* When Ve is approximately zero, use the symmetric function */
+    if (fabs(Ve) <= TP_VEL_EPSILON) {
+        return findSCurveVSpeed(distance, maxA, maxJ, req_v);
+    }
+
+    /* Use the cached planner */
+    RuckigPlanner planner = get_cached_planner();
+    if (!planner) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "findSCurveVSpeedWithEndSpeed: planner not initialized, call sp_scurve_init() first\n");
+        *req_v = fabs(Ve);
+        return -1;
+    }
+
+    /* Reset planner state */
+    ruckig_reset(planner);
+
+    /* Plan a complete trajectory from (0, 0, 0) to (distance, Ve, 0).
+     * Ruckig will automatically find the peak velocity that satisfies
+     * the distance and end-velocity constraints. */
+    int result = ruckig_plan_position(planner,
+                                      0.0,            /* start position */
+                                      0.0,            /* start velocity */
+                                      0.0,            /* start acceleration */
+                                      distance,       /* target position */
+                                      Ve,             /* target velocity */
+                                      0.0,            /* target acceleration */
+                                      0.0,            /* min velocity (unidirectional) */
+                                      sqrt(maxA * distance + Ve * Ve) * 2.0,  /* max velocity (conservative, ensures no limiting) */
+                                      maxA,           /* max acceleration */
+                                      maxJ);          /* max jerk */
+
+    if (result != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "findSCurveVSpeedWithEndSpeed: ruckig_plan_position failed (result=%d)\n", result);
+        *req_v = fabs(Ve);
+        return -1;
+    }
+
+    /* Read the peak velocity directly from the profile */
+    double peak_vel = 0.0;
+    result = ruckig_get_peak_velocity(planner, &peak_vel);
+    if (result != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "findSCurveVSpeedWithEndSpeed: ruckig_get_peak_velocity failed\n");
+        *req_v = fabs(Ve);
+        return -1;
+    }
+
+    *req_v = peak_vel;
+    return 1;
+}
+
+/**
+ * @brief Compute the maximum start speed that can decelerate to Ve within
+ *        a given distance (jerk-constrained).
+ *
+ * Find the largest Vs such that a trajectory exists from (0, Vs, 0) to
+ * (distance, Ve, 0) under (maxA, maxJ) constraints.
+ *
+ * Method: use the constant-acceleration upper bound
+ *   Vs_estimate = sqrt(Ve^2 + 2*maxA*distance)
+ * as an initial guess and pass it to Ruckig.  If planning succeeds,
+ * Vs_estimate is feasible.  If it fails, the jerk constraint requires
+ * more distance — return a guaranteed-feasible upper bound instead.
+ *
+ * On failure, instead of returning 0.9*Vs_estimate (which may still
+ * exceed the jerk-feasible value), return the 0->0 S-curve peak for
+ * the same distance.  That value is always jerk-feasible and prevents
+ * downstream planning failures.  On success the same peak is used as
+ * an upper-bound clamp.
+ *
+ * @param distance  total distance
+ * @param Ve        end velocity
+ * @param maxA      maximum acceleration
+ * @param maxJ      maximum jerk
+ * @param req_v     [out] computed maximum start speed
+ * @return          1 on success, -1 on failure
+ */
+int findSCurveMaxStartSpeed(double distance, double Ve,
+                            double maxA, double maxJ, double* req_v) {
+    if (distance <= 0 || maxA <= 0 || maxJ <= 0) {
+        *req_v = fabs(Ve);
+        return -1;
+    }
+
+    if (fabs(Ve) <= TP_VEL_EPSILON) {
+        return findSCurveVSpeed(distance, maxA, maxJ, req_v);
+    }
+
+    /* 0->0 S-curve peak for this distance — reliable jerk-constrained upper bound,
+     * used as fallback on failure and as a clamp on success. */
+    double v_0_to_0_peak = 0.0;
+    if (findSCurveVSpeed(distance, maxA, maxJ, &v_0_to_0_peak) != 1) {
+        /* findSCurveVSpeed failed: use triangular upper bound to avoid unbounded result */
+        v_0_to_0_peak = sqrt(maxA * distance);
+    }
+
+    RuckigPlanner planner = get_cached_planner();
+    if (!planner) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "findSCurveMaxStartSpeed: planner not initialized, call sp_scurve_init() first\n");
+        *req_v = fmin(fabs(Ve) * 2.0, v_0_to_0_peak);
+        return -1;
+    }
+
+    ruckig_reset(planner);
+
+    double Vs_estimate = sqrt(Ve * Ve + 2.0 * maxA * distance);
+    if (Vs_estimate < fabs(Ve)) {
+        Vs_estimate = fabs(Ve) * 2.0;
+    }
+
+    int result = ruckig_plan_position(planner,
+                                      0.0,
+                                      Vs_estimate,
+                                      0.0,
+                                      distance,
+                                      Ve,
+                                      0.0,
+                                      0.0,
+                                      Vs_estimate * 2.0,
+                                      maxA,
+                                      maxJ);
+
+    if (result == 0) {
+        double duration = ruckig_get_duration(planner);
+        if (duration > 0.0) {
+            double actual_pos, actual_vel, actual_acc, actual_jerk;
+            int query_result = ruckig_at_time(planner, duration,
+                                             &actual_pos, &actual_vel,
+                                             &actual_acc, &actual_jerk);
+            if (query_result == 0) {
+                double pos_error = fabs(actual_pos - distance);
+                if (pos_error < 1e-6) {
+                    double start_vel = 0.0;
+                    if (ruckig_get_start_velocity(planner, &start_vel) == 0) {
+                        *req_v = fmin(start_vel, v_0_to_0_peak);
+                        return 1;
+                    }
+                }
             }
-            // Linear equation: cx + d = 0
-            res[0] = -d / c;
-            *len = 1;
-            return 1;
         }
-        // Quadratic equation: bx^2 + cx + d = 0
-        double A = b;
-        double B = c;
-        double C = d;
-        double disc = fma(B, B, -4.0*A*C);  // B*B - 4*A*C
-        
-        if (disc < 0) {
-            *len = 0;
-            return 0;  // No real solutions
+        *req_v = fmin(Vs_estimate, v_0_to_0_peak);
+        return 1;
+    }
+
+    /* Planning failed: jerk constraint makes Vs_estimate infeasible.
+     * Return the guaranteed-feasible 0->0 peak to avoid downstream failures. */
+    *req_v = fmax(fabs(Ve), v_0_to_0_peak);
+    return 1;
+}
+
+/**
+ * @brief Compute the rest-to-rest S-curve peak velocity (using Ruckig planning).
+ *
+ * Given a total distance, plan a complete trajectory from (0, 0, 0) to
+ * (distance, 0, 0), then read the peak velocity directly from the
+ * profile — no iteration required.
+ *
+ * @param distence  total distance (rest to rest)
+ * @param maxA      maximum acceleration
+ * @param maxJ      maximum jerk
+ * @param req_v     [out] computed peak velocity
+ * @return          1 on success, -1 on failure
+ */
+int findSCurveVSpeed(double distence, double maxA, double maxJ, double* req_v){
+    /* Parameter validation */
+    if (distence <= 0 || maxA <= 0 || maxJ <= 0) {
+        *req_v = 0.0;
+        return -1;
+    }
+
+    /* Use the cached planner */
+    RuckigPlanner planner = get_cached_planner();
+    if (!planner) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "findSCurveVSpeed: planner not initialized, call sp_scurve_init() first\n");
+        *req_v = 0.0;
+        return -1;
+    }
+
+    /* Reset planner state */
+    ruckig_reset(planner);
+
+    /* Plan a complete trajectory from (0, 0, 0) to (distance, 0, 0) */
+    int result = ruckig_plan_position(planner,
+                                      0.0,            /* start position */
+                                      0.0,            /* start velocity */
+                                      0.0,            /* start acceleration */
+                                      distence,       /* target position */
+                                      0.0,            /* target velocity */
+                                      0.0,            /* target acceleration */
+                                      0.0,            /* min velocity (unidirectional) */
+                                      sqrt(maxA * distence) * 2.0,  /* max velocity (conservative, ensures no limiting) */
+                                      maxA,           /* max acceleration */
+                                      maxJ);          /* max jerk */
+
+    if (result != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "findSCurveVSpeed: ruckig_plan_position failed (result=%d)\n", result);
+        *req_v = 0.0;
+        return -1;
+    }
+
+    /* Read the peak velocity directly from the profile */
+    double peak_vel = 0.0;
+    result = ruckig_get_peak_velocity(planner, &peak_vel);
+    if (result != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "findSCurveVSpeed: ruckig_get_peak_velocity failed\n");
+        *req_v = 0.0;
+        return -1;
+    }
+
+    *req_v = peak_vel;
+    return 1;
+}
+
+/**
+ * @brief Compute S-curve deceleration time parameters using analytical formulas
+ *        (real-time optimized version).
+ *
+ * S-curve deceleration consists of three phases:
+ *   T1: jerk ramp-up phase (j = -jerk), acceleration goes from 0 to -amax
+ *   T2: constant deceleration phase (j = 0), acceleration stays at -amax
+ *   T1: jerk ramp-down phase (j = +jerk), acceleration goes from -amax to 0
+ *
+ * ========== Velocity-time curve ==========
+ *
+ *   velocity v
+ *     ^
+ *   V |------\
+ *     |       \
+ *     |        \____
+ *     |             \
+ *     |              \
+ *     +---------------\----> time t
+ *     0    T1   T1+T2  2T1+T2
+ *
+ * ========== Analytical formula derivation ==========
+ *
+ * For S-curve deceleration:
+ * - T1 = amax / jerk  (time for acceleration to go from 0 to -amax)
+ * - Phase 1 velocity loss: dv1 = 0.5 * jerk * T1^2 = 0.5 * amax^2 / jerk
+ * - Phase 3 velocity loss: dv3 = 0.5 * jerk * T1^2 = 0.5 * amax^2 / jerk  (same as phase 1)
+ * - Phase 2 velocity loss: dv2 = amax * T2
+ * - Total velocity loss: v = dv1 + dv2 + dv3 = amax^2 / jerk + amax * T2
+ * - Therefore: T2 = (v - amax^2 / jerk) / amax
+ *
+ * Special case (triangular profile):
+ * - If v < amax^2 / jerk, the velocity is too small for a full S-curve
+ *   (no constant deceleration phase)
+ * - For triangular profile: v = jerk * T1^2, so T1 = sqrt(v / jerk), T2 = 0
+ *
+ * ========== Optimization notes ==========
+ *
+ * This function uses analytical formulas for direct computation, avoiding
+ * frequent trajectory planning — suitable for real-time system calls.
+ * Compared to using Ruckig, performance is significantly better and results
+ * are fully consistent.
+ *
+ * @param v     initial velocity (absolute value is taken)
+ * @param amax  maximum acceleration
+ * @param jerk  maximum jerk
+ * @param t1    [out, optional] jerk phase time T1
+ * @param t2    [out, optional] constant deceleration phase time T2
+ * @return      total deceleration time = 2*T1 + T2
+ */
+double calcDecelerateTimes(double v, double amax, double jerk, double* t1, double* t2){
+    v = fabs(v);
+
+    /* Parameter validation */
+    if (v < TP_VEL_EPSILON) {
+        if (t1 != NULL) *t1 = 0.0;
+        if (t2 != NULL) *t2 = 0.0;
+        return 0.0;
+    }
+
+    if (amax <= 0.0 || jerk <= 0.0) {
+        if (t1 != NULL) *t1 = 0.0;
+        if (t2 != NULL) *t2 = 0.0;
+        return 0.0;
+    }
+
+    /* Compute T1 (jerk phase time) */
+    double T1 = amax / jerk;
+
+    /* Total velocity loss from phase 1 and phase 3:
+     * dv1 + dv3 = 2 * (0.5 * amax^2 / jerk) = amax^2 / jerk */
+    double v_loss_jerk_phases = amax * amax / jerk;
+
+    double T2 = 0.0;
+
+    /* Determine whether this is a full S-curve or a triangular profile */
+    if (v >= v_loss_jerk_phases) {
+        /* Full S-curve: constant deceleration phase exists */
+        T2 = (v - v_loss_jerk_phases) / amax;
+        if (T2 < 0.0) {
+            T2 = 0.0;  /* guard against numerical error */
         }
-        
-        double sqrt_disc = sqrt(disc);
-        res[0] = (-B + sqrt_disc) / (2.0 * A);
-        res[1] = (-B - sqrt_disc) / (2.0 * A);
-        *len = 2;
-        return 2;
+    } else {
+        /* Triangular profile: no constant deceleration phase, recompute T1.
+         * v = jerk * T1^2, so T1 = sqrt(v / jerk) */
+        T1 = sqrt(v / jerk);
+        T2 = 0.0;
     }
-    
-    // Normalize coefficients for better numerical stability
-    double norm = fabs(a);
-    double a_norm = a / norm;
-    double b_norm = b / norm;
-    double c_norm = c / norm;
-    double d_norm = d / norm;
-    
-    // Calculate intermediate values using fma for better precision
-    double A = fma(b_norm, b_norm, -3.0*a_norm*c_norm);
-    double B = fma(b_norm, c_norm, -9.0*a_norm*d_norm);
-    double C = fma(c_norm, c_norm, -3.0*b_norm*d_norm);
-    double f = fma(B, B, -4.0*A*C);
-    
-    *len = 0;
-    
-    // Handle different cases based on discriminant
-    if (fabs(A) < NEAR_ZERO && fabs(B) < NEAR_ZERO) {
-        // Triple root case
-        double root = -b_norm / (3.0 * a_norm);
-        res[(*len)++] = root;
-        res[(*len)++] = root;
-        res[(*len)++] = root;
-    }
-    else if (fabs(f) < NEAR_ZERO) {
-        // Double root case
-        double K = B / A;
-        res[(*len)++] = -b_norm/a_norm + K;
-        res[(*len)++] = -K/2.0;
-        res[(*len)++] = -K/2.0;
-    }
-    else if (f > NEAR_ZERO) {
-        // One real root and two complex conjugate roots
-        double Y1 = fma(A, b_norm, 3.0*a_norm*(-B + sqrt(f))/2.0);
-        double Y2 = fma(A, b_norm, 3.0*a_norm*(-B - sqrt(f))/2.0);
-        
-        // Use more stable cube root calculation
-        double Y1_value = (Y1 == 0.0) ? 0.0 : 
-            (Y1 > 0.0 ? exp(log(Y1) / 3.0) : -exp(log(-Y1) / 3.0));
-        double Y2_value = (Y2 == 0.0) ? 0.0 : 
-            (Y2 > 0.0 ? exp(log(Y2) / 3.0) : -exp(log(-Y2) / 3.0));
-        
-        res[(*len)++] = (-b_norm - Y1_value - Y2_value) / (3.0 * a_norm);
-        
-        // Handle near-real complex roots
-        double i_value = sqrt(3.0)/2.0 * (Y1_value - Y2_value) / (3.0 * a_norm);
-        if (fabs(i_value) < 1e-1) {
-            res[(*len)++] = (-b_norm + 0.5*(Y1_value + Y2_value)) / (3.0 * a_norm);
-        }
-    }
-    else {
-        // Three distinct real roots
-        double T = (2.0*A*b_norm - 3.0*a_norm*B) / (2.0*A*sqrt(A));
-        // Ensure T is within valid range for acos
-        T = fmax(-1.0, fmin(1.0, T));
-        double S = acos(T);
-        
-        // Pre-calculate common values
-        double cos_S3 = cos(S/3.0);
-        double sin_S3 = sin(S/3.0);
-        double sqrt_A = sqrt(A);
-        double sqrt_3 = sqrt(3.0);
-        
-        // Calculate roots
-        res[(*len)++] = (-b_norm - 2.0*sqrt_A*cos_S3) / (3.0 * a_norm);
-        res[(*len)++] = (-b_norm + sqrt_A*(cos_S3 + sqrt_3*sin_S3)) / (3.0 * a_norm);
-        res[(*len)++] = (-b_norm + sqrt_A*(cos_S3 - sqrt_3*sin_S3)) / (3.0 * a_norm);
-    }
-    
-    return *len;
+
+    /* Output results */
+    if (t1 != NULL) *t1 = T1;
+    if (t2 != NULL) *t2 = T2;
+
+    /* Total time: 2*T1 + T2
+     * (T1 to ramp accel to -amax, T2 at constant -amax, T1 to ramp back to 0) */
+    return T1 * 2.0 + T2;
 }
 
+/**
+ * @brief Compute the maximum speed reachable from rest in time T using
+ *        an S-curve profile (via Ruckig planning).
+ *
+ * Given maximum acceleration amax, maximum jerk, and time T, compute the
+ * maximum velocity achievable from rest using an S-curve acceleration
+ * profile within time T.
+ *
+ * Algorithm: use Ruckig position-control mode to plan toward a sufficiently
+ * large target position (ensuring the target is not reached within time T),
+ * then sample the velocity at time T.
+ *
+ * @param amax  maximum acceleration
+ * @param jerk  maximum jerk
+ * @param T     time in seconds
+ * @return      maximum velocity at time T, or 0.0 on failure
+ */
+double calcSCurveSpeedWithT(double amax, double jerk, double T) {
+    /* Parameter validation */
+    if (amax <= 0.0 || jerk <= 0.0 || T <= 0.0) {
+        return 0.0;
+    }
 
-// PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
-// VT = V0 + A0 * T + J * T^2 /2
-// AT = A0 + J * T
-int calcSCurve(double S, double Vc, double Ve, double Vm, double Ac, double Am, double Jm,double T,
-               double n[8], double a[8], double v[8], double* tn, double* verr, double* J2, double* J4){
-if(S < 0){
-  Vc = -Vc;
-  Ac = -Ac;
+    /* Use the cached planner */
+    RuckigPlanner planner = get_cached_planner();
+    if (!planner) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "calcSCurveSpeedWithT: planner not initialized, call sp_scurve_init() first\n");
+        return 0.0;
+    }
+
+    /* Reset planner state */
+    ruckig_reset(planner);
+
+    /* Estimate a target position large enough that the trajectory will not
+     * reach it within time T.  Use the trapezoidal formula as a conservative
+     * estimate: s = 0.5 * amax * T^2.  Double it for safety. */
+    double target_pos = 0.5 * amax * T * T * 2.0;
+
+    /* Set a max velocity large enough to not be the limiting factor */
+    double max_vel = amax * T * 2.0;  /* conservative estimate */
+
+    int result = ruckig_plan_position(planner,
+                                      0.0,        /* start position */
+                                      0.0,        /* start velocity */
+                                      0.0,        /* start acceleration */
+                                      target_pos, /* target position (large enough) */
+                                      max_vel,    /* target velocity (large, not limiting) */
+                                      0.0,        /* target acceleration */
+                                      0.0,        /* min velocity (unidirectional) */
+                                      max_vel * 2.0,  /* max velocity (ensures no limiting) */
+                                      amax,       /* max acceleration */
+                                      jerk);      /* max jerk */
+
+    if (result != 0) {
+        /* Planning failed — use conservative fallback estimate.
+         * For an S-curve the velocity upper bound at time T is amax*T
+         * (trapezoidal), but the S-curve value is smaller. */
+        return fmin(amax * T, sqrt(amax * amax * T / jerk));
+    }
+
+    /* Sample velocity at time T */
+    double pos, vel, acc, jerk_val;
+    result = ruckig_at_time(planner, T, &pos, &vel, &acc, &jerk_val);
+    if (result != 0) {
+        /* Sampling failed — use conservative fallback */
+        return fmin(amax * T, sqrt(amax * amax * T / jerk));
+    }
+
+    return vel;
 }
 
-S = fabs(S);
-double N1 = fabs(Vm - Vc) / (Jm * T * T); //fabs(Vm - Vs) / (Jm * T * T);
-double N2 = fabs(Vm - Ve) / (Jm * T * T);
+/* ================================================================
+ * Legacy functions kept for simple_tp.c compatibility
+ * ================================================================ */
 
-n[0] = floor(Am / (Jm * T));
-n[1] = 0;
-double rn2;
-double rn6;
+/* PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
+ * VT = V0 + A0 * T + J * T^2 / 2
+ * AT = A0 + J * T
+ */
 
-*J2 = *J4 = Jm;
-n[1] = n[5] = 0;
-
-if(N1 > n[0] * (n[0] + 1)){ // Constant acceleration phase exists
-  n[1] = floor((N1 - n[0] * (n[0] + 1)) / n[0]);
-}else{
-  n[0] = n[2] = floor(sqrt(N1 + 1 / 4) - 1 / 2);
-}
-
-rn2 = n[2] = n[0];
-rn6 = n[6] = n[4] = floor(Am / (Jm * T));
-
-if(N2 > n[4] * (n[4] + 1)){ // Constant deceleration phase exists
-  n[5] = floor((N2 - n[4] * (n[4] + 1)) / n[4]);
-}else{
-  n[4] = n[6] = floor(sqrt(N2 + 1 / 4) - 1 / 2);
-}
-
-double Y1 = N1 - n[0] * (n[0] + 1) - n[0] * n[1];
-double Y2 = N2 - n[4] * (n[4] + 1) - n[4] * n[5];
-
-//printf("n[0]: %f | n[0]: %f \n", n0, n1);
-//printf("N1: %f | N2: %f \n", N1, N2);
-//printf("Y1: %f | Y2: %f \n", Y1, Y2);
-if(Y1 > 0){ // Residual velocity Y1 * Jm * T^2 exists; n2 needs to increase by one period to distribute residual velocity
-  *J2 = -1 * (2 * Y1 + n[2] * (n[2] + 1)) * Jm /((n[2] + 1) * (n[2] + 2));
-  rn2 = n[2] + 1;
-}else
-  *J2 = -(*J2);
-
-if(Y2 > 0){ // Residual velocity Y2 * Jm * T^2 exists; n6 needs to increase by one period to distribute residual velocity
-  *J4 = (2 * Y2 + n[6] * (n[6] + 1)) * Jm /((n[6] + 1) * (n[6] + 2));
-  rn6 = n[6] + 1;
-}
-
-// Calculate constant velocity phase and residual distance, also calculate S values for each phase
-//http://www.doc88.com/p-9119146814737.html
-double S0;
-double S1;
-double S2;
-double S3;
-double S4;
-double S5;
-double S6;
-S0 = S1 = S2 = S3 = S4 = S5 = S6 = 0;
-//Tp = T
-//S0 = ∑(V0 + ∑(k * Jm * Tp^2)) * Tp
-//S0 = n0 * V0 * Tp + Tp * ∑∑(k * Jm * Tp^2))
-//S0 =  n0 * V0 * Tp + Tp * Jm * Tp^2 * ∑∑k;
-//S0 =  n0 * V0 * Tp + Tp * Jm * Tp^2 * n0 * (n0 + 1) * (n0 + 2) / 6;
-//Vt1 = Vc + ∑k * Jm * Tp^2
-//Vt1 = Vc + Jm * Tp^2 * n * (n + 1) / 2;
-//At1 = n0 * Jm * Tp
-S0 = n[0] * Vc * T + T * Jm * T * T * n[0] * (n[0] + 1) * (n[0] + 2) / 6.0;
-double Vt1 = Vc + Jm * T * T * n[0] * (n[0] + 1) / 2.0;
-double At1 = n[0] * Jm * T;
-
-//S1 = ∑(Vt1 + n * At1 * T) * T
-//S1 = n * (Vt1 + (n * (n + 1) / 2) * At1 * T) * T
-//Vt2 = Vt1 + n1 * At1 * T
-S1 = (n[1] * Vt1 + (n[1] * (n[1] + 1) / 2) * At1 * T) *T;
-double Vt2 = Vt1 + n[1] * At1 * T;
-double At2 = At1;
-
-// May need to increase by one period
-// S0 = ∑(V0 + ∑(k * Jm * Tp^2)) * Tp
-// S2 = ∑(Vm - ∑(k * J1 * Tp^2)) * Tp
-// S2 = ∑(Vm - ∑(k * J1 * Tp^2)) * Tp
-// S2 = ∑(Vm -  J1 * Tp^2 * ∑k ) * Tp
-// S2 = n2 * Vm * Tp - Tp * J1 * Tp^2 * ∑∑k
-// ∑∑k = (n * (n + 1) * (2 * n + 1)) / (2 * 6) -
-//       (2 * n2 + 1) * n * (n + 1) / (2 * 2) +
-//       n2 * (n2 * n2 + n2) / 2
-
-// S2 =  n2 * Vm * Tp - Tp * J1 * Tp^2 * rn2 * (rn2 + 1) * (rn2 + 2) / 6;
-// S4 = n4 * Vm * T - T * Jm * T * T * n4 * (n4 + 1) * (n4 + 2) / 6;
-// S6 =  rn6 * Ve * T + T * J4 * T * T * rn6 * (rn6 + 1) * (rn6 + 2) / 6;
-double xgmxgmk = (rn2 * (rn2 + 1) * (2 * rn2 + 1)) / (2.0 * 6.0) -
-             ((2 * rn2 + 1) * rn2 * (rn2 + 1)) / (2.0 * 2.0) +
-              (rn2 * (rn2 * rn2 + rn2)) / 2.0;
-S2 = rn2 * Vm * T - T * fabs(*J2) * T * T * xgmxgmk;
-
-double Vt3 = Vm;
-double At3 = 0;
-
-// Acceleration phase distance
-double Sa = S0 + S1 + S2;
-
-//S4 = ∑(Vm - ∑(k * Jm * Tp^2)) * Tp
-//S4 =  n4 * Vm * Tp - Tp * Jm * Tp^2 * n4 * (n4 + 1) * (n4 + 2) / 6;
-//double x = n - (tp->n0 + tp->n1 + tp->n2 + tp->n3) ;
-//cal_v = tp->vm - tp->jm * T * T * x * (x + 1) / 2;
-S4 = n[4] * Vm * T - T * Jm * T * T * n[4] * (n[4] + 1) * (n[4] + 2) / 6.0;
-double Vt5 = Vm - Jm * T * T * n[4] * (n[4] + 1) / 2;
-double At5 = - n[4] * Jm * T;
-
-
-//S5 = ∑(Vt5 - n * At5 * T) * T
-//S5 = n * (Vt5 - (n * (n + 1) / 2) * At5 * T) * T
-//Vt6 = Vt5 - n5 * At5 * T
-//cal_v = tp->v5 + x * tp->a6 * T;
-//S1 = (n1 * Vt1 + (n1 * (n1 + 1) / 2) * At1 * T) *T;
-S5 = (n[5] * Vt5 + (n[5] * (n[5] + 1) / 2) * At5 * T) * T;
-double Vt6 = Vt5 + n[5] * At5 * T;
-double At6 = At5;
-
-// May need to increase by one period
-//S6 = ∑(Ve + ∑(k * j4 * Tp^2)) * Tp
-//double x = tp->n0 + tp->n1 + tp->n2 + tp->n3 + tp->n4 + tp->n5 + tp->n6 - n;
-//cal_v = tp->v7 + fabs(tp->j4) * T * T *  x * (x + 1) / 2.0;
-xgmxgmk = (rn6 * (rn6 + 1) * (2 * rn6 + 1)) / (2.0 * 6.0) -
-             ((2 * rn6 + 1) * rn6 * (rn6 + 1)) / (2.0 * 2.0) +
-              (rn6 * (rn6 * rn6 + rn6)) / 2.0;
-S6 =  rn6 * Ve * T + T * fabs(*J4) * T * T * xgmxgmk;
-
-double Vt7 = Ve;
-double At7 = 0;
-
-double Sb = S4 + S5 + S6; // Deceleration distance
-double Sc = S - Sa - Sb;  // Constant velocity phase distance
-n[3] = floor(Sc / (Vm * T));
-double RSc = n[3] * Vm * T;
-double Serr = Sc - RSc;    // Residual length of constant velocity segment
-double Verr = Serr / T;    // This velocity needs to be inserted at appropriate location
-
-//if(Serr != 0){  // Not useful, poor effect
-//double A = Am * T * T / 6.0;
-//double B = Ve * T;
-//double C = -(Am * T * T / 6.0 + (S6 + Serr));
-//double B4AC = sqrt(B * B - 4 * A * C);
-//double tmpN1 = ceil((-B + B4AC) / (2 * A));
-//printf("ORG N6 : %f  Now N6: %f  \n", rn6, tmpN1);
-//rn6 = tmpN1;
-//
-//printf("ORAG J4 : %f  \n", J4);
-//double xxk = (rn6 * (rn6 + 1) * (2 * rn6 + 1)) / (2.0 * 6.0) -
-//            ((2 * rn6 + 1) * rn6 * (rn6 + 1)) / (2.0 * 2.0) +
-//            (rn6 * (rn6 * rn6 + rn6)) / 2.0;
-//J4 = ((S6 + Serr) - rn6 * Ve * T) / (T * T * T * xxk);
-//printf("Now J4 : %f \n", J4);
-//}
-
-
-Sb = S4 + S5 + S6; // Deceleration distance
-
-double N = n[0] + n[1] + rn2 + n[3] + n[4] + n[5] + rn6;
-  
-  n[2] = rn2;
-  n[6] = rn6;
-
-  //printf("N: %f | n0: %f | n1 : %f  | n2 : %f  | n3 : %f | n4 : %f | n5 : %f | n6 : %f \n", N, n[0], n[1], n[2], n[3], n[4], n[5], n[6]);
-
-  *tn = N;
-  *verr = Verr;
-  v[1] = Vt1;
-  v[2] = Vt2;
-  v[3] = Vt3;
-  v[5] = Vt5;
-  v[6] = Vt6;
-  v[7] = Vt7;
-
-  a[1] = At1;
-  a[2] = At2;
-  a[3] = At3;
-  a[5] = At5;
-  a[6] = At6;
-  a[7] = At7;
-
-  //printf("SA: %f | SB: %f | SC: %f \n", Sa, Sb, Sc);
-  if(Sc < 0)
-    return -1;
-  return 0;
-}  
-
-int getNext(simple_tp_t *tp, double Vs, double Ve, double period){
-#define PE tp->pos_cmd   
-#define PN tp->curr_pos
-#define T  period
-#define Jm  tp->max_jerk
-//#define Vc tp->curr_vel
-#define Vc Vs
-#define Ac tp->curr_acc
-#define Am tp->max_acc
-#define Vm tp->max_vel
-
-tp->vm = tp->max_vel;
-tp->use_trapezoid = 0;
-
-double n[8];
-double a[8];
-double v[8];
-double total_n;
-double verr;
-double J2;
-double J4;
-double S = fabs(tp->pos_cmd - tp->curr_pos);
-
-double tn[8];
-double ta[8];
-double tv[8];
-double ttotal_n;
-double tverr;
-double tJ2;
-double tJ4;
-
-int time = 0;
-double TVmax = Vm;
-double TVmax1 = fmax(Vc, Ve);
-//double Vmax = Vm;
-do{ // Use bisection method to find optimal Vmax
-  int res = calcSCurve(S, Vc, Ve, TVmax, Ac, Am, Jm, T, tn, ta, tv, &ttotal_n, &tverr, &tJ2, &tJ4);
-  if(res == 0){
-    memcpy(n, tn, sizeof(double) * 8);
-    memcpy(a, ta, sizeof(double) * 8);
-    memcpy(v, tv, sizeof(double) * 8);
-    total_n = ttotal_n;
-    verr = tverr;
-    J2 = tJ2;
-    J4 = tJ4;
-    break;
+double nextAccel(double t, double targetV, double v, double a, double maxA,
+                        double maxJ) {
+  double max_da, tiny_da, vel_err, acc_req;
+  max_da = delta_accel(t, maxJ);
+  tiny_da = max_da * t * 0.001;
+  vel_err = targetV - v;
+  if (vel_err > tiny_da){
+    acc_req = -max_da +
+              sqrt(2.0 * maxJ * vel_err + max_da * max_da);
+  }else if (vel_err < -tiny_da){
+    acc_req = max_da -
+              sqrt(-2.0 * maxJ * vel_err + max_da * max_da);
+  }else{
+    /* within 'tiny_da' of desired velocity, no need to move */
+    acc_req = 0.0;
   }
-
-  if(res == -1){
-    TVmax = (TVmax + TVmax1) / 2;
-    //printf("Change Vmax[%f] to %f", tp->vm, TVmax);
-    tp->vm = TVmax;
+  /* limit acceleration request */
+  if (acc_req > maxA){
+    acc_req = maxA;
+  }else if (acc_req < -maxA){
+    acc_req = -maxA;
   }
-
-  if(time >= 5){
-    tp->use_trapezoid = 1;
-    return -1;
+  /* ramp acceleration toward request at jerk limit */
+  if (acc_req > a + max_da){
+    return a + max_da;
+  }else if (acc_req < a - max_da){
+    return a - max_da;
+  }else{
+    return acc_req;
   }
-  time++;
-}while(true);
-
-
-tp->total_n = total_n;
-tp->curr_n = 1;
-tp->n0 = n[0];
-tp->n1 = n[1];
-tp->n2 = n[2];
-tp->n3 = n[3];
-tp->n4 = n[4];
-tp->n5 = n[5];
-tp->n6 = n[6];
-tp->verr = verr;
-tp->vc = Vc;
-tp->ve = Ve;
-//tp->vm = tp->curr_max_vel;
-tp->jm = Jm;
-tp->j2 = J2;
-tp->j4 = J4;
-tp->v1 = v[1];
-tp->v2 = v[2];
-tp->v3 = v[3];
-tp->v5 = v[5];
-tp->v6 = v[6];
-tp->v7 = v[7];
-
-tp->a1 = a[1];
-tp->a2 = a[2];
-tp->a3 = a[3];
-tp->a5 = a[5];
-tp->a6 = a[6];
-tp->a7 = a[7];
-tp->fix_verr = 0;
-tp->prograss = 0;
-
-//printf("N: %f | n0: %f | n1 : %f  | n2 : %f  | n3 : %f | n4 : %f | n5 : %f | n6 : %f \n", total_n, n[0], n[1], n[2], n[3], n[4], n[5], n[6]);
-
-#undef PE
-#undef PN
-#undef Vc
-#undef Ac
-#undef Am
-#undef Vm
-#undef T
-#undef Jm
-return 0;
 }
 
-
-// PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
-// VT = V0 + A0 * T + J * T^2 /2
-// AT = A0 + J * T
+/* PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
+ * VT = V0 + A0 * T + J * T^2 / 2
+ * AT = A0 + J * T
+ */
 double nextSpeed(double v, double a, double t, double targetV, double maxA, double maxJ, double* req_v, double* req_a, double* req_j) {
-  //double maxJ = tp->max_jerk ;
-  //double v = tp->curr_vel;
-  //double a = tp->curr_acc;
-  //double maxA = tp->max_acc;
-
-  // Compute next acceleration
+  /* Compute next acceleration */
   double nextA = nextAccel(t, targetV, v, a, maxA, maxJ);
 
-  // Compute next velocity
-  // PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
-  // VT = V0 + A0 * T + J * T^2 /2
-  // AT = A0 + J * T
-
-  // VT - V0 = (A0 + A0 + J * T) * T / 2 = (A0 + AT) * T / 2
-  // 2 * (VT - V0) / T = A0 + AT
-  // AT = 2 * (VT - V0) / T - A0
-
-  // VT - V0 = A0 * T + J * T^2 /2
-  // VT - V0 = (A0 + AT) * T / 2
-
-  //double deltaV = nextA * t;
+  /* Compute next velocity using trapezoidal rule:
+   * VT - V0 = (A0 + AT) * T / 2 */
   double deltaV = (a + nextA) * t / 2.0;
   if ((deltaV < 0 && targetV < v && v + deltaV < targetV) ||
       (0 < deltaV && v < targetV && targetV < v + deltaV)) {
-    //nextA = (targetV - v) / t;
+    /* Would overshoot target velocity — clamp */
     nextA = 2.0 * (targetV - v) / t - a;
     if(nextA >= maxA){
       nextA = maxA;
       targetV = (a + nextA) * t / 2.0;
     }
-    //printf("############################  FIXED nextA to be:  %.14f \n", nextA);
     v = targetV;
   } else {
-    //printf("############################  USE nextA:  %.14f \n", nextA);
     v += deltaV;
   }
 
-  // Compute jerk = delta accel / time
+  /* Compute jerk = delta accel / time */
   *req_j = (nextA - a) / t;
   if(*req_j > maxJ){
     *req_j = maxJ;
@@ -517,11 +582,10 @@ double nextSpeed(double v, double a, double t, double targetV, double maxA, doub
   return v;
 }
 
-double stoppingDist(double v, double a, double maxA, double maxJ/*, int* phase*/) {
-    // Already stopped
-    //*phase = 0;
+double stoppingDist(double v, double a, double maxA, double maxJ) {
+    /* Already stopped */
     if (fabs(v) < 0.0001) return 0;
-    // Handle negative velocity
+    /* Handle negative velocity */
     if (v < 0) {
     v = -v;
     a = -a;
@@ -529,42 +593,26 @@ double stoppingDist(double v, double a, double maxA, double maxJ/*, int* phase*/
 
     double d = 0;
 
-    // Compute distance and velocity change to accel = 0
+    /* Compute distance and velocity change to bring acceleration to 0 */
     if (0 < a) {
-      // Compute distance to decrease accel to zero
-      // distance(double t, double v, double a, double j)
-      // distance => v * t + 1/2 * a * t^2 + 1/6 * j * t^3
-      // velocity => a * t + 1/2 * j * t^2
       double t = a / maxJ;
       d += sc_distance(t, v, a, -maxJ);
       v += delta_velocity(t, a, -maxJ);
       a = 0;
-      //if(*phase == 0) *phase = 3;
     }
 
-    // Compute max deccel
-    // PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
-    // VT = V0 + A0 * T + J * T^2 /2
-    // AT = A0 + J * T
-    // 
-    // Calculate maxDeccel from both sides
-    // At target velocity, both velocity and acceleration are 0
-    // So VT = 0 + 0 * T1 + J * T1^2 / 2
-    // Also because Amax = J * T1, VT = J * J * T1 * T1 / (2 * J) = Amax^2 / (2 * J)
-    // Therefore Amax^2 = 2 * J * VT
-    // From another perspective VT = v + a * T2 - J * T2^2 / 2
-    // Also because Amax = a - J * T2, VT = v + (a + a - J * T2) * T2 / 2 = v + (a + Amax) * T2 / 2
-    // T2 = (a - Amax) / J
-    // Amax^2 / (2 * J) = v + (a + Amax) * T2 / 2 = v + (a^2 - Amax^2) / (2 * J)
-    // Amax^2 = 2 * J * v + a^2 - Amax^2
-    // 2 * Amax^2 = 2 * J * v + a^2
-    // Amax^2 = v * J + 0.5 * a * a
+    /* Compute maximum deceleration.
+     *
+     * At target velocity, both velocity and acceleration are 0.
+     * VT = 0 + 0*T1 + J*T1^2/2, and because Amax = J*T1:
+     *   VT = Amax^2 / (2*J)
+     * From the other side:  VT = v + (a + Amax)*T2/2
+     * Combining: Amax^2 = v*J + 0.5*a*a
+     */
     double maxDeccel = -sqrt(v * maxJ + 0.5 * a * a);
     if (maxDeccel < -maxA) maxDeccel = -maxA;
-    //double maxDeccel = -fabs(maxA);
 
-    // Compute distance and velocity change to max deccel
-    // a * t + 1/2 * j * t^2
+    /* Compute distance and velocity change to reach max deceleration */
     if (maxDeccel < a) {
         double t = (a - maxDeccel) / maxJ;
         d += sc_distance(t, v, a, -maxJ);
@@ -572,431 +620,32 @@ double stoppingDist(double v, double a, double maxA, double maxJ/*, int* phase*/
         a = maxDeccel;
     }
 
-    // Compute velocity change over remaining accel
-    // VT = J * J * T1 * T1 / (2 * J) = Amax^2 / (2 * J)
+    /* Velocity remaining when entering final jerk phase:
+     * VT = Amax^2 / (2*J) */
     double deltaV = 0.5 * a * a / maxJ;
 
-    // Compute constant deccel period
-    // P = v * t + 1/2 * a * t^2 + 1/6 * j * t^3
-    // VT = V0 + A0 * T + J * T^2 /2
+    /* Constant deceleration phase (if needed) */
     if (deltaV < v) {
-      // distance => v * t + 1/2 * a * t^2 + 1/6 * j * t^3
-      // velocity => a * t + 1/2 * j * t^2
         double t = (v - deltaV) / -a;
         d += sc_distance(t, v, a, 0);
         v += delta_velocity(t, a, 0);
-        //if(*phase == 0) *phase = 6;
     }
 
-    // Compute distance to zero vel
+    /* Distance to zero velocity (final jerk phase) */
     d += sc_distance(-a / maxJ, v, a, maxJ);
-    //if(*phase == 0) *phase = 7;
 
     return d;
 }
 
-double finishWithSpeedDist(double v, double ve, double a, double maxA, double maxJ/*, int* phase*/) {
-    // Handle negative velocity: transform to positive domain
-    if (v < 0) {
-        v = -v;
-        a = -a;
-        ve = -ve;
-    }
-
-    // Velocity difference too small, no accel/decel needed
-    if (fabs(v - ve) < 0.0001 && fabs(a) < 0.0001) {
-        return 0;
-    }
-
-    double d = 0;
-
-    // ========== Acceleration case (ve > v) ==========
-    if (ve > v) {
-        // Phase 1: If a < 0 (decelerating), first bring a to 0
-        if (a < 0) {
-            double t = -a / maxJ;
-            d += sc_distance(t, v, a, maxJ);
-            v += delta_velocity(t, a, maxJ);
-            a = 0;
-        }
-
-        // Compute required max acceleration
-        // Amax^2 = (ve - v) * maxJ + 0.5 * a * a
-        double sqrt_arg = (ve - v) * maxJ + 0.5 * a * a;
-        if (sqrt_arg < 0) sqrt_arg = 0;
-        double maxAccel = sqrt(sqrt_arg);
-        if (maxAccel > maxA) maxAccel = maxA;
-
-        // Phase 2: Increase a from current value to maxAccel
-        if (maxAccel > a) {
-            double t = (maxAccel - a) / maxJ;
-            d += sc_distance(t, v, a, maxJ);
-            v += delta_velocity(t, a, maxJ);
-            a = maxAccel;
-        }
-
-        // Compute velocity when entering decel phase
-        double deltaV = ve - 0.5 * a * a / maxJ;
-
-        // Phase 3: Constant acceleration phase (if needed)
-        if (v < deltaV && a > 0.0001) {
-            double t = (deltaV - v) / a;
-            d += sc_distance(t, v, a, 0);
-            v += delta_velocity(t, a, 0);
-        }
-
-        // Phase 4: Decrease a from maxAccel to 0, velocity reaches ve
-        if (a > 0.0001) {
-            double t = a / maxJ;
-            d += sc_distance(t, v, a, -maxJ);
-        }
-
-        return d;
-    }
-
-    // ========== Deceleration case (v > ve) ==========
-
-    // Phase 1: If a > 0 (accelerating), first bring a to 0
-    if (a > 0) {
-        double t = a / maxJ;
-        d += sc_distance(t, v, a, -maxJ);
-        v += delta_velocity(t, a, -maxJ);
-        a = 0;
-    }
-
-    // Compute required max deceleration
-    // Amax^2 = (v - ve) * maxJ + 0.5 * a * a
-    double sqrt_arg = (v - ve) * maxJ + 0.5 * a * a;
-    if (sqrt_arg < 0) sqrt_arg = 0;
-    double maxDeccel = -sqrt(sqrt_arg);
-    if (maxDeccel < -maxA) maxDeccel = -maxA;
-
-    // Phase 2: Decrease a from current value to maxDeccel
-    if (maxDeccel < a) {
-        double t = (a - maxDeccel) / maxJ;
-        d += sc_distance(t, v, a, -maxJ);
-        v += delta_velocity(t, a, -maxJ);
-        a = maxDeccel;
-    }
-
-    // Compute velocity when entering decel end phase
-    // VT = Ve + Amax^2 / (2 * J)
-    double deltaV = ve + 0.5 * a * a / maxJ;
-
-    // Phase 3: Constant deceleration phase (if needed)
-    if (deltaV < v && a < -0.0001) {
-        double t = (v - deltaV) / (-a);
-        d += sc_distance(t, v, a, 0);
-        v += delta_velocity(t, a, 0);
-    }
-
-    // Phase 4: Increase a from maxDeccel to 0, velocity reaches ve
-    if (a < -0.0001) {
-        double t = (-a) / maxJ;
-        d += sc_distance(t, v, a, maxJ);
-    }
-
-    return d;
-}
-
-// PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
-// VT = V0 + A0 * T + J * T^2 /2
-// AT = A0 + J * T
-/*
-double nextAccel(double t, double targetV, double v, double a, double maxA,
-                        double maxJ) {
-  int increasing = v < targetV;
-  double deltaA = delta_accel(t, maxJ);
-
-  if (increasing && a < -deltaA)
-    return a + deltaA; // negative accel, increasing speed
-
-  if (!increasing && deltaA < a)
-    return a - deltaA; // positive accel, decreasing speed
-
-  // VT = V0 + A0 * T + J * T^2 /2
-  // When reaching target velocity, acceleration is 0
-  // So we calculate in reverse
-  // V0 = VT + 0 * T - J * T^2 / 2
-  // J * T^2 = 2 * (VT - V0)
-  // J * J * T^2 = 2 * (VT - V0) * J
-  // A = 0 + J * T
-  // A^2 = 2 * (VT - V0) * J
-
-  // VT - V0 = A0 * T + J * T^2 /2
-  // VT - V0 = (A0 + AT) * T / 2
-
-  // PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
-  // VT = V0 + A0 * T + J * T^2 /2
-  // AT = A0 + J * T
-  double deltaV = fabs(targetV - v);
-  double targetA = sqrt(2 * deltaV * maxJ);
-  //double targetA = fabs((((targetV - v) * 2) / t) - a);
-
-  if (maxA < targetA) targetA = maxA;
-
-  if (increasing) {
-    if (targetA < a + deltaA) {
-      printf("return targetA:  %.14f a: %.14f targetV: %.14f v: %.14f maxA: %.14f", targetA, a, targetV, v, maxA);
-      printf("\n");
-      return targetA;
-    }
-    return a + deltaA;
-
-  } else {
-    if (a - deltaA < -targetA) {
-      printf("return targetA:  %.14f a: %.14f targetV: %.14f v: %.14f maxA: %.14f", -targetA, a, targetV, v, maxA);
-      printf("\n");
-      return -targetA;
-    }
-    return a - deltaA;
-  }
-}
-*/
-double nextAccel(double t, double targetV, double v, double a, double maxA,
-                        double maxJ) {
-  double max_da, tiny_da, vel_err, acc_req;
-  max_da = delta_accel(t, maxJ);
-  tiny_da = max_da * t * 0.001;
-  vel_err = targetV - v;
-  if (vel_err > tiny_da){
-    acc_req = -max_da +
-              sqrt(2.0 * maxJ * vel_err + max_da * max_da);
-  }else if (vel_err < -tiny_da){
-    acc_req = max_da -
-              sqrt(-2.0 * maxJ * vel_err + max_da * max_da);
-  }else{
-    /* within 'tiny_da' of desired pos, no need to move */
-    acc_req = 0.0;
-  }
-  /* limit velocity request */
-  if (acc_req > maxA){
-    acc_req = maxA;
-  }else if (acc_req < -maxA){
-    acc_req = -maxA;
-  }
-  /* ramp velocity toward request at accel limit */
-  if (acc_req > a + max_da){
-    return a + max_da;
-  }else if (acc_req < a - max_da){
-    return a - max_da;
-  }else{
-    return acc_req;
-  }
-}
-
+/* S-curve displacement: P = v*t + (1/2)*a*t^2 + (1/6)*j*t^3 */
 double sc_distance(double t, double v, double a, double j) {
-    // P = v*t + (1/2)*a*t² + (1/6)*j*t³
   return t * (v + t * (0.5 * a + 1.0 / 6.0 * j * t));
 }
 
-/**
- * Trapezoidal integration for displacement calculation
- * Uses average jerk assumption for more stable integration
- */
-double trapz_distance(double t, double v, double a, double j) {
-  // v * t + 1/2 * a * t^2 + 1/4 * j * t^3
-  return t * (v + t * (0.5 * a + 0.25 * j * t));
-}
-
-
+/* Velocity change: dV = a*t + (1/2)*j*t^2 */
 double delta_velocity(double t, double a, double j) {
-  // a * t + 1/2 * j * t^2
   return t * (a + 0.5 * j * t);
 }
 
-
+/* Acceleration change: dA = j*t */
 double delta_accel(double t, double j) {return j * t;}
-
-#include "tp_types.h"
-
-// Optimized efficient calculation version
-double calculate_t2_optimized(double Ve, double distence, double maxA, double maxJ) {
-    // 1. Fast path: check simple cases
-    if (fabs(maxA) < 1e-10 || fabs(maxJ) < 1e-10) {
-        return 0.0;
-    }
-
-    // 2. Pre-calculate and reuse common values
-    const double maxA_inv = 1.0 / maxA;           // Avoid division
-    const double maxJ_inv = 1.0 / maxJ;           // Avoid division
-    const double maxA_squared = maxA * maxA;      // Reuse
-    //const double maxJ_squared = maxJ * maxJ;      // Reuse
-
-    // 3. Use more efficient expressions
-    // Original: 2.0*distence*maxA + Ve*Ve + pow(maxA,4.0)/(4.0*maxJ*maxJ) - (maxA*maxA*Ve)/maxJ
-    // Optimized: use pre-calculated values and multiplication instead of division
-    const double term1 = 2.0 * distence * maxA;
-    const double term2 = Ve * Ve;
-    const double term3 = (maxA_squared * maxA_squared) * (0.25 * maxJ_inv * maxJ_inv);
-    const double term4 = maxA_squared * Ve * maxJ_inv;
-
-    // 4. Use fma to optimize multiply-add operations
-    double sqrt_term = fma(term1, 1.0, term2);
-    sqrt_term = fma(term3, 1.0, sqrt_term);
-    sqrt_term = fma(-term4, 1.0, sqrt_term);
-
-    // 5. Quick check if square root calculation is needed
-    if (sqrt_term <= 0.0) {
-        return 0.0;
-    }
-
-    // 6. Use more efficient square root calculation
-    const double sqrt_result = sqrt(sqrt_term);
-
-    // 7. Optimize final calculation
-    // Original: -(2.0*Ve ± 2.0*sqrt_result + (3.0*maxA_squared)/maxJ)/(2.0*maxA)
-    // Optimized: use pre-calculated reciprocal to avoid division
-    const double common_term = 3.0 * maxA_squared * maxJ_inv;
-    const double factor = 0.5 * maxA_inv;  // 1/(2*maxA)
-
-    // 8. Use fma to optimize final calculation
-    double t2_1 = fma(-(2.0 * Ve - 2.0 * sqrt_result + common_term), factor, 0.0);
-    double t2_2 = fma(-(2.0 * Ve + 2.0 * sqrt_result + common_term), factor, 0.0);
-
-    // 9. Quickly select valid solution
-    return (t2_1 > 0.0) ? t2_1 : ((t2_2 > 0.0) ? t2_2 : 0.0);
-}
-
-int findSCurveVSpeedWithEndSpeed(double distence, double Ve, double maxA, double maxJ, double* req_v){
-  // Solve cubic equation: 2 * ve * t + j * t^3 = D
-  //    j*t^3 + 2 * ve * t - D = 0
-  //    A*t^3 + B*t^2 + C*t^1 + D = 0
-  if(fabs(Ve) <= TP_VEL_EPSILON)
-    return findSCurveVSpeed(distence, maxA, maxJ, req_v);
-
-  distence = distence / 2.0;
-  double Vs = 0;
-  double A = maxJ;
-  double B = 0;
-  double C = 2 * Ve;
-  double D = - distence;
-  double t1 = 0;//solute(A,B,C,D,T2);
-  double t2 = 0;
-  //double x1, x2, x3;
-  //int n;
-  int res = 1;
-  //x1 = x2 = x3 = 0;
-  //n = solve_cubic(A, B, C, D, &x1, &x2, &x3);
-  //double temp;
-
-  double xo[10];
-  int len;
-  solve_cubic(A, B, C, D, xo, &len);
-  t1 = xo[0];
-  int i = 0;
-  for (; i < len; i++)
-  {
-    if(i == 0)continue;
-    t1 = fmax(xo[i], t1);
-  }
-
-  //t1 = fmax(fmax(x1, x2), x3);
-  //if(x1>x2) temp=x1,x1=x2,x2=temp;
-  //if(x2>x3) temp=x2,x2=x3,x3=temp;
-  //if(x1>x2) temp=x1,x1=x2,x2=temp;
-  //if(x1 > 0) t1 = x1;
-  //else if(x2 > 0) t1 = x2;
-  //else if(x3 > 0) t1 = x3;
-  //else {
-  if(t1 < 0){
-    t1 = 0.001;
-    //printf("Cannot find t1 %f*t^3 + %f*t - %f = 0 \n", A, C, distence);
-    res = -1;
-  }
-
-  //printf("[%f*t^3 + %f*t - %f = 0] t1 = %f\n", A, C, distence, t1);
-  double a1;
-  a1 = maxJ * t1;
-  if(a1 < maxA){ // S2 segment does not exist
-        //jerk*t1^2 + jerk*t2*t1 + ve
-        Vs = maxJ * t1 * t1  + Ve;
-  }else{
-      // t2_1 = -(2*ve - 2*(2*D*a2 + ve^2 + a2^4/(4*jerk^2) - (a2^2*ve)/jerk)^(1/2) + (3*a2^2)/jerk)/(2*a2)
-      // t2_2 = -(2*ve + 2*(2*D*a2 + ve^2 + a2^4/(4*jerk^2) - (a2^2*ve)/jerk)^(1/2) + (3*a2^2)/jerk)/(2*a2)
-      //double t2_1 = -(2*Ve-2*sqrt(2*distence*maxA+Ve*Ve+pow(maxA,4)/(4*maxJ*maxJ)-(maxA*maxA*Ve)/maxJ)+(3*maxA*maxA)/maxJ)/(2*maxA);
-      //double t2_2 = -(2*Ve+2*sqrt(2*distence*maxA+Ve*Ve+pow(maxA,4)/(4*maxJ*maxJ)-(maxA*maxA*Ve)/maxJ)+(3*maxA*maxA)/maxJ)/(2*maxA);
-      //if(t2_1 > 0)
-      //    t2 = t2_1;
-      //else
-      //    t2 = t2_2;
-      t2 = calculate_t2_optimized(Ve, distence, maxA, maxJ);
-      if(t2 <= 0){ // S2 segment does not exist, S1 => S3
-          //printf("Cannot find t2 t2_1: %f t2_2: %f\n", t2_1, t2_2);
-          Vs = maxJ * t1 * t1  + Ve;
-          res = -2;
-      }else{
-          //vs = jerk*t1^2 + jerk*t2*t1 + ve
-          t1 = maxA / maxJ;
-          Vs = maxJ * t1 * t1 + maxJ * t2 * t1 + Ve;
-      }
-      //printf("t2_1: %f t2_2: %f\n", t2_1, t2_2);
-  }
-  *req_v = Vs;
-  return res;
-}
-
-int findSCurveVSpeed(double distence,/* double maxV,*/ double maxA, double maxJ, double* req_v){
-    double t1, t2;
-    double a1;
-    double Vs = 0;
-    distence = distence / 2.0;
-
-    //rtai
-    t1 = pow(distence / maxJ, 1.0/3.0);
-    //uspace rt-preempt
-    //t1 = cbrt(distence/ maxJ);
-    a1 = maxJ * t1;
-    if(a1 < maxA){ // S2 segment does not exist, S1 => S3
-        Vs = maxJ * t1 * t1;
-    }else{
-        //double t2_1 = (2* sqrt((maxA*(8*distence + pow(maxA, 3)/pow(maxJ, 2)))/4) - (3 * pow(maxA, 2))/ maxJ)/(2 * maxA);
-        //double t2_2 = - (2 * sqrt((maxA*(8*distence + pow(maxA, 3)/pow(maxJ, 2)))/4) + (3*pow(maxA, 2))/maxJ)/(2 * maxA);
-        //if(t2_1 > 0)
-        //    t2 = t2_1;
-        //else
-        //    t2 = t2_2;
-        t2 = calculate_t2_optimized(0.0, distence, maxA, maxJ);
-        if(t2 <= 0){ // S2 segment does not exist, S1 => S3
-            //printf("Cannot find t2 t2_1: %f t2_2: %f\n", t2_1, t2_2);
-            Vs = maxJ * t1 * t1;
-        }else{
-          t1 = maxA / maxJ;
-          Vs = maxJ * t1 * t1 + maxJ * t2 * t1;
-        }
-    }
-    *req_v = Vs;
-    return 1;
-}
-
-double calcDecelerateTimes(double v, double amax, double jerk, double* t1, double* t2){
-  v = fabs(v);
-  double T1 = amax / jerk;
-  double T2 = 0;
-  double V1 = jerk * T1 * T1 / 2;
-  if(V1 >= v / 2){ // Handle case where jerk is small, causing T2 and T6 segments to not exist
-    T1 = sqrt(v / jerk);
-  }
-  if(V1 < v / 2){
-     T2 = (v / amax) - T1;
-  }
-  if(t1 != NULL)
-    *t1 = T1;
-  if(t2 != NULL)
-    *t2 = T2;
-  return T1 * 2 + T2;
-}
-
-double calcSCurveSpeedWithT(double amax, double jerk, double T) {
-    // Parameter validation
-    if (T <= 0.0 || jerk <= 0.0 || amax <= 0.0) {
-        return 0.0;
-    }
-
-    // Use more stable calculation method
-    const double T1 = fmin(amax / jerk, T / 2.0);  // Avoid T2 being negative
-    const double T2 = T - 2.0 * T1;
-
-    // Use fma to optimize multiply-add operations, improving numerical stability
-    return fma(jerk * T1, T1 + T2, 0.0);
-}
