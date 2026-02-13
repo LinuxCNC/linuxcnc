@@ -232,7 +232,9 @@ USERSRCS += $(PYSRCS)
 CUSERSRCS := $(filter %.c,$(USERSRCS))
 CXXUSERSRCS := $(filter %.cc %.cpp,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
-CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
+CXXUSEROBJS_CC := $(patsubst %.cc,objects/%.o,$(filter %.cc,$(CXXUSERSRCS)))
+CXXUSEROBJS_CPP := $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(CXXUSERSRCS)))
+CXXUSEROBJS += $(CXXUSEROBJS_CC) $(CXXUSEROBJS_CPP)
 
 ifeq ($(TRIVIAL_BUILD),no)
 # Find the dependency filenames, then include them all
@@ -290,6 +292,7 @@ objects/emc/tp/cruckig/%.o : emc/tp/cruckig/%.c
 		$< -o $@
 
 $(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(CXXUSERSRCS)))) : objects/%.o: %.cpp
+$(sort $(CXXUSEROBJS_CC)) : objects/%.o: %.cc
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
@@ -298,6 +301,7 @@ $(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(CXXUSERSRCS)))) : objects/%
 		$< -o $@
 
 $(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(CXXUSERSRCS)))) : objects/%.o: %.cc
+$(sort $(CXXUSEROBJS_CPP)) : objects/%.o: %.cpp
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
@@ -310,19 +314,11 @@ $(sort $(patsubst %.c,%.i,$(CUSERSRCS))): %.i: %.c
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CC) -dD $(CFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
-$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(RUCKIG_CXX_FILES)))): %.ii: %.cc
-	$(ECHO) Preprocessing $< to $@
-	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 -E $< -o $@
-
-$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(RUCKIG_CXX_FILES)))): %.ii: %.cpp
-	$(ECHO) Preprocessing $< to $@
-	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 -E $< -o $@
-
-$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(NON_RUCKIG_CXX_FILES)))): %.ii: %.cc
+$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(CXXUSERSRCS)))): %.ii: %.cc
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
-$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(NON_RUCKIG_CXX_FILES)))): %.ii: %.cpp
+$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(CXXUSERSRCS)))): %.ii: %.cpp
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 

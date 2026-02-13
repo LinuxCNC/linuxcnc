@@ -15,6 +15,10 @@
 #include <algorithm>
 #include <vector>
 
+extern "C" {
+#include "blendmath.h"  // For pmCircleEffectiveMinRadius
+}
+
 // Include inihal for access to current joint limits (reflects HAL pin changes)
 // The old_inihal_data structure is updated by inihal.cc when HAL pins change
 // (ini.N.max_velocity, ini.N.max_limit, etc.)
@@ -146,9 +150,14 @@ bool UserspaceKinematicsPlanner::computeJointSpaceSegment(const EmcPose& start,
         limit_calc_.updateAllLimits(vel_limits, acc_limits, min_pos, max_pos, jerk_limits);
     }
 
-    // Sample the path
+    // Sample the path (line or circle based on motion type)
     std::vector<PathSample> samples;
-    int num_samples = path_sampler_.sampleLine(start, end, samples);
+    int num_samples;
+    if (tc->motion_type == TC_CIRCULAR) {
+        num_samples = path_sampler_.sampleCircle(start, end, tc->coords.circle, samples);
+    } else {
+        num_samples = path_sampler_.sampleLine(start, end, samples);
+    }
     if (num_samples < 2) {
         return false;
     }
@@ -174,6 +183,7 @@ bool UserspaceKinematicsPlanner::computeJointSpaceSegment(const EmcPose& start,
     // rotary axes from limiting linear moves
     double trivkins_vel_limit = 1e9;
     double trivkins_acc_limit = 1e9;
+    double trivkins_jerk_limit = 1e9;
 
     bool joint_moving[KINEMATICS_USER_MAX_JOINTS] = {false};
     for (int j = 0; j < config_.num_joints; j++) {
@@ -189,33 +199,86 @@ bool UserspaceKinematicsPlanner::computeJointSpaceSegment(const EmcPose& start,
             if (limit_calc_.getJointAccLimit(j) < trivkins_acc_limit) {
                 trivkins_acc_limit = limit_calc_.getJointAccLimit(j);
             }
+            if (limit_calc_.getJointJerkLimit(j) < trivkins_jerk_limit) {
+                trivkins_jerk_limit = limit_calc_.getJointJerkLimit(j);
+            }
         }
     }
 
     // Fallback if no joints moving
     if (trivkins_vel_limit > 1e8) trivkins_vel_limit = tc->maxvel;
     if (trivkins_acc_limit > 1e8) trivkins_acc_limit = tc->maxaccel;
+    if (trivkins_jerk_limit > 1e8) trivkins_jerk_limit = tc->maxjerk;
 
     // Step 2: For non-trivkins, compute Jacobian-based limits
     double jacobian_vel_limit = 1e9;
     double jacobian_acc_limit = 1e9;
+    double jacobian_jerk_limit = 1e9;
     double max_condition_number = 1.0;
 
     if (!isIdentity()) {
+        // Precompute chord tangent: exact for lines, fallback for circles
+        // tangent[a] = d(world_axis[a]) / d(path_param)
+        // For rotary-dominated moves, rotary components can be >> 1.0
+        double chord_tangent[9] = {0};
+        if (tc->target > 1e-12) {
+            chord_tangent[AXIS_X] = (end.tran.x - start.tran.x) / tc->target;
+            chord_tangent[AXIS_Y] = (end.tran.y - start.tran.y) / tc->target;
+            chord_tangent[AXIS_Z] = (end.tran.z - start.tran.z) / tc->target;
+            chord_tangent[AXIS_A] = (end.a - start.a) / tc->target;
+            chord_tangent[AXIS_B] = (end.b - start.b) / tc->target;
+            chord_tangent[AXIS_C] = (end.c - start.c) / tc->target;
+            chord_tangent[AXIS_U] = (end.u - start.u) / tc->target;
+            chord_tangent[AXIS_V] = (end.v - start.v) / tc->target;
+            chord_tangent[AXIS_W] = (end.w - start.w) / tc->target;
+        }
+
+        bool is_circular = (tc->motion_type == TC_CIRCULAR);
+
         // Non-trivkins path: use Jacobian to compute world-space limits
         // Sample the path and find the most restrictive limits
-        for (const auto& sample : samples) {
+        for (size_t i = 0; i < samples.size(); i++) {
+            const auto& sample = samples[i];
+
             // Compute Jacobian at this sample point
             double J[9][9];
             if (!jacobian_calc_.compute(sample.world_pos, J)) {
-                // Jacobian computation failed - skip this sample
                 continue;
             }
 
-            // Compute world-space limits from Jacobian and joint limits
+            // Compute path tangent at this sample point
+            // Lines: constant chord tangent (exact)
+            // Circles: finite differences on sample positions (XYZ tangent rotates)
+            double tangent[9];
+            if (is_circular && samples.size() >= 3) {
+                size_t i_prev = (i > 0) ? i - 1 : 0;
+                size_t i_next = (i < samples.size() - 1) ? i + 1 : samples.size() - 1;
+                double ds = samples[i_next].distance_from_start
+                          - samples[i_prev].distance_from_start;
+                if (ds > 1e-15) {
+                    const EmcPose& pp = samples[i_prev].world_pos;
+                    const EmcPose& pn = samples[i_next].world_pos;
+                    tangent[AXIS_X] = (pn.tran.x - pp.tran.x) / ds;
+                    tangent[AXIS_Y] = (pn.tran.y - pp.tran.y) / ds;
+                    tangent[AXIS_Z] = (pn.tran.z - pp.tran.z) / ds;
+                    tangent[AXIS_A] = (pn.a - pp.a) / ds;
+                    tangent[AXIS_B] = (pn.b - pp.b) / ds;
+                    tangent[AXIS_C] = (pn.c - pp.c) / ds;
+                    tangent[AXIS_U] = (pn.u - pp.u) / ds;
+                    tangent[AXIS_V] = (pn.v - pp.v) / ds;
+                    tangent[AXIS_W] = (pn.w - pp.w) / ds;
+                } else {
+                    std::memcpy(tangent, chord_tangent, sizeof(tangent));
+                }
+            } else {
+                std::memcpy(tangent, chord_tangent, sizeof(tangent));
+            }
+
+            // Compute world-space limits using path tangent at this sample
             JointLimitResult result;
-            if (!limit_calc_.compute(J, sample.joints, result,
-                                     config_.singularity_threshold)) {
+            if (!limit_calc_.computeForTangent(J, sample.joints, tangent,
+                                               result,
+                                               config_.singularity_threshold)) {
                 continue;
             }
 
@@ -225,6 +288,9 @@ bool UserspaceKinematicsPlanner::computeJointSpaceSegment(const EmcPose& start,
             }
             if (result.max_world_acc < jacobian_acc_limit) {
                 jacobian_acc_limit = result.max_world_acc;
+            }
+            if (result.max_world_jerk < jacobian_jerk_limit) {
+                jacobian_jerk_limit = result.max_world_jerk;
             }
 
             // Track worst-case condition number (for diagnostics)
@@ -240,21 +306,31 @@ bool UserspaceKinematicsPlanner::computeJointSpaceSegment(const EmcPose& start,
     // This ensures we never go slower than the old working code
     double min_vel_limit;
     double min_acc_limit;
+    double min_jerk_limit;
 
     if (isIdentity()) {
         min_vel_limit = trivkins_vel_limit;
         min_acc_limit = trivkins_acc_limit;
+        min_jerk_limit = trivkins_jerk_limit;
     } else {
-        // Use Jacobian limits if valid, but floor at trivkins limits
-        // TODO: Once Jacobian is validated, this floor can be removed
-        // and we can use Jacobian limits to properly slow down near singularities
-        min_vel_limit = trivkins_vel_limit;  // Use trivkins for now
-        min_acc_limit = trivkins_acc_limit;
+        // Use the more restrictive of trivkins and Jacobian limits
+        // Jacobian accounts for kinematic coupling (e.g. 5axiskins pivot)
+        // that amplifies Cartesian motion into joint-space motion
+        min_vel_limit = std::min(trivkins_vel_limit, jacobian_vel_limit);
+        min_acc_limit = std::min(trivkins_acc_limit, jacobian_acc_limit);
+        min_jerk_limit = std::min(trivkins_jerk_limit, jacobian_jerk_limit);
+    }
 
-        // Log if Jacobian would have been more restrictive (for debugging)
-        (void)jacobian_vel_limit;  // Suppress unused warning
-        (void)jacobian_acc_limit;
-        (void)max_condition_number;
+    // Step 4: Apply centripetal velocity limit for circular motion
+    // v_max = sqrt(a * r) to keep centripetal acceleration within limits
+    if (tc->motion_type == TC_CIRCULAR) {
+        double radius = pmCircleEffectiveMinRadius(&tc->coords.circle.xyz);
+        if (radius > 1e-9) {
+            double v_centripetal = std::sqrt(min_acc_limit * radius);
+            if (v_centripetal < min_vel_limit) {
+                min_vel_limit = v_centripetal;
+            }
+        }
     }
 
     // Populate JointSpaceSegment
@@ -275,13 +351,16 @@ bool UserspaceKinematicsPlanner::computeJointSpaceSegment(const EmcPose& start,
     js->acc_limit = min_acc_limit;
     js->valid = 1;
 
-    // Update TC velocity limits based on joint limits
+    // Update TC limits based on joint limits
     // The backward pass will use these as additional constraints
     if (min_vel_limit < tc->maxvel) {
         tc->maxvel = min_vel_limit;
     }
     if (min_acc_limit < tc->maxaccel) {
         tc->maxaccel = min_acc_limit;
+    }
+    if (min_jerk_limit < tc->maxjerk || tc->maxjerk <= 0) {
+        tc->maxjerk = min_jerk_limit;
     }
 
     // Ensure reqvel doesn't exceed maxvel
@@ -319,6 +398,13 @@ bool UserspaceKinematicsPlanner::evaluateJointPositions(const TC_STRUCT* tc,
     }
 
     return true;
+}
+
+bool UserspaceKinematicsPlanner::computeJacobian(const EmcPose& pose,
+                                                  double J[9][9]) const {
+    if (!enabled_ || !initialized_) return false;
+    // jacobian_calc_ is mutable-safe (no state change in compute)
+    return const_cast<JacobianCalculator&>(jacobian_calc_).compute(pose, J);
 }
 
 // C interface implementations

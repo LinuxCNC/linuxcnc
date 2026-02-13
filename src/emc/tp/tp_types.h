@@ -97,7 +97,7 @@ typedef struct TP_STRUCT {
     TC_QUEUE_STRUCT queue;
     tp_spindle_t spindle; //Spindle data
 
-    /* 9D planner initialization markers (Phase 0 safety) */
+    /* 9D planner initialization markers (safety validation) */
     unsigned int magic;          /* Set to TP_MAGIC after tpInit() */
     int queue_ready;             /* Set to 1 after queue initialization */
 
@@ -131,6 +131,9 @@ typedef struct TP_STRUCT {
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
+    int abort_profiles_written;  /* Set by userspace after writing abort stop
+                                    profiles; prevents feed-override merge from
+                                    overwriting them before RT sees tp->aborting */
     int reverse_run;      /* Indicates that TP is running in reverse */
     int motionType;
     double tolerance;           /* for subsequent motions, stay within this
@@ -143,6 +146,10 @@ typedef struct TP_STRUCT {
 
 
     syncdio_t syncdio; //record tpSetDout's here
+
+    // Pending segment actions (planner_type 2)
+    // Actions queued via tpSetSegmentAction() before the next motion segment
+    segment_actions_t pending_actions;
 
 } TP_STRUCT;
 

@@ -66,6 +66,11 @@ double JointLimitCalculator::getJointAccLimit(int joint) const {
     return limits_[joint].acc_limit;
 }
 
+double JointLimitCalculator::getJointJerkLimit(int joint) const {
+    if (joint < 0 || joint >= num_joints_) return 1e9;
+    return limits_[joint].jerk_limit;
+}
+
 bool JointLimitCalculator::updateAllLimits(const double* vel_limits,
                                            const double* acc_limits,
                                            const double* min_pos,
@@ -163,6 +168,135 @@ double JointLimitCalculator::computeMaxAcceleration(const double J[9][9], int& l
     return max_world_acc;
 }
 
+double JointLimitCalculator::computeMaxJerk(const double J[9][9], int& limiting_joint) {
+    // Same approach as velocity and acceleration
+    double max_world_jerk = 1e18;
+    limiting_joint = -1;
+
+    for (int j = 0; j < num_joints_; j++) {
+        double max_abs_J = 0.0;
+        for (int a = 0; a < AXIS_COUNT; a++) {
+            double abs_J = std::fabs(J[j][a]);
+            if (abs_J > max_abs_J) {
+                max_abs_J = abs_J;
+            }
+        }
+
+        if (max_abs_J > 1e-15) {
+            double jerk_limit_world = limits_[j].jerk_limit / max_abs_J;
+            if (jerk_limit_world < max_world_jerk) {
+                max_world_jerk = jerk_limit_world;
+                limiting_joint = j;
+            }
+        }
+    }
+
+    if (max_world_jerk > 1e9) max_world_jerk = 1e9;
+    if (max_world_jerk < 1e-9) max_world_jerk = 1e-9;
+
+    return max_world_jerk;
+}
+
+double JointLimitCalculator::computeMaxVelocityForTangent(const double J[9][9], const double tangent[9], int& limiting_joint) {
+    double max_world_vel = 1e18;
+    limiting_joint = -1;
+
+    for (int j = 0; j < num_joints_; j++) {
+        // Compute sum(|J[j][a]| * |tangent[a]|) — the actual amplification
+        // for this joint along the given path direction
+        double amplification = 0.0;
+        for (int a = 0; a < AXIS_COUNT; a++) {
+            amplification += std::fabs(J[j][a]) * std::fabs(tangent[a]);
+        }
+
+        if (amplification > 1e-15) {
+            double vel_limit_world = limits_[j].vel_limit / amplification;
+            if (vel_limit_world < max_world_vel) {
+                max_world_vel = vel_limit_world;
+                limiting_joint = j;
+            }
+        }
+    }
+
+    if (max_world_vel > 1e9) max_world_vel = 1e9;
+    if (max_world_vel < 1e-9) max_world_vel = 1e-9;
+    return max_world_vel;
+}
+
+double JointLimitCalculator::computeMaxAccelerationForTangent(const double J[9][9], const double tangent[9], int& limiting_joint) {
+    double max_world_acc = 1e18;
+    limiting_joint = -1;
+
+    for (int j = 0; j < num_joints_; j++) {
+        double amplification = 0.0;
+        for (int a = 0; a < AXIS_COUNT; a++) {
+            amplification += std::fabs(J[j][a]) * std::fabs(tangent[a]);
+        }
+
+        if (amplification > 1e-15) {
+            double acc_limit_world = limits_[j].acc_limit / amplification;
+            if (acc_limit_world < max_world_acc) {
+                max_world_acc = acc_limit_world;
+                limiting_joint = j;
+            }
+        }
+    }
+
+    if (max_world_acc > 1e9) max_world_acc = 1e9;
+    if (max_world_acc < 1e-9) max_world_acc = 1e-9;
+    return max_world_acc;
+}
+
+double JointLimitCalculator::computeMaxJerkForTangent(const double J[9][9], const double tangent[9], int& limiting_joint) {
+    double max_world_jerk = 1e18;
+    limiting_joint = -1;
+
+    for (int j = 0; j < num_joints_; j++) {
+        double amplification = 0.0;
+        for (int a = 0; a < AXIS_COUNT; a++) {
+            amplification += std::fabs(J[j][a]) * std::fabs(tangent[a]);
+        }
+
+        if (amplification > 1e-15) {
+            double jerk_limit_world = limits_[j].jerk_limit / amplification;
+            if (jerk_limit_world < max_world_jerk) {
+                max_world_jerk = jerk_limit_world;
+                limiting_joint = j;
+            }
+        }
+    }
+
+    if (max_world_jerk > 1e9) max_world_jerk = 1e9;
+    if (max_world_jerk < 1e-9) max_world_jerk = 1e-9;
+    return max_world_jerk;
+}
+
+bool JointLimitCalculator::computeForTangent(const double J[9][9],
+                                              const double joint_pos[9],
+                                              const double tangent[9],
+                                              JointLimitResult& result,
+                                              double singularity_threshold) {
+    if (!initialized_) {
+        return false;
+    }
+
+    result.position_ok = checkPositionLimits(joint_pos);
+    result.condition_number = computeConditionNumber(J);
+
+    result.max_world_vel = computeMaxVelocityForTangent(J, tangent, result.limiting_joint_vel);
+    result.max_world_acc = computeMaxAccelerationForTangent(J, tangent, result.limiting_joint_acc);
+    result.max_world_jerk = computeMaxJerkForTangent(J, tangent, result.limiting_joint_jerk);
+
+    if (result.condition_number > singularity_threshold) {
+        double slowdown_factor = singularity_threshold / result.condition_number;
+        result.max_world_vel *= slowdown_factor;
+        result.max_world_acc *= slowdown_factor;
+        result.max_world_jerk *= slowdown_factor;
+    }
+
+    return true;
+}
+
 double JointLimitCalculator::computeConditionNumber(const double J[9][9]) {
     // Simplified condition number: ratio of max to min row norms
     double max_row_norm = 0.0;
@@ -206,16 +340,17 @@ bool JointLimitCalculator::compute(const double J[9][9],
     // Compute max acceleration
     result.max_world_acc = computeMaxAcceleration(J, result.limiting_joint_acc);
 
+    // Compute max jerk
+    result.max_world_jerk = computeMaxJerk(J, result.limiting_joint_jerk);
+
     // Apply singularity slowdown
-    // If condition number exceeds threshold, reduce velocity proportionally
+    // If condition number exceeds threshold, reduce limits proportionally
     if (result.condition_number > singularity_threshold) {
         double slowdown_factor = singularity_threshold / result.condition_number;
         result.max_world_vel *= slowdown_factor;
         result.max_world_acc *= slowdown_factor;
+        result.max_world_jerk *= slowdown_factor;
     }
-
-    // Jerk limits deferred to Phase 2 (Ruckig integration)
-    result.max_world_jerk = 1e9;
 
     return true;
 }

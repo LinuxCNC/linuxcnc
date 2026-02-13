@@ -21,6 +21,7 @@
 
 extern "C" {
 #include "kinematics_userspace/kinematics_user.h"
+#include "tc_types.h"  // For PmCircle9
 }
 
 namespace motion_planning {
@@ -89,16 +90,17 @@ public:
                    std::vector<PathSample>& samples);
 
     /**
-     * Sample a circular arc (G2/G3) - stub for Phase 4
-     * Currently tessellates into short line segments.
+     * Sample a circular arc (G2/G3)
      *
-     * @return Number of samples, or -1 on error
+     * @param start     Start position in world coordinates
+     * @param end       End position in world coordinates
+     * @param circle    PmCircle9 arc geometry (initialized by pmCircle9Init)
+     * @param samples   Output vector of samples (cleared first)
+     * @return Number of samples generated, or -1 on error
      */
     int sampleCircle(const EmcPose& start,
                      const EmcPose& end,
-                     const EmcPose& center,
-                     int plane,
-                     int direction,
+                     const PmCircle9& circle,
                      std::vector<PathSample>& samples);
 
     /**
