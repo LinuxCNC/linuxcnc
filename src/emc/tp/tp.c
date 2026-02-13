@@ -1847,7 +1847,12 @@ int tpAddRigidTap(TP_STRUCT * const tp,
     tcFinalizeLength(prev_tc);
     tcFlagEarlyStop(prev_tc, &tc);
     int retval = tpAddSegmentToQueue(tp, &tc, true);
-    tpRunOptimization(tp);
+    // Planner 2 uses its own jerk-aware backward pass in userspace
+    // (computeLimitingVelocities_9D), so the RT trapezoidal backward pass
+    // is redundant — its values are overwritten before RT needs them.
+    if (GET_TRAJ_PLANNER_TYPE() != 2) {
+        tpRunOptimization(tp);
+    }
     return retval;
 }
 
@@ -2354,8 +2359,9 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
     tcFlagEarlyStop(prev_tc, &tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
-    //Run speed optimization (will abort safely if there are no tangent segments)
-    tpRunOptimization(tp);
+    if (GET_TRAJ_PLANNER_TYPE() != 2) {
+        tpRunOptimization(tp);
+    }
 
     return retval;
 }
@@ -2450,8 +2456,9 @@ int tpAddCircle(TP_STRUCT * const tp,
     tcFlagEarlyStop(prev_tc, &tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
-
-    tpRunOptimization(tp);
+    if (GET_TRAJ_PLANNER_TYPE() != 2) {
+        tpRunOptimization(tp);
+    }
     return retval;
 }
 
@@ -3768,8 +3775,6 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     tc->blending_next = 0;
     tc->on_final_decel = 0;
 
-    tc->initialvel = tc->currentvel;
-    tc->accel_phase = 0;
     tc->elapsed_time = 0;
 
     // Initialize execution state for branch/merge architecture
@@ -3798,13 +3803,11 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         }
 
         tc->shared_9d.canonical_feed_scale = actual_feed;
-        tc->shared_9d.active_feed_scale = actual_feed;
         tc->shared_9d.requested_feed_scale = actual_feed;
         tc->shared_9d.achieved_exit_vel = 0.0;
 
     } else {
         tc->shared_9d.canonical_feed_scale = 1.0;
-        tc->shared_9d.active_feed_scale = 1.0;
         tc->shared_9d.requested_feed_scale = 1.0;
         tc->shared_9d.achieved_exit_vel = 0.0;
     }
@@ -4096,7 +4099,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
                     tc->shared_9d.profile = tc->shared_9d.branch.profile;
                 }
 
-                tc->shared_9d.active_feed_scale = tc->shared_9d.branch.feed_scale;
                 tc->position_base = tc->shared_9d.branch.handoff_position;
                 // Both two-stage and single-stage use new_elapsed to maintain continuity
                 // This accounts for time past the intended handoff moment
@@ -4484,15 +4486,16 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
             return TP_ERR_NO_ACTION;
         }
 
+        // Planner 2 split handler uses tc->currentvel directly (not tc->term_vel),
+        // so v_f=0.0 is fine here — tcSetSplitCycle stores it in term_vel which
+        // only planner 0 reads in tpHandleSplitCycle.
         if (actual_remaining <= 0.0) {
             // Profile already completed at last sample — split with zero time
-            double v_f = tpGetRealFinalVel(tp, tc, nexttc);
-            tcSetSplitCycle(tc, 0.0, v_f);
+            tcSetSplitCycle(tc, 0.0, 0.0);
             return TP_ERR_OK;
         } else if (actual_remaining < tp->cycleTime) {
             // Remaining motion fits within one cycle — split with exact time
-            double v_f = tpGetRealFinalVel(tp, tc, nexttc);
-            tcSetSplitCycle(tc, actual_remaining, v_f);
+            tcSetSplitCycle(tc, actual_remaining, 0.0);
             return TP_ERR_OK;
         } else {
             // More than one cycle remaining based on duration — no split needed.
@@ -4528,10 +4531,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
                 if (split_time < 0.0) split_time = 0.0;
                 if (split_time > tp->cycleTime) split_time = tp->cycleTime;
 
-                // (SPLIT_DETECT_OVERSHOOT debug removed — reachability cap eliminated overshoot profiles)
-
-                double v_f = tpGetRealFinalVel(tp, tc, nexttc);
-                tcSetSplitCycle(tc, split_time, v_f);
+                tcSetSplitCycle(tc, split_time, 0.0);
                 return TP_ERR_OK;
             }
             return TP_ERR_NO_ACTION;
@@ -4776,7 +4776,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             if (actual_feed > 10.0) actual_feed = 10.0;
         }
         nexttc->shared_9d.canonical_feed_scale = actual_feed;
-        nexttc->shared_9d.active_feed_scale = actual_feed;
         nexttc->shared_9d.requested_feed_scale = actual_feed;
         nexttc->shared_9d.achieved_exit_vel = 0.0;
 
@@ -4836,27 +4835,32 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
     int mode = 0;
     tpUpdateCycle(tp, tc, nexttc, &mode);
 
-    /* Parabolic blending */
+    /* Parabolic blending — only for planner 0/1.
+     * Planner 2 uses Ruckig profiles with tangent-mode blending,
+     * never parabolic blending (term_cond is never TC_TERM_COND_PARABOLIC). */
+    if (GET_TRAJ_PLANNER_TYPE() != 2) {
+        double v_this = 0.0, v_next = 0.0;
 
-    double v_this = 0.0, v_next = 0.0;
+        // cap the blend velocity at the current requested speed (factoring in feed override)
+        double target_vel_this = tpGetRealTargetVel(tp, tc);
+        double target_vel_next = tpGetRealTargetVel(tp, nexttc);
 
-    // cap the blend velocity at the current requested speed (factoring in feed override)
-    double target_vel_this = tpGetRealTargetVel(tp, tc);
-    double target_vel_next = tpGetRealTargetVel(tp, nexttc);
+        if(mode != TP_SCURVE_ACCEL_ERROR && GET_TRAJ_PLANNER_TYPE() == 1)
+            tpComputeBlendSCurveVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, NULL);
+        else
+            tpComputeBlendVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, NULL);
+        tc->blend_vel = v_this;
+        if (nexttc) {
+            nexttc->blend_vel = v_next;
+        }
 
-    if(mode != TP_SCURVE_ACCEL_ERROR && GET_TRAJ_PLANNER_TYPE() == 1)
-        tpComputeBlendSCurveVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, NULL);
-    else
-        tpComputeBlendVelocity(tc, nexttc, target_vel_this, target_vel_next, &v_this, &v_next, NULL);
-    tc->blend_vel = v_this;
-    if (nexttc) {
-        nexttc->blend_vel = v_next;
-    }
-
-    if (nexttc && tcIsBlending(tc)) {
-        tpDoParabolicBlending(tp, tc, nexttc);
+        if (nexttc && tcIsBlending(tc)) {
+            tpDoParabolicBlending(tp, tc, nexttc);
+        } else {
+            tpToggleDIOs(tc);
+            tpUpdateMovementStatus(tp, tc);
+        }
     } else {
-        //Update status for a normal step
         tpToggleDIOs(tc);
         tpUpdateMovementStatus(tp, tc);
     }
