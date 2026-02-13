@@ -617,6 +617,13 @@ extern "C" int tpAddLine_9D(
         return -1;
     }
 
+    // First segment of a new program: reset userspace planning state.
+    // tpClear() runs in RT context where tpClearPlanning_9D is unavailable,
+    // so we detect program-start here by an empty queue.
+    if (queue_len == 0) {
+        tpClearPlanning_9D(tp);
+    }
+
     TC_QUEUE_STRUCT *queue = &tp->queue;
 
     // Initialize new TC_STRUCT for the line segment
@@ -715,6 +722,11 @@ extern "C" int tpAddCircle_9D(
     int queue_len, current_end;
     if (validateQueueState_9D(tp, &queue_len, &current_end, "tpAddCircle_9D") != 0) {
         return -1;
+    }
+
+    // First segment of a new program: reset userspace planning state.
+    if (queue_len == 0) {
+        tpClearPlanning_9D(tp);
     }
 
     TC_QUEUE_STRUCT *queue = &tp->queue;

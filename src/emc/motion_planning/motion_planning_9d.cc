@@ -2989,6 +2989,7 @@ static void ensureProfilesOnLowBuffer(TP_STRUCT *tp)
     if (!tp) return;
 
     // Rate limit this check to avoid overhead
+    // NOTE: local static — persists across program runs! (potential non-determinism)
     static double last_check_ms = 0;
     double now_ms = etime_user() * 1000.0;
     if (now_ms - last_check_ms < 20.0) {  // Check at most every 20ms
@@ -3844,6 +3845,23 @@ extern "C" int tpClearPlanning_9D(TP_STRUCT * const tp)
 
     // Clear smoothing data
     g_smoothing_data = SmoothingData();
+
+    // Reset all persistent feed override / recomputation state
+    // Without this, state from the previous program leaks into the next one,
+    // causing non-deterministic behavior between identical runs.
+    g_last_feed_scale = 1.0;
+    g_last_replan_time_ms = 0.0;
+    g_committed_feed = -1.0;
+    g_committed_rapid = -1.0;
+    g_recompute_cursor = 0;
+    g_recompute_feed_scale = 1.0;
+    g_recompute_rapid_scale = 1.0;
+    g_recompute_first_batch_done = false;
+    g_next_feed_scale = -1.0;
+    g_next_rapid_scale = -1.0;
+    g_commit_segment = 1;
+    g_segments_per_tick = 3.0;
+    g_adaptive_horizon = AdaptiveHorizon();
 
     return 0;
 }
