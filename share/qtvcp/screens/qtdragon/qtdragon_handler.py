@@ -153,8 +153,10 @@ class HandlerClass:
         STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
         STATUS.connect('runstop-line-changed', lambda w, l :self.lastRunLine(l))
         STATUS.connect('cycle-start-request', lambda w, state :self.btn_start_clicked(state))
-        STATUS.connect('cycle-pause-request', lambda w, state: self.btn_pause_clicked(state))
+        STATUS.connect('cycle-pause-request', lambda w, state: self.ext_pause_toggled(state))
         STATUS.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
+        STATUS.connect('ok-request', lambda w, state: self.dialog_ext_control(w,1,1))
+        STATUS.connect('cancel-request', lambda w, state: self.dialog_ext_control(w,1,0))
 
         self.swoopPath = os.path.join(paths.IMAGEDIR,'lcnc_swoop.png')
         self.swoopURL = QtCore.QUrl.fromLocalFile(self.swoopPath)
@@ -767,7 +769,7 @@ class HandlerClass:
             self.touchoff('touchplate')
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
-        elif wait_code and name == 'MESSAGE':
+        elif wait_code and name == 'MESSAGE' and rtn is True:
             self.lowerSpindle()
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
@@ -899,6 +901,7 @@ class HandlerClass:
 
     # called from hal_glib to run macros from external event
     def request_macro_call(self, data):
+        print('macro request:',data)
         if not STATUS.is_mdi_mode():
             self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), CRITICAL)
             return
@@ -923,6 +926,8 @@ class HandlerClass:
                 self.add_status(_translate("HandlerClass",'Running macro: {} {}'.format(key, text)))
                 button.click()
                 break
+        else:
+            self.add_status(_translate("HandlerClass","can't find button for macro: {}".format(data)))
 
     #######################
     # CALLBACKS FROM FORM #
@@ -1274,6 +1279,12 @@ class HandlerClass:
         if self.h['eoffset-clear'] != True:
             self.h['eoffset-spindle-count'] = int(fval)
 
+    def ext_pause_toggled(self, state):
+        if STATUS.is_auto_paused():
+            self.btn_pause_clicked(False)
+            return
+        self.btn_pause_clicked(True)
+
     def btn_pause_clicked(self, data):
 
         # pause request
@@ -1419,9 +1430,12 @@ class HandlerClass:
 
                 if button == self.w.btn_mpg_scroll:
                     self.removeMPGFocusBorder()
+                    if not self.w.btn_mpg_scroll.isChecked():
+                        ACTION.SET_SELECTED_AXIS('None')
                 return
         if button == self.w.btn_mpg_scroll:
             if self.w.btn_mpg_scroll.isChecked():
+                ACTION.SET_SELECTED_AXIS('MPG0')
                 self.recolorMPGFocusBorder()
         else:
                 self.removeMPGFocusBorder()
@@ -2076,9 +2090,14 @@ class HandlerClass:
 
     def dialog_ext_control(self, pin, value, answer):
         if value:
-            if not self._dialog_message is None:
-                name = self._dialog_message.get('NAME')
-                STATUS.emit('dialog-update',{'NAME':name,'response':answer})
+            # search the registered dialogs for a match
+            dlist = self.w.getRegisteredDialogList()
+            for i in (dlist):
+                if i.isVisible():
+                    print('Found dialog',i.objectName())
+                    name = i.getIdName()
+                    STATUS.emit('dialog-update',{'NAME':name,'response':answer})
+                    return
 
     def log_version(self):
         if INFO.RIP_FLAG:
