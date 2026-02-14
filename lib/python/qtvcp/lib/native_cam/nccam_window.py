@@ -502,7 +502,7 @@ class NCamWindow(QMainWindow, NCam):
                 self.items_path = int(selectedItem.findPath())
                 # string representation of the gtk iter ie 1:2:0
                 self.items_ts_parent_s = model.indexToPath(selectedIndex)
-
+                print('item Path iter string',self.items_ts_parent_s)
                 n_children = selectedItem.childCount()
                 print('item Path:',self.items_path, n_children)
                 self.items_lpath = (self.items_path + n_children)
@@ -525,6 +525,7 @@ class NCamWindow(QMainWindow, NCam):
 
                 # string representation of the gtk iter ie 1:2:0
                 self.items_ts_parent_s = items_ts_path
+                print('is itam or header',self.items_ts_parent_s)
 
             # find top parent item of selection?
             itemParent = selectedItem
@@ -557,7 +558,7 @@ class NCamWindow(QMainWindow, NCam):
 
             # no lower sibling
             else :
-                self.can_add_to_group = False
+                self.can_add_to_group = True
                 self.can_move_down = False
 
             self.printSelected()
@@ -738,6 +739,8 @@ else:
 
     def action_debug_print(self):
         print(self.selected_feature)
+        print('\n\n')
+        self.printSelected()
 
     def printItemName(self, item):
         try:
@@ -747,7 +750,6 @@ else:
         return name
 
     def printSelected(self, title = ''):
-        return
         print('{}'.format(title))
         methods = ('iter_selected_type',
             'selected_feature',
