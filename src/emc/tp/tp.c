@@ -4133,6 +4133,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
             double brake_duration = tc->shared_9d.branch.brake_profile.duration;
             if (tc->elapsed_time >= brake_duration) {
                 // Brake complete - switch to main profile
+                double old_pos_base = tc->position_base;
                 unsigned int seq = __atomic_load_n(&tc->shared_9d.copy_sequence, __ATOMIC_ACQUIRE);
                 __atomic_store_n(&tc->shared_9d.copy_sequence, seq + 1, __ATOMIC_RELEASE);
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
@@ -4149,6 +4150,15 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 __atomic_store_n(&tc->shared_9d.copy_sequence, seq + 2, __ATOMIC_RELEASE);
 
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "BRAKE_MAIN seg=%d: pos_base=%.6f->%.6f "
+                    "brake_dur=%.6f main_end=%.6f target=%.6f\n",
+                    tc->id, old_pos_base,
+                    tc->shared_9d.branch.brake_end_position,
+                    brake_duration,
+                    tc->shared_9d.branch.profile.p[RUCKIG_PROFILE_PHASES],
+                    tc->target);
+
                 // Sync generation counter so stopwatch-reset doesn't double-fire
                 tc->last_profile_generation = __atomic_load_n(
                     &tc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
@@ -4157,6 +4167,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
                 __atomic_store_n(&tc->shared_9d.branch.brake_done, 1, __ATOMIC_RELEASE);
             }
         }
+
 
         // Publish execution state for userspace to read (each cycle)
         __atomic_store_n(&tc->active_segment_id, tc->id, __ATOMIC_RELEASE);
@@ -4202,7 +4213,9 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
             double total_pos = tc->position_base + pos;
 
             // Clamp position to segment bounds
-            if (total_pos > tc->target) { total_pos = tc->target; }
+            if (total_pos > tc->target) {
+                total_pos = tc->target;
+            }
             if (total_pos < 0.0) { total_pos = 0.0; }
 
 
@@ -4755,8 +4768,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         // doesn't false-trigger on the first sampling cycle.
         nexttc->last_profile_generation = __atomic_load_n(
             &nexttc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
-
-        // SPLIT_ACTIVATE handled
 
         // Clear any pending branch from previous queue slot usage
         __atomic_store_n(&nexttc->shared_9d.branch.valid, 0, __ATOMIC_RELEASE);
