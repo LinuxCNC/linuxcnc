@@ -14,8 +14,7 @@ The Servo-To-Go (STG) is one of the first PC motion control cards supported
 by LinuxCNC. It is an ISA card and it exists in different flavors (all
 supported by this driver). The board includes up to 8 channels of
 quadrature encoder input, 8 channels of analog input and output, 32
-bits digital I/O, an interval timer with interrupt and a watchdog. For more
-information see the http://www.servotogo.com/[Servo To Go] web page.
+bits digital I/O, an interval timer with interrupt and a watchdog.
 
 NOTE: We have had reports that the opamps on the Servo To Go card do
 not work with newer ATX power supplies that use modern switch

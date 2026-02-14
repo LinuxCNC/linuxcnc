@@ -1,24 +1,26 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
+  <requires lib="gladevcp" version="0.0"/>
   <object class="GtkWindow" id="window1">
-    <property name="default_width">64</property>
-    <property name="default_height">724</property>
+    <property name="can-focus">False</property>
+    <property name="default-width">64</property>
+    <property name="default-height">724</property>
     <child>
       <object class="GtkVButtonBox" id="vbuttonbox1">
         <property name="visible">True</property>
+        <property name="can-focus">False</property>
         <property name="homogeneous">True</property>
-        <property name="layout_style">spread</property>
+        <property name="layout-style">spread</property>
         <child>
           <object class="HAL_Button" id="v_button_0">
             <property name="label" translatable="yes">v_button_0</property>
-            <property name="width_request">56</property>
-            <property name="height_request">56</property>
+            <property name="width-request">56</property>
+            <property name="height-request">56</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -29,11 +31,11 @@
         <child>
           <object class="HAL_Button" id="v_button_1">
             <property name="label" translatable="yes">v_button_1</property>
-            <property name="width_request">56</property>
-            <property name="height_request">56</property>
+            <property name="width-request">56</property>
+            <property name="height-request">56</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -44,11 +46,11 @@
         <child>
           <object class="HAL_Button" id="v_button_2">
             <property name="label" translatable="yes">v_button_2</property>
-            <property name="width_request">56</property>
-            <property name="height_request">56</property>
+            <property name="width-request">56</property>
+            <property name="height-request">56</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -59,11 +61,11 @@
         <child>
           <object class="HAL_Button" id="v_button_3">
             <property name="label" translatable="yes">v_button_3</property>
-            <property name="width_request">56</property>
-            <property name="height_request">56</property>
+            <property name="width-request">56</property>
+            <property name="height-request">56</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -74,11 +76,11 @@
         <child>
           <object class="HAL_Button" id="v_button_4">
             <property name="label" translatable="yes">v_button_4</property>
-            <property name="width_request">56</property>
-            <property name="height_request">56</property>
+            <property name="width-request">56</property>
+            <property name="height-request">56</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -89,11 +91,11 @@
         <child>
           <object class="HAL_Button" id="v_button_5">
             <property name="label" translatable="yes">v_button_5</property>
-            <property name="width_request">56</property>
-            <property name="height_request">56</property>
+            <property name="width-request">56</property>
+            <property name="height-request">56</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -104,11 +106,11 @@
         <child>
           <object class="HAL_Button" id="v_button_6">
             <property name="label" translatable="yes">v_button_6</property>
-            <property name="width_request">56</property>
-            <property name="height_request">56</property>
+            <property name="width-request">56</property>
+            <property name="height-request">56</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
           </object>
           <packing>
             <property name="expand">False</property>

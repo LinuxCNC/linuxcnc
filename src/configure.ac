@@ -97,7 +97,7 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
     LIBTIRPC_LIBS=`pkg-config libtirpc --libs`
     AC_SUBST([LIBTIRPC_LIBS])
 
-    CFLAGS+=" `pkg-config libtirpc --cflags` "
+    CFLAGS="${CFLAGS:+$CFLAGS }$(pkg-config libtirpc --cflags)"
   fi
 
   # Update path
@@ -411,8 +411,8 @@ fi
 # Set flags for C and C++ if supported
 for commonflag in -Wno-stringop-truncation ; do
   if echo "int main() { return 0;}" | $CC -Werror $commonflag -E - > /dev/null; then
-    CFLAGS="$CFLAGS $flag"
-    CXXFLAGS="$CXXFLAGS $flag"
+    CFLAGS="${CFLAGS:+$CFLAGS }$flag"
+    CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$flag"
   fi
 done
 
@@ -533,7 +533,7 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 #
 # check for libgpiod
 #
-PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 2.0.0],
+PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 3.0.0],
             [AC_DEFINE_UNQUOTED([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`,
             [libgpiod version, undefined if not present])
             LDFLAGS="$LDFLAGS $LIBGPIOD_LIBS"
@@ -1684,7 +1684,7 @@ fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
 AC_MSG_CHECKING(for site-package location)
-SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
+SITEPY="$($PYTHON -c 'import sysconfig; s = sysconfig.get_scheme_names(); m=list(set(("deb_system", "rpm_prefix")) & set(s)); print(sysconfig.get_path("platlib", m.__getitem__(0))) if m else print("/usr/lib/python3/dist-packages");')"
 AC_MSG_RESULT($SITEPY)
 
 AC_MSG_CHECKING(for working GLU quadrics)

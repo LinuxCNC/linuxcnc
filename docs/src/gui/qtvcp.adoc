@@ -46,8 +46,9 @@ image::images/qtvcp-cam-align.png["Qtscreen x1mill",align="center"]
 image::images/test_panel.png["Test Panel",align="center"]
 
 [[sec:qtvcp-overview]]
-== Overview(((QtVCP Overview)))
+== Overview
 
+(((QtVCP Overview)))
 _Two files are used, individually or in combination_, to add customizations:
 
 * A *UI file* that is a _XML_ file made with _Qt Designer_ graphical editor.

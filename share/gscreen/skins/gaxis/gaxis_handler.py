@@ -16,7 +16,8 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 import hal
-import gtk
+from gi.repository import Gtk as gtk
+
 _X = 0;_Y = 1;_Z = 2;_A = 3;_B = 4;_C = 5;_U = 6;_V = 7;_W = 8
 # This is a handler file for using Gscreen's infrastructure
 # to load a completely custom glade screen
@@ -144,12 +145,13 @@ class HandlerClass:
         self.gscreen.init_dynamic_tabs()
         self.gscreen.init_embeded_terminal()
         #self.gscreen.change_theme(self.data.theme_name)
-        settings = gtk.settings_get_default()
+        settings = gtk.Settings.get_default()
         settings.set_string_property("gtk-theme-name", 'Link to gaxis_theme', "")
         self.gscreen.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         self.gscreen.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
+        model = self.widgets.jog_speed.get_model()
         for num,i in enumerate(self.data.jog_increments):
-            self.widgets.jog_speed.append_text(i)
+            model.append([i])
             if i == "continuous":
                 self.data.current_jogincr_index = num
                 self.widgets.jog_speed.set_active(num)

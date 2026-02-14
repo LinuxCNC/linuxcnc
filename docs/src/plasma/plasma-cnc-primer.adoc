@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:plasma-primer]]
-= Plasma Cutting Primer for LinuxCNC Users(((Plasma Cutting Primer)))
+= Plasma Cutting Primer for LinuxCNC Users
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -12,6 +12,7 @@
 
 == What Is Plasma?
 
+(((Plasma Cutting Primer)))
 Plasma is a fourth state of matter, an ionised gas which has been heated to an extremely high temperature and ionised so that it becomes electrically conductive.
 The plasma arc cutting and gouging processes use this plasma to transfer an electrical arc to the workpiece.
 The metal to be cut or removed is melted by the heat of the arc and then blown away.

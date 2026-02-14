@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:coordinate-system]]
-= Coordinate Systems(((Coordinate Systems)))
+= Coordinate Systems
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -12,6 +12,7 @@
 
 == Introduction
 
+(((Coordinate Systems)))
 In this chapter, we will try to demystify coordinate systems.
 It is a very important concept to understand the operation of a CNC
 machine, its configuration and its use.

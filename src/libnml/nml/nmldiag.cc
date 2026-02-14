@@ -131,9 +131,7 @@ int nml_print_diag_list()
 		}
 		rcs_print
 		    ("\n*********************************************\n");
-		if (NULL != nml->cms->BufferName) {
-		    rcs_print("* Buffer Name: %s\n", nml->cms->BufferName);
-		}
+		rcs_print("* Buffer Name: %s\n", nml->cms->BufferName);
 		NML_DIAGNOSTICS_INFO *ndi = nml->get_diagnostics_info();
 		if (NULL != ndi) {
 		    ndi->print();

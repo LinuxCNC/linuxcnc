@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:updating-linuxcnc]]
-= Updating LinuxCNC(((Updating LinuxCNC)))
+= Updating LinuxCNC
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -11,7 +11,7 @@
 :ngc: {basebackend@docbook:'':ngc}
 
 Updating LinuxCNC to a new minor release (ie to a new version in
-the same stable series, for example from 2.9.1 to 2.9.2) is an
+the same stable series, for example from 2.9.7 to 2.9.8) is an
 automatic process if your PC is connected to the internet. You will
 see an update prompt after a minor release along with other software
 updates. If you don't have an internet connection to your PC see
@@ -30,11 +30,11 @@ If you do not have an old version of LinuxCNC to upgrade, then you're
 best off making a fresh install of the new version as described in the
 section <<cha:getting-linuxcnc,Getting LinuxCNC>>.
 
-Furthermore, if you are running Ubuntu Precise or Debian Wheezy it is
+Furthermore, if you are running Ubuntu Precise, Debian Wheezy or Debian Buster it is
 well worth considering making a backup of the "linuxcnc" directory on
 removable media and performing a
 <<cha:getting-linuxcnc,clean install of a newer OS and LinuxCNC version>>
-as these releases were EOL in 2017 and 2018 respectively.
+as these releases were EOL in 2017, 2018 and 2022 respectively.
 If you are running on Ubuntu Lucid then you will have to do this, as
 Lucid is no longer supported by LinuxCNC (it was EOL in 2013).
 
@@ -48,10 +48,10 @@ Open a <<faq:terminal,terminal>> then type `lsb_release -ic` to find this inform
 ----
 lsb_release -ic
 Distributor ID: Debian
-Codename:       Buster
+Codename:       Trixie
 ----
 
-You should be running on Debian Buster, Bullseye or Bookworm or Ubuntu 20.04 "Focal Fossa" or newer.
+You should be running on Debian Bullseye, Bookworm or Trixie or Ubuntu 20.04 "Focal Fossa" or newer.
 LinuxCNC 2.9.y will not run on older distributions than these. 
 
 You will also need to check which realtime kernel is being used:
@@ -93,11 +93,11 @@ are available for Bookworm and Buster but not currently for Bullseye.
 [cols="3,5",options="header"]
 |===
 | OS / Realtime Version      | Repository
-| Debian Buster - preempt   m| deb https://linuxcnc.org buster base 2.9-uspace
-| Debian Buster - RTAI      m| deb https://linuxcnc.org buster base 2.9-rt
 | Debian Bullseye - preempt m| deb https://linuxcnc.org bullseye base 2.9-uspace
 | Debian Bookworm - preempt m| deb https://linuxcnc.org bookworm base 2.9-uspace
 | Debian Bookworm - RTAI    m| deb https://linuxcnc.org bookworm base 2.9-rt
+| Debian Trixie - preempt   m| deb https://linuxcnc.org trixie base 2.9-uspace
+| Debian Trixie - RTAI      m| deb https://linuxcnc.org trixie base 2.9-rt
 |===
 
 .Figure with a screenshot of the repository configuration of the synaptic package manager.
@@ -114,7 +114,7 @@ next we need to install it.
 
 The process again differs depending on your platform.
 
-==== Debian Buster, Bullseye and Bookworm
+==== Debian Bullseye, Bookworm and Trixie
 
 Debian uses the Synaptic Package Manager.
 
@@ -148,24 +148,24 @@ to find the release name of your OS.
 ----
 > lsb_release -ic
 Distributor ID: Debian
-Codename:       bullseye
+Codename:       trixie
 ----
 
 Pick the OS from the list then pick the major version you want like
-2.9-rt for RTAI or 2.9-rtpreempt or 2.9-uspace for preempt-rt.
+2.9-rt for RTAI or 2.9-uspace for preempt-rt.
 
-Next pick the type of computer you have: binary-amd64 for any 64-bit x86,
-binary-i386 for 32 bit, binary-armhf (32bit) or binary-arm64 (64bit) for Raspberry Pi.
+Next pick the type of computer you have: binary-amd64 for 64-bit PC or
+binary-arm64 (64bit) for Raspberry Pi.
 
 Next pick the version you want from the bottom of the list like
-'linuxcnc-uspace_2.8.0_amd64.deb' (choose the latest by date).
+'linuxcnc-uspace_2.9.8_amd64.deb' (choose the latest by date).
 Download the deb and copy it to your home directory. You can rename the
 file to something a bit shorter with the file manager like
-'linuxcnc_2.9.2.deb' then open a terminal and install it with the
+'linuxcnc_2.9.8.deb' then open a terminal and install it with the
 package manager with this command:
 
 ----
-sudo dpkg -i linuxcnc_2.9.2.deb
+sudo dpkg -i linuxcnc_2.9.8.deb
 ----
 
 
@@ -199,11 +199,6 @@ know that the module has moved from `/usr/lib/libcanterp.so` to
 `/usr/lib/linuxcnc/canterp.so`, and the `[TASK]INTERPRETER` setting
 correspondingly needs to change from `libcanterp.so` to `canterp.so`.
 
-
-
-== Updating Configuration Files (for 2.9.y)
-
-No changes should be necessary to configuration files when moving from 2.8.x to 2.9.y.
 
 === Spindle limits in the INI
 
@@ -249,7 +244,6 @@ div2
 enum
 filter_kalman
 flipflop
-hal_parport
 homecomp
 limit_axis
 mesa_uart

@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:Panelui]]
-= Panelui(((Panelui)))
+= Panelui
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -10,6 +10,7 @@
 
 == Introduction
 
+(((Panelui)))
 Panelui is a non-realtime component to interface buttons to LinuxCNC or HAL:
 
 * It decodes MESA 7I73 style key-scan codes and calls the appropriate routine.

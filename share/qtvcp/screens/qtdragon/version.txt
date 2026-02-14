@@ -12,3 +12,7 @@ version 1.3 fix units bug with 'goto sensor/home' button with imperial machines
 
 version 1.4 add ability to set camview camera number
     commit 0360ccd94ee82010277d9b7e9f6e2a4fd3fb41c5
+
+version 1.5 fix incremental keyboard jogging had to hold key down until jog finished
+    commit f0e353d90385e37a3103fdb6f4768798b4bf4be2
+

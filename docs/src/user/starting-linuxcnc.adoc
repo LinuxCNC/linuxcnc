@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:starting-linuxcnc]]
-= Starting LinuxCNC(((Starting LinuxCNC)))
+= Starting LinuxCNC
+
+(((Starting LinuxCNC)))
 
 == Running LinuxCNC
 
@@ -59,8 +61,9 @@ connections to those pins. See the <<sub:ini:sec:hal,[HAL]>> section of the
 INI configuration for more information.
 
 [[sub:configuration-selector]]
-=== Configuration Selector(((Configuration Selection)))
+=== Configuration Selector
 
+(((Configuration Selection)))
 If no INI file is passed to the linuxcnc script it loads the configuration
 selector so you can choose and save a sample configuration. Once a sample
 configuration has been saved it can be modified to suit your application.

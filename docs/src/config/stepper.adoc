@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:stepper-config]]
-= Stepper Configuration(((Stepper Configuration)))
+= Stepper Configuration
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -12,6 +12,7 @@
 
 == Introduction
 
+(((Stepper Configuration)))
 The preferred way to set up a standard stepper machine is with the Step Configuration Wizard.
 See the <<cha:stepconf-wizard,Stepper Configuration Wizard>> Chapter.
 

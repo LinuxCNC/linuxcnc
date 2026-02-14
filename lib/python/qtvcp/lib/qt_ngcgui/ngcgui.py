@@ -151,7 +151,7 @@ class OnePg(QWidget):
 
     def new_lineedit(self, key, data):
         # QRegExp('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$' allows max 4 digits after the decimal
-        valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
+        valid = QtGui.QRegExpValidator(QRegExp(r'^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
         lineedit = QLineEdit(str(data))
         lineedit.parm_no = key
         lineedit.setMaxLength(10)

@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:glade-vcp]]
-= GladeVCP: Glade Virtual Control Panel(((GladeVCP: Glade Virtual Control Panel)))
+= GladeVCP: Glade Virtual Control Panel
 
 // TODO:
 // - manual-example.ui layout - really bad
@@ -20,6 +20,7 @@
 
 == What is GladeVCP?
 
+(((GladeVCP: Glade Virtual Control Panel)))
 GladeVCP is a LinuxCNC component which adds the ability to add a new user interface panel to LinuxCNC user interfaces like:
 
 * AXIS
@@ -1919,7 +1920,7 @@ image::images/offsetpage.png[align="center"]
 === HAL_sourceview widget
 
 This is for displaying and simple editing of G-code.
-It looks for `.ngc` highlighting specs in `~/share/gtksourceview-2.0/language-specs/`.
+It looks for `.ngc` highlighting specs in `~/share/gtksourceview-4/language-specs/`.
 The current running line will be highlighted.
 
 With external Python glue code it can:

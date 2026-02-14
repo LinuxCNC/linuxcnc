@@ -9,6 +9,7 @@ cat9/
 man1/halstreamer.1
 man1/hy_gt_vfd.1
 man1/linuxcnc.1
+man1/mesambccc.1
 man1/mqtt-publisher.1
 man1/pi500_vfd.1
 man1/sendkeys.1
@@ -109,6 +110,8 @@ man9/gearchange.9
 man9/gray2bin.9
 man9/histobins.9
 man9/homecomp.9
+man9/hm2_modbus.9
+man9/hm2_spix.9
 man9/hypot.9
 man9/ilowpass.9
 man9/integ.9

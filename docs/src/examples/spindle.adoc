@@ -16,8 +16,9 @@ control pins with names like 'spindle.0..'.
 In the case of a multiple spindle machine all that changes is that
 additional pins exist with names such as 'spindle.6..'.
 
-== 0-10 Volt Spindle Speed(((0-10 Volt Spindle Speed Example)))
+== 0-10 Volt Spindle Speed
 
+(((0-10 Volt Spindle Speed Example)))
 If your spindle speed is controlled by an analog signal,
 (for example, by a VFD with a 0 V to 10 V signal) and
 you're using a DAC card like the m5i20 to output the control signal:
@@ -40,8 +41,9 @@ net spindle-speed-scale spindle.0.speed-out => scale.0.in
 net spindle-speed-DAC scale.0.out => <your DAC pin name>
 ----
 
-== PWM Spindle Speed(((PWM Spindle Speed Example)))
+== PWM Spindle Speed
 
+(((PWM Spindle Speed Example)))
 If your spindle can be controlled by a PWM signal,
 use the 'pwmgen' component to create the signal:
 
@@ -62,8 +64,9 @@ This assumes that the spindle controller's response to PWM is simple:
 PWM required to get the spindle to turn, follow the example in the
 nist-lathe sample configuration to use a scale component.
 
-== Spindle Enable(((Spindle Enable Example)))
+== Spindle Enable
 
+(((Spindle Enable Example)))
 If you need a spindle enable signal,
 link your output pin to _spindle.0.on_.
 To link these pins to a parallel port pin put something like
@@ -75,8 +78,9 @@ pin that is connected to your control device.
 net spindle-enable spindle.0.on => parport.0.pin-14-out
 ----
 
-== Spindle Direction(((Spindle Direction Example)))
+== Spindle Direction
 
+(((Spindle Direction Example)))
 If you have direction control of your spindle, then the HAL pins
 'spindle._N_.forward' and 'spindle._N_.reverse' are controlled by the G-codes
 M3 and M4. Spindle speed S__n__ must be set to a positive non-zero value for
@@ -92,8 +96,9 @@ net spindle-fwd spindle.0.forward => parport.0.pin-16-out
 net spindle-rev spindle.0.reverse => parport.0.pin-17-out
 ----
 
-== Spindle Soft Start(((Spindle Soft Start Example)))
+== Spindle Soft Start
 
+(((Spindle Soft Start Example)))
 If you need to ramp your spindle speed command and your control does
 not have that feature it can be done in HAL. Basically you need to
 hijack the output of 'spindle._N_.speed-out' and run it through a
@@ -160,8 +165,9 @@ net spindle-ready <= spindle-at-speed.out => spindle.0.at-speed
 
 == Spindle Feedback
 
-=== Spindle Synchronized Motion(((Spindle Synchronized Motion Example)))
+=== Spindle Synchronized Motion
 
+(((Spindle Synchronized Motion Example)))
 Spindle feedback is needed by LinuxCNC to perform any spindle coordinated
 motions like threading and constant surface speed.
 LinuxCNC can perform synchronized motion and CSS with any of up to 8
@@ -216,8 +222,9 @@ net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in
 ----
 
 [[sec:spindle-at-speed]]
-=== Spindle At Speed(((Spindle At Speed Example)))
+=== Spindle At Speed
 
+(((Spindle At Speed Example)))
 To enable LinuxCNC to wait for the spindle to be at speed before executing
 a series of moves, the spindle._N_.at-speed needs to turn true at the moment
 the spindle is at the commanded speed. To achieve this you need spindle

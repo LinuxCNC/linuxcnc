@@ -155,7 +155,8 @@ This driver features:
 * 'GND' - Ground
 * 'VCC' - +3.3V regulated DC
 
-.Pluto-Servo Pinout(((pluto-servo pinout)))
+(((pluto-servo pinout)))
+.Pluto-Servo Pinout
 image::images/pluto-pinout.png["Pluto-Servo Pinout",align="center"]
 
 .Pluto-Servo Alternate Pin Functions
@@ -218,8 +219,9 @@ voltages, some users have reported success with International
 Rectifier's integrated high-side/low-side drivers.
 
 [[sec:Pluto-step:-Hardware-step]]
-== Pluto Step(((pluto-step)))
+== Pluto Step
 
+(((pluto-step)))
 Pluto-step is suitable for control of a 3- or 4-axis CNC mill with
 stepper motors. The large number of inputs allows for a full set of
 limit switches.

@@ -276,6 +276,9 @@ class Window(QWidget):
         mainLayout.addWidget(self.glWidget)
         self.setLayout(mainLayout)
 
+    # need to explicitly kill the HAL component
+    def cleanup(self):
+        c.exit()
 
 # but it you call this directly it should work too
 # It just makes a qtvcp5 window that is defined in qt_vismach.py

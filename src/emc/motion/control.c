@@ -716,59 +716,63 @@ static void process_probe_inputs(void)
     } else if (!old_probeVal && emcmotStatus->probeVal) {
         // not probing, but we have a rising edge on the probe.
         // this could be expensive if we don't stop.
-        int i;
-        int aborted = 0;
 
         if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotInternal->coord_tp)) {
             // running an command
-            tpAbort(&emcmotInternal->coord_tp);
-            reportError(_("Probe tripped during non-probe move."));
-	    SET_MOTION_ERROR_FLAG(1);
-        }
-
-        for(i=0; i<NO_OF_KINS_JOINTS; i++) {
-            emcmot_joint_t *joint = &joints[i];
-
-            if (!GET_JOINT_ACTIVE_FLAG(joint)) {
-                /* if joint is not active, skip it */
-                continue;
+            if (emcmotStatus->motionType != EMC_MOTION_TYPE_PROBING) {
+                tpAbort(&emcmotInternal->coord_tp);
+                reportError(_("Probe tripped during non-probe move."));
+                SET_MOTION_ERROR_FLAG(1);
             }
+        } else {
+            // not running a command
+            int i;
+            int aborted = 0;
 
-            // inhibit_probe_home_error is set by [TRAJ]->NO_PROBE_HOME_ERROR in the ini file
-            if (!emcmotConfig->inhibit_probe_home_error) {
-                // abort any homing
-                if(get_homing(i)) {
-                    do_cancel_homing(i);
-                    aborted=1;
+            for(i=0; i<NO_OF_KINS_JOINTS; i++) {
+                emcmot_joint_t *joint = &joints[i];
+
+                if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+                    /* if joint is not active, skip it */
+                    continue;
+                }
+
+                // inhibit_probe_home_error is set by [TRAJ]->NO_PROBE_HOME_ERROR in the ini file
+                if (!emcmotConfig->inhibit_probe_home_error) {
+                    // abort any homing
+                    if(get_homing(i)) {
+                        do_cancel_homing(i);
+                        aborted=1;
+                    }
+                }
+
+                // inhibit_probe_jog_error is set by [TRAJ]->NO_PROBE_JOG_ERROR in the ini file
+                if (!emcmotConfig->inhibit_probe_jog_error) {
+                    // abort any joint jogs
+                    if(joint->free_tp.enable == 1) {
+                        joint->free_tp.enable = 0;
+                        // since homing uses free_tp, this protection of aborted
+                        // is needed so the user gets the correct error.
+                        if(!aborted) aborted=2;
+                    }
                 }
             }
-
-            // inhibit_probe_jog_error is set by [TRAJ]->NO_PROBE_JOG_ERROR in the ini file
             if (!emcmotConfig->inhibit_probe_jog_error) {
-                // abort any joint jogs
-                if(joint->free_tp.enable == 1) {
-                    joint->free_tp.enable = 0;
-                    // since homing uses free_tp, this protection of aborted
-                    // is needed so the user gets the correct error.
-                    if(!aborted) aborted=2;
+                if (axis_jog_abort_all(1)) {
+                    aborted = 3;
                 }
             }
-        }
-        if (!emcmotConfig->inhibit_probe_jog_error) {
-            if (axis_jog_abort_all(1)) {
-                aborted = 3;
+
+            if(aborted == 1) {
+                reportError(_("Probe tripped during homing motion."));
             }
-        }
 
-        if(aborted == 1) {
-            reportError(_("Probe tripped during homing motion."));
-        }
-
-        if(aborted == 2) {
-            reportError(_("Probe tripped during a joint jog."));
-        }
-        if(aborted == 3) {
-            reportError(_("Probe tripped during a coordinate jog."));
+            if(aborted == 2) {
+                reportError(_("Probe tripped during a joint jog."));
+            }
+            if(aborted == 3) {
+                reportError(_("Probe tripped during a coordinate jog."));
+            }
         }
     }
     old_probeVal = emcmotStatus->probeVal;
@@ -1399,6 +1403,13 @@ static void get_pos_cmds(long period)
 
         axis_sync_carte_pos_to_teleop_tp(+1, pcmd_p); // teleop
 
+	if ( axis_jog_is_active() ) {
+	    /* is any limit disabled for this move? */
+	    if ( emcmotStatus->overrideLimitMask ) {
+		emcmotInternal->overriding = 1;
+	    }
+	}
+
 	/* the next position then gets run through the inverse kins,
 	    to compute the next positions of the joints */
 
@@ -1439,7 +1450,14 @@ static void get_pos_cmds(long period)
 
 	/* END OF OUTPUT KINS */
 
+	/* if overriding is true and the jog is complete, the limits should be re-enabled */
+	if ( ( emcmotInternal->overriding ) && ( !axis_jog_is_active() ) ) {
+	    emcmotStatus->overrideLimitMask = 0;
+	    emcmotInternal->overriding = 0;
+	}
+
 	/* end of teleop mode */
+
 	break;
 
     case EMCMOT_MOTION_DISABLED:

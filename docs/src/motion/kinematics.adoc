@@ -2,10 +2,11 @@
 :toc:
 
 [[cha:kinematics]]
-= Kinematics(((kinematics)))
+= Kinematics
 
 == Introduction
 
+(((Kinematics)))
 When we talk about CNC machines, we usually think about machines that
 are commanded to move to certain locations and perform various tasks.
 In order to have an unified view of the machine space, and to make it
@@ -23,7 +24,7 @@ of commands (G0, G1, etc.) which have positions as parameters (X- Y-
 Z-). These positions refer exactly to Cartesian positions. Part of the
 LinuxCNC motion controller is responsible for translating those positions
 into positions which correspond to the machine
-(((kinematics)))kinematics footnote:[Kinematics: a two way function to
+kinematics footnote:[Kinematics: a two way function to
 transform from Cartesian space to joint space.].
 
 === Joints vs Axes

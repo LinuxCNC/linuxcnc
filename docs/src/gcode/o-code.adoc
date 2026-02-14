@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:o-codes]]
-= O Codes(((O Codes)))
+= O Codes
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -38,8 +38,9 @@ o100 endsub
 ----
 
 [[ocode:comments]]
-== Comments(((Comments)))
+== Comments
 
+(((Comments)))
 Comments on the same line as the O word should not be used as the behavior can
 change in the future.
 
@@ -55,8 +56,9 @@ that might have been mistyped. For example 'o100' is easier to
 see than 'O100' that it is not a '0'.
 
 [[ocode:subroutines]]
-== Subroutines(((Subroutines)))
+== Subroutines
 
+(((Subroutines)))
 Subroutines starts at 'Onnn sub' and ends at 'Onnn endsub'. The lines between
 'Onnn sub' and 'Onnn endsub' are not executed until the subroutine is called
 with 'Onnn call'. Each subroutine must use a unique number.
@@ -133,8 +135,9 @@ Subroutines can change the value of parameters above #30 and those changes will 
 Subroutines may also change the value of <<gcode:named-parameters,global named parameters>> (i.e. parameters whose names begin with the underscore character "`_`").
 
 [[ocode:fanuc-style-programs]]
-=== Fanuc-Style Numbered Programs(((Subroutines,M98,M99)))
+=== Fanuc-Style Numbered Programs
 
+(((Subroutines, M98-M99)))
 Numbered programs (both main and subprograms), the 'M98' call and
 'M99' return M-codes, and their respective semantic differences are an
 alternative to the rs274ngc subroutines described above, provided for
@@ -242,8 +245,9 @@ Note that parameter `#1` is global.  At the end of the main program,
 after updates within `O100` and `O200`, its value will equal `5.25`.
 
 [[ocode:looping]]
-== Looping(((Subroutines,Looping)))
+== Looping
 
+(((Subroutines, Looping)))
 The 'while loop' has two structures: 'while/endwhile', and 'do/while'. In
 each case, the loop is exited when the 'while' condition evaluates to
 false. The difference is when the test condition is done. The 'do/while'
@@ -289,8 +293,9 @@ condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
 [[ocode:conditional]]
-== Conditional(((Subroutines,Conditional Loops)))
+== Conditional
 
+(((Subroutines, Conditional loops)))
 The 'if' conditional consists of a group of statements with the same 'o' number
 that start with 'if' and end with 'endif'. Optional 'elseif' and 'else' conditions
 may be between the starting 'if' and the ending 'endif'.
@@ -348,8 +353,9 @@ O102 endif
 ----
 
 [[ocode:repeat]]
-== Repeat(((Subroutines,Repeat Loop)))
+== Repeat
 
+(((Subroutines, Repeat loop)))
 The 'repeat' will execute the statements inside of the
 repeat/endrepeat the specified number of times. The example shows how
 you might mill a diagonal series of shapes starting at the present
@@ -368,8 +374,9 @@ G90 (Absolute mode)
 ----
 
 [[ocode:indirection]]
-== Indirection(((Indirection)))
+== Indirection
 
+(((Indirection)))
 The O-number may be given by a parameter and/or calculation.
 
 .Indirection Example
@@ -387,8 +394,9 @@ For more information on computing values see the following sections:
 * <<gcode:functions,Functions>>
 
 [[ocode:calling-files]]
-== Calling Files(((Calling Files)))
+== Calling Files
 
+(((Calling Files)))
 To call a separate file with a subroutine name the file the same as
 your call and include a sub and endsub in the file. The file must be in the
 directory pointed to by 'PROGRAM_PREFIX' or 'SUBROUTINE_PATH' in the INI file.
@@ -425,8 +433,9 @@ The file names are lowercase letters only so 'o<MyFile>' is converted to 'o<myfi
 by the interpreter. More information about the search path and options for the
 search path are in the INI configuration section.
 
-== Subroutine return values(((Return Values)))
+== Subroutine return values
 
+(((Return Values)))
 Subroutines may optionally return a value by an optional expression at
 an 'endsub' or 'return' statement.
 
@@ -445,8 +454,9 @@ a value was returned. Both parameters are global, and are cleared just
 before the next subroutine call.
 
 [[ocode:errors]]
-== Errors(((O-Code Errors)))
+== Errors
 
+(((O-Code Errors)))
 The following statements  cause an error message and  abort the
 interpreter:
 

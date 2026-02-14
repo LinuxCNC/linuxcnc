@@ -129,9 +129,9 @@ class HandlerClass:
         self.gscreen.change_theme(self.data.theme_name)
         self.gscreen.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         self.gscreen.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
+        model = self.widgets.jog_speed.get_model()
         for num,i in enumerate(self.data.jog_increments):
-            print(i)
-            self.widgets.jog_speed.append_text(i)
+            model.append([i])
             if i == "continuous":
                 self.data.current_jogincr_index = num
                 self.widgets.jog_speed.set_active(num)

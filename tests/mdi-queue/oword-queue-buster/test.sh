@@ -2,8 +2,18 @@
 
 rm -f gcode-output
 
+if ! command -v nc ; then
+    echo "E: Binary 'nc' not in PATH or not installed."
+    exit 1
+fi
+
+if ! command -v linuxcnc ; then
+    echo "E: Binary 'linuxcnc' not in PATH or not installed."
+    exit 1
+fi
+
 if nc -z localhost 5007; then
-    echo "Process already listening on port 5007. Exiting"
+    echo "E: Process already listening on port 5007. Exiting"
     exit 1
 fi
 
@@ -13,7 +23,7 @@ linuxcnc -r linuxcncrsh-test.ini &
 # let linuxcnc come up
 TOGO=80
 while [  $TOGO -gt 0 ]; do
-    echo trying to connect to linuxcncrsh TOGO=$TOGO
+    echo "I: trying to connect to linuxcncrsh TOGO=$TOGO"
     if nc -z localhost 5007; then
         break
     fi
@@ -21,13 +31,13 @@ while [  $TOGO -gt 0 ]; do
     TOGO=$(($TOGO - 1))
 done
 if [  $TOGO -eq 0 ]; then
-    echo connection to linuxcncrsh timed out
+    echo "E: connection to linuxcncrsh timed out"
     exit 1
 fi
 
 # switch back and forth between tool 1 and tool 2 every few MDI calls
 rm -f expected-gcode-output lots-of-gcode
-printf "P is %.6f\n" -100 >> expected-gcode-output
+echo "P is -100.000000" >> expected-gcode-output
 NUM_MDIS=1
 NUM_MDIS_LEFT=$NUM_MDIS
 TOOL=1
@@ -35,9 +45,9 @@ for i in $(seq 0 1000); do
     NUM_MDIS_LEFT=$(($NUM_MDIS_LEFT - 1))
     if [ $NUM_MDIS_LEFT -eq 0 ]; then
         echo "set mdi o<queue-buster> call [$TOOL]" >> lots-of-gcode
-        printf "P is 12345.000000\n"  >> expected-gcode-output
-        printf "P is %.6f\n" $((-1 * $TOOL)) >> expected-gcode-output
-        printf "P is 54321.000000\n"  >> expected-gcode-output
+        echo "P is 12345.000000" >> expected-gcode-output
+        echo "P is $((-1 * $TOOL)).000000" >> expected-gcode-output
+        echo "P is 54321.000000"  >> expected-gcode-output
 
         if [ $TOOL -eq 1 ]; then
             TOOL=2
@@ -53,9 +63,9 @@ for i in $(seq 0 1000); do
         NUM_MDIS_LEFT=$NUM_MDIS
     fi
     echo "set mdi m100 p$i" >> lots-of-gcode
-    printf "P is %.6f\n" $i  >> expected-gcode-output
+    echo "P is $i.000000" >> expected-gcode-output
 done
-printf "P is %.6f\n" -200 >> expected-gcode-output
+echo "P is -200.000000" >> expected-gcode-output
 
 (
     echo hello EMC mt 1.0

@@ -1,21 +1,25 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-requires gladevcp 0.0 -->
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
+  <requires lib="gladevcp" version="0.0"/>
   <object class="GtkWindow" id="window1">
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="can-focus">False</property>
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
+            <property name="can-focus">False</property>
             <property name="spacing">4</property>
             <child>
               <object class="JogWheel" id="jog-wheel-spindle">
                 <property name="visible">True</property>
-                <property name="show_counts">False</property>
+                <property name="can-focus">False</property>
                 <property name="label">Spindle</property>
+                <property name="show-counts">False</property>
                 <property name="size">100</property>
               </object>
               <packing>
@@ -27,8 +31,9 @@
             <child>
               <object class="JogWheel" id="jog-wheel-feed">
                 <property name="visible">True</property>
-                <property name="show_counts">False</property>
+                <property name="can-focus">False</property>
                 <property name="label">Feed</property>
+                <property name="show-counts">False</property>
                 <property name="size">100</property>
               </object>
               <packing>
@@ -47,11 +52,13 @@
         <child>
           <object class="GtkHBox" id="hbox3">
             <property name="visible">True</property>
+            <property name="can-focus">False</property>
             <child>
               <object class="JogWheel" id="jog-wheel-jog">
                 <property name="visible">True</property>
-                <property name="show_counts">False</property>
+                <property name="can-focus">False</property>
                 <property name="label">Jog. Vel.</property>
+                <property name="show-counts">False</property>
                 <property name="size">100</property>
               </object>
               <packing>
@@ -63,8 +70,9 @@
             <child>
               <object class="JogWheel" id="jog-wheel-max">
                 <property name="visible">True</property>
-                <property name="show_counts">False</property>
+                <property name="can-focus">False</property>
                 <property name="label">Max. Vel.</property>
+                <property name="show-counts">False</property>
                 <property name="size">100</property>
               </object>
               <packing>
@@ -83,6 +91,7 @@
         <child>
           <object class="JogWheel" id="jog-wheel-x">
             <property name="visible">True</property>
+            <property name="can-focus">False</property>
             <property name="label">Axis X</property>
           </object>
           <packing>
@@ -94,6 +103,7 @@
         <child>
           <object class="JogWheel" id="jog-wheel-y">
             <property name="visible">True</property>
+            <property name="can-focus">False</property>
             <property name="label">Axis Y</property>
           </object>
           <packing>
@@ -105,6 +115,7 @@
         <child>
           <object class="JogWheel" id="jog-wheel-z">
             <property name="visible">True</property>
+            <property name="can-focus">False</property>
             <property name="label">Axis Z</property>
           </object>
           <packing>

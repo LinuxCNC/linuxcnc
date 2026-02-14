@@ -2,11 +2,14 @@
 :toc:
 
 [[cha:other-codes]]
-= Other Codes(((Other Codes)))
+= Other Codes
+
+(((Other Codes)))
 
 [[sec:set-feed-rate]]
-== F: Set Feed Rate(((F: Set Feed Rate)))
+== F: Set Feed Rate
 
+(((F: Set Feed Rate)))
 'Fx' - set the feed rate to 'x'.  'x' is usually in machine units
 (inches or millimeters) per minute.
 
@@ -16,8 +19,9 @@ or 'feed per revolution mode' are in effect, in which case the feed rate
 is as described in the <<gcode:g93-g94-g95,G93 G94 G95>> section.
 
 [[sec:set-spindle-speed]]
-== S: Set Spindle Speed(((S: Set Spindle Speed)))
+== S: Set Spindle Speed
 
+(((S: Set Spindle Speed)))
 'Sx [$n]' - set the speed of the spindle to 'x' revolutions per minute (RPM)
 with the optional $ set the spindle speed for a specific spindle. Without the $
 the command will default to spindle.0.
@@ -41,8 +45,9 @@ speed may differ from the one programmed, even if the speed correction potentiom
 is set to 100%.
 
 [[sec:select-tool]]
-== T: Select Tool(((T: Select Tool)))
+== T: Select Tool
 
+(((T: Select Tool)))
 'Tx' - prepare to change to tool 'x'.
 
 The tool is not changed until an 'M6' is programmed (see Section

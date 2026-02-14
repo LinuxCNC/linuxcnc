@@ -1,27 +1,30 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkWindow" id="window1">
-    <signal name="destroy" handler="on_destroy"/>
+    <property name="can-focus">False</property>
+    <signal name="destroy" handler="on_destroy" swapped="no"/>
     <child>
       <object class="GtkHBox" id="hbox1">
         <property name="visible">True</property>
+        <property name="can-focus">False</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkVButtonBox" id="vbuttonbox1">
             <property name="visible">True</property>
-            <property name="layout_style">spread</property>
+            <property name="can-focus">False</property>
+            <property name="layout-style">spread</property>
             <child>
               <object class="GtkRadioButton" id="red_rbtn">
                 <property name="label" translatable="yes">Red</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="yalign">0.50999999046325684</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="yalign">0.5099999904632568</property>
                 <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-                <signal name="toggled" handler="on_red_rbtn_toggled"/>
+                <property name="draw-indicator">True</property>
+                <signal name="toggled" handler="on_red_rbtn_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -33,12 +36,12 @@
               <object class="GtkRadioButton" id="blue_rbtn">
                 <property name="label" translatable="yes">Blue</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
                 <property name="active">True</property>
-                <property name="draw_indicator">True</property>
+                <property name="draw-indicator">True</property>
                 <property name="group">red_rbtn</property>
-                <signal name="toggled" handler="on_blue_rbtn_toggled"/>
+                <signal name="toggled" handler="on_blue_rbtn_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -50,12 +53,12 @@
               <object class="GtkRadioButton" id="green_rbtn">
                 <property name="label" translatable="yes">Green</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
                 <property name="active">True</property>
-                <property name="draw_indicator">True</property>
+                <property name="draw-indicator">True</property>
                 <property name="group">red_rbtn</property>
-                <signal name="toggled" handler="on_green_rbtn_toggled"/>
+                <signal name="toggled" handler="on_green_rbtn_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -67,12 +70,12 @@
               <object class="GtkRadioButton" id="yellow_rbtn">
                 <property name="label" translatable="yes">Yellow</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
                 <property name="active">True</property>
-                <property name="draw_indicator">True</property>
+                <property name="draw-indicator">True</property>
                 <property name="group">red_rbtn</property>
-                <signal name="toggled" handler="on_yellow_rbtn_toggled"/>
+                <signal name="toggled" handler="on_yellow_rbtn_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -82,23 +85,29 @@
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
+            <property name="can-focus">False</property>
             <child>
               <object class="GtkFrame" id="frame1">
                 <property name="visible">True</property>
-                <property name="label_xalign">0</property>
+                <property name="can-focus">False</property>
+                <property name="label-xalign">0</property>
                 <child>
                   <object class="GtkAlignment" id="alignment1">
                     <property name="visible">True</property>
-                    <property name="left_padding">12</property>
+                    <property name="can-focus">False</property>
+                    <property name="left-padding">12</property>
                     <child>
                       <object class="GtkLabel" id="color_lbl">
                         <property name="visible">True</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Unknown</property>
                       </object>
                     </child>
@@ -108,10 +117,10 @@
                   <object class="GtkCheckButton" id="showoutput_btn">
                     <property name="label" translatable="yes">Show Color Choice</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_showoutput_btn_toggled"/>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="draw-indicator">True</property>
+                    <signal name="toggled" handler="on_showoutput_btn_toggled" swapped="no"/>
                   </object>
                 </child>
               </object>

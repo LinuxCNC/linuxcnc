@@ -15,6 +15,7 @@
 # GNU General Public License for more details.
 
 import sys, os, linuxcnc, hashlib
+import shutil # for backup of tooltable
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 
@@ -330,6 +331,11 @@ class ToolEdit(Gtk.Box):
                 self.warning_dialog(line_number)
                 return
 
+        if(locale.getlocale(locale.LC_NUMERIC)[0] is None):
+            raise ExceptionMessage("\n\n"+_("Something wrong with the locale settings. Will not save the tool table."))
+            return
+
+        shutil.copy(self.toolfile, self.toolfile + ".bak")
         file = open(self.toolfile, "w")
         #print self.toolfile
         for row in liststore:
@@ -345,7 +351,11 @@ class ToolEdit(Gtk.Box):
                     line = line + "%s%s "%(KEYWORDS[num],test)
                 else:
                     test = i.lstrip() # localized floats
-                    line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
+                    try:
+                        line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
+                    except ValueError:
+                        raise ExceptionMessage("\n\n"+_("Error converting a float with the given localization setting. A backup file has been created: "
+                                                    + self.toolfile + ".bak"))
 
             print(line, file=file)
         # These lines are required to make sure the OS doesn't cache the data
@@ -694,6 +704,12 @@ class ToolEdit(Gtk.Box):
         else:
             pass
 
+class ExceptionMessage(Exception):
+    """ Exception to display a Message as an Eception.
+    Usage: raise ExceptionMessage(<message>)
+    """
+    def __init__(self, message):
+        super().__init__(message)
 
 # for testing without glade editor:
 # for what ever reason tooledit always shows both display lists,

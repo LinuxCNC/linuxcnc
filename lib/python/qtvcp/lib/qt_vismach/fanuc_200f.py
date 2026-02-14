@@ -205,12 +205,15 @@ class Window(QWidget):
         mainLayout.addWidget(self.glWidget)
         self.setLayout(mainLayout)
 
+    # need to explicitly kill the HAL component
+    def cleanup(self):
+        c.exit()
 
 # but it you call this directly it should work too
-# It just makes a qtvcp5 window that is defined in qt_vismach.py
+# It just makes a qtvcp window that is defined in qt_vismach.py
 # parameter list:
 # final model name must include all parts you want to use
-# tooltip (special for tool tip inclusuion)
+# tooltip (special for tool tip inclusion)
 # work (special for work part inclusion)
 # size of screen (bigger means more zoomed out to show more of machine)
 # hud None if no hud

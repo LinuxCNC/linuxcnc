@@ -40,5 +40,5 @@ class TabBar(QTabBar):
     def tabSizeHint(self, index):
         size = QTabBar.tabSizeHint(self, index)
         w = size.height()*self._size
-        return QSize(size.width(), w)
+        return QSize(size.width(), int(w))
 

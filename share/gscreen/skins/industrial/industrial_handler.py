@@ -18,6 +18,7 @@
 
 import gi
 from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
 from gi.repository import Pango as pango
 
 import hal
@@ -200,7 +201,7 @@ class HandlerClass:
         label = gtk.Label("Enter System Unlock Code")
         label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
-        dialog.vbox.pack_start(label)
+        dialog.vbox.pack_start(label, True, True, False)
         dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
@@ -225,32 +226,23 @@ class HandlerClass:
     def on_abs_colorbutton_color_set(self,widget):
         self.gscreen.set_abs_color()
         color = self.data.abs_color
-        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
         for i in self.data.axis_list:
             axis = "dro_%s1"% i
-            attr = self.widgets[axis].get_attributes()
-            attr.insert(fg_color)
-            self.widgets[axis].set_attributes(attr)
+            self.widgets[axis].override_color(gtk.StateFlags.NORMAL, color)
 
     def on_rel_colorbutton_color_set(self,widget):
         self.gscreen.set_rel_color()
         color = self.data.rel_color
-        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
         for i in self.data.axis_list:
             axis = "dro_%s2"% i
-            attr = self.widgets[axis].get_attributes()
-            attr.insert(fg_color)
-            self.widgets[axis].set_attributes(attr)
+            self.widgets[axis].override_color(gtk.StateFlags.NORMAL, color)
 
     def on_dtg_colorbutton_color_set(self,widget):
         self.gscreen.set_dtg_color()
         color = self.data.dtg_color
-        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
         for i in self.data.axis_list:
             axis = "dro_%s3"% i
-            attr = self.widgets[axis].get_attributes()
-            attr.insert(fg_color)
-            self.widgets[axis].set_attributes(attr)
+            self.widgets[axis].override_color(gtk.StateFlags.NORMAL, color)
 
     def on_hal_status_not_all_homed(self,widget,data):
         temp =[]

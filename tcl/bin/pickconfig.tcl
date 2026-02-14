@@ -159,7 +159,7 @@ proc title {node} {
 }
 
 proc find_usable_nodes {startdir} {
-  return [exec find $startdir -type f \
+  return [exec find -L $startdir -type f \
          -name "*.ini" -o -name "*.demo" ]
 } ;# find_usable_nodes
 

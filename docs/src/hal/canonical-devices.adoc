@@ -2,10 +2,9 @@
 :toc:
 
 [[cha:hal-canonical-device-interfaces]]
-= Canonical Device Interfaces(((HAL Canonical Device Interfaces)))
+= Canonical Device Interfaces
 
-== Introduction
-
+(((HAL, Canonical Device Interfaces)))
 The following sections show the pins, parameters, and functions that are supplied by "canonical devices".
 All HAL device drivers should supply the same pins and parameters, and implement the same behavior.
 
@@ -13,87 +12,103 @@ Note that only the `_<io-type>_` and `_<specific-name>_` fields are defined for 
 The `_<device-name>`, `_<device-num>_`, and `_<chan-num>_` fields are set based on the characteristics of the real device.
 
 [[sec:hal-cdi:digital-in]]
-== Digital Input(((HAL Digital Input)))
+== Digital Input
 
+(((HAL, Digital Input)))
 The canonical digital input (I/O type field: `digin`) is quite simple.
 
 [[sub:hal-cdi:di:pins]]
-=== Pins(((HAL Digital Input Pins)))
+=== Pins
+
+(((HAL, Digital Input Pins)))
 
 (bit) *in*:: State of the hardware input.
 (bit) *in-not*:: Inverted state of the input.
 
 [[sub:hal-cdi:di:parameters]]
-=== Parameters(((HAL Digital Input Parameters)))
+=== Parameters
 
+(((HAL, Digital Input Parameters)))
 None
 
 [[sub:hal-cdi:di:functions]]
-=== Functions(((HAL Digital Input Functions)))
+=== Functions
 
+(((HAL, Digital Input Functions)))
 (funct) *read*:: Read hardware and set `in` and `in-not` HAL pins.
 
 [[sec:hal-cdi:digital-out]]
-== Digital Output(((HAL Digital Output)))
+== Digital Output
 
+(((HAL, Digital Output)))
 The canonical digital output (I/O type field: `digout`) is also very simple.
 
 [[sub:hal-cdi:do:pins]]
-=== Pins(((HAL Digital Output Pins)))
+=== Pins
 
+(((HAL, Digital Output Pins)))
 (bit) *out*:: Value to be written (possibly inverted) to the hardware output.
 
 [[sub:hal-cdi:do:parameters]]
-=== Parameters(((HAL Digital Output Parameters)))
+=== Parameters
 
+(((HAL, Digital Output Parameters)))
 (bit) *invert*:: If TRUE, *out* is inverted before writing to the hardware.
 
 [[sub:hal-cdi:do:functions]]
-=== Functions(((HAL Digital Output Functions)))
+=== Functions
 
+(((HAL, Digital Output Functions)))
 (funct) *write*:: Read *out* and *invert*, and set hardware output accordingly.
 
 [[sec:hal-cdi:analog-in]]
-== Analog Input(((HAL Analog Input)))
+== Analog Input
 
+(((HAL, Analog Input)))
 The canonical analog input (I/O type: `adcin`).
 This is expected to be used for analog to digital converters, which convert e.g. voltage to a continuous range of values.
 
 [[sub:hal-cdi:ai:pins]]
-=== Pins(((HAL Analog Input Pins)))
+=== Pins
 
+(((HAL, Analog Input Pins)))
 (float) *value*:: The hardware reading, scaled according to the *scale* and *offset* parameters. +
   *value* = ((input reading, in hardware-dependent units) * *scale*) - *offset*
 
 [[sub:hal-cdi:ai:parameters]]
-=== Parameters(((HAL Analog Input Parameters)))
+=== Parameters
 
+(((HAL, Analog Input Parameters)))
 (float) *scale*:: The input voltage (or current) will be multiplied by *scale* before being output to *value*.
 (float) *offset*:: This will be subtracted from the hardware input voltage (or current) after the scale multiplier has been applied.
 (float) *bit_weight*:: The value of one least significant bit (LSB). This is effectively the granularity of the input reading.
 (float) *hw_offset*:: The value present on the input when 0 Volts is applied to the input pin(s).
 
 [[sub:hal-cdi:ai:functions]]
-=== Functions(((HAL Analog Input Functions)))
+=== Functions
 
+(((HAL, Analog Input Functions)))
 (funct) *read*:: Read the values of this analog input channel.  This may be used for individual channel reads, or it may cause all channels to be read.
 
 [[sec:hal-cdi:analog-out]]
-== Analog Output(((HAL Analog Output)))
+== Analog Output
 
+(((HAL, Analog Output)))
 The canonical analog output (I/O Type: *adcout*).
 This is intended for any kind of hardware that can output a more-or-less continuous range of values.
 Examples are digital to analog converters or PWM generators.
 
 [[sub:hal-cdi:ao:pins]]
-=== Pins(((HAL Analog Output Pins)))
+=== Pins
 
+(((HAL, Analog Output, Pins)))
 (float) *value*:: The value to be written. The actual value output to the hardware will depend on the scale and offset parameters.
 (bit) *enable*:: If false, then output 0 to the hardware, regardless of the *value* pin.
 
 [[sub:hal-cdi:ao:parameters]]
-=== Parameters(((HAL Analog Output Parameters)))
+=== Parameters
 
+(((HAL, Analog Output, Parameters)))
 (float) *offset*:: This will be added to the *value* before the hardware is updated.
 (float) *scale*:: This should be set so that an input of 1 on the *value* pin will cause the analog output pin to read 1 volt.
 (float) *high_limit* (optional):: When calculating the value to output to the hardware,
@@ -104,8 +119,9 @@ Examples are digital to analog converters or PWM generators.
 (float) *hw_offset*  (optional):: The actual voltage (or current) that will be output if 0 is written to the hardware.
 
 [[sub:hal-cdi:ao:functions]]
-=== Functions(((HAL Analog Output Functions)))
+=== Functions
 
+(((HAL, Analog Output, Functions)))
 (funct) *write*::
   This causes the calculated value to be output to the hardware.
   If enable is false, then the output will be 0, regardless of *value*, *scale*, and *offset*.

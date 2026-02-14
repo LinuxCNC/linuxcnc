@@ -35,8 +35,8 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        machine = Robot.Window()
-        self.w.mainLayout.addWidget(machine)
+        self.machine = Robot.Window()
+        self.w.mainLayout.addWidget(self.machine)
 
 
     ########################
@@ -58,6 +58,8 @@ class HandlerClass:
     ###########################
     # **** closing event **** #
     ###########################
+    def closing_cleanup__(self):
+        self.machine.cleanup()
 
     ##############################
     # required class boiler code #

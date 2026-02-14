@@ -4,14 +4,14 @@ MODULE_HELPERSRCS := \
 USERSRCS += $(MODULE_HELPERSRCS)
 
 ifneq ($(rip_moduledir),)
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
+    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror -Wformat -Wformat-security
 else
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
+    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror -Wformat -Wformat-security
 endif
 
 ../bin/linuxcnc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS))
 	$(ECHO) Linking $(notdir $@)
-	@$(CC) -o $@ $^
+	$(CC) -Wl,-z,relro -o $@ $^
 
 TARGETS += ../bin/linuxcnc_module_helper
 endif

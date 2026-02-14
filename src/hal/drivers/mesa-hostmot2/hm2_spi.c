@@ -210,6 +210,7 @@ static int do_pending(hm2_spi_t *this) {
     t = this->settings;
     t.tx_buf = t.rx_buf = (uint64_t)(uintptr_t)this->trxbuf;
     t.len = 4 * this->nbuf;
+    t.delay_usecs = 10; // Magic is required or timeouts happen
 
     if(this->settings.bits_per_word == 8) {
 	int i;
@@ -336,6 +337,8 @@ static int spidev_set_bits_per_word(int fd, uint8_t bits) {
     return ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
 }
 
+/*
+ * Not used anymore. Variable bit sizes doesn't work.
 static int spidev_get_bits_per_word(int fd) {
     uint8_t bits;
     int r;
@@ -343,6 +346,7 @@ static int spidev_get_bits_per_word(int fd) {
     if(r < 0) return -1;
     return bits;
 }
+*/
 
 static int spidev_open_and_configure(char *dev, int rate) {
     int fd = open(dev, O_RDWR);
@@ -355,8 +359,10 @@ static int spidev_open_and_configure(char *dev, int rate) {
     r = spidev_set_mode(fd, 0);
     if(r < 0) goto fail_errno;
 
-    r = spidev_set_bits_per_word(fd, 32);
-    if(r < 0) r = spidev_set_bits_per_word(fd, 8);
+    // Fixed to 8-bit, variable bit sizes does not work
+    // r = spidev_set_bits_per_word(fd, 32);
+    // if(r < 0) r = spidev_set_bits_per_word(fd, 8);
+    r = spidev_set_bits_per_word(fd, 8);
     if(r < 0) goto fail_errno;
 
     r = spidev_set_max_speed_hz(fd, rate);
@@ -398,7 +404,10 @@ static int probe(char *dev, int rate) {
     if(board->fd < 0) return board->fd;
 
     board->settings.speed_hz = rate;
-    board->settings.bits_per_word = spidev_get_bits_per_word(board->fd);
+    // This doesn't work:
+    // board->settings.bits_per_word = spidev_get_bits_per_word(board->fd);
+    // Therefore, fix the transfer word-size to 8 bits.
+    board->settings.bits_per_word = 8;
 
     int r = check_cookie(board);
     if(r < 0) goto fail;

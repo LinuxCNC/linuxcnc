@@ -116,7 +116,7 @@ mqtt-publisher [options] [keys=pin1,pin2,...]
     @staticmethod
     def main():
         from optparse import Option, OptionParser
-        keys={}
+        keys=[]
         options = [
             Option( '--dryrun', dest='dryrun', action='store_true',
                     help='Dryrun, only collect HAL pin values, do not send them to MQTT.'),
@@ -147,7 +147,7 @@ mqtt-publisher [options] [keys=pin1,pin2,...]
 
         for extra in args:
             if 0 == extra.find('keys='):
-                keys = extra.split('=')[1].split(',')
+                keys.extend(extra.split('=')[1].split(','))
 
         h = LinuxCNC2MQTT(opts.mqttbroker, opts.mqttport, opts.mqttprefix,
                           opts.mqttuser, opts.mqttpassword, dryrun=opts.dryrun)

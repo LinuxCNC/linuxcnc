@@ -2,12 +2,13 @@
 :tab_options: cols="15s,85,0,0", frame="none", grid="none"
 
 [[cha:hal-components]]
-= HAL Component List((("HAL Component List")))
+= HAL Component List
 
 == Components
 
 // < explanation of the difference between a realtime and a non-realtime component >
 
+((("HAL,Component List")))
 Most of the commands in the following list have their own dedicated man pages.
 Some will have expanded descriptions, some will have limited descriptions.
 From this list you know what components exist, and you can use `man` _name_ on your UNIX command line to get additional information.

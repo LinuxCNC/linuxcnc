@@ -2,7 +2,7 @@
 # **** IMPORT SECTION **** #
 ############################
 import sys
-from distutils.spawn import find_executable
+import shutil
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -56,8 +56,11 @@ class HandlerClass:
         self.w.lineEdit_led_3.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_3))
         self.w.lineEdit_led_4.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_4))
 
-        if find_executable('urxvt') is not None:
-            term = embterminal()
+        if shutil.which('urxvt') is not None:
+            term = embterminal(name='urxvt')
+            self.w.dockWidget.setWidget(term)
+        elif shutil.which('xterm') is not None:
+            term = embterminal(name='xterm')
             self.w.dockWidget.setWidget(term)
         else:
             self.w.dockWidget.setWidget(
@@ -158,7 +161,7 @@ Try sudo apt install rxvt-unicode-256color'''))
 
 class embterminal(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, name=None):
         super(embterminal, self).__init__(parent)
         self.process = QProcess(self)
 
@@ -173,10 +176,17 @@ class embterminal(QWidget):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setSizePolicy(size_policy)
 
-        # Works also with urxvt:
-        self.process.start(
+        # xterm
+        if name == 'xterm':
+            self.process.start(
+                'xterm',['-bg','black','-fg','green', '-cr','green',
+                '-bd', 'green', '-fa', 'Monospace', '-fs', '10',
+                '-into', str(int(self.w.winId()))])
+        else:
+            # Works also with urxvt:
+            self.process.start(
                 'urxvt',['-bg','black','-fg','green', '-cr','green',
-                '-bd', 'green', '-embed', str(int(self.w.winId()))])
+                '-bd', 'green', '--font', 'xft:Monospace:size=10', '-embed', str(int(self.w.winId()))])
 
     def sizeHint(self):
         return QSize(550, 100)

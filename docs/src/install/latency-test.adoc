@@ -2,8 +2,9 @@
 :toc:
 
 [[cha:latency-testing]]
-= Latency Testing(((Latency Testing)))
+= Latency Testing
 
+(((Latency Testing)))
 
 [[sec:what-is-latency]]
 == What is latency?
@@ -31,12 +32,10 @@ However, software step pulses also have some disadvantages:
 - jitter in the generated pulses
 - loads the CPU
 
-
-
-
 [[sec:latency-tests]]
-== Latency Tests(((Latency Tests)))
+== Latency Tests
 
+(((Latency Tests)))
 LinuxCNC includes several latency tests.  They all produce equivalent information.
 Running these tests will help determine if a computers is suitable for driving a CNC machine.
 
@@ -45,8 +44,9 @@ Do not run LinuxCNC or StepConf while the latency test is running.
 
 
 [[sec:latency-test]]
-=== Latency Test(((Latency Test)))
+=== Latency Test
 
+(((Latency Test)))
 To run the test, open a terminal window
 (in Ubuntu, from Applications → Accessories → Terminal)
 and run the following command:

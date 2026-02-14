@@ -80,8 +80,9 @@ Parts of PyVCP files are evaluated as Python code, and can take any action avail
 Only use PyVCP XML files from a source that you trust.
 
 [[sec:pyvcp-with-axis]]
-== AXIS(((PyVCP with AXIS)))
+== AXIS
 
+(((PyVCP with AXIS)))
 Since AXIS uses the same GUI toolkit (Tkinter) as PyVCP,
 it is possible to include a PyVCP panel at either the right side or the bottom of the AXIS user interface.
 It is not possible to display a panel in both of these positions simultaneously.
@@ -236,8 +237,9 @@ This tells HAL to wait for component 'panelname' to close before continuing HAL 
 This is usually set as the last command so that HAL shuts down when the panel is closed.
 
 [[sec:pyvcp:widgets]]
-== Widgets(((PyVCP Widgets Reference)))
+== Widgets
 
+(((PyVCP Widgets Reference)))
 HAL signals come in two variants, bits and numbers.
 Bits are off/on signals. Numbers can be 'float', 's32' or 'u32'.
 For more information on HAL data types see the <<sec:hal-data,HAL Data>> section.

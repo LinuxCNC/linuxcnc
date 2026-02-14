@@ -956,7 +956,7 @@ proc popupmenu_watch {vartype label index writable which x y} {
     # add entries
     $m add command -label [msgcat::mc "Copy"] -command [list copyName $label]
     if {$writable} {
-        $m add command -label [msgcat::mc "Set to .."] -command [list setValue $label]
+        $m add command -label [msgcat::mc "Set to .."] -command [list setpValue $label]
     }
     if {$writable == -1} {
         $m add command -label [msgcat::mc "Unlink pin"] -command [list unlinkp $label $index]

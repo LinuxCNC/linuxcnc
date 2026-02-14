@@ -285,44 +285,44 @@ class MaterialConverter(QMainWindow, object):
                         self.materialCutM = 'CUT_MODE           = 1'
                     elif 'PlasmaTool' in line:
                         valid = True
-                    elif line.startswith('Tool\ number'):
+                    elif line.startswith(r'Tool\ number'):
                         a,b = line.split('=')
                         self.materialNum = '[MATERIAL_NUMBER_{}]'.format(b.strip().replace(']',''))
                     elif line.startswith('Name='):
                         a,b = line.split('=',1)
                         self.materialName = 'NAME               = {}'.format(b.strip())
-                    elif line.startswith('Kerf\ width'):
+                    elif line.startswith(r'Kerf\ width'):
                         a,b = line.split('=',1)
                         self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
                                              i=self.precision, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('Pierce\ height'):
+                    elif line.startswith(r'Pierce\ height'):
                         a,b = line.split('=',1)
                         self.materialPierceH = "{id:}{val:.{i}f}".format(id='PIERCE_HEIGHT      = ',
                                                 i=self.precision, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('Pierce\ delay'):
+                    elif line.startswith(r'Pierce\ delay'):
                         a,b = line.split('=',1)
                         self.materialPierceD = 'PIERCE_DELAY       = {}'.format(b.strip())
-                    elif line.startswith('Cut\ height'):
+                    elif line.startswith(r'Cut\ height'):
                         a,b = line.split('=',1)
                         self.materialCutH = "{id:}{val:.{i}f}".format(id='CUT_HEIGHT         = ',
                                              i=self.precision, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('Feed\ rate'):
+                    elif line.startswith(r'Feed\ rate'):
                         a,b = line.split('=',1)
                         self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
                                              i=0, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('Cut\ current') or (line.startswith('Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
+                    elif line.startswith(r'Cut\ current') or (line.startswith(r'Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
                         a,b = line.split('=',1)
                         self.materialCutA = 'CUT_AMPS           = {}'.format(b.strip())
-                    elif line.startswith('Cut\ voltage') or (line.startswith('Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
+                    elif line.startswith(r'Cut\ voltage') or (line.startswith(r'Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
                         a,b = line.split('=',1)
                         self.materialCutV = 'CUT_VOLTS          = {}'.format(b.strip())
-                    elif line.startswith('Pause\ at\ end\ of\ cut'):
+                    elif line.startswith(r'Pause\ at\ end\ of\ cut'):
                         a,b = line.split('=',1)
                         self.materialPauseE = 'PAUSE_AT_END       = {}'.format(b.strip())
-                    elif line.startswith('Gas\ pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
+                    elif line.startswith(r'Gas\ pressure') or (line.startswith(r'Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
                         a,b = line.split('=',1)
                         self.materialGasp = 'GAS_PRESSURE       = {}'.format(b.strip())
-                    elif line.startswith('Cut\ mode') or (line.startswith('Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
+                    elif line.startswith(r'Cut\ mode') or (line.startswith(r'Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
                         a,b = line.split('=',1)
                         self.materialCutM = 'CUT_MODE           = {}'.format(b.strip())
                     count += 1

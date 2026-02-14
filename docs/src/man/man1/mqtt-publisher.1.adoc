@@ -37,7 +37,8 @@ debian this is available from the `python3-paho-mqtt` package.
 
     The name of HAL pins, signals and other values to publish using
     MQTT.  The names are also used as the JSON keys in the MQTT
-    message published with the broker.
+    message published with the broker.  If multiple "keys=" options
+    are specified, the lists are merged.
 
 *--dryrun*::
 
@@ -94,22 +95,33 @@ The loop reading HAL values and publishing MQTT messages.
 Any set of HAL pins and signals can be published.  This setup might be
 a useful starting point:
 
-  loadusr -W mqtt-publisher [MQTT]DRYRUN --mqtt-broker=[MQTT]BROKER
-      --mqtt-user=[MQTT]USERNAME --mqtt-password=[MQTT]PASSWORD
-      keys=halui.axis.a.pos-feedback,halui.axis.b.pos-feedback,
-      halui.axis.c.pos-feedback,halui.axis.u.pos-feedback,
-      halui.axis.v.pos-feedback,halui.axis.w.pos-feedback,
-      halui.axis.x.pos-feedback,halui.axis.y.pos-feedback,
-      halui.axis.z.pos-feedback,halui.estop.is-activated,
-      halui.joint.0.is-homed,halui.joint.1.is-homed,halui.joint.2.is-homed,
-      halui.joint.3.is-homed,halui.joint.4.is-homed,halui.joint.5.is-homed,
-      halui.joint.6.is-homed,halui.joint.7.is-homed,halui.joint.8.is-homed,
-      halui.machine.is-on,halui.max-velocity.value,halui.mode.is-auto,
-      halui.mode.is-manual,halui.mode.is-mdi,halui.mode.is-teleop,
-      halui.program.is-running'
+----
+loadusr -W mqtt-publisher \
+  [MQTT]DRYRUN \
+  --mqtt-broker=[MQTT]BROKER
+  --mqtt-user=[MQTT]USERNAME \
+  --mqtt-password=[MQTT]PASSWORD \
+  keys=halui.axis.a.pos-feedback,halui.axis.b.pos-feedback,\
+halui.axis.c.pos-feedback,halui.axis.u.pos-feedback,\
+halui.axis.v.pos-feedback,halui.axis.w.pos-feedback,\
+halui.axis.x.pos-feedback,halui.axis.y.pos-feedback,\
+halui.axis.z.pos-feedback \
+  keys=halui.estop.is-activated, halui.joint.0.is-homed,\
+halui.joint.1.is-homed,halui.joint.2.is-homed,halui.joint.3.is-homed,\
+halui.joint.4.is-homed,halui.joint.5.is-homed,halui.joint.6.is-homed,\
+halui.joint.7.is-homed,halui.joint.8.is-homed \
+  keys=halui.machine.is-on,halui.max-velocity.value,halui.mode.is-auto,
+halui.mode.is-manual,halui.mode.is-mdi,halui.mode.is-teleop,
+halui.program.is-running
+----
 
-Note, the list of keys can not include space after comma.  The lines
-are only broken here to avoid too long lines in the documentation.
+Note: It is recommended to use the line continuation character "\" as
+shown here to improve readability. But note that spaces must be left in
+to delimit options, and must not be included (including at the beginning
+of a line) inside a single option.
+
+HAL limits a single option/token (for example "keys=") to 255 characters.
+To work around this issue use multiple "keys=" entries as shown.
 
 == SEE ALSO
 

@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:cl-programming]]
-= ClassicLadder Programming(((ClassicLadder Programming,CL Programming)))
+= ClassicLadder Programming
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -12,6 +12,7 @@
 
 == Ladder Concepts
 
+(((ClassicLadder Programming,CL Programming)))
 ClassicLadder is a type of programming language originally implemented on industrial PLCs (it's called Ladder Programming).
 It is based on the concept of relay contacts and coils, and can be used to construct logic checks and functions in a manner that is familiar to many systems integrators.
 Ladder consists of rungs that may have branches and resembles an electrical circuit.

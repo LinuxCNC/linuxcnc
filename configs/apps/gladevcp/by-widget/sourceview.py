@@ -1,6 +1,8 @@
-
-import gtk
-import gtksourceview2 as gtksourceview
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GtkSource
 
 class HandlerClass:
 
@@ -17,7 +19,7 @@ class HandlerClass:
         else:
             self.textbuffer.move_mark(self.mark, line)
         self.sourceview.scroll_to_mark(self.mark, 0, True, 0, 0.5)
-
+        
     def file_set(self,widget,data=None):
         filename = widget.get_filename()
         print("file_set",filename)
@@ -39,14 +41,18 @@ class HandlerClass:
 
         self.line = 1
         self.sourceview = builder.get_object('gtksourceview1')
-        self.textbuffer = gtksourceview.Buffer()
+        self.textbuffer = GtkSource.Buffer()
         self.sourceview.set_buffer(self.textbuffer)
 
         self.sourceview.set_show_line_numbers(True)
         self.sourceview.set_show_line_marks(True)
         self.sourceview.set_highlight_current_line(True)
-        self.sourceview.set_mark_category_icon_from_icon_name('highlight', 'gtk-forward')
-        self.sourceview.set_mark_category_background('highlight', gtk.gdk.Color('yellow'))
+        
+        att = GtkSource.MarkAttributes()
+        color = Gdk.RGBA()
+        color.parse('yellow')
+        att.set_background(color)
+        self.sourceview.set_mark_attributes('highlight', att, 1)
         self.mark = None
 
 def get_handlers(halcomp,builder,useropts):

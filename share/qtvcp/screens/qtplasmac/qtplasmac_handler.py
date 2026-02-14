@@ -1,4 +1,4 @@
-VERSION = '238.314'
+VERSION = '238.315'
 LCNCVER = '2.9'
 DOCSVER = LCNCVER
 
@@ -1571,7 +1571,8 @@ class HandlerClass:
             if not self.cameraOn:
                 self.preview_index_return(self.w.preview_stack.currentIndex())
             self.w.file_open.setText(os.path.basename(filename))
-            self.fileOpened = True
+            if not self.single_cut_request:
+                self.fileOpened = True
             text = _translate('HandlerClass', 'EDIT')
             self.w.edit_label.setText('{}: {}'.format(text, filename))
             if self.w.gcode_stack.currentIndex() != self.GCODE:
@@ -1625,11 +1626,8 @@ class HandlerClass:
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         if self.w.main_tab_widget.currentIndex() != self.MAIN:
             self.w.main_tab_widget.setCurrentIndex(self.MAIN)
-        # forces the view to remain "table view" if T is checked when a file is loaded
-        if self.fileOpened:
-            if self.w.view_t.isChecked():
-                self.view_t_pressed()
-        else:
+        # forces the view to remain "table view" if T is checked when a file is loaded, or change to table view upon clicking CLEAR
+        if self.w.view_t.isChecked() or 'qtplasmac_program_clear.ngc' in filename:
             self.view_t_pressed()
         if not 'single_cut.ngc' in filename:
             self.preSingleCutMaterial = None

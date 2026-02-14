@@ -25,7 +25,7 @@ import os, time
 import gi
 gi.require_version("Gtk","3.0")
 gi.require_version("Gdk","3.0")
-gi.require_version("GtkSource","3.0")
+gi.require_version("GtkSource","4")
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
@@ -62,10 +62,10 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
         self.lm = GtkSource.LanguageManager()
         self.sm = GtkSource.StyleSchemeManager()
         if 'EMC2_HOME' in os.environ:
-            path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
+            path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-4/language-specs/')
             self.lm.set_search_path(self.lm.get_search_path() + [path])
 
-        self.buf.set_language(self.lm.get_language('.ngc'))
+        self.buf.set_language(self.lm.get_language('gcode'))
         self.set_show_line_numbers(True)
         self.set_show_line_marks(True)
         self.set_highlight_current_line(True)
@@ -116,7 +116,7 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
         # lang = the lang file to set
         if path == None:
             if 'EMC2_HOME' in os.environ:
-                path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
+                path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-4/language-specs/')
         if path:
             self.lm.set_search_path(path)
         self.buf.set_language(self.lm.get_language(lang))

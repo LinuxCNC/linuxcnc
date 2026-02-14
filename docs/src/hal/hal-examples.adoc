@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:hal-examples]]
-= HAL Examples(((HAL Examples)))
+= HAL Examples
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,6 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((HAL Examples)))
 All of these examples assume you are starting with a StepConf-based configuration and have two threads 'base-thread' and 'servo-thread'.
 The StepConf wizard will create an empty custom.hal and a custom_postgui.hal file.
 The custom.hal file will be loaded after the configuration HAL file and the custom_postgui.hal file is loaded after the GUI has been loaded.

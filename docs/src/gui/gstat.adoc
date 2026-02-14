@@ -112,7 +112,7 @@ class HandlerClass:
         GSTAT.connect("state-estop",lambda w: self.update_estate_label('ESTOP'))
         GSTAT.connect("state-estop-reset",lambda w: self.update_estate_label('RESET'))
 
-        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHIBE ON'))
+        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHINE ON'))
         GSTAT.connect("state-off",lambda w: self.update_state_label('MACHINE OFF'))
 
         GSTAT.connect("interp-paused",lambda w: self.update_interp_label('Paused'))
@@ -156,7 +156,7 @@ class HandlerClass:
         GSTAT.connect("state-estop",lambda w: self.update_estate_label('ESTOP'))
         GSTAT.connect("state-estop-reset",lambda w: self.update_estate_label('RESET'))
 
-        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHIBE ON'))
+        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHINE ON'))
         GSTAT.connect("state-off",lambda w: self.update_state_label('MACHINE OFF'))
 
         GSTAT.connect("interp-paused",lambda w: self.update_interp_label('Paused'))
