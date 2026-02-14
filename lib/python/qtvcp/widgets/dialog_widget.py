@@ -716,8 +716,10 @@ class FileDialog(QFileDialog, GeometryMixin):
             self.setDirectory(os.path.expanduser(directory))
         if preselect:
             self.selectFile(os.path.basename(preselect))
-        else:
-            self.selectFile(' ')
+
+        # disable filename auto completer
+        for le in self.findChildren(QLineEdit):
+            le.setCompleter(None)
 
         self.setWindowTitle('Save')
         STATUS.emit('focus-overlay-changed', True, 'Save Gcode', self._color)
