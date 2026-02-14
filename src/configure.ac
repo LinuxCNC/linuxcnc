@@ -1708,6 +1708,47 @@ AC_SUBST([CXXFLAGS])
 AC_SUBST([LDFLAGS])
 
 ##############################################################################
+# Section 8 - Go compiler detection (optional, for hal-go components)       #
+##############################################################################
+
+# Check for Go compiler (optional, for hal-go components)
+AC_ARG_ENABLE([golang],
+    AS_HELP_STRING([--enable-golang], [Build Golang HAL components (requires Go 1.21+)]),
+    [enable_golang=$enableval],
+    [enable_golang=auto])
+
+AC_MSG_CHECKING([for Go compiler])
+if test "x$enable_golang" != "xno"; then
+    AC_PATH_PROG([GO], [go], [no])
+    if test "x$GO" != "xno"; then
+        GO_VERSION=$($GO version | grep -oP 'go\K[[0-9]]+\.[[0-9]]+' | head -1)
+        GO_MAJOR=$(echo $GO_VERSION | cut -d. -f1)
+        GO_MINOR=$(echo $GO_VERSION | cut -d. -f2)
+        if test "$GO_MAJOR" -ge 1 && test "$GO_MINOR" -ge 21; then
+            AC_MSG_RESULT([yes ($GO_VERSION)])
+            HAVE_GOLANG=yes
+        else
+            AC_MSG_RESULT([no (version $GO_VERSION < 1.21)])
+            HAVE_GOLANG=no
+        fi
+    else
+        AC_MSG_RESULT([no])
+        HAVE_GOLANG=no
+    fi
+else
+    AC_MSG_RESULT([disabled])
+    HAVE_GOLANG=no
+fi
+
+if test "x$enable_golang" = "xyes" && test "x$HAVE_GOLANG" != "xyes"; then
+    AC_MSG_ERROR([Go 1.21+ required but not found])
+fi
+
+AM_CONDITIONAL([BUILD_GOLANG], [test "x$HAVE_GOLANG" = "xyes"])
+AC_SUBST([GO])
+AC_SUBST([HAVE_GOLANG])
+
+##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
@@ -1756,6 +1797,12 @@ offbold () {
 }
 
 echo ""
+echo ""
+echo "######################################################################"
+echo "#              Configuration Summary                                 #"
+echo "######################################################################"
+echo ""
+echo "  Build Golang HAL components: $HAVE_GOLANG"
 echo ""
 echo "######################################################################"
 echo "#                LinuxCNC - Enhanced Machine Controller              #"

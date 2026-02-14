@@ -1,0 +1,40 @@
+package hal_test
+
+import (
+"fmt"
+"github.com/linuxcnc/hal-go"
+)
+
+// Example demonstrates basic usage of the hal package.
+func Example() {
+// Create component
+comp, err := hal.NewComponent("example")
+if err != nil {
+fmt.Printf("Error creating component: %v\n", err)
+return
+}
+defer comp.Exit()
+
+// Create pins
+input, _ := hal.NewPin[float64](comp, "input", hal.In)
+output, _ := hal.NewPin[bool](comp, "output", hal.Out)
+
+// Mark ready
+comp.Ready()
+
+// Use pins
+input.Set(3.14)
+fmt.Printf("Input value: %.2f\n", input.Get())
+
+output.Set(true)
+fmt.Printf("Output value: %t\n", output.Get())
+
+fmt.Printf("Component: %s\n", comp.Name())
+fmt.Printf("Running: %t\n", comp.Running())
+
+// Output:
+// Input value: 3.14
+// Output value: true
+// Component: example
+// Running: true
+}

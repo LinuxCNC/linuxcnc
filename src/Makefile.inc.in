@@ -147,6 +147,10 @@ LIBUSB10_CFLAGS = @LIBUSB10_CFLAGS@
 
 LIBGPIOD_VER = @LIBGPIOD_VER@
 
+# Go compiler (for hal-go components)
+GO = @GO@
+BUILD_GOLANG = @HAVE_GOLANG@
+
 YAPPS = @YAPPS@
 
 
