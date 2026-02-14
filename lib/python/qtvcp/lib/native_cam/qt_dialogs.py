@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtWidgets import ( QMessageBox, QFileDialog, QTextEdit, QMenu)
+from PyQt5.QtWidgets import ( QMessageBox, QFileDialog, QInputDialog, QTextEdit, QMenu)
 from PyQt5.QtCore import QUrl, Qt
 
 QUESTION = QMessageBox.Question
@@ -198,4 +198,10 @@ def mes_update_sys(mess, title = "Nativecam"):
             return CANCEL
         elif button == QMessageBox.Apply:
             return REFRESH
+
+def input_dlg(title, message, default=''):
+    text, ok = QInputDialog.getText(None,title,message)
+    if ok:
+        return text
+    return default
 
