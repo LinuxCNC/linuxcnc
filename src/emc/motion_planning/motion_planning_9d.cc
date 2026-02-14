@@ -2669,13 +2669,11 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                     remaining_after_brake, tc->maxaccel, default_jerk,
                     new_max_vel, target_exit_vel);
 
-                // STOP segments must end at zero velocity. If we can't decelerate
-                // to zero in the remaining distance, reject the branch and let the
-                // existing profile (computed with enough room to stop) finish.
-                if (tc->term_cond == TC_TERM_COND_STOP && achievable_exit > 0.01) {
-                    rtapi_print_msg(RTAPI_MSG_DBG,
-                        "Branch: REJECT seg=%d reason=stop_cant_stop(2stg) exit=%.2f rem_after_brake=%.4f resume_fh=%d\n",
-                        tc->id, achievable_exit, remaining_after_brake, resuming_from_feed_hold);
+                // Non-blending segments (STOP, EXACT) must end at zero velocity.
+                // If we can't decelerate to zero in the remaining distance,
+                // reject the branch and let the existing profile finish.
+                // Phase 4 TODO (Blending): review PARABOLIC handling here.
+                if (tc->term_cond != TC_TERM_COND_TANGENT && achievable_exit > 0.01) {
                     return false;
                 }
 
@@ -2783,13 +2781,14 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                 remaining, tc->maxaccel, default_jerk,
                 new_max_vel, target_exit_vel);
 
-            // STOP segments must end at zero velocity. If we can't decelerate
-            // to zero in the remaining distance, reject the branch and let the
-            // existing profile (computed with enough room to stop) finish.
-            if (tc->term_cond == TC_TERM_COND_STOP && achievable_exit > 0.01) {
-                rtapi_print_msg(RTAPI_MSG_DBG,
-                    "Branch: REJECT seg=%d reason=stop_cant_stop(1stg) exit=%.2f rem=%.4f resume_fh=%d\n",
-                    tc->id, achievable_exit, remaining, resuming_from_feed_hold);
+            // Non-blending segments (STOP, EXACT) must end at zero velocity.
+            // If we can't decelerate to zero in the remaining distance, reject
+            // the branch and let the existing profile (computed with enough
+            // room to stop) finish.
+            // Phase 4 TODO (Blending): When PARABOLIC is used for planner type 2
+            // blending, decide whether it should be treated as zero-exit or
+            // non-zero-exit here.
+            if (tc->term_cond != TC_TERM_COND_TANGENT && achievable_exit > 0.01) {
                 return false;
             }
 
