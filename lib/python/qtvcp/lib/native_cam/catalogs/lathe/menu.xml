@@ -10,6 +10,7 @@
 			<menuitem action='parting'  name=_("Parting Off")_ tool_tip= _("Cut your part from initial material")_ icon="parting.png" src="lathe/parting.cfg"/>
 			<menuitem action='threading'  name=_("Threading")_ tool_tip= _("External or internal threads, metric or imperial")_ icon="threading.png" src="lathe/threading.cfg"/>
 			<menuitem action='boring'  name=_("Internal Boring")_ tool_tip= _("Does straight boring")_ icon="lathe-surface-id.png" src="lathe/boring.cfg"/>
+			<menuitem action='drilling'  name=_("Drilling")_ tool_tip= _("Does straight drilling")_ icon="drills.png" src="lathe/drill-single.cfg"/>
 			<menuitem action='taper_oda'  name=_("Taper ODA")_ tool_tip= _("External taper by angle and diameters")_ icon="taper-oda.png" src="lathe/taper_oda.cfg"/>
 			<menuitem action='taper_odl'  name=_("Taper ODL")_ tool_tip= _("External taper by length and diameters")_ icon="taper-odl.png" src="lathe/taper_odl.cfg"/>
 			<menuitem action='taper_ida'  name=_("Taper IDA")_ tool_tip= _("Internal taper by angle and diameters")_ icon="taper-ida.png" src="lathe/taper_ida.cfg"/>
@@ -31,6 +32,7 @@
         <toolitem action='facing' />
         <toolitem action='turning' />
         <toolitem action='boring' />
+        <toolitem action='drilling' />
         <toolitem action='parting' />
         <toolitem action='taper_oda' />
         <toolitem action='taper_ida' />
