@@ -274,6 +274,7 @@ static SmoothingData g_smoothing_data;
 // Global configuration (loaded from INI)
 static PredictiveHandoffConfig g_handoff_config;
 
+
 // State for feed override monitoring
 static double g_last_feed_scale = 1.0;
 static double g_last_replan_time_ms = 0.0;
@@ -620,8 +621,20 @@ static double jerkLimitedBrakingDistance(double v_s, double v_f,
  * @param vel_limit Velocity limit to record in profile metadata
  * @param vLimit Machine velocity limit to record in profile metadata
  */
-static void createFeedHoldProfile(TC_STRUCT *tc, double vel_limit, double vLimit)
+static void createFeedHoldProfile(TC_STRUCT *tc, double vel_limit, double vLimit,
+                                   const char *caller = "unknown")
 {
+    double canonical = tc->shared_9d.canonical_feed_scale;
+
+    // FH_VIOLATION: createFeedHoldProfile should only be called when canonical <= 0.6%
+    // (either in Phase 2 after decelerating to 0.1%, or when already at low speed).
+    // If canonical > 0.6%, the two-phase guard failed.
+    if (canonical > 0.006) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "FH_VIOLATION seg %d: createFeedHoldProfile at canonical=%.3f (should be <=0.006) caller=%s\n",
+            tc->id, canonical, caller);
+    }
+
     __atomic_store_n(&tc->shared_9d.profile.valid, 0, __ATOMIC_RELEASE);
     __atomic_thread_fence(__ATOMIC_SEQ_CST);
     memset(&tc->shared_9d.profile, 0, sizeof(tc->shared_9d.profile));
@@ -669,6 +682,148 @@ static double jerkLimitedMaxEntryVelocity(double v_f, double d,
         if (v_hi - v_lo < 1e-6) break;
     }
     return v_lo;
+}
+
+/**
+ * @brief Check if exit velocity at this queue index is safe for the next segment.
+ *
+ * "Safe" means the next segment can accept exit_vel as its entry velocity
+ * given its kinematic limits and distance.  Used to determine whether a
+ * profile chain can be terminated here without creating an impossible
+ * junction for the next segment.
+ *
+ * Returns true when:
+ * - This segment has STOP/EXACT term_cond (exit is 0)
+ * - End of queue (no next segment)
+ * - Next segment can decelerate from exit_vel to its own exit constraint
+ *   within its length, at the given feed scale
+ */
+static bool canStopChainHere(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
+                              int index, double exit_vel,
+                              double snap_feed, double snap_rapid,
+                              double default_jerk)
+{
+    TC_STRUCT *tc = tcqItem_user(queue, index);
+    if (!tc) return true;
+
+    // Non-tangent: exit is 0, always safe
+    if (tc->term_cond != TC_TERM_COND_TANGENT) return true;
+
+    // Check next segment
+    TC_STRUCT *next = tcqItem_user(queue, index + 1);
+    if (!next || next->target < 1e-9) return true;  // end of queue
+
+    double next_feed = tpGetSnapshotFeedScale(next, snap_feed, snap_rapid);
+    double next_vel_limit = getEffectiveVelLimit(tp, next);
+    double next_max_vel = applyVLimit(tp, next, next_vel_limit * next_feed);
+    double next_jrk = next->maxjerk > 0 ? next->maxjerk : default_jerk;
+
+    double next_fv = atomicLoadDouble(&next->shared_9d.final_vel);
+    double next_exit = (next->term_cond == TC_TERM_COND_TANGENT)
+        ? fmin(next_fv * next_feed, next_max_vel) : 0.0;
+    if (next->kink_vel > 0) next_exit = fmin(next_exit, next->kink_vel);
+
+    double next_max_entry = jerkLimitedMaxEntryVelocity(
+        next_exit, next->target, next->maxaccel, next_jrk);
+    next_max_entry = fmin(next_max_entry, next_max_vel);
+
+    // Also consider kink at this junction
+    if (tc->kink_vel > 0) next_max_entry = fmin(next_max_entry, tc->kink_vel);
+
+    return (exit_vel <= next_max_entry + 0.5);
+}
+
+/**
+ * @brief Compute chain exit cap: maximum safe exit velocity for the active
+ *        segment, accounting for downstream constraints at the given feed.
+ *
+ * Walks forward through the queue to find the first "safe endpoint" —
+ * a segment whose physics naturally allow stopping (STOP condition, or
+ * long enough to decelerate from max_vel to its exit constraint).
+ * Then walks backward, cascading reachability limits, to determine the
+ * tightest entry constraint that propagates back to the active segment.
+ *
+ * This replaces the old 1-segment lookahead (which only checked index 1)
+ * and prevents the active segment from exiting at a velocity that
+ * creates impossible junctions downstream.
+ */
+static double computeChainExitCap(TP_STRUCT *tp, TC_STRUCT *active_tc,
+                                   double new_feed_scale, double default_jerk,
+                                   int max_depth = 16, int start_index = 1)
+{
+    if (active_tc->term_cond != TC_TERM_COND_TANGENT) return 1e10;
+
+    double rapid = emcmotStatus ? emcmotStatus->rapid_scale : 1.0;
+
+    // Phase 1: Walk forward to find chain depth (first safe endpoint).
+    // A segment is "safe" if it's STOP/EXACT, end of queue, or long enough
+    // to brake from max_vel to its exit constraint within its length.
+    int chain_end = 0;
+    for (int i = start_index; i <= start_index + max_depth - 1; i++) {
+        TC_STRUCT *seg = tcqItem_user(&tp->queue, i);
+        if (!seg || seg->target < 1e-9) {
+            chain_end = i - 1;
+            break;
+        }
+
+        chain_end = i;
+
+        // STOP/EXACT condition: exit is 0, natural boundary
+        if (seg->term_cond != TC_TERM_COND_TANGENT) break;
+
+        // Long segment: can brake from max_vel to exit constraint
+        double seg_feed = tpGetSnapshotFeedScale(seg, new_feed_scale, rapid);
+        double seg_vel_limit = getEffectiveVelLimit(tp, seg);
+        double seg_max_vel = applyVLimit(tp, seg, seg_vel_limit * seg_feed);
+        double seg_jrk = seg->maxjerk > 0 ? seg->maxjerk : default_jerk;
+        double seg_fv = atomicLoadDouble(&seg->shared_9d.final_vel);
+        double seg_exit = fmin(seg_fv * seg_feed, seg_max_vel);
+        if (seg->kink_vel > 0) seg_exit = fmin(seg_exit, seg->kink_vel);
+
+        double brake_dist = jerkLimitedBrakingDistance(
+            seg_max_vel, seg_exit, seg->maxaccel, seg_jrk);
+        if (seg->target > brake_dist * 1.2) break;  // safe: can absorb any entry
+    }
+
+    if (chain_end < start_index) return 1e10;  // no downstream constraints
+
+    // Phase 2: Walk backward from chain_end to start_index, cascading
+    // reachability limits.  Each segment's max entry depends on its
+    // exit constraint AND what the next segment can accept.
+    double next_entry_cap = 1e10;
+
+    for (int i = chain_end; i >= start_index; i--) {
+        TC_STRUCT *seg = tcqItem_user(&tp->queue, i);
+        if (!seg) continue;
+
+        double seg_feed = tpGetSnapshotFeedScale(seg, new_feed_scale, rapid);
+        double seg_vel_limit = getEffectiveVelLimit(tp, seg);
+        double seg_max_vel = applyVLimit(tp, seg, seg_vel_limit * seg_feed);
+        double seg_jrk = seg->maxjerk > 0 ? seg->maxjerk : default_jerk;
+
+        // This segment's exit constraint (from backward pass + kink)
+        double seg_fv = atomicLoadDouble(&seg->shared_9d.final_vel);
+        double seg_exit = (seg->term_cond == TC_TERM_COND_TANGENT)
+            ? fmin(seg_fv * seg_feed, seg_max_vel) : 0.0;
+        if (seg->kink_vel > 0) seg_exit = fmin(seg_exit, seg->kink_vel);
+
+        // Cap exit by what next segment can accept (cascading backward)
+        seg_exit = fmin(seg_exit, next_entry_cap);
+
+        // Max entry this segment can accept
+        double max_entry = jerkLimitedMaxEntryVelocity(
+            seg_exit, seg->target, seg->maxaccel, seg_jrk);
+        max_entry = fmin(max_entry, seg_max_vel);
+
+        // Apply kink at the junction before this segment
+        TC_STRUCT *prev_seg = tcqItem_user(&tp->queue, i - 1);
+        if (prev_seg && prev_seg->kink_vel > 0)
+            max_entry = fmin(max_entry, prev_seg->kink_vel);
+
+        next_entry_cap = max_entry;
+    }
+
+    return next_entry_cap;
 }
 
 /**
@@ -1340,7 +1495,41 @@ static double computeKinematicHandoffMargin(double current_vel, double target_ve
     double kinematic_margin = base_margin + t_brake_estimate * 0.5;
 
     // Clamp to reasonable bounds
-    return fmax(min_margin, fmin(max_margin, kinematic_margin));
+    double result = fmax(min_margin, fmin(max_margin, kinematic_margin));
+
+    return result;
+}
+
+/**
+ * @brief Check whether a segment has enough remaining time for computeBranch()
+ *        to place a handoff point.
+ *
+ * Uses the worst-case handoff margin (the cap from computeKinematicHandoffMargin)
+ * so the answer is conservative: if this returns false, computeBranch() will
+ * certainly REJECT(seg_done).  If it returns true, computeBranch() may still
+ * reject for other reasons, but at least the margin isn't the blocker.
+ *
+ * @param tc  Active segment to check
+ * @return true if the segment has enough remaining time for a branch attempt
+ */
+static bool segmentHasBranchRoom(const TC_STRUCT *tc)
+{
+    if (!tc || !tc->shared_9d.profile.valid)
+        return false;
+
+    double elapsed = atomicLoadDouble(&tc->elapsed_time);
+    double duration = tc->shared_9d.profile.duration;
+    double remaining = duration - elapsed;
+    if (remaining < 1e-6)
+        return false;
+
+    // Worst-case margin: same derivation as computeKinematicHandoffMargin's cap
+    double servo_sec = g_handoff_config.servo_cycle_time_sec;
+    double worst_margin = g_handoff_config.branch_window_ms / 2000.0;
+    if (worst_margin < servo_sec * 6)
+        worst_margin = servo_sec * 6;
+
+    return remaining > worst_margin;
 }
 
 //============================================================================
@@ -1619,8 +1808,11 @@ bool commitBranch(shared_optimization_data_9d_t *shared,
     int valid = __atomic_load_n(&shared->branch.valid, __ATOMIC_ACQUIRE);
     int taken = __atomic_load_n(&shared->branch.taken, __ATOMIC_ACQUIRE);
 
-    if (valid && taken) {
-        // Branch was taken but not yet merged - wait for merge
+    if (taken) {
+        // Branch is being executed by RT - don't overwrite.
+        // During two-stage brake: merge sets valid=0 but keeps taken=1.
+        // RT reads branch.profile and brake_end_position at brake→main
+        // transition — overwriting causes position/profile mismatch.
         return false;
     }
 
@@ -1688,33 +1880,27 @@ static int estimateCommitSegment(TP_STRUCT *tp, double new_feed)
     // In all cases, treat as infinite arrival time → branch on active (return 1).
     double elapsed = atomicLoadDouble(&active->elapsed_time);
     double active_remaining = 0.0;
-    double active_computed_feed = active->shared_9d.profile.computed_feed_scale;
     if (active->shared_9d.profile.valid && active->shared_9d.profile.duration > 1e-6) {
         active_remaining = active->shared_9d.profile.duration - elapsed;
         if (active_remaining < 0) active_remaining = 0;
-        // Scale active remaining time by feed ratio: profiles were computed at
-        // computed_feed_scale, but RT will run at new_feed after the branch.
-        // Duration scales roughly as 1/feed (exact for cruise-dominated segments,
-        // approximate for accel-dominated — still much better than the stale value).
-        if (active_computed_feed > 0.001 && new_feed > 0.001) {
-            active_remaining *= active_computed_feed / new_feed;
-        }
+        // NOTE: Do NOT scale active_remaining by feed ratio here.
+        // The branch hasn't happened yet — RT is still running the old profile
+        // at the old speed. The wall-clock time until this segment ends is
+        // exactly (duration - elapsed), unscaled. Downstream segments (below)
+        // ARE scaled because they'll be recomputed at new_feed.
     } else {
         return 1;  // no schedule → train is parked, must branch on active
     }
-    if (active_remaining < 1e-6) return 1;  // schedule expired → train is parked
+    if (active_remaining < 1e-6) return 1;  // schedule expired → branch on active
 
-    // Minimum remaining time for computeBranch() to succeed:
-    //   adaptive_horizon — time to place the handoff point ahead of current time
-    //   3 servo cycles   — RT detection + taking + jitter (same as
-    //                       computeKinematicHandoffMargin's base margin)
-    // If active has more than this, branch on it directly.
-    // If less, computeBranch would reject anyway — skip to commit-point scan.
+    // Quick check: does the active segment have enough remaining time for
+    // computeBranch() to place a handoff?  Uses worst-case margin so we
+    // don't send segments that will certainly be rejected.
+    if (segmentHasBranchRoom(active)) {
+        return 1;
+    }
+
     double servo_sec = g_handoff_config.servo_cycle_time_sec;
-    double horizon_sec = g_adaptive_horizon.get() / 1000.0;
-    double min_branch_remaining = horizon_sec + servo_sec * 3;
-    if (active_remaining > min_branch_remaining) return 1;
-
     double cycle_time = tp->cycleTime > 0 ? tp->cycleTime : servo_sec;
     // Safety margin: 10 servo cycles to absorb timing jitter between
     // userspace computation and RT execution.
@@ -1728,7 +1914,14 @@ static int estimateCommitSegment(TP_STRUCT *tp, double new_feed)
         double recompute_time = (segs_to_buffer / spt) * cycle_time + margin;
 
         if (rt_time > recompute_time) {
-            return i;  // safe commit point
+            // We're in this scan because the active segment failed
+            // segmentHasBranchRoom — it's too short for a branch.
+            // Never return 1 here: manageBranches would interpret it as
+            // "branch on active", which will certainly fail.  Return ≥2
+            // to force deferral; the active finishes in <25ms and the
+            // next segment becomes branchable.
+            int commit = (i >= 2) ? i : 2;
+            return commit;
         }
 
         // Add segment i's duration to RT arrival time.
@@ -1850,9 +2043,19 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
     double tick_start = etime_user();
     for (int i = start_index; i < queue_len; i++) {
         // Time-budget check: after minimum 3 segments, stop if budget exhausted
+        // AND we've reached a safe endpoint (next segment can handle our exit).
+        // Without the safe-endpoint check, stopping mid-chain leaves downstream
+        // segments with stale profiles that expect different entry velocities.
+        // Hard cap at 32 segments to prevent unbounded computation.
+        if (recomputed >= 32) break;
         if (recomputed >= 3) {
             double elapsed_us = (etime_user() - tick_start) * 1e6;
-            if (elapsed_us >= budget_us) break;
+            if (elapsed_us >= budget_us) {
+                // Only stop if previous segment's exit is safe for this one
+                if (canStopChainHere(tp, queue, i - 1, prev_exit_vel_scaled,
+                                      snap_feed, snap_rapid, default_jerk))
+                    break;
+            }
         }
         TC_STRUCT *tc = tcqItem_user(queue, i);
         if (!tc || tc->target < 1e-9) {
@@ -1881,8 +2084,14 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
         double max_jrk = tc->maxjerk > 0 ? tc->maxjerk : default_jerk;
 
         if (feed_scale < 0.001) {
-            // Feed hold: minimal profile
-            createFeedHoldProfile(tc, vel_limit, tp->vLimit);
+            // Don't clobber a valid non-hold profile with a feed-hold
+            // profile.  Same guard as computeRuckig forward/backward.
+            if (tc->shared_9d.profile.valid &&
+                tc->shared_9d.profile.computed_feed_scale > 0.001) {
+                prev_exit_vel_scaled = 0.0;
+                continue;
+            }
+            createFeedHoldProfile(tc, vel_limit, tp->vLimit, "recomputeDownstream");
             prev_exit_vel_scaled = 0.0;
             atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
         } else {
@@ -1970,6 +2179,67 @@ static bool profileHasNegativeVelocity(const ruckig_profile_t *profile, double t
 }
 
 /**
+ * @brief Estimate achievable exit velocity at a given feed scale
+ *
+ * Lightweight estimator used by the feed-limiting binary search.
+ * Uses kinematic formulas for brake/stabilize distance estimation and
+ * Ruckig-based findAchievableExitVelocity for the main-stage exit.
+ * Does NOT build full profiles — just estimates whether a given feed
+ * can produce an exit velocity within the specified hard limit.
+ *
+ * @param tp Trajectory planner
+ * @param tc Current segment
+ * @param entry_vel Velocity at handoff point (from predicted state)
+ * @param entry_acc Acceleration at handoff point
+ * @param remaining_dist Distance from handoff to segment end
+ * @param vel_limit Base velocity limit (before feed scaling)
+ * @param feed_scale Feed scale to test
+ * @param default_jerk Default jerk limit
+ * @param exit_hard_limit Hard exit velocity constraint (kink or downstream cap)
+ * @return Estimated achievable exit velocity at this feed
+ */
+static double estimateExitAtFeed(TP_STRUCT const *tp, TC_STRUCT const *tc,
+                                  double entry_vel, double entry_acc,
+                                  double remaining_dist,
+                                  double vel_limit, double feed_scale,
+                                  double default_jerk,
+                                  double exit_hard_limit)
+{
+    double max_vel = applyVLimit(tp, tc, vel_limit * feed_scale);
+
+    double eff_entry_vel = entry_vel;
+    double eff_entry_acc = entry_acc;
+    double eff_remaining = remaining_dist;
+
+    // Determine if this feed would need a brake or stabilize stage
+    if (entry_vel > max_vel + 0.01) {
+        // Two-stage brake: estimate distance kinematically
+        double brake_dist = jerkLimitedBrakingDistance(entry_vel, max_vel,
+                                                       tc->maxaccel, default_jerk);
+        eff_remaining = remaining_dist - brake_dist;
+        if (eff_remaining < 1e-6) return entry_vel;  // Can't brake in time
+        eff_entry_vel = max_vel;
+        eff_entry_acc = 0.0;
+    } else if (fabs(entry_acc) > 0.5 * tc->maxaccel) {
+        // Stabilize: estimate acceleration-arrest distance
+        double stab_vel = fmin(entry_vel, max_vel);
+        if (stab_vel < 0.0) stab_vel = 0.0;
+        double t_arrest = fabs(entry_acc) / default_jerk;
+        double stab_dist = fmax(stab_vel * t_arrest, 0.0);
+        eff_remaining = remaining_dist - stab_dist;
+        if (eff_remaining < 1e-6) return entry_vel;
+        eff_entry_vel = stab_vel;
+        eff_entry_acc = 0.0;
+    }
+
+    // Target: the hard limit or max_vel, whichever is lower
+    double target = fmin(exit_hard_limit, max_vel);
+
+    return findAchievableExitVelocity(eff_entry_vel, eff_entry_acc, eff_remaining,
+                                       tc->maxaccel, default_jerk, max_vel, target);
+}
+
+/**
  * @brief Compute a branch trajectory for feed override change
  *
  * Branch/Merge architecture with achievable feed cascade:
@@ -1984,11 +2254,12 @@ static bool profileHasNegativeVelocity(const ruckig_profile_t *profile, double t
  * - Applies achievable portion, lets next segment continue deceleration
  * - Never overshoots - physically safe for CNC
  *
- * Phase 4 TODO (Blending Integration):
- * - With segment blending, exit velocity != 0 enables efficient cascade
- * - achieved_exit_vel becomes entry velocity constraint for next segment
- * - Eliminates jerk ramp-up/ramp-down overhead at segment boundaries
- * - Short segment sequences will converge to target feed much faster
+ * Feed Limiting:
+ * - When requested feed would produce exit velocity exceeding junction constraints
+ *   (kink velocity or downstream reachability), binary-searches for the maximum
+ *   feed that keeps exit within limits.
+ * - Always commits a feasible profile at a reduced feed, instead of rejecting
+ *   and leaving the old (potentially worse) profile running.
  *
  * @return true if branch was successfully computed and committed
  */
@@ -2011,6 +2282,19 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
     double elapsed = atomicLoadDouble(&tc->elapsed_time);
     double profile_duration = tc->shared_9d.profile.duration;
     double remaining_time = profile_duration - elapsed;
+
+    // Initial pessimistic profiles (from forward pass with v_exit=0) have
+    // computed_feed_scale=0 just like real feed-hold profiles, but the machine
+    // is actively decelerating — not stopped. Probe the profile at elapsed time:
+    // if velocity is significant, this is NOT a feed-hold resume but a normal
+    // profile that needs standard handoff timing. Misclassifying it causes
+    // Ruckig to receive (v>0, a<<0) as initial state → negative velocity profile.
+    if (resuming_from_feed_hold) {
+        PredictedState probe = predictStateAtTime(tc, elapsed);
+        if (probe.valid && probe.velocity > 1.0) {
+            resuming_from_feed_hold = false;
+        }
+    }
 
     // Get current velocity estimate for kinematic margin calculation
     // We need to know velocity early to compute proper handoff margin
@@ -2102,7 +2386,8 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
     if (!state.valid) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "Branch: failed to predict state at handoff");
+            "Branch: failed to predict state at handoff seg=%d reason=state_invalid",
+            tc->id);
         return false;
     }
 
@@ -2117,6 +2402,10 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
     // Calculate remaining distance after handoff
     double remaining = tc->target - state.position;
     if (remaining < 1e-6) {
+        rtapi_print_msg(RTAPI_MSG_DBG,
+            "Branch: REJECT seg=%d reason=no_dist remaining=%.6f pos=%.6f target=%.6f "
+            "resume_fh=%d\n",
+            tc->id, remaining, state.position, tc->target, resuming_from_feed_hold);
         tc->shared_9d.requested_feed_scale = new_feed_scale;
         return false;
     }
@@ -2128,6 +2417,11 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
     if (state.acceleration < -0.5 * tc->maxaccel && state.velocity > 0) {
         double stop_dist = (state.velocity * state.velocity) / (2.0 * tc->maxaccel);
         if (remaining <= stop_dist * 1.5) {
+            rtapi_print_msg(RTAPI_MSG_DBG,
+                "Branch: REJECT seg=%d reason=decel_locked vel=%.2f acc=%.2f "
+                "remaining=%.4f stop_dist=%.4f resume_fh=%d\n",
+                tc->id, state.velocity, state.acceleration, remaining, stop_dist,
+                resuming_from_feed_hold);
             tc->shared_9d.requested_feed_scale = new_feed_scale;
             return false;
         }
@@ -2215,31 +2509,74 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             return committed;
         }
 
-        // Compute downstream reachability cap: the max velocity the next
-        // segment can accept as entry.  Without this, the branch may exit
-        // faster than downstream can handle → SPLIT_MISMATCH.
-        // The backward pass already propagated all downstream constraints
-        // into nexttc->final_vel, so looking one segment ahead is sufficient.
-        double downstream_exit_cap = 1e10;  // no cap by default
-        if (tc->term_cond == TC_TERM_COND_TANGENT) {
-            TC_STRUCT *nexttc = tcqItem_user(&tp->queue, 1);
-            if (nexttc && nexttc->target > 1e-9) {
-                double rapid = emcmotStatus ? emcmotStatus->rapid_scale : 1.0;
-                double next_feed = tpGetSnapshotFeedScale(nexttc, new_feed_scale, rapid);
-                double next_vel_limit = getEffectiveVelLimit(tp, nexttc);
-                double next_max_vel = applyVLimit(tp, nexttc, next_vel_limit * next_feed);
-                double next_fv = atomicLoadDouble(&nexttc->shared_9d.final_vel);
-                double next_exit = fmin(next_fv * next_feed, next_max_vel);
-                if (nexttc->kink_vel > 0)
-                    next_exit = fmin(next_exit, nexttc->kink_vel);
-                double next_jerk = nexttc->maxjerk > 0 ? nexttc->maxjerk : default_jerk;
-                double next_max_entry = jerkLimitedMaxEntryVelocity(
-                    next_exit, nexttc->target, nexttc->maxaccel, next_jerk);
-                next_max_entry = fmin(next_max_entry, next_max_vel);
-                // Also cap by the kink at tc→nexttc boundary
-                if (tc->kink_vel > 0)
-                    next_max_entry = fmin(next_max_entry, tc->kink_vel);
-                downstream_exit_cap = next_max_entry;
+        // Chain exit cap: walk downstream segments at the NEW feed scale,
+        // cascading reachability limits backward to find the tightest
+        // constraint on the active segment's exit velocity.  Replaces the
+        // old 1-segment lookahead that missed tight constraints further
+        // downstream (short segments, sharp kinks at index 2+).
+        double downstream_exit_cap = computeChainExitCap(
+            tp, tc, new_feed_scale, default_jerk);
+
+        // ================================================================
+        // Feed limiting: find max feed where exit constraints are met
+        // ================================================================
+        // Instead of rejecting branches that exceed kink or downstream limits,
+        // binary-search for the highest feed that produces a feasible exit.
+        double exit_hard_limit = downstream_exit_cap;
+        if (tc->kink_vel > 0)
+            exit_hard_limit = fmin(exit_hard_limit, tc->kink_vel);
+
+        if (exit_hard_limit < 1e9 && remaining > 1e-6) {
+            double test_exit = estimateExitAtFeed(tp, tc, state.velocity,
+                state.acceleration, remaining, vel_limit, new_feed_scale,
+                default_jerk, exit_hard_limit);
+
+            if (test_exit > exit_hard_limit + 1.0) {
+                // Feed produces exit velocity exceeding junction constraints.
+                // Binary search for the maximum feed that satisfies the limit.
+                double lo = 0.001, hi = new_feed_scale;
+                double best_feed = lo;
+
+                for (int iter = 0; iter < 12; iter++) {
+                    double mid = (lo + hi) / 2.0;
+                    double mid_exit = estimateExitAtFeed(tp, tc, state.velocity,
+                        state.acceleration, remaining, vel_limit, mid,
+                        default_jerk, exit_hard_limit);
+                    if (mid_exit <= exit_hard_limit + 0.01) {
+                        best_feed = mid;
+                        lo = mid;
+                    } else {
+                        hi = mid;
+                    }
+                }
+
+                if (best_feed > 0.002) {
+                    rtapi_print_msg(RTAPI_MSG_DBG,
+                        "Branch: FEED_LIMIT seg=%d feed=%.3f->%.3f "
+                        "exit_limit=%.2f (kink=%.2f ds_cap=%.2f)\n",
+                        tc->id, new_feed_scale, best_feed,
+                        exit_hard_limit, tc->kink_vel, downstream_exit_cap);
+                    new_feed_scale = best_feed;
+                    new_max_vel = applyVLimit(tp, tc, vel_limit * new_feed_scale);
+                    effective_feed_scale = new_feed_scale;
+                    // Recompute brake/stabilize determination at reduced feed
+                    need_brake = (state.velocity > new_max_vel + 0.01);
+                    need_stabilize = false;
+                    stabilize_target_vel = new_max_vel;
+                    if (!need_brake && fabs(state.acceleration) > 0.5 * tc->maxaccel) {
+                        need_stabilize = true;
+                        stabilize_target_vel = fmin(state.velocity, new_max_vel);
+                        if (stabilize_target_vel < 0.0) stabilize_target_vel = 0.0;
+                    }
+                } else {
+                    // Even minimum feed can't satisfy — segment is genuinely locked
+                    rtapi_print_msg(RTAPI_MSG_DBG,
+                        "Branch: FEED_LIMIT_LOCKED seg=%d exit_limit=%.2f "
+                        "min_feed_exit=%.2f vel=%.2f remaining=%.4f\n",
+                        tc->id, exit_hard_limit, test_exit,
+                        state.velocity, remaining);
+                    return false;
+                }
             }
         }
 
@@ -2269,14 +2606,21 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
                 auto result = otg.calculate(input, traj);
                 if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                    rtapi_print_msg(RTAPI_MSG_ERR, "Branch brake Ruckig failed: result=%d",
-                        static_cast<int>(result));
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Branch brake Ruckig failed: result=%d v=%.1f->%.1f a=%.1f maxacc=%.1f jerk=%.1f",
+                        static_cast<int>(result), state.velocity, stage1_target_vel,
+                        state.acceleration, tc->maxaccel, default_jerk);
                     return false;
                 }
 
                 // Brake profile is clean 7-phase, use phase-based sampling
                 copyRuckigProfile(traj, &brake_profile);
-                if (!brake_profile.valid) return false;
+                if (!brake_profile.valid) {
+                    rtapi_print_msg(RTAPI_MSG_DBG,
+                        "Branch: REJECT seg=%d reason=brake_invalid resume_fh=%d\n",
+                        tc->id, resuming_from_feed_hold);
+                    return false;
+                }
 
                 // Enforce zero final acceleration for brake profile
                 // Ruckig velocity control targets a[end]=0 but may have numerical residual
@@ -2329,17 +2673,26 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                 // to zero in the remaining distance, reject the branch and let the
                 // existing profile (computed with enough room to stop) finish.
                 if (tc->term_cond == TC_TERM_COND_STOP && achievable_exit > 0.01) {
+                    rtapi_print_msg(RTAPI_MSG_DBG,
+                        "Branch: REJECT seg=%d reason=stop_cant_stop(2stg) exit=%.2f rem_after_brake=%.4f resume_fh=%d\n",
+                        tc->id, achievable_exit, remaining_after_brake, resuming_from_feed_hold);
                     return false;
                 }
 
                 // Kink-limited junctions: reject if can't decel to kink_vel
                 if (tc->kink_vel > 0 && achievable_exit > tc->kink_vel + 0.01) {
+                    rtapi_print_msg(RTAPI_MSG_DBG,
+                        "Branch: REJECT seg=%d reason=kink(2stg) exit=%.2f kink=%.2f resume_fh=%d\n",
+                        tc->id, achievable_exit, tc->kink_vel, resuming_from_feed_hold);
                     return false;
                 }
 
                 // Downstream reachability: reject if can't decel to what
                 // next segment accepts.  Feed change deferred to next cycle.
                 if (achievable_exit > downstream_exit_cap + 0.01) {
+                    rtapi_print_msg(RTAPI_MSG_DBG,
+                        "Branch: REJECT seg=%d reason=downstream(2stg) exit=%.2f cap=%.2f resume_fh=%d\n",
+                        tc->id, achievable_exit, downstream_exit_cap, resuming_from_feed_hold);
                     tc->shared_9d.requested_feed_scale = new_feed_scale;
                     return false;
                 }
@@ -2363,8 +2716,10 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
                 auto result = otg.calculate(input, traj);
                 if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                    rtapi_print_msg(RTAPI_MSG_ERR, "Branch main Ruckig failed: result=%d",
-                        static_cast<int>(result));
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Branch main Ruckig failed: result=%d v=%.1f->%.1f dist=%.3f maxvel=%.1f maxacc=%.1f",
+                        static_cast<int>(result), stage1_target_vel, achievable_exit,
+                        remaining_after_brake, new_max_vel, tc->maxaccel);
                     return false;
                 }
 
@@ -2379,6 +2734,15 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             // Fix A: Reject if brake or main profile contains backward motion
             if (profileHasNegativeVelocity(&brake_profile) ||
                 profileHasNegativeVelocity(&main_profile)) {
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "Branch: REJECT seg=%d reason=negvel(2stg) brake_neg=%d main_neg=%d "
+                    "brake_dist=%.4f seg_remaining=%.4f seg_target=%.4f progress=%.4f "
+                    "resume_fh=%d\n",
+                    tc->id, profileHasNegativeVelocity(&brake_profile),
+                    profileHasNegativeVelocity(&main_profile),
+                    brake_profile.p[RUCKIG_PROFILE_PHASES],
+                    tc->target - state.position,
+                    tc->target, state.position, resuming_from_feed_hold);
                 return false;
             }
 
@@ -2423,6 +2787,9 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             // to zero in the remaining distance, reject the branch and let the
             // existing profile (computed with enough room to stop) finish.
             if (tc->term_cond == TC_TERM_COND_STOP && achievable_exit > 0.01) {
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "Branch: REJECT seg=%d reason=stop_cant_stop(1stg) exit=%.2f rem=%.4f resume_fh=%d\n",
+                    tc->id, achievable_exit, remaining, resuming_from_feed_hold);
                 return false;
             }
 
@@ -2432,12 +2799,18 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             // seeded with an unreachable entry velocity, and RT sees a
             // velocity discontinuity at the segment transition.
             if (tc->kink_vel > 0 && achievable_exit > tc->kink_vel + 0.01) {
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "Branch: REJECT seg=%d reason=kink(1stg) exit=%.2f kink=%.2f resume_fh=%d\n",
+                    tc->id, achievable_exit, tc->kink_vel, resuming_from_feed_hold);
                 return false;
             }
 
             // Downstream reachability: reject if can't decel to what
             // next segment accepts.  Feed change deferred to next cycle.
             if (achievable_exit > downstream_exit_cap + 0.01) {
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "Branch: REJECT seg=%d reason=downstream(1stg) exit=%.2f cap=%.2f resume_fh=%d\n",
+                    tc->id, achievable_exit, downstream_exit_cap, resuming_from_feed_hold);
                 tc->shared_9d.requested_feed_scale = new_feed_scale;
                 return false;
             }
@@ -2461,8 +2834,10 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
             auto result = otg.calculate(input, traj);
             if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                rtapi_print_msg(RTAPI_MSG_ERR, "Branch Ruckig failed: result=%d",
-                    static_cast<int>(result));
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Branch Ruckig failed: result=%d v=%.1f a=%.1f->v_exit=%.1f dist=%.3f maxvel=%.1f maxacc=%.1f",
+                    static_cast<int>(result), state.velocity, state.acceleration,
+                    achievable_exit, remaining, new_max_vel, tc->maxaccel);
                 return false;
             }
 
@@ -2485,6 +2860,11 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                                      && fabs(state.velocity) < 1e-3
                                      && fabs(state.acceleration) < 1e-3;
             if (!skip_negvel_check && profileHasNegativeVelocity(&main_profile)) {
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "Branch: REJECT seg=%d reason=negvel(1stg) v=%.2f a=%.2f "
+                    "seg_remaining=%.4f seg_target=%.4f progress=%.4f resume_fh=%d\n",
+                    tc->id, state.velocity, state.acceleration,
+                    remaining, tc->target, state.position, resuming_from_feed_hold);
                 return false;
             }
 
@@ -2570,23 +2950,77 @@ extern "C" void manageBranches(TP_STRUCT *tp)
     if (tp->pausing || tp->aborting) {
         int branch_valid = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
         if (!branch_valid) {
-            // Compute smooth stop branch (same as 0% feed hold)
             computeBranch(tp, tc, 0.0);
         }
         return;  // Don't process feed override while pausing/aborting
     }
 
     // Check if active segment has stale profile (race condition fix)
-    // This happens when segment becomes active before its profile was recomputed
+    // This happens when segment becomes active before its profile was recomputed.
+    // Two cases:
+    //   1. profile_feed != canonical_feed — profile was written at old feed
+    //   2. profile_feed ≈ 0 but slider is live — initial pessimistic profile was
+    //      never replaced because the cursor walk (from a prior merge) blocked
+    //      branching.  canonical_feed is also 0 (never set), so case 1 misses it.
+    // This check runs BEFORE the cursor guard so these segments get fixed
+    // even while a cursor walk is in progress (cursor never touches index 0).
     double profile_feed = tc->shared_9d.profile.computed_feed_scale;
     double canonical_feed = tc->shared_9d.canonical_feed_scale;
+    double current_feed_now = tpGetSegmentFeedScale(tc);
     double feed_diff = fabs(profile_feed - canonical_feed);
+    bool stale_initial = (profile_feed < 0.001 && current_feed_now > 0.01);
 
-    if (feed_diff > 0.005) {  // 0.5% threshold
-        // Active segment has stale profile! Need immediate branch.
+    if (feed_diff > 0.005 || stale_initial) {
         int branch_valid = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
         if (!branch_valid) {
-            computeBranch(tp, tc, canonical_feed);
+            double target_feed = stale_initial ? current_feed_now : canonical_feed;
+            bool ok = computeBranch(tp, tc, target_feed);
+            if (stale_initial && !ok) {
+                double elapsed = atomicLoadDouble(&tc->elapsed_time);
+                double dur = tc->shared_9d.profile.duration;
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "STALE_INITIAL seg %d: computeBranch REJECTED feed=%.3f "
+                    "elapsed=%.4f dur=%.4f remaining=%.4f cursor=%d\n",
+                    tc->id, target_feed, elapsed, dur, dur - elapsed,
+                    g_recompute_cursor);
+            }
+        }
+    }
+
+    // Kink velocity check: if active segment's profile exits above its
+    // kink constraint, force a branch computation.  The feed limiter
+    // inside computeBranch will cap the exit velocity by reducing the
+    // feed scale.  This catches segments that became active before the
+    // optimizer could fix their exit velocity.
+    if (tc->kink_vel > 0 && tc->shared_9d.profile.valid) {
+        double prof_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+        if (prof_exit > tc->kink_vel + 0.5) {
+            int bv = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
+            if (!bv) {
+                if (computeBranch(tp, tc, current_feed_now)) {
+                    return;
+                }
+            }
+        }
+    }
+
+    // Chain exit cap check: if active segment's profile exits above what
+    // the downstream chain can handle at the current feed, force a branch.
+    // The backward fixup pass skips the active segment, so this is the
+    // only place where the active's exit gets checked against full
+    // downstream constraints.
+    if (tc->term_cond == TC_TERM_COND_TANGENT && tc->shared_9d.profile.valid) {
+        int bv = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
+        if (!bv) {
+            double default_jerk = tc->maxjerk > 0 ? tc->maxjerk : g_handoff_config.default_max_jerk;
+            double chain_cap = computeChainExitCap(tp, tc, current_feed_now, default_jerk);
+            double prof_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+            if (prof_exit > chain_cap + 1.0) {
+                computeBranch(tp, tc, current_feed_now);
+                // Don't return — branch may be rejected (LOCKED) if the
+                // current velocity is already too high.  Let normal flow
+                // continue so feed changes are still processed.
+            }
         }
     }
 
@@ -2617,7 +3051,7 @@ extern "C" void manageBranches(TP_STRUCT *tp)
             // Single-stage or brake complete: fully clear
             __atomic_store_n(&branch->taken, 0, __ATOMIC_RELEASE);
         }
-        // Two-stage in brake phase: keep taken=1 for RT's in_brake_phase check
+        // else: two-stage in brake phase — keep taken=1 for RT's brake→main transition
 
         // Recompute downstream at the BRANCH feed, not the current slider.
         // The branch exit velocity was computed at branch_feed — downstream
@@ -2721,9 +3155,34 @@ extern "C" void manageBranches(TP_STRUCT *tp)
     double snap_feed = current_feed;
     double snap_rapid = emcmotStatus->rapid_scale;
 
-    // Feed hold must always branch on active — can't defer a stop.
-    // The commit-point path is for speed adjustments where ~100ms delay
-    // is acceptable.  A stop needs to decelerate NOW on the active segment.
+    // Two-phase feed hold: when user requests 0%, first decelerate to 0.1%
+    // using normal Ruckig (Phase 1), then engage real 0% to stop completely
+    // (Phase 2). Phase 1 writes 0.001 profiles downstream so that Phase 2's
+    // createFeedHoldProfile passes the DONT_CLOBBER check (0.001 > 0.001 is false).
+    // Use profile_feed (what's actually running) not canonical_feed (per-segment, can be stale).
+    static const double MINIMUM_RUCKIG_FEED = 0.001;  // 0.1%
+    static int last_phase = 0;  // Track state changes for logging
+    if (snap_feed < 0.001 && profile_feed > MINIMUM_RUCKIG_FEED + 0.005) {
+        // Phase 1: profile still at high feed, decelerate to 0.1% first
+        snap_feed = MINIMUM_RUCKIG_FEED;
+        if (last_phase != 1) {
+            rtapi_print_msg(RTAPI_MSG_DBG,
+                "PHASE1 seg %d: profile_feed=%.3f > 0.006, override to 0.1%%\n",
+                tc->id, profile_feed);
+            last_phase = 1;
+        }
+    } else if (snap_feed < 0.001) {
+        // Phase 2: profile at 0.1% or lower, allow real 0%
+        if (last_phase != 2) {
+            rtapi_print_msg(RTAPI_MSG_DBG,
+                "PHASE2 seg %d: profile_feed=%.3f <= 0.006, allowing real 0%%\n",
+                tc->id, profile_feed);
+            last_phase = 2;
+        }
+    } else {
+        last_phase = 0;
+    }
+
     int commit_seg;
     if (current_feed < 0.001) {
         commit_seg = 1;
@@ -2752,7 +3211,7 @@ extern "C" void manageBranches(TP_STRUCT *tp)
 
         if (!branch_valid) {
             double branch_t0 = etime_user();
-            if (computeBranch(tp, tc, current_feed)) {
+            if (computeBranch(tp, tc, snap_feed)) {
                 g_last_replan_time_ms = now_ms;
                 g_commit_segment = 1;
                 // Update committed feed so optimizer doesn't overwrite
@@ -3222,7 +3681,7 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                         ? atomicLoadDouble(&tc->shared_9d.final_vel) : 0.0;
                     continue;
                 }
-                createFeedHoldProfile(tc, vel_limit, tp->vLimit);
+                createFeedHoldProfile(tc, vel_limit, tp->vLimit, "computeRuckig_backward");
                 atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
             } else {
                 double max_vel = applyVLimit(tp, tc, vel_limit * feed_scale);
@@ -3533,7 +3992,7 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                 prev_exit_vel_known = true;
                 continue;
             }
-            createFeedHoldProfile(tc, vel_limit, tp->vLimit);
+            createFeedHoldProfile(tc, vel_limit, tp->vLimit, "computeRuckig_forward");
             atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
         } else {
             // Normal profile computation
@@ -3690,6 +4149,9 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
             // Leave A's profile as-is if Ruckig fails
         }
     }
+
+    // FIXUP12 removed: computeChainExitCap and safe-endpoint chain extension
+    // handle downstream constraints, making per-index fixups redundant.
 
     return 0;
 }
