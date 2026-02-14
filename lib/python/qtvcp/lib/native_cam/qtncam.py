@@ -2911,33 +2911,14 @@ class NCam():
             self.focused_widget.grab_focus()
 
     def action_renameF(self, *arg):
-        self.newnamedlg = gtk.MessageDialog(parent = None,
-            flags = gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            type = gtk.MESSAGE_QUESTION,
-            buttons = gtk.BUTTONS_OK_CANCEL
-        )
         old_name = self.selected_feature.get_attr('name')
-        self.newnamedlg.set_markup(_('Enter new name for'))
-        self.newnamedlg.format_secondary_markup(old_name)
-        self.newnamedlg.set_title('NativeCAM')
-        edit_entry = gtk.Entry()
-        edit_entry.set_editable(True)
-        edit_entry.set_text(old_name)
-        edit_entry.connect('key-press-event', self.action_rename_keyhandler)
-        self.newnamedlg.vbox.add(edit_entry)
-        self.newnamedlg.set_keep_above(True)
 
-        (tree_x, tree_y) = self.treeview.get_bin_window().get_origin()
-        self.newnamedlg.move(tree_x, tree_y + self.click_y)
+        newname = input_dlg("NativeCAM", _('Enter new name for {}'.format(old_name)), old_name)
 
-        self.newnamedlg.show_all()
-        response = self.newnamedlg.run()
-        if (response == gtk.RESPONSE_OK) :
-            newname = edit_entry.get_text().lstrip(' ')
-            if newname > '' :
+        # return new name
+        if newname > '' :
                 self.selected_feature.attr['name'] = newname
                 self.refresh_views()
-        self.newnamedlg.destroy()
 
     def action_rename_keyhandler(self, widget, event):
         keyname = gdk.keyval_name(event.keyval)
@@ -2956,7 +2937,9 @@ class NCam():
         print('***import xml',xml_i.tag)
         if xml_i.tag != XML_TAG:
             xml_i = xml_i.find(".//%s" % XML_TAG)
-
+        print('Select type',self.iter_selected_type)
+        if self.iter_selected_type == tv_select.items :
+            print('Select type is: items')
         if xml_i is not None :
             xml = self.treestore_to_xml()
             if self.iter_selected_type == tv_select.none :
@@ -2964,14 +2947,17 @@ class NCam():
                 next_path = None
             elif self.iter_selected_type == tv_select.items :
                 for i in xml:
-                    print (i)
+                    print ('In XML:',i)
                 print('add items',self.items_ts_parent_s,xml.find(".//*[@path='%s']/param[@type='items']" %
                                 self.items_ts_parent_s))
+                dest = xml.find(".//*[@path='%s']" % self.items_ts_parent_s)
+                print(dest)
                 # will append to items
                 print('find in xml:',".//*[@path='%s']/param[@type='items']" %
                                 self.items_ts_parent_s)
                 dest = xml.find(".//*[@path='%s']/param[@type='items']" %
                                 self.items_ts_parent_s)
+                print(dest)
                 opt = 2
                 i = -1
                 next_path = self.items_lpath
@@ -2979,6 +2965,7 @@ class NCam():
                 # will append after parent of selected feature
                 print(".//*[@path='%s']" % self.selected_feature_ts_path_s)
                 dest = xml.find(".//*[@path='%s']" % self.selected_feature_ts_path_s)
+                print(dest)
                 parent = dest.getparent()
                 i = parent.index(dest)
                 opt = 1
@@ -3655,7 +3642,7 @@ class NCam():
         d, fname = os.path.split(self.DATA.CURRENT_PROJECT)
 
         fltr = "XML Files *.xml;;All Files (*);;Text Files (*.txt)"
-        filename = self.saveDialog(title=dlg_title, directory=dir_, filename=fname, extfilter=fltr)
+        filename = saveDialog(title=dlg_title, directory=dir_, filename=fname, extfilter=fltr)
 
         if not filename is None:
             xml = self.treestore_to_xml()
