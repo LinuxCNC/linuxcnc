@@ -231,7 +231,7 @@ class ComboDelegate(QStyledItemDelegate):
                 combo.addItem(data[0],data[1])
             combo.currentIndexChanged.connect(self.currentIndexChanged)
             return combo
-        elif editorType == 'text':
+        elif editorType in ('text','gc-lines'):
             dialog = QInputDialog(parent)
             dialog.setWindowFlags(dialog.windowFlags() | Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
@@ -266,7 +266,7 @@ class ComboDelegate(QStyledItemDelegate):
             editor.setCurrentIndex(int(value))
             return
 
-        elif editorType == 'text':
+        elif editorType in ('text','gc-lines'):
             text = index.model().data(index,Qt.UserRole).get_value()
             editor.setTextValue(text)
 
@@ -294,7 +294,7 @@ class ComboDelegate(QStyledItemDelegate):
                 print('set tool model data',data)
                 model.setData(index, data, Qt.DisplayRole)
 
-        elif editorType == 'text':
+        elif editorType in ('text','gc-lines'):
             data = editor.textValue()
             result = editor.result()
             if result == QInputDialog.Accepted:
@@ -358,6 +358,10 @@ class treeModel(QAbstractItemModel):
                 if item.meta.get_type() == 'bool':
                     return None
 
+                elif item.meta.get_type() == 'items':
+                    val = item.meta.find_attr('value')
+                    print('item, Found ->:',val)
+                    return None
                 elif item.meta.get_type() in ('combo', 'combo-user'):
                     def get_data(): # from XML object
                         return item.data(index.column()).value()
@@ -384,7 +388,7 @@ class treeModel(QAbstractItemModel):
                     print('prjname',dval,h)
                     return dval
 
-                elif item.meta.get_type() == 'text':
+                elif item.meta.get_type() in ('text','gc-lines'):
                     val = item.meta.find_attr('value')
                     print('Found ->note text:',val)
                     return val
@@ -468,7 +472,7 @@ class treeModel(QAbstractItemModel):
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
 
-                elif metaType == 'text':
+                elif metaType in ('text','gc-lines'):
                     print('Set Note text')
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
@@ -493,7 +497,7 @@ class treeModel(QAbstractItemModel):
                 elif metaType == 'tool':
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
-                elif metaType == 'text':
+                elif metaType in ('text','gc-lines'):
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
                 elif metaType  in ('float','int'):
