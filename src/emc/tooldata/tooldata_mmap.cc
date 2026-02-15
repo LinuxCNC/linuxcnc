@@ -58,10 +58,10 @@ typedef struct {
 
 #define TOOL_MMAP_STRIDE  sizeof(CANON_TOOL_TABLE)
 //---------------------------------------------------------------------
-#define HPTR()    (tooldata_header_t*)( tool_mmap_base \
+#define HPTR()    reinterpret_cast<tooldata_header_t*>( tool_mmap_base \
                                       + TOOL_MMAP_HEADER_OFFSET)
 
-#define TPTR(idx) (CANON_TOOL_TABLE*)( tool_mmap_base \
+#define TPTR(idx) reinterpret_cast<CANON_TOOL_TABLE*>( tool_mmap_base \
                                      + TOOL_MMAP_HEADER_OFFSET \
                                      + TOOL_MMAP_HEADER_SIZE \
                                      + idx * TOOL_MMAP_STRIDE)

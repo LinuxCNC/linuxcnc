@@ -1151,8 +1151,8 @@ int CMS::encode_header()
     }
     CMS_UPDATER_MODE original_mode;
     original_mode = updater->get_mode();
-    format_low_ptr = (char *) &header;
-    format_high_ptr = ((char *) &header) + sizeof(CMS_HEADER);
+    format_low_ptr = reinterpret_cast<char *>(&header);
+    format_high_ptr = reinterpret_cast<char *>(&header) + sizeof(CMS_HEADER);
     updater->set_mode(CMS_ENCODE_HEADER);
     updater->rewind();
     updater->update(header.was_read);
@@ -1180,8 +1180,8 @@ int CMS::decode_header()
 	return -1;
     }
     CMS_UPDATER_MODE original_mode = updater->get_mode();
-    format_low_ptr = (char *) &header;
-    format_high_ptr = ((char *) &header) + sizeof(CMS_HEADER);
+    format_low_ptr = reinterpret_cast<char *>(&header);
+    format_high_ptr = reinterpret_cast<char *>(&header) + sizeof(CMS_HEADER);
     updater->set_mode(CMS_DECODE_HEADER);
     updater->rewind();
     updater->update(header.was_read);
@@ -1201,8 +1201,8 @@ int CMS::encode_queuing_header()
 	return -1;
     }
     CMS_UPDATER_MODE original_mode = updater->get_mode();
-    format_low_ptr = (char *) &queuing_header;
-    format_high_ptr = ((char *) &queuing_header) + sizeof(CMS_QUEUING_HEADER);
+    format_low_ptr = reinterpret_cast<char *>(&queuing_header);
+    format_high_ptr = reinterpret_cast<char *>(&queuing_header) + sizeof(CMS_QUEUING_HEADER);
     updater->set_mode(CMS_ENCODE_QUEUING_HEADER);
     updater->rewind();
     updater->update(queuing_header.head);
@@ -1232,8 +1232,8 @@ int CMS::decode_queuing_header()
 	return -1;
     }
     CMS_UPDATER_MODE original_mode = updater->get_mode();
-    format_low_ptr = (char *) &queuing_header;
-    format_high_ptr = ((char *) &queuing_header) + sizeof(CMS_QUEUING_HEADER);
+    format_low_ptr = reinterpret_cast<char *>(&queuing_header);
+    format_high_ptr = reinterpret_cast<char *>(&queuing_header) + sizeof(CMS_QUEUING_HEADER);
     updater->set_mode(CMS_DECODE_QUEUING_HEADER);
     updater->rewind();
     updater->update(queuing_header.head);

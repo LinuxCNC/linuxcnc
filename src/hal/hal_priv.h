@@ -140,15 +140,15 @@ RTAPI_END_DECLS
 #ifdef __cplusplus
 template<class T>
 bool hal_shmchk(T *t) {
-    char *c = (char*)t;
+    char *c = reinterpret_cast<char*>(t);
     return c > hal_shmem_base && c < hal_shmem_base + HAL_SIZE;
 }
 
 template<class T>
-int hal_shmoff(T *t) { return t ? (char*)t - hal_shmem_base : 0; }
+int hal_shmoff(T *t) { return t ? reinterpret_cast<char*>(t) - hal_shmem_base : 0; }
 
 template<class T>
-T *hal_shmptr(int p) { return p ? (T*)(hal_shmem_base + p) : nullptr; }
+T *hal_shmptr(int p) { return p ? reinterpret_cast<T*>(hal_shmem_base + p) : nullptr; }
 
 template<class T>
 class hal_shmfield {

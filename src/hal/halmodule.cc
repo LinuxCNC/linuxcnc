@@ -234,7 +234,7 @@ static int pyhal_init(PyObject *_self, PyObject *args, PyObject *kw) {
     (void)kw;
     char *name;
     char *prefix = 0;
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
 
     if(!PyArg_ParseTuple(args, "s|s:hal.component", &name, &prefix)) return -1;
 
@@ -276,7 +276,7 @@ static void pyhal_exit_impl(halobject *self) {
 }
 
 static void pyhal_delete(PyObject *_self) {
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
     pyhal_exit_impl(self);
     Py_TYPE(self)->tp_free(self);
 }
@@ -477,7 +477,7 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
 static PyObject *pyhal_new_param(PyObject *_self, PyObject *o) {
     char *name;
     int type, dir;
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
 
     if(!PyArg_ParseTuple(o, "sii", &name, &type, &dir))
         return NULL;
@@ -494,7 +494,7 @@ static PyObject *pyhal_new_param(PyObject *_self, PyObject *o) {
 static PyObject *pyhal_new_pin(PyObject *_self, PyObject *o) {
     char *name;
     int type, dir;
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
 
     if(!PyArg_ParseTuple(o, "sii", &name, &type, &dir))
         return NULL;
@@ -509,7 +509,7 @@ static PyObject *pyhal_new_pin(PyObject *_self, PyObject *o) {
 
 static PyObject *pyhal_get_pin(PyObject *_self, PyObject *o) {
     char *name;
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
 
     if(!PyArg_ParseTuple(o, "s", &name))
         return NULL;
@@ -524,7 +524,7 @@ static PyObject *pyhal_get_pin(PyObject *_self, PyObject *o) {
 
 static PyObject *pyhal_get_pins(PyObject *_self, PyObject * /*o*/) {
   char *name;
-  halobject *self = (halobject *)_self;
+  halobject *self = reinterpret_cast<halobject *>(_self);
 
   EXCEPTION_IF_NOT_LIVE(NULL);
 
@@ -540,7 +540,7 @@ static PyObject *pyhal_get_pins(PyObject *_self, PyObject * /*o*/) {
 
 static PyObject *pyhal_ready(PyObject *_self, PyObject * /*o*/) {
     // hal_ready did not exist in EMC 2.0.x, make it a no-op
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
     EXCEPTION_IF_NOT_LIVE(NULL);
     int res = hal_ready(self->hal_id);
     if(res) return pyhal_error(res);
@@ -549,7 +549,7 @@ static PyObject *pyhal_ready(PyObject *_self, PyObject * /*o*/) {
 
 static PyObject *pyhal_unready(PyObject *_self, PyObject * /*o*/) {
     // hal_ready did not exist in EMC 2.0.x, make it a no-op
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
     EXCEPTION_IF_NOT_LIVE(NULL);
     int res = hal_unready(self->hal_id);
     if(res) return pyhal_error(res);
@@ -557,23 +557,23 @@ static PyObject *pyhal_unready(PyObject *_self, PyObject * /*o*/) {
 }
 
 static PyObject *pyhal_exit(PyObject *_self, PyObject * /*o*/) {
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
     pyhal_exit_impl(self);
     return Py_None;
 }
 
 static PyObject *pyhal_repr(PyObject *_self) {
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
     return PyUnicode_FromFormat("<hal component %s(%d) with %d pins and params>",
             self->name, self->hal_id, (int)self->items->size());
 }
 
 static PyObject *pyhal_getattro(PyObject *_self, PyObject *attro)  {
     PyObject *result;
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
     EXCEPTION_IF_NOT_LIVE(NULL);
 
-    result = PyObject_GenericGetAttr((PyObject*)self, attro);
+    result = PyObject_GenericGetAttr(reinterpret_cast<PyObject*>(self), attro);
     if(result) return result;
 
     PyErr_Clear();
@@ -581,19 +581,19 @@ static PyObject *pyhal_getattro(PyObject *_self, PyObject *attro)  {
 }
 
 static int pyhal_setattro(PyObject *_self, PyObject *attro, PyObject *v) {
-    halobject *self = (halobject *)_self;
+    halobject *self = reinterpret_cast<halobject *>(_self);
     EXCEPTION_IF_NOT_LIVE(-1);
     return pyhal_write_common(find_item(self, PyUnicode_AsUTF8(attro)), v);
 }
 
 static Py_ssize_t pyhal_len(PyObject *_self) {
-    halobject* self = (halobject*)_self;
+    halobject* self = reinterpret_cast<halobject*>(_self);
     EXCEPTION_IF_NOT_LIVE(-1);
     return self->items->size();
 }
 
 static PyObject *pyhal_get_prefix(PyObject *_self, PyObject *args) {
-    halobject* self = (halobject*)_self;
+    halobject* self = reinterpret_cast<halobject*>(_self);
     if(!PyArg_ParseTuple(args, "")) return NULL;
     EXCEPTION_IF_NOT_LIVE(NULL);
 
@@ -606,7 +606,7 @@ static PyObject *pyhal_get_prefix(PyObject *_self, PyObject *args) {
 
 static PyObject *pyhal_set_prefix(PyObject *_self, PyObject *args) {
     char *newprefix;
-    halobject* self = (halobject*)_self;
+    halobject* self = reinterpret_cast<halobject*>(_self);
     if(!PyArg_ParseTuple(args, "s", &newprefix)) return NULL;
     EXCEPTION_IF_NOT_LIVE(NULL);
 
@@ -741,7 +741,7 @@ static const char * param_dir2name(hal_param_dir_t type) {
 }
 
 static PyObject *pyhalpin_repr(PyObject *_self) {
-    pyhalitem *pyself = (pyhalitem *) _self;
+    pyhalitem *pyself = reinterpret_cast<pyhalitem *>(_self);
     halitem *self = &pyself->pin;
 
     const char * name = "(null)";
@@ -761,7 +761,7 @@ static int pyhalpin_init(PyObject * /*_self*/, PyObject *, PyObject *) {
 }
 
 static void pyhalpin_delete(PyObject *_self) {
-    pyhalitem *self = (pyhalitem *)_self;
+    pyhalitem *self = reinterpret_cast<pyhalitem *>(_self);
 
     if(self->name) free(self->name);
 
@@ -769,24 +769,24 @@ static void pyhalpin_delete(PyObject *_self) {
 }
 
 static PyObject * pyhal_pin_set(PyObject * _self, PyObject * value) {
-    pyhalitem * self = (pyhalitem *) _self;
+    pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
     if (pyhal_write_common(&self->pin, value) == -1)
 	return NULL;
     return Py_None;
 }
 
 static PyObject * pyhal_pin_get(PyObject * _self, PyObject *) {
-    pyhalitem * self = (pyhalitem *) _self;
+    pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
     return pyhal_read_common(&self->pin);
 }
 
 static PyObject * pyhal_pin_get_type(PyObject * _self, PyObject *) {
-    pyhalitem * self = (pyhalitem *) _self;
+    pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
     return PyLong_FromLong(self->pin.type);
 }
 
 static PyObject * pyhal_pin_get_dir(PyObject * _self, PyObject *) {
-    pyhalitem * self = (pyhalitem *) _self;
+    pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
     if (self->pin.is_pin)
 	return PyLong_FromLong(self->pin.dir.pindir);
     else
@@ -794,12 +794,12 @@ static PyObject * pyhal_pin_get_dir(PyObject * _self, PyObject *) {
 }
 
 static PyObject * pyhal_pin_is_pin(PyObject * _self, PyObject *) {
-    pyhalitem * self = (pyhalitem *) _self;
+    pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
     return PyBool_FromLong(self->pin.is_pin);
 }
 
 static PyObject * pyhal_pin_get_name(PyObject * _self, PyObject *) {
-    pyhalitem * self = (pyhalitem *) _self;
+    pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
     if (!self->name)
 	return Py_None;
     return PyUnicode_FromString(self->name);
@@ -886,7 +886,7 @@ static PyObject * pyhal_pin_new(halitem * pin, const char * name) {
     else
 	pypin->name = NULL;
 
-    return (PyObject *) pypin;
+    return reinterpret_cast<PyObject *>(pypin);
 }
 
 PyObject *pin_has_writer(PyObject * /*self*/, PyObject *args) {
@@ -1536,7 +1536,7 @@ struct shmobject {
 };
 
 static int pyshm_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
-    shmobject *self = (shmobject *)_self;
+    shmobject *self = reinterpret_cast<shmobject *>(_self);
     self->comp = 0;
     self->shm_id = -1;
 
@@ -1559,7 +1559,7 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
 }
 
 static void pyshm_delete(PyObject *_self) {
-    shmobject *self = (shmobject *)_self;
+    shmobject *self = reinterpret_cast<shmobject *>(_self);
     if(self->comp && self->shm_id > 0)
 	rtapi_shmem_delete(self->shm_id, self->comp->hal_id);
     Py_XDECREF(self->comp);
@@ -1570,8 +1570,8 @@ static int shm_buffer_getbuffer(PyObject *obj, Py_buffer *view, int /*flags*/) {
     PyErr_SetString(PyExc_ValueError, "NULL view in getbuffer");
     return -1;
   }
-  shmobject* self = (shmobject *)obj;
-  view->obj = (PyObject*)self;
+  shmobject* self = reinterpret_cast<shmobject *>(obj);
+  view->obj = reinterpret_cast<PyObject*>(self);
   view->buf = (void*)self->buf;
   view->len = self->size;
   view->readonly = 0;
@@ -1580,13 +1580,13 @@ static int shm_buffer_getbuffer(PyObject *obj, Py_buffer *view, int /*flags*/) {
 }
 
 static PyObject *pyshm_repr(PyObject *_self) {
-    shmobject *self = (shmobject *)_self;
+    shmobject *self = reinterpret_cast<shmobject *>(_self);
     return PyUnicode_FromFormat("<shared memory buffer key=%08x id=%d size=%ld>",
 	    self->key, self->shm_id, (unsigned long)self->size);
 }
 
 static PyObject *shm_setsize(PyObject *_self, PyObject *args) {
-    shmobject *self = (shmobject *)_self;
+    shmobject *self = reinterpret_cast<shmobject *>(_self);
     if(!PyArg_ParseTuple(args, "k", &self->size)) return NULL;
     return Py_None;
 }
@@ -1594,8 +1594,8 @@ static PyObject *shm_setsize(PyObject *_self, PyObject *args) {
 
 static PyObject *shm_getbuffer(PyObject *_self, PyObject * /*dummy*/) {
 
-    shmobject *self = (shmobject *)_self;
-    return (PyObject*)PyMemoryView_FromObject((PyObject*)self);
+    shmobject *self = reinterpret_cast<shmobject *>(_self);
+    return (PyObject*)PyMemoryView_FromObject(reinterpret_cast<PyObject*>(self));
 }
 
 static PyObject *set_msg_level(PyObject * /*_self*/, PyObject *args) {
@@ -1698,7 +1698,7 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
     int depth=0;
     char *typestring=NULL;
 
-    streamobj *self = (streamobj *)_self;
+    streamobj *self = reinterpret_cast<streamobj *>(_self);
     self->sampleno = 0;
 
     // creating a new stream
@@ -1751,7 +1751,7 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
 }
 
 PyObject *stream_read(PyObject *_self, PyObject * /*unused*/) {
-    streamobj *self = (streamobj *)_self;
+    streamobj *self = reinterpret_cast<streamobj *>(_self);
     int n = PyBytes_Size(self->pyelt);
     if(n <= 0)
         return Py_None;
@@ -1781,7 +1781,7 @@ PyObject *stream_read(PyObject *_self, PyObject * /*unused*/) {
 }
 
 PyObject *stream_write(PyObject *_self, PyObject *args) {
-    streamobj *self = (streamobj *)_self;
+    streamobj *self = reinterpret_cast<streamobj *>(_self);
     PyObject *data;
     if(!PyArg_ParseTuple(args, "O!:hal.stream.write", &PyTuple_Type, &data))
         return NULL;

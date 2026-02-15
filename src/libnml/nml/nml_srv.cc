@@ -191,7 +191,7 @@ REMOTE_READ_REPLY *NML_SERVER_LOCAL_PORT::blocking_read(REMOTE_READ_REQUEST *
     double orig_bytes_moved = 0.0;
 
     REMOTE_BLOCKING_READ_REQUEST *breq =
-	(REMOTE_BLOCKING_READ_REQUEST *) _req;
+	reinterpret_cast<REMOTE_BLOCKING_READ_REQUEST *>(_req);
     breq->_nml = new NML(nml, 1, -1);
 
     NML *nmlcopy = breq->_nml;
@@ -283,7 +283,7 @@ REMOTE_WRITE_REPLY *NML_SERVER_LOCAL_PORT::writer(REMOTE_WRITE_REQUEST * _req)
     cms->header.in_buffer_size = _req->size;
     temp->size = _req->size;
     int *serial_number = cms->serial
-	? &(((RCS_CMD_MSG*)temp)->serial_number)
+	? &(reinterpret_cast<RCS_CMD_MSG*>(temp)->serial_number)
 	: NULL;
 
     switch (_req->access_type) {
