@@ -1,0 +1,40 @@
+#<_initial>=20
+#<_final>=19.726
+#<_champher>=0.5
+#<_zmax>=0
+#<_zmin>=-25
+#<doc>=2
+
+G54
+G7
+G18
+G21
+
+o100 sub
+	o101 if [#<_champher> gt 0]
+		G1 X[#<_final>-2.0001*#<_champher>] 
+		Z#<_zmax>
+		X#<_final>C#<_champher>
+	o101 else
+		X#<_final>
+	o101 endif
+	W-5
+	U0.5
+	Z#<_zmin>
+	X#<_initial>
+o100 endsub
+
+M3 G96 S200 d1400
+G95 F0.12
+G52 z[0.1-#<doc>]
+;m7
+G71 Q100 Z[#<_zmax>+0.8+#<doc>] X#<_initial> D#<doc> I#<doc> R0.3 
+G52 z0
+;m7
+g42
+G70 Q100 Z[#<_zmax>+1] X#<_initial> D#<doc> P1
+g40
+M9
+G0X[#<_initial>+5]
+
+M2
