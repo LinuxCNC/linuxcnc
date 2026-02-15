@@ -519,7 +519,7 @@ function GetFromIniEx {
 
 # 2.1.5 check version
 GetFromIni VERSION EMC
-if [ "$retval" != "1.1" ]; then
+if [ "$retval" != "1.2" ]; then
     if [ -z "$DISPLAY" ]; then
         echo "INI file [EMC]VERSION indicates update is needed, but the update GUI can't run without an X display"
         exit 1
