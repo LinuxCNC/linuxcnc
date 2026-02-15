@@ -2206,12 +2206,12 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         result = TP_ERR_NO_ACTION;
     }
 
-    // Fix #2: Centripetal acceleration discontinuity limit.
+    // Centripetal acceleration discontinuity limit.
     // At arc-to-arc (or arc-to-line / line-to-arc) junctions, the centripetal
     // acceleration direction changes instantaneously. The per-axis jerk from
     // this is v^2 * |delta_curvature_j| / dt. Limit junction velocity so that
     // this stays within maxjerk for each axis.
-    double v_cent_max = -1.0;  // -1 means N/A (no circular segments)
+    double v_cent_max = -1.0;  // -1 means N/A
     if (prev_tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_CIRCULAR) {
         PmCartesian curv_prev = {0, 0, 0};
         PmCartesian curv_tc = {0, 0, 0};
@@ -2260,6 +2260,80 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
         if (v_cent_max < kink_vel) {
             kink_vel = v_cent_max;
+        }
+    }
+
+    // Virtual arc centripetal limit for line-line junctions.
+    // Consecutive small line segments approximate a smooth curve. Compute the
+    // discrete curvature from three points (start of prev, junction, end of tc)
+    // and apply the same per-axis jerk limit. Lines have zero curvature, so
+    // delta_curvature at the junction equals the virtual arc curvature itself.
+    // For G61 (Exact Path) mode, this also enables TANGENT promotion so the
+    // machine can traverse small-line approximations without stopping at every
+    // junction.
+    if (prev_tc->motion_type == TC_LINEAR && tc->motion_type == TC_LINEAR) {
+        PmCartesian P0 = prev_tc->coords.line.xyz.start;
+        PmCartesian P1 = prev_tc->coords.line.xyz.end;   // junction point
+        PmCartesian P2 = tc->coords.line.xyz.end;
+
+        PmCartesian A, B;
+        pmCartCartSub(&P1, &P0, &A);   // prev_tc direction
+        pmCartCartSub(&P2, &P1, &B);   // tc direction
+
+        double A_mag, B_mag;
+        pmCartMag(&A, &A_mag);
+        pmCartMag(&B, &B_mag);
+
+        if (A_mag > 1e-12 && B_mag > 1e-12) {
+            // Unit tangent vectors
+            PmCartesian t_in, t_out, delta_t;
+            pmCartScalMult(&A, 1.0 / A_mag, &t_in);
+            pmCartScalMult(&B, 1.0 / B_mag, &t_out);
+            pmCartCartSub(&t_out, &t_in, &delta_t);
+
+            // Discrete curvature vector: kappa = 2*(t_out - t_in) / (|A| + |B|)
+            // This equals the curvature of the circumscribed circle through P0, P1, P2.
+            double L_sum = A_mag + B_mag;
+            PmCartesian curv_vec;
+            pmCartScalMult(&delta_t, 2.0 / L_sum, &curv_vec);
+
+            double maxjerk = fmin(prev_tc->maxjerk, tc->maxjerk);
+            double dt = tp->cycleTime;
+            double v_line_cent = 1e12;
+
+            if (fabs(curv_vec.x) > 1e-12) {
+                double v_lim = sqrt(maxjerk * dt / fabs(curv_vec.x));
+                if (v_lim < v_line_cent) v_line_cent = v_lim;
+            }
+            if (fabs(curv_vec.y) > 1e-12) {
+                double v_lim = sqrt(maxjerk * dt / fabs(curv_vec.y));
+                if (v_lim < v_line_cent) v_line_cent = v_lim;
+            }
+            if (fabs(curv_vec.z) > 1e-12) {
+                double v_lim = sqrt(maxjerk * dt / fabs(curv_vec.z));
+                if (v_lim < v_line_cent) v_line_cent = v_lim;
+            }
+
+            tp_debug_print("line-line virtual arc: curv=(%g,%g,%g) v_line_cent=%f kink_vel_before=%f\n",
+                    curv_vec.x, curv_vec.y, curv_vec.z, v_line_cent, kink_vel);
+
+            if (v_line_cent < kink_vel) {
+                kink_vel = v_line_cent;
+            }
+            if (v_cent_max < 0) {
+                v_cent_max = v_line_cent;
+            }
+
+            // For G61 (Exact Path): promote to TANGENT with the bounded kink_vel.
+            // Blend arcs are blocked for EXACT segments, so without promotion the
+            // junction would be forced to v=0.  The virtual arc kink_vel ensures
+            // the centripetal jerk stays within limits.
+            if (result == TP_ERR_NO_ACTION &&
+                prev_tc->term_cond == TC_TERM_COND_EXACT) {
+                tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
+                tp_debug_print("G61 line-line: promoting to TANGENT, kink_vel=%f\n", kink_vel);
+                result = TP_ERR_OK;
+            }
         }
     }
 
