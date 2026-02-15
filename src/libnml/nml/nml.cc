@@ -115,7 +115,7 @@ void *NML::operator new(size_t size)
 	cptr = ((char *) nml_space) + sizeof(NML);
 	// guarantee alignment
 	cptr += sizeof(int) - (((size_t) cptr) % sizeof(int));
-	*((int *) cptr) = dynamic_list_id;
+	*reinterpret_cast<int *>(cptr) = dynamic_list_id;
     }
     rcs_print_debug(PRINT_NML_CONSTRUCTORS, "%p = NML::operator new(%zd)\n",
 	nml_space, size);
@@ -137,7 +137,7 @@ void NML::operator delete(void *nml_space)
     if (NULL != Dynamically_Allocated_NML_Objects) {
 	cptr = ((char *) nml_space) + sizeof(NML);
 	cptr += sizeof(int) - (((size_t) cptr) % sizeof(int));
-	dynamic_list_id = *((int *) cptr);
+	dynamic_list_id = *reinterpret_cast<int *>(cptr);
 	Dynamically_Allocated_NML_Objects->delete_node(dynamic_list_id);
 	if (Dynamically_Allocated_NML_Objects->list_size == 0) {
 	    delete Dynamically_Allocated_NML_Objects;
@@ -1865,7 +1865,7 @@ int NML::format_input(NMLmsg * nml_msg)
 	    return (-1);
 	}
 
-	cms->format_low_ptr = (char *) nml_msg;
+	cms->format_low_ptr = reinterpret_cast<char *>(nml_msg);
 	cms->format_high_ptr = cms->format_low_ptr + nml_msg->size;
 	/* Handle the generic part of the message. */
 	cms->rewind();		/* Move to the start of the encoded buffer. */
@@ -2436,7 +2436,7 @@ NML_DIAGNOSTICS_INFO *NML::get_diagnostics_info()
     if (NULL == cms) {
 	return NULL;
     }
-    return (NML_DIAGNOSTICS_INFO *) cms->get_diagnostics_info();
+    return reinterpret_cast<NML_DIAGNOSTICS_INFO *>(cms->get_diagnostics_info());
 }
 
 void nmlSetHostAlias(const char * const hostName, const char * const hostAlias)

@@ -298,7 +298,7 @@ static int emcTaskNmlGet()
 	    emcStatus = 0;
 	    retval = -1;
 	} else {
-	    emcStatus = (EMC_STAT *) emcStatusBuffer->get_address();
+	    emcStatus = reinterpret_cast<EMC_STAT *>(emcStatusBuffer->get_address());
 	}
     }
 

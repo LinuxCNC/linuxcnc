@@ -191,14 +191,14 @@ int xhc_encode_float(float v, unsigned char *buf)
 	unsigned short int_part = int_v / 10000;
 	unsigned short fract_part = int_v % 10000;
 	if (v < 0) fract_part = fract_part | 0x8000;
-	*(short *)buf = int_part;
-	*((short *)buf+1) = fract_part;
+	*reinterpret_cast<short *>(buf) = int_part;
+	*(reinterpret_cast<short *>(buf)+1) = fract_part;
 	return 4;
 }
 
 int xhc_encode_s16(int v, unsigned char *buf)
 {
-	*(short *)buf = v;
+	*reinterpret_cast<short *>(buf) = v;
 	return 2;
 }
 

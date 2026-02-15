@@ -103,7 +103,7 @@ int PHYSMEM_HANDLE::read(void *_to, long _read_size)
 	char *from;
 	from = ((char *) local_address) + offset;
 	if (_read_size == 2) {
-	    short *sfrom = (short *) from;
+	    short *sfrom = reinterpret_cast<short *>(from);
 	    short sval;
 	    sval = *sfrom;
 	    short *sto = (short *) _to;
@@ -153,7 +153,7 @@ int PHYSMEM_HANDLE::write(void *_from, long _write_size)
 	char *to;
 	to = ((char *) local_address) + offset;
 	if (_write_size == 2) {
-	    short *sto = (short *) to;
+	    short *sto = reinterpret_cast<short *>(to);
 	    short sval = *(short *) _from;
 	    *sto = sval;
 	} else {

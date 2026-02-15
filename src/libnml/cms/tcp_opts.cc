@@ -32,7 +32,7 @@ int set_tcp_socket_options(int socket_fd)
     int optval = 1;
 #ifdef TCP_NODELAY
     if (setsockopt(socket_fd, IPPROTO_TCP, TCP_NODELAY,
-	    (char *) &optval, sizeof(optval)) < 0) {
+	    reinterpret_cast<char *>(&optval), sizeof(optval)) < 0) {
 	rcs_print_error(" Can`t set a socket option.\n");
 	rcs_print_error("errno = %d = %s\n", errno, strerror(errno));
 	return -1;
@@ -42,7 +42,7 @@ int set_tcp_socket_options(int socket_fd)
     optval = 1;
 
     if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR,
-	    (char *) &optval, sizeof(optval)) < 0) {
+	    reinterpret_cast<char *>(&optval), sizeof(optval)) < 0) {
 	rcs_print_error(" Can`t set a socket option.\n");
 	rcs_print_error("errno = %d = %s\n", errno, strerror(errno));
 	return -1;
@@ -51,7 +51,7 @@ int set_tcp_socket_options(int socket_fd)
     linger_opt.l_onoff = 0;
     linger_opt.l_linger = 0;
     if (setsockopt(socket_fd, SOL_SOCKET, SO_LINGER,
-	    (char *) &linger_opt, sizeof(linger_opt)) < 0) {
+	    reinterpret_cast<char *>(&linger_opt), sizeof(linger_opt)) < 0) {
 	rcs_print_error(" Can`t set a socket option.\n");
 	rcs_print_error("errno = %d = %s\n", errno, strerror(errno));
 	return -1;

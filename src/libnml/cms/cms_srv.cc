@@ -639,14 +639,14 @@ REMOTE_CMS_REPLY *CMS_SERVER::process_request(REMOTE_CMS_REQUEST * _request)
 	}
 
     case REMOTE_CMS_READ_REQUEST_TYPE:
-	return (local_port->reader((REMOTE_READ_REQUEST *) request));
+	return (local_port->reader(reinterpret_cast<REMOTE_READ_REQUEST *>(request)));
     case REMOTE_CMS_GET_DIAG_INFO_REQUEST_TYPE:
 	return (local_port->get_diag_info
-	    ((REMOTE_GET_DIAG_INFO_REQUEST *) request));
+	    (reinterpret_cast<REMOTE_GET_DIAG_INFO_REQUEST *>(request)));
     case REMOTE_CMS_BLOCKING_READ_REQUEST_TYPE:
-	return (local_port->blocking_read((REMOTE_READ_REQUEST *) request));
+	return (local_port->blocking_read(reinterpret_cast<REMOTE_READ_REQUEST *>(request)));
     case REMOTE_CMS_WRITE_REQUEST_TYPE:
-	return (local_port->writer((REMOTE_WRITE_REQUEST *) request));
+	return (local_port->writer(reinterpret_cast<REMOTE_WRITE_REQUEST *>(request)));
     case REMOTE_CMS_CHECK_IF_READ_REQUEST_TYPE:
 	if (NULL == local_port->cms) {
 	    rcs_print_error
@@ -713,8 +713,8 @@ REMOTE_CMS_REPLY *CMS_SERVER::process_request(REMOTE_CMS_REQUEST * _request)
 	}
 	remote_port->current_connected_user_struct->user_info =
 	    get_user_info(
-	    ((REMOTE_LOGIN_REQUEST *) request)->name,
-	    ((REMOTE_LOGIN_REQUEST *) request)->passwd);
+	    reinterpret_cast<REMOTE_LOGIN_REQUEST *>(request)->name,
+	    reinterpret_cast<REMOTE_LOGIN_REQUEST *>(request)->passwd);
 	login_reply->success =
 	    (NULL != remote_port->current_connected_user_struct->user_info);
 	if (login_reply->success) {
