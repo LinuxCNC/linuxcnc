@@ -647,9 +647,13 @@ extern "C" int tpAddLine_9D(
         return -1;
     }
 
-    // Check for zero-length segment
+    // Zero-length move (e.g. G0Z0 when already at Z0): treat as no-op success.
+    // Update goalPos to match command endpoint (handles FP rounding) and return
+    // success so the task controller advances without falling through to the
+    // RT path (which would call tpSetId/tpAddLine on the shared queue).
     if (tc.target < 1e-6) {
-        return -1;  // Zero-length segment
+        tp->goalPos = end_pose;
+        return 0;
     }
 
     // Set termination condition from G-code mode (G61/G61.1/G64):
@@ -761,10 +765,10 @@ extern "C" int tpAddCircle_9D(
     // Compute target as arc length
     tc.target = tc.nominal_length = pmCircle9Target(&tc.coords.circle);
 
-    // Check for zero-length segment
+    // Zero-length arc: treat as no-op success (same logic as zero-length line).
     if (tc.target < 1e-6) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "tpAddCircle_9D: FAIL - zero-length arc\n");
-        return -1;
+        tp->goalPos = end;
+        return 0;
     }
 
     // Centripetal jerk velocity limit: v³/R² ≤ jerk_limit → v ≤ cbrt(jerk * R²)
