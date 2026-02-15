@@ -10,8 +10,9 @@ This chapter provides details on core functionalities of LinuxCNC that demand ex
 * for the interpretation of signals sent by the hardware (like encoders).
 
 [[sec:stepgen]]
-== StepGen(((stepgen)))
+== StepGen
 
+(((stepgen)))
 This component provides software based generation of step pulses in response to position or velocity commands.
 In position mode, it has a built in pre-tuned position loop, so PID tuning is not required.
 In velocity mode, it drives a motor at the commanded speed, while obeying velocity and acceleration limits.
@@ -22,8 +23,9 @@ The second is for step type '1' (up/down, or pseudo-PWM), and the third is for s
 The first two diagrams show position mode control, and the third one shows velocity mode.
 Control mode and step type are set independently, and any combination can be selected.
 
+(((Stepgen Block Diagram)))
 [[fig:stepgen-block-diagram]]
-.Step Pulse Generator Block Diagram position mode(((Stepgen Block Diagram)))
+.Step Pulse Generator Block Diagram position mode
 image::images/stepgen-block-diag.png[align="center"]
 
 .Loading `stepgen` component
@@ -55,8 +57,9 @@ halcmd: unloadrt stepgen
 ----
 
 [[sub:stepgen-pins]]
-=== Pins(((HAL stepgen pins)))
+=== Pins
 
+(((HAL stepgen pins)))
 On the step type and control type selected.
 
 * (float) `stepgen.`__<chan>__`.position-cmd` - Desired motor position, in position units (position mode only).
@@ -75,8 +78,9 @@ On the step type and control type selected.
 * (bit) `stepgen.`__<chan>__`.phase-E` - Phase E output (step types 11-14 only).
 
 [[sec:stepgen-parameters]]
-=== Parameters(((HAL stepgen parameters)))
+=== Parameters
 
+(((HAL stepgen parameters)))
 * (float) `stepgen.`__<chan>__`.position-scale` - Steps per position unit. This parameter is used for both output and feedback.
 * (float) `stepgen.`__<chan>__`.maxvel` - Maximum velocity, in position units per second. If 0.0, has no effect.
 * (float) `stepgen.`__<chan>__`.maxaccel` - Maximum accel/decel rate, in positions units per second squared.
@@ -99,8 +103,9 @@ In velocity mode, maxvel is a simple limit that is applied to the commanded velo
 As in position mode, proper values for these parameters ensure that the motor can follow the generated pulse train.
 
 [[sub:stepgen-step-types]]
-=== Step Types(((HAL stepgen Step Types)))
+=== Step Types
 
+(((HAL stepgen Step Types)))
 Step generator supports 15 different _step sequences_:
 
 .Step Type 0
@@ -138,18 +143,22 @@ On each step, a state counter is incremented or decremented.
 The Two-and-Three-Phase, Four-Phase, and Five-Phase show the output patterns as a function of the state counter.
 The maximum frequency is 1,000,000,000 divided by _steplen_, and as in the other modes, _maxfreq_ will be lowered if it is above the limit.
 
-.Two-and-Three-Phase Step Types(((Two and Three Phase)))
+(((Two and Three Phase)))
+.Two-and-Three-Phase Step Types
 image::images/stepgen-type2-4.png["Step Types: Two-and-Three-Phase",align="center"]
 
-.Four-Phase Step Types(((Four Phase)))
+(((Four Phase)))
+.Four-Phase Step Types
 image::images/stepgen-type5-10.png["Step Types: Four-Phase",align="center"]
 
-.Five-Phase Step Types(((Five Phase)))
+(((Five Phase)))
+.Five-Phase Step Types
 image::images/stepgen-type11-14.png["Step Types: Five-Phase",align="center"]
 
 [[sub:stepgen-functions]]
-=== Functions(((Hal stepgen Functions)))
+=== Functions
 
+(((Hal stepgen Functions)))
 The component exports three functions.
 Each function acts on all of the step pulse generators - running different generators in different threads is not supported.
 
@@ -162,8 +171,9 @@ That thread's period determines the maximum step frequency, since 'steplen', 'st
 The other two functions can be called at a much lower rate.
 
 [[sec:pwmgen]]
-== PWMgen(((PWMgen)))
+== PWMgen
 
+(((PWMgen)))
 This component provides software based generation of PWM (Pulse Width Modulation) and PDM (Pulse Density Modulation) waveforms.
 It is a realtime component only, and depending on CPU speed, etc., is capable of PWM frequencies from a few hundred Hertz at pretty good resolution,
 to perhaps 10 kHz with limited resolution.
@@ -258,8 +268,9 @@ The component exports two functions. Each function acts on all of the PWM genera
   This is the function of the module that does the more complicated mathematics to work out how many base-periods the output should be high for, and how many it should be low for.
 
 [[sec:encoder]]
-== Encoder(((encoder)))
+== Encoder
 
+(((Encoder)))
 This component provides software based counting of signals from quadrature (or single-pulse) encoders.
 It is a realtime component only, and depending on CPU speed, latency, etc., is capable of maximum count rates of 10&#8239;kHz to perhaps up to 50&#8239;kHz.
 
@@ -270,8 +281,9 @@ The spindle speed of 3000&#8239;RPM = 50&#8239;RPS (revolutions per second). 400
 
 The Encoder Counter Block Diagram is a block diagram of one channel of an encoder counter.
 
+(((Encoder Block Diagram)))
 [[fig:encoder-block-diagram]]
-.Encoder Counter Block Diagram(((Encoder Block Diagram)))
+.Encoder Counter Block Diagram
 image::images/encoder-block-diag.png[align="center"]
 
 .Loading Encoder
@@ -353,15 +365,17 @@ Each function acts on all of the encoder counters - running different counters i
 * (funct) `encoder.capture-position` - Low speed function to update latches and scale position.
 
 [[sec:pid]]
-== PID(((PID)))
+== PID
 
+(((PID)))
 This component provides Proportional/Integral/Derivative control loops.
 It is a realtime component only. For simplicity, this discussion assumes that we are talking about position loops,
 however this component can be used to implement other feedback loops such as speed, torch height, temperature, etc.
 The PID Loop Block Diagram is a block diagram of a single PID loop.
 
+(((PID Block Diagram)))
 [[fig:pid-block-diag]]
-.PID Loop Block Diagram(((PID Block Diagram)))
+.PID Loop Block Diagram
 image::images/pid-block-diag.png[align="center"]
 
 .Loading PID
@@ -454,8 +468,9 @@ If you want to understand the exact algorithm used to compute the output of the 
 The loop calculations are in the C function 'calc_pid()'.
 
 [[sec:simulated-encoder]]
-== Simulated Encoder(((Simulated Encoder)))
+== Simulated Encoder
 
+(((Simulated Encoder)))
 The simulated encoder is exactly that.
 It produces quadrature pulses with an index pulse, at a speed controlled by a HAL pin.
 Mostly useful for testing.
@@ -502,8 +517,9 @@ The component exports two functions. Each function affects all simulated encoder
 * (funct) `sim-encoder.update-speed` - Low speed function to read `.speed`, do scaling, and set up `.make-pulses`.
 
 [[sec:debounce]]
-== Debounce(((debounce)))
+== Debounce
 
+(((debounce)))
 Debounce is a realtime component that can filter the glitches created by mechanical switch contacts.
 It may also be useful in other applications where short pulses are to be rejected.
 
@@ -562,8 +578,9 @@ Different groups of filters can be updated from different threads at different p
 * (funct) `debounce.`__<G>__ - Updates all filters in group _<G>_.
 
 [[sec:siggen]]
-== SigGen(((SigGen)))
+== SigGen
 
+(((SigGen)))
 SigGen is a realtime component that generates square, triangle, and sine waves. It is primarily used for testing.
 
 .Loading siggen
@@ -614,8 +631,9 @@ They were changed to pins to allow control by other components.]
 * (funct) `siggen.`__<chan>__`.update` - Calculates new values for all five outputs.
 
 [[sec:lut5]]
-== `lut5`(((lut5)))
+== `lut5`
 
+(((lut5)))
 The `lut5` component is a 5 input logic component based on a look up table.
 
 * `lut5` does not require a floating point thread.

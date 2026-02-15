@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:hal-tools]]
-= HAL Tools(((HAL Tools)))
+= HAL Tools
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -13,6 +13,7 @@
 [[sec:halcmd]]
 == Halcmd
 
+(((HAL Tools)))
 `halcmd` is a command line tool for manipulating the HAL.
 There is a rather complete man page for link:../man/man1/halcmd.1.html[`halcmd`], which will be installed if you have installed LinuxCNC from either source or a package.
 The manpage provides usage info:
@@ -34,8 +35,9 @@ The <<cha:hal-tutorial,HAL Tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for `halcmd`.
 
 [[sec:halmeter]]
-== Halmeter(((Halmeter)))
+== Halmeter
 
+(((Halmeter)))
 Halmeter is a 'voltmeter' for the HAL.
 It lets you look at a pin, signal, or parameter, and displays the current value of that item.
 It is pretty simple to use.

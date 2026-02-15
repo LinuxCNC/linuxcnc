@@ -10,6 +10,9 @@ on:
   check_suite:
     types: [rerequested]
 
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
 jobs:
 
   rip-and-test:
@@ -27,8 +30,9 @@ jobs:
     - name: Build RIP & test
       run: |
         set -x
-        sudo apt-get install -y eatmydata
+        sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
         eatmydata ./scripts/travis-install-build-deps.sh
+        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
@@ -51,9 +55,10 @@ jobs:
     - name: Clang build RIP & test
       run: |
         set -x
-        sudo apt-get install -y eatmydata
+        sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
         eatmydata ./scripts/travis-install-build-deps.sh
-        sudo eatmydata apt-get install -y clang
+        sudo eatmydata apt-get -y -o Acquire::Retries=5 install clang
+        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
         eatmydata ./autogen.sh
         CC=clang CXX=clang++ eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
@@ -76,7 +81,8 @@ jobs:
     - name: Build HTML docmentation
       run: |
         ./scripts/travis-install-build-deps.sh
-        sudo apt-get install -y eatmydata
+        sudo apt-get -y -o Acquire::Retries=5 install eatmydata
+        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
@@ -86,11 +92,11 @@ jobs:
         # Note that the package build covers html docs
 
   package-arch:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
-
+        runner: ["ubuntu-24.04", "ubuntu-24.04-arm"]
+        image: ["debian:bullseye", "debian:bookworm", "debian:trixie", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
@@ -107,10 +113,11 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --quiet update
-        apt-get --yes --quiet install eatmydata
+        apt-get --quiet -o Acquire::Retries=5 update
+        apt-get --yes --quiet -o Acquire::Retries=5 install eatmydata curl
+        eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -123,7 +130,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         case "${{matrix.image}}" in
-            debian:sid|debian:bookworm)
+            debian:sid|debian:bookworm|debian:trixie)
                 exit 0
                 ;;
             *)
@@ -131,11 +138,11 @@ jobs:
         esac
         set -e
         set -x
-        eatmydata apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-recommends gpg software-properties-common
         eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
         eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
-        eatmydata apt-get --quiet update
+        eatmydata apt-get --quiet -o Acquire::Retries=5 update
 
     - name: Build architecture-specific Debian packages
       env:
@@ -150,7 +157,7 @@ jobs:
         eatmydata debian/update-dch-from-git
         eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         eatmydata git diff
-        eatmydata apt-get --yes --quiet build-dep --arch-only .
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 build-dep --arch-only .
         eatmydata debuild -us -uc --build=any
     - name: Test debian packages
       env:
@@ -158,19 +165,44 @@ jobs:
       run: |
         set -e
         set -x
-        eatmydata apt-get --yes --quiet install ../*.deb
-        eatmydata apt-get --yes --quiet install sudo # some tests run sudo...
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install sudo # some tests run sudo...
         eatmydata adduser --disabled-password --gecos "" testrunner
         eatmydata passwd -d testrunner
         eatmydata adduser testrunner sudo
         chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
         su -c "eatmydata ./scripts/runtests -p ./tests" testrunner
+    - name: Gather build artifacts
+      run: |
+        set -e
+        set -x
+        ARCH=$(dpkg --print-architecture)
+        DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
+        OUTDIR="artifacts/${DIST}/${ARCH}"
+        mkdir -p "$OUTDIR"
+        cp -v ../*.deb ../*.changes ../*.buildinfo "$OUTDIR" || true
+        (cd "$OUTDIR" && sha256sum * > SHA256SUMS.txt)
+        echo "DIST=$DIST" >> "$GITHUB_ENV"
+        echo "ARCH=$ARCH" >> "$GITHUB_ENV"
+    - name: Compute artifact metadata
+      id: meta
+      run: |
+        echo "dist=$(echo ${{ matrix.image }} | cut -d : -f 2)" >> $GITHUB_OUTPUT
+        echo "arch=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
+        path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
+        if-no-files-found: error
+
 
   package-indep:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
+        image: ["debian:bullseye", "debian:bookworm", "debian:trixie", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
@@ -188,10 +220,11 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --quiet update
-        apt-get --yes --quiet install eatmydata
+        apt-get --quiet -o Acquire::Retries=5 update
+        apt-get --yes --quiet -o Acquire::Retries=5 install eatmydata curl
+        eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -204,7 +237,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         case "${{matrix.image}}" in
-            debian:sid|debian:bookworm)
+            debian:sid|debian:bookworm|debian:trixie)
                 exit 0
                 ;;
             *)
@@ -212,11 +245,11 @@ jobs:
         esac
         set -e
         set -x
-        eatmydata apt-get --yes --quiet install gpg software-properties-common
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install gpg software-properties-common
         eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
         eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
-        eatmydata apt-get --quiet update
+        eatmydata apt-get --quiet -o Acquire::Retries=5 update
 
     - name: Build architecture-independent Debian packages
       env:
@@ -231,7 +264,7 @@ jobs:
         eatmydata debian/update-dch-from-git
         eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         eatmydata git diff
-        eatmydata apt-get --yes --quiet build-dep --indep-only .
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 build-dep --indep-only .
         eatmydata debuild -us -uc --build=all
     - name: Test install debian packages
       env:
@@ -239,4 +272,108 @@ jobs:
       run: |
         set -e
         set -x
-        eatmydata apt-get --yes --quiet install ../*.deb
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
+    - name: Gather build artifacts
+      run: |
+        set -e
+        set -x
+        DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
+        ARCH=all
+        OUTDIR="artifacts/${DIST}/${ARCH}"
+        mkdir -p "$OUTDIR"
+        cp -v ../*.deb ../*.changes ../*.buildinfo "$OUTDIR" || true
+        (cd "$OUTDIR" && sha256sum * > SHA256SUMS.txt)
+        echo "DIST=$DIST" >> "$GITHUB_ENV"
+        echo "ARCH=$ARCH" >> "$GITHUB_ENV"
+    - name: Compute artifact metadata
+      id: meta
+      run: |
+        echo "dist=$(echo ${{ matrix.image }} | cut -d : -f 2)" >> $GITHUB_OUTPUT
+        echo "arch=all" >> $GITHUB_OUTPUT
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
+        path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
+        if-no-files-found: error
+
+
+  cppcheck:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - name: Perform Source Code checks that were successful in the past
+      continue-on-error: true
+      run: |
+        set -x
+        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+        sudo apt-get --yes -o Acquire::Retries=5 install cppcheck shellcheck
+        scripts/cppcheck.sh
+    - name: Shellcheck
+      continue-on-error: true
+      run: |
+        scripts/shellcheck.sh
+
+
+  release:
+    name: Release packages
+    needs:
+      - package-arch
+      - package-indep
+    if: (github.event_name == 'release' && github.event.action == 'published') || startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release_artifacts
+    - name: Prepare upload assets
+      run: |
+        set -e
+        mkdir -p upload
+        echo "Downloaded artifacts layout:" && find release_artifacts -maxdepth 3 -print | sed 's/^/  /'
+        for d in release_artifacts/*; do
+          [ -d "$d" ] || continue
+          name=$(basename "$d")
+          # Expect name like linuxcnc-bookworm-amd64 or linuxcnc-trixie-all
+          dist=${name#linuxcnc-}
+          dist=${dist%-*}
+          arch=${name##*-}
+          echo "Processing artifact: $name (dist=$dist arch=$arch)"
+          # Copy .deb files with distro suffix (arch is already in Debian filename)
+          for f in "$d"/*.deb; do
+            [ -f "$f" ] || continue
+            base=$(basename "$f")
+            base_no_ext="${base%.deb}"
+            dest="upload/${base_no_ext}_${dist}.deb"
+            echo "  + $base -> $(basename "$dest")"
+            cp "$f" "$dest"
+          done
+        done
+
+        echo "Upload dir contents:" && ls -l upload | sed 's/^/  /'
+        # Single combined checksums file for all assets, deterministic order
+        if ls upload/*.deb >/dev/null 2>&1; then
+          (
+            cd upload
+            : > SHA256SUMS.txt
+            # sort file list for stable output
+            for f in $(ls -1 *.deb | LC_ALL=C sort); do
+              sha256sum "$f" >> SHA256SUMS.txt
+            done
+            echo "Preview of SHA256SUMS.txt:" && sed -n '1,200p' SHA256SUMS.txt | sed 's/^/  /'
+          )
+        fi
+    - name: Create GitHub Release and upload assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          upload/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

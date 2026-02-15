@@ -889,7 +889,6 @@ int halui_hal_init(void)
     }
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-        if ( !(axis_mask & (1 << axis_num)) ) { continue; }
         char c = "xyzabcuvw"[axis_num];
         retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->axis_nr_select[axis_num]), comp_id, "halui.axis.%c.select", c);
         if (retval < 0) return retval;

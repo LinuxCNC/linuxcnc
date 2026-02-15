@@ -147,7 +147,8 @@ int emcTaskInit()
         }
         strncpy(tmpdirs, inistring, sizeof(tmpdirs));
 
-        nextdir = strtok(tmpdirs,":");  // first token
+        char* saveptr;
+        nextdir = strtok_r(tmpdirs,":", &saveptr);  // first token
         dct = 1;
         while (dct < MAX_M_DIRS) {
             if (nextdir == NULL) break; // no more tokens
@@ -157,7 +158,7 @@ int emcTaskInit()
                 return -1;
             }
             strncpy(mdir[dct], nextdir, sizeof(mdir[dct]));
-            nextdir = strtok(NULL,":");
+            nextdir = strtok_r(NULL,":",&saveptr);
             dct++;
         }
         dmax=dct;

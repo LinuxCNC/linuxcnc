@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:mdro-gui]]
-= MDRO GUI(((mdro GUI)))
+= MDRO GUI
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -12,6 +12,7 @@
 
 == Introduction
 
+(((mdro GUI)))
 MDRO is a simple graphical front-end for LinuxCNC providing a display of data
 from Digital Read Out (DRO) scales. It provides functionality similar to
 a normal machinist's DRO display, allowing the user to use the DRO scales

@@ -533,7 +533,7 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 #
 # check for libgpiod
 #
-PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 2.0.0],
+PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 3.0.0],
             [AC_DEFINE_UNQUOTED([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`,
             [libgpiod version, undefined if not present])
             LDFLAGS="$LDFLAGS $LIBGPIOD_LIBS"
