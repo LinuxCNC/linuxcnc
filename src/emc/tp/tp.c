@@ -2211,6 +2211,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     // acceleration direction changes instantaneously. The per-axis jerk from
     // this is v^2 * |delta_curvature_j| / dt. Limit junction velocity so that
     // this stays within maxjerk for each axis.
+    double v_cent_max = -1.0;  // -1 means N/A (no circular segments)
     if (prev_tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_CIRCULAR) {
         PmCartesian curv_prev = {0, 0, 0};
         PmCartesian curv_tc = {0, 0, 0};
@@ -2239,7 +2240,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
         double maxjerk = fmin(prev_tc->maxjerk, tc->maxjerk);
         double dt = tp->cycleTime;
-        double v_cent_max = 1e12;
+        v_cent_max = 1e12;
 
         if (fabs(delta_curv.x) > 1e-12) {
             double v_lim = sqrt(maxjerk * dt / fabs(delta_curv.x));
@@ -4146,11 +4147,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
                 // Compute time offset for new profile (maintains continuity)
                 double new_elapsed = tc->elapsed_time - handoff_time;
 
-                // DEBUG: Sample old profile at current elapsed time for comparison
-                double old_pos, old_vel, old_acc, old_jrk;
-                ruckigProfileSample(&tc->shared_9d.profile, tc->elapsed_time,
-                                    &old_pos, &old_vel, &old_acc, &old_jrk);
-
                 // Take the branch - swap profile
                 // Use sequence counter to signal copy in progress (odd = copying)
                 unsigned int seq = __atomic_load_n(&tc->shared_9d.copy_sequence, __ATOMIC_ACQUIRE);
@@ -4187,26 +4183,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
                 // Clear brake_done flag for fresh two-stage execution
                 __atomic_store_n(&tc->shared_9d.branch.brake_done, 0, __ATOMIC_RELEASE);
 
-                // DEBUG: Sample new profile at new_elapsed for comparison
-                {
-                    double new_pos, new_vel, new_acc, new_jrk;
-                    ruckigProfileSample(&tc->shared_9d.profile, new_elapsed,
-                                        &new_pos, &new_vel, &new_acc, &new_jrk);
-                    double delta_vel = new_vel - old_vel;
-                    double delta_acc = new_acc - old_acc;
-                    // Only print if discontinuity is significant
-                    if (fabs(delta_acc) > 50.0 || fabs(delta_vel) > 1.0) {
-                        printf("BRANCH_TAKE seg=%d has_brake=%d "
-                               "new_elapsed=%.6f handoff=%.6f "
-                               "old(v=%.4f a=%.4f) new(v=%.4f a=%.4f) "
-                               "delta_v=%.4f delta_a=%.4f "
-                               "pos_base=%.6f progress=%.6f\n",
-                               tc->id, has_brake, new_elapsed, handoff_time,
-                               old_vel, old_acc, new_vel, new_acc,
-                               delta_vel, delta_acc,
-                               tc->position_base, tc->progress);
-                    }
-                }
             }
         }
 
@@ -4221,23 +4197,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
             // Check if brake profile is complete
             double brake_duration = tc->shared_9d.branch.brake_profile.duration;
             if (tc->elapsed_time >= brake_duration) {
-                // DEBUG: Sample brake profile at end to check final state
-                {
-                    double bp, bv, ba, bj;
-                    ruckigProfileSample(&tc->shared_9d.branch.brake_profile,
-                                        brake_duration, &bp, &bv, &ba, &bj);
-                    double mp, mv, ma, mj;
-                    double time_past = tc->elapsed_time - brake_duration;
-                    if (time_past < 0.0) time_past = 0.0;
-                    ruckigProfileSample(&tc->shared_9d.branch.profile,
-                                        time_past, &mp, &mv, &ma, &mj);
-                    if (fabs(bv - mv) > 1.0 || fabs(ba - ma) > 50.0) {
-                        printf("BRAKE_MAIN_DISC seg=%d brake_end(v=%.4f a=%.4f) "
-                               "main_start(v=%.4f a=%.4f) "
-                               "delta_v=%.4f delta_a=%.4f time_past=%.6f\n",
-                               tc->id, bv, ba, mv, ma, bv - mv, ba - ma, time_past);
-                    }
-                }
                 // Brake complete - switch to main profile
                 double old_pos_base = tc->position_base;
                 unsigned int seq = __atomic_load_n(&tc->shared_9d.copy_sequence, __ATOMIC_ACQUIRE);
@@ -4290,19 +4249,10 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         {
             int prof_gen = __atomic_load_n(&tc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
             if (prof_gen != tc->last_profile_generation) {
-                // DEBUG: Log stopwatch reset with old state
-                printf("STOPWATCH_RESET seg=%d gen=%d->%d vel=%.4f acc=%.4f "
-                       "progress=%.6f pos_base=%.6f elapsed=%.6f "
-                       "new_prof_v0=%.4f new_prof_a0=%.4f\n",
-                       tc->id, tc->last_profile_generation, prof_gen,
-                       tc->currentvel, tc->currentacc,
-                       tc->progress, tc->position_base, tc->elapsed_time,
-                       tc->shared_9d.profile.v[0], tc->shared_9d.profile.a[0]);
                 // Profile was swapped — reset stopwatch
                 tc->position_base = tc->progress;  // absorb current progress
                 tc->elapsed_time = 0.0;
                 tc->last_profile_generation = prof_gen;
-
             }
         }
 
@@ -4824,17 +4774,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // Update tp's position (checking for valid pose)
     tpAddCurrentPos(tp, &displacement);
 
-    // DEBUG: Log tc's displacement contribution during split cycle
-    {
-        double tc_disp_mag;
-        emcPoseMagnitude(&displacement, &tc_disp_mag);
-        printf("SPLIT_TC_DISP seg=%d progress=%.6f target=%.6f disp_1d=%.6f "
-               "disp_xyz=(%.6f,%.6f,%.6f) split_time=%.6f vel=%.4f\n",
-               tc->id, tc->progress, tc->target, tc_disp_mag,
-               displacement.tran.x, displacement.tran.y, displacement.tran.z,
-               tc->cycle_time, tc->currentvel);
-    }
-
 #ifdef TC_DEBUG
     double mag;
     emcPoseMagnitude(&displacement, &mag);
@@ -4863,31 +4802,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
                 double maxacc_next = tcGetTangentialMaxAccel(nexttc);
                 nexttc->currentacc = saturate(tc->currentacc, maxacc_next);
 
-                // DEBUG: Log junction state for jerk spike analysis
-                {
-                    PmCartesian end_tan, start_tan, tan_diff;
-                    tcGetEndTangentUnitVector(tc, &end_tan);
-                    tcGetStartTangentUnitVector(nexttc, &start_tan);
-                    pmCartCartSub(&start_tan, &end_tan, &tan_diff);
-                    double tan_diff_mag;
-                    pmCartMag(&tan_diff, &tan_diff_mag);
-                    // kink_angle ≈ tan_diff_mag for small angles (radians)
-                    // predicted joint jerk ≈ vel * tan_diff_mag / cycleTime²
-                    double predicted_jerk = tc->currentvel * tan_diff_mag
-                                            / (tp->cycleTime * tp->cycleTime);
-                    printf("SPLIT_JUNCTION seg=%d->%d vel=%.4f acc=%.4f "
-                           "kink_vel=%.4f kink_angle=%.6f "
-                           "split_time=%.6f remain_time=%.6f "
-                           "tan_end=(%.4f,%.4f,%.4f) tan_start=(%.4f,%.4f,%.4f) "
-                           "predicted_joint_jerk=%.1f acc_sat=%.4f->%.4f\n",
-                           tc->id, nexttc->id, tc->currentvel, tc->currentacc,
-                           tc->kink_vel, tan_diff_mag,
-                           tc->cycle_time, nexttc->cycle_time,
-                           end_tan.x, end_tan.y, end_tan.z,
-                           start_tan.x, start_tan.y, start_tan.z,
-                           predicted_jerk,
-                           tc->currentacc, nexttc->currentacc);
-                }
+
             } else {
                 // Trapezoidal: can use term_vel (assumes instant velocity change)
                 nexttc->currentvel = tc->term_vel;
@@ -4955,23 +4870,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     int queue_dir_step = tp->reverse_run ? -1 : 1;
     TC_STRUCT *next2tc = tcqItem(&tp->queue, queue_dir_step*2);
 
-    // DEBUG: nexttc profile state BEFORE tpUpdateCycle in split cycle
-    if (GET_TRAJ_PLANNER_TYPE() == 2) {
-        int nvalid = __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE);
-        int ngen = __atomic_load_n(&nexttc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
-        printf("SPLIT_NEXTTC_PRE seg=%d valid=%d v0=%.4f a0=%.4f dur=%.6f "
-               "feed_prof=%.4f gen=%d last_gen=%d "
-               "vel_inherited=%.4f remain=%.6f progress=%.6f pos_base=%.6f\n",
-               nexttc->id, nvalid,
-               nexttc->shared_9d.profile.v[0],
-               nexttc->shared_9d.profile.a[0],
-               nexttc->shared_9d.profile.duration,
-               nexttc->shared_9d.profile.computed_feed_scale,
-               ngen, nexttc->last_profile_generation,
-               nexttc->currentvel,
-               nexttc->cycle_time,
-               nexttc->progress, nexttc->position_base);
-    }
 
     // Save actual junction velocity before tpUpdateCycle overwrites it
     // with the profile's (potentially stale) entry velocity.
@@ -4980,7 +4878,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     int mode = 0;
     tpUpdateCycle(tp, nexttc, next2tc, &mode);
 
-    // Fix: Correct profile v0 mismatch at split junction.
+    // Correct profile v0 mismatch at split junction.
     // When feed override changes between profile computation and junction
     // arrival, the profile's v[0] doesn't match the actual junction velocity.
     // tpUpdateCycle samples the profile and overwrites currentvel with the
@@ -4991,25 +4889,17 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         double profile_v0 = nexttc->shared_9d.profile.v[0];
-        double vel_error = junction_vel - profile_v0;
-        if (fabs(vel_error) > 0.01) {
-            nexttc->currentvel += vel_error;
+        double vel_mismatch = junction_vel - profile_v0;
+        if (fabs(vel_mismatch) > 0.01) {
+            nexttc->currentvel += vel_mismatch;
             if (nexttc->currentvel < 0.0) nexttc->currentvel = 0.0;
             // Correct split-cycle displacement to reflect actual velocity
-            double pos_correction = vel_error * nexttc_remain_time;
+            double pos_correction = vel_mismatch * nexttc_remain_time;
             nexttc->progress += pos_correction;
             nexttc->position_base += pos_correction;
         }
     }
 
-    // DEBUG: nexttc state AFTER tpUpdateCycle in split cycle
-    if (GET_TRAJ_PLANNER_TYPE() == 2) {
-        printf("SPLIT_NEXTTC_POST seg=%d progress=%.6f vel=%.4f acc=%.4f "
-               "elapsed=%.6f pos_base=%.6f junction_vel=%.4f\n",
-               nexttc->id, nexttc->progress, nexttc->currentvel,
-               nexttc->currentacc, nexttc->elapsed_time, nexttc->position_base,
-               junction_vel);
-    }
 
     // Post-correct elapsed_time for Ruckig split cycle.
     // tpUpdateCycle sampled at remain_time then advanced by remain_time internally
@@ -5246,6 +5136,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     tcClearFlags(tc);
     tcClearFlags(nexttc);
+
     // Update the current tc
     if (tc->splitting) {
         tpHandleSplitCycle(tp, tc, nexttc);
