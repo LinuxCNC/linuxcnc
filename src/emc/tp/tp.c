@@ -2186,20 +2186,84 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     // TODO: this should ideally depend on some function of segment length and acceleration for better optimization
     const double kink_ratio = tpGetTangentKinkRatio();
 
+    double kink_vel;
+    double accel_reduction;
+    int result;
+
     if (acc_scale_max < kink_ratio) {
         tp_debug_print(" Kink acceleration within %g, using tangent blend\n", kink_ratio);
         tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
-        tcSetKinkProperties(prev_tc, tc, v_max, acc_scale_max);
-        return TP_ERR_OK;
+        kink_vel = v_max;
+        accel_reduction = acc_scale_max;
+        result = TP_ERR_OK;
     } else {
-        tcSetKinkProperties(prev_tc, tc, v_max * kink_ratio / acc_scale_max, kink_ratio);
+        kink_vel = v_max * kink_ratio / acc_scale_max;
+        accel_reduction = kink_ratio;
         tp_debug_print("Kink acceleration scale %f above %f, kink vel = %f, blend arc may be faster\n",
                 acc_scale_max,
                 kink_ratio,
-                prev_tc->kink_vel);
-        // NOTE: acceleration will be reduced later if tangent blend is used
-        return TP_ERR_NO_ACTION;
+                kink_vel);
+        result = TP_ERR_NO_ACTION;
     }
+
+    // Fix #2: Centripetal acceleration discontinuity limit.
+    // At arc-to-arc (or arc-to-line / line-to-arc) junctions, the centripetal
+    // acceleration direction changes instantaneously. The per-axis jerk from
+    // this is v^2 * |delta_curvature_j| / dt. Limit junction velocity so that
+    // this stays within maxjerk for each axis.
+    if (prev_tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_CIRCULAR) {
+        PmCartesian curv_prev = {0, 0, 0};
+        PmCartesian curv_tc = {0, 0, 0};
+
+        if (prev_tc->motion_type == TC_CIRCULAR) {
+            PmCartesian endpoint;
+            pmCirclePoint(&prev_tc->coords.circle.xyz,
+                          prev_tc->coords.circle.xyz.angle, &endpoint);
+            pmCartCartSub(&prev_tc->coords.circle.xyz.center,
+                          &endpoint, &curv_prev);
+            double R = prev_tc->coords.circle.xyz.radius;
+            pmCartScalMultEq(&curv_prev, 1.0 / (R * R));
+        }
+
+        if (tc->motion_type == TC_CIRCULAR) {
+            PmCartesian startpoint;
+            pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
+            pmCartCartSub(&tc->coords.circle.xyz.center,
+                          &startpoint, &curv_tc);
+            double R = tc->coords.circle.xyz.radius;
+            pmCartScalMultEq(&curv_tc, 1.0 / (R * R));
+        }
+
+        PmCartesian delta_curv;
+        pmCartCartSub(&curv_tc, &curv_prev, &delta_curv);
+
+        double maxjerk = fmin(prev_tc->maxjerk, tc->maxjerk);
+        double dt = tp->cycleTime;
+        double v_cent_max = 1e12;
+
+        if (fabs(delta_curv.x) > 1e-12) {
+            double v_lim = sqrt(maxjerk * dt / fabs(delta_curv.x));
+            if (v_lim < v_cent_max) v_cent_max = v_lim;
+        }
+        if (fabs(delta_curv.y) > 1e-12) {
+            double v_lim = sqrt(maxjerk * dt / fabs(delta_curv.y));
+            if (v_lim < v_cent_max) v_cent_max = v_lim;
+        }
+        if (fabs(delta_curv.z) > 1e-12) {
+            double v_lim = sqrt(maxjerk * dt / fabs(delta_curv.z));
+            if (v_lim < v_cent_max) v_cent_max = v_lim;
+        }
+
+        tp_debug_print("centripetal limit: delta_curv=(%g,%g,%g) v_cent_max=%f kink_vel_before=%f\n",
+                delta_curv.x, delta_curv.y, delta_curv.z, v_cent_max, kink_vel);
+
+        if (v_cent_max < kink_vel) {
+            kink_vel = v_cent_max;
+        }
+    }
+
+    tcSetKinkProperties(prev_tc, tc, kink_vel, accel_reduction);
+    return result;
 }
 
 static bool tpCreateBlendIfPossible(
