@@ -52,10 +52,16 @@ RTAPI_MP_STRING(coordinates, "Existing Axes");
 static char *kinstype = "1"; // use KINEMATICS_IDENTITY
 RTAPI_MP_STRING(kinstype, "Kinematics Type (Identity,Both)");
 
+const char* kinematicsGetName(void)
+{
+    return "trivkins";
+}
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 static int comp_id;

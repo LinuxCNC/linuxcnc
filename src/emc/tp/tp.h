@@ -19,6 +19,14 @@
 #include "tp_types.h"
 #include "tcq.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Forward declarations */
+struct emcmot_struct_t;
+struct emcmot_internal_t;
+
 // functions not used by motmod:
 int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp);
 int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos);
@@ -41,6 +49,8 @@ int tpGetExecId(TP_STRUCT * tp);
 struct state_tag_t tpGetExecTag(TP_STRUCT * const tp);
 int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
 int tpSetPos(TP_STRUCT * tp, EmcPose const * const pos);
+int tpSyncGoalPos_9D(TP_STRUCT * tp, EmcPose const * const pos);
+int tpCleanupAfterAbort_9D(TP_STRUCT * const tp);
 int tpRunCycle(TP_STRUCT * tp, long period);
 int tpPause(TP_STRUCT * tp);
 int tpResume(TP_STRUCT * tp);
@@ -62,6 +72,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end, PmCartesian center,
 		double ini_maxvel, double acc, double ini_maxjerk, unsigned char enables,
 		char atspeed, struct state_tag_t tag);
 int tpGetPos(TP_STRUCT const  * const tp, EmcPose * const pos);
+int tpGetJointPositions(TP_STRUCT const * const tp, double * const joints);
 int tpIsDone(TP_STRUCT * const tp);
 int tpQueueDepth(TP_STRUCT * const tp);
 int tpActiveDepth(TP_STRUCT * const tp);
@@ -70,6 +81,43 @@ int tpSetSpindleSync(TP_STRUCT * const tp, int spindle, double sync, int wait);
 
 int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double end);
 int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue
+
+/**
+ * @brief Add a dwell segment to the queue (G4)
+ *
+ * Creates a zero-length TC_DWELL segment that holds position for the
+ * specified duration. The dwell is processed inline with motion,
+ * maintaining proper synchronization without forcing queue drain.
+ *
+ * @param tp Trajectory planner
+ * @param seconds Dwell duration in seconds
+ * @param tag State tag for tracking
+ * @return 0 on success
+ */
+int tpAddDwell(TP_STRUCT * const tp, double seconds, struct state_tag_t tag);
+
+/**
+ * @brief Queue an action to fire when next segment activates
+ *
+ * Actions are processed inline with motion (like industrial controllers).
+ * Multiple actions can be queued before adding a motion segment.
+ * For planner_type 2, this avoids flush_segments() which breaks velocity continuity.
+ *
+ * @param tp Trajectory planner
+ * @param action_type Type of action (SEG_ACTION_SPINDLE_CW, etc.)
+ * @param spindle_num Spindle number for spindle actions (0-based)
+ * @param value Action parameter (speed for spindle, etc.)
+ * @return 0 on success
+ */
+int tpSetSegmentAction(TP_STRUCT * const tp, segment_action_type_t action_type,
+                       int spindle_num, double value);
+
+/**
+ * @brief Clear pending segment actions
+ * @param tp Trajectory planner
+ * @return 0 on success
+ */
+int tpClearSegmentActions(TP_STRUCT * const tp);
 
 int tpSetRunDir(TP_STRUCT * const tp, tc_direction_t dir);
 
@@ -85,7 +133,13 @@ void tpMotFunctions(void(*pDioWrite)(int,char)
 
 void tpMotData(emcmot_status_t *
               ,emcmot_config_t *
+              ,struct emcmot_struct_t *
+              ,struct emcmot_internal_t *
               );
 //---------------------------------------------------------------------
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif				/* TP_H */

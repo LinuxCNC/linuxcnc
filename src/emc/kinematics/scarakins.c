@@ -22,6 +22,7 @@
 #include "hal.h"
 #include "kinematics.h"
 #include "switchkins.h"
+#include "scarakins_math.h"
 
 struct scara_data {
     hal_float_t *d1, *d2, *d3, *d4, *d5, *d6;
@@ -78,37 +79,20 @@ int scaraKinematicsForward(const double * joint,
                       KINEMATICS_INVERSE_FLAGS * iflags)
 {
     (void)fflags;
-    double a0, a1, a3;
-    double x, y, z, c;
+    scara_params_t params;
+    int flags_out = 0;
 
-/* convert joint angles to radians for sin() and cos() */
+    params.d1 = D1;
+    params.d2 = D2;
+    params.d3 = D3;
+    params.d4 = D4;
+    params.d5 = D5;
+    params.d6 = D6;
 
-    a0 = joint[0] * ( PM_PI / 180 );
-    a1 = joint[1] * ( PM_PI / 180 );
-    a3 = joint[3] * ( PM_PI / 180 );
-/* convert angles into world coords */
+    scara_forward_math(&params, joint, world, &flags_out);
 
-    a1 = a1 + a0;
-    a3 = a3 + a1;
-
-    x = D2*cos(a0) + D4*cos(a1) + D6*cos(a3);
-    y = D2*sin(a0) + D4*sin(a1) + D6*sin(a3);
-    z = D1 + D3 - joint[2] - D5;
-    c = a3;
-
-    *iflags = 0;
-    if (joint[1] < 90)
-        *iflags = 1;
-
-    world->tran.x = x;
-    world->tran.y = y;
-    world->tran.z = z;
-    world->c = c * 180 / PM_PI;
-
-    world->a = joint[4];
-    world->b = joint[5];
-
-    return (0);
+    *iflags = flags_out;
+    return 0;
 } //scaraKinematicsForward()
 
 static int scaraKinematicsInverse(const EmcPose * world,
@@ -116,59 +100,20 @@ static int scaraKinematicsInverse(const EmcPose * world,
                                   const KINEMATICS_INVERSE_FLAGS * iflags,
                                   KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    double a3;
-    double q0, q1;
-    double xt, yt, rsq, cc;
-    double x, y, z, c;
+    scara_params_t params;
+    int flags_out = 0;
 
-    x = world->tran.x;
-    y = world->tran.y;
-    z = world->tran.z;
-    c = world->c;
+    params.d1 = D1;
+    params.d2 = D2;
+    params.d3 = D3;
+    params.d4 = D4;
+    params.d5 = D5;
+    params.d6 = D6;
 
-    /* convert degrees to radians */
-    a3 = c * ( PM_PI / 180 );
+    scara_inverse_math(&params, world, joint, *iflags, &flags_out);
 
-    /* center of end effector (correct for D6) */
-    xt = x - D6*cos(a3);
-    yt = y - D6*sin(a3);
-
-    /* horizontal distance (squared) from end effector centerline
-        to main column centerline */
-    rsq = xt*xt + yt*yt;
-    /* joint 1 angle needed to make arm length match sqrt(rsq) */
-    cc = (rsq - D2*D2 - D4*D4) / (2*D2*D4);
-    if(cc < -1) cc = -1;
-    if(cc > 1) cc = 1;
-    q1 = acos(cc);
-
-    if (*iflags)
-        q1 = -q1;
-
-    /* angle to end effector */
-    q0 = atan2(yt, xt);
-
-    /* end effector coords in inner arm coord system */
-    xt = D2 + D4*cos(q1);
-    yt = D4*sin(q1);
-
-    /* inner arm angle */
-    q0 = q0 - atan2(yt, xt);
-
-    /* q0 and q1 are still in radians. convert them to degrees */
-    q0 = q0 * (180 / PM_PI);
-    q1 = q1 * (180 / PM_PI);
-
-    joint[0] = q0;
-    joint[1] = q1;
-    joint[2] = D1 + D3 - D5 - z;
-    joint[3] = c - ( q0 + q1);
-    joint[4] = world->a;
-    joint[5] = world->b;
-
-    *fflags = 0;
-
-    return (0);
+    *fflags = flags_out;
+    return 0;
 } // scaraKinematicsInverse()
 
 #define DEFAULT_D1 490

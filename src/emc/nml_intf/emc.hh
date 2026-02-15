@@ -369,6 +369,9 @@ extern int emcTrajForward();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
+extern int emcTrajQueueSpindleOn(int spindle, double speed, int direction);
+extern int emcTrajQueueSpindleOff(int spindle);
+extern int emcTrajQueueCoolant(int mist_on, int flood_on);
 extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
                              double ini_maxvel, double acc, double ini_maxjerk, int indexer_jnum);
 extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
@@ -454,6 +457,7 @@ int emcSetupArcBlends(int arcBlendEnable,
         double arcBlendRampFreq,
         double arcBlendTangentKinkRatio);
 int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit);
+int emcSetEmulateLegacyMoveCommands(int emulate);
 int emcGetExternalOffsetApplied(void);
 EmcPose emcGetExternalOffsets(void);
 

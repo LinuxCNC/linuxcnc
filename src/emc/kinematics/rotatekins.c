@@ -12,8 +12,8 @@
 *
 ********************************************************************/
 
-#include "rtapi_math.h"
 #include "kinematics.h"		/* these decls */
+#include "rotatekins_math.h"
 
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
@@ -22,18 +22,7 @@ int kinematicsForward(const double *joints,
 {
     (void)fflags;
     (void)iflags;
-    double c_rad = -joints[5]*M_PI/180;
-    pos->tran.x = joints[0] * cos(c_rad) - joints[1] * sin(c_rad);
-    pos->tran.y = joints[0] * sin(c_rad) + joints[1] * cos(c_rad);
-    pos->tran.z = joints[2];
-    pos->a = joints[3];
-    pos->b = joints[4];
-    pos->c = joints[5];
-    pos->u = joints[6];
-    pos->v = joints[7];
-    pos->w = joints[8];
-
-    return 0;
+    return rotate_forward_math(joints, pos);
 }
 
 int kinematicsInverse(const EmcPose * pos,
@@ -43,18 +32,7 @@ int kinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-    double c_rad = pos->c*M_PI/180;
-    joints[0] = pos->tran.x * cos(c_rad) - pos->tran.y * sin(c_rad);
-    joints[1] = pos->tran.x * sin(c_rad) + pos->tran.y * cos(c_rad);
-    joints[2] = pos->tran.z;
-    joints[3] = pos->a;
-    joints[4] = pos->b;
-    joints[5] = pos->c;
-    joints[6] = pos->u;
-    joints[7] = pos->v;
-    joints[8] = pos->w;
-
-    return 0;
+    return rotate_inverse_math(pos, joints);
 }
 
 /* implemented for these kinematics as giving joints preference */
@@ -78,10 +56,13 @@ KINEMATICS_TYPE kinematicsType()
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
+const char* kinematicsGetName(void) { return "rotatekins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 int comp_id;

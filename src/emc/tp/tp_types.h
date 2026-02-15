@@ -20,6 +20,9 @@
 
 #include <rtapi_bool.h>
 
+/* Magic number for 9D planner initialization check */
+#define TP_MAGIC 0x54503944  /* "TP9D" in hex */
+
 #define TP_DEFAULT_QUEUE_SIZE 32
 /* Minimum length of a segment in cycles (must be greater than 1 to ensure each
  * segment is hit at least once.) */
@@ -90,9 +93,13 @@ typedef struct {
  * Stores persistent data for the trajectory planner that should be accessible
  * by outside functions.
  */
-typedef struct {
+typedef struct TP_STRUCT {
     TC_QUEUE_STRUCT queue;
     tp_spindle_t spindle; //Spindle data
+
+    /* 9D planner initialization markers (safety validation) */
+    unsigned int magic;          /* Set to TP_MAGIC after tpInit() */
+    int queue_ready;             /* Set to 1 after queue initialization */
 
     EmcPose currentPos;
     EmcPose goalPos;
@@ -118,11 +125,15 @@ typedef struct {
     int execId;
     struct state_tag_t execTag; /* state tag corresponding to running motion */
     int termCond;
-    int done;
+    int joint_filter_drain_counter;  /* Cycles remaining for joint filter draining */
+    bool filters_at_rest;             /* True when joint smoothing filters have settled */
     int depth;			/* number of total queued motions */
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
+    int abort_profiles_written;  /* Set by userspace after writing abort stop
+                                    profiles; prevents feed-override merge from
+                                    overwriting them before RT sees tp->aborting */
     int reverse_run;      /* Indicates that TP is running in reverse */
     int motionType;
     double tolerance;           /* for subsequent motions, stay within this
@@ -135,6 +146,10 @@ typedef struct {
 
 
     syncdio_t syncdio; //record tpSetDout's here
+
+    // Pending segment actions (planner_type 2)
+    // Actions queued via tpSetSegmentAction() before the next motion segment
+    segment_actions_t pending_actions;
 
 } TP_STRUCT;
 

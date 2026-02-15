@@ -111,6 +111,7 @@
 #include "posemath.h"
 #include "hal.h"
 #include "genhexkins.h"
+#include "genhexkins_math.h"
 #include "motion.h"
 #include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include "switchkins.h"
@@ -159,169 +160,38 @@ static int genhex_gui_forward_kins(EmcPose *pos)
     return 0;
 } // genhex_gui_forward_kins
 
-/******************************* MatInvert() ***************************/
-
-/*-----------------------------------------------------------------------------
- This is a function that inverts a 6x6 matrix.
------------------------------------------------------------------------------*/
-
-static int MatInvert(double J[][NUM_STRUTS], double InvJ[][NUM_STRUTS])
-{
-  double JAug[NUM_STRUTS][12], m, temp;
-  int j, k, n;
-
-  /* This function determines the inverse of a 6x6 matrix using
-     Gauss-Jordan elimination */
-
-  /* Augment the Identity matrix to the Jacobian matrix */
-
-  for (j=0; j<=5; ++j){
-    for (k=0; k<=5; ++k){     /* Assign J matrix to first 6 columns of AugJ */
-      JAug[j][k] = J[j][k];
-    }
-    for(k=6; k<=11; ++k){    /* Assign I matrix to last six columns of AugJ */
-      if (k-6 == j){
-        JAug[j][k]=1;
-      }
-      else{
-        JAug[j][k]=0;
-      }
-    }
-  }
-
-  /* Perform Gauss elimination */
-  for (k=0; k<=4; ++k){               /* Pivot        */
-    if ((JAug[k][k]< 0.01) && (JAug[k][k] > -0.01)){
-      for (j=k+1;j<=5; ++j){
-        if ((JAug[j][k]>0.01) || (JAug[j][k]<-0.01)){
-          for (n=0; n<=11;++n){
-            temp = JAug[k][n];
-            JAug[k][n] = JAug[j][n];
-            JAug[j][n] = temp;
-          }
-          break;
-        }
-      }
-    }
-    for (j=k+1; j<=5; ++j){            /* Pivot */
-      m = -JAug[j][k] / JAug[k][k];
-      for (n=0; n<=11; ++n){
-        JAug[j][n]=JAug[j][n] + m*JAug[k][n];   /* (Row j) + m * (Row k) */
-        if ((JAug[j][n] < 0.000001) && (JAug[j][n] > -0.000001)){
-          JAug[j][n] = 0;
-        }
-      }
-    }
-  }
-
-  /* Normalization of Diagonal Terms */
-  for (j=0; j<=5; ++j){
-    m=1/JAug[j][j];
-    for(k=0; k<=11; ++k){
-      JAug[j][k] = m * JAug[j][k];
-    }
-  }
-
-  /* Perform Gauss Jordan Steps */
-  for (k=5; k>=0; --k){
-    for(j=k-1; j>=0; --j){
-      m = -JAug[j][k]/JAug[k][k];
-      for (n=0; n<=11; ++n){
-        JAug[j][n] = JAug[j][n] + m * JAug[k][n];
-      }
-    }
-  }
-
-  /* Assign last 6 columns of JAug to InvJ */
-  for (j=0; j<=5; ++j){
-    for (k=0; k<=5; ++k){
-      InvJ[j][k] = JAug[j][k+6];
-
-    }
-  }
-
-  return 0;         /* FIXME-- check divisors for 0 above */
-} // MatInvert()
-
-/******************************** MatMult() *********************************/
-
-/*---------------------------------------------------------------------------
-  This function simply multiplies a 6x6 matrix by a 1x6 vector
-  ---------------------------------------------------------------------------*/
-
-static void MatMult(double J[][6], const double x[], double Ans[])
-{
-  int j, k;
-  for (j=0; j<=5; ++j){
-    Ans[j] = 0;
-    for (k=0; k<=5; ++k){
-      Ans[j] = J[j][k]*x[k]+Ans[j];
-    }
-  }
-} // MatMult()
-
-/* declare arrays for base and platform coordinates */
-static PmCartesian b[NUM_STRUTS];
-static PmCartesian a[NUM_STRUTS];
-
-/* declare base and platform joint axes vectors */
-
-static PmCartesian nb1[NUM_STRUTS];
-static PmCartesian na0[NUM_STRUTS];
-
 /************************genhex_read_hal_pins**************************/
 
-static int genhex_read_hal_pins(void) {
+static void genhex_read_hal_pins(genhex_params_t *params) {
     int t;
 
-  /* set the base and platform coordinates from hal pin values */
+    /* set the base and platform coordinates from hal pin values */
     for (t = 0; t < NUM_STRUTS; t++) {
-        b[t].x   = *haldata->basex[t];
-        b[t].y   = *haldata->basey[t];
-        b[t].z   = *haldata->basez[t] + *haldata->spindle_offset + *haldata->tool_offset;
-        a[t].x   = *haldata->platformx[t];
-        a[t].y   = *haldata->platformy[t];
-        a[t].z   = *haldata->platformz[t] + *haldata->spindle_offset + *haldata->tool_offset;
+        params->base[t].x = *haldata->basex[t];
+        params->base[t].y = *haldata->basey[t];
+        params->base[t].z = *haldata->basez[t];
 
-        nb1[t].x = *haldata->basenx[t];
-        nb1[t].y = *haldata->baseny[t];
-        nb1[t].z = *haldata->basenz[t];
-        na0[t].x = *haldata->platformnx[t];
-        na0[t].y = *haldata->platformny[t];
-        na0[t].z = *haldata->platformnz[t];
+        params->platform[t].x = *haldata->platformx[t];
+        params->platform[t].y = *haldata->platformy[t];
+        params->platform[t].z = *haldata->platformz[t];
 
+        params->base_n[t].x = *haldata->basenx[t];
+        params->base_n[t].y = *haldata->baseny[t];
+        params->base_n[t].z = *haldata->basenz[t];
+
+        params->platform_n[t].x = *haldata->platformnx[t];
+        params->platform_n[t].y = *haldata->platformny[t];
+        params->platform_n[t].z = *haldata->platformnz[t];
     }
-    return 0;
+
+    /* set iteration and offset parameters */
+    params->conv_criterion = *haldata->conv_criterion;
+    params->iter_limit = *haldata->iter_limit;
+    params->max_error = *haldata->max_error;
+    params->tool_offset = *haldata->tool_offset;
+    params->spindle_offset = *haldata->spindle_offset;
+    params->screw_lead = *haldata->screw_lead;
 } // genhex_read_hal_pins()
-
-/***************************StrutLengthCorrection***************************/
-
-static int StrutLengthCorrection(const PmCartesian * StrutVectUnit,
-                                 const PmRotationMatrix * RMatrix,
-                                 const int strut_number,
-                                 double * correction)
-{
-  PmCartesian nb2, nb3, na1, na2;
-  double dotprod;
-
-  /* define base joints axis vectors */
-  pmCartCartCross(&nb1[strut_number], StrutVectUnit, &nb2);
-  pmCartCartCross(StrutVectUnit, &nb2, &nb3);
-  pmCartUnitEq(&nb3);
-
-  /* define platform joints axis vectors */
-  pmMatCartMult(RMatrix, &na0[strut_number], &na1);
-  pmCartCartCross(&na1, StrutVectUnit, &na2);
-  pmCartUnitEq(&na2);
-
-  /* define dot product */
-  pmCartCartDot(&nb3, &na2, &dotprod);
-
-  *correction = *haldata->screw_lead * asin(dotprod) / PM_2_PI;
-
-  return 0;
-} // StrutLengthCorrection()
-
 
 /**************** genhexKinematicsForward() *****************/
 static int genhexKinematicsForward(const double * joints,
@@ -329,156 +199,35 @@ static int genhexKinematicsForward(const double * joints,
                                    const KINEMATICS_FORWARD_FLAGS * fflags,
                                    KINEMATICS_INVERSE_FLAGS * iflags)
 {
-  (void)fflags;
-  (void)iflags;
-  PmCartesian aw;
-  PmCartesian InvKinStrutVect,InvKinStrutVectUnit;
-  PmCartesian q_trans, RMatrix_a, RMatrix_a_cross_Strut;
+    (void)fflags;
+    (void)iflags;
 
-  double Jacobian[NUM_STRUTS][NUM_STRUTS];
-  double InverseJacobian[NUM_STRUTS][NUM_STRUTS];
-  double InvKinStrutLength, StrutLengthDiff[NUM_STRUTS];
-  double delta[NUM_STRUTS];
-  double conv_err = 1.0;
-  double corr;
+    genhex_params_t params;
+    int result;
+    int i;
 
-  PmRotationMatrix RMatrix;
-  PmRpy q_RPY;
+    genhex_read_hal_pins(&params);
 
-  int iterate = 1;
-  int i;
-  unsigned iteration = 0;
+    result = genhex_fwd(&params, joints, pos);
 
-  genhex_read_hal_pins();
-
-  /* abort on obvious problems, like joints <= 0 */
-  /* FIXME-- should check against triangle inequality, so that joints
-     are never too short to span shared base and platform sides */
-  if (joints[0] <= 0.0 ||
-      joints[1] <= 0.0 ||
-      joints[2] <= 0.0 ||
-      joints[3] <= 0.0 ||
-      joints[4] <= 0.0 ||
-      joints[5] <= 0.0) {
-      return -1;
-  }
-
-  /* assign a,b,c to roll, pitch, yaw angles */
-  q_RPY.r = pos->a * PM_PI / 180.0;
-  q_RPY.p = pos->b * PM_PI / 180.0;
-  q_RPY.y = pos->c * PM_PI / 180.0;
-
-  /* Assign translation values in pos to q_trans */
-  q_trans.x = pos->tran.x;
-  q_trans.y = pos->tran.y;
-  q_trans.z = pos->tran.z;
-
-  /* Enter Newton-Raphson iterative method   */
-  while (iterate) {
-    /* check for large error and return error flag if no convergence */
-    if ((conv_err > +(*haldata->max_error)) ||
-        (conv_err < -(*haldata->max_error))) {
-      /* we can't converge */
-      *haldata->fwd_kins_fail = 1;
-      return -2;
-    };
-
-    iteration++;
-
-    /* check iteration to see if the kinematics can reach the
-       convergence criterion and return error flag if it can't */
-    if (iteration > *haldata->iter_limit) {
-      /* we can't converge */
-      *haldata->fwd_kins_fail = 1;
-      return -5;
-    }
-
-    /* Convert q_RPY to Rotation Matrix */
-    pmRpyMatConvert(&q_RPY, &RMatrix);
-
-    /* compute StrutLengthDiff[] by running inverse kins on Cartesian
-     estimate to get joint estimate, subtract joints to get joint deltas,
-     and compute inv J while we're at it */
-    for (i = 0; i < NUM_STRUTS; i++) {
-      pmMatCartMult(&RMatrix, &a[i], &RMatrix_a);
-      pmCartCartAdd(&q_trans, &RMatrix_a, &aw);
-      pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
-      if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
+    if (result != 0) {
         *haldata->fwd_kins_fail = 1;
-        return -1;
-      }
-      pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
-
-      if (*haldata->screw_lead != 0.0) {
-        /* enable strut length correction */
-        StrutLengthCorrection(&InvKinStrutVectUnit, &RMatrix, i, &corr);
-        /* define corrected joint lengths */
-        InvKinStrutLength += corr;
-      }
-
-      StrutLengthDiff[i] = InvKinStrutLength - joints[i];
-
-      /* Determine RMatrix_a_cross_strut */
-      pmCartCartCross(&RMatrix_a, &InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
-
-      /* Build Inverse Jacobian Matrix */
-      InverseJacobian[i][0] = InvKinStrutVectUnit.x;
-      InverseJacobian[i][1] = InvKinStrutVectUnit.y;
-      InverseJacobian[i][2] = InvKinStrutVectUnit.z;
-      InverseJacobian[i][3] = RMatrix_a_cross_Strut.x;
-      InverseJacobian[i][4] = RMatrix_a_cross_Strut.y;
-      InverseJacobian[i][5] = RMatrix_a_cross_Strut.z;
+        return result;
     }
 
-    /* invert Inverse Jacobian */
-    MatInvert(InverseJacobian, Jacobian);
-
-    /* multiply Jacobian by LegLengthDiff */
-    MatMult(Jacobian, StrutLengthDiff, delta);
-
-    /* subtract delta from last iterations pos values */
-    q_trans.x -= delta[0];
-    q_trans.y -= delta[1];
-    q_trans.z -= delta[2];
-    q_RPY.r   -= delta[3];
-    q_RPY.p   -= delta[4];
-    q_RPY.y   -= delta[5];
-
-    /* determine value of conv_error (used to determine if no convergence) */
-    conv_err = 0.0;
+    /* update HAL output pins from params */
+    *haldata->last_iter = params.last_iterations;
+    if (params.last_iterations > *haldata->max_iter) {
+        *haldata->max_iter = params.last_iterations;
+    }
     for (i = 0; i < NUM_STRUTS; i++) {
-      conv_err += fabs(StrutLengthDiff[i]);
+        *haldata->correction[i] = params.correction[i];
     }
+    *haldata->fwd_kins_fail = 0;
 
-    /* enter loop to determine if a strut needs another iteration */
-    iterate = 0;            /*assume iteration is done */
-    for (i = 0; i < NUM_STRUTS; i++) {
-      if (fabs(StrutLengthDiff[i]) > *haldata->conv_criterion) {
-    iterate = 1;
-      }
-    }
-  } /* exit Newton-Raphson Iterative loop */
+    genhex_gui_forward_kins(pos);
 
-  /* assign r,p,y to a,b,c */
-  pos->a = q_RPY.r * 180.0 / PM_PI;
-  pos->b = q_RPY.p * 180.0 / PM_PI;
-  pos->c = q_RPY.y * 180.0 / PM_PI;
-
-  /* assign q_trans to pos */
-  pos->tran.x = q_trans.x;
-  pos->tran.y = q_trans.y;
-  pos->tran.z = q_trans.z;
-
-  *haldata->last_iter = iteration;
-
-  if (iteration > *haldata->max_iter){
-    *haldata->max_iter = iteration;
-  }
-  *haldata->fwd_kins_fail = 0;
-
-  genhex_gui_forward_kins(pos);
-
-  return 0;
+    return 0;
 } // genhexKinematicsForward()
 
 
@@ -493,51 +242,23 @@ static int genhexKinematicsInverse(const EmcPose * pos,
                                    const KINEMATICS_INVERSE_FLAGS * iflags,
                                    KINEMATICS_FORWARD_FLAGS * fflags)
 {
-  (void)iflags;
-  (void)fflags;
+    (void)iflags;
+    (void)fflags;
 
-  PmCartesian aw, temp;
-  PmCartesian InvKinStrutVect, InvKinStrutVectUnit;
-  PmRotationMatrix RMatrix;
-  PmRpy rpy;
-  int i;
-  double InvKinStrutLength, corr;
+    genhex_params_t params;
+    int result;
+    int i;
 
-  genhex_read_hal_pins();
+    genhex_read_hal_pins(&params);
 
-  /* define Rotation Matrix */
-  rpy.r = pos->a * PM_PI / 180.0;
-  rpy.p = pos->b * PM_PI / 180.0;
-  rpy.y = pos->c * PM_PI / 180.0;
-  pmRpyMatConvert(&rpy, &RMatrix);
+    result = genhex_inv(&params, pos, joints);
 
-  /* enter for loop to calculate joints (strut lengths) */
-  for (i = 0; i < NUM_STRUTS; i++) {
-    /* convert location of platform strut end from platform
-       to world coordinates */
-    pmMatCartMult(&RMatrix, &a[i], &temp);
-    pmCartCartAdd(&pos->tran, &temp, &aw);
-
-    /* define strut lengths */
-    pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
-    pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
-
-    if (*haldata->screw_lead != 0.0) {
-      /* enable strut length correction */
-      /* define unit strut vector */
-      if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
-          return -1;
-      }
-      /* define correction value and corrected joint lengths */
-      StrutLengthCorrection(&InvKinStrutVectUnit, &RMatrix, i, &corr);
-      *haldata->correction[i] = corr;
-      InvKinStrutLength += corr;
+    /* update HAL output pins from params */
+    for (i = 0; i < NUM_STRUTS; i++) {
+        *haldata->correction[i] = params.correction[i];
     }
 
-    joints[i] = InvKinStrutLength;
-  }
-
-  return 0;
+    return result;
 } //genhexKinematicsInverse()
 
 static

@@ -3000,6 +3000,14 @@ auto SPINDLE_SPEED_(int s, int dir, double speed)
 
 void START_SPINDLE_CLOCKWISE(int s, int wait_for_atspeed)
 {
+    // For planner_type 2: queue inline action instead of NML message
+    // This avoids flush_segments() which breaks velocity continuity
+    if (emcTrajQueueSpindleOn(s, canon.spindle[s].speed, 1) == 0) {
+        canon.spindle[s].dir = 1;
+        return;
+    }
+
+    // Fallback: use NML message approach
     auto msg = SPINDLE_SPEED_<>(s, 1, 0);
     msg->wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(std::move(msg));
@@ -3007,6 +3015,13 @@ void START_SPINDLE_CLOCKWISE(int s, int wait_for_atspeed)
 
 void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
 {
+    // For planner_type 2: queue inline action
+    if (emcTrajQueueSpindleOn(s, canon.spindle[s].speed, -1) == 0) {
+        canon.spindle[s].dir = -1;
+        return;
+    }
+
+    // Fallback: use NML message approach
     auto msg = SPINDLE_SPEED_<>(s, -1, 0);
     msg->wait_for_spindle_at_speed = wait_for_atspeed;
     interp_list.append(std::move(msg));
@@ -3014,11 +3029,27 @@ void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
 
 void SET_SPINDLE_SPEED(int s, double speed_rpm)
 {
+    // For planner_type 2: queue inline action if spindle is already running
+    if (canon.spindle[s].dir != 0) {
+        if (emcTrajQueueSpindleOn(s, fabs(speed_rpm), canon.spindle[s].dir) == 0) {
+            canon.spindle[s].speed = fabs(speed_rpm);
+            return;
+        }
+    }
+
+    // Fallback: use NML message approach
     interp_list.append(SPINDLE_SPEED_<EMC_SPINDLE_SPEED>(s, 0, speed_rpm));
 }
 
 void STOP_SPINDLE_TURNING(int s)
 {
+    // For planner_type 2: queue inline action
+    if (emcTrajQueueSpindleOff(s) == 0) {
+        canon.spindle[s].dir = 0;
+        return;
+    }
+
+    // Fallback: use NML message approach
     auto emc_spindle_off_msg = std::make_unique<EMC_SPINDLE_OFF>();
 
     flush_segments();
@@ -3420,11 +3451,21 @@ void SIMPLE_COMMAND_()
 
 void FLOOD_OFF()
 {
+    // For planner_type 2: queue inline action
+    if (emcTrajQueueCoolant(0, 0) == 0) {
+        return;
+    }
+    // Fallback: use NML message approach
     SIMPLE_COMMAND_<EMC_COOLANT_FLOOD_OFF>();
 }
 
 void FLOOD_ON()
 {
+    // For planner_type 2: queue inline action
+    if (emcTrajQueueCoolant(0, 1) == 0) {
+        return;
+    }
+    // Fallback: use NML message approach
     SIMPLE_COMMAND_<EMC_COOLANT_FLOOD_ON>();
 }
 
@@ -3468,11 +3509,21 @@ void LOGCLOSE() {
 
 void MIST_OFF()
 {
+    // For planner_type 2: queue inline action
+    if (emcTrajQueueCoolant(0, 0) == 0) {
+        return;
+    }
+    // Fallback: use NML message approach
     SIMPLE_COMMAND_<EMC_COOLANT_MIST_OFF>();
 }
 
 void MIST_ON()
 {
+    // For planner_type 2: queue inline action
+    if (emcTrajQueueCoolant(1, 0) == 0) {
+        return;
+    }
+    // Fallback: use NML message approach
     SIMPLE_COMMAND_<EMC_COOLANT_MIST_ON>();
 }
 
