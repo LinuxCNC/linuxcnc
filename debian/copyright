@@ -150,6 +150,16 @@ Copyright: 2004-2025 The LinuxCNC Developers and notably
  .
  Please inspect the logs of the git repository to learn about the >230 (11/2021) committers.
 License: GPL-2+
+
+Files: src/emc/tp/ruckig/*
+Copyright:
+ 2021-2024 Lars Berscheid
+License: Expat
+
+Files: src/emc/tp/ruckig_wrapper.*
+Copyright:
+ 2024 杨阳 <mika-net@outlook.com>
+License: GPL-2
  
 Files: docs/*
 Copyright:
@@ -410,7 +420,7 @@ License: Boost-1.0
 
 Files: debian/linuxcnc-uspace.metainfo.xml
 Copyright: 2021 Petter Reinholdtsen <pere@debian.org>
-License: MIT
+License: Expat
 
 Files: unit_tests/greatest.h
 Copyright: 2011-2019 Scott Vokes <vokes.s@gmail.com>
@@ -510,7 +520,7 @@ License: GPL-3+
  On Debian systems, the complete text of the GNU General
  Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
 
-License: MIT
+License: Expat
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
