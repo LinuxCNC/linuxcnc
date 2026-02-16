@@ -630,7 +630,7 @@ void FeedRotaryButton::update()
         mStepSize    = mStepSizeMapper.getStepSize(second);
         mIsPermitted = mStepSizeMapper.isPermitted(second);
         
-        if (mIsStepMode_5_10 && mStepSize > 2) {mStepSize    = 0;}             // TODO DOES NOT WORK bool variable seems to be not synched inside pendant.h
+        if (!mIsStepMode_5_10 && mStepSize > 2) {mStepSize    = 0;}
         
     }
     else if (mStepMode == HandwheelStepmodes::Mode::CON)
