@@ -2180,6 +2180,7 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
 
         recomputed++;
     }
+
     return recomputed;
 }
 
@@ -2266,6 +2267,88 @@ static double estimateExitAtFeed(TP_STRUCT const *tp, TC_STRUCT const *tc,
 }
 
 /**
+ * @brief Write an alternate entry profile for the next segment.
+ *
+ * When a brake branch on the current segment changes its exit velocity,
+ * the next segment's pre-computed profile has a stale entry velocity.
+ * This writes an alternate profile with v0 = brake's exit velocity.
+ * RT picks whichever profile (main or alt_entry) has v0 closer to the
+ * actual junction velocity — smooth regardless of whether brake was taken.
+ *
+ * Called BEFORE commitBranch so the cushion is in place before the jump.
+ */
+static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
+                           double branch_exit_vel, double new_feed_scale)
+{
+    if (tc->term_cond != TC_TERM_COND_TANGENT) return;
+
+    TC_STRUCT *next = tcqItem_user(&tp->queue, 1);
+    if (!next) return;
+
+    // Skip if alt_entry wouldn't differ meaningfully from main profile
+    if (__atomic_load_n(&next->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+        double main_v0 = next->shared_9d.profile.v[0];
+        if (fabs(branch_exit_vel - main_v0) < 0.1) return;
+    }
+
+    double next_vel_limit = getEffectiveVelLimit(tp, next);
+    double next_max_vel = next_vel_limit * new_feed_scale;
+    next_max_vel = applyVLimit(tp, next, next_max_vel);
+    double next_jerk = next->maxjerk > 0 ? next->maxjerk : g_handoff_config.default_max_jerk;
+
+    // Determine target exit velocity for next segment
+    double unscaled_fv = atomicLoadDouble(&next->shared_9d.final_vel);
+    double target_exit_vel = (next->term_cond == TC_TERM_COND_TANGENT)
+        ? fmin(unscaled_fv * new_feed_scale, next_max_vel)
+        : 0.0;
+    target_exit_vel = applyKinkVelCap(target_exit_vel, unscaled_fv, next_max_vel, next->kink_vel);
+
+    double achievable_exit = findAchievableExitVelocity(
+        branch_exit_vel, 0.0,
+        next->target, next->maxaccel, next_jerk,
+        next_max_vel, target_exit_vel);
+
+    // Compute Ruckig profile for next segment with adjusted entry velocity
+    try {
+        ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
+        ruckig::InputParameter<1> input;
+        ruckig::Trajectory<1> traj;
+
+        input.current_position = {0.0};
+        input.current_velocity = {branch_exit_vel};
+        input.current_acceleration = {0.0};
+        input.target_position = {next->target};
+        input.target_velocity = {achievable_exit};
+        input.target_acceleration = {0.0};
+        input.max_velocity = {next_max_vel};
+        input.max_acceleration = {next->maxaccel};
+        input.max_jerk = {next_jerk};
+
+        auto result = otg.calculate(input, traj);
+        if (result != ruckig::Result::Working && result != ruckig::Result::Finished)
+            return;
+
+        ruckig_profile_t alt_profile;
+        memset(&alt_profile, 0, sizeof(alt_profile));
+        copyRuckigProfile(traj, &alt_profile);
+        if (!alt_profile.valid) return;
+        if (profileHasNegativeVelocity(&alt_profile)) return;
+
+        alt_profile.computed_feed_scale = new_feed_scale;
+        alt_profile.computed_vel_limit = next_vel_limit;
+        alt_profile.computed_vLimit = tp->vLimit;
+
+        // Write alt_entry — cushion in place before the jump
+        next->shared_9d.alt_entry.profile = alt_profile;
+        next->shared_9d.alt_entry.v0 = branch_exit_vel;
+        __atomic_thread_fence(__ATOMIC_RELEASE);
+        __atomic_store_n(&next->shared_9d.alt_entry.valid, 1, __ATOMIC_RELEASE);
+    } catch (...) {
+        // Alt-entry is best-effort; failure falls back to v0 correction in RT
+    }
+}
+
+/**
  * @brief Compute a branch trajectory for feed override change
  *
  * Branch/Merge architecture with achievable feed cascade:
@@ -2289,6 +2372,11 @@ static double estimateExitAtFeed(TP_STRUCT const *tp, TC_STRUCT const *tc,
  *
  * @return true if branch was successfully computed and committed
  */
+static void computeSpillOver(const ruckig_profile_t *profile,
+                             double remaining_dist,
+                             double *spill_vel,
+                             double *spill_acc);
+
 bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 {
     if (!tp || !tc) return false;
@@ -2532,6 +2620,75 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
             bool committed = commitBranch(&tc->shared_9d, &main_profile, NULL, 0.0, 0.0,
                                           handoff_time, state.position, 0.0, window_end_time);
+
+            // Spill-over: if stop distance exceeds remaining segment, the
+            // machine will cross into downstream segments mid-deceleration.
+            // Write alt-entry stop profiles so RT has correct v0 at each
+            // boundary (same pattern as tpRequestAbortBranch_9D).
+            if (committed && tc->term_cond == TC_TERM_COND_TANGENT) {
+                double spill_vel, spill_acc;
+                computeSpillOver(&main_profile, remaining, &spill_vel, &spill_acc);
+
+                if (spill_vel > TP_VEL_EPSILON) {
+                    TC_QUEUE_STRUCT *queue = &tp->queue;
+                    int queue_len = tcqLen_user(queue);
+                    double entry_vel = spill_vel;
+                    double entry_acc = spill_acc;
+
+                    for (int i = 1; i < queue_len && entry_vel > TP_VEL_EPSILON; i++) {
+                        TC_STRUCT *next = tcqItem_user(queue, i);
+                        if (!next || next->target < 1e-9) break;
+
+                        double this_entry_vel = entry_vel;
+                        double next_vel_limit = getEffectiveVelLimit(tp, next);
+                        double next_jerk = next->maxjerk > 0 ? next->maxjerk : default_jerk;
+
+                        try {
+                            ruckig::Ruckig<1> otg_spill(g_handoff_config.servo_cycle_time_sec);
+                            ruckig::InputParameter<1> in_spill;
+                            ruckig::Trajectory<1> traj_spill;
+
+                            in_spill.control_interface = ruckig::ControlInterface::Velocity;
+                            in_spill.current_position = {0.0};
+                            in_spill.current_velocity = {entry_vel};
+                            in_spill.current_acceleration = {entry_acc};
+                            in_spill.target_velocity = {0.0};
+                            in_spill.target_acceleration = {0.0};
+                            in_spill.max_velocity = {next_vel_limit};
+                            in_spill.max_acceleration = {next->maxaccel};
+                            in_spill.max_jerk = {next_jerk};
+
+                            auto result = otg_spill.calculate(in_spill, traj_spill);
+                            if (result != ruckig::Result::Working &&
+                                result != ruckig::Result::Finished)
+                                break;
+
+                            ruckig_profile_t stop_prof;
+                            memset(&stop_prof, 0, sizeof(stop_prof));
+                            copyRuckigProfile(traj_spill, &stop_prof);
+                            if (!stop_prof.valid || profileHasNegativeVelocity(&stop_prof))
+                                break;
+                            stop_prof.computed_feed_scale = 0.0;
+                            stop_prof.computed_vel_limit = next_vel_limit;
+                            stop_prof.computed_vLimit = tp->vLimit;
+
+                            // Check if this segment also spills over
+                            computeSpillOver(&stop_prof, next->target,
+                                             &entry_vel, &entry_acc);
+
+                            // Write as alt-entry so RT picks it at the junction
+                            next->shared_9d.alt_entry.profile = stop_prof;
+                            next->shared_9d.alt_entry.v0 = this_entry_vel;
+                            __atomic_thread_fence(__ATOMIC_RELEASE);
+                            __atomic_store_n(&next->shared_9d.alt_entry.valid, 1,
+                                             __ATOMIC_RELEASE);
+                        } catch (...) {
+                            break;
+                        }
+                    }
+                }
+            }
+
             return committed;
         }
 
@@ -2672,6 +2829,8 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                 brake_profile.computed_vLimit = tp->vLimit;
             }
 
+            bool use_single_stage = false;  // set true if sub-cycle gap detected
+
             // Stage 2: Main profile (position control)
             // Start from stage1_target_vel (after brake/stabilize), go to segment end
             {
@@ -2753,11 +2912,73 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                 main_profile.computed_feed_scale = effective_feed_scale;
                 main_profile.computed_vel_limit = vel_limit;
                 main_profile.computed_vLimit = tp->vLimit;
+
+                // Sub-cycle gap fix: when the main profile is shorter than
+                // one servo cycle, the brake→main transition causes a
+                // displacement dip (jerk spike).  Replace with a single-stage
+                // position-control profile from current state to segment end.
+                {
+                    double cycle_time = g_handoff_config.servo_cycle_time_sec;
+                    if (main_profile.duration < cycle_time) {
+                        ruckig::InputParameter<1> alt_input;
+                        ruckig::Trajectory<1> alt_traj;
+
+                        double alt_target_exit = (tc->term_cond == TC_TERM_COND_TANGENT)
+                            ? fmin(atomicLoadDouble(&tc->shared_9d.final_vel) * new_feed_scale, new_max_vel)
+                            : 0.0;
+                        alt_target_exit = applyKinkVelCap(alt_target_exit,
+                            atomicLoadDouble(&tc->shared_9d.final_vel), new_max_vel, tc->kink_vel);
+                        alt_target_exit = fmin(alt_target_exit, downstream_exit_cap);
+                        double alt_achievable = findAchievableExitVelocity(
+                            state.velocity, state.acceleration,
+                            remaining, tc->maxaccel, default_jerk,
+                            fmax(state.velocity, new_max_vel), alt_target_exit);
+
+                        alt_input.control_interface = ruckig::ControlInterface::Position;
+                        alt_input.current_position = {0.0};
+                        alt_input.current_velocity = {state.velocity};
+                        alt_input.current_acceleration = {state.acceleration};
+                        alt_input.target_position = {remaining};
+                        alt_input.target_velocity = {alt_achievable};
+                        alt_input.target_acceleration = {0.0};
+                        alt_input.max_velocity = {fmax(state.velocity, new_max_vel)};
+                        alt_input.max_acceleration = {tc->maxaccel};
+                        alt_input.max_jerk = {default_jerk};
+
+                        auto alt_result = otg.calculate(alt_input, alt_traj);
+                        bool alt_ok = (alt_result == ruckig::Result::Working ||
+                                       alt_result == ruckig::Result::Finished);
+
+                        ruckig_profile_t alt_profile = {};
+                        if (alt_ok) {
+                            copyRuckigProfile(alt_traj, &alt_profile);
+                            alt_ok = alt_profile.valid &&
+                                     !profileHasNegativeVelocity(&alt_profile);
+                        }
+
+                        if (alt_ok) {
+                            // Replace two-stage with single-stage
+                            main_profile = alt_profile;
+                            main_profile.computed_feed_scale = effective_feed_scale;
+                            main_profile.computed_vel_limit = vel_limit;
+                            main_profile.computed_vLimit = tp->vLimit;
+                            achievable_exit = alt_achievable;
+                            if (alt_achievable > alt_target_exit + 0.01) {
+                                effective_feed_scale = alt_achievable / vel_limit;
+                                if (effective_feed_scale > 1.0) effective_feed_scale = 1.0;
+                            }
+                            tc->shared_9d.achieved_exit_vel = alt_achievable;
+                            use_single_stage = true;
+                        }
+                    }
+                }
             }
 
             // Fix A: Reject if brake or main profile contains backward motion
-            if (profileHasNegativeVelocity(&brake_profile) ||
-                profileHasNegativeVelocity(&main_profile)) {
+            // (skip brake check when using single-stage — no brake profile)
+            if (!use_single_stage &&
+                (profileHasNegativeVelocity(&brake_profile) ||
+                 profileHasNegativeVelocity(&main_profile))) {
                 rtapi_print_msg(RTAPI_MSG_DBG,
                     "Branch: REJECT seg=%d reason=negvel(2stg) brake_neg=%d main_neg=%d "
                     "brake_dist=%.4f seg_remaining=%.4f seg_target=%.4f progress=%.4f "
@@ -2777,13 +2998,22 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             g_ruckig_timing.count++;
             if (calc_us > g_ruckig_timing.max_us) g_ruckig_timing.max_us = calc_us;
 
-            // Commit with both profiles
-            // brake_target_vel = stage1_target_vel (what brake/stabilize brings velocity to)
-            bool committed = commitBranch(&tc->shared_9d, &main_profile, &brake_profile,
-                                          stage1_target_vel, brake_end_position,
-                                          handoff_time, state.position,
-                                          effective_feed_scale, window_end_time,
-                                          tc->shared_9d.achieved_exit_vel);
+            // Cushion before jump: write alt-entry on N+1 before committing brake on N
+            writeAltEntry(tp, tc, tc->shared_9d.achieved_exit_vel, effective_feed_scale);
+
+            // Commit profile(s)
+            // When use_single_stage, commit as single-stage (no brake).
+            // Otherwise commit two-stage with brake_target_vel = stage1_target_vel.
+            bool committed = use_single_stage
+                ? commitBranch(&tc->shared_9d, &main_profile, NULL, 0.0, 0.0,
+                               handoff_time, state.position,
+                               effective_feed_scale, window_end_time,
+                               tc->shared_9d.achieved_exit_vel)
+                : commitBranch(&tc->shared_9d, &main_profile, &brake_profile,
+                               stage1_target_vel, brake_end_position,
+                               handoff_time, state.position,
+                               effective_feed_scale, window_end_time,
+                               tc->shared_9d.achieved_exit_vel);
 
             return committed;
 
@@ -2899,6 +3129,9 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             g_ruckig_timing.total_us += calc_us;
             g_ruckig_timing.count++;
             if (calc_us > g_ruckig_timing.max_us) g_ruckig_timing.max_us = calc_us;
+
+            // Cushion before jump: write alt-entry on N+1 before committing branch on N
+            writeAltEntry(tp, tc, tc->shared_9d.achieved_exit_vel, effective_feed_scale);
 
             bool committed = commitBranch(&tc->shared_9d, &main_profile, NULL, 0.0, 0.0,
                                           handoff_time, state.position,
@@ -3165,9 +3398,23 @@ extern "C" void manageBranches(TP_STRUCT *tp)
     // Feed change detected.
     // If cursor walk is active, queue this change (next-in-line, freely overwritable).
     if (g_recompute_cursor > 0) {
-        g_next_feed_scale = current_feed;
-        g_next_rapid_scale = emcmotStatus->rapid_scale;
-        return;
+        // Recovery from feed-hold: abort the hold cursor and restart fresh,
+        // just like program start.  The hold cursor is walking at feed≈0,
+        // skipping segments with valid profiles.  Those profiles are stale
+        // (computed at the pre-hold feed) and RT will hit them with wrong v0.
+        // By falling through to the normal feed-change path, we get
+        // invalidateNextNSegments + synchronous recomputeDownstreamProfiles
+        // before RT can advance into the stale segments.
+        if (g_recompute_feed_scale < 0.001 && current_feed > 0.001) {
+            g_recompute_cursor = 0;
+            g_next_feed_scale = -1.0;
+            g_next_rapid_scale = -1.0;
+            // Fall through to process recovery feed immediately
+        } else {
+            g_next_feed_scale = current_feed;
+            g_next_rapid_scale = emcmotStatus->rapid_scale;
+            return;
+        }
     }
 
     // Cursor idle — start processing this feed change.
@@ -3182,30 +3429,20 @@ extern "C" void manageBranches(TP_STRUCT *tp)
 
     // Two-phase feed hold: when user requests 0%, first decelerate to 0.1%
     // using normal Ruckig (Phase 1), then engage real 0% to stop completely
-    // (Phase 2). Phase 1 writes 0.001 profiles downstream so that Phase 2's
-    // createFeedHoldProfile passes the DONT_CLOBBER check (0.001 > 0.001 is false).
-    // Use profile_feed (what's actually running) not canonical_feed (per-segment, can be stale).
+    // (Phase 2).  Phase 1 is a normal Ruckig branch — no special treatment.
+    // Phase 2 only fires once the machine has actually decelerated to near the
+    // 0.1% target velocity, checked via predictStateAtTime (not profile feed
+    // label, which drops to 0.001 immediately on commit).
     static const double MINIMUM_RUCKIG_FEED = 0.001;  // 0.1%
-    static int last_phase = 0;  // Track state changes for logging
-    if (snap_feed < 0.001 && profile_feed > MINIMUM_RUCKIG_FEED + 0.005) {
-        // Phase 1: profile still at high feed, decelerate to 0.1% first
-        snap_feed = MINIMUM_RUCKIG_FEED;
-        if (last_phase != 1) {
-            rtapi_print_msg(RTAPI_MSG_DBG,
-                "PHASE1 seg %d: profile_feed=%.3f > 0.006, override to 0.1%%\n",
-                tc->id, profile_feed);
-            last_phase = 1;
+    if (snap_feed < 0.001) {
+        double elapsed = atomicLoadDouble(&tc->elapsed_time);
+        PredictedState probe = predictStateAtTime(tc, elapsed);
+        double vel_at_min_feed = tc->reqvel * MINIMUM_RUCKIG_FEED;
+        if (!probe.valid || probe.velocity > vel_at_min_feed) {
+            // Phase 1: still decelerating, use normal Ruckig at 0.1%
+            snap_feed = MINIMUM_RUCKIG_FEED;
         }
-    } else if (snap_feed < 0.001) {
-        // Phase 2: profile at 0.1% or lower, allow real 0%
-        if (last_phase != 2) {
-            rtapi_print_msg(RTAPI_MSG_DBG,
-                "PHASE2 seg %d: profile_feed=%.3f <= 0.006, allowing real 0%%\n",
-                tc->id, profile_feed);
-            last_phase = 2;
-        }
-    } else {
-        last_phase = 0;
+        // else: Phase 2 — deceleration complete, allow real 0%
     }
 
     int commit_seg;
@@ -3811,6 +4048,7 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
             g_recompute_first_batch_done = true;
             // Update throughput estimate (EMA, alpha=0.3)
             g_segments_per_tick = 0.7 * g_segments_per_tick + 0.3 * recomputed;
+
         }
 
         // Advance or finish
