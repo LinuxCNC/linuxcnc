@@ -60,6 +60,8 @@ to another.
 #ifndef MOTION_H
 #define MOTION_H
 
+#include <stdint.h>
+
 #include "posemath.h"		/* PmCartesian, PmPose, pmCartMag() */
 #include "emcpos.h"		/* EmcPose */
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
@@ -623,7 +625,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 
 	/* dynamic status-- changes every cycle */
-	unsigned int heartbeat;
+	uint64_t heartbeat;     /* Incremented every time the motion controller is done. */
 	int config_num;		/* incremented whenever configuration
 				   changed. */
 	int id;			/* id for executing motion */

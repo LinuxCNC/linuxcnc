@@ -734,6 +734,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     //update state of block delete
     stat->block_delete_state = GET_BLOCK_DELETE();
 
+    extern uint64_t task_beat;  // Main loop heartbeat in emctaskmain.cc
+    stat->taskbeat = task_beat;
+
     return 0;
 }
 

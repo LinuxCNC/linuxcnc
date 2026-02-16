@@ -138,6 +138,7 @@ static int emctask_shutdown(void);
 extern void backtrace(int signo);
 int _task = 1; // control preview behaviour when remapping
 static int joints = 0;
+uint64_t task_beat = 0;  // Task's main loop heartbeat counter
 
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason
@@ -3379,6 +3380,8 @@ int main(int argc, char *argv[])
     }
     while (!done) {
         static int gave_soft_limit_message = 0;
+        task_beat++;  // Task's heartbeat
+
         check_ini_hal_items(emcStatus->motion.traj.joints);
 	// read command
 	if (0 != emcCommandBuffer->read()) {
@@ -3585,11 +3588,11 @@ int main(int argc, char *argv[])
     // end of while (! done)
 
     rcs_print(
-        "task: %u cycles, min=%.6f, max=%.6f, avg=%.6f, %u latency excursions (> %dx expected cycle time of %.6fs)\n",
-        emcStatus->task.heartbeat,
+        "task: %lu cycles, min=%.6f, max=%.6f, avg=%.6f, %u latency excursions (> %dx expected cycle time of %.6fs)\n",
+        task_beat,
         minTime,
         maxTime,
-        (emcStatus->task.heartbeat != 0) ?  (endTime - first_start_time) / emcStatus->task.heartbeat : -1.0,
+        task_beat ? (endTime - first_start_time) / task_beat : -1.0,
         num_latency_warnings,
         latency_excursion_factor,
         emc_task_cycle_time

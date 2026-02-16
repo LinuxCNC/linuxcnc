@@ -2095,6 +2095,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->echo_serial_number = localMotionEchoSerialNumber;
     stat->debug = emcmotConfig.debug;
 
+    stat->heartbeat = emcmotStatus.heartbeat; // Motion controller's heartbeat
+
     for (dio = 0; dio < EMCMOT_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];
 	stat->synch_do[dio] = emcmotStatus.synch_do[dio];

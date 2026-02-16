@@ -881,7 +881,7 @@ void EMC_AUX_STAT::update(CMS * cms)
 */
 void EMC_TASK_STAT_MSG::update(CMS * cms)
 {
-    cms->update(heartbeat);
+    cms->update(taskbeat);
 }
 
 /*
@@ -1847,6 +1847,7 @@ void EMC_MOTION_STAT::update(CMS * cms)
     EmcPose_update(cms, &eoffset_pose);
     cms->update(numExtraJoints);
     cms->update(jogging_active);
+    cms->update(heartbeat);
 }
 
 /*
