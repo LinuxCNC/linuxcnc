@@ -35,6 +35,7 @@ extern "C" {
     // Access to global pointers (defined in usrmotintf.cc, initialized by milltask)
     extern struct emcmot_struct_t *emcmotStruct;
     extern struct emcmot_internal_t *emcmotInternal;
+
 }
 
 /**
@@ -445,7 +446,6 @@ static void tpComputeKinkVelocity_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
 
     double vel_cap = fmin(prev_tc->maxvel, tc->maxvel);
     double dt = tp->cycleTime;
-    double dt_sq = dt * dt;
     // Physical limit starts unconstrained — only jerk/accel physics determine it.
     // vel_cap (programmed feed) is applied separately for the backward pass.
     double kink_vel = 1e9;
@@ -486,6 +486,7 @@ static void tpComputeKinkVelocity_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
     // --- Part A: Direction-change limiting ---
     // For non-trivkins: joint velocity impulse = v * sum_a(|J[j][a]| * |delta_u[a]|) / dt
     // For trivkins (J = identity): simplifies to v * |delta_u[j]| / dt
+    double dt_sq = dt * dt;
     if (delta_mag_sq >= 1e-12) {
         for (int j = 0; j < num_joints; j++) {
             double projection;
@@ -566,6 +567,68 @@ static void tpComputeKinkVelocity_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
                         double v_curv_acc = sqrt(acc_lim / max_proj);
                         if (v_curv_acc < kink_vel) kink_vel = v_curv_acc;
                     }
+                }
+            }
+        }
+    }
+
+    // --- Part C: Virtual arc curvature for line-line junctions ---
+    // Consecutive small line segments approximate a smooth curve. Compute the
+    // discrete curvature from three points (start of prev, junction, end of tc)
+    // and apply per-joint jerk and centripetal acceleration limits.
+    // This caps kink_vel at the physically safe velocity for the approximated
+    // curve's curvature, preventing kink_ratio from exceeding geometric limits.
+    // Ported from planner 0/1 (tp.c:2266-2337) with Jacobian extension.
+    if (prev_tc->motion_type == TC_LINEAR && tc->motion_type == TC_LINEAR) {
+        PmCartesian P0 = prev_tc->coords.line.xyz.start;
+        PmCartesian P1 = prev_tc->coords.line.xyz.end;    // junction point
+        PmCartesian P2 = tc->coords.line.xyz.end;
+
+        PmCartesian A, B;
+        pmCartCartSub(&P1, &P0, &A);
+        pmCartCartSub(&P2, &P1, &B);
+
+        double A_mag, B_mag;
+        pmCartMag(&A, &A_mag);
+        pmCartMag(&B, &B_mag);
+
+        if (A_mag > 1e-12 && B_mag > 1e-12) {
+            // kappa = 2*(t_out - t_in) / (|A| + |B|)
+            // Equals the curvature of the circumscribed circle through P0, P1, P2.
+            PmCartesian t_in, t_out, delta_t, curv_vec;
+            pmCartScalMult(&A, 1.0 / A_mag, &t_in);
+            pmCartScalMult(&B, 1.0 / B_mag, &t_out);
+            pmCartCartSub(&t_out, &t_in, &delta_t);
+            pmCartScalMult(&delta_t, 2.0 / (A_mag + B_mag), &curv_vec);
+
+            double curv_xyz[3] = {curv_vec.x, curv_vec.y, curv_vec.z};
+
+            for (int j = 0; j < num_joints; j++) {
+                double curv_proj;
+                if (have_jacobian) {
+                    curv_proj = 0.0;
+                    for (int a = 0; a < 3; a++)
+                        curv_proj += fabs(J[j][a]) * fabs(curv_xyz[a]);
+                } else {
+                    if (j >= 3) continue;  // trivkins: XYZ curvature only
+                    curv_proj = fabs(curv_xyz[j]);
+                }
+                if (curv_proj < 1e-15) continue;
+
+                // Curvature-change jerk: v^2 * curv_proj / dt <= jerk_limit
+                double jerk_lim = g_userspace_kins_planner.isEnabled()
+                                ? g_userspace_kins_planner.getJointJerkLimit(j) : 1e9;
+                if (jerk_lim > 0 && jerk_lim < 1e9) {
+                    double v_curv_jerk = sqrt(jerk_lim * dt / curv_proj);
+                    if (v_curv_jerk < kink_vel) kink_vel = v_curv_jerk;
+                }
+
+                // Centripetal acceleration: v^2 * curv_proj <= acc_limit
+                double acc_lim = g_userspace_kins_planner.isEnabled()
+                               ? g_userspace_kins_planner.getJointAccLimit(j) : 1e9;
+                if (acc_lim > 0 && acc_lim < 1e9) {
+                    double v_curv_acc = sqrt(acc_lim / curv_proj);
+                    if (v_curv_acc < kink_vel) kink_vel = v_curv_acc;
                 }
             }
         }
