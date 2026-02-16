@@ -279,6 +279,18 @@ typedef struct {
     double achieved_exit_vel;            // Actual exit velocity we can achieve
     // Phase 4 TODO: With blending, achieved_exit_vel becomes the entry velocity
     // constraint for the next segment, enabling smooth velocity handoff.
+
+    // Alt-entry profile for smooth brake junction transitions.
+    // When a brake branch on seg N changes its exit velocity,
+    // userspace pre-computes an alternate profile for seg N+1
+    // with v0 matching the brake's exit velocity.
+    // RT picks whichever (main or alt_entry) has v0 closer to
+    // actual junction velocity — smooth either way.
+    struct {
+        ruckig_profile_t profile;       // Alternate profile with adjusted entry velocity
+        double v0;                      // Entry velocity this profile was computed for
+        volatile int valid;             // Userspace sets: alt-entry ready for RT
+    } alt_entry;
 } shared_optimization_data_9d_t;
 
 typedef struct {

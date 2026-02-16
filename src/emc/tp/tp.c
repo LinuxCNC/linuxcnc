@@ -4272,7 +4272,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
             double brake_duration = tc->shared_9d.branch.brake_profile.duration;
             if (tc->elapsed_time >= brake_duration) {
                 // Brake complete - switch to main profile
-                double old_pos_base = tc->position_base;
                 unsigned int seq = __atomic_load_n(&tc->shared_9d.copy_sequence, __ATOMIC_ACQUIRE);
                 __atomic_store_n(&tc->shared_9d.copy_sequence, seq + 1, __ATOMIC_RELEASE);
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
@@ -4288,15 +4287,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 __atomic_store_n(&tc->shared_9d.copy_sequence, seq + 2, __ATOMIC_RELEASE);
-
-                rtapi_print_msg(RTAPI_MSG_DBG,
-                    "BRAKE_MAIN seg=%d: pos_base=%.6f->%.6f "
-                    "brake_dur=%.6f main_end=%.6f target=%.6f\n",
-                    tc->id, old_pos_base,
-                    tc->shared_9d.branch.brake_end_position,
-                    brake_duration,
-                    tc->shared_9d.branch.profile.p[RUCKIG_PROFILE_PHASES],
-                    tc->target);
 
                 // Sync generation counter so stopwatch-reset doesn't double-fire
                 tc->last_profile_generation = __atomic_load_n(
@@ -4949,6 +4939,25 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // with the profile's (potentially stale) entry velocity.
     double junction_vel = nexttc->currentvel;
 
+    // Alt-entry profile selection: when a brake on the previous segment
+    // changed the exit velocity, pick whichever profile (main or alt_entry)
+    // has v0 closer to the actual junction velocity.
+    if (GET_TRAJ_PLANNER_TYPE() == 2 &&
+        __atomic_load_n(&nexttc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE)) {
+        double main_v0 = nexttc->shared_9d.profile.v[0];
+        double alt_v0 = nexttc->shared_9d.alt_entry.v0;
+        if (fabs(junction_vel - alt_v0) < fabs(junction_vel - main_v0)) {
+            nexttc->shared_9d.profile = nexttc->shared_9d.alt_entry.profile;
+            // Sync generation counter so stopwatch reset doesn't fire —
+            // the alt_entry profile has a different generation from the
+            // one snapshotted during split setup, which would cause a
+            // spurious reset (elapsed_time=0 → zero displacement).
+            nexttc->last_profile_generation = __atomic_load_n(
+                &nexttc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
+        }
+        __atomic_store_n(&nexttc->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
+    }
+
     int mode = 0;
     tpUpdateCycle(tp, nexttc, next2tc, &mode);
 
@@ -4960,13 +4969,16 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // velocity and position by the mismatch delta. Both progress and
     // position_base are shifted equally so subsequent cycle displacements
     // (which depend on delta-progress) are unaffected.
+    // IMPORTANT: Only apply when junction_vel > profile_v0 (positive correction).
+    // Negative correction makes position_base negative, and since the profile
+    // covers exactly target distance (from 0), the segment can never reach
+    // target, causing a multi-cycle stall and large velocity dip.
     if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         double profile_v0 = nexttc->shared_9d.profile.v[0];
         double vel_mismatch = junction_vel - profile_v0;
-        if (fabs(vel_mismatch) > 0.01) {
+        if (vel_mismatch > 0.01) {
             nexttc->currentvel += vel_mismatch;
-            if (nexttc->currentvel < 0.0) nexttc->currentvel = 0.0;
             // Correct split-cycle displacement to reflect actual velocity
             double pos_correction = vel_mismatch * nexttc_remain_time;
             nexttc->progress += pos_correction;
@@ -4974,15 +4986,16 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         }
     }
 
-
     // Post-correct elapsed_time for Ruckig split cycle.
     // tpUpdateCycle sampled at remain_time then advanced by remain_time internally
     // (because cycle_time was remain_time at sample time), giving elapsed = 2*remain_time.
     // But tpCheckEndCondition inside tpUpdateCycle then overwrote cycle_time to cycleTime.
     // The next regular cycle should sample at remain_time + cycleTime.
-    if (GET_TRAJ_PLANNER_TYPE() == 2 && __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+    if (GET_TRAJ_PLANNER_TYPE() == 2 &&
+        __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         nexttc->elapsed_time = nexttc_remain_time + tp->cycleTime;
     }
+
 
     // Update status for the split portion
     // FIXME redundant tangent check, refactor to switch
