@@ -586,6 +586,11 @@ void FeedRotaryButton::setStepMode(HandwheelStepmodes::Mode stepMode)
     update();
 }
 // ----------------------------------------------------------------------
+void FeedRotaryButton::setStepMode_5_10(bool enable)
+{
+    mIsStepMode_5_10 = enable;
+}
+// ----------------------------------------------------------------------
 HandwheelStepmodes::Mode FeedRotaryButton::stepMode() const
 {
     return mStepMode;
@@ -1563,19 +1568,19 @@ void Pendant::dispatchAxisEventToHal(const KeyCode& axis, bool isActive)
     }
 }
 // ----------------------------------------------------------------------
-void Pendant::setLeadModeSpindle(bool /*enable*/)
+void Pendant::setLeadModeSpindle(bool enable)
 {
-    mIsLeadModeSpindle = true;
+    mIsLeadModeSpindle = enable;
 }
 // ----------------------------------------------------------------------
-void Pendant::setLeadModeFeed(bool /*enable*/)
+void Pendant::setLeadModeFeed(bool enable)
 {
-    mIsLeadModeFeed = true;
+    mIsLeadModeFeed = enable;
 }
 // ----------------------------------------------------------------------
-void Pendant::setStepMode_5_10(bool /*enable*/)
+void Pendant::setStepMode_5_10(bool enable)
 {
-    mIsStepMode_5_10 = true;
+    mCurrentButtonsState.feedButton().setStepMode_5_10(enable);
 }
 // ----------------------------------------------------------------------
 Display::Display(const ButtonsState& currentButtonsState, Hal& hal, UsbOutPackageData& displayData) :
