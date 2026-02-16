@@ -1475,11 +1475,17 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
                    {
                        mHal.toggleFeedrateDecrease();
                    }
-             }
-             else if (!counters.isLeadCounterActive() && (feedButton.stepMode() == HandwheelStepmodes::Mode::CON || feedButton.stepMode() == HandwheelStepmodes::Mode::STEP))
-             {      // Normal Mode
-                    mHal.setJogCounts(counters);
-             }
+            }
+            
+            if (!counters.isLeadCounterActive())
+            {
+                //The counters must be set always if not in lead mode
+                //Otherwhise, the machine will move, sometimes a long distance in the following case:
+                //MGP mode -> Wheel turned -> CON or STEP mode -> After first wheel pulse
+                //due to the counters are increased in MPG mode but not set until the first wheel count event
+                //Setting them does not create a move in MPG mode due to the scale is zero
+                mHal.setJogCounts(counters);
+            }
         }
         mDisplay.onJogDialEvent(counters, delta);
         return true;
