@@ -3884,22 +3884,22 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
         } else if (g_recompute_cursor == 1 && active) {
             if (active->term_cond == TC_TERM_COND_TANGENT &&
                 active->shared_9d.profile.valid) {
-                // Active segment: profile exit is the truth (branch may have changed it)
-                prev_exit_vel = profileExitVelUnscaled(&active->shared_9d.profile);
-                prev_exit_feed_scale = active->shared_9d.profile.computed_feed_scale;
+                // If a pending branch exists, its exit velocity is the future truth
+                int bv = __atomic_load_n(&active->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
+                if (bv && active->shared_9d.branch.profile.valid &&
+                    active->shared_9d.branch.profile.computed_feed_scale > 0.001) {
+                    prev_exit_vel = profileExitVelUnscaled(&active->shared_9d.branch.profile);
+                    prev_exit_feed_scale = active->shared_9d.branch.feed_scale;
+                } else {
+                    prev_exit_vel = profileExitVelUnscaled(&active->shared_9d.profile);
+                    prev_exit_feed_scale = active->shared_9d.profile.computed_feed_scale;
+                }
             }
         }
 
         int recomputed = 0;
         int i = g_recompute_cursor;
-        double budget_us = g_handoff_config.servo_cycle_time_sec * 0.5e6; // half the servo cycle
-        double tick_start = etime_user();
         for (; i < queue_len; i++) {
-            // Time-budget check: after the minimum, stop if budget exhausted
-            if (recomputed >= RECOMPUTE_MIN_PER_TICK) {
-                double elapsed_us = (etime_user() - tick_start) * 1e6;
-                if (elapsed_us >= budget_us) break;
-            }
 
             TC_STRUCT *tc = tcqItem_user(queue, i);
             if (!tc || tc->target < 1e-9) {
@@ -3916,15 +3916,22 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
             double profile_feed = tc->shared_9d.profile.computed_feed_scale;
             if (tc->shared_9d.profile.valid &&
                 fabs(profile_feed - feed_scale) < 0.005) {
-                // Already correct — propagate actual profile exit velocity
-                if (tc->term_cond == TC_TERM_COND_TANGENT) {
-                    prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
-                    prev_exit_feed_scale = tc->shared_9d.profile.computed_feed_scale;
-                } else {
-                    prev_exit_vel = 0.0;
-                    prev_exit_feed_scale = 1.0;
+                // Feed matches — but check if entry velocity also matches
+                double expected_v0 = prev_exit_vel * prev_exit_feed_scale;
+                double profile_v0 = tc->shared_9d.profile.v[0];
+                double v0_delta = fabs(profile_v0 - expected_v0);
+                if (v0_delta < 0.5) {
+                    // Both feed and entry velocity match — genuinely up-to-date
+                    if (tc->term_cond == TC_TERM_COND_TANGENT) {
+                        prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
+                        prev_exit_feed_scale = tc->shared_9d.profile.computed_feed_scale;
+                    } else {
+                        prev_exit_vel = 0.0;
+                        prev_exit_feed_scale = 1.0;
+                    }
+                    continue;
                 }
-                continue;
+                // Fall through to recompute — entry velocity is stale
             }
 
             double v_entry = prev_exit_vel;
@@ -4048,7 +4055,6 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
             g_recompute_first_batch_done = true;
             // Update throughput estimate (EMA, alpha=0.3)
             g_segments_per_tick = 0.7 * g_segments_per_tick + 0.3 * recomputed;
-
         }
 
         // Advance or finish
@@ -4083,6 +4089,7 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
 
     // Adaptive throttling: ensure profiles computed when buffer is thin
     ensureProfilesOnLowBuffer(tp);
+
 }
 
 /**
@@ -4175,8 +4182,17 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
         // the profile to overshoot the segment end.
         if (tc->active) {
             if (tc->term_cond == TC_TERM_COND_TANGENT && tc->shared_9d.profile.valid) {
-                prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
-                prev_exit_feed_scale = tc->shared_9d.profile.computed_feed_scale;
+                // If a pending branch exists, its exit velocity reflects the
+                // new feed — use it instead of the stale main profile.
+                int bv = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
+                if (bv && tc->shared_9d.branch.profile.valid &&
+                    tc->shared_9d.branch.profile.computed_feed_scale > 0.001) {
+                    prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.branch.profile);
+                    prev_exit_feed_scale = tc->shared_9d.branch.feed_scale;
+                } else {
+                    prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
+                    prev_exit_feed_scale = tc->shared_9d.profile.computed_feed_scale;
+                }
             } else {
                 prev_exit_vel = 0.0;
                 prev_exit_feed_scale = 1.0;
