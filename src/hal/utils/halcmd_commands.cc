@@ -2039,7 +2039,7 @@ static void print_thread_info(char **patterns)
 	    n = 1;
 	    while (list_entry != list_root) {
 		/* print the function info */
-		fentry = (hal_funct_entry_t *) list_entry;
+		fentry = reinterpret_cast<hal_funct_entry_t *>(list_entry);
 		funct = SHMPTR(fentry->funct_ptr);
 		/* scriptmode only uses one line per thread, which contains: 
 		   thread period, FP flag, name, then all functs separated by spaces  */
@@ -2842,7 +2842,7 @@ static void save_threads(FILE *dst)
 	list_entry = list_next(list_root);
 	while (list_entry != list_root) {
 	    /* print the function info */
-	    fentry = (hal_funct_entry_t *) list_entry;
+	    fentry = reinterpret_cast<hal_funct_entry_t *>(list_entry);
 	    funct = SHMPTR(fentry->funct_ptr);
 	    fprintf(dst, "addf %s %s\n", funct->name, tptr->name);
 	    list_entry = list_next(list_entry);

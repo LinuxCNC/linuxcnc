@@ -206,7 +206,7 @@ void
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
 	"TCPMEM sending request: fd = %d, serial_number=%ld, request_type=%d, buffer_number=%ld\n",
 	socket_fd, serial_number,
-	ntohl(*((uint32_t *) diag_info_buf + 1)), buffer_number);
+	ntohl(*(reinterpret_cast<uint32_t *>(diag_info_buf) + 1)), buffer_number);
     reenable_sigpipe();
 
 }
@@ -234,7 +234,7 @@ void TCPMEM::verify_bufname()
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
 	"TCPMEM sending request: fd = %d, serial_number=%ld, request_type=%d, buffer_number=%ld\n",
 	socket_fd, serial_number,
-	ntohl(*((uint32_t *) temp_buffer + 1)), buffer_number);
+	ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1)), buffer_number);
     if (recvn(socket_fd, temp_buffer, 40, 0, timeout, &recvd_bytes) < 0) {
 	if (recvn_timedout) {
 	    bytes_to_throw_away = 40;
@@ -255,7 +255,7 @@ void TCPMEM::verify_bufname()
 	status = CMS_MISC_ERROR;
 	return;
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
     if (status < 0) {
 	return;
     }
@@ -302,7 +302,7 @@ CMS_DIAGNOSTICS_INFO *TCPMEM::get_diagnostics_info()
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
 	"TCPMEM sending request: fd = %d, serial_number=%ld, request_type=%d, buffer_number=%ld\n",
 	socket_fd, serial_number,
-	ntohl(*((uint32_t *) temp_buffer + 1)), buffer_number);
+	ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1)), buffer_number);
     if (recvn(socket_fd, temp_buffer, 32, 0, -1.0, &recvd_bytes) < 0) {
 	if (recvn_timedout) {
 	    bytes_to_throw_away = 32;
@@ -324,7 +324,7 @@ CMS_DIAGNOSTICS_INFO *TCPMEM::get_diagnostics_info()
 	status = CMS_MISC_ERROR;
 	return (NULL);
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
     if (status < 0) {
 	return (NULL);
     }
@@ -336,14 +336,14 @@ CMS_DIAGNOSTICS_INFO *TCPMEM::get_diagnostics_info()
     }
     di->last_writer_dpi = NULL;
     di->last_reader_dpi = NULL;
-    di->last_writer = ntohl(*((uint32_t *) temp_buffer + 2));
-    di->last_reader = ntohl(*((uint32_t *) temp_buffer + 3));
+    di->last_writer = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
+    di->last_reader = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 3));
     double server_time;
     memcpy(&server_time, temp_buffer + 16, 8);
     double local_time = etime();
     double diff_time = local_time - server_time;
-    int dpi_count = ntohl(*((uint32_t *) temp_buffer + 6));
-    int dpi_max_size = ntohl(*((uint32_t *) temp_buffer + 7));
+    int dpi_count = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 6));
+    int dpi_max_size = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 7));
     if (dpi_max_size > 32 && dpi_max_size < 0x2000) {
 	if (recvn
 	    (socket_fd, temp_buffer + 32, dpi_max_size - 32, 0, -1.0,
@@ -364,27 +364,27 @@ CMS_DIAGNOSTICS_INFO *TCPMEM::get_diagnostics_info()
 	    memcpy(cms_dpi.host_sysinfo, temp_buffer + dpi_offset, 32);
 	    dpi_offset += 32;
 	    cms_dpi.pid =
-		ntohl(*((uint32_t *) ((char *) temp_buffer + dpi_offset)));
+		ntohl(*reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(temp_buffer) + dpi_offset));
 	    dpi_offset += 4;
 	    memcpy(&(cms_dpi.rcslib_ver), temp_buffer + dpi_offset, 8);
 	    dpi_offset += 8;
 	    cms_dpi.access_type = (CMS_INTERNAL_ACCESS_TYPE)
-		ntohl(*((uint32_t *) ((char *) temp_buffer + dpi_offset)));
+		ntohl(*reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(temp_buffer) + dpi_offset));
 	    dpi_offset += 4;
 	    cms_dpi.msg_id =
-		ntohl(*((uint32_t *) ((char *) temp_buffer + dpi_offset)));
+		ntohl(*reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(temp_buffer) + dpi_offset));
 	    dpi_offset += 4;
 	    cms_dpi.msg_size =
-		ntohl(*((uint32_t *) ((char *) temp_buffer + dpi_offset)));
+		ntohl(*reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(temp_buffer) + dpi_offset));
 	    dpi_offset += 4;
 	    cms_dpi.msg_type =
-		ntohl(*((uint32_t *) ((char *) temp_buffer + dpi_offset)));
+		ntohl(*reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(temp_buffer) + dpi_offset));
 	    dpi_offset += 4;
 	    cms_dpi.number_of_accesses =
-		ntohl(*((uint32_t *) ((char *) temp_buffer + dpi_offset)));
+		ntohl(*reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(temp_buffer) + dpi_offset));
 	    dpi_offset += 4;
 	    cms_dpi.number_of_new_messages =
-		ntohl(*((uint32_t *) ((char *) temp_buffer + dpi_offset)));
+		ntohl(*reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(temp_buffer) + dpi_offset));
 	    dpi_offset += 4;
 	    memcpy(&(cms_dpi.bytes_moved), temp_buffer + dpi_offset, 8);
 	    dpi_offset += 8;
@@ -407,14 +407,14 @@ CMS_DIAGNOSTICS_INFO *TCPMEM::get_diagnostics_info()
 	    dpi_offset += 8;
 	    di->dpis->store_at_tail(&cms_dpi, sizeof(CMS_DIAG_PROC_INFO), 1);
 	    int is_last_writer =
-		ntohl(*((uint32_t *) ((char *) temp_buffer + dpi_offset)));
+		ntohl(*reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(temp_buffer) + dpi_offset));
 	    dpi_offset += 4;
 	    if (is_last_writer) {
 		di->last_writer_dpi =
 		    (CMS_DIAG_PROC_INFO *) di->dpis->get_tail();
 	    }
 	    int is_last_reader =
-		ntohl(*((uint32_t *) ((char *) temp_buffer + dpi_offset)));
+		ntohl(*reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(temp_buffer) + dpi_offset));
 	    dpi_offset += 4;
 	    if (is_last_reader) {
 		di->last_reader_dpi =
@@ -470,7 +470,7 @@ void TCPMEM::reconnect()
 	status = CMS_CREATE_ERROR;
     }
     rcs_print_debug(PRINT_CMS_CONFIG_INFO, "Connecting . . .\n");
-    if (connect(socket_fd, (struct sockaddr *) &server_socket_address,
+    if (connect(socket_fd, reinterpret_cast<struct sockaddr *>(&server_socket_address),
 	    sizeof(server_socket_address)) < 0) {
 	if (EINPROGRESS == errno) {
 
@@ -542,7 +542,7 @@ void TCPMEM::reconnect()
 	    rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
 		"TCPMEM sending request: fd = %d, serial_number=%ld, request_type=%d, buffer_number=%ld\n",
 		socket_fd, serial_number,
-		ntohl(*((uint32_t *) temp_buffer + 1)), buffer_number);
+		ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1)), buffer_number);
 	    memset(temp_buffer, 0, 20);
 	    recvd_bytes = 0;
 	    if (recvn(socket_fd, temp_buffer, 8, 0, 30, &recvd_bytes) < 0) {
@@ -590,7 +590,7 @@ void TCPMEM::reconnect()
 	}
 	rcs_print_debug(PRINT_CMS_CONFIG_INFO, "Connecting . . .\n");
 	if (connect
-	    (write_socket_fd, (struct sockaddr *) &server_socket_address,
+	    (write_socket_fd, reinterpret_cast<struct sockaddr *>(&server_socket_address),
 		sizeof(server_socket_address)) < 0) {
 	    if (EINPROGRESS == errno) {
 		FD_ZERO(&fds);
@@ -721,11 +721,11 @@ CMS_STATUS TCPMEM::handle_old_replies()
 		    serial_number = returned_serial_number;
 		}
 	    }
-	    message_size = ntohl(*((uint32_t *) temp_buffer + 2));
+	    message_size = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
 	    timedout_request_status =
-		(CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-	    timedout_request_writeid = ntohl(*((uint32_t *) temp_buffer + 3));
-	    header.was_read = ntohl(*((uint32_t *) temp_buffer + 4));
+		(CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+	    timedout_request_writeid = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 3));
+	    header.was_read = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 4));
 	    if (message_size > max_encoded_message_size) {
 		rcs_print_error("Received message is too big. (%ld > %ld)\n",
 		    message_size, max_encoded_message_size);
@@ -970,7 +970,7 @@ CMS_STATUS TCPMEM::read()
 
     int send_header_size = 20;
     if (total_subdivisions > 1) {
-	*((uint32_t *) temp_buffer + 5) = htonl((uint32_t) current_subdivision);
+	*(reinterpret_cast<uint32_t *>(temp_buffer) + 5) = htonl((uint32_t) current_subdivision);
 	send_header_size = 24;
     }
     if (sendn(socket_fd, temp_buffer, send_header_size, 0, timeout) < 0) {
@@ -984,7 +984,7 @@ CMS_STATUS TCPMEM::read()
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
 	"TCPMEM sending request: fd = %d, serial_number=%ld, request_type=%d, buffer_number=%ld\n",
 	socket_fd, serial_number,
-	ntohl(*((uint32_t *) temp_buffer + 1)), buffer_number);
+	ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1)), buffer_number);
 
     if (recvn(socket_fd, temp_buffer, 20, 0, timeout, &recvd_bytes) < 20) {
 	if (recvn_timedout) {
@@ -1021,10 +1021,10 @@ CMS_STATUS TCPMEM::read()
 	    return (status = CMS_MISC_ERROR);
 	}
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-    message_size = ntohl(*((uint32_t *) temp_buffer + 2));
-    id = ntohl(*((uint32_t *) temp_buffer + 3));
-    header.was_read = ntohl(*((uint32_t *) temp_buffer + 4));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+    message_size = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
+    id = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 3));
+    header.was_read = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 4));
     if (message_size > max_encoded_message_size) {
 	rcs_print_error("Received message is too big. (%ld > %ld)\n",
 	    message_size, max_encoded_message_size);
@@ -1185,7 +1185,7 @@ CMS_STATUS TCPMEM::blocking_read(double _blocking_timeout)
 	"TCPMEM sending request: fd = %d, serial_number=%ld, "
 	"request_type=%d, buffer_number=%ld\n",
 	socket_fd, serial_number,
-	ntohl(*((uint32_t *) temp_buffer + 1)), buffer_number);
+	ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1)), buffer_number);
     if (recvn(socket_fd, temp_buffer, 20, 0, blocking_timeout, &recvd_bytes) <
 	0) {
 	print_recvn_timeout_errors = orig_print_recvn_timeout_errors;
@@ -1224,10 +1224,10 @@ CMS_STATUS TCPMEM::blocking_read(double _blocking_timeout)
 	    return (status = CMS_MISC_ERROR);
 	}
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-    message_size = ntohl(*((uint32_t *) temp_buffer + 2));
-    id = ntohl(*((uint32_t *) temp_buffer + 3));
-    header.was_read = ntohl(*((uint32_t *) temp_buffer + 4));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+    message_size = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
+    id = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 3));
+    header.was_read = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 4));
     if (message_size > max_encoded_message_size) {
 	rcs_print_error("Received message is too big. (%ld > %ld)\n",
 	    message_size, max_encoded_message_size);
@@ -1365,7 +1365,7 @@ CMS_STATUS TCPMEM::peek()
     putbe32(temp_buffer + 16, (uint32_t) in_buffer_id);
     int send_header_size = 20;
     if (total_subdivisions > 1) {
-	*((uint32_t *) temp_buffer + 20) = htonl((uint32_t) current_subdivision);
+	*(reinterpret_cast<uint32_t *>(temp_buffer) + 20) = htonl((uint32_t) current_subdivision);
 	send_header_size = 24;
     }
     if (sendn(socket_fd, temp_buffer, send_header_size, 0, timeout) < 0) {
@@ -1410,10 +1410,10 @@ CMS_STATUS TCPMEM::peek()
 	    return (status = CMS_MISC_ERROR);
 	}
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-    message_size = ntohl(*((uint32_t *) temp_buffer + 2));
-    id = ntohl(*((uint32_t *) temp_buffer + 3));
-    header.was_read = ntohl(*((uint32_t *) temp_buffer + 4));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+    message_size = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
+    id = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 3));
+    header.was_read = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 4));
     if (message_size > max_encoded_message_size) {
 	reconnect_needed = 1;
 	rcs_print_error("Received message is too big. (%ld > %ld)\n",
@@ -1560,8 +1560,8 @@ CMS_STATUS TCPMEM::write(void *user_data, int *serial_number_out)
 	    "TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	    socket_fd, returned_serial_number, buffer_number);
 
-	status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-	header.was_read = ntohl(*((uint32_t *) temp_buffer + 2));
+	status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+	header.was_read = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
 	header.write_id = returned_serial_number;
     } else {
 	header.was_read = 0;
@@ -1671,8 +1671,8 @@ CMS_STATUS TCPMEM::write_if_read(void *user_data, int *serial_number_out)
 	rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
 	    "TCPMEM received_reply: fd = %d, serial_number=%ld, buffer_number=%ld\n",
 	    socket_fd, returned_serial_number, buffer_number);
-	status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-	header.was_read = ntohl(*((uint32_t *) temp_buffer + 2));
+	status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+	header.was_read = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
     } else {
 	header.was_read = 0;
 	status = CMS_WRITE_OK;
@@ -1756,8 +1756,8 @@ int TCPMEM::check_if_read()
 	reenable_sigpipe();
 	return (status = CMS_MISC_ERROR);
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-    header.was_read = ntohl(*((uint32_t *) temp_buffer + 2));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+    header.was_read = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
     reenable_sigpipe();
     return (header.was_read);
 }
@@ -1836,8 +1836,8 @@ int TCPMEM::get_queue_length()
 	reenable_sigpipe();
 	return (status = CMS_MISC_ERROR);
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-    queuing_header.queue_length = ntohl(*((uint32_t *) temp_buffer + 2));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+    queuing_header.queue_length = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
     reenable_sigpipe();
     return (queuing_header.queue_length);
 }
@@ -1916,8 +1916,8 @@ int TCPMEM::get_msg_count()
 	reenable_sigpipe();
 	return (status = CMS_MISC_ERROR);
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-    header.write_id = ntohl(*((uint32_t *) temp_buffer + 2));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+    header.write_id = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
     reenable_sigpipe();
     return (header.write_id);
 }
@@ -1996,8 +1996,8 @@ int TCPMEM::get_space_available()
 	reenable_sigpipe();
 	return (status = CMS_MISC_ERROR);
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-    free_space = ntohl(*((uint32_t *) temp_buffer + 2));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+    free_space = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
     reenable_sigpipe();
     return (free_space);
 }
@@ -2063,8 +2063,8 @@ CMS_STATUS TCPMEM::clear()
 	reconnect_needed = 1;
 	return (status = CMS_MISC_ERROR);
     }
-    status = (CMS_STATUS) ntohl(*((uint32_t *) temp_buffer + 1));
-    header.was_read = ntohl(*((uint32_t *) temp_buffer + 2));
+    status = (CMS_STATUS) ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 1));
+    header.was_read = ntohl(*(reinterpret_cast<uint32_t *>(temp_buffer) + 2));
     return (status);
 }
 /*! \todo Another #if 0 */

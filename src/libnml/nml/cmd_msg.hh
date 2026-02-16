@@ -33,7 +33,7 @@ class RCS_CMD_CHANNEL:public NML {
     // Sub-class calls base-class
     // cppcheck-suppress duplInheritedMember
     RCS_CMD_MSG *get_address() {
-	return ((RCS_CMD_MSG *) NML::get_address());
+	return static_cast<RCS_CMD_MSG *>(NML::get_address());
     };
 
     int write(RCS_CMD_MSG * cmd_msg);
