@@ -12,7 +12,7 @@ Desde el directorio de nivel superior:
 ----
 cd src                                            <1>
 ./autogen.sh                                      <2>
-./configure [--with-realtime=uspace|/usr/rtai...] <3>
+./configure [--with-realtime=uspace]            <3>
 make clean                                        <4>
 make                                              <5>
 sudo make setuid                                  <6>
@@ -84,10 +84,11 @@ regenerar `configure' usando una versión más reciente de `autoconf'.
 ==== Características opcionales
 
 LinuxCNC puede operar hardware solo si ha sido instalado un *sistema de
-tiempo real*: ya sea *RT-PREEMPT* o *RTAI*. Si no tiene ninguno
-instalado, no puede ejecutar LinuxCNC para controlar ninguna máquina.
-Por favor instale uno de los parches RT (consulte la documentación del
-proyecto sobre cómo lograr eso).
+tiempo real*. LinuxCNC usa *RT-PREEMPT* (también conocido como *PREEMPT_RT*)
+para operación en tiempo real. Si no tiene un núcleo RT-PREEMPT instalado,
+no puede ejecutar LinuxCNC para controlar ninguna máquina. Por favor
+consulte la documentación para información sobre cómo instalar un núcleo
+RT-PREEMPT.
 
 // FIXME Add pointers for RT install
 
@@ -96,7 +97,6 @@ Esto es posible utilizando un _modo simulador_, que no permite el control
 del hardware. Este es un modo alternativo de *uspace* _en tiempo real_.
 
 Para especificar RT-PREEMPT o no-tiempo-real, use `--with-realtime=uspace`.
-De lo contrario, use `--with-realtime=[ubicación donde rtai está instalado]`.
 
 Si no desea generar la documentación desde las fuentes, use
 `--disable-build-documentation`

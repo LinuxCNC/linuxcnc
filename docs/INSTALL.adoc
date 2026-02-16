@@ -12,7 +12,7 @@ From the repository top level directory:
 ----
 cd src                                            <1>
 ./autogen.sh                                      <2>
-./configure [--with-realtime=uspace|/usr/rtai...] <3>
+./configure [--with-realtime=uspace]            <3>
 make clean                                        <4>
 make                                              <5>
 sudo make setuid                                  <6>
@@ -82,10 +82,10 @@ regenerate it using a newer version of `autoconf`.
 ==== Optional Features
 
 LinuxCNC can operate hardware only if a _real time system_ has been
-installed: either *RT-PREEMPT* or *RTAI*. If you don't have any installed,
-you cannot run LinuxCNC to control any machines. Please install one
-of the RT patches (refer to the documentation of the project on how to
-achieve that).
+installed. LinuxCNC uses *RT-PREEMPT* (also known as *PREEMPT_RT*) for
+realtime operation. If you don't have an RT-PREEMPT kernel installed,
+you cannot run LinuxCNC to control any machines. Please refer to the
+documentation for information on installing an RT-PREEMPT kernel.
 
 // FIXME Add pointers for RT install
 
@@ -94,7 +94,6 @@ is possible using a _simulator mode_, which doesn't allow hardware control.
 This is an alternate mode of *uspace* _realtime_.
 
 To specify RT-PREEMPT or non-realtime, use `--with-realtime=uspace`.
-Otherwise, use `--with-realtime=[location where rtai is installed]`.
 
 If you don't want to generate the documentation from source use
 `--disable-build-documentation`

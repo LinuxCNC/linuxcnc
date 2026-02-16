@@ -101,17 +101,6 @@ Anything following '\fB#\fR' on a line is a comment.
 module called \fImodname\fR.  \fBhalcmd\fR looks for the module
 in a directory specified at compile time.
 
-In systems with kernel-based realtime support (e.g. RTAI), \fBhalcmd\fR calls the
-\fBlinuxcnc_module_helper\fR to load realtime modules.
-\fBlinuxcnc_module_helper\fR is a setuid program and is compiled with
-a whitelist of modules it is allowed to load.  This is currently
-just a list of \fBLinuxCNC\fR-related modules.  The
-\fBlinuxcnc_module_helper\fR execs insmod, so return codes and error
-messages are those from insmod.  Administrators who wish to
-restrict which users can load these \fBLinuxCNC\fR-related kernel
-modules can do this by setting the permissions and group on
-\fBlinuxcnc_module_helper\fR appropriately.
-
 In systems with userspace-based realtime support (e.g. Preempt-RT) and in
 systems without realtime support \fBhalcmd\fR calls the \fBrtapi_app\fR
 which creates the realtime environment (simulated realtime, on systems

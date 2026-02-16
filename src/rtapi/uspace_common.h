@@ -38,8 +38,11 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #include "config.h"
 
-#ifdef RTAPI
-#include "rtapi_uspace.hh"
+/* For C code using RTAPI, provide a compatible WITH_ROOT macro */
+#if defined(RTAPI) && !defined(__cplusplus) && !defined(WITH_ROOT)
+extern void with_root_enter(void);
+extern void with_root_exit(void);
+#define WITH_ROOT for(int _wr = (with_root_enter(), 1); _wr; _wr = 0, with_root_exit())
 #endif
 
 typedef struct {
@@ -373,28 +376,12 @@ static int detect_preempt_rt() {
     return 0;
 }
 #endif
-#ifdef USPACE_RTAI
-static int detect_rtai() {
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-rtai") != 0;
-}
-#else
 static int detect_rtai() {
     return 0;
 }
-#endif
-#ifdef USPACE_XENOMAI
-static int detect_xenomai() {
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-xenomai") != 0;
-}
-#else
 static int detect_xenomai() {
     return 0;
 }
-#endif
 static int detect_env_override() {
     char *p = getenv("LINUXCNC_FORCE_REALTIME");
     return p != NULL && atoi(p) != 0;

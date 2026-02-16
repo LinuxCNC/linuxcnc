@@ -49,7 +49,7 @@ Ahora puedes salir de hal/emc2.
 7. Use addr2line para descubrir la línea del código fuente:
 +
   $ addr2line -e emc2-dev/src/fault.ko 0x1a
-  /usr/src/linux-headers-2.6.32-122-rtai/hal/components/fault.comp:9
+  /usr/src/linux-headers-2.6.32-122-rt/hal/components/fault.comp:9
 +
 Ignora cómo el nombre del directorio es incorrecto y mira si esto te
 ayudó localizar el problema:

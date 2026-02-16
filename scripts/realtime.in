@@ -6,10 +6,9 @@
 # Default-Start:
 # Default-Stop:      0 1 6
 # Short-Description: enable realtime capabilities when needed
-# Description:       The rtai module is loaded when needed and
-#  removed when the job has ended and is used throughout the LinuxCNC
-#  infrastructure. The script has no effect for the PREEMPT realtime kernel.
-#  The script is not meant to be started a boot time - it could be, though.
+# Description:       This script manages the LinuxCNC realtime infrastructure
+#  for uspace/RT_PREEMPT configurations. The script is not meant to be started
+#  at boot time - it could be, though.
 # X-Interactive:     false
 ### END INIT INFO
 #
@@ -77,88 +76,29 @@ CheckConfig(){
     # Import the config
     source $RTAPICONF
     if [ ! -e $RTLIB_DIR/.runinfo -a -e $RTLIB_DIR/emc2/.runinfo ]; then
-        # installed system: we don't want our modules mixed up with rtai
+        # installed system: we don't want our modules mixed up with other modules
         RTLIB_DIR=$RTLIB_DIR/emc2
     fi
     # Export the module path specified in the config.
     export MODPATH
-    # Generate module lists for loading and unloading
-    # lists contain RTOS modules plus RTAPI and HAL
-    # unload list is in reverse order
-    # any module names that are symlinks are resolved to their real names
+    # For uspace, no kernel modules are needed
     MODULES_LOAD=
     MODULES_UNLOAD=
-    case $RTPREFIX in
-    uspace) SHM_DEV=/dev/zero;;
-    esac
-    for  MOD in $MODULES ; do
-        eval MOD=\${MODPATH_$MOD}
-        if [ -z "$MOD" ]; then continue; fi
-        if [ -L $MOD ]; then
-            MOD=${MOD%/*}/$(readlink $MOD)
-        fi
-        MODULES_LOAD="$MODULES_LOAD $MOD"
-        MOD="${MOD##*/}"
-        MOD="${MOD%.*}"
-        MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
-    done
-    case $RTPREFIX in
-    (*rtai*)
-        MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-        MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
-        SHM_DEV=/dev/rtai_shm
-	;;
-    (*)
-        MODULES_UNLOAD=
-    esac
+    SHM_DEV=/dev/zero
 }
 
 CheckStatus(){
-    case $RTPREFIX in
-    uspace)
-        if [ -z "$($PS -o stat= -o comm= -C rtapi_app | $GREP -v '^Z')" ]; then
-            exit 1
-        else
-            exit 0
-        fi ;;
-    *)
-        # check loaded/unloaded status of modules
-        unset NOTLOADED
-        for MOD in $MODULES_UNLOAD ; do
-            if "$LSMOD" | awk '{print $1}' | $GREP -x $MOD >/dev/null ; then
-                echo "$MOD is loaded"
-            else
-                echo "$MOD is not loaded"
-                NOTLOADED=NOT
-            fi
-        done
-        if [ -z $NOTLOADED ]; then
-            exit 0
-        else
-            exit 1
-        fi
-    esac
+    # Check if rtapi_app is running for uspace
+    if [ -z "$($PS -o stat= -o comm= -C rtapi_app | $GREP -v '^Z')" ]; then
+        exit 1
+    else
+        exit 0
+    fi
 }
 
 CheckMem(){
-# check for user space processes using shared memory
-    if [ -e /dev/mbuff ] ; then
-	# device file exists, check for processes using it
-	if $FUSER -s /dev/mbuff 2>/dev/null; then
-	    # at least one process is using it
-	    echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
-	    $FUSER -v /dev/mbuff
-	    exit 1
-	fi
-    elif [ -e /dev/rtai_shm ] ; then
-	# device file exists, check for processes using it
-	if $FUSER -s /dev/rtai_shm 2>/dev/null; then
-	    # at least one process is using it
-	    echo "ERROR:  Can't remove RTAI modules, kill the following process(es) first"
-	    $FUSER -v /dev/rtai_shm
-	    exit 1
-	fi
-    fi
+    # For uspace, no kernel module shared memory devices to check
+    return 0
 }
 
 Load(){
@@ -189,47 +129,33 @@ CheckLoaded(){
 
 Unload(){
     CheckKernel
-    case $RTPREFIX in
-    uspace)
-        rtapi_app exit 
+    # For uspace, signal rtapi_app to exit
+    rtapi_app exit 
 
-        # wait 5 seconds for rtapi_app to die and be reaped by its parent
-        START=$SECONDS
-        local NPROCS
-        while [ 5 -gt $((SECONDS-START)) ]; do
-            NPROCS=$(ps -C rtapi_app -o stat= -o comm= | $GREP -v '^Z' | wc -l)
-            if [ $NPROCS -eq 0 ]; then
-                break
-            fi
-            sleep 0.1
-        done
+    # wait 5 seconds for rtapi_app to die and be reaped by its parent
+    START=$SECONDS
+    local NPROCS
+    while [ 5 -gt $((SECONDS-START)) ]; do
         NPROCS=$(ps -C rtapi_app -o stat= -o comm= | $GREP -v '^Z' | wc -l)
-        if [ $NPROCS -gt 0 ]; then
-            echo "ERROR: rtapi_app failed to die" 1>&2
+        if [ $NPROCS -eq 0 ]; then
+            break
         fi
-
-        ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
-        ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
-        ipcrm -M 0x48484c34 2>/dev/null ;# UUID_KEY
-    esac
-    for module in $MODULES_UNLOAD ; do
-        $RMMOD $module
+        sleep 0.1
     done
+    NPROCS=$(ps -C rtapi_app -o stat= -o comm= | $GREP -v '^Z' | wc -l)
+    if [ $NPROCS -gt 0 ]; then
+        echo "ERROR: rtapi_app failed to die" 1>&2
+    fi
+
+    # Clean up shared memory segments
+    ipcrm -M 0x48414c32 2>/dev/null ;# HAL_KEY
+    ipcrm -M 0x90280A48 2>/dev/null ;# RTAPI_KEY
+    ipcrm -M 0x48484c34 2>/dev/null ;# UUID_KEY
 }
 
 CheckUnloaded(){
-# checks to see if all modules were unloaded
-    STATUS=
-    for module in $MODULES_UNLOAD ; do
-	# check to see if the module is installed
-	if "$LSMOD" | awk '{print $1}' | $GREP -x $module >/dev/null ; then
-	    echo "ERROR: Could not unload '$module'"
-	    STATUS=error
-	fi
-    done
-    if [ -n "$STATUS" ] ; then
-	exit 1
-    fi
+    # For uspace, nothing to check since no kernel modules are loaded
+    return 0
 }
 
 CMD=$1

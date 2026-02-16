@@ -31,34 +31,10 @@ if sys.version_info.minor < 7:
 
 supported_oses = [ 'linux' ]
 supported_cpus = [ 'amd64', 'i386', 'arm' ]
-supported_kernel_flavors = [ 'rtai', 'rtpreempt', 'vanilla' ]
 
 
 def detect_os():
     return os.uname()[0].lower()
-
-
-def detect_kernel_flavor(uname):
-    try:
-        f = open("/boot/config-%s" % uname)
-    except IOError:
-        print("no kernel configuration found for %s, assuming vanilla" % uname)
-        return 'vanilla'
-    l = f.read(-1)
-    f.close()
-
-    config_ipipe = re.search('^CONFIG_IPIPE', l, re.MULTILINE)
-    config_xeno = re.search('^CONFIG_XENO_', l, re.MULTILINE)
-    config_rtpreempt = re.search('^CONFIG_PREEMPT_RT', l, re.MULTILINE)
-
-    if config_ipipe and not config_xeno and not config_rtpreempt:
-        return 'rtai'
-    elif config_ipipe and config_xeno and not config_rtpreempt:
-        return 'xenomai'
-    elif not config_ipipe and not config_xeno and config_rtpreempt:
-        return 'rtpreempt'
-    else:
-        return 'vanilla'
 
 
 os = detect_os()
@@ -68,7 +44,7 @@ if os == 'linux':
     distributor = subprocess.check_output(['lsb_release', '--id', '--short']).strip().decode()
     release = subprocess.check_output(['lsb_release', '--release', '--short']).strip().decode()
     try:
-        major, minor = re.split('\.', release)
+        major, minor = re.split(r'\.', release)
     except ValueError as e:
         major = release
         minor = "0"
@@ -81,7 +57,6 @@ if os == 'linux':
         release_minor = 0
 
     uname = subprocess.check_output(['uname', '-r']).strip().decode()
-    kernel_flavor = detect_kernel_flavor(uname)
 
 else:
     print("unknown OS:", os)
@@ -94,7 +69,7 @@ print("distributor =", distributor)
 print("release =", release)
 print("    major =", release_major)
 print("    minor =", release_minor)
-print("uname = %s (%s)" % (uname, kernel_flavor))
+print("uname =", uname)
 
 if os not in supported_oses:
     print("unsupported OS!")
@@ -113,10 +88,6 @@ if distributor == 'Debian':
     if release_major < 10:
         print("release is too old!")
         sys.exit(1)
-
-if kernel_flavor not in supported_kernel_flavors:
-    print("unsupported kernel flavor")
-    sys.exit(1)
 
 print("this platform is supported!")
 sys.exit(0)

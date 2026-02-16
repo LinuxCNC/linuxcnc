@@ -31,13 +31,11 @@ int rtapi_is_kernelspace()
 int rtapi_is_realtime()
 
 .SH DESCRIPTION
-\fBrtapi_is_kernelspace()\fR returns nonzero when rtapi modules run in kernel space (e.g., under RTAI) and zero when they
+\fBrtapi_is_kernelspace()\fR returns nonzero when rtapi modules run in kernel space and zero when they
 run in userspace (e.g., under uspace).
 
 \fBrtapi_is_realtime()\fR returns nonzero when capable of running with realtime
-guarantees.  For rtai, this always returns nonzero (but actually loading
-realtime modules will fail if not running under the appropriate kernel).  For
-uspace, this returns nonzero when the running kernel indicates it is capable of
+guarantees. For uspace, this returns nonzero when the running kernel indicates it is capable of
 realtime performance.  If \fBrtapi_app\fR is not setuid root, this returns nonzero
 even though \fBrtapi_app\fR will not be able to obtain realtime scheduling or
 hardware access, so e.g., attempting to \fBloadrt\fR a hardware driver will fail.

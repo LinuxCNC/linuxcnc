@@ -115,15 +115,12 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
 
 ##############################################################################
 # Section 2                                                                  #
-# RealTime checking (either RTAI, or RT-Linux)                               #
+# RealTime checking (uspace only - RT_PREEMPT)                               #
 # Subsection 2.1 - arguments to ./configure (--with-realtime)                #
-# Subsection 2.2 - if none specified above, RTDIR needs to be found by search#
-# Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
 ##############################################################################
 
 # set up some default values
 RTDIR=""
-RTAI=""
 RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
@@ -162,12 +159,12 @@ AC_ARG_ENABLE(simulator,
 
 AC_ARG_WITH(realtime,
     AS_HELP_STRING(
-        [--with-realtime=PATH],
-        [Path where RTAI is installed, or "uspace" for POSIX userspace.]
+        [--with-realtime=uspace],
+        [Use "uspace" for POSIX userspace with RT_PREEMPT.]
     ),
     [   case "$withval" in
 	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply a path or "uspace" for --with-realtime.]) ;;
+	    AC_MSG_ERROR([You must supply "uspace" for --with-realtime.]) ;;
 	*)
             RTS="$withval" ;;
         esac
@@ -190,77 +187,16 @@ AC_ARG_ENABLE(toolnml,
     ])
 ##############################################################################
 # Subsection 2.2                                                             #
-# 1. If a RT has been specified by the user it needs to be checked for       #
-# validity. That is done by checking default locations for a certain script  #
-# (similar to 2)                                                             #
-#                                                                            #
-# 2. If no RT has been specified explicitly by the user, one has to be       #
-# found by search. In order to do that the following code will search for a  #
-# RT-specific script:                                                        #
-# rtai-config for RTAI 3.x                                                   #
+# Set up uspace realtime configuration                                       #
 ##############################################################################
 
-#at this point if RTS is empty, we need to find RT ourselves
-AC_MSG_CHECKING([for rtai-config])
-if test -z "$RTDIR"; then
-  DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
-else
-  DIRS="$RTS"
-fi
-  RTAI_CONFIG=none
-  for location in $DIRS; do
-    for subdir in . scripts bin; do
-    for signature in rtai; do
-      candidate=$location/$subdir/$signature-config
-      if test "$RTAI_CONFIG" = "none" -a -x $candidate; then
-        RTAI_CONFIG=$candidate
-      fi
-    done
-  done
-done
-
-AC_MSG_RESULT([$RTAI_CONFIG])
-AC_SUBST([RTAI_CONFIG])
-
-AC_PATH_PROG([XENOMAI_CONFIG], [xeno-config], [none])
-AC_SUBST([XENOMAI_CONFIG])
-
-AC_MSG_CHECKING([for realtime API(s) to use])
-if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
+AC_MSG_CHECKING([for realtime API to use])
+if test -z "$RTS" ; then
   RTS=uspace
-  if test "$RTAI_CONFIG" = "none" ; then
-    USPACE_RTAI=
-    CONFIG_USPACE_RTAI=n
-    RTAI_LXRT_CFLAGS=
-    RTAI_LXRT_LDFLAGS=
-  else
-    USPACE_RTAI=+lxrt
-    CONFIG_USPACE_RTAI=y
-    RTAI_LXRT_CFLAGS=`$RTAI_CONFIG --lxrt-cflags`
-    RTAI_LXRT_LDFLAGS=`$RTAI_CONFIG --lxrt-ldflags`
-    AC_DEFINE([USPACE_RTAI], [], [Define if uspace realtime should optionally support RTAI LXRT])
-  fi
-  AC_SUBST([CONFIG_USPACE_RTAI])
-  AC_SUBST([RTAI_LXRT_CFLAGS])
-  AC_SUBST([RTAI_LXRT_LDFLAGS])
+fi
 
-  if test "$XENOMAI_CONFIG" = "none" ; then
-    USPACE_XENOMAI=
-    CONFIG_USPACE_XENOMAI=n
-    XENOMAI_CFLAGS=
-    XENOMAI_LDFLAGS=
-  else
-    USPACE_XENOMAI=+xenomai
-    CONFIG_USPACE_XENOMAI=y
-    XENOMAI_CFLAGS=`$XENOMAI_CONFIG --skin posix --cflags`
-    XENOMAI_LDFLAGS=`$XENOMAI_CONFIG --skin posix --ldflags`
-    AC_DEFINE([USPACE_XENOMAI], [], [Define if uspace realtime should optionally support Xenomai])
-  fi
-  AC_SUBST([CONFIG_USPACE_XENOMAI])
-  AC_SUBST([XENOMAI_CFLAGS])
-  AC_SUBST([XENOMAI_LDFLAGS])
-
-  AC_MSG_RESULT([$RTS$USPACE_RTAI$USPACE_XENOMAI])
+if test "$RTS" = uspace ; then
+  AC_MSG_RESULT([uspace])
 
   AC_MSG_CHECKING([whether to enable userspace PCI access])
   AC_ARG_ENABLE(userspace-pci,
@@ -301,60 +237,24 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
   AC_SUBST([LIBUDEV_CFLAGS])
   AC_SUBST([LIBUDEV_LIBS])
 else
-  RTS="$RTAI_CONFIG"
-  AC_MSG_RESULT([$RTS])
+  AC_MSG_ERROR([Only --with-realtime=uspace is supported.])
 fi
-
 
 ##############################################################################
 # Subsection 2.3                                                             #
-# we have the RT-script now, it's time to query it for some values           #
-# it can provide us with default values such as CC, CFLAGS, etc              #
-# see each case for more details                                             #
+# Set up uspace configuration values                                         #
 ##############################################################################
 
 RTARCH=`uname -m | sed s/i.86/i386/`
-case $RTS in
-*/rtai-config)
-    RTPREFIX=rtai
-    RTAI_VERSION=$($RTS --version)
-    RTAI=$(echo $RTAI_VERSION | cut -f 1 -d .)
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --module-cflags`
-    RTFLAGS="$RTFLAGS -DRTAI=$RTAI"
-    KERNELDIR=`$RTS --linux-dir`
-    RTARCH=`$RTS --arch`
-    ULAPI_CFLAGS=`$RTS --lxrt-cflags`
-    ULAPI_LDFLAGS=`$RTS --lxrt-ldflags`
-;;
-uspace|uspace+*)
-    RTPREFIX=uspace
-    RTDIR=$(pwd -P)
-    ULAPI_CFLAGS=""
-    RTFLAGS="-DUSPACE"
-    BUILD_SYS=uspace
-    MODEXT=.so
-    MODULE_DIR=${prefix}/lib/linuxcnc/modules
-    ULAPI_LDFLAGS=""
-esac
+RTPREFIX=uspace
+RTDIR=$(pwd -P)
+ULAPI_CFLAGS=""
+RTFLAGS="-DUSPACE"
+BUILD_SYS=uspace
+MODEXT=.so
+MODULE_DIR=${prefix}/lib/linuxcnc/modules
+ULAPI_LDFLAGS=""
 
-if test "$RTS" != uspace; then
-    AC_MSG_CHECKING([for location of kernel headers])
-    AC_ARG_WITH(kernel-headers,
-        AS_HELP_STRING(
-            [--with-kernel-headers=PATH],
-            [Location for kernel headers.]
-        ),
-	[
-	    KERNELDIR="$withval"
-	    AC_MSG_RESULT(using specified value: $KERNELDIR)
-	],[
-	    AC_MSG_RESULT(using value from RTS: $KERNELDIR)
-	])
-fi
-
-AC_SUBST([RTAI])
 AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
@@ -363,12 +263,7 @@ AC_SUBST([RTARCH])
 AC_SUBST([ULAPI_CFLAGS])
 AC_SUBST([ULAPI_LDFLAGS])
 
-case "$RTPREFIX" in
-uspace)
-    AC_DEFINE(RTAPI_USPACE, [], [Realtime system is userspace]) ;;
-rtai)
-    AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI]) ;;
-esac
+AC_DEFINE(RTAPI_USPACE, [], [Realtime system is userspace])
 
 
 EMC2_HOME=`(cd .. ; pwd)`
@@ -379,7 +274,7 @@ AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime syste
 ##############################################################################
 # Section 3                                                                  #
 # additional checking                                                        #
-# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Subsection 3.1 - checking for a CC                                         #
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 # Subsection 3.3 - check the moduledir where modules can get installed       #
 # Subsection 3.4 - check for GTK                                             #
@@ -388,18 +283,12 @@ AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime syste
 
 
 ##############################################################################
-# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Subsection 3.1 - checking for a CC                                         #
 ##############################################################################
 AC_MSG_CHECKING([for cc version])
+AC_MSG_RESULT(not specified)
 
-if (test ${RTS##*/} = rtai-config ) ; then
-  RTSCC=`$RTS --cc`
-  AC_MSG_RESULT(found $RTSCC in rtai-config)
-else
-  AC_MSG_RESULT(not specified)
-fi
-
-AC_PROG_CC([$RTSCC gcc clang])
+AC_PROG_CC([gcc clang])
 AC_PROG_CPP()
 
 if test -z "$CC"; then
