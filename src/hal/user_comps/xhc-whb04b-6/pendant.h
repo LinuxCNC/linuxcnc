@@ -441,7 +441,6 @@ public:
     Handwheel(const FeedRotaryButton& feedButton, KeyEventListener* listener = nullptr);
     ~Handwheel();
     void enableVerbose(bool enable);
-    void setMode(HandWheelCounters::CounterNameToIndex mode);
     void count(int8_t delta);
     const HandWheelCounters& counters() const;
     HandWheelCounters& counters();

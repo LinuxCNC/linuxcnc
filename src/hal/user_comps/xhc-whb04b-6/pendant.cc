@@ -735,11 +735,6 @@ void Handwheel::enableVerbose(bool enable)
     }
 }
 // ----------------------------------------------------------------------
-void Handwheel::setMode(HandWheelCounters::CounterNameToIndex activeCounterMode)
-{
-    mCounters.setActiveCounter(activeCounterMode);
-}
-// ----------------------------------------------------------------------
 void Handwheel::count(int8_t delta)
 {
     assert(mEventListener != nullptr);
