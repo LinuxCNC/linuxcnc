@@ -104,6 +104,16 @@ public:
                      std::vector<PathSample>& samples);
 
     /**
+     * Sample a Bezier blend curve
+     *
+     * @param bezier   Bezier9 blend curve geometry
+     * @param samples  Output vector of samples (cleared first)
+     * @return Number of samples generated, or -1 on error
+     */
+    int sampleBezier(const Bezier9& bezier,
+                     std::vector<PathSample>& samples);
+
+    /**
      * Get the current configuration
      */
     const PathSamplerConfig& getConfig() const { return config_; }

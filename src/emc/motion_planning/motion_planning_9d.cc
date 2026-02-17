@@ -166,8 +166,9 @@ static double tcGetTangentialMaxAccel_9D_user(TC_STRUCT const * const tc)
         }
     }
 
-    // Reduce tangential acceleration for arcs (centripetal uses part of budget)
-    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
+    // Reduce tangential acceleration for curved segments (centripetal uses part of budget)
+    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL ||
+        tc->motion_type == TC_BEZIER) {
         acc *= tc->acc_ratio_tan;
     }
 
@@ -3282,6 +3283,22 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         }
     }
 
+    // Blend exit velocity check: if active segment was promoted to TANGENT
+    // by tpSetupBlend9D (a downstream blend was created), but its profile
+    // still exits at ~0 from Fix 4 (first profile computed before blend existed),
+    // trigger a branch to update the exit velocity.  computeBranch reads
+    // final_vel (set correctly by tpSetupBlend9D) and produces the right profile.
+    if (tc->term_cond == TC_TERM_COND_TANGENT && tc->shared_9d.profile.valid) {
+        double prof_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+        double desired_exit = atomicLoadDouble(&tc->shared_9d.final_vel) * current_feed_now;
+        if (prof_exit < 1e-6 && desired_exit > 1.0) {
+            int bv = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
+            if (!bv) {
+                computeBranch(tp, tc, current_feed_now);
+            }
+        }
+    }
+
     pending_branch_t *branch = &tc->shared_9d.branch;
 
     // 1. Check for successful merge (RT took the branch)
@@ -4154,10 +4171,35 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
     // because no predecessor within the window sets prev_exit_vel.
     {
         TC_STRUCT *pre_window = tcqBack_user(queue, -optimization_depth);
+        {
+            static int seed_dbg = 0;
+            if (seed_dbg < 10) {
+                seed_dbg++;
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "SEED_DBG: pre_window=%p depth=%d term=%d pvalid=%d pfeed=%.3f "
+                    "pv_exit=%.3f fv=%.3f type=%d id=%d\n",
+                    pre_window, optimization_depth,
+                    pre_window ? pre_window->term_cond : -1,
+                    pre_window ? pre_window->shared_9d.profile.valid : 0,
+                    pre_window ? pre_window->shared_9d.profile.computed_feed_scale : 0.0,
+                    pre_window ? profileExitVelUnscaled(&pre_window->shared_9d.profile) : -1.0,
+                    pre_window ? atomicLoadDouble(&pre_window->shared_9d.final_vel) : -1.0,
+                    pre_window ? pre_window->motion_type : -1,
+                    pre_window ? pre_window->id : -1);
+            }
+        }
         if (pre_window && pre_window->term_cond == TC_TERM_COND_TANGENT
             && pre_window->shared_9d.profile.valid
             && pre_window->shared_9d.profile.computed_feed_scale > 0.001) {
             prev_exit_vel = profileExitVelUnscaled(&pre_window->shared_9d.profile);
+            // If the stored profile has v_exit≈0 but final_vel is non-zero,
+            // the profile was poisoned by Fix 4 before a blend was created.
+            // Use final_vel (set by tpSetupBlend9D at enqueue time) instead.
+            if (prev_exit_vel < 1e-6) {
+                double fv = atomicLoadDouble(&pre_window->shared_9d.final_vel);
+                if (fv > 1e-6)
+                    prev_exit_vel = fv;
+            }
             prev_exit_feed_scale = pre_window->shared_9d.profile.computed_feed_scale;
             prev_exit_vel_known = true;
         }
@@ -4298,8 +4340,32 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
         // Subsequent recomputes raise the exit velocity as the backward pass
         // converges.  These recomputes happen while the segment is still far
         // from execution (outside the frozen zone), so the profile swap is safe.
+        //
+        // Exception 1: TC_BEZIER blend segments have pre-computed exit
+        // velocities from tpSetupBlend9D — deterministic, no convergence needed.
+        //
+        // Exception 2: Segments whose successor is a TC_BEZIER blend also
+        // have their final_vel set by tpSetupBlend9D at enqueue time.
+        // Forcing v_exit=0 here would poison the blend's v_entry (profiled
+        // with v0=0 while actual junction velocity is v_plan).
+        {
+            TC_STRUCT *next_seg = (k > 0) ? tcqBack_user(queue, -(k-1)) : NULL;
+            bool next_is_blend = (next_seg && next_seg->motion_type == TC_BEZIER);
+            if (tc->motion_type == TC_BEZIER || next_is_blend)
+                is_first_profile = false;
+        }
         if (is_first_profile && v_exit > 0.0) {
             v_exit = 0.0;
+            // Debug: log Fix 4 pessimistic override
+            {
+                static int fix4_dbg_count = 0;
+                if (fix4_dbg_count < 30) {
+                    fix4_dbg_count++;
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FIX4_DBG[id=%d]: first_profile v_exit forced 0 (was %.3f) type=%d target=%.3f\n",
+                        tc->id, atomicLoadDouble(&tc->shared_9d.final_vel), tc->motion_type, tc->target);
+                }
+            }
         }
 
         // prev_exit_vel is updated AFTER Ruckig compute (below) to use
@@ -4399,6 +4465,27 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                     prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
                     prev_exit_feed_scale = feed_scale;
                     prev_exit_vel_known = true;
+
+                    // Debug: log profile params for blend segments and neighbors
+                    {
+                        static int blend_fwd_dbg = 0;
+                        // Check if this or the next segment is a bezier
+                        TC_STRUCT *next_tc = (k > 0) ? tcqBack_user(queue, -(k-1)) : NULL;
+                        bool is_blend_neighbor = (next_tc && next_tc->motion_type == TC_BEZIER);
+                        if ((tc->motion_type == TC_BEZIER || is_blend_neighbor) && blend_fwd_dbg < 50) {
+                            blend_fwd_dbg++;
+                            rtapi_print_msg(RTAPI_MSG_ERR,
+                                "BLEND_FWD[id=%d type=%d]: v_in=%.3f v_out=%.3f "
+                                "sc_in=%.3f sc_out=%.3f first=%d maxv=%.3f "
+                                "target=%.4f pv0=%.3f pvf=%.3f prev_exit=%.3f\n",
+                                tc->id, tc->motion_type, v_entry, v_exit,
+                                scaled_v_entry, scaled_v_exit, is_first_profile,
+                                max_vel, tc->target,
+                                tc->shared_9d.profile.v[0],
+                                tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES],
+                                prev_exit_vel);
+                        }
+                    }
 
                     // One-step backtrack: fix backward reachability gap
                     // Skip active segment — rewriting triggers STOPWATCH_RESET
