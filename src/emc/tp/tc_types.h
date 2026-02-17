@@ -19,6 +19,7 @@
 
 #include "spherical_arc.h"
 #include "../motion/state_tag.h"
+#include "bezier9.h"
 
 #define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */
@@ -34,7 +35,8 @@ typedef enum {
     TC_CIRCULAR = 2,
     TC_RIGIDTAP = 3,
     TC_SPHERICAL = 4,
-    TC_DWELL = 5        // Zero-length dwell segment (G4)
+    TC_DWELL = 5,       // Zero-length dwell segment (G4)
+    TC_BEZIER = 6       // Cubic Bezier blend segment (Phase 4)
 } tc_motion_type_t;
 
 /**
@@ -339,6 +341,7 @@ typedef struct {
         PmCircle9 circle;
         PmRigidTap rigidtap;
         Arc9 arc;
+        Bezier9 bezier;     // Phase 4: quintic Bezier blend curve (G2 continuity)
     } coords;
 
     // Joint-space segment data (when using userspace kinematics)
