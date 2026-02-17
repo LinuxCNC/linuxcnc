@@ -256,8 +256,7 @@ static int loadTraj(EmcIniFile *trajInifile)
                     return -1;
                 }
 
-                rcs_print("Detected kinematics module: %s (type_id=%d)\n",
-                          kins_module, emcmotConfig->kins_type_id);
+                rcs_print("Detected kinematics module: %s\n", kins_module);
 
                 // Get configuration from INI file
                 auto coord = trajInifile->Find("COORDINATES", "TRAJ");
@@ -268,11 +267,14 @@ static int loadTraj(EmcIniFile *trajInifile)
                 if (motion_planning::userspace_kins_init(kins_module,
                                                         joints,
                                                         coord ? coord->c_str() : "XYZ") != 0) {
-                    rcs_print_error("ERROR: Failed to initialize userspace kinematics\n");
-                    return -1;
+                    rcs_print_error("WARNING: Failed to initialize userspace kinematics for '%s'\n",
+                                    kins_module);
+                    rcs_print_error("  Falling back to PLANNER_TYPE 0 (trapezoidal)\n");
+                    planner_type = 0;
+                } else {
+                    rcs_print("Userspace kinematics initialized (module=%s, joints=%d, coords=%s)\n",
+                              kins_module, joints, coord ? coord->c_str() : "XYZ");
                 }
-                rcs_print("Userspace kinematics initialized (module=%s, joints=%d, coords=%s)\n",
-                          kins_module, joints, coord ? coord->c_str() : "XYZ");
             }
 
             // Parse 9D-specific parameters

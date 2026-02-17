@@ -722,7 +722,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	/* Kinematics module identification for userspace access */
 	char kins_module_name[32];  /* e.g., "trivkins", "5axiskins" */
-	int kins_type_id;           /* kinematics_type_id_t enum value */
 
         int numDIO;             /* userdefined number of digital IO. default is 4. (EMCMOT_MAX_DIO=64),
                                    but can be altered at motmod insmod time */
