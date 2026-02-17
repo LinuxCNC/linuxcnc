@@ -295,7 +295,7 @@ Implements the inverse kinematics function.
 KINEMATICS_TYPE kinematicsType(void)
 ----
 
-Returns the kinematics type identifier, típicamente 'KINEMATICS_BOTH':
+Returns the kinematics type identifier, typically 'KINEMATICS_BOTH':
 
 . KINEMATICS_IDENTITY  (each joint number corresponds to an axis letter)
 . KINEMATICS_BOTH      (forward and inverse kinematics functions are provided)
@@ -360,5 +360,397 @@ modifications are somewhat more complicated.
 
 See 'millturn.comp' as an example of a switchable kinematic
 module that was created using the 'userkins.comp' template.
+
+[[sec:writing-custom-kinematics]]
+== Writing a Custom Kinematics Module
+
+This section provides a complete guide to writing a kinematics module
+that works with both the real-time motion controller and the userspace
+trajectory planner (planner type 2).
+
+=== Architecture overview
+
+A kinematics module in LinuxCNC serves two consumers:
+
+. The *real-time motion controller* (motmod) -- runs the kinematics
+  every servo cycle to convert between joint and Cartesian space.
+  This code has access to HAL pins and runs in the RTAPI environment.
+. The *userspace trajectory planner* (milltask, planner type 2) --
+  calls kinematics during path planning to compute blending, velocity
+  limits, and look-ahead.  This code runs in normal userspace and
+  cannot access HAL pins directly.
+
+Both sets of functions live in the *same `.c` source file* and are
+compiled into the *same RT `.so` module*.  The userspace planner loads
+the RT `.so` via `dlopen()` and resolves the non-RT symbols via
+`dlsym()`.
+
+The key insight is that the *math is shared*: write your forward and
+inverse kinematics as static helper functions that take plain
+parameters (doubles, structs), then call those helpers from both the
+RT interface (which reads HAL pins) and the non-RT interface (which
+reads from a `kinematics_params_t` structure).
+
+=== Required functions
+
+Every kinematics module must export *two sets* of functions:
+
+==== RT functions (for motmod)
+
+These are the standard LinuxCNC kinematics functions documented above:
+`kinematicsForward()`, `kinematicsInverse()`, `kinematicsType()`,
+and either `KINS_NOT_SWITCHABLE` or the switchkins functions.
+Additionally, `rtapi_app_main()` and `rtapi_app_exit()` handle
+module initialization and cleanup.
+
+==== Non-RT functions (for the userspace planner)
+
+The userspace planner resolves these four symbols from the RT `.so`:
+
+----
+int nonrt_kinematicsForward(const void *params,
+                            const double *joints,
+                            EmcPose *pos);
+----
+
+Forward kinematics.  The `params` argument is a pointer to a
+`kinematics_params_t` structure (see below) that contains all the
+parameters the math needs.  Returns 0 on success, -1 on failure.
+
+----
+int nonrt_kinematicsInverse(const void *params,
+                            const EmcPose *pos,
+                            double *joints);
+----
+
+Inverse kinematics.  Same parameter convention.
+
+----
+int nonrt_refresh(void *params,
+                  int (*read_float)(const char *, double *),
+                  int (*read_bit)(const char *, int *),
+                  int (*read_s32)(const char *, int *));
+----
+
+Called periodically by the userspace planner to update the
+kinematics parameters from HAL pin values.  The three callback
+functions read HAL pins by name.  Use them to populate the
+module-specific fields in `kinematics_params_t`.  Returns 0 on
+success.
+
+For modules with no runtime parameters (e.g., trivkins, corexykins),
+this function is a no-op that returns 0.
+
+----
+int nonrt_is_identity(void);
+----
+
+Returns 1 if this module implements identity kinematics (each
+joint maps directly to one axis), 0 otherwise.  The planner
+uses this to enable optimized code paths.
+
+All four functions must be exported with `EXPORT_SYMBOL()`:
+
+----
+EXPORT_SYMBOL(nonrt_kinematicsForward);
+EXPORT_SYMBOL(nonrt_kinematicsInverse);
+EXPORT_SYMBOL(nonrt_refresh);
+EXPORT_SYMBOL(nonrt_is_identity);
+----
+
+=== The `kinematics_params_t` structure
+
+The non-RT functions receive their parameters through a
+`kinematics_params_t` structure defined in
+`src/emc/motion/kinematics_params.h`.  This structure contains:
+
+- *`module_name`* -- the module name string (e.g., "maxkins")
+- *`coordinates`* -- the coordinates string (e.g., "XYZBC")
+- *`num_joints`* -- number of configured joints
+- *`joint_to_axis[]`* -- maps joint number to axis index (0=X through 8=W)
+- *`axis_to_joint[]`* -- maps axis index to its principal joint number
+- *`params`* -- a union of module-specific parameter structs
+
+The `params` union has a member for each built-in kinematics module.
+When writing a custom module, add a new struct typedef and a
+corresponding member to this union.
+
+==== Adding parameters for a custom module
+
+. Define a parameter struct in `kinematics_params.h`:
++
+----
+/* Parameters for mykins */
+typedef struct {
+    double my_param_a;
+    double my_param_b;
+    int    my_flag;
+} kins_mykins_params_t;
+----
+
+. Add the struct to the `params` union inside `kinematics_params_t`:
++
+----
+union {
+    kins_5axis_params_t fiveaxis;
+    kins_trt_params_t trt;
+    /* ... existing members ... */
+    kins_mykins_params_t mykins;  /* <-- add this */
+    double raw[128];
+} params;
+----
+
+=== Complete example: a parametric 2-axis kinematics module
+
+The following example implements a kinematics module for a machine
+with an arm length parameter.  It demonstrates all three layers:
+the math, the RT interface, and the non-RT interface.
+
+[source,c]
+----
+/********************************************************************
+ * mykins.c -- Example custom kinematics module
+ * License: GPL Version 2
+ ********************************************************************/
+
+/* ---- RT headers ---- */
+#include "kinematics.h"
+#include "hal.h"
+#include "rtapi.h"
+#include "rtapi_app.h"
+#include "rtapi_math.h"
+
+/* ================================================================
+ * Layer 1: Pure math (shared by RT and non-RT)
+ *
+ * These functions take plain parameters, no HAL, no globals.
+ * ================================================================ */
+
+static int mykins_forward(double arm_length,
+                          const double *joints,
+                          EmcPose *pos)
+{
+    /* Example: polar-to-cartesian with joint[0]=angle, joint[1]=radius */
+    double angle_rad = joints[0] * (PM_PI / 180.0);
+    double r = joints[1] + arm_length;
+    pos->tran.x = r * cos(angle_rad);
+    pos->tran.y = r * sin(angle_rad);
+    pos->tran.z = joints[2];
+    pos->a = pos->b = pos->c = 0;
+    pos->u = pos->v = pos->w = 0;
+    return 0;
+}
+
+static int mykins_inverse(double arm_length,
+                          const EmcPose *pos,
+                          double *joints)
+{
+    double r = sqrt(pos->tran.x * pos->tran.x
+                  + pos->tran.y * pos->tran.y);
+    if (r < 1e-10) return -1;  /* singularity at origin */
+    joints[0] = atan2(pos->tran.y, pos->tran.x) * (180.0 / PM_PI);
+    joints[1] = r - arm_length;
+    joints[2] = pos->tran.z;
+    return 0;
+}
+
+/* ================================================================
+ * Layer 2: RT interface (reads HAL pins)
+ * ================================================================ */
+
+static struct haldata {
+    hal_float_t *arm_length;
+} *haldata;
+
+int kinematicsForward(const double *joints, EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)fflags; (void)iflags;
+    return mykins_forward(*(haldata->arm_length), joints, pos);
+}
+
+int kinematicsInverse(const EmcPose *pos, double *joints,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)iflags; (void)fflags;
+    return mykins_inverse(*(haldata->arm_length), pos, joints);
+}
+
+KINEMATICS_TYPE kinematicsType() { return KINEMATICS_BOTH; }
+
+const char *kinematicsGetName(void) { return "mykins"; }
+
+KINS_NOT_SWITCHABLE
+EXPORT_SYMBOL(kinematicsType);
+EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
+MODULE_LICENSE("GPL");
+
+static int comp_id;
+
+int rtapi_app_main(void)
+{
+    comp_id = hal_init("mykins");
+    if (comp_id < 0) return comp_id;
+
+    haldata = hal_malloc(sizeof(struct haldata));
+    if (hal_pin_float_new("mykins.arm-length", HAL_IO,
+                          &(haldata->arm_length), comp_id) < 0)
+        goto error;
+
+    *(haldata->arm_length) = 100.0;  /* default value */
+    hal_ready(comp_id);
+    return 0;
+error:
+    hal_exit(comp_id);
+    return -1;
+}
+
+void rtapi_app_exit(void) { hal_exit(comp_id); }
+
+/* ================================================================
+ * Layer 3: Non-RT interface (for userspace trajectory planner)
+ *
+ * These functions are resolved via dlsym() by the planner.
+ * They call the same math as the RT side but get parameters
+ * from kinematics_params_t instead of HAL pins.
+ * ================================================================ */
+#include "kinematics_params.h"
+
+int nonrt_kinematicsForward(const void *params,
+                            const double *joints,
+                            EmcPose *pos)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    return mykins_forward(kp->params.mykins.arm_length, joints, pos);
+}
+
+int nonrt_kinematicsInverse(const void *params,
+                            const EmcPose *pos,
+                            double *joints)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    return mykins_inverse(kp->params.mykins.arm_length, pos, joints);
+}
+
+int nonrt_refresh(void *params,
+                  int (*read_float)(const char *, double *),
+                  int (*read_bit)(const char *, int *),
+                  int (*read_s32)(const char *, int *))
+{
+    kinematics_params_t *kp = (kinematics_params_t *)params;
+    (void)read_bit; (void)read_s32;
+
+    /* Read the HAL pin value into our params struct.
+     * The pin name must match what rtapi_app_main() created. */
+    if (read_float("mykins.arm-length",
+                   &kp->params.mykins.arm_length) != 0)
+        return -1;
+
+    return 0;
+}
+
+int nonrt_is_identity(void) { return 0; }
+
+EXPORT_SYMBOL(nonrt_kinematicsForward);
+EXPORT_SYMBOL(nonrt_kinematicsInverse);
+EXPORT_SYMBOL(nonrt_refresh);
+EXPORT_SYMBOL(nonrt_is_identity);
+----
+
+=== Structure of the code
+
+The example above shows the three-layer pattern that all built-in
+kinematics modules follow:
+
+. **Layer 1 -- Pure math**: Static functions that take plain C
+  parameters (doubles, arrays) and compute the kinematics.  These
+  functions have no dependencies on HAL, RTAPI, or any global state.
+  Both the RT and non-RT interfaces call them.
+
+. **Layer 2 -- RT interface**: The standard `kinematicsForward()` /
+  `kinematicsInverse()` functions.  They read HAL pin values and pass
+  them to the Layer 1 math.  Also includes `rtapi_app_main()` which
+  creates the HAL component and pins.
+
+. **Layer 3 -- Non-RT interface**: The `nonrt_*` functions.  They
+  read from the `kinematics_params_t` structure instead of HAL pins,
+  and call the same Layer 1 math.  The `nonrt_refresh()` function
+  uses the provided callbacks to copy current HAL pin values into
+  the params structure.
+
+This three-layer pattern ensures:
+
+- The math is written once and tested once
+- The RT module works identically whether or not planner 2 is in use
+- The userspace planner gets the same kinematics results as the
+  real-time controller
+
+=== Adding the module to the build system
+
+For an in-tree kinematics module, add a build rule in
+`src/Makefile`.  For a standalone module named `mykins`:
+
+----
+obj-m += mykins.so
+mykins-objs := emc/kinematics/mykins.o
+----
+
+The module will be compiled to `rtlib/mykins.so`.
+
+For an out-of-tree module, the standard `halcompile --install`
+method works for the RT side.  However, to support the non-RT
+interface, the module must be compiled as a shared library (`.so`)
+and placed in the `rtlib/` directory where the planner can find it.
+
+=== INI file configuration
+
+Configure your kinematics module in the INI file:
+
+----
+[KINS]
+KINEMATICS = mykins
+JOINTS = 3
+----
+
+For planner type 2, also set:
+
+----
+[TRAJ]
+PLANNER_TYPE = 2
+----
+
+The userspace planner reads `[KINS]KINEMATICS` to determine which
+RT `.so` to load and will automatically resolve the `nonrt_*`
+symbols from it.
+
+=== Tips
+
+- Keep the math functions *pure*: no global state, no HAL access,
+  no RTAPI calls.  This makes them testable and reusable.
+- Use `rtapi_math.h` (not `math.h`) for math functions in the RT
+  sections.  The non-RT sections (after `#include "kinematics_params.h"`)
+  can use standard C headers since they only run in userspace, but
+  it is simplest to use `rtapi_math.h` throughout.
+- Use `rtapi_snprintf()` instead of `snprintf()` in RT code.
+  Standard C library functions are not available in the RT
+  environment.
+- The `nonrt_refresh()` pin names must exactly match the HAL pin
+  names created in `rtapi_app_main()`.
+- For modules with no runtime parameters (pure geometric transforms
+  with fixed joint mappings), `nonrt_refresh()` can be a no-op that
+  returns 0.
+- For switchkins modules that link with `switchkins.o`, do *not*
+  include `rtapi_app.h` in your kinematics source -- `switchkins.c`
+  already provides `rtapi_app_main()` and `rtapi_app_exit()`.  Put
+  the non-RT interface section after all RT code with its own
+  `#include "kinematics_params.h"`.
+- Look at the existing modules in `src/emc/kinematics/` for
+  real-world examples: `trivkins.c` (identity, no params),
+  `maxkins.c` (simple with params), `xyzac-trt-kins.c` (switchkins
+  with params).
 
 // vim: set syntax=asciidoc:
