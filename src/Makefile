@@ -1273,6 +1273,7 @@ tpmod-objs += emc/nml_intf/emcpose.o
 tpmod-objs += libnml/posemath/_posemath.o
 tpmod-objs += emc/tp/sp_scurve.o
 tpmod-objs += emc/tp/ruckig_wrapper.o
+tpmod-objs += emc/tp/bezier9_rt.o
 tpmod-objs += emc/tp/ruckig/src/ruckig/brake.o
 tpmod-objs += emc/tp/ruckig/src/ruckig/position_first_step1.o
 tpmod-objs += emc/tp/ruckig/src/ruckig/position_first_step2.o

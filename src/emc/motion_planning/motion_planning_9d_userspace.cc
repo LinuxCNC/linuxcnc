@@ -5,7 +5,8 @@
  * This file contains the userspace planning functions (tpAddLine_9D, tpAddCircle_9D)
  * that write segments to the shared memory queue and trigger optimization.
  *
- * Minimal implementation - no blending, just queue segments and optimize.
+ * Includes blend creation: when adjacent segments can be blended, a Bezier9
+ * blend segment is inserted between them for velocity continuity.
  */
 
 #include "motion_planning_9d.hh"
@@ -15,6 +16,9 @@
 #include <cmath>     // acos, sin, sqrt, fmin
 #include "rtapi.h"   // rtapi_print_msg for error reporting
 
+// blend_sizing.h has extern "C" guards
+#include "blend_sizing.h"
+
 // C headers need extern "C" when included from C++
 extern "C" {
 #include "motion.h"     // emcmot_status_t, emcmot_config_t (needed before tp.h)
@@ -23,7 +27,7 @@ extern "C" {
 #include "tc_types.h"
 #include "emcpos.h"
 #include "posemath.h"
-#include "blendmath.h"  // pmCircleEffectiveMinRadius
+#include "blendmath.h"  // pmCircleEffectiveMinRadius, findIntersectionAngle
 #include "atomic_9d.h"  // atomicStoreDouble
 }
 
@@ -35,7 +39,7 @@ extern "C" {
     // Access to global pointers (defined in usrmotintf.cc, initialized by milltask)
     extern struct emcmot_struct_t *emcmotStruct;
     extern struct emcmot_internal_t *emcmotInternal;
-
+    extern emcmot_config_t *emcmotConfig;
 }
 
 /**
@@ -307,6 +311,16 @@ static int tcGetTangentRate9D(TC_STRUCT const * const tc, int at_end, double out
             out[8] = tc->coords.circle.uvw.uVec.z * uvw_scale;
             break;
         }
+        case TC_BEZIER: {
+            // Bezier blend: get tangent at start or end
+            PmCartesian xyz_tan = {0,0,0}, abc_tan = {0,0,0}, uvw_tan = {0,0,0};
+            double progress = at_end ? tc->coords.bezier.total_length : 0.0;
+            bezier9Tangent(&tc->coords.bezier, progress, &xyz_tan, &abc_tan, &uvw_tan);
+            out[0] = xyz_tan.x; out[1] = xyz_tan.y; out[2] = xyz_tan.z;
+            out[3] = abc_tan.x; out[4] = abc_tan.y; out[5] = abc_tan.z;
+            out[6] = uvw_tan.x; out[7] = uvw_tan.y; out[8] = uvw_tan.z;
+            break;
+        }
         default:
             return -1;
     }
@@ -383,10 +397,237 @@ static int tcGetCentripetalAccelPerV2(TC_STRUCT const * const tc,
             return 0;
         }
 
+        case TC_BEZIER: {
+            // Bezier blend: use precomputed max curvature
+            double R = tc->coords.bezier.min_radius;
+            if (R < 1e-9) return -1;
+
+            // Get centripetal direction at endpoint from tangent cross second derivative
+            // Simplified: use tangent direction rotated 90° (approximate for small blends)
+            PmCartesian xyz_tan;
+            double progress = at_end ? tc->coords.bezier.total_length : 0.0;
+            bezier9Tangent(&tc->coords.bezier, progress, &xyz_tan, NULL, NULL);
+
+            // Centripetal is perpendicular to tangent, magnitude 1/R
+            // For blend velocity limiting, the magnitude matters more than direction
+            double inv_R = 1.0 / R;
+            out[0] = inv_R;  // Conservative: use max curvature on primary axis
+            out[1] = 0.0;
+            out[2] = 0.0;
+            return 0;
+        }
+
         default:
-            // TC_BEZIER, TC_DWELL, TC_RIGIDTAP: not supported
+            // TC_DWELL, TC_RIGIDTAP: not supported
             return -1;
     }
+}
+
+/**
+ * @brief Get last element in the userspace queue
+ *
+ * Returns a pointer to the most recently enqueued TC_STRUCT,
+ * or NULL if the queue is empty.
+ */
+static TC_STRUCT * tcqLast_user(TC_QUEUE_STRUCT * const tcq)
+{
+    if (!tcq) return NULL;
+
+    int current_end = __atomic_load_n(&tcq->end_atomic, __ATOMIC_ACQUIRE);
+    int current_start = __atomic_load_n(&tcq->start_atomic, __ATOMIC_ACQUIRE);
+    int len = (current_end - current_start + tcq->size) % tcq->size;
+    if (len == 0) return NULL;
+
+    int idx = (current_end - 1 + tcq->size) % tcq->size;
+    return &(tcq->queue[idx]);
+}
+
+/**
+ * @brief Attempt to create a blend between adjacent segments
+ *
+ * Called from tpAddLine_9D and tpAddCircle_9D after the current segment
+ * is fully built but BEFORE it is enqueued. If blending succeeds:
+ * - prev_tc is trimmed from its end
+ * - A Bezier9 blend segment is enqueued
+ * - tc is trimmed from its start
+ * - prev_tc and blend get TC_TERM_COND_TANGENT with planned blend velocity
+ *
+ * If blending fails, returns 0 so caller can fall back to kink velocity.
+ *
+ * @param tp Trajectory planner
+ * @param prev_tc Previous segment (already in queue, modified in place)
+ * @param tc Current segment (NOT yet enqueued, modified in place)
+ * @return 1 on blend created, 0 on no blend (fallback to kink), -1 on error
+ */
+static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
+{
+    if (!tp || !prev_tc || !tc) return 0;
+
+    // Guard: skip RIGIDTAP and DWELL — they cannot participate in blends
+    if (prev_tc->motion_type == TC_RIGIDTAP || prev_tc->motion_type == TC_DWELL ||
+        tc->motion_type == TC_RIGIDTAP || tc->motion_type == TC_DWELL) {
+        return 0;
+    }
+
+    // Guard: skip if prev_tc is already a blend segment
+    if (prev_tc->motion_type == TC_BEZIER) {
+        return 0;
+    }
+
+    // Guard: skip if either segment is too short for a meaningful blend
+    // (e.g. near-zero-length move like "g1 x0 y0" when already at origin)
+    if (prev_tc->target < 0.1 || tc->target < 0.1) {
+        return 0;
+    }
+
+    // G61.1 (CANON_EXACT_STOP → TC_TERM_COND_STOP):
+    // Strictest mode — always decel to zero, no blending.
+    if (tp->termCond == TC_TERM_COND_STOP) {
+        return 0;
+    }
+
+    // G61 (EXACT): use kink velocity, no blend geometry
+    if (tp->termCond == TC_TERM_COND_EXACT) {
+        return 0;
+    }
+
+    // Only G64 (PARABOLIC) mode creates blend segments
+    // Compute blend tolerance from G64 P value
+    double tolerance;
+    int res = tcFindBlendTolerance9(prev_tc, tc, &tolerance);
+    if (res != TP_ERR_OK || tolerance <= 0.0) {
+        return 0;
+    }
+
+    // Build per-axis velocity and acceleration bounds
+    // Use minimum of both segments' limits
+    AxisBounds9 vel_bounds, acc_bounds;
+    memset(&vel_bounds, 0, sizeof(vel_bounds));
+    memset(&acc_bounds, 0, sizeof(acc_bounds));
+
+    double v_min = fmin(prev_tc->maxvel, tc->maxvel);
+    double a_min = fmin(prev_tc->maxaccel, tc->maxaccel);
+    vel_bounds.xyz.x = vel_bounds.xyz.y = vel_bounds.xyz.z = v_min;
+    acc_bounds.xyz.x = acc_bounds.xyz.y = acc_bounds.xyz.z = a_min;
+
+    // Maximum feed scale for velocity planning (accounts for possible feed override)
+    double max_feed_scale = 1.0;
+    if (emcmotConfig) {
+        max_feed_scale = emcmotConfig->maxFeedScale;
+    }
+
+    // Run blend optimizer
+    BlendSolution9 solution;
+    res = optimizeBlendSize9(prev_tc, tc, tolerance, max_feed_scale,
+                             &vel_bounds, &acc_bounds, &solution);
+    if (res != TP_ERR_OK || solution.status != BLEND9_OK) {
+        return 0;  // Blend failed — fall back to kink velocity
+    }
+
+    // Trim previous segment from its end
+    res = trimSegment9(prev_tc, solution.trim_prev, 0);
+    if (res != TP_ERR_OK) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "tpSetupBlend9D: failed to trim prev_tc\n");
+        return -1;
+    }
+
+    // Trim current segment from its start
+    res = trimSegment9(tc, solution.trim_tc, 1);
+    if (res != TP_ERR_OK) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "tpSetupBlend9D: failed to trim tc\n");
+        return -1;
+    }
+
+    // Create blend segment
+    TC_STRUCT blend_tc;
+    res = createBlendSegment9(prev_tc, tc, &solution, &blend_tc, tp->cycleTime);
+    if (res != TP_ERR_OK) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "tpSetupBlend9D: failed to create blend segment\n");
+        return -1;
+    }
+
+    // Junction velocity = v_plan from the blend optimizer.
+    // The optimizer already ensures v_plan respects the centripetal acceleration
+    // limit (v² / R_min ≤ a_normal) via bezier9AccLimit.  The quintic Bezier
+    // provides G2 continuity: B''(0) = B''(1) = 0, so curvature is zero at both
+    // endpoints.  This eliminates the centripetal acceleration discontinuity that
+    // cubic (G1-only) blends suffered from — no jerk spike at segment boundaries.
+    double v_plan = solution.params.v_plan;
+
+    // Per-joint curvature-rate jerk limit (hard cap, like kink_vel).
+    // Centripetal jerk = v³ · dκ/ds must stay within per-joint jerk budgets.
+    // Uses per-joint limits from kinematics module (not trajectory-level maxjerk).
+    {
+        using motion_planning::g_userspace_kins_planner;
+        int num_joints = g_userspace_kins_planner.isEnabled()
+                       ? g_userspace_kins_planner.getNumJoints() : 9;
+        if (num_joints > 9) num_joints = 9;
+        double dkds = solution.bezier.max_dkappa_ds;
+        if (dkds > BEZIER9_CURVATURE_EPSILON) {
+            double v_jerk_cap = 1e9;
+            for (int j = 0; j < num_joints; j++) {
+                double jlim = g_userspace_kins_planner.isEnabled()
+                            ? g_userspace_kins_planner.getJointJerkLimit(j) : 1e9;
+                if (jlim > 0 && jlim < 1e9) {
+                    double v_j = cbrt(jlim / dkds);
+                    if (v_j < v_jerk_cap) v_jerk_cap = v_j;
+                }
+            }
+            if (v_jerk_cap < v_plan) {
+                v_plan = v_jerk_cap;
+                blend_tc.maxvel = v_plan;
+            }
+            // Hard cap on blend exit (like kink_vel, ignores feed override)
+            blend_tc.kink_vel = v_jerk_cap;
+            // Hard cap on prev_tc exit → blend entry
+            if (prev_tc->kink_vel <= 0 || v_jerk_cap < prev_tc->kink_vel)
+                prev_tc->kink_vel = v_jerk_cap;
+        }
+    }
+
+    double v_entry = v_plan;
+    double v_exit  = v_plan;
+
+    // Set up velocity continuity:
+    // prev_tc → blend at v_entry,  blend → tc at v_exit
+    prev_tc->term_cond = TC_TERM_COND_TANGENT;
+    prev_tc->finalvel = v_entry;
+    atomicStoreDouble(&prev_tc->shared_9d.final_vel, v_entry);
+    atomicStoreDouble(&prev_tc->shared_9d.final_vel_limit, v_entry);
+
+    // Mark prev_tc for Ruckig recomputation (was profiled with finalvel=0)
+    __atomic_store_n((int*)&prev_tc->shared_9d.optimization_state,
+                     TC_PLAN_UNTOUCHED, __ATOMIC_RELEASE);
+
+    // Blend segment: TANGENT exit to tc at v_exit
+    blend_tc.term_cond = TC_TERM_COND_TANGENT;
+    blend_tc.finalvel = v_exit;
+    atomicStoreDouble(&blend_tc.shared_9d.final_vel, v_exit);
+    atomicStoreDouble(&blend_tc.shared_9d.final_vel_limit, v_exit);
+
+    // Set jerk limit on blend from parent segments
+    blend_tc.maxjerk = fmin(prev_tc->maxjerk, tc->maxjerk);
+
+    // Enqueue blend segment
+    TC_QUEUE_STRUCT *queue = &tp->queue;
+    res = tcqPut_user(queue, &blend_tc);
+    if (res != 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "tpSetupBlend9D: failed to enqueue blend segment\n");
+        return -1;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "BLEND_DBG: created blend v_plan=%.3f kink_vel=%.3f len=%.4f trim_prev=%.4f trim_tc=%.4f "
+        "max_kappa=%.6f max_dkds=%.3f min_radius=%.3f prev_target=%.3f prev_tc_type=%d tc_type=%d\n",
+        v_plan, blend_tc.kink_vel, blend_tc.target, solution.trim_prev, solution.trim_tc,
+        solution.bezier.max_kappa, solution.bezier.max_dkappa_ds, solution.bezier.min_radius,
+        prev_tc->target, prev_tc->motion_type, tc->motion_type);
+
+    // tc will be enqueued by caller as usual (after this function returns)
+    // Set tc's tolerance for the blend
+    tc->tolerance = tp->tolerance;
+
+    return 1;  // Blend created successfully
 }
 
 /**
@@ -721,20 +962,29 @@ extern "C" int tpAddLine_9D(
 
     // Set termination condition from G-code mode (G61/G61.1/G64):
     // G61.1 (STOP): decelerate to zero at every junction
-    // G61 (EXACT): exact path, no deviation (tangent continuity TODO)
-    // G64 (PARABOLIC): continuous blending (not implemented yet, falls back to STOP)
-    if (tp->termCond == TC_TERM_COND_EXACT || tp->termCond == TC_TERM_COND_STOP) {
-        tc.term_cond = tp->termCond;
-    } else {
-        // G64 and others: no blending implemented yet, fall back to STOP
+    // G61 (EXACT): exact path with kink velocity
+    // G64 (PARABOLIC): continuous blending via Bezier blend segments
+    tc.term_cond = tp->termCond;
+    if (tc.term_cond == TC_TERM_COND_PARABOLIC) {
+        // G64: will be promoted to TANGENT if blend succeeds, else STOP
         tc.term_cond = TC_TERM_COND_STOP;
     }
-    tc.finalvel = 0.0;  // Default: decelerate to zero (kink computation may update prev_tc)
+    tc.tolerance = tp->tolerance;
+    tc.finalvel = 0.0;  // Default: decelerate to zero
 
-    // G61 (Exact Path): compute kink velocity at junction with previous segment.
-    // This promotes prev_tc from EXACT to TANGENT and sets kink_vel.
-    // Must happen BEFORE tcqPut_user (tc is local) and AFTER geometry setup.
-    tpComputeKinkVelocity_9D(tp, queue, &tc, queue_len, current_end);
+    // Attempt blend with previous segment (G64 mode) or kink velocity (G61 mode).
+    // tpSetupBlend9D handles G64: creates Bezier blend, trims both segments.
+    // tpComputeKinkVelocity_9D handles G61: computes junction velocity limit.
+    {
+        TC_STRUCT *prev_tc = tcqLast_user(queue);
+        if (prev_tc) {
+            int blend_result = tpSetupBlend9D(tp, prev_tc, &tc);
+            if (blend_result <= 0) {
+                // No blend created — compute kink velocity as fallback
+                tpComputeKinkVelocity_9D(tp, queue, &tc, queue_len, current_end);
+            }
+        }
+    }
 
     // Compute joint-space segment if userspace kinematics enabled
     // This populates tc.joint_space with start/end joint positions and
@@ -867,15 +1117,23 @@ extern "C" int tpAddCircle_9D(
     }
 
     // Set termination condition from G-code mode (same as tpAddLine_9D)
-    if (tp->termCond == TC_TERM_COND_EXACT || tp->termCond == TC_TERM_COND_STOP) {
-        tc.term_cond = tp->termCond;
-    } else {
+    tc.term_cond = tp->termCond;
+    if (tc.term_cond == TC_TERM_COND_PARABOLIC) {
         tc.term_cond = TC_TERM_COND_STOP;
     }
-    tc.finalvel = 0.0;  // Default: decelerate to zero (kink computation may update prev_tc)
+    tc.tolerance = tp->tolerance;
+    tc.finalvel = 0.0;  // Default: decelerate to zero
 
-    // G61 (Exact Path): compute kink velocity at junction with previous segment.
-    tpComputeKinkVelocity_9D(tp, queue, &tc, queue_len, current_end);
+    // Attempt blend with previous segment (G64) or kink velocity (G61)
+    {
+        TC_STRUCT *prev_tc = tcqLast_user(queue);
+        if (prev_tc) {
+            int blend_result = tpSetupBlend9D(tp, prev_tc, &tc);
+            if (blend_result <= 0) {
+                tpComputeKinkVelocity_9D(tp, queue, &tc, queue_len, current_end);
+            }
+        }
+    }
 
     // Compute joint-space segment if userspace kinematics enabled
     if (motion_planning::userspace_kins_is_enabled()) {

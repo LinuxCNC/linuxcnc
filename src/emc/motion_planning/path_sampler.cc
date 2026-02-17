@@ -17,6 +17,7 @@
 extern "C" {
 #include "blendmath.h"  // For pmCircleAngleFromProgress, pmCirclePoint
 #include "tc.h"         // For pmCircle9Target, pmCartLinePoint
+#include "bezier9.h"    // For bezier9Point, bezier9Length
 }
 
 namespace motion_planning {
@@ -220,6 +221,48 @@ int PathSampler::sampleCircle(const EmcPose& start,
         pose.u = uvw.x;
         pose.v = uvw.y;
         pose.w = uvw.z;
+
+        PathSample sample;
+        if (!computeJoints(pose, sample)) {
+            sample.valid = false;
+        }
+
+        sample.distance_from_start = progress;
+        samples.push_back(sample);
+    }
+
+    return static_cast<int>(samples.size());
+}
+
+int PathSampler::sampleBezier(const Bezier9& bezier,
+                               std::vector<PathSample>& samples) {
+    if (!initialized_) {
+        return -1;
+    }
+
+    samples.clear();
+
+    double length = bezier9Length(&bezier);
+
+    int num_samples;
+    if (length < 1e-9) {
+        num_samples = 2;
+    } else {
+        num_samples = static_cast<int>(std::ceil(length / config_.sample_distance)) + 1;
+    }
+
+    num_samples = std::max(num_samples, config_.min_samples);
+    num_samples = std::min(num_samples, config_.max_samples);
+
+    samples.reserve(num_samples);
+
+    for (int i = 0; i < num_samples; i++) {
+        double progress = (num_samples > 1) ?
+                          static_cast<double>(i) / (num_samples - 1) * length :
+                          0.0;
+
+        EmcPose pose;
+        bezier9Point(&bezier, progress, &pose);
 
         PathSample sample;
         if (!computeJoints(pose, sample)) {

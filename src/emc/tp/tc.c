@@ -25,6 +25,7 @@
 #include "motion_types.h"
 #include "motion.h"
 #include "ruckig_wrapper.h"
+#include "bezier9.h"
 
 //Debug output
 #include "tp_debug.h"
@@ -84,11 +85,12 @@ double tcGetTangentialMaxAccel(TC_STRUCT const * const tc)
 {
     double a_scale = tcGetOverallMaxAccel(tc);
 
-    // Reduce allowed tangential acceleration in circular motions to stay
+    // Reduce allowed tangential acceleration in curved motions to stay
     // within overall limits (accounts for centripetal acceleration while
-    // moving along the circular path).
-    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
-        //Limit acceleration for circular arcs to allow for normal acceleration
+    // moving along the curved path).
+    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL ||
+        tc->motion_type == TC_BEZIER) {
+        //Limit acceleration for arcs/beziers to allow for normal acceleration
         a_scale *= tc->acc_ratio_tan;
     }
     return a_scale;
@@ -297,6 +299,9 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
         case TC_CIRCULAR:
             pmCircleTangentVector(&tc->coords.circle.xyz, 0.0, out);
             break;
+        case TC_BEZIER:
+            bezier9Tangent(&tc->coords.bezier, 0.0, out, NULL, NULL);
+            break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
             return -1;
@@ -319,6 +324,9 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
         case TC_CIRCULAR:
             pmCircleTangentVector(&tc->coords.circle.xyz,
                     tc->coords.circle.xyz.angle, out);
+            break;
+        case TC_BEZIER:
+            bezier9Tangent(&tc->coords.bezier, tc->coords.bezier.total_length, out, NULL, NULL);
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
@@ -374,6 +382,9 @@ int tcGetCurrentTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * cons
                 int at_end = (progress_frac > 0.5) ? 1 : 0;
                 arcTangent(arc, out, at_end);
             }
+            break;
+        case TC_BEZIER:
+            bezier9Tangent(&tc->coords.bezier, tc->progress, out, NULL, NULL);
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d in tcGetCurrentTangentUnitVector!\n", tc->motion_type);
@@ -498,6 +509,9 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             abc = tc->coords.arc.abc;
             uvw = tc->coords.arc.uvw;
             break;
+        case TC_BEZIER:
+            bezier9Point(&tc->coords.bezier, progress, pos);
+            return TP_ERR_OK;
         case TC_DWELL:
             // Dwell holds position - return start point
             xyz = tc->coords.line.xyz.start;
@@ -857,6 +871,28 @@ int tcUpdateArcLimits(TC_STRUCT * tc)
             radius = tc->coords.arc.xyz.radius;
             angle = tc->coords.arc.xyz.angle;
             break;
+        case TC_BEZIER: {
+            // Bezier blend: use precomputed curvature for velocity limiting
+            double v_limit = bezier9AccLimit(&tc->coords.bezier,
+                                              tc->reqvel, tc->maxaccel,
+                                              tc->maxjerk);
+            if (v_limit > 0.0 && v_limit < tc->maxvel) {
+                tc->maxvel = v_limit;
+            }
+            // Compute acc_ratio_tan from curvature
+            if (tc->coords.bezier.min_radius > TP_POS_EPSILON) {
+                double a_max_bez = tcGetOverallMaxAccel(tc);
+                double a_n = pmSq(tc->maxvel) / tc->coords.bezier.min_radius;
+                if (a_n < a_max_bez) {
+                    tc->acc_ratio_tan = pmSqrt(1.0 - pmSq(a_n / a_max_bez));
+                } else {
+                    tc->acc_ratio_tan = BLEND_ACC_RATIO_TANGENTIAL;
+                }
+            } else {
+                tc->acc_ratio_tan = BLEND_ACC_RATIO_TANGENTIAL;
+            }
+            return 0;
+        }
         default:
             return 1; // Not an arc, nothing to do
     }

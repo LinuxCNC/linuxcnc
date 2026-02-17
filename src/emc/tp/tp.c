@@ -218,6 +218,7 @@ STATIC int tcRotaryMotionCheck(TC_STRUCT const * const tc) {
                 return true;
             }
         case TC_SPHERICAL:
+        case TC_BEZIER:
             return true;
         default:
             tp_debug_print("Unknown motion type!\n");
@@ -421,8 +422,9 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp __attribute__((
     else {
         a_scale *= 8.0/15.0;
     }
-    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
-        //Limit acceleration for cirular arcs to allow for normal acceleration
+    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL ||
+        tc->motion_type == TC_BEZIER) {
+        //Limit acceleration for curved segments to allow for normal acceleration
         a_scale *= tc->acc_ratio_tan;
     }
     return a_scale;
@@ -4942,6 +4944,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // Alt-entry profile selection: when a brake on the previous segment
     // changed the exit velocity, pick whichever profile (main or alt_entry)
     // has v0 closer to the actual junction velocity.
+    int blend_alt_taken = 0;
     if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE)) {
         double main_v0 = nexttc->shared_9d.profile.v[0];
@@ -4954,8 +4957,26 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             // spurious reset (elapsed_time=0 → zero displacement).
             nexttc->last_profile_generation = __atomic_load_n(
                 &nexttc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
+            blend_alt_taken = 1;
         }
         __atomic_store_n(&nexttc->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
+    }
+
+    // Debug: log junction handoff for blend segments
+    if (GET_TRAJ_PLANNER_TYPE() == 2 &&
+        (tc->motion_type == TC_BEZIER || nexttc->motion_type == TC_BEZIER)) {
+        static int junc_dbg = 0;
+        if (junc_dbg < 20) {
+            junc_dbg++;
+            double pv0 = nexttc->shared_9d.profile.v[0];
+            double pvf = nexttc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "BLEND_RT[tc=%d->%d]: junc_vel=%.3f profile_v0=%.3f pvf=%.3f "
+                "tc_type=%d->%d alt=%d remain=%.6f target=%.4f\n",
+                tc->id, nexttc->id, junction_vel, pv0, pvf,
+                tc->motion_type, nexttc->motion_type, blend_alt_taken,
+                nexttc_remain_time, nexttc->target);
+        }
     }
 
     int mode = 0;
