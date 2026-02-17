@@ -1238,6 +1238,7 @@ tpmod-objs += emc/tp/cruckig/velocity_second_step1.o
 tpmod-objs += emc/tp/cruckig/velocity_second_step2.o
 tpmod-objs += emc/tp/cruckig/velocity_third_step1.o
 tpmod-objs += emc/tp/cruckig/velocity_third_step2.o
+tpmod-objs += emc/tp/bezier9_rt.o
 tpmod-objs += emc/tp/tc_9d.o
 tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 

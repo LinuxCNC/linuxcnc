@@ -155,6 +155,8 @@ bool UserspaceKinematicsPlanner::computeJointSpaceSegment(const EmcPose& start,
     int num_samples;
     if (tc->motion_type == TC_CIRCULAR) {
         num_samples = path_sampler_.sampleCircle(start, end, tc->coords.circle, samples);
+    } else if (tc->motion_type == TC_BEZIER) {
+        num_samples = path_sampler_.sampleBezier(tc->coords.bezier, samples);
     } else {
         num_samples = path_sampler_.sampleLine(start, end, samples);
     }

@@ -10,6 +10,8 @@ LIBMOTION_PLANNING_9D_SRCS := $(addprefix emc/motion_planning/, \
 	jacobian.cc \
 	joint_limits.cc \
 	userspace_kinematics.cc \
+	bezier9.cc \
+	blend_sizing.cc \
 	)
 
 # Userspace kinematics sources (with HAL pin reader for runtime parameters)
