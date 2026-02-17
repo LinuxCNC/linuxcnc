@@ -2,10 +2,9 @@
  * Description: kinematics_user.c
  *   Userspace kinematics loader for trajectory planning
  *
- * Loads kinematics plugin .so files via dlopen. Each kinematics
- * module provides a <name>_userspace.so that exports
- * kins_userspace_setup() to register forward/inverse/refresh
- * function pointers.
+ * Loads the RT kinematics .so via dlopen and resolves nonrt_*
+ * functions exported by each kinematics module. This allows the
+ * userspace planner to call kinematics without RT dependencies.
  *
  * Author: LinuxCNC
  * License: GPL Version 2
@@ -15,7 +14,8 @@
  ********************************************************************/
 
 #include "kinematics_user.h"
-#include "kins_plugin.h"
+#include "hal_pin_reader.h"
+#include "kinematics_params.h"
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +23,29 @@
 #include <ctype.h>
 
 #include "config.h"  /* EMC2_HOME */
+
+/* ========================================================================
+ * Internal context definition
+ * ======================================================================== */
+
+typedef int (*nonrt_forward_fn)(const void *params, const double *joints, EmcPose *pos);
+typedef int (*nonrt_inverse_fn)(const void *params, const EmcPose *pos, double *joints);
+typedef int (*nonrt_refresh_fn)(void *params,
+                                int (*read_float)(const char *, double *),
+                                int (*read_bit)(const char *, int *),
+                                int (*read_s32)(const char *, int *));
+typedef int (*nonrt_is_identity_fn)(void);
+
+struct KinematicsUserContext {
+    kinematics_params_t params;
+    int initialized;
+    int is_identity;
+    KINEMATICS_TYPE kins_type;
+    void *rt_handle;            /* dlopen handle to RT .so */
+    nonrt_forward_fn forward;
+    nonrt_inverse_fn inverse;
+    nonrt_refresh_fn refresh;
+};
 
 /* ========================================================================
  * Helper functions
@@ -79,59 +102,51 @@ static int build_joint_mapping(kinematics_params_t *kp, const char *coordinates)
 }
 
 /* ========================================================================
- * Plugin loading via dlopen
+ * RT module loading via dlopen
  * ======================================================================== */
 
 /*
- * Load a kinematics plugin and call its setup function.
+ * Load an RT kinematics .so and resolve nonrt_* symbols.
  * Returns 0 on success, -1 on failure.
  */
-static int load_plugin(KinematicsUserContext *ctx, const char *module_name)
+static int load_rt_module(KinematicsUserContext *ctx, const char *module_name)
 {
-    char plugin_path[512];
+    char module_path[512];
     void *handle;
-    kins_userspace_setup_fn setup_fn;
+    nonrt_is_identity_fn is_identity_fn;
 
-    snprintf(plugin_path, sizeof(plugin_path),
-             "%s/lib/kinematics/%s_userspace.so",
-             EMC2_HOME, module_name);
+    snprintf(module_path, sizeof(module_path),
+             "%s/rtlib/%s.so", EMC2_HOME, module_name);
 
-    /* Make symbols from the main process (and its loaded libraries like
-     * libposemath, hal_pin_reader) available to plugins */
-    dlopen(NULL, RTLD_GLOBAL);
-
-    handle = dlopen(plugin_path, RTLD_NOW);
+    handle = dlopen(module_path, RTLD_NOW | RTLD_LOCAL);
     if (!handle) {
         fprintf(stderr, "kinematicsUserInit: dlopen '%s': %s\n",
-                plugin_path, dlerror());
+                module_path, dlerror());
         return -1;
     }
 
-    setup_fn = (kins_userspace_setup_fn)dlsym(handle, KINS_PLUGIN_SETUP_SYMBOL);
-    if (!setup_fn) {
-        fprintf(stderr, "kinematicsUserInit: dlsym '%s' in '%s': %s\n",
-                KINS_PLUGIN_SETUP_SYMBOL, plugin_path, dlerror());
+    ctx->rt_handle = handle;
+
+    /* Resolve nonrt function symbols */
+    ctx->forward = (nonrt_forward_fn)dlsym(handle, "nonrt_kinematicsForward");
+    ctx->inverse = (nonrt_inverse_fn)dlsym(handle, "nonrt_kinematicsInverse");
+    ctx->refresh = (nonrt_refresh_fn)dlsym(handle, "nonrt_refresh");
+    is_identity_fn = (nonrt_is_identity_fn)dlsym(handle, "nonrt_is_identity");
+
+    if (!ctx->forward || !ctx->inverse || !ctx->refresh || !is_identity_fn) {
+        fprintf(stderr, "kinematicsUserInit: missing nonrt symbols in '%s'\n",
+                module_path);
+        if (!ctx->forward)  fprintf(stderr, "  missing: nonrt_kinematicsForward\n");
+        if (!ctx->inverse)  fprintf(stderr, "  missing: nonrt_kinematicsInverse\n");
+        if (!ctx->refresh)  fprintf(stderr, "  missing: nonrt_refresh\n");
+        if (!is_identity_fn) fprintf(stderr, "  missing: nonrt_is_identity\n");
         dlclose(handle);
+        ctx->rt_handle = NULL;
         return -1;
     }
 
-    ctx->plugin_handle = handle;
-
-    if (setup_fn(ctx) != 0) {
-        fprintf(stderr, "kinematicsUserInit: setup failed for '%s'\n", module_name);
-        dlclose(handle);
-        ctx->plugin_handle = NULL;
-        return -1;
-    }
-
-    /* Verify plugin set required function pointers */
-    if (!ctx->inverse || !ctx->forward || !ctx->refresh) {
-        fprintf(stderr, "kinematicsUserInit: plugin '%s' did not set all function pointers\n",
-                module_name);
-        dlclose(handle);
-        ctx->plugin_handle = NULL;
-        return -1;
-    }
+    ctx->is_identity = is_identity_fn();
+    ctx->kins_type = ctx->is_identity ? KINEMATICS_IDENTITY : KINEMATICS_BOTH;
 
     return 0;
 }
@@ -181,11 +196,11 @@ KinematicsUserContext* kinematicsUserInit(const char* kins_type,
     /* Build joint-axis mapping */
     build_joint_mapping(kp, coordinates);
 
-    /* Load plugin via dlopen */
-    if (load_plugin(ctx, kins_type) != 0) {
-        fprintf(stderr, "kinematicsUserInit: no plugin for '%s'\n",
+    /* Load RT module via dlopen */
+    if (load_rt_module(ctx, kins_type) != 0) {
+        fprintf(stderr, "kinematicsUserInit: failed to load RT module for '%s'\n",
                 kins_type ? kins_type : "(null)");
-        fprintf(stderr, "  searched: %s/lib/kinematics/%s_userspace.so\n",
+        fprintf(stderr, "  searched: %s/rtlib/%s.so\n",
                 EMC2_HOME, kins_type ? kins_type : "(null)");
         free(ctx);
         return NULL;
@@ -195,12 +210,14 @@ KinematicsUserContext* kinematicsUserInit(const char* kins_type,
     ctx->initialized = 1;
 
     /* Read initial HAL pin values */
-    if (ctx->refresh(ctx) != 0) {
+    if (ctx->refresh(kp, hal_pin_reader_read_float,
+                     hal_pin_reader_read_bit,
+                     hal_pin_reader_read_s32) != 0) {
         fprintf(stderr, "kinematicsUserInit: warning - could not read initial HAL pins\n");
         /* Don't fail - HAL pins may not exist yet */
     }
 
-    fprintf(stderr, "kinematicsUserInit: loaded plugin for '%s' with %d joints, coords='%s'\n",
+    fprintf(stderr, "kinematicsUserInit: loaded RT module for '%s' with %d joints, coords='%s'\n",
             kp->module_name, kp->num_joints, kp->coordinates);
 
     return ctx;
@@ -213,7 +230,7 @@ int kinematicsUserInverse(KinematicsUserContext* ctx,
     if (!ctx || !ctx->initialized || !world || !joints) {
         return -1;
     }
-    return ctx->inverse(ctx, world, joints);
+    return ctx->inverse(&ctx->params, world, joints);
 }
 
 int kinematicsUserForward(KinematicsUserContext* ctx,
@@ -223,7 +240,7 @@ int kinematicsUserForward(KinematicsUserContext* ctx,
     if (!ctx || !ctx->initialized || !joints || !world) {
         return -1;
     }
-    return ctx->forward(ctx, joints, world);
+    return ctx->forward(&ctx->params, joints, world);
 }
 
 int kinematicsUserIsIdentity(KinematicsUserContext* ctx)
@@ -263,14 +280,16 @@ int kinematicsUserRefreshParams(KinematicsUserContext* ctx)
     if (!ctx || !ctx->initialized) {
         return -1;
     }
-    return ctx->refresh(ctx);
+    return ctx->refresh(&ctx->params, hal_pin_reader_read_float,
+                        hal_pin_reader_read_bit,
+                        hal_pin_reader_read_s32);
 }
 
 void kinematicsUserFree(KinematicsUserContext* ctx)
 {
     if (ctx) {
-        if (ctx->plugin_handle) {
-            dlclose(ctx->plugin_handle);
+        if (ctx->rt_handle) {
+            dlclose(ctx->rt_handle);
         }
         free(ctx);
     }

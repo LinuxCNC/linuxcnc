@@ -10,7 +10,42 @@
 #include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "kinematics.h"
-#include "corexykins_math.h"
+
+/*
+ * CoreXY kinematics - pure linear transformation, no parameters
+ *
+ * Forward:  X = 0.5*(J0+J1),  Y = 0.5*(J0-J1)
+ * Inverse:  J0 = X+Y,         J1 = X-Y
+ */
+static int corexy_forward_math(const double *joints, EmcPose *world)
+{
+    world->tran.x = 0.5 * (joints[0] + joints[1]);
+    world->tran.y = 0.5 * (joints[0] - joints[1]);
+    world->tran.z = joints[2];
+    world->a      = joints[3];
+    world->b      = joints[4];
+    world->c      = joints[5];
+    world->u      = joints[6];
+    world->v      = joints[7];
+    world->w      = joints[8];
+
+    return 0;
+}
+
+static int corexy_inverse_math(const EmcPose *world, double *joints)
+{
+    joints[0] = world->tran.x + world->tran.y;
+    joints[1] = world->tran.x - world->tran.y;
+    joints[2] = world->tran.z;
+    joints[3] = world->a;
+    joints[4] = world->b;
+    joints[5] = world->c;
+    joints[6] = world->u;
+    joints[7] = world->v;
+    joints[8] = world->w;
+
+    return 0;
+}
 
 static struct data {
     hal_s32_t joints[EMCMOT_MAX_JOINTS];
@@ -69,3 +104,40 @@ int rtapi_app_main(void) {
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
+
+/* ========================================================================
+ * Non-RT interface for userspace trajectory planner
+ * ======================================================================== */
+#include "kinematics_params.h"
+
+int nonrt_kinematicsForward(const void *params,
+                            const double *joints,
+                            EmcPose *pos)
+{
+    (void)params;
+    return corexy_forward_math(joints, pos);
+}
+
+int nonrt_kinematicsInverse(const void *params,
+                            const EmcPose *pos,
+                            double *joints)
+{
+    (void)params;
+    return corexy_inverse_math(pos, joints);
+}
+
+int nonrt_refresh(void *params,
+                  int (*read_float)(const char *, double *),
+                  int (*read_bit)(const char *, int *),
+                  int (*read_s32)(const char *, int *))
+{
+    (void)params; (void)read_float; (void)read_bit; (void)read_s32;
+    return 0;
+}
+
+int nonrt_is_identity(void) { return 0; }
+
+EXPORT_SYMBOL(nonrt_kinematicsForward);
+EXPORT_SYMBOL(nonrt_kinematicsInverse);
+EXPORT_SYMBOL(nonrt_refresh);
+EXPORT_SYMBOL(nonrt_is_identity);
