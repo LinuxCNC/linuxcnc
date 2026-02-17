@@ -111,10 +111,230 @@
 #include "posemath.h"
 #include "hal.h"
 #include "genhexkins.h"
-#include "genhexkins_math.h"
 #include "motion.h"
 #include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include "switchkins.h"
+
+/* ========================================================================
+ * Math types and functions (was in genhexkins_math.h)
+ * ======================================================================== */
+
+#define GENHEX_NUM_STRUTS 6
+
+typedef struct {
+    PmCartesian base[GENHEX_NUM_STRUTS];
+    PmCartesian platform[GENHEX_NUM_STRUTS];
+    PmCartesian base_n[GENHEX_NUM_STRUTS];
+    PmCartesian platform_n[GENHEX_NUM_STRUTS];
+    double conv_criterion;
+    unsigned int iter_limit;
+    double max_error;
+    double tool_offset;
+    double spindle_offset;
+    double screw_lead;
+    unsigned int last_iterations;
+    unsigned int max_iterations;
+    double correction[GENHEX_NUM_STRUTS];
+} genhex_params_t;
+
+static int genhex_mat_invert(double J[][GENHEX_NUM_STRUTS],
+                             double InvJ[][GENHEX_NUM_STRUTS])
+{
+    double JAug[GENHEX_NUM_STRUTS][12], m, temp;
+    int j, k, n;
+    for (j = 0; j <= 5; ++j) {
+        for (k = 0; k <= 5; ++k) JAug[j][k] = J[j][k];
+        for (k = 6; k <= 11; ++k) JAug[j][k] = (k - 6 == j) ? 1 : 0;
+    }
+    for (k = 0; k <= 4; ++k) {
+        if ((JAug[k][k] < 0.01) && (JAug[k][k] > -0.01)) {
+            for (j = k + 1; j <= 5; ++j) {
+                if ((JAug[j][k] > 0.01) || (JAug[j][k] < -0.01)) {
+                    for (n = 0; n <= 11; ++n) {
+                        temp = JAug[k][n]; JAug[k][n] = JAug[j][n]; JAug[j][n] = temp;
+                    }
+                    break;
+                }
+            }
+        }
+        for (j = k + 1; j <= 5; ++j) {
+            m = -JAug[j][k] / JAug[k][k];
+            for (n = 0; n <= 11; ++n) {
+                JAug[j][n] = JAug[j][n] + m * JAug[k][n];
+                if ((JAug[j][n] < 0.000001) && (JAug[j][n] > -0.000001)) JAug[j][n] = 0;
+            }
+        }
+    }
+    for (j = 0; j <= 5; ++j) {
+        m = 1 / JAug[j][j];
+        for (k = 0; k <= 11; ++k) JAug[j][k] = m * JAug[j][k];
+    }
+    for (k = 5; k >= 0; --k) {
+        for (j = k - 1; j >= 0; --j) {
+            m = -JAug[j][k] / JAug[k][k];
+            for (n = 0; n <= 11; ++n) JAug[j][n] = JAug[j][n] + m * JAug[k][n];
+        }
+    }
+    for (j = 0; j <= 5; ++j)
+        for (k = 0; k <= 5; ++k) InvJ[j][k] = JAug[j][k + 6];
+    return 0;
+}
+
+static void genhex_mat_mult(double J[][6], const double x[], double Ans[])
+{
+    int j, k;
+    for (j = 0; j <= 5; ++j) {
+        Ans[j] = 0;
+        for (k = 0; k <= 5; ++k) Ans[j] = J[j][k] * x[k] + Ans[j];
+    }
+}
+
+static int genhex_strut_length_correction(const genhex_params_t *params,
+                                           const PmCartesian *StrutVectUnit,
+                                           const PmRotationMatrix *RMatrix,
+                                           int strut_number, double *correction)
+{
+    PmCartesian nb2, nb3, na1, na2;
+    double dotprod;
+    pmCartCartCross(&params->base_n[strut_number], StrutVectUnit, &nb2);
+    pmCartCartCross(StrutVectUnit, &nb2, &nb3);
+    pmCartUnitEq(&nb3);
+    pmMatCartMult(RMatrix, &params->platform_n[strut_number], &na1);
+    pmCartCartCross(&na1, StrutVectUnit, &na2);
+    pmCartUnitEq(&na2);
+    pmCartCartDot(&nb3, &na2, &dotprod);
+    *correction = params->screw_lead * asin(dotprod) / PM_2_PI;
+    return 0;
+}
+
+static int genhex_fwd(genhex_params_t *params,
+                      const double joints[GENHEX_NUM_STRUTS],
+                      EmcPose *pos)
+{
+    PmCartesian aw, InvKinStrutVect, InvKinStrutVectUnit;
+    PmCartesian q_trans, RMatrix_a, RMatrix_a_cross_Strut;
+    double Jacobian[GENHEX_NUM_STRUTS][GENHEX_NUM_STRUTS];
+    double InverseJacobian[GENHEX_NUM_STRUTS][GENHEX_NUM_STRUTS];
+    double InvKinStrutLength, StrutLengthDiff[GENHEX_NUM_STRUTS];
+    double delta[GENHEX_NUM_STRUTS];
+    double conv_err = 1.0, corr;
+    PmRotationMatrix RMatrix;
+    PmRpy q_RPY;
+    int iterate = 1, i;
+    unsigned iteration = 0;
+
+    if (joints[0] <= 0.0 || joints[1] <= 0.0 || joints[2] <= 0.0 ||
+        joints[3] <= 0.0 || joints[4] <= 0.0 || joints[5] <= 0.0)
+        return -1;
+
+    q_RPY.r = pos->a * PM_PI / 180.0;
+    q_RPY.p = pos->b * PM_PI / 180.0;
+    q_RPY.y = pos->c * PM_PI / 180.0;
+    q_trans.x = pos->tran.x;
+    q_trans.y = pos->tran.y;
+    q_trans.z = pos->tran.z;
+
+    while (iterate) {
+        if ((conv_err > params->max_error) || (conv_err < -params->max_error))
+            return -2;
+        iteration++;
+        if (iteration > params->iter_limit) return -5;
+
+        pmRpyMatConvert(&q_RPY, &RMatrix);
+
+        for (i = 0; i < GENHEX_NUM_STRUTS; i++) {
+            PmCartesian b_adjusted, a_adjusted;
+            b_adjusted.x = params->base[i].x;
+            b_adjusted.y = params->base[i].y;
+            b_adjusted.z = params->base[i].z + params->spindle_offset + params->tool_offset;
+            a_adjusted.x = params->platform[i].x;
+            a_adjusted.y = params->platform[i].y;
+            a_adjusted.z = params->platform[i].z + params->spindle_offset + params->tool_offset;
+
+            pmMatCartMult(&RMatrix, &a_adjusted, &RMatrix_a);
+            pmCartCartAdd(&q_trans, &RMatrix_a, &aw);
+            pmCartCartSub(&aw, &b_adjusted, &InvKinStrutVect);
+            if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) return -1;
+            pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
+
+            if (params->screw_lead != 0.0) {
+                genhex_strut_length_correction(params, &InvKinStrutVectUnit,
+                                               &RMatrix, i, &corr);
+                InvKinStrutLength += corr;
+            }
+            StrutLengthDiff[i] = InvKinStrutLength - joints[i];
+            pmCartCartCross(&RMatrix_a, &InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
+            InverseJacobian[i][0] = InvKinStrutVectUnit.x;
+            InverseJacobian[i][1] = InvKinStrutVectUnit.y;
+            InverseJacobian[i][2] = InvKinStrutVectUnit.z;
+            InverseJacobian[i][3] = RMatrix_a_cross_Strut.x;
+            InverseJacobian[i][4] = RMatrix_a_cross_Strut.y;
+            InverseJacobian[i][5] = RMatrix_a_cross_Strut.z;
+        }
+        genhex_mat_invert(InverseJacobian, Jacobian);
+        genhex_mat_mult(Jacobian, StrutLengthDiff, delta);
+        q_trans.x -= delta[0]; q_trans.y -= delta[1]; q_trans.z -= delta[2];
+        q_RPY.r -= delta[3]; q_RPY.p -= delta[4]; q_RPY.y -= delta[5];
+        conv_err = 0.0;
+        for (i = 0; i < GENHEX_NUM_STRUTS; i++) conv_err += fabs(StrutLengthDiff[i]);
+        iterate = 0;
+        for (i = 0; i < GENHEX_NUM_STRUTS; i++)
+            if (fabs(StrutLengthDiff[i]) > params->conv_criterion) iterate = 1;
+    }
+
+    pos->a = q_RPY.r * 180.0 / PM_PI;
+    pos->b = q_RPY.p * 180.0 / PM_PI;
+    pos->c = q_RPY.y * 180.0 / PM_PI;
+    pos->tran.x = q_trans.x; pos->tran.y = q_trans.y; pos->tran.z = q_trans.z;
+    params->last_iterations = iteration;
+    if (iteration > params->max_iterations) params->max_iterations = iteration;
+    return 0;
+}
+
+static int genhex_inv(genhex_params_t *params,
+                      const EmcPose *pos,
+                      double joints[GENHEX_NUM_STRUTS])
+{
+    PmCartesian aw, temp, InvKinStrutVect, InvKinStrutVectUnit;
+    PmRotationMatrix RMatrix;
+    PmRpy rpy;
+    int i;
+    double InvKinStrutLength, corr;
+
+    rpy.r = pos->a * PM_PI / 180.0;
+    rpy.p = pos->b * PM_PI / 180.0;
+    rpy.y = pos->c * PM_PI / 180.0;
+    pmRpyMatConvert(&rpy, &RMatrix);
+
+    for (i = 0; i < GENHEX_NUM_STRUTS; i++) {
+        PmCartesian b_adjusted, a_adjusted;
+        b_adjusted.x = params->base[i].x;
+        b_adjusted.y = params->base[i].y;
+        b_adjusted.z = params->base[i].z + params->spindle_offset + params->tool_offset;
+        a_adjusted.x = params->platform[i].x;
+        a_adjusted.y = params->platform[i].y;
+        a_adjusted.z = params->platform[i].z + params->spindle_offset + params->tool_offset;
+
+        pmMatCartMult(&RMatrix, &a_adjusted, &temp);
+        pmCartCartAdd(&pos->tran, &temp, &aw);
+        pmCartCartSub(&aw, &b_adjusted, &InvKinStrutVect);
+        pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
+
+        if (params->screw_lead != 0.0) {
+            if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) return -1;
+            genhex_strut_length_correction(params, &InvKinStrutVectUnit,
+                                           &RMatrix, i, &corr);
+            params->correction[i] = corr;
+            InvKinStrutLength += corr;
+        }
+        joints[i] = InvKinStrutLength;
+    }
+    return 0;
+}
+
+/* ========================================================================
+ * RT interface
+ * ======================================================================== */
 
 static struct haldata {
     hal_float_t *basex[NUM_STRUTS];
@@ -458,3 +678,124 @@ int switchkinsSetup(kparms* kp,
 
     return 0;
 } //switchkinsSetup()
+
+/* ========================================================================
+ * Non-RT interface for userspace trajectory planner
+ * ======================================================================== */
+#include "kinematics_params.h"
+
+static void nonrt_build_genhex(const kinematics_params_t *kp, genhex_params_t *p)
+{
+    int i;
+    for (i = 0; i < GENHEX_NUM_STRUTS; i++) {
+        p->base[i].x = kp->params.genhex.basex[i];
+        p->base[i].y = kp->params.genhex.basey[i];
+        p->base[i].z = kp->params.genhex.basez[i];
+        p->platform[i].x = kp->params.genhex.platformx[i];
+        p->platform[i].y = kp->params.genhex.platformy[i];
+        p->platform[i].z = kp->params.genhex.platformz[i];
+        p->base_n[i].x = kp->params.genhex.basenx[i];
+        p->base_n[i].y = kp->params.genhex.baseny[i];
+        p->base_n[i].z = kp->params.genhex.basenz[i];
+        p->platform_n[i].x = kp->params.genhex.platformnx[i];
+        p->platform_n[i].y = kp->params.genhex.platformny[i];
+        p->platform_n[i].z = kp->params.genhex.platformnz[i];
+        p->correction[i] = 0.0;
+    }
+    p->conv_criterion = kp->params.genhex.conv_criterion;
+    p->iter_limit = kp->params.genhex.iter_limit;
+    p->max_error = kp->params.genhex.max_error;
+    p->tool_offset = kp->params.genhex.tool_offset;
+    p->spindle_offset = kp->params.genhex.spindle_offset;
+    p->screw_lead = kp->params.genhex.screw_lead;
+    p->last_iterations = 0;
+    p->max_iterations = kp->params.genhex.max_iter;
+}
+
+int nonrt_kinematicsForward(const void *params,
+                            const double *joints,
+                            EmcPose *pos)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    genhex_params_t p;
+    nonrt_build_genhex(kp, &p);
+    return genhex_fwd(&p, joints, pos);
+}
+
+int nonrt_kinematicsInverse(const void *params,
+                            const EmcPose *pos,
+                            double *joints)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    genhex_params_t p;
+    nonrt_build_genhex(kp, &p);
+    return genhex_inv(&p, pos, joints);
+}
+
+int nonrt_refresh(void *params,
+                  int (*read_float)(const char *, double *),
+                  int (*read_bit)(const char *, int *),
+                  int (*read_s32)(const char *, int *))
+{
+    kinematics_params_t *kp = (kinematics_params_t *)params;
+    int i;
+    char pin_name[64];
+    (void)read_bit;
+    (void)read_s32;
+
+    for (i = 0; i < KINS_GENHEX_NUM_STRUTS; i++) {
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base.%d.x", i);
+        read_float(pin_name, &kp->params.genhex.basex[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base.%d.y", i);
+        read_float(pin_name, &kp->params.genhex.basey[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base.%d.z", i);
+        read_float(pin_name, &kp->params.genhex.basez[i]);
+
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform.%d.x", i);
+        read_float(pin_name, &kp->params.genhex.platformx[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform.%d.y", i);
+        read_float(pin_name, &kp->params.genhex.platformy[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform.%d.z", i);
+        read_float(pin_name, &kp->params.genhex.platformz[i]);
+
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base-n.%d.x", i);
+        read_float(pin_name, &kp->params.genhex.basenx[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base-n.%d.y", i);
+        read_float(pin_name, &kp->params.genhex.baseny[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base-n.%d.z", i);
+        read_float(pin_name, &kp->params.genhex.basenz[i]);
+
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform-n.%d.x", i);
+        read_float(pin_name, &kp->params.genhex.platformnx[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform-n.%d.y", i);
+        read_float(pin_name, &kp->params.genhex.platformny[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform-n.%d.z", i);
+        read_float(pin_name, &kp->params.genhex.platformnz[i]);
+    }
+
+    read_float("genhexkins.convergence-criterion", &kp->params.genhex.conv_criterion);
+    read_float("genhexkins.max-error", &kp->params.genhex.max_error);
+    read_float("genhexkins.tool-offset", &kp->params.genhex.tool_offset);
+    read_float("genhexkins.spindle-offset", &kp->params.genhex.spindle_offset);
+    read_float("genhexkins.screw-lead", &kp->params.genhex.screw_lead);
+
+    /* iter_limit and max_iter are u32 pins - read via read_s32 */
+    {
+        int val;
+        if (read_s32) {
+            if (read_s32("genhexkins.limit-iterations", &val) == 0)
+                kp->params.genhex.iter_limit = (unsigned int)val;
+            if (read_s32("genhexkins.max-iterations", &val) == 0)
+                kp->params.genhex.max_iter = (unsigned int)val;
+        }
+    }
+
+    return 0;
+}
+
+int nonrt_is_identity(void) { return 0; }
+
+EXPORT_SYMBOL(nonrt_kinematicsForward);
+EXPORT_SYMBOL(nonrt_kinematicsInverse);
+EXPORT_SYMBOL(nonrt_refresh);
+EXPORT_SYMBOL(nonrt_is_identity);

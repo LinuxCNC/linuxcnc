@@ -52,7 +52,169 @@
 #include "pentakins.h"
 #include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include "hal.h"
-#include "pentakins_math.h"
+
+/* ========================================================================
+ * Math types and functions (was in pentakins_math.h)
+ * ======================================================================== */
+
+#define PENTAKINS_NUM_STRUTS 5
+#define PENTAKINS_NUM_JOINTS 5
+
+typedef struct {
+    PmCartesian base[PENTAKINS_NUM_STRUTS];
+    double effector_r[PENTAKINS_NUM_STRUTS];
+    double effector_z[PENTAKINS_NUM_STRUTS];
+    double conv_criterion;
+    unsigned int iter_limit;
+    double max_error;
+    double tool_offset;
+    unsigned int last_iterations;
+    unsigned int max_iterations;
+} pentakins_params_t;
+
+static int pentakins_mat_invert5(double J[][PENTAKINS_NUM_STRUTS],
+                                 double InvJ[][PENTAKINS_NUM_STRUTS])
+{
+    double JAug[PENTAKINS_NUM_STRUTS][10], m, temp;
+    int j, k, n;
+    for (j = 0; j <= 4; ++j) {
+        for (k = 0; k <= 4; ++k) JAug[j][k] = J[j][k];
+        for (k = 5; k <= 9; ++k) JAug[j][k] = (k - 5 == j) ? 1 : 0;
+    }
+    for (k = 0; k <= 3; ++k) {
+        if ((JAug[k][k] < 0.01) && (JAug[k][k] > -0.01)) {
+            for (j = k + 1; j <= 4; ++j) {
+                if ((JAug[j][k] > 0.01) || (JAug[j][k] < -0.01)) {
+                    for (n = 0; n <= 9; ++n) {
+                        temp = JAug[k][n]; JAug[k][n] = JAug[j][n]; JAug[j][n] = temp;
+                    }
+                    break;
+                }
+            }
+        }
+        for (j = k + 1; j <= 4; ++j) {
+            m = -JAug[j][k] / JAug[k][k];
+            for (n = 0; n <= 9; ++n) {
+                JAug[j][n] = JAug[j][n] + m * JAug[k][n];
+                if ((JAug[j][n] < 0.000001) && (JAug[j][n] > -0.000001)) JAug[j][n] = 0;
+            }
+        }
+    }
+    for (j = 0; j <= 4; ++j) {
+        m = 1 / JAug[j][j];
+        for (k = 0; k <= 9; ++k) JAug[j][k] = m * JAug[j][k];
+    }
+    for (k = 4; k >= 0; --k) {
+        for (j = k - 1; j >= 0; --j) {
+            m = -JAug[j][k] / JAug[k][k];
+            for (n = 0; n <= 9; ++n) JAug[j][n] = JAug[j][n] + m * JAug[k][n];
+        }
+    }
+    for (j = 0; j <= 4; ++j)
+        for (k = 0; k <= 4; ++k) InvJ[j][k] = JAug[j][k + 5];
+    return 0;
+}
+
+static void pentakins_mat_mult5(double J[][5], const double x[], double Ans[])
+{
+    int j, k;
+    for (j = 0; j <= 4; ++j) {
+        Ans[j] = 0;
+        for (k = 0; k <= 4; ++k) Ans[j] = J[j][k] * x[k] + Ans[j];
+    }
+}
+
+static double pentakins_sqr(double x) { return x * x; }
+
+static int pentakins_inv_kins(const pentakins_params_t *params,
+                              const double coord[PENTAKINS_NUM_JOINTS],
+                              double struts[PENTAKINS_NUM_STRUTS])
+{
+    PmCartesian xyz, pmcoord, temp;
+    PmRotationMatrix RMatrix, InvRMatrix;
+    PmRpy rpy;
+    int i;
+
+    pmcoord.x = coord[0]; pmcoord.y = coord[1]; pmcoord.z = coord[2];
+    rpy.r = coord[3]; rpy.p = coord[4]; rpy.y = 0;
+    pmRpyMatConvert(&rpy, &RMatrix);
+
+    for (i = 0; i < PENTAKINS_NUM_STRUTS; i++) {
+        pmCartCartSub(&params->base[i], &pmcoord, &temp);
+        pmMatInv(&RMatrix, &InvRMatrix);
+        pmMatCartMult(&InvRMatrix, &temp, &xyz);
+        double r_actual = sqrt(pentakins_sqr(xyz.x) + pentakins_sqr(xyz.y));
+        double z_diff = xyz.z - (params->effector_z[i] + params->tool_offset);
+        double r_diff = r_actual - params->effector_r[i];
+        struts[i] = sqrt(pentakins_sqr(z_diff) + pentakins_sqr(r_diff));
+    }
+    return 0;
+}
+
+static int pentakins_fwd(pentakins_params_t *params,
+                         const double joints[PENTAKINS_NUM_STRUTS],
+                         EmcPose *pos)
+{
+    double Jacobian[PENTAKINS_NUM_STRUTS][PENTAKINS_NUM_STRUTS];
+    double InverseJacobian[PENTAKINS_NUM_STRUTS][PENTAKINS_NUM_STRUTS];
+    double InvKinStrutLength[PENTAKINS_NUM_STRUTS];
+    double StrutLengthDiff[PENTAKINS_NUM_STRUTS];
+    double delta[PENTAKINS_NUM_STRUTS], jointdelta[PENTAKINS_NUM_STRUTS];
+    double coord[PENTAKINS_NUM_JOINTS];
+    double conv_err = 1.0;
+    int iterate = 1, i, j;
+    unsigned iteration = 0;
+
+    if (joints[0] <= 0.0 || joints[1] <= 0.0 || joints[2] <= 0.0 ||
+        joints[3] <= 0.0 || joints[4] <= 0.0) return -1;
+
+    coord[0] = pos->tran.x; coord[1] = pos->tran.y; coord[2] = pos->tran.z;
+    coord[3] = pos->a * PM_PI / 180.0; coord[4] = pos->b * PM_PI / 180.0;
+
+    while (iterate) {
+        if ((conv_err > params->max_error) || (conv_err < -params->max_error)) return -2;
+        iteration++;
+        if (iteration > params->iter_limit) return -5;
+
+        pentakins_inv_kins(params, coord, InvKinStrutLength);
+        for (i = 0; i < PENTAKINS_NUM_STRUTS; i++) {
+            StrutLengthDiff[i] = InvKinStrutLength[i] - joints[i];
+            coord[i] += 1e-4;
+            pentakins_inv_kins(params, coord, jointdelta);
+            coord[i] -= 1e-4;
+            for (j = 0; j < PENTAKINS_NUM_STRUTS; j++)
+                InverseJacobian[j][i] = (jointdelta[j] - InvKinStrutLength[j]) * 1e4;
+        }
+        pentakins_mat_invert5(InverseJacobian, Jacobian);
+        pentakins_mat_mult5(Jacobian, StrutLengthDiff, delta);
+        for (i = 0; i < PENTAKINS_NUM_JOINTS; i++) coord[i] -= delta[i];
+        conv_err = 0.0;
+        for (i = 0; i < PENTAKINS_NUM_STRUTS; i++) conv_err += fabs(StrutLengthDiff[i]);
+        iterate = 0;
+        for (i = 0; i < PENTAKINS_NUM_STRUTS; i++)
+            if (fabs(StrutLengthDiff[i]) > params->conv_criterion) iterate = 1;
+    }
+
+    pos->tran.x = coord[0]; pos->tran.y = coord[1]; pos->tran.z = coord[2];
+    pos->a = coord[3] * 180.0 / PM_PI; pos->b = coord[4] * 180.0 / PM_PI;
+    params->last_iterations = iteration;
+    if (iteration > params->max_iterations) params->max_iterations = iteration;
+    return 0;
+}
+
+static int pentakins_inv(pentakins_params_t *params,
+                         const EmcPose *pos,
+                         double joints[PENTAKINS_NUM_STRUTS])
+{
+    double coord[PENTAKINS_NUM_JOINTS];
+    coord[0] = pos->tran.x; coord[1] = pos->tran.y; coord[2] = pos->tran.z;
+    coord[3] = pos->a * PM_PI / 180.0; coord[4] = pos->b * PM_PI / 180.0;
+    return pentakins_inv_kins(params, coord, joints);
+}
+
+/* ========================================================================
+ * RT interface
+ * ======================================================================== */
 
 struct haldata {
     hal_float_t basex[NUM_STRUTS];
@@ -264,3 +426,87 @@ void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
+
+/* ========================================================================
+ * Non-RT interface for userspace trajectory planner
+ * ======================================================================== */
+#include "kinematics_params.h"
+
+static void nonrt_build_penta(const kinematics_params_t *kp, pentakins_params_t *p)
+{
+    int i;
+    for (i = 0; i < PENTAKINS_NUM_STRUTS; i++) {
+        p->base[i].x = kp->params.penta.basex[i];
+        p->base[i].y = kp->params.penta.basey[i];
+        p->base[i].z = kp->params.penta.basez[i];
+        p->effector_r[i] = kp->params.penta.effectorr[i];
+        p->effector_z[i] = kp->params.penta.effectorz[i];
+    }
+    p->conv_criterion = kp->params.penta.conv_criterion;
+    p->iter_limit = kp->params.penta.iter_limit;
+    p->max_error = 100.0;
+    p->tool_offset = 0.0;
+    p->last_iterations = 0;
+    p->max_iterations = 0;
+}
+
+int nonrt_kinematicsForward(const void *params,
+                            const double *joints,
+                            EmcPose *pos)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    pentakins_params_t p;
+    nonrt_build_penta(kp, &p);
+    return pentakins_fwd(&p, joints, pos);
+}
+
+int nonrt_kinematicsInverse(const void *params,
+                            const EmcPose *pos,
+                            double *joints)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    pentakins_params_t p;
+    nonrt_build_penta(kp, &p);
+    return pentakins_inv(&p, pos, joints);
+}
+
+int nonrt_refresh(void *params,
+                  int (*read_float)(const char *, double *),
+                  int (*read_bit)(const char *, int *),
+                  int (*read_s32)(const char *, int *))
+{
+    kinematics_params_t *kp = (kinematics_params_t *)params;
+    int i;
+    char pin_name[64];
+    (void)read_bit;
+
+    for (i = 0; i < KINS_PENTA_NUM_STRUTS; i++) {
+        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.base.%d.x", i);
+        read_float(pin_name, &kp->params.penta.basex[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.base.%d.y", i);
+        read_float(pin_name, &kp->params.penta.basey[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.base.%d.z", i);
+        read_float(pin_name, &kp->params.penta.basez[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.effector.%d.r", i);
+        read_float(pin_name, &kp->params.penta.effectorr[i]);
+        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.effector.%d.z", i);
+        read_float(pin_name, &kp->params.penta.effectorz[i]);
+    }
+
+    read_float("pentakins.convergence-criterion", &kp->params.penta.conv_criterion);
+
+    if (read_s32) {
+        int val;
+        if (read_s32("pentakins.limit-iterations", &val) == 0)
+            kp->params.penta.iter_limit = (unsigned int)val;
+    }
+
+    return 0;
+}
+
+int nonrt_is_identity(void) { return 0; }
+
+EXPORT_SYMBOL(nonrt_kinematicsForward);
+EXPORT_SYMBOL(nonrt_kinematicsInverse);
+EXPORT_SYMBOL(nonrt_refresh);
+EXPORT_SYMBOL(nonrt_is_identity);
