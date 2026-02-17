@@ -1157,6 +1157,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     EmcPose eoffset_pose;
     int numExtraJoints;
     bool jogging_active;
+    uint64_t heartbeat;  // motion controller's heartbeat counter
 };
 
 // declarations for EMC_TASK classes
@@ -1422,13 +1423,13 @@ class EMC_TASK_STAT_MSG:public RCS_STAT_MSG {
   public:
     EMC_TASK_STAT_MSG(NMLTYPE t, size_t s)
       : RCS_STAT_MSG(t, s),
-	heartbeat(0)
+	taskbeat(0)
     {};
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    uint32_t heartbeat;
+    uint64_t taskbeat;  // milltask's main loop heartbeat counter
 };
 
 class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
