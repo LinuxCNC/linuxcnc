@@ -1,0 +1,59 @@
+# Submakefile for userspace kinematics plugins
+# Each plugin is a self-contained .so loaded via dlopen by the planner
+
+INCLUDES += emc/kinematics_userspace
+
+KINS_PLUGIN_DIR := emc/kinematics_userspace/plugins
+KINS_PLUGIN_OUTDIR := ../lib/kinematics
+
+# Simple plugins (no libposemath dependency)
+KINS_SIMPLE_PLUGINS := \
+	trivkins \
+	5axiskins \
+	xyzac-trt-kins \
+	xyzbc-trt-kins \
+	maxkins \
+	tripodkins \
+	lineardeltakins \
+	rotarydeltakins \
+	rosekins \
+	corexykins \
+	rotatekins \
+	scarakins \
+	scorbot-kins
+
+# Complex plugins (need libposemath for posemath types/functions)
+KINS_POSEMATH_PLUGINS := \
+	pumakins \
+	genhexkins \
+	pentakins \
+	genserkins
+
+KINS_ALL_PLUGINS := $(KINS_SIMPLE_PLUGINS) $(KINS_POSEMATH_PLUGINS)
+
+# Register all plugin sources
+KINS_PLUGIN_SRCS := $(foreach p,$(KINS_ALL_PLUGINS),$(KINS_PLUGIN_DIR)/$(p)_userspace.c)
+USERSRCS += $(KINS_PLUGIN_SRCS)
+
+# Compile flags for all plugins
+$(call TOOBJSDEPS, $(KINS_PLUGIN_SRCS)) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD -D_GNU_SOURCE
+
+# Build rules for simple plugins (link with -lm only)
+$(foreach p,$(KINS_SIMPLE_PLUGINS),$(eval \
+$(KINS_PLUGIN_OUTDIR)/$(p)_userspace.so: objects/$(KINS_PLUGIN_DIR)/$(p)_userspace.o ; \
+	$$(ECHO) Building kinematics plugin $$(notdir $$@) ; \
+	mkdir -p $(KINS_PLUGIN_OUTDIR) ; \
+	$$(CC) -g $$(LDFLAGS) -shared -o $$@ $$< -lm \
+))
+
+# Build rules for posemath plugins (link with -lm and libposemath)
+$(foreach p,$(KINS_POSEMATH_PLUGINS),$(eval \
+$(KINS_PLUGIN_OUTDIR)/$(p)_userspace.so: objects/$(KINS_PLUGIN_DIR)/$(p)_userspace.o ../lib/libposemath.so ; \
+	$$(ECHO) Building kinematics plugin $$(notdir $$@) ; \
+	mkdir -p $(KINS_PLUGIN_OUTDIR) ; \
+	$$(CC) -g $$(LDFLAGS) -shared -o $$@ $$< -lm -L../lib -lposemath \
+))
+
+# All plugin .so targets
+KINS_PLUGIN_TARGETS := $(foreach p,$(KINS_ALL_PLUGINS),$(KINS_PLUGIN_OUTDIR)/$(p)_userspace.so)
+TARGETS += $(KINS_PLUGIN_TARGETS)
