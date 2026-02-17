@@ -19,7 +19,6 @@
 
 #include "emcpos.h"           /* EmcPose */
 #include "kinematics.h"       /* KINEMATICS_TYPE, flags */
-#include "kinematics_params.h" /* kinematics_type_id_t */
 
 #ifdef __cplusplus
 extern "C" {
@@ -90,14 +89,6 @@ int kinematicsUserIsIdentity(KinematicsUserContext* ctx);
  * @return Number of joints
  */
 int kinematicsUserGetNumJoints(KinematicsUserContext* ctx);
-
-/**
- * Get kinematics type ID
- *
- * @param ctx  Kinematics context
- * @return Kinematics type ID enum value
- */
-kinematics_type_id_t kinematicsUserGetTypeId(KinematicsUserContext* ctx);
 
 /**
  * Get KINEMATICS_TYPE (IDENTITY, BOTH, FORWARD_ONLY, INVERSE_ONLY)
