@@ -1324,8 +1324,9 @@ void Hal::setJogCounts(const HandWheelCounters& counters)
     *memory->out.axisAJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_A);
     *memory->out.axisBJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_B);
     *memory->out.axisCJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_C);
-        requestManualMode(false);
-        requestTeleopMode(false);
+    
+    requestManualMode(false);
+    requestTeleopMode(false);
 }
 // ----------------------------------------------------------------------
 void Hal::setFunction(bool enabled)
@@ -1340,6 +1341,11 @@ bool Hal::requestAutoMode(bool isRisingEdge)
 // ----------------------------------------------------------------------
 bool Hal::requestManualMode(bool isRisingEdge)
 {
+    if(isRisingEdge && *memory->in.isModeAuto)
+    {
+        //Don't try to change from auto to manual
+        return false;
+    }
     return requestMode(isRisingEdge, memory->out.doModeManual, memory->in.isModeManual);
 }
 // ----------------------------------------------------------------------
