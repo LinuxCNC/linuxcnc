@@ -190,6 +190,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   Active G-codes for each modal group. +
  The integer values reflect the nominal G-code numbers multiplied by 10. (Examples: 10 = 'G1', 430 = 'G43', 923 = 'G92.3')
 
+*heartbeat*:: '(returns integer)' -
+  motion controller heartbeat counter. Increments every servo cycle.
+  Rate is determined by `[EMCMOT]SERVO_PERIOD` in the INI file.
+
 *homed*:: '(returns tuple of integers)' -
   currently homed joints, with 0 = not homed, 1 = homed.
 
@@ -350,6 +354,10 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 
 *tool_in_spindle*:: '(returns integer)' -
   current tool number.
+
+*taskbeat*:: '(returns integer)' -
+  task main loop heartbeat counter. Increments every task cycle.
+  Rate is determined by `[TASK]CYCLE_TIME` in the INI file.
 
 *tool_from_pocket*:: '(returns integer)' -
   pocket number for the currently loaded tool (0 if no tool loaded).

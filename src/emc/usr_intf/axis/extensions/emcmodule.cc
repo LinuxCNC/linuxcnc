@@ -805,6 +805,22 @@ static PyObject *Stat_tool_table(pyStatChannel * /*s*/, void *) {
     return res;
 }
 
+static PyObject *Stat_heartbeat(pyStatChannel *s, void *) {
+#if PY_VERSION_HEX >= 0x030e00f0  // 3.14
+    return PyLong_FromUInt64(s->status.motion.heartbeat);
+#else
+    return PyLong_FromUnsignedLongLong(s->status.motion.heartbeat);
+#endif
+}
+
+static PyObject *Stat_taskbeat(pyStatChannel *s, void *) {
+#if PY_VERSION_HEX >= 0x030e00f0  // 3.14
+    return PyLong_FromUInt64(s->status.task.taskbeat);
+#else
+    return PyLong_FromUnsignedLongLong(s->status.task.taskbeat);
+#endif
+}
+
 static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"actual_position", (getter)Stat_actual, NULL, NULL, NULL},
     {(char*)"ain", (getter)Stat_ain, NULL, NULL, NULL},
@@ -837,6 +853,12 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"tool_table", (getter)Stat_tool_table, (setter)NULL,
         (char*)"The tooltable, expressed as a list of tools.  Each tool is a dict with the\n"
         "tool id (tool number), diameter, offsets, etc.", NULL
+    },
+    {(char*)"heartbeat", (getter)Stat_heartbeat, NULL,
+        (char*)"Motion controller heartbeat counter. Increments every servo cycle.", NULL
+    },
+    {(char*)"taskbeat", (getter)Stat_taskbeat, NULL,
+        (char*)"Task main loop heartbeat counter. Increments every task cycle.", NULL
     },
     {}
 };
