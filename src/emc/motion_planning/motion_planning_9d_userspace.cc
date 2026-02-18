@@ -516,10 +516,104 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
         max_feed_scale = emcmotConfig->maxFeedScale;
     }
 
+    // Compute blend normal direction and Jacobian projection.
+    // The blend curvature is in the plane of (u_prev, u_next).
+    // delta_u = u_next - u_prev is the curvature normal direction.
+    // Joints with zero projection onto this direction are not loaded
+    // by the blend's centripetal jerk and should not constrain velocity.
+    double blend_proj[9] = {0};  // per-joint projection of curvature normal
+    int blend_num_joints = 0;
+    {
+        using motion_planning::g_userspace_kins_planner;
+        blend_num_joints = g_userspace_kins_planner.isEnabled()
+                         ? g_userspace_kins_planner.getNumJoints() : 9;
+        if (blend_num_joints > 9) blend_num_joints = 9;
+
+        // Get tangent vectors at junction
+        double u_prev[9], u_next[9];
+        int have_tangents = (tcGetTangentRate9D(prev_tc, 1, u_prev) == 0 &&
+                             tcGetTangentRate9D(tc, 0, u_next) == 0);
+
+        if (have_tangents) {
+            double delta_u[9];
+            double delta_mag_sq = 0.0;
+            for (int a = 0; a < 9; a++) {
+                delta_u[a] = u_next[a] - u_prev[a];
+                delta_mag_sq += delta_u[a] * delta_u[a];
+            }
+
+            if (delta_mag_sq >= 1e-12) {
+                // Compute Jacobian at junction for non-identity kinematics
+                double J[9][9] = {{0}};
+                bool have_jacobian = false;
+                if (g_userspace_kins_planner.isEnabled() &&
+                    !g_userspace_kins_planner.isIdentity()) {
+                    EmcPose junction;
+                    memset(&junction, 0, sizeof(junction));
+                    if (tc->motion_type == TC_LINEAR) {
+                        junction.tran = tc->coords.line.xyz.start;
+                        junction.a = tc->coords.line.abc.start.x;
+                        junction.b = tc->coords.line.abc.start.y;
+                        junction.c = tc->coords.line.abc.start.z;
+                        junction.u = tc->coords.line.uvw.start.x;
+                        junction.v = tc->coords.line.uvw.start.y;
+                        junction.w = tc->coords.line.uvw.start.z;
+                    } else if (tc->motion_type == TC_CIRCULAR) {
+                        pmCirclePoint(&tc->coords.circle.xyz, 0.0, &junction.tran);
+                        junction.a = tc->coords.circle.abc.start.x;
+                        junction.b = tc->coords.circle.abc.start.y;
+                        junction.c = tc->coords.circle.abc.start.z;
+                        junction.u = tc->coords.circle.uvw.start.x;
+                        junction.v = tc->coords.circle.uvw.start.y;
+                        junction.w = tc->coords.circle.uvw.start.z;
+                    }
+                    have_jacobian = g_userspace_kins_planner.computeJacobian(junction, J);
+                }
+
+                // Project curvature normal through Jacobian
+                for (int j = 0; j < blend_num_joints; j++) {
+                    if (have_jacobian) {
+                        double p = 0.0;
+                        for (int a = 0; a < 9; a++)
+                            p += fabs(J[j][a]) * fabs(delta_u[a]);
+                        blend_proj[j] = p;
+                    } else {
+                        // Trivkins: J = identity → proj[j] = |delta_u[j]|
+                        blend_proj[j] = (j < 9) ? fabs(delta_u[j]) : 0.0;
+                    }
+                }
+            }
+        }
+    }
+
+    // Compute direction-aware per-joint jerk limit for the alpha optimizer.
+    // Only joints with non-zero projection onto the curvature normal direction
+    // constrain blend velocity.  bezier9AccLimit applies BLEND_ACC_RATIO_NORMAL
+    // internally, so we divide by that ratio to make them match:
+    //   bezier9AccLimit: cbrt(RATIO * j_eff / dkds) → equals cbrt(jlim_eff / dkds)
+    double j_max_for_blend = 0.0;
+    {
+        using motion_planning::g_userspace_kins_planner;
+        double jlim_eff_min = 1e9;
+        for (int j = 0; j < blend_num_joints; j++) {
+            if (blend_proj[j] < 1e-15) continue;  // joint not loaded
+            double jlim = g_userspace_kins_planner.isEnabled()
+                        ? g_userspace_kins_planner.getJointJerkLimit(j) : 1e9;
+            if (jlim > 0 && jlim < 1e9) {
+                double jlim_eff = jlim / blend_proj[j];
+                if (jlim_eff < jlim_eff_min)
+                    jlim_eff_min = jlim_eff;
+            }
+        }
+        if (jlim_eff_min < 1e9)
+            j_max_for_blend = jlim_eff_min / BLEND_ACC_RATIO_NORMAL;
+    }
+
     // Run blend optimizer
     BlendSolution9 solution;
     res = optimizeBlendSize9(prev_tc, tc, tolerance, max_feed_scale,
-                             &vel_bounds, &acc_bounds, &solution);
+                             &vel_bounds, &acc_bounds, j_max_for_blend,
+                             &solution);
     if (res != TP_ERR_OK || solution.status != BLEND9_OK) {
         return 0;  // Blend failed — fall back to kink velocity
     }
@@ -555,22 +649,21 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
     double v_plan = solution.params.v_plan;
 
     // Per-joint curvature-rate jerk limit (hard cap, like kink_vel).
-    // Centripetal jerk = v³ · dκ/ds must stay within per-joint jerk budgets.
-    // Uses per-joint limits from kinematics module (not trajectory-level maxjerk).
+    // Centripetal jerk = v³ · dκ/ds · proj[j] must stay within per-joint jerk budgets.
+    // Uses Jacobian-projected blend normal to only constrain loaded joints.
+    double v_jerk_cap = 1e9;
     {
         using motion_planning::g_userspace_kins_planner;
-        int num_joints = g_userspace_kins_planner.isEnabled()
-                       ? g_userspace_kins_planner.getNumJoints() : 9;
-        if (num_joints > 9) num_joints = 9;
         double dkds = solution.bezier.max_dkappa_ds;
         if (dkds > BEZIER9_CURVATURE_EPSILON) {
-            double v_jerk_cap = 1e9;
-            for (int j = 0; j < num_joints; j++) {
+            for (int j = 0; j < blend_num_joints; j++) {
+                if (blend_proj[j] < 1e-15) continue;  // joint not loaded
                 double jlim = g_userspace_kins_planner.isEnabled()
                             ? g_userspace_kins_planner.getJointJerkLimit(j) : 1e9;
                 if (jlim > 0 && jlim < 1e9) {
-                    double v_j = cbrt(jlim / dkds);
-                    if (v_j < v_jerk_cap) v_jerk_cap = v_j;
+                    double v_j = cbrt(jlim / (blend_proj[j] * dkds));
+                    if (v_j < v_jerk_cap)
+                        v_jerk_cap = v_j;
                 }
             }
             if (v_jerk_cap < v_plan) {
@@ -615,13 +708,6 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
         rtapi_print_msg(RTAPI_MSG_ERR, "tpSetupBlend9D: failed to enqueue blend segment\n");
         return -1;
     }
-
-    rtapi_print_msg(RTAPI_MSG_ERR,
-        "BLEND_DBG: created blend v_plan=%.3f kink_vel=%.3f len=%.4f trim_prev=%.4f trim_tc=%.4f "
-        "max_kappa=%.6f max_dkds=%.3f min_radius=%.3f prev_target=%.3f prev_tc_type=%d tc_type=%d\n",
-        v_plan, blend_tc.kink_vel, blend_tc.target, solution.trim_prev, solution.trim_tc,
-        solution.bezier.max_kappa, solution.bezier.max_dkappa_ds, solution.bezier.min_radius,
-        prev_tc->target, prev_tc->motion_type, tc->motion_type);
 
     // tc will be enqueued by caller as usual (after this function returns)
     // Set tc's tolerance for the blend

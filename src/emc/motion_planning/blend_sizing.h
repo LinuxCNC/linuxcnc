@@ -24,12 +24,19 @@ extern "C" {
 
 /* Blend sizing constants */
 #define BLEND9_TOLERANCE_RATIO      0.5
-#define BLEND9_ALPHA_FACTOR         0.30
+#define BLEND9_ALPHA_MIN_RATIO      0.10
+#define BLEND9_ALPHA_MAX_RATIO      0.49
+#define BLEND9_ALPHA_SEARCH_ITERS   8
 #define BLEND9_MAX_ITERATIONS       12
 #define BLEND9_VEL_REL_TOL         0.01
 #define BLEND9_VEL_ABS_TOL         0.1
 #define BLEND9_CIRC_MAX_ANGLE      (PM_PI / 3.0)
 #define BLEND9_MIN_THETA           (PM_PI / 180.0)
+#define BLEND9_MAX_SEGMENT_USE     0.45    /* Max fraction of original segment
+                                            * each blend may claim (unit-free).
+                                            * Two blends leave ≥10% remnant,
+                                            * preventing micro-segment jerk
+                                            * spikes at segment junctions. */
 
 /**
  * Per-axis velocity and acceleration bounds in 9D.
@@ -145,6 +152,9 @@ int findBlendParameters9(BlendBoundary9 const * const boundary,
  * Finds optimal Rb that satisfies both G64 P tolerance and velocity
  * constraints. Per-axis bounds limit blend velocity and acceleration
  * to stay within each axis's individual limits.
+ *
+ * @param j_max  Jerk limit for curvature-rate optimization (per-joint minimum).
+ *               Pass 0 to skip curvature-rate limit (not recommended).
  */
 int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
                        TC_STRUCT const * const tc,
@@ -152,6 +162,7 @@ int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
                        double max_feed_scale,
                        AxisBounds9 const * const vel_bounds,
                        AxisBounds9 const * const acc_bounds,
+                       double j_max,
                        BlendSolution9 * const result);
 
 /**
