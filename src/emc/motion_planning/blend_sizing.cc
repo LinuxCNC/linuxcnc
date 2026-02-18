@@ -535,9 +535,14 @@ double findMaxBlendRegion9(TC_STRUCT const * const prev_tc,
         return 0.0;
     }
 
-    /* Per-segment usable length */
-    double l_prev = fmin(prev_tc->target, prev_tc->nominal_length / 2.0);
-    double l_tc = fmin(tc->target, tc->nominal_length / 2.0);
+    /* Per-segment usable length.
+     * Each blend can claim up to BLEND9_MAX_SEGMENT_USE of the original
+     * segment, so two blends on the same segment leave a guaranteed
+     * remnant (≥10% at default 0.45). Unit-free, works in mm or inches. */
+    double l_prev = fmin(prev_tc->target,
+                         prev_tc->nominal_length * BLEND9_MAX_SEGMENT_USE);
+    double l_tc   = fmin(tc->target,
+                         tc->nominal_length * BLEND9_MAX_SEGMENT_USE);
 
     /* For circular arcs, limit to 60 degrees */
     if (prev_tc->motion_type == TC_CIRCULAR) {
@@ -707,6 +712,99 @@ int findBlendParameters9(BlendBoundary9 const * const boundary,
 }
 
 /**
+ * Golden section search for optimal alpha (control point distance).
+ *
+ * bezier9AccLimit(alpha) = min(v_curvature, v_dkds) is unimodal in alpha:
+ *   - Small alpha → steep curvature ramp at endpoints → high dκ/ds → low v_dkds
+ *   - Large alpha → sharp peak curvature at midpoint → high κ_max → low v_curvature
+ * The maximum is where the two limits cross.
+ *
+ * Returns the best velocity limit, stores the winning Bezier9 and alpha.
+ */
+static double findOptimalAlpha9(double Rb,
+                                BlendBoundary9 const * const boundary,
+                                double a_max,
+                                double j_max,
+                                double v_goal,
+                                Bezier9 * const best_bezier,
+                                double * const best_alpha)
+{
+    double a_lo = Rb * BLEND9_ALPHA_MIN_RATIO;
+    double a_hi = Rb * BLEND9_ALPHA_MAX_RATIO;
+
+    double gr = BEZIER9_GOLDEN_RATIO;
+    double a1 = a_hi - gr * (a_hi - a_lo);
+    double a2 = a_lo + gr * (a_hi - a_lo);
+
+    /* Evaluate at initial probe points */
+    Bezier9 trial1, trial2;
+    double v1 = 0.0, v2 = 0.0;
+
+    if (bezier9Init(&trial1, &boundary->P_start, &boundary->P_end,
+                    &boundary->u_start_xyz, &boundary->u_end_xyz,
+                    &boundary->u_start_abc, &boundary->u_end_abc,
+                    &boundary->u_start_uvw, &boundary->u_end_uvw,
+                    a1) == TP_ERR_OK) {
+        v1 = bezier9AccLimit(&trial1, v_goal, a_max, j_max);
+    }
+
+    if (bezier9Init(&trial2, &boundary->P_start, &boundary->P_end,
+                    &boundary->u_start_xyz, &boundary->u_end_xyz,
+                    &boundary->u_start_abc, &boundary->u_end_abc,
+                    &boundary->u_start_uvw, &boundary->u_end_uvw,
+                    a2) == TP_ERR_OK) {
+        v2 = bezier9AccLimit(&trial2, v_goal, a_max, j_max);
+    }
+
+    for (int i = 0; i < BLEND9_ALPHA_SEARCH_ITERS; i++) {
+        if (v1 < v2) {
+            /* Maximum is in [a1, a_hi] */
+            a_lo = a1;
+            a1 = a2;
+            v1 = v2;
+            trial1 = trial2;
+            a2 = a_lo + gr * (a_hi - a_lo);
+            if (bezier9Init(&trial2, &boundary->P_start, &boundary->P_end,
+                            &boundary->u_start_xyz, &boundary->u_end_xyz,
+                            &boundary->u_start_abc, &boundary->u_end_abc,
+                            &boundary->u_start_uvw, &boundary->u_end_uvw,
+                            a2) == TP_ERR_OK) {
+                v2 = bezier9AccLimit(&trial2, v_goal, a_max, j_max);
+            } else {
+                v2 = 0.0;
+            }
+        } else {
+            /* Maximum is in [a_lo, a2] */
+            a_hi = a2;
+            a2 = a1;
+            v2 = v1;
+            trial2 = trial1;
+            a1 = a_hi - gr * (a_hi - a_lo);
+            if (bezier9Init(&trial1, &boundary->P_start, &boundary->P_end,
+                            &boundary->u_start_xyz, &boundary->u_end_xyz,
+                            &boundary->u_start_abc, &boundary->u_end_abc,
+                            &boundary->u_start_uvw, &boundary->u_end_uvw,
+                            a1) == TP_ERR_OK) {
+                v1 = bezier9AccLimit(&trial1, v_goal, a_max, j_max);
+            } else {
+                v1 = 0.0;
+            }
+        }
+    }
+
+    /* Pick the better of the two final probes */
+    if (v1 >= v2) {
+        *best_bezier = trial1;
+        *best_alpha = a1;
+        return v1;
+    } else {
+        *best_bezier = trial2;
+        *best_alpha = a2;
+        return v2;
+    }
+}
+
+/**
  * Binary search optimizer for blend region size.
  *
  * Searches for the largest Rb (blend region size) that satisfies both:
@@ -722,6 +820,7 @@ int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
                        double max_feed_scale,
                        AxisBounds9 const * const vel_bounds,
                        AxisBounds9 const * const acc_bounds,
+                       double j_max,
                        BlendSolution9 * const result)
 {
     if (!prev_tc || !tc || !result) {
@@ -757,6 +856,10 @@ int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
         return res;
     }
 
+    /* Kinematic limits (constant across iterations) */
+    double a_max_blend = fmin(prev_tc->maxaccel, tc->maxaccel);
+    double j_max_blend = j_max;
+
     /* Binary search between epsilon and Rb_max */
     double Rb_lo = TP_POS_EPSILON;
     double Rb_hi = Rb_max;
@@ -780,32 +883,19 @@ int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
             continue;
         }
 
-        /* Construct trial Bezier9 */
-        double alpha = Rb * BLEND9_ALPHA_FACTOR;
+        /* Find optimal alpha for this Rb via golden section search */
         Bezier9 trial;
-        res = bezier9Init(&trial,
-                          &boundary.P_start,
-                          &boundary.P_end,
-                          &boundary.u_start_xyz,
-                          &boundary.u_end_xyz,
-                          &boundary.u_start_abc,
-                          &boundary.u_end_abc,
-                          &boundary.u_start_uvw,
-                          &boundary.u_end_uvw,
-                          alpha);
-        if (res != TP_ERR_OK) {
+        double alpha;
+        double v_limit = findOptimalAlpha9(Rb, &boundary, a_max_blend,
+                                           j_max_blend, params.v_goal,
+                                           &trial, &alpha);
+        if (v_limit <= 0.0) {
             Rb_hi = Rb;
             continue;
         }
 
         /* Check deviation against tolerance */
         double deviation = bezier9Deviation(&trial, &boundary.intersection_point);
-
-        /* Check velocity limit from curvature and curvature rate */
-        double a_max_blend = fmin(prev_tc->maxaccel, tc->maxaccel);
-        double j_max_blend = fmin(prev_tc->maxjerk, tc->maxjerk);
-        double v_limit = bezier9AccLimit(&trial, params.v_goal, a_max_blend,
-                                          j_max_blend);
 
         tp_debug_print("  iter=%d Rb=%g alpha=%g dev=%g tol=%g v_limit=%g v_goal=%g len=%g\n",
                        iter, Rb, alpha, deviation, tolerance, v_limit, params.v_goal,
@@ -858,25 +948,14 @@ int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
                                        vel_bounds, acc_bounds, &params);
         }
         if (res == TP_ERR_OK) {
-            double alpha = Rb * BLEND9_ALPHA_FACTOR;
             Bezier9 trial;
-            res = bezier9Init(&trial,
-                              &boundary.P_start,
-                              &boundary.P_end,
-                              &boundary.u_start_xyz,
-                              &boundary.u_end_xyz,
-                              &boundary.u_start_abc,
-                              &boundary.u_end_abc,
-                              &boundary.u_start_uvw,
-                              &boundary.u_end_uvw,
-                              alpha);
-            if (res == TP_ERR_OK) {
+            double alpha;
+            double v_limit = findOptimalAlpha9(Rb, &boundary, a_max_blend,
+                                               j_max_blend, params.v_goal,
+                                               &trial, &alpha);
+            if (v_limit > 0.0) {
                 double deviation = bezier9Deviation(&trial, &boundary.intersection_point);
                 if (deviation <= tolerance) {
-                    double a_max_blend = fmin(prev_tc->maxaccel, tc->maxaccel);
-                    double j_max_blend = fmin(prev_tc->maxjerk, tc->maxjerk);
-                    double v_limit = bezier9AccLimit(&trial, params.v_goal,
-                                                      a_max_blend, j_max_blend);
                     result->Rb = Rb;
                     result->bezier = trial;
                     result->boundary = boundary;
@@ -1043,7 +1122,9 @@ int trimSegment9(TC_STRUCT * const tc,
             }
 
             tc->target = new_target;
-            tc->nominal_length = new_target;
+            /* Keep nominal_length as original untrimmed length so that
+             * findMaxBlendRegion9's "half the original segment" guard
+             * gives equal Rb budget to blends on both sides. */
             break;
         }
 
@@ -1075,7 +1156,6 @@ int trimSegment9(TC_STRUCT * const tc,
 
             /* Recompute target from new geometry */
             tc->target = pmCircle9Target(&tc->coords.circle);
-            tc->nominal_length = tc->target;
             break;
         }
 
@@ -1129,7 +1209,6 @@ int trimSegment9(TC_STRUCT * const tc,
 
             /* Update arc target */
             tc->target = new_angle * arc->radius + arc->line_length * ratio;
-            tc->nominal_length = tc->target;
             break;
         }
 

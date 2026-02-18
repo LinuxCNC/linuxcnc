@@ -4171,23 +4171,6 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
     // because no predecessor within the window sets prev_exit_vel.
     {
         TC_STRUCT *pre_window = tcqBack_user(queue, -optimization_depth);
-        {
-            static int seed_dbg = 0;
-            if (seed_dbg < 10) {
-                seed_dbg++;
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "SEED_DBG: pre_window=%p depth=%d term=%d pvalid=%d pfeed=%.3f "
-                    "pv_exit=%.3f fv=%.3f type=%d id=%d\n",
-                    pre_window, optimization_depth,
-                    pre_window ? pre_window->term_cond : -1,
-                    pre_window ? pre_window->shared_9d.profile.valid : 0,
-                    pre_window ? pre_window->shared_9d.profile.computed_feed_scale : 0.0,
-                    pre_window ? profileExitVelUnscaled(&pre_window->shared_9d.profile) : -1.0,
-                    pre_window ? atomicLoadDouble(&pre_window->shared_9d.final_vel) : -1.0,
-                    pre_window ? pre_window->motion_type : -1,
-                    pre_window ? pre_window->id : -1);
-            }
-        }
         if (pre_window && pre_window->term_cond == TC_TERM_COND_TANGENT
             && pre_window->shared_9d.profile.valid
             && pre_window->shared_9d.profile.computed_feed_scale > 0.001) {
@@ -4466,26 +4449,7 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                     prev_exit_feed_scale = feed_scale;
                     prev_exit_vel_known = true;
 
-                    // Debug: log profile params for blend segments and neighbors
-                    {
-                        static int blend_fwd_dbg = 0;
-                        // Check if this or the next segment is a bezier
-                        TC_STRUCT *next_tc = (k > 0) ? tcqBack_user(queue, -(k-1)) : NULL;
-                        bool is_blend_neighbor = (next_tc && next_tc->motion_type == TC_BEZIER);
-                        if ((tc->motion_type == TC_BEZIER || is_blend_neighbor) && blend_fwd_dbg < 50) {
-                            blend_fwd_dbg++;
-                            rtapi_print_msg(RTAPI_MSG_ERR,
-                                "BLEND_FWD[id=%d type=%d]: v_in=%.3f v_out=%.3f "
-                                "sc_in=%.3f sc_out=%.3f first=%d maxv=%.3f "
-                                "target=%.4f pv0=%.3f pvf=%.3f prev_exit=%.3f\n",
-                                tc->id, tc->motion_type, v_entry, v_exit,
-                                scaled_v_entry, scaled_v_exit, is_first_profile,
-                                max_vel, tc->target,
-                                tc->shared_9d.profile.v[0],
-                                tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES],
-                                prev_exit_vel);
-                        }
-                    }
+
 
                     // One-step backtrack: fix backward reachability gap
                     // Skip active segment — rewriting triggers STOPWATCH_RESET
