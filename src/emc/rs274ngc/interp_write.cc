@@ -107,10 +107,11 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->origin_index <
      7) ? (530 + (10 * settings->origin_index)) : (584 +
                                                    settings->origin_index);
-  settings->active_g_codes[9] =
-    (settings->tool_offset.tran.x || settings->tool_offset.tran.y || settings->tool_offset.tran.z ||
-     settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
-     settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ? G_43 : G_49;
+  if (block !=  NULL){
+    if (block->g_modes[gees[G_43]] > 0){
+    settings->active_g_codes[9] =  block->g_modes[gees[G_43]];
+    }
+  }
   settings->active_g_codes[10] = (settings->retract_mode == RETRACT_MODE::OLD_Z) ? G_98 : G_99;
   // Three modes:  G_64, G_61, G_61_1 or CANON_CONTINUOUS/EXACT_PATH/EXACT_STOP
   settings->active_g_codes[11] =
