@@ -6199,7 +6199,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   int idx;
   EmcPose tool_offset;
   ZERO_EMC_POSE(tool_offset);
-
+  settings->g43_with_zero_offset = 0;
+  
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
@@ -6237,6 +6238,10 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.u);
     tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.v);
     tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.w);
+    settings->g43_with_zero_offset =
+      (settings->tool_offset.tran.x || settings->tool_offset.tran.y || settings->tool_offset.tran.z ||
+       settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
+       settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w);
   } else if (g_code == G_43_1) {
     tool_offset = settings->tool_offset;
     idx = -1;
