@@ -1524,6 +1524,13 @@ fi
 temp_LIBS=$LIBS
 LIBS=
 
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([fmt/format.h],[HAVE_LIBFMT=yes],[HAVE_LIBFMT=no])
+AC_LANG_POP([C++])
+if test "x$HAVE_LIBFMT" = "xno"; then
+    AC_MSG_ERROR([libfmt header not found. Install with 'sudo apt-get install libfmt-dev'])
+fi
+
 # check for readline.h and friends, optional for halcmd
 AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
 AC_CHECK_HEADERS(readline/history.h, [], [HAVE_READLINE=no])
