@@ -622,6 +622,7 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
   The period, in seconds, at which TASK will run.
   This parameter affects the polling interval when waiting for motion to complete, when executing a pause instruction, and when accepting a command from a user interface.
   There is usually no need to change this number.
+  Defaults to 0.100 if omitted.
 
 [[sub:ini:sec:hal]]
 === [HAL] section(((INI File,Sections,[HAL] Section)))
