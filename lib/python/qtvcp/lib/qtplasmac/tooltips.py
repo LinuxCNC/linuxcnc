@@ -2,7 +2,7 @@
 tooltips.py
 
 Copyright (C) 2021 - 2024 Phillip A Carter
-Copyright (C) 2021 - 2024 Gregory D Carl
+Copyright (C) 2021 - 2026 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ def tool_tips_changed(P, W):
 
 def clear_tool_tips(W):
     main_preview_widgets = [
-        'material_selector', 'velocity_show', 'view_p', 'view_z', 'view_clear',
+        'material_selector', 'velocity_show', 'view_p', 'view_z', 'view_t', 'view_clear',
         'pan_right', 'pan_left', 'pan_up', 'pan_down', 'zoom_in', 'zoom_out']
 
     main_machine_widgets = [
@@ -73,7 +73,7 @@ def clear_tool_tips(W):
         'cut_rec_n', 'cut_rec_ne', 'cut_rec_move_label']
 
     main_gcode_widgets = [
-        'file_open', 'file_reload']
+        'file_clear', 'file_open', 'file_reload']
 
     main_dro_widgets = [
         'dro_a', 'dro_b', 'dro_x', 'dro_y', 'dro_z', 'home_a', 'home_b', 'home_x', 'home_y',
@@ -92,40 +92,50 @@ def clear_tool_tips(W):
         'conv_polygon', 'conv_bolt', 'conv_slot', 'conv_star', 'conv_gusset', 'conv_sector',
         'conv_block', 'conv_new', 'conv_save', 'conv_settings', 'conv_send']
 
+    conv_preview_widgets = [
+        'conv_material', 'conv_view_z', 'conv_view_t','conv_pan_right', 'conv_pan_left',
+        'conv_pan_up', 'conv_pan_down', 'conv_zoom_in', 'conv_zoom_out']
+
     parameters_configuration_widgets = [
         'arc_fail_delay', 'arc_max_starts', 'arc_restart_delay', 'arc_voltage_scale',
         'arc_voltage_offset', 'height_per_volt', 'arc_ok_high', 'arc_ok_low',
         'thc_delay', 'thc_threshold', 'pid_p_gain', 'pid_i_gain', 'pid_d_gain',
         'cornerlock_threshold', 'voidlock_slope', 'float_switch_travel',
-        'probe_feed_rate', 'probe_start_height', 'ohmic_probe_offset',
+        'probe_feed_rate', 'slat_height', 'probe_start_height', 'ohmic_probe_offset',
         'ohmic_max_attempts', 'skip_ihs_distance', 'offset_feed_rate', 'safe_height',
         'scribe_arm_delay', 'scribe_on_delay', 'spotting_threshold', 'spotting_time',
         'setup_feed_rate', 'save_plasma', 'reload_plasma']
 
     parameters_material_widgets = [
-        'kerf_width', 'pierce_height', 'pierce_delay', 'cut_height', 'cut_feed_rate',
-        'cut_amps', 'cut_volts', 'puddle_jump_height', 'puddle_jump_delay',
+        'material_thickness','kerf_width', 'pierce_height', 'pierce_delay', 'cut_height',
+        'cut_feed_rate', 'cut_amps', 'cut_volts', 'puddle_jump_height', 'puddle_jump_delay',
         'pause_at_end', 'gas_pressure', 'cut_mode', 'save_material', 'reload_material',
         'new_material', 'delete_material']
 
-    parameters_gui_widgets = [
+    settings_gui_widgets = [
         'color_foregrnd', 'color_foregalt', 'color_led', 'color_backgrnd',
         'color_backgalt', 'color_frams', 'color_estop', 'color_disabled',
         'color_preview', 'chk_soft_keyboard', 'chk_keyboard_shortcuts',
         'chk_overlay', 'opt_stp', 'chk_run_from_line', 'chk_override_limits',
-        'chk_tool_tips', 'opt_blk', 'grid_size', 'cone_size', 'chk_exit_warning']
+        'chk_tool_tips', 'opt_blk', 'grid_size', 'cone_size', 'table_zoom_scale',
+        'default_material', 'chk_exit_warning']
 
-    parameters_utilities_widgets = [
+    settings_user_buttons = [
+        'ub_save', 'ub_reload']
+
+    settigns_shutdown_widgets = [
+        'sd_save', 'sd_reload', 'sd_text']
+
+    settings_utilities_widgets = [
         'actionbutton_halshow', 'actionbutton_halscope', 'actionbutton_halmeter',
-        'actionbutton_calibration', 'actionbutton_lcnc_status', 'backup']
+        'actionbutton_calibration', 'actionbutton_lcnc_status', 'set_offsets', 'backup']
 
     statistics_widgets = [
         'pierce_reset', 'cut_length_reset', 'cut_time_reset', 'torch_time_reset',
-        'run_time_reset', 'rapid_time_reset', 'probe_time_reset', 'all_reset',
-        'pierce_count', 'cut_length', 'cut_time', 'torch_time', 'run_time',
+        'run_time_reset', 'rapid_time_reset', 'probe_time_reset', 'paused_time_reset',
+        'all_reset', 'pierce_count', 'cut_length', 'cut_time', 'torch_time', 'run_time',
         'rapid_time', 'probe_time', 'pierce_count_t', 'cut_length_t', 'cut_time_t',
-        'torch_time_t', 'run_time_t', 'rapid_time_t', 'probe_time_t',
-        'pmx_arc_time_t']
+        'torch_time_t', 'run_time_t', 'rapid_time_t', 'probe_time_t','pmx_arc_time_t']
 
     W.statusbar.setToolTip('')
     for widget in main_preview_widgets:
@@ -135,7 +145,7 @@ def clear_tool_tips(W):
     for widget in main_button_widgets:
         W[widget].setToolTip('')
     for b in range(1, 21):
-        W[f'button_{b}'].setToolTip(_translate('ToolTips', ''))
+        W[f'button_{b}'].setToolTip('')
     for widget in main_arc_widgets:
         W[widget].setToolTip('')
     for widget in main_control_widgets:
@@ -158,13 +168,23 @@ def clear_tool_tips(W):
         W[widget].setToolTip('')
     for widget in conversational_widgets:
         W[widget].setToolTip('')
+    for widget in conv_preview_widgets:
+        W[widget].setToolTip('')
     for widget in parameters_configuration_widgets:
         W[widget].setToolTip('')
     for widget in parameters_material_widgets:
         W[widget].setToolTip('')
-    for widget in parameters_gui_widgets:
+    for widget in settings_gui_widgets:
         W[widget].setToolTip('')
-    for widget in parameters_utilities_widgets:
+    for widget in settings_user_buttons:
+        W[widget].setToolTip('')
+    for b in range(1, 21):
+        W[f'ub_name_{b}'].setToolTip('')
+    for b in range(1, 21):
+        W[f'ub_code_{b}'].setToolTip('')
+    for widget in settigns_shutdown_widgets:
+        W[widget].setToolTip('')
+    for widget in settings_utilities_widgets:
         W[widget].setToolTip('')
     for widget in statistics_widgets:
         W[widget].setToolTip('')
@@ -172,15 +192,16 @@ def clear_tool_tips(W):
 
 def set_tool_tips(P, W):
     # main widgets
-    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G- and M-Codes'))
+    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G and M Codes'))
 
     # main_preview_widgets
     text0 = _translate('ToolTips', 'Shows the currently loaded material')
     text1 = _translate('ToolTips', 'Click to change material')
-    W.material_selector.setToolTip(_translate('ToolTips', f'{text0}\n{text1}'))
+    W.material_selector.setToolTip(f'{text0}\n{text1}')
     W.velocity_show.setToolTip(_translate('ToolTips', 'Shows the current velocity in units per minute'))
     W.view_p.setToolTip(_translate('ToolTips', 'Changes the view to perspective view'))
-    W.view_z.setToolTip(_translate('ToolTips', 'Show the view from the top'))
+    W.view_z.setToolTip(_translate('ToolTips', 'Show the view from the top with zoom level set to program extents'))
+    W.view_t.setToolTip(_translate('ToolTips', 'Show the view from the top with zoom level set to machine travel extents'))
     W.view_clear.setToolTip(_translate('ToolTips', 'Clears motion segments from preview'))
     W.pan_right.setToolTip(_translate('ToolTips', 'Pans the view right'))
     W.pan_left.setToolTip(_translate('ToolTips', 'Pans the view left'))
@@ -191,7 +212,9 @@ def set_tool_tips(P, W):
 
     # main_machine_widgets
     W.estop.setToolTip(_translate('ToolTips', 'Shows the Estop status'))
-    W.power.setToolTip(_translate('ToolTips', 'Switches the GUI on or off\n\nA long press displays the GUI shutdown dialog'))
+    text0 = _translate('ToolTips', 'Switches the GUI on or off')
+    text1 = _translate('ToolTips', 'A long press displays the GUI shutdown dialog')
+    W.power.setToolTip(f'{text0}\n{text1}')
     W.run.setToolTip(_translate('ToolTips', 'Runs the currently loaded G-Code program'))
     W.pause_resume.setToolTip(_translate('ToolTips', 'Pauses or resume the currently running G-Code program'))
     W.abort.setToolTip(_translate('ToolTips', 'Stops the currently running process'))
@@ -206,9 +229,9 @@ def set_tool_tips(P, W):
     W.file_edit.setToolTip(_translate('ToolTips', 'Toggles the use of the G-Code file editor'))
     W.mdi_show.setToolTip(_translate('ToolTips', 'Toggles the use of Manual Data Input mode'))
     text0 = _translate('ToolTips', 'User button')
-    text1 = _translate('ToolTips', 'configured in the SETTINGS tab')
+    text1 = _translate('ToolTips', 'configured on the SETTINGS tab')
     for b in range(1, 21):
-        W[f'button_{b}'].setToolTip(_translate('ToolTips', f'{text0} #{b} {text1}'))
+        W[f'button_{b}'].setToolTip(f'{text0} #{b} {text1}')
 
     # main_arc_widgets
     W.arc_voltage.setToolTip(_translate('ToolTips', 'Shows the current arc voltage'))
@@ -267,7 +290,7 @@ def set_tool_tips(P, W):
     W.cut_rec_rev.setToolTip(_translate('ToolTips', 'Moves the torch reverse along current motion segment'))
     text0 = _translate('ToolTips', 'Changes the feed rate for paused motion')
     text1 = _translate('ToolTips', 'Slider position indicates percentage of feed rate for current material')
-    W.cut_rec_speed.setToolTip(_translate('ToolTips', f'{text0}\n{text1}'))
+    W.cut_rec_speed.setToolTip(f'{text0}\n{text1}')
     W.cut_rec_feed.setToolTip(_translate('ToolTips', 'Shows the feed rate for paused motion'))
     W.cut_rec_move_label.setToolTip(_translate('ToolTips', 'Shows the distance the torch will move'))
     text0 = _translate('ToolTips', 'Moves the torch in the')
@@ -282,6 +305,7 @@ def set_tool_tips(P, W):
     W.cut_rec_w.setToolTip(f'{text0} X- {text1}')
 
     # main gcode widgets
+    W.file_clear.setToolTip(_translate('ToolTips', 'Clears the current G-Code file'))
     W.file_open.setToolTip(_translate('ToolTips', 'Opens the file selector'))
     W.file_reload.setToolTip(_translate('ToolTips', 'Reloads the current G-Code file'))
 
@@ -315,7 +339,9 @@ def set_tool_tips(P, W):
     W.touch_xy.setToolTip(f'{text0} X & Y {text1}')
     W.wcs_button.setToolTip(_translate('ToolTips', 'Selects the active work coordinate system'))
     W.camera.setToolTip(_translate('ToolTips', 'Use camera view to set origin/rotation'))
-    W.laser.setToolTip(_translate('ToolTips', 'Use laser to set origin/rotation\nLong press to begin a dry run'))
+    text0 = _translate('ToolTips', 'Use laser to set origin/rotation')
+    text1 = _translate('ToolTips', 'Long press to begin a dry run using the laser')
+    W.laser.setToolTip(f'{text0}\n{text1}')
 
     # main file widgets
     W.file_select.setToolTip(_translate('ToolTips', 'Opens the selected G-Code file'))
@@ -328,7 +354,8 @@ def set_tool_tips(P, W):
     W.cam_dia_minus.setToolTip(_translate('ToolTips', 'Decreases the diameter of the overlay circle'))
     W.cam_zoom_plus.setToolTip(_translate('ToolTips', 'Zooms in'))
     W.cam_zoom_minus.setToolTip(_translate('ToolTips', 'Zooms out'))
-    W.cam_goto.setToolTip(_translate('ToolTips', 'Moves the torch to the origin (X0 Y0)'))
+    text0 = _translate('ToolTips', 'Moves the torch to the origin')
+    W.cam_goto.setToolTip(f'{text0} (X0 Y0)')
     W.cam_mark.setToolTip(_translate('ToolTips', 'Starts the origin marking process'))
 
     # conversational widgets
@@ -348,6 +375,19 @@ def set_tool_tips(P, W):
     W.conv_save.setToolTip(_translate('ToolTips', 'Saves the current file'))
     W.conv_settings.setToolTip(_translate('ToolTips', 'Opens the conversational settings panel'))
     W.conv_send.setToolTip(_translate('ToolTips', 'Loads the current file for cutting'))
+
+    # conv_preview_widgets
+    text0 = _translate('ToolTips', 'Shows the currently loaded material')
+    text1 = _translate('ToolTips', 'Click to change material')
+    W.conv_material.setToolTip(f'{text0}\n{text1}')
+    W.conv_view_z.setToolTip(_translate('ToolTips', 'Show the view from the top with zoom level set to program extents'))
+    W.conv_view_t.setToolTip(_translate('ToolTips', 'Show the view from the top with zoom level set to machine travel extents'))
+    W.conv_pan_right.setToolTip(_translate('ToolTips', 'Pans the view right'))
+    W.conv_pan_left.setToolTip(_translate('ToolTips', 'Pans the view left'))
+    W.conv_pan_up.setToolTip(_translate('ToolTips', 'Pans the view up'))
+    W.conv_pan_down.setToolTip(_translate('ToolTips', 'Pans the view down'))
+    W.conv_zoom_in.setToolTip(_translate('ToolTips', 'Zooms in'))
+    W.conv_zoom_out.setToolTip(_translate('ToolTips', 'Zooms out'))
 
     # parameters configuration widgets
     W.arc_fail_delay.setToolTip(_translate('ToolTips', 'Time for torch on with no Arc OK before failing (seconds)'))
@@ -369,26 +409,40 @@ def set_tool_tips(P, W):
     W.pid_d_gain.setToolTip(_translate('ToolTips', 'Derivative gain for the THC PID loop'))
     W.float_switch_travel.setToolTip(_translate('ToolTips', 'Distance of float travel before switch activation'))
     W.probe_feed_rate.setToolTip(_translate('ToolTips', 'Feed rate for probe move after move to Probe Height'))
-    W.probe_start_height.setToolTip(_translate('ToolTips', 'Height above Z minimum limit that Probe Speed begins'))
+    text0 = _translate('ToolTips', 'Height above Z minimum limit that Probe Speed begins')
+    text1 = _translate('ToolTips', 'If set to zero, Probe Speed will begin from the current Z axis position')
+    W.probe_start_height.setToolTip(f'{text0}\n{text1}')
+    text0 = _translate('ToolTips', 'Height from Z minimum to the top of the slats')
+    text1 = _translate('ToolTips', 'If both Slat Height and Material Thickness are greater than zero,')
+    text2 = _translate('ToolTips', 'Probe Speed will begin at Slat Height + Material Thickness')
+    W.slat_height.setToolTip(f'{text0}\n{text1}\n{text2}')
     W.ohmic_probe_offset.setToolTip(_translate('ToolTips', 'Distance above material Z should move after an ohmic probe'))
     W.ohmic_max_attempts.setToolTip(_translate('ToolTips', 'Number of retry attempts before defaulting to float switch'))
     W.skip_ihs_distance.setToolTip(_translate('ToolTips', 'Initial Height Sense distance, refer to user guide for detailed explanation'))
-    W.offset_feed_rate.setToolTip(_translate('ToolTips', f'Feed rate for offset probe moves in the X and Y axes, maximum = {int(P.offsetFeedRate)}'))
+    text0 = _translate('ToolTips', 'Feed rate for offset probe moves in the X and Y axes')
+    text1 = _translate('ToolTips', 'Maximum')
+    W.offset_feed_rate.setToolTip(f'{text0}\n{text1} = {int(P.offsetFeedRate)}')
     W.safe_height.setToolTip(_translate('ToolTips', 'Height above material the torch will retract to before rapid moves'))
     W.scribe_arm_delay.setToolTip(_translate('ToolTips', 'Delay from scribe command to activation of scribe (seconds)'))
     W.scribe_on_delay.setToolTip(_translate('ToolTips', 'Delay from scribe activation to XY motion (seconds)'))
     text0 = _translate('ToolTips', 'Arc voltage threshold to start the spotting timer')
     text1 = _translate('ToolTips', 'Setting to 0V will start the Time On counter upon torch activation')
-    W.spotting_threshold.setToolTip(_translate('ToolTips', f'{text0}\n{text1}'))
+    W.spotting_threshold.setToolTip(f'{text0}\n{text1}')
     W.spotting_time.setToolTip(_translate('ToolTips', 'Length of time torch is on after spotting threshold is met (milliseconds)'))
-    W.setup_feed_rate.setToolTip(_translate('ToolTips', f'Z axis velocity for setup moves (Probe Height, Pierce Height, Cut Height), maximum = {int(P.thcFeedRate)}'))
+    text0 = _translate('ToolTips', 'Z axis velocity for setup moves (Probe Height, Pierce Height, Cut Height)')
+    text1 = _translate('ToolTips', 'Maximum')
+    W.setup_feed_rate.setToolTip(f'{text0}\n{text1} = {int(P.thcFeedRate)}')
     W.save_plasma.setToolTip(_translate('ToolTips', 'Saves the configuration changes'))
     W.reload_plasma.setToolTip(_translate('ToolTips', 'Discards the configuration changes and reloads the configuration'))
 
     # parameters material widgets
     text0 = _translate('ToolTips', 'Shows the currently loaded material')
     text1 = _translate('ToolTips', 'Click to change material')
-    W.materials_box.setToolTip(_translate('ToolTips', f'{text0}\n{text1}'))
+    W.materials_box.setToolTip(f'{text0}\n{text1}')
+    text0 = _translate('ToolTips', 'Thickness of the material')
+    text1 = _translate('ToolTips', 'If both Material Thickness and Slat Height are greater than zero,')
+    text2 = _translate('ToolTips', 'Probe Speed will begin at Slat Height + Material Thickness')
+    W.material_thickness.setToolTip(f'{text0}\n{text1}\n{text2}')
     W.kerf_width.setToolTip(_translate('ToolTips', 'Width of the material removed by the plasma arc'))
     W.pierce_height.setToolTip(_translate('ToolTips', 'Distance above the material the arc start will occur'))
     W.pierce_delay.setToolTip(_translate('ToolTips', 'Delay at Pierce Height after Arc OK before cut movements (seconds)'))
@@ -396,25 +450,25 @@ def set_tool_tips(P, W):
     W.cut_feed_rate.setToolTip(_translate('ToolTips', 'Speed the torch will travel during cut movements'))
     text0 = _translate('ToolTips', 'Cutting current measured in Amps')
     text1 = _translate('ToolTips', 'Indicator only, unless using Powermax communications')
-    W.cut_amps.setToolTip(_translate('ToolTips', f'{text0}\n{text1}'))
+    W.cut_amps.setToolTip(f'{text0}\n{text1}')
     W.cut_volts.setToolTip(_translate('ToolTips', 'Voltage target used for torch height adjustment if not using auto volts'))
     W.puddle_jump_height.setToolTip(_translate('ToolTips', 'Height transition between Pierce Height and Cut Height (percentage of Pierce Height)'))
     W.puddle_jump_delay.setToolTip(_translate('ToolTips', 'Length of time at Puddle Height before moving to Cut Height (seconds)'))
     W.pause_at_end.setToolTip(_translate('ToolTips', 'Delay before turning torch off at end of cut (seconds)'))
     text0 = _translate('ToolTips', 'Sets torch gas pressure')
-    text1 = _translate('ToolTips', '0 = Use Powermax automatic pressure mode')
-    W.gas_pressure.setToolTip(_translate('ToolTips', f'{text0}\n{text1}'))
+    text1 = _translate('ToolTips', 'Use Powermax automatic pressure mode')
+    W.gas_pressure.setToolTip(f'{text0}\n0 = {text1}')
     text0 = _translate('ToolTips', 'Powermax cut modes')
-    text1 = _translate('ToolTips', '1 = Normal')
-    text2 = _translate('ToolTips', '2 = CPA (Constant Pilot Arc)')
-    text3 = _translate('ToolTips', '3 = Gouge/Mark')
-    W.cut_mode.setToolTip(_translate('ToolTips', f'{text0}:\n{text1}\n{text2}\n{text3}'))
+    text1 = _translate('ToolTips', 'Normal')
+    text2 = _translate('ToolTips', 'Constant Pilot Arc')
+    text3 = _translate('ToolTips', 'Gouge/Mark')
+    W.cut_mode.setToolTip(f'{text0}:\n1 = {text1}\n2 = CPA ({text2})\n3 = {text3}')
     W.save_material.setToolTip(_translate('ToolTips', 'Saves current material set'))
     W.reload_material.setToolTip(_translate('ToolTips', 'Discards any changes and reloads the material set'))
     W.new_material.setToolTip(_translate('ToolTips', 'Creates a new material'))
     W.delete_material.setToolTip(_translate('ToolTips', 'Deletes a material'))
 
-    # parameters gui widgets
+    # settings gui widgets
     W.color_foregrnd.setToolTip(_translate('ToolTips', 'Shows and changes the color of the foreground'))
     W.color_foregalt.setToolTip(_translate('ToolTips', 'Shows and changes the color of highlights'))
     W.color_led.setToolTip(_translate('ToolTips', 'Shows and changes the color of the LEDs'))
@@ -433,21 +487,44 @@ def set_tool_tips(P, W):
     W.chk_tool_tips.setToolTip(_translate('ToolTips', 'Toggles the display of tooltips'))
     W.chk_exit_warning.setToolTip(_translate('ToolTips', 'Toggles always display an exit warning'))
     W.opt_blk.setToolTip(_translate('ToolTips', 'Toggles the execution of G-Code lines starting with "/"'))
-    W.grid_size.setToolTip(_translate('ToolTips', 'Changes the size of the grid in the preview screen'))
-    W.cone_size.setToolTip(_translate('ToolTips', 'Changes the size of the cone in the preview screen'))
+    W.grid_size.setToolTip(_translate('ToolTips', 'Changes the size of the grid on the MAIN tab preview screen'))
+    W.cone_size.setToolTip(_translate('ToolTips', 'Changes the size of the cone on the MAIN tab preview screen'))
+    W.table_zoom_scale.setToolTip(_translate('ToolTips', 'Changes the default table zoom level'))
+    W.default_material.setToolTip(_translate('ToolTips', 'Sets the default material number'))
 
-    # parameters utilities widgets
+    # settings user buttons
+    W.ub_save.setToolTip(_translate('ToolTips', 'Saves the user button set'))
+    W.ub_reload.setToolTip(_translate('ToolTips', 'Reloads the user button set'))
+    text0 = _translate('ToolTips', 'User button')
+    text1 = _translate('ToolTips', 'name field')
+    text2 = _translate('ToolTips', 'For multiple lines add a')
+    text3 = _translate('ToolTips', 'between words')
+    for b in range (1,21):
+        W[f'ub_name_{b}'].setToolTip(f'{text0} #{b} {text1}\n{text2} "\\" {text3}')
+    text0 = _translate('ToolTips', 'User button')
+    text1 = _translate('ToolTips', 'code field')
+    for b in range (1,21):
+        W[f'ub_code_{b}'].setToolTip(f'{text0} #{b} {text1}')
+
+    # settings shutdown widgets
+    W.sd_save.setToolTip(_translate('ToolTips', 'Saves the shutdown message'))
+    W.sd_reload.setToolTip(_translate('ToolTips', 'Reloads the shutdown message'))
+    W.sd_text.setToolTip(_translate('ToolTips', 'The message that will be displayed during shutdown'))
+
+    # settings utilities widgets
     W.actionbutton_halshow.setToolTip(_translate('ToolTips', 'Loads the HalShow application'))
     W.actionbutton_halscope.setToolTip(_translate('ToolTips', 'Loads the HalScope application'))
     W.actionbutton_halmeter.setToolTip(_translate('ToolTips', 'Loads the HalMeter application'))
     W.actionbutton_calibration.setToolTip(_translate('ToolTips', 'Loads the LinuxCNC Calibration application'))
     W.actionbutton_lcnc_status.setToolTip(_translate('ToolTips', 'Loads the LinuxCNC Status application'))
+    W.set_offsets.setToolTip(_translate('ToolTips', 'Launches tool to set offsets for laser, camera, scribe, or offset probe'))
     W.backup.setToolTip(_translate('ToolTips', 'Creates a complete backup of the current machine configuration'))
 
-    # statisticswidgets
+    # statistics widgets
     W.pierce_reset.setToolTip(_translate('ToolTips', 'Resets the pierce counter'))
     W.cut_length_reset.setToolTip(_translate('ToolTips', 'Resets the cut length counter'))
     W.cut_time_reset.setToolTip(_translate('ToolTips', 'Resets the cut time counter'))
+    W.paused_time_reset.setToolTip(_translate('ToolTips', 'Resets the paused time counter'))
     W.torch_time_reset.setToolTip(_translate('ToolTips', 'Resets the torch on time counter'))
     W.run_time_reset.setToolTip(_translate('ToolTips', 'Resets the program run time counter'))
     W.rapid_time_reset.setToolTip(_translate('ToolTips', 'Resets the rapid time counter'))
@@ -467,4 +544,5 @@ def set_tool_tips(P, W):
     W.run_time_t.setToolTip(_translate('ToolTips', 'Shows the total program run time since the last reset'))
     W.rapid_time_t.setToolTip(_translate('ToolTips', 'Shows the total rapid time since the last reset'))
     W.probe_time_t.setToolTip(_translate('ToolTips', 'Shows the total probe time since the last reset'))
-    W.pmx_arc_time_t.setToolTip(_translate('ToolTips', 'Shows the total arc on time for the Powermax (hh:mm:ss)'))
+    text0 = _translate('ToolTips', 'Shows the total arc on time for the Powermax')
+    W.pmx_arc_time_t.setToolTip(f'{text0} (hh:mm:ss)')
