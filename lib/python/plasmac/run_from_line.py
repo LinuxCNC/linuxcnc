@@ -44,7 +44,7 @@ def run_from_line_get(file, startLine, lastLine=0):
                     elif 'G20' in line:
                         newData.append('G20')
                 # find the type of first move
-                if not codes['move']['isSet'] and 'G53G0' not in line.replace(' ', '') and 'G20' not in line and 'G21' not in line:
+                if not codes['move']['isSet'] and 'G53G00' not in line.replace(' ', '') and 'G20' not in line and 'G21' not in line:
                     if 'G00' in line:
                         codes['move']['isSet'] = True
                         codes['move']['isG00'] = True
@@ -101,8 +101,8 @@ def run_from_line_get(file, startLine, lastLine=0):
                     codes['g9arc'] = 'G90.1'
                 elif 'G91.1' in line:
                     codes['g9arc'] = 'G91.1'
-        if 'G00' in line and 'G53g00' not in line:
-            codes['last']['code'] = 'G0'
+        if 'G00' in line and 'G53G00' not in line:
+            codes['last']['code'] = 'G00'
         if 'G01' in line:
             tmp = line.split('G01')[1]
             if tmp[0] not in '0123456789':
@@ -265,9 +265,9 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
             continue
         # if G00 is the first motion command after the selected line
         if data['codes']['move']['isG00']:
-            # if G0 is the current motion command
+            # if G00 is the current motion command
             if 'G00' in line:
-                # no need to process a G53G0 command]
+                # no need to process a G53G00 command]
                 if 'G53G00' in line or 'G20' in line or 'G21' in line:
                     data['newData'].append(line.strip())
                     continue
