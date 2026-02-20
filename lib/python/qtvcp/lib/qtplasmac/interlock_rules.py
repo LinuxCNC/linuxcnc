@@ -650,8 +650,6 @@ INTERLOCK_RULES.update({
 # PARAMETERS tab common
 INTERLOCK_RULES.update({
     f'{item}': {'all': {
-                    'estop_cleared': True,
-                    'machine_on': True,
                     'interp_idle': True,
                     'probe_test': False,
                     'torch_pulse': False,
