@@ -69,6 +69,11 @@ typedef struct {
 
     double s_prev;                      /* Progress on prev_tc at blend start */
     double s_tc;                        /* Progress on tc at blend end */
+
+    double kappa_start;                 /* Curvature of prev_tc at blend start (xyz) */
+    PmCartesian n_start_xyz;            /* Unit curvature normal at start (toward center) */
+    double kappa_end;                   /* Curvature of tc at blend end (xyz) */
+    PmCartesian n_end_xyz;              /* Unit curvature normal at end (toward center) */
 } BlendBoundary9;
 
 /**

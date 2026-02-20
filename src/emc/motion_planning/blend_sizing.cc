@@ -482,6 +482,56 @@ static int tcGetTangentAtProgress(TC_STRUCT const * const tc,
 }
 
 /* ----------------------------------------------------------------
+ * Static helpers: curvature at blend boundary (for C2 matching)
+ * ---------------------------------------------------------------- */
+
+/**
+ * Compute the XYZ curvature and unit curvature normal of a segment
+ * at a given progress.  Used to set up C2-continuous Bezier blends
+ * that match the curvature of adjacent arcs at the junction.
+ *
+ * For TC_LINEAR: κ = 0, n = {0,0,0}
+ * For TC_CIRCULAR: κ = 1/R, n = (center − point) / |center − point|
+ *
+ * @param tc       Segment to query
+ * @param progress Arc-length progress on the segment
+ * @param kappa    [out] Curvature magnitude (≥ 0)
+ * @param normal   [out] Unit curvature normal in XYZ (toward center)
+ */
+static void tcGetCurvatureAtProgress(TC_STRUCT const * const tc,
+                                      double progress,
+                                      double * const kappa,
+                                      PmCartesian * const normal)
+{
+    *kappa = 0.0;
+    normal->x = normal->y = normal->z = 0.0;
+
+    if (tc->motion_type == TC_CIRCULAR) {
+        double radius = tc->coords.circle.xyz.radius;
+        if (radius > TP_POS_EPSILON) {
+            *kappa = 1.0 / radius;
+
+            /* Normal toward center: (center − point) / |center − point| */
+            double angle = 0.0;
+            pmCircleAngleFromProgress(&tc->coords.circle.xyz,
+                                       &tc->coords.circle.fit,
+                                       progress, &angle);
+            PmCartesian point;
+            pmCirclePoint(&tc->coords.circle.xyz, angle, &point);
+
+            PmCartesian diff;
+            pmCartCartSub(&tc->coords.circle.xyz.center, &point, &diff);
+            double mag;
+            pmCartMag(&diff, &mag);
+            if (mag > TP_POS_EPSILON) {
+                pmCartScalMult(&diff, 1.0 / mag, normal);
+            }
+        }
+    }
+    /* TC_LINEAR, TC_BEZIER, TC_SPHERICAL: κ = 0 (safe default) */
+}
+
+/* ----------------------------------------------------------------
  * Public API
  * ---------------------------------------------------------------- */
 
@@ -634,6 +684,13 @@ int findBlendPointsAndTangents9(double Rb,
         tcGetIntersectionPoint(prev_tc, tc, &boundary->intersection_point);
     }
 
+    /* Curvature at blend boundaries (for C2 matching in Bezier blends).
+     * For arcs, κ = 1/R with normal toward center.  For lines, κ = 0. */
+    tcGetCurvatureAtProgress(prev_tc, boundary->s_prev,
+                              &boundary->kappa_start, &boundary->n_start_xyz);
+    tcGetCurvatureAtProgress(tc, boundary->s_tc,
+                              &boundary->kappa_end, &boundary->n_end_xyz);
+
     return TP_ERR_OK;
 }
 
@@ -740,11 +797,17 @@ static double findOptimalAlpha9(double Rb,
     Bezier9 trial1, trial2;
     double v1 = 0.0, v2 = 0.0;
 
+    /* Curvature boundary conditions for C2 matching */
+    double ks = boundary->kappa_start;
+    PmCartesian const *ns = (ks > BEZIER9_CURVATURE_EPSILON) ? &boundary->n_start_xyz : NULL;
+    double ke = boundary->kappa_end;
+    PmCartesian const *ne = (ke > BEZIER9_CURVATURE_EPSILON) ? &boundary->n_end_xyz : NULL;
+
     if (bezier9Init(&trial1, &boundary->P_start, &boundary->P_end,
                     &boundary->u_start_xyz, &boundary->u_end_xyz,
                     &boundary->u_start_abc, &boundary->u_end_abc,
                     &boundary->u_start_uvw, &boundary->u_end_uvw,
-                    a1) == TP_ERR_OK) {
+                    ks, ns, ke, ne, a1) == TP_ERR_OK) {
         v1 = bezier9AccLimit(&trial1, v_goal, a_max, j_max);
     }
 
@@ -752,7 +815,7 @@ static double findOptimalAlpha9(double Rb,
                     &boundary->u_start_xyz, &boundary->u_end_xyz,
                     &boundary->u_start_abc, &boundary->u_end_abc,
                     &boundary->u_start_uvw, &boundary->u_end_uvw,
-                    a2) == TP_ERR_OK) {
+                    ks, ns, ke, ne, a2) == TP_ERR_OK) {
         v2 = bezier9AccLimit(&trial2, v_goal, a_max, j_max);
     }
 
@@ -768,7 +831,7 @@ static double findOptimalAlpha9(double Rb,
                             &boundary->u_start_xyz, &boundary->u_end_xyz,
                             &boundary->u_start_abc, &boundary->u_end_abc,
                             &boundary->u_start_uvw, &boundary->u_end_uvw,
-                            a2) == TP_ERR_OK) {
+                            ks, ns, ke, ne, a2) == TP_ERR_OK) {
                 v2 = bezier9AccLimit(&trial2, v_goal, a_max, j_max);
             } else {
                 v2 = 0.0;
@@ -784,7 +847,7 @@ static double findOptimalAlpha9(double Rb,
                             &boundary->u_start_xyz, &boundary->u_end_xyz,
                             &boundary->u_start_abc, &boundary->u_end_abc,
                             &boundary->u_start_uvw, &boundary->u_end_uvw,
-                            a1) == TP_ERR_OK) {
+                            ks, ns, ke, ne, a1) == TP_ERR_OK) {
                 v1 = bezier9AccLimit(&trial1, v_goal, a_max, j_max);
             } else {
                 v1 = 0.0;
@@ -894,8 +957,13 @@ int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
             continue;
         }
 
-        /* Check deviation against tolerance */
-        double deviation = bezier9Deviation(&trial, &boundary.intersection_point);
+        /* Check deviation against tolerance.
+         * bezier9PathDeviation measures true distance to the two-segment
+         * programmed path (P_start → corner → P_end), which is correct
+         * for both symmetric and asymmetric blends. */
+        double deviation = bezier9PathDeviation(&trial,
+            &boundary.P_start.tran, &boundary.intersection_point,
+            &boundary.P_end.tran, 9);
 
         tp_debug_print("  iter=%d Rb=%g alpha=%g dev=%g tol=%g v_limit=%g v_goal=%g len=%g\n",
                        iter, Rb, alpha, deviation, tolerance, v_limit, params.v_goal,
@@ -954,7 +1022,9 @@ int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
                                                j_max_blend, params.v_goal,
                                                &trial, &alpha);
             if (v_limit > 0.0) {
-                double deviation = bezier9Deviation(&trial, &boundary.intersection_point);
+                double deviation = bezier9PathDeviation(&trial,
+                    &boundary.P_start.tran, &boundary.intersection_point,
+                    &boundary.P_end.tran, 9);
                 if (deviation <= tolerance) {
                     result->Rb = Rb;
                     result->bezier = trial;
@@ -1027,9 +1097,15 @@ int createBlendSegment9(TC_STRUCT const * const prev_tc,
     tcSetupMotion(blend_tc, v_req, v_plan, a_max, jerk);
 
     /* Hard cap: curvature-rate jerk limit (like kink_vel, ignores feed override).
-     * Centripetal jerk = v³ · dκ/ds must stay within the jerk budget. */
+     * Centripetal jerk = v³ · dκ/ds must stay within the jerk budget.
+     * Also cap maxvel so the backward pass limits entry velocity from
+     * adjacent segments — prevents high-override arcs from entering
+     * the blend faster than the curvature allows. */
     double v_jerk_limit = bezier9AccLimit(&solution->bezier, v_req, a_max, jerk);
     blend_tc->kink_vel = v_jerk_limit;
+    if (v_jerk_limit < blend_tc->maxvel) {
+        blend_tc->maxvel = v_jerk_limit;
+    }
 
     /* Store bezier curve in coords union */
     blend_tc->coords.bezier = solution->bezier;
