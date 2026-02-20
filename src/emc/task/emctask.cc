@@ -14,6 +14,7 @@
 ********************************************************************/
 
 #include <stdlib.h>
+#include <math.h>		// fabs()
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include <sys/stat.h>		// struct stat
 #include <unistd.h>		// stat()
@@ -551,6 +552,17 @@ int emcTaskPlanOpen(const char *file)
 	emcStatus->task.motionLine = 0;
 	emcStatus->task.currentLine = 0;
 	emcStatus->task.readLine = 0;
+    }
+
+    // Reset canon length units to machine default before re-opening.
+    // Without this, G20/G21 from the previous run persists in
+    // canon.lengthUnits, causing FROM_PROG_LEN() to convert differently
+    // on re-run for G-code commands that appear before G20/G21.
+    double units = GET_EXTERNAL_LENGTH_UNITS();
+    if (fabs(units - 1.0 / 25.4) < 1.0e-3) {
+	USE_LENGTH_UNITS(CANON_UNITS_INCHES);
+    } else if (fabs(units - 1.0) < 1.0e-3) {
+	USE_LENGTH_UNITS(CANON_UNITS_MM);
     }
 
     int retval = interp.open(file);
