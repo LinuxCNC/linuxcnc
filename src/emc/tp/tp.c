@@ -4557,11 +4557,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 
         if (stuck_cycles > 10) {  // Stuck for 10ms
             // Force to target
-            printf("STUCK_FORCE seg=%d progress=%.6f target=%.6f dx=%.6f "
-                   "vel=%.6f elapsed=%.6f dur=%.6f pos_base=%.6f\n",
-                   tc->id, tc->progress, tc->target, dx,
-                   tc->currentvel, tc->elapsed_time,
-                   tc->shared_9d.profile.duration, tc->position_base);
             dx = 0.0;
             tc->progress = tc->target;
             stuck_cycles = 0;
@@ -5024,7 +5019,7 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
     //Run with full cycle time
     tc_debug_print("Normal cycle\n");
     tc->cycle_time = tp->cycleTime;
-    
+
     int mode = 0;
     tpUpdateCycle(tp, tc, nexttc, &mode);
 
@@ -5133,23 +5128,34 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             profile_wait_count = 0;
         }
 
-        /* Only delay on the FIRST segment of a program (id == 0).
-         * Without the id check, this also triggers on the LAST segment
-         * (which also has progress=0, queue_len=1, nexttc=NULL) causing
-         * a 100-cycle delay before the final move executes. */
-        if (tc->id == 0 && tc->progress < TP_POS_EPSILON && queue_len < 2 && nexttc == NULL) {
-            static int startup_wait_count = 0;
-            startup_wait_count++;
+        /* Queue depth gate: wait for at least 2 segments before activating.
+         * When a segment is alone in the queue (queue_len < 2), its profile
+         * may have been computed with v_exit=0 (no successor/blend yet).
+         * The gate holds RT until the interpreter adds the next segment,
+         * giving the optimizer a chance to recompute with the correct
+         * exit velocity.  The segment is NOT active during the gate,
+         * so the optimizer's active-segment skip doesn't prevent correction.
+         *
+         * Skip the gate for EXACT segments (last segment of program) —
+         * their v_exit=0 is always correct, no correction needed. */
+        if (tc->progress < TP_POS_EPSILON && queue_len < 2 && nexttc == NULL
+                && tc->term_cond != TC_TERM_COND_EXACT) {
+            static int gate_seg_id = -1;
+            static int gate_wait_count = 0;
+            /* Reset counter for each new segment */
+            if (tc->id != gate_seg_id) {
+                gate_seg_id = tc->id;
+                gate_wait_count = 0;
+            }
+            gate_wait_count++;
 
-            /* Wait up to 100 cycles (100ms) for more segments */
-            if (startup_wait_count < 100) {
+            /* Wait up to 20 cycles (20ms at 1kHz) for a successor */
+            if (gate_wait_count < 20) {
                 return TP_ERR_WAITING;
             }
-            startup_wait_count = 0;  // Reset for next program
+            gate_wait_count = 0;
         }
     }
-
-    /* Removed verbose segment debug - now proven to work */
 
     tc_debug_print("-------------------\n");
 
