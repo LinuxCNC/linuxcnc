@@ -2020,8 +2020,8 @@ static PyObject *pyvertex9(PyObject * /*s*/, PyObject *o) {
             &pt1[6], &pt1[7], &pt1[8]))
         return NULL;
 
-    vertex9(pt, pt1, geometry);
-    return Py_BuildValue("(ddd)", &pt[0], &pt[1], &pt[2]);
+    vertex9(pt1, pt, geometry);
+    return Py_BuildValue("(ddd)", pt[0], pt[1], pt[2]);
 }
 
 static PyObject *pygui_respect_offsets (PyObject * /*s*/, PyObject *o) {
