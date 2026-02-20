@@ -26,10 +26,12 @@ extern "C" {
  * xyz (translation), abc (rotation), and uvw (auxiliary) coordinate spaces.
  *
  * G2 continuity is achieved by placing P0,P1,P2 collinear along the
- * incoming tangent and P3,P4,P5 collinear along the outgoing tangent.
- * This gives B''(0) = B''(1) = 0, so curvature is zero at both endpoints
- * — matching the zero curvature of adjacent line segments and eliminating
- * the centripetal acceleration discontinuity that cubic blends suffer from.
+ * incoming tangent and P3,P4,P5 collinear along the outgoing tangent,
+ * then offsetting P2 and P3 in the curvature normal direction to match
+ * the curvature of adjacent segments.  For line segments (κ=0) the
+ * offset is zero and P0,P1,P2 remain collinear (B''(0)=0).  For arcs
+ * (κ=1/R) the offset δ = 5α²κ/4 gives κ_bezier(endpoint) = κ_arc,
+ * eliminating the centripetal acceleration discontinuity at junctions.
  *
  * Arc-length parameterization is precomputed during initialization to enable
  * constant-velocity traversal. Curvature analysis is performed on the xyz
@@ -78,6 +80,10 @@ typedef struct {
  * @param u_end_abc Unit tangent vector at end (abc)
  * @param u_start_uvw Unit tangent vector at start (uvw)
  * @param u_end_uvw Unit tangent vector at end (uvw)
+ * @param kappa_start Curvature of adjacent segment at start (0 for lines)
+ * @param n_start Unit curvature normal at start (toward center), NULL if kappa=0
+ * @param kappa_end Curvature of adjacent segment at end (0 for lines)
+ * @param n_end Unit curvature normal at end (toward center), NULL if kappa=0
  * @param alpha Shape parameter controlling control point placement (> 0)
  * @return TP_ERR_OK on success, error code otherwise
  */
@@ -90,6 +96,10 @@ int bezier9Init(Bezier9 * const b,
                 PmCartesian const * const u_end_abc,
                 PmCartesian const * const u_start_uvw,
                 PmCartesian const * const u_end_uvw,
+                double kappa_start,
+                PmCartesian const * const n_start,
+                double kappa_end,
+                PmCartesian const * const n_end,
                 double alpha);
 
 /**
@@ -191,6 +201,43 @@ double bezier9AccLimit(Bezier9 const * const b,
  */
 double bezier9Deviation(Bezier9 const * const b,
                         PmCartesian const * const intersection_point);
+
+/**
+ * bezier9MaxDeviation - Compute maximum deviation over N sample points
+ *
+ * Samples the xyz Bezier at N equally-spaced t values in (0,1) and returns
+ * the maximum distance to the intersection point.  Used for diagnostic
+ * verification of the t=0.5 single-point estimate.
+ *
+ * @param b Input Bezier9 curve
+ * @param intersection_point Original corner intersection point (xyz only)
+ * @param n_samples Number of sample points (e.g. 19 for t = 0.05, 0.10, ... 0.95)
+ * @return Maximum deviation distance (always >= 0)
+ */
+double bezier9MaxDeviation(Bezier9 const * const b,
+                           PmCartesian const * const intersection_point,
+                           int n_samples);
+
+/**
+ * bezier9PathDeviation - Max deviation from two-segment programmed path
+ *
+ * Measures the maximum distance from the Bezier curve to the nearest point
+ * on the two-segment polyline (seg1_start → corner → seg2_end). Unlike
+ * bezier9Deviation (which measures distance to the corner only), this gives
+ * the correct path deviation for both symmetric and asymmetric blends.
+ *
+ * @param b Input Bezier9 curve
+ * @param seg1_start Start of first segment (xyz, = blend P_start)
+ * @param corner Junction point between segments (xyz, = intersection_point)
+ * @param seg2_end End of second segment (xyz, = blend P_end)
+ * @param n_samples Number of sample points (9 is sufficient)
+ * @return Maximum path deviation (always >= 0)
+ */
+double bezier9PathDeviation(Bezier9 const * const b,
+                            PmCartesian const * const seg1_start,
+                            PmCartesian const * const corner,
+                            PmCartesian const * const seg2_end,
+                            int n_samples);
 
 #ifdef __cplusplus
 }
