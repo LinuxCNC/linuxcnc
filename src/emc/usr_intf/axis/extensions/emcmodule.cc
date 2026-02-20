@@ -419,7 +419,6 @@ static PyMethodDef Stat_methods[] = {
 static PyMemberDef Stat_members[] = {
 // stat
     {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY, NULL},
-    {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY, NULL},
     {(char*)"state", T_INT, O(status), READONLY, NULL},
 
 // task
@@ -936,7 +935,7 @@ static int Command_init(pyCommandChannel *self, PyObject * /*a*/, PyObject * /*k
     }
     RCS_STAT_CHANNEL *s =
         new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", file);
-    if(!c) {
+    if(!s) {
 	delete s;
         PyErr_Format( error, "new RCS_STAT_CHANNEL failed");
         return -1;
@@ -1366,7 +1365,7 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
             m.remote_buffersize = bytes_read;
             /* send chunk */
             if(emcSendCommand(s, m) < 0) {
-                 PyErr_Format(PyExc_OSError, "emcSendCommand() error: %s");
+                 PyErr_Format(PyExc_OSError, "emcSendCommand() error: %s", strerror(errno));
                  return PyErr_SetFromErrno(PyExc_OSError);
             }
         }
