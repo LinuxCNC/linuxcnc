@@ -60,6 +60,14 @@ static unsigned long last_period = 0;
 /* servo cycle time */
 static double servo_period;
 
+/* Planner type 2: joint-space velocity feedforward via finite differences.
+ * Correct for ALL kinematics (trivkins, tilting pivot, etc.) unlike the
+ * previous direction-vector decomposition which assumed joints = XYZ axes. */
+static double p2_prev_pos[EMCMOT_MAX_JOINTS];
+static double p2_prev_vel[EMCMOT_MAX_JOINTS];
+static double p2_prev_acc[EMCMOT_MAX_JOINTS];
+static int p2_ff_init = 0;
+
 extern struct emcmot_status_t *emcmotStatus;
 
 // *pcmd_p[0] is shorthand for emcmotStatus->carte_pos_cmd.tran.x
@@ -1207,6 +1215,7 @@ static void get_pos_cmds(long period)
     /* run traj planner code depending on the state */
     switch ( emcmotStatus->motion_state) {
     case EMCMOT_MOTION_FREE:
+	p2_ff_init = 0;  /* Reset feedforward state when leaving coord mode */
 	/* in free mode, each joint is planned independently */
 	/* initial value for flag, if needed it will be cleared below */
 	SET_MOTION_INPOS_FLAG(1);
@@ -1356,15 +1365,14 @@ static void get_pos_cmds(long period)
 	}
 
 	if (emcmotStatus->planner_type == 2) {
-	    /* Planner type 2 (Ruckig): bypass cubic interpolator. */
+	    /* Planner type 2 (Ruckig): bypass cubic interpolator.
+	     * Joint velocity/acceleration/jerk feedforward computed from
+	     * finite differences of IK output — correct for ALL kinematics. */
 	    EmcPose current_pos = emcmotStatus->carte_pos_cmd;
 
 	    result = kinematicsInverse(&current_pos, positions, &iflags, &fflags);
 	    if (result == 0) {
-		double path_vel = emcmotStatus->current_vel;
-		double path_acc = emcmotStatus->current_acc;
-		double path_jerk = emcmotStatus->current_jerk;
-		PmCartesian dir = emcmotStatus->current_dir;
+		double inv_dt = 1.0 / servo_period;
 
 		for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
 		    if (!isfinite(positions[joint_num])) {
@@ -1372,23 +1380,32 @@ static void get_pos_cmds(long period)
 			    joint_num);
 			SET_MOTION_ERROR_FLAG(1);
 			emcmotInternal->enabling = 0;
+			p2_ff_init = 0;
 			break;
 		    }
 		    joint = &joints[joint_num];
 		    joint->coarse_pos = positions[joint_num];
 		    joint->pos_cmd = positions[joint_num];
 
-		    /* Decompose path vel/acc/jerk into per-axis using direction vector.
-		     * For Cartesian machines joint 0,1,2 = X,Y,Z */
-		    double d = 0.0;
-		    if (joint_num == 0) d = dir.x;
-		    else if (joint_num == 1) d = dir.y;
-		    else if (joint_num == 2) d = dir.z;
-
-		    joint->vel_cmd = path_vel * d;
-		    joint->acc_cmd = path_acc * d;
-		    joint->jerk_cmd = path_jerk * d;
+		    if (p2_ff_init) {
+			double vel = (positions[joint_num] - p2_prev_pos[joint_num]) * inv_dt;
+			double acc = (vel - p2_prev_vel[joint_num]) * inv_dt;
+			joint->vel_cmd = vel;
+			joint->acc_cmd = acc;
+			joint->jerk_cmd = (acc - p2_prev_acc[joint_num]) * inv_dt;
+			p2_prev_vel[joint_num] = vel;
+			p2_prev_acc[joint_num] = acc;
+		    } else {
+			joint->vel_cmd = 0.0;
+			joint->acc_cmd = 0.0;
+			joint->jerk_cmd = 0.0;
+			p2_prev_vel[joint_num] = 0.0;
+			p2_prev_acc[joint_num] = 0.0;
+		    }
+		    p2_prev_pos[joint_num] = positions[joint_num];
 		}
+		p2_ff_init = 1;
+
 		/* Still feed the cubic so it stays primed if we switch planner types */
 		while (cubicNeedNextPoint(&(joints[0].cubic))) {
 		    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
@@ -1399,8 +1416,10 @@ static void get_pos_cmds(long period)
 		reportError(_("kinematicsInverse failed"));
 		SET_MOTION_ERROR_FLAG(1);
 		emcmotInternal->enabling = 0;
+		p2_ff_init = 0;
 	    }
 	} else {
+	    p2_ff_init = 0;
 	    /* Planner type 0 and 1: use cubic interpolator as before */
 
 	    /* Fill cubic buffer if needed (may need multiple points per cycle) */
@@ -1476,6 +1495,7 @@ static void get_pos_cmds(long period)
 	break;
 
     case EMCMOT_MOTION_TELEOP:
+	p2_ff_init = 0;  /* Reset feedforward state when leaving coord mode */
         ext_offset_teleop_limit = axis_calc_motion(servo_period);
         if (!ext_offset_teleop_limit) {
             ext_offset_coord_limit = 0; //in case was set in prior coord motion
