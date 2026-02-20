@@ -222,6 +222,17 @@ class gmoccapy(object):
         self.jog_increments = []  # This holds the increment values
         self.unlock = False       # this value will be set using the hal pin unlock settings
 
+        # if halui MDI commands are not defined in the INI file, the pin halui.halui-mdi-is-running will not be created.
+        try:
+            hal.get_value("halui.halui-mdi-is-running") 
+            # this pin prevents mode switching during execution of halui MDI commands
+            self.halui_cmd_exist = True 
+            # this value will allow reading the halui.halui-mdi-is-running pin only if it exists
+            LOG.debug("halui MDI commands are used")
+        except Exception:
+            self.halui_cmd_exist = False
+            LOG.debug("halui MDI commands are NOT used")
+
         # needed to display the labels
         self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
         self.dro_size = 28           # The size of the DRO, user may want them bigger on bigger screen
@@ -2770,16 +2781,31 @@ class gmoccapy(object):
 
     # The mode buttons
     def on_rbt_manual_pressed(self, widget, data=None):
+        if self.halui_cmd_exist:
+            if hal.get_value("halui.halui-mdi-is-running"):
+                LOG.error(_("It is not possible to change to manual Mode at the moment"))
+                LOG.error(_("halui MDI command is running"))
+                return
         LOG.debug("mode Manual")
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
 
     def on_rbt_mdi_pressed(self, widget, data=None):
+        if self.halui_cmd_exist:
+            if hal.get_value("halui.halui-mdi-is-running"):
+                LOG.error(_("It is not possible to change to MDI Mode at the moment"))
+                LOG.error(_("halui MDI command is running"))
+                return
         LOG.debug("mode MDI")
         self.command.mode(linuxcnc.MODE_MDI)
         self.command.wait_complete()
 
     def on_rbt_auto_pressed(self, widget, data=None):
+        if self.halui_cmd_exist:
+            if hal.get_value("halui.halui-mdi-is-running"):
+                LOG.error(_("It is not possible to change to Auto Mode at the moment"))
+                LOG.error(_("halui MDI command is running"))
+                return
         LOG.debug("mode Auto")
         self.command.mode(linuxcnc.MODE_AUTO)
         self.command.wait_complete()
@@ -3025,6 +3051,11 @@ class gmoccapy(object):
             self.widgets.chk_ignore_limits.set_active(False)
 
     def on_hal_status_mode_manual(self, widget):
+        if self.halui_cmd_exist:
+            if hal.get_value("halui.halui-mdi-is-running"):
+                LOG.debug("switch to Manual page is ignored, because halui MDI command is running")
+                return
+
         LOG.debug("MANUAL Mode")
         self.widgets.rbt_manual.set_active(True)
         # if setup page is activated, we must leave here, otherwise the pages will be reset
@@ -3047,6 +3078,11 @@ class gmoccapy(object):
         self.last_key_event = None, 0
 
     def on_hal_status_mode_mdi(self, widget):
+        if self.halui_cmd_exist:
+            if hal.get_value("halui.halui-mdi-is-running"):
+                LOG.debug("switch to MDI page is ignored, because halui MDI command is running")
+                return
+        
         LOG.debug("MDI Mode, tool_change = {0}".format(self.tool_change))
 
         # if the edit offsets button is active, we do not want to change
@@ -3114,6 +3150,11 @@ class gmoccapy(object):
 
 
     def on_hal_status_mode_auto(self, widget):
+        if self.halui_cmd_exist:
+            if hal.get_value("halui.halui-mdi-is-running"):
+                LOG.debug("switch to Auto page is ignored, because halui MDI command is running")
+                return
+
         LOG.debug("AUTO Mode")
         # if Auto button is not sensitive, we are not ready for AUTO commands
         # so we have to abort external commands and get back to manual mode
