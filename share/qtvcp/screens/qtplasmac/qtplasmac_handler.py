@@ -1,4 +1,4 @@
-VERSION = '015.082'
+VERSION = '016.083'
 LCNCVER = '2.10'
 
 '''
@@ -336,7 +336,7 @@ class HandlerClass:
         self.ARC_OK         =  7
         self.PIERCE_DELAY   =  8
         self.PUDDLE_JUMP    =  9
-        self.CUT_HEGHT      = 10
+        self.CUT_HEIGHT     = 10
         self.CUT_MODE_01    = 11
         self.CUT_MODE_2     = 12
         self.PAUSE_AT_END   = 13
@@ -476,6 +476,10 @@ class HandlerClass:
         self.ohmicLedTimer = QTimer()
         self.ohmicLedTimer.timeout.connect(self.ohmic_led_timeout)
         self.ohmicLedTimer.setSingleShot(True)
+        self.watchDogTimer = QTimer()
+        self.watchDogTimer.timeout.connect(self.watchdog_has_bit)
+        self.watchDogTimer.setSingleShot(True)
+        self.watchDogState = None
         self.set_color_styles()
         self.vm_check()
         # set hal pins only after initialized__ has begun
@@ -1671,6 +1675,12 @@ class HandlerClass:
             hal.set_p('plasmac.override-jog', str(state))
 
     def z_offset_changed(self, height):
+        currentState = self.plasmacStatePin.get()
+        if currentState in [self.PROBE_HEIGHT, self.PROBE_DOWN, self.PROBE_UP,
+                            self.ZERO_HEIGHT, self.PIERCE_HEIGHT, self.PUDDLE_JUMP,
+                            self.CUT_HEIGHT, self.SAFE_HEIGHT, self.MAX_HEIGHT]:
+            self.watchDogState = currentState
+            self.watchDogTimer.start(3000)
         if STATUS.is_interp_paused() and not height and \
             (hal.get_value('plasmac.stop-type-out') or hal.get_value('plasmac.cut-recovering')):
                 self.w.set_cut_recovery()
@@ -2291,6 +2301,14 @@ class HandlerClass:
             self.w.dro_z.setProperty('Qreference_type', 10)
         if state == self.IDLE:
             self.refresh_button_states()
+        if state in [self.PROBE_HEIGHT, self.PROBE_DOWN, self.PROBE_UP,
+                     self.ZERO_HEIGHT, self.PIERCE_HEIGHT, self.PUDDLE_JUMP,
+                     self.CUT_HEIGHT, self.SAFE_HEIGHT, self.MAX_HEIGHT]:
+            self.watchDogState = state
+            self.watchDogTimer.start(3000)
+        else:
+            self.watchDogTimer.stop()
+            self.watchDogState = None
 
     def plasmac_stop_changed(self, state):
         if not state and not self.plasmacStatePin.get():
@@ -3652,6 +3670,25 @@ class HandlerClass:
         self.set_signal_connections()
         if self.firstRun is True:
             self.firstRun = False
+
+    def watchdog_has_bit(self):
+        states = {
+            self.PROBE_HEIGHT: _translate('HandlerClass', 'moving to probe height'),
+            self.PROBE_DOWN: _translate('HandlerClass', 'probing down'),
+            self.PROBE_UP: _translate('HandlerClass', 'probing up'),
+            self.ZERO_HEIGHT: _translate('HandlerClass', 'moving to zero height'),
+            self.PIERCE_HEIGHT: _translate('HandlerClass', 'moving to pierce height'),
+            self.PUDDLE_JUMP: _translate('HandlerClass', 'moving to puddle jump height'),
+            self.CUT_HEIGHT: _translate('HandlerClass', 'moving to cut height'),
+            self.SAFE_HEIGHT: _translate('HandlerClass', 'moving to safe height'),
+            self.MAX_HEIGHT: _translate('HandlerClass', 'moving to maximum height')
+        }
+        head = _translate('HandlerClass', 'Z Axis Motion Timeout')
+        msg0 = _translate('HandlerClass', 'Z axis did not reach the destination while')
+        msg1 = _translate('HandlerClass', 'program is paused')
+        msg2 = _translate('HandlerClass', 'check settings on the PARAMETERS tab')
+        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} {states[self.watchDogState]}\n{msg1}\n{msg2}\n')
+        ACTION.PAUSE()
 
     def update_periodic(self):
         if not STATUS.is_interp_idle():
