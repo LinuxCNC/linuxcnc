@@ -4339,16 +4339,6 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
         }
         if (is_first_profile && v_exit > 0.0) {
             v_exit = 0.0;
-            // Debug: log Fix 4 pessimistic override
-            {
-                static int fix4_dbg_count = 0;
-                if (fix4_dbg_count < 30) {
-                    fix4_dbg_count++;
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FIX4_DBG[id=%d]: first_profile v_exit forced 0 (was %.3f) type=%d target=%.3f\n",
-                        tc->id, atomicLoadDouble(&tc->shared_9d.final_vel), tc->motion_type, tc->target);
-                }
-            }
         }
 
         // prev_exit_vel is updated AFTER Ruckig compute (below) to use
@@ -4448,8 +4438,6 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                     prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
                     prev_exit_feed_scale = feed_scale;
                     prev_exit_vel_known = true;
-
-
 
                     // One-step backtrack: fix backward reachability gap
                     // Skip active segment — rewriting triggers STOPWATCH_RESET
