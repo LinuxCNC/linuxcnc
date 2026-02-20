@@ -19,6 +19,7 @@ net plasmac:homed               motion.is-all-homed         =>  plasmac.homed
 net plasmac:ignore-arc-ok-0     motion.digital-out-01       =>  plasmac.ignore-arc-ok-0
 net plasmac:motion-type         motion.motion-type          =>  plasmac.motion-type
 net plasmac:offsets-active      motion.eoffset-active       =>  plasmac.offsets-active
+net plasmac:offsets-limited     motion.eoffset-limited      =>  plasmac.offsets-limited
 net plasmac:program-is-idle     halui.program.is-idle       =>  plasmac.program-is-idle
 net plasmac:program-is-paused   halui.program.is-paused     =>  plasmac.program-is-paused
 net plasmac:program-is-running  halui.program.is-running    =>  plasmac.program-is-running

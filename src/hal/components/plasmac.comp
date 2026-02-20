@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 === VERSION
 
-015
+016
 
 === SUMMARY
 
@@ -90,6 +90,7 @@ pin in  float   offset_probe_y              "Y axis offset for offset probe (mac
 pin in  bit     offset_set_probe            "deploy probe for setting offsets";
 pin in  bit     offset_set_scribe           "deploy scribe for setting offsets";
 pin in  bit     offsets_active              "offsets are active, connect to motion.eoffset-active";
+pin in  bit     offsets_limited             "offsets are limited, connect to motion.eoffset-limited";
 pin in  s32     ohmic_max_attempts          "maximum ohmic probe attempts before fallback to float switch";
 pin in  bit     ohmic_probe                 "ohmic probe input, from ohmic-sense-out or external component/pin";
 pin in  bit     ohmic_probe_enable          "enable ohmic probe";
@@ -251,6 +252,7 @@ variable int    laser_y_target;             /* target count for laser recovery y
 variable float  last_arc_voltage;           /* last sensed arc voltage */
 variable bool   manual_cut;                 /* manual cut mode is active */
 variable int    offset_datum;               /* datum for safe height calcs */
+variable bool   offset_limit_error = false; /* has an offset error been reported (prevents repeat messages)*/
 variable int    offset_max;                 /* maximum allowed offset */
 variable int    offset_min;                 /* minimum allowed offset */
 variable float  offset_probe_timer;         /* offset probe deployment delay time */
@@ -416,6 +418,15 @@ typedef enum{OFF,
              RESETTING,
             } laser_recovery_state_t;
 
+static const char *state_names[] = {
+    "IDLE", "PROBE_HEIGHT", "PROBE_DOWN", "PROBE_UP", "ZERO_HEIGHT",
+    "PIERCE_HEIGHT", "TORCH_ON", "ARC_OK", "PIERCE_DELAY", "PUDDLE_JUMP",
+    "CUT_HEIGHT", "CUT_MODE_01", "CUT_MODE_2", "PAUSE_AT_END", "SAFE_HEIGHT",
+    "MAX_HEIGHT", "END_CUT", "END_JOB", "TORCHPULSE", "PAUSED_MOTION",
+    "OHMIC_TEST", "PROBE_TEST", "SCRIBING", "CONSUMABLE_CHANGE_ON",
+    "CONSUMABLE_CHANGE_OFF", "CUT_RECOVERY_ON", "CUT_RECOVERY_OFF", "DEBUG"
+};
+
 state_t state = IDLE;
 stop_type_t stop_type = NONE;
 move_direction_t move_direction = ZERO;
@@ -545,6 +556,23 @@ FUNCTION(_) {
         sensor_active = FALSE;
     }
     probe_out = float_switch && tube_cut && state == IDLE;
+
+    if(offsets_limited && offsets_active) {
+        if(!offset_limit_error) {
+            torch_on = FALSE;
+            if(program_is_running && !program_is_paused) {
+                program_pause = TRUE;
+            }
+            stop_type = PAUSE;
+            probe_inhibit = TRUE;
+            rtapi_print_msg(RTAPI_MSG_ERR,"Offset limit violation (state: %s)\n"
+                                          "program is paused.\n", state_names[state]);
+            state = MAX_HEIGHT;
+            offset_limit_error = true;
+        }
+    } else {
+        offset_limit_error = false;
+    }
 
 // I don't recall why z_relative was originally created!!!
 // commit # b29d1af 24 Oct 2019
