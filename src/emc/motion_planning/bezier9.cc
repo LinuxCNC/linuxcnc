@@ -291,6 +291,10 @@ int bezier9Init(Bezier9 * const b,
                 PmCartesian const * const u_end_abc,
                 PmCartesian const * const u_start_uvw,
                 PmCartesian const * const u_end_uvw,
+                double kappa_start,
+                PmCartesian const * const n_start,
+                double kappa_end,
+                PmCartesian const * const n_end,
                 double alpha)
 {
     // Validate inputs
@@ -314,13 +318,33 @@ int bezier9Init(Bezier9 * const b,
     PmCartesian start_uvw = {start->u, start->v, start->w};
     PmCartesian end_uvw   = {end->u,   end->v,   end->w};
 
-    // Set quintic control points for each subspace (G2 continuity)
+    // Set quintic control points for each subspace (zero-curvature baseline)
     set_quintic_control_points(b->P, &start_xyz, &end_xyz,
                                u_start_xyz, u_end_xyz, alpha);
     set_quintic_control_points(b->A, &start_abc, &end_abc,
                                u_start_abc, u_end_abc, alpha);
     set_quintic_control_points(b->U, &start_uvw, &end_uvw,
                                u_start_uvw, u_end_uvw, alpha);
+
+    // C2 curvature matching (XYZ only): offset P[2] and P[3] in the
+    // curvature normal direction to match adjacent segment curvature.
+    //
+    // For a quintic Bezier with P0,P1,P2 collinear along tangent u:
+    //   B'(0) = 5α·u,  B''(0) = 20·δ·n  (after offset)
+    //   κ(0) = |B'×B''| / |B'|³ = 4δ / (5α²)
+    // Solving for target curvature: δ = 5α²·κ / 4
+    if (kappa_start > BEZIER9_CURVATURE_EPSILON && n_start) {
+        double delta = 5.0 * alpha * alpha * kappa_start / 4.0;
+        b->P[2].x += delta * n_start->x;
+        b->P[2].y += delta * n_start->y;
+        b->P[2].z += delta * n_start->z;
+    }
+    if (kappa_end > BEZIER9_CURVATURE_EPSILON && n_end) {
+        double delta = 5.0 * alpha * alpha * kappa_end / 4.0;
+        b->P[3].x += delta * n_end->x;
+        b->P[3].y += delta * n_end->y;
+        b->P[3].z += delta * n_end->z;
+    }
 
     // Build arc-length parameterization table
     build_arc_length_table(b);
@@ -613,4 +637,85 @@ double bezier9Deviation(Bezier9 const * const b,
     double dz = midpoint.z - intersection_point->z;
 
     return sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+double bezier9MaxDeviation(Bezier9 const * const b,
+                           PmCartesian const * const intersection_point,
+                           int n_samples)
+{
+    if (!b || !intersection_point || n_samples < 1) {
+        return 0.0;
+    }
+
+    double max_dev = 0.0;
+    for (int i = 1; i <= n_samples; i++) {
+        double t = (double)i / (double)(n_samples + 1);
+        PmCartesian pt;
+        bezier5_eval(b->P, t, &pt);
+        double dx = pt.x - intersection_point->x;
+        double dy = pt.y - intersection_point->y;
+        double dz = pt.z - intersection_point->z;
+        double dev = sqrt(dx * dx + dy * dy + dz * dz);
+        if (dev > max_dev) max_dev = dev;
+    }
+    return max_dev;
+}
+
+/**
+ * Point-to-line-segment distance in 3D.
+ * Returns the minimum Euclidean distance from point p to the
+ * line segment from a to b.
+ */
+static double point_to_segment_dist(PmCartesian const * const p,
+                                    PmCartesian const * const a,
+                                    PmCartesian const * const b)
+{
+    double abx = b->x - a->x;
+    double aby = b->y - a->y;
+    double abz = b->z - a->z;
+    double apx = p->x - a->x;
+    double apy = p->y - a->y;
+    double apz = p->z - a->z;
+
+    double ab_sq = abx * abx + aby * aby + abz * abz;
+    if (ab_sq < 1e-30) {
+        /* Degenerate segment (a == b): distance to the point */
+        return sqrt(apx * apx + apy * apy + apz * apz);
+    }
+
+    double t = (apx * abx + apy * aby + apz * abz) / ab_sq;
+    if (t < 0.0) t = 0.0;
+    if (t > 1.0) t = 1.0;
+
+    double cx = a->x + t * abx - p->x;
+    double cy = a->y + t * aby - p->y;
+    double cz = a->z + t * abz - p->z;
+
+    return sqrt(cx * cx + cy * cy + cz * cz);
+}
+
+double bezier9PathDeviation(Bezier9 const * const b,
+                            PmCartesian const * const seg1_start,
+                            PmCartesian const * const corner,
+                            PmCartesian const * const seg2_end,
+                            int n_samples)
+{
+    if (!b || !seg1_start || !corner || !seg2_end || n_samples < 1) {
+        return 0.0;
+    }
+
+    double max_dev = 0.0;
+    for (int i = 1; i <= n_samples; i++) {
+        double t = (double)i / (double)(n_samples + 1);
+        PmCartesian pt;
+        bezier5_eval(b->P, t, &pt);
+
+        /* Distance to programmed path = min of distances to both segments */
+        double d1 = point_to_segment_dist(&pt, seg1_start, corner);
+        double d2 = point_to_segment_dist(&pt, corner, seg2_end);
+        double dev = fmin(d1, d2);
+
+        if (dev > max_dev) max_dev = dev;
+    }
+    return max_dev;
 }
