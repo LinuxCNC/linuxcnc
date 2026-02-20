@@ -29,6 +29,7 @@ extern "C" {
 #include "posemath.h"
 #include "blendmath.h"  // pmCircleEffectiveMinRadius, findIntersectionAngle
 #include "atomic_9d.h"  // atomicStoreDouble
+#include "motion_types.h" // EMC_MOTION_TYPE_TRAVERSE
 }
 
 // External queue functions (from motion_planning_9d.cc - will be made public)
@@ -474,6 +475,13 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
         return 0;
     }
 
+    // Guard: don't blend between rapid (G0) and feed (G1) moves.
+    // Velocity mismatch creates unreachable junction velocities.
+    if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) ^
+        (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
+        return 0;
+    }
+
     // Guard: skip if either segment is too short for a meaningful blend
     // (e.g. near-zero-length move like "g1 x0 y0" when already at origin)
     if (prev_tc->target < 0.1 || tc->target < 0.1) {
@@ -670,8 +678,11 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
                 v_plan = v_jerk_cap;
                 blend_tc.maxvel = v_plan;
             }
-            // Hard cap on blend exit (like kink_vel, ignores feed override)
-            blend_tc.kink_vel = v_jerk_cap;
+            // Hard cap on blend exit (like kink_vel, ignores feed override).
+            // Take the min of the per-joint Jacobian cap (v_jerk_cap) and
+            // the INI-based aggregate cap (set by createBlendSegment9).
+            if (blend_tc.kink_vel <= 0 || v_jerk_cap < blend_tc.kink_vel)
+                blend_tc.kink_vel = v_jerk_cap;
             // Hard cap on prev_tc exit → blend entry
             if (prev_tc->kink_vel <= 0 || v_jerk_cap < prev_tc->kink_vel)
                 prev_tc->kink_vel = v_jerk_cap;
@@ -698,8 +709,49 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
     atomicStoreDouble(&blend_tc.shared_9d.final_vel, v_exit);
     atomicStoreDouble(&blend_tc.shared_9d.final_vel_limit, v_exit);
 
-    // Set jerk limit on blend from parent segments
-    blend_tc.maxjerk = fmin(prev_tc->maxjerk, tc->maxjerk);
+    // Set jerk limit on blend from per-joint tangential jerk budget.
+    // The Pythagorean split BLEND_ACC_RATIO_TANGENTIAL (0.5) allocates
+    // the tangential portion of each joint's jerk budget to Ruckig's
+    // velocity transitions through the blend curve.
+    {
+        using motion_planning::g_userspace_kins_planner;
+        double tangent_proj[9];
+        tangent_proj[0] = fmax(fabs(solution.boundary.u_start_xyz.x),
+                               fabs(solution.boundary.u_end_xyz.x));
+        tangent_proj[1] = fmax(fabs(solution.boundary.u_start_xyz.y),
+                               fabs(solution.boundary.u_end_xyz.y));
+        tangent_proj[2] = fmax(fabs(solution.boundary.u_start_xyz.z),
+                               fabs(solution.boundary.u_end_xyz.z));
+        tangent_proj[3] = fmax(fabs(solution.boundary.u_start_abc.x),
+                               fabs(solution.boundary.u_end_abc.x));
+        tangent_proj[4] = fmax(fabs(solution.boundary.u_start_abc.y),
+                               fabs(solution.boundary.u_end_abc.y));
+        tangent_proj[5] = fmax(fabs(solution.boundary.u_start_abc.z),
+                               fabs(solution.boundary.u_end_abc.z));
+        tangent_proj[6] = fmax(fabs(solution.boundary.u_start_uvw.x),
+                               fabs(solution.boundary.u_end_uvw.x));
+        tangent_proj[7] = fmax(fabs(solution.boundary.u_start_uvw.y),
+                               fabs(solution.boundary.u_end_uvw.y));
+        tangent_proj[8] = fmax(fabs(solution.boundary.u_start_uvw.z),
+                               fabs(solution.boundary.u_end_uvw.z));
+
+        double tan_fraction = BLEND_ACC_RATIO_TANGENTIAL;
+        double j_tan = 1e9;
+        int nj = g_userspace_kins_planner.isEnabled()
+               ? g_userspace_kins_planner.getNumJoints() : 0;
+        if (nj > 9) nj = 9;
+        for (int j = 0; j < nj; j++) {
+            if (tangent_proj[j] < 1e-6) continue;
+            double jlim = g_userspace_kins_planner.getJointJerkLimit(j);
+            if (jlim > 0 && jlim < 1e9) {
+                double j_path = tan_fraction * jlim / tangent_proj[j];
+                if (j_path < j_tan)
+                    j_tan = j_path;
+            }
+        }
+        blend_tc.maxjerk = (j_tan < 1e8) ? j_tan
+                                          : fmin(prev_tc->maxjerk, tc->maxjerk);
+    }
 
     // Enqueue blend segment
     TC_QUEUE_STRUCT *queue = &tp->queue;
