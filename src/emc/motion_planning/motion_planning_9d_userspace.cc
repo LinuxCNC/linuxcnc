@@ -26,6 +26,7 @@ extern "C" {
 #include "tc.h"
 #include "tc_types.h"
 #include "emcpos.h"
+#include "emcpose.h"    // pmCartesianToEmcPose
 #include "posemath.h"
 #include "blendmath.h"  // pmCircleEffectiveMinRadius, findIntersectionAngle
 #include "atomic_9d.h"  // atomicStoreDouble
@@ -1036,13 +1037,69 @@ static void tpComputeKinkVelocity_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
 }
 
 /**
+ * @brief Check if two LINE segments can be consolidated (merged).
+ *
+ * Two adjacent LINE segments are consolidatable when they have:
+ * - Same motion type (both TC_LINEAR)
+ * - Same canon motion type (don't merge G0 with G1)
+ * - Compatible feed rate (same F word)
+ * - Collinear direction in all active 9D subspaces (< 1° angle)
+ *
+ * @return 1 if segments can be merged, 0 otherwise
+ */
+static int canConsolidateLines(TC_STRUCT const *prev_tc, TC_STRUCT const *tc)
+{
+    if (prev_tc->motion_type != TC_LINEAR || tc->motion_type != TC_LINEAR)
+        return 0;
+
+    if (prev_tc->canon_motion_type != tc->canon_motion_type)
+        return 0;
+
+    if (fabs(prev_tc->reqvel - tc->reqvel) > 1e-6)
+        return 0;
+
+    // cos(1°) ≈ 0.99985 — matches BLEND9_MIN_THETA threshold
+    double const cos_thresh = 0.99985;
+    double dot;
+
+    // XYZ subspace
+    if (!prev_tc->coords.line.xyz.tmag_zero && !tc->coords.line.xyz.tmag_zero) {
+        pmCartCartDot(&prev_tc->coords.line.xyz.uVec,
+                      &tc->coords.line.xyz.uVec, &dot);
+        if (dot < cos_thresh) return 0;
+    } else if (prev_tc->coords.line.xyz.tmag_zero != tc->coords.line.xyz.tmag_zero) {
+        return 0;
+    }
+
+    // ABC subspace
+    if (!prev_tc->coords.line.abc.tmag_zero && !tc->coords.line.abc.tmag_zero) {
+        pmCartCartDot(&prev_tc->coords.line.abc.uVec,
+                      &tc->coords.line.abc.uVec, &dot);
+        if (dot < cos_thresh) return 0;
+    } else if (prev_tc->coords.line.abc.tmag_zero != tc->coords.line.abc.tmag_zero) {
+        return 0;
+    }
+
+    // UVW subspace
+    if (!prev_tc->coords.line.uvw.tmag_zero && !tc->coords.line.uvw.tmag_zero) {
+        pmCartCartDot(&prev_tc->coords.line.uvw.uVec,
+                      &tc->coords.line.uvw.uVec, &dot);
+        if (dot < cos_thresh) return 0;
+    } else if (prev_tc->coords.line.uvw.tmag_zero != tc->coords.line.uvw.tmag_zero) {
+        return 0;
+    }
+
+    return 1;
+}
+
+/**
  * @brief Add linear move to shared memory queue (userspace planning)
  *
  * - Initialize TC_STRUCT
  * - Set geometry
+ * - Consolidate with previous segment if collinear
  * - Write to queue
  * - Trigger optimization
- * - NO blending (requires blend geometry implementation)
  */
 extern "C" int tpAddLine_9D(
     TP_STRUCT * const tp,
@@ -1096,6 +1153,51 @@ extern "C" int tpAddLine_9D(
     if (tc.target < 1e-6) {
         tp->goalPos = end_pose;
         return 0;
+    }
+
+    // Collinear segment consolidation: if the new LINE goes the same direction
+    // as the previous LINE, extend the previous segment instead of creating a
+    // new segment boundary.  Eliminates split cycles, blends, and velocity
+    // sawtooth in CAM-generated toolpaths with many tiny collinear segments.
+    if (tp->termCond != TC_TERM_COND_STOP) {  // G61.1 must stop at every junction
+        TC_STRUCT *prev_tc = tcqLast_user(queue);
+        if (prev_tc && canConsolidateLines(prev_tc, &tc)) {
+            // Extend prev_tc geometry: keep current start, use new end
+            pmCartLineInit(&prev_tc->coords.line.xyz,
+                           &prev_tc->coords.line.xyz.start,
+                           &tc.coords.line.xyz.end);
+            pmCartLineInit(&prev_tc->coords.line.abc,
+                           &prev_tc->coords.line.abc.start,
+                           &tc.coords.line.abc.end);
+            pmCartLineInit(&prev_tc->coords.line.uvw,
+                           &prev_tc->coords.line.uvw.start,
+                           &tc.coords.line.uvw.end);
+
+            // Update lengths
+            prev_tc->target = pmLine9Target(&prev_tc->coords.line);
+            prev_tc->nominal_length = prev_tc->target;
+
+            // Recompute joint-space segment for extended geometry
+            if (motion_planning::userspace_kins_is_enabled()) {
+                EmcPose start_pose;
+                pmCartesianToEmcPose(&prev_tc->coords.line.xyz.start,
+                                     &prev_tc->coords.line.abc.start,
+                                     &prev_tc->coords.line.uvw.start,
+                                     &start_pose);
+                if (motion_planning::userspace_kins_compute_joint_segment(
+                        &start_pose, &end_pose, prev_tc) != 0) {
+                    prev_tc->joint_space.valid = 0;
+                }
+            }
+
+            // Mark for re-optimization (geometry changed)
+            __atomic_store_n((int*)&prev_tc->shared_9d.optimization_state,
+                             TC_PLAN_UNTOUCHED, __ATOMIC_RELEASE);
+
+            tp->goalPos = end_pose;
+            triggerAdaptiveOptimization_9D(tp);
+            return 0;  // No new segment needed
+        }
     }
 
     // Set termination condition from G-code mode (G61/G61.1/G64):
