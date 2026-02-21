@@ -51,6 +51,15 @@ typedef struct {
     hal_float_t *jjog_accel_fraction; /* IN:  fraction of max-acc for wheel jog */
     hal_bit_t   *jjog_vel_mode;       /* IN:  velocity mode (vs position mode) */
 
+    /* --- Coordinated mode interface --- */
+    hal_bit_t   *coord_mode;          /* IN:  when TRUE, track coord-pos-cmd instead of free_tp */
+    hal_float_t *coord_pos_cmd;       /* IN:  position command from external trajectory planner */
+    hal_float_t *coord_vel_cmd;       /* IN:  velocity command from external trajectory planner */
+    hal_float_t *pos_fb_out;          /* OUT: joint position feedback (for motmod fwd kins) */
+    hal_float_t *motor_pos_fb_out;    /* OUT: raw motor feedback (for motmod) */
+    hal_bit_t   *kb_jog_active;       /* OUT: keyboard jog in progress (for motmod status) */
+    hal_bit_t   *wheel_jog_active;    /* OUT: wheel jog in progress (for motmod status) */
+
     /* --- Control and status --- */
     hal_bit_t   *enable;              /* IN:  master enable (drives are enabled) */
     hal_bit_t   *in_position;         /* OUT: joint is at commanded position */
