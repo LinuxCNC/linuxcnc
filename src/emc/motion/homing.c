@@ -1141,6 +1141,10 @@ static int base_1joint_state_machine(int joint_num)
             /* set the current position to 'home_offset' */
             if (H[joint_num].home_flags & HOME_ABSOLUTE_ENCODER) {
                 offset = H[joint_num].home_offset;
+                joint->pos_cmd += joint->motor_offset;
+                joint->pos_fb += joint->motor_offset;
+                joint->free_tp.curr_pos += joint->motor_offset;
+                joint->motor_offset = 0;
             } else {
                 offset = H[joint_num].home_offset - joint->pos_fb;
             }
