@@ -48,6 +48,7 @@ Build-Depends:
     tk@TCLTK_VERSION@-dev,
     xvfb <!nocheck>,
     x11-xserver-utils <!nocheck>,
+    libfmt-dev,
     yapps2
 Build-Depends-Indep:
     @DOC_DEPENDS@,
