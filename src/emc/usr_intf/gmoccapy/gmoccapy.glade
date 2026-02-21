@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.40.0 -->
+<!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.16"/>
   <requires lib="gladevcp" version="0.0"/>
@@ -1406,6 +1406,7 @@ uncomment selection</property>
                                                     <property name="can-focus">False</property>
                                                     <property name="color">rgb(255,129,22)</property>
                                                     <property name="max">10500</property>
+                                                    <property name="type">0</property>
                                                     <property name="unit">mm/min</property>
                                                     <property name="value">1500</property>
                                                   </object>
@@ -1452,6 +1453,7 @@ uncomment selection</property>
                                                 <property name="color">rgb(255,129,22)</property>
                                                 <property name="max">3600</property>
                                                 <property name="template">%.d</property>
+                                                <property name="type">0</property>
                                                 <property name="unit">°/min</property>
                                                 <property name="value">360</property>
                                               </object>

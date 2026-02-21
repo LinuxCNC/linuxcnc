@@ -244,6 +244,8 @@ class _GStat(GObject.GObject):
         'following-error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,(GObject.TYPE_PYOBJECT,)),
         'cycle-start-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'cycle-pause-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'ok-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'cancel-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'macro-call-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         }
 
@@ -350,6 +352,11 @@ class _GStat(GObject.GObject):
     def set_timer(self):
         GLib.timeout_add(CYCLE_TIME, self.update)
 
+    # used to run the Gobject mainloop once
+    # allows a GUI that is not GLib based to update the mainloop
+    def run_iteration(self):
+        GLib.MainContext.default().iteration (True)
+
     # open a zmq socket for writing out data
     def init_write_socket(self):
         context = zmq.Context()
@@ -360,6 +367,7 @@ class _GStat(GObject.GObject):
             self.write_available = True
         except Exception as e:
             LOG.debug('hal_glib write socket not available: {}'.format(e))
+            LOG.debug('hal_glib write socket not available\n {}'.format(e))
             self.write_available = False
 
     # convert and actually send out the message
@@ -1459,6 +1467,12 @@ class _GStat(GObject.GObject):
 
     def request_macro_call(self, data):
         self.emit('macro-call-request', data)
+
+    def request_ok(self, data):
+        self.emit('ok-request', data)
+
+    def request_cancel(self, data):
+        self.emit('cancel-request', data)
 
     #############################################
 
