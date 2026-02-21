@@ -76,7 +76,6 @@ typedef struct {
     int     prev_do_home;
     int     prev_jog_enable;
 
-    double  servo_period;      /* servo cycle time in seconds */
 } joint_ctrl_t;
 
 static joint_ctrl_t *ctrl_array;
@@ -109,6 +108,11 @@ static void joint_ctrl_update(void *arg, long period)
 {
     joint_ctrl_t *ctrl = (joint_ctrl_t *)arg;
     double fperiod = period * 1e-9;
+
+    /* Keep homing servo_freq in sync with the actual thread period */
+    if (fperiod > 1e-9) {
+        ctrl->home.servo_freq = 1.0 / fperiod;
+    }
 
     /* backlash ramp temporaries */
     double bv_max, ba_max, bv, bs_to_go, bds_stop, bds_vel, bds_acc, bdv_acc;
@@ -703,7 +707,7 @@ static int export_joint_ctrl(int n, joint_ctrl_t *ctrl)
     ctrl->jstate.free_tp.active   = 0;
 
     /* ---- Initialize homing ---- */
-    joint_homing_init(&ctrl->home, ctrl->servo_period);
+    joint_homing_init(&ctrl->home, 0.001);
 
     /* ---- Export the per-instance realtime function ---- */
     rtapi_snprintf(buf, sizeof(buf), "%s.update", prefix);
@@ -748,11 +752,6 @@ int rtapi_app_main(void)
     }
 
     for (n = 0; n < count; n++) {
-        /* Use a nominal 1 ms servo period for homing timing.
-           The actual period is passed in period (nanoseconds) at
-           runtime; homing only needs an approximate frequency. */
-        ctrl_array[n].servo_period = 0.001;
-
         retval = export_joint_ctrl(n, &ctrl_array[n]);
         if (retval != 0) {
             hal_exit(comp_id);

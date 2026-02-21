@@ -1,0 +1,7 @@
+obj-m += joint_ctrl.o
+joint_ctrl-objs := \
+    hal/joint/joint_ctrl_main.o \
+    hal/joint/joint_simple_tp.o \
+    hal/joint/joint_homing.o
+
+$(patsubst %.o,objects/%.o,$(joint_ctrl-objs)): EXTRAFLAGS += -I$(BASEPWD)/hal/joint
