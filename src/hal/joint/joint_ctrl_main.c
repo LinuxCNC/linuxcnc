@@ -416,9 +416,12 @@ static void joint_ctrl_update(void *arg, long period)
         ctrl->jstate.free_tp.enable   = 0;
         ctrl->jstate.free_tp.active   = 0;
 
-        /* Clear jog flags */
+        /* Clear jog flags and sync edge-detection state so that
+           returning to free mode doesn't see stale deltas/edges */
         ctrl->kb_jjog_active    = 0;
         ctrl->wheel_jjog_active = 0;
+        ctrl->old_jjog_counts   = *(ctrl->hal.jjog_counts);
+        ctrl->prev_jog_enable   = *(ctrl->hal.jog_enable) ? 1 : 0;
     }
 
     /* ----------------------------------------------------------------
