@@ -1335,6 +1335,7 @@ endif
 ../rtlib/motmod$(MODULE_EXT): $(addprefix objects/rt,$(motmod-objs))
 ../rtlib/tpmod$(MODULE_EXT): $(addprefix objects/rt,$(tpmod-objs))
 ../rtlib/homemod$(MODULE_EXT): $(addprefix objects/rt,$(homemod-objs))
+../rtlib/joint_ctrl$(MODULE_EXT): $(addprefix objects/rt,$(joint_ctrl-objs))
 ../rtlib/trivkins$(MODULE_EXT): $(addprefix objects/rt,$(trivkins-objs))
 ../rtlib/5axiskins$(MODULE_EXT): $(addprefix objects/rt,$(5axiskins-objs))
 ../rtlib/maxkins$(MODULE_EXT): $(addprefix objects/rt,$(maxkins-objs))
