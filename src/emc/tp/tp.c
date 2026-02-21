@@ -4252,7 +4252,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
                 __atomic_store_n(&tc->shared_9d.branch.taken, 1, __ATOMIC_RELEASE);
                 // Clear brake_done flag for fresh two-stage execution
                 __atomic_store_n(&tc->shared_9d.branch.brake_done, 0, __ATOMIC_RELEASE);
-
             }
         }
 
@@ -4919,6 +4918,17 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // Save remain_time before tpUpdateCycle — tpCheckEndCondition inside
     // tpUpdateCycle will overwrite nexttc->cycle_time to tp->cycleTime.
     double nexttc_remain_time = nexttc->cycle_time;
+
+    // Reset cycle_time to full cycleTime BEFORE tpUpdateCycle.
+    // elapsed_time was pre-advanced to remain_time for correct Ruckig
+    // sampling. Inside tpUpdateCycle, elapsed_time advances by cycle_time
+    // (line 4367). If cycle_time is still remain_time, elapsed becomes
+    // 2*remain_time, and tpCheckEndCondition computes a negative
+    // last_sample_time when remain < 0.5*cycleTime, preventing detection
+    // of short segments that complete within one cycle.
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        nexttc->cycle_time = tp->cycleTime;
+    }
 
     // Run split cycle update with remaining time in nexttc
     // KLUDGE: use next cycle after nextc to prevent velocity dip (functions fail gracefully w/ NULL)
