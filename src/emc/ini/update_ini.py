@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-THIS_VERSION = "1.1"
+THIS_VERSION = "1.2"
 
 import sys
 import os
@@ -14,20 +14,36 @@ from tkinter import messagebox
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work
-    regex = r"^\s*\[%s\](.+?)(?:^\s*\[|\Z)" % block
-    section = re.search(regex, inistring, re.M | re.DOTALL)
+    regex = r"^\s*\[%s\](\n(?:^(?!\[).*(?:\n(?=^(?!\[))|$))*)" % block
+    section = re.search(regex, inistring, re.M)
     newini.write("\n[%s]" % block)
-    if section != None:
+    if section is not None:
         newini.write(section.group(1))
         all_sections.remove(block)
     else:
-         newini.write("\n#No Content\n")
+        newini.write("\n#No Content\n\n")
 
 def writeifexists(file, section, src_item, dest_item = "None"):
     #Writes a new entry to the file, but only if it exists
     if dest_item == 'None': dest_item = src_item
     val = ini.find(section, src_item)
     if val: file.write("%s = %s\n" % (dest_item, val))
+    
+def insert_after(key, new_line, section):
+    match = re.search(key, section)
+    if match:
+        # Find the end of the line that contains the match
+        line_end = section.find("\n", match.end())
+        if line_end == -1: line_end = len(section) # match is on the last line
+    else:
+        line_end = len(section) # place it at the end
+        new_line += "\n"
+    return section[:line_end + 1] + new_line + section[line_end + 1:]
+
+def find_section(section, inistring):
+    section = re.search(r"^\s*\[%s\](\n(?:^(?!\[).*(?:\n(?=^(?!\[))|$))*)" % section, inistring, re.M)
+    if section: section = section.group(1)
+    return section
 
 force = 0
 dialogs = 0
@@ -62,25 +78,6 @@ asked and the conversion will proceed blindly"""
         print(t)
     exit()
 
-if dialogs:
-    ret = messagebox._show("Confirm automatic update",
-                           "This version of LinuxCNC separates the concepts of Axes and "
-                           "Joints which necessitates changes to the INI and HAL files. "
-                           "The changes required are described here:\n"
-                           "http://linuxcnc.org/docs/2.9/html/ in the section "
-                           "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n"
-                           "The [EMC]VERSION data in your INI file indicates that your "
-                           "configuration requires update.\n"
-                           "A script exists that can attempt to automatically "
-                           "reconfigure your configuration files.\nPress 'Yes' to perform "
-                           "the conversion, 'No' to continue with the current configuration "
-                           "files or 'Cancel' to exit LinuxCNC.\n"
-                           "The process can not be automatically reversed, though a "
-                           "backup version of your entire existing config will be created.",
-                           messagebox.QUESTION, messagebox.YESNOCANCEL)
-    if ret == 'cancel': exit(42)
-    elif ret == 'no': exit(0)
-
 # We want to work with the base INI file here, not the expanded version if #include is used
 filename = re.sub(r'\.expanded', '', filename)
 
@@ -109,20 +106,61 @@ elif version >= THIS_VERSION:
         print(t)
     exit()
 
-if ini.find('KINS', 'JOINTS') and not force and not version == "1.0":
-    if dialogs:
-        if messagebox.askquestion("Already Converted",
-        "The supplied INI file already has a [KINS] section. this probably "
-        "means that it was previously converted by hand. Continue conversion?"
-        "(Change [EMC]VERSION to %s to suppress these messages) "
-        % THIS_VERSION) != 'yes':
-            exit(0)
-    else:
-        if input("The supplied INI file already has a [KINS] section."
-        "this probably means that it was previously converted by hand. "
-        "Continue y/N? (Change [EMC]VERSION to %s to suppress these messages) "
-        % THIS_VERSION) != "y":
-            exit(0)
+# Show start message with abort option
+if dialogs:
+    message = ""
+    if version == "$Revision$" or version < "1.0":
+        message += "LinuxCNC 2.8: This version of LinuxCNC separates the concepts of Axes and "\
+                "Joints which necessitates changes to the INI and HAL files. "\
+                "The changes required are described here:\n"\
+                "http://linuxcnc.org/docs/2.8/html/ in the section "\
+                "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n\n"
+    
+    if version < "1.1":
+        message += "LinuxCNC 2.9: This version of LinuxCNC adds support for multiple spindles "\
+                "which necessitates changes to the HAL files. "\
+                "The changes required are described here:\n"\
+                "http://linuxcnc.org/docs/2.9/html/ in the section "\
+                "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n\n"
+
+    if version < "1.2":
+         message += "LinuxCNC 2.10: In this version of LinuxCNC some names in "\
+                "the configuration files have changed "\
+                "which necessitates changes to the INI files. "\
+                "The changes required are described here:\n"\
+                "http://linuxcnc.org/docs/2.10/html/ in the section "\
+                "'Getting Started with LinuxCNC' -> 'Updating LinuxCNC'\n\n"
+                
+    message +=  "The [EMC]VERSION data in your INI file indicates that your "\
+                "configuration requires update.\n"\
+                "A script exists that can attempt to automatically "\
+                "reconfigure your configuration files.\nPress 'Yes' to perform "\
+                "the conversion, 'No' to continue with the current configuration "\
+                "files or 'Cancel' to exit LinuxCNC.\n"\
+                "The process can not be automatically reversed, though a "\
+                "backup version of your entire existing config will be created."
+
+    ret = messagebox._show("Confirm automatic update", message,
+                           messagebox.QUESTION, messagebox.YESNOCANCEL)
+    if ret == 'cancel': exit(42)
+    elif ret == 'no': exit(0)
+
+# Version specific message
+if version == "1.0":
+    if ini.find('KINS', 'JOINTS') and not force and not version == "1.0":
+        if dialogs:
+            if messagebox.askquestion("Already Converted",
+            "The supplied INI file already has a [KINS] section. This probably "
+            "means that it was previously converted by hand. Continue conversion?"
+            "(Change [EMC]VERSION to %s to suppress these messages) "
+            % THIS_VERSION) != 'yes':
+                exit(0)
+        else:
+            if input("The supplied INI file already has a [KINS] section."
+            "This probably means that it was previously converted by hand. "
+            "Continue y/N? (Change [EMC]VERSION to %s to suppress these messages) "
+            % THIS_VERSION) != "y":
+                exit(0)
 
 # Looks like we are good to go, so first let's put the original configs
 # somewhere safe.
@@ -165,16 +203,14 @@ for halfile in halfiles:
 
 print("halpaths = ", halpaths)
 
-if version == "1.0":
-    #Just update the version in the INI
-    inistring = open(filename,'r').read()
-    newini = open(filename, 'w')
-    inistring = re.sub("VERSION *= *(.*)", "VERSION = %s" % THIS_VERSION, inistring)
-    newini.write(inistring)
-    newini.close()
+###########################################
+############ Convert INI files ############
+###########################################
 
-if version == "$Revision$" or version < "1.0":
-    
+def ini_preamble(version):
+    """
+    The part which is equal for the conversions up from version 1.1
+    """
     inistring = open(filename,'r').read()
     newini = open(filename, 'w')
     # Get a list of all sections
@@ -198,17 +234,21 @@ if version == "$Revision$" or version < "1.0":
     all_sections.remove("EMC")
     section = re.search(r"\[EMC\](.+?)\n\[", inistring, re.DOTALL)
     if section: section = section.group(1)
-    newini.write("[EMC]\n")
+    newini.write("[EMC]")
     if section != None:
         if version != "0.0":
-            section = re.sub("VERSION (.+)", "VERSION = %s" % THIS_VERSION, section)
+            section = re.sub("VERSION (.+)", "VERSION = %s" % version, section)
         else:
             newini.write("# The version string for this INI file.\n")
-            newini.write("VERSION = %s\n" % THIS_VERSION)
+            newini.write("VERSION = %s\n" % version)
         newini.write(section)
     else:
-         newini.write("VERSION = %s\n" % THIS_VERSION)
+         newini.write("VERSION = %s\n" % version)
 
+    return inistring, newini, all_sections
+
+if version == "$Revision$" or version < "1.0":
+    inistring, newini, all_sections = ini_preamble("1.0")
     #These sections don't need any work.
     copysection("DISPLAY")
     copysection("FILTER")
@@ -416,11 +456,96 @@ if version == "$Revision$" or version < "1.0":
     #That's the INI file done:
     newini.close()
 
+if version == "1.0":
+    #Just update the version in the INI
+    inistring = open(filename,'r').read()
+    newini = open(filename, 'w')
+    inistring = re.sub("VERSION *= *(.*)", "VERSION = 1.1", inistring)
+    newini.write(inistring)
+    newini.close()
+
+if version < "1.2":
+    inistring, newini, all_sections = ini_preamble("1.2")
+
+    all_sections.remove("DISPLAY")
+    section = find_section("DISPLAY", inistring)
+    newini.write("\n[DISPLAY]")
+    if section != None:
+        if re.search("MIN_SPINDLE_OVERRIDE", section):
+            section = re.sub("MIN_SPINDLE_OVERRIDE", "MIN_SPINDLE_0_OVERRIDE", section)
+        if re.search("MAX_SPINDLE_OVERRIDE", section):
+            section = re.sub("MAX_SPINDLE_OVERRIDE", "MAX_SPINDLE_0_OVERRIDE", section)
+        if re.search("DEFAULT_SPINDLE_SPEED", section):
+            section = re.sub("DEFAULT_SPINDLE_SPEED", "DEFAULT_SPINDLE_0_SPEED", section)
+        if re.search("MIN_SPINDLE_SPEED", section):
+            section = re.sub("MIN_SPINDLE_SPEED", "MIN_SPINDLE_0_SPEED", section)
+        if re.search("MAX_SPINDLE_SPEED", section):
+            section = re.sub("MAX_SPINDLE_SPEED", "MAX_SPINDLE_0_SPEED", section)
+        if re.search("MIN_VELOCITY", section):
+            section = re.sub("MIN_VELOCITY", "MIN_LINEAR_VELOCITY", section)
+        # Copy values from TRAJ
+        if not re.search("DEFAULT_LINEAR_VELOCITY", section):
+            val = ini.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
+            if val:
+                section = insert_after("MAX_LINEAR_VELOCITY", f"DEFAULT_LINEAR_VELOCITY = {val}\n" , section)
+        if not re.search("MIN_LINEAR_VELOCITY", section):
+            val = ini.find("TRAJ", "MIN_LINEAR_VELOCITY")
+            if val is None:
+                val = ini.find("TRAJ", "MIN_VELOCITY")
+            if val:
+                section = insert_after("MAX_LINEAR_VELOCITY", f"MIN_LINEAR_VELOCITY = {val}\n" , section)
+        if not re.search("MAX_LINEAR_VELOCITY", section):
+            val = ini.find("TRAJ", "MAX_LINEAR_VELOCITY")
+            if val:
+                section = insert_after("MIN_LINEAR_VELOCITY", f"MAX_LINEAR_VELOCITY = {val}\n" , section)
+        newini.write(section)
+
+    # TODO update-ini 1.1 --> 1.2:
+    #
+    # [DISPLAY]
+    # MIN_SPINDLE_OVERRIDE  -> MIN_SPINDLE_0_OVERRIDE
+    # MAX_SPINDLE_OVERRIDE  -> MAX_SPINDLE_0_OVERRIDE
+    # DEFAULT_SPINDLE_SPEED -> DEFAULT_SPINDLE_0_SPEED
+    # MIN_SPINDLE_SPEED     -> MIN_SPINDLE_0_SPEED
+    # MAX_SPINDLE_SPEED     -> MAX_SPINDLE_0_SPEED
+    #
+    # copy [TRAJ]DEFAULT_LINEAR_VELOCITY -> [DISPLAY]DEFAULT_LINEAR_VELOCITY
+    # move [TRAJ]MIN_LINEAR_VELOCITY -> [DISPLAY]MIN_LINEAR_VELOCITY
+    # ~rename [TRAJ, DISPLAY]MIN_VELOCITY --> MIN_LINEAR_VELOCITY~
+    # copy [TRAJ]MAX_LINEAR_VELOCITY -> [DISPLAY]MAX_LINEAR_VELOCITY
+    
+    #These sections don't need any work.
+    copysection("FILTER")
+    copysection("RS274NGC")
+    copysection("PYTHON")
+    copysection("EMCMOT")
+    copysection("TASK")
+    copysection("HAL")
+    copysection("HALUI")
+    # copysection("TRAJ")
+    all_sections.remove("TRAJ")
+    section = find_section("TRAJ", inistring)
+    if re.search("MIN_LINEAR_VELOCITY", section):
+        section = re.sub("MIN_LINEAR_VELOCITY.*\n?", "# moved MIN_LINEAR_VELOCITY to [DISPLAY]\n", section)
+    if re.search("MIN_VELOCITY", section):
+        section = re.sub("MIN_VELOCITY.*\n?", "# moved MIN_VELOCITY to DISPLAY]MIN_LINEAR_VELOCITY\n", section)
+    newini.write("\n[TRAJ]")
+    newini.write(section)
+       
+    # Copy the remaining sections
+    while all_sections:
+        copysection(all_sections[0])
+    
+    #That's the INI file done:
+    newini.close()
 
 
-    # Now change all the pin names etc in the linked HAL files.
-    # Any machine can be jogged in world mode (in theory) but joint-mode jog-enable
-    # is not auto-linked for safety.
+###########################################
+############ Convert HAL files ############
+###########################################
+# Now change all the pin names etc in the linked HAL files.
+# Any machine can be jogged in world mode (in theory)
+# but joint-mode jog-enable is not auto-linked for safety.
 
 if version == "$Revision$" or version < "1.0":
     
@@ -550,10 +675,7 @@ if version < "1.1":
         'halui.spindle.override.value'          : 'halui.spindle.0.override.value'
         })
 
-if subs == {}:
-    print("""This file does not need converting, and furthermore execution
-    should never have reached this spot""")
-else:
+if subs:
     for halfile in halpaths:
         halstring = open(halfile,'r').read()
         for sub in subs:

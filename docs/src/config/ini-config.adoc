@@ -312,9 +312,8 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
 ====
 
 * `DEFAULT_LINEAR_VELOCITY = .25` - The default velocity for linear jogs, in <<sub:ini:sec:traj,machine units>> per second.
-* `MIN_VELOCITY = .01` - The approximate lowest value the jog slider.
+* `MIN_LINEAR_VELOCITY = .01` - The minimum velocity for linear jogs, in machine units per second.
 * `MAX_LINEAR_VELOCITY = 1.0` - The maximum velocity for linear jogs, in machine units per second.
-* `MIN_LINEAR_VELOCITY = .01` - The approximate lowest value the jog slider.
 * `DEFAULT_ANGULAR_VELOCITY = .25` - The default velocity for angular jogs, in machine units per second.
 * `MIN_ANGULAR_VELOCITY = .01` - The approximate lowest value the angular jog slider.
 * `MAX_ANGULAR_VELOCITY = 1.0` - The maximum velocity for angular jogs, in machine units per second.

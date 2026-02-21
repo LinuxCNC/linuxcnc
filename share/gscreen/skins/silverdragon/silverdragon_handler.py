@@ -201,7 +201,7 @@ class HandlerClass:
         default_spindle_speed = self.gscreen.inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED")
         self.spindle_start_rpm = self.gscreen.prefs.getpref( 'spindle_start_rpm', default_spindle_speed, float )
         # get the values for the sliders
-        default_jog_vel = float(self.gscreen.inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY"))
+        default_jog_vel = float(self.gscreen.inifile.find("DISPLAY", "DEFAULT_LINEAR_VELOCITY"))
         self.fast_jog = default_jog_vel
         self.slow_jog = default_jog_vel / self.slow_jog_factor
         self.jog_rate_max = self.gscreen.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
