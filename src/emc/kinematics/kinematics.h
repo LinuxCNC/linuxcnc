@@ -105,7 +105,7 @@ extern KINEMATICS_TYPE kinematicsType(void);
 /* Return the kinematics module name (e.g., "trivkins", "5axiskins").
    This must match the module filename without extension.
    Returns NULL if no name is available. */
-extern const char* kinematicsGetName(void);
+extern const char* kinematicsGetName(void) __attribute__((weak));
 
 /* parameters for use with switchkins.c */
 typedef struct kinematics_parms {
