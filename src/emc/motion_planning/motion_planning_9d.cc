@@ -686,6 +686,25 @@ static double jerkLimitedMaxEntryVelocity(double v_f, double d,
 }
 
 /**
+ * @brief Bidirectional reachability cap for entry/exit velocities.
+ *
+ * Ensures both velocities are physically achievable from each other within
+ * the given segment distance, respecting jerk and acceleration limits.
+ * By time-reversal symmetry, jerkLimitedMaxEntryVelocity(v, d, a, j) gives
+ * the max velocity at the other end — works for both accel and decel.
+ * Without this cap, Ruckig returns Working (overshooting profiles).
+ */
+static void applyBidirectionalReachability(double &v_entry, double &v_exit,
+                                            double distance, double max_acc,
+                                            double max_jrk)
+{
+    double v_fwd = jerkLimitedMaxEntryVelocity(v_entry, distance, max_acc, max_jrk);
+    double v_bwd = jerkLimitedMaxEntryVelocity(v_exit, distance, max_acc, max_jrk);
+    v_exit  = fmin(v_exit,  v_fwd);
+    v_entry = fmin(v_entry, v_bwd);
+}
+
+/**
  * @brief Check if exit velocity at this queue index is safe for the next segment.
  *
  * "Safe" means the next segment can accept exit_vel as its entry velocity
@@ -2110,18 +2129,8 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
             scaled_v_exit = applyKinkVelCap(scaled_v_exit, v_exit_unscaled, max_vel, tc->kink_vel);
             double desired_fvel_for_profile = scaled_v_exit;
 
-            // Reachability cap: ensure exit velocity is achievable from entry
-            // within segment distance (and vice versa). Without this, Ruckig
-            // returns Working (overshoot profiles) that cross the target position
-            // at an intermediate velocity much lower than the intended exit.
-            {
-                double v_fwd = jerkLimitedMaxEntryVelocity(
-                    scaled_v_entry, tc->target, max_acc, max_jrk);
-                double v_bwd = jerkLimitedMaxEntryVelocity(
-                    scaled_v_exit, tc->target, max_acc, max_jrk);
-                scaled_v_exit = fmin(scaled_v_exit, v_fwd);
-                scaled_v_entry = fmin(scaled_v_entry, v_bwd);
-            }
+            applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
+                tc->target, max_acc, max_jrk);
 
             // Skip if profile already matches: same feed, entry velocity, and exit target.
             // Avoids redundant Ruckig solves when forward pass already wrote correct profiles.
@@ -2157,9 +2166,12 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                             double p_max_vel = applyVLimit(tp, prev_seg, p_vel_limit * feed_scale);
                             double p_max_acc = tcGetTangentialMaxAccel_9D_user(prev_seg);
                             double p_max_jrk = prev_seg->maxjerk > 0 ? prev_seg->maxjerk : default_jerk;
-                            RuckigProfileParams rp_prev = {p_entry, curr_v0,
+                            double p_exit = curr_v0;
+                            applyBidirectionalReachability(p_entry, p_exit,
+                                prev_seg->target, p_max_acc, p_max_jrk);
+                            RuckigProfileParams rp_prev = {p_entry, p_exit,
                                 p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
-                                feed_scale, p_vel_limit, tp->vLimit, curr_v0};
+                                feed_scale, p_vel_limit, tp->vLimit, p_exit};
                             if (computeAndStoreProfile(prev_seg, rp_prev)) {
                                 atomicStoreInt((int*)&prev_seg->shared_9d.optimization_state,
                                     TC_PLAN_FINALIZED);
@@ -4002,15 +4014,8 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                 double scaled_v_exit = applyKinkVelCap(scaled_v_exit_pre, v_exit, max_vel, tc->kink_vel);
                 double desired_fvel_for_profile = scaled_v_exit;
 
-                // Reachability cap
-                {
-                    double v_fwd = jerkLimitedMaxEntryVelocity(
-                        scaled_v_entry, tc->target, max_acc, max_jrk);
-                    double v_bwd = jerkLimitedMaxEntryVelocity(
-                        scaled_v_exit, tc->target, max_acc, max_jrk);
-                    scaled_v_exit = fmin(scaled_v_exit, v_fwd);
-                    scaled_v_entry = fmin(scaled_v_entry, v_bwd);
-                }
+                applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
+                    tc->target, max_acc, max_jrk);
 
                 try {
                     RuckigProfileParams rp = {scaled_v_entry, scaled_v_exit,
@@ -4044,9 +4049,12 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                                 double p_max_vel = applyVLimit(tp, prev_seg, p_vel_limit * feed_scale);
                                 double p_max_acc = tcGetTangentialMaxAccel_9D_user(prev_seg);
                                 double p_max_jrk = prev_seg->maxjerk > 0 ? prev_seg->maxjerk : default_jerk;
-                                RuckigProfileParams rp_prev = {p_entry, curr_v0,
+                                double p_exit = curr_v0;
+                                applyBidirectionalReachability(p_entry, p_exit,
+                                    prev_seg->target, p_max_acc, p_max_jrk);
+                                RuckigProfileParams rp_prev = {p_entry, p_exit,
                                     p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
-                                    feed_scale, p_vel_limit, tp->vLimit, curr_v0};
+                                    feed_scale, p_vel_limit, tp->vLimit, p_exit};
                                 if (computeAndStoreProfile(prev_seg, rp_prev)) {
                                     atomicStoreInt((int*)&prev_seg->shared_9d.optimization_state,
                                         TC_PLAN_FINALIZED);
@@ -4415,19 +4423,8 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
             // convergence detection — see RECOMP_FVEL check above.
             double desired_fvel_for_profile = scaled_v_exit;
 
-            // Reachability cap: ensure exit velocity is physically achievable
-            // from entry velocity within segment distance. By time-reversal
-            // symmetry, jerkLimitedMaxEntryVelocity(v, d, a, j) gives the
-            // max velocity at the other end — works for both accel and decel.
-            // Without this cap, Ruckig returns Working (overshooting profiles).
-            {
-                double v_fwd = jerkLimitedMaxEntryVelocity(
-                    scaled_v_entry, tc->target, max_acc, max_jrk);
-                double v_bwd = jerkLimitedMaxEntryVelocity(
-                    scaled_v_exit, tc->target, max_acc, max_jrk);
-                scaled_v_exit = fmin(scaled_v_exit, v_fwd);
-                scaled_v_entry = fmin(scaled_v_entry, v_bwd);
-            }
+            applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
+                tc->target, max_acc, max_jrk);
 
             try {
                 RuckigProfileParams rp = {scaled_v_entry, scaled_v_exit,
@@ -4460,9 +4457,12 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                             double p_max_vel = applyVLimit(tp, prev_seg, p_vel_limit * p_feed);
                             double p_max_acc = tcGetTangentialMaxAccel_9D_user(prev_seg);
                             double p_max_jrk = prev_seg->maxjerk > 0 ? prev_seg->maxjerk : default_jerk;
-                            RuckigProfileParams rp_prev = {p_entry, curr_v0,
+                            double p_exit = curr_v0;
+                            applyBidirectionalReachability(p_entry, p_exit,
+                                prev_seg->target, p_max_acc, p_max_jrk);
+                            RuckigProfileParams rp_prev = {p_entry, p_exit,
                                 p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
-                                p_feed, p_vel_limit, tp->vLimit, curr_v0};
+                                p_feed, p_vel_limit, tp->vLimit, p_exit};
                             if (computeAndStoreProfile(prev_seg, rp_prev)) {
                                 atomicStoreInt((int*)&prev_seg->shared_9d.optimization_state,
                                     TC_PLAN_FINALIZED);
@@ -4557,10 +4557,9 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
         // Capped exit velocity for A
         double capped_exit = B_max_entry;
 
-        // Reachability: can A reach capped_exit from its entry within its length?
-        double A_v_fwd = jerkLimitedMaxEntryVelocity(
-            A_v_entry_scaled, tc_A->target, A_acc, A_jrk);
-        capped_exit = fmin(capped_exit, A_v_fwd);
+        // Bidirectional reachability: cap both entry and exit
+        applyBidirectionalReachability(A_v_entry_scaled, capped_exit,
+            tc_A->target, A_acc, A_jrk);
 
         try {
             RuckigProfileParams rp = {A_v_entry_scaled, capped_exit,
