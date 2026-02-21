@@ -14,6 +14,7 @@
 ********************************************************************/
 
 #include <stdlib.h>
+#include <math.h>		// fabs()
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include <sys/stat.h>		// struct stat
 #include <unistd.h>		// stat()
@@ -232,6 +233,9 @@ int emcTaskAbort()
 {
     emcMotionAbort();
 
+    // REMOVED: Immediate FREE mode call (no longer needed)
+    // Was part of workaround for pausing flag bug, now fixed in tpCleanupAfterAbort_9D()
+
     // clear out the pending command
     emcTaskCommand = 0;
     interp_list.clear();
@@ -288,16 +292,22 @@ int emcTaskSetMode(EMC_TASK_MODE mode)
 
     case EMC_TASK_MODE::MDI:
 	// go to mdi mode
-	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
+	// IMPORTANT: Abort BEFORE entering COORD mode to ensure clean state.
+	// If COORD is sent first, ABORT may arrive late (after segments are
+	// queued) and wipe fresh segments that haven't started moving yet.
 	emcTaskAbort();
+	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE::MDI;
 	break;
 
     case EMC_TASK_MODE::AUTO:
 	// go to auto mode
-	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
+	// IMPORTANT: Abort BEFORE entering COORD mode to ensure clean state.
+	// If COORD is sent first, ABORT may arrive late (after segments are
+	// queued) and wipe fresh segments that haven't started moving yet.
 	emcTaskAbort();
+	emcTrajSetMode(EMC_TRAJ_MODE::COORD);
 	emcTaskPlanSynch();
 	mdiOrAuto = EMC_TASK_MODE::AUTO;
 	break;
@@ -542,6 +552,17 @@ int emcTaskPlanOpen(const char *file)
 	emcStatus->task.motionLine = 0;
 	emcStatus->task.currentLine = 0;
 	emcStatus->task.readLine = 0;
+    }
+
+    // Reset canon length units to machine default before re-opening.
+    // Without this, G20/G21 from the previous run persists in
+    // canon.lengthUnits, causing FROM_PROG_LEN() to convert differently
+    // on re-run for G-code commands that appear before G20/G21.
+    double units = GET_EXTERNAL_LENGTH_UNITS();
+    if (fabs(units - 1.0 / 25.4) < 1.0e-3) {
+	USE_LENGTH_UNITS(CANON_UNITS_INCHES);
+    } else if (fabs(units - 1.0) < 1.0e-3) {
+	USE_LENGTH_UNITS(CANON_UNITS_MM);
     }
 
     int retval = interp.open(file);

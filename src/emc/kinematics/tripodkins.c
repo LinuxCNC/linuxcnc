@@ -72,6 +72,112 @@
 #endif
 #endif
 
+/* Parameters struct for tripod kinematics */
+typedef struct {
+    double bx;  /* X coordinate of point B */
+    double cx;  /* X coordinate of point C */
+    double cy;  /* Y coordinate of point C */
+} tripod_params_t;
+
+#ifndef tripod_sq
+#define tripod_sq(x) ((x)*(x))
+#endif
+
+/*
+ * Pure forward kinematics - strut lengths to Cartesian position
+ *
+ * Takes three strut lengths and computes Dx, Dy, and Dz.
+ * The forward flag resolves D above/below the xy plane.
+ *
+ * Returns 0 on success, -1 on singularity
+ */
+static int tripod_forward_math(const tripod_params_t *params,
+                               const double *joints,
+                               EmcPose *pos,
+                               const KINEMATICS_FORWARD_FLAGS *fflags,
+                               KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)iflags;
+    double P, Q, R;
+    double s, t, u;
+    double AD = joints[0];
+    double BD = joints[1];
+    double CD = joints[2];
+    double Bx_v = params->bx;
+    double Cx_v = params->cx;
+    double Cy_v = params->cy;
+
+    P = tripod_sq(AD);
+    Q = tripod_sq(BD) - tripod_sq(Bx_v);
+    R = tripod_sq(CD) - tripod_sq(Cx_v) - tripod_sq(Cy_v);
+    s = -2.0 * Bx_v;
+    t = -2.0 * Cx_v;
+    u = -2.0 * Cy_v;
+
+    if (s == 0.0) {
+        /* points A and B coincident */
+        return -1;
+    }
+    pos->tran.x = (Q - P) / s;
+
+    if (u == 0.0) {
+        /* points A B C are colinear */
+        return -1;
+    }
+    pos->tran.y = (R - Q - (t - s) * pos->tran.x) / u;
+    pos->tran.z = P - tripod_sq(pos->tran.x) - tripod_sq(pos->tran.y);
+    if (pos->tran.z < 0.0) {
+        /* triangle inequality violated */
+        return -1;
+    }
+    pos->tran.z = sqrt(pos->tran.z);
+    if (fflags && *fflags) {
+        pos->tran.z = -pos->tran.z;
+    }
+
+    pos->a = 0.0;
+    pos->b = 0.0;
+    pos->c = 0.0;
+    pos->u = 0.0;
+    pos->v = 0.0;
+    pos->w = 0.0;
+
+    return 0;
+}
+
+/*
+ * Pure inverse kinematics - Cartesian position to strut lengths
+ *
+ * Returns 0 on success
+ */
+static int tripod_inverse_math(const tripod_params_t *params,
+                               const EmcPose *pos,
+                               double *joints,
+                               const KINEMATICS_INVERSE_FLAGS *iflags,
+                               KINEMATICS_FORWARD_FLAGS *fflags)
+{
+    (void)iflags;
+    double Dx = pos->tran.x;
+    double Dy = pos->tran.y;
+    double Dz = pos->tran.z;
+    double Bx_v = params->bx;
+    double Cx_v = params->cx;
+    double Cy_v = params->cy;
+
+    joints[0] = sqrt(tripod_sq(Dx) + tripod_sq(Dy) + tripod_sq(Dz));
+    joints[1] = sqrt(tripod_sq(Dx - Bx_v) + tripod_sq(Dy) + tripod_sq(Dz));
+    joints[2] = sqrt(tripod_sq(Dx - Cx_v) + tripod_sq(Dy - Cy_v) + tripod_sq(Dz));
+
+    if (fflags) {
+        *fflags = 0;
+        if (Dz < 0.0) {
+            *fflags = 1;
+        }
+    }
+
+    return 0;
+}
+
 #include "hal.h"
 struct haldata {
     hal_float_t *bx, *cx, *cy;
@@ -80,8 +186,6 @@ struct haldata {
 #define Bx (*(haldata->bx))
 #define Cx (*(haldata->cx))
 #define Cy (*(haldata->cy))
-
-#define sq(x) ((x)*(x))
 
 /*
   forward kinematics takes three strut lengths and computes Dx, Dy, and Dz
@@ -128,56 +232,11 @@ int kinematicsForward(const double * joints,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
                       KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    (void)iflags;
-#define AD (joints[0])
-#define BD (joints[1])
-#define CD (joints[2])
-#define Dx (pos->tran.x)
-#define Dy (pos->tran.y)
-#define Dz (pos->tran.z)
-  double P, Q, R;
-  double s, t, u;
-
-  P = sq(AD);
-  Q = sq(BD) - sq(Bx);
-  R = sq(CD) - sq(Cx) - sq(Cy);
-  s = -2.0 * Bx;
-  t = -2.0 * Cx;
-  u = -2.0 * Cy;
-
-  if (s == 0.0) {
-    /* points A and B coincident. Fix Bx, #defined up top. */
-    return -1;
-  }
-  Dx = (Q - P) / s;
-
-  if (u == 0.0) {
-    /* points A B C are colinear. Fix Cy, #defined up top. */
-    return -1;
-  }
-  Dy = (R - Q - (t - s) * Dx) / u;
-  Dz = P - sq(Dx) - sq(Dy);
-  if (Dz < 0.0) {
-    /* triangle inequality violated */
-    return -1;
-  }
-  Dz = sqrt(Dz);
-  if (*fflags) {
-    Dz = -Dz;
-  }
-
-  pos->a = 0.0;
-  pos->b = 0.0;
-  pos->c = 0.0;
-
-  return 0;
-
-#undef AD
-#undef BD
-#undef CD
-#undef Dx
-#undef Dy
-#undef Dz
+    tripod_params_t params;
+    params.bx = Bx;
+    params.cx = Cx;
+    params.cy = Cy;
+    return tripod_forward_math(&params, joints, pos, fflags, iflags);
 }
 
 int kinematicsInverse(const EmcPose * pos,
@@ -185,31 +244,11 @@ int kinematicsInverse(const EmcPose * pos,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    (void)iflags;
-#define AD (joints[0])
-#define BD (joints[1])
-#define CD (joints[2])
-#define Dx (pos->tran.x)
-#define Dy (pos->tran.y)
-#define Dz (pos->tran.z)
-
-  AD = sqrt(sq(Dx) + sq(Dy) + sq(Dz));
-  BD = sqrt(sq(Dx - Bx) + sq(Dy) + sq(Dz));
-  CD = sqrt(sq(Dx - Cx) + sq(Dy - Cy) + sq(Dz));
-
-  *fflags = 0;
-  if (Dz < 0.0) {
-    *fflags = 1;
-  }
-
-  return 0;
-
-#undef AD
-#undef BD
-#undef CD
-#undef Dx
-#undef Dy
-#undef Dz
+    tripod_params_t params;
+    params.bx = Bx;
+    params.cx = Cx;
+    params.cy = Cy;
+    return tripod_inverse_math(&params, pos, joints, iflags, fflags);
 }
 
 KINEMATICS_TYPE kinematicsType()
@@ -350,10 +389,13 @@ int main(int argc, char *argv[])
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
+const char* kinematicsGetName(void) { return "tripodkins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 
 MODULE_LICENSE("GPL");
 
@@ -383,3 +425,57 @@ error:
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
+
+/* ========================================================================
+ * Non-RT interface for userspace trajectory planner
+ * ======================================================================== */
+#include "kinematics_params.h"
+
+int nonrt_kinematicsForward(const void *params,
+                            const double *joints,
+                            EmcPose *pos)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    tripod_params_t p;
+    p.bx = kp->params.tripod.bx;
+    p.cx = kp->params.tripod.cx;
+    p.cy = kp->params.tripod.cy;
+    return tripod_forward_math(&p, joints, pos, NULL, NULL);
+}
+
+int nonrt_kinematicsInverse(const void *params,
+                            const EmcPose *pos,
+                            double *joints)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    tripod_params_t p;
+    p.bx = kp->params.tripod.bx;
+    p.cx = kp->params.tripod.cx;
+    p.cy = kp->params.tripod.cy;
+    return tripod_inverse_math(&p, pos, joints, NULL, NULL);
+}
+
+int nonrt_refresh(void *params,
+                  int (*read_float)(const char *, double *),
+                  int (*read_bit)(const char *, int *),
+                  int (*read_s32)(const char *, int *))
+{
+    kinematics_params_t *kp = (kinematics_params_t *)params;
+    (void)read_bit; (void)read_s32;
+
+    if (read_float("tripodkins.Bx", &kp->params.tripod.bx) != 0)
+        return -1;
+    if (read_float("tripodkins.Cx", &kp->params.tripod.cx) != 0)
+        return -1;
+    if (read_float("tripodkins.Cy", &kp->params.tripod.cy) != 0)
+        return -1;
+
+    return 0;
+}
+
+int nonrt_is_identity(void) { return 0; }
+
+EXPORT_SYMBOL(nonrt_kinematicsForward);
+EXPORT_SYMBOL(nonrt_kinematicsInverse);
+EXPORT_SYMBOL(nonrt_refresh);
+EXPORT_SYMBOL(nonrt_is_identity);

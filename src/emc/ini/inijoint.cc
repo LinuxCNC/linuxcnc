@@ -77,7 +77,6 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
     double units;
     double backlash;
     double offset;
-    double limit;
     double home;
     double search_vel;
     double latch_vel;
@@ -95,6 +94,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
     double maxAcceleration;
     double maxJerk;
     double ferror;
+    double limit;
 
     // compose string to match, joint = 0 -> JOINT_0, etc.
     snprintf(jointString, sizeof(jointString), "JOINT_%d", joint);
@@ -230,6 +230,10 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
             return -1;
         }
         old_inihal_data.joint_jerk[joint] = maxJerk;
+
+        // NOTE: Userspace kinematics reads joint limits dynamically from shared memory
+        // (emcmotStruct->status.joint_status[j]) to support runtime changes
+        // via HAL pins (ini.N.max_limit, ini.N.max_velocity, etc.)
 
         comp_file_type = 0;             // default
         jointIniFile->Find(&comp_file_type, "COMP_FILE_TYPE", jointString);

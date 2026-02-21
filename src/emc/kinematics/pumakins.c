@@ -25,22 +25,34 @@
 #include "kinematics.h"
 #include "switchkins.h"
 
-struct haldata {
-    hal_float_t *a2, *a3, *d3, *d4, *d6;
-} *haldata = 0;
+/* ========================================================================
+ * Internal math (was in pumakins_math.h)
+ * ======================================================================== */
 
-#define PUMA_A2 (*(haldata->a2))
-#define PUMA_A3 (*(haldata->a3))
-#define PUMA_D3 (*(haldata->d3))
-#define PUMA_D4 (*(haldata->d4))
-#define PUMA_D6 (*(haldata->d6))
+/* Parameters struct - matches kinematics_params.h kins_puma_params_t */
+typedef struct {
+    double a2;  /* Link length A2 */
+    double a3;  /* Link length A3 */
+    double d3;  /* Link offset D3 */
+    double d4;  /* Link offset D4 */
+    double d6;  /* Tool offset D6 */
+} puma_params_t;
 
-static int pumaKinematicsForward(const double * joint,
-                                 EmcPose * world,
-                                 const KINEMATICS_FORWARD_FLAGS * fflags,
-                                 KINEMATICS_INVERSE_FLAGS * iflags)
+/*
+ * Pure forward kinematics - joints to world coordinates
+ *
+ * params: kinematics parameters (a2, a3, d3, d4, d6)
+ * joints: input joint positions array (6 joints, in degrees)
+ * world: output world position (EmcPose)
+ * iflags: output inverse kinematics flags (can be NULL)
+ *
+ * Returns 0 on success
+ */
+static int puma_forward_math(const puma_params_t *params,
+                             const double *joints,
+                             EmcPose *world,
+                             int *iflags)
 {
-   (void)fflags;
    double s1, s2, s3, s4, s5, s6;
    double c1, c2, c3, c4, c5, c6;
    double s23;
@@ -50,22 +62,23 @@ static int pumaKinematicsForward(const double * joint,
    PmHomogeneous hom;
    PmPose worldPose;
    PmRpy rpy;
+   int flags = 0;
 
    /* Calculate sin of joints for future use */
-   s1 = sin(joint[0]*PM_PI/180);
-   s2 = sin(joint[1]*PM_PI/180);
-   s3 = sin(joint[2]*PM_PI/180);
-   s4 = sin(joint[3]*PM_PI/180);
-   s5 = sin(joint[4]*PM_PI/180);
-   s6 = sin(joint[5]*PM_PI/180);
+   s1 = sin(joints[0]*PM_PI/180.0);
+   s2 = sin(joints[1]*PM_PI/180.0);
+   s3 = sin(joints[2]*PM_PI/180.0);
+   s4 = sin(joints[3]*PM_PI/180.0);
+   s5 = sin(joints[4]*PM_PI/180.0);
+   s6 = sin(joints[5]*PM_PI/180.0);
 
    /* Calculate cos of joints for future use */
-   c1 = cos(joint[0]*PM_PI/180);
-   c2 = cos(joint[1]*PM_PI/180);
-   c3 = cos(joint[2]*PM_PI/180);
-   c4 = cos(joint[3]*PM_PI/180);
-   c5 = cos(joint[4]*PM_PI/180);
-   c6 = cos(joint[5]*PM_PI/180);
+   c1 = cos(joints[0]*PM_PI/180.0);
+   c2 = cos(joints[1]*PM_PI/180.0);
+   c3 = cos(joints[2]*PM_PI/180.0);
+   c4 = cos(joints[3]*PM_PI/180.0);
+   c5 = cos(joints[4]*PM_PI/180.0);
+   c6 = cos(joints[5]*PM_PI/180.0);
 
    s23 = c2 * s3 + s2 * c3;
    c23 = c2 * c3 - s2 * s3;
@@ -107,37 +120,34 @@ static int pumaKinematicsForward(const double * joint,
 
    /* Calculate term to be used in definition of...  */
    /* position vector.                               */
-   t1 = PUMA_A2 * c2 + PUMA_A3 * c23 - PUMA_D4 * s23;
+   t1 = params->a2 * c2 + params->a3 * c23 - params->d4 * s23;
 
    /* Define position vector */
-   hom.tran.x = c1 * t1 - PUMA_D3 * s1;
-   hom.tran.y = s1 * t1 + PUMA_D3 * c1;
-   hom.tran.z = -PUMA_A3 * s23 - PUMA_A2 * s2 - PUMA_D4 * c23;
+   hom.tran.x = c1 * t1 - params->d3 * s1;
+   hom.tran.y = s1 * t1 + params->d3 * c1;
+   hom.tran.z = -params->a3 * s23 - params->a2 * s2 - params->d4 * c23;
 
    /* Calculate terms to be used to...   */
    /* determine flags.                   */
    sumSq = hom.tran.x * hom.tran.x + hom.tran.y * hom.tran.y -
-           PUMA_D3 * PUMA_D3;
-   k = (sumSq + hom.tran.z * hom.tran.z - PUMA_A2 * PUMA_A2 -
-       PUMA_A3 * PUMA_A3 - PUMA_D4 * PUMA_D4) /
-       (2.0 * PUMA_A2);
-
-   /* reset flags */
-   *iflags = 0;
+           params->d3 * params->d3;
+   k = (sumSq + hom.tran.z * hom.tran.z - params->a2 * params->a2 -
+       params->a3 * params->a3 - params->d4 * params->d4) /
+       (2.0 * params->a2);
 
    /* Set shoulder-up flag if necessary */
-   if (fabs(joint[0]*PM_PI/180 - atan2(hom.tran.y, hom.tran.x) +
-       atan2(PUMA_D3, -sqrt(sumSq))) < FLAG_FUZZ)
+   if (fabs(joints[0]*PM_PI/180.0 - atan2(hom.tran.y, hom.tran.x) +
+       atan2(params->d3, -sqrt(sumSq))) < FLAG_FUZZ)
    {
-     *iflags |= PUMA_SHOULDER_RIGHT;
+     flags |= PUMA_SHOULDER_RIGHT;
    }
 
    /* Set elbow down flag if necessary */
-   if (fabs(joint[2]*PM_PI/180 - atan2(PUMA_A3, PUMA_D4) +
-       atan2(k, -sqrt(PUMA_A3 * PUMA_A3 +
-       PUMA_D4 * PUMA_D4 - k * k))) < FLAG_FUZZ)
+   if (fabs(joints[2]*PM_PI/180.0 - atan2(params->a3, params->d4) +
+       atan2(k, -sqrt(params->a3 * params->a3 +
+       params->d4 * params->d4 - k * k))) < FLAG_FUZZ)
    {
-      *iflags |= PUMA_ELBOW_DOWN;
+      flags |= PUMA_ELBOW_DOWN;
    }
 
    /* set singular flag if necessary */
@@ -146,20 +156,21 @@ static int pumaKinematicsForward(const double * joint,
          hom.rot.z.z * s23;
    if (fabs(t1) < SINGULAR_FUZZ && fabs(t2) < SINGULAR_FUZZ)
    {
-      *iflags |= PUMA_SINGULAR;
+      flags |= PUMA_SINGULAR;
    }
 
    /* if not singular set wrist flip flag if necessary */
    else{
-     if (! (fabs(joint[3]*PM_PI/180 - atan2(t1, t2)) < FLAG_FUZZ))
+     if (! (fabs(joints[3]*PM_PI/180.0 - atan2(t1, t2)) < FLAG_FUZZ))
      {
-       *iflags |= PUMA_WRIST_FLIP;
+       flags |= PUMA_WRIST_FLIP;
      }
    }
-  /*  add effect of d6 parameter */
-    hom.tran.x = hom.tran.x + hom.rot.z.x*PUMA_D6;
-    hom.tran.y = hom.tran.y + hom.rot.z.y*PUMA_D6;
-    hom.tran.z = hom.tran.z + hom.rot.z.z*PUMA_D6;
+
+   /*  add effect of d6 parameter */
+   hom.tran.x = hom.tran.x + hom.rot.z.x*params->d6;
+   hom.tran.y = hom.tran.y + hom.rot.z.y*params->d6;
+   hom.tran.z = hom.tran.z + hom.rot.z.z*params->d6;
 
    /* convert hom.rot to world->quat */
    pmHomPoseConvert(&hom, &worldPose);
@@ -168,16 +179,36 @@ static int pumaKinematicsForward(const double * joint,
    world->a = rpy.r * 180.0/PM_PI;
    world->b = rpy.p * 180.0/PM_PI;
    world->c = rpy.y * 180.0/PM_PI;
+   world->u = 0.0;
+   world->v = 0.0;
+   world->w = 0.0;
 
+   /* Store flags if requested */
+   if (iflags != NULL) {
+       *iflags = flags;
+   }
 
-   /* return 0 and exit */
    return 0;
 }
 
-static int pumaKinematicsInverse(const EmcPose * world,
-                                 double * joint,
-                                 const KINEMATICS_INVERSE_FLAGS * iflags,
-                                 KINEMATICS_FORWARD_FLAGS * fflags)
+/*
+ * Pure inverse kinematics - world coordinates to joints
+ *
+ * params: kinematics parameters (a2, a3, d3, d4, d6)
+ * world: input world position (EmcPose)
+ * joints: output joint positions array (6 joints, in degrees)
+ * current_joints: current joint positions for singularity resolution (can be NULL)
+ * iflags: input inverse kinematics flags (shoulder/elbow/wrist configuration)
+ * fflags: output forward kinematics flags (can be NULL)
+ *
+ * Returns 0 on success, -1 on failure
+ */
+static int puma_inverse_math(const puma_params_t *params,
+                             const EmcPose *world,
+                             double *joints,
+                             const double *current_joints,
+                             int iflags,
+                             int *fflags)
 {
    PmHomogeneous hom;
    PmPose worldPose;
@@ -202,9 +233,7 @@ static int pumaKinematicsInverse(const EmcPose * world,
    double s5, c5;
    double s6, c6;
    double px, py, pz;
-
-   /* reset flags */
-   *fflags = 0;
+   int flags = 0;
 
    /* convert pose to hom */
    worldPose.tran = world->tran;
@@ -214,23 +243,21 @@ static int pumaKinematicsInverse(const EmcPose * world,
    pmRpyQuatConvert(&rpy,&worldPose.rot);
    pmPoseHomConvert(&worldPose, &hom);
 
-  /* remove effect of d6 parameter */
-   px = hom.tran.x - PUMA_D6*hom.rot.z.x;
-   py = hom.tran.y - PUMA_D6*hom.rot.z.y;
-   pz = hom.tran.z - PUMA_D6*hom.rot.z.z;
+   /* remove effect of d6 parameter */
+   px = hom.tran.x - params->d6*hom.rot.z.x;
+   py = hom.tran.y - params->d6*hom.rot.z.y;
+   pz = hom.tran.z - params->d6*hom.rot.z.z;
 
    /* Joint 1 (2 independent solutions) */
 
    /* save sum of squares for this and subsequent calcs */
-   sumSq = px * px + py * py -
-           PUMA_D3 * PUMA_D3;
+   sumSq = px * px + py * py - params->d3 * params->d3;
 
-   /* FIXME-- is use of + sqrt shoulder right or left? */
-   if (*iflags & PUMA_SHOULDER_RIGHT){
-     th1 = atan2(py, px) - atan2(PUMA_D3, -sqrt(sumSq));
+   if (iflags & PUMA_SHOULDER_RIGHT){
+     th1 = atan2(py, px) - atan2(params->d3, -sqrt(sumSq));
    }
    else{
-     th1 = atan2(py, px) - atan2(PUMA_D3, sqrt(sumSq));
+     th1 = atan2(py, px) - atan2(params->d3, sqrt(sumSq));
    }
 
    /* save sin, cos for later calcs */
@@ -239,16 +266,15 @@ static int pumaKinematicsInverse(const EmcPose * world,
 
    /* Joint 3 (2 independent solutions) */
 
-   k = (sumSq + pz * pz - PUMA_A2 * PUMA_A2 -
-       PUMA_A3 * PUMA_A3 - PUMA_D4 * PUMA_D4) / (2.0 * PUMA_A2);
+   k = (sumSq + pz * pz - params->a2 * params->a2 -
+       params->a3 * params->a3 - params->d4 * params->d4) / (2.0 * params->a2);
 
-   /* FIXME-- is use of + sqrt elbow up or down? */
-   if (*iflags & PUMA_ELBOW_DOWN){
-     th3 = atan2(PUMA_A3, PUMA_D4) - atan2(k, -sqrt(PUMA_A3 * PUMA_A3 + PUMA_D4 * PUMA_D4 - k * k));
+   if (iflags & PUMA_ELBOW_DOWN){
+     th3 = atan2(params->a3, params->d4) - atan2(k, -sqrt(params->a3 * params->a3 + params->d4 * params->d4 - k * k));
    }
    else{
-     th3 = atan2(PUMA_A3, PUMA_D4) -
-           atan2(k, sqrt(PUMA_A3 * PUMA_A3 + PUMA_D4 * PUMA_D4 - k * k));
+     th3 = atan2(params->a3, params->d4) -
+           atan2(k, sqrt(params->a3 * params->a3 + params->d4 * params->d4 - k * k));
    }
 
    /* compute sin, cos for later calcs */
@@ -257,10 +283,10 @@ static int pumaKinematicsInverse(const EmcPose * world,
 
    /* Joint 2 */
 
-   t1 = (-PUMA_A3 - PUMA_A2 * c3) * pz +
-        (c1 * px + s1 * py) * (PUMA_A2 * s3 - PUMA_D4);
-   t2 = (PUMA_A2 * s3 - PUMA_D4) * pz +
-        (PUMA_A3 + PUMA_A2 * c3) * (c1 * px + s1 * py);
+   t1 = (-params->a3 - params->a2 * c3) * pz +
+        (c1 * px + s1 * py) * (params->a2 * s3 - params->d4);
+   t2 = (params->a2 * s3 - params->d4) * pz +
+        (params->a3 + params->a2 * c3) * (c1 * px + s1 * py);
    t3 = pz * pz + (c1 * px + s1 * py) *
         (c1 * px + s1 * py);
 
@@ -276,8 +302,9 @@ static int pumaKinematicsInverse(const EmcPose * world,
    t1 = -hom.rot.z.x * s1 + hom.rot.z.y * c1;
    t2 = -hom.rot.z.x * c1 * c23 - hom.rot.z.y * s1 * c23 + hom.rot.z.z * s23;
    if (fabs(t1) < SINGULAR_FUZZ && fabs(t2) < SINGULAR_FUZZ){
-     *fflags |= PUMA_REACH;
-     th4 = joint[3]*PM_PI/180;            /* use current value */
+     flags |= PUMA_REACH;
+     /* use current value if available */
+     th4 = (current_joints != NULL) ? current_joints[3]*PM_PI/180.0 : 0.0;
    }
    else{
      th4 = atan2(t1, t2);
@@ -307,21 +334,82 @@ static int pumaKinematicsInverse(const EmcPose * world,
         hom.rot.x.z * (s23 * c4 * c5 + c23 * s5);
    th6 = atan2(s6, c6);
 
-   /* FIXME-- is wrist flip the normal or offset results? */
-   if (*iflags & PUMA_WRIST_FLIP){
+   if (iflags & PUMA_WRIST_FLIP){
      th4 = th4 + PM_PI;
      th5 = -th5;
      th6 = th6 + PM_PI;
    }
 
    /* copy out */
-   joint[0] = th1*180/PM_PI;
-   joint[1] = th2*180/PM_PI;
-   joint[2] = th3*180/PM_PI;
-   joint[3] = th4*180/PM_PI;
-   joint[4] = th5*180/PM_PI;
-   joint[5] = th6*180/PM_PI;
+   joints[0] = th1*180.0/PM_PI;
+   joints[1] = th2*180.0/PM_PI;
+   joints[2] = th3*180.0/PM_PI;
+   joints[3] = th4*180.0/PM_PI;
+   joints[4] = th5*180.0/PM_PI;
+   joints[5] = th6*180.0/PM_PI;
 
+   /* Store flags if requested */
+   if (fflags != NULL) {
+       *fflags = flags;
+   }
+
+   return 0;
+}
+
+/* ========================================================================
+ * RT interface (reads HAL pins)
+ * ======================================================================== */
+
+struct haldata {
+    hal_float_t *a2, *a3, *d3, *d4, *d6;
+} *haldata = 0;
+
+#define PUMA_A2 (*(haldata->a2))
+#define PUMA_A3 (*(haldata->a3))
+#define PUMA_D3 (*(haldata->d3))
+#define PUMA_D4 (*(haldata->d4))
+#define PUMA_D6 (*(haldata->d6))
+
+static int pumaKinematicsForward(const double * joint,
+                                 EmcPose * world,
+                                 const KINEMATICS_FORWARD_FLAGS * fflags,
+                                 KINEMATICS_INVERSE_FLAGS * iflags)
+{
+   (void)fflags;
+   puma_params_t params;
+   int flags_out = 0;
+
+   params.a2 = PUMA_A2;
+   params.a3 = PUMA_A3;
+   params.d3 = PUMA_D3;
+   params.d4 = PUMA_D4;
+   params.d6 = PUMA_D6;
+
+   puma_forward_math(&params, joint, world, &flags_out);
+
+   *iflags = flags_out;
+   return 0;
+}
+
+static int pumaKinematicsInverse(const EmcPose * world,
+                                 double * joint,
+                                 const KINEMATICS_INVERSE_FLAGS * iflags,
+                                 KINEMATICS_FORWARD_FLAGS * fflags)
+{
+   puma_params_t params;
+   int flags_out = 0;
+
+   params.a2 = PUMA_A2;
+   params.a3 = PUMA_A3;
+   params.d3 = PUMA_D3;
+   params.d4 = PUMA_D4;
+   params.d6 = PUMA_D6;
+
+   *fflags = 0;
+
+   puma_inverse_math(&params, world, joint, joint, *iflags, &flags_out);
+
+   *fflags = flags_out;
    return 0;
 }
 
@@ -382,3 +470,61 @@ int switchkinsSetup(kparms* kp,
 
     return 0;
 } // switchkinsSetup()
+
+/* ========================================================================
+ * Non-RT interface for userspace trajectory planner
+ * ======================================================================== */
+#include "kinematics_params.h"
+
+int nonrt_kinematicsForward(const void *params,
+                            const double *joints,
+                            EmcPose *pos)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    puma_params_t p;
+    p.a2 = kp->params.puma.a2;
+    p.a3 = kp->params.puma.a3;
+    p.d3 = kp->params.puma.d3;
+    p.d4 = kp->params.puma.d4;
+    p.d6 = kp->params.puma.d6;
+    return puma_forward_math(&p, joints, pos, NULL);
+}
+
+int nonrt_kinematicsInverse(const void *params,
+                            const EmcPose *pos,
+                            double *joints)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    puma_params_t p;
+    p.a2 = kp->params.puma.a2;
+    p.a3 = kp->params.puma.a3;
+    p.d3 = kp->params.puma.d3;
+    p.d4 = kp->params.puma.d4;
+    p.d6 = kp->params.puma.d6;
+    return puma_inverse_math(&p, pos, joints, NULL, 0, NULL);
+}
+
+int nonrt_refresh(void *params,
+                  int (*read_float)(const char *, double *),
+                  int (*read_bit)(const char *, int *),
+                  int (*read_s32)(const char *, int *))
+{
+    kinematics_params_t *kp = (kinematics_params_t *)params;
+    (void)read_bit;
+    (void)read_s32;
+
+    read_float("pumakins.A2", &kp->params.puma.a2);
+    read_float("pumakins.A3", &kp->params.puma.a3);
+    read_float("pumakins.D3", &kp->params.puma.d3);
+    read_float("pumakins.D4", &kp->params.puma.d4);
+    read_float("pumakins.D6", &kp->params.puma.d6);
+
+    return 0;
+}
+
+int nonrt_is_identity(void) { return 0; }
+
+EXPORT_SYMBOL(nonrt_kinematicsForward);
+EXPORT_SYMBOL(nonrt_kinematicsInverse);
+EXPORT_SYMBOL(nonrt_refresh);
+EXPORT_SYMBOL(nonrt_is_identity);

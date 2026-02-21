@@ -354,6 +354,14 @@ Preempt-rt make example:
 $ userkfuncs=/home/myname/kins/mykins.c make && sudo make setuid
 ----
 
+[NOTE]
+When using planner type 2, the parent switchkins module (e.g.,
+xyzac-trt-kins) must also export `nonrt_*` functions for the
+userspace trajectory planner.  All built-in switchkins modules
+already include these exports.  See the
+<<cha:kinematics,Kinematics>> chapter for details on the non-RT
+interface required by the userspace planner.
+
 == Warnings
 
 Unexpected behavior can result if a G-code program is inadvertently

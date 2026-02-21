@@ -15,6 +15,10 @@
 
 #include "posemath.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ARC_POS_EPSILON 1e-12
 #define ARC_MIN_RADIUS 1e-12
 #define ARC_MIN_ANGLE 1e-6
@@ -64,4 +68,9 @@ int arcConvexTest(PmCartesian const * const center,
         PmCartesian const * const P, PmCartesian const * const uVec, int reverse_dir);
 
 int arcTangent(SphericalArc const * const arc, PmCartesian * const tan, int at_end);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

@@ -52,10 +52,16 @@ RTAPI_MP_STRING(coordinates, "Existing Axes");
 static char *kinstype = "1"; // use KINEMATICS_IDENTITY
 RTAPI_MP_STRING(kinstype, "Kinematics Type (Identity,Both)");
 
+const char* kinematicsGetName(void)
+{
+    return "trivkins";
+}
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 static int comp_id;
@@ -85,3 +91,63 @@ int rtapi_app_main(void) {
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
+
+/* ========================================================================
+ * Non-RT interface for userspace trajectory planner
+ * ======================================================================== */
+#include "kinematics_params.h"
+#include <string.h>
+
+int nonrt_kinematicsForward(const void *params,
+                            const double *joints,
+                            EmcPose *pos)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    int i;
+    double axes[9] = {0};
+
+    for (i = 0; i < kp->num_joints; i++) {
+        int axis = kp->joint_to_axis[i];
+        if (axis >= 0 && axis < 9)
+            axes[axis] = joints[i];
+    }
+    pos->tran.x = axes[0]; pos->tran.y = axes[1]; pos->tran.z = axes[2];
+    pos->a = axes[3]; pos->b = axes[4]; pos->c = axes[5];
+    pos->u = axes[6]; pos->v = axes[7]; pos->w = axes[8];
+    return 0;
+}
+
+int nonrt_kinematicsInverse(const void *params,
+                            const EmcPose *pos,
+                            double *joints)
+{
+    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    int i;
+    double axes[9];
+
+    axes[0] = pos->tran.x; axes[1] = pos->tran.y; axes[2] = pos->tran.z;
+    axes[3] = pos->a; axes[4] = pos->b; axes[5] = pos->c;
+    axes[6] = pos->u; axes[7] = pos->v; axes[8] = pos->w;
+
+    for (i = 0; i < kp->num_joints; i++) {
+        int axis = kp->joint_to_axis[i];
+        joints[i] = (axis >= 0 && axis < 9) ? axes[axis] : 0.0;
+    }
+    return 0;
+}
+
+int nonrt_refresh(void *params,
+                  int (*read_float)(const char *, double *),
+                  int (*read_bit)(const char *, int *),
+                  int (*read_s32)(const char *, int *))
+{
+    (void)params; (void)read_float; (void)read_bit; (void)read_s32;
+    return 0;
+}
+
+int nonrt_is_identity(void) { return 1; }
+
+EXPORT_SYMBOL(nonrt_kinematicsForward);
+EXPORT_SYMBOL(nonrt_kinematicsInverse);
+EXPORT_SYMBOL(nonrt_refresh);
+EXPORT_SYMBOL(nonrt_is_identity);

@@ -1,0 +1,87 @@
+INCLUDES += emc/motion_planning
+INCLUDES += emc/kinematics_userspace
+INCLUDES += emc/tp/ruckig/include
+
+LIBMOTION_PLANNING_9D_SRCS := $(addprefix emc/motion_planning/, \
+	motion_planning_9d.cc \
+	motion_planning_9d_userspace.cc \
+	motion_planning_9d_stubs.c \
+	path_sampler.cc \
+	jacobian.cc \
+	joint_limits.cc \
+	userspace_kinematics.cc \
+	bezier9.cc \
+	blend_sizing.cc \
+	)
+
+# Userspace kinematics sources (with HAL pin reader for runtime parameters)
+LIBMOTION_PLANNING_9D_KINS_SRCS := $(addprefix emc/kinematics_userspace/, \
+	kinematics_user.c \
+	hal_pin_reader.c \
+	)
+
+# Add TP and NML sources needed by userspace planning (dual-layer architecture)
+LIBMOTION_PLANNING_9D_TP_SRCS := $(addprefix emc/tp/, \
+	tp.c \
+	tc.c \
+	tcq.c \
+	blendmath.c \
+	spherical_arc.c \
+	sp_scurve.c \
+	ruckig_wrapper.cc \
+	)
+
+LIBMOTION_PLANNING_9D_NML_SRCS := $(addprefix emc/nml_intf/, \
+	emcpose.c \
+	)
+
+# Ruckig trajectory generation library (statically linked)
+LIBRUCKIG_SRCS := $(addprefix emc/tp/ruckig/src/ruckig/, \
+	brake.cpp \
+	position_first_step1.cpp \
+	position_first_step2.cpp \
+	position_second_step1.cpp \
+	position_second_step2.cpp \
+	position_third_step1.cpp \
+	position_third_step2.cpp \
+	velocity_second_step1.cpp \
+	velocity_second_step2.cpp \
+	velocity_third_step1.cpp \
+	velocity_third_step2.cpp \
+	)
+
+USERSRCS += $(LIBRUCKIG_SRCS)
+USERSRCS += $(LIBMOTION_PLANNING_9D_SRCS)
+USERSRCS += $(LIBMOTION_PLANNING_9D_TP_SRCS)
+USERSRCS += $(LIBMOTION_PLANNING_9D_NML_SRCS)
+USERSRCS += $(LIBMOTION_PLANNING_9D_KINS_SRCS)
+
+$(call TOOBJSDEPS, $(filter %.cc,$(LIBMOTION_PLANNING_9D_SRCS))) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD -std=c++20
+$(call TOOBJSDEPS, $(filter %.c,$(LIBMOTION_PLANNING_9D_SRCS))) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD
+$(call TOOBJSDEPS, $(LIBRUCKIG_SRCS)) : EXTRAFLAGS=-fPIC -std=c++20
+$(call TOOBJSDEPS, $(filter %.c,$(LIBMOTION_PLANNING_9D_TP_SRCS))) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD
+$(call TOOBJSDEPS, $(filter %.cc,$(LIBMOTION_PLANNING_9D_TP_SRCS))) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD -std=c++20
+$(call TOOBJSDEPS, $(LIBMOTION_PLANNING_9D_NML_SRCS)) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD
+$(call TOOBJSDEPS, $(LIBMOTION_PLANNING_9D_KINS_SRCS)) : EXTRAFLAGS=-fPIC -DUSERSPACE_LIB_BUILD -D_GNU_SOURCE
+
+../lib/libmotion_planning_9d.so.0: $(patsubst %.cc,objects/%.o,$(filter %.cc,$(LIBMOTION_PLANNING_9D_SRCS))) \
+                                    $(patsubst %.c,objects/%.o,$(filter %.c,$(LIBMOTION_PLANNING_9D_SRCS))) \
+                                    $(patsubst %.c,objects/%.o,$(filter %.c,$(LIBMOTION_PLANNING_9D_TP_SRCS))) \
+                                    $(patsubst %.cc,objects/%.o,$(filter %.cc,$(LIBMOTION_PLANNING_9D_TP_SRCS))) \
+                                    $(patsubst %.c,objects/%.o,$(LIBMOTION_PLANNING_9D_NML_SRCS)) \
+                                    $(patsubst %.c,objects/%.o,$(LIBMOTION_PLANNING_9D_KINS_SRCS)) \
+                                    $(patsubst %.cpp,objects/%.o,$(LIBRUCKIG_SRCS)) \
+                                    ../lib/libposemath.so.0
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	$(Q)$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -ldl
+
+../lib/libmotion_planning_9d.so: ../lib/libmotion_planning_9d.so.0
+	ln -sf $(notdir $<) $@
+
+TARGETS += ../lib/libmotion_planning_9d.so ../lib/libmotion_planning_9d.so.0
+
+$(patsubst ./emc/motion_planning/%,../include/%,$(wildcard ./emc/motion_planning/*.h)): ../include/%.h: ./emc/motion_planning/%.h
+	cp $^ $@
+$(patsubst ./emc/motion_planning/%,../include/%,$(wildcard ./emc/motion_planning/*.hh)): ../include/%.hh: ./emc/motion_planning/%.hh
+	cp $^ $@

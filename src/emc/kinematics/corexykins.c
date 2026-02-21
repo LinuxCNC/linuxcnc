@@ -7,11 +7,45 @@
 #include "motion.h"
 #include "hal.h"
 #include "rtapi.h"
-#include "rtapi.h"
 #include "rtapi_app.h"
-#include "rtapi_math.h"
 #include "rtapi_string.h"
 #include "kinematics.h"
+
+/*
+ * CoreXY kinematics - pure linear transformation, no parameters
+ *
+ * Forward:  X = 0.5*(J0+J1),  Y = 0.5*(J0-J1)
+ * Inverse:  J0 = X+Y,         J1 = X-Y
+ */
+static int corexy_forward_math(const double *joints, EmcPose *world)
+{
+    world->tran.x = 0.5 * (joints[0] + joints[1]);
+    world->tran.y = 0.5 * (joints[0] - joints[1]);
+    world->tran.z = joints[2];
+    world->a      = joints[3];
+    world->b      = joints[4];
+    world->c      = joints[5];
+    world->u      = joints[6];
+    world->v      = joints[7];
+    world->w      = joints[8];
+
+    return 0;
+}
+
+static int corexy_inverse_math(const EmcPose *world, double *joints)
+{
+    joints[0] = world->tran.x + world->tran.y;
+    joints[1] = world->tran.x - world->tran.y;
+    joints[2] = world->tran.z;
+    joints[3] = world->a;
+    joints[4] = world->b;
+    joints[5] = world->c;
+    joints[6] = world->u;
+    joints[7] = world->v;
+    joints[8] = world->w;
+
+    return 0;
+}
 
 static struct data {
     hal_s32_t joints[EMCMOT_MAX_JOINTS];
@@ -24,17 +58,7 @@ int kinematicsForward(const double *joints
                      ) {
     (void)fflags;
     (void)iflags;
-    pos->tran.x = 0.5 * (joints[0] + joints[1]);
-    pos->tran.y = 0.5 * (joints[0] - joints[1]);
-    pos->tran.z = joints[2];
-    pos->a      = joints[3];
-    pos->b      = joints[4];
-    pos->c      = joints[5];
-    pos->u      = joints[6];
-    pos->v      = joints[7];
-    pos->w      = joints[8];
-
-    return 0;
+    return corexy_forward_math(joints, pos);
 }
 
 int kinematicsInverse(const EmcPose *pos
@@ -44,17 +68,7 @@ int kinematicsInverse(const EmcPose *pos
                      ) {
     (void)iflags;
     (void)fflags;
-    joints[0] = pos->tran.x + pos->tran.y;
-    joints[1] = pos->tran.x - pos->tran.y;
-    joints[2] = pos->tran.z;
-    joints[3] = pos->a;
-    joints[4] = pos->b;
-    joints[5] = pos->c;
-    joints[6] = pos->u;
-    joints[7] = pos->v;
-    joints[8] = pos->w;
-
-    return 0;
+    return corexy_inverse_math(pos, joints);
 }
 
 int kinematicsHome(EmcPose *world
@@ -69,10 +83,13 @@ int kinematicsHome(EmcPose *world
 
 KINEMATICS_TYPE kinematicsType() { return KINEMATICS_BOTH; }
 
+const char* kinematicsGetName(void) { return "corexykins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 static int comp_id;
@@ -87,3 +104,40 @@ int rtapi_app_main(void) {
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
+
+/* ========================================================================
+ * Non-RT interface for userspace trajectory planner
+ * ======================================================================== */
+#include "kinematics_params.h"
+
+int nonrt_kinematicsForward(const void *params,
+                            const double *joints,
+                            EmcPose *pos)
+{
+    (void)params;
+    return corexy_forward_math(joints, pos);
+}
+
+int nonrt_kinematicsInverse(const void *params,
+                            const EmcPose *pos,
+                            double *joints)
+{
+    (void)params;
+    return corexy_inverse_math(pos, joints);
+}
+
+int nonrt_refresh(void *params,
+                  int (*read_float)(const char *, double *),
+                  int (*read_bit)(const char *, int *),
+                  int (*read_s32)(const char *, int *))
+{
+    (void)params; (void)read_float; (void)read_bit; (void)read_s32;
+    return 0;
+}
+
+int nonrt_is_identity(void) { return 0; }
+
+EXPORT_SYMBOL(nonrt_kinematicsForward);
+EXPORT_SYMBOL(nonrt_kinematicsInverse);
+EXPORT_SYMBOL(nonrt_refresh);
+EXPORT_SYMBOL(nonrt_is_identity);

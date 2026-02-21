@@ -245,6 +245,8 @@ static int module_intfc() {
 
     tpMotData(emcmotStatus
              ,emcmotConfig
+             ,emcmotStruct
+             ,emcmotInternal
              );
     return 0;
 }
@@ -882,6 +884,7 @@ static int init_comm_buffers(void)
     ZERO_EMC_POSE(emcmotStatus->carte_pos_fb);
     emcmotStatus->vel = 0.0;
     emcmotConfig->limitVel = 0.0;
+    emcmotConfig->emulate_legacy_move_commands = 1; /* Default: send NML for backward compat */
     emcmotStatus->acc = 0.0;
     emcmotStatus->feed_scale = 1.0;
     emcmotStatus->rapid_scale = 1.0;
@@ -899,6 +902,20 @@ static int init_comm_buffers(void)
     SET_MOTION_ENABLE_FLAG(0);
     /* record the kinematics type of the machine */
     emcmotConfig->kinType = kinematicsType();
+
+    /* record the kinematics module name for userspace access */
+    {
+        const char *kins_name = kinematicsGetName ? kinematicsGetName() : NULL;
+        if (kins_name) {
+            rtapi_strxcpy(emcmotConfig->kins_module_name, kins_name);
+        } else {
+            emcmotConfig->kins_module_name[0] = '\0';
+        }
+        rtapi_print_msg(RTAPI_MSG_INFO,
+            "MOTION: kinematics module='%s'\n",
+            emcmotConfig->kins_module_name);
+    }
+
     emcmot_config_change();
 
     for (spindle_num = 0; spindle_num < EMCMOT_MAX_SPINDLES; spindle_num++){

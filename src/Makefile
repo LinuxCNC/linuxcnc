@@ -182,7 +182,7 @@ SUBDIRS := \
     emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
     emc/usr_intf/gmoccapy emc/usr_intf/qtplasmac emc/usr_intf/mdro\
     emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/tp emc/canterp \
-    emc/motion emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
+    emc/motion emc/motion_planning emc/kinematics_userspace emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
     emc \
@@ -232,7 +232,9 @@ USERSRCS += $(PYSRCS)
 CUSERSRCS := $(filter %.c,$(USERSRCS))
 CXXUSERSRCS := $(filter %.cc %.cpp,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
-CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
+CXXUSEROBJS_CC := $(patsubst %.cc,objects/%.o,$(filter %.cc,$(CXXUSERSRCS)))
+CXXUSEROBJS_CPP := $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(CXXUSERSRCS)))
+CXXUSEROBJS += $(CXXUSEROBJS_CC) $(CXXUSEROBJS_CPP)
 
 ifeq ($(TRIVIAL_BUILD),no)
 # Find the dependency filenames, then include them all
@@ -279,27 +281,7 @@ $(sort $(CUSEROBJS)) : objects/%.o: %.c
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
-# Ruckig files need C++20
-RUCKIG_CXX_FILES := $(filter emc/tp/ruckig%,$(CXXUSERSRCS))
-NON_RUCKIG_CXX_FILES := $(filter-out emc/tp/ruckig%,$(CXXUSERSRCS))
-
-$(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(RUCKIG_CXX_FILES)))) : objects/%.o: %.cpp
-	$(ECHO) Compiling $<
-	@mkdir -p $(dir $@)
-	@rm -f $@
-	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 \
-		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
-		$< -o $@
-
-$(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(RUCKIG_CXX_FILES)))) : objects/%.o: %.cc
-	$(ECHO) Compiling $<
-	@mkdir -p $(dir $@)
-	@rm -f $@
-	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 \
-		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
-		$< -o $@
-
-$(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(NON_RUCKIG_CXX_FILES)))) : objects/%.o: %.cpp
+$(sort $(CXXUSEROBJS_CC)) : objects/%.o: %.cc
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
@@ -307,7 +289,7 @@ $(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(NON_RUCKIG_CXX_FILES)))) : 
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
-$(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(NON_RUCKIG_CXX_FILES)))) : objects/%.o: %.cc
+$(sort $(CXXUSEROBJS_CPP)) : objects/%.o: %.cpp
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
@@ -320,19 +302,11 @@ $(sort $(patsubst %.c,%.i,$(CUSERSRCS))): %.i: %.c
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CC) -dD $(CFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
-$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(RUCKIG_CXX_FILES)))): %.ii: %.cc
-	$(ECHO) Preprocessing $< to $@
-	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 -E $< -o $@
-
-$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(RUCKIG_CXX_FILES)))): %.ii: %.cpp
-	$(ECHO) Preprocessing $< to $@
-	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 -E $< -o $@
-
-$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(NON_RUCKIG_CXX_FILES)))): %.ii: %.cc
+$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(CXXUSERSRCS)))): %.ii: %.cc
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
-$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(NON_RUCKIG_CXX_FILES)))): %.ii: %.cpp
+$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(CXXUSERSRCS)))): %.ii: %.cpp
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
@@ -398,6 +372,7 @@ SRCHEADERS := \
     emc/kinematics/genserkins.h \
     emc/kinematics/pentakins.h \
     emc/kinematics/pumakins.h \
+    emc/motion_planning/bezier9.h \
     emc/tp/tc.h \
     emc/tp/tc_types.h \
     emc/tp/tcq.h \
@@ -928,7 +903,7 @@ EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD)/.
 	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
 	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
 	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
-	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/tp -I$(BASEPWD)/emc/motion \
+	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/tp -I$(BASEPWD)/emc/motion -I$(BASEPWD)/emc/motion_planning \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
 	-Wno-declaration-after-statement \
@@ -1299,6 +1274,7 @@ tpmod-objs += emc/nml_intf/emcpose.o
 tpmod-objs += libnml/posemath/_posemath.o
 tpmod-objs += emc/tp/sp_scurve.o
 tpmod-objs += emc/tp/ruckig_wrapper.o
+tpmod-objs += emc/tp/bezier9_rt.o
 tpmod-objs += emc/tp/ruckig/src/ruckig/brake.o
 tpmod-objs += emc/tp/ruckig/src/ruckig/position_first_step1.o
 tpmod-objs += emc/tp/ruckig/src/ruckig/position_first_step2.o
@@ -1310,6 +1286,7 @@ tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step1.o
 tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step2.o
 tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step1.o
 tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step2.o
+tpmod-objs += emc/tp/tc_9d.o
 tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))

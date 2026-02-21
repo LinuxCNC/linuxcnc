@@ -25,8 +25,18 @@
 #include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
 #include "inihal.hh"
 #include <rtapi_string.h>
+#include "motion.h"       // For emcmotConfig, emcmot_config_t
+
+// Userspace kinematics for trajectory planning
+#include "userspace_kinematics.hh"
+
+// Predictive handoff configuration for feed override handling
+#include "motion_planning_9d.hh"
 
 extern value_inihal_data old_inihal_data;
+
+/* Access to emcmotConfig from usrmotintf.cc (initialized by usrmotInit()) */
+extern emcmot_config_t *emcmotConfig;
 
 /*
   loadKins()
@@ -220,15 +230,167 @@ static int loadTraj(EmcIniFile *trajInifile)
             }
             return -1;
         }
-        planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve
+        planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve, 2 = 9D (EXPERIMENTAL)
         trajInifile->Find(&planner_type, "PLANNER_TYPE", "TRAJ");
-        // Only 0 and 1 are supported, set to 0 if invalid
-        // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
-        if (planner_type != 0 && planner_type != 1) {
+        // Support types 0, 1, and 2 (9D experimental)
+        // Force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
+        if (planner_type < 0 || planner_type > 2) {
+            rcs_print("Invalid PLANNER_TYPE %d, must be 0, 1, or 2. Defaulting to 0.\n", planner_type);
             planner_type = 0;
         }
         if (planner_type == 1 && jerk < 1.0) {
             planner_type = 0;
+        }
+        if (planner_type == 2) {
+            rcs_print("PLANNER_TYPE 2 (9D) is EXPERIMENTAL. Use with caution.\n");
+
+            // Planner type 2 requires userspace kinematics - enable automatically
+            {
+                // Read kinematics module name from emcmotConfig (set by motion module)
+                const char *kins_module = emcmotConfig->kins_module_name;
+
+                if (!kins_module || kins_module[0] == '\0') {
+                    rcs_print_error("ERROR: No kinematics module name in emcmotConfig\n");
+                    rcs_print_error("PLANNER_TYPE 2 requires a kinematics module to be loaded.\n");
+                    rcs_print_error("Ensure your HAL file loads a kinematics module (e.g., loadrt trivkins)\n");
+                    return -1;
+                }
+
+                rcs_print("Detected kinematics module: %s\n", kins_module);
+
+                // Get configuration from INI file
+                auto coord = trajInifile->Find("COORDINATES", "TRAJ");
+                int joints = 0;
+                trajInifile->Find(&joints, "JOINTS", "KINS");
+                if (joints <= 0) joints = 3;
+
+                if (motion_planning::userspace_kins_init(kins_module,
+                                                        joints,
+                                                        coord ? coord->c_str() : "XYZ") != 0) {
+                    rcs_print_error("WARNING: Failed to initialize userspace kinematics for '%s'\n",
+                                    kins_module);
+                    rcs_print_error("  Falling back to PLANNER_TYPE 0 (trapezoidal)\n");
+                    planner_type = 0;
+                } else {
+                    rcs_print("Userspace kinematics initialized (module=%s, joints=%d, coords=%s)\n",
+                              kins_module, joints, coord ? coord->c_str() : "XYZ");
+                }
+            }
+
+            // Parse 9D-specific parameters
+            int optimization_depth = 8;
+            double ramp_frequency = 10.0;
+            int smoothing_passes = 2;
+            int tc_queue_size = 50;
+
+            trajInifile->Find(&optimization_depth, "OPTIMIZATION_DEPTH", "TRAJ");
+            trajInifile->Find(&ramp_frequency, "RAMP_FREQUENCY", "TRAJ");
+            trajInifile->Find(&smoothing_passes, "SMOOTHING_PASSES", "TRAJ");
+            trajInifile->Find(&tc_queue_size, "TC_QUEUE_SIZE", "TRAJ");
+
+            // Validate 9D parameters
+            if (optimization_depth < 4 || optimization_depth > 200) {
+                rcs_print("Warning: OPTIMIZATION_DEPTH %d out of range [4,200], using default 8\n", optimization_depth);
+                optimization_depth = 8;
+            }
+            if (ramp_frequency < 1.0 || ramp_frequency > 1000.0) {
+                rcs_print("Warning: RAMP_FREQUENCY %.1f out of range [1.0,1000.0], using default 10.0\n", ramp_frequency);
+                ramp_frequency = 10.0;
+            }
+            if (smoothing_passes < 1 || smoothing_passes > 10) {
+                rcs_print("Warning: SMOOTHING_PASSES %d out of range [1,10], using default 2\n", smoothing_passes);
+                smoothing_passes = 2;
+            }
+            if (tc_queue_size < 32 || tc_queue_size > 400) {
+                rcs_print("Warning: TC_QUEUE_SIZE %d out of range [32,400], using default 50\n", tc_queue_size);
+                tc_queue_size = 50;
+            }
+
+            rcs_print("9D Planner Configuration:\n");
+            rcs_print("  OPTIMIZATION_DEPTH = %d\n", optimization_depth);
+            rcs_print("  RAMP_FREQUENCY = %.1f Hz\n", ramp_frequency);
+            rcs_print("  SMOOTHING_PASSES = %d\n", smoothing_passes);
+            rcs_print("  TC_QUEUE_SIZE = %d\n", tc_queue_size);
+
+            // Predictive handoff configuration for feed override handling
+            // All timing values in milliseconds
+            double handoff_horizon_ms = 100.0;
+            double branch_window_ms = 50.0;
+            double min_buffer_time_ms = 100.0;
+            double target_buffer_time_ms = 200.0;
+            double max_buffer_time_ms = 500.0;
+            double feed_override_debounce_ms = 50.0;
+
+            trajInifile->Find(&handoff_horizon_ms, "HANDOFF_HORIZON_MS", "TRAJ");
+            trajInifile->Find(&branch_window_ms, "BRANCH_WINDOW_MS", "TRAJ");
+            trajInifile->Find(&min_buffer_time_ms, "MIN_BUFFER_TIME_MS", "TRAJ");
+            trajInifile->Find(&target_buffer_time_ms, "TARGET_BUFFER_TIME_MS", "TRAJ");
+            trajInifile->Find(&max_buffer_time_ms, "MAX_BUFFER_TIME_MS", "TRAJ");
+            trajInifile->Find(&feed_override_debounce_ms, "FEED_OVERRIDE_DEBOUNCE_MS", "TRAJ");
+
+            // Validate predictive handoff timing parameters
+            if (handoff_horizon_ms < 1.0 || handoff_horizon_ms > 1000.0) {
+                rcs_print("Warning: HANDOFF_HORIZON_MS %.1f out of range [1,1000], using default 100\n", handoff_horizon_ms);
+                handoff_horizon_ms = 100.0;
+            }
+            if (branch_window_ms < 10.0 || branch_window_ms > 500.0) {
+                rcs_print("Warning: BRANCH_WINDOW_MS %.1f out of range [10,500], using default 50\n", branch_window_ms);
+                branch_window_ms = 50.0;
+            }
+            if (min_buffer_time_ms < 10.0 || min_buffer_time_ms > 1000.0) {
+                rcs_print("Warning: MIN_BUFFER_TIME_MS %.1f out of range [10,1000], using default 100\n", min_buffer_time_ms);
+                min_buffer_time_ms = 100.0;
+            }
+            if (target_buffer_time_ms < min_buffer_time_ms || target_buffer_time_ms > 2000.0) {
+                rcs_print("Warning: TARGET_BUFFER_TIME_MS %.1f out of range [%.1f,2000], using default 200\n",
+                          target_buffer_time_ms, min_buffer_time_ms);
+                target_buffer_time_ms = 200.0;
+            }
+            if (max_buffer_time_ms < target_buffer_time_ms || max_buffer_time_ms > 5000.0) {
+                rcs_print("Warning: MAX_BUFFER_TIME_MS %.1f out of range [%.1f,5000], using default 500\n",
+                          max_buffer_time_ms, target_buffer_time_ms);
+                max_buffer_time_ms = 500.0;
+            }
+            if (feed_override_debounce_ms < 1.0 || feed_override_debounce_ms > 500.0) {
+                rcs_print("Warning: FEED_OVERRIDE_DEBOUNCE_MS %.1f out of range [1,500], using default 50\n", feed_override_debounce_ms);
+                feed_override_debounce_ms = 50.0;
+            }
+
+            // Get servo cycle time from motion config (already initialized)
+            // Default to 1ms if not available
+            double servo_cycle_time_sec = 0.001;
+            if (emcmotConfig && emcmotConfig->trajCycleTime > 0) {
+                servo_cycle_time_sec = emcmotConfig->trajCycleTime;
+            }
+
+            // Use max jerk from INI (already parsed above)
+            double default_max_jerk = jerk;
+            if (default_max_jerk < 1.0) {
+                default_max_jerk = 1e9;  // Match initraj.cc default
+            }
+
+            // Apply predictive handoff configuration
+            setHandoffConfig(handoff_horizon_ms,
+                             branch_window_ms,
+                             min_buffer_time_ms,
+                             target_buffer_time_ms,
+                             max_buffer_time_ms,
+                             feed_override_debounce_ms,
+                             servo_cycle_time_sec,
+                             default_max_jerk);
+
+            rcs_print("Predictive Handoff Configuration:\n");
+            rcs_print("  HANDOFF_HORIZON_MS = %.1f\n", handoff_horizon_ms);
+            rcs_print("  BRANCH_WINDOW_MS = %.1f\n", branch_window_ms);
+            rcs_print("  MIN_BUFFER_TIME_MS = %.1f\n", min_buffer_time_ms);
+            rcs_print("  TARGET_BUFFER_TIME_MS = %.1f\n", target_buffer_time_ms);
+            rcs_print("  MAX_BUFFER_TIME_MS = %.1f\n", max_buffer_time_ms);
+            rcs_print("  FEED_OVERRIDE_DEBOUNCE_MS = %.1f\n", feed_override_debounce_ms);
+            rcs_print("  servo_cycle_time = %.3f ms\n", servo_cycle_time_sec * 1000.0);
+            rcs_print("  default_max_jerk = %.0f\n", default_max_jerk);
+
+            // Initialize predictive handoff system
+            initPredictiveHandoff();
         }
         if (0 != emcTrajPlannerType(planner_type)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -287,6 +449,20 @@ static int loadTraj(EmcIniFile *trajInifile)
                 rcs_print("bad return value from emcSetProbeErrorInhibit\n");
             }
             return -1;
+        }
+
+        // Dual-layer architecture: 1 = send NML after userspace planning (backward compat)
+        // 0 = userspace only mode (new dual-layer architecture)
+        int emulate_legacy = 1;  // Default: backward compatible
+        trajInifile->Find(&emulate_legacy, "EMULATE_LEGACY_MOVE_COMMANDS", "TRAJ");
+        if (0 != emcSetEmulateLegacyMoveCommands(emulate_legacy)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcSetEmulateLegacyMoveCommands\n");
+            }
+            return -1;
+        }
+        if (!emulate_legacy) {
+            rcs_print("Dual-layer architecture enabled: NML motion commands disabled\n");
         }
     }
 
