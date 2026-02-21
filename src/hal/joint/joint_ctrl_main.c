@@ -247,6 +247,11 @@ static void joint_ctrl_update(void *arg, long period)
     }
     ctrl->was_enabled = ctrl->enabled;
 
+    /* coord_active is a per-cycle snapshot: ctrl->enabled is only written
+       in Step 6 above, so the value is stable for the rest of this cycle. */
+    int coord_active = *(ctrl->hal.coord_mode) && !homing_active && ctrl->enabled;
+
+    if (!coord_active) {
     /* ----------------------------------------------------------------
      * Step 7: Run homing state machine
      * ---------------------------------------------------------------- */
@@ -396,6 +401,26 @@ static void joint_ctrl_update(void *arg, long period)
     ctrl->jstate.pos_cmd = ctrl->jstate.free_tp.curr_pos;
     ctrl->vel_cmd        = ctrl->jstate.free_tp.curr_vel;
 
+    } else {
+        /* Coordinated mode: track external position command */
+        ctrl->jstate.pos_cmd = *(ctrl->hal.coord_pos_cmd);
+        ctrl->vel_cmd        = *(ctrl->hal.coord_vel_cmd);
+
+        /* Sync free_tp so it's ready when switching back to free mode.
+           Both curr_pos (current state) and pos_cmd (target) are set to
+           the coord position so the planner starts bumplessly from where
+           we are when coord-mode is deasserted. */
+        ctrl->jstate.free_tp.curr_pos = ctrl->jstate.pos_cmd;
+        ctrl->jstate.free_tp.pos_cmd  = ctrl->jstate.pos_cmd;
+        ctrl->jstate.free_tp.curr_vel = 0.0;
+        ctrl->jstate.free_tp.enable   = 0;
+        ctrl->jstate.free_tp.active   = 0;
+
+        /* Clear jog flags */
+        ctrl->kb_jjog_active    = 0;
+        ctrl->wheel_jjog_active = 0;
+    }
+
     /* ----------------------------------------------------------------
      * Step 11: Compute backlash compensation (ramped, from control.c)
      * ---------------------------------------------------------------- */
@@ -514,6 +539,12 @@ static void joint_ctrl_update(void *arg, long period)
     if (!ctrl->enabled) {
         *(ctrl->hal.unlock) = 0;
     }
+
+    /* Coordinated mode status outputs */
+    *(ctrl->hal.pos_fb_out)       = ctrl->jstate.pos_fb;
+    *(ctrl->hal.motor_pos_fb_out) = ctrl->jstate.motor_pos_fb;
+    *(ctrl->hal.kb_jog_active)    = ctrl->kb_jjog_active ? 1 : 0;
+    *(ctrl->hal.wheel_jog_active) = ctrl->wheel_jjog_active ? 1 : 0;
 }
 
 /***********************************************************************
@@ -582,6 +613,15 @@ static int export_joint_ctrl(int n, joint_ctrl_t *ctrl)
     PINF_IN  (jjog_scale,            "jjog-scale");
     PINF_IN  (jjog_accel_fraction,   "jjog-accel-fraction");
     PINB_IN  (jjog_vel_mode,         "jjog-vel-mode");
+
+    /* Coordinated mode interface */
+    PINB_IN  (coord_mode,       "coord-mode");
+    PINF_IN  (coord_pos_cmd,    "coord-pos-cmd");
+    PINF_IN  (coord_vel_cmd,    "coord-vel-cmd");
+    PINF_OUT (pos_fb_out,       "pos-fb-out");
+    PINF_OUT (motor_pos_fb_out, "motor-pos-fb-out");
+    PINB_OUT (kb_jog_active,    "kb-jog-active");
+    PINB_OUT (wheel_jog_active, "wheel-jog-active");
 
     /* Control and status */
     PINB_IN  (enable,          "enable");
