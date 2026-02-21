@@ -552,6 +552,7 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
             }
 
             if (delta_mag_sq >= 1e-12) {
+                double delta_mag = sqrt(delta_mag_sq);
                 // Compute Jacobian at junction for non-identity kinematics
                 double J[9][9] = {{0}};
                 bool have_jacobian = false;
@@ -585,10 +586,10 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
                         double p = 0.0;
                         for (int a = 0; a < 9; a++)
                             p += fabs(J[j][a]) * fabs(delta_u[a]);
-                        blend_proj[j] = p;
+                        blend_proj[j] = p / delta_mag;
                     } else {
-                        // Trivkins: J = identity → proj[j] = |delta_u[j]|
-                        blend_proj[j] = (j < 9) ? fabs(delta_u[j]) : 0.0;
+                        // Trivkins: J = identity → proj[j] = |delta_u[j]| / |delta_u|
+                        blend_proj[j] = (j < 9) ? (fabs(delta_u[j]) / delta_mag) : 0.0;
                     }
                 }
             }
