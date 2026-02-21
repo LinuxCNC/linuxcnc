@@ -520,10 +520,9 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
     acc_bounds.xyz.x = acc_bounds.xyz.y = acc_bounds.xyz.z = a_min;
 
     // Maximum feed scale for velocity planning (accounts for possible feed override)
+    // Always use 1.0 to ensure the blend geometry does not change when maxFeedScale changes.
+    // The backward pass and execution layer handle dynamic velocity clamping.
     double max_feed_scale = 1.0;
-    if (emcmotConfig) {
-        max_feed_scale = emcmotConfig->maxFeedScale;
-    }
 
     // Compute blend normal direction and Jacobian projection.
     // The blend curvature is in the plane of (u_prev, u_next).
