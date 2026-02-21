@@ -905,7 +905,7 @@ static int init_comm_buffers(void)
 
     /* record the kinematics module name for userspace access */
     {
-        const char *kins_name = kinematicsGetName();
+        const char *kins_name = kinematicsGetName ? kinematicsGetName() : NULL;
         if (kins_name) {
             rtapi_strxcpy(emcmotConfig->kins_module_name, kins_name);
         } else {

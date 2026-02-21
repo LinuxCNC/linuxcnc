@@ -705,6 +705,8 @@ int main(int argc, char* argv[]) {
                           c->probe_home_err_inhibit);
                 break;
 
+            case EMCMOT_SET_EMULATE_LEGACY_MOVE_COMMANDS:
+                break;
 
             default:
                 log_print("ERROR: unknown command %d\n", c->command);
