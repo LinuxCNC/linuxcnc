@@ -13,6 +13,9 @@
 #   make install
 
 ifeq ($(MODINC),)
+  MODINC := $(shell halcompile --print-modinc 2>/dev/null)
+endif
+ifeq ($(MODINC),)
   MODINC := $(shell pkg-config --variable=modinc linuxcnc 2>/dev/null)
 endif
 ifeq ($(MODINC),)
