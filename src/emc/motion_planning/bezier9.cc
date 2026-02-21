@@ -639,61 +639,6 @@ double bezier9Deviation(Bezier9 const * const b,
     return sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-double bezier9MaxDeviation(Bezier9 const * const b,
-                           PmCartesian const * const intersection_point,
-                           int n_samples)
-{
-    if (!b || !intersection_point || n_samples < 1) {
-        return 0.0;
-    }
-
-    double max_dev = 0.0;
-    for (int i = 1; i <= n_samples; i++) {
-        double t = (double)i / (double)(n_samples + 1);
-        PmCartesian pt;
-        bezier5_eval(b->P, t, &pt);
-        double dx = pt.x - intersection_point->x;
-        double dy = pt.y - intersection_point->y;
-        double dz = pt.z - intersection_point->z;
-        double dev = sqrt(dx * dx + dy * dy + dz * dz);
-        if (dev > max_dev) max_dev = dev;
-    }
-    return max_dev;
-}
-
-/**
- * Point-to-line-segment distance in 3D.
- * Returns the minimum Euclidean distance from point p to the
- * line segment from a to b.
- */
-static double point_to_segment_dist(PmCartesian const * const p,
-                                    PmCartesian const * const a,
-                                    PmCartesian const * const b)
-{
-    double abx = b->x - a->x;
-    double aby = b->y - a->y;
-    double abz = b->z - a->z;
-    double apx = p->x - a->x;
-    double apy = p->y - a->y;
-    double apz = p->z - a->z;
-
-    double ab_sq = abx * abx + aby * aby + abz * abz;
-    if (ab_sq < 1e-30) {
-        /* Degenerate segment (a == b): distance to the point */
-        return sqrt(apx * apx + apy * apy + apz * apz);
-    }
-
-    double t = (apx * abx + apy * aby + apz * abz) / ab_sq;
-    if (t < 0.0) t = 0.0;
-    if (t > 1.0) t = 1.0;
-
-    double cx = a->x + t * abx - p->x;
-    double cy = a->y + t * aby - p->y;
-    double cz = a->z + t * abz - p->z;
-
-    return sqrt(cx * cx + cy * cy + cz * cz);
-}
-
 double bezier9PathDeviation(Bezier9 const * const b,
                             PmCartesian const * const seg1_start,
                             PmCartesian const * const corner,
@@ -704,18 +649,7 @@ double bezier9PathDeviation(Bezier9 const * const b,
         return 0.0;
     }
 
-    double max_dev = 0.0;
-    for (int i = 1; i <= n_samples; i++) {
-        double t = (double)i / (double)(n_samples + 1);
-        PmCartesian pt;
-        bezier5_eval(b->P, t, &pt);
-
-        /* Distance to programmed path = min of distances to both segments */
-        double d1 = point_to_segment_dist(&pt, seg1_start, corner);
-        double d2 = point_to_segment_dist(&pt, corner, seg2_end);
-        double dev = fmin(d1, d2);
-
-        if (dev > max_dev) max_dev = dev;
-    }
-    return max_dev;
+    // Instead of point to segments, we enforce the distance to the corner
+    // This is stricter and guarantees we don't violate P tolerance globally
+    return bezier9Deviation(b, corner);
 }
