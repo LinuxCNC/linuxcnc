@@ -2458,9 +2458,12 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
         // Clamp handoff to before segment end
         if (handoff_time >= profile_duration - min_handoff_margin) {
-            if (tp->aborting) {
-                // Abort: bypass margin — we must stop no matter where we are
-                // in the profile. Place handoff at current time for immediate takeover.
+            if (tp->aborting || new_feed_scale < 0.001) {
+                // Stop request (abort or feed hold): bypass margin — we must
+                // decelerate no matter where we are in the profile. Place handoff
+                // at current time for immediate takeover.
+                // Note: tpRequestAbortBranch_9D calls us BEFORE tp->aborting is
+                // set by RT, so we also check new_feed_scale to catch abort.
                 handoff_time = elapsed;
                 window_end_time = handoff_time + window_sec + 1.0;
             } else {

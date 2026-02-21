@@ -3736,12 +3736,6 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         return TP_ERR_NO_ACTION;
     }
 
-    // REMOVED: Workaround for late abort no longer needed.
-    // The abort-before-mode-change fix in emctask.cc (switching order of
-    // emcTaskAbort() and emcTrajSetMode()) ensures aborts arrive before
-    // fresh segments are queued, eliminating the race condition this was
-    // trying to detect.
-
     //If the motion has stopped, then it's safe to reset the TP struct.
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
@@ -5115,6 +5109,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
          * This prevents trapezoidal→Ruckig switch mid-execution which causes
          * position discontinuity in cycles 2-8 after motion start. */
         if (!__atomic_load_n(&tc->shared_9d.profile.valid, __ATOMIC_ACQUIRE) && tc->progress < TP_POS_EPSILON) {
+            /* Abort bypass: don't block abort behind profile wait */
+            if (tp->aborting) {
+                goto past_gates;
+            }
             static int profile_wait_count = 0;
             profile_wait_count++;
 
@@ -5140,6 +5138,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
          * their v_exit=0 is always correct, no correction needed. */
         if (tc->progress < TP_POS_EPSILON && queue_len < 2 && nexttc == NULL
                 && tc->term_cond != TC_TERM_COND_EXACT) {
+            /* Abort bypass: don't block abort behind queue gate */
+            if (tp->aborting) {
+                goto past_gates;
+            }
             static int gate_seg_id = -1;
             static int gate_wait_count = 0;
             /* Reset counter for each new segment */
@@ -5155,6 +5157,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             }
             gate_wait_count = 0;
         }
+past_gates:
     }
 
     tc_debug_print("-------------------\n");
