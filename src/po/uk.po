@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2023.
 # Максим Горпиніч <gorpinicmaksim0@gmail.com>, 2025.
+# Едуард Качур <glite60@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2025-09-12 12:01+0000\n"
-"Last-Translator: Максим Горпиніч <gorpinicmaksim0@gmail.com>\n"
+"PO-Revision-Date: 2026-02-22 12:41+0000\n"
+"Last-Translator: Едуард Качур <glite60@gmail.com>\n"
 "Language-Team: none\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.16.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -138,15 +139,12 @@ msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr "Між кодами G5.2 та G5.3 дозволені лише додаткові коди G5.2."
 
 #: src/emc/rs274ngc/interp_check.cc:261
-#, fuzzy
-#| msgid ""
-#| "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 G73, G83 or G96 to "
 "use it"
 msgstr ""
-"Слово на літеру D без G41, G41.1, G42, G42.1, G71, G71.1, G71.2 або G96 для "
-"його використання"
+"Слово D без G41, G41.1, G42, G42.1, G71, G71.1, G71.2 або G96 для його "
+"використання"
 
 #: src/emc/rs274ngc/interp_check.cc:272
 msgid ""
@@ -1364,16 +1362,14 @@ msgid "F word missing with inverse time g1 move"
 msgstr "Відсутнє слово F з оберненим часом руху g1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
-#, fuzzy, c-format
-#| msgid "File ended with no percent sign (%)"
+#, c-format
 msgid "File ended with no percent sign (%%)"
-msgstr "Файл закінчився без знака відсотка (%)"
+msgstr "Файл закінчився без знака відсотка (%%)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
-#, fuzzy, c-format
-#| msgid "File ended with no percent sign (%) or program end (M2)"
+#, c-format
 msgid "File ended with no percent sign (%%) or program end (M2)"
-msgstr "Файл закінчився без знака відсотка (%) або кінця програми (M2)"
+msgstr "Файл закінчився без знака відсотка (%%) або кінця програми (M2)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
 msgid "File name too long"
@@ -1988,7 +1984,7 @@ msgstr ""
 
 #: src/hal/utils/scope.c:351
 msgid "Overwrite loaded log file data?"
-msgstr ""
+msgstr "Переписати дані завантаженого файлу журнала?"
 
 #: src/hal/utils/scope.c:355
 msgid ""
@@ -1996,10 +1992,8 @@ msgid ""
 msgstr ""
 
 #: src/hal/utils/scope.c:547
-#, fuzzy
-#| msgid "O_pen Log File"
 msgid "Open Log File:"
-msgstr "_Відкрити файл журналу"
+msgstr "Відкрити файл журналу:"
 
 #: src/hal/utils/scope.c:550 src/hal/utils/scope.c:593
 #: src/hal/utils/scope.c:616 src/hal/utils/scope_horiz.c:791
@@ -2245,22 +2239,17 @@ msgid "Multiplier:"
 msgstr "Множник:"
 
 #: src/hal/utils/scope_horiz.c:649
-#, fuzzy
-#| msgid "%5d samples (16 channels)"
 msgid "Samples (16 channels):"
-msgstr "%5d зразків (16 каналів)"
+msgstr "Зразків (16 каналів):"
 
 #: src/hal/utils/scope_horiz.c:662
-#, fuzzy, c-format
-#| msgid "%5d samples (1 channel)"
+#, c-format
 msgid "Current: %d samples (%d per channel)"
-msgstr "%5d зразків (1 канал)"
+msgstr "Поточно: %d зразків (%d на канал)"
 
 #: src/hal/utils/scope_horiz.c:693
-#, fuzzy
-#| msgid "Value out of range"
 msgid "Sample count changed"
-msgstr "Значення поза діапазоном"
+msgstr "Кількість вибірок змінилася"
 
 #: src/hal/utils/scope_horiz.c:696
 #, c-format
@@ -2270,6 +2259,10 @@ msgid ""
 "\n"
 "The setting has been saved to the configuration file."
 msgstr ""
+"Нова кількість вибірок (%d) вступить в дію\n"
+"при наступному запуску халскопа.\n"
+"\n"
+"Це налаштування було збережено у конфігураційний файл."
 
 #: src/hal/utils/scope_horiz.c:734
 msgid "Realtime thread(s) not running"
@@ -2646,16 +2639,14 @@ msgstr ""
 "%d"
 
 #: src/emc/motion/command.c:261
-#, fuzzy, c-format
-#| msgid "%s move on line %d would exceed joint %d's positive limit"
+#, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit max:[%f]"
-msgstr "%s рух на лінії %d перевищить додатну межу суглоба %d"
+msgstr "%s рух по лінії %d перевищить додатну межу з'єднання %d:[%f]"
 
 #: src/emc/motion/command.c:267
-#, fuzzy, c-format
-#| msgid "%s move on line %d would exceed joint %d's negative limit"
+#, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit min:[%f]"
-msgstr "%s рух на лінії %d перевищить від'ємну межу суглоба %d"
+msgstr "%s рух по лінії %d перевищить від'ємну межу з'єднання %d:[%f]"
 
 #: src/emc/motion/command.c:586
 msgid "all joints must be homed before going into coordinated mode"
@@ -11759,7 +11750,8 @@ msgstr "Навпроти"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "'"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
