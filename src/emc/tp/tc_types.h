@@ -280,6 +280,7 @@ typedef struct {
     // achievable and pass the remainder to the next segment.
     double requested_feed_scale;         // What user requested (may not be achievable)
     double achieved_exit_vel;            // Actual exit velocity we can achieve
+    double reachability_exit_cap;        // Sticky cap (unscaled) from backtrack; -1 = no cap
     // Phase 4 TODO: With blending, achieved_exit_vel becomes the entry velocity
     // constraint for the next segment, enabling smooth velocity handoff.
 
