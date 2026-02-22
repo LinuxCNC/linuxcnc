@@ -3939,11 +3939,13 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         tc->shared_9d.canonical_feed_scale = actual_feed;
         tc->shared_9d.requested_feed_scale = actual_feed;
         tc->shared_9d.achieved_exit_vel = 0.0;
+        tc->shared_9d.reachability_exit_cap = -1.0;
 
     } else {
         tc->shared_9d.canonical_feed_scale = 1.0;
         tc->shared_9d.requested_feed_scale = 1.0;
         tc->shared_9d.achieved_exit_vel = 0.0;
+        tc->shared_9d.reachability_exit_cap = -1.0;
     }
 
     if (TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
@@ -4904,9 +4906,11 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             if (actual_feed < 0.0) actual_feed = 0.0;
             if (actual_feed > 10.0) actual_feed = 10.0;
         }
+
         nexttc->shared_9d.canonical_feed_scale = actual_feed;
         nexttc->shared_9d.requested_feed_scale = actual_feed;
         nexttc->shared_9d.achieved_exit_vel = 0.0;
+        nexttc->shared_9d.reachability_exit_cap = -1.0;
 
         // Pre-advance so Ruckig samples at remain_time instead of t=0.
         // Without this, the first sample returns pos=0 (zero displacement).
