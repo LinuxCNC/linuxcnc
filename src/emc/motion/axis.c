@@ -676,10 +676,9 @@ int axis_calc_motion(double servo_period)
         }
         if (update_teleop_with_check(axis_num, &(axis->teleop_tp), servo_period)) {
             violated_teleop_limit = 1;
-        } else {
-            axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
-            axis->pos_cmd = axis->teleop_tp.curr_pos;
         }
+        axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
+        axis->pos_cmd = axis->teleop_tp.curr_pos;
 
         if (!axis->teleop_tp.active) {
             axis->kb_ajog_active = 0;
