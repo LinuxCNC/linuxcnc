@@ -294,6 +294,7 @@ typedef struct {
         ruckig_profile_t profile;       // Alternate profile with adjusted entry velocity
         double v0;                      // Entry velocity this profile was computed for
         volatile int valid;             // Userspace sets: alt-entry ready for RT
+        volatile int taken;             // RT sets: alt-entry was selected over main profile
     } alt_entry;
 } shared_optimization_data_9d_t;
 
