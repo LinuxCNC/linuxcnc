@@ -4747,6 +4747,11 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 }
 
 
+// DEBUG: track v0 correction for next-cycle velocity logging
+static int _v0corr_seg_id = -999;
+static double _v0corr_amount = 0.0;
+static int _v0corr_cycles = 0;
+
 STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc)
 {
@@ -4990,6 +4995,9 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             double pos_correction = vel_mismatch * nexttc_remain_time;
             nexttc->progress += pos_correction;
             nexttc->position_base += pos_correction;
+            _v0corr_seg_id = nexttc->id;
+            _v0corr_amount = vel_mismatch;
+            _v0corr_cycles = 5;
         }
     }
 
@@ -5032,6 +5040,16 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
 
     int mode = 0;
     tpUpdateCycle(tp, tc, nexttc, &mode);
+
+    // DEBUG: V0CORR_TRACK — log velocity for 5 cycles after v0 correction
+    if (GET_TRAJ_PLANNER_TYPE() == 2 && tc->id == _v0corr_seg_id && _v0corr_cycles > 0) {
+        fprintf(stderr, "V0CORR_TRACK seg %d cycle %d: cv=%.4f pv0=%.4f corr=%.4f\n",
+            tc->id, 6 - _v0corr_cycles, tc->currentvel,
+            tc->shared_9d.profile.valid ? tc->shared_9d.profile.v[0] : -1.0,
+            _v0corr_amount);
+        _v0corr_cycles--;
+        if (_v0corr_cycles == 0) _v0corr_seg_id = -999;
+    }
 
     /* Parabolic blending — only for planner 0/1.
      * Planner 2 uses Ruckig profiles with tangent-mode blending,

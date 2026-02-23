@@ -2167,7 +2167,15 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
             double max_vel = applyVLimit(tp, tc, vel_limit * feed_scale);
             double max_acc = tcGetTangentialMaxAccel_9D_user(tc);
 
+            // DEBUG: DS_RECOMP — log entry velocity clamping at first few positions
+            double _ds_raw_entry = scaled_v_entry;
             scaled_v_entry = fmin(scaled_v_entry, max_vel);
+            if (i <= start_index + 2 && _ds_raw_entry > max_vel + 0.01) {
+                fprintf(stderr, "DS_RECOMP pos[%d] seg %d: v_entry %.4f->%.4f "
+                    "max_vel=%.4f feed=%.3f v0_override=%.4f\n",
+                    i, tc->id, _ds_raw_entry, scaled_v_entry,
+                    max_vel, feed_scale, v0_override);
+            }
 
             // Cap entry velocity by previous segment's kink limit
             if (prev_kink > 0)
@@ -2359,112 +2367,161 @@ static double estimateExitAtFeed(TP_STRUCT const *tp, TC_STRUCT const *tc,
 }
 
 /**
- * @brief Write an alternate entry profile for the next segment.
+ * @brief Write alternate entry profiles for downstream segments.
  *
  * When a brake branch on the current segment changes its exit velocity,
- * the next segment's pre-computed profile has a stale entry velocity.
- * This writes an alternate profile with v0 = brake's exit velocity.
+ * the downstream segments' pre-computed profiles have stale entry velocities.
+ * This writes alternate profiles chaining forward: v0 = branch exit velocity
+ * for the first, then each subsequent alt-entry's v0 = predecessor alt exit.
  * RT picks whichever profile (main or alt_entry) has v0 closer to the
  * actual junction velocity — smooth regardless of whether brake was taken.
+ *
+ * The chain self-terminates when the alt-entry exit converges with the main
+ * profile's entry (gap < 0.1 mm/s), or at a non-tangent segment boundary.
  *
  * Called BEFORE commitBranch so the cushion is in place before the jump.
  */
 static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
-                           double branch_exit_vel, double new_feed_scale)
+                           double branch_exit_vel, double new_feed_scale,
+                           int start_depth = 1)
 {
-    if (tc->term_cond != TC_TERM_COND_TANGENT) return;
-
-    TC_STRUCT *next = tcqItem_user(&tp->queue, 1);
-    if (!next) return;
-
-    // Skip if alt_entry wouldn't differ meaningfully from main profile
-    if (__atomic_load_n(&next->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
-        double main_v0 = next->shared_9d.profile.v[0];
-        if (fabs(branch_exit_vel - main_v0) < 0.1) return;
+    if (tc->term_cond != TC_TERM_COND_TANGENT) {
+        return;
     }
 
-    double next_vel_limit = getEffectiveVelLimit(tp, next);
-    double next_max_vel = next_vel_limit * new_feed_scale;
-    next_max_vel = applyVLimit(tp, next, next_max_vel);
-    double next_jerk = next->maxjerk > 0 ? next->maxjerk : g_handoff_config.default_max_jerk;
+    TC_QUEUE_STRUCT *queue = &tp->queue;
+    int queue_len = tcqLen_user(queue);
+    double entry_vel = branch_exit_vel;
 
-    // Determine target exit velocity for next segment
-    double unscaled_fv = atomicLoadDouble(&next->shared_9d.final_vel);
-    double target_exit_vel = (next->term_cond == TC_TERM_COND_TANGENT)
-        ? fmin(unscaled_fv * new_feed_scale, next_max_vel)
-        : 0.0;
-    target_exit_vel = applyKinkVelCap(target_exit_vel, unscaled_fv, next_max_vel, next->kink_vel);
+    for (int i = start_depth; i < queue_len && i <= 32; i++) {
+        TC_STRUCT *seg = tcqItem_user(queue, i);
+        if (!seg || seg->target < 1e-9) break;
 
-    double achievable_exit = findAchievableExitVelocity(
-        branch_exit_vel, 0.0,
-        next->target, next->maxaccel, next_jerk,
-        next_max_vel, target_exit_vel);
-
-    // Phase 1 fix: cap alt-entry exit by downstream chain constraint.
-    // Without this, on short segments achievable_exit ≈ branch_exit_vel (can't
-    // decelerate), but next+1's profile was computed against the main profile's
-    // (lower) exit.  The alt-entry swap in RT creates a junction velocity
-    // mismatch that cascades through consecutive short segments.
-    // Cap achievable_exit so it doesn't exceed what next+1 can accept as entry.
-    if (next->term_cond == TC_TERM_COND_TANGENT && achievable_exit > 0.01) {
-        TC_STRUCT *next2 = tcqItem_user(&tp->queue, 2);
-        if (next2 && next2->target > 1e-9) {
-            double n2_max_acc = tcGetTangentialMaxAccel_9D_user(next2);
-            double n2_max_jrk = next2->maxjerk > 0 ? next2->maxjerk : g_handoff_config.default_max_jerk;
-            // Max entry velocity next+1 can accept, given its exit constraint
-            double n2_fv = readFinalVelCapped(next2);
-            double n2_exit_scaled = (next2->term_cond == TC_TERM_COND_TANGENT)
-                ? fmin(n2_fv * new_feed_scale, applyVLimit(tp, next2, getEffectiveVelLimit(tp, next2) * new_feed_scale))
-                : 0.0;
-            n2_exit_scaled = applyKinkVelCap(n2_exit_scaled, n2_fv,
-                applyVLimit(tp, next2, getEffectiveVelLimit(tp, next2) * new_feed_scale), next2->kink_vel);
-            double n2_max_entry = jerkLimitedMaxEntryVelocity(n2_exit_scaled,
-                next2->target, n2_max_acc, n2_max_jrk);
-            // Also cap by next's kink_vel (junction between next and next2)
-            if (next->kink_vel > 0)
-                n2_max_entry = fmin(n2_max_entry, next->kink_vel);
-            if (n2_max_entry < achievable_exit)
-                achievable_exit = n2_max_entry;
+        // Check if alt-entry is needed: compare entry_vel with main profile v0
+        if (__atomic_load_n(&seg->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+            double main_v0 = seg->shared_9d.profile.v[0];
+            if (fabs(entry_vel - main_v0) < 0.1) {
+                // Converged with main chain — no more alt-entries needed
+                break;
+            }
         }
-    }
 
-    // Compute Ruckig profile for next segment with adjusted entry velocity
-    try {
-        ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
-        ruckig::InputParameter<1> input;
-        ruckig::Trajectory<1> traj;
+        double seg_vel_limit = getEffectiveVelLimit(tp, seg);
+        double seg_max_vel = seg_vel_limit * new_feed_scale;
+        seg_max_vel = applyVLimit(tp, seg, seg_max_vel);
+        double seg_jerk = seg->maxjerk > 0 ? seg->maxjerk : g_handoff_config.default_max_jerk;
 
-        input.current_position = {0.0};
-        input.current_velocity = {branch_exit_vel};
-        input.current_acceleration = {0.0};
-        input.target_position = {next->target};
-        input.target_velocity = {achievable_exit};
-        input.target_acceleration = {0.0};
-        input.max_velocity = {next_max_vel};
-        input.max_acceleration = {next->maxaccel};
-        input.max_jerk = {next_jerk};
+        // Determine target exit velocity for this segment
+        double unscaled_fv = atomicLoadDouble(&seg->shared_9d.final_vel);
+        double target_exit_vel = (seg->term_cond == TC_TERM_COND_TANGENT)
+            ? fmin(unscaled_fv * new_feed_scale, seg_max_vel)
+            : 0.0;
+        target_exit_vel = applyKinkVelCap(target_exit_vel, unscaled_fv, seg_max_vel, seg->kink_vel);
 
-        auto result = otg.calculate(input, traj);
-        if (result != ruckig::Result::Working && result != ruckig::Result::Finished)
-            return;
+        double achievable_exit = findAchievableExitVelocity(
+            entry_vel, 0.0,
+            seg->target, seg->maxaccel, seg_jerk,
+            seg_max_vel, target_exit_vel);
 
-        ruckig_profile_t alt_profile;
-        memset(&alt_profile, 0, sizeof(alt_profile));
-        copyRuckigProfile(traj, &alt_profile);
-        if (!alt_profile.valid) return;
-        if (profileHasNegativeVelocity(&alt_profile)) return;
+        // Cap alt-entry exit by downstream segment constraints.
+        // Without this, on short segments achievable_exit ≈ entry_vel (can't
+        // decelerate), but the next segment's profile was computed against
+        // the main chain's (lower) exit.  Cap so it doesn't exceed what the
+        // next segment can accept as entry.
+        if (seg->term_cond == TC_TERM_COND_TANGENT && achievable_exit > 0.01) {
+            TC_STRUCT *next_seg = tcqItem_user(queue, i + 1);
+            if (next_seg && next_seg->target > 1e-9) {
+                double n_max_acc = tcGetTangentialMaxAccel_9D_user(next_seg);
+                double n_max_jrk = next_seg->maxjerk > 0 ? next_seg->maxjerk : g_handoff_config.default_max_jerk;
+                double n_fv = readFinalVelCapped(next_seg);
+                double n_exit_scaled = (next_seg->term_cond == TC_TERM_COND_TANGENT)
+                    ? fmin(n_fv * new_feed_scale, applyVLimit(tp, next_seg, getEffectiveVelLimit(tp, next_seg) * new_feed_scale))
+                    : 0.0;
+                n_exit_scaled = applyKinkVelCap(n_exit_scaled, n_fv,
+                    applyVLimit(tp, next_seg, getEffectiveVelLimit(tp, next_seg) * new_feed_scale), next_seg->kink_vel);
+                double n_max_entry = jerkLimitedMaxEntryVelocity(n_exit_scaled,
+                    next_seg->target, n_max_acc, n_max_jrk);
+                // Also cap by this segment's kink_vel (junction between seg and next_seg)
+                if (seg->kink_vel > 0)
+                    n_max_entry = fmin(n_max_entry, seg->kink_vel);
+                if (n_max_entry < achievable_exit)
+                    achievable_exit = n_max_entry;
 
-        alt_profile.computed_feed_scale = new_feed_scale;
-        alt_profile.computed_vel_limit = next_vel_limit;
-        alt_profile.computed_vLimit = tp->vLimit;
+                // Cap by main chain's entry velocity at next segment.
+                // After recomputeDownstreamProfiles, main profiles reflect
+                // full backward-pass constraints (including stop segments far
+                // downstream).  This catches cases where the 1-segment
+                // lookahead doesn't see deeper constraints.  Harmless when
+                // main profiles are at old feed (old v0 >= alt exit).
+                if (__atomic_load_n(&next_seg->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+                    double next_main_v0 = next_seg->shared_9d.profile.v[0];
+                    if (next_main_v0 > 0.01 && next_main_v0 < achievable_exit)
+                        achievable_exit = next_main_v0;
+                }
+            }
+        }
 
-        // Write alt_entry — cushion in place before the jump
-        next->shared_9d.alt_entry.profile = alt_profile;
-        next->shared_9d.alt_entry.v0 = branch_exit_vel;
-        __atomic_thread_fence(__ATOMIC_RELEASE);
-        __atomic_store_n(&next->shared_9d.alt_entry.valid, 1, __ATOMIC_RELEASE);
-    } catch (...) {
-        // Alt-entry is best-effort; failure falls back to v0 correction in RT
+        // Compute Ruckig profile for this segment with adjusted entry velocity
+        try {
+            ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
+            ruckig::InputParameter<1> input;
+            ruckig::Trajectory<1> traj;
+
+            input.current_position = {0.0};
+            input.current_velocity = {entry_vel};
+            input.current_acceleration = {0.0};
+            input.target_position = {seg->target};
+            input.target_velocity = {achievable_exit};
+            input.target_acceleration = {0.0};
+            // Allow entry velocity above feed-scaled max (crash scenario):
+            // old-feed exit can exceed new max_vel, Ruckig needs max_vel >=
+            // current_velocity to accept the deceleration problem.
+            input.max_velocity = {fmax(entry_vel, seg_max_vel)};
+            input.max_acceleration = {seg->maxaccel};
+            input.max_jerk = {seg_jerk};
+
+            auto result = otg.calculate(input, traj);
+            if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
+                break;
+            }
+
+            ruckig_profile_t alt_profile;
+            memset(&alt_profile, 0, sizeof(alt_profile));
+            copyRuckigProfile(traj, &alt_profile);
+            if (!alt_profile.valid) {
+                break;
+            }
+            if (profileHasNegativeVelocity(&alt_profile)) {
+                break;
+            }
+
+            // Don't write alt on non-tangent (stop/exact) segments if entry
+            // velocity can't decelerate to zero within the segment.  The alt
+            // would exit at high velocity into a chain expecting v≈0, and the
+            // v0_correction overflow on the next short segment causes a hard
+            // stop.  Better to let v0_corr handle the moderate gap directly.
+            if (seg->term_cond != TC_TERM_COND_TANGENT && achievable_exit > 0.5) {
+                break;
+            }
+
+            alt_profile.computed_feed_scale = new_feed_scale;
+            alt_profile.computed_vel_limit = seg_vel_limit;
+            alt_profile.computed_vLimit = tp->vLimit;
+
+            // Write alt_entry — cushion in place before the jump
+            seg->shared_9d.alt_entry.profile = alt_profile;
+            seg->shared_9d.alt_entry.v0 = entry_vel;
+            __atomic_thread_fence(__ATOMIC_RELEASE);
+            __atomic_store_n(&seg->shared_9d.alt_entry.valid, 1, __ATOMIC_RELEASE);
+            // Chain forward: use this alt's exit as next segment's entry
+            entry_vel = alt_profile.v[RUCKIG_PROFILE_PHASES];
+
+            // Stop chaining if this segment isn't tangent (exit is 0)
+            if (seg->term_cond != TC_TERM_COND_TANGENT) break;
+        } catch (...) {
+            // Alt-entry is best-effort; failure falls back to v0 correction in RT
+            break;
+        }
     }
 }
 
@@ -3592,6 +3649,10 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         commit_seg = estimateCommitSegment(tp, current_feed);
     }
 
+    // DEBUG: FEED_PATH — log which path the feed change takes
+    fprintf(stderr, "FEED_PATH seg %d: commit_seg=%d feed=%.3f->%.3f\n",
+        tc->id, commit_seg, tc->shared_9d.profile.computed_feed_scale, snap_feed);
+
     if (commit_seg <= 1) {
         // Big active segment or short queue: branch on active (existing fast path)
         branch_valid = __atomic_load_n(&branch->valid, __ATOMIC_ACQUIRE);
@@ -3613,7 +3674,11 @@ extern "C" void manageBranches(TP_STRUCT *tp)
 
         if (!branch_valid) {
             double branch_t0 = etime_user();
-            if (computeBranch(tp, tc, snap_feed)) {
+            bool _branch_ok = computeBranch(tp, tc, snap_feed);
+            // DEBUG: FEED_BRANCH — log computeBranch result
+            fprintf(stderr, "FEED_BRANCH seg %d: ok=%d feed=%.3f\n",
+                tc->id, _branch_ok, snap_feed);
+            if (_branch_ok) {
                 g_last_replan_time_ms = now_ms;
                 g_commit_segment = 1;
                 // Update committed feed so optimizer doesn't overwrite
@@ -3656,6 +3721,21 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         // successors to stay at stale feed until the active finished.
         double active_exit_vel = getActiveProfileExit(tc);
 
+        // Save queue[1]'s old-feed exit velocity before recompute overwrites
+        // it.  Queue[1]'s entry is correct (both old and new profiles start
+        // from active_exit_vel), but its exit diverges: old profile exits at
+        // old-feed velocity, new profile at new-feed.  Alt-entries from
+        // depth 2+ bridge this gap for RT.
+        TC_QUEUE_STRUCT *_bq = &tp->queue;
+        double old_q1_exit = 0.0;
+        {
+            TC_STRUCT *q1 = tcqItem_user(_bq, 1);
+            if (q1 && q1->term_cond == TC_TERM_COND_TANGENT &&
+                __atomic_load_n(&q1->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+                old_q1_exit = q1->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+            }
+        }
+
         g_committed_feed = snap_feed;
         g_committed_rapid = snap_rapid;
         g_last_replan_time_ms = now_ms;
@@ -3668,6 +3748,27 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         g_recompute_feed_scale = snap_feed;
         g_recompute_rapid_scale = snap_rapid;
         g_recompute_first_batch_done = false;
+
+        // Alt-entry chains run AFTER recompute so the convergence check
+        // compares against post-recompute main v0 and the main-chain v0
+        // cap reflects full backward-pass constraints.
+        //
+        // Two chains, in order:
+        //   depth 2+: bridge from queue[1]'s OLD exit (before recompute)
+        //     to new-feed profiles.  Covers the case where RT traverses
+        //     queue[1] with the old profile and exits at old-feed velocity.
+        //   depth 1+: bridge from active's exit to new-feed profiles.
+        //     DS_CHAIN_CAP may have lowered queue[1]'s main v0 well below
+        //     active_exit_vel.  This chain overwrites depth 2+ with the
+        //     correct "alt taken at depth 1" continuation.  For recovery,
+        //     depth 1 converges (active_exit_vel ≈ main_v0) and breaks,
+        //     leaving the depth 2+ alts from the first call intact.
+        if (old_q1_exit > 0.01) {
+            writeAltEntry(tp, tc, old_q1_exit, snap_feed, 2);
+        }
+        if (active_exit_vel > 0.01) {
+            writeAltEntry(tp, tc, active_exit_vel, snap_feed);
+        }
 
     }
 }
@@ -4948,13 +5049,17 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int optimizatio
                     head_prev_feed = 1.0;
                     continue;
                 }
-                if (!tc->shared_9d.profile.valid) break;
+                if (!tc->shared_9d.profile.valid) {
+                    break;
+                }
 
                 // Use the segment's OWN profile feed scale — at steady feed
                 // this matches g_committed_feed; using the profile's own value
                 // avoids the bug that caused the previous attempt to fail.
                 double feed_scale = tc->shared_9d.profile.computed_feed_scale;
-                if (feed_scale < 0.001) break;  // feed hold — stop
+                if (feed_scale < 0.001) {
+                    break;  // feed hold — stop
+                }
 
                 double vel_limit = getEffectiveVelLimit(tp, tc);
                 double max_vel = applyVLimit(tp, tc, vel_limit * feed_scale);
