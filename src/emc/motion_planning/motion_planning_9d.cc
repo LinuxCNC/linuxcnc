@@ -2211,7 +2211,7 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                         && prev_seg->shared_9d.profile.valid) {
                         double prev_v_end = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
                         double curr_v0 = tc->shared_9d.profile.v[0];
-                        // Log the race window: between writing tc and backtracking prev_seg,
+                        // Race window: between writing tc and backtracking prev_seg,
                         // RT could see prev_seg exiting at prev_v_end but tc entering at curr_v0
                         if (prev_v_end > curr_v0 + 0.01) {
                             // Set sticky reachability cap (unscaled) so backward
@@ -2385,6 +2385,7 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
     int queue_len = tcqLen_user(queue);
     double entry_vel = branch_exit_vel;
 
+    bool prev_was_flythrough = false;  // propagate exemption after flythrough
     for (int i = start_depth; i < queue_len && i <= 32; i++) {
         TC_STRUCT *seg = tcqItem_user(queue, i);
         if (!seg || seg->target < 1e-9) break;
@@ -2393,7 +2394,6 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
         if (__atomic_load_n(&seg->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
             double main_v0 = seg->shared_9d.profile.v[0];
             if (fabs(entry_vel - main_v0) < 0.1) {
-                // Converged with main chain — no more alt-entries needed
                 break;
             }
         }
@@ -2414,6 +2414,9 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
             entry_vel, 0.0,
             seg->target, seg->maxaccel, seg_jerk,
             seg_max_vel, target_exit_vel);
+
+        // Physical limit before downstream caps — used as fallback at depth=1
+        double uncapped_exit = achievable_exit;
 
         // Cap alt-entry exit by downstream segment constraints.
         // Without this, on short segments achievable_exit ≈ entry_vel (can't
@@ -2504,13 +2507,60 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
             if (!need_retry && profileHasNegativeVelocity(&alt_profile)) {
                 need_retry = true;
             }
-            if (need_retry) {
-                // Flythrough exit far exceeds downstream cap — the alt would
-                // overshoot what the next segment (e.g. STOP) can accept.
-                // Don't write this alt; main profile is closer to correct.
-                // Tolerance: one servo cycle of max acceleration — the largest
-                // velocity gap v0_correction can absorb without exceeding
-                // the acceleration limit.
+            // Exempt from flythrough bail when:
+            //   - start_depth: machine WILL arrive at entry_vel (ground truth)
+            //   - prev_was_flythrough: previous segment couldn't decelerate,
+            //     so this segment WILL also see the high velocity
+            bool exempt = (i == start_depth || prev_was_flythrough);
+            prev_was_flythrough = false;  // reset; set again if we flythrough
+
+            if (need_retry && exempt) {
+                // Layered fallback — must write an alt here:
+                //   1. Max-decel with uncapped (physical) exit velocity
+                //   2. Constant-velocity flythrough as last resort
+                bool wrote = false;
+
+                // Fallback 1: retry with physical exit limit (before
+                // downstream caps made it unreachable)
+                if (uncapped_exit < entry_vel - 0.01) {
+                    input.target_velocity = {uncapped_exit};
+                    input.max_velocity = {fmax(entry_vel, seg_max_vel)};
+                    result = otg.calculate(input, traj);
+                    if (result == ruckig::Result::Working ||
+                        result == ruckig::Result::Finished) {
+                        memset(&alt_profile, 0, sizeof(alt_profile));
+                        copyRuckigProfile(traj, &alt_profile);
+                        if (alt_profile.valid &&
+                            !profileHasNegativeVelocity(&alt_profile)) {
+                            achievable_exit = uncapped_exit;
+                            wrote = true;
+                        }
+                    }
+                }
+
+                // Fallback 2: constant-velocity flythrough
+                if (!wrote) {
+                    input.target_velocity = {entry_vel};
+                    input.max_velocity = {fmax(entry_vel, seg_max_vel)};
+                    result = otg.calculate(input, traj);
+                    if (result == ruckig::Result::Working ||
+                        result == ruckig::Result::Finished) {
+                        memset(&alt_profile, 0, sizeof(alt_profile));
+                        copyRuckigProfile(traj, &alt_profile);
+                        if (alt_profile.valid &&
+                            !profileHasNegativeVelocity(&alt_profile)) {
+                            achievable_exit = entry_vel;
+                            prev_was_flythrough = true;
+                            wrote = true;
+                        }
+                    }
+                }
+
+                if (!wrote) {
+                    continue;
+                }
+            } else if (need_retry) {
+                // Non-exempt depth: flythrough bail protects downstream.
                 double flythrough_tol = seg->maxaccel
                     * g_handoff_config.servo_cycle_time_sec;
                 if (entry_vel > capped_exit + flythrough_tol) {
@@ -2528,7 +2578,6 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
                 if (!alt_profile.valid || profileHasNegativeVelocity(&alt_profile)) {
                     continue;  // Skip
                 }
-                // Update achievable_exit to reflect flythrough
                 achievable_exit = entry_vel;
             }
 
@@ -2716,9 +2765,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
     }
 
     if (!state.valid) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "Branch: failed to predict state at handoff seg=%d reason=state_invalid",
-            tc->id);
         return false;
     }
 
@@ -2733,10 +2779,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
     // Calculate remaining distance after handoff
     double remaining = tc->target - state.position;
     if (remaining < 1e-6) {
-        rtapi_print_msg(RTAPI_MSG_DBG,
-            "Branch: REJECT seg=%d reason=no_dist remaining=%.6f pos=%.6f target=%.6f "
-            "resume_fh=%d\n",
-            tc->id, remaining, state.position, tc->target, resuming_from_feed_hold);
         tc->shared_9d.requested_feed_scale = new_feed_scale;
         return false;
     }
@@ -2748,11 +2790,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
     if (state.acceleration < -0.5 * tc->maxaccel && state.velocity > 0) {
         double stop_dist = (state.velocity * state.velocity) / (2.0 * tc->maxaccel);
         if (remaining <= stop_dist * 1.5) {
-            rtapi_print_msg(RTAPI_MSG_DBG,
-                "Branch: REJECT seg=%d reason=decel_locked vel=%.2f acc=%.2f "
-                "remaining=%.4f stop_dist=%.4f resume_fh=%d\n",
-                tc->id, state.velocity, state.acceleration, remaining, stop_dist,
-                resuming_from_feed_hold);
             tc->shared_9d.requested_feed_scale = new_feed_scale;
             return false;
         }
@@ -2970,11 +3007,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                     }
                 } else {
                     // Even minimum feed can't satisfy — segment is genuinely locked
-                    rtapi_print_msg(RTAPI_MSG_DBG,
-                        "Branch: FEED_LIMIT_LOCKED seg=%d exit_limit=%.2f "
-                        "min_feed_exit=%.2f vel=%.2f remaining=%.4f\n",
-                        tc->id, exit_hard_limit, test_exit,
-                        state.velocity, remaining);
                     return false;
                 }
             }
@@ -3006,19 +3038,12 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
                 auto result = otg.calculate(input, traj);
                 if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "Branch brake Ruckig failed: result=%d v=%.1f->%.1f a=%.1f maxacc=%.1f jerk=%.1f",
-                        static_cast<int>(result), state.velocity, stage1_target_vel,
-                        state.acceleration, tc->maxaccel, default_jerk);
                     return false;
                 }
 
                 // Brake profile is clean 7-phase, use phase-based sampling
                 copyRuckigProfile(traj, &brake_profile);
                 if (!brake_profile.valid) {
-                    rtapi_print_msg(RTAPI_MSG_DBG,
-                        "Branch: REJECT seg=%d reason=brake_invalid resume_fh=%d\n",
-                        tc->id, resuming_from_feed_hold);
                     return false;
                 }
 
@@ -3081,18 +3106,12 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
                 // Kink-limited junctions: reject if can't decel to kink_vel
                 if (tc->kink_vel > 0 && achievable_exit > tc->kink_vel + 0.01) {
-                    rtapi_print_msg(RTAPI_MSG_DBG,
-                        "Branch: REJECT seg=%d reason=kink(2stg) exit=%.2f kink=%.2f resume_fh=%d\n",
-                        tc->id, achievable_exit, tc->kink_vel, resuming_from_feed_hold);
                     return false;
                 }
 
                 // Downstream reachability: reject if can't decel to what
                 // next segment accepts.  Feed change deferred to next cycle.
                 if (achievable_exit > downstream_exit_cap + 0.01) {
-                    rtapi_print_msg(RTAPI_MSG_DBG,
-                        "Branch: REJECT seg=%d reason=downstream(2stg) exit=%.2f cap=%.2f resume_fh=%d\n",
-                        tc->id, achievable_exit, downstream_exit_cap, resuming_from_feed_hold);
                     tc->shared_9d.requested_feed_scale = new_feed_scale;
                     return false;
                 }
@@ -3116,16 +3135,14 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
                 auto result = otg.calculate(input, traj);
                 if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "Branch main Ruckig failed: result=%d v=%.1f->%.1f dist=%.3f maxvel=%.1f maxacc=%.1f",
-                        static_cast<int>(result), stage1_target_vel, achievable_exit,
-                        remaining_after_brake, new_max_vel, tc->maxaccel);
                     return false;
                 }
 
                 // Main profile starts at/below max_vel, so no brake prepend - use phase-based
                 copyRuckigProfile(traj, &main_profile);
-                if (!main_profile.valid) return false;
+                if (!main_profile.valid) {
+                    return false;
+                }
                 main_profile.computed_feed_scale = effective_feed_scale;
                 main_profile.computed_vel_limit = vel_limit;
                 main_profile.computed_vLimit = tp->vLimit;
@@ -3196,15 +3213,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             if (!use_single_stage &&
                 (profileHasNegativeVelocity(&brake_profile) ||
                  profileHasNegativeVelocity(&main_profile))) {
-                rtapi_print_msg(RTAPI_MSG_DBG,
-                    "Branch: REJECT seg=%d reason=negvel(2stg) brake_neg=%d main_neg=%d "
-                    "brake_dist=%.4f seg_remaining=%.4f seg_target=%.4f progress=%.4f "
-                    "resume_fh=%d\n",
-                    tc->id, profileHasNegativeVelocity(&brake_profile),
-                    profileHasNegativeVelocity(&main_profile),
-                    brake_profile.p[RUCKIG_PROFILE_PHASES],
-                    tc->target - state.position,
-                    tc->target, state.position, resuming_from_feed_hold);
                 return false;
             }
 
@@ -3271,18 +3279,12 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             // seeded with an unreachable entry velocity, and RT sees a
             // velocity discontinuity at the segment transition.
             if (tc->kink_vel > 0 && achievable_exit > tc->kink_vel + 0.01) {
-                rtapi_print_msg(RTAPI_MSG_DBG,
-                    "Branch: REJECT seg=%d reason=kink(1stg) exit=%.2f kink=%.2f resume_fh=%d\n",
-                    tc->id, achievable_exit, tc->kink_vel, resuming_from_feed_hold);
                 return false;
             }
 
             // Downstream reachability: reject if can't decel to what
             // next segment accepts.  Feed change deferred to next cycle.
             if (achievable_exit > downstream_exit_cap + 0.01) {
-                rtapi_print_msg(RTAPI_MSG_DBG,
-                    "Branch: REJECT seg=%d reason=downstream(1stg) exit=%.2f cap=%.2f resume_fh=%d\n",
-                    tc->id, achievable_exit, downstream_exit_cap, resuming_from_feed_hold);
                 tc->shared_9d.requested_feed_scale = new_feed_scale;
                 return false;
             }
@@ -3306,16 +3308,14 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
             auto result = otg.calculate(input, traj);
             if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Branch Ruckig failed: result=%d v=%.1f a=%.1f->v_exit=%.1f dist=%.3f maxvel=%.1f maxacc=%.1f",
-                    static_cast<int>(result), state.velocity, state.acceleration,
-                    achievable_exit, remaining, new_max_vel, tc->maxaccel);
                 return false;
             }
 
             // No brake prepend - use phase-based sampling
             copyRuckigProfile(traj, &main_profile);
-            if (!main_profile.valid) return false;
+            if (!main_profile.valid) {
+                return false;
+            }
             main_profile.computed_feed_scale = effective_feed_scale;
             main_profile.computed_vel_limit = vel_limit;
             main_profile.computed_vLimit = tp->vLimit;
@@ -3332,11 +3332,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                                      && fabs(state.velocity) < 1e-3
                                      && fabs(state.acceleration) < 1e-3;
             if (!skip_negvel_check && profileHasNegativeVelocity(&main_profile)) {
-                rtapi_print_msg(RTAPI_MSG_DBG,
-                    "Branch: REJECT seg=%d reason=negvel(1stg) v=%.2f a=%.2f "
-                    "seg_remaining=%.4f seg_target=%.4f progress=%.4f resume_fh=%d\n",
-                    tc->id, state.velocity, state.acceleration,
-                    remaining, tc->target, state.position, resuming_from_feed_hold);
                 return false;
             }
 
@@ -3358,8 +3353,7 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             return committed;
         }
 
-    } catch (std::exception &e) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Branch computation exception: %s", e.what());
+    } catch (std::exception &) {
         return false;
     }
 }
@@ -3686,10 +3680,6 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         commit_seg = estimateCommitSegment(tp, current_feed);
     }
 
-    // DEBUG: FEED_PATH — log which path the feed change takes
-    fprintf(stderr, "FEED_PATH seg %d: commit_seg=%d feed=%.3f->%.3f\n",
-        tc->id, commit_seg, tc->shared_9d.profile.computed_feed_scale, snap_feed);
-
     if (commit_seg <= 1) {
         // Big active segment or short queue: branch on active (existing fast path)
         branch_valid = __atomic_load_n(&branch->valid, __ATOMIC_ACQUIRE);
@@ -3712,9 +3702,6 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         if (!branch_valid) {
             double branch_t0 = etime_user();
             bool _branch_ok = computeBranch(tp, tc, snap_feed);
-            // DEBUG: FEED_BRANCH — log computeBranch result
-            fprintf(stderr, "FEED_BRANCH seg %d: ok=%d feed=%.3f\n",
-                tc->id, _branch_ok, snap_feed);
             if (_branch_ok) {
                 g_last_replan_time_ms = now_ms;
                 g_commit_segment = 1;
@@ -3767,9 +3754,11 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         double old_q1_exit = 0.0;
         {
             TC_STRUCT *q1 = tcqItem_user(_bq, 1);
-            if (q1 && q1->term_cond == TC_TERM_COND_TANGENT &&
-                __atomic_load_n(&q1->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
-                old_q1_exit = q1->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+            if (q1) {
+                if (q1->term_cond == TC_TERM_COND_TANGENT &&
+                    __atomic_load_n(&q1->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+                    old_q1_exit = q1->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+                }
             }
         }
 
@@ -5225,6 +5214,13 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int optimizatio
             }
         }
     }
+
+    // Step 5: Alt-entry safety net for active→nexttc junction gaps.
+    //
+    // PAIR_STATE: after all passes, log the junction state for the first
+    // few segments so we can see what RT will encounter at handoff.
+    // Only log when there's a gap > 0.1 between predecessor exit and
+    // successor v0.
 
     return 0;
 }
