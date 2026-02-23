@@ -2167,15 +2167,7 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
             double max_vel = applyVLimit(tp, tc, vel_limit * feed_scale);
             double max_acc = tcGetTangentialMaxAccel_9D_user(tc);
 
-            // DEBUG: DS_RECOMP — log entry velocity clamping at first few positions
-            double _ds_raw_entry = scaled_v_entry;
             scaled_v_entry = fmin(scaled_v_entry, max_vel);
-            if (i <= start_index + 2 && _ds_raw_entry > max_vel + 0.01) {
-                fprintf(stderr, "DS_RECOMP pos[%d] seg %d: v_entry %.4f->%.4f "
-                    "max_vel=%.4f feed=%.3f v0_override=%.4f\n",
-                    i, tc->id, _ds_raw_entry, scaled_v_entry,
-                    max_vel, feed_scale, v0_override);
-            }
 
             // Cap entry velocity by previous segment's kink limit
             if (prev_kink > 0)
@@ -2451,15 +2443,25 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
                 // After recomputeDownstreamProfiles, main profiles reflect
                 // full backward-pass constraints (including stop segments far
                 // downstream).  This catches cases where the 1-segment
-                // lookahead doesn't see deeper constraints.  Harmless when
-                // main profiles are at old feed (old v0 >= alt exit).
+                // lookahead doesn't see deeper constraints.
+                // Profile v0 scales linearly with feed (backward pass stores
+                // unscaled final_vel; forward pass multiplies by feed_scale),
+                // so we rescale the main v0 to the alt chain's feed rather
+                // than discarding it when feeds differ.
                 if (__atomic_load_n(&next_seg->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
                     double next_main_v0 = next_seg->shared_9d.profile.v[0];
-                    if (next_main_v0 > 0.01 && next_main_v0 < achievable_exit)
-                        achievable_exit = next_main_v0;
+                    double main_feed = next_seg->shared_9d.profile.computed_feed_scale;
+                    if (main_feed > 0.001 && next_main_v0 > 0.01) {
+                        double scaled_v0 = next_main_v0 * (new_feed_scale / main_feed);
+                        if (scaled_v0 < achievable_exit)
+                            achievable_exit = scaled_v0;
+                    }
                 }
             }
         }
+
+        // Save downstream-capped exit before Ruckig — flythrough may override
+        double capped_exit = achievable_exit;
 
         // Compute Ruckig profile for this segment with adjusted entry velocity
         try {
@@ -2481,18 +2483,53 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
             input.max_jerk = {seg_jerk};
 
             auto result = otg.calculate(input, traj);
-            if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                break;
-            }
 
-            ruckig_profile_t alt_profile;
-            memset(&alt_profile, 0, sizeof(alt_profile));
-            copyRuckigProfile(traj, &alt_profile);
-            if (!alt_profile.valid) {
-                break;
+            // When Ruckig fails or produces negative velocity, the segment
+            // is too short for the requested velocity change.  Retry as a
+            // constant-velocity flythrough (entry=exit) so the alt chain
+            // doesn't break at this segment.  Safe because the main profile
+            // remains the default — RT only uses the alt if v0 is closer.
+            bool need_retry = false;
+            if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
+                need_retry = true;
             }
-            if (profileHasNegativeVelocity(&alt_profile)) {
-                break;
+            ruckig_profile_t alt_profile;
+            if (!need_retry) {
+                memset(&alt_profile, 0, sizeof(alt_profile));
+                copyRuckigProfile(traj, &alt_profile);
+                if (!alt_profile.valid) {
+                    need_retry = true;
+                }
+            }
+            if (!need_retry && profileHasNegativeVelocity(&alt_profile)) {
+                need_retry = true;
+            }
+            if (need_retry) {
+                // Flythrough exit far exceeds downstream cap — the alt would
+                // overshoot what the next segment (e.g. STOP) can accept.
+                // Don't write this alt; main profile is closer to correct.
+                // Tolerance: one servo cycle of max acceleration — the largest
+                // velocity gap v0_correction can absorb without exceeding
+                // the acceleration limit.
+                double flythrough_tol = seg->maxaccel
+                    * g_handoff_config.servo_cycle_time_sec;
+                if (entry_vel > capped_exit + flythrough_tol) {
+                    break;
+                }
+                // Constant-velocity flythrough: entry_vel in, entry_vel out
+                input.target_velocity = {entry_vel};
+                input.max_velocity = {fmax(entry_vel, seg_max_vel)};
+                result = otg.calculate(input, traj);
+                if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
+                    continue;  // Even flythrough failed — skip
+                }
+                memset(&alt_profile, 0, sizeof(alt_profile));
+                copyRuckigProfile(traj, &alt_profile);
+                if (!alt_profile.valid || profileHasNegativeVelocity(&alt_profile)) {
+                    continue;  // Skip
+                }
+                // Update achievable_exit to reflect flythrough
+                achievable_exit = entry_vel;
             }
 
             // Don't write alt on non-tangent (stop/exact) segments if entry
@@ -4910,6 +4947,18 @@ int applyLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
                 v_new = tc->finalvel;  // Backward pass was stale, use kink vel
             } else {
                 v_new = fmin(v_new, tc->finalvel);
+            }
+        }
+
+        // Respect reachability_exit_cap: when the forward pass or HEAD_FIX
+        // determined that a segment's successor can't accept a high entry
+        // velocity (reachability limited by segment length), this sticky cap
+        // prevents the backward pass from undoing that constraint.
+        // Cap is stored unscaled, matching final_vel's units.
+        {
+            double cap = atomicLoadDouble(&tc->shared_9d.reachability_exit_cap);
+            if (cap >= 0 && v_new > cap) {
+                v_new = cap;
             }
         }
 
