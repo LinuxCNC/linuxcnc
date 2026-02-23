@@ -4724,9 +4724,11 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 
 
 // DEBUG: track v0 correction for next-cycle velocity logging
-static int _v0corr_seg_id = -999;
-static double _v0corr_amount = 0.0;
-static int _v0corr_cycles = 0;
+// Previous-cycle commanded velocity for junction_vel clamping.
+// Saved before tpHandleSplitCycle so the crossing-point velocity
+// (from a potentially stale/swapped profile) can be clamped to
+// physical limits.
+static double _pre_split_vel = 0.0;
 
 STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc)
@@ -4924,6 +4926,21 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // with the profile's (potentially stale) entry velocity.
     double junction_vel = nexttc->currentvel;
 
+    // Clamp junction_vel to physical limits from the previous servo cycle.
+    // When a stopwatch reset swaps the predecessor's profile mid-execution,
+    // the crossing-point velocity can jump to the new profile's v0 (e.g.
+    // 5.14 mm/s) even though the machine was only going 1.26 mm/s on the
+    // previous cycle.  The machine can't physically accelerate faster than
+    // maxaccel, so clamp accordingly.
+    {
+        double max_change = tc->maxaccel * tp->cycleTime;
+        if (junction_vel > _pre_split_vel + max_change)
+            junction_vel = _pre_split_vel + max_change;
+        if (junction_vel < _pre_split_vel - max_change)
+            junction_vel = _pre_split_vel - max_change;
+        if (junction_vel < 0.0) junction_vel = 0.0;
+    }
+
     // Alt-entry profile selection: when a brake on the previous segment
     // changed the exit velocity, pick whichever profile (main or alt_entry)
     // has v0 closer to the actual junction velocity.
@@ -4965,15 +4982,20 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         double profile_v0 = nexttc->shared_9d.profile.v[0];
         double vel_mismatch = junction_vel - profile_v0;
+        // Cap correction at jerk-limited velocity step.
+        // A velocity correction c applied in one servo cycle produces
+        // effective jerk = c / cycleTime².  Cap so this doesn't exceed
+        // the segment's jerk limit.
+        double dt = tp->cycleTime;
+        double max_corr = nexttc->maxjerk * dt * dt;
+        if (vel_mismatch > max_corr)
+            vel_mismatch = max_corr;
         if (vel_mismatch > 0.01) {
             nexttc->currentvel += vel_mismatch;
             // Correct split-cycle displacement to reflect actual velocity
             double pos_correction = vel_mismatch * nexttc_remain_time;
             nexttc->progress += pos_correction;
             nexttc->position_base += pos_correction;
-            _v0corr_seg_id = nexttc->id;
-            _v0corr_amount = vel_mismatch;
-            _v0corr_cycles = 5;
         }
     }
 
@@ -5016,16 +5038,6 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
 
     int mode = 0;
     tpUpdateCycle(tp, tc, nexttc, &mode);
-
-    // DEBUG: V0CORR_TRACK — log velocity for 5 cycles after v0 correction
-    if (GET_TRAJ_PLANNER_TYPE() == 2 && tc->id == _v0corr_seg_id && _v0corr_cycles > 0) {
-        fprintf(stderr, "V0CORR_TRACK seg %d cycle %d: cv=%.4f pv0=%.4f corr=%.4f\n",
-            tc->id, 6 - _v0corr_cycles, tc->currentvel,
-            tc->shared_9d.profile.valid ? tc->shared_9d.profile.v[0] : -1.0,
-            _v0corr_amount);
-        _v0corr_cycles--;
-        if (_v0corr_cycles == 0) _v0corr_seg_id = -999;
-    }
 
     /* Parabolic blending — only for planner 0/1.
      * Planner 2 uses Ruckig profiles with tangent-mode blending,
@@ -5247,6 +5259,10 @@ past_gates:
 
     // Update the current tc
     if (tc->splitting) {
+        // Save velocity from previous cycle before split-cycle overwrites it.
+        // tc->currentvel here is from the last normal-cycle Ruckig sampling —
+        // the velocity the machine actually commanded on the previous servo cycle.
+        _pre_split_vel = tc->currentvel;
         tpHandleSplitCycle(tp, tc, nexttc);
     } else {
         tpHandleRegularCycle(tp, tc, nexttc);
