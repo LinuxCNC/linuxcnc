@@ -4958,6 +4958,9 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             // spurious reset (elapsed_time=0 → zero displacement).
             nexttc->last_profile_generation = __atomic_load_n(
                 &nexttc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
+            // Signal userspace to recompute downstream chain from alt-entry's
+            // actual exit velocity (may differ from main profile's exit).
+            __atomic_store_n(&nexttc->shared_9d.alt_entry.taken, 1, __ATOMIC_RELEASE);
         }
         __atomic_store_n(&nexttc->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
     }
