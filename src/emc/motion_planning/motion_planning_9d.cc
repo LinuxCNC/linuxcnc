@@ -2394,6 +2394,10 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
         if (__atomic_load_n(&seg->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
             double main_v0 = seg->shared_9d.profile.v[0];
             if (fabs(entry_vel - main_v0) < 0.1) {
+                // Convergence: entry matches main — invalidate any stale alt
+                if (__atomic_load_n(&seg->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE)) {
+                    __atomic_store_n(&seg->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
+                }
                 break;
             }
         }
