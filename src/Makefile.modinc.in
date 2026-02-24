@@ -123,7 +123,7 @@ $(foreach mod,$(patsubst %.o,%,$(obj-m)),\
 	$(Q)objdump -w -j .rtapi_export -t $*.tmp \
 	| awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
 	> $*.ver
-	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -Wl,--version-script,$*.ver -o $@ $^ -lm
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -Wl,--version-script,$*.ver -o $@ $^ -lm $(EXTRA_LDFLAGS)
 	$(Q)chmod -x $@
 endif
 
