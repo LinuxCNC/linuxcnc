@@ -3736,6 +3736,13 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
     }
 
     //If the motion has stopped, then it's safe to reset the TP struct.
+    // But NOT if a split is pending: the velocity-control stop profile may
+    // have reached v=0 while the position spilled past the segment boundary.
+    // The split handler needs to run first to transition to the downstream
+    // segment's spill-over stop profile for continued deceleration.
+    if (tc->splitting && tc->term_cond == TC_TERM_COND_TANGENT && nexttc) {
+        return TP_ERR_SLOWING;
+    }
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
             (fabs(tc->currentvel) < TP_VEL_EPSILON && (!nexttc || fabs(nexttc->currentvel) < TP_VEL_EPSILON))) {
@@ -4339,6 +4346,41 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
             // Clamp position to segment bounds
             if (total_pos > tc->target) {
                 total_pos = tc->target;
+
+                // Abort spill-over: the velocity-control stop profile's
+                // position exceeded the segment boundary.  The profile's
+                // sampled velocity (at or past duration) may be 0 even though
+                // the machine still had significant speed at the actual
+                // crossing point.  Binary-search for the crossing velocity so
+                // tpHandleAbort doesn't fire prematurely (sees v>0) and the
+                // split handler gets the correct junction velocity.
+                if (tp->aborting &&
+                    tc->shared_9d.profile.computed_feed_scale < 0.001) {
+                    double remaining_dist = tc->target - tc->position_base;
+                    if (remaining_dist > 0.0) {
+                        double t_lo = 0.0;
+                        double t_hi = (sample_time < duration)
+                                      ? sample_time : duration;
+                        for (int i = 0; i < 50; i++) {
+                            double t_mid = (t_lo + t_hi) * 0.5;
+                            double p2, v2, a2, j2;
+                            ruckigProfileSample(&tc->shared_9d.profile,
+                                                t_mid, &p2, &v2, &a2, &j2);
+                            if (p2 < remaining_dist) {
+                                t_lo = t_mid;
+                            } else {
+                                t_hi = t_mid;
+                            }
+                            if (t_hi - t_lo < 1e-9) break;
+                        }
+                        double cp, cv, ca, cj;
+                        ruckigProfileSample(&tc->shared_9d.profile,
+                                            t_hi, &cp, &cv, &ca, &cj);
+                        vel = cv;
+                        acc_ruckig = ca;
+                        jerk = cj;
+                    }
+                }
             }
             if (total_pos < 0.0) { total_pos = 0.0; }
 
@@ -4795,11 +4837,23 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
                 tc->currentacc = acc;
                 tc->currentjerk = jrk;
             } else {
-                // Position overshoot: binary search for exact crossing time
-                // between last_sample_time and crossing_time
+                // Position overshoot: binary search for exact crossing time.
+                // For abort spill-over, the velocity-control stop profile may
+                // reach segment boundary well before its duration ends (v→0).
+                // In that case last_sample_time and crossing_time are both past
+                // duration, and the narrow search [last_sample, crossing] yields
+                // the final state (v=0) instead of the actual crossing velocity.
+                // Use [0, duration] to search the full profile in that case.
                 double remaining_dist = tc->target - tc->position_base;
-                double t_lo = last_sample_time;
-                double t_hi = crossing_time;
+                double t_lo, t_hi;
+                if (last_sample_time >= dur && crossing_time >= dur) {
+                    // Both times are past profile end — search the full profile
+                    t_lo = 0.0;
+                    t_hi = dur;
+                } else {
+                    t_lo = last_sample_time;
+                    t_hi = crossing_time;
+                }
                 for (int i = 0; i < 50; i++) {
                     double t_mid = (t_lo + t_hi) * 0.5;
                     double p, v, a, j;
