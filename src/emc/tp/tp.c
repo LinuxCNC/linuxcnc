@@ -4974,23 +4974,23 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // velocity and position by the mismatch delta. Both progress and
     // position_base are shifted equally so subsequent cycle displacements
     // (which depend on delta-progress) are unaffected.
-    // IMPORTANT: Only apply when junction_vel > profile_v0 (positive correction).
-    // Negative correction makes position_base negative, and since the profile
-    // covers exactly target distance (from 0), the segment can never reach
-    // target, causing a multi-cycle stall and large velocity dip.
+    // Correct positive v0 mismatch (junction_vel > profile_v0), capped at
+    // one jerk step (maxjerk * dt²) so the velocity correction on cycle 2
+    // (when the profile takes over) stays within the segment's jerk limit.
+    // Negative corrections (junction_vel < profile_v0) are NOT applied:
+    // they shift position_base negative, which causes the segment to land
+    // short of target and trigger a 10-cycle stuck detection stall — worse
+    // than the velocity step itself for small mismatches, and ineffective
+    // for large ones (e.g. feed hold recovery with 40 mm/s gap).
     if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         double profile_v0 = nexttc->shared_9d.profile.v[0];
         double vel_mismatch = junction_vel - profile_v0;
-        // Cap correction at jerk-limited velocity step.
-        // A velocity correction c applied in one servo cycle produces
-        // effective jerk = c / cycleTime².  Cap so this doesn't exceed
-        // the segment's jerk limit.
-        double dt = tp->cycleTime;
-        double max_corr = nexttc->maxjerk * dt * dt;
-        if (vel_mismatch > max_corr)
-            vel_mismatch = max_corr;
         if (vel_mismatch > 0.01) {
+            double dt = tp->cycleTime;
+            double max_pos_corr = nexttc->maxjerk * dt * dt;
+            if (vel_mismatch > max_pos_corr)
+                vel_mismatch = max_pos_corr;
             nexttc->currentvel += vel_mismatch;
             // Correct split-cycle displacement to reflect actual velocity
             double pos_correction = vel_mismatch * nexttc_remain_time;

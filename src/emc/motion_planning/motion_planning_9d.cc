@@ -2395,8 +2395,20 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
             double main_v0 = seg->shared_9d.profile.v[0];
             if (fabs(entry_vel - main_v0) < 0.1) {
                 // Convergence: entry matches main — invalidate any stale alt
-                if (__atomic_load_n(&seg->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE)) {
-                    __atomic_store_n(&seg->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
+                {
+                    int _had_old = __atomic_load_n(&seg->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE);
+                    double _old_alt_v0 = _had_old ? seg->shared_9d.alt_entry.v0 : -1.0;
+                    if (_had_old) {
+                        // Preserve deceleration alts: if old alt has v0 below
+                        // entry_vel, it covers the case where the machine arrives
+                        // slower than the ideal profile exit (e.g. feed hold
+                        // recovery where machine hasn't stopped yet).
+                        // Only clear "acceleration" alts (old_v0 >= entry_vel)
+                        // which are truly stale from a higher previous feed.
+                        if (_old_alt_v0 >= entry_vel - 0.5) {
+                            __atomic_store_n(&seg->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
+                        }
+                    }
                 }
                 break;
             }
@@ -3653,7 +3665,14 @@ extern "C" void manageBranches(TP_STRUCT *tp)
     // Debounce check (only when starting new work, not for queueing)
     double now_ms = etime_user() * 1000.0;
     if (now_ms - g_last_replan_time_ms < g_handoff_config.feed_override_debounce_ms) {
-        return;
+        // Never debounce feed hold transitions — must compute brake branch
+        // immediately so spill-over alt-entries reflect actual deceleration.
+        // Without this, a rapid feed drop (e.g. 194% → 1% → 0%) leaves
+        // stale alt-entries from the first snap, and the 50ms debounce
+        // prevents the brake branch from writing correct spill-over alts.
+        if (current_feed >= 0.001) {
+            return;
+        }
     }
 
     double snap_feed = current_feed;
@@ -3747,7 +3766,21 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         // the active's actual profile exit velocity (at old feed).  This
         // eliminates the feed-ramp deferral gap where micro-segments caused
         // successors to stay at stale feed until the active finished.
-        double active_exit_vel = getActiveProfileExit(tc);
+        double active_exit_vel;
+        if (__atomic_load_n(&tc->shared_9d.branch.taken, __ATOMIC_ACQUIRE) &&
+            tc->shared_9d.branch.profile.valid) {
+            // Active segment has a taken branch (e.g., feed hold brake).
+            // The main profile exit is stale — the machine is decelerating
+            // on the branch.  Use spill-over to get the actual velocity at
+            // the segment boundary.
+            double remaining = tc->target - tc->shared_9d.branch.handoff_position;
+            double spill_vel, spill_acc;
+            computeSpillOver(&tc->shared_9d.branch.profile, remaining,
+                             &spill_vel, &spill_acc);
+            active_exit_vel = spill_vel;  // 0 if machine stops within segment
+        } else {
+            active_exit_vel = getActiveProfileExit(tc);
+        }
 
         // Save queue[1]'s old-feed exit velocity before recompute overwrites
         // it.  Queue[1]'s entry is correct (both old and new profiles start
