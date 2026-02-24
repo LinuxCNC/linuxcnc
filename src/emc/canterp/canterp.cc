@@ -592,11 +592,11 @@ int Canterp::execute(const char *line) {
 	    return INTERP_ERROR;
 	}
 	if (!strcmp(s1, "CANON_CLOCKWISE")) {
-	    ORIENT_SPINDLE(i1, d2, CANON_CLOCKWISE);
+	    ORIENT_SPINDLE(i1, d1, CANON_CLOCKWISE);
 	    return 0;
 	}
 	if (!strcmp(s1, "CANON_COUNTERCLOCKWISE")) {
-	    ORIENT_SPINDLE(i1, d2, CANON_COUNTERCLOCKWISE);
+	    ORIENT_SPINDLE(i1, d1, CANON_COUNTERCLOCKWISE);
 	    return 0;
 	}
 	return INTERP_ERROR;
