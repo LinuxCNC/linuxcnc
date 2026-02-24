@@ -2890,6 +2890,7 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
             bool committed = commitBranch(&tc->shared_9d, &main_profile, NULL, 0.0, 0.0,
                                           handoff_time, state.position, 0.0, window_end_time);
+            (void)committed;
 
             // Spill-over: if stop distance exceeds remaining segment, the
             // machine will cross into downstream segments mid-deceleration.
@@ -2918,10 +2919,20 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                             ruckig::InputParameter<1> in_spill;
                             ruckig::Trajectory<1> traj_spill;
 
+                            // Clamp acceleration: physics limit sqrt(2*v*jerk)
+                            // prevents negative velocity, then segment maxaccel.
+                            double clamped_acc = entry_acc;
+                            if (clamped_acc < 0 && entry_vel > 0) {
+                                double physics_limit = sqrt(2.0 * entry_vel * next_jerk);
+                                if (clamped_acc < -physics_limit) clamped_acc = -physics_limit;
+                            }
+                            if (clamped_acc < -next->maxaccel) clamped_acc = -next->maxaccel;
+                            if (clamped_acc > next->maxaccel) clamped_acc = next->maxaccel;
+
                             in_spill.control_interface = ruckig::ControlInterface::Velocity;
                             in_spill.current_position = {0.0};
                             in_spill.current_velocity = {entry_vel};
-                            in_spill.current_acceleration = {entry_acc};
+                            in_spill.current_acceleration = {clamped_acc};
                             in_spill.target_velocity = {0.0};
                             in_spill.target_acceleration = {0.0};
                             in_spill.max_velocity = {next_vel_limit};
@@ -2936,8 +2947,21 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
                             ruckig_profile_t stop_prof;
                             memset(&stop_prof, 0, sizeof(stop_prof));
                             copyRuckigProfile(traj_spill, &stop_prof);
-                            if (!stop_prof.valid || profileHasNegativeVelocity(&stop_prof))
-                                break;
+                            if (!stop_prof.valid || profileHasNegativeVelocity(&stop_prof)) {
+                                // Retry with zero acceleration
+                                if (clamped_acc != 0.0) {
+                                    clamped_acc = 0.0;
+                                    in_spill.current_acceleration = {0.0};
+                                    result = otg_spill.calculate(in_spill, traj_spill);
+                                    if (result == ruckig::Result::Working ||
+                                        result == ruckig::Result::Finished) {
+                                        memset(&stop_prof, 0, sizeof(stop_prof));
+                                        copyRuckigProfile(traj_spill, &stop_prof);
+                                    }
+                                }
+                                if (!stop_prof.valid || profileHasNegativeVelocity(&stop_prof))
+                                    break;
+                            }
                             stop_prof.computed_feed_scale = 0.0;
                             stop_prof.computed_vel_limit = next_vel_limit;
                             stop_prof.computed_vLimit = tp->vLimit;
@@ -3434,7 +3458,8 @@ extern "C" void manageBranches(TP_STRUCT *tp)
     // must be valid for the velocity-control stop profiles written there.
     if (tp->pausing || tp->aborting) {
         int branch_valid = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
-        if (!branch_valid) {
+        int branch_taken = __atomic_load_n(&tc->shared_9d.branch.taken, __ATOMIC_ACQUIRE);
+        if (!branch_valid && !branch_taken) {
             computeBranch(tp, tc, 0.0);
         }
         return;  // Don't process feed override while pausing/aborting
@@ -3955,12 +3980,28 @@ extern "C" int tpRequestAbortBranch_9D(TP_STRUCT *tp)
     double entry_vel = spill_vel;
     double entry_acc = spill_acc;
 
+    int spill_count = 0;
     for (int i = 1; i < queue_len && entry_vel > TP_VEL_EPSILON; i++) {
         TC_STRUCT *next = tcqItem_user(queue, i);
         if (!next || next->target < 1e-9) break;
 
         double vel_limit = getEffectiveVelLimit(tp, next);
         double max_jrk = next->maxjerk > 0 ? next->maxjerk : default_jerk;
+
+        // Clamp entry acceleration to prevent negative velocity in Ruckig profile.
+        // Physics: v_min = v0 - 0.5*a0²/jerk >= 0  →  |a0| <= sqrt(2*v0*jerk).
+        // At discrete time steps velocity is v_min + j*dt²/8 > v_min, so the
+        // continuous-time limit is sufficient without a safety factor.
+        // Also clamp to segment's maxaccel (inherited operating envelope).
+        double clamped_acc = entry_acc;
+        if (clamped_acc < 0 && entry_vel > 0) {
+            double physics_limit = sqrt(2.0 * entry_vel * max_jrk);
+            if (clamped_acc < -physics_limit) {
+                clamped_acc = -physics_limit;
+            }
+        }
+        if (clamped_acc < -next->maxaccel) clamped_acc = -next->maxaccel;
+        if (clamped_acc > next->maxaccel) clamped_acc = next->maxaccel;
 
         try {
             ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
@@ -3971,7 +4012,7 @@ extern "C" int tpRequestAbortBranch_9D(TP_STRUCT *tp)
             input.control_interface = ruckig::ControlInterface::Velocity;
             input.current_position = {0.0};
             input.current_velocity = {entry_vel};
-            input.current_acceleration = {entry_acc};
+            input.current_acceleration = {clamped_acc};
             input.target_velocity = {0.0};
             input.target_acceleration = {0.0};
             input.max_velocity = {vel_limit};
@@ -3987,7 +4028,22 @@ extern "C" int tpRequestAbortBranch_9D(TP_STRUCT *tp)
             memset(&stop_profile, 0, sizeof(stop_profile));
             copyRuckigProfile(traj, &stop_profile);
             if (!stop_profile.valid || profileHasNegativeVelocity(&stop_profile)) {
-                break;
+                // Retry with zero acceleration — the inherited deceleration
+                // is too aggressive (velocity overshoots past zero before
+                // jerk can reverse the acceleration).
+                if (clamped_acc != 0.0) {
+                    clamped_acc = 0.0;
+                    input.current_acceleration = {0.0};
+                    result = otg.calculate(input, traj);
+                    if (result == ruckig::Result::Working ||
+                        result == ruckig::Result::Finished) {
+                        memset(&stop_profile, 0, sizeof(stop_profile));
+                        copyRuckigProfile(traj, &stop_profile);
+                    }
+                }
+                if (!stop_profile.valid || profileHasNegativeVelocity(&stop_profile)) {
+                    break;
+                }
             }
             stop_profile.computed_feed_scale = 0.0;
             stop_profile.computed_vel_limit = vel_limit;
@@ -4005,11 +4061,12 @@ extern "C" int tpRequestAbortBranch_9D(TP_STRUCT *tp)
             __atomic_store_n(&next->shared_9d.profile.valid, 1, __ATOMIC_RELEASE);
             atomicStoreInt((int*)&next->shared_9d.optimization_state, TC_PLAN_FINALIZED);
 
+            spill_count++;
+
         } catch (...) {
             break;
         }
     }
-
     return 0;
 }
 
