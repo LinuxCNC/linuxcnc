@@ -4976,17 +4976,15 @@ int applyLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
             }
         }
 
-        // Respect reachability_exit_cap: when the forward pass or HEAD_FIX
-        // determined that a segment's successor can't accept a high entry
-        // velocity (reachability limited by segment length), this sticky cap
-        // prevents the backward pass from undoing that constraint.
-        // Cap is stored unscaled, matching final_vel's units.
-        {
-            double cap = atomicLoadDouble(&tc->shared_9d.reachability_exit_cap);
-            if (cap >= 0 && v_new > cap) {
-                v_new = cap;
-            }
-        }
+        // NOTE: reachability_exit_cap enforcement was here (commit 8d4feaa2c7)
+        // but caused a huge velocity regression. Caps set when a segment was
+        // at the tail (preceding end-of-program EXACT) persisted as stale
+        // cap=0 after new segments were enqueued behind it, because cap
+        // clearing only runs in forward-pass paths (feed change / cursor walk).
+        // At steady feed, no forward pass runs → stale cap=0 forces backward
+        // pass to set final_vel=0 → profile decelerates to zero → regression.
+        // The cap is still used by readFinalVelCapped() in forward-pass paths
+        // where it's set and cleared in the same walk.
 
         // Write to shared_9d structure atomically
         atomicStoreDouble(&tc->shared_9d.final_vel, v_new);
