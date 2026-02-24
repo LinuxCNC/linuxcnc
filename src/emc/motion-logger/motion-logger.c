@@ -488,8 +488,16 @@ int main(int argc, char* argv[]) {
                     "SET_JOINT_POSITION_LIMITS joint=%d, min=%.6g, max=%.6g\n",
                     c->joint, c->minLimit, c->maxLimit
                 );
-                joints[c->joint].max_pos_limit = c->maxLimit;
-                joints[c->joint].min_pos_limit = c->minLimit;
+                if (c->joint < 0) {
+                    log_print("ERROR: SET_JOINT_POSITION_LIMITS ignored since joint number %d is < 0.\n",c->joint);
+                }
+                else if (c->joint < EMCMOT_MAX_JOINTS) {
+                    joints[c->joint].max_pos_limit = c->maxLimit;
+                    joints[c->joint].min_pos_limit = c->minLimit;
+                }
+                else {
+                    log_print("ERROR: SET_JOINT_POSITION_LIMITS ignored since joint number %d beyond technical limit %d.\n",c->joint,EMCMOT_MAX_JOINTS-1);
+                }
                 break;
 
             case EMCMOT_SET_AXIS_POSITION_LIMITS:
@@ -497,8 +505,17 @@ int main(int argc, char* argv[]) {
                     "SET_AXIS_POSITION_LIMITS axis=%d, min=%.6g, max=%.6g\n",
                     c->axis, c->minLimit, c->maxLimit
                 );
-                axis_set_min_pos_limit(c->axis, c->minLimit);
-                axis_set_max_pos_limit(c->axis, c->maxLimit);
+
+                if (c->axis < 0) {
+                    log_print("ERROR: SET_AXIS_POSITION_LIMITS ignored since axis number %d is < 0.\n",c->axis);
+                }
+                else if (c->axis < EMCMOT_MAX_AXIS) {
+                    axis_set_min_pos_limit(c->axis, c->minLimit);
+                    axis_set_max_pos_limit(c->axis, c->maxLimit);
+                }
+                else {
+                    log_print("ERROR: SET_AXIS_POSITION_LIMITS ignored since axis number %d beyond technical limit %d.\n",c->axis,EMCMOT_MAX_AXIS-1);
+                }
                 break;
 
             case EMCMOT_SET_AXIS_LOCKING_JOINT:
@@ -506,7 +523,15 @@ int main(int argc, char* argv[]) {
                     "SET_AXIS_LOCKING_JOINT axis=%d, locking_joint=%d\n",
                     c->axis, c->joint
                 );
-                axis_set_locking_joint(c->axis, c->joint);
+                if (c->axis >= EMCMOT_MAX_AXIS) {
+                    log_print("ERROR: SET_AXIS_LOCKING_JOINT ignored since axis number %d beyond technical limit %d.\n",c->joint,EMCMOT_MAX_AXIS-1);
+                }
+                else if (c->joint >= EMCMOT_MAX_JOINTS) {
+                    log_print("ERROR: SET_AXIS_LOCKING_JOINT ignored since joint number %d beyond technical limit %d.\n",c->joint,EMCMOT_MAX_JOINTS-1);
+                }
+                else {
+                    axis_set_locking_joint(c->axis, c->joint);
+                }
                 break;
 
             case EMCMOT_SET_JOINT_BACKLASH:
@@ -560,7 +585,15 @@ int main(int argc, char* argv[]) {
 
             case EMCMOT_SET_NUM_SPINDLES:
                 log_print("SET_NUM_SPINDLES %d\n", c->spindle);
-                num_spindles = c->spindle;
+                if (c->spindle < 0) {
+                    log_print("ERROR: SET_NUM_SPINDLES ignored since number of spindles %d is below 0.\n",c->joint);
+                }
+                else if (c->spindle <= EMCMOT_MAX_SPINDLES) {
+                    num_spindles = c->spindle;
+                }
+                else {
+                    log_print("ERROR: SET_NUM_SPINDLES ignored since joint number %d beyond technical limit %d.\n",c->joint,EMCMOT_MAX_SPINDLES);
+                }
                 break;
 
             case EMCMOT_SET_WORLD_HOME:
