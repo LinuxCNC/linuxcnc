@@ -36,4 +36,4 @@ init/cleanup, and realtime code.
 \fBrtapi_mutex_try\fR returns 0 for if the mutex was claimed, and nonzero
 otherwise.
 
-\fBrtapi_mutex_get\fR and \fBrtapi_mutex_gif\fR have no return value.
+\fBrtapi_mutex_get\fR and \fBrtapi_mutex_give\fR have no return value.

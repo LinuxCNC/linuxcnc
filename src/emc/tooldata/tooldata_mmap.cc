@@ -155,11 +155,12 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
     }
 
     tooldata_header_t *hptr = HPTR();
+    hptr->mutex = 0;
     hptr->is_random_toolchanger = random_toolchanger;
     hptr->last_index = 0;
 
     inited = 1;
-    tool_mmap_mutex_give(); return 0;
+    return 0;
 } // tool_mmap_creator();
 
 //typ: milltask, guis (emcmodule,emcsh,...), halui
