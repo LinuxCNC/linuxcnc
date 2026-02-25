@@ -983,13 +983,6 @@ int computeLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
         // Compute optimal velocity for previous segment
         v_f_prev = tpComputeOptimalVelocity_9D(tc, prev1_tc, v_f_this, k);
 
-        // DBG: log backward pass
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "BKWD_DBG k=%d tc_id=%d prev_id=%d v_f_this=%.3f v_f_stored=%.3f "
-            "v_f_prev=%.3f tc_maxvel=%.3f prev_maxvel=%.3f prev_kink=%.3f tc_type=%d\n",
-            k, tc->id, prev1_tc->id, v_f_this, v_f_stored,
-            v_f_prev, tc->maxvel, prev1_tc->maxvel, prev1_tc->kink_vel, tc->motion_type);
-
         chained_v_f = v_f_prev;
 
         // Estimate time for this segment
