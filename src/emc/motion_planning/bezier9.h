@@ -51,9 +51,10 @@ typedef struct {
     double max_dkappa_ds_9d; // Maximum |dκ/ds| in 9D space (includes ABC/UVW)
 
     // Arc-length parameterization lookup tables
-    // Map arc-length s to Bezier parameter t via binary search
+    // Map arc-length s to Bezier parameter t via binary search + cubic Hermite
     double t_table[BEZIER9_ARC_LENGTH_SAMPLES + 1];
     double s_table[BEZIER9_ARC_LENGTH_SAMPLES + 1];
+    double d_table[BEZIER9_ARC_LENGTH_SAMPLES + 1]; // dt/ds at each node
 } Bezier9;
 
 /**
