@@ -377,6 +377,7 @@ extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
 extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
         normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk);
 extern int emcTrajSetTermCond(int cond, double tolerance);
+extern int emcTrajFlushCompressor();
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index);
 extern int emcTrajSetOffset(const EmcPose& tool_offset);
 extern int emcTrajSetHome(const EmcPose& home);

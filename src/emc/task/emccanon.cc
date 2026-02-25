@@ -3585,6 +3585,7 @@ void OPTIONAL_PROGRAM_STOP()
 void PROGRAM_END()
 {
     flush_segments();
+    emcTrajFlushCompressor();
     SIMPLE_COMMAND_<EMC_TASK_PLAN_END, false>();
 }
 

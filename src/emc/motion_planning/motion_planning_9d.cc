@@ -983,6 +983,13 @@ int computeLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
         // Compute optimal velocity for previous segment
         v_f_prev = tpComputeOptimalVelocity_9D(tc, prev1_tc, v_f_this, k);
 
+        // DBG: log backward pass
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "BKWD_DBG k=%d tc_id=%d prev_id=%d v_f_this=%.3f v_f_stored=%.3f "
+            "v_f_prev=%.3f tc_maxvel=%.3f prev_maxvel=%.3f prev_kink=%.3f tc_type=%d\n",
+            k, tc->id, prev1_tc->id, v_f_this, v_f_stored,
+            v_f_prev, tc->maxvel, prev1_tc->maxvel, prev1_tc->kink_vel, tc->motion_type);
+
         chained_v_f = v_f_prev;
 
         // Estimate time for this segment
@@ -2193,6 +2200,14 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                 prev_exit_vel_scaled = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
                 continue;
             }
+
+            // DBG: log Ruckig inputs for profile computations
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "PROFILE_DBG id=%d type=%d entry=%.3f exit=%.3f maxvel=%.3f "
+                "maxacc=%.1f maxjrk=%.1f target=%.4f feed=%.3f kink=%.3f js_valid=%d\n",
+                tc->id, tc->motion_type, scaled_v_entry, scaled_v_exit,
+                max_vel, max_acc, max_jrk, tc->target, feed_scale,
+                tc->kink_vel, tc->joint_space.valid);
 
             try {
                 RuckigProfileParams rp = {scaled_v_entry, scaled_v_exit,
@@ -4820,6 +4835,21 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
             applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
                 tc->target, max_acc, max_jrk);
 
+            // DBG: log main-loop Ruckig inputs for Jacobian-capped segments (maxvel < 10)
+            {
+                double dbg_fv = readFinalVelCapped(tc);
+                double dbg_fv_raw = atomicLoadDouble(&tc->shared_9d.final_vel);
+                double dbg_cap = atomicLoadDouble(&tc->shared_9d.reachability_exit_cap);
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "MAINLOOP_DBG id=%d type=%d entry=%.3f exit=%.3f maxvel=%.3f "
+                    "target=%.4f kink=%.3f v_exit_raw=%.3f term=%d "
+                    "fv=%.3f fv_raw=%.3f cap=%.3f first=%d depth=%d\n",
+                    tc->id, tc->motion_type, scaled_v_entry, scaled_v_exit,
+                    max_vel, tc->target, tc->kink_vel, v_exit,
+                    tc->term_cond, dbg_fv, dbg_fv_raw, dbg_cap,
+                    is_first_profile, optimization_depth);
+            }
+
             try {
                 RuckigProfileParams rp = {scaled_v_entry, scaled_v_exit,
                     max_vel, max_acc, max_jrk, tc->target,
@@ -5344,6 +5374,12 @@ extern "C" int tpFinalizeAndEnqueue_9D(TP_STRUCT * const tp, TC_STRUCT * const t
 extern "C" int tpClearPlanning_9D(TP_STRUCT * const tp)
 {
     if (!tp) return -1;
+
+    // Reset segment compressor — don't flush, just discard.
+    // At program start (queue empty) any compressor state is stale from a
+    // previous program that already ended via PROGRAM_END → flush.
+    extern void tpResetCompressor_9D(void);
+    tpResetCompressor_9D();
 
     // Clear smoothing data
     g_smoothing_data = SmoothingData();

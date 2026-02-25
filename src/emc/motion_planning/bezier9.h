@@ -48,6 +48,7 @@ typedef struct {
     double max_kappa;        // Maximum curvature (xyz only)
     double min_radius;       // Minimum radius = 1/max_kappa
     double max_dkappa_ds;    // Maximum |dκ/ds| (curvature rate wrt arc length)
+    double max_dkappa_ds_9d; // Maximum |dκ/ds| in 9D space (includes ABC/UVW)
 
     // Arc-length parameterization lookup tables
     // Map arc-length s to Bezier parameter t via binary search
@@ -74,12 +75,12 @@ typedef struct {
  * @param b Output Bezier9 structure to initialize
  * @param start Start pose (9D position)
  * @param end End pose (9D position)
- * @param u_start_xyz Unit tangent vector at start (xyz)
- * @param u_end_xyz Unit tangent vector at end (xyz)
- * @param u_start_abc Unit tangent vector at start (abc)
- * @param u_end_abc Unit tangent vector at end (abc)
- * @param u_start_uvw Unit tangent vector at start (uvw)
- * @param u_end_uvw Unit tangent vector at end (uvw)
+ * @param u_start_xyz Tangent vector at start (xyz), may be rate-weighted (|u| = rate)
+ * @param u_end_xyz Tangent vector at end (xyz), may be rate-weighted
+ * @param u_start_abc Tangent vector at start (abc), may be rate-weighted
+ * @param u_end_abc Tangent vector at end (abc), may be rate-weighted
+ * @param u_start_uvw Tangent vector at start (uvw), may be rate-weighted
+ * @param u_end_uvw Tangent vector at end (uvw), may be rate-weighted
  * @param kappa_start Curvature of adjacent segment at start (0 for lines)
  * @param n_start Unit curvature normal at start (toward center), NULL if kappa=0
  * @param kappa_end Curvature of adjacent segment at end (0 for lines)
@@ -157,6 +158,21 @@ double bezier9Length(Bezier9 const * const b);
  * @return Curvature value (always >= 0)
  */
 double bezier9Curvature(Bezier9 const * const b, double t);
+
+/**
+ * bezier9Curvature9D - Compute curvature at Bezier parameter t in full 9D space
+ *
+ * Uses the generalized N-dimensional curvature formula:
+ *   κ = sqrt(|B'|²|B''|² - (B'·B'')²) / |B'|³
+ * including xyz, abc, and uvw components.  This captures direction changes
+ * in rotary axes (B, C) that are invisible to the xyz-only bezier9Curvature
+ * but produce large joint-space jerk through the Jacobian (e.g. 5-axis pivot).
+ *
+ * @param b Input Bezier9 curve
+ * @param t Bezier parameter (0 to 1)
+ * @return 9D curvature value (always >= 0)
+ */
+double bezier9Curvature9D(Bezier9 const * const b, double t);
 
 /**
  * bezier9MaxCurvature - Find maximum curvature over entire curve

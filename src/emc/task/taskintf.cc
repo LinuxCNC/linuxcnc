@@ -1484,6 +1484,8 @@ int emcTrajDelay(double delay)
         // without forcing queue drain (which breaks velocity continuity)
         TP_STRUCT *tp = usrmotGetTPDataPtr();
         if (tp) {
+            // Flush compressor before dwell — buffered segments must be emitted first
+            tpFlushCompressor_9D(tp);
             int result = tpAddDwell(tp, delay, localEmcTrajTag);
             if (result == 0) {
                 // Trigger optimization to compute profiles for segments after dwell
@@ -1624,6 +1626,9 @@ int emcTrajSetTermCond(int cond, double tolerance)
     // moves get added before RT processes the SET_TERM_COND command.
     TP_STRUCT *tp = usrmotGetTPDataPtr();
     if (tp) {
+        // Flush segment compressor before mode change — buffered segments
+        // were accumulated under the old mode/tolerance.
+        tpFlushCompressor_9D(tp);
         tp->termCond = cond;
         tp->tolerance = tolerance;
     }
@@ -1634,6 +1639,18 @@ int emcTrajSetTermCond(int cond, double tolerance)
     emcmotCommand.tolerance = tolerance;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcTrajFlushCompressor()
+{
+    emcmot_status_t *status = usrmotGetEmcmotStatus();
+    if (status && status->planner_type == 2) {
+        TP_STRUCT *tp = usrmotGetTPDataPtr();
+        if (tp) {
+            return tpFlushCompressor_9D(tp);
+        }
+    }
+    return 0;
 }
 
 int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk,
