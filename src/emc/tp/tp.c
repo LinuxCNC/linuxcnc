@@ -5027,6 +5027,17 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         double main_v0 = nexttc->shared_9d.profile.v[0];
         double alt_v0 = nexttc->shared_9d.alt_entry.v0;
         if (fabs(junction_vel - alt_v0) < fabs(junction_vel - main_v0)) {
+            // Reject stale-feed alts: if the alt was computed at a
+            // significantly different feed than the main profile, its
+            // trajectory shape (accel/cruise/decel) is wrong even if v0
+            // happens to be closer to junction_vel.
+            double alt_feed = nexttc->shared_9d.alt_entry.profile.computed_feed_scale;
+            double main_feed = nexttc->shared_9d.profile.computed_feed_scale;
+            if (main_feed > 0.001 &&
+                fabs(alt_feed - main_feed) / main_feed > 0.10) {
+                // Feed mismatch > 10% — stale alt, skip
+                goto alt_done;
+            }
             nexttc->shared_9d.profile = nexttc->shared_9d.alt_entry.profile;
             // Sync generation counter so stopwatch reset doesn't fire —
             // the alt_entry profile has a different generation from the
@@ -5038,7 +5049,41 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             // actual exit velocity (may differ from main profile's exit).
             __atomic_store_n(&nexttc->shared_9d.alt_entry.taken, 1, __ATOMIC_RELEASE);
         }
+    alt_done:
         __atomic_store_n(&nexttc->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
+    }
+
+    // SPIKE_DBG: log junction velocity mismatch at segment handoff.
+    // src: 1=DS, 2=cursor, 4=fwd, 5=alt, 6=hold, 7=backtrack, 8=bkwd_fixup, 9=head
+    if (GET_TRAJ_PLANNER_TYPE() == 2 &&
+        __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+        double _dbg_v0 = nexttc->shared_9d.profile.v[0];
+        double _dbg_gap = junction_vel - _dbg_v0;
+        if (fabs(_dbg_gap) > 0.3) {
+            double _dbg_feed = nexttc->shared_9d.canonical_feed_scale;
+            double _dbg_prev_feed = tc->shared_9d.canonical_feed_scale;
+            double _dbg_prof_feed = nexttc->shared_9d.profile.computed_feed_scale;
+            double _dbg_prev_aev = tc->shared_9d.achieved_exit_vel;
+            double _dbg_prev_fv = atomicLoadDouble(&tc->shared_9d.final_vel);
+            double _dbg_prev_fvl = atomicLoadDouble(&tc->shared_9d.final_vel_limit);
+            int _dbg_src = nexttc->shared_9d.profile.dbg_src;
+            double _dbg_v0_req = nexttc->shared_9d.profile.dbg_v0_req;
+            int _dbg_alt_taken = __atomic_load_n(&nexttc->shared_9d.alt_entry.taken, __ATOMIC_ACQUIRE);
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "SPIKE_DBG seg %d->%d: jv=%.3f v0=%.3f gap=%.3f "
+                "src=%d v0_req=%.3f alt=%d "
+                "feed=%.3f prev_feed=%.3f prof_feed=%.3f "
+                "prev_term=%d kink=%.3f maxvel=%.3f target=%.4f "
+                "prev_aev=%.3f prev_fv=%.3f prev_fvl=%.3f "
+                "prev_type=%d next_type=%d\n",
+                tc->id, nexttc->id, junction_vel, _dbg_v0, _dbg_gap,
+                _dbg_src, _dbg_v0_req, _dbg_alt_taken,
+                _dbg_feed, _dbg_prev_feed, _dbg_prof_feed,
+                tc->term_cond, nexttc->kink_vel, nexttc->maxvel,
+                nexttc->target,
+                _dbg_prev_aev, _dbg_prev_fv, _dbg_prev_fvl,
+                tc->motion_type, nexttc->motion_type);
+        }
     }
 
     int mode = 0;

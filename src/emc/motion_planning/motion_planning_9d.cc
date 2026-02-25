@@ -665,6 +665,8 @@ static void createFeedHoldProfile(TC_STRUCT *tc, double vel_limit, double vLimit
         tc->shared_9d.profile.t[j] = tc->shared_9d.profile.duration / RUCKIG_PROFILE_PHASES;
         tc->shared_9d.profile.t_sum[j] = ((j + 1) * tc->shared_9d.profile.duration) / RUCKIG_PROFILE_PHASES;
     }
+    tc->shared_9d.profile.dbg_src = 6;  // feed hold
+    tc->shared_9d.profile.dbg_v0_req = 0.0;
     __atomic_thread_fence(__ATOMIC_SEQ_CST);
     __atomic_store_n(&tc->shared_9d.profile.valid, 1, __ATOMIC_RELEASE);
 }
@@ -2194,20 +2196,14 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                 continue;
             }
 
-            // DBG: log Ruckig inputs for profile computations
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "PROFILE_DBG id=%d type=%d entry=%.3f exit=%.3f maxvel=%.3f "
-                "maxacc=%.1f maxjrk=%.1f target=%.4f feed=%.3f kink=%.3f js_valid=%d\n",
-                tc->id, tc->motion_type, scaled_v_entry, scaled_v_exit,
-                max_vel, max_acc, max_jrk, tc->target, feed_scale,
-                tc->kink_vel, tc->joint_space.valid);
-
             try {
                 RuckigProfileParams rp = {scaled_v_entry, scaled_v_exit,
                     max_vel, max_acc, max_jrk, tc->target,
                     feed_scale, vel_limit, tp->vLimit, desired_fvel_for_profile};
 
                 if (computeAndStoreProfile(tc, rp)) {
+                    tc->shared_9d.profile.dbg_src = 1;  // recomputeDS
+                    tc->shared_9d.profile.dbg_v0_req = scaled_v_entry;
                     prev_exit_vel_scaled = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
                     atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
                     // One-step backtrack: fix backward reachability gap
@@ -2247,6 +2243,8 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                                 p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
                                 feed_scale, p_vel_limit, tp->vLimit, p_exit};
                             if (computeAndStoreProfile(prev_seg, rp_prev)) {
+                                prev_seg->shared_9d.profile.dbg_src = 7;  // backtrack(DS)
+                                prev_seg->shared_9d.profile.dbg_v0_req = p_entry;
                                 double actual_exit = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
                                 if (fabs(actual_exit - p_exit) > 0.5 ||
                                     profileHasNegativeVelocity(&prev_seg->shared_9d.profile)) {
@@ -2256,6 +2254,8 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                                         p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
                                         feed_scale, p_vel_limit, tp->vLimit, p_exit};
                                     computeAndStoreProfile(prev_seg, rp_fb);
+                                    prev_seg->shared_9d.profile.dbg_src = 7;  // backtrack(DS) fallback
+                                    prev_seg->shared_9d.profile.dbg_v0_req = p_entry_clamped;
                                 }
                                 atomicStoreInt((int*)&prev_seg->shared_9d.optimization_state,
                                     TC_PLAN_FINALIZED);
@@ -2407,13 +2407,17 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
                     int _had_old = __atomic_load_n(&seg->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE);
                     double _old_alt_v0 = _had_old ? seg->shared_9d.alt_entry.v0 : -1.0;
                     if (_had_old) {
-                        // Preserve deceleration alts: if old alt has v0 below
-                        // entry_vel, it covers the case where the machine arrives
-                        // slower than the ideal profile exit (e.g. feed hold
-                        // recovery where machine hasn't stopped yet).
-                        // Only clear "acceleration" alts (old_v0 >= entry_vel)
+                        // Invalidate stale-feed alts: if the old alt was
+                        // computed at a different feed scale, its trajectory
+                        // shape is wrong regardless of v0.
+                        double _old_feed = seg->shared_9d.alt_entry.profile.computed_feed_scale;
+                        bool feed_stale = (new_feed_scale > 0.001) &&
+                            (fabs(_old_feed - new_feed_scale) / new_feed_scale > 0.10);
+                        // Also clear "acceleration" alts (old_v0 >= entry_vel)
                         // which are truly stale from a higher previous feed.
-                        if (_old_alt_v0 >= entry_vel - 0.5) {
+                        // Preserve deceleration alts at same feed (feed hold
+                        // recovery where machine hasn't stopped yet).
+                        if (feed_stale || _old_alt_v0 >= entry_vel - 0.5) {
                             __atomic_store_n(&seg->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
                         }
                     }
@@ -2617,6 +2621,8 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
             alt_profile.computed_feed_scale = new_feed_scale;
             alt_profile.computed_vel_limit = seg_vel_limit;
             alt_profile.computed_vLimit = tp->vLimit;
+            alt_profile.dbg_src = 5;  // alt_entry
+            alt_profile.dbg_v0_req = entry_vel;
 
             // Write alt_entry — cushion in place before the jump
             seg->shared_9d.alt_entry.profile = alt_profile;
@@ -4405,6 +4411,8 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                         feed_scale, vel_limit, tp->vLimit, desired_fvel_for_profile};
 
                     if (computeAndStoreProfile(tc, rp)) {
+                        tc->shared_9d.profile.dbg_src = 2;  // cursor walk
+                        tc->shared_9d.profile.dbg_v0_req = scaled_v_entry;
                         atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
                         if (tc->term_cond == TC_TERM_COND_TANGENT)
                             prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
@@ -4444,6 +4452,8 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                                     p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
                                     feed_scale, p_vel_limit, tp->vLimit, p_exit};
                                 if (computeAndStoreProfile(prev_seg, rp_prev)) {
+                                    prev_seg->shared_9d.profile.dbg_src = 7;  // backtrack(cursor)
+                                    prev_seg->shared_9d.profile.dbg_v0_req = p_entry;
                                     double actual_exit = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
                                     if (fabs(actual_exit - p_exit) > 0.5 ||
                                         profileHasNegativeVelocity(&prev_seg->shared_9d.profile)) {
@@ -4452,6 +4462,8 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                                             p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
                                             feed_scale, p_vel_limit, tp->vLimit, p_exit};
                                         computeAndStoreProfile(prev_seg, rp_fb);
+                                        prev_seg->shared_9d.profile.dbg_src = 7;
+                                        prev_seg->shared_9d.profile.dbg_v0_req = p_entry_clamped;
                                     }
                                     atomicStoreInt((int*)&prev_seg->shared_9d.optimization_state,
                                         TC_PLAN_FINALIZED);
@@ -4828,27 +4840,14 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
             applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
                 tc->target, max_acc, max_jrk);
 
-            // DBG: log main-loop Ruckig inputs for Jacobian-capped segments (maxvel < 10)
-            {
-                double dbg_fv = readFinalVelCapped(tc);
-                double dbg_fv_raw = atomicLoadDouble(&tc->shared_9d.final_vel);
-                double dbg_cap = atomicLoadDouble(&tc->shared_9d.reachability_exit_cap);
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "MAINLOOP_DBG id=%d type=%d entry=%.3f exit=%.3f maxvel=%.3f "
-                    "target=%.4f kink=%.3f v_exit_raw=%.3f term=%d "
-                    "fv=%.3f fv_raw=%.3f cap=%.3f first=%d depth=%d\n",
-                    tc->id, tc->motion_type, scaled_v_entry, scaled_v_exit,
-                    max_vel, tc->target, tc->kink_vel, v_exit,
-                    tc->term_cond, dbg_fv, dbg_fv_raw, dbg_cap,
-                    is_first_profile, optimization_depth);
-            }
-
             try {
                 RuckigProfileParams rp = {scaled_v_entry, scaled_v_exit,
                     max_vel, max_acc, max_jrk, tc->target,
                     feed_scale, vel_limit, tp->vLimit, desired_fvel_for_profile};
 
                 if (computeAndStoreProfile(tc, rp)) {
+                    tc->shared_9d.profile.dbg_src = 4;  // forward pass
+                    tc->shared_9d.profile.dbg_v0_req = scaled_v_entry;
                     atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
 
                     // Propagate actual achievable exit velocity (un-scaled)
@@ -4891,6 +4890,8 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                                 p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
                                 p_feed, p_vel_limit, tp->vLimit, p_exit};
                             if (computeAndStoreProfile(prev_seg, rp_prev)) {
+                                prev_seg->shared_9d.profile.dbg_src = 7;  // backtrack(fwd)
+                                prev_seg->shared_9d.profile.dbg_v0_req = p_entry;
                                 double actual_exit = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
                                 if (fabs(actual_exit - p_exit) > 0.5 ||
                                     profileHasNegativeVelocity(&prev_seg->shared_9d.profile)) {
@@ -4898,6 +4899,8 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                                         p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
                                         p_feed, p_vel_limit, tp->vLimit, p_exit};
                                     computeAndStoreProfile(prev_seg, rp_fb);
+                                    prev_seg->shared_9d.profile.dbg_src = 7;
+                                    prev_seg->shared_9d.profile.dbg_v0_req = p_entry_clamped;
                                 }
                                 atomicStoreInt((int*)&prev_seg->shared_9d.optimization_state,
                                     TC_PLAN_FINALIZED);
@@ -5007,7 +5010,10 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
             RuckigProfileParams rp = {A_v_entry_scaled, capped_exit,
                 A_max_vel, A_acc, A_jrk, tc_A->target,
                 A_feed, A_vel_limit, tp->vLimit, capped_exit};
-            computeAndStoreProfile(tc_A, rp);
+            if (computeAndStoreProfile(tc_A, rp)) {
+                tc_A->shared_9d.profile.dbg_src = 8;  // bkwd fixup
+                tc_A->shared_9d.profile.dbg_v0_req = A_v_entry_scaled;
+            }
         } catch (...) {
             // Leave A's profile as-is if Ruckig fails
         }
@@ -5264,6 +5270,8 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int optimizatio
                         max_vel, max_acc, max_jrk, tc->target,
                         feed_scale, vel_limit, tp->vLimit, desired_fvel};
                     if (computeAndStoreProfile(tc, rp)) {
+                        tc->shared_9d.profile.dbg_src = 9;  // safety-check head
+                        tc->shared_9d.profile.dbg_v0_req = expected_v0;
                         double actual_v0 = tc->shared_9d.profile.v[0];
                         atomicStoreInt((int*)&tc->shared_9d.optimization_state,
                             TC_PLAN_FINALIZED);
@@ -5299,6 +5307,8 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int optimizatio
                                     p_max_vel, p_max_acc, p_max_jrk, prev_tc->target,
                                     p_feed, p_vel_limit, tp->vLimit, p_desired};
                                 if (computeAndStoreProfile(prev_tc, rp_bt)) {
+                                    prev_tc->shared_9d.profile.dbg_src = 7;  // backtrack(head)
+                                    prev_tc->shared_9d.profile.dbg_v0_req = p_v0;
                                     atomicStoreInt((int*)&prev_tc->shared_9d.optimization_state,
                                         TC_PLAN_FINALIZED);
                                 }
