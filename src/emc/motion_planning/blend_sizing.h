@@ -74,6 +74,15 @@ typedef struct {
     PmCartesian n_start_xyz;            /* Unit curvature normal at start (toward center) */
     double kappa_end;                   /* Curvature of tc at blend end (xyz) */
     PmCartesian n_end_xyz;              /* Unit curvature normal at end (toward center) */
+
+    /* Per-subspace progress rates for 9D tangent continuity.
+     * Each value is the displacement rate of that subspace per unit of
+     * segment progress: rate = tmag_subspace / target.
+     * For a line with xyz as primary: rate_xyz = 1.0, rate_abc = abc.tmag / xyz.tmag.
+     * Used to scale tangent vectors passed to bezier9Init so the Bezier's 9D
+     * tangent at endpoints matches the adjacent segment's 9D tangent direction. */
+    double w_start[3];                  /* [xyz, abc, uvw] rates at start (prev_tc) */
+    double w_end[3];                    /* [xyz, abc, uvw] rates at end (tc) */
 } BlendBoundary9;
 
 /**

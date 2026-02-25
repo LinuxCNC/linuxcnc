@@ -139,22 +139,24 @@ static void bezier5_deriv2(PmCartesian const * const P,
 }
 
 /**
- * bezier9_deriv_mag - Compute 9D magnitude of derivative
+ * bezier9_deriv_mag - Compute derivative magnitude in primary subspace
  *
- * |B'(t)| = sqrt(|B'_xyz|² + |B'_abc|² + |B'_uvw|²)
+ * Returns |B'(t)| for the primary subspace only, matching pmLine9Target's
+ * priority (xyz > uvw > abc).  This ensures the Bezier's arc-length
+ * parameterization uses the same units as the adjacent line segments,
+ * preventing velocity discontinuities at blend junctions.
+ *
+ * @param primary 0 = xyz (P), 1 = abc (A), 2 = uvw (U)
  */
-static double bezier9_deriv_mag(Bezier9 const * const b, double t)
+static double bezier9_deriv_mag(Bezier9 const * const b, double t, int primary)
 {
-    PmCartesian dP, dA, dU;
-    bezier5_deriv(b->P, t, &dP);
-    bezier5_deriv(b->A, t, &dA);
-    bezier5_deriv(b->U, t, &dU);
-
-    double mag_xyz2 = dP.x * dP.x + dP.y * dP.y + dP.z * dP.z;
-    double mag_abc2 = dA.x * dA.x + dA.y * dA.y + dA.z * dA.z;
-    double mag_uvw2 = dU.x * dU.x + dU.y * dU.y + dU.z * dU.z;
-
-    return sqrt(mag_xyz2 + mag_abc2 + mag_uvw2);
+    PmCartesian d;
+    switch (primary) {
+        case 0:  bezier5_deriv(b->P, t, &d); break;
+        case 1:  bezier5_deriv(b->A, t, &d); break;
+        default: bezier5_deriv(b->U, t, &d); break;
+    }
+    return sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
 }
 
 /**
@@ -165,7 +167,8 @@ static double bezier9_deriv_mag(Bezier9 const * const b, double t)
  */
 static double gauss_legendre_integrate(Bezier9 const * const b,
                                        double t_start,
-                                       double t_end)
+                                       double t_end,
+                                       int primary)
 {
     double mid = 0.5 * (t_end + t_start);
     double half_range = 0.5 * (t_end - t_start);
@@ -173,7 +176,7 @@ static double gauss_legendre_integrate(Bezier9 const * const b,
 
     for (int i = 0; i < 16; i++) {
         double t = mid + half_range * GL16_NODES[i];
-        sum += GL16_WEIGHTS[i] * bezier9_deriv_mag(b, t);
+        sum += GL16_WEIGHTS[i] * bezier9_deriv_mag(b, t, primary);
     }
 
     return half_range * sum;
@@ -184,9 +187,35 @@ static double gauss_legendre_integrate(Bezier9 const * const b,
  *
  * Builds lookup tables mapping Bezier parameter t to arc length s.
  * Uses Gauss-Legendre quadrature to compute cumulative arc length.
+ *
+ * Arc length is computed for the primary subspace only, matching how
+ * pmLine9Target selects the parameterization base for lines: xyz first,
+ * then uvw, then abc.  This ensures Bezier progress is in the same
+ * units as the adjacent line segments it blends between.
  */
 static void build_arc_length_table(Bezier9 * const b)
 {
+    /* Determine primary subspace from endpoint displacement.
+     * Priority: xyz > uvw > abc (same as pmLine9Target). */
+    int primary = 0; /* xyz by default */
+    {
+        double d2;
+
+        d2 = (b->P[5].x - b->P[0].x) * (b->P[5].x - b->P[0].x) +
+             (b->P[5].y - b->P[0].y) * (b->P[5].y - b->P[0].y) +
+             (b->P[5].z - b->P[0].z) * (b->P[5].z - b->P[0].z);
+        if (d2 < BEZIER9_POS_EPSILON * BEZIER9_POS_EPSILON) {
+            d2 = (b->U[5].x - b->U[0].x) * (b->U[5].x - b->U[0].x) +
+                 (b->U[5].y - b->U[0].y) * (b->U[5].y - b->U[0].y) +
+                 (b->U[5].z - b->U[0].z) * (b->U[5].z - b->U[0].z);
+            if (d2 >= BEZIER9_POS_EPSILON * BEZIER9_POS_EPSILON) {
+                primary = 2; /* uvw */
+            } else {
+                primary = 1; /* abc */
+            }
+        }
+    }
+
     b->t_table[0] = 0.0;
     b->s_table[0] = 0.0;
 
@@ -194,7 +223,7 @@ static void build_arc_length_table(Bezier9 * const b)
         double t_prev = (double)(i - 1) / BEZIER9_ARC_LENGTH_SAMPLES;
         double t_curr = (double)i / BEZIER9_ARC_LENGTH_SAMPLES;
 
-        double ds = gauss_legendre_integrate(b, t_prev, t_curr);
+        double ds = gauss_legendre_integrate(b, t_prev, t_curr, primary);
 
         b->t_table[i] = t_curr;
         b->s_table[i] = b->s_table[i - 1] + ds;
@@ -330,17 +359,28 @@ int bezier9Init(Bezier9 * const b,
     // curvature normal direction to match adjacent segment curvature.
     //
     // For a quintic Bezier with P0,P1,P2 collinear along tangent u:
-    //   B'(0) = 5α·u,  B''(0) = 20·δ·n  (after offset)
-    //   κ(0) = |B'×B''| / |B'|³ = 4δ / (5α²)
-    // Solving for target curvature: δ = 5α²·κ / 4
+    //   B'(0) = 5·α_eff·u,  B''(0) = 20·δ·n  (after offset)
+    //   κ(0) = |B'×B''| / |B'|³ = 4δ / (5·α_eff²)
+    // where α_eff = alpha * |u_start_xyz| is the effective xyz alpha
+    // (|u| may not be 1 when tangent vectors are rate-weighted for 9D
+    // tangent continuity).
+    // Solving for target curvature: δ = 5·α_eff²·κ / 4
     if (kappa_start > BEZIER9_CURVATURE_EPSILON && n_start) {
-        double delta = 5.0 * alpha * alpha * kappa_start / 4.0;
+        double u_mag = sqrt(u_start_xyz->x * u_start_xyz->x +
+                            u_start_xyz->y * u_start_xyz->y +
+                            u_start_xyz->z * u_start_xyz->z);
+        double alpha_eff = alpha * u_mag;
+        double delta = 5.0 * alpha_eff * alpha_eff * kappa_start / 4.0;
         b->P[2].x += delta * n_start->x;
         b->P[2].y += delta * n_start->y;
         b->P[2].z += delta * n_start->z;
     }
     if (kappa_end > BEZIER9_CURVATURE_EPSILON && n_end) {
-        double delta = 5.0 * alpha * alpha * kappa_end / 4.0;
+        double u_mag = sqrt(u_end_xyz->x * u_end_xyz->x +
+                            u_end_xyz->y * u_end_xyz->y +
+                            u_end_xyz->z * u_end_xyz->z);
+        double alpha_eff = alpha * u_mag;
+        double delta = 5.0 * alpha_eff * alpha_eff * kappa_end / 4.0;
         b->P[3].x += delta * n_end->x;
         b->P[3].y += delta * n_end->y;
         b->P[3].z += delta * n_end->z;
@@ -503,6 +543,45 @@ double bezier9Curvature(Bezier9 const * const b, double t)
     return perp_mag / dP_mag2;
 }
 
+double bezier9Curvature9D(Bezier9 const * const b, double t)
+{
+    if (!b) {
+        return 0.0;
+    }
+
+    // Evaluate first and second derivatives in all three subspaces
+    PmCartesian dP, dA, dU;
+    PmCartesian ddP, ddA, ddU;
+    bezier5_deriv(b->P, t, &dP);
+    bezier5_deriv(b->A, t, &dA);
+    bezier5_deriv(b->U, t, &dU);
+    bezier5_deriv2(b->P, t, &ddP);
+    bezier5_deriv2(b->A, t, &ddA);
+    bezier5_deriv2(b->U, t, &ddU);
+
+    // 9D dot products: |B'|², |B''|², B'·B''
+    double dP_mag2 = dP.x*dP.x + dP.y*dP.y + dP.z*dP.z
+                   + dA.x*dA.x + dA.y*dA.y + dA.z*dA.z
+                   + dU.x*dU.x + dU.y*dU.y + dU.z*dU.z;
+    if (dP_mag2 < BEZIER9_CURVATURE_EPSILON) {
+        return 0.0;
+    }
+
+    double ddP_mag2 = ddP.x*ddP.x + ddP.y*ddP.y + ddP.z*ddP.z
+                    + ddA.x*ddA.x + ddA.y*ddA.y + ddA.z*ddA.z
+                    + ddU.x*ddU.x + ddU.y*ddU.y + ddU.z*ddU.z;
+
+    double dot = dP.x*ddP.x + dP.y*ddP.y + dP.z*ddP.z
+               + dA.x*ddA.x + dA.y*ddA.y + dA.z*ddA.z
+               + dU.x*ddU.x + dU.y*ddU.y + dU.z*ddU.z;
+
+    // Generalized N-dim curvature: κ = sqrt(|B'|²|B''|² - (B'·B'')²) / |B'|³
+    double num2 = dP_mag2 * ddP_mag2 - dot * dot;
+    if (num2 < 0.0) num2 = 0.0;  // numerical safety
+
+    return sqrt(num2) / (dP_mag2 * sqrt(dP_mag2));
+}
+
 int bezier9MaxCurvature(Bezier9 * const b)
 {
     if (!b) {
@@ -586,6 +665,26 @@ int bezier9MaxCurvature(Bezier9 * const b)
         prev_kappa = kappa_i;
     }
     b->max_dkappa_ds = max_dkds;
+
+    // Compute 9D curvature rate (includes ABC/UVW direction changes).
+    // For 5-axis paths where the XYZ path is nearly straight but rotary
+    // axes change rapidly through the blend, max_dkappa_ds (xyz-only) is
+    // near zero while the actual joint-space jerk from the Jacobian-
+    // amplified rotary curvature is large.  max_dkappa_ds_9d captures this.
+    double max_dkds_9d = 0.0;
+    double prev_kappa_9d = bezier9Curvature9D(b, 0.0);
+    for (int i = 1; i <= BEZIER9_ARC_LENGTH_SAMPLES; i++) {
+        double kappa_9d_i = bezier9Curvature9D(b, b->t_table[i]);
+        double ds_i = b->s_table[i] - b->s_table[i - 1];
+        if (ds_i > BEZIER9_MIN_LENGTH) {
+            double dk_ds_9d = fabs(kappa_9d_i - prev_kappa_9d) / ds_i;
+            if (dk_ds_9d > max_dkds_9d) {
+                max_dkds_9d = dk_ds_9d;
+            }
+        }
+        prev_kappa_9d = kappa_9d_i;
+    }
+    b->max_dkappa_ds_9d = max_dkds_9d;
 
     return TP_ERR_OK;
 }
