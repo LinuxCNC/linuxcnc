@@ -369,7 +369,7 @@ static int detect_preempt_rt() {
         fclose(fd);
     }
 
-    return crit1 && crit2;
+    return crit1 || crit2;
 }
 #else
 static int detect_preempt_rt() {
