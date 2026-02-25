@@ -230,12 +230,23 @@ static void build_arc_length_table(Bezier9 * const b)
     }
 
     b->total_length = b->s_table[BEZIER9_ARC_LENGTH_SAMPLES];
+
+    // Precompute dt/ds at each node for cubic Hermite interpolation.
+    // dt/ds = 1 / |B'(t)| eliminates the slope discontinuities that
+    // linear interpolation creates at table boundaries.
+    for (int i = 0; i <= BEZIER9_ARC_LENGTH_SAMPLES; i++) {
+        double dmag = bezier9_deriv_mag(b, b->t_table[i], primary);
+        b->d_table[i] = (dmag > BEZIER9_POS_EPSILON) ? 1.0 / dmag : 0.0;
+    }
 }
 
 /**
  * arc_length_to_t - Map arc length s to Bezier parameter t
  *
- * Uses binary search on precomputed lookup table, then linear interpolation.
+ * Uses binary search on precomputed lookup table, then cubic Hermite
+ * interpolation with precomputed dt/ds slopes.  This gives C1-continuous
+ * t(s) — eliminating the slope discontinuities at table boundaries that
+ * linear interpolation produces (which cause jerk oscillation in RT).
  */
 static double arc_length_to_t(Bezier9 const * const b, double s)
 {
@@ -256,19 +267,27 @@ static double arc_length_to_t(Bezier9 const * const b, double s)
         }
     }
 
-    // Linear interpolation within interval
     double s0 = b->s_table[lo];
     double s1 = b->s_table[hi];
     double t0 = b->t_table[lo];
     double t1 = b->t_table[hi];
 
-    double ds = s1 - s0;
-    if (ds < BEZIER9_MIN_LENGTH) {
+    double h = s1 - s0;
+    if (h < BEZIER9_MIN_LENGTH) {
         return t0;
     }
 
-    double alpha = (s - s0) / ds;
-    return t0 + alpha * (t1 - t0);
+    // Cubic Hermite interpolation: t(s) with precomputed dt/ds slopes
+    double u = (s - s0) / h;
+    double u2 = u * u;
+    double u3 = u2 * u;
+
+    double h00 = 2.0*u3 - 3.0*u2 + 1.0;
+    double h10 = u3 - 2.0*u2 + u;
+    double h01 = -2.0*u3 + 3.0*u2;
+    double h11 = u3 - u2;
+
+    return h00*t0 + h10*h*b->d_table[lo] + h01*t1 + h11*h*b->d_table[hi];
 }
 
 /**
