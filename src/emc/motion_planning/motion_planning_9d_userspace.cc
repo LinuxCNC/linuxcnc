@@ -44,6 +44,216 @@ extern "C" {
     extern emcmot_config_t *emcmotConfig;
 }
 
+// ── Segment Compressor ──────────────────────────────────────────────────────
+// Buffers consecutive near-collinear G1 segments and emits a single compressed
+// line within G64 P tolerance.  Eliminates artificial kink velocities from
+// G-code coordinate rounding on short segments (e.g. 16×0.177mm B-turn in
+// sawjet toolpaths where 3-decimal Y rounding creates 70× Jacobian-amplified
+// kink caps of 0.13 mm/s).
+
+struct SegmentCompressor {
+    static constexpr int MAX_WAYPOINTS = 128;
+
+    EmcPose waypoints[MAX_WAYPOINTS];   // intermediate points for deviation check
+    int num_waypoints = 0;
+
+    EmcPose compress_start;   // start of compression line
+    EmcPose compress_end;     // current last endpoint
+
+    double vel;               // feed rate (F-word, must be same for all)
+    double ini_maxvel;        // minimum of all absorbed segments
+    double acc;               // minimum of all absorbed segments
+    int type;                 // canon_motion_type (EMC_MOTION_TYPE_FEED)
+    unsigned char enables;
+    state_tag_t tag;          // last absorbed segment's tag
+    double tolerance;         // G64 P value
+
+    bool active = false;
+    bool flushing = false;    // re-entry guard: skip compressor during flush
+
+    // Adaptive disable: stop buffering after consecutive 1→1 flushes
+    int consecutive_single_flushes = 0;
+    int segments_since_last_try = 0;
+    static constexpr int SINGLE_FLUSH_LIMIT = 3;   // disable after this many 1→1 flushes
+    static constexpr int RETRY_INTERVAL = 200;      // re-enable every N segments
+};
+
+static SegmentCompressor g_compressor;
+
+/**
+ * @brief Perpendicular distance from point P to line A→B in a 3D subspace.
+ */
+static double pointToLineDeviation3D(PmCartesian const &P,
+                                     PmCartesian const &A,
+                                     PmCartesian const &B)
+{
+    PmCartesian d = {B.x - A.x, B.y - A.y, B.z - A.z};
+    double d2 = d.x*d.x + d.y*d.y + d.z*d.z;
+    if (d2 < 1e-20) {
+        // Degenerate line — deviation is distance from P to A
+        double dx = P.x - A.x, dy = P.y - A.y, dz = P.z - A.z;
+        return sqrt(dx*dx + dy*dy + dz*dz);
+    }
+    PmCartesian pa = {P.x - A.x, P.y - A.y, P.z - A.z};
+    double t = (pa.x*d.x + pa.y*d.y + pa.z*d.z) / d2;
+    if (t < 0.0) t = 0.0;
+    if (t > 1.0) t = 1.0;
+    double ex = P.x - (A.x + t*d.x);
+    double ey = P.y - (A.y + t*d.y);
+    double ez = P.z - (A.z + t*d.z);
+    return sqrt(ex*ex + ey*ey + ez*ez);
+}
+
+/**
+ * @brief Max deviation from point P to line A→B across all 9D subspaces.
+ *
+ * Checks XYZ, ABC, UVW independently and returns the maximum.
+ * This is consistent with how pmLine9Target treats the subspaces.
+ */
+static double pointToLineDeviation9D(EmcPose const &P,
+                                     EmcPose const &A,
+                                     EmcPose const &B)
+{
+    // XYZ subspace
+    PmCartesian p_xyz = {P.tran.x, P.tran.y, P.tran.z};
+    PmCartesian a_xyz = {A.tran.x, A.tran.y, A.tran.z};
+    PmCartesian b_xyz = {B.tran.x, B.tran.y, B.tran.z};
+    double dev = pointToLineDeviation3D(p_xyz, a_xyz, b_xyz);
+
+    // ABC subspace
+    PmCartesian p_abc = {P.a, P.b, P.c};
+    PmCartesian a_abc = {A.a, A.b, A.c};
+    PmCartesian b_abc = {B.a, B.b, B.c};
+    double dev_abc = pointToLineDeviation3D(p_abc, a_abc, b_abc);
+    if (dev_abc > dev) dev = dev_abc;
+
+    // UVW subspace
+    PmCartesian p_uvw = {P.u, P.v, P.w};
+    PmCartesian a_uvw = {A.u, A.v, A.w};
+    PmCartesian b_uvw = {B.u, B.v, B.w};
+    double dev_uvw = pointToLineDeviation3D(p_uvw, a_uvw, b_uvw);
+    if (dev_uvw > dev) dev = dev_uvw;
+
+    return dev;
+}
+
+/**
+ * @brief Check if a new endpoint can be absorbed into the compression line.
+ */
+static bool compressorCanAbsorb(TP_STRUCT const * const tp,
+                                EmcPose const &new_end,
+                                int type, double vel)
+{
+    if (!g_compressor.active) return false;
+
+    // Must be same motion type and feed rate
+    if (type != g_compressor.type) return false;
+    if (fabs(vel - g_compressor.vel) > 1e-6) return false;
+
+    // Must still be in G64 mode with tolerance
+    if (tp->termCond != TC_TERM_COND_PARABOLIC) return false;
+    if (tp->tolerance <= 0) return false;
+
+    // Buffer not full
+    if (g_compressor.num_waypoints >= SegmentCompressor::MAX_WAYPOINTS) return false;
+
+    double tol = g_compressor.tolerance;
+
+    // Check all buffered waypoints against the NEW line (start → new_end)
+    for (int i = 0; i < g_compressor.num_waypoints; i++) {
+        if (pointToLineDeviation9D(g_compressor.waypoints[i],
+                                   g_compressor.compress_start,
+                                   new_end) > tol) {
+            return false;
+        }
+    }
+
+    // Check the current compress_end (which will become a waypoint) against new line
+    if (pointToLineDeviation9D(g_compressor.compress_end,
+                               g_compressor.compress_start,
+                               new_end) > tol) {
+        return false;
+    }
+
+    return true;
+}
+
+// Forward declaration — compressorFlush calls tpAddLine_9D
+extern "C" int tpAddLine_9D(
+    TP_STRUCT * const tp, EmcPose end_pose, int type,
+    double vel, double ini_maxvel, double acc,
+    unsigned char enables, struct state_tag_t const &tag);
+
+/**
+ * @brief Flush the compressor — emit accumulated compressed segment.
+ *
+ * Temporarily restores goalPos to compression start, then calls tpAddLine_9D
+ * to emit the full compressed line through the normal flow (blend, kink, queue).
+ */
+static int compressorFlush(TP_STRUCT *tp)
+{
+    if (!g_compressor.active) {
+        return 0;
+    }
+
+    // Track whether compression is actually helping
+    if (g_compressor.num_waypoints == 0) {
+        g_compressor.consecutive_single_flushes++;
+    } else {
+        g_compressor.consecutive_single_flushes = 0;
+    }
+
+    // Save and restore goalPos — tpAddLine_9D computes geometry from goalPos
+    EmcPose saved_goalPos = tp->goalPos;
+    tp->goalPos = g_compressor.compress_start;
+
+    // Deactivate and set flushing guard to prevent re-buffering
+    g_compressor.active = false;
+    g_compressor.flushing = true;
+    g_compressor.num_waypoints = 0;
+
+    int result = tpAddLine_9D(tp, g_compressor.compress_end,
+                              g_compressor.type, g_compressor.vel,
+                              g_compressor.ini_maxvel, g_compressor.acc,
+                              g_compressor.enables, g_compressor.tag);
+
+    g_compressor.flushing = false;
+
+    if (result != 0) {
+        // Restore goalPos on failure
+        tp->goalPos = saved_goalPos;
+    }
+    // On success, goalPos is now at compress_end (set by tpAddLine_9D)
+
+    return result;
+}
+
+/**
+ * @brief Flush segment compressor (exported for interpreter).
+ *
+ * Called at program end (M2), mode changes (G64→G61), and before non-line
+ * segments (circles, dwells) to emit any buffered compressed segment.
+ */
+extern "C" int tpFlushCompressor_9D(TP_STRUCT *tp)
+{
+    return compressorFlush(tp);
+}
+
+/**
+ * @brief Reset compressor state without flushing (discard any buffered segments).
+ *
+ * Used by tpClearPlanning_9D at program start where stale compressor state
+ * from a previous program should be discarded, not emitted.
+ */
+extern "C" void tpResetCompressor_9D(void)
+{
+    g_compressor.active = false;
+    g_compressor.flushing = false;
+    g_compressor.consecutive_single_flushes = 0;
+    g_compressor.segments_since_last_try = 0;
+    g_compressor.num_waypoints = 0;
+}
+
 /**
  * @brief Initialize TC_STRUCT with basic parameters
  *
@@ -532,6 +742,9 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
     // by the blend's centripetal jerk and should not constrain velocity.
     double blend_proj[9] = {0};  // per-joint projection of curvature normal
     int blend_num_joints = 0;
+    double J_blend[9][9] = {{0}};  // Jacobian at junction
+    bool have_J_blend = false;
+    double delta_mag_blend = 0.0;
     {
         using motion_planning::g_userspace_kins_planner;
         blend_num_joints = g_userspace_kins_planner.isEnabled()
@@ -552,10 +765,8 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
             }
 
             if (delta_mag_sq >= 1e-12) {
-                double delta_mag = sqrt(delta_mag_sq);
+                delta_mag_blend = sqrt(delta_mag_sq);
                 // Compute Jacobian at junction for non-identity kinematics
-                double J[9][9] = {{0}};
-                bool have_jacobian = false;
                 if (g_userspace_kins_planner.isEnabled() &&
                     !g_userspace_kins_planner.isIdentity()) {
                     EmcPose junction;
@@ -577,19 +788,19 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
                         junction.v = tc->coords.circle.uvw.start.y;
                         junction.w = tc->coords.circle.uvw.start.z;
                     }
-                    have_jacobian = g_userspace_kins_planner.computeJacobian(junction, J);
+                    have_J_blend = g_userspace_kins_planner.computeJacobian(junction, J_blend);
                 }
 
                 // Project curvature normal through Jacobian
                 for (int j = 0; j < blend_num_joints; j++) {
-                    if (have_jacobian) {
+                    if (have_J_blend) {
                         double p = 0.0;
                         for (int a = 0; a < 9; a++)
-                            p += fabs(J[j][a]) * fabs(delta_u[a]);
-                        blend_proj[j] = p / delta_mag;
+                            p += fabs(J_blend[j][a]) * fabs(delta_u[a]);
+                        blend_proj[j] = p / delta_mag_blend;
                     } else {
                         // Trivkins: J = identity → proj[j] = |delta_u[j]| / |delta_u|
-                        blend_proj[j] = (j < 9) ? (fabs(delta_u[j]) / delta_mag) : 0.0;
+                        blend_proj[j] = (j < 9) ? (fabs(delta_u[j]) / delta_mag_blend) : 0.0;
                     }
                 }
             }
@@ -664,7 +875,12 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
     double v_jerk_cap = 1e9;
     {
         using motion_planning::g_userspace_kins_planner;
-        double dkds = solution.bezier.max_dkappa_ds;
+        // Use the 9D curvature rate which includes ABC/UVW direction changes.
+        // For 5-axis paths the XYZ path may be nearly straight while rotary
+        // axes change rapidly through the blend; max_dkappa_ds (xyz-only)
+        // misses this, but max_dkappa_ds_9d captures the full 9D bending.
+        double dkds = fmax(solution.bezier.max_dkappa_ds,
+                           solution.bezier.max_dkappa_ds_9d);
         if (dkds > BEZIER9_CURVATURE_EPSILON) {
             for (int j = 0; j < blend_num_joints; j++) {
                 if (blend_proj[j] < 1e-15) continue;  // joint not loaded
@@ -798,8 +1014,12 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
 static void tpComputeKinkVelocity_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
                                       TC_STRUCT *tc, int queue_len, int current_end)
 {
-    // Only compute for EXACT mode (G61)
-    if (tp->termCond != TC_TERM_COND_EXACT) return;
+    // Compute kink velocity for non-blend junctions:
+    // - G61 (EXACT): always compute — primary junction speed limit
+    // - G64 (PARABOLIC): compute as fallback when blend creation fails
+    //   (e.g. segment too short after trimming by adjacent blend)
+    // - G61.1 (STOP): skip — must decelerate to zero regardless
+    if (tp->termCond == TC_TERM_COND_STOP) return;
 
     // Need at least 1 element in queue (the previous segment)
     if (queue_len < 1) return;
@@ -1124,6 +1344,59 @@ extern "C" int tpAddLine_9D(
         tpClearPlanning_9D(tp);
     }
 
+    // ── Segment compressor ───────────────────────────────────────────
+    // In G64 mode with P tolerance, compress near-collinear G1 segments
+    // into a single longer line.  This eliminates artificial kink
+    // velocities from G-code coordinate rounding on short segments.
+    // Skip during flush (re-entry from compressorFlush → tpAddLine_9D).
+    if (g_compressor.flushing) goto skip_compressor;
+    if (g_compressor.active) {
+        if (compressorCanAbsorb(tp, end_pose, type, vel)) {
+            // Store current compress_end as waypoint, advance to new endpoint
+            g_compressor.waypoints[g_compressor.num_waypoints++] = g_compressor.compress_end;
+            g_compressor.compress_end = end_pose;
+            // Take conservative limits
+            g_compressor.ini_maxvel = fmin(g_compressor.ini_maxvel, ini_maxvel);
+            g_compressor.acc = fmin(g_compressor.acc, acc);
+            g_compressor.tag = tag;   // use last segment's tag
+            tp->goalPos = end_pose;
+            return 0;   // absorbed
+        }
+        // Can't absorb — flush accumulated segment first
+        compressorFlush(tp);
+        // Fall through to potentially start new compression
+    }
+
+    // Track segment count for adaptive retry
+    g_compressor.segments_since_last_try++;
+    if (g_compressor.segments_since_last_try >= SegmentCompressor::RETRY_INTERVAL) {
+        g_compressor.consecutive_single_flushes = 0;
+        g_compressor.segments_since_last_try = 0;
+    }
+
+    // Check if we should start compressing (G64 mode, non-traverse, with tolerance)
+    // Skip if recent flushes were all 1→1 (curved path, compression not helping)
+    if (type != EMC_MOTION_TYPE_TRAVERSE
+        && tp->termCond == TC_TERM_COND_PARABOLIC
+        && tp->tolerance > 0
+        && g_compressor.consecutive_single_flushes < SegmentCompressor::SINGLE_FLUSH_LIMIT) {
+        g_compressor.compress_start = tp->goalPos;
+        g_compressor.compress_end = end_pose;
+        g_compressor.vel = vel;
+        g_compressor.ini_maxvel = ini_maxvel;
+        g_compressor.acc = acc;
+        g_compressor.type = type;
+        g_compressor.enables = enables;
+        g_compressor.tag = tag;
+        g_compressor.tolerance = tp->tolerance;
+        g_compressor.num_waypoints = 0;
+        g_compressor.active = true;
+        tp->goalPos = end_pose;
+        return 0;   // first segment buffered
+    }
+    // ── End segment compressor ───────────────────────────────────────
+skip_compressor:
+
     TC_QUEUE_STRUCT *queue = &tp->queue;
 
     // Initialize new TC_STRUCT for the line segment
@@ -1213,29 +1486,53 @@ extern "C" int tpAddLine_9D(
     tc.tolerance = tp->tolerance;
     tc.finalvel = 0.0;  // Default: decelerate to zero
 
-    // Attempt blend with previous segment (G64 mode) or kink velocity (G61 mode).
-    // tpSetupBlend9D handles G64: creates Bezier blend, trims both segments.
-    // tpComputeKinkVelocity_9D handles G61: computes junction velocity limit.
-    {
-        TC_STRUCT *prev_tc = tcqLast_user(queue);
-        if (prev_tc) {
-            int blend_result = tpSetupBlend9D(tp, prev_tc, &tc);
-            if (blend_result <= 0) {
-                // No blend created — compute kink velocity as fallback
-                tpComputeKinkVelocity_9D(tp, queue, &tc, queue_len, current_end);
-            }
-        }
-    }
-
-    // Compute joint-space segment if userspace kinematics enabled
-    // This populates tc.joint_space with start/end joint positions and
-    // velocity/acceleration limits derived from Jacobian analysis.
+    // Compute joint-space segment BEFORE blend/kink so that tc.maxvel/maxaccel/maxjerk
+    // reflect Jacobian-based joint limits. Without this, tpSetupBlend9D uses uncapped
+    // INI values which can produce blends that exceed joint velocity limits (e.g. 70x
+    // amplification on a 250mm pivot 5-axis machine).
     if (motion_planning::userspace_kins_is_enabled()) {
         if (motion_planning::userspace_kins_compute_joint_segment(&tp->goalPos, &end_pose, &tc) != 0) {
             tc.joint_space.valid = 0;
         }
     } else {
         tc.joint_space.valid = 0;
+    }
+
+    // Attempt blend with previous segment (G64 mode) or kink velocity (G61 mode).
+    // tpSetupBlend9D handles G64: creates Bezier blend, trims both segments.
+    // tpComputeKinkVelocity_9D handles G61/G64-fallback: computes junction velocity limit.
+    // NOTE: tc.maxvel is now Jacobian-capped, so blend uses correct joint limits.
+    {
+        TC_STRUCT *prev_tc = tcqLast_user(queue);
+        if (prev_tc) {
+            int blend_result = tpSetupBlend9D(tp, prev_tc, &tc);
+            if (blend_result <= 0) {
+                // No blend created — compute kink velocity as fallback.
+                // This fires for G61 (always) and G64 (when blend fails, e.g. segment
+                // too short after trimming by adjacent blend).
+                // Traverse↔feed boundary: force full stop, no kink velocity.
+                // Matches planner 0/1 handleModeChange() behavior.
+                bool traverse_boundary =
+                    (prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) !=
+                    (tc.canon_motion_type == EMC_MOTION_TYPE_TRAVERSE);
+                if (traverse_boundary) {
+                    prev_tc->term_cond = TC_TERM_COND_STOP;
+                    prev_tc->finalvel = 0.0;
+                    atomicStoreDouble(&prev_tc->shared_9d.final_vel, 0.0);
+                    atomicStoreDouble(&prev_tc->shared_9d.final_vel_limit, 0.0);
+                } else {
+                    tpComputeKinkVelocity_9D(tp, queue, &tc, queue_len, current_end);
+                    // In G64 mode, promote prev_tc to TANGENT so it can exit at non-zero
+                    // velocity — kink velocity limits the junction speed instead of a blend.
+                    // Without this, prev_tc stays as STOP (converted from PARABOLIC) and
+                    // the optimizer forces v_exit=0 at every unblended junction.
+                    if (tp->termCond == TC_TERM_COND_PARABOLIC &&
+                        prev_tc->term_cond == TC_TERM_COND_STOP) {
+                        prev_tc->term_cond = TC_TERM_COND_TANGENT;
+                    }
+                }
+            }
+        }
     }
 
     // Write segment to shared memory queue
@@ -1280,6 +1577,11 @@ extern "C" int tpAddCircle_9D(
     int queue_len, current_end;
     if (validateQueueState_9D(tp, &queue_len, &current_end, "tpAddCircle_9D") != 0) {
         return -1;
+    }
+
+    // Flush any buffered compressed segments before adding a circle
+    if (g_compressor.active) {
+        compressorFlush(tp);
     }
 
     // First segment of a new program: reset userspace planning state.
@@ -1365,24 +1667,40 @@ extern "C" int tpAddCircle_9D(
     tc.tolerance = tp->tolerance;
     tc.finalvel = 0.0;  // Default: decelerate to zero
 
-    // Attempt blend with previous segment (G64) or kink velocity (G61)
-    {
-        TC_STRUCT *prev_tc = tcqLast_user(queue);
-        if (prev_tc) {
-            int blend_result = tpSetupBlend9D(tp, prev_tc, &tc);
-            if (blend_result <= 0) {
-                tpComputeKinkVelocity_9D(tp, queue, &tc, queue_len, current_end);
-            }
-        }
-    }
-
-    // Compute joint-space segment if userspace kinematics enabled
+    // Compute joint-space segment BEFORE blend/kink (same rationale as tpAddLine_9D)
     if (motion_planning::userspace_kins_is_enabled()) {
         if (motion_planning::userspace_kins_compute_joint_segment(&tp->goalPos, &end, &tc) != 0) {
             tc.joint_space.valid = 0;
         }
     } else {
         tc.joint_space.valid = 0;
+    }
+
+    // Attempt blend with previous segment (G64) or kink velocity (G61)
+    {
+        TC_STRUCT *prev_tc = tcqLast_user(queue);
+        if (prev_tc) {
+            int blend_result = tpSetupBlend9D(tp, prev_tc, &tc);
+            if (blend_result <= 0) {
+                // Traverse↔feed boundary: force full stop (same as tpAddLine_9D)
+                bool traverse_boundary =
+                    (prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) !=
+                    (tc.canon_motion_type == EMC_MOTION_TYPE_TRAVERSE);
+                if (traverse_boundary) {
+                    prev_tc->term_cond = TC_TERM_COND_STOP;
+                    prev_tc->finalvel = 0.0;
+                    atomicStoreDouble(&prev_tc->shared_9d.final_vel, 0.0);
+                    atomicStoreDouble(&prev_tc->shared_9d.final_vel_limit, 0.0);
+                } else {
+                    tpComputeKinkVelocity_9D(tp, queue, &tc, queue_len, current_end);
+                    // G64 fallback: promote prev_tc to TANGENT (same as tpAddLine_9D)
+                    if (tp->termCond == TC_TERM_COND_PARABOLIC &&
+                        prev_tc->term_cond == TC_TERM_COND_STOP) {
+                        prev_tc->term_cond = TC_TERM_COND_TANGENT;
+                    }
+                }
+            }
+        }
     }
 
     // Write segment to shared memory queue

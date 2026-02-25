@@ -98,6 +98,14 @@ int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned cha
 int tpAddDwell(TP_STRUCT * const tp, double seconds, struct state_tag_t tag);
 
 /**
+ * @brief Flush the segment compressor (planner_type 2).
+ *
+ * Emits any buffered compressed segment. Call at program end, mode changes,
+ * or before non-line segments (circles, dwells).
+ */
+int tpFlushCompressor_9D(TP_STRUCT *tp);
+
+/**
  * @brief Queue an action to fire when next segment activates
  *
  * Actions are processed inline with motion (like industrial controllers).

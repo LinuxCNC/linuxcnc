@@ -691,6 +691,52 @@ int findBlendPointsAndTangents9(double Rb,
     tcGetCurvatureAtProgress(tc, boundary->s_tc,
                               &boundary->kappa_end, &boundary->n_end_xyz);
 
+    /* Compute per-subspace progress rates for 9D tangent weighting.
+     * rate_sub = tmag_sub / target gives the displacement rate of each
+     * subspace per unit of segment progress.  For lines with xyz primary,
+     * rate_xyz = 1 and rate_abc = abc.tmag / xyz.tmag (which can be >> 1
+     * for 5-axis moves with large rotary displacement).
+     * These rates are used to scale the tangent vectors when constructing
+     * the Bezier blend so that its 9D tangent direction at endpoints
+     * matches the adjacent segment's actual 9D tangent direction. */
+    auto computeRates = [](TC_STRUCT const *tc, double *w) {
+        double target = tc->target;
+        w[0] = w[1] = w[2] = 0.0;
+
+        if (target < TP_POS_EPSILON) {
+            w[0] = 1.0;
+            return;
+        }
+
+        switch (tc->motion_type) {
+            case TC_LINEAR:
+                if (!tc->coords.line.xyz.tmag_zero)
+                    w[0] = tc->coords.line.xyz.tmag / target;
+                if (!tc->coords.line.abc.tmag_zero)
+                    w[1] = tc->coords.line.abc.tmag / target;
+                if (!tc->coords.line.uvw.tmag_zero)
+                    w[2] = tc->coords.line.uvw.tmag / target;
+                break;
+            case TC_CIRCULAR:
+                /* xyz arc is parameterized by helical arc length; rate ≈ 1 */
+                w[0] = 1.0;
+                if (!tc->coords.circle.abc.tmag_zero)
+                    w[1] = tc->coords.circle.abc.tmag / target;
+                if (!tc->coords.circle.uvw.tmag_zero)
+                    w[2] = tc->coords.circle.uvw.tmag / target;
+                break;
+            default:
+                w[0] = 1.0;
+                break;
+        }
+
+        /* Ensure at least one non-zero rate */
+        if (w[0] < TP_POS_EPSILON && w[1] < TP_POS_EPSILON && w[2] < TP_POS_EPSILON)
+            w[0] = 1.0;
+    };
+    computeRates(prev_tc, boundary->w_start);
+    computeRates(tc, boundary->w_end);
+
     return TP_ERR_OK;
 }
 
@@ -803,18 +849,33 @@ static double findOptimalAlpha9(double Rb,
     double ke = boundary->kappa_end;
     PmCartesian const *ne = (ke > BEZIER9_CURVATURE_EPSILON) ? &boundary->n_end_xyz : NULL;
 
+    /* Rate-weighted tangent vectors for 9D tangent continuity.
+     * Scaling each subspace's unit tangent by its progress rate ensures
+     * the Bezier's 9D tangent direction at endpoints matches the adjacent
+     * segment's actual 9D tangent direction.  For a pure xyz line, rates
+     * are (1,0,0) and vectors are unchanged.  For a 5-axis move with
+     * large rotary, rate_abc >> 1 stretches the abc control points. */
+    double ws0 = boundary->w_start[0], ws1 = boundary->w_start[1], ws2 = boundary->w_start[2];
+    double we0 = boundary->w_end[0],   we1 = boundary->w_end[1],   we2 = boundary->w_end[2];
+    PmCartesian wu_s_xyz = {boundary->u_start_xyz.x * ws0, boundary->u_start_xyz.y * ws0, boundary->u_start_xyz.z * ws0};
+    PmCartesian wu_s_abc = {boundary->u_start_abc.x * ws1, boundary->u_start_abc.y * ws1, boundary->u_start_abc.z * ws1};
+    PmCartesian wu_s_uvw = {boundary->u_start_uvw.x * ws2, boundary->u_start_uvw.y * ws2, boundary->u_start_uvw.z * ws2};
+    PmCartesian wu_e_xyz = {boundary->u_end_xyz.x * we0, boundary->u_end_xyz.y * we0, boundary->u_end_xyz.z * we0};
+    PmCartesian wu_e_abc = {boundary->u_end_abc.x * we1, boundary->u_end_abc.y * we1, boundary->u_end_abc.z * we1};
+    PmCartesian wu_e_uvw = {boundary->u_end_uvw.x * we2, boundary->u_end_uvw.y * we2, boundary->u_end_uvw.z * we2};
+
     if (bezier9Init(&trial1, &boundary->P_start, &boundary->P_end,
-                    &boundary->u_start_xyz, &boundary->u_end_xyz,
-                    &boundary->u_start_abc, &boundary->u_end_abc,
-                    &boundary->u_start_uvw, &boundary->u_end_uvw,
+                    &wu_s_xyz, &wu_e_xyz,
+                    &wu_s_abc, &wu_e_abc,
+                    &wu_s_uvw, &wu_e_uvw,
                     ks, ns, ke, ne, a1) == TP_ERR_OK) {
         v1 = bezier9AccLimit(&trial1, v_goal, a_max, j_max);
     }
 
     if (bezier9Init(&trial2, &boundary->P_start, &boundary->P_end,
-                    &boundary->u_start_xyz, &boundary->u_end_xyz,
-                    &boundary->u_start_abc, &boundary->u_end_abc,
-                    &boundary->u_start_uvw, &boundary->u_end_uvw,
+                    &wu_s_xyz, &wu_e_xyz,
+                    &wu_s_abc, &wu_e_abc,
+                    &wu_s_uvw, &wu_e_uvw,
                     ks, ns, ke, ne, a2) == TP_ERR_OK) {
         v2 = bezier9AccLimit(&trial2, v_goal, a_max, j_max);
     }
@@ -828,9 +889,9 @@ static double findOptimalAlpha9(double Rb,
             trial1 = trial2;
             a2 = a_lo + gr * (a_hi - a_lo);
             if (bezier9Init(&trial2, &boundary->P_start, &boundary->P_end,
-                            &boundary->u_start_xyz, &boundary->u_end_xyz,
-                            &boundary->u_start_abc, &boundary->u_end_abc,
-                            &boundary->u_start_uvw, &boundary->u_end_uvw,
+                            &wu_s_xyz, &wu_e_xyz,
+                            &wu_s_abc, &wu_e_abc,
+                            &wu_s_uvw, &wu_e_uvw,
                             ks, ns, ke, ne, a2) == TP_ERR_OK) {
                 v2 = bezier9AccLimit(&trial2, v_goal, a_max, j_max);
             } else {
@@ -844,9 +905,9 @@ static double findOptimalAlpha9(double Rb,
             trial2 = trial1;
             a1 = a_hi - gr * (a_hi - a_lo);
             if (bezier9Init(&trial1, &boundary->P_start, &boundary->P_end,
-                            &boundary->u_start_xyz, &boundary->u_end_xyz,
-                            &boundary->u_start_abc, &boundary->u_end_abc,
-                            &boundary->u_start_uvw, &boundary->u_end_uvw,
+                            &wu_s_xyz, &wu_e_xyz,
+                            &wu_s_abc, &wu_e_abc,
+                            &wu_s_uvw, &wu_e_uvw,
                             ks, ns, ke, ne, a1) == TP_ERR_OK) {
                 v1 = bezier9AccLimit(&trial1, v_goal, a_max, j_max);
             } else {

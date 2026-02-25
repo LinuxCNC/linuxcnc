@@ -355,6 +355,12 @@ bool UserspaceKinematicsPlanner::computeJointSpaceSegment(const EmcPose& start,
 
     // Update TC limits based on joint limits
     // The backward pass will use these as additional constraints
+    if (min_vel_limit < tc->maxvel * 0.5) {
+        rtapi_print_msg(RTAPI_MSG_DBG,
+            "JacobianCap id=%d: maxvel %.1f -> %.1f (%.0f%%), accel %.0f -> %.0f, jerk %.0f -> %.0f\n",
+            tc->id, tc->maxvel, min_vel_limit, 100.0 * min_vel_limit / tc->maxvel,
+            tc->maxaccel, min_acc_limit, tc->maxjerk, min_jerk_limit);
+    }
     if (min_vel_limit < tc->maxvel) {
         tc->maxvel = min_vel_limit;
     }
