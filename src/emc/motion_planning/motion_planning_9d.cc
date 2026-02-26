@@ -5267,11 +5267,11 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
 
         // Use committed feed if profile is stale — forces recompute
         // at correct feed via the v0 mismatch path below.
-        // Note: using the live feed knob creates a cliff — the active
-        // exits at old-feed velocity, but queue[1] gets recomputed at
-        // new-feed with much lower max_vel.  g_committed_feed keeps
-        // the near-active chain consistent with what manageBranches
-        // last propagated.
+        // Using the live feed creates instability: the active exits at
+        // old-feed velocity, but position 1 gets recomputed at new-feed
+        // with different max_vel — the chain never converges.
+        // g_committed_feed keeps the near-active chain consistent with
+        // what manageBranches last propagated.
         if (g_committed_feed > 0.001 &&
             fabs(feed_scale - g_committed_feed) > 0.001) {
             feed_scale = g_committed_feed;
@@ -5288,6 +5288,13 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
 
         double profile_v0 = tc->shared_9d.profile.v[0];
 
+        // Compute reuse params before threshold check — needed by both
+        // the recompute path and the position-1 alt-entry path.
+        double max_acc = tcGetTangentialMaxAccel_9D_user(tc);
+        double max_jrk = tc->maxjerk > 0 ? tc->maxjerk : default_jerk_head;
+        double v_exit_unscaled = (tc->term_cond == TC_TERM_COND_TANGENT)
+            ? readFinalVelCapped(tc) : 0.0;
+
         if (fabs(profile_v0 - expected_v0_raw) < head_fix_threshold) {
             if (tc->term_cond == TC_TERM_COND_TANGENT) {
                 head_prev_exit = profileExitVelUnscaled(&tc->shared_9d.profile);
@@ -5296,93 +5303,172 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
                 head_prev_exit = 0.0;
                 head_prev_feed = 1.0;
             }
-            continue;
-        }
+        } else {
+            // v0 mismatch — recompute this segment's profile
+            double scaled_v_exit = fmin(v_exit_unscaled * feed_scale, max_vel);
+            scaled_v_exit = applyKinkVelCap(scaled_v_exit, v_exit_unscaled,
+                max_vel, tc->kink_vel);
+            double desired_fvel = scaled_v_exit;
 
-        // v0 mismatch — recompute this segment's profile
-        double max_acc = tcGetTangentialMaxAccel_9D_user(tc);
-        double max_jrk = tc->maxjerk > 0 ? tc->maxjerk : default_jerk_head;
+            double expected_v0 = expected_v0_raw;
+            applyBidirectionalReachability(expected_v0, scaled_v_exit,
+                tc->target, max_acc, max_jrk);
 
-        double v_exit_unscaled = (tc->term_cond == TC_TERM_COND_TANGENT)
-            ? readFinalVelCapped(tc) : 0.0;
-        double scaled_v_exit = fmin(v_exit_unscaled * feed_scale, max_vel);
-        scaled_v_exit = applyKinkVelCap(scaled_v_exit, v_exit_unscaled,
-            max_vel, tc->kink_vel);
-        double desired_fvel = scaled_v_exit;
+            double unscaled_entry = (feed_scale > 0.001)
+                ? expected_v0 / feed_scale : 0.0;
+            atomicStoreDouble(&tc->shared_9d.entry_vel, unscaled_entry);
 
-        double expected_v0 = expected_v0_raw;
-        applyBidirectionalReachability(expected_v0, scaled_v_exit,
-            tc->target, max_acc, max_jrk);
+            try {
+                RuckigProfileParams rp = {expected_v0, scaled_v_exit,
+                    max_vel, max_acc, max_jrk, tc->target,
+                    feed_scale, vel_limit, tp->vLimit, desired_fvel};
+                if (computeAndStoreProfile(tc, rp)) {
+                    tc->shared_9d.profile.dbg_src = 9;  // safety-check head
+                    tc->shared_9d.profile.dbg_v0_req = expected_v0;
+                    double actual_v0 = tc->shared_9d.profile.v[0];
+                    atomicStoreInt((int*)&tc->shared_9d.optimization_state,
+                        TC_PLAN_FINALIZED);
 
-        double unscaled_entry = (feed_scale > 0.001)
-            ? expected_v0 / feed_scale : 0.0;
-        atomicStoreDouble(&tc->shared_9d.entry_vel, unscaled_entry);
+                    // One-step backtrack: if this segment's actual v0 is
+                    // lower than predecessor's exit (reachability limited),
+                    // lower the predecessor's exit to match.
+                    if (prev_tc && !prev_tc->active
+                        && prev_tc->term_cond == TC_TERM_COND_TANGENT
+                        && prev_tc->shared_9d.profile.valid) {
+                        double prev_exit_scaled = prev_tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+                        if (prev_exit_scaled > actual_v0 + 0.01) {
+                            double p_feed = prev_tc->shared_9d.profile.computed_feed_scale;
+                            double cap_unscaled = (p_feed > 0.001)
+                                ? actual_v0 / p_feed : -1.0;
+                            atomicStoreDouble(&prev_tc->shared_9d.reachability_exit_cap,
+                                cap_unscaled);
 
-        try {
-            RuckigProfileParams rp = {expected_v0, scaled_v_exit,
-                max_vel, max_acc, max_jrk, tc->target,
-                feed_scale, vel_limit, tp->vLimit, desired_fvel};
-            if (computeAndStoreProfile(tc, rp)) {
-                tc->shared_9d.profile.dbg_src = 9;  // safety-check head
-                tc->shared_9d.profile.dbg_v0_req = expected_v0;
-                double actual_v0 = tc->shared_9d.profile.v[0];
-                atomicStoreInt((int*)&tc->shared_9d.optimization_state,
-                    TC_PLAN_FINALIZED);
-
-                // One-step backtrack: if this segment's actual v0 is
-                // lower than predecessor's exit (reachability limited),
-                // lower the predecessor's exit to match.
-                if (prev_tc && !prev_tc->active
-                    && prev_tc->term_cond == TC_TERM_COND_TANGENT
-                    && prev_tc->shared_9d.profile.valid) {
-                    double prev_exit_scaled = prev_tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                    if (prev_exit_scaled > actual_v0 + 0.01) {
-                        double p_feed = prev_tc->shared_9d.profile.computed_feed_scale;
-                        double cap_unscaled = (p_feed > 0.001)
-                            ? actual_v0 / p_feed : -1.0;
-                        atomicStoreDouble(&prev_tc->shared_9d.reachability_exit_cap,
-                            cap_unscaled);
-
-                        double p_v0 = prev_tc->shared_9d.profile.v[0];
-                        double p_vel_limit = getEffectiveVelLimit(tp, prev_tc);
-                        double p_max_vel = applyVLimit(tp, prev_tc, p_vel_limit * p_feed);
-                        double p_max_acc = tcGetTangentialMaxAccel_9D_user(prev_tc);
-                        double p_max_jrk = prev_tc->maxjerk > 0 ? prev_tc->maxjerk : default_jerk_head;
-                        double p_exit = actual_v0;
-                        double p_desired = p_exit;
-                        applyBidirectionalReachability(p_v0, p_exit,
-                            prev_tc->target, p_max_acc, p_max_jrk);
-                        RuckigProfileParams rp_bt = {p_v0, p_exit,
-                            p_max_vel, p_max_acc, p_max_jrk, prev_tc->target,
-                            p_feed, p_vel_limit, tp->vLimit, p_desired};
-                        if (computeAndStoreProfile(prev_tc, rp_bt)) {
-                            prev_tc->shared_9d.profile.dbg_src = 7;  // backtrack(head)
-                            prev_tc->shared_9d.profile.dbg_v0_req = p_v0;
-                            atomicStoreInt((int*)&prev_tc->shared_9d.optimization_state,
-                                TC_PLAN_FINALIZED);
+                            double p_v0 = prev_tc->shared_9d.profile.v[0];
+                            double p_vel_limit = getEffectiveVelLimit(tp, prev_tc);
+                            double p_max_vel = applyVLimit(tp, prev_tc, p_vel_limit * p_feed);
+                            double p_max_acc = tcGetTangentialMaxAccel_9D_user(prev_tc);
+                            double p_max_jrk = prev_tc->maxjerk > 0 ? prev_tc->maxjerk : default_jerk_head;
+                            double p_exit = actual_v0;
+                            double p_desired = p_exit;
+                            applyBidirectionalReachability(p_v0, p_exit,
+                                prev_tc->target, p_max_acc, p_max_jrk);
+                            RuckigProfileParams rp_bt = {p_v0, p_exit,
+                                p_max_vel, p_max_acc, p_max_jrk, prev_tc->target,
+                                p_feed, p_vel_limit, tp->vLimit, p_desired};
+                            if (computeAndStoreProfile(prev_tc, rp_bt)) {
+                                prev_tc->shared_9d.profile.dbg_src = 7;  // backtrack(head)
+                                prev_tc->shared_9d.profile.dbg_v0_req = p_v0;
+                                atomicStoreInt((int*)&prev_tc->shared_9d.optimization_state,
+                                    TC_PLAN_FINALIZED);
+                            }
                         }
                     }
-                }
 
-                if (tc->term_cond == TC_TERM_COND_TANGENT) {
-                    head_prev_exit = profileExitVelUnscaled(&tc->shared_9d.profile);
-                    head_prev_feed = feed_scale;
+                    if (tc->term_cond == TC_TERM_COND_TANGENT) {
+                        head_prev_exit = profileExitVelUnscaled(&tc->shared_9d.profile);
+                        head_prev_feed = feed_scale;
+                    } else {
+                        head_prev_exit = 0.0;
+                        head_prev_feed = 1.0;
+                    }
                 } else {
-                    head_prev_exit = 0.0;
-                    head_prev_feed = 1.0;
+                    if (tc->term_cond == TC_TERM_COND_TANGENT && tc->shared_9d.profile.valid) {
+                        head_prev_exit = profileExitVelUnscaled(&tc->shared_9d.profile);
+                        head_prev_feed = tc->shared_9d.profile.computed_feed_scale;
+                    } else {
+                        head_prev_exit = 0.0;
+                        head_prev_feed = 1.0;
+                    }
                 }
-            } else {
-                if (tc->term_cond == TC_TERM_COND_TANGENT && tc->shared_9d.profile.valid) {
-                    head_prev_exit = profileExitVelUnscaled(&tc->shared_9d.profile);
-                    head_prev_feed = tc->shared_9d.profile.computed_feed_scale;
-                } else {
-                    head_prev_exit = 0.0;
-                    head_prev_feed = 1.0;
+            } catch (...) {
+                head_prev_exit = 0.0;
+                head_prev_feed = 1.0;
+            }
+        }
+
+        // Position 1 (junction segment): if the profile's feed doesn't
+        // match the live feed, write an alt-entry at the live feed.
+        // The main chain stays stable at g_committed_feed; the alt
+        // provides v0-proximity rescue at RT handoff.
+        if (i == 1) {
+            double live_feed = tpGetSegmentFeedScale(tc);
+            double prof_feed = tc->shared_9d.profile.computed_feed_scale;
+            int alt_already_valid = __atomic_load_n(&tc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE);
+            double existing_alt_v0 = alt_already_valid ? tc->shared_9d.alt_entry.v0 : -1.0;
+            double existing_alt_feed = alt_already_valid
+                ? tc->shared_9d.alt_entry.profile.computed_feed_scale : -1.0;
+            bool feed_mismatch = (live_feed > 0.001 && fabs(live_feed - prof_feed) > 0.001);
+
+            // Debug: trace every cycle for position 1 when feeds disagree
+            if (feed_mismatch || alt_already_valid) {
+                static int pos1_dbg_count = 0;
+                pos1_dbg_count++;
+                {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "POS1_ALT_DBG seg=%d: live=%.3f prof=%.3f committed=%.3f "
+                        "mismatch=%d alt_valid=%d alt_v0=%.3f alt_feed=%.3f "
+                        "prof_v0=%.3f head_prev_exit=%.3f head_prev_feed=%.3f "
+                        "src=%d\n",
+                        tc->id, live_feed, prof_feed, g_committed_feed,
+                        (int)feed_mismatch, alt_already_valid,
+                        existing_alt_v0, existing_alt_feed,
+                        tc->shared_9d.profile.v[0],
+                        head_prev_exit, head_prev_feed,
+                        tc->shared_9d.profile.dbg_src);
                 }
             }
-        } catch (...) {
-            head_prev_exit = 0.0;
-            head_prev_feed = 1.0;
+
+            if (feed_mismatch) {
+                double alt_max_vel = applyVLimit(tp, tc, vel_limit * live_feed);
+                double alt_v0 = fmin(head_prev_exit * live_feed, alt_max_vel);
+                if (prev_tc && prev_tc->kink_vel > 0)
+                    alt_v0 = fmin(alt_v0, prev_tc->kink_vel);
+                double alt_exit = (tc->term_cond == TC_TERM_COND_TANGENT)
+                    ? fmin(v_exit_unscaled * live_feed, alt_max_vel) : 0.0;
+                alt_exit = applyKinkVelCap(alt_exit, v_exit_unscaled,
+                    alt_max_vel, tc->kink_vel);
+                applyBidirectionalReachability(alt_v0, alt_exit,
+                    tc->target, max_acc, max_jrk);
+                try {
+                    ruckig::Ruckig<1> otg(dt);
+                    ruckig::InputParameter<1> alt_input;
+                    ruckig::Trajectory<1> alt_traj;
+                    alt_input.current_position = {0.0};
+                    alt_input.current_velocity = {alt_v0};
+                    alt_input.current_acceleration = {0.0};
+                    alt_input.target_position = {tc->target};
+                    alt_input.target_velocity = {alt_exit};
+                    alt_input.target_acceleration = {0.0};
+                    alt_input.max_velocity = {fmax(alt_v0, alt_max_vel)};
+                    alt_input.max_acceleration = {max_acc};
+                    alt_input.max_jerk = {max_jrk};
+                    auto alt_result = otg.calculate(alt_input, alt_traj);
+                    if (alt_result == ruckig::Result::Working ||
+                        alt_result == ruckig::Result::Finished) {
+                        ruckig_profile_t alt_prof;
+                        memset(&alt_prof, 0, sizeof(alt_prof));
+                        copyRuckigProfile(alt_traj, &alt_prof);
+                        if (alt_prof.valid && !profileHasNegativeVelocity(&alt_prof)) {
+                            // Write if no existing alt, or existing alt's feed
+                            // is further from live than the new one (which is
+                            // at live_feed, so distance = 0).
+                            bool should_write = !alt_already_valid ||
+                                (fabs(existing_alt_feed - live_feed) > 0.001);
+                            if (should_write) {
+                                alt_prof.computed_feed_scale = live_feed;
+                                alt_prof.computed_vel_limit = vel_limit;
+                                alt_prof.computed_vLimit = tp->vLimit;
+                                alt_prof.computed_desired_fvel = alt_exit;
+                                tc->shared_9d.alt_entry.profile = alt_prof;
+                                tc->shared_9d.alt_entry.v0 = alt_v0;
+                                __atomic_thread_fence(__ATOMIC_RELEASE);
+                                __atomic_store_n(&tc->shared_9d.alt_entry.valid, 1,
+                                    __ATOMIC_RELEASE);
+                            }
+                        }
+                    }
+                } catch (...) {}
+            }
         }
     }
 }
