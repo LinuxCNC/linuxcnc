@@ -5012,13 +5012,20 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             // should be at the correct feed by handoff time.
             double alt_feed = nexttc->shared_9d.alt_entry.profile.computed_feed_scale;
             double main_feed = nexttc->shared_9d.profile.computed_feed_scale;
-            if (main_feed > 0.001 &&
+            if (main_feed > 0.001 && alt_feed > 0.001 &&
                 fabs(alt_feed - main_feed) / main_feed > 0.10) {
-                // Feed mismatch > 10% vs main — stale alt, skip
-                {
+                // Feed mismatch > 10% vs main — stale alt, skip.
+                // Exception 1: alt_feed < 0.001 means hold-brake profile —
+                // its v0 is ground truth, not a stale feed computation.
+                // Exception 2: if the alt's v0 is within one jerk impulse
+                // of junction velocity (RT-correctable), prefer the alt's
+                // accurate v0 over the main's wrong-feed v0.
+                double gap_alt = fabs(junction_vel - alt_v0);
+                double dt = tp->cycleTime;
+                double jerk_impulse = nexttc->maxjerk * dt * dt;
+                if (gap_alt > jerk_impulse) {
                     double canon_feed = nexttc->shared_9d.canonical_feed_scale;
                     double gap_main = fabs(junction_vel - main_v0);
-                    double gap_alt  = fabs(junction_vel - alt_v0);
                     if (gap_main > 0.3 && gap_alt < gap_main) {
                         stale_feed_predicted = 1;
                         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -5030,8 +5037,10 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
                             main_feed, alt_feed, canon_feed,
                             gap_main, gap_alt);
                     }
+                    goto alt_done;
                 }
-                goto alt_done;
+                // gap_alt <= jerk_impulse: alt v0 is close enough that
+                // RT v0 correction handles the residual — take the alt.
             }
             nexttc->shared_9d.profile = nexttc->shared_9d.alt_entry.profile;
             // Sync generation counter so stopwatch reset doesn't fire —
