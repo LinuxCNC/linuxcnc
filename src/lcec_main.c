@@ -30,6 +30,8 @@
 #include "lcec_el31x4.h"
 #include "lcec_el32x4.h"
 #include "lcec_el3255.h"
+#include "lcec_el3314.h"
+#include "lcec_em3712.h"
 #include "lcec_el40x1.h"
 #include "lcec_el40x2.h"
 #include "lcec_el40x8.h"
@@ -158,6 +160,12 @@ static const lcec_typelist_t types[] = {
 
   // analog in, 5ch, 16 bits
   { lcecSlaveTypeEL3255, LCEC_EL3255_VID, LCEC_EL3255_PID, LCEC_EL3255_PDOS, 0, NULL, lcec_el3255_init},
+
+  // analog in, 4ch, 16 bits (thermocouple)
+  { lcecSlaveTypeEL3314, LCEC_EL3314_VID, LCEC_EL3314_PID, LCEC_EL3314_PDOS, 0, NULL, lcec_el3314_init},
+
+  // analog in, 4ch, 16 bits (relative pressure)
+  { lcecSlaveTypeEM3712, LCEC_EM3712_VID, LCEC_EM3712_PID, LCEC_EM3712_PDOS, 0, NULL, lcec_em3712_init},
 
   // analog out, 1ch, 12 bits
   { lcecSlaveTypeEL4001, LCEC_EL40x1_VID, LCEC_EL4001_PID, LCEC_EL40x1_PDOS, 0, NULL, lcec_el40x1_init},
