@@ -5019,53 +5019,18 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         if (junction_vel < 0.0) junction_vel = 0.0;
     }
 
-    int stale_feed_predicted = 0;
-
     // Alt-entry profile selection: when a brake on the previous segment
     // changed the exit velocity, pick whichever profile (main or alt_entry)
     // has v0 closer to the actual junction velocity.
+    // v0 continuity at the junction matters more than feed correctness —
+    // a feed-stale profile that starts at the right velocity gives smooth
+    // motion, while a feed-correct profile 50 mm/s off will jerk.
+    // Userspace recomputes the feed-correct profile on the next cycle.
     if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE)) {
         double main_v0 = nexttc->shared_9d.profile.v[0];
         double alt_v0 = nexttc->shared_9d.alt_entry.v0;
         if (fabs(junction_vel - alt_v0) < fabs(junction_vel - main_v0)) {
-            // Reject stale-feed alts: if the alt was computed at a
-            // significantly different feed than the main profile's feed,
-            // its trajectory shape is wrong even if v0 is closer.
-            // With the junction safety gate in manageBranches(), profiles
-            // should be at the correct feed by handoff time.
-            double alt_feed = nexttc->shared_9d.alt_entry.profile.computed_feed_scale;
-            double main_feed = nexttc->shared_9d.profile.computed_feed_scale;
-            if (main_feed > 0.001 && alt_feed > 0.001 &&
-                fabs(alt_feed - main_feed) / main_feed > 0.10) {
-                // Feed mismatch > 10% vs main — stale alt, skip.
-                // Exception 1: alt_feed < 0.001 means hold-brake profile —
-                // its v0 is ground truth, not a stale feed computation.
-                // Exception 2: if the alt's v0 is within one jerk impulse
-                // of junction velocity (RT-correctable), prefer the alt's
-                // accurate v0 over the main's wrong-feed v0.
-                double gap_alt = fabs(junction_vel - alt_v0);
-                double dt = tp->cycleTime;
-                double jerk_impulse = nexttc->maxjerk * dt * dt;
-                if (gap_alt > jerk_impulse) {
-                    double canon_feed = nexttc->shared_9d.canonical_feed_scale;
-                    double gap_main = fabs(junction_vel - main_v0);
-                    if (gap_main > 0.3 && gap_alt < gap_main) {
-                        stale_feed_predicted = 1;
-                        rtapi_print_msg(RTAPI_MSG_ERR,
-                            "PREDICT_SPIKE seg=%d: alt rejected stale-feed "
-                            "jv=%.3f main_v0=%.3f alt_v0=%.3f "
-                            "main_feed=%.3f alt_feed=%.3f canon_feed=%.3f "
-                            "gap_main=%.3f gap_alt=%.3f\n",
-                            nexttc->id, junction_vel, main_v0, alt_v0,
-                            main_feed, alt_feed, canon_feed,
-                            gap_main, gap_alt);
-                    }
-                    goto alt_done;
-                }
-                // gap_alt <= jerk_impulse: alt v0 is close enough that
-                // RT v0 correction handles the residual — take the alt.
-            }
             nexttc->shared_9d.profile = nexttc->shared_9d.alt_entry.profile;
             // Sync generation counter so stopwatch reset doesn't fire —
             // the alt_entry profile has a different generation from the
@@ -5077,14 +5042,12 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             // actual exit velocity (may differ from main profile's exit).
             __atomic_store_n(&nexttc->shared_9d.alt_entry.taken, 1, __ATOMIC_RELEASE);
         }
-    alt_done:
         __atomic_store_n(&nexttc->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
     }
 
-    // General PREDICT_SPIKE: classify all spike conditions not already caught
-    // by the stale-feed alt-rejection prediction above.
+    // General PREDICT_SPIKE: classify all spike conditions.
     // Fires before SPIKE_DBG so every spike has a preceding prediction.
-    if (GET_TRAJ_PLANNER_TYPE() == 2 && !stale_feed_predicted &&
+    if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         double _pred_v0 = nexttc->shared_9d.profile.v[0];
         double _pred_gap = junction_vel - _pred_v0;
