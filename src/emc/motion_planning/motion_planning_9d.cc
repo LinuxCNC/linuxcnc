@@ -4713,6 +4713,40 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
             }
         }
 
+        // PREDICT_SPIKE_DBG: detect when the forward pass is about to
+        // overwrite a cursor-walk profile at the stale committed_feed.
+        // This is the exact condition that produces cross-feed-scale
+        // junction mismatches (the cursor walk wrote this profile at the
+        // new feed, but the forward pass wants to rewrite it at the old
+        // committed_feed because desired_fvel or entry_vel changed).
+        // Behavior is unchanged — this is diagnostic only.
+        if (needs_recompute && g_recompute_cursor > 0 &&
+            tc->shared_9d.profile.valid &&
+            tc->shared_9d.profile.computed_feed_scale > 0.001) {
+            double profile_feed = tc->shared_9d.profile.computed_feed_scale;
+            // Profile is at cursor-walk feed, not committed feed?
+            if (fabs(profile_feed - g_recompute_feed_scale) < 0.01 &&
+                fabs(profile_feed - seg_feed) > 0.01) {
+                // This profile will be overwritten from cursor feed → committed feed.
+                // Predict the junction gap: the predecessor (possibly active) will
+                // exit at velocity scaled by its own feed, but the new profile v0
+                // will be at the committed feed.
+                double old_v0 = tc->shared_9d.profile.v[0];
+                double predicted_v0_at_committed = prev_exit_vel * prev_exit_feed_scale;
+                if (predicted_v0_at_committed > tc->maxvel * seg_feed)
+                    predicted_v0_at_committed = tc->maxvel * seg_feed;
+                double predicted_gap = old_v0 - predicted_v0_at_committed;
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "PREDICT_SPIKE seg=%d: fwd_pass overwriting cursor profile "
+                    "cursor_feed=%.3f committed_feed=%.3f "
+                    "old_v0=%.3f new_v0≈%.3f gap≈%.3f "
+                    "prev_exit=%.3f prev_exit_feed=%.3f\n",
+                    tc->id, g_recompute_feed_scale, seg_feed,
+                    old_v0, predicted_v0_at_committed, predicted_gap,
+                    prev_exit_vel, prev_exit_feed_scale);
+            }
+        }
+
         if (!needs_recompute) {
             // Profile valid and up-to-date — read actual exit velocity from profile
             if (tc->term_cond == TC_TERM_COND_TANGENT && tc->shared_9d.profile.valid) {
