@@ -3714,6 +3714,47 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         }
     }
 
+    // Junction safety gate: defer feed changes when a junction is imminent.
+    //
+    // When the active segment doesn't have enough remaining time to place
+    // and commit a branch (segmentHasBranchRoom, based on branch_window_ms),
+    // and it exits tangentially into the next segment, the old-feed profiles
+    // are self-consistent: active exits at V, next starts at V.  Rewriting
+    // profiles now risks partial propagation — RT crosses the junction before
+    // the new-feed profiles are fully committed, causing v0 mismatch spikes.
+    //
+    // Deferring is safe: feedChangedSignificantly still fires next cycle.
+    // After the junction passes, the new active segment has plenty of room
+    // for the feed change to propagate.  Feed hold (current_feed < 0.001)
+    // bypasses this gate — braking is urgent and must not be deferred.
+    if (current_feed >= 0.001) {
+        TC_QUEUE_STRUCT *gate_queue = &tp->queue;
+        int gate_qlen = tcqLen_user(gate_queue);
+        if (gate_qlen >= 2 && tc->term_cond == TC_TERM_COND_TANGENT &&
+            !segmentHasBranchRoom(tc)) {
+            TC_STRUCT *gate_next = tcqItem_user(gate_queue, 1);
+            if (gate_next && gate_next->shared_9d.profile.valid) {
+                static int defer_last_seg = -999;
+                static int defer_last_next = -999;
+                if (tc->id != defer_last_seg || gate_next->id != defer_last_next) {
+                    defer_last_seg = tc->id;
+                    defer_last_next = gate_next->id;
+                    double gate_elapsed = atomicLoadDouble(&tc->elapsed_time);
+                    double gate_remaining = tc->shared_9d.profile.duration - gate_elapsed;
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "DEFER_SPIKE seg=%d->%d: remaining=%.4f "
+                        "jv_est=%.3f next_v0=%.3f feed=%.3f->%.3f\n",
+                        tc->id, gate_next->id, gate_remaining,
+                        tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES],
+                        gate_next->shared_9d.profile.v[0],
+                        tc->shared_9d.profile.computed_feed_scale,
+                        current_feed);
+                }
+                return;
+            }
+        }
+    }
+
     double snap_feed = current_feed;
     double snap_rapid = emcmotStatus->rapid_scale;
 
@@ -5374,12 +5415,8 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int optimizatio
         }
     }
 
-    // Step 5: Alt-entry safety net for active→nexttc junction gaps.
-    //
-    // PAIR_STATE: after all passes, log the junction state for the first
-    // few segments so we can see what RT will encounter at handoff.
-    // Only log when there's a gap > 0.1 between predecessor exit and
-    // successor v0.
+    // Step 5 removed — junction safety gate in manageBranches() prevents
+    // feed changes near imminent junctions, making priority alts unnecessary.
 
     return 0;
 }
