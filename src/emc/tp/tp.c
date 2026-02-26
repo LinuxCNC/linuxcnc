@@ -5030,23 +5030,21 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         double alt_v0 = nexttc->shared_9d.alt_entry.v0;
         if (fabs(junction_vel - alt_v0) < fabs(junction_vel - main_v0)) {
             // Reject stale-feed alts: if the alt was computed at a
-            // significantly different feed than the main profile, its
-            // trajectory shape (accel/cruise/decel) is wrong even if v0
-            // happens to be closer to junction_vel.
+            // significantly different feed than the main profile's feed,
+            // its trajectory shape is wrong even if v0 is closer.
+            // With the junction safety gate in manageBranches(), profiles
+            // should be at the correct feed by handoff time.
             double alt_feed = nexttc->shared_9d.alt_entry.profile.computed_feed_scale;
             double main_feed = nexttc->shared_9d.profile.computed_feed_scale;
             if (main_feed > 0.001 &&
                 fabs(alt_feed - main_feed) / main_feed > 0.10) {
-                // Feed mismatch > 10% — stale alt, skip
-                // PREDICT_SPIKE_DBG: log when a correct alt is rejected
-                // because the main profile is stale (at old committed_feed).
-                // The alt would have reduced the junction gap.
+                // Feed mismatch > 10% vs main — stale alt, skip
                 {
+                    double canon_feed = nexttc->shared_9d.canonical_feed_scale;
                     double gap_main = fabs(junction_vel - main_v0);
                     double gap_alt  = fabs(junction_vel - alt_v0);
                     if (gap_main > 0.3 && gap_alt < gap_main) {
                         stale_feed_predicted = 1;
-                        double canon_feed = nexttc->shared_9d.canonical_feed_scale;
                         rtapi_print_msg(RTAPI_MSG_ERR,
                             "PREDICT_SPIKE seg=%d: alt rejected stale-feed "
                             "jv=%.3f main_v0=%.3f alt_v0=%.3f "
