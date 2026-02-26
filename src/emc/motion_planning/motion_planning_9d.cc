@@ -279,6 +279,7 @@ static PredictiveHandoffConfig g_handoff_config;
 // State for feed override monitoring
 static double g_last_feed_scale = 1.0;
 static double g_last_replan_time_ms = 0.0;
+static double g_last_replan_cost_ms = 0.5;  // bootstrap: assume 0.5ms until measured
 
 // Committed feed: the feed scale that has been fully propagated to all segments.
 // Updated only when the cursor walk completes a full pass.
@@ -3701,15 +3702,17 @@ extern "C" void manageBranches(TP_STRUCT *tp)
     }
 
     // Cursor idle — start processing this feed change.
-    // Debounce check (only when starting new work, not for queueing)
+    // Adaptive debounce with two floors:
+    //   1. Recompute cost: don't spend >50% CPU on recomputes
+    //   2. Convergence time: optimizer needs depth * servo_cycle to
+    //      propagate constraints through backward/forward passes.
+    //      Invalidating before convergence wastes all prior work.
+    // Feed hold bypasses: braking is urgent and must not be deferred.
     double now_ms = etime_user() * 1000.0;
-    if (now_ms - g_last_replan_time_ms < g_handoff_config.feed_override_debounce_ms) {
-        // Never debounce feed hold transitions — must compute brake branch
-        // immediately so spill-over alt-entries reflect actual deceleration.
-        // Without this, a rapid feed drop (e.g. 194% → 1% → 0%) leaves
-        // stale alt-entries from the first snap, and the 50ms debounce
-        // prevents the brake branch from writing correct spill-over alts.
-        if (current_feed >= 0.001) {
+    if (current_feed >= 0.001) {
+        double convergence_ms = 8.0 * g_handoff_config.servo_cycle_time_sec * 1000.0;
+        double debounce_ms = fmax(g_last_replan_cost_ms, convergence_ms);
+        if (now_ms - g_last_replan_time_ms < debounce_ms) {
             return;
         }
     }
@@ -3734,22 +3737,6 @@ extern "C" void manageBranches(TP_STRUCT *tp)
             !segmentHasBranchRoom(tc)) {
             TC_STRUCT *gate_next = tcqItem_user(gate_queue, 1);
             if (gate_next && gate_next->shared_9d.profile.valid) {
-                static int defer_last_seg = -999;
-                static int defer_last_next = -999;
-                if (tc->id != defer_last_seg || gate_next->id != defer_last_next) {
-                    defer_last_seg = tc->id;
-                    defer_last_next = gate_next->id;
-                    double gate_elapsed = atomicLoadDouble(&tc->elapsed_time);
-                    double gate_remaining = tc->shared_9d.profile.duration - gate_elapsed;
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "DEFER_SPIKE seg=%d->%d: remaining=%.4f "
-                        "jv_est=%.3f next_v0=%.3f feed=%.3f->%.3f\n",
-                        tc->id, gate_next->id, gate_remaining,
-                        tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES],
-                        gate_next->shared_9d.profile.v[0],
-                        tc->shared_9d.profile.computed_feed_scale,
-                        current_feed);
-                }
                 return;
             }
         }
@@ -3826,8 +3813,10 @@ extern "C" void manageBranches(TP_STRUCT *tp)
                 double branch_v0 = getActiveProfileExit(tc);
                 if (branch_elapsed_us < budget_us) {
                     // Have budget: recompute synchronously
+                    double recomp_t0 = etime_user();
                     int done = recomputeDownstreamProfiles(tp, snap_feed, snap_rapid,
                                                             1, branch_v0);
+                    g_last_replan_cost_ms = (etime_user() - recomp_t0) * 1000.0;
                     g_recompute_cursor = done + 1;
                 } else {
                     // No budget: cursor walk will handle it next cycle
@@ -3885,8 +3874,10 @@ extern "C" void manageBranches(TP_STRUCT *tp)
 
         invalidateNextNSegments(tp, INT_MAX);
 
+        double recomp_t0 = etime_user();
         int done = recomputeDownstreamProfiles(tp, snap_feed, snap_rapid,
                                                 1, active_exit_vel);
+        g_last_replan_cost_ms = (etime_user() - recomp_t0) * 1000.0;
         g_recompute_cursor = done + 1;
         g_recompute_feed_scale = snap_feed;
         g_recompute_rapid_scale = snap_rapid;
@@ -4775,39 +4766,9 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
             }
         }
 
-        // PREDICT_SPIKE_DBG: detect when the forward pass is about to
-        // overwrite a cursor-walk profile at the stale committed_feed.
-        // This is the exact condition that produces cross-feed-scale
-        // junction mismatches (the cursor walk wrote this profile at the
-        // new feed, but the forward pass wants to rewrite it at the old
-        // committed_feed because desired_fvel or entry_vel changed).
-        // Behavior is unchanged — this is diagnostic only.
-        if (needs_recompute && g_recompute_cursor > 0 &&
-            tc->shared_9d.profile.valid &&
-            tc->shared_9d.profile.computed_feed_scale > 0.001) {
-            double profile_feed = tc->shared_9d.profile.computed_feed_scale;
-            // Profile is at cursor-walk feed, not committed feed?
-            if (fabs(profile_feed - g_recompute_feed_scale) < 0.01 &&
-                fabs(profile_feed - seg_feed) > 0.01) {
-                // This profile will be overwritten from cursor feed → committed feed.
-                // Predict the junction gap: the predecessor (possibly active) will
-                // exit at velocity scaled by its own feed, but the new profile v0
-                // will be at the committed feed.
-                double old_v0 = tc->shared_9d.profile.v[0];
-                double predicted_v0_at_committed = prev_exit_vel * prev_exit_feed_scale;
-                if (predicted_v0_at_committed > tc->maxvel * seg_feed)
-                    predicted_v0_at_committed = tc->maxvel * seg_feed;
-                double predicted_gap = old_v0 - predicted_v0_at_committed;
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "PREDICT_SPIKE seg=%d: fwd_pass overwriting cursor profile "
-                    "cursor_feed=%.3f committed_feed=%.3f "
-                    "old_v0=%.3f new_v0≈%.3f gap≈%.3f "
-                    "prev_exit=%.3f prev_exit_feed=%.3f\n",
-                    tc->id, g_recompute_feed_scale, seg_feed,
-                    old_v0, predicted_v0_at_committed, predicted_gap,
-                    prev_exit_vel, prev_exit_feed_scale);
-            }
-        }
+        // (Removed fwd_pass overwriting diagnostic — false positives at
+        // startup when optimizer hasn't converged yet.  Forward pass
+        // overwriting cursor-walk profiles is expected behavior.)
 
         if (!needs_recompute) {
             // Profile valid and up-to-date — read actual exit velocity from profile
@@ -5239,13 +5200,29 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
     // Read active's exit — prefer pending branch (future truth)
     double head_prev_exit = 0.0;
     double head_prev_feed = 1.0;
+    bool hold_spill = false;
     {
         int bv = __atomic_load_n(&active->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
-        if (bv && active->shared_9d.branch.profile.valid &&
-            active->shared_9d.branch.profile.computed_feed_scale > 0.001) {
-            head_prev_exit = profileExitVelUnscaled(&active->shared_9d.branch.profile);
-            head_prev_feed = active->shared_9d.branch.feed_scale;
-        } else {
+        int bt = __atomic_load_n(&active->shared_9d.branch.taken, __ATOMIC_ACQUIRE);
+        if (bv && active->shared_9d.branch.profile.valid) {
+            if (active->shared_9d.branch.profile.computed_feed_scale > 0.001) {
+                head_prev_exit = profileExitVelUnscaled(&active->shared_9d.branch.profile);
+                head_prev_feed = active->shared_9d.branch.feed_scale;
+            } else if (bt) {
+                // Hold brake: profileExitVelUnscaled returns 0 (feed=0),
+                // but the brake trajectory knows the actual exit velocity.
+                double spill_vel, spill_acc;
+                double remaining = active->target - active->shared_9d.branch.handoff_position;
+                computeSpillOver(&active->shared_9d.branch.profile, remaining,
+                                 &spill_vel, &spill_acc);
+                if (spill_vel > TP_VEL_EPSILON) {
+                    head_prev_exit = spill_vel;
+                    head_prev_feed = 1.0;  // spill_vel is absolute, not scaled
+                    hold_spill = true;
+                }
+            }
+        }
+        if (!hold_spill && head_prev_exit < TP_VEL_EPSILON) {
             head_prev_exit = profileExitVelUnscaled(&active->shared_9d.profile);
             head_prev_feed = active->shared_9d.profile.computed_feed_scale;
         }
@@ -5254,7 +5231,7 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
         // profileExitVelUnscaled returns 0 — the measurement is undefined,
         // not "velocity is zero."  Don't overwrite downstream profiles
         // with a meaningless zero; the cursor walk already has them correct.
-        if (head_prev_feed < 0.001) return;
+        if (head_prev_feed < 0.001 && !hold_spill) return;
     }
 
     double default_jerk_head = (active->maxjerk > 0)
@@ -5286,6 +5263,18 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
         double feed_scale = tc->shared_9d.profile.computed_feed_scale;
         if (feed_scale < 0.001) {
             break;  // feed hold — measurement undefined
+        }
+
+        // Use committed feed if profile is stale — forces recompute
+        // at correct feed via the v0 mismatch path below.
+        // Note: using the live feed knob creates a cliff — the active
+        // exits at old-feed velocity, but queue[1] gets recomputed at
+        // new-feed with much lower max_vel.  g_committed_feed keeps
+        // the near-active chain consistent with what manageBranches
+        // last propagated.
+        if (g_committed_feed > 0.001 &&
+            fabs(feed_scale - g_committed_feed) > 0.001) {
+            feed_scale = g_committed_feed;
         }
 
         double vel_limit = getEffectiveVelLimit(tp, tc);
@@ -5492,6 +5481,7 @@ extern "C" int tpClearPlanning_9D(TP_STRUCT * const tp)
     // causing non-deterministic behavior between identical runs.
     g_last_feed_scale = 1.0;
     g_last_replan_time_ms = 0.0;
+    g_last_replan_cost_ms = 0.5;
     g_committed_feed = -1.0;
     g_committed_rapid = -1.0;
     g_recompute_cursor = 0;
