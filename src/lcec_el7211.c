@@ -60,13 +60,16 @@ typedef struct {
   hal_float_t *vel_fb;
   hal_float_t *vel_fb_rpm;
   hal_float_t *vel_fb_rpm_abs;
-
   hal_s32_t *vel_fb_raw;
+
+  hal_float_t *torque_fb;
+  hal_s32_t *torque_fb_raw;
 
   hal_float_t *vel_cmd_out;
   hal_s32_t *vel_cmd_out_raw;
 
   hal_float_t scale;
+  hal_float_t torque_scale;
 
   hal_u32_t vel_resolution;
   hal_u32_t pos_resolution;
@@ -81,6 +84,7 @@ typedef struct {
   unsigned int pos_fb_pdo_os;
   unsigned int status_pdo_os;
   unsigned int vel_fb_pdo_os;
+  unsigned int torque_fb_pdo_os;
   unsigned int ctrl_pdo_os;
   unsigned int vel_cmd_pdo_os;
   unsigned int info1_pdo_os;
@@ -115,6 +119,8 @@ static const lcec_pindesc_t slave_pins[] = {
   { HAL_FLOAT, HAL_OUT, offsetof(lcec_el7211_data_t, vel_fb_rpm), "%s.%s.%s.velo-fb-rpm" },
   { HAL_FLOAT, HAL_OUT, offsetof(lcec_el7211_data_t, vel_fb_rpm_abs), "%s.%s.%s.velo-fb-rpm-abs" },
   { HAL_S32, HAL_OUT, offsetof(lcec_el7211_data_t, vel_fb_raw), "%s.%s.%s.velo-fb-raw" },
+  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el7211_data_t, torque_fb), "%s.%s.%s.torque-fb" },
+  { HAL_S32, HAL_OUT, offsetof(lcec_el7211_data_t, torque_fb_raw), "%s.%s.%s.torque-fb-raw" },
   { HAL_BIT, HAL_OUT, offsetof(lcec_el7211_data_t, at_speed), "%s.%s.%s.at-speed" },
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
@@ -139,6 +145,7 @@ static const lcec_pindesc_t slave_pins_el7201_9014[] = {
 
 static const lcec_pindesc_t slave_params[] = {
   { HAL_FLOAT, HAL_RW, offsetof(lcec_el7211_data_t, scale), "%s.%s.%s.scale" },
+  { HAL_FLOAT, HAL_RW, offsetof(lcec_el7211_data_t, torque_scale), "%s.%s.%s.torque-scale" },
   { HAL_U32, HAL_RO, offsetof(lcec_el7211_data_t, vel_resolution), "%s.%s.%s.vel-resolution" },
   { HAL_U32, HAL_RO, offsetof(lcec_el7211_data_t, pos_resolution), "%s.%s.%s.pos-resolution" },
   { HAL_FLOAT, HAL_RW, offsetof(lcec_el7211_data_t, min_vel), "%s.%s.%s.min-vel" },
@@ -168,6 +175,10 @@ static ec_pdo_entry_info_t lcec_el7211_in_vel[] = {
    {0x6010, 0x07, 32}  // actual velocity
 };
 
+static ec_pdo_entry_info_t lcec_el7211_in_torque[] = {
+   {0x6010, 0x08, 16}  // actual torque
+};
+
 static ec_pdo_entry_info_t lcec_el7211_out_ctrl[] = {
    {0x7010, 0x01, 16}  // control word
 };
@@ -180,12 +191,14 @@ static ec_pdo_info_t lcec_el7211_pdos_in[] = {
     {0x1A00, 1, lcec_el7211_in_pos},
     {0x1A01, 1, lcec_el7211_in_status},
     {0x1A02, 1, lcec_el7211_in_vel},
+    {0x1A03, 1, lcec_el7211_in_torque},
 };
 
 static ec_pdo_info_t lcec_el7201_9014_pdos_in[] = {
     {0x1A00, 1, lcec_el7211_in_pos},
     {0x1A01, 1, lcec_el7211_in_status},
     {0x1A02, 1, lcec_el7211_in_vel},
+    {0x1A03, 1, lcec_el7211_in_torque},
     {0x1A04, 1, lcec_el7211_in_info1},
     {0x1A05, 1, lcec_el7211_in_info2},
 };
@@ -199,7 +212,7 @@ static ec_sync_info_t lcec_el7211_syncs[] = {
     {0, EC_DIR_OUTPUT, 0, NULL},
     {1, EC_DIR_INPUT,  0, NULL},
     {2, EC_DIR_OUTPUT, 2, lcec_el7211_pdos_out},
-    {3, EC_DIR_INPUT,  3, lcec_el7211_pdos_in},
+    {3, EC_DIR_INPUT,  4, lcec_el7211_pdos_in},
     {0xff}
 };
 
@@ -207,7 +220,7 @@ static ec_sync_info_t lcec_el7201_9014_syncs[] = {
     {0, EC_DIR_OUTPUT, 0, NULL},
     {1, EC_DIR_INPUT,  0, NULL},
     {2, EC_DIR_OUTPUT, 2, lcec_el7211_pdos_out},
-    {3, EC_DIR_INPUT,  5, lcec_el7201_9014_pdos_in},
+    {3, EC_DIR_INPUT,  6, lcec_el7201_9014_pdos_in},
     {0xff}
 };
 
@@ -264,6 +277,7 @@ int lcec_el7211_export_pins(lcec_master_t *master, struct lcec_slave *slave, lce
 
   // init parameters
   hal_data->scale = 1.0;
+  hal_data->torque_scale = 1.0;
   hal_data->vel_resolution = sdo_vel_resolution;
   hal_data->pos_resolution = sdo_pos_resolution;
 
@@ -307,6 +321,7 @@ int lcec_el7211_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000, 0x11, &hal_data->pos_fb_pdo_os, NULL);
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6010, 0x01, &hal_data->status_pdo_os, NULL);
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6010, 0x07, &hal_data->vel_fb_pdo_os, NULL);
+  LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6010, 0x08, &hal_data->torque_fb_pdo_os, NULL);
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7010, 0x01, &hal_data->ctrl_pdo_os, NULL);
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7010, 0x06, &hal_data->vel_cmd_pdo_os, NULL);
 
@@ -351,6 +366,7 @@ int lcec_el7201_9014_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_re
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000, 0x11, &hal_data->pos_fb_pdo_os, NULL);
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6010, 0x01, &hal_data->status_pdo_os, NULL);
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6010, 0x07, &hal_data->vel_fb_pdo_os, NULL);
+  LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6010, 0x08, &hal_data->torque_fb_pdo_os, NULL);
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7010, 0x01, &hal_data->ctrl_pdo_os, NULL);
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7010, 0x06, &hal_data->vel_cmd_pdo_os, NULL);
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6010, 0x12, &hal_data->info1_pdo_os, NULL);
@@ -397,6 +413,7 @@ void lcec_el7211_read(struct lcec_slave *slave, long period) {
   uint8_t *pd = master->process_data;
   uint16_t status;
   int32_t vel_raw;
+  int16_t torque_raw;
   double vel;
   uint32_t pos_cnt;
 
@@ -451,6 +468,11 @@ void lcec_el7211_read(struct lcec_slave *slave, long period) {
   *(hal_data->at_speed) =
     *(hal_data->vel_fb) >= (*(hal_data->vel_cmd) - hal_data->at_speed_window) &&
     *(hal_data->vel_fb) <= (*(hal_data->vel_cmd) + hal_data->at_speed_window);
+
+  // read torque
+  torque_raw = EC_READ_S16(&pd[hal_data->torque_fb_pdo_os]);
+  *(hal_data->torque_fb_raw) = torque_raw;
+  *(hal_data->torque_fb) = (double) torque_raw * 0.001 * hal_data->torque_scale;
 
   // update position feedback
   pos_cnt = EC_READ_U32(&pd[hal_data->pos_fb_pdo_os]);

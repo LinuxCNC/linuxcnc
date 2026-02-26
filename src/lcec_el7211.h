@@ -25,8 +25,8 @@
 #define LCEC_EL7221_PID      0x1C353052
 #define LCEC_EL7201_9014_PID 0x1C213052
 
-#define LCEC_EL7211_PDOS      5
-#define LCEC_EL7201_9014_PDOS 7
+#define LCEC_EL7211_PDOS      6
+#define LCEC_EL7201_9014_PDOS 8
 
 int lcec_el7211_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
 int lcec_el7201_9014_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
