@@ -5249,6 +5249,12 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
             head_prev_exit = profileExitVelUnscaled(&active->shared_9d.profile);
             head_prev_feed = active->shared_9d.profile.computed_feed_scale;
         }
+
+        // No valid seed: both branch and main have feed < 0.001, so
+        // profileExitVelUnscaled returns 0 — the measurement is undefined,
+        // not "velocity is zero."  Don't overwrite downstream profiles
+        // with a meaningless zero; the cursor walk already has them correct.
+        if (head_prev_feed < 0.001) return;
     }
 
     double default_jerk_head = (active->maxjerk > 0)
@@ -5279,7 +5285,7 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
 
         double feed_scale = tc->shared_9d.profile.computed_feed_scale;
         if (feed_scale < 0.001) {
-            break;  // feed hold — stop
+            break;  // feed hold — measurement undefined
         }
 
         double vel_limit = getEffectiveVelLimit(tp, tc);
