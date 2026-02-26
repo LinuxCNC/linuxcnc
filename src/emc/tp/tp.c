@@ -4995,6 +4995,8 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         if (junction_vel < 0.0) junction_vel = 0.0;
     }
 
+    int stale_feed_predicted = 0;
+
     // Alt-entry profile selection: when a brake on the previous segment
     // changed the exit velocity, pick whichever profile (main or alt_entry)
     // has v0 closer to the actual junction velocity.
@@ -5012,6 +5014,25 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             if (main_feed > 0.001 &&
                 fabs(alt_feed - main_feed) / main_feed > 0.10) {
                 // Feed mismatch > 10% — stale alt, skip
+                // PREDICT_SPIKE_DBG: log when a correct alt is rejected
+                // because the main profile is stale (at old committed_feed).
+                // The alt would have reduced the junction gap.
+                {
+                    double gap_main = fabs(junction_vel - main_v0);
+                    double gap_alt  = fabs(junction_vel - alt_v0);
+                    if (gap_main > 0.3 && gap_alt < gap_main) {
+                        stale_feed_predicted = 1;
+                        double canon_feed = nexttc->shared_9d.canonical_feed_scale;
+                        rtapi_print_msg(RTAPI_MSG_ERR,
+                            "PREDICT_SPIKE seg=%d: alt rejected stale-feed "
+                            "jv=%.3f main_v0=%.3f alt_v0=%.3f "
+                            "main_feed=%.3f alt_feed=%.3f canon_feed=%.3f "
+                            "gap_main=%.3f gap_alt=%.3f\n",
+                            nexttc->id, junction_vel, main_v0, alt_v0,
+                            main_feed, alt_feed, canon_feed,
+                            gap_main, gap_alt);
+                    }
+                }
                 goto alt_done;
             }
             nexttc->shared_9d.profile = nexttc->shared_9d.alt_entry.profile;
@@ -5027,6 +5048,35 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         }
     alt_done:
         __atomic_store_n(&nexttc->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
+    }
+
+    // General PREDICT_SPIKE: classify all spike conditions not already caught
+    // by the stale-feed alt-rejection prediction above.
+    // Fires before SPIKE_DBG so every spike has a preceding prediction.
+    if (GET_TRAJ_PLANNER_TYPE() == 2 && !stale_feed_predicted &&
+        __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
+        double _pred_v0 = nexttc->shared_9d.profile.v[0];
+        double _pred_gap = junction_vel - _pred_v0;
+        if (fabs(_pred_gap) > 0.3) {
+            double _pred_feed = nexttc->shared_9d.canonical_feed_scale;
+            double _pred_prof_feed = nexttc->shared_9d.profile.computed_feed_scale;
+            double _pred_prev_feed = tc->shared_9d.canonical_feed_scale;
+            int _pred_alt = __atomic_load_n(&nexttc->shared_9d.alt_entry.taken, __ATOMIC_ACQUIRE);
+            double _pred_feed_err = (_pred_feed > 0.001) ?
+                fabs(_pred_prof_feed - _pred_feed) / _pred_feed : 0.0;
+            const char *_pred_cause =
+                (_pred_feed_err > 0.03) ? "wrong-feed-profile" :
+                (_pred_alt)             ? "alt-imperfect" :
+                                          "convergence-gap";
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "PREDICT_SPIKE seg=%d: %s "
+                "jv=%.3f v0=%.3f gap=%.3f "
+                "prof_feed=%.3f canon_feed=%.3f prev_feed=%.3f "
+                "alt=%d feed_err=%.1f%%\n",
+                nexttc->id, _pred_cause, junction_vel, _pred_v0, _pred_gap,
+                _pred_prof_feed, _pred_feed, _pred_prev_feed,
+                _pred_alt, _pred_feed_err * 100.0);
+        }
     }
 
     // SPIKE_DBG: log junction velocity mismatch at segment handoff.
