@@ -5038,6 +5038,11 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             double _dbg_prev_fvl = atomicLoadDouble(&tc->shared_9d.final_vel_limit);
             int _dbg_src = nexttc->shared_9d.profile.dbg_src;
             double _dbg_v0_req = nexttc->shared_9d.profile.dbg_v0_req;
+            // Predecessor profile data: what vf did tc's profile actually achieve?
+            double _dbg_prev_prof_vf = tc->shared_9d.profile.valid
+                ? tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES] : -1.0;
+            int _dbg_prev_src = tc->shared_9d.profile.dbg_src;
+            double _dbg_prev_prof_feed = tc->shared_9d.profile.computed_feed_scale;
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "SPIKE_DBG seg %d->%d: jv=%.3f v0=%.3f gap=%.3f "
                 "src=%d v0_req=%.3f "
@@ -5052,6 +5057,11 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
                 nexttc->target,
                 _dbg_prev_aev, _dbg_prev_fv, _dbg_prev_fvl,
                 tc->motion_type, nexttc->motion_type);
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "  PREV_PROF seg %d: kink=%.3f maxvel=%.3f "
+                "prof_vf=%.3f src=%d prof_feed=%.3f\n",
+                tc->id, tc->kink_vel, tc->maxvel,
+                _dbg_prev_prof_vf, _dbg_prev_src, _dbg_prev_prof_feed);
         }
     }
 
