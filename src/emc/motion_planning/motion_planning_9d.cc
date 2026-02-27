@@ -288,8 +288,6 @@ static double g_last_replan_cost_ms = 0.5;  // bootstrap: assume 0.5ms until mea
 // is actively updating at a newer feed.
 static double g_committed_feed = -1.0;   // -1 = uninitialized
 static double g_committed_rapid = -1.0;
-static bool g_near_active_converged = true;
-static bool g_pending_feed_absorb = false;
 
 // Incremental downstream profile recompute cursor
 // After a feed change, walk through the queue recomputing profiles a few per tick.
@@ -298,14 +296,6 @@ static bool g_pending_feed_absorb = false;
 static int g_recompute_cursor = 0;           // 0 = idle, >0 = queue index to resume from
 static double g_recompute_feed_scale = 1.0;  // snapshot of feed_scale at trigger time
 static double g_recompute_rapid_scale = 1.0; // snapshot of rapid_scale at trigger time
-static bool g_recompute_first_batch_done = false; // settling gate: true after first cursor tick completes
-static constexpr int RECOMPUTE_MIN_PER_TICK = 1;     // always do at least this many
-
-// Queued feed change: stored when a new feed change arrives while cursor is active.
-// Only the next-in-line can be freely overwritten; the working change is locked.
-static double g_next_feed_scale = -1.0;    // -1 = no pending change
-static double g_next_rapid_scale = -1.0;
-
 // Commit point: queue index where the current feed change takes effect.
 // Segments before this index keep old-feed profiles.
 static int g_commit_segment = 1;           // default: active+1 (existing behavior)
@@ -437,10 +427,10 @@ static inline double profileExitVelUnscaled(const ruckig_profile_t *prof)
  * @brief Read final_vel with sticky reachability cap applied
  *
  * The backward pass writes final_vel every cycle from geometric smoothing,
- * ignoring feed-dependent reachability constraints.  When a forward-pass
- * backtrack discovers that a predecessor's exit exceeds the successor's
- * entry, it sets a sticky cap (unscaled) on the predecessor.  This helper
- * returns min(final_vel, cap) so the cap survives backward-pass overwrites.
+ * ignoring feed-dependent reachability constraints.  When the forward pass
+ * finds that a predecessor's exit exceeds the successor's entry, it sets a
+ * sticky cap (unscaled) on the predecessor.  This helper returns
+ * min(final_vel, cap) so the cap survives backward-pass overwrites.
  * Cap = -1 means "no cap".
  */
 static inline double readFinalVelCapped(const TC_STRUCT *tc)
@@ -1652,11 +1642,8 @@ extern "C" int initPredictiveHandoff(void)
     g_recompute_cursor = 0;
     g_recompute_feed_scale = 1.0;
     g_recompute_rapid_scale = 1.0;
-    g_recompute_first_batch_done = false;
-    g_committed_feed = -1.0;  // Initialized from live on first computeRuckigProfiles_9D call
+    g_committed_feed = -1.0;
     g_committed_rapid = -1.0;
-    g_next_feed_scale = -1.0;
-    g_next_rapid_scale = -1.0;
     g_commit_segment = 1;
     g_segments_per_tick = 3.0;
     return 0;
@@ -2015,7 +2002,7 @@ void invalidateNextNSegments(TP_STRUCT *tp, int n, int start_index)
     }
 }
 
-// Forward declaration (defined below, needed by backtrack safety check)
+// Forward declaration (defined below)
 static bool profileHasNegativeVelocity(const ruckig_profile_t *profile, double threshold = -0.01);
 
 /**
@@ -2209,65 +2196,6 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                     tc->shared_9d.profile.dbg_v0_req = scaled_v_entry;
                     prev_exit_vel_scaled = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
                     atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
-                    // One-step backtrack: fix backward reachability gap
-                    // Skip active segment — rewriting triggers STOPWATCH_RESET
-                    // with velocity discontinuity worse than the chain gap.
-                    TC_STRUCT *prev_seg = (i > start_index) ? tcqItem_user(queue, i - 1) : NULL;
-                    if (prev_seg && !prev_seg->active
-                        && prev_seg->term_cond == TC_TERM_COND_TANGENT
-                        && prev_seg->shared_9d.profile.valid) {
-                        double prev_v_end = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                        double curr_v0 = tc->shared_9d.profile.v[0];
-                        // Race window: between writing tc and backtracking prev_seg,
-                        // RT could see prev_seg exiting at prev_v_end but tc entering at curr_v0
-                        if (prev_v_end > curr_v0 + 0.01) {
-                            // Set sticky reachability cap (unscaled) so backward
-                            // pass can't undo this constraint on next cycle.
-                            double cap_unscaled = (feed_scale > 0.001)
-                                ? curr_v0 / feed_scale : -1.0;
-                            atomicStoreDouble(&prev_seg->shared_9d.reachability_exit_cap,
-                                cap_unscaled);
-                            double p_entry_orig = prev_seg->shared_9d.profile.v[0];
-                            double p_entry = p_entry_orig;
-                            double p_vel_limit = getEffectiveVelLimit(tp, prev_seg);
-                            double p_max_vel = applyVLimit(tp, prev_seg, p_vel_limit * feed_scale);
-                            double p_max_acc = tcGetTangentialMaxAccel_9D_user(prev_seg);
-                            double p_max_jrk = prev_seg->maxjerk > 0 ? prev_seg->maxjerk : default_jerk;
-                            double p_exit = curr_v0;
-                            applyBidirectionalReachability(p_entry, p_exit,
-                                prev_seg->target, p_max_acc, p_max_jrk);
-                            // Fix B: try original v0 first — only lower exit.
-                            // If v0_orig is reachable (segment long enough to
-                            // decelerate to p_exit), keep it to avoid upstream
-                            // damage. Otherwise fall back to clamped p_entry.
-                            double p_entry_clamped = p_entry;
-                            p_entry = p_entry_orig;
-                            RuckigProfileParams rp_prev = {p_entry, p_exit,
-                                p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
-                                feed_scale, p_vel_limit, tp->vLimit, p_exit};
-                            if (computeAndStoreProfile(prev_seg, rp_prev)) {
-                                prev_seg->shared_9d.profile.dbg_src = 7;  // backtrack(DS)
-                                prev_seg->shared_9d.profile.dbg_v0_req = p_entry;
-                                double actual_exit = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                                if (fabs(actual_exit - p_exit) > 0.5 ||
-                                    profileHasNegativeVelocity(&prev_seg->shared_9d.profile)) {
-                                    // v0_orig too high — can't reach p_exit.
-                                    // Fall back to reachability-clamped entry.
-                                    RuckigProfileParams rp_fb = {p_entry_clamped, p_exit,
-                                        p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
-                                        feed_scale, p_vel_limit, tp->vLimit, p_exit};
-                                    computeAndStoreProfile(prev_seg, rp_fb);
-                                    prev_seg->shared_9d.profile.dbg_src = 7;  // backtrack(DS) fallback
-                                    prev_seg->shared_9d.profile.dbg_v0_req = p_entry_clamped;
-                                }
-                                atomicStoreInt((int*)&prev_seg->shared_9d.optimization_state,
-                                    TC_PLAN_FINALIZED);
-                            }
-                        } else {
-                            // Junction is clean — clear any stale cap
-                            atomicStoreDouble(&prev_seg->shared_9d.reachability_exit_cap, -1.0);
-                        }
-                    }
                 } else {
                     prev_exit_vel_scaled = 0.0;
                     rtapi_print_msg(RTAPI_MSG_ERR, "Downstream recompute fail seg=%d",
@@ -2370,281 +2298,6 @@ static double estimateExitAtFeed(TP_STRUCT const *tp, TC_STRUCT const *tc,
 }
 
 /**
- * @brief Write alternate entry profiles for downstream segments.
- *
- * When a brake branch on the current segment changes its exit velocity,
- * the downstream segments' pre-computed profiles have stale entry velocities.
- * This writes alternate profiles chaining forward: v0 = branch exit velocity
- * for the first, then each subsequent alt-entry's v0 = predecessor alt exit.
- * RT picks whichever profile (main or alt_entry) has v0 closer to the
- * actual junction velocity — smooth regardless of whether brake was taken.
- *
- * The chain self-terminates when the alt-entry exit converges with the main
- * profile's entry (gap < 0.1 mm/s), or at a non-tangent segment boundary.
- *
- * Called BEFORE commitBranch so the cushion is in place before the jump.
- */
-static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
-                           double branch_exit_vel, double new_feed_scale,
-                           int start_depth = 1)
-{
-    if (tc->term_cond != TC_TERM_COND_TANGENT) {
-        return;
-    }
-
-    TC_QUEUE_STRUCT *queue = &tp->queue;
-    int queue_len = tcqLen_user(queue);
-    double entry_vel = branch_exit_vel;
-
-    bool prev_was_flythrough = false;  // propagate exemption after flythrough
-    for (int i = start_depth; i < queue_len && i <= 32; i++) {
-        TC_STRUCT *seg = tcqItem_user(queue, i);
-        if (!seg || seg->target < 1e-9) break;
-
-        // Check if alt-entry is needed: compare entry_vel with main profile v0
-        if (__atomic_load_n(&seg->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
-            double main_v0 = seg->shared_9d.profile.v[0];
-            if (fabs(entry_vel - main_v0) < 0.1) {
-                // Convergence: entry matches main — invalidate any stale alt
-                {
-                    int _had_old = __atomic_load_n(&seg->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE);
-                    double _old_alt_v0 = _had_old ? seg->shared_9d.alt_entry.v0 : -1.0;
-                    if (_had_old) {
-                        // Invalidate stale-feed alts: if the old alt was
-                        // computed at a different feed scale, its trajectory
-                        // shape is wrong regardless of v0.
-                        double _old_feed = seg->shared_9d.alt_entry.profile.computed_feed_scale;
-                        bool feed_stale = (new_feed_scale > 0.001) &&
-                            (fabs(_old_feed - new_feed_scale) / new_feed_scale > 0.10);
-                        // Also clear "acceleration" alts (old_v0 >= entry_vel)
-                        // which are truly stale from a higher previous feed.
-                        // Preserve deceleration alts at same feed (feed hold
-                        // recovery where machine hasn't stopped yet).
-                        if (feed_stale || _old_alt_v0 >= entry_vel - 0.5) {
-                            __atomic_store_n(&seg->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
-                        }
-                    }
-                }
-                break;
-            }
-        }
-
-        double seg_vel_limit = getEffectiveVelLimit(tp, seg);
-        double seg_max_vel = seg_vel_limit * new_feed_scale;
-        seg_max_vel = applyVLimit(tp, seg, seg_max_vel);
-        double seg_jerk = seg->maxjerk > 0 ? seg->maxjerk : g_handoff_config.default_max_jerk;
-
-        // Determine target exit velocity for this segment
-        double unscaled_fv = atomicLoadDouble(&seg->shared_9d.final_vel);
-        double target_exit_vel = (seg->term_cond == TC_TERM_COND_TANGENT)
-            ? fmin(unscaled_fv * new_feed_scale, seg_max_vel)
-            : 0.0;
-        target_exit_vel = applyKinkVelCap(target_exit_vel, unscaled_fv, seg_max_vel, seg->kink_vel);
-
-        double achievable_exit = findAchievableExitVelocity(
-            entry_vel, 0.0,
-            seg->target, seg->maxaccel, seg_jerk,
-            seg_max_vel, target_exit_vel);
-
-        // Physical limit before downstream caps — used as fallback at depth=1
-        double uncapped_exit = achievable_exit;
-
-        // Cap alt-entry exit by downstream segment constraints.
-        // Without this, on short segments achievable_exit ≈ entry_vel (can't
-        // decelerate), but the next segment's profile was computed against
-        // the main chain's (lower) exit.  Cap so it doesn't exceed what the
-        // next segment can accept as entry.
-        if (seg->term_cond == TC_TERM_COND_TANGENT && achievable_exit > 0.01) {
-            TC_STRUCT *next_seg = tcqItem_user(queue, i + 1);
-            if (next_seg && next_seg->target > 1e-9) {
-                double n_max_acc = tcGetTangentialMaxAccel_9D_user(next_seg);
-                double n_max_jrk = next_seg->maxjerk > 0 ? next_seg->maxjerk : g_handoff_config.default_max_jerk;
-                double n_fv = readFinalVelCapped(next_seg);
-                double n_exit_scaled = (next_seg->term_cond == TC_TERM_COND_TANGENT)
-                    ? fmin(n_fv * new_feed_scale, applyVLimit(tp, next_seg, getEffectiveVelLimit(tp, next_seg) * new_feed_scale))
-                    : 0.0;
-                n_exit_scaled = applyKinkVelCap(n_exit_scaled, n_fv,
-                    applyVLimit(tp, next_seg, getEffectiveVelLimit(tp, next_seg) * new_feed_scale), next_seg->kink_vel);
-                double n_max_entry = jerkLimitedMaxEntryVelocity(n_exit_scaled,
-                    next_seg->target, n_max_acc, n_max_jrk);
-                // Also cap by this segment's kink_vel (junction between seg and next_seg)
-                if (seg->kink_vel > 0)
-                    n_max_entry = fmin(n_max_entry, seg->kink_vel);
-                if (n_max_entry < achievable_exit)
-                    achievable_exit = n_max_entry;
-
-                // Cap by main chain's entry velocity at next segment.
-                // After recomputeDownstreamProfiles, main profiles reflect
-                // full backward-pass constraints (including stop segments far
-                // downstream).  This catches cases where the 1-segment
-                // lookahead doesn't see deeper constraints.
-                // Profile v0 scales linearly with feed (backward pass stores
-                // unscaled final_vel; forward pass multiplies by feed_scale),
-                // so we rescale the main v0 to the alt chain's feed rather
-                // than discarding it when feeds differ.
-                if (__atomic_load_n(&next_seg->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
-                    double next_main_v0 = next_seg->shared_9d.profile.v[0];
-                    double main_feed = next_seg->shared_9d.profile.computed_feed_scale;
-                    if (main_feed > 0.001 && next_main_v0 > 0.01) {
-                        double scaled_v0 = next_main_v0 * (new_feed_scale / main_feed);
-                        if (scaled_v0 < achievable_exit)
-                            achievable_exit = scaled_v0;
-                    }
-                }
-            }
-        }
-
-        // Save downstream-capped exit before Ruckig — flythrough may override
-        double capped_exit = achievable_exit;
-
-        // Compute Ruckig profile for this segment with adjusted entry velocity
-        try {
-            ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
-            ruckig::InputParameter<1> input;
-            ruckig::Trajectory<1> traj;
-
-            input.current_position = {0.0};
-            input.current_velocity = {entry_vel};
-            input.current_acceleration = {0.0};
-            input.target_position = {seg->target};
-            input.target_velocity = {achievable_exit};
-            input.target_acceleration = {0.0};
-            // Allow entry velocity above feed-scaled max (crash scenario):
-            // old-feed exit can exceed new max_vel, Ruckig needs max_vel >=
-            // current_velocity to accept the deceleration problem.
-            input.max_velocity = {fmax(entry_vel, seg_max_vel)};
-            input.max_acceleration = {seg->maxaccel};
-            input.max_jerk = {seg_jerk};
-
-            auto result = otg.calculate(input, traj);
-
-            // When Ruckig fails or produces negative velocity, the segment
-            // is too short for the requested velocity change.  Retry as a
-            // constant-velocity flythrough (entry=exit) so the alt chain
-            // doesn't break at this segment.  Safe because the main profile
-            // remains the default — RT only uses the alt if v0 is closer.
-            bool need_retry = false;
-            if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                need_retry = true;
-            }
-            ruckig_profile_t alt_profile;
-            if (!need_retry) {
-                memset(&alt_profile, 0, sizeof(alt_profile));
-                copyRuckigProfile(traj, &alt_profile);
-                if (!alt_profile.valid) {
-                    need_retry = true;
-                }
-            }
-            if (!need_retry && profileHasNegativeVelocity(&alt_profile)) {
-                need_retry = true;
-            }
-            // Exempt from flythrough bail when:
-            //   - start_depth: machine WILL arrive at entry_vel (ground truth)
-            //   - prev_was_flythrough: previous segment couldn't decelerate,
-            //     so this segment WILL also see the high velocity
-            bool exempt = (i == start_depth || prev_was_flythrough);
-            prev_was_flythrough = false;  // reset; set again if we flythrough
-
-            if (need_retry && exempt) {
-                // Layered fallback — must write an alt here:
-                //   1. Max-decel with uncapped (physical) exit velocity
-                //   2. Constant-velocity flythrough as last resort
-                bool wrote = false;
-
-                // Fallback 1: retry with physical exit limit (before
-                // downstream caps made it unreachable)
-                if (uncapped_exit < entry_vel - 0.01) {
-                    input.target_velocity = {uncapped_exit};
-                    input.max_velocity = {fmax(entry_vel, seg_max_vel)};
-                    result = otg.calculate(input, traj);
-                    if (result == ruckig::Result::Working ||
-                        result == ruckig::Result::Finished) {
-                        memset(&alt_profile, 0, sizeof(alt_profile));
-                        copyRuckigProfile(traj, &alt_profile);
-                        if (alt_profile.valid &&
-                            !profileHasNegativeVelocity(&alt_profile)) {
-                            achievable_exit = uncapped_exit;
-                            wrote = true;
-                        }
-                    }
-                }
-
-                // Fallback 2: constant-velocity flythrough
-                if (!wrote) {
-                    input.target_velocity = {entry_vel};
-                    input.max_velocity = {fmax(entry_vel, seg_max_vel)};
-                    result = otg.calculate(input, traj);
-                    if (result == ruckig::Result::Working ||
-                        result == ruckig::Result::Finished) {
-                        memset(&alt_profile, 0, sizeof(alt_profile));
-                        copyRuckigProfile(traj, &alt_profile);
-                        if (alt_profile.valid &&
-                            !profileHasNegativeVelocity(&alt_profile)) {
-                            achievable_exit = entry_vel;
-                            prev_was_flythrough = true;
-                            wrote = true;
-                        }
-                    }
-                }
-
-                if (!wrote) {
-                    continue;
-                }
-            } else if (need_retry) {
-                // Non-exempt depth: flythrough bail protects downstream.
-                double flythrough_tol = seg->maxaccel
-                    * g_handoff_config.servo_cycle_time_sec;
-                if (entry_vel > capped_exit + flythrough_tol) {
-                    break;
-                }
-                // Constant-velocity flythrough: entry_vel in, entry_vel out
-                input.target_velocity = {entry_vel};
-                input.max_velocity = {fmax(entry_vel, seg_max_vel)};
-                result = otg.calculate(input, traj);
-                if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                    continue;  // Even flythrough failed — skip
-                }
-                memset(&alt_profile, 0, sizeof(alt_profile));
-                copyRuckigProfile(traj, &alt_profile);
-                if (!alt_profile.valid || profileHasNegativeVelocity(&alt_profile)) {
-                    continue;  // Skip
-                }
-                achievable_exit = entry_vel;
-            }
-
-            // Don't write alt on non-tangent (stop/exact) segments if entry
-            // velocity can't decelerate to zero within the segment.  The alt
-            // would exit at high velocity into a chain expecting v≈0, and the
-            // v0_correction overflow on the next short segment causes a hard
-            // stop.  Better to let v0_corr handle the moderate gap directly.
-            if (seg->term_cond != TC_TERM_COND_TANGENT && achievable_exit > 0.5) {
-                break;
-            }
-
-            alt_profile.computed_feed_scale = new_feed_scale;
-            alt_profile.computed_vel_limit = seg_vel_limit;
-            alt_profile.computed_vLimit = tp->vLimit;
-            alt_profile.dbg_src = 5;  // alt_entry
-            alt_profile.dbg_v0_req = entry_vel;
-
-            // Write alt_entry — cushion in place before the jump
-            seg->shared_9d.alt_entry.profile = alt_profile;
-            seg->shared_9d.alt_entry.v0 = entry_vel;
-            __atomic_thread_fence(__ATOMIC_RELEASE);
-            __atomic_store_n(&seg->shared_9d.alt_entry.valid, 1, __ATOMIC_RELEASE);
-            // Chain forward: use this alt's exit as next segment's entry
-            entry_vel = alt_profile.v[RUCKIG_PROFILE_PHASES];
-
-            // Stop chaining if this segment isn't tangent (exit is 0)
-            if (seg->term_cond != TC_TERM_COND_TANGENT) break;
-        } catch (...) {
-            // Alt-entry is best-effort; failure falls back to v0 correction in RT
-            break;
-        }
-    }
-}
-
-/**
  * @brief Compute a branch trajectory for feed override change
  *
  * Branch/Merge architecture with achievable feed cascade:
@@ -2668,11 +2321,6 @@ static void writeAltEntry(TP_STRUCT *tp, TC_STRUCT *tc,
  *
  * @return true if branch was successfully computed and committed
  */
-static void computeSpillOver(const ruckig_profile_t *profile,
-                             double remaining_dist,
-                             double *spill_vel,
-                             double *spill_acc);
-
 bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 {
     if (!tp || !tc) return false;
@@ -2907,99 +2555,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 
             bool committed = commitBranch(&tc->shared_9d, &main_profile, NULL, 0.0, 0.0,
                                           handoff_time, state.position, 0.0, window_end_time);
-            (void)committed;
-
-            // Spill-over: if stop distance exceeds remaining segment, the
-            // machine will cross into downstream segments mid-deceleration.
-            // Write alt-entry stop profiles so RT has correct v0 at each
-            // boundary (same pattern as tpRequestAbortBranch_9D).
-            if (committed && tc->term_cond == TC_TERM_COND_TANGENT) {
-                double spill_vel, spill_acc;
-                computeSpillOver(&main_profile, remaining, &spill_vel, &spill_acc);
-
-                if (spill_vel > TP_VEL_EPSILON) {
-                    TC_QUEUE_STRUCT *queue = &tp->queue;
-                    int queue_len = tcqLen_user(queue);
-                    double entry_vel = spill_vel;
-                    double entry_acc = spill_acc;
-
-                    for (int i = 1; i < queue_len && entry_vel > TP_VEL_EPSILON; i++) {
-                        TC_STRUCT *next = tcqItem_user(queue, i);
-                        if (!next || next->target < 1e-9) break;
-
-                        double this_entry_vel = entry_vel;
-                        double next_vel_limit = getEffectiveVelLimit(tp, next);
-                        double next_jerk = next->maxjerk > 0 ? next->maxjerk : default_jerk;
-
-                        try {
-                            ruckig::Ruckig<1> otg_spill(g_handoff_config.servo_cycle_time_sec);
-                            ruckig::InputParameter<1> in_spill;
-                            ruckig::Trajectory<1> traj_spill;
-
-                            // Clamp acceleration: physics limit sqrt(2*v*jerk)
-                            // prevents negative velocity, then segment maxaccel.
-                            double clamped_acc = entry_acc;
-                            if (clamped_acc < 0 && entry_vel > 0) {
-                                double physics_limit = sqrt(2.0 * entry_vel * next_jerk);
-                                if (clamped_acc < -physics_limit) clamped_acc = -physics_limit;
-                            }
-                            if (clamped_acc < -next->maxaccel) clamped_acc = -next->maxaccel;
-                            if (clamped_acc > next->maxaccel) clamped_acc = next->maxaccel;
-
-                            in_spill.control_interface = ruckig::ControlInterface::Velocity;
-                            in_spill.current_position = {0.0};
-                            in_spill.current_velocity = {entry_vel};
-                            in_spill.current_acceleration = {clamped_acc};
-                            in_spill.target_velocity = {0.0};
-                            in_spill.target_acceleration = {0.0};
-                            in_spill.max_velocity = {next_vel_limit};
-                            in_spill.max_acceleration = {next->maxaccel};
-                            in_spill.max_jerk = {next_jerk};
-
-                            auto result = otg_spill.calculate(in_spill, traj_spill);
-                            if (result != ruckig::Result::Working &&
-                                result != ruckig::Result::Finished)
-                                break;
-
-                            ruckig_profile_t stop_prof;
-                            memset(&stop_prof, 0, sizeof(stop_prof));
-                            copyRuckigProfile(traj_spill, &stop_prof);
-                            if (!stop_prof.valid || profileHasNegativeVelocity(&stop_prof)) {
-                                // Retry with zero acceleration
-                                if (clamped_acc != 0.0) {
-                                    clamped_acc = 0.0;
-                                    in_spill.current_acceleration = {0.0};
-                                    result = otg_spill.calculate(in_spill, traj_spill);
-                                    if (result == ruckig::Result::Working ||
-                                        result == ruckig::Result::Finished) {
-                                        memset(&stop_prof, 0, sizeof(stop_prof));
-                                        copyRuckigProfile(traj_spill, &stop_prof);
-                                    }
-                                }
-                                if (!stop_prof.valid || profileHasNegativeVelocity(&stop_prof))
-                                    break;
-                            }
-                            stop_prof.computed_feed_scale = 0.0;
-                            stop_prof.computed_vel_limit = next_vel_limit;
-                            stop_prof.computed_vLimit = tp->vLimit;
-
-                            // Check if this segment also spills over
-                            computeSpillOver(&stop_prof, next->target,
-                                             &entry_vel, &entry_acc);
-
-                            // Write as alt-entry so RT picks it at the junction
-                            next->shared_9d.alt_entry.profile = stop_prof;
-                            next->shared_9d.alt_entry.v0 = this_entry_vel;
-                            __atomic_thread_fence(__ATOMIC_RELEASE);
-                            __atomic_store_n(&next->shared_9d.alt_entry.valid, 1,
-                                             __ATOMIC_RELEASE);
-                        } catch (...) {
-                            break;
-                        }
-                    }
-                }
-            }
-
             return committed;
         }
 
@@ -3280,9 +2835,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             g_ruckig_timing.count++;
             if (calc_us > g_ruckig_timing.max_us) g_ruckig_timing.max_us = calc_us;
 
-            // Cushion before jump: write alt-entry on N+1 before committing brake on N
-            writeAltEntry(tp, tc, tc->shared_9d.achieved_exit_vel, effective_feed_scale);
-
             // Commit profile(s)
             // When use_single_stage, commit as single-stage (no brake).
             // Otherwise commit two-stage with brake_target_vel = stage1_target_vel.
@@ -3398,9 +2950,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             g_ruckig_timing.total_us += calc_us;
             g_ruckig_timing.count++;
             if (calc_us > g_ruckig_timing.max_us) g_ruckig_timing.max_us = calc_us;
-
-            // Cushion before jump: write alt-entry on N+1 before committing branch on N
-            writeAltEntry(tp, tc, tc->shared_9d.achieved_exit_vel, effective_feed_scale);
 
             bool committed = commitBranch(&tc->shared_9d, &main_profile, NULL, 0.0, 0.0,
                                           handoff_time, state.position,
@@ -3616,7 +3165,6 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         g_recompute_cursor = done + 1;  // +1 to skip active segment (index 0)
         g_recompute_feed_scale = merge_feed;
         g_recompute_rapid_scale = merge_rapid;
-        g_recompute_first_batch_done = false;
         return;
     }
 
@@ -3681,26 +3229,11 @@ extern "C" void manageBranches(TP_STRUCT *tp)
 
     if (!feed_changed && !vel_changed) return;
 
-    // Feed change detected.
-    // If cursor walk is active, queue this change (next-in-line, freely overwritable).
+    // If cursor walk is active, abort it so we restart with the new feed.
+    // This ensures near-active profiles are refreshed before RT reaches them.
+    // Debounce below rate-limits how often this can happen.
     if (g_recompute_cursor > 0) {
-        // Recovery from feed-hold: abort the hold cursor and restart fresh,
-        // just like program start.  The hold cursor is walking at feed≈0,
-        // skipping segments with valid profiles.  Those profiles are stale
-        // (computed at the pre-hold feed) and RT will hit them with wrong v0.
-        // By falling through to the normal feed-change path, we get
-        // invalidateNextNSegments + synchronous recomputeDownstreamProfiles
-        // before RT can advance into the stale segments.
-        if (g_recompute_feed_scale < 0.001 && current_feed > 0.001) {
-            g_recompute_cursor = 0;
-            g_next_feed_scale = -1.0;
-            g_next_rapid_scale = -1.0;
-            // Fall through to process recovery feed immediately
-        } else {
-            g_next_feed_scale = current_feed;
-            g_next_rapid_scale = emcmotStatus->rapid_scale;
-            return;
-        }
+        g_recompute_cursor = 0;
     }
 
     // Cursor idle — start processing this feed change.
@@ -3744,12 +3277,7 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         }
     }
 
-    // Feed convergence gate: don't pile up feed changes while the
-    // near-active chain is still absorbing the previous one.
-    // Only gates AFTER a feed change has been committed — first change
-    // always goes through (creates the branch that helps convergence).
-    if (g_pending_feed_absorb && !g_near_active_converged) return;
-
+    // Snapshot current feed for branch computation
     double snap_feed = current_feed;
     double snap_rapid = emcmotStatus->rapid_scale;
 
@@ -3807,13 +3335,8 @@ extern "C" void manageBranches(TP_STRUCT *tp)
                 // our batch-written profiles with a stale feed value.
                 g_committed_feed = snap_feed;
                 g_committed_rapid = snap_rapid;
-                g_pending_feed_absorb = true;
 
                 // Immediately recompute downstream profiles at the branch feed.
-                // computeBranch() has generated an alt_entry for the next segment.
-                // recomputeDownstreamProfiles() computes the MAIN profiles for the
-                // downstream queue assuming the branch is MISSED (safest).
-                // This prepares the queue for both the taken and missed scenarios.
                 double branch_elapsed_us = (etime_user() - branch_t0) * 1e6;
                 double budget_us = g_handoff_config.servo_cycle_time_sec * 0.5e6;
 
@@ -3834,86 +3357,14 @@ extern "C" void manageBranches(TP_STRUCT *tp)
 
                 g_recompute_feed_scale = snap_feed;
                 g_recompute_rapid_scale = snap_rapid;
-                g_recompute_first_batch_done = false;
             }
         }
     } else {
-        // Active too short for branching — rewrite downstream at new feed.
-        // The active segment continues at its current (old) feed profile, but
-        // the successor and beyond get profiles at the new feed, seeded from
-        // the active's actual profile exit velocity (at old feed).  This
-        // eliminates the feed-ramp deferral gap where micro-segments caused
-        // successors to stay at stale feed until the active finished.
-        double active_exit_vel;
-        if (__atomic_load_n(&tc->shared_9d.branch.taken, __ATOMIC_ACQUIRE) &&
-            tc->shared_9d.branch.profile.valid) {
-            // Active segment has a taken branch (e.g., feed hold brake).
-            // The main profile exit is stale — the machine is decelerating
-            // on the branch.  Use spill-over to get the actual velocity at
-            // the segment boundary.
-            double remaining = tc->target - tc->shared_9d.branch.handoff_position;
-            double spill_vel, spill_acc;
-            computeSpillOver(&tc->shared_9d.branch.profile, remaining,
-                             &spill_vel, &spill_acc);
-            active_exit_vel = spill_vel;  // 0 if machine stops within segment
-        } else {
-            active_exit_vel = getActiveProfileExit(tc);
-        }
-
-        // Save queue[1]'s old-feed exit velocity before recompute overwrites
-        // it.  Queue[1]'s entry is correct (both old and new profiles start
-        // from active_exit_vel), but its exit diverges: old profile exits at
-        // old-feed velocity, new profile at new-feed.  Alt-entries from
-        // depth 2+ bridge this gap for RT.
-        TC_QUEUE_STRUCT *_bq = &tp->queue;
-        double old_q1_exit = 0.0;
-        {
-            TC_STRUCT *q1 = tcqItem_user(_bq, 1);
-            if (q1) {
-                if (q1->term_cond == TC_TERM_COND_TANGENT &&
-                    __atomic_load_n(&q1->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
-                    old_q1_exit = q1->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                }
-            }
-        }
-
-        g_committed_feed = snap_feed;
-        g_committed_rapid = snap_rapid;
-        g_pending_feed_absorb = true;
-        g_last_replan_time_ms = now_ms;
-
-        invalidateNextNSegments(tp, INT_MAX);
-
-        double recomp_t0 = etime_user();
-        int done = recomputeDownstreamProfiles(tp, snap_feed, snap_rapid,
-                                                1, active_exit_vel);
-        g_last_replan_cost_ms = (etime_user() - recomp_t0) * 1000.0;
-        g_recompute_cursor = done + 1;
-        g_recompute_feed_scale = snap_feed;
-        g_recompute_rapid_scale = snap_rapid;
-        g_recompute_first_batch_done = false;
-
-        // Alt-entry chains run AFTER recompute so the convergence check
-        // compares against post-recompute main v0 and the main-chain v0
-        // cap reflects full backward-pass constraints.
-        //
-        // Two chains, in order:
-        //   depth 2+: bridge from queue[1]'s OLD exit (before recompute)
-        //     to new-feed profiles.  Covers the case where RT traverses
-        //     queue[1] with the old profile and exits at old-feed velocity.
-        //   depth 1+: bridge from active's exit to new-feed profiles.
-        //     DS_CHAIN_CAP may have lowered queue[1]'s main v0 well below
-        //     active_exit_vel.  This chain overwrites depth 2+ with the
-        //     correct "alt taken at depth 1" continuation.  For recovery,
-        //     depth 1 converges (active_exit_vel ≈ main_v0) and breaks,
-        //     leaving the depth 2+ alts from the first call intact.
-        if (old_q1_exit > 0.01) {
-            writeAltEntry(tp, tc, old_q1_exit, snap_feed, 2);
-        }
-        if (active_exit_vel > 0.01) {
-            writeAltEntry(tp, tc, active_exit_vel, snap_feed);
-        }
-
+        // Active nearly done: defer feed change until next active has enough
+        // remaining time for a safe branch. The slider position persists in
+        // emcmotStatus->net_feed_scale — manageBranches will re-detect the
+        // feed difference on the next cycle where estimateCommitSegment returns 1.
+        // Do NOT update g_last_replan_time_ms — avoids blocking retry via debounce.
     }
 }
 
@@ -4140,9 +3591,6 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
  *
  * @param tp Trajectory planner structure
  */
-// Forward declaration — defined after tpOptimizePlannedMotions_9D
-static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
-                                 int optimizer_depth);
 
 static void ensureProfilesOnLowBuffer(TP_STRUCT *tp)
 {
@@ -4163,17 +3611,6 @@ static void ensureProfilesOnLowBuffer(TP_STRUCT *tp)
 
     int depth = queue_len;
     if (depth > MAX_LOOKAHEAD_DEPTH) depth = MAX_LOOKAHEAD_DEPTH;
-
-    // Protect near-active zone (positions 1..8 from head) from the
-    // backward+forward passes (Steps 1-3).  reconcileNearActive() handles
-    // these separately, seeded from the active segment's actual exit
-    // velocity — the same architecture as tpOptimizePlannedMotions_9D.
-    // Use 9 to avoid overlap: forward pass seeds from position 8 (read
-    // only), reconcileNearActive writes positions 1..8.
-    if (queue_len > 9) {
-        int max_depth = queue_len - 9;
-        if (depth > max_depth) depth = max_depth;
-    }
 
     // === Phase 1: Urgent — missing profiles when buffer is critical ===
     double buffer_ms = calculateBufferTimeMs(tp);
@@ -4197,7 +3634,6 @@ static void ensureProfilesOnLowBuffer(TP_STRUCT *tp)
             result = applyLimitingVelocities_9D(queue, g_smoothing_data, depth);
             if (result != 0) return;
             computeRuckigProfiles_9D(tp, queue, depth);
-            reconcileNearActive(tp, queue, depth);
             return;  // Urgent work done, don't spend more time
         }
     }
@@ -4262,11 +3698,6 @@ static void ensureProfilesOnLowBuffer(TP_STRUCT *tp)
         result = applyLimitingVelocities_9D(queue, g_smoothing_data, depth);
         if (result != 0) break;
         computeRuckigProfiles_9D(tp, queue, depth);
-        // Near-active reconciliation: same Step 4 that runs at segment
-        // addition time.  Without this, near-active profiles are only
-        // written by the backward+forward passes (from the tail), which
-        // disagree with the active segment's actual exit velocity.
-        reconcileNearActive(tp, queue, depth);
         conv_iters++;
 
         if (checkConverged()) { conv_result = true; break; }
@@ -4281,12 +3712,13 @@ static void ensureProfilesOnLowBuffer(TP_STRUCT *tp)
 }
 
 /**
- * @brief Check for feed override changes (legacy wrapper)
+ * @brief Check for feed override changes and propagate profiles
  *
- * This function is kept for API compatibility. The actual branch/merge
- * logic is now in manageBranches().
+ * Entry point called once per servo cycle from taskintf.  Delegates to
+ * manageBranches() for branch/merge, then runs the incremental cursor
+ * walk to propagate feed changes through the queue, and finally calls
+ * ensureProfilesOnLowBuffer() for convergence polish.
  *
- * @deprecated Use manageBranches() directly
  * @param tp Trajectory planner structure
  */
 extern "C" void checkFeedOverride(TP_STRUCT *tp)
@@ -4302,33 +3734,6 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
 
     // Forward to new branch/merge implementation
     manageBranches(tp);
-
-    // Phase 2 fix: detect alt-entry swap by RT and recompute downstream chain.
-    // When RT selects the alt-entry profile (tp.c:4982), the downstream segments
-    // still have profiles computed against the main profile's exit velocity.
-    // Recompute them seeded from the alt-entry's actual exit.
-    if (tp) {
-        TC_STRUCT *active = tcqItem_user(&tp->queue, 0);
-        if (active && __atomic_load_n(&active->shared_9d.alt_entry.taken, __ATOMIC_ACQUIRE)) {
-            __atomic_store_n(&active->shared_9d.alt_entry.taken, 0, __ATOMIC_RELEASE);
-            if (active->term_cond == TC_TERM_COND_TANGENT &&
-                active->shared_9d.profile.valid) {
-                double alt_exit = active->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                // Use current feed as the recompute feed — the alt-entry was
-                // computed at the branch feed which is the committed feed.
-                double feed = active->shared_9d.profile.computed_feed_scale;
-                double rapid = emcmotStatus ? emcmotStatus->rapid_scale : 1.0;
-                invalidateNextNSegments(tp, INT_MAX);
-                int done = recomputeDownstreamProfiles(tp, feed, rapid,
-                                                       1, alt_exit);
-                // Reset cursor walk to continue from where synchronous recompute stopped
-                g_recompute_cursor = done + 1;
-                g_recompute_feed_scale = feed;
-                g_recompute_rapid_scale = rapid;
-                g_recompute_first_batch_done = false;
-            }
-        }
-    }
 
     // Incremental downstream profile recomputation
     // After a feed change, walk through queued segments a few per tick,
@@ -4395,26 +3800,18 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
             double feed_scale = tpGetSnapshotFeedScale(tc,
                 g_recompute_feed_scale, g_recompute_rapid_scale);
 
-            // Skip if profile already matches target feed
+            // Skip if profile already matches target feed (OLD: feed-only skip)
             double profile_feed = tc->shared_9d.profile.computed_feed_scale;
             if (tc->shared_9d.profile.valid &&
                 fabs(profile_feed - feed_scale) < 0.005) {
-                // Feed matches — but check if entry velocity also matches
-                double expected_v0 = prev_exit_vel * prev_exit_feed_scale;
-                double profile_v0 = tc->shared_9d.profile.v[0];
-                double v0_delta = fabs(profile_v0 - expected_v0);
-                if (v0_delta < 0.5) {
-                    // Both feed and entry velocity match — genuinely up-to-date
-                    if (tc->term_cond == TC_TERM_COND_TANGENT) {
-                        prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
-                        prev_exit_feed_scale = tc->shared_9d.profile.computed_feed_scale;
-                    } else {
-                        prev_exit_vel = 0.0;
-                        prev_exit_feed_scale = 1.0;
-                    }
-                    continue;
+                if (tc->term_cond == TC_TERM_COND_TANGENT) {
+                    prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
+                    prev_exit_feed_scale = tc->shared_9d.profile.computed_feed_scale;
+                } else {
+                    prev_exit_vel = 0.0;
+                    prev_exit_feed_scale = 1.0;
                 }
-                // Fall through to recompute — entry velocity is stale
+                continue;
             }
 
             double v_entry = prev_exit_vel;
@@ -4480,62 +3877,6 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                         if (tc->term_cond == TC_TERM_COND_TANGENT)
                             prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
                         prev_exit_feed_scale = feed_scale;
-
-                        // One-step backtrack: if this segment's entry was
-                        // capped by backward reachability (v[0] < predecessor's
-                        // v[end]), recompute the predecessor with a lower exit
-                        // target so the chain is gap-free at this junction.
-                        // Skip active segment — rewriting triggers STOPWATCH_RESET
-                        // with velocity discontinuity worse than the chain gap.
-                        TC_STRUCT *prev_seg = (i > 0) ? tcqItem_user(queue, i - 1) : NULL;
-                        if (prev_seg && !prev_seg->active
-                            && prev_seg->term_cond == TC_TERM_COND_TANGENT
-                            && prev_seg->shared_9d.profile.valid) {
-                            double prev_v_end = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                            double curr_v0 = tc->shared_9d.profile.v[0];
-                            if (prev_v_end > curr_v0 + 0.01) {
-                                // Set sticky reachability cap (unscaled)
-                                double cap_unscaled = (feed_scale > 0.001)
-                                    ? curr_v0 / feed_scale : -1.0;
-                                atomicStoreDouble(&prev_seg->shared_9d.reachability_exit_cap,
-                                    cap_unscaled);
-                                double p_entry_orig = prev_seg->shared_9d.profile.v[0];
-                                double p_entry = p_entry_orig;
-                                double p_vel_limit = getEffectiveVelLimit(tp, prev_seg);
-                                double p_max_vel = applyVLimit(tp, prev_seg, p_vel_limit * feed_scale);
-                                double p_max_acc = tcGetTangentialMaxAccel_9D_user(prev_seg);
-                                double p_max_jrk = prev_seg->maxjerk > 0 ? prev_seg->maxjerk : default_jerk;
-                                double p_exit = curr_v0;
-                                applyBidirectionalReachability(p_entry, p_exit,
-                                    prev_seg->target, p_max_acc, p_max_jrk);
-                                double p_entry_clamped = p_entry;
-                                // Fix B: try original v0 first — only lower exit.
-                                p_entry = p_entry_orig;
-                                RuckigProfileParams rp_prev = {p_entry, p_exit,
-                                    p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
-                                    feed_scale, p_vel_limit, tp->vLimit, p_exit};
-                                if (computeAndStoreProfile(prev_seg, rp_prev)) {
-                                    prev_seg->shared_9d.profile.dbg_src = 7;  // backtrack(cursor)
-                                    prev_seg->shared_9d.profile.dbg_v0_req = p_entry;
-                                    double actual_exit = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                                    if (fabs(actual_exit - p_exit) > 0.5 ||
-                                        profileHasNegativeVelocity(&prev_seg->shared_9d.profile)) {
-                                        // v0_orig too high — fall back to clamped.
-                                        RuckigProfileParams rp_fb = {p_entry_clamped, p_exit,
-                                            p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
-                                            feed_scale, p_vel_limit, tp->vLimit, p_exit};
-                                        computeAndStoreProfile(prev_seg, rp_fb);
-                                        prev_seg->shared_9d.profile.dbg_src = 7;
-                                        prev_seg->shared_9d.profile.dbg_v0_req = p_entry_clamped;
-                                    }
-                                    atomicStoreInt((int*)&prev_seg->shared_9d.optimization_state,
-                                        TC_PLAN_FINALIZED);
-                                }
-                            } else {
-                                // Junction is clean — clear any stale cap
-                                atomicStoreDouble(&prev_seg->shared_9d.reachability_exit_cap, -1.0);
-                            }
-                        }
                     } else {
                         prev_exit_vel = 0.0;
                         prev_exit_feed_scale = 1.0;
@@ -4555,7 +3896,6 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
         }
 
         if (recomputed > 0) {
-            g_recompute_first_batch_done = true;
             // Update throughput estimate (EMA, alpha=0.3)
             g_segments_per_tick = 0.7 * g_segments_per_tick + 0.3 * recomputed;
         }
@@ -4563,28 +3903,8 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
         // Advance or finish
         if (i >= queue_len) {
             g_recompute_cursor = 0;  // Done — walked entire queue
-            // All segments are now consistently at the cursor walk's feed.
             g_committed_feed = g_recompute_feed_scale;
             g_committed_rapid = g_recompute_rapid_scale;
-
-            // Promote queued feed change if present
-            if (g_next_feed_scale >= 0) {
-                double next_feed = g_next_feed_scale;
-                double next_rapid = g_next_rapid_scale;
-                g_next_feed_scale = -1.0;
-                g_next_rapid_scale = -1.0;
-
-                // Only start new cursor walk if queued feed differs from committed
-                if (fabs(next_feed - g_committed_feed) > 0.005 ||
-                    fabs(next_rapid - g_committed_rapid) > 0.005) {
-                    int commit_seg = estimateCommitSegment(tp, next_feed);
-                    if (commit_seg <= 1) {
-                        // Big active segment: let manageBranches handle it next cycle
-                    } else {
-                        // Defer: manageBranches will re-detect from net_feed_scale
-                    }
-                }
-            }
         } else {
             g_recompute_cursor = i;  // Resume here next tick
         }
@@ -4922,9 +4242,11 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                     prev_exit_feed_scale = feed_scale;
                     prev_exit_vel_known = true;
 
-                    // One-step backtrack: fix backward reachability gap
-                    // Skip active segment — rewriting triggers STOPWATCH_RESET
-                    // with velocity discontinuity worse than the chain gap.
+                    // Set reachability cap on predecessor if its exit exceeds
+                    // what this segment actually achieved as v0.  The cap is
+                    // picked up by readFinalVelCapped() on the next backward
+                    // pass, closing the gap without rewriting the predecessor
+                    // profile (no backtrack).
                     TC_STRUCT *prev_seg = (k < optimization_depth - 1)
                         ? tcqBack_user(queue, -(k+1)) : NULL;
                     if (prev_seg && !prev_seg->active
@@ -4933,47 +4255,13 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                         double prev_v_end = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
                         double curr_v0 = tc->shared_9d.profile.v[0];
                         if (prev_v_end > curr_v0 + 0.01) {
-                            // Set sticky reachability cap (unscaled)
                             double cap_feed = prev_seg->shared_9d.profile.computed_feed_scale;
                             if (cap_feed < 0.001) cap_feed = feed_scale;
                             double cap_unscaled = (cap_feed > 0.001)
                                 ? curr_v0 / cap_feed : -1.0;
                             atomicStoreDouble(&prev_seg->shared_9d.reachability_exit_cap,
                                 cap_unscaled);
-                            double p_entry_orig = prev_seg->shared_9d.profile.v[0];
-                            double p_entry = p_entry_orig;
-                            double p_vel_limit = getEffectiveVelLimit(tp, prev_seg);
-                            double p_feed = cap_feed;
-                            double p_max_vel = applyVLimit(tp, prev_seg, p_vel_limit * p_feed);
-                            double p_max_acc = tcGetTangentialMaxAccel_9D_user(prev_seg);
-                            double p_max_jrk = prev_seg->maxjerk > 0 ? prev_seg->maxjerk : default_jerk;
-                            double p_exit = curr_v0;
-                            applyBidirectionalReachability(p_entry, p_exit,
-                                prev_seg->target, p_max_acc, p_max_jrk);
-                            // Fix B: try original v0 first — only lower exit.
-                            double p_entry_clamped = p_entry;
-                            p_entry = p_entry_orig;
-                            RuckigProfileParams rp_prev = {p_entry, p_exit,
-                                p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
-                                p_feed, p_vel_limit, tp->vLimit, p_exit};
-                            if (computeAndStoreProfile(prev_seg, rp_prev)) {
-                                prev_seg->shared_9d.profile.dbg_src = 7;  // backtrack(fwd)
-                                prev_seg->shared_9d.profile.dbg_v0_req = p_entry;
-                                double actual_exit = prev_seg->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                                if (fabs(actual_exit - p_exit) > 0.5 ||
-                                    profileHasNegativeVelocity(&prev_seg->shared_9d.profile)) {
-                                    RuckigProfileParams rp_fb = {p_entry_clamped, p_exit,
-                                        p_max_vel, p_max_acc, p_max_jrk, prev_seg->target,
-                                        p_feed, p_vel_limit, tp->vLimit, p_exit};
-                                    computeAndStoreProfile(prev_seg, rp_fb);
-                                    prev_seg->shared_9d.profile.dbg_src = 7;
-                                    prev_seg->shared_9d.profile.dbg_v0_req = p_entry_clamped;
-                                }
-                                atomicStoreInt((int*)&prev_seg->shared_9d.optimization_state,
-                                    TC_PLAN_FINALIZED);
-                            }
                         } else {
-                            // Junction is clean — clear any stale cap
                             atomicStoreDouble(&prev_seg->shared_9d.reachability_exit_cap, -1.0);
                         }
                     }
@@ -5179,393 +4467,6 @@ int applyLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
  * Runs lookahead optimization on queued motion segments.
  * This is called from userspace context (NOT RT).
  */
-/**
- * @brief Reconcile near-active junction velocities (Step 4 of optimization).
- *
- * Walks positions 1..head_limit from the queue head (active segment),
- * comparing each segment's profile v0 against its predecessor's exit
- * velocity.  Mismatches are fixed by recomputing the segment's Ruckig
- * profile seeded from the actual predecessor exit, with one-step backtrack
- * when the segment can't accelerate to meet the predecessor.
- *
- * This is the "startup strategy": the backward+forward passes (Steps 1-3)
- * handle the optimizer tail window, while this function handles the head.
- * The two zones must NOT overlap — set optimizer_depth so that the forward
- * pass starts at position >= head_limit + 1.
- *
- * @param tp             Trajectory planner
- * @param queue          Segment queue
- * @param optimizer_depth  Depth used by Steps 1-3 (for head_limit calculation)
- */
-static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
-                                 int optimizer_depth)
-{
-    int queue_len = tcqLen_user(queue);
-    if (g_recompute_cursor != 0 || queue_len <= optimizer_depth) return;
-
-    TC_STRUCT *active = tcqItem_user(queue, 0);
-    if (!active || !active->shared_9d.profile.valid ||
-        active->term_cond != TC_TERM_COND_TANGENT) return;
-
-    // Read active's exit — predict RT's actual exit using the same
-    // sequence-counter machinery as the handoff protocol.  After a branch
-    // is taken RT copies it into tc->shared_9d.profile, so predictStateAtTime
-    // automatically reads whichever profile RT is executing.
-    double head_prev_exit = 0.0;
-    double head_prev_feed = 1.0;
-    int head_bv = 0, head_bt = 0;
-    double head_branch_feed = 0.0;
-    {
-        int bv = __atomic_load_n(&active->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
-        int bt = __atomic_load_n(&active->shared_9d.branch.taken, __ATOMIC_ACQUIRE);
-        head_bv = bv;
-        head_bt = bt;
-        head_branch_feed = active->shared_9d.branch.feed_scale;
-
-        // Predict exit velocity via predictStateAtTime (sequence-counter safe).
-        // Convert from absolute back to (unscaled, feed_scale) for downstream
-        // consumption — the feed-matching and Ruckig recomp logic expects
-        // head_prev_exit * head_prev_feed == absolute velocity.
-        PredictedState exit_state = predictStateAtTime(active, 1e9);
-        if (exit_state.valid && fabs(exit_state.velocity) > TP_VEL_EPSILON) {
-            double abs_vel = fabs(exit_state.velocity);
-            double prof_feed = active->shared_9d.profile.computed_feed_scale;
-            if (prof_feed > 0.001) {
-                head_prev_exit = abs_vel / prof_feed;  // unscaled
-                head_prev_feed = prof_feed;
-            } else {
-                // Feed hold — absolute semantics (spill velocity)
-                head_prev_exit = abs_vel;
-                head_prev_feed = 1.0;
-            }
-        } else {
-            // Fallback: profile may be zeroed or invalid — use branch if available
-            if (bv && active->shared_9d.branch.profile.valid &&
-                active->shared_9d.branch.profile.computed_feed_scale > 0.001) {
-                head_prev_exit = profileExitVelUnscaled(&active->shared_9d.branch.profile);
-                head_prev_feed = active->shared_9d.branch.feed_scale;
-            } else {
-                head_prev_exit = profileExitVelUnscaled(&active->shared_9d.profile);
-                head_prev_feed = active->shared_9d.profile.computed_feed_scale;
-            }
-        }
-
-        // No valid seed: exit is zero and feed is zero — measurement undefined.
-        // Don't overwrite downstream profiles with a meaningless zero.
-        if (head_prev_exit < TP_VEL_EPSILON && head_prev_feed < 0.001) return;
-    }
-
-    double default_jerk_head = (active->maxjerk > 0)
-        ? active->maxjerk : g_handoff_config.default_max_jerk;
-    if (default_jerk_head < 1.0) default_jerk_head = g_handoff_config.default_max_jerk;
-
-    // Dynamic threshold: velocity mismatch that would require one full
-    // jerk impulse to correct in a single servo cycle.
-    double dt = g_handoff_config.servo_cycle_time_sec;
-    double head_fix_threshold = default_jerk_head * dt * dt;
-
-    int head_limit = 8;
-    if (head_limit >= queue_len) head_limit = queue_len - 1;
-    // Don't overlap with optimizer window
-    int gap = queue_len - optimizer_depth;
-    if (head_limit > gap) head_limit = gap;
-
-    // Snapshot initial values from the active segment before the loop
-    // overwrites them.  These are the "ground truth" exit from position 0.
-    double init_hpe = head_prev_exit;
-    double init_hpf = head_prev_feed;
-
-    // Active segment state for diagnostics
-    double active_prof_exit = active->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-    double active_prof_feed = active->shared_9d.profile.computed_feed_scale;
-    double active_fv = atomicLoadDouble(&active->shared_9d.final_vel);
-    int active_id = active->id;
-
-    bool any_recomp = false;
-    for (int i = 1; i <= head_limit; i++) {
-        TC_STRUCT *tc = tcqItem_user(queue, i);
-        if (!tc || tc->target < 1e-9) {
-            head_prev_exit = 0.0;
-            head_prev_feed = 1.0;
-            continue;
-        }
-        if (!tc->shared_9d.profile.valid) {
-            break;
-        }
-
-        double feed_scale = tc->shared_9d.profile.computed_feed_scale;
-        if (feed_scale < 0.001) {
-            if (head_prev_feed < 0.001) break;  // both in hold
-            feed_scale = head_prev_feed;  // storm's over — reforecast
-        }
-
-        // Match predecessor's feed: if a branch exists on the active
-        // segment at a new feed, head_prev_feed carries that feed.
-        // The near-active chain should compute at the same feed as the
-        // predecessor's exit — not the stale g_committed_feed.
-        if (head_prev_feed > 0.001 &&
-            fabs(feed_scale - head_prev_feed) > 0.001) {
-            feed_scale = head_prev_feed;
-        }
-
-        double vel_limit = getEffectiveVelLimit(tp, tc);
-        double max_vel = applyVLimit(tp, tc, vel_limit * feed_scale);
-
-        // Don't cap at max_vel — match cursor walk pattern.
-        // The predecessor's exit is a fact; this segment must accept it
-        // (Ruckig decelerates from above max_vel within the segment).
-        double expected_v0_raw = head_prev_exit * head_prev_feed;
-
-        TC_STRUCT *prev_tc = (i > 1) ? tcqItem_user(queue, i - 1) : active;
-        if (prev_tc && prev_tc->kink_vel > 0)
-            expected_v0_raw = fmin(expected_v0_raw, prev_tc->kink_vel);
-
-        double profile_v0 = tc->shared_9d.profile.v[0];
-
-        // Compute reuse params before threshold check — needed by both
-        // the recompute path and the position-1 alt-entry path.
-        double max_acc = tcGetTangentialMaxAccel_9D_user(tc);
-        double max_jrk = tc->maxjerk > 0 ? tc->maxjerk : default_jerk_head;
-        double v_exit_unscaled = (tc->term_cond == TC_TERM_COND_TANGENT)
-            ? readFinalVelCapped(tc) : 0.0;
-
-        if (fabs(profile_v0 - expected_v0_raw) < head_fix_threshold) {
-            if (tc->term_cond == TC_TERM_COND_TANGENT) {
-                head_prev_exit = profileExitVelUnscaled(&tc->shared_9d.profile);
-                head_prev_feed = tc->shared_9d.profile.computed_feed_scale;
-            } else {
-                head_prev_exit = 0.0;
-                head_prev_feed = 1.0;
-            }
-        } else {
-            // v0 mismatch — recompute this segment's profile
-            any_recomp = true;
-            double scaled_v_exit = fmin(v_exit_unscaled * feed_scale, max_vel);
-            scaled_v_exit = applyKinkVelCap(scaled_v_exit, v_exit_unscaled,
-                max_vel, tc->kink_vel);
-            double desired_fvel = scaled_v_exit;
-
-            double expected_v0 = expected_v0_raw;
-            applyBidirectionalReachability(expected_v0, scaled_v_exit,
-                tc->target, max_acc, max_jrk);
-
-            double unscaled_entry = (feed_scale > 0.001)
-                ? expected_v0 / feed_scale : 0.0;
-            atomicStoreDouble(&tc->shared_9d.entry_vel, unscaled_entry);
-
-            try {
-                // Uncap max_velocity when entry exceeds max_vel —
-                // matches cursor walk pattern (fmax(entry_vel, seg_max_vel)).
-                double ruckig_max_vel = fmax(expected_v0, max_vel);
-                RuckigProfileParams rp = {expected_v0, scaled_v_exit,
-                    ruckig_max_vel, max_acc, max_jrk, tc->target,
-                    feed_scale, vel_limit, tp->vLimit, desired_fvel};
-                if (computeAndStoreProfile(tc, rp)) {
-                    tc->shared_9d.profile.dbg_src = 9;  // safety-check head
-                    tc->shared_9d.profile.dbg_v0_req = expected_v0;
-                    double actual_v0 = tc->shared_9d.profile.v[0];
-                    atomicStoreInt((int*)&tc->shared_9d.optimization_state,
-                        TC_PLAN_FINALIZED);
-
-                    // One-step backtrack: if this segment's actual v0 is
-                    // lower than predecessor's exit (reachability limited),
-                    // lower the predecessor's exit to match.
-                    if (prev_tc && !prev_tc->active
-                        && prev_tc->term_cond == TC_TERM_COND_TANGENT
-                        && prev_tc->shared_9d.profile.valid) {
-                        double prev_exit_scaled = prev_tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                        if (prev_exit_scaled > actual_v0 + 0.01) {
-                            double p_feed = prev_tc->shared_9d.profile.computed_feed_scale;
-                            double cap_unscaled = (p_feed > 0.001)
-                                ? actual_v0 / p_feed : -1.0;
-                            atomicStoreDouble(&prev_tc->shared_9d.reachability_exit_cap,
-                                cap_unscaled);
-
-                            double p_v0 = prev_tc->shared_9d.profile.v[0];
-                            double p_vel_limit = getEffectiveVelLimit(tp, prev_tc);
-                            double p_max_vel = applyVLimit(tp, prev_tc, p_vel_limit * p_feed);
-                            double p_max_acc = tcGetTangentialMaxAccel_9D_user(prev_tc);
-                            double p_max_jrk = prev_tc->maxjerk > 0 ? prev_tc->maxjerk : default_jerk_head;
-                            double p_exit = actual_v0;
-                            double p_desired = p_exit;
-                            applyBidirectionalReachability(p_v0, p_exit,
-                                prev_tc->target, p_max_acc, p_max_jrk);
-                            RuckigProfileParams rp_bt = {p_v0, p_exit,
-                                p_max_vel, p_max_acc, p_max_jrk, prev_tc->target,
-                                p_feed, p_vel_limit, tp->vLimit, p_desired};
-                            if (computeAndStoreProfile(prev_tc, rp_bt)) {
-                                prev_tc->shared_9d.profile.dbg_src = 7;  // backtrack(head)
-                                prev_tc->shared_9d.profile.dbg_v0_req = p_v0;
-                                atomicStoreInt((int*)&prev_tc->shared_9d.optimization_state,
-                                    TC_PLAN_FINALIZED);
-                            }
-                        }
-                    }
-
-                    if (tc->term_cond == TC_TERM_COND_TANGENT) {
-                        head_prev_exit = profileExitVelUnscaled(&tc->shared_9d.profile);
-                        head_prev_feed = feed_scale;
-                    } else {
-                        head_prev_exit = 0.0;
-                        head_prev_feed = 1.0;
-                    }
-                } else {
-                    if (tc->term_cond == TC_TERM_COND_TANGENT && tc->shared_9d.profile.valid) {
-                        head_prev_exit = profileExitVelUnscaled(&tc->shared_9d.profile);
-                        head_prev_feed = tc->shared_9d.profile.computed_feed_scale;
-                    } else {
-                        head_prev_exit = 0.0;
-                        head_prev_feed = 1.0;
-                    }
-                }
-            } catch (...) {
-                head_prev_exit = 0.0;
-                head_prev_feed = 1.0;
-            }
-        }
-
-        // Position 1: cycle-by-cycle trace for spike diagnosis.
-        // Shows the full state every optimization cycle so we can
-        // trace the exact sequence leading to a spike.
-        // init_hpe/init_hpf: active's exit BEFORE the loop touches it
-        // hpe/hpf: AFTER position 1 iteration (may differ if recomputed)
-        if (i == 1) {
-            double live_feed_tr = tpGetSegmentFeedScale(tc);
-            double prof_feed_tr = tc->shared_9d.profile.computed_feed_scale;
-            double new_v0_tr = tc->shared_9d.profile.v[0];
-            double fv_tr = atomicLoadDouble(&tc->shared_9d.final_vel);
-            int src_tr = tc->shared_9d.profile.dbg_src;
-            int recomp_tr = (fabs(profile_v0 - expected_v0_raw) >= head_fix_threshold) ? 1 : 0;
-            int alt_v_tr = __atomic_load_n(&tc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE);
-            double alt_v0_tr = alt_v_tr ? tc->shared_9d.alt_entry.v0 : 0.0;
-            double alt_f_tr = alt_v_tr ? tc->shared_9d.alt_entry.profile.computed_feed_scale : 0.0;
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "POS1_TRACE seg=%d live=%.3f commit=%.3f prof_f=%.3f "
-                "ihpe=%.3f ihpf=%.3f hpe=%.3f hpf=%.3f "
-                "exp_v0=%.3f old_v0=%.3f new_v0=%.3f "
-                "fv=%.3f src=%d rc=%d bv=%d bt=%d bf=%.3f "
-                "alt=%d alt_v0=%.3f alt_f=%.3f "
-                "act=%d apx=%.3f apf=%.3f afv=%.3f\n",
-                tc->id, live_feed_tr, g_committed_feed, prof_feed_tr,
-                init_hpe, init_hpf, head_prev_exit, head_prev_feed,
-                expected_v0_raw,
-                profile_v0, new_v0_tr, fv_tr, src_tr, recomp_tr,
-                head_bv, head_bt, head_branch_feed,
-                alt_v_tr, alt_v0_tr, alt_f_tr,
-                active_id, active_prof_exit, active_prof_feed, active_fv);
-        }
-
-        // Position 1 (junction segment): if the profile's feed doesn't
-        // match the live feed, write an alt-entry at the live feed.
-        // The main chain stays stable at g_committed_feed; the alt
-        // provides v0-proximity rescue at RT handoff.
-        if (i == 1) {
-            double live_feed = tpGetSegmentFeedScale(tc);
-            double prof_feed = tc->shared_9d.profile.computed_feed_scale;
-            int alt_already_valid = __atomic_load_n(&tc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE);
-            double existing_alt_feed = alt_already_valid
-                ? tc->shared_9d.alt_entry.profile.computed_feed_scale : -1.0;
-            bool feed_mismatch = (live_feed > 0.001 && fabs(live_feed - prof_feed) > 0.001);
-
-            if (feed_mismatch) {
-                double alt_max_vel = applyVLimit(tp, tc, vel_limit * live_feed);
-                double alt_v0 = fmin(init_hpe * live_feed, alt_max_vel);
-                if (prev_tc && prev_tc->kink_vel > 0)
-                    alt_v0 = fmin(alt_v0, prev_tc->kink_vel);
-                double alt_exit = (tc->term_cond == TC_TERM_COND_TANGENT)
-                    ? fmin(v_exit_unscaled * live_feed, alt_max_vel) : 0.0;
-                alt_exit = applyKinkVelCap(alt_exit, v_exit_unscaled,
-                    alt_max_vel, tc->kink_vel);
-                applyBidirectionalReachability(alt_v0, alt_exit,
-                    tc->target, max_acc, max_jrk);
-
-                bool should_write = !alt_already_valid ||
-                    (fabs(existing_alt_feed - live_feed) > 0.001);
-
-                try {
-                    ruckig::Ruckig<1> otg(dt);
-                    ruckig::InputParameter<1> alt_input;
-                    ruckig::Trajectory<1> alt_traj;
-                    alt_input.current_position = {0.0};
-                    alt_input.current_velocity = {alt_v0};
-                    alt_input.current_acceleration = {0.0};
-                    alt_input.target_position = {tc->target};
-                    alt_input.target_velocity = {alt_exit};
-                    alt_input.target_acceleration = {0.0};
-                    alt_input.max_velocity = {fmax(alt_v0, alt_max_vel)};
-                    alt_input.max_acceleration = {max_acc};
-                    alt_input.max_jerk = {max_jrk};
-                    auto alt_result = otg.calculate(alt_input, alt_traj);
-                    if (alt_result == ruckig::Result::Working ||
-                        alt_result == ruckig::Result::Finished) {
-                        ruckig_profile_t alt_prof;
-                        memset(&alt_prof, 0, sizeof(alt_prof));
-                        copyRuckigProfile(alt_traj, &alt_prof);
-                        bool neg_vel = profileHasNegativeVelocity(&alt_prof);
-                        if (alt_prof.valid && !neg_vel && should_write) {
-                            alt_prof.computed_feed_scale = live_feed;
-                            alt_prof.computed_vel_limit = vel_limit;
-                            alt_prof.computed_vLimit = tp->vLimit;
-                            alt_prof.computed_desired_fvel = alt_exit;
-                            tc->shared_9d.alt_entry.profile = alt_prof;
-                            tc->shared_9d.alt_entry.v0 = alt_v0;
-                            __atomic_thread_fence(__ATOMIC_RELEASE);
-                            __atomic_store_n(&tc->shared_9d.alt_entry.valid, 1,
-                                __ATOMIC_RELEASE);
-                        } else if (!alt_prof.valid || neg_vel) {
-                            rtapi_print_msg(RTAPI_MSG_ERR,
-                                "POS1_ALT_FAIL seg=%d: live=%.3f prof=%.3f "
-                                "v0=%.3f exit=%.3f max_vel=%.3f target=%.4f "
-                                "valid=%d neg=%d should_write=%d "
-                                "alt_valid=%d alt_feed=%.3f\n",
-                                tc->id, live_feed, prof_feed,
-                                alt_v0, alt_exit, alt_max_vel, tc->target,
-                                (int)alt_prof.valid, (int)neg_vel,
-                                (int)should_write,
-                                alt_already_valid, existing_alt_feed);
-                        }
-                    } else {
-                        rtapi_print_msg(RTAPI_MSG_ERR,
-                            "POS1_ALT_RUCKIG seg=%d: live=%.3f "
-                            "v0=%.3f exit=%.3f max_vel=%.3f target=%.4f "
-                            "result=%d\n",
-                            tc->id, live_feed,
-                            alt_v0, alt_exit, alt_max_vel, tc->target,
-                            (int)alt_result);
-                    }
-                } catch (...) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "POS1_ALT_EXCEPT seg=%d: live=%.3f "
-                        "v0=%.3f exit=%.3f\n",
-                        tc->id, live_feed, alt_v0, alt_exit);
-                }
-            }
-        }
-
-        // Trace for positions > 1: log recomputes deeper in the chain.
-        // Catches convergence oscillations and spikes at segments beyond
-        // position 1 (e.g., tiny segments with kink constraints).
-        if (i > 1) {
-            int recomp_n = (fabs(profile_v0 - expected_v0_raw) >= head_fix_threshold) ? 1 : 0;
-            if (recomp_n) {
-                double new_v0_n = tc->shared_9d.profile.v[0];
-                double new_exit_n = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-                double fv_n = atomicLoadDouble(&tc->shared_9d.final_vel);
-                int src_n = tc->shared_9d.profile.dbg_src;
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "POSN_TRACE pos=%d seg=%d f=%.3f "
-                    "exp_v0=%.3f old_v0=%.3f new_v0=%.3f "
-                    "exit=%.3f fv=%.3f kink=%.3f tgt=%.4f src=%d\n",
-                    i, tc->id, feed_scale,
-                    expected_v0_raw, profile_v0, new_v0_n,
-                    new_exit_n, fv_n, tc->kink_vel, tc->target, src_n);
-            }
-        }
-    }
-    g_near_active_converged = !any_recomp;
-    if (g_near_active_converged) g_pending_feed_absorb = false;
-}
-
 extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int optimization_depth)
 {
     if (!tp) return -1;
@@ -5607,13 +4508,8 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int optimizatio
     result = computeRuckigProfiles_9D(tp, queue, depth);
     if (result != 0) return result;
 
-    // Step 4: Near-active v0 reconciliation — delegated to helper.
-    // Fixes junction velocity mismatches in positions 1..8 from the head,
-    // which fall outside the optimizer window (Steps 1-3).
-    reconcileNearActive(tp, queue, depth);
-
-    // Step 5 removed — junction safety gate in manageBranches() prevents
-    // feed changes near imminent junctions, making priority alts unnecessary.
+    // Steps 1-3 cover the full queue depth — backward+forward passes
+    // write all profiles including near-active segments.
 
     return 0;
 }
@@ -5666,9 +4562,6 @@ extern "C" int tpClearPlanning_9D(TP_STRUCT * const tp)
     g_recompute_cursor = 0;
     g_recompute_feed_scale = 1.0;
     g_recompute_rapid_scale = 1.0;
-    g_recompute_first_batch_done = false;
-    g_next_feed_scale = -1.0;
-    g_next_rapid_scale = -1.0;
     g_commit_segment = 1;
     g_segments_per_tick = 3.0;
     g_adaptive_horizon = AdaptiveHorizon();
