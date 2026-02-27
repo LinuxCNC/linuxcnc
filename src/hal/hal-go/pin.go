@@ -5,10 +5,15 @@ package hal
 */
 import "C"
 import (
+	"encoding/binary"
 	"fmt"
 	"sync"
 	"unsafe"
 )
+
+// portFrameHeaderSize is the number of bytes used for the length prefix in the
+// HAL_PORT framing protocol for string pins (4-byte big-endian uint32).
+const portFrameHeaderSize = 4
 
 // Pin represents a HAL pin with type-safe access.
 //
@@ -16,8 +21,8 @@ import (
 // linked to signals, which allow components to exchange data. The generic
 // type parameter T ensures type safety at compile time.
 //
-// Type T must be one of: bool, float64, int32, uint32 (matching HAL types
-// HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32).
+// Type T must be one of: bool, float64, int32, uint32, string (matching HAL types
+// HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32, HAL_PORT).
 type Pin[T PinValue] struct {
 	// name is the fully-qualified pin name (e.g., "component.pinname").
 	name string
@@ -50,6 +55,7 @@ type Pin[T PinValue] struct {
 //   - float64 -> hal_pin_float_new()
 //   - int32 -> hal_pin_s32_new()
 //   - uint32 -> hal_pin_u32_new()
+//   - string -> hal_pin_port_new()
 //
 // Type inference example:
 //   pin, err := NewPin[float64](comp, "speed", hal.In)
@@ -91,6 +97,10 @@ func NewPin[T PinValue](c *Component, name string, dir Direction) (*Pin[T], erro
 		err = e
 	case uint32:
 		cPtr, e := halPinU32New(fullName, dir, c.id)
+		ptr = unsafe.Pointer(cPtr)
+		err = e
+	case string:
+		cPtr, e := halPinPortNew(fullName, dir, c.id)
 		ptr = unsafe.Pointer(cPtr)
 		err = e
 	default:
@@ -144,6 +154,33 @@ func (p *Pin[T]) Get() T {
 		cPtr := (*C.hal_u32_t)(p.ptr)
 		val := uint32(*cPtr)
 		return any(val).(T)
+	case string:
+		// String pins use HAL_PORT with 4-byte big-endian length-prefix framing.
+		// Use peek (non-consuming) so repeated Get() calls return the same value.
+		portPtr := (*C.hal_port_t)(p.ptr)
+		readable := halPortReadable(portPtr)
+		if readable < portFrameHeaderSize {
+			return any("").(T)
+		}
+		header := halPortPeek(portPtr, portFrameHeaderSize)
+		if header == nil {
+			return any("").(T)
+		}
+		length := binary.BigEndian.Uint32(header)
+		// Guard against overflow: length near MaxUint32 would wrap when adding the header size.
+		if length > ^uint32(0)-portFrameHeaderSize {
+			return any("").(T)
+		}
+		total := uint(portFrameHeaderSize) + uint(length)
+		// Bounds check: total must not exceed available data to prevent excessive allocation.
+		if readable < total {
+			return any("").(T)
+		}
+		frame := halPortPeek(portPtr, total)
+		if frame == nil {
+			return any("").(T)
+		}
+		return any(string(frame[portFrameHeaderSize:])).(T)
 	default:
 		// Should never happen due to PinValue constraint
 		return *new(T)
@@ -180,6 +217,17 @@ func (p *Pin[T]) Set(value T) {
 		// HAL U32 is stored as hal_u32_t (C uint32_t)
 		cPtr := (*C.hal_u32_t)(p.ptr)
 		*cPtr = C.hal_u32_t(any(value).(uint32))
+	case string:
+		// String pins use HAL_PORT with 4-byte big-endian length-prefix framing.
+		// Clear first for "latest value" semantics, then write the framed message.
+		portPtr := (*C.hal_port_t)(p.ptr)
+		halPortClear(portPtr)
+		str := any(value).(string)
+		strBytes := []byte(str)
+		frame := make([]byte, portFrameHeaderSize+len(strBytes))
+		binary.BigEndian.PutUint32(frame[:portFrameHeaderSize], uint32(len(strBytes)))
+		copy(frame[portFrameHeaderSize:], strBytes)
+		halPortWrite(portPtr, frame)
 	}
 }
 
@@ -206,6 +254,8 @@ func (p *Pin[T]) Type() PinType {
 		return TypeS32
 	case uint32:
 		return TypeU32
+	case string:
+		return TypePort
 	default:
 		return -1 // Should never happen due to PinValue constraint
 	}

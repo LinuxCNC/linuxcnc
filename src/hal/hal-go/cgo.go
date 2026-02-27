@@ -12,6 +12,20 @@ static inline int get_hal_type(hal_type_t t) { return (int)t; }
 
 // Helper to convert hal_pin_dir_t to int for Go
 static inline int get_hal_dir(hal_pin_dir_t d) { return (int)d; }
+
+// Port helper wrappers: take hal_port_t* and dereference for the C API.
+static inline bool go_hal_port_write(hal_port_t* p, const char* src, unsigned count) {
+    return hal_port_write(*p, src, count);
+}
+static inline bool go_hal_port_peek(hal_port_t* p, char* dest, unsigned count) {
+    return hal_port_peek(*p, dest, count);
+}
+static inline unsigned go_hal_port_readable(hal_port_t* p) {
+    return hal_port_readable(*p);
+}
+static inline void go_hal_port_clear(hal_port_t* p) {
+    hal_port_clear(*p);
+}
 */
 import "C"
 import (
@@ -144,6 +158,64 @@ func halPinU32New(name string, dir Direction, compID int) (*C.hal_u32_t, error) 
 
 	// Return the pointer to the actual pin data
 	return *ptrPtr, nil
+}
+
+// halPinPortNew wraps hal_pin_port_new() to create a new port pin.
+// Returns a pointer to the HAL shared memory for the port handle.
+func halPinPortNew(name string, dir Direction, compID int) (*C.hal_port_t, error) {
+	cName := C.CString(name)
+	defer C.free(unsafe.Pointer(cName))
+
+	// Allocate space for the pointer in HAL shared memory
+	// hal_pin_port_new expects hal_port_t**, so we need sizeof(hal_port_t *)
+	ptrPtr := (**C.hal_port_t)(halMalloc(int(unsafe.Sizeof((*C.hal_port_t)(nil)))))
+	if ptrPtr == nil {
+		return nil, newError("hal_malloc", "failed to allocate HAL shared memory", -12)
+	}
+
+	// hal_pin_port_new will set *ptrPtr to point to the actual data
+	ret := C.hal_pin_port_new(cName, C.hal_pin_dir_t(dir), ptrPtr, C.int(compID))
+	if ret < 0 {
+		return nil, halError(int(ret), "hal_pin_port_new")
+	}
+
+	// Return the pointer to the actual port handle in HAL shared memory
+	return *ptrPtr, nil
+}
+
+// halPortWrite writes data bytes to the port referenced by portPtr.
+// Returns true if all bytes were written successfully.
+func halPortWrite(portPtr *C.hal_port_t, data []byte) bool {
+	if len(data) == 0 {
+		// Nothing to write; avoid passing a nil/empty-slice pointer to the C function.
+		return true
+	}
+	ret := C.go_hal_port_write(portPtr, (*C.char)(unsafe.SliceData(data)), C.uint(len(data)))
+	return bool(ret)
+}
+
+// halPortPeek reads count bytes from the port without consuming them.
+// Returns the bytes read, or nil if not enough data is available.
+func halPortPeek(portPtr *C.hal_port_t, count uint) []byte {
+	if count == 0 {
+		return []byte{}
+	}
+	buf := make([]byte, count)
+	ret := C.go_hal_port_peek(portPtr, (*C.char)(unsafe.SliceData(buf)), C.uint(count))
+	if !bool(ret) {
+		return nil
+	}
+	return buf
+}
+
+// halPortReadable returns the number of bytes available to read from the port.
+func halPortReadable(portPtr *C.hal_port_t) uint {
+	return uint(C.go_hal_port_readable(portPtr))
+}
+
+// halPortClear empties the port of all data.
+func halPortClear(portPtr *C.hal_port_t) {
+	C.go_hal_port_clear(portPtr)
 }
 
 // halError translates a HAL C error code to a Go error.

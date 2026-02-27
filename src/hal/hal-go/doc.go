@@ -83,6 +83,7 @@ HAL supports several data types for pins:
   - float64 (HAL_FLOAT): 64-bit floating point
   - int32 (HAL_S32): Signed 32-bit integer
   - uint32 (HAL_U32): Unsigned 32-bit integer
+  - string (HAL_PORT): Variable-length UTF-8 strings via port buffering
 
 Pins are created using the generic NewPin[T]() function, which provides
 compile-time type safety:
@@ -91,6 +92,7 @@ compile-time type safety:
 	floatPin, _ := hal.NewPin[float64](comp, "velocity", hal.Out)
 	int32Pin, _ := hal.NewPin[int32](comp, "count", hal.IO)
 	uint32Pin, _ := hal.NewPin[uint32](comp, "status", hal.Out)
+	strPin, _ := hal.NewPin[string](comp, "message", hal.Out)
 
 # Pin Directions
 
