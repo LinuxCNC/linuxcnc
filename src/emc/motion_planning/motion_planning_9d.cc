@@ -2002,8 +2002,12 @@ void invalidateNextNSegments(TP_STRUCT *tp, int n, int start_index)
     }
 }
 
-// Forward declaration (defined below)
+// Forward declarations (defined below)
 static bool profileHasNegativeVelocity(const ruckig_profile_t *profile, double threshold = -0.01);
+static void computeSpillOver(const ruckig_profile_t *profile, double remaining_dist,
+                             double *spill_vel, double *spill_acc);
+static int writeSpillOverStopProfiles(TP_STRUCT *tp, TC_STRUCT *tc,
+                                      double *out_spill_vel);
 
 /**
  * @brief Backward fixup pass: cap each segment's exit to what successor accepts.
@@ -3111,7 +3115,9 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         int branch_valid = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
         int branch_taken = __atomic_load_n(&tc->shared_9d.branch.taken, __ATOMIC_ACQUIRE);
         if (!branch_valid && !branch_taken) {
-            computeBranch(tp, tc, 0.0);
+            if (computeBranch(tp, tc, 0.0)) {
+                writeSpillOverStopProfiles(tp, tc, NULL);
+            }
         }
         return;  // Don't process feed override while pausing/aborting
     }
@@ -3505,6 +3511,122 @@ static void computeSpillOver(const ruckig_profile_t *profile,
 }
 
 /**
+ * @brief Write velocity-control stop profiles to downstream segments that
+ *        a brake branch may spill into.
+ *
+ * Called from both the pause path (manageBranches) and the abort path
+ * (tpRequestAbortBranch_9D) after computeBranch(tp, tc, 0.0) succeeds.
+ * Without this, RT crosses junctions using stale main profiles (e.g. v0=50)
+ * while the machine is decelerating (actual v~40), causing jerk spikes.
+ *
+ * @param tp   Trajectory planner structure
+ * @param tc   Active segment with a valid brake branch
+ * @param out_spill_vel  If non-NULL, receives the initial spill-over velocity
+ *                       from the brake into the first downstream segment
+ * @return Number of downstream segments written (0 if no spill-over)
+ */
+static int writeSpillOverStopProfiles(TP_STRUCT *tp, TC_STRUCT *tc,
+                                      double *out_spill_vel)
+{
+    double remaining = tc->target - tc->shared_9d.branch.handoff_position;
+    double spill_vel = 0.0, spill_acc = 0.0;
+    computeSpillOver(&tc->shared_9d.branch.profile, remaining,
+                     &spill_vel, &spill_acc);
+
+    if (out_spill_vel) *out_spill_vel = spill_vel;
+    if (spill_vel < TP_VEL_EPSILON) return 0;
+
+    TC_QUEUE_STRUCT *queue = &tp->queue;
+    int queue_len = tcqLen_user(queue);
+    double default_jerk = tc->maxjerk > 0
+        ? tc->maxjerk : g_handoff_config.default_max_jerk;
+    double entry_vel = spill_vel;
+    double entry_acc = spill_acc;
+    int count = 0;
+
+    for (int i = 1; i < queue_len && entry_vel > TP_VEL_EPSILON; i++) {
+        TC_STRUCT *next = tcqItem_user(queue, i);
+        if (!next || next->target < 1e-9) break;
+
+        double vlim = getEffectiveVelLimit(tp, next);
+        double max_jrk = next->maxjerk > 0 ? next->maxjerk : default_jerk;
+
+        // Clamp entry acceleration to prevent negative velocity in Ruckig profile.
+        // Physics: v_min = v0 - 0.5*a0²/jerk >= 0  →  |a0| <= sqrt(2*v0*jerk).
+        // Also clamp to segment's maxaccel (inherited operating envelope).
+        double clamped_acc = entry_acc;
+        if (clamped_acc < 0 && entry_vel > 0) {
+            double physics_limit = sqrt(2.0 * entry_vel * max_jrk);
+            if (clamped_acc < -physics_limit)
+                clamped_acc = -physics_limit;
+        }
+        if (clamped_acc < -next->maxaccel) clamped_acc = -next->maxaccel;
+        if (clamped_acc > next->maxaccel) clamped_acc = next->maxaccel;
+
+        try {
+            ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
+            ruckig::InputParameter<1> input;
+            ruckig::Trajectory<1> traj;
+
+            input.control_interface = ruckig::ControlInterface::Velocity;
+            input.current_position = {0.0};
+            input.current_velocity = {entry_vel};
+            input.current_acceleration = {clamped_acc};
+            input.target_velocity = {0.0};
+            input.target_acceleration = {0.0};
+            input.max_velocity = {vlim};
+            input.max_acceleration = {next->maxaccel};
+            input.max_jerk = {max_jrk};
+
+            auto result = otg.calculate(input, traj);
+            if (result != ruckig::Result::Working &&
+                result != ruckig::Result::Finished) break;
+
+            ruckig_profile_t stop_profile;
+            memset(&stop_profile, 0, sizeof(stop_profile));
+            copyRuckigProfile(traj, &stop_profile);
+            if (!stop_profile.valid ||
+                profileHasNegativeVelocity(&stop_profile)) {
+                // Retry with zero acceleration — the inherited deceleration
+                // is too aggressive (velocity overshoots past zero before
+                // jerk can reverse the acceleration).
+                if (clamped_acc != 0.0) {
+                    input.current_acceleration = {0.0};
+                    result = otg.calculate(input, traj);
+                    if (result == ruckig::Result::Working ||
+                        result == ruckig::Result::Finished) {
+                        memset(&stop_profile, 0, sizeof(stop_profile));
+                        copyRuckigProfile(traj, &stop_profile);
+                    }
+                }
+                if (!stop_profile.valid ||
+                    profileHasNegativeVelocity(&stop_profile)) break;
+            }
+            stop_profile.computed_feed_scale = 0.0;
+            stop_profile.computed_vel_limit = vlim;
+            stop_profile.computed_vLimit = tp->vLimit;
+
+            // Check if this stop profile also spills over this segment
+            computeSpillOver(&stop_profile, next->target,
+                             &entry_vel, &entry_acc);
+
+            // Write the stop profile to this downstream segment
+            __atomic_store_n(&next->shared_9d.profile.valid, 0, __ATOMIC_RELEASE);
+            __atomic_thread_fence(__ATOMIC_SEQ_CST);
+            next->shared_9d.profile = stop_profile;
+            __atomic_thread_fence(__ATOMIC_SEQ_CST);
+            __atomic_store_n(&next->shared_9d.profile.valid, 1, __ATOMIC_RELEASE);
+            atomicStoreInt((int*)&next->shared_9d.optimization_state,
+                           TC_PLAN_FINALIZED);
+            count++;
+        } catch (...) {
+            break;
+        }
+    }
+    return count;
+}
+
+/**
  * @brief Request a stop branch for abort (called from task layer)
  *
  * Called by emcTrajAbort() in the task thread BEFORE the EMCMOT_ABORT
@@ -3550,115 +3672,7 @@ extern "C" int tpRequestAbortBranch_9D(TP_STRUCT *tp)
     // so no atomics needed — no race by construction.
     tp->abort_profiles_written = 1;
 
-    // Check if the stop profile spills over the active segment boundary.
-    // The stop branch is now in tc->shared_9d.branch.profile.
-    double remaining = tc->target - tc->shared_9d.branch.handoff_position;
-    double spill_vel, spill_acc;
-    computeSpillOver(&tc->shared_9d.branch.profile, remaining,
-                     &spill_vel, &spill_acc);
-
-    if (spill_vel < TP_VEL_EPSILON) {
-        // Stopping distance fits within active segment — no spill-over needed
-        return 0;
-    }
-
-    // Spill-over: the active segment's stop profile can't stop in time.
-    // Write velocity-control stop profiles to downstream segments that
-    // continue the deceleration from the spill-over point.
-    TC_QUEUE_STRUCT *queue = &tp->queue;
-    int queue_len = tcqLen_user(queue);
-    double default_jerk = tc->maxjerk > 0 ? tc->maxjerk : g_handoff_config.default_max_jerk;
-
-    double entry_vel = spill_vel;
-    double entry_acc = spill_acc;
-
-    int spill_count = 0;
-    for (int i = 1; i < queue_len && entry_vel > TP_VEL_EPSILON; i++) {
-        TC_STRUCT *next = tcqItem_user(queue, i);
-        if (!next || next->target < 1e-9) break;
-
-        double vel_limit = getEffectiveVelLimit(tp, next);
-        double max_jrk = next->maxjerk > 0 ? next->maxjerk : default_jerk;
-
-        // Clamp entry acceleration to prevent negative velocity in Ruckig profile.
-        // Physics: v_min = v0 - 0.5*a0²/jerk >= 0  →  |a0| <= sqrt(2*v0*jerk).
-        // At discrete time steps velocity is v_min + j*dt²/8 > v_min, so the
-        // continuous-time limit is sufficient without a safety factor.
-        // Also clamp to segment's maxaccel (inherited operating envelope).
-        double clamped_acc = entry_acc;
-        if (clamped_acc < 0 && entry_vel > 0) {
-            double physics_limit = sqrt(2.0 * entry_vel * max_jrk);
-            if (clamped_acc < -physics_limit) {
-                clamped_acc = -physics_limit;
-            }
-        }
-        if (clamped_acc < -next->maxaccel) clamped_acc = -next->maxaccel;
-        if (clamped_acc > next->maxaccel) clamped_acc = next->maxaccel;
-
-        try {
-            ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
-            ruckig::InputParameter<1> input;
-            ruckig::Trajectory<1> traj;
-
-
-            input.control_interface = ruckig::ControlInterface::Velocity;
-            input.current_position = {0.0};
-            input.current_velocity = {entry_vel};
-            input.current_acceleration = {clamped_acc};
-            input.target_velocity = {0.0};
-            input.target_acceleration = {0.0};
-            input.max_velocity = {vel_limit};
-            input.max_acceleration = {next->maxaccel};
-            input.max_jerk = {max_jrk};
-
-            auto result = otg.calculate(input, traj);
-            if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                break;
-            }
-
-            ruckig_profile_t stop_profile;
-            memset(&stop_profile, 0, sizeof(stop_profile));
-            copyRuckigProfile(traj, &stop_profile);
-            if (!stop_profile.valid || profileHasNegativeVelocity(&stop_profile)) {
-                // Retry with zero acceleration — the inherited deceleration
-                // is too aggressive (velocity overshoots past zero before
-                // jerk can reverse the acceleration).
-                if (clamped_acc != 0.0) {
-                    clamped_acc = 0.0;
-                    input.current_acceleration = {0.0};
-                    result = otg.calculate(input, traj);
-                    if (result == ruckig::Result::Working ||
-                        result == ruckig::Result::Finished) {
-                        memset(&stop_profile, 0, sizeof(stop_profile));
-                        copyRuckigProfile(traj, &stop_profile);
-                    }
-                }
-                if (!stop_profile.valid || profileHasNegativeVelocity(&stop_profile)) {
-                    break;
-                }
-            }
-            stop_profile.computed_feed_scale = 0.0;
-            stop_profile.computed_vel_limit = vel_limit;
-            stop_profile.computed_vLimit = tp->vLimit;
-
-            // Check if this stop profile also spills over this segment
-            computeSpillOver(&stop_profile, next->target,
-                             &entry_vel, &entry_acc);
-
-            // Write the stop profile to this downstream segment
-            __atomic_store_n(&next->shared_9d.profile.valid, 0, __ATOMIC_RELEASE);
-            __atomic_thread_fence(__ATOMIC_SEQ_CST);
-            next->shared_9d.profile = stop_profile;
-            __atomic_thread_fence(__ATOMIC_SEQ_CST);
-            __atomic_store_n(&next->shared_9d.profile.valid, 1, __ATOMIC_RELEASE);
-            atomicStoreInt((int*)&next->shared_9d.optimization_state, TC_PLAN_FINALIZED);
-
-            spill_count++;
-
-        } catch (...) {
-            break;
-        }
-    }
+    writeSpillOverStopProfiles(tp, tc, NULL);
     return 0;
 }
 
@@ -4115,6 +4129,25 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
                     tc->shared_9d.branch.profile.computed_feed_scale > 0.001) {
                     prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.branch.profile);
                     prev_exit_feed_scale = tc->shared_9d.branch.feed_scale;
+                } else if (bv && tc->shared_9d.branch.profile.valid &&
+                           tc->shared_9d.branch.profile.computed_feed_scale < 0.001) {
+                    // Brake/hold branch (pause, abort, feed hold): the branch
+                    // decelerates to 0 but may spill over the segment boundary.
+                    // Compute the velocity at the boundary so downstream profiles
+                    // get a correct entry velocity instead of the stale main
+                    // profile exit (~50 mm/s when the machine is actually stopping).
+                    double handoff_pos = tc->shared_9d.branch.handoff_position;
+                    double remaining = tc->target - handoff_pos;
+                    if (remaining > 1e-6) {
+                        double spill_vel = 0.0, spill_acc = 0.0;
+                        computeSpillOver(&tc->shared_9d.branch.profile, remaining,
+                                         &spill_vel, &spill_acc);
+                        prev_exit_vel = spill_vel;
+                        prev_exit_feed_scale = 1.0;  // spill_vel is absolute
+                    } else {
+                        prev_exit_vel = 0.0;
+                        prev_exit_feed_scale = 1.0;
+                    }
                 } else {
                     prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
                     prev_exit_feed_scale = tc->shared_9d.profile.computed_feed_scale;
