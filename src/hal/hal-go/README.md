@@ -116,6 +116,7 @@ The package supports all HAL data types through Go's generics:
 | `float64` | `HAL_FLOAT`| 64-bit floating point    |
 | `int32`   | `HAL_S32`  | Signed 32-bit integer    |
 | `uint32`  | `HAL_U32`  | Unsigned 32-bit integer  |
+| `string`  | `HAL_PORT` | Variable-length string   |
 
 ### Pin Directions
 
@@ -133,6 +134,7 @@ boolPin, _   := hal.NewPin[bool](comp, "enable", hal.In)
 floatPin, _  := hal.NewPin[float64](comp, "speed", hal.Out)
 int32Pin, _  := hal.NewPin[int32](comp, "count", hal.IO)
 uint32Pin, _ := hal.NewPin[uint32](comp, "state", hal.Out)
+strPin, _    := hal.NewPin[string](comp, "message", hal.Out)
 ```
 
 ### Reading and Writing Pins

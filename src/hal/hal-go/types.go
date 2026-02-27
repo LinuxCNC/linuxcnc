@@ -48,6 +48,10 @@ const (
 
 	// TypeU32 represents an unsigned 32-bit integer (HAL_U32 = 4).
 	TypeU32 PinType = 4
+
+	// TypePort represents a byte-stream port (HAL_PORT = 5).
+	// Used as the underlying transport for string pins.
+	TypePort PinType = 5
 )
 
 // String returns the string representation of the pin type.
@@ -61,6 +65,8 @@ func (t PinType) String() string {
 		return "S32"
 	case TypeU32:
 		return "U32"
+	case TypePort:
+		return "PORT"
 	default:
 		return "UNKNOWN"
 	}
@@ -69,5 +75,5 @@ func (t PinType) String() string {
 // PinValue is a type constraint for values that can be stored in HAL pins.
 // These correspond to the actual HAL data types supported by LinuxCNC.
 type PinValue interface {
-	bool | float64 | int32 | uint32
+	bool | float64 | int32 | uint32 | string
 }
