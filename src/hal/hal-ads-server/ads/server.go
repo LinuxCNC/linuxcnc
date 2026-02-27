@@ -2,14 +2,19 @@ package ads
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"sync"
+	"time"
 )
 
-// Server is an ADS TCP server. It accepts TwinCAT HMI connections, parses
+// readDeadlineInterval is the duration of each read deadline on active connections.
+// Using a short deadline allows Stop() to interrupt blocked reads without needing
+// per-connection close calls for normal shutdown paths.
+const readDeadlineInterval = 100 * time.Millisecond
 // AMS/TCP packets, and dispatches ADS commands to a SymbolTable.
 type Server struct {
 	addr     string
@@ -20,6 +25,8 @@ type Server struct {
 	listener net.Listener
 	wg       sync.WaitGroup
 	quit     chan struct{}
+	connsMu  sync.Mutex
+	conns    map[net.Conn]struct{}
 }
 
 // NewServer creates a new ADS server listening on addr (e.g. ":48898").
@@ -32,6 +39,7 @@ func NewServer(addr string, netID AMSNetID, port uint16, symbols *SymbolTable, v
 		symbols: symbols,
 		verbose: verbose,
 		quit:    make(chan struct{}),
+		conns:   make(map[net.Conn]struct{}),
 	}
 }
 
@@ -50,12 +58,18 @@ func (s *Server) Start() error {
 	return nil
 }
 
-// Stop closes the listener and waits for all connection goroutines to finish.
+// Stop closes the listener and all active connections, then waits for all
+// connection goroutines to finish.
 func (s *Server) Stop() {
 	close(s.quit)
 	if s.listener != nil {
 		s.listener.Close()
 	}
+	s.connsMu.Lock()
+	for conn := range s.conns {
+		conn.Close()
+	}
+	s.connsMu.Unlock()
 	s.wg.Wait()
 }
 
@@ -83,13 +97,35 @@ func (s *Server) handleConn(conn net.Conn) {
 	defer s.wg.Done()
 	defer conn.Close()
 
+	s.connsMu.Lock()
+	s.conns[conn] = struct{}{}
+	s.connsMu.Unlock()
+	defer func() {
+		s.connsMu.Lock()
+		delete(s.conns, conn)
+		s.connsMu.Unlock()
+	}()
+
 	if s.verbose {
 		log.Printf("ADS connection from %s", conn.RemoteAddr())
 	}
 
 	for {
+		// Use a short read deadline so Stop() can interrupt blocked reads promptly.
+		conn.SetReadDeadline(time.Now().Add(readDeadlineInterval))
+
 		hdr, payload, err := readAMSPacket(conn)
 		if err != nil {
+			// Check if this is just a timeout — if not shutting down, retry.
+			var netErr net.Error
+			if errors.As(err, &netErr) && netErr.Timeout() {
+				select {
+				case <-s.quit:
+					return
+				default:
+					continue
+				}
+			}
 			if err == io.EOF {
 				if s.verbose {
 					log.Printf("ADS client %s disconnected", conn.RemoteAddr())

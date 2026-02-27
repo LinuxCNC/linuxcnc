@@ -2,6 +2,7 @@ package ads
 
 import (
 	"encoding/binary"
+	"strings"
 	"sync"
 )
 
@@ -89,11 +90,12 @@ func (st *SymbolTable) GetByHandle(handle uint32) *Symbol {
 
 // CreateHandle allocates a new handle for the named symbol.
 // Returns the handle and ErrNoSymbol if the name is not found.
+// Name lookup uses findSymbolWithFallback for prefix/case-insensitive matching.
 func (st *SymbolTable) CreateHandle(name string) (uint32, uint32) {
 	st.mu.Lock()
 	defer st.mu.Unlock()
 
-	sym := st.byName[name]
+	sym := st.findSymbolWithFallback(name)
 	if sym == nil {
 		return 0, ErrNoSymbol
 	}
@@ -176,11 +178,7 @@ func (st *SymbolTable) WriteData(indexGroup, indexOffset uint32, data []byte) ui
 		return writeSymbol(sym, data)
 
 	case IdxGrpReleaseHandle:
-		if len(data) < 4 {
-			return ErrInternal
-		}
-		handle := binary.LittleEndian.Uint32(data[:4])
-		return st.ReleaseHandle(handle)
+		return st.ReleaseHandle(indexOffset)
 
 	default:
 		return ErrNoSymbol
@@ -192,8 +190,8 @@ func (st *SymbolTable) WriteData(indexGroup, indexOffset uint32, data []byte) ui
 func (st *SymbolTable) ReadWriteData(indexGroup, indexOffset, readLen uint32, writeData []byte) ([]byte, uint32) {
 	switch indexGroup {
 	case IdxGrpSymbolHandleByName:
-		// writeData contains the symbol name; response is the 4-byte handle.
-		name := string(writeData)
+		// writeData contains the symbol name (null-terminated); response is the 4-byte handle.
+		name := strings.TrimRight(string(writeData), "\x00")
 		handle, errCode := st.CreateHandle(name)
 		if errCode != ErrNoError {
 			return nil, errCode
@@ -203,15 +201,66 @@ func (st *SymbolTable) ReadWriteData(indexGroup, indexOffset, readLen uint32, wr
 		return buf, ErrNoError
 
 	case IdxGrpSymbolInfoByName:
-		name := string(writeData)
+		name := strings.TrimRight(string(writeData), "\x00")
 		st.mu.RLock()
-		sym := st.byName[name]
+		sym := st.findSymbolWithFallback(name)
 		st.mu.RUnlock()
 		if sym == nil {
 			return nil, ErrNoSymbol
 		}
-		info := buildSymbolInfo(sym)
-		return info, ErrNoError
+		// Compact response: client only wants IndexGroup + IndexOffset + Size (12 bytes).
+		if readLen == 12 {
+			buf := make([]byte, 12)
+			binary.LittleEndian.PutUint32(buf[0:4], sym.IndexGroup)
+			binary.LittleEndian.PutUint32(buf[4:8], sym.IndexOffset)
+			binary.LittleEndian.PutUint32(buf[8:12], sym.Accessor.Size())
+			return buf, ErrNoError
+		}
+		// Full symbol info response.
+		return buildSymbolInfo(sym), ErrNoError
+
+	case IdxGrpSumRead:
+		// indexOffset = number of read sub-requests.
+		// writeData = N × 12 bytes: IndexGroup(4) + IndexOffset(4) + Length(4).
+		// Response = N × 4-byte error codes, then concatenated data for successful reads.
+		numReads := indexOffset
+		type readResult struct {
+			errCode uint32
+			data    []byte
+		}
+		results := make([]readResult, numReads)
+		for i := uint32(0); i < numReads; i++ {
+			off := i * 12
+			if off+12 > uint32(len(writeData)) {
+				results[i] = readResult{errCode: ErrInternal}
+				continue
+			}
+			ig := binary.LittleEndian.Uint32(writeData[off:])
+			io := binary.LittleEndian.Uint32(writeData[off+4:])
+			ln := binary.LittleEndian.Uint32(writeData[off+8:])
+			data, ec := st.ReadData(ig, io, ln)
+			results[i] = readResult{errCode: ec, data: data}
+		}
+		// Build response: all error codes first, then all data payloads.
+		totalLen := numReads * 4
+		for _, r := range results {
+			if r.errCode == ErrNoError {
+				totalLen += uint32(len(r.data))
+			}
+		}
+		resp := make([]byte, totalLen)
+		pos := 0
+		for _, r := range results {
+			binary.LittleEndian.PutUint32(resp[pos:], r.errCode)
+			pos += 4
+		}
+		for _, r := range results {
+			if r.errCode == ErrNoError && len(r.data) > 0 {
+				copy(resp[pos:], r.data)
+				pos += len(r.data)
+			}
+		}
+		return resp, ErrNoError
 
 	default:
 		return nil, ErrNoSymbol
@@ -264,8 +313,9 @@ func writeSymbol(sym *Symbol, data []byte) uint32 {
 func buildSymbolInfo(sym *Symbol) []byte {
 	nameBytes := []byte(sym.Name)
 	typeBytes := []byte(sym.Accessor.TypeName())
-	// Fixed header is 24 bytes + name+1 + type+1 + 1 comment null byte
-	entryLen := uint32(24 + len(nameBytes) + 1 + len(typeBytes) + 1 + 1)
+	// Fixed header: 6×uint32 (24 bytes) + 3×uint16 (6 bytes) = 30 bytes,
+	// followed by null-terminated name, null-terminated type, and a null comment byte.
+	entryLen := uint32(30 + len(nameBytes) + 1 + len(typeBytes) + 1 + 1)
 	buf := make([]byte, entryLen)
 	off := 0
 	putUint32LE(buf, off, entryLen)
@@ -321,4 +371,33 @@ func (st *SymbolTable) buildSymbolList() ([]byte, uint32) {
 		result = append(result, buildSymbolInfo(sym)...)
 	}
 	return result, ErrNoError
+}
+
+// findSymbolWithFallback looks up a symbol by name, trying exact match first,
+// then stripping common PLC namespace prefixes (case-insensitive), and finally
+// a full case-insensitive scan of the symbol table.
+// Must be called with st.mu held (read or write).
+func (st *SymbolTable) findSymbolWithFallback(name string) *Symbol {
+	// Exact match.
+	if sym := st.byName[name]; sym != nil {
+		return sym
+	}
+	// Strip common PLC namespace prefixes (match case-insensitively so "GVL.",
+	// "gvl.", etc. all work).
+	nameLower := strings.ToLower(name)
+	for _, prefix := range []string{"gvl.", "main.", "plc."} {
+		if strings.HasPrefix(nameLower, prefix) {
+			stripped := name[len(prefix):]
+			if sym := st.byName[stripped]; sym != nil {
+				return sym
+			}
+		}
+	}
+	// Case-insensitive fallback.
+	for symName, sym := range st.byName {
+		if strings.ToLower(symName) == nameLower {
+			return sym
+		}
+	}
+	return nil
 }
