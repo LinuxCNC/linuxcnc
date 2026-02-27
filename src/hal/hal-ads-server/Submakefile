@@ -1,0 +1,33 @@
+# hal-ads-server Submakefile - Beckhoff ADS/TwinCAT protocol server HAL component
+# Only included if BUILD_GOLANG is true (Go 1.21+ detected)
+
+ifeq ($(BUILD_GOLANG),yes)
+
+HAL_ADS_SERVER_DIR := hal/hal-ads-server
+HAL_ADS_SERVER_SRC := $(wildcard $(HAL_ADS_SERVER_DIR)/*.go) \
+    $(wildcard $(HAL_ADS_SERVER_DIR)/ads/*.go)
+
+../bin/hal-ads-server: $(HAL_ADS_SERVER_SRC) $(HAL_GO_SRC) $(HAL_ADS_SERVER_DIR)/go.mod ../lib/liblinuxcnchal.so
+	@echo "Building hal-ads-server"
+	cd $(HAL_ADS_SERVER_DIR) && \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(HAL_GO_CGO_CFLAGS)" \
+	CGO_LDFLAGS="$(HAL_GO_CGO_LDFLAGS)" \
+	$(GO) build -o $(TOP)/bin/hal-ads-server .
+
+TARGETS += ../bin/hal-ads-server
+
+# Clean
+clean: hal-ads-server-clean
+.PHONY: hal-ads-server-clean
+hal-ads-server-clean:
+	rm -f ../bin/hal-ads-server
+
+# Install
+install: hal-ads-server-install
+.PHONY: hal-ads-server-install
+hal-ads-server-install: ../bin/hal-ads-server
+	$(DIR) $(DESTDIR)$(EMC2_HOME)/bin
+	$(FILE) ../bin/hal-ads-server $(DESTDIR)$(EMC2_HOME)/bin/
+
+endif # BUILD_GOLANG
