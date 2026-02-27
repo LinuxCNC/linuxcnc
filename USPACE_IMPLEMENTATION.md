@@ -46,6 +46,10 @@ Instead:
         interface="eth0" backupInterface="eth1"
         transportType="raw" debugLevel="1" runOnCpu="-1" />
 
+<!-- Example using XDP native transport (requires HAVE_XDP) -->
+<master idx="0" name="master0" appTimePeriod="1000000"
+        interface="eth0" transportType="xdp-native" />
+
 <!-- Minimal example (using defaults for optional attributes) -->
 <master idx="0" name="master0" appTimePeriod="1000000" interface="eth0" />
 ```
@@ -56,7 +60,7 @@ Instead:
 |-------------------|----------|---------|-------------|
 | `interface`       | **YES**  | —       | Primary network interface name (e.g. `"eth0"`) |
 | `backupInterface` | no       | (none)  | Backup network interface name, or omit for none |
-| `transportType`   | no       | `"raw"` | Transport type (`"raw"` = `EC_TRANSPORT_RAW`) |
+| `transportType`   | no       | `"raw"` | Transport type: `"raw"` (AF_PACKET raw socket), `"xdp-skb"` (AF_XDP generic/SKB mode), `"xdp-native"` (AF_XDP native driver mode). XDP types require the ethercat library built with `HAVE_XDP`. |
 | `debugLevel`      | no       | `0`     | Debug verbosity level |
 | `runOnCpu`        | no       | `-1`    | CPU affinity for master threads (`-1` = no binding) |
 
@@ -69,7 +73,7 @@ they are silently ignored (unknown attribute error).
 The `lcec` realtime module gains one new parameter on uspace builds:
 
 ```
-loadrt lcec ipc_socket="/var/run/ethercat.sock"
+loadrt lcec ipc_socket="/tmp/ethercat.sock"
 ```
 
 | Parameter    | Default | Description |
@@ -180,9 +184,20 @@ error handler:
     // parse transportType (optional, default: "raw")
     if (strcmp(name, "transportType") == 0) {
       if (strcmp(val, "raw") == 0) {
-        p->transportType = 0;  // EC_TRANSPORT_RAW
+        p->transportType = EC_TRANSPORT_RAW;
+#ifdef HAVE_XDP
+      } else if (strcmp(val, "xdp-skb") == 0) {
+        p->transportType = EC_TRANSPORT_XDP_SKB;
+      } else if (strcmp(val, "xdp-native") == 0) {
+        p->transportType = EC_TRANSPORT_XDP_NATIVE;
+#endif
       } else {
-        fprintf(stderr, "%s: ERROR: Unknown transportType '%s'\n", modname, val);
+        fprintf(stderr, "%s: ERROR: Unknown transportType '%s'"
+            " (valid values: raw"
+#ifdef HAVE_XDP
+            ", xdp-skb, xdp-native"
+#endif
+            ")\n", modname, val);
         XML_StopParser(inst->parser, 0);
         return;
       }
