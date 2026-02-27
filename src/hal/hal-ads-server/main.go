@@ -9,9 +9,10 @@
 //
 //	hal-ads-server [options] <config-file>
 //
+//	-bind string         IP address to bind the ADS server to (default "0.0.0.0")
 //	-name string        HAL component name (default "hal-ads-server")
 //	-port int           TCP port for ADS server (default 48898)
-//	-ams-net-id string  Local AMS Net ID (default "5.80.201.232.1.1")
+//	-ams-net-id string  Local AMS Net ID (default "192.168.0.99.1.1")
 //	-verbose            Enable verbose debug logging
 package main
 
@@ -31,7 +32,8 @@ func main() {
 	// Parse command-line flags.
 	name := flag.String("name", "hal-ads-server", "HAL component name")
 	port := flag.Int("port", 48898, "TCP port for the ADS server")
-	amsNetIDStr := flag.String("ams-net-id", "5.80.201.232.1.1", "Local AMS Net ID")
+	bind := flag.String("bind", "0.0.0.0", "IP address to bind the ADS server to")
+	amsNetIDStr := flag.String("ams-net-id", "192.168.0.99.1.1", "Local AMS Net ID")
 	verbose := flag.Bool("verbose", false, "Enable verbose debug logging")
 	flag.Parse()
 
@@ -82,7 +84,7 @@ func main() {
 	log.Printf("HAL component %q ready with %d pin(s)", *name, len(configPins))
 
 	// Start ADS TCP server.
-	addr := ":" + strconv.Itoa(*port)
+	addr := *bind + ":" + strconv.Itoa(*port)
 	srv := ads.NewServer(addr, amsNetID, 851, st, *verbose)
 	if err := srv.Start(); err != nil {
 		log.Fatalf("Failed to start ADS server: %v", err)
