@@ -161,8 +161,10 @@ func halPinU32New(name string, dir Direction, compID int) (*C.hal_u32_t, error) 
 }
 
 // halPinPortNew wraps hal_pin_port_new() to create a new port pin.
-// Returns a pointer to the HAL shared memory for the port handle.
-func halPinPortNew(name string, dir Direction, compID int) (*C.hal_port_t, error) {
+// Returns the double-pointer (unsafe.Pointer to **hal_port_t) so the caller
+// can dereference at access time. HAL updates *ptrPtr when the pin is linked
+// to a signal via net, so the double-pointer must be preserved.
+func halPinPortNew(name string, dir Direction, compID int) (unsafe.Pointer, error) {
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
@@ -179,8 +181,9 @@ func halPinPortNew(name string, dir Direction, compID int) (*C.hal_port_t, error
 		return nil, halError(int(ret), "hal_pin_port_new")
 	}
 
-	// Return the pointer to the actual port handle in HAL shared memory
-	return *ptrPtr, nil
+	// Return the double-pointer itself — the caller must dereference at access time
+	// because HAL updates *ptrPtr when the pin is linked to a signal via net.
+	return unsafe.Pointer(ptrPtr), nil
 }
 
 // halPortWrite writes data bytes to the port referenced by portPtr.
