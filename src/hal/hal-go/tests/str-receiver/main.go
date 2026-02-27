@@ -1,14 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"linuxcnc.org/hal"
 )
 
 func main() {
+	// Accept optional output file argument for test automation
+	var outFile string
+	if len(os.Args) > 1 {
+		outFile = os.Args[1]
+	}
+
 	comp, err := hal.NewComponent("str-receiver")
 	if err != nil {
 		log.Fatalf("Failed to create component: %v", err)
@@ -29,10 +35,14 @@ func main() {
 	for comp.Running() {
 		msg := inPin.Get()
 		if msg != "" {
-			// Print in a machine-parseable format for the test script
-			fmt.Printf("RECEIVED:%s\n", msg)
+			log.Printf("Received: %s", msg)
+			// Write result to file if output path was provided
+			if outFile != "" {
+				if err := os.WriteFile(outFile, []byte("RECEIVED:"+msg+"\n"), 0644); err != nil {
+					log.Printf("Failed to write result file: %v", err)
+				}
+			}
 			// Keep running so halcmd can unload us cleanly
-			// but stop polling — we got what we need
 			for comp.Running() {
 				time.Sleep(50 * time.Millisecond)
 			}
