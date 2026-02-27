@@ -5002,8 +5002,14 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // a feed-stale profile that starts at the right velocity gives smooth
     // motion, while a feed-correct profile 50 mm/s off will jerk.
     // Userspace recomputes the feed-correct profile on the next cycle.
+    int alt_was_available = 0;
+    double alt_was_v0 = 0.0;
+    double alt_was_feed = 0.0;
     if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE)) {
+        alt_was_available = 1;
+        alt_was_v0 = nexttc->shared_9d.alt_entry.v0;
+        alt_was_feed = nexttc->shared_9d.alt_entry.profile.computed_feed_scale;
         double main_v0 = nexttc->shared_9d.profile.v[0];
         double alt_v0 = nexttc->shared_9d.alt_entry.v0;
         if (fabs(junction_vel - alt_v0) < fabs(junction_vel - main_v0)) {
@@ -5021,8 +5027,13 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         __atomic_store_n(&nexttc->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
     }
 
-    // General PREDICT_SPIKE: classify all spike conditions.
-    // Fires before SPIKE_DBG so every spike has a preceding prediction.
+    // PREDICT_SPIKE: log junction velocity mismatch prediction.
+    // NOTE: canonical_feed_scale is the feed override knob position at
+    // junction time (from emcmotStatus->feed_scale), NOT the feed the
+    // machine is actually running at.  The machine only changes feed
+    // through branches — if no branch was taken at the knob's feed,
+    // the machine is still at the profile's feed.  Comparing prof_feed
+    // vs canon_feed is therefore unreliable for classification.
     if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         double _pred_v0 = nexttc->shared_9d.profile.v[0];
@@ -5035,17 +5046,17 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             double _pred_feed_err = (_pred_feed > 0.001) ?
                 fabs(_pred_prof_feed - _pred_feed) / _pred_feed : 0.0;
             const char *_pred_cause =
-                (_pred_feed_err > 0.03) ? "wrong-feed-profile" :
-                (_pred_alt)             ? "alt-imperfect" :
-                                          "convergence-gap";
+                (_pred_alt) ? "alt-imperfect" : "v0-mismatch";
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "PREDICT_SPIKE seg=%d: %s "
                 "jv=%.3f v0=%.3f gap=%.3f "
-                "prof_feed=%.3f canon_feed=%.3f prev_feed=%.3f "
-                "alt=%d feed_err=%.1f%%\n",
+                "prof_feed=%.3f knob_feed=%.3f prev_feed=%.3f "
+                "alt=%d alt_avail=%d alt_v0=%.3f alt_feed=%.3f "
+                "feed_err=%.1f%%\n",
                 nexttc->id, _pred_cause, junction_vel, _pred_v0, _pred_gap,
                 _pred_prof_feed, _pred_feed, _pred_prev_feed,
-                _pred_alt, _pred_feed_err * 100.0);
+                _pred_alt, alt_was_available, alt_was_v0, alt_was_feed,
+                _pred_feed_err * 100.0);
         }
     }
 

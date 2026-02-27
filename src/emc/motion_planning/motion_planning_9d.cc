@@ -288,6 +288,8 @@ static double g_last_replan_cost_ms = 0.5;  // bootstrap: assume 0.5ms until mea
 // is actively updating at a newer feed.
 static double g_committed_feed = -1.0;   // -1 = uninitialized
 static double g_committed_rapid = -1.0;
+static bool g_near_active_converged = true;
+static bool g_pending_feed_absorb = false;
 
 // Incremental downstream profile recompute cursor
 // After a feed change, walk through the queue recomputing profiles a few per tick.
@@ -3742,6 +3744,12 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         }
     }
 
+    // Feed convergence gate: don't pile up feed changes while the
+    // near-active chain is still absorbing the previous one.
+    // Only gates AFTER a feed change has been committed — first change
+    // always goes through (creates the branch that helps convergence).
+    if (g_pending_feed_absorb && !g_near_active_converged) return;
+
     double snap_feed = current_feed;
     double snap_rapid = emcmotStatus->rapid_scale;
 
@@ -3799,6 +3807,7 @@ extern "C" void manageBranches(TP_STRUCT *tp)
                 // our batch-written profiles with a stale feed value.
                 g_committed_feed = snap_feed;
                 g_committed_rapid = snap_rapid;
+                g_pending_feed_absorb = true;
 
                 // Immediately recompute downstream profiles at the branch feed.
                 // computeBranch() has generated an alt_entry for the next segment.
@@ -3870,6 +3879,7 @@ extern "C" void manageBranches(TP_STRUCT *tp)
 
         g_committed_feed = snap_feed;
         g_committed_rapid = snap_rapid;
+        g_pending_feed_absorb = true;
         g_last_replan_time_ms = now_ms;
 
         invalidateNextNSegments(tp, INT_MAX);
@@ -5197,41 +5207,52 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
     if (!active || !active->shared_9d.profile.valid ||
         active->term_cond != TC_TERM_COND_TANGENT) return;
 
-    // Read active's exit — prefer pending branch (future truth)
+    // Read active's exit — predict RT's actual exit using the same
+    // sequence-counter machinery as the handoff protocol.  After a branch
+    // is taken RT copies it into tc->shared_9d.profile, so predictStateAtTime
+    // automatically reads whichever profile RT is executing.
     double head_prev_exit = 0.0;
     double head_prev_feed = 1.0;
-    bool hold_spill = false;
+    int head_bv = 0, head_bt = 0;
+    double head_branch_feed = 0.0;
     {
         int bv = __atomic_load_n(&active->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
         int bt = __atomic_load_n(&active->shared_9d.branch.taken, __ATOMIC_ACQUIRE);
-        if (bv && active->shared_9d.branch.profile.valid) {
-            if (active->shared_9d.branch.profile.computed_feed_scale > 0.001) {
+        head_bv = bv;
+        head_bt = bt;
+        head_branch_feed = active->shared_9d.branch.feed_scale;
+
+        // Predict exit velocity via predictStateAtTime (sequence-counter safe).
+        // Convert from absolute back to (unscaled, feed_scale) for downstream
+        // consumption — the feed-matching and Ruckig recomp logic expects
+        // head_prev_exit * head_prev_feed == absolute velocity.
+        PredictedState exit_state = predictStateAtTime(active, 1e9);
+        if (exit_state.valid && fabs(exit_state.velocity) > TP_VEL_EPSILON) {
+            double abs_vel = fabs(exit_state.velocity);
+            double prof_feed = active->shared_9d.profile.computed_feed_scale;
+            if (prof_feed > 0.001) {
+                head_prev_exit = abs_vel / prof_feed;  // unscaled
+                head_prev_feed = prof_feed;
+            } else {
+                // Feed hold — absolute semantics (spill velocity)
+                head_prev_exit = abs_vel;
+                head_prev_feed = 1.0;
+            }
+        } else {
+            // Fallback: profile may be zeroed or invalid — use branch if available
+            if (bv && active->shared_9d.branch.profile.valid &&
+                active->shared_9d.branch.profile.computed_feed_scale > 0.001) {
                 head_prev_exit = profileExitVelUnscaled(&active->shared_9d.branch.profile);
                 head_prev_feed = active->shared_9d.branch.feed_scale;
-            } else if (bt) {
-                // Hold brake: profileExitVelUnscaled returns 0 (feed=0),
-                // but the brake trajectory knows the actual exit velocity.
-                double spill_vel, spill_acc;
-                double remaining = active->target - active->shared_9d.branch.handoff_position;
-                computeSpillOver(&active->shared_9d.branch.profile, remaining,
-                                 &spill_vel, &spill_acc);
-                if (spill_vel > TP_VEL_EPSILON) {
-                    head_prev_exit = spill_vel;
-                    head_prev_feed = 1.0;  // spill_vel is absolute, not scaled
-                    hold_spill = true;
-                }
+            } else {
+                head_prev_exit = profileExitVelUnscaled(&active->shared_9d.profile);
+                head_prev_feed = active->shared_9d.profile.computed_feed_scale;
             }
         }
-        if (!hold_spill && head_prev_exit < TP_VEL_EPSILON) {
-            head_prev_exit = profileExitVelUnscaled(&active->shared_9d.profile);
-            head_prev_feed = active->shared_9d.profile.computed_feed_scale;
-        }
 
-        // No valid seed: both branch and main have feed < 0.001, so
-        // profileExitVelUnscaled returns 0 — the measurement is undefined,
-        // not "velocity is zero."  Don't overwrite downstream profiles
-        // with a meaningless zero; the cursor walk already has them correct.
-        if (head_prev_feed < 0.001 && !hold_spill) return;
+        // No valid seed: exit is zero and feed is zero — measurement undefined.
+        // Don't overwrite downstream profiles with a meaningless zero.
+        if (head_prev_exit < TP_VEL_EPSILON && head_prev_feed < 0.001) return;
     }
 
     double default_jerk_head = (active->maxjerk > 0)
@@ -5249,6 +5270,18 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
     int gap = queue_len - optimizer_depth;
     if (head_limit > gap) head_limit = gap;
 
+    // Snapshot initial values from the active segment before the loop
+    // overwrites them.  These are the "ground truth" exit from position 0.
+    double init_hpe = head_prev_exit;
+    double init_hpf = head_prev_feed;
+
+    // Active segment state for diagnostics
+    double active_prof_exit = active->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+    double active_prof_feed = active->shared_9d.profile.computed_feed_scale;
+    double active_fv = atomicLoadDouble(&active->shared_9d.final_vel);
+    int active_id = active->id;
+
+    bool any_recomp = false;
     for (int i = 1; i <= head_limit; i++) {
         TC_STRUCT *tc = tcqItem_user(queue, i);
         if (!tc || tc->target < 1e-9) {
@@ -5262,25 +5295,26 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
 
         double feed_scale = tc->shared_9d.profile.computed_feed_scale;
         if (feed_scale < 0.001) {
-            break;  // feed hold — measurement undefined
+            if (head_prev_feed < 0.001) break;  // both in hold
+            feed_scale = head_prev_feed;  // storm's over — reforecast
         }
 
-        // Use committed feed if profile is stale — forces recompute
-        // at correct feed via the v0 mismatch path below.
-        // Using the live feed creates instability: the active exits at
-        // old-feed velocity, but position 1 gets recomputed at new-feed
-        // with different max_vel — the chain never converges.
-        // g_committed_feed keeps the near-active chain consistent with
-        // what manageBranches last propagated.
-        if (g_committed_feed > 0.001 &&
-            fabs(feed_scale - g_committed_feed) > 0.001) {
-            feed_scale = g_committed_feed;
+        // Match predecessor's feed: if a branch exists on the active
+        // segment at a new feed, head_prev_feed carries that feed.
+        // The near-active chain should compute at the same feed as the
+        // predecessor's exit — not the stale g_committed_feed.
+        if (head_prev_feed > 0.001 &&
+            fabs(feed_scale - head_prev_feed) > 0.001) {
+            feed_scale = head_prev_feed;
         }
 
         double vel_limit = getEffectiveVelLimit(tp, tc);
         double max_vel = applyVLimit(tp, tc, vel_limit * feed_scale);
 
-        double expected_v0_raw = fmin(head_prev_exit * head_prev_feed, max_vel);
+        // Don't cap at max_vel — match cursor walk pattern.
+        // The predecessor's exit is a fact; this segment must accept it
+        // (Ruckig decelerates from above max_vel within the segment).
+        double expected_v0_raw = head_prev_exit * head_prev_feed;
 
         TC_STRUCT *prev_tc = (i > 1) ? tcqItem_user(queue, i - 1) : active;
         if (prev_tc && prev_tc->kink_vel > 0)
@@ -5305,6 +5339,7 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
             }
         } else {
             // v0 mismatch — recompute this segment's profile
+            any_recomp = true;
             double scaled_v_exit = fmin(v_exit_unscaled * feed_scale, max_vel);
             scaled_v_exit = applyKinkVelCap(scaled_v_exit, v_exit_unscaled,
                 max_vel, tc->kink_vel);
@@ -5319,8 +5354,11 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
             atomicStoreDouble(&tc->shared_9d.entry_vel, unscaled_entry);
 
             try {
+                // Uncap max_velocity when entry exceeds max_vel —
+                // matches cursor walk pattern (fmax(entry_vel, seg_max_vel)).
+                double ruckig_max_vel = fmax(expected_v0, max_vel);
                 RuckigProfileParams rp = {expected_v0, scaled_v_exit,
-                    max_vel, max_acc, max_jrk, tc->target,
+                    ruckig_max_vel, max_acc, max_jrk, tc->target,
                     feed_scale, vel_limit, tp->vLimit, desired_fvel};
                 if (computeAndStoreProfile(tc, rp)) {
                     tc->shared_9d.profile.dbg_src = 9;  // safety-check head
@@ -5386,6 +5424,37 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
             }
         }
 
+        // Position 1: cycle-by-cycle trace for spike diagnosis.
+        // Shows the full state every optimization cycle so we can
+        // trace the exact sequence leading to a spike.
+        // init_hpe/init_hpf: active's exit BEFORE the loop touches it
+        // hpe/hpf: AFTER position 1 iteration (may differ if recomputed)
+        if (i == 1) {
+            double live_feed_tr = tpGetSegmentFeedScale(tc);
+            double prof_feed_tr = tc->shared_9d.profile.computed_feed_scale;
+            double new_v0_tr = tc->shared_9d.profile.v[0];
+            double fv_tr = atomicLoadDouble(&tc->shared_9d.final_vel);
+            int src_tr = tc->shared_9d.profile.dbg_src;
+            int recomp_tr = (fabs(profile_v0 - expected_v0_raw) >= head_fix_threshold) ? 1 : 0;
+            int alt_v_tr = __atomic_load_n(&tc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE);
+            double alt_v0_tr = alt_v_tr ? tc->shared_9d.alt_entry.v0 : 0.0;
+            double alt_f_tr = alt_v_tr ? tc->shared_9d.alt_entry.profile.computed_feed_scale : 0.0;
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "POS1_TRACE seg=%d live=%.3f commit=%.3f prof_f=%.3f "
+                "ihpe=%.3f ihpf=%.3f hpe=%.3f hpf=%.3f "
+                "exp_v0=%.3f old_v0=%.3f new_v0=%.3f "
+                "fv=%.3f src=%d rc=%d bv=%d bt=%d bf=%.3f "
+                "alt=%d alt_v0=%.3f alt_f=%.3f "
+                "act=%d apx=%.3f apf=%.3f afv=%.3f\n",
+                tc->id, live_feed_tr, g_committed_feed, prof_feed_tr,
+                init_hpe, init_hpf, head_prev_exit, head_prev_feed,
+                expected_v0_raw,
+                profile_v0, new_v0_tr, fv_tr, src_tr, recomp_tr,
+                head_bv, head_bt, head_branch_feed,
+                alt_v_tr, alt_v0_tr, alt_f_tr,
+                active_id, active_prof_exit, active_prof_feed, active_fv);
+        }
+
         // Position 1 (junction segment): if the profile's feed doesn't
         // match the live feed, write an alt-entry at the live feed.
         // The main chain stays stable at g_committed_feed; the alt
@@ -5394,33 +5463,13 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
             double live_feed = tpGetSegmentFeedScale(tc);
             double prof_feed = tc->shared_9d.profile.computed_feed_scale;
             int alt_already_valid = __atomic_load_n(&tc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE);
-            double existing_alt_v0 = alt_already_valid ? tc->shared_9d.alt_entry.v0 : -1.0;
             double existing_alt_feed = alt_already_valid
                 ? tc->shared_9d.alt_entry.profile.computed_feed_scale : -1.0;
             bool feed_mismatch = (live_feed > 0.001 && fabs(live_feed - prof_feed) > 0.001);
 
-            // Debug: trace every cycle for position 1 when feeds disagree
-            if (feed_mismatch || alt_already_valid) {
-                static int pos1_dbg_count = 0;
-                pos1_dbg_count++;
-                {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "POS1_ALT_DBG seg=%d: live=%.3f prof=%.3f committed=%.3f "
-                        "mismatch=%d alt_valid=%d alt_v0=%.3f alt_feed=%.3f "
-                        "prof_v0=%.3f head_prev_exit=%.3f head_prev_feed=%.3f "
-                        "src=%d\n",
-                        tc->id, live_feed, prof_feed, g_committed_feed,
-                        (int)feed_mismatch, alt_already_valid,
-                        existing_alt_v0, existing_alt_feed,
-                        tc->shared_9d.profile.v[0],
-                        head_prev_exit, head_prev_feed,
-                        tc->shared_9d.profile.dbg_src);
-                }
-            }
-
             if (feed_mismatch) {
                 double alt_max_vel = applyVLimit(tp, tc, vel_limit * live_feed);
-                double alt_v0 = fmin(head_prev_exit * live_feed, alt_max_vel);
+                double alt_v0 = fmin(init_hpe * live_feed, alt_max_vel);
                 if (prev_tc && prev_tc->kink_vel > 0)
                     alt_v0 = fmin(alt_v0, prev_tc->kink_vel);
                 double alt_exit = (tc->term_cond == TC_TERM_COND_TANGENT)
@@ -5429,6 +5478,10 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
                     alt_max_vel, tc->kink_vel);
                 applyBidirectionalReachability(alt_v0, alt_exit,
                     tc->target, max_acc, max_jrk);
+
+                bool should_write = !alt_already_valid ||
+                    (fabs(existing_alt_feed - live_feed) > 0.001);
+
                 try {
                     ruckig::Ruckig<1> otg(dt);
                     ruckig::InputParameter<1> alt_input;
@@ -5448,29 +5501,69 @@ static void reconcileNearActive(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
                         ruckig_profile_t alt_prof;
                         memset(&alt_prof, 0, sizeof(alt_prof));
                         copyRuckigProfile(alt_traj, &alt_prof);
-                        if (alt_prof.valid && !profileHasNegativeVelocity(&alt_prof)) {
-                            // Write if no existing alt, or existing alt's feed
-                            // is further from live than the new one (which is
-                            // at live_feed, so distance = 0).
-                            bool should_write = !alt_already_valid ||
-                                (fabs(existing_alt_feed - live_feed) > 0.001);
-                            if (should_write) {
-                                alt_prof.computed_feed_scale = live_feed;
-                                alt_prof.computed_vel_limit = vel_limit;
-                                alt_prof.computed_vLimit = tp->vLimit;
-                                alt_prof.computed_desired_fvel = alt_exit;
-                                tc->shared_9d.alt_entry.profile = alt_prof;
-                                tc->shared_9d.alt_entry.v0 = alt_v0;
-                                __atomic_thread_fence(__ATOMIC_RELEASE);
-                                __atomic_store_n(&tc->shared_9d.alt_entry.valid, 1,
-                                    __ATOMIC_RELEASE);
-                            }
+                        bool neg_vel = profileHasNegativeVelocity(&alt_prof);
+                        if (alt_prof.valid && !neg_vel && should_write) {
+                            alt_prof.computed_feed_scale = live_feed;
+                            alt_prof.computed_vel_limit = vel_limit;
+                            alt_prof.computed_vLimit = tp->vLimit;
+                            alt_prof.computed_desired_fvel = alt_exit;
+                            tc->shared_9d.alt_entry.profile = alt_prof;
+                            tc->shared_9d.alt_entry.v0 = alt_v0;
+                            __atomic_thread_fence(__ATOMIC_RELEASE);
+                            __atomic_store_n(&tc->shared_9d.alt_entry.valid, 1,
+                                __ATOMIC_RELEASE);
+                        } else if (!alt_prof.valid || neg_vel) {
+                            rtapi_print_msg(RTAPI_MSG_ERR,
+                                "POS1_ALT_FAIL seg=%d: live=%.3f prof=%.3f "
+                                "v0=%.3f exit=%.3f max_vel=%.3f target=%.4f "
+                                "valid=%d neg=%d should_write=%d "
+                                "alt_valid=%d alt_feed=%.3f\n",
+                                tc->id, live_feed, prof_feed,
+                                alt_v0, alt_exit, alt_max_vel, tc->target,
+                                (int)alt_prof.valid, (int)neg_vel,
+                                (int)should_write,
+                                alt_already_valid, existing_alt_feed);
                         }
+                    } else {
+                        rtapi_print_msg(RTAPI_MSG_ERR,
+                            "POS1_ALT_RUCKIG seg=%d: live=%.3f "
+                            "v0=%.3f exit=%.3f max_vel=%.3f target=%.4f "
+                            "result=%d\n",
+                            tc->id, live_feed,
+                            alt_v0, alt_exit, alt_max_vel, tc->target,
+                            (int)alt_result);
                     }
-                } catch (...) {}
+                } catch (...) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "POS1_ALT_EXCEPT seg=%d: live=%.3f "
+                        "v0=%.3f exit=%.3f\n",
+                        tc->id, live_feed, alt_v0, alt_exit);
+                }
+            }
+        }
+
+        // Trace for positions > 1: log recomputes deeper in the chain.
+        // Catches convergence oscillations and spikes at segments beyond
+        // position 1 (e.g., tiny segments with kink constraints).
+        if (i > 1) {
+            int recomp_n = (fabs(profile_v0 - expected_v0_raw) >= head_fix_threshold) ? 1 : 0;
+            if (recomp_n) {
+                double new_v0_n = tc->shared_9d.profile.v[0];
+                double new_exit_n = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+                double fv_n = atomicLoadDouble(&tc->shared_9d.final_vel);
+                int src_n = tc->shared_9d.profile.dbg_src;
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "POSN_TRACE pos=%d seg=%d f=%.3f "
+                    "exp_v0=%.3f old_v0=%.3f new_v0=%.3f "
+                    "exit=%.3f fv=%.3f kink=%.3f tgt=%.4f src=%d\n",
+                    i, tc->id, feed_scale,
+                    expected_v0_raw, profile_v0, new_v0_n,
+                    new_exit_n, fv_n, tc->kink_vel, tc->target, src_n);
             }
         }
     }
+    g_near_active_converged = !any_recomp;
+    if (g_near_active_converged) g_pending_feed_absorb = false;
 }
 
 extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int optimization_depth)
