@@ -15,7 +15,9 @@ import (
 // Using a short deadline allows Stop() to interrupt blocked reads without needing
 // per-connection close calls for normal shutdown paths.
 const readDeadlineInterval = 100 * time.Millisecond
-// AMS/TCP packets, and dispatches ADS commands to a SymbolTable.
+
+// Server listens for ADS connections, parses AMS/TCP packets, and dispatches
+// ADS commands to a SymbolTable.
 type Server struct {
 	addr     string
 	netID    AMSNetID
@@ -84,7 +86,7 @@ func (s *Server) acceptLoop() {
 				return // normal shutdown
 			default:
 				log.Printf("ADS accept error: %v", err)
-				return
+				continue
 			}
 		}
 		s.wg.Add(1)
@@ -171,7 +173,7 @@ func (s *Server) handleReadDeviceInfo(conn net.Conn, hdr *AMSHeader) {
 	data[5] = 0                                         // minor version
 	binary.LittleEndian.PutUint16(data[6:], 0)          // build version
 	copy(data[8:], []byte("hal-ads-server\x00"))        // device name (up to 16 bytes)
-	if err := sendAMSResponse(conn, hdr, CmdReadDeviceInfo, ErrNoError, data); err != nil {
+	if err := s.sendAMSResponse(conn, hdr, CmdReadDeviceInfo, ErrNoError, data); err != nil {
 		log.Printf("ADS sendReadDeviceInfo error: %v", err)
 	}
 }
@@ -184,7 +186,7 @@ func (s *Server) handleReadState(conn net.Conn, hdr *AMSHeader) {
 	binary.LittleEndian.PutUint32(data[0:], ErrNoError) // result
 	binary.LittleEndian.PutUint16(data[4:], 5)          // ADS state: Run
 	binary.LittleEndian.PutUint16(data[6:], 0)          // device state
-	if err := sendAMSResponse(conn, hdr, CmdReadState, ErrNoError, data); err != nil {
+	if err := s.sendAMSResponse(conn, hdr, CmdReadState, ErrNoError, data); err != nil {
 		log.Printf("ADS sendReadState error: %v", err)
 	}
 }
@@ -212,7 +214,7 @@ func (s *Server) handleRead(conn net.Conn, hdr *AMSHeader, payload []byte) {
 	binary.LittleEndian.PutUint32(resp[4:], uint32(len(readData)))
 	copy(resp[8:], readData)
 
-	if err := sendAMSResponse(conn, hdr, CmdRead, ErrNoError, resp); err != nil {
+	if err := s.sendAMSResponse(conn, hdr, CmdRead, ErrNoError, resp); err != nil {
 		log.Printf("ADS sendRead error: %v", err)
 	}
 }
@@ -243,7 +245,7 @@ func (s *Server) handleWrite(conn net.Conn, hdr *AMSHeader, payload []byte) {
 	resp := make([]byte, 4)
 	binary.LittleEndian.PutUint32(resp[0:], errCode)
 
-	if err := sendAMSResponse(conn, hdr, CmdWrite, ErrNoError, resp); err != nil {
+	if err := s.sendAMSResponse(conn, hdr, CmdWrite, ErrNoError, resp); err != nil {
 		log.Printf("ADS sendWrite error: %v", err)
 	}
 }
@@ -278,7 +280,7 @@ func (s *Server) handleReadWrite(conn net.Conn, hdr *AMSHeader, payload []byte) 
 	binary.LittleEndian.PutUint32(resp[4:], uint32(len(readData)))
 	copy(resp[8:], readData)
 
-	if err := sendAMSResponse(conn, hdr, CmdReadWrite, ErrNoError, resp); err != nil {
+	if err := s.sendAMSResponse(conn, hdr, CmdReadWrite, ErrNoError, resp); err != nil {
 		log.Printf("ADS sendReadWrite error: %v", err)
 	}
 }
@@ -287,7 +289,7 @@ func (s *Server) handleReadWrite(conn net.Conn, hdr *AMSHeader, payload []byte) 
 func (s *Server) sendErrorResponse(conn net.Conn, hdr *AMSHeader, errCode uint32) {
 	data := make([]byte, 4)
 	binary.LittleEndian.PutUint32(data[0:], errCode)
-	if err := sendAMSResponse(conn, hdr, hdr.CommandID, ErrNoError, data); err != nil {
+	if err := s.sendAMSResponse(conn, hdr, hdr.CommandID, ErrNoError, data); err != nil {
 		log.Printf("ADS sendError error: %v", err)
 	}
 }

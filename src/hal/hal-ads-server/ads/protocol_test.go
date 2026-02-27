@@ -68,9 +68,12 @@ func TestEncodeDecodeAMSHeader(t *testing.T) {
 func TestSendAMSResponsePacketLayout(t *testing.T) {
 	// Use a simple byte buffer as the "connection".
 	var buf bytesConn
+	serverNetID := AMSNetID{5, 80, 201, 232, 1, 1}
+	serverPort := uint16(851)
+	s := &Server{netID: serverNetID, port: serverPort}
 	req := &AMSHeader{
-		TargetNetID: AMSNetID{5, 80, 201, 232, 1, 1},
-		TargetPort:  851,
+		TargetNetID: serverNetID,
+		TargetPort:  serverPort,
 		SourceNetID: AMSNetID{10, 0, 0, 1, 1, 1},
 		SourcePort:  32905,
 		CommandID:   CmdRead,
@@ -78,7 +81,7 @@ func TestSendAMSResponsePacketLayout(t *testing.T) {
 		InvokeID:    99,
 	}
 	payload := []byte{0x01, 0x02, 0x03, 0x04}
-	if err := sendAMSResponse(&buf, req, CmdRead, ErrNoError, payload); err != nil {
+	if err := s.sendAMSResponse(&buf, req, CmdRead, ErrNoError, payload); err != nil {
 		t.Fatalf("sendAMSResponse error: %v", err)
 	}
 	pkt := buf.data
@@ -98,8 +101,11 @@ func TestSendAMSResponsePacketLayout(t *testing.T) {
 	if amsHdr.TargetNetID != req.SourceNetID {
 		t.Errorf("response target = %v, want source %v", amsHdr.TargetNetID, req.SourceNetID)
 	}
-	if amsHdr.SourceNetID != req.TargetNetID {
-		t.Errorf("response source = %v, want target %v", amsHdr.SourceNetID, req.TargetNetID)
+	if amsHdr.SourceNetID != serverNetID {
+		t.Errorf("response source = %v, want server netID %v", amsHdr.SourceNetID, serverNetID)
+	}
+	if amsHdr.SourcePort != serverPort {
+		t.Errorf("response source port = %d, want %d", amsHdr.SourcePort, serverPort)
 	}
 	if amsHdr.StateFlags != StateFlagResponse {
 		t.Errorf("state flags = %04x, want %04x", amsHdr.StateFlags, StateFlagResponse)
