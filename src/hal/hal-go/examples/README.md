@@ -37,6 +37,8 @@ unload passthrough
 | passthrough.out-s32 | s32 | out | Output s32 (copy of in-s32) |
 | passthrough.in-u32 | u32 | in | Input unsigned 32-bit |
 | passthrough.out-u32 | u32 | out | Output u32 (copy of in-u32) |
+| passthrough.in-str | port | in | Input string (port) |
+| passthrough.out-str | port | out | Output string/port (copy of in-str) |
 
 ## Testing
 
@@ -73,7 +75,7 @@ unload passthrough
    halrun
    loadusr ./passthrough
    show pin passthrough.*
-   # Should show all 8 pins
+   # Should show all 10 pins
    ```
 
 2. **Value passthrough test**:
@@ -83,4 +85,16 @@ unload passthrough
    setp passthrough.in-float 123.456
    show pin passthrough.out-float
    # Should show 123.456
+   ```
+
+3. **String port usage**:
+   ```bash
+   halrun
+   loadusr ./passthrough
+   newsig my-msg port
+   net my-msg passthrough.out-str passthrough.in-str
+   sets my-msg 1024
+   show sig my-msg
+   # Should show signal linked to both string pins
+   unload passthrough
    ```

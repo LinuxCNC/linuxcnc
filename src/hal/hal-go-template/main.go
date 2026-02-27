@@ -8,6 +8,11 @@
 //   - mycomponent.in-float  (input)  -> mycomponent.out-float  (output)
 //   - mycomponent.in-s32    (input)  -> mycomponent.out-s32    (output)
 //   - mycomponent.in-u32    (input)  -> mycomponent.out-u32    (output)
+//   - mycomponent.in-str    (input)  -> mycomponent.out-str    (output)
+//
+// Note: string pins use the HAL "port" type and require a port signal to be
+// created and linked before data can transfer (e.g. newsig my-msg port /
+// net my-msg comp.out-str other.in-str / sets my-msg 1024).
 //
 // Usage:
 //   halrun
@@ -54,6 +59,11 @@ func main() {
 		log.Fatalf("Failed to create in-u32 pin: %v", err)
 	}
 
+	inStr, err := hal.NewPin[string](comp, "in-str", hal.In)
+	if err != nil {
+		log.Fatalf("Failed to create in-str pin: %v", err)
+	}
+
 	// Create output pins
 	outBit, err := hal.NewPin[bool](comp, "out-bit", hal.Out)
 	if err != nil {
@@ -75,6 +85,11 @@ func main() {
 		log.Fatalf("Failed to create out-u32 pin: %v", err)
 	}
 
+	outStr, err := hal.NewPin[string](comp, "out-str", hal.Out)
+	if err != nil {
+		log.Fatalf("Failed to create out-str pin: %v", err)
+	}
+
 	// Mark component as ready
 	if err := comp.Ready(); err != nil {
 		log.Fatalf("Failed to mark component ready: %v", err)
@@ -87,6 +102,7 @@ func main() {
 		outFloat.Set(inFloat.Get())
 		outS32.Set(inS32.Get())
 		outU32.Set(inU32.Get())
+		outStr.Set(inStr.Get())
 
 		time.Sleep(10 * time.Millisecond)
 	}
