@@ -190,7 +190,7 @@ func halPortWrite(portPtr *C.hal_port_t, data []byte) bool {
 		// Nothing to write; avoid passing a nil/empty-slice pointer to the C function.
 		return true
 	}
-	ret := C.go_hal_port_write(portPtr, (*C.char)(unsafe.SliceData(data)), C.uint(len(data)))
+	ret := C.go_hal_port_write(portPtr, (*C.char)(unsafe.Pointer(unsafe.SliceData(data))), C.uint(len(data)))
 	return bool(ret)
 }
 
@@ -201,7 +201,7 @@ func halPortPeek(portPtr *C.hal_port_t, count uint) []byte {
 		return []byte{}
 	}
 	buf := make([]byte, count)
-	ret := C.go_hal_port_peek(portPtr, (*C.char)(unsafe.SliceData(buf)), C.uint(count))
+	ret := C.go_hal_port_peek(portPtr, (*C.char)(unsafe.Pointer(unsafe.SliceData(buf))), C.uint(count))
 	if !bool(ret) {
 		return nil
 	}
