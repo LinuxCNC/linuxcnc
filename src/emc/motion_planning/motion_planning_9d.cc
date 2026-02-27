@@ -3342,7 +3342,7 @@ extern "C" void manageBranches(TP_STRUCT *tp)
 
                 invalidateNextNSegments(tp, INT_MAX);
 
-                double branch_v0 = getActiveProfileExit(tc);
+                double branch_v0 = tc->shared_9d.achieved_exit_vel;
                 if (branch_elapsed_us < budget_us) {
                     // Have budget: recompute synchronously
                     double recomp_t0 = etime_user();
