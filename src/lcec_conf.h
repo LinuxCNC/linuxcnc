@@ -214,6 +214,13 @@ typedef struct {
   uint32_t appTimePeriod;
   int refClockSyncCycles;
   char name[LCEC_CONF_STR_MAXLEN];
+#ifdef EC_USPACE_MASTER
+  int transportType;                          // ec_transport_type_t, default: 0 (EC_TRANSPORT_RAW)
+  char interface[LCEC_CONF_STR_MAXLEN];       // primary NIC — REQUIRED
+  char backupInterface[LCEC_CONF_STR_MAXLEN]; // backup NIC or empty string
+  unsigned int debugLevel;                    // default: 0
+  int runOnCpu;                               // default: -1 (no binding)
+#endif
 } LCEC_CONF_MASTER_T;
 
 typedef struct {

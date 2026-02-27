@@ -126,6 +126,13 @@ typedef struct lcec_master {
   struct lcec_master *prev;
   struct lcec_master *next;
   int index;
+#ifdef EC_USPACE_MASTER
+  int transport_type;
+  char interface[LCEC_CONF_STR_MAXLEN];
+  char backup_interface[LCEC_CONF_STR_MAXLEN];
+  unsigned int debug_level;
+  int run_on_cpu;
+#endif
   char name[LCEC_CONF_STR_MAXLEN];
   ec_master_t *master;
   unsigned long mutex;

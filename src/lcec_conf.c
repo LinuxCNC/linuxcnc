@@ -567,6 +567,13 @@ static void parseMasterAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **
   }
 
   p->confType = lcecConfTypeMaster;
+#ifdef EC_USPACE_MASTER
+  p->transportType = 0;         // EC_TRANSPORT_RAW
+  p->interface[0] = 0;
+  p->backupInterface[0] = 0;
+  p->debugLevel = 0;
+  p->runOnCpu = -1;             // no CPU binding
+#endif
   while (*attr) {
     const char *name = *(attr++);
     const char *val = *(attr++);
@@ -596,11 +603,60 @@ static void parseMasterAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **
       continue;
     }
 
+#ifdef EC_USPACE_MASTER
+    // parse interface (required)
+    if (strcmp(name, "interface") == 0) {
+      strncpy(p->interface, val, LCEC_CONF_STR_MAXLEN);
+      p->interface[LCEC_CONF_STR_MAXLEN - 1] = 0;
+      continue;
+    }
+
+    // parse backupInterface (optional)
+    if (strcmp(name, "backupInterface") == 0) {
+      strncpy(p->backupInterface, val, LCEC_CONF_STR_MAXLEN);
+      p->backupInterface[LCEC_CONF_STR_MAXLEN - 1] = 0;
+      continue;
+    }
+
+    // parse transportType (optional, default: "raw")
+    if (strcmp(name, "transportType") == 0) {
+      if (strcmp(val, "raw") == 0) {
+        p->transportType = 0;  // EC_TRANSPORT_RAW
+      } else {
+        fprintf(stderr, "%s: ERROR: Unknown transportType '%s' (valid value: raw)\n", modname, val);
+        XML_StopParser(inst->parser, 0);
+        return;
+      }
+      continue;
+    }
+
+    // parse debugLevel (optional, default: 0)
+    if (strcmp(name, "debugLevel") == 0) {
+      p->debugLevel = atoi(val);
+      continue;
+    }
+
+    // parse runOnCpu (optional, default: -1)
+    if (strcmp(name, "runOnCpu") == 0) {
+      p->runOnCpu = atoi(val);
+      continue;
+    }
+#endif
+
     // handle error
     fprintf(stderr, "%s: ERROR: Invalid master attribute %s\n", modname, name);
     XML_StopParser(inst->parser, 0);
     return;
   }
+
+#ifdef EC_USPACE_MASTER
+  if (p->interface[0] == 0) {
+    fprintf(stderr, "%s: ERROR: Master %d requires 'interface' attribute\n",
+        modname, p->index);
+    XML_StopParser(inst->parser, 0);
+    return;
+  }
+#endif
 
   // set default name
   if (p->name[0] == 0) {
