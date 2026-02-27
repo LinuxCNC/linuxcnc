@@ -16,6 +16,8 @@
 //   passthrough.out-s32     (s32, out)
 //   passthrough.in-u32      (u32, in)
 //   passthrough.out-u32     (u32, out)
+//   passthrough.in-str      (port, in)
+//   passthrough.out-str     (port, out)
 
 package main
 
@@ -55,6 +57,11 @@ func main() {
 		log.Fatalf("Failed to create in-u32 pin: %v", err)
 	}
 
+	inStr, err := hal.NewPin[string](comp, "in-str", hal.In)
+	if err != nil {
+		log.Fatalf("Failed to create in-str pin: %v", err)
+	}
+
 	// Create output pins
 	outBit, err := hal.NewPin[bool](comp, "out-bit", hal.Out)
 	if err != nil {
@@ -76,6 +83,11 @@ func main() {
 		log.Fatalf("Failed to create out-u32 pin: %v", err)
 	}
 
+	outStr, err := hal.NewPin[string](comp, "out-str", hal.Out)
+	if err != nil {
+		log.Fatalf("Failed to create out-str pin: %v", err)
+	}
+
 	// Mark component ready
 	if err := comp.Ready(); err != nil {
 		log.Fatalf("Failed to mark component ready: %v", err)
@@ -89,6 +101,7 @@ func main() {
 		outFloat.Set(inFloat.Get())
 		outS32.Set(inS32.Get())
 		outU32.Set(inU32.Get())
+		outStr.Set(inStr.Get())
 
 		time.Sleep(10 * time.Millisecond)
 	}

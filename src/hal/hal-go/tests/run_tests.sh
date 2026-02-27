@@ -76,7 +76,7 @@ EOF
 ) && pass "Component loads" || fail "Component loads" "halrun failed"
 
 # Test 2: All pins are created
-echo "Running: Pin creation (8 pins)"
+echo "Running: Pin creation (10 pins)"
 : $((TESTS_RUN++))
 OUTPUT=$(run_hal <<EOF
 loadusr -W $PASSTHROUGH
@@ -85,10 +85,10 @@ unload passthrough
 EOF
 )
 PIN_COUNT=$(echo "$OUTPUT" | grep -c 'passthrough\.' || true)
-if [[ "$PIN_COUNT" -eq 8 ]]; then
-    pass "Pin creation (8 pins)"
+if [[ "$PIN_COUNT" -eq 10 ]]; then
+    pass "Pin creation (10 pins)"
 else
-    fail "Pin creation (8 pins)" "Expected 8 pins, got $PIN_COUNT"
+    fail "Pin creation (10 pins)" "Expected 10 pins, got $PIN_COUNT"
 fi
 
 # Test 3: Float passthrough works
@@ -159,7 +159,53 @@ else
     fail "U32 passthrough" "Value not passed through"
 fi
 
-# Test 7: Clean unload (SIGTERM)
+# Test 7: String port pins have correct type
+echo "Running: String port pin types"
+: $((TESTS_RUN++))
+OUTPUT=$(run_hal <<EOF
+loadusr -W $PASSTHROUGH
+show pin passthrough.in-str
+show pin passthrough.out-str
+unload passthrough
+EOF
+)
+if echo "$OUTPUT" | grep -q 'passthrough.in-str' && echo "$OUTPUT" | grep -q 'passthrough.out-str' && echo "$OUTPUT" | grep -qE '\bport\b'; then
+    pass "String port pin types"
+else
+    fail "String port pin types" "Port pins not found or type incorrect"
+fi
+
+# Test 8: String port signal linking
+echo "Running: String port signal linking"
+: $((TESTS_RUN++))
+OUTPUT=$(run_hal <<EOF
+loadusr -W $PASSTHROUGH
+newsig test-str port
+net test-str passthrough.out-str
+show sig test-str
+unload passthrough
+EOF
+)
+if echo "$OUTPUT" | grep -q 'test-str' && echo "$OUTPUT" | grep -q 'passthrough.out-str'; then
+    pass "String port signal linking"
+else
+    fail "String port signal linking" "Signal not created or not linked"
+fi
+
+# Test 9: String port buffer allocation
+echo "Running: String port buffer allocation"
+: $((TESTS_RUN++))
+OUTPUT=$(run_hal <<EOF
+loadusr -W $PASSTHROUGH
+newsig test-str port
+net test-str passthrough.out-str
+sets test-str 1024
+show sig test-str
+unload passthrough
+EOF
+) && pass "String port buffer allocation" || fail "String port buffer allocation" "Buffer allocation failed"
+
+# Test 10: Clean unload (SIGTERM)
 echo "Running: Clean unload (SIGTERM)"
 : $((TESTS_RUN++))
 OUTPUT=$(run_hal <<EOF
@@ -168,7 +214,7 @@ unload passthrough
 EOF
 ) && pass "Clean unload (SIGTERM)" || fail "Clean unload (SIGTERM)" "unload failed"
 
-# Test 8: No zombie processes after unload
+# Test 11: No zombie processes after unload
 echo "Running: No zombie processes"
 : $((TESTS_RUN++))
 run_hal <<EOF
