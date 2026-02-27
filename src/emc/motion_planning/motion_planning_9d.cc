@@ -2006,6 +2006,82 @@ void invalidateNextNSegments(TP_STRUCT *tp, int n, int start_index)
 static bool profileHasNegativeVelocity(const ruckig_profile_t *profile, double threshold = -0.01);
 
 /**
+ * @brief Backward fixup pass: cap each segment's exit to what successor accepts.
+ *
+ * Walks backward through [start_idx, end_idx] checking adjacent (A, B) pairs.
+ * If A's profile exit exceeds what B can accept (given B's exit, length, and
+ * kinematic limits), A is recomputed with a capped exit.  The cascade propagates
+ * naturally because the loop walks from tail to head.
+ *
+ * This is the same logic as the inline fixup in computeRuckigProfiles_9D,
+ * extracted so recomputeDownstreamProfiles and cursor walk can use it too.
+ */
+static void backwardFixupPass(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
+                              int start_idx, int end_idx, double default_jerk)
+{
+    for (int i = end_idx; i > start_idx; i--) {
+        TC_STRUCT *tc_B = tcqItem_user(queue, i);
+        TC_STRUCT *tc_A = tcqItem_user(queue, i - 1);
+        if (!tc_A || !tc_B) continue;
+        if (tc_A->active) continue;
+        if (!tc_A->shared_9d.profile.valid || !tc_B->shared_9d.profile.valid) continue;
+        if (tc_A->term_cond != TC_TERM_COND_TANGENT) continue;
+
+        double A_v_exit = tc_A->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+        double B_v_entry = tc_B->shared_9d.profile.v[0];
+
+        if (A_v_exit <= B_v_entry + 0.01) continue;
+
+        // Max entry velocity B can accept
+        double B_v_exit_scaled = tc_B->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+        double B_acc = tcGetTangentialMaxAccel_9D_user(tc_B);
+        double B_jrk = tc_B->maxjerk > 0 ? tc_B->maxjerk : default_jerk;
+        double B_max_entry = jerkLimitedMaxEntryVelocity(
+            B_v_exit_scaled, tc_B->target, B_acc, B_jrk);
+
+        double B_feed = tc_B->shared_9d.profile.computed_feed_scale;
+        double B_vel_limit = getEffectiveVelLimit(tp, tc_B);
+        double B_max_vel = applyVLimit(tp, tc_B, B_vel_limit * B_feed);
+        B_max_entry = fmin(B_max_entry, B_max_vel);
+
+        if (tc_A->kink_vel > 0)
+            B_max_entry = fmin(B_max_entry, tc_A->kink_vel);
+
+        if (A_v_exit <= B_max_entry + 0.01) continue;
+
+        // Recompute A with capped exit
+        double A_feed = tc_A->shared_9d.profile.computed_feed_scale;
+        if (A_feed < 0.001) continue;
+
+        double A_vel_limit = getEffectiveVelLimit(tp, tc_A);
+        double A_max_vel = applyVLimit(tp, tc_A, A_vel_limit * A_feed);
+        double A_acc = tcGetTangentialMaxAccel_9D_user(tc_A);
+        double A_jrk = tc_A->maxjerk > 0 ? tc_A->maxjerk : default_jerk;
+        double A_v_entry_scaled = tc_A->shared_9d.profile.v[0];
+        double capped_exit = B_max_entry;
+
+        // Sticky reachability cap
+        double cap_unscaled = (A_feed > 0.001) ? capped_exit / A_feed : -1.0;
+        atomicStoreDouble(&tc_A->shared_9d.reachability_exit_cap, cap_unscaled);
+
+        applyBidirectionalReachability(A_v_entry_scaled, capped_exit,
+            tc_A->target, A_acc, A_jrk);
+
+        try {
+            RuckigProfileParams rp = {A_v_entry_scaled, capped_exit,
+                A_max_vel, A_acc, A_jrk, tc_A->target,
+                A_feed, A_vel_limit, tp->vLimit, capped_exit};
+            if (computeAndStoreProfile(tc_A, rp)) {
+                tc_A->shared_9d.profile.dbg_src = 8;  // bkwd fixup
+                tc_A->shared_9d.profile.dbg_v0_req = A_v_entry_scaled;
+            }
+        } catch (...) {
+            // Leave A's profile as-is
+        }
+    }
+}
+
+/**
  * @brief Return the active segment's profile exit velocity, or 0.0 if
  *        the segment isn't tangent-terminated or has no valid profile.
  *
@@ -2210,6 +2286,15 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
         }
 
         recomputed++;
+    }
+
+    // Backward fixup: cap each segment's exit by what its successor can accept.
+    // The forward loop above may set exits that are too high for short successors
+    // when final_vel * feed exceeds the successor's reachability at the actual feed.
+    if (recomputed > 1) {
+        int end_idx = start_index + recomputed - 1;
+        if (end_idx >= queue_len) end_idx = queue_len - 1;
+        backwardFixupPass(tp, queue, start_index, end_idx, default_jerk);
     }
 
     return recomputed;
@@ -3895,6 +3980,14 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
             recomputed++;
         }
 
+        // Backward fixup: cap exits by what successors can accept
+        if (recomputed > 1) {
+            int fixup_start = (i > recomputed) ? i - recomputed : g_recompute_cursor;
+            int fixup_end = i - 1;
+            if (fixup_end >= queue_len) fixup_end = queue_len - 1;
+            backwardFixupPass(tp, queue, fixup_start, fixup_end, default_jerk);
+        }
+
         if (recomputed > 0) {
             // Update throughput estimate (EMA, alpha=0.3)
             g_segments_per_tick = 0.7 * g_segments_per_tick + 0.3 * recomputed;
@@ -4292,86 +4385,14 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
     }
 
     // --- Backward fixup pass ---
-    // The forward pass computes each segment's profile independently: it scales
-    // v_exit by feed_scale and applies reachability caps within the segment.
-    // But it doesn't check whether the SUCCESSOR can accept the exit velocity.
-    //
-    // At feed_scale=1.0 this is fine — the backward pass already ensures
-    // consistency at unscaled velocities.  At feed_scale>1.0, scaling can push
-    // a predecessor's exit beyond what the successor's reachability allows
-    // (short segment + low exit kink = can't decelerate fast enough).
-    //
-    // This fixup walks backward: for each (A, B) pair, compute the max entry
-    // velocity B can accept given B's profile exit velocity, length, and
-    // kinematic limits.  If A's profile exit exceeds that, recompute A with
-    // the capped exit.
-    for (int k = 0; k < optimization_depth - 1; k++) {
-        TC_STRUCT *tc_B = tcqBack_user(queue, -k);
-        TC_STRUCT *tc_A = tcqBack_user(queue, -(k + 1));
-        if (!tc_A || !tc_B) continue;
-        if (tc_A->active) continue;  // Active segment managed by branch/merge
-        if (!tc_A->shared_9d.profile.valid || !tc_B->shared_9d.profile.valid) continue;
-        if (tc_A->term_cond != TC_TERM_COND_TANGENT) continue;  // Only blending segments
-
-        double A_v_exit = tc_A->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-        double B_v_entry = tc_B->shared_9d.profile.v[0];
-
-        // If A's exit already matches B's entry, no fixup needed
-        if (A_v_exit <= B_v_entry + 0.01) continue;
-
-        // Compute max entry velocity B can accept
-        double B_v_exit_scaled = tc_B->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-        double B_acc = tcGetTangentialMaxAccel_9D_user(tc_B);
-        double B_jrk = tc_B->maxjerk > 0 ? tc_B->maxjerk : default_jerk;
-        double B_max_entry = jerkLimitedMaxEntryVelocity(
-            B_v_exit_scaled, tc_B->target, B_acc, B_jrk);
-
-        // Also cap by B's max_vel (can't enter faster than segment allows)
-        double B_feed = tc_B->shared_9d.profile.computed_feed_scale;
-        double B_vel_limit = getEffectiveVelLimit(tp, tc_B);
-        double B_max_vel = applyVLimit(tp, tc_B, B_vel_limit * B_feed);
-        B_max_entry = fmin(B_max_entry, B_max_vel);
-
-        // Also cap by kink at the junction (stored on A)
-        if (tc_A->kink_vel > 0)
-            B_max_entry = fmin(B_max_entry, tc_A->kink_vel);
-
-        if (A_v_exit <= B_max_entry + 0.01) continue;
-
-        // A's exit exceeds what B can accept — recompute A with capped exit
-        double A_feed = tc_A->shared_9d.profile.computed_feed_scale;
-        if (A_feed < 0.001) continue;
-
-        double A_vel_limit = getEffectiveVelLimit(tp, tc_A);
-        double A_max_vel = applyVLimit(tp, tc_A, A_vel_limit * A_feed);
-        double A_acc = tcGetTangentialMaxAccel_9D_user(tc_A);
-        double A_jrk = tc_A->maxjerk > 0 ? tc_A->maxjerk : default_jerk;
-
-        // Reconstruct A's entry from its profile
-        double A_v_entry_scaled = tc_A->shared_9d.profile.v[0];
-
-        // Capped exit velocity for A
-        double capped_exit = B_max_entry;
-
-        // Set sticky reachability cap (unscaled) on A
-        double cap_unscaled = (A_feed > 0.001) ? capped_exit / A_feed : -1.0;
-        atomicStoreDouble(&tc_A->shared_9d.reachability_exit_cap, cap_unscaled);
-
-        // Bidirectional reachability: cap both entry and exit
-        applyBidirectionalReachability(A_v_entry_scaled, capped_exit,
-            tc_A->target, A_acc, A_jrk);
-
-        try {
-            RuckigProfileParams rp = {A_v_entry_scaled, capped_exit,
-                A_max_vel, A_acc, A_jrk, tc_A->target,
-                A_feed, A_vel_limit, tp->vLimit, capped_exit};
-            if (computeAndStoreProfile(tc_A, rp)) {
-                tc_A->shared_9d.profile.dbg_src = 8;  // bkwd fixup
-                tc_A->shared_9d.profile.dbg_v0_req = A_v_entry_scaled;
-            }
-        } catch (...) {
-            // Leave A's profile as-is if Ruckig fails
-        }
+    // Cap each segment's exit by what its successor can accept.
+    // At feed_scale>1.0, final_vel*feed can push exits beyond successor reachability.
+    {
+        int qlen = tcqLen_user(queue);
+        int start_idx = qlen - optimization_depth;
+        if (start_idx < 0) start_idx = 0;
+        int end_idx = qlen - 1;
+        backwardFixupPass(tp, queue, start_idx, end_idx, default_jerk);
     }
 
     // FIXUP12 removed: computeChainExitCap and safe-endpoint chain extension
