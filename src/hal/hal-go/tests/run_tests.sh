@@ -221,9 +221,10 @@ EOF
 if [[ "$SKIP_STR_E2E" != "true" ]]; then
     echo "Running: String end-to-end passthrough"
     : $((TESTS_RUN++))
-    OUTPUT=$(run_hal <<EOF
+    STR_E2E_RESULT=$(mktemp --suffix=.txt)
+    run_hal <<EOF
 loadusr -W $STR_SENDER
-loadusr -W $STR_RECEIVER
+loadusr -W $STR_RECEIVER $STR_E2E_RESULT
 newsig test-msg port
 net test-msg str-sender.out str-receiver.in
 sets test-msg 1024
@@ -231,12 +232,12 @@ loadusr -w sleep 0.5
 unload str-sender
 unload str-receiver
 EOF
-    )
-    if echo "$OUTPUT" | grep -q 'RECEIVED:hello from go'; then
+    if [[ -f "$STR_E2E_RESULT" ]] && grep -q 'RECEIVED:hello from go' "$STR_E2E_RESULT"; then
         pass "String end-to-end passthrough"
     else
-        fail "String end-to-end passthrough" "Expected 'RECEIVED:hello from go' in output"
+        fail "String end-to-end passthrough" "Expected 'RECEIVED:hello from go' in result file"
     fi
+    rm -f "$STR_E2E_RESULT"
 fi
 
 # Test 11: Clean unload (SIGTERM)
