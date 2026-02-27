@@ -7,6 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HAL_GO_DIR="$(dirname "$SCRIPT_DIR")"
 TOP_DIR="$(cd "$HAL_GO_DIR/../../.." && pwd)"
 PASSTHROUGH="$TOP_DIR/bin/passthrough"
+STR_SENDER="$TOP_DIR/bin/str-sender"
+STR_RECEIVER="$TOP_DIR/bin/str-receiver"
 
 # Colors for output
 RED='\033[0;31m'
@@ -58,6 +60,16 @@ if [[ ! -x "$PASSTHROUGH" ]]; then
     echo "ERROR: passthrough not found at $PASSTHROUGH"
     echo "Please build with 'make' first."
     exit 1
+fi
+
+SKIP_STR_E2E=false
+if [[ ! -x "$STR_SENDER" ]]; then
+    echo "WARNING: str-sender not found at $STR_SENDER - skipping string e2e test"
+    SKIP_STR_E2E=true
+fi
+if [[ ! -x "$STR_RECEIVER" ]]; then
+    echo "WARNING: str-receiver not found at $STR_RECEIVER - skipping string e2e test"
+    SKIP_STR_E2E=true
 fi
 
 echo "============================================"
@@ -205,7 +217,29 @@ unload passthrough
 EOF
 ) && pass "String port buffer allocation" || fail "String port buffer allocation" "Buffer allocation failed"
 
-# Test 10: Clean unload (SIGTERM)
+# Test 10: String end-to-end passthrough
+if [[ "$SKIP_STR_E2E" != "true" ]]; then
+    echo "Running: String end-to-end passthrough"
+    : $((TESTS_RUN++))
+    OUTPUT=$(run_hal <<EOF
+loadusr -W $STR_SENDER
+loadusr -W $STR_RECEIVER
+newsig test-msg port
+net test-msg str-sender.out str-receiver.in
+sets test-msg 1024
+loadusr -w sleep 0.5
+unload str-sender
+unload str-receiver
+EOF
+    )
+    if echo "$OUTPUT" | grep -q 'RECEIVED:hello from go'; then
+        pass "String end-to-end passthrough"
+    else
+        fail "String end-to-end passthrough" "Expected 'RECEIVED:hello from go' in output"
+    fi
+fi
+
+# Test 11: Clean unload (SIGTERM)
 echo "Running: Clean unload (SIGTERM)"
 : $((TESTS_RUN++))
 OUTPUT=$(run_hal <<EOF
@@ -214,7 +248,7 @@ unload passthrough
 EOF
 ) && pass "Clean unload (SIGTERM)" || fail "Clean unload (SIGTERM)" "unload failed"
 
-# Test 11: No zombie processes after unload
+# Test 12: No zombie processes after unload
 echo "Running: No zombie processes"
 : $((TESTS_RUN++))
 run_hal <<EOF

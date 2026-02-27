@@ -22,7 +22,7 @@ HAL_GO_CGO_CFLAGS := -I$(TOP)/src/hal -I$(TOP)/src/rtapi -I$(TOP)/include -DULAP
 HAL_GO_CGO_LDFLAGS := -L$(TOP)/lib -llinuxcnchal
 
 # Build the passthrough example
-HAL_GO_EXAMPLES := ../bin/passthrough
+HAL_GO_EXAMPLES := ../bin/passthrough ../bin/str-sender ../bin/str-receiver
 
 ../bin/passthrough: $(HAL_GO_SRC) $(HAL_GO_DIR)/examples/passthrough/main.go $(HAL_GO_DIR)/examples/passthrough/go.mod ../lib/liblinuxcnchal.so
 	@echo "Building hal-go passthrough example"
@@ -31,6 +31,23 @@ HAL_GO_EXAMPLES := ../bin/passthrough
 	CGO_CFLAGS="$(HAL_GO_CGO_CFLAGS)" \
 	CGO_LDFLAGS="$(HAL_GO_CGO_LDFLAGS)" \
 	$(GO) build -o $(TOP)/bin/passthrough .
+
+# Build the string test components
+../bin/str-sender: $(HAL_GO_SRC) $(HAL_GO_DIR)/tests/str-sender/main.go $(HAL_GO_DIR)/tests/str-sender/go.mod ../lib/liblinuxcnchal.so
+	@echo "Building hal-go str-sender test component"
+	cd $(HAL_GO_DIR)/tests/str-sender && \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(HAL_GO_CGO_CFLAGS)" \
+	CGO_LDFLAGS="$(HAL_GO_CGO_LDFLAGS)" \
+	$(GO) build -o $(TOP)/bin/str-sender .
+
+../bin/str-receiver: $(HAL_GO_SRC) $(HAL_GO_DIR)/tests/str-receiver/main.go $(HAL_GO_DIR)/tests/str-receiver/go.mod ../lib/liblinuxcnchal.so
+	@echo "Building hal-go str-receiver test component"
+	cd $(HAL_GO_DIR)/tests/str-receiver && \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(HAL_GO_CGO_CFLAGS)" \
+	CGO_LDFLAGS="$(HAL_GO_CGO_LDFLAGS)" \
+	$(GO) build -o $(TOP)/bin/str-receiver .
 
 # Copy hal-go package files for RIP builds
 HAL_GO_SHARE_FILES := \
@@ -81,6 +98,8 @@ clean: hal-go-clean
 hal-go-clean:
 	rm -f $(HAL_GO_EXAMPLES)
 	rm -rf $(HAL_GO_DIR)/examples/passthrough/passthrough
+	rm -rf $(HAL_GO_DIR)/tests/str-sender/str-sender
+	rm -rf $(HAL_GO_DIR)/tests/str-receiver/str-receiver
 	rm -f $(HAL_GO_SHARE_FILES)
 	rm -f $(HAL_GO_TEMPLATE_FILES)
 
