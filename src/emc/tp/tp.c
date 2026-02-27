@@ -4995,38 +4995,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         if (junction_vel < 0.0) junction_vel = 0.0;
     }
 
-    // Alt-entry profile selection: when a brake on the previous segment
-    // changed the exit velocity, pick whichever profile (main or alt_entry)
-    // has v0 closer to the actual junction velocity.
-    // v0 continuity at the junction matters more than feed correctness —
-    // a feed-stale profile that starts at the right velocity gives smooth
-    // motion, while a feed-correct profile 50 mm/s off will jerk.
-    // Userspace recomputes the feed-correct profile on the next cycle.
-    int alt_was_available = 0;
-    double alt_was_v0 = 0.0;
-    double alt_was_feed = 0.0;
-    if (GET_TRAJ_PLANNER_TYPE() == 2 &&
-        __atomic_load_n(&nexttc->shared_9d.alt_entry.valid, __ATOMIC_ACQUIRE)) {
-        alt_was_available = 1;
-        alt_was_v0 = nexttc->shared_9d.alt_entry.v0;
-        alt_was_feed = nexttc->shared_9d.alt_entry.profile.computed_feed_scale;
-        double main_v0 = nexttc->shared_9d.profile.v[0];
-        double alt_v0 = nexttc->shared_9d.alt_entry.v0;
-        if (fabs(junction_vel - alt_v0) < fabs(junction_vel - main_v0)) {
-            nexttc->shared_9d.profile = nexttc->shared_9d.alt_entry.profile;
-            // Sync generation counter so stopwatch reset doesn't fire —
-            // the alt_entry profile has a different generation from the
-            // one snapshotted during split setup, which would cause a
-            // spurious reset (elapsed_time=0 → zero displacement).
-            nexttc->last_profile_generation = __atomic_load_n(
-                &nexttc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
-            // Signal userspace to recompute downstream chain from alt-entry's
-            // actual exit velocity (may differ from main profile's exit).
-            __atomic_store_n(&nexttc->shared_9d.alt_entry.taken, 1, __ATOMIC_RELEASE);
-        }
-        __atomic_store_n(&nexttc->shared_9d.alt_entry.valid, 0, __ATOMIC_RELEASE);
-    }
-
     // PREDICT_SPIKE: log junction velocity mismatch prediction.
     // NOTE: canonical_feed_scale is the feed override knob position at
     // junction time (from emcmotStatus->feed_scale), NOT the feed the
@@ -5042,20 +5010,15 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             double _pred_feed = nexttc->shared_9d.canonical_feed_scale;
             double _pred_prof_feed = nexttc->shared_9d.profile.computed_feed_scale;
             double _pred_prev_feed = tc->shared_9d.canonical_feed_scale;
-            int _pred_alt = __atomic_load_n(&nexttc->shared_9d.alt_entry.taken, __ATOMIC_ACQUIRE);
             double _pred_feed_err = (_pred_feed > 0.001) ?
                 fabs(_pred_prof_feed - _pred_feed) / _pred_feed : 0.0;
-            const char *_pred_cause =
-                (_pred_alt) ? "alt-imperfect" : "v0-mismatch";
             rtapi_print_msg(RTAPI_MSG_ERR,
-                "PREDICT_SPIKE seg=%d: %s "
+                "PREDICT_SPIKE seg=%d: v0-mismatch "
                 "jv=%.3f v0=%.3f gap=%.3f "
                 "prof_feed=%.3f knob_feed=%.3f prev_feed=%.3f "
-                "alt=%d alt_avail=%d alt_v0=%.3f alt_feed=%.3f "
                 "feed_err=%.1f%%\n",
-                nexttc->id, _pred_cause, junction_vel, _pred_v0, _pred_gap,
+                nexttc->id, junction_vel, _pred_v0, _pred_gap,
                 _pred_prof_feed, _pred_feed, _pred_prev_feed,
-                _pred_alt, alt_was_available, alt_was_v0, alt_was_feed,
                 _pred_feed_err * 100.0);
         }
     }
@@ -5075,16 +5038,15 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             double _dbg_prev_fvl = atomicLoadDouble(&tc->shared_9d.final_vel_limit);
             int _dbg_src = nexttc->shared_9d.profile.dbg_src;
             double _dbg_v0_req = nexttc->shared_9d.profile.dbg_v0_req;
-            int _dbg_alt_taken = __atomic_load_n(&nexttc->shared_9d.alt_entry.taken, __ATOMIC_ACQUIRE);
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "SPIKE_DBG seg %d->%d: jv=%.3f v0=%.3f gap=%.3f "
-                "src=%d v0_req=%.3f alt=%d "
+                "src=%d v0_req=%.3f "
                 "feed=%.3f prev_feed=%.3f prof_feed=%.3f "
                 "prev_term=%d kink=%.3f maxvel=%.3f target=%.4f "
                 "prev_aev=%.3f prev_fv=%.3f prev_fvl=%.3f "
                 "prev_type=%d next_type=%d\n",
                 tc->id, nexttc->id, junction_vel, _dbg_v0, _dbg_gap,
-                _dbg_src, _dbg_v0_req, _dbg_alt_taken,
+                _dbg_src, _dbg_v0_req,
                 _dbg_feed, _dbg_prev_feed, _dbg_prof_feed,
                 tc->term_cond, nexttc->kink_vel, nexttc->maxvel,
                 nexttc->target,
@@ -5112,6 +5074,11 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // short of target and trigger a 10-cycle stuck detection stall — worse
     // than the velocity step itself for small mismatches, and ineffective
     // for large ones (e.g. feed hold recovery with 40 mm/s gap).
+    // v0_correction DISABLED for testing — OLD code had none.
+    // When enabled, this shifts currentvel/progress/position_base to partially
+    // absorb junction velocity mismatch, but the position_base discontinuity
+    // itself may cause jerk spikes visible in halscope.
+#if 0
     if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         double profile_v0 = nexttc->shared_9d.profile.v[0];
@@ -5128,6 +5095,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             nexttc->position_base += pos_correction;
         }
     }
+#endif
 
     // Post-correct elapsed_time for Ruckig split cycle.
     // tpUpdateCycle sampled at remain_time then advanced by remain_time internally
