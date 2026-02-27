@@ -228,7 +228,7 @@ loadusr -W $STR_RECEIVER $STR_E2E_RESULT
 newsig test-msg port
 net test-msg str-sender.out str-receiver.in
 sets test-msg 1024
-loadusr -w sleep 0.5
+loadusr -w sleep 1
 unload str-sender
 unload str-receiver
 EOF

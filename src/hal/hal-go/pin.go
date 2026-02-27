@@ -100,9 +100,7 @@ func NewPin[T PinValue](c *Component, name string, dir Direction) (*Pin[T], erro
 		ptr = unsafe.Pointer(cPtr)
 		err = e
 	case string:
-		cPtr, e := halPinPortNew(fullName, dir, c.id)
-		ptr = unsafe.Pointer(cPtr)
-		err = e
+		ptr, err = halPinPortNew(fullName, dir, c.id)
 	default:
 		return nil, newError("NewPin", "unsupported pin type", -22)
 	}
@@ -157,7 +155,10 @@ func (p *Pin[T]) Get() T {
 	case string:
 		// String pins use HAL_PORT with 4-byte big-endian length-prefix framing.
 		// Use peek (non-consuming) so repeated Get() calls return the same value.
-		portPtr := (*C.hal_port_t)(p.ptr)
+		// p.ptr is **hal_port_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_port_t)(p.ptr)
+		portPtr := *ptrPtr
 		readable := halPortReadable(portPtr)
 		if readable < portFrameHeaderSize {
 			return any("").(T)
@@ -220,7 +221,10 @@ func (p *Pin[T]) Set(value T) {
 	case string:
 		// String pins use HAL_PORT with 4-byte big-endian length-prefix framing.
 		// Clear first for "latest value" semantics, then write the framed message.
-		portPtr := (*C.hal_port_t)(p.ptr)
+		// p.ptr is **hal_port_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_port_t)(p.ptr)
+		portPtr := *ptrPtr
 		halPortClear(portPtr)
 		str := any(value).(string)
 		strBytes := []byte(str)
