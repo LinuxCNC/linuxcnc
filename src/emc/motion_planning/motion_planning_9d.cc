@@ -112,15 +112,10 @@ static TC_STRUCT * tcqItem_user(TC_QUEUE_STRUCT * const tcq, int n)
     return &(tcq->queue[idx]);
 }
 
-// Dirty-region tracking: index of the first queue segment that needs recomputation.
-// INT_MAX means all segments are clean (no recomputation needed).
-// Declared early so tcqPut_user() can call markDirty() on segment add.
-static int g_dirty_from = INT_MAX;
-
-static inline void markDirty(int from_index)
-{
-    if (from_index < g_dirty_from) g_dirty_from = from_index;
-}
+// Replan flag: set whenever the queue changes (segment added, feed change,
+// merge) so that replanForward() runs on the next tick.  Cleared when a
+// full forward pass completes without budget expiry.
+static bool g_needs_replan = false;
 
 /**
  * @brief Userspace version of tcqPut for planner_type 2
@@ -152,12 +147,9 @@ extern "C" int tcqPut_user(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const 
     // __atomic_exchange_n is a read-modify-write that provides stronger visibility guarantees
     __atomic_exchange_n(&tcq->end_atomic, next_end, __ATOMIC_ACQ_REL);
 
-    // Mark the new segment (and its predecessor) dirty so replanForward picks it up.
-    // The predecessor's backward-pass final_vel may need updating now that a new
-    // successor exists with a potentially different kink constraint.
-    int new_len = (next_end - current_start + tcq->size) % tcq->size;
-    int new_idx = new_len - 1;  // index of newly added segment
-    markDirty(new_idx > 0 ? new_idx - 1 : new_idx);
+    // Signal that profiles need recomputation — the new segment (and its
+    // predecessor's backward-pass final_vel) may have changed constraints.
+    g_needs_replan = true;
 
     return 0;
 }
@@ -839,15 +831,15 @@ double tpComputeOptimalVelocity_9D(TC_STRUCT const * const tc,
     double jrk_this = tc->maxjerk > 0 ? tc->maxjerk : g_handoff_config.default_max_jerk;
 
     // Constraint 1: Backward kinematic limit (jerk-aware)
-    // Only apply jerk-aware braking when v_f_this is a real velocity constraint
-    // (set by kink computation). When v_f_this=0, the segment just arrived in
-    // the queue and its exit velocity hasn't been computed yet — use trapezoidal
-    // to avoid over-constraining with an artificially low starting velocity.
+    // Always use jerk-limited formula for consistency with the forward pass's
+    // applyBidirectionalReachability (which also uses jerkLimitedMaxEntryVelocity).
+    // For v_f=0 (STOP segments or new tail segments), this is conservative but
+    // correct — the next backward pass will raise the limit once downstream
+    // velocities propagate.
     double vs_back;
-    if (jrk_this > 0.0 && v_f_this > 1e-6) {
+    if (jrk_this > 0.0) {
         vs_back = jerkLimitedMaxEntryVelocity(v_f_this, tc->target, acc_this, jrk_this);
     } else {
-        // Fallback to trapezoidal if no jerk limit or v_f not yet set
         vs_back = sqrt(v_f_this * v_f_this + 2.0 * acc_this * tc->target);
     }
 
@@ -1591,7 +1583,7 @@ extern "C" int initPredictiveHandoff(void)
 {
     g_last_feed_scale = 1.0;
     g_last_replan_time_ms = 0.0;
-    g_dirty_from = INT_MAX;
+    g_needs_replan = false;
     return 0;
 }
 
@@ -1977,7 +1969,7 @@ static void computeSpillOver(const ruckig_profile_t *profile, double remaining_d
  *   Phase 1 (backward): computeLimitingVelocities_9D on the full queue —
  *     analytic, O(N), fast (~10µs for 260 segments).  Sets final_vel[i] =
  *     maximum entry velocity for segment i.
- *   Phase 2 (forward): Ruckig pass from g_dirty_from to queue_len-1.
+ *   Phase 2 (forward): Ruckig pass from index 0 to queue_len-1.
  *     Each segment is recomputed with v0 from the previous segment's profile
  *     exit, v1_target from final_vel[i+1].  SKIP if already consistent.
  *     Stops early when budget_sec is exhausted; resumes next call.
@@ -1998,10 +1990,7 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
     TC_QUEUE_STRUCT *queue = &tp->queue;
     int queue_len = tcqLen_user(queue);
-    if (queue_len < 1) {
-        g_dirty_from = queue_len;
-        return;
-    }
+    if (queue_len < 1) return;
 
     // ---- Phase 1: full backward pass (analytic, always covers whole queue) ----
     int depth = queue_len;
@@ -2009,13 +1998,11 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
     if (computeLimitingVelocities_9D(queue, depth, g_smoothing_data) != 0) return;
     if (applyLimitingVelocities_9D(queue, g_smoothing_data, depth) != 0) return;
 
-    // ---- Phase 2: forward pass from dirty_from ----
-    int start = g_dirty_from;
-    if (start < 0) start = 0;
-    if (start >= queue_len) {
-        g_dirty_from = queue_len;  // already clean
-        return;
-    }
+    // ---- Phase 2: forward pass from index 0 ----
+    // Always scan the full queue.  The SKIP check makes clean segments O(1)
+    // each (~50ns), so 260 segments adds ~13µs — negligible vs the 500µs
+    // budget.  This guarantees the forward pass sees every final_vel change
+    // the backward pass made, eliminating stale-profile inconsistencies.
 
     // Default jerk from active or first downstream segment
     TC_STRUCT *active = tcqItem_user(queue, 0);
@@ -2023,49 +2010,14 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         ? active->maxjerk : g_handoff_config.default_max_jerk;
     if (default_jerk < 1.0) default_jerk = g_handoff_config.default_max_jerk;
 
-    // Seed prev_exit from predecessor of start
-    double prev_exit_vel = 0.0;       // physical mm/s (same units as profile.v[])
+    // Seed prev_exit — v0_override (merge/branch) or default 0 (in-loop
+    // active-segment handler fills in the real value for segment 0).
+    double prev_exit_vel = 0.0;
     bool prev_exit_vel_known = false;
 
     if (v0_override >= 0.0) {
-        // Caller provides the physical junction velocity (e.g. achieved_exit_vel)
         prev_exit_vel = v0_override;
         prev_exit_vel_known = true;
-    } else if (start == 1 && active) {
-        // Seed from active segment (index 0)
-        if (active->term_cond == TC_TERM_COND_TANGENT && active->shared_9d.profile.valid) {
-            int bv = __atomic_load_n(&active->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
-            if (bv && active->shared_9d.branch.profile.valid &&
-                active->shared_9d.branch.profile.computed_feed_scale > 0.001) {
-                // Pending branch: use its predicted exit
-                double pu = profileExitVelUnscaled(&active->shared_9d.branch.profile);
-                prev_exit_vel = pu * active->shared_9d.branch.feed_scale;
-            } else if (bv && active->shared_9d.branch.profile.computed_feed_scale < 0.001) {
-                // Brake branch: compute spill-over velocity
-                double handoff_pos = active->shared_9d.branch.handoff_position;
-                double remaining = active->target - handoff_pos;
-                if (remaining > 1e-6) {
-                    double sv = 0.0, sa = 0.0;
-                    computeSpillOver(&active->shared_9d.branch.profile, remaining, &sv, &sa);
-                    prev_exit_vel = sv;
-                } else {
-                    prev_exit_vel = 0.0;
-                }
-            } else {
-                // Use main profile exit
-                double pu = profileExitVelUnscaled(&active->shared_9d.profile);
-                prev_exit_vel = pu * active->shared_9d.profile.computed_feed_scale;
-            }
-            prev_exit_vel_known = true;
-        }
-    } else if (start > 1) {
-        // Seed from predecessor's profile
-        TC_STRUCT *pred = tcqItem_user(queue, start - 1);
-        if (pred && pred->term_cond == TC_TERM_COND_TANGENT && pred->shared_9d.profile.valid) {
-            double pu = profileExitVelUnscaled(&pred->shared_9d.profile);
-            prev_exit_vel = pu * pred->shared_9d.profile.computed_feed_scale;
-            prev_exit_vel_known = true;
-        }
     }
 
     // Live feed snapshot for this pass
@@ -2075,7 +2027,7 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
     bool unlimited = (budget_sec <= 0.0);
     double tick_start = etime_user();
 
-    int i = start;
+    int i = 0;
     for (; i < queue_len; i++) {
         TC_STRUCT *tc = tcqItem_user(queue, i);
         if (!tc || tc->target < 1e-9) {
@@ -2145,9 +2097,9 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             bool entry_ok = !prev_exit_vel_known ||
                 (fabs(tc->shared_9d.profile.v[0] - scaled_v_entry) < 0.5);
             bool feed_ok  = fabs(tc->shared_9d.profile.computed_feed_scale - feed_scale) < 0.005;
-            bool exit_ok  = fabs(tc->shared_9d.profile.computed_desired_fvel - desired_fvel) < 0.5;
+            bool exit_ok  = fabs(tc->shared_9d.profile.computed_desired_fvel - desired_fvel) < 1e-6;
             if (entry_ok && feed_ok && exit_ok) {
-                // Profile is clean — propagate its actual exit and stop scanning
+                // Profile is clean — propagate its actual exit and continue
                 if (tc->term_cond == TC_TERM_COND_TANGENT) {
                     double pu = profileExitVelUnscaled(&tc->shared_9d.profile);
                     prev_exit_vel = pu * tc->shared_9d.profile.computed_feed_scale;
@@ -2155,10 +2107,7 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                     prev_exit_vel = 0.0;
                 }
                 prev_exit_vel_known = true;
-                // Once we find a clean segment, assume everything further is
-                // also clean (g_dirty_from was the first dirty index)
-                i++;  // so the loop-end sets g_dirty_from correctly
-                break;
+                continue;
             }
         }
 
@@ -2240,8 +2189,8 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         }
         prev_exit_vel_known = true;
 
-        // Budget check (skip first 2 segments to amortise per-call overhead)
-        if (!unlimited && i >= start + 2) {
+        // Budget check
+        if (!unlimited) {
             if (etime_user() - tick_start >= budget_sec) {
                 i++;
                 break;
@@ -2249,11 +2198,8 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         }
     }
 
-    if (i >= queue_len) {
-        g_dirty_from = queue_len;  // fully clean
-    } else {
-        g_dirty_from = i;          // resume from here next tick
-    }
+    // Full pass completed without budget expiry → all profiles consistent
+    g_needs_replan = (i < queue_len);
 }
 
 
@@ -3243,7 +3189,6 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         // detect the gap (g_committed_feed != slider) and create a new branch
         // through the normal branch-merge cycle.
         // Single-pass replan from the active segment junction (unlimited budget).
-        markDirty(1);
         replanForward(tp, tc->shared_9d.achieved_exit_vel, 0.0 /* unlimited */);
         g_last_feed_scale = new_canonical;
         return;
@@ -3404,10 +3349,8 @@ extern "C" void manageBranches(TP_STRUCT *tp)
             if (_branch_ok) {
                 g_last_replan_time_ms = now_ms;
 
-                // Mark dirty and replan downstream at the branch v0 with half-cycle budget.
-                // replanForward() will resume from g_dirty_from on the next tick if
-                // it exhausts the budget before reaching the end of the queue.
-                markDirty(1);
+                // Replan downstream at the branch v0 with half-cycle budget.
+                // replanForward() resumes next tick if budget expires.
                 double branch_v0 = tc->shared_9d.achieved_exit_vel;
                 double recomp_t0 = etime_user();
                 replanForward(tp, branch_v0,
@@ -3664,16 +3607,11 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
 
     manageBranches(tp);
 
-    // Incremental forward replan: process dirty region with half-cycle budget.
-    // replanForward() runs the full backward pass then the budgeted forward pass.
-    // If the budget expires before reaching the end of the queue, g_dirty_from is
-    // left pointing to the next segment to process — resumed on the following tick.
-    if (tp && !tp->pausing && !tp->aborting) {
-        TC_QUEUE_STRUCT *queue = &tp->queue;
-        int queue_len = tcqLen_user(queue);
-        if (g_dirty_from < queue_len) {
-            replanForward(tp, -1.0, g_handoff_config.servo_cycle_time_sec * 0.5);
-        }
+    // Forward replan: backward pass (full queue) + forward pass (budgeted).
+    // SKIP checks make clean segments O(1), so always scanning from index 0
+    // is cheap and guarantees consistency with backward-pass changes.
+    if (tp && !tp->pausing && !tp->aborting && g_needs_replan) {
+        replanForward(tp, -1.0, g_handoff_config.servo_cycle_time_sec * 0.5);
     }
 
 }
@@ -3696,8 +3634,7 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int /*optimizat
     if (queue->size <= 0) return 0;
     if (tcqLen_user(queue) < 1) return 0;
 
-    // Dirty marking was done in tcqPut_user when the segment was added.
-    // Run unlimited replan to process all dirty segments immediately.
+    // Run unlimited replan — processes all segments needing recomputation.
     replanForward(tp, -1.0, 0.0 /* unlimited */);
 
     return 0;
@@ -3746,7 +3683,7 @@ extern "C" int tpClearPlanning_9D(TP_STRUCT * const tp)
     g_last_feed_scale = 1.0;
     g_last_replan_time_ms = 0.0;
     g_last_replan_cost_ms = 0.5;
-    g_dirty_from = INT_MAX;
+    g_needs_replan = false;
     g_adaptive_horizon = AdaptiveHorizon();
 
     return 0;
