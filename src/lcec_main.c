@@ -327,8 +327,6 @@ static lcec_master_data_t *global_hal_data;
 static ec_master_state_t global_ms;
 
 #ifdef EC_USPACE_MASTER
-#include <syslog.h>
-
 static char *ipc_socket = NULL;
 RTAPI_MP_STRING(ipc_socket, "EtherCAT userspace master IPC socket path (NULL = no tool access)");
 
