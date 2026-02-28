@@ -1340,7 +1340,11 @@ extern "C" int tpAddLine_9D(
     // First segment of a new program: reset userspace planning state.
     // tpClear() runs in RT context where tpClearPlanning_9D is unavailable,
     // so we detect program-start here by an empty queue.
-    if (queue_len == 0) {
+    // Guards:
+    //   - compressor active: keeps queue empty while buffering mid-program
+    //   - compressor flushing: recursive call from compressorFlush; queue may
+    //     be empty because the flush is what's about to fill it
+    if (queue_len == 0 && !g_compressor.active && !g_compressor.flushing) {
         tpClearPlanning_9D(tp);
     }
 
