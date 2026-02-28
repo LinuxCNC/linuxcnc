@@ -27,9 +27,6 @@
 #include "rtapi_math.h"
 
 #include "ecrt.h"
-#ifdef EC_USPACE_MASTER
-#include "ectp.h"
-#endif
 #include "lcec_conf.h"
 
 // list macros
