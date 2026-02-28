@@ -820,7 +820,9 @@ static double computeChainExitCap(TP_STRUCT *tp, TC_STRUCT *active_tc,
 double tpComputeOptimalVelocity_9D(TC_STRUCT const * const tc,
                                    TC_STRUCT const * const prev_tc,
                                    double v_f_this,
-                                   int opt_step)
+                                   int opt_step,
+                                   double feed_tc,
+                                   double feed_prev)
 {
     (void)opt_step;  // Reserved for future multi-pass optimization
     if (!tc || !prev_tc) return 0.0;
@@ -831,11 +833,9 @@ double tpComputeOptimalVelocity_9D(TC_STRUCT const * const tc,
     double jrk_this = tc->maxjerk > 0 ? tc->maxjerk : g_handoff_config.default_max_jerk;
 
     // Constraint 1: Backward kinematic limit (jerk-aware)
-    // Always use jerk-limited formula for consistency with the forward pass's
-    // applyBidirectionalReachability (which also uses jerkLimitedMaxEntryVelocity).
-    // For v_f=0 (STOP segments or new tail segments), this is conservative but
-    // correct — the next backward pass will raise the limit once downstream
-    // velocities propagate.
+    // All inputs are in physical mm/s (feed-scaled). jerkLimitedMaxEntryVelocity
+    // is nonlinear (braking distance ∝ v²), so computing in scaled space avoids
+    // the systematic gap that appears when the forward pass re-checks at feed≠1.
     double vs_back;
     if (jrk_this > 0.0) {
         vs_back = jerkLimitedMaxEntryVelocity(v_f_this, tc->target, acc_this, jrk_this);
@@ -843,15 +843,12 @@ double tpComputeOptimalVelocity_9D(TC_STRUCT const * const tc,
         vs_back = sqrt(v_f_this * v_f_this + 2.0 * acc_this * tc->target);
     }
 
-    // Constraint 2: Current segment velocity limit
-    // Use max_feed_scale=1.0: backward pass works in UNSCALED velocity space.
-    // Feed override is applied once in the Ruckig profile computation.
-    // This ensures shared_9d.final_vel is feed-override-independent and
-    // consistent with kink_vel (also absolute/unscaled).
-    double vf_limit_this = tcGetPlanMaxTargetVel(tc, 1.0);
+    // Constraint 2: Current segment velocity limit (scaled to physical mm/s)
+    double vf_limit_this = tcGetPlanMaxTargetVel(tc, feed_tc);
 
     // Constraint 3: Previous segment velocity limit (with kink)
-    double v_max_prev = tcGetPlanMaxTargetVel(prev_tc, 1.0);
+    // kink_vel is an absolute physical limit — applyKinkVelLimit caps correctly
+    double v_max_prev = tcGetPlanMaxTargetVel(prev_tc, feed_prev);
     double vf_limit_prev = applyKinkVelLimit(prev_tc, v_max_prev);
 
     // Return minimum of all constraints
@@ -871,7 +868,9 @@ double tpComputeOptimalVelocity_9D(TC_STRUCT const * const tc,
  */
 int computeLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
                                   int optimization_depth,
-                                  SmoothingData &smoothing)
+                                  SmoothingData &smoothing,
+                                  double live_feed,
+                                  double live_rapid)
 {
     if (!queue) return -1;
     if (optimization_depth <= 0) return 0;
@@ -911,22 +910,34 @@ int computeLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
         double v_f_prev = 0.0;
         double ds = tc->target;
 
-        // Get final velocity limit for this segment.
+        // Per-segment feed scales for feed-aware backward pass.
+        // Computing in physical mm/s avoids the nonlinear gap from
+        // jerkLimitedMaxEntryVelocity(v*feed) ≠ jerkLimited(v)*feed.
+        double feed_tc   = tpGetSnapshotFeedScale(tc, live_feed, live_rapid);
+        double feed_prev = tpGetSnapshotFeedScale(prev1_tc, live_feed, live_rapid);
+
+        // Get final velocity limit for this segment (stored unscaled),
+        // scale to physical mm/s for this computation.
         // Chain freshly computed values within this sweep: at k=0 we must read
         // the stored value (nothing computed yet), at k>0 use the min of chained
         // and stored to respect both fresh propagation and external constraints.
-        double v_f_stored = tcGetFinalVelLimit(tc);
+        double v_f_stored = tcGetFinalVelLimit(tc) * feed_tc;
         double v_f_this = (k == 0) ? v_f_stored
                                    : std::min(chained_v_f, v_f_stored);
 
-        // Compute optimal velocity for previous segment
-        v_f_prev = tpComputeOptimalVelocity_9D(tc, prev1_tc, v_f_this, k);
+        // Compute optimal velocity for previous segment (all in physical mm/s)
+        v_f_prev = tpComputeOptimalVelocity_9D(tc, prev1_tc, v_f_this, k,
+                                                feed_tc, feed_prev);
 
-        chained_v_f = v_f_prev;
+        chained_v_f = v_f_prev;  // physical mm/s for chaining
 
-        // Estimate time for this segment
-        // Use average velocity between start and end
-        double v_avg_upper_bound = (tcGetFinalVelLimit(prev1_tc) + v_f_prev) / 2.0;
+        // Store UNSCALED for interface compatibility — forward pass reads
+        // unscaled and multiplies by feed, so the round-trip is correct.
+        double unscaled = (feed_prev > 0.001) ? v_f_prev / feed_prev : 0.0;
+
+        // Estimate time for this segment (both terms in physical mm/s)
+        double v_f_prev_stored_scaled = tcGetFinalVelLimit(prev1_tc) * feed_prev;
+        double v_avg_upper_bound = (v_f_prev_stored_scaled + v_f_prev) / 2.0;
         double v_avg_clamped = std::max(v_avg_upper_bound, LOCAL_VEL_EPSILON);
         double dt = ds / v_avg_clamped;
         double t_prev = smoothing.t.back();
@@ -937,8 +948,8 @@ int computeLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
         // TODO: Check tc->synchronized
         bool ignore_smoothing = false; // For now, don't ignore any
 
-        // Add to smoothing data
-        smoothing.v_smooth.push_back(v_f_prev);
+        // Add to smoothing data (unscaled velocity)
+        smoothing.v_smooth.push_back(unscaled);
         smoothing.ds.push_back(ds);
         smoothing.t.push_back(t_prev + dt);
         smoothing.ignore.push_back(ignore_smoothing);
@@ -1993,9 +2004,16 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
     if (queue_len < 1) return;
 
     // ---- Phase 1: full backward pass (analytic, always covers whole queue) ----
+    // Feed snapshot taken here so the backward pass computes in physical mm/s,
+    // matching the forward pass's reachability checks and eliminating the
+    // nonlinear scaling gap from jerkLimitedMaxEntryVelocity.
+    double live_feed   = emcmotStatus ? emcmotStatus->feed_scale  : 1.0;
+    double live_rapid  = emcmotStatus ? emcmotStatus->rapid_scale : 1.0;
+
     int depth = queue_len;
     if (depth > MAX_LOOKAHEAD_DEPTH) depth = MAX_LOOKAHEAD_DEPTH;
-    if (computeLimitingVelocities_9D(queue, depth, g_smoothing_data) != 0) return;
+    if (computeLimitingVelocities_9D(queue, depth, g_smoothing_data,
+                                      live_feed, live_rapid) != 0) return;
     if (applyLimitingVelocities_9D(queue, g_smoothing_data, depth) != 0) return;
 
     // ---- Phase 2: forward pass from index 0 ----
@@ -2019,10 +2037,6 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         prev_exit_vel = v0_override;
         prev_exit_vel_known = true;
     }
-
-    // Live feed snapshot for this pass
-    double live_feed   = emcmotStatus ? emcmotStatus->feed_scale  : 1.0;
-    double live_rapid  = emcmotStatus ? emcmotStatus->rapid_scale : 1.0;
 
     bool unlimited = (budget_sec <= 0.0);
     double tick_start = etime_user();
