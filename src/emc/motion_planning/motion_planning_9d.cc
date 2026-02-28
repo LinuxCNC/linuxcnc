@@ -933,8 +933,10 @@ double tpComputeOptimalVelocity_9D(TC_STRUCT const * const tc,
     // All inputs are in physical mm/s (feed-scaled). jerkLimitedMaxEntryVelocity
     // is nonlinear (braking distance ∝ v²), so computing in scaled space avoids
     // the systematic gap that appears when the forward pass re-checks at feed≠1.
+    // Use trapezoidal for v_f≈0 (tail/STOP segments) for fast velocity recovery
+    // in the backward chain.
     double vs_back;
-    if (jrk_this > 0.0) {
+    if (jrk_this > 0.0 && v_f_this > 1e-6) {
         vs_back = jerkLimitedMaxEntryVelocity(v_f_this, tc->target, acc_this, jrk_this);
     } else {
         vs_back = sqrt(v_f_this * v_f_this + 2.0 * acc_this * tc->target);
@@ -2200,6 +2202,26 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         double scaled_v_exit = fmin(v_exit * feed_scale, max_vel);
         scaled_v_exit = applyKinkVelCap(scaled_v_exit, v_exit, max_vel, tc->kink_vel);
         double desired_fvel = scaled_v_exit;
+
+        // Forward-lookahead: cap exit by what the next segment can actually
+        // enter (jerk-limited braking to its exit vel).  The backward pass
+        // uses trapezoidal for v_f≈0 which overestimates; this corrects the
+        // junction before the profile is committed.
+        if (scaled_v_exit > 0.0 && i + 1 < queue_len) {
+            TC_STRUCT *next_tc = tcqItem_user(queue, i + 1);
+            if (next_tc && next_tc->target > 1e-9) {
+                double nf = snap.forSegment(next_tc);
+                double nv_exit = (next_tc->term_cond == TC_TERM_COND_TANGENT)
+                    ? readFinalVelCapped(next_tc) * nf : 0.0;
+                double na = tcGetTangentialMaxAccel_9D_user(next_tc);
+                double nj = next_tc->maxjerk > 0 ? next_tc->maxjerk : default_jerk;
+                double reach = jerkLimitedMaxEntryVelocity(nv_exit, next_tc->target, na, nj);
+                if (reach < scaled_v_exit) {
+                    scaled_v_exit = reach;
+                    desired_fvel  = reach;
+                }
+            }
+        }
 
         // --- SKIP: profile already consistent with propagated v0 and current limits ---
         if (tc->shared_9d.profile.valid) {
