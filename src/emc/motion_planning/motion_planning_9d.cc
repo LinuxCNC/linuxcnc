@@ -296,6 +296,17 @@ static double g_committed_rapid = -1.0;
 static int g_recompute_cursor = 0;           // 0 = idle, >0 = queue index to resume from
 static double g_recompute_feed_scale = 1.0;  // snapshot of feed_scale at trigger time
 static double g_recompute_rapid_scale = 1.0; // snapshot of rapid_scale at trigger time
+
+// Set to true by manageBranches when a merge (branch→main) commits with a
+// force_full DS recompute.  checkFeedOverride skips ensureProfilesOnLowBuffer
+// for this tick: DS already wrote valid profiles for ALL segments, and the
+// buffer-emergency backward+forward pass in ensureProfilesOnLowBuffer would
+// re-run over them — its backward pass produces different final_vel than
+// DS's internal backward pass (because DS's backwardFixupPass set
+// reachability_exit_cap values that the next backward pass doesn't see yet),
+// causing CHECK #1 to fire and overwriting DS's correct ramp-up profiles
+// with stale geometric-limit exits (e.g. 95.5 mm/s at full-speed junctions).
+static bool g_merge_recomputed_this_tick = false;
 // Commit point: queue index where the current feed change takes effect.
 // Segments before this index keep old-feed profiles.
 static int g_commit_segment = 1;           // default: active+1 (existing behavior)
@@ -2021,7 +2032,8 @@ static int writeSpillOverStopProfiles(TP_STRUCT *tp, TC_STRUCT *tc,
  * extracted so recomputeDownstreamProfiles and cursor walk can use it too.
  */
 static void backwardFixupPass(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
-                              int start_idx, int end_idx, double default_jerk)
+                              int start_idx, int end_idx, double default_jerk,
+                              int pin_src = 8)
 {
     for (int i = end_idx; i > start_idx; i--) {
         TC_STRUCT *tc_B = tcqItem_user(queue, i);
@@ -2076,7 +2088,7 @@ static void backwardFixupPass(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
                 A_max_vel, A_acc, A_jrk, tc_A->target,
                 A_feed, A_vel_limit, tp->vLimit, capped_exit};
             if (computeAndStoreProfile(tc_A, rp)) {
-                tc_A->shared_9d.profile.dbg_src = 8;  // bkwd fixup
+                tc_A->shared_9d.profile.dbg_src = pin_src;
                 tc_A->shared_9d.profile.dbg_v0_req = A_v_entry_scaled;
             }
         } catch (...) {
@@ -2085,19 +2097,6 @@ static void backwardFixupPass(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue,
     }
 }
 
-/**
- * @brief Return the active segment's profile exit velocity, or 0.0 if
- *        the segment isn't tangent-terminated or has no valid profile.
- *
- * Used by callers of recomputeDownstreamProfiles() to pass v0_override —
- * the actual junction velocity between the active and its successor.
- */
-static double getActiveProfileExit(TC_STRUCT *tc)
-{
-    if (tc->term_cond == TC_TERM_COND_TANGENT && tc->shared_9d.profile.valid)
-        return tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-    return 0.0;
-}
 
 /**
  * @brief Synchronously recompute Ruckig profiles for downstream segments
@@ -2120,7 +2119,8 @@ static double getActiveProfileExit(TC_STRUCT *tc)
 static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                                        double snap_feed, double snap_rapid,
                                        int start_index = 1,
-                                       double v0_override = -1.0)
+                                       double v0_override = -1.0,
+                                       bool force_full = false)
 {
     if (!tp) return 0;
 
@@ -2186,15 +2186,19 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
         // AND we've reached a safe endpoint (next segment can handle our exit).
         // Without the safe-endpoint check, stopping mid-chain leaves downstream
         // segments with stale profiles that expect different entry velocities.
-        // Hard cap at 32 segments to prevent unbounded computation.
-        if (recomputed >= 32) break;
-        if (recomputed >= 3) {
-            double elapsed_us = (etime_user() - tick_start) * 1e6;
-            if (elapsed_us >= budget_us) {
-                // Only stop if previous segment's exit is safe for this one
-                if (canStopChainHere(tp, queue, i - 1, prev_exit_vel_scaled,
-                                      snap_feed, snap_rapid, default_jerk))
-                    break;
+        // Hard cap and time budget are bypassed for merge events (force_full=true):
+        // the machine is stopped, RT is idle on the brake branch, and incomplete
+        // recompute leaves downstream segments with stale profiles that cause spikes.
+        if (!force_full) {
+            if (recomputed >= 32) break;
+            if (recomputed >= 3) {
+                double elapsed_us = (etime_user() - tick_start) * 1e6;
+                if (elapsed_us >= budget_us) {
+                    // Only stop if previous segment's exit is safe for this one
+                    if (canStopChainHere(tp, queue, i - 1, prev_exit_vel_scaled,
+                                          snap_feed, snap_rapid, default_jerk))
+                        break;
+                }
             }
         }
         TC_STRUCT *tc = tcqItem_user(queue, i);
@@ -2251,7 +2255,7 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
 
             applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
                 tc->target, max_acc, max_jrk);
-                
+
             // Skip if profile already matches: same feed, entry velocity, and exit target.
             // Avoids redundant Ruckig solves when forward pass already wrote correct profiles.
             // Exception: never skip i==start_index — that's the critical handoff segment
@@ -2272,7 +2276,7 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
                     feed_scale, vel_limit, tp->vLimit, desired_fvel_for_profile};
 
                 if (computeAndStoreProfile(tc, rp)) {
-                    tc->shared_9d.profile.dbg_src = 1;  // recomputeDS
+                    tc->shared_9d.profile.dbg_src = 5;  // DS-pinned (recomputeDS)
                     tc->shared_9d.profile.dbg_v0_req = scaled_v_entry;
                     prev_exit_vel_scaled = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
                     atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
@@ -2295,10 +2299,22 @@ static int recomputeDownstreamProfiles(TP_STRUCT *tp,
     // Backward fixup: cap each segment's exit by what its successor can accept.
     // The forward loop above may set exits that are too high for short successors
     // when final_vel * feed exceeds the successor's reachability at the actual feed.
+    //
+    // end_idx: for force_full runs (merge at resume) the forward loop processes
+    // the entire queue with SKIP/RECP interspersed, so 'recomputed' is a count
+    // of segments that needed Ruckig solves, not a contiguous span from start_index.
+    // Using (start_index + recomputed - 1) would only cover the first 'recomputed'
+    // indices and miss violations beyond that (e.g. seg162→blend at index 25 when
+    // recomputed=20 → end_idx=20, pair at 25/26 never inspected).
+    // For force_full, use queue_len-1 to cover the full processed range.
+    //
+    // pin_src=5: segments capped by backward fixup in the DS context keep the
+    // DS-pin so Phase 2 (next tick) does not re-raise their exit velocity.
     if (recomputed > 1) {
-        int end_idx = start_index + recomputed - 1;
+        int end_idx = force_full ? (queue_len - 1) : (start_index + recomputed - 1);
         if (end_idx >= queue_len) end_idx = queue_len - 1;
-        backwardFixupPass(tp, queue, start_index, end_idx, default_jerk);
+        backwardFixupPass(tp, queue, start_index, end_idx, default_jerk,
+                          force_full ? 5 : 8);
     }
 
     return recomputed;
@@ -2626,6 +2642,33 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
             if (!main_profile.valid) {
                 return false;
             }
+
+            // Constrain max_accel so the brake profile's acceleration at every
+            // segment boundary is Ruckig-compatible (|a_spill| <= sqrt(2*v_spill*jerk)).
+            // Without this, writeSpillOverStopProfiles must clamp a0 to the physics
+            // limit, creating an acceleration step spike at the junction.
+            // One recompute suffices: lower max_accel → slower brake → higher v_spill
+            // → looser sqrt(2*v*j) constraint, always satisfied after one iteration.
+            {
+                double remaining = tc->target - state.position;
+                double sv = 0.0, sa = 0.0;
+                computeSpillOver(&main_profile, remaining, &sv, &sa);
+                if (sv > TP_VEL_EPSILON) {
+                    double safe_acc = sqrt(2.0 * sv * default_jerk);
+                    if (tc->maxaccel > safe_acc + 0.5) {
+                        input.max_acceleration = {safe_acc};
+                        ruckig_profile_t constrained;
+                        memset(&constrained, 0, sizeof(constrained));
+                        auto r2 = otg.calculate(input, traj);
+                        if (r2 == ruckig::Result::Working || r2 == ruckig::Result::Finished) {
+                            copyRuckigProfile(traj, &constrained);
+                            if (constrained.valid && !profileHasNegativeVelocity(&constrained))
+                                main_profile = constrained;
+                        }
+                    }
+                }
+            }
+
             main_profile.computed_feed_scale = 0.0;
             main_profile.computed_vel_limit = vel_limit;
             main_profile.computed_vLimit = tp->vLimit;
@@ -3230,6 +3273,20 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         // Always clear valid (prevents new branches during execution)
         __atomic_store_n(&branch->valid, 0, __ATOMIC_RELEASE);
 
+        // Sync main profile exit to branch exit so computeRuckigProfiles_9D
+        // seeds downstream correctly in the same cycle after branch.valid=0.
+        // Without this, the forward pass reads the stale pre-pause main profile
+        // exit (e.g. 89.8 mm/s) instead of the resume branch exit (37.2 mm/s),
+        // overwriting the DS-recomputed downstream profiles in the same cycle.
+        // RT reads from branch.profile while the branch is active, not
+        // main.profile, so this write is safe from a concurrency standpoint.
+        if (branch->profile.valid && branch->profile.computed_feed_scale > 0.001) {
+            tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES] =
+                branch->profile.v[RUCKIG_PROFILE_PHASES];
+            tc->shared_9d.profile.computed_feed_scale =
+                branch->profile.computed_feed_scale;
+        }
+
         if (!has_brake || brake_done) {
             // Single-stage or brake complete: fully clear
             __atomic_store_n(&branch->taken, 0, __ATOMIC_RELEASE);
@@ -3244,10 +3301,12 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         // through the normal branch-merge cycle.
         double merge_feed = new_canonical;  // = branch->feed_scale
         double merge_rapid = emcmotStatus ? emcmotStatus->rapid_scale : 1.0;
+
         // Invalidate all downstream segments and recompute as many as time allows.
         invalidateNextNSegments(tp, INT_MAX);
         int done = recomputeDownstreamProfiles(tp, merge_feed, merge_rapid,
-                                                1, tc->shared_9d.achieved_exit_vel);
+                                                1, tc->shared_9d.achieved_exit_vel,
+                                                /*force_full=*/true);
 
         // Update global tracking
         g_last_feed_scale = new_canonical;
@@ -3256,6 +3315,13 @@ extern "C" void manageBranches(TP_STRUCT *tp)
         g_recompute_cursor = done + 1;  // +1 to skip active segment (index 0)
         g_recompute_feed_scale = merge_feed;
         g_recompute_rapid_scale = merge_rapid;
+
+        // Signal that DS recomputed all profiles this tick: suppress the
+        // ensureProfilesOnLowBuffer backward+forward pass that would otherwise
+        // overwrite DS profiles (its backward pass disagrees with DS's internal
+        // backward pass → CHECK #1 fires → all DS ramp-up profiles get clobbered).
+        g_merge_recomputed_this_tick = true;
+
         return;
     }
 
@@ -3822,6 +3888,11 @@ static void ensureProfilesOnLowBuffer(TP_STRUCT *tp)
  */
 extern "C" void checkFeedOverride(TP_STRUCT *tp)
 {
+    // Reset per-tick flag: manageBranches() may set this if a merge with
+    // force_full DS recompute ran.  Must reset before manageBranches() so
+    // the flag reflects THIS tick only.
+    g_merge_recomputed_this_tick = false;
+
     // Abort profiles written — no feed-override activity allowed.
     // This covers the window between tpRequestAbortBranch_9D() (userspace,
     // sets abort_profiles_written=1) and tpAbort() (RT, sets tp->aborting=1).
@@ -4017,8 +4088,15 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
         }
     }
 
-    // Adaptive throttling: ensure profiles computed when buffer is thin
-    ensureProfilesOnLowBuffer(tp);
+    // Adaptive throttling: ensure profiles computed when buffer is thin.
+    // Skip if DS recomputed all profiles this tick (force_full merge):
+    // the backward+forward pass here would clobber DS's correct ramp-up
+    // profiles — its backward pass disagrees with DS's internal backward
+    // pass → CHECK #1 fires → all DS profiles get rewritten with stale
+    // geometric-limit exits (e.g. 95.5 mm/s at full-speed junctions).
+    if (!g_merge_recomputed_this_tick) {
+        ensureProfilesOnLowBuffer(tp);
+    }
 
 }
 
@@ -4160,6 +4238,26 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
             continue;
         }
 
+        // DS-pinned profiles (dbg_src==5): written by recomputeDownstreamProfiles
+        // with force_full at resume.  The outer backward pass (computeLimitingVelocities_9D)
+        // uses geometric-only kink limits and disagrees with DS's ramp-up-aware internal
+        // backward pass → CHECK #1 would fire and overwrite DS's correct ramp-up exits
+        // with conservative kink-limited values, causing velocity spikes at resume.
+        // Accept DS's profile as authoritative and propagate its exit forward.
+        // The cursor walk writes dbg_src=2 when it recomputes for a feed change,
+        // naturally unpinning the segment and restoring normal CHECK #1 logic.
+        if (tc->shared_9d.profile.valid && tc->shared_9d.profile.dbg_src == 5) {
+            if (tc->term_cond == TC_TERM_COND_TANGENT) {
+                prev_exit_vel = profileExitVelUnscaled(&tc->shared_9d.profile);
+                prev_exit_feed_scale = tc->shared_9d.profile.computed_feed_scale;
+            } else {
+                prev_exit_vel = 0.0;
+                prev_exit_feed_scale = 1.0;
+            }
+            prev_exit_vel_known = true;
+            continue;
+        }
+
         // Check if profile needs (re)computation
         // Recompute if:
         // 1. Profile not valid
@@ -4222,9 +4320,18 @@ int computeRuckigProfiles_9D(TP_STRUCT *tp, TC_QUEUE_STRUCT *queue, int optimiza
             }
         }
 
-        // (Removed fwd_pass overwriting diagnostic — false positives at
-        // startup when optimizer hasn't converged yet.  Forward pass
-        // overwriting cursor-walk profiles is expected behavior.)
+        // Protect intentional stop profiles (pause/abort spill-over) from
+        // being overwritten by the optimizer while pausing/aborting.
+        // These have feed=0.0 which triggers feed_scale mismatch, entry_vel
+        // mismatch, and final_vel mismatch — but the profiles are correct
+        // for the deceleration.  Once pause ends, stop profiles can be
+        // freely replaced so the optimizer converges on the new feed.
+        if (needs_recompute && (tp->pausing || tp->aborting) &&
+            tc->shared_9d.profile.valid &&
+            tc->shared_9d.profile.computed_feed_scale < 0.001 &&
+            opt_state != TC_PLAN_UNTOUCHED) {
+            needs_recompute = false;
+        }
 
         if (!needs_recompute) {
             // Profile valid and up-to-date — read actual exit velocity from profile
