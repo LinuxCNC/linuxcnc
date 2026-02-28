@@ -329,6 +329,30 @@ static ec_master_state_t global_ms;
 #ifdef EC_USPACE_MASTER
 static char *ipc_socket = NULL;
 RTAPI_MP_STRING(ipc_socket, "EtherCAT userspace master IPC socket path (NULL = no tool access)");
+
+static void lcec_ec_log_callback(int level, const char *fmt, va_list ap) {
+  msg_level_t rtapi_level;
+
+  switch (level) {
+    case EC_LOG_ERR:
+      rtapi_level = RTAPI_MSG_ERR;
+      break;
+    case EC_LOG_WARNING:
+      rtapi_level = RTAPI_MSG_WARN;
+      break;
+    case EC_LOG_INFO:
+      rtapi_level = RTAPI_MSG_INFO;
+      break;
+    case EC_LOG_DEBUG:
+    default:
+      rtapi_level = RTAPI_MSG_DBG;
+      break;
+  }
+
+  char buf[256];
+  rtapi_vsnprintf(buf, sizeof(buf), fmt, ap);
+  rtapi_print_msg(rtapi_level, LCEC_MSG_PFX "EC: %s", buf);
+}
 #endif
 
 int lcec_parse_config(void);
@@ -380,7 +404,7 @@ int rtapi_app_main(void) {
 
 #ifdef EC_USPACE_MASTER
   // initialize userspace ethercat master library
-  if (ecrt_lib_init(NULL, ipc_socket) < 0) {
+  if (ecrt_lib_init(lcec_ec_log_callback, ipc_socket) < 0) {
     rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "ecrt_lib_init() failed (ipc_socket=%s)\n",
         ipc_socket ? ipc_socket : "NULL");
     goto fail2;
