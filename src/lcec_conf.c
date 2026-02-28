@@ -622,19 +622,14 @@ static void parseMasterAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **
     if (strcmp(name, "transportType") == 0) {
       if (strcmp(val, "raw") == 0) {
         p->transportType = EC_TRANSPORT_RAW;
-#ifdef HAVE_XDP
       } else if (strcmp(val, "xdp-skb") == 0) {
         p->transportType = EC_TRANSPORT_XDP_SKB;
       } else if (strcmp(val, "xdp-native") == 0) {
         p->transportType = EC_TRANSPORT_XDP_NATIVE;
-#endif
       } else {
         fprintf(stderr, "%s: ERROR: Unknown transportType '%s'"
-            " (valid values: raw"
-#ifdef HAVE_XDP
-            ", xdp-skb, xdp-native"
-#endif
-            ")\n", modname, val);
+            " (valid values: raw, xdp-skb, xdp-native)\n",
+            modname, val);
         XML_StopParser(inst->parser, 0);
         return;
       }
