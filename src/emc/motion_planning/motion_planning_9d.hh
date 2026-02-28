@@ -273,18 +273,6 @@ double calculateBufferTimeMs(TP_STRUCT *tp);
 double getDefaultMaxJerk();
 
 /**
- * @brief Manage branches for feed override using branch/merge architecture
- *
- * Called each iteration of the optimization loop. Handles:
- * 1. Merging taken branches (branch.taken=1 -> canonical)
- * 2. Discarding missed branches (elapsed > window_end)
- * 3. Creating new branches when feed scale changes
- *
- * @param tp Trajectory planner structure
- */
-void manageBranches(TP_STRUCT *tp);
-
-/**
  * @brief Request a stop branch for abort (called from task layer)
  *
  * Called by emcTrajAbort() before sending EMCMOT_ABORT to RT.
@@ -296,12 +284,12 @@ void manageBranches(TP_STRUCT *tp);
 int tpRequestAbortBranch_9D(TP_STRUCT *tp);
 
 /**
- * @brief Check for feed override changes (legacy wrapper)
+ * @brief Feed override entry point — evaluate + dispatch.
  *
- * This function is kept for API compatibility with existing callers.
- * It simply forwards to manageBranches().
+ * Called once per servo cycle from taskintf.  Uses FeedOverrideManager to
+ * decide what action is needed (merge, branch, stop, defer, etc.), then
+ * dispatches to the appropriate handler.
  *
- * @deprecated Use manageBranches() directly
  * @param tp Trajectory planner structure
  */
 void checkFeedOverride(TP_STRUCT *tp);

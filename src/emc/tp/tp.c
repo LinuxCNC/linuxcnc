@@ -4164,7 +4164,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
     if (planner_type == 2 && __atomic_load_n(&tc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         // Always use Ruckig branch/merge path, including for pause/abort
-        // Userspace computes a stop branch (same as 0% feed hold) via manageBranches()
+        // Userspace computes a stop branch (same as 0% feed hold) via checkFeedOverride()
         // This provides time-optimal jerk-limited deceleration
         use_ruckig = 1;
     }
