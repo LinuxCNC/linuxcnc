@@ -27,6 +27,9 @@
 #include "rtapi_math.h"
 
 #include "ecrt.h"
+#ifdef EC_USPACE_MASTER
+#include "ectp.h"
+#endif
 #include "lcec_conf.h"
 
 // list macros
@@ -132,6 +135,8 @@ typedef struct lcec_master {
   char backup_interface[LCEC_CONF_STR_MAXLEN];
   unsigned int debug_level;
   int run_on_cpu;
+  ec_transport_t *transport;
+  ec_transport_t *backup_transport;
 #endif
   char name[LCEC_CONF_STR_MAXLEN];
   ec_master_t *master;

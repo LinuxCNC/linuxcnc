@@ -390,14 +390,33 @@ int rtapi_app_main(void) {
   // initialize masters
   for (master = first_master; master != NULL; master = master->next) {
 #ifdef EC_USPACE_MASTER
+    // create main transport
+    master->transport = ec_transport_create(
+        (ec_transport_type_t) master->transport_type, master->interface);
+    if (!master->transport) {
+      rtapi_print_msg(RTAPI_MSG_ERR,
+          LCEC_MSG_PFX "failed to create transport for master %s (iface %s)\n",
+          master->name, master->interface);
+      goto fail2;
+    }
+
+    // create backup transport (if configured)
+    master->backup_transport = NULL;
+    if (master->backup_interface[0]) {
+      master->backup_transport = ec_transport_create(
+          (ec_transport_type_t) master->transport_type, master->backup_interface);
+      if (!master->backup_transport) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            LCEC_MSG_PFX "failed to create backup transport for master %s (iface %s)\n",
+            master->name, master->backup_interface);
+        goto fail2;
+      }
+    }
+
     // startup userspace master
     master->master = ecrt_startup_master(
-        master->index,
-        (ec_transport_type_t) master->transport_type,
-        master->interface,
-        master->backup_interface[0] ? master->backup_interface : NULL,
-        master->debug_level,
-        (unsigned int) master->run_on_cpu);
+        master->index, master->transport, master->backup_transport,
+        master->debug_level, master->run_on_cpu);
     if (!master->master) {
       rtapi_print_msg(RTAPI_MSG_ERR,
           LCEC_MSG_PFX "startup of master %s (index %d, iface %s) failed\n",
@@ -1228,6 +1247,15 @@ void lcec_clear_config(void) {
     if (master->master) {
       ecrt_release_master(master->master);
     }
+#ifdef EC_USPACE_MASTER
+    // destroy transports (caller owns create/destroy lifecycle)
+    if (master->transport) {
+      ec_transport_destroy(master->transport);
+    }
+    if (master->backup_transport) {
+      ec_transport_destroy(master->backup_transport);
+    }
+#endif
 
     // free PDO entry memory
     if (master->pdo_entry_regs != NULL) {
