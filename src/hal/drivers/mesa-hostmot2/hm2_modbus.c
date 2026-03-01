@@ -2794,7 +2794,7 @@ int rtapi_app_main(void)
 
 		// Export the HAL process function
 		if((retval = hal_export_functf(process, inst, 1, 0, comp_id, COMP_NAME".%d.process", i)) < 0) {
-			MSG_ERR("%s: error: Function export failed\n", inst->name);
+			MSG_PRINT("%s: error: Function export failed\n", inst->name);
 			goto errout;
 		}
 
