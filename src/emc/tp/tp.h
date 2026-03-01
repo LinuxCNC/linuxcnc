@@ -104,6 +104,7 @@ int tpAddDwell(TP_STRUCT * const tp, double seconds, struct state_tag_t tag);
  * or before non-line segments (circles, dwells).
  */
 int tpFlushCompressor_9D(TP_STRUCT *tp);
+void tpResetCompressor_9D(void);
 
 /**
  * @brief Queue an action to fire when next segment activates
