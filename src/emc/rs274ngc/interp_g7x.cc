@@ -797,7 +797,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    }
 	    return;
 	}
-	if(std::abs(imag(location)-x)>tolerance) {
+	if(std::abs(imag(location)-x)>tolerance || (*p)->ep()==location) {
 	    /* Our x coordinate is beyond the current segment, move onto
 	       the next
 	    */
