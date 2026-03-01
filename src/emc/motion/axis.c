@@ -670,15 +670,14 @@ int axis_calc_motion(double servo_period)
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         axis = &axis_array[axis_num];
+        axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
+        axis->pos_cmd = axis->teleop_tp.curr_pos;
         // teleop_tp.max_vel is always positive
         if (axis->teleop_tp.max_vel > axis->vel_limit) {
             axis->teleop_tp.max_vel = axis->vel_limit;
         }
         if (update_teleop_with_check(axis_num, &(axis->teleop_tp), servo_period)) {
             violated_teleop_limit = 1;
-        } else {
-            axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
-            axis->pos_cmd = axis->teleop_tp.curr_pos;
         }
 
         if (!axis->teleop_tp.active) {

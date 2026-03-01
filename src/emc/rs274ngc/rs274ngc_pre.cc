@@ -997,9 +997,9 @@ int Interp::init()
             for (dct=0; dct < MAX_SUB_DIRS; dct++) {
                  _setup.subroutines[dct] = NULL;
             }
-
             rtapi_strxcpy(tmpdirs,inistring->c_str());
-            nextdir = strtok(tmpdirs,":");  // first token
+            char *saveptr;
+            nextdir = strtok_r(tmpdirs,":",&saveptr);  // first token
             dct = 0;
             while (1) {
                 char tmp_path[PATH_MAX];
@@ -1020,7 +1020,7 @@ int Interp::init()
                    logDebug("too many entries in SUBROUTINE_PATH, max=%d", MAX_SUB_DIRS);
                    break;
                 }
-                nextdir = strtok(NULL,":");
+                nextdir = strtok_r(NULL,":",&saveptr);
                 if (nextdir == NULL) break; // no more tokens
              }
           }
