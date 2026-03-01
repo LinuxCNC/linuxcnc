@@ -326,6 +326,137 @@ struct AdaptiveHorizon {
     }
 };
 
+// Gate-based feed override coalescing: only permits new branches when the
+// system knows it has enough converged queue to survive another branch cycle.
+// safe_depth is derived entirely from measured observables — no magic numbers.
+struct PlanningHorizon {
+    // Gate state
+    bool   gate_open       = true;
+    int    converged_depth = 0;   // segments [0..N) converged at current feed
+    int    safe_depth      = 3;   // segments needed to reopen gate
+
+    // Measured costs (EMA, seconds). Bootstrap from timing measurements.
+    double ruckig_cost_sec    = 3.0e-6;   // per-segment forward pass
+    double backward_cost_sec  = 10.0e-6;  // full backward pass
+    double branch_cost_sec    = 50.0e-6;  // computeBranch wall time
+
+    static constexpr double ALPHA = 0.3;  // EMA smoothing (~3-sample half-life)
+    static constexpr int    MIN_SAFE_DEPTH = 3;
+    static constexpr int    MAX_SAFE_DEPTH = 50;
+    static constexpr int    SCAN_SEGMENTS  = 30;
+
+    // Compute safe_depth from measured costs and segment durations.
+    // N > (B + BP) / (D_min - R)
+    //   B     = branch_cost_sec
+    //   BP    = backward_cost_sec
+    //   R     = ruckig_cost_sec (per-segment)
+    //   D_min = shortest segment duration at max feed, floored at servo_cycle
+    void recomputeSafeDepth(TP_STRUCT *tp) {
+        TC_QUEUE_STRUCT *queue = &tp->queue;
+        int qlen = tcqLen_user(queue);
+        if (qlen < 1) { safe_depth = MIN_SAFE_DEPTH; return; }
+
+        // Scan first SCAN_SEGMENTS segments for shortest duration
+        double d_min = 1e9;
+        int scan_n = (qlen < SCAN_SEGMENTS) ? qlen : SCAN_SEGMENTS;
+        for (int i = 0; i < scan_n; i++) {
+            TC_STRUCT *seg = tcqItem_user(queue, i);
+            if (!seg) continue;
+            double dur = seg->shared_9d.profile.duration;
+            if (dur > 1e-9 && dur < d_min) d_min = dur;
+        }
+
+        // Scale to max feed (2.0 = 200%) — shortest possible duration
+        double max_feed_scale = 2.0;
+        d_min /= max_feed_scale;
+
+        // Floor at servo cycle — RT can't consume faster than 1 per cycle
+        double servo = g_handoff_config.servo_cycle_time_sec;
+        if (servo > 1e-9 && d_min < servo) d_min = servo;
+
+        // Solve N > (B + BP) / (D_min - R)
+        double numerator = branch_cost_sec + backward_cost_sec;
+        double denominator = d_min - ruckig_cost_sec;
+        int n;
+        if (denominator <= 1e-9) {
+            n = MAX_SAFE_DEPTH;  // segments too short, be conservative
+        } else {
+            n = (int)ceil(numerator / denominator) + 1;
+        }
+
+        // Clamp
+        if (n < MIN_SAFE_DEPTH) n = MIN_SAFE_DEPTH;
+        int cap = (qlen < MAX_SAFE_DEPTH) ? qlen : MAX_SAFE_DEPTH;
+        if (n > cap) n = cap;
+
+        safe_depth = n;
+    }
+
+    bool isOpen() const { return gate_open; }
+
+    // Close gate on feed change. If already closed → coalesce (no-op).
+    void closeGate(TP_STRUCT *tp) {
+        if (!gate_open) return;  // already closed = coalescing
+        gate_open = false;
+        converged_depth = 0;
+        recomputeSafeDepth(tp);
+    }
+
+    // Called after replanForward completes during gate-closed period.
+    void onReplanComplete(int segments_visited) {
+        if (gate_open) return;  // nothing to track
+        converged_depth = segments_visited;
+        if (converged_depth >= safe_depth) {
+            gate_open = true;
+        }
+    }
+
+    // Update EMA costs after a branch+replan cycle completes.
+    void onBranchCycleComplete(double branch_sec, double replan_sec,
+                               int segs_visited) {
+        // Update branch cost EMA
+        branch_cost_sec = ALPHA * branch_sec + (1.0 - ALPHA) * branch_cost_sec;
+
+        // Extract per-segment Ruckig cost from global timing stats
+        if (g_ruckig_timing.count > 0) {
+            double measured_ruckig = g_ruckig_timing.total_us /
+                                     g_ruckig_timing.count * 1e-6;
+            ruckig_cost_sec = ALPHA * measured_ruckig +
+                              (1.0 - ALPHA) * ruckig_cost_sec;
+        }
+
+        // Backward cost = total replan time minus forward pass (ruckig * segs)
+        if (segs_visited > 0) {
+            double fwd_est = segs_visited * ruckig_cost_sec;
+            double bwd_est = replan_sec - fwd_est;
+            if (bwd_est > 0) {
+                backward_cost_sec = ALPHA * bwd_est +
+                                    (1.0 - ALPHA) * backward_cost_sec;
+            }
+        }
+    }
+
+    // Budget: boost when gate closed (converging), normal when open.
+    double getBudget(double servo_cycle_sec) const {
+        return gate_open ? servo_cycle_sec * 0.5 : servo_cycle_sec * 0.9;
+    }
+
+    // ── Incorporated sub-gates (disabled — preserved for future use) ──
+    // When enabled, these are checked in evaluate() after closeGate().
+    // Code preserved in evaluate() as commented-out blocks.
+    bool junction_safety_enabled = false;   // defer TANGENT with no branch room
+    bool commit_estimate_enabled = false;   // defer when active nearly done
+
+    void reset() {
+        gate_open = true;
+        converged_depth = 0;
+        safe_depth = MIN_SAFE_DEPTH;
+        ruckig_cost_sec = 3.0e-6;
+        backward_cost_sec = 10.0e-6;
+        branch_cost_sec = 50.0e-6;
+    }
+};
+
 //============================================================================
 // FEED OVERRIDE MANAGER
 //============================================================================
@@ -373,47 +504,52 @@ struct FeedSnapshot {
 
 // Single owner of all feed-override global state and decision logic
 struct FeedOverrideManager {
-    // Committed state (last successfully merged feed)
+    // Committed feed — the feed values that profiles are currently computed at.
+    // Updated on successful branch (before replan) and confirmed on merge.
+    // While gate is closed, snapshot() returns these instead of live HAL.
     double committed_feed  = 1.0;
-
-    // Timing / debounce
-    double last_branch_time_ms = 0.0;
-    double last_replan_cost_ms = 0.5;  // bootstrap: assume 0.5ms until measured
+    double committed_rapid = 1.0;
 
     // Adaptive handoff horizon
     AdaptiveHorizon horizon;
+
+    // Gate-based feed coalescing
+    PlanningHorizon planning;
 
     // Evaluation result (set by evaluate, read by dispatcher)
     FeedAction       action      = FeedAction::NONE;
     FeedChangeReason reason      = FeedChangeReason::NONE;
     double           target_feed = 1.0;
 
-    // Freeze current feed for a consistent optimization pass
+    // Freeze current feed for a consistent optimization pass.
+    // Gate OPEN  → live HAL (normal operation).
+    // Gate CLOSED → committed feed (consistent with branch).
     FeedSnapshot snapshot() const;
 
     // Single decision point — returns action, sets reason + target_feed
     FeedAction evaluate(TP_STRUCT *tp, TC_STRUCT *tc);
 
-    // State updates called by action handlers
-    void onMerge(double new_feed) {
-        committed_feed = new_feed;
+    // State updates called by action handlers.
+    // committed_feed/committed_rapid must be set by the caller before this.
+    void onMerge() {
         horizon.onTake();
+        planning.gate_open = true;  // merge = fully committed, gate opens
     }
 
     void onMiss() {
         horizon.onMiss();
     }
 
-    void onBranchCreated(double now_ms, double cost_ms) {
-        last_branch_time_ms = now_ms;
-        last_replan_cost_ms = cost_ms;
+    void onBranchCreated(double branch_sec, double replan_sec,
+                         int segs_visited) {
+        planning.onBranchCycleComplete(branch_sec, replan_sec, segs_visited);
     }
 
     void reset() {
         committed_feed = 1.0;
-        last_branch_time_ms = 0.0;
-        last_replan_cost_ms = 0.5;
+        committed_rapid = 1.0;
         horizon = AdaptiveHorizon();
+        planning.reset();
         action = FeedAction::NONE;
         reason = FeedChangeReason::NONE;
         target_feed = 1.0;
@@ -426,6 +562,11 @@ static FeedOverrideManager g_feed_mgr;
 extern emcmot_status_t *emcmotStatus;
 
 FeedSnapshot FeedOverrideManager::snapshot() const {
+    if (!planning.isOpen()) {
+        // Gate closed: return committed feed so all replans stay consistent
+        // with the branch that closed the gate.  No live HAL leaks through.
+        return { committed_feed, committed_rapid };
+    }
     return {
         emcmotStatus ? emcmotStatus->feed_scale  : 1.0,
         emcmotStatus ? emcmotStatus->rapid_scale : 1.0
@@ -2099,13 +2240,13 @@ static void computeSpillOver(const ruckig_profile_t *profile, double remaining_d
  * @param budget_sec     Wall-time budget.  <= 0 means unlimited (use at merge
  *                       when machine is stopped).
  */
-static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
+static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 {
-    if (!tp) return;
+    if (!tp) return 0;
 
     TC_QUEUE_STRUCT *queue = &tp->queue;
     int queue_len = tcqLen_user(queue);
-    if (queue_len < 1) return;
+    if (queue_len < 1) return 0;
 
     // ---- Phase 1: full backward pass (analytic, always covers whole queue) ----
     // Feed snapshot taken here so the backward pass computes in physical mm/s,
@@ -2115,8 +2256,8 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
     int depth = queue_len;
     if (computeLimitingVelocities_9D(queue, depth, g_smoothing_data,
-                                      snap.feed, snap.rapid) != 0) return;
-    if (applyLimitingVelocities_9D(queue, g_smoothing_data, depth) != 0) return;
+                                      snap.feed, snap.rapid) != 0) return 0;
+    if (applyLimitingVelocities_9D(queue, g_smoothing_data, depth) != 0) return 0;
 
     // ---- Phase 2: forward pass from index 0 ----
     // Always scan the full queue.  The SKIP check makes clean segments O(1)
@@ -2337,6 +2478,7 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
     // Full pass completed without budget expiry → all profiles consistent
     g_needs_replan = (i < queue_len);
 
+    return i;
 }
 
 
@@ -3127,19 +3269,19 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
 }
 
 /**
- * @brief Check if feed scale changed from canonical
+ * @brief Check if feed scale changed from reference
  *
  * No deadband - any change triggers branch computation.
- * The debounce mechanism prevents rapid recomputation.
+ * The planning gate prevents rapid recomputation.
  *
- * @param current_feed Current feed scale
- * @param canonical_feed Canonical (last merged) feed scale
- * @return true if feed changed (any amount)
+ * @param current_feed Current feed scale (live HAL)
+ * @param reference_feed Reference feed to compare against (committed)
+ * @return true if feed changed (any amount beyond FP noise)
  */
-static bool feedChangedSignificantly(double current_feed, double canonical_feed)
+static bool feedChangedSignificantly(double current_feed, double reference_feed)
 {
     // No deadband - any change triggers branch (tiny epsilon for FP noise only)
-    double change = fabs(current_feed - canonical_feed);
+    double change = fabs(current_feed - reference_feed);
     return change > 1e-6;
 }
 
@@ -3151,14 +3293,19 @@ static bool feedChangedSignificantly(double current_feed, double canonical_feed)
  * Pure decision — never calls computeBranch or replanForward.
  *
  * Check order:
- *   1. Pause/abort         → STOP_BRANCH
- *   2. Stale profile       → BRANCH (STALE_PROFILE)
- *   3. Kink velocity cap   → BRANCH (KINK_CAP)
- *   4. Chain exit cap      → BRANCH (CHAIN_CAP)
- *   5. Blend exit mismatch → BRANCH (BLEND_EXIT)
- *   6. Branch merge        → MERGE
- *   7. Stale branch        → CLEAR_STALE
- *   8. Feed change + gates → BRANCH / DEFER / NONE
+ *   1. Pause/abort         → STOP_BRANCH  (bypasses gate)
+ *   2. Branch merge        → MERGE        (branch lifecycle, not a feed change)
+ *   3. Stale branch        → CLEAR_STALE  (branch lifecycle)
+ *   4. Gate check          → NONE if gate closed (suppresses ALL feed changes)
+ *   5. Stale profile       → BRANCH (STALE_PROFILE)
+ *   6. Kink velocity cap   → BRANCH (KINK_CAP)
+ *   7. Chain exit cap      → BRANCH (CHAIN_CAP)
+ *   8. Blend exit mismatch → BRANCH (BLEND_EXIT)
+ *   9. Feed change detect  → close gate → BRANCH / NONE
+ *
+ * When gate is closed, the system sees committed_feed (not live HAL).
+ * No feed change is detected, no safety checks fire, no branches are
+ * created.  Only STOP_BRANCH (pause/abort) bypasses the gate.
  */
 FeedAction FeedOverrideManager::evaluate(TP_STRUCT *tp, TC_STRUCT *tc)
 {
@@ -3173,7 +3320,7 @@ FeedAction FeedOverrideManager::evaluate(TP_STRUCT *tp, TC_STRUCT *tc)
     int bv = __atomic_load_n(&branch->valid, __ATOMIC_ACQUIRE);
     int bt = __atomic_load_n(&branch->taken, __ATOMIC_ACQUIRE);
 
-    // ── 1. Pause/abort: compute smooth stop branch ──
+    // ── 1. Pause/abort: compute smooth stop branch ── [BYPASSES GATE]
     if (tp->pausing || tp->aborting) {
         if (!bv && !bt) {
             reason = tp->aborting ? FeedChangeReason::ABORT : FeedChangeReason::PAUSE;
@@ -3183,69 +3330,13 @@ FeedAction FeedOverrideManager::evaluate(TP_STRUCT *tp, TC_STRUCT *tc)
         return FeedAction::NONE;  // stop branch already pending/taken
     }
 
-    double current_feed_now = tpGetSegmentFeedScale(tc);
-
-    // ── 2. Stale profile correction ──
-    // Segment became active before its profile was recomputed at the right feed.
-    if (!bv) {
-        double profile_feed = tc->shared_9d.profile.computed_feed_scale;
-        double canonical_feed = tc->shared_9d.canonical_feed_scale;
-        double feed_diff = fabs(profile_feed - canonical_feed);
-        bool stale_initial = (profile_feed < 0.001 && current_feed_now > 0.01);
-        if (feed_diff > 0.005 || stale_initial) {
-            reason = FeedChangeReason::STALE_PROFILE;
-            target_feed = stale_initial ? current_feed_now : canonical_feed;
-            action = FeedAction::BRANCH;
-            return action;
-        }
-    }
-
-    // ── 3. Kink velocity cap ──
-    // Profile exits above junction kink constraint.
-    if (!bv && tc->kink_vel > 0) {
-        double prof_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-        if (prof_exit > tc->kink_vel + 0.5) {
-            reason = FeedChangeReason::KINK_CAP;
-            target_feed = current_feed_now;
-            action = FeedAction::BRANCH;
-            return action;
-        }
-    }
-
-    // ── 4. Chain exit cap ──
-    // Profile exits above what downstream chain can handle at current feed.
-    if (!bv && tc->term_cond == TC_TERM_COND_TANGENT) {
-        double default_jerk = tc->maxjerk > 0 ? tc->maxjerk : g_handoff_config.default_max_jerk;
-        double chain_cap = computeChainExitCap(tp, tc, current_feed_now, default_jerk);
-        double prof_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-        if (prof_exit > chain_cap + 1.0) {
-            reason = FeedChangeReason::CHAIN_CAP;
-            target_feed = current_feed_now;
-            action = FeedAction::BRANCH;
-            return action;
-        }
-    }
-
-    // ── 5. Blend exit mismatch ──
-    // Blend was created after initial profile, so profile still exits at ~0.
-    if (!bv && tc->term_cond == TC_TERM_COND_TANGENT) {
-        double prof_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-        double desired_exit = atomicLoadDouble(&tc->shared_9d.final_vel) * current_feed_now;
-        if (prof_exit < 1e-6 && desired_exit > 1.0) {
-            reason = FeedChangeReason::BLEND_EXIT;
-            target_feed = current_feed_now;
-            action = FeedAction::BRANCH;
-            return action;
-        }
-    }
-
-    // ── 6. Branch merge (RT took the branch) ──
+    // ── 2. Branch merge (RT took the branch) ── [branch lifecycle]
     if (bv && bt) {
         action = FeedAction::MERGE;
         return action;
     }
 
-    // ── 7a. Two-stage brake cleanup ──
+    // ── 3a. Two-stage brake cleanup ── [branch lifecycle]
     if (!bv && bt && branch->has_brake) {
         int brake_done = __atomic_load_n(&branch->brake_done, __ATOMIC_ACQUIRE);
         if (brake_done) {
@@ -3254,7 +3345,7 @@ FeedAction FeedOverrideManager::evaluate(TP_STRUCT *tp, TC_STRUCT *tc)
         }
     }
 
-    // ── 7b. Missed window ──
+    // ── 3b. Missed window ── [branch lifecycle]
     if (bv && !bt) {
         double rt_elapsed = atomicLoadDouble(&tc->elapsed_time);
         if (rt_elapsed > branch->window_end_time) {
@@ -3263,94 +3354,151 @@ FeedAction FeedOverrideManager::evaluate(TP_STRUCT *tp, TC_STRUCT *tc)
         }
     }
 
-    // ── 8. Feed change detection ──
-    if (!emcmotStatus) return FeedAction::NONE;
+    // ── 4. Gate: while closed, suppress all feed changes ──
+    // When the gate is closed, the system operates at committed_feed.
+    // snapshot() returns committed values, so replans stay consistent.
+    // No feed change is sensed until the gate opens.
+    if (!planning.isOpen()) {
+        return FeedAction::NONE;
+    }
 
-    // Per-segment-type feed (not net_feed_scale which reflects RT's current
-    // motion type, causing phantom changes at traverse↔feed boundaries).
+    // Gate is open — read live HAL for all subsequent checks.
     double current_feed = tpGetSegmentFeedScale(tc);
 
-    // Compare against REQUESTED feed (what user wants), not canonical (what
-    // was achieved). Prevents infinite loop on short segments where
-    // effective != requested.
-    double canonical_feed = tc->shared_9d.canonical_feed_scale;
-    double requested_feed = tc->shared_9d.requested_feed_scale;
-    if (requested_feed < 0.001) requested_feed = canonical_feed;
+    // ── 5. Stale profile correction ──
+    // Segment became active before its profile was recomputed at the right feed.
+    // Reference is current_feed (from FeedOverrideManager path), NOT
+    // canonical_feed_scale (written by RT from live HAL independently).
+    if (!bv) {
+        double profile_feed = tc->shared_9d.profile.computed_feed_scale;
+        double feed_diff = fabs(profile_feed - current_feed);
+        bool stale_initial = (profile_feed < 0.001 && current_feed > 0.01);
+        if (feed_diff > 0.005 || stale_initial) {
+            reason = FeedChangeReason::STALE_PROFILE;
+            target_feed = current_feed;
+            action = FeedAction::BRANCH;
+            planning.closeGate(tp);
+            return action;
+        }
+    }
 
-    // Check if feed or velocity limit changed
+    // ── 6. Kink velocity cap ──
+    // Profile exits above junction kink constraint.
+    if (!bv && tc->kink_vel > 0) {
+        double prof_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+        if (prof_exit > tc->kink_vel + 0.5) {
+            reason = FeedChangeReason::KINK_CAP;
+            target_feed = current_feed;
+            action = FeedAction::BRANCH;
+            planning.closeGate(tp);
+            return action;
+        }
+    }
+
+    // ── 7. Chain exit cap ──
+    // Profile exits above what downstream chain can handle at current feed.
+    if (!bv && tc->term_cond == TC_TERM_COND_TANGENT) {
+        double default_jerk = tc->maxjerk > 0 ? tc->maxjerk : g_handoff_config.default_max_jerk;
+        double chain_cap = computeChainExitCap(tp, tc, current_feed, default_jerk);
+        double prof_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+        if (prof_exit > chain_cap + 1.0) {
+            reason = FeedChangeReason::CHAIN_CAP;
+            target_feed = current_feed;
+            action = FeedAction::BRANCH;
+            planning.closeGate(tp);
+            return action;
+        }
+    }
+
+    // ── 8. Blend exit mismatch ──
+    // Blend was created after initial profile, so profile still exits at ~0.
+    if (!bv && tc->term_cond == TC_TERM_COND_TANGENT) {
+        double prof_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+        double desired_exit = atomicLoadDouble(&tc->shared_9d.final_vel) * current_feed;
+        if (prof_exit < 1e-6 && desired_exit > 1.0) {
+            reason = FeedChangeReason::BLEND_EXIT;
+            target_feed = current_feed;
+            action = FeedAction::BRANCH;
+            planning.closeGate(tp);
+            return action;
+        }
+    }
+
+    // ── 9. Feed change detection ──
+    if (!emcmotStatus) return FeedAction::NONE;
+
+    // Compare live HAL against committed feed — the feed the profiles are at.
+    bool feed_changed = feedChangedSignificantly(current_feed, committed_feed);
+
+    // Also check velocity limit changes (rare, from vel limit override).
     double current_vel_limit = getEffectiveVelLimit(tp, tc);
     double current_max_vel = applyVLimit(tp, tc, current_vel_limit * current_feed);
     double profile_vel_limit = tc->shared_9d.profile.computed_vel_limit;
     double profile_feed_scale = tc->shared_9d.profile.computed_feed_scale;
     double effective_profile_feed = (profile_feed_scale < 0.001)
-        ? requested_feed : profile_feed_scale;
+        ? committed_feed : profile_feed_scale;
     double profile_max_vel = applyVLimit(tp, tc,
         profile_vel_limit * effective_profile_feed);
 
-    bool feed_changed = feedChangedSignificantly(current_feed, requested_feed);
     double vel_diff = fabs(current_max_vel - profile_max_vel);
     double vel_threshold = fmax(current_max_vel, profile_max_vel) * 0.005;
     bool vel_changed = (vel_diff > vel_threshold) && (vel_diff > 0.1);
 
     if (!feed_changed && !vel_changed) return FeedAction::NONE;
 
-    // ── Gate: adaptive debounce (bypass for feed hold) ──
-    double now_ms = etime_user() * 1000.0;
-    if (current_feed >= 0.001) {
-        double convergence_ms = 8.0 * g_handoff_config.servo_cycle_time_sec * 1000.0;
-        double debounce_ms = fmax(last_replan_cost_ms, convergence_ms);
-        if (now_ms - last_branch_time_ms < debounce_ms) {
-            action = FeedAction::DEFER;
-            return action;
-        }
-    }
-
-    // ── Gate: junction safety (bypass for feed hold) ──
-    // Defer when active exits TANGENT into next segment but has no room for
-    // a branch — rewriting profiles risks partial propagation at junction.
-    if (current_feed >= 0.001) {
-        TC_QUEUE_STRUCT *gate_queue = &tp->queue;
-        int gate_qlen = tcqLen_user(gate_queue);
-        if (gate_qlen >= 2 && tc->term_cond == TC_TERM_COND_TANGENT &&
-            !segmentHasBranchRoom(tc)) {
-            TC_STRUCT *gate_next = tcqItem_user(gate_queue, 1);
-            if (gate_next && gate_next->shared_9d.profile.valid) {
-                action = FeedAction::DEFER;
-                return action;
+    // Feed hold: bypass commit estimate (immediate response needed).
+    if (current_feed < 0.001) {
+        // Two-phase feed hold:
+        // Phase 1: decelerate to 0.1% using normal Ruckig.
+        // Phase 2: once velocity is near 0.1% target, allow real 0%.
+        double snap_feed = current_feed;
+        static const double MINIMUM_RUCKIG_FEED = 0.001;
+        if (snap_feed < 0.001) {
+            double elapsed = atomicLoadDouble(&tc->elapsed_time);
+            PredictedState probe = predictStateAtTime(tc, elapsed);
+            double vel_at_min_feed = tc->reqvel * MINIMUM_RUCKIG_FEED;
+            if (!probe.valid || probe.velocity > vel_at_min_feed) {
+                snap_feed = MINIMUM_RUCKIG_FEED;
             }
         }
-    }
-
-    // ── Two-phase feed hold ──
-    // Phase 1: decelerate to 0.1% using normal Ruckig.
-    // Phase 2: once velocity is near 0.1% target, allow real 0%.
-    double snap_feed = current_feed;
-    static const double MINIMUM_RUCKIG_FEED = 0.001;
-    if (snap_feed < 0.001) {
-        double elapsed = atomicLoadDouble(&tc->elapsed_time);
-        PredictedState probe = predictStateAtTime(tc, elapsed);
-        double vel_at_min_feed = tc->reqvel * MINIMUM_RUCKIG_FEED;
-        if (!probe.valid || probe.velocity > vel_at_min_feed) {
-            snap_feed = MINIMUM_RUCKIG_FEED;
-        }
-    }
-
-    // ── Gate: commit segment estimate ──
-    // If active is nearly done, defer to next segment cycle.
-    int commit_seg;
-    if (current_feed < 0.001) {
-        commit_seg = 1;
-    } else {
-        commit_seg = estimateCommitSegment(tp, current_feed);
-    }
-    if (commit_seg > 1) {
-        action = FeedAction::DEFER;
+        reason = FeedChangeReason::FEED_HOLD;
+        target_feed = snap_feed;
+        action = FeedAction::BRANCH;
         return action;
     }
 
-    // ── Ready to branch ──
-    reason = (current_feed < 0.001) ? FeedChangeReason::FEED_HOLD : FeedChangeReason::KNOB;
-    target_feed = snap_feed;
+    // Close gate and branch.
+    planning.closeGate(tp);
+
+    // ── (disabled) Junction safety: defer when active exits TANGENT
+    //    with no room for a branch — rewriting profiles risks partial
+    //    propagation at junction.  Enable via planning.junction_safety_enabled.
+    // if (planning.junction_safety_enabled) {
+    //     TC_QUEUE_STRUCT *jq = &tp->queue;
+    //     int jqlen = tcqLen_user(jq);
+    //     if (jqlen >= 2 && tc->term_cond == TC_TERM_COND_TANGENT &&
+    //         !segmentHasBranchRoom(tc)) {
+    //         TC_STRUCT *jnext = tcqItem_user(jq, 1);
+    //         if (jnext && jnext->shared_9d.profile.valid) {
+    //             action = FeedAction::NONE;
+    //             return action;
+    //         }
+    //     }
+    // }
+
+    // ── (disabled) Commit segment estimate: defer when active nearly done
+    //    (RT would advance before the branch takes effect).
+    //    Enable via planning.commit_estimate_enabled.
+    // if (planning.commit_estimate_enabled) {
+    //     int commit_seg = estimateCommitSegment(tp, current_feed);
+    //     if (commit_seg > 1) {
+    //         action = FeedAction::NONE;
+    //         return action;
+    //     }
+    // }
+
+    reason = FeedChangeReason::KNOB;
+    target_feed = current_feed;
     action = FeedAction::BRANCH;
     return action;
 }
@@ -3368,9 +3516,6 @@ FeedAction FeedOverrideManager::evaluate(TP_STRUCT *tp, TC_STRUCT *tc)
 static void executeMerge(TP_STRUCT *tp, TC_STRUCT *tc)
 {
     pending_branch_t *branch = &tc->shared_9d.branch;
-    double new_canonical = branch->feed_scale;
-
-    tc->shared_9d.canonical_feed_scale = new_canonical;
 
     // For two-stage profiles, wait until brake is complete before fully clearing.
     // RT needs taken=1 to detect it's still in brake phase.
@@ -3395,11 +3540,19 @@ static void executeMerge(TP_STRUCT *tp, TC_STRUCT *tc)
         __atomic_store_n(&branch->taken, 0, __ATOMIC_RELEASE);
     }
 
-    // Recompute downstream at the BRANCH feed (not current slider).
-    // If slider moved since branch was created, evaluate() will detect
-    // the gap and create a new branch through normal cycle.
-    replanForward(tp, tc->shared_9d.achieved_exit_vel, 0.0 /* unlimited */);
-    g_feed_mgr.onMerge(new_canonical);
+    // Capture the feed that replanForward will use (snapshot respects gate).
+    // Set canonical to match so STALE_PROFILE doesn't fire spuriously.
+    FeedSnapshot snap = g_feed_mgr.snapshot();
+    tc->shared_9d.canonical_feed_scale = snap.forSegment(tc);
+
+    // Recompute downstream. If gate is open, this uses live HAL (= committed
+    // after onMerge). If gate is closed, uses committed_feed (= branch feed).
+    (void)replanForward(tp, tc->shared_9d.achieved_exit_vel, 0.0 /* unlimited */);
+
+    // Commit: update committed to match what the replan used, open gate.
+    g_feed_mgr.committed_feed = snap.feed;
+    g_feed_mgr.committed_rapid = snap.rapid;
+    g_feed_mgr.onMerge();
 }
 
 /**
@@ -3423,7 +3576,9 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
         }
     }
 
+    double branch_t0 = etime_user();
     bool ok = computeBranch(tp, tc, feed);
+    double branch_sec = etime_user() - branch_t0;
 
     if (g_feed_mgr.reason == FeedChangeReason::STALE_PROFILE && !ok) {
         double profile_feed = tc->shared_9d.profile.computed_feed_scale;
@@ -3438,13 +3593,23 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
     }
 
     if (ok) {
-        double now_ms = etime_user() * 1000.0;
+        // Freeze committed feed BEFORE replanForward — snapshot() reads
+        // these while gate is closed, so all replans (including the one
+        // below and any continuation replans) use the branch feed.
+        g_feed_mgr.committed_feed = emcmotStatus
+            ? emcmotStatus->feed_scale  : 1.0;
+        g_feed_mgr.committed_rapid = emcmotStatus
+            ? emcmotStatus->rapid_scale : 1.0;
+
         double branch_v0 = tc->shared_9d.achieved_exit_vel;
+        double budget = g_feed_mgr.planning.getBudget(
+            g_handoff_config.servo_cycle_time_sec);
         double recomp_t0 = etime_user();
-        replanForward(tp, branch_v0,
-                      g_handoff_config.servo_cycle_time_sec * 0.5);
-        double cost_ms = (etime_user() - recomp_t0) * 1000.0;
-        g_feed_mgr.onBranchCreated(now_ms, cost_ms);
+        int segs = replanForward(tp, branch_v0, budget);
+        double replan_sec = etime_user() - recomp_t0;
+        g_feed_mgr.onBranchCreated(branch_sec, replan_sec, segs);
+        // Gate stays closed — opens only from continuation replan
+        // in checkFeedOverride, ensuring at least one cycle of coalescing.
     }
 }
 
@@ -3742,8 +3907,28 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
     // Forward replan: backward pass (full queue) + forward pass (budgeted).
     // SKIP checks make clean segments O(1), so always scanning from index 0
     // is cheap and guarantees consistency with backward-pass changes.
-    if (!tp->pausing && !tp->aborting && g_needs_replan) {
-        replanForward(tp, -1.0, g_handoff_config.servo_cycle_time_sec * 0.5);
+    //
+    // Gate opening: only from this continuation path, and NEVER on the same
+    // cycle as a branch.  This guarantees at least one cycle of coalescing —
+    // while the gate is closed, evaluate() returns NONE (no feed change
+    // sensed because snapshot/committed match), and the continuation replan
+    // uses committed_feed via snapshot(), keeping profiles consistent.
+    if (!tp->pausing && !tp->aborting) {
+        if (g_needs_replan) {
+            double budget = g_feed_mgr.planning.getBudget(
+                g_handoff_config.servo_cycle_time_sec);
+            int segs = replanForward(tp, -1.0, budget);
+            if (!g_feed_mgr.planning.isOpen()
+                    && action != FeedAction::BRANCH) {
+                g_feed_mgr.planning.onReplanComplete(segs);
+            }
+        } else if (!g_feed_mgr.planning.isOpen()
+                       && action != FeedAction::BRANCH) {
+            // Queue fully converged but gate still closed from a previous
+            // branch cycle — open it so the next feed change can proceed.
+            g_feed_mgr.planning.onReplanComplete(
+                tcqLen_user(&tp->queue));
+        }
     }
 }
 
@@ -3766,7 +3951,7 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int /*optimizat
     if (tcqLen_user(queue) < 1) return 0;
 
     // Run unlimited replan — processes all segments needing recomputation.
-    replanForward(tp, -1.0, 0.0 /* unlimited */);
+    (void)replanForward(tp, -1.0, 0.0 /* unlimited */);
 
     return 0;
 }
