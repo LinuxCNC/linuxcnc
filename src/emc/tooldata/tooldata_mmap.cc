@@ -16,10 +16,11 @@
 ** along with this program; if not, write to the Free Software
 ** Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+
 #include <stdio.h>
 #include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include <unistd.h> // write(2),lseek(2)
+#include <fcntl.h> // open(2)
 #include <sys/mman.h>
 #include <string.h>
 #include "rtapi_mutex.h"
@@ -132,7 +133,7 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
     toolstat = ptr; //note NULL for sai
     creator_fd = open(tool_mmap_fname(),
                      TOOL_MMAP_CREATOR_OPEN_FLAGS,TOOL_MMAP_MODE);
-    if (!creator_fd) {
+    if (creator_fd < 0) {
         perror("tool_mmap_creator(): file open fail");
         exit(EXIT_FAILURE);
     }
