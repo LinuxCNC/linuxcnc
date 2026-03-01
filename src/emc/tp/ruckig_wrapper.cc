@@ -1,5 +1,5 @@
 /********************************************************************
-* Description: ruckig_wrapper.c
+* Description: ruckig_wrapper.cc
 *   Ruckig trajectory planning library wrapper implementation
 *
 *   This file provides a C wrapper around Ruckig C++ library
