@@ -249,7 +249,7 @@ void log_print(const char *fmt, ...) {
             logfile = fopen(logfile_name, "w");
             if (logfile == NULL) {
                 fprintf(stderr, "error opening %s: %s\n", logfile_name, strerror(errno));
-                exit(1);
+                exit(EXIT_FAILURE);
             }
         }
     }
@@ -270,18 +270,23 @@ int main(int argc, char* argv[]) {
         logfile_name = argv[1];
     } else {
         fprintf(stderr, "usage: motion-logger [LOGFILE]\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     mot_comp_id = hal_init("motion-logger");
     motion_logger_data = hal_malloc(sizeof(*motion_logger_data));
     int r = hal_pin_bit_new("motion-logger.reopen-log", HAL_IO, &motion_logger_data->reopen,
             mot_comp_id);
-    if(r < 0) { errno = -r; perror("hal_pin_bit_new"); exit(1); }
+    if(r < 0) { errno = -r; perror("hal_pin_bit_new"); exit(EXIT_FAILURE); }
     *motion_logger_data->reopen = 0;
     r = hal_ready(mot_comp_id);
-    if(r < 0) { errno = -r; perror("hal_ready"); exit(1); }
-    init_comm_buffers();
+    if(r < 0) { errno = -r; perror("hal_ready"); exit(EXIT_FAILURE); }
+
+    r = init_comm_buffers();
+    if (r) {
+        fprintf(stderr,"init_comm_buffer init failure\n");
+        exit(EXIT_FAILURE);
+    }
 
     while (1) {
         rtapi_mutex_get(&emcmotStruct->command_mutex);
