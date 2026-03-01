@@ -83,7 +83,8 @@ int tooldata_read_entry(const char *input_line)
         return -1;
     }
     if (input_line[0] == ';') {return 0;} //ignore leading ';'
-    strcpy(work_line, input_line);
+    strncpy(work_line, input_line, sizeof(work_line)-1);
+    work_line[sizeof(work_line)-1] = 0;
 
     CANON_TOOL_TABLE empty = tooldata_entry_init();
     toolno      = empty.toolno;
