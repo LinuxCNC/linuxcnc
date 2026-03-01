@@ -2114,7 +2114,6 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
     FeedSnapshot snap = g_feed_mgr.snapshot();
 
     int depth = queue_len;
-    if (depth > MAX_LOOKAHEAD_DEPTH) depth = MAX_LOOKAHEAD_DEPTH;
     if (computeLimitingVelocities_9D(queue, depth, g_smoothing_data,
                                       snap.feed, snap.rapid) != 0) return;
     if (applyLimitingVelocities_9D(queue, g_smoothing_data, depth) != 0) return;
@@ -2337,6 +2336,7 @@ static void replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
     // Full pass completed without budget expiry → all profiles consistent
     g_needs_replan = (i < queue_len);
+
 }
 
 
