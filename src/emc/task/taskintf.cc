@@ -1430,6 +1430,7 @@ int emcTrajAbort()
     if (status && status->planner_type == 2) {
         TP_STRUCT *tp = usrmotGetTPDataPtr();
         if (tp) {
+            tpResetCompressor_9D();
             tpRequestAbortBranch_9D(tp);
         }
     }
