@@ -17,11 +17,16 @@
 #ifndef SHCOM_HH
 #define SHCOM_HH
 
+#include <cmath>
+
 #include "linuxcnc.h"           // INCH_PER_MM
 #include "emc_nml.hh"
 #include "nml_oi.hh"            // NML_ERROR_LEN
 
-#define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
+static inline bool CLOSE(double a, double b, double eps)
+{
+    return std::fabs(a - b) < eps;
+}
 #define LINEAR_CLOSENESS 0.0001
 #define ANGULAR_CLOSENESS 0.0001
 #define CM_PER_MM 0.1
@@ -63,7 +68,7 @@ extern NML *emcErrorBuffer;
 extern char error_string[NML_ERROR_LEN];
 extern char operator_text_string[NML_TEXT_LEN];
 extern char operator_display_string[NML_DISPLAY_LEN];
-extern char defaultPath[80]; 
+extern char defaultPath[80];
 
 // default value for timeout, 0 means wait forever
 extern double emcTimeout;
@@ -75,6 +80,7 @@ enum EMC_UPDATE_TYPE {
 extern EMC_UPDATE_TYPE emcUpdateType;
 
 enum EMC_WAIT_TYPE {
+    EMC_WAIT_NEVER = 0,
     EMC_WAIT_RECEIVED = 2,
     EMC_WAIT_DONE
 };
@@ -127,7 +133,7 @@ extern int sendRapidOverride(double override);
 extern int sendMaxVelocity(double velocity);
 extern int sendSpindleOverride(int spindle, double override);
 extern int sendTaskPlanInit();
-extern int sendProgramOpen(char *program);
+extern int sendProgramOpen(const char *program);
 extern int sendProgramRun(int line);
 extern int sendProgramPause();
 extern int sendProgramResume();
@@ -145,3 +151,4 @@ extern int iniLoad(const char *filename);
 extern int checkStatus();
 
 #endif				/* ifndef SHCOM_HH */
+// vim: ts=4 sw=4

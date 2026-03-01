@@ -9,3176 +9,3821 @@
 * License: GPL Version 2
 * System: Linux
 *
-* Copyright (c) 2006-2008 All rights reserved.
+* Copyright (c) 2006-2008,2026 All rights reserved.
 *
 * Last change:
+* Feb-2026  B.Stultiens  As good as completely rewritten
 ********************************************************************/
 
-#define _REENTRANT
-
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <unistd.h>
 #include <signal.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/stat.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
 #include <getopt.h>
+#include <errno.h>
+#include <poll.h>
+#include <time.h>
+#include <fcntl.h>
 
-#include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
-#include "inifile.hh"		// INIFILE
-#include "rcs_print.hh"
-#include "timer.hh"             // etime()
-#include "shcom.hh"             // NML Messaging functions
-#include <rtapi_string.h>
+#include <string>
+#include <vector>
+#include <cctype>
+#include <algorithm>
+#include <fmt/format.h>
+
+#include "shcom.hh"
+#include "emcglb.h"
+#include "inifile.hh"
+#include "timer.hh"
 
 /*
-  Using linuxcncrsh:
+ * Using linuxcncrsh: see man page linuxcncrsh.1
+ */
 
-  linuxcncrsh {-- --port <port number> --name <server name> --connectpw <password>
-             --enablepw <password> --sessions <max sessions> --path <path>
-             -ini<INI file>}
+#define NELEM(x) (sizeof(x) / sizeof(*(x)))
 
-  With -- --port Waits for socket connections (Telnet) on specified socket, without port
-            uses default port 5007.
-  With -- --name <server name> Sets the server name to specified name for Hello.
-  With -- --connectpw <password> Sets the connection password to 'password'. Default EMC
-  With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
-  With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
-            to max sessions. Default is no limit (-1).
-  With -- --path Sets the base path to program (G-Code) files, default is "../../nc_files/".
-            Make sure to include the final slash (/).
-  With -- -ini <INI file>, uses specified INI file instead of default emc.ini.
+// To prevent excessive hostnames only
+#define MAX_HOSTNAME_SIZE 80
 
-  There are six commands supported, Where the commands set and get contain LinuxCNC
-  specific sub-commands based on the commands supported by linuxcncrsh, but where the
-  usual prefix ( "emc_") is omitted. Commands and most parameters are not case sensitive.
-  The exceptions are passwords, file paths and text strings.
+// These are for JOINT_WAIT_HOMED
+#define JOINT_WAIT_HOMED_SLEEP          0.1 // Sleeps time between checks
+#define JOINT_WAIT_HOMED_TIMEOUT       10.0 // Default timeout waiting for homing
+#define JOINT_WAIT_HOMED_TIMEOUT_WARN  30.0 // Timeout level to warn about stall
+#define JOINT_WAIT_HOMED_TIMEOUT_MAX  300.0 // Max timeout level to accept
 
-  The supported commands are as follows:
+// Maximum wait time in WAIT_HEARTBEAT to see real-time move along
+#define WAIT_HEARTBEAT_TIMEOUT 1.0
 
-  ==> HELLO <==
+// Maximum number of heartbeats to wait for EMC_TASK_STATE to change
+#define WAIT_TASK_STATE_CHANGE_MAX 25
 
-  Hello <password> <client> <version>
-  If a valid password was entered the server will respond with
-
-  HELLO ACK <Server Name> <Server Version>
-
-  Where server name and server version are looked up from the implementation.
-  if an invalid password or any other syntax error occurs then the server
-  responds with:
-
-  HELLO NAK
-
-  ==> Get <==
-
-  The get command includes one of the LinuxCNC sub-commands, described below and
-  zero or more additional parameters.
-
-  ==> Set <==
-
-  The set command inclides one of the LinuxCNC sub-commands, described below and
-  one or more additional parameters.
-
-  ==> Quit <==
-
-  The quit command disconnects the associated socket connection.
-
-  ==> Shutdown <==
-
-  The shutdown command tells LinuxCNC to shutdown before quitting the connection. This
-  command may only be issued if the Hello has been successfully negotiated and the
-  connection has control of the CNC (see enable sub-command below). This command
-  has no parameters.
-
-  ==> Help <==
-
-  The help command will return help information in text format over the telnet
-  connection. If no parameters are specified, it will itemize the available commands.
-  If a command is specified, it will provide usage information for the specified
-  command. Help will respond regardless of whether a "Hello" has been
-  successfully negotiated.
-
-
-  LinuxCNC sub-commands:
-
-  echo on | off
-  With get will return the current echo state, with set, sets the echo
-  state. When echo is on, all commands will be echoed upon receipt. This
-  state is local to each connection.
-
-  verbose on | off
-  With get will return the current verbose state, with set, sets the
-  verbose state. When in verbose mode is on, all set commands return
-  positive acknowledgement in the form SET <COMMAND> ACK. In addition,
-  text error messages will be issued when in verbose mode. This state
-  is local to each connection.
-
-  enable <pwd> | off
-  With get will return On or Off to indicate whether the current connection
-  is enabled to perform control functions. With set and a valid password,
-  the current connection is enabled for control functions. "OFF" may not
-  be used as a password and disables control functions for this connection.
-
-  config [TBD]
-
-  comm_mode ascii | binary
-  With get, will return the current communications mode. With set, will
-  set the communications mode to the specified mode. The binary protocol
-  is TBD.
-
-  comm_prot <version no>
-  With get, returns the current protocol version used by the server,
-  with set, sets the server to use the specified protocol version,
-  provided it is lower than or equal to the highest version number
-  supported by the server implementation.
-
-  INIFILE
-  Returns the path and file name of the current configuration inifile.
-
-  plat
-  Returns the platform for which this was compiled, e.g., linux_2_0_36
-
-  ini <var> <section>
-  Returns the string value of <var> in section <section>, in EMC_INIFILE
-
-  debug {<new value>}
-  With get, returns the integer value of EMC_DEBUG, in LinuxCNC. Note that
-  it may not be true that the local EMC_DEBUG variable here (in linuxcncrsh and
-  the GUIs that use it) is the same as the EMC_DEBUG value in the LinuxCNC. This
-  can happen if LinuxCNC is started from one INI file, and the GUI is started
-  with another that has a different value for DEBUG.
-  With set, sends a command to the LinuxCNC to set the new debug level,
-  and sets the EMC_DEBUG global here to the same value. This will make
-  the two values the same, since they really ought to be the same.
-
-  wait_mode none | received | done
-  Set the wait for commands to return to be right away (none), after the
-  command was sent and received (received), or after the command was
-  done (done).
-
-  wait received | done
-  Force a wait for the previous command to be received, or done. This lets
-  you wait in the event that "wait_mode none" is in effect.
-
-  set_timeout <timeout>
-  Set the timeout for commands to return to <timeout>, in seconds. Timeout
-  is a real number. If it's <= 0.0, it means wait forever. Default is 0.0,
-  wait forever.
-
-  update (none) | none | auto
-  With no arg, forces an update of the LinuxCNC status. With "none", doesn't
-  cause an automatic update of status with other emc_ words. With "auto",
-  makes emc_ words automatically update status before they return values.
-
-  error
-  Returns the current LinuxCNC error string, or "ok" if no error.
-
-  operator_display
-  Returns the current LinuxCNC operator display string, or "ok" if none.
-
-  operator_text
-  Returns the current LinuxCNC operator text string, or "ok" if none.
-
-  time
-  Returns the time, in seconds, from the start of the epoch. This starting
-  time depends on the platform.
-
-  estop (none) | on | off
-  With no arg, returns the estop setting as "on" or "off". Otherwise,
-  sends an estop on or off command.
-
-  machine (none) | on | off
-  With no arg, returns the machine setting as "on" or "off". Otherwise,
-  sends a machine on or off command.
-
-  mode (none) | manual | auto | mdi
-  With no arg, returns the mode setting as "manual", "auto", or "mdi".
-  Otherwise, sends a mode manual, auto, or mdi command.
-
-  mist (none) | on | off
-  With no arg, returns the mist setting as "on" or "off". Otherwise,
-  sends a mist on or off command.
-
-  flood (none) | on | off
-  With no arg, returns the flood setting as "on" or "off". Otherwise,
-  sends a flood on or off command.
-
-  spindle (none) | forward | reverse | increase | decrease | constant | off
-  With no arg, returns the value of the spindle state as "forward",
-  "reverse", "increase", "decrease", or "off". With arg, sends the spindle
-  command. Note that "increase" and "decrease" will cause a speed change in
-  the corresponding direction until a "constant" command is sent.
-
-  brake (none) | on | off
-  With no arg, returns the brake setting. Otherwise sets the brake.
-
-  tool
-  Returns the id of the currently loaded tool
-
-  tool_offset
-  Returns the currently applied tool length offset
-
-  load_tool_table <file>
-  Loads the tool table specified by <file>
-
-  home 0 | 1 | 2 | ...
-  Homes the indicated joint.
-
-  jog_stop joint_number|axis_letter
-  Stop the axis or joint jog
-
-  jog joint_number|axis_letter speed
-  Jog the indicated joint or axis at <speed>; sign of speed is direction
-
-  jog_incr joint_number|axis_letter <speed> <incr>
-  Jog the indicated joint or axis by increment <incr> at the <speed>; sign of
-  speed is direction
-
-  feed_override {<percent>}
-  With no args, returns the current feed override, as a percent. With
-  argument, set the feed override to be the percent value
-
-  spindle_override {<percent>}
-  With no args, returns the current spindle override, as a percent. With
-  argument, set the spindle override to be the percent value
-
-  abs_cmd_pos 0 | 1 | ...
-  Returns double obj containing the XYZ-SXYZ commanded pos in abs coords,
-  at given index, 0 = X, etc.
-
-  abs_act_pos
-  Returns double objs containing the XYZ-SXYZ actual pos in abs coords
-
-  rel_cmd_pos 0 | 1 | ...
-  Returns double obj containing the XYZ-SXYZ commanded pos in rel coords,
-  at given index, 0 = X, etc., including tool length offset
-
-  rel_act_pos
-  Returns double objs containing the XYZ-SXYZ actual pos in rel coords,
-  including tool length offset
-
-  joint_pos
-  Returns double objs containing the actual pos in absolute coords of individual
-  joint/slider positions, excludes tool length offset
-
-  pos_offset X | Y | Z | R | P | W
-  Returns the position offset associated with the world coordinate provided
-
-  joint_limit 0 | 1 | ...
-  Returns "ok", "minsoft", "minhard", "maxsoft", "maxhard"
-
-  joint_fault 0 | 1 | ...
-  Returns "ok" or "fault"
-
-  joint_homed 0 | 1 | ...
-  Returns "homed", "not"
-
-  mdi <string>
-  Sends the <string> as an MDI command
-
-  task_plan_init
-  Initializes the program interpreter
-
-  open <filename>
-  Opens the named file
-
-  run {<start line>}
-  Without start line, runs the opened program from the beginning. With
-  start line, runs from that line. A start line of -1 runs in verify mode.
-
-  pause
-  Pause program execution
-
-  resume
-  Resume program execution
-
-  step
-  Step the program one line
-
-  program
-  Returns the name of the currently opened program, or "none"
-
-  program_line
-  Returns the currently executing line of the program
-
-  program_status
-  Returns "idle", "running", or "paused"
-
-  program_codes
-  Returns the string for the currently active program codes
-
-  joint_type <joint>
-  Returns "linear", "angular", or "custom" for the type of the specified joint
-
-  joint_units <joint>
-  Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
-  for the corresponding native units of the specified axis. The type
-  of the axis (linear or angular) is used to resolve which type of units
-  are returned. The units are obtained heuristically, based on the
-  EMC_AXIS_STAT::units numerical value of user units per mm or deg.
-  For linear joints, something close to 0.03937 is deemed "inch",
-  1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
-  For angular joints, something close to 1.000 is deemed "deg",
-  PI/180 is "rad", 100/90 is "grad", otherwise it's "custom".
-
-  program_units
-  program_linear_units
-  Returns "inch", "mm", "cm", or "none", for the corresponding linear
-  units that are active in the program interpreter.
-
-  program_angular_units
-  Returns "deg", "rad", "grad", or "none" for the corresponding angular
-  units that are active in the program interpreter.
-
-  user_linear_units
-  Returns "inch", "mm", "cm", or "custom", for the
-  corresponding native user linear units of the LinuxCNC trajectory
-  level. This is obtained heuristically, based on the
-  EMC_TRAJ_STAT::linearUnits numerical value of user units per mm.
-  Something close to 0.03937 is deemed "inch", 1.000 is "mm", 0.1 is
-  "cm", otherwise it's "custom".
-
-  user_angular_units
-  Returns "deg", "rad", "grad", or "custom" for the corresponding native
-  user angular units of the LinuxCNC trajectory level. Like with linear units,
-  this is obtained heuristically.
-
-  display_linear_units
-  display_angular_units
-  Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
-  for the linear or angular units that are active in the display.
-  This is effectively the value of linearUnitConversion or
-  angularUnitConversion, resp.
-
-  linear_unit_conversion {inch | mm | cm | auto}
-  With no args, returns the unit conversion active. With arg, sets the
-  units to be displayed. If it's "auto", the units to be displayed match
-  the program units.
-
-  angular_unit_conversion {deg | rad | grad | auto}
-  With no args, returns the unit conversion active. With arg, sets the
-  units to be displayed. If it's "auto", the units to be displayed match
-  the program units.
-
-  probe_clear
-  Clear the probe tripped flag.
-
-  probe_tripped
-  Has the probe been tripped since the last clear.
-
-  probe_value
-  Value of current probe signal. (read-only)
-
-  probe
-  Move toward a certain location. If the probe is tripped on the way stop
-  motion, record the position and raise the probe tripped flag.
-
-  teleop_enable
-  Should motion run in teleop mode? (No args
-  gets it, one arg sets it.)
-
-  kinematics_type
-  returns the type of kinematics functions used identity=1, serial=2,
-  parallel=3, custom=4
-
-  override_limits on | off
-  If parameter is on, disables end of travel hardware limits to allow
-  jogging off of a limit. If parameters is off, then hardware limits
-  are enabled.
-
-  optional_stop  none | 0 | 1
-  returns state of optional setop, sets it or deactivates it (used to stop/continue on M1)
-
-  <------------------------------------------------>
-
-  To Do:
-
-  1> Load / save connect and enable passwords to file.
-  2> Implement commands to set / get passwords
-  3> Get enable to tell peer connections which connection has control.
-  4> Get shutdown to notify LinuxCNC to actually shutdown.
-*/
-
-// EMC_STAT *emcStatus;
+typedef enum { cmdUnknown, cmdHello, cmdSet, cmdGet, cmdQuit, cmdShutdown, cmdHelp } cmdType;
 
 typedef enum {
-  cmdHello, cmdSet, cmdGet, cmdQuit, cmdShutdown, cmdHelp, cmdUnknown} cmdType;
+	scUnknown,
+	// These you can always run
+	scEcho,
+	scTimestamp,
+	// From here you need a successful HELLO to run the setter
+	scEnable,
+	scDisable,
+	scVerbose,
+	scTime,
+	scClients,
+	scPlat,
+	scCommProt, // Deprecated
+	// From here you need to be enabled to run the setter
+	scIniFile,
+	scIni,
+	scDebug,
+	scUpdate, // Deprecated
+	scUpdateStatus, // Deprecated
+	scWaitMode,
+	scWait,
+	scWaitHeartbeat,
+	scTimeout,
+	scError,
+	scOperatorDisplay,
+	scOperatorText,
+	scEStop,
+	// From here the machine must be in the ON state
+	scMachine,
+	scMode,
+	scMist,
+	scFlood,
+	scSpindle,
+	scSpindleOverride,
+	scBrake,
+	scTool,
+	scToolOffset,
+	scLoadToolTable,
+	scJog,
+	scJogIncr,
+	scJogStop,
+	scFeedOverride,
+	scAbsCmdPos,
+	scAbsActPos,
+	scRelCmdPos,
+	scRelActPos,
+	scPosOffset,
+	scJointPos,
+	scJointHome,
+	scJointUnhome,
+	scJointWaitHomed,
+	scJointLimit,
+	scJointFault,
+	scJointHomed,
+	scJointType,
+	scJointUnits,
+	scJointVelocity,
+	scAxisVelocity,
+	scMDI,
+	scTaskPlanInit,
+	scOpen,
+	scRun,
+	scPause,
+	scResume,
+	scStep,
+	scAbort,
+	scProgram,
+	scProgramLine,
+	scProgramStatus,
+	scProgramCodes,
+	scProgramUnits,
+	scProgramLinearUnits,
+	scProgramAngularUnits,
+	scUserLinearUnits,
+	scUserAngularUnits,
+	scDisplayLinearUnits,
+	scDisplayAngularUnits,
+	scLinearUnitConversion,
+	scAngularUnitConversion,
+	scProbe,
+	scProbeClear,
+	scProbeTripped,
+	scProbeValue,
+	scTeleopEnable,
+	scKinematicsType,
+	scOverrideLimits,
+	scOptionalStop,
+} subCmdType;
 
-typedef enum {
-  scEcho, scVerbose, scEnable, scConfig, scCommMode, scCommProt, scIniFile,
-  scPlat, scIni, scDebug, scWaitMode, scWait, scSetTimeout, scUpdate, scError,
-  scOperatorDisplay, scOperatorText, scTime, scEStop, scMachine, scMode,
-  scMist, scFlood, scSpindle, scBrake, scTool, scToolOffset,
-  scLoadToolTable, scHome, scJogStop, scJog, scJogIncr, scFeedOverride,
-  scAbsCmdPos, scAbsActPos, scRelCmdPos, scRelActPos, scJointPos, scPosOffset,
-  scJointLimit, scJointFault, scJointHomed, scMDI, scTskPlanInit, scOpen, scRun,
-  scPause, scResume, scStep, scAbort, scProgram, scProgramLine, scProgramStatus,
-  scProgramCodes, scJointType, scJointUnits, scProgramUnits, scProgramLinearUnits,
-  scProgramAngularUnits, scUserLinearUnits, scUserAngularUnits, scDisplayLinearUnits,
-  scDisplayAngularUnits, scLinearUnitConversion,  scAngularUnitConversion, scProbeClear,
-  scProbeTripped, scProbeValue, scProbe, scTeleopEnable, scKinematicsType, scOverrideLimits,
-  scSpindleOverride, scOptionalStop, scSetWait, scUnknown
-  } cmdTokenType;
+typedef enum { rtOk = 0, rtError } cmdResponseType;
 
-typedef enum {
-  rtNoError, rtHandledNoError, rtStandardError, rtCustomError, rtCustomHandledError
-  } cmdResponseType;
 
 typedef struct {
-  int cliSock;
-  char hostName[80];
-  char version[8];
-  bool linked;
-  bool echo;
-  bool verbose;
-  bool enabled;
-  int commMode;
-  int commProt;
-  char inBuf[256];
-  char outBuf[4096];
-  char progName[PATH_MAX];} connectionRecType;
+	int sock;						// Client socket
+	std::vector<std::string> toks;	// Tokenized command
+	std::string third;				// Not tokenized rest after second token (to prevent double space deletions in filenames)
+	std::string inbuf;				// Input buffer, contains all data from read()
+	std::string outbuf;				// Output buffer, contains all data to write()
+	std::string hostname;			// Name of the client
+	std::string version;			// Client's version
+	std::string progname;			// Filename of (g-code) program
+	EMC_WAIT_TYPE waitmode;			// Local to the connection to allow others to intervene
+	double cmdtimeout;				// Command timeout (infinite when <= 0.0)
+	double usrtimeout;				// Timeout as set by SET TIMEOUT
+	int serial;						// The serial number of the last command sent
+	bool halfclosed;				// Set when the socket input/receive is closed
+	bool linked;					// Received HELLO and valid password
+	bool enabled;					// The connection can perform all SET commands
+	bool echo;						// Echo received commands
+	bool verbose;					// When set, send ACK after successful GET/SET commands
+	bool timestamp;					// Prefix answers with timestamp
+	bool timefmt;					// Print human readable date/time instead of seconds since epoch
+	int commMode;					// Deprecated
+	int commProt;					// Deprecated
+} connectionRecType;
 
-int port = 5007;
-int server_sockfd;
-socklen_t server_len, client_len;
-struct sockaddr_in server_address;
-struct sockaddr_in client_address;
-bool useSockets = true;
-int tokenIdx;
-const char *delims = " \n\r\0";
-int enabledConn = -1;
-char pwd[16] = "EMC\0";
-char enablePWD[16] = "EMCTOO\0";
-char serverName[24] = "EMCNETSVR\0";
-int sessions = 0;
-int maxSessions = -1;
+static int port = 5007;
+static std::string helloPwd = "EMC";
+static std::string enablePWD = "EMCTOO";
+static std::string serverName = "EMCNETSVR";
+static unsigned maxSessions = 0;
+static int quiet = 0;	// Set to suppress 'informational' messages to stdout
+static std::vector<connectionRecType> clients;
+static std::vector<std::string> searchPath;
+static std::string activeSetter;	// Set when a remote command is being processed
 
-const char *cmdTokens[] = {
-  "ECHO", "VERBOSE", "ENABLE", "CONFIG", "COMM_MODE", "COMM_PROT", "INIFILE", "PLAT", "INI", "DEBUG",
-  "WAIT_MODE", "WAIT", "TIMEOUT", "UPDATE", "ERROR", "OPERATOR_DISPLAY", "OPERATOR_TEXT",
-  "TIME", "ESTOP", "MACHINE", "MODE", "MIST", "FLOOD",
-  "SPINDLE", "BRAKE", "TOOL", "TOOL_OFFSET", "LOAD_TOOL_TABLE", "HOME",
-  "JOG_STOP", "JOG", "JOG_INCR", "FEED_OVERRIDE", "ABS_CMD_POS", "ABS_ACT_POS",
-  "REL_CMD_POS", "REL_ACT_POS", "JOINT_POS", "POS_OFFSET", "JOINT_LIMIT",
-  "JOINT_FAULT", "JOINT_HOMED", "MDI", "TASK_PLAN_INIT", "OPEN", "RUN", "PAUSE",
-  "RESUME", "STEP", "ABORT", "PROGRAM", "PROGRAM_LINE", "PROGRAM_STATUS", "PROGRAM_CODES",
-  "JOINT_TYPE", "JOINT_UNITS", "PROGRAM_UNITS", "PROGRAM_LINEAR_UNITS", "PROGRAM_ANGULAR_UNITS",
-  "USER_LINEAR_UNITS", "USER_ANGULAR_UNITS", "DISPLAY_LINEAR_UNITS", "DISPLAY_ANGULAR_UNITS",
-  "LINEAR_UNIT_CONVERSION", "ANGULAR_UNIT_CONVERSION", "PROBE_CLEAR", "PROBE_TRIPPED",
-  "PROBE_VALUE", "PROBE", "TELEOP_ENABLE", "KINEMATICS_TYPE", "OVERRIDE_LIMITS",
-  "SPINDLE_OVERRIDE", "OPTIONAL_STOP", "SET_WAIT", ""};
+#define POLLTIMEOUT_MAX 100	// 100ms max interval for command done update checks
+static int polltimeout = 0;	// Set to a progressive value while a setter is active
 
-const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
+static inline bool setterActive() { return activeSetter.size() > 0; }
 
-struct option longopts[] = {
-  {"help", 0, NULL, 'h'},
-  {"port", 1, NULL, 'p'},
-  {"name", 1, NULL, 'n'},
-  {"sessions", 1, NULL, 's'},
-  {"connectpw", 1, NULL, 'w'},
-  {"enablepw", 1, NULL, 'e'},
-  {"path", 1, NULL, 'd'},
-  {0,0,0,0}};
-
-/* format string to outputbuffer (will be presented to user as result of command) */
-#define OUT(...) snprintf(context->outBuf, sizeof(context->outBuf), __VA_ARGS__)
-
-
-static void thisQuit()
+static void setterClear(connectionRecType &ctx)
 {
-    EMC_NULL emc_null_msg;
+	activeSetter.clear();
+	ctx.cmdtimeout = 0.0;
+	ctx.serial = 0;
+	polltimeout = 0;
+}
 
-    if (emcStatusBuffer != 0) {
-	// wait until current message has been received
-	emcCommandWaitReceived();
-    }
+static void setterSet(connectionRecType &ctx, const char *tag)
+{
+	activeSetter = tag;
+	// An 'infinite' timeout is about 10 years ;-)
+	ctx.cmdtimeout = etime() + (ctx.usrtimeout > 0.0 ? ctx.usrtimeout : (double)(86400*365*10));
+	ctx.serial = emcCommandSerialNumber;
+	polltimeout = 1;
+}
 
-    // clean up NML buffers
+typedef struct {
+	cmdType command;
+	unsigned nargs; // Minimum number of arguments
+	const char *name;
+} commandListType;
 
-    if (emcErrorBuffer != 0) {
-	delete emcErrorBuffer;
-	emcErrorBuffer = 0;
-    }
+// Must be sorted on 'name'
+static const commandListType commandList[] = {
+	{cmdGet,      1, "GET"     },
+	{cmdHello,    2, "HELLO"   },
+	{cmdHelp,     0, "HELP"    },
+	{cmdQuit,     0, "QUIT"    },
+	{cmdSet,      1, "SET"     },
+	{cmdShutdown, 0, "SHUTDOWN"},
+};
 
-    if (emcStatusBuffer != 0) {
-	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
-    }
+enum accessLevelType {
+	alNone,	  // No restrictions
+	alHello,  // Must have issued successful HELLO
+	alEnable, // Must have issued successful SET ENABLE
+	alMachOn  // Must be in state ESTOP OFF and MACHINE ON
+};
 
-    if (emcCommandBuffer != 0) {
-	delete emcCommandBuffer;
-	emcCommandBuffer = 0;
-    }
+typedef struct {
+	subCmdType command;
+	const char *name;
+	unsigned nget; // Minimum getter arg count (token count = nget + 2)
+	unsigned nset; // minimum setter arg count (token count = nget + 2)
+	cmdResponseType (*getter)(connectionRecType &);
+	cmdResponseType (*setter)(connectionRecType &);
+	accessLevelType acclvl; // Access level
+	bool remote;			// The setter sends a command via NML
+	const char *gethelp;	// Argument list for GET
+	const char *sethelp;	// Argument list for SET
+} getsetListType;
 
-    exit(0);
+static struct option longopts[] = {
+	{"help",      0, NULL, 'h'},
+	{"port",      1, NULL, 'p'},
+	{"name",      1, NULL, 'n'},
+	{"sessions",  1, NULL, 's'},
+	{"connectpw", 1, NULL, 'w'},
+	{"enablepw",  1, NULL, 'e'},
+	{"path",      1, NULL, 'd'},
+	{"quiet",     0, NULL, 'q'},
+	{}
+};
+
+static void info(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+static void info(const char *fmt, ...)
+{
+	if(quiet)
+		return;
+	va_list va;
+	va_start(va, fmt);
+	fprintf(stdout, "linuxcncrsh: ");
+	vfprintf(stdout, fmt, va);
+	fprintf(stdout, "\n");
+	fflush(stdout);
+	va_end(va);
+}
+
+static void error(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+static void error(const char *fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	fprintf(stderr, "linuxcncrsh: ");
+	vfprintf(stderr, fmt, va);
+	fprintf(stderr, "\n");
+	fflush(stderr);
+	va_end(va);
+}
+
+static void xperror(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+static void xperror(const char *fmt, ...)
+{
+	int en = errno;
+	va_list va;
+	va_start(va, fmt);
+	fprintf(stderr, "linuxcncrsh: ");
+	vfprintf(stderr, fmt, va);
+	fprintf(stderr, ": %s\n", strerror(en));
+	fflush(stderr);
+	va_end(va);
+}
+
+static void cleanup()
+{
+	// Wait until current message has been received
+	if (emcStatusBuffer) {
+		// Can't use printf and friends in signal handlers.
+		// See signal-safety(7).
+		static const char errmsg[] = "linuxcncrsh: cleanup(): emcCommandWaitReceived() timed out\n";
+		emcTimeout = 10.0; // Or it may block forever
+		if (emcCommandWaitReceived()) {
+			ssize_t dummy __attribute__((unused));
+			// Note: 'sizeof(errmsg)-1' to skip the trailing '\0'
+			dummy = write(2, errmsg, sizeof(errmsg) - 1);
+		}
+	}
+
+	// FIXME: The delete of the buffers calls the destructors and they may not
+	// be signal-safe.
+	// Fortunately, we call _exit() from the signal, so we will not be seeing
+	// too much of messed up main application data and-what-not.
+	//
+	// The more correct way would be to set a flag in the signal handler, break
+	// out of the main loop and then clean up and exit. But that might not be
+	// entirely fool proof either because we may have been waiting for some NML
+	// communication or machine action to finish.
+
+	// clean up NML buffers
+	if (emcErrorBuffer) {
+		delete emcErrorBuffer;
+		emcErrorBuffer = NULL;
+	}
+
+	if (emcStatusBuffer) {
+		delete emcStatusBuffer;
+		emcStatusBuffer = NULL;
+		emcStatus = NULL;
+	}
+
+	if (emcCommandBuffer) {
+		delete emcCommandBuffer;
+		emcCommandBuffer = NULL;
+	}
+
+	// Valgrind report: deleting the NML buffer stuff leaves three allocated
+	// memory segments as leaked. Not sure if we should bother.
+}
+
+static void set_nonblock(int fd)
+{
+	int fl = fcntl(fd, F_GETFL);
+	if (fl < 0) {
+		xperror("fcntl(F_GETFL)");
+		return;
+	}
+	fl |= O_NONBLOCK;
+	fl = fcntl(fd, F_SETFL, fl);
+	if (fl < 0) {
+		xperror("fcntl(F_SETFL)");
+	}
 }
 
 static int initSocket()
 {
-  int optval = 1;
-  int err;
+	int optval = 1;
+	int err;
+	int sockfd;
+	struct sockaddr_in6 address = {};
 
-  server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-  server_address.sin_family = AF_INET;
-  server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-  server_address.sin_port = htons(port);
-  server_len = sizeof(server_address);
-  err = bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
-  if (err) {
-      rcs_print_error("error initializing sockets: %s\n", strerror(errno));
-      return err;
-  }
+	sockfd = socket(AF_INET6, SOCK_STREAM, 0);
+	if (sockfd < 0) {
+		xperror("socket()");
+		return -1;
+	}
+	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+	// Using AF_INET6 will also allow IPv4 to connect (v4-mapped-on-v6)
+	address.sin6_family = AF_INET6;
+	address.sin6_addr = IN6ADDR_ANY_INIT;
+	address.sin6_port = htons(port);
+	err = bind(sockfd, reinterpret_cast<struct sockaddr *>(&address), sizeof(address));
+	if (err) {
+		close(sockfd);
+		xperror("bind()");
+		return -1;
+	}
 
-  err = listen(server_sockfd, 5);
-  if (err) {
-      rcs_print_error("error listening on socket: %s\n", strerror(errno));
-      return err;
-  }
+	err = listen(sockfd, 5);
+	if (err) {
+		close(sockfd);
+		xperror("listen()");
+		return -1;
+	}
 
-  // ignore SIGCHLD
-  {
-    struct sigaction act;
-    act.sa_handler = SIG_IGN;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
-    sigaction(SIGCHLD, &act, NULL);
-  }
+	set_nonblock(sockfd);
 
-  return 0;
+	return sockfd;
 }
 
 static void sigQuit(int /*sig*/)
 {
-    thisQuit();
+	// FIXME: Terminating here may cause unintended side effects for in-progress stuff
+	cleanup();
+	_exit(0);
 }
 
-static cmdTokenType lookupCommandToken(char *s)
+static void reply(connectionRecType &ctx, const std::string &s)
 {
-  for (long unsigned int i = scEcho; i < sizeof(cmdTokens)/sizeof(char *); ++i) {
-    if (strcmp(cmdTokens[i], s) == 0) return (cmdTokenType) i;
-  }
-  return scUnknown;
+	if (ctx.timestamp) {
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		if (ctx.timefmt) {
+			ctx.outbuf.append(fmt::format("{}.{:06d}: ", tv.tv_sec, tv.tv_usec));
+		} else {
+			char tstr[32]; // Enough to hold 'yyyy-mm-dd hh:mm:ss.000000'
+			struct tm lt;
+			localtime_r(&tv.tv_sec, &lt);
+			strftime(tstr, sizeof(tstr), "%F %T", &lt);
+			ctx.outbuf.append(fmt::format("{}.{:06d}: ", tstr, tv.tv_usec));
+		}
+	}
+	ctx.outbuf.append(s);
+}
+
+static void replynl(connectionRecType &ctx, const std::string &s)
+{
+	reply(ctx, s + "\r\n");
+}
+
+static void errornl(connectionRecType &ctx, const std::string &s)
+{
+	reply(ctx, "error: " + s + "\r\n");
+}
+
+static void warnnl(connectionRecType &ctx, const std::string &s)
+{
+	reply(ctx, "warning: " + s + "\r\n");
+}
+
+static bool to_int(const std::string &s, int &i)
+{
+	try {
+		size_t pos;
+		i = std::stoi(s, &pos);
+		return pos == s.size();
+	} catch (std::exception const &) {
+		return false;
+	}
+}
+
+static bool to_double(const std::string &s, double &d)
+{
+	try {
+		size_t pos;
+		d = std::stod(s, &pos);
+		return pos == s.size();
+	} catch (std::exception const &) {
+		return false;
+	}
+}
+
+static int compareNoCase(const std::string &a, const std::string &b)
+{
+	for (auto i = a.begin(), j = b.begin(); i != a.end() && j != b.end(); ++i, ++j) {
+		int d = std::toupper((unsigned char)*i) - std::toupper((unsigned char)*j);
+		if (d)
+			return d; // Trivial, difference in character sequence
+	}
+	// Until here, all characters are the same, but we may have broken out of
+	// the compare loop due to a difference in string length and both strings
+	// share the same prefix.
+	// Non-trivial compare, sizes differ on same string prefix:
+	// a=ABC
+	// b=ABC\0D
+	// We cannot use the difference between character ordinal because we have
+	// to account for embedded NUL characters. Therefore, we must use the sizes
+	// to determine rank. Using the difference of sizes also matches equal
+	// length, i.e. when the strings are equal.
+	return (int)((ssize_t)a.size() - (ssize_t)b.size());
+}
+
+static std::optional<std::string> getIniVar(const std::string &var, const std::string &section)
+{
+	IniFile inifile;
+	if (!inifile.Open(emc_inifile))
+		return nullptr;
+
+	auto inistr = inifile.Find(var.c_str(), section.c_str());
+	inifile.Close();
+	return inistr;
+}
+
+static inline bool isEnabled(const connectionRecType &ctx)
+{
+	return ctx.enabled;
+}
+
+static inline bool doDisable(connectionRecType &ctx)
+{
+	if (!isEnabled(ctx)) {
+		return false;
+	}
+	ctx.enabled = false;
+	info("Disabled '%s' (%d)", ctx.hostname.c_str(), ctx.sock);
+	return true;
+}
+
+static inline bool doEnable(connectionRecType &ctx)
+{
+	if (isEnabled(ctx)) {
+		return false;
+	}
+	ctx.enabled = true;
+	info("Enabled '%s' (%d)", ctx.hostname.c_str(), ctx.sock);
+	return true;
+}
+
+static inline bool doUnlink(connectionRecType &ctx)
+{
+	if (!ctx.linked) {
+		return false;
+	}
+	ctx.linked = false;
+	info("Unlinked '%s' (%d)", ctx.hostname.c_str(), ctx.sock);
+	return true;
+}
+
+static inline bool doLink(connectionRecType &ctx)
+{
+	if (ctx.linked) {
+		return false;
+	}
+	ctx.linked = true;
+	info("Linked '%s' (%d)", ctx.hostname.c_str(), ctx.sock);
+	return true;
+}
+
+static inline const char *onOff(bool b)
+{
+	return b ? "ON" : "OFF";
+}
+
+static std::string onOffString(const std::string &s, bool b)
+{
+	return fmt::format("{} {}", s, onOff(b));
+}
+
+static inline const char *yesNo(bool b)
+{
+	return b ? "YES" : "NO";
 }
 
 // initiate session
-static int commandHello(connectionRecType *context)
-{
-  // get password token
-  char *s = strtok(NULL, delims);
-  if (!s) return -1;
-  if (strcmp(s, pwd) != 0) return -1;
-
-  // get announced client name
-  s = strtok(NULL, delims);
-  if (!s) return -1;
-  if(rtapi_strlcpy(context->hostName, s, sizeof(context->hostName)) >= sizeof(context->hostName)) {
-    return -1;
-  }
-
-  // get version string
-  s = strtok(NULL, delims);
-  if (!s) return -1;
-  if(rtapi_strlcpy(context->version, s, sizeof(context->version)) >= sizeof(context->version)) {
-    return -1;
-  }
-
-  // mark context as connected
-  context->linked = true;
-  printf("Connected to %s\n", context->hostName);
-  return 0;
-}
-
-
-static int checkOnOff(char *s)
-{
-  if (!s) return -1;
-  strupr(s);
-  if (strcmp(s, "ON") == 0) return 0;
-  if (strcmp(s, "OFF") == 0) return 1;
-  return -1;
-}
-
-static int checkBinaryASCII(char *s)
-{
-  if (!s) return -1;
-  strupr(s);
-  if (strcmp(s, "ASCII") == 0) return 0;
-  if (strcmp(s, "BINARY") == 0) return 1;
-  return -1;
-}
-
-static int checkReceivedDoneNone(char *s)
-{
-  if (!s) return -1;
-  strupr(s);
-  if (strcmp(s, "RECEIVED") == 0) return 0;
-  if (strcmp(s, "DONE") == 0) return 1;
-  if (strcmp(s, "NONE") == 0) return 2;
-  return -1;
-}
-
-static int checkNoneAuto(char *s)
-{
-  if (!s) return -1;
-  strupr(s);
-  if (strcmp(s, "NONE") == 0) return 0;
-  if (strcmp(s, "AUTO") == 0) return 1;
-  return -1;
-}
-
-static int checkManualAutoMDI(char *s)
-{
-  if (!s) return -1;
-  strupr(s);
-  if (strcmp(s, "MANUAL") == 0) return 0;
-  if (strcmp(s, "AUTO") == 0) return 1;
-  if (strcmp(s, "MDI") == 0) return 2;
-  return -1;
-}
-
-static int checkSpindleCmd(char *s)
-{
-  if (!s) return -1;
-  strupr(s);
-  if (strcmp(s, "FORWARD") == 0) return 0;
-  if (strcmp(s, "REVERSE") == 0) return 1;
-  if (strcmp(s, "INCREASE") == 0) return 2;
-  if (strcmp(s, "DECREASE") == 0) return 3;
-  if (strcmp(s, "CONSTANT") == 0) return 4;
-  if (strcmp(s, "OFF") == 0) return 5;
-  return -1;
-}
-
-static int checkConversionStr(char *s)
-{
-  if (!s) return -1;
-  strupr(s);
-  if (strcmp(s, "INCH") == 0) return 0;
-  if (strcmp(s, "MM") == 0) return 1;
-  if (strcmp(s, "CM") == 0) return 2;
-  if (strcmp(s, "AUTO") == 0) return 3;
-  if (strcmp(s, "CUSTOM") == 0) return 4;
-  return -1;
-}
-
-static int checkAngularConversionStr(char *s)
-{
-  if (!s) return -1;
-  strupr(s);
-  if (strcmp(s, "DEG") == 0) return 0;
-  if (strcmp(s, "RAD") == 0) return 1;
-  if (strcmp(s, "GRAD") == 0) return 2;
-  if (strcmp(s, "AUTO") == 0) return 3;
-  if (strcmp(s, "CUSTOM") == 0) return 4;
-  return -1;
-}
-
-static cmdResponseType setEcho(connectionRecType *context)
-{
- 
-   char *s = strtok(NULL, delims);
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0: context->echo = true; break;
-     case 1: context->echo = false;
-     }
-   return rtNoError;
-}
-
-static cmdResponseType setVerbose(connectionRecType *context)
-{
- 
-   char *s = strtok(NULL, delims);
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0: context->verbose = true; break;
-     case 1: context->verbose = false;
-     }
-   return rtNoError;
-}
-
-static cmdResponseType setEnable(connectionRecType *context)
-{
-
-   char *s = strtok(NULL, delims);
-   if (s && (strcmp(s, enablePWD) == 0) ) {
-     enabledConn = context->cliSock;
-     context->enabled = true;
-     return rtNoError;
-     }
-   else
-     if (checkOnOff(s) == 1) {
-       context->enabled = false;
-       enabledConn = -1;
-       return rtNoError;
-       }
-     else return rtStandardError;
-}
-
-static cmdResponseType setConfig(connectionRecType *context)
-{
-  OUT("SET CONFIG not implemented");
-  return rtCustomError;
-}
-
-static cmdResponseType setCommMode(connectionRecType *context)
-{
-  int ret;
-
-  char *s = strtok(NULL, delims);
-  ret = checkBinaryASCII(s);
-  if (ret == -1) return rtStandardError;
-  context->commMode = ret;
-  return rtNoError;
-}
-
-static cmdResponseType setCommProt(connectionRecType *context)
-{
-  char *pVersion = strtok(NULL, delims);
-  if (!pVersion) return rtStandardError;
-  rtapi_strxcpy(context->version, pVersion);
-  return rtNoError;
-}
-
-static cmdResponseType setDebug(connectionRecType * /*context*/)
-{
-  char *pLevel;
-  int level;
-
-  pLevel = strtok(NULL, delims);
-  if (!pLevel) return rtStandardError;
-  if (sscanf(pLevel, "%i", &level) < 1) return rtStandardError;
-  else {
-      if(sendDebug(level) != 0) return rtStandardError;
-  }
-  return rtNoError;
-}
-
-static cmdResponseType setWaitMode(connectionRecType *context)
-{
-  char *s = strtok(NULL, delims);
-  switch (checkReceivedDoneNone(s)) {
-    case -1: return rtStandardError;
-    case 0: {
-      emcWaitType = EMC_WAIT_RECEIVED;
-      break;
-    }
-    case 1: {
-      emcWaitType = EMC_WAIT_DONE;
-      break;
-    }
-    case 2: {
-      OUT("linuxcncrsh: 'set wait_mode' asked for 'NONE', but that setting has been removed as it may cause commands to be lost");
-      return rtCustomError;
-    }
-  }
-  return rtNoError;
-}
-
-/* compatibility wrapper to deprecate set_wait command token - @todo remove at some point */
-static cmdResponseType setSetWait(connectionRecType *context)
-{
-  dprintf(context->cliSock, "WARNING: \"set_wait\" command is depreciated and will be removed in the future. Please use \"wait_mode\" instead.\n");
-  return setWaitMode(context);
-}
-
-static cmdResponseType setMachine(connectionRecType * /*context*/)
-{
-   char *s = strtok(NULL, delims);
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0:
-        if(sendMachineOn() != 0) return rtStandardError;
-        break;
-     case 1:
-        if(sendMachineOff() != 0) return rtStandardError;
-        break;
-     }
-   return rtNoError;
-}
-
-static cmdResponseType setEStop(connectionRecType * /*context*/)
-{
-    char *state = strtok(NULL, delims);
-    switch (checkOnOff(state)) {
-        case 0:
-            if(sendEstop() != 0) return rtStandardError;
-            break;
-
-        case 1:
-            if(sendEstopReset() != 0) return rtStandardError;
-            break;
-
-        default:
-            return rtStandardError;
-    }
-
-    return rtNoError;
-}
-
-static cmdResponseType setWait(connectionRecType * /*context*/)
-{
-  char *s = strtok(NULL, delims);
-  switch (checkReceivedDoneNone(s)) {
-    case -1: return rtStandardError;
-    case 0:
-      if (emcCommandWaitReceived() != 0) return rtStandardError;
-      break;
-    case 1:
-      if (emcCommandWaitDone() != 0) return rtStandardError;
-      break;
-    case 2: ;
-    default: return rtStandardError;
-    }
-  return rtNoError;
-}
-
-static cmdResponseType setTimeout(connectionRecType * /*context*/)
-{
-  float Timeout;
-
-  char *s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-  if (sscanf(s, "%f", &Timeout) < 1) return rtStandardError;
-  emcTimeout = Timeout;
-  return rtNoError;
-}
-
-static cmdResponseType setUpdate(connectionRecType * /*context*/)
-{
-  char *s = strtok(NULL, delims);
-  switch (checkNoneAuto(s)) {
-    case 0: emcUpdateType = EMC_UPDATE_NONE; break;
-    case 1: emcUpdateType = EMC_UPDATE_AUTO; break;
-    default: return rtStandardError;
-    }
-  return rtNoError;
-}
-
-static cmdResponseType setMode(connectionRecType * /*context*/)
-{
-  char *s = strtok(NULL, delims);
-  switch (checkManualAutoMDI(s)) {
-    case 0:
-        if(sendManual() != 0) return rtStandardError;
-        break;
-    case 1:
-        if(sendAuto() != 0) return rtStandardError;
-        break;
-    case 2:
-        if(sendMdi() != 0) return rtStandardError;
-        break;
-    default: return rtStandardError;
-    }
-  return rtNoError;
-}
-
-static cmdResponseType setMist(connectionRecType * /*context*/)
-{
-   char *s = strtok(NULL, delims);
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0:
-        if(sendMistOn() != 0) return rtStandardError;
-        break;
-     case 1:
-        if(sendMistOff() != 0) return rtStandardError;
-        break;
-     }
-   return rtNoError;
-}
-
-static cmdResponseType setFlood(connectionRecType * /*context*/)
-{
-   char *s = strtok(NULL, delims);
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0:
-        if(sendFloodOn() != 0) return rtStandardError;
-        break;
-     case 1:
-        if(sendFloodOff() != 0) return rtStandardError;
-        break;
-     }
-   return rtNoError;
-}
-
-static cmdResponseType setSpindle(connectionRecType *context)
-{
-    // handle no spindle present
-    if (emcStatus->motion.traj.spindles == 0) {
-        OUT("no spindles configured");
-        return rtCustomError;
-    }
-
-    // get cmd string: forward|reverse|increase|decrease|constant|off
-    char *cmdStr = strtok(NULL, delims);
-    // get spindle number string
-    char *spindleStr = strtok(NULL, delims);
-    // use first spindle by default
-    int spindle = 0;
-    // try to parse a spindle number
-    if (spindleStr) {
-        if (sscanf(spindleStr, "%d", &spindle) < 1) {
-            OUT("failed to parse decimal: %s", spindleStr);
-            return rtCustomError;
-        }
-        // validate
-        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            OUT(
-                "invalid spindle: %d (valid: -1 - %d)",
-                spindle, emcStatus->motion.traj.spindles
-            );
-            return rtCustomError;
-        }
-    }
-    // walk all spindles
-    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
-        // process this spindle?
-        if (n != spindle && spindle != -1)
-            continue;
-
-        switch (checkSpindleCmd(cmdStr)) {
-            case 0:
-                if(sendSpindleForward(n) != 0) return rtStandardError;
-                break;
-
-            case 1:
-                if(sendSpindleReverse(n) != 0) return rtStandardError;
-                break;
-
-            case 2:
-                if(sendSpindleIncrease(n) != 0) return rtStandardError;
-                break;
-
-            case 3:
-                if(sendSpindleDecrease(n) != 0) return rtStandardError;
-                break;
-
-            case 4:
-                if(sendSpindleConstant(n) != 0) return rtStandardError;
-                break;
-
-            case 5:
-                if(sendSpindleOff(n) != 0) return rtStandardError;
-                break;
-
-            default:
-                OUT(
-                    "invalid command \"%s\" (valid: forward, "
-                    "reverse, increase, decrease, constant, off)",
-                    cmdStr
-                );
-                return rtCustomError;
-        }
-    }
-
-	return rtNoError;
-}
-
-static cmdResponseType setBrake(connectionRecType *context)
-{
-    // handle no spindle present
-    if (emcStatus->motion.traj.spindles == 0) {
-        OUT("no spindles configured");
-        return rtCustomError;
-    }
-
-    // get brake state string: on|off
-    char *stateStr = strtok(NULL, delims);
-    // get spindle number string
-    char *spindleStr = strtok(NULL, delims);
-    // use first spindle by default
-    int spindle = 0;
-    // try to parse a spindle number
-    if (spindleStr) {
-        if (sscanf(spindleStr, "%d", &spindle) < 1) {
-            OUT("failed to parse decimal: %s", spindleStr);
-            return rtCustomError;
-        }
-        // validate
-        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            OUT(
-                "invalid spindle: %d (valid: -1 - %d)",
-                spindle, emcStatus->motion.traj.spindles
-            );
-            return rtCustomError;
-        }
-    }
-    // walk all spindles
-    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
-        // process this spindle?
-        if (n != spindle && spindle != -1)
-            continue;
-
-        switch (checkOnOff(stateStr)) {
-            case 0:
-                if(sendBrakeEngage(n) != 0) return rtStandardError;
-                break;
-
-            case 1:
-                if(sendBrakeRelease(n) != 0) return rtStandardError;
-                break;
-
-            default:
-                OUT("invalid state: \"%s\" (valid: on, off)", stateStr);
-                return rtCustomError;
-        }
-    }
-
-    return rtNoError;
-}
-
-static cmdResponseType setLoadToolTable(connectionRecType * /*context*/)
-{
-  char *s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-  if (sendLoadToolTable(s) != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setToolOffset(connectionRecType * /*context*/)
-{
-  int tool;
-  float length, diameter;
-
-  char *s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-  if (sscanf(s, "%d", &tool) < 1) return rtStandardError;
-  s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-  if (sscanf(s, "%f", &length) < 1) return rtStandardError;
-  s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-  if (sscanf(s, "%f", &diameter) < 1) return rtStandardError;
-
-  if (sendToolSetOffset(tool, length, diameter) != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setOverrideLimits(connectionRecType * /*context*/)
-{
-   char *s = strtok(NULL, delims);
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0: if (sendOverrideLimits(0) != 0) return rtStandardError; break;
-     case 1: if (sendOverrideLimits(-1) != 0) return rtStandardError;
-     }
-   return rtNoError;
-}
-
-static cmdResponseType setMDI(connectionRecType * /*context*/)
-{
-  char *s = strtok(NULL, "\n\r\0");
-  if (sendMdiCmd(s) !=0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setHome(connectionRecType * /*context*/)
-{
-  int joint;
-
-  char *jointStr = strtok(NULL, delims);
-  if (!jointStr) return rtStandardError;
-  if (sscanf(jointStr, "%d", &joint) < 1) return rtStandardError;
-  // joint == -1 means "Home All", any other negative is wrong
-  if ((joint < -1) || (joint > EMCMOT_MAX_JOINTS)) return rtStandardError;
-  if(sendHome(joint) != 0) return rtStandardError;
-  return rtNoError;
-}
-
-/* parse axis number or letter to axis number or -1 */
-static int axisnumber(char *s) {
-  int axis = -1; // Return all axes by default;
-  if(!s)
-    return axis;
-
-  // try to parse axis number (0-5)
-  if (sscanf(s, "%d", &axis) < 1) {
-      // try to parse axis letter
-      switch(s[0]) {
-        case 'x': case 'X': axis = 0; break;
-        case 'y': case 'Y': axis = 1; break;
-        case 'z': case 'Z': axis = 2; break;
-        case 'a': case 'A': case 'r': case 'R': axis = 3; break;
-        case 'b': case 'B': case 'p': case 'P': axis = 4; break;
-        case 'c': case 'C': case 'w': case 'W': axis = 5; break;
-        default: axis = -1; break;
-      }
-  }
-  return axis;
-}
-
-static cmdResponseType setJogStop(connectionRecType * /*context*/)
-{
-  int ja,jnum,jjogmode;
-  char aletter;
-  //parms:  jnum|aletter
-
-  char *s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-
-  if (sscanf(s, "%d", &jnum) > 0) {
-    ja = jnum;
-    jjogmode = JOGJOINT;
-  } else if (sscanf(s, "%c", &aletter) > 0) {
-    ja = axisnumber(&aletter);
-    jjogmode = JOGTELEOP;
-  } else {
-    return rtStandardError;
-  }
-
-  if (   (jjogmode == JOGJOINT)
-      && ((ja < 0) || (ja > EMCMOT_MAX_JOINTS))
-     ) return rtStandardError;
-
-  if (sendJogStop(ja,jjogmode) != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setJog(connectionRecType * /*context*/)
-{
-  int ja,jnum,jjogmode;
-  char aletter;
-  float speed;
-  //parms:  jnum|aletter speed
-
-  char *s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-
-  if (sscanf(s, "%d", &jnum) > 0) {
-    ja = jnum;
-    jjogmode = JOGJOINT;
-  } else if (sscanf(s, "%c", &aletter) > 0) {
-    ja = axisnumber(&aletter);
-    jjogmode = JOGTELEOP;
-  } else {
-    return rtStandardError;
-  }
-
-  s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-  if (sscanf(s, "%f", &speed) < 1) return rtStandardError;
-
-  if (sendJogCont(ja, jjogmode, speed) != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setFeedOverride(connectionRecType * /*context*/)
-{
-  char *s = strtok(NULL, delims);
-  if (!s)
-    return rtStandardError;
-
-  double percent;
-  if (sscanf(s, "%lf", &percent) < 1)
-    return rtStandardError;
-
-  if(sendFeedOverride((percent) / 100.0) != 0)
-    return rtStandardError;
-
-  return rtNoError;
-}
-
-static cmdResponseType setJogIncr(connectionRecType * /*context*/)
-{
-  int jnum,ja,jjogmode;
-  char aletter;
-  float speed, incr;
-  //parms:  jnum|aletter speed distance
-
-  char *s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-
-  if (sscanf(s, "%d", &jnum) > 0) {
-    ja = jnum;
-    jjogmode = JOGJOINT;
-  } else if (sscanf(s, "%c", &aletter) > 0) {
-    ja = axisnumber(&aletter);
-    jjogmode = JOGTELEOP;
-  } else {
-    return rtStandardError;
-  }
-
-  if (   (jjogmode == JOGJOINT)
-      && ((ja < 0) || (ja > EMCMOT_MAX_JOINTS))
-     ) return rtStandardError;
-
-  s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-
-  if (sscanf(s, "%f", &speed) < 1) return rtStandardError;
-  s = strtok(NULL, delims);
-
-  if (!s) return rtStandardError;
-  if (sscanf(s, "%f", &incr) < 1) return rtStandardError;
-
-  if (sendJogIncr(ja, jjogmode, speed, incr) != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setTaskPlanInit(connectionRecType * /*context*/)
-{
-  if (sendTaskPlanInit() != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setOpen(connectionRecType *context)
-{
-  char *s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-
-  if(rtapi_strlcpy(context->progName, s, sizeof(context->progName)) >= sizeof(context->progName)) {
-    OUT(
-      "linuxcncrsh: 'set open' filename too long for context (got %lu bytes, max %lu)",
-      (unsigned long) strlen(s),
-      (unsigned long) sizeof(context->progName)
-    );
-    return rtCustomError;
-  }
-
-  if (sendProgramOpen(context->progName) != 0) return rtStandardError;
-  
-  return rtNoError;
-}
-
-static cmdResponseType setRun(connectionRecType * /*context*/)
-{
-  char *s = strtok(NULL, delims);
-  if (!s) { // run from beginning
-    if (sendProgramRun(0) != 0)
-      return rtStandardError;
-    return rtNoError;
-  }
-
-  // run from line number
-  int lineNo;
-  if (sscanf(s, "%d", &lineNo) < 1)
-    return rtStandardError;
-
-  if (sendProgramRun(lineNo) != 0)
-    return rtStandardError;
-
-  return rtNoError;
-}
-
-static cmdResponseType setPause(connectionRecType * /*context*/)
-{
-  if (sendProgramPause() != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setResume(connectionRecType * /*context*/)
-{
-  if (sendProgramResume() != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setStep(connectionRecType * /*context*/)
-{
-  if (sendProgramStep() != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setAbort(connectionRecType * /*context*/)
-{
-  if (sendAbort() != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setLinearUnitConversion(connectionRecType * /*context*/)
-{
-   char *s = strtok(NULL, delims);
-   switch (checkConversionStr(s)) {
-     case -1: return rtStandardError;
-     case 0: linearUnitConversion = LINEAR_UNITS_INCH; break;
-     case 1: linearUnitConversion = LINEAR_UNITS_MM; break;
-     case 2: linearUnitConversion = LINEAR_UNITS_CM; break;
-     case 3: linearUnitConversion = LINEAR_UNITS_AUTO; break;
-     case 4: linearUnitConversion = LINEAR_UNITS_CUSTOM; break;
-     }
-   return rtNoError;
-}
-
-static cmdResponseType setAngularUnitConversion(connectionRecType * /*context*/)
-{
-   char *s = strtok(NULL, delims);
-   switch (checkAngularConversionStr(s)) {
-     case -1: return rtStandardError;
-     case 0: angularUnitConversion = ANGULAR_UNITS_DEG; break;
-     case 1: angularUnitConversion = ANGULAR_UNITS_RAD; break;
-     case 2: angularUnitConversion = ANGULAR_UNITS_GRAD; break;
-     case 3: angularUnitConversion = ANGULAR_UNITS_AUTO; break;
-     case 4: angularUnitConversion = ANGULAR_UNITS_CUSTOM; break;
-     }
-   return rtNoError;
-}
-
-static cmdResponseType setTeleopEnable(connectionRecType * /*context*/)
-{
-   char *s = strtok(NULL, delims);
-   switch (checkOnOff(s)) {
-     case -1: return rtStandardError;
-     case 0:
-        if(sendSetTeleopEnable(1) != 0) return rtStandardError;
-        break;
-     case 1:
-        if(sendSetTeleopEnable(0) != 0) return rtStandardError;
-        break;
-     }
-   return rtNoError;
-}
-
-static cmdResponseType setProbe(connectionRecType * /*context*/)
-{
-  float x, y, z;
-
-  char *s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-  fprintf(stderr,"0_probe %s\n",s);
-  if (sscanf(s, "%f", &x) < 1) return rtStandardError;
-
-  s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-  fprintf(stderr,"1_probe %s\n",s);
-  if (sscanf(s, "%f", &y) < 1) return rtStandardError;
-
-  s = strtok(NULL, delims);
-  if (!s) return rtStandardError;
-  fprintf(stderr,"2_probe %s\n",s);
-  if (sscanf(s, "%f", &z) < 1) return rtStandardError;
-
-  if(sendProbe(x, y, z) != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setProbeClear(connectionRecType * /*context*/)
-{
-  if(sendClearProbeTrippedFlag() != 0) return rtStandardError;
-  return rtNoError;
-}
-
-static cmdResponseType setSpindleOverride(connectionRecType *context)
-{
-    // handle no spindle present
-    if (emcStatus->motion.traj.spindles == 0) {
-        OUT("no spindles configured");
-        return rtCustomError;
-    }
-
-    // get override percentage string
-    char *percentStr = strtok(NULL, delims);
-    // get spindle number string
-    char *spindleStr = strtok(NULL, delims);
-    // use first spindle by default
-    int spindle = 0;
-    // try to parse a spindle number
-    if (spindleStr) {
-        if (sscanf(spindleStr, "%d", &spindle) < 1) {
-            OUT("failed to parse decimal: %s", spindleStr);
-            return rtCustomError;
-        }
-        // validate
-        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            OUT(
-                "invalid spindle: %d (valid: -1 - %d)",
-                spindle, emcStatus->motion.traj.spindles
-            );
-            return rtCustomError;
-        }
-    }
-    // try to parse override percentage
-    if(!percentStr) {
-        OUT("missing parameter");
-        return rtCustomError;
-    }
-	int percent;
-    if(sscanf(percentStr, "%d", &percent) < 1) {
-        OUT("parsing \"%s\" (%s)", percentStr, strerror(errno));
-        return rtCustomError;
-    }
-    // validate
-    if(percent < 0 || percent > 100) {
-        OUT("invalid: %d (valid: 0-100)", percent);
-        return rtCustomError;
-    }
-
-    // walk all spindles
-    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
-        // process this spindle?
-        if (n != spindle && spindle != -1)
-            continue;
-
-        if(sendSpindleOverride(n, ((double) percent) / 100.0) != 0)
-            return rtStandardError;
-    }
-
-	return rtNoError;
-}
-
-static cmdResponseType setOptionalStop(connectionRecType * /*context*/)
-{
-  int value;
-  char *s = strtok(NULL, delims);
-  sscanf(s, "%d", &value);
-  if (sendSetOptionalStop(value) != 0) return rtStandardError;
-  return rtNoError;
-}
-
-int commandSet(connectionRecType *context)
-{
-  cmdTokenType cmd;
-  cmdResponseType ret = rtNoError;
-
-  // parse cmd token
-  char *tokenStr = strtok(NULL, delims);
-  if (!tokenStr) {
-    dprintf(context->cliSock, "SET NAK\r\n");
-    return -1;
-  }
-  strupr(tokenStr);
-  cmd = lookupCommandToken(tokenStr);
-  if ((cmd >= scIniFile) && (context->cliSock != enabledConn)) {
-    dprintf(context->cliSock, "SET %s NAK\r\n", tokenStr);
-    return -1;
-  }
-
-  if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE::ON)) {
-    //  Extra check in the event of an undetected change in Machine state resulting in
-    //  sending a set command when the machine state is off. This condition is detected
-    //  and appropriate error messages are generated, however erratic behavior has been
-    //  seen when doing certain set commands when the Machine state is other than 'On
-    dprintf(context->cliSock, "SET %s NAK\r\n", tokenStr);
-    return -1;
-  }
-
-  switch (cmd) {
-    case scEcho: ret = setEcho(context); break;
-    case scVerbose: ret = setVerbose(context); break;
-    case scEnable: ret = setEnable(context); break;
-    case scConfig: ret = setConfig(context); break;
-    case scCommMode: ret = setCommMode(context); break;
-    case scCommProt: ret = setCommProt(context); break;
-    case scIniFile: break;
-    case scPlat: break;
-    case scIni: break;
-    case scDebug: ret = setDebug(context); break;
-    case scSetWait: ret = setSetWait(context); break;     // remove this: deprecation alias for scWaitMode.
-    case scWaitMode: ret = setWaitMode(context); break;
-    case scWait: ret = setWait(context); break;
-    case scSetTimeout: ret = setTimeout(context); break;
-    case scUpdate: ret = setUpdate(context); break;
-    case scError: ret = rtStandardError; break;
-    case scOperatorDisplay: ret = rtStandardError; break;
-    case scOperatorText: ret = rtStandardError; break;
-    case scTime: ret = rtStandardError; break;
-    case scEStop: ret = setEStop(context); break;
-    case scMachine: ret = setMachine(context); break;
-    case scMode: ret = setMode(context); break;
-    case scMist: ret = setMist(context); break;
-    case scFlood: ret = setFlood(context); break;
-    case scSpindle: ret = setSpindle(context); break;
-    case scBrake: ret = setBrake(context); break;
-    case scTool: ret = rtStandardError; break;
-    case scToolOffset: ret = setToolOffset(context); break;
-    case scLoadToolTable: ret = setLoadToolTable(context); break;
-    case scHome: ret = setHome(context); break;
-    case scJogStop: ret = setJogStop(context); break;
-    case scJog: ret = setJog(context); break;
-    case scJogIncr: ret = setJogIncr(context); break;
-    case scFeedOverride: ret = setFeedOverride(context); break;
-    case scAbsCmdPos: ret = rtStandardError; break;
-    case scAbsActPos: ret = rtStandardError; break;
-    case scRelCmdPos: ret = rtStandardError; break;
-    case scRelActPos: ret = rtStandardError; break;
-    case scJointPos: ret = rtStandardError; break;
-    case scPosOffset: ret = rtStandardError; break;
-    case scJointLimit: ret = rtStandardError; break;
-    case scJointFault: ret = rtStandardError; break;
-    case scJointHomed: ret = rtStandardError; break;
-    case scMDI: ret = setMDI(context); break;
-    case scTskPlanInit: ret = setTaskPlanInit(context); break;
-    case scOpen: ret = setOpen(context); break;
-    case scRun: ret = setRun(context); break;
-    case scPause: ret = setPause(context); break;
-    case scResume: ret = setResume(context); break;
-    case scAbort: ret = setAbort(context); break;
-    case scStep: ret = setStep(context); break;
-    case scProgram:ret = rtStandardError; break;
-    case scProgramLine: ret = rtStandardError; break;
-    case scProgramStatus: ret = rtStandardError; break;
-    case scProgramCodes: ret = rtStandardError; break;
-    case scJointType: ret = rtStandardError; break;
-    case scJointUnits: ret = rtStandardError; break;
-    case scProgramUnits:
-    case scProgramLinearUnits: ret = rtStandardError; break;
-    case scProgramAngularUnits: ret = rtStandardError; break;
-    case scUserLinearUnits: ret = rtStandardError; break;
-    case scUserAngularUnits: ret = rtStandardError; break;
-    case scDisplayLinearUnits: ret = rtStandardError; break;
-    case scDisplayAngularUnits: ret = rtStandardError; break;
-    case scLinearUnitConversion: ret = setLinearUnitConversion(context); break;
-    case scAngularUnitConversion: ret = setAngularUnitConversion(context); break;
-    case scProbeClear: ret = setProbeClear(context); break;
-    case scProbeTripped: ret = rtStandardError; break;
-    case scProbeValue: ret = rtStandardError; break;
-    case scProbe: ret = setProbe(context); break;
-    case scTeleopEnable: ret = setTeleopEnable(context); break;    case scKinematicsType: ret = rtStandardError; break;
-    case scOverrideLimits: ret = setOverrideLimits(context); break;
-    case scSpindleOverride: ret = setSpindleOverride(context); break;
-    case scOptionalStop: ret = setOptionalStop(context); break;
-    case scUnknown: ret = rtStandardError;
-  }
-
-  switch (ret) {
-
-    case rtNoError:
-      if (context->verbose) {
-        dprintf(context->cliSock, "SET %s ACK\r\n", tokenStr);
-      }
-      return -1;
-
-    // Custom ok response already handled, take no action
-    case rtHandledNoError:
-      break;
-
-    case rtStandardError:
-      dprintf(context->cliSock, "SET %s NAK\r\n", tokenStr);
-      return -1;
-
-    // Custom error response entered in buffer
-    case rtCustomError:
-      dprintf(context->cliSock, "error: %s\r\n", context->outBuf);
-      return -1;
-
-    // Custom error response handled, take no action
-    case rtCustomHandledError:
-      return -1;
-  }
-  return 0;
-}
-
-
-static cmdResponseType getEcho(connectionRecType *context)
-{
-  if (context->echo) OUT("ECHO ON");
-  else OUT("ECHO OFF");
-  return rtNoError;
-}
-
-static cmdResponseType getVerbose(connectionRecType *context)
-{
-  if (context->verbose) OUT("VERBOSE ON");
-  else OUT("VERBOSE OFF");
-  return rtNoError;
-}
-
-static cmdResponseType getEnable(connectionRecType *context)
-{
-  if (context->cliSock == enabledConn)
-    OUT("ENABLE ON");
-  else OUT("ENABLE OFF");
-  return rtNoError;
-}
-
-static cmdResponseType getConfig(connectionRecType *context)
-{
-  OUT("GET CONFIG not implemented");
-  return rtCustomError;
-}
-
-static cmdResponseType getCommMode(connectionRecType *context)
-{
-  switch (context->commMode) {
-    case 0: OUT("COMM_MODE ASCII"); break;
-    case 1: OUT("COMM_MODE BINARY"); break;
-    }
-  return rtNoError;
-}
-
-static cmdResponseType getCommProt(connectionRecType *context)
-{
-  OUT("COMM_PROT %s", context->version);
-  return rtNoError;
-}
-
-static cmdResponseType getDebug(connectionRecType *context)
-{
-  OUT("DEBUG %d", emcStatus->debug);
-  return rtNoError;
-}
-
-static cmdResponseType getWaitMode(connectionRecType *context)
-{
-  switch (emcWaitType) {
-    case EMC_WAIT_RECEIVED: OUT("WAIT_MODE RECEIVED"); break;
-    case EMC_WAIT_DONE: OUT("WAIT_MODE DONE"); break;
-    default: return rtStandardError;
-  }
-  return rtNoError;
-}
-
-/* compatibility wrapper to deprecate set_wait command token  - @todo remove at some point */
-static cmdResponseType getSetWait(connectionRecType *context)
-{
-  dprintf(context->cliSock, "WARNING: \"set_wait\" command is depreciated and will be removed in the future. Please use \"wait_mode\" instead.\n");
-  return getWaitMode(context);
-}
-
-static cmdResponseType getPlat(connectionRecType *context)
-{
-  OUT("PLAT Linux");
-  return rtNoError;
-}
-
-static cmdResponseType getEStop(connectionRecType *context)
-{
-  if (emcStatus->task.state == EMC_TASK_STATE::ESTOP)
-    OUT("ESTOP ON");
-  else OUT("ESTOP OFF");
-  return rtNoError;
-}
-
-static cmdResponseType getTimeout(connectionRecType *context)
-{
-  OUT("TIMEOUT %f", emcTimeout);
-  return rtNoError;
-}
-
-static cmdResponseType getTime(connectionRecType *context)
-{
-  OUT("TIME %f", etime());
-  return rtNoError;
-}
-
-static cmdResponseType getUpdate(connectionRecType *context)
-{
-    switch(emcUpdateType) {
-        case EMC_UPDATE_NONE:
-            OUT("UPDATE NONE");
-            break;
-
-        case EMC_UPDATE_AUTO:
-            OUT("UPDATE AUTO");
-            break;
-
-        default:
-            OUT("UPDATE UNKNOWN");
-            break;
-    }
-
-    return rtNoError;
-}
-
-static cmdResponseType getError(connectionRecType *context)
-{
-  if (updateError() != 0) {
-    OUT("emc_error: bad status from LinuxCNC");
-    return rtCustomError;
-  }
-
-  if (error_string[0] == 0)
-    OUT("ERROR OK");
-  else {
-    OUT("ERROR %s", error_string);
-    error_string[0] = 0;
-  }
-  return rtNoError;
-}
-
-static cmdResponseType getOperatorDisplay(connectionRecType *context)
-{
-  if (updateError() != 0) {
-    OUT("emc_operator_display: bad status from LinuxCNC");
-    return rtCustomError;
-  }
-
-  if (operator_display_string[0] == 0)
-    OUT("OPERATOR_DISPLAY OK");
-  else {
-    OUT("OPERATOR_DISPLAY %s", operator_display_string);
-    operator_display_string[0] = 0;
-  }
-  return rtNoError;
-}
-
-static cmdResponseType getOperatorText(connectionRecType *context)
-{
-  if (updateError() != 0) {
-    OUT("emc_operator_text: bad status from LinuxCNC");
-    return rtCustomError;
-  }
-
-  if (operator_text_string[0] == 0)
-    OUT("OPERATOR_TEXT OK");
-  else {
-    OUT("OPERATOR_TEXT %s", operator_text_string);
-    operator_text_string[0] = 0;
-  }
-  return rtNoError;
-}
-
-static cmdResponseType getMachine(connectionRecType *context)
-{
-  if (emcStatus->task.state == EMC_TASK_STATE::ON)
-    OUT("MACHINE ON");
-  else
-    OUT("MACHINE OFF");
-  return rtNoError;
-}
-
-static cmdResponseType getMode(connectionRecType *context)
-{
-  switch (emcStatus->task.mode) {
-    case EMC_TASK_MODE::MANUAL: OUT("MODE MANUAL"); break;
-    case EMC_TASK_MODE::AUTO: OUT("MODE AUTO"); break;
-    case EMC_TASK_MODE::MDI: OUT("MODE MDI"); break;
-    default: OUT("MODE ?");
-  }
-  return rtNoError;
-}
-
-static cmdResponseType getMist(connectionRecType *context)
-{
-  if (emcStatus->io.coolant.mist == 1)
-    OUT("MIST ON");
-  else OUT("MIST OFF");
-  return rtNoError;
-}
-
-static cmdResponseType getFlood(connectionRecType *context)
-{
-  if (emcStatus->io.coolant.flood == 1)
-    OUT("FLOOD ON");
-  else OUT("FLOOD OFF");
-  return rtNoError;
-}
-
-static cmdResponseType getSpindle(connectionRecType *context)
-{
-    // handle no spindle present
-    if (emcStatus->motion.traj.spindles == 0) {
-        OUT("no spindles configured");
-        return rtCustomError;
-    }
-
-    // get spindle number string
-    char *spindleStr = strtok(NULL, delims);
-    // use first spindle by default
-    int spindle = 0;
-    // try to parse a spindle number
-    if (spindleStr) {
-        if (sscanf(spindleStr, "%d", &spindle) < 1) {
-            OUT("failed to parse decimal: %s", spindleStr);
-            return rtCustomError;
-        }
-        // validate
-        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            OUT(
-                "invalid spindle: %d (valid: -1 - %d)",
-                spindle, emcStatus->motion.traj.spindles
-            );
-            return rtCustomError;
-        }
-    }
-
-    // walk all spindles
-    const char *pSpindleStr = "SPINDLE %d %s";
-    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
-        // process this spindle?
-        if (n != spindle && spindle != -1)
-            continue;
-
-        if (emcStatus->motion.spindle[n].increasing > 0)
-            OUT(pSpindleStr, n, "INCREASE");
-        else if (emcStatus->motion.spindle[n].increasing < 0)
-            OUT(pSpindleStr, n, "DECREASE");
-        else if (emcStatus->motion.spindle[n].direction > 0)
-            OUT(pSpindleStr, n, "FORWARD");
-        else if (emcStatus->motion.spindle[n].direction < 0)
-            OUT(pSpindleStr, n, "REVERSE");
-        else OUT(pSpindleStr, n, "OFF");
-    }
-
-    return rtNoError;
-}
-
-static cmdResponseType getBrake(connectionRecType *context)
-{
-    // handle no spindle present
-    if (emcStatus->motion.traj.spindles == 0) {
-        OUT("no spindles configured");
-        return rtCustomError;
-    }
-
-    // get spindle number string
-    char *spindleStr = strtok(NULL, delims);
-    // use first spindle by default
-    int spindle = 0;
-    // try to parse a spindle number
-    if (spindleStr) {
-        if (sscanf(spindleStr, "%d", &spindle) < 1) {
-            OUT("failed to parse decimal: %s", spindleStr);
-            return rtCustomError;
-        }
-        // validate
-        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            OUT(
-                "invalid spindle: %d (valid: -1 - %d)",
-                spindle, emcStatus->motion.traj.spindles
-            );
-            return rtCustomError;
-        }
-    }
-
-    // walk all spindles
-    const char *pBrakeStr = "BRAKE %s";
-    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
-        // process this spindle?
-        if (n != spindle && spindle != -1)
-            continue;
-
-        if (emcStatus->motion.spindle[n].brake == 1)
-            OUT(pBrakeStr, "ON");
-        else
-            OUT(pBrakeStr, "OFF");
-    }
-
-    return rtNoError;
-}
-
-static cmdResponseType getTool(connectionRecType *context)
-{
-  OUT("TOOL %d", emcStatus->io.tool.toolInSpindle);
-  return rtNoError;
-}
+static int commandHello(connectionRecType &ctx)
+{
+	// HELLO <password> <hostname> [<version>]
 
-static cmdResponseType getToolOffset(connectionRecType *context)
-{
-  OUT("TOOL_OFFSET %f", emcStatus->task.toolOffset.tran.z);
-  return rtNoError;
-}
-
-static cmdResponseType getAbsCmdPos(connectionRecType *context)
-{
-  char *axisStr = strtok(NULL, delims);
-  int axis = axisnumber(axisStr);
-
-  switch(axis) {
-
-    case -1: // output all axes
-      OUT(
-        "ABS_CMD_POS %f %f %f %f %f %f",
-        emcStatus->motion.traj.position.tran.x,
-        emcStatus->motion.traj.position.tran.y,
-        emcStatus->motion.traj.position.tran.z,
-        emcStatus->motion.traj.position.a,
-        emcStatus->motion.traj.position.b,
-        emcStatus->motion.traj.position.c
-      );
-      break;
-
-    case 0: // X
-      OUT("ABS_CMD_POS X %f", emcStatus->motion.traj.position.tran.x);
-      break;
-
-    case 1: // Y
-      OUT("ABS_CMD_POS Y %f", emcStatus->motion.traj.position.tran.y);
-      break;
-
-    case 2: // Z
-      OUT("ABS_CMD_POS Z %f", emcStatus->motion.traj.position.tran.z);
-      break;
-
-    case 3: // A
-      OUT("ABS_CMD_POS A %f", emcStatus->motion.traj.position.a);
-      break;
-
-    case 4: // B
-      OUT("ABS_CMD_POS B %f", emcStatus->motion.traj.position.b);
-      break;
-
-    case 5: // C
-      OUT("ABS_CMD_POS C %f", emcStatus->motion.traj.position.c);
-      break;
-
-  }
-  return rtNoError;
-}
-
-static cmdResponseType getAbsActPos(connectionRecType *context)
-{
-  char *axisStr = strtok(NULL, delims);
-  int axis = axisnumber(axisStr);
-
-  switch(axis) {
-
-    case -1: // output all axes
-      OUT(
-        "ABS_ACT_POS %f %f %f %f %f %f",
-        emcStatus->motion.traj.actualPosition.tran.x,
-        emcStatus->motion.traj.actualPosition.tran.y,
-        emcStatus->motion.traj.actualPosition.tran.z,
-        emcStatus->motion.traj.actualPosition.a,
-        emcStatus->motion.traj.actualPosition.b,
-        emcStatus->motion.traj.actualPosition.c
-      );
-      break;
-
-    case 0: // X
-      OUT("ABS_ACT_POS X %f", emcStatus->motion.traj.actualPosition.tran.x);
-      break;
-
-    case 1: // Y
-      OUT("ABS_ACT_POS Y %f", emcStatus->motion.traj.actualPosition.tran.y);
-      break;
-
-    case 2: // Z
-      OUT("ABS_ACT_POS Z %f", emcStatus->motion.traj.actualPosition.tran.z);
-      break;
-
-    case 3: // A
-      OUT("ABS_ACT_POS A %f", emcStatus->motion.traj.actualPosition.a);
-      break;
-
-    case 4: // B
-      OUT("ABS_ACT_POS B %f", emcStatus->motion.traj.actualPosition.b);
-      break;
-
-    case 5: // C
-      OUT("ABS_ACT_POS C %f", emcStatus->motion.traj.actualPosition.c);
-      break;
-
-  }
-  return rtNoError;
-}
+	if (ctx.toks[2].size() > MAX_HOSTNAME_SIZE) {
+		errornl(ctx, fmt::format("Hostname too long. Max length allowed is {}", MAX_HOSTNAME_SIZE));
+		replynl(ctx, "HELLO NAK");
+		return -1;
+	}
+
+	// Repeating a HELLO means we disable and unlink.
+	// Linking needs to be reestablished
+	doDisable(ctx);
+	doUnlink(ctx);
 
-static cmdResponseType getRelCmdPos(connectionRecType *context)
-{
-  char *axisStr = strtok(NULL, delims);
-  int axis = axisnumber(axisStr);
-
-  switch(axis) {
-
-    case -1: // output all axes
-      OUT(
-        "REL_CMD_POS %f %f %f %f %f %f",
-        emcStatus->motion.traj.actualPosition.tran.x,
-        emcStatus->motion.traj.actualPosition.tran.y,
-        emcStatus->motion.traj.actualPosition.tran.z,
-        emcStatus->motion.traj.actualPosition.a,
-        emcStatus->motion.traj.actualPosition.b,
-        emcStatus->motion.traj.actualPosition.c
-      );
-      break;
-
-    case 0: // X
-      OUT("REL_CMD_POS X %f", emcStatus->motion.traj.position.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x);
-      break;
-
-    case 1: // Y
-      OUT("REL_CMD_POS Y %f", emcStatus->motion.traj.position.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.y);
-      break;
-
-    case 2: // Z
-      OUT("REL_CMD_POS Z %f", emcStatus->motion.traj.position.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g92_offset.tran.z);
-      break;
-
-    case 3: // A
-      OUT("REL_CMD_POS A %f", emcStatus->motion.traj.position.a - emcStatus->task.g5x_offset.a - emcStatus->task.g92_offset.a);
-      break;
-
-    case 4: // B
-      OUT("REL_CMD_POS B %f", emcStatus->motion.traj.position.b - emcStatus->task.g5x_offset.b - emcStatus->task.g92_offset.b);
-      break;
-
-    case 5: // C
-      OUT("REL_CMD_POS C %f", emcStatus->motion.traj.position.c - emcStatus->task.g5x_offset.c - emcStatus->task.g92_offset.c);
-      break;
-
-  }
-  return rtNoError;
-}
+	// On password errors, don't say too much.
+	if (ctx.toks[1] != helloPwd) {
+		replynl(ctx, "HELLO NAK");
+		return -1;
+	}
+
+	std::string version = "1.1";
+	if (auto inistring = getIniVar("VERSION", "EMC"))
+		version = *inistring;
 
-static cmdResponseType getRelActPos(connectionRecType *context)
-{
-  char *axisStr = strtok(NULL, delims);
-  int axis = axisnumber(axisStr);
-
-  switch(axis) {
-
-    case -1: // output all axes
-      OUT(
-        "REL_ACT_POS %f %f %f %f %f %f",
-        emcStatus->motion.traj.actualPosition.tran.x,
-        emcStatus->motion.traj.actualPosition.tran.y,
-        emcStatus->motion.traj.actualPosition.tran.z,
-        emcStatus->motion.traj.actualPosition.a,
-        emcStatus->motion.traj.actualPosition.b,
-        emcStatus->motion.traj.actualPosition.c
-      );
-      break;
-
-    case 0: // X
-      OUT("REL_ACT_POS X %f", emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x);
-      break;
-
-    case 1: // Y
-      OUT("REL_ACT_POS Y %f", emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.y);
-      break;
-
-    case 2: // Z
-      OUT("REL_ACT_POS Z %f", emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g92_offset.tran.z);
-      break;
-
-    case 3: // A
-      OUT("REL_ACT_POS A %f", emcStatus->motion.traj.actualPosition.a - emcStatus->task.g5x_offset.a - emcStatus->task.g92_offset.a);
-      break;
-
-    case 4: // B
-      OUT("REL_ACT_POS B %f", emcStatus->motion.traj.actualPosition.b - emcStatus->task.g5x_offset.b - emcStatus->task.g92_offset.b);
-      break;
-
-    case 5: // C
-      OUT("REL_ACT_POS C %f", emcStatus->motion.traj.actualPosition.c - emcStatus->task.g5x_offset.c - emcStatus->task.g92_offset.c);
-      break;
-
-  }
-  return rtNoError;
-}
+	ctx.hostname = ctx.toks[2];
 
-static cmdResponseType getJointPos(connectionRecType *context)
-{
-  int joint = -1; // Return all axes by default
-
-  char *jointStr = strtok(NULL, delims);
-  if (jointStr)
-    joint = atoi(jointStr);
-
-  if (joint == -1) {
-    OUT(
-      "JOINT_POS %f %f %f %f %f %f",
-      emcStatus->motion.joint[0].input,
-      emcStatus->motion.joint[1].input,
-      emcStatus->motion.joint[2].input,
-      emcStatus->motion.joint[3].input,
-      emcStatus->motion.joint[4].input,
-      emcStatus->motion.joint[5].input
-    );
-    return rtNoError;
-  }
-
-  OUT("JOINT_POS %d %f", joint, emcStatus->motion.joint[joint].input);
-  return rtNoError;
+	// ctx.version defaults to "1.1" when the context is created
+	if (ctx.toks.size() > 3)
+		ctx.version = ctx.toks[3];
+
+	if (ctx.version > version) {
+		warnnl(ctx, fmt::format("Requested version '{}' is newer than '{}' from [EMC]VERSION", ctx.version, version));
+	}
+
+	doLink(ctx);
+	replynl(ctx, fmt::format("HELLO ACK {} {}", serverName, version));
+	return 0;
 }
 
-static cmdResponseType getPosOffset(connectionRecType *context)
-{
-  char *axisStr = strtok(NULL, delims);
-  int axis = axisnumber(axisStr);
-
-  switch(axis) {
-
-    case -1: // output all axes
-      OUT(
-        "POS_OFFSET %f %f %f %f %f %f",
-        convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x),
-        convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y),
-        convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g92_offset.tran.z),
-        convertLinearUnits(emcStatus->task.g5x_offset.a + emcStatus->task.g92_offset.a),
-        convertLinearUnits(emcStatus->task.g5x_offset.b + emcStatus->task.g92_offset.b),
-        convertLinearUnits(emcStatus->task.g5x_offset.c + emcStatus->task.g92_offset.c)
-      );
-      break;
-
-    case 0:
-      OUT("POS_OFFSET X %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x));
-      break;
-
-    case 1:
-      OUT("POS_OFFSET Y %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y));
-      break;
-
-    case 2:
-      OUT("POS_OFFSET Z %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g92_offset.tran.z));
-      break;
-
-    case 3:
-      OUT("POS_OFFSET A %f", convertLinearUnits(emcStatus->task.g5x_offset.a + emcStatus->task.g92_offset.a));
-      break;
-
-    case 4:
-      OUT("POS_OFFSET B %f", convertLinearUnits(emcStatus->task.g5x_offset.b + emcStatus->task.g92_offset.b));
-      break;
-
-    case 5:
-      OUT("POS_OFFSET C %f", convertLinearUnits(emcStatus->task.g5x_offset.c + emcStatus->task.g92_offset.c));
-      break;
-  }
-  return rtNoError;
+typedef struct {
+	int value;
+	const char *keyword;
+} keywordValueType;
+
+// Command argument keyword enum
+enum {
+	kwOn, kwOff,
+	kwReceived, kwDone, kwNone,
+	/*kwNone,*/ kwAuto, kwManual,
+	/*kwAuto,*/ kwMDI,
+	kwForward, kwReverse, kwIncrease, kwDecrease, kwConstant, /*kwOff,*/
+	kwInch, kwmm, kwcm, /*kwAuto,*/ kwCustom,
+	kwDeg, kwRad, kwGrad, /*kwAuto,*/ /*kwCustom,*/
+};
+
+static int checkKeywords(const std::string &s, const keywordValueType *kv, size_t n)
+{
+	// Going through the list linearly is O(n), but the lists are no longer
+	// than 8 so binary search does not really make sense.
+	for (size_t i = 0; i < n; i++) {
+		if (!compareNoCase(kv[i].keyword, s))
+			return kv[i].value;
+	}
+	return -1;
+}
+
+static int checkOnOff(const std::string &s)
+{
+	static const keywordValueType kv[] = {
+		{kwOn,  "ON"   },
+		{kwOff, "OFF"  },
+		{kwOn,  "1"	   }, // Be tolerant
+		{kwOff, "0"	   },
+		{kwOn,  "TRUE" }, // Be very tolerant
+		{kwOff, "FALSE"},
+		{kwOn,  "YES"  }, // Be extremely tolerant
+		{kwOff, "NO"   },
+	};
+	return checkKeywords(s, kv, NELEM(kv));
 }
-
-static cmdResponseType getJointLimit(connectionRecType *context)
-{
-  const char *pJointLimit = "JOINT_LIMIT";
-  char buf[16];
-  int joint, i;
-
-  char *s = strtok(NULL, delims);
-  if (!s) {
-    rtapi_strxcpy(context->outBuf, pJointLimit);
-    for (i=0; i<6; i++) {
-      if (emcStatus->motion.joint[i].minHardLimit)
-        rtapi_strxcpy(buf, " MINHARD");
-      else
-        if (emcStatus->motion.joint[i].minSoftLimit)
-	  rtapi_strxcpy(buf, " MINSOFT");
+
+static int checkReceivedDoneNone(const std::string &s)
+{
+	static const keywordValueType kv[] = {
+		{kwReceived, "RECEIVED"},
+		{kwDone,	 "DONE"	   },
+		{kwNone,	 "NONE"	   },
+	};
+	return checkKeywords(s, kv, NELEM(kv));
+}
+
+static int checkNoneAuto(const std::string &s)
+{
+	static const keywordValueType kv[] = {
+		{kwNone, "NONE"},
+		{kwAuto, "AUTO"},
+	};
+	return checkKeywords(s, kv, NELEM(kv));
+}
+
+static int checkManualAutoMDI(const std::string &s)
+{
+	static const keywordValueType kv[] = {
+		{kwManual, "MANUAL"},
+		{kwAuto,   "AUTO"  },
+		{kwMDI,    "MDI"   },
+	};
+	return checkKeywords(s, kv, NELEM(kv));
+}
+
+static int checkSpindleCmd(const std::string &s)
+{
+	static const keywordValueType kv[] = {
+		{kwForward,  "FORWARD" },
+		{kwReverse,  "REVERSE" },
+		{kwIncrease, "INCREASE"},
+		{kwDecrease, "DECREASE"},
+		{kwConstant, "CONSTANT"},
+		{kwOff,      "OFF"     },
+	};
+	return checkKeywords(s, kv, NELEM(kv));
+}
+
+static int checkConversionStr(const std::string &s)
+{
+	static const keywordValueType kv[] = {
+		{kwInch,   "INCH"  },
+		{kwmm,     "MM"	   },
+		{kwcm,     "CM"	   },
+		{kwAuto,   "AUTO"  },
+		{kwCustom, "CUSTOM"},
+	};
+	return checkKeywords(s, kv, NELEM(kv));
+}
+
+static int checkAngularConversionStr(const std::string &s)
+{
+	static const keywordValueType kv[] = {
+		{kwDeg,    "DEG"   },
+		{kwRad,    "RAD"   },
+		{kwGrad,   "GRAD"  },
+		{kwAuto,   "AUTO"  },
+		{kwCustom, "CUSTOM"},
+	};
+	return checkKeywords(s, kv, NELEM(kv));
+}
+
+static cmdResponseType setEcho(connectionRecType &ctx)
+{
+	// SET ECHO <ON|OFF>
+	switch (checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn: ctx.echo = true; break;
+	case kwOff: ctx.echo = false; break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setVerbose(connectionRecType &ctx)
+{
+	// SET VERBOSE <ON|OFF>
+	switch (checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn: ctx.verbose = true; break;
+	case kwOff: ctx.verbose = false; break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setDisable(connectionRecType &ctx)
+{
+	// SET DISABLE [sockfd]
+	int cl = ctx.sock;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], cl)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+
+	connectionRecType *conn = nullptr;
+	for (auto &i : clients) {
+		if (cl == i.sock) {
+			conn = &i;
+			break;
+		}
+	}
+	if (!conn) {
+		errornl(ctx, fmt::format("Client '{}' not available", cl));
+		return rtError;
+	}
+
+	if (!isEnabled(*conn)) {
+		errornl(ctx, fmt::format("Client '{}' is not enabled", conn->sock));
+		return rtError;
+	}
+
+	if (ctx.sock == conn->sock) {
+		replynl(ctx, "DISABLE SELF");
+	} else {
+		replynl(ctx, fmt::format("DISABLE {} {}", conn->sock, conn->hostname));
+	}
+	doDisable(*conn);
+	return rtOk;
+}
+
+static cmdResponseType setEnable(connectionRecType &ctx)
+{
+	// SET ENABLE <pwd|OFF>
+	if (ctx.toks[2] == enablePWD) {
+		doEnable(ctx);
+		return rtOk;
+	}
+
+	if (!compareNoCase(ctx.toks[2], "OFF")) {
+		if (!isEnabled(ctx)) {
+			errornl(ctx, "Trying to set enable to off on a non-enabled link");
+			return rtError;
+		}
+		doDisable(ctx);
+		return rtOk;
+	}
+	return rtError;
+}
+
+static cmdResponseType setDebug(connectionRecType &ctx)
+{
+	// SET DEBUG <level>
+	int level;
+	if (!to_int(ctx.toks[2], level)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (sendDebug(level))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setWaitMode(connectionRecType &ctx)
+{
+	// SET WAIT_MODE <RECEIVED|DONE>
+	switch (checkReceivedDoneNone(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{received,done}}", ctx.toks[2])); return rtError;
+	case kwReceived: ctx.waitmode = EMC_WAIT_RECEIVED; break;
+	case kwDone: ctx.waitmode = EMC_WAIT_DONE; break;
+	case kwNone:
+		errornl(ctx, "Setting 'SET WAIT_MODE' to 'NONE' has been removed as it may cause commands to be lost.");
+		return rtError;
+	}
+	return rtOk;
+}
+
+//
+// Wait for a number of real-time thread heartbeats.
+// The heartbeat is incremented every time the motion-controller runs in
+// servo-thread.
+static cmdResponseType doWaitHeartbeat(connectionRecType &ctx, int periods, double timeout)
+{
+	if (timeout <= 0.0) {
+		replynl(ctx, fmt::format("internal: doWaitHeartbeat(): timeout={} and should have been > 0.0", timeout));
+		return rtError;
+	}
+
+	if (periods < 1) {
+		replynl(ctx, fmt::format("internal: doWaitHeartbeat(): periods={} and should have been > 0", timeout));
+		return rtError;
+	}
+
+	static double sleeptime = -1.0;
+	if (sleeptime < 0.0) {
+		// No need to read the INI file on every invocation. The SERVO_PERIOD
+		// does never change in a running system.
+		std::string sp = "10000000"; // 10ms expressed in ns
+		if (auto spp = getIniVar("SERVO_PERIOD", "EMCMOT")) {
+			sp = *spp;
+		}
+		sleeptime = 10e6; // 10ms in ns
+		if (!to_double(sp, sleeptime)) {
+			// This would mean an invalid [EMCMOT]SERVO_PERIOD value...
+			sleeptime = 10e6; // 10ms in ns
+		} else if (sleeptime <= 0.0) {
+			replynl(
+				ctx,
+				fmt::format("internal: [EMCMOT]SERVO_PERIOD was read as '{}' (calculated={}) and should be > 0", sp, sleeptime));
+			sleeptime = -1.0;
+			return rtError;
+		}
+		sleeptime /= 1e9; // Convert to seconds
+	}
+	if (sleeptime * periods > timeout) {
+		errornl(ctx,
+				fmt::format("Invalid periods '{}', waiting time of {:.3f} seconds would exceed timeout of {:.3f} seconds",
+							periods,
+							sleeptime * periods,
+							timeout));
+		return rtError;
+	}
+
+	updateStatus(); // Find out where the heartbeat is right now
+	// This only works with 64-bit heartbeat type
+	static_assert(std::is_same_v<decltype(emcStatus->motion.heartbeat), uint64_t>);
+	uint64_t oldhb = emcStatus->motion.heartbeat;
+	while (timeout > 0.0) {
+		esleep(sleeptime);
+		updateStatus(); // See if the heartbeat changed
+		if (emcStatus->motion.heartbeat - oldhb >= (unsigned)periods)
+			return rtOk;
+		timeout -= sleeptime;
+	}
+	return rtError;
+}
+
+static cmdResponseType setJointWaitHomed(connectionRecType &ctx)
+{
+	// SET JOINT_WAIT_HOMED [joint] [timeout]
+	int joint = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (joint < -1 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-1,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+	if (joint >= 0 && !emcStatus->motion.joint[joint].homing && !emcStatus->motion.joint[joint].homed) {
+		errornl(ctx, fmt::format("Joint '{}' is not homed and not in the process of homing.", joint));
+		return rtError;
+	}
+
+	double timeout = JOINT_WAIT_HOMED_TIMEOUT;
+	if (ctx.toks.size() > 3 && !to_double(ctx.toks[3], timeout)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be floating point", ctx.toks[3]));
+		return rtError;
+	}
+	if (timeout < 0.0 || timeout > JOINT_WAIT_HOMED_TIMEOUT_MAX) {
+		errornl(ctx, fmt::format("Invalid timeout '{}', valid range [0.0,{:.1f}]", ctx.toks[3], JOINT_WAIT_HOMED_TIMEOUT_MAX));
+		return rtError;
+	}
+	if (timeout > JOINT_WAIT_HOMED_TIMEOUT_WARN) {
+		warnnl(ctx, "Timeout above 30 seconds. The remote shell and all other remote connections may stall for this period.");
+	}
+
+	double st = etime();
+	while (timeout > 0.0) {
+		updateStatus(); // Get fresh values about joints' status
+		if (-1 == joint) {
+			bool allhome = true;
+			for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+				if (!emcStatus->motion.joint[i].homing)
+					continue; // Don't care about joints which are not homing
+				if (!emcStatus->motion.joint[i].homed)
+					allhome = false;
+			}
+			if (allhome) {
+				//replynl(ctx, fmt::format("JOINT_WAIT_HOMED finished in {:.3f} seconds", etime() - st));
+				// Wait one heartbeat to allow teleop to become set in the
+				// motion controller.
+				return doWaitHeartbeat(ctx, 1, WAIT_HEARTBEAT_TIMEOUT);
+			}
+		} else {
+			if (emcStatus->motion.joint[joint].homed && !emcStatus->motion.joint[joint].homing) {
+				//replynl(ctx, fmt::format("JOINT_WAIT_HOMED finished in {:.3f} seconds", etime() - st));
+				// Wait one heartbeat to allow teleop to become set in the
+				// motion controller.
+				return doWaitHeartbeat(ctx, 1, WAIT_HEARTBEAT_TIMEOUT);
+			}
+		}
+		double now = etime();
+		esleep(JOINT_WAIT_HOMED_SLEEP);
+		timeout -= etime() - now;
+	}
+	if (joint >= 0)
+		errornl(ctx, fmt::format("Joint '{}' still not homed after {:.1f} seconds", joint, etime() - st));
 	else
-	  if (emcStatus->motion.joint[i].maxSoftLimit)
-	    rtapi_strxcpy(buf, " MAXSOFT");
-	  else
-	    if (emcStatus->motion.joint[i].maxHardLimit)
-	      rtapi_strxcpy(buf, " MAXHARD");
-	    else rtapi_strxcpy(buf, " OK");
-      rtapi_strxcat(context->outBuf, buf);
-      }
-    }
-  else
-    {
-      joint = atoi(s);
-      if (emcStatus->motion.joint[joint].minHardLimit)
-        rtapi_strxcpy(buf, "MINHARD");
-      else
-        if (emcStatus->motion.joint[joint].minSoftLimit)
-	  rtapi_strxcpy(buf, "MINSOFT");
+		errornl(ctx, fmt::format("One or more joints are still not homed after {:.1f} seconds", etime() - st));
+	return rtError;
+}
+
+static cmdResponseType setMachine(connectionRecType &ctx)
+{
+	// SET MACHINE <ON|OFF>
+	bool machon = false;
+	switch (checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn:
+		if (setterActive()) {
+			errornl(ctx, "Cannot issue 'SET MACHINE ON' while another command is being processed");
+			return rtError;
+		}
+		if (sendMachineOn())
+			return rtError;
+		machon = true;
+		break;
+	case kwOff:
+		if (sendMachineOff())
+			return rtError;
+		break;
+	}
+	// Setting machine on/off takes a moment
+	// We need to wait for the motion controller to catch up
+	// and set/clear the motion enable flag internally.
+	for(unsigned toc = 0; toc < WAIT_TASK_STATE_CHANGE_MAX; toc++) {
+		// Wait for the motion control to run
+		if (rtOk != doWaitHeartbeat(ctx, 1, WAIT_HEARTBEAT_TIMEOUT)) {
+			// Bad sign,... can't wait for a heartbeat
+			errornl(ctx, fmt::format("Waiting for motion controller heartbeat while running 'SET MACHINE {}' failed",
+								onOff(machon)));
+			return rtError;
+		}
+		updateStatus();
+		if ((!machon && EMC_TASK_STATE::ON != emcStatus->task.state) ||
+			( machon && EMC_TASK_STATE::ON == emcStatus->task.state)) {
+			// Machine went on or off, all fine
+			return rtOk;
+		}
+	}
+	errornl(ctx, fmt::format("Waiting for 'SET MACHINE {}' failed", onOff(machon)));
+	return rtError;
+}
+
+static cmdResponseType setEStop(connectionRecType &ctx)
+{
+	// SET ESTOP <ON|OFF>
+	bool estopon = false;
+	switch (checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn:
+		if (sendEstop())
+			return rtError;
+		estopon = true;
+		break;
+	case kwOff:
+		if (setterActive()) {
+			errornl(ctx, "Cannot issue 'SET ESTOP OFF' while another command is being processed");
+			return rtError;
+		}
+		if (sendEstopReset())
+			return rtError;
+		break;
+	}
+
+	// Setting/clearing ESTOP takes a moment
+	for(unsigned toc = 0; toc < WAIT_TASK_STATE_CHANGE_MAX; toc++) {
+		// Wait for the motion control to run
+		if (rtOk != doWaitHeartbeat(ctx, 1, WAIT_HEARTBEAT_TIMEOUT)) {
+			// Bad sign,... can't wait for a heartbeat
+			errornl(ctx, fmt::format("Waiting for motion controller heartbeat while running 'SET ESTOP {}' failed",
+								onOff(estopon)));
+			return rtError;
+		}
+		updateStatus();
+		if ((!estopon && EMC_TASK_STATE::ESTOP != emcStatus->task.state) ||
+			( estopon && EMC_TASK_STATE::ESTOP == emcStatus->task.state)) {
+			// System went into or out of ESTOP, all fine
+			return rtOk;
+		}
+	}
+	errornl(ctx, fmt::format("Waiting for 'SET ESTOP {}' failed", onOff(estopon)));
+	return rtError;
+}
+
+static cmdResponseType setWait(connectionRecType &ctx)
+{
+	// *****
+	// FIXME: Should be done in poll loop
+	// *****
+	// SET WAIT <RECEIVED|DONE|NONE>
+	int oldserial = emcCommandSerialNumber;
+	emcCommandSerialNumber = ctx.serial;
+	cmdResponseType rv = rtOk;
+
+	switch (checkReceivedDoneNone(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{received,done,none}}", ctx.toks[2])); return rtError;
+	case kwReceived:
+		if (emcCommandWaitReceived())
+			rv = rtError;
+		break;
+	case kwDone:
+		if (emcCommandWaitDone())
+			rv = rtError;
+		break;
+	case kwNone:
+		// 'none' ignored
+		break;
+	}
+	emcCommandSerialNumber = oldserial;
+	return rv;
+}
+
+static cmdResponseType setWaitHeartbeat(connectionRecType &ctx)
+{
+	// SET WAIT_HEARTBEAT [<periods>]
+	int periods = 1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], periods)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (periods < 1) {
+		errornl(ctx, fmt::format("Invalid periods '{}', valid range [1,...)", periods));
+		return rtError;
+	}
+
+	return doWaitHeartbeat(ctx, periods, WAIT_HEARTBEAT_TIMEOUT);
+}
+
+static cmdResponseType setTimeout(connectionRecType &ctx)
+{
+	// SET TIMEOUT <float>
+	double timeout;
+	if (!to_double(ctx.toks[2], timeout)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be floating point", timeout));
+		return rtError;
+	}
+	ctx.usrtimeout = timeout;
+	return rtOk;
+}
+
+static cmdResponseType setTimestamp(connectionRecType &ctx)
+{
+	// SET TIMESTAMP <ON|OFF> [ON|OFF]
+	switch (checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn: ctx.timestamp = true; break;
+	case kwOff: ctx.timestamp = false; break;
+	}
+
+	ctx.timefmt = ctx.toks.size() > 3 && kwOn == checkOnOff(ctx.toks[3]);
+	return rtOk;
+}
+
+static cmdResponseType setUpdate(connectionRecType &ctx)
+{
+	// SET UPDATE <NONE|AUTO>
+	switch (checkNoneAuto(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{none,auto}}", ctx.toks[2])); return rtError;
+	case kwNone: emcUpdateType = EMC_UPDATE_NONE; break;
+	case kwAuto: emcUpdateType = EMC_UPDATE_AUTO; break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setUpdateStatus(connectionRecType &)
+{
+	// SET UPDATE_STATUS
+	return updateStatus() ? rtError : rtOk;
+}
+
+static cmdResponseType setMode(connectionRecType &ctx)
+{
+	// SET MODE <MANUAL|AUTO|MDI>
+	switch (checkManualAutoMDI(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{manual,auto,mdi}}", ctx.toks[2])); return rtError;
+	case kwManual:
+		if (sendManual())
+			return rtError;
+		break;
+	case kwAuto:
+		if (sendAuto())
+			return rtError;
+		break;
+	case kwMDI:
+		if (sendMdi())
+			return rtError;
+		break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setMist(connectionRecType &ctx)
+{
+	// SET MIST <ON|OFF>
+	switch (checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn:
+		if (sendMistOn())
+			return rtError;
+		break;
+	case kwOff:
+		if (sendMistOff())
+			return rtError;
+		break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setFlood(connectionRecType &ctx)
+{
+	// SET FLOOD <ON|OFF>
+	switch (checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn:
+		if (sendFloodOn())
+			return rtError;
+		break;
+	case kwOff:
+		if (sendFloodOff())
+			return rtError;
+		break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setSpindle(connectionRecType &ctx)
+{
+	// SET SPINDLE <FORWARD|REVERSE|INCREASE|DECREASE|CONSTANT|OFF> [spindle]
+	// handle no spindle present
+	if (emcStatus->motion.traj.spindles == 0) {
+		errornl(ctx, "no spindles configured");
+		return rtError;
+	}
+
+	int cmd = checkSpindleCmd(ctx.toks[2]);
+	int spindle = 0;
+	if (ctx.toks.size() > 3) {
+		if (!to_int(ctx.toks[3], spindle)) {
+			errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[3]));
+			return rtError;
+		}
+		if (spindle < -1 || spindle >= emcStatus->motion.traj.spindles) {
+			errornl(ctx, fmt::format("Invalid spindle '{}', valid range [-1,{}]", spindle, emcStatus->motion.traj.spindles - 1));
+			return rtError;
+		}
+	}
+
+	// walk all spindles
+	for (int n = 0; n < emcStatus->motion.traj.spindles; n++) {
+		// process this spindle?
+		if (n != spindle && spindle != -1)
+			continue;
+
+		switch (cmd) {
+		case kwForward:
+			if (sendSpindleForward(n))
+				return rtError;
+			break;
+
+		case kwReverse:
+			if (sendSpindleReverse(n))
+				return rtError;
+			break;
+
+		case kwIncrease:
+			if (sendSpindleIncrease(n))
+				return rtError;
+			break;
+
+		case kwDecrease:
+			if (sendSpindleDecrease(n))
+				return rtError;
+			break;
+
+		case kwConstant:
+			if (sendSpindleConstant(n))
+				return rtError;
+			break;
+
+		case kwOff:
+			if (sendSpindleOff(n))
+				return rtError;
+			break;
+
+		default:
+			errornl(ctx,
+					fmt::format("Invalid argument '{}', must be {{forward,reverse,increase,decrease,constant,off}}", ctx.toks[2]));
+			return rtError;
+		}
+	}
+
+	return rtOk;
+}
+
+static cmdResponseType setBrake(connectionRecType &ctx)
+{
+	// SET BRAKE <ON|OFF> [spindle]
+	// handle no spindle present
+	if (emcStatus->motion.traj.spindles == 0) {
+		errornl(ctx, "no spindles configured");
+		return rtError;
+	}
+
+	int onoff = checkOnOff(ctx.toks[2]);
+	int spindle = 0;
+	if (ctx.toks.size() > 3) {
+		if (!to_int(ctx.toks[3], spindle)) {
+			errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[3]));
+			return rtError;
+		}
+		if (spindle < -1 || spindle >= emcStatus->motion.traj.spindles) {
+			errornl(ctx, fmt::format("Invalid spindle '{}', valid range [-1,{}]", spindle, emcStatus->motion.traj.spindles - 1));
+			return rtError;
+		}
+	}
+	// walk all spindles
+	for (int n = 0; n < emcStatus->motion.traj.spindles; n++) {
+		// process this spindle?
+		if (n != spindle && spindle != -1)
+			continue;
+
+		switch (onoff) {
+		case kwOn:
+			if (sendBrakeEngage(n))
+				return rtError;
+			break;
+
+		case kwOff:
+			if (sendBrakeRelease(n))
+				return rtError;
+			break;
+
+		default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+		}
+	}
+
+	return rtOk;
+}
+
+static std::optional<std::string> findFilename(const std::string &filename)
+{
+	if (filename.size() < 1)
+		return nullptr;
+
+	struct stat sb;
+	if (filename[0] == '/') { // Absolute path
+		return !stat(filename.c_str(), &sb) ? filename : nullptr;
+	}
+
+	// Relative name, try the search path
+	for (const auto &path : searchPath) {
+		std::string filepath = path + '/' + filename;
+		if (!stat(filepath.c_str(), &sb)) {
+			return filepath;
+		}
+	}
+
+	// Last resort, try the filename 'as is'
+	return !stat(filename.c_str(), &sb) ? filename : nullptr;
+}
+
+static cmdResponseType setLoadToolTable(connectionRecType &ctx)
+{
+	// SET LOAD_TOOL_TABLE <filename>
+	if (ctx.third.size() < 1) {
+		errornl(ctx, "Empty filename");
+		return rtError;
+	}
+
+	auto pathp = findFilename(ctx.third);
+	if (!pathp) {
+		errornl(ctx, fmt::format("File '{}' not found", ctx.third));
+		return rtError;
+	}
+
+	// FIXME: This should be PATH_MAX, but the interface glue
+	// EMC_TOOL_LOAD_TOOL_TABLE is limited to LINELEN.
+	size_t ll = sizeof(EMC_TOOL_LOAD_TOOL_TABLE::file);
+	if (pathp->size() >= ll) {
+		errornl(ctx, fmt::format("Filename path '{}' too long, got {} bytes, max {}", *pathp, pathp->size(), ll - 1));
+		return rtError;
+	}
+
+	if (sendLoadToolTable(pathp->c_str()))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setToolOffset(connectionRecType &ctx)
+{
+	// SET TOOL_OFFSET <tool> <length> <dia>
+	int tool;
+	double length, diameter;
+	if (!to_int(ctx.toks[2], tool)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (!to_double(ctx.toks[3], length)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be floating point", ctx.toks[3]));
+		return rtError;
+	}
+	if (!to_double(ctx.toks[4], diameter)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be floating point", ctx.toks[4]));
+		return rtError;
+	}
+
+	if (sendToolSetOffset(tool, length, diameter))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setOverrideLimits(connectionRecType &ctx)
+{
+	// SET OVERRIDE_LIMITS <ON|OFF>
+	switch (checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn:
+		if (sendOverrideLimits(0))
+			return rtError;
+		break;
+	case kwOff:
+		if (sendOverrideLimits(-1))
+			return rtError;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setMDI(connectionRecType &ctx)
+{
+	// SET MDI <whatever>
+	if (sendMdiCmd(ctx.third.c_str()))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setJointHome(connectionRecType &ctx)
+{
+	// SET JOINT_HOME [joint]
+	int joint = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+
+	// joint == -1 means "Home All", any other negative is wrong
+	if (joint < -1 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-1,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+	if (sendHome(joint))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setJointUnhome(connectionRecType &ctx)
+{
+	// SET JOINT_UNHOME [joint]
+	int joint = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+
+	// joint == -1 means "Unhome all joints",
+	// joint == -2 means "Unhome joints marked as VOLATILE_HOME",
+	// any other negative value is an error.
+	if (joint < -2 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-2,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+	if (sendUnHome(joint))
+		return rtError;
+
+	return rtOk;
+}
+
+static int axisLetter(char ch)
+{
+	// Note: Removed P=3 and R=4; Changed W=5 into W=8; Added U=6 and V=7;
+	// On a 9-axis system we have XYZ, ABC and UVW
+	switch (std::toupper((unsigned char)ch)) {
+	case 'X': return 0;
+	case 'Y': return 1;
+	case 'Z': return 2;
+
+	case 'A': return 3;
+	case 'B': return 4;
+	case 'C': return 5;
+
+	case 'U': return 6;
+	case 'V': return 7;
+	case 'W': return 8;
+
+	default: return -1;
+	}
+}
+
+static cmdResponseType setJogStop(connectionRecType &ctx)
+{
+	// SET JOG_STOP <joint|axis>
+	int jogmode = JOGJOINT;
+	int joint;
+	if (!to_int(ctx.toks[2], joint)) {
+		if (1 != ctx.toks[2].size()) // If letter, than just one char
+			return rtError;
+		joint = axisLetter(ctx.toks[2].data()[0]);
+		jogmode = JOGTELEOP;
+		if (joint < 0 || joint >= EMCMOT_MAX_AXIS) {
+			errornl(ctx, fmt::format("Invalid axis '{}', must be one of XYZABCUVW", ctx.toks[2]));
+			return rtError;
+		}
+		if (!((1 << joint) & emcStatus->motion.traj.axis_mask)) {
+			errornl(ctx, fmt::format("Invalid axis '{}', not configured", ctx.toks[2]));
+			return rtError;
+		}
+	} else if (joint < 0 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}' valid range [0,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+
+	if (sendJogStop(joint, jogmode))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setJog(connectionRecType &ctx)
+{
+	// SET JOG <joint|axis> <speed>
+	int jogmode = JOGJOINT;
+	int joint;
+	if (!to_int(ctx.toks[2], joint)) {
+		if (1 != ctx.toks[2].size()) // If letter, than just one char
+			return rtError;
+		joint = axisLetter(ctx.toks[2].data()[0]);
+		jogmode = JOGTELEOP;
+		if (joint < 0 || joint >= EMCMOT_MAX_AXIS) {
+			errornl(ctx, fmt::format("Invalid axis '{}', must be one of XYZABCUVW", ctx.toks[2]));
+			return rtError;
+		}
+		if (!((1 << joint) & emcStatus->motion.traj.axis_mask)) {
+			errornl(ctx, fmt::format("Invalid axis '{}', not configured", ctx.toks[2]));
+			return rtError;
+		}
+	} else if (joint < 0 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [0,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+
+	double speed;
+	if (!to_double(ctx.toks[3], speed))
+		return rtError;
+
+	if (sendJogCont(joint, jogmode, speed))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setFeedOverride(connectionRecType &ctx)
+{
+	// SET FEED_OVERRIDE <float>
+	double pct;
+	if (!to_double(ctx.toks[2], pct)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be floating point", ctx.toks[2]));
+		return rtError;
+	}
+	if (sendFeedOverride(pct / 100.0))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setJogIncr(connectionRecType &ctx)
+{
+	// SET JOG_INCR <joint|axis> <speed> <incr>
+	int jogmode = JOGJOINT;
+	int joint;
+	if (!to_int(ctx.toks[2], joint)) {
+		if (1 != ctx.toks[2].size()) // If letter, than just one char
+			return rtError;
+		joint = axisLetter(ctx.toks[2].data()[0]);
+		jogmode = JOGTELEOP;
+		if (joint < 0 || joint >= EMCMOT_MAX_AXIS) {
+			errornl(ctx, fmt::format("Invalid axis '{}', must be one of XYZABCUVW", ctx.toks[2]));
+			return rtError;
+		}
+		if (!((1 << joint) & emcStatus->motion.traj.axis_mask)) {
+			errornl(ctx, fmt::format("Invalid axis '{}', not configured", ctx.toks[2]));
+			return rtError;
+		}
+	} else if (joint < 0 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [0,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+
+	double speed;
+	if (!to_double(ctx.toks[3], speed))
+		return rtError;
+
+	double incr;
+	if (!to_double(ctx.toks[4], incr))
+		return rtError;
+
+	if (sendJogIncr(joint, jogmode, speed, incr))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setTaskPlanInit(connectionRecType &)
+{
+	// SET TASK_PLAN_INIT
+	if (sendTaskPlanInit() != 0)
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setOpen(connectionRecType &ctx)
+{
+	// SET OPEN <filename>
+	if (ctx.third.size() < 1) {
+		errornl(ctx, "Empty filename");
+		return rtError;
+	}
+
+	auto pathp = findFilename(ctx.third);
+	if (!pathp) {
+		errornl(ctx, fmt::format("File '{}' not found", ctx.third));
+		return rtError;
+	}
+
+	ctx.progname = *pathp;
+	if (sendProgramOpen(pathp->c_str()))
+		return rtError;
+
+	return rtOk;
+}
+
+static cmdResponseType setRun(connectionRecType &ctx)
+{
+	// SET RUN [linenr]
+	if (ctx.toks.size() == 2) {
+		// run from beginning
+		if (sendProgramRun(0))
+			return rtError;
+		return rtOk;
+	}
+
+	// run from line number
+	int line;
+	if (!to_int(ctx.toks[2], line)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (sendProgramRun(line))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setPause(connectionRecType &ctx)
+{
+	// SET PAUSE
+	if (ctx.waitmode != EMC_WAIT_RECEIVED) {
+		errornl(ctx, "Sending 'SET PAUSE' while not in 'WAIT_MODE RECEIVED' will stall forever");
+		return rtError;
+	}
+	if (sendProgramPause())
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setResume(connectionRecType &ctx)
+{
+	// SET RESUME
+	if (ctx.waitmode != EMC_WAIT_DONE) {
+		warnnl(ctx, "Sending 'SET RESUME' while not in 'WAIT_MODE DONE' may return before the system resumes");
+		return rtError;
+	}
+	if (sendProgramResume())
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setStep(connectionRecType &)
+{
+	// SET STEP
+	// FIXME: How should ctx.waitmode be set??
+	if (sendProgramStep())
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setAbort(connectionRecType &)
+{
+	// SET ABORT
+	if (sendAbort())
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setLinearUnitConversion(connectionRecType &ctx)
+{
+	// SET LINEAR_UNIT_CONVERSION <INCH|MM|CM|AUTO|CUSTOM>
+	switch (checkConversionStr(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{inch,mm,cm,auto,custom}}", ctx.toks[2])); return rtError;
+	case kwInch: linearUnitConversion = LINEAR_UNITS_INCH; break;
+	case kwmm: linearUnitConversion = LINEAR_UNITS_MM; break;
+	case kwcm: linearUnitConversion = LINEAR_UNITS_CM; break;
+	case kwAuto: linearUnitConversion = LINEAR_UNITS_AUTO; break;
+	case kwCustom: linearUnitConversion = LINEAR_UNITS_CUSTOM; break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setAngularUnitConversion(connectionRecType &ctx)
+{
+	// SET ANGULAR_UNIT_CONVERSION <DEG|RAD|GRAD|AUTO|CUSTOM>
+	switch (checkAngularConversionStr(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{deg,rad,grad,auto,custom}}", ctx.toks[2])); return rtError;
+	case kwDeg: angularUnitConversion = ANGULAR_UNITS_DEG; break;
+	case kwRad: angularUnitConversion = ANGULAR_UNITS_RAD; break;
+	case kwGrad: angularUnitConversion = ANGULAR_UNITS_GRAD; break;
+	case kwAuto: angularUnitConversion = ANGULAR_UNITS_AUTO; break;
+	case kwCustom: angularUnitConversion = ANGULAR_UNITS_CUSTOM; break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setTeleopEnable(connectionRecType &ctx)
+{
+	// SET TELEOP_ENABLE <ON|OFF>
+	switch (checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn:
+		if (sendSetTeleopEnable(1))
+			return rtError;
+		break;
+	case kwOff:
+		if (sendSetTeleopEnable(0))
+			return rtError;
+		break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType setProbe(connectionRecType &ctx)
+{
+	// SET PROBE <float> <float> <float>
+	double x, y, z;
+	if (!to_double(ctx.toks[2], x)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be floating point", ctx.toks[2]));
+		return rtError;
+	}
+	if (!to_double(ctx.toks[3], y)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be floating point", ctx.toks[3]));
+		return rtError;
+	}
+	if (!to_double(ctx.toks[4], z)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be floating point", ctx.toks[4]));
+		return rtError;
+	}
+
+	// sendProbe() is a nonfunctional disaster. You need a lot of information
+	// about _all_ axes and you need both velocity, acceleration and jerk
+	// parameters. These are not easy to get but are available in the canon
+	// interface. Therefore, just send it as an MDI command and let the
+	// interpreter handle all the juicy stuff.
+	std::string p = fmt::format("g38.2 x{:f} y{:f} z{:f}", x, y, z);
+	if (sendMdiCmd(p.c_str()))
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setProbeClear(connectionRecType &)
+{
+	// SET PROBE_CLEAR
+	if (sendClearProbeTrippedFlag() != 0)
+		return rtError;
+	return rtOk;
+}
+
+static cmdResponseType setSpindleOverride(connectionRecType &ctx)
+{
+	// SET SPINDLE_OVERRIDE <percent> [spindle]
+	// handle no spindle present
+	if (emcStatus->motion.traj.spindles == 0) {
+		errornl(ctx, "no spindles configured");
+		return rtError;
+	}
+
+	double pct;
+	if (!to_double(ctx.toks[2], pct)) {
+		return rtError;
+	}
+	// Validate percent range
+	if (pct < 0.0 || pct > 100.0) {
+		errornl(ctx, fmt::format("invalid: {} (valid: 0-100)", pct));
+		return rtError;
+	}
+
+	int spindle = 0;
+	if (ctx.toks.size() > 3 && !to_int(ctx.toks[3], spindle)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[3]));
+		return rtError;
+	}
+	if (spindle < -1 || spindle >= emcStatus->motion.traj.spindles) {
+		errornl(ctx, fmt::format("Invalid spindle '{}', valid range [-1,{}]", spindle, emcStatus->motion.traj.spindles - 1));
+		return rtError;
+	}
+
+	// walk all spindles
+	for (int n = 0; n < emcStatus->motion.traj.spindles; n++) {
+		// process this spindle?
+		if (spindle == -1 || n == spindle) {
+			if (sendSpindleOverride(n, pct / 100.0))
+				return rtError;
+		}
+	}
+
+	return rtOk;
+}
+
+static cmdResponseType setOptionalStop(connectionRecType &ctx)
+{
+	// SET OPTIONAL_STOP <value>
+	int value;
+	switch (value = checkOnOff(ctx.toks[2])) {
+	default: errornl(ctx, fmt::format("Invalid argument '{}', must be {{on,off}}", ctx.toks[2])); return rtError;
+	case kwOn:
+	case kwOff: break;
+	}
+	if (sendSetOptionalStop(value == kwOn))
+		return rtError;
+	return rtOk;
+}
+
+
+static cmdResponseType getEcho(connectionRecType &ctx)
+{
+	// GET ECHO
+	replynl(ctx, onOffString("ECHO", ctx.echo));
+	return rtOk;
+}
+
+static cmdResponseType getVerbose(connectionRecType &ctx)
+{
+	// GET VERBOSE
+	replynl(ctx, onOffString("VERBOSE", ctx.verbose));
+	return rtOk;
+}
+
+static cmdResponseType getEnable(connectionRecType &ctx)
+{
+	// GET ENABLE
+	replynl(ctx, onOffString("ENABLE", isEnabled(ctx)));
+	return rtOk;
+}
+
+static cmdResponseType getClients(connectionRecType &ctx)
+{
+	// GET CLIENTS
+	for (const auto &c : clients) {
+		replynl(ctx, fmt::format("CLIENTS {} '{}'{}{}",
+					c.sock,
+					c.hostname,
+					c.linked ? " LINKED" : "",
+					isEnabled(c) ? " ENABLED" : ""));
+	}
+	return rtOk;
+}
+
+static cmdResponseType getCommProt(connectionRecType &ctx)
+{
+	// GET COMM_PROT
+	warnnl(ctx, "GET COMM_PROT has been deprecated. It has no function.");
+	replynl(ctx, fmt::format("COMM_PROT {}", ctx.version));
+	return rtOk;
+}
+
+static cmdResponseType getDebug(connectionRecType &ctx)
+{
+	// GET DEBUG
+	replynl(ctx, fmt::format("DEBUG 0x{:08x}", emcStatus->debug));
+	return rtOk;
+}
+
+static cmdResponseType getWaitMode(connectionRecType &ctx)
+{
+	// GET WAIT_MODE
+	switch (ctx.waitmode) {
+	case EMC_WAIT_RECEIVED: replynl(ctx, "WAIT_MODE RECEIVED"); break;
+	case EMC_WAIT_DONE: replynl(ctx, "WAIT_MODE DONE"); break;
+	default: replynl(ctx, fmt::format("internal: Invalid ctx.waitmode '{}'", (int)ctx.waitmode)); return rtError;
+	}
+	return rtOk;
+}
+
+static cmdResponseType getPlat(connectionRecType &ctx)
+{
+	// GET PLAT
+	replynl(ctx, "PLAT Linux");
+	return rtOk;
+}
+
+static cmdResponseType getEStop(connectionRecType &ctx)
+{
+	// GET ESTOP
+	replynl(ctx, onOffString("ESTOP", emcStatus->task.state == EMC_TASK_STATE::ESTOP));
+	return rtOk;
+}
+
+static cmdResponseType getTimeout(connectionRecType &ctx)
+{
+	// GET TIMEOUT
+	replynl(ctx, fmt::format("TIMEOUT {:f}", ctx.usrtimeout));
+	return rtOk;
+}
+
+static cmdResponseType getTimestamp(connectionRecType &ctx)
+{
+	// GET TIMESTAMP
+	replynl(ctx, fmt::format("TIMESTAMP {} {}", onOff(ctx.timestamp), onOff(ctx.timefmt)));
+	return rtOk;
+}
+
+static cmdResponseType getTime(connectionRecType &ctx)
+{
+	// GET TIME
+	replynl(ctx, fmt::format("TIME {}", etime()));
+	return rtOk;
+}
+
+static cmdResponseType getUpdate(connectionRecType &ctx)
+{
+	// GET UPDATE
+	switch (emcUpdateType) {
+	case EMC_UPDATE_NONE: replynl(ctx, "UPDATE NONE"); break;
+	case EMC_UPDATE_AUTO: replynl(ctx, "UPDATE AUTO"); break;
+	default: replynl(ctx, "UPDATE UNKNOWN"); break;
+	}
+
+	return rtOk;
+}
+
+static cmdResponseType getError(connectionRecType &ctx)
+{
+	// GET ERROR
+	if (updateError()) {
+		replynl(ctx, "internal: updateError(): bad status from LinuxCNC");
+		return rtError;
+	}
+
+	// FIXME: static buffer 'error_string'
+	if (!error_string[0]) {
+		replynl(ctx, "ERROR OK");
+	} else {
+		replynl(ctx, fmt::format("ERROR {}", error_string));
+		error_string[0] = 0;
+	}
+	return rtOk;
+}
+
+static cmdResponseType getOperatorDisplay(connectionRecType &ctx)
+{
+	// GET OPERATOR_DISPLAY
+	if (updateError()) {
+		replynl(ctx, "internal: updateError(): bad status from LinuxCNC");
+		return rtError;
+	}
+
+	// FIXME: static buffer 'operator_display_string'
+	if (!operator_display_string[0])
+		replynl(ctx, "OPERATOR_DISPLAY OK");
+	else {
+		replynl(ctx, fmt::format("OPERATOR_DISPLAY {}", operator_display_string));
+		operator_display_string[0] = 0;
+	}
+	return rtOk;
+}
+
+static cmdResponseType getOperatorText(connectionRecType &ctx)
+{
+	// GET OPERATOR_TEXT
+	if (updateError()) {
+		replynl(ctx, "internal: updateError(): bad status from LinuxCNC");
+		return rtError;
+	}
+
+	// FIXME: static buffer 'operator_text_string'
+	if (!operator_text_string[0])
+		replynl(ctx, "OPERATOR_TEXT OK");
+	else {
+		replynl(ctx, fmt::format("OPERATOR_TEXT {}", operator_text_string));
+		operator_text_string[0] = 0;
+	}
+	return rtOk;
+}
+
+static cmdResponseType getMachine(connectionRecType &ctx)
+{
+	// GET MACHINE
+	replynl(ctx, onOffString("MACHINE",emcStatus->task.state == EMC_TASK_STATE::ON));
+	return rtOk;
+}
+
+static cmdResponseType getMode(connectionRecType &ctx)
+{
+	// GET MODE
+	switch (emcStatus->task.mode) {
+	case EMC_TASK_MODE::MANUAL: replynl(ctx, "MODE MANUAL"); break;
+	case EMC_TASK_MODE::AUTO: replynl(ctx, "MODE AUTO"); break;
+	case EMC_TASK_MODE::MDI: replynl(ctx, "MODE MDI"); break;
+	default:
+		errornl(ctx, fmt::format("internal: GET MODE: unrecognised EMC_TASK_MODE value '{}'", (int)emcStatus->task.mode));
+		replynl(ctx, "MODE ?");
+	}
+	return rtOk;
+}
+
+static cmdResponseType getOpen(connectionRecType &ctx)
+{
+	// GET OPEN
+	if (ctx.progname.size() < 1)
+		replynl(ctx, "OPEN NONE");
 	else
-	  if (emcStatus->motion.joint[joint].maxSoftLimit)
-	    rtapi_strxcpy(buf, "MAXSOFT");
-	  else
-	    if (emcStatus->motion.joint[joint].maxHardLimit)
-	      rtapi_strxcpy(buf, "MAXHARD");
-	    else rtapi_strxcpy(buf, "OK");
-      OUT("%s %d %s", pJointLimit, joint, buf);
-    }
-  return rtNoError;
+		replynl(ctx, fmt::format("OPEN {}", ctx.progname));
+	return rtOk;
 }
 
-static cmdResponseType getJointFault(connectionRecType *context)
+static cmdResponseType getMist(connectionRecType &ctx)
 {
-  const char *pJointFault = "JOINT_FAULT";
-  char buf[16];
-  int joint, i;
-
-  char *s = strtok(NULL, delims);
-  if (!s) {
-    rtapi_strxcpy(context->outBuf, pJointFault);
-    for (i=0; i<6; i++) {
-      if (emcStatus->motion.joint[i].fault)
-        rtapi_strxcat(context->outBuf, " FAULT");
-      else rtapi_strxcat(context->outBuf, " OK");
-      }
-    }
-  else {
-      joint = atoi(s);
-      if (emcStatus->motion.joint[joint].fault)
-        rtapi_strxcpy(buf, "FAULT");
-      else rtapi_strxcpy(buf, "OK");
-      OUT("%s %d %s", pJointFault, joint, buf);
-    }
-  return rtNoError;
+	// GET MIST
+	replynl(ctx, onOffString("MIST", !!emcStatus->io.coolant.mist));
+	return rtOk;
 }
 
-static cmdResponseType getOverrideLimits(connectionRecType *context)
+static cmdResponseType getFlood(connectionRecType &ctx)
 {
-  const char *pOverrideLimits = "OVERRIDE_LIMITS %d";
-
-  OUT(pOverrideLimits, emcStatus->motion.joint[0].overrideLimits);
-  return rtNoError;
+	// GET FLOOD
+	replynl(ctx, onOffString("FLOOD", !!emcStatus->io.coolant.flood));
+	return rtOk;
 }
 
-static cmdResponseType getJointHomed(connectionRecType *context)
+static cmdResponseType getSpindle(connectionRecType &ctx)
 {
-  const char *pJointHomed = "JOINT_HOMED";
-  char buf[16];
-  int joint, i;
-  char *s = strtok(NULL, delims);
-  if (!s) {
-    rtapi_strxcpy(context->outBuf, pJointHomed);
-    for (i=0; i<6; i++) {
-      if (emcStatus->motion.joint[i].homed)
-        rtapi_strxcat(context->outBuf, " YES");
-      else rtapi_strxcat(context->outBuf, " NO");
-      }
-    }
-  else {
-      joint = atoi(s);
-      if (emcStatus->motion.joint[joint].homed)
-        rtapi_strxcpy(buf, "YES");
-      else rtapi_strxcpy(buf, "NO");
-      OUT("%s %d %s", pJointHomed, joint, buf);
-    }
-  return rtNoError;
-}
-
-static cmdResponseType getProgram(connectionRecType *context)
-{
-  if (emcStatus->task.file[0] != 0)
-    OUT("PROGRAM %s", emcStatus->task.file);
-  else
-    OUT("PROGRAM NONE");
-  return rtNoError;
-}
-
-static cmdResponseType getProgramLine(connectionRecType *context)
-{
-  int lineNo;
-
-  if ((programStartLine< 0) || (emcStatus->task.readLine < programStartLine))
-    lineNo = emcStatus->task.readLine;
-  else
-    if (emcStatus->task.currentLine > 0)
-      if ((emcStatus->task.motionLine > 0) &&
-        (emcStatus->task.motionLine < emcStatus->task.currentLine))
-	  lineNo = emcStatus->task.motionLine;
-      else lineNo = emcStatus->task.currentLine;
-    else lineNo = 0;
-  OUT("PROGRAM_LINE %d", lineNo);
-  return rtNoError;
-}
-
-static cmdResponseType getProgramStatus(connectionRecType *context)
-{
-  switch (emcStatus->task.interpState) {
-      case EMC_TASK_INTERP::READING:
-      case EMC_TASK_INTERP::WAITING: OUT("PROGRAM_STATUS RUNNING"); break;
-      case EMC_TASK_INTERP::PAUSED: OUT("PROGRAM_STATUS PAUSED"); break;
-      default: OUT("PROGRAM_STATUS IDLE"); break;
-    }
-  return rtNoError;
-}
-
-static cmdResponseType getProgramCodes(connectionRecType *context)
-{
-  const char *pProgramCodes = "PROGRAM_CODES ";
-  char buf[256];
-  int code, i;
-
-  buf[0] = 0;
-  rtapi_strxcpy(context->outBuf, pProgramCodes);
-  for (i=1; i<ACTIVE_G_CODES; i++) {
-      code = emcStatus->task.activeGCodes[i];
-      if (code == -1) continue;
-      if (code % 10) snprintf(buf, sizeof(buf), "G%.1f ", (double) code / 10.0);
-      else snprintf(buf, sizeof(buf), "G%d ", code / 10);
-      rtapi_strxcat(context->outBuf, buf);
-    }
-  snprintf(buf, sizeof(buf), "F%.0f ", emcStatus->task.activeSettings[1]);
-  rtapi_strxcat(context->outBuf, buf);
-  snprintf(buf, sizeof(buf), "S%.0f", fabs(emcStatus->task.activeSettings[2]));
-  rtapi_strxcat(context->outBuf, buf);
-  return rtNoError;
-}
-
-static cmdResponseType getJointType(connectionRecType *context)
-{
-  const char *pJointType = "JOINT_TYPE";
-  char buf[16];
-  int joint, i;
-
-  char *s = strtok(NULL, delims);
-  if (!s) {
-    rtapi_strxcpy(context->outBuf, pJointType);
-    for (i=0; i<6; i++) {
-      switch (emcStatus->motion.joint[i].jointType) {
-        case EMC_LINEAR: rtapi_strxcat(context->outBuf, " LINEAR"); break;
-	case EMC_ANGULAR: rtapi_strxcat(context->outBuf, " ANGULAR"); break;
-	default: rtapi_strxcat(context->outBuf, "CUSTOM");
+	// GET SPINDLE [spindle]
+	// handle no spindle present
+	if (emcStatus->motion.traj.spindles == 0) {
+		errornl(ctx, "no spindles configured");
+		return rtError;
 	}
-      }
-    }
-  else {
-      joint = atoi(s);
-      switch (emcStatus->motion.joint[joint].jointType) {
-        case EMC_LINEAR: rtapi_strxcpy(buf, " LINEAR"); break;
-	case EMC_ANGULAR: rtapi_strxcpy(buf, " ANGULAR"); break;
-	default: rtapi_strxcpy(buf, "CUSTOM");
+
+	int spindle = 0;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], spindle)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
 	}
-      OUT("%s %d %s", pJointType, joint, buf);
-    }
-  return rtNoError;
+	if (spindle < -1 || spindle >= emcStatus->motion.traj.spindles) {
+		errornl(ctx, fmt::format("Invalid spindle '{}', valid range [-1,{}]", spindle, emcStatus->motion.traj.spindles - 1));
+		return rtError;
+	}
+
+	// walk all spindles
+	for (int n = 0; n < emcStatus->motion.traj.spindles; n++) {
+		// process this spindle?
+		if (n != spindle && spindle != -1)
+			continue;
+
+		if (emcStatus->motion.spindle[n].increasing > 0)
+			replynl(ctx, fmt::format("SPINDLE {} INCREASE", n));
+		else if (emcStatus->motion.spindle[n].increasing < 0)
+			replynl(ctx, fmt::format("SPINDLE {} DECREASE", n));
+		else if (emcStatus->motion.spindle[n].direction > 0)
+			replynl(ctx, fmt::format("SPINDLE {} FORWARD", n));
+		else if (emcStatus->motion.spindle[n].direction < 0)
+			replynl(ctx, fmt::format("SPINDLE {} REVERSE", n));
+		else
+			replynl(ctx, fmt::format("SPINDLE {} OFF", n));
+	}
+
+	return rtOk;
 }
 
-static cmdResponseType getJointUnits(connectionRecType *context)
+static cmdResponseType getBrake(connectionRecType &ctx)
 {
-  const char *pJointUnits = "JOINT_UNITS";
-  char buf[16];
-  int joint, i;
+	// GET BRAKE [spindle]
+	// handle no spindle present
+	if (emcStatus->motion.traj.spindles == 0) {
+		errornl(ctx, "no spindles configured");
+		return rtError;
+	}
 
-  char *s = strtok(NULL, delims);
-  if (!s) {
-    rtapi_strxcpy(context->outBuf, pJointUnits);
-    for (i=0; i<6; i++) {
-      switch (emcStatus->motion.joint[i].jointType) {
-        case EMC_LINEAR:
-	  if (CLOSE(emcStatus->motion.joint[i].units, 1.0, LINEAR_CLOSENESS))
-	    rtapi_strxcat(context->outBuf, " MM");
-	  else
-	    if (CLOSE(emcStatus->motion.joint[i].units, INCH_PER_MM,
-	      LINEAR_CLOSENESS)) rtapi_strxcat(context->outBuf, " INCH");
-	    else
-	      if (CLOSE(emcStatus->motion.joint[i].units, CM_PER_MM,
-	        LINEAR_CLOSENESS)) rtapi_strxcat(context->outBuf, " CM");
-	      else rtapi_strxcat(context->outBuf, " CUSTOM");
-	  break;
+	int spindle = 0;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], spindle)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (spindle < -1 || spindle >= emcStatus->motion.traj.spindles) {
+		errornl(ctx, fmt::format("Invalid spindle '{}', valid range [-1,{}]", spindle, emcStatus->motion.traj.spindles - 1));
+		return rtError;
+	}
+
+	// walk all spindles
+	for (int n = 0; n < emcStatus->motion.traj.spindles; n++) {
+		// process this spindle?
+		if (n != spindle && spindle != -1)
+			continue;
+		replynl(ctx, fmt::format("BRAKE {} {}", n, onOff(!!emcStatus->motion.spindle[n].brake)));
+	}
+
+	return rtOk;
+}
+
+static cmdResponseType getTool(connectionRecType &ctx)
+{
+	// GET TOOL
+	replynl(ctx, fmt::format("TOOL {}", emcStatus->io.tool.toolInSpindle));
+	return rtOk;
+}
+
+static cmdResponseType getToolOffset(connectionRecType &ctx)
+{
+	// GET TOOL_OFFSET
+	replynl(ctx, fmt::format("TOOL_OFFSET {:f}", emcStatus->task.toolOffset.tran.z));
+	return rtOk;
+}
+
+static cmdResponseType printPose(connectionRecType &ctx, int axis, const std::string &pfx, const EmcPose &pose)
+{
+	switch (axis) {
+	default: return rtError;
+
+	case -1: // output all axes
+		replynl(ctx,
+				fmt::format("{} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f}",
+							pfx,
+							pose.tran.x,
+							pose.tran.y,
+							pose.tran.z,
+							pose.a,
+							pose.b,
+							pose.c,
+							pose.u,
+							pose.v,
+							pose.w));
+		break;
+
+	case 0: replynl(ctx, fmt::format("{} X {:f}", pfx, pose.tran.x)); break;
+	case 1: replynl(ctx, fmt::format("{} Y {:f}", pfx, pose.tran.y)); break;
+	case 2: replynl(ctx, fmt::format("{} Z {:f}", pfx, pose.tran.z)); break;
+	case 3: replynl(ctx, fmt::format("{} A {:f}", pfx, pose.a)); break;
+	case 4: replynl(ctx, fmt::format("{} B {:f}", pfx, pose.b)); break;
+	case 5: replynl(ctx, fmt::format("{} C {:f}", pfx, pose.c)); break;
+	case 6: replynl(ctx, fmt::format("{} U {:f}", pfx, pose.u)); break;
+	case 7: replynl(ctx, fmt::format("{} V {:f}", pfx, pose.v)); break;
+	case 8: replynl(ctx, fmt::format("{} W {:f}", pfx, pose.w)); break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType getAbsCmdPos(connectionRecType &ctx)
+{
+	// GET ABS_CMD_POS [axis]
+	int axis = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], axis)) {
+		if (1 != ctx.toks[2].size()) // If letter, than just one char
+			return rtError;
+		axis = axisLetter(ctx.toks[2].data()[0]);
+		if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+			errornl(ctx, fmt::format("Invalid axis '{}', must be one of XYZABCUVW", ctx.toks[2]));
+			return rtError;
+		}
+		if (!((1 << axis) & emcStatus->motion.traj.axis_mask)) {
+			warnnl(ctx, fmt::format("Axis '{}', not configured", ctx.toks[2]));
+		}
+	}
+	if (axis < -1 || axis >= EMCMOT_MAX_AXIS) {
+		errornl(ctx, fmt::format("Invalid axis '{}', range [-1,{}]", ctx.toks[2], EMCMOT_MAX_AXIS - 1));
+		return rtError;
+	}
+
+	return printPose(ctx, axis, "ABS_CMD_POS", emcStatus->motion.traj.position);
+}
+
+static cmdResponseType getAxisVelocity(connectionRecType &ctx)
+{
+	// GET AXIS_VELOCITY [axis]
+	int axis = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], axis)) {
+		if (1 != ctx.toks[2].size()) // If letter, than just one char
+			return rtError;
+		axis = axisLetter(ctx.toks[2].data()[0]);
+		if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+			errornl(ctx, fmt::format("Invalid axis '{}', must be one of XYZABCUVW", ctx.toks[2]));
+			return rtError;
+		}
+		if (!((1 << axis) & emcStatus->motion.traj.axis_mask)) {
+			warnnl(ctx, fmt::format("Axis '{}', not configured", ctx.toks[2]));
+		}
+	}
+	if (axis < -1 || axis >= EMCMOT_MAX_AXIS) {
+		errornl(ctx, fmt::format("Invalid axis '{}', range [-1,{}]", ctx.toks[2], EMCMOT_MAX_AXIS - 1));
+		return rtError;
+	}
+
+	EmcPose pose = {
+		{
+			emcStatus->motion.axis[0].velocity,
+			emcStatus->motion.axis[1].velocity,
+			emcStatus->motion.axis[2].velocity
+		},
+		emcStatus->motion.axis[3].velocity,
+		emcStatus->motion.axis[4].velocity,
+		emcStatus->motion.axis[5].velocity,
+		emcStatus->motion.axis[6].velocity,
+		emcStatus->motion.axis[7].velocity,
+		emcStatus->motion.axis[8].velocity,
+	};
+
+	return printPose(ctx, axis, "AXIS_VELOCITY", pose);
+}
+
+static cmdResponseType getAbsActPos(connectionRecType &ctx)
+{
+	// GET ABS_ACT_POS [axis]
+	int axis = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], axis)) {
+		if (1 != ctx.toks[2].size()) // If letter, than just one char
+			return rtError;
+		axis = axisLetter(ctx.toks[2].data()[0]);
+		if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+			errornl(ctx, fmt::format("Invalid axis '{}', must be one of XYZABCUVW", ctx.toks[2]));
+			return rtError;
+		}
+		if (!((1 << axis) & emcStatus->motion.traj.axis_mask)) {
+			warnnl(ctx, fmt::format("Axis '{}', not configured", ctx.toks[2]));
+		}
+	}
+	if (axis < -1 || axis >= EMCMOT_MAX_AXIS) {
+		errornl(ctx, fmt::format("Invalid axis '{}', range [-1,{}]", ctx.toks[2], EMCMOT_MAX_AXIS - 1));
+		return rtError;
+	}
+
+	return printPose(ctx, axis, "ABS_ACT_POS", emcStatus->motion.traj.actualPosition);
+}
+
+static cmdResponseType getRelCmdPos(connectionRecType &ctx)
+{
+	// GET REL_CMD_POS [axis]
+	int axis = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], axis)) {
+		if (1 != ctx.toks[2].size()) // If letter, than just one char
+			return rtError;
+		axis = axisLetter(ctx.toks[2].data()[0]);
+		if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+			errornl(ctx, fmt::format("Invalid axis '{}', must be one of XYZABCUVW", ctx.toks[2]));
+			return rtError;
+		}
+		if (!((1 << axis) & emcStatus->motion.traj.axis_mask)) {
+			warnnl(ctx, fmt::format("Axis '{}', not configured", ctx.toks[2]));
+		}
+	}
+	if (axis < -1 || axis >= EMCMOT_MAX_AXIS) {
+		errornl(ctx, fmt::format("Invalid axis '{}', range [-1,{}]", ctx.toks[2], EMCMOT_MAX_AXIS - 1));
+		return rtError;
+	}
+
+	const EmcPose *pos = &emcStatus->motion.traj.position;
+	const EmcPose *g5x = &emcStatus->task.g5x_offset;
+	const EmcPose *g92 = &emcStatus->task.g92_offset;
+	EmcPose pose = {
+		{
+			pos->tran.x - g5x->tran.x - g92->tran.x,
+			pos->tran.y - g5x->tran.y - g92->tran.y,
+			pos->tran.z - g5x->tran.z - g92->tran.z,
+		 },
+		pos->a - g5x->a - g92->a,
+		pos->b - g5x->b - g92->b,
+		pos->c - g5x->c - g92->c,
+		pos->u - g5x->u - g92->u,
+		pos->v - g5x->v - g92->v,
+		pos->w - g5x->w - g92->w,
+	};
+	return printPose(ctx, axis, "REL_CMD_POS", pose);
+}
+
+static cmdResponseType getRelActPos(connectionRecType &ctx)
+{
+	// GET REL_ACT_POS [axis]
+	int axis = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], axis)) {
+		if (1 != ctx.toks[2].size()) // If letter, than just one char
+			return rtError;
+		axis = axisLetter(ctx.toks[2].data()[0]);
+		if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+			errornl(ctx, fmt::format("Invalid axis '{}', must be one of XYZABCUVW", ctx.toks[2]));
+			return rtError;
+		}
+		if (!((1 << axis) & emcStatus->motion.traj.axis_mask)) {
+			warnnl(ctx, fmt::format("Axis '{}', not configured", ctx.toks[2]));
+		}
+	}
+	if (axis < -1 || axis >= EMCMOT_MAX_AXIS) {
+		errornl(ctx, fmt::format("Invalid axis '{}', valid range [-1,{}]", ctx.toks[2], EMCMOT_MAX_AXIS - 1));
+		return rtError;
+	}
+
+	const EmcPose *pos = &emcStatus->motion.traj.actualPosition;
+	const EmcPose *g5x = &emcStatus->task.g5x_offset;
+	const EmcPose *g92 = &emcStatus->task.g92_offset;
+	EmcPose pose = {
+		{
+			pos->tran.x - g5x->tran.x - g92->tran.x,
+			pos->tran.y - g5x->tran.y - g92->tran.y,
+			pos->tran.z - g5x->tran.z - g92->tran.z,
+		 },
+		pos->a - g5x->a - g92->a,
+		pos->b - g5x->b - g92->b,
+		pos->c - g5x->c - g92->c,
+		pos->u - g5x->u - g92->u,
+		pos->v - g5x->v - g92->v,
+		pos->w - g5x->w - g92->w,
+	};
+	return printPose(ctx, axis, "REL_ACT_POS", pose);
+}
+
+static cmdResponseType getJointPos(connectionRecType &ctx)
+{
+	// GET JOINT_POS [joint]
+	int joint = -1; // Return all axes by default
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (joint < -1 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-1,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+
+	if (joint == -1) {
+		std::string jp = "JOINT_POS";
+		for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+			jp += fmt::format(" {:f}", emcStatus->motion.joint[i].input);
+		}
+		replynl(ctx, jp);
+		return rtOk;
+	}
+
+	replynl(ctx, fmt::format("JOINT_POS {} {:f}", joint, emcStatus->motion.joint[joint].input));
+	return rtOk;
+}
+
+static cmdResponseType getPosOffset(connectionRecType &ctx)
+{
+	// GET POS_OFFSET [axis]
+	int axis = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], axis)) {
+		if (1 != ctx.toks[2].size()) // If letter, than just one char
+			return rtError;
+		axis = axisLetter(ctx.toks[2].data()[0]);
+		if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+			errornl(ctx, fmt::format("Invalid axis '{}', must be one of XYZABCUVW", ctx.toks[2]));
+			return rtError;
+		}
+		if (!((1 << axis) & emcStatus->motion.traj.axis_mask)) {
+			warnnl(ctx, fmt::format("Axis '{}', not configured", ctx.toks[2]));
+		}
+	}
+	if (axis < -1 || axis >= EMCMOT_MAX_AXIS) {
+		errornl(ctx, fmt::format("Invalid axis '{}', valid range [-1,{}]", ctx.toks[2], EMCMOT_MAX_AXIS - 1));
+		return rtError;
+	}
+
+	const EmcPose *g5x = &emcStatus->task.g5x_offset;
+	const EmcPose *g92 = &emcStatus->task.g92_offset;
+	EmcPose pose = {
+		{
+			convertLinearUnits(g5x->tran.x + g92->tran.x),
+			convertLinearUnits(g5x->tran.y + g92->tran.y),
+			convertLinearUnits(g5x->tran.z + g92->tran.z),
+		 },
+		convertLinearUnits(g5x->a + g92->a),
+		convertLinearUnits(g5x->b + g92->b),
+		convertLinearUnits(g5x->c + g92->c),
+		convertLinearUnits(g5x->u + g92->u),
+		convertLinearUnits(g5x->v + g92->v),
+		convertLinearUnits(g5x->w + g92->w),
+	};
+	return printPose(ctx, axis, "POS_OFFSET", pose);
+}
+
+static const char *jointLimit(int joint)
+{
+	if (emcStatus->motion.joint[joint].minHardLimit)
+		return "MINHARD";
+	else if (emcStatus->motion.joint[joint].minSoftLimit)
+		return "MINSOFT";
+	else if (emcStatus->motion.joint[joint].maxSoftLimit)
+		return "MAXSOFT";
+	else if (emcStatus->motion.joint[joint].maxHardLimit)
+		return "MAXHARD";
+	else
+		return "OK";
+}
+
+static cmdResponseType getJointLimit(connectionRecType &ctx)
+{
+	// GET JOINT_LIMIT [joint]
+
+	int joint = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (joint < -1 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-1,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+	if (joint >= 0) {
+		std::string lim;
+		replynl(ctx, fmt::format("JOINT_LIMIT {} {}", joint, jointLimit(joint)));
+	} else {
+		std::string jl = "JOINT_LIMIT";
+		for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+			jl += ' ';
+			jl += jointLimit(i);
+		}
+		replynl(ctx, jl);
+	}
+	return rtOk;
+}
+
+static cmdResponseType getJointVelocity(connectionRecType &ctx)
+{
+	// GET JOINT_VELOCITY [joint]
+
+	int joint = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (joint < -1 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-1,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+	if (joint >= 0) {
+		std::string lim;
+		replynl(ctx, fmt::format("JOINT_VELOCITY {} {:f}", joint, emcStatus->motion.joint[joint].velocity));
+	} else {
+		std::string jl = "JOINT_VELOCITY";
+		for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+			jl += fmt::format(" {:f}", emcStatus->motion.joint[joint].velocity);
+		}
+		replynl(ctx, jl);
+	}
+	return rtOk;
+}
+
+static cmdResponseType getJointFault(connectionRecType &ctx)
+{
+	// GET JOINT_FAULT [joint]
+
+	int joint = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (joint < -1 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-1,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+	if (joint >= 0) {
+		replynl(ctx, fmt::format("JOINT_FAULT {} {}", joint, emcStatus->motion.joint[joint].fault ? "FAULT" : "OK"));
+	} else {
+		std::string flt = "JOINT_FAULT";
+		for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+			flt += emcStatus->motion.joint[i].fault ? " FAULT" : " OK";
+		}
+		replynl(ctx, flt);
+	}
+	return rtOk;
+}
+
+static cmdResponseType getOverrideLimits(connectionRecType &ctx)
+{
+	// GET OVERRIDE_LIMITS
+	replynl(ctx, onOffString("OVERRIDE_LIMITS", emcStatus->motion.joint[0].overrideLimits));
+	return rtOk;
+}
+
+static cmdResponseType getJointHomed(connectionRecType &ctx)
+{
+	// GET JOINT_HOMED [joint]
+	int joint = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (joint < -1 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-1,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+	if (joint >= 0) {
+		replynl(ctx, fmt::format("JOINT_HOMED {} {}", joint, yesNo(emcStatus->motion.joint[joint].homed)));
+	} else {
+		std::string jh = "JOINT_HOMED";
+		for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+			jh += ' ';
+			jh += yesNo(emcStatus->motion.joint[i].homed);
+		}
+		replynl(ctx, jh);
+	}
+	return rtOk;
+}
+
+static cmdResponseType getProgram(connectionRecType &ctx)
+{
+	// GET PROGRAM
+	if (emcStatus->task.file[0] != 0)
+		replynl(ctx, fmt::format("PROGRAM {}", emcStatus->task.file));
+	else
+		replynl(ctx, "PROGRAM NONE");
+	return rtOk;
+}
+
+static cmdResponseType getProgramLine(connectionRecType &ctx)
+{
+	// GET PROGRAM_LINE
+	int lineNo;
+
+	if ((programStartLine < 0) || (emcStatus->task.readLine < programStartLine))
+		lineNo = emcStatus->task.readLine;
+	else if (emcStatus->task.currentLine > 0)
+		if ((emcStatus->task.motionLine > 0) && (emcStatus->task.motionLine < emcStatus->task.currentLine))
+			lineNo = emcStatus->task.motionLine;
+		else
+			lineNo = emcStatus->task.currentLine;
+	else
+		lineNo = 0;
+	replynl(ctx, fmt::format("PROGRAM_LINE {}", lineNo));
+	return rtOk;
+}
+
+static cmdResponseType getProgramStatus(connectionRecType &ctx)
+{
+	// GET PROGRAM_STATUS
+	switch (emcStatus->task.interpState) {
+	case EMC_TASK_INTERP::READING:
+	case EMC_TASK_INTERP::WAITING: replynl(ctx, "PROGRAM_STATUS RUNNING"); break;
+	case EMC_TASK_INTERP::PAUSED: replynl(ctx, "PROGRAM_STATUS PAUSED"); break;
+	default: replynl(ctx, "PROGRAM_STATUS IDLE"); break;
+	}
+	return rtOk;
+}
+
+static cmdResponseType getProgramCodes(connectionRecType &ctx)
+{
+	// GET PROGRAM_CODES
+	std::string pc = "PROGRAM_CODES";
+	for (int i = 1; i < ACTIVE_G_CODES; i++) {
+		int code = emcStatus->task.activeGCodes[i];
+		if (code == -1)
+			continue;
+		if (code % 10)
+			pc += fmt::format(" G{:.1f}", (double)code / 10.0);
+		else
+			pc += fmt::format(" G{}", code / 10);
+	}
+	pc += fmt::format(" F{:.0f}", emcStatus->task.activeSettings[1]);
+	pc += fmt::format(" S{:.0f}", fabs(emcStatus->task.activeSettings[2]));
+	replynl(ctx, pc);
+	return rtOk;
+}
+
+static const std::string jointType(unsigned type)
+{
+	switch (type) {
+	case EMC_LINEAR: return "LINEAR";
+	case EMC_ANGULAR: return "ANGULAR";
+	default: return "CUSTOM";
+	}
+}
+
+static cmdResponseType getJointType(connectionRecType &ctx)
+{
+	// GET JOINT_TYPE [joint]
+	int joint = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (joint < -1 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-1,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+
+	if (joint >= 0) {
+		replynl(ctx, fmt::format("JOINT_TYPE {} {}", joint, jointType(emcStatus->motion.joint[joint].jointType)));
+	} else {
+		std::string jt = "JOINT_TYPE";
+		for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+			jt += ' ';
+			jt += jointType(emcStatus->motion.joint[i].jointType);
+		}
+		replynl(ctx, jt);
+	}
+	return rtOk;
+}
+
+static const std::string jointTypeUnits(unsigned type, double units)
+{
+	switch (type) {
+	case EMC_LINEAR:
+		if (CLOSE(units, 1.0, LINEAR_CLOSENESS))
+			return "MM";
+		else if (CLOSE(units, INCH_PER_MM, LINEAR_CLOSENESS))
+			return "INCH";
+		else if (CLOSE(units, CM_PER_MM, LINEAR_CLOSENESS))
+			return "CM";
+		else
+			return "CUSTOM";
 	case EMC_ANGULAR:
-	  if (CLOSE(emcStatus->motion.joint[i].units, 1.0, ANGULAR_CLOSENESS))
-	    rtapi_strxcat(context->outBuf, " DEG");
-	  else
-  	    if (CLOSE(emcStatus->motion.joint[i].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
-	      rtapi_strxcat(context->outBuf, " RAD");
-	    else
-	      if (CLOSE(emcStatus->motion.joint[i].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
-	        rtapi_strxcat(context->outBuf, " GRAD");
-	      else rtapi_strxcat(context->outBuf, " CUSTOM");
-	  break;
-	default: rtapi_strxcat(context->outBuf, " CUSTOM");
+		if (CLOSE(units, 1.0, ANGULAR_CLOSENESS))
+			return "DEG";
+		else if (CLOSE(units, RAD_PER_DEG, ANGULAR_CLOSENESS))
+			return "RAD";
+		else if (CLOSE(units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
+			return "GRAD";
+		else
+			return "CUSTOM";
+	default: return "CUSTOM";
 	}
-      }
-    }
-  else {
-      joint = atoi(s);
-      switch (emcStatus->motion.joint[joint].jointType) {
-        case EMC_LINEAR:
-	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, LINEAR_CLOSENESS))
-	    rtapi_strxcpy(buf, "MM");
-	  else
-	    if (CLOSE(emcStatus->motion.joint[joint].units, INCH_PER_MM,
-	      LINEAR_CLOSENESS)) rtapi_strxcpy(buf, "INCH");
-	    else
-	      if (CLOSE(emcStatus->motion.joint[joint].units, CM_PER_MM,
-	        LINEAR_CLOSENESS)) rtapi_strxcpy(buf, "CM");
-	      else rtapi_strxcpy(buf, "CUSTOM");
-	  break;
-	case EMC_ANGULAR:
-	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, ANGULAR_CLOSENESS))
-	    rtapi_strxcpy(buf, "DEG");
-	  else
-  	    if (CLOSE(emcStatus->motion.joint[joint].units, RAD_PER_DEG, ANGULAR_CLOSENESS))
-	      rtapi_strxcpy(buf, "RAD");
-	    else
-	      if (CLOSE(emcStatus->motion.joint[joint].units, GRAD_PER_DEG, ANGULAR_CLOSENESS))
-	        rtapi_strxcpy(buf, "GRAD");
-	      else rtapi_strxcpy(buf, "CUSTOM");
-	  break;
-	default: rtapi_strxcpy(buf, "CUSTOM");
-      OUT("%s %d %s", pJointUnits, joint, buf);
-      }
-    }
-  return rtNoError;
 }
 
-static cmdResponseType getProgramLinearUnits(connectionRecType *context)
+static cmdResponseType getJointUnits(connectionRecType &ctx)
 {
-  switch (emcStatus->task.programUnits) {
-    case CANON_UNITS_INCHES: OUT("PROGRAM_UNITS INCH"); break;
-    case CANON_UNITS_MM: OUT("PROGRAM_UNITS MM"); break;
-    case CANON_UNITS_CM: OUT("PROGRAM_UNITS CM"); break;
-    default: OUT("PROGRAM_UNITS CUSTOM"); break;
-    }
-  return rtNoError;
+	// GET JOINT_UNITS [joint]
+	int joint = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], joint)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (joint < -1 || joint >= emcStatus->motion.traj.joints) {
+		errornl(ctx, fmt::format("Invalid joint '{}', valid range [-1,{}]", joint, emcStatus->motion.traj.joints - 1));
+		return rtError;
+	}
+
+	if (joint >= 0) {
+		const std::string ju = jointTypeUnits(emcStatus->motion.joint[joint].jointType, emcStatus->motion.joint[joint].units);
+		replynl(ctx, fmt::format("JOIN_UNITS {} {}", joint, ju));
+	} else {
+		std::string ju = "JOINT_UNITS";
+		for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+			ju += ' ';
+			ju += jointTypeUnits(emcStatus->motion.joint[i].jointType, emcStatus->motion.joint[i].units);
+		}
+		replynl(ctx, ju);
+	}
+	return rtOk;
 }
 
-static cmdResponseType getProgramAngularUnits(connectionRecType *context)
+static const char *programUnits(CANON_UNITS u)
 {
-  OUT("PROGRAM_ANGULAR_UNITS DEG");
-  return rtNoError;
+	switch(u) {
+	case CANON_UNITS_INCHES: return "INCH";
+	case CANON_UNITS_MM: return "MM";
+	case CANON_UNITS_CM: return "CM";
+	default: return "CUSTOM";
+	}
 }
 
-static cmdResponseType getUserLinearUnits(connectionRecType *context)
+static cmdResponseType getProgramLinearUnits(connectionRecType &ctx)
 {
-  if (CLOSE(emcStatus->motion.traj.linearUnits, 1.0, LINEAR_CLOSENESS))
-    OUT("USER_LINEAR_UNITS MM");
-  else
-    if (CLOSE(emcStatus->motion.traj.linearUnits, INCH_PER_MM, LINEAR_CLOSENESS))
-      OUT("USER_LINEAR_UNITS INCH");
-    else
-      if (CLOSE(emcStatus->motion.traj.linearUnits, CM_PER_MM, LINEAR_CLOSENESS))
-        OUT("USER_LINEAR_UNITS CM");
-      else
-        OUT("USER_LINEAR_UNITS CUSTOM");
-  return rtNoError;
+	// GET PROGRAM_LINEAR_UNITS
+	replynl(ctx, fmt::format("PROGRAM_UNITS {}", programUnits(emcStatus->task.programUnits)));
+	return rtOk;
 }
 
-static cmdResponseType getUserAngularUnits(connectionRecType *context)
+static cmdResponseType getProgramAngularUnits(connectionRecType &ctx)
 {
-  if (CLOSE(emcStatus->motion.traj.angularUnits, 1.0, ANGULAR_CLOSENESS))
-    OUT("USER_ANGULAR_UNITS DEG");
-  else
-    if (CLOSE(emcStatus->motion.traj.angularUnits, RAD_PER_DEG, ANGULAR_CLOSENESS))
-      OUT("USER_ANGULAR_UNITS RAD");
-    else
-      if (CLOSE(emcStatus->motion.traj.angularUnits, GRAD_PER_DEG, ANGULAR_CLOSENESS))
-        OUT("USER_ANGULAR_UNITS GRAD");
-      else
-        OUT("USER_ANGULAR_UNITS CUSTOM");
-  return rtNoError;
+	// GET PROGRAM_ANGULAR_UNITS
+	// The program is always in degrees...
+	replynl(ctx, "PROGRAM_ANGULAR_UNITS DEG");
+	return rtOk;
 }
 
-static cmdResponseType getDisplayLinearUnits(connectionRecType *context)
+static cmdResponseType getUserLinearUnits(connectionRecType &ctx)
 {
-  switch (linearUnitConversion) {
-      case LINEAR_UNITS_INCH: OUT("DISPLAY_LINEAR_UNITS INCH"); break;
-      case LINEAR_UNITS_MM: OUT("DISPLAY_LINEAR_UNITS MM"); break;
-      case LINEAR_UNITS_CM: OUT("DISPLAY_LINEAR_UNITS CM"); break;
-      case LINEAR_UNITS_AUTO:
-        switch (emcStatus->task.programUnits) {
-	        case CANON_UNITS_MM: OUT("DISPLAY_LINEAR_UNITS MM"); break;
-	        case CANON_UNITS_INCHES: OUT("DISPLAY_LINEAR_UNITS INCH"); break;
-	        case CANON_UNITS_CM: OUT("DISPLAY_LINEAR_UNITS CM"); break;
-	        default: OUT("DISPLAY_LINEAR_UNITS CUSTOM");
-	      }
-        break;
-      default: OUT("DISPLAY_LINEAR_UNITS CUSTOM");
-    }
-  return rtNoError;
+	// GET USER_LINEAR_UNITS
+	const char *ulu = "CUSTOM";
+	if (CLOSE(emcStatus->motion.traj.linearUnits, 1.0, LINEAR_CLOSENESS))
+		ulu = "MM";
+	else if (CLOSE(emcStatus->motion.traj.linearUnits, INCH_PER_MM, LINEAR_CLOSENESS))
+		ulu = "INCH";
+	else if (CLOSE(emcStatus->motion.traj.linearUnits, CM_PER_MM, LINEAR_CLOSENESS))
+		ulu = "CM";
+
+	replynl(ctx, fmt::format("USER_LINEAR_UNITS {}", ulu));
+	return rtOk;
 }
 
-static cmdResponseType getDisplayAngularUnits(connectionRecType *context)
+static cmdResponseType getUserAngularUnits(connectionRecType &ctx)
 {
-  switch (angularUnitConversion) {
-      case ANGULAR_UNITS_DEG: OUT("DISPLAY_ANGULAR_UNITS DEG"); break;
-      case ANGULAR_UNITS_RAD: OUT("DISPLAY_ANGULAR_UNITS RAD"); break;
-      case ANGULAR_UNITS_GRAD: OUT("DISPLAY_ANGULAR_UNITS GRAD"); break;
-      case ANGULAR_UNITS_AUTO: OUT("DISPLAY_ANGULAR_UNITS DEG"); break;
-      default: OUT("DISPLAY_ANGULAR_UNITS CUSTOM");
-    }
-  return rtNoError;
+	// GET USER_ANGULAR_UNITS
+	const char *uau = "CUSTOM";
+	if (CLOSE(emcStatus->motion.traj.angularUnits, 1.0, ANGULAR_CLOSENESS))
+		uau = "DEG";
+	else if (CLOSE(emcStatus->motion.traj.angularUnits, RAD_PER_DEG, ANGULAR_CLOSENESS))
+		uau = "RAD";
+	else if (CLOSE(emcStatus->motion.traj.angularUnits, GRAD_PER_DEG, ANGULAR_CLOSENESS))
+		uau = "GRAD";
+
+	replynl(ctx, fmt::format("USER_ANGULAR_UNITS {}", uau));
+	return rtOk;
 }
 
-static cmdResponseType getLinearUnitConversion(connectionRecType *context)
+static cmdResponseType getDisplayLinearUnits(connectionRecType &ctx)
 {
-  switch (linearUnitConversion) {
-      case LINEAR_UNITS_INCH: OUT("LINEAR_UNIT_CONVERSION INCH"); break;
-      case LINEAR_UNITS_MM: OUT("LINEAR_UNIT_CONVERSION MM"); break;
-      case LINEAR_UNITS_CM: OUT("LINEAR_UNIT_CONVERSION CM"); break;
-      case LINEAR_UNITS_AUTO: OUT("LINEAR_UNIT_CONVERSION AUTO"); break;
-      default: OUT("LINEAR_UNIT_CONVERSION CUSTOM");
-    }
-  return rtNoError;
+	// GET DISPLAY_LINEAR_UNITS
+	const char *dlu = "CUSTOM";
+	switch (linearUnitConversion) {
+	case LINEAR_UNITS_INCH: dlu = "INCH"; break;
+	case LINEAR_UNITS_MM:   dlu = "MM"; break;
+	case LINEAR_UNITS_CM:   dlu = "CM"; break;
+	case LINEAR_UNITS_AUTO: dlu = programUnits(emcStatus->task.programUnits); break;
+	default: /* CUSTOM */ break;
+	}
+	replynl(ctx, fmt::format("DISPLAY_LINEAR_UNITS {}", dlu));
+	return rtOk;
 }
 
-static cmdResponseType getAngularUnitConversion(connectionRecType *context)
+static cmdResponseType getDisplayAngularUnits(connectionRecType &ctx)
 {
-  switch (angularUnitConversion) {
-      case ANGULAR_UNITS_DEG: OUT("ANGULAR_UNIT_CONVERSION DEG"); break;
-      case ANGULAR_UNITS_RAD: OUT("ANGULAR_UNIT_CONVERSION RAD"); break;
-      case ANGULAR_UNITS_GRAD: OUT("ANGULAR_UNIT_CONVERSION GRAD"); break;
-      case ANGULAR_UNITS_AUTO: OUT("ANGULAR_UNIT_CONVERSION AUTO"); break;
-      default: OUT("ANGULAR_UNIT_CONVERSION CUSTOM");
-    }
-  return rtNoError;
+	// GET DISPLAY_ANGULAR_UNITS
+	const char *dau = "CUSTOM";
+	switch (angularUnitConversion) {
+	case ANGULAR_UNITS_AUTO:
+	case ANGULAR_UNITS_DEG:  dau = "DEG"; break;
+	case ANGULAR_UNITS_RAD:  dau = "RAD"; break;
+	case ANGULAR_UNITS_GRAD: dau = "GRAD"; break;
+	default: /* CUSTOM */ break;
+	}
+	replynl(ctx, fmt::format("DISPLAY_ANGULAR_UNITS {}", dau));
+	return rtOk;
 }
 
-static cmdResponseType getProbeValue(connectionRecType *context)
+static cmdResponseType getLinearUnitConversion(connectionRecType &ctx)
 {
-  OUT("PROBE_VALUE %d", emcStatus->motion.traj.probeval);
-  return rtNoError;
+	// GET LINEAR_UNIT_CONVERSION
+	const char *luc = "CUSTOM";
+	switch (linearUnitConversion) {
+	case LINEAR_UNITS_INCH: luc = "INCH"; break;
+	case LINEAR_UNITS_MM:   luc = "MM"; break;
+	case LINEAR_UNITS_CM:   luc = "CM"; break;
+	case LINEAR_UNITS_AUTO: luc = "AUTO"; break;
+	default: /* CUSTOM */ break;
+	}
+	replynl(ctx, fmt::format("LINEAR_UNIT_CONVERSION {}", luc));
+	return rtOk;
 }
 
-static cmdResponseType getProbeTripped(connectionRecType *context)
+static cmdResponseType getAngularUnitConversion(connectionRecType &ctx)
 {
-  OUT("PROBE_TRIPPED %d", emcStatus->motion.traj.probe_tripped);
-  return rtNoError;
+	// GET ANGULAR_UNIT_CONVERSION
+	const char *auc = "CUSTOM";
+	switch (angularUnitConversion) {
+	case ANGULAR_UNITS_DEG:  auc = "DEG"; break;
+	case ANGULAR_UNITS_RAD:  auc = "RAD"; break;
+	case ANGULAR_UNITS_GRAD: auc = "GRAD"; break;
+	case ANGULAR_UNITS_AUTO: auc = "AUTO"; break;
+	default: /* CUSTOM */ break;
+	}
+	replynl(ctx, fmt::format("ANGULAR_UNIT_CONVERSION {}", auc));
+	return rtOk;
 }
 
-static cmdResponseType getTeleopEnable(connectionRecType *context)
+static cmdResponseType getProbeValue(connectionRecType &ctx)
 {
-  if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP)
-    OUT("TELEOP_ENABLE ON");
-  else OUT("TELEOP_ENABLE OFF");
-  return rtNoError;
+	// GET PROBE_VALUE
+	replynl(ctx, fmt::format("PROBE_VALUE {}", emcStatus->motion.traj.probeval));
+	return rtOk;
 }
 
-static cmdResponseType getKinematicsType(connectionRecType *context)
+static cmdResponseType getProbeTripped(connectionRecType &ctx)
 {
-  OUT("KINEMATICS_TYPE %d", emcStatus->motion.traj.kinematics_type);
-  return rtNoError;
+	// GET PROBE_TRIPPED
+	replynl(ctx, fmt::format("PROBE_TRIPPED {}", yesNo(emcStatus->motion.traj.probe_tripped)));
+	return rtOk;
 }
 
-static cmdResponseType getFeedOverride(connectionRecType *context)
+static cmdResponseType getTeleopEnable(connectionRecType &ctx)
 {
-  double percent = emcStatus->motion.traj.scale * 100.0;
-  OUT("FEED_OVERRIDE %f", percent);
-  return rtNoError;
+	// GET TELEOP_ENABLE
+	replynl(ctx, onOffString("TELEOP_ENABLE", emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP));
+	return rtOk;
 }
 
-static cmdResponseType getIniFile(connectionRecType *context)
+static cmdResponseType getKinematicsType(connectionRecType &ctx)
 {
-  OUT("INIFILE %s", emc_inifile);
-  return rtNoError;
+	// GET KINEMATICS_TYPE
+	replynl(ctx, fmt::format("KINEMATICS_TYPE {}", emcStatus->motion.traj.kinematics_type));
+	return rtOk;
 }
 
-static cmdResponseType getSpindleOverride(connectionRecType *context)
+static cmdResponseType getFeedOverride(connectionRecType &ctx)
 {
-    // handle no spindle present
-    if (emcStatus->motion.traj.spindles == 0) {
-        OUT("no spindles configured");
-        return rtCustomError;
-    }
-
-    // get spindle number string
-    char *spindleStr = strtok(NULL, delims);
-    // use first spindle by default
-    int spindle = 0;
-    // try to parse a spindle number
-    if (spindleStr) {
-        if (sscanf(spindleStr, "%d", &spindle) < 1) {
-            OUT("failed to parse decimal: %s", spindleStr);
-            return rtCustomError;
-        }
-        // validate
-        if (spindle < -1 || spindle > emcStatus->motion.traj.spindles-1) {
-            OUT(
-               "invalid spindle: %d (valid: -1 - %d)",
-                spindle, emcStatus->motion.traj.spindles
-            );
-            return rtCustomError;
-        }
-    }
-
-    // walk all spindles
-    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
-        // process this spindle?
-        if (n != spindle && spindle != -1)
-            continue;
-
-		  double percent = emcStatus->motion.spindle[n].spindle_scale * 100.0;
-		  OUT("SPINDLE_OVERRIDE %d %f", n, percent);
-  }
-
-  return rtNoError;
+	// GET FEED_OVERRIDE
+	double percent = emcStatus->motion.traj.scale * 100.0;
+	replynl(ctx, fmt::format("FEED_OVERRIDE {:f}", percent));
+	return rtOk;
 }
 
-static cmdResponseType getOptionalStop(connectionRecType *context)
+static cmdResponseType getIni(connectionRecType &ctx)
 {
-  OUT("OPTIONAL_STOP %d", emcStatus->task.optional_stop_state);
-  return rtNoError;
+	// GET INI <var> <section>
+	auto inistring = getIniVar(ctx.toks[2], ctx.toks[3]);
+	if (inistring) {
+		replynl(ctx, fmt::format("INI [{}]{}={}", ctx.toks[3], ctx.toks[2], *inistring));
+		return rtOk;
+	} else {
+		errornl(ctx, fmt::format("INI file entry '[{}]{}' not found", ctx.toks[3], ctx.toks[2]));
+		return rtError;
+	}
 }
 
-int commandGet(connectionRecType *context)
+static cmdResponseType getIniFile(connectionRecType &ctx)
 {
-  const static char *setCmdNakStr = "GET %s NAK\r\n";
-  cmdTokenType cmd;
-  char *pch;
-  cmdResponseType ret = rtNoError;
-
-  pch = strtok(NULL, delims);
-  if (!pch) {
-    dprintf(context->cliSock, "GET NAK\r\n");
-    return -1;
-  }
-  if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
-  strupr(pch);
-  cmd = lookupCommandToken(pch);
-  if (cmd > scIni)
-    if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
-  switch (cmd) {
-    case scEcho: ret = getEcho(context); break;
-    case scVerbose: ret = getVerbose(context); break;
-    case scEnable: ret = getEnable(context); break;
-    case scConfig: ret = getConfig(context); break;
-    case scCommMode: ret = getCommMode(context); break;
-    case scCommProt: ret = getCommProt(context); break;
-    case scIniFile: getIniFile(context); break;
-    case scPlat: ret = getPlat(context); break;
-    case scIni: break;
-    case scDebug: ret = getDebug(context); break;
-    case scSetWait: ret = getSetWait(context); break;         // remove this: deprecation alias for scWaitMode.
-    case scWaitMode: ret = getWaitMode(context); break;
-    case scWait: break;
-    case scSetTimeout: ret = getTimeout(context); break;
-    case scUpdate: ret = getUpdate(context); break;
-    case scError: ret = getError(context); break;
-    case scOperatorDisplay: ret = getOperatorDisplay(context); break;
-    case scOperatorText: ret = getOperatorText(context); break;
-    case scTime: ret = getTime(context); break;
-    case scEStop: ret = getEStop(context); break;
-    case scMachine: ret = getMachine(context); break;
-    case scMode: ret = getMode(context); break;
-    case scMist: ret = getMist(context); break;
-    case scFlood: ret = getFlood(context); break;
-    case scSpindle: ret = getSpindle(context); break;
-    case scBrake: ret = getBrake(context); break;
-    case scTool: ret = getTool(context); break;
-    case scToolOffset: ret = getToolOffset(context); break;
-    case scLoadToolTable: ret = rtStandardError; break;
-    case scHome: ret = rtStandardError; break;
-    case scJogStop: ret = rtStandardError; break;
-    case scJog: ret = rtStandardError; break;
-    case scJogIncr: ret = rtStandardError; break;
-    case scFeedOverride: ret = getFeedOverride(context); break;
-    case scAbsCmdPos: ret = getAbsCmdPos(context); break;
-    case scAbsActPos: ret = getAbsActPos(context); break;
-    case scRelCmdPos: ret = getRelCmdPos(context); break;
-    case scRelActPos: ret = getRelActPos(context); break;
-    case scJointPos: ret = getJointPos(context); break;
-    case scPosOffset: ret = getPosOffset(context); break;
-    case scJointLimit: ret = getJointLimit(context); break;
-    case scJointFault: ret = getJointFault(context); break;
-    case scJointHomed: ret = getJointHomed(context); break;
-    case scMDI: ret = rtStandardError; break;
-    case scTskPlanInit: ret = rtStandardError; break;
-    case scOpen: ret = rtStandardError; break;
-    case scRun: ret = rtStandardError; break;
-    case scPause: ret = rtStandardError; break;
-    case scResume: ret = rtStandardError; break;
-    case scStep: ret = rtStandardError; break;
-    case scAbort: ret = rtStandardError; break;
-    case scProgram: ret = getProgram(context); break;
-    case scProgramLine: ret = getProgramLine(context); break;
-    case scProgramStatus: ret = getProgramStatus(context); break;
-    case scProgramCodes: ret = getProgramCodes(context); break;
-    case scJointType: ret = getJointType(context); break;
-    case scJointUnits: ret = getJointUnits(context); break;
-    case scProgramUnits:
-    case scProgramLinearUnits: ret = getProgramLinearUnits(context); break;
-    case scProgramAngularUnits: ret = getProgramAngularUnits(context); break;
-    case scUserLinearUnits: ret = getUserLinearUnits(context); break;
-    case scUserAngularUnits: ret = getUserAngularUnits(context); break;
-    case scDisplayLinearUnits: ret = getDisplayLinearUnits(context); break;
-    case scDisplayAngularUnits: ret = getDisplayAngularUnits(context); break;
-    case scLinearUnitConversion: ret = getLinearUnitConversion(context); break;
-    case scAngularUnitConversion: ret = getAngularUnitConversion(context); break;
-    case scProbeClear: break;
-    case scProbeTripped: ret = getProbeTripped(context); break;
-    case scProbeValue: ret = getProbeValue(context); break;
-    case scProbe: break;
-    case scTeleopEnable: ret = getTeleopEnable(context); break;
-    case scKinematicsType: ret = getKinematicsType(context); break;
-    case scOverrideLimits: ret = getOverrideLimits(context); break;
-    case scSpindleOverride: ret = getSpindleOverride(context); break;
-    case scOptionalStop: ret = getOptionalStop(context); break;
-    case scUnknown: ret = rtStandardError;
-    }
-  switch (ret) {
-    case rtNoError: // Standard ok response, just write value in buffer
-      dprintf(context->cliSock, "%s\r\n", context->outBuf);
-      break;
-    case rtHandledNoError: // Custom ok response already handled, take no action
-      break;
-    case rtStandardError: // Standard error response
-      dprintf(context->cliSock, setCmdNakStr, pch);
-      break;
-    case rtCustomError: // Custom error response entered in buffer
-      dprintf(context->cliSock, "error: %s\r\n", context->outBuf);
-      break;  
-    case rtCustomHandledError: ;// Custom error response handled, take no action
-    }
-  return 0;
+	// GET INIFILE
+	replynl(ctx, fmt::format("INIFILE {}", emc_inifile));
+	return rtOk;
 }
 
-int commandQuit(connectionRecType *context)
+static cmdResponseType getSpindleOverride(connectionRecType &ctx)
 {
-  printf("Closing connection with %s\n", context->hostName);
-  return -1;
+	// GET SPINDLE_OVERRIDE [spindle]
+	// handle no spindle present
+	if (emcStatus->motion.traj.spindles == 0) {
+		errornl(ctx, "no spindles configured");
+		return rtError;
+	}
+
+	int spindle = -1;
+	if (ctx.toks.size() > 2 && !to_int(ctx.toks[2], spindle)) {
+		errornl(ctx, fmt::format("Invalid argument '{}', must be integer", ctx.toks[2]));
+		return rtError;
+	}
+	if (spindle < -1 || spindle >= emcStatus->motion.traj.spindles) {
+		errornl(ctx, fmt::format("Invalid spindle '{}', valid range [-1,{}]", spindle, emcStatus->motion.traj.spindles - 1));
+		return rtError;
+	}
+
+	// walk all spindles
+	for (int n = 0; n < emcStatus->motion.traj.spindles; n++) {
+		// process this spindle?
+		if (n != spindle && spindle != -1)
+			continue;
+
+		double percent = emcStatus->motion.spindle[n].spindle_scale * 100.0;
+		replynl(ctx, fmt::format("SPINDLE_OVERRIDE {} {}", n, percent));
+	}
+
+	return rtOk;
 }
 
-int commandShutdown(connectionRecType *context)
+static cmdResponseType getOptionalStop(connectionRecType &ctx)
 {
-  if (context->cliSock == enabledConn) {
-    printf("Shutting down\n");
-    thisQuit();
-    return -1;
-    }
-  else
-    return 0;
+	// GET OPTIONAL_STOP
+	replynl(ctx, onOffString("OPTIONAL_STOP", emcStatus->task.optional_stop_state));
+	return rtOk;
 }
 
-static int helpGeneral(connectionRecType *context)
+static cmdResponseType gsNotImpl(connectionRecType &)
 {
-  dprintf(
-    context->cliSock,
-    "Available commands:\r\n"
-    "  Hello <password> <client name> <protocol version>\r\n"
-    "  Get <LinuxCNC command>\r\n"
-    "  Set <LinuxCNC command>\r\n"
-    "  Shutdown\r\n"
-    "  Help <command>\r\n"
-  );
-  return 0;
+	return rtError;
 }
 
-static int helpHello(connectionRecType *context)
+static cmdResponseType gsIgnored(connectionRecType &)
 {
-  dprintf(
-    context->cliSock,
-    "Usage:\r\n"
-    "  Hello <Password> <Client Name> <Protocol Version>\r\nWhere:\r\n"
-    "  Password is the connection password to allow communications with the CNC server.\r\n"
-    "  Client Name is the name of client trying to connect, typically the network name of the client.\r\n"
-    "  Protocol Version is the version of the protocol with which the client wishes to use.\r\n\r\n"
-    "  With valid password, server responds with:\r\n"
-    "  Hello Ack <Server Name> <Protocol Version>\r\nWhere:\r\n"
-    "  Ack is acknowledging the connection has been made.\r\n"
-    "  Server Name is the name of the LinuxCNC Server to which the client has connected.\r\n"
-    "  Protocol Version is the client requested version or latest version support by server if"
-    "  the client requests a version later than that supported by the server.\r\n\r\n"
-    "  With invalid password, the server responds with:\r\n"
-    "  Hello Nak\r\n"
-  );
-  return 0;
+	return rtOk;
 }
 
-static int helpGet(connectionRecType *context)
+// Important: this list must be sorted on the name field string.
+// Note: The following are allowed to be sent, even though a
+// command is being processed:
+// - SET ESTOP ON
+// - SET MACHINE OFF
+// - SET ABORT
+// There is an additional check in setEStop() and setMachine()
+static const getsetListType getsetList[] = {
+	{scAbort,					"ABORT",					0, 0, gsNotImpl,				setAbort,
+	 alMachOn, false, "", "" },
+	{scAbsActPos,				"ABS_ACT_POS",				0, 0, getAbsActPos,				gsNotImpl,
+	 alMachOn, false, "[<axis>|-1]", "" },
+	{scAbsCmdPos,				"ABS_CMD_POS",				0, 0, getAbsCmdPos,				gsNotImpl,
+	 alMachOn, false, "[<axis>|-1]", "" },
+	{scAngularUnitConversion,	"ANGULAR_UNIT_CONVERSION",	0, 1, getAngularUnitConversion,	setAngularUnitConversion,
+	 alMachOn, false, "", "{deg|rad|grad|auto}" },
+	{scAxisVelocity,			"AXIS_VELOCITY",			0, 0, getAxisVelocity,			gsNotImpl,
+	 alMachOn, false, "[<axis>|-1]", "" },
+	{scBrake,					"BRAKE",					0, 1, getBrake,					setBrake,
+	 alMachOn, true, "[<spindle>|-1]", "{on|off} [<spindle>|-1]" },
+	{scClients,					"CLIENTS",					0, 0, getClients,				gsNotImpl,
+	 alHello,  false, "", "" },
+	{scCommProt,				"COMM_PROT",				0, 1, getCommProt,				gsNotImpl,
+	 alHello,  false,"", "" },
+	{scDebug,					"DEBUG",					0, 1, getDebug,					setDebug,
+	 alEnable, true, "", "<value>" },
+	{scDisable,					"DISABLE",					0, 0, gsNotImpl,				setDisable,
+	 alHello,  false, "", "" },
+	{scDisplayAngularUnits,		"DISPLAY_ANGULAR_UNITS",	0, 0, getDisplayAngularUnits,	gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scDisplayLinearUnits,		"DISPLAY_LINEAR_UNITS",		0, 0, getDisplayLinearUnits,	gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scEcho,					"ECHO",						0, 1, getEcho,					setEcho,
+	 alNone,   false, "", "{on|off}" },
+	{scEnable,					"ENABLE",					0, 1, getEnable,				setEnable,
+	 alHello,  false, "", "<password>|{off}" },
+	{scError,					"ERROR",					0, 0, getError,					gsNotImpl,
+	 alEnable, false, "", "" },
+	{scEStop,					"ESTOP",					0, 1, getEStop,					setEStop,
+	 alEnable, false, "", "{on|off}" },
+	{scFeedOverride,			"FEED_OVERRIDE",			0, 1, getFeedOverride,			setFeedOverride,
+	 alMachOn, true, "", "<percent>" },
+	{scFlood,					"FLOOD",					0, 1, getFlood,					setFlood,
+	 alMachOn, true, "", "{on|off}" },
+	{scJointHome,				"HOME",						0, 1, gsNotImpl,				setJointHome, // Alias
+	 alMachOn, true, "", "[<joint>|-1]" },
+	{scIni,						"INI",						2, 0, getIni,					gsIgnored,
+	 alHello,  false, "<var> <section>", "" },
+	{scIniFile,					"INIFILE",					0, 0, getIniFile,				gsIgnored,
+	 alHello,  false, "", "" },
+	{scJog,						"JOG",						0, 2, gsNotImpl,				setJog,
+	 alMachOn, true, "", "<joint>|<axis> <speed>" },
+	{scJogIncr,					"JOG_INCR",					0, 3, gsNotImpl,				setJogIncr,
+	 alMachOn, true, "", "<joint>|<axis> <speed>" },
+	{scJogStop,					"JOG_STOP",					0, 1, gsNotImpl,				setJogStop,
+	 alMachOn, true, "", "<joint>|<axis>" },
+	{scJointFault,				"JOINT_FAULT",				0, 0, getJointFault,			gsNotImpl,
+	 alMachOn, false, "[<joint>|-1]", "" },
+	{scJointHome,				"JOINT_HOME",				0, 1, gsNotImpl,				setJointHome,
+	 alMachOn, true, "", "[<joint>|-1]" },
+	{scJointHomed,				"JOINT_HOMED",				0, 0, getJointHomed,			gsNotImpl,
+	 alMachOn, false, "[<joint>|-1]", "" },
+	{scJointLimit,				"JOINT_LIMIT",				0, 0, getJointLimit,			gsNotImpl,
+	 alMachOn, false, "[<joint>|-1]", "" },
+	{scJointPos,				"JOINT_POS",				0, 0, getJointPos,				gsNotImpl,
+	 alMachOn, false, "[<joint>|-1]", "" },
+	{scJointType,				"JOINT_TYPE",				0, 0, getJointType,				gsNotImpl,
+	 alMachOn, false, "[<joint>|-1]", "" },
+	{scJointUnhome,				"JOINT_UNHOME",				0, 1, gsNotImpl,				setJointUnhome,
+	 alMachOn, true, "", "[<joint>-1]" },
+	{scJointUnits,				"JOINT_UNITS",				0, 0, getJointUnits,			gsNotImpl,
+	 alMachOn, false, "[<joint>|-1]", "" },
+	{scJointVelocity,			"JOINT_VELOCITY",			0, 0, getJointVelocity,			gsNotImpl,
+	 alMachOn, false, "[<joint>|-1]", "" },
+	{scJointWaitHomed,			"JOINT_WAIT_HOMED",			0, 1, gsNotImpl,				setJointWaitHomed,
+	 alMachOn, false, "", "[<joint>|-1] [<timeout>]" },
+	{scKinematicsType,			"KINEMATICS_TYPE",			0, 0, getKinematicsType,		gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scLinearUnitConversion,	"LINEAR_UNIT_CONVERSION",	0, 1, getLinearUnitConversion,	setLinearUnitConversion,
+	 alMachOn, false, "", "{inch|mm|cm|auto}" },
+	{scLoadToolTable,			"LOAD_TOOL_TABLE",			0, 1, gsNotImpl,				setLoadToolTable,
+	 alMachOn, true, "", "<filename>" },
+	{scMachine,					"MACHINE",					0, 1, getMachine,				setMachine,
+	 alEnable, false, "", "{on|off}" },
+	{scMDI,						"MDI",						0, 1, gsNotImpl,				setMDI,
+	 alMachOn, true, "", "<string>" },
+	{scMist,					"MIST",						0, 1, getMist,					setMist,
+	 alMachOn, true, "", "{on|off}" },
+	{scMode,					"MODE",						0, 1, getMode,					setMode,
+	 alMachOn, true, "", "{manual|auto|mdi}" },
+	{scOpen,					"OPEN",						0, 1, getOpen,					setOpen,
+	 alMachOn, true, "", "<filename>" },
+	{scOperatorDisplay,			"OPERATOR_DISPLAY",			0, 0, getOperatorDisplay,		gsNotImpl,
+	 alEnable, false, "", "" },
+	{scOperatorText,			"OPERATOR_TEXT",			0, 0, getOperatorText,			gsNotImpl,
+	 alEnable, false, "", "" },
+	{scOptionalStop,			"OPTIONAL_STOP",			0, 1, getOptionalStop,			setOptionalStop,
+	 alMachOn, true, "", "{on|off}" },
+	{scOverrideLimits,			"OVERRIDE_LIMITS",			0, 1, getOverrideLimits,		setOverrideLimits,
+	 alMachOn, true, "", "{on|off}" },
+	{scPause,					"PAUSE",					0, 0, gsNotImpl,				setPause,
+	 alMachOn, true, "", "" },
+	{scPlat,					"PLAT",						0, 0, getPlat,					gsNotImpl,
+	 alHello,  false, "", "" },
+	{scPosOffset,				"POS_OFFSET",				0, 0, getPosOffset,				gsNotImpl,
+	 alMachOn, false, "[<axis>|-1]", "" },
+	{scProbe,					"PROBE",					0, 3, gsIgnored,				setProbe,
+	 alMachOn, true, "", "<x> <y> <z>" },
+	{scProbeClear,				"PROBE_CLEAR",				0, 0, gsIgnored,				setProbeClear,
+	 alMachOn, true, "", "" },
+	{scProbeTripped,			"PROBE_TRIPPED",			0, 0, getProbeTripped,			gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scProbeValue,				"PROBE_VALUE",				0, 0, getProbeValue,			gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scProgram,					"PROGRAM",					0, 0, getProgram,				gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scProgramAngularUnits,		"PROGRAM_ANGULAR_UNITS",	0, 0, getProgramAngularUnits,   gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scProgramCodes,			"PROGRAM_CODES",			0, 0, getProgramCodes,			gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scProgramLine,				"PROGRAM_LINE",				0, 0, getProgramLine,			gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scProgramLinearUnits,		"PROGRAM_LINEAR_UNITS",		0, 0, getProgramLinearUnits,	gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scProgramStatus,			"PROGRAM_STATUS",			0, 0, getProgramStatus,			gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scProgramUnits,			"PROGRAM_UNITS",			0, 0, getProgramLinearUnits,	gsNotImpl,
+	 alMachOn, false, "", "" }, // Alias
+	{scRelActPos,				"REL_ACT_POS",				0, 0, getRelActPos,				gsNotImpl,
+	 alMachOn, false, "[<axis>|-1]", "" },
+	{scRelCmdPos,				"REL_CMD_POS",				0, 0, getRelCmdPos,				gsNotImpl,
+	 alMachOn, false, "[<axis>|-1]", "" },
+	{scResume,					"RESUME",					0, 0, gsNotImpl,				setResume,
+	 alMachOn, true, "", "" },
+	{scRun,						"RUN",						0, 0, gsNotImpl,				setRun,
+	 alMachOn, true, "", "[<startline>]" },
+	{scSpindle,					"SPINDLE",					0, 1, getSpindle,				setSpindle,
+	 alMachOn, true, "[<spindle>|-1]", "{forward|reverse|increase|decrease|constant|off} [<spindle>|-1]"},
+	{scSpindleOverride,			"SPINDLE_OVERRIDE",			0, 2, getSpindleOverride,		setSpindleOverride,
+	 alMachOn, true, "", "<percent> [<spindle>|-1]" },
+	{scStep,					"STEP",						0, 0, gsNotImpl,				setStep,
+	 alMachOn, true, "", "" },
+	{scTaskPlanInit,			"TASK_PLAN_INIT",			0, 0, gsNotImpl,				setTaskPlanInit,
+	 alMachOn, true, "", "" },
+	{scTeleopEnable,			"TELEOP_ENABLE",			0, 1, getTeleopEnable,			setTeleopEnable,
+	 alMachOn, true, "", "{on|off}" },
+	{scTime,					"TIME",						0, 0, getTime,					gsNotImpl,
+	 alHello,  false, "", "" },
+	{scTimeout,					"TIMEOUT",					0, 1, getTimeout,				setTimeout,
+	 alEnable, false, "", "<timeout>" },
+	{scTimestamp,				"TIMESTAMP",				0, 1, getTimestamp,				setTimestamp,
+	 alNone,   false, "", "{on|off} [{on|off}]" },
+	{scTool,					"TOOL",						0, 0, getTool,					gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scToolOffset,				"TOOL_OFFSET",				0, 3, getToolOffset,			setToolOffset,
+	 alMachOn, true, "", "<tool> <length> <diameter>" },
+	{scUpdate,					"UPDATE",					0, 1, getUpdate,				setUpdate,
+	 alEnable, false, "", "{none|auto}" },
+	{scUpdateStatus,			"UPDATE_STATUS",			0, 0, gsNotImpl,				setUpdateStatus,
+	 alEnable, false, "", "" },
+	{scUserAngularUnits,		"USER_ANGULAR_UNITS",		0, 0, getUserAngularUnits,		gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scUserLinearUnits,			"USER_LINEAR_UNITS",		0, 0, getUserLinearUnits,		gsNotImpl,
+	 alMachOn, false, "", "" },
+	{scVerbose,					"VERBOSE",					0, 1, getVerbose,				setVerbose,
+	 alHello,  false, "", "{on|off}" },
+	{scWait,					"WAIT",						0, 1, gsIgnored,				setWait,
+	 alEnable, false, "", "{received|done}" },
+	{scWaitHeartbeat,			"WAIT_HEARTBEAT",			0, 0, gsIgnored,				setWaitHeartbeat,
+	 alMachOn, false, "", "<periods>" },
+	{scWaitMode,				"WAIT_MODE",				0, 1, getWaitMode,				setWaitMode,
+	 alEnable, false, "", "{received|done}" },
+};
+
+static int cmpGSList(const void *a, const void *b)
 {
-  dprintf(
-    context->cliSock,
-    "Usage:\r\nGet <LinuxCNC command>\r\n"
-    "  Get commands require that a hello has been successfully negotiated.\r\n"
-    "  LinuxCNC command may be one of:\r\n"
-    "    Abs_act_pos\r\n"
-    "    Abs_cmd_pos\r\n"
-    "    Angular_unit_conversion\r\n"
-    "    Brake {<Spindle>}\r\n"
-    "    Comm_mode\r\n"
-    "    Comm_prot\r\n"
-    "    Debug\r\n"
-    "    Display_angular_units\r\n"
-    "    Display_linear_units\r\n"
-    "    Echo\r\n"
-    "    Enable\r\n"
-    "    Error\r\n"
-    "    EStop\r\n"
-    "    Feed_override\r\n"
-    "    Flood\r\n"
-    "    Inifile\r\n"
-    "    Joint_fault\r\n"
-    "    Joint_homed\r\n"
-    "    Joint_limit\r\n"
-    "    Joint_pos\r\n"
-    "    Joint_type\r\n"
-    "    Joint_units\r\n"
-    "    Kinematics_type\r\n"
-    "    Linear_unit_conversion\r\n"
-    "    Machine\r\n"
-    "    Mist\r\n"
-    "    Mode\r\n"
-    "    Operator_display\r\n"
-    "    Operator_text\r\n"
-    "    Optional_stop\r\n"
-    "    Override_limits\r\n"
-    "    Plat\r\n"
-    "    Pos_offset\r\n"
-    "    Probe_tripped\r\n"
-    "    Probe_value\r\n"
-    "    Program\r\n"
-    "    Program_angular_units\r\n"
-    "    Program_codes\r\n"
-    "    Program_line\r\n"
-    "    Program_linear_units\r\n"
-    "    Program_status\r\n"
-    "    Program_units\r\n"
-    "    Rel_act_pos\r\n"
-    "    Rel_cmd_pos\r\n"
-    "    Wait_mode\r\n"
-    "    Spindle {<Spindle>}\r\n"
-    "    Spindle_override {<Spindle>}\r\n"
-    "    Teleop_enable\r\n"
-    "    Time\r\n"
-    "    Timeout\r\n"
-    "    Tool\r\n"
-    "    Tool_offset\r\n"
-    "    Update\r\n"
-    "    User_angular_units\r\n"
-    "    User_linear_units\r\n"
-    "    Verbose\r\n"
-  );
-  //    "CONFIG\r\n"
-  return 0;
+	return compareNoCase(static_cast<const getsetListType *>(a)->name, static_cast<const getsetListType *>(b)->name);
 }
 
-static int helpSet(connectionRecType *context)
+int commandGetSet(connectionRecType &ctx, cmdType getset)
 {
-  dprintf(
-    context->cliSock,
-    "Usage:\r\n  Set <LinuxCNC command>\r\n"
-    "  Set commands require that a hello has been successfully negotiated,\r\n"
-    "  in most instances requires that control be enabled by the connection.\r\n"
-    "  The set commands not requiring control enabled are:\r\n"
-    "    Comm_mode <mode>\r\n"
-    "    Comm_prot <protocol>\r\n"
-    "    Echo <On | Off>\r\n"
-    "    Enable <Pwd | Off>\r\n"
-    "    Verbose <On | Off>\r\n\r\n"
-    "  The set commands requiring control enabled are:\r\n"
-    "    Abort\r\n"
-    "    Angular_unit_conversion <Deg | Rad | Grad | Auto | Custom>\r\n"
-    "    Brake <On | Off> {<Spindle>}\r\n"
-    "    Debug <Debug level>\r\n"
-    "    EStop <On | Off>\r\n"
-    "    Feed_override <Percent>\r\n"
-    "    Flood <On | Off>\r\n"
-    "    Home <Axis No>\r\n"
-    "    Jog <Axis No, Speed>\r\n"
-    "    Jog_incr <Axis No, Speed, Distance>\r\n"
-    "    Jog_stop <Joint No|Axis letter>\r\n"
-    "    Linear_unit_conversion <Inch | CM | MM | Auto | Custom>\r\n"
-    "    Load_tool_table <Table name>\r\n"
-    "    Machine <On | Off>\r\n"
-    "    MDI <MDI String>\r\n"
-    "    Mist <On | Off>\r\n"
-    "    Mode <Manual | Auto | MDI>\r\n"
-    "    Open <File path / name>\r\n"
-    "    Optional_stop <none | 0 | 1>\r\n"
-    "    Override_limits <On | Off>\r\n"
-    "    Pause\r\n"
-    "    Probe\r\n"
-    "    Probe_clear\r\n"
-    "    Resume\r\n"
-    "    Run <Line No>\r\n"
-    "    Wait_mode <None | Received | Done>\r\n"
-    "    Spindle <Increase | Decrease | Forward | Reverse | Constant | Off> {<Spindle>}\r\n"
-    "    Spindle_override <percent> {<Spindle>}\r\n"
-    "    Step\r\n"
-    "    Task_plan_init\r\n"
-    "    Teleop_enable <On | Off>\r\n"
-    "    Timeout <Time>\r\n"
-    "    Tool_offset <Offset>\r\n"
-    "    Update <None | Auto>\r\n"
-    "    Wait <Time>\r\n"
-  );
-  return 0;
+	const char *sg = getset == cmdSet ? "SET" : "GET";
+	if (ctx.toks.size() < 2) {
+		// Missing missing parameter
+		errornl(ctx, fmt::format("Must specify subcommand for {}", sg));
+		replynl(ctx, fmt::format("{} NAK", sg));
+		return -1;
+	}
+
+	// Find the command in the list
+	getsetListType v = {};
+	v.name = ctx.toks[1].c_str();
+	void *_tag = bsearch(&v, getsetList, NELEM(getsetList), sizeof(getsetList[0]), cmpGSList);
+	const getsetListType *tag = static_cast<const getsetListType *>(_tag);
+	if (!tag) {
+		errornl(ctx, fmt::format("Subcommand not found: {} {}", sg, ctx.toks[1]));
+		replynl(ctx, fmt::format("{} NAK", sg));
+		return -1;
+	}
+
+	// Update status for both GET and SET. GET only displays data, but some SET
+	// commands use the emcStatus for decisions. Better make it up-to-date.
+	// We don't care about the setting. We need it, very much.
+	// if (emcUpdateType == EMC_UPDATE_AUTO)
+	updateStatus();
+
+	if (getset == cmdGet) {
+		// GET X command
+		// Check for enough arguments
+		if (tag->nget + 2 > ctx.toks.size()) {
+			errornl(
+				ctx,
+				fmt::format("Too few arguments to GET {}, have {}, need {} or more", tag->name, ctx.toks.size() - 2, tag->nget));
+			replynl(ctx, fmt::format("GET {} NAK", tag->name));
+			return -1;
+		}
+		cmdResponseType res = tag->getter(ctx);
+		switch (res) {
+		case rtOk: break;
+		case rtError: // Standard error response
+			replynl(ctx, fmt::format("GET {} NAK", tag->name));
+			break;
+		default: replynl(ctx, fmt::format("internal: GET {} returned unknown value '{}'", tag->name, (int)res)); break;
+		}
+	} else {
+		// SET X command
+		if (setterActive() && tag->remote) {
+			errornl(ctx, fmt::format("Cannot issue SET {} command while SET {} command is still active",
+							tag->name, activeSetter));
+			return -1;
+		}
+
+		// Check for enough arguments
+		if (tag->nset + 2 > ctx.toks.size()) {
+			errornl(
+				ctx,
+				fmt::format("Too few arguments to SET {}, have {}, need {} or more", tag->name, ctx.toks.size() - 2, tag->nset));
+			replynl(ctx, fmt::format("GET {} NAK", tag->name));
+			return -1;
+		}
+
+		if (tag->acclvl >= alHello && !ctx.linked) {
+			errornl(ctx, fmt::format("A HELLO must be successfully negotiated for SET {}", tag->name));
+			replynl(ctx, fmt::format("SET {} NAK", tag->name));
+			return -1;
+		}
+
+		if (tag->acclvl >= alEnable && !isEnabled(ctx)) {
+			errornl(ctx, fmt::format("Connection must be enabled for SET {}", tag->name));
+			replynl(ctx, fmt::format("SET {} NAK", tag->name));
+			return -1;
+		}
+
+		if (tag->acclvl >= alMachOn && emcStatus->task.state != EMC_TASK_STATE::ON) {
+			// Extra check in the event of an undetected change in Machine state
+			// resulting in sending a set command when the machine state is off.
+			// This condition is detected and appropriate error messages are
+			// generated, however erratic behavior has been seen when doing certain
+			// set commands when the Machine state is other than 'ON'
+			errornl(ctx, fmt::format("Machine must be 'ON' for SET {}", tag->name));
+			replynl(ctx, fmt::format("SET {} NAK", tag->name));
+			return -1;
+		}
+
+		cmdResponseType res = tag->setter(ctx);
+		switch (res) {
+		case rtOk:
+			if(tag->remote) {
+				setterSet(ctx, tag->name);
+				// Replying ACK/NAK is postponed until DONE
+				// See sockMain() for handling below.
+			} else if (ctx.verbose) {
+				replynl(ctx, fmt::format("SET {} ACK", tag->name));
+			}
+			break;
+		case rtError: // Standard error response
+			replynl(ctx, fmt::format("SET {} NAK", tag->name));
+			break;
+		default:
+			replynl(ctx, fmt::format("internal: SET {} returned unknown value '{}'", tag->name, (int)res));
+			break;
+		}
+	}
+	return 0;
 }
 
-static int helpQuit(connectionRecType *context)
+int commandQuit(connectionRecType &ctx)
 {
-  dprintf(
-    context->cliSock,
-    "Usage:\r\n"
-    "  The quit command has the server initiate a disconnect from the client,\r\n"
-    "  the command has no parameters and no requirements to have negotiated\r\n"
-    "  a hello, or be in control."
-  );
-  return 0;
+	doDisable(ctx);
+	ctx.halfclosed = true;
+	ctx.inbuf.clear(); // Zap any remaining input
+	info("Closing connection '%s' (%d)", ctx.hostname.c_str(), ctx.sock);
+	replynl(ctx, "QUIT ACK");
+	return 0;
 }
 
-static int helpShutdown(connectionRecType *context)
+int commandShutdown(connectionRecType &ctx)
 {
-  dprintf(
-    context->cliSock,
-    "Usage:\r\n"
-    "  The shutdown command terminates the connection with all clients,\r\n"
-    "  and initiates a shutdown of LinuxCNC. The command has no parameters, and\r\n"
-    "  can only be issued by the connection having control.\r\n"
-  );
-  return 0;
+	if (isEnabled(ctx)) {
+		// A shutdown will disconnect all clients from linuxcncrsh
+		info("Shutdown initiated by '%s' (%d)", ctx.hostname.c_str(), ctx.sock);
+		doDisable(ctx);
+		// This works fine when linuxcncrsh is the DISPLAY program in the INI
+		// file because the linuxcnc wrapper script will execute it and we
+		// terminate after a shutdown.
+		// However, this does /not/ work when you have another DISPLAY program
+		// and run linuxcncrsh on the side.
+		// FIXME: There is currently no infrastructure to remotely shutdown the
+		// whole LinuxCNC stack of programs if the DISPLAY program is anything
+		// else than linuxcncrsh.
+		replynl(ctx, "SHUTDOWN ACK");
+		return 0;
+	}
+
+	errornl(ctx, "SHUTDOWN failed, not enabled");
+	replynl(ctx, "SHUTDOWN NAK");
+	return -1;
 }
 
-static int helpHelp(connectionRecType *context)
+static int helpGeneral(connectionRecType &ctx)
 {
-  dprintf(
-    context->cliSock,
-    "If you need help on help, it is time to look into another line of work.\r\n"
-  );
-  return 0;
+	replynl(ctx,
+			"Available commands:\r\n"
+			"  HELLO <password> <clientname> <protocolversion>\r\n"
+			"  GET <command> [parameters...]\r\n"
+			"  SET <command> [parameters...]\r\n"
+			"  SHUTDOWN\r\n"
+			"  HELP <command>\r\n");
+	return 0;
 }
 
-int commandHelp(connectionRecType *context)
+static int helpHello(connectionRecType &ctx)
 {
-  char *s = strtok(NULL, delims);
-  if (!s) return (helpGeneral(context));
-  strupr(s);
-  if (strcmp(s, "HELLO") == 0) return (helpHello(context));
-  if (strcmp(s, "GET") == 0) return (helpGet(context));
-  if (strcmp(s, "SET") == 0) return (helpSet(context));
-  if (strcmp(s, "QUIT") == 0) return (helpQuit(context));
-  if (strcmp(s, "SHUTDOWN") == 0) return (helpShutdown(context));
-  if (strcmp(s, "HELP") == 0) return (helpHelp(context));
-  dprintf(context->cliSock, "%s is not a valid command.", s);
-  return 0;
+	replynl(ctx,
+			"Usage: HELLO <password> <clientname> <protover>\r\n"
+			"  Where:\r\n"
+			"  - password:   the connection password to allow communications with the server.\r\n"
+			"  - clientname: the name of the client trying to connect.\r\n"
+			"  - protover:   the version of the protocol which the client wishes to use.\r\n"
+			"  With valid password, server responds with:\r\n"
+			"    HELLO ACK <servername> <protover>\r\n"
+			"  Where:\r\n"
+			"  - ACK:        acknowledging the connection has been made.\r\n"
+			"  - servername: the name of the LinuxCNC Server to which the client has connected.\r\n"
+			"  - protover:   the client requested version or latest version support by server if\r\n"
+			"                the client requests a version later than that supported by the server.\r\n"
+			"  With invalid password, the server responds with:\r\n"
+			"    HELLO NAK\r\n");
+	return 0;
 }
 
-cmdType lookupCommand(char *s)
+static int helpGet(connectionRecType &ctx)
 {
-  cmdType i = cmdHello;
-  int temp;
-
-  while (i < cmdUnknown) {
-    if (strcmp(commands[i], s) == 0) return i;
-//    (int)i += 1;
-    temp = i;
-    temp++;
-    i = (cmdType) temp;
-    }
-  return i;
+	replynl(ctx,
+			"Usage: GET <command> [parameters...]\r\n"
+			"  All get commands require that a HELLO has been successfully negotiated.\r\n"
+			"  Command may be one of:");
+	for (unsigned i = 0; i < NELEM(getsetList); i++) {
+		const getsetListType *gsl = &getsetList[i];
+		if (gsl->getter == gsNotImpl || gsl->getter == gsIgnored)
+			continue;
+		replynl(ctx, fmt::format("    {} {}", gsl->name, gsl->gethelp));
+	}
+	reply(ctx, "\r\n");
+	return 0;
 }
 
-// handle the linuxcncrsh command in context->inBuf
-int parseCommand(connectionRecType *context)
+static int helpSet(connectionRecType &ctx)
 {
-  int ret = 0;
-  char *cmdStr;
-
-  if (!(cmdStr = strtok(context->inBuf, delims)))
-    return -1;
-
-  strupr(cmdStr);
-  switch (lookupCommand(cmdStr)) {
-
-    case cmdHello:
-      if ((ret = commandHello(context)) < 0)
-        dprintf(context->cliSock, "HELLO NAK\r\n");
-      else
-        dprintf(context->cliSock, "HELLO ACK %s 1.1\r\n", serverName);
-      break;
-
-    case cmdGet:
-      ret = commandGet(context);
-      break;
-
-    case cmdSet:
-      if (!context->linked) {
-        dprintf(context->cliSock, "SET NAK\r\n");
-        ret = -1;
-        break;
-      }
-      ret = commandSet(context);
-      break;
-
-    case cmdQuit:
-      ret = commandQuit(context);
-      break;
-
-    case cmdShutdown:
-      if((ret = commandShutdown(context)) < 0) {
-        dprintf(context->cliSock, "SHUTDOWN NAK\r\n");
-      }
-      break;
-
-    case cmdHelp:
-      ret = commandHelp(context);
-      break;
-
-    default:
-      ret = -2;
-  }
-
-  return ret;
+	replynl(ctx,
+			"Usage: SET <command> [parameters...]\r\n"
+			"  All set commands require that a HELLO has been successfully negotiated.\r\n"
+			"  Most set commands require exclusive control over the connection to\r\n"
+			"  LinuxCNC by having successfully executed 'SET ENABLE <password>'.\r\n"
+			"  Additionally, some set commands require the machine to be in the ON state.\r\n"
+			"  Set commands not requiring any access level control:");
+	for (unsigned i = 0; i < NELEM(getsetList); i++) {
+		const getsetListType *gsl = &getsetList[i];
+		if (gsl->setter == gsNotImpl || gsl->setter == gsIgnored || gsl->acclvl != alNone)
+			continue;
+		replynl(ctx, fmt::format("    {} {}", gsl->name, gsl->sethelp));
+	}
+	reply(ctx, "  Set commands requiring HELLO level control:");
+	reply(ctx, "\r\n");
+	for (unsigned i = 0; i < NELEM(getsetList); i++) {
+		const getsetListType *gsl = &getsetList[i];
+		if (gsl->setter == gsNotImpl || gsl->setter == gsIgnored || gsl->acclvl != alHello)
+			continue;
+		replynl(ctx, fmt::format("    {} {}", gsl->name, gsl->sethelp));
+	}
+	reply(ctx, "\r\n");
+	replynl(ctx, "  Set commands requiring control enabled:");
+	for (unsigned i = 0; i < NELEM(getsetList); i++) {
+		const getsetListType *gsl = &getsetList[i];
+		if (gsl->setter == gsNotImpl || gsl->setter == gsIgnored || gsl->acclvl != alEnable)
+			continue;
+		replynl(ctx, fmt::format("    {} {}", gsl->name, gsl->sethelp));
+	}
+	reply(ctx, "\r\n");
+	replynl(ctx, "  Set commands requiring control enabled and machine in the ON state:");
+	for (unsigned i = 0; i < NELEM(getsetList); i++) {
+		const getsetListType *gsl = &getsetList[i];
+		if (gsl->setter == gsNotImpl || gsl->setter == gsIgnored || gsl->acclvl != alMachOn)
+			continue;
+		replynl(ctx, fmt::format("    {} {}", gsl->name, gsl->sethelp));
+	}
+	reply(ctx, "\r\n");
+	return 0;
 }
 
-void *readClient(void *arg)
+static int helpQuit(connectionRecType &ctx)
 {
-  char buf[1600];
-  int context_index;
-  int i;
-  int len;
-  connectionRecType *context = (connectionRecType *)arg;
-
-  context_index = 0;
-
-  while (1) {
-    // We always start this loop with an empty buf, though there may be one
-    // partial line in context->inBuf[0..context_index].
-    len = read(context->cliSock, buf, sizeof(buf));
-    if (len < 0) {
-      fprintf(stderr, "linuxcncrsh: error reading from client: %s\n", strerror(errno));
-      goto finished;
-    }
-    if (len == 0) {
-      printf("linuxcncrsh: eof from client\n");
-      goto finished;
-    }
-
-    if (context->echo && context->linked)
-      if(write(context->cliSock, buf, len) != (ssize_t)len) {
-        fprintf(stderr, "linuxcncrsh: write() failed: %s", strerror(errno));
-      }
-
-    for (i = 0; i < len; i ++) {
-        if ((buf[i] != '\n') && (buf[i] != '\r')) {
-            context->inBuf[context_index] = buf[i];
-            context_index ++;
-            continue;
-        }
-
-        // if we get here, i is the index of a line terminator in buf
-
-        if (context_index > 0) {
-            // we have some bytes in the context buffer, parse them now
-            context->inBuf[context_index] = '\0';
-
-            // The return value from parseCommand was meant to indicate
-            // success or error, but it is unusable.  Some paths return
-            // the return value of write(2) and some paths return small
-            // positive integers (cmdResponseType) to indicate failure.
-            // We're best off just ignoring it.
-            (void)parseCommand(context);
-
-            context_index = 0;
-        }
-    }
-  }
-
-finished:
-  printf("linuxcncrsh: disconnecting client %s (%s)\n", context->hostName, context->version);
-  close(context->cliSock);
-  free(context);
-  pthread_exit((void *)0);
-  sessions--;  // FIXME: not reached
+	replynl(ctx,
+			"Usage: QUIT\r\n"
+			"  The quit command disconnects the client from the server.\r\n"
+			"  the command has no parameters and no requirements to have negotiated\r\n"
+			"  a hello, or be in control.\r\n");
+	return 0;
 }
 
-int sockMain()
+static int helpShutdown(connectionRecType &ctx)
 {
-    int res;
-
-    while (1) {
-        int client_sockfd;
-        client_len = sizeof(client_address);
-        client_sockfd = accept(server_sockfd, (struct sockaddr *)&client_address, &client_len);
-        if (client_sockfd < 0) exit(0);
-        // count connected clients
-        sessions++;
-        // enforce limited amount of clients that can connect simultaneously
-        if ((maxSessions == -1) || (sessions <= maxSessions)) {
-            pthread_t *thrd;
-            connectionRecType *context;
-
-            thrd = (pthread_t *)calloc(1, sizeof(pthread_t));
-            if (!thrd) {
-                fprintf(stderr, "linuxcncrsh: out of memory\n");
-                exit(1);
-            }
-
-            context = (connectionRecType *)malloc(sizeof(connectionRecType));
-            if (!context) {
-                fprintf(stderr, "linuxcncrsh: out of memory\n");
-                exit(1);
-            }
-
-            context->cliSock = client_sockfd;
-            context->linked = false;
-            context->echo = true;
-            context->verbose = false;
-            rtapi_strxcpy(context->version, "1.0");
-            rtapi_strxcpy(context->hostName, "Default");
-            context->enabled = false;
-            context->commMode = 0;
-            context->commProt = 0;
-            context->inBuf[0] = 0;
-
-            res = pthread_create(thrd, NULL, readClient, (void *)context);
-        } else {
-            fprintf(stderr, "linuxcncrsh: maximum amount of sessions exceeded: %d\n", maxSessions);
-            res = -1;
-        }
-        // discard connection upon error
-        if (res != 0) {
-            close(client_sockfd);
-            sessions--;
-        }
-    }
-    return 0;
+	replynl(ctx,
+			"Usage: SHUTDOWN\r\n"
+			"  The shutdown command terminates the connections with all clients\r\n"
+			"  and initiates a shutdown of LinuxCNC if it is set as the DISPLAY\r\n"
+			"  application in the INI file.\r\n"
+			"  The command has no parameters, and can only be issued on the connection\r\n"
+			"  that has enable control.\r\n");
+	return 0;
 }
 
-static void usage(char* pname) {
-    printf("Usage: \n");
-    printf("         %s [Options] [-- LinuxCNC_Options]\n"
-           "Options:\n"
-           "         --help       this help\n"
-           "         --port       <port number>  (default=%d)\n"
-           "         --name       <server name>  (default=%s)\n"
-           "         --connectpw  <password>     (default=%s)\n"
-           "         --enablepw   <password>     (default=%s)\n"
-           "         --sessions   <max sessions> (default=%d) (-1 ==> no limit) \n"
-           "         --path       <path>         (default=%s)\n"
-           "LinuxCNC_Options:\n"
-           "          -ini        <INI file>      (default=%s)\n"
-          ,pname,port,serverName,pwd,enablePWD,maxSessions,defaultPath,emc_inifile
-          );
+static int helpHelp(connectionRecType &ctx)
+{
+	replynl(ctx,
+			"Usage: HELP HELP\r\n"
+			"  You need help if you need help on help to help you with help.\r\n"
+			"  It may be time to look into another line of work where computers are\r\n"
+			"  no requirement. Computers will only remind you of the necessary evil\r\n"
+			"  they represent and cause severe helplessness for those requesting help.\r\n");
+	return 0;
+}
+
+static int commandHelp(connectionRecType &ctx)
+{
+	if (ctx.toks.size() < 2)
+		return helpGeneral(ctx);
+	std::string s = ctx.toks[1];
+	std::transform(s.begin(), s.end(), s.begin(), [](char c) { return std::toupper((unsigned char)c); });
+	if (s == "HELLO")    return helpHello(ctx);
+	if (s == "GET")      return helpGet(ctx);
+	if (s == "SET")      return helpSet(ctx);
+	if (s == "QUIT")     return helpQuit(ctx);
+	if (s == "SHUTDOWN") return helpShutdown(ctx);
+	if (s == "HELP")     return helpHelp(ctx);
+	errornl(ctx, fmt::format("{} is not a valid command. ({})", ctx.toks[1], s));
+	return 0;
+}
+
+static int cmpCmdList(const void *a, const void *b)
+{
+	return compareNoCase(static_cast<const commandListType *>(a)->name, static_cast<const commandListType *>(b)->name);
+}
+
+static int parseCommand(connectionRecType &ctx, std::string &line)
+{
+	static const char toksep[] = " \t\n\r";
+
+	size_t pos = 0;
+	ctx.toks.clear(); // Clear any previous commands/tokens
+	ctx.third.clear();
+	while (pos < line.size()) {
+		// trim left
+		size_t lft = line.find_first_not_of(toksep, pos);
+		if (lft == std::string::npos) {
+			// No non-whitespace characters found to delimit the start
+			pos = line.size(); // All white-space until end
+			continue;
+		}
+		// Now have:
+		//   arbitrary  string with spaces
+		//   ^
+		//   lft
+		size_t rgt = line.find_first_of(toksep, lft);
+		if (rgt == std::string::npos) {
+			// No whitespace characters found to delimit the end
+			// The current range [lft,size()) has the token
+			rgt = line.size();
+		}
+		// Now have:
+		//   arbitrary  string with spaces
+		//   ^        ^
+		//   lft      rgt
+		if (2 == ctx.toks.size()) {
+			// Save the rest of the string as possible filename
+			ctx.third = line.substr(lft);
+		}
+		ctx.toks.push_back(std::move(line.substr(lft, rgt - lft)));
+		pos = rgt;
+	}
+
+	if (ctx.toks.size() < 1)
+		return 0;
+
+	// Find the command in the list
+	commandListType v = {cmdUnknown, 0, ctx.toks[0].c_str()};
+	void *_tag = bsearch(&v, commandList, NELEM(commandList), sizeof(commandList[0]), cmpCmdList);
+	const commandListType *tag = static_cast<const commandListType *>(_tag);
+	if (!tag) {
+		errornl(ctx, fmt::format("Command '{}' not found", ctx.toks[0]));
+		return 0;
+	}
+
+	if (ctx.toks.size() < tag->nargs + 1) {
+		errornl(ctx, fmt::format("Too few arguments for '{}' command", ctx.toks[0]));
+		return 0;
+	}
+
+	// Only echo when on, linked and never on HELLO commands
+	if (ctx.echo && ctx.linked && tag->command != cmdHello)
+		replynl(ctx, line);
+
+	switch (tag->command) {
+	case cmdHello: commandHello(ctx); break;
+	case cmdSet:
+	case cmdGet:   commandGetSet(ctx, tag->command); break;
+	case cmdQuit:  commandQuit(ctx); break;
+	case cmdHelp:  commandHelp(ctx); break;
+	case cmdShutdown:
+		if (!commandShutdown(ctx)) {
+			return -1;
+		}
+		break;
+	default:
+		replynl(ctx, fmt::format("internal: Invalid command ID '{}' on name='{}'", (int)tag->command, tag->name));
+		break;
+	}
+	return 0;
+}
+
+static bool setterDoneUpdate(connectionRecType &ctx)
+{
+	double now = etime();
+	if (ctx.cmdtimeout < now) {
+		// Timeout
+		errornl(ctx, fmt::format("command 'SET {}' timed out", activeSetter));
+		return true;
+	}
+
+	updateStatus();
+	int serial_diff = emcStatus->echo_serial_number - ctx.serial;
+
+	if (serial_diff > 0) { // We've past beyond our command
+		return true;
+	}
+
+	if (!serial_diff) { // We're at our command
+		if (ctx.waitmode == EMC_WAIT_RECEIVED) {
+			return true;
+		}
+
+		switch (emcStatus->status) {
+		case RCS_STATUS::EXEC: // Still busy executing command
+			break;
+
+		case RCS_STATUS::ERROR: // The command failed
+		case RCS_STATUS::DONE:	// The command finished
+			return true;
+
+		default: // Default should never happen...
+			error("setterDoneUpdate(): unknown emcStatus->status=%d", (int)emcStatus->status);
+			return false;
+		}
+	}
+	return false;
+}
+
+static void closeClient(connectionRecType &ctx)
+{
+	if (ctx.sock < 0)
+		return;
+	info("Connection terminated '%s' (%d)", ctx.hostname.c_str(), ctx.sock);
+	close(ctx.sock);
+	ctx.sock = -1;
+}
+
+static int sockMain(int svrfd)
+{
+	std::vector<char> rdbuf(1600); // Declare at top, no need to realloc each round in the loop
+	std::vector<struct pollfd> pfds(2);
+	bool shutdown = false;
+
+	while (clients.size() || !shutdown) {
+		// Make sure we have room for clients and server socket
+		pfds.resize(clients.size() + 1);
+
+		// Setup poll data for all sockets
+		pfds[0].fd = svrfd;
+		pfds[0].events = POLLIN;
+		pfds[0].revents = 0;
+		int pto = -1;	// Default to infinite poll timeout
+		if (shutdown)
+			pto = 0;	// Immediate return in shutdown mode
+		else if (setterActive())
+			pto = polltimeout;	// Timeout to count
+
+		// Add progressive waiting
+		polltimeout *= 2;
+		if(polltimeout > POLLTIMEOUT_MAX)
+			polltimeout = POLLTIMEOUT_MAX;
+
+		for (size_t i = 0; i < clients.size(); i++) {
+			// Close connection when about to shutdown and all is flushed. All
+			// clients should already have halfclosed set and the input buffer
+			// cleared.
+			if (!clients[i].outbuf.size() && shutdown) {
+				closeClient(clients[i]);
+				// poll will ignore this entry
+			}
+			pfds[i + 1].fd = clients[i].sock;
+			pfds[i + 1].events = POLLPRI | (!clients[i].halfclosed ? POLLIN : 0) | (clients[i].outbuf.size() ? POLLOUT : 0);
+			pfds[i + 1].revents = 0;
+
+			// If there is still a full line of data in an input buffer then
+			// make poll return asap. It will still check the descriptors for
+			// I/O activity.
+			// But only test for clients not waiting.
+			if (clients[i].cmdtimeout <= 0.0 && clients[i].inbuf.find_first_of("\r\n") != std::string::npos)
+				pto = 0;
+		}
+
+		// Wait until something happens
+		int err = poll(pfds.data(), pfds.size(), pto);
+		if (err < 0) {
+			if (EINTR == errno) {
+				continue;
+			} else {
+				error("poll() returned errno=%d (%s), quiting", errno, strerror(errno));
+				return EXIT_FAILURE;
+			}
+		}
+
+		// Check server socket first
+		if (pfds[0].revents & POLLERR) {
+			// This should never happen...famous...last...words...
+			error("Server socket received an error on poll, quiting");
+			return EXIT_FAILURE;
+		} else if (pfds[0].revents & POLLIN) {
+			// POLLIN on a listen socket means new connection available
+			int cfd;
+			struct sockaddr_in6 csa;
+			socklen_t csal = sizeof(csa);
+			cfd = accept(svrfd, reinterpret_cast<struct sockaddr *>(&csa), &csal);
+			if (cfd < 0) {
+				switch (errno) {
+				// The usual errors that should make us retry:
+				case EAGAIN:
+				case ECONNABORTED:
+					break;
+				// Network related errors should be treated as EAGAIN according
+				// to accept(2) manual
+				case ENETDOWN:
+				case EPROTO:
+				case ENOPROTOOPT:
+				case EHOSTDOWN:
+				case ENONET:
+				case EHOSTUNREACH:
+				case EOPNOTSUPP:
+				case ENETUNREACH:
+					esleep(1); // Don't busy loop waiting for the net to be up again
+					break;
+				// Various restartable errors
+				case ETIMEDOUT: // Linux kernel thingy, apparently
+				case ERESTART:	// During trace (in accept(2) manual named ERESTARTSYS)
+					break;
+				default:
+					// Any other error will be fatal
+					xperror("accept()");
+					return EXIT_FAILURE;
+				}
+			} else {
+				if (!maxSessions || clients.size() < maxSessions) {
+					// Enter non-blocking mode and disable Nagle's algo
+					set_nonblock(cfd);
+					int nd = 1;
+					setsockopt(cfd, IPPROTO_TCP, TCP_NODELAY, &nd, sizeof(nd));
+					connectionRecType cr = {};
+					cr.sock = cfd;
+					cr.hostname = fmt::format("Default-{}", cfd);
+					cr.version = "1.1";
+					cr.echo = true;
+					cr.waitmode = EMC_WAIT_DONE;
+					//cr.timestamp= true;
+					clients.push_back(cr);
+					char addr[INET6_ADDRSTRLEN] = {};
+					inet_ntop(AF_INET6, &csa.sin6_addr, addr, sizeof(addr));
+					info("New connection from %s:%d", addr, ntohs(csa.sin6_port));
+				} else {
+					close(cfd);
+				}
+			}
+		}
+
+		// Note that we can have one extra client already added but it does not
+		// have a pfds entry. That happens when we accept a new connection
+		// above. However, we still need to check all other clients for
+		// read/write.
+		for (size_t i = 0; i < clients.size() && i < pfds.size() - 1; i++) {
+			if (pfds[i + 1].revents & POLLERR) {
+				// An error on a socket means we make it to close/abort
+				clients[i].halfclosed = true;
+				clients[i].inbuf.clear();
+				clients[i].outbuf.clear();
+			}
+
+			if (pfds[i + 1].revents & POLLPRI) {
+				ssize_t res = recv(clients[i].sock, rdbuf.data(), rdbuf.size(), MSG_OOB);
+				if (res < 0) {
+					if (errno != EINTR && errno != EAGAIN) {
+						xperror("recv() OOB data");
+					}
+				} else {
+					info("Received %zd bytes of OOB data (using telnet?), ignoring", res);
+				}
+			}
+
+			if (pfds[i + 1].revents & POLLOUT) {
+				// Writable...
+				ssize_t res = write(clients[i].sock, clients[i].outbuf.c_str(), clients[i].outbuf.size());
+				if (res < 0) {
+					if (errno != EINTR && errno != EAGAIN) {
+						xperror("client write()");
+						// Make this connection to close/abort
+						clients[i].halfclosed = true;
+						clients[i].inbuf.clear();
+						clients[i].outbuf.clear();
+					}
+				} else {
+					clients[i].outbuf.erase(0, res); // Remove written data from buffer
+				}
+			}
+
+			if (pfds[i + 1].revents & POLLIN) {
+				// Readable...
+				ssize_t len = read(clients[i].sock, rdbuf.data(), rdbuf.size());
+				if (len < 0) {
+					if (errno != EAGAIN && errno != EINTR) {
+						xperror("client read()");
+						// Make this connection to close but still try flush output
+						clients[i].halfclosed = true;
+						clients[i].inbuf.clear();
+					}
+				} else if (0 == len) {
+					// Socket closed
+					info("Read close '%s' (%d)", clients[i].hostname.c_str(), clients[i].sock);
+					clients[i].halfclosed = true;
+				} else {
+					// Append the read data
+					clients[i].inbuf.append(rdbuf.data(), len);
+				}
+			}
+
+			if (clients[i].halfclosed && !clients[i].inbuf.size() && !clients[i].outbuf.size()) {
+				// The input is closed and no more data to handle or write.
+				// Terminate the connection.
+				closeClient(clients[i]);
+			}
+		}
+
+		// Remove fully closed clients
+		for (auto i = clients.begin(); i != clients.end();) {
+			if (-1 == i->sock) {
+				i = clients.erase(i);
+			} else {
+				++i;
+			}
+		}
+
+		// Handle input, one line at a time for each client (round robin)
+		for (auto i = clients.begin(); i != clients.end(); ++i) {
+			// See if there is an active command outstanding
+			if (setterActive() && i->cmdtimeout > 0.0) {
+				// This client has issued a setter and we're waiting
+				if (!setterDoneUpdate(*i))
+					continue;	// This client is still waiting
+				// Done, now we know what to reply
+				if (emcStatus->status == RCS_STATUS::ERROR) {
+					replynl(*i, fmt::format("SET {} NAK", activeSetter));
+				} else if (i->verbose) {
+					replynl(*i, fmt::format("SET {} ACK", activeSetter));
+				}
+				setterClear(*i);
+			}
+
+			// Non-waiting connections may proceed unimpeded. They cannot
+			// execute SET commands that will queue if there is an active SET
+			// command and will be informed if they try to.
+
+			// Split into lines and send to parser
+			size_t nl = i->inbuf.find_first_of("\r\n");
+			if (nl != std::string::npos) {
+				// Isolate the line and remove from input buffer
+				std::string line = i->inbuf.substr(0, nl);
+				// and remove any trailing \r\n too
+				size_t enl = i->inbuf.find_first_not_of("\r\n", nl);
+				i->inbuf.erase(0, enl);
+				if (line.size()) {
+					// Parse the line if there is something on it
+					// It returns non-zero when the shutdown has been executed
+					if (parseCommand(*i, line)) {
+						// We may still have data in the outbuf that needs to
+						// be flushed. Any remaining output will still be sent
+						// and then the client will be fully closed and removed.
+						shutdown = true;
+						// Halfclose all clients and zap remaining input.
+						for (auto c = clients.begin(); c != clients.end(); ++c) {
+							c->halfclosed = true;
+							c->inbuf.clear();
+						}
+					}
+				}
+			}
+			// Else: Not a finished line, must wait for rest
+		}
+	}
+
+	return 0;
+}
+
+// Default: always search "${HOME}/nc_files/"
+static std::string getDefaultPath()
+{
+	std::string defpath;
+	if (const char *home = getenv("HOME")) {
+		defpath = home;
+	}
+	return defpath + "/nc_files";
+}
+
+static void usage(char *pname)
+{
+	printf("Usage: \n"
+		   "  %s [Options] [-- LinuxCNC_Options]\n"
+		   "Options:\n"
+		   "   -h,--help             This help\n"
+		   "   -p,--port <num>       Listen on port 'num' (default=%d)\n"
+		   "   -n,--name <str>       Set this server's name to 'str' (default=%s)\n"
+		   "   -w,--connectpw <pwd>  Set connect/hello password to 'pwd' (default=%s)\n"
+		   "   -e,--enablepw <pwd>   Set enable password to 'pwd' (default=%s)\n"
+		   "   -s,--sessions <num>   Restrict number of session to 'num' (default=%u) (0 for no limit)\n"
+		   "   -d,--path <path>      Set (colon-separated) search path to 'path' (default=%s)\n"
+		   "   -q,--quiet            Don't print informational messages\n"
+		   "LinuxCNC_Options:\n"
+		   "   -ini <INI file>       (default=%s)\n",
+		   pname,
+		   port,
+		   serverName.c_str(),
+		   helloPwd.c_str(),
+		   enablePWD.c_str(),
+		   maxSessions,
+		   getDefaultPath().c_str(),
+		   emc_inifile);
+}
+
+static bool check_white(const std::string &s)
+{
+	for (const char &c : s) {
+		if (std::iscntrl((unsigned char)c) || std::isspace((unsigned char)c))
+			return true;
+	}
+	return false;
 }
 
 int main(int argc, char *argv[])
 {
-    int opt;
+	int opt;
+	int lose = 0;
+	char *eptr;
+	size_t pos;
+	std::string s;
 
-    // initialize default values
-    emcWaitType = EMC_WAIT_RECEIVED;
-    emcCommandSerialNumber = 0;
-    emcTimeout = 0.0;
-    emcUpdateType = EMC_UPDATE_AUTO;
-    linearUnitConversion = LINEAR_UNITS_AUTO;
-    angularUnitConversion = ANGULAR_UNITS_AUTO;
-    emcCommandBuffer = NULL;
-    emcStatusBuffer = NULL;
-    emcErrorBuffer = NULL;
-    emcStatus = 0;
-    error_string[LINELEN-1] = 0;
-    operator_text_string[LINELEN-1] = 0;
-    operator_display_string[LINELEN-1] = 0;
-    programStartLine = 0;
+	// initialize default values
+	emcWaitType = EMC_WAIT_NEVER;	// Handled in the poll loop
+	emcCommandSerialNumber = 0;
+	emcTimeout = 0.0;
+	emcUpdateType = EMC_UPDATE_AUTO;	// Ignored
+	linearUnitConversion = LINEAR_UNITS_AUTO;
+	angularUnitConversion = ANGULAR_UNITS_AUTO;
+	emcCommandBuffer = NULL;
+	emcStatusBuffer = NULL;
+	emcErrorBuffer = NULL;
+	emcStatus = NULL;
+	// FIXME: Get rid of static buffers
+	memset(error_string, 0, sizeof(error_string));
+	memset(operator_text_string, 0, sizeof(operator_text_string));
+	memset(operator_display_string, 0, sizeof(operator_display_string));
+	programStartLine = 0;
 
+	searchPath.push_back(getDefaultPath());
 
-    // process local command line args
-    while ((opt = getopt_long(argc, argv, "he:n:p:s:w:d:", longopts, NULL)) != -1) {
-        switch (opt) {
-            case 'h': usage(argv[0]); exit(1);
-            case 'e': snprintf(enablePWD, sizeof(enablePWD), "%s", optarg); break;
-            case 'n': snprintf(serverName, sizeof(serverName), "%s", optarg); break;
-            case 'p': sscanf(optarg, "%d", &port); break;
-            case 's': sscanf(optarg, "%d", &maxSessions); break;
-            case 'w': snprintf(pwd, sizeof(pwd), "%s", optarg); break;
-            case 'd': snprintf(defaultPath, sizeof(defaultPath), "%s", optarg); break;
-        }
-    }
+	// process local command line args
+	while ((opt = getopt_long(argc, argv, "he:n:p:s:w:d:q", longopts, NULL)) != -1) {
+		switch (opt) {
+		case 'h':
+			usage(argv[0]);
+			return EXIT_FAILURE;
+		case 'e':
+			enablePWD = optarg;
+			if (!compareNoCase(enablePWD, "OFF")) {
+				error("Invalid enable password. You cannot use 'OFF' as enable password");
+				lose++;
+			} else {
+				if (check_white(enablePWD)) {
+					error("You cannot have control or space characters in the enable password");
+					lose++;
+				}
+			}
+			break;
+		case 'q':
+			quiet++;
+			break;
+		case 'n':
+			serverName = optarg;
+			if (check_white(serverName)) {
+				error("You cannot have control or space characters in the server name");
+				lose++;
+			}
+			break;
+		case 'w':
+			helloPwd = optarg;
+			if (check_white(helloPwd)) {
+				error("You cannot have control or space characters in the password");
+				lose++;
+			}
+			break;
+		case 'd':
+			searchPath.clear(); // Remove the default
+			s = optarg;
+			if (s.back() == ':') {
+				error("Trailing ':' in path ignored");
+			}
+			pos = 0;
+			while (pos < s.size()) {
+				size_t colon = s.find_first_of(':', pos);
+				if (std::string::npos == colon) {
+					// No colon found. Pretend it was there at the end.
+					colon = s.size();
+				}
+				std::string tmp = s.substr(pos, colon - pos);
+				if (!tmp.size()) {
+					error("Empty search path entry ignored");
+				} else {
+					if (tmp.front() != '/') {
+						error("'%s' not an absolute path. May not be useful.", tmp.c_str());
+					}
+					searchPath.push_back(std::move(tmp));
+				}
+				pos = colon + 1;
+			}
+			break;
+		case 'p':
+			port = strtol(optarg, &eptr, 0);
+			if (eptr == optarg || *eptr || port <= 0 || port >= 65535) {
+				error("Invalid port '%s', must be integer in range [1,65534]", optarg);
+				lose++;
+			}
+			break;
+		case 's':
+			maxSessions = strtoul(optarg, &eptr, 0);
+			if (eptr == optarg || *eptr) {
+				error("Invalid maxSessions '%s', must be integer in range [0,...)", optarg);
+				lose++;
+			}
+			break;
+		default:
+			lose++;
+			break;
+		}
+	}
 
-    // process LinuxCNC command line args
-    // Note: '--' may be used to separate cmd line args
-    //       optind is index of next arg to process
-    //       make argv[optind] zeroth arg
-    argc = argc - optind + 1;
-    argv = argv + optind - 1;
-    if (emcGetArgs(argc, argv) != 0) {
-        rcs_print_error("error in argument list\n");
-        exit(1);
-    }
-    // get configuration information
-    iniLoad(emc_inifile);
-    // initialize telnet socket
-    if (initSocket() != 0) {
-        rcs_print_error("error initializing sockets\n");
-        exit(1);
-    }
-    // init NML
-    if (tryNml() != 0) {
-        rcs_print_error("can't connect to LinuxCNC\n");
-        thisQuit();
-        exit(1);
-    }
-    // get current serial number, and save it for restoring when we quit
-    // so as not to interfere with real operator interface
-    updateStatus();
-    emcCommandSerialNumber = emcStatus->echo_serial_number;
+	if (lose)
+		return EXIT_FAILURE;
 
-    // attach our quit function to SIGINT
-    {
-        struct sigaction act;
-        act.sa_handler = sigQuit;
-        sigemptyset(&act.sa_mask);
-        act.sa_flags = 0;
-        sigaction(SIGINT, &act, NULL);
-    }
+	// process LinuxCNC command line args
+	// Note: '--' may be used to separate cmd line args
+	//       optind is index of next arg to process
+	//       make argv[optind] zeroth arg
+	argc = argc - optind + 1;
+	argv = argv + optind - 1;
+	if (emcGetArgs(argc, argv) != 0) {
+		error("Error in emc argument list");
+		exit(EXIT_FAILURE);
+	}
+	// get configuration information
+	iniLoad(emc_inifile);
+	// initialize telnet socket
+	int sockfd = initSocket();
+	if (sockfd < 0) {
+		exit(EXIT_FAILURE);
+	}
+	// init NML
+	if (tryNml() != 0) {
+		error("Can't connect to LinuxCNC");
+		cleanup();
+		exit(EXIT_FAILURE);
+	}
+	// get current serial number, and save it for restoring when we quit
+	// so as not to interfere with real operator interface
+	updateStatus();
+	emcCommandSerialNumber = emcStatus->echo_serial_number;
 
-    // make all threads ignore SIGPIPE
-    {
-        struct sigaction act;
-        act.sa_handler = SIG_IGN;
-        sigemptyset(&act.sa_mask);
-        act.sa_flags = 0;
-        sigaction(SIGPIPE, &act, NULL);
-    }
+	// Attach our quit function
+	signal(SIGINT, sigQuit);
+	signal(SIGQUIT, sigQuit);
+	signal(SIGTERM, sigQuit);
 
-    if (useSockets) sockMain();
-
-    return 0;
+	int rv = sockMain(sockfd);
+	cleanup();
+	return rv;
 }
+
+// vim: ts=4 sw=4

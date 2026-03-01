@@ -22,7 +22,7 @@ TARGETS += ../tcl/linuxcnc.so
 
 ../bin/linuxcncrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ -lpthread $(LDFLAGS)
+	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ -lfmt $(LDFLAGS)
 TARGETS += ../bin/linuxcncrsh
 
 ../bin/schedrmt: $(call TOOBJS, $(EMCSCHEDSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
