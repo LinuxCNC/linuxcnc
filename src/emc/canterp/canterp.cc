@@ -703,6 +703,10 @@ int Canterp::open(const char *newfilename) {
 }
 
 int Canterp::close() {
+    if (f) {
+        fclose(f);
+        f = (FILE*) nullptr;
+    }
     return INTERP_OK;
 }
 
