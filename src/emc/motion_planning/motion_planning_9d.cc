@@ -1015,14 +1015,22 @@ int computeLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
         double feed_tc   = tpGetSnapshotFeedScale(tc, live_feed, live_rapid);
         double feed_prev = tpGetSnapshotFeedScale(prev1_tc, live_feed, live_rapid);
 
-        // Get final velocity limit for this segment (stored unscaled),
-        // scale to physical mm/s for this computation.
-        // Chain freshly computed values within this sweep: at k=0 we must read
-        // the stored value (nothing computed yet), at k>0 use the min of chained
-        // and stored to respect both fresh propagation and external constraints.
+        // Get final velocity limit for this segment.
+        // At k=0 (tail) we read the stored value as initial condition.
+        // At k>0 we use the freshly chained value from the downstream
+        // segment — this is always correct for the current feed because
+        // the chain propagates kinematic limits computed in physical mm/s.
+        //
+        // NOTE: Previously this used min(chained, stored) to "respect
+        // external constraints."  But final_vel_limit is only ever written
+        // by this backward pass (applyLimitingVelocities_9D), so the
+        // stored value is just the PREVIOUS pass's result.  Taking the
+        // min prevents the limit from ever INCREASING when feed changes
+        // (e.g. 200%→100%: stored=46.8 caps what should be 50.0).
+        // Using the chain directly lets the backward pass converge to
+        // the correct limit for the current feed.
         double v_f_stored = tcGetFinalVelLimit(tc) * feed_tc;
-        double v_f_this = (k == 0) ? v_f_stored
-                                   : std::min(chained_v_f, v_f_stored);
+        double v_f_this = (k == 0) ? v_f_stored : chained_v_f;
 
         // Compute optimal velocity for previous segment (all in physical mm/s)
         v_f_prev = tpComputeOptimalVelocity_9D(tc, prev1_tc, v_f_this, k,
@@ -2045,8 +2053,6 @@ int applyLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
         if (tc->term_cond == TC_TERM_COND_TANGENT && tc->finalvel > 0.0) {
             if (v_new < 1e-6) {
                 v_new = tc->finalvel;
-            } else {
-                v_new = fmin(v_new, tc->finalvel);
             }
         }
 
