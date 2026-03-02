@@ -247,6 +247,19 @@ func newStringAccessor(pin *hal.Pin[string], ti typeInfo) *halPinAccessor {
 	}
 }
 
+// padAccessor implements PinAccessor for padding/reserved fields.
+// It occupies space in the ADS process image but has no backing HAL pin.
+// Reads return zero-filled bytes; writes are silently discarded.
+type padAccessor struct {
+	ti typeInfo
+}
+
+func (p *padAccessor) ReadBytes() ([]byte, error) { return make([]byte, p.ti.byteSize), nil }
+func (p *padAccessor) WriteBytes([]byte) error    { return nil }
+func (p *padAccessor) Size() uint32               { return p.ti.byteSize }
+func (p *padAccessor) TypeName() string           { return p.ti.adsTypeName }
+func (p *padAccessor) TypeID() uint32             { return p.ti.adstID }
+
 // Bridge holds all HAL pins and their corresponding ADS symbol registrations.
 type Bridge struct {
 	// pins retains references so the GC does not collect them.
@@ -261,6 +274,13 @@ func NewBridge(comp *hal.Component, pins []ConfigPin, st *ads.SymbolTable) (*Bri
 		ti, err := parseTypeInfo(cp.TypeName)
 		if err != nil {
 			return nil, fmt.Errorf("symbol %q: %w", cp.ADSName, err)
+		}
+
+		// Padding: register ADS symbol but skip HAL pin creation.
+		if cp.Dir == DirPad {
+			acc := &padAccessor{ti: ti}
+			st.Register(cp.ADSName, acc)
+			continue
 		}
 
 		dir := hal.In
