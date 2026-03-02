@@ -1095,6 +1095,39 @@ static void applyBidirectionalReachability(double &v_entry, double &v_exit,
     v_entry = fmin(v_entry, v_bwd);
 }
 
+/**
+ * @brief Compute minimum exit velocity achievable by maximum jerk-limited
+ *        braking from entry_vel over the given distance.
+ *
+ * Used for cross-feed deceleration corridors: when a segment enters at
+ * old-feed velocity but needs to converge toward new-feed max_vel,
+ * this gives the physically achievable exit after one segment of maximum
+ * braking.  Returns 0 if full stop is possible within the distance.
+ */
+static double jerkLimitedMinExitVelocity(double v_entry, double distance,
+                                          double max_acc, double max_jrk)
+{
+    if (v_entry <= 0 || distance <= 0) return 0;
+
+    // Can we brake to 0 within the distance?
+    double d_to_zero = jerkLimitedBrakingDistance(v_entry, 0, max_acc, max_jrk);
+    if (d_to_zero <= distance) return 0;
+
+    // Binary search: find minimum v_f such that braking distance fits.
+    // jerkLimitedBrakingDistance(v_entry, v_f) decreases as v_f increases
+    // (less deceleration → shorter distance).
+    double lo = 0, hi = v_entry;
+    for (int i = 0; i < 30; i++) {
+        double mid = 0.5 * (lo + hi);
+        double d_brake = jerkLimitedBrakingDistance(v_entry, mid, max_acc, max_jrk);
+        if (d_brake <= distance)
+            hi = mid;   // Can brake to mid — try lower
+        else
+            lo = mid;   // Can't brake to mid — need higher exit
+        if (hi - lo < 1e-6) break;
+    }
+    return hi;
+}
 
 /**
  * @brief Compute chain exit cap: maximum safe exit velocity for the active
@@ -1663,6 +1696,14 @@ static bool computeAndStoreProfile(TC_STRUCT *tc, const RuckigProfileParams &p)
         copyRuckigProfile(traj, &tc->shared_9d.profile);
         return true;
     } else {
+        if (FO_TRACE) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO_RUCKIG_FAIL result=%d seg=%d v0=%.3f vf=%.3f "
+                "max_v=%.3f max_a=%.3f max_j=%.1f dist=%.4f feed=%.3f\n",
+                (int)result, tc->id,
+                p.v_entry, p.v_exit, p.max_vel,
+                p.max_acc, p.max_jrk, p.target_dist, p.feed_scale);
+        }
         __atomic_store_n(&tc->shared_9d.profile.valid, 0, __ATOMIC_RELEASE);
         return false;
     }
@@ -2471,6 +2512,18 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 }
                 prev_exit_vel_known = true;
             }
+            if (FO_TRACE) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "FO_ACTIVE_SKIP seg=%d term=%d prof_valid=%d "
+                    "prof_feed=%.3f v0_override=%.1f prev_known=%d "
+                    "prev_exit=%.3f bv=%d\n",
+                    tc->id, tc->term_cond, tc->shared_9d.profile.valid,
+                    tc->shared_9d.profile.computed_feed_scale,
+                    v0_override, prev_exit_vel_known ? 1 : 0,
+                    prev_exit_vel,
+                    __atomic_load_n(&tc->shared_9d.branch.valid,
+                                    __ATOMIC_ACQUIRE));
+            }
             continue;
         }
 
@@ -2481,9 +2534,13 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         double max_acc    = tcGetTangentialMaxAccel_9D_user(tc);
         double max_jrk    = tc->maxjerk > 0 ? tc->maxjerk : default_jerk;
 
-        // Entry velocity (physical mm/s), capped by current segment's max_vel
+        // Entry velocity (physical mm/s).  Do NOT cap by max_vel here —
+        // cross-feed junctions (BRANCH_SKIP_REPLAN) can have prev_exit at
+        // old feed exceeding new feed's max_vel.  The Ruckig call below
+        // uses fmax(scaled_v_entry, max_vel) to allow deceleration from above
+        // the limit, matching the two-stage brake pattern in computeBranch().
         double scaled_v_entry = prev_exit_vel_known
-            ? fmin(prev_exit_vel, max_vel) : 0.0;
+            ? prev_exit_vel : 0.0;
         // Cap entry by previous segment's kink_vel
         {
             TC_STRUCT *prev_tc = (i > 0) ? tcqItem_user(queue, i - 1) : NULL;
@@ -2498,11 +2555,17 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         scaled_v_exit = applyKinkVelCap(scaled_v_exit, v_exit, max_vel, tc->kink_vel);
         double desired_fvel = scaled_v_exit;
 
+        // Cross-feed deceleration corridor detection
+        bool cross_feed_corridor = (scaled_v_entry > max_vel * 1.01);
+
         // Forward-lookahead: cap exit by what the next segment can actually
         // enter (jerk-limited braking to its exit vel).  The backward pass
         // uses trapezoidal for v_f≈0 which overestimates; this corrects the
         // junction before the profile is committed.
-        if (scaled_v_exit > 0.0 && i + 1 < queue_len) {
+        // Skip when in cross-feed corridor — the lookahead uses backward-pass
+        // exits at the wrong feed scale, producing overly tight caps that
+        // cascade forward and crush entry velocities on short segments.
+        if (!cross_feed_corridor && scaled_v_exit > 0.0 && i + 1 < queue_len) {
             TC_STRUCT *next_tc = tcqItem_user(queue, i + 1);
             if (next_tc && next_tc->target > 1e-9) {
                 double nf = snap.forSegment(next_tc);
@@ -2511,11 +2574,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 double na = tcGetTangentialMaxAccel_9D_user(next_tc);
                 double nj = next_tc->maxjerk > 0 ? next_tc->maxjerk : default_jerk;
                 double reach = jerkLimitedMaxEntryVelocity(nv_exit, next_tc->target, na, nj);
-                // Also cap by the successor's max velocity — the successor
-                // can't enter faster than its own max_vel regardless of
-                // deceleration capacity.  Without this, the predecessor
-                // exits above the successor's max_vel, creating a junction
-                // gap that no branch can fix (too little remaining distance).
                 double nvel_limit = getEffectiveVelLimit(tp, next_tc);
                 double next_max = applyVLimit(tp, next_tc, nvel_limit * nf);
                 reach = fmin(reach, next_max);
@@ -2524,6 +2582,22 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                     desired_fvel  = reach;
                 }
             }
+        }
+
+        // Cross-feed deceleration corridor: when entry exceeds the
+        // feed-scaled max_vel (e.g. after BRANCH_SKIP_REPLAN from 200%→10%),
+        // compute the physics-based minimum exit velocity from maximum
+        // jerk-limited braking over this segment's distance.  This gives
+        // natural multi-segment deceleration: each segment brakes as hard
+        // as physics allow, chaining to the next until velocity converges
+        // to max_vel.  The forward lookahead is skipped (above) because
+        // it uses backward-pass exits at the wrong feed scale.
+        if (cross_feed_corridor && tc->term_cond == TC_TERM_COND_TANGENT) {
+            double min_exit = jerkLimitedMinExitVelocity(
+                scaled_v_entry, tc->target, max_acc, max_jrk);
+            // Use the larger of: physics minimum, or max_vel (don't undershoot target)
+            scaled_v_exit = fmin(fmax(min_exit, max_vel), scaled_v_entry);
+            desired_fvel  = scaled_v_exit;
         }
 
         // --- SKIP: profile already consistent with propagated v0 and current limits ---
@@ -2596,14 +2670,41 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         }
 
         // --- Compute and store Ruckig profile ---
+        double pre_bidir_v_entry = scaled_v_entry;
+        double pre_bidir_v_exit  = scaled_v_exit;
         atomicStoreDouble(&tc->shared_9d.entry_vel, scaled_v_entry);
 
         applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
             tc->target, max_acc, max_jrk);
 
+        // Log cross-feed or zero-entry profile writes (first 5 per pass)
+        if (FO_TRACE && fo_dirty_count < 5 &&
+            (fabs(pre_bidir_v_entry) < 0.01 ||
+             fabs(feed_scale - tc->shared_9d.profile.computed_feed_scale) > 0.1)) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO_FWDWRITE i=%d seg=%d type=%d "
+                "v_entry=%.3f(bidir:%.3f) v_exit=%.3f(bidir:%.3f) "
+                "feed=%.3f old_feed=%.3f prev_known=%d "
+                "max_vel=%.3f target=%.4f active=%d\n",
+                i, tc->id, tc->motion_type,
+                pre_bidir_v_entry, scaled_v_entry,
+                pre_bidir_v_exit, scaled_v_exit,
+                feed_scale, tc->shared_9d.profile.computed_feed_scale,
+                prev_exit_vel_known ? 1 : 0,
+                max_vel, tc->target, tc->active);
+        }
+
         try {
+            // Raise Ruckig max_velocity when entry exceeds feed-scaled limit
+            // (cross-feed junction).  Same pattern as computeBranch() two-stage
+            // brake: fmax(state.velocity, new_max_vel).
+            // The 0.1% margin avoids Ruckig ErrorExecutionTimeCalculation
+            // (-110) which fires when max_velocity == current_velocity
+            // exactly — a degenerate case that hits every cross-feed
+            // corridor segment since fmax(v0, max_vel) == v0 by definition.
+            double ruckig_max_vel = fmax(scaled_v_entry, max_vel) * 1.001;
             RuckigProfileParams rp = {scaled_v_entry, scaled_v_exit,
-                max_vel, max_acc, max_jrk, tc->target,
+                ruckig_max_vel, max_acc, max_jrk, tc->target,
                 feed_scale, vel_limit, tp->vLimit, desired_fvel};
             if (computeAndStoreProfile(tc, rp)) {
                 fo_dirty_count++;
@@ -2617,9 +2718,25 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                     prev_exit_vel = 0.0;
                 }
             } else {
+                if (FO_TRACE && cross_feed_corridor) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_CORRIDOR_FAIL i=%d seg=%d v_entry=%.3f v_exit=%.3f "
+                        "ruckig_max_vel=%.3f max_acc=%.3f max_jrk=%.1f "
+                        "target=%.4f feed=%.3f corridor=%d\n",
+                        i, tc->id, scaled_v_entry, scaled_v_exit,
+                        ruckig_max_vel, max_acc, max_jrk,
+                        tc->target, feed_scale, cross_feed_corridor ? 1 : 0);
+                }
                 prev_exit_vel = 0.0;
             }
         } catch (...) {
+            if (FO_TRACE && cross_feed_corridor) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "FO_CORRIDOR_THROW i=%d seg=%d v_entry=%.3f v_exit=%.3f "
+                    "target=%.4f feed=%.3f\n",
+                    i, tc->id, scaled_v_entry, scaled_v_exit,
+                    tc->target, feed_scale);
+            }
             __atomic_store_n(&tc->shared_9d.profile.valid, 0, __ATOMIC_RELEASE);
             prev_exit_vel = 0.0;
         }
@@ -2858,6 +2975,14 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
                 // set by RT, so we also check new_feed_scale to catch abort.
                 handoff_time = elapsed;
                 window_end_time = handoff_time + window_sec + 1.0;
+            } else if (tc->term_cond == TC_TERM_COND_TANGENT) {
+                // TANGENT segment: bypass margin — the branch doesn't need
+                // to decelerate to zero, it exits into a blend at whatever
+                // velocity is achievable.  Let Ruckig + findAchievableExitVelocity
+                // decide what's feasible rather than pre-rejecting based on a
+                // conservative margin that can exceed short segment durations.
+                handoff_time = elapsed;
+                window_end_time = handoff_time + window_sec + 1.0;
             } else {
                 handoff_time = profile_duration - min_handoff_margin;
                 if (handoff_time <= elapsed) {
@@ -2895,6 +3020,8 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
     }
 
     if (!state.valid) {
+        if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+            "FO_BRANCH_REJECT seg=%d reason=STATE_INVALID\n", tc->id);
         return false;
     }
 
@@ -2909,6 +3036,10 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
     // Calculate remaining distance after handoff
     double remaining = tc->target - state.position;
     if (remaining < 1e-6) {
+        if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+            "FO_BRANCH_REJECT seg=%d reason=NO_DISTANCE remaining=%.6f "
+            "pos=%.3f target=%.3f\n",
+            tc->id, remaining, state.position, tc->target);
         tc->shared_9d.requested_feed_scale = new_feed_scale;
         return false;
     }
@@ -2920,6 +3051,11 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
     if (state.acceleration < -0.5 * tc->maxaccel && state.velocity > 0) {
         double stop_dist = (state.velocity * state.velocity) / (2.0 * tc->maxaccel);
         if (remaining <= stop_dist * 1.5) {
+            if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO_BRANCH_REJECT seg=%d reason=DECEL_LOCKED v=%.1f a=%.1f "
+                "remaining=%.3f stop_dist=%.3f\n",
+                tc->id, state.velocity, state.acceleration,
+                remaining, stop_dist);
             tc->shared_9d.requested_feed_scale = new_feed_scale;
             return false;
         }
@@ -3095,6 +3231,10 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
                     }
                 } else {
                     // Even minimum feed can't satisfy — segment is genuinely locked
+                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_BRANCH_REJECT seg=%d reason=FEED_LIMIT_LOCKED "
+                        "exit_hard=%.1f remaining=%.3f v=%.1f\n",
+                        tc->id, exit_hard_limit, remaining, state.velocity);
                     return false;
                 }
             }
@@ -3126,12 +3266,18 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
 
                 auto result = otg.calculate(input, traj);
                 if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
+                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_BRANCH_REJECT seg=%d reason=BRAKE_RUCKIG v=%.1f a=%.1f "
+                        "target_v=%.1f\n",
+                        tc->id, state.velocity, state.acceleration, stage1_target_vel);
                     return false;
                 }
 
                 // Brake profile is clean 7-phase, use phase-based sampling
                 copyRuckigProfile(traj, &brake_profile);
                 if (!brake_profile.valid) {
+                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_BRANCH_REJECT seg=%d reason=BRAKE_COPY\n", tc->id);
                     return false;
                 }
 
@@ -3189,17 +3335,29 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
                 // reject the branch and let the existing profile finish.
                 // Phase 4 TODO (Blending): review PARABOLIC handling here.
                 if (tc->term_cond != TC_TERM_COND_TANGENT && achievable_exit > 0.01) {
+                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_BRANCH_REJECT seg=%d reason=CANT_STOP "
+                        "achievable=%.1f remaining_after_brake=%.3f\n",
+                        tc->id, achievable_exit, remaining_after_brake);
                     return false;
                 }
 
                 // Kink-limited junctions: reject if can't decel to kink_vel
                 if (tc->kink_vel > 0 && achievable_exit > tc->kink_vel + 0.01) {
+                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_BRANCH_REJECT seg=%d reason=KINK_VEL "
+                        "achievable=%.1f kink=%.1f\n",
+                        tc->id, achievable_exit, tc->kink_vel);
                     return false;
                 }
 
                 // Downstream reachability: reject if can't decel to what
                 // next segment accepts.  Feed change deferred to next cycle.
                 if (achievable_exit > downstream_exit_cap + 0.01) {
+                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_BRANCH_REJECT seg=%d reason=DS_CAP "
+                        "achievable=%.1f ds_cap=%.1f\n",
+                        tc->id, achievable_exit, downstream_exit_cap);
                     tc->shared_9d.requested_feed_scale = new_feed_scale;
                     return false;
                 }
@@ -3301,6 +3459,13 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
             if (!use_single_stage &&
                 (profileHasNegativeVelocity(&brake_profile) ||
                  profileHasNegativeVelocity(&main_profile))) {
+                if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
+                    "FO_BRANCH_REJECT seg=%d reason=NEG_VEL brake_neg=%d main_neg=%d "
+                    "v=%.1f a=%.1f remaining=%.3f\n",
+                    tc->id,
+                    profileHasNegativeVelocity(&brake_profile) ? 1 : 0,
+                    profileHasNegativeVelocity(&main_profile) ? 1 : 0,
+                    state.velocity, state.acceleration, remaining);
                 return false;
             }
 
@@ -3799,12 +3964,41 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
         }
     }
 
-    g_feed_mgr.planning.branch_failed = !ok;
     if (!ok) {
-        g_feed_mgr.planning.branch_failed_seg = tc->id;
-        // No rewrite happened — nothing to converge.  Clear countdown
-        // so gate reopens as soon as GATE_CLEAR fires (RT moves to next seg).
-        g_feed_mgr.planning.convergence_remaining = 0;
+        // Branch can't fit within active segment (e.g. FEED_LIMIT_LOCKED —
+        // not enough remaining distance to brake to downstream exit cap).
+        // Instead of waiting for RT to advance past this segment, commit the
+        // new feed immediately and replan downstream.  Active segment finishes
+        // at old profile (RT is safe).  Gate stays closed; the convergence
+        // countdown from closeGate() ensures safe_depth segments are converged
+        // at the new feed before the gate reopens.
+
+        g_feed_mgr.committed_feed  = emcmotStatus
+            ? emcmotStatus->feed_scale  : 1.0;
+        g_feed_mgr.committed_rapid = emcmotStatus
+            ? emcmotStatus->rapid_scale : 1.0;
+
+        double budget   = g_feed_mgr.planning.getBudget(
+                              g_handoff_config.servo_cycle_time_sec);
+        double t0       = etime_user();
+        int    segs     = replanForward(tp, -1.0, budget);
+        double replan_s = etime_user() - t0;
+
+        // Update EMA costs + converged_depth (same tracker as success path).
+        g_feed_mgr.planning.onBranchCycleComplete(0.0, replan_s, segs);
+
+        if (FO_TRACE) {
+            int qlen = tcqLen_user(&tp->queue);
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO cy=%d BRANCH_SKIP_REPLAN committed=%.3f segs=%d/%d "
+                "budget=%.0fus actual=%.0fus needs_replan=%d\n",
+                g_fo_cycle, g_feed_mgr.committed_feed,
+                segs, qlen, budget * 1e6, replan_s * 1e6,
+                g_needs_replan ? 1 : 0);
+        }
+        // Gate stays closed — continuation path in checkFeedOverride handles
+        // remaining segments.  convergence_remaining stays at 20 (from
+        // closeGate), so gate opens only after safe_depth converge + countdown.
     }
 
     if (ok) {
