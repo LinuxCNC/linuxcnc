@@ -104,8 +104,8 @@ func TestSendAMSResponsePacketLayout(t *testing.T) {
 	if amsHdr.SourceNetID != serverNetID {
 		t.Errorf("response source = %v, want server netID %v", amsHdr.SourceNetID, serverNetID)
 	}
-	if amsHdr.SourcePort != serverPort {
-		t.Errorf("response source port = %d, want %d", amsHdr.SourcePort, serverPort)
+	if amsHdr.SourcePort != req.TargetPort {
+		t.Errorf("response source port = %d, want req.TargetPort %d", amsHdr.SourcePort, req.TargetPort)
 	}
 	if amsHdr.StateFlags != StateFlagResponse {
 		t.Errorf("state flags = %04x, want %04x", amsHdr.StateFlags, StateFlagResponse)
@@ -141,3 +141,30 @@ func (c *bytesConn) RemoteAddr() net.Addr                    { return nil }
 func (c *bytesConn) SetDeadline(t time.Time) error           { return nil }
 func (c *bytesConn) SetReadDeadline(t time.Time) error       { return nil }
 func (c *bytesConn) SetWriteDeadline(t time.Time) error      { return nil }
+
+// TestResponsePortEcho verifies that the response SourcePort always echoes
+// the request's TargetPort, not the server's hardcoded port (851).
+func TestResponsePortEcho(t *testing.T) {
+	serverNetID := AMSNetID{5, 80, 201, 232, 1, 1}
+	s := &Server{netID: serverNetID, port: 851}
+
+	for _, targetPort := range []uint16{801, 851, 999} {
+		var buf bytesConn
+		req := &AMSHeader{
+			TargetNetID: serverNetID,
+			TargetPort:  targetPort,
+			SourceNetID: AMSNetID{10, 0, 0, 1, 1, 1},
+			SourcePort:  65534,
+			CommandID:   CmdRead,
+			StateFlags:  StateFlagCommand,
+			InvokeID:    1,
+		}
+		if err := s.sendAMSResponse(&buf, req, CmdRead, ErrNoError, nil); err != nil {
+			t.Fatalf("targetPort=%d: sendAMSResponse error: %v", targetPort, err)
+		}
+		hdr := decodeAMSHeader(buf.data[AMSTCPHeaderSize : AMSTCPHeaderSize+AMSHeaderSize])
+		if hdr.SourcePort != targetPort {
+			t.Errorf("targetPort=%d: response SourcePort = %d, want %d", targetPort, hdr.SourcePort, targetPort)
+		}
+	}
+}

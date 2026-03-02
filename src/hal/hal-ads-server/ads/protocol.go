@@ -188,8 +188,9 @@ func readAMSPacket(conn net.Conn) (*AMSHeader, []byte, error) {
 }
 
 // sendAMSResponse sends a complete AMS/TCP response packet on conn.
-// req is the original request header; source/dest are swapped for the response,
-// with the server's own netID and port used as the response source.
+// req is the original request header; source/dest are swapped for the response.
+// The response SourcePort echoes req.TargetPort so that clients can match
+// responses to requests by port (per the ADS/AMS protocol specification).
 // cmdID is the command being responded to.
 // errCode is the ADS error code (0 = success).
 // data is the command-specific response payload.
@@ -198,7 +199,7 @@ func (s *Server) sendAMSResponse(conn net.Conn, req *AMSHeader, cmdID uint16, er
 		TargetNetID: req.SourceNetID,
 		TargetPort:  req.SourcePort,
 		SourceNetID: s.netID,
-		SourcePort:  s.port,
+		SourcePort:  req.TargetPort,
 		CommandID:   cmdID,
 		StateFlags:  StateFlagResponse,
 		DataLength:  uint32(len(data)),
