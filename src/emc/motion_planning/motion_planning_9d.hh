@@ -464,7 +464,8 @@ bool commitBranch(shared_optimization_data_9d_t *shared,
  * @param new_feed_scale New feed scale (0.0 to 1.0+)
  * @return true if branch was successfully computed and committed
  */
-bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale);
+bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
+                   int chain_depth = 16);
 
 /**
  * @brief Invalidate next N segments for cascade re-optimization
