@@ -13,10 +13,6 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>		/* sscanf(),NULL, FILE, fopen(), fgets() */
 #include <string.h>		/* strchr(), memcpy() */
 #include <stdlib.h>		/* malloc(), free(), exit() */
@@ -28,20 +24,17 @@ extern "C" {
 #include <sys/wait.h>		/* waitpid() */
 #include <signal.h>		/* sigvec(), struct sigvec, SIGINT, kill() */
 
-#ifdef __cplusplus
-}
-#endif
 #include "cms.hh"		/* class CMS */
-#include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
+#include "libnml/buffer/rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */
 #include "cms_srv.hh"		/* class CMS_SERVER */
 #include "cms_cfg.hh"		/* cms_config() */
-#include "rcs_print.hh"		/* rcs_print_error() */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 #ifndef NO_DCE_RPC
 #define NO_DCE_RPC
 #endif
 #include "tcp_srv.hh"		/* CMS_SERVER_TCP_PORT */
-#include "timer.hh"		// etime()
+#include "libnml/os_intf/timer.hh"		// etime()
 #include "cmsdiag.hh"
 
 int cms_server_count = 0;

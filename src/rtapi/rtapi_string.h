@@ -13,10 +13,10 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#ifndef RTAPI_STRING_H
-#define RTAPI_STRING_H
+#ifndef __LINUXCNC_RTAPI_STRING_H
+#define __LINUXCNC_RTAPI_STRING_H
 
-#include <rtapi.h>
+#include "rtapi.h"
 
 #ifdef __cplusplus
 #include <assert.h>
@@ -39,7 +39,7 @@
 #define rtapi_kstrdup(a,b) kstrdup(a,b)
 #else
 #include <string.h>
-#include <rtapi_gfp.h>
+#include "rtapi_gfp.h"
 RTAPI_BEGIN_DECLS
 extern char **rtapi_argv_split(rtapi_gfp_t, const char *argstr, int *argc);
 extern void rtapi_argv_free(char **argv);

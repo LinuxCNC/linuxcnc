@@ -43,10 +43,10 @@
 */
 
 #include "config.h"
-#include "emc/linuxcnc.h"
+#include <linuxcnc.h>
 
 #ifndef NO_INI
-#include "inifile.h"		/* iniFindString() from libnml */
+#include "libnml/inifile/inifile.h"		/* iniFindString() from libnml */
 FILE *halcmd_inifile = NULL;
 #endif
 
@@ -64,8 +64,8 @@ FILE *halcmd_inifile = NULL;
 #include <fnmatch.h>
 #include <search.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <hal.h>		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
 

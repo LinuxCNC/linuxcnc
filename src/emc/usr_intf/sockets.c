@@ -35,7 +35,7 @@
 #include <stdarg.h>
 #include <fcntl.h>
 
-#include "rcs_print.hh"
+#include "libnml/rcs/rcs_print.hh"
 #include "sockets.h"
 
 /**************************************************

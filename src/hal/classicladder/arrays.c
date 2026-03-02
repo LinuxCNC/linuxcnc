@@ -32,8 +32,8 @@
 #endif
 
 //for emc next 2 lines
-#include "rtapi.h"
-#include "rtapi_string.h"
+#include <rtapi.h>
+#include <rtapi_string.h>
 //#include <linux/string.h>
 
 #include "classicladder.h"
@@ -60,8 +60,8 @@
 
 
 #ifdef HAL_SUPPORT
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 #define CL_SHMEM_KEY 0x434C522b // "CLR+"
 int compId;
 static int ShmemId;

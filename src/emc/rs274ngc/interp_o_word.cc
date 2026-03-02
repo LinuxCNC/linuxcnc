@@ -29,10 +29,10 @@
 #include <new>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
-#include "interp_return.hh"
+#include "nml_intf/interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
-#include "python_plugin.hh"
+#include "pythonplugin/python_plugin.hh"
 #include "interp_python.hh"
 #include <rtapi_string.h>	// rtapi_strlcpy()
 

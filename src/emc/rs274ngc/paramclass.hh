@@ -18,7 +18,7 @@
 
 #ifndef PARAM_CLASS_HH
 #define PARAM_CLASS_HH
-#include <interp_fwd.hh>
+#include "interp_fwd.hh"
 
 #ifndef BOOST_PYTHON_MAX_ARITY
 #define BOOST_PYTHON_MAX_ARITY 4

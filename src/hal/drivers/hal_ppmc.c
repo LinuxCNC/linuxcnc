@@ -73,10 +73,10 @@
 
 #include <rtapi_slab.h>		/* kmalloc() */
 #include <rtapi_io.h>		/* kmalloc() */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_parport.h"
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <hal.h>		/* HAL public API decls */
+#include <rtapi_parport.h>
 
 #define MAX_BUS 3	/* max number of parports (EPP busses) */
 
@@ -88,7 +88,7 @@ MODULE_DESCRIPTION("HAL driver for Universal PWM Controller");
 MODULE_LICENSE("GPL");
 int port_addr[MAX_BUS] = { 0x378, [1 ... MAX_BUS-1] = -1 };
     /* default, 1 bus at 0x0378 */
-hal_parport_t port_registration[MAX_BUS];
+rtapi_parport_t port_registration[MAX_BUS];
 RTAPI_MP_ARRAY_INT(port_addr, MAX_BUS, "port address(es) for EPP bus(es)");
 int extradac[MAX_BUS*8] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
@@ -475,7 +475,7 @@ int rtapi_app_main(void)
 	    continue;
 	}
 
-        rv = hal_parport_get(comp_id, &port_registration[busnum],
+        rv = rtapi_parport_get(hal_comp_name(comp_id), &port_registration[busnum],
                 port_addr[busnum], 0, PARPORT_MODE_EPP);
 
         if(rv < 0)
@@ -809,7 +809,7 @@ void rtapi_app_exit(void)
 
     for(busnum = 0; busnum < MAX_BUS; busnum++) {
         /* if ioports were requested, release them */
-        hal_parport_release(&port_registration[busnum]);
+        rtapi_parport_release(&port_registration[busnum]);
     }
 
     /* disconnect from HAL */

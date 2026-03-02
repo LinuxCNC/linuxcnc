@@ -13,11 +13,11 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#ifndef RTAPI_PARPORT_H
-#define RTAPI_PARPORT_H
+#ifndef __LINUXCNC_RTAPI_PARPORT_H
+#define __LINUXCNC_RTAPI_PARPORT_H
 
-#include <rtapi.h>
-#include <rtapi_io.h>
+#include "rtapi.h"
+#include "rtapi_io.h"
 #include <linux/parport.h>
 
 #define RTAPI_PARPORT_DATA_PORT(t) (t->base + 0)

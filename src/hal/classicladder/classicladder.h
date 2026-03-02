@@ -508,8 +508,8 @@ void UpdateSizesOfConvVarNameTable( void );
 
 //for emc
 #ifdef HAL_SUPPORT
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 extern int compId;
 #endif
 extern int nogui;

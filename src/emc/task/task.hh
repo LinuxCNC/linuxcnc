@@ -16,7 +16,7 @@
 #ifndef EMC_TASK_HH
 #define EMC_TASK_HH
 #include "taskclass.hh"
-#include "emc_nml.hh"
+#include "nml_intf/emc_nml.hh"
 #include <memory>
 
 extern std::unique_ptr<NMLmsg> emcTaskCommand;

@@ -19,15 +19,15 @@
 /* A generic configurable Modbus component using Mesa PktUART interfaces */
 
 
-#include "rtapi.h"
-#include "rtapi_slab.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "rtapi_byteorder.h"
-#include "rtapi_ctype.h"
-#include "rtapi_math.h"
-#include "hal.h"
-#include "hostmot2-serial.h"
+#include <rtapi.h>
+#include <rtapi_slab.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <rtapi_byteorder.h>
+#include <rtapi_ctype.h>
+#include <rtapi_math.h>
+#include <hal.h>
+#include <hostmot2-serial.h>
 
 #include "hm2_modbus.h"
 

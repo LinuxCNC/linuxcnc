@@ -16,13 +16,13 @@
 #include <string.h>		// strlen()
 #include <ctype.h>		// isspace()
 
-#include "emc.hh"
-#include "emcpos.h"             // EmcPose
-#include "rcs_print.hh"
-#include "posemath.h"		// PM_POSE, PM_RPY
+#include "nml_intf/emc.hh"
+#include <emcpos.h>             // EmcPose
+#include <posemath.h>		// PM_POSE, PM_RPY
+#include "libnml/rcs/rcs_print.hh"
 #include "emcIniFile.hh"
 #include "initraj.hh"		// these decls
-#include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
+#include "nml_intf/emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
 #include "inihal.hh"
 #include <rtapi_string.h>
 

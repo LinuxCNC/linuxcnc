@@ -33,16 +33,16 @@
     * add HAL pins for all settable parameters, including joint type: ANGULAR / LINEAR
 */
 
-#include "rtapi_math.h"
-#include "gotypes.h"    /* go_result, go_integer */
-#include "gomath.h"     /* go_pose */
-#include "genserkins.h" /* these decls */
-#include "kinematics.h"
-#include "hal.h"
-
 #ifdef RTAPI
-#include "rtapi.h"
+#include <rtapi.h>
 #endif
+#include <rtapi_math.h>
+#include <hal.h>
+#include <gotypes.h>    /* go_result, go_integer */
+#include <gomath.h>     /* go_pose */
+#include <kinematics.h>
+
+#include "genserkins.h" /* these decls */
 
 // Only gcc/g++ supports the #pragma
 #if __GNUC__ && !defined(__clang__)

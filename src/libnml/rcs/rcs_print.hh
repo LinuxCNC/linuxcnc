@@ -14,16 +14,8 @@
 #ifndef RCS_PRNT_HH
 #define RCS_PRNT_HH
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdarg.h>		/* va_list */
 
-#ifdef __cplusplus
-}
-#endif
 #ifdef __cplusplus
 class LinkedList;
 

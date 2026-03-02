@@ -15,16 +15,9 @@
 #ifndef TCPMEM_HH
 #define TCPMEM_HH
 
-#include "cms.hh"		/* class CMS */
+#include "libnml/cms/cms.hh"		/* class CMS */
 #include "rem_msg.hh"		// REMOTE_CMS_REQUEST_TYPE
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
 class TCPMEM:public CMS {
   public:
     TCPMEM(const char *bufline, const char *procline);

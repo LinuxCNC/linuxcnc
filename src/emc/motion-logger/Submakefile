@@ -22,8 +22,6 @@ RUCKIG_SRCS := \
 
 USERSRCS += $(MOTION_LOGGER_SRCS) $(RUCKIG_SRCS)
 
-INCLUDES += emc/tp/ruckig/include
-
 ../bin/motion-logger: $(call TOOBJS, $(MOTION_LOGGER_SRCS) $(RUCKIG_SRCS)) ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lm

@@ -11,10 +11,11 @@
 *     conventional axis directions.
 */
 
-#include "motion.h"
+#include <rtapi.h>
+#include <rtapi_string.h>
+#include <emcmotcfg.h>
+
 #include "switchkins.h"
-#include "rtapi_string.h"
-#include "rtapi.h"
 
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,

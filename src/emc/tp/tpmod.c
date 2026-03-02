@@ -6,9 +6,9 @@
 **  2) tp.c, tc.c,...,etc provide all functions required by
 **     subsequent load of motmod
 */
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <hal.h>
 MODULE_LICENSE("GPL");
 
 #define TPMOD_DEBUG

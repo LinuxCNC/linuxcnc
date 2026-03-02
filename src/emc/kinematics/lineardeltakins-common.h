@@ -32,7 +32,7 @@
 // common routines used by the userspace kinematics and the realtime kinematics
 // user must include a math.h-type header first
 // Inspired by Marlin delta firmware and https://gist.github.com/kastner/5279172
-#include "emcpos.h"
+#include <emcpos.h>
 
 static double L, R;
 static double Ax, Ay, Bx, By, Cx, Cy, L2;

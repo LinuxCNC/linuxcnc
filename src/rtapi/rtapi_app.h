@@ -13,8 +13,8 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#ifndef RTAPI_APP_H
-#define RTAPI_APP_H
+#ifndef __LINUXCNC_RTAPI_APP_H
+#define __LINUXCNC_RTAPI_APP_H
 
 /*
   for Linux kernel modules, exactly one file needs to

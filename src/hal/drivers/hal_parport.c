@@ -95,15 +95,15 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_ctype.h"	/* isspace() */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_ctype.h>	/* isspace() */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
 
-#include "hal.h"		/* HAL public API decls */
+#include <hal.h>		/* HAL public API decls */
 
 #include <rtapi_io.h>
 
-#include "hal_parport.h"
+#include <rtapi_parport.h>
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -143,7 +143,7 @@ typedef struct {
     unsigned short outdata_ctrl;
     unsigned char reset_mask_ctrl;  /* reset flag for pin 1, 14, 16, 17 */
     unsigned char reset_val_ctrl;   /* reset values for pin 1, 14, 16, 17 */
-    struct hal_parport_t portdata;
+    struct rtapi_parport_t portdata;
 } parport_t;
 
 /* pointer to array of parport_t structs in shared memory, 1 per port */
@@ -304,7 +304,7 @@ void rtapi_app_exit(void)
 {
     int n;
     for (n = 0; n < num_ports; n++) {
-        hal_parport_release(&port_data_array[n].portdata);
+        rtapi_parport_release(&port_data_array[n].portdata);
     }
     hal_exit(comp_id);
 }
@@ -575,7 +575,7 @@ static int pins_and_params(char *argv[])
             modes = PARPORT_MODE_EPP;
         }
 
-        retval = hal_parport_get(comp_id, &port_data_array[n].portdata,
+        retval = rtapi_parport_get(hal_comp_name(comp_id), &port_data_array[n].portdata,
                 port_addr[n], -1, modes);
 
         if(retval < 0) {

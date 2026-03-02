@@ -54,15 +54,15 @@
 #include <math.h>
 #include <string.h>		// strncpy()
 #include <ctype.h>		// isspace()
-#include "emc.hh"		// EMC NML
-#include "emc_nml.hh"
-#include "canon.hh"
-#include "canon_position.hh"		// data type for a machine position
-#include "interpl.hh"		// interp_list
-#include "emcglb.h"		// TRAJ_MAX_VELOCITY
+#include "nml_intf/emc.hh"		// EMC NML
+#include "nml_intf/emc_nml.hh"
+#include "nml_intf/canon.hh"
+#include "nml_intf/canon_position.hh"		// data type for a machine position
+#include "nml_intf/interpl.hh"		// interp_list
+#include "nml_intf/emcglb.h"		// TRAJ_MAX_VELOCITY
 #include <rtapi_string.h>
-#include "modal_state.hh"
-#include "tooldata.hh"
+#include "rs274ngc/modal_state.hh"
+#include "tooldata/tooldata.hh"
 #include <algorithm>
 
 //#define EMCCANON_DEBUG

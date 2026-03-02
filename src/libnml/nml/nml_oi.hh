@@ -17,7 +17,7 @@
 #ifndef NML_OI_HH
 #define NML_OI_HH
 
-#include "cms.hh"		// class CMS
+#include "libnml/cms/cms.hh"		// class CMS
 #include "nml.hh"		// class NML
 #include "nmlmsg.hh"		// class NMLmsg
 

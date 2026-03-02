@@ -19,16 +19,14 @@
 #include <stdlib.h>		// malloc()
 #include <sys/wait.h>
 
-#include "rcs.hh"		// RCS_CMD_CHANNEL, etc.
-#include "rcs_print.hh"
-#include "timer.hh"             // esleep, etc.
-#include "emcglb.h"		// EMC_INIFILE
+#include "libnml/rcs/rcs.hh"		// RCS_CMD_CHANNEL, etc.
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/os_intf/timer.hh"             // esleep, etc.
+#include "nml_intf/emcglb.h"		// EMC_INIFILE
 
-#include "python_plugin.hh"
+#include "pythonplugin/python_plugin.hh"
 #include "taskclass.hh"
 #include <rtapi_string.h>
-
-#include "hal.hh"
 
 /********************************************************************
 *

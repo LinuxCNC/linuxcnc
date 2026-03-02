@@ -18,20 +18,12 @@
 /* Forward Function Prototypes */
 #include "rcs_exit.hh"
 
-#include "linklist.hh"		// LinkedList
+#include "libnml/linklist/linklist.hh"		// LinkedList
 #include "rcs_print.hh"		// rcs_print_error()
-#include "timer.hh"		// esleep()
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "libnml/os_intf/timer.hh"		// esleep()
 
 #include <stdlib.h>		// exit()
 #include <signal.h>		// signal() , SIGINT
-
-#ifdef __cplusplus
-}
-#endif
 
 static LinkedList *exit_list = (LinkedList *) NULL;
 

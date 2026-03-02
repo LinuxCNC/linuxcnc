@@ -16,9 +16,8 @@
 #ifndef TIMER_HH
 #define TIMER_HH
 
-extern "C" {
 #include <stdio.h>		/* NULL */
-} extern "C" {
+extern "C" {
     /* number of seconds from standard epoch, to clock tick resolution */
     extern double etime(void);
     /* Return the number of seconds from some event. The time will be rounded 

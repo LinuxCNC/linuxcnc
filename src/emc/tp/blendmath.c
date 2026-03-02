@@ -11,18 +11,18 @@
 * Last change:
 ********************************************************************/
 
-#include "posemath.h"
+#include <rtapi_math.h>
+#include <posemath.h>
+
 #include "tc_types.h"
 #include "tc.h"
 #include "tp_types.h"
-#include "rtapi_math.h"
 #include "spherical_arc.h"
 #include "blendmath.h"
 #include "tp_debug.h"
-#include "motion.h"
+#include "../motion/motion.h"
+#include "../motion/mot_priv.h"
 #include "sp_scurve.h"
-
-#include "mot_priv.h"
 
 /** @section utilityfuncs Utility functions */
 

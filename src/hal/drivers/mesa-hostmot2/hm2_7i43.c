@@ -20,17 +20,17 @@
 
 #include <rtapi_io.h>
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_math.h>
+#include <rtapi_string.h>
 
-#include "hal.h"
+#include <hal.h>
 
-#include "hal/drivers/mesa-hostmot2/bitfile.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"
-#include "hal/drivers/mesa-hostmot2/hm2_7i43.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "bitfile.h"
+#include "hostmot2-lowlevel.h"
+#include "hm2_7i43.h"
+#include "hostmot2.h"
 
 
 static int comp_id;
@@ -394,7 +394,7 @@ static void hm2_7i43_cleanup(void) {
         hm2_lowlevel_io_t *this = &board[i].llio;
         THIS_PRINT("releasing board\n");
         hm2_unregister(this);
-        hal_parport_release(&board[i].port);
+        rtapi_parport_release(&board[i].port);
     }
 }
 
@@ -420,7 +420,7 @@ static int hm2_7i43_setup(void) {
         // claim the I/O regions for the parport
         // 
 
-        r = hal_parport_get(comp_id, &board[i].port,
+        r = rtapi_parport_get(hal_comp_name(comp_id), &board[i].port,
                 ioaddr[i], ioaddr_hi[i], PARPORT_MODE_EPP);
         if(r < 0)
             return r;
@@ -478,7 +478,7 @@ static int hm2_7i43_setup(void) {
 
         r = hm2_register(&board[i].llio, config[i]);
         if (r != 0) {
-            hal_parport_release(&board[i].port);
+            rtapi_parport_release(&board[i].port);
             THIS_ERR(
                 "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) not found!\n",
                 board[i].port.base,

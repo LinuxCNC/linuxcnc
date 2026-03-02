@@ -1,3 +1,5 @@
+#ifndef __LINUXCNC_MOTION_TYPES_H
+#define __LINUXCNC_MOTION_TYPES_H
 //    Copyright 2008, Chris Radek <chris@timeguy.com>
 //
 //    This program is free software; you can redistribute it and/or modify
@@ -19,3 +21,5 @@
 #define EMC_MOTION_TYPE_TOOLCHANGE 4
 #define EMC_MOTION_TYPE_PROBING 5
 #define EMC_MOTION_TYPE_INDEXROTARY 6
+
+#endif

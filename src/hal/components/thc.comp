@@ -92,7 +92,7 @@ function _;
 
 ;;
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 
 FUNCTION(_) {
     // convert encoder velocity to volts

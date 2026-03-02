@@ -15,8 +15,8 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef RTAPI_USPACE_HH
-#define RTAPI_USPACE_HH
+#ifndef __LINUXCNC_RTAPI_USPACE_HH
+#define __LINUXCNC_RTAPI_USPACE_HH
 #ifdef __linux__
 #include <sys/fsuid.h>
 #endif
@@ -24,7 +24,7 @@
 #include <pthread.h>
 #include <atomic>
 
-inline void rtapi_timespec_add(timespec &result, const timespec &ta, const timespec &tb) {
+static inline void rtapi_timespec_add(timespec &result, const timespec &ta, const timespec &tb) {
     result.tv_sec = ta.tv_sec + tb.tv_sec;
     result.tv_nsec = ta.tv_nsec + tb.tv_nsec;
     if (result.tv_nsec >= 1000000000) {
@@ -33,7 +33,7 @@ inline void rtapi_timespec_add(timespec &result, const timespec &ta, const times
     }
 }
 
-inline bool rtapi_timespec_less(const struct timespec &ta, const struct timespec &tb) {
+static inline bool rtapi_timespec_less(const struct timespec &ta, const struct timespec &tb) {
     if(ta.tv_sec < tb.tv_sec) return 1;
     if(ta.tv_sec > tb.tv_sec) return 0;
     return ta.tv_nsec < tb.tv_nsec;

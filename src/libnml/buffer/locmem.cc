@@ -19,9 +19,9 @@
 ********************************************************************/
 
 #include "locmem.hh"		// class LOCMEM
-#include "cms.hh"		// class CMS
-#include "linklist.hh"		// class LinkedList
-#include "rcs_print.hh"		// rcs_print_error()
+#include "libnml/cms/cms.hh"		// class CMS
+#include "libnml/linklist/linklist.hh"		// class LinkedList
+#include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
 #include <rtapi_string.h>
 
 #ifdef __cplusplus

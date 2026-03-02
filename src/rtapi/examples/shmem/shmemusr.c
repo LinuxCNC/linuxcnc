@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <signal.h>		/* signal(), SIGINT */
 #include <unistd.h>		/* sleep() */
-#include "rtapi.h"		/* user-level API to RT Linux */
+#include <rtapi.h>		/* user-level API to RT Linux */
 #include "common.h"		/* shmem structure */
 
 static int module;

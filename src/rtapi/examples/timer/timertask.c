@@ -20,8 +20,8 @@
   is stopped, the cumulative counter value is printed.
 */
 
-#include "rtapi.h"
-#include "rtapi_app.h"		/* rtapi_app_main,exit() */
+#include <rtapi.h>
+#include <rtapi_app.h>		/* rtapi_app_main,exit() */
 
 static int module;
 static int timer_task;		/* the task ID */

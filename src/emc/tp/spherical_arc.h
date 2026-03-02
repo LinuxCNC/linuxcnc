@@ -13,7 +13,7 @@
 #ifndef SPHERICAL_ARC_H
 #define SPHERICAL_ARC_H
 
-#include "posemath.h"
+#include <posemath.h>
 
 #define ARC_POS_EPSILON 1e-12
 #define ARC_MIN_RADIUS 1e-12

@@ -133,10 +133,10 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_string.h"
-#include "hal.h"		/* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <rtapi_string.h>
+#include <hal.h>		/* HAL public API decls */
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -158,7 +158,7 @@ RTAPI_MP_INT(debug, "enables optional params");
 
 #define AUTO_TUNER 1
 #ifdef AUTO_TUNER
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #define PI                              3.141592653589
 
 typedef enum {

@@ -9,6 +9,7 @@ for i in "$HEADERS"/*.h; do
 done
 for i in "$HEADERS"/*.h "$HEADERS"/*.hh; do
     case $i in
+    */\*.hh) continue ;;
     */rtapi_app.h) continue ;;
     */interp_internal.hh) continue ;;
     esac

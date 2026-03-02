@@ -16,12 +16,11 @@
 * https://linuxcnc.org/docs/html/gcode/machining-center.html
 ********************************************************************/
 
-
-#include "kinematics.h"		/* these decls */
-#include "posemath.h"
-#include "hal.h"
-#include "rtapi.h"
-#include "rtapi_math.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_math.h>
+#include <hal.h>
+#include <kinematics.h>		/* these decls */
 
 #define d2r(d) ((d)*PM_PI/180.0)
 #define r2d(r) ((r)*180.0/PM_PI)
@@ -115,9 +114,6 @@ KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_BOTH;
 }
-
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);

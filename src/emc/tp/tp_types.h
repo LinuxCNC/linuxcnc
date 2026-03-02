@@ -14,11 +14,11 @@
 #ifndef TP_TYPES_H
 #define TP_TYPES_H
 
-#include "posemath.h"
+#include <rtapi_bool.h>
+#include <posemath.h>
+
 #include "tc_types.h"
 #include "tcq.h"
-
-#include <rtapi_bool.h>
 
 #define TP_DEFAULT_QUEUE_SIZE 32
 /* Minimum length of a segment in cycles (must be greater than 1 to ensure each

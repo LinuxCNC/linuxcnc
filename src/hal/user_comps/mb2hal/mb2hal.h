@@ -5,14 +5,14 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "rtapi.h"
+#include <rtapi.h>
 #ifdef RTAPI
-#include "rtapi_app.h"
+#include <rtapi_app.h>
 #endif
-#include "rtapi_string.h"
-#include "rtapi_errno.h"
-#include "hal.h"
-#include "inifile.h"
+#include <rtapi_string.h>
+#include <rtapi_errno.h>
+#include <hal.h>
+#include "libnml/inifile/inifile.h"
 
 #include <modbus.h>
 

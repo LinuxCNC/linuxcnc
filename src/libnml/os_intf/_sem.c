@@ -40,7 +40,7 @@ typedef int rcs_sem_t;
 
 #include "_sem.h"
 #include "_timer.h"		/* etime() */
-#include "rcs_print.hh"
+#include "libnml/rcs/rcs_print.hh"
 
 #define SEM_TAKE (-1)		/* decrement sembuf.sem_op */
 #define SEM_GIVE (1)		/* increment sembuf.sem_op */

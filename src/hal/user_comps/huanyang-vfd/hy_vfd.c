@@ -33,8 +33,8 @@
 #include <errno.h>
 #include <getopt.h>
 #include <math.h>
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 #include "hy_comm.h"
 
 

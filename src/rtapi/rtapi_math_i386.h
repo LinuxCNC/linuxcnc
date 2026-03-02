@@ -1,6 +1,6 @@
 /* GPL, etc -- based loosely on mathinline.h */
-#ifndef RTAPI_MATH_I386_H
-#define RTAPI_MATH_I386_H
+#ifndef __LINUXCNC_RTAPI_MATH_I386_H
+#define __LINUXCNC_RTAPI_MATH_I386_H
 
 #define MATHOP(f,i) extern __inline double f(double __x) { \
     register double __result; \

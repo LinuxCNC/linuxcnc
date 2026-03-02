@@ -14,7 +14,7 @@
 #ifndef INIAXIS_HH
 #define INIAXIS_HH
 
-#include "emc.hh"		// EMC_AXIS_STAT
+#include "nml_intf/emc.hh"		// EMC_AXIS_STAT
 
 /* initializes axis modules from INI file */
 extern int iniAxis(int axis, const char *filename);

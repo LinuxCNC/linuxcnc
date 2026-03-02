@@ -17,22 +17,22 @@
 #include <string.h>		// memcpy() strncpy()
 #include <unistd.h>             // unlink()
 
-#include "usrmotintf.h"		// usrmotInit(), usrmotReadEmcmotStatus(),
+#include "motion/usrmotintf.h"	// usrmotInit(), usrmotReadEmcmotStatus(),
 				// etc.
-#include "motion.h"		// emcmot_command_t,STATUS, etc.
-#include "homing.h"
-#include "emc.hh"
-#include "emccfg.h"		// EMC_INIFILE
-#include "emcglb.h"		// EMC_INIFILE
-#include "emc_nml.hh"
-#include "rcs_print.hh"
-#include "timer.hh"
-#include "inifile.hh"
-#include "iniaxis.hh"
-#include "inijoint.hh"
-#include "inispindle.hh"
-#include "initraj.hh"
-#include "inihal.hh"
+#include "motion/motion.h"		// emcmot_command_t,STATUS, etc.
+#include "motion/homing.h"
+#include "nml_intf/emc.hh"
+#include "nml_intf/emccfg.h"		// EMC_INIFILE
+#include "nml_intf/emcglb.h"		// EMC_INIFILE
+#include "nml_intf/emc_nml.hh"
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/os_intf/timer.hh"
+#include "libnml/inifile/inifile.hh"
+#include "ini/iniaxis.hh"
+#include "ini/inijoint.hh"
+#include "ini/inispindle.hh"
+#include "ini/initraj.hh"
+#include "ini/inihal.hh"
 
 value_inihal_data old_inihal_data;
 

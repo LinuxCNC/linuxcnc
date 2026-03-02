@@ -17,9 +17,9 @@
 
 // A generic/configurable multiplexer component
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <hal.h>
 
 
 /* module information */

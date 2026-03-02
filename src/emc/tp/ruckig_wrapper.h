@@ -13,7 +13,7 @@
 #ifndef RUCKIG_WRAPPER_H
 #define RUCKIG_WRAPPER_H
 
-#include "rtapi.h"
+#include <rtapi.h>
 
 #ifdef __cplusplus
 extern "C" {

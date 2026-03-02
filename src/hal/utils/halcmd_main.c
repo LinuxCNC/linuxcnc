@@ -38,14 +38,14 @@
  */
 
 #include "config.h"
-#include "emc/linuxcnc.h"
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_mutex.h>
+#include <hal.h>
+#include <linuxcnc.h>
 #include "../hal_priv.h"
 #include "halcmd.h"
 #include "halcmd_commands.h"
 #include "halcmd_completion.h"
-#include <rtapi_mutex.h>
 
 #include <stdio.h>
 #include <stdlib.h>

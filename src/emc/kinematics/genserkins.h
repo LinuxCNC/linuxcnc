@@ -33,12 +33,11 @@
 #ifndef GENSERKINS_H
 #define GENSERKINS_H
 
-#include "gomath.h"                /* go_pose */
-#include "hal.h"                /* HAL data types */
+#include <hal.h>                /* HAL data types */
+#include <gotypes.h>                /* go_result, go_integer */
+#include <gomath.h>                /* go_pose */
+#include <kinematics.h>
 
-#include "gotypes.h"                /* go_result, go_integer */
-#include "gomath.h"                /* go_pose */
-#include "kinematics.h"
 /*!
   The maximum number of joints supported by the general serial
   kinematics. Make this at least 6; a device can have fewer than these.

@@ -136,7 +136,7 @@ license "GPL";
 author "Dewey Garrett and Andy Pugh";
 ;;
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #define NCHANNELS         9
 #define NWAYPOINTS     1000
 #define TST_NWAYPOINTS   50

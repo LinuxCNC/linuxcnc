@@ -12,17 +12,11 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <string.h>		// memset
 
-#ifdef __cplusplus
-}
-#endif
-#include "cms.hh"
+#include "libnml/cms/cms.hh"
 #include "nmlmsg.hh"
-#include "rcs_print.hh"		/* rcs_error_print() */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_error_print() */
 /* NMLmsg Functions. */ int NMLmsg::automatically_clear = 1;
 
 /* Constructor */

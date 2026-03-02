@@ -18,11 +18,11 @@
 *
 ********************************************************************/
 
-#include "rs274ngc.hh"
-#include "rs274ngc_interp.hh"
-#include "rs274ngc_return.hh"
-#include "inifile.hh"		// INIFILE
-#include "canon.hh"		// _parameter_file_name
+#include "rs274ngc/rs274ngc.hh"
+#include "rs274ngc/rs274ngc_interp.hh"
+#include "rs274ngc/rs274ngc_return.hh"
+#include "libnml/inifile/inifile.hh"		// INIFILE
+#include "nml_intf/canon.hh"		// _parameter_file_name
 #include "config.h"		// LINELEN
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */
@@ -37,8 +37,8 @@
 #include <wordexp.h>
 #include <rtapi_string.h>
 
-#include <saicanon.hh>
-#include "tooldata.hh"
+#include "saicanon.hh"
+#include "tooldata/tooldata.hh"
 
 InterpBase *pinterp;
 #define interp_new (*pinterp)

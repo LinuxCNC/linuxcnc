@@ -31,11 +31,12 @@
 
 ********************************************************************/
 
-#include "motion.h"
-#include "hal.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
-#include "rtapi_ctype.h"
+#include <rtapi_math.h>
+#include <rtapi_string.h>
+#include <rtapi_ctype.h>
+#include <hal.h>
+#include <emcmotcfg.h>
+#include <kinematics.h>
 
 static int trtfuncs_max_joints;
 

@@ -20,13 +20,13 @@
 #include <rtapi_slab.h>
 #include <rtapi_stdint.h>
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
+#include <rtapi.h>
+#include <rtapi_string.h>
+#include <rtapi_math.h>
 
-#include "hal.h"
+#include <hal.h>
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2.h"
 
 void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     rtapi_u32 dds;

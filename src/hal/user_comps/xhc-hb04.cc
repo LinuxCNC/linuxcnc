@@ -33,7 +33,7 @@
 #include <stdarg.h>
 
 #include <hal.h>
-#include <inifile.hh>
+#include "libnml/inifile/inifile.hh"
 
 #include "config.h"
 

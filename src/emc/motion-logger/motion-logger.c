@@ -30,12 +30,12 @@
 #include <unistd.h>
 #include <signal.h>
 
-#include "hal.h"
-#include "motion.h"
-#include "motion_struct.h"
+#include <hal.h>
+#include "motion/motion.h"
+#include "motion/motion_struct.h"
 #include "motion_types.h"
-#include "mot_priv.h"
-#include "axis.h"
+#include "motion/mot_priv.h"
+#include "motion/axis.h"
 
 static struct motion_logger_data_t {
     hal_bit_t *reopen;

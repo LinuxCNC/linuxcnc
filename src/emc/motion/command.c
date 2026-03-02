@@ -18,7 +18,7 @@
 *   need to do the following to add a single new parameter called foo:
 *
 *   1)  Add a member 'foo' to the config or joint structure in motion.h
-*   2)  Add a command 'EMCMOT_SET_FOO" to the cmd_code_t enum in motion.h
+*   2)  Add a command 'EMCMOT_SET_FOO' to the cmd_code_t enum in motion.h
 *   3)  Add a field to the command_t struct for the value used by
 *       the set command (if there isn't already one that can be used.)
 *   4)  Add a case to the giant switch statement in command.c to
@@ -55,20 +55,21 @@
 ********************************************************************/
 
 #include <float.h>
-#include "posemath.h"
-#include "rtapi.h"
-#include "rtapi_mutex.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_mutex.h>
+#include <rtapi_math.h>
+#include <hal.h>
+#include <motion_types.h>
+#include <posemath.h>
+
+#include "../tp/tp.h"
+#include "../tp/tp_debug.h"
 #include "motion.h"
-#include "tp.h"
 #include "mot_priv.h"
 #include "motion_struct.h"
-#include "rtapi_math.h"
-#include "motion_types.h"
 #include "homing.h"
 #include "axis.h"
 
-#include "tp_debug.h"
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
 

@@ -39,9 +39,9 @@
 #include <fmt/format.h>
 
 #include "shcom.hh"
-#include "emcglb.h"
-#include "inifile.hh"
-#include "timer.hh"
+#include "nml_intf/emcglb.h"
+#include "libnml/inifile/inifile.hh"
+#include "libnml/os_intf/timer.hh"
 
 /*
  * Using linuxcncrsh: see man page linuxcncrsh.1

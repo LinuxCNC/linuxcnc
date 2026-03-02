@@ -12,9 +12,9 @@
  *
  ********************************************************************/
 
+#include <math.h>
+#include <posemath.h>
 #include "canon_position.hh"
-#include "math.h"
-#include "posemath.h"
 
 static double noElement = 0.0;
 

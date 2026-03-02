@@ -19,12 +19,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "emc.hh"
-#include "rcs_print.hh"
+#include "nml_intf/emc.hh"
+#include "libnml/rcs/rcs_print.hh"
 #include "emcIniFile.hh"
 #include "inijoint.hh"		// these decls
-#include "emcglb.h"		// EMC_DEBUG
-#include "emccfg.h"		// default values for globals
+#include "nml_intf/emcglb.h"		// EMC_DEBUG
+#include "nml_intf/emccfg.h"		// default values for globals
 
 #include "inihal.hh"
 

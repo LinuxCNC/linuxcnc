@@ -15,7 +15,7 @@
 #ifndef NMLDIAG_HH
 #define NMLDIAG_HH
 
-#include "cmsdiag.hh"
+#include "libnml/cms/cmsdiag.hh"
 
 class NML_DIAGNOSTICS_INFO:public CMS_DIAGNOSTICS_INFO {
   public:

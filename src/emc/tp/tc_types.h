@@ -13,11 +13,12 @@
 #ifndef TC_TYPES_H
 #define TC_TYPES_H
 
+#include <posemath.h>
+#include <emcpos.h>
+#include <emcmotcfg.h>
+
 #include "spherical_arc.h"
-#include "posemath.h"
-#include "emcpos.h"
-#include "emcmotcfg.h"
-#include "state_tag.h"
+#include "../motion/state_tag.h"
 
 #define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */

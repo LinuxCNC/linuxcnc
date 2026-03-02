@@ -17,7 +17,7 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "python_plugin.hh"
-#include "inifile.hh"
+#include "libnml/inifile/inifile.hh"
 
 #include <stdio.h>
 #include <stdlib.h>

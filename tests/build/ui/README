@@ -1,0 +1,2 @@
+Test skipped because out-of-tree building with access to NML is not a real
+option. It requires internal LinucCNC includes to be exposed.

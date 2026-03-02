@@ -16,8 +16,8 @@
 #ifndef SP_SCURVE_H
 #define SP_SCURVE_H
 
-#include "simple_tp.h"
-#include "rtapi_math.h"
+#include <rtapi_math.h>
+#include "../motion/simple_tp.h"
 
 /**
  * Initialize the S-curve planner (call at program entry).

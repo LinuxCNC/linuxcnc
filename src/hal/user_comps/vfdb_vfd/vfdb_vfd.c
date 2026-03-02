@@ -57,11 +57,11 @@
 #include <signal.h>
 #include <stdarg.h>
 
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 #include <modbus.h>
 #include <modbus-tcp.h>
-#include "inifile.h"
+#include "libnml/inifile/inifile.h"
 
 // command registers for DELTA VFD-B Inverter
 #define REG_COMMAND1                    0x2000  // "Communication command" - start/stop, fwd/reverse, DC break, fault reset, panel override

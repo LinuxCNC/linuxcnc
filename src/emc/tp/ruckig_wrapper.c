@@ -14,8 +14,8 @@
 ********************************************************************/
 
 #include "ruckig_wrapper.h"
-#include "rtapi.h"
-#include "rtapi_math.h"
+#include <rtapi.h>
+#include <rtapi_math.h>
 #include <cstdlib>  // for free()
 #include <limits>   // for std::numeric_limits
 #include <cmath>    // for fabs

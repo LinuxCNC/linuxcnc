@@ -20,19 +20,20 @@
 #include <stdio.h>  // rtpreempt only, consolidate to stderr
 #endif
 
-#include "posemath.h"
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <hal.h>
+#include <posemath.h>
+#include <kinematics.h>  //for kinematicsSwitchable()
+#include <motion_types.h>
+
+#include "../tp/tp.h"
+#include "simple_tp.h"
 #include "motion.h"
 #include "mot_priv.h"
-#include "rtapi_math.h"
-#include "tp.h"
-#include "simple_tp.h"
 #include "config.h"
-#include "motion_types.h"
 #include "homing.h"
 #include "axis.h"
-#include "kinematics.h"  //for kinematicsSwitchable()
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)

@@ -68,8 +68,8 @@
 * Last change: 
 ********************************************************************/
 
-#ifndef POSEMATH_H
-#define POSEMATH_H
+#ifndef __LINUXCNC_POSEMATH_H
+#define __LINUXCNC_POSEMATH_H
 
 #ifdef __cplusplus
 

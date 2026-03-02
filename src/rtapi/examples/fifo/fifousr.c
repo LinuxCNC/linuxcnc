@@ -22,7 +22,7 @@
 #include <signal.h>
 #include <setjmp.h>
 #include <sys/time.h>
-#include "rtapi.h"
+#include <rtapi.h>
 #include "common.h"		/* FIFO_KEY, FIFO_SIZE */
 
 static int module;

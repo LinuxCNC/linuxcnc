@@ -11,11 +11,12 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#include "rtapi.h"
-#include "rtapi_math.h"
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <hal.h>
+
 #include "motion.h"
 #include "homing.h"
-#include "hal.h"
 
 static double servo_freq;
 static emcmot_joint_t  * joints;

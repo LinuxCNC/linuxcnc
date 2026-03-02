@@ -10,11 +10,10 @@
 * Copyright (c) 2004 All rights reserved.
 *
 ********************************************************************/
-#ifndef EMCPOSE_H
-#define EMCPOSE_H
+#ifndef __LINUXCNC_EMCPOSE_H
+#define __LINUXCNC_EMCPOSE_H
 
 #include "emcpos.h"
-#include "posemath.h"
 
 typedef enum {
     EMCPOSE_ERR_OK = 0,

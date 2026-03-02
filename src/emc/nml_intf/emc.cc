@@ -18,7 +18,7 @@
 ********************************************************************/
 
 // Include all NML, CMS, and RCS classes and functions
-#include "rcs.hh"
+#include "libnml/rcs/rcs.hh"
 
 // Include command and status message definitions
 #include "canon.hh"
@@ -27,7 +27,7 @@
 #include "emc_nml.hh"
 #include "emcglb.h"
 #include "emcpos.h"
-#include "cms.hh"
+#include "libnml/cms/cms.hh"
 
 //
 // Note: Many methods have a cppcheck suppress line marking to suppress the

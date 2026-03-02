@@ -20,15 +20,15 @@
 #include <unistd.h>             // _exit()
 #include <signal.h>
 
-#include "rcs.hh"		// EMC NML
-#include "emc.hh"		// EMC NML
-#include "emc_nml.hh"		// EMC NML
-#include "emcglb.h"		// emcGetArgs(), EMC_NMLFILE
-#include "inifile.hh"
-#include "rcs_print.hh"
-#include "nml_oi.hh"
-#include "timer.hh"
-#include "nml_srv.hh"           // run_nml_servers()
+#include "libnml/rcs/rcs.hh"		// EMC NML
+#include "nml_intf/emc.hh"		// EMC NML
+#include "nml_intf/emc_nml.hh"		// EMC NML
+#include "nml_intf/emcglb.h"		// emcGetArgs(), EMC_NMLFILE
+#include "libnml/inifile/inifile.hh"
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/nml/nml_oi.hh"
+#include "libnml/os_intf/timer.hh"
+#include "libnml/nml/nml_srv.hh"           // run_nml_servers()
 #include <rtapi_string.h>
 
 static int iniLoad(const char *filename)

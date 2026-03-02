@@ -12,10 +12,6 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdarg.h>		/* va_list, va_start(), va_end() */
 #include <stdio.h>		/* __printf()'s */
 #include <string.h>		/* strchr(), memmove() */
@@ -25,12 +21,9 @@ extern "C" {
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
 
-#ifdef __cplusplus
-}
-#endif
 #include <rtapi_string.h>
-#include "rcs_print.hh"
-#include "linklist.hh"
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/linklist/linklist.hh"
 #ifndef _TIMER_H
 extern "C" double etime(void);
 #endif

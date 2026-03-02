@@ -15,10 +15,10 @@
 
 #include <string.h>		/* strcpy() */
 #include <stdio.h>		/* fgets() */
-#include "nml.hh"               /* nmlSetHostAlias */
+#include "libnml/nml/nml.hh"               /* nmlSetHostAlias */
 #include "emcglb.h"		/* these decls */
 #include "emccfg.h"		/* their initial values */
-#include "rcs_print.hh"
+#include "libnml/rcs/rcs_print.hh"
 #include <rtapi_string.h>
 
 int emcGetArgs(int argc, char *argv[])

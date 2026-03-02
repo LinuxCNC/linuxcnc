@@ -22,10 +22,6 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <string.h>		// memset(), strerror()
 #include <stdlib.h>		// malloc(), free()
 #include <unistd.h>
@@ -34,10 +30,6 @@ extern "C" {
 #include <errno.h>		/* errno */
 #include <signal.h>		// SIGPIPE, signal()
 
-#ifdef __cplusplus
-}
-#endif
-
 #include <rtapi_string.h>	// rtapi_strlcpy
 
 #include <sys/types.h>
@@ -45,19 +37,19 @@ extern "C" {
 
 #include <arpa/inet.h>		/* inet_ntoa */
 #include "cms.hh"		/* class CMS */
-#include "nml.hh"		// class NML
+#include "libnml/nml/nml.hh"		// class NML
 #include "tcp_srv.hh"		/* class CMS_SERVER_REMOTE_TCP_PORT */
-#include "rcs_print.hh"		/* rcs_print_error() */
-#include "linklist.hh"		/* class LinkedList */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
+#include "libnml/linklist/linklist.hh"		/* class LinkedList */
 #include "tcp_opts.hh"		/* SET_TCP_NODELAY */
-#include "timer.hh"		// esleep()
-#include "_timer.h"
+#include "libnml/os_intf/timer.hh"		// esleep()
+#include "libnml/os_intf/_timer.h"
 #include "cmsdiag.hh"		// class CMS_DIAGNOSTICS_INFO
 extern "C" {
-#include "recvn.h"		/* recvn() */
-#include "sendn.h"		/* sendn() */
+#include "libnml/buffer/recvn.h"		/* recvn() */
+#include "libnml/buffer/sendn.h"		/* sendn() */
 }
-#include "physmem.hh"           // PHYSMEM_HANDLE
+#include "libnml/buffer/physmem.hh"           // PHYSMEM_HANDLE
 
 int tcpsvr_threads_created = 0;
 int tcpsvr_threads_killed = 0;

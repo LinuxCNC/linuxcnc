@@ -1,6 +1,6 @@
-INCLUDES += hal
 
-../include/%.h: ./hal/%.h
+# hal.h is need for halcompile/RT-components
+../include/hal.h: ./hal/hal.h
 	cp $^ $@
 
 HALLIBSRCS := hal/hal_lib.c $(ULAPISRCS)

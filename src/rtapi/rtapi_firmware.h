@@ -13,8 +13,8 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#ifndef RTAPI_FIRMWARE_H
-#define RTAPI_FIRMWARE_H
+#ifndef __LINUXCNC_RTAPI_FIRMWARE_H
+#define __LINUXCNC_RTAPI_FIRMWARE_H
 
 #ifdef __KERNEL__
 #include <linux/firmware.h>
@@ -30,11 +30,11 @@
 #define rtapi_release_firmware release_firmware
 
 #else
-#include <rtapi.h>
+#include "rtapi.h"
 
 RTAPI_BEGIN_DECLS
 
-#include <rtapi_stdint.h>
+#include "rtapi_stdint.h"
 #include <stddef.h>
 
 struct rtapi_device;

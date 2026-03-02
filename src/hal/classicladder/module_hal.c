@@ -24,10 +24,10 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_errno.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_errno.h>
+#include <hal.h>
 
 #include "classicladder.h"
 #include "global.h"

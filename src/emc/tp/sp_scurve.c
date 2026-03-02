@@ -12,11 +12,13 @@
 *
 * Last change:
 ********************************************************************/
+#include <rtapi.h>
+#include <rtapi_math.h>
+
 #include "sp_scurve.h"
-#include "rtapi.h"
-#include "rtapi_math.h"
 #include "tp_types.h"
 #include "ruckig_wrapper.h"
+
 #ifndef __KERNEL__
 #include <stdio.h>
 #include <string.h>

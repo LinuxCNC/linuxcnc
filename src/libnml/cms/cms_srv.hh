@@ -27,7 +27,7 @@
 
 #include "cms_user.hh"		/* class CMS, CMS_STATUS */
 #include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
-#include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
+#include "libnml/buffer/rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */
 extern int cms_server_count;
 extern void wait_for_servers(int);

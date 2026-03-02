@@ -31,8 +31,8 @@
 #include <stdlib.h>		/* malloc(), free() */
 #include <string.h>		/* strerror() */
 #include <math.h>		/* modf() */
-#include "rcs_print.hh"		/* rcs_print_error() */
-#include "_timer.h"		/* etime(), esleep() */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
+#include "libnml/os_intf/_timer.h"		/* etime(), esleep() */
 
 int recvn_timedout = 0;
 int print_recvn_timeout_errors = 1;

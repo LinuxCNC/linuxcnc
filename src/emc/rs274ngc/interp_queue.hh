@@ -12,7 +12,7 @@
 #ifndef INTERP_QUEUE_HH
 #define INTERP_QUEUE_HH
 
-#include <interp_internal.hh>
+#include "interp_internal.hh"
 #include <vector>
 
 enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL, QSET_FEED_MODE,

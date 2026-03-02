@@ -24,20 +24,20 @@
 #include <structmember.h>
 #include <inttypes.h>
 #include "config.h"
-#include "rcs.hh"
-#include "emc.hh"
-#include "emc_nml.hh"
-#include "kinematics.h"
+#include "libnml/rcs/rcs.hh"
+#include "nml_intf/emc.hh"
+#include "nml_intf/emc_nml.hh"
+#include <kinematics.h>
 #include "config.h"
-#include "inifile.hh"
-#include "timer.hh"
-#include "nml_oi.hh"
-#include "rcs_print.hh"
+#include "libnml/inifile/inifile.hh"
+#include "libnml/os_intf/timer.hh"
+#include "libnml/nml/nml_oi.hh"
+#include "libnml/rcs/rcs_print.hh"
 #include <rtapi_string.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "tooldata.hh"
+#include "tooldata/tooldata.hh"
 
 #include <cmath>
 

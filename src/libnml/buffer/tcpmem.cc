@@ -12,9 +12,6 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdlib.h>		// strtol()
 #include <unistd.h>
 #include <string.h>		// strstr()
@@ -28,19 +25,16 @@ extern "C" {
 #include <netdb.h>
 #include <math.h>		/* fmod() */
 
-#ifdef __cplusplus
-}
-#endif
 #include "rem_msg.hh"		/* REMOTE_CMS_READ_REQUEST_TYPE, etc. */
-#include "rcs_print.hh"		/* rcs_print_error() */
-#include "cmsdiag.hh"
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
+#include "libnml/cms/cmsdiag.hh"
 #define DEFAULT_MAX_CONSECUTIVE_TIMEOUTS (-1)
-#include "timer.hh"		/* esleep() */
+#include "libnml/os_intf/timer.hh"		/* esleep() */
 #include "tcpmem.hh"
 #include "recvn.h"		/* recvn() */
 #include "sendn.h"		/* sendn() */
-#include "tcp_opts.hh"		/* SET_TCP_NODELAY */
-#include "linklist.hh"          /* LinkedList */
+#include "libnml/cms/tcp_opts.hh"		/* SET_TCP_NODELAY */
+#include "libnml/linklist/linklist.hh"          /* LinkedList */
 
 int tcpmem_sigpipe_count = 0;
 int last_sig = 0;
