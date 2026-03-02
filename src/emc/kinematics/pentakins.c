@@ -47,11 +47,13 @@
 
  ----------------------------------------------------------------------------*/
 
-#include "rtapi_math.h"
-#include "posemath.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_math.h>
+#include <hal.h>
+#include <kinematics.h>             /* these decls, KINEMATICS_FORWARD_FLAGS */
+
 #include "pentakins.h"
-#include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
-#include "hal.h"
 
 struct haldata {
     hal_float_t basex[NUM_STRUTS];
@@ -398,10 +400,6 @@ KINEMATICS_TYPE kinematicsType()
 {
   return KINEMATICS_BOTH;
 }
-
-
-#include "rtapi.h"      /* RTAPI realtime OS API */
-#include "rtapi_app.h"      /* RTAPI realtime module decls */
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);

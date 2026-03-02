@@ -14,15 +14,13 @@
 
 #include "shm.hh"
 #include "_shm.h"		/* rcs_shm_open(), rcs_shm_close() */
-#include "rcs_print.hh"		// rcs_print_error()
+#include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
 
-extern "C" {
 #include <stdio.h>		/* fprintf(), stderr */
 #include <sys/types.h>		/* key_t */
 #include <stddef.h>		/* size_t */
 #include <errno.h>		// errno
 #include <sys/ipc.h>		// IPC_CREAT
-}
 
 RCS_SHAREDMEM::RCS_SHAREDMEM(key_t key, size_t size, int oflag, int mode)
 {

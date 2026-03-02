@@ -17,8 +17,8 @@
 */
 
 
-#ifndef GO_TYPES_H
-#define GO_TYPES_H
+#ifndef __LINUXCNC_GO_TYPES_H
+#define __LINUXCNC_GO_TYPES_H
 
 #include <float.h>		/* DBL_MAX, FLOAT_MAX */
 

@@ -14,7 +14,7 @@
 #define _GNU_SOURCE
 #endif
 #define BOOST_PYTHON_MAX_ARITY 4
-#include "python_plugin.hh"
+#include "pythonplugin/python_plugin.hh"
 #include "interp_python.hh"
 #include <boost/python/list.hpp>
 namespace bp = boost::python;

@@ -19,8 +19,8 @@
   Set up a periodic task that writes to a FIFO to release a user-level task
 */
 
-#include "rtapi.h"
-#include "rtapi_app.h"		/* rtapi_app_main,exit() */
+#include <rtapi.h>
+#include <rtapi_app.h>		/* rtapi_app_main,exit() */
 #include "common.h"		/* FIFO_KEY */
 
 static int module;		/* the module ID */

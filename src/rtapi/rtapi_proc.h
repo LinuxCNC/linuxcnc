@@ -1,5 +1,5 @@
-#ifndef RTAPI_PROC_H
-#define RTAPI_PROC_H
+#ifndef __LINUXCNC_RTAPI_PROC_H
+#define __LINUXCNC_RTAPI_PROC_H
 
 /** RTAPI is a library providing a uniform API for several real time
   operating systems.  As of ver 2.0, RTLinux and RTAI are supported.

@@ -17,15 +17,8 @@
 #ifndef PHYSMEM_HH
 #define PHYSMEM_HH
 
-
-#ifdef  __cplusplus
-extern "C" {
-#endif
 #include <stddef.h>		/* size_t */
 
-#ifdef __cplusplus
-}
-#endif
 typedef char *LOCAL_ADDRESS_TYPE;
 
 class PHYSMEM_HANDLE {

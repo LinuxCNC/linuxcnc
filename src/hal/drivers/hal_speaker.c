@@ -62,10 +62,10 @@
 */
 
 #include "config.h"     /* environment flags */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_io.h"
-#include "hal.h"		/* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <rtapi_io.h>
+#include <hal.h>		/* HAL public API decls */
 
 /* If FASTIO is defined, uses outb() and inb() from <asm.io>,
    instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones

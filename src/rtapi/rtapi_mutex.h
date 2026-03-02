@@ -1,5 +1,5 @@
-#ifndef RTAPI_MUTEX_H
-#define RTAPI_MUTEX_H
+#ifndef __LINUXCNC_RTAPI_MUTEX_H
+#define __LINUXCNC_RTAPI_MUTEX_H
 
 //    Copyright 2004-2015 Jeff Epler, John Kasunich, Paul Corner, and other
 //    authors

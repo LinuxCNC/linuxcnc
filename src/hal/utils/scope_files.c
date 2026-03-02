@@ -41,8 +41,8 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <hal.h>		/* HAL public API decls */
 #include "../hal_priv.h"	/* HAL private API decls */
 
 #include <gtk/gtk.h>

@@ -14,7 +14,7 @@
 ********************************************************************/
 
 #include "cms.hh"		// class CMS
-#include "posemath.h"		// POSEMATH classes
+#include <posemath.h>		// POSEMATH classes
 // translation types
 CMS_STATUS CMS::update(PM_CARTESIAN & Cart)
 {

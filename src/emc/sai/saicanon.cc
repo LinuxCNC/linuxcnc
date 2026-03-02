@@ -31,11 +31,11 @@
 * Last change:
 ********************************************************************/
 
-#include <saicanon.hh>
-#include "tooldata.hh"
+#include "saicanon.hh"
+#include "tooldata/tooldata.hh"
 
-#include "rs274ngc.hh"
-#include "rs274ngc_interp.hh"
+#include "rs274ngc/rs274ngc.hh"
+#include "rs274ngc/rs274ngc_interp.hh"
 #include <math.h>
 #include <string.h>
 #include <stdarg.h>

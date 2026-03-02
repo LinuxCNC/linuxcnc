@@ -33,8 +33,8 @@
 
 #include <modbus.h>
 
-#include "hal.h"
-#include "rtapi.h"
+#include <hal.h>
+#include <rtapi.h>
 
 
 // If a Modbus transaction fails, retry this many times before giving up.

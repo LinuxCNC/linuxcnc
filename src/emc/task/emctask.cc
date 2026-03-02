@@ -21,19 +21,19 @@
 #include <dlfcn.h>
 #include <memory>
 
-#include "rcs.hh"		// INIFILE
-#include "emc.hh"		// EMC NML
-#include "emc_nml.hh"
-#include "emcglb.h"		// EMC_INIFILE
-#include "interpl.hh"		// NML_INTERP_LIST, interp_list
-#include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
-#include "rs274ngc_interp.hh"	// the interpreter
-#include "interp_return.hh"	// INTERP_FILE_NOT_OPEN
-#include "inifile.hh"
-#include "rcs_print.hh"
+#include "libnml/rcs/rcs.hh"		// INIFILE
+#include "nml_intf/emc.hh"		// EMC NML
+#include "nml_intf/emc_nml.hh"
+#include "nml_intf/emcglb.h"		// EMC_INIFILE
+#include "nml_intf/interpl.hh"		// NML_INTERP_LIST, interp_list
+#include "nml_intf/canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
+#include "rs274ngc/rs274ngc_interp.hh"	// the interpreter
+#include "nml_intf/interp_return.hh"	// INTERP_FILE_NOT_OPEN
+#include "libnml/inifile/inifile.hh"
+#include "libnml/rcs/rcs_print.hh"
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"
-#include "motion.h"
+#include "motion/motion.h"
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)

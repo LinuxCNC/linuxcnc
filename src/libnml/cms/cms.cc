@@ -16,11 +16,7 @@
 * Last change:
 ********************************************************************/
 
-#include "rcsversion.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "libnml/rcs/rcsversion.h"
 
 #include <stdlib.h>		/* malloc(), free() */
 #include <stddef.h>		/* size_t */
@@ -29,9 +25,6 @@ extern "C" {
 #include <ctype.h>		// tolower(), toupper()
 #include <errno.h>		/* errno, ERANGE */
 
-#ifdef __cplusplus
-}
-#endif
 #include <string>
 #include <rtapi_string.h>
 #include "cms_cfg.hh"
@@ -40,11 +33,11 @@ extern "C" {
 #include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
 #include "cms_aup.hh"		/* class CMS_ASCII_UPDATER */
 #include "cms_dup.hh"		/* class CMS_DISPLAY_ASCII_UPDATER */
-#include "rcs_print.hh"		/* rcs_print_error(), separate_words() */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error(), separate_words() */
 				/* rcs_print_debug() */
 #include "cmsdiag.hh"
-#include "linklist.hh"          /* LinkedList */
-#include "physmem.hh"
+#include "libnml/linklist/linklist.hh"          /* LinkedList */
+#include "libnml/buffer/physmem.hh"
 
 LinkedList *cmsHostAliases = NULL;
 CMS_CONNECTION_MODE cms_connection_mode = CMS_NORMAL_CONNECTION_MODE;

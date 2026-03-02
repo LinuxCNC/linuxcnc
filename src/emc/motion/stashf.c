@@ -15,11 +15,12 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#include <stdarg.h>
+#include <rtapi_errno.h>
+#include <rtapi_string.h>
+
 #include "stashf.h"
 #include "dbuf.h"
-#include "rtapi_errno.h"
-#include "rtapi_string.h"
-#include <stdarg.h>
 
 #ifdef __KERNEL__
 #include <linux/kernel.h>

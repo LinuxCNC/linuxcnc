@@ -15,11 +15,7 @@
 
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
-#include "rcsversion.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "libnml/rcs/rcsversion.h"
 
 #include <string.h>		// memcpy()
 #include <stdlib.h>		// atexit()
@@ -27,19 +23,16 @@ extern "C" {
 #include <netdb.h>
 #include <arpa/inet.h>		// inet_ntoa
 
-#ifdef __cplusplus
-}
-#endif
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include "nml.hh"		// class NML
 #include "nmlmsg.hh"		// class NMLmsg
-#include "cms.hh"		// class CMS
-#include "timer.hh"		// esleep()
+#include "libnml/cms/cms.hh"		// class CMS
+#include "libnml/os_intf/timer.hh"		// esleep()
 #include "nml_srv.hh"		// NML_Default_Super_Server
-#include "cms_cfg.hh"		// cms_config(), cms_copy()
-#include "linklist.hh"		// class LinkedList
-#include "rcs_print.hh"		// rcs_print_error()
-#include "physmem.hh"
+#include "libnml/cms/cms_cfg.hh"		// cms_config(), cms_copy()
+#include "libnml/linklist/linklist.hh"		// class LinkedList
+#include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
+#include "libnml/buffer/physmem.hh"
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif

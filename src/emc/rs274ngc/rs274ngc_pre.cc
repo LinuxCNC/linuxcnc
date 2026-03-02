@@ -66,7 +66,7 @@ include an option for suppressing superfluous commands.
 
 ****************************************************************************/
 #define BOOST_PYTHON_MAX_ARITY 4
-#include "python_plugin.hh"
+#include "pythonplugin/python_plugin.hh"
 #include <boost/python/dict.hpp>
 #include <boost/python/extract.hpp>
 #include <boost/python/import.hpp>
@@ -91,8 +91,8 @@ include an option for suppressing superfluous commands.
 #include <new>
 #include <rtapi_string.h>	// rtapi_strlcpy()
 
-#include "rtapi.h"
-#include "inifile.hh"		// INIFILE
+#include <rtapi.h>
+#include "libnml/inifile/inifile.hh"		// INIFILE
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"	// interpreter private definitions
@@ -103,7 +103,7 @@ include an option for suppressing superfluous commands.
 
 #include <unordered_set>
 
-#include <interp_parameter_def.hh>
+#include "interp_parameter_def.hh"
 using namespace interp_param_global;
 
 namespace bp = boost::python;

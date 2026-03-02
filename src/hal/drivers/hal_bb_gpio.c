@@ -9,10 +9,10 @@
 ********************************************************************/
 
 
-#include "rtapi.h"
-#include "rtapi_app.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
 
-#include "hal.h"
+#include <hal.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

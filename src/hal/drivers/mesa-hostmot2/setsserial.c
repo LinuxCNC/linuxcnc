@@ -21,9 +21,9 @@
 #include <rtapi_firmware.h>
 #include <rtapi_string.h>
 #include <rtapi_gfp.h>
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <hal.h>
 #include "hostmot2.h"
 #include "sserial.h"
 

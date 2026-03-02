@@ -10,9 +10,10 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
+#include <rtapi_math.h>
+
 #include "simple_tp.h"
-#include "rtapi_math.h"
-#include "sp_scurve.h"
+#include "../tp/sp_scurve.h"
 #include "mot_priv.h"
 
 void simple_scurve_tp_update(simple_tp_t *tp, double period);

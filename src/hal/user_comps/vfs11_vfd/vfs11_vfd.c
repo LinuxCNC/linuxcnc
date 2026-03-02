@@ -58,11 +58,11 @@
 #include <signal.h>
 #include <stdarg.h>
 
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 #include <modbus.h>
 #include <modbus-tcp.h>
-#include "inifile.h"
+#include "libnml/inifile/inifile.h"
 
 /*
  * VFS-11 parameters:

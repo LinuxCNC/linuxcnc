@@ -32,8 +32,8 @@
 #ifndef _EMCINIFILE_HH_
 #define _EMCINIFILE_HH_
  
-#include "emc.hh"
-#include "inifile.hh"
+#include "nml_intf/emc.hh"
+#include "libnml/inifile/inifile.hh"
 
 
 class EmcIniFile : public IniFile {

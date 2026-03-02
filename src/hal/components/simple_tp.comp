@@ -33,7 +33,7 @@ function update;
 license "GPL";
 author "Chris S Morley";
 ;;
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 FUNCTION(update) {
     double max_dv, tiny_dp, pos_err, vel_req;
 

@@ -38,7 +38,7 @@
 #include <linux/types.h>
 #include <linux/hidraw.h>
 
-#include "hal.h"
+#include <hal.h>
 
 
 

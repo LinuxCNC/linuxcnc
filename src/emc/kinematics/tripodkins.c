@@ -62,8 +62,11 @@
   completely. So, the inverse flags are ignored.
  */
 
-#include "kinematics.h"             /* these decls */
-#include "rtapi_math.h"
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <rtapi_math.h>
+#include <hal.h>
+#include <kinematics.h>             /* these decls */
 
 /* ident tag */
 #ifndef __GNUC__
@@ -72,7 +75,6 @@
 #endif
 #endif
 
-#include "hal.h"
 struct haldata {
     hal_float_t *bx, *cx, *cy;
 } *haldata = 0;
@@ -345,10 +347,6 @@ int main(int argc, char *argv[])
 }
 
 #endif /* MAIN */
-
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);

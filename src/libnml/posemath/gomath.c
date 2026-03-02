@@ -19,10 +19,9 @@
 /* for debugging */
 extern int printf(const char * fmt, ...);
 #include <stddef.h>		/* NULL */
-#include <rtapi_string.h>	/* memset */
-
-#include "rtapi_math.h"
 #include <float.h>
+#include <rtapi_string.h>	/* memset */
+#include <rtapi_math.h>
 
 #include "sincos.h"
 

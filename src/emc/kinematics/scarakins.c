@@ -15,12 +15,12 @@
 *******************************************************************
 */
 
-#include "rtapi.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
-#include "posemath.h"
-#include "hal.h"
-#include "kinematics.h"
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <rtapi_string.h>
+#include <hal.h>
+#include <kinematics.h>
+
 #include "switchkins.h"
 
 struct scara_data {

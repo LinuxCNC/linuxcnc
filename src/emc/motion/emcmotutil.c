@@ -11,7 +11,7 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
+#include <emcmotcfg.h>		/* EMCMOT_ERROR_NUM,LEN */
 #include "motion.h"		/* these decls */
 #include "dbuf.h"
 #include "stashf.h"

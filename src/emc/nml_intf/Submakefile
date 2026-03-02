@@ -1,4 +1,3 @@
-INCLUDES += emc emc/nml_intf
 
 LIBEMCSRCS := \
     emc/nml_intf/emcglb.c \
@@ -27,7 +26,10 @@ TARGETS += ../lib/liblinuxcnc.a
 	@rm -f $@
 	@$(AR) $(ARFLAGS) $@ $^
 
-$(patsubst ./emc/nml_intf/%,../include/%,$(wildcard ./emc/nml_intf/*.h)): ../include/%.h: ./emc/nml_intf/%.h
-	cp $^ $@
-$(patsubst ./emc/nml_intf/%,../include/%,$(wildcard ./emc/nml_intf/*.hh)): ../include/%.hh: ./emc/nml_intf/%.hh
+EMCNMLINTFINCS = \
+	./emc/nml_intf/emcpos.h \
+	./emc/nml_intf/emcpose.h \
+	./emc/nml_intf/motion_types.h
+
+$(patsubst ./emc/nml_intf/%,../include/%,$(EMCNMLINTFINCS)): ../include/%.h: ./emc/nml_intf/%.h
 	cp $^ $@

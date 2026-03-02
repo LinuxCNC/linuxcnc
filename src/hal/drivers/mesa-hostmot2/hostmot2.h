@@ -22,8 +22,8 @@
 
 #include <rtapi_list.h>
 
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 #include "sserial.h"
 
 #include "hostmot2-lowlevel.h"

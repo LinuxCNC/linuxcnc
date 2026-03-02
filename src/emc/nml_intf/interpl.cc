@@ -18,8 +18,8 @@
 #include "interpl.hh"   // these decls
 #include "emc.hh"
 #include "emcglb.h"
-#include "nmlmsg.hh"    // class NMLmsg
-#include "rcs_print.hh"
+#include "libnml/nml/nmlmsg.hh"    // class NMLmsg
+#include "libnml/rcs/rcs_print.hh"
 
 NML_INTERP_LIST interp_list; /* NML Union, for interpreter */
 

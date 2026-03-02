@@ -19,7 +19,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "rs274ngc.hh"
-#include "interp_return.hh"
+#include "nml_intf/interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 

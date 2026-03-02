@@ -15,14 +15,14 @@
 
 #include <locale.h>
 #include <algorithm>
-#include "linuxcnc.h"
+#include <linuxcnc.h>
 #include <limits.h>
 #include <stdio.h>
 #include <set>
 #include <map>
 #include <bitset>
-#include "canon.hh"
-#include "emcpos.h"
+#include "nml_intf/canon.hh"
+#include <emcpos.h>
 #include "libintl.h"
 #include <boost/python/object_fwd.hpp>
 #include <cmath>
@@ -30,7 +30,7 @@
 #include "interp_parameter_def.hh"
 #include "interp_fwd.hh"
 #include "interp_base.hh"
-#include "tooldata.hh"
+#include "tooldata/tooldata.hh"
 
 
 #define _(s) gettext(s)

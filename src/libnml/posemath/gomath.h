@@ -16,8 +16,8 @@
 	* find the new functions, add them to posemath, convert the rest
 */
 
-#ifndef GO_MATH_H
-#define GO_MATH_H
+#ifndef __LINUXCNC_GO_MATH_H
+#define __LINUXCNC_GO_MATH_H
 
 #include <stddef.h>		/* sizeof */
 #include "rtapi_math.h"		/* M_PI */

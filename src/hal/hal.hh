@@ -4,8 +4,8 @@
 #include <map>
 #include <string>
 #include <variant>
-#include <hal.h>
-#include <hal_priv.h>
+#include "hal.h"
+#include "hal_priv.h"
 
 enum class hal_dir{
     IN = HAL_IN,

@@ -25,7 +25,7 @@
 // it uses RTAPI realtime code and HAL code for memory allocation and input/output.
 // this adaptation was started Jan 2008 by Chris Morley  
 
-#include "../config.h"
+#include "../../config.h"
 #ifdef MODULE
 #include <linux/string.h>
 #else
@@ -35,7 +35,7 @@
 #include <unistd.h>
 #endif
 
-#include "hal.h"
+#include <hal.h>
 #include "classicladder.h"
 #include "global.h"
 #include "files_project.h"

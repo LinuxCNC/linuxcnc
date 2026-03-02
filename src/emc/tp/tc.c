@@ -14,16 +14,17 @@
 * Last change:
 ********************************************************************/
 
-#include "rtapi.h"		/* rtapi_print_msg */
-#include "rtapi_math.h"
-#include "posemath.h"
+#include <rtapi.h>		/* rtapi_print_msg */
+#include <rtapi_math.h>
+#include <posemath.h>
+#include <emcpose.h>
+#include <motion_types.h>
+
 #include "blendmath.h"
-#include "emcpose.h"
 #include "tc.h"
 #include "tp_types.h"
 #include "spherical_arc.h"
-#include "motion_types.h"
-#include "motion.h"
+#include "../motion/motion.h"
 #include "ruckig_wrapper.h"
 
 //Debug output

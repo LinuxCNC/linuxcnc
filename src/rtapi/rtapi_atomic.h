@@ -13,8 +13,8 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#ifndef RTAPI_ATOMIC_H
-#define RTAPI_ATOMIC_H
+#ifndef __LINUXCNC_RTAPI_ATOMIC_H
+#define __LINUXCNC_RTAPI_ATOMIC_H
 
 #if defined(__GNUC__) && ((__GNUC__ << 8) | __GNUC_MINOR__) >= 0x409
 #define RTAPI_USE_STDATOMIC

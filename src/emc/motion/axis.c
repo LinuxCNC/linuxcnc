@@ -1,8 +1,9 @@
 
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <emcmotcfg.h>      // EMCMOT_MAX_AXIS
+
 #include "axis.h"
-#include "emcmotcfg.h"      // EMCMOT_MAX_AXIS
-#include "rtapi.h"
-#include "rtapi_math.h"
 #include "simple_tp.h"
 
 typedef struct {

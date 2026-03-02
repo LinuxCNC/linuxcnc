@@ -1,7 +1,7 @@
 #ifndef GM_H_
 #define GM_H_
 
-#include "hal.h"
+#include <hal.h>
 
 
 #define PLX_VENDOR_ID           0x10B5 //PLX Vendor ID

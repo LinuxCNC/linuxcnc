@@ -10,18 +10,18 @@
 *
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
-#include "rtapi.h"              /* rtapi_print_msg */
-#include "posemath.h"           /* Geometry types & functions */
-#include "emcpose.h"
-#include "rtapi_math.h"
-#include "motion.h"
-#include "mot_priv.h"
+#include <rtapi.h>              /* rtapi_print_msg */
+#include <rtapi_math.h>
+#include <posemath.h>           /* Geometry types & functions */
+#include <emcpose.h>
+#include <motion_types.h>
+#include "../motion/motion.h"
+#include "../motion/mot_priv.h"
+#include "../motion/axis.h"
 #include "tp.h"
 #include "tc.h"
-#include "motion_types.h"
 #include "spherical_arc.h"
 #include "blendmath.h"
-#include "axis.h"
 //KLUDGE Don't include all of emc.hh here, just hand-copy the TERM COND
 //definitions until we can break the emc constants out into a separate file.
 //#include "emc.hh"
@@ -55,7 +55,7 @@
 // (not used by the this default tp implementation but may
 //  be used in alternate user-built implementations)
 #ifdef  MAKE_TP_HAL_PINS // {
-#include "hal.h"
+#include <hal.h>
 #endif // }
 
 emcmot_status_t *emcmotStatus;

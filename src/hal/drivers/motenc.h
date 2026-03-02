@@ -38,7 +38,7 @@
 #define _MOTENC_H_
 
 
-#include "hal.h"
+#include <hal.h>
 
 
 // Vendor and device ID.

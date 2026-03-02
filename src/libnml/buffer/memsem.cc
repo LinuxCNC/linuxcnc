@@ -34,9 +34,9 @@ extern "C" {
 };
 #endif
 
-#include "timer.hh"		/* etime(), esleep() */
+#include "libnml/os_intf/timer.hh"		/* etime(), esleep() */
 #include "memsem.hh"		/* struct mem_access_object */
-#include "rcs_print.hh"		// rcs_print_error()
+#include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
 
 #define TIMEOUT_MIN ((double) 1.0E-6)
 

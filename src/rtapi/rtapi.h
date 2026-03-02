@@ -1,5 +1,5 @@
-#ifndef RTAPI_H
-#define RTAPI_H
+#ifndef __LINUXCNC_RTAPI_H
+#define __LINUXCNC_RTAPI_H
 
 /********************************************************************
 * Description:  rtapi.h

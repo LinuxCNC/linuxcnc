@@ -61,18 +61,19 @@ to another.
 #define MOTION_H
 
 #include <stdint.h>
-
-#include "posemath.h"		/* PmCartesian, PmPose, pmCartMag() */
-#include "emcpos.h"		/* EmcPose */
-#include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
-#include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
-#include "kinematics.h"
-#include "simple_tp.h"
-#include "rtapi_limits.h"
 #include <stdarg.h>
-#include "rtapi_bool.h"
+
+#include <rtapi_bool.h>
+#include <rtapi_limits.h>
+#include <posemath.h>		/* PmCartesian, PmPose, pmCartMag() */
+#include <emcpos.h>		/* EmcPose */
+#include "../kinematics/cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
+#include <emcmotcfg.h>		/* EMCMOT_MAX_JOINTS */
+#include <kinematics.h>
+
+#include "simple_tp.h"
 #include "state_tag.h"
-#include "tp_types.h"
+#include "../tp/tp_types.h"
 
 // define a special value to denote an invalid motion ID
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID

@@ -26,10 +26,12 @@
 *    kinematicsSwitchable()
 *  Using modules must supply function: switchkinsSetup()
 */
-#include "motion.h"
-#include "hal.h"
-#include "rtapi_app.h"
-#include "kinematics.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <hal.h>
+#include <emcmotcfg.h>
+#include <kinematics.h>
+
 #include "switchkins.h"
 
 //*********************************************************************

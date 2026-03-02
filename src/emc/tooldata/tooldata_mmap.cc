@@ -24,7 +24,7 @@
 #include <sys/mman.h>
 #include <string.h>
 #include "config.h"
-#include "rtapi_mutex.h"
+#include <rtapi_mutex.h>
 #include "tooldata.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);

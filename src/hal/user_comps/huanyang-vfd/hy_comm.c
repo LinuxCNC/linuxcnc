@@ -34,7 +34,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <fcntl.h>
-#include "rtapi.h"
+#include <rtapi.h>
 #include <rtapi_string.h>
 
 #include "hy_comm.h"

@@ -24,20 +24,20 @@
 #include <signal.h>
 #include <math.h>
 
-#include "hal.h"		/* access to HAL functions/definitions */
-#include "rtapi.h"		/* rtapi_print_msg */
-#include "rcs.hh"
-#include "posemath.h"		// PM_POSE, TO_RAD
-#include "emc.hh"		// EMC NML
-#include "emc_nml.hh"
-#include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
-#include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "inifile.hh"		// INIFILE
-#include "rcs_print.hh"
-#include "nml_oi.hh"
-#include "timer.hh"
+#include <hal.h>		/* access to HAL functions/definitions */
+#include <rtapi.h>		/* rtapi_print_msg */
+#include "libnml/rcs/rcs.hh"
+#include <posemath.h>		// PM_POSE, TO_RAD
+#include "nml_intf/emc.hh"		// EMC NML
+#include "nml_intf/emc_nml.hh"
+#include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
+#include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
+#include "libnml/inifile/inifile.hh"		// INIFILE
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/nml/nml_oi.hh"
+#include "libnml/os_intf/timer.hh"
 #include <rtapi_string.h>
-#include "tooldata.hh"
+#include "tooldata/tooldata.hh"
 
 /* Using halui: see the man page */
 

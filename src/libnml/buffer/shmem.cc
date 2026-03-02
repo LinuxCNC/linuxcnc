@@ -16,10 +16,6 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>		/* sscanf() */
 #include <stddef.h>		/* size_t */
 #include <sys/stat.h>		/* S_IRUSR, etc. */
@@ -27,20 +23,17 @@ extern "C" {
 #include <errno.h>		// errno
 #include <string.h>		/* strchr(), memcpy(), memset() */
 #include <stdlib.h>		/* strtod */
-#include <physmem.hh>           /* PHYSMEM_HANDLE */
 #include <math.h>
 
-#ifdef __cplusplus
-}
-#endif
+#include "physmem.hh"           /* PHYSMEM_HANDLE */
 #include <rtapi_string.h>	/* rtapi_strlcpy */
-#include "rcs_print.hh"		/* rcs_print_error() */
-#include "cms.hh"		/* class CMS */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
+#include "libnml/cms/cms.hh"		/* class CMS */
 #include "shmem.hh"		/* class SHMEM */
-#include "shm.hh"		/* class RCS_SHAREDMEM */
+#include "libnml/os_intf/shm.hh"		/* class RCS_SHAREDMEM */
 //#include "sem.hh"             /* class RCS_SEMAPHORE */
 #include "memsem.hh"		/* mem_get_access(), mem_release_access() */
-#include "timer.hh"		/* etime(), esleep() */
+#include "libnml/os_intf/timer.hh"		/* etime(), esleep() */
 /* Common Definitions. */
 //#include "autokey.h"
 /* rw-rw-r-- permissions */

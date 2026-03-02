@@ -15,15 +15,7 @@
 #ifndef NMLMSG_HH
 #define NMLMSG_HH
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stddef.h>		/* size_t */
-
-#ifdef __cplusplus
-};
-#endif
 
 /* Definitions from other Header files. */
 

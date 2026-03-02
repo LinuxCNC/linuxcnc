@@ -17,7 +17,7 @@
 
 #include "emc.hh"
 #include "emc_nml.hh"
-#include "tooldata.hh"
+#include "tooldata/tooldata.hh"
 
 EMC_AXIS_STAT::EMC_AXIS_STAT()
   : EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT)),

@@ -17,17 +17,9 @@
 #define CMS_HH
 
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stddef.h>		/* size_t */
 
-#ifdef __cplusplus
-}
-#endif
-#include "linuxcnc.h"		/* LINELEN */
+#include <linuxcnc.h>		/* LINELEN */
 
 class PHYSMEM_HANDLE;
 struct PM_CARTESIAN;

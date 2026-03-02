@@ -4,3 +4,7 @@ can use the rs274 interpreter.
 When changes are required in this test after a change in the interpreter,
 this is a breaking change; it should be avoided in stable releases if at
 all possible, and it should be documented whenever it occurs.
+
+This test is disabled because it requires internal LinuxCNC headers to be
+exposed. Refactoring the interpreter is necessary to allow for out-of-tree
+builds.

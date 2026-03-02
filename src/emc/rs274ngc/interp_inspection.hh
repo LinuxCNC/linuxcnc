@@ -16,7 +16,7 @@
 #ifndef INTERP_INSPECTION_HH
 #define INTERP_INSPECTION_HH
 
-#include <interp_fwd.hh>
+#include "interp_fwd.hh"
 
 double &currentX(setup_pointer s);
 double &currentY(setup_pointer s);

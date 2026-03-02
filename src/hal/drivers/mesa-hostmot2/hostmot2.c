@@ -21,12 +21,12 @@
 #include <rtapi_ctype.h>
 #include <rtapi_list.h>
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <rtapi_math.h>
 
-#include "hal.h"
+#include <hal.h>
 
 #include "hostmot2.h"
 #include "bitfile.h"

@@ -2,8 +2,8 @@
 #ifndef AXIS_H
 #define AXIS_H
 
-#include "rtapi_bool.h"
-#include "hal.h"
+#include <rtapi_bool.h>
+#include <hal.h>
 
 #ifdef __cplusplus
 extern "C" {

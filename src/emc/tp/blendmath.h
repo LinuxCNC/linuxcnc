@@ -13,7 +13,8 @@
 #ifndef BLENDMATH_H
 #define BLENDMATH_H
 
-#include "posemath.h"
+#include <posemath.h>
+
 #include "tc_types.h"
 #include "sp_scurve.h"
 

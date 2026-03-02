@@ -16,8 +16,8 @@
 //   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 #include <linux/uinput.h>
 #include <unistd.h>
 #include <fcntl.h>

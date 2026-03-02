@@ -19,9 +19,9 @@
 
 #include <cmath>
 
-#include "linuxcnc.h"           // INCH_PER_MM
-#include "emc_nml.hh"
-#include "nml_oi.hh"            // NML_ERROR_LEN
+#include <linuxcnc.h>           // INCH_PER_MM
+#include "nml_intf/emc_nml.hh"
+#include "libnml/nml/nml_oi.hh"            // NML_ERROR_LEN
 
 static inline bool CLOSE(double a, double b, double eps)
 {

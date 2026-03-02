@@ -53,14 +53,14 @@
 
 #define DEFAULT_PIVOT_LENGTH 250
 
-#include "motion.h"
-#include "hal.h"
-#include "rtapi.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
-#include "rtapi_ctype.h"
-#include "kinematics.h"
-#include "posemath.h"
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <rtapi_string.h>
+#include <rtapi_ctype.h>
+#include <hal.h>
+#include <emcmotcfg.h>
+#include <kinematics.h>
+
 #include "switchkins.h"
 
 struct haldata {

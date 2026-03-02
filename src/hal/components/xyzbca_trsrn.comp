@@ -15,8 +15,8 @@ license "GPL";
 author "David Mueller";
 ;;
 
-#include "rtapi_math.h"
-#include "kinematics.h"
+#include <rtapi_math.h>
+#include <kinematics.h>
 
 
 static struct haldata {

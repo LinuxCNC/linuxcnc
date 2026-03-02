@@ -20,8 +20,8 @@
   this, physically toggle the interrupt pin on the parallel port.
 */
 
-#include "rtapi.h"
-#include "rtapi_app.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
 
 #define PARPORT_BASE_ADDRESS 0x378
 #define PARPORT_IRQ 7

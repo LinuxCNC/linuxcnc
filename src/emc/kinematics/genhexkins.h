@@ -20,8 +20,8 @@
 #ifndef GENHEXKINS_H
 #define GENHEXKINS_H
 
-#include "kinematics.h"
-#include "hal.h"
+#include <kinematics.h>
+#include <hal.h>
 
 #define GENHEX_MAX_JOINTS 6
 #define NUM_STRUTS 6 // number of struts, only 6 supported for now

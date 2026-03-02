@@ -19,8 +19,8 @@
   Set up a periodic task that increments a heartbeat in shared memory.
 */
 
-#include "rtapi.h"
-#include "rtapi_app.h"		/* rtapi_app_main,exit() */
+#include <rtapi.h>
+#include <rtapi_app.h>		/* rtapi_app_main,exit() */
 #include "common.h"		/* shmem structure, SHMEM_KEY */
 
 static int module;

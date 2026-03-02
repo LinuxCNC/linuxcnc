@@ -18,12 +18,12 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ----------------------------------------------------------------------*/
-#include "rcs_print.hh"
-#include "emc.hh"
-#include "emcglb.h"
+#include "libnml/rcs/rcs_print.hh"
+#include "nml_intf/emc.hh"
+#include "nml_intf/emcglb.h"
 #include <stdio.h>
-#include "hal.h"
-#include "rtapi.h"
+#include <hal.h>
+#include <rtapi.h>
 #include "inihal.hh"
 #include "iniaxis.hh"
 #include "inispindle.hh"

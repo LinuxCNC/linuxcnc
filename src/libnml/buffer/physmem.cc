@@ -14,19 +14,13 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <string.h>		/* memcpy(), memset() */
 #include <stdio.h>		// sprintf()
 #include <stdlib.h>		/* malloc() */
 
-#ifdef __cplusplus
-}
-#endif
 #include "physmem.hh"		/* class PHYSMEM_HANDLE */
-#include "rcs_print.hh"
+#include "libnml/rcs/rcs_print.hh"
+
 PHYSMEM_HANDLE::PHYSMEM_HANDLE()
   : offset(0),
     size(0),

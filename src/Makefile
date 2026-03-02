@@ -135,7 +135,7 @@ cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-build-software: userspace modules
+build-software: headers userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),uspace)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `id -u` = 0 -a -O ../bin/linuxcnc_module_helper -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
@@ -245,7 +245,7 @@ $(shell $(VECHO) 1>&2 Done reading dependencies)
 endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
-INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
+INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/../include
 INCLUDE += $(PYTHON_CPPFLAGS)
 INCLUDE += $(LIBTIRPC_CFLAGS)
 
@@ -288,6 +288,7 @@ $(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(RUCKIG_CXX_FILES)))) : obje
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 \
+		-I$(BASEPWD)/emc/tp/ruckig/include \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
@@ -296,6 +297,7 @@ $(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(RUCKIG_CXX_FILES)))) : object
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 \
+		-I$(BASEPWD)/emc/tp/ruckig/include \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
@@ -377,117 +379,46 @@ INFILES = \
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-build-software: $(INFILES)
+build-software: headers $(INFILES)
 
 # For each file to be copied to ../include, its location in the source tree
-# is listed here.  Note that due to $(INCLUDE), defined above, the include
-# files in the source tree are the ones used when building linuxcnc.  The copy
-# in ../include is used when building external components of linuxcnc.
+# is listed here.
+# Note that due to $(INCLUDE), defined above, the include files in the source
+# tree are normally the ones used or not found at all when building linuxcnc if
+# you are not aware of the differences between "" and <> includes.
+#
+# All sources should #include <> (like in #include <rtapi.h>) for these special
+# headers in the ../include directory to ensure they are used.
+# The *only* exception is those sources that use the include and reside in the
+# /same/ source directory as the include. That means that the local version
+# should have precedence over the global one.
+#
+# If you add to these headers, then you must make absolutely sure that they are
+# required for out-of-tree components and that the proper #include type is
+# used.
+#
 SRCHEADERS := \
+    hal/hal.h \
+    hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     emc/linuxcnc.h \
-    emc/ini/emcIniFile.hh \
-    emc/ini/iniaxis.hh \
-    emc/ini/inijoint.hh \
-    emc/ini/inispindle.hh \
-    emc/ini/initraj.hh \
-    emc/ini/inihal.hh \
-    emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
-    emc/kinematics/switchkins.h \
-    emc/kinematics/genhexkins.h \
-    emc/kinematics/genserkins.h \
-    emc/kinematics/pentakins.h \
-    emc/kinematics/pumakins.h \
-    emc/tp/tc.h \
-    emc/tp/tc_types.h \
-    emc/tp/tcq.h \
-    emc/tp/tp.h \
-    emc/tp/tp_types.h \
-    emc/tp/spherical_arc.h \
-    emc/tp/blendmath.h \
     emc/motion/emcmotcfg.h \
-    emc/motion/motion.h \
-    emc/motion/homing.h \
-    emc/motion/simple_tp.h \
-	emc/motion/sp_scurve.h \
-    emc/motion/state_tag.h \
-    emc/motion/usrmotintf.h \
-    emc/motion/axis.h \
-    emc/nml_intf/canon.hh \
-    emc/nml_intf/canon_position.hh \
-    emc/nml_intf/emctool.h \
-    emc/nml_intf/emc.hh \
-    emc/nml_intf/emc_nml.hh \
-    emc/nml_intf/emccfg.h \
-    emc/nml_intf/emcglb.h \
     emc/nml_intf/emcpos.h \
     emc/nml_intf/emcpose.h \
-    emc/nml_intf/interp_return.hh \
-    emc/nml_intf/interpl.hh \
     emc/nml_intf/motion_types.h \
-    emc/nml_intf/debugflags.h \
-    emc/rs274ngc/interp_internal.hh \
-    emc/rs274ngc/interp_fwd.hh \
-    emc/rs274ngc/interp_base.hh \
-    emc/rs274ngc/modal_state.hh \
-    emc/rs274ngc/rs274ngc.hh \
-    emc/rs274ngc/saicanon.hh \
-    emc/tooldata/tooldata.hh \
-    hal/hal.h \
-    hal/hal_parport.h \
-    hal/drivers/mesa-hostmot2/hostmot2-serial.h \
-    libnml/buffer/locmem.hh \
-    libnml/buffer/memsem.hh \
-    libnml/buffer/phantom.hh \
-    libnml/buffer/physmem.hh \
-    libnml/buffer/recvn.h \
-    libnml/buffer/rem_msg.hh \
-    libnml/buffer/sendn.h \
-    libnml/buffer/shmem.hh \
-    libnml/buffer/tcpmem.hh \
-    libnml/cms/cms.hh \
-    libnml/cms/cms_aup.hh \
-    libnml/cms/cms_cfg.hh \
-    libnml/cms/cms_dup.hh \
-    libnml/cms/cms_srv.hh \
-    libnml/cms/cms_up.hh \
-    libnml/cms/cms_user.hh \
-    libnml/cms/cms_xup.hh \
-    libnml/cms/cmsdiag.hh \
-    libnml/cms/tcp_opts.hh \
-    libnml/cms/tcp_srv.hh \
-    libnml/inifile/inifile.h \
-    libnml/inifile/inifile.hh \
-    libnml/linklist/linklist.hh \
-    libnml/nml/cmd_msg.hh \
-    libnml/nml/nml.hh \
-	libnml/nml/nml_oi.hh \
-    libnml/nml/nml_srv.hh \
-    libnml/nml/nml_type.hh \
-    libnml/nml/nmldiag.hh \
-    libnml/nml/nmlmsg.hh \
-    libnml/nml/stat_msg.hh \
-    libnml/os_intf/_sem.h \
-    libnml/os_intf/sem.hh \
-    libnml/os_intf/_shm.h \
-    libnml/os_intf/shm.hh \
-    libnml/os_intf/_timer.h \
-    libnml/os_intf/timer.hh \
-    libnml/posemath/posemath.h \
-    libnml/posemath/gotypes.h \
     libnml/posemath/gomath.h \
+    libnml/posemath/gotypes.h \
+    libnml/posemath/posemath.h \
     libnml/posemath/sincos.h \
-    libnml/rcs/rcs.hh \
-    libnml/rcs/rcs_exit.hh \
-    libnml/rcs/rcs_print.hh \
-    libnml/rcs/rcsversion.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
     rtapi/rtapi_atomic.h \
     rtapi/rtapi_bitops.h \
     rtapi/rtapi_bool.h \
     rtapi/rtapi_byteorder.h \
+    rtapi/rtapi_ctype.h \
     rtapi/rtapi_device.h \
+    rtapi/rtapi_errno.h \
     rtapi/rtapi_firmware.h \
     rtapi/rtapi_gfp.h \
     rtapi/rtapi_io.h \
@@ -501,8 +432,6 @@ SRCHEADERS := \
     rtapi/rtapi_pci.h \
     rtapi/rtapi_slab.h \
     rtapi/rtapi_stdint.h \
-    rtapi/rtapi_ctype.h \
-    rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_vsnprintf.h
 
@@ -652,10 +581,10 @@ endif
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
 # of each file that contains headers.
-$(patsubst %,../include/%,$(wildcard *.h)): ../include/%.h: %.h
-	$(Q)-cp $^ $@
-$(patsubst %,../include/%,$(wildcard *.hh)): ../include/%.hh: %.hh
-	$(Q)-cp $^ $@
+#$(patsubst %,../include/%,$(wildcard *.h)): ../include/%.h: %.h
+#	$(Q)-cp $^ $@
+#$(patsubst %,../include/%,$(wildcard *.hh)): ../include/%.hh: %.hh
+#	$(Q)-cp $^ $@
 
 INSTALL=install -o root
 DIR=$(INSTALL) -d -m 0755
@@ -924,11 +853,8 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD)/../include -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist -I$(BASEPWD)/emc/tp/ruckig/include \
-	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
-	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
-	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
-	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/tp -I$(BASEPWD)/emc/motion \
+EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ \
+	-I$(BASEPWD)/../include \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
 	-Wno-declaration-after-statement \
@@ -1351,6 +1277,7 @@ objects/rtemc/tp/ruckig_wrapper.o : emc/tp/ruckig_wrapper.cc
 	@rm -f $@
 	@mkdir -p $(dir $@)
 	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI -std=c++20 \
+		-I$(BASEPWD)/emc/tp/ruckig/include \
 		$(RUCKIG_CXXFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
@@ -1361,6 +1288,7 @@ objects/rtemc/tp/ruckig/src/ruckig/%.o : emc/tp/ruckig/src/ruckig/%.cpp
 	@rm -f $@
 	@mkdir -p $(dir $@)
 	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI -std=c++20 \
+		-I$(BASEPWD)/emc/tp/ruckig/include \
 		$(RUCKIG_CXXFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@

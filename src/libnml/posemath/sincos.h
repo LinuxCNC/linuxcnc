@@ -12,8 +12,8 @@
 *
 * Last change: 
 ********************************************************************/
-#ifndef SINCOS_H
-#define SINCOS_H
+#ifndef __LINUXCNC_SINCOS_H
+#define __LINUXCNC_SINCOS_H
 
 extern void pm_sincos(double x, double *sx, double *cx);
 
