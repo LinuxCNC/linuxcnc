@@ -489,3 +489,111 @@ func TestGroupSymbolFallbackMatching(t *testing.T) {
 		t.Errorf("expected stFoo.stBar, got %v", sym)
 	}
 }
+
+// zeroPadPin is a PinAccessor that mimics padAccessor: reads return zeros,
+// writes are silently discarded. Used to test pad-symbol offset accounting.
+type zeroPadPin struct {
+	size     uint32
+	typeName string
+	typeID   uint32
+}
+
+func (z *zeroPadPin) ReadBytes() ([]byte, error) { return make([]byte, z.size), nil }
+func (z *zeroPadPin) WriteBytes([]byte) error    { return nil }
+func (z *zeroPadPin) Size() uint32               { return z.size }
+func (z *zeroPadPin) TypeName() string           { return z.typeName }
+func (z *zeroPadPin) TypeID() uint32             { return z.typeID }
+
+// TestPadOffsetAdvance verifies that a padding symbol correctly advances
+// the process-image offset for the symbols that follow it.
+func TestPadOffsetAdvance(t *testing.T) {
+	st := NewSymbolTable()
+	pad := &zeroPadPin{size: 1, typeName: "BYTE", typeID: ADSTUInt8}
+	sym1 := st.Register("stMsg._reserved1", pad)  // offset 0, size 1
+	sym2 := st.Register("stMsg.eType", newDintPin(0)) // offset 1, size 4
+
+	if sym1.IndexOffset != 0 {
+		t.Errorf("pad symbol offset = %d, want 0", sym1.IndexOffset)
+	}
+	if sym2.IndexOffset != 1 {
+		t.Errorf("eType offset = %d, want 1", sym2.IndexOffset)
+	}
+}
+
+// TestPadReadReturnsZeros verifies that a pad accessor read returns zero bytes.
+func TestPadReadReturnsZeros(t *testing.T) {
+	pad := &zeroPadPin{size: 2, typeName: "WORD", typeID: ADSTUInt16}
+	data, err := pad.ReadBytes()
+	if err != nil {
+		t.Fatalf("ReadBytes error: %v", err)
+	}
+	if len(data) != 2 {
+		t.Fatalf("ReadBytes length = %d, want 2", len(data))
+	}
+	for i, b := range data {
+		if b != 0 {
+			t.Errorf("data[%d] = %d, want 0", i, b)
+		}
+	}
+}
+
+// TestPadWriteDiscards verifies that writing to a pad accessor has no effect.
+func TestPadWriteDiscards(t *testing.T) {
+	pad := &zeroPadPin{size: 1, typeName: "BYTE", typeID: ADSTUInt8}
+	if err := pad.WriteBytes([]byte{0xFF}); err != nil {
+		t.Fatalf("WriteBytes error: %v", err)
+	}
+	// Read back: should still be zero.
+	data, _ := pad.ReadBytes()
+	if data[0] != 0 {
+		t.Errorf("after write, pad data = %d, want 0", data[0])
+	}
+}
+
+// TestGroupWithPadding verifies that a group symbol containing a pad field
+// returns the correct total size and zero-fills the pad bytes on reads.
+func TestGroupWithPadding(t *testing.T) {
+	st := NewSymbolTable()
+	pad1 := &zeroPadPin{size: 1, typeName: "BYTE", typeID: ADSTUInt8}
+	real := newDintPin(0x01020304)
+	pad2 := &zeroPadPin{size: 2, typeName: "WORD", typeID: ADSTUInt16}
+
+	st.Register("stMsg._reserved1", pad1) // offset 0, size 1
+	st.Register("stMsg.nVal", real)        // offset 1, size 4
+	st.Register("stMsg._align", pad2)     // offset 5, size 2
+
+	// The group symbol stMsg should cover offsets 0–6 (7 bytes total).
+	groupSym := st.GetByName("stMsg")
+	if groupSym == nil {
+		t.Fatal("group symbol stMsg not created")
+	}
+	if groupSym.Accessor.Size() != 7 {
+		t.Errorf("group Size = %d, want 7", groupSym.Accessor.Size())
+	}
+
+	// Read the group: padding bytes should be zero, nVal bytes should be present.
+	handle, errCode := st.CreateHandle("stMsg")
+	if errCode != ErrNoError {
+		t.Fatalf("CreateHandle error: 0x%X", errCode)
+	}
+	data, errCode := st.ReadData(IdxGrpSymbolValueByHandle, handle, 7)
+	if errCode != ErrNoError {
+		t.Fatalf("ReadData error: 0x%X", errCode)
+	}
+	if len(data) != 7 {
+		t.Fatalf("ReadData length = %d, want 7", len(data))
+	}
+	// Byte 0: pad (_reserved1) → 0.
+	if data[0] != 0 {
+		t.Errorf("data[0] (pad) = %d, want 0", data[0])
+	}
+	// Bytes 1-4: nVal = 0x01020304 little-endian.
+	gotVal := int32(binary.LittleEndian.Uint32(data[1:5]))
+	if gotVal != 0x01020304 {
+		t.Errorf("data[1:5] (nVal) = 0x%X, want 0x01020304", gotVal)
+	}
+	// Bytes 5-6: pad (_align) → 0.
+	if data[5] != 0 || data[6] != 0 {
+		t.Errorf("data[5:7] (pad) = %v, want [0 0]", data[5:7])
+	}
+}

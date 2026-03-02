@@ -15,6 +15,10 @@ const (
 	DirIn PinDir = "in"
 	// DirOut means the HAL component produces this value (HMI reads FROM the PLC/HAL).
 	DirOut PinDir = "out"
+	// DirPad marks a padding/reserved field that occupies space in the ADS process
+	// image but does not create a HAL pin. Reads return zero bytes; writes are
+	// silently discarded. The symbol is still registered in the ADS symbol table.
+	DirPad PinDir = "pad"
 )
 
 // ConfigPin describes a single leaf symbol that maps to a HAL pin.
@@ -119,8 +123,8 @@ func parseBlock(lines []configLine, idx *int, minDepth int, stack []pathFrame, p
 			continue
 		}
 
-		// Leaf line (starts with "in" or "out").
-		if tokens[0] == "in" || tokens[0] == "out" {
+		// Leaf line (starts with "in", "out", or "pad").
+		if tokens[0] == "in" || tokens[0] == "out" || tokens[0] == "pad" {
 			if len(tokens) < 3 {
 				return fmt.Errorf("line %d: leaf line requires direction, name, and type", cl.lineNo)
 			}
