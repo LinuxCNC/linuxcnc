@@ -221,7 +221,7 @@ func newStringAccessor(pin *hal.Pin[string], ti typeInfo) *halPinAccessor {
 			if n > ti.strLen {
 				n = ti.strLen
 			}
-			copy(buf[:n], []byte(v)[:n])
+			copy(buf[:n], []byte(v[:n]))
 			// Return a copy of the fixed buffer (always correct size, always null-terminated).
 			out := make([]byte, ti.byteSize)
 			copy(out, buf)
