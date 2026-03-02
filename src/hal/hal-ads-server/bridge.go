@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"math"
@@ -208,18 +209,36 @@ func newFloatAccessor(pin *hal.Pin[float64], ti typeInfo) *halPinAccessor {
 // newStringAccessor creates a PinAccessor for a string HAL pin.
 // ADS STRING(n) is stored as n+1 bytes (null-terminated).
 func newStringAccessor(pin *hal.Pin[string], ti typeInfo) *halPinAccessor {
+	buf := make([]byte, ti.byteSize) // persistent fixed buffer, zero-initialized (null-terminated)
+
 	return &halPinAccessor{
 		ti: ti,
 		readFn: func() ([]byte, error) {
+			// Sync from HAL pin into fixed buffer (ensures HAL→ADS direction works).
 			v := pin.Get()
-			b := make([]byte, ti.byteSize) // initialised to zero (null-terminator)
-			copy(b, []byte(v))
-			return b, nil
+			clear(buf)
+			n := len(v)
+			if n > ti.strLen {
+				n = ti.strLen
+			}
+			copy(buf[:n], []byte(v[:n]))
+			// Return a copy of the fixed buffer (always correct size, always null-terminated).
+			out := make([]byte, ti.byteSize)
+			copy(out, buf)
+			return out, nil
 		},
 		writeFn: func(data []byte) error {
-			// Strip trailing null bytes.
-			s := string(data)
-			if idx := strings.IndexByte(s, 0); idx >= 0 {
+			// Clear buffer completely (zero-fill ensures null-termination).
+			clear(buf)
+			// Clamp input length to max string length (strLen = n, not n+1).
+			n := len(data)
+			if n > ti.strLen {
+				n = ti.strLen
+			}
+			copy(buf[:n], data[:n])
+			// Sync clamped string to HAL pin, truncating at embedded null if any.
+			s := string(buf[:n])
+			if idx := bytes.IndexByte(buf[:n], 0); idx >= 0 {
 				s = s[:idx]
 			}
 			pin.Set(s)
@@ -227,6 +246,19 @@ func newStringAccessor(pin *hal.Pin[string], ti typeInfo) *halPinAccessor {
 		},
 	}
 }
+
+// padAccessor implements PinAccessor for padding/reserved fields.
+// It occupies space in the ADS process image but has no backing HAL pin.
+// Reads return zero-filled bytes; writes are silently discarded.
+type padAccessor struct {
+	ti typeInfo
+}
+
+func (p *padAccessor) ReadBytes() ([]byte, error) { return make([]byte, p.ti.byteSize), nil }
+func (p *padAccessor) WriteBytes([]byte) error    { return nil }
+func (p *padAccessor) Size() uint32               { return p.ti.byteSize }
+func (p *padAccessor) TypeName() string           { return p.ti.adsTypeName }
+func (p *padAccessor) TypeID() uint32             { return p.ti.adstID }
 
 // Bridge holds all HAL pins and their corresponding ADS symbol registrations.
 type Bridge struct {
@@ -242,6 +274,13 @@ func NewBridge(comp *hal.Component, pins []ConfigPin, st *ads.SymbolTable) (*Bri
 		ti, err := parseTypeInfo(cp.TypeName)
 		if err != nil {
 			return nil, fmt.Errorf("symbol %q: %w", cp.ADSName, err)
+		}
+
+		// Padding: register ADS symbol but skip HAL pin creation.
+		if cp.Dir == DirPad {
+			acc := &padAccessor{ti: ti}
+			st.Register(cp.ADSName, acc)
+			continue
 		}
 
 		dir := hal.In

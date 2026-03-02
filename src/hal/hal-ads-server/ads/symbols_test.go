@@ -162,13 +162,20 @@ func TestSymbolTableReleaseHandleViaWrite(t *testing.T) {
 
 	handle, _ := st.CreateHandle("stC.bX")
 
-	// Release via WriteData with IdxGrpReleaseHandle: handle is passed as indexOffset.
-	errCode := st.WriteData(IdxGrpReleaseHandle, handle, nil)
+	// Release via WriteData with IdxGrpReleaseHandle: handle is in the 4-byte write data payload.
+	handleBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(handleBytes, handle)
+	errCode := st.WriteData(IdxGrpReleaseHandle, 0, handleBytes)
 	if errCode != ErrNoError {
 		t.Fatalf("release handle via WriteData error: 0x%X", errCode)
 	}
 	if st.GetByHandle(handle) != nil {
 		t.Error("handle should be nil after release")
+	}
+
+	// Short data payload should return an error.
+	if errCode := st.WriteData(IdxGrpReleaseHandle, 0, []byte{0x01, 0x00}); errCode == ErrNoError {
+		t.Error("expected error for short data payload, got ErrNoError")
 	}
 }
 
@@ -318,5 +325,340 @@ func TestSymbolTableFallbackMatching(t *testing.T) {
 	}
 	if st.GetByHandle(handle2) == nil {
 		t.Error("fallback case: handle should resolve")
+	}
+}
+
+// TestGroupSymbolAutoCreate verifies that registering a leaf creates group
+// symbols for every ancestor path prefix.
+func TestGroupSymbolAutoCreate(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.stBar.nVal", newDintPin(0))
+	st.Register("stFoo.stBar.bFlag", newBoolPin(false))
+
+	for _, prefix := range []string{"stFoo", "stFoo.stBar"} {
+		sym := st.GetByName(prefix)
+		if sym == nil {
+			t.Errorf("group symbol %q not created", prefix)
+			continue
+		}
+		if sym.IndexGroup != IdxGrpProcessImageRW {
+			t.Errorf("%q IndexGroup = 0x%X, want 0x%X", prefix, sym.IndexGroup, IdxGrpProcessImageRW)
+		}
+		if _, ok := sym.Accessor.(*groupAccessor); !ok {
+			t.Errorf("%q Accessor is not *groupAccessor", prefix)
+		}
+	}
+}
+
+// TestGroupSymbolInfoByName verifies SymbolInfoByName (0xF007) for a group symbol.
+func TestGroupSymbolInfoByName(t *testing.T) {
+	st := NewSymbolTable()
+	nVal := st.Register("stFoo.stBar.nVal", newDintPin(0)) // offset 0, size 4
+	st.Register("stFoo.stBar.bFlag", newBoolPin(false))    // offset 4, size 1
+
+	data, errCode := st.ReadWriteData(IdxGrpSymbolInfoByName, 0, 12, []byte("stFoo.stBar"))
+	if errCode != ErrNoError {
+		t.Fatalf("SymbolInfoByName for group error: 0x%X", errCode)
+	}
+	if len(data) != 12 {
+		t.Fatalf("expected 12 bytes, got %d", len(data))
+	}
+	ig := binary.LittleEndian.Uint32(data[0:4])
+	io := binary.LittleEndian.Uint32(data[4:8])
+	size := binary.LittleEndian.Uint32(data[8:12])
+	if ig != IdxGrpProcessImageRW {
+		t.Errorf("IndexGroup = 0x%X, want 0x%X", ig, IdxGrpProcessImageRW)
+	}
+	if io != nVal.IndexOffset {
+		t.Errorf("IndexOffset = %d, want %d", io, nVal.IndexOffset)
+	}
+	if size != 5 { // 4 (DINT) + 1 (BOOL)
+		t.Errorf("Size = %d, want 5", size)
+	}
+}
+
+// TestGroupSymbolCreateHandle verifies CreateHandle succeeds for a group symbol.
+func TestGroupSymbolCreateHandle(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.stBar.nVal", newDintPin(7))
+	st.Register("stFoo.stBar.bFlag", newBoolPin(true))
+
+	handle, errCode := st.CreateHandle("stFoo.stBar")
+	if errCode != ErrNoError {
+		t.Fatalf("CreateHandle for group error: 0x%X", errCode)
+	}
+	if handle == 0 {
+		t.Error("group handle should not be 0")
+	}
+	sym := st.GetByHandle(handle)
+	if sym == nil || sym.Name != "stFoo.stBar" {
+		t.Errorf("GetByHandle returned %v", sym)
+	}
+}
+
+// TestGroupSymbolReadByHandle verifies that reading a group handle returns
+// the concatenated child bytes in offset order.
+func TestGroupSymbolReadByHandle(t *testing.T) {
+	st := NewSymbolTable()
+	nValPin := newDintPin(42)
+	bFlagPin := newBoolPin(true)
+	st.Register("stFoo.stBar.nVal", nValPin)   // offset 0, size 4
+	st.Register("stFoo.stBar.bFlag", bFlagPin) // offset 4, size 1
+
+	handle, _ := st.CreateHandle("stFoo.stBar")
+
+	data, errCode := st.ReadData(IdxGrpSymbolValueByHandle, handle, 5)
+	if errCode != ErrNoError {
+		t.Fatalf("ReadData group handle error: 0x%X", errCode)
+	}
+	if len(data) != 5 {
+		t.Fatalf("group read length = %d, want 5", len(data))
+	}
+	if int32(binary.LittleEndian.Uint32(data[0:4])) != 42 {
+		t.Errorf("nVal in group = %d, want 42", int32(binary.LittleEndian.Uint32(data[0:4])))
+	}
+	if data[4] != 1 {
+		t.Errorf("bFlag in group = %d, want 1", data[4])
+	}
+}
+
+// TestGroupSymbolWriteByHandle verifies that writing a group handle distributes
+// the bytes to the correct child leaf symbols.
+func TestGroupSymbolWriteByHandle(t *testing.T) {
+	st := NewSymbolTable()
+	nValPin := newDintPin(0)
+	bFlagPin := newBoolPin(false)
+	st.Register("stFoo.stBar.nVal", nValPin)   // offset 0, size 4
+	st.Register("stFoo.stBar.bFlag", bFlagPin) // offset 4, size 1
+
+	handle, _ := st.CreateHandle("stFoo.stBar")
+
+	// Write [99, 0, 0, 0, 1] → nVal=99, bFlag=true.
+	payload := make([]byte, 5)
+	binary.LittleEndian.PutUint32(payload[0:], 99)
+	payload[4] = 1
+
+	errCode := st.WriteData(IdxGrpSymbolValueByHandle, handle, payload)
+	if errCode != ErrNoError {
+		t.Fatalf("WriteData group handle error: 0x%X", errCode)
+	}
+	if int32(binary.LittleEndian.Uint32(nValPin.data)) != 99 {
+		t.Errorf("nVal after group write = %d, want 99", int32(binary.LittleEndian.Uint32(nValPin.data)))
+	}
+	if bFlagPin.data[0] != 1 {
+		t.Errorf("bFlag after group write = %d, want 1", bFlagPin.data[0])
+	}
+}
+
+// TestGroupSymbolArrayBracketNotation verifies that bracket notation in path
+// segments (e.g. "aPools[1]") creates the correct group symbols.
+func TestGroupSymbolArrayBracketNotation(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stData.aPools[1].stMsg.eType", newDintPin(0))
+
+	for _, prefix := range []string{"stData", "stData.aPools[1]", "stData.aPools[1].stMsg"} {
+		if sym := st.GetByName(prefix); sym == nil {
+			t.Errorf("expected group symbol %q to exist", prefix)
+		}
+	}
+}
+
+// TestGroupSymbolNotInSymbolCount verifies that group symbols are not counted
+// in the SymbolCount response.
+func TestGroupSymbolNotInSymbolCount(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.stBar.nVal", newDintPin(0))
+	st.Register("stFoo.stBar.bFlag", newBoolPin(false))
+
+	data, errCode := st.ReadData(IdxGrpSymbolCount, 0, 4)
+	if errCode != ErrNoError {
+		t.Fatalf("SymbolCount error: 0x%X", errCode)
+	}
+	count := binary.LittleEndian.Uint32(data)
+	if count != 2 {
+		t.Errorf("SymbolCount = %d, want 2 (group symbols must not be counted)", count)
+	}
+}
+
+// TestProcessImageRangeRead verifies that a ProcessImageRW bulk read returns
+// all symbols whose offsets fall within the requested range.
+func TestProcessImageRangeRead(t *testing.T) {
+	st := NewSymbolTable()
+	p1 := newBoolPin(true)       // offset 0, size 1
+	p2 := newDintPin(0x12345678) // offset 1, size 4
+	p3 := newDintPin(-1)         // offset 5, size 4
+	st.Register("s1", p1)
+	st.Register("s2", p2)
+	st.Register("s3", p3)
+
+	// Range read covering all 3 symbols (offset=0, length=9).
+	data, errCode := st.ReadData(IdxGrpProcessImageRW, 0, 9)
+	if errCode != ErrNoError {
+		t.Fatalf("range read error: 0x%X", errCode)
+	}
+	if len(data) != 9 {
+		t.Fatalf("range read length = %d, want 9", len(data))
+	}
+	if data[0] != 1 {
+		t.Errorf("s1 = %d, want 1", data[0])
+	}
+	if binary.LittleEndian.Uint32(data[1:5]) != 0x12345678 {
+		t.Errorf("s2 = 0x%X, want 0x12345678", binary.LittleEndian.Uint32(data[1:5]))
+	}
+	if int32(binary.LittleEndian.Uint32(data[5:9])) != -1 {
+		t.Errorf("s3 = %d, want -1", int32(binary.LittleEndian.Uint32(data[5:9])))
+	}
+}
+
+// TestProcessImageRangeWrite verifies that a ProcessImageRW bulk write
+// distributes bytes to all symbols whose offsets fall within the range.
+func TestProcessImageRangeWrite(t *testing.T) {
+	st := NewSymbolTable()
+	p1 := newBoolPin(false) // offset 0, size 1
+	p2 := newDintPin(0)     // offset 1, size 4
+	p3 := newDintPin(0)     // offset 5, size 4
+	st.Register("s1", p1)
+	st.Register("s2", p2)
+	st.Register("s3", p3)
+
+	// Range write: 9-byte payload covering all 3 symbols.
+	payload := make([]byte, 9)
+	payload[0] = 1
+	binary.LittleEndian.PutUint32(payload[1:], 0xABCD1234)
+	binary.LittleEndian.PutUint32(payload[5:], 0xFFEE0099)
+	errCode := st.WriteData(IdxGrpProcessImageRW, 0, payload)
+	if errCode != ErrNoError {
+		t.Fatalf("range write error: 0x%X", errCode)
+	}
+	if p1.data[0] != 1 {
+		t.Errorf("s1 after range write = %d, want 1", p1.data[0])
+	}
+	if binary.LittleEndian.Uint32(p2.data) != 0xABCD1234 {
+		t.Errorf("s2 after range write = 0x%X, want 0xABCD1234", binary.LittleEndian.Uint32(p2.data))
+	}
+	if binary.LittleEndian.Uint32(p3.data) != 0xFFEE0099 {
+		t.Errorf("s3 after range write = 0x%X, want 0xFFEE0099", binary.LittleEndian.Uint32(p3.data))
+	}
+}
+func TestGroupSymbolFallbackMatching(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.stBar.nVal", newDintPin(0))
+
+	// Case-insensitive lookup for the group.
+	handle, errCode := st.CreateHandle("STFOO.STBAR")
+	if errCode != ErrNoError {
+		t.Fatalf("case-insensitive group CreateHandle error: 0x%X", errCode)
+	}
+	sym := st.GetByHandle(handle)
+	if sym == nil || sym.Name != "stFoo.stBar" {
+		t.Errorf("expected stFoo.stBar, got %v", sym)
+	}
+}
+
+// zeroPadPin is a PinAccessor that mimics padAccessor: reads return zeros,
+// writes are silently discarded. Used to test pad-symbol offset accounting.
+type zeroPadPin struct {
+	size     uint32
+	typeName string
+	typeID   uint32
+}
+
+func (z *zeroPadPin) ReadBytes() ([]byte, error) { return make([]byte, z.size), nil }
+func (z *zeroPadPin) WriteBytes([]byte) error    { return nil }
+func (z *zeroPadPin) Size() uint32               { return z.size }
+func (z *zeroPadPin) TypeName() string           { return z.typeName }
+func (z *zeroPadPin) TypeID() uint32             { return z.typeID }
+
+// TestPadOffsetAdvance verifies that a padding symbol correctly advances
+// the process-image offset for the symbols that follow it.
+func TestPadOffsetAdvance(t *testing.T) {
+	st := NewSymbolTable()
+	pad := &zeroPadPin{size: 1, typeName: "BYTE", typeID: ADSTUInt8}
+	sym1 := st.Register("stMsg._reserved1", pad)  // offset 0, size 1
+	sym2 := st.Register("stMsg.eType", newDintPin(0)) // offset 1, size 4
+
+	if sym1.IndexOffset != 0 {
+		t.Errorf("pad symbol offset = %d, want 0", sym1.IndexOffset)
+	}
+	if sym2.IndexOffset != 1 {
+		t.Errorf("eType offset = %d, want 1", sym2.IndexOffset)
+	}
+}
+
+// TestPadReadReturnsZeros verifies that a pad accessor read returns zero bytes.
+func TestPadReadReturnsZeros(t *testing.T) {
+	pad := &zeroPadPin{size: 2, typeName: "WORD", typeID: ADSTUInt16}
+	data, err := pad.ReadBytes()
+	if err != nil {
+		t.Fatalf("ReadBytes error: %v", err)
+	}
+	if len(data) != 2 {
+		t.Fatalf("ReadBytes length = %d, want 2", len(data))
+	}
+	for i, b := range data {
+		if b != 0 {
+			t.Errorf("data[%d] = %d, want 0", i, b)
+		}
+	}
+}
+
+// TestPadWriteDiscards verifies that writing to a pad accessor has no effect.
+func TestPadWriteDiscards(t *testing.T) {
+	pad := &zeroPadPin{size: 1, typeName: "BYTE", typeID: ADSTUInt8}
+	if err := pad.WriteBytes([]byte{0xFF}); err != nil {
+		t.Fatalf("WriteBytes error: %v", err)
+	}
+	// Read back: should still be zero.
+	data, _ := pad.ReadBytes()
+	if data[0] != 0 {
+		t.Errorf("after write, pad data = %d, want 0", data[0])
+	}
+}
+
+// TestGroupWithPadding verifies that a group symbol containing a pad field
+// returns the correct total size and zero-fills the pad bytes on reads.
+func TestGroupWithPadding(t *testing.T) {
+	st := NewSymbolTable()
+	pad1 := &zeroPadPin{size: 1, typeName: "BYTE", typeID: ADSTUInt8}
+	real := newDintPin(0x01020304)
+	pad2 := &zeroPadPin{size: 2, typeName: "WORD", typeID: ADSTUInt16}
+
+	st.Register("stMsg._reserved1", pad1) // offset 0, size 1
+	st.Register("stMsg.nVal", real)        // offset 1, size 4
+	st.Register("stMsg._align", pad2)     // offset 5, size 2
+
+	// The group symbol stMsg should cover offsets 0–6 (7 bytes total).
+	groupSym := st.GetByName("stMsg")
+	if groupSym == nil {
+		t.Fatal("group symbol stMsg not created")
+	}
+	if groupSym.Accessor.Size() != 7 {
+		t.Errorf("group Size = %d, want 7", groupSym.Accessor.Size())
+	}
+
+	// Read the group: padding bytes should be zero, nVal bytes should be present.
+	handle, errCode := st.CreateHandle("stMsg")
+	if errCode != ErrNoError {
+		t.Fatalf("CreateHandle error: 0x%X", errCode)
+	}
+	data, errCode := st.ReadData(IdxGrpSymbolValueByHandle, handle, 7)
+	if errCode != ErrNoError {
+		t.Fatalf("ReadData error: 0x%X", errCode)
+	}
+	if len(data) != 7 {
+		t.Fatalf("ReadData length = %d, want 7", len(data))
+	}
+	// Byte 0: pad (_reserved1) → 0.
+	if data[0] != 0 {
+		t.Errorf("data[0] (pad) = %d, want 0", data[0])
+	}
+	// Bytes 1-4: nVal = 0x01020304 little-endian.
+	gotVal := int32(binary.LittleEndian.Uint32(data[1:5]))
+	if gotVal != 0x01020304 {
+		t.Errorf("data[1:5] (nVal) = 0x%X, want 0x01020304", gotVal)
+	}
+	// Bytes 5-6: pad (_align) → 0.
+	if data[5] != 0 || data[6] != 0 {
+		t.Errorf("data[5:7] (pad) = %v, want [0 0]", data[5:7])
 	}
 }

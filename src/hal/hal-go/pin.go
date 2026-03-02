@@ -66,7 +66,7 @@ func NewPin[T PinValue](c *Component, name string, dir Direction) (*Pin[T], erro
 		return nil, newError("NewPin", "component is nil", -22)
 	}
 
-	if name == "" || len(name) > 47 {
+	if name == "" {
 		return nil, newError("NewPin", ErrInvalidName.Message, ErrInvalidName.Code)
 	}
 
@@ -76,6 +76,9 @@ func NewPin[T PinValue](c *Component, name string, dir Direction) (*Pin[T], erro
 
 	// Build fully-qualified pin name
 	fullName := fmt.Sprintf("%s.%s", c.Name(), name)
+	if len(fullName) > NameLen {
+		return nil, newError("NewPin", ErrInvalidName.Message, ErrInvalidName.Code)
+	}
 
 	// Create the pin by calling the appropriate hal_pin_*_new() function
 	// based on the type parameter T

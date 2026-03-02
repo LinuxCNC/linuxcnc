@@ -11,10 +11,21 @@ import (
 	"time"
 )
 
-// readDeadlineInterval is the duration of each read deadline on active connections.
-// Using a short deadline allows Stop() to interrupt blocked reads without needing
-// per-connection close calls for normal shutdown paths.
+// readDeadlineInterval is the short read deadline used when waiting for the
+// AMS/TCP header. Using a short deadline allows Stop() to interrupt blocked
+// reads without needing per-connection close calls for normal shutdown paths.
 const readDeadlineInterval = 100 * time.Millisecond
+
+// amsDataReadTimeout is the read deadline applied after the AMS/TCP header has
+// been received, covering the variable-length AMS payload. A longer timeout
+// accommodates TCP fragmentation and slow networks while still detecting
+// genuinely stuck connections.
+const amsDataReadTimeout = 5 * time.Second
+
+// shutdownTimeout is the maximum time Stop() will wait for active connections
+// to finish after signalling shutdown. If this elapses, Stop() returns anyway
+// so the process can exit.
+const shutdownTimeout = 2 * time.Second
 
 // Server listens for ADS connections, parses AMS/TCP packets, and dispatches
 // ADS commands to a SymbolTable.
@@ -72,7 +83,16 @@ func (s *Server) Stop() {
 		conn.Close()
 	}
 	s.connsMu.Unlock()
-	s.wg.Wait()
+	done := make(chan struct{})
+	go func() {
+		s.wg.Wait()
+		close(done)
+	}()
+	select {
+	case <-done:
+	case <-time.After(shutdownTimeout):
+		log.Printf("Timeout waiting for connections to close")
+	}
 }
 
 // acceptLoop accepts incoming TCP connections.
@@ -113,10 +133,12 @@ func (s *Server) handleConn(conn net.Conn) {
 	}
 
 	for {
-		// Use a short read deadline so Stop() can interrupt blocked reads promptly.
+		// Stage 1: short read deadline for the AMS/TCP header (idle-polling interval).
+		// This allows Stop() to interrupt blocked reads between packets.
 		conn.SetReadDeadline(time.Now().Add(readDeadlineInterval))
 
-		hdr, payload, err := readAMSPacket(conn)
+		tcpHdr := make([]byte, AMSTCPHeaderSize)
+		_, err := io.ReadFull(conn, tcpHdr)
 		if err != nil {
 			// Check if this is just a timeout — if not shutting down, retry.
 			var netErr net.Error
@@ -141,6 +163,31 @@ func (s *Server) handleConn(conn net.Conn) {
 			}
 			return
 		}
+
+		amsLen := binary.LittleEndian.Uint32(tcpHdr[2:])
+		if amsLen < AMSHeaderSize {
+			log.Printf("ADS packet too short from %s: %d", conn.RemoteAddr(), amsLen)
+			return
+		}
+
+		// Stage 2: longer read deadline for the AMS payload. Once the TCP header
+		// has arrived, we know the client is actively sending; a longer timeout
+		// handles TCP fragmentation and slow networks.
+		conn.SetReadDeadline(time.Now().Add(amsDataReadTimeout))
+
+		amsData := make([]byte, amsLen)
+		if _, err := io.ReadFull(conn, amsData); err != nil {
+			select {
+			case <-s.quit:
+			default:
+				log.Printf("ADS read error from %s: %v", conn.RemoteAddr(), err)
+			}
+			return
+		}
+
+		h := decodeAMSHeader(amsData[:AMSHeaderSize])
+		hdr := &h
+		payload := amsData[AMSHeaderSize:]
 
 		if s.verbose {
 			log.Printf("ADS cmd=0x%04X from %s port %d", hdr.CommandID, hdr.SourceNetID, hdr.SourcePort)
