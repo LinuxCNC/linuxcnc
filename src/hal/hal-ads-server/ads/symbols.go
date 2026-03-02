@@ -229,11 +229,7 @@ func (st *SymbolTable) ReadData(indexGroup, indexOffset, length uint32) ([]byte,
 		return readSymbol(sym, length)
 
 	case IdxGrpProcessImageRW:
-		sym := st.findByOffset(indexOffset)
-		if sym == nil {
-			return nil, ErrInvalidOffset
-		}
-		return readSymbol(sym, length)
+		return st.readProcessImageRange(indexOffset, length)
 
 	case IdxGrpSymbolVersion:
 		buf := make([]byte, 4)
@@ -271,11 +267,7 @@ func (st *SymbolTable) WriteData(indexGroup, indexOffset uint32, data []byte) ui
 		return writeSymbol(sym, data)
 
 	case IdxGrpProcessImageRW:
-		sym := st.findByOffset(indexOffset)
-		if sym == nil {
-			return ErrInvalidOffset
-		}
-		return writeSymbol(sym, data)
+		return st.writeProcessImageRange(indexOffset, data)
 
 	case IdxGrpReleaseHandle:
 		if len(data) < 4 {
@@ -371,12 +363,55 @@ func (st *SymbolTable) ReadWriteData(indexGroup, indexOffset, readLen uint32, wr
 	}
 }
 
-// findByOffset returns the symbol whose IndexOffset matches offset (within
-// IdxGrpProcessImageRW), or nil if not found.
-func (st *SymbolTable) findByOffset(offset uint32) *Symbol {
+// readProcessImageRange reads a contiguous range of the process image.
+// It fills a buffer of length bytes by reading every symbol whose
+// IndexOffset falls within [offset, offset+length).
+func (st *SymbolTable) readProcessImageRange(offset, length uint32) ([]byte, uint32) {
 	st.mu.RLock()
 	defer st.mu.RUnlock()
-	return st.byOffset[offset]
+
+	buf := make([]byte, length)
+	found := false
+	for off, sym := range st.byOffset {
+		symSize := sym.Accessor.Size()
+		if off >= offset && off+symSize <= offset+length {
+			found = true
+			data, err := sym.Accessor.ReadBytes()
+			if err != nil {
+				continue
+			}
+			copy(buf[off-offset:], data)
+		}
+	}
+	if !found {
+		return nil, ErrInvalidOffset
+	}
+	return buf, ErrNoError
+}
+
+// writeProcessImageRange writes a contiguous range of the process image.
+// It distributes data to all symbols whose IndexOffset falls within
+// [offset, offset+len(data)).
+func (st *SymbolTable) writeProcessImageRange(offset uint32, data []byte) uint32 {
+	st.mu.RLock()
+	defer st.mu.RUnlock()
+
+	length := uint32(len(data))
+	found := false
+	for off, sym := range st.byOffset {
+		symSize := sym.Accessor.Size()
+		if off >= offset && off+symSize <= offset+length {
+			found = true
+			start := off - offset
+			if err := sym.Accessor.WriteBytes(data[start : start+symSize]); err != nil {
+				return ErrInternal
+			}
+		}
+	}
+	if !found {
+		return ErrInvalidOffset
+	}
+	return ErrNoError
 }
 
 // readSymbol reads the value of sym and returns it serialized to ADS wire bytes.

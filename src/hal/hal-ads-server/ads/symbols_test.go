@@ -480,8 +480,66 @@ func TestGroupSymbolNotInSymbolCount(t *testing.T) {
 	}
 }
 
-// TestGroupSymbolFallbackMatching verifies that case-insensitive and
-// prefix-stripped lookups work for group symbols too.
+// TestProcessImageRangeRead verifies that a ProcessImageRW bulk read returns
+// all symbols whose offsets fall within the requested range.
+func TestProcessImageRangeRead(t *testing.T) {
+	st := NewSymbolTable()
+	p1 := newBoolPin(true)       // offset 0, size 1
+	p2 := newDintPin(0x12345678) // offset 1, size 4
+	p3 := newDintPin(-1)         // offset 5, size 4
+	st.Register("s1", p1)
+	st.Register("s2", p2)
+	st.Register("s3", p3)
+
+	// Range read covering all 3 symbols (offset=0, length=9).
+	data, errCode := st.ReadData(IdxGrpProcessImageRW, 0, 9)
+	if errCode != ErrNoError {
+		t.Fatalf("range read error: 0x%X", errCode)
+	}
+	if len(data) != 9 {
+		t.Fatalf("range read length = %d, want 9", len(data))
+	}
+	if data[0] != 1 {
+		t.Errorf("s1 = %d, want 1", data[0])
+	}
+	if binary.LittleEndian.Uint32(data[1:5]) != 0x12345678 {
+		t.Errorf("s2 = 0x%X, want 0x12345678", binary.LittleEndian.Uint32(data[1:5]))
+	}
+	if int32(binary.LittleEndian.Uint32(data[5:9])) != -1 {
+		t.Errorf("s3 = %d, want -1", int32(binary.LittleEndian.Uint32(data[5:9])))
+	}
+}
+
+// TestProcessImageRangeWrite verifies that a ProcessImageRW bulk write
+// distributes bytes to all symbols whose offsets fall within the range.
+func TestProcessImageRangeWrite(t *testing.T) {
+	st := NewSymbolTable()
+	p1 := newBoolPin(false) // offset 0, size 1
+	p2 := newDintPin(0)     // offset 1, size 4
+	p3 := newDintPin(0)     // offset 5, size 4
+	st.Register("s1", p1)
+	st.Register("s2", p2)
+	st.Register("s3", p3)
+
+	// Range write: 9-byte payload covering all 3 symbols.
+	payload := make([]byte, 9)
+	payload[0] = 1
+	binary.LittleEndian.PutUint32(payload[1:], 0xABCD1234)
+	binary.LittleEndian.PutUint32(payload[5:], 0xFFEE0099)
+	errCode := st.WriteData(IdxGrpProcessImageRW, 0, payload)
+	if errCode != ErrNoError {
+		t.Fatalf("range write error: 0x%X", errCode)
+	}
+	if p1.data[0] != 1 {
+		t.Errorf("s1 after range write = %d, want 1", p1.data[0])
+	}
+	if binary.LittleEndian.Uint32(p2.data) != 0xABCD1234 {
+		t.Errorf("s2 after range write = 0x%X, want 0xABCD1234", binary.LittleEndian.Uint32(p2.data))
+	}
+	if binary.LittleEndian.Uint32(p3.data) != 0xFFEE0099 {
+		t.Errorf("s3 after range write = 0x%X, want 0xFFEE0099", binary.LittleEndian.Uint32(p3.data))
+	}
+}
 func TestGroupSymbolFallbackMatching(t *testing.T) {
 	st := NewSymbolTable()
 	st.Register("stFoo.stBar.nVal", newDintPin(0))
