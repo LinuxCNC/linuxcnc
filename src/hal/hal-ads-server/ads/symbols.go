@@ -55,8 +55,80 @@ func NewSymbolTable() *SymbolTable {
 	}
 }
 
+// groupAccessor implements PinAccessor for a struct/container group symbol.
+// It holds references to all descendant leaf Symbols sorted by IndexOffset and
+// provides read/write access to them as a single contiguous buffer.
+type groupAccessor struct {
+	children []*Symbol // sorted by IndexOffset (ascending); leaf symbols only
+	typeName string    // last path segment, used as the ADS TypeName
+}
+
+func (g *groupAccessor) baseOffset() uint32 {
+	if len(g.children) == 0 {
+		return 0
+	}
+	return g.children[0].IndexOffset
+}
+
+func (g *groupAccessor) Size() uint32 {
+	if len(g.children) == 0 {
+		return 0
+	}
+	last := g.children[len(g.children)-1]
+	return last.IndexOffset + last.Accessor.Size() - g.baseOffset()
+}
+
+func (g *groupAccessor) ReadBytes() ([]byte, error) {
+	buf := make([]byte, g.Size())
+	base := g.baseOffset()
+	for _, child := range g.children {
+		data, err := child.Accessor.ReadBytes()
+		if err != nil {
+			return nil, err
+		}
+		rel := child.IndexOffset - base
+		copy(buf[rel:], data)
+	}
+	return buf, nil
+}
+
+func (g *groupAccessor) WriteBytes(data []byte) error {
+	base := g.baseOffset()
+	for _, child := range g.children {
+		rel := child.IndexOffset - base
+		size := child.Accessor.Size()
+		if uint32(len(data)) < rel+size {
+			continue // partial write: skip children beyond the provided data
+		}
+		if err := child.Accessor.WriteBytes(data[rel : rel+size]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (g *groupAccessor) TypeName() string { return g.typeName }
+func (g *groupAccessor) TypeID() uint32   { return 0 }
+
+// parentPrefixes returns all non-leaf path prefixes for a dotted name.
+// E.g. "A.B.C" → ["A", "A.B"]. Single-segment names return nil.
+func parentPrefixes(name string) []string {
+	segs := strings.Split(name, ".")
+	if len(segs) <= 1 {
+		return nil
+	}
+	prefixes := make([]string, len(segs)-1)
+	for i := 1; i < len(segs); i++ {
+		prefixes[i-1] = strings.Join(segs[:i], ".")
+	}
+	return prefixes
+}
+
 // Register adds a symbol to the table. The symbol's IndexGroup is set to
 // IdxGrpProcessImageRW and IndexOffset is assigned automatically.
+// For each parent path prefix (e.g. "A.B" for leaf "A.B.C"), a group symbol
+// is automatically created or updated so that SymbolInfoByName and
+// CreateHandle work for intermediate struct paths.
 func (st *SymbolTable) Register(name string, acc PinAccessor) *Symbol {
 	st.mu.Lock()
 	defer st.mu.Unlock()
@@ -71,6 +143,34 @@ func (st *SymbolTable) Register(name string, acc PinAccessor) *Symbol {
 	st.byName[name] = sym
 	st.byOffset[sym.IndexOffset] = sym
 	st.symbolOrder = append(st.symbolOrder, sym)
+
+	// Auto-create or update group symbols for every ancestor prefix.
+	// The leaf is added to ALL ancestor groups so that each group's accessor
+	// covers all descendant leaves.
+	for _, prefix := range parentPrefixes(name) {
+		if existing, ok := st.byName[prefix]; ok {
+			// Update existing group: append the new leaf (offsets are
+			// monotonically increasing, so appending keeps sorted order).
+			// If the existing entry is not a groupAccessor (e.g. a leaf was
+			// registered at this exact path), leave it unchanged.
+			if ga, ok := existing.Accessor.(*groupAccessor); ok {
+				ga.children = append(ga.children, sym)
+			}
+		} else {
+			// Create a new group symbol for this prefix.
+			segs := strings.Split(prefix, ".")
+			ga := &groupAccessor{
+				children: []*Symbol{sym},
+				typeName: segs[len(segs)-1],
+			}
+			st.byName[prefix] = &Symbol{
+				Name:        prefix,
+				IndexGroup:  IdxGrpProcessImageRW,
+				IndexOffset: sym.IndexOffset,
+				Accessor:    ga,
+			}
+		}
+	}
 	return sym
 }
 
@@ -142,7 +242,7 @@ func (st *SymbolTable) ReadData(indexGroup, indexOffset, length uint32) ([]byte,
 
 	case IdxGrpSymbolCount:
 		st.mu.RLock()
-		count := uint32(len(st.byName))
+		count := uint32(len(st.symbolOrder))
 		st.mu.RUnlock()
 		buf := make([]byte, 4)
 		binary.LittleEndian.PutUint32(buf, count)
