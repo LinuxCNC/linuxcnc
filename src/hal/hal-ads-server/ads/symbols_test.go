@@ -320,3 +320,172 @@ func TestSymbolTableFallbackMatching(t *testing.T) {
 		t.Error("fallback case: handle should resolve")
 	}
 }
+
+// TestGroupSymbolAutoCreate verifies that registering a leaf creates group
+// symbols for every ancestor path prefix.
+func TestGroupSymbolAutoCreate(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.stBar.nVal", newDintPin(0))
+	st.Register("stFoo.stBar.bFlag", newBoolPin(false))
+
+	for _, prefix := range []string{"stFoo", "stFoo.stBar"} {
+		sym := st.GetByName(prefix)
+		if sym == nil {
+			t.Errorf("group symbol %q not created", prefix)
+			continue
+		}
+		if sym.IndexGroup != IdxGrpProcessImageRW {
+			t.Errorf("%q IndexGroup = 0x%X, want 0x%X", prefix, sym.IndexGroup, IdxGrpProcessImageRW)
+		}
+		if _, ok := sym.Accessor.(*groupAccessor); !ok {
+			t.Errorf("%q Accessor is not *groupAccessor", prefix)
+		}
+	}
+}
+
+// TestGroupSymbolInfoByName verifies SymbolInfoByName (0xF007) for a group symbol.
+func TestGroupSymbolInfoByName(t *testing.T) {
+	st := NewSymbolTable()
+	nVal := st.Register("stFoo.stBar.nVal", newDintPin(0)) // offset 0, size 4
+	st.Register("stFoo.stBar.bFlag", newBoolPin(false))    // offset 4, size 1
+
+	data, errCode := st.ReadWriteData(IdxGrpSymbolInfoByName, 0, 12, []byte("stFoo.stBar"))
+	if errCode != ErrNoError {
+		t.Fatalf("SymbolInfoByName for group error: 0x%X", errCode)
+	}
+	if len(data) != 12 {
+		t.Fatalf("expected 12 bytes, got %d", len(data))
+	}
+	ig := binary.LittleEndian.Uint32(data[0:4])
+	io := binary.LittleEndian.Uint32(data[4:8])
+	size := binary.LittleEndian.Uint32(data[8:12])
+	if ig != IdxGrpProcessImageRW {
+		t.Errorf("IndexGroup = 0x%X, want 0x%X", ig, IdxGrpProcessImageRW)
+	}
+	if io != nVal.IndexOffset {
+		t.Errorf("IndexOffset = %d, want %d", io, nVal.IndexOffset)
+	}
+	if size != 5 { // 4 (DINT) + 1 (BOOL)
+		t.Errorf("Size = %d, want 5", size)
+	}
+}
+
+// TestGroupSymbolCreateHandle verifies CreateHandle succeeds for a group symbol.
+func TestGroupSymbolCreateHandle(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.stBar.nVal", newDintPin(7))
+	st.Register("stFoo.stBar.bFlag", newBoolPin(true))
+
+	handle, errCode := st.CreateHandle("stFoo.stBar")
+	if errCode != ErrNoError {
+		t.Fatalf("CreateHandle for group error: 0x%X", errCode)
+	}
+	if handle == 0 {
+		t.Error("group handle should not be 0")
+	}
+	sym := st.GetByHandle(handle)
+	if sym == nil || sym.Name != "stFoo.stBar" {
+		t.Errorf("GetByHandle returned %v", sym)
+	}
+}
+
+// TestGroupSymbolReadByHandle verifies that reading a group handle returns
+// the concatenated child bytes in offset order.
+func TestGroupSymbolReadByHandle(t *testing.T) {
+	st := NewSymbolTable()
+	nValPin := newDintPin(42)
+	bFlagPin := newBoolPin(true)
+	st.Register("stFoo.stBar.nVal", nValPin)   // offset 0, size 4
+	st.Register("stFoo.stBar.bFlag", bFlagPin) // offset 4, size 1
+
+	handle, _ := st.CreateHandle("stFoo.stBar")
+
+	data, errCode := st.ReadData(IdxGrpSymbolValueByHandle, handle, 5)
+	if errCode != ErrNoError {
+		t.Fatalf("ReadData group handle error: 0x%X", errCode)
+	}
+	if len(data) != 5 {
+		t.Fatalf("group read length = %d, want 5", len(data))
+	}
+	if int32(binary.LittleEndian.Uint32(data[0:4])) != 42 {
+		t.Errorf("nVal in group = %d, want 42", int32(binary.LittleEndian.Uint32(data[0:4])))
+	}
+	if data[4] != 1 {
+		t.Errorf("bFlag in group = %d, want 1", data[4])
+	}
+}
+
+// TestGroupSymbolWriteByHandle verifies that writing a group handle distributes
+// the bytes to the correct child leaf symbols.
+func TestGroupSymbolWriteByHandle(t *testing.T) {
+	st := NewSymbolTable()
+	nValPin := newDintPin(0)
+	bFlagPin := newBoolPin(false)
+	st.Register("stFoo.stBar.nVal", nValPin)   // offset 0, size 4
+	st.Register("stFoo.stBar.bFlag", bFlagPin) // offset 4, size 1
+
+	handle, _ := st.CreateHandle("stFoo.stBar")
+
+	// Write [99, 0, 0, 0, 1] → nVal=99, bFlag=true.
+	payload := make([]byte, 5)
+	binary.LittleEndian.PutUint32(payload[0:], 99)
+	payload[4] = 1
+
+	errCode := st.WriteData(IdxGrpSymbolValueByHandle, handle, payload)
+	if errCode != ErrNoError {
+		t.Fatalf("WriteData group handle error: 0x%X", errCode)
+	}
+	if int32(binary.LittleEndian.Uint32(nValPin.data)) != 99 {
+		t.Errorf("nVal after group write = %d, want 99", int32(binary.LittleEndian.Uint32(nValPin.data)))
+	}
+	if bFlagPin.data[0] != 1 {
+		t.Errorf("bFlag after group write = %d, want 1", bFlagPin.data[0])
+	}
+}
+
+// TestGroupSymbolArrayBracketNotation verifies that bracket notation in path
+// segments (e.g. "aPools[1]") creates the correct group symbols.
+func TestGroupSymbolArrayBracketNotation(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stData.aPools[1].stMsg.eType", newDintPin(0))
+
+	for _, prefix := range []string{"stData", "stData.aPools[1]", "stData.aPools[1].stMsg"} {
+		if sym := st.GetByName(prefix); sym == nil {
+			t.Errorf("expected group symbol %q to exist", prefix)
+		}
+	}
+}
+
+// TestGroupSymbolNotInSymbolCount verifies that group symbols are not counted
+// in the SymbolCount response.
+func TestGroupSymbolNotInSymbolCount(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.stBar.nVal", newDintPin(0))
+	st.Register("stFoo.stBar.bFlag", newBoolPin(false))
+
+	data, errCode := st.ReadData(IdxGrpSymbolCount, 0, 4)
+	if errCode != ErrNoError {
+		t.Fatalf("SymbolCount error: 0x%X", errCode)
+	}
+	count := binary.LittleEndian.Uint32(data)
+	if count != 2 {
+		t.Errorf("SymbolCount = %d, want 2 (group symbols must not be counted)", count)
+	}
+}
+
+// TestGroupSymbolFallbackMatching verifies that case-insensitive and
+// prefix-stripped lookups work for group symbols too.
+func TestGroupSymbolFallbackMatching(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.stBar.nVal", newDintPin(0))
+
+	// Case-insensitive lookup for the group.
+	handle, errCode := st.CreateHandle("STFOO.STBAR")
+	if errCode != ErrNoError {
+		t.Fatalf("case-insensitive group CreateHandle error: 0x%X", errCode)
+	}
+	sym := st.GetByHandle(handle)
+	if sym == nil || sym.Name != "stFoo.stBar" {
+		t.Errorf("expected stFoo.stBar, got %v", sym)
+	}
+}
