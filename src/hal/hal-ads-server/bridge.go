@@ -214,6 +214,14 @@ func newStringAccessor(pin *hal.Pin[string], ti typeInfo) *halPinAccessor {
 	return &halPinAccessor{
 		ti: ti,
 		readFn: func() ([]byte, error) {
+			// Sync from HAL pin into fixed buffer (ensures HAL→ADS direction works).
+			v := pin.Get()
+			clear(buf)
+			n := len(v)
+			if n > ti.strLen {
+				n = ti.strLen
+			}
+			copy(buf[:n], []byte(v[:n]))
 			// Return a copy of the fixed buffer (always correct size, always null-terminated).
 			out := make([]byte, ti.byteSize)
 			copy(out, buf)
