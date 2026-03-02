@@ -298,6 +298,49 @@ struct RuckigTimingStats {
 };
 static RuckigTimingStats g_ruckig_timing;
 
+// Feed override trace — set to false to silence, rebuild
+static constexpr bool FO_TRACE = true;
+static int g_fo_cycle = 0;
+static int g_conv_scan_remaining = 0; // cycles to keep scanning after gate opens
+
+// Convergence gap scan: measures worst junction velocity gap after each
+// backward+forward pass.  Only active when gate is closed (convergence period).
+static void scanConvergenceGap(TC_QUEUE_STRUCT *queue, int cycle, const char *tag) {
+    int qlen = tcqLen_user(queue);
+    if (qlen < 2) return;
+
+    double worst_gap = 0.0;
+    int worst_seg = -1;
+    int gap_count = 0;  // junctions with gap > 0.5 mm/s
+
+    for (int i = 0; i < qlen - 1; i++) {
+        TC_STRUCT *tc = tcqItem_user(queue, i);
+        TC_STRUCT *next = tcqItem_user(queue, i + 1);
+        if (!tc || !next) continue;
+        if (tc->term_cond != TC_TERM_COND_TANGENT) continue;
+        if (!tc->shared_9d.profile.valid || !next->shared_9d.profile.valid) continue;
+
+        // predecessor exit velocity
+        double pred_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
+        // successor entry velocity
+        double succ_v0 = next->shared_9d.profile.v[0];
+        double gap = fabs(pred_exit - succ_v0);
+
+        if (gap > 0.5) gap_count++;
+        if (gap > worst_gap) {
+            worst_gap = gap;
+            worst_seg = tc->id;
+        }
+    }
+
+    // Log every cycle during convergence, but throttle at steady state
+    if (worst_gap > 0.3 || gap_count > 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "CONV_GAP cy=%d %s worst=%.3f@seg%d gaps>0.5=%d/%d\n",
+            cycle, tag, worst_gap, worst_seg, gap_count, qlen - 1);
+    }
+}
+
 // Adaptive handoff horizon: starts at base_ms, backs off on missed branches
 struct AdaptiveHorizon {
     static constexpr double BASE_MS = 5.0;      // Aggressive starting point
@@ -332,8 +375,11 @@ struct AdaptiveHorizon {
 struct PlanningHorizon {
     // Gate state
     bool   gate_open       = true;
+    bool   branch_failed   = false;  // branch rejected — block gate until resolved
+    int    branch_failed_seg = -999; // segment ID where branch failed
     int    converged_depth = 0;   // segments [0..N) converged at current feed
     int    safe_depth      = 3;   // segments needed to reopen gate
+    int    convergence_remaining = 0; // cycles to hold gate closed for optimizer convergence
 
     // Measured costs (EMA, seconds). Bootstrap from timing measurements.
     double ruckig_cost_sec    = 3.0e-6;   // per-segment forward pass
@@ -344,6 +390,7 @@ struct PlanningHorizon {
     static constexpr int    MIN_SAFE_DEPTH = 3;
     static constexpr int    MAX_SAFE_DEPTH = 50;
     static constexpr int    SCAN_SEGMENTS  = 30;
+    static constexpr int    CONVERGENCE_CYCLES = 20; // hold gate closed for optimizer convergence
 
     // Compute safe_depth from measured costs and segment durations.
     // N > (B + BP) / (D_min - R)
@@ -399,15 +446,76 @@ struct PlanningHorizon {
         if (!gate_open) return;  // already closed = coalescing
         gate_open = false;
         converged_depth = 0;
+        convergence_remaining = CONVERGENCE_CYCLES;
         recomputeSafeDepth(tp);
+        if (FO_TRACE) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO cy=%d GATE_CLOSE safe_depth=%d\n",
+                g_fo_cycle, safe_depth);
+        }
     }
 
     // Called after replanForward completes during gate-closed period.
-    void onReplanComplete(int segments_visited) {
+    // committed_feed and hal_feed are passed so we can check whether
+    // opening the gate would expose a feed mismatch to the optimizer.
+    void onReplanComplete(int segments_visited,
+                          double committed_feed, double hal_feed,
+                          int active_seg_id) {
         if (gate_open) return;  // nothing to track
-        converged_depth = segments_visited;
-        if (converged_depth >= safe_depth) {
+        if (segments_visited <= 0) {
+            // Empty queue — nothing to protect, open gate unconditionally.
             gate_open = true;
+            branch_failed = false;
+            convergence_remaining = 0;
+            return;
+        }
+        converged_depth = segments_visited;
+        if (branch_failed) {
+            // Auto-clear when RT has moved past the failed segment —
+            // the critical junction is behind us, gate can open safely.
+            if (active_seg_id != branch_failed_seg) {
+                if (FO_TRACE) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO cy=%d GATE_CLEAR seg changed %d->%d\n",
+                        g_fo_cycle, branch_failed_seg, active_seg_id);
+                }
+                branch_failed = false;
+            }
+            double diff = fabs(committed_feed - hal_feed);
+            if (branch_failed && diff > 0.005) {
+                // Real feed mismatch on the active segment — keep gate
+                // closed so snapshot() returns committed_feed.  Opening
+                // would let the optimizer rewrite downstream at HAL feed
+                // while the active segment is still at old feed → spike.
+                if (FO_TRACE) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO cy=%d GATE_BLOCKED seg=%d "
+                        "committed=%.3f HAL=%.3f depth=%d/%d\n",
+                        g_fo_cycle, branch_failed_seg,
+                        committed_feed, hal_feed,
+                        converged_depth, safe_depth);
+                }
+                return;
+            }
+            branch_failed = false;
+        }
+        if (converged_depth >= safe_depth) {
+            if (convergence_remaining > 0) {
+                convergence_remaining--;
+                if (FO_TRACE && (convergence_remaining % 5 == 0 || convergence_remaining <= 2)) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO cy=%d GATE_CONVERGING remaining=%d depth=%d/%d\n",
+                        g_fo_cycle, convergence_remaining,
+                        converged_depth, safe_depth);
+                }
+                return;
+            }
+            gate_open = true;
+            if (FO_TRACE) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "FO cy=%d GATE_OPEN depth=%d/%d\n",
+                    g_fo_cycle, converged_depth, safe_depth);
+            }
         }
     }
 
@@ -449,7 +557,10 @@ struct PlanningHorizon {
 
     void reset() {
         gate_open = true;
+        branch_failed = false;
+        branch_failed_seg = -999;
         converged_depth = 0;
+        convergence_remaining = 0;
         safe_depth = MIN_SAFE_DEPTH;
         ruckig_cost_sec = 3.0e-6;
         backward_cost_sec = 10.0e-6;
@@ -483,6 +594,33 @@ enum class FeedAction {
     STOP_BRANCH,     // compute stop branch + spill-over (pause/abort/hold)
     CLEAR_STALE,     // clear missed/expired branch
 };
+
+static const char* reasonStr(FeedChangeReason r) {
+    switch (r) {
+    case FeedChangeReason::NONE:          return "NONE";
+    case FeedChangeReason::KNOB:          return "KNOB";
+    case FeedChangeReason::FEED_HOLD:     return "FEED_HOLD";
+    case FeedChangeReason::PAUSE:         return "PAUSE";
+    case FeedChangeReason::ABORT:         return "ABORT";
+    case FeedChangeReason::STALE_PROFILE: return "STALE_PROF";
+    case FeedChangeReason::KINK_CAP:      return "KINK_CAP";
+    case FeedChangeReason::CHAIN_CAP:     return "CHAIN_CAP";
+    case FeedChangeReason::BLEND_EXIT:    return "BLEND_EXIT";
+    default:                              return "?";
+    }
+}
+
+static const char* actionStr(FeedAction a) {
+    switch (a) {
+    case FeedAction::NONE:        return "NONE";
+    case FeedAction::DEFER:       return "DEFER";
+    case FeedAction::MERGE:       return "MERGE";
+    case FeedAction::BRANCH:      return "BRANCH";
+    case FeedAction::STOP_BRANCH: return "STOP_BRANCH";
+    case FeedAction::CLEAR_STALE: return "CLEAR_STALE";
+    default:                      return "?";
+    }
+}
 
 // Frozen feed values for one optimization pass
 struct FeedSnapshot {
@@ -533,7 +671,17 @@ struct FeedOverrideManager {
     // committed_feed/committed_rapid must be set by the caller before this.
     void onMerge() {
         horizon.onTake();
-        planning.gate_open = true;  // merge = fully committed, gate opens
+        planning.branch_failed = false;
+        // Only open gate if convergence countdown has expired.
+        // After a feed change mass rewrite, the optimizer needs time to
+        // converge junction velocities — opening early causes spikes.
+        if (planning.convergence_remaining <= 0) {
+            planning.gate_open = true;
+        } else if (FO_TRACE) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO cy=%d MERGE_GATE_HOLD remaining=%d\n",
+                g_fo_cycle, planning.convergence_remaining);
+        }
     }
 
     void onMiss() {
@@ -2283,6 +2431,7 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
     bool unlimited = (budget_sec <= 0.0);
     double tick_start = etime_user();
+    int fo_dirty_count = 0, fo_skip_count = 0;
 
     int i = 0;
     for (; i < queue_len; i++) {
@@ -2362,6 +2511,14 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 double na = tcGetTangentialMaxAccel_9D_user(next_tc);
                 double nj = next_tc->maxjerk > 0 ? next_tc->maxjerk : default_jerk;
                 double reach = jerkLimitedMaxEntryVelocity(nv_exit, next_tc->target, na, nj);
+                // Also cap by the successor's max velocity — the successor
+                // can't enter faster than its own max_vel regardless of
+                // deceleration capacity.  Without this, the predecessor
+                // exits above the successor's max_vel, creating a junction
+                // gap that no branch can fix (too little remaining distance).
+                double nvel_limit = getEffectiveVelLimit(tp, next_tc);
+                double next_max = applyVLimit(tp, next_tc, nvel_limit * nf);
+                reach = fmin(reach, next_max);
                 if (reach < scaled_v_exit) {
                     scaled_v_exit = reach;
                     desired_fvel  = reach;
@@ -2377,6 +2534,7 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             bool exit_ok  = fabs(tc->shared_9d.profile.computed_desired_fvel - desired_fvel) < 1e-6;
             if (entry_ok && feed_ok && exit_ok) {
                 // Profile is clean — propagate its actual exit and continue
+                fo_skip_count++;
                 if (tc->term_cond == TC_TERM_COND_TANGENT) {
                     double pu = profileExitVelUnscaled(&tc->shared_9d.profile);
                     prev_exit_vel = pu * tc->shared_9d.profile.computed_feed_scale;
@@ -2448,6 +2606,7 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 max_vel, max_acc, max_jrk, tc->target,
                 feed_scale, vel_limit, tp->vLimit, desired_fvel};
             if (computeAndStoreProfile(tc, rp)) {
+                fo_dirty_count++;
                 tc->shared_9d.profile.dbg_src = 2;  // forward pass
                 tc->shared_9d.profile.dbg_v0_req = scaled_v_entry;
                 atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
@@ -2477,6 +2636,18 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
     // Full pass completed without budget expiry → all profiles consistent
     g_needs_replan = (i < queue_len);
+
+    if (FO_TRACE && (fo_dirty_count > 0 || g_needs_replan)) {
+        double elapsed_sec = etime_user() - tick_start;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "FO_REPLAN snap=%.3f segs=%d/%d elapsed=%.0fus "
+            "budget=%s dirty=%d skip=%d needs_replan=%d\n",
+            snap.feed, i, queue_len,
+            elapsed_sec * 1e6,
+            unlimited ? "unlim" : "budgeted",
+            fo_dirty_count, fo_skip_count,
+            (i < queue_len) ? 1 : 0);
+    }
 
     return i;
 }
@@ -2598,7 +2769,8 @@ static double estimateExitAtFeed(TP_STRUCT const *tp, TC_STRUCT const *tc,
  *
  * @return true if branch was successfully computed and committed
  */
-bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
+bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
+                   int chain_depth)
 {
     if (!tp || !tc) return false;
 
@@ -2868,7 +3040,7 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale)
         // old 1-segment lookahead that missed tight constraints further
         // downstream (short segments, sharp kinks at index 2+).
         double downstream_exit_cap = computeChainExitCap(
-            tp, tc, new_feed_scale, default_jerk);
+            tp, tc, new_feed_scale, default_jerk, chain_depth);
 
         // ================================================================
         // Feed limiting: find max feed where exit constraints are met
@@ -3553,6 +3725,17 @@ static void executeMerge(TP_STRUCT *tp, TC_STRUCT *tc)
     g_feed_mgr.committed_feed = snap.feed;
     g_feed_mgr.committed_rapid = snap.rapid;
     g_feed_mgr.onMerge();
+
+    if (FO_TRACE) {
+        int qlen = tcqLen_user(&tp->queue);
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "FO cy=%d MERGE seg=%d snap=%.3f aev=%.3f "
+            "committed=%.3f qlen=%d gate=%s\n",
+            g_fo_cycle, tc->id, snap.feed,
+            tc->shared_9d.achieved_exit_vel,
+            g_feed_mgr.committed_feed, qlen,
+            g_feed_mgr.planning.isOpen() ? "OPEN" : "CLOSED");
+    }
 }
 
 /**
@@ -3580,6 +3763,30 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
     bool ok = computeBranch(tp, tc, feed);
     double branch_sec = etime_user() - branch_t0;
 
+    if (FO_TRACE) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "FO cy=%d BRANCH seg=%d feed=%.3f ok=%d branch_us=%.0f reason=%s\n",
+            g_fo_cycle, tc->id, feed, ok ? 1 : 0,
+            branch_sec * 1e6, reasonStr(g_feed_mgr.reason));
+    }
+
+    // Retry with shallow chain cap: when the 16-deep downstream cap is too
+    // tight, the branch can't decelerate enough.  Retry with depth=1 (just
+    // the immediate successor).  The forward pass handles deeper constraints
+    // incrementally after the branch succeeds.
+    if (!ok && g_feed_mgr.reason == FeedChangeReason::CHAIN_CAP) {
+        double retry_t0 = etime_user();
+        ok = computeBranch(tp, tc, feed, 1);
+        double retry_sec = etime_user() - retry_t0;
+        if (FO_TRACE) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO cy=%d BRANCH_RETRY_SHALLOW seg=%d feed=%.3f ok=%d "
+                "retry_us=%.0f\n",
+                g_fo_cycle, tc->id, feed, ok ? 1 : 0,
+                retry_sec * 1e6);
+        }
+    }
+
     if (g_feed_mgr.reason == FeedChangeReason::STALE_PROFILE && !ok) {
         double profile_feed = tc->shared_9d.profile.computed_feed_scale;
         if (profile_feed < 0.001 && tpGetSegmentFeedScale(tc) > 0.01) {
@@ -3590,6 +3797,14 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
                 "elapsed=%.4f dur=%.4f remaining=%.4f\n",
                 tc->id, feed, elapsed, dur, dur - elapsed);
         }
+    }
+
+    g_feed_mgr.planning.branch_failed = !ok;
+    if (!ok) {
+        g_feed_mgr.planning.branch_failed_seg = tc->id;
+        // No rewrite happened — nothing to converge.  Clear countdown
+        // so gate reopens as soon as GATE_CLEAR fires (RT moves to next seg).
+        g_feed_mgr.planning.convergence_remaining = 0;
     }
 
     if (ok) {
@@ -3608,6 +3823,17 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
         int segs = replanForward(tp, branch_v0, budget);
         double replan_sec = etime_user() - recomp_t0;
         g_feed_mgr.onBranchCreated(branch_sec, replan_sec, segs);
+
+        if (FO_TRACE) {
+            int qlen = tcqLen_user(&tp->queue);
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO cy=%d BRANCH_REPLAN committed=%.3f v0=%.3f segs=%d/%d "
+                "budget=%.0fus actual=%.0fus needs_replan=%d\n",
+                g_fo_cycle, g_feed_mgr.committed_feed,
+                branch_v0, segs, qlen,
+                budget * 1e6, replan_sec * 1e6,
+                g_needs_replan ? 1 : 0);
+        }
         // Gate stays closed — opens only from continuation replan
         // in checkFeedOverride, ensuring at least one cycle of coalescing.
     }
@@ -3885,6 +4111,23 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
 
     TC_STRUCT *tc = tcqItem_user(&tp->queue, 0);
     FeedAction action = g_feed_mgr.evaluate(tp, tc);
+    g_fo_cycle++;
+
+    if (FO_TRACE && action != FeedAction::NONE) {
+        double hal_feed = emcmotStatus ? emcmotStatus->feed_scale : -1.0;
+        double elapsed = tc ? atomicLoadDouble(&tc->elapsed_time) : 0.0;
+        double dur = (tc && tc->shared_9d.profile.valid) ? tc->shared_9d.profile.duration : 0.0;
+        int qlen = tcqLen_user(&tp->queue);
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "FO cy=%d seg=%d elapsed=%.3f/%.3fms qlen=%d gate=%s "
+            "committed=%.3f HAL=%.3f -> %s reason=%s target=%.3f\n",
+            g_fo_cycle, tc ? tc->id : -1,
+            elapsed * 1000.0, dur * 1000.0, qlen,
+            g_feed_mgr.planning.isOpen() ? "OPEN" : "CLOSED",
+            g_feed_mgr.committed_feed, hal_feed,
+            actionStr(action), reasonStr(g_feed_mgr.reason),
+            g_feed_mgr.target_feed);
+    }
 
     switch (action) {
     case FeedAction::NONE:
@@ -3920,14 +4163,35 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
             int segs = replanForward(tp, -1.0, budget);
             if (!g_feed_mgr.planning.isOpen()
                     && action != FeedAction::BRANCH) {
-                g_feed_mgr.planning.onReplanComplete(segs);
+                double hal = emcmotStatus ? emcmotStatus->feed_scale : 1.0;
+                int seg_id = tc ? tc->id : -1;
+                g_feed_mgr.planning.onReplanComplete(
+                    segs, g_feed_mgr.committed_feed, hal, seg_id);
+            }
+            if (FO_TRACE && (action != FeedAction::NONE || !g_feed_mgr.planning.isOpen())) {
+                int qlen = tcqLen_user(&tp->queue);
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "FO cy=%d CONT segs=%d/%d budget=%.0fus needs_replan=%d "
+                    "gate=%s depth=%d/%d\n",
+                    g_fo_cycle, segs, qlen, budget * 1e6,
+                    g_needs_replan ? 1 : 0,
+                    g_feed_mgr.planning.isOpen() ? "OPEN" : "CLOSED",
+                    g_feed_mgr.planning.converged_depth,
+                    g_feed_mgr.planning.safe_depth);
             }
         } else if (!g_feed_mgr.planning.isOpen()
                        && action != FeedAction::BRANCH) {
             // Queue fully converged but gate still closed from a previous
             // branch cycle — open it so the next feed change can proceed.
+            double hal = emcmotStatus ? emcmotStatus->feed_scale : 1.0;
+            int seg_id = tc ? tc->id : -1;
             g_feed_mgr.planning.onReplanComplete(
-                tcqLen_user(&tp->queue));
+                tcqLen_user(&tp->queue), g_feed_mgr.committed_feed, hal, seg_id);
+            if (FO_TRACE) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "FO cy=%d CONT_FORCE_OPEN qlen=%d (converged, gate was closed)\n",
+                    g_fo_cycle, tcqLen_user(&tp->queue));
+            }
         }
     }
 }
@@ -3952,6 +4216,17 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int /*optimizat
 
     // Run unlimited replan — processes all segments needing recomputation.
     (void)replanForward(tp, -1.0, 0.0 /* unlimited */);
+
+    // Convergence gap scan — during gate-closed period and for a window after
+    if (FO_TRACE) {
+        if (!g_feed_mgr.planning.isOpen()) {
+            scanConvergenceGap(&tp->queue, g_fo_cycle, "OPT");
+            g_conv_scan_remaining = 200; // keep scanning after gate opens
+        } else if (g_conv_scan_remaining > 0) {
+            g_conv_scan_remaining--;
+            scanConvergenceGap(&tp->queue, g_fo_cycle, "POST");
+        }
+    }
 
     return 0;
 }
