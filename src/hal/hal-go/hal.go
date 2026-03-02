@@ -10,6 +10,6 @@ const Version = "0.1.0"
 const (
 	// NameLen is the maximum length for HAL names (pins, signals, components).
 	// This matches HAL_NAME_LEN from hal.h.
-	NameLen = 47
+	NameLen = 127
 )
 
