@@ -64,6 +64,11 @@ class CMS_SERVER_LOCAL_PORT:public virtual CMS_USER {
   public:
       CMS_SERVER_LOCAL_PORT(CMS * _cms);
       virtual ~ CMS_SERVER_LOCAL_PORT();
+
+    // Not copyable
+    CMS_SERVER_LOCAL_PORT(const CMS_SERVER_LOCAL_PORT&) = delete;
+    CMS_SERVER_LOCAL_PORT& operator= (const CMS_SERVER_LOCAL_PORT&) = delete;
+
     int local_channel_reused;
 
 };
@@ -80,6 +85,10 @@ class CMS_SERVER_REMOTE_PORT {
   public:
     CMS_SERVER_REMOTE_PORT(CMS_SERVER *);
     virtual ~ CMS_SERVER_REMOTE_PORT();
+    // Not copyable
+    CMS_SERVER_REMOTE_PORT(const CMS_SERVER_REMOTE_PORT&) = delete;
+    CMS_SERVER_REMOTE_PORT& operator= (const CMS_SERVER_REMOTE_PORT&) = delete;
+
     virtual void run() = 0;
     virtual void register_port();
     virtual void unregister_port();

@@ -85,7 +85,7 @@ toolidx_t tooldata_get(CANON_TOOL_TABLE* pdata,int idx)
         return IDX_FAIL;
     }
 
-    *pdata = *(struct CANON_TOOL_TABLE*)(the_table + idx);
+    *pdata = *reinterpret_cast<struct CANON_TOOL_TABLE*>(the_table + idx);
     return IDX_OK;
 } // tooldata_get()
 

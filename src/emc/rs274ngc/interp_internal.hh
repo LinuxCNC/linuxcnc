@@ -648,6 +648,10 @@ struct setup
   setup();
   ~setup();
 
+  // Not copyable
+  setup(const setup&) = delete;
+  setup& operator= (const setup&) = delete;
+
   double AA_axis_offset;        // A-axis g92 offset
   double AA_current;            // current A-axis position
   double AA_origin_offset;      // A-axis origin offset
