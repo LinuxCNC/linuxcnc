@@ -278,7 +278,11 @@ func (st *SymbolTable) WriteData(indexGroup, indexOffset uint32, data []byte) ui
 		return writeSymbol(sym, data)
 
 	case IdxGrpReleaseHandle:
-		return st.ReleaseHandle(indexOffset)
+		if len(data) < 4 {
+			return ErrInternal
+		}
+		handle := binary.LittleEndian.Uint32(data[0:4])
+		return st.ReleaseHandle(handle)
 
 	default:
 		return ErrNoSymbol

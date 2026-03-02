@@ -162,13 +162,20 @@ func TestSymbolTableReleaseHandleViaWrite(t *testing.T) {
 
 	handle, _ := st.CreateHandle("stC.bX")
 
-	// Release via WriteData with IdxGrpReleaseHandle: handle is passed as indexOffset.
-	errCode := st.WriteData(IdxGrpReleaseHandle, handle, nil)
+	// Release via WriteData with IdxGrpReleaseHandle: handle is in the 4-byte write data payload.
+	handleBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(handleBytes, handle)
+	errCode := st.WriteData(IdxGrpReleaseHandle, 0, handleBytes)
 	if errCode != ErrNoError {
 		t.Fatalf("release handle via WriteData error: 0x%X", errCode)
 	}
 	if st.GetByHandle(handle) != nil {
 		t.Error("handle should be nil after release")
+	}
+
+	// Short data payload should return an error.
+	if errCode := st.WriteData(IdxGrpReleaseHandle, 0, []byte{0x01, 0x00}); errCode == ErrNoError {
+		t.Error("expected error for short data payload, got ErrNoError")
 	}
 }
 
