@@ -347,6 +347,15 @@ func TestLayoutGalvHmiSelectedOffsets(t *testing.T) {
 		{"DISPLAY_DATA.stData.aPools[1].aMixers[1].bManu", 172},
 		// aMixers element size = 8 (tail-padded); Mixer[2] at 168+8=176
 		{"DISPLAY_DATA.stData.aPools[1].aMixers[2].fPower", 176},
+		// stErrors section — all BOOLs, maxAlign=1, no alignment padding anywhere.
+		{"DISPLAY_DATA.stErrors.stGlobalErrors.bEmergStop", 200},
+		{"DISPLAY_DATA.stErrors.stGlobalErrors.bTempErr", 203},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].bHeaterTempWarn", 204},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].bPsVoltErr", 217},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].aMixerErrors[1].bDriveWarn", 218},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].aMixerErrors[1].bVeloErr", 222},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].aMixerErrors[2].bDriveWarn", 223},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].aMixerErrors[4].bVeloErr", 237},
 	}
 	for _, e := range expected {
 		got, ok := byADS[e.name]
@@ -407,6 +416,15 @@ func TestLayoutIdempotencyGalvHmiPadding(t *testing.T) {
 		{"DISPLAY_DATA.stData.aPools[1].aMixers[1].fPower", 168},
 		{"DISPLAY_DATA.stData.aPools[1].aMixers[1].bManu", 172},
 		{"DISPLAY_DATA.stData.aPools[1].aMixers[2].fPower", 176},
+		// stErrors section — all BOOLs, maxAlign=1, no alignment padding anywhere.
+		{"DISPLAY_DATA.stErrors.stGlobalErrors.bEmergStop", 200},
+		{"DISPLAY_DATA.stErrors.stGlobalErrors.bTempErr", 203},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].bHeaterTempWarn", 204},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].bPsVoltErr", 217},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].aMixerErrors[1].bDriveWarn", 218},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].aMixerErrors[1].bVeloErr", 222},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].aMixerErrors[2].bDriveWarn", 223},
+		{"DISPLAY_DATA.stErrors.aPoolErrors[1].aMixerErrors[4].bVeloErr", 237},
 	}
 	for _, e := range expected {
 		got, ok := byADS[e.name]
