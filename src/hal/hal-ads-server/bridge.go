@@ -247,45 +247,36 @@ func newStringAccessor(pin *hal.Pin[string], ti typeInfo) *halPinAccessor {
 	}
 }
 
-// padAccessor implements PinAccessor for padding/reserved fields.
-// It occupies space in the ADS process image but has no backing HAL pin.
-// Reads return zero-filled bytes; writes are silently discarded.
-type padAccessor struct {
-	ti typeInfo
-}
-
-func (p *padAccessor) ReadBytes() ([]byte, error) { return make([]byte, p.ti.byteSize), nil }
-func (p *padAccessor) WriteBytes([]byte) error    { return nil }
-func (p *padAccessor) Size() uint32               { return p.ti.byteSize }
-func (p *padAccessor) TypeName() string           { return p.ti.adsTypeName }
-func (p *padAccessor) TypeID() uint32             { return p.ti.adstID }
-
 // Bridge holds all HAL pins and their corresponding ADS symbol registrations.
 type Bridge struct {
 	// pins retains references so the GC does not collect them.
 	pins []interface{}
 }
 
-// NewBridge creates HAL pins for all ConfigPins and registers them in the
-// provided SymbolTable. The component name prefix is prepended to all HAL pin names.
-func NewBridge(comp *hal.Component, pins []ConfigPin, st *ads.SymbolTable) (*Bridge, error) {
+// NewBridge creates HAL pins for all LayoutPins and registers them in the
+// provided SymbolTable using pre-computed byte offsets from the layout.
+// Pad entries (Dir == DirPad) occupy process-image space but do not create
+// HAL pins and are not registered in the ADS symbol list.
+func NewBridge(comp *hal.Component, pins []LayoutPin, st *ads.SymbolTable) (*Bridge, error) {
 	b := &Bridge{}
 	for _, cp := range pins {
+		// Padding: reserve process-image space only (no HAL pin, no ADS name).
+		if cp.Dir == DirPad {
+			st.RegisterPadAt(cp.Offset, cp.Size)
+			continue
+		}
+
 		ti, err := parseTypeInfo(cp.TypeName)
 		if err != nil {
 			return nil, fmt.Errorf("symbol %q: %w", cp.ADSName, err)
 		}
 
-		// Padding: register ADS symbol but skip HAL pin creation.
-		if cp.Dir == DirPad {
-			acc := &padAccessor{ti: ti}
-			st.Register(cp.ADSName, acc)
-			continue
-		}
-
 		dir := hal.In
-		if cp.Dir == DirOut {
+		switch cp.Dir {
+		case DirOut:
 			dir = hal.Out
+		case DirInOut:
+			dir = hal.IO
 		}
 
 		var acc ads.PinAccessor
@@ -335,7 +326,7 @@ func NewBridge(comp *hal.Component, pins []ConfigPin, st *ads.SymbolTable) (*Bri
 			return nil, fmt.Errorf("symbol %q: unsupported type %q", cp.ADSName, cp.TypeName)
 		}
 
-		st.Register(cp.ADSName, acc)
+		st.RegisterAt(cp.ADSName, cp.Offset, acc)
 	}
 	return b, nil
 }

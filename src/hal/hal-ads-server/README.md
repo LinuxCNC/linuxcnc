@@ -61,7 +61,8 @@ halcmd loadusr -W hal-ads-server /path/to/my-symbols.cfg
 ## Config File Format
 
 The config file uses 2-space indentation to define the ADS symbol hierarchy.
-Each leaf line (with `in` or `out`) creates a HAL pin.
+Each leaf line (with `in`, `out`, `inout`, or `pad`) creates a HAL pin (except
+`pad`, which only reserves space in the process image).
 
 ```
 stDISPLAY_DATA
@@ -69,16 +70,41 @@ stDISPLAY_DATA
   stPOOL[1..9]
     in bReady bool
     out nErrCount dint
+    inout fSetpoint real
     in bAck bool
     in sName string(32)
 ```
 
 ### Direction semantics
 
-| Config dir | HAL direction | Meaning                                    |
-|------------|---------------|--------------------------------------------|
-| `in`       | HAL_IN        | HMI writes to HAL (component reads)        |
-| `out`      | HAL_OUT       | HMI reads from HAL (component writes)      |
+| Config dir | HAL direction | Meaning                                                      |
+|------------|---------------|--------------------------------------------------------------|
+| `in`       | HAL_IN        | HMI writes to HAL (component reads)                         |
+| `out`      | HAL_OUT       | HMI reads from HAL (component writes)                       |
+| `inout`    | HAL_IO        | Bidirectional: both HMI and HAL can read and write          |
+| `pad`      | *(none)*      | Reserved space; no HAL pin, not listed in ADS symbol table  |
+
+### Automatic struct alignment
+
+The server automatically applies TwinCAT default pack mode 0 (natural
+C-compiler-style alignment) when computing byte offsets in the process image:
+
+- Each field is placed at the next address that is a multiple of its natural
+  alignment (BOOL/BYTE: 1, WORD/INT: 2, DWORD/REAL/TIME: 4, LREAL: 8,
+  STRING(n): 1).
+- A struct's start is aligned to the maximum member alignment.
+- A struct's size is padded to a multiple of the maximum member alignment
+  (tail padding), which ensures correct layout for arrays of structs.
+
+This means **no manual `pad` entries are needed for alignment**. A clean config
+without `pad` entries will produce the same byte offsets as an equivalent config
+with explicit alignment padding — the two approaches are idempotent.
+
+The `pad` direction is still accepted and useful for reserving space for fields
+that are present in the TwinCAT struct but not exposed as HAL pins (e.g.
+reserved or future-use fields). Pad entries occupy process-image space (reads
+return zeros; writes are discarded) but are not registered in the ADS symbol
+table and do not create HAL pins.
 
 ### ADS type to HAL pin type mapping
 

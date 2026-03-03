@@ -124,6 +124,48 @@ func parentPrefixes(name string) []string {
 	return prefixes
 }
 
+// zeroPadAccessor is a PinAccessor for anonymous pad slots created by
+// RegisterPadAt. Reads return zero bytes; writes are silently discarded.
+type zeroPadAccessor struct {
+	size uint32
+}
+
+func (z *zeroPadAccessor) ReadBytes() ([]byte, error) { return make([]byte, z.size), nil }
+func (z *zeroPadAccessor) WriteBytes([]byte) error    { return nil }
+func (z *zeroPadAccessor) Size() uint32               { return z.size }
+func (z *zeroPadAccessor) TypeName() string           { return "" }
+func (z *zeroPadAccessor) TypeID() uint32             { return 0 }
+
+// registerSymbolLocked adds sym to byName, byOffset, and symbolOrder, and
+// auto-creates or updates group symbols for every ancestor path prefix.
+// Must be called with st.mu held.
+func (st *SymbolTable) registerSymbolLocked(sym *Symbol) {
+	st.byName[sym.Name] = sym
+	st.byOffset[sym.IndexOffset] = sym
+	st.symbolOrder = append(st.symbolOrder, sym)
+
+	// Auto-create or update group symbols for every ancestor prefix.
+	for _, prefix := range parentPrefixes(sym.Name) {
+		if existing, ok := st.byName[prefix]; ok {
+			if ga, ok := existing.Accessor.(*groupAccessor); ok {
+				ga.children = append(ga.children, sym)
+			}
+		} else {
+			segs := strings.Split(prefix, ".")
+			ga := &groupAccessor{
+				children: []*Symbol{sym},
+				typeName: segs[len(segs)-1],
+			}
+			st.byName[prefix] = &Symbol{
+				Name:        prefix,
+				IndexGroup:  IdxGrpProcessImageRW,
+				IndexOffset: sym.IndexOffset,
+				Accessor:    ga,
+			}
+		}
+	}
+}
+
 // Register adds a symbol to the table. The symbol's IndexGroup is set to
 // IdxGrpProcessImageRW and IndexOffset is assigned automatically.
 // For each parent path prefix (e.g. "A.B" for leaf "A.B.C"), a group symbol
@@ -140,38 +182,49 @@ func (st *SymbolTable) Register(name string, acc PinAccessor) *Symbol {
 		Accessor:    acc,
 	}
 	st.nextOffset += acc.Size()
-	st.byName[name] = sym
-	st.byOffset[sym.IndexOffset] = sym
-	st.symbolOrder = append(st.symbolOrder, sym)
-
-	// Auto-create or update group symbols for every ancestor prefix.
-	// The leaf is added to ALL ancestor groups so that each group's accessor
-	// covers all descendant leaves.
-	for _, prefix := range parentPrefixes(name) {
-		if existing, ok := st.byName[prefix]; ok {
-			// Update existing group: append the new leaf (offsets are
-			// monotonically increasing, so appending keeps sorted order).
-			// If the existing entry is not a groupAccessor (e.g. a leaf was
-			// registered at this exact path), leave it unchanged.
-			if ga, ok := existing.Accessor.(*groupAccessor); ok {
-				ga.children = append(ga.children, sym)
-			}
-		} else {
-			// Create a new group symbol for this prefix.
-			segs := strings.Split(prefix, ".")
-			ga := &groupAccessor{
-				children: []*Symbol{sym},
-				typeName: segs[len(segs)-1],
-			}
-			st.byName[prefix] = &Symbol{
-				Name:        prefix,
-				IndexGroup:  IdxGrpProcessImageRW,
-				IndexOffset: sym.IndexOffset,
-				Accessor:    ga,
-			}
-		}
-	}
+	st.registerSymbolLocked(sym)
 	return sym
+}
+
+// RegisterAt adds a symbol at the given explicit byte offset. The symbol's
+// IndexGroup is set to IdxGrpProcessImageRW. nextOffset is updated if
+// offset+size exceeds the current maximum. Group symbols for ancestor path
+// prefixes are created or updated just like Register.
+func (st *SymbolTable) RegisterAt(name string, offset uint32, acc PinAccessor) *Symbol {
+	st.mu.Lock()
+	defer st.mu.Unlock()
+
+	sym := &Symbol{
+		Name:        name,
+		IndexGroup:  IdxGrpProcessImageRW,
+		IndexOffset: offset,
+		Accessor:    acc,
+	}
+	if end := offset + acc.Size(); end > st.nextOffset {
+		st.nextOffset = end
+	}
+	st.registerSymbolLocked(sym)
+	return sym
+}
+
+// RegisterPadAt reserves space in the process image at the given offset
+// without creating a named entry. The pad slot appears in byOffset so that
+// process-image range reads (IdxGrpProcessImageRW) return zeros for those
+// bytes. It does NOT appear in byName or symbolOrder, so it is invisible to
+// ADS symbol-list and symbol-info responses.
+func (st *SymbolTable) RegisterPadAt(offset uint32, size uint32) {
+	st.mu.Lock()
+	defer st.mu.Unlock()
+
+	st.byOffset[offset] = &Symbol{
+		Name:        "",
+		IndexGroup:  IdxGrpProcessImageRW,
+		IndexOffset: offset,
+		Accessor:    &zeroPadAccessor{size: size},
+	}
+	if end := offset + size; end > st.nextOffset {
+		st.nextOffset = end
+	}
 }
 
 // GetByName returns the symbol with the given name, or nil if not found.
