@@ -2561,10 +2561,14 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         // the limit, matching the two-stage brake pattern in computeBranch().
         double scaled_v_entry = prev_exit_vel_known
             ? prev_exit_vel : 0.0;
-        // Cap entry by previous segment's kink_vel
+        // Cap entry by previous segment's kink_vel.
+        // Skip when predecessor is active: RT delivers its old-feed profile
+        // exit velocity regardless of kink_vel.  Capping here just creates a
+        // v0 mismatch (spike) while the junction jerk is unavoidable either way.
+        // The corridor handles deceleration from the real entry velocity.
         {
             TC_STRUCT *prev_tc = (i > 0) ? tcqItem_user(queue, i - 1) : NULL;
-            if (prev_tc && prev_tc->kink_vel > 0)
+            if (prev_tc && prev_tc->kink_vel > 0 && !prev_tc->active)
                 scaled_v_entry = fmin(scaled_v_entry, prev_tc->kink_vel);
         }
 
@@ -2575,8 +2579,18 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         scaled_v_exit = applyKinkVelCap(scaled_v_exit, v_exit, max_vel, tc->kink_vel);
         double desired_fvel = scaled_v_exit;
 
-        // Cross-feed deceleration corridor detection
+        // Cross-feed deceleration corridor detection: entry exceeds
+        // feed-scaled max_vel (classic case), OR predecessor was profiled
+        // at a different feed and entry is at/above max_vel (edge case where
+        // old-feed exit ≈ new-feed max_vel, missed by the 1% threshold).
         bool cross_feed_corridor = (scaled_v_entry > max_vel * 1.01);
+        if (!cross_feed_corridor && scaled_v_entry > max_vel && i > 0) {
+            TC_STRUCT *prev_tc = tcqItem_user(queue, i - 1);
+            if (prev_tc && prev_tc->shared_9d.profile.valid &&
+                fabs(prev_tc->shared_9d.profile.computed_feed_scale
+                     - feed_scale) > 0.05)
+                cross_feed_corridor = true;
+        }
 
         // Forward-lookahead: cap exit by what downstream segments can
         // actually handle.  Walks forward until a segment is long enough
@@ -2693,7 +2707,7 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         if (pre_bidir_v_entry - scaled_v_entry > 0.1 && i > 0) {
             TC_STRUCT *prev_tc = tcqItem_user(queue, i - 1);
             if (prev_tc && prev_tc->term_cond == TC_TERM_COND_TANGENT &&
-                prev_tc->shared_9d.profile.valid && !(i == 1 && prev_tc->active)) {
+                prev_tc->shared_9d.profile.valid && !prev_tc->active) {
                 double prev_feed = snap.forSegment(prev_tc);
                 double prev_vel_limit = getEffectiveVelLimit(tp, prev_tc);
                 double prev_max_vel = applyVLimit(tp, prev_tc, prev_vel_limit * prev_feed);
@@ -4416,11 +4430,6 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
             int seg_id = tc ? tc->id : -1;
             g_feed_mgr.planning.onReplanComplete(
                 tcqLen_user(&tp->queue), g_feed_mgr.committed_feed, hal, seg_id);
-            if (FO_TRACE) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "FO cy=%d CONT_FORCE_OPEN qlen=%d (converged, gate was closed)\n",
-                    g_fo_cycle, tcqLen_user(&tp->queue));
-            }
         }
     }
 }
