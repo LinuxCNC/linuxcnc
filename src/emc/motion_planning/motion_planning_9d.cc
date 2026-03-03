@@ -285,61 +285,6 @@ static SmoothingData g_smoothing_data;
 static PredictiveHandoffConfig g_handoff_config;
 
 
-// Throughput estimate used by estimateCommitSegment().
-// Previously updated by the cursor walk; now a fixed default (segments per tick).
-static double g_segments_per_tick = 3.0;
-
-// Ruckig computation timing stats
-struct RuckigTimingStats {
-    double total_us = 0.0;      // Total computation time in microseconds
-    int count = 0;              // Number of computations
-    double last_us = 0.0;       // Most recent computation time
-    double max_us = 0.0;        // Maximum computation time seen
-};
-static RuckigTimingStats g_ruckig_timing;
-
-// Feed override trace — set to false to silence, rebuild
-static constexpr bool FO_TRACE = true;
-static int g_fo_cycle = 0;
-static int g_conv_scan_remaining = 0; // cycles to keep scanning after gate opens
-
-// Convergence gap scan: measures worst junction velocity gap after each
-// backward+forward pass.  Only active when gate is closed (convergence period).
-static void scanConvergenceGap(TC_QUEUE_STRUCT *queue, int cycle, const char *tag) {
-    int qlen = tcqLen_user(queue);
-    if (qlen < 2) return;
-
-    double worst_gap = 0.0;
-    int worst_seg = -1;
-    int gap_count = 0;  // junctions with gap > 0.5 mm/s
-
-    for (int i = 0; i < qlen - 1; i++) {
-        TC_STRUCT *tc = tcqItem_user(queue, i);
-        TC_STRUCT *next = tcqItem_user(queue, i + 1);
-        if (!tc || !next) continue;
-        if (tc->term_cond != TC_TERM_COND_TANGENT) continue;
-        if (!tc->shared_9d.profile.valid || !next->shared_9d.profile.valid) continue;
-
-        // predecessor exit velocity
-        double pred_exit = tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES];
-        // successor entry velocity
-        double succ_v0 = next->shared_9d.profile.v[0];
-        double gap = fabs(pred_exit - succ_v0);
-
-        if (gap > 0.5) gap_count++;
-        if (gap > worst_gap) {
-            worst_gap = gap;
-            worst_seg = tc->id;
-        }
-    }
-
-    // Log every cycle during convergence, but throttle at steady state
-    if (worst_gap > 0.3 || gap_count > 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "CONV_GAP cy=%d %s worst=%.3f@seg%d gaps>0.5=%d/%d\n",
-            cycle, tag, worst_gap, worst_seg, gap_count, qlen - 1);
-    }
-}
 
 // Adaptive handoff horizon: starts at base_ms, backs off on missed branches
 struct AdaptiveHorizon {
@@ -448,11 +393,6 @@ struct PlanningHorizon {
         converged_depth = 0;
         convergence_remaining = CONVERGENCE_CYCLES;
         recomputeSafeDepth(tp);
-        if (FO_TRACE) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO cy=%d GATE_CLOSE safe_depth=%d\n",
-                g_fo_cycle, safe_depth);
-        }
     }
 
     // Called after replanForward completes during gate-closed period.
@@ -474,11 +414,6 @@ struct PlanningHorizon {
             // Auto-clear when RT has moved past the failed segment —
             // the critical junction is behind us, gate can open safely.
             if (active_seg_id != branch_failed_seg) {
-                if (FO_TRACE) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO cy=%d GATE_CLEAR seg changed %d->%d\n",
-                        g_fo_cycle, branch_failed_seg, active_seg_id);
-                }
                 branch_failed = false;
             }
             double diff = fabs(committed_feed - hal_feed);
@@ -487,14 +422,6 @@ struct PlanningHorizon {
                 // closed so snapshot() returns committed_feed.  Opening
                 // would let the optimizer rewrite downstream at HAL feed
                 // while the active segment is still at old feed → spike.
-                if (FO_TRACE) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO cy=%d GATE_BLOCKED seg=%d "
-                        "committed=%.3f HAL=%.3f depth=%d/%d\n",
-                        g_fo_cycle, branch_failed_seg,
-                        committed_feed, hal_feed,
-                        converged_depth, safe_depth);
-                }
                 return;
             }
             branch_failed = false;
@@ -502,20 +429,9 @@ struct PlanningHorizon {
         if (converged_depth >= safe_depth) {
             if (convergence_remaining > 0) {
                 convergence_remaining--;
-                if (FO_TRACE && (convergence_remaining % 5 == 0 || convergence_remaining <= 2)) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO cy=%d GATE_CONVERGING remaining=%d depth=%d/%d\n",
-                        g_fo_cycle, convergence_remaining,
-                        converged_depth, safe_depth);
-                }
                 return;
             }
             gate_open = true;
-            if (FO_TRACE) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "FO cy=%d GATE_OPEN depth=%d/%d\n",
-                    g_fo_cycle, converged_depth, safe_depth);
-            }
         }
     }
 
@@ -524,14 +440,6 @@ struct PlanningHorizon {
                                int segs_visited) {
         // Update branch cost EMA
         branch_cost_sec = ALPHA * branch_sec + (1.0 - ALPHA) * branch_cost_sec;
-
-        // Extract per-segment Ruckig cost from global timing stats
-        if (g_ruckig_timing.count > 0) {
-            double measured_ruckig = g_ruckig_timing.total_us /
-                                     g_ruckig_timing.count * 1e-6;
-            ruckig_cost_sec = ALPHA * measured_ruckig +
-                              (1.0 - ALPHA) * ruckig_cost_sec;
-        }
 
         // Backward cost = total replan time minus forward pass (ruckig * segs)
         if (segs_visited > 0) {
@@ -548,12 +456,6 @@ struct PlanningHorizon {
     double getBudget(double servo_cycle_sec) const {
         return gate_open ? servo_cycle_sec * 0.5 : servo_cycle_sec * 0.9;
     }
-
-    // ── Incorporated sub-gates (disabled — preserved for future use) ──
-    // When enabled, these are checked in evaluate() after closeGate().
-    // Code preserved in evaluate() as commented-out blocks.
-    bool junction_safety_enabled = false;   // defer TANGENT with no branch room
-    bool commit_estimate_enabled = false;   // defer when active nearly done
 
     void reset() {
         gate_open = true;
@@ -594,33 +496,6 @@ enum class FeedAction {
     STOP_BRANCH,     // compute stop branch + spill-over (pause/abort/hold)
     CLEAR_STALE,     // clear missed/expired branch
 };
-
-static const char* reasonStr(FeedChangeReason r) {
-    switch (r) {
-    case FeedChangeReason::NONE:          return "NONE";
-    case FeedChangeReason::KNOB:          return "KNOB";
-    case FeedChangeReason::FEED_HOLD:     return "FEED_HOLD";
-    case FeedChangeReason::PAUSE:         return "PAUSE";
-    case FeedChangeReason::ABORT:         return "ABORT";
-    case FeedChangeReason::STALE_PROFILE: return "STALE_PROF";
-    case FeedChangeReason::KINK_CAP:      return "KINK_CAP";
-    case FeedChangeReason::CHAIN_CAP:     return "CHAIN_CAP";
-    case FeedChangeReason::BLEND_EXIT:    return "BLEND_EXIT";
-    default:                              return "?";
-    }
-}
-
-static const char* actionStr(FeedAction a) {
-    switch (a) {
-    case FeedAction::NONE:        return "NONE";
-    case FeedAction::DEFER:       return "DEFER";
-    case FeedAction::MERGE:       return "MERGE";
-    case FeedAction::BRANCH:      return "BRANCH";
-    case FeedAction::STOP_BRANCH: return "STOP_BRANCH";
-    case FeedAction::CLEAR_STALE: return "CLEAR_STALE";
-    default:                      return "?";
-    }
-}
 
 // Frozen feed values for one optimization pass
 struct FeedSnapshot {
@@ -677,10 +552,6 @@ struct FeedOverrideManager {
         // converge junction velocities — opening early causes spikes.
         if (planning.convergence_remaining <= 0) {
             planning.gate_open = true;
-        } else if (FO_TRACE) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO cy=%d MERGE_GATE_HOLD remaining=%d\n",
-                g_fo_cycle, planning.convergence_remaining);
         }
     }
 
@@ -1686,14 +1557,6 @@ static bool computeAndStoreProfile(TC_STRUCT *tc, const RuckigProfileParams &p)
         copyRuckigProfile(traj, &tc->shared_9d.profile);
         return true;
     } else {
-        if (FO_TRACE) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO_RUCKIG_FAIL result=%d seg=%d v0=%.3f vf=%.3f "
-                "max_v=%.3f max_a=%.3f max_j=%.1f dist=%.4f feed=%.3f\n",
-                (int)result, tc->id,
-                p.v_entry, p.v_exit, p.max_vel,
-                p.max_acc, p.max_jrk, p.target_dist, p.feed_scale);
-        }
         __atomic_store_n(&tc->shared_9d.profile.valid, 0, __ATOMIC_RELEASE);
         return false;
     }
@@ -1916,38 +1779,6 @@ static double computeKinematicHandoffMargin(double current_vel, double target_ve
     double result = fmax(min_margin, fmin(max_margin, kinematic_margin));
 
     return result;
-}
-
-/**
- * @brief Check whether a segment has enough remaining time for computeBranch()
- *        to place a handoff point.
- *
- * Uses the worst-case handoff margin (the cap from computeKinematicHandoffMargin)
- * so the answer is conservative: if this returns false, computeBranch() will
- * certainly REJECT(seg_done).  If it returns true, computeBranch() may still
- * reject for other reasons, but at least the margin isn't the blocker.
- *
- * @param tc  Active segment to check
- * @return true if the segment has enough remaining time for a branch attempt
- */
-static bool segmentHasBranchRoom(const TC_STRUCT *tc)
-{
-    if (!tc || !tc->shared_9d.profile.valid)
-        return false;
-
-    double elapsed = atomicLoadDouble(&tc->elapsed_time);
-    double duration = tc->shared_9d.profile.duration;
-    double remaining = duration - elapsed;
-    if (remaining < 1e-6)
-        return false;
-
-    // Worst-case margin: same derivation as computeKinematicHandoffMargin's cap
-    double servo_sec = g_handoff_config.servo_cycle_time_sec;
-    double worst_margin = g_handoff_config.branch_window_ms / 2000.0;
-    if (worst_margin < servo_sec * 6)
-        worst_margin = servo_sec * 6;
-
-    return remaining > worst_margin;
 }
 
 //============================================================================
@@ -2262,96 +2093,6 @@ bool commitBranch(shared_optimization_data_9d_t *shared,
 }
 
 /**
- * @brief Estimate the commit point for a feed override change.
- *
- * Finds the earliest queue index where we can guarantee all segments from
- * there forward will be recomputed before RT arrives. If the active segment
- * has enough remaining time for a handoff (adaptive horizon + 3 servo cycles),
- * returns 1 (branch on active). Otherwise scans forward comparing RT arrival
- * time vs our estimated recompute time.
- *
- * Segment durations are scaled by the ratio of their computed feed to the
- * new requested feed, so RT arrival estimates reflect the actual speed
- * segments will run at after recomputation.
- */
-static int estimateCommitSegment(TP_STRUCT *tp, double new_feed)
-{
-    TC_QUEUE_STRUCT *queue = &tp->queue;
-    int queue_len = tcqLen_user(queue);
-    if (queue_len < 3) return 1;  // short queue: start from active+1
-
-    TC_STRUCT *active = tcqItem_user(queue, 0);
-    if (!active) return 1;
-
-    // Determine how much time RT needs to finish the active segment.
-    // The train is "parked" if: no profile, zero duration, or schedule expired.
-    // In all cases, treat as infinite arrival time → branch on active (return 1).
-    double elapsed = atomicLoadDouble(&active->elapsed_time);
-    double active_remaining = 0.0;
-    if (active->shared_9d.profile.valid && active->shared_9d.profile.duration > 1e-6) {
-        active_remaining = active->shared_9d.profile.duration - elapsed;
-        if (active_remaining < 0) active_remaining = 0;
-        // NOTE: Do NOT scale active_remaining by feed ratio here.
-        // The branch hasn't happened yet — RT is still running the old profile
-        // at the old speed. The wall-clock time until this segment ends is
-        // exactly (duration - elapsed), unscaled. Downstream segments (below)
-        // ARE scaled because they'll be recomputed at new_feed.
-    } else {
-        return 1;  // no schedule → train is parked, must branch on active
-    }
-    if (active_remaining < 1e-6) return 1;  // schedule expired → branch on active
-
-    // Quick check: does the active segment have enough remaining time for
-    // computeBranch() to place a handoff?  Uses worst-case margin so we
-    // don't send segments that will certainly be rejected.
-    if (segmentHasBranchRoom(active)) {
-        return 1;
-    }
-
-    double servo_sec = g_handoff_config.servo_cycle_time_sec;
-    double cycle_time = tp->cycleTime > 0 ? tp->cycleTime : servo_sec;
-    // Safety margin: 10 servo cycles to absorb timing jitter between
-    // userspace computation and RT execution.
-    double margin = servo_sec * 10;
-    double spt = g_segments_per_tick > 0.5 ? g_segments_per_tick : 1.0;
-
-    double rt_time = active_remaining;  // cumulative time until RT reaches segment i
-
-    for (int i = 1; i < queue_len; i++) {
-        int segs_to_buffer = queue_len - i;
-        double recompute_time = (segs_to_buffer / spt) * cycle_time + margin;
-
-        if (rt_time > recompute_time) {
-            // We're in this scan because the active segment failed
-            // segmentHasBranchRoom — it's too short for a branch.
-            // Never return 1 here: evaluate() would interpret it as
-            // "branch on active", which will certainly fail.  Return ≥2
-            // to force deferral; the active finishes in <25ms and the
-            // next segment becomes branchable.
-            int commit = (i >= 2) ? i : 2;
-            return commit;
-        }
-
-        // Add segment i's duration to RT arrival time.
-        // Scale by feed ratio: the stored duration reflects the old feed, but
-        // after recompute these segments will run at new_feed.
-        TC_STRUCT *tc = tcqItem_user(queue, i);
-        if (tc && tc->shared_9d.profile.valid && tc->shared_9d.profile.duration > 1e-6) {
-            double duration = tc->shared_9d.profile.duration;
-            double seg_feed = tc->shared_9d.profile.computed_feed_scale;
-            if (seg_feed > 0.001 && new_feed > 0.001) {
-                duration *= seg_feed / new_feed;
-            }
-            rt_time += duration;
-        } else {
-            return i;  // blank timetable → train won't pass here soon, commit here
-        }
-    }
-
-    return queue_len - 1;  // fallback: commit at last segment
-}
-
-/**
  * @brief Apply computed limiting velocities back to queue
  *
  * Writes optimized velocities from SmoothingData back to
@@ -2502,16 +2243,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                     prev_exit_vel = pu * tc->shared_9d.profile.computed_feed_scale;
                 }
                 prev_exit_vel_known = true;
-                if (FO_TRACE) {
-                    int bv = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_REPLAN_ACTIVE seg=%d bv=%d prev_exit=%.3f "
-                        "prof_feed=%.3f prof_exit_unscaled=%.6f term=%d\n",
-                        tc->id, bv, prev_exit_vel,
-                        tc->shared_9d.profile.computed_feed_scale,
-                        profileExitVelUnscaled(&tc->shared_9d.profile),
-                        tc->term_cond);
-                }
             }
             continue;
         }
@@ -2624,15 +2355,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                     prev_exit_vel = 0.0;
                 }
                 prev_exit_vel_known = true;
-                if (FO_TRACE && cross_feed_corridor) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_SKIP_CORRIDOR i=%d seg=%d corridor=%d "
-                        "prev_was_corridor=%d entry=%.3f exit=%.3f "
-                        "max_vel=%.3f\n",
-                        i, tc->id, cross_feed_corridor ? 1 : 0,
-                        prev_was_corridor ? 1 : 0,
-                        scaled_v_entry, prev_exit_vel, max_vel);
-                }
                 continue;
             }
         }
@@ -2691,7 +2413,7 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             prof->p[RUCKIG_PROFILE_PHASES] = 0.0;
             prof->dbg_src = 6;  // feed hold
             prof->dbg_v0_req = 0.0;
-            prof->generation++;
+            prof->generation = prof->generation + 1;
             __atomic_store_n(&prof->valid, 1, __ATOMIC_RELEASE);
             atomicStoreInt((int*)&tc->shared_9d.optimization_state,
                 TC_PLAN_FINALIZED);
@@ -2708,7 +2430,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
         applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
             tc->target, max_acc, max_jrk);
-        double post_bidir_v_entry = scaled_v_entry;  // capture before fix
 
         // Fix: when predecessor is active or in a corridor, and bidir reduced
         // entry, restore it.  The predecessor's profile exit is committed — RT
@@ -2719,17 +2440,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         bool bidir_restore_fired = false;
         if (pre_bidir_v_entry - scaled_v_entry > 0.1 && i > 0) {
             TC_STRUCT *prev_tc_fix = tcqItem_user(queue, i - 1);
-            if (FO_TRACE && (pre_bidir_v_entry - scaled_v_entry > 5.0)) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "FO_BIDIR_CRUSH i=%d seg=%d pre=%.3f post=%.3f "
-                    "prev_was_corridor=%d prev_active=%d corridor=%d "
-                    "max_vel=%.3f target=%.4f\n",
-                    i, tc->id, pre_bidir_v_entry, scaled_v_entry,
-                    prev_was_corridor ? 1 : 0,
-                    (prev_tc_fix && prev_tc_fix->active) ? 1 : 0,
-                    cross_feed_corridor ? 1 : 0,
-                    max_vel, tc->target);
-            }
             if (prev_tc_fix && (prev_tc_fix->active || prev_was_corridor)) {
                 scaled_v_entry = pre_bidir_v_entry;
                 // Override exit with physics-based minimum from braking.
@@ -2739,26 +2449,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 desired_fvel  = scaled_v_exit;
                 bidir_restore_fired = true;
             }
-        }
-
-        // Debug: trace active's successor pipeline during cross-feed replans
-        if (FO_TRACE && i <= 2 && i > 0) {
-            TC_STRUCT *dbg_prev = tcqItem_user(queue, i - 1);
-            bool dbg_prev_active = dbg_prev && dbg_prev->active;
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO_SUCC_DBG i=%d seg=%d prev_active=%d "
-                "prev_exit_in=%.3f max_vel=%.3f "
-                "pre_bidir=%.3f post_bidir=%.3f final_entry=%.3f "
-                "fix_fired=%d corridor=%d "
-                "v_exit=%.3f target=%.4f feed=%.3f kink=%.3f\n",
-                i, tc->id, dbg_prev_active ? 1 : 0,
-                prev_exit_vel, max_vel,
-                pre_bidir_v_entry, post_bidir_v_entry, scaled_v_entry,
-                (pre_bidir_v_entry - post_bidir_v_entry > 0.1 &&
-                 dbg_prev_active) ? 1 : 0,
-                cross_feed_corridor ? 1 : 0,
-                scaled_v_exit, tc->target, feed_scale,
-                tc->kink_vel);
         }
 
         // Backward propagation: if bidir reduced our entry, the predecessor's
@@ -2828,33 +2518,10 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 } else {
                     prev_exit_vel = 0.0;
                 }
-                if (FO_TRACE && i <= 2 && i > 0) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_SUCC_RESULT i=%d seg=%d v0_stored=%.3f "
-                        "v_exit_stored=%.3f prev_exit=%.3f feed=%.3f\n",
-                        i, tc->id, tc->shared_9d.profile.v[0],
-                        prev_exit_vel, prev_exit_vel, feed_scale);
-                }
             } else {
-                if (FO_TRACE && (cross_feed_corridor || (i <= 2 && i > 0))) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_RUCKIG_FAIL_SUCC i=%d seg=%d v_entry=%.3f v_exit=%.3f "
-                        "ruckig_max_vel=%.3f max_acc=%.3f max_jrk=%.1f "
-                        "target=%.4f feed=%.3f corridor=%d\n",
-                        i, tc->id, scaled_v_entry, scaled_v_exit,
-                        ruckig_max_vel, max_acc, max_jrk,
-                        tc->target, feed_scale, cross_feed_corridor ? 1 : 0);
-                }
                 prev_exit_vel = 0.0;
             }
         } catch (...) {
-            if (FO_TRACE && cross_feed_corridor) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "FO_CORRIDOR_THROW i=%d seg=%d v_entry=%.3f v_exit=%.3f "
-                    "target=%.4f feed=%.3f\n",
-                    i, tc->id, scaled_v_entry, scaled_v_exit,
-                    tc->target, feed_scale);
-            }
             __atomic_store_n(&tc->shared_9d.profile.valid, 0, __ATOMIC_RELEASE);
             prev_exit_vel = 0.0;
         }
@@ -2875,18 +2542,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
     // Full pass completed without budget expiry → all profiles consistent
     g_needs_replan = (i < queue_len);
-
-    if (FO_TRACE && (fo_dirty_count > 0 || g_needs_replan)) {
-        double elapsed_sec = etime_user() - tick_start;
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "FO_REPLAN snap=%.3f segs=%d/%d elapsed=%.0fus "
-            "budget=%s dirty=%d skip=%d needs_replan=%d\n",
-            snap.feed, i, queue_len,
-            elapsed_sec * 1e6,
-            unlimited ? "unlim" : "budgeted",
-            fo_dirty_count, fo_skip_count,
-            (i < queue_len) ? 1 : 0);
-    }
 
     return i;
 }
@@ -3140,8 +2795,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
     }
 
     if (!state.valid) {
-        if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-            "FO_BRANCH_REJECT seg=%d reason=STATE_INVALID\n", tc->id);
         return false;
     }
 
@@ -3156,10 +2809,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
     // Calculate remaining distance after handoff
     double remaining = tc->target - state.position;
     if (remaining < 1e-6) {
-        if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-            "FO_BRANCH_REJECT seg=%d reason=NO_DISTANCE remaining=%.6f "
-            "pos=%.3f target=%.3f\n",
-            tc->id, remaining, state.position, tc->target);
         tc->shared_9d.requested_feed_scale = new_feed_scale;
         return false;
     }
@@ -3171,11 +2820,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
     if (state.acceleration < -0.5 * tc->maxaccel && state.velocity > 0) {
         double stop_dist = (state.velocity * state.velocity) / (2.0 * tc->maxaccel);
         if (remaining <= stop_dist * 1.5) {
-            if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO_BRANCH_REJECT seg=%d reason=DECEL_LOCKED v=%.1f a=%.1f "
-                "remaining=%.3f stop_dist=%.3f\n",
-                tc->id, state.velocity, state.acceleration,
-                remaining, stop_dist);
             tc->shared_9d.requested_feed_scale = new_feed_scale;
             return false;
         }
@@ -3184,7 +2828,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
     // Build Ruckig trajectories
     try {
         ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
-        double t_start = etime_user();
 
         double effective_feed_scale = new_feed_scale;
         bool need_brake = (state.velocity > new_max_vel + 0.01);
@@ -3278,13 +2921,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
                 return false;
             }
 
-            double t_end = etime_user();
-            double calc_us = (t_end - t_start) * 1e6;
-            g_ruckig_timing.last_us = calc_us;
-            g_ruckig_timing.total_us += calc_us;
-            g_ruckig_timing.count++;
-            if (calc_us > g_ruckig_timing.max_us) g_ruckig_timing.max_us = calc_us;
-
             bool committed = commitBranch(&tc->shared_9d, &main_profile, NULL, 0.0, 0.0,
                                           handoff_time, state.position, 0.0, window_end_time);
             return committed;
@@ -3351,10 +2987,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
                     }
                 } else {
                     // Even minimum feed can't satisfy — segment is genuinely locked
-                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_BRANCH_REJECT seg=%d reason=FEED_LIMIT_LOCKED "
-                        "exit_hard=%.1f remaining=%.3f v=%.1f\n",
-                        tc->id, exit_hard_limit, remaining, state.velocity);
                     return false;
                 }
             }
@@ -3386,18 +3018,12 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
 
                 auto result = otg.calculate(input, traj);
                 if (result != ruckig::Result::Working && result != ruckig::Result::Finished) {
-                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_BRANCH_REJECT seg=%d reason=BRAKE_RUCKIG v=%.1f a=%.1f "
-                        "target_v=%.1f\n",
-                        tc->id, state.velocity, state.acceleration, stage1_target_vel);
                     return false;
                 }
 
                 // Brake profile is clean 7-phase, use phase-based sampling
                 copyRuckigProfile(traj, &brake_profile);
                 if (!brake_profile.valid) {
-                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_BRANCH_REJECT seg=%d reason=BRAKE_COPY\n", tc->id);
                     return false;
                 }
 
@@ -3455,29 +3081,17 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
                 // reject the branch and let the existing profile finish.
                 // Phase 4 TODO (Blending): review PARABOLIC handling here.
                 if (tc->term_cond != TC_TERM_COND_TANGENT && achievable_exit > 0.01) {
-                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_BRANCH_REJECT seg=%d reason=CANT_STOP "
-                        "achievable=%.1f remaining_after_brake=%.3f\n",
-                        tc->id, achievable_exit, remaining_after_brake);
                     return false;
                 }
 
                 // Kink-limited junctions: reject if can't decel to kink_vel
                 if (tc->kink_vel > 0 && achievable_exit > tc->kink_vel + 0.01) {
-                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_BRANCH_REJECT seg=%d reason=KINK_VEL "
-                        "achievable=%.1f kink=%.1f\n",
-                        tc->id, achievable_exit, tc->kink_vel);
                     return false;
                 }
 
                 // Downstream reachability: reject if can't decel to what
                 // next segment accepts.  Feed change deferred to next cycle.
                 if (achievable_exit > downstream_exit_cap + 0.01) {
-                    if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_BRANCH_REJECT seg=%d reason=DS_CAP "
-                        "achievable=%.1f ds_cap=%.1f\n",
-                        tc->id, achievable_exit, downstream_exit_cap);
                     tc->shared_9d.requested_feed_scale = new_feed_scale;
                     return false;
                 }
@@ -3579,22 +3193,8 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
             if (!use_single_stage &&
                 (profileHasNegativeVelocity(&brake_profile) ||
                  profileHasNegativeVelocity(&main_profile))) {
-                if (FO_TRACE) rtapi_print_msg(RTAPI_MSG_ERR,
-                    "FO_BRANCH_REJECT seg=%d reason=NEG_VEL brake_neg=%d main_neg=%d "
-                    "v=%.1f a=%.1f remaining=%.3f\n",
-                    tc->id,
-                    profileHasNegativeVelocity(&brake_profile) ? 1 : 0,
-                    profileHasNegativeVelocity(&main_profile) ? 1 : 0,
-                    state.velocity, state.acceleration, remaining);
                 return false;
             }
-
-            double t_end = etime_user();
-            double calc_us = (t_end - t_start) * 1e6;
-            g_ruckig_timing.last_us = calc_us;
-            g_ruckig_timing.total_us += calc_us;
-            g_ruckig_timing.count++;
-            if (calc_us > g_ruckig_timing.max_us) g_ruckig_timing.max_us = calc_us;
 
             // Commit profile(s)
             // When use_single_stage, commit as single-stage (no brake).
@@ -3704,13 +3304,6 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
             if (!skip_negvel_check && profileHasNegativeVelocity(&main_profile)) {
                 return false;
             }
-
-            double t_end = etime_user();
-            double calc_us = (t_end - t_start) * 1e6;
-            g_ruckig_timing.last_us = calc_us;
-            g_ruckig_timing.total_us += calc_us;
-            g_ruckig_timing.count++;
-            if (calc_us > g_ruckig_timing.max_us) g_ruckig_timing.max_us = calc_us;
 
             bool committed = commitBranch(&tc->shared_9d, &main_profile, NULL, 0.0, 0.0,
                                           handoff_time, state.position,
@@ -3928,33 +3521,6 @@ FeedAction FeedOverrideManager::evaluate(TP_STRUCT *tp, TC_STRUCT *tc)
     // Close gate and branch.
     planning.closeGate(tp);
 
-    // ── (disabled) Junction safety: defer when active exits TANGENT
-    //    with no room for a branch — rewriting profiles risks partial
-    //    propagation at junction.  Enable via planning.junction_safety_enabled.
-    // if (planning.junction_safety_enabled) {
-    //     TC_QUEUE_STRUCT *jq = &tp->queue;
-    //     int jqlen = tcqLen_user(jq);
-    //     if (jqlen >= 2 && tc->term_cond == TC_TERM_COND_TANGENT &&
-    //         !segmentHasBranchRoom(tc)) {
-    //         TC_STRUCT *jnext = tcqItem_user(jq, 1);
-    //         if (jnext && jnext->shared_9d.profile.valid) {
-    //             action = FeedAction::NONE;
-    //             return action;
-    //         }
-    //     }
-    // }
-
-    // ── (disabled) Commit segment estimate: defer when active nearly done
-    //    (RT would advance before the branch takes effect).
-    //    Enable via planning.commit_estimate_enabled.
-    // if (planning.commit_estimate_enabled) {
-    //     int commit_seg = estimateCommitSegment(tp, current_feed);
-    //     if (commit_seg > 1) {
-    //         action = FeedAction::NONE;
-    //         return action;
-    //     }
-    // }
-
     reason = FeedChangeReason::KNOB;
     target_feed = current_feed;
     action = FeedAction::BRANCH;
@@ -4013,17 +3579,6 @@ static void executeMerge(TP_STRUCT *tp, TC_STRUCT *tc)
     g_feed_mgr.committed_feed = snap.feed;
     g_feed_mgr.committed_rapid = snap.rapid;
     g_feed_mgr.onMerge();
-
-    if (FO_TRACE) {
-        int qlen = tcqLen_user(&tp->queue);
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "FO cy=%d MERGE seg=%d snap=%.3f aev=%.3f "
-            "committed=%.3f qlen=%d gate=%s\n",
-            g_fo_cycle, tc->id, snap.feed,
-            tc->shared_9d.achieved_exit_vel,
-            g_feed_mgr.committed_feed, qlen,
-            g_feed_mgr.planning.isOpen() ? "OPEN" : "CLOSED");
-    }
 }
 
 /**
@@ -4051,28 +3606,12 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
     bool ok = computeBranch(tp, tc, feed);
     double branch_sec = etime_user() - branch_t0;
 
-    if (FO_TRACE) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "FO cy=%d BRANCH seg=%d feed=%.3f ok=%d branch_us=%.0f reason=%s\n",
-            g_fo_cycle, tc->id, feed, ok ? 1 : 0,
-            branch_sec * 1e6, reasonStr(g_feed_mgr.reason));
-    }
-
     // Retry with shallow chain cap: when the 16-deep downstream cap is too
     // tight, the branch can't decelerate enough.  Retry with depth=1 (just
     // the immediate successor).  The forward pass handles deeper constraints
     // incrementally after the branch succeeds.
     if (!ok && g_feed_mgr.reason == FeedChangeReason::CHAIN_CAP) {
-        double retry_t0 = etime_user();
         ok = computeBranch(tp, tc, feed, 1);
-        double retry_sec = etime_user() - retry_t0;
-        if (FO_TRACE) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO cy=%d BRANCH_RETRY_SHALLOW seg=%d feed=%.3f ok=%d "
-                "retry_us=%.0f\n",
-                g_fo_cycle, tc->id, feed, ok ? 1 : 0,
-                retry_sec * 1e6);
-        }
     }
 
     if (g_feed_mgr.reason == FeedChangeReason::STALE_PROFILE && !ok) {
@@ -4102,16 +3641,6 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
         g_feed_mgr.planning.branch_failed_seg = tc->id;
         g_feed_mgr.planning.convergence_remaining = 0;
 
-        if (FO_TRACE) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO cy=%d FEED_HOLD_WAIT seg=%d v=%.1f remaining=%.3f\n",
-                g_fo_cycle, tc->id,
-                tc->shared_9d.profile.valid
-                    ? tc->shared_9d.profile.v[0] : -1.0,
-                tc->target - atomicLoadDouble(&tc->elapsed_time)
-                    * (tc->shared_9d.profile.valid
-                       ? tc->target / tc->shared_9d.profile.duration : 0.0));
-        }
     } else if (!ok) {
         // Branch can't fit within active segment (e.g. FEED_LIMIT_LOCKED —
         // not enough remaining distance to brake to downstream exit cap).
@@ -4138,19 +3667,6 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
         // Update EMA costs + converged_depth (same tracker as success path).
         g_feed_mgr.planning.onBranchCycleComplete(0.0, replan_s, segs);
 
-        if (FO_TRACE) {
-            int qlen = tcqLen_user(&tp->queue);
-            double active_feed = tc->shared_9d.profile.computed_feed_scale;
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO cy=%d BRANCH_SKIP_REPLAN committed=%.3f active_feed=%.3f "
-                "mismatch=%.1f%% segs=%d/%d "
-                "budget=%.0fus actual=%.0fus needs_replan=%d\n",
-                g_fo_cycle, g_feed_mgr.committed_feed, active_feed,
-                fabs(active_feed - g_feed_mgr.committed_feed)
-                    / fmax(active_feed, 0.001) * 100.0,
-                segs, qlen, budget * 1e6, replan_s * 1e6,
-                g_needs_replan ? 1 : 0);
-        }
         // Gate stays closed — continuation path in checkFeedOverride handles
         // remaining segments.  convergence_remaining stays at 20 (from
         // closeGate), so gate opens only after safe_depth converge + countdown.
@@ -4175,17 +3691,6 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
         int segs = replanForward(tp, branch_v0, budget);
         double replan_sec = etime_user() - recomp_t0;
         g_feed_mgr.onBranchCreated(branch_sec, replan_sec, segs);
-
-        if (FO_TRACE) {
-            int qlen = tcqLen_user(&tp->queue);
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO cy=%d BRANCH_REPLAN committed=%.3f v0=%.3f segs=%d/%d "
-                "budget=%.0fus actual=%.0fus needs_replan=%d\n",
-                g_fo_cycle, g_feed_mgr.committed_feed,
-                branch_v0, segs, qlen,
-                budget * 1e6, replan_sec * 1e6,
-                g_needs_replan ? 1 : 0);
-        }
         // Gate stays closed — opens only from continuation replan
         // in checkFeedOverride, ensuring at least one cycle of coalescing.
     }
@@ -4463,23 +3968,6 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
 
     TC_STRUCT *tc = tcqItem_user(&tp->queue, 0);
     FeedAction action = g_feed_mgr.evaluate(tp, tc);
-    g_fo_cycle++;
-
-    if (FO_TRACE && action != FeedAction::NONE) {
-        double hal_feed = emcmotStatus ? emcmotStatus->feed_scale : -1.0;
-        double elapsed = tc ? atomicLoadDouble(&tc->elapsed_time) : 0.0;
-        double dur = (tc && tc->shared_9d.profile.valid) ? tc->shared_9d.profile.duration : 0.0;
-        int qlen = tcqLen_user(&tp->queue);
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "FO cy=%d seg=%d elapsed=%.3f/%.3fms qlen=%d gate=%s "
-            "committed=%.3f HAL=%.3f -> %s reason=%s target=%.3f\n",
-            g_fo_cycle, tc ? tc->id : -1,
-            elapsed * 1000.0, dur * 1000.0, qlen,
-            g_feed_mgr.planning.isOpen() ? "OPEN" : "CLOSED",
-            g_feed_mgr.committed_feed, hal_feed,
-            actionStr(action), reasonStr(g_feed_mgr.reason),
-            g_feed_mgr.target_feed);
-    }
 
     switch (action) {
     case FeedAction::NONE:
@@ -4526,17 +4014,6 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                 g_feed_mgr.planning.onReplanComplete(
                     segs, g_feed_mgr.committed_feed, hal, seg_id);
             }
-            if (FO_TRACE && (action != FeedAction::NONE || !g_feed_mgr.planning.isOpen())) {
-                int qlen = tcqLen_user(&tp->queue);
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "FO cy=%d CONT segs=%d/%d budget=%.0fus needs_replan=%d "
-                    "gate=%s depth=%d/%d\n",
-                    g_fo_cycle, segs, qlen, budget * 1e6,
-                    g_needs_replan ? 1 : 0,
-                    g_feed_mgr.planning.isOpen() ? "OPEN" : "CLOSED",
-                    g_feed_mgr.planning.converged_depth,
-                    g_feed_mgr.planning.safe_depth);
-            }
         } else if (!g_feed_mgr.planning.isOpen()
                        && action != FeedAction::BRANCH) {
             // Queue fully converged but gate still closed from a previous
@@ -4574,17 +4051,6 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int /*optimizat
 
     // Run unlimited replan — processes all segments needing recomputation.
     (void)replanForward(tp, -1.0, 0.0 /* unlimited */);
-
-    // Convergence gap scan — during gate-closed period and for a window after
-    if (FO_TRACE) {
-        if (!g_feed_mgr.planning.isOpen()) {
-            scanConvergenceGap(&tp->queue, g_fo_cycle, "OPT");
-            g_conv_scan_remaining = 200; // keep scanning after gate opens
-        } else if (g_conv_scan_remaining > 0) {
-            g_conv_scan_remaining--;
-            scanConvergenceGap(&tp->queue, g_fo_cycle, "POST");
-        }
-    }
 
     return 0;
 }
