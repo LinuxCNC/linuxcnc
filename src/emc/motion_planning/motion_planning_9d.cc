@@ -2544,18 +2544,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 }
                 prev_exit_vel_known = true;
             }
-            if (FO_TRACE) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "FO_ACTIVE_SKIP seg=%d term=%d prof_valid=%d "
-                    "prof_feed=%.3f v0_override=%.1f prev_known=%d "
-                    "prev_exit=%.3f bv=%d\n",
-                    tc->id, tc->term_cond, tc->shared_9d.profile.valid,
-                    tc->shared_9d.profile.computed_feed_scale,
-                    v0_override, prev_exit_vel_known ? 1 : 0,
-                    prev_exit_vel,
-                    __atomic_load_n(&tc->shared_9d.branch.valid,
-                                    __ATOMIC_ACQUIRE));
-            }
             continue;
         }
 
@@ -2601,16 +2589,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             double chain_cap = computeChainExitCap(
                 tp, tc, feed_scale, default_jerk, /*max_depth=*/16,
                 /*start_index=*/i + 1);
-            if (FO_TRACE && chain_cap < 1e9) {
-                TC_STRUCT *next_tc = tcqItem_user(queue, i + 1);
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "FO_CHAIN i=%d seg=%d chain_cap=%.3f scaled_exit=%.3f "
-                    "capped=%d next_type=%d next_term=%d\n",
-                    i, tc->id, chain_cap, scaled_v_exit,
-                    chain_cap < scaled_v_exit ? 1 : 0,
-                    next_tc ? next_tc->motion_type : -1,
-                    next_tc ? next_tc->term_cond : -1);
-            }
             if (chain_cap < scaled_v_exit) {
                 scaled_v_exit = chain_cap;
                 desired_fvel  = chain_cap;
@@ -2645,16 +2623,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 if (tc->term_cond == TC_TERM_COND_TANGENT) {
                     double pu = profileExitVelUnscaled(&tc->shared_9d.profile);
                     prev_exit_vel = pu * tc->shared_9d.profile.computed_feed_scale;
-                    if (FO_TRACE && fabs(prev_exit_vel - desired_fvel) > 0.1) {
-                        rtapi_print_msg(RTAPI_MSG_ERR,
-                            "FO_SKIP_EXIT_GAP i=%d seg=%d type=%d "
-                            "desired_fvel=%.3f prof_exit=%.3f gap=%.3f "
-                            "entry=%.3f target=%.4f\n",
-                            i, tc->id, tc->motion_type,
-                            desired_fvel, prev_exit_vel,
-                            desired_fvel - prev_exit_vel,
-                            scaled_v_entry, tc->target);
-                    }
                 } else {
                     prev_exit_vel = 0.0;
                 }
@@ -2714,7 +2682,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
         // --- Compute and store Ruckig profile ---
         double pre_bidir_v_entry = scaled_v_entry;
-        double pre_bidir_v_exit  = scaled_v_exit;
         atomicStoreDouble(&tc->shared_9d.entry_vel, scaled_v_entry);
 
         applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
@@ -2753,40 +2720,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             }
         }
 
-        if (FO_TRACE && (pre_bidir_v_entry - scaled_v_entry > 0.1 ||
-                         pre_bidir_v_exit - scaled_v_exit > 0.1)) {
-            TC_STRUCT *prev_tc = (i > 0) ? tcqItem_user(queue, i - 1) : NULL;
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO_BIDIR_GAP i=%d seg=%d type=%d "
-                "entry=%.3f->%.3f exit=%.3f->%.3f "
-                "target=%.4f prev_exit=%.3f "
-                "prev_seg=%d prev_type=%d "
-                "max_a=%.1f max_j=%.1f kink=%.3f\n",
-                i, tc->id, tc->motion_type,
-                pre_bidir_v_entry, scaled_v_entry,
-                pre_bidir_v_exit, scaled_v_exit,
-                tc->target, prev_exit_vel,
-                prev_tc ? prev_tc->id : -999,
-                prev_tc ? prev_tc->motion_type : -1,
-                max_acc, max_jrk, tc->kink_vel);
-        }
-
-        // Log cross-feed or zero-entry profile writes (first 5 per pass)
-        if (FO_TRACE && fo_dirty_count < 5 &&
-            (fabs(pre_bidir_v_entry) < 0.01 ||
-             fabs(feed_scale - tc->shared_9d.profile.computed_feed_scale) > 0.1)) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO_FWDWRITE i=%d seg=%d type=%d "
-                "v_entry=%.3f(bidir:%.3f) v_exit=%.3f(bidir:%.3f) "
-                "feed=%.3f old_feed=%.3f prev_known=%d "
-                "max_vel=%.3f target=%.4f active=%d\n",
-                i, tc->id, tc->motion_type,
-                pre_bidir_v_entry, scaled_v_entry,
-                pre_bidir_v_exit, scaled_v_exit,
-                feed_scale, tc->shared_9d.profile.computed_feed_scale,
-                prev_exit_vel_known ? 1 : 0,
-                max_vel, tc->target, tc->active);
-        }
 
         try {
             // Raise Ruckig max_velocity when entry exceeds feed-scaled limit
@@ -4087,10 +4020,14 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
 
         if (FO_TRACE) {
             int qlen = tcqLen_user(&tp->queue);
+            double active_feed = tc->shared_9d.profile.computed_feed_scale;
             rtapi_print_msg(RTAPI_MSG_ERR,
-                "FO cy=%d BRANCH_SKIP_REPLAN committed=%.3f segs=%d/%d "
+                "FO cy=%d BRANCH_SKIP_REPLAN committed=%.3f active_feed=%.3f "
+                "mismatch=%.1f%% segs=%d/%d "
                 "budget=%.0fus actual=%.0fus needs_replan=%d\n",
-                g_fo_cycle, g_feed_mgr.committed_feed,
+                g_fo_cycle, g_feed_mgr.committed_feed, active_feed,
+                fabs(active_feed - g_feed_mgr.committed_feed)
+                    / fmax(active_feed, 0.001) * 100.0,
                 segs, qlen, budget * 1e6, replan_s * 1e6,
                 g_needs_replan ? 1 : 0);
         }
