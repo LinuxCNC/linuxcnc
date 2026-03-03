@@ -1341,9 +1341,11 @@ bool Hal::requestAutoMode(bool isRisingEdge)
 // ----------------------------------------------------------------------
 bool Hal::requestManualMode(bool isRisingEdge)
 {
-    if(isRisingEdge && *memory->in.isModeAuto)
+    if(isRisingEdge && !*memory->in.isProgramIdle)
     {
-        //Don't try to change from auto to manual
+        //Don't try to change to manual when not idle
+        //When a program is running, this will fail
+        //When an MDI command is active, this would stop it
         return false;
     }
     return requestMode(isRisingEdge, memory->out.doModeManual, memory->in.isModeManual);
