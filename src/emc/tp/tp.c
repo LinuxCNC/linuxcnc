@@ -5301,8 +5301,10 @@ past_gates:
         if (opt_state >= TC_PLAN_OPTIMIZED) {
             double opt_vel = atomicLoadDouble(&tc->shared_9d.final_vel);
 
-            // Sanity check: velocity should be positive and reasonable
-            if (opt_vel > 0.0 && opt_vel < 1e6) {
+            // Sanity check: velocity should be positive and reasonable.
+            // Only apply to TANGENT segments — STOP/EXACT must keep target_vel=0.
+            if (opt_vel > 0.0 && opt_vel < 1e6 &&
+                tc->term_cond == TC_TERM_COND_TANGENT) {
                 tc->target_vel = opt_vel;
                 tc_debug_print("9D: Applied optimized velocity %g (state=%d)\n", opt_vel, opt_state);
             }
