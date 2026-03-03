@@ -2543,6 +2543,16 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                     prev_exit_vel = pu * tc->shared_9d.profile.computed_feed_scale;
                 }
                 prev_exit_vel_known = true;
+                if (FO_TRACE) {
+                    int bv = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_REPLAN_ACTIVE seg=%d bv=%d prev_exit=%.3f "
+                        "prof_feed=%.3f prof_exit_unscaled=%.6f term=%d\n",
+                        tc->id, bv, prev_exit_vel,
+                        tc->shared_9d.profile.computed_feed_scale,
+                        profileExitVelUnscaled(&tc->shared_9d.profile),
+                        tc->term_cond);
+                }
             }
             continue;
         }
@@ -2565,11 +2575,25 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         // Skip when predecessor is active: RT delivers its old-feed profile
         // exit velocity regardless of kink_vel.  Capping here just creates a
         // v0 mismatch (spike) while the junction jerk is unavoidable either way.
-        // The corridor handles deceleration from the real entry velocity.
+        // Also skip when predecessor's profile exit already exceeds the kink:
+        // this happens in cross-feed corridor chains where the predecessor was
+        // profiled at high velocity (e.g. active→corridor→here).  Capping entry
+        // by kink creates a gap (spike) since RT delivers the predecessor's
+        // profiled exit.  The corridor handles deceleration downstream.
         {
             TC_STRUCT *prev_tc = (i > 0) ? tcqItem_user(queue, i - 1) : NULL;
-            if (prev_tc && prev_tc->kink_vel > 0 && !prev_tc->active)
-                scaled_v_entry = fmin(scaled_v_entry, prev_tc->kink_vel);
+            if (prev_tc && prev_tc->kink_vel > 0 && !prev_tc->active) {
+                bool prev_exit_exceeds_kink = false;
+                if (prev_tc->shared_9d.profile.valid) {
+                    double prev_prof_exit =
+                        profileExitVelUnscaled(&prev_tc->shared_9d.profile)
+                        * prev_tc->shared_9d.profile.computed_feed_scale;
+                    prev_exit_exceeds_kink =
+                        (prev_prof_exit > prev_tc->kink_vel * 1.01);
+                }
+                if (!prev_exit_exceeds_kink)
+                    scaled_v_entry = fmin(scaled_v_entry, prev_tc->kink_vel);
+            }
         }
 
         // Target exit velocity from backward pass
@@ -2700,6 +2724,7 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
         applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
             tc->target, max_acc, max_jrk);
+        double post_bidir_v_entry = scaled_v_entry;  // capture before fix
 
         // Fix: when predecessor is active and bidir reduced entry, restore it.
         // RT delivers the active's profile exit regardless — a v0 gap at entry
@@ -2715,6 +2740,26 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 scaled_v_exit = fmin(fmax(min_exit, scaled_v_exit), scaled_v_entry);
                 desired_fvel  = scaled_v_exit;
             }
+        }
+
+        // Debug: trace active's successor pipeline during cross-feed replans
+        if (FO_TRACE && i <= 2 && i > 0) {
+            TC_STRUCT *dbg_prev = tcqItem_user(queue, i - 1);
+            bool dbg_prev_active = dbg_prev && dbg_prev->active;
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO_SUCC_DBG i=%d seg=%d prev_active=%d "
+                "prev_exit_in=%.3f max_vel=%.3f "
+                "pre_bidir=%.3f post_bidir=%.3f final_entry=%.3f "
+                "fix_fired=%d corridor=%d "
+                "v_exit=%.3f target=%.4f feed=%.3f kink=%.3f\n",
+                i, tc->id, dbg_prev_active ? 1 : 0,
+                prev_exit_vel, max_vel,
+                pre_bidir_v_entry, post_bidir_v_entry, scaled_v_entry,
+                (pre_bidir_v_entry - post_bidir_v_entry > 0.1 &&
+                 dbg_prev_active) ? 1 : 0,
+                cross_feed_corridor ? 1 : 0,
+                scaled_v_exit, tc->target, feed_scale,
+                tc->kink_vel);
         }
 
         // Backward propagation: if bidir reduced our entry, the predecessor's
@@ -2784,10 +2829,17 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 } else {
                     prev_exit_vel = 0.0;
                 }
-            } else {
-                if (FO_TRACE && cross_feed_corridor) {
+                if (FO_TRACE && i <= 2 && i > 0) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
-                        "FO_CORRIDOR_FAIL i=%d seg=%d v_entry=%.3f v_exit=%.3f "
+                        "FO_SUCC_RESULT i=%d seg=%d v0_stored=%.3f "
+                        "v_exit_stored=%.3f prev_exit=%.3f feed=%.3f\n",
+                        i, tc->id, tc->shared_9d.profile.v[0],
+                        prev_exit_vel, prev_exit_vel, feed_scale);
+                }
+            } else {
+                if (FO_TRACE && (cross_feed_corridor || (i <= 2 && i > 0))) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_RUCKIG_FAIL_SUCC i=%d seg=%d v_entry=%.3f v_exit=%.3f "
                         "ruckig_max_vel=%.3f max_acc=%.3f max_jrk=%.1f "
                         "target=%.4f feed=%.3f corridor=%d\n",
                         i, tc->id, scaled_v_entry, scaled_v_exit,
