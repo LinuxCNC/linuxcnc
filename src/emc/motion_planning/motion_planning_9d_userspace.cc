@@ -1468,7 +1468,9 @@ skip_compressor:
                 }
             }
 
-            // Mark for re-optimization (geometry changed)
+            // Invalidate stale profile (target distance changed) so
+            // replanForward recomputes with the new target.
+            __atomic_store_n(&prev_tc->shared_9d.profile.valid, 0, __ATOMIC_RELEASE);
             __atomic_store_n((int*)&prev_tc->shared_9d.optimization_state,
                              TC_PLAN_UNTOUCHED, __ATOMIC_RELEASE);
 

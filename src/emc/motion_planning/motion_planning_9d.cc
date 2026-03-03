@@ -2111,10 +2111,14 @@ int applyLimitingVelocities_9D(TC_QUEUE_STRUCT *queue,
 
         double v_new = smoothing.v_smooth[k];
 
-        if (tc->term_cond == TC_TERM_COND_TANGENT && tc->finalvel > 0.0) {
-            if (v_new < 1e-6) {
+        if (tc->term_cond == TC_TERM_COND_TANGENT) {
+            if (tc->finalvel > 0.0 && v_new < 1e-6) {
                 v_new = tc->finalvel;
             }
+        } else {
+            // STOP and EXACT segments must decelerate to zero — never apply
+            // a non-zero backward-pass velocity to their exit fields.
+            v_new = 0.0;
         }
 
         atomicStoreDouble(&tc->shared_9d.final_vel, v_new);
