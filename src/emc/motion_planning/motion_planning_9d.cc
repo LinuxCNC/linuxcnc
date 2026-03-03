@@ -1174,8 +1174,23 @@ static double computeChainExitCap(TP_STRUCT *tp, TC_STRUCT *active_tc,
         double seg_jrk = seg->maxjerk > 0 ? seg->maxjerk : default_jerk;
         double seg_fv = readFinalVelCapped(seg);
         double seg_exit = fmin(seg_fv * seg_feed, seg_max_vel);
-        
+
         if (seg->kink_vel > 0) seg_exit = fmin(seg_exit, seg->kink_vel);
+
+        // When the next segment is STOP/EXACT (v_f≈0), the backward pass
+        // uses trapezoidal formula sqrt(2*a*d) which ignores jerk limits.
+        // This inflates final_vel beyond what Ruckig can achieve.  Cap to
+        // profile exit so the chain propagates physically consistent limits.
+        TC_STRUCT *next_in_chain = tcqItem_user(&tp->queue, i + 1);
+        if (next_in_chain &&
+            (next_in_chain->term_cond == TC_TERM_COND_STOP ||
+             next_in_chain->term_cond == TC_TERM_COND_EXACT) &&
+            seg->shared_9d.profile.valid &&
+            seg->term_cond == TC_TERM_COND_TANGENT) {
+            double prof_exit = profileExitVelUnscaled(&seg->shared_9d.profile)
+                             * seg->shared_9d.profile.computed_feed_scale;
+            seg_exit = fmin(seg_exit, prof_exit);
+        }
 
         double seg_acc = tcGetTangentialMaxAccel_9D_user(seg);
         double brake_dist = jerkLimitedBrakingDistance(
@@ -1204,8 +1219,23 @@ static double computeChainExitCap(TP_STRUCT *tp, TC_STRUCT *active_tc,
         double seg_fv = readFinalVelCapped(seg);
         double seg_exit = (seg->term_cond == TC_TERM_COND_TANGENT)
             ? fmin(seg_fv * seg_feed, seg_max_vel) : 0.0;
-        
+
         if (seg->kink_vel > 0) seg_exit = fmin(seg_exit, seg->kink_vel);
+
+        // When the next segment is STOP/EXACT (v_f≈0), the backward pass
+        // uses trapezoidal formula sqrt(2*a*d) which ignores jerk limits.
+        // This inflates final_vel beyond what Ruckig can achieve.  Cap to
+        // profile exit so the chain propagates physically consistent limits.
+        TC_STRUCT *next_in_chain_p2 = tcqItem_user(&tp->queue, i + 1);
+        if (next_in_chain_p2 &&
+            (next_in_chain_p2->term_cond == TC_TERM_COND_STOP ||
+             next_in_chain_p2->term_cond == TC_TERM_COND_EXACT) &&
+            seg->shared_9d.profile.valid &&
+            seg->term_cond == TC_TERM_COND_TANGENT) {
+            double prof_exit = profileExitVelUnscaled(&seg->shared_9d.profile)
+                             * seg->shared_9d.profile.computed_feed_scale;
+            seg_exit = fmin(seg_exit, prof_exit);
+        }
 
         // Cap exit by what next segment can accept (cascading backward)
         seg_exit = fmin(seg_exit, next_entry_cap);
