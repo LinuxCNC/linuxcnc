@@ -1001,48 +1001,6 @@ static double jerkLimitedBrakingDistance(double v_s, double v_f,
 }
 
 /**
- * @brief Create a feed hold profile for a segment
- *
- * When feed scale drops below 0.001, the segment needs a minimal profile
- * that indicates a hold state. This creates a uniform 1.0 second profile
- * with feed_scale=0 to signal feed hold to the realtime layer.
- *
- * @param tc Segment to create profile for
- * @param vel_limit Velocity limit to record in profile metadata
- * @param vLimit Machine velocity limit to record in profile metadata
- */
-static void createFeedHoldProfile(TC_STRUCT *tc, double vel_limit, double vLimit,
-                                   const char *caller = "unknown")
-{
-    double canonical = tc->shared_9d.canonical_feed_scale;
-
-    // FH_VIOLATION: createFeedHoldProfile should only be called when canonical <= 0.6%
-    // (either in Phase 2 after decelerating to 0.1%, or when already at low speed).
-    // If canonical > 0.6%, the two-phase guard failed.
-    if (canonical > 0.006) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "FH_VIOLATION seg %d: createFeedHoldProfile at canonical=%.3f (should be <=0.006) caller=%s\n",
-            tc->id, canonical, caller);
-    }
-
-    __atomic_store_n(&tc->shared_9d.profile.valid, 0, __ATOMIC_RELEASE);
-    __atomic_thread_fence(__ATOMIC_SEQ_CST);
-    memset(&tc->shared_9d.profile, 0, sizeof(tc->shared_9d.profile));
-    tc->shared_9d.profile.duration = 1.0;
-    tc->shared_9d.profile.computed_feed_scale = 0.0;
-    tc->shared_9d.profile.computed_vel_limit = vel_limit;
-    tc->shared_9d.profile.computed_vLimit = vLimit;
-    for (int j = 0; j < RUCKIG_PROFILE_PHASES; j++) {
-        tc->shared_9d.profile.t[j] = tc->shared_9d.profile.duration / RUCKIG_PROFILE_PHASES;
-        tc->shared_9d.profile.t_sum[j] = ((j + 1) * tc->shared_9d.profile.duration) / RUCKIG_PROFILE_PHASES;
-    }
-    tc->shared_9d.profile.dbg_src = 6;  // feed hold
-    tc->shared_9d.profile.dbg_v0_req = 0.0;
-    __atomic_thread_fence(__ATOMIC_SEQ_CST);
-    __atomic_store_n(&tc->shared_9d.profile.valid, 1, __ATOMIC_RELEASE);
-}
-
-/**
  * @brief Compute max entry velocity given jerk-limited braking to v_f within distance d
  *
  * Binary search: find max v_s such that jerkLimitedBrakingDistance(v_s, v_f) <= d
@@ -2506,6 +2464,7 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
     double tick_start = etime_user();
     int fo_dirty_count = 0, fo_skip_count = 0;
 
+    bool prev_was_corridor = false;
     int i = 0;
     for (; i < queue_len; i++) {
         TC_STRUCT *tc = tcqItem_user(queue, i);
@@ -2525,7 +2484,7 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 tc->term_cond == TC_TERM_COND_TANGENT && tc->shared_9d.profile.valid) {
                 int bv = __atomic_load_n(&tc->shared_9d.branch.valid, __ATOMIC_ACQUIRE);
                 if (bv && tc->shared_9d.branch.profile.valid &&
-                    tc->shared_9d.branch.profile.computed_feed_scale > 0.001) {
+                    tc->shared_9d.branch.profile.computed_feed_scale >= 0.001) {
                     double pu = profileExitVelUnscaled(&tc->shared_9d.branch.profile);
                     prev_exit_vel = pu * tc->shared_9d.branch.feed_scale;
                 } else if (bv && tc->shared_9d.branch.profile.computed_feed_scale < 0.001) {
@@ -2665,6 +2624,15 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                     prev_exit_vel = 0.0;
                 }
                 prev_exit_vel_known = true;
+                if (FO_TRACE && cross_feed_corridor) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FO_SKIP_CORRIDOR i=%d seg=%d corridor=%d "
+                        "prev_was_corridor=%d entry=%.3f exit=%.3f "
+                        "max_vel=%.3f\n",
+                        i, tc->id, cross_feed_corridor ? 1 : 0,
+                        prev_was_corridor ? 1 : 0,
+                        scaled_v_entry, prev_exit_vel, max_vel);
+                }
                 continue;
             }
         }
@@ -2697,24 +2665,40 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             }
         }
 
-        // --- Feed hold: create placeholder profile ---
+        // --- Feed hold: write zero-velocity stopped profile ---
+        // When feed is effectively 0 (feed hold), skip Ruckig (can't traverse
+        // distance with max_vel=0) and write a zero-velocity profile directly.
+        // Machine is stopped; these profiles are placeholders. When feed
+        // resumes, computed_feed_scale=0 triggers stale-profile recomputation.
         if (feed_scale < 0.001) {
-            if (tc->shared_9d.profile.valid &&
-                tc->shared_9d.profile.computed_feed_scale > 0.001) {
-                // Don't overwrite a live motion profile with a hold placeholder
-                if (tc->term_cond == TC_TERM_COND_TANGENT) {
-                    double pu = profileExitVelUnscaled(&tc->shared_9d.profile);
-                    prev_exit_vel = pu * tc->shared_9d.profile.computed_feed_scale;
-                } else {
-                    prev_exit_vel = 0.0;
-                }
-                prev_exit_vel_known = true;
-                continue;
+            ruckig_profile_t *prof = &tc->shared_9d.profile;
+            __atomic_store_n(&prof->valid, 0, __ATOMIC_RELEASE);
+            prof->duration = 1e6;
+            prof->computed_feed_scale = 0.0;
+            prof->computed_vel_limit = vel_limit;
+            prof->computed_vLimit = tp->vLimit;
+            prof->computed_desired_fvel = 0.0;
+            for (int ph = 0; ph < RUCKIG_PROFILE_PHASES; ph++) {
+                prof->t[ph] = 0.0;
+                prof->t_sum[ph] = 0.0;
+                prof->j[ph] = 0.0;
+                prof->v[ph] = 0.0;
+                prof->a[ph] = 0.0;
+                prof->p[ph] = 0.0;
             }
-            createFeedHoldProfile(tc, vel_limit, tp->vLimit, "replanForward");
-            atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
+            prof->v[RUCKIG_PROFILE_PHASES] = 0.0;
+            prof->a[RUCKIG_PROFILE_PHASES] = 0.0;
+            prof->p[RUCKIG_PROFILE_PHASES] = 0.0;
+            prof->dbg_src = 6;  // feed hold
+            prof->dbg_v0_req = 0.0;
+            prof->generation++;
+            __atomic_store_n(&prof->valid, 1, __ATOMIC_RELEASE);
+            atomicStoreInt((int*)&tc->shared_9d.optimization_state,
+                TC_PLAN_FINALIZED);
             prev_exit_vel = 0.0;
             prev_exit_vel_known = true;
+            prev_was_corridor = false;
+            fo_dirty_count++;
             continue;
         }
 
@@ -2726,19 +2710,34 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             tc->target, max_acc, max_jrk);
         double post_bidir_v_entry = scaled_v_entry;  // capture before fix
 
-        // Fix: when predecessor is active and bidir reduced entry, restore it.
-        // RT delivers the active's profile exit regardless — a v0 gap at entry
-        // causes a spike, while overshooting the exit target shifts the mismatch
+        // Fix: when predecessor is active or in a corridor, and bidir reduced
+        // entry, restore it.  The predecessor's profile exit is committed — RT
+        // will deliver that velocity regardless.  A v0 gap at entry causes a
+        // spike, while overshooting the exit target shifts the mismatch
         // downstream where the corridor chain absorbs it naturally.
+        // When the fix fires, this segment becomes part of the corridor chain.
+        bool bidir_restore_fired = false;
         if (pre_bidir_v_entry - scaled_v_entry > 0.1 && i > 0) {
             TC_STRUCT *prev_tc_fix = tcqItem_user(queue, i - 1);
-            if (prev_tc_fix && prev_tc_fix->active) {
+            if (FO_TRACE && (pre_bidir_v_entry - scaled_v_entry > 5.0)) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "FO_BIDIR_CRUSH i=%d seg=%d pre=%.3f post=%.3f "
+                    "prev_was_corridor=%d prev_active=%d corridor=%d "
+                    "max_vel=%.3f target=%.4f\n",
+                    i, tc->id, pre_bidir_v_entry, scaled_v_entry,
+                    prev_was_corridor ? 1 : 0,
+                    (prev_tc_fix && prev_tc_fix->active) ? 1 : 0,
+                    cross_feed_corridor ? 1 : 0,
+                    max_vel, tc->target);
+            }
+            if (prev_tc_fix && (prev_tc_fix->active || prev_was_corridor)) {
                 scaled_v_entry = pre_bidir_v_entry;
                 // Override exit with physics-based minimum from braking.
                 double min_exit = jerkLimitedMinExitVelocity(
                     scaled_v_entry, tc->target, max_acc, max_jrk);
                 scaled_v_exit = fmin(fmax(min_exit, scaled_v_exit), scaled_v_entry);
                 desired_fvel  = scaled_v_exit;
+                bidir_restore_fired = true;
             }
         }
 
@@ -2860,6 +2859,10 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             prev_exit_vel = 0.0;
         }
         prev_exit_vel_known = true;
+        // Track corridor state for next iteration: this segment is a
+        // corridor if it was detected as one (entry > max_vel) or if
+        // the bidir-restore fired (corridor continuation from predecessor).
+        prev_was_corridor = cross_feed_corridor || bidir_restore_fired;
 
         // Budget check
         if (!unlimited) {
@@ -3017,32 +3020,30 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
     // Check if we're resuming from stopped state
     // Two cases marked by computed_feed_scale:
     // -1.0 = pause/abort stopped (cycle-by-cycle), profile is invalid
-    //  0.0 = feed hold profile (Ruckig computed), profile is valid
+    //  0.0 = stopped (feed hold or pessimistic initial), profile is valid
     double feed_scale = tc->shared_9d.profile.computed_feed_scale;
     bool resuming_from_pause = (feed_scale < -0.5);           // -1.0 marker
-    bool resuming_from_feed_hold = (feed_scale >= -0.5 && feed_scale < 0.001);  // 0.0 marker
+
+    // General stopped-machine detection: covers feed hold, stale initial
+    // profiles at v=0, and any other scenario where machine is at rest.
+    // Probe velocity to distinguish real stops from actively decelerating
+    // profiles that happen to have computed_feed_scale=0.
+    bool resuming_from_stopped = false;
+    if (!resuming_from_pause && feed_scale >= -0.5 && feed_scale < 0.001) {
+        PredictedState probe = predictStateAtTime(tc, atomicLoadDouble(&tc->elapsed_time));
+        if (!probe.valid || probe.velocity < 1.0) {
+            resuming_from_stopped = true;
+        }
+    }
 
     double elapsed = atomicLoadDouble(&tc->elapsed_time);
     double profile_duration = tc->shared_9d.profile.duration;
     double remaining_time = profile_duration - elapsed;
 
-    // Initial pessimistic profiles (from forward pass with v_exit=0) have
-    // computed_feed_scale=0 just like real feed-hold profiles, but the machine
-    // is actively decelerating — not stopped. Probe the profile at elapsed time:
-    // if velocity is significant, this is NOT a feed-hold resume but a normal
-    // profile that needs standard handoff timing. Misclassifying it causes
-    // Ruckig to receive (v>0, a<<0) as initial state → negative velocity profile.
-    if (resuming_from_feed_hold) {
-        PredictedState probe = predictStateAtTime(tc, elapsed);
-        if (probe.valid && probe.velocity > 1.0) {
-            resuming_from_feed_hold = false;
-        }
-    }
-
     // Get current velocity estimate for kinematic margin calculation
     // We need to know velocity early to compute proper handoff margin
     double current_vel_estimate = 0.0;
-    if (!resuming_from_feed_hold && !resuming_from_pause) {
+    if (!resuming_from_stopped && !resuming_from_pause) {
         PredictedState current_state = predictStateAtTime(tc, elapsed);
         if (current_state.valid) {
             current_vel_estimate = current_state.velocity;
@@ -3061,7 +3062,7 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
     double handoff_time;
     double window_end_time;
 
-    if (resuming_from_feed_hold || resuming_from_pause) {
+    if (resuming_from_stopped || resuming_from_pause) {
         // RESUME FROM STOPPED: Machine is stopped, need immediate handoff.
         // Set handoff_time = elapsed so RT takes branch immediately.
         handoff_time = elapsed;
@@ -3123,13 +3124,13 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
         state.acceleration = 0.0;
         state.jerk = 0.0;
         state.valid = true;
-    } else if (resuming_from_feed_hold) {
-        // FEED HOLD RESUME: Profile is a valid stop-in-place profile.
+    } else if (resuming_from_stopped) {
+        // STOPPED RESUME: Profile is valid (velocity-control stop or similar).
         // Sample it - gives correct state whether still decelerating or complete.
         state = predictStateAtTime(tc, handoff_time);
         // Clamp velocity/acceleration to non-negative zero.
-        // Feed hold profiles (memset to 0) can return -0.0 from floating point
-        // arithmetic, which propagates into Ruckig and causes profileHasNegativeVelocity
+        // Stop profiles can return -0.0 from floating point arithmetic,
+        // which propagates into Ruckig and causes profileHasNegativeVelocity
         // to reject the resume profile — permanently blocking the segment.
         if (state.valid && fabs(state.velocity) < 1e-6) state.velocity = 0.0;
         if (state.valid && fabs(state.acceleration) < 1e-6) state.acceleration = 0.0;
@@ -3697,7 +3698,7 @@ bool computeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double new_feed_scale,
             // reaches the target correctly.  Blocking it causes a permanent
             // freeze because computeBranch sets requested_feed_scale on failure,
             // which suppresses retry detection in evaluate().
-            bool skip_negvel_check = (resuming_from_feed_hold || resuming_from_pause)
+            bool skip_negvel_check = (resuming_from_stopped || resuming_from_pause)
                                      && fabs(state.velocity) < 1e-3
                                      && fabs(state.acceleration) < 1e-3;
             if (!skip_negvel_check && profileHasNegativeVelocity(&main_profile)) {
@@ -3821,6 +3822,28 @@ FeedAction FeedOverrideManager::evaluate(TP_STRUCT *tp, TC_STRUCT *tc)
     // Gate is open — read live HAL for all subsequent checks.
     double current_feed = tpGetSegmentFeedScale(tc);
 
+    // ── 4b. Feed hold: two-phase deceleration ──
+    // Must run BEFORE stale-profile check, which would otherwise grab
+    // feed=0% as a stale-profile branch with raw feed=0.0 (bypassing
+    // the two-phase mechanism and causing spikes + replan spam).
+    //
+    // Phase 1 (committed > 0.15%): snap to 0.1% → normal position-control
+    //          branch + replan.  Machine decelerates gradually.
+    // Phase 2 (committed ≈ 0.1%):  velocity-control stop to v=0.
+    //          Machine already at ~0.05 mm/s → trivial stopping distance.
+    // Done    (committed < 0.05%): machine stopped, nothing to do.
+    if (current_feed < 0.001 && !bv) {
+        if (committed_feed < 0.0005) {
+            return FeedAction::NONE;  // already stopped
+        }
+        double snap_feed = (committed_feed > 0.0015) ? 0.001 : 0.0;
+        reason = FeedChangeReason::FEED_HOLD;
+        target_feed = snap_feed;
+        action = FeedAction::BRANCH;
+        planning.closeGate(tp);
+        return action;
+    }
+
     // ── 5. Stale profile correction ──
     // Segment became active before its profile was recomputed at the right feed.
     // Reference is current_feed (from FeedOverrideManager path), NOT
@@ -3902,27 +3925,6 @@ FeedAction FeedOverrideManager::evaluate(TP_STRUCT *tp, TC_STRUCT *tc)
 
     if (!feed_changed && !vel_changed) return FeedAction::NONE;
 
-    // Feed hold: bypass commit estimate (immediate response needed).
-    if (current_feed < 0.001) {
-        // Two-phase feed hold:
-        // Phase 1: decelerate to 0.1% using normal Ruckig.
-        // Phase 2: once velocity is near 0.1% target, allow real 0%.
-        double snap_feed = current_feed;
-        static const double MINIMUM_RUCKIG_FEED = 0.001;
-        if (snap_feed < 0.001) {
-            double elapsed = atomicLoadDouble(&tc->elapsed_time);
-            PredictedState probe = predictStateAtTime(tc, elapsed);
-            double vel_at_min_feed = tc->reqvel * MINIMUM_RUCKIG_FEED;
-            if (!probe.valid || probe.velocity > vel_at_min_feed) {
-                snap_feed = MINIMUM_RUCKIG_FEED;
-            }
-        }
-        reason = FeedChangeReason::FEED_HOLD;
-        target_feed = snap_feed;
-        action = FeedAction::BRANCH;
-        return action;
-    }
-
     // Close gate and branch.
     planning.closeGate(tp);
 
@@ -3985,7 +3987,9 @@ static void executeMerge(TP_STRUCT *tp, TC_STRUCT *tc)
     // downstream correctly in the same cycle after branch.valid=0.
     // RT reads from branch.profile while the branch is active, not
     // main.profile, so this write is safe from a concurrency standpoint.
-    if (branch->profile.valid && branch->profile.computed_feed_scale > 0.001) {
+    // Include feed hold branches (>=0): phase 1 at 0.001, phase 2 at 0.0.
+    // Exclude pause/abort marker profiles (computed_feed_scale = -1.0).
+    if (branch->profile.valid && branch->profile.computed_feed_scale >= 0.0) {
         tc->shared_9d.profile.v[RUCKIG_PROFILE_PHASES] =
             branch->profile.v[RUCKIG_PROFILE_PHASES];
         tc->shared_9d.profile.computed_feed_scale =
@@ -4083,7 +4087,32 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
         }
     }
 
-    if (!ok) {
+    if (!ok && g_feed_mgr.reason == FeedChangeReason::FEED_HOLD) {
+        // Feed hold branch failed (FEED_LIMIT_LOCKED — active segment too
+        // short to brake from current velocity).  Don't BRANCH_SKIP_REPLAN:
+        // that would commit feed=0.001 and replan downstream, but Ruckig
+        // can't decelerate from high velocity to max_vel=0.096 in available
+        // distance → corrupted profiles → spike when phase 2 overwrites.
+        //
+        // Instead: wait for RT to advance past this segment.  Machine
+        // continues at old velocity for a few ms (bounded by segment
+        // duration), then phase 1 retries on the next segment where it
+        // has full distance to brake.
+        g_feed_mgr.planning.branch_failed = true;
+        g_feed_mgr.planning.branch_failed_seg = tc->id;
+        g_feed_mgr.planning.convergence_remaining = 0;
+
+        if (FO_TRACE) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "FO cy=%d FEED_HOLD_WAIT seg=%d v=%.1f remaining=%.3f\n",
+                g_fo_cycle, tc->id,
+                tc->shared_9d.profile.valid
+                    ? tc->shared_9d.profile.v[0] : -1.0,
+                tc->target - atomicLoadDouble(&tc->elapsed_time)
+                    * (tc->shared_9d.profile.valid
+                       ? tc->target / tc->shared_9d.profile.duration : 0.0));
+        }
+    } else if (!ok) {
         // Branch can't fit within active segment (e.g. FEED_LIMIT_LOCKED —
         // not enough remaining distance to brake to downstream exit cap).
         // Instead of waiting for RT to advance past this segment, commit the
@@ -4092,8 +4121,11 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
         // countdown from closeGate() ensures safe_depth segments are converged
         // at the new feed before the gate reopens.
 
-        g_feed_mgr.committed_feed  = emcmotStatus
-            ? emcmotStatus->feed_scale  : 1.0;
+        // Use effective branch feed, not raw HAL.  For feed hold phase 1,
+        // HAL=0 but branch feed=0.001 — downstream profiles need 0.001.
+        double hal_feed = emcmotStatus ? emcmotStatus->feed_scale : 1.0;
+        g_feed_mgr.committed_feed  = (hal_feed < 0.001 && feed >= 0.001)
+            ? feed : hal_feed;
         g_feed_mgr.committed_rapid = emcmotStatus
             ? emcmotStatus->rapid_scale : 1.0;
 
@@ -4128,8 +4160,11 @@ static void executeBranch(TP_STRUCT *tp, TC_STRUCT *tc, double feed)
         // Freeze committed feed BEFORE replanForward — snapshot() reads
         // these while gate is closed, so all replans (including the one
         // below and any continuation replans) use the branch feed.
-        g_feed_mgr.committed_feed = emcmotStatus
-            ? emcmotStatus->feed_scale  : 1.0;
+        // Use effective branch feed, not raw HAL.  For feed hold phase 1,
+        // HAL=0 but branch feed=0.001 — downstream profiles need 0.001.
+        double hal_feed_ok = emcmotStatus ? emcmotStatus->feed_scale : 1.0;
+        g_feed_mgr.committed_feed = (hal_feed_ok < 0.001 && feed >= 0.001)
+            ? feed : hal_feed_ok;
         g_feed_mgr.committed_rapid = emcmotStatus
             ? emcmotStatus->rapid_scale : 1.0;
 
@@ -4474,6 +4509,12 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
     // sensed because snapshot/committed match), and the continuation replan
     // uses committed_feed via snapshot(), keeping profiles consistent.
     if (!tp->pausing && !tp->aborting) {
+        // Machine stopped at feed hold — skip continuation replanning.
+        // New segments will be recomputed when feed resumes (stale-profile).
+        if (g_needs_replan && g_feed_mgr.committed_feed < 0.001
+                && g_feed_mgr.planning.isOpen()) {
+            g_needs_replan = false;
+        }
         if (g_needs_replan) {
             double budget = g_feed_mgr.planning.getBudget(
                 g_handoff_config.servo_cycle_time_sec);
@@ -4525,6 +4566,11 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int /*optimizat
     TC_QUEUE_STRUCT *queue = &tp->queue;
     if (queue->size <= 0) return 0;
     if (tcqLen_user(queue) < 1) return 0;
+
+    // Machine stopped at feed hold — skip replanning.  New segments will be
+    // recomputed when feed changes (stale-profile or feed-change branch).
+    if (g_feed_mgr.committed_feed < 0.001 && g_feed_mgr.planning.isOpen())
+        return 0;
 
     // Run unlimited replan — processes all segments needing recomputation.
     (void)replanForward(tp, -1.0, 0.0 /* unlimited */);
