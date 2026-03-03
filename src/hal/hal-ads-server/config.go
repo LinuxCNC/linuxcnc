@@ -15,24 +15,37 @@ const (
 	DirIn PinDir = "in"
 	// DirOut means the HAL component produces this value (HMI reads FROM the PLC/HAL).
 	DirOut PinDir = "out"
+	// DirInOut means the HAL component can both read and write the value (bidirectional).
+	DirInOut PinDir = "inout"
 	// DirPad marks a padding/reserved field that occupies space in the ADS process
 	// image but does not create a HAL pin. Reads return zero bytes; writes are
-	// silently discarded. The symbol is still registered in the ADS symbol table.
+	// silently discarded.
 	DirPad PinDir = "pad"
 )
 
-// ConfigPin describes a single leaf symbol that maps to a HAL pin.
-type ConfigPin struct {
-	// Dir is the HAL pin direction ("in" or "out").
+// Node is a parsed element from the config file.
+//
+// Leaf nodes (Dir != "") represent HAL pins or padding fields.
+// Container nodes (Children != nil) represent structs or array templates.
+//
+// For array containers, ArrayStart and ArrayEnd give the element index range
+// (e.g. [1..4] -> ArrayStart=1, ArrayEnd=4); Children holds the per-element
+// template (shared across all instances).
+type Node struct {
+	// Name is the field name, e.g. "bGlobalErr", "aPools", "stMsg".
+	Name string
+	// Dir is the direction for leaf nodes ("in", "out", "inout", "pad").
+	// Empty for container nodes.
 	Dir PinDir
-	// HALPath is the dot-separated path for the HAL pin name, e.g.
-	// "stDISPLAY_DATA.stPOOL.1.bReady".
-	HALPath string
-	// ADSName is the full ADS symbol name with bracket notation, e.g.
-	// "stDISPLAY_DATA.stPOOL[1].bReady".
-	ADSName string
-	// TypeName is the ADS/TwinCAT type name, e.g. "BOOL", "DINT", "STRING(32)".
+	// TypeName is the ADS/TwinCAT type name for leaf nodes, e.g. "BOOL", "REAL".
+	// Empty for container nodes.
 	TypeName string
+	// ArrayStart and ArrayEnd are >0 for array containers, e.g. [1..4] gives
+	// ArrayStart=1, ArrayEnd=4. Both are 0 for plain struct containers.
+	ArrayStart int
+	ArrayEnd   int
+	// Children holds child nodes for containers (nil for leaves).
+	Children []*Node
 }
 
 // configLine is a pre-processed line from the config file.
@@ -42,38 +55,30 @@ type configLine struct {
 	trimmed string // content without leading whitespace
 }
 
-// pathFrame tracks one level of the nesting hierarchy during parsing.
-type pathFrame struct {
-	// halSeg is the path segment used in HAL pin names (e.g. "stPOOL" or "stPOOL.1").
-	halSeg string
-	// adsSeg is the path segment used in ADS symbol names (e.g. "stPOOL" or "stPOOL[1]").
-	adsSeg string
-	// depth is the indent depth at which this frame was pushed.
-	depth int
-}
-
-// ParseConfig reads the HAL-ADS config format from r and returns the list of
-// leaf symbols to create as HAL pins.
+// ParseTree reads the HAL-ADS config format from r and returns the tree of
+// Nodes representing the symbol hierarchy.
 //
 // Format (2-space indentation):
 //
-//	ContainerName
+// ContainerName
+//
+//	in leafName TYPE
+//	out leafName TYPE
+//	inout leafName TYPE
+//	pad leafName TYPE
+//	ArrayName[start..end]
 //	  in leafName TYPE
-//	  out leafName TYPE
-//	  ArrayName[start..end]
-//	    in leafName TYPE
-func ParseConfig(r io.Reader) ([]ConfigPin, error) {
+func ParseTree(r io.Reader) ([]*Node, error) {
 	lines, err := readConfigLines(r)
 	if err != nil {
 		return nil, err
 	}
-	stack := []pathFrame{{halSeg: "", adsSeg: "", depth: -1}}
-	var pins []ConfigPin
+	var roots []*Node
 	idx := 0
-	if err := parseBlock(lines, &idx, -1, stack, &pins); err != nil {
+	if err := parseTreeBlock(lines, &idx, -1, &roots); err != nil {
 		return nil, err
 	}
-	return pins, nil
+	return roots, nil
 }
 
 // readConfigLines reads and pre-processes all non-blank, non-comment lines.
@@ -101,20 +106,15 @@ func readConfigLines(r io.Reader) ([]configLine, error) {
 	return lines, nil
 }
 
-// parseBlock processes lines from idx up to (but not including) the first line at
-// depth <= minDepth, appending any discovered pins to *pins.
-// It advances *idx past all consumed lines.
-func parseBlock(lines []configLine, idx *int, minDepth int, stack []pathFrame, pins *[]ConfigPin) error {
+// parseTreeBlock processes config lines starting at *idx, adding discovered
+// Nodes to *nodes. It stops when it encounters a line at depth <= minDepth
+// (that line is left for the caller to process).
+func parseTreeBlock(lines []configLine, idx *int, minDepth int, nodes *[]*Node) error {
 	for *idx < len(lines) {
 		cl := lines[*idx]
 		if cl.depth <= minDepth {
-			// This line belongs to a parent block; leave it for the caller.
+			// This line belongs to a parent block; stop here.
 			return nil
-		}
-
-		// Pop stack frames that are deeper than or equal to current depth.
-		for len(stack) > 1 && stack[len(stack)-1].depth >= cl.depth {
-			stack = stack[:len(stack)-1]
 		}
 
 		tokens := strings.Fields(cl.trimmed)
@@ -123,131 +123,65 @@ func parseBlock(lines []configLine, idx *int, minDepth int, stack []pathFrame, p
 			continue
 		}
 
-		// Leaf line (starts with "in", "out", or "pad").
-		if tokens[0] == "in" || tokens[0] == "out" || tokens[0] == "pad" {
+		// Leaf line (starts with a direction keyword).
+		if tokens[0] == "in" || tokens[0] == "out" || tokens[0] == "inout" || tokens[0] == "pad" {
 			if len(tokens) < 3 {
 				return fmt.Errorf("line %d: leaf line requires direction, name, and type", cl.lineNo)
 			}
-			dir := PinDir(tokens[0])
-			name := tokens[1]
-			typeName := parseTypeName(tokens[2:])
-			halPath := buildPath(stack, name, false)
-			adsName := buildPath(stack, name, true)
-			*pins = append(*pins, ConfigPin{
-				Dir:      dir,
-				HALPath:  halPath,
-				ADSName:  adsName,
-				TypeName: typeName,
+			*nodes = append(*nodes, &Node{
+				Name:     tokens[1],
+				Dir:      PinDir(tokens[0]),
+				TypeName: parseTypeName(tokens[2:]),
 			})
 			*idx++
 			continue
 		}
 
 		// Container line: plain struct or array.
-		expanded, err := expandContainer(tokens[0])
+		node, err := parseContainerNode(tokens[0], cl.lineNo)
 		if err != nil {
-			return fmt.Errorf("line %d: %w", cl.lineNo, err)
+			return err
 		}
+		*idx++ // consume the container line
 
-		*idx++ // consume this container line
-
-		if len(expanded) == 1 {
-			// Simple struct: push a frame and continue parsing child lines.
-			stack = append(stack, pathFrame{
-				halSeg: expanded[0].halSeg,
-				adsSeg: expanded[0].adsSeg,
-				depth:  cl.depth,
-			})
-		} else {
-			// Array: collect the sub-block indices, then expand for each instance.
-			subStart := *idx
-			// Advance idx past all lines belonging to this sub-block.
-			for *idx < len(lines) && lines[*idx].depth > cl.depth {
-				*idx++
-			}
-			subLines := lines[subStart:*idx]
-
-			for _, inst := range expanded {
-				innerStack := make([]pathFrame, len(stack))
-				copy(innerStack, stack)
-				innerStack = append(innerStack, pathFrame{
-					halSeg: inst.halSeg,
-					adsSeg: inst.adsSeg,
-					depth:  cl.depth,
-				})
-				subIdx := 0
-				if err := parseBlock(subLines, &subIdx, cl.depth-1, innerStack, pins); err != nil {
-					return err
-				}
-			}
+		var children []*Node
+		if err := parseTreeBlock(lines, idx, cl.depth, &children); err != nil {
+			return err
 		}
+		node.Children = children
+		*nodes = append(*nodes, node)
 	}
 	return nil
 }
 
-// containerInstance represents one element of a parsed container path.
-type containerInstance struct {
-	halSeg string
-	adsSeg string
-}
-
-// expandContainer parses a container token.
-// For "name" it returns [{halSeg:"name", adsSeg:"name"}].
-// For "name[1..9]" it returns nine instances.
-func expandContainer(token string) ([]containerInstance, error) {
-	// Detect array syntax: name[start..end]
+// parseContainerNode parses a container token (plain name or "name[start..end]")
+// and returns a Node with Name, ArrayStart, ArrayEnd set (Children left nil).
+func parseContainerNode(token string, lineNo int) (*Node, error) {
 	lb := strings.Index(token, "[")
 	if lb == -1 {
-		return []containerInstance{{halSeg: token, adsSeg: token}}, nil
+		return &Node{Name: token}, nil
 	}
 	rb := strings.Index(token, "]")
 	if rb == -1 || rb < lb {
-		return nil, fmt.Errorf("invalid array syntax %q", token)
+		return nil, fmt.Errorf("line %d: invalid array syntax %q", lineNo, token)
 	}
 	baseName := token[:lb]
 	rangeStr := token[lb+1 : rb]
 	parts := strings.SplitN(rangeStr, "..", 2)
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("invalid array range %q (expected start..end)", rangeStr)
+		return nil, fmt.Errorf("line %d: invalid array range %q (expected start..end)", lineNo, rangeStr)
 	}
 	var start, end int
 	if _, err := fmt.Sscanf(parts[0], "%d", &start); err != nil {
-		return nil, fmt.Errorf("invalid array start %q", parts[0])
+		return nil, fmt.Errorf("line %d: invalid array start %q", lineNo, parts[0])
 	}
 	if _, err := fmt.Sscanf(parts[1], "%d", &end); err != nil {
-		return nil, fmt.Errorf("invalid array end %q", parts[1])
+		return nil, fmt.Errorf("line %d: invalid array end %q", lineNo, parts[1])
 	}
 	if start > end {
-		return nil, fmt.Errorf("array range start %d > end %d", start, end)
+		return nil, fmt.Errorf("line %d: array range start %d > end %d", lineNo, start, end)
 	}
-
-	var instances []containerInstance
-	for i := start; i <= end; i++ {
-		instances = append(instances, containerInstance{
-			halSeg: fmt.Sprintf("%s.%d", baseName, i),
-			adsSeg: fmt.Sprintf("%s[%d]", baseName, i),
-		})
-	}
-	return instances, nil
-}
-
-// buildPath constructs a dot-separated path from the current stack + leaf name.
-// If adsNotation is false, HAL dot notation is used (halSeg).
-// If adsNotation is true, ADS bracket notation is used (adsSeg).
-func buildPath(stack []pathFrame, leafName string, adsNotation bool) string {
-	var parts []string
-	for _, f := range stack {
-		if f.halSeg == "" {
-			continue
-		}
-		if adsNotation {
-			parts = append(parts, f.adsSeg)
-		} else {
-			parts = append(parts, f.halSeg)
-		}
-	}
-	parts = append(parts, leafName)
-	return strings.Join(parts, ".")
+	return &Node{Name: baseName, ArrayStart: start, ArrayEnd: end}, nil
 }
 
 // parseTypeName reconstructs the type name from the remaining tokens on a leaf line.
@@ -259,4 +193,3 @@ func parseTypeName(tokens []string) string {
 	// Normalize to upper case for ADS type names.
 	return strings.ToUpper(strings.Join(tokens, ""))
 }
-

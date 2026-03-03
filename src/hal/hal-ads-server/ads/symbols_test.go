@@ -25,9 +25,9 @@ func (m *mockPin) WriteBytes(data []byte) error {
 	return nil
 }
 
-func (m *mockPin) Size() uint32    { return m.size }
+func (m *mockPin) Size() uint32     { return m.size }
 func (m *mockPin) TypeName() string { return m.typeName }
-func (m *mockPin) TypeID() uint32  { return m.typeID }
+func (m *mockPin) TypeID() uint32   { return m.typeID }
 
 func newBoolPin(val bool) *mockPin {
 	b := byte(0)
@@ -574,7 +574,7 @@ func (z *zeroPadPin) TypeID() uint32             { return z.typeID }
 func TestPadOffsetAdvance(t *testing.T) {
 	st := NewSymbolTable()
 	pad := &zeroPadPin{size: 1, typeName: "BYTE", typeID: ADSTUInt8}
-	sym1 := st.Register("stMsg._reserved1", pad)  // offset 0, size 1
+	sym1 := st.Register("stMsg._reserved1", pad)      // offset 0, size 1
 	sym2 := st.Register("stMsg.eType", newDintPin(0)) // offset 1, size 4
 
 	if sym1.IndexOffset != 0 {
@@ -624,7 +624,7 @@ func TestGroupWithPadding(t *testing.T) {
 	pad2 := &zeroPadPin{size: 2, typeName: "WORD", typeID: ADSTUInt16}
 
 	st.Register("stMsg._reserved1", pad1) // offset 0, size 1
-	st.Register("stMsg.nVal", real)        // offset 1, size 4
+	st.Register("stMsg.nVal", real)       // offset 1, size 4
 	st.Register("stMsg._align", pad2)     // offset 5, size 2
 
 	// The group symbol stMsg should cover offsets 0–6 (7 bytes total).
@@ -660,5 +660,135 @@ func TestGroupWithPadding(t *testing.T) {
 	// Bytes 5-6: pad (_align) → 0.
 	if data[5] != 0 || data[6] != 0 {
 		t.Errorf("data[5:7] (pad) = %v, want [0 0]", data[5:7])
+	}
+}
+
+// TestRegisterAt verifies that RegisterAt places a symbol at an explicit
+// byte offset, updates nextOffset, and creates parent group symbols.
+func TestRegisterAt(t *testing.T) {
+	st := NewSymbolTable()
+
+	// Place a DINT at offset 4 (leaving a 4-byte gap at 0..3).
+	p := newDintPin(99)
+	sym := st.RegisterAt("stFoo.nVal", 4, p)
+
+	if sym.IndexOffset != 4 {
+		t.Errorf("IndexOffset = %d, want 4", sym.IndexOffset)
+	}
+	if sym.IndexGroup != IdxGrpProcessImageRW {
+		t.Errorf("IndexGroup = 0x%X", sym.IndexGroup)
+	}
+
+	// nextOffset should be 4+4=8.
+	// Verify by placing another symbol at auto-incremented offset would use Register.
+	p2 := newBoolPin(true)
+	sym2 := st.RegisterAt("stFoo.bFlag", 8, p2)
+	if sym2.IndexOffset != 8 {
+		t.Errorf("second symbol offset = %d, want 8", sym2.IndexOffset)
+	}
+
+	// Group symbol for "stFoo" should exist.
+	grp := st.GetByName("stFoo")
+	if grp == nil {
+		t.Fatal("group symbol stFoo not created by RegisterAt")
+	}
+	if _, ok := grp.Accessor.(*groupAccessor); !ok {
+		t.Error("stFoo accessor is not *groupAccessor")
+	}
+
+	// GetByName should return the leaf symbol.
+	got := st.GetByName("stFoo.nVal")
+	if got == nil || got.IndexOffset != 4 {
+		t.Errorf("GetByName(stFoo.nVal) = %v", got)
+	}
+
+	// Symbol should appear in symbolOrder (part of symbol list).
+	data, errCode := st.ReadData(IdxGrpSymbolCount, 0, 4)
+	if errCode != ErrNoError {
+		t.Fatalf("SymbolCount error: 0x%X", errCode)
+	}
+	count := binary.LittleEndian.Uint32(data)
+	if count != 2 {
+		t.Errorf("SymbolCount = %d, want 2", count)
+	}
+}
+
+// TestRegisterAtExplicitOffsetRead verifies that reading a symbol registered
+// with RegisterAt returns the correct value.
+func TestRegisterAtExplicitOffsetRead(t *testing.T) {
+	st := NewSymbolTable()
+	p := newDintPin(42)
+	sym := st.RegisterAt("stA.nVal", 8, p)
+
+	handle, errCode := st.CreateHandle("stA.nVal")
+	if errCode != ErrNoError {
+		t.Fatalf("CreateHandle error: 0x%X", errCode)
+	}
+
+	data, errCode := st.ReadData(IdxGrpSymbolValueByHandle, handle, 4)
+	if errCode != ErrNoError {
+		t.Fatalf("ReadData error: 0x%X", errCode)
+	}
+	if int32(binary.LittleEndian.Uint32(data)) != 42 {
+		t.Errorf("value = %d, want 42", int32(binary.LittleEndian.Uint32(data)))
+	}
+
+	// Process-image read at the explicit offset should also work.
+	data2, errCode2 := st.ReadData(IdxGrpProcessImageRW, sym.IndexOffset, 4)
+	if errCode2 != ErrNoError {
+		t.Fatalf("process-image read error: 0x%X", errCode2)
+	}
+	if int32(binary.LittleEndian.Uint32(data2)) != 42 {
+		t.Errorf("process-image value = %d, want 42", int32(binary.LittleEndian.Uint32(data2)))
+	}
+}
+
+// TestRegisterPadAt verifies that RegisterPadAt:
+//   - does NOT add the pad to byName
+//   - does NOT add the pad to symbolOrder (not in symbol list/count)
+//   - adds to byOffset so process-image range reads cover that range and return zeros
+//   - updates nextOffset
+func TestRegisterPadAt(t *testing.T) {
+	st := NewSymbolTable()
+
+	// Register a real pin at offset 0 and a pad at offset 1.
+	st.RegisterAt("stX.bFlag", 0, newBoolPin(true))
+	st.RegisterPadAt(1, 2) // 2-byte pad at offset 1
+
+	// Pad must NOT appear in byName.
+	if sym := st.GetByName("stX._pad0"); sym != nil {
+		t.Error("pad symbol unexpectedly found in byName")
+	}
+
+	// Symbol count must NOT include the pad.
+	data, errCode := st.ReadData(IdxGrpSymbolCount, 0, 4)
+	if errCode != ErrNoError {
+		t.Fatalf("SymbolCount error: 0x%X", errCode)
+	}
+	count := binary.LittleEndian.Uint32(data)
+	if count != 1 {
+		t.Errorf("SymbolCount = %d, want 1 (pad must not be counted)", count)
+	}
+
+	// CreateHandle for pad name must fail.
+	_, hErrCode := st.CreateHandle("stX._pad")
+	if hErrCode == ErrNoError {
+		t.Error("CreateHandle for pad name should fail, got ErrNoError")
+	}
+
+	// Process-image range read covering [0..2] (bFlag + pad):
+	// byte 0 = 1 (bFlag=true), bytes 1-2 = 0 (pad).
+	imgData, imgErr := st.ReadData(IdxGrpProcessImageRW, 0, 3)
+	if imgErr != ErrNoError {
+		t.Fatalf("process-image read error: 0x%X", imgErr)
+	}
+	if len(imgData) != 3 {
+		t.Fatalf("process-image data length = %d, want 3", len(imgData))
+	}
+	if imgData[0] != 1 {
+		t.Errorf("imgData[0] (bFlag) = %d, want 1", imgData[0])
+	}
+	if imgData[1] != 0 || imgData[2] != 0 {
+		t.Errorf("imgData[1:3] (pad) = %v, want [0 0]", imgData[1:3])
 	}
 }
