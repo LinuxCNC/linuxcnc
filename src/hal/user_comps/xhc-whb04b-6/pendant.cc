@@ -343,6 +343,7 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
         {percent_60.code,  &percent_60},
         {percent_100.code, &percent_100},
         {lead.code,        &lead},
+        {lead9B.code,      &lead9B},
         {undefined.code,   &undefined}
     }
 {
