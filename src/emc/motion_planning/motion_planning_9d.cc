@@ -2701,13 +2701,35 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         applyBidirectionalReachability(scaled_v_entry, scaled_v_exit,
             tc->target, max_acc, max_jrk);
 
+        // Fix: when predecessor is active and bidir reduced entry, restore it.
+        // RT delivers the active's profile exit regardless — a v0 gap at entry
+        // causes a spike, while overshooting the exit target shifts the mismatch
+        // downstream where the corridor chain absorbs it naturally.
+        if (pre_bidir_v_entry - scaled_v_entry > 0.1 && i > 0) {
+            TC_STRUCT *prev_tc_fix = tcqItem_user(queue, i - 1);
+            if (prev_tc_fix && prev_tc_fix->active) {
+                scaled_v_entry = pre_bidir_v_entry;
+                // Override exit with physics-based minimum from braking.
+                double min_exit = jerkLimitedMinExitVelocity(
+                    scaled_v_entry, tc->target, max_acc, max_jrk);
+                scaled_v_exit = fmin(fmax(min_exit, scaled_v_exit), scaled_v_entry);
+                desired_fvel  = scaled_v_exit;
+            }
+        }
+
         // Backward propagation: if bidir reduced our entry, the predecessor's
         // profile exit is too high.  Rewrite it with the bidir-capped exit
         // so RT sees a consistent junction velocity.
         if (pre_bidir_v_entry - scaled_v_entry > 0.1 && i > 0) {
             TC_STRUCT *prev_tc = tcqItem_user(queue, i - 1);
+            // Skip rewriting the immediate successor of the active segment —
+            // its v0 was set to match the active's delivery velocity and must
+            // not be reduced by downstream bidir cascades.
+            TC_STRUCT *grandparent = (i >= 2) ? tcqItem_user(queue, i - 2) : NULL;
+            bool prev_is_active_successor = grandparent && grandparent->active;
             if (prev_tc && prev_tc->term_cond == TC_TERM_COND_TANGENT &&
-                prev_tc->shared_9d.profile.valid && !prev_tc->active) {
+                prev_tc->shared_9d.profile.valid && !prev_tc->active &&
+                !prev_is_active_successor) {
                 double prev_feed = snap.forSegment(prev_tc);
                 double prev_vel_limit = getEffectiveVelLimit(tp, prev_tc);
                 double prev_max_vel = applyVLimit(tp, prev_tc, prev_vel_limit * prev_feed);
