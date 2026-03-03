@@ -4398,19 +4398,14 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
                                   __atomic_load_n(&tc->shared_9d.branch.taken, __ATOMIC_ACQUIRE) &&
                                   !__atomic_load_n(&tc->shared_9d.branch.brake_done, __ATOMIC_ACQUIRE));
 
-            // Feed hold detection: if computed_feed_scale is ~0, this is a "stop in place"
-            // profile using velocity control. Do NOT complete the segment until:
-            // - Feed is restored (new branch will be computed), OR
-            // - Position actually reaches target (shouldn't happen in feed hold)
-            // This prevents "teleporting" to segment end when feed hold profile completes.
-            int in_feed_hold = (tc->shared_9d.profile.computed_feed_scale < 0.001);
-
             // Note: For Ruckig, we do NOT snap progress to target here.
             // The split mechanism (Option E) detects completion one cycle early
             // via look-ahead in tpCheckEndCondition, and the split handler samples
             // the profile at duration for the exact final position.
             // Only set on_final_decel flag for non-tangent segments that need to stop.
-            if (!in_brake_phase && !in_feed_hold &&
+            // Feed hold no longer needs a guard here — the velocity-control stop
+            // profile keeps velocity at 0, so progress never reaches target.
+            if (!in_brake_phase &&
                 tc->progress >= tc->target - TP_POS_EPSILON) {
                 tc->progress = tc->target;
                 tc->on_final_decel = 1;
