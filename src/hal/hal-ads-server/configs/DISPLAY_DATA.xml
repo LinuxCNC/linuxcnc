@@ -1,0 +1,790 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://www.plcopen.org/xml/tc6_0200">
+  <fileHeader companyName="Beckhoff Automation GmbH" productName="TwinCAT PLC Control" productVersion="3.5.19.61" creationDateTime="2026-02-19T00:33:13.1078117" />
+  <contentHeader name="GalvPLC" modificationDateTime="2026-02-19T00:33:13.1312004">
+    <coordinateInfo>
+      <fbd>
+        <scaling x="1" y="1" />
+      </fbd>
+      <ld>
+        <scaling x="1" y="1" />
+      </ld>
+      <sfc>
+        <scaling x="1" y="1" />
+      </sfc>
+    </coordinateInfo>
+    <addData>
+      <data name="http://www.3s-software.com/plcopenxml/projectinformation" handleUnknown="implementation">
+        <ProjectInformation />
+      </data>
+    </addData>
+  </contentHeader>
+  <types>
+    <dataTypes>
+      <dataType name="EN_DISP_MSGTYPE">
+        <baseType>
+          <enum>
+            <values>
+              <value name="none" value="0" />
+              <value name="precheck" />
+              <value name="finishedOk" />
+              <value name="finishedWarn" />
+              <value name="StopReq" />
+            </values>
+          </enum>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+            <Attributes>
+              <Attribute Name="qualified_only" Value="" />
+              <Attribute Name="strict" Value="" />
+              <Attribute Name="to_string" Value="" />
+            </Attributes>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE EN_DISP_MSGTYPE :
+(
+	none := 0,
+	precheck,
+	finishedOk,
+	finishedWarn,
+	StopReq
+);
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>96656ea5-0db7-49b0-86ec-56cef26b56d0</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="EN_DISP_POOL_STATE">
+        <baseType>
+          <enum>
+            <values>
+              <value name="empty" value="0" />
+              <value name="newForm" />
+              <value name="formLoaded" />
+              <value name="pause" />
+              <value name="error" />
+              <value name="warning" />
+              <value name="precoating" />
+              <value name="coating" />
+              <value name="enchase" />
+              <value name="mount" />
+              <value name="finished" />
+            </values>
+          </enum>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+            <Attributes>
+              <Attribute Name="qualified_only" Value="" />
+              <Attribute Name="strict" Value="" />
+              <Attribute Name="to_string" Value="" />
+            </Attributes>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE EN_DISP_POOL_STATE :
+(
+	empty := 0,
+	newForm,
+	formLoaded,
+	pause,
+	error,
+	warning,
+	precoating,
+	coating,
+	enchase,
+	mount,
+	finished
+);
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>4bb8098e-6846-4a59-915d-71a3e3d369c0</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="ST_DISP_DATA">
+        <baseType>
+          <struct>
+            <variable name="dtCurrentTime">
+              <type>
+                <DT />
+              </type>
+            </variable>
+            <variable name="bGlobalErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bAckErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="aPools">
+              <type>
+                <array>
+                  <dimension lower="1" upper="1" />
+                  <baseType>
+                    <derived name="ST_DISP_POOL" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE ST_DISP_DATA :
+STRUCT
+	dtCurrentTime: DATE_AND_TIME;
+	bGlobalErr: BOOL;
+	bAckErr: BOOL;
+	aPools: ARRAY [1..1] OF ST_DISP_POOL;
+END_STRUCT
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>354914ab-5602-4319-a5dd-d33707893044</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="ST_DISP_ERRORS">
+        <baseType>
+          <struct>
+            <variable name="stGlobalErrors">
+              <type>
+                <derived name="ST_DISP_GOLBAL_ERRORS" />
+              </type>
+            </variable>
+            <variable name="aPoolErrors">
+              <type>
+                <array>
+                  <dimension lower="1" upper="1" />
+                  <baseType>
+                    <derived name="ST_DISP_POOL_ERRORS" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE ST_DISP_ERRORS :
+STRUCT
+	stGlobalErrors: ST_DISP_GOLBAL_ERRORS;
+	aPoolErrors: ARRAY[1..1] OF ST_DISP_POOL_ERRORS;	
+END_STRUCT
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>47068e7e-0738-4746-acaa-9138b857c754</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="ST_DISP_GOLBAL_ERRORS">
+        <baseType>
+          <struct>
+            <variable name="bEmergStop">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bDriveSupplyErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bTempWarn">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bTempErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE ST_DISP_GOLBAL_ERRORS :
+STRUCT
+	bEmergStop: BOOL;
+	bDriveSupplyErr: BOOL;
+	bTempWarn: BOOL;
+	bTempErr: BOOL;
+END_STRUCT
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>8c16642f-d9f1-4470-b973-2b1043c6bde7</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="ST_DISP_MIXER">
+        <baseType>
+          <struct>
+            <variable name="fPower">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="bManu">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE ST_DISP_MIXER :
+STRUCT
+	fPower: REAL;
+	bManu: BOOL;
+END_STRUCT
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>d08ed1ee-51ed-41fc-bd59-4a3e031ab671</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="ST_DISP_MIXER_ERRORS">
+        <baseType>
+          <struct>
+            <variable name="bDriveWarn">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bDriveErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bOverloadErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bUnderloadWarn">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bVeloErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE ST_DISP_MIXER_ERRORS :
+STRUCT
+	bDriveWarn: BOOL;
+	bDriveErr: BOOL;
+	bOverloadErr: BOOL;
+	bUnderloadWarn: BOOL;
+	bVeloErr: BOOL;
+END_STRUCT
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>a1de00ad-52fc-485d-b725-94eff5b7b924</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="ST_DISP_MSG">
+        <baseType>
+          <struct>
+            <variable name="eType">
+              <type>
+                <derived name="EN_DISP_MSGTYPE" />
+              </type>
+            </variable>
+            <variable name="bEnableOk">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bEnableCancel">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bOk">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bCancel">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE ST_DISP_MSG :
+STRUCT
+	eType: EN_DISP_MSGTYPE;	
+	bEnableOk: BOOL;
+	bEnableCancel: BOOL;
+	bOk: BOOL;
+	bCancel: BOOL;
+END_STRUCT
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>702ba601-5f18-413a-95f1-5fe16503843e</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="ST_DISP_POOL">
+        <baseType>
+          <struct>
+            <variable name="sPoolName">
+              <type>
+                <string length="31" />
+              </type>
+            </variable>
+            <variable name="nFormulaId">
+              <type>
+                <DWORD />
+              </type>
+            </variable>
+            <variable name="sFormulaName">
+              <type>
+                <string length="31" />
+              </type>
+            </variable>
+            <variable name="eState">
+              <type>
+                <derived name="EN_DISP_POOL_STATE" />
+              </type>
+            </variable>
+            <variable name="fTemp">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="fCurrent">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="fVoltage">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="fTiltPos">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="fTiltVelo">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="fSectPos">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="fSectVelo">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="fLeakPress">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="tProcTimeTotal">
+              <type>
+                <TIME />
+              </type>
+            </variable>
+            <variable name="tProcTimeRem">
+              <type>
+                <TIME />
+              </type>
+            </variable>
+            <variable name="tPhaseTimeTotal">
+              <type>
+                <TIME />
+              </type>
+            </variable>
+            <variable name="tPhaseTimeRem">
+              <type>
+                <TIME />
+              </type>
+            </variable>
+            <variable name="nShiftCurr">
+              <type>
+                <WORD />
+              </type>
+            </variable>
+            <variable name="nShiftCount">
+              <type>
+                <WORD />
+              </type>
+            </variable>
+            <variable name="nRepeatCurr">
+              <type>
+                <WORD />
+              </type>
+            </variable>
+            <variable name="nRepeatCount">
+              <type>
+                <WORD />
+              </type>
+            </variable>
+            <variable name="fTempSetpoint">
+              <type>
+                <REAL />
+              </type>
+            </variable>
+            <variable name="bPumpOnIdle">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="tMixerTimeManual">
+              <type>
+                <TIME />
+              </type>
+            </variable>
+            <variable name="tMixerTimeAuto">
+              <type>
+                <TIME />
+              </type>
+              <documentation>
+                <xhtml xmlns="http://www.w3.org/1999/xhtml"> TODO: pool param/Form ? </xhtml>
+              </documentation>
+            </variable>
+            <variable name="bManuEnable">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bFormStart">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bFormStop">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bFormPause">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bTiltJogPos">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bTiltJogNeg">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bSectJogNeg">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="stMsg">
+              <type>
+                <derived name="ST_DISP_MSG" />
+              </type>
+            </variable>
+            <variable name="aMixers">
+              <type>
+                <array>
+                  <dimension lower="1" upper="4" />
+                  <baseType>
+                    <derived name="ST_DISP_MIXER" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE ST_DISP_POOL :
+STRUCT
+	sPoolName: STRING(31);
+	nFormulaId: DWORD;
+	sFormulaName: STRING(31);
+	eState: EN_DISP_POOL_STATE;
+	fTemp: REAL;
+	fCurrent: REAL;
+	fVoltage: REAL;
+	fTiltPos: REAL;
+	fTiltVelo: REAL;
+	fSectPos: REAL;
+	fSectVelo: REAL;
+	fLeakPress: REAL;
+	tProcTimeTotal: TIME;
+	tProcTimeRem: TIME;
+	tPhaseTimeTotal: TIME;
+	tPhaseTimeRem: TIME;
+	nShiftCurr: WORD;
+	nShiftCount: WORD;
+	nRepeatCurr: WORD;
+	nRepeatCount: WORD;
+
+	fTempSetpoint: REAL;
+	bPumpOnIdle: BOOL;
+	tMixerTimeManual: TIME;
+	tMixerTimeAuto: TIME; (* TODO: pool param/Form ? *)
+
+	bManuEnable: BOOL;
+
+	bFormStart: BOOL;
+	bFormStop: BOOL;
+	bFormPause: BOOL;
+	bTiltJogPos: BOOL;
+	bTiltJogNeg: BOOL;
+	bSectJogNeg: BOOL;
+
+	stMsg: ST_DISP_MSG;
+
+	aMixers: ARRAY [1..4] OF ST_DISP_MIXER;
+END_STRUCT
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>5d3e96cf-52f5-40f7-8f2f-03f772b420db</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+      <dataType name="ST_DISP_POOL_ERRORS">
+        <baseType>
+          <struct>
+            <variable name="bHeaterTempWarn">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bHeaterSensorErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bHeaterSafetyErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bTiltDriveWarn">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bTiltDriveErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bTiltFollowingErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bSectDriveWarn">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bSectDriveErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bSectFollowingErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bPsComErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bPsTempWarn">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bPsTempErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bPsCurrErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="bPsVoltErr">
+              <type>
+                <BOOL />
+              </type>
+            </variable>
+            <variable name="aMixerErrors">
+              <type>
+                <array>
+                  <dimension lower="1" upper="4" />
+                  <baseType>
+                    <derived name="ST_DISP_MIXER_ERRORS" />
+                  </baseType>
+                </array>
+              </type>
+            </variable>
+          </struct>
+        </baseType>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">TYPE ST_DISP_POOL_ERRORS :
+STRUCT
+	bHeaterTempWarn: BOOL;
+	bHeaterSensorErr: BOOL;
+	bHeaterSafetyErr: BOOL;
+	bTiltDriveWarn: BOOL;
+	bTiltDriveErr: BOOL;
+	bTiltFollowingErr: BOOL;
+	bSectDriveWarn: BOOL;
+	bSectDriveErr: BOOL;
+	bSectFollowingErr: BOOL;
+	bPsComErr: BOOL;
+	bPsTempWarn: BOOL;
+	bPsTempErr: BOOL;
+	bPsCurrErr: BOOL;
+	bPsVoltErr: BOOL;
+
+	aMixerErrors: ARRAY [1..4] OF ST_DISP_MIXER_ERRORS;
+END_STRUCT
+END_TYPE
+</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>45f562bd-f406-48d7-a7b7-82b1d40f1cdf</ObjectId>
+          </data>
+        </addData>
+      </dataType>
+    </dataTypes>
+    <pous />
+  </types>
+  <instances>
+    <configurations />
+  </instances>
+  <addData>
+    <data name="http://www.3s-software.com/plcopenxml/globalvars" handleUnknown="implementation">
+      <globalVars name="DISPLAY_DATA">
+        <variable name="stData">
+          <type>
+            <derived name="ST_DISP_DATA" />
+          </type>
+        </variable>
+        <variable name="stErrors">
+          <type>
+            <derived name="ST_DISP_ERRORS" />
+          </type>
+        </variable>
+        <addData>
+          <data name="http://www.3s-software.com/plcopenxml/attributes" handleUnknown="implementation">
+            <Attributes>
+              <Attribute Name="qualified_only" Value="" />
+            </Attributes>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/buildproperties" handleUnknown="implementation">
+            <BuildProperties>
+              <LinkAlways>true</LinkAlways>
+            </BuildProperties>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/interfaceasplaintext" handleUnknown="implementation">
+            <InterfaceAsPlainText>
+              <xhtml xmlns="http://www.w3.org/1999/xhtml">{attribute 'qualified_only'}
+VAR_GLOBAL
+	stData: ST_DISP_DATA;
+	stErrors: ST_DISP_ERRORS;
+END_VAR</xhtml>
+            </InterfaceAsPlainText>
+          </data>
+          <data name="http://www.3s-software.com/plcopenxml/objectid" handleUnknown="discard">
+            <ObjectId>3e91c524-ad66-4d6d-a884-206240983e5d</ObjectId>
+          </data>
+        </addData>
+      </globalVars>
+    </data>
+    <data name="http://www.3s-software.com/plcopenxml/projectstructure" handleUnknown="discard">
+      <ProjectStructure>
+        <Object Name="EN_DISP_MSGTYPE" ObjectId="96656ea5-0db7-49b0-86ec-56cef26b56d0" />
+        <Object Name="EN_DISP_POOL_STATE" ObjectId="4bb8098e-6846-4a59-915d-71a3e3d369c0" />
+        <Object Name="ST_DISP_DATA" ObjectId="354914ab-5602-4319-a5dd-d33707893044" />
+        <Object Name="ST_DISP_ERRORS" ObjectId="47068e7e-0738-4746-acaa-9138b857c754" />
+        <Object Name="ST_DISP_GOLBAL_ERRORS" ObjectId="8c16642f-d9f1-4470-b973-2b1043c6bde7" />
+        <Object Name="ST_DISP_MIXER" ObjectId="d08ed1ee-51ed-41fc-bd59-4a3e031ab671" />
+        <Object Name="ST_DISP_MIXER_ERRORS" ObjectId="a1de00ad-52fc-485d-b725-94eff5b7b924" />
+        <Object Name="ST_DISP_MSG" ObjectId="702ba601-5f18-413a-95f1-5fe16503843e" />
+        <Object Name="ST_DISP_POOL" ObjectId="5d3e96cf-52f5-40f7-8f2f-03f772b420db" />
+        <Object Name="ST_DISP_POOL_ERRORS" ObjectId="45f562bd-f406-48d7-a7b7-82b1d40f1cdf" />
+        <Object Name="DISPLAY_DATA" ObjectId="3e91c524-ad66-4d6d-a884-206240983e5d" />
+      </ProjectStructure>
+    </data>
+  </addData>
+</project>
