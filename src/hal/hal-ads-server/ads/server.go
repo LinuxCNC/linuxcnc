@@ -216,9 +216,9 @@ func (s *Server) handleConn(conn net.Conn) {
 func (s *Server) handleReadDeviceInfo(conn net.Conn, hdr *AMSHeader) {
 	data := make([]byte, 24)
 	binary.LittleEndian.PutUint32(data[0:], ErrNoError) // result
-	data[4] = 1                                         // major version
-	data[5] = 0                                         // minor version
-	binary.LittleEndian.PutUint16(data[6:], 0)          // build version
+	data[4] = 3                                         // major version
+	data[5] = 1                                         // minor version
+	binary.LittleEndian.PutUint16(data[6:], 4024)       // build version
 	copy(data[8:], []byte("hal-ads-server\x00"))        // device name (up to 16 bytes)
 	if err := s.sendAMSResponse(conn, hdr, CmdReadDeviceInfo, ErrNoError, data); err != nil {
 		log.Printf("ADS sendReadDeviceInfo error: %v", err)
