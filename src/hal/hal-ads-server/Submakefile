@@ -30,4 +30,15 @@ hal-ads-server-install: ../bin/hal-ads-server
 	$(DIR) $(DESTDIR)$(EMC2_HOME)/bin
 	$(FILE) ../bin/hal-ads-server $(DESTDIR)$(EMC2_HOME)/bin/
 
+# Test
+test: hal-ads-server-test
+.PHONY: hal-ads-server-test
+hal-ads-server-test:
+	@echo "Testing hal-ads-server"
+	cd $(HAL_ADS_SERVER_DIR) && \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(HAL_GO_CGO_CFLAGS)" \
+	CGO_LDFLAGS="$(HAL_GO_CGO_LDFLAGS)" \
+	$(GO) test ./...
+
 endif # BUILD_GOLANG
