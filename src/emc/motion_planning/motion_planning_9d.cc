@@ -2414,8 +2414,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             prof->v[RUCKIG_PROFILE_PHASES] = 0.0;
             prof->a[RUCKIG_PROFILE_PHASES] = 0.0;
             prof->p[RUCKIG_PROFILE_PHASES] = 0.0;
-            prof->dbg_src = 6;  // feed hold
-            prof->dbg_v0_req = 0.0;
             prof->generation = prof->generation + 1;
             __atomic_store_n(&prof->valid, 1, __ATOMIC_RELEASE);
             atomicStoreInt((int*)&tc->shared_9d.optimization_state,
@@ -2486,7 +2484,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                     computeAndStoreProfile(prev_tc, rp);
                 }
                 if (prev_tc->shared_9d.profile.valid) {
-                    prev_tc->shared_9d.profile.dbg_src = 2;
                     atomicStoreInt((int*)&prev_tc->shared_9d.optimization_state,
                         TC_PLAN_FINALIZED);
                 }
@@ -2512,8 +2509,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             }
             if (tc->shared_9d.profile.valid) {
                 fo_dirty_count++;
-                tc->shared_9d.profile.dbg_src = 2;  // forward pass
-                tc->shared_9d.profile.dbg_v0_req = scaled_v_entry;
                 // Only finalize when exit boundary conditions are known.
                 // STOP segments may be promoted to TANGENT when the next
                 // segment creates a blend, so require a successor in queue.
