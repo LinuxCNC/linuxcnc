@@ -48,7 +48,8 @@ hal-ads-server [options] <config-file>
 Options:
   -name string        HAL component name (default "hal-ads-server")
   -port int           TCP port for ADS server (default 48898)
-  -ams-net-id string  AMS Net ID of this device (default "5.80.201.232.1.1")
+  -bind string        IP address to bind the ADS server to (default "0.0.0.0")
+  -ams-net-id string  AMS Net ID of this device (default "192.168.0.99.1.1")
   -verbose            Enable verbose debug logging
 ```
 

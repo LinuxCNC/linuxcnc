@@ -22,7 +22,8 @@ GOFLAGS := -v
 
 all: $(COMPONENT)
 
-$(COMPONENT): main.go config.go bridge.go go.mod
+GO_SOURCES := $(wildcard *.go) $(wildcard ads/*.go) go.mod go.sum
+$(COMPONENT): $(GO_SOURCES)
 	@echo "Building $(COMPONENT)..."
 	CGO_ENABLED=1 \
 	CGO_CFLAGS="$(CGO_CFLAGS)" \

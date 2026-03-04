@@ -9,7 +9,6 @@ package ads
 import (
 	"encoding/binary"
 	"fmt"
-	"io"
 	"net"
 )
 
@@ -24,11 +23,24 @@ func (id AMSNetID) String() string {
 
 // ParseAMSNetID parses an AMS Net ID from a dotted string like "1.2.3.4.1.1".
 func ParseAMSNetID(s string) (AMSNetID, error) {
+	var parts [6]int
+	n, err := fmt.Sscanf(s, "%d.%d.%d.%d.%d.%d",
+		&parts[0], &parts[1], &parts[2], &parts[3], &parts[4], &parts[5])
+	if err != nil || n != 6 {
+		return AMSNetID{}, fmt.Errorf("invalid AMS Net ID %q: expected 6 dot-separated octets", s)
+	}
+	// Reject trailing garbage: reconstruct and compare
+	reconstructed := fmt.Sprintf("%d.%d.%d.%d.%d.%d",
+		parts[0], parts[1], parts[2], parts[3], parts[4], parts[5])
+	if reconstructed != s {
+		return AMSNetID{}, fmt.Errorf("invalid AMS Net ID %q: trailing characters", s)
+	}
 	var id AMSNetID
-	_, err := fmt.Sscanf(s, "%d.%d.%d.%d.%d.%d",
-		&id[0], &id[1], &id[2], &id[3], &id[4], &id[5])
-	if err != nil {
-		return AMSNetID{}, fmt.Errorf("invalid AMS Net ID %q: %v", s, err)
+	for i, v := range parts {
+		if v < 0 || v > 255 {
+			return AMSNetID{}, fmt.Errorf("invalid AMS Net ID %q: octet %d out of range (0-255)", s, i+1)
+		}
+		id[i] = byte(v)
 	}
 	return id, nil
 }
@@ -161,30 +173,6 @@ func decodeAMSHeader(buf []byte) AMSHeader {
 	h.ErrorCode = binary.LittleEndian.Uint32(buf[24:])
 	h.InvokeID = binary.LittleEndian.Uint32(buf[28:])
 	return h
-}
-
-// readAMSPacket reads one complete AMS/TCP packet from conn.
-// Returns the AMS header and command payload (data after the header).
-func readAMSPacket(conn net.Conn) (*AMSHeader, []byte, error) {
-	// Read AMS/TCP prefix: 2 reserved bytes + 4-byte packet length
-	tcpHdr := make([]byte, AMSTCPHeaderSize)
-	if _, err := io.ReadFull(conn, tcpHdr); err != nil {
-		return nil, nil, err
-	}
-	amsLen := binary.LittleEndian.Uint32(tcpHdr[2:])
-	if amsLen < AMSHeaderSize {
-		return nil, nil, fmt.Errorf("AMS packet length %d < header size %d", amsLen, AMSHeaderSize)
-	}
-
-	// Read AMS header + payload
-	amsData := make([]byte, amsLen)
-	if _, err := io.ReadFull(conn, amsData); err != nil {
-		return nil, nil, err
-	}
-
-	hdr := decodeAMSHeader(amsData[:AMSHeaderSize])
-	payload := amsData[AMSHeaderSize:]
-	return &hdr, payload, nil
 }
 
 // sendAMSResponse sends a complete AMS/TCP response packet on conn.

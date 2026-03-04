@@ -209,36 +209,25 @@ func newFloatAccessor(pin *hal.Pin[float64], ti typeInfo) *halPinAccessor {
 // newStringAccessor creates a PinAccessor for a string HAL pin.
 // ADS STRING(n) is stored as n+1 bytes (null-terminated).
 func newStringAccessor(pin *hal.Pin[string], ti typeInfo) *halPinAccessor {
-	buf := make([]byte, ti.byteSize) // persistent fixed buffer, zero-initialized (null-terminated)
-
 	return &halPinAccessor{
 		ti: ti,
 		readFn: func() ([]byte, error) {
-			// Sync from HAL pin into fixed buffer (ensures HAL→ADS direction works).
 			v := pin.Get()
-			clear(buf)
+			out := make([]byte, ti.byteSize) // zero-initialized = null-terminated
 			n := len(v)
 			if n > ti.strLen {
 				n = ti.strLen
 			}
-			copy(buf[:n], []byte(v[:n]))
-			// Return a copy of the fixed buffer (always correct size, always null-terminated).
-			out := make([]byte, ti.byteSize)
-			copy(out, buf)
+			copy(out[:n], v[:n])
 			return out, nil
 		},
 		writeFn: func(data []byte) error {
-			// Clear buffer completely (zero-fill ensures null-termination).
-			clear(buf)
-			// Clamp input length to max string length (strLen = n, not n+1).
 			n := len(data)
 			if n > ti.strLen {
 				n = ti.strLen
 			}
-			copy(buf[:n], data[:n])
-			// Sync clamped string to HAL pin, truncating at embedded null if any.
-			s := string(buf[:n])
-			if idx := bytes.IndexByte(buf[:n], 0); idx >= 0 {
+			s := string(data[:n])
+			if idx := bytes.IndexByte(data[:n], 0); idx >= 0 {
 				s = s[:idx]
 			}
 			pin.Set(s)
@@ -250,7 +239,7 @@ func newStringAccessor(pin *hal.Pin[string], ti typeInfo) *halPinAccessor {
 // Bridge holds all HAL pins and their corresponding ADS symbol registrations.
 type Bridge struct {
 	// pins retains references so the GC does not collect them.
-	pins []interface{}
+	pins []any
 }
 
 // NewBridge creates HAL pins for all LayoutPins and registers them in the

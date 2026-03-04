@@ -27,6 +27,10 @@ const amsDataReadTimeout = 5 * time.Second
 // so the process can exit.
 const shutdownTimeout = 2 * time.Second
 
+// maxAMSPacketSize is the upper bound on AMS packet length to prevent
+// a malicious client from triggering excessive memory allocation.
+const maxAMSPacketSize = 64 * 1024
+
 // Server listens for ADS connections, parses AMS/TCP packets, and dispatches
 // ADS commands to a SymbolTable.
 type Server struct {
@@ -169,6 +173,10 @@ func (s *Server) handleConn(conn net.Conn) {
 			log.Printf("ADS packet too short from %s: %d", conn.RemoteAddr(), amsLen)
 			return
 		}
+		if amsLen > maxAMSPacketSize {
+			log.Printf("ADS packet too large from %s: %d (max %d)", conn.RemoteAddr(), amsLen, maxAMSPacketSize)
+			return
+		}
 
 		// Stage 2: longer read deadline for the AMS payload. Once the TCP header
 		// has arrived, we know the client is actively sending; a longer timeout
@@ -219,7 +227,7 @@ func (s *Server) handleReadDeviceInfo(conn net.Conn, hdr *AMSHeader) {
 	data[4] = 3                                         // major version
 	data[5] = 1                                         // minor version
 	binary.LittleEndian.PutUint16(data[6:], 4024)       // build version
-	copy(data[8:], []byte("hal-ads-server\x00"))        // device name (up to 16 bytes)
+	copy(data[8:24], []byte("hal-ads-server\x00"))        // device name (up to 16 bytes)
 	if err := s.sendAMSResponse(conn, hdr, CmdReadDeviceInfo, ErrNoError, data); err != nil {
 		log.Printf("ADS sendReadDeviceInfo error: %v", err)
 	}
