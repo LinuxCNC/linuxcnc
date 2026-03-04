@@ -60,7 +60,7 @@ halcmd loadusr -W hal-ads-server /path/to/my-symbols.cfg
 
 ## Config File Format
 
-The config file uses 2-space indentation to define the ADS symbol hierarchy.
+The config file uses consistent indentation (any number of spaces or tabs) to define the ADS symbol hierarchy. The indent style is auto-detected from the first indented line; all subsequent lines must use the same character (spaces or tabs) and a consistent multiple of that indent unit.
 Each leaf line (with `in`, `out`, `inout`, or `pad`) creates a HAL pin (except
 `pad`, which only reserves space in the process image).
 

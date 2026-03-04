@@ -275,6 +275,133 @@ stBad[1..0]
 	}
 }
 
+func TestParseConfigTabIndent(t *testing.T) {
+	// Tab indentation: 1 tab = depth 1, 2 tabs = depth 2.
+	cfg := "stDISPLAY_DATA\n\tin bErrRest bool\n\tout nState dint\n"
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree error: %v", err)
+	}
+	if len(roots) != 1 {
+		t.Fatalf("expected 1 root, got %d", len(roots))
+	}
+	root := roots[0]
+	if root.Name != "stDISPLAY_DATA" {
+		t.Errorf("root.Name = %q, want stDISPLAY_DATA", root.Name)
+	}
+	if len(root.Children) != 2 {
+		t.Fatalf("expected 2 children, got %d", len(root.Children))
+	}
+	if root.Children[0].Dir != DirIn || root.Children[0].Name != "bErrRest" {
+		t.Errorf("children[0] = %+v", root.Children[0])
+	}
+	if root.Children[1].Dir != DirOut || root.Children[1].Name != "nState" {
+		t.Errorf("children[1] = %+v", root.Children[1])
+	}
+}
+
+func TestParseConfigTabIndentNested(t *testing.T) {
+	// Two levels of tab indentation.
+	cfg := "stROOT\n\tstPOOL[1..3]\n\t\tin bReady bool\n\t\tout nCount dint\n"
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree error: %v", err)
+	}
+	if len(roots) != 1 {
+		t.Fatalf("expected 1 root, got %d", len(roots))
+	}
+	arr := roots[0].Children[0]
+	if arr.Name != "stPOOL" || arr.ArrayStart != 1 || arr.ArrayEnd != 3 {
+		t.Errorf("array = %+v", arr)
+	}
+	if len(arr.Children) != 2 {
+		t.Fatalf("expected 2 template children, got %d", len(arr.Children))
+	}
+}
+
+func TestParseConfigFourSpaceIndent(t *testing.T) {
+	cfg := `
+stDISPLAY_DATA
+    in bErrRest bool
+    out nState dint
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree error: %v", err)
+	}
+	if len(roots) != 1 {
+		t.Fatalf("expected 1 root, got %d", len(roots))
+	}
+	if len(roots[0].Children) != 2 {
+		t.Fatalf("expected 2 children, got %d", len(roots[0].Children))
+	}
+	if roots[0].Children[0].Dir != DirIn || roots[0].Children[0].Name != "bErrRest" {
+		t.Errorf("children[0] = %+v", roots[0].Children[0])
+	}
+}
+
+func TestParseConfigFourSpaceIndentNested(t *testing.T) {
+	cfg := `
+stROOT
+    stPOOL[1..2]
+        in bReady bool
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree error: %v", err)
+	}
+	if len(roots) != 1 || len(roots[0].Children) != 1 {
+		t.Fatalf("unexpected structure")
+	}
+	arr := roots[0].Children[0]
+	if arr.Name != "stPOOL" || arr.ArrayStart != 1 || arr.ArrayEnd != 2 {
+		t.Errorf("array = %+v", arr)
+	}
+	if len(arr.Children) != 1 || arr.Children[0].Name != "bReady" {
+		t.Errorf("template children = %+v", arr.Children)
+	}
+}
+
+func TestParseConfigSingleSpaceIndent(t *testing.T) {
+	cfg := `
+stBlock
+ in bFlag bool
+ out nVal dint
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree error: %v", err)
+	}
+	if len(roots) != 1 || len(roots[0].Children) != 2 {
+		t.Fatalf("unexpected structure: %+v", roots)
+	}
+	if roots[0].Children[0].Dir != DirIn || roots[0].Children[0].Name != "bFlag" {
+		t.Errorf("children[0] = %+v", roots[0].Children[0])
+	}
+}
+
+func TestParseConfigMixedIndentError(t *testing.T) {
+	// First indented line uses spaces; second uses tabs — should error.
+	cfg := "stBlock\n  in bFlag bool\n\tout nVal dint\n"
+	_, err := ParseTree(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for mixed indentation, got nil")
+	}
+}
+
+func TestParseConfigInconsistentIndentError(t *testing.T) {
+	// First indented line uses 2 spaces; a later line uses 3 spaces — should error.
+	cfg := `
+stBlock
+  in bFlag bool
+   out nVal dint
+`
+	_, err := ParseTree(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for inconsistent indentation, got nil")
+	}
+}
+
 func TestParseTypeInfo(t *testing.T) {
 	tests := []struct {
 		typeName string
