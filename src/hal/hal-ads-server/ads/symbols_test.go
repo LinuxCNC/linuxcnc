@@ -792,3 +792,58 @@ func TestRegisterPadAt(t *testing.T) {
 		t.Errorf("imgData[1:3] (pad) = %v, want [0 0]", imgData[1:3])
 	}
 }
+
+// TestSetGroupSizeTailPadding verifies that SetGroupSize overrides the computed
+// span so that groupAccessor.Size() returns the full aligned struct size
+// including tail padding. This is required so that TwinCAT clients reading a
+// struct-level symbol get a correctly-sized buffer.
+func TestSetGroupSizeTailPadding(t *testing.T) {
+	st := NewSymbolTable()
+
+	// Struct: DINT at 0 (size 4), BOOL at 4 (size 1).
+	// Without tail padding: Size() = 5. With tail padding to 4-byte boundary: 8.
+	st.RegisterAt("stFoo.nVal", 0, newDintPin(0x01020304))
+	st.RegisterAt("stFoo.bFlag", 4, newBoolPin(true))
+
+	grp := st.GetByName("stFoo")
+	if grp == nil {
+		t.Fatal("group symbol stFoo not found")
+	}
+
+	// Before SetGroupSize: Size() == 5 (computed span, no tail padding).
+	if got := grp.Accessor.Size(); got != 5 {
+		t.Errorf("initial Size() = %d, want 5", got)
+	}
+
+	// Set the aligned size (8 bytes, including 3 bytes of tail padding).
+	st.SetGroupSize("stFoo", 8)
+
+	if got := grp.Accessor.Size(); got != 8 {
+		t.Errorf("after SetGroupSize(8), Size() = %d, want 8", got)
+	}
+
+	// ReadBytes should return 8 bytes; tail padding bytes must be zero.
+	handle, errCode := st.CreateHandle("stFoo")
+	if errCode != ErrNoError {
+		t.Fatalf("CreateHandle error: 0x%X", errCode)
+	}
+	data, errCode := st.ReadData(IdxGrpSymbolValueByHandle, handle, 8)
+	if errCode != ErrNoError {
+		t.Fatalf("ReadData error: 0x%X", errCode)
+	}
+	if len(data) != 8 {
+		t.Fatalf("ReadData length = %d, want 8", len(data))
+	}
+	if int32(binary.LittleEndian.Uint32(data[0:4])) != 0x01020304 {
+		t.Errorf("nVal = 0x%X, want 0x01020304", binary.LittleEndian.Uint32(data[0:4]))
+	}
+	if data[4] != 1 {
+		t.Errorf("bFlag = %d, want 1", data[4])
+	}
+	// Tail padding bytes 5-7 should be zero.
+	for i := 5; i < 8; i++ {
+		if data[i] != 0 {
+			t.Errorf("tail padding byte[%d] = %d, want 0", i, data[i])
+		}
+	}
+}

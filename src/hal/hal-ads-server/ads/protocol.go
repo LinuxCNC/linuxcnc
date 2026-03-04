@@ -58,10 +58,16 @@ const (
 	CmdReadWrite          uint16 = 0x0009
 )
 
-// ADS State flags (StateFlags field in AMS header).
+// ADS StateFlags bitmask values for the AMS header.
+// The StateFlags field is a bitmask where:
+//   - Bit 0 (0x0001): Response flag (1 = response, 0 = request)
+//   - Bit 2 (0x0004): ADS command flag
+//
+// Requests use 0x0004 (ADS command, no response flag).
+// Responses use 0x0005 (ADS command + response flag).
 const (
-	StateFlagCommand  uint16 = 0x0004 // ADS command packet
-	StateFlagResponse uint16 = 0x0005 // ADS response packet
+	StateFlagRequest  uint16 = 0x0004 // ADS command request (bit 2 set)
+	StateFlagResponse uint16 = 0x0005 // ADS command response (bit 2 + bit 0 set)
 )
 
 // ADS Index Groups for symbol access.

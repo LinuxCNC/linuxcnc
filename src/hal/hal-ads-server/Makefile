@@ -22,7 +22,7 @@ GOFLAGS := -v
 
 all: $(COMPONENT)
 
-GO_SOURCES := $(wildcard *.go) $(wildcard ads/*.go) go.mod go.sum
+GO_SOURCES := $(wildcard *.go) $(wildcard ads/*.go) go.mod
 $(COMPONENT): $(GO_SOURCES)
 	@echo "Building $(COMPONENT)..."
 	CGO_ENABLED=1 \

@@ -59,8 +59,9 @@ func NewSymbolTable() *SymbolTable {
 // It holds references to all descendant leaf Symbols sorted by IndexOffset and
 // provides read/write access to them as a single contiguous buffer.
 type groupAccessor struct {
-	children []*Symbol // sorted by IndexOffset (ascending); leaf symbols only
-	typeName string    // last path segment, used as the ADS TypeName
+	children     []*Symbol // sorted by IndexOffset (ascending); leaf symbols only
+	typeName     string    // last path segment, used as the ADS TypeName
+	overrideSize uint32    // when non-zero, returned by Size() instead of the computed span
 }
 
 func (g *groupAccessor) baseOffset() uint32 {
@@ -71,6 +72,9 @@ func (g *groupAccessor) baseOffset() uint32 {
 }
 
 func (g *groupAccessor) Size() uint32 {
+	if g.overrideSize != 0 {
+		return g.overrideSize
+	}
 	if len(g.children) == 0 {
 		return 0
 	}
@@ -224,6 +228,21 @@ func (st *SymbolTable) RegisterPadAt(offset uint32, size uint32) {
 	}
 	if end := offset + size; end > st.nextOffset {
 		st.nextOffset = end
+	}
+}
+
+// SetGroupSize sets an explicit (tail-padding-inclusive) size on the named
+// group symbol. This overrides the default computed span so that TwinCAT
+// clients receive the full aligned struct size when reading the group.
+func (st *SymbolTable) SetGroupSize(name string, size uint32) {
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	sym := st.byName[name]
+	if sym == nil {
+		return
+	}
+	if ga, ok := sym.Accessor.(*groupAccessor); ok {
+		ga.overrideSize = size
 	}
 }
 

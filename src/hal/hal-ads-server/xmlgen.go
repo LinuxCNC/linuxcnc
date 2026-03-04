@@ -199,6 +199,9 @@ func emitDataType(enc *xml.Encoder, td genTypeDef, tm nodeTypeMap) error {
 }
 
 // emitVariable emits a <variable name="..."><type>...</type></variable> element.
+// Pad nodes (Dir == DirPad) are intentionally emitted as variables in the
+// PLCopen XML output. They represent explicit padding fields that TwinCAT
+// expects in the struct layout to maintain correct alignment.
 func emitVariable(enc *xml.Encoder, node *Node, tm nodeTypeMap) error {
 	enc.EncodeToken(xml.StartElement{
 		Name: xml.Name{Local: "variable"},
