@@ -51,14 +51,14 @@ type Node struct {
 // configLine is a pre-processed line from the config file.
 type configLine struct {
 	lineNo  int
-	depth   int    // indent depth (1 unit = 2 spaces)
+	depth   int    // indent depth (1 unit = auto-detected indent size)
 	trimmed string // content without leading whitespace
 }
 
 // ParseTree reads the HAL-ADS config format from r and returns the tree of
 // Nodes representing the symbol hierarchy.
 //
-// Format (2-space indentation):
+// Format (any consistent indentation — spaces or tabs):
 //
 // ContainerName
 //
@@ -82,10 +82,15 @@ func ParseTree(r io.Reader) ([]*Node, error) {
 }
 
 // readConfigLines reads and pre-processes all non-blank, non-comment lines.
+// It auto-detects the indent style from the first indented line (spaces or
+// tabs) and rejects mixed indentation or inconsistent indent depths.
 func readConfigLines(r io.Reader) ([]configLine, error) {
 	scanner := bufio.NewScanner(r)
 	var lines []configLine
 	lineNo := 0
+	indentUnit := 0       // chars per depth level (0 = not yet detected)
+	indentChar := byte(0) // ' ' or '\t' (0 = not yet detected)
+
 	for scanner.Scan() {
 		lineNo++
 		rawLine := scanner.Text()
@@ -93,17 +98,49 @@ func readConfigLines(r io.Reader) ([]configLine, error) {
 		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
 			continue
 		}
-		// Calculate indent depth: count leading 2-space pairs.
-		depth := 0
-		for depth*2+2 <= len(rawLine) && strings.HasPrefix(rawLine[depth*2:], "  ") {
-			depth++
+
+		// Count leading whitespace characters.
+		wsLen := 0
+		for wsLen < len(rawLine) && (rawLine[wsLen] == ' ' || rawLine[wsLen] == '\t') {
+			wsLen++
 		}
+
+		depth := 0
+		if wsLen > 0 {
+			if indentUnit == 0 {
+				// First indented line: record indent character and unit size.
+				indentChar = rawLine[0]
+				indentUnit = wsLen
+			}
+			// Verify all leading whitespace uses the same character.
+			for i := 0; i < wsLen; i++ {
+				if rawLine[i] != indentChar {
+					return nil, fmt.Errorf("line %d: mixed indentation (indent uses %s but line has %s)",
+						lineNo, indentCharName(indentChar), indentCharName(rawLine[i]))
+				}
+			}
+			// Depth must be an exact multiple of the indent unit.
+			if wsLen%indentUnit != 0 {
+				return nil, fmt.Errorf("line %d: indentation of %d %s(s) is not a multiple of the indent unit (%d)",
+					lineNo, wsLen, indentCharName(indentChar), indentUnit)
+			}
+			depth = wsLen / indentUnit
+		}
+
 		lines = append(lines, configLine{lineNo: lineNo, depth: depth, trimmed: trimmed})
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("config read error: %w", err)
 	}
 	return lines, nil
+}
+
+// indentCharName returns a human-readable name for an indentation character.
+func indentCharName(ch byte) string {
+	if ch == '\t' {
+		return "tab"
+	}
+	return "space"
 }
 
 // parseTreeBlock processes config lines starting at *idx, adding discovered
