@@ -151,6 +151,14 @@ typedef struct TP_STRUCT {
     // Actions queued via tpSetSegmentAction() before the next motion segment
     segment_actions_t pending_actions;
 
+    // Queue sealed flag (planner_type 2).
+    // Set by tpFlushCompressor_9D() when the interpreter reaches a sync point
+    // (tool change, dwell, mode change, program end) — signals "no more motion
+    // segments coming."  Cleared by tpAddLine_9D / tpAddCircle_9D when new
+    // motion arrives.  Allows the optimizer to finalize the tail segment
+    // immediately instead of waiting for a successor that will never come.
+    int queue_sealed;
+
 } TP_STRUCT;
 
 

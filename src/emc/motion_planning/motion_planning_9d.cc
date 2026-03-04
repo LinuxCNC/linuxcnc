@@ -115,7 +115,7 @@ static TC_STRUCT * tcqItem_user(TC_QUEUE_STRUCT * const tcq, int n)
 // Replan flag: set whenever the queue changes (segment added, feed change,
 // merge) so that replanForward() runs on the next tick.  Cleared when a
 // full forward pass completes without budget expiry.
-static bool g_needs_replan = false;
+bool g_needs_replan = false;
 
 /**
  * @brief Userspace version of tcqPut for planner_type 2
@@ -2352,6 +2352,18 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             if (entry_ok && feed_ok && exit_ok) {
                 // Profile is clean — propagate its actual exit and continue
                 fo_skip_count++;
+                // Re-stamp FINALIZED if backward pass knocked it back to SMOOTHED
+                bool boundaries_known_skip = (tc->term_cond == TC_TERM_COND_EXACT)
+                                           || (i + 1 < queue_len)
+                                           || (tp->queue_sealed && i == queue_len - 1);
+                if (boundaries_known_skip) {
+                    int cur_state = __atomic_load_n(
+                        (int*)&tc->shared_9d.optimization_state, __ATOMIC_ACQUIRE);
+                    if (cur_state < TC_PLAN_FINALIZED) {
+                        atomicStoreInt((int*)&tc->shared_9d.optimization_state,
+                                       TC_PLAN_FINALIZED);
+                    }
+                }
                 if (tc->term_cond == TC_TERM_COND_TANGENT) {
                     double pu = profileExitVelUnscaled(&tc->shared_9d.profile);
                     prev_exit_vel = pu * tc->shared_9d.profile.computed_feed_scale;
@@ -2377,19 +2389,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             continue;
         }
 
-        // --- Fix 4: pessimistic first profile ---
-        // On first profile (no prior valid profile), force exit=0 so RT always
-        // gets a safe profile.  Raises on subsequent calls once the backward pass
-        // has converged.  Exception: bezier blends have deterministic exits.
-        bool is_first_profile = !tc->shared_9d.profile.valid;
-        if (is_first_profile && scaled_v_exit > 0.0) {
-            TC_STRUCT *next_seg = (i + 1 < queue_len) ? tcqItem_user(queue, i + 1) : NULL;
-            bool next_is_blend = (next_seg && next_seg->motion_type == TC_BEZIER);
-            if (tc->motion_type != TC_BEZIER && !next_is_blend) {
-                scaled_v_exit = 0.0;
-                desired_fvel  = 0.0;
-            }
-        }
 
         // --- Feed hold: write zero-velocity stopped profile ---
         // When feed is effectively 0 (feed hold), skip Ruckig (can't traverse
@@ -2515,7 +2514,18 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 fo_dirty_count++;
                 tc->shared_9d.profile.dbg_src = 2;  // forward pass
                 tc->shared_9d.profile.dbg_v0_req = scaled_v_entry;
-                atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
+                // Only finalize when exit boundary conditions are known.
+                // STOP segments may be promoted to TANGENT when the next
+                // segment creates a blend, so require a successor in queue.
+                // EXACT (last segment of program) always has correct vf=0.
+                // queue_sealed: interpreter at sync point, no successor coming.
+                bool has_successor = (i + 1 < queue_len);
+                bool sealed_tail = (tp->queue_sealed && i == queue_len - 1);
+                bool boundaries_known = (tc->term_cond == TC_TERM_COND_EXACT)
+                                      || has_successor || sealed_tail;
+                if (boundaries_known) {
+                    atomicStoreInt((int*)&tc->shared_9d.optimization_state, TC_PLAN_FINALIZED);
+                }
                 if (tc->term_cond == TC_TERM_COND_TANGENT) {
                     double pu = profileExitVelUnscaled(&tc->shared_9d.profile);
                     prev_exit_vel = pu * tc->shared_9d.profile.computed_feed_scale;
@@ -4053,8 +4063,11 @@ extern "C" int tpOptimizePlannedMotions_9D(TP_STRUCT * const tp, int /*optimizat
     if (g_feed_mgr.committed_feed < 0.001 && g_feed_mgr.planning.isOpen())
         return 0;
 
-    // Run unlimited replan — processes all segments needing recomputation.
-    (void)replanForward(tp, -1.0, 0.0 /* unlimited */);
+    // Budget-limited replan: don't block the interpreter for the entire queue.
+    // The servo cycle (checkFeedOverride → g_needs_replan) picks up remaining
+    // segments incrementally.  2ms is enough to process the tail segments
+    // (new segment + neighbors) while clean segments SKIP in ~50ns each.
+    (void)replanForward(tp, -1.0, 0.002);
 
     return 0;
 }
@@ -4101,6 +4114,7 @@ extern "C" int tpClearPlanning_9D(TP_STRUCT * const tp)
     // causing non-deterministic behavior between identical runs.
     g_feed_mgr.reset();
     g_needs_replan = false;
+    tp->queue_sealed = 0;
 
     return 0;
 }
