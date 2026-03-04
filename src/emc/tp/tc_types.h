@@ -219,10 +219,6 @@ typedef struct {
     double p[RUCKIG_PROFILE_PHASES + 1];    // Position at phase boundaries
     double v[RUCKIG_PROFILE_PHASES + 1];    // Velocity at phase boundaries
     double a[RUCKIG_PROFILE_PHASES + 1];    // Acceleration at phase boundaries
-    // Debug: provenance of this profile's v[0]
-    // src: 1=recomputeDS, 2=cursor, 3=bkwd, 4=fwd, 5=alt, 6=hold, 7=backtrack
-    int dbg_src;
-    double dbg_v0_req;   // scaled entry velocity requested (before Ruckig)
 } ruckig_profile_t;
 
 /**
