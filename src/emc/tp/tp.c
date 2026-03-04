@@ -539,6 +539,7 @@ int tpClear(TP_STRUCT * const tp)
     tp->aborting = 0;
     tp->pausing = 0;
     tp->abort_profiles_written = 0;
+    tp->queue_sealed = 0;
     tp->reverse_run = 0;
     tp->synchronized = 0;
     tp->uu_per_rev = 0.0;
@@ -4844,7 +4845,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
                 tc->currentjerk = cj;
             }
 
-
         } else {
             tc->progress = tcGetTarget(tc, tp->reverse_run);
         }
@@ -5228,59 +5228,41 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
      * Solution: Wait for Ruckig profile validity AND queue depth before starting.
      */
     if (GET_TRAJ_PLANNER_TYPE() == 2) {
-        int queue_len = tcqLen(&tp->queue);
-
-        /* Wait for Ruckig profile to be computed before starting ANY segment.
-         * This prevents trapezoidal→Ruckig switch mid-execution which causes
-         * position discontinuity in cycles 2-8 after motion start. */
-        if (!__atomic_load_n(&tc->shared_9d.profile.valid, __ATOMIC_ACQUIRE) && tc->progress < TP_POS_EPSILON) {
-            /* Abort bypass: don't block abort behind profile wait */
-            if (tp->aborting) {
-                goto past_gates;
-            }
-            static int profile_wait_count = 0;
-            profile_wait_count++;
-
-            /* Wait up to 200 cycles (200ms at 1kHz) for profile */
-            if (profile_wait_count < 200) {
-                return TP_ERR_WAITING;
-            }
-            /* Timeout - userspace too slow, will use trapezoidal for entire segment */
-            rtapi_print_msg(RTAPI_MSG_WARN,
-                "Ruckig profile timeout seg=%d, using trapezoidal fallback\n", tc->id);
-            profile_wait_count = 0;
-        }
-
-        /* Queue depth gate: wait for at least 2 segments before activating.
-         * When a segment is alone in the queue (queue_len < 2), its profile
-         * may have been computed with v_exit=0 (no successor/blend yet).
-         * The gate holds RT until the interpreter adds the next segment,
-         * giving the optimizer a chance to recompute with the correct
-         * exit velocity.  The segment is NOT active during the gate,
-         * so the optimizer's active-segment skip doesn't prevent correction.
+        /* Boundary-condition gate: wait for the optimizer to finalize the
+         * profile before activating any segment.  TC_PLAN_FINALIZED is only
+         * set when the forward pass has computed a profile with known exit
+         * boundary conditions — either vf=0 for EXACT/STOP segments, or
+         * with a valid successor present for TANGENT segments.
          *
-         * Skip the gate for EXACT segments (last segment of program) —
-         * their v_exit=0 is always correct, no correction needed. */
-        if (tc->progress < TP_POS_EPSILON && queue_len < 2 && nexttc == NULL
-                && tc->term_cond != TC_TERM_COND_EXACT) {
-            /* Abort bypass: don't block abort behind queue gate */
-            if (tp->aborting) {
-                goto past_gates;
-            }
-            static int gate_seg_id = -1;
-            static int gate_wait_count = 0;
-            /* Reset counter for each new segment */
-            if (tc->id != gate_seg_id) {
-                gate_seg_id = tc->id;
-                gate_wait_count = 0;
-            }
-            gate_wait_count++;
+         * This single gate replaces both the old profile-valid gate and the
+         * queue-depth gate.  It ensures RT never executes a profile that was
+         * computed before the planner knew what comes next. */
+        if (tc->progress < TP_POS_EPSILON && !tc->active) {
+            static int finalized_seg_id = -1;
+            static int finalized_wait_count = 0;
+            int opt_state = __atomic_load_n(
+                (int*)&tc->shared_9d.optimization_state, __ATOMIC_SEQ_CST);
+            if (opt_state < TC_PLAN_FINALIZED) {
+                if (tp->aborting) {
+                    goto past_gates;
+                }
+                if (tc->id != finalized_seg_id) {
+                    finalized_seg_id = tc->id;
+                    finalized_wait_count = 0;
+                }
+                finalized_wait_count++;
 
-            /* Wait up to 20 cycles (20ms at 1kHz) for a successor */
-            if (gate_wait_count < 20) {
-                return TP_ERR_WAITING;
+                /* Safety-net timeout: should never fire in normal operation.
+                 * If it does, something prevented the optimizer from
+                 * finalizing this segment (successor never arrived, etc.) */
+                int timeout = 200;
+                if (finalized_wait_count < timeout) {
+                    return TP_ERR_WAITING;
+                }
+                finalized_wait_count = 0;
+            } else {
+                finalized_wait_count = 0;
             }
-            gate_wait_count = 0;
         }
 past_gates:
     }

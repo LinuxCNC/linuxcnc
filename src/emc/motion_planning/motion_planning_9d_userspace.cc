@@ -44,6 +44,9 @@ extern "C" {
     extern emcmot_config_t *emcmotConfig;
 }
 
+// Replan flag (defined in motion_planning_9d.cc)
+extern bool g_needs_replan;
+
 // ── Segment Compressor ──────────────────────────────────────────────────────
 // Buffers consecutive near-collinear G1 segments and emits a single compressed
 // line within G64 P tolerance.  Eliminates artificial kink velocities from
@@ -236,7 +239,16 @@ static int compressorFlush(TP_STRUCT *tp)
  */
 extern "C" int tpFlushCompressor_9D(TP_STRUCT *tp)
 {
-    return compressorFlush(tp);
+    int result = compressorFlush(tp);
+
+    // Seal the queue: interpreter is at a sync point (tool change, dwell,
+    // mode change, program end).  No more motion segments are coming until
+    // the next tpAddLine_9D/tpAddCircle_9D call clears this flag.
+    // This lets the optimizer finalize the tail segment immediately.
+    tp->queue_sealed = 1;
+    g_needs_replan = true;
+
+    return result;
 }
 
 /**
@@ -1337,6 +1349,9 @@ extern "C" int tpAddLine_9D(
         return -1;
     }
 
+    // New motion arriving — unseal the queue.
+    tp->queue_sealed = 0;
+
     // First segment of a new program: reset userspace planning state.
     // tpClear() runs in RT context where tpClearPlanning_9D is unavailable,
     // so we detect program-start here by an empty queue.
@@ -1584,6 +1599,9 @@ extern "C" int tpAddCircle_9D(
     if (validateQueueState_9D(tp, &queue_len, &current_end, "tpAddCircle_9D") != 0) {
         return -1;
     }
+
+    // New motion arriving — unseal the queue.
+    tp->queue_sealed = 0;
 
     // Flush any buffered compressed segments before adding a circle
     if (g_compressor.active) {
