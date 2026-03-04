@@ -1,0 +1,463 @@
+package main
+
+import (
+	"bytes"
+	"encoding/xml"
+	"fmt"
+	"io"
+	"os"
+	"strings"
+	"testing"
+)
+
+// TestGenerateXMLBasicStructure verifies that GenerateXML produces well-formed
+// PLCopen TC6 XML with the expected structural elements from a small config.
+
+func TestGenerateXMLBasicStructure(t *testing.T) {
+	cfg := `
+stRoot
+  stSub
+    in bFlag BOOL
+    out nVal DWORD
+  aSt[1..2]
+    in fPower REAL
+    out bManu BOOL
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+
+	// Verify it parses as valid XML.
+	dec := xml.NewDecoder(&buf)
+	for {
+		_, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatalf("generated XML is not valid: %v\n%s", err, buf.String())
+		}
+	}
+
+	out := buf.String()
+	// Verify key structural elements are present (using substrings that are
+	// insensitive to exact whitespace/formatting decisions by the encoder).
+	for _, want := range []string{
+		`xmlns="http://www.plcopen.org/xml/tc6_0200"`,
+		`<fileHeader`,
+		`<contentHeader`,
+		`<dataTypes`,
+		`globalVars`,
+		`T_aSt_ITEM`,
+		`T_stSub`,
+		`bFlag`,
+		`BOOL`,
+		`DWORD`,
+		`REAL`,
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("generated XML missing %q", want)
+		}
+	}
+}
+
+// TestGenerateXMLEmpty verifies GenerateXML returns an error for empty input.
+func TestGenerateXMLEmpty(t *testing.T) {
+	if err := GenerateXML(io.Discard, nil); err == nil {
+		t.Error("expected error for empty roots, got nil")
+	}
+}
+
+// TestGenerateXMLGalvHmi generates XML from galv-hmi.conf and verifies it is
+// a syntactically valid PLCopen TC6 XML document.
+func TestGenerateXMLGalvHmi(t *testing.T) {
+	f, err := os.Open("configs/galv-hmi.conf")
+	if err != nil {
+		t.Skipf("galv-hmi.conf not found: %v", err)
+	}
+	defer f.Close()
+
+	roots, err := ParseTree(f)
+	if err != nil {
+		t.Fatalf("ParseTree: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+
+	dec := xml.NewDecoder(&buf)
+	for {
+		_, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatalf("generated XML is not valid: %v", err)
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// TestLayoutConsistencyGalvHmi: layouts from galv-hmi.conf and DISPLAY_DATA.xml
+// must agree for every leaf field.
+// ---------------------------------------------------------------------------
+
+// TestLayoutConsistencyGalvHmi parses configs/galv-hmi.conf and
+// configs/DISPLAY_DATA.xml, computes the byte layout from each, and verifies
+// that every non-pad field has the same offset in both layouts.
+func TestLayoutConsistencyGalvHmi(t *testing.T) {
+	// --- Layout from conf ---
+	fConf, err := os.Open("configs/galv-hmi.conf")
+	if err != nil {
+		t.Skipf("galv-hmi.conf not found: %v", err)
+	}
+	defer fConf.Close()
+
+	confRoots, err := ParseTree(fConf)
+	if err != nil {
+		t.Fatalf("ParseTree(conf): %v", err)
+	}
+	confPins, err := ComputeLayout(confRoots)
+	if err != nil {
+		t.Fatalf("ComputeLayout(conf): %v", err)
+	}
+	confMap := make(map[string]uint32)
+	for _, p := range confPins {
+		if p.Dir != DirPad {
+			confMap[p.ADSName] = p.Offset
+		}
+	}
+
+	// --- Layout from XML ---
+	fXML, err := os.Open("configs/DISPLAY_DATA.xml")
+	if err != nil {
+		t.Skipf("DISPLAY_DATA.xml not found: %v", err)
+	}
+	defer fXML.Close()
+
+	xmlRoots, err := parseXMLToNodes(fXML)
+	if err != nil {
+		t.Fatalf("parseXMLToNodes: %v", err)
+	}
+	xmlPins, err := ComputeLayout(xmlRoots)
+	if err != nil {
+		t.Fatalf("ComputeLayout(xml): %v", err)
+	}
+	xmlMap := make(map[string]uint32)
+	for _, p := range xmlPins {
+		xmlMap[p.ADSName] = p.Offset
+	}
+
+	// --- Compare ---
+	// Every non-pad pin in the conf must appear in the XML layout with the same offset.
+	mismatches := 0
+	for name, confOff := range confMap {
+		xmlOff, ok := xmlMap[name]
+		if !ok {
+			t.Errorf("pin %q: present in conf but not in XML layout", name)
+			mismatches++
+			continue
+		}
+		if confOff != xmlOff {
+			t.Errorf("pin %q: conf offset=%d, xml offset=%d", name, confOff, xmlOff)
+			mismatches++
+		}
+	}
+	// Also check XML pins not in conf (warn only — XML may have more fields).
+	for name := range xmlMap {
+		if _, ok := confMap[name]; !ok {
+			t.Logf("note: pin %q in XML but not in conf (may be a type detail difference)", name)
+		}
+	}
+	if mismatches > 0 {
+		t.Fatalf("%d offset mismatch(es) between conf and XML layouts", mismatches)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// XML → Node tree conversion helpers (used only by tests)
+// ---------------------------------------------------------------------------
+
+// xmlEmptyElem is a placeholder for XML elements with no significant content.
+type xmlEmptyElem struct{}
+
+// xmlStringType represents a <string length="n" /> element.
+type xmlStringType struct {
+	Length int `xml:"length,attr"`
+}
+
+// xmlDerivedType represents a <derived name="TypeName" /> element.
+type xmlDerivedType struct {
+	Name string `xml:"name,attr"`
+}
+
+// xmlDimensionType represents a <dimension lower="1" upper="4" /> element.
+type xmlDimensionType struct {
+	Lower int `xml:"lower,attr"`
+	Upper int `xml:"upper,attr"`
+}
+
+// xmlArrayType represents an <array> element.
+type xmlArrayType struct {
+	Dimension xmlDimensionType `xml:"dimension"`
+	BaseType  *xmlTypeDef      `xml:"baseType"`
+}
+
+// xmlStructType represents a <struct> element.
+type xmlStructType struct {
+	Variables []xmlVariable `xml:"variable"`
+}
+
+// xmlTypeDef represents the type node inside a <type> or <baseType> wrapper.
+// Exactly one field will be non-nil after unmarshaling, identifying the type.
+type xmlTypeDef struct {
+	// Primitive types (each is an empty element, e.g. <BOOL />)
+	Bool  *xmlEmptyElem `xml:"BOOL"`
+	Byte  *xmlEmptyElem `xml:"BYTE"`
+	Usint *xmlEmptyElem `xml:"USINT"`
+	Sint  *xmlEmptyElem `xml:"SINT"`
+	Word  *xmlEmptyElem `xml:"WORD"`
+	Uint  *xmlEmptyElem `xml:"UINT"`
+	Int   *xmlEmptyElem `xml:"INT"`
+	Dword *xmlEmptyElem `xml:"DWORD"`
+	Udint *xmlEmptyElem `xml:"UDINT"`
+	Dint  *xmlEmptyElem `xml:"DINT"`
+	Real  *xmlEmptyElem `xml:"REAL"`
+	Lreal *xmlEmptyElem `xml:"LREAL"`
+	Time  *xmlEmptyElem `xml:"TIME"`
+	Tod   *xmlEmptyElem `xml:"TOD"`
+	Date  *xmlEmptyElem `xml:"DATE"`
+	DT    *xmlEmptyElem `xml:"DT"`
+	// Complex types
+	Str     *xmlStringType  `xml:"string"`
+	Derived *xmlDerivedType `xml:"derived"`
+	Array   *xmlArrayType   `xml:"array"`
+	Struct  *xmlStructType  `xml:"struct"`
+	// Enum element (content is discarded; mapped to WORD)
+	Enum *xmlEmptyElem `xml:"enum"`
+}
+
+// primitiveTypeName returns the IEC 61131-3 primitive type name for the
+// xmlTypeDef if it is a primitive or string type, or "" for complex types.
+// Enum types map to "WORD" (TwinCAT default enum base type).
+func (td *xmlTypeDef) primitiveTypeName() string {
+	switch {
+	case td.Bool != nil:
+		return "BOOL"
+	case td.Byte != nil:
+		return "BYTE"
+	case td.Usint != nil:
+		return "USINT"
+	case td.Sint != nil:
+		return "SINT"
+	case td.Word != nil:
+		return "WORD"
+	case td.Uint != nil:
+		return "UINT"
+	case td.Int != nil:
+		return "INT"
+	case td.Dword != nil:
+		return "DWORD"
+	case td.Udint != nil:
+		return "UDINT"
+	case td.Dint != nil:
+		return "DINT"
+	case td.Real != nil:
+		return "REAL"
+	case td.Lreal != nil:
+		return "LREAL"
+	case td.Time != nil:
+		return "TIME"
+	case td.Tod != nil:
+		return "TOD"
+	case td.Date != nil:
+		return "DATE"
+	case td.DT != nil:
+		return "DT"
+	case td.Str != nil:
+		return fmt.Sprintf("STRING(%d)", td.Str.Length)
+	case td.Enum != nil:
+		return "WORD" // TwinCAT enums default to WORD
+	default:
+		return ""
+	}
+}
+
+// xmlVariable represents a <variable name="..."><type>...</type></variable>.
+type xmlVariable struct {
+	Name string     `xml:"name,attr"`
+	Type xmlTypeDef `xml:"type"`
+}
+
+// xmlDataType represents a <dataType name="..."><baseType>...</baseType>...
+type xmlDataType struct {
+	Name     string     `xml:"name,attr"`
+	BaseType xmlTypeDef `xml:"baseType"`
+}
+
+// xmlGlobalVars represents the <globalVars name="..."> element.
+type xmlGlobalVars struct {
+	Name      string        `xml:"name,attr"`
+	Variables []xmlVariable `xml:"variable"`
+}
+
+// xmlAddDataItem represents a <data name="..."> element at the project level.
+type xmlAddDataItem struct {
+	Name       string         `xml:"name,attr"`
+	GlobalVars *xmlGlobalVars `xml:"globalVars"`
+}
+
+// xmlProjectAddData represents the <addData> element at the project level.
+type xmlProjectAddData struct {
+	Items []xmlAddDataItem `xml:"data"`
+}
+
+// xmlProject is the top-level PLCopen TC6 XML document structure.
+type xmlProject struct {
+	XMLName   xml.Name          `xml:"project"`
+	DataTypes []xmlDataType     `xml:"types>dataTypes>dataType"`
+	AddData   xmlProjectAddData `xml:"addData"`
+}
+
+// parseXMLToNodes parses a PLCopen TC6 XML document and returns an equivalent
+// []*Node tree that can be fed to ComputeLayout.
+//
+// Enum types are resolved to WORD. All leaf nodes get direction DirIn (the
+// direction is not encoded in the XML; the test only compares byte offsets).
+func parseXMLToNodes(r io.Reader) ([]*Node, error) {
+	var proj xmlProject
+	if err := xml.NewDecoder(r).Decode(&proj); err != nil {
+		return nil, fmt.Errorf("XML decode: %w", err)
+	}
+
+	// Build type registry.
+	typeMap := make(map[string]*xmlDataType, len(proj.DataTypes))
+	for i := range proj.DataTypes {
+		dt := &proj.DataTypes[i]
+		typeMap[dt.Name] = dt
+	}
+
+	// Find the globalVars declaration.
+	var gvl *xmlGlobalVars
+	for i := range proj.AddData.Items {
+		item := &proj.AddData.Items[i]
+		if item.GlobalVars != nil {
+			gvl = item.GlobalVars
+			break
+		}
+	}
+	if gvl == nil {
+		return nil, fmt.Errorf("no globalVars found in XML")
+	}
+
+	// Convert GVL variables to Node children.
+	children := make([]*Node, 0, len(gvl.Variables))
+	for _, v := range gvl.Variables {
+		child, err := xmlVarToNode(v.Name, &v.Type, typeMap)
+		if err != nil {
+			return nil, fmt.Errorf("GVL %q: %w", v.Name, err)
+		}
+		children = append(children, child)
+	}
+
+	root := &Node{Name: gvl.Name, Children: children}
+	return []*Node{root}, nil
+}
+
+// xmlVarToNode converts an xmlTypeDef (with a given field name) to a *Node.
+func xmlVarToNode(name string, td *xmlTypeDef, typeMap map[string]*xmlDataType) (*Node, error) {
+	// Array type.
+	if td.Array != nil {
+		arr := td.Array
+		if arr.BaseType == nil {
+			return nil, fmt.Errorf("array field %q has no baseType", name)
+		}
+		elemChildren, err := xmlTypeToChildren(arr.BaseType, typeMap)
+		if err != nil {
+			return nil, fmt.Errorf("array %q element: %w", name, err)
+		}
+		return &Node{
+			Name:       name,
+			ArrayStart: arr.Dimension.Lower,
+			ArrayEnd:   arr.Dimension.Upper,
+			Children:   elemChildren,
+		}, nil
+	}
+
+	// Inline struct.
+	if td.Struct != nil {
+		children, err := xmlStructVarsToChildren(td.Struct.Variables, typeMap)
+		if err != nil {
+			return nil, fmt.Errorf("struct field %q: %w", name, err)
+		}
+		return &Node{Name: name, Children: children}, nil
+	}
+
+	// Derived (named) type reference.
+	if td.Derived != nil {
+		dt, ok := typeMap[td.Derived.Name]
+		if !ok {
+			return nil, fmt.Errorf("unknown type %q for field %q", td.Derived.Name, name)
+		}
+		// Enum → WORD leaf.
+		if dt.BaseType.Enum != nil {
+			return &Node{Name: name, Dir: DirIn, TypeName: "WORD"}, nil
+		}
+		// Struct → container node.
+		if dt.BaseType.Struct != nil {
+			children, err := xmlStructVarsToChildren(dt.BaseType.Struct.Variables, typeMap)
+			if err != nil {
+				return nil, fmt.Errorf("type %q for field %q: %w", td.Derived.Name, name, err)
+			}
+			return &Node{Name: name, Children: children}, nil
+		}
+		return nil, fmt.Errorf("type %q (for field %q) has unsupported baseType", td.Derived.Name, name)
+	}
+
+	// Primitive / string / enum type.
+	typeName := td.primitiveTypeName()
+	if typeName == "" {
+		return nil, fmt.Errorf("field %q: unrecognized type", name)
+	}
+	return &Node{Name: name, Dir: DirIn, TypeName: typeName}, nil
+}
+
+// xmlTypeToChildren resolves a typeRef (used as an array element base type) to
+// a slice of children Nodes.
+func xmlTypeToChildren(td *xmlTypeDef, typeMap map[string]*xmlDataType) ([]*Node, error) {
+	if td.Struct != nil {
+		return xmlStructVarsToChildren(td.Struct.Variables, typeMap)
+	}
+	if td.Derived != nil {
+		dt, ok := typeMap[td.Derived.Name]
+		if !ok {
+			return nil, fmt.Errorf("unknown element type %q", td.Derived.Name)
+		}
+		if dt.BaseType.Struct != nil {
+			return xmlStructVarsToChildren(dt.BaseType.Struct.Variables, typeMap)
+		}
+		return nil, fmt.Errorf("array element type %q is not a struct", td.Derived.Name)
+	}
+	return nil, fmt.Errorf("array element type is not a struct or derived type")
+}
+
+// xmlStructVarsToChildren converts a slice of xmlVariable into []*Node children.
+func xmlStructVarsToChildren(vars []xmlVariable, typeMap map[string]*xmlDataType) ([]*Node, error) {
+	children := make([]*Node, 0, len(vars))
+	for _, v := range vars {
+		child, err := xmlVarToNode(v.Name, &v.Type, typeMap)
+		if err != nil {
+			return nil, fmt.Errorf("field %q: %w", v.Name, err)
+		}
+		children = append(children, child)
+	}
+	return children, nil
+}

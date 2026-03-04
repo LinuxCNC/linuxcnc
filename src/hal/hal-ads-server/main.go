@@ -14,6 +14,7 @@
 //	-port int           TCP port for ADS server (default 48898)
 //	-ams-net-id string  Local AMS Net ID (default "192.168.0.99.1.1")
 //	-verbose            Enable verbose debug logging
+//	-xml                Generate PLCopen TC6 XML from config file and exit
 package main
 
 import (
@@ -35,18 +36,13 @@ func main() {
 	bind := flag.String("bind", "0.0.0.0", "IP address to bind the ADS server to")
 	amsNetIDStr := flag.String("ams-net-id", "192.168.0.99.1.1", "Local AMS Net ID")
 	verbose := flag.Bool("verbose", false, "Enable verbose debug logging")
+	xmlMode := flag.Bool("xml", false, "Generate PLCopen TC6 XML from config file and write to stdout, then exit")
 	flag.Parse()
 
 	if flag.NArg() < 1 {
 		log.Fatalf("Usage: %s [options] <config-file>", os.Args[0])
 	}
 	configFile := flag.Arg(0)
-
-	// Parse AMS Net ID.
-	amsNetID, err := ads.ParseAMSNetID(*amsNetIDStr)
-	if err != nil {
-		log.Fatalf("Invalid AMS Net ID: %v", err)
-	}
 
 	// Load config file.
 	f, err := os.Open(configFile)
@@ -57,6 +53,20 @@ func main() {
 	f.Close()
 	if err != nil {
 		log.Fatalf("Config parse error: %v", err)
+	}
+
+	// -xml mode: generate PLCopen TC6 XML and exit without starting the server.
+	if *xmlMode {
+		if err := GenerateXML(os.Stdout, tree); err != nil {
+			log.Fatalf("XML generation error: %v", err)
+		}
+		return
+	}
+
+	// Parse AMS Net ID.
+	amsNetID, err := ads.ParseAMSNetID(*amsNetIDStr)
+	if err != nil {
+		log.Fatalf("Invalid AMS Net ID: %v", err)
 	}
 
 	layoutPins, err := ComputeLayout(tree)
