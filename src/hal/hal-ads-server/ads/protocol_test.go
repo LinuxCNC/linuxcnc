@@ -50,7 +50,7 @@ func TestEncodeDecodeAMSHeader(t *testing.T) {
 		SourceNetID: AMSNetID{5, 80, 201, 232, 1, 1},
 		SourcePort:  32905,
 		CommandID:   CmdRead,
-		StateFlags:  StateFlagCommand,
+		StateFlags:  StateFlagRequest,
 		DataLength:  12,
 		ErrorCode:   0,
 		InvokeID:    42,
@@ -77,7 +77,7 @@ func TestSendAMSResponsePacketLayout(t *testing.T) {
 		SourceNetID: AMSNetID{10, 0, 0, 1, 1, 1},
 		SourcePort:  32905,
 		CommandID:   CmdRead,
-		StateFlags:  StateFlagCommand,
+		StateFlags:  StateFlagRequest,
 		InvokeID:    99,
 	}
 	payload := []byte{0x01, 0x02, 0x03, 0x04}
@@ -156,7 +156,7 @@ func TestResponsePortEcho(t *testing.T) {
 			SourceNetID: AMSNetID{10, 0, 0, 1, 1, 1},
 			SourcePort:  65534,
 			CommandID:   CmdRead,
-			StateFlags:  StateFlagCommand,
+			StateFlags:  StateFlagRequest,
 			InvokeID:    1,
 		}
 		if err := s.sendAMSResponse(&buf, req, CmdRead, ErrNoError, nil); err != nil {

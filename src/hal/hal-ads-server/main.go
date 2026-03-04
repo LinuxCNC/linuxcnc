@@ -21,13 +21,20 @@ import (
 	"flag"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"linuxcnc.org/hal"
 
 	"linuxcnc.org/hal-ads-server/ads"
 )
+
+// DefaultAMSPort is the standard AMS port for TwinCAT3 PLC runtime 1.
+// This is the logical ADS port used in AMS headers, distinct from the TCP
+// listen port (-port flag, default 48898).
+const DefaultAMSPort uint16 = 851
 
 func main() {
 	// Parse command-line flags.
@@ -100,16 +107,29 @@ func main() {
 
 	// Start ADS TCP server.
 	addr := *bind + ":" + strconv.Itoa(*port)
-	srv := ads.NewServer(addr, amsNetID, 851, st, *verbose)
+	srv := ads.NewServer(addr, amsNetID, DefaultAMSPort, st, *verbose)
 	if err := srv.Start(); err != nil {
 		log.Fatalf("Failed to start ADS server: %v", err)
 	}
+	defer srv.Stop()
 
-	// Main loop: keep the component alive until shutdown signal.
-	for comp.Running() {
-		time.Sleep(100 * time.Millisecond)
+	// Wait for HAL shutdown or OS signal.
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+	done := make(chan struct{})
+	go func() {
+		for comp.Running() {
+			time.Sleep(100 * time.Millisecond)
+		}
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case sig := <-sigCh:
+		log.Printf("Received signal: %v", sig)
 	}
 
 	log.Printf("Shutting down %s", *name)
-	srv.Stop()
 }

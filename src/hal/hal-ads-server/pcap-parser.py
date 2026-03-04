@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-ads_pcap_parser.py - Parse pcap files containing ADS/AMS protocol traffic.
+ADS/AMS PCAP parser for debugging hal-ads-server traffic.
 
 Parses tcpdump/tcpreplay pcap files and outputs human-readable text suitable
 for diff comparison between a working and broken capture.
 
 Usage:
-    python3 tools/ads_pcap_parser.py capture.pcap > capture.txt
-    python3 tools/ads_pcap_parser.py working.pcap > working.txt
-    python3 tools/ads_pcap_parser.py broken.pcap > broken.txt
+    python3 src/hal/hal-ads-server/pcap-parser.py capture.pcap > capture.txt
+    python3 src/hal/hal-ads-server/pcap-parser.py working.pcap > working.txt
+    python3 src/hal/hal-ads-server/pcap-parser.py broken.pcap > broken.txt
     diff -u working.txt broken.txt
 """
 

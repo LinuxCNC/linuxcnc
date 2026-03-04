@@ -317,5 +317,42 @@ func NewBridge(comp *hal.Component, pins []LayoutPin, st *ads.SymbolTable) (*Bri
 
 		st.RegisterAt(cp.ADSName, cp.Offset, acc)
 	}
+
+	// Compute padded group sizes from layout information, including tail padding.
+	// For each unique parent prefix, find the start offset, the end of the last
+	// member, and the maximum field alignment. The padded size is then
+	// alignUp(lastEnd, maxAlign) - startOffset, matching TwinCAT pack mode 0.
+	type groupBounds struct {
+		startOffset uint32
+		lastEnd     uint32
+		maxAlign    uint32
+	}
+	groups := make(map[string]*groupBounds)
+
+	for _, cp := range pins {
+		segs := strings.Split(cp.ADSName, ".")
+		for prefixLen := 1; prefixLen < len(segs); prefixLen++ {
+			prefix := strings.Join(segs[:prefixLen], ".")
+			end := cp.Offset + cp.Size
+			if gb, ok := groups[prefix]; !ok {
+				groups[prefix] = &groupBounds{
+					startOffset: cp.Offset,
+					lastEnd:     end,
+					maxAlign:    cp.Align,
+				}
+			} else {
+				if end > gb.lastEnd {
+					gb.lastEnd = end
+				}
+				if cp.Align > gb.maxAlign {
+					gb.maxAlign = cp.Align
+				}
+			}
+		}
+	}
+	for name, gb := range groups {
+		st.SetGroupSize(name, alignUp(gb.lastEnd, gb.maxAlign)-gb.startOffset)
+	}
+
 	return b, nil
 }
