@@ -56,8 +56,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Cannot open config file %q: %v", configFile, err)
 	}
+	defer f.Close()
 	tree, err := ParseTree(f)
-	f.Close()
 	if err != nil {
 		log.Fatalf("Config parse error: %v", err)
 	}
