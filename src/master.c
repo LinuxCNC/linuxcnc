@@ -175,7 +175,7 @@ int lcec_startup_master(lcec_master_t *master) {
       rtapi_print_msg(RTAPI_MSG_ERR,
           LCEC_MSG_PFX "requesting master %s (index %d) failed\n",
           master->name, master->index);
-      goto return -1;
+      return -1;
     }
 #ifdef __KERNEL__
     // register callbacks
