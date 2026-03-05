@@ -4145,7 +4145,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         // This provides time-optimal jerk-limited deceleration
         use_ruckig = 1;
     }
-
     if (use_ruckig_stopping) {
         // LEGACY: Cycle-by-cycle jerk-limited stopping (dead code, kept for rollback)
         // Now pause/abort uses the same Ruckig branch path as feed hold for
@@ -4761,7 +4760,12 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 }
 
 
-// DEBUG: track v0 correction for next-cycle velocity logging
+// Maximum chain-split depth: how many consecutive short segments can
+// complete within a single split cycle's remaining time and be chained
+// through in one servo cycle.  10 is very conservative — in practice
+// at 1 kHz with ~0.03 mm arcs at 30 mm/s, at most 1-2 iterations.
+#define MAX_CHAIN_DEPTH 10
+
 // Previous-cycle commanded velocity for junction_vel clamping.
 // Saved before tpHandleSplitCycle so the crossing-point velocity
 // (from a potentially stale/swapped profile) can be clamped to
@@ -4993,6 +4997,112 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     int mode = 0;
     tpUpdateCycle(tp, nexttc, next2tc, &mode);
 
+    // === CHAIN-SPLIT: Forward leftover time through short segments ===
+    // When nexttc completes within remain_time (its Ruckig profile duration
+    // fits inside the split budget), tpCheckEndCondition inside tpUpdateCycle
+    // sets nexttc->splitting=1.  Instead of losing the leftover time as zero
+    // displacement, chain into the next segment(s) to recover it.
+    // This eliminates the 1-sample velocity dip / jerk spike caused by
+    // short arcs completing within the split cycle.
+    int chain_depth = 0;
+    TC_STRUCT *chain_last = nexttc;  // last segment in chain (for DIO/status)
+    if (GET_TRAJ_PLANNER_TYPE() == 2) {
+        double chain_remain = nexttc_remain_time;
+        TC_STRUCT *chain_prev = nexttc;
+        int chain_queue_idx = queue_dir_step * 2;  // next after nexttc
+
+        while (chain_depth < MAX_CHAIN_DEPTH &&
+               chain_prev->splitting &&
+               chain_prev->term_cond == TC_TERM_COND_TANGENT &&
+               !chain_prev->remove)
+        {
+            // Check that chain_prev has a valid profile so we can read duration
+            int cpv = __atomic_load_n(&chain_prev->shared_9d.profile.valid,
+                                      __ATOMIC_ACQUIRE);
+            if (!cpv) break;
+
+            double chain_dur = chain_prev->shared_9d.profile.duration;
+
+            // Duration check: if chain_dur > chain_remain, the segment did NOT
+            // complete within the current budget — tpCheckEndCondition flagged
+            // splitting for the NEXT regular cycle. Don't chain.
+            if (chain_dur > chain_remain + 1e-9) break;
+
+            double chain_leftover = chain_remain - chain_dur;
+            if (chain_leftover < 1e-9) break;  // no meaningful leftover
+
+            // chain_prev completed within budget. Its displacement was already
+            // committed by tpUpdateCycle.  Mark for removal.
+            chain_prev->remove = 1;
+
+            // Get the next segment to chain into
+            TC_STRUCT *chain_tc = tcqItem(&tp->queue, chain_queue_idx);
+            if (!chain_tc) break;
+
+            // Must have a valid Ruckig profile to chain
+            int ctv = __atomic_load_n(&chain_tc->shared_9d.profile.valid,
+                                      __ATOMIC_ACQUIRE);
+            if (!ctv) break;
+
+            // --- Velocity / acceleration inheritance (same as lines 4958-4963) ---
+            chain_tc->currentvel = chain_prev->currentvel;
+            double maxacc_chain = tcGetTangentialMaxAccel(chain_tc);
+            chain_tc->currentacc = saturate(chain_prev->currentacc, maxacc_chain);
+
+            // --- Full Ruckig activation (replicates lines 4993-5024) ---
+            chain_tc->active = 1;
+            chain_tc->on_final_decel = 0;
+            chain_tc->blending_next = 0;
+            chain_tc->position_base = 0.0;
+
+            chain_tc->last_profile_generation = __atomic_load_n(
+                &chain_tc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
+
+            __atomic_store_n(&chain_tc->shared_9d.branch.valid, 0,
+                             __ATOMIC_RELEASE);
+            __atomic_store_n(&chain_tc->shared_9d.branch.taken, 0,
+                             __ATOMIC_RELEASE);
+
+            double chain_feed = 1.0;
+            if (emcmotStatus) {
+                if (chain_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) {
+                    chain_feed = emcmotStatus->rapid_scale;
+                } else {
+                    chain_feed = emcmotStatus->feed_scale;
+                }
+                if (chain_feed < 0.0) chain_feed = 0.0;
+                if (chain_feed > 10.0) chain_feed = 10.0;
+            }
+            chain_tc->shared_9d.canonical_feed_scale = chain_feed;
+            chain_tc->shared_9d.requested_feed_scale = chain_feed;
+            chain_tc->shared_9d.achieved_exit_vel = 0.0;
+            chain_tc->shared_9d.reachability_exit_cap = -1.0;
+
+            // Pre-advance elapsed_time to leftover so Ruckig samples there
+            chain_tc->elapsed_time = chain_leftover;
+            chain_tc->cycle_time = tp->cycleTime;  // reset for tpUpdateCycle
+
+            // --- Run tpUpdateCycle on chained segment ---
+            TC_STRUCT *chain_next2 = tcqItem(&tp->queue,
+                                             chain_queue_idx + queue_dir_step);
+            int chain_mode = 0;
+            tpUpdateCycle(tp, chain_tc, chain_next2, &chain_mode);
+
+            // Post-correct elapsed_time (same pattern as line 5176)
+            if (__atomic_load_n(&chain_tc->shared_9d.profile.valid,
+                                __ATOMIC_ACQUIRE)) {
+                chain_tc->elapsed_time = chain_leftover + tp->cycleTime;
+            }
+
+            // Iterate
+            chain_remain = chain_leftover;
+            chain_prev = chain_tc;
+            chain_last = chain_tc;
+            chain_queue_idx += queue_dir_step;
+            chain_depth++;
+        }
+    }
+
     // Correct profile v0 mismatch at split junction.
     // When feed override changes between profile computation and junction
     // arrival, the profile's v[0] doesn't match the actual junction velocity.
@@ -5037,22 +5147,25 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // (because cycle_time was remain_time at sample time), giving elapsed = 2*remain_time.
     // But tpCheckEndCondition inside tpUpdateCycle then overwrote cycle_time to cycleTime.
     // The next regular cycle should sample at remain_time + cycleTime.
-    if (GET_TRAJ_PLANNER_TYPE() == 2 &&
+    // Skip if chain-split happened — nexttc is marked for removal, and
+    // the chained segment's elapsed_time was already corrected in the loop.
+    if (chain_depth == 0 &&
+        GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
         nexttc->elapsed_time = nexttc_remain_time + tp->cycleTime;
     }
 
 
-    // Update status for the split portion
-    // FIXME redundant tangent check, refactor to switch
+    // Update status for the split portion.
+    // Use chain_last (== nexttc if no chain, or last chained segment).
     if (tc->cycle_time > nexttc->cycle_time && tc->term_cond == TC_TERM_COND_TANGENT) {
         //Majority of time spent in current segment
         tpToggleDIOs(tc);
         tpUpdateMovementStatus(tp, tc);
     } else {
-        tpToggleDIOs(nexttc);
+        tpToggleDIOs(chain_last);
     }
-        tpUpdateMovementStatus(tp, nexttc);
+        tpUpdateMovementStatus(tp, chain_last);
 
     return TP_ERR_OK;
 }
@@ -5305,8 +5418,18 @@ past_gates:
 
 
     // If TC is complete, remove it from the queue.
+    // Chain-split may have marked multiple consecutive segments for removal
+    // (tc + any chained short segments).  Pop all of them in one servo cycle.
+    // Without this loop, each remove'd segment would occupy a "dead" cycle
+    // with zero displacement, causing the same velocity dip we're fixing.
     if (tc->remove) {
-        tpCompleteSegment(tp, tc);
+        int pop_count = 0;
+        while (pop_count < MAX_CHAIN_DEPTH + 2) {
+            TC_STRUCT *front = tcqItem(&tp->queue, 0);
+            if (!front || !front->remove) break;
+            if (tpCompleteSegment(tp, front) != TP_ERR_OK) break;
+            pop_count++;
+        }
     }
 
     return TP_ERR_OK;
