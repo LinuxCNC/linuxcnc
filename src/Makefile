@@ -20,4 +20,5 @@ clean:
 	rm -f modules.order Module.symvers
 	rm -rf .tmp_versions
 	rm -f lcec_conf
+	rm -f *.d devices/*.d classes/*.d
 
