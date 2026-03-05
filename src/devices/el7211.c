@@ -300,7 +300,7 @@ int lcec_el7211_export_pins(lcec_master_t *master, struct lcec_slave *slave, lce
   return 0;
 }
 
-int lcec_el7211_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el7211_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el7211_data_t *hal_data;
   int err;
@@ -333,7 +333,7 @@ int lcec_el7211_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
-int lcec_el7201_9014_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el7201_9014_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el7211_data_t *hal_data;
   int err;

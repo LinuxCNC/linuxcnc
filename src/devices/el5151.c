@@ -163,7 +163,7 @@ static ec_sync_info_t lcec_el5151_syncs[] = {
 void lcec_el5151_read(struct lcec_slave *slave, long period);
 void lcec_el5151_write(struct lcec_slave *slave, long period);
 
-int lcec_el5151_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el5151_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el5151_data_t *hal_data;
   int err;

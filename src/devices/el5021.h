@@ -25,7 +25,7 @@
 
 #define LCEC_EL5021_PDOS 12
 
-int lcec_el5021_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el5021_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

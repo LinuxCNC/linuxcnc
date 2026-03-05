@@ -27,7 +27,7 @@
 
 #define LCEC_EL5151_PERIOD_SCALE 1e-7
 
-int lcec_el5151_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el5151_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

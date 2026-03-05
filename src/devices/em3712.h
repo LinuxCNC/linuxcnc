@@ -26,7 +26,7 @@
 #define LCEC_EM3712_CHANS 2
 #define LCEC_EM3712_PDOS  (LCEC_EM3712_CHANS * 4)
 
-int lcec_em3712_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_em3712_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

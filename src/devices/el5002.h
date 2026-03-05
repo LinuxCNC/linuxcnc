@@ -44,7 +44,7 @@
 #define LCEC_EL5002_PARAM_MIN_INHIBIT_TIME 0x00a0
 #define LCEC_EL5002_PARAM_NO_CLK_BURSTS    0x00b0
 
-int lcec_el5002_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el5002_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

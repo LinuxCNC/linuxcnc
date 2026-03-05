@@ -31,7 +31,7 @@
 
 #define LCEC_PH3LM2RM_PDOS (2 + (LCEC_PH3LM2RM_RM_PDOS * LCEC_PH3LM2RM_RM_COUNT) + (LCEC_PH3LM2RM_LM_PDOS * LCEC_PH3LM2RM_LM_COUNT))
 
-int lcec_ph3lm2rm_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_ph3lm2rm_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

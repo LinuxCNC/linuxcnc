@@ -76,7 +76,7 @@ int lcec_class_ax5_pdos(struct lcec_slave *slave) {
   return pdo_count;
 }
 
-int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs, lcec_class_ax5_chan_t *chan, int index, const char *pfx) {
+int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, lcec_class_ax5_chan_t *chan, int index, const char *pfx) {
   lcec_master_t *master = slave->master;
   int err;
   uint8_t idn_buf[4];

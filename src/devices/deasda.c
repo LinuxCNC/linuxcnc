@@ -152,7 +152,7 @@ void lcec_deasda_check_scales(lcec_deasda_data_t *hal_data);
 void lcec_deasda_read(struct lcec_slave *slave, long period);
 void lcec_deasda_write(struct lcec_slave *slave, long period);
 
-int lcec_deasda_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_deasda_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_deasda_data_t *hal_data;
   int err;

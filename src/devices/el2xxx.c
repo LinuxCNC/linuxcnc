@@ -28,7 +28,7 @@ typedef struct {
 
 void lcec_el2xxx_write(struct lcec_slave *slave, long period);
 
-int lcec_el2xxx_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el2xxx_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el2xxx_pin_t *hal_data;
   lcec_el2xxx_pin_t *pin;

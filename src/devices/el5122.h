@@ -26,7 +26,7 @@
 #define LCEC_EL5122_CHANS 2
 #define LCEC_EL5122_PDOS  (13 * LCEC_EL5122_CHANS)
 
-int lcec_el5122_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el5122_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

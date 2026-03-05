@@ -21,7 +21,7 @@
 #include "../lcec.h"
 #include "el7411.h"
 
-int lcec_el7411_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el7411_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_slave_modparam_t *p;
 

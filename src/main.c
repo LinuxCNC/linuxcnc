@@ -134,11 +134,16 @@ int rtapi_app_main(void) {
 
       // setup pdos
       if (slave->proc_init != NULL) {
-        if ((slave->proc_init(comp_id, slave, pdo_entry_regs)) != 0) {
+        ec_pdo_entry_reg_t *checkpoint = pdo_entry_regs;
+        if ((slave->proc_init(comp_id, slave, &pdo_entry_regs)) != 0) {
+          goto fail2;
+        }
+        if (pdo_entry_regs != (checkpoint + slave->pdo_entry_count)) {
+          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "Slave %s.%s configured wrong count of PDOs: required %d, configured %d\n",
+            master->name, slave->name, slave->pdo_entry_count, (int) ((pdo_entry_regs - checkpoint) / sizeof(ec_pdo_entry_reg_t)));
           goto fail2;
         }
       }
-      pdo_entry_regs += slave->pdo_entry_count;
 
       // configure dc for this slave
       if (slave->dc_conf != NULL) {

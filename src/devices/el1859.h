@@ -27,7 +27,7 @@
 #define LCEC_EL1859_PINS 8
 #define LCEC_EL1859_PDOS (2 * LCEC_EL1859_PINS)
 
-int lcec_el1859_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el1859_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

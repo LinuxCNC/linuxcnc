@@ -228,25 +228,25 @@ static const lcec_pindesc_t slave_params[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
-int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 void lcec_el70x1_read(struct lcec_slave *slave, long period);
 void lcec_el70x1_write(struct lcec_slave *slave, long period);
 
-int lcec_el7031_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el7031_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   // initialize sync info
   slave->sync_info = lcec_el70x1_syncs;
 
   return lcec_el70x1_init(comp_id, slave, pdo_entry_regs);
 }
 
-int lcec_el7041_0052_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el7041_0052_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   // initialize sync info
   slave->sync_info = lcec_el7041_0052_syncs;
 
   return lcec_el70x1_init(comp_id, slave, pdo_entry_regs);
 }
 
-int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_slave_modparam_t *p;
   lcec_el70x1_data_t *hal_data;

@@ -106,7 +106,7 @@ static const lcec_pindesc_t fsoe_crc_pins[] = {
 void lcec_el6900_read(struct lcec_slave *slave, long period);
 void lcec_el6900_write(struct lcec_slave *slave, long period);
 
-static int init_std_pdos(struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs, int pid, lcec_el6900_fsoe_io_t *io, int index, hal_pin_dir_t dir) {
+static int init_std_pdos(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, int pid, lcec_el6900_fsoe_io_t *io, int index, hal_pin_dir_t dir) {
   lcec_master_t *master = slave->master;
   lcec_slave_modparam_t *p;
   int count, err;
@@ -189,7 +189,7 @@ int lcec_el6900_preinit(struct lcec_slave *slave) {
   return 0;
 }
 
-int lcec_el6900_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el6900_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el6900_data_t *hal_data;
   lcec_el6900_fsoe_t *fsoe_data;

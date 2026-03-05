@@ -44,14 +44,14 @@ do {                             \
 // pdo macros
 #define LCEC_PDO_INIT(pdo, pos, vid, pid, idx, sidx, off, bpos) \
 do {                        \
-  pdo->position = pos;      \
-  pdo->vendor_id = vid;     \
-  pdo->product_code = pid;  \
-  pdo->index = idx;         \
-  pdo->subindex = sidx;     \
-  pdo->offset = off;        \
-  pdo->bit_position = bpos; \
-  pdo++;                    \
+  (*pdo)->position = pos;      \
+  (*pdo)->vendor_id = vid;     \
+  (*pdo)->product_code = pid;  \
+  (*pdo)->index = idx;         \
+  (*pdo)->subindex = sidx;     \
+  (*pdo)->offset = off;        \
+  (*pdo)->bit_position = bpos; \
+  (*pdo)++;                    \
 } while (0);                \
 
 #define LCEC_MSG_PFX "LCEC: "
@@ -86,7 +86,7 @@ struct lcec_master;
 struct lcec_slave;
 
 typedef int (*lcec_slave_preinit_t) (struct lcec_slave *slave);
-typedef int (*lcec_slave_init_t) (int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+typedef int (*lcec_slave_init_t) (int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 typedef void (*lcec_slave_cleanup_t) (struct lcec_slave *slave);
 typedef void (*lcec_slave_rw_t) (struct lcec_slave *slave, long period);
 

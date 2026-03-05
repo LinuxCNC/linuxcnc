@@ -291,7 +291,7 @@ static ec_sync_info_t lcec_el7041_1000_syncs[] = {
 void lcec_el7041_1000_read(struct lcec_slave *s, long period);
 void lcec_el7041_1000_write(struct lcec_slave *s, long period);
 
-int lcec_el7041_1000_init(int comp_id, struct lcec_slave *s, ec_pdo_entry_reg_t *r) {
+int lcec_el7041_1000_init(int comp_id, struct lcec_slave *s, ec_pdo_entry_reg_t **r) {
   lcec_master_t *m = s->master;
   lcec_el7041_1000_data_t *hd;
   int err;

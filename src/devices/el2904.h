@@ -27,7 +27,7 @@
 #define LCEC_EL2904_PDOS 14
 
 int lcec_el2904_preinit(struct lcec_slave *slave);
-int lcec_el2904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el2904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

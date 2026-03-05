@@ -80,7 +80,7 @@ static const lcec_pindesc_t slave_pins[] = {
 /** \brief callback for periodic IO data access*/ 
 void lcec_el2202_write(struct lcec_slave *slave, long period);
 
-int lcec_el2202_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el2202_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
 
   lcec_el2202_data_t *hal_data;

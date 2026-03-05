@@ -64,7 +64,7 @@
 #define LCEC_EL1809_PDOS 16
 #define LCEC_EL1819_PDOS 16
 
-int lcec_el1xxx_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el1xxx_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

@@ -44,7 +44,7 @@
 #define LCEC_EL7411_PARAM_HALL_VOLT      16
 #define LCEC_EL7411_PARAM_HALL_ADJUST    17
 
-int lcec_el7411_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el7411_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

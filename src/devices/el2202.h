@@ -31,7 +31,7 @@
 /** \brief Vendor ID */
 #define LCEC_EL2202_VID LCEC_BECKHOFF_VID
 
-int lcec_el2202_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el2202_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

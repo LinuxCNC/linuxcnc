@@ -31,7 +31,7 @@
 
 #define LCEC_EL40x8_CHANS 8
 
-int lcec_el40x8_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el40x8_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

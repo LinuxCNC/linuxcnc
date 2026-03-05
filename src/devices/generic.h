@@ -52,7 +52,7 @@ int lcec_generic_conf_sm(lcec_generic_conf_state_t *state, LCEC_CONF_SYNCMANAGER
 int lcec_generic_conf_pdo(lcec_generic_conf_state_t *state, LCEC_CONF_PDO_T *pdo_conf);
 int lcec_generic_conf_pdo_entry(lcec_generic_conf_state_t *state, LCEC_CONF_PDOENTRY_T *pe_conf);
 int lcec_generic_conf_complex_entry(lcec_generic_conf_state_t *state, LCEC_CONF_COMPLEXENTRY_T *ce_conf);
-int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

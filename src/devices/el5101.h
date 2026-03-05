@@ -28,7 +28,7 @@
 #define LCEC_EL5101_PERIOD_SCALE    500e-9
 #define LCEC_EL5101_FREQUENCY_SCALE 0.01
 
-int lcec_el5101_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el5101_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

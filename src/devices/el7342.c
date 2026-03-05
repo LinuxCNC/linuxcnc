@@ -371,7 +371,7 @@ void lcec_el7342_write(struct lcec_slave *slave, long period);
 
 void lcec_el7342_set_info(lcec_el7342_chan_t *chan, hal_s32_t *raw_info, hal_u32_t *sel_info);
 
-int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el7342_data_t *hal_data;
   int i;

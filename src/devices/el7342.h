@@ -26,7 +26,7 @@
 #define LCEC_EL7342_CHANS 2
 #define LCEC_EL7342_PDOS  (33 * LCEC_EL7342_CHANS)
 
-int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

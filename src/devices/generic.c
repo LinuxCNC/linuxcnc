@@ -228,7 +228,7 @@ int lcec_generic_conf_complex_entry(lcec_generic_conf_state_t *state, LCEC_CONF_
   return 0;
 }
 
-int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_generic_pin_t *hal_data = (lcec_generic_pin_t *) slave->hal_data;
   int i, j;

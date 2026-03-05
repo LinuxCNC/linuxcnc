@@ -31,7 +31,7 @@
 
 #define LCEC_EL41x2_CHANS 2
 
-int lcec_el41x2_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el41x2_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

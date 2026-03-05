@@ -88,7 +88,7 @@ static const lcec_pindesc_t fsoe_crc_pins[] = {
 void lcec_el1918_logic_read(struct lcec_slave *slave, long period);
 void lcec_el1918_logic_write(struct lcec_slave *slave, long period);
 
-static int export_std_pins(struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs, int pid, hal_bit_t **pin, hal_pin_dir_t dir) {
+static int export_std_pins(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, int pid, hal_bit_t **pin, hal_pin_dir_t dir) {
   lcec_master_t *master = slave->master;
   lcec_slave_modparam_t *p;
   int count, err;
@@ -173,7 +173,7 @@ int lcec_el1918_logic_preinit(struct lcec_slave *slave) {
   return 0;
 }
 
-int lcec_el1918_logic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el1918_logic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el1918_logic_data_t *hal_data;
   lcec_el1918_logic_fsoe_t *fsoe_data;

@@ -142,7 +142,7 @@ Parameters:
 
 #define LCEC_DEASDA_PDOS 6
 
-int lcec_deasda_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_deasda_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

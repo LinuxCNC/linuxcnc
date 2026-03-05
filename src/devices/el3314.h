@@ -26,7 +26,7 @@
 #define LCEC_EL3314_CHANS 4
 #define LCEC_EL3314_PDOS  (LCEC_EL3314_CHANS * 4)
 
-int lcec_el3314_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el3314_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

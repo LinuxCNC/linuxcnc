@@ -115,7 +115,7 @@ static ec_sync_info_t lcec_el3314_syncs[] = {
 
 void lcec_el3314_read(struct lcec_slave *slave, long period);
 
-int lcec_el3314_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el3314_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el3314_data_t *hal_data;
   lcec_el3314_chan_t *chan;

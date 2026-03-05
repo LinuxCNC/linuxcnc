@@ -26,7 +26,7 @@
 #define LCEC_EL5032_CHANS 2
 #define LCEC_EL5032_PDOS  (7 * LCEC_EL5032_CHANS)
 
-int lcec_el5032_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_el5032_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

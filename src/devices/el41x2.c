@@ -77,7 +77,7 @@ static ec_sync_info_t lcec_el41x2_syncs[] = {
 
 void lcec_el41x2_write(struct lcec_slave *slave, long period);
 
-int lcec_el41x2_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el41x2_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el41x2_data_t *hal_data;
   lcec_el41x2_chan_t *chan;

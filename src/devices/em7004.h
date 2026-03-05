@@ -30,7 +30,7 @@
 
 #define LCEC_EM7004_PDOS (LCEC_EM7004_DIN_COUNT + LCEC_EM7004_DOUT_COUNT + LCEC_EM7004_AOUT_COUNT + (LCEC_EM7004_ENC_COUNT * 12))
 
-int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 

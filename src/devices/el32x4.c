@@ -61,7 +61,7 @@ typedef struct {
 
 void lcec_el32x4_read(struct lcec_slave *slave, long period);
 
-int lcec_el32x4_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_el32x4_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el32x4_data_t *hal_data;
   lcec_el32x4_chan_t *chan;

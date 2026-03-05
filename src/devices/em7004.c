@@ -156,7 +156,7 @@ static const lcec_pindesc_t slave_enc_pins[] = {
 void lcec_em7004_read(struct lcec_slave *slave, long period);
 void lcec_em7004_write(struct lcec_slave *slave, long period);
 
-int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs) {
+int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_em7004_data_t *hal_data;
   lcec_em7004_din_t *din;

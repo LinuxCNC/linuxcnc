@@ -30,7 +30,7 @@
 #define LCEC_STMDS5K_PARAM_EXTENC 2
 
 int lcec_stmds5k_preinit(struct lcec_slave *slave);
-int lcec_stmds5k_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
+int lcec_stmds5k_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
 
