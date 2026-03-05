@@ -58,7 +58,6 @@ int rtapi_app_main(void) {
   ec_pdo_entry_reg_t *pdo_entry_regs;
   lcec_slave_sdoconf_t *sdo_config;
   lcec_slave_idnconf_t *idn_config;
-  struct timeval tv;
 
   // connect to the HAL
   if ((comp_id = hal_init (LCEC_MODULE_NAME)) < 0) {
@@ -184,21 +183,6 @@ int rtapi_app_main(void) {
       goto fail2;
     }
 
-    // initialize application time
-    lcec_gettimeofday(&tv);
-    master->app_time_base = EC_TIMEVAL2NANO(tv);
-#ifdef RTAPI_TASK_PLL_SUPPORT
-    master->dc_time_valid_last = 0;
-    if (master->sync_ref_cycles >= 0) {
-      master->app_time_base -= rtapi_get_time();
-    }
-#else
-    master->app_time_base -= rtapi_get_time();
-    if (master->sync_ref_cycles < 0) {
-      rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "unable to sync master %s cycle to reference clock, RTAPI_TASK_PLL_SUPPORT not present\n", master->name);
-    }
-#endif
-
     // activating master
     if (ecrt_master_activate(master->master)) {
       rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "failed to activate master %s\n", master->name);
@@ -214,13 +198,6 @@ int rtapi_app_main(void) {
     if ((master->hal_data = lcec_init_master_hal(name, 0)) == NULL) {
       goto fail2;
     }
-
-#ifdef RTAPI_TASK_PLL_SUPPORT
-    // set default PLL_STEP: use +/-0.1% of period
-    master->hal_data->pll_step = master->app_time_period / 1000;
-    // set default PLL_MAX_ERR: one period
-    master->hal_data->pll_max_err = master->app_time_period;
-#endif
 
     // export read function
     rtapi_snprintf(name, HAL_NAME_LEN, "%s.%s.read", LCEC_MODULE_NAME, master->name);

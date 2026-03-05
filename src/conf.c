@@ -1662,7 +1662,7 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
 }
 
 static int parseSyncCycle(LCEC_CONF_XML_STATE_T *state, const char *nptr) {
-  // chack for master period multiples
+  // check for master period multiples
   if (*nptr == '*') {
     nptr++;
     return atoi(nptr) * state->currMaster->appTimePeriod;

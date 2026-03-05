@@ -22,7 +22,6 @@ static const lcec_pindesc_t master_pins[] = {
 
 static const lcec_pindesc_t master_params[] = {
 #ifdef RTAPI_TASK_PLL_SUPPORT
-  { HAL_U32, HAL_RW, offsetof(lcec_master_data_t, pll_step), "%s.pll-step" },
   { HAL_U32, HAL_RW, offsetof(lcec_master_data_t, pll_max_err), "%s.pll-max-err" },
 #endif
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
@@ -79,7 +78,6 @@ lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf) {
   strncpy(master->name, master_conf->name, LCEC_CONF_STR_MAXLEN);
   master->name[LCEC_CONF_STR_MAXLEN - 1] = 0;
   master->app_time_period = master_conf->appTimePeriod;
-  master->sync_ref_cycles = master_conf->refClockSyncCycles;
 #ifdef EC_USPACE_MASTER
   master->transport_type = master_conf->transportType;
   strncpy(master->interface, master_conf->interface, LCEC_CONF_STR_MAXLEN);
@@ -256,14 +254,6 @@ void lcec_read_master(void *arg, long period) {
 void lcec_write_master(void *arg, long period) {
   lcec_master_t *master = (lcec_master_t *) arg;
   lcec_slave_t *slave;
-  uint64_t app_time;
-  long long now;
-#ifdef RTAPI_TASK_PLL_SUPPORT
-  long long ref;
-  uint32_t dc_time;
-  int dc_time_valid;
-  lcec_master_data_t *hal_data;
-#endif
 
   // process slaves
   for (slave = master->first_slave; slave != NULL; slave = slave->next) {
@@ -272,82 +262,12 @@ void lcec_write_master(void *arg, long period) {
     }
   }
 
-#ifdef RTAPI_TASK_PLL_SUPPORT
-  // get reference time
-  ref = rtapi_task_pll_get_reference();
-#endif
-
   // send process data
   rtapi_mutex_get(&master->mutex);
   ecrt_domain_queue(master->domain);
 
-  // update application time
-  now = rtapi_get_time();
-#ifdef RTAPI_TASK_PLL_SUPPORT
-  if (master->sync_ref_cycles >= 0) {
-    app_time = master->app_time_base + now;
-  } else {
-    master->dc_ref += period;
-    app_time = master->app_time_base + master->dc_ref + (now - ref);
-  }
-#else
-  app_time = master->app_time_base + now;
-#endif
-
-  ecrt_master_application_time(master->master, app_time);
-
-  // sync ref clock to master
-  if (master->sync_ref_cycles > 0) {
-    if (master->sync_ref_cnt == 0) {
-      master->sync_ref_cnt = master->sync_ref_cycles;
-      ecrt_master_sync_reference_clock(master->master);
-    }
-    master->sync_ref_cnt--;
-  }
-
-#ifdef RTAPI_TASK_PLL_SUPPORT
-  // sync master to ref clock
-  dc_time = 0;
-  if (master->sync_ref_cycles < 0) {
-    // get reference clock time to synchronize master cycle
-    dc_time_valid = (ecrt_master_reference_clock_time(master->master, &dc_time) == 0);
-  } else {
-    dc_time_valid = 0;
-  }
-#endif
-
-  // sync slaves to ref clock
-  ecrt_master_sync_slave_clocks(master->master);
-
   // send domain data
   ecrt_master_send(master->master);
   rtapi_mutex_give(&master->mutex);
-
-#ifdef RTAPI_TASK_PLL_SUPPORT
-  // BANG-BANG controller for master thread PLL sync
-  // this part is done after ecrt_master_send() to reduce jitter
-  hal_data = master->hal_data;
-  *(hal_data->pll_err) = 0;
-  *(hal_data->pll_out) = 0;
-  // the first read dc_time value seems to be invalid, so wait for two successive successful reads
-  if (dc_time_valid && master->dc_time_valid_last) {
-    *(hal_data->pll_err) = master->app_time_last - dc_time;
-    // check for invalid error values
-    if (abs(*(hal_data->pll_err)) > hal_data->pll_max_err) {
-      // force resync of master time
-      master->dc_ref -= *(hal_data->pll_err) - (*(hal_data->pll_err) % period);
-      // skip next control cycle to allow resync
-      dc_time_valid = 0;
-      // increment reset counter to document this event
-      (*(hal_data->pll_reset_cnt))++;
-    } else {
-      *(hal_data->pll_out) = (*(hal_data->pll_err) < 0) ? -(hal_data->pll_step) : (hal_data->pll_step);
-    }
-  }
-
-  rtapi_task_pll_set_correction(*(hal_data->pll_out));
-  master->app_time_last = (uint32_t) app_time;
-  master->dc_time_valid_last = dc_time_valid;
-#endif
 }
 
