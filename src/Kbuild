@@ -1,6 +1,10 @@
 obj-m += lcec.o
 lcec-objs := \
     main.o \
+    typelist.o \
+    master.o \
+    slave.o \
+    util.o \
     classes/class_enc.o \
     classes/class_ax5.o \
     devices/generic.o \

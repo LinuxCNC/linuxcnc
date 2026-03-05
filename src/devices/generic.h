@@ -37,6 +37,21 @@ typedef struct {
   unsigned int pdo_bp;
 } lcec_generic_pin_t;
 
+typedef struct {
+  ec_pdo_entry_info_t *pdo_entries;
+  ec_pdo_info_t *pdos;
+  ec_sync_info_t *sync_managers;
+  lcec_generic_pin_t *hal_data;
+  hal_pin_dir_t hal_dir;
+  LCEC_CONF_PDOENTRY_T *pe_conf;
+} lcec_generic_conf_state_t;
+
+int lcec_generic_conf_init(lcec_slave_t *slave, LCEC_CONF_SLAVE_T *slave_conf, lcec_generic_conf_state_t *conf_state);
+void lcec_generic_free_slave(lcec_slave_t *slave);
+int lcec_generic_conf_sm(lcec_generic_conf_state_t *state, LCEC_CONF_SYNCMANAGER_T *sm_conf);
+int lcec_generic_conf_pdo(lcec_generic_conf_state_t *state, LCEC_CONF_PDO_T *pdo_conf);
+int lcec_generic_conf_pdo_entry(lcec_generic_conf_state_t *state, LCEC_CONF_PDOENTRY_T *pe_conf);
+int lcec_generic_conf_complex_entry(lcec_generic_conf_state_t *state, LCEC_CONF_COMPLEXENTRY_T *ce_conf);
 int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *pdo_entry_regs);
 
 #endif

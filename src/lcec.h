@@ -193,6 +193,12 @@ typedef struct {
   LCEC_CONF_MODPARAM_VAL_T value;
 } lcec_slave_modparam_t;
 
+typedef struct {
+  ec_pdo_entry_info_t *pdo_entries;
+  ec_pdo_info_t *pdos;
+  ec_sync_info_t *sync_managers;
+} lcec_generic_slave_t;
+
 typedef struct lcec_slave {
   struct lcec_slave *prev;
   struct lcec_slave *next;
@@ -215,9 +221,7 @@ typedef struct lcec_slave {
   lcec_slave_rw_t proc_write;
   lcec_slave_state_t *hal_state_data;
   void *hal_data;
-  ec_pdo_entry_info_t *generic_pdo_entries;
-  ec_pdo_info_t *generic_pdos;
-  ec_sync_info_t *generic_sync_managers;
+  lcec_generic_slave_t generic;
   lcec_slave_sdoconf_t *sdo_config;
   lcec_slave_idnconf_t *idn_config;
   lcec_slave_modparam_t *modparams;
