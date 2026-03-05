@@ -1291,6 +1291,14 @@ static int canConsolidateLines(TC_STRUCT const *prev_tc, TC_STRUCT const *tc)
     if (fabs(prev_tc->reqvel - tc->reqvel) > 1e-6)
         return 0;
 
+    // Don't consolidate into a segment that has been trimmed by a blend.
+    // Trimming moves the start/end, so pmCartLineInit would recompute uVec
+    // from (trimmed_start → new_end), changing the direction. The blend
+    // attached at the trimmed boundary still uses the OLD uVec direction,
+    // creating a C1 discontinuity (direction jump at the split boundary).
+    if (prev_tc->target < prev_tc->nominal_length - TP_POS_EPSILON)
+        return 0;
+
     // cos(1°) ≈ 0.99985 — matches BLEND9_MIN_THETA threshold
     double const cos_thresh = 0.99985;
     double dot;
