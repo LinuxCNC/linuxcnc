@@ -164,13 +164,13 @@ int lcec_ph3lm2rm_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t
   }
 
   // init subclasses
-  for (i=0, lm = hal_data->lms; i<LCEC_PH3LM2RM_LM_COUNT; i++, lm++, pdo_entry_regs += LCEC_PH3LM2RM_LM_PDOS) {
+  for (i=0, lm = hal_data->lms; i<LCEC_PH3LM2RM_LM_COUNT; i++, lm++) {
     rtapi_snprintf(pfx, HAL_NAME_LEN, "lm%d", i);
     if ((err = lcec_ph3lm2rm_lm_init(slave, pdo_entry_regs, 0x10 + i, lm, pfx)) != 0) {
       return err;
     }
   }
-  for (i=0, rm = hal_data->rms; i<LCEC_PH3LM2RM_RM_COUNT; i++, rm++, pdo_entry_regs += LCEC_PH3LM2RM_RM_PDOS) {
+  for (i=0, rm = hal_data->rms; i<LCEC_PH3LM2RM_RM_COUNT; i++, rm++) {
     rtapi_snprintf(pfx, HAL_NAME_LEN, "rm%d", i);
     if ((err = lcec_ph3lm2rm_rm_init(slave, pdo_entry_regs, 0x20 + i, rm, pfx)) != 0) {
       return err;

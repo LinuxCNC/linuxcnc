@@ -69,7 +69,7 @@ int lcec_ax5200_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->hal_data = hal_data;
 
   // initialize pins
-  for (i=0; i<LCEC_AX5200_CHANS; i++, pdo_entry_regs += lcec_class_ax5_pdos(slave)) {
+  for (i=0; i<LCEC_AX5200_CHANS; i++) {
     chan = &hal_data->chans[i];
 
     // init subclasses

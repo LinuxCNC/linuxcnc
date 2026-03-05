@@ -179,7 +179,7 @@ int lcec_deasda_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   // set interpolation time period
   tu = master->app_time_period;
   ti = -9;
-  while ((tu % 10) == 0 || tu > 255) { tu /=  10; ti++; }
+  while (tu > 0 && ((tu % 10) == 0 || tu > 255)) { tu /=  10; ti++; }
   if (ecrt_slave_config_sdo8(slave->config, 0x60C2, 0x01, (uint8_t)tu) != 0) {
     rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo ipol time period units\n", master->name, slave->name);
   }
