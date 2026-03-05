@@ -5,6 +5,7 @@
 **.mod.c
 **.o
 **.o.cmd
+**.d
 **.swp
 **.sym
 **.ver
