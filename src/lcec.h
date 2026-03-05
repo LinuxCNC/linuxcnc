@@ -18,7 +18,7 @@
 #ifndef _LCEC_H_
 #define _LCEC_H_
 
-#include "lcec_rtapi.h"
+#include "pal/pal.h"
 
 #include "hal.h"
 
@@ -27,7 +27,7 @@
 #include "rtapi_math.h"
 
 #include "ecrt.h"
-#include "lcec_conf.h"
+#include "conf.h"
 
 // list macros
 #define LCEC_LIST_APPEND(first, last, item) \
