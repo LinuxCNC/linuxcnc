@@ -97,7 +97,7 @@ int lcec_pin_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap) {
 
   for (p = list; p->type != HAL_TYPE_UNSPECIFIED; p++) {
     va_copy(ac, ap);
-    err = lcec_pin_newfv(p->type, p->dir, (void **) (base + p->offset), p->fmt, ac);
+    err = lcec_pin_newfv(p->type, p->dir, (void **) ((uint8_t *)base + p->offset), p->fmt, ac);
     va_end(ac);
     if (err) {
       return err;
@@ -173,7 +173,7 @@ int lcec_param_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap) {
 
   for (p = list; p->type != HAL_TYPE_UNSPECIFIED; p++) {
     va_copy(ac, ap);
-    err = lcec_param_newfv(p->type, p->dir, (void *) (base + p->offset), p->fmt, ac);
+    err = lcec_param_newfv(p->type, p->dir, (void *) ((uint8_t *)base + p->offset), p->fmt, ac);
     va_end(ac);
     if (err) {
       return err;
@@ -245,6 +245,10 @@ void lcec_syncs_init(lcec_syncs_t *syncs) {
 }
 
 void lcec_syncs_add_sync(lcec_syncs_t *syncs, ec_direction_t dir, ec_watchdog_mode_t watchdog_mode) {
+  if (syncs->sync_count >= LCEC_MAX_SYNC_COUNT) {
+    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "too many syncs (max %d)\n", LCEC_MAX_SYNC_COUNT);
+    return;
+  }
   syncs->curr_sync = &syncs->syncs[syncs->sync_count];
 
   syncs->curr_sync->index = syncs->sync_count;
@@ -256,6 +260,10 @@ void lcec_syncs_add_sync(lcec_syncs_t *syncs, ec_direction_t dir, ec_watchdog_mo
 }
 
 void lcec_syncs_add_pdo_info(lcec_syncs_t *syncs, uint16_t index) {
+  if (syncs->pdo_info_count >= LCEC_MAX_PDO_INFO_COUNT) {
+    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "too many PDO infos (max %d)\n", LCEC_MAX_PDO_INFO_COUNT);
+    return;
+  }
   syncs->curr_pdo_info = &syncs->pdo_infos[syncs->pdo_info_count];
 
   if (syncs->curr_sync->pdos == NULL) {
@@ -269,6 +277,10 @@ void lcec_syncs_add_pdo_info(lcec_syncs_t *syncs, uint16_t index) {
 }
 
 void lcec_syncs_add_pdo_entry(lcec_syncs_t *syncs, uint16_t index, uint8_t subindex, uint8_t bit_length) {
+  if (syncs->pdo_entry_count >= LCEC_MAX_PDO_ENTRY_COUNT) {
+    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "too many PDO entries (max %d)\n", LCEC_MAX_PDO_ENTRY_COUNT);
+    return;
+  }
   syncs->curr_pdo_entry = &syncs->pdo_entries[syncs->pdo_entry_count];
 
   if (syncs->curr_pdo_info->entries == NULL) {

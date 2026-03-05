@@ -175,7 +175,7 @@ int rtapi_app_main(void) {
       }
     }
 
-    // terminate POD entries
+    // terminate PDO entries
     pdo_entry_regs->index = 0;
 
     // register PDO entries
@@ -266,7 +266,9 @@ void rtapi_app_exit(void) {
 
   // deactivate all masters
   for (master = first_master; master != NULL; master = master->next) {
-    ecrt_master_deactivate(master->master);
+    if (master->master) {
+      ecrt_master_deactivate(master->master);
+    }
   }
 
   lcec_clear_config();
@@ -336,7 +338,7 @@ int lcec_parse_config(void) {
   }
 
   // get pointer to config
-  conf = shmem_ptr + sizeof(LCEC_CONF_HEADER_T);
+  conf = (uint8_t *)shmem_ptr + sizeof(LCEC_CONF_HEADER_T);
 
   // process config items
   slave_count = 0;
@@ -529,7 +531,7 @@ void lcec_clear_config(void) {
   while (master != NULL) {
     prev_master = master->prev;
 
-    // iterate all masters
+    // iterate all slaves
     slave = master->last_slave;
     while (slave != NULL) {
       prev_slave = slave->prev;

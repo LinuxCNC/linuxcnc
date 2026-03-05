@@ -329,7 +329,7 @@ void lcec_write_master(void *arg, long period) {
   hal_data = master->hal_data;
   *(hal_data->pll_err) = 0;
   *(hal_data->pll_out) = 0;
-  // the first read dc_time value semms to be invalid, so wait for two successive succesfull reads
+  // the first read dc_time value seems to be invalid, so wait for two successive successful reads
   if (dc_time_valid && master->dc_time_valid_last) {
     *(hal_data->pll_err) = master->app_time_last - dc_time;
     // check for invalid error values
