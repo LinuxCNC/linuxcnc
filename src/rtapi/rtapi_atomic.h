@@ -18,13 +18,15 @@
 
 #if defined(__GNUC__) && ((__GNUC__ << 8) | __GNUC_MINOR__) >= 0x409
 #define RTAPI_USE_STDATOMIC
-#elif defined(__STDC_VERSION__) && __STDC_VERSION > 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define RTAPI_USE_STDATOMIC
 #endif
 
 #ifdef RTAPI_USE_STDATOMIC
 #include <stdatomic.h>
 #else
+
+#warning "Old compiler has no C11 atomics. Please consider upgrading your compiler."
 
 enum memory_order {
     memory_order_relaxed,
