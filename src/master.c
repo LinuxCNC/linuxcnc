@@ -136,9 +136,11 @@ int lcec_startup_master(lcec_master_t *master) {
 fail2:
   if (master->backup_transport) {
     ec_transport_destroy(master->backup_transport);
+    master->backup_transport = NULL;
   }
 fail1:
   ec_transport_destroy(master->transport);
+  master->transport = NULL;
 fail0:
   return -1;
 }
