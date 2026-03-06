@@ -29,7 +29,7 @@ extern "C" {
 #include "emcpose.h"    // pmCartesianToEmcPose
 #include "posemath.h"
 #include "blendmath.h"  // pmCircleEffectiveMinRadius, findIntersectionAngle
-#include "atomic_9d.h"  // atomicStoreDouble
+#include "../motion/atomic_9d.h"  // atomicStoreDouble
 #include "motion_types.h" // EMC_MOTION_TYPE_TRAVERSE
 }
 
