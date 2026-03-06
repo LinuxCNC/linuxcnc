@@ -386,19 +386,6 @@ SRCHEADERS := \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     emc/linuxcnc.h \
     emc/kinematics/kinematics.h \
-    emc/kinematics/switchkins.h \
-    emc/kinematics/genhexkins.h \
-    emc/kinematics/genserkins.h \
-    emc/kinematics/pentakins.h \
-    emc/kinematics/pumakins.h \
-    emc/motion_planning/bezier9.h \
-    emc/tp/tc.h \
-    emc/tp/tc_types.h \
-    emc/tp/tcq.h \
-    emc/tp/tp.h \
-    emc/tp/tp_types.h \
-    emc/tp/spherical_arc.h \
-    emc/tp/blendmath.h \
     emc/motion/emcmotcfg.h \
     emc/nml_intf/emcpos.h \
     emc/nml_intf/emcpose.h \
