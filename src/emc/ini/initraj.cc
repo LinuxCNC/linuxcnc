@@ -25,7 +25,7 @@
 #include "nml_intf/emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
 #include "inihal.hh"
 #include <rtapi_string.h>
-#include "motion.h"       // For emcmotConfig, emcmot_config_t
+#include "motion/motion.h"       // For emcmotConfig, emcmot_config_t
 
 // Userspace kinematics for trajectory planning
 #include "userspace_kinematics.hh"
