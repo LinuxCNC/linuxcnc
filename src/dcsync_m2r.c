@@ -94,14 +94,14 @@ static void post_send(struct lcec_master *master) {
   if (master->dc_integrator < -DC_INTEGRATOR_MAX) master->dc_integrator = -DC_INTEGRATOR_MAX;
 
   // Proportional + Integral output (negative: positive error => advance clock)
-  double correction = -(master->dc_kp * error + master->dc_integrator);
+  double correction = (master->dc_kp * error + master->dc_integrator);
 
   // Output clamp (safety)
   if (correction > DC_CORRECTION_MAX_NS) correction = DC_CORRECTION_MAX_NS;
   if (correction < -DC_CORRECTION_MAX_NS) correction = -DC_CORRECTION_MAX_NS;
 
   int32_t correction_ns = (int32_t)correction;
-  rtapi_task_pll_set_correction(-correction_ns);
+  rtapi_task_pll_set_correction(correction_ns);
   *(hal_data->pll_out) = correction_ns;
 }
 
