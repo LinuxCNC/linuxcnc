@@ -43,6 +43,14 @@ int hal_pin_reader_read_bit(const char *name, int *value);
  */
 int hal_pin_reader_read_s32(const char *name, int *value);
 
+/**
+ * Get the base address of the HAL shared memory block.
+ *
+ * Attaches to HAL shmem if not already attached.
+ * @return Pointer to shmem base, or NULL on failure.
+ */
+char *hal_pin_reader_get_shmem_base(void);
+
 #ifdef __cplusplus
 }
 #endif

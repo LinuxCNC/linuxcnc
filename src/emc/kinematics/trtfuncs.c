@@ -36,6 +36,8 @@
 #include "rtapi_math.h"
 #include "rtapi_string.h"
 #include "rtapi_ctype.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
 
 /* ========================================================================
  * TRT math types and functions (was in trtfuncs_math.h)
@@ -266,6 +268,7 @@ void trt_axis_to_joints(const trt_joints_t *jmap,
  * ======================================================================== */
 
 static int trtfuncs_max_joints;
+static kinematics_params_t *uspace_params;
 
 // joint number assignments (-1 ==> not assigned)
 static int JX = -1;
@@ -380,6 +383,24 @@ int trtKinematicsSetup(const int   comp_id,
     res += hal_pin_bit_newf(HAL_IN, &(haldata->conventional_directions), comp_id,
                  "%s.conventional-directions", kp->halprefix);
     if (res) {goto error;}
+
+    /* Publish kinematics params to HAL shmem for userspace planner */
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) goto error;
+    res = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                           "%s.uspace-params-offset", kp->halprefix);
+    if (res) goto error;
+    memset(uspace_params, 0, sizeof(*uspace_params));
+    uspace_params->num_joints = trtfuncs_max_joints;
+    uspace_params->axis_to_joint[0] = JX; uspace_params->axis_to_joint[1] = JY;
+    uspace_params->axis_to_joint[2] = JZ; uspace_params->axis_to_joint[3] = JA;
+    uspace_params->axis_to_joint[4] = JB; uspace_params->axis_to_joint[5] = JC;
+    uspace_params->axis_to_joint[6] = JU; uspace_params->axis_to_joint[7] = JV;
+    uspace_params->axis_to_joint[8] = JW;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
+    uspace_params->self_offset = (int)SHMOFF(uspace_params);
+
     return 0;
 
 error:
@@ -409,6 +430,18 @@ int xyzacKinematicsForward(const double *joints,
     (void)iflags;
     trt_params_t params;
     trt_get_params(&params);
+    if (uspace_params) {
+        uspace_params->head++;
+        uspace_params->params.trt.x_rot_point = params.x_rot_point;
+        uspace_params->params.trt.y_rot_point = params.y_rot_point;
+        uspace_params->params.trt.z_rot_point = params.z_rot_point;
+        uspace_params->params.trt.x_offset = params.x_offset;
+        uspace_params->params.trt.y_offset = params.y_offset;
+        uspace_params->params.trt.z_offset = params.z_offset;
+        uspace_params->params.trt.tool_offset = params.tool_offset;
+        uspace_params->params.trt.conventional_directions = params.conventional_directions;
+        uspace_params->tail = uspace_params->head;
+    }
     return xyzac_forward_math(&params, &jmap, joints, pos);
 } // xyzacKinematicsForward()
 
@@ -445,6 +478,18 @@ int xyzbcKinematicsForward(const double *joints,
     (void)iflags;
     trt_params_t params;
     trt_get_params(&params);
+    if (uspace_params) {
+        uspace_params->head++;
+        uspace_params->params.trt.x_rot_point = params.x_rot_point;
+        uspace_params->params.trt.y_rot_point = params.y_rot_point;
+        uspace_params->params.trt.z_rot_point = params.z_rot_point;
+        uspace_params->params.trt.x_offset = params.x_offset;
+        uspace_params->params.trt.y_offset = params.y_offset;
+        uspace_params->params.trt.z_offset = params.z_offset;
+        uspace_params->params.trt.tool_offset = params.tool_offset;
+        uspace_params->params.trt.conventional_directions = params.conventional_directions;
+        uspace_params->tail = uspace_params->head;
+    }
     return xyzbc_forward_math(&params, &jmap, joints, pos);
 } // xyzbcKinematicsForward()
 

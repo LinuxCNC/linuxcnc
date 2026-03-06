@@ -78,6 +78,8 @@ extern int xyzbc_inverse_math(const trt_params_t *, const trt_joints_t *,
                                const EmcPose *, EmcPose *);
 extern void trt_axis_to_joints(const trt_joints_t *, const EmcPose *, double *);
 
+static kinematics_params_t *uspace_params;
+
 static void nonrt_build_trt(const kinematics_params_t *kp,
                              trt_params_t *p, trt_joints_t *jm)
 {
@@ -97,55 +99,38 @@ static void nonrt_build_trt(const kinematics_params_t *kp,
     jm->jw = kp->axis_to_joint[8];
 }
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+static int nonrt_xyzbc_forward(const double *joints, EmcPose *pos,
+                                const KINEMATICS_FORWARD_FLAGS *ff,
+                                KINEMATICS_INVERSE_FLAGS *if_)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    trt_params_t p;
-    trt_joints_t jm;
-    nonrt_build_trt(kp, &p, &jm);
+    (void)ff; (void)if_;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
+    trt_params_t p; trt_joints_t jm;
+    nonrt_build_trt(&local, &p, &jm);
     return xyzbc_forward_math(&p, &jm, joints, pos);
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
+static int nonrt_xyzbc_inverse(const EmcPose *pos, double *joints,
+                                const KINEMATICS_INVERSE_FLAGS *if_,
+                                KINEMATICS_FORWARD_FLAGS *ff)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    trt_params_t p;
-    trt_joints_t jm;
+    (void)if_; (void)ff;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
+    trt_params_t p; trt_joints_t jm;
     EmcPose axis_values;
-
-    nonrt_build_trt(kp, &p, &jm);
+    nonrt_build_trt(&local, &p, &jm);
     xyzbc_inverse_math(&p, &jm, pos, &axis_values);
     trt_axis_to_joints(&jm, &axis_values, joints);
     return 0;
 }
 
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    (void)read_s32;
-
-    read_float("xyzbc-trt-kins.x-rot-point", &kp->params.trt.x_rot_point);
-    read_float("xyzbc-trt-kins.y-rot-point", &kp->params.trt.y_rot_point);
-    read_float("xyzbc-trt-kins.z-rot-point", &kp->params.trt.z_rot_point);
-    read_float("xyzbc-trt-kins.x-offset",    &kp->params.trt.x_offset);
-    read_float("xyzbc-trt-kins.y-offset",    &kp->params.trt.y_offset);
-    read_float("xyzbc-trt-kins.z-offset",    &kp->params.trt.z_offset);
-    read_float("xyzbc-trt-kins.tool-offset", &kp->params.trt.tool_offset);
-    read_bit("xyzbc-trt-kins.conventional-directions",
-             &kp->params.trt.conventional_directions);
-    return 0;
+    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward   = nonrt_xyzbc_forward;
+    ops->inverse   = nonrt_xyzbc_inverse;
 }
 
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

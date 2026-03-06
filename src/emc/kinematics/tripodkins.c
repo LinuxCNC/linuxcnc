@@ -179,9 +179,15 @@ static int tripod_inverse_math(const tripod_params_t *params,
 }
 
 #include "hal.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
+
 struct haldata {
     hal_float_t *bx, *cx, *cy;
 } *haldata = 0;
+
+static kinematics_params_t *uspace_params;
 
 #define Bx (*(haldata->bx))
 #define Cx (*(haldata->cx))
@@ -232,10 +238,26 @@ int kinematicsForward(const double * joints,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
                       KINEMATICS_INVERSE_FLAGS * iflags)
 {
+    if (!haldata) {
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        tripod_params_t p;
+        p.bx = local.params.tripod.bx;
+        p.cx = local.params.tripod.cx;
+        p.cy = local.params.tripod.cy;
+        return tripod_forward_math(&p, joints, pos, fflags, iflags);
+    }
     tripod_params_t params;
     params.bx = Bx;
     params.cx = Cx;
     params.cy = Cy;
+    if (uspace_params) {
+        uspace_params->head++;
+        uspace_params->params.tripod.bx = params.bx;
+        uspace_params->params.tripod.cx = params.cx;
+        uspace_params->params.tripod.cy = params.cy;
+        uspace_params->tail = uspace_params->head;
+    }
     return tripod_forward_math(&params, joints, pos, fflags, iflags);
 }
 
@@ -244,6 +266,15 @@ int kinematicsInverse(const EmcPose * pos,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    if (!haldata) {
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        tripod_params_t p;
+        p.bx = local.params.tripod.bx;
+        p.cx = local.params.tripod.cx;
+        p.cy = local.params.tripod.cy;
+        return tripod_inverse_math(&p, pos, joints, iflags, fflags);
+    }
     tripod_params_t params;
     params.bx = Bx;
     params.cx = Cx;
@@ -416,6 +447,22 @@ int rtapi_app_main(void) {
     if((res = hal_pin_float_new("tripodkins.Cy", HAL_IO, &(haldata->cy), comp_id)) < 0) goto error;
 
     Bx = Cx = Cy = 1.0;
+
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) goto error;
+    if ((res = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                                "tripodkins.uspace-params-offset")) < 0) goto error;
+    memset(uspace_params, 0, sizeof(*uspace_params));
+    uspace_params->num_joints            = 3;
+    uspace_params->is_identity           = 0;
+    uspace_params->params.tripod.bx      = Bx;
+    uspace_params->params.tripod.cx      = Cx;
+    uspace_params->params.tripod.cy      = Cy;
+    uspace_params->valid = 1;
+    uspace_params->head  = 1;
+    uspace_params->tail  = 1;
+    uspace_params->self_offset = (int)SHMOFF(uspace_params);
+
     hal_ready(comp_id);
     return 0;
 
@@ -429,53 +476,12 @@ void rtapi_app_exit(void) { hal_exit(comp_id); }
 /* ========================================================================
  * Non-RT interface for userspace trajectory planner
  * ======================================================================== */
-#include "kinematics_params.h"
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    tripod_params_t p;
-    p.bx = kp->params.tripod.bx;
-    p.cx = kp->params.tripod.cx;
-    p.cy = kp->params.tripod.cy;
-    return tripod_forward_math(&p, joints, pos, NULL, NULL);
+    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward   = kinematicsForward;
+    ops->inverse   = kinematicsInverse;
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
-{
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    tripod_params_t p;
-    p.bx = kp->params.tripod.bx;
-    p.cx = kp->params.tripod.cx;
-    p.cy = kp->params.tripod.cy;
-    return tripod_inverse_math(&p, pos, joints, NULL, NULL);
-}
-
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
-{
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    (void)read_bit; (void)read_s32;
-
-    if (read_float("tripodkins.Bx", &kp->params.tripod.bx) != 0)
-        return -1;
-    if (read_float("tripodkins.Cx", &kp->params.tripod.cx) != 0)
-        return -1;
-    if (read_float("tripodkins.Cy", &kp->params.tripod.cy) != 0)
-        return -1;
-
-    return 0;
-}
-
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

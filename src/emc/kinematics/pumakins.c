@@ -30,6 +30,9 @@
 #include "hal.h"
 #include "kinematics.h"
 #include "switchkins.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
 
 /* ========================================================================
  * Internal math (was in pumakins_math.h)
@@ -370,6 +373,8 @@ struct haldata {
     hal_float_t *a2, *a3, *d3, *d4, *d6;
 } *haldata = 0;
 
+static kinematics_params_t *uspace_params;
+
 #define PUMA_A2 (*(haldata->a2))
 #define PUMA_A3 (*(haldata->a3))
 #define PUMA_D3 (*(haldata->d3))
@@ -385,11 +390,32 @@ static int pumaKinematicsForward(const double * joint,
    puma_params_t params;
    int flags_out = 0;
 
+   if (!haldata) {
+       kinematics_params_t local;
+       KINS_SHMEM_READ(uspace_params, local);
+       puma_params_t p = { local.params.puma.a2, local.params.puma.a3,
+                           local.params.puma.d3, local.params.puma.d4,
+                           local.params.puma.d6 };
+       puma_forward_math(&p, joint, world, &flags_out);
+       *iflags = flags_out;
+       return 0;
+   }
+
    params.a2 = PUMA_A2;
    params.a3 = PUMA_A3;
    params.d3 = PUMA_D3;
    params.d4 = PUMA_D4;
    params.d6 = PUMA_D6;
+
+   if (uspace_params) {
+       uspace_params->head++;
+       uspace_params->params.puma.a2 = params.a2;
+       uspace_params->params.puma.a3 = params.a3;
+       uspace_params->params.puma.d3 = params.d3;
+       uspace_params->params.puma.d4 = params.d4;
+       uspace_params->params.puma.d6 = params.d6;
+       uspace_params->tail = uspace_params->head;
+   }
 
    puma_forward_math(&params, joint, world, &flags_out);
 
@@ -404,6 +430,18 @@ static int pumaKinematicsInverse(const EmcPose * world,
 {
    puma_params_t params;
    int flags_out = 0;
+
+   if (!haldata) {
+       kinematics_params_t local;
+       KINS_SHMEM_READ(uspace_params, local);
+       puma_params_t p = { local.params.puma.a2, local.params.puma.a3,
+                           local.params.puma.d3, local.params.puma.d4,
+                           local.params.puma.d6 };
+       *fflags = 0;
+       puma_inverse_math(&p, world, joint, joint, *iflags, &flags_out);
+       *fflags = flags_out;
+       return 0;
+   }
 
    params.a2 = PUMA_A2;
    params.a3 = PUMA_A3;
@@ -443,6 +481,23 @@ int pumaKinematicsSetup(const  int   comp_id,
     PUMA_D4 = DEFAULT_PUMA560_D4;
     PUMA_D6 = DEFAULT_PUMA560_D6;
 
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) goto error;
+    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                         "%s.uspace-params-offset", kp->halprefix) < 0) goto error;
+    memset(uspace_params, 0, sizeof(*uspace_params));
+    uspace_params->num_joints            = kp->max_joints;
+    uspace_params->is_identity           = 0;
+    uspace_params->params.puma.a2        = DEFAULT_PUMA560_A2;
+    uspace_params->params.puma.a3        = DEFAULT_PUMA560_A3;
+    uspace_params->params.puma.d3        = DEFAULT_PUMA560_D3;
+    uspace_params->params.puma.d4        = DEFAULT_PUMA560_D4;
+    uspace_params->params.puma.d6        = DEFAULT_PUMA560_D6;
+    uspace_params->valid = 1;
+    uspace_params->head  = 1;
+    uspace_params->tail  = 1;
+    uspace_params->self_offset = (int)SHMOFF(uspace_params);
+
     return 0;
 
 error:
@@ -480,57 +535,12 @@ int switchkinsSetup(kparms* kp,
 /* ========================================================================
  * Non-RT interface for userspace trajectory planner
  * ======================================================================== */
-#include "kinematics_params.h"
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    puma_params_t p;
-    p.a2 = kp->params.puma.a2;
-    p.a3 = kp->params.puma.a3;
-    p.d3 = kp->params.puma.d3;
-    p.d4 = kp->params.puma.d4;
-    p.d6 = kp->params.puma.d6;
-    return puma_forward_math(&p, joints, pos, NULL);
+    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward   = pumaKinematicsForward;
+    ops->inverse   = pumaKinematicsInverse;
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
-{
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    puma_params_t p;
-    p.a2 = kp->params.puma.a2;
-    p.a3 = kp->params.puma.a3;
-    p.d3 = kp->params.puma.d3;
-    p.d4 = kp->params.puma.d4;
-    p.d6 = kp->params.puma.d6;
-    return puma_inverse_math(&p, pos, joints, NULL, 0, NULL);
-}
-
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
-{
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    (void)read_bit;
-    (void)read_s32;
-
-    read_float("pumakins.A2", &kp->params.puma.a2);
-    read_float("pumakins.A3", &kp->params.puma.a3);
-    read_float("pumakins.D3", &kp->params.puma.d3);
-    read_float("pumakins.D4", &kp->params.puma.d4);
-    read_float("pumakins.D6", &kp->params.puma.d6);
-
-    return 0;
-}
-
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

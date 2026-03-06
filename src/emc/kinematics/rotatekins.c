@@ -106,6 +106,9 @@ KINEMATICS_TYPE kinematicsType()
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
 
 const char* kinematicsGetName(void) { return "rotatekins"; }
 
@@ -116,14 +119,29 @@ EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
+static kinematics_params_t *uspace_params;
+
 int comp_id;
 int rtapi_app_main(void) {
     comp_id = hal_init("rotatekins");
-    if(comp_id > 0) {
-	hal_ready(comp_id);
-	return 0;
+    if(comp_id < 0) return comp_id;
+
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) { hal_exit(comp_id); return -1; }
+    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                         "rotatekins.uspace-params-offset") < 0) {
+        hal_exit(comp_id); return -1;
     }
-    return comp_id;
+    memset(uspace_params, 0, sizeof(*uspace_params));
+    uspace_params->num_joints = 6;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
+    uspace_params->head = 1;
+    uspace_params->tail = 1;
+    uspace_params->self_offset = (int)SHMOFF(uspace_params);
+
+    hal_ready(comp_id);
+    return 0;
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
@@ -131,36 +149,12 @@ void rtapi_app_exit(void) { hal_exit(comp_id); }
 /* ========================================================================
  * Non-RT interface for userspace trajectory planner
  * ======================================================================== */
-#include "kinematics_params.h"
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    (void)params;
-    return rotate_forward_math(joints, pos);
+    (void)shmem_base; (void)offset;
+    ops->forward = kinematicsForward;
+    ops->inverse = kinematicsInverse;
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
-{
-    (void)params;
-    return rotate_inverse_math(pos, joints);
-}
-
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
-{
-    (void)params; (void)read_float; (void)read_bit; (void)read_s32;
-    return 0;
-}
-
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

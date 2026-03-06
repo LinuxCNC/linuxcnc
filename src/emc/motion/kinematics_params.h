@@ -187,9 +187,41 @@ typedef struct kinematics_params_t {
     /* Validity flag - set to 1 when params are initialized */
     int valid;
 
+    /* Identity flag - 1 if joints == world coords (trivkins-style) */
+    int is_identity;
+
     /* Sequence number - incremented on any parameter change */
     unsigned int seq_num;
 
+    /* HAL param storage: offset of this struct from HAL shmem base.
+     * Registered as "<module>.uspace-params-offset" (HAL_RO param).
+     * Storage lives here (in shmem) so hal_param_s32_newf SHMCHK passes. */
+    int self_offset;
+
 } kinematics_params_t;
+
+/*
+ * Split-read snapshot macro for kinematics_params_t in HAL shmem.
+ * RT writes: head++ before, tail=head after.
+ * Reader retries up to 100× if head != tail (write in progress).
+ */
+#define KINS_SHMEM_READ(ptr, local) do {                         \
+    unsigned char _h, _t; int _r = 100;                          \
+    do { _h = (ptr)->head; (local) = *(ptr);                     \
+         _t = (ptr)->tail; } while (_h != _t && --_r > 0);      \
+} while (0)
+
+/*
+ * Function pointers registered by nonrt_attach().
+ * Each kins module exports one symbol (nonrt_attach); kinematics_user.c
+ * calls it once at init and receives back the forward/inverse entry points.
+ * This avoids exporting nonrt_kinematicsForward/Inverse as separate symbols.
+ */
+typedef struct {
+    int (*forward)(const double *joints, EmcPose *pos,
+                   const KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags);
+    int (*inverse)(const EmcPose *pos, double *joints,
+                   const KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags);
+} nonrt_ops_t;
 
 #endif /* KINEMATICS_PARAMS_H */

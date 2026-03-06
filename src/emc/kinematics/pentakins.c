@@ -56,6 +56,9 @@
 #include "pentakins.h"
 #include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include "hal.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
 
 /* ========================================================================
  * Math types and functions (was in pentakins_math.h)
@@ -237,6 +240,8 @@ struct haldata {
 /* Global parameters structure for math functions */
 static pentakins_params_t params;
 
+static kinematics_params_t *uspace_params;
+
 /************************pentakins_read_hal_pins**************************/
 
 int pentakins_read_hal_pins(void) {
@@ -272,6 +277,21 @@ int kinematicsForward(const double * joints,
   int result;
 
   pentakins_read_hal_pins();
+
+  if (uspace_params) {
+      int _i;
+      uspace_params->head++;
+      for (_i = 0; _i < PENTAKINS_NUM_STRUTS; _i++) {
+          uspace_params->params.penta.basex[_i]    = params.base[_i].x;
+          uspace_params->params.penta.basey[_i]    = params.base[_i].y;
+          uspace_params->params.penta.basez[_i]    = params.base[_i].z;
+          uspace_params->params.penta.effectorr[_i] = params.effector_r[_i];
+          uspace_params->params.penta.effectorz[_i] = params.effector_z[_i];
+      }
+      uspace_params->params.penta.conv_criterion = params.conv_criterion;
+      uspace_params->params.penta.iter_limit     = params.iter_limit;
+      uspace_params->tail = uspace_params->head;
+  }
 
   /* Call pure math function */
   result = pentakins_fwd(&params, joints, pos);
@@ -417,6 +437,31 @@ int rtapi_app_main(void)
     haldata->effectorr[3] = DEFAULT_EFFECTOR_3_R;
     haldata->effectorr[4] = DEFAULT_EFFECTOR_4_R;
 
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) goto error;
+    if ((res = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                                "pentakins.uspace-params-offset")) < 0)
+        goto error;
+    {
+        int _i;
+        memset(uspace_params, 0, sizeof(*uspace_params));
+        uspace_params->num_joints  = 5;
+        uspace_params->is_identity = 0;
+        for (_i = 0; _i < PENTAKINS_NUM_STRUTS; _i++) {
+            uspace_params->params.penta.basex[_i]    = haldata->basex[_i];
+            uspace_params->params.penta.basey[_i]    = haldata->basey[_i];
+            uspace_params->params.penta.basez[_i]    = haldata->basez[_i];
+            uspace_params->params.penta.effectorr[_i] = haldata->effectorr[_i];
+            uspace_params->params.penta.effectorz[_i] = haldata->effectorz[_i];
+        }
+        uspace_params->params.penta.conv_criterion = *haldata->conv_criterion;
+        uspace_params->params.penta.iter_limit     = *haldata->iter_limit;
+        uspace_params->valid = 1;
+        uspace_params->head  = 1;
+        uspace_params->tail  = 1;
+        uspace_params->self_offset = (int)SHMOFF(uspace_params);
+    }
+
     hal_ready(comp_id);
     return 0;
 
@@ -434,7 +479,6 @@ void rtapi_app_exit(void)
 /* ========================================================================
  * Non-RT interface for userspace trajectory planner
  * ======================================================================== */
-#include "kinematics_params.h"
 
 static void nonrt_build_penta(const kinematics_params_t *kp, pentakins_params_t *p)
 {
@@ -454,63 +498,35 @@ static void nonrt_build_penta(const kinematics_params_t *kp, pentakins_params_t 
     p->max_iterations = 0;
 }
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+static int nonrt_penta_forward(const double *joints, EmcPose *pos,
+                               const KINEMATICS_FORWARD_FLAGS *ff,
+                               KINEMATICS_INVERSE_FLAGS *if_)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    (void)ff; (void)if_;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
     pentakins_params_t p;
-    nonrt_build_penta(kp, &p);
+    nonrt_build_penta(&local, &p);
     return pentakins_fwd(&p, joints, pos);
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
+static int nonrt_penta_inverse(const EmcPose *pos, double *joints,
+                               const KINEMATICS_INVERSE_FLAGS *if_,
+                               KINEMATICS_FORWARD_FLAGS *ff)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    (void)if_; (void)ff;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
     pentakins_params_t p;
-    nonrt_build_penta(kp, &p);
+    nonrt_build_penta(&local, &p);
     return pentakins_inv(&p, pos, joints);
 }
 
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    int i;
-    char pin_name[64];
-    (void)read_bit;
-
-    for (i = 0; i < KINS_PENTA_NUM_STRUTS; i++) {
-        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.base.%d.x", i);
-        read_float(pin_name, &kp->params.penta.basex[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.base.%d.y", i);
-        read_float(pin_name, &kp->params.penta.basey[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.base.%d.z", i);
-        read_float(pin_name, &kp->params.penta.basez[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.effector.%d.r", i);
-        read_float(pin_name, &kp->params.penta.effectorr[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "pentakins.effector.%d.z", i);
-        read_float(pin_name, &kp->params.penta.effectorz[i]);
-    }
-
-    read_float("pentakins.convergence-criterion", &kp->params.penta.conv_criterion);
-
-    if (read_s32) {
-        int val;
-        if (read_s32("pentakins.limit-iterations", &val) == 0)
-            kp->params.penta.iter_limit = (unsigned int)val;
-    }
-
-    return 0;
+    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward   = nonrt_penta_forward;
+    ops->inverse   = nonrt_penta_inverse;
 }
 
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

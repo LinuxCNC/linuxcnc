@@ -22,6 +22,9 @@
 #include <kinematics.h>
 
 #include "switchkins.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
 
 /* ========================================================================
  * Internal math (was in scarakins_math.h)
@@ -185,6 +188,8 @@ struct scara_data {
     hal_float_t *d1, *d2, *d3, *d4, *d5, *d6;
 } *haldata = 0;
 
+static kinematics_params_t *uspace_params;
+
 /* key dimensions
 
    joint[0] = Entire arm rotates around a vertical axis at its inner end
@@ -239,6 +244,17 @@ int scaraKinematicsForward(const double * joint,
     scara_params_t params;
     int flags_out = 0;
 
+    if (!haldata) {
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        scara_params_t p = { local.params.scara.d1, local.params.scara.d2,
+                             local.params.scara.d3, local.params.scara.d4,
+                             local.params.scara.d5, local.params.scara.d6 };
+        scara_forward_math(&p, joint, world, &flags_out);
+        *iflags = flags_out;
+        return 0;
+    }
+
     params.d1 = D1;
     params.d2 = D2;
     params.d3 = D3;
@@ -247,8 +263,18 @@ int scaraKinematicsForward(const double * joint,
     params.d6 = D6;
 
     scara_forward_math(&params, joint, world, &flags_out);
-
     *iflags = flags_out;
+
+    if (uspace_params) {
+        uspace_params->head++;
+        uspace_params->params.scara.d1 = params.d1;
+        uspace_params->params.scara.d2 = params.d2;
+        uspace_params->params.scara.d3 = params.d3;
+        uspace_params->params.scara.d4 = params.d4;
+        uspace_params->params.scara.d5 = params.d5;
+        uspace_params->params.scara.d6 = params.d6;
+        uspace_params->tail = uspace_params->head;
+    }
     return 0;
 } //scaraKinematicsForward()
 
@@ -259,6 +285,17 @@ static int scaraKinematicsInverse(const EmcPose * world,
 {
     scara_params_t params;
     int flags_out = 0;
+
+    if (!haldata) {
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        scara_params_t p = { local.params.scara.d1, local.params.scara.d2,
+                             local.params.scara.d3, local.params.scara.d4,
+                             local.params.scara.d5, local.params.scara.d6 };
+        scara_inverse_math(&p, world, joint, *iflags, &flags_out);
+        *fflags = flags_out;
+        return 0;
+    }
 
     params.d1 = D1;
     params.d2 = D2;
@@ -305,6 +342,23 @@ static int scaraKinematicsSetup(const  int   comp_id,
     D5 = DEFAULT_D5;
     D6 = DEFAULT_D6;
 
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) goto error;
+    res = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                           "%s.uspace-params-offset", kp->halprefix);
+    if (res) goto error;
+    memset(uspace_params, 0, sizeof(*uspace_params));
+    uspace_params->num_joints = 6;
+    uspace_params->params.scara.d1 = DEFAULT_D1;
+    uspace_params->params.scara.d2 = DEFAULT_D2;
+    uspace_params->params.scara.d3 = DEFAULT_D3;
+    uspace_params->params.scara.d4 = DEFAULT_D4;
+    uspace_params->params.scara.d5 = DEFAULT_D5;
+    uspace_params->params.scara.d6 = DEFAULT_D6;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
+    uspace_params->self_offset = (int)SHMOFF(uspace_params);
+
     return 0;
 
 error:
@@ -342,60 +396,12 @@ int switchkinsSetup(kparms* kp,
 /* ========================================================================
  * Non-RT interface for userspace trajectory planner
  * ======================================================================== */
-#include "kinematics_params.h"
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    scara_params_t p;
-    p.d1 = kp->params.scara.d1;
-    p.d2 = kp->params.scara.d2;
-    p.d3 = kp->params.scara.d3;
-    p.d4 = kp->params.scara.d4;
-    p.d5 = kp->params.scara.d5;
-    p.d6 = kp->params.scara.d6;
-    return scara_forward_math(&p, joints, pos, NULL);
+    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward   = scaraKinematicsForward;
+    ops->inverse   = scaraKinematicsInverse;
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
-{
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    scara_params_t p;
-    p.d1 = kp->params.scara.d1;
-    p.d2 = kp->params.scara.d2;
-    p.d3 = kp->params.scara.d3;
-    p.d4 = kp->params.scara.d4;
-    p.d5 = kp->params.scara.d5;
-    p.d6 = kp->params.scara.d6;
-    return scara_inverse_math(&p, pos, joints, 0, NULL);
-}
-
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
-{
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    (void)read_bit;
-    (void)read_s32;
-
-    read_float("scarakins.D1", &kp->params.scara.d1);
-    read_float("scarakins.D2", &kp->params.scara.d2);
-    read_float("scarakins.D3", &kp->params.scara.d3);
-    read_float("scarakins.D4", &kp->params.scara.d4);
-    read_float("scarakins.D5", &kp->params.scara.d5);
-    read_float("scarakins.D6", &kp->params.scara.d6);
-
-    return 0;
-}
-
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

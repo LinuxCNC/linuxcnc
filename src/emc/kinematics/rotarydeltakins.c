@@ -19,6 +19,9 @@
 #include <rtapi_app.h>
 #include <hal.h>
 #include <kinematics.h>
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
 
 /* ---- Math types and functions (from rotarydeltakins_math.h) ---- */
 
@@ -188,6 +191,7 @@ struct haldata
 } *haldata;
 
 int comp_id;
+static kinematics_params_t *uspace_params;
 
 int kinematicsForward(const double * joints,
                       EmcPose * pos,
@@ -195,11 +199,29 @@ int kinematicsForward(const double * joints,
                       KINEMATICS_INVERSE_FLAGS * iflags) {
     (void)fflags;
     (void)iflags;
+    if (!haldata) {
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        rotarydelta_params_t p;
+        p.platformradius = local.params.rotarydelta.platformradius;
+        p.thighlength    = local.params.rotarydelta.thighlength;
+        p.shinlength     = local.params.rotarydelta.shinlength;
+        p.footradius     = local.params.rotarydelta.footradius;
+        return rotarydelta_forward_math(&p, joints, pos);
+    }
     rotarydelta_params_t params;
     params.platformradius = *haldata->pfr;
     params.thighlength = *haldata->tl;
     params.shinlength = *haldata->sl;
     params.footradius = *haldata->fr;
+    if (uspace_params) {
+        uspace_params->head++;
+        uspace_params->params.rotarydelta.platformradius = params.platformradius;
+        uspace_params->params.rotarydelta.thighlength = params.thighlength;
+        uspace_params->params.rotarydelta.shinlength = params.shinlength;
+        uspace_params->params.rotarydelta.footradius = params.footradius;
+        uspace_params->tail = uspace_params->head;
+    }
     return rotarydelta_forward_math(&params, joints, pos);
 }
 
@@ -208,6 +230,16 @@ int kinematicsInverse(const EmcPose *pos, double *joints,
         KINEMATICS_FORWARD_FLAGS *fflags) {
     (void)iflags;
     (void)fflags;
+    if (!haldata) {
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        rotarydelta_params_t p;
+        p.platformradius = local.params.rotarydelta.platformradius;
+        p.thighlength    = local.params.rotarydelta.thighlength;
+        p.shinlength     = local.params.rotarydelta.shinlength;
+        p.footradius     = local.params.rotarydelta.footradius;
+        return rotarydelta_inverse_math(&p, pos, joints);
+    }
     rotarydelta_params_t params;
     params.platformradius = *haldata->pfr;
     params.thighlength = *haldata->tl;
@@ -257,6 +289,23 @@ int rtapi_app_main(void)
 
     if(retval == 0)
     {
+        uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+        retval = !uspace_params;
+    }
+    if(retval == 0)
+        retval = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                                  "rotarydeltakins.uspace-params-offset");
+    if(retval == 0)
+    {
+        memset(uspace_params, 0, sizeof(*uspace_params));
+        uspace_params->num_joints = 3;
+        uspace_params->params.rotarydelta.platformradius = ROTARYDELTA_DEFAULT_PLATFORMRADIUS;
+        uspace_params->params.rotarydelta.thighlength = ROTARYDELTA_DEFAULT_THIGHLENGTH;
+        uspace_params->params.rotarydelta.shinlength = ROTARYDELTA_DEFAULT_SHINLENGTH;
+        uspace_params->params.rotarydelta.footradius = ROTARYDELTA_DEFAULT_FOOTRADIUS;
+        uspace_params->valid       = 1;
+        uspace_params->is_identity = 0;
+        uspace_params->self_offset = (int)SHMOFF(uspace_params);
         hal_ready(comp_id);
     }
 
@@ -279,58 +328,11 @@ MODULE_LICENSE("GPL");
 
 /* ---- nonrt interface for userspace planner ---- */
 
-#include "kinematics_params.h"
-
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints, EmcPose *pos)
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    rotarydelta_params_t rp;
-    rp.platformradius = kp->params.rotarydelta.platformradius;
-    rp.thighlength = kp->params.rotarydelta.thighlength;
-    rp.shinlength = kp->params.rotarydelta.shinlength;
-    rp.footradius = kp->params.rotarydelta.footradius;
-    return rotarydelta_forward_math(&rp, joints, pos);
+    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward   = kinematicsForward;
+    ops->inverse   = kinematicsInverse;
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos, double *joints)
-{
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    rotarydelta_params_t rp;
-    rp.platformradius = kp->params.rotarydelta.platformradius;
-    rp.thighlength = kp->params.rotarydelta.thighlength;
-    rp.shinlength = kp->params.rotarydelta.shinlength;
-    rp.footradius = kp->params.rotarydelta.footradius;
-    return rotarydelta_inverse_math(&rp, pos, joints);
-}
-
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
-{
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    double fval;
-    (void)read_bit;
-    (void)read_s32;
-    if (read_float("rotarydeltakins.platformradius", &fval) == 0)
-        kp->params.rotarydelta.platformradius = fval;
-    if (read_float("rotarydeltakins.thighlength", &fval) == 0)
-        kp->params.rotarydelta.thighlength = fval;
-    if (read_float("rotarydeltakins.shinlength", &fval) == 0)
-        kp->params.rotarydelta.shinlength = fval;
-    if (read_float("rotarydeltakins.footradius", &fval) == 0)
-        kp->params.rotarydelta.footradius = fval;
-    return 0;
-}
-
-int nonrt_is_identity(void)
-{
-    return 0;
-}
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

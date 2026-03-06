@@ -6,6 +6,11 @@
  * functions exported by each kinematics module. This allows the
  * userspace planner to call kinematics without RT dependencies.
  *
+ * The RT kinematics module pushes parameters into HAL shmem each
+ * servo cycle via update(). Userspace maps the same shmem block
+ * read-only and calls nonrt_kinematicsForward/Inverse directly,
+ * eliminating the per-call HAL pin list walk.
+ *
  * Author: LinuxCNC
  * License: GPL Version 2
  * System: Linux
@@ -21,84 +26,56 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/mman.h>
 
 #include "config.h"  /* EMC2_HOME */
+#include "rtapi.h"
+#include "hal.h"
 
 /* ========================================================================
  * Internal context definition
  * ======================================================================== */
 
-typedef int (*nonrt_forward_fn)(const void *params, const double *joints, EmcPose *pos);
-typedef int (*nonrt_inverse_fn)(const void *params, const EmcPose *pos, double *joints);
-typedef int (*nonrt_refresh_fn)(void *params,
-                                int (*read_float)(const char *, double *),
-                                int (*read_bit)(const char *, int *),
-                                int (*read_s32)(const char *, int *));
-typedef int (*nonrt_is_identity_fn)(void);
+typedef int  (*nonrt_forward_fn)(const double *joints, EmcPose *pos,
+                                 const KINEMATICS_FORWARD_FLAGS *ff, KINEMATICS_INVERSE_FLAGS *if_);
+typedef int  (*nonrt_inverse_fn)(const EmcPose *pos, double *joints,
+                                 const KINEMATICS_INVERSE_FLAGS *if_, KINEMATICS_FORWARD_FLAGS *ff);
+typedef void (*nonrt_attach_fn)(char *shmem_base, int offset, nonrt_ops_t *ops);
 
 struct KinematicsUserContext {
-    kinematics_params_t params;
     int initialized;
-    int is_identity;
+    int rt_only;               /* 1 if uspace-params-offset pin not found */
+    int is_identity;           /* 1 for trivkins/identity — no dlopen needed */
     KINEMATICS_TYPE kins_type;
-    void *rt_handle;            /* dlopen handle to RT .so */
+    void *rt_handle;           /* dlopen handle to RT .so */
     nonrt_forward_fn forward;
     nonrt_inverse_fn inverse;
-    nonrt_refresh_fn refresh;
+    kinematics_params_t *shmem_params; /* ptr into HAL shmem (read-only) */
+    int num_joints;
+    int joint_to_axis[KINEMATICS_USER_MAX_JOINTS]; /* joint→axis for identity path */
+    char module_name[HAL_NAME_LEN + 1];
 };
 
 /* ========================================================================
- * Helper functions
+ * Identity joint mapping (for trivkins and is_identity modules)
  * ======================================================================== */
 
-/*
- * Build joint mapping from coordinates string
- */
-static int build_joint_mapping(kinematics_params_t *kp, const char *coordinates)
+static void fill_identity_joint_map(KinematicsUserContext *ctx, const char *coords)
 {
-    int joint = 0;
-    const char *c;
-    int i;
-
-    if (!kp) return -1;
-
-    /* Initialize all mappings to -1 */
-    for (i = 0; i < EMCMOT_MAX_JOINTS; i++) {
-        kp->joint_to_axis[i] = -1;
-    }
-    for (i = 0; i < 9; i++) {
-        kp->axis_to_joint[i] = -1;
-    }
-
-    /* Use default coordinates if none provided */
-    if (!coordinates || !*coordinates) {
-        coordinates = "XYZABCUVW";
-    }
-
-    /* Parse coordinates string */
-    for (c = coordinates; *c && joint < EMCMOT_MAX_JOINTS && joint < kp->num_joints; c++) {
-        int axis = -1;
-        switch (toupper((unsigned char)*c)) {
-            case 'X': axis = 0; break;
-            case 'Y': axis = 1; break;
-            case 'Z': axis = 2; break;
-            case 'A': axis = 3; break;
-            case 'B': axis = 4; break;
-            case 'C': axis = 5; break;
-            case 'U': axis = 6; break;
-            case 'V': axis = 7; break;
-            case 'W': axis = 8; break;
-            default: continue;  /* Skip invalid characters */
+    int i, j = 0;
+    for (i = 0; i < KINEMATICS_USER_MAX_JOINTS; i++) ctx->joint_to_axis[i] = -1;
+    if (!coords) return;
+    for (; *coords && j < ctx->num_joints; coords++) {
+        int axis;
+        switch (tolower((unsigned char)*coords)) {
+            case 'x': axis = 0; break; case 'y': axis = 1; break;
+            case 'z': axis = 2; break; case 'a': axis = 3; break;
+            case 'b': axis = 4; break; case 'c': axis = 5; break;
+            case 'u': axis = 6; break; case 'v': axis = 7; break;
+            case 'w': axis = 8; break; default:  continue;
         }
-        kp->joint_to_axis[joint] = axis;
-        /* Build axis-to-joint mapping (first joint for each axis) */
-        if (kp->axis_to_joint[axis] == -1) {
-            kp->axis_to_joint[axis] = joint;
-        }
-        joint++;
+        ctx->joint_to_axis[j++] = axis;
     }
-
-    return joint;
 }
 
 /* ========================================================================
@@ -113,7 +90,6 @@ static int load_rt_module(KinematicsUserContext *ctx, const char *module_name)
 {
     char module_path[512];
     void *handle;
-    nonrt_is_identity_fn is_identity_fn;
 
     snprintf(module_path, sizeof(module_path),
              "%s/rtlib/%s.so", EMC2_HOME, module_name);
@@ -127,26 +103,82 @@ static int load_rt_module(KinematicsUserContext *ctx, const char *module_name)
 
     ctx->rt_handle = handle;
 
-    /* Resolve nonrt function symbols */
-    ctx->forward = (nonrt_forward_fn)dlsym(handle, "nonrt_kinematicsForward");
-    ctx->inverse = (nonrt_inverse_fn)dlsym(handle, "nonrt_kinematicsInverse");
-    ctx->refresh = (nonrt_refresh_fn)dlsym(handle, "nonrt_refresh");
-    is_identity_fn = (nonrt_is_identity_fn)dlsym(handle, "nonrt_is_identity");
+    {
+        nonrt_attach_fn attach = (nonrt_attach_fn)dlsym(handle, "nonrt_attach");
+        if (!attach) {
+            fprintf(stderr, "kinematicsUserInit: missing nonrt_attach in '%s'\n",
+                    module_path);
+            dlclose(handle);
+            ctx->rt_handle = NULL;
+            return -1;
+        }
+        if (ctx->shmem_params) {
+            char *base = hal_pin_reader_get_shmem_base();
+            if (base) {
+                nonrt_ops_t ops = {NULL, NULL};
+                attach(base, ctx->shmem_params->self_offset, &ops);
+                ctx->forward = ops.forward;
+                ctx->inverse = ops.inverse;
+            }
+        }
+    }
 
-    if (!ctx->forward || !ctx->inverse || !ctx->refresh || !is_identity_fn) {
-        fprintf(stderr, "kinematicsUserInit: missing nonrt symbols in '%s'\n",
+    if (!ctx->forward || !ctx->inverse) {
+        fprintf(stderr, "kinematicsUserInit: nonrt_attach did not set fwd/inv in '%s'\n",
                 module_path);
-        if (!ctx->forward)  fprintf(stderr, "  missing: nonrt_kinematicsForward\n");
-        if (!ctx->inverse)  fprintf(stderr, "  missing: nonrt_kinematicsInverse\n");
-        if (!ctx->refresh)  fprintf(stderr, "  missing: nonrt_refresh\n");
-        if (!is_identity_fn) fprintf(stderr, "  missing: nonrt_is_identity\n");
         dlclose(handle);
         ctx->rt_handle = NULL;
         return -1;
     }
 
-    ctx->is_identity = is_identity_fn();
-    ctx->kins_type = ctx->is_identity ? KINEMATICS_IDENTITY : KINEMATICS_BOTH;
+    return 0;
+}
+
+/* ========================================================================
+ * HAL shmem parameter mapping
+ * ======================================================================== */
+
+/*
+ * Find the kinematics_params_t in HAL shmem by reading the
+ * <module_name>.uspace-params-offset pin published by the RT module.
+ *
+ * Returns 0 and sets ctx->shmem_params on success.
+ * Returns -1 and sets ctx->rt_only=1 if pin not found (old module).
+ */
+static int find_shmem_params(KinematicsUserContext *ctx, const char *module_name)
+{
+    char pin_name[HAL_NAME_LEN + 1];
+    int offset = 0;
+    char *shmem_base;
+
+    snprintf(pin_name, sizeof(pin_name), "%s.uspace-params-offset", module_name);
+
+    if (hal_pin_reader_read_s32(pin_name, &offset) != 0) {
+        fprintf(stderr, "kinematicsUserInit: '%s' not found — planner 2 disabled for '%s'\n",
+                pin_name, module_name);
+        ctx->rt_only = 1;
+        return -1;
+    }
+
+    shmem_base = hal_pin_reader_get_shmem_base();
+    if (!shmem_base) {
+        fprintf(stderr, "kinematicsUserInit: cannot get HAL shmem base — planner 2 disabled\n");
+        ctx->rt_only = 1;
+        return -1;
+    }
+
+    ctx->shmem_params = (kinematics_params_t *)(shmem_base + offset);
+
+    /* Sanity: check the shmem block looks valid (skip for identity — num_joints not populated) */
+    if (!ctx->shmem_params->is_identity &&
+        (ctx->shmem_params->num_joints < 1 ||
+        ctx->shmem_params->num_joints > KINEMATICS_USER_MAX_JOINTS)) {
+        fprintf(stderr, "kinematicsUserInit: shmem_params->num_joints=%d invalid — planner 2 disabled\n",
+                ctx->shmem_params->num_joints);
+        ctx->shmem_params = NULL;
+        ctx->rt_only = 1;
+        return -1;
+    }
 
     return 0;
 }
@@ -160,66 +192,53 @@ KinematicsUserContext* kinematicsUserInit(const char* kins_type,
                                           const char* coordinates)
 {
     KinematicsUserContext *ctx;
-    kinematics_params_t *kp;
 
-    /* Debug: print incoming parameters */
-    fprintf(stderr, "kinematicsUserInit ENTRY: kins_type='%s', num_joints=%d, coordinates='%s'\n",
+    fprintf(stderr, "kinematicsUserInit: kins_type='%s', num_joints=%d, coordinates='%s'\n",
             kins_type ? kins_type : "(null)",
             num_joints,
             coordinates ? coordinates : "(null)");
 
-    if (num_joints < 1 || num_joints > KINEMATICS_USER_MAX_JOINTS) {
-        fprintf(stderr, "kinematicsUserInit: invalid num_joints %d\n", num_joints);
+    if (!kins_type || num_joints < 1 || num_joints > KINEMATICS_USER_MAX_JOINTS) {
+        fprintf(stderr, "kinematicsUserInit: invalid arguments\n");
         return NULL;
     }
 
-    /* Allocate context */
     ctx = (KinematicsUserContext *)calloc(1, sizeof(KinematicsUserContext));
     if (!ctx) {
         fprintf(stderr, "kinematicsUserInit: memory allocation failed\n");
         return NULL;
     }
 
-    kp = &ctx->params;
-    kp->num_joints = num_joints;
+    ctx->num_joints = num_joints;
+    strncpy(ctx->module_name, kins_type, sizeof(ctx->module_name) - 1);
 
-    /* Copy module name and coordinates */
-    if (kins_type) {
-        strncpy(kp->module_name, kins_type, sizeof(kp->module_name) - 1);
-        kp->module_name[sizeof(kp->module_name) - 1] = '\0';
+    /* Map HAL shmem params first — detects identity kinematics before dlopen */
+    find_shmem_params(ctx, kins_type);
+
+    if (!ctx->rt_only && ctx->shmem_params->is_identity) {
+        /* Identity kinematics (trivkins): handle entirely in userspace — no dlopen needed */
+        ctx->is_identity = 1;
+        fill_identity_joint_map(ctx, coordinates);
+        ctx->kins_type = KINEMATICS_IDENTITY;
+        fprintf(stderr, "kinematicsUserInit: identity kinematics '%s' — direct joint mapping\n",
+                kins_type);
+    } else {
+        /* Non-identity: load RT module for nonrt_kinematicsForward/Inverse */
+        if (load_rt_module(ctx, kins_type) != 0) {
+            fprintf(stderr, "kinematicsUserInit: failed to load RT module '%s'\n", kins_type);
+            free(ctx);
+            return NULL;
+        }
+        if (!ctx->rt_only) {
+            ctx->kins_type = KINEMATICS_BOTH;
+            fprintf(stderr, "kinematicsUserInit: shmem mapped for '%s', joints=%d\n",
+                    kins_type, ctx->shmem_params->num_joints);
+        } else {
+            ctx->kins_type = KINEMATICS_BOTH; /* conservative default */
+        }
     }
-    if (coordinates) {
-        strncpy(kp->coordinates, coordinates, sizeof(kp->coordinates) - 1);
-        kp->coordinates[sizeof(kp->coordinates) - 1] = '\0';
-    }
 
-    /* Build joint-axis mapping */
-    build_joint_mapping(kp, coordinates);
-
-    /* Load RT module via dlopen */
-    if (load_rt_module(ctx, kins_type) != 0) {
-        fprintf(stderr, "kinematicsUserInit: failed to load RT module for '%s'\n",
-                kins_type ? kins_type : "(null)");
-        fprintf(stderr, "  searched: %s/rtlib/%s.so\n",
-                EMC2_HOME, kins_type ? kins_type : "(null)");
-        free(ctx);
-        return NULL;
-    }
-
-    kp->valid = 1;
     ctx->initialized = 1;
-
-    /* Read initial HAL pin values */
-    if (ctx->refresh(kp, hal_pin_reader_read_float,
-                     hal_pin_reader_read_bit,
-                     hal_pin_reader_read_s32) != 0) {
-        fprintf(stderr, "kinematicsUserInit: warning - could not read initial HAL pins\n");
-        /* Don't fail - HAL pins may not exist yet */
-    }
-
-    fprintf(stderr, "kinematicsUserInit: loaded RT module for '%s' with %d joints, coords='%s'\n",
-            kp->module_name, kp->num_joints, kp->coordinates);
-
     return ctx;
 }
 
@@ -227,62 +246,77 @@ int kinematicsUserInverse(KinematicsUserContext* ctx,
                           const EmcPose* world,
                           double* joints)
 {
-    if (!ctx || !ctx->initialized || !world || !joints) {
-        return -1;
+    if (!ctx || !ctx->initialized || !world || !joints) return -1;
+
+    if (ctx->is_identity) {
+        int i;
+        for (i = 0; i < ctx->num_joints; i++) {
+            int ax = ctx->joint_to_axis[i];
+            joints[i] = (ax >= 0) ? emcPoseGetAxis(world, ax) : 0.0;
+        }
+        return 0;
     }
-    return ctx->inverse(&ctx->params, world, joints);
+
+    if (ctx->rt_only || !ctx->shmem_params) return -1;
+    return ctx->inverse(world, joints, NULL, NULL);
 }
 
 int kinematicsUserForward(KinematicsUserContext* ctx,
                           const double* joints,
                           EmcPose* world)
 {
-    if (!ctx || !ctx->initialized || !joints || !world) {
-        return -1;
+    if (!ctx || !ctx->initialized || !joints || !world) return -1;
+
+    if (ctx->is_identity) {
+        int i;
+        memset(world, 0, sizeof(*world));
+        for (i = 0; i < ctx->num_joints; i++) {
+            int ax = ctx->joint_to_axis[i];
+            if (ax >= 0) emcPoseSetAxis(world, ax, joints[i]);
+        }
+        return 0;
     }
-    return ctx->forward(&ctx->params, joints, world);
+
+    if (ctx->rt_only || !ctx->shmem_params) return -1;
+    return ctx->forward(joints, world, NULL, NULL);
 }
 
 int kinematicsUserIsIdentity(KinematicsUserContext* ctx)
 {
-    if (!ctx || !ctx->initialized) {
-        return 0;
-    }
-    return ctx->is_identity;
+    if (!ctx || !ctx->initialized) return 0;
+    if (ctx->is_identity) return 1;
+    if (ctx->rt_only || !ctx->shmem_params) return 0;
+    return ctx->shmem_params->is_identity;
 }
 
 int kinematicsUserGetNumJoints(KinematicsUserContext* ctx)
 {
-    if (!ctx || !ctx->initialized) {
-        return 0;
-    }
-    return ctx->params.num_joints;
+    if (!ctx || !ctx->initialized) return 0;
+    return ctx->num_joints;
 }
 
 KINEMATICS_TYPE kinematicsUserGetType(KinematicsUserContext* ctx)
 {
-    if (!ctx || !ctx->initialized) {
-        return KINEMATICS_IDENTITY;
-    }
+    if (!ctx || !ctx->initialized) return KINEMATICS_IDENTITY;
     return ctx->kins_type;
 }
 
 const char* kinematicsUserGetModuleName(KinematicsUserContext* ctx)
 {
-    if (!ctx || !ctx->initialized) {
-        return "unknown";
-    }
-    return ctx->params.module_name;
+    if (!ctx || !ctx->initialized) return "unknown";
+    return ctx->module_name;
 }
 
 int kinematicsUserRefreshParams(KinematicsUserContext* ctx)
 {
-    if (!ctx || !ctx->initialized) {
-        return -1;
-    }
-    return ctx->refresh(&ctx->params, hal_pin_reader_read_float,
-                        hal_pin_reader_read_bit,
-                        hal_pin_reader_read_s32);
+    (void)ctx;
+    return 0; /* no-op: RT module pushes params into shmem every servo cycle */
+}
+
+int kinematicsUserIsRtOnly(KinematicsUserContext* ctx)
+{
+    if (!ctx || !ctx->initialized) return 1;
+    return ctx->rt_only;
 }
 
 void kinematicsUserFree(KinematicsUserContext* ctx)
