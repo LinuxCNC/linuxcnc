@@ -16,65 +16,78 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/** @file el70x1.c
+ * @brief Driver for Beckhoff EL7031 and EL7041-0052 stepper motor terminals.
+ *
+ * Implements HAL pin creation, motor parameter SDO configuration, PDO mapping,
+ * and cyclic read/write for the EL70x1 family of stepper terminals.  The
+ * drive runs in position mode (SDO 0x8012:01 = 3); the 32-bit position
+ * setpoint is written each cycle.  An integrated auto-reduce-torque timer
+ * engages reduced torque after a configurable idle period.
+ */
+
 #include "../lcec.h"
 #include "el70x1.h"
 
+/**
+ * @brief HAL data for the EL70x1 stepper terminal.
+ */
 typedef struct {
-  hal_bit_t auto_fault_reset;
+  hal_bit_t auto_fault_reset;     /**< Parameter: 1 = automatically reset faults on enable */
 
-  hal_float_t stm_pos_scale;
-  hal_float_t *stm_pos_cmd;
+  hal_float_t stm_pos_scale;      /**< Parameter: position scale factor (user units / raw count) */
+  hal_float_t *stm_pos_cmd;       /**< IN: commanded position in user units */
 
-  hal_float_t auto_reduce_tourque_delay;
-  long long auto_reduce_tourque_timer;
+  hal_float_t auto_reduce_tourque_delay;  /**< Parameter: seconds of idle before auto-reduce-torque fires */
+  long long auto_reduce_tourque_timer;    /**< Internal timer (ns) counting idle time */
 
-  hal_bit_t *stm_ready_to_enable;
-  hal_bit_t *stm_ready;
-  hal_bit_t *stm_warning;
-  hal_bit_t *stm_error;
-  hal_bit_t *stm_move_pos;
-  hal_bit_t *stm_move_neg;
-  hal_bit_t *stm_torque_reduced;
-  hal_bit_t *stm_din1;
-  hal_bit_t *stm_din2;
-  hal_bit_t *stm_sync_err;
-  hal_bit_t *stm_tx_toggle;
-  hal_bit_t *stm_enable;
-  hal_bit_t *stm_reset;
-  hal_bit_t *stm_reduce_torque;
-  hal_s32_t *stm_pos_cmd_raw;
+  hal_bit_t *stm_ready_to_enable; /**< OUT: drive ready-to-enable status */
+  hal_bit_t *stm_ready;           /**< OUT: drive ready status */
+  hal_bit_t *stm_warning;         /**< OUT: drive warning active */
+  hal_bit_t *stm_error;           /**< OUT: drive error active */
+  hal_bit_t *stm_move_pos;        /**< OUT: drive currently moving in positive direction */
+  hal_bit_t *stm_move_neg;        /**< OUT: drive currently moving in negative direction */
+  hal_bit_t *stm_torque_reduced;  /**< OUT: reduced torque mode currently active */
+  hal_bit_t *stm_din1;            /**< OUT: digital input 1 state */
+  hal_bit_t *stm_din2;            /**< OUT: digital input 2 state */
+  hal_bit_t *stm_sync_err;        /**< OUT: EtherCAT sync error flag */
+  hal_bit_t *stm_tx_toggle;       /**< OUT: TxPDO toggle (new data indicator) */
+  hal_bit_t *stm_enable;          /**< IN: enable the stepper drive */
+  hal_bit_t *stm_reset;           /**< IN: reset drive faults */
+  hal_bit_t *stm_reduce_torque;   /**< IN: manually request reduced torque */
+  hal_s32_t *stm_pos_cmd_raw;     /**< OUT: scaled 32-bit raw position setpoint */
 
-  hal_s32_t stm_pos_cmd_raw_last;
+  hal_s32_t stm_pos_cmd_raw_last; /**< Previous raw position command for change detection */
 
-  unsigned int stm_ready_to_enable_pdo_os;
-  unsigned int stm_ready_to_enable_pdo_bp;
-  unsigned int stm_ready_pdo_os;
-  unsigned int stm_ready_pdo_bp;
-  unsigned int stm_warning_pdo_os;
-  unsigned int stm_warning_pdo_bp;
-  unsigned int stm_error_pdo_os;
-  unsigned int stm_error_pdo_bp;
-  unsigned int stm_move_pos_pdo_os;
-  unsigned int stm_move_pos_pdo_bp;
-  unsigned int stm_move_neg_pdo_os;
-  unsigned int stm_move_neg_pdo_bp;
-  unsigned int stm_torque_reduced_pdo_os;
-  unsigned int stm_torque_reduced_pdo_bp;
-  unsigned int stm_din1_pdo_os;
-  unsigned int stm_din1_pdo_bp;
-  unsigned int stm_din2_pdo_os;
-  unsigned int stm_din2_pdo_bp;
-  unsigned int stm_sync_err_pdo_os;
-  unsigned int stm_sync_err_pdo_bp;
-  unsigned int stm_tx_toggle_pdo_os;
-  unsigned int stm_tx_toggle_pdo_bp;
-  unsigned int stm_ena_pdo_os;
-  unsigned int stm_ena_pdo_bp;
-  unsigned int stm_reset_pdo_os;
-  unsigned int stm_reset_pdo_bp;
-  unsigned int stm_reduce_torque_pdo_os;
-  unsigned int stm_reduce_torque_pdo_bp;
-  unsigned int stm_pos_raw_pdo_os;
+  unsigned int stm_ready_to_enable_pdo_os; /**< PDO byte offset: ready-to-enable */
+  unsigned int stm_ready_to_enable_pdo_bp; /**< Bit position: ready-to-enable */
+  unsigned int stm_ready_pdo_os;           /**< PDO byte offset: ready */
+  unsigned int stm_ready_pdo_bp;           /**< Bit position: ready */
+  unsigned int stm_warning_pdo_os;         /**< PDO byte offset: warning */
+  unsigned int stm_warning_pdo_bp;         /**< Bit position: warning */
+  unsigned int stm_error_pdo_os;           /**< PDO byte offset: error */
+  unsigned int stm_error_pdo_bp;           /**< Bit position: error */
+  unsigned int stm_move_pos_pdo_os;        /**< PDO byte offset: moving positive */
+  unsigned int stm_move_pos_pdo_bp;        /**< Bit position: moving positive */
+  unsigned int stm_move_neg_pdo_os;        /**< PDO byte offset: moving negative */
+  unsigned int stm_move_neg_pdo_bp;        /**< Bit position: moving negative */
+  unsigned int stm_torque_reduced_pdo_os;  /**< PDO byte offset: torque reduced */
+  unsigned int stm_torque_reduced_pdo_bp;  /**< Bit position: torque reduced */
+  unsigned int stm_din1_pdo_os;            /**< PDO byte offset: digital input 1 */
+  unsigned int stm_din1_pdo_bp;            /**< Bit position: digital input 1 */
+  unsigned int stm_din2_pdo_os;            /**< PDO byte offset: digital input 2 */
+  unsigned int stm_din2_pdo_bp;            /**< Bit position: digital input 2 */
+  unsigned int stm_sync_err_pdo_os;        /**< PDO byte offset: sync error */
+  unsigned int stm_sync_err_pdo_bp;        /**< Bit position: sync error */
+  unsigned int stm_tx_toggle_pdo_os;       /**< PDO byte offset: TxPDO toggle */
+  unsigned int stm_tx_toggle_pdo_bp;       /**< Bit position: TxPDO toggle */
+  unsigned int stm_ena_pdo_os;             /**< PDO byte offset: drive enable command */
+  unsigned int stm_ena_pdo_bp;             /**< Bit position: drive enable command */
+  unsigned int stm_reset_pdo_os;           /**< PDO byte offset: drive reset command */
+  unsigned int stm_reset_pdo_bp;           /**< Bit position: drive reset command */
+  unsigned int stm_reduce_torque_pdo_os;   /**< PDO byte offset: reduce-torque command */
+  unsigned int stm_reduce_torque_pdo_bp;   /**< Bit position: reduce-torque command */
+  unsigned int stm_pos_raw_pdo_os;         /**< PDO byte offset: 32-bit position setpoint */
 
 } lcec_el70x1_data_t;
 
@@ -232,6 +245,14 @@ int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
 void lcec_el70x1_read(struct lcec_slave *slave, long period);
 void lcec_el70x1_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise an EL7031 using the full encoder+stepper sync config.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el7031_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   // initialize sync info
   slave->sync_info = lcec_el70x1_syncs;
@@ -239,6 +260,14 @@ int lcec_el7031_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return lcec_el70x1_init(comp_id, slave, pdo_entry_regs);
 }
 
+/**
+ * @brief Initialise an EL7041-0052 using the stepper-only sync config.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el7041_0052_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   // initialize sync info
   slave->sync_info = lcec_el7041_0052_syncs;
@@ -246,6 +275,18 @@ int lcec_el7041_0052_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_re
   return lcec_el70x1_init(comp_id, slave, pdo_entry_regs);
 }
 
+/**
+ * @brief Shared initialisation for all EL70x1 stepper terminals.
+ *
+ * Sets position mode via SDO (0x8012:01 = 3), applies any motor parameter
+ * SDOs from module parameters, allocates HAL memory, maps PDO entries for
+ * the stepper status and control registers, and exports HAL pins and params.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_slave_modparam_t *p;
@@ -345,6 +386,12 @@ int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Cyclic read: update stepper drive status HAL pins.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds (unused).
+ */
 void lcec_el70x1_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el70x1_data_t *hal_data = (lcec_el70x1_data_t *) slave->hal_data;
@@ -363,6 +410,17 @@ void lcec_el70x1_read(struct lcec_slave *slave, long period) {
   *(hal_data->stm_tx_toggle) = EC_READ_BIT(&pd[hal_data->stm_tx_toggle_pdo_os], hal_data->stm_tx_toggle_pdo_bp);
 }
 
+/**
+ * @brief Cyclic write: send position setpoint and control bits to drive.
+ *
+ * Scales the commanded position to a raw 32-bit integer, manages the
+ * auto-reduce-torque timer (engages reduced torque after the configured
+ * idle delay), and writes the enable, reset, reduce-torque, and position
+ * PDO fields to the process data image.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds.
+ */
 void lcec_el70x1_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el70x1_data_t *hal_data = (lcec_el70x1_data_t *) slave->hal_data;

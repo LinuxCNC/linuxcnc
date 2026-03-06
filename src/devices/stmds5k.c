@@ -16,108 +16,142 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file stmds5k.c
+ * @brief Driver for the Stöber MDS5000 EtherCAT servo drive.
+ *
+ * Implements velocity control using Stöber-specific objects.  SDO reads at
+ * init time fetch the torque reference (B18/0x2212), maximum RPM (C01/0x2401)
+ * and setpoint maximum RPM (D02/0x2602) which are exposed as read-only HAL
+ * parameters.  The sync-manager layout is built from a static template then
+ * fixed up with live pointers (required because the PDO entry arrays must live
+ * in the per-slave HAL memory block).
+ */
 #include "../lcec.h"
 #include "stmds5k.h"
 
 #include "../classes/class_enc.h"
 
+/** @brief Scale factor: converts normalised ±1.0 velocity to ±0x7FFF register value. */
 #define STMDS5K_PCT_REG_FACTOR (0.5 * (double)0x7fff)
+/** @brief Scale factor: converts ±0x7FFF register value to normalised ±2.0 range. */
 #define STMDS5K_PCT_REG_DIV    (2.0 / (double)0x7fff)
+/** @brief Scale factor: converts raw torque register to Nm (x0.1 Nm per LSB, divided by 0x7FFF/8). */
 #define STMDS5K_TORQUE_DIV     (8.0 / (double)0x7fff)
+/** @brief Scale factor: converts SDO torque reference value (0.01 Nm per LSB). */
 #define STMDS5K_TORQUE_REF_DIV (0.01)
+/** @brief Multiplier: converts revolutions/second to RPM. */
 #define STMDS5K_RPM_FACTOR     (60.0)
+/** @brief Multiplier: converts RPM to revolutions/second. */
 #define STMDS5K_RPM_DIV        (1.0 / 60.0)
+/** @brief Encoder pulses per revolution for the rotor position object (E09). */
 #define STMDS5K_PPREV          0x1000000
 
+/**
+ * @brief Packed EtherCAT sync-info template for the MDS5000.
+ *
+ * All output/input PDO entry info structs, PDO info structs, and sync-manager
+ * info structs are kept together so they can be copied into per-slave HAL
+ * memory as a single block, then the internal pointers are fixed up.
+ */
 typedef struct {
   struct {
-    ec_pdo_entry_info_t ctrl;
-    ec_pdo_entry_info_t n_cmd;
-    ec_pdo_entry_info_t m_max;
+    ec_pdo_entry_info_t ctrl;     /**< A180 Device Control Byte (output). */
+    ec_pdo_entry_info_t n_cmd;    /**< D230 Speed setpoint relative (output). */
+    ec_pdo_entry_info_t m_max;    /**< C230 Maximum torque (output). */
   } out_ch1;
   struct {
-    ec_pdo_entry_info_t status;
-    ec_pdo_entry_info_t n_fb;
-    ec_pdo_entry_info_t m_fb;
-    ec_pdo_entry_info_t cmd_status;
+    ec_pdo_entry_info_t status;   /**< E200 Device Status Byte (input). */
+    ec_pdo_entry_info_t n_fb;     /**< E100 Motor speed feedback (input). */
+    ec_pdo_entry_info_t m_fb;     /**< E02  Motor torque filtered (input). */
+    ec_pdo_entry_info_t cmd_status; /**< D200 Speed setpoint status word (input). */
   } in_ch1;
   struct {
-    ec_pdo_entry_info_t rotor;
-    ec_pdo_entry_info_t extenc;
+    ec_pdo_entry_info_t rotor;    /**< E09 Rotor position (input). */
+    ec_pdo_entry_info_t extenc;   /**< External encoder object (optional, input). */
   } in_ch2;
   struct {
-    ec_pdo_info_t ch1;
+    ec_pdo_info_t ch1;            /**< Output PDO 0x1600. */
   } out;
   struct {
-    ec_pdo_info_t ch1;
-    ec_pdo_info_t ch2;
+    ec_pdo_info_t ch1;            /**< Input PDO 0x1A00. */
+    ec_pdo_info_t ch2;            /**< Input PDO 0x1A01. */
   } in;
   struct {
-    ec_sync_info_t mb_out;
-    ec_sync_info_t mb_in;
-    ec_sync_info_t pdo_out;
-    ec_sync_info_t pdo_in;
-    ec_sync_info_t eot;
+    ec_sync_info_t mb_out;        /**< Sync manager 0: mailbox output. */
+    ec_sync_info_t mb_in;         /**< Sync manager 1: mailbox input. */
+    ec_sync_info_t pdo_out;       /**< Sync manager 2: PDO output. */
+    ec_sync_info_t pdo_in;        /**< Sync manager 3: PDO input. */
+    ec_sync_info_t eot;           /**< End-of-table sentinel (index 0xff). */
   } syncs;
 } lcec_stmds5k_syncs_t;
 
+/**
+ * @brief External encoder configuration entry.
+ *
+ * Maps a Stöber encoder type index to the CANopen object that carries its
+ * value, the pulses-per-revolution count, and bit-field extraction parameters.
+ */
 typedef struct {
-  uint16_t pdo_index;
-  uint64_t pprev;
-  int used_bits;
-  int shift_bits;
+  uint16_t pdo_index;   /**< CANopen index of the encoder PDO object (e.g. 0x289A). */
+  uint64_t pprev;       /**< Pulses per revolution (0 = incremental / no wrapping). */
+  int used_bits;        /**< Number of valid data bits in the PDO value. */
+  int shift_bits;       /**< Right-shift to apply before extracting position data. */
 } lcec_stmds5k_extenc_conf_t;
 
+/**
+ * @brief HAL data structure for the MDS5000 drive.
+ */
 typedef struct {
-  hal_float_t *vel_cmd;
-  hal_float_t *vel_fb;
-  hal_float_t *vel_fb_rpm;
-  hal_float_t *vel_fb_rpm_abs;
-  hal_float_t *vel_rpm;
-  hal_float_t *torque_fb;
-  hal_float_t *torque_fb_abs;
-  hal_float_t *torque_fb_pct;
-  hal_float_t *torque_lim;
-  hal_bit_t *stopped;
-  hal_bit_t *at_speed;
-  hal_bit_t *overload;
-  hal_bit_t *ready;
-  hal_bit_t *error;
-  hal_bit_t *toggle;
-  hal_bit_t *loc_ena;
-  hal_bit_t *enable;
-  hal_bit_t *err_reset;
-  hal_bit_t *fast_ramp;
-  hal_bit_t *brake;
+  hal_float_t *vel_cmd;             /**< HAL IN:  Velocity command (scale units/s). */
+  hal_float_t *vel_fb;              /**< HAL OUT: Velocity feedback (scale units/s). */
+  hal_float_t *vel_fb_rpm;          /**< HAL OUT: Velocity feedback (RPM). */
+  hal_float_t *vel_fb_rpm_abs;      /**< HAL OUT: Absolute velocity feedback (RPM). */
+  hal_float_t *vel_rpm;             /**< HAL OUT: Velocity command sent to drive (RPM). */
+  hal_float_t *torque_fb;           /**< HAL OUT: Torque feedback (Nm). */
+  hal_float_t *torque_fb_abs;       /**< HAL OUT: Absolute torque feedback (Nm). */
+  hal_float_t *torque_fb_pct;       /**< HAL OUT: Torque feedback (% of torque reference). */
+  hal_float_t *torque_lim;          /**< HAL IN:  Torque limit (0.0–2.0 × rated torque). */
+  hal_bit_t *stopped;               /**< HAL OUT: Motor is stopped. */
+  hal_bit_t *at_speed;              /**< HAL OUT: Motor has reached commanded speed. */
+  hal_bit_t *overload;              /**< HAL OUT: Torque overload active. */
+  hal_bit_t *ready;                 /**< HAL OUT: Drive is ready. */
+  hal_bit_t *error;                 /**< HAL OUT: Drive fault active. */
+  hal_bit_t *toggle;                /**< HAL OUT: Watchdog toggle bit from drive. */
+  hal_bit_t *loc_ena;               /**< HAL OUT: Local enable active. */
+  hal_bit_t *enable;                /**< HAL IN:  Enable drive operation. */
+  hal_bit_t *err_reset;             /**< HAL IN:  Reset drive fault. */
+  hal_bit_t *fast_ramp;             /**< HAL IN:  Select fast deceleration ramp. */
+  hal_bit_t *brake;                 /**< HAL IN:  Activate drive brake output. */
 
-  hal_float_t speed_max_rpm;
-  hal_float_t speed_max_rpm_sp;
-  hal_float_t torque_reference;
-  hal_float_t pos_scale;
-  hal_float_t extenc_scale;
-  double speed_max_rpm_sp_rcpt;
+  hal_float_t speed_max_rpm;        /**< HAL RO param: Maximum motor speed (RPM) from SDO C01. */
+  hal_float_t speed_max_rpm_sp;     /**< HAL RO param: Setpoint maximum speed (RPM) from SDO D02. */
+  hal_float_t torque_reference;     /**< HAL RO param: Torque reference (Nm) from SDO B18. */
+  hal_float_t pos_scale;            /**< HAL RW param: Position/velocity scale factor. */
+  hal_float_t extenc_scale;         /**< HAL RW param: External encoder scale factor. */
+  double speed_max_rpm_sp_rcpt;     /**< Reciprocal of speed_max_rpm_sp (cached). */
 
-  double pos_scale_old;
-  double pos_scale_rcpt;
-  double extenc_scale_old;
-  double extenc_scale_rcpt;
+  double pos_scale_old;             /**< Last seen pos_scale value (change detection). */
+  double pos_scale_rcpt;            /**< Reciprocal of pos_scale (cached). */
+  double extenc_scale_old;          /**< Last seen extenc_scale value (change detection). */
+  double extenc_scale_rcpt;         /**< Reciprocal of extenc_scale (cached). */
 
-  lcec_class_enc_data_t enc;
-  lcec_class_enc_data_t extenc;
+  lcec_class_enc_data_t enc;        /**< Rotor encoder state (class_enc). */
+  lcec_class_enc_data_t extenc;     /**< External encoder state (class_enc, optional). */
 
-  const lcec_stmds5k_extenc_conf_t *extenc_conf;
+  const lcec_stmds5k_extenc_conf_t *extenc_conf; /**< External encoder config, NULL if unused. */
 
-  unsigned int dev_state_pdo_os;
-  unsigned int speed_mot_pdo_os;
-  unsigned int torque_mot_pdo_os;
-  unsigned int speed_state_pdo_os;
-  unsigned int pos_mot_pdo_os;
-  unsigned int dev_ctrl_pdo_os;
-  unsigned int speed_sp_rel_pdo_os;
-  unsigned int torque_max_pdo_os;
-  unsigned int extinc_pdo_os;
+  unsigned int dev_state_pdo_os;    /**< PDO offset: E200 Device Status Byte. */
+  unsigned int speed_mot_pdo_os;    /**< PDO offset: E100 Motor speed. */
+  unsigned int torque_mot_pdo_os;   /**< PDO offset: E02  Motor torque. */
+  unsigned int speed_state_pdo_os;  /**< PDO offset: D200 Speed state word. */
+  unsigned int pos_mot_pdo_os;      /**< PDO offset: E09  Rotor position. */
+  unsigned int dev_ctrl_pdo_os;     /**< PDO offset: A180 Device Control Byte. */
+  unsigned int speed_sp_rel_pdo_os; /**< PDO offset: D230 Speed setpoint relative. */
+  unsigned int torque_max_pdo_os;   /**< PDO offset: C230 Maximum torque. */
+  unsigned int extinc_pdo_os;       /**< PDO offset: external encoder value (optional). */
 
-  lcec_stmds5k_syncs_t syncs;
+  lcec_stmds5k_syncs_t syncs;       /**< Per-slave copy of the sync-manager layout template. */
 
 } lcec_stmds5k_data_t;
 
@@ -207,10 +241,31 @@ static const lcec_stmds5k_extenc_conf_t lcec_stmds5k_extenc_conf[] = {
   { 0x289c, 0, 16, 16 },
 };
 
+/**
+ * @brief Look up the external encoder configuration by type index.
+ * @param type  Index into @c lcec_stmds5k_extenc_conf[] (0–8).
+ * @return Pointer to the configuration entry, or NULL if @p type is out of range.
+ */
 const lcec_stmds5k_extenc_conf_t *lcec_stmds5k_get_extenc_conf(uint32_t type);
+
+/**
+ * @brief Update cached reciprocals when the pos_scale or extenc_scale parameters change.
+ * @param hal_data  Pointer to the drive HAL data structure.
+ */
 void lcec_stmds5k_check_scales(lcec_stmds5k_data_t *hal_data);
 
+/**
+ * @brief Cyclic read callback: reads device state, speed, torque and encoder position.
+ * @param slave   EtherCAT slave descriptor.
+ * @param period  Cycle period in nanoseconds.
+ */
 void lcec_stmds5k_read(struct lcec_slave *slave, long period);
+
+/**
+ * @brief Cyclic write callback: writes device control byte, torque limit and speed setpoint.
+ * @param slave   EtherCAT slave descriptor.
+ * @param period  Cycle period in nanoseconds.
+ */
 void lcec_stmds5k_write(struct lcec_slave *slave, long period);
 
 int lcec_stmds5k_preinit(struct lcec_slave *slave) {

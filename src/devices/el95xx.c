@@ -16,16 +16,28 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/** @file el95xx.c
+ * @brief Driver for Beckhoff EL95xx E-bus power supply terminals.
+ *
+ * Implements a minimal read-only driver for the EL9505/EL9508/EL9510/
+ * EL9512/EL9515/EL9576 power supply terminals.  Each terminal provides
+ * two diagnostic bits via PDO 0x6000: power-ok (bit 0x01) and overload
+ * (bit 0x02), which are exposed as HAL output pins.
+ */
+
 #include "../lcec.h"
 #include "el95xx.h"
 
+/**
+ * @brief HAL data for an EL95xx power supply terminal.
+ */
 typedef struct {
-  hal_bit_t *power_ok;
-  hal_bit_t *overload;
-  unsigned int power_ok_pdo_os;
-  unsigned int power_ok_pdo_bp;
-  unsigned int overload_pdo_os;
-  unsigned int overload_pdo_bp;
+  hal_bit_t *power_ok;              /**< OUT: output voltage within specification */
+  hal_bit_t *overload;              /**< OUT: output overload condition active */
+  unsigned int power_ok_pdo_os;     /**< PDO byte offset: power-ok bit (0x6000:01) */
+  unsigned int power_ok_pdo_bp;     /**< Bit position: power-ok bit */
+  unsigned int overload_pdo_os;     /**< PDO byte offset: overload bit (0x6000:02) */
+  unsigned int overload_pdo_bp;     /**< Bit position: overload bit */
 } lcec_el95xx_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -34,8 +46,19 @@ static const lcec_pindesc_t slave_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/**
+ * @brief Cyclic read: forward declaration.
+ */
 void lcec_el95xx_read(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise an EL95xx power supply terminal.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el95xx_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el95xx_data_t *hal_data;
@@ -64,6 +87,12 @@ int lcec_el95xx_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Cyclic read callback: update power-ok and overload HAL pins.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds (unused).
+ */
 void lcec_el95xx_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el95xx_data_t *hal_data = (lcec_el95xx_data_t *) slave->hal_data;

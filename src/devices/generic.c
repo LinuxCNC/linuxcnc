@@ -16,17 +16,59 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file generic.c
+ * @brief Generic passthrough slave driver for arbitrary PDO mapping.
+ *
+ * This driver allows any EtherCAT slave to be used without a dedicated device
+ * driver by mapping PDO entries directly to HAL pins via the XML configuration
+ * file.  The XML @c \<slave\> element uses @c type="generic" together with
+ * nested @c \<syncManager\>, @c \<pdo\>, @c \<pdoEntry\>, and optionally
+ * @c \<complexEntry\> elements to describe the process-data layout.
+ *
+ * The configuration parser (conf.c) calls the @c lcec_generic_conf_* helpers
+ * at parse time to build the EtherCAT sync-manager / PDO / PDO-entry tables
+ * in dynamically allocated memory.  At realtime init (@c lcec_generic_init)
+ * HAL pins are created for every mapped entry that carries a pin name.
+ *
+ * Supported HAL pin types: @c HAL_BIT (single bit or bit-array up to
+ * @c LCEC_CONF_GENERIC_MAX_SUBPINS), @c HAL_S32, @c HAL_U32, @c HAL_FLOAT.
+ * Float pins additionally support a scale/offset and an unsigned or IEEE-754
+ * sub-type (@c lcecPdoEntTypeFloatUnsigned, @c lcecPdoEntTypeFloatIeee).
+ */
+
 #include "../lcec.h"
 #include "generic.h"
 
+/** @brief Forward declaration — HAL read callback. */
 void lcec_generic_read(struct lcec_slave *slave, long period);
+/** @brief Forward declaration — HAL write callback. */
 void lcec_generic_write(struct lcec_slave *slave, long period);
 
+/** @brief Read a signed 32-bit value from the process-data image. */
 hal_s32_t lcec_generic_read_s32(uint8_t *pd, lcec_generic_pin_t *hal_data);
+/** @brief Read an unsigned 32-bit value from the process-data image. */
 hal_u32_t lcec_generic_read_u32(uint8_t *pd, lcec_generic_pin_t *hal_data);
+/** @brief Write a signed 32-bit value into the process-data image. */
 void lcec_generic_write_s32(uint8_t *pd, lcec_generic_pin_t *hal_data, hal_s32_t sval);
+/** @brief Write an unsigned 32-bit value into the process-data image. */
 void lcec_generic_write_u32(uint8_t *pd, lcec_generic_pin_t *hal_data, hal_u32_t uval);
 
+/**
+ * @brief Initialise generic slave configuration at XML parse time.
+ *
+ * Called by the configuration parser for each @c type="generic" slave element.
+ * Sets the slave VID/PID/PDO-entry count, allocates the @c hal_data pin array
+ * and the dynamic EtherCAT sync-manager, PDO, and PDO-entry tables.  Also
+ * populates @p conf_state so that subsequent @c lcec_generic_conf_sm /
+ * @c lcec_generic_conf_pdo / @c lcec_generic_conf_pdo_entry calls can fill in
+ * those tables incrementally.
+ *
+ * @param slave       Slave instance to initialise.
+ * @param slave_conf  Parsed XML slave configuration (VID, PID, counts, flags).
+ * @param conf_state  Parser state block; updated with pointers to allocated tables.
+ * @return 0 on success, -1 on allocation failure.
+ */
 int lcec_generic_conf_init(lcec_slave_t *slave, LCEC_CONF_SLAVE_T *slave_conf, lcec_generic_conf_state_t *conf_state) {
   // generic slave
   slave->vid = slave_conf->vid;
@@ -75,6 +117,14 @@ int lcec_generic_conf_init(lcec_slave_t *slave, LCEC_CONF_SLAVE_T *slave_conf, l
   return 0;
 }
 
+/**
+ * @brief Free dynamically allocated generic slave resources.
+ *
+ * Called during slave destruction to release the EtherCAT sync-manager, PDO,
+ * and PDO-entry arrays that were allocated by @c lcec_generic_conf_init.
+ *
+ * @param slave  Slave instance whose generic resources are to be freed.
+ */
 void lcec_generic_free_slave(lcec_slave_t *slave) {
   if (slave->generic.pdo_entries != NULL) {
     lcec_free(slave->generic.pdo_entries);
@@ -87,6 +137,19 @@ void lcec_generic_free_slave(lcec_slave_t *slave) {
   }
 }
 
+/**
+ * @brief Register one sync-manager from the XML configuration.
+ *
+ * Fills the next entry in the sync-manager table and advances the internal
+ * pointer.  The sentinel entry (@c index == 0xff) is written after each call
+ * so the table is always terminated.  Also derives the HAL pin direction
+ * from the EtherCAT sync-manager direction (@c EC_DIR_INPUT → @c HAL_OUT,
+ * @c EC_DIR_OUTPUT → @c HAL_IN).
+ *
+ * @param state    Configuration parser state.
+ * @param sm_conf  Parsed sync-manager configuration element.
+ * @return 0 on success, -1 if the tables are uninitialised.
+ */
 int lcec_generic_conf_sm(lcec_generic_conf_state_t *state, LCEC_CONF_SYNCMANAGER_T *sm_conf) {
   // check for syncmanager
   if (state->sync_managers == NULL) {
@@ -125,6 +188,16 @@ int lcec_generic_conf_sm(lcec_generic_conf_state_t *state, LCEC_CONF_SYNCMANAGER
   return 0;
 }
 
+/**
+ * @brief Register one PDO from the XML configuration.
+ *
+ * Fills the next PDO entry in the PDO table (index, entry count, pointer to
+ * the first PDO-entry slot) and advances the internal PDO pointer.
+ *
+ * @param state     Configuration parser state.
+ * @param pdo_conf  Parsed PDO configuration element.
+ * @return 0 on success, -1 if the tables are uninitialised.
+ */
 int lcec_generic_conf_pdo(lcec_generic_conf_state_t *state, LCEC_CONF_PDO_T *pdo_conf) {
   // check for pdos
   if (state->pdos == NULL) {
@@ -148,6 +221,19 @@ int lcec_generic_conf_pdo(lcec_generic_conf_state_t *state, LCEC_CONF_PDO_T *pdo
   return 0;
 }
 
+/**
+ * @brief Register one PDO entry (and optional HAL pin) from the XML configuration.
+ *
+ * Fills the EtherCAT PDO-entry table slot (index, subindex, bit-length) and,
+ * when a pin name is provided in @p pe_conf, also populates a @c lcec_generic_pin_t
+ * slot with the type, direction, scale/offset, and PDO address.  The current
+ * entry config is saved in @c state->pe_conf for use by any following
+ * @c \<complexEntry\> elements that share the same PDO entry.
+ *
+ * @param state    Configuration parser state.
+ * @param pe_conf  Parsed PDO-entry configuration element.
+ * @return 0 on success, -1 if any required table pointer is NULL.
+ */
 int lcec_generic_conf_pdo_entry(lcec_generic_conf_state_t *state, LCEC_CONF_PDOENTRY_T *pe_conf) {
   // check for pdos entries
   if (state->pdo_entries == NULL) {
@@ -196,6 +282,18 @@ int lcec_generic_conf_pdo_entry(lcec_generic_conf_state_t *state, LCEC_CONF_PDOE
   return 0;
 }
 
+/**
+ * @brief Register a complex (bit-field) sub-pin within the current PDO entry.
+ *
+ * A @c \<complexEntry\> element maps a sub-range of bits inside the enclosing
+ * @c \<pdoEntry\> to its own HAL pin.  The bit offset within the PDO entry is
+ * taken from @p ce_conf->bitOffset; the PDO index/subindex are inherited from
+ * the last @c lcec_generic_conf_pdo_entry call via @c state->pe_conf.
+ *
+ * @param state    Configuration parser state (must have @c pe_conf set).
+ * @param ce_conf  Parsed complex-entry configuration element.
+ * @return 0 on success, -1 if @c pe_conf or @c hal_data is NULL.
+ */
 int lcec_generic_conf_complex_entry(lcec_generic_conf_state_t *state, LCEC_CONF_COMPLEXENTRY_T *ce_conf) {
   // check for pdoEntry
   if (state->pe_conf == NULL) {
@@ -228,6 +326,21 @@ int lcec_generic_conf_complex_entry(lcec_generic_conf_state_t *state, LCEC_CONF_
   return 0;
 }
 
+/**
+ * @brief Realtime init — register PDO entry offsets and create HAL pins.
+ *
+ * Iterates over every @c lcec_generic_pin_t slot allocated at parse time.
+ * For each slot, calls LCEC_PDO_INIT() to record the byte/bit offsets, then
+ * creates HAL pin(s) according to the type:
+ *  - @c HAL_BIT with @c bitLength == 1 → single pin.
+ *  - @c HAL_BIT with @c bitLength > 1  → array of pins named @c name-0, @c name-1, …
+ *  - @c HAL_S32 / @c HAL_U32 / @c HAL_FLOAT → single pin (max 32 bits).
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Slave instance.
+ * @param pdo_entry_regs  PDO registration array; advanced by LCEC_PDO_INIT.
+ * @return 0 on success, negative errno on HAL pin creation failure.
+ */
 int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_generic_pin_t *hal_data = (lcec_generic_pin_t *) slave->hal_data;
@@ -299,6 +412,17 @@ int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t 
   return 0;
 }
 
+/**
+ * @brief HAL read function — copy input PDO data to HAL output pins.
+ *
+ * Called every servo period.  Iterates over all @c lcec_generic_pin_t slots
+ * with @c dir == @c HAL_OUT and copies the process-data bits/bytes into the
+ * corresponding HAL pin value(s).  Float pins are scaled and offset-adjusted
+ * using @c floatScale and @c floatOffset.
+ *
+ * @param slave   Slave instance.
+ * @param period  Servo period in nanoseconds (unused).
+ */
 void lcec_generic_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_generic_pin_t *hal_data = (lcec_generic_pin_t *) slave->hal_data;
@@ -349,6 +473,17 @@ void lcec_generic_read(struct lcec_slave *slave, long period) {
   }
 }
 
+/**
+ * @brief HAL write function — copy HAL input pin values to output PDO data.
+ *
+ * Called every servo period.  Iterates over all @c lcec_generic_pin_t slots
+ * with @c dir == @c HAL_IN and writes the HAL pin value(s) into the
+ * process-data image.  Float pins have their offset applied first, then are
+ * scaled before being written as signed or unsigned integers.
+ *
+ * @param slave   Slave instance.
+ * @param period  Servo period in nanoseconds (unused).
+ */
 void lcec_generic_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_generic_pin_t *hal_data = (lcec_generic_pin_t *) slave->hal_data;
@@ -397,6 +532,16 @@ void lcec_generic_write(struct lcec_slave *slave, long period) {
   }
 }
 
+/**
+ * @brief Read a signed integer value from the process-data image.
+ *
+ * Uses fast byte-aligned EC_READ_S8/S16/S32 macros for byte-aligned 8/16/32-bit
+ * fields; falls back to a bit-by-bit loop for non-aligned or non-standard widths.
+ *
+ * @param pd        Process-data image base pointer.
+ * @param hal_data  Pin descriptor with PDO byte offset, bit position, bit length.
+ * @return Sign-extended value read from the process data.
+ */
 hal_s32_t lcec_generic_read_s32(uint8_t *pd, lcec_generic_pin_t *hal_data) {
   int i, offset;
   hal_s32_t sval;
@@ -421,6 +566,16 @@ hal_s32_t lcec_generic_read_s32(uint8_t *pd, lcec_generic_pin_t *hal_data) {
   return sval;
 }
 
+/**
+ * @brief Read an unsigned integer value from the process-data image.
+ *
+ * Uses fast byte-aligned EC_READ_U8/U16/U32 macros for byte-aligned 8/16/32-bit
+ * fields; falls back to a bit-by-bit loop for non-aligned or non-standard widths.
+ *
+ * @param pd        Process-data image base pointer.
+ * @param hal_data  Pin descriptor with PDO byte offset, bit position, bit length.
+ * @return Zero-extended value read from the process data.
+ */
 hal_u32_t lcec_generic_read_u32(uint8_t *pd, lcec_generic_pin_t *hal_data) {
   int i, offset;
   hal_u32_t uval;
@@ -445,6 +600,17 @@ hal_u32_t lcec_generic_read_u32(uint8_t *pd, lcec_generic_pin_t *hal_data) {
   return uval;
 }
 
+/**
+ * @brief Write a signed integer value into the process-data image.
+ *
+ * Clamps @p sval to the representable range of @c bitLength signed bits before
+ * writing.  Uses fast EC_WRITE_S8/S16/S32 macros for byte-aligned standard widths;
+ * falls back to a bit-by-bit loop otherwise.
+ *
+ * @param pd        Process-data image base pointer.
+ * @param hal_data  Pin descriptor with PDO byte offset, bit position, bit length.
+ * @param sval      Value to write (clamped to range).
+ */
 void lcec_generic_write_s32(uint8_t *pd, lcec_generic_pin_t *hal_data, hal_s32_t sval) {
   int i, offset;
 
@@ -474,6 +640,17 @@ void lcec_generic_write_s32(uint8_t *pd, lcec_generic_pin_t *hal_data, hal_s32_t
   }
 }
 
+/**
+ * @brief Write an unsigned integer value into the process-data image.
+ *
+ * Clamps @p uval to the representable range of @c bitLength unsigned bits before
+ * writing.  Uses fast EC_WRITE_U8/U16/U32 macros for byte-aligned standard widths;
+ * falls back to a bit-by-bit loop otherwise.
+ *
+ * @param pd        Process-data image base pointer.
+ * @param hal_data  Pin descriptor with PDO byte offset, bit position, bit length.
+ * @param uval      Value to write (clamped to range).
+ */
 void lcec_generic_write_u32(uint8_t *pd, lcec_generic_pin_t *hal_data, hal_u32_t uval) {
   int i, offset;
 

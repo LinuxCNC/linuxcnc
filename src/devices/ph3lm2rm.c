@@ -16,72 +16,92 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file ph3lm2rm.c
+ * @brief Driver for the Phytron phyMOTION stepper motor controller.
+ *
+ * Implements the HAL interface for the Phytron phyMOTION multi-axis stepper
+ * controller.  Each axis exposes an encoder channel plus either a linear (LM)
+ * or rotary (RM) motor drive channel.
+ *
+ * The driver uses the generic encoder class (class_enc) for position tracking
+ * and supports latch functionality on each encoder channel.
+ *
+ * @note When registering PDOs inside per-channel loops, do NOT increment
+ *       @c pdo_entry_regs manually — LCEC_PDO_INIT() advances the inner
+ *       pointer automatically; manually bumping the outer pointer corrupts
+ *       the registration array.
+ */
+
 #include "../lcec.h"
 #include "ph3lm2rm.h"
 
 #include "../classes/class_enc.h"
 
 typedef struct {
-  hal_bit_t *latch_ena_pos;
-  hal_bit_t *latch_ena_neg;
+  hal_bit_t *latch_ena_pos;   /**< Enable positive-edge latch output pin. */
+  hal_bit_t *latch_ena_neg;   /**< Enable negative-edge latch output pin. */
 
-  hal_bit_t *error;
-  hal_bit_t *latch_valid;
-  hal_bit_t *latch_state;
-  hal_bit_t *latch_state_not;
+  hal_bit_t *error;           /**< Encoder error status output pin. */
+  hal_bit_t *latch_valid;     /**< Latch position valid output pin. */
+  hal_bit_t *latch_state;     /**< Latch state output pin. */
+  hal_bit_t *latch_state_not; /**< Inverted latch state output pin. */
 
-  hal_float_t scale;
+  hal_float_t scale;          /**< Position scale parameter (user units per encoder count). */
 
-  lcec_class_enc_data_t enc;
+  lcec_class_enc_data_t enc;  /**< Generic encoder class data for position tracking. */
 
-  unsigned int latch_ena_pos_os;
-  unsigned int latch_ena_pos_bp;
-  unsigned int latch_ena_neg_os;
-  unsigned int latch_ena_neg_bp;
-  unsigned int error_os;
-  unsigned int error_bp;
-  unsigned int latch_valid_os;
-  unsigned int latch_valid_bp;
-  unsigned int latch_state_os;
-  unsigned int latch_state_bp;
-  unsigned int counter_os;
-  unsigned int latch_os;
+  unsigned int latch_ena_pos_os;  /**< PDO byte offset — latch enable positive. */
+  unsigned int latch_ena_pos_bp;  /**< PDO bit position — latch enable positive. */
+  unsigned int latch_ena_neg_os;  /**< PDO byte offset — latch enable negative. */
+  unsigned int latch_ena_neg_bp;  /**< PDO bit position — latch enable negative. */
+  unsigned int error_os;          /**< PDO byte offset — encoder error flag. */
+  unsigned int error_bp;          /**< PDO bit position — encoder error flag. */
+  unsigned int latch_valid_os;    /**< PDO byte offset — latch valid flag. */
+  unsigned int latch_valid_bp;    /**< PDO bit position — latch valid flag. */
+  unsigned int latch_state_os;    /**< PDO byte offset — latch state flag. */
+  unsigned int latch_state_bp;    /**< PDO bit position — latch state flag. */
+  unsigned int counter_os;        /**< PDO byte offset — position counter (32-bit). */
+  unsigned int latch_os;          /**< PDO byte offset — latch position value (32-bit). */
 } lcec_ph3lm2rm_enc_data_t;
 
+/** @brief Per-axis data for a linear-motor (LM) channel. */
 typedef struct {
-  lcec_ph3lm2rm_enc_data_t ch;
+  lcec_ph3lm2rm_enc_data_t ch; /**< Base encoder channel data. */
 
-  hal_u32_t *signal_level;
+  hal_u32_t *signal_level;         /**< Raw signal level output pin. */
 
-  hal_bit_t *signal_level_warn;
-  hal_bit_t *signal_level_err;
+  hal_bit_t *signal_level_warn;    /**< Signal level warning output pin. */
+  hal_bit_t *signal_level_err;     /**< Signal level error output pin. */
 
-  hal_u32_t signal_level_warn_val;
-  hal_u32_t signal_level_err_val;
+  hal_u32_t signal_level_warn_val; /**< Warning threshold parameter. */
+  hal_u32_t signal_level_err_val;  /**< Error threshold parameter. */
 
-  unsigned int signal_level_os;
+  unsigned int signal_level_os;    /**< PDO byte offset — signal level value. */
 } lcec_ph3lm2rm_lm_data_t;
 
+/** @brief Per-axis data for a rotary-motor (RM) channel. */
 typedef struct {
-  lcec_ph3lm2rm_enc_data_t ch;
+  lcec_ph3lm2rm_enc_data_t ch; /**< Base encoder channel data. */
 
-  hal_bit_t *latch_sel_idx;
+  hal_bit_t *latch_sel_idx;        /**< Index latch select output pin. */
 
-  unsigned int latch_sel_idx_os;
-  unsigned int latch_sel_idx_bp;
+  unsigned int latch_sel_idx_os;   /**< PDO byte offset — latch select index. */
+  unsigned int latch_sel_idx_bp;   /**< PDO bit position — latch select index. */
 } lcec_ph3lm2rm_rm_data_t;
 
+/** @brief Top-level HAL data for the phyMOTION slave. */
 typedef struct {
-  lcec_ph3lm2rm_lm_data_t lms[LCEC_PH3LM2RM_LM_COUNT];
-  lcec_ph3lm2rm_rm_data_t rms[LCEC_PH3LM2RM_RM_COUNT];
+  lcec_ph3lm2rm_lm_data_t lms[LCEC_PH3LM2RM_LM_COUNT]; /**< Linear-motor channel data array. */
+  lcec_ph3lm2rm_rm_data_t rms[LCEC_PH3LM2RM_RM_COUNT]; /**< Rotary-motor channel data array. */
 
-  hal_bit_t *err_reset;
-  hal_bit_t *sync_locked;
+  hal_bit_t *err_reset;   /**< Error reset input pin. */
+  hal_bit_t *sync_locked; /**< Synchronisation locked status output pin. */
 
-  unsigned int err_reset_os;
-  unsigned int err_reset_bp;
-  unsigned int sync_locked_os;
-  unsigned int sync_locked_bp;
+  unsigned int err_reset_os;    /**< PDO byte offset — error reset bit. */
+  unsigned int err_reset_bp;    /**< PDO bit position — error reset bit. */
+  unsigned int sync_locked_os;  /**< PDO byte offset — sync locked bit. */
+  unsigned int sync_locked_bp;  /**< PDO bit position — sync locked bit. */
 } lcec_ph3lm2rm_data_t;
 
 static const lcec_pindesc_t enc_pins[] = {
@@ -123,16 +143,30 @@ static const lcec_pindesc_t slave_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/** @brief Initialise encoder HAL pins and parameters for one channel. */
 int lcec_ph3lm2rm_enc_init(struct lcec_slave *slave, lcec_ph3lm2rm_enc_data_t *hal_data, const char *pfx, double scale);
+/** @brief Initialise PDOs and HAL pins for a linear-motor channel. */
 int lcec_ph3lm2rm_lm_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, int idx, lcec_ph3lm2rm_lm_data_t *hal_data, const char *pfx);
+/** @brief Initialise PDOs and HAL pins for a rotary-motor channel. */
 int lcec_ph3lm2rm_rm_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, int idx, lcec_ph3lm2rm_rm_data_t *hal_data, const char *pfx);
 
+/** @brief HAL read function — update all LM/RM channels from PDO data. */
 void lcec_ph3lm2rm_read(struct lcec_slave *slave, long period);
+/** @brief HAL write function — write latch/error-reset bits to PDO data. */
 void lcec_ph3lm2rm_write(struct lcec_slave *slave, long period);
 
+/** @brief Update one encoder channel from process-data image. */
 void lcec_ph3lm2rm_enc_read(uint8_t *pd, lcec_ph3lm2rm_enc_data_t *ch);
+/** @brief Write one encoder channel's latch-enable bits to process-data image. */
 void lcec_ph3lm2rm_enc_write(uint8_t *pd, lcec_ph3lm2rm_enc_data_t *ch);
 
+/**
+ * @brief Initialise the phyMOTION slave: register PDOs and export HAL pins.
+ * @param comp_id         HAL component ID.
+ * @param slave           Slave instance.
+ * @param pdo_entry_regs  PDO registration array; LCEC_PDO_INIT advances it.
+ * @return 0 on success, negative on failure.
+ */
 int lcec_ph3lm2rm_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_ph3lm2rm_data_t *hal_data;

@@ -16,21 +16,38 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file ax5100.c
+ * @brief Driver for the Beckhoff AX5100 single-axis EtherCAT servo drive.
+ *
+ * Implements pre-init (FSoE config + PDO count), full init (sync-manager PDO
+ * assignment, class_ax5 channel setup), and cyclic read/write callbacks.
+ * Output PDO: control word (0x0086:01, 16-bit) + velocity command (0x0018:01, 32-bit).
+ * Input PDO:  status word (0x0087:01, 16-bit) + position feedback (0x0033:01, 32-bit)
+ *             + torque feedback (0x0054:01, 16-bit), with optional second position
+ *             feedback (0x0035:01) and diagnostic number (0x0186:01).
+ */
 #include "../lcec.h"
 #include "ax5100.h"
 
+/**
+ * @brief Internal HAL data for the AX5100 single-axis drive.
+ */
 typedef struct {
-  lcec_syncs_t syncs;
-  lcec_class_ax5_chan_t chan;
+  lcec_syncs_t syncs;           /**< EtherCAT sync-manager configuration built at init time. */
+  lcec_class_ax5_chan_t chan;    /**< class_ax5 channel state (HAL pins, PDO offsets, flags). */
 } lcec_ax5100_data_t;
 
+/** @brief FSoE configuration for the AX5100: 2-byte data length, single axis channel. */
 static const LCEC_CONF_FSOE_T fsoe_conf = {
-  .slave_data_len = 2,
-  .master_data_len = 2,
-  .data_channels = 1
+  .slave_data_len = 2,   // slave FSoE data payload in bytes
+  .master_data_len = 2,  // master FSoE data payload in bytes
+  .data_channels = 1     // one axis → one FSoE data channel
 };
 
+/** @brief Cyclic read callback — delegates to lcec_class_ax5_read(). */
 void lcec_ax5100_read(struct lcec_slave *slave, long period);
+/** @brief Cyclic write callback — delegates to lcec_class_ax5_write(). */
 void lcec_ax5100_write(struct lcec_slave *slave, long period);
 
 int lcec_ax5100_preinit(struct lcec_slave *slave) {

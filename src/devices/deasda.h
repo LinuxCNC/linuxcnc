@@ -132,16 +132,46 @@ Parameters:
 
 #############################################################################*/
 
+/**
+ * @file deasda.h
+ * @brief Driver interface for the Delta ASDA-A2 EtherCAT servo drive.
+ *
+ * The Delta ASDA-A2 is a velocity-controlled servo drive implementing the
+ * CiA-402 profile via a vendor-specific PDO set.  The driver configures the
+ * drive for cyclic synchronous velocity (CSV) mode at startup and maps:
+ *   - Output PDO: CiA-402 control word (0x6040) and target velocity (0x60FF).
+ *   - Input PDO:  CiA-402 status word (0x6041), actual velocity (0x606C),
+ *                 actual position (0x6064), and external encoder (0x2511).
+ *
+ * HAL pins expose velocity command/feedback (in scale units/s and RPM), all
+ * CiA-402 status bits, and control inputs including a built-in automatic
+ * fault-reset feature with configurable retry count and inter-reset delay.
+ */
 #ifndef _LCEC_DEASDA_H_
 #define _LCEC_DEASDA_H_
 
 #include "../lcec.h"
 
+/** @brief Delta vendor ID. */
 #define LCEC_DEASDA_VID LCEC_DELTA_VID
+/** @brief EtherCAT product ID for the ASDA-A2 servo drive. */
 #define LCEC_DEASDA_PID 0x10305070
 
+/** @brief Number of PDO entries used by this driver. */
 #define LCEC_DEASDA_PDOS 6
 
+/**
+ * @brief Initialise the ASDA-A2 HAL component and PDO mappings.
+ *
+ * Configures the drive for CSV mode via SDO writes, sets the interpolation
+ * time period, registers PDO entries, exports HAL pins and parameters, and
+ * initialises the main and external encoder subclasses.
+ *
+ * @param comp_id   LinuxCNC HAL component identifier.
+ * @param slave     Pointer to the EtherCAT slave descriptor.
+ * @param pdo_entry_regs Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_deasda_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif

@@ -16,147 +16,172 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/** @file el7342.c
+ * @brief Driver for the Beckhoff EL7342 2-channel DC motor terminal.
+ *
+ * Implements two independent velocity-mode DC motor drive channels. Each
+ * channel has its own encoder, velocity setpoint, and status/control PDOs.
+ * Two selectable synchronous information words per channel allow monitoring
+ * of motor voltage, current, duty cycle, velocity, temperature, and more.
+ */
+
 #include "../lcec.h"
 #include "el7342.h"
 
-#define INFO_SEL_STATUS_WORD   0
-#define INFO_SEL_MOTOR_VOLT    1
-#define INFO_SEL_MOTOR_CURR    2
-#define INFO_SEL_CURR_LIMIT    3
-#define INFO_SEL_CTRL_ERR      4
-#define INFO_SEL_DUTY_CYCLE    5
-#define INFO_SEL_MOTOR_VELO    7
-#define INFO_SEL_OVERLOAD_TIME 8
-#define INFO_SEL_INT_TEMP      101
-#define INFO_SEL_CTRL_VOLT     103
-#define INFO_SEL_SUPP_VOLT     104
-#define INFO_SEL_DCM_SWORD     150
-#define INFO_SEL_DCM_STATE     151
+/** @name Synchronous information channel selector constants
+ *  Values written to dcm_sel_info1 / dcm_sel_info2 HAL pins to choose
+ *  which quantity appears in dcm_raw_info1 / dcm_raw_info2.
+ * @{
+ */
+#define INFO_SEL_STATUS_WORD   0   /**< Show the drive status word */
+#define INFO_SEL_MOTOR_VOLT    1   /**< Show motor voltage */
+#define INFO_SEL_MOTOR_CURR    2   /**< Show motor current */
+#define INFO_SEL_CURR_LIMIT    3   /**< Show current limit */
+#define INFO_SEL_CTRL_ERR      4   /**< Show controller error */
+#define INFO_SEL_DUTY_CYCLE    5   /**< Show PWM duty cycle */
+#define INFO_SEL_MOTOR_VELO    7   /**< Show motor velocity */
+#define INFO_SEL_OVERLOAD_TIME 8   /**< Show overload time counter */
+#define INFO_SEL_INT_TEMP      101 /**< Show internal temperature */
+#define INFO_SEL_CTRL_VOLT     103 /**< Show controller supply voltage */
+#define INFO_SEL_SUPP_VOLT     104 /**< Show power supply voltage */
+#define INFO_SEL_DCM_SWORD     150 /**< Show DC motor status word */
+#define INFO_SEL_DCM_STATE     151 /**< Show DC motor state */
+/** @} */
 
+/**
+ * @brief Per-channel HAL data for one EL7342 DC motor channel.
+ *
+ * Holds HAL pin pointers, PDO offsets/bit positions, and internal state
+ * for both the encoder sub-interface and the DC motor drive sub-interface
+ * of one channel.
+ */
 typedef struct {
-  hal_bit_t *reset;
-  hal_bit_t *ina;
-  hal_bit_t *inb;
-  hal_bit_t *inext;
-  hal_bit_t *sync_err;
-  hal_bit_t *expol_stall;
-  hal_bit_t *count_overflow;
-  hal_bit_t *count_underflow;
-  hal_bit_t *tx_toggle;
-  hal_bit_t *set_raw_count;
-  hal_s32_t *set_raw_count_val;
-  hal_bit_t *latch_ext_valid;
-  hal_bit_t *ena_latch_ext_pos;
-  hal_bit_t *ena_latch_ext_neg;
-  hal_s32_t *raw_count;
-  hal_s32_t *raw_latch;
-  hal_s32_t *count;
-  hal_float_t *pos_scale;
-  hal_float_t *pos;
+  hal_bit_t *reset;               /**< IN: reset the encoder count to zero */
+  hal_bit_t *ina;                 /**< OUT: encoder channel A state */
+  hal_bit_t *inb;                 /**< OUT: encoder channel B state */
+  hal_bit_t *inext;               /**< OUT: external latch input state */
+  hal_bit_t *sync_err;            /**< OUT: encoder sync error flag */
+  hal_bit_t *expol_stall;         /**< OUT: encoder extrapolation stall flag */
+  hal_bit_t *count_overflow;      /**< OUT: encoder counter overflow flag */
+  hal_bit_t *count_underflow;     /**< OUT: encoder counter underflow flag */
+  hal_bit_t *tx_toggle;           /**< OUT: encoder TxPDO toggle (new data indicator) */
+  hal_bit_t *set_raw_count;       /**< IO: write 1 to preset the encoder counter */
+  hal_s32_t *set_raw_count_val;   /**< IN: preset value for the encoder counter */
+  hal_bit_t *latch_ext_valid;     /**< OUT: external latch valid flag */
+  hal_bit_t *ena_latch_ext_pos;   /**< IO: enable external latch on positive edge */
+  hal_bit_t *ena_latch_ext_neg;   /**< IO: enable external latch on negative edge */
+  hal_s32_t *raw_count;           /**< OUT: raw encoder counter value */
+  hal_s32_t *raw_latch;           /**< OUT: raw encoder latch value */
+  hal_s32_t *count;               /**< OUT: accumulated encoder count */
+  hal_float_t *pos_scale;         /**< IO: encoder counts per user unit */
+  hal_float_t *pos;               /**< OUT: position in user units */
 
-  hal_bit_t *dcm_reset;
-  hal_bit_t *dcm_reduce_torque;
-  hal_bit_t *dcm_enable;
-  hal_bit_t *dcm_absmode;
-  hal_float_t *dcm_value;
-  hal_float_t *dcm_scale;
-  hal_float_t *dcm_offset;
-  hal_float_t *dcm_min_dc;
-  hal_float_t *dcm_max_dc;
-  hal_float_t *dcm_curr_dc;
-  hal_s32_t *dcm_raw_val;
-  hal_bit_t *dcm_ready_to_enable;
-  hal_bit_t *dcm_ready;
-  hal_bit_t *dcm_warning;
-  hal_bit_t *dcm_error;
-  hal_bit_t *dcm_move_pos;
-  hal_bit_t *dcm_move_neg;
-  hal_bit_t *dcm_torque_reduced;
-  hal_bit_t *dcm_din1;
-  hal_bit_t *dcm_din2;
-  hal_bit_t *dcm_sync_err;
-  hal_bit_t *dcm_tx_toggle;
-  hal_s32_t *dcm_raw_info1;
-  hal_s32_t *dcm_raw_info2;
-  hal_u32_t *dcm_sel_info1;
-  hal_u32_t *dcm_sel_info2;
-  hal_float_t *dcm_velo_fb;
-  hal_float_t *dcm_current_fb;
+  hal_bit_t *dcm_reset;           /**< IN: drive reset (clear faults) */
+  hal_bit_t *dcm_reduce_torque;   /**< IN: activate reduced torque */
+  hal_bit_t *dcm_enable;          /**< IN: enable the drive */
+  hal_bit_t *dcm_absmode;         /**< IN: use absolute velocity mode */
+  hal_float_t *dcm_value;         /**< IN: commanded velocity in user units */
+  hal_float_t *dcm_scale;         /**< IO: velocity scale factor */
+  hal_float_t *dcm_offset;        /**< IO: velocity offset */
+  hal_float_t *dcm_min_dc;        /**< IO: minimum duty cycle */
+  hal_float_t *dcm_max_dc;        /**< IO: maximum duty cycle */
+  hal_float_t *dcm_curr_dc;       /**< OUT: current duty cycle */
+  hal_s32_t *dcm_raw_val;         /**< OUT: raw 16-bit velocity setpoint */
+  hal_bit_t *dcm_ready_to_enable; /**< OUT: drive ready-to-enable */
+  hal_bit_t *dcm_ready;           /**< OUT: drive ready */
+  hal_bit_t *dcm_warning;         /**< OUT: drive warning */
+  hal_bit_t *dcm_error;           /**< OUT: drive error */
+  hal_bit_t *dcm_move_pos;        /**< OUT: moving in positive direction */
+  hal_bit_t *dcm_move_neg;        /**< OUT: moving in negative direction */
+  hal_bit_t *dcm_torque_reduced;  /**< OUT: reduced torque active */
+  hal_bit_t *dcm_din1;            /**< OUT: digital input 1 state */
+  hal_bit_t *dcm_din2;            /**< OUT: digital input 2 state */
+  hal_bit_t *dcm_sync_err;        /**< OUT: drive sync error flag */
+  hal_bit_t *dcm_tx_toggle;       /**< OUT: drive TxPDO toggle */
+  hal_s32_t *dcm_raw_info1;       /**< OUT: raw value from synchronous info channel 1 */
+  hal_s32_t *dcm_raw_info2;       /**< OUT: raw value from synchronous info channel 2 */
+  hal_u32_t *dcm_sel_info1;       /**< OUT: selected info channel 1 type (INFO_SEL_*) */
+  hal_u32_t *dcm_sel_info2;       /**< OUT: selected info channel 2 type (INFO_SEL_*) */
+  hal_float_t *dcm_velo_fb;       /**< OUT: velocity feedback (reserved) */
+  hal_float_t *dcm_current_fb;    /**< OUT: current feedback (reserved) */
 
-  unsigned int set_count_pdo_os;
-  unsigned int set_count_pdo_bp;
-  unsigned int set_count_val_pdo_os;
-  unsigned int set_count_done_pdo_os;
-  unsigned int set_count_done_pdo_bp;
-  unsigned int expol_stall_pdo_os;
-  unsigned int expol_stall_pdo_bp;
-  unsigned int ina_pdo_os;
-  unsigned int ina_pdo_bp;
-  unsigned int inb_pdo_os;
-  unsigned int inb_pdo_bp;
-  unsigned int inext_pdo_os;
-  unsigned int inext_pdo_bp;
-  unsigned int sync_err_pdo_os;
-  unsigned int sync_err_pdo_bp;
-  unsigned int tx_toggle_pdo_os;
-  unsigned int tx_toggle_pdo_bp;
-  unsigned int count_overflow_pdo_os;
-  unsigned int count_overflow_pdo_bp;
-  unsigned int count_underflow_pdo_os;
-  unsigned int count_underflow_pdo_bp;
-  unsigned int latch_ext_valid_pdo_os;
-  unsigned int latch_ext_valid_pdo_bp;
-  unsigned int ena_latch_ext_pos_pdo_os;
-  unsigned int ena_latch_ext_pos_pdo_bp;
-  unsigned int ena_latch_ext_neg_pdo_os;
-  unsigned int ena_latch_ext_neg_pdo_bp;
-  unsigned int count_pdo_os;
-  unsigned int latch_pdo_os;
+  unsigned int set_count_pdo_os;          /**< PDO byte offset: set counter command */
+  unsigned int set_count_pdo_bp;          /**< Bit position: set counter command */
+  unsigned int set_count_val_pdo_os;      /**< PDO byte offset: set counter value */
+  unsigned int set_count_done_pdo_os;     /**< PDO byte offset: set counter done */
+  unsigned int set_count_done_pdo_bp;     /**< Bit position: set counter done */
+  unsigned int expol_stall_pdo_os;        /**< PDO byte offset: extrapolation stall */
+  unsigned int expol_stall_pdo_bp;        /**< Bit position: extrapolation stall */
+  unsigned int ina_pdo_os;               /**< PDO byte offset: encoder input A */
+  unsigned int ina_pdo_bp;               /**< Bit position: encoder input A */
+  unsigned int inb_pdo_os;               /**< PDO byte offset: encoder input B */
+  unsigned int inb_pdo_bp;               /**< Bit position: encoder input B */
+  unsigned int inext_pdo_os;             /**< PDO byte offset: external latch input */
+  unsigned int inext_pdo_bp;             /**< Bit position: external latch input */
+  unsigned int sync_err_pdo_os;          /**< PDO byte offset: encoder sync error */
+  unsigned int sync_err_pdo_bp;          /**< Bit position: encoder sync error */
+  unsigned int tx_toggle_pdo_os;         /**< PDO byte offset: encoder TxPDO toggle */
+  unsigned int tx_toggle_pdo_bp;         /**< Bit position: encoder TxPDO toggle */
+  unsigned int count_overflow_pdo_os;    /**< PDO byte offset: counter overflow */
+  unsigned int count_overflow_pdo_bp;    /**< Bit position: counter overflow */
+  unsigned int count_underflow_pdo_os;   /**< PDO byte offset: counter underflow */
+  unsigned int count_underflow_pdo_bp;   /**< Bit position: counter underflow */
+  unsigned int latch_ext_valid_pdo_os;   /**< PDO byte offset: external latch valid */
+  unsigned int latch_ext_valid_pdo_bp;   /**< Bit position: external latch valid */
+  unsigned int ena_latch_ext_pos_pdo_os; /**< PDO byte offset: enable latch on pos edge */
+  unsigned int ena_latch_ext_pos_pdo_bp; /**< Bit position: enable latch on pos edge */
+  unsigned int ena_latch_ext_neg_pdo_os; /**< PDO byte offset: enable latch on neg edge */
+  unsigned int ena_latch_ext_neg_pdo_bp; /**< Bit position: enable latch on neg edge */
+  unsigned int count_pdo_os;            /**< PDO byte offset: 16-bit counter value */
+  unsigned int latch_pdo_os;            /**< PDO byte offset: 16-bit latch value */
 
-  unsigned int dcm_ena_pdo_os;
-  unsigned int dcm_ena_pdo_bp;
-  unsigned int dcm_reset_pdo_os;
-  unsigned int dcm_reset_pdo_bp;
-  unsigned int dcm_reduce_torque_pdo_os;
-  unsigned int dcm_reduce_torque_pdo_bp;
-  unsigned int dcm_velo_pdo_os;
-  unsigned int dcm_ready_to_enable_pdo_os;
-  unsigned int dcm_ready_to_enable_pdo_bp;
-  unsigned int dcm_ready_pdo_os;
-  unsigned int dcm_ready_pdo_bp;
-  unsigned int dcm_warning_pdo_os;
-  unsigned int dcm_warning_pdo_bp;
-  unsigned int dcm_error_pdo_os;
-  unsigned int dcm_error_pdo_bp;
-  unsigned int dcm_move_pos_pdo_os;
-  unsigned int dcm_move_pos_pdo_bp;
-  unsigned int dcm_move_neg_pdo_os;
-  unsigned int dcm_move_neg_pdo_bp;
-  unsigned int dcm_torque_reduced_pdo_os;
-  unsigned int dcm_torque_reduced_pdo_bp;
-  unsigned int dcm_din1_pdo_os;
-  unsigned int dcm_din1_pdo_bp;
-  unsigned int dcm_din2_pdo_os;
-  unsigned int dcm_din2_pdo_bp;
-  unsigned int dcm_sync_err_pdo_os;
-  unsigned int dcm_sync_err_pdo_bp;
-  unsigned int dcm_tx_toggle_pdo_os;
-  unsigned int dcm_tx_toggle_pdo_bp;
-  unsigned int dcm_info1_pdo_os;
-  unsigned int dcm_info2_pdo_os;
+  unsigned int dcm_ena_pdo_os;              /**< PDO byte offset: drive enable command */
+  unsigned int dcm_ena_pdo_bp;              /**< Bit position: drive enable command */
+  unsigned int dcm_reset_pdo_os;            /**< PDO byte offset: drive reset command */
+  unsigned int dcm_reset_pdo_bp;            /**< Bit position: drive reset command */
+  unsigned int dcm_reduce_torque_pdo_os;    /**< PDO byte offset: reduce torque command */
+  unsigned int dcm_reduce_torque_pdo_bp;    /**< Bit position: reduce torque command */
+  unsigned int dcm_velo_pdo_os;             /**< PDO byte offset: 16-bit velocity setpoint */
+  unsigned int dcm_ready_to_enable_pdo_os;  /**< PDO byte offset: ready-to-enable status */
+  unsigned int dcm_ready_to_enable_pdo_bp;  /**< Bit position: ready-to-enable status */
+  unsigned int dcm_ready_pdo_os;            /**< PDO byte offset: drive ready */
+  unsigned int dcm_ready_pdo_bp;            /**< Bit position: drive ready */
+  unsigned int dcm_warning_pdo_os;          /**< PDO byte offset: drive warning */
+  unsigned int dcm_warning_pdo_bp;          /**< Bit position: drive warning */
+  unsigned int dcm_error_pdo_os;            /**< PDO byte offset: drive error */
+  unsigned int dcm_error_pdo_bp;            /**< Bit position: drive error */
+  unsigned int dcm_move_pos_pdo_os;         /**< PDO byte offset: moving positive */
+  unsigned int dcm_move_pos_pdo_bp;         /**< Bit position: moving positive */
+  unsigned int dcm_move_neg_pdo_os;         /**< PDO byte offset: moving negative */
+  unsigned int dcm_move_neg_pdo_bp;         /**< Bit position: moving negative */
+  unsigned int dcm_torque_reduced_pdo_os;   /**< PDO byte offset: torque reduced */
+  unsigned int dcm_torque_reduced_pdo_bp;   /**< Bit position: torque reduced */
+  unsigned int dcm_din1_pdo_os;             /**< PDO byte offset: digital input 1 */
+  unsigned int dcm_din1_pdo_bp;             /**< Bit position: digital input 1 */
+  unsigned int dcm_din2_pdo_os;             /**< PDO byte offset: digital input 2 */
+  unsigned int dcm_din2_pdo_bp;             /**< Bit position: digital input 2 */
+  unsigned int dcm_sync_err_pdo_os;         /**< PDO byte offset: drive sync error */
+  unsigned int dcm_sync_err_pdo_bp;         /**< Bit position: drive sync error */
+  unsigned int dcm_tx_toggle_pdo_os;        /**< PDO byte offset: drive TxPDO toggle */
+  unsigned int dcm_tx_toggle_pdo_bp;        /**< Bit position: drive TxPDO toggle */
+  unsigned int dcm_info1_pdo_os;            /**< PDO byte offset: synchronous info word 1 */
+  unsigned int dcm_info2_pdo_os;            /**< PDO byte offset: synchronous info word 2 */
 
-  int enc_do_init;
-  int16_t enc_last_count;
-  double enc_old_scale;
-  double enc_scale_recip;
-  double dcm_old_scale;
-  double dcm_scale_recip;
+  int enc_do_init;              /**< Flag: 1 on first read after startup */
+  int16_t enc_last_count;       /**< Previous raw encoder count for delta computation */
+  double enc_old_scale;         /**< Previously applied encoder scale (change detection) */
+  double enc_scale_recip;         /**< Reciprocal of current encoder scale factor */
+  double dcm_old_scale;           /**< Previously applied drive scale (change detection) */
+  double dcm_scale_recip;         /**< Reciprocal of current drive scale factor */
 
 } lcec_el7342_chan_t;
 
+/**
+ * @brief Top-level HAL data for the EL7342 terminal.
+ */
 typedef struct {
-  lcec_el7342_chan_t chans[LCEC_EL7342_CHANS];
-  int last_operational;
+  lcec_el7342_chan_t chans[LCEC_EL7342_CHANS]; /**< Per-channel data (2 channels) */
+  int last_operational;                        /**< 1 when slave was operational on previous cycle */
 } lcec_el7342_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -369,8 +394,26 @@ static ec_sync_info_t lcec_el7342_syncs[] = {
 void lcec_el7342_read(struct lcec_slave *slave, long period);
 void lcec_el7342_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Write a synchronous information selector value to the drive.
+ *
+ * Writes the requested info selector index to the raw PDO field so the
+ * next cyclic read returns the chosen diagnostic value.
+ *
+ * @param chan     Pointer to the channel data.
+ * @param raw_info Pointer to the raw info HAL pin to update.
+ * @param sel_info Pointer to the selector HAL pin choosing which value to read.
+ */
 void lcec_el7342_set_info(lcec_el7342_chan_t *chan, hal_s32_t *raw_info, hal_u32_t *sel_info);
 
+/**
+ * @brief Initialise the EL7342 2-channel DC motor terminal.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el7342_data_t *hal_data;
@@ -484,6 +527,16 @@ int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Cyclic read: update encoder and drive status HAL pins for all channels.
+ *
+ * Iterates over both channels, reading encoder counts, latch values, status
+ * bits, and synchronous info words. Computes accumulated position counts with
+ * scale.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds (unused).
+ */
 void lcec_el7342_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el7342_data_t *hal_data = (lcec_el7342_data_t *) slave->hal_data;
@@ -594,6 +647,17 @@ void lcec_el7342_read(struct lcec_slave *slave, long period) {
   hal_data->last_operational = 1;
 }
 
+/**
+ * @brief Cyclic write: send velocity commands and control bits for all channels.
+ *
+ * Iterates over both channels, validates duty-cycle limits, applies scale and
+ * offset, clamps the result, writes enable/reset/reduce-torque control bits
+ * and the 16-bit velocity setpoint to the process data image, and triggers
+ * synchronous info selector writes.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds (unused).
+ */
 void lcec_el7342_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el7342_data_t *hal_data = (lcec_el7342_data_t *) slave->hal_data;
@@ -680,6 +744,16 @@ void lcec_el7342_write(struct lcec_slave *slave, long period) {
   }
 }
 
+/**
+ * @brief Process a synchronous info word and update derived feedback pins.
+ *
+ * When the selector is INFO_SEL_MOTOR_VELO, converts the raw count to user
+ * units/s.  When INFO_SEL_MOTOR_CURR, converts the raw count to amperes.
+ *
+ * @param chan     Pointer to the channel data.
+ * @param raw_info Raw info word read from PDO.
+ * @param sel_info Pointer to the selector HAL pin indicating which quantity is present.
+ */
 void lcec_el7342_set_info(lcec_el7342_chan_t *chan, hal_s32_t *raw_info, hal_u32_t *sel_info) {
   switch(*sel_info) {
     case INFO_SEL_MOTOR_VELO:

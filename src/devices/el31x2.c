@@ -16,19 +16,36 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el31x2.c
+ * @brief LinuxCNC EtherCAT HAL driver for Beckhoff EL31x2 2-channel analog input terminals.
+ *
+ * Supports EL3102, EL3112, EL3122, EL3142, EL3152, and EL3162 EtherCAT terminals.
+ * For each channel the 16-bit signed raw ADC value is converted to a floating-point
+ * HAL output pin using:
+ * @code
+ *   val = bias + scale * (double)raw * (1.0 / 0x7fff)
+ * @endcode
+ * Status bits (overrange, underrange, error) are packed into the 8-bit channel
+ * status byte in object 0x3101/0x3102 subindex 1 and are exposed as individual
+ * HAL bit pins.
+ */
 #include "../lcec.h"
 #include "el31x2.h"
 
+/**
+ * @brief Per-channel HAL pins and PDO offsets for one EL31x2 input channel.
+ */
 typedef struct {
-  hal_bit_t *error;
-  hal_bit_t *overrange;
-  hal_bit_t *underrange;
-  hal_s32_t *raw_val;
-  hal_float_t *scale;
-  hal_float_t *bias;
-  hal_float_t *val;
-  unsigned int state_pdo_os;
-  unsigned int val_pdo_os;
+  hal_bit_t *error;          /**< HAL bit output: channel error flag (status byte bit 6). */
+  hal_bit_t *overrange;      /**< HAL bit output: signal exceeds measurable range (status byte bit 1). */
+  hal_bit_t *underrange;     /**< HAL bit output: signal is below measurable range (status byte bit 0). */
+  hal_s32_t *raw_val;        /**< HAL s32 output: raw 16-bit signed ADC value from the terminal. */
+  hal_float_t *scale;        /**< HAL float I/O: multiplier applied to the normalised ADC value (default 1.0). */
+  hal_float_t *bias;         /**< HAL float I/O: offset added after scaling (default 0.0). */
+  hal_float_t *val;          /**< HAL float output: final value = bias + scale * raw / 0x7fff. */
+  unsigned int state_pdo_os; /**< Byte offset of the channel status byte in the EtherCAT process data image. */
+  unsigned int val_pdo_os;   /**< Byte offset of the 16-bit channel value in the EtherCAT process data image. */
 } lcec_el31x2_chan_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -42,8 +59,11 @@ static const lcec_pindesc_t slave_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/**
+ * @brief Top-level HAL data structure for one EL31x2 slave, holding all channel state.
+ */
 typedef struct {
-  lcec_el31x2_chan_t chans[LCEC_EL31x2_CHANS];
+  lcec_el31x2_chan_t chans[LCEC_EL31x2_CHANS]; /**< Per-channel data for the two analog inputs. */
 } lcec_el31x2_data_t;
 
 static ec_pdo_entry_info_t lcec_el31x2_channel1[] = {
@@ -71,6 +91,20 @@ static ec_sync_info_t lcec_el31x2_syncs[] = {
 
 void lcec_el31x2_read(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise an EL31x2 slave: allocate HAL memory, register PDOs, and create HAL pins.
+ *
+ * Called once at HAL component initialisation. Sets the sync manager configuration,
+ * registers the per-channel PDO entries (8-bit status byte and 16-bit value word), and
+ * exports the HAL pins for each channel.  The scale pin is initialised to 1.0.
+ *
+ * @param comp_id         LinuxCNC HAL component ID.
+ * @param slave           Pointer to the lcec_slave descriptor for this terminal.
+ * @param pdo_entry_regs  Pointer to the EtherCAT PDO entry registration array;
+ *                        advanced by the number of PDO entries registered.
+ * @return 0 on success, -EIO on HAL memory allocation failure, or a negative
+ *         error code if HAL pin creation fails.
+ */
 int lcec_el31x2_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el31x2_data_t *hal_data;
@@ -112,6 +146,16 @@ int lcec_el31x2_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Cyclic read callback: transfer EtherCAT PDO data to HAL pins for all channels.
+ *
+ * Called every servo cycle. Reads the 8-bit status byte and 16-bit ADC value for each
+ * channel from the EtherCAT process data image and updates the corresponding HAL pins.
+ * Returns immediately if the slave is not in the operational state.
+ *
+ * @param slave   Pointer to the lcec_slave descriptor for this terminal.
+ * @param period  Servo period in nanoseconds (unused, provided for callback compatibility).
+ */
 void lcec_el31x2_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el31x2_data_t *hal_data = (lcec_el31x2_data_t *) slave->hal_data;

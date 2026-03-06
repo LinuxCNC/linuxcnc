@@ -16,70 +16,88 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file deasda.c
+ * @brief Driver for the Delta ASDA-A2 EtherCAT servo drive.
+ *
+ * Configures the drive for cyclic synchronous velocity (CSV) mode via SDO
+ * writes, then maps CiA-402 PDOs.  Implements automatic fault reset with
+ * configurable retry count and inter-reset cycle count.
+ */
 #include "../lcec.h"
 #include "deasda.h"
 
 #include "../classes/class_enc.h"
 
+/** @brief Default encoder pulses per revolution for the ASDA-A2. */
 #define DEASDA_PULSES_PER_REV_DEFLT (1280000)
+/** @brief RPM feedback scale: drive reports speed in units of 0.1 RPM. */
 #define DEASDA_RPM_FACTOR           (0.1)
+/** @brief Reciprocal of DEASDA_RPM_FACTOR (used to convert RPM → drive units). */
 #define DEASDA_RPM_RCPT             (1.0 / DEASDA_RPM_FACTOR)
+/** @brief Multiplier to convert rev/s → RPM. */
 #define DEASDA_RPM_MUL              (60.0)
+/** @brief Multiplier to convert RPM → rev/s. */
 #define DEASDA_RPM_DIV              (1.0 / 60.0)
 
+/** @brief Number of servo cycles to hold fault-reset state during auto-reset. */
 #define DEASDA_FAULT_AUTORESET_CYCLES  100
+/** @brief Maximum number of automatic fault-reset attempts before giving up. */
 #define DEASDA_FAULT_AUTORESET_RETRIES 3
 
+/**
+ * @brief HAL data structure for the Delta ASDA-A2 servo drive.
+ */
 typedef struct {
-  hal_float_t *vel_fb;
-  hal_float_t *vel_fb_rpm;
-  hal_float_t *vel_fb_rpm_abs;
-  hal_float_t *vel_rpm;
-  hal_bit_t *ready;
-  hal_bit_t *switched_on;
-  hal_bit_t *oper_enabled;
-  hal_bit_t *fault;
-  hal_bit_t *volt_enabled;
-  hal_bit_t *quick_stoped;
-  hal_bit_t *on_disabled;
-  hal_bit_t *warning;
-  hal_bit_t *remote;
-  hal_bit_t *at_speed;
-  hal_bit_t *limit_active;
-  hal_bit_t *zero_speed;
-  hal_bit_t *switch_on;
-  hal_bit_t *enable_volt;
-  hal_bit_t *quick_stop;
-  hal_bit_t *enable;
-  hal_bit_t *fault_reset;
-  hal_bit_t *halt;
-  hal_float_t *vel_cmd;
+  hal_float_t *vel_fb;              /**< HAL OUT: Velocity feedback (scale units/s). */
+  hal_float_t *vel_fb_rpm;          /**< HAL OUT: Velocity feedback (RPM). */
+  hal_float_t *vel_fb_rpm_abs;      /**< HAL OUT: Absolute velocity feedback (RPM). */
+  hal_float_t *vel_rpm;             /**< HAL OUT: Velocity command sent to drive (RPM). */
+  hal_bit_t *ready;                 /**< HAL OUT: CiA-402 ready-to-switch-on. */
+  hal_bit_t *switched_on;          /**< HAL OUT: CiA-402 switched-on. */
+  hal_bit_t *oper_enabled;          /**< HAL OUT: CiA-402 operation-enabled. */
+  hal_bit_t *fault;                 /**< HAL OUT: Gated fault (suppressed during auto-reset). */
+  hal_bit_t *volt_enabled;          /**< HAL OUT: CiA-402 voltage-enabled. */
+  hal_bit_t *quick_stoped;          /**< HAL OUT: CiA-402 quick-stop active (inverted). */
+  hal_bit_t *on_disabled;           /**< HAL OUT: CiA-402 switch-on-disabled. */
+  hal_bit_t *warning;               /**< HAL OUT: CiA-402 warning. */
+  hal_bit_t *remote;                /**< HAL OUT: Drive is remote-controlled. */
+  hal_bit_t *at_speed;              /**< HAL OUT: Motor has reached target velocity. */
+  hal_bit_t *limit_active;          /**< HAL OUT: A torque/speed limit is active. */
+  hal_bit_t *zero_speed;            /**< HAL OUT: Motor is at zero speed. */
+  hal_bit_t *switch_on;             /**< HAL IN:  CiA-402 switch-on command. */
+  hal_bit_t *enable_volt;           /**< HAL IN:  CiA-402 enable-voltage. */
+  hal_bit_t *quick_stop;            /**< HAL IN:  CiA-402 quick-stop (active-low). */
+  hal_bit_t *enable;                /**< HAL IN:  CiA-402 enable-operation. */
+  hal_bit_t *fault_reset;           /**< HAL IN:  CiA-402 fault-reset. */
+  hal_bit_t *halt;                  /**< HAL IN:  CiA-402 halt. */
+  hal_float_t *vel_cmd;             /**< HAL IN:  Velocity command (scale units/s). */
 
-  hal_float_t pos_scale;
-  hal_float_t extenc_scale;
-  hal_u32_t pprev;
-  hal_u32_t fault_autoreset_cycles;
-  hal_u32_t fault_autoreset_retries;
+  hal_float_t pos_scale;            /**< HAL RW param: Position/velocity scale factor. */
+  hal_float_t extenc_scale;         /**< HAL RW param: External encoder scale factor. */
+  hal_u32_t pprev;                  /**< HAL RW param: Encoder pulses per revolution. */
+  hal_u32_t fault_autoreset_cycles; /**< HAL RW param: Cycles per auto-reset phase. */
+  hal_u32_t fault_autoreset_retries;/**< HAL RW param: Auto-reset retry limit. */
 
-  lcec_class_enc_data_t enc;
-  lcec_class_enc_data_t extenc;
+  lcec_class_enc_data_t enc;        /**< Main encoder state (class_enc). */
+  lcec_class_enc_data_t extenc;     /**< External encoder state (class_enc). */
 
-  hal_float_t pos_scale_old;
-  double pos_scale_rcpt;
+  hal_float_t pos_scale_old;        /**< Last seen pos_scale (change detection). */
+  double pos_scale_rcpt;            /**< Cached reciprocal of pos_scale. */
 
-  unsigned int status_pdo_os;
-  unsigned int currpos_pdo_os;
-  unsigned int currvel_pdo_os;
-  unsigned int extenc_pdo_os;
-  unsigned int control_pdo_os;
-  unsigned int cmdvel_pdo_os;
+  unsigned int status_pdo_os;       /**< PDO offset: CiA-402 status word (0x6041). */
+  unsigned int currpos_pdo_os;      /**< PDO offset: actual position (0x6064). */
+  unsigned int currvel_pdo_os;      /**< PDO offset: actual velocity (0x606C). */
+  unsigned int extenc_pdo_os;       /**< PDO offset: external encoder (0x2511). */
+  unsigned int control_pdo_os;      /**< PDO offset: CiA-402 control word (0x6040). */
+  unsigned int cmdvel_pdo_os;       /**< PDO offset: target velocity (0x60FF). */
 
-  hal_bit_t last_switch_on;
-  hal_bit_t internal_fault;
+  hal_bit_t last_switch_on;         /**< Previous value of switch_on (edge detection). */
+  hal_bit_t internal_fault;         /**< Raw fault bit from the drive status word. */
 
-  hal_u32_t fault_reset_retry;
-  hal_u32_t fault_reset_state;
-  hal_u32_t fault_reset_cycle;
+  hal_u32_t fault_reset_retry;      /**< Remaining auto-reset retries. */
+  hal_u32_t fault_reset_state;      /**< Current phase of the auto-reset state machine. */
+  hal_u32_t fault_reset_cycle;      /**< Cycle counter within the current reset phase. */
 
 } lcec_deasda_data_t;
 

@@ -16,14 +16,28 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el1xxx.c
+ * @brief Driver implementation for Beckhoff EL1xxx digital input terminals.
+ *
+ * Handles all EL1xxx-family single-bit digital input terminals. Each channel
+ * maps to a PDO entry at index 0x6000 + (channel << 4), subindex 0x01, and
+ * exposes `din-<n>` and `din-<n>-not` HAL pins.
+ *
+ * @see el1xxx.h for supported device list and product IDs.
+ */
+
 #include "../lcec.h"
 #include "el1xxx.h"
 
+/**
+ * @brief Per-channel HAL data for an EL1xxx digital input terminal.
+ */
 typedef struct {
-  hal_bit_t *in;
-  hal_bit_t *in_not;
-  unsigned int pdo_os;
-  unsigned int pdo_bp;
+  hal_bit_t *in;      /**< HAL output pin: current digital input state. */
+  hal_bit_t *in_not;  /**< HAL output pin: inverted digital input state. */
+  unsigned int pdo_os; /**< Byte offset of this channel's PDO entry in the process data image. */
+  unsigned int pdo_bp; /**< Bit position within the byte at pdo_os. */
 } lcec_el1xxx_pin_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -32,8 +46,25 @@ static const lcec_pindesc_t slave_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/**
+ * @brief EtherCAT cyclic read callback — updates all digital input HAL pins.
+ *
+ * @param slave  Pointer to the lcec slave structure.
+ * @param period Servo period in nanoseconds (unused).
+ */
 void lcec_el1xxx_read(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialize an EL1xxx digital input slave.
+ *
+ * Allocates HAL memory for all channels, registers PDO entries, and exports
+ * `din-<n>` and `din-<n>-not` HAL pins for each input channel.
+ *
+ * @param comp_id        HAL component ID.
+ * @param slave          Pointer to the lcec slave structure.
+ * @param pdo_entry_regs Pointer to PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el1xxx_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el1xxx_pin_t *hal_data;

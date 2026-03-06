@@ -16,68 +16,98 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/** @file el6900.c
+ * @brief Driver for the Beckhoff EL6900 TwinSAFE logic controller (FsoE safety master).
+ *
+ * Implements HAL pin creation, PDO mapping, and cyclic read/write for the
+ * EL6900. The EL6900 coordinates safety communication with one or more FsoE
+ * slaves, providing command/connection-ID/CRC transparency pins and standard
+ * safety digital I/O bits.
+ */
+
 #include "../lcec.h"
 #include "el6900.h"
 
+/**
+ * @brief A single standard safety digital I/O bit mapped from a PDO.
+ */
 typedef struct {
-  hal_bit_t *pin;
+  hal_bit_t *pin;         /**< HAL bit pin pointer (input or output depending on direction) */
 
-  unsigned int os;
-  unsigned int bp;
+  unsigned int os;        /**< PDO byte offset in the process data image */
+  unsigned int bp;        /**< Bit position within the PDO byte */
 
 } lcec_el6900_fsoe_io_t;
 
+/**
+ * @brief CRC transparency pair for one FsoE data channel.
+ *
+ * Each FsoE data channel carries a 16-bit CRC from both the master side
+ * and the slave side. These are exposed read-only for diagnostic purposes.
+ */
 typedef struct {
-  hal_u32_t *fsoe_master_crc;
-  hal_u32_t *fsoe_slave_crc;
-  unsigned int fsoe_master_crc_os;
-  unsigned int fsoe_slave_crc_os;
+  hal_u32_t *fsoe_master_crc;     /**< Master-side CRC value for this channel */
+  hal_u32_t *fsoe_slave_crc;      /**< Slave-side CRC value for this channel */
+  unsigned int fsoe_master_crc_os; /**< PDO byte offset of the master CRC */
+  unsigned int fsoe_slave_crc_os;  /**< PDO byte offset of the slave CRC */
 } lcec_el6900_fsoe_crc_t;
 
+/**
+ * @brief Per-FsoE-slave state and PDO offsets.
+ *
+ * Holds HAL pin pointers and PDO offsets for the FsoE command, connection ID
+ * and CRC fields associated with one connected TwinSAFE slave.
+ */
 typedef struct {
-  struct lcec_slave *fsoe_slave;
+  struct lcec_slave *fsoe_slave;         /**< Pointer to the associated FsoE EtherCAT slave */
 
-  hal_u32_t *fsoe_master_cmd;
-  hal_u32_t *fsoe_master_connid;
+  hal_u32_t *fsoe_master_cmd;            /**< FsoE command byte written by master */
+  hal_u32_t *fsoe_master_connid;         /**< FsoE connection ID from master */
 
-  hal_u32_t *fsoe_slave_cmd;
-  hal_u32_t *fsoe_slave_connid;
+  hal_u32_t *fsoe_slave_cmd;             /**< FsoE command byte received from slave */
+  hal_u32_t *fsoe_slave_connid;          /**< FsoE connection ID from slave */
 
-  unsigned int fsoe_master_cmd_os;
-  unsigned int fsoe_master_connid_os;
+  unsigned int fsoe_master_cmd_os;       /**< PDO byte offset: master command */
+  unsigned int fsoe_master_connid_os;    /**< PDO byte offset: master connection ID */
 
-  unsigned int fsoe_slave_cmd_os;
-  unsigned int fsoe_slave_connid_os;
+  unsigned int fsoe_slave_cmd_os;        /**< PDO byte offset: slave command */
+  unsigned int fsoe_slave_connid_os;     /**< PDO byte offset: slave connection ID */
 
-  lcec_el6900_fsoe_crc_t *fsoe_crc;
+  lcec_el6900_fsoe_crc_t *fsoe_crc;     /**< Array of CRC channel data (one entry per data channel) */
 } lcec_el6900_fsoe_t;
 
+/**
+ * @brief Top-level HAL data structure for the EL6900.
+ *
+ * Contains controller-level status pins, standard safety I/O arrays, and a
+ * flexible array of FsoE slave descriptors.
+ */
 typedef struct {
-  int fsoe_count;
+  int fsoe_count;                     /**< Number of configured FsoE slaves */
 
-  hal_u32_t *control;
-  hal_u32_t *state;
-  hal_bit_t *login_active;
-  hal_bit_t *input_size_missmatch;
-  hal_bit_t *output_size_missmatch;
+  hal_u32_t *control;                 /**< Control word written to the EL6900 (0xF200:01) */
+  hal_u32_t *state;                   /**< State word read from the EL6900 (0xF100:01, bits 0-1) */
+  hal_bit_t *login_active;            /**< TRUE when at least one FsoE connection is active */
+  hal_bit_t *input_size_missmatch;    /**< TRUE when input PDO size mismatch detected */
+  hal_bit_t *output_size_missmatch;   /**< TRUE when output PDO size mismatch detected */
 
-  int std_ins_count;
-  lcec_el6900_fsoe_io_t std_ins[LCEC_EL6900_DIO_MAX_COUNT];
+  int std_ins_count;                  /**< Number of configured standard safety inputs */
+  lcec_el6900_fsoe_io_t std_ins[LCEC_EL6900_DIO_MAX_COUNT];  /**< Standard safety input bits */
 
-  int std_outs_count;
-  lcec_el6900_fsoe_io_t std_outs[LCEC_EL6900_DIO_MAX_COUNT];
+  int std_outs_count;                 /**< Number of configured standard safety outputs */
+  lcec_el6900_fsoe_io_t std_outs[LCEC_EL6900_DIO_MAX_COUNT]; /**< Standard safety output bits */
 
-  unsigned int control_os;
-  unsigned int state_os;
-  unsigned int login_active_os;
-  unsigned int login_active_bp;
-  unsigned int input_size_missmatch_os;
-  unsigned int input_size_missmatch_bp;
-  unsigned int output_size_missmatch_os;
-  unsigned int output_size_missmatch_bp;
+  unsigned int control_os;                  /**< PDO byte offset: control word */
+  unsigned int state_os;                    /**< PDO byte offset: state word */
+  unsigned int login_active_os;             /**< PDO byte offset: login-active bit */
+  unsigned int login_active_bp;             /**< Bit position: login-active bit */
+  unsigned int input_size_missmatch_os;     /**< PDO byte offset: input size mismatch bit */
+  unsigned int input_size_missmatch_bp;     /**< Bit position: input size mismatch bit */
+  unsigned int output_size_missmatch_os;    /**< PDO byte offset: output size mismatch bit */
+  unsigned int output_size_missmatch_bp;    /**< Bit position: output size mismatch bit */
 
   // must be last entry (dynamic size)
-  lcec_el6900_fsoe_t fsoe[];
+  lcec_el6900_fsoe_t fsoe[]; /**< Flexible array of per-FsoE-slave data (length = fsoe_count) */
 } lcec_el6900_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -106,6 +136,20 @@ static const lcec_pindesc_t fsoe_crc_pins[] = {
 void lcec_el6900_read(struct lcec_slave *slave, long period);
 void lcec_el6900_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Map PDO entries and export HAL pins for standard safety I/O bits.
+ *
+ * Iterates over the slave's module parameters matching @p pid and registers
+ * each matching entry as a PDO bit and a named HAL pin.
+ *
+ * @param slave           EtherCAT slave structure.
+ * @param pdo_entry_regs  PDO entry registration array, advanced in place.
+ * @param pid             Parameter ID to match (LCEC_EL6900_PARAM_STDIN_NAME or _STDOUT_NAME).
+ * @param io              Array of I/O descriptors to fill.
+ * @param index           PDO object index base (e.g. 0xF201 for inputs).
+ * @param dir             HAL pin direction (HAL_IN or HAL_OUT).
+ * @return Number of pins registered on success, negative errno on failure.
+ */
 static int init_std_pdos(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, int pid, lcec_el6900_fsoe_io_t *io, int index, hal_pin_dir_t dir) {
   lcec_master_t *master = slave->master;
   lcec_slave_modparam_t *p;
@@ -293,6 +337,17 @@ int lcec_el6900_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Cyclic read callback: copy PDO inputs to HAL pins.
+ *
+ * Reads the EL6900 state word, login-active flag, size-mismatch flags,
+ * standard safety output bits (transparency), and all per-FsoE-slave
+ * command/connection-ID/CRC values from the EtherCAT process data image
+ * into the corresponding HAL pins.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds (unused).
+ */
 void lcec_el6900_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el6900_data_t *hal_data = (lcec_el6900_data_t *) slave->hal_data;
@@ -327,6 +382,15 @@ void lcec_el6900_read(struct lcec_slave *slave, long period) {
   }
 }
 
+/**
+ * @brief Cyclic write callback: copy HAL pin values to PDO outputs.
+ *
+ * Writes the control word and all configured standard safety input bits
+ * from their HAL pins into the EtherCAT process data image.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds (unused).
+ */
 void lcec_el6900_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el6900_data_t *hal_data = (lcec_el6900_data_t *) slave->hal_data;

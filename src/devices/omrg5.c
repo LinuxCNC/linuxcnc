@@ -16,75 +16,90 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file omrg5.c
+ * @brief Omron G5 series EtherCAT servo drive HAL driver implementation.
+ *
+ * Implements the LinuxCNC HAL interface for the Omron G5 servo drive using
+ * cyclic synchronous position mode (CSP, mode 8). Provides position command
+ * and feedback, following error, torque feedback, digital inputs, drive status
+ * bits, and fault handling with optional automatic reset.
+ */
+
 #include "../lcec.h"
 #include "omrg5.h"
 
+/** @brief Default encoder pulses per revolution (2^20 = 1,048,576). */
 #define OMRG5_PULSES_PER_REV_DEFLT (1 << 20)
+/** @brief Delay in nanoseconds before automatic fault reset is attempted. */
 #define OMRG5_FAULT_AUTORESET_DELAY_NS 100000000LL
 
+/**
+ * @brief Per-slave HAL data structure for the Omron G5 servo driver.
+ */
 typedef struct {
-  hal_float_t *pos_cmd;
-  hal_s32_t *pos_cmd_raw;
-  hal_float_t *pos_fb;
-  hal_float_t *pos_ferr;
-  hal_float_t *torque_fb;
-  hal_s32_t *pos_fb_raw;
-  hal_s32_t *pos_ferr_raw;
-  hal_bit_t *fault;
-  hal_bit_t *fault_reset;
-  hal_bit_t *enable;
-  hal_u32_t *error_code;
+  hal_float_t *pos_cmd;               /**< Position command in user units. */
+  hal_s32_t *pos_cmd_raw;             /**< Position command in encoder counts. */
+  hal_float_t *pos_fb;                /**< Position feedback in user units. */
+  hal_float_t *pos_ferr;              /**< Following error in user units. */
+  hal_float_t *torque_fb;             /**< Torque feedback in percent of rated. */
+  hal_s32_t *pos_fb_raw;              /**< Position feedback in encoder counts. */
+  hal_s32_t *pos_ferr_raw;            /**< Following error in encoder counts. */
+  hal_bit_t *fault;                   /**< Fault output (gated by enable). */
+  hal_bit_t *fault_reset;             /**< Input: reset drive fault. */
+  hal_bit_t *enable;                  /**< Input: enable drive operation. */
+  hal_u32_t *error_code;              /**< Drive error code (object 0x603F). */
 
-  hal_bit_t *din_not;
-  hal_bit_t *din_pot;
-  hal_bit_t *din_dec;
-  hal_bit_t *din_pc;
-  hal_bit_t *din_ext1;
-  hal_bit_t *din_ext2;
-  hal_bit_t *din_ext3;
-  hal_bit_t *din_mon0;
-  hal_bit_t *din_mon1;
-  hal_bit_t *din_mon2;
-  hal_bit_t *din_pcl;
-  hal_bit_t *din_ncl;
-  hal_bit_t *din_stop;
-  hal_bit_t *din_bkir;
-  hal_bit_t *din_sf1;
-  hal_bit_t *din_sf2;
-  hal_bit_t *din_edm;
+  hal_bit_t *din_not;                 /**< Digital input: negative over-travel. */
+  hal_bit_t *din_pot;                 /**< Digital input: positive over-travel. */
+  hal_bit_t *din_dec;                 /**< Digital input: deceleration input. */
+  hal_bit_t *din_pc;                  /**< Digital input: origin proximity. */
+  hal_bit_t *din_ext1;                /**< Digital input: external input 1. */
+  hal_bit_t *din_ext2;                /**< Digital input: external input 2. */
+  hal_bit_t *din_ext3;                /**< Digital input: external input 3. */
+  hal_bit_t *din_mon0;                /**< Digital input: monitor 0. */
+  hal_bit_t *din_mon1;                /**< Digital input: monitor 1. */
+  hal_bit_t *din_mon2;                /**< Digital input: monitor 2. */
+  hal_bit_t *din_pcl;                 /**< Digital input: positive torque limit. */
+  hal_bit_t *din_ncl;                 /**< Digital input: negative torque limit. */
+  hal_bit_t *din_stop;                /**< Digital input: stop input. */
+  hal_bit_t *din_bkir;                /**< Digital input: brake interlock. */
+  hal_bit_t *din_sf1;                 /**< Digital input: safety function 1. */
+  hal_bit_t *din_sf2;                 /**< Digital input: safety function 2. */
+  hal_bit_t *din_edm;                 /**< Digital input: external device monitor. */
 
-  hal_bit_t *stat_switchon_ready;
-  hal_bit_t *stat_switched_on;
-  hal_bit_t *stat_op_enabled;
-  hal_bit_t *stat_fault;
-  hal_bit_t *stat_volt_enabled;
-  hal_bit_t *stat_quick_stop;
-  hal_bit_t *stat_switchon_disabled;
-  hal_bit_t *stat_warning;
-  hal_bit_t *stat_remote;
+  hal_bit_t *stat_switchon_ready;     /**< Status: ready to switch on. */
+  hal_bit_t *stat_switched_on;        /**< Status: switched on. */
+  hal_bit_t *stat_op_enabled;         /**< Status: operation enabled. */
+  hal_bit_t *stat_fault;              /**< Status: fault present. */
+  hal_bit_t *stat_volt_enabled;       /**< Status: voltage enabled. */
+  hal_bit_t *stat_quick_stop;         /**< Status: quick stop active. */
+  hal_bit_t *stat_switchon_disabled;  /**< Status: switch-on disabled. */
+  hal_bit_t *stat_warning;            /**< Status: warning present. */
+  hal_bit_t *stat_remote;             /**< Status: remote control active. */
 
-  hal_float_t pos_scale;
-  hal_bit_t auto_fault_reset;
+  hal_float_t pos_scale;              /**< Parameter: encoder counts per user unit. */
+  hal_bit_t auto_fault_reset;         /**< Parameter: enable automatic fault reset on enable edge. */
 
-  hal_float_t pos_scale_old;
-  double pos_scale_rcpt;
+  hal_float_t pos_scale_old;          /**< Previous pos_scale for change detection. */
+  double pos_scale_rcpt;              /**< Reciprocal of pos_scale for efficient conversion. */
 
-  unsigned int error_pdo_os;
-  unsigned int status_pdo_os;
-  unsigned int curr_pos_pdo_os;
-  unsigned int curr_torque_pdo_os;
-  unsigned int curr_ferr_pdo_os;
-  unsigned int latch_stat_pdo_os;
-  unsigned int latch_pos1_pdo_os;
-  unsigned int latch_pos2_pdo_os;
-  unsigned int din_pdo_os;
-  unsigned int control_pdo_os;
-  unsigned int target_pos_pdo_os;
-  unsigned int latch_fnk_os;
-  unsigned int dout_pdo_os;
+  unsigned int error_pdo_os;          /**< PDO offset for error code (0x603F). */
+  unsigned int status_pdo_os;         /**< PDO offset for status word (0x6041). */
+  unsigned int curr_pos_pdo_os;       /**< PDO offset for current position (0x6064). */
+  unsigned int curr_torque_pdo_os;    /**< PDO offset for current torque (0x6077). */
+  unsigned int curr_ferr_pdo_os;      /**< PDO offset for following error (0x60F4). */
+  unsigned int latch_stat_pdo_os;     /**< PDO offset for latch status (0x60B9). */
+  unsigned int latch_pos1_pdo_os;     /**< PDO offset for latch position 1 (0x60BA). */
+  unsigned int latch_pos2_pdo_os;     /**< PDO offset for latch position 2 (0x60BC). */
+  unsigned int din_pdo_os;            /**< PDO offset for digital inputs (0x60FD). */
+  unsigned int control_pdo_os;        /**< PDO offset for control word (0x6040). */
+  unsigned int target_pos_pdo_os;     /**< PDO offset for target position (0x607A). */
+  unsigned int latch_fnk_os;          /**< PDO offset for latch function (0x60B8). */
+  unsigned int dout_pdo_os;           /**< PDO offset for digital outputs (0x60FE:01). */
 
-  hal_bit_t enable_old;
-  long long auto_fault_reset_delay;
+  hal_bit_t enable_old;               /**< Previous enable state for rising-edge detection. */
+  long long auto_fault_reset_delay;   /**< Remaining nanoseconds of auto-reset inhibit delay. */
 
 } lcec_omrg5_data_t;
 
@@ -170,11 +185,21 @@ static ec_sync_info_t lcec_omrg5_syncs[] = {
     {0xff}
 };
 
+/** @brief Recompute the position scale reciprocal when @c pos_scale changes. */
 void lcec_omrg5_check_scales(lcec_omrg5_data_t *hal_data);
 
+/** @brief HAL read function — receives PDO data and updates HAL output pins. */
 void lcec_omrg5_read(struct lcec_slave *slave, long period);
+/** @brief HAL write function — maps HAL input pins to PDO output data. */
 void lcec_omrg5_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise the Omron G5 slave: configure PDO mappings and export HAL pins.
+ * @param comp_id  HAL component ID.
+ * @param slave    Slave instance.
+ * @param pdo_entry_regs  PDO registration array; advanced by LCEC_PDO_INIT calls.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_omrg5_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_omrg5_data_t *hal_data;
@@ -234,6 +259,14 @@ int lcec_omrg5_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **
   return 0;
 }
 
+/**
+ * @brief Update position scale reciprocal when @c pos_scale has changed.
+ *
+ * Clamps near-zero scale values to 1.0 to avoid division by zero, then
+ * stores the reciprocal for use in the read path.
+ *
+ * @param hal_data  Per-slave HAL data block.
+ */
 void lcec_omrg5_check_scales(lcec_omrg5_data_t *hal_data) {
   // check for change in scale value
   if (hal_data->pos_scale != hal_data->pos_scale_old) {
@@ -252,6 +285,16 @@ void lcec_omrg5_check_scales(lcec_omrg5_data_t *hal_data) {
   }
 }
 
+/**
+ * @brief HAL read function — receive PDO data and update HAL output pins.
+ *
+ * Called every servo period by LinuxCNC.  Decodes the CiA-402 status word,
+ * updates position, torque, following-error, latch, and digital-input pins,
+ * and handles automatic fault-reset timing.
+ *
+ * @param slave   Slave instance.
+ * @param period  Servo period in nanoseconds.
+ */
 void lcec_omrg5_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_omrg5_data_t *hal_data = (lcec_omrg5_data_t *) slave->hal_data;
@@ -317,6 +360,16 @@ void lcec_omrg5_read(struct lcec_slave *slave, long period) {
   }
 }
 
+/**
+ * @brief HAL write function — map HAL input pins to PDO output data.
+ *
+ * Builds the CiA-402 control word, writes the position setpoint, latch
+ * function, and digital output PDOs.  Also handles the enable-edge state
+ * machine and fault-reset signalling.
+ *
+ * @param slave   Slave instance.
+ * @param period  Servo period in nanoseconds (unused).
+ */
 void lcec_omrg5_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_omrg5_data_t *hal_data = (lcec_omrg5_data_t *) slave->hal_data;

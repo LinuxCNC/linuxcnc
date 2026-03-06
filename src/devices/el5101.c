@@ -16,62 +16,86 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el5101.c
+ * @brief Driver implementation for the Beckhoff EL5101 1-channel incremental encoder terminal.
+ *
+ * Provides HAL pins for a single A/B quadrature incremental encoder channel.
+ * Features include a 16-bit position counter, C-index and external-trigger
+ * latch inputs, counter overflow/underflow detection, counter preset, and
+ * hardware frequency and period measurement. A first-order IIR filter is
+ * applied to the frequency output.
+ */
+
 #include "../lcec.h"
 #include "el5101.h"
 
+/** @brief Status byte bit: external latch (EXT) input state. */
 #define LCEC_EL5101_STATUS_INPUT        (1 << 5)
+/** @brief Status byte bit: counter overflow occurred. */
 #define LCEC_EL5101_STATUS_OVERFLOW     (1 << 4)
+/** @brief Status byte bit: counter underflow occurred. */
 #define LCEC_EL5101_STATUS_UNDERFLOW    (1 << 3)
+/** @brief Status byte bit: counter-set command has been accepted by the terminal. */
 #define LCEC_EL5101_STATUS_CNTSET_ACC   (1 << 2)
+/** @brief Status byte bit: external latch value is valid and ready to read. */
 #define LCEC_EL5101_STATUS_LAT_EXT_VAL  (1 << 1)
+/** @brief Status byte bit: C-index latch value is valid and ready to read. */
 #define LCEC_EL5101_STATUS_LATC_VAL     (1 << 0)
 
+/** @brief Control byte bit: enable latch on external input negative edge. */
 #define LCEC_EL5101_CTRL_EN_LATCH_EXTN  (1 << 3)
+/** @brief Control byte bit: set (preset) the counter to the value in the setval PDO. */
 #define LCEC_EL5101_CTRL_CNT_SET        (1 << 2)
+/** @brief Control byte bit: enable latch on external input positive edge. */
 #define LCEC_EL5101_CTRL_EN_LATCH_EXTP  (1 << 1)
+/** @brief Control byte bit: enable latch on C-index input. */
 #define LCEC_EL5101_CTRL_EN_LATC        (1 << 0)
 
+/**
+ * @brief HAL pins and PDO mapping data for the EL5101 incremental encoder.
+ */
 typedef struct {
-  hal_bit_t *ena_latch_c;
-  hal_bit_t *ena_latch_ext_pos;
-  hal_bit_t *ena_latch_ext_neg;
-  hal_bit_t *reset;
-  hal_bit_t *inext;
-  hal_bit_t *overflow;
-  hal_bit_t *underflow;
-  hal_bit_t *latch_c_valid;
-  hal_bit_t *latch_ext_valid;
-  hal_bit_t *set_raw_count;
-  hal_s32_t *set_raw_count_val;
-  hal_s32_t *raw_count;
-  hal_s32_t *raw_latch;
-  hal_u32_t *raw_frequency;
-  hal_u32_t *raw_period;
-  hal_u32_t *raw_window;
-  hal_s32_t *count;
-  hal_float_t *pos_scale;
-  hal_float_t *pos;
-  hal_float_t *period;
-  hal_float_t *frequency;
-  hal_float_t *freq_scale;
-  hal_float_t *freq_filter_gain;
-  hal_float_t *freq_filtered;
+  hal_bit_t *ena_latch_c;         /**< HAL IO: enable C-index latch; cleared automatically when latch is captured. */
+  hal_bit_t *ena_latch_ext_pos;   /**< HAL IO: enable external latch on positive edge; auto-cleared on capture. */
+  hal_bit_t *ena_latch_ext_neg;   /**< HAL IO: enable external latch on negative edge; auto-cleared on capture. */
+  hal_bit_t *reset;               /**< HAL IN: reset the relative position counter to zero. */
+  hal_bit_t *inext;               /**< HAL OUT: current state of the external latch input (status bit 5). */
+  hal_bit_t *overflow;            /**< HAL OUT: counter overflow flag (status bit 4). */
+  hal_bit_t *underflow;           /**< HAL OUT: counter underflow flag (status bit 3). */
+  hal_bit_t *latch_c_valid;       /**< HAL OUT: C-index latch value is valid (status bit 0). */
+  hal_bit_t *latch_ext_valid;     /**< HAL OUT: external latch value is valid (status bit 1). */
+  hal_bit_t *set_raw_count;       /**< HAL IO: pulse high to preset the hardware counter; cleared when acknowledged. */
+  hal_s32_t *set_raw_count_val;   /**< HAL IN: value to load into the counter when set_raw_count is asserted. */
+  hal_s32_t *raw_count;           /**< HAL OUT: raw 16-bit counter value from the terminal. */
+  hal_s32_t *raw_latch;           /**< HAL OUT: counter value captured at the last latch event. */
+  hal_u32_t *raw_frequency;       /**< HAL OUT: raw frequency measurement value from the terminal. */
+  hal_u32_t *raw_period;          /**< HAL OUT: raw period measurement value from the terminal. */
+  hal_u32_t *raw_window;          /**< HAL OUT: raw measurement window value from the terminal. */
+  hal_s32_t *count;               /**< HAL OUT: relative position count (zeroed on reset or latch event). */
+  hal_float_t *pos_scale;         /**< HAL IO: counts per user unit; reciprocal applied internally. */
+  hal_float_t *pos;               /**< HAL OUT: scaled position in user units. */
+  hal_float_t *period;            /**< HAL OUT: encoder period in seconds (raw_period * LCEC_EL5101_PERIOD_SCALE). */
+  hal_float_t *frequency;         /**< HAL OUT: encoder frequency in Hz (raw_frequency * LCEC_EL5101_FREQUENCY_SCALE * freq_scale). */
+  hal_float_t *freq_scale;        /**< HAL IO: additional frequency scaling factor applied on top of LCEC_EL5101_FREQUENCY_SCALE. */
+  hal_float_t *freq_filter_gain;  /**< HAL IO: IIR filter gain (0–1) applied to the frequency output; 1.0 = no filtering. */
+  hal_float_t *freq_filtered;     /**< HAL OUT: low-pass filtered frequency value. */
 
-  unsigned int status_pdo_os;
-  unsigned int value_pdo_os;
-  unsigned int latch_pdo_os;
-  unsigned int frequency_pdo_os;
-  unsigned int period_pdo_os;
-  unsigned int window_pdo_os;
-  unsigned int control_pdo_os;
-  unsigned int setval_pdo_os;
+  unsigned int status_pdo_os;     /**< Byte offset of the 8-bit status byte in process data image. */
+  unsigned int value_pdo_os;      /**< Byte offset of the 16-bit counter value in process data image. */
+  unsigned int latch_pdo_os;      /**< Byte offset of the 16-bit latch value in process data image. */
+  unsigned int frequency_pdo_os;  /**< Byte offset of the 32-bit frequency value in process data image. */
+  unsigned int period_pdo_os;     /**< Byte offset of the 16-bit period value in process data image. */
+  unsigned int window_pdo_os;     /**< Byte offset of the 16-bit window value in process data image. */
+  unsigned int control_pdo_os;    /**< Byte offset of the 8-bit control byte in output process data. */
+  unsigned int setval_pdo_os;     /**< Byte offset of the 16-bit counter preset value in output process data. */
 
-  int do_init;
-  int16_t last_count;
-  double old_scale;
-  double scale;
+  int do_init;          /**< Non-zero until the first valid read; triggers counter zeroing. */
+  int16_t last_count;   /**< Previous raw counter value (16-bit) used to compute relative delta. */
+  double old_scale;     /**< Last observed pos_scale value; used to detect pin changes. */
+  double scale;         /**< Cached reciprocal of pos_scale (1.0 / pos_scale). */
 
-  int last_operational;
+  int last_operational; /**< Tracks whether the slave was operational on the previous cycle. */
 } lcec_el5101_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -140,6 +164,19 @@ static ec_sync_info_t lcec_el5101_syncs[] = {
 void lcec_el5101_read(struct lcec_slave *slave, long period);
 void lcec_el5101_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise the EL5101 EtherCAT slave driver.
+ *
+ * Allocates HAL memory, configures sync managers, registers all PDO entries
+ * (status, counter value, latch, frequency, period, window, control, setval),
+ * and exports HAL pins. Initialises pos_scale, freq_scale, and freq_filter_gain
+ * to 1.0.
+ *
+ * @param comp_id        LinuxCNC HAL component ID.
+ * @param slave          Pointer to the lcec slave descriptor.
+ * @param pdo_entry_regs Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el5101_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el5101_data_t *hal_data;
@@ -192,6 +229,18 @@ int lcec_el5101_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief EtherCAT cyclic read callback for the EL5101.
+ *
+ * Reads the 8-bit status byte, 16-bit counter and latch values, 32-bit
+ * frequency, and 16-bit period and window values. Handles counter-preset
+ * acknowledgement, index latch events (C and external), and overflow/underflow
+ * flags. Computes relative count, scaled position, scaled frequency (with IIR
+ * filter), and period in seconds.
+ *
+ * @param slave  Pointer to the lcec slave descriptor.
+ * @param period EtherCAT cycle period in nanoseconds (unused).
+ */
 void lcec_el5101_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el5101_data_t *hal_data = (lcec_el5101_data_t *) slave->hal_data;
@@ -294,6 +343,16 @@ void lcec_el5101_read(struct lcec_slave *slave, long period) {
   hal_data->last_operational = 1;
 }
 
+/**
+ * @brief EtherCAT cyclic write callback for the EL5101.
+ *
+ * Assembles the 8-bit control byte from the enable-latch and set-counter HAL
+ * pins, then writes it together with the 16-bit counter preset value to the
+ * output process data image.
+ *
+ * @param slave  Pointer to the lcec slave descriptor.
+ * @param period EtherCAT cycle period in nanoseconds (unused).
+ */
 void lcec_el5101_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el5101_data_t *hal_data = (lcec_el5101_data_t *) slave->hal_data;

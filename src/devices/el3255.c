@@ -16,31 +16,52 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el3255.c
+ * @brief LinuxCNC EtherCAT HAL driver for the Beckhoff EL3255 5-channel potentiometer input terminal.
+ *
+ * The EL3255 reads the wiper position of up to five resistive potentiometers over EtherCAT.
+ * Each channel provides a 16-bit signed value, status bits (overrange, underrange, sync-error,
+ * error), and TxPDO state/toggle indicators.
+ *
+ * The floating-point HAL output pin is computed as:
+ * @code
+ *   val = bias + scale * (double)raw * (1.0 / 0x7fff)
+ * @endcode
+ * so with default scale=1.0 and bias=0.0 the output spans –1.0 to +1.0 across the
+ * full measurement range.
+ */
 #include "../lcec.h"
 #include "el3255.h"
 
+/**
+ * @brief Per-channel HAL pins and PDO offsets for one EL3255 potentiometer channel.
+ */
 typedef struct {
-  hal_bit_t *overrange;
-  hal_bit_t *underrange;
-  hal_bit_t *error;
-  hal_bit_t *sync_err;
-  hal_s32_t *raw_val;
-  hal_float_t *scale;
-  hal_float_t *bias;
-  hal_float_t *val;
-  unsigned int ovr_pdo_os;
-  unsigned int ovr_pdo_bp;
-  unsigned int udr_pdo_os;
-  unsigned int udr_pdo_bp;
-  unsigned int error_pdo_os;
-  unsigned int error_pdo_bp;
-  unsigned int sync_err_pdo_os;
-  unsigned int sync_err_pdo_bp;
-  unsigned int val_pdo_os;
+  hal_bit_t *overrange;      /**< HAL bit output: measurement exceeds the upper limit. */
+  hal_bit_t *underrange;     /**< HAL bit output: measurement is below the lower limit. */
+  hal_bit_t *error;          /**< HAL bit output: channel error flag (object 0x6000+n, subindex 0x07). */
+  hal_bit_t *sync_err;       /**< HAL bit output: TxPDO synchronisation error flag. */
+  hal_s32_t *raw_val;        /**< HAL s32 output: raw 16-bit signed potentiometer value. */
+  hal_float_t *scale;        /**< HAL float I/O: multiplier applied to the normalised value (default 1.0). */
+  hal_float_t *bias;         /**< HAL float I/O: offset added after scaling (default 0.0). */
+  hal_float_t *val;          /**< HAL float output: final value = bias + scale * raw / 0x7fff. */
+  unsigned int ovr_pdo_os;   /**< Byte offset of the overrange bit in the EtherCAT process data image. */
+  unsigned int ovr_pdo_bp;   /**< Bit position of the overrange flag within its byte. */
+  unsigned int udr_pdo_os;   /**< Byte offset of the underrange bit in the EtherCAT process data image. */
+  unsigned int udr_pdo_bp;   /**< Bit position of the underrange flag within its byte. */
+  unsigned int error_pdo_os; /**< Byte offset of the channel error bit in the EtherCAT process data image. */
+  unsigned int error_pdo_bp; /**< Bit position of the channel error flag within its byte. */
+  unsigned int sync_err_pdo_os; /**< Byte offset of the sync-error bit in the EtherCAT process data image. */
+  unsigned int sync_err_pdo_bp; /**< Bit position of the sync-error flag within its byte. */
+  unsigned int val_pdo_os;   /**< Byte offset of the 16-bit channel value in the EtherCAT process data image. */
 } lcec_el3255_chan_t;
 
+/**
+ * @brief Top-level HAL data structure for one EL3255 slave, holding all channel state.
+ */
 typedef struct {
-  lcec_el3255_chan_t chans[LCEC_EL3255_CHANS];
+  lcec_el3255_chan_t chans[LCEC_EL3255_CHANS]; /**< Per-channel data for all five potentiometer inputs. */
 } lcec_el3255_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -144,6 +165,20 @@ static ec_sync_info_t lcec_el3255_syncs[] = {
 
 void lcec_el3255_read(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise an EL3255 slave: allocate HAL memory, register PDOs, and create HAL pins.
+ *
+ * Called once at HAL component initialisation. Registers five PDO entries per channel
+ * (overrange, underrange, error, sync-error, and 16-bit value) and exports the HAL pins
+ * for each of the five potentiometer channels.  The scale pin is initialised to 1.0.
+ *
+ * @param comp_id         LinuxCNC HAL component ID.
+ * @param slave           Pointer to the lcec_slave descriptor for this terminal.
+ * @param pdo_entry_regs  Pointer to the EtherCAT PDO entry registration array;
+ *                        advanced by the number of PDO entries registered.
+ * @return 0 on success, -EIO on HAL memory allocation failure, or a negative
+ *         error code if HAL pin creation fails.
+ */
 int lcec_el3255_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el3255_data_t *hal_data;
@@ -188,6 +223,16 @@ int lcec_el3255_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Cyclic read callback: transfer EtherCAT PDO data to HAL pins for all channels.
+ *
+ * Called every servo cycle. Reads per-channel status bits and 16-bit potentiometer
+ * value from the EtherCAT process data image and updates the corresponding HAL pins.
+ * Returns immediately if the slave is not in the operational state.
+ *
+ * @param slave   Pointer to the lcec_slave descriptor for this terminal.
+ * @param period  Servo period in nanoseconds (unused, provided for callback compatibility).
+ */
 void lcec_el3255_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el3255_data_t *hal_data = (lcec_el3255_data_t *) slave->hal_data;

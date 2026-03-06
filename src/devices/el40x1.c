@@ -16,24 +16,41 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el40x1.c
+ * @brief Driver implementation for Beckhoff EL40x1 1-channel analog output terminals.
+ *
+ * Handles initialization and real-time write processing for the EL4001,
+ * EL4011, EL4021, and EL4031 single-channel analog output terminals.
+ * The driver scales a HAL float input (via scale/offset HAL pins) to a
+ * signed 16-bit value that is written into the EtherCAT process data image.
+ * Output limiting (min-dc / max-dc) and absolute-value mode are also
+ * supported through dedicated HAL pins.
+ */
 #include "../lcec.h"
 #include "el40x1.h"
 
+/**
+ * @brief Per-channel HAL data for a single EL40x1 output.
+ *
+ * All pointer fields correspond to HAL pins that are exported during
+ * initialization and accessed by the real-time write callback.
+ */
 typedef struct {
-  hal_bit_t *pos;
-  hal_bit_t *neg;
-  hal_bit_t *enable;
-  hal_bit_t *absmode;
-  hal_float_t *value;
-  hal_float_t *scale;
-  hal_float_t *offset;
-  double old_scale;
-  double scale_recip;
-  hal_float_t *min_dc;
-  hal_float_t *max_dc;
-  hal_float_t *curr_dc;
-  hal_s32_t *raw_val;
-  unsigned int val_pdo_os;
+  hal_bit_t *pos;       /**< Output HIGH when the commanded value is positive. */
+  hal_bit_t *neg;       /**< Output HIGH when the commanded value is negative. */
+  hal_bit_t *enable;    /**< Input: when 0 the DAC output is forced to zero. */
+  hal_bit_t *absmode;   /**< Input: when 1 the absolute value of @c value is used. */
+  hal_float_t *value;   /**< Input: desired analog output value (in user units). */
+  hal_float_t *scale;   /**< IO: full-scale user-unit value mapping to duty cycle ±1.0. */
+  hal_float_t *offset;  /**< IO: DC offset added to the scaled value before clamping. */
+  double old_scale;     /**< Shadow copy of @c scale used to detect changes. */
+  double scale_recip;   /**< Reciprocal of @c scale, recomputed when scale changes. */
+  hal_float_t *min_dc;  /**< IO: minimum allowable duty cycle (clamped to [-1, 1]). */
+  hal_float_t *max_dc;  /**< IO: maximum allowable duty cycle (clamped to [-1, 1]). */
+  hal_float_t *curr_dc; /**< Output: actual duty cycle sent to the terminal this cycle. */
+  hal_s32_t *raw_val;   /**< Output: raw 16-bit signed integer written to the PDO. */
+  unsigned int val_pdo_os; /**< Byte offset of the output value entry in the process image. */
 } lcec_el40x1_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -69,6 +86,18 @@ static ec_sync_info_t lcec_el40x1_syncs[] = {
 
 void lcec_el40x1_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialize an EL40x1 slave device.
+ *
+ * Registers the write callback, allocates and zeroes HAL memory, configures
+ * the EtherCAT sync manager and PDO entry, exports all HAL pins, and sets
+ * default values for scale (1.0), min-dc (-1.0), and max-dc (1.0).
+ *
+ * @param comp_id        LinuxCNC HAL component ID.
+ * @param slave          Pointer to the lcec slave descriptor.
+ * @param pdo_entry_regs Pointer to the PDO entry registration array to populate.
+ * @return 0 on success, -EIO if HAL memory allocation fails or pin export fails.
+ */
 int lcec_el40x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el40x1_data_t *hal_data;
@@ -108,6 +137,22 @@ int lcec_el40x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Real-time write callback for the EL40x1.
+ *
+ * Called every servo cycle.  Performs the following steps:
+ *  1. Validates and clamps the min-dc / max-dc limits to [-1.0, 1.0].
+ *  2. Recomputes the scale reciprocal when the @c scale pin changes.
+ *  3. Converts the @c value input to a duty cycle:
+ *     @c dc = value / scale + offset, then clamps to [min_dc, max_dc].
+ *  4. When @c enable is zero the DAC output is forced to 0x0000 and the
+ *     pos/neg/curr_dc indicators are cleared.
+ *  5. Otherwise maps the duty cycle to a signed 16-bit integer in the range
+ *     [-0x7fff, 0x7fff] and writes it to the EtherCAT process image.
+ *
+ * @param slave  Pointer to the lcec slave descriptor.
+ * @param period Servo cycle period in nanoseconds (unused, reserved).
+ */
 void lcec_el40x1_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el40x1_data_t *hal_data = (lcec_el40x1_data_t *) slave->hal_data;

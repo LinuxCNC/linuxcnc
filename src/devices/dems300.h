@@ -83,16 +83,49 @@ Parameters:
   
 #############################################################################*/
 
+/**
+ * @file dems300.h
+ * @brief Driver interface for the Delta MS300 EtherCAT variable-frequency drive (VFD).
+ *
+ * The Delta MS300 is an EtherCAT VFD that supports the CiA-402 velocity
+ * profile.  The driver hardcodes velocity (opmode 2) operation and maps:
+ *   - Output PDO 0x1600: control word (0x6040), target velocity (0x6042),
+ *                        mode of operation (0x6060), and a padding byte.
+ *   - Output PDO 0x1601: ramp-down time (0x6050) and ramp-up time (0x604F).
+ *   - Input PDO 0x1A00:  status word (0x6041), velocity demand (0x6043),
+ *                        mode of operation display (0x6061), and padding.
+ *   - Input PDO 0x1A01:  output current (0x3021:05), warning/error codes
+ *                        (0x3021:01), and IGBT temperature (0x3022:0F).
+ *
+ * HAL pins cover velocity command/feedback (in RPM), all CiA-402 status bits,
+ * drive diagnostics (current, temperature, warning/error codes), and control
+ * inputs.  An @c auto-fault-reset parameter enables automatic fault clearing
+ * on the rising edge of the enable input.
+ */
 #ifndef _LCEC_DEMS300_H_
 #define _LCEC_DEMS300_H_
 
 #include "../lcec.h"
 
+/** @brief Delta vendor ID. */
 #define LCEC_DEMS300_VID LCEC_DELTA_VID
+/** @brief EtherCAT product ID for the MS300 VFD. */
 #define LCEC_DEMS300_PID 0x10400200
 
+/** @brief Total number of PDO entries used by this driver. */
 #define LCEC_DEMS300_PDOS 11
 
+/**
+ * @brief Initialise the MS300 HAL component and PDO mappings.
+ *
+ * Registers all PDO entries, exports HAL pins and parameters, and initialises
+ * internal state (velocity scale, fault-reset delay).
+ *
+ * @param comp_id   LinuxCNC HAL component identifier.
+ * @param slave     Pointer to the EtherCAT slave descriptor.
+ * @param pdo_entry_regs Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_dems300_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif

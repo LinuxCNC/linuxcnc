@@ -16,6 +16,19 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/** @file el7211.c
+ * @brief Driver for the Beckhoff EL7211/EL7221/EL7201-9014 servo motor terminals.
+ *
+ * Implements CiA-402 velocity-mode control for Beckhoff BLDC servo terminals.
+ * The driver reads the 16-bit status word (0x6010:01), 32-bit actual velocity
+ * (0x6010:07), 16-bit actual torque (0x6010:08), and 32-bit encoder position
+ * (0x6000:11), then writes a 16-bit CiA-402 control word (0x7010:01) and
+ * 32-bit velocity command (0x7010:06) each cycle.
+ *
+ * The EL7201-9014 variant additionally exposes digital inputs (info1) and
+ * an extended error word (info2) via two extra TxPDOs.
+ */
+
 #include "hal.h"
 
 #include "../lcec.h"
@@ -23,81 +36,85 @@
 
 #include "../classes/class_enc.h"
 
+/** @brief Period (ns) between automatic fault-reset attempts. */
 #define FAULT_RESET_PERIOD_NS  100000000
 
+/**
+ * @brief HAL data structure for the EL7211 servo terminal.
+ */
 typedef struct {
-  hal_bit_t *enable;
-  hal_bit_t *enabled;
-  hal_bit_t *fault;
+  hal_bit_t *enable;              /**< IN: enable the servo drive */
+  hal_bit_t *enabled;             /**< OUT: drive is enabled (ready + switched-on + operation) */
+  hal_bit_t *fault;               /**< OUT: drive fault active */
 
-  hal_bit_t *status_ready;
-  hal_bit_t *status_switched_on;
-  hal_bit_t *status_operation;
-  hal_bit_t *status_fault;
-  hal_bit_t *status_disabled;
-  hal_bit_t *status_warning;
-  hal_bit_t *status_limit_active;
+  hal_bit_t *status_ready;        /**< OUT: CiA-402 status word bit 0 – ready to switch on */
+  hal_bit_t *status_switched_on;  /**< OUT: CiA-402 status word bit 1 – switched on */
+  hal_bit_t *status_operation;    /**< OUT: CiA-402 status word bit 2 – operation enabled */
+  hal_bit_t *status_fault;        /**< OUT: CiA-402 status word bit 3 – fault */
+  hal_bit_t *status_disabled;     /**< OUT: CiA-402 status word bit 6 – switch on disabled */
+  hal_bit_t *status_warning;      /**< OUT: CiA-402 status word bit 7 – warning */
+  hal_bit_t *status_limit_active; /**< OUT: CiA-402 status word bit 11 – internal limit active */
 
-  hal_bit_t *err_adc;
-  hal_bit_t *err_overcurrent;
-  hal_bit_t *err_undervoltage;
-  hal_bit_t *err_overvoltage;
-  hal_bit_t *err_overtemp;
-  hal_bit_t *err_i2t_amp;
-  hal_bit_t *err_i2t_motor;
-  hal_bit_t *err_encoder;
-  hal_bit_t *err_watchdog;
+  hal_bit_t *err_adc;             /**< OUT: ADC error (EL7201-9014 only) */
+  hal_bit_t *err_overcurrent;     /**< OUT: overcurrent error (EL7201-9014 only) */
+  hal_bit_t *err_undervoltage;    /**< OUT: under-voltage error (EL7201-9014 only) */
+  hal_bit_t *err_overvoltage;     /**< OUT: over-voltage error (EL7201-9014 only) */
+  hal_bit_t *err_overtemp;        /**< OUT: over-temperature error (EL7201-9014 only) */
+  hal_bit_t *err_i2t_amp;         /**< OUT: I²t amplifier overload (EL7201-9014 only) */
+  hal_bit_t *err_i2t_motor;       /**< OUT: I²t motor overload (EL7201-9014 only) */
+  hal_bit_t *err_encoder;         /**< OUT: encoder error (EL7201-9014 only) */
+  hal_bit_t *err_watchdog;        /**< OUT: watchdog error (EL7201-9014 only) */
 
-  hal_bit_t *input_0;
-  hal_bit_t *input_0_not;
-  hal_bit_t *input_1;
-  hal_bit_t *input_1_not;
-  hal_bit_t *input_sto;
+  hal_bit_t *input_0;             /**< OUT: digital input 0 state (EL7201-9014 only) */
+  hal_bit_t *input_0_not;         /**< OUT: digital input 0 inverted (EL7201-9014 only) */
+  hal_bit_t *input_1;             /**< OUT: digital input 1 state (EL7201-9014 only) */
+  hal_bit_t *input_1_not;         /**< OUT: digital input 1 inverted (EL7201-9014 only) */
+  hal_bit_t *input_sto;           /**< OUT: STO (safe torque off) input state (EL7201-9014 only) */
 
-  hal_bit_t *at_speed;
+  hal_bit_t *at_speed;            /**< OUT: velocity within at-speed window */
 
-  hal_float_t *vel_cmd;
-  hal_float_t *vel_fb;
-  hal_float_t *vel_fb_rpm;
-  hal_float_t *vel_fb_rpm_abs;
-  hal_s32_t *vel_fb_raw;
+  hal_float_t *vel_cmd;           /**< IN: commanded velocity in user units/s */
+  hal_float_t *vel_fb;            /**< OUT: actual velocity in user units/s */
+  hal_float_t *vel_fb_rpm;        /**< OUT: actual velocity in RPM (signed) */
+  hal_float_t *vel_fb_rpm_abs;    /**< OUT: actual velocity in RPM (absolute) */
+  hal_s32_t *vel_fb_raw;          /**< OUT: raw 32-bit velocity feedback value */
 
-  hal_float_t *torque_fb;
-  hal_s32_t *torque_fb_raw;
+  hal_float_t *torque_fb;         /**< OUT: actual torque in user units */
+  hal_s32_t *torque_fb_raw;       /**< OUT: raw 16-bit torque feedback value */
 
-  hal_float_t *vel_cmd_out;
-  hal_s32_t *vel_cmd_out_raw;
+  hal_float_t *vel_cmd_out;       /**< OUT: actual velocity command sent (after clamping) */
+  hal_s32_t *vel_cmd_out_raw;     /**< OUT: raw 32-bit velocity command sent to drive */
 
-  hal_float_t scale;
-  hal_float_t torque_scale;
+  hal_float_t scale;              /**< Parameter: velocity scale (user units → counts/s) */
+  hal_float_t torque_scale;       /**< Parameter: torque scale (raw counts → user units) */
 
-  hal_u32_t vel_resolution;
-  hal_u32_t pos_resolution;
+  hal_u32_t vel_resolution;       /**< Parameter (RO): velocity resolution from SDO 0x9010:14 */
+  hal_u32_t pos_resolution;       /**< Parameter (RO): position resolution from SDO 0x9010:15 */
 
-  hal_float_t min_vel;
-  hal_float_t max_vel;
-  hal_float_t max_accel;
-  hal_float_t at_speed_window;
+  hal_float_t min_vel;            /**< Parameter: minimum velocity clamp (user units/s) */
+  hal_float_t max_vel;            /**< Parameter: maximum velocity clamp (user units/s) */
+  hal_float_t max_accel;          /**< Parameter: maximum acceleration (user units/s²) */
+  hal_float_t at_speed_window;    /**< Parameter: velocity window for at-speed detection */
 
-  lcec_class_enc_data_t enc;
+  lcec_class_enc_data_t enc;      /**< Encoder sub-class instance */
 
-  unsigned int pos_fb_pdo_os;
-  unsigned int status_pdo_os;
-  unsigned int vel_fb_pdo_os;
-  unsigned int torque_fb_pdo_os;
-  unsigned int ctrl_pdo_os;
-  unsigned int vel_cmd_pdo_os;
-  unsigned int info1_pdo_os;
-  unsigned int info2_pdo_os;
+  unsigned int pos_fb_pdo_os;     /**< PDO byte offset: 32-bit position feedback (0x6000:11) */
+  unsigned int status_pdo_os;     /**< PDO byte offset: 16-bit CiA-402 status word (0x6010:01) */
+  unsigned int vel_fb_pdo_os;     /**< PDO byte offset: 32-bit velocity feedback (0x6010:07) */
+  unsigned int torque_fb_pdo_os;  /**< PDO byte offset: 16-bit torque feedback (0x6010:08) */
+  unsigned int ctrl_pdo_os;       /**< PDO byte offset: 16-bit CiA-402 control word (0x7010:01) */
+  unsigned int vel_cmd_pdo_os;    /**< PDO byte offset: 32-bit velocity command (0x7010:06) */
+  unsigned int info1_pdo_os;      /**< PDO byte offset: info word 1 (EL7201-9014: inputs) */
+  unsigned int info2_pdo_os;      /**< PDO byte offset: info word 2 (EL7201-9014: errors) */
 
-  double vel_scale;
-  double vel_rcpt;
+  double vel_scale;               /**< Precomputed: vel_resolution as double for output scaling */
+  double vel_rcpt;                /**< Precomputed: 1.0 / vel_resolution for input scaling */
 
-  double scale_old;
-  double scale_rcpt;
-  double vel_out_scale;
+  double scale_old;               /**< Previously applied scale value (change detection) */
+  double scale_rcpt;              /**< Reciprocal of current scale */
+  double vel_out_scale;           /**< Combined scale for velocity output (vel_scale * scale) */
 
-  long fault_reset_timer;
+  long fault_reset_timer;         /**< Timer (ns) counting down between fault-reset attempts */
 
 } lcec_el7211_data_t;
 
@@ -231,6 +248,13 @@ void lcec_el7211_read(struct lcec_slave *slave, long period);
 void lcec_el7201_9014_read(struct lcec_slave *slave, long period);
 void lcec_el7211_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Allocate and zero HAL memory for the EL7211 data structure.
+ *
+ * @param master Pointer to the EtherCAT master structure (used for error messages).
+ * @param slave  Pointer to the EtherCAT slave structure.
+ * @return Pointer to allocated and zeroed lcec_el7211_data_t, or NULL on failure.
+ */
 lcec_el7211_data_t *lcec_el7211_alloc_hal(lcec_master_t *master, struct lcec_slave *slave) {
   lcec_el7211_data_t *hal_data;
 
@@ -244,6 +268,19 @@ lcec_el7211_data_t *lcec_el7211_alloc_hal(lcec_master_t *master, struct lcec_sla
   return hal_data;
 }
 
+/**
+ * @brief Read velocity/position resolution SDOs and export all HAL pins.
+ *
+ * Reads the velocity resolution (0x9010:14) and position resolution (0x9010:15)
+ * via SDO upload, then exports the standard EL7211 pins and parameters and
+ * initialises the encoder sub-class.  Sets default values for scale, velocity
+ * limits, and internal precomputed coefficients.
+ *
+ * @param master   EtherCAT master structure.
+ * @param slave    EtherCAT slave structure.
+ * @param hal_data Pointer to pre-allocated and zeroed HAL data.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el7211_export_pins(lcec_master_t *master, struct lcec_slave *slave, lcec_el7211_data_t *hal_data) {
   int err;
   uint8_t sdo_buf[4];
@@ -300,6 +337,14 @@ int lcec_el7211_export_pins(lcec_master_t *master, struct lcec_slave *slave, lce
   return 0;
 }
 
+/**
+ * @brief Initialise the EL7211/EL7221 servo terminal.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el7211_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el7211_data_t *hal_data;
@@ -333,6 +378,18 @@ int lcec_el7211_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Initialise the EL7201-9014 servo terminal (extended diagnostics).
+ *
+ * Configures info1 PDO to expose digital inputs (SDO 0x8010:39 = 10) and
+ * info2 PDO to expose the error word (SDO 0x8010:3A = 5), then maps the
+ * two additional TxPDOs and exports extra HAL pins for inputs and errors.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el7201_9014_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el7211_data_t *hal_data;
@@ -390,6 +447,11 @@ int lcec_el7201_9014_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_re
   return 0;
 }
 
+/**
+ * @brief Detect scale changes and recompute reciprocal and velocity output scale.
+ *
+ * @param hal_data Pointer to the EL7211 HAL data.
+ */
 void lcec_el7211_check_scales(lcec_el7211_data_t *hal_data) {
   // check for change in scale value
   if (hal_data->scale != hal_data->scale_old) {
@@ -407,6 +469,16 @@ void lcec_el7211_check_scales(lcec_el7211_data_t *hal_data) {
   }
 }
 
+/**
+ * @brief Cyclic read: update EL7211 servo status and feedback HAL pins.
+ *
+ * Reads the CiA-402 status word, extracts individual status bits, computes
+ * the enabled state and fault condition, reads velocity/torque feedback,
+ * and updates the encoder sub-class with the current 32-bit position.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds.
+ */
 void lcec_el7211_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el7211_data_t *hal_data = (lcec_el7211_data_t *) slave->hal_data;
@@ -479,6 +551,15 @@ void lcec_el7211_read(struct lcec_slave *slave, long period) {
   class_enc_update(&hal_data->enc, hal_data->pos_resolution, hal_data->scale_rcpt, pos_cnt, 0, 0);
 }
 
+/**
+ * @brief Cyclic read for EL7201-9014: standard read plus digital inputs and error word.
+ *
+ * Calls the base lcec_el7211_read(), then additionally reads the info1 word
+ * (digital inputs / STO) and info2 word (error flags) from their PDO offsets.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds.
+ */
 void lcec_el7201_9014_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el7211_data_t *hal_data = (lcec_el7211_data_t *) slave->hal_data;
@@ -514,6 +595,17 @@ static inline double clamp(double v, double sub, double sup) {
   return v;
 }
 
+/**
+ * @brief Cyclic write: build CiA-402 control word and send velocity command.
+ *
+ * Applies acceleration limiting to the commanded velocity, builds the CiA-402
+ * control word based on the current drive state machine state, and writes
+ * both the control word and the scaled 32-bit velocity command to the
+ * EtherCAT process data image.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds.
+ */
 void lcec_el7211_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el7211_data_t *hal_data = (lcec_el7211_data_t *) slave->hal_data;

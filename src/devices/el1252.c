@@ -17,6 +17,18 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el1252.c
+ * @brief Driver implementation for Beckhoff EL1252 2-channel fast digital input with timestamp.
+ *
+ * LatchPosX records the time of the last positive edge (0→1) on input X.
+ * LatchNegX records the time of the last negative edge (1→0) on input X.
+ * StatusX.0 is set on a positive edge; StatusX.1 is set on a negative edge.
+ * Capture bits are cleared when the corresponding latch register is read.
+ *
+ * @note Timestamp data is captured internally but not yet forwarded to HAL pins.
+ */
+
 /**   \brief Linuxcnc and Machinekit HAL driver for Beckhoff EL1252
       2-channel fast digital input terminal with timestamp.
 
@@ -91,19 +103,19 @@ ec_sync_info_t lcec_el1252_syncs[] = {
 /** \brief data structure of one channel of the device */
 typedef struct {
   // data exposed as PIN to Linuxcnc/Machinekit
-  hal_bit_t *in;
-  
-  uint8_t    Status;
-  uint64_t   LatchPos;
-  uint64_t   LatchNeg;
-  
-  // OffSets and BitPositions used to access data in EC PDOs
-  unsigned int in_offs;
-  unsigned int in_bitp;
+  hal_bit_t *in;      /**< HAL output pin: current digital input state. */
 
-  unsigned int Status_offs;
-  unsigned int LatchPos_offs;
-  unsigned int LatchNeg_offs;
+  uint8_t    Status;     /**< Cached edge-detection status byte from the PDO. */
+  uint64_t   LatchPos;   /**< Cached timestamp of last positive edge (0→1). */
+  uint64_t   LatchNeg;   /**< Cached timestamp of last negative edge (1→0). */
+
+  // OffSets and BitPositions used to access data in EC PDOs
+  unsigned int in_offs;  /**< Byte offset of the input bit in the process data image. */
+  unsigned int in_bitp;  /**< Bit position within the byte at in_offs. */
+
+  unsigned int Status_offs;   /**< Byte offset of the Status byte in the process data image. */
+  unsigned int LatchPos_offs; /**< Byte offset of the LatchPos timestamp in the process data image. */
+  unsigned int LatchNeg_offs; /**< Byte offset of the LatchNeg timestamp in the process data image. */
 
 } lcec_el1252_chan_t;
 
@@ -114,12 +126,23 @@ static const lcec_pindesc_t slave_pins[] = {
 
 /** \brief complete data structure for EL1252 */
 typedef struct {
-  lcec_el1252_chan_t chans[LCEC_EL1252_CHANS];
+  lcec_el1252_chan_t chans[LCEC_EL1252_CHANS]; /**< Per-channel HAL and PDO data. */
 } lcec_el1252_data_t;
 
-/** \brief callback for periodic IO data access*/ 
+/** \brief callback for periodic IO data access*/
 void lcec_el1252_read(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialize the EL1252 fast digital input slave.
+ *
+ * Allocates HAL memory, sets up sync manager configuration, registers PDO
+ * entries for input bits and latch/status data, and exports `din-<n>` pins.
+ *
+ * @param comp_id        HAL component ID.
+ * @param slave          Pointer to the lcec slave structure.
+ * @param pdo_entry_regs Pointer to PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el1252_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el1252_data_t *hal_data;

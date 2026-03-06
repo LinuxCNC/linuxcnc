@@ -16,39 +16,55 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file ax5805.c
+ * @brief Driver for the Beckhoff AX5805 TwinSAFE drive option card.
+ *
+ * The AX5805 is the FSoE safety card for AX5100/AX5200 drives.  It must sit
+ * at EtherCAT index (drive_index + 1).  Pre-init locates the drive, inherits
+ * its FSoE config, and calculates the PDO count (4 base entries + 3 per data
+ * channel).  Init registers all FSoE PDO entries and exports HAL pins for:
+ *   - fsoe-master-cmd / fsoe-master-connid / fsoe-master-crc[-0/-1]
+ *   - fsoe-slave-cmd  / fsoe-slave-connid  / fsoe-slave-crc[-0/-1]
+ *   - fsoe-in-sto[-0/-1]  (Safe Torque Off status per axis)
+ * The read callback copies FSoE data and updates all HAL pin values.
+ */
 #include "../lcec.h"
 #include "ax5805.h"
 #include "ax5100.h"
 #include "ax5200.h"
 
+/**
+ * @brief Internal HAL data for the AX5805 TwinSAFE card.
+ */
 typedef struct {
-  hal_u32_t *fsoe_master_cmd;
-  hal_u32_t *fsoe_master_crc0;
-  hal_u32_t *fsoe_master_crc1;
-  hal_u32_t *fsoe_master_connid;
+  hal_u32_t *fsoe_master_cmd;      /**< HAL OUT: FSoE master command byte. */
+  hal_u32_t *fsoe_master_crc0;     /**< HAL OUT: FSoE master CRC for channel 0. */
+  hal_u32_t *fsoe_master_crc1;     /**< HAL OUT: FSoE master CRC for channel 1 (dual-axis only). */
+  hal_u32_t *fsoe_master_connid;   /**< HAL OUT: FSoE master connection ID. */
 
-  hal_u32_t *fsoe_slave_cmd;
-  hal_u32_t *fsoe_slave_crc0;
-  hal_u32_t *fsoe_slave_crc1;
-  hal_u32_t *fsoe_slave_connid;
+  hal_u32_t *fsoe_slave_cmd;       /**< HAL OUT: FSoE slave command byte. */
+  hal_u32_t *fsoe_slave_crc0;      /**< HAL OUT: FSoE slave CRC for channel 0. */
+  hal_u32_t *fsoe_slave_crc1;      /**< HAL OUT: FSoE slave CRC for channel 1 (dual-axis only). */
+  hal_u32_t *fsoe_slave_connid;    /**< HAL OUT: FSoE slave connection ID. */
 
-  hal_bit_t *fsoe_in_sto0;
-  hal_bit_t *fsoe_in_sto1;
+  hal_bit_t *fsoe_in_sto0;         /**< HAL OUT: Safe Torque Off status for axis 0. */
+  hal_bit_t *fsoe_in_sto1;         /**< HAL OUT: Safe Torque Off status for axis 1 (dual-axis only). */
 
-  unsigned int fsoe_master_cmd_os;
-  unsigned int fsoe_master_crc0_os;
-  unsigned int fsoe_master_crc1_os;
-  unsigned int fsoe_master_connid_os;
+  unsigned int fsoe_master_cmd_os;    /**< PDO byte offset: FSoE master command. */
+  unsigned int fsoe_master_crc0_os;   /**< PDO byte offset: FSoE master CRC channel 0. */
+  unsigned int fsoe_master_crc1_os;   /**< PDO byte offset: FSoE master CRC channel 1. */
+  unsigned int fsoe_master_connid_os; /**< PDO byte offset: FSoE master connection ID. */
 
-  unsigned int fsoe_slave_cmd_os;
-  unsigned int fsoe_slave_crc0_os;
-  unsigned int fsoe_slave_crc1_os;
-  unsigned int fsoe_slave_connid_os;
+  unsigned int fsoe_slave_cmd_os;     /**< PDO byte offset: FSoE slave command. */
+  unsigned int fsoe_slave_crc0_os;    /**< PDO byte offset: FSoE slave CRC channel 0. */
+  unsigned int fsoe_slave_crc1_os;    /**< PDO byte offset: FSoE slave CRC channel 1. */
+  unsigned int fsoe_slave_connid_os;  /**< PDO byte offset: FSoE slave connection ID. */
 
-  unsigned int fsoe_in_sto0_os;
-  unsigned int fsoe_in_sto0_bp;
-  unsigned int fsoe_in_sto1_os;
-  unsigned int fsoe_in_sto1_bp;
+  unsigned int fsoe_in_sto0_os;    /**< PDO byte offset: STO input axis 0. */
+  unsigned int fsoe_in_sto0_bp;    /**< PDO bit position: STO input axis 0. */
+  unsigned int fsoe_in_sto1_os;    /**< PDO byte offset: STO input axis 1. */
+  unsigned int fsoe_in_sto1_bp;    /**< PDO bit position: STO input axis 1. */
 
 } lcec_ax5805_data_t;
 

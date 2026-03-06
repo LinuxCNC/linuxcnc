@@ -16,35 +16,50 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el1904.c
+ * @brief Driver implementation for Beckhoff EL1904 4-channel TwinSAFE digital input terminal.
+ *
+ * The EL1904 implements the Fail-Safe over EtherCAT (FSoE) protocol. This driver
+ * exposes FSoE command/CRC/connection-ID fields and the four safe digital inputs
+ * as HAL pins, and copies FSoE frame data between slave and master PDO areas.
+ */
+
 #include "../lcec.h"
 #include "el1904.h"
 
+/**
+ * @brief Per-channel HAL data for one EL1904 safe digital input.
+ */
 typedef struct {
-  hal_bit_t *fsoe_in;
-  hal_bit_t *fsoe_in_not;
+  hal_bit_t *fsoe_in;     /**< HAL output pin: FSoE safe digital input state. */
+  hal_bit_t *fsoe_in_not; /**< HAL output pin: Inverted FSoE safe digital input state. */
 
-  unsigned int fsoe_in_os;
-  unsigned int fsoe_in_bp;
+  unsigned int fsoe_in_os; /**< Byte offset of the safe input bit in the process data image. */
+  unsigned int fsoe_in_bp; /**< Bit position within fsoe_in_os. */
 } lcec_el1904_data_in_t;
 
+/**
+ * @brief Complete HAL data structure for the EL1904.
+ */
 typedef struct {
-  hal_u32_t *fsoe_master_cmd;
-  hal_u32_t *fsoe_master_crc;
-  hal_u32_t *fsoe_master_connid;
+  hal_u32_t *fsoe_master_cmd;    /**< HAL output: FSoE master command word. */
+  hal_u32_t *fsoe_master_crc;    /**< HAL output: FSoE master CRC. */
+  hal_u32_t *fsoe_master_connid; /**< HAL output: FSoE master connection ID. */
 
-  hal_u32_t *fsoe_slave_cmd;
-  hal_u32_t *fsoe_slave_crc;
-  hal_u32_t *fsoe_slave_connid;
+  hal_u32_t *fsoe_slave_cmd;    /**< HAL output: FSoE slave command word. */
+  hal_u32_t *fsoe_slave_crc;    /**< HAL output: FSoE slave CRC. */
+  hal_u32_t *fsoe_slave_connid; /**< HAL output: FSoE slave connection ID. */
 
-  lcec_el1904_data_in_t inputs[LCEC_EL1904_INPUT_COUNT];
+  lcec_el1904_data_in_t inputs[LCEC_EL1904_INPUT_COUNT]; /**< Per-channel safe input data. */
 
-  unsigned int fsoe_master_cmd_os;
-  unsigned int fsoe_master_crc_os;
-  unsigned int fsoe_master_connid_os;
+  unsigned int fsoe_master_cmd_os;    /**< PDO offset: FSoE master command. */
+  unsigned int fsoe_master_crc_os;    /**< PDO offset: FSoE master CRC. */
+  unsigned int fsoe_master_connid_os; /**< PDO offset: FSoE master connection ID. */
 
-  unsigned int fsoe_slave_cmd_os;
-  unsigned int fsoe_slave_crc_os;
-  unsigned int fsoe_slave_connid_os;
+  unsigned int fsoe_slave_cmd_os;    /**< PDO offset: FSoE slave command. */
+  unsigned int fsoe_slave_crc_os;    /**< PDO offset: FSoE slave CRC. */
+  unsigned int fsoe_slave_connid_os; /**< PDO offset: FSoE slave connection ID. */
 
 } lcec_el1904_data_t;
 
@@ -70,8 +85,18 @@ static const LCEC_CONF_FSOE_T fsoe_conf = {
   .data_channels = 1
 };
 
+/**
+ * @brief EtherCAT cyclic read callback — reads FSoE frame and safe inputs.
+ * @param slave  Pointer to the lcec slave structure.
+ * @param period Servo period in nanoseconds (unused).
+ */
 void lcec_el1904_read(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Pre-initialise the EL1904 slave (sets FSoE configuration).
+ * @param slave Pointer to the lcec slave structure.
+ * @return 0 on success.
+ */
 int lcec_el1904_preinit(struct lcec_slave *slave) {
   // set fsoe config
   slave->fsoeConf = &fsoe_conf;
@@ -79,6 +104,14 @@ int lcec_el1904_preinit(struct lcec_slave *slave) {
   return 0;
 }
 
+/**
+ * @brief Initialize the EL1904 TwinSAFE digital input slave.
+ *
+ * @param comp_id        HAL component ID.
+ * @param slave          Pointer to the lcec slave structure.
+ * @param pdo_entry_regs Pointer to PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el1904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el1904_data_t *hal_data;

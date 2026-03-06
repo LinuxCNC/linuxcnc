@@ -1,5 +1,20 @@
+/**
+ * @file master.c
+ * @brief EtherCAT master management for the LinuxCNC EtherCAT HAL driver.
+ *
+ * Implements creation, startup, shutdown, and real-time operation of EtherCAT
+ * masters.  It exports HAL pins that reflect master-level bus state (link
+ * status, slave counts, AL states) and drives the PDO read/write cycle that
+ * feeds every slave driver.
+ *
+ * Two build targets are supported:
+ *  - @b EC_USPACE_MASTER — userspace IgH master using explicit transport objects.
+ *  - Kernel mode — uses @c ecrt_request_master() and optional lock callbacks.
+ */
+
 #include "priv.h"
 
+/** @brief HAL pin descriptors exported for every master instance, including the global summary master. */
 static const lcec_pindesc_t master_global_pins[] = {
   { HAL_U32, HAL_OUT, offsetof(lcec_master_data_t, slaves_responding), "%s.slaves-responding" },
   { HAL_BIT, HAL_OUT, offsetof(lcec_master_data_t, state_init), "%s.state-init" },
@@ -11,6 +26,12 @@ static const lcec_pindesc_t master_global_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/**
+ * @brief HAL pin descriptors exported only for individual (non-global) master instances.
+ *
+ * These pins are conditionally compiled based on @c RTAPI_TASK_PLL_SUPPORT and
+ * provide PLL synchronisation diagnostics for the DC reference clock.
+ */
 static const lcec_pindesc_t master_pins[] = {
 #ifdef RTAPI_TASK_PLL_SUPPORT
   { HAL_S32, HAL_OUT, offsetof(lcec_master_data_t, pll_err), "%s.pll-err" },
@@ -20,6 +41,21 @@ static const lcec_pindesc_t master_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/**
+ * @brief Allocate and export HAL pins for a master.
+ *
+ * Allocates a zeroed @c lcec_master_data_t from HAL shared memory and registers
+ * all HAL output pins described by @c master_global_pins.  When @p global is
+ * zero the per-master pins from @c master_pins are also registered (includes
+ * PLL diagnostic pins when @c RTAPI_TASK_PLL_SUPPORT is defined).
+ *
+ * @param pfx    HAL name prefix for all pins (e.g. @c "lcec.0").
+ * @param global Non-zero when creating the aggregate "global" summary master;
+ *               zero for a real master instance.
+ * @return Pointer to the allocated HAL data structure, or NULL on failure.
+ *
+ * @note Must be called from init context, not from a real-time thread.
+ */
 lcec_master_data_t *lcec_init_master_hal(const char *pfx, int global) {
   lcec_master_data_t *hal_data;
 
@@ -43,6 +79,19 @@ lcec_master_data_t *lcec_init_master_hal(const char *pfx, int global) {
   return hal_data;
 }
 
+/**
+ * @brief Update master HAL output pins from the current EtherCAT master state.
+ *
+ * Copies fields from the IgH @c ec_master_state_t snapshot into the HAL-visible
+ * pin storage.  Each AL state bit is decomposed into individual boolean pins
+ * (@c state_init, @c state_preop, @c state_safeop, @c state_op) and the
+ * @c all_op pin is set only when every slave reports the OP state (al_states == 0x08).
+ *
+ * @param hal_data  Pointer to the HAL data block whose pins will be written.
+ * @param ms        Pointer to the master state snapshot (read-only).
+ *
+ * @note Called from the real-time read function; must not block or allocate.
+ */
 void lcec_update_master_hal(lcec_master_data_t *hal_data, ec_master_state_t *ms) {
   *(hal_data->slaves_responding) = ms->slaves_responding;
   *(hal_data->state_init) = (ms->al_states & 0x01) != 0;
@@ -53,6 +102,20 @@ void lcec_update_master_hal(lcec_master_data_t *hal_data, ec_master_state_t *ms)
   *(hal_data->all_op) = (ms->al_states == 0x08);
 }
 
+/**
+ * @brief Create and initialise an @c lcec_master_t from its configuration.
+ *
+ * Allocates a zeroed master structure and copies identity and timing parameters
+ * from @p master_conf.  Under @c EC_USPACE_MASTER the transport type, network
+ * interface names, debug level, and CPU affinity are also stored.
+ *
+ * The master is not yet connected to the EtherCAT stack; call
+ * @c lcec_startup_master() to open the physical master.
+ *
+ * @param master_conf  Configuration record produced by the XML parser.
+ * @return Pointer to the new master, or NULL on allocation failure or invalid
+ *         configuration (e.g. @c refClockSyncCycles < 0 without PLL support).
+ */
 lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf) {
   lcec_master_t *master;
 
@@ -96,6 +159,19 @@ fail0:
 }
 
 #ifdef EC_USPACE_MASTER
+/**
+ * @brief Open the EtherCAT master (userspace build).
+ *
+ * Creates the primary network transport from @c master->interface and,
+ * optionally, a backup transport from @c master->backup_interface.  Then calls
+ * @c ecrt_startup_master() to initialise the IgH userspace master with the
+ * chosen transports, debug level, and CPU affinity.
+ *
+ * On failure all resources created so far are released before returning.
+ *
+ * @param master  Initialised master structure (created by @c lcec_create_master()).
+ * @return 0 on success, -1 on failure (error message sent to RTAPI log).
+ */
 int lcec_startup_master(lcec_master_t *master) {
   // create main transport
   master->transport = ec_transport_create(
@@ -145,6 +221,15 @@ fail0:
   return -1;
 }
 
+/**
+ * @brief Release the EtherCAT master and destroy its transports (userspace build).
+ *
+ * Calls @c ecrt_release_master() on the IgH master handle, then destroys both
+ * the primary and backup transports.  Safe to call even if startup was only
+ * partially completed (NULL-checks are performed internally).
+ *
+ * @param master  Master to shut down.
+ */
 void lcec_shutdown_master(lcec_master_t *master) {
   if (master->master) {
     ecrt_release_master(master->master);
@@ -161,18 +246,40 @@ void lcec_shutdown_master(lcec_master_t *master) {
 
 #else
 
+/**
+ * @brief IgH master lock callback — acquires the master mutex.
+ *
+ * Registered with @c ecrt_master_callbacks() so that the kernel-mode EtherCAT
+ * master can serialise bus access against the real-time task.
+ *
+ * @param data  Opaque pointer cast to @c lcec_master_t.
+ */
 static void lcec_request_lock(void *data) {
   lcec_master_t *master = (lcec_master_t *) data;
   rtapi_mutex_get(&master->mutex);
 }
 
+/**
+ * @brief IgH master unlock callback — releases the master mutex.
+ *
+ * @param data  Opaque pointer cast to @c lcec_master_t.
+ */
 static void lcec_release_lock(void *data) {
   lcec_master_t *master = (lcec_master_t *) data;
   rtapi_mutex_give(&master->mutex);
 }
 
+/**
+ * @brief Open the EtherCAT master (kernel-mode build).
+ *
+ * Requests the kernel EtherCAT master by index via @c ecrt_request_master().
+ * In @c __KERNEL__ builds the mutex-based lock/unlock callbacks are also
+ * registered with @c ecrt_master_callbacks() to serialise bus access.
+ *
+ * @param master  Initialised master structure.
+ * @return 0 on success, -1 on failure.
+ */
 int lcec_startup_master(lcec_master_t *master) {
-    // request kernel ethercat master
     if (!(master->master = ecrt_request_master(master->index))) {
       rtapi_print_msg(RTAPI_MSG_ERR,
           LCEC_MSG_PFX "requesting master %s (index %d) failed\n",
@@ -186,6 +293,13 @@ int lcec_startup_master(lcec_master_t *master) {
     return 0;
 }
 
+/**
+ * @brief Release the kernel EtherCAT master.
+ *
+ * Calls @c ecrt_release_master() if a master handle was acquired.
+ *
+ * @param master  Master to shut down.
+ */
 void lcec_shutdown_master(lcec_master_t *master) {
   if (master->master) {
     ecrt_release_master(master->master);
@@ -194,6 +308,29 @@ void lcec_shutdown_master(lcec_master_t *master) {
 
 #endif /* EC_USPACE_MASTER */
 
+/**
+ * @brief Real-time read function — receive PDOs and update HAL state pins.
+ *
+ * This function is exported as a HAL real-time function and is called once per
+ * servo cycle.  It performs the following steps in order:
+ *  -# Validates the servo period against @c master->app_time_period and emits a
+ *     warning on the first mismatch.
+ *  -# Invokes @c dcsync_callbacks.cycle_start() to stamp the master application
+ *     time for distributed clock synchronisation.
+ *  -# Periodically (every @c LCEC_STATE_UPDATE_PERIOD nanoseconds) queries
+ *     @c ecrt_master_state() and @c ecrt_slave_config_state() for each slave.
+ *  -# Calls @c ecrt_master_receive() and @c ecrt_domain_process() under the
+ *     master mutex to latch fresh PDO data.
+ *  -# Updates master-level and global AL-state HAL pins.
+ *  -# Iterates over all slaves, refreshing state pins and calling each slave's
+ *     @c proc_read callback.
+ *
+ * @param arg     Pointer to the @c lcec_master_t for this master.
+ * @param period  Servo period in nanoseconds, as supplied by the RTAPI scheduler.
+ *
+ * @note Real-time safe: must not block, sleep, or allocate memory.
+ * @note Acquires/releases @c master->mutex around EtherCAT stack calls.
+ */
 void lcec_read_master(void *arg, long period) {
   lcec_master_t *master = (lcec_master_t *) arg;
   lcec_slave_t *slave;
@@ -256,6 +393,25 @@ void lcec_read_master(void *arg, long period) {
   }
 }
 
+/**
+ * @brief Real-time write function — send PDOs to the EtherCAT bus.
+ *
+ * Called once per servo cycle after @c lcec_read_master().  Steps:
+ *  -# Iterates over all slaves, calling each slave's @c proc_write callback to
+ *     pack output data into the PDO image.
+ *  -# Acquires the master mutex.
+ *  -# Calls @c ecrt_domain_queue() to mark the domain's PDO data as ready.
+ *  -# Invokes @c dcsync_callbacks.pre_send() for last-moment DC time stamping.
+ *  -# Calls @c ecrt_master_send() to transmit the queued Ethernet frames.
+ *  -# Invokes @c dcsync_callbacks.post_send() for post-send DC clock update.
+ *  -# Releases the master mutex.
+ *
+ * @param arg     Pointer to the @c lcec_master_t for this master.
+ * @param period  Servo period in nanoseconds.
+ *
+ * @note Real-time safe: must not block, sleep, or allocate memory.
+ * @note Acquires/releases @c master->mutex around EtherCAT stack calls.
+ */
 void lcec_write_master(void *arg, long period) {
   lcec_master_t *master = (lcec_master_t *) arg;
   lcec_slave_t *slave;

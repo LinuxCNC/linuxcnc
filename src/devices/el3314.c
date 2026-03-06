@@ -16,28 +16,48 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el3314.c
+ * @brief LinuxCNC EtherCAT HAL driver for the Beckhoff EL3314 4-channel thermocouple input terminal.
+ *
+ * The EL3314 reads temperature from up to four thermocouples (type K or other, depending
+ * on hardware configuration) via EtherCAT.  Each channel delivers a 16-bit signed PDO
+ * value with a resolution of 0.1 °C per LSB.
+ *
+ * The floating-point HAL output pin is computed as:
+ * @code
+ *   val = bias + scale * (double)raw * 0.1
+ * @endcode
+ * so with the default scale=1.0 and bias=0.0 the pin value equals the temperature in °C.
+ */
 #include "../lcec.h"
 #include "el3314.h"
 
+/**
+ * @brief Per-channel HAL pins and PDO offsets for one EL3314 thermocouple channel.
+ */
 typedef struct {
-  hal_bit_t *overrange;
-  hal_bit_t *underrange;
-  hal_bit_t *error;
-  hal_s32_t *raw_val;
-  hal_float_t *scale;
-  hal_float_t *bias;
-  hal_float_t *val;
-  unsigned int ovr_pdo_os;
-  unsigned int ovr_pdo_bp;
-  unsigned int udr_pdo_os;
-  unsigned int udr_pdo_bp;
-  unsigned int error_pdo_os;
-  unsigned int error_pdo_bp;
-  unsigned int val_pdo_os;
+  hal_bit_t *overrange;      /**< HAL bit output: temperature exceeds the sensor's measurable range. */
+  hal_bit_t *underrange;     /**< HAL bit output: temperature is below the sensor's measurable range. */
+  hal_bit_t *error;          /**< HAL bit output: channel error flag (open circuit, short, etc.). */
+  hal_s32_t *raw_val;        /**< HAL s32 output: raw 16-bit signed temperature value (0.1 °C per count). */
+  hal_float_t *scale;        /**< HAL float I/O: multiplier applied before adding bias (default 1.0). */
+  hal_float_t *bias;         /**< HAL float I/O: offset added after scaling in °C (default 0.0). */
+  hal_float_t *val;          /**< HAL float output: temperature in °C = bias + scale * raw * 0.1. */
+  unsigned int ovr_pdo_os;   /**< Byte offset of the overrange bit in the EtherCAT process data image. */
+  unsigned int ovr_pdo_bp;   /**< Bit position of the overrange flag within its byte. */
+  unsigned int udr_pdo_os;   /**< Byte offset of the underrange bit in the EtherCAT process data image. */
+  unsigned int udr_pdo_bp;   /**< Bit position of the underrange flag within its byte. */
+  unsigned int error_pdo_os; /**< Byte offset of the channel error bit in the EtherCAT process data image. */
+  unsigned int error_pdo_bp; /**< Bit position of the channel error flag within its byte. */
+  unsigned int val_pdo_os;   /**< Byte offset of the 16-bit temperature value in the EtherCAT process data image. */
 } lcec_el3314_chan_t;
 
+/**
+ * @brief Top-level HAL data structure for one EL3314 slave, holding all channel state.
+ */
 typedef struct {
-  lcec_el3314_chan_t chans[LCEC_EL3314_CHANS];
+  lcec_el3314_chan_t chans[LCEC_EL3314_CHANS]; /**< Per-channel data for all four thermocouple inputs. */
 } lcec_el3314_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -115,6 +135,20 @@ static ec_sync_info_t lcec_el3314_syncs[] = {
 
 void lcec_el3314_read(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise an EL3314 slave: allocate HAL memory, register PDOs, and create HAL pins.
+ *
+ * Called once at HAL component initialisation. Registers four PDO entries per channel
+ * (overrange, underrange, error, and 16-bit temperature value) and exports the HAL pins
+ * for each of the four thermocouple channels.  The scale pin is initialised to 1.0.
+ *
+ * @param comp_id         LinuxCNC HAL component ID.
+ * @param slave           Pointer to the lcec_slave descriptor for this terminal.
+ * @param pdo_entry_regs  Pointer to the EtherCAT PDO entry registration array;
+ *                        advanced by the number of PDO entries registered.
+ * @return 0 on success, -EIO on HAL memory allocation failure, or a negative
+ *         error code if HAL pin creation fails.
+ */
 int lcec_el3314_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el3314_data_t *hal_data;
@@ -158,6 +192,17 @@ int lcec_el3314_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Cyclic read callback: transfer EtherCAT PDO data to HAL temperature pins.
+ *
+ * Called every servo cycle. Reads per-channel status bits and the 16-bit signed
+ * temperature value (0.1 °C per LSB) from the EtherCAT process data image and
+ * updates the corresponding HAL pins.  Returns immediately if the slave is not
+ * in the operational state.
+ *
+ * @param slave   Pointer to the lcec_slave descriptor for this terminal.
+ * @param period  Servo period in nanoseconds (unused, provided for callback compatibility).
+ */
 void lcec_el3314_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el3314_data_t *hal_data = (lcec_el3314_data_t *) slave->hal_data;

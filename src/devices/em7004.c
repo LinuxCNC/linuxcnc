@@ -16,91 +16,114 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/** @file em7004.c
+ * @brief Driver for the Beckhoff EM7004 4-channel stepper motor module.
+ *
+ * Implements HAL pin export, PDO mapping, and cyclic read/write for all
+ * sub-devices of the EM7004: 16 digital inputs, 16 digital outputs, 4 analog
+ * outputs, and 4 incremental encoders with external latch and preset support.
+ */
+
 #include "../lcec.h"
 #include "em7004.h"
 
+/**
+ * @brief Per-channel HAL data for one digital input.
+ */
 typedef struct {
-  hal_bit_t *in;
-  hal_bit_t *in_not;
-  unsigned int pdo_os;
-  unsigned int pdo_bp;
+  hal_bit_t *in;     /**< OUT: digital input state */
+  hal_bit_t *in_not; /**< OUT: inverted digital input state */
+  unsigned int pdo_os; /**< PDO byte offset */
+  unsigned int pdo_bp; /**< Bit position within PDO byte */
 } lcec_em7004_din_t;
 
+/**
+ * @brief Per-channel HAL data for one digital output.
+ */
 typedef struct {
-  hal_bit_t *out;
-  hal_bit_t invert;
-  unsigned int pdo_os;
-  unsigned int pdo_bp;
+  hal_bit_t *out;    /**< IN: desired output state */
+  hal_bit_t invert;  /**< Parameter: 1 = invert the output */
+  unsigned int pdo_os; /**< PDO byte offset */
+  unsigned int pdo_bp; /**< Bit position within PDO byte */
 } lcec_em7004_dout_t;
 
+/**
+ * @brief Per-channel HAL data for one analog output.
+ */
 typedef struct {
-  hal_bit_t *pos;
-  hal_bit_t *neg;
-  hal_bit_t *enable;
-  hal_bit_t *absmode;
-  hal_float_t *value;
-  hal_float_t *scale;
-  hal_float_t *offset;
-  double old_scale;
-  double scale_recip;
-  hal_float_t *min_dc;
-  hal_float_t *max_dc;
-  hal_float_t *curr_dc;
-  hal_s32_t *raw_val;
-  unsigned int val_pdo_os;
+  hal_bit_t *pos;         /**< OUT: output is in positive direction */
+  hal_bit_t *neg;         /**< OUT: output is in negative direction */
+  hal_bit_t *enable;      /**< IN: enable this output channel */
+  hal_bit_t *absmode;     /**< IN: use absolute value mode */
+  hal_float_t *value;     /**< IN: commanded value in user units */
+  hal_float_t *scale;     /**< IO: scale factor (user units → duty cycle) */
+  hal_float_t *offset;    /**< IO: offset added after scaling */
+  double old_scale;       /**< Previously applied scale (change detection) */
+  double scale_recip;     /**< Reciprocal of current scale */
+  hal_float_t *min_dc;    /**< IO: minimum duty cycle clamp */
+  hal_float_t *max_dc;    /**< IO: maximum duty cycle clamp */
+  hal_float_t *curr_dc;   /**< OUT: current duty cycle being applied */
+  hal_s32_t *raw_val;     /**< OUT: raw 16-bit output value written to PDO */
+  unsigned int val_pdo_os; /**< PDO byte offset of the 16-bit value */
 } lcec_em7004_aout_t;
 
+/**
+ * @brief Per-channel HAL data for one incremental encoder.
+ */
 typedef struct {
-  hal_bit_t *ena_latch_ext_pos;
-  hal_bit_t *ena_latch_ext_neg;
-  hal_bit_t *reset;
-  hal_bit_t *ina;
-  hal_bit_t *inb;
-  hal_bit_t *ingate;
-  hal_bit_t *inext;
-  hal_bit_t *latch_ext_valid;
-  hal_bit_t *set_raw_count;
-  hal_s32_t *set_raw_count_val;
-  hal_s32_t *raw_count;
-  hal_s32_t *raw_latch;
-  hal_s32_t *count;
-  hal_float_t *pos_scale;
-  hal_float_t *pos;
+  hal_bit_t *ena_latch_ext_pos;  /**< IO: enable external latch on positive edge */
+  hal_bit_t *ena_latch_ext_neg;  /**< IO: enable external latch on negative edge */
+  hal_bit_t *reset;              /**< IN: reset accumulated count to zero */
+  hal_bit_t *ina;                /**< OUT: encoder channel A state */
+  hal_bit_t *inb;                /**< OUT: encoder channel B state */
+  hal_bit_t *ingate;             /**< OUT: encoder gate input state */
+  hal_bit_t *inext;              /**< OUT: external latch input state */
+  hal_bit_t *latch_ext_valid;    /**< OUT: external latch valid flag */
+  hal_bit_t *set_raw_count;      /**< IO: write 1 to preset the counter */
+  hal_s32_t *set_raw_count_val;  /**< IN: preset value for the counter */
+  hal_s32_t *raw_count;          /**< OUT: raw 16-bit counter value */
+  hal_s32_t *raw_latch;          /**< OUT: raw 16-bit latch value */
+  hal_s32_t *count;              /**< OUT: accumulated count */
+  hal_float_t *pos_scale;        /**< IO: counts per user unit */
+  hal_float_t *pos;              /**< OUT: position in user units */
 
-  unsigned int ena_latch_ext_pos_pdo_os;
-  unsigned int ena_latch_ext_pos_pdo_bp;
-  unsigned int ena_latch_ext_neg_pdo_os;
-  unsigned int ena_latch_ext_neg_pdo_bp;
-  unsigned int set_count_pdo_os;
-  unsigned int set_count_pdo_bp;
-  unsigned int set_count_val_pdo_os;
-  unsigned int set_count_done_pdo_os;
-  unsigned int set_count_done_pdo_bp;
-  unsigned int latch_ext_valid_pdo_os;
-  unsigned int latch_ext_valid_pdo_bp;
-  unsigned int ina_pdo_os;
-  unsigned int ina_pdo_bp;
-  unsigned int inb_pdo_os;
-  unsigned int inb_pdo_bp;
-  unsigned int ingate_pdo_os;
-  unsigned int ingate_pdo_bp;
-  unsigned int inext_pdo_os;
-  unsigned int inext_pdo_bp;
-  unsigned int count_pdo_os;
-  unsigned int latch_pdo_os;
+  unsigned int ena_latch_ext_pos_pdo_os; /**< PDO byte offset: enable latch pos edge */
+  unsigned int ena_latch_ext_pos_pdo_bp; /**< Bit position: enable latch pos edge */
+  unsigned int ena_latch_ext_neg_pdo_os; /**< PDO byte offset: enable latch neg edge */
+  unsigned int ena_latch_ext_neg_pdo_bp; /**< Bit position: enable latch neg edge */
+  unsigned int set_count_pdo_os;         /**< PDO byte offset: set counter command */
+  unsigned int set_count_pdo_bp;         /**< Bit position: set counter command */
+  unsigned int set_count_val_pdo_os;     /**< PDO byte offset: preset value */
+  unsigned int set_count_done_pdo_os;    /**< PDO byte offset: set counter done */
+  unsigned int set_count_done_pdo_bp;    /**< Bit position: set counter done */
+  unsigned int latch_ext_valid_pdo_os;   /**< PDO byte offset: latch valid flag */
+  unsigned int latch_ext_valid_pdo_bp;   /**< Bit position: latch valid flag */
+  unsigned int ina_pdo_os;               /**< PDO byte offset: channel A state */
+  unsigned int ina_pdo_bp;               /**< Bit position: channel A state */
+  unsigned int inb_pdo_os;               /**< PDO byte offset: channel B state */
+  unsigned int inb_pdo_bp;               /**< Bit position: channel B state */
+  unsigned int ingate_pdo_os;            /**< PDO byte offset: gate input state */
+  unsigned int ingate_pdo_bp;            /**< Bit position: gate input state */
+  unsigned int inext_pdo_os;             /**< PDO byte offset: external latch input */
+  unsigned int inext_pdo_bp;             /**< Bit position: external latch input */
+  unsigned int count_pdo_os;            /**< PDO byte offset: 16-bit counter value */
+  unsigned int latch_pdo_os;            /**< PDO byte offset: 16-bit latch value */
 
-  int do_init;
-  int16_t last_count;
-  double old_scale;
-  double scale;
+  int do_init;          /**< Flag: 1 on first read after startup */
+  int16_t last_count;   /**< Previous raw count for delta computation */
+  double old_scale;     /**< Previously applied scale (change detection) */
+  double scale;         /**< Reciprocal of current pos_scale */
 } lcec_em7004_enc_t;
 
+/**
+ * @brief Top-level HAL data for the EM7004 module.
+ */
 typedef struct {
-  lcec_em7004_din_t dins[LCEC_EM7004_DIN_COUNT];
-  lcec_em7004_dout_t douts[LCEC_EM7004_DOUT_COUNT];
-  lcec_em7004_aout_t aouts[LCEC_EM7004_AOUT_COUNT];
-  lcec_em7004_enc_t encs[LCEC_EM7004_ENC_COUNT];
-  int last_operational;
+  lcec_em7004_din_t dins[LCEC_EM7004_DIN_COUNT];    /**< Digital input channels */
+  lcec_em7004_dout_t douts[LCEC_EM7004_DOUT_COUNT]; /**< Digital output channels */
+  lcec_em7004_aout_t aouts[LCEC_EM7004_AOUT_COUNT]; /**< Analog output channels */
+  lcec_em7004_enc_t encs[LCEC_EM7004_ENC_COUNT];    /**< Encoder channels */
+  int last_operational; /**< 1 when slave was operational on previous cycle */
 } lcec_em7004_data_t;
 
 static const lcec_pindesc_t slave_din_pins[] = {
@@ -153,9 +176,23 @@ static const lcec_pindesc_t slave_enc_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/**
+ * @brief Cyclic read and write: forward declarations.
+ */
 void lcec_em7004_read(struct lcec_slave *slave, long period);
 void lcec_em7004_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise the EM7004 stepper module and map all PDOs.
+ *
+ * Sets up PDO entries and HAL pins for all 16 digital inputs, 16 digital
+ * outputs, 4 analog outputs, and 4 encoder channels.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_em7004_data_t *hal_data;
@@ -260,6 +297,17 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Cyclic read: update all digital input and encoder HAL pins.
+ *
+ * Reads all 16 digital input bits and updates in/in_not pins.  For each
+ * encoder channel, handles scale changes, reads counter and latch values,
+ * processes preset and external-latch events, accumulates the count delta,
+ * and computes the scaled floating-point position.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds (unused).
+ */
 void lcec_em7004_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_em7004_data_t *hal_data = (lcec_em7004_data_t *) slave->hal_data;
@@ -352,6 +400,16 @@ void lcec_em7004_read(struct lcec_slave *slave, long period) {
   hal_data->last_operational = 1;
 }
 
+/**
+ * @brief Cyclic write: update digital outputs, analog outputs, and encoder controls.
+ *
+ * Writes all 16 digital output bits (optionally inverted), computes duty-cycle
+ * clamping and raw 16-bit values for all 4 analog outputs, then writes the
+ * encoder set-count and latch-enable control bits.
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds (unused).
+ */
 void lcec_em7004_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_em7004_data_t *hal_data = (lcec_em7004_data_t *) slave->hal_data;

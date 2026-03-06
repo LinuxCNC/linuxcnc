@@ -1,5 +1,17 @@
+/**
+ * @file slave.c
+ * @brief EtherCAT slave management for the LinuxCNC EtherCAT HAL driver.
+ *
+ * Handles creation, configuration, and destruction of EtherCAT slave objects,
+ * as well as the registration and updating of per-slave HAL state pins.  It
+ * bridges the XML-parsed configuration records (@c LCEC_CONF_SLAVE_T and
+ * friends) with the runtime @c lcec_slave_t structures used by the real-time
+ * read/write functions.
+ */
+
 #include "priv.h"
 
+/** @brief HAL pin descriptors exported for each slave's EtherCAT AL state. */
 static const lcec_pindesc_t slave_pins[] = {
   { HAL_BIT, HAL_OUT, offsetof(lcec_slave_state_t, online), "%s.%s.%s.slave-online" },
   { HAL_BIT, HAL_OUT, offsetof(lcec_slave_state_t, operational), "%s.%s.%s.slave-oper" },
@@ -10,6 +22,27 @@ static const lcec_pindesc_t slave_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/**
+ * @brief Create and initialise an @c lcec_slave_t from its configuration.
+ *
+ * Looks up the slave type in the global @c typelist (or treats it as a generic
+ * slave when @c slave_conf->type is @c lcecSlaveTypeGeneric), allocates the
+ * slave structure, and pre-allocates variable-length buffers for SDO, IDN, and
+ * module-parameter configuration data.  Pointers to all allocated buffers are
+ * also stored in @p conf_state so that the caller can populate them
+ * incrementally via the @c lcec_slave_conf_*() helpers.
+ *
+ * @param master      Owning master; must not be NULL.
+ * @param slave_conf  Parsed slave configuration record.
+ * @param conf_state  Caller-supplied state struct; zeroed on entry and populated
+ *                    with traversal pointers for subsequent @c lcec_slave_conf_*() calls.
+ * @return Pointer to the new slave, or NULL on error.
+ *
+ * @note The returned slave is not yet attached to the master's slave list; the
+ *       caller is responsible for linking it.
+ * @note On failure, any partially allocated resources are freed via
+ *       @c lcec_free_slave().
+ */
 lcec_slave_t *lcec_create_slave(lcec_master_t *master, LCEC_CONF_SLAVE_T *slave_conf, lcec_slave_conf_state_t *conf_state) {
   lcec_slave_t *slave;
   const lcec_typelist_t *type;
@@ -103,6 +136,18 @@ fail0:
   return NULL;
 }
 
+/**
+ * @brief Free all memory associated with a slave.
+ *
+ * Releases the optional SDO config buffer, IDN config buffer, module-parameter
+ * array, DC config, watchdog config, and finally the slave struct itself.
+ * Generic-device resources are freed first via @c lcec_generic_free_slave().
+ *
+ * @param slave  Slave to destroy.  Must not be NULL.
+ *
+ * @note The slave must have been removed from the master's linked list before
+ *       calling this function.
+ */
 void lcec_free_slave(lcec_slave_t *slave) {
   // free generic device stuff
   lcec_generic_free_slave(slave);
@@ -125,6 +170,17 @@ void lcec_free_slave(lcec_slave_t *slave) {
   lcec_free(slave);
 }
 
+/**
+ * @brief Apply a distributed clock configuration to a slave.
+ *
+ * Allocates an @c lcec_slave_dc_t structure, copies the timing parameters from
+ * @p dc_conf, and stores it in @c slave->dc_conf.  Only one DC configuration
+ * per slave is allowed; a second call will print a warning and return an error.
+ *
+ * @param slave    Target slave; must not be NULL.
+ * @param dc_conf  Parsed DC configuration from the XML.
+ * @return 0 on success, -1 on error (null slave, duplicate config, or OOM).
+ */
 int lcec_slave_conf_dc(lcec_slave_t *slave, LCEC_CONF_DC_T *dc_conf) {
   lcec_slave_dc_t *dc;
 
@@ -160,6 +216,17 @@ int lcec_slave_conf_dc(lcec_slave_t *slave, LCEC_CONF_DC_T *dc_conf) {
   return 0;
 }
 
+/**
+ * @brief Apply a watchdog configuration to a slave.
+ *
+ * Allocates an @c lcec_slave_watchdog_t, copies divider and interval values
+ * from @p wd_conf, and stores it in @c slave->wd_conf.  Duplicate watchdog
+ * configuration is rejected.
+ *
+ * @param slave    Target slave; must not be NULL.
+ * @param wd_conf  Parsed watchdog configuration from the XML.
+ * @return 0 on success, -1 on error (null slave, duplicate config, or OOM).
+ */
 int lcec_slave_conf_wd(lcec_slave_t *slave, LCEC_CONF_WATCHDOG_T *wd_conf) {
   lcec_slave_watchdog_t *wd;
 
@@ -192,6 +259,21 @@ int lcec_slave_conf_wd(lcec_slave_t *slave, LCEC_CONF_WATCHDOG_T *wd_conf) {
   return 0;
 }
 
+/**
+ * @brief Append an SDO configuration entry to the slave's SDO config buffer.
+ *
+ * Writes index, subindex, length, and raw data into the current write position
+ * of the contiguous SDO buffer referenced by @c state->sdo_config, then
+ * advances the pointer past this entry and marks the next slot with the
+ * sentinel index @c 0xffff so that the driver can detect the end of the list
+ * at runtime.
+ *
+ * @param state     Traversal state holding the current SDO write pointer.
+ * @param sdo_conf  Parsed SDO configuration record to append.
+ *
+ * @note @c state->sdo_config must point into a buffer large enough for all
+ *       SDO entries; @c lcec_create_slave() pre-allocates this buffer.
+ */
 void lcec_slave_conf_sdo(lcec_slave_conf_state_t *state, LCEC_CONF_SDOCONF_T *sdo_conf) {
   // copy attributes
   state->sdo_config->index = sdo_conf->index;
@@ -205,6 +287,19 @@ void lcec_slave_conf_sdo(lcec_slave_conf_state_t *state, LCEC_CONF_SDOCONF_T *sd
   state->sdo_config->index = 0xffff;
 }
 
+/**
+ * @brief Append an IDN (Sercos-over-EtherCAT) configuration entry to the slave's IDN config buffer.
+ *
+ * Writes drive number, IDN word, AL state, length, and raw data into the
+ * current position of the IDN config buffer, then advances the write pointer
+ * for the next entry.
+ *
+ * @param state     Traversal state holding the current IDN write pointer.
+ * @param idn_conf  Parsed IDN configuration record to append.
+ *
+ * @note No sentinel is written; the buffer length is bounded by the count
+ *       established during @c lcec_create_slave().
+ */
 void lcec_slave_conf_idn(lcec_slave_conf_state_t *state, LCEC_CONF_IDNCONF_T *idn_conf) {
   // copy attributes
   state->idn_config->drive = idn_conf->drive;
@@ -218,6 +313,17 @@ void lcec_slave_conf_idn(lcec_slave_conf_state_t *state, LCEC_CONF_IDNCONF_T *id
   state->idn_config = (lcec_slave_idnconf_t *) &state->idn_config->data[state->idn_config->length];
 }
 
+/**
+ * @brief Append a module parameter entry to the slave's modparam array.
+ *
+ * Copies the parameter @c id and @c value from @p modparam_conf into the
+ * current slot of the modparam array, then advances the write pointer.
+ * The terminator entry (@c id == -1) is written by @c lcec_create_slave()
+ * after the last allocated slot.
+ *
+ * @param state          Traversal state holding the current modparam write pointer.
+ * @param modparam_conf  Parsed module parameter record to append.
+ */
 void lcec_slave_conf_modparam(lcec_slave_conf_state_t *state, LCEC_CONF_MODPARAM_T *modparam_conf) {
   // copy attributes
   state->modparams->id = modparam_conf->id;
@@ -227,6 +333,19 @@ void lcec_slave_conf_modparam(lcec_slave_conf_state_t *state, LCEC_CONF_MODPARAM
   state->modparams++;
 }
 
+/**
+ * @brief Allocate and export HAL state pins for a slave.
+ *
+ * Allocates a zeroed @c lcec_slave_state_t from HAL shared memory and registers
+ * all HAL output pins described by @c slave_pins using the three-component
+ * name @c "<module>.<master>.<slave>".
+ *
+ * @param master_name  Name of the owning master (second name component).
+ * @param slave_name   Name of the slave (third name component).
+ * @return Pointer to the allocated HAL state structure, or NULL on failure.
+ *
+ * @note Must be called from init context, not from a real-time thread.
+ */
 lcec_slave_state_t *lcec_init_slave_state_hal(char *master_name, char *slave_name) {
   lcec_slave_state_t *hal_data;
 
@@ -245,6 +364,18 @@ lcec_slave_state_t *lcec_init_slave_state_hal(char *master_name, char *slave_nam
   return hal_data;
 }
 
+/**
+ * @brief Update slave HAL state pins from the current EtherCAT slave config state.
+ *
+ * Copies the @c online and @c operational flags and decomposes the @c al_state
+ * byte into four individual boolean pins (@c state_init, @c state_preop,
+ * @c state_safeop, @c state_op).
+ *
+ * @param hal_data  HAL state block whose pins will be written.
+ * @param ss        EtherCAT slave configuration state snapshot.
+ *
+ * @note Called from the real-time read function; must not block or allocate.
+ */
 void lcec_update_slave_state_hal(lcec_slave_state_t *hal_data, ec_slave_config_state_t *ss) {
   *(hal_data->online) = ss->online;
   *(hal_data->operational) = ss->operational;

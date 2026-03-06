@@ -16,18 +16,26 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el1859.c
+ * @brief Driver implementation for Beckhoff EL1859 8-channel DI + 8-channel DO combo terminal.
+ */
+
 #include "../lcec.h"
 #include "el1859.h"
 
+/**
+ * @brief Per-channel HAL data for one EL1859 input/output pair.
+ */
 typedef struct {
-  hal_bit_t *in;
-  hal_bit_t *in_not;
-  hal_bit_t *out;
-  hal_bit_t invert;
-  unsigned int pdo_in_os;
-  unsigned int pdo_in_bp;
-  unsigned int pdo_out_os;
-  unsigned int pdo_out_bp;
+  hal_bit_t *in;       /**< HAL output pin: digital input state. */
+  hal_bit_t *in_not;   /**< HAL output pin: inverted digital input state. */
+  hal_bit_t *out;      /**< HAL input pin: digital output command. */
+  hal_bit_t invert;    /**< HAL parameter: invert output polarity when non-zero. */
+  unsigned int pdo_in_os;  /**< Byte offset of the input PDO entry in the process data image. */
+  unsigned int pdo_in_bp;  /**< Bit position within pdo_in_os. */
+  unsigned int pdo_out_os; /**< Byte offset of the output PDO entry in the process data image. */
+  unsigned int pdo_out_bp; /**< Bit position within pdo_out_os. */
 
 } lcec_el1859_pin_t;
 
@@ -44,9 +52,28 @@ static const lcec_pindesc_t slave_params[] = {
 };
 
 
+/**
+ * @brief EtherCAT cyclic read callback — updates all digital input HAL pins.
+ * @param slave  Pointer to the lcec slave structure.
+ * @param period Servo period in nanoseconds (unused).
+ */
 void lcec_el1859_read(struct lcec_slave *slave, long period);
+
+/**
+ * @brief EtherCAT cyclic write callback — writes digital output values to process data.
+ * @param slave  Pointer to the lcec slave structure.
+ * @param period Servo period in nanoseconds (unused).
+ */
 void lcec_el1859_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialize the EL1859 digital I/O combo slave.
+ *
+ * @param comp_id        HAL component ID.
+ * @param slave          Pointer to the lcec slave structure.
+ * @param pdo_entry_regs Pointer to PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el1859_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el1859_pin_t *hal_data;

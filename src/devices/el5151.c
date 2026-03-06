@@ -16,72 +16,87 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el5151.c
+ * @brief Driver implementation for the Beckhoff EL5151 1-channel incremental encoder terminal (extended).
+ *
+ * Provides HAL pins for a single incremental encoder channel with an extended
+ * feature set. Compared to the EL5101, the EL5151 offers a 32-bit position
+ * counter, direct readback of all inputs (A, B, C, EXT), extrapolation-stall
+ * detection, EtherCAT sync-error reporting, a TxPDO toggle bit, 32-bit period
+ * measurement, and separate C-index and external (positive/negative edge)
+ * latch inputs.
+ */
+
 #include "../lcec.h"
 #include "el5151.h"
 
+/**
+ * @brief HAL pins and PDO mapping data for the EL5151 incremental encoder.
+ */
 typedef struct {
-  hal_bit_t *ena_latch_c;
-  hal_bit_t *ena_latch_ext_pos;
-  hal_bit_t *ena_latch_ext_neg;
-  hal_bit_t *reset;
-  hal_bit_t *ina;
-  hal_bit_t *inb;
-  hal_bit_t *inc;
-  hal_bit_t *inext;
-  hal_bit_t *expol_stall;
-  hal_bit_t *sync_err;
-  hal_bit_t *latch_c_valid;
-  hal_bit_t *latch_ext_valid;
-  hal_bit_t *tx_toggle;
-  hal_bit_t *set_raw_count;
-  hal_s32_t *set_raw_count_val;
-  hal_s32_t *raw_count;
-  hal_s32_t *raw_latch;
-  hal_u32_t *raw_period;
-  hal_s32_t *count;
-  hal_float_t *pos_scale;
-  hal_float_t *pos;
-  hal_float_t *period;
+  hal_bit_t *ena_latch_c;         /**< HAL IO: enable C-index latch; auto-cleared when latch is captured. */
+  hal_bit_t *ena_latch_ext_pos;   /**< HAL IO: enable external latch on positive edge; auto-cleared on capture. */
+  hal_bit_t *ena_latch_ext_neg;   /**< HAL IO: enable external latch on negative edge; auto-cleared on capture. */
+  hal_bit_t *reset;               /**< HAL IN: reset the relative position counter to zero. */
+  hal_bit_t *ina;                 /**< HAL OUT: current state of encoder input A (PDO 0x6000/0x09). */
+  hal_bit_t *inb;                 /**< HAL OUT: current state of encoder input B (PDO 0x6000/0x0a). */
+  hal_bit_t *inc;                 /**< HAL OUT: current state of encoder input C / index (PDO 0x6000/0x0b). */
+  hal_bit_t *inext;               /**< HAL OUT: current state of external latch input (PDO 0x6000/0x0d). */
+  hal_bit_t *expol_stall;         /**< HAL OUT: extrapolation stall flag — encoder stopped during extrapolation (PDO 0x6000/0x08). */
+  hal_bit_t *sync_err;            /**< HAL OUT: EtherCAT sync error flag (PDO 0x1c32/0x20). */
+  hal_bit_t *latch_c_valid;       /**< HAL OUT: C-index latch value is valid (PDO 0x6000/0x01). */
+  hal_bit_t *latch_ext_valid;     /**< HAL OUT: external latch value is valid (PDO 0x6000/0x02). */
+  hal_bit_t *tx_toggle;           /**< HAL OUT: TxPDO toggle bit; alternates each new PDO (PDO 0x1800/0x09). */
+  hal_bit_t *set_raw_count;       /**< HAL IO: pulse high to preset the hardware counter; cleared when acknowledged. */
+  hal_s32_t *set_raw_count_val;   /**< HAL IN: value to load into the counter when set_raw_count is asserted. */
+  hal_s32_t *raw_count;           /**< HAL OUT: raw 32-bit counter value from the terminal (PDO 0x6000/0x11). */
+  hal_s32_t *raw_latch;           /**< HAL OUT: counter value captured at the last latch event (PDO 0x6000/0x12). */
+  hal_u32_t *raw_period;          /**< HAL OUT: raw 32-bit period measurement from the terminal (PDO 0x6000/0x14). */
+  hal_s32_t *count;               /**< HAL OUT: relative position count (zeroed on reset or latch event). */
+  hal_float_t *pos_scale;         /**< HAL IO: counts per user unit; reciprocal applied internally. */
+  hal_float_t *pos;               /**< HAL OUT: scaled position in user units. */
+  hal_float_t *period;            /**< HAL OUT: encoder period in seconds (raw_period * LCEC_EL5151_PERIOD_SCALE). */
 
-  unsigned int ena_latch_c_pdo_os;
-  unsigned int ena_latch_c_pdo_bp;
-  unsigned int ena_latch_ext_pos_pdo_os;
-  unsigned int ena_latch_ext_pos_pdo_bp;
-  unsigned int ena_latch_ext_neg_pdo_os;
-  unsigned int ena_latch_ext_neg_pdo_bp;
-  unsigned int set_count_pdo_os;
-  unsigned int set_count_pdo_bp;
-  unsigned int set_count_val_pdo_os;
-  unsigned int set_count_done_pdo_os;
-  unsigned int set_count_done_pdo_bp;
-  unsigned int latch_c_valid_pdo_os;
-  unsigned int latch_c_valid_pdo_bp;
-  unsigned int latch_ext_valid_pdo_os;
-  unsigned int latch_ext_valid_pdo_bp;
-  unsigned int expol_stall_pdo_os;
-  unsigned int expol_stall_pdo_bp;
-  unsigned int ina_pdo_os;
-  unsigned int ina_pdo_bp;
-  unsigned int inb_pdo_os;
-  unsigned int inb_pdo_bp;
-  unsigned int inc_pdo_os;
-  unsigned int inc_pdo_bp;
-  unsigned int inext_pdo_os;
-  unsigned int inext_pdo_bp;
-  unsigned int sync_err_pdo_os;
-  unsigned int sync_err_pdo_bp;
-  unsigned int tx_toggle_pdo_os;
-  unsigned int tx_toggle_pdo_bp;
-  unsigned int count_pdo_os;
-  unsigned int latch_pdo_os;
-  unsigned int period_pdo_os;
+  unsigned int ena_latch_c_pdo_os;          /**< Byte offset of ena_latch_c output bit in process data. */
+  unsigned int ena_latch_c_pdo_bp;          /**< Bit position of ena_latch_c within the byte. */
+  unsigned int ena_latch_ext_pos_pdo_os;    /**< Byte offset of ena_latch_ext_pos output bit in process data. */
+  unsigned int ena_latch_ext_pos_pdo_bp;    /**< Bit position of ena_latch_ext_pos within the byte. */
+  unsigned int ena_latch_ext_neg_pdo_os;    /**< Byte offset of ena_latch_ext_neg output bit in process data. */
+  unsigned int ena_latch_ext_neg_pdo_bp;    /**< Bit position of ena_latch_ext_neg within the byte. */
+  unsigned int set_count_pdo_os;            /**< Byte offset of the set-counter command bit in output process data. */
+  unsigned int set_count_pdo_bp;            /**< Bit position of the set-counter command within the byte. */
+  unsigned int set_count_val_pdo_os;        /**< Byte offset of the 32-bit counter preset value in output process data. */
+  unsigned int set_count_done_pdo_os;       /**< Byte offset of set-counter-done acknowledgement bit in input data. */
+  unsigned int set_count_done_pdo_bp;       /**< Bit position of set-counter-done within the byte. */
+  unsigned int latch_c_valid_pdo_os;        /**< Byte offset of latch-C-valid status bit in input process data. */
+  unsigned int latch_c_valid_pdo_bp;        /**< Bit position of latch-C-valid within the byte. */
+  unsigned int latch_ext_valid_pdo_os;      /**< Byte offset of latch-extern-valid status bit in input process data. */
+  unsigned int latch_ext_valid_pdo_bp;      /**< Bit position of latch-extern-valid within the byte. */
+  unsigned int expol_stall_pdo_os;          /**< Byte offset of extrapolation-stall status bit in input process data. */
+  unsigned int expol_stall_pdo_bp;          /**< Bit position of extrapolation-stall within the byte. */
+  unsigned int ina_pdo_os;                  /**< Byte offset of input A status bit in input process data. */
+  unsigned int ina_pdo_bp;                  /**< Bit position of input A within the byte. */
+  unsigned int inb_pdo_os;                  /**< Byte offset of input B status bit in input process data. */
+  unsigned int inb_pdo_bp;                  /**< Bit position of input B within the byte. */
+  unsigned int inc_pdo_os;                  /**< Byte offset of input C status bit in input process data. */
+  unsigned int inc_pdo_bp;                  /**< Bit position of input C within the byte. */
+  unsigned int inext_pdo_os;                /**< Byte offset of external input status bit in input process data. */
+  unsigned int inext_pdo_bp;                /**< Bit position of external input within the byte. */
+  unsigned int sync_err_pdo_os;             /**< Byte offset of sync-error bit in input process data. */
+  unsigned int sync_err_pdo_bp;             /**< Bit position of sync-error within the byte. */
+  unsigned int tx_toggle_pdo_os;            /**< Byte offset of TxPDO toggle bit in input process data. */
+  unsigned int tx_toggle_pdo_bp;            /**< Bit position of TxPDO toggle within the byte. */
+  unsigned int count_pdo_os;               /**< Byte offset of the 32-bit counter value in input process data. */
+  unsigned int latch_pdo_os;               /**< Byte offset of the 32-bit latch value in input process data. */
+  unsigned int period_pdo_os;              /**< Byte offset of the 32-bit period value in input process data. */
 
-  int do_init;
-  int32_t last_count;
-  double old_scale;
-  double scale;
+  int do_init;          /**< Non-zero until the first valid read; triggers counter zeroing. */
+  int32_t last_count;   /**< Previous raw counter value used to compute relative delta. */
+  double old_scale;     /**< Last observed pos_scale value; used to detect pin changes. */
+  double scale;         /**< Cached reciprocal of pos_scale (1.0 / pos_scale). */
 
-  int last_operational;
+  int last_operational; /**< Tracks whether the slave was operational on the previous cycle. */
 } lcec_el5151_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -163,6 +178,18 @@ static ec_sync_info_t lcec_el5151_syncs[] = {
 void lcec_el5151_read(struct lcec_slave *slave, long period);
 void lcec_el5151_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise the EL5151 EtherCAT slave driver.
+ *
+ * Allocates HAL memory, configures sync managers, registers all PDO entries
+ * (input status bits, counter, latch, period, and output control/preset), and
+ * exports HAL pins for the extended single-channel incremental encoder.
+ *
+ * @param comp_id        LinuxCNC HAL component ID.
+ * @param slave          Pointer to the lcec slave descriptor.
+ * @param pdo_entry_regs Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el5151_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el5151_data_t *hal_data;
@@ -223,6 +250,18 @@ int lcec_el5151_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief EtherCAT cyclic read callback for the EL5151.
+ *
+ * Reads all input PDO data: A/B/C/EXT input states, extrapolation-stall,
+ * sync-error, C-latch and ext-latch valid flags, TxPDO toggle, 32-bit counter
+ * value, 32-bit latch value, and 32-bit period. Handles counter-preset
+ * acknowledgement and index latch events (C and external edge). Updates
+ * relative count, scaled position, and period in seconds every cycle.
+ *
+ * @param slave  Pointer to the lcec slave descriptor.
+ * @param period EtherCAT cycle period in nanoseconds (unused).
+ */
 void lcec_el5151_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el5151_data_t *hal_data = (lcec_el5151_data_t *) slave->hal_data;
@@ -318,6 +357,16 @@ void lcec_el5151_read(struct lcec_slave *slave, long period) {
   hal_data->last_operational = 1;
 }
 
+/**
+ * @brief EtherCAT cyclic write callback for the EL5151.
+ *
+ * Writes the output PDO data each cycle: set-counter command bit, enable
+ * C-latch bit, enable external latch positive-edge bit, enable external
+ * latch negative-edge bit, and the 32-bit counter preset value.
+ *
+ * @param slave  Pointer to the lcec slave descriptor.
+ * @param period EtherCAT cycle period in nanoseconds (unused).
+ */
 void lcec_el5151_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el5151_data_t *hal_data = (lcec_el5151_data_t *) slave->hal_data;

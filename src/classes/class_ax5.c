@@ -16,10 +16,30 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file class_ax5.c
+ * @brief Beckhoff AX5xxx servo drive device-class implementation.
+ *
+ * Provides the shared initialisation, read, and write logic for the AX5100
+ * (single-axis) and AX5200 (dual-axis) EtherCAT servo drives.  Each physical
+ * drive channel is represented by one `lcec_class_ax5_chan_t` instance.
+ *
+ * **Drive communication overview:**
+ * - Velocity-control mode (IDN S-0-0018 velocity command).
+ * - Position feedback read from IDN S-0-0051 / S-0-0053 (primary, secondary).
+ * - Torque feedback from IDN S-0-0084.
+ * - Status word from IDN S-0-0135; control word to IDN S-0-0134.
+ *
+ * Optional PDOs (enabled via XML module parameters):
+ * - `LCEC_AX5_PARAM_ENABLE_FB2`  – secondary feedback encoder.
+ * - `LCEC_AX5_PARAM_ENABLE_DIAG` – diagnostics word.
+ */
+
 #include "lcec.h"
 #include "class_enc.h"
 #include "class_ax5.h"
 
+/** @brief HAL pin descriptors for the mandatory per-channel servo pins. */
 static const lcec_pindesc_t slave_pins[] = {
   { HAL_BIT, HAL_IN, offsetof(lcec_class_ax5_chan_t, drive_on), "%s.%s.%s.%ssrv-drive-on" },
   { HAL_BIT, HAL_IN, offsetof(lcec_class_ax5_chan_t, enable), "%s.%s.%s.%ssrv-enable" },
@@ -34,11 +54,13 @@ static const lcec_pindesc_t slave_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/** @brief HAL pin descriptors for the optional diagnostics word pin. */
 static const lcec_pindesc_t slave_diag_pins[] = {
   { HAL_U32, HAL_IN, offsetof(lcec_class_ax5_chan_t, diag), "%s.%s.%s.%ssrv-diag" },
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/** @brief HAL parameter descriptors for primary-feedback scaling and resolution. */
 static const lcec_pindesc_t slave_params[] = {
   { HAL_FLOAT, HAL_RW, offsetof(lcec_class_ax5_chan_t, scale), "%s.%s.%s.%ssrv-scale" },
   { HAL_FLOAT, HAL_RO, offsetof(lcec_class_ax5_chan_t, vel_scale), "%s.%s.%s.%ssrv-vel-scale" },
@@ -46,11 +68,23 @@ static const lcec_pindesc_t slave_params[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/** @brief HAL parameter descriptors for secondary-feedback scaling (FB2). */
 static const lcec_pindesc_t slave_fb2_params[] = {
   { HAL_FLOAT, HAL_RW, offsetof(lcec_class_ax5_chan_t, scale_fb2), "%s.%s.%s.%ssrv-scale-fb2" },
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
+/**
+ * @brief Read a boolean module parameter from the slave configuration.
+ *
+ * Looks up the module parameter with the given @p id and returns its boolean
+ * (bit) value.  If the parameter is not present in the XML configuration the
+ * function returns 0 (disabled).
+ *
+ * @param slave  Pointer to the EtherCAT slave descriptor.
+ * @param id     Module-parameter ID (e.g. `LCEC_AX5_PARAM_ENABLE_FB2`).
+ * @return       1 if the parameter is set, 0 if absent or false.
+ */
 static int get_param_flag(struct lcec_slave *slave, int id) {
   LCEC_CONF_MODPARAM_VAL_T *pval;
 
@@ -62,6 +96,18 @@ static int get_param_flag(struct lcec_slave *slave, int id) {
   return pval->bit;
 }
 
+/**
+ * @brief Calculate the total number of PDO entries needed for this slave.
+ *
+ * Starts from the five mandatory PDO entries (status, primary position
+ * feedback, torque feedback, control word, velocity command) and adds one
+ * for each optional feature (FB2, diagnostics) that is enabled via module
+ * parameters.
+ *
+ * @param slave  Pointer to the EtherCAT slave descriptor.
+ * @return       Total PDO entry count to pass to the slave's PDO array
+ *               allocation.
+ */
 int lcec_class_ax5_pdos(struct lcec_slave *slave) {
   int pdo_count = 5;
 
@@ -76,6 +122,31 @@ int lcec_class_ax5_pdos(struct lcec_slave *slave) {
   return pdo_count;
 }
 
+/**
+ * @brief Initialise one AX5xxx drive channel and register HAL objects.
+ *
+ * Performs the following steps:
+ *  1. Reads IDNs S-0-0079 (position resolution), S-0-0045/46 (velocity scale
+ *     and exponent) from the drive via the EtherCAT mailbox.
+ *  2. Registers all mandatory PDO entries in the process data image.
+ *  3. Exports HAL pins (drive-on, enable, enabled, halted, fault, halt,
+ *     velo-cmd, status, torque-fb-pct) and parameters (scale, vel-scale,
+ *     pos-resolution).
+ *  4. Initialises the primary encoder sub-object.
+ *  5. If FB2 is enabled: registers the FB2 PDO, exports the scale-fb2
+ *     parameter, and initialises a second encoder sub-object.
+ *  6. If diagnostics are enabled: registers the diagnostics PDO and exports
+ *     the srv-diag pin.
+ *  7. Sets initial pin/parameter values and computes velocity output scaling.
+ *
+ * @param slave           EtherCAT slave descriptor.
+ * @param pdo_entry_regs  PDO entry registration array pointer (advanced in
+ *                        place as entries are added).
+ * @param chan            Per-channel structure to initialise.
+ * @param index           Zero-based axis index within the drive (0 or 1).
+ * @param pfx             HAL name prefix for this channel.
+ * @return                0 on success, negative errno on failure.
+ */
 int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, lcec_class_ax5_chan_t *chan, int index, const char *pfx) {
   lcec_master_t *master = slave->master;
   int err;
@@ -162,6 +233,16 @@ int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry
   return 0;
 }
 
+/**
+ * @brief Detect HAL scale parameter changes and recompute reciprocals.
+ *
+ * Compares the current values of `scale` and `scale_fb2` against their
+ * shadow copies.  When a change is detected the value is clamped away from
+ * zero (to prevent division by zero) and the reciprocal is recomputed so
+ * that the read path can multiply rather than divide.
+ *
+ * @param chan  Per-channel data structure containing the scale parameters.
+ */
 void lcec_class_ax5_check_scales(lcec_class_ax5_chan_t *chan) {
   // check for change in scale value
   if (chan->scale != chan->scale_old) {
@@ -190,6 +271,27 @@ void lcec_class_ax5_check_scales(lcec_class_ax5_chan_t *chan) {
   }
 }
 
+/**
+ * @brief Read EtherCAT process data and update HAL output pins.
+ *
+ * Called every real-time cycle from the owning slave driver's read callback.
+ * When the slave is not yet operational all outputs are forced to a safe
+ * state (fault asserted, enabled/halted de-asserted) and the encoder
+ * do_init flag is set so that position is re-captured when communication
+ * is restored.
+ *
+ * When operational the function:
+ *  - Refreshes scale reciprocals if HAL parameters changed.
+ *  - Decodes the 16-bit status word: bits 13–14 for fault/ready-to-operate,
+ *    bit 14–15 for enabled state, and bit 3 for halted state.
+ *  - Advances the primary encoder via `class_enc_update`.
+ *  - Optionally advances the secondary FB2 encoder.
+ *  - Optionally reads the diagnostics word.
+ *  - Converts the signed 16-bit torque feedback to a percentage float.
+ *
+ * @param slave  EtherCAT slave descriptor (provides the process-data pointer).
+ * @param chan   Per-channel data structure for this axis.
+ */
 void lcec_class_ax5_read(struct lcec_slave *slave, lcec_class_ax5_chan_t *chan) {
   lcec_master_t *master = slave->master;
   uint8_t *pd = master->process_data;
@@ -241,6 +343,24 @@ void lcec_class_ax5_read(struct lcec_slave *slave, lcec_class_ax5_chan_t *chan) 
   *(chan->torque_fb_pct) = ((double) EC_READ_S16(&pd[chan->torque_fb_pdo_os])) * 0.1;
 }
 
+/**
+ * @brief Write HAL input values to the EtherCAT process data.
+ *
+ * Called every real-time cycle from the owning slave driver's write callback.
+ * Constructs the 16-bit AX5 control word from the HAL drive-on, enable, and
+ * halt pins:
+ *  - Bit 10: sync toggle (alternated every cycle).
+ *  - Bit 14: power-stage enable (set when drive_on is asserted).
+ *  - Bit 13: halt/restart (set when enable is asserted and halt is not).
+ *  - Bit 15: drive-on command (set when both drive_on and enable are asserted).
+ *
+ * The floating-point velocity command (user-units/s) is scaled by the HAL
+ * `scale` parameter and the drive's internal velocity factor, then clamped
+ * to the S32 range before being written to the velocity command PDO.
+ *
+ * @param slave  EtherCAT slave descriptor (provides the process-data pointer).
+ * @param chan   Per-channel data structure for this axis.
+ */
 void lcec_class_ax5_write(struct lcec_slave *slave, lcec_class_ax5_chan_t *chan) {
   lcec_master_t *master = slave->master;
   uint8_t *pd = master->process_data;

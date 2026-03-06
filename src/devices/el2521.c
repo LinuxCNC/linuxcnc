@@ -16,51 +16,92 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el2521.c
+ * @brief HAL driver for the Beckhoff EL2521 1-channel pulse train output
+ *        (incremental encoder simulation / step generator).
+ *
+ * The EL2521 generates a pulse-train output whose frequency is set via the
+ * @c stp-velo-cmd HAL pin and the @c stp-pos-scale parameter.  An internal
+ * ramp limits acceleration; the ramp can be disabled at run-time with the
+ * @c stp-ramp-disable pin.
+ *
+ * EtherCAT identifiers:
+ *  - Vendor ID  : 0x00000002 (Beckhoff)
+ *  - Product code: 0x09D93052
+ *
+ * HAL pins exported:
+ *  - @c stp-counts     (HAL_S32, OUT) — accumulated step count
+ *  - @c stp-pos-fb     (HAL_FLOAT, OUT) — position feedback in position units
+ *  - @c stp-ramp-active (HAL_BIT, OUT) — TRUE while frequency ramp is active
+ *  - @c stp-ramp-disable (HAL_BIT, IN) — TRUE to bypass the ramp
+ *  - @c stp-in-z       (HAL_BIT, OUT) — digital input Z state
+ *  - @c stp-in-z-not   (HAL_BIT, OUT) — inverted digital input Z state
+ *  - @c stp-in-t       (HAL_BIT, OUT) — digital input T state
+ *  - @c stp-in-t-not   (HAL_BIT, OUT) — inverted digital input T state
+ *  - @c stp-enable     (HAL_BIT, IN)  — enable pulse output
+ *  - @c stp-velo-cmd   (HAL_FLOAT, IN) — velocity command (position units/s)
+ *
+ * HAL parameters exported:
+ *  - @c stp-freq         (HAL_FLOAT, RO) — current output frequency (Hz)
+ *  - @c stp-maxvel       (HAL_FLOAT, RO) — maximum velocity (position units/s)
+ *  - @c stp-maxaccel-fall (HAL_FLOAT, RO) — maximum deceleration (pos units/s²)
+ *  - @c stp-maxaccel-rise (HAL_FLOAT, RO) — maximum acceleration (pos units/s²)
+ *  - @c stp-pos-scale    (HAL_FLOAT, RW) — steps per position unit
+ */
+
 #include "hal.h"
 
 #include "../lcec.h"
 #include "el2521.h"
 
+/**
+ * @brief HAL data structure for the EL2521 pulse train output slave.
+ *
+ * Holds all HAL pin/parameter pointers, PDO byte offsets, SDO configuration
+ * values read at init time, and internal state used for frequency scaling and
+ * position feedback accumulation.
+ */
 typedef struct {
-  hal_s32_t *count;		// pin: captured feedback in counts
-  hal_float_t *pos_fb;		// pin: position feedback (position units)
-  hal_bit_t *ramp_active;       // pin: ramp currently active
-  hal_bit_t *ramp_disable;      // pin: disable ramp
-  hal_bit_t *in_z;              // pin: input z
-  hal_bit_t *in_z_not;          // pin: input z inverted
-  hal_bit_t *in_t;              // pin: input t
-  hal_bit_t *in_t_not;          // pin: input t inverted
+  hal_s32_t *count;		/**< HAL OUT pin: accumulated step count. */
+  hal_float_t *pos_fb;		/**< HAL OUT pin: position feedback (position units). */
+  hal_bit_t *ramp_active;       /**< HAL OUT pin: TRUE while frequency ramp is active. */
+  hal_bit_t *ramp_disable;      /**< HAL IN pin: TRUE to disable the hardware ramp. */
+  hal_bit_t *in_z;              /**< HAL OUT pin: state of digital input Z. */
+  hal_bit_t *in_z_not;          /**< HAL OUT pin: inverted state of digital input Z. */
+  hal_bit_t *in_t;              /**< HAL OUT pin: state of digital input T. */
+  hal_bit_t *in_t_not;          /**< HAL OUT pin: inverted state of digital input T. */
 
-  hal_bit_t *enable;		// pin for enable stepgen
-  hal_float_t *vel_cmd;		// pin: velocity command (pos units/sec)
+  hal_bit_t *enable;		/**< HAL IN pin: enable pulse generation. */
+  hal_float_t *vel_cmd;		/**< HAL IN pin: velocity command (position units/s). */
 
-  hal_float_t pos_scale;	// param: steps per position unit
-  hal_float_t freq;		// param: current frequency
-  hal_float_t maxvel;		// param: max velocity, (pos units/sec)
-  hal_float_t maxaccel_rise;	// param: max accel (pos units/sec^2)
-  hal_float_t maxaccel_fall;	// param: max accel (pos units/sec^2)
+  hal_float_t pos_scale;	/**< HAL RW parameter: steps per position unit. */
+  hal_float_t freq;		/**< HAL RO parameter: current output frequency (Hz). */
+  hal_float_t maxvel;		/**< HAL RO parameter: maximum velocity (position units/s). */
+  hal_float_t maxaccel_rise;	/**< HAL RO parameter: maximum acceleration (position units/s²). */
+  hal_float_t maxaccel_fall;	/**< HAL RO parameter: maximum deceleration (position units/s²). */
 
-  int last_operational;
-  int16_t last_hw_count;	// last hw counter value
-  double old_scale;		// stored scale value
-  double scale_recip;		// reciprocal value used for scaling
+  int last_operational;         /**< Non-zero when the slave was operational on the previous cycle. */
+  int16_t last_hw_count;	/**< Hardware counter value read on the previous cycle. */
+  double old_scale;		/**< Previous value of pos_scale; used to detect changes. */
+  double scale_recip;		/**< Reciprocal of pos_scale (1/pos_scale) for fast scaling. */
 
-  unsigned int state_pdo_os;
-  unsigned int count_pdo_os;
-  unsigned int ctrl_pdo_os;
-  unsigned int freq_pdo_os;
+  unsigned int state_pdo_os;    /**< Byte offset of the status word PDO in the process image. */
+  unsigned int count_pdo_os;    /**< Byte offset of the counter value PDO in the process image. */
+  unsigned int ctrl_pdo_os;     /**< Byte offset of the control word PDO in the process image. */
+  unsigned int freq_pdo_os;     /**< Byte offset of the frequency value PDO in the process image. */
 
-  uint32_t sdo_base_freq;
-  uint16_t sdo_max_freq;
-  uint16_t sdo_ramp_rise;
-  uint16_t sdo_ramp_fall;
-  uint8_t sdo_ramp_factor;
+  uint32_t sdo_base_freq;       /**< Base frequency (SDO 0x8001:02) read from the device at init. */
+  uint16_t sdo_max_freq;        /**< Maximum allowed output frequency (SDO 0x8800:02). */
+  uint16_t sdo_ramp_rise;       /**< Ramp rise value in device units (SDO 0x8001:04). */
+  uint16_t sdo_ramp_fall;       /**< Ramp fall value in device units (SDO 0x8001:05). */
+  uint8_t sdo_ramp_factor;      /**< Ramp factor selector byte (SDO 0x8000:07); bit 0 selects ×1000 vs ×10. */
 
-  double freqscale;
-  double freqscale_recip;
-  double max_freq;
-  double max_ac_rise;
-  double max_ac_fall;
+  double freqscale;             /**< Scaling factor from Hz to raw frequency word (0x7FFF / base_freq). */
+  double freqscale_recip;       /**< Reciprocal of freqscale for converting raw counts back to Hz. */
+  double max_freq;              /**< Maximum achievable frequency in Hz, derived from sdo_max_freq. */
+  double max_ac_rise;           /**< Maximum rise acceleration in Hz/s, derived from sdo_ramp_rise. */
+  double max_ac_fall;           /**< Maximum fall acceleration in Hz/s, derived from sdo_ramp_fall. */
 
 } lcec_el2521_data_t;
 
@@ -114,11 +155,30 @@ static ec_sync_info_t lcec_el2521_syncs[] = {
 };
 
 
+/** @brief Forward declaration of the scale-change check helper. */
 void lcec_el2521_check_scale(lcec_el2521_data_t *hal_data);
 
+/** @brief Forward declaration of the periodic read callback. */
 void lcec_el2521_read(struct lcec_slave *slave, long period);
+/** @brief Forward declaration of the periodic write callback. */
 void lcec_el2521_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialize the EL2521 slave: read SDOs, register PDOs, and export
+ *        HAL pins and parameters.
+ *
+ * Reads device configuration via CoE SDO (base frequency, ramp parameters,
+ * maximum frequency), sets up sync manager and PDO mappings, and exports all
+ * HAL pins and parameters.  Internal scaling factors are pre-computed here so
+ * the real-time callbacks avoid floating-point divisions.
+ *
+ * @param comp_id        HAL component ID returned by hal_init().
+ * @param slave          Pointer to the lcec slave descriptor.
+ * @param pdo_entry_regs Pointer to the PDO entry registration array; advanced
+ *                       by the number of entries registered.
+ * @return 0 on success, -EIO on SDO read or memory allocation failure, or a
+ *         negative HAL error code if pin/parameter export fails.
+ */
 int lcec_el2521_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el2521_data_t *hal_data;
@@ -214,6 +274,14 @@ int lcec_el2521_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Validate and update the position-scale reciprocal when pos_scale changes.
+ *
+ * Detects a change in @c hal_data->pos_scale, guards against near-zero values
+ * that would cause division by zero, and updates @c old_scale and @c scale_recip.
+ *
+ * @param hal_data Pointer to the slave HAL data structure.
+ */
 void lcec_el2521_check_scale(lcec_el2521_data_t *hal_data) {
   // check for change in scale value
   if (hal_data->pos_scale != hal_data->old_scale) {
@@ -229,6 +297,17 @@ void lcec_el2521_check_scale(lcec_el2521_data_t *hal_data) {
   }
 }
 
+/**
+ * @brief Periodic read callback — updates HAL output pins from the EtherCAT PDO.
+ *
+ * Reads the status word and hardware counter from the process data image,
+ * decodes the ramp-active and digital input bits, accumulates the step count,
+ * and computes the scaled position feedback.  Skips updates while the slave is
+ * not operational.
+ *
+ * @param slave  Pointer to the EtherCAT slave structure.
+ * @param period Servo period in nanoseconds (unused).
+ */
 void lcec_el2521_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el2521_data_t *hal_data = (lcec_el2521_data_t *) slave->hal_data;
@@ -278,6 +357,18 @@ void lcec_el2521_read(struct lcec_slave *slave, long period) {
   hal_data->last_operational = 1;
 }
 
+/**
+ * @brief Periodic write callback — writes control word and frequency to the
+ *        EtherCAT PDO.
+ *
+ * Converts the velocity command HAL pin (position units/s) to a raw frequency
+ * word using the pre-computed @c freqscale factor, clamps to the device maximum,
+ * and writes the result along with the control word (ramp-disable bit) to the
+ * process data image.  Outputs zero frequency when @c enable is FALSE.
+ *
+ * @param slave  Pointer to the EtherCAT slave structure.
+ * @param period Servo period in nanoseconds (unused).
+ */
 void lcec_el2521_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el2521_data_t *hal_data = (lcec_el2521_data_t *) slave->hal_data;

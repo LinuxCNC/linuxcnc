@@ -16,47 +16,64 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el5032.c
+ * @brief Driver implementation for the Beckhoff EL5032 2-channel EnDat 2.2 encoder terminal.
+ *
+ * Provides HAL pins for two EnDat 2.2 absolute encoder channels. Each channel
+ * delivers a 64-bit absolute position value (split into lo/hi 32-bit HAL
+ * pins), status bits (warning, error, ready, diagnostic, TxPDO state), and a
+ * 2-bit cycle counter for data-freshness monitoring. Both absolute and
+ * relative (incremental) position modes are supported.
+ */
+
 #include "../lcec.h"
 #include "el5032.h"
 
+/**
+ * @brief Per-channel HAL pins and PDO mapping data for one EL5032 EnDat channel.
+ */
 typedef struct {
-  hal_bit_t *reset;
-  hal_bit_t *abs_mode;
-  hal_bit_t *warn;
-  hal_bit_t *error;
-  hal_bit_t *ready;
-  hal_bit_t *diag;
-  hal_bit_t *tx_state;
-  hal_u32_t *cyc_cnt;
-  hal_u32_t *raw_count_lo;
-  hal_u32_t *raw_count_hi;
-  hal_s32_t *count;
-  hal_float_t *pos;
-  hal_float_t *pos_scale;
+  hal_bit_t *reset;         /**< HAL IN: reset the relative position counter to zero. */
+  hal_bit_t *abs_mode;      /**< HAL IN: when high, pos outputs the raw absolute position; otherwise relative. */
+  hal_bit_t *warn;          /**< HAL OUT: warning flag from the EnDat encoder (PDO 0x6000/0x01). */
+  hal_bit_t *error;         /**< HAL OUT: error flag from the EnDat encoder (PDO 0x6000/0x02). */
+  hal_bit_t *ready;         /**< HAL OUT: encoder ready flag — communication established (PDO 0x6000/0x03). */
+  hal_bit_t *diag;          /**< HAL OUT: diagnostic flag from the EnDat encoder (PDO 0x6000/0x0d). */
+  hal_bit_t *tx_state;      /**< HAL OUT: TxPDO state bit indicating PDO validity (PDO 0x6000/0x0e). */
+  hal_u32_t *cyc_cnt;       /**< HAL OUT: 2-bit cycle counter; increments each new PDO frame (PDO 0x6000/0x0f). */
+  hal_u32_t *raw_count_lo;  /**< HAL OUT: lower 32 bits of the 64-bit absolute position counter. */
+  hal_u32_t *raw_count_hi;  /**< HAL OUT: upper 32 bits of the 64-bit absolute position counter. */
+  hal_s32_t *count;         /**< HAL OUT: relative position count (zeroed on reset or initialisation). */
+  hal_float_t *pos;         /**< HAL OUT: scaled position in user units. */
+  hal_float_t *pos_scale;   /**< HAL IO: counts per user unit; reciprocal applied internally. */
 
-  unsigned int warn_os;
-  unsigned int warn_bp;
-  unsigned int error_os;
-  unsigned int error_bp;
-  unsigned int ready_os;
-  unsigned int ready_bp;
-  unsigned int diag_os;
-  unsigned int diag_bp;
-  unsigned int tx_state_os;
-  unsigned int tx_state_bp;
-  unsigned int cyc_cnt_os;
-  unsigned int cyc_cnt_bp;
-  unsigned int count_pdo_os;
+  unsigned int warn_os;       /**< Byte offset of warn bit in process data image. */
+  unsigned int warn_bp;       /**< Bit position of warn within the byte. */
+  unsigned int error_os;      /**< Byte offset of error bit in process data image. */
+  unsigned int error_bp;      /**< Bit position of error within the byte. */
+  unsigned int ready_os;      /**< Byte offset of ready bit in process data image. */
+  unsigned int ready_bp;      /**< Bit position of ready within the byte. */
+  unsigned int diag_os;       /**< Byte offset of diag bit in process data image. */
+  unsigned int diag_bp;       /**< Bit position of diag within the byte. */
+  unsigned int tx_state_os;   /**< Byte offset of tx_state bit in process data image. */
+  unsigned int tx_state_bp;   /**< Bit position of tx_state within the byte. */
+  unsigned int cyc_cnt_os;    /**< Byte offset of the 2-bit cycle counter in process data image. */
+  unsigned int cyc_cnt_bp;    /**< Bit position of the cycle counter within the byte. */
+  unsigned int count_pdo_os;  /**< Byte offset of the 64-bit counter value in process data image. */
 
-  int do_init;
-  int64_t last_count;
-  double old_scale;
-  double scale;
+  int do_init;          /**< Non-zero until the first valid read; triggers counter zeroing. */
+  int64_t last_count;   /**< Previous raw 64-bit counter value used to compute relative delta. */
+  double old_scale;     /**< Last observed pos_scale value; used to detect pin changes. */
+  double scale;         /**< Cached reciprocal of pos_scale (1.0 / pos_scale). */
 } lcec_el5032_chan_t;
 
+/**
+ * @brief Top-level HAL data structure for the EL5032 slave.
+ */
 typedef struct {
-  lcec_el5032_chan_t chans[LCEC_EL5032_CHANS];
-  int last_operational;
+  lcec_el5032_chan_t chans[LCEC_EL5032_CHANS]; /**< Per-channel state for each EnDat encoder. */
+  int last_operational; /**< Tracks whether the slave was operational on the previous cycle. */
 } lcec_el5032_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -115,6 +132,19 @@ static ec_sync_info_t lcec_el5032_syncs[] = {
 
 void lcec_el5032_read(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise the EL5032 EtherCAT slave driver.
+ *
+ * Allocates HAL memory, configures the sync manager, registers all PDO
+ * entries for both EnDat encoder channels (warning, error, ready, diag,
+ * tx_state, cycle counter, and 64-bit position), and exports HAL pins
+ * including the split raw_count_lo / raw_count_hi outputs.
+ *
+ * @param comp_id        LinuxCNC HAL component ID.
+ * @param slave          Pointer to the lcec slave descriptor.
+ * @param pdo_entry_regs Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el5032_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el5032_data_t *hal_data;
@@ -170,6 +200,18 @@ int lcec_el5032_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief EtherCAT cyclic read callback for the EL5032.
+ *
+ * Reads all input PDO data for each channel: status bits (warn, error, ready,
+ * diag, tx_state), the 2-bit cycle counter, and the 64-bit absolute position.
+ * The 64-bit value is split into lo/hi HAL pins and used for both absolute
+ * (when abs_mode is set) and relative position tracking. Counter is zeroed
+ * on reset or on first valid cycle after a slave reconnect.
+ *
+ * @param slave  Pointer to the lcec slave descriptor.
+ * @param period EtherCAT cycle period in nanoseconds (unused).
+ */
 void lcec_el5032_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el5032_data_t *hal_data = (lcec_el5032_data_t *) slave->hal_data;

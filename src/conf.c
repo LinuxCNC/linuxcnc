@@ -16,6 +16,47 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file conf.c
+ * @brief EtherCAT HAL configuration parser — main entry point.
+ *
+ * This file implements the @c lcec_conf userspace tool.  It:
+ *  1. Initialises a HAL component and registers two output pins
+ *     (@c lcec.conf.master-count and @c lcec.conf.slave-count).
+ *  2. Reads and parses the EtherCAT bus topology from an XML configuration
+ *     file supplied as the sole command-line argument.
+ *  3. Serialises the parsed records into a POSIX shared-memory segment keyed
+ *     by @ref LCEC_CONF_SHMEM_KEY so that the realtime @c lcec component can
+ *     read them at startup.
+ *  4. Calls @c hal_ready() and then waits for SIGINT or SIGTERM before
+ *     cleaning up and exiting.
+ *
+ * The XML grammar handled here is:
+ * @code
+ *   <masters>
+ *     <master idx="0" name="main" appTimePeriod="1000000" ...>
+ *       <slave idx="0" type="EK1100" name="coupler"/>
+ *       <slave idx="1" type="generic" vid="0x2" pid="0x3" configPdos="true">
+ *         <dcConf assignActivate="0x300" sync0Cycle="*1" .../>
+ *         <watchdog divider="1000" intervals="10"/>
+ *         <sdoConfig idx="0x6040" subIdx="0x0">
+ *           <sdoDataRaw data="06 00"/>
+ *         </sdoConfig>
+ *         <idnConfig drive="0" idn="32768" state="PREOP">
+ *           <idnDataRaw data="01 00"/>
+ *         </idnConfig>
+ *         <syncManager idx="0" dir="out">
+ *           <pdo idx="0x1600">
+ *             <pdoEntry idx="0x6040" subIdx="0" bitLen="16" halType="u32" halPin="ctrl"/>
+ *           </pdo>
+ *         </syncManager>
+ *         <modParam name="maxCurrent" value="1000"/>
+ *       </slave>
+ *     </master>
+ *   </masters>
+ * @endcode
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -40,30 +81,59 @@
 
 #include "classes/class_ax5.h"
 
+/**
+ * @brief Internal type tag for module parameter values.
+ *
+ * Used in @ref LCEC_CONF_MODPARAM_DESC_T to describe the expected value type
+ * of a slave driver module parameter, so the parser knows how to convert the
+ * XML string value before storing it in @ref LCEC_CONF_MODPARAM_VAL_T.
+ */
 typedef enum {
-  MODPARAM_TYPE_BIT,
-  MODPARAM_TYPE_U32,
-  MODPARAM_TYPE_S32,
-  MODPARAM_TYPE_FLOAT,
-  MODPARAM_TYPE_STRING
+  MODPARAM_TYPE_BIT,     /**< Boolean (0/1, TRUE/FALSE). */
+  MODPARAM_TYPE_U32,     /**< Unsigned 32-bit integer. */
+  MODPARAM_TYPE_S32,     /**< Signed 32-bit integer. */
+  MODPARAM_TYPE_FLOAT,   /**< Double-precision floating point. */
+  MODPARAM_TYPE_STRING   /**< String (copied up to @ref LCEC_CONF_STR_MAXLEN). */
 } LCEC_CONF_MODPARAM_TYPE_T;
 
-
+/**
+ * @brief Descriptor for a single module parameter accepted by a slave driver.
+ *
+ * Slave driver parameter tables are arrays of these descriptors, terminated
+ * by an entry with @c name == NULL.  The @c id field is a driver-specific
+ * integer constant (defined in the corresponding device header) that the
+ * realtime component uses to dispatch the parameter value.
+ */
 typedef struct {
-  const char *name;
-  int id;
-  LCEC_CONF_MODPARAM_TYPE_T type;
+  const char *name;              /**< XML attribute name used to reference this parameter. */
+  int id;                        /**< Driver-specific parameter identifier. */
+  LCEC_CONF_MODPARAM_TYPE_T type; /**< Expected value type for parsing and validation. */
 } LCEC_CONF_MODPARAM_DESC_T;
 
+/**
+ * @brief Maps an XML slave type name string to its enum value and parameter table.
+ *
+ * The global @c slaveTypes[] array is a NULL-terminated list of these entries.
+ * The parser resolves the @c type attribute of a @c \<slave\> element by
+ * searching this list.
+ */
 typedef struct {
-  const char *name;
-  LCEC_SLAVE_TYPE_T type;
-  const LCEC_CONF_MODPARAM_DESC_T *modParams;
+  const char *name;                         /**< XML type attribute string (e.g. "EL1002"). */
+  LCEC_SLAVE_TYPE_T type;                   /**< Corresponding @ref LCEC_SLAVE_TYPE_T enum value. */
+  const LCEC_CONF_MODPARAM_DESC_T *modParams; /**< NULL-terminated parameter descriptor table,
+                                               *   or NULL if this type has no module parameters. */
 } LCEC_CONF_TYPELIST_T;
 
+/**
+ * @brief HAL pin data for the lcec_conf component.
+ *
+ * Holds pointers to the two HAL output pins that lcec_conf registers so that
+ * other HAL components (or the user) can read the number of configured
+ * masters and slaves.
+ */
 typedef struct {
-  hal_u32_t *master_count;
-  hal_u32_t *slave_count;
+  hal_u32_t *master_count;  /**< Pointer to the @c lcec.conf.master-count HAL pin. */
+  hal_u32_t *slave_count;   /**< Pointer to the @c lcec.conf.slave-count HAL pin. */
 } LCEC_CONF_HAL_T;
 
 static const LCEC_CONF_MODPARAM_DESC_T slaveStMDS5kParams[] = {
@@ -354,26 +424,34 @@ static const LCEC_CONF_TYPELIST_T slaveTypes[] = {
   { NULL }
 };
 
-static int hal_comp_id;
-static LCEC_CONF_HAL_T *conf_hal_data;
-static int shmem_id;
+static int hal_comp_id;       // HAL component identifier returned by hal_init()
+static LCEC_CONF_HAL_T *conf_hal_data;  // HAL pin data block in shared memory
+static int shmem_id;          // rtapi shared-memory segment identifier
 
-static int exitEvent;
+static int exitEvent;         // eventfd file descriptor used to wake main() on signal
 
+/**
+ * @brief Full XML parser state for the top-level conf.c XML parse pass.
+ *
+ * The @c xml member MUST be first so that expat callbacks can safely cast
+ * between @ref LCEC_CONF_XML_INST_T* and @ref LCEC_CONF_XML_STATE_T*.
+ * The remaining fields track the objects currently being built.
+ */
 typedef struct {
-  LCEC_CONF_XML_INST_T xml;
+  LCEC_CONF_XML_INST_T xml;               /**< Base expat instance; MUST be first. */
 
-  LCEC_CONF_MASTER_T *currMaster;
-  const LCEC_CONF_TYPELIST_T *currSlaveType;
-  LCEC_CONF_SLAVE_T *currSlave;
-  LCEC_CONF_SYNCMANAGER_T *currSyncManager;
-  LCEC_CONF_PDO_T *currPdo;
-  LCEC_CONF_SDOCONF_T *currSdoConf;
-  LCEC_CONF_IDNCONF_T *currIdnConf;
-  LCEC_CONF_PDOENTRY_T *currPdoEntry;
-  uint8_t currComplexBitOffset;
+  LCEC_CONF_MASTER_T *currMaster;         /**< Master record currently being populated. */
+  const LCEC_CONF_TYPELIST_T *currSlaveType; /**< Type-list entry for the current slave
+                                              *   (provides its modParam descriptor table). */
+  LCEC_CONF_SLAVE_T *currSlave;           /**< Slave record currently being populated. */
+  LCEC_CONF_SYNCMANAGER_T *currSyncManager; /**< Sync-manager record currently being populated. */
+  LCEC_CONF_PDO_T *currPdo;               /**< PDO record currently being populated. */
+  LCEC_CONF_SDOCONF_T *currSdoConf;       /**< SDO config record currently being populated. */
+  LCEC_CONF_IDNCONF_T *currIdnConf;       /**< IDN config record currently being populated. */
+  LCEC_CONF_PDOENTRY_T *currPdoEntry;     /**< PDO entry record currently being populated. */
+  uint8_t currComplexBitOffset;           /**< Running bit offset within the current complex entry. */
 
-  LCEC_CONF_OUTBUF_T outputBuf;
+  LCEC_CONF_OUTBUF_T outputBuf;           /**< Dynamic output buffer accumulating all records. */
 } LCEC_CONF_XML_STATE_T;
 
 static void parseMasterAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr);
@@ -390,6 +468,7 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
 static void parseComplexEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr);
 static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr);
 
+/** @brief State-transition table for the top-level XML configuration parser. */
 static const LCEC_CONF_XML_HANLDER_T xml_states[] = {
   { "masters", lcecConfTypeNone, lcecConfTypeMasters, NULL, NULL },
   { "master", lcecConfTypeMasters, lcecConfTypeMaster, parseMasterAttrs, NULL },
@@ -411,6 +490,15 @@ static const LCEC_CONF_XML_HANLDER_T xml_states[] = {
 
 static int parseSyncCycle(LCEC_CONF_XML_STATE_T *state, const char *nptr);
 
+/**
+ * @brief Signal handler for SIGINT and SIGTERM.
+ *
+ * Writes a non-zero 64-bit value to the @c exitEvent eventfd so that
+ * the blocking @c read() in @c main() returns and the process can shut
+ * down cleanly.
+ *
+ * @param sig  Signal number (unused; handler handles both SIGINT and SIGTERM).
+ */
 static void exitHandler(int sig) {
   uint64_t u = 1;
   if (write(exitEvent, &u, sizeof(uint64_t)) < 0) {
@@ -418,6 +506,28 @@ static void exitHandler(int sig) {
   }
 }
 
+/**
+ * @brief Program entry point for the lcec_conf configuration tool.
+ *
+ * Performs the following steps:
+ *  -# Initialises the HAL component and allocates the @ref LCEC_CONF_HAL_T
+ *     pin block in HAL shared memory.
+ *  -# Registers the @c lcec.conf.master-count and @c lcec.conf.slave-count
+ *     HAL output pins.
+ *  -# Creates an eventfd and installs @ref exitHandler for SIGINT/SIGTERM.
+ *  -# Opens the XML configuration file named on the command line.
+ *  -# Parses the file using expat and the @c xml_states transition table,
+ *     accumulating configuration records in @c state.outputBuf.
+ *  -# Appends a @ref LCEC_CONF_NULL_T end-of-stream sentinel.
+ *  -# Creates a shared-memory segment and writes the @ref LCEC_CONF_HEADER_T
+ *     followed by the serialised records.
+ *  -# Calls @c hal_ready() and blocks on the eventfd until a signal arrives.
+ *  -# Cleans up (shared memory, parser, file, HAL) and returns.
+ *
+ * @param argc  Argument count; must be exactly 2.
+ * @param argv  Argument vector; @c argv[1] must be the XML file path.
+ * @return 0 on success, 1 on any error.
+ */
 int main(int argc, char **argv) {
   int ret = 1;
   char *filename;
@@ -558,6 +668,29 @@ fail0:
   return ret;
 }
 
+/**
+ * @brief Start-element callback for the @c \<master\> XML element.
+ *
+ * Allocates a @ref LCEC_CONF_MASTER_T record, populates it from the
+ * attributes listed below, and updates @c state->currMaster.
+ * The global @c conf_hal_data->master_count HAL pin is incremented.
+ *
+ * Recognised attributes:
+ *  - @c idx              — EtherCAT master index (integer, default 0).
+ *  - @c name             — Human-readable name (string, default = decimal idx).
+ *  - @c appTimePeriod    — Application time period in ns (uint32).
+ *  - @c refClockSyncCycles — DC reference-clock sync cycle count (int).
+ *  - @c refClockSlaveIdx — Bus position of DC reference slave, or -1 (int).
+ *  - @c interface        — (EC_USPACE_MASTER only) Primary NIC name, REQUIRED.
+ *  - @c backupInterface  — (EC_USPACE_MASTER only) Backup NIC name, optional.
+ *  - @c transportType    — (EC_USPACE_MASTER only) "raw", "xdp-skb", "xdp-native".
+ *  - @c debugLevel       — (EC_USPACE_MASTER only) Debug verbosity (uint, default 0).
+ *  - @c runOnCpu         — (EC_USPACE_MASTER only) CPU affinity, or -1 (int).
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseMasterAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -681,6 +814,26 @@ static void parseMasterAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **
   state->currMaster = p;
 }
 
+/**
+ * @brief Start-element callback for the @c \<slave\> XML element.
+ *
+ * Allocates a @ref LCEC_CONF_SLAVE_T record, resolves the mandatory @c type
+ * attribute against @c slaveTypes[], and populates remaining fields.
+ * The global @c conf_hal_data->slave_count HAL pin is incremented.
+ * Updates @c state->currSlave and @c state->currSlaveType.
+ *
+ * Recognised attributes:
+ *  - @c type      — Slave type name (REQUIRED); must match an entry in @c slaveTypes[].
+ *  - @c idx       — EtherCAT bus position (integer, default 0).
+ *  - @c name      — Human-readable name (string, default = decimal idx).
+ *  - @c vid       — Vendor ID in hex (generic slaves only).
+ *  - @c pid       — Product code in hex (generic slaves only).
+ *  - @c configPdos — "true"/"false"; whether to configure PDOs (generic only).
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseSlaveAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -783,6 +936,24 @@ static void parseSlaveAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **a
   state->currSlave = p;
 }
 
+/**
+ * @brief Start-element callback for the @c \<dcConf\> XML element.
+ *
+ * Allocates a @ref LCEC_CONF_DC_T record for the current slave's
+ * distributed-clock configuration.
+ *
+ * Recognised attributes:
+ *  - @c assignActivate — DC activation word in hex (e.g. "0x0700").
+ *  - @c sync0Cycle     — SYNC0 period in ns; prefix with @c '*' to multiply
+ *                        by the master's appTimePeriod (e.g. "*2").
+ *  - @c sync0Shift     — SYNC0 shift in ns (signed integer).
+ *  - @c sync1Cycle     — SYNC1 period in ns (same @c '*' prefix supported).
+ *  - @c sync1Shift     — SYNC1 shift in ns (signed integer).
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseDcConfAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -834,6 +1005,19 @@ static void parseDcConfAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **
   }
 }
 
+/**
+ * @brief Start-element callback for the @c \<watchdog\> XML element.
+ *
+ * Allocates a @ref LCEC_CONF_WATCHDOG_T record for the current slave.
+ *
+ * Recognised attributes:
+ *  - @c divider   — Watchdog divider value (uint16).
+ *  - @c intervals — Watchdog interval count (uint16).
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseWatchdogAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -867,6 +1051,23 @@ static void parseWatchdogAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
   }
 }
 
+/**
+ * @brief Start-element callback for the @c \<sdoConfig\> XML element.
+ *
+ * Allocates a @ref LCEC_CONF_SDOCONF_T record for a CoE SDO startup write.
+ * Updates @c state->currSdoConf and increments the current slave's
+ * @c sdoConfigLength by @c sizeof(LCEC_CONF_SDOCONF_T) (data bytes are added
+ * later by @ref parseDataRawAttrs).
+ *
+ * Recognised attributes (both REQUIRED):
+ *  - @c idx    — Object dictionary index in hex (0x0000–0xFFFE).
+ *  - @c subIdx — Sub-index in hex (0x00–0xFE), or the string @c "complete"
+ *                to request complete-access (@ref LCEC_CONF_SDO_COMPLETE_SUBIDX).
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseSdoConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -936,6 +1137,23 @@ static void parseSdoConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
   state->currSlave->sdoConfigLength += sizeof(LCEC_CONF_SDOCONF_T);
 }
 
+/**
+ * @brief Start-element callback for the @c \<idnConfig\> XML element.
+ *
+ * Allocates a @ref LCEC_CONF_IDNCONF_T record for an SoE IDN startup write.
+ * Updates @c state->currIdnConf and increments the current slave's
+ * @c idnConfigLength by @c sizeof(LCEC_CONF_IDNCONF_T).
+ *
+ * Recognised attributes:
+ *  - @c drive  — SoE drive number 0–7 (optional, default 0).
+ *  - @c idn    — IDN value; may be decimal, or S/P notation (@c "S-0-32768",
+ *                @c "P-3-0001"), REQUIRED.
+ *  - @c state  — AL state string "PREOP" or "SAFEOP" (REQUIRED).
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseIdnConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -1053,6 +1271,21 @@ static void parseIdnConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
   state->currSlave->idnConfigLength += sizeof(LCEC_CONF_IDNCONF_T);
 }
 
+/**
+ * @brief Start-element callback for @c \<sdoDataRaw\> and @c \<idnDataRaw\> elements.
+ *
+ * Decodes the @c data attribute (a hex-encoded byte string) and appends the
+ * resulting bytes to the output buffer immediately after the active SDO or IDN
+ * record.  Also updates the parent record's @c length field and the slave's
+ * corresponding @c sdoConfigLength / @c idnConfigLength accumulator.
+ *
+ * Recognised attribute:
+ *  - @c data — Hex-encoded payload bytes (e.g. "06 00 01").
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseDataRawAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -1097,6 +1330,20 @@ static void parseDataRawAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char *
   }
 }
 
+/**
+ * @brief Start-element callback for the @c \<initCmds\> XML element.
+ *
+ * Delegates to @ref parseIcmds() to parse an ESI-style XML init-commands
+ * file and append its CoE/SoE records to the shared output buffer.  The
+ * @c filename attribute is REQUIRED.
+ *
+ * Recognised attributes:
+ *  - @c filename — Path to the ESI-compatible XML file (REQUIRED).
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseInitCmdsAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -1132,6 +1379,21 @@ static void parseInitCmdsAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
   }
 }
 
+/**
+ * @brief Start-element callback for the @c \<syncManager\> XML element.
+ *
+ * Only permitted on generic slaves (@c lcecSlaveTypeGeneric).  Allocates a
+ * @ref LCEC_CONF_SYNCMANAGER_T record.  Increments the current slave's
+ * @c syncManagerCount.  Updates @c state->currSyncManager.
+ *
+ * Recognised attributes (both REQUIRED):
+ *  - @c idx — Sync manager index 0–3 (integer).
+ *  - @c dir — Direction string "in" (input) or "out" (output).
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseSyncManagerAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -1209,6 +1471,20 @@ static void parseSyncManagerAttrs(LCEC_CONF_XML_INST_T *inst, int next, const ch
   state->currSyncManager = p;
 }
 
+/**
+ * @brief Start-element callback for the @c \<pdo\> XML element.
+ *
+ * Allocates a @ref LCEC_CONF_PDO_T record assigned to the current sync manager.
+ * Increments both the slave's @c pdoCount and the sync manager's @c pdoCount.
+ * Updates @c state->currPdo.
+ *
+ * Recognised attributes:
+ *  - @c idx — PDO index in hex (0x0000–0xFFFE), REQUIRED.
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parsePdoAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -1255,6 +1531,28 @@ static void parsePdoAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **att
   state->currPdo = p;
 }
 
+/**
+ * @brief Start-element callback for the @c \<pdoEntry\> XML element.
+ *
+ * Allocates a @ref LCEC_CONF_PDOENTRY_T record.  Increments the parent slave's
+ * @c pdoEntryCount and, if a @c halPin is given, @c pdoMappingCount.
+ * Also increments the parent PDO's @c pdoEntryCount.
+ * Updates @c state->currPdoEntry and resets @c state->currComplexBitOffset.
+ *
+ * Recognised attributes:
+ *  - @c idx     — Object dictionary index in hex (0x0000–0xFFFE), REQUIRED.
+ *  - @c subIdx  — Sub-index in hex (0x00–0xFE), REQUIRED.
+ *  - @c bitLen  — Entry width in bits (1–255), REQUIRED.
+ *  - @c halType — HAL type string: "bit", "s32", "u32", "float",
+ *                 "float-unsigned", "complex", or "float-ieee".
+ *  - @c scale   — Float scale factor (implies @c halType must be float).
+ *  - @c offset  — Float offset (implies @c halType must be float).
+ *  - @c halPin  — HAL pin name suffix; empty means entry is mapped but no pin created.
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -1421,6 +1719,27 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
   state->currComplexBitOffset = 0;
 }
 
+/**
+ * @brief Start-element callback for the @c \<complexEntry\> XML element.
+ *
+ * Allocates a @ref LCEC_CONF_COMPLEXENTRY_T sub-field record for a complex
+ * PDO entry.  The @c bitOffset is set automatically from
+ * @c state->currComplexBitOffset and advanced by @c bitLength after the
+ * entry is processed.  If @c halPin is non-empty, increments the slave's
+ * @c pdoMappingCount.
+ *
+ * Recognised attributes:
+ *  - @c bitLen  — Sub-field width in bits (1–32); must not overflow the
+ *                 parent entry's @c bitLen, REQUIRED.
+ *  - @c halType — "bit", "s32", "u32", "float", "float-unsigned", "float-ieee".
+ *  - @c scale   — Float scale factor (implies @c halType must be float).
+ *  - @c offset  — Float offset (implies @c halType must be float).
+ *  - @c halPin  — HAL pin name suffix; empty means sub-field has no pin.
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseComplexEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -1541,6 +1860,23 @@ static void parseComplexEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const c
   state->currComplexBitOffset += p->bitLength;
 }
 
+/**
+ * @brief Start-element callback for the @c \<modParam\> XML element.
+ *
+ * Parses driver-specific module parameters for the current slave.  The
+ * @c name attribute is resolved against the slave type's @c modParams table
+ * to find the driver-specific parameter ID.  The @c value string is then
+ * converted to the correct type (@ref LCEC_CONF_MODPARAM_TYPE_T) and stored.
+ * Increments the slave's @c modParamCount on success.
+ *
+ * Recognised attributes (both REQUIRED):
+ *  - @c name  — Parameter name; must match an entry in the slave type's descriptor table.
+ *  - @c value — Parameter value as a string; parsed according to the declared type.
+ *
+ * @param inst  XML parse instance; cast to @ref LCEC_CONF_XML_STATE_T*.
+ * @param next  State to transition to (unused here).
+ * @param attr  Null-terminated attribute name/value pair array.
+ */
 static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **attr) {
   LCEC_CONF_XML_STATE_T *state = (LCEC_CONF_XML_STATE_T *) inst;
 
@@ -1668,6 +2004,18 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
   (state->currSlave->modParamCount)++;
 }
 
+/**
+ * @brief Parse a DC sync-cycle value string into a nanosecond integer.
+ *
+ * If @p nptr starts with @c '*', the remainder is interpreted as a multiplier
+ * applied to the current master's @c appTimePeriod (e.g. @c "*2" yields two
+ * application periods).  Otherwise @p nptr is parsed as a plain decimal integer
+ * (nanoseconds).
+ *
+ * @param state  Parser state providing access to the current master record.
+ * @param nptr   String to parse; must not be NULL.
+ * @return Sync-cycle value in nanoseconds.
+ */
 static int parseSyncCycle(LCEC_CONF_XML_STATE_T *state, const char *nptr) {
   // check for master period multiples
   if (*nptr == '*') {

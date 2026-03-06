@@ -1,5 +1,27 @@
 #include "priv.h"
 
+/**
+ * @file typelist.c
+ * @brief Global slave-type registry for the LinuxCNC EtherCAT HAL driver.
+ *
+ * Defines the @c typelist[] array which is the single authoritative table
+ * mapping every supported EtherCAT slave model to its driver callbacks and
+ * identity information.  The driver's slave-creation path (in @c slave.c)
+ * searches this table by @c LCEC_SLAVE_TYPE_T enum value to locate the
+ * vendor ID, product code, expected PDO entry count, and the
+ * @c proc_preinit / @c proc_init function pointers for the device.
+ *
+ * Adding support for a new device requires:
+ *   1. Implementing a device driver in @c src/devices/ that exports a
+ *      @c proc_init function (and optionally a @c proc_preinit function for
+ *      devices with dynamic PDO counts).
+ *   2. Adding a new enumerator to @c LCEC_SLAVE_TYPE_T in @c lcec.h.
+ *   3. Adding a row to @c typelist[] below, grouped by device category.
+ *
+ * The array is terminated by a sentinel entry whose @c type field equals
+ * @c lcecSlaveTypeInvalid.
+ */
+
 #include "devices/generic.h"
 #include "devices/ek1100.h"
 #include "devices/ax5100.h"
@@ -46,6 +68,24 @@
 #include "devices/omrg5.h"
 #include "devices/ph3lm2rm.h"
 
+/**
+ * @brief Global slave-type registry.
+ *
+ * Each entry describes one supported EtherCAT slave model.  Fields:
+ *   - @c type            – unique @c LCEC_SLAVE_TYPE_T enum value used in XML config.
+ *   - @c vid             – EtherCAT vendor ID (must match the physical device).
+ *   - @c pid             – EtherCAT product code (must match the physical device).
+ *   - @c pdo_entry_count – number of PDO entries expected from this slave;
+ *                          0 if the driver determines the count dynamically via @c proc_preinit.
+ *   - @c is_fsoe_logic   – non-zero if the slave is an FSoE logic/gateway device.
+ *   - @c proc_preinit    – optional callback invoked before PDO domain creation
+ *                          to query or set the PDO count; NULL for most devices.
+ *   - @c proc_init       – mandatory callback that creates HAL pins, registers PDO
+ *                          entries, and sets up real-time read/write callbacks.
+ *
+ * The array is terminated by a sentinel whose @c type field is
+ * @c lcecSlaveTypeInvalid.
+ */
 const lcec_typelist_t typelist[] = {
   // bus coupler
   { lcecSlaveTypeEK1100, LCEC_EK1100_VID, LCEC_EK1100_PID, LCEC_EK1100_PDOS, 0, NULL, NULL},

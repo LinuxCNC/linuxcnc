@@ -16,28 +16,42 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/** @file em3712.c
+ * @brief Driver for the Beckhoff EM3712 2-channel analog input module.
+ *
+ * Each channel provides a 16-bit signed measurement value normalised to
+ * the range [-1.0, 1.0] (0x7FFF = +1.0).  The output HAL pin is computed
+ * as: val = bias + scale * (raw / 0x7FFF).
+ */
+
 #include "../lcec.h"
 #include "em3712.h"
 
+/**
+ * @brief Per-channel HAL data for one EM3712 input channel.
+ */
 typedef struct {
-  hal_bit_t *overrange;
-  hal_bit_t *underrange;
-  hal_bit_t *error;
-  hal_s32_t *raw_val;
-  hal_float_t *scale;
-  hal_float_t *bias;
-  hal_float_t *val;
-  unsigned int ovr_pdo_os;
-  unsigned int ovr_pdo_bp;
-  unsigned int udr_pdo_os;
-  unsigned int udr_pdo_bp;
-  unsigned int error_pdo_os;
-  unsigned int error_pdo_bp;
-  unsigned int val_pdo_os;
+  hal_bit_t *overrange;       /**< OUT: measurement above sensor range */
+  hal_bit_t *underrange;      /**< OUT: measurement below sensor range */
+  hal_bit_t *error;           /**< OUT: channel error flag */
+  hal_s32_t *raw_val;         /**< OUT: raw 16-bit signed measurement */
+  hal_float_t *scale;         /**< IO: scale factor applied to normalised value */
+  hal_float_t *bias;          /**< IO: offset added after scaling */
+  hal_float_t *val;           /**< OUT: scaled and biased output value */
+  unsigned int ovr_pdo_os;    /**< PDO byte offset: overrange bit (0x6000/0x6010:02) */
+  unsigned int ovr_pdo_bp;    /**< Bit position: overrange bit */
+  unsigned int udr_pdo_os;    /**< PDO byte offset: underrange bit (0x6000/0x6010:01) */
+  unsigned int udr_pdo_bp;    /**< Bit position: underrange bit */
+  unsigned int error_pdo_os;  /**< PDO byte offset: error bit (0x6000/0x6010:07) */
+  unsigned int error_pdo_bp;  /**< Bit position: error bit */
+  unsigned int val_pdo_os;    /**< PDO byte offset: 16-bit measurement value (0x6000/0x6010:11) */
 } lcec_em3712_chan_t;
 
+/**
+ * @brief Top-level HAL data for the EM3712 module.
+ */
 typedef struct {
-  lcec_em3712_chan_t chans[LCEC_EM3712_CHANS];
+  lcec_em3712_chan_t chans[LCEC_EM3712_CHANS]; /**< Per-channel data (2 channels) */
 } lcec_em3712_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
@@ -89,8 +103,19 @@ static ec_sync_info_t lcec_em3712_syncs[] = {
     {0xff}
 };
 
+/**
+ * @brief Cyclic read: forward declaration.
+ */
 void lcec_em3712_read(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialise the EM3712 analog input module.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_em3712_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_em3712_data_t *hal_data;
@@ -134,6 +159,16 @@ int lcec_em3712_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Cyclic read: update all channel status and value HAL pins.
+ *
+ * Reads overrange, underrange, and error flags plus the 16-bit measurement
+ * value for each channel.  Converts the raw value to a floating-point
+ * output using: val = bias + scale * (raw / 0x7FFF).
+ *
+ * @param slave  EtherCAT slave structure.
+ * @param period Cycle period in nanoseconds (unused).
+ */
 void lcec_em3712_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_em3712_data_t *hal_data = (lcec_em3712_data_t *) slave->hal_data;

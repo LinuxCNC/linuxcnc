@@ -16,6 +16,33 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file main.c
+ * @brief LinuxCNC EtherCAT HAL component entry point.
+ *
+ * Implements the RTAPI module lifecycle (rtapi_app_main() / rtapi_app_exit()),
+ * the configuration parser (lcec_parse_config()), and the global real-time
+ * HAL functions (lcec_read_all() / lcec_write_all()) for the lcec driver.
+ *
+ * @section rt_constraints Real-Time Constraints
+ * lcec_read_all(), lcec_write_all(), lcec_read_master(), and
+ * lcec_write_master() are exported as HAL functions and execute in the
+ * LinuxCNC real-time servo thread.  These functions must @b not block, sleep,
+ * or perform any dynamic memory allocation or deallocation.
+ *
+ * @section init_sequence Initialisation Sequence
+ * -# rtapi_app_main() records the DC time base (wall clock vs. RTAPI monotonic).
+ * -# Registers the HAL component with hal_init().
+ * -# lcec_parse_config() reads the binary config blob from RTAPI shared memory,
+ *    builds the master/slave linked lists, and allocates PDO entry arrays.
+ * -# For each master: creates the EtherCAT domain, configures every slave
+ *    (SDOs, IDNs, PDOs, DC, watchdog), registers PDO entries with the domain,
+ *    initialises DC synchronisation, activates the master, and exports the
+ *    per-master HAL read/write functions.
+ * -# Exports the global @c read-all and @c write-all HAL functions.
+ * -# hal_ready() signals successful initialisation to LinuxCNC.
+ */
+
 #include "priv.h"
 #include "rtapi_app.h"
 
@@ -23,18 +50,33 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sascha Ittner <sascha.ittner@modusoft.de>");
 MODULE_DESCRIPTION("Driver for EtherCAT devices");
 
+/** @brief Head of the doubly-linked list of all configured EtherCAT masters. */
 static lcec_master_t *first_master = NULL;
+/** @brief Tail of the doubly-linked list of all configured EtherCAT masters. */
 static lcec_master_t *last_master = NULL;
 
+/** @brief HAL component ID returned by hal_init(); -1 before successful initialisation. */
 int comp_id = -1;
 
+/** @brief HAL pins for the aggregate (all-masters combined) EtherCAT state. */
 static lcec_master_data_t *global_hal_data;
+/** @brief Aggregate EtherCAT master state updated each cycle by lcec_read_all(). */
 ec_master_state_t global_ms;
 
 #ifdef EC_USPACE_MASTER
 static char *ipc_socket = NULL;
 RTAPI_MP_STRING(ipc_socket, "EtherCAT userspace master IPC socket path (NULL = no tool access)");
 
+/**
+ * @brief Log callback that forwards EtherCAT library messages to the RTAPI log.
+ *
+ * Registered with ecrt_lib_init() so that library diagnostics appear in the
+ * LinuxCNC message stream prefixed with @c LCEC_MSG_PFX.
+ *
+ * @param level  Library-defined severity level (not mapped; all messages forwarded).
+ * @param fmt    printf-style format string from the EtherCAT library.
+ * @param ap     Variadic argument list for @p fmt.
+ */
 static void lcec_ec_log_callback(int level, const char *fmt, va_list ap) {
   char buf[256];
   rtapi_vsnprintf(buf, sizeof(buf), fmt, ap);
@@ -50,8 +92,19 @@ void lcec_write_all(void *arg, long period);
 void lcec_read_master(void *arg, long period);
 void lcec_write_master(void *arg, long period);
 
+/** @brief Offset (ns) between RTAPI monotonic time and EtherCAT application wall-clock time. */
 int64_t dc_time_offset;
 
+/**
+ * @brief LinuxCNC HAL component entry point.
+ *
+ * Called once by the RTAPI loader when the lcec module is inserted.
+ * Performs all non-real-time initialisation as described in the file-level
+ * documentation, then marks the component ready for the servo thread.
+ *
+ * @return 0 on success.
+ * @return -EINVAL on any failure; partial resources are freed before returning.
+ */
 int rtapi_app_main(void) {
   int slave_count;
   lcec_master_t *master;
@@ -276,6 +329,16 @@ fail0:
   return -EINVAL;
 }
 
+/**
+ * @brief LinuxCNC HAL component exit point.
+ *
+ * Called by the RTAPI loader when the lcec module is removed.  Deactivates
+ * every EtherCAT master, releases all driver and HAL resources, and
+ * unregisters the HAL component.
+ *
+ * @note All exported HAL real-time functions must have been removed from any
+ *       thread before this function is called.
+ */
 void rtapi_app_exit(void) {
   lcec_master_t *master;
 
@@ -293,6 +356,28 @@ void rtapi_app_exit(void) {
   hal_exit(comp_id);
 }
 
+/**
+ * @brief Parse the lcec configuration from RTAPI shared memory.
+ *
+ * The userspace configurator tool (@c lcec_conf) writes a binary, type-tagged
+ * record stream to a shared-memory segment keyed by @c LCEC_CONF_SHMEM_KEY.
+ * This function:
+ *  -# Maps the segment and validates its magic number.
+ *  -# Remaps the segment at the correct full size.
+ *  -# Walks the record stream, creating @c lcec_master_t and @c lcec_slave_t
+ *     instances and applying DC, watchdog, SDO, IDN, and modparam settings.
+ *  -# Runs slave pre-initialisation in two stages: non-FsoE slaves first so
+ *     that FsoE logic devices can reference the @c fsoeConf data they set.
+ *  -# Allocates the PDO entry registration array for each master.
+ *
+ * @return Total number of configured slaves across all masters on success.
+ * @return -1 on any error; all partial allocations are freed via lcec_clear_config().
+ *
+ * @note Must not be called from a real-time context (performs heap allocation
+ *       and RTAPI shared-memory operations).
+ *
+ * @sideeffect Populates the ::first_master / ::last_master global linked list.
+ */
 int lcec_parse_config(void) {
   int shmem_id;
   void *shmem_ptr;
@@ -537,6 +622,21 @@ fail0:
   return -1;
 }
 
+/**
+ * @brief Free all resources allocated by lcec_parse_config().
+ *
+ * Iterates the master and slave linked lists in reverse order.  For each
+ * slave, calls @c proc_cleanup (if set) then frees the slave object.  For
+ * each master, calls lcec_shutdown_master(), frees the PDO entry registration
+ * array, and frees the master object.
+ *
+ * Safe to call after a partial initialisation (e.g. lcec_parse_config()
+ * failed mid-way); NULL pointers and empty lists are handled gracefully.
+ *
+ * @note Must not be called from a real-time context.
+ *
+ * @sideeffect Resets ::first_master and ::last_master to NULL.
+ */
 void lcec_clear_config(void) {
   lcec_master_t *master, *prev_master;
   lcec_slave_t *slave, *prev_slave;
@@ -575,6 +675,18 @@ void lcec_clear_config(void) {
   }
 }
 
+/**
+ * @brief HAL real-time function: read process data from all EtherCAT masters.
+ *
+ * Exported as @c lcec.read-all.  Resets the aggregate master-state counters,
+ * delegates to lcec_read_master() for every configured master in list order,
+ * then updates the global aggregate HAL state pins.
+ *
+ * @param arg     Unused; @c NULL is passed at export time.
+ * @param period  Servo period in nanoseconds.
+ *
+ * @note Runs in real-time context.  Must not block or allocate memory.
+ */
 void lcec_read_all(void *arg, long period) {
   lcec_master_t *master;
 
@@ -592,6 +704,17 @@ void lcec_read_all(void *arg, long period) {
   lcec_update_master_hal(global_hal_data, &global_ms);
 }
 
+/**
+ * @brief HAL real-time function: write process data to all EtherCAT masters.
+ *
+ * Exported as @c lcec.write-all.  Delegates to lcec_write_master() for every
+ * configured master in list order.
+ *
+ * @param arg     Unused; @c NULL is passed at export time.
+ * @param period  Servo period in nanoseconds.
+ *
+ * @note Runs in real-time context.  Must not block or allocate memory.
+ */
 void lcec_write_all(void *arg, long period) {
   lcec_master_t *master;
 

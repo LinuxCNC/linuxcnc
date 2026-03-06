@@ -16,21 +16,35 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file ax5200.c
+ * @brief Driver for the Beckhoff AX5200 dual-axis EtherCAT servo drive.
+ *
+ * Implements pre-init (FSoE 2-channel config + PDO count × 2 axes), full init
+ * (sync-manager PDO assignment for both axes, two class_ax5 channels prefixed
+ * ch0./ch1.), and cyclic read/write loops over both channels.
+ */
 #include "../lcec.h"
 #include "ax5200.h"
 
+/**
+ * @brief Internal HAL data for the AX5200 dual-axis drive.
+ */
 typedef struct {
-  lcec_syncs_t syncs;
-  lcec_class_ax5_chan_t chans[LCEC_AX5200_CHANS];
+  lcec_syncs_t syncs;                           /**< EtherCAT sync-manager configuration. */
+  lcec_class_ax5_chan_t chans[LCEC_AX5200_CHANS]; /**< Per-axis class_ax5 channel state. */
 } lcec_ax5200_data_t;
 
+/** @brief FSoE configuration for the AX5200: 2-byte data length, two axis channels. */
 static const LCEC_CONF_FSOE_T fsoe_conf = {
-  .slave_data_len = 2,
-  .master_data_len = 2,
-  .data_channels = 2
+  .slave_data_len = 2,   // slave FSoE data payload in bytes
+  .master_data_len = 2,  // master FSoE data payload in bytes
+  .data_channels = 2     // two axes → two FSoE data channels
 };
 
+/** @brief Cyclic read callback — iterates over both axes calling lcec_class_ax5_read(). */
 void lcec_ax5200_read(struct lcec_slave *slave, long period);
+/** @brief Cyclic write callback — iterates over both axes calling lcec_class_ax5_write(). */
 void lcec_ax5200_write(struct lcec_slave *slave, long period);
 
 int lcec_ax5200_preinit(struct lcec_slave *slave) {

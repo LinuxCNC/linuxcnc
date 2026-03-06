@@ -16,68 +16,84 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file dems300.c
+ * @brief Delta MS300 Variable Frequency Drive (VFD) EtherCAT HAL driver implementation.
+ *
+ * This driver implements the LinuxCNC HAL interface for the Delta MS300 VFD
+ * over EtherCAT. It supports velocity control, fault handling with optional
+ * automatic reset, ramp time configuration, and status/diagnostic feedback.
+ */
+
 #include "../lcec.h"
 #include "dems300.h"
 
+/** @brief Delay in nanoseconds before an automatic fault reset is attempted. */
 #define MS300_FAULT_AUTORESET_DELAY_NS 100000000LL
+/** @brief CiA 402 velocity mode operation code. */
 #define OPMODE_VELOCITY 2
 
+/**
+ * @brief Per-slave HAL data structure for the Delta MS300 VFD driver.
+ *
+ * Holds all HAL pin/parameter pointers and internal state for one MS300 slave.
+ */
 typedef struct {
-  hal_float_t *vel_fb_rpm;
-  hal_float_t *vel_fb_rpm_abs;
-  hal_float_t *vel_rpm_cmd;
+  hal_float_t *vel_fb_rpm;              /**< Velocity feedback in RPM. */
+  hal_float_t *vel_fb_rpm_abs;          /**< Absolute value of velocity feedback in RPM. */
+  hal_float_t *vel_rpm_cmd;             /**< Velocity command in RPM. */
 
-  hal_bit_t *stat_switch_on_ready;
-  hal_bit_t *stat_switched_on;
-  hal_bit_t *stat_op_enabled;
-  hal_bit_t *stat_fault;
-  hal_bit_t *stat_volt_enabled;
-  hal_bit_t *stat_quick_stoped;
-  hal_bit_t *stat_switch_on_disabled;
-  hal_bit_t *stat_warning;
-  hal_bit_t *stat_remote;
-  hal_bit_t *stat_at_speed;
+  hal_bit_t *stat_switch_on_ready;      /**< Status: drive ready to switch on. */
+  hal_bit_t *stat_switched_on;          /**< Status: drive switched on. */
+  hal_bit_t *stat_op_enabled;           /**< Status: operation enabled. */
+  hal_bit_t *stat_fault;                /**< Status: drive fault active. */
+  hal_bit_t *stat_volt_enabled;         /**< Status: DC bus voltage enabled. */
+  hal_bit_t *stat_quick_stoped;         /**< Status: quick stop active. */
+  hal_bit_t *stat_switch_on_disabled;   /**< Status: switch-on disabled. */
+  hal_bit_t *stat_warning;              /**< Status: warning present. */
+  hal_bit_t *stat_remote;               /**< Status: drive in remote control mode. */
+  hal_bit_t *stat_at_speed;             /**< Status: drive at commanded speed. */
 
-  hal_bit_t *quick_stop;
-  hal_bit_t *enable;
-  hal_bit_t *fault_reset;
-  hal_bit_t *halt;
+  hal_bit_t *quick_stop;                /**< Input: assert quick stop. */
+  hal_bit_t *enable;                    /**< Input: enable drive operation. */
+  hal_bit_t *fault_reset;               /**< Input: reset active fault. */
+  hal_bit_t *halt;                      /**< Input: halt drive. */
 
-  hal_s32_t *mode_op_display;
+  hal_s32_t *mode_op_display;           /**< Modes of operation display (read from drive). */
 
-  hal_float_t *act_current;
-  hal_u32_t *warn_code;
-  hal_u32_t *error_code;
-  hal_float_t *drive_temp;
+  hal_float_t *act_current;             /**< Actual output current in amps. */
+  hal_u32_t *warn_code;                 /**< Warning code from drive. */
+  hal_u32_t *error_code;                /**< Error/fault code from drive. */
+  hal_float_t *drive_temp;              /**< IGBT temperature in degrees C. */
 
-  hal_u32_t *vel_ramp_up;
-  hal_u32_t *vel_ramp_down;
+  hal_u32_t *vel_ramp_up;               /**< Acceleration ramp time in units of 100 ms. */
+  hal_u32_t *vel_ramp_down;             /**< Deceleration ramp time in units of 100 ms. */
 
-  hal_bit_t auto_fault_reset;
-  hal_float_t vel_scale;
+  hal_bit_t auto_fault_reset;           /**< Parameter: enable automatic fault reset on enable edge. */
+  hal_float_t vel_scale;                /**< Parameter: velocity scaling factor (RPM per raw unit). */
 
-  double vel_scale_old;
-  double vel_scale_rcpt;
+  double vel_scale_old;                 /**< Previous velocity scale value for change detection. */
+  double vel_scale_rcpt;                /**< Reciprocal of vel_scale for efficient scaling. */
 
-  unsigned int status_pdo_os;
-  unsigned int currvel_pdo_os;
-  unsigned int mode_op_display_pdo_os;
+  unsigned int status_pdo_os;           /**< PDO offset for status word (0x6041). */
+  unsigned int currvel_pdo_os;          /**< PDO offset for velocity demand (0x6043). */
+  unsigned int mode_op_display_pdo_os;  /**< PDO offset for modes of operation display (0x6061). */
 
-  unsigned int control_pdo_os;
-  unsigned int cmdvel_pdo_os;
-  unsigned int mode_op_pdo_os;
+  unsigned int control_pdo_os;          /**< PDO offset for control word (0x6040). */
+  unsigned int cmdvel_pdo_os;           /**< PDO offset for target velocity (0x6042). */
+  unsigned int mode_op_pdo_os;          /**< PDO offset for modes of operation (0x6060). */
 
-  unsigned int current_pdo_os;
-  unsigned int warn_err_pdo_os;
-  unsigned int temp_pdo_os;
+  unsigned int current_pdo_os;          /**< PDO offset for output current (0x3021:05). */
+  unsigned int warn_err_pdo_os;         /**< PDO offset for warn/error code (0x3021:01). */
+  unsigned int temp_pdo_os;             /**< PDO offset for IGBT temperature (0x3022:0f). */
 
-  unsigned int ramp_up_pdo_os;
-  unsigned int ramp_down_pdo_os;
+  unsigned int ramp_up_pdo_os;          /**< PDO offset for ramp up time (0x604F). */
+  unsigned int ramp_down_pdo_os;        /**< PDO offset for ramp down time (0x6050). */
 
-  hal_bit_t enable_old;
-  hal_bit_t internal_fault;
+  hal_bit_t enable_old;                 /**< Previous enable state for edge detection. */
+  hal_bit_t internal_fault;             /**< Internal fault flag derived from status word. */
 
-  long long auto_fault_reset_delay;
+  long long auto_fault_reset_delay;     /**< Remaining nanoseconds of auto-reset delay. */
 
 } lcec_dems300_data_t;
 
@@ -161,6 +177,17 @@ void lcec_dems300_check_scales(lcec_dems300_data_t *hal_data);
 void lcec_dems300_read(struct lcec_slave *slave, long period);
 void lcec_dems300_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Initialize the Delta MS300 EtherCAT slave driver.
+ *
+ * Allocates HAL memory, registers PDO entries, exports HAL pins and parameters,
+ * and sets default initial values for the slave.
+ *
+ * @param comp_id   LinuxCNC HAL component ID.
+ * @param slave     Pointer to the lcec_slave structure for this device.
+ * @param pdo_entry_regs Pointer to the PDO entry registration array; advanced by LCEC_PDO_INIT.
+ * @return 0 on success, negative error code on failure.
+ */
 int lcec_dems300_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_dems300_data_t *hal_data;
@@ -216,6 +243,14 @@ int lcec_dems300_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t 
   return 0;
 }
 
+/**
+ * @brief Check and update the velocity scale reciprocal when the scale changes.
+ *
+ * Detects changes to @p hal_data->vel_scale, guards against near-zero values,
+ * and recomputes the reciprocal used for velocity unit conversion.
+ *
+ * @param hal_data  Pointer to the driver's HAL data structure.
+ */
 void lcec_dems300_check_scales(lcec_dems300_data_t *hal_data) {
   // check for change in scale value
   if (hal_data->vel_scale != hal_data->vel_scale_old) {
@@ -231,6 +266,16 @@ void lcec_dems300_check_scales(lcec_dems300_data_t *hal_data) {
   }
 }
 
+/**
+ * @brief EtherCAT cyclic read handler for the Delta MS300 VFD.
+ *
+ * Reads process data from the EtherCAT domain, updates all HAL output pins
+ * (status bits, velocity feedback, current, temperature, fault/warning codes),
+ * and manages the auto fault reset countdown timer.
+ *
+ * @param slave   Pointer to the lcec_slave structure.
+ * @param period  Servo thread period in nanoseconds.
+ */
 void lcec_dems300_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_dems300_data_t *hal_data = (lcec_dems300_data_t *) slave->hal_data;
@@ -307,6 +352,16 @@ void lcec_dems300_read(struct lcec_slave *slave, long period) {
 
 }
 
+/**
+ * @brief EtherCAT cyclic write handler for the Delta MS300 VFD.
+ *
+ * Builds and writes the CiA 402 control word, velocity command, and ramp
+ * times to the EtherCAT process data image. Also handles fault reset logic
+ * including the automatic reset on rising edge of the enable pin.
+ *
+ * @param slave   Pointer to the lcec_slave structure.
+ * @param period  Servo thread period in nanoseconds.
+ */
 void lcec_dems300_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_dems300_data_t *hal_data = (lcec_dems300_data_t *) slave->hal_data;

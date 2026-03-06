@@ -18,15 +18,46 @@
 #ifndef _LCEC_EL2904_H_
 #define _LCEC_EL2904_H_
 
+/**
+ * @file el2904.h
+ * @brief Header for the Beckhoff EL2904 4-channel TwinSAFE digital output
+ *        terminal.
+ *
+ * The EL2904 is a safety-rated (SIL 3 / PLe) EtherCAT output terminal that
+ * implements the Fail-Safe over EtherCAT (FsoE) protocol.  Safety output
+ * states are governed by an FsoE master; this driver exposes both the FsoE
+ * frame fields and the standard digital output commands as HAL pins.
+ *
+ * EtherCAT identifiers:
+ *  - Vendor ID  : 0x00000002 (Beckhoff) — use ::LCEC_EL2904_VID
+ *  - Product code: 0x0B583052            — use ::LCEC_EL2904_PID
+ */
+
 #include "../lcec.h"
 
+/** @brief Beckhoff vendor ID for the EL2904. */
 #define LCEC_EL2904_VID LCEC_BECKHOFF_VID
 
+/** @brief EtherCAT product code for the EL2904. */
 #define LCEC_EL2904_PID 0x0B583052
 
+/** @brief Total number of PDO entries used by the EL2904 (FsoE + standard outputs). */
 #define LCEC_EL2904_PDOS 14
 
+/**
+ * @brief Pre-initialization hook — configure FsoE parameters before PDO setup.
+ * @param slave  Pointer to the lcec slave descriptor.
+ * @return 0 on success.
+ */
 int lcec_el2904_preinit(struct lcec_slave *slave);
+
+/**
+ * @brief Initialize the EL2904 slave.
+ * @param comp_id        HAL component ID.
+ * @param slave          Pointer to the slave descriptor.
+ * @param pdo_entry_regs PDO entry registration array (updated in place).
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el2904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif

@@ -16,53 +16,73 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el1918_logic.c
+ * @brief Driver implementation for Beckhoff EL1918 TwinSAFE logic terminal.
+ *
+ * Manages dynamic FSoE slave associations, configurable standard I/O bits,
+ * and the EL1918 internal state/cycle-counter PDOs.
+ */
+
 #include "../lcec.h"
 #include "el1918_logic.h"
 
+/**
+ * @brief CRC PDO data for one FSoE data channel within a slave connection.
+ */
 typedef struct {
-  hal_u32_t *fsoe_master_crc;
-  hal_u32_t *fsoe_slave_crc;
-  unsigned int fsoe_master_crc_os;
-  unsigned int fsoe_slave_crc_os;
+  hal_u32_t *fsoe_master_crc; /**< HAL output: FSoE master CRC for this data channel. */
+  hal_u32_t *fsoe_slave_crc;  /**< HAL output: FSoE slave CRC for this data channel. */
+  unsigned int fsoe_master_crc_os; /**< PDO offset: FSoE master CRC. */
+  unsigned int fsoe_slave_crc_os;  /**< PDO offset: FSoE slave CRC. */
 } lcec_el1918_logic_fsoe_crc_t;
 
+/**
+ * @brief HAL and PDO data for one FSoE slave connection managed by the EL1918.
+ */
 typedef struct {
-  struct lcec_slave *fsoe_slave;
+  struct lcec_slave *fsoe_slave; /**< Pointer to the connected FSoE slave. */
 
-  hal_u32_t *fsoe_master_cmd;
-  hal_u32_t *fsoe_master_connid;
+  hal_u32_t *fsoe_master_cmd;    /**< HAL output: FSoE master command word. */
+  hal_u32_t *fsoe_master_connid; /**< HAL output: FSoE master connection ID. */
 
-  hal_u32_t *fsoe_slave_cmd;
-  hal_u32_t *fsoe_slave_connid;
+  hal_u32_t *fsoe_slave_cmd;    /**< HAL output: FSoE slave command word. */
+  hal_u32_t *fsoe_slave_connid; /**< HAL output: FSoE slave connection ID. */
 
-  unsigned int fsoe_master_cmd_os;
-  unsigned int fsoe_master_connid_os;
+  unsigned int fsoe_master_cmd_os;    /**< PDO offset: FSoE master command. */
+  unsigned int fsoe_master_connid_os; /**< PDO offset: FSoE master connection ID. */
 
-  unsigned int fsoe_slave_cmd_os;
-  unsigned int fsoe_slave_connid_os;
+  unsigned int fsoe_slave_cmd_os;    /**< PDO offset: FSoE slave command. */
+  unsigned int fsoe_slave_connid_os; /**< PDO offset: FSoE slave connection ID. */
 
-  lcec_el1918_logic_fsoe_crc_t *fsoe_crc;
+  lcec_el1918_logic_fsoe_crc_t *fsoe_crc; /**< Array of per-channel CRC data (heap-allocated). */
 } lcec_el1918_logic_fsoe_t;
 
+/**
+ * @brief Complete HAL data structure for the EL1918 logic terminal.
+ *
+ * The @c fsoe[] flexible array must be the last member; it is sized at
+ * runtime to accommodate the number of connected FSoE slaves.
+ */
 typedef struct {
-  int fsoe_count;
+  int fsoe_count; /**< Number of FSoE slaves connected to this EL1918. */
 
-  hal_u32_t *state;
-  hal_u32_t *cycle_counter;
+  hal_u32_t *state;         /**< HAL output: EL1918 internal state register. */
+  hal_u32_t *cycle_counter; /**< HAL output: EL1918 cycle counter. */
 
-  hal_bit_t *std_in_pins[LCEC_EL1918_LOGIC_DIO_MAX_COUNT];
-  int std_in_count;
-  unsigned int std_in_os;
+  hal_bit_t *std_in_pins[LCEC_EL1918_LOGIC_DIO_MAX_COUNT]; /**< Standard input HAL pins (HAL_IN). */
+  int std_in_count;    /**< Number of configured standard input pins. */
+  unsigned int std_in_os; /**< PDO offset for the packed standard-input byte. */
 
-  hal_bit_t *std_out_pins[LCEC_EL1918_LOGIC_DIO_MAX_COUNT];
-  int std_out_count;
-  unsigned int std_out_os;
+  hal_bit_t *std_out_pins[LCEC_EL1918_LOGIC_DIO_MAX_COUNT]; /**< Standard output HAL pins (HAL_OUT). */
+  int std_out_count;    /**< Number of configured standard output pins. */
+  unsigned int std_out_os; /**< PDO offset for the packed standard-output byte. */
 
-  unsigned int state_os;
-  unsigned int cycle_counter_os;
+  unsigned int state_os;         /**< PDO offset: EL1918 state register. */
+  unsigned int cycle_counter_os; /**< PDO offset: EL1918 cycle counter. */
 
   // must be last entry (dynamic size)
-  lcec_el1918_logic_fsoe_t fsoe[];
+  lcec_el1918_logic_fsoe_t fsoe[]; /**< Flexible array of FSoE slave connection data. */
 } lcec_el1918_logic_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {

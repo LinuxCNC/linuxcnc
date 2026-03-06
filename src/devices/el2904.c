@@ -16,53 +16,85 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/**
+ * @file el2904.c
+ * @brief HAL driver for the Beckhoff EL2904 4-channel TwinSAFE digital output
+ *        terminal.
+ *
+ * The EL2904 is a functional safety (IEC 61508 SIL 3 / EN ISO 13849 PLe)
+ * digital output terminal.  It implements the Fail-Safe over EtherCAT (FsoE)
+ * protocol so that the safety outputs are controlled by a TwinSAFE master or
+ * an external FsoE master running in LinuxCNC.
+ *
+ * EtherCAT identifiers:
+ *  - Vendor ID  : 0x00000002 (Beckhoff)
+ *  - Product code: 0x0B583052
+ *
+ * HAL pins exported:
+ *  - @c fsoe-master-cmd    (HAL_U32, OUT) — FsoE command byte received from master PDO
+ *  - @c fsoe-master-crc    (HAL_U32, OUT) — FsoE CRC word received from master PDO
+ *  - @c fsoe-master-connid (HAL_U32, OUT) — FsoE connection ID from master PDO
+ *  - @c fsoe-slave-cmd     (HAL_U32, OUT) — FsoE command byte in slave response PDO
+ *  - @c fsoe-slave-crc     (HAL_U32, OUT) — FsoE CRC word in slave response PDO
+ *  - @c fsoe-slave-connid  (HAL_U32, OUT) — FsoE connection ID in slave response PDO
+ *  - @c fsoe-out-0 … fsoe-out-3 (HAL_BIT, OUT) — readback of safety outputs 0–3
+ *  - @c out-0 … out-3      (HAL_BIT, IN)  — non-safety output commands 0–3
+ */
+
 #include "../lcec.h"
 #include "el2904.h"
 
+/**
+ * @brief HAL data structure for the EL2904 TwinSAFE digital output slave.
+ *
+ * Contains HAL pin pointers and PDO byte offsets / bit positions for both the
+ * FsoE safety channel (master and slave frames) and the four standard digital
+ * output channels.
+ */
 typedef struct {
-  hal_u32_t *fsoe_master_cmd;
-  hal_u32_t *fsoe_master_crc;
-  hal_u32_t *fsoe_master_connid;
+  hal_u32_t *fsoe_master_cmd;       /**< HAL OUT pin: FsoE master command byte (0x7000:01). */
+  hal_u32_t *fsoe_master_crc;       /**< HAL OUT pin: FsoE master CRC word (0x7000:02). */
+  hal_u32_t *fsoe_master_connid;    /**< HAL OUT pin: FsoE master connection ID (0x7000:03). */
 
-  hal_u32_t *fsoe_slave_cmd;
-  hal_u32_t *fsoe_slave_crc;
-  hal_u32_t *fsoe_slave_connid;
+  hal_u32_t *fsoe_slave_cmd;        /**< HAL OUT pin: FsoE slave command byte (0x6000:01). */
+  hal_u32_t *fsoe_slave_crc;        /**< HAL OUT pin: FsoE slave CRC word (0x6000:03). */
+  hal_u32_t *fsoe_slave_connid;     /**< HAL OUT pin: FsoE slave connection ID (0x6000:04). */
 
-  hal_bit_t *fsoe_out_0;
-  hal_bit_t *fsoe_out_1;
-  hal_bit_t *fsoe_out_2;
-  hal_bit_t *fsoe_out_3;
+  hal_bit_t *fsoe_out_0;            /**< HAL OUT pin: safety output 0 readback (0x7001:01). */
+  hal_bit_t *fsoe_out_1;            /**< HAL OUT pin: safety output 1 readback (0x7001:02). */
+  hal_bit_t *fsoe_out_2;            /**< HAL OUT pin: safety output 2 readback (0x7001:03). */
+  hal_bit_t *fsoe_out_3;            /**< HAL OUT pin: safety output 3 readback (0x7001:04). */
 
-  hal_bit_t *out_0;
-  hal_bit_t *out_1;
-  hal_bit_t *out_2;
-  hal_bit_t *out_3;
+  hal_bit_t *out_0;                 /**< HAL IN pin: standard output channel 0 command (0x7010:01). */
+  hal_bit_t *out_1;                 /**< HAL IN pin: standard output channel 1 command (0x7010:02). */
+  hal_bit_t *out_2;                 /**< HAL IN pin: standard output channel 2 command (0x7010:03). */
+  hal_bit_t *out_3;                 /**< HAL IN pin: standard output channel 3 command (0x7010:04). */
 
-  unsigned int fsoe_master_cmd_os;
-  unsigned int fsoe_master_crc_os;
-  unsigned int fsoe_master_connid_os;
+  unsigned int fsoe_master_cmd_os;      /**< Byte offset of fsoe_master_cmd in the process image. */
+  unsigned int fsoe_master_crc_os;      /**< Byte offset of fsoe_master_crc in the process image. */
+  unsigned int fsoe_master_connid_os;   /**< Byte offset of fsoe_master_connid in the process image. */
 
-  unsigned int fsoe_slave_cmd_os;
-  unsigned int fsoe_slave_crc_os;
-  unsigned int fsoe_slave_connid_os;
+  unsigned int fsoe_slave_cmd_os;       /**< Byte offset of fsoe_slave_cmd in the process image. */
+  unsigned int fsoe_slave_crc_os;       /**< Byte offset of fsoe_slave_crc in the process image. */
+  unsigned int fsoe_slave_connid_os;    /**< Byte offset of fsoe_slave_connid in the process image. */
 
-  unsigned int fsoe_out_0_os;
-  unsigned int fsoe_out_0_bp;
-  unsigned int fsoe_out_1_os;
-  unsigned int fsoe_out_1_bp;
-  unsigned int fsoe_out_2_os;
-  unsigned int fsoe_out_2_bp;
-  unsigned int fsoe_out_3_os;
-  unsigned int fsoe_out_3_bp;
+  unsigned int fsoe_out_0_os;   /**< Byte offset of fsoe_out_0 in the process image. */
+  unsigned int fsoe_out_0_bp;   /**< Bit position of fsoe_out_0 within its byte. */
+  unsigned int fsoe_out_1_os;   /**< Byte offset of fsoe_out_1 in the process image. */
+  unsigned int fsoe_out_1_bp;   /**< Bit position of fsoe_out_1 within its byte. */
+  unsigned int fsoe_out_2_os;   /**< Byte offset of fsoe_out_2 in the process image. */
+  unsigned int fsoe_out_2_bp;   /**< Bit position of fsoe_out_2 within its byte. */
+  unsigned int fsoe_out_3_os;   /**< Byte offset of fsoe_out_3 in the process image. */
+  unsigned int fsoe_out_3_bp;   /**< Bit position of fsoe_out_3 within its byte. */
 
-  unsigned int out_0_os;
-  unsigned int out_0_bp;
-  unsigned int out_1_os;
-  unsigned int out_1_bp;
-  unsigned int out_2_os;
-  unsigned int out_2_bp;
-  unsigned int out_3_os;
-  unsigned int out_3_bp;
+  unsigned int out_0_os;    /**< Byte offset of out_0 in the process image. */
+  unsigned int out_0_bp;    /**< Bit position of out_0 within its byte. */
+  unsigned int out_1_os;    /**< Byte offset of out_1 in the process image. */
+  unsigned int out_1_bp;    /**< Bit position of out_1 within its byte. */
+  unsigned int out_2_os;    /**< Byte offset of out_2 in the process image. */
+  unsigned int out_2_bp;    /**< Bit position of out_2 within its byte. */
+  unsigned int out_3_os;    /**< Byte offset of out_3 in the process image. */
+  unsigned int out_3_bp;    /**< Bit position of out_3 within its byte. */
 
 } lcec_el2904_data_t;
 
@@ -90,9 +122,20 @@ static const LCEC_CONF_FSOE_T fsoe_conf = {
   .data_channels = 1
 };
 
+/** @brief Forward declaration of the periodic read callback. */
 void lcec_el2904_read(struct lcec_slave *slave, long period);
+/** @brief Forward declaration of the periodic write callback. */
 void lcec_el2904_write(struct lcec_slave *slave, long period);
 
+/**
+ * @brief Pre-initialization hook — attach the FsoE configuration to the slave.
+ *
+ * Called by the lcec core before lcec_el2904_init().  Sets the slave's FsoE
+ * configuration pointer so the core can allocate the appropriate safety PDOs.
+ *
+ * @param slave  Pointer to the lcec slave descriptor.
+ * @return 0 on success.
+ */
 int lcec_el2904_preinit(struct lcec_slave *slave) {
   // set fsoe config
   slave->fsoeConf = &fsoe_conf;
@@ -100,6 +143,21 @@ int lcec_el2904_preinit(struct lcec_slave *slave) {
   return 0;
 }
 
+/**
+ * @brief Initialize the EL2904 slave: allocate HAL memory, register PDOs, and
+ *        export HAL pins.
+ *
+ * Allocates and zeroes the per-slave HAL data structure, registers all FsoE
+ * master/slave frame PDO entries and the four standard output PDO entries, then
+ * exports the corresponding HAL pins.
+ *
+ * @param comp_id        HAL component ID returned by hal_init().
+ * @param slave          Pointer to the lcec slave descriptor.
+ * @param pdo_entry_regs Pointer to the PDO entry registration array; advanced
+ *                       by the number of entries registered.
+ * @return 0 on success, -EIO on memory allocation failure, or a negative HAL
+ *         error code if pin export fails.
+ */
 int lcec_el2904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_el2904_data_t *hal_data;
@@ -141,6 +199,18 @@ int lcec_el2904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   return 0;
 }
 
+/**
+ * @brief Periodic read callback — copies FsoE frame data and safety output
+ *        readbacks from the EtherCAT process data into HAL pins.
+ *
+ * Calls copy_fsoe_data() to mirror the slave's FsoE response frame back into
+ * the master PDO area, then reads all six FsoE frame fields (cmd, crc,
+ * connid for both master and slave) and the four safety-output readback bits
+ * into their respective HAL OUT pins.
+ *
+ * @param slave  Pointer to the EtherCAT slave structure.
+ * @param period Servo period in nanoseconds (unused).
+ */
 void lcec_el2904_read(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el2904_data_t *hal_data = (lcec_el2904_data_t *) slave->hal_data;
@@ -162,6 +232,18 @@ void lcec_el2904_read(struct lcec_slave *slave, long period) {
   *(hal_data->fsoe_out_3) = EC_READ_BIT(&pd[hal_data->fsoe_out_3_os], hal_data->fsoe_out_3_bp);
 }
 
+/**
+ * @brief Periodic write callback — copies HAL output pin values to the
+ *        EtherCAT process data image.
+ *
+ * Writes the four standard output channel bits (@c out_0 … @c out_3) from
+ * their HAL IN pins into the corresponding bit positions in the master process
+ * data image.  The FsoE safety outputs are managed independently by the FsoE
+ * master stack and are not written here.
+ *
+ * @param slave  Pointer to the EtherCAT slave structure.
+ * @param period Servo period in nanoseconds (unused).
+ */
 void lcec_el2904_write(struct lcec_slave *slave, long period) {
   lcec_master_t *master = slave->master;
   lcec_el2904_data_t *hal_data = (lcec_el2904_data_t *) slave->hal_data;

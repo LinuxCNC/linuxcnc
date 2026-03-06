@@ -16,11 +16,36 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+/** @file el7411.c
+ * @brief Driver for the Beckhoff EL7411 BLDC motor terminal.
+ *
+ * Configures Hall-sensor based commutation and all motor electrical
+ * parameters via CoE SDOs during slave initialisation, then reuses the
+ * EL7211 CiA-402 velocity-mode HAL logic (PDO mapping, read/write callbacks,
+ * and pin export) without modification.
+ */
+
 #include "hal.h"
 
 #include "../lcec.h"
 #include "el7411.h"
 
+/**
+ * @brief Initialise the EL7411 BLDC motor terminal.
+ *
+ * Applies the following fixed SDO settings:
+ * - 0x7010:03 = 9  (velocity mode)
+ * - 0x8010:64 = 2  (Hall-sensor commutation)
+ * - 0x800A:02 = 1  (enable Hall power supply)
+ *
+ * Then applies optional motor parameter SDOs from module params and
+ * calls lcec_el7211_init() to complete PDO registration and HAL setup.
+ *
+ * @param comp_id         HAL component ID.
+ * @param slave           Pointer to the EtherCAT slave structure.
+ * @param pdo_entry_regs  Pointer to the PDO entry registration array.
+ * @return 0 on success, negative errno on failure.
+ */
 int lcec_el7411_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
   lcec_slave_modparam_t *p;
