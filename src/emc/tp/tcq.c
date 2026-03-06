@@ -18,7 +18,7 @@
  ********************************************************************/
 
 #include <stddef.h>
-#include "motion.h"
+#include "../motion/motion.h"
 #include "../motion/atomic_9d.h"
 #include "rtapi.h"
 
