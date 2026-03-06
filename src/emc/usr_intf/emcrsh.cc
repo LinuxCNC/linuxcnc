@@ -3302,7 +3302,7 @@ static int parseCommand(connectionRecType &ctx, std::string &line)
 			// Save the rest of the string as possible filename
 			ctx.third = line.substr(lft);
 		}
-		ctx.toks.push_back(std::move(line.substr(lft, rgt - lft)));
+		ctx.toks.push_back(line.substr(lft, rgt - lft));
 		pos = rgt;
 	}
 
