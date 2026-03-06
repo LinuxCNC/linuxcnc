@@ -1629,7 +1629,11 @@ int emcTrajSetTermCond(int cond, double tolerance)
     if (tp) {
         // Flush segment compressor before mode change — buffered segments
         // were accumulated under the old mode/tolerance.
-        tpFlushCompressor_9D(tp);
+        // Use NoSeal variant: new motion segments are expected immediately
+        // after the mode change, so the queue is NOT at a sync boundary.
+        // tpFlushCompressor_9D (with seal) would prematurely finalize the
+        // tail segment before its blend trimming arrives, causing a spike.
+        tpFlushCompressorNoSeal_9D(tp);
         tp->termCond = cond;
         tp->tolerance = tolerance;
     }
