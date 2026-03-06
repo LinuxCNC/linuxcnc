@@ -1,5 +1,5 @@
 #include "bezier9.h"
-#include "tp_types.h"
+#include "../tp/tp_types.h"
 #include "../tp/tp_debug.h"
 #include "posemath.h"
 #include "blendmath.h"

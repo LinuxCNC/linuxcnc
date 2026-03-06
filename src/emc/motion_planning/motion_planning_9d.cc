@@ -19,9 +19,9 @@
 
 #include "motion_planning_9d.hh"
 #include "smoothing_data.hh"
-#include "motion.h"           // For emcmot_status_t (must be before tp.h)
-#include "tc.h"
-#include "tp.h"
+#include "motion/motion.h"    // For emcmot_status_t (must be before tp.h)
+#include "../tp/tc.h"
+#include "../tp/tp.h"
 #include "../motion/atomic_9d.h"
 #include "posemath.h"
 #include "rtapi.h"            // For rtapi_print_msg

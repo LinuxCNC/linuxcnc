@@ -14,9 +14,9 @@
 #include "blend_sizing.h"
 
 extern "C" {
-#include "tp_types.h"
+#include "../tp/tp_types.h"
 #include "../tp/tp_debug.h"
-#include "tc.h"
+#include "../tp/tc.h"
 #include "blendmath.h"
 #include "emcpose.h"
 #include "rtapi_math.h"
