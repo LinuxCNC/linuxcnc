@@ -87,6 +87,8 @@ int switchkinsSetup(kparms* kp,
 #include "kinematics_params.h"
 #include "emcpos.h"
 
+static kinematics_params_t *uspace_params;
+
 #ifndef PM_PI
 #define PM_PI 3.14159265358979323846
 #endif
@@ -368,82 +370,50 @@ static int nonrt_genserkins_inv(nonrt_genserkins_params_t *params,
     return -1;
 }
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+static void nonrt_build_genser(const kinematics_params_t *kp,
+                               nonrt_genserkins_params_t *p)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    nonrt_genserkins_params_t p;
     int i;
-
-    p.link_num = kp->params.genser.link_num;
-    p.max_iterations = kp->params.genser.max_iterations;
-    p.last_iterations = 0;
+    p->link_num = kp->params.genser.link_num;
+    p->max_iterations = kp->params.genser.max_iterations;
+    p->last_iterations = 0;
     for (i = 0; i < NONRT_GENSERKINS_MAX_JOINTS; i++) {
-        p.a[i] = kp->params.genser.a[i];
-        p.alpha[i] = kp->params.genser.alpha[i];
-        p.d[i] = kp->params.genser.d[i];
-        p.unrotate[i] = kp->params.genser.unrotate[i];
+        p->a[i] = kp->params.genser.a[i];
+        p->alpha[i] = kp->params.genser.alpha[i];
+        p->d[i] = kp->params.genser.d[i];
+        p->unrotate[i] = kp->params.genser.unrotate[i];
     }
+}
 
+static int nonrt_genser_forward(const double *joints, EmcPose *pos,
+                                const KINEMATICS_FORWARD_FLAGS *ff,
+                                KINEMATICS_INVERSE_FLAGS *if_)
+{
+    (void)ff; (void)if_;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
+    nonrt_genserkins_params_t p;
+    nonrt_build_genser(&local, &p);
     return nonrt_genserkins_fwd(&p, joints, pos);
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
+static int nonrt_genser_inverse(const EmcPose *pos, double *joints,
+                                const KINEMATICS_INVERSE_FLAGS *if_,
+                                KINEMATICS_FORWARD_FLAGS *ff)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    (void)if_; (void)ff;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
     nonrt_genserkins_params_t p;
-    int i;
-
-    p.link_num = kp->params.genser.link_num;
-    p.max_iterations = kp->params.genser.max_iterations;
-    p.last_iterations = 0;
-    for (i = 0; i < NONRT_GENSERKINS_MAX_JOINTS; i++) {
-        p.a[i] = kp->params.genser.a[i];
-        p.alpha[i] = kp->params.genser.alpha[i];
-        p.d[i] = kp->params.genser.d[i];
-        p.unrotate[i] = kp->params.genser.unrotate[i];
-    }
-
+    nonrt_build_genser(&local, &p);
     return nonrt_genserkins_inv(&p, pos, joints);
 }
 
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    int i;
-    char pin_name[64];
-    (void)read_bit;
-
-    for (i = 0; i < KINS_GENSER_MAX_JOINTS; i++) {
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genserkins.A-%d", i);
-        read_float(pin_name, &kp->params.genser.a[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genserkins.ALPHA-%d", i);
-        read_float(pin_name, &kp->params.genser.alpha[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genserkins.D-%d", i);
-        read_float(pin_name, &kp->params.genser.d[i]);
-    }
-
-    if (read_s32) {
-        int val;
-        for (i = 0; i < KINS_GENSER_MAX_JOINTS; i++) {
-            rtapi_snprintf(pin_name, sizeof(pin_name), "genserkins.UNROTATE-%d", i);
-            if (read_s32(pin_name, &val) == 0)
-                kp->params.genser.unrotate[i] = val;
-        }
-    }
-
-    return 0;
+    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward   = nonrt_genser_forward;
+    ops->inverse   = nonrt_genser_inverse;
 }
 
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

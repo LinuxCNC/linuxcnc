@@ -262,6 +262,9 @@ KINEMATICS_TYPE kinematicsType(void) {
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
 
 const char* kinematicsGetName(void) { return "scorbot-kins"; }
 
@@ -273,12 +276,30 @@ EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 static int comp_id;
+static kinematics_params_t *uspace_params;
 
 int rtapi_app_main(void) {
     comp_id = hal_init("scorbot-kins");
-    if (comp_id < 0) {
-        return comp_id;
+    if (comp_id < 0) return comp_id;
+
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) { hal_exit(comp_id); return -1; }
+    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                         "scorbot-kins.uspace-params-offset") < 0) {
+        hal_exit(comp_id); return -1;
     }
+    memset(uspace_params, 0, sizeof(*uspace_params));
+    uspace_params->num_joints = 5;
+    uspace_params->params.scorbot.l0_horizontal = SCORBOT_DEFAULT_L0_HORIZONTAL;
+    uspace_params->params.scorbot.l0_vertical   = SCORBOT_DEFAULT_L0_VERTICAL;
+    uspace_params->params.scorbot.l1_length     = SCORBOT_DEFAULT_L1_LENGTH;
+    uspace_params->params.scorbot.l2_length     = SCORBOT_DEFAULT_L2_LENGTH;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
+    uspace_params->head = 1;
+    uspace_params->tail = 1;
+    uspace_params->self_offset = (int)SHMOFF(uspace_params);
+
     hal_ready(comp_id);
     return 0;
 }
@@ -290,47 +311,13 @@ void rtapi_app_exit(void) {
 /* ========================================================================
  * Non-RT interface for userspace trajectory planner
  * ======================================================================== */
-#include "kinematics_params.h"
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    scorbot_params_t p;
-    p.l0_horizontal = kp->params.scorbot.l0_horizontal;
-    p.l0_vertical   = kp->params.scorbot.l0_vertical;
-    p.l1_length     = kp->params.scorbot.l1_length;
-    p.l2_length     = kp->params.scorbot.l2_length;
-    return scorbot_forward_math(&p, joints, pos);
+    (void)shmem_base; (void)offset;
+    ops->forward = kinematicsForward;
+    ops->inverse = kinematicsInverse;
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
-{
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    scorbot_params_t p;
-    p.l0_horizontal = kp->params.scorbot.l0_horizontal;
-    p.l0_vertical   = kp->params.scorbot.l0_vertical;
-    p.l1_length     = kp->params.scorbot.l1_length;
-    p.l2_length     = kp->params.scorbot.l2_length;
-    return scorbot_inverse_math(&p, pos, joints);
-}
-
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
-{
-    (void)params; (void)read_float; (void)read_bit; (void)read_s32;
-    return 0;
-}
-
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);
 

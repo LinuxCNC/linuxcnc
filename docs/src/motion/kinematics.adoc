@@ -382,14 +382,14 @@ A kinematics module in LinuxCNC serves two consumers:
 
 Both sets of functions live in the *same `.c` source file* and are
 compiled into the *same RT `.so` module*.  The userspace planner loads
-the RT `.so` via `dlopen()` and resolves the non-RT symbols via
+the RT `.so` via `dlopen()` and resolves the non-RT entry point via
 `dlsym()`.
 
-The key insight is that the *math is shared*: write your forward and
-inverse kinematics as static helper functions that take plain
-parameters (doubles, structs), then call those helpers from both the
-RT interface (which reads HAL pins) and the non-RT interface (which
-reads from a `kinematics_params_t` structure).
+The math is shared: forward and inverse kinematics are written as
+static helper functions that take plain parameters (doubles, structs),
+then called from both the RT interface (which reads HAL pins) and the
+non-RT interface (which reads from a `kinematics_params_t` structure
+mapped from HAL shared memory).
 
 === Required functions
 
@@ -403,60 +403,106 @@ and either `KINS_NOT_SWITCHABLE` or the switchkins functions.
 Additionally, `rtapi_app_main()` and `rtapi_app_exit()` handle
 module initialization and cleanup.
 
-==== Non-RT functions (for the userspace planner)
-
-The userspace planner resolves these four symbols from the RT `.so`:
-
-----
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos);
-----
-
-Forward kinematics.  The `params` argument is a pointer to a
-`kinematics_params_t` structure (see below) that contains all the
-parameters the math needs.  Returns 0 on success, -1 on failure.
+The RT `kinematicsForward()` function (or `XxxKinematicsForward()` for
+switchkins modules) also *pushes* the current HAL pin values into a
+`kinematics_params_t` structure allocated in HAL shared memory.
+This is done using the split-read protocol -- increment `head` before
+any write, set `tail = head` after all writes:
 
 ----
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints);
+if (uspace_params) {
+    uspace_params->head++;
+    uspace_params->params.mykins.arm_length = *(haldata->arm_length);
+    /* ... push all other params ... */
+    uspace_params->tail = uspace_params->head;
+}
 ----
 
-Inverse kinematics.  Same parameter convention.
+The userspace planner maps the same memory read-only and reads it
+directly every time it calls kinematics -- no callbacks, no polling,
+no per-call overhead.
+
+==== Non-RT entry point (for the userspace planner)
+
+The userspace planner resolves a single symbol from the RT `.so`:
 
 ----
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *));
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops);
 ----
 
-Called periodically by the userspace planner to update the
-kinematics parameters from HAL pin values.  The three callback
-functions read HAL pins by name.  Use them to populate the
-module-specific fields in `kinematics_params_t`.  Returns 0 on
-success.
-
-For modules with no runtime parameters (e.g., trivkins, corexykins),
-this function is a no-op that returns 0.
+`nonrt_attach` is called once at planner startup.  It receives a
+pointer to the HAL shared memory base and the byte offset of the
+module's `kinematics_params_t` structure.  It stores the pointer
+for later use and registers the forward and inverse functions that
+the planner will call:
 
 ----
-int nonrt_is_identity(void);
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+{
+    uspace_params = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward  = myKinematicsForward;  /* same function as RT */
+    ops->inverse  = myKinematicsInverse;
+}
+
+EXPORT_SYMBOL(nonrt_attach);
 ----
 
-Returns 1 if this module implements identity kinematics (each
-joint maps directly to one axis), 0 otherwise.  The planner
-uses this to enable optimized code paths.
-
-All four functions must be exported with `EXPORT_SYMBOL()`:
+The `nonrt_ops_t` forward and inverse function pointers have the same
+signature as the standard RT kinematics functions:
 
 ----
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+typedef int (*nonrt_forward_fn)(const double *joints, EmcPose *pos,
+                                const KINEMATICS_FORWARD_FLAGS *,
+                                KINEMATICS_INVERSE_FLAGS *);
+typedef int (*nonrt_inverse_fn)(const EmcPose *pos, double *joints,
+                                const KINEMATICS_INVERSE_FLAGS *,
+                                KINEMATICS_FORWARD_FLAGS *);
 ----
+
+When the planner calls these functions, they detect the userspace
+context (HAL pins are unavailable) by checking `if (!haldata)`,
+then read parameters from `uspace_params` via `KINS_SHMEM_READ`:
+
+----
+if (!haldata) {
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
+    return mykins_forward(local.params.mykins.arm_length, joints, pos);
+}
+/* RT path: read from HAL pins */
+----
+
+`KINS_SHMEM_READ(ptr, local)` retries up to 100 times until `head ==
+tail`, guaranteeing a consistent snapshot even if the RT thread is
+mid-write.
+
+For modules with no HAL-configurable parameters (pure geometric
+transforms), `nonrt_attach` registers the RT functions directly without
+any `!haldata` guard -- there are no HAL pins to dereference.
+
+==== Shared memory setup (required for planner 2)
+
+`rtapi_app_main()` (or `XxxKinematicsSetup()` for switchkins modules)
+allocates the `kinematics_params_t` in HAL shmem and publishes its
+byte offset so the userspace planner can locate it:
+
+----
+uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                       "%s.uspace-params-offset", modname) < 0) goto error;
+memset(uspace_params, 0, sizeof(*uspace_params));
+uspace_params->num_joints  = num_joints;
+uspace_params->is_identity = 0;  /* 1 for trivial/identity kinematics */
+/* fill initial parameter values */
+uspace_params->valid = 1;
+uspace_params->head  = 1;
+uspace_params->tail  = 1;
+uspace_params->self_offset = (int)SHMOFF(uspace_params);
+----
+
+If the `uspace-params-offset` param is absent (old external module),
+the userspace planner detects this at init time and disables planner 2
+with a logged warning.  Planner 0 and 1 continue to work normally.
 
 === The `kinematics_params_t` structure
 
@@ -504,7 +550,7 @@ union {
 
 The following example implements a kinematics module for a machine
 with an arm length parameter.  It demonstrates all three layers:
-the math, the RT interface, and the non-RT interface.
+the math, the RT interface (with shmem push), and the non-RT interface.
 
 [source,c]
 ----
@@ -516,9 +562,12 @@ the math, the RT interface, and the non-RT interface.
 /* ---- RT headers ---- */
 #include "kinematics.h"
 #include "hal.h"
+#include "hal_priv.h"           /* for SHMOFF() */
+#include "kinematics_params.h"  /* for kinematics_params_t */
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_math.h"
+#include <string.h>             /* for memset() */
 
 /* ================================================================
  * Layer 1: Pure math (shared by RT and non-RT)
@@ -555,18 +604,32 @@ static int mykins_inverse(double arm_length,
 }
 
 /* ================================================================
- * Layer 2: RT interface (reads HAL pins)
+ * Layer 2: RT interface (reads HAL pins, pushes to shmem)
  * ================================================================ */
 
 static struct haldata {
     hal_float_t *arm_length;
 } *haldata;
 
+static kinematics_params_t *uspace_params;
+
 int kinematicsForward(const double *joints, EmcPose *pos,
                       const KINEMATICS_FORWARD_FLAGS *fflags,
                       KINEMATICS_INVERSE_FLAGS *iflags)
 {
     (void)fflags; (void)iflags;
+    if (!haldata) {
+        /* Userspace path: read params from shmem */
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        return mykins_forward(local.params.mykins.arm_length, joints, pos);
+    }
+    /* RT path: push current HAL pin values to shmem */
+    if (uspace_params) {
+        uspace_params->head++;
+        uspace_params->params.mykins.arm_length = *(haldata->arm_length);
+        uspace_params->tail = uspace_params->head;
+    }
     return mykins_forward(*(haldata->arm_length), joints, pos);
 }
 
@@ -575,6 +638,11 @@ int kinematicsInverse(const EmcPose *pos, double *joints,
                       KINEMATICS_FORWARD_FLAGS *fflags)
 {
     (void)iflags; (void)fflags;
+    if (!haldata) {
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        return mykins_inverse(local.params.mykins.arm_length, pos, joints);
+    }
     return mykins_inverse(*(haldata->arm_length), pos, joints);
 }
 
@@ -600,8 +668,22 @@ int rtapi_app_main(void)
     if (hal_pin_float_new("mykins.arm-length", HAL_IO,
                           &(haldata->arm_length), comp_id) < 0)
         goto error;
-
     *(haldata->arm_length) = 100.0;  /* default value */
+
+    /* Allocate kinematics_params_t in HAL shmem and publish its offset */
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) goto error;
+    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                           "mykins.uspace-params-offset") < 0) goto error;
+    memset(uspace_params, 0, sizeof(*uspace_params));
+    uspace_params->num_joints             = 3;
+    uspace_params->is_identity            = 0;
+    uspace_params->params.mykins.arm_length = 100.0;
+    uspace_params->valid = 1;
+    uspace_params->head  = 1;
+    uspace_params->tail  = 1;
+    uspace_params->self_offset = (int)SHMOFF(uspace_params);
+
     hal_ready(comp_id);
     return 0;
 error:
@@ -612,53 +694,22 @@ error:
 void rtapi_app_exit(void) { hal_exit(comp_id); }
 
 /* ================================================================
- * Layer 3: Non-RT interface (for userspace trajectory planner)
+ * Layer 3: Non-RT entry point (for userspace trajectory planner)
  *
- * These functions are resolved via dlsym() by the planner.
- * They call the same math as the RT side but get parameters
- * from kinematics_params_t instead of HAL pins.
+ * nonrt_attach is called once at planner startup.  It maps the
+ * shmem params pointer and registers the forward/inverse functions.
+ * The same kinematicsForward/Inverse functions are used -- they
+ * detect the userspace context via !haldata and read from shmem.
  * ================================================================ */
-#include "kinematics_params.h"
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    return mykins_forward(kp->params.mykins.arm_length, joints, pos);
+    uspace_params = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward  = kinematicsForward;
+    ops->inverse  = kinematicsInverse;
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
-{
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    return mykins_inverse(kp->params.mykins.arm_length, pos, joints);
-}
-
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
-{
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    (void)read_bit; (void)read_s32;
-
-    /* Read the HAL pin value into our params struct.
-     * The pin name must match what rtapi_app_main() created. */
-    if (read_float("mykins.arm-length",
-                   &kp->params.mykins.arm_length) != 0)
-        return -1;
-
-    return 0;
-}
-
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);
 ----
 
 === Structure of the code
@@ -672,22 +723,27 @@ kinematics modules follow:
   Both the RT and non-RT interfaces call them.
 
 . **Layer 2 -- RT interface**: The standard `kinematicsForward()` /
-  `kinematicsInverse()` functions.  They read HAL pin values and pass
-  them to the Layer 1 math.  Also includes `rtapi_app_main()` which
-  creates the HAL component and pins.
+  `kinematicsInverse()` functions.  They check `haldata` to distinguish
+  the RT context (read HAL pins, push to shmem) from the userspace
+  context (read from shmem via `KINS_SHMEM_READ`).
+  `rtapi_app_main()` creates the HAL component, pins, and the shmem
+  structure; in userspace `haldata` is NULL because `rtapi_app_main()`
+  is never called.
 
-. **Layer 3 -- Non-RT interface**: The `nonrt_*` functions.  They
-  read from the `kinematics_params_t` structure instead of HAL pins,
-  and call the same Layer 1 math.  The `nonrt_refresh()` function
-  uses the provided callbacks to copy current HAL pin values into
-  the params structure.
+. **Layer 3 -- Non-RT entry point**: The `nonrt_attach()` function,
+  called once at planner startup.  It stores the shmem pointer and
+  registers the forward/inverse function pointers.  No separate
+  non-RT math functions are needed -- the same RT functions handle
+  both contexts via the `!haldata` guard.
 
-This three-layer pattern ensures:
+This pattern ensures:
 
 - The math is written once and tested once
 - The RT module works identically whether or not planner 2 is in use
 - The userspace planner gets the same kinematics results as the
   real-time controller
+- Parameter updates (HAL pin changes) are reflected in the planner
+  within one servo cycle
 
 === Adding the module to the build system
 
@@ -724,33 +780,37 @@ PLANNER_TYPE = 2
 ----
 
 The userspace planner reads `[KINS]KINEMATICS` to determine which
-RT `.so` to load and will automatically resolve the `nonrt_*`
-symbols from it.
+RT `.so` to load and resolves `nonrt_attach` from it at startup.
 
 === Tips
 
 - Keep the math functions *pure*: no global state, no HAL access,
   no RTAPI calls.  This makes them testable and reusable.
-- Use `rtapi_math.h` (not `math.h`) for math functions in the RT
-  sections.  The non-RT sections (after `#include "kinematics_params.h"`)
-  can use standard C headers since they only run in userspace, but
-  it is simplest to use `rtapi_math.h` throughout.
+- Use `rtapi_math.h` (not `math.h`) for math functions throughout;
+  it works in both RT and userspace contexts.
 - Use `rtapi_snprintf()` instead of `snprintf()` in RT code.
   Standard C library functions are not available in the RT
   environment.
-- The `nonrt_refresh()` pin names must exactly match the HAL pin
-  names created in `rtapi_app_main()`.
-- For modules with no runtime parameters (pure geometric transforms
-  with fixed joint mappings), `nonrt_refresh()` can be a no-op that
-  returns 0.
+- Always include `hal_priv.h` (for `SHMOFF()`) and `<string.h>`
+  (for `memset()`) in modules that set up `uspace_params`.
+- For modules with no runtime parameters (pure geometric transforms),
+  register the RT functions directly in `nonrt_attach` with no
+  `!haldata` guard -- there are no HAL pin pointers to dereference.
+  Set `head = tail = 1` once in `rtapi_app_main()`.
 - For switchkins modules that link with `switchkins.o`, do *not*
   include `rtapi_app.h` in your kinematics source -- `switchkins.c`
-  already provides `rtapi_app_main()` and `rtapi_app_exit()`.  Put
-  the non-RT interface section after all RT code with its own
-  `#include "kinematics_params.h"`.
+  already provides `rtapi_app_main()` and `rtapi_app_exit()`.
+  Allocate `uspace_params` in `XxxKinematicsSetup()` and push in
+  `XxxKinematicsForward()`.
+- The shmem push uses `head`/`tail` guards to protect against torn
+  reads: increment `head` before any write, set `tail = head` after
+  all writes.  The userspace side retries the read when `head != tail`.
+- Modules without the `uspace-params-offset` param fall back
+  gracefully: planner 0 and 1 work normally, planner 2 is disabled
+  with a logged warning.
 - Look at the existing modules in `src/emc/kinematics/` for
-  real-world examples: `trivkins.c` (identity, no params),
-  `maxkins.c` (simple with params), `xyzac-trt-kins.c` (switchkins
-  with params).
+  real-world examples: `trivkins.c` (identity, static params),
+  `maxkins.c` (dynamic params, not switchkins), `5axiskins.c`
+  (switchkins with dynamic params).
 
 // vim: set syntax=asciidoc:

@@ -36,6 +36,11 @@
 #include "genserkins.h" /* these decls */
 #include "kinematics.h"
 #include "hal.h"
+#ifdef RTAPI
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
+#endif
 
 #ifdef RTAPI
 #include <rtapi.h>
@@ -79,6 +84,10 @@ double j[GENSER_MAX_JOINTS];
 
 #if GENSER_MAX_JOINTS < 6
 #error GENSER_MAX_JOINTS must be at least 6; fix genserkins.h
+#endif
+
+#ifdef RTAPI
+static kinematics_params_t *uspace_params;
 #endif
 
 static int genser_hal_inited = 0;
@@ -351,6 +360,22 @@ int genserKinematicsForward(const double *joint,
              "genserKinematicsForward: not initialized\n");
         return -1;
     }
+
+#ifdef RTAPI
+    if (uspace_params) {
+        int _i;
+        uspace_params->head++;
+        for (_i = 0; _i < 6; _i++) {
+            uspace_params->params.genser.a[_i]        = A(_i);
+            uspace_params->params.genser.alpha[_i]    = ALPHA(_i);
+            uspace_params->params.genser.d[_i]        = D(_i);
+            uspace_params->params.genser.unrotate[_i] = *(haldata->unrotate[_i]);
+        }
+        uspace_params->params.genser.link_num       = KINS_PTR->link_num;
+        uspace_params->params.genser.max_iterations = *haldata->max_iterations;
+        uspace_params->tail = uspace_params->head;
+    }
+#endif
 
     for (i=0; i< 6; i++)  {
         // FIXME - debug hack
@@ -661,6 +686,31 @@ int genserKinematicsSetup(const int comp_id,
     D(3) = DEFAULT_D4;
     D(4) = DEFAULT_D5;
     D(5) = DEFAULT_D6;
+
+#ifdef RTAPI
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) goto error;
+    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                         "%s.uspace-params-offset", kp->halprefix) < 0) goto error;
+    {
+        int _i;
+        memset(uspace_params, 0, sizeof(*uspace_params));
+        uspace_params->num_joints  = total_joints;
+        uspace_params->is_identity = 0;
+        for (_i = 0; _i < 6; _i++) {
+            uspace_params->params.genser.a[_i]        = A(_i);
+            uspace_params->params.genser.alpha[_i]    = ALPHA(_i);
+            uspace_params->params.genser.d[_i]        = D(_i);
+            uspace_params->params.genser.unrotate[_i] = *(haldata->unrotate[_i]);
+        }
+        uspace_params->params.genser.link_num       = 6; /* hardcoded in genser_kin_init */
+        uspace_params->params.genser.max_iterations = *haldata->max_iterations;
+        uspace_params->valid = 1;
+        uspace_params->head  = 1;
+        uspace_params->tail  = 1;
+        uspace_params->self_offset = (int)SHMOFF(uspace_params);
+    }
+#endif
 
     genser_hal_inited = 1;
     return 0;

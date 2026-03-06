@@ -82,6 +82,30 @@ static int hal_reader_attach(void)
 }
 
 /*
+ * Find a param by name (fallback for hal_pin_reader_read_s32)
+ */
+static hal_param_t *find_param_by_name(const char *name)
+{
+    int next;
+    hal_param_t *param;
+    hal_data_t *hd = hal_reader_ctx.hal_data;
+    char *base = hal_reader_ctx.hal_shmem_base;
+
+    if (!hd || !base) return NULL;
+
+    next = hd->param_list_ptr;
+    while (next != 0) {
+        param = (hal_param_t *)(base + next);
+        if (strcmp(param->name, name) == 0) {
+            return param;
+        }
+        next = param->next_ptr;
+    }
+
+    return NULL;
+}
+
+/*
  * Find a pin by name
  */
 static hal_pin_t *find_pin_by_name(const char *name)
@@ -181,20 +205,37 @@ int hal_pin_reader_read_bit(const char *name, int *value)
 }
 
 /*
- * Public API: Read s32 pin
+ * Public API: Read s32 pin (or param as fallback)
  */
 int hal_pin_reader_read_s32(const char *name, int *value)
 {
     hal_pin_t *pin;
+    hal_param_t *param;
     void *data_ptr;
 
     if (!name || !value) return -1;
     if (hal_reader_attach() != 0) return -1;
 
     pin = find_pin_by_name(name);
-    if (!pin || pin->type != HAL_S32) return -1;
+    if (pin && pin->type == HAL_S32) {
+        data_ptr = get_pin_data_ptr(pin);
+        *value = *((volatile hal_s32_t *)data_ptr);
+        return 0;
+    }
 
-    data_ptr = get_pin_data_ptr(pin);
-    *value = *((volatile hal_s32_t *)data_ptr);
+    /* Fallback: look for a HAL parameter with this name */
+    param = find_param_by_name(name);
+    if (!param || param->type != HAL_S32) return -1;
+
+    *value = *((volatile hal_s32_t *)(hal_reader_ctx.hal_shmem_base + param->data_ptr));
     return 0;
+}
+
+/*
+ * Public API: Get HAL shmem base address
+ */
+char *hal_pin_reader_get_shmem_base(void)
+{
+    if (hal_reader_attach() != 0) return NULL;
+    return hal_reader_ctx.hal_shmem_base;
 }

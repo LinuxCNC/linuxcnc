@@ -22,6 +22,9 @@
 #include "rtapi.h"
 #include "rtapi_math.h"
 #include "rtapi_app.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
 
 const char* kinematicsGetName(void) { return "rosekins"; }
 
@@ -149,6 +152,10 @@ int kinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
+    if (!haldata) {
+        /* userspace path: no HAL pins to write */
+        return rosekins_inverse_math(pos, joints, &kins_state, NULL);
+    }
     rosekins_output_t output;
     int result = rosekins_inverse_math(pos, joints, &kins_state, &output);
 
@@ -166,6 +173,7 @@ KINEMATICS_TYPE kinematicsType()
 }
 
 static int comp_id;
+static kinematics_params_t *uspace_params;
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
 
@@ -183,6 +191,18 @@ int rtapi_app_main(void) {
     if((ans = hal_pin_float_new("rosekins.bigtheta_degrees",
               HAL_OUT, &(haldata->bigtheta_degrees), comp_id)) < 0) goto error;
 
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) { ans = -1; goto error; }
+    if ((ans = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                                "rosekins.uspace-params-offset")) < 0) goto error;
+    memset(uspace_params, 0, sizeof(*uspace_params));
+    uspace_params->num_joints = 3;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
+    uspace_params->head = 1;
+    uspace_params->tail = 1;
+    uspace_params->self_offset = (int)SHMOFF(uspace_params);
+
     hal_ready(comp_id);
     return 0;
 
@@ -192,42 +212,11 @@ error:
 
 /* ---- nonrt interface for userspace planner ---- */
 
-#include "kinematics_params.h"
-
-static rosekins_state_t nonrt_state = {0, 0};
-
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints, EmcPose *pos)
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    (void)params;
-    return rosekins_forward_math(joints, pos);
+    (void)shmem_base; (void)offset;
+    ops->forward = kinematicsForward;
+    ops->inverse = kinematicsInverse;
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos, double *joints)
-{
-    (void)params;
-    return rosekins_inverse_math(pos, joints, &nonrt_state, NULL);
-}
-
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
-{
-    (void)params;
-    (void)read_float;
-    (void)read_bit;
-    (void)read_s32;
-    return 0;
-}
-
-int nonrt_is_identity(void)
-{
-    return 0;
-}
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);
