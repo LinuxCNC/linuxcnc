@@ -154,6 +154,7 @@ typedef struct lcec_master {
   long long state_update_timer;
   uint32_t app_time_period;
   int ref_clock_sync_cycles;
+  int ref_clock_slave_idx;
   long period_last;
   ec_master_state_t ms;
 

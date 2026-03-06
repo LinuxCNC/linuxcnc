@@ -213,6 +213,7 @@ typedef struct {
   int index;
   uint32_t appTimePeriod;
   int refClockSyncCycles;
+  int refClockSlaveIdx;
   char name[LCEC_CONF_STR_MAXLEN];
 #ifdef EC_USPACE_MASTER
   int transportType;                          // ec_transport_type_t, default: 0 (EC_TRANSPORT_RAW)

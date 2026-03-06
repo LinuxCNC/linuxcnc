@@ -78,6 +78,7 @@ lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf) {
   master->name[LCEC_CONF_STR_MAXLEN - 1] = 0;
   master->app_time_period = master_conf->appTimePeriod;
   master->ref_clock_sync_cycles = master_conf->refClockSyncCycles;
+  master->ref_clock_slave_idx = master_conf->refClockSlaveIdx;
 #ifdef EC_USPACE_MASTER
   master->transport_type = master_conf->transportType;
   strncpy(master->interface, master_conf->interface, LCEC_CONF_STR_MAXLEN);

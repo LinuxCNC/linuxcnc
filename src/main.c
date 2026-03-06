@@ -203,6 +203,24 @@ int rtapi_app_main(void) {
     lcec_dc_init_r2m(master);
 #endif
 
+    // select reference clock slave (if configured)
+    if (master->ref_clock_slave_idx >= 0) {
+      lcec_slave_t *ref_slave = lcec_slave_by_index(master, master->ref_clock_slave_idx);
+      if (ref_slave == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            LCEC_MSG_PFX "master %s: refClockSlaveIdx %d not found\n",
+            master->name, master->ref_clock_slave_idx);
+        goto fail2;
+      }
+      if (ref_slave->config == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            LCEC_MSG_PFX "master %s: refClockSlaveIdx %d has no EtherCAT config\n",
+            master->name, master->ref_clock_slave_idx);
+        goto fail2;
+      }
+      ecrt_master_select_reference_clock(master->master, ref_slave->config);
+    }
+
     // activating master
     if (ecrt_master_activate(master->master)) {
       rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "failed to activate master %s\n", master->name);
