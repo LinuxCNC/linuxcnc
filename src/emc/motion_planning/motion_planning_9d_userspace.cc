@@ -21,10 +21,10 @@
 
 // C headers need extern "C" when included from C++
 extern "C" {
-#include "motion.h"     // emcmot_status_t, emcmot_config_t (needed before tp.h)
-#include "tp.h"
-#include "tc.h"
-#include "tc_types.h"
+#include "motion/motion.h"  // emcmot_status_t, emcmot_config_t (needed before tp.h)
+#include "../tp/tp.h"
+#include "../tp/tc.h"
+#include "../tp/tc_types.h"
 #include "emcpos.h"
 #include "emcpose.h"    // pmCartesianToEmcPose
 #include "posemath.h"

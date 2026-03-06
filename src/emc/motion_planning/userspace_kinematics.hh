@@ -23,7 +23,7 @@
 #include "joint_limits.hh"
 
 // tc_types.h and emcpos.h include posemath.h which has C++ overloads
-#include "tc_types.h"
+#include "../tp/tc_types.h"
 #include "emcpos.h"
 
 namespace motion_planning {
