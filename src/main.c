@@ -50,6 +50,8 @@ void lcec_write_all(void *arg, long period);
 void lcec_read_master(void *arg, long period);
 void lcec_write_master(void *arg, long period);
 
+int64_t dc_time_offset;
+
 int rtapi_app_main(void) {
   int slave_count;
   lcec_master_t *master;
@@ -58,6 +60,13 @@ int rtapi_app_main(void) {
   ec_pdo_entry_reg_t *pdo_entry_regs;
   lcec_slave_sdoconf_t *sdo_config;
   lcec_slave_idnconf_t *idn_config;
+  struct timeval tv;
+  long long rtapi_now;
+
+  // get time base
+  lcec_gettimeofday(&tv);
+  rtapi_now = rtapi_get_time();
+  dc_time_offset = EC_TIMEVAL2NANO(tv) - rtapi_now;
 
   // connect to the HAL
   if ((comp_id = hal_init (LCEC_MODULE_NAME)) < 0) {
@@ -181,6 +190,13 @@ int rtapi_app_main(void) {
     if (ecrt_domain_reg_pdo_entry_list(master->domain, master->pdo_entry_regs)) {
       rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "master %s PDO entry registration failed\n", master->name);
       goto fail2;
+    }
+
+    // initialize dc sync
+    if (master->ref_clock_sync_cycles < 0) {
+      lcec_dc_init_m2r(master);
+    } else {
+      lcec_dc_init_r2m(master);
     }
 
     // activating master
@@ -332,7 +348,7 @@ int lcec_parse_config(void) {
         conf += sizeof(LCEC_CONF_MASTER_T);
 
         // create master
-        master = lcec_create_master(master_conf );
+        master = lcec_create_master(master_conf);
         if (master == NULL) {
           goto fail2;
         }

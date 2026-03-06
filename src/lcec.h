@@ -89,12 +89,19 @@ typedef int (*lcec_slave_preinit_t) (struct lcec_slave *slave);
 typedef int (*lcec_slave_init_t) (int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 typedef void (*lcec_slave_cleanup_t) (struct lcec_slave *slave);
 typedef void (*lcec_slave_rw_t) (struct lcec_slave *slave, long period);
+typedef void (*lcec_dcsync_callback_t) (struct lcec_master *master);
 
 typedef struct {
   int slave_data_len;
   int master_data_len;
   int data_channels;
 } LCEC_CONF_FSOE_T;
+
+typedef struct {
+  lcec_dcsync_callback_t cycle_start;
+  lcec_dcsync_callback_t pre_send;
+  lcec_dcsync_callback_t post_send;
+} lcec_dcsync_callbacks_t;
 
 typedef struct lcec_master_data {
   hal_u32_t *slaves_responding;
@@ -147,8 +154,23 @@ typedef struct lcec_master {
   lcec_master_data_t *hal_data;
   long long state_update_timer;
   uint32_t app_time_period;
+  int ref_clock_sync_cycles;
   long period_last;
   ec_master_state_t ms;
+
+  lcec_dcsync_callbacks_t dcsync_callbacks;
+  uint64_t app_time_ns;
+  int ref_clock_sync_counter;
+  uint64_t dc_start_time_ns;
+  uint64_t dc_time_ns;
+  int dc_started;
+  uint32_t dc_ref_ns;
+  int32_t dc_diff_ns;
+  int32_t prev_dc_diff_ns;
+  int64_t dc_diff_total_ns;
+  int64_t dc_delta_total_ns;
+  int dc_filter_idx;
+  int64_t dc_adjust_ns;
 } lcec_master_t;
 
 typedef struct {

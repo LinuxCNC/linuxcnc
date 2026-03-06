@@ -66,6 +66,15 @@ void lcec_update_master_hal(lcec_master_data_t *hal_data, ec_master_state_t *ms)
 lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf) {
   lcec_master_t *master;
 
+#ifndef RTAPI_TASK_PLL_SUPPORT
+  if (master_conf->refClockSyncCycles < 0) {
+    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Master %d: refClockSyncCycles < 0"
+      " (sync master to ref) not available (RTAPI_TASK_PLL_SUPPORT missing)\n",
+      master_conf->index);
+    goto fail0;
+  }
+#endif
+
   // alloc master memory
   master = lcec_zalloc(sizeof(lcec_master_t));
   if (master == NULL) {
@@ -78,6 +87,7 @@ lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf) {
   strncpy(master->name, master_conf->name, LCEC_CONF_STR_MAXLEN);
   master->name[LCEC_CONF_STR_MAXLEN - 1] = 0;
   master->app_time_period = master_conf->appTimePeriod;
+  master->ref_clock_sync_cycles = master_conf->refClockSyncCycles;
 #ifdef EC_USPACE_MASTER
   master->transport_type = master_conf->transportType;
   strncpy(master->interface, master_conf->interface, LCEC_CONF_STR_MAXLEN);
@@ -89,6 +99,7 @@ lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf) {
 #endif
 
   return master;
+
 fail0:
   return NULL;
 }
@@ -206,6 +217,9 @@ void lcec_read_master(void *arg, long period) {
     }
   }
 
+  // set master time in nano-seconds
+  master->dcsync_callbacks.cycle_start(master);
+
   // get state check flag
   if (master->state_update_timer > 0) {
     check_states = 0;
@@ -262,12 +276,23 @@ void lcec_write_master(void *arg, long period) {
     }
   }
 
-  // send process data
   rtapi_mutex_get(&master->mutex);
+
+  // queue process data
   ecrt_domain_queue(master->domain);
+
+  // sync distributed clock just before master_send to set
+  // most accurate master clock time
+  master->dcsync_callbacks.pre_send(master);
 
   // send domain data
   ecrt_master_send(master->master);
+
+  // update the master clock
+  // Note: called after ecrt_master_send() to reduce time
+  // jitter in the sync_distributed_clocks() call
+  master->dcsync_callbacks.post_send(master);
+
   rtapi_mutex_give(&master->mutex);
 }
 

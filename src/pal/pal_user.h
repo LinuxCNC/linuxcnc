@@ -34,15 +34,6 @@ static inline void *lcec_zalloc(size_t size) {
 
 #define lcec_gettimeofday(x) gettimeofday(x, NULL)
 
-#define LCEC_MS_TO_TICKS(x) (x / 10)
-static inline long lcec_get_ticks(void) {
-  struct timespec tp;
-  clock_gettime(CLOCK_MONOTONIC, &tp);
-  return ((long)(tp.tv_sec * 100LL)) + (tp.tv_nsec / 10000000L);
-}
-
-#define lcec_schedule() sched_yield()
-
 static inline long long lcec_mod_64(long long val, unsigned long div) {
   return val % div;
 }

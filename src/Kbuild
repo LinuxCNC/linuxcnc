@@ -5,6 +5,8 @@ lcec-objs := \
     master.o \
     slave.o \
     util.o \
+    dcsync_r2m.o \
+    dcsync_m2r.o \
     classes/class_enc.o \
     classes/class_ax5.o \
     devices/generic.o \

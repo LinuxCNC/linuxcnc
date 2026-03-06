@@ -26,6 +26,7 @@ extern const lcec_typelist_t typelist[];
 
 extern int comp_id;
 extern ec_master_state_t global_ms;
+extern int64_t dc_time_offset;
 
 lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf);
 int lcec_startup_master(lcec_master_t *master);
@@ -47,5 +48,8 @@ int lcec_pin_newfv(hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, con
 int lcec_pin_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap);
 int lcec_param_newfv(hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, va_list ap);
 int lcec_param_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap);
+
+void lcec_dc_init_r2m(struct lcec_master *master);
+void lcec_dc_init_m2r(struct lcec_master *master);
 
 #endif
