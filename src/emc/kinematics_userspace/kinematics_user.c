@@ -15,7 +15,7 @@
 
 #include "kinematics_user.h"
 #include "hal_pin_reader.h"
-#include "kinematics_params.h"
+#include "../motion/kinematics_params.h"
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>

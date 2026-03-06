@@ -1,6 +1,6 @@
 #include "bezier9.h"
 #include "tp_types.h"
-#include "tp_debug.h"
+#include "../tp/tp_debug.h"
 #include "posemath.h"
 #include "blendmath.h"
 #include "rtapi_math.h"

@@ -20,7 +20,7 @@
 
 #include "rtapi.h"
 #include "hal.h"
-#include "hal_priv.h"
+#include "../../hal/hal_priv.h"
 #include "hal_pin_reader.h"
 
 /* Static state for HAL attachment */

@@ -15,7 +15,7 @@
 
 extern "C" {
 #include "tp_types.h"
-#include "tp_debug.h"
+#include "../tp/tp_debug.h"
 #include "tc.h"
 #include "blendmath.h"
 #include "emcpose.h"
