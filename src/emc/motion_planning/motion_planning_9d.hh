@@ -24,8 +24,8 @@
 #define MOTION_PLANNING_9D_HH
 
 #include "posemath.h"
-#include "tc_types.h"
-#include "tp_types.h"
+#include "../tp/tc_types.h"
+#include "../tp/tp_types.h"
 
 #include <cstddef>
 #include <vector>

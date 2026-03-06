@@ -16,7 +16,7 @@
 
 extern "C" {
 #include "blendmath.h"  // For pmCircleAngleFromProgress, pmCirclePoint
-#include "tc.h"         // For pmCircle9Target, pmCartLinePoint
+#include "../tp/tc.h"   // For pmCircle9Target, pmCartLinePoint
 #include "bezier9.h"    // For bezier9Point, bezier9Length
 }
 

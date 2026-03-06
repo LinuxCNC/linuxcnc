@@ -21,7 +21,7 @@
 
 extern "C" {
 #include "kinematics_userspace/kinematics_user.h"
-#include "tc_types.h"  // For PmCircle9
+#include "../tp/tc_types.h"  // For PmCircle9
 }
 
 namespace motion_planning {

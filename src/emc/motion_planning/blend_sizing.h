@@ -15,7 +15,7 @@
 
 #include "posemath.h"
 #include "emcpos.h"
-#include "tc_types.h"
+#include "../tp/tc_types.h"
 #include "bezier9.h"
 
 #ifdef __cplusplus
