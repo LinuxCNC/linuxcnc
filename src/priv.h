@@ -50,6 +50,8 @@ int lcec_param_newfv(hal_type_t type, hal_pin_dir_t dir, void *data_addr, const 
 int lcec_param_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap);
 
 void lcec_dc_init_r2m(struct lcec_master *master);
+#ifdef RTAPI_TASK_PLL_SUPPORT
 void lcec_dc_init_m2r(struct lcec_master *master);
+#endif
 
 #endif

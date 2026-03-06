@@ -193,11 +193,15 @@ int rtapi_app_main(void) {
     }
 
     // initialize dc sync
+#ifdef RTAPI_TASK_PLL_SUPPORT
     if (master->ref_clock_sync_cycles < 0) {
       lcec_dc_init_m2r(master);
     } else {
       lcec_dc_init_r2m(master);
     }
+#else
+    lcec_dc_init_r2m(master);
+#endif
 
     // activating master
     if (ecrt_master_activate(master->master)) {

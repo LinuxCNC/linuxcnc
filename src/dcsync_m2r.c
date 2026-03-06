@@ -1,9 +1,11 @@
 #include "priv.h"
 
-#include <stdio.h>
-static int testcnt = 0;
+#ifdef RTAPI_TASK_PLL_SUPPORT
 
-#define DC_FILTER_CNT 1024
+#define DC_SETTLE_TIME       1.5    // target settling time in seconds
+#define DC_DAMPING           0.707  // damping ratio (critically damped)
+#define DC_INTEGRATOR_MAX    1000.0 // integrator anti-windup clamp (ns)
+#define DC_CORRECTION_MAX_NS 5000.0 // output correction safety clamp (ns)
 
 #define sign(val) \
     ({ typeof (val) _val = (val); \
@@ -75,53 +77,32 @@ static void pre_send(struct lcec_master *master) {
 static void post_send(struct lcec_master *master) {
   lcec_master_data_t *hal_data = master->hal_data;
 
-  // calc drift (via un-normalised time diff)
-  int32_t delta = master->dc_diff_ns - master->prev_dc_diff_ns;
-  master->prev_dc_diff_ns = master->dc_diff_ns;
-
   // check if DC has started initially
   if (!master->dc_started) {
     master->dc_started = (master->ref_time_ns != 0);
     return;
   }
 
-  // add to totals
-  master->dc_diff_total_ns += master->dc_diff_ns;
-  master->dc_delta_total_ns += delta;
-  master->dc_filter_idx++;
+  // PI controller
+  double error = (double)master->dc_diff_ns;
 
-  if (master->dc_filter_idx >= DC_FILTER_CNT) {
-    // add rounded delta average
-    master->dc_adjust_ns +=
-      ((master->dc_delta_total_ns + (DC_FILTER_CNT / 2)) / DC_FILTER_CNT);
+  // Integral term (accumulated frequency correction)
+  master->dc_integrator += master->dc_ki * error;
 
-    // and add adjustment for general diff (to pull in drift)
-    master->dc_adjust_ns += sign(master->dc_diff_total_ns / DC_FILTER_CNT);
+  // Anti-windup clamp on integrator
+  if (master->dc_integrator > DC_INTEGRATOR_MAX) master->dc_integrator = DC_INTEGRATOR_MAX;
+  if (master->dc_integrator < -DC_INTEGRATOR_MAX) master->dc_integrator = -DC_INTEGRATOR_MAX;
 
-    // limit crazy numbers (0.1% of std cycle time)
-    if (master->dc_adjust_ns < -1000) {
-      master->dc_adjust_ns = -1000;
-    }
-    if (master->dc_adjust_ns > 1000) {
-      master->dc_adjust_ns =  1000;
-    }
+  // Proportional + Integral output (negative: positive error => advance clock)
+  double correction = -(master->dc_kp * error + master->dc_integrator);
 
-    // reset
-    master->dc_diff_total_ns = 0;
-    master->dc_delta_total_ns = 0;
-    master->dc_filter_idx = 0;
-  }
+  // Output clamp (safety)
+  if (correction > DC_CORRECTION_MAX_NS) correction = DC_CORRECTION_MAX_NS;
+  if (correction < -DC_CORRECTION_MAX_NS) correction = -DC_CORRECTION_MAX_NS;
 
-  testcnt++;
-  if (testcnt >= 1000) {
-     testcnt = 0;
-     printf("### %lld\n", (long long) master->dc_diff_ns);
-  }
-
-  // add cycles adjustment to time base (including a spot adjustment)
-  int64_t adjust_ns = master->dc_adjust_ns + sign(master->dc_diff_ns);
-  rtapi_task_pll_set_correction(adjust_ns);
-  *(hal_data->pll_out) = adjust_ns;
+  int32_t correction_ns = (int32_t)correction;
+  rtapi_task_pll_set_correction(-correction_ns);
+  *(hal_data->pll_out) = correction_ns;
 }
 
 void lcec_dc_init_m2r(struct lcec_master *master) {
@@ -134,13 +115,16 @@ void lcec_dc_init_m2r(struct lcec_master *master) {
   master->dc_time_ns = 0;
   master->dc_started = 0;
   master->dc_diff_ns = 0;
-  master->prev_dc_diff_ns = 0;
-  master->dc_diff_total_ns = 0;
-  master->dc_delta_total_ns = 0;
-  master->dc_filter_idx = 0;
-  master->dc_adjust_ns = 0;
+
+  // compute PI gains from cycle period
+  double T = (double)master->app_time_period * 1.0e-9;
+  double wn = 4.0 / (DC_DAMPING * DC_SETTLE_TIME);
+  double wd = wn * T;
+  master->dc_kp = 2.0 * DC_DAMPING * wd;
+  master->dc_ki = wd * wd;
+  master->dc_integrator = 0.0;
 }
+#endif
 
 // TODO
-// RTAPI_TASK_PLL_SUPPORT guard
 // ecrt_master_select_reference_clock

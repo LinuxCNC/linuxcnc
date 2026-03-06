@@ -166,11 +166,9 @@ typedef struct lcec_master {
   uint64_t dc_time_ns;
   int dc_started;
   int64_t dc_diff_ns;
-  int64_t prev_dc_diff_ns;
-  int64_t dc_diff_total_ns;
-  int64_t dc_delta_total_ns;
-  int dc_filter_idx;
-  int64_t dc_adjust_ns;
+  double dc_kp;          // PI proportional gain
+  double dc_ki;          // PI integral gain
+  double dc_integrator;  // PI integral accumulator
 } lcec_master_t;
 
 typedef struct {
