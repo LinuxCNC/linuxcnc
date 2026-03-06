@@ -2,7 +2,7 @@
 #include "../tp/tp_types.h"
 #include "../tp/tp_debug.h"
 #include "posemath.h"
-#include "blendmath.h"
+#include "../tp/blendmath.h"
 #include "rtapi_math.h"
 #include <math.h>
 

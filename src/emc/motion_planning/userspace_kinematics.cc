@@ -16,13 +16,13 @@
 #include <vector>
 
 extern "C" {
-#include "blendmath.h"  // For pmCircleEffectiveMinRadius
+#include "../tp/blendmath.h"  // For pmCircleEffectiveMinRadius
 }
 
 // Include inihal for access to current joint limits (reflects HAL pin changes)
 // The old_inihal_data structure is updated by inihal.cc when HAL pins change
 // (ini.N.max_velocity, ini.N.max_limit, etc.)
-#include "inihal.hh"
+#include "../ini/inihal.hh"
 extern value_inihal_data old_inihal_data;
 
 namespace motion_planning {

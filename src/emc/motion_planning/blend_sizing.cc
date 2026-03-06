@@ -17,7 +17,7 @@ extern "C" {
 #include "../tp/tp_types.h"
 #include "../tp/tp_debug.h"
 #include "../tp/tc.h"
-#include "blendmath.h"
+#include "../tp/blendmath.h"
 #include "emcpose.h"
 #include "rtapi_math.h"
 }

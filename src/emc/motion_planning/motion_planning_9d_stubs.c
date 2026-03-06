@@ -8,6 +8,6 @@
  */
 
 #include <stddef.h>
-#include "motion.h"
+#include "motion/motion.h"
 
 /* emcmotStatus and other globals are now provided by tp.c */
