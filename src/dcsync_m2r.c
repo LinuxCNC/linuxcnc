@@ -57,7 +57,7 @@ static void pre_send(struct lcec_master *master) {
       int64_t offset_ns = sign(diff) * (diff_abs / period) * period;
       master->app_time_ns -= offset_ns;
       diff -= offset_ns;
-      *(hal_data->pll_reset_cnt)++;
+      (*(hal_data->pll_reset_cnt))++;
     }
 
     master->dc_diff_ns = diff;
@@ -115,11 +115,11 @@ static void post_send(struct lcec_master *master) {
   testcnt++;
   if (testcnt >= 1000) {
      testcnt = 0;
-     printf("### %ld\n", master->dc_diff_ns);
+     printf("### %lld\n", (long long) master->dc_diff_ns);
   }
 
   // add cycles adjustment to time base (including a spot adjustment)
-  uint64_t adjust_ns = master->dc_adjust_ns + sign(master->dc_diff_ns);
+  int64_t adjust_ns = master->dc_adjust_ns + sign(master->dc_diff_ns);
   rtapi_task_pll_set_correction(adjust_ns);
   *(hal_data->pll_out) = adjust_ns;
 }
