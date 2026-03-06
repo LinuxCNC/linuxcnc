@@ -20,13 +20,6 @@ static const lcec_pindesc_t master_pins[] = {
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
-static const lcec_pindesc_t master_params[] = {
-#ifdef RTAPI_TASK_PLL_SUPPORT
-  { HAL_U32, HAL_RW, offsetof(lcec_master_data_t, pll_max_err), "%s.pll-max-err" },
-#endif
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
-};
-
 lcec_master_data_t *lcec_init_master_hal(const char *pfx, int global) {
   lcec_master_data_t *hal_data;
 
@@ -43,9 +36,6 @@ lcec_master_data_t *lcec_init_master_hal(const char *pfx, int global) {
   }
   if (!global) {
     if (lcec_pin_newf_list(hal_data, master_pins, pfx) != 0) {
-      return NULL;
-    }
-    if (lcec_param_newf_list(hal_data, master_params, pfx) != 0) {
       return NULL;
     }
   }

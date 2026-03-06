@@ -114,7 +114,6 @@ typedef struct lcec_master_data {
 #ifdef RTAPI_TASK_PLL_SUPPORT
   hal_s32_t *pll_err;
   hal_s32_t *pll_out;
-  hal_u32_t pll_max_err;
   hal_u32_t *pll_reset_cnt;
 #endif
 } lcec_master_data_t;
@@ -159,14 +158,15 @@ typedef struct lcec_master {
   ec_master_state_t ms;
 
   lcec_dcsync_callbacks_t dcsync_callbacks;
-  uint64_t app_time_ns;
   int ref_clock_sync_counter;
-  uint64_t dc_start_time_ns;
+
+  uint64_t app_time_ns;
+  uint64_t ref_time_ns;
+
   uint64_t dc_time_ns;
   int dc_started;
-  uint32_t dc_ref_ns;
-  int32_t dc_diff_ns;
-  int32_t prev_dc_diff_ns;
+  int64_t dc_diff_ns;
+  int64_t prev_dc_diff_ns;
   int64_t dc_diff_total_ns;
   int64_t dc_delta_total_ns;
   int dc_filter_idx;
