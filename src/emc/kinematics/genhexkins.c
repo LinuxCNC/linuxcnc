@@ -116,6 +116,9 @@
 #include "motion.h"
 #include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include "switchkins.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
+#include <string.h>
 
 /* ========================================================================
  * Math types and functions (was in genhexkins_math.h)
@@ -371,6 +374,8 @@ static struct haldata {
 
 } *haldata;
 
+static kinematics_params_t *uspace_params;
+
 static int genhex_gui_forward_kins(EmcPose *pos)
 {
     *haldata->gui_x = pos->tran.x;
@@ -429,6 +434,32 @@ static int genhexKinematicsForward(const double * joints,
     int i;
 
     genhex_read_hal_pins(&params);
+
+    if (uspace_params) {
+        int _i;
+        uspace_params->head++;
+        for (_i = 0; _i < GENHEX_NUM_STRUTS; _i++) {
+            uspace_params->params.genhex.basex[_i]     = params.base[_i].x;
+            uspace_params->params.genhex.basey[_i]     = params.base[_i].y;
+            uspace_params->params.genhex.basez[_i]     = params.base[_i].z;
+            uspace_params->params.genhex.platformx[_i] = params.platform[_i].x;
+            uspace_params->params.genhex.platformy[_i] = params.platform[_i].y;
+            uspace_params->params.genhex.platformz[_i] = params.platform[_i].z;
+            uspace_params->params.genhex.basenx[_i]    = params.base_n[_i].x;
+            uspace_params->params.genhex.baseny[_i]    = params.base_n[_i].y;
+            uspace_params->params.genhex.basenz[_i]    = params.base_n[_i].z;
+            uspace_params->params.genhex.platformnx[_i] = params.platform_n[_i].x;
+            uspace_params->params.genhex.platformny[_i] = params.platform_n[_i].y;
+            uspace_params->params.genhex.platformnz[_i] = params.platform_n[_i].z;
+        }
+        uspace_params->params.genhex.conv_criterion  = params.conv_criterion;
+        uspace_params->params.genhex.iter_limit      = params.iter_limit;
+        uspace_params->params.genhex.max_error       = params.max_error;
+        uspace_params->params.genhex.tool_offset     = params.tool_offset;
+        uspace_params->params.genhex.spindle_offset  = params.spindle_offset;
+        uspace_params->params.genhex.screw_lead      = params.screw_lead;
+        uspace_params->tail = uspace_params->head;
+    }
 
     result = genhex_fwd(&params, joints, pos);
 
@@ -644,6 +675,41 @@ int genhexKinematicsSetup(const  int   comp_id,
         "genhexkins.fwd-kins-fail");
 
     if (res) goto error;
+
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) goto error;
+    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                         "%s.uspace-params-offset", kp->halprefix) < 0) goto error;
+    {
+        int _i;
+        memset(uspace_params, 0, sizeof(*uspace_params));
+        uspace_params->num_joints  = kp->max_joints;
+        uspace_params->is_identity = 0;
+        for (_i = 0; _i < GENHEX_NUM_STRUTS; _i++) {
+            uspace_params->params.genhex.basex[_i]      = *haldata->basex[_i];
+            uspace_params->params.genhex.basey[_i]      = *haldata->basey[_i];
+            uspace_params->params.genhex.basez[_i]      = *haldata->basez[_i];
+            uspace_params->params.genhex.platformx[_i]  = *haldata->platformx[_i];
+            uspace_params->params.genhex.platformy[_i]  = *haldata->platformy[_i];
+            uspace_params->params.genhex.platformz[_i]  = *haldata->platformz[_i];
+            uspace_params->params.genhex.basenx[_i]     = *haldata->basenx[_i];
+            uspace_params->params.genhex.baseny[_i]     = *haldata->baseny[_i];
+            uspace_params->params.genhex.basenz[_i]     = *haldata->basenz[_i];
+            uspace_params->params.genhex.platformnx[_i] = *haldata->platformnx[_i];
+            uspace_params->params.genhex.platformny[_i] = *haldata->platformny[_i];
+            uspace_params->params.genhex.platformnz[_i] = *haldata->platformnz[_i];
+        }
+        uspace_params->params.genhex.conv_criterion = *haldata->conv_criterion;
+        uspace_params->params.genhex.iter_limit     = *haldata->iter_limit;
+        uspace_params->params.genhex.max_error      = *haldata->max_error;
+        uspace_params->params.genhex.tool_offset    = *haldata->tool_offset;
+        uspace_params->params.genhex.spindle_offset = *haldata->spindle_offset;
+        uspace_params->params.genhex.screw_lead     = *haldata->screw_lead;
+        uspace_params->valid = 1;
+        uspace_params->head  = 1;
+        uspace_params->tail  = 1;
+        uspace_params->self_offset = (int)SHMOFF(uspace_params);
+    }
     return 0;
 
 error:
@@ -684,7 +750,6 @@ int switchkinsSetup(kparms* kp,
 /* ========================================================================
  * Non-RT interface for userspace trajectory planner
  * ======================================================================== */
-#include "kinematics_params.h"
 
 static void nonrt_build_genhex(const kinematics_params_t *kp, genhex_params_t *p)
 {
@@ -714,90 +779,35 @@ static void nonrt_build_genhex(const kinematics_params_t *kp, genhex_params_t *p
     p->max_iterations = kp->params.genhex.max_iter;
 }
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+static int nonrt_genhex_forward(const double *joints, EmcPose *pos,
+                                const KINEMATICS_FORWARD_FLAGS *ff,
+                                KINEMATICS_INVERSE_FLAGS *if_)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    (void)ff; (void)if_;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
     genhex_params_t p;
-    nonrt_build_genhex(kp, &p);
+    nonrt_build_genhex(&local, &p);
     return genhex_fwd(&p, joints, pos);
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
+static int nonrt_genhex_inverse(const EmcPose *pos, double *joints,
+                                const KINEMATICS_INVERSE_FLAGS *if_,
+                                KINEMATICS_FORWARD_FLAGS *ff)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
+    (void)if_; (void)ff;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
     genhex_params_t p;
-    nonrt_build_genhex(kp, &p);
+    nonrt_build_genhex(&local, &p);
     return genhex_inv(&p, pos, joints);
 }
 
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    int i;
-    char pin_name[64];
-    (void)read_bit;
-    (void)read_s32;
-
-    for (i = 0; i < KINS_GENHEX_NUM_STRUTS; i++) {
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base.%d.x", i);
-        read_float(pin_name, &kp->params.genhex.basex[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base.%d.y", i);
-        read_float(pin_name, &kp->params.genhex.basey[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base.%d.z", i);
-        read_float(pin_name, &kp->params.genhex.basez[i]);
-
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform.%d.x", i);
-        read_float(pin_name, &kp->params.genhex.platformx[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform.%d.y", i);
-        read_float(pin_name, &kp->params.genhex.platformy[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform.%d.z", i);
-        read_float(pin_name, &kp->params.genhex.platformz[i]);
-
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base-n.%d.x", i);
-        read_float(pin_name, &kp->params.genhex.basenx[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base-n.%d.y", i);
-        read_float(pin_name, &kp->params.genhex.baseny[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.base-n.%d.z", i);
-        read_float(pin_name, &kp->params.genhex.basenz[i]);
-
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform-n.%d.x", i);
-        read_float(pin_name, &kp->params.genhex.platformnx[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform-n.%d.y", i);
-        read_float(pin_name, &kp->params.genhex.platformny[i]);
-        rtapi_snprintf(pin_name, sizeof(pin_name), "genhexkins.platform-n.%d.z", i);
-        read_float(pin_name, &kp->params.genhex.platformnz[i]);
-    }
-
-    read_float("genhexkins.convergence-criterion", &kp->params.genhex.conv_criterion);
-    read_float("genhexkins.max-error", &kp->params.genhex.max_error);
-    read_float("genhexkins.tool-offset", &kp->params.genhex.tool_offset);
-    read_float("genhexkins.spindle-offset", &kp->params.genhex.spindle_offset);
-    read_float("genhexkins.screw-lead", &kp->params.genhex.screw_lead);
-
-    /* iter_limit and max_iter are u32 pins - read via read_s32 */
-    {
-        int val;
-        if (read_s32) {
-            if (read_s32("genhexkins.limit-iterations", &val) == 0)
-                kp->params.genhex.iter_limit = (unsigned int)val;
-            if (read_s32("genhexkins.max-iterations", &val) == 0)
-                kp->params.genhex.max_iter = (unsigned int)val;
-        }
-    }
-
-    return 0;
+    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward   = nonrt_genhex_forward;
+    ops->inverse   = nonrt_genhex_inverse;
 }
 
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

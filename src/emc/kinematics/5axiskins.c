@@ -62,6 +62,8 @@
 #include <kinematics.h>
 
 #include "switchkins.h"
+#include "hal_priv.h"
+#include "kinematics_params.h"
 
 /* ========================================================================
  * Internal math (was in 5axiskins_math.h)
@@ -162,6 +164,9 @@ struct haldata {
 } *haldata;
 static int fiveaxis_max_joints;
 
+/* Userspace-accessible params in HAL shmem */
+static kinematics_params_t *uspace_params;
+
 // Joint mapping struct
 static fiveaxis_joints_t jmap;
 
@@ -182,35 +187,61 @@ static int fiveaxis_KinematicsForward(const double *joints,
                                       const KINEMATICS_FORWARD_FLAGS * fflags,
                                       KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    (void)fflags;
-    (void)iflags;
+    (void)fflags; (void)iflags;
     fiveaxis_params_t params;
+
+    if (!haldata) {
+        /* userspace path: read params from HAL shmem set up by nonrt_attach */
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        params.pivot_length = local.params.fiveaxis.pivot_length;
+        fiveaxis_joints_t jm = {
+            local.axis_to_joint[0], local.axis_to_joint[1], local.axis_to_joint[2],
+            local.axis_to_joint[3], local.axis_to_joint[4], local.axis_to_joint[5],
+            local.axis_to_joint[6], local.axis_to_joint[7], local.axis_to_joint[8]
+        };
+        return fiveaxis_forward_impl(&params, &jm, joints, pos);
+    }
+
     params.pivot_length = *(haldata->pivot_length);
+    if (uspace_params) {
+        uspace_params->head++;
+        uspace_params->params.fiveaxis.pivot_length = params.pivot_length;
+        uspace_params->tail = uspace_params->head;
+    }
     return fiveaxis_forward_impl(&params, &jmap, joints, pos);
-} //fiveaxis_KinematicsForward()
+}
 
 static int fiveaxis_KinematicsInverse(const EmcPose * pos,
                                       double *joints,
                                       const KINEMATICS_INVERSE_FLAGS * iflags,
                                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    (void)iflags;
-    (void)fflags;
+    (void)iflags; (void)fflags;
     fiveaxis_params_t params;
-    params.pivot_length = *(haldata->pivot_length);
 
-    // Compute axis values using pure math function
+    if (!haldata) {
+        /* userspace path: read params from HAL shmem set up by nonrt_attach */
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        params.pivot_length = local.params.fiveaxis.pivot_length;
+        fiveaxis_joints_t jm = {
+            local.axis_to_joint[0], local.axis_to_joint[1], local.axis_to_joint[2],
+            local.axis_to_joint[3], local.axis_to_joint[4], local.axis_to_joint[5],
+            local.axis_to_joint[6], local.axis_to_joint[7], local.axis_to_joint[8]
+        };
+        EmcPose axis_values;
+        fiveaxis_inverse_impl(&params, pos, &axis_values);
+        fiveaxis_axis_to_joints(&jm, &axis_values, joints);
+        return 0;
+    }
+
+    params.pivot_length = *(haldata->pivot_length);
     EmcPose P;
     fiveaxis_inverse_impl(&params, pos, &P);
-
-    // update joints with support for
-    // multiple-joints per-coordinate letter:
-    // based on computed position
-    position_to_mapped_joints(fiveaxis_max_joints,
-                              &P,
-                              joints);
+    position_to_mapped_joints(fiveaxis_max_joints, &P, joints);
     return 0;
-} // fiveaxis_kinematicsInverse()
+}
 
 int fiveaxis_KinematicsSetup(const  int   comp_id,
                              const  char* coordinates,
@@ -278,6 +309,28 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
 
     *haldata->pivot_length = DEFAULT_PIVOT_LENGTH;
 
+    /* Publish kinematics params to HAL shmem for userspace planner */
+    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
+    if (!uspace_params) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "5axiskins: hal_malloc for uspace_params failed\n");
+        goto error;
+    }
+    result = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
+                              "%s.uspace-params-offset", kp->halprefix);
+    if (result < 0) goto error;
+
+    memset(uspace_params, 0, sizeof(*uspace_params));
+    uspace_params->num_joints = fiveaxis_max_joints;
+    uspace_params->axis_to_joint[0] = JX; uspace_params->axis_to_joint[1] = JY;
+    uspace_params->axis_to_joint[2] = JZ; uspace_params->axis_to_joint[3] = JA;
+    uspace_params->axis_to_joint[4] = JB; uspace_params->axis_to_joint[5] = JC;
+    uspace_params->axis_to_joint[6] = JU; uspace_params->axis_to_joint[7] = JV;
+    uspace_params->axis_to_joint[8] = JW;
+    uspace_params->params.fiveaxis.pivot_length = DEFAULT_PIVOT_LENGTH;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
+    uspace_params->self_offset = (int)SHMOFF(uspace_params);
+
     rtapi_print("Kinematics Module %s\n",__FILE__);
     rtapi_print("  module name = %s\n"
                 "  coordinates = %s  Requires: [KINS]JOINTS>=%d\n"
@@ -333,66 +386,17 @@ int switchkinsSetup(kparms* kp,
 
 /* ========================================================================
  * Non-RT interface for userspace trajectory planner
+ *
+ * nonrt_attach() is the only exported symbol. It sets uspace_params so the
+ * !haldata branch in fiveaxis_KinematicsForward/Inverse reads live shmem,
+ * then registers those functions directly — no separate nonrt functions.
  * ======================================================================== */
-#include "kinematics_params.h"
 
-int nonrt_kinematicsForward(const void *params,
-                            const double *joints,
-                            EmcPose *pos)
+void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
 {
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    fiveaxis_params_t p;
-    fiveaxis_joints_t jm;
-
-    p.pivot_length = kp->params.fiveaxis.pivot_length;
-    jm.jx = kp->axis_to_joint[0]; jm.jy = kp->axis_to_joint[1];
-    jm.jz = kp->axis_to_joint[2]; jm.ja = kp->axis_to_joint[3];
-    jm.jb = kp->axis_to_joint[4]; jm.jc = kp->axis_to_joint[5];
-    jm.ju = kp->axis_to_joint[6]; jm.jv = kp->axis_to_joint[7];
-    jm.jw = kp->axis_to_joint[8];
-
-    return fiveaxis_forward_impl(&p, &jm, joints, pos);
+    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    ops->forward   = fiveaxis_KinematicsForward;
+    ops->inverse   = fiveaxis_KinematicsInverse;
 }
 
-int nonrt_kinematicsInverse(const void *params,
-                            const EmcPose *pos,
-                            double *joints)
-{
-    const kinematics_params_t *kp = (const kinematics_params_t *)params;
-    fiveaxis_params_t p;
-    fiveaxis_joints_t jm;
-    EmcPose axis_values;
-
-    p.pivot_length = kp->params.fiveaxis.pivot_length;
-    jm.jx = kp->axis_to_joint[0]; jm.jy = kp->axis_to_joint[1];
-    jm.jz = kp->axis_to_joint[2]; jm.ja = kp->axis_to_joint[3];
-    jm.jb = kp->axis_to_joint[4]; jm.jc = kp->axis_to_joint[5];
-    jm.ju = kp->axis_to_joint[6]; jm.jv = kp->axis_to_joint[7];
-    jm.jw = kp->axis_to_joint[8];
-
-    fiveaxis_inverse_impl(&p, pos, &axis_values);
-    fiveaxis_axis_to_joints(&jm, &axis_values, joints);
-    return 0;
-}
-
-int nonrt_refresh(void *params,
-                  int (*read_float)(const char *, double *),
-                  int (*read_bit)(const char *, int *),
-                  int (*read_s32)(const char *, int *))
-{
-    kinematics_params_t *kp = (kinematics_params_t *)params;
-    (void)read_bit; (void)read_s32;
-
-    if (read_float("5axiskins.pivot-length",
-                   &kp->params.fiveaxis.pivot_length) != 0)
-        return -1;
-
-    return 0;
-}
-
-int nonrt_is_identity(void) { return 0; }
-
-EXPORT_SYMBOL(nonrt_kinematicsForward);
-EXPORT_SYMBOL(nonrt_kinematicsInverse);
-EXPORT_SYMBOL(nonrt_refresh);
-EXPORT_SYMBOL(nonrt_is_identity);
+EXPORT_SYMBOL(nonrt_attach);

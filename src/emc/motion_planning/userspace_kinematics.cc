@@ -63,6 +63,18 @@ bool UserspaceKinematicsPlanner::init(const UserspaceKinematicsConfig& config) {
         return false;
     }
 
+    if (kinematicsUserIsRtOnly(kins_ctx_)) {
+        // Module does not export uspace-params-offset: shmem params unavailable.
+        // Planner 2 requires shmem params; disable it gracefully.
+        rtapi_print_msg(RTAPI_MSG_WARN,
+            "userspace_kinematics: %s has no uspace-params-offset pin; "
+            "planner 2 disabled (rt_only mode).\n",
+            config.kinematics_type.c_str());
+        enabled_ = false;
+        initialized_ = true;  /* init succeeded, but planner 2 unavailable */
+        return true;
+    }
+
     // Initialize path sampler
     PathSamplerConfig sampler_config;
     sampler_config.min_samples = 10;

@@ -6,7 +6,9 @@
  * the RT kinematics interface. Used by the 9D planner to compute joint
  * positions from world coordinates without requiring RT kernel calls.
  *
- * Parameters like pivot_length are read from HAL pins via hal_pin_reader.
+ * The RT kinematics module pushes parameters into HAL shmem each servo cycle.
+ * Userspace maps the shmem block read-only and calls the nonrt_ math functions
+ * directly, eliminating the per-call HAL pin list walk.
  *
  * Author: LinuxCNC
  * License: GPL Version 2
@@ -107,15 +109,26 @@ KINEMATICS_TYPE kinematicsUserGetType(KinematicsUserContext* ctx);
 const char* kinematicsUserGetModuleName(KinematicsUserContext* ctx);
 
 /**
- * Refresh kinematics parameters from HAL pins
+ * Refresh kinematics parameters (no-op in new shmem architecture)
  *
- * Call this before planning to ensure parameters like pivot_length
- * are current. Reads HAL pins directly based on the kinematics type.
+ * The RT module pushes parameters into HAL shmem every servo cycle.
+ * This function is kept for API compatibility but does nothing.
  *
  * @param ctx  Kinematics context
- * @return 0 on success, -1 on failure
+ * @return 0 always
  */
 int kinematicsUserRefreshParams(KinematicsUserContext* ctx);
+
+/**
+ * Check if this context is RT-only (shmem offset param not published)
+ *
+ * An RT-only module lacks the uspace-params-offset HAL pin.
+ * Planner 2 is unavailable for such modules.
+ *
+ * @param ctx  Kinematics context
+ * @return 1 if RT-only (planner 2 unavailable), 0 if shmem path active
+ */
+int kinematicsUserIsRtOnly(KinematicsUserContext* ctx);
 
 /**
  * Free kinematics context
