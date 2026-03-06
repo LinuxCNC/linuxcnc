@@ -462,7 +462,9 @@ bool Usb::setupAsyncTransfer()
         //! timeout[ms]
                               750);
     int r = libusb_submit_transfer(inTransfer);
-    assert(0 == r);
+    if(r != 0){
+        std::cerr << "libusb_submit_transfer failed with " << r << endl;
+    }
     return (0 == r);
 }
 // ----------------------------------------------------------------------
@@ -538,7 +540,10 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
 
             if (mIsRunning)
             {
-                setupAsyncTransfer();
+                if(!setupAsyncTransfer())
+                {
+                    requestTermination();
+                }
             }
 
             break;
@@ -547,7 +552,10 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
         case (LIBUSB_TRANSFER_TIMED_OUT):
             if (mIsRunning)
             {
-                setupAsyncTransfer();
+                if(!setupAsyncTransfer())
+                {
+                    requestTermination();
+                }
             }
             break;
 
@@ -610,7 +618,7 @@ void Usb::enableVerboseInit(bool enable)
     }
 }
 // ----------------------------------------------------------------------
-bool Usb::init()
+Usb::InitStatus Usb::init()
 {
     if (getDoReconnect())
     {
@@ -626,11 +634,11 @@ bool Usb::init()
     }
 
     *verboseInitOut << "init  usb context ...";
-    int r = libusb_init(&context);
+    int r = libusb_init(&context); //This function is deprecated. However, Debian 12 doesn't have it, so we leave it in for now.
     if (r != 0)
     {
         std::cerr << endl << "failed to initialize usb context" << endl;
-        return false;
+        return InitStatus::RETRY;
     }
     *verboseInitOut << " ok" << endl;
 
@@ -664,13 +672,13 @@ bool Usb::init()
         if (devicesCount < 0)
         {
             std::cerr << endl << "failed to get device list" << endl;
-            return false;
+            return InitStatus::RETRY;
         }
 
         deviceHandle = libusb_open_device_with_vid_pid(context, usbVendorId, usbProductId);
         libusb_free_device_list(devicesReference, 1);
         *verboseInitOut << "." << std::flush;
-        if (!isDeviceOpen())
+        if (deviceHandle == nullptr)
         {
             *verboseInitOut << "." << std::flush;
             if (isWaitWithTimeout)
@@ -678,39 +686,48 @@ bool Usb::init()
                 *verboseInitOut << "." << std::flush;
                 if ((mWaitSecs--) <= 0)
                 {
-                    std::cerr << endl << "timeout exceeded, exiting" << endl;
-                    return false;
+                    std::cerr << endl << "Configured timeout exceeded, exiting" << endl;
+                    return InitStatus::EXIT;
                 }
             }
             sleep(1);
         }
-    } while (!isDeviceOpen() && mIsRunning);
+    } while (deviceHandle == nullptr && mIsRunning);
     *verboseInitOut << " ok" << endl
                     << "init  " << mName << " device found" << endl;
 
-    if (isDeviceOpen())
+    if (deviceHandle != nullptr)
     {
         *verboseInitOut << "init  detaching active kernel driver ...";
-        if (libusb_kernel_driver_active(deviceHandle, 0) == 1)
+        r = libusb_kernel_driver_active(deviceHandle, 0);
+        if (r == 1)
         {
-            int r = libusb_detach_kernel_driver(deviceHandle, 0);
-            assert(0 == r);
+            r = libusb_detach_kernel_driver(deviceHandle, 0);
+            if(r < 0){
+                std::cerr << "libusb_detach_kernel_driver failed with " << r << endl;
+                return InitStatus::RETRY;
+            }
             *verboseInitOut << " ok" << endl;
         }
-        else
+        else if(r == 0)
         {
             *verboseInitOut << " already detached" << endl;
         }
+        else
+        {
+            std::cerr << "libusb_kernel_driver_active failed with " << r << endl;
+            return InitStatus::RETRY;
+        }
         *verboseInitOut << "init  claiming interface ...";
-        int r = libusb_claim_interface(deviceHandle, 0);
+        r = libusb_claim_interface(deviceHandle, 0);
         if (r != 0)
         {
             std::cerr << endl << "failed to claim interface" << endl;
-            return false;
+            return InitStatus::RETRY;
         }
         *verboseInitOut << " ok" << endl;
     }
-    return true;
+    return InitStatus::OK;
 }
 // ----------------------------------------------------------------------
 void Usb::setWaitWithTimeout(uint8_t waitSecs)

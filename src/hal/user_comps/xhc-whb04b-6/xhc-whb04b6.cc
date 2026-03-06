@@ -433,31 +433,34 @@ int XhcWhb04b6Component::run()
         mHal.setIsPendantConnected(false);
 
         initWhb();
-        if (!mUsb.init())
+        Usb::InitStatus status = mUsb.init();
+        if (status == Usb::InitStatus::EXIT)
         {
             return EXIT_FAILURE;
         }
-
-        mHal.setIsPendantConnected(true);
-
-        if (!isHalReady && !mHal.isSimulationModeEnabled())
+        else if(status == Usb::InitStatus::OK)
         {
-            hal_ready(mHal.getHalComponentId());
-            isHalReady = true;
-        }
+            mHal.setIsPendantConnected(true);
 
-        if (mUsb.isDeviceOpen())
-        {
-            *mInitCout << "init  enabling reception ...";
-            if (!enableReceiveAsyncTransfer())
+            if (!isHalReady && !mHal.isSimulationModeEnabled())
             {
-                std::cerr << endl << "failed to enable reception" << endl;
-                return EXIT_FAILURE;
+                hal_ready(mHal.getHalComponentId());
+                isHalReady = true;
             }
-            *mInitCout << " ok" << endl;
+
+            if (mUsb.isDeviceOpen())
+            {
+                *mInitCout << "init  enabling reception ...";
+                if (!enableReceiveAsyncTransfer())
+                {
+                    std::cerr << endl << "failed to enable reception" << endl;
+                    return EXIT_FAILURE;
+                }
+                *mInitCout << " ok" << endl;
+            }
+            process();
+            teardownUsb();
         }
-        process();
-        teardownUsb();
     }
     teardownHal();
 
