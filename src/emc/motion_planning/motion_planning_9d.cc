@@ -25,7 +25,7 @@
 #include "../motion/atomic_9d.h"
 #include "posemath.h"
 #include "rtapi.h"            // For rtapi_print_msg
-#include "motion_types.h"     // For EMC_MOTION_TYPE_TRAVERSE
+#include <motion_types.h>         // For EMC_MOTION_TYPE_TRAVERSE
 #include <ruckig/ruckig.hpp>   // Ruckig integration
 
 #include <algorithm>

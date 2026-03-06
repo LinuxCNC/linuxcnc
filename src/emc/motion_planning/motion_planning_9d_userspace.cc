@@ -28,9 +28,9 @@ extern "C" {
 #include "emcpos.h"
 #include "emcpose.h"    // pmCartesianToEmcPose
 #include "posemath.h"
-#include "blendmath.h"  // pmCircleEffectiveMinRadius, findIntersectionAngle
+#include "../tp/blendmath.h"  // pmCircleEffectiveMinRadius, findIntersectionAngle
 #include "../motion/atomic_9d.h"  // atomicStoreDouble
-#include "motion_types.h" // EMC_MOTION_TYPE_TRAVERSE
+#include <motion_types.h>         // EMC_MOTION_TYPE_TRAVERSE
 }
 
 // External queue functions (from motion_planning_9d.cc - will be made public)
