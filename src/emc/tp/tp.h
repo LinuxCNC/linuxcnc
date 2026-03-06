@@ -103,7 +103,8 @@ int tpAddDwell(TP_STRUCT * const tp, double seconds, struct state_tag_t tag);
  * Emits any buffered compressed segment. Call at program end, mode changes,
  * or before non-line segments (circles, dwells).
  */
-int tpFlushCompressor_9D(TP_STRUCT *tp);
+int tpFlushCompressor_9D(TP_STRUCT *tp);      /* flush + seal (sync points only) */
+int tpFlushCompressorNoSeal_9D(TP_STRUCT *tp); /* flush only, no seal (mode changes) */
 void tpResetCompressor_9D(void);
 
 /**

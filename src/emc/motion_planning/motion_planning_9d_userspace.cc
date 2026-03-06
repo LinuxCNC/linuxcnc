@@ -241,13 +241,26 @@ extern "C" int tpFlushCompressor_9D(TP_STRUCT *tp)
 {
     int result = compressorFlush(tp);
 
-    // Seal the queue: interpreter is at a sync point (tool change, dwell,
-    // mode change, program end).  No more motion segments are coming until
-    // the next tpAddLine_9D/tpAddCircle_9D call clears this flag.
-    // This lets the optimizer finalize the tail segment immediately.
+    // Seal the queue: interpreter is at a true sync point (dwell, tool
+    // change, M0/M1, program end).  No more motion will arrive until the
+    // next tpAddLine_9D/tpAddCircle_9D clears this flag.  Lets the
+    // optimizer finalize the tail segment immediately.
     tp->queue_sealed = 1;
     g_needs_replan = true;
 
+    return result;
+}
+
+extern "C" int tpFlushCompressorNoSeal_9D(TP_STRUCT *tp)
+{
+    // Flush compressor (emit any buffered segments) but do NOT seal the
+    // queue.  Used for G-code mode changes (G64, G61, tolerance updates)
+    // where new motion segments are expected immediately after.
+    // Sealing here would cause the optimizer to prematurely finalize the
+    // tail segment with wrong boundary conditions before the successor
+    // segment and its blend trimming arrive.
+    int result = compressorFlush(tp);
+    g_needs_replan = true;
     return result;
 }
 
