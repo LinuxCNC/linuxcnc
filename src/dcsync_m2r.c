@@ -59,7 +59,9 @@ static void pre_send(struct lcec_master *master) {
       int64_t offset_ns = sign(diff) * (diff_abs / period) * period;
       master->app_time_ns -= offset_ns;
       diff -= offset_ns;
-      (*(hal_data->pll_reset_cnt))++;
+      if (master->dc_diff_ns != 0) {
+        (*(hal_data->pll_reset_cnt))++;
+      }
     }
 
     master->dc_diff_ns = diff;
