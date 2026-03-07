@@ -301,13 +301,13 @@ public:
     InitStatus init();
     void process();
     void close();
-    void teardown();
     void setWaitWithTimeout(uint8_t waitSecs);
 
     UsbOutPackageData& getOutputPackageData();
 
 private:
     void closeHandle();
+    void closeLibusb();
     const uint16_t usbVendorId{0x10ce};
     uint16_t usbProductId{0xeb93};
     libusb_context      * context{nullptr};

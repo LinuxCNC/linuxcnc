@@ -454,12 +454,10 @@ int XhcWhb04b6Component::run()
                 {
                     *mInitCout << " ok" << endl;
                     process(); //process loops until disconnect/stopped
-                    mUsb.teardown();
                 }
                 else
                 {
                     mUsb.close();
-                    mUsb.teardown();
                 }
             }
         }
