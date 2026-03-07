@@ -1054,6 +1054,7 @@ fetch_more_data:
 					HM2_PKTUART_RCR_ICHARBITS_VAL(frsize), inst->maxicharbits);
 			set_error(inst, ENOMSG);
 			force_resend(inst);
+			queue_reset(inst);
 			break;
 		}
 		inst->rxdata[0] = 0;	// This will fail the parse packet if the read did not resolve
