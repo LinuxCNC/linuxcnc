@@ -598,6 +598,7 @@ Usb::InitStatus Usb::init()
     if (r != 0)
     {
         std::cerr << endl << "failed to initialize usb context" << endl;
+        mDoReconnect=true;
         return InitStatus::RETRY;
     }
     *verboseInitOut << " ok" << endl;
@@ -632,6 +633,7 @@ Usb::InitStatus Usb::init()
         if (devicesCount < 0)
         {
             std::cerr << endl << "failed to get device list" << endl;
+            mDoReconnect=true;
             return InitStatus::RETRY;
         }
 
@@ -665,6 +667,9 @@ Usb::InitStatus Usb::init()
             r = libusb_detach_kernel_driver(deviceHandle, 0);
             if(r < 0){
                 std::cerr << "libusb_detach_kernel_driver failed with " << r << endl;
+                libusb_close(deviceHandle);
+                deviceHandle = nullptr;
+                mDoReconnect=true;
                 return InitStatus::RETRY;
             }
             *verboseInitOut << " ok" << endl;
@@ -676,6 +681,9 @@ Usb::InitStatus Usb::init()
         else
         {
             std::cerr << "libusb_kernel_driver_active failed with " << r << endl;
+            libusb_close(deviceHandle);
+            deviceHandle = nullptr;
+            mDoReconnect=true;
             return InitStatus::RETRY;
         }
         *verboseInitOut << "init  claiming interface ...";
@@ -683,12 +691,16 @@ Usb::InitStatus Usb::init()
         if (r != 0)
         {
             std::cerr << endl << "failed to claim interface" << endl;
+            libusb_close(deviceHandle);
+            deviceHandle = nullptr;
+            mDoReconnect=true;
             return InitStatus::RETRY;
         }
         *verboseInitOut << " ok" << endl;
     }
     return InitStatus::OK;
 }
+// ----------------------------------------------------------------------
 void Usb::handleTimeouts()
 {
     struct timeval timeout;
@@ -699,6 +711,7 @@ void Usb::handleTimeouts()
     assert((r == LIBUSB_SUCCESS) || (r == LIBUSB_ERROR_NO_DEVICE) || (r == LIBUSB_ERROR_BUSY) ||
             (r == LIBUSB_ERROR_TIMEOUT) || (r == LIBUSB_ERROR_INTERRUPTED));
 }
+// ----------------------------------------------------------------------
 void Usb::close()
 {
     struct timeval tv;
@@ -711,6 +724,7 @@ void Usb::close()
     libusb_close(deviceHandle);
     deviceHandle = nullptr;
 }
+// ----------------------------------------------------------------------
 void Usb::teardown()
 {
     libusb_exit(context);
