@@ -51,7 +51,6 @@ public:
     void initWhb();
     void initHal();
     void teardownHal();
-    bool enableReceiveAsyncTransfer();
     void updateDisplay();
     void linuxcncSimulate();
     void requestTermination(int signal = -42);

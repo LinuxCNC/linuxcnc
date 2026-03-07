@@ -284,13 +284,10 @@ public:
     //! \param onDataReceivedCallback called when received data is ready
     Usb(const char* name, OnUsbInputPackageListener& onDataReceivedCallback, Hal &hal);
     ~Usb();
-    uint16_t getUsbVendorId() const;
-    uint16_t getUsbProductId() const;
     void setUsbProductId(uint16_t usbProductId);
     bool isDeviceOpen() const;
     bool isWaitForPendantBeforeHalEnabled() const;
     bool getDoReconnect() const;
-    void setDoReconnect(bool doReconnect);
     void onUsbDataReceived(struct libusb_transfer* transfer) override;
     void setSimulationMode(bool isSimulationMode);
     void setIsRunning(bool enableRunning);

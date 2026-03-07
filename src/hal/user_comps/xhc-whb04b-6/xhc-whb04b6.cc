@@ -450,7 +450,7 @@ int XhcWhb04b6Component::run()
             if (mUsb.isDeviceOpen())
             {
                 *mInitCout << "init  enabling reception ...";
-                if (!enableReceiveAsyncTransfer())
+                if (!mUsb.setupAsyncTransfer())
                 {
                     std::cerr << endl << "failed to enable reception" << endl;
                     return EXIT_FAILURE;
@@ -468,11 +468,6 @@ int XhcWhb04b6Component::run()
 // ----------------------------------------------------------------------
 void XhcWhb04b6Component::linuxcncSimulate()
 {
-}
-// ----------------------------------------------------------------------
-bool XhcWhb04b6Component::enableReceiveAsyncTransfer()
-{
-    return mUsb.setupAsyncTransfer();
 }
 // ----------------------------------------------------------------------
 void XhcWhb04b6Component::setSimulationMode(bool enableSimulationMode)
