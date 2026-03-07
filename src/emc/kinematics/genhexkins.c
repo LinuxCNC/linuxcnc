@@ -116,7 +116,6 @@
 #include "motion.h"
 #include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include "switchkins.h"
-#include "hal_priv.h"
 #include "kinematics_params.h"
 #include <string.h>
 
@@ -676,13 +675,15 @@ int genhexKinematicsSetup(const  int   comp_id,
 
     if (res) goto error;
 
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) goto error;
-    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                         "%s.uspace-params-offset", kp->halprefix) < 0) goto error;
+    if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                        "%s.params", kp->halprefix) < 0) goto error;
+    {
+        char _n[HAL_NAME_LEN + 1];
+        rtapi_snprintf(_n, sizeof(_n), "%s.params", kp->halprefix);
+        if (hal_struct_attach(_n, (void **)&uspace_params) < 0) goto error;
+    }
     {
         int _i;
-        memset(uspace_params, 0, sizeof(*uspace_params));
         uspace_params->num_joints  = kp->max_joints;
         uspace_params->is_identity = 0;
         for (_i = 0; _i < GENHEX_NUM_STRUTS; _i++) {
@@ -708,7 +709,6 @@ int genhexKinematicsSetup(const  int   comp_id,
         uspace_params->valid = 1;
         uspace_params->head  = 1;
         uspace_params->tail  = 1;
-        uspace_params->self_offset = (int)SHMOFF(uspace_params);
     }
     return 0;
 
@@ -748,7 +748,11 @@ int switchkinsSetup(kparms* kp,
 } //switchkinsSetup()
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Attaches to the
+ * kinematics_params_t registered in HAL shmem by genhexKinematicsSetup()
+ * via hal_struct_newf() and returns forward/inverse function pointers.
  * ======================================================================== */
 
 static void nonrt_build_genhex(const kinematics_params_t *kp, genhex_params_t *p)
@@ -803,9 +807,9 @@ static int nonrt_genhex_inverse(const EmcPose *pos, double *joints,
     return genhex_inv(&p, pos, joints);
 }
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("genhexkins.params", (void **)&uspace_params);
     ops->forward   = nonrt_genhex_forward;
     ops->inverse   = nonrt_genhex_inverse;
 }

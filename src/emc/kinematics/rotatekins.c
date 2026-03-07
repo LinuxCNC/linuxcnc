@@ -106,7 +106,6 @@ KINEMATICS_TYPE kinematicsType()
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
-#include "hal_priv.h"
 #include "kinematics_params.h"
 #include <string.h>
 
@@ -126,19 +125,18 @@ int rtapi_app_main(void) {
     comp_id = hal_init("rotatekins");
     if(comp_id < 0) return comp_id;
 
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) { hal_exit(comp_id); return -1; }
-    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                         "rotatekins.uspace-params-offset") < 0) {
+    if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                        "rotatekins.params") < 0) {
         hal_exit(comp_id); return -1;
     }
-    memset(uspace_params, 0, sizeof(*uspace_params));
-    uspace_params->num_joints = 6;
+    if (hal_struct_attach("rotatekins.params", (void **)&uspace_params) < 0) {
+        hal_exit(comp_id); return -1;
+    }
+    uspace_params->num_joints  = 6;
     uspace_params->valid       = 1;
     uspace_params->is_identity = 0;
     uspace_params->head = 1;
     uspace_params->tail = 1;
-    uspace_params->self_offset = (int)SHMOFF(uspace_params);
 
     hal_ready(comp_id);
     return 0;
@@ -147,12 +145,14 @@ int rtapi_app_main(void) {
 void rtapi_app_exit(void) { hal_exit(comp_id); }
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Returns forward/inverse
+ * function pointers.  (No kinematics-specific parameters to attach.)
  * ======================================================================== */
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    (void)shmem_base; (void)offset;
     ops->forward = kinematicsForward;
     ops->inverse = kinematicsInverse;
 }

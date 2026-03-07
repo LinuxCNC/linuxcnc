@@ -1,7 +1,14 @@
 /********************************************************************
  * Description: kinematics_params.h
- *   Shared memory structure for kinematics parameters
- *   Allows userspace to read kinematics module parameters from RT
+ *   Kinematics parameters structure shared between RT and non-RT.
+ *
+ *   The RT kinematics module registers a kinematics_params_t blob in
+ *   HAL shmem using hal_struct_newf() during setup, then updates it
+ *   every servo cycle.  The userspace trajectory planner attaches to
+ *   it with hal_struct_attach() — no private HAL headers required.
+ *
+ *   Naming convention: "<module-name>.params"
+ *     e.g. "5axiskins.params", "trivkins.params"
  *
  * Author: LinuxCNC
  * License: GPL Version 2
@@ -193,11 +200,6 @@ typedef struct kinematics_params_t {
     /* Sequence number - incremented on any parameter change */
     unsigned int seq_num;
 
-    /* HAL param storage: offset of this struct from HAL shmem base.
-     * Registered as "<module>.uspace-params-offset" (HAL_RO param).
-     * Storage lives here (in shmem) so hal_param_s32_newf SHMCHK passes. */
-    int self_offset;
-
 } kinematics_params_t;
 
 /*
@@ -215,7 +217,8 @@ typedef struct kinematics_params_t {
  * Function pointers registered by nonrt_attach().
  * Each kins module exports one symbol (nonrt_attach); kinematics_user.c
  * calls it once at init and receives back the forward/inverse entry points.
- * This avoids exporting nonrt_kinematicsForward/Inverse as separate symbols.
+ * The kins module calls hal_struct_attach() inside nonrt_attach() to map
+ * its own kinematics_params_t from HAL shmem — no pointer is passed in.
  */
 typedef struct {
     int (*forward)(const double *joints, EmcPose *pos,

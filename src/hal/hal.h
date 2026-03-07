@@ -989,6 +989,27 @@ extern bool hal_stream_writable(hal_stream_t *stream);
 extern void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop);
 #endif
 
+
+/** Named struct API
+ *
+ * hal_struct_newf() allocates 'size' bytes in HAL shmem, optionally
+ * initialises it from 'defval' (or zeroes if NULL), and registers a HAL_RO
+ * s32 param named according to the printf-style format so that the data can
+ * be found by name from any process that has HAL shmem mapped.
+ *
+ * hal_struct_attach() resolves a name previously registered by
+ * hal_struct_newf() and sets *memptr to point at the data.  May be called
+ * from both RT and userspace after hal_init().
+ *
+ * hal_struct_detach() is a no-op; HAL shmem lifetime is managed by the
+ * creating component.
+ */
+extern int hal_struct_newf(int comp_id, long int size, const void *defval,
+                            const char *fmt, ...)
+    __attribute__((format(printf, 4, 5)));
+extern int hal_struct_attach(const char *name, void **memptr);
+extern int hal_struct_detach(const char *name);
+
 RTAPI_END_DECLS
 
 #endif /* HAL_H */

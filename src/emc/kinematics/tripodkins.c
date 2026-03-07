@@ -179,7 +179,6 @@ static int tripod_inverse_math(const tripod_params_t *params,
 }
 
 #include "hal.h"
-#include "hal_priv.h"
 #include "kinematics_params.h"
 #include <string.h>
 
@@ -448,20 +447,17 @@ int rtapi_app_main(void) {
 
     Bx = Cx = Cy = 1.0;
 
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) goto error;
-    if ((res = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                                "tripodkins.uspace-params-offset")) < 0) goto error;
-    memset(uspace_params, 0, sizeof(*uspace_params));
-    uspace_params->num_joints            = 3;
-    uspace_params->is_identity           = 0;
-    uspace_params->params.tripod.bx      = Bx;
-    uspace_params->params.tripod.cx      = Cx;
-    uspace_params->params.tripod.cy      = Cy;
+    if ((res = hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                               "tripodkins.params")) < 0) goto error;
+    if ((res = hal_struct_attach("tripodkins.params", (void **)&uspace_params)) < 0) goto error;
+    uspace_params->num_joints       = 3;
+    uspace_params->is_identity      = 0;
+    uspace_params->params.tripod.bx = Bx;
+    uspace_params->params.tripod.cx = Cx;
+    uspace_params->params.tripod.cy = Cy;
     uspace_params->valid = 1;
     uspace_params->head  = 1;
     uspace_params->tail  = 1;
-    uspace_params->self_offset = (int)SHMOFF(uspace_params);
 
     hal_ready(comp_id);
     return 0;
@@ -474,12 +470,16 @@ error:
 void rtapi_app_exit(void) { hal_exit(comp_id); }
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Attaches to the
+ * kinematics_params_t registered in HAL shmem by rtapi_app_main()
+ * via hal_struct_newf() and returns forward/inverse function pointers.
  * ======================================================================== */
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("tripodkins.params", (void **)&uspace_params);
     ops->forward   = kinematicsForward;
     ops->inverse   = kinematicsInverse;
 }

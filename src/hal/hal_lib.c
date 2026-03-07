@@ -4330,6 +4330,103 @@ int hal_stream_num_underruns(hal_stream_t *stream) {
     return stream->fifo->num_underruns;
 }
 
+/* ========================================================================
+ * Named struct API — allocates an opaque blob in HAL shmem and makes it
+ * discoverable by name.  The blob is registered as a HAL_RO s32 param
+ * whose value is the shmem offset of the data; hal_struct_attach() resolves
+ * that offset back to a pointer.  No new shmem segment is created — the
+ * allocation lives inside the existing HAL shmem block.
+ * ======================================================================== */
+
+int hal_struct_newf(int comp_id, long int size, const void *defval,
+                    const char *fmt, ...)
+{
+    char name[HAL_NAME_LEN + 1];
+    int sz;
+    hal_s32_t *offset_holder;
+    void *data;
+    va_list ap;
+
+    va_start(ap, fmt);
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+    va_end(ap);
+    if (sz < 0 || sz > HAL_NAME_LEN) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_struct_newf: name too long\n");
+        return -ENOMEM;
+    }
+
+    /* Allocate s32 to hold the shmem offset of the data */
+    offset_holder = (hal_s32_t *)hal_malloc(sizeof(hal_s32_t));
+    if (!offset_holder) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_struct_newf: can't allocate offset holder\n");
+        return -ENOMEM;
+    }
+
+    /* Allocate the struct data — hal_malloc aligns by size */
+    data = hal_malloc(size);
+    if (!data) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_struct_newf: can't allocate %ld bytes for '%s'\n",
+            size, name);
+        return -ENOMEM;
+    }
+
+    if (defval)
+        memcpy(data, defval, (size_t)size);
+    else
+        memset(data, 0, (size_t)size);
+
+    /* Store offset so hal_struct_attach can find the data */
+    *offset_holder = (hal_s32_t)(((char *)data) - hal_shmem_base);
+
+    /* Register as a HAL param so the name is in the HAL namespace */
+    return hal_param_s32_new(name, HAL_RO, offset_holder, comp_id);
+}
+
+int hal_struct_attach(const char *name, void **memptr)
+{
+    hal_param_t *param;
+    void *dptr;
+    hal_s32_t offset;
+
+    if (hal_data == 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_struct_attach called before init\n");
+        return -EINVAL;
+    }
+    if (!name || !memptr)
+        return -EINVAL;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    param = halpr_find_param_by_name(name);
+    if (param == 0) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_struct_attach: '%s' not found\n", name);
+        return -ENOENT;
+    }
+    if (param->type != HAL_S32) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: hal_struct_attach: '%s' is not a struct param\n", name);
+        return -EINVAL;
+    }
+    dptr = SHMPTR(param->data_ptr);
+    offset = *(hal_s32_t *)dptr;
+    rtapi_mutex_give(&(hal_data->mutex));
+
+    *memptr = hal_shmem_base + offset;
+    return 0;
+}
+
+int hal_struct_detach(const char *name)
+{
+    (void)name;
+    return 0; /* no-op: HAL shmem lifetime managed by creating component */
+}
+
 #ifdef RTAPI
 /* only export symbols when we're building a kernel module */
 
@@ -4426,6 +4523,10 @@ EXPORT_SYMBOL(hal_port_readable);
 EXPORT_SYMBOL(hal_port_writable);
 EXPORT_SYMBOL(hal_port_buffer_size);
 EXPORT_SYMBOL(hal_port_clear);
+
+EXPORT_SYMBOL(hal_struct_newf);
+EXPORT_SYMBOL(hal_struct_attach);
+EXPORT_SYMBOL(hal_struct_detach);
 
 EXPORT_SYMBOL_GPL(hal_stream_create);
 EXPORT_SYMBOL_GPL(hal_stream_destroy);

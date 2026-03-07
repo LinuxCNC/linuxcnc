@@ -56,7 +56,6 @@
 #include "pentakins.h"
 #include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include "hal.h"
-#include "hal_priv.h"
 #include "kinematics_params.h"
 #include <string.h>
 
@@ -437,20 +436,17 @@ int rtapi_app_main(void)
     haldata->effectorr[3] = DEFAULT_EFFECTOR_3_R;
     haldata->effectorr[4] = DEFAULT_EFFECTOR_4_R;
 
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) goto error;
-    if ((res = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                                "pentakins.uspace-params-offset")) < 0)
-        goto error;
+    if ((res = hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                               "pentakins.params")) < 0) goto error;
+    if ((res = hal_struct_attach("pentakins.params", (void **)&uspace_params)) < 0) goto error;
     {
         int _i;
-        memset(uspace_params, 0, sizeof(*uspace_params));
         uspace_params->num_joints  = 5;
         uspace_params->is_identity = 0;
         for (_i = 0; _i < PENTAKINS_NUM_STRUTS; _i++) {
-            uspace_params->params.penta.basex[_i]    = haldata->basex[_i];
-            uspace_params->params.penta.basey[_i]    = haldata->basey[_i];
-            uspace_params->params.penta.basez[_i]    = haldata->basez[_i];
+            uspace_params->params.penta.basex[_i]     = haldata->basex[_i];
+            uspace_params->params.penta.basey[_i]     = haldata->basey[_i];
+            uspace_params->params.penta.basez[_i]     = haldata->basez[_i];
             uspace_params->params.penta.effectorr[_i] = haldata->effectorr[_i];
             uspace_params->params.penta.effectorz[_i] = haldata->effectorz[_i];
         }
@@ -459,7 +455,6 @@ int rtapi_app_main(void)
         uspace_params->valid = 1;
         uspace_params->head  = 1;
         uspace_params->tail  = 1;
-        uspace_params->self_offset = (int)SHMOFF(uspace_params);
     }
 
     hal_ready(comp_id);
@@ -477,7 +472,11 @@ void rtapi_app_exit(void)
 }
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Attaches to the
+ * kinematics_params_t registered in HAL shmem by rtapi_app_main()
+ * via hal_struct_newf() and returns forward/inverse function pointers.
  * ======================================================================== */
 
 static void nonrt_build_penta(const kinematics_params_t *kp, pentakins_params_t *p)
@@ -522,9 +521,9 @@ static int nonrt_penta_inverse(const EmcPose *pos, double *joints,
     return pentakins_inv(&p, pos, joints);
 }
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("pentakins.params", (void **)&uspace_params);
     ops->forward   = nonrt_penta_forward;
     ops->inverse   = nonrt_penta_inverse;
 }
