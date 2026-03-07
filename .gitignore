@@ -5,6 +5,7 @@
 **.mod.c
 **.o
 **.o.cmd
+**.d
 **.swp
 **.sym
 **.ver
@@ -27,3 +28,4 @@ debian/debhelper-build-stamp
 
 # codeql artifacts
 _codeql_detected_source_root
+tests/test_pdo_counts

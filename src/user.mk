@@ -3,9 +3,9 @@ include ../config.mk
 EXTRA_CFLAGS := $(filter-out -Wframe-larger-than=%,$(EXTRA_CFLAGS))
 
 LCEC_CONF_OBJS = \
-	lcec_conf.o \
-	lcec_conf_util.o \
-	lcec_conf_icmds.o \
+	conf.o \
+	conf_util.o \
+	conf_icmds.o \
 
 .PHONY: all clean install
 
@@ -19,5 +19,7 @@ lcec_conf: $(LCEC_CONF_OBJS)
 	$(CC) -o $@ $(LCEC_CONF_OBJS) -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal -lexpat
 
 %.o: %.c
-	$(CC) -o $@ $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os -c $<
+	$(CC) -o $@ $(EXTRA_CFLAGS) -MMD -MP -URTAPI -U__MODULE__ -DULAPI -Os -c $<
+
+-include $(LCEC_CONF_OBJS:.o=.d)
 

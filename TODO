@@ -1,5 +1,0 @@
-- (Re-)testing/Documentation of all devices
-- option --enable-ethercat for configure script
-- DOC: don't use EL9010
-- Debug EL5151/EL5152/EL2521 Subindex does not exist
-- DOC: Parameter A60/A61 Stoeber

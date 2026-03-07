@@ -23,6 +23,10 @@ else
   LDFLAGS += -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal -lethercat
 endif
 
+# auto-generate header dependencies
+EXTRA_CFLAGS += -MMD -MP
+-include $(lcec-objs:.o=.d)
+
 all: modules
 
 endif
