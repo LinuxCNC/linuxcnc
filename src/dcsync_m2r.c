@@ -2,9 +2,9 @@
  * @file dcsync_m2r.c
  * @brief Distributed Clock synchronisation: Master-to-Reference-clock (M2R) mode.
  *
- * In M2R mode the LinuxCNC servo thread is the timing master.  The EtherCAT
- * reference clock slave is disciplined to follow the RTAPI task PLL so that
- * all EtherCAT slaves share the LinuxCNC time base.
+ * In M2R mode the LinuxCNC servo thread is synchronized to the EtherCAT
+ * reference clock via the RTAPI task PLL.  The EtherCAT reference clock is
+ * the timing master.
  *
  * A discrete-time PI controller running once per servo cycle computes a
  * nanosecond correction that is applied to the RTAPI task PLL via
