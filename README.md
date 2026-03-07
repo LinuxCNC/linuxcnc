@@ -92,7 +92,7 @@ See the [`examples/`](examples/) directory for sample configurations.
 |---|---|
 | **Userspace (uspace)** | Primary focus — actively used and tested. Requires the uspace branch of IgH EtherCAT Master from https://github.com/sittner/ethercat/ |
 | **Kernel module (kmod)** | Intended to be supported, but **not really tested** |
-| **RT_PREEMPT** | Intended to be supported, but **not really tested** |
+| **non RT_PREEMPT** | Intended to be supported, but **not really tested** |
 
 > **Note:** Kernel-based EtherCAT master support is included in principle but receives little to no testing. The primary development and testing target is userspace (uspace) operation.
 
