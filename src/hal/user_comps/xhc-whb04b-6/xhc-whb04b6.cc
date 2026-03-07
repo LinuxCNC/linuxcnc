@@ -450,15 +450,18 @@ int XhcWhb04b6Component::run()
             if (mUsb.isDeviceOpen())
             {
                 *mInitCout << "init  enabling reception ...";
-                if (!mUsb.setupAsyncTransfer())
+                if (mUsb.setupAsyncTransfer())
                 {
-                    std::cerr << endl << "failed to enable reception" << endl;
-                    return EXIT_FAILURE;
+                    *mInitCout << " ok" << endl;
+                    process(); //process loops until disconnect/stopped
+                    mUsb.teardown();
                 }
-                *mInitCout << " ok" << endl;
+                else
+                {
+                    mUsb.close();
+                    mUsb.teardown();
+                }
             }
-            process();
-            mUsb.teardown();
         }
         else if(status == Usb::InitStatus::RETRY)
         {
@@ -487,23 +490,22 @@ void XhcWhb04b6Component::setSimulationMode(bool enableSimulationMode)
 // ----------------------------------------------------------------------
 void XhcWhb04b6Component::process()
 {
-    if (mUsb.isDeviceOpen())
+    while (isRunning() && mUsb.isDeviceOpen())
     {
-        while (isRunning() && !mUsb.getDoReconnect())
+        if (mHal.isSimulationModeEnabled())
         {
-            mUsb.handleTimeouts();
-            if (mHal.isSimulationModeEnabled())
-            {
-                linuxcncSimulate();
-            }
-            updateDisplay();
+            linuxcncSimulate();
         }
         updateDisplay();
-
-        mHal.setIsPendantConnected(false);
-        *mInitCout << "connection lost, cleaning up" << endl;
+        mUsb.process();
+    }
+    if(mUsb.isDeviceOpen())
+    {
         mUsb.close();
     }
+
+    mHal.setIsPendantConnected(false);
+    *mInitCout << "connection lost, cleaning up" << endl;
 }
 // ----------------------------------------------------------------------
 void XhcWhb04b6Component::enableVerbosePendant(bool enable)

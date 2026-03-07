@@ -287,7 +287,6 @@ public:
     void setUsbProductId(uint16_t usbProductId);
     bool isDeviceOpen() const;
     bool isWaitForPendantBeforeHalEnabled() const;
-    bool getDoReconnect() const;
     void onUsbDataReceived(struct libusb_transfer* transfer) override;
     void setSimulationMode(bool isSimulationMode);
     void setIsRunning(bool enableRunning);
@@ -300,7 +299,7 @@ public:
     void enableVerboseRx(bool enable);
     void enableVerboseInit(bool enable);
     InitStatus init();
-    void handleTimeouts();
+    void process();
     void close();
     void teardown();
     void setWaitWithTimeout(uint8_t waitSecs);
@@ -318,6 +317,7 @@ private:
     bool                mIsSimulationMode{false};
     SleepDetect         sleepState;
     bool                mIsRunning{false};
+    bool                transferFailed{false};
     UsbInPackageBuffer  inputPackageBuffer;
     UsbOutPackageBuffer outputPackageBuffer;
     UsbOutPackageData   outputPackageData;
