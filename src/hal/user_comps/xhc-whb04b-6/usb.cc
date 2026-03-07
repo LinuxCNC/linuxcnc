@@ -421,7 +421,7 @@ bool Usb::setupAsyncTransfer()
         return false;
     }
 
-    libusb_fill_bulk_transfer(inTransfer, deviceHandle,
+    libusb_fill_interrupt_transfer(inTransfer, deviceHandle,
                               (0x1 | LIBUSB_ENDPOINT_IN), inputPackageBuffer.asBuffer,
                               sizeof(inputPackageBuffer.asBuffer), mRawDataCallback,
         //! pass this object as callback data
