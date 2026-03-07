@@ -54,13 +54,13 @@ const ConstantUsbPackages Usb::ConstantPackages;
 UsbOutPackageBlock::UsbOutPackageBlock() :
     asBlock()
 {
-    assert(sizeof(UsbOutPackageBlockBuffer) == sizeof(UsbOutPackageBlockFields));
+    static_assert(sizeof(UsbOutPackageBlockBuffer) == sizeof(UsbOutPackageBlockFields));
 }
 // ----------------------------------------------------------------------
 UsbInPackageBuffer::UsbInPackageBuffer() :
     asBuffer{0}
 {
-    assert(sizeof(asFields) == sizeof(asBuffer));
+    static_assert(sizeof(asFields) == sizeof(asBuffer));
 }
 // ----------------------------------------------------------------------
 UsbEmptyPackage::UsbEmptyPackage() :
@@ -371,9 +371,9 @@ UsbOutPackageBuffer::UsbOutPackageBuffer() :
                   << " sizeof array   " << sizeof(asBlockArray) << endl
                   << " sizeof package " << sizeof(UsbOutPackageData) << endl;
     }
-    assert(sizeof(UsbOutPackageBlocks) == sizeof(asBlockArray));
-    size_t blocksCount = sizeof(UsbOutPackageBlocks) / sizeof(UsbOutPackageBlockFields);
-    assert((sizeof(UsbOutPackageData) + blocksCount) == sizeof(UsbOutPackageBlocks));
+    static_assert(sizeof(UsbOutPackageBlocks) == sizeof(asBlockArray));
+    constexpr size_t blocksCount = sizeof(UsbOutPackageBlocks) / sizeof(UsbOutPackageBlockFields);
+    static_assert((sizeof(UsbOutPackageData) + blocksCount) == sizeof(UsbOutPackageBlocks));
 }
 // ----------------------------------------------------------------------
 UsbInPackage::UsbInPackage() :
@@ -734,8 +734,10 @@ void Usb::handleTimeouts()
     timeout.tv_usec = 200 * 1000;
 
     int r = libusb_handle_events_timeout_completed(context, &timeout, nullptr);
-    assert((r == LIBUSB_SUCCESS) || (r == LIBUSB_ERROR_NO_DEVICE) || (r == LIBUSB_ERROR_BUSY) ||
-            (r == LIBUSB_ERROR_TIMEOUT) || (r == LIBUSB_ERROR_INTERRUPTED));
+    if(r != 0)
+    {
+        std::cerr << endl << "Error: handleTimeouts() libusb_handle_events_timeout_completed returned " << r << endl;
+    }
 }
 // ----------------------------------------------------------------------
 void Usb::closeHandle()
@@ -750,9 +752,15 @@ void Usb::close()
     tv.tv_sec  = 1;
     tv.tv_usec = 0;
     int r = libusb_handle_events_timeout_completed(context, &tv, nullptr);
-    assert(0 == r);
+    if(r != 0)
+    {
+        std::cerr << endl << "Error: close() libusb_handle_events_timeout_completed returned " << r << endl;
+    }
     r = libusb_release_interface(deviceHandle, 0);
-    assert((0 == r) || (r == LIBUSB_ERROR_NO_DEVICE));
+    if(r != 0 && r != LIBUSB_ERROR_NO_DEVICE)
+    {
+        std::cerr << endl << "Error: close() libusb_release_interface returned " << r << endl;
+    }
     closeHandle();
 }
 // ----------------------------------------------------------------------
