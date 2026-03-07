@@ -460,9 +460,13 @@ int XhcWhb04b6Component::run()
             process();
             mUsb.teardown();
         }
+        else if(status == Usb::InitStatus::RETRY)
+        {
+            //Just retry
+        }
         else
         {
-            mUsb.teardown();
+            std::cerr << endl << "Bug: Unhandled return value!" << endl;
         }
     }
     teardownHal();
