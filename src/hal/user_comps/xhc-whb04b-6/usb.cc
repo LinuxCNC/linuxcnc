@@ -140,31 +140,6 @@ bool Usb::isDeviceOpen() const
     return deviceHandle != nullptr;
 }
 // ----------------------------------------------------------------------
-libusb_context** Usb::getContextReference()
-{
-    return &context;
-}
-// ----------------------------------------------------------------------
-libusb_context* Usb::getContext()
-{
-    return context;
-}
-// ----------------------------------------------------------------------
-void Usb::setContext(libusb_context* context)
-{
-    this->context = context;
-}
-// ----------------------------------------------------------------------
-libusb_device_handle* Usb::getDeviceHandle()
-{
-    return deviceHandle;
-}
-// ----------------------------------------------------------------------
-void Usb::setDeviceHandle(libusb_device_handle* deviceHandle)
-{
-    this->deviceHandle = deviceHandle;
-}
-// ----------------------------------------------------------------------
 bool Usb::isWaitForPendantBeforeHalEnabled() const
 {
     return isWaitWithTimeout;
@@ -728,6 +703,33 @@ Usb::InitStatus Usb::init()
         *verboseInitOut << " ok" << endl;
     }
     return InitStatus::OK;
+}
+void Usb::handleTimeouts()
+{
+    struct timeval timeout;
+    timeout.tv_sec  = 0;
+    timeout.tv_usec = 200 * 1000;
+
+    int r = libusb_handle_events_timeout_completed(context, &timeout, nullptr);
+    assert((r == LIBUSB_SUCCESS) || (r == LIBUSB_ERROR_NO_DEVICE) || (r == LIBUSB_ERROR_BUSY) ||
+            (r == LIBUSB_ERROR_TIMEOUT) || (r == LIBUSB_ERROR_INTERRUPTED));
+}
+void Usb::close()
+{
+    struct timeval tv;
+    tv.tv_sec  = 1;
+    tv.tv_usec = 0;
+    int r = libusb_handle_events_timeout_completed(context, &tv, nullptr);
+    assert(0 == r);
+    r = libusb_release_interface(deviceHandle, 0);
+    assert((0 == r) || (r == LIBUSB_ERROR_NO_DEVICE));
+    libusb_close(deviceHandle);
+    deviceHandle = nullptr;
+}
+void Usb::teardown()
+{
+    libusb_exit(context);
+    context = nullptr;
 }
 // ----------------------------------------------------------------------
 void Usb::setWaitWithTimeout(uint8_t waitSecs)

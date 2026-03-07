@@ -23,7 +23,6 @@
 #include <assert.h>
 #include <iostream>
 #include <iomanip>
-#include <libusb.h>
 #include <bitset>
 
 
@@ -459,7 +458,7 @@ int XhcWhb04b6Component::run()
                 *mInitCout << " ok" << endl;
             }
             process();
-            teardownUsb();
+            mUsb.teardown();
         }
     }
     teardownHal();
@@ -483,34 +482,13 @@ void XhcWhb04b6Component::setSimulationMode(bool enableSimulationMode)
     mUsb.setSimulationMode(mIsSimulationMode);
 }
 // ----------------------------------------------------------------------
-void XhcWhb04b6Component::setUsbContext(libusb_context* context)
-{
-    mUsb.setContext(context);
-}
-// ----------------------------------------------------------------------
-libusb_device_handle* XhcWhb04b6Component::getUsbDeviceHandle()
-{
-    return mUsb.getDeviceHandle();
-}
-// ----------------------------------------------------------------------
-libusb_context* XhcWhb04b6Component::getUsbContext()
-{
-    return mUsb.getContext();
-}
-// ----------------------------------------------------------------------
 void XhcWhb04b6Component::process()
 {
     if (mUsb.isDeviceOpen())
     {
         while (isRunning() && !mUsb.getDoReconnect())
         {
-            struct timeval timeout;
-            timeout.tv_sec  = 0;
-            timeout.tv_usec = 200 * 1000;
-
-            int r = libusb_handle_events_timeout_completed(getUsbContext(), &timeout, nullptr);
-            assert((r == LIBUSB_SUCCESS) || (r == LIBUSB_ERROR_NO_DEVICE) || (r == LIBUSB_ERROR_BUSY) ||
-                   (r == LIBUSB_ERROR_TIMEOUT) || (r == LIBUSB_ERROR_INTERRUPTED));
+            mUsb.handleTimeouts();
             if (mHal.isSimulationModeEnabled())
             {
                 linuxcncSimulate();
@@ -521,22 +499,8 @@ void XhcWhb04b6Component::process()
 
         mHal.setIsPendantConnected(false);
         *mInitCout << "connection lost, cleaning up" << endl;
-        struct timeval tv;
-        tv.tv_sec  = 1;
-        tv.tv_usec = 0;
-        int r = libusb_handle_events_timeout_completed(getUsbContext(), &tv, nullptr);
-        assert(0 == r);
-        r = libusb_release_interface(getUsbDeviceHandle(), 0);
-        assert((0 == r) || (r == LIBUSB_ERROR_NO_DEVICE));
-        libusb_close(getUsbDeviceHandle());
-        mUsb.setDeviceHandle(nullptr);
+        mUsb.close();
     }
-}
-// ----------------------------------------------------------------------
-void XhcWhb04b6Component::teardownUsb()
-{
-    libusb_exit(getUsbContext());
-    mUsb.setContext(nullptr);
 }
 // ----------------------------------------------------------------------
 void XhcWhb04b6Component::enableVerbosePendant(bool enable)
