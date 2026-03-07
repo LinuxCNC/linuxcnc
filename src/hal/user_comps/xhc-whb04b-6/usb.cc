@@ -444,6 +444,9 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
 {
     assert(mHal.isInitialized());
 
+    //DO NOT call close from here, it is a callback from libusb
+    //and will deadlock!!
+
     int      expectedPackageSize = static_cast<int>(sizeof(UsbInPackage));
     std::ios init(NULL);
     init.copyfmt(*verboseTxOut);
@@ -547,11 +550,15 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
             transferFailed = true;
             break;
     }
-    //libusb_free_transfer(transfer);
 }
 // ----------------------------------------------------------------------
 Usb::~Usb()
 {
+    if(deviceHandle != nullptr){
+        close();
+    }
+    libusb_free_transfer(inTransfer);
+    libusb_free_transfer(outTransfer);
 }
 // ----------------------------------------------------------------------
 void Usb::enableVerboseTx(bool enable)
