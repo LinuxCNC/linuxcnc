@@ -1108,17 +1108,21 @@ static inline rtapi_s64 hal_extend_counter(rtapi_s64 old, rtapi_s64 newlow, int 
 
 /** Named struct API
  *
+ * Structs live in their own namespace inside HAL shmem, separate from
+ * pins, signals, and parameters.  They are not visible in halcmd show pin/
+ * param/sig output.
+ *
  * hal_struct_newf() allocates 'size' bytes in HAL shmem, optionally
- * initialises it from 'defval' (or zeroes if NULL), and registers a HAL_RO
- * s32 param named according to the printf-style format so that the data can
- * be found by name from any process that has HAL shmem mapped.
+ * initialises it from 'defval' (or zeroes if NULL), and registers the blob
+ * in the struct namespace under the printf-style name.  Must be called
+ * before hal_ready().
  *
- * hal_struct_attach() resolves a name previously registered by
- * hal_struct_newf() and sets *memptr to point at the data.  May be called
- * from both RT and userspace after hal_init().
+ * hal_struct_attach() finds an entry by name, increments its reference
+ * count, and sets *memptr to point at the data.  May be called from both
+ * RT and userspace after hal_init().
  *
- * hal_struct_detach() is a no-op; HAL shmem lifetime is managed by the
- * creating component.
+ * hal_struct_detach() decrements the reference count.  The data itself
+ * lives for the lifetime of the HAL shmem block.
  */
 extern int hal_struct_newf(int comp_id, long int size, const void *defval,
                             const char *fmt, ...)
