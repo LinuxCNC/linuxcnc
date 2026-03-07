@@ -16,6 +16,8 @@
 #include <emcmotcfg.h>
 
 #include "switchkins.h"
+#include <hal.h>
+#include "kinematics_params.h"
 
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,
@@ -57,9 +59,12 @@ int switchkinsSetup(kparms* kp,
 }
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
+ *
+ * nonrt_attach() is called by kinematics_user.c after dlopen().
+ * It attaches to the kinematics_params_t registered in HAL shmem by
+ * trtKinematicsSetup() via hal_struct_newf() and returns function pointers.
  * ======================================================================== */
-#include "kinematics_params.h"
 
 /* TRT math types and functions (defined in trtfuncs.c, linked into this .so) */
 typedef struct {
@@ -126,9 +131,9 @@ static int nonrt_xyzac_inverse(const EmcPose *pos, double *joints,
     return 0;
 }
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("xyzac-trt-kins.params", (void **)&uspace_params);
     ops->forward   = nonrt_xyzac_forward;
     ops->inverse   = nonrt_xyzac_inverse;
 }

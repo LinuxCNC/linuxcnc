@@ -36,7 +36,6 @@
 #include "rtapi_math.h"
 #include "rtapi_string.h"
 #include "rtapi_ctype.h"
-#include "hal_priv.h"
 #include "kinematics_params.h"
 
 /* ========================================================================
@@ -384,13 +383,15 @@ int trtKinematicsSetup(const int   comp_id,
                  "%s.conventional-directions", kp->halprefix);
     if (res) {goto error;}
 
-    /* Publish kinematics params to HAL shmem for userspace planner */
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) goto error;
-    res = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                           "%s.uspace-params-offset", kp->halprefix);
+    /* Register kinematics parameters in HAL shmem via hal_struct_newf() */
+    res = hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                          "%s.params", kp->halprefix);
     if (res) goto error;
-    memset(uspace_params, 0, sizeof(*uspace_params));
+    {
+        char _n[HAL_NAME_LEN + 1];
+        rtapi_snprintf(_n, sizeof(_n), "%s.params", kp->halprefix);
+        if (hal_struct_attach(_n, (void **)&uspace_params) < 0) goto error;
+    }
     uspace_params->num_joints = trtfuncs_max_joints;
     uspace_params->axis_to_joint[0] = JX; uspace_params->axis_to_joint[1] = JY;
     uspace_params->axis_to_joint[2] = JZ; uspace_params->axis_to_joint[3] = JA;
@@ -399,7 +400,6 @@ int trtKinematicsSetup(const int   comp_id,
     uspace_params->axis_to_joint[8] = JW;
     uspace_params->valid       = 1;
     uspace_params->is_identity = 0;
-    uspace_params->self_offset = (int)SHMOFF(uspace_params);
 
     return 0;
 

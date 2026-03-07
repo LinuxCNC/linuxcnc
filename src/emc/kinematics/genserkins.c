@@ -79,10 +79,14 @@ int switchkinsSetup(kparms* kp,
 }
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
  *
- * Math functions derived from genserkins_math.h (Jacobian-based
- * iterative inverse solver using Denavit-Hartenberg parameters).
+ * Called by kinematics_user.c after dlopen().  Attaches to the
+ * kinematics_params_t registered in HAL shmem by genserKinematicsSetup()
+ * via hal_struct_newf() and returns forward/inverse function pointers.
+ *
+ * Math: Jacobian-based iterative inverse solver using
+ * Denavit-Hartenberg parameters (from genserkins_math.h).
  * ======================================================================== */
 #include "kinematics_params.h"
 #include "emcpos.h"
@@ -409,9 +413,9 @@ static int nonrt_genser_inverse(const EmcPose *pos, double *joints,
     return nonrt_genserkins_inv(&p, pos, joints);
 }
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("genserkins.params", (void **)&uspace_params);
     ops->forward   = nonrt_genser_forward;
     ops->inverse   = nonrt_genser_inverse;
 }

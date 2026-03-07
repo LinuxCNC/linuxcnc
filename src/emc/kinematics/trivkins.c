@@ -18,7 +18,6 @@
 #include <hal.h>
 #include <emcmotcfg.h>
 #include <kinematics.h>
-#include "hal_priv.h"
 #include "kinematics_params.h"
 
 
@@ -68,7 +67,7 @@ MODULE_LICENSE("GPL");
 
 static int comp_id;
 
-/* Userspace-accessible params in HAL shmem */
+/* Pointer into HAL shmem, set up by hal_struct_attach() in rtapi_app_main */
 static kinematics_params_t *uspace_params;
 
 int rtapi_app_main(void) {
@@ -91,24 +90,20 @@ int rtapi_app_main(void) {
        return -1; //setup failed
     }
 
-    /* Publish identity flag to HAL shmem for userspace planner.
-     * Userspace reads is_identity=1 and builds joint mapping from the
-     * coordinates string — no need to duplicate the mapping here. */
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) {
+    /* Register kinematics_params_t in HAL shmem (is_identity=1).
+     * hal_struct_attach() in kinematics_user.c maps this at runtime. */
+    if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                        "trivkins.params") < 0) {
         hal_exit(comp_id);
         return -1;
     }
-    memset(uspace_params, 0, sizeof(*uspace_params));
-    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                           "trivkins.uspace-params-offset") < 0) {
+    if (hal_struct_attach("trivkins.params", (void **)&uspace_params) < 0) {
         hal_exit(comp_id);
         return -1;
     }
     uspace_params->is_identity = 1;
     uspace_params->valid       = 1;
     uspace_params->head = uspace_params->tail = 1;
-    uspace_params->self_offset = (int)SHMOFF(uspace_params);
 
     hal_ready(comp_id);
     return 0;

@@ -120,10 +120,10 @@ const char* kinematicsUserGetModuleName(KinematicsUserContext* ctx);
 int kinematicsUserRefreshParams(KinematicsUserContext* ctx);
 
 /**
- * Check if this context is RT-only (shmem offset param not published)
+ * Check if this context is RT-only (HAL struct not found)
  *
- * An RT-only module lacks the uspace-params-offset HAL pin.
- * Planner 2 is unavailable for such modules.
+ * An RT-only module has not registered a "<module>.params" HAL struct
+ * via hal_struct_newf().  Planner 2 is unavailable for such modules.
  *
  * @param ctx  Kinematics context
  * @return 1 if RT-only (planner 2 unavailable), 0 if shmem path active

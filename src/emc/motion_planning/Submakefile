@@ -14,10 +14,9 @@ LIBMOTION_PLANNING_9D_SRCS := $(addprefix emc/motion_planning/, \
 	blend_sizing.cc \
 	)
 
-# Userspace kinematics sources (with HAL pin reader for runtime parameters)
+# Userspace kinematics sources
 LIBMOTION_PLANNING_9D_KINS_SRCS := $(addprefix emc/kinematics_userspace/, \
 	kinematics_user.c \
-	hal_pin_reader.c \
 	)
 
 # Add TP and NML sources needed by userspace planning (dual-layer architecture)

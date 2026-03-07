@@ -2,13 +2,13 @@
  * Description: kinematics_user.c
  *   Userspace kinematics loader for trajectory planning
  *
- * Loads the RT kinematics .so via dlopen and resolves nonrt_*
- * functions exported by each kinematics module. This allows the
- * userspace planner to call kinematics without RT dependencies.
+ * Loads the RT kinematics .so via dlopen and resolves nonrt_attach()
+ * exported by each kinematics module. This allows the userspace planner
+ * to call kinematics without RT dependencies.
  *
- * The RT kinematics module pushes parameters into HAL shmem each
- * servo cycle via update(). Userspace maps the same shmem block
- * read-only and calls nonrt_kinematicsForward/Inverse directly,
+ * The RT kinematics module registers a kinematics_params_t blob in HAL
+ * shmem via hal_struct_newf() and updates it every servo cycle.
+ * Userspace calls hal_struct_attach() to map the same memory directly,
  * eliminating the per-call HAL pin list walk.
  *
  * Author: LinuxCNC
@@ -19,14 +19,12 @@
  ********************************************************************/
 
 #include "kinematics_user.h"
-#include "hal_pin_reader.h"
 #include "../motion/kinematics_params.h"
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <sys/mman.h>
 
 #include "config.h"  /* EMC2_HOME */
 #include "rtapi.h"
@@ -40,11 +38,11 @@ typedef int  (*nonrt_forward_fn)(const double *joints, EmcPose *pos,
                                  const KINEMATICS_FORWARD_FLAGS *ff, KINEMATICS_INVERSE_FLAGS *if_);
 typedef int  (*nonrt_inverse_fn)(const EmcPose *pos, double *joints,
                                  const KINEMATICS_INVERSE_FLAGS *if_, KINEMATICS_FORWARD_FLAGS *ff);
-typedef void (*nonrt_attach_fn)(char *shmem_base, int offset, nonrt_ops_t *ops);
+typedef void (*nonrt_attach_fn)(nonrt_ops_t *ops);
 
 struct KinematicsUserContext {
     int initialized;
-    int rt_only;               /* 1 if uspace-params-offset pin not found */
+    int rt_only;               /* 1 if <module>.params HAL struct not found */
     int is_identity;           /* 1 for trivkins/identity — no dlopen needed */
     KINEMATICS_TYPE kins_type;
     void *rt_handle;           /* dlopen handle to RT .so */
@@ -112,15 +110,10 @@ static int load_rt_module(KinematicsUserContext *ctx, const char *module_name)
             ctx->rt_handle = NULL;
             return -1;
         }
-        if (ctx->shmem_params) {
-            char *base = hal_pin_reader_get_shmem_base();
-            if (base) {
-                nonrt_ops_t ops = {NULL, NULL};
-                attach(base, ctx->shmem_params->self_offset, &ops);
-                ctx->forward = ops.forward;
-                ctx->inverse = ops.inverse;
-            }
-        }
+        nonrt_ops_t ops = {NULL, NULL};
+        attach(&ops);
+        ctx->forward = ops.forward;
+        ctx->inverse = ops.inverse;
     }
 
     if (!ctx->forward || !ctx->inverse) {
@@ -139,35 +132,24 @@ static int load_rt_module(KinematicsUserContext *ctx, const char *module_name)
  * ======================================================================== */
 
 /*
- * Find the kinematics_params_t in HAL shmem by reading the
- * <module_name>.uspace-params-offset pin published by the RT module.
+ * Attach to the kinematics_params_t in HAL shmem via hal_struct_attach().
+ * The RT module publishes "<module_name>.params" via hal_struct_newf().
  *
  * Returns 0 and sets ctx->shmem_params on success.
- * Returns -1 and sets ctx->rt_only=1 if pin not found (old module).
+ * Returns -1 and sets ctx->rt_only=1 if not found (old / external module).
  */
 static int find_shmem_params(KinematicsUserContext *ctx, const char *module_name)
 {
-    char pin_name[HAL_NAME_LEN + 1];
-    int offset = 0;
-    char *shmem_base;
+    char param_name[HAL_NAME_LEN + 1];
 
-    snprintf(pin_name, sizeof(pin_name), "%s.uspace-params-offset", module_name);
+    snprintf(param_name, sizeof(param_name), "%s.params", module_name);
 
-    if (hal_pin_reader_read_s32(pin_name, &offset) != 0) {
+    if (hal_struct_attach(param_name, (void **)&ctx->shmem_params) != 0) {
         fprintf(stderr, "kinematicsUserInit: '%s' not found — planner 2 disabled for '%s'\n",
-                pin_name, module_name);
+                param_name, module_name);
         ctx->rt_only = 1;
         return -1;
     }
-
-    shmem_base = hal_pin_reader_get_shmem_base();
-    if (!shmem_base) {
-        fprintf(stderr, "kinematicsUserInit: cannot get HAL shmem base — planner 2 disabled\n");
-        ctx->rt_only = 1;
-        return -1;
-    }
-
-    ctx->shmem_params = (kinematics_params_t *)(shmem_base + offset);
 
     /* Sanity: check the shmem block looks valid (skip for identity — num_joints not populated) */
     if (!ctx->shmem_params->is_identity &&
@@ -223,7 +205,7 @@ KinematicsUserContext* kinematicsUserInit(const char* kins_type,
         fprintf(stderr, "kinematicsUserInit: identity kinematics '%s' — direct joint mapping\n",
                 kins_type);
     } else {
-        /* Non-identity: load RT module for nonrt_kinematicsForward/Inverse */
+        /* Non-identity: load RT module and call nonrt_attach() */
         if (load_rt_module(ctx, kins_type) != 0) {
             fprintf(stderr, "kinematicsUserInit: failed to load RT module '%s'\n", kins_type);
             free(ctx);

@@ -37,7 +37,6 @@
 #include "kinematics.h"
 #include "hal.h"
 #ifdef RTAPI
-#include "hal_priv.h"
 #include "kinematics_params.h"
 #include <string.h>
 #endif
@@ -688,13 +687,15 @@ int genserKinematicsSetup(const int comp_id,
     D(5) = DEFAULT_D6;
 
 #ifdef RTAPI
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) goto error;
-    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                         "%s.uspace-params-offset", kp->halprefix) < 0) goto error;
+    if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                        "%s.params", kp->halprefix) < 0) goto error;
+    {
+        char _n[HAL_NAME_LEN + 1];
+        rtapi_snprintf(_n, sizeof(_n), "%s.params", kp->halprefix);
+        if (hal_struct_attach(_n, (void **)&uspace_params) < 0) goto error;
+    }
     {
         int _i;
-        memset(uspace_params, 0, sizeof(*uspace_params));
         uspace_params->num_joints  = total_joints;
         uspace_params->is_identity = 0;
         for (_i = 0; _i < 6; _i++) {
@@ -708,7 +709,6 @@ int genserKinematicsSetup(const int comp_id,
         uspace_params->valid = 1;
         uspace_params->head  = 1;
         uspace_params->tail  = 1;
-        uspace_params->self_offset = (int)SHMOFF(uspace_params);
     }
 #endif
 
