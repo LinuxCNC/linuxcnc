@@ -62,7 +62,6 @@
 #include <kinematics.h>
 
 #include "switchkins.h"
-#include "hal_priv.h"
 #include "kinematics_params.h"
 
 /* ========================================================================
@@ -164,7 +163,8 @@ struct haldata {
 } *haldata;
 static int fiveaxis_max_joints;
 
-/* Userspace-accessible params in HAL shmem */
+/* Pointer into HAL shmem — set by hal_struct_newf/attach in setup,
+ * re-attached by nonrt_attach() in the userspace dlopen path. */
 static kinematics_params_t *uspace_params;
 
 // Joint mapping struct
@@ -309,17 +309,16 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
 
     *haldata->pivot_length = DEFAULT_PIVOT_LENGTH;
 
-    /* Publish kinematics params to HAL shmem for userspace planner */
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "5axiskins: hal_malloc for uspace_params failed\n");
-        goto error;
-    }
-    result = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                              "%s.uspace-params-offset", kp->halprefix);
+    /* Register kinematics parameters in HAL shmem via hal_struct_newf() */
+    result = hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                             "%s.params", kp->halprefix);
     if (result < 0) goto error;
+    {
+        char _n[HAL_NAME_LEN + 1];
+        rtapi_snprintf(_n, sizeof(_n), "%s.params", kp->halprefix);
+        if (hal_struct_attach(_n, (void **)&uspace_params) < 0) goto error;
+    }
 
-    memset(uspace_params, 0, sizeof(*uspace_params));
     uspace_params->num_joints = fiveaxis_max_joints;
     uspace_params->axis_to_joint[0] = JX; uspace_params->axis_to_joint[1] = JY;
     uspace_params->axis_to_joint[2] = JZ; uspace_params->axis_to_joint[3] = JA;
@@ -329,7 +328,6 @@ int fiveaxis_KinematicsSetup(const  int   comp_id,
     uspace_params->params.fiveaxis.pivot_length = DEFAULT_PIVOT_LENGTH;
     uspace_params->valid       = 1;
     uspace_params->is_identity = 0;
-    uspace_params->self_offset = (int)SHMOFF(uspace_params);
 
     rtapi_print("Kinematics Module %s\n",__FILE__);
     rtapi_print("  module name = %s\n"
@@ -385,16 +383,17 @@ int switchkinsSetup(kparms* kp,
 } // switchkinsSetup()
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
  *
- * nonrt_attach() is the only exported symbol. It sets uspace_params so the
- * !haldata branch in fiveaxis_KinematicsForward/Inverse reads live shmem,
- * then registers those functions directly — no separate nonrt functions.
+ * nonrt_attach() is called by kinematics_user.c after dlopen().
+ * It attaches to the kinematics_params_t registered in HAL shmem by the
+ * RT side (hal_struct_newf in fiveaxis_KinematicsSetup) and returns
+ * forward/inverse function pointers.  No hal_priv.h or raw offsets needed.
  * ======================================================================== */
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("5axiskins.params", (void **)&uspace_params);
     ops->forward   = fiveaxis_KinematicsForward;
     ops->inverse   = fiveaxis_KinematicsInverse;
 }

@@ -30,7 +30,6 @@
 #include "hal.h"
 #include "kinematics.h"
 #include "switchkins.h"
-#include "hal_priv.h"
 #include "kinematics_params.h"
 #include <string.h>
 
@@ -481,22 +480,23 @@ int pumaKinematicsSetup(const  int   comp_id,
     PUMA_D4 = DEFAULT_PUMA560_D4;
     PUMA_D6 = DEFAULT_PUMA560_D6;
 
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) goto error;
-    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                         "%s.uspace-params-offset", kp->halprefix) < 0) goto error;
-    memset(uspace_params, 0, sizeof(*uspace_params));
-    uspace_params->num_joints            = kp->max_joints;
-    uspace_params->is_identity           = 0;
-    uspace_params->params.puma.a2        = DEFAULT_PUMA560_A2;
-    uspace_params->params.puma.a3        = DEFAULT_PUMA560_A3;
-    uspace_params->params.puma.d3        = DEFAULT_PUMA560_D3;
-    uspace_params->params.puma.d4        = DEFAULT_PUMA560_D4;
-    uspace_params->params.puma.d6        = DEFAULT_PUMA560_D6;
+    if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                        "%s.params", kp->halprefix) < 0) goto error;
+    {
+        char _n[HAL_NAME_LEN + 1];
+        rtapi_snprintf(_n, sizeof(_n), "%s.params", kp->halprefix);
+        if (hal_struct_attach(_n, (void **)&uspace_params) < 0) goto error;
+    }
+    uspace_params->num_joints      = kp->max_joints;
+    uspace_params->is_identity     = 0;
+    uspace_params->params.puma.a2  = DEFAULT_PUMA560_A2;
+    uspace_params->params.puma.a3  = DEFAULT_PUMA560_A3;
+    uspace_params->params.puma.d3  = DEFAULT_PUMA560_D3;
+    uspace_params->params.puma.d4  = DEFAULT_PUMA560_D4;
+    uspace_params->params.puma.d6  = DEFAULT_PUMA560_D6;
     uspace_params->valid = 1;
     uspace_params->head  = 1;
     uspace_params->tail  = 1;
-    uspace_params->self_offset = (int)SHMOFF(uspace_params);
 
     return 0;
 
@@ -533,12 +533,16 @@ int switchkinsSetup(kparms* kp,
 } // switchkinsSetup()
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Attaches to the
+ * kinematics_params_t registered in HAL shmem by pumaKinematicsSetup()
+ * via hal_struct_newf() and returns forward/inverse function pointers.
  * ======================================================================== */
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("pumakins.params", (void **)&uspace_params);
     ops->forward   = pumaKinematicsForward;
     ops->inverse   = pumaKinematicsInverse;
 }

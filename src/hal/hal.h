@@ -1106,6 +1106,25 @@ static inline rtapi_s64 hal_extend_counter(rtapi_s64 old, rtapi_s64 newlow, int 
     return (rtapi_u64)old + (diff_shifted >> nshift); // unsigned to avoid signed overflow
 }
 
+/** Named struct API
+ *
+ * hal_struct_newf() allocates 'size' bytes in HAL shmem, optionally
+ * initialises it from 'defval' (or zeroes if NULL), and registers a HAL_RO
+ * s32 param named according to the printf-style format so that the data can
+ * be found by name from any process that has HAL shmem mapped.
+ *
+ * hal_struct_attach() resolves a name previously registered by
+ * hal_struct_newf() and sets *memptr to point at the data.  May be called
+ * from both RT and userspace after hal_init().
+ *
+ * hal_struct_detach() is a no-op; HAL shmem lifetime is managed by the
+ * creating component.
+ */
+extern int hal_struct_newf(int comp_id, long int size, const void *defval,
+                            const char *fmt, ...)
+    __attribute__((format(printf, 4, 5)));
+extern int hal_struct_attach(const char *name, void **memptr);
+extern int hal_struct_detach(const char *name);
 
 RTAPI_END_DECLS
 

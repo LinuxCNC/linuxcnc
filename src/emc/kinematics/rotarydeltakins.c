@@ -19,7 +19,6 @@
 #include <rtapi_app.h>
 #include <hal.h>
 #include <kinematics.h>
-#include "hal_priv.h"
 #include "kinematics_params.h"
 #include <string.h>
 
@@ -288,16 +287,12 @@ int rtapi_app_main(void)
     }
 
     if(retval == 0)
-    {
-        uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-        retval = !uspace_params;
-    }
+        retval = hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                                 "rotarydeltakins.params");
     if(retval == 0)
-        retval = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                                  "rotarydeltakins.uspace-params-offset");
+        retval = hal_struct_attach("rotarydeltakins.params", (void **)&uspace_params);
     if(retval == 0)
     {
-        memset(uspace_params, 0, sizeof(*uspace_params));
         uspace_params->num_joints = 3;
         uspace_params->params.rotarydelta.platformradius = ROTARYDELTA_DEFAULT_PLATFORMRADIUS;
         uspace_params->params.rotarydelta.thighlength = ROTARYDELTA_DEFAULT_THIGHLENGTH;
@@ -305,7 +300,6 @@ int rtapi_app_main(void)
         uspace_params->params.rotarydelta.footradius = ROTARYDELTA_DEFAULT_FOOTRADIUS;
         uspace_params->valid       = 1;
         uspace_params->is_identity = 0;
-        uspace_params->self_offset = (int)SHMOFF(uspace_params);
         hal_ready(comp_id);
     }
 
@@ -326,11 +320,17 @@ EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
-/* ---- nonrt interface for userspace planner ---- */
+/* ========================================================================
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Attaches to the
+ * kinematics_params_t registered in HAL shmem by rtapi_app_main()
+ * via hal_struct_newf() and returns forward/inverse function pointers.
+ * ======================================================================== */
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("rotarydeltakins.params", (void **)&uspace_params);
     ops->forward   = kinematicsForward;
     ops->inverse   = kinematicsInverse;
 }

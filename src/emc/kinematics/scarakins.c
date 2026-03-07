@@ -22,7 +22,6 @@
 #include <kinematics.h>
 
 #include "switchkins.h"
-#include "hal_priv.h"
 #include "kinematics_params.h"
 #include <string.h>
 
@@ -342,22 +341,23 @@ static int scaraKinematicsSetup(const  int   comp_id,
     D5 = DEFAULT_D5;
     D6 = DEFAULT_D6;
 
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) goto error;
-    res = hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                           "%s.uspace-params-offset", kp->halprefix);
+    res = hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                          "%s.params", kp->halprefix);
     if (res) goto error;
-    memset(uspace_params, 0, sizeof(*uspace_params));
-    uspace_params->num_joints = 6;
-    uspace_params->params.scara.d1 = DEFAULT_D1;
-    uspace_params->params.scara.d2 = DEFAULT_D2;
-    uspace_params->params.scara.d3 = DEFAULT_D3;
-    uspace_params->params.scara.d4 = DEFAULT_D4;
-    uspace_params->params.scara.d5 = DEFAULT_D5;
-    uspace_params->params.scara.d6 = DEFAULT_D6;
+    {
+        char _n[HAL_NAME_LEN + 1];
+        rtapi_snprintf(_n, sizeof(_n), "%s.params", kp->halprefix);
+        if (hal_struct_attach(_n, (void **)&uspace_params) < 0) goto error;
+    }
+    uspace_params->num_joints       = 6;
+    uspace_params->params.scara.d1  = DEFAULT_D1;
+    uspace_params->params.scara.d2  = DEFAULT_D2;
+    uspace_params->params.scara.d3  = DEFAULT_D3;
+    uspace_params->params.scara.d4  = DEFAULT_D4;
+    uspace_params->params.scara.d5  = DEFAULT_D5;
+    uspace_params->params.scara.d6  = DEFAULT_D6;
     uspace_params->valid       = 1;
     uspace_params->is_identity = 0;
-    uspace_params->self_offset = (int)SHMOFF(uspace_params);
 
     return 0;
 
@@ -394,12 +394,16 @@ int switchkinsSetup(kparms* kp,
 } // switchkinsSetup()
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Attaches to the
+ * kinematics_params_t registered in HAL shmem by scaraKinematicsSetup()
+ * via hal_struct_newf() and returns forward/inverse function pointers.
  * ======================================================================== */
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params  = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("scarakins.params", (void **)&uspace_params);
     ops->forward   = scaraKinematicsForward;
     ops->inverse   = scaraKinematicsInverse;
 }

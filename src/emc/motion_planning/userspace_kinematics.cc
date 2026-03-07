@@ -64,10 +64,10 @@ bool UserspaceKinematicsPlanner::init(const UserspaceKinematicsConfig& config) {
     }
 
     if (kinematicsUserIsRtOnly(kins_ctx_)) {
-        // Module does not export uspace-params-offset: shmem params unavailable.
+        // Module has no <module>.params HAL struct: shmem params unavailable.
         // Planner 2 requires shmem params; disable it gracefully.
         rtapi_print_msg(RTAPI_MSG_WARN,
-            "userspace_kinematics: %s has no uspace-params-offset pin; "
+            "userspace_kinematics: %s has no HAL struct params; "
             "planner 2 disabled (rt_only mode).\n",
             config.kinematics_type.c_str());
         enabled_ = false;

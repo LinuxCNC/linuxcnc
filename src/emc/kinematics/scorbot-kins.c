@@ -262,7 +262,6 @@ KINEMATICS_TYPE kinematicsType(void) {
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
-#include "hal_priv.h"
 #include "kinematics_params.h"
 #include <string.h>
 
@@ -282,13 +281,13 @@ int rtapi_app_main(void) {
     comp_id = hal_init("scorbot-kins");
     if (comp_id < 0) return comp_id;
 
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) { hal_exit(comp_id); return -1; }
-    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                         "scorbot-kins.uspace-params-offset") < 0) {
+    if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                        "scorbot-kins.params") < 0) {
         hal_exit(comp_id); return -1;
     }
-    memset(uspace_params, 0, sizeof(*uspace_params));
+    if (hal_struct_attach("scorbot-kins.params", (void **)&uspace_params) < 0) {
+        hal_exit(comp_id); return -1;
+    }
     uspace_params->num_joints = 5;
     uspace_params->params.scorbot.l0_horizontal = SCORBOT_DEFAULT_L0_HORIZONTAL;
     uspace_params->params.scorbot.l0_vertical   = SCORBOT_DEFAULT_L0_VERTICAL;
@@ -298,7 +297,6 @@ int rtapi_app_main(void) {
     uspace_params->is_identity = 0;
     uspace_params->head = 1;
     uspace_params->tail = 1;
-    uspace_params->self_offset = (int)SHMOFF(uspace_params);
 
     hal_ready(comp_id);
     return 0;
@@ -309,12 +307,14 @@ void rtapi_app_exit(void) {
 }
 
 /* ========================================================================
- * Non-RT interface for userspace trajectory planner
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Returns forward/inverse
+ * function pointers.  (No kinematics-specific parameters to attach.)
  * ======================================================================== */
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    (void)shmem_base; (void)offset;
     ops->forward = kinematicsForward;
     ops->inverse = kinematicsInverse;
 }

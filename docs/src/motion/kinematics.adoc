@@ -427,19 +427,18 @@ no per-call overhead.
 The userspace planner resolves a single symbol from the RT `.so`:
 
 ----
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops);
+void nonrt_attach(nonrt_ops_t *ops);
 ----
 
-`nonrt_attach` is called once at planner startup.  It receives a
-pointer to the HAL shared memory base and the byte offset of the
-module's `kinematics_params_t` structure.  It stores the pointer
-for later use and registers the forward and inverse functions that
-the planner will call:
+`nonrt_attach` is called once at planner startup.  It calls
+`hal_struct_attach()` to map the module's `kinematics_params_t`
+from HAL shared memory, then registers the forward and inverse
+functions that the planner will call:
 
 ----
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("mykins.params", (void **)&uspace_params);
     ops->forward  = myKinematicsForward;  /* same function as RT */
     ops->inverse  = myKinematicsInverse;
 }
@@ -483,24 +482,29 @@ any `!haldata` guard -- there are no HAL pins to dereference.
 ==== Shared memory setup (required for planner 2)
 
 `rtapi_app_main()` (or `XxxKinematicsSetup()` for switchkins modules)
-allocates the `kinematics_params_t` in HAL shmem and publishes its
-byte offset so the userspace planner can locate it:
+registers the `kinematics_params_t` in HAL shmem using
+`hal_struct_newf()`, then attaches to it with `hal_struct_attach()`:
 
 ----
-uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                       "%s.uspace-params-offset", modname) < 0) goto error;
-memset(uspace_params, 0, sizeof(*uspace_params));
+if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                    "%s.params", modname) < 0) goto error;
+if (hal_struct_attach("mykins.params", (void **)&uspace_params) < 0)
+    goto error;
 uspace_params->num_joints  = num_joints;
 uspace_params->is_identity = 0;  /* 1 for trivial/identity kinematics */
 /* fill initial parameter values */
 uspace_params->valid = 1;
 uspace_params->head  = 1;
 uspace_params->tail  = 1;
-uspace_params->self_offset = (int)SHMOFF(uspace_params);
 ----
 
-If the `uspace-params-offset` param is absent (old external module),
+`hal_struct_newf()` allocates the blob inside HAL's existing shared
+memory segment and registers a `HAL_RO hal_s32` parameter named
+`"<module>.params"` whose value is the shmem byte offset.  The
+userspace planner calls `hal_struct_attach()` with the same name to
+obtain a direct pointer -- no `hal_priv.h`, no raw offsets.
+
+If the `<module>.params` struct is absent (old external module),
 the userspace planner detects this at init time and disables planner 2
 with a logged warning.  Planner 0 and 1 continue to work normally.
 
@@ -561,13 +565,11 @@ the math, the RT interface (with shmem push), and the non-RT interface.
 
 /* ---- RT headers ---- */
 #include "kinematics.h"
-#include "hal.h"
-#include "hal_priv.h"           /* for SHMOFF() */
+#include <hal.h>                /* hal_struct_newf/attach, hal_malloc */
 #include "kinematics_params.h"  /* for kinematics_params_t */
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_math.h"
-#include <string.h>             /* for memset() */
 
 /* ================================================================
  * Layer 1: Pure math (shared by RT and non-RT)
@@ -670,19 +672,17 @@ int rtapi_app_main(void)
         goto error;
     *(haldata->arm_length) = 100.0;  /* default value */
 
-    /* Allocate kinematics_params_t in HAL shmem and publish its offset */
-    uspace_params = (kinematics_params_t *)hal_malloc(sizeof(kinematics_params_t));
-    if (!uspace_params) goto error;
-    if (hal_param_s32_newf(HAL_RO, &uspace_params->self_offset, comp_id,
-                           "mykins.uspace-params-offset") < 0) goto error;
-    memset(uspace_params, 0, sizeof(*uspace_params));
+    /* Register kinematics parameters in HAL shmem via hal_struct_newf() */
+    if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                        "mykins.params") < 0) goto error;
+    if (hal_struct_attach("mykins.params", (void **)&uspace_params) < 0)
+        goto error;
     uspace_params->num_joints             = 3;
     uspace_params->is_identity            = 0;
     uspace_params->params.mykins.arm_length = 100.0;
     uspace_params->valid = 1;
     uspace_params->head  = 1;
     uspace_params->tail  = 1;
-    uspace_params->self_offset = (int)SHMOFF(uspace_params);
 
     hal_ready(comp_id);
     return 0;
@@ -696,15 +696,16 @@ void rtapi_app_exit(void) { hal_exit(comp_id); }
 /* ================================================================
  * Layer 3: Non-RT entry point (for userspace trajectory planner)
  *
- * nonrt_attach is called once at planner startup.  It maps the
- * shmem params pointer and registers the forward/inverse functions.
+ * nonrt_attach is called once at planner startup.  It attaches to
+ * the kinematics_params_t registered by rtapi_app_main() via
+ * hal_struct_newf() and registers the forward/inverse functions.
  * The same kinematicsForward/Inverse functions are used -- they
  * detect the userspace context via !haldata and read from shmem.
  * ================================================================ */
 
-void nonrt_attach(char *shmem_base, int offset, nonrt_ops_t *ops)
+void nonrt_attach(nonrt_ops_t *ops)
 {
-    uspace_params = (kinematics_params_t *)(shmem_base + offset);
+    hal_struct_attach("mykins.params", (void **)&uspace_params);
     ops->forward  = kinematicsForward;
     ops->inverse  = kinematicsInverse;
 }
@@ -731,7 +732,8 @@ kinematics modules follow:
   is never called.
 
 . **Layer 3 -- Non-RT entry point**: The `nonrt_attach()` function,
-  called once at planner startup.  It stores the shmem pointer and
+  called once at planner startup.  It calls `hal_struct_attach()` to
+  map the module's `kinematics_params_t` from HAL shmem, then
   registers the forward/inverse function pointers.  No separate
   non-RT math functions are needed -- the same RT functions handle
   both contexts via the `!haldata` guard.
@@ -791,8 +793,8 @@ RT `.so` to load and resolves `nonrt_attach` from it at startup.
 - Use `rtapi_snprintf()` instead of `snprintf()` in RT code.
   Standard C library functions are not available in the RT
   environment.
-- Always include `hal_priv.h` (for `SHMOFF()`) and `<string.h>`
-  (for `memset()`) in modules that set up `uspace_params`.
+- Include `<hal.h>` (angle brackets — it is a public header) and
+  `"kinematics_params.h"` in modules that set up `uspace_params`.
 - For modules with no runtime parameters (pure geometric transforms),
   register the RT functions directly in `nonrt_attach` with no
   `!haldata` guard -- there are no HAL pin pointers to dereference.
@@ -805,7 +807,7 @@ RT `.so` to load and resolves `nonrt_attach` from it at startup.
 - The shmem push uses `head`/`tail` guards to protect against torn
   reads: increment `head` before any write, set `tail = head` after
   all writes.  The userspace side retries the read when `head != tail`.
-- Modules without the `uspace-params-offset` param fall back
+- Modules without the `<module>.params` HAL struct fall back
   gracefully: planner 0 and 1 work normally, planner 2 is disabled
   with a logged warning.
 - Look at the existing modules in `src/emc/kinematics/` for
