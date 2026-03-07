@@ -746,7 +746,8 @@ void Usb::process()
     timeout.tv_usec = 200 * 1000;
 
     int r = libusb_handle_events_timeout_completed(context, &timeout, nullptr);
-    if(r != 0)
+    //LIBUSB_ERROR_INTERRUPTED can happen on shutdown signal and is fine
+    if(r != 0 && r != LIBUSB_ERROR_INTERRUPTED)
     {
         std::cerr << endl << "Error: process() libusb_handle_events_timeout_completed returned " << r << endl;
     }
