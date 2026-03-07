@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2021 Dominik Braun <dominik.braun@eventor.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file dems300.c
  * @brief Delta MS300 Variable Frequency Drive (VFD) EtherCAT HAL driver implementation.
@@ -23,6 +5,22 @@
  * This driver implements the LinuxCNC HAL interface for the Delta MS300 VFD
  * over EtherCAT. It supports velocity control, fault handling with optional
  * automatic reset, ramp time configuration, and status/diagnostic feedback.
+ *
+ * @copyright Copyright (C) 2021-2026 Dominik Braun <dominik.braun@eventor.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "../lcec.h"
@@ -349,7 +347,6 @@ void lcec_dems300_read(struct lcec_slave *slave, long period) {
   *(hal_data->vel_fb_rpm) = rpm;
   *(hal_data->vel_fb_rpm_abs) = fabs(rpm);
 
-
 }
 
 /**
@@ -381,7 +378,6 @@ void lcec_dems300_write(struct lcec_slave *slave, long period) {
   // check for enable edge
   enable_edge = *(hal_data->enable) && !hal_data->enable_old;
   hal_data->enable_old = *(hal_data->enable);
-
 
   // write control register
   control = (!*(hal_data->fault_reset) << 2); // quick stop
@@ -431,4 +427,3 @@ void lcec_dems300_write(struct lcec_slave *slave, long period) {
   }
   EC_WRITE_S16(&pd[hal_data->cmdvel_pdo_os], (int16_t)speed_raw);
 }
-

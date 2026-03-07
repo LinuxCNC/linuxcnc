@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2018 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file el1904.c
  * @brief Driver implementation for Beckhoff EL1904 4-channel TwinSAFE digital input terminal.
@@ -23,6 +5,22 @@
  * The EL1904 implements the Fail-Safe over EtherCAT (FSoE) protocol. This driver
  * exposes FSoE command/CRC/connection-ID fields and the four safe digital inputs
  * as HAL pins, and copies FSoE frame data between slave and master PDO areas.
+ *
+ * @copyright Copyright (C) 2018-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "../lcec.h"
@@ -175,4 +173,3 @@ void lcec_el1904_read(struct lcec_slave *slave, long period) {
     *(in->fsoe_in_not) = ! *(in->fsoe_in);
   }
 }
-

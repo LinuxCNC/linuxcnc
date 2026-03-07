@@ -1,20 +1,38 @@
-//
-//    Copyright (C) 2021 Dominik Braun <dominik.braun@eventor.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
+/**
+ * @file dems300.h
+ * @brief Driver interface for the Delta MS300 EtherCAT variable-frequency drive (VFD).
+ *
+ * The Delta MS300 is an EtherCAT VFD that supports the CiA-402 velocity
+ * profile.  The driver hardcodes velocity (opmode 2) operation and maps:
+ *   - Output PDO 0x1600: control word (0x6040), target velocity (0x6042),
+ *                        mode of operation (0x6060), and a padding byte.
+ *   - Output PDO 0x1601: ramp-down time (0x6050) and ramp-up time (0x604F).
+ *   - Input PDO 0x1A00:  status word (0x6041), velocity demand (0x6043),
+ *                        mode of operation display (0x6061), and padding.
+ *   - Input PDO 0x1A01:  output current (0x3021:05), warning/error codes
+ *                        (0x3021:01), and IGBT temperature (0x3022:0F).
+ *
+ * HAL pins cover velocity command/feedback (in RPM), all CiA-402 status bits,
+ * drive diagnostics (current, temperature, warning/error codes), and control
+ * inputs.  An @c auto-fault-reset parameter enables automatic fault clearing
+ * on the rising edge of the enable input.
+ *
+ * @copyright Copyright (C) 2021-2026 Dominik Braun <dominik.braun@eventor.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ */
 
 /*#############################################################################
 
@@ -83,25 +101,6 @@ Parameters:
   
 #############################################################################*/
 
-/**
- * @file dems300.h
- * @brief Driver interface for the Delta MS300 EtherCAT variable-frequency drive (VFD).
- *
- * The Delta MS300 is an EtherCAT VFD that supports the CiA-402 velocity
- * profile.  The driver hardcodes velocity (opmode 2) operation and maps:
- *   - Output PDO 0x1600: control word (0x6040), target velocity (0x6042),
- *                        mode of operation (0x6060), and a padding byte.
- *   - Output PDO 0x1601: ramp-down time (0x6050) and ramp-up time (0x604F).
- *   - Input PDO 0x1A00:  status word (0x6041), velocity demand (0x6043),
- *                        mode of operation display (0x6061), and padding.
- *   - Input PDO 0x1A01:  output current (0x3021:05), warning/error codes
- *                        (0x3021:01), and IGBT temperature (0x3022:0F).
- *
- * HAL pins cover velocity command/feedback (in RPM), all CiA-402 status bits,
- * drive diagnostics (current, temperature, warning/error codes), and control
- * inputs.  An @c auto-fault-reset parameter enables automatic fault clearing
- * on the rising edge of the enable input.
- */
 #ifndef _LCEC_DEMS300_H_
 #define _LCEC_DEMS300_H_
 
@@ -129,4 +128,3 @@ Parameters:
 int lcec_dems300_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
-

@@ -1,24 +1,3 @@
-//
-//    Copyright (C) 2015 Claudio lorini <claudio.lorini@iit.it>
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-#ifndef _LCEC_EL2202_H_
-#define _LCEC_EL2202_H_
-
 /**
  * @file el2202.h
  * @brief Header for the Beckhoff EL2202 2-channel fast digital output terminal
@@ -31,7 +10,27 @@
  * HAL pins exported per channel (N = 0 … LCEC_EL2202_CHANS-1):
  *  - @c dout-N   (HAL_BIT, IN) — output logic level
  *  - @c tristate-N (HAL_BIT, IN) — enable tri-state / high-Z on the output
+ *
+ * @copyright Copyright (C) 2015-2026 Claudio lorini <claudio.lorini@iit.it>
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
+#ifndef _LCEC_EL2202_H_
+#define _LCEC_EL2202_H_
 
 /** @brief EtherCAT product code for the EL2202. */
 #define LCEC_EL2202_PID 0x089A3052
@@ -55,4 +54,3 @@
 int lcec_el2202_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
-

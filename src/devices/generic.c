@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file generic.c
  * @brief Generic passthrough slave driver for arbitrary PDO mapping.
@@ -35,6 +17,22 @@
  * @c LCEC_CONF_GENERIC_MAX_SUBPINS), @c HAL_S32, @c HAL_U32, @c HAL_FLOAT.
  * Float pins additionally support a scale/offset and an unsigned or IEEE-754
  * sub-type (@c lcecPdoEntTypeFloatUnsigned, @c lcecPdoEntTypeFloatIeee).
+ *
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "../lcec.h"
@@ -677,4 +675,3 @@ void lcec_generic_write_u32(uint8_t *pd, lcec_generic_pin_t *hal_data, hal_u32_t
     uval >>= 1;
   }
 }
-

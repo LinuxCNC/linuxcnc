@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2018 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file el2904.c
  * @brief HAL driver for the Beckhoff EL2904 4-channel TwinSAFE digital output
@@ -39,6 +21,22 @@
  *  - @c fsoe-slave-connid  (HAL_U32, OUT) — FsoE connection ID in slave response PDO
  *  - @c fsoe-out-0 … fsoe-out-3 (HAL_BIT, OUT) — readback of safety outputs 0–3
  *  - @c out-0 … out-3      (HAL_BIT, IN)  — non-safety output commands 0–3
+ *
+ * @copyright Copyright (C) 2018-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "../lcec.h"
@@ -254,4 +252,3 @@ void lcec_el2904_write(struct lcec_slave *slave, long period) {
   EC_WRITE_BIT(&pd[hal_data->out_2_os], hal_data->out_2_bp, *(hal_data->out_2));
   EC_WRITE_BIT(&pd[hal_data->out_3_os], hal_data->out_3_bp, *(hal_data->out_3));
 }
-

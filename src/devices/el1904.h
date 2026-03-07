@@ -1,20 +1,3 @@
-//
-//    Copyright (C) 2018 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
 /**
  * @file el1904.h
  * @brief Driver for Beckhoff EL1904 4-channel TwinSAFE digital input terminal.
@@ -31,7 +14,24 @@
  *   - `<pfx>.fsoe-slave-connid`  (HAL_U32, HAL_OUT): FSoE slave connection ID.
  *   - `<pfx>.fsoe-in-<n>`        (HAL_BIT, HAL_OUT): Safe digital input state (n=0..3).
  *   - `<pfx>.fsoe-in-<n>-not`    (HAL_BIT, HAL_OUT): Inverted safe digital input state.
+ *
+ * @copyright Copyright (C) 2018-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
 #ifndef _LCEC_EL1904_H_
 #define _LCEC_EL1904_H_
 
@@ -71,4 +71,3 @@ int lcec_el1904_preinit(struct lcec_slave *slave);
 int lcec_el1904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
-

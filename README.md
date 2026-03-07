@@ -43,17 +43,8 @@ The project consists of two main components:
 | **Beckhoff Servo Drives** | AX5100, AX5200, AX5805 |
 | **Third-Party Servo Drives** | Stoeber MDS5000 (`stmds5k`), Delta ASDA (`deasda`), Omron G5 (`omrg5`) |
 | **Third-Party VFDs** | Delta MS300 (`dems300`) |
-| **Third-Party Stepper Controllers** | Phytron phyMOTION (`ph3lm2rm`) |
+| **Third-Party Measuring System** | modusoft Measurement Card for Phillips 3LM/2RM (`ph3lm2rm`) |
 | **Generic** | Passthrough driver for arbitrary PDO mapping |
-
----
-
-## Branch Structure
-
-| Branch | Description |
-|---|---|
-| `ec-master-uspace` | Primary development branch — userspace EtherCAT master support |
-| `master` | Legacy branch |
 
 ---
 

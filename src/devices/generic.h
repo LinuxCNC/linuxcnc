@@ -1,20 +1,3 @@
-//
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
 /**
  * @file generic.h
  * @brief Generic/passthrough EtherCAT slave driver for arbitrary PDO mapping.
@@ -34,7 +17,24 @@
  * Supported HAL pin types are BIT (single or array), S32, U32 and FLOAT.
  * FLOAT pins support scale/offset conversion and optional unsigned or IEEE
  * 754 raw interpretation.
+ *
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
 #ifndef _LCEC_GENERIC_H_
 #define _LCEC_GENERIC_H_
 
@@ -172,4 +172,3 @@ int lcec_generic_conf_complex_entry(lcec_generic_conf_state_t *state, LCEC_CONF_
 int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
-

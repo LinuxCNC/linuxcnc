@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file el5152.c
  * @brief Driver implementation for the Beckhoff EL5152 2-channel incremental encoder terminal (extended).
@@ -26,6 +8,22 @@
  * TxPDO toggle, 32-bit period measurement, and a software Z-index latch via
  * the index/index-enable HAL pins. Each channel's period PDO is mapped
  * independently.
+ *
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "../lcec.h"
@@ -176,7 +174,6 @@ static ec_sync_info_t lcec_el5152_syncs[] = {
     {3, EC_DIR_INPUT,  4, lcec_el5152_pdos_in},
     {0xff}
 };
-
 
 void lcec_el5152_read(struct lcec_slave *slave, long period);
 void lcec_el5152_write(struct lcec_slave *slave, long period);
@@ -388,4 +385,3 @@ void lcec_el5152_write(struct lcec_slave *slave, long period) {
     EC_WRITE_S32(&pd[chan->set_count_val_pdo_os], *(chan->set_raw_count_val));
   }
 }
-

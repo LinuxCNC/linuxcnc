@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file stmds5k.c
  * @brief Driver for the Stöber MDS5000 EtherCAT servo drive.
@@ -26,7 +8,24 @@
  * parameters.  The sync-manager layout is built from a static template then
  * fixed up with live pointers (required because the PDO entry arrays must live
  * in the per-slave HAL memory block).
+ *
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
 #include "../lcec.h"
 #include "stmds5k.h"
 
@@ -586,4 +585,3 @@ void lcec_stmds5k_write(struct lcec_slave *slave, long period) {
   }
   EC_WRITE_S16(&pd[hal_data->speed_sp_rel_pdo_os], (int16_t)speed_raw);
 }
-

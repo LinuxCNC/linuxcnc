@@ -1,20 +1,3 @@
-//
-//    Copyright (C) 2018 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
 /**
  * @file ax5100.h
  * @brief Driver interface for the Beckhoff AX5100 single-axis EtherCAT servo drive.
@@ -24,7 +7,24 @@
  * velocity command, encoder position feedback, torque feedback, drive enable
  * and fault status.  The matching AX5805 TwinSAFE card (if present) provides
  * the FSoE safety channel for this drive.
+ *
+ * @copyright Copyright (C) 2018-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
 #ifndef _LCEC_AX5100_H_
 #define _LCEC_AX5100_H_
 
@@ -75,4 +75,3 @@ int lcec_ax5100_preinit(struct lcec_slave *slave);
 int lcec_ax5100_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
-

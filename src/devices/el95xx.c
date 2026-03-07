@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /** @file el95xx.c
  * @brief Driver for Beckhoff EL95xx E-bus power supply terminals.
  *
@@ -23,6 +5,22 @@
  * EL9512/EL9515/EL9576 power supply terminals.  Each terminal provides
  * two diagnostic bits via PDO 0x6000: power-ok (bit 0x01) and overload
  * (bit 0x02), which are exposed as HAL output pins.
+ *
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "../lcec.h"
@@ -107,4 +105,3 @@ void lcec_el95xx_read(struct lcec_slave *slave, long period) {
   *(hal_data->power_ok) = EC_READ_BIT(&pd[hal_data->power_ok_pdo_os], hal_data->power_ok_pdo_bp);
   *(hal_data->overload) = EC_READ_BIT(&pd[hal_data->overload_pdo_os], hal_data->overload_pdo_bp);
 }
-

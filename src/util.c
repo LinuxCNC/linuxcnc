@@ -1,5 +1,3 @@
-#include "priv.h"
-
 /**
  * @file util.c
  * @brief General-purpose utility functions for the LinuxCNC EtherCAT HAL driver.
@@ -14,7 +12,25 @@
  *
  * None of the functions in this file are called from real-time context;
  * they are used during component initialisation only.
+ *
+ * @copyright Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
+#include "priv.h"
 
 /**
  * @brief Read an SDO value from a slave device via the CoE mailbox.
@@ -578,4 +594,3 @@ void lcec_syncs_add_pdo_entry(lcec_syncs_t *syncs, uint16_t index, uint8_t subin
 
   (syncs->pdo_entry_count)++;
 }
-

@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file el5122.c
  * @brief Driver implementation for the Beckhoff EL5122 2-channel incremental encoder terminal.
@@ -25,6 +7,22 @@
  * on positive and negative edges, a software gate, counter preset, counter
  * overflow and underflow detection, Z-index latch (via index/index-enable
  * HAL pins), and direct readback of the A, B, and gate input states.
+ *
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "../lcec.h"
@@ -217,7 +215,6 @@ static ec_sync_info_t lcec_el5122_syncs[] = {
     {3, EC_DIR_INPUT,  2, lcec_el5122_pdos_in},
     {0xff}
 };
-
 
 void lcec_el5122_read(struct lcec_slave *slave, long period);
 void lcec_el5122_write(struct lcec_slave *slave, long period);
@@ -440,4 +437,3 @@ void lcec_el5122_write(struct lcec_slave *slave, long period) {
     EC_WRITE_BIT(&pd[chan->ena_latch_ext_neg_pdo_os], chan->ena_latch_ext_neg_pdo_bp, *(chan->ena_latch_ext_neg));
   }
 }
-

@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2016 Frank Brossette<frank.brossette@gmail.com>
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
 /**
  * @file el41x4.h
  * @brief Driver for Beckhoff EL41x4 4-channel analog output terminals (extended range).
@@ -27,7 +9,25 @@
  * Each of the 4 channels independently scales a HAL float value to a
  * 16-bit signed DAC word written to the EtherCAT process image each cycle.
  * PDO channel mapping uses the 0x70xx CoE object scheme (same as EL40x8).
+ *
+ * @copyright Copyright (C) 2016-2026 Frank Brossette<frank.brossette@gmail.com>
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
 #ifndef _LCEC_EL41X4_H_
 #define _LCEC_EL41X4_H_
 

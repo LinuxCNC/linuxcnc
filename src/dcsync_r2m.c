@@ -1,5 +1,3 @@
-#include "priv.h"
-
 /**
  * @file dcsync_r2m.c
  * @brief Distributed Clock synchronisation: Reference-to-Master (R2M) mode.
@@ -20,7 +18,25 @@
  *      @c ecrt_master_sync_reference_clock_to(), then synchronises all slave
  *      clocks to the reference.
  *   3. post_send()   – NOP (no correction to apply in R2M mode).
+ *
+ * @copyright Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
+#include "priv.h"
 
 /**
  * @brief Set application time from the RTAPI PLL reference and inform the master.
@@ -121,4 +137,3 @@ void lcec_dc_init_r2m(struct lcec_master *master) {
   master->app_time_ns = 0;
   master->ref_clock_sync_counter = 0;
 }
-

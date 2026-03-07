@@ -1,20 +1,34 @@
-//
-//    Copyright (C) 2014 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
+/**
+ * @file deasda.h
+ * @brief Driver interface for the Delta ASDA-A2 EtherCAT servo drive.
+ *
+ * The Delta ASDA-A2 is a velocity-controlled servo drive implementing the
+ * CiA-402 profile via a vendor-specific PDO set.  The driver configures the
+ * drive for cyclic synchronous velocity (CSV) mode at startup and maps:
+ *   - Output PDO: CiA-402 control word (0x6040) and target velocity (0x60FF).
+ *   - Input PDO:  CiA-402 status word (0x6041), actual velocity (0x606C),
+ *                 actual position (0x6064), and external encoder (0x2511).
+ *
+ * HAL pins expose velocity command/feedback (in scale units/s and RPM), all
+ * CiA-402 status bits, and control inputs including a built-in automatic
+ * fault-reset feature with configurable retry count and inter-reset delay.
+ *
+ * @copyright Copyright (C) 2014-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ */
 
 /*#############################################################################
 
@@ -132,21 +146,6 @@ Parameters:
 
 #############################################################################*/
 
-/**
- * @file deasda.h
- * @brief Driver interface for the Delta ASDA-A2 EtherCAT servo drive.
- *
- * The Delta ASDA-A2 is a velocity-controlled servo drive implementing the
- * CiA-402 profile via a vendor-specific PDO set.  The driver configures the
- * drive for cyclic synchronous velocity (CSV) mode at startup and maps:
- *   - Output PDO: CiA-402 control word (0x6040) and target velocity (0x60FF).
- *   - Input PDO:  CiA-402 status word (0x6041), actual velocity (0x606C),
- *                 actual position (0x6064), and external encoder (0x2511).
- *
- * HAL pins expose velocity command/feedback (in scale units/s and RPM), all
- * CiA-402 status bits, and control inputs including a built-in automatic
- * fault-reset feature with configurable retry count and inter-reset delay.
- */
 #ifndef _LCEC_DEASDA_H_
 #define _LCEC_DEASDA_H_
 
@@ -175,4 +174,3 @@ Parameters:
 int lcec_deasda_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
 
 #endif
-

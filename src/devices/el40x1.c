@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file el40x1.c
  * @brief Driver implementation for Beckhoff EL40x1 1-channel analog output terminals.
@@ -26,7 +8,24 @@
  * signed 16-bit value that is written into the EtherCAT process data image.
  * Output limiting (min-dc / max-dc) and absolute-value mode are also
  * supported through dedicated HAL pins.
+ *
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
 #include "../lcec.h"
 #include "el40x1.h"
 
@@ -67,7 +66,6 @@ static const lcec_pindesc_t slave_pins[] = {
   { HAL_BIT, HAL_OUT, offsetof(lcec_el40x1_data_t, neg), "%s.%s.%s.aout-neg" },
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
-
 
 static ec_pdo_entry_info_t lcec_el40x1_channel[] = {
     {0x7000, 1, 16}  // output
@@ -225,4 +223,3 @@ void lcec_el40x1_write(struct lcec_slave *slave, long period) {
   EC_WRITE_S16(&pd[hal_data->val_pdo_os], (int16_t)raw_val);
   *(hal_data->raw_val) = (int32_t)raw_val;
 }
-

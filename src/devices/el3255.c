@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2016 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file el3255.c
  * @brief LinuxCNC EtherCAT HAL driver for the Beckhoff EL3255 5-channel potentiometer input terminal.
@@ -30,7 +12,24 @@
  * @endcode
  * so with default scale=1.0 and bias=0.0 the output spans –1.0 to +1.0 across the
  * full measurement range.
+ *
+ * @copyright Copyright (C) 2016-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
 #include "../lcec.h"
 #include "el3255.h"
 
@@ -75,7 +74,6 @@ static const lcec_pindesc_t slave_pins[] = {
   { HAL_FLOAT, HAL_IO, offsetof(lcec_el3255_chan_t, bias), "%s.%s.%s.pot-%d-bias" },
   { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
 };
-
 
 static ec_pdo_entry_info_t lcec_el3255_channel1[] = {
     {0x6000, 0x01,  1}, // Underrange
@@ -262,4 +260,3 @@ void lcec_el3255_read(struct lcec_slave *slave, long period) {
     *(chan->val) = *(chan->bias) + *(chan->scale) * (double)value * ((double)1/(double)0x7fff);
   }
 }
-

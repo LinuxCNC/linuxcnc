@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2020 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /** @file el70x1.c
  * @brief Driver for Beckhoff EL7031 and EL7041-0052 stepper motor terminals.
  *
@@ -24,6 +6,22 @@
  * drive runs in position mode (SDO 0x8012:01 = 3); the 32-bit position
  * setpoint is written each cycle.  An integrated auto-reduce-torque timer
  * engages reduced torque after a configurable idle period.
+ *
+ * @copyright Copyright (C) 2020-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "../lcec.h"
@@ -90,7 +88,6 @@ typedef struct {
   unsigned int stm_pos_raw_pdo_os;         /**< PDO byte offset: 32-bit position setpoint */
 
 } lcec_el70x1_data_t;
-
 
 static ec_pdo_entry_info_t lcec_el70x1_enc_ctl[] = {
     {0x0000, 0x00,  1}, /* Gap */
@@ -454,4 +451,3 @@ void lcec_el70x1_write(struct lcec_slave *slave, long period) {
   EC_WRITE_S32(&pd[hal_data->stm_pos_raw_pdo_os], *(hal_data->stm_pos_cmd_raw));
 
 }
-

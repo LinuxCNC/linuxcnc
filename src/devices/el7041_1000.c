@@ -1,25 +1,3 @@
-//
-//    Copyright (C) 2015 Jakob Flierl  <jakob.flierl@gmail.com>
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
-#include "../lcec.h"
-#include "el7041_1000.h"
-
 /** @file el7041_1000.c
  * @brief Driver for the Beckhoff EL7041-1000 stepper motor terminal.
  *
@@ -27,7 +5,27 @@
  * the EL7041-1000 compact stepper terminal with integrated encoder.  The
  * terminal exposes a 16-bit incremental encoder and a velocity-mode stepper
  * drive (16-bit signed velocity setpoint) in a single EtherCAT slave.
+ *
+ * @copyright Copyright (C) 2015-2026 Jakob Flierl  <jakob.flierl@gmail.com>
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
+#include "../lcec.h"
+#include "el7041_1000.h"
 
 /**
  * @brief HAL data structure for the EL7041-1000 terminal.
@@ -666,4 +664,3 @@ void lcec_el7041_1000_write(struct lcec_slave *s, long period) {
   EC_WRITE_BIT(&pd[hd->dcm_reduce_torque_pdo_os], hd->dcm_reduce_torque_pdo_bp, *(hd->dcm_reduce_torque));
   EC_WRITE_S16(&pd[hd->dcm_velo_pdo_os], (int16_t)raw_val);
 }
-

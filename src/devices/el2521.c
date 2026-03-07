@@ -1,21 +1,3 @@
-//
-//    Copyright (C) 2011 Sascha Ittner <sascha.ittner@modusoft.de>
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
 /**
  * @file el2521.c
  * @brief HAL driver for the Beckhoff EL2521 1-channel pulse train output
@@ -48,6 +30,22 @@
  *  - @c stp-maxaccel-fall (HAL_FLOAT, RO) — maximum deceleration (pos units/s²)
  *  - @c stp-maxaccel-rise (HAL_FLOAT, RO) — maximum acceleration (pos units/s²)
  *  - @c stp-pos-scale    (HAL_FLOAT, RW) — steps per position unit
+ *
+ * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include "hal.h"
@@ -153,7 +151,6 @@ static ec_sync_info_t lcec_el2521_syncs[] = {
     {3, EC_DIR_INPUT,  1, lcec_el2521_pdos_in},
     {0xff}
 };
-
 
 /** @brief Forward declaration of the scale-change check helper. */
 void lcec_el2521_check_scale(lcec_el2521_data_t *hal_data);
@@ -403,4 +400,3 @@ void lcec_el2521_write(struct lcec_slave *slave, long period) {
   }
   EC_WRITE_S16(&pd[hal_data->freq_pdo_os], freq_raw);
 }
-
