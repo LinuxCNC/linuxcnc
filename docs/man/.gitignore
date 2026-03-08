@@ -159,6 +159,9 @@ man3/hal_port_t.3
 man3/hal_port.3
 man3/hal_ready.3
 man3/hal_s32_t.3
+man3/hal_struct_attach.3
+man3/hal_struct_detach.3
+man3/hal_struct_newf.3
 man3/hal_set_constructor.3
 man3/hal_set_lock.3
 man3/hal_signal_delete.3
