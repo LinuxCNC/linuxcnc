@@ -78,7 +78,7 @@ RT side (in _rtapi_app_main_):
 
 ----
 typedef struct { double value; int count; } my_params_t;
-static my_params_t *params;
+static volatile my_params_t *params;
 
 my_params_t defaults = { 1.0, 0 };
 if (hal_struct_newf(comp_id, sizeof(*params), &defaults,
@@ -91,12 +91,19 @@ if (hal_struct_attach(prefix ".params", (void **)&params) < 0)
 Userspace side:
 
 ----
-my_params_t *params;
+volatile my_params_t *params;
 if (hal_struct_attach("mycomp.params", (void **)&params) < 0)
     return -1;
 /* read params->value, params->count ... */
 hal_struct_detach("mycomp.params");
 ----
+
+The pointer should be declared `volatile` on both sides so the compiler does
+not cache fields across accesses.  Note that `volatile` alone does not
+guarantee memory ordering between threads or processes.  For fields that must
+be read and written atomically (for example a sequence-lock head/tail pair),
+use C11 `_Atomic` or explicit `__atomic_*` intrinsics with an appropriate
+memory order.
 
 == SEE ALSO
 
