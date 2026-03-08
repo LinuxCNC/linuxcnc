@@ -544,6 +544,7 @@ static PyObject *pyhal_ready(PyObject *_self, PyObject * /*o*/) {
     EXCEPTION_IF_NOT_LIVE(NULL);
     int res = hal_ready(self->hal_id);
     if(res) return pyhal_error(res);
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -553,12 +554,14 @@ static PyObject *pyhal_unready(PyObject *_self, PyObject * /*o*/) {
     EXCEPTION_IF_NOT_LIVE(NULL);
     int res = hal_unready(self->hal_id);
     if(res) return pyhal_error(res);
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
 static PyObject *pyhal_exit(PyObject *_self, PyObject * /*o*/) {
     halobject *self = reinterpret_cast<halobject *>(_self);
     pyhal_exit_impl(self);
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -597,8 +600,10 @@ static PyObject *pyhal_get_prefix(PyObject *_self, PyObject *args) {
     if(!PyArg_ParseTuple(args, "")) return NULL;
     EXCEPTION_IF_NOT_LIVE(NULL);
 
-    if(!self->prefix)
-	return Py_None;
+    if(!self->prefix) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
     return PyUnicode_FromString(self->prefix);
 }
@@ -619,6 +624,7 @@ static PyObject *pyhal_set_prefix(PyObject *_self, PyObject *args) {
         return NULL;
     }
 
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -772,6 +778,7 @@ static PyObject * pyhal_pin_set(PyObject * _self, PyObject * value) {
     pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
     if (pyhal_write_common(&self->pin, value) == -1)
 	return NULL;
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -800,8 +807,10 @@ static PyObject * pyhal_pin_is_pin(PyObject * _self, PyObject *) {
 
 static PyObject * pyhal_pin_get_name(PyObject * _self, PyObject *) {
     pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
-    if (!self->name)
-	return Py_None;
+    if (!self->name) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
     return PyUnicode_FromString(self->name);
 }
 
@@ -1588,6 +1597,7 @@ static PyObject *pyshm_repr(PyObject *_self) {
 static PyObject *shm_setsize(PyObject *_self, PyObject *args) {
     shmobject *self = reinterpret_cast<shmobject *>(_self);
     if(!PyArg_ParseTuple(args, "k", &self->size)) return NULL;
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1603,6 +1613,7 @@ static PyObject *set_msg_level(PyObject * /*_self*/, PyObject *args) {
     if(!PyArg_ParseTuple(args, "i", &level)) return NULL;
     res = rtapi_set_msg_level(level);
     if(res) return pyhal_error(res);
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -1753,11 +1764,15 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
 PyObject *stream_read(PyObject *_self, PyObject * /*unused*/) {
     streamobj *self = reinterpret_cast<streamobj *>(_self);
     int n = PyBytes_Size(self->pyelt);
-    if(n <= 0)
+    if(n <= 0) {
+        Py_INCREF(Py_None);
         return Py_None;
+    }
     vector<hal_stream_data> buf(n);
-    if(hal_stream_read(&self->stream, buf.data(), &self->sampleno) < 0)
+    if(hal_stream_read(&self->stream, buf.data(), &self->sampleno) < 0) {
+        Py_INCREF(Py_None);
         return Py_None;
+    }
 
     PyObject *r = PyTuple_New(n);
     if(!r) return 0;
@@ -1811,6 +1826,7 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
     if(r < 0) {
         errno = -r; PyErr_SetFromErrno(PyExc_IOError); return 0;
     }
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
