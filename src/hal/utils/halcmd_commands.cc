@@ -68,6 +68,8 @@ static void print_script_sig_info(int type, char **patterns);
 static void print_param_info(int type, char **patterns);
 static void print_funct_info(char **patterns);
 static void print_thread_info(char **patterns);
+static void print_struct_info(char **patterns);
+static void print_struct_names(char **patterns);
 static void print_comp_names(char **patterns);
 static void print_pin_names(char **patterns);
 static void print_sig_names(char **patterns);
@@ -1016,6 +1018,7 @@ int do_show_cmd(char *type, char **patterns)
 	print_param_aliases(NULL);
 	print_funct_info(NULL);
 	print_thread_info(NULL);
+	print_struct_info(NULL);
     } else if (strcmp(type, "all") == 0) {
 	/* print everything, using the pattern */
 	print_comp_info(patterns);
@@ -1026,6 +1029,7 @@ int do_show_cmd(char *type, char **patterns)
 	print_param_aliases(patterns);
 	print_funct_info(patterns);
 	print_thread_info(patterns);
+	print_struct_info(patterns);
     } else if (strcmp(type, "comp") == 0) {
 	print_comp_info(patterns);
     } else if (strcmp(type, "pin") == 0) {
@@ -1049,6 +1053,8 @@ int do_show_cmd(char *type, char **patterns)
 	print_funct_info(patterns);
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_info(patterns);
+    } else if (strcmp(type, "struct") == 0) {
+	print_struct_info(patterns);
     } else if (strcmp(type, "alias") == 0) {
 	print_pin_aliases(patterns);
 	print_param_aliases(patterns);
@@ -1087,6 +1093,8 @@ int do_list_cmd(char *type, char **patterns)
 	print_funct_names(patterns);
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_names(patterns);
+    } else if (strcmp(type, "struct") == 0) {
+	print_struct_names(patterns);
     } else {
 	halcmd_error("Unknown 'list' type '%s'\n", type);
 	return -1;
@@ -2056,6 +2064,54 @@ static void print_thread_info(char **patterns)
 	    }
 	}
 	next_thread = tptr->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    halcmd_output("\n");
+}
+
+static void print_struct_info(char **patterns)
+{
+    SHMFIELD(hal_struct_entry_t) next;
+    hal_struct_entry_t *entry;
+    hal_comp_t *comp;
+
+    if (scriptmode == 0) {
+	halcmd_output("Structs:\n");
+	halcmd_output("Owner   Refs  Name\n");
+    }
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->struct_list_ptr;
+    while (next != 0) {
+	entry = SHMPTR(next);
+	if ( match(patterns, entry->name) ) {
+	    comp = SHMPTR(entry->owner_ptr);
+	    if (scriptmode == 0) {
+		halcmd_output(" %5d  %4d  %s\n",
+		    comp->comp_id, entry->attach_count, entry->name);
+	    } else {
+		halcmd_output("%s %d %s\n",
+		    comp->name, entry->attach_count, entry->name);
+	    }
+	}
+	next = entry->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    halcmd_output("\n");
+}
+
+static void print_struct_names(char **patterns)
+{
+    SHMFIELD(hal_struct_entry_t) next;
+    hal_struct_entry_t *entry;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->struct_list_ptr;
+    while (next != 0) {
+	entry = SHMPTR(next);
+	if ( match(patterns, entry->name) ) {
+	    halcmd_output("%s ", entry->name);
+	}
+	next = entry->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
