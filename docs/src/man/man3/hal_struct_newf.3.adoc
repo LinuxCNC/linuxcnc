@@ -1,0 +1,103 @@
+:manvolnum: 3
+
+= hal_struct_newf(3)
+
+== NAME
+
+hal_struct_newf, hal_struct_attach, hal_struct_detach - named opaque blobs in HAL shared memory
+
+== SYNTAX
+
+int hal_struct_newf(int _comp_id_, long int _size_, const void *_defval_, const char *_fmt_, _..._)
+
+int hal_struct_attach(const char *_name_, void **_memptr_)
+
+int hal_struct_detach(const char *_name_)
+
+== ARGUMENTS
+
+_comp_id_::
+  A HAL component identifier returned by an earlier call to *hal_init*.
+
+_size_::
+  The number of bytes to allocate in HAL shared memory for the data blob.
+
+_defval_::
+  A pointer to an initialiser of _size_ bytes that is copied into the
+  newly allocated blob.  If NULL the blob is zero-initialised.
+
+_fmt, ..._::
+  A printf-style format string and arguments that form the name of the entry.
+  The resulting name must be no longer than HAL_NAME_LEN characters.
+
+_name_::
+  The name of the struct entry to find, as passed to *hal_struct_newf*.
+
+_memptr_::
+  Address of a pointer that will be set to point at the data blob on success.
+
+== DESCRIPTION
+
+HAL struct entries are named, reference-counted opaque blobs that live in HAL
+shared memory.  They occupy a separate namespace from pins, signals, and
+parameters and are therefore not visible in *halcmd show pin* or
+*halcmd show param* output.  Use *halcmd show struct* to inspect them.
+
+*hal_struct_newf* allocates _size_ bytes from HAL shared memory, optionally
+initialises the region from _defval_ (or zeroes if NULL), and registers it
+under the printf-formatted name.  The function must be called before
+*hal_ready(3)*.  There is no corresponding delete function; the data lives for
+the lifetime of the HAL shared memory block.  The entry metadata is reclaimed
+automatically when the owning component calls *hal_exit(3)*.
+
+*hal_struct_attach* finds the entry by name, increments its reference count,
+and stores a pointer to the data blob in _*memptr_.  It may be called from
+both realtime and userspace contexts after *hal_init(3)*.
+
+*hal_struct_detach* decrements the reference count.  Calling it when the
+reference count is already zero is an error.  The data is not freed.
+
+== RETURN VALUE
+
+All three functions return 0 on success.  On failure they return a negative
+HAL status code:
+
+*-EINVAL*::
+  Bad argument, duplicate name (*hal_struct_newf*), component is already ready
+  (*hal_struct_newf*), or detach underflow (*hal_struct_detach*).
+
+*-ENOMEM*::
+  Name too long, or HAL shared memory exhausted.
+
+*-ENOENT*::
+  No entry with the given name found (*hal_struct_attach* or *hal_struct_detach*).
+
+== EXAMPLE
+
+RT side (in _rtapi_app_main_):
+
+----
+typedef struct { double value; int count; } my_params_t;
+static my_params_t *params;
+
+my_params_t defaults = { 1.0, 0 };
+if (hal_struct_newf(comp_id, sizeof(*params), &defaults,
+                    "%s.params", prefix) < 0)
+    return -1;
+if (hal_struct_attach(prefix ".params", (void **)&params) < 0)
+    return -1;
+----
+
+Userspace side:
+
+----
+my_params_t *params;
+if (hal_struct_attach("mycomp.params", (void **)&params) < 0)
+    return -1;
+/* read params->value, params->count ... */
+hal_struct_detach("mycomp.params");
+----
+
+== SEE ALSO
+
+hal_init(3), hal_malloc(3), hal_exit(3), halcmd(1)
