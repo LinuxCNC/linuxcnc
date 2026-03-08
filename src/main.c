@@ -244,15 +244,18 @@ int rtapi_app_main(void) {
     }
 
     // initialize dc sync
-#ifdef RTAPI_TASK_PLL_SUPPORT
-    if (master->ref_clock_sync_cycles < 0) {
-      lcec_dc_init_m2r(master);
-    } else {
+    if (master->ref_clock_sync_cycles >= 0) {
       lcec_dc_init_r2m(master);
-    }
+    } else {
+#ifdef RTAPI_TASK_PLL_SUPPORT
+      lcec_dc_init_m2r(master);
 #else
-    lcec_dc_init_r2m(master);
+      rtapi_print_msg(RTAPI_MSG_ERR,
+          LCEC_MSG_PFX "master %s: M2R DC sync mode not available"
+          " (RTAPI_TASK_PLL_SUPPORT missing).\n", master->name);
+      goto fail2;
 #endif
+    }
 
     // select reference clock slave (if configured)
     if (master->ref_clock_slave_idx >= 0) {

@@ -357,19 +357,18 @@ typedef struct lcec_master {
   int ref_clock_slave_idx;         /**< Bus index of the DC reference-clock slave, or -1 for default. */
   long period_last;                /**< Servo period measured during the previous cycle (ns). */
   ec_master_state_t ms;            /**< Most-recently read EtherCAT master state snapshot. */
-
   lcec_dcsync_callbacks_t dcsync_callbacks; /**< Optional callbacks for DC synchronisation events. */
   int ref_clock_sync_counter;               /**< Remaining cycles before the next DC ref-clock sync. */
-
   uint64_t app_time_ns;    /**< Application time written to the EtherCAT master each cycle (ns). */
   uint64_t ref_time_ns;    /**< Reference time snapshot used for computing the DC time offset (ns). */
-
+#ifdef RTAPI_TASK_PLL_SUPPORT
   uint64_t dc_time_ns;     /**< DC system time read from the reference clock slave (ns). */
   int dc_started;          /**< Non-zero once the DC synchronisation PI controller has been seeded. */
   int64_t dc_diff_ns;      /**< Current DC phase error (application time minus DC time) in ns. */
   double dc_kp;          /**< PI proportional gain for DC synchronisation. */
   double dc_ki;          /**< PI integral gain for DC synchronisation. */
   double dc_integrator;  /**< PI integral accumulator for DC synchronisation. */
+#endif
 } lcec_master_t;
 
 /**

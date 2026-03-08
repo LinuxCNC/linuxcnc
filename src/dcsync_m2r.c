@@ -156,7 +156,7 @@ static void cycle_start(struct lcec_master *master) {
  *      pin is incremented.
  *
  *   4. **Slave clock sync**: calls @c ecrt_master_sync_slave_clocks() to
- *      distribute the current application time to all slaves.
+ *      distribute the current reference clock time to all slaves.
  *
  *   5. **Next-cycle prediction**: updates @c master->dc_time_ns with an
  *      estimate of the application time at the next pre_send() call, using
@@ -266,7 +266,7 @@ static void post_send(struct lcec_master *master) {
   if (master->dc_integrator > DC_INTEGRATOR_MAX) master->dc_integrator = DC_INTEGRATOR_MAX;
   if (master->dc_integrator < -DC_INTEGRATOR_MAX) master->dc_integrator = -DC_INTEGRATOR_MAX;
 
-  // Proportional + Integral output (negative: positive error => advance clock)
+  // Proportional + Integral output (positive error => advance clock)
   double correction = (master->dc_kp * error + master->dc_integrator);
 
   // Output clamp (safety)
