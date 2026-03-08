@@ -1116,10 +1116,12 @@ double tpComputeOptimalVelocity_9D(TC_STRUCT const * const tc,
     // All inputs are in physical mm/s (feed-scaled). jerkLimitedMaxEntryVelocity
     // is nonlinear (braking distance ∝ v²), so computing in scaled space avoids
     // the systematic gap that appears when the forward pass re-checks at feed≠1.
-    // Use trapezoidal for v_f≈0 (tail/STOP segments) for fast velocity recovery
-    // in the backward chain.
+    // Always use jerk-limited formula, including v_f=0 (STOP/EXACT segments).
+    // Trapezoidal (sqrt(2*a*d)) ignores jerk and overestimates the safe approach
+    // velocity for short STOP segments — the predecessor gets too-high final_vel,
+    // which the forward pass then delivers to the STOP segment causing overshoot.
     double vs_back;
-    if (jrk_this > 0.0 && v_f_this > 1e-6) {
+    if (jrk_this > 0.0) {
         vs_back = jerkLimitedMaxEntryVelocity(v_f_this, tc->target, acc_this, jrk_this);
     } else {
         vs_back = sqrt(v_f_this * v_f_this + 2.0 * acc_this * tc->target);
@@ -1128,13 +1130,19 @@ double tpComputeOptimalVelocity_9D(TC_STRUCT const * const tc,
     // Constraint 2: Current segment velocity limit (scaled to physical mm/s)
     double vf_limit_this = tcGetPlanMaxTargetVel(tc, feed_tc);
 
-    // Constraint 3: Previous segment velocity limit (with kink)
-    // kink_vel is an absolute physical limit — applyKinkVelLimit caps correctly
+    // Constraint 3: Previous segment velocity limit (with kink at its own entry)
+    // prev_tc->kink_vel is the kink at the junction before prev_tc.
     double v_max_prev = tcGetPlanMaxTargetVel(prev_tc, feed_prev);
     double vf_limit_prev = applyKinkVelLimit(prev_tc, v_max_prev);
 
+    // Constraint 4: Junction kink at the prev_tc→tc boundary.
+    // tc->kink_vel is the physical kink limit for *entering* tc, which equals
+    // the *exit* velocity of prev_tc.  The backward pass must enforce this here
+    // so prev_tc's final_vel never exceeds the junction constraint ahead of it.
+    double vf_kink_tc = (tc->kink_vel > 0.0) ? tc->kink_vel : 1e9;
+
     // Return minimum of all constraints
-    double v_optimal = std::min({vs_back, vf_limit_this, vf_limit_prev});
+    double v_optimal = std::min({vs_back, vf_limit_this, vf_limit_prev, vf_kink_tc});
 
     return v_optimal;
 }
@@ -1554,6 +1562,7 @@ static bool computeAndStoreProfile(TC_STRUCT *tc, const RuckigProfileParams &p)
         tc->shared_9d.profile.computed_vLimit = p.vLimit;
         tc->shared_9d.profile.computed_desired_fvel = p.desired_fvel;
         tc->shared_9d.profile.locked = (result == ruckig::Result::Working) ? 1 : 0;
+        tc->shared_9d.profile.written_at_feed  = g_feed_mgr.committed_feed;
         copyRuckigProfile(traj, &tc->shared_9d.profile);
         return true;
     } else {
@@ -2289,7 +2298,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                     scaled_v_entry = fmin(scaled_v_entry, prev_tc->kink_vel);
             }
         }
-
         // Target exit velocity from backward pass
         double v_exit = (tc->term_cond == TC_TERM_COND_TANGENT)
             ? readFinalVelCapped(tc) : 0.0;
@@ -2441,7 +2449,12 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
         bool bidir_restore_fired = false;
         if (pre_bidir_v_entry - scaled_v_entry > 0.1 && i > 0) {
             TC_STRUCT *prev_tc_fix = tcqItem_user(queue, i - 1);
-            if (prev_tc_fix && (prev_tc_fix->active || prev_was_corridor)) {
+            // Don't restore for STOP/EXACT: the machine must stop regardless.
+            // Restoring a high v_entry and then setting v_exit=min_exit>0 produces
+            // a profile that doesn't stop at a STOP segment — causing overshoot.
+            // Accept the v0-gap spike instead; it's less bad than position overshoot.
+            if (prev_tc_fix && (prev_tc_fix->active || prev_was_corridor) &&
+                tc->term_cond == TC_TERM_COND_TANGENT) {
                 scaled_v_entry = pre_bidir_v_entry;
                 // Override exit with physics-based minimum from braking.
                 double min_exit = jerkLimitedMinExitVelocity(
