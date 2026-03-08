@@ -4893,7 +4893,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
                 double maxacc_next = tcGetTangentialMaxAccel(nexttc);
                 nexttc->currentacc = saturate(tc->currentacc, maxacc_next);
 
-
             } else {
                 // Trapezoidal: can use term_vel (assumes instant velocity change)
                 nexttc->currentvel = tc->term_vel;
@@ -5103,44 +5102,41 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         }
     }
 
-    // Correct profile v0 mismatch at split junction.
+    // Stale-feed v0 clamp at split junction.
     // When feed override changes between profile computation and junction
-    // arrival, the profile's v[0] doesn't match the actual junction velocity.
-    // tpUpdateCycle samples the profile and overwrites currentvel with the
-    // profile velocity, creating a discontinuity. Correct by shifting
-    // velocity and position by the mismatch delta. Both progress and
-    // position_base are shifted equally so subsequent cycle displacements
-    // (which depend on delta-progress) are unaffected.
-    // Correct positive v0 mismatch (junction_vel > profile_v0), capped at
-    // one jerk step (maxjerk * dt²) so the velocity correction on cycle 2
-    // (when the profile takes over) stays within the segment's jerk limit.
-    // Negative corrections (junction_vel < profile_v0) are NOT applied:
-    // they shift position_base negative, which causes the segment to land
-    // short of target and trigger a 10-cycle stuck detection stall — worse
-    // than the velocity step itself for small mismatches, and ineffective
-    // for large ones (e.g. feed hold recovery with 40 mm/s gap).
-    // v0_correction DISABLED for testing — OLD code had none.
-    // When enabled, this shifts currentvel/progress/position_base to partially
-    // absorb junction velocity mismatch, but the position_base discontinuity
-    // itself may cause jerk spikes visible in halscope.
-#if 0
+    // arrival, profile.v[0] may not match the actual junction velocity.
+    // tpUpdateCycle samples the profile at t=0 and overwrites currentvel
+    // with profile.v[0], creating a discontinuity.
+    //
+    // Gate: only apply when the profile's written_at_feed differs from the
+    // current canonical_feed_scale by more than 5%.  This avoids perturbing
+    // normal (feed-consistent) profile handoffs.
+    //
+    // Correction: clamp nexttc->currentvel to junction_vel and shift
+    // progress/position_base by the proportional first-cycle displacement
+    // correction so the path position is consistent with the clamped velocity.
+    // Userspace will write a fresh profile at the new feed within 1-2 cycles.
     if (GET_TRAJ_PLANNER_TYPE() == 2 &&
         __atomic_load_n(&nexttc->shared_9d.profile.valid, __ATOMIC_ACQUIRE)) {
-        double profile_v0 = nexttc->shared_9d.profile.v[0];
-        double vel_mismatch = junction_vel - profile_v0;
-        if (vel_mismatch > 0.01) {
-            double dt = tp->cycleTime;
-            double max_pos_corr = nexttc->maxjerk * dt * dt;
-            if (vel_mismatch > max_pos_corr)
-                vel_mismatch = max_pos_corr;
-            nexttc->currentvel += vel_mismatch;
-            // Correct split-cycle displacement to reflect actual velocity
-            double pos_correction = vel_mismatch * nexttc_remain_time;
-            nexttc->progress += pos_correction;
-            nexttc->position_base += pos_correction;
+        double _wf = nexttc->shared_9d.profile.written_at_feed;
+        double _cf = nexttc->shared_9d.canonical_feed_scale;
+        if (_cf > 0.001 && _wf > 0.001 && fabs(_wf - _cf) / _cf > 0.05) {
+            double profile_v0 = nexttc->shared_9d.profile.v[0];
+            double vel_mismatch = junction_vel - profile_v0;
+            if (fabs(vel_mismatch) > 0.5) {
+                // Correct currentvel to physical junction velocity
+                nexttc->currentvel = junction_vel;
+                // Correct first-cycle displacement: was profile_v0*remain_time,
+                // should be junction_vel*remain_time.
+                double pos_correction = vel_mismatch * nexttc_remain_time;
+                nexttc->progress += pos_correction;
+                nexttc->position_base += pos_correction;
+                // Clamp progress to [0, target] to be safe
+                if (nexttc->progress < 0.0) nexttc->progress = 0.0;
+                if (nexttc->progress > nexttc->target) nexttc->progress = nexttc->target;
+            }
         }
     }
-#endif
 
     // Post-correct elapsed_time for Ruckig split cycle.
     // tpUpdateCycle sampled at remain_time then advanced by remain_time internally

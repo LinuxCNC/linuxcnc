@@ -210,6 +210,7 @@ typedef struct {
     volatile int generation;                // Incremented each time profile is rewritten (stopwatch reset detection)
     double duration;                        // Total profile duration (seconds)
     double computed_feed_scale;             // Feed scale when profile was computed
+    double written_at_feed;                 // committed_feed when profile was written (planner-side)
     double computed_vel_limit;              // Velocity limit when profile was computed (for vLimit change detection)
     double computed_vLimit;                 // tp->vLimit when profile was computed (absolute cap, not scaled by feed)
     double computed_desired_fvel;            // Desired final velocity when profile was computed (for convergence detection)
