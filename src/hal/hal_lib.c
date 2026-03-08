@@ -4387,148 +4387,155 @@ int hal_stream_num_underruns(hal_stream_t *stream) {
  * ======================================================================== */
 
 int hal_struct_newf(int comp_id, long int size, const void *defval,
-                    const char *fmt, ...)
+		    const char *fmt, ...)
 {
-    char name[HAL_NAME_LEN + 1];
-    int sz, cmp;
-    hal_comp_t *comp;
-    hal_struct_entry_t *new_entry, *ptr;
-    rtapi_intptr_t *prev, next;
-    void *data;
-    va_list ap;
+	char name[HAL_NAME_LEN + 1];
+	int sz, cmp;
+	hal_comp_t *comp;
+	hal_struct_entry_t *new_entry, *ptr;
+	rtapi_intptr_t *prev, next;
+	void *data;
+	va_list ap;
 
-    va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
-    va_end(ap);
-    if (sz < 0 || sz > HAL_NAME_LEN) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: hal_struct_newf: name too long\n");
-        return -ENOMEM;
-    }
-    if (hal_data == 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: hal_struct_newf called before init\n");
-        return -EINVAL;
-    }
+	va_start(ap, fmt);
+	sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+	va_end(ap);
+	if (sz < 0 || sz > HAL_NAME_LEN) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf: name too long\n");
+		return -ENOMEM;
+	}
+	if (hal_data == 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf called before init\n");
+		return -EINVAL;
+	}
 
-    rtapi_mutex_get(&(hal_data->mutex));
+	rtapi_mutex_get(&(hal_data->mutex));
 
-    comp = halpr_find_comp_by_id(comp_id);
-    if (!comp) {
-        rtapi_mutex_give(&(hal_data->mutex));
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: hal_struct_newf: component %d not found\n", comp_id);
-        return -EINVAL;
-    }
+	comp = halpr_find_comp_by_id(comp_id);
+	if (!comp) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf: component %d not found\n", comp_id);
+		return -EINVAL;
+	}
+	if (comp->ready) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf called after hal_ready\n");
+		return -EINVAL;
+	}
 
-    /* Allocate the entry metadata (from shmalloc_dn, no extra mutex needed) */
-    new_entry = alloc_struct_entry();
-    if (!new_entry) {
-        rtapi_mutex_give(&(hal_data->mutex));
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: hal_struct_newf: insufficient memory for entry '%s'\n", name);
-        return -ENOMEM;
-    }
+	/* Check for duplicate name before allocating the data blob.
+	 * shmalloc_up has no corresponding free, so we must not allocate
+	 * memory we cannot use. */
+	prev = &(hal_data->struct_list_ptr);
+	next = *prev;
+	while (next != 0) {
+		ptr = SHMPTR(next);
+		cmp = strcmp(ptr->name, name);
+		if (cmp == 0) {
+			rtapi_mutex_give(&(hal_data->mutex));
+			rtapi_print_msg(RTAPI_MSG_ERR,
+			    "HAL: hal_struct_newf: duplicate name '%s'\n", name);
+			return -EINVAL;
+		}
+		if (cmp > 0)
+			break; /* insertion point found */
+		prev = &(ptr->next_ptr);
+		next = *prev;
+	}
 
-    /* Allocate the data blob (shmalloc_up, mutex already held) */
-    data = shmalloc_up(size);
-    if (!data) {
-        free_struct_entry(new_entry);
-        rtapi_mutex_give(&(hal_data->mutex));
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: hal_struct_newf: can't allocate %ld bytes for '%s'\n",
-            size, name);
-        return -ENOMEM;
-    }
+	/* Allocate the entry metadata */
+	new_entry = alloc_struct_entry();
+	if (!new_entry) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf: insufficient memory for entry '%s'\n", name);
+		return -ENOMEM;
+	}
 
-    if (defval)
-        memcpy(data, defval, (size_t)size);
-    else
-        memset(data, 0, (size_t)size);
+	/* Allocate the data blob — shmalloc_up, mutex already held */
+	data = shmalloc_up(size);
+	if (!data) {
+		free_struct_entry(new_entry);
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf: can't allocate %ld bytes for '%s'\n",
+		    size, name);
+		return -ENOMEM;
+	}
 
-    /* Fill in the entry */
-    new_entry->owner_ptr = SHMOFF(comp);
-    new_entry->data_ptr = SHMOFF(data);
-    new_entry->attach_count = 0;
-    rtapi_snprintf(new_entry->name, sizeof(new_entry->name), "%s", name);
+	if (defval)
+		memcpy(data, defval, (size_t)size);
+	else
+		memset(data, 0, (size_t)size);
 
-    /* Insert into struct list, sorted by name */
-    prev = &(hal_data->struct_list_ptr);
-    next = *prev;
-    while (1) {
-        if (next == 0) {
-            new_entry->next_ptr = next;
-            *prev = SHMOFF(new_entry);
-            rtapi_mutex_give(&(hal_data->mutex));
-            return 0;
-        }
-        ptr = SHMPTR(next);
-        cmp = strcmp(ptr->name, new_entry->name);
-        if (cmp > 0) {
-            new_entry->next_ptr = next;
-            *prev = SHMOFF(new_entry);
-            rtapi_mutex_give(&(hal_data->mutex));
-            return 0;
-        }
-        if (cmp == 0) {
-            free_struct_entry(new_entry);
-            rtapi_mutex_give(&(hal_data->mutex));
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "HAL: hal_struct_newf: duplicate name '%s'\n", name);
-            return -EINVAL;
-        }
-        prev = &(ptr->next_ptr);
-        next = *prev;
-    }
+	/* Fill in and insert the entry at the position found above */
+	new_entry->owner_ptr = SHMOFF(comp);
+	new_entry->data_ptr = SHMOFF(data);
+	new_entry->attach_count = 0;
+	rtapi_snprintf(new_entry->name, sizeof(new_entry->name), "%s", name);
+	new_entry->next_ptr = next;
+	*prev = SHMOFF(new_entry);
+
+	rtapi_mutex_give(&(hal_data->mutex));
+	return 0;
 }
 
 int hal_struct_attach(const char *name, void **memptr)
 {
-    hal_struct_entry_t *entry;
+	hal_struct_entry_t *entry;
 
-    if (hal_data == 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: hal_struct_attach called before init\n");
-        return -EINVAL;
-    }
-    if (!name || !memptr)
-        return -EINVAL;
+	if (hal_data == 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_attach called before init\n");
+		return -EINVAL;
+	}
+	if (!name || !memptr)
+		return -EINVAL;
 
-    rtapi_mutex_get(&(hal_data->mutex));
-    entry = halpr_find_struct_by_name(name);
-    if (entry == 0) {
-        rtapi_mutex_give(&(hal_data->mutex));
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: hal_struct_attach: '%s' not found\n", name);
-        return -ENOENT;
-    }
-    entry->attach_count++;
-    *memptr = SHMPTR(entry->data_ptr);
-    rtapi_mutex_give(&(hal_data->mutex));
-    return 0;
+	rtapi_mutex_get(&(hal_data->mutex));
+	entry = halpr_find_struct_by_name(name);
+	if (entry == 0) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_attach: '%s' not found\n", name);
+		return -ENOENT;
+	}
+	entry->attach_count++;
+	*memptr = SHMPTR(entry->data_ptr);
+	rtapi_mutex_give(&(hal_data->mutex));
+	return 0;
 }
 
 int hal_struct_detach(const char *name)
 {
-    hal_struct_entry_t *entry;
+	hal_struct_entry_t *entry;
 
-    if (hal_data == 0)
-        return -EINVAL;
-    if (!name)
-        return -EINVAL;
+	if (hal_data == 0)
+		return -EINVAL;
+	if (!name)
+		return -EINVAL;
 
-    rtapi_mutex_get(&(hal_data->mutex));
-    entry = halpr_find_struct_by_name(name);
-    if (entry == 0) {
-        rtapi_mutex_give(&(hal_data->mutex));
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "HAL: hal_struct_detach: '%s' not found\n", name);
-        return -ENOENT;
-    }
-    if (entry->attach_count > 0)
-        entry->attach_count--;
-    rtapi_mutex_give(&(hal_data->mutex));
-    return 0;
+	rtapi_mutex_get(&(hal_data->mutex));
+	entry = halpr_find_struct_by_name(name);
+	if (entry == 0) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_detach: '%s' not found\n", name);
+		return -ENOENT;
+	}
+	if (entry->attach_count == 0) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_detach: '%s' has no attachments\n", name);
+		return -EINVAL;
+	}
+	entry->attach_count--;
+	rtapi_mutex_give(&(hal_data->mutex));
+	return 0;
 }
 
 #ifdef RTAPI
