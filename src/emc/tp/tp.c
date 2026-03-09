@@ -359,25 +359,6 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
 /**
  * Get acceleration for a tc based on the trajectory planner state.
  */
-STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp __attribute__((unused)),
-        TC_STRUCT const * const tc) {
-    double a_scale = tc->maxaccel;
-    /* Parabolic blending conditions: If the next segment or previous segment
-     * has a parabolic blend with this one, acceleration is scaled down by 1/2
-     * so that the sum of the two does not exceed the maximum.
-     */
-    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
-        a_scale *= 0.5;
-    }
-    else {
-        a_scale *= 8.0/15.0;
-    }
-    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
-        //Limit acceleration for cirular arcs to allow for normal acceleration
-        a_scale *= tc->acc_ratio_tan;
-    }
-    return a_scale;
-}
 
 /**
  * Convert the 2-part spindle position and sign to a signed double.
