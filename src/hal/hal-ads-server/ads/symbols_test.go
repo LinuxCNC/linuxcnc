@@ -1018,6 +1018,53 @@ func TestReadWriteDataSymbolInfoByNameExNullTerminated(t *testing.T) {
 	}
 }
 
+// TestReadWriteDataSymbolInfoByNameExTruncated verifies that ReadWriteData with
+// IdxGrpSymbolInfoByNameEx (0xF009) truncates the response to readLen and updates
+// the entryLength field accordingly. This matches the TwinCAT HMI behaviour of
+// requesting ReadLen=30 (only the fixed header).
+func TestReadWriteDataSymbolInfoByNameExTruncated(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.nVal", newDintPin(0))
+
+	// Simulate a TwinCAT HMI that requests only the 30-byte fixed header.
+	const wantLen = 30
+	data, errCode := st.ReadWriteData(IdxGrpSymbolInfoByNameEx, 0, wantLen, []byte("stFoo.nVal"))
+	if errCode != ErrNoError {
+		t.Fatalf("ReadWriteData(IdxGrpSymbolInfoByNameEx, readLen=30) error: 0x%X", errCode)
+	}
+	if len(data) != wantLen {
+		t.Fatalf("response length = %d, want %d", len(data), wantLen)
+	}
+	// entryLength (first 4 bytes) must equal the truncated length.
+	entryLen := binary.LittleEndian.Uint32(data[0:4])
+	if entryLen != wantLen {
+		t.Errorf("entryLength = %d, want %d", entryLen, wantLen)
+	}
+}
+
+// TestReadWriteDataSymbolInfoByNameTruncated verifies that ReadWriteData with
+// IdxGrpSymbolInfoByName (0xF007) also truncates the response to readLen for
+// non-12-byte read lengths.
+func TestReadWriteDataSymbolInfoByNameTruncated(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.nVal", newDintPin(0))
+
+	// Request with a readLen smaller than the full response but not the special 12.
+	const wantLen = 20
+	data, errCode := st.ReadWriteData(IdxGrpSymbolInfoByName, 0, wantLen, []byte("stFoo.nVal"))
+	if errCode != ErrNoError {
+		t.Fatalf("ReadWriteData(IdxGrpSymbolInfoByName, readLen=20) error: 0x%X", errCode)
+	}
+	if len(data) != wantLen {
+		t.Fatalf("response length = %d, want %d", len(data), wantLen)
+	}
+	// entryLength (first 4 bytes) must equal the truncated length.
+	entryLen := binary.LittleEndian.Uint32(data[0:4])
+	if entryLen != wantLen {
+		t.Errorf("entryLength = %d, want %d", entryLen, wantLen)
+	}
+}
+
 // TestSetGroupArrayInfo verifies that SetGroupArrayInfo sets the array fields
 // on the named group symbol.
 func TestSetGroupArrayInfo(t *testing.T) {

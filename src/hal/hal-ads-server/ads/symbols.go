@@ -437,13 +437,15 @@ func (st *SymbolTable) ReadWriteData(indexGroup, indexOffset, readLen uint32, wr
 			binary.LittleEndian.PutUint32(buf[8:12], sym.Accessor.Size())
 			return buf, ErrNoError
 		}
-		// Full symbol info response.
-		return buildSymbolInfo(sym), ErrNoError
+		// Full symbol info response, truncated to readLen if needed.
+		return truncateSymbolInfo(buildSymbolInfo(sym), readLen), ErrNoError
 
 	case IdxGrpSymbolInfoByNameEx:
 		// ADSIGRP_SYM_INFOBYNAMEEX: extended symbol info by name (ReadWrite).
 		// writeData contains the null-terminated symbol name; response is the
 		// extended AdsSymbolEntry with arrayDim, dataTypeGUID, and per-dim bounds.
+		// Truncate to readLen if the client requests a smaller buffer (e.g. readLen=30
+		// means the client only wants the fixed 30-byte header).
 		name := strings.TrimRight(string(writeData), "\x00")
 		st.mu.RLock()
 		sym := st.findSymbolWithFallback(name)
@@ -451,7 +453,7 @@ func (st *SymbolTable) ReadWriteData(indexGroup, indexOffset, readLen uint32, wr
 		if sym == nil {
 			return nil, ErrNoSymbol
 		}
-		return buildSymbolInfoEx(sym), ErrNoError
+		return truncateSymbolInfo(buildSymbolInfoEx(sym), readLen), ErrNoError
 
 	case IdxGrpSumRead:
 		// indexOffset = number of read sub-requests.
@@ -656,6 +658,21 @@ func buildSymbolInfoEx(sym *Symbol) []byte {
 	}
 	// Update entryLength (first uint32) to reflect the extended total.
 	binary.LittleEndian.PutUint32(buf[0:], uint32(len(buf)))
+	return buf
+}
+
+// truncateSymbolInfo truncates a symbol info response buffer to at most maxLen bytes.
+// If truncation occurs, the entryLength field (first 4 bytes) is updated to reflect
+// the truncated length so it remains self-consistent. If maxLen is 0 or larger than
+// the buffer, the buffer is returned unchanged.
+func truncateSymbolInfo(buf []byte, maxLen uint32) []byte {
+	if maxLen == 0 || uint32(len(buf)) <= maxLen {
+		return buf
+	}
+	buf = buf[:maxLen]
+	if maxLen >= 4 {
+		binary.LittleEndian.PutUint32(buf[0:4], maxLen)
+	}
 	return buf
 }
 
