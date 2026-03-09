@@ -357,10 +357,6 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
 }
 
 /**
- * Get acceleration for a tc based on the trajectory planner state.
- */
-
-/**
  * Convert the 2-part spindle position and sign to a signed double.
  */
 STATIC inline double tpGetSignedSpindlePosition(spindle_status_t *status) {
