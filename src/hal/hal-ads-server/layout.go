@@ -38,6 +38,18 @@ type LayoutPin struct {
 //	LREAL                    → size 8, align 8
 //	STRING(n)                → size n+1, align 1
 func TypeSize(typeName string) (size, align uint32, err error) {
+	return typeSizeResolved(typeName, nil)
+}
+
+// typeSizeResolved is the internal implementation of TypeSize that also
+// accepts an optional TypeAliasMap for resolving @type aliases.
+func typeSizeResolved(typeName string, aliases TypeAliasMap) (size, align uint32, err error) {
+	// Resolve alias first (aliases take priority to preserve the caller's intent).
+	if aliases != nil {
+		if alias, ok := aliases[typeName]; ok {
+			return typeSizeResolved(alias.BaseType, nil)
+		}
+	}
 	if strings.HasPrefix(typeName, "STRING(") {
 		var n int
 		if _, err2 := fmt.Sscanf(typeName, "STRING(%d)", &n); err2 != nil || n <= 0 {
@@ -75,12 +87,20 @@ func TypeSize(typeName string) (size, align uint32, err error) {
 // LayoutPins with Dir == DirPad. Auto-alignment is applied to them too,
 // which means that if a config already contains correctly-placed pad entries
 // the result is identical (idempotent).
-func ComputeLayout(roots []*Node) ([]LayoutPin, error) {
+//
+// The optional aliases parameter provides @type alias resolution so that
+// user-defined type names (e.g. "EN_DISP_MSGTYPE") are correctly mapped to
+// their base types for size/alignment computation.
+func ComputeLayout(roots []*Node, aliases ...TypeAliasMap) ([]LayoutPin, error) {
+	var am TypeAliasMap
+	if len(aliases) > 0 {
+		am = aliases[0]
+	}
 	var pins []LayoutPin
 	offset := uint32(0)
 	for _, node := range roots {
 		var err error
-		offset, err = layoutNode(node, offset, "", "", &pins)
+		offset, err = layoutNode(node, offset, "", "", &pins, am)
 		if err != nil {
 			return nil, err
 		}
@@ -99,14 +119,14 @@ func alignUp(n, align uint32) uint32 {
 // nodeMaxAlign returns the natural alignment of node:
 // for a leaf it is the alignment of the field type;
 // for a container it is the maximum alignment of all descendants.
-func nodeMaxAlign(node *Node) (uint32, error) {
+func nodeMaxAlign(node *Node, aliases TypeAliasMap) (uint32, error) {
 	if len(node.Children) == 0 {
-		_, al, err := TypeSize(node.TypeName)
+		_, al, err := typeSizeResolved(node.TypeName, aliases)
 		return al, err
 	}
 	var maxAl uint32 = 1
 	for _, child := range node.Children {
-		al, err := nodeMaxAlign(child)
+		al, err := nodeMaxAlign(child, aliases)
 		if err != nil {
 			return 0, err
 		}
@@ -119,13 +139,13 @@ func nodeMaxAlign(node *Node) (uint32, error) {
 
 // layoutNode places a single node starting at offset (aligning as needed) and
 // returns the next available offset. It appends LayoutPins to *pins.
-func layoutNode(node *Node, offset uint32, halPfx, adsPfx string, pins *[]LayoutPin) (uint32, error) {
+func layoutNode(node *Node, offset uint32, halPfx, adsPfx string, pins *[]LayoutPin, aliases TypeAliasMap) (uint32, error) {
 	halName := joinName(halPfx, node.Name)
 	adsName := joinName(adsPfx, node.Name)
 
 	if len(node.Children) == 0 {
 		// Leaf node.
-		sz, al, err := TypeSize(node.TypeName)
+		sz, al, err := typeSizeResolved(node.TypeName, aliases)
 		if err != nil {
 			return 0, fmt.Errorf("field %q: %w", node.Name, err)
 		}
@@ -145,10 +165,10 @@ func layoutNode(node *Node, offset uint32, halPfx, adsPfx string, pins *[]Layout
 	}
 
 	if node.ArrayStart > 0 {
-		return layoutArray(node, offset, halName, adsName, pins)
+		return layoutArray(node, offset, halName, adsName, pins, aliases)
 	}
 	// Struct container.
-	end, _, err := layoutStruct(node.Children, offset, halName, adsName, pins)
+	end, _, err := layoutStruct(node.Children, offset, halName, adsName, pins, aliases)
 	return end, err
 }
 
@@ -156,11 +176,11 @@ func layoutNode(node *Node, offset uint32, halPfx, adsPfx string, pins *[]Layout
 // start. It aligns the struct start to the struct's max alignment, lays out
 // each member (with alignment gaps), then pads the end to the max alignment.
 // Returns (endOffset, maxAlignment, error).
-func layoutStruct(children []*Node, start uint32, halPfx, adsPfx string, pins *[]LayoutPin) (uint32, uint32, error) {
+func layoutStruct(children []*Node, start uint32, halPfx, adsPfx string, pins *[]LayoutPin, aliases TypeAliasMap) (uint32, uint32, error) {
 	// Compute struct max alignment from all members.
 	var maxAl uint32 = 1
 	for _, child := range children {
-		al, err := nodeMaxAlign(child)
+		al, err := nodeMaxAlign(child, aliases)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -175,7 +195,7 @@ func layoutStruct(children []*Node, start uint32, halPfx, adsPfx string, pins *[
 	// Layout each member.
 	for _, child := range children {
 		var err error
-		offset, err = layoutNode(child, offset, halPfx, adsPfx, pins)
+		offset, err = layoutNode(child, offset, halPfx, adsPfx, pins, aliases)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -189,9 +209,9 @@ func layoutStruct(children []*Node, start uint32, halPfx, adsPfx string, pins *[
 // layoutArray lays out all elements of an array node. It performs a dry run
 // to determine the element size (including tail padding), then places each
 // element at consecutive aligned addresses.
-func layoutArray(node *Node, offset uint32, halPfx, adsPfx string, pins *[]LayoutPin) (uint32, error) {
+func layoutArray(node *Node, offset uint32, halPfx, adsPfx string, pins *[]LayoutPin, aliases TypeAliasMap) (uint32, error) {
 	// Dry run: compute element size and alignment starting at offset 0.
-	elemEnd, elemAl, err := layoutStruct(node.Children, 0, "", "", nil)
+	elemEnd, elemAl, err := layoutStruct(node.Children, 0, "", "", nil, aliases)
 	if err != nil {
 		return 0, err
 	}
@@ -205,7 +225,7 @@ func layoutArray(node *Node, offset uint32, halPfx, adsPfx string, pins *[]Layou
 		halElem := fmt.Sprintf("%s.%d", halPfx, i)
 		adsElem := fmt.Sprintf("%s[%d]", adsPfx, i)
 
-		if _, _, err := layoutStruct(node.Children, elemBase, halElem, adsElem, pins); err != nil {
+		if _, _, err := layoutStruct(node.Children, elemBase, halElem, adsElem, pins, aliases); err != nil {
 			return 0, err
 		}
 		offset = elemBase + elemSz

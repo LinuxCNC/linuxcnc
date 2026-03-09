@@ -25,9 +25,10 @@ func (m *mockPin) WriteBytes(data []byte) error {
 	return nil
 }
 
-func (m *mockPin) Size() uint32     { return m.size }
-func (m *mockPin) TypeName() string { return m.typeName }
-func (m *mockPin) TypeID() uint32   { return m.typeID }
+func (m *mockPin) Size() uint32       { return m.size }
+func (m *mockPin) TypeName() string   { return m.typeName }
+func (m *mockPin) TypeID() uint32     { return m.typeID }
+func (m *mockPin) TypeGUID() [16]byte { return [16]byte{} }
 
 func newBoolPin(val bool) *mockPin {
 	b := byte(0)
@@ -568,6 +569,7 @@ func (z *zeroPadPin) WriteBytes([]byte) error    { return nil }
 func (z *zeroPadPin) Size() uint32               { return z.size }
 func (z *zeroPadPin) TypeName() string           { return z.typeName }
 func (z *zeroPadPin) TypeID() uint32             { return z.typeID }
+func (z *zeroPadPin) TypeGUID() [16]byte         { return [16]byte{} }
 
 // TestPadOffsetAdvance verifies that a padding symbol correctly advances
 // the process-image offset for the symbols that follow it.
@@ -847,3 +849,205 @@ func TestSetGroupSizeTailPadding(t *testing.T) {
 		}
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Tests for ADSIGRP_SYM_INFOBYNAMEEX (0xF009) ReadWrite support
+// ---------------------------------------------------------------------------
+
+// TestBuildSymbolInfoExScalar verifies that buildSymbolInfoEx returns the
+// correct extended AdsSymbolEntry for a scalar symbol (arrayDim=0, zero GUID).
+func TestBuildSymbolInfoExScalar(t *testing.T) {
+	st := NewSymbolTable()
+	sym := st.Register("stFoo.nVal", newDintPin(0))
+
+	buf := buildSymbolInfoEx(sym)
+	if len(buf) < 30+2+16 {
+		t.Fatalf("buildSymbolInfoEx too short: got %d bytes, want ≥ %d", len(buf), 30+2+16)
+	}
+
+	// entryLength (first uint32) must equal the total buffer length.
+	entryLen := binary.LittleEndian.Uint32(buf[0:4])
+	if entryLen != uint32(len(buf)) {
+		t.Errorf("entryLength = %d, want %d (= buffer length)", entryLen, len(buf))
+	}
+
+	// Locate the extension: after the standard AdsSymbolEntry header.
+	// Standard header is 30 bytes + null-terminated name + null-terminated typeName
+	// + null-terminated comment (1 null byte). We can find it by using entryLength.
+	base := buildSymbolInfo(sym)
+	extOff := len(base)
+
+	// arrayDim must be 0 for scalar.
+	arrayDim := binary.LittleEndian.Uint16(buf[extOff : extOff+2])
+	if arrayDim != 0 {
+		t.Errorf("arrayDim = %d, want 0 (scalar)", arrayDim)
+	}
+
+	// dataTypeGUID must be all zeros (mockPin.TypeGUID returns zeros).
+	for i := 0; i < 16; i++ {
+		if buf[extOff+2+i] != 0 {
+			t.Errorf("GUID[%d] = %d, want 0", i, buf[extOff+2+i])
+		}
+	}
+}
+
+// TestBuildSymbolInfoExWithGUID verifies that buildSymbolInfoEx returns the
+// GUID from the accessor's TypeGUID() method.
+func TestBuildSymbolInfoExWithGUID(t *testing.T) {
+	// Use a mock pin with a non-zero GUID.
+	guid := [16]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+	pin := &mockPinWithGUID{mockPin: *newDintPin(42), guid: guid}
+
+	st := NewSymbolTable()
+	sym := st.Register("stFoo.eType", pin)
+
+	buf := buildSymbolInfoEx(sym)
+	base := buildSymbolInfo(sym)
+	extOff := len(base)
+
+	// arrayDim = 0 (scalar), GUID should match.
+	arrayDim := binary.LittleEndian.Uint16(buf[extOff : extOff+2])
+	if arrayDim != 0 {
+		t.Errorf("arrayDim = %d, want 0", arrayDim)
+	}
+	for i := 0; i < 16; i++ {
+		if buf[extOff+2+i] != guid[i] {
+			t.Errorf("GUID[%d] = %d, want %d", i, buf[extOff+2+i], guid[i])
+		}
+	}
+}
+
+// TestBuildSymbolInfoExArray verifies buildSymbolInfoEx for an array container
+// symbol (arrayDim=1 with bounds).
+func TestBuildSymbolInfoExArray(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.aPools[1].nVal", newDintPin(0))
+	st.Register("stFoo.aPools[2].nVal", newDintPin(0))
+
+	// Mark aPools as a 1D array container.
+	st.SetGroupArrayInfo("stFoo.aPools", 1, 1, 2)
+
+	sym := st.GetByName("stFoo.aPools")
+	if sym == nil {
+		t.Fatal("group symbol stFoo.aPools not found")
+	}
+
+	buf := buildSymbolInfoEx(sym)
+	base := buildSymbolInfo(sym)
+	extOff := len(base)
+
+	// entryLength must equal total buffer length.
+	entryLen := binary.LittleEndian.Uint32(buf[0:4])
+	if entryLen != uint32(len(buf)) {
+		t.Errorf("entryLength = %d, want %d", entryLen, len(buf))
+	}
+
+	// arrayDim = 1.
+	arrayDim := binary.LittleEndian.Uint16(buf[extOff : extOff+2])
+	if arrayDim != 1 {
+		t.Errorf("arrayDim = %d, want 1", arrayDim)
+	}
+
+	// GUID = zeros (groupAccessor.TypeGUID() returns zeros).
+	for i := 0; i < 16; i++ {
+		if buf[extOff+2+i] != 0 {
+			t.Errorf("GUID[%d] = %d, want 0", i, buf[extOff+2+i])
+		}
+	}
+
+	// Per-dimension bounds: lBound=1, elements=2.
+	dimOff := extOff + 2 + 16
+	lBound := binary.LittleEndian.Uint32(buf[dimOff : dimOff+4])
+	elems := binary.LittleEndian.Uint32(buf[dimOff+4 : dimOff+8])
+	if lBound != 1 {
+		t.Errorf("lBound = %d, want 1", lBound)
+	}
+	if elems != 2 {
+		t.Errorf("elements = %d, want 2", elems)
+	}
+}
+
+// TestReadWriteDataSymbolInfoByNameEx verifies that ReadWriteData with
+// IdxGrpSymbolInfoByNameEx (0xF009) returns a valid extended symbol info
+// response for a known symbol.
+func TestReadWriteDataSymbolInfoByNameEx(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.nVal", newDintPin(0))
+
+	// Request extended info via ReadWrite with IG=0xF009.
+	data, errCode := st.ReadWriteData(IdxGrpSymbolInfoByNameEx, 0, 64, []byte("stFoo.nVal"))
+	if errCode != ErrNoError {
+		t.Fatalf("ReadWriteData(IdxGrpSymbolInfoByNameEx) error: 0x%X", errCode)
+	}
+	if len(data) < 30+2+16 {
+		t.Fatalf("response too short: got %d bytes, want ≥ %d", len(data), 30+2+16)
+	}
+
+	// entryLength must be consistent.
+	entryLen := binary.LittleEndian.Uint32(data[0:4])
+	if entryLen != uint32(len(data)) {
+		t.Errorf("entryLength = %d, want %d", entryLen, len(data))
+	}
+}
+
+// TestReadWriteDataSymbolInfoByNameExNotFound verifies that ReadWriteData with
+// IdxGrpSymbolInfoByNameEx returns ErrNoSymbol for an unknown symbol name.
+func TestReadWriteDataSymbolInfoByNameExNotFound(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.nVal", newDintPin(0))
+
+	_, errCode := st.ReadWriteData(IdxGrpSymbolInfoByNameEx, 0, 64, []byte("stFoo.notExist"))
+	if errCode == ErrNoError {
+		t.Error("expected ErrNoSymbol for unknown symbol, got ErrNoError")
+	}
+}
+
+// TestReadWriteDataSymbolInfoByNameExNullTerminated verifies that null-terminated
+// symbol names are correctly handled in the 0xF009 ReadWrite handler.
+func TestReadWriteDataSymbolInfoByNameExNullTerminated(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.bFlag", newBoolPin(true))
+
+	// TwinCAT sends null-terminated symbol names.
+	data, errCode := st.ReadWriteData(IdxGrpSymbolInfoByNameEx, 0, 64, []byte("stFoo.bFlag\x00"))
+	if errCode != ErrNoError {
+		t.Fatalf("ReadWriteData(SymbolInfoByNameEx) with null-terminated name: 0x%X", errCode)
+	}
+	if len(data) < 30+2+16 {
+		t.Fatalf("response too short: %d bytes", len(data))
+	}
+}
+
+// TestSetGroupArrayInfo verifies that SetGroupArrayInfo sets the array fields
+// on the named group symbol.
+func TestSetGroupArrayInfo(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stFoo.aPools[1].nVal", newDintPin(0))
+
+	st.SetGroupArrayInfo("stFoo.aPools", 1, 1, 4)
+
+	sym := st.GetByName("stFoo.aPools")
+	if sym == nil {
+		t.Fatal("group symbol stFoo.aPools not found")
+	}
+	if sym.ArrayDim != 1 {
+		t.Errorf("ArrayDim = %d, want 1", sym.ArrayDim)
+	}
+	if sym.ArrayLBound != 1 {
+		t.Errorf("ArrayLBound = %d, want 1", sym.ArrayLBound)
+	}
+	if sym.ArrayElems != 4 {
+		t.Errorf("ArrayElems = %d, want 4", sym.ArrayElems)
+	}
+
+	// SetGroupArrayInfo on a non-existent name must not panic.
+	st.SetGroupArrayInfo("doesNotExist", 1, 0, 3)
+}
+
+// mockPinWithGUID extends mockPin with a configurable TypeGUID.
+type mockPinWithGUID struct {
+	mockPin
+	guid [16]byte
+}
+
+func (m *mockPinWithGUID) TypeGUID() [16]byte { return m.guid }

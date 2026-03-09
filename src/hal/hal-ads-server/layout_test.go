@@ -304,11 +304,11 @@ func TestLayoutGalvHmiSelectedOffsets(t *testing.T) {
 	}
 	defer f.Close()
 
-	roots, err := ParseTree(f)
+	aliases, roots, err := ParseTreeWithAliases(f)
 	if err != nil {
-		t.Fatalf("ParseTree: %v", err)
+		t.Fatalf("ParseTreeWithAliases: %v", err)
 	}
-	pins, err := ComputeLayout(roots)
+	pins, err := ComputeLayout(roots, aliases)
 	if err != nil {
 		t.Fatalf("ComputeLayout: %v", err)
 	}
@@ -435,5 +435,91 @@ func TestLayoutIdempotencyGalvHmiPadding(t *testing.T) {
 		if got != e.offset {
 			t.Errorf("pin %q: padding config offset = %d, want %d (must match clean config)", e.name, got, e.offset)
 		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// @type alias resolution tests
+// ---------------------------------------------------------------------------
+
+// TestTypeSizeAliasResolution verifies that ComputeLayout resolves @type
+// aliases to their base types for size/alignment computation.
+func TestTypeSizeAliasResolution(t *testing.T) {
+	aliases := TypeAliasMap{
+		"EN_DISP_MSGTYPE": TypeAlias{BaseType: "WORD"},
+	}
+	cfg := `
+stBlock
+  in eType EN_DISP_MSGTYPE
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree: %v", err)
+	}
+	pins, err := ComputeLayout(roots, aliases)
+	if err != nil {
+		t.Fatalf("ComputeLayout with alias: %v", err)
+	}
+	if len(pins) != 1 {
+		t.Fatalf("expected 1 pin, got %d", len(pins))
+	}
+	// WORD: size=2, align=2.
+	if pins[0].Size != 2 {
+		t.Errorf("pin size = %d, want 2 (WORD)", pins[0].Size)
+	}
+	if pins[0].Align != 2 {
+		t.Errorf("pin align = %d, want 2 (WORD)", pins[0].Align)
+	}
+	// TypeName should be the alias name, not the base type.
+	if pins[0].TypeName != "EN_DISP_MSGTYPE" {
+		t.Errorf("pin TypeName = %q, want EN_DISP_MSGTYPE", pins[0].TypeName)
+	}
+}
+
+// TestComputeLayoutUnknownTypeWithoutAlias verifies that an unknown type name
+// without an alias map produces an error.
+func TestComputeLayoutUnknownTypeWithoutAlias(t *testing.T) {
+	cfg := `
+stBlock
+  in eType UNKNOWN_TYPE
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree: %v", err)
+	}
+	if _, err := ComputeLayout(roots); err == nil {
+		t.Error("expected error for unknown type without alias map, got nil")
+	}
+}
+
+// TestComputeLayoutAliasCorrectOffset verifies that alias types produce the
+// same offsets as their base types.
+func TestComputeLayoutAliasCorrectOffset(t *testing.T) {
+	aliases := TypeAliasMap{
+		"MY_WORD_ALIAS": TypeAlias{BaseType: "WORD"},
+	}
+	// struct { BOOL b; MY_WORD_ALIAS w; }
+	// BOOL at 0 (size 1, align 1); WORD at alignUp(1,2)=2 (size 2, align 2)
+	cfg := `
+stFoo
+  in bFlag BOOL
+  in eVal MY_WORD_ALIAS
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree: %v", err)
+	}
+	pins, err := ComputeLayout(roots, aliases)
+	if err != nil {
+		t.Fatalf("ComputeLayout: %v", err)
+	}
+	if len(pins) != 2 {
+		t.Fatalf("expected 2 pins, got %d", len(pins))
+	}
+	if pins[0].Offset != 0 || pins[0].Size != 1 {
+		t.Errorf("bFlag: offset=%d size=%d, want 0/1", pins[0].Offset, pins[0].Size)
+	}
+	if pins[1].Offset != 2 || pins[1].Size != 2 {
+		t.Errorf("eVal: offset=%d size=%d, want 2/2", pins[1].Offset, pins[1].Size)
 	}
 }

@@ -19,6 +19,9 @@ type PinAccessor interface {
 	TypeName() string
 	// TypeID returns the ADST (ADS Data Type) constant for this symbol.
 	TypeID() uint32
+	// TypeGUID returns the 16-byte data type GUID for ADSIGRP_SYM_INFOBYNAMEEX
+	// responses. Returns all zeros for primitive types without a @type alias.
+	TypeGUID() [16]byte
 }
 
 // Symbol represents an ADS symbol mapped to a HAL pin.
@@ -31,6 +34,13 @@ type Symbol struct {
 	IndexOffset uint32
 	// Accessor bridges ADS read/write operations to HAL pin Get/Set.
 	Accessor PinAccessor
+	// Extended fields for ADSIGRP_SYM_INFOBYNAMEEX responses.
+	// ArrayDim is 0 for scalar symbols and 1 for single-dimension array containers.
+	ArrayDim uint16
+	// ArrayLBound is the lower bound of the array dimension (valid when ArrayDim > 0).
+	ArrayLBound uint32
+	// ArrayElems is the number of array elements (valid when ArrayDim > 0).
+	ArrayElems uint32
 }
 
 // SymbolTable manages ADS symbols and their handle assignments.
@@ -111,19 +121,46 @@ func (g *groupAccessor) WriteBytes(data []byte) error {
 	return nil
 }
 
-func (g *groupAccessor) TypeName() string { return g.typeName }
-func (g *groupAccessor) TypeID() uint32   { return 0 }
+func (g *groupAccessor) TypeName() string   { return g.typeName }
+func (g *groupAccessor) TypeID() uint32     { return 0 }
+func (g *groupAccessor) TypeGUID() [16]byte { return [16]byte{} }
 
 // parentPrefixes returns all non-leaf path prefixes for a dotted name.
 // E.g. "A.B.C" → ["A", "A.B"]. Single-segment names return nil.
+//
+// For array element segments (e.g. "aPools[1]"), the bracket-stripped bare
+// name is also returned as an additional prefix (e.g. "stData.aPools" for
+// "stData.aPools[1].stMsg"). This ensures that array container group symbols
+// (without bracket notation) are auto-created so that HMI clients can query
+// their metadata via ADSIGRP_SYM_INFOBYNAMEEX.
 func parentPrefixes(name string) []string {
 	segs := strings.Split(name, ".")
 	if len(segs) <= 1 {
 		return nil
 	}
-	prefixes := make([]string, len(segs)-1)
+	var prefixes []string
 	for i := 1; i < len(segs); i++ {
-		prefixes[i-1] = strings.Join(segs[:i], ".")
+		prefix := strings.Join(segs[:i], ".")
+		prefixes = append(prefixes, prefix)
+		// If this segment has bracket notation, also add the bare (bracket-stripped)
+		// prefix so that the array container group symbol is auto-created.
+		lastSeg := segs[i-1]
+		if lb := strings.Index(lastSeg, "["); lb >= 0 {
+			bareSeg := lastSeg[:lb]
+			var barePrefix string
+			if i > 1 {
+				barePrefix = strings.Join(segs[:i-1], ".") + "." + bareSeg
+			} else {
+				barePrefix = bareSeg
+			}
+			// The bare prefix always differs from the bracket prefix because one
+			// contains "[N]" and the other does not (e.g. "stData.aPools" vs
+			// "stData.aPools[1]"). Add only if non-empty (handles edge case of
+			// a single-segment name like "aPools[1]" where bareSeg would be "aPools").
+			if barePrefix != "" && barePrefix != prefix {
+				prefixes = append(prefixes, barePrefix)
+			}
+		}
 	}
 	return prefixes
 }
@@ -139,6 +176,7 @@ func (z *zeroPadAccessor) WriteBytes([]byte) error    { return nil }
 func (z *zeroPadAccessor) Size() uint32               { return z.size }
 func (z *zeroPadAccessor) TypeName() string           { return "" }
 func (z *zeroPadAccessor) TypeID() uint32             { return 0 }
+func (z *zeroPadAccessor) TypeGUID() [16]byte         { return [16]byte{} }
 
 // registerSymbolLocked adds sym to byName, byOffset, and symbolOrder, and
 // auto-creates or updates group symbols for every ancestor path prefix.
@@ -244,6 +282,21 @@ func (st *SymbolTable) SetGroupSize(name string, size uint32) {
 	if ga, ok := sym.Accessor.(*groupAccessor); ok {
 		ga.overrideSize = size
 	}
+}
+
+// SetGroupArrayInfo marks the named group symbol as a 1D array container with
+// the given lower bound and element count. This information is returned in
+// ADSIGRP_SYM_INFOBYNAMEEX (0xF009) ReadWrite responses.
+func (st *SymbolTable) SetGroupArrayInfo(name string, arrayDim uint16, lBound, elems uint32) {
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	sym := st.byName[name]
+	if sym == nil {
+		return
+	}
+	sym.ArrayDim = arrayDim
+	sym.ArrayLBound = lBound
+	sym.ArrayElems = elems
 }
 
 // GetByName returns the symbol with the given name, or nil if not found.
@@ -386,6 +439,19 @@ func (st *SymbolTable) ReadWriteData(indexGroup, indexOffset, readLen uint32, wr
 		}
 		// Full symbol info response.
 		return buildSymbolInfo(sym), ErrNoError
+
+	case IdxGrpSymbolInfoByNameEx:
+		// ADSIGRP_SYM_INFOBYNAMEEX: extended symbol info by name (ReadWrite).
+		// writeData contains the null-terminated symbol name; response is the
+		// extended AdsSymbolEntry with arrayDim, dataTypeGUID, and per-dim bounds.
+		name := strings.TrimRight(string(writeData), "\x00")
+		st.mu.RLock()
+		sym := st.findSymbolWithFallback(name)
+		st.mu.RUnlock()
+		if sym == nil {
+			return nil, ErrNoSymbol
+		}
+		return buildSymbolInfoEx(sym), ErrNoError
 
 	case IdxGrpSumRead:
 		// indexOffset = number of read sub-requests.
@@ -552,6 +618,44 @@ func buildSymbolInfo(sym *Symbol) []byte {
 	copy(buf[off:], typeBytes)
 	off += len(typeBytes) + 1
 	_ = off // comment null byte is already zero
+	return buf
+}
+
+// buildSymbolInfoEx encodes the extended ADS symbol info structure for a single symbol.
+// It is returned in response to ADSIGRP_SYM_INFOBYNAMEEX (0xF009) ReadWrite requests.
+//
+// Wire format: standard AdsSymbolEntry (from buildSymbolInfo) followed by:
+//
+//	uint16 arrayDim        — number of array dimensions (0 for scalars)
+//	[16]byte dataTypeGUID  — type GUID (all zeros if none)
+//	per dimension (arrayDim times):
+//	  uint32 lBound        — lower bound of the dimension
+//	  uint32 elements      — number of elements in the dimension
+//
+// The entryLength field (first uint32) is updated to reflect the extended total size.
+func buildSymbolInfoEx(sym *Symbol) []byte {
+	base := buildSymbolInfo(sym)
+	guid := sym.Accessor.TypeGUID()
+	arrayDim := sym.ArrayDim
+	extraLen := 2 + 16 + int(arrayDim)*8
+	buf := make([]byte, len(base)+extraLen)
+	copy(buf, base)
+	off := len(base)
+	// arrayDim (uint16 LE)
+	binary.LittleEndian.PutUint16(buf[off:], arrayDim)
+	off += 2
+	// dataTypeGUID (16 bytes)
+	copy(buf[off:], guid[:])
+	off += 16
+	// per-dimension bounds
+	for d := uint16(0); d < arrayDim; d++ {
+		binary.LittleEndian.PutUint32(buf[off:], sym.ArrayLBound)
+		off += 4
+		binary.LittleEndian.PutUint32(buf[off:], sym.ArrayElems)
+		off += 4
+	}
+	// Update entryLength (first uint32) to reflect the extended total.
+	binary.LittleEndian.PutUint32(buf[0:], uint32(len(buf)))
 	return buf
 }
 

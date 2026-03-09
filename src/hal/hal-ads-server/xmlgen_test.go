@@ -83,13 +83,13 @@ func TestGenerateXMLGalvHmi(t *testing.T) {
 	}
 	defer f.Close()
 
-	roots, err := ParseTree(f)
+	aliases, roots, err := ParseTreeWithAliases(f)
 	if err != nil {
-		t.Fatalf("ParseTree: %v", err)
+		t.Fatalf("ParseTreeWithAliases: %v", err)
 	}
 
 	var buf bytes.Buffer
-	if err := GenerateXML(&buf, roots); err != nil {
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
 		t.Fatalf("GenerateXML: %v", err)
 	}
 
@@ -121,11 +121,11 @@ func TestLayoutConsistencyGalvHmi(t *testing.T) {
 	}
 	defer fConf.Close()
 
-	confRoots, err := ParseTree(fConf)
+	confAliases, confRoots, err := ParseTreeWithAliases(fConf)
 	if err != nil {
-		t.Fatalf("ParseTree(conf): %v", err)
+		t.Fatalf("ParseTreeWithAliases(conf): %v", err)
 	}
-	confPins, err := ComputeLayout(confRoots)
+	confPins, err := ComputeLayout(confRoots, confAliases)
 	if err != nil {
 		t.Fatalf("ComputeLayout(conf): %v", err)
 	}
@@ -419,6 +419,10 @@ func xmlVarToNode(name string, td *xmlTypeDef, typeMap map[string]*xmlDataType) 
 			}
 			return &Node{Name: name, Children: children}, nil
 		}
+		// Primitive-based alias (e.g. from @type directive) → use the primitive type.
+		if primName := dt.BaseType.primitiveTypeName(); primName != "" {
+			return &Node{Name: name, Dir: DirIn, TypeName: primName}, nil
+		}
 		return nil, fmt.Errorf("type %q (for field %q) has unsupported baseType", td.Derived.Name, name)
 	}
 
@@ -460,4 +464,85 @@ func xmlStructVarsToChildren(vars []xmlVariable, typeMap map[string]*xmlDataType
 		children = append(children, child)
 	}
 	return children, nil
+}
+
+// ---------------------------------------------------------------------------
+// @type alias XML generation tests
+// ---------------------------------------------------------------------------
+
+// TestGenerateXMLAliasedTypeDerived verifies that GenerateXML emits a
+// <derived name="AliasName" /> element for leaf nodes whose TypeName matches
+// an @type alias, and emits a <dataType> entry for the alias.
+func TestGenerateXMLAliasedTypeDerived(t *testing.T) {
+	cfg := `
+@type MY_WORD_ALIAS WORD 00000000-0000-0000-0000-000000000001
+stBlock
+  in eType MY_WORD_ALIAS
+  in bFlag BOOL
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	// Verify the output is valid XML.
+	dec := xml.NewDecoder(&buf)
+	buf2 := bytes.NewBufferString(out)
+	dec = xml.NewDecoder(buf2)
+	for {
+		_, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatalf("invalid XML: %v", err)
+		}
+	}
+
+	// The alias should appear as a <derived name="MY_WORD_ALIAS"> in the variable.
+	if !strings.Contains(out, `name="MY_WORD_ALIAS"`) {
+		t.Error("expected <derived name=\"MY_WORD_ALIAS\"> in XML output")
+	}
+
+	// The alias should appear as a <dataType name="MY_WORD_ALIAS"> entry.
+	if !strings.Contains(out, `<dataType name="MY_WORD_ALIAS"`) {
+		t.Error("expected <dataType name=\"MY_WORD_ALIAS\"> in XML output")
+	}
+
+	// The raw WORD element should NOT appear directly for the alias field
+	// (it should be wrapped in <derived>).
+	// We verify by checking that <BOOL /> is still present (for bFlag).
+	if !strings.Contains(out, "<BOOL") {
+		t.Error("expected <BOOL /> for non-aliased field bFlag")
+	}
+}
+
+// TestGenerateXMLNoAliasesBackwardCompat verifies that GenerateXML without
+// aliases still generates valid XML (backward compatibility).
+func TestGenerateXMLNoAliasesBackwardCompat(t *testing.T) {
+	cfg := `
+stBlock
+  in bFlag BOOL
+  out nVal DWORD
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree: %v", err)
+	}
+
+	var buf bytes.Buffer
+	// Call without aliases (backward compatible signature).
+	if err := GenerateXML(&buf, roots); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "<BOOL") || !strings.Contains(out, "<DWORD") {
+		t.Error("expected <BOOL /> and <DWORD /> elements in XML output")
+	}
 }

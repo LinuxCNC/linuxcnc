@@ -89,8 +89,16 @@ const (
 	// IdxGrpSymbolVersion returns the current symbol version number.
 	IdxGrpSymbolVersion uint32 = 0x0000F008
 
-	// IdxGrpSymbolCount returns the number of symbols.
+	// IdxGrpSymbolCount returns the number of symbols (ADS Read).
+	// The same index group value 0x0000F009 is also used by ADS ReadWrite to
+	// retrieve extended symbol info by name (ADSIGRP_SYM_INFOBYNAMEEX).
 	IdxGrpSymbolCount uint32 = 0x0000F009
+
+	// IdxGrpSymbolInfoByNameEx retrieves extended symbol metadata by name (ReadWrite).
+	// Write: symbol name string. Read: extended AdsSymbolEntry with GUID and array info.
+	// This is the same value as IdxGrpSymbolCount; context determines which operation
+	// applies — Read returns the count, ReadWrite returns the extended symbol info.
+	IdxGrpSymbolInfoByNameEx uint32 = 0x0000F009
 
 	// IdxGrpSymbolListInfo returns upload info for the symbol list.
 	IdxGrpSymbolListInfo uint32 = 0x0000F00A

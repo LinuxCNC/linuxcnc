@@ -144,6 +144,42 @@ stDISPLAY_DATA.stPOOL[1].nErrCount
 ...through stPOOL[9]...
 ```
 
+### `@type` directives
+
+Before the symbol tree, you may declare named TwinCAT type aliases:
+
+```
+@type <AliasName> <BaseType> <GUID>
+```
+
+Example:
+
+```
+@type EN_DISP_MSGTYPE     WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+@type EN_DISP_POOL_STATE  WORD 4bb8098e-6846-4a59-915d-71a3e3d369c0
+
+DISPLAY_DATA
+  stData
+    aPools[1..1]
+      in eState EN_DISP_POOL_STATE
+      stMsg
+        in eType EN_DISP_MSGTYPE
+```
+
+- **AliasName** — the TwinCAT derived type name (stored upper-cased). Use this
+  name as the `TYPE` field for leaf nodes in the config.
+- **BaseType** — the underlying ADS primitive type (e.g. `WORD`, `DINT`). Used
+  for size/alignment computation and HAL pin creation.
+- **GUID** — the 16-byte data-type GUID in Microsoft COM wire format
+  (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`). Returned in
+  `ADSIGRP_SYM_INFOBYNAMEEX` (0xF009) responses so TwinCAT HMI clients can
+  match the correct symbol type, enabling enum display, range checks, etc.
+
+When a leaf node references an alias type name, the node retains the alias name
+(e.g. `EN_DISP_MSGTYPE`) so the HMI sees the correct derived type in all
+symbol-info responses. The base type is resolved internally for HAL pin
+allocation and byte-offset computation.
+
 ## ADS Protocol Support
 
 The server implements the ADS/AMS protocol over TCP (default port 48898):
@@ -158,9 +194,15 @@ The server implements the ADS/AMS protocol over TCP (default port 48898):
 | Write (release handle)    | 0xF006     | Release previously allocated handle  |
 | ReadWrite (symbol info)   | 0xF007     | Read symbol metadata by name         |
 | Read (symbol count)       | 0xF009     | Number of registered symbols         |
+| ReadWrite (extended info) | 0xF009     | Extended symbol info by name (`ADSIGRP_SYM_INFOBYNAMEEX`) — returns standard metadata plus `arrayDim`, 16-byte `dataTypeGUID`, and per-dimension array bounds |
 | Read (symbol list info)   | 0xF00A     | Upload size and symbol count         |
 | Read (symbol list)        | 0xF00B     | Full symbol list upload              |
 | Read/Write (process image)| 0x4040     | Direct access by byte offset         |
+
+> **Note:** Index group `0xF009` serves two purposes. An ADS **Read** returns the
+> symbol count. An ADS **ReadWrite** (write data = symbol name) returns the
+> extended symbol info (`ADSIGRP_SYM_INFOBYNAMEEX`) used by TwinCAT HMI
+> clients to resolve type metadata including array dimensions and data-type GUIDs.
 
 ## License
 

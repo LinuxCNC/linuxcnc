@@ -57,14 +57,14 @@ func main() {
 		log.Fatalf("Cannot open config file %q: %v", configFile, err)
 	}
 	defer f.Close()
-	tree, err := ParseTree(f)
+	aliases, tree, err := ParseTreeWithAliases(f)
 	if err != nil {
 		log.Fatalf("Config parse error: %v", err)
 	}
 
 	// -xml mode: generate PLCopen TC6 XML and exit without starting the server.
 	if *xmlMode {
-		if err := GenerateXML(os.Stdout, tree); err != nil {
+		if err := GenerateXML(os.Stdout, tree, aliases); err != nil {
 			log.Fatalf("XML generation error: %v", err)
 		}
 		return
@@ -76,7 +76,7 @@ func main() {
 		log.Fatalf("Invalid AMS Net ID: %v", err)
 	}
 
-	layoutPins, err := ComputeLayout(tree)
+	layoutPins, err := ComputeLayout(tree, aliases)
 	if err != nil {
 		log.Fatalf("Layout error: %v", err)
 	}
@@ -95,7 +95,7 @@ func main() {
 
 	// Build symbol table and HAL pins.
 	st := ads.NewSymbolTable()
-	if _, err := NewBridge(comp, layoutPins, st); err != nil {
+	if _, err := NewBridge(comp, layoutPins, st, aliases); err != nil {
 		log.Fatalf("Failed to create HAL pins: %v", err)
 	}
 

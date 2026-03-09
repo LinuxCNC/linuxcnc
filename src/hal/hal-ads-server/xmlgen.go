@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 )
 
@@ -53,10 +54,20 @@ type nodeTypeMap map[*Node]string
 // (struct). Type names are derived from the node name with a "T_" prefix;
 // array element types get an additional "_ITEM" suffix.
 //
+// The optional aliases parameter provides the @type alias map from the config
+// file. Each alias generates a <dataType> entry with its base type, and leaf
+// nodes whose TypeName matches an alias emit a <derived name="AliasName" />
+// element instead of the raw primitive element.
+//
 // Usage:
 //
 //	hal-ads-server -xml configs/galv-hmi.conf > output.xml
-func GenerateXML(w io.Writer, roots []*Node) error {
+func GenerateXML(w io.Writer, roots []*Node, aliasOpts ...TypeAliasMap) error {
+	var aliases TypeAliasMap
+	if len(aliasOpts) > 0 {
+		aliases = aliasOpts[0]
+	}
+
 	if len(roots) == 0 {
 		return fmt.Errorf("xmlgen: no nodes to generate XML from")
 	}
@@ -110,8 +121,12 @@ func GenerateXML(w io.Writer, roots []*Node) error {
 	// <types> <dataTypes> ... </dataTypes> <pous /> </types>
 	e.start("types")
 	e.start("dataTypes")
+	// Emit @type alias dataType entries first (they may be referenced by struct members).
+	if err := emitAliasDataTypes(e, aliases); err != nil {
+		return err
+	}
 	for _, td := range typeDefs {
-		if err := emitDataType(e, td, tm); err != nil {
+		if err := emitDataType(e, td, tm, aliases); err != nil {
 			return err
 		}
 	}
@@ -134,7 +149,7 @@ func GenerateXML(w io.Writer, roots []*Node) error {
 	)
 	e.start("globalVars", xml.Attr{Name: xml.Name{Local: "name"}, Value: gvlName})
 	for _, child := range gvlNode.Children {
-		if err := emitVariable(e, child, tm); err != nil {
+		if err := emitVariable(e, child, tm, aliases); err != nil {
 			return err
 		}
 	}
@@ -186,14 +201,39 @@ func uniqueName(prefix string, nameSet map[string]int) string {
 	}
 }
 
+// emitAliasDataTypes emits <dataType> entries for each @type alias.
+// Each alias produces a <dataType name="AliasName"><baseType><BaseType /></baseType></dataType>.
+func emitAliasDataTypes(e *errEncoder, aliases TypeAliasMap) error {
+	if len(aliases) == 0 {
+		return nil
+	}
+	// Emit in stable sorted order for deterministic output.
+	names := make([]string, 0, len(aliases))
+	for name := range aliases {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		alias := aliases[name]
+		e.start("dataType", xml.Attr{Name: xml.Name{Local: "name"}, Value: name})
+		e.start("baseType")
+		if err := emitPrimitiveTypeElem(e, alias.BaseType); err != nil {
+			return err
+		}
+		e.end("baseType")
+		e.end("dataType")
+	}
+	return e.err
+}
+
 // emitDataType emits a <dataType> element for one genTypeDef.
-func emitDataType(e *errEncoder, td genTypeDef, tm nodeTypeMap) error {
+func emitDataType(e *errEncoder, td genTypeDef, tm nodeTypeMap, aliases TypeAliasMap) error {
 	e.start("dataType", xml.Attr{Name: xml.Name{Local: "name"}, Value: td.typeName})
 	e.start("baseType")
 	e.start("struct")
 
 	for _, child := range td.node.Children {
-		if err := emitVariable(e, child, tm); err != nil {
+		if err := emitVariable(e, child, tm, aliases); err != nil {
 			return err
 		}
 	}
@@ -208,10 +248,10 @@ func emitDataType(e *errEncoder, td genTypeDef, tm nodeTypeMap) error {
 // Pad nodes (Dir == DirPad) are intentionally emitted as variables in the
 // PLCopen XML output. They represent explicit padding fields that TwinCAT
 // expects in the struct layout to maintain correct alignment.
-func emitVariable(e *errEncoder, node *Node, tm nodeTypeMap) error {
+func emitVariable(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMap) error {
 	e.start("variable", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.Name})
 	e.start("type")
-	if err := emitTypeRef(e, node, tm); err != nil {
+	if err := emitTypeRef(e, node, tm, aliases); err != nil {
 		return err
 	}
 	e.end("type")
@@ -221,10 +261,19 @@ func emitVariable(e *errEncoder, node *Node, tm nodeTypeMap) error {
 
 // emitTypeRef emits the type element(s) for a node: a primitive element
 // (e.g. <BOOL />), a <string length="n" /> element, a <derived name="..." />
-// element for struct containers, or an <array> block for array containers.
-func emitTypeRef(e *errEncoder, node *Node, tm nodeTypeMap) error {
+// element for struct containers or @type aliases, or an <array> block for
+// array containers.
+func emitTypeRef(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMap) error {
 	if len(node.Children) == 0 {
-		// Leaf: primitive or string type.
+		// Leaf: check if TypeName is an @type alias → emit <derived name="AliasName" />.
+		if aliases != nil {
+			if _, ok := aliases[node.TypeName]; ok {
+				e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.TypeName})
+				e.end("derived")
+				return e.err
+			}
+		}
+		// Primitive or string type.
 		return emitPrimitiveTypeElem(e, node.TypeName)
 	}
 	if node.ArrayStart > 0 {

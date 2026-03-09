@@ -402,6 +402,142 @@ stBlock
 	}
 }
 
+// ---------------------------------------------------------------------------
+// @type directive tests
+// ---------------------------------------------------------------------------
+
+// TestParseTypeAliasBasic verifies that a single @type directive is parsed
+// into the TypeAliasMap with the correct BaseType and GUID.
+func TestParseTypeAliasBasic(t *testing.T) {
+	cfg := `
+@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+
+stBlock
+  in eType EN_DISP_MSGTYPE
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	// Check alias registry.
+	if len(aliases) != 1 {
+		t.Fatalf("expected 1 alias, got %d", len(aliases))
+	}
+	alias, ok := aliases["EN_DISP_MSGTYPE"]
+	if !ok {
+		t.Fatal("alias EN_DISP_MSGTYPE not found")
+	}
+	if alias.BaseType != "WORD" {
+		t.Errorf("BaseType = %q, want WORD", alias.BaseType)
+	}
+
+	// Check GUID (Microsoft GUID encoding):
+	// 96656ea5-0db7-49b0-86ec-56cef26b56d0
+	// Data1=0x96656ea5 LE: a5 6e 65 96
+	// Data2=0x0db7 LE: b7 0d
+	// Data3=0x49b0 LE: b0 49
+	// Data4: 86 ec 56 ce f2 6b 56 d0
+	want := [16]byte{0xa5, 0x6e, 0x65, 0x96, 0xb7, 0x0d, 0xb0, 0x49,
+		0x86, 0xec, 0x56, 0xce, 0xf2, 0x6b, 0x56, 0xd0}
+	if alias.GUID != want {
+		t.Errorf("GUID = %x, want %x", alias.GUID, want)
+	}
+
+	// Check that the node preserves the alias name.
+	if len(roots) != 1 || len(roots[0].Children) != 1 {
+		t.Fatalf("unexpected tree structure")
+	}
+	leaf := roots[0].Children[0]
+	if leaf.TypeName != "EN_DISP_MSGTYPE" {
+		t.Errorf("leaf TypeName = %q, want EN_DISP_MSGTYPE", leaf.TypeName)
+	}
+}
+
+// TestParseTypeAliasMultiple verifies that multiple @type directives are all
+// collected into the alias map.
+func TestParseTypeAliasMultiple(t *testing.T) {
+	cfg := `
+@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+@type EN_DISP_POOL_STATE WORD 4bb8098e-6846-4a59-915d-71a3e3d369c0
+
+stBlock
+  in x BOOL
+`
+	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	if len(aliases) != 2 {
+		t.Fatalf("expected 2 aliases, got %d", len(aliases))
+	}
+	if _, ok := aliases["EN_DISP_MSGTYPE"]; !ok {
+		t.Error("alias EN_DISP_MSGTYPE not found")
+	}
+	if _, ok := aliases["EN_DISP_POOL_STATE"]; !ok {
+		t.Error("alias EN_DISP_POOL_STATE not found")
+	}
+}
+
+// TestParseTypeAliasCaseNormalization verifies that @type alias names are
+// normalised to upper case.
+func TestParseTypeAliasCaseNormalization(t *testing.T) {
+	cfg := `
+@type MyAlias DINT 00000000-0000-0000-0000-000000000000
+stBlock
+  in x BOOL
+`
+	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	if _, ok := aliases["MYALIAS"]; !ok {
+		t.Error("expected alias to be normalised to MYALIAS")
+	}
+}
+
+// TestParseTypeAliasInvalidGUID verifies that a malformed GUID in an @type
+// directive returns a parse error.
+func TestParseTypeAliasInvalidGUID(t *testing.T) {
+	cfg := "@type BAD WORD not-a-valid-guid\nstBlock\n  in x BOOL\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for invalid GUID, got nil")
+	}
+}
+
+// TestParseTypeAliasMissingArgs verifies that an @type line with wrong number
+// of arguments returns a parse error.
+func TestParseTypeAliasMissingArgs(t *testing.T) {
+	cfg := "@type JUST_TWO_ARGS WORD\nstBlock\n  in x BOOL\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for @type with missing GUID arg, got nil")
+	}
+}
+
+// TestParseTreeBackwardCompat verifies that ParseTree (without aliases) still
+// works correctly and does not return an error for configs with @type directives.
+func TestParseTreeBackwardCompat(t *testing.T) {
+	cfg := `
+@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+stBlock
+  in eType EN_DISP_MSGTYPE
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree with @type directive: %v", err)
+	}
+	if len(roots) != 1 || len(roots[0].Children) != 1 {
+		t.Fatalf("unexpected tree structure")
+	}
+	// The node should have the alias name (not the base type).
+	leaf := roots[0].Children[0]
+	if leaf.TypeName != "EN_DISP_MSGTYPE" {
+		t.Errorf("leaf TypeName = %q, want EN_DISP_MSGTYPE", leaf.TypeName)
+	}
+}
+
 func TestParseTypeInfo(t *testing.T) {
 	tests := []struct {
 		typeName string

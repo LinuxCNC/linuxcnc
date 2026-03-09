@@ -14,14 +14,36 @@ import (
 
 // typeInfo holds the ADS/TwinCAT type metadata for a single symbol.
 type typeInfo struct {
-	adsTypeName string // normalised ADS type name, e.g. "BOOL", "DINT", "STRING(32)"
-	adstID      uint32 // ADST constant (see ads.ADST*)
-	byteSize    uint32 // wire size in bytes
-	strLen      int    // for STRING(n): n (chars); 0 for non-string types
+	adsTypeName string   // normalised ADS type name, e.g. "BOOL", "DINT", "STRING(32)"
+	adstID      uint32   // ADST constant (see ads.ADST*)
+	byteSize    uint32   // wire size in bytes
+	strLen      int      // for STRING(n): n (chars); 0 for non-string types
+	typeGUID    [16]byte // 16-byte data type GUID; all zeros for primitive types
 }
 
 // parseTypeInfo converts a config type token (already upper-cased) to typeInfo.
 func parseTypeInfo(typeName string) (typeInfo, error) {
+	return parseTypeInfoResolved(typeName, nil)
+}
+
+// parseTypeInfoResolved is the internal implementation of parseTypeInfo that
+// also resolves @type aliases via the provided map. When typeName matches an
+// alias, the base type is used for adstID/byteSize but adsTypeName retains the
+// alias name so TwinCAT clients receive the correct derived type name.
+func parseTypeInfoResolved(typeName string, aliases TypeAliasMap) (typeInfo, error) {
+	// Resolve alias: use base type for wire encoding but keep alias name and GUID.
+	if aliases != nil {
+		if alias, ok := aliases[typeName]; ok {
+			ti, err := parseTypeInfoResolved(alias.BaseType, nil)
+			if err != nil {
+				return typeInfo{}, fmt.Errorf("alias %q base type %q: %w", typeName, alias.BaseType, err)
+			}
+			ti.adsTypeName = typeName // preserve alias name for HMI
+			ti.typeGUID = alias.GUID  // attach GUID from @type directive
+			return ti, nil
+		}
+	}
+
 	// Handle STRING(n) specially.
 	if strings.HasPrefix(typeName, "STRING(") {
 		var n int
@@ -75,6 +97,7 @@ func (a *halPinAccessor) WriteBytes(d []byte) error  { return a.writeFn(d) }
 func (a *halPinAccessor) Size() uint32               { return a.ti.byteSize }
 func (a *halPinAccessor) TypeName() string           { return a.ti.adsTypeName }
 func (a *halPinAccessor) TypeID() uint32             { return a.ti.adstID }
+func (a *halPinAccessor) TypeGUID() [16]byte         { return a.ti.typeGUID }
 
 // newBitAccessor creates a PinAccessor for a bool HAL pin.
 func newBitAccessor(pin *hal.Pin[bool], ti typeInfo) *halPinAccessor {
@@ -246,7 +269,16 @@ type Bridge struct {
 // provided SymbolTable using pre-computed byte offsets from the layout.
 // Pad entries (Dir == DirPad) occupy process-image space but do not create
 // HAL pins and are not registered in the ADS symbol list.
-func NewBridge(comp *hal.Component, pins []LayoutPin, st *ads.SymbolTable) (*Bridge, error) {
+//
+// The optional aliases parameter provides @type alias resolution so that
+// user-defined type names are correctly mapped to their base ADS types while
+// preserving the alias name and data-type GUID in the symbol info response.
+func NewBridge(comp *hal.Component, pins []LayoutPin, st *ads.SymbolTable, aliasOpts ...TypeAliasMap) (*Bridge, error) {
+	var aliases TypeAliasMap
+	if len(aliasOpts) > 0 {
+		aliases = aliasOpts[0]
+	}
+
 	b := &Bridge{}
 	for _, cp := range pins {
 		// Padding: reserve process-image space only (no HAL pin, no ADS name).
@@ -255,7 +287,7 @@ func NewBridge(comp *hal.Component, pins []LayoutPin, st *ads.SymbolTable) (*Bri
 			continue
 		}
 
-		ti, err := parseTypeInfo(cp.TypeName)
+		ti, err := parseTypeInfoResolved(cp.TypeName, aliases)
 		if err != nil {
 			return nil, fmt.Errorf("symbol %q: %w", cp.ADSName, err)
 		}
@@ -352,6 +384,56 @@ func NewBridge(comp *hal.Component, pins []LayoutPin, st *ads.SymbolTable) (*Bri
 	}
 	for name, gb := range groups {
 		st.SetGroupSize(name, alignUp(gb.lastEnd, gb.maxAlign)-gb.startOffset)
+	}
+
+	// Detect array container groups from bracket notation in ADSNames.
+	// For each segment "X[N]", the group name is the prefix path up to "X"
+	// (without brackets), and N is one element index. We compute the lower
+	// and upper bounds across all pins to determine lBound and elemCount.
+	type arrayBounds struct{ lo, hi uint32 }
+	arrayGroups := make(map[string]*arrayBounds)
+
+	for _, cp := range pins {
+		segs := strings.Split(cp.ADSName, ".")
+		accumulated := ""
+		for _, seg := range segs {
+			if accumulated == "" {
+				accumulated = seg
+			} else {
+				accumulated = accumulated + "." + seg
+			}
+			lb := strings.Index(seg, "[")
+			if lb < 0 {
+				continue
+			}
+			rb := strings.Index(seg, "]")
+			if rb <= lb {
+				continue
+			}
+			var idx int
+			if _, err := fmt.Sscanf(seg[lb+1:rb], "%d", &idx); err != nil {
+				continue
+			}
+			// Group name: accumulated path up to (but not including) the bracket.
+			// accumulated = "...prefix.X[N]", so group = accumulated[:len-len(seg)+lb]
+			groupName := accumulated[:len(accumulated)-(len(seg)-lb)]
+			groupName = strings.TrimSuffix(groupName, ".")
+			ui := uint32(idx)
+			if ab, ok := arrayGroups[groupName]; !ok {
+				arrayGroups[groupName] = &arrayBounds{lo: ui, hi: ui}
+			} else {
+				if ui < ab.lo {
+					ab.lo = ui
+				}
+				if ui > ab.hi {
+					ab.hi = ui
+				}
+			}
+		}
+	}
+	for name, ab := range arrayGroups {
+		elems := ab.hi - ab.lo + 1
+		st.SetGroupArrayInfo(name, 1, ab.lo, elems)
 	}
 
 	return b, nil
