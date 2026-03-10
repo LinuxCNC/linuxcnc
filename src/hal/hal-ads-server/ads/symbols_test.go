@@ -306,6 +306,124 @@ func TestSymbolTableSumRead(t *testing.T) {
 	}
 }
 
+func TestSymbolTableSumWrite(t *testing.T) {
+	st := NewSymbolTable()
+	p1 := newBoolPin(false)
+	p2 := newDintPin(0)
+	sym1 := st.Register("w1", p1) // offset 0, size 1
+	sym2 := st.Register("w2", p2) // offset 1, size 4
+
+	// Build a SumWrite request for both symbols.
+	// Headers: 2 × 12 bytes, then 1 byte payload + 4 byte payload.
+	writeData := make([]byte, 2*12+1+4)
+	binary.LittleEndian.PutUint32(writeData[0:], sym1.IndexGroup)
+	binary.LittleEndian.PutUint32(writeData[4:], sym1.IndexOffset)
+	binary.LittleEndian.PutUint32(writeData[8:], sym1.Accessor.Size()) // 1
+	binary.LittleEndian.PutUint32(writeData[12:], sym2.IndexGroup)
+	binary.LittleEndian.PutUint32(writeData[16:], sym2.IndexOffset)
+	binary.LittleEndian.PutUint32(writeData[20:], sym2.Accessor.Size()) // 4
+	writeData[24] = 1 // w1 = true
+	binary.LittleEndian.PutUint32(writeData[25:], uint32(int32(99))) // w2 = 99
+
+	resp, errCode := st.ReadWriteData(IdxGrpSumWrite, 2, 0, writeData)
+	if errCode != ErrNoError {
+		t.Fatalf("SumWrite error: 0x%X", errCode)
+	}
+	// Response: 2×4 error codes = 8 bytes.
+	if len(resp) != 8 {
+		t.Fatalf("SumWrite response length = %d, want 8", len(resp))
+	}
+	if binary.LittleEndian.Uint32(resp[0:4]) != ErrNoError {
+		t.Errorf("SumWrite w1 errCode = 0x%X", binary.LittleEndian.Uint32(resp[0:4]))
+	}
+	if binary.LittleEndian.Uint32(resp[4:8]) != ErrNoError {
+		t.Errorf("SumWrite w2 errCode = 0x%X", binary.LittleEndian.Uint32(resp[4:8]))
+	}
+
+	// Verify the values were written by reading them back.
+	d1, ec1 := st.ReadData(sym1.IndexGroup, sym1.IndexOffset, 1)
+	if ec1 != ErrNoError || d1[0] != 1 {
+		t.Errorf("w1 after SumWrite = %v (ec=0x%X), want 1", d1, ec1)
+	}
+	d2, ec2 := st.ReadData(sym2.IndexGroup, sym2.IndexOffset, 4)
+	if ec2 != ErrNoError || int32(binary.LittleEndian.Uint32(d2)) != 99 {
+		t.Errorf("w2 after SumWrite = %v (ec=0x%X), want 99", d2, ec2)
+	}
+}
+
+func TestSymbolTableSumWriteInvalidOffset(t *testing.T) {
+	st := NewSymbolTable()
+	p1 := newBoolPin(false)
+	sym1 := st.Register("w1", p1) // offset 0, size 1
+
+	// Build a SumWrite with 2 sub-requests: one valid, one with a bad IndexGroup.
+	writeData := make([]byte, 2*12+1+1)
+	binary.LittleEndian.PutUint32(writeData[0:], sym1.IndexGroup)
+	binary.LittleEndian.PutUint32(writeData[4:], sym1.IndexOffset)
+	binary.LittleEndian.PutUint32(writeData[8:], 1)
+	binary.LittleEndian.PutUint32(writeData[12:], 0xDEADBEEF) // invalid IndexGroup
+	binary.LittleEndian.PutUint32(writeData[16:], 0)
+	binary.LittleEndian.PutUint32(writeData[20:], 1)
+	writeData[24] = 1 // w1 = true
+	writeData[25] = 0 // data for bad sub-request
+
+	resp, errCode := st.ReadWriteData(IdxGrpSumWrite, 2, 0, writeData)
+	if errCode != ErrNoError {
+		t.Fatalf("SumWrite overall error: 0x%X", errCode)
+	}
+	if len(resp) != 8 {
+		t.Fatalf("SumWrite response length = %d, want 8", len(resp))
+	}
+	// First sub-request should succeed.
+	if binary.LittleEndian.Uint32(resp[0:4]) != ErrNoError {
+		t.Errorf("SumWrite w1 errCode = 0x%X, want NoError", binary.LittleEndian.Uint32(resp[0:4]))
+	}
+	// Second sub-request should return a per-sub-request error.
+	if binary.LittleEndian.Uint32(resp[4:8]) == ErrNoError {
+		t.Errorf("SumWrite bad sub-request errCode = NoError, want an error")
+	}
+	// Valid sub-request should still have been written.
+	d1, ec1 := st.ReadData(sym1.IndexGroup, sym1.IndexOffset, 1)
+	if ec1 != ErrNoError || d1[0] != 1 {
+		t.Errorf("w1 after partial SumWrite = %v (ec=0x%X), want 1", d1, ec1)
+	}
+}
+
+func TestSymbolTableSumWriteTruncatedData(t *testing.T) {
+	st := NewSymbolTable()
+	p1 := newBoolPin(false)
+	p2 := newDintPin(0)
+	sym1 := st.Register("tw1", p1)
+	sym2 := st.Register("tw2", p2)
+
+	// Build a SumWrite where the write data is truncated: only provide the first
+	// sub-request's payload, not the second.
+	writeData := make([]byte, 2*12+1) // headers for 2 requests + only 1 byte payload
+	binary.LittleEndian.PutUint32(writeData[0:], sym1.IndexGroup)
+	binary.LittleEndian.PutUint32(writeData[4:], sym1.IndexOffset)
+	binary.LittleEndian.PutUint32(writeData[8:], 1)
+	binary.LittleEndian.PutUint32(writeData[12:], sym2.IndexGroup)
+	binary.LittleEndian.PutUint32(writeData[16:], sym2.IndexOffset)
+	binary.LittleEndian.PutUint32(writeData[20:], 4) // claims 4 bytes but only 1 available
+	writeData[24] = 1                                 // w1 payload
+
+	resp, errCode := st.ReadWriteData(IdxGrpSumWrite, 2, 0, writeData)
+	if errCode != ErrNoError {
+		t.Fatalf("SumWrite overall error: 0x%X", errCode)
+	}
+	if len(resp) != 8 {
+		t.Fatalf("SumWrite response length = %d, want 8", len(resp))
+	}
+	// First sub-request should succeed.
+	if binary.LittleEndian.Uint32(resp[0:4]) != ErrNoError {
+		t.Errorf("SumWrite tw1 errCode = 0x%X, want NoError", binary.LittleEndian.Uint32(resp[0:4]))
+	}
+	// Second sub-request should fail due to truncated data.
+	if binary.LittleEndian.Uint32(resp[4:8]) == ErrNoError {
+		t.Errorf("SumWrite truncated tw2 errCode = NoError, want an error")
+	}
+}
+
 func TestSymbolTableFallbackMatching(t *testing.T) {
 	st := NewSymbolTable()
 	st.Register("stFoo.bFlag", newBoolPin(true))

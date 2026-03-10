@@ -520,6 +520,37 @@ func (st *SymbolTable) ReadWriteData(indexGroup, indexOffset, readLen uint32, wr
 		}
 		return resp, ErrNoError
 
+	case IdxGrpSumWrite:
+		// indexOffset = number of write sub-requests (N).
+		// writeData layout: N × 12 bytes headers (IndexGroup(4) + IndexOffset(4) + Length(4)),
+		//                   followed by concatenated write data payloads.
+		// Response: N × 4-byte error codes.
+		numWrites := indexOffset
+		errCodes := make([]uint32, numWrites)
+		dataOffset := numWrites * 12
+		for i := uint32(0); i < numWrites; i++ {
+			hdrOff := i * 12
+			if hdrOff+12 > uint32(len(writeData)) {
+				errCodes[i] = ErrInternal
+				continue
+			}
+			ig := binary.LittleEndian.Uint32(writeData[hdrOff:])
+			io := binary.LittleEndian.Uint32(writeData[hdrOff+4:])
+			ln := binary.LittleEndian.Uint32(writeData[hdrOff+8:])
+			if dataOffset+ln > uint32(len(writeData)) {
+				errCodes[i] = ErrInternal
+				continue
+			}
+			data := writeData[dataOffset : dataOffset+ln]
+			errCodes[i] = st.WriteData(ig, io, data)
+			dataOffset += ln
+		}
+		resp := make([]byte, numWrites*4)
+		for i, ec := range errCodes {
+			binary.LittleEndian.PutUint32(resp[i*4:], ec)
+		}
+		return resp, ErrNoError
+
 	default:
 		return nil, ErrNoSymbol
 	}

@@ -114,6 +114,13 @@ const (
 	// WriteData: N × 12 bytes: IndexGroup(4) + IndexOffset(4) + Length(4).
 	// Response: N × 4 bytes error codes, then concatenated data for successful reads.
 	IdxGrpSumRead uint32 = 0x0000F080
+
+	// IdxGrpSumWrite performs a batch write of multiple symbols in one round-trip (ReadWrite).
+	// indexOffset = number of sub-requests.
+	// WriteData: N × 12 bytes headers (IndexGroup(4) + IndexOffset(4) + Length(4)),
+	//            followed by concatenated write data for all sub-requests.
+	// Response: N × 4-byte error codes.
+	IdxGrpSumWrite uint32 = 0x0000F081
 )
 
 // ADS Data Type (ADST) constants for the symbol info typeID field.
