@@ -20,7 +20,7 @@ type PinAccessor interface {
 	// TypeID returns the ADST (ADS Data Type) constant for this symbol.
 	TypeID() uint32
 	// TypeGUID returns the 16-byte data type GUID for ADSIGRP_SYM_INFOBYNAMEEX
-	// responses. Returns all zeros for primitive types without a @type alias.
+	// responses. Returns all zeros for primitive types without an alias.
 	TypeGUID() [16]byte
 }
 

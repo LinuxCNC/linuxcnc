@@ -564,38 +564,8 @@ stBlock
 }
 
 // ---------------------------------------------------------------------------
-// @type directive removal tests and @struct directive tests
+// @struct directive tests
 // ---------------------------------------------------------------------------
-
-// TestParseTypeRejected verifies that a @type directive produces an error,
-// since @type has been superseded by @enum (for enum types) and @struct (for
-// struct types).
-func TestParseTypeRejected(t *testing.T) {
-	cfg := "@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0\nstBlock\n  in x BOOL\n"
-	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
-	if err == nil {
-		t.Error("expected error for @type directive, got nil")
-	}
-}
-
-// TestParseTypeAliasInvalidGUID verifies that a malformed GUID in a directive
-// returns a parse error (tests @type removal too).
-func TestParseTypeAliasInvalidGUID(t *testing.T) {
-	cfg := "@type BAD WORD not-a-valid-guid\nstBlock\n  in x BOOL\n"
-	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
-	if err == nil {
-		t.Error("expected error, got nil")
-	}
-}
-
-// TestParseTypeAliasMissingArgs verifies that an @type line returns a parse error.
-func TestParseTypeAliasMissingArgs(t *testing.T) {
-	cfg := "@type JUST_TWO_ARGS WORD\nstBlock\n  in x BOOL\n"
-	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
-	if err == nil {
-		t.Error("expected error for @type, got nil")
-	}
-}
 
 // TestParseStructBasic verifies that a @struct directive is parsed into the
 // TypeAliasMap with the correct GUID and member children.
@@ -720,20 +690,6 @@ stBlock
 	}
 	if _, ok := aliases["MYSTRUCT"]; !ok {
 		t.Error("expected alias to be normalised to MYSTRUCT")
-	}
-}
-
-// TestParseTreeBackwardCompat verifies that @type directives now return an
-// error (they have been removed in favour of @enum and @struct).
-func TestParseTreeBackwardCompat(t *testing.T) {
-	cfg := `
-@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
-stBlock
-  in eType EN_DISP_MSGTYPE
-`
-	_, err := ParseTree(strings.NewReader(cfg))
-	if err == nil {
-		t.Error("expected error for @type directive, got nil")
 	}
 }
 

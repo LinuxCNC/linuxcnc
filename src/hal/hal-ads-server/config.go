@@ -71,7 +71,7 @@ type Node struct {
 	// Empty for container nodes.
 	Dir PinDir
 	// TypeName is the ADS/TwinCAT type name for leaf nodes, e.g. "BOOL", "REAL".
-	// When a @type alias is referenced, TypeName holds the alias name (not the base type).
+	// When an @enum/@struct alias is referenced, TypeName holds the alias name (not the base type).
 	// Empty for container nodes.
 	TypeName string
 	// ArrayStart and ArrayEnd are >0 for array containers, e.g. [1..4] gives
@@ -307,6 +307,9 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 				return nil, nil, fmt.Errorf("line %d: @enum requires exactly 3 arguments: @enum <EnumName> <BaseType> <GUID>", lineNo)
 			}
 			pendingEnumName = strings.ToUpper(tokens[1])
+			if _, exists := aliases[pendingEnumName]; exists {
+				return nil, nil, fmt.Errorf("line %d: duplicate type name %q (already defined)", lineNo, pendingEnumName)
+			}
 			baseType := strings.ToUpper(tokens[2])
 			guid, err := parseGUID(tokens[3])
 			if err != nil {
@@ -326,6 +329,9 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 				return nil, nil, fmt.Errorf("line %d: @struct requires exactly 2 arguments: @struct <StructName> <GUID>", lineNo)
 			}
 			pendingStructName = strings.ToUpper(tokens[1])
+			if _, exists := aliases[pendingStructName]; exists {
+				return nil, nil, fmt.Errorf("line %d: duplicate type name %q (already defined)", lineNo, pendingStructName)
+			}
 			guid, err := parseGUID(tokens[2])
 			if err != nil {
 				return nil, nil, fmt.Errorf("line %d: @struct %q invalid GUID: %w", lineNo, pendingStructName, err)
@@ -334,16 +340,6 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 			pendingStructLines = nil
 			inStructDef = true
 			continue
-		}
-
-		// Reject deprecated @type directives.
-		if strings.HasPrefix(trimmed, "@type ") {
-			tokens := strings.Fields(trimmed)
-			name := ""
-			if len(tokens) >= 2 {
-				name = tokens[1]
-			}
-			return nil, nil, fmt.Errorf("line %d: @type %q is no longer supported; use @enum for enum types or @struct for struct types", lineNo, name)
 		}
 
 		// Regular tree line: compute depth with indentation tracking.

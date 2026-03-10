@@ -53,6 +53,7 @@ INDEX_GROUP_NAMES = {
     0xF006: "SymbolReleaseHandle",
     0xF007: "SymbolInfoByName",
     0xF080: "SumRead",
+    0xF081: "SumWrite",
     0x4040: "ProcessImageRW",
 }
 

@@ -424,7 +424,7 @@ func xmlVarToNode(name string, td *xmlTypeDef, typeMap map[string]*xmlDataType) 
 			}
 			return &Node{Name: name, Children: children}, nil
 		}
-		// Primitive-based alias (e.g. from @type directive) → use the primitive type.
+		// Primitive-based alias → use the primitive type.
 		if primName := dt.BaseType.primitiveTypeName(); primName != "" {
 			return &Node{Name: name, Dir: DirIn, TypeName: primName}, nil
 		}
@@ -472,7 +472,7 @@ func xmlStructVarsToChildren(vars []xmlVariable, typeMap map[string]*xmlDataType
 }
 
 // ---------------------------------------------------------------------------
-// @type alias XML generation tests
+// alias XML generation tests
 // ---------------------------------------------------------------------------
 
 // TestGenerateXMLAliasedTypeDerived verifies that GenerateXML emits a
@@ -529,9 +529,9 @@ stBlock
 	}
 }
 
-// TestGenerateXMLNoAliasesBackwardCompat verifies that GenerateXML without
-// aliases still generates valid XML (backward compatibility).
-func TestGenerateXMLNoAliasesBackwardCompat(t *testing.T) {
+// TestGenerateXMLNoAliases verifies that GenerateXML without aliases
+// still generates valid XML.
+func TestGenerateXMLNoAliases(t *testing.T) {
 	cfg := `
 stBlock
   in bFlag BOOL
@@ -543,7 +543,7 @@ stBlock
 	}
 
 	var buf bytes.Buffer
-	// Call without aliases (backward compatible signature).
+	// Call without aliases.
 	if err := GenerateXML(&buf, roots); err != nil {
 		t.Fatalf("GenerateXML: %v", err)
 	}

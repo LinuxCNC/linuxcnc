@@ -27,7 +27,7 @@ func parseTypeInfo(typeName string) (typeInfo, error) {
 }
 
 // parseTypeInfoResolved is the internal implementation of parseTypeInfo that
-// also resolves @type aliases via the provided map. When typeName matches an
+// also resolves @enum/@struct aliases via the provided map. When typeName matches an
 // alias, the base type is used for adstID/byteSize but adsTypeName retains the
 // alias name so TwinCAT clients receive the correct derived type name.
 func parseTypeInfoResolved(typeName string, aliases TypeAliasMap) (typeInfo, error) {
@@ -39,7 +39,7 @@ func parseTypeInfoResolved(typeName string, aliases TypeAliasMap) (typeInfo, err
 				return typeInfo{}, fmt.Errorf("alias %q base type %q: %w", typeName, alias.BaseType, err)
 			}
 			ti.adsTypeName = typeName // preserve alias name for HMI
-			ti.typeGUID = alias.GUID  // attach GUID from @type directive
+			ti.typeGUID = alias.GUID  // attach GUID from alias directive
 			return ti, nil
 		}
 	}
@@ -312,7 +312,7 @@ type Bridge struct {
 // Pad entries (Dir == DirPad) occupy process-image space but do not create
 // HAL pins and are not registered in the ADS symbol list.
 //
-// The optional aliases parameter provides @type alias resolution so that
+// The optional aliases parameter provides @enum/@struct alias resolution so that
 // user-defined type names are correctly mapped to their base ADS types while
 // preserving the alias name and data-type GUID in the symbol info response.
 func NewBridge(comp *hal.Component, pins []LayoutPin, st *ads.SymbolTable, aliasOpts ...TypeAliasMap) (*Bridge, error) {

@@ -304,7 +304,7 @@ func emitAliasDataTypes(e *errEncoder, aliases TypeAliasMap, tm nodeTypeMap) err
 			}
 			e.end("struct")
 		} else {
-			return fmt.Errorf("alias %q has neither EnumValues nor StructDef; @type aliases are no longer supported", name)
+			panic(fmt.Sprintf("internal error: alias %q has neither EnumValues nor StructDef", name))
 		}
 		e.end("baseType")
 		emitObjectIdAddData(e, alias.GUID)

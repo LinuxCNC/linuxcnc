@@ -444,10 +444,10 @@ func TestLayoutIdempotencyGalvHmiPadding(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// @type alias resolution tests
+// alias resolution tests
 // ---------------------------------------------------------------------------
 
-// TestTypeSizeAliasResolution verifies that ComputeLayout resolves @type
+// TestTypeSizeAliasResolution verifies that ComputeLayout resolves @enum/@struct
 // aliases to their base types for size/alignment computation.
 func TestTypeSizeAliasResolution(t *testing.T) {
 	aliases := TypeAliasMap{

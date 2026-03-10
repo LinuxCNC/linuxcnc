@@ -42,7 +42,7 @@ func TypeSize(typeName string) (size, align uint32, err error) {
 }
 
 // typeSizeResolved is the internal implementation of TypeSize that also
-// accepts an optional TypeAliasMap for resolving @type aliases.
+// accepts an optional TypeAliasMap for resolving @enum/@struct aliases.
 func typeSizeResolved(typeName string, aliases TypeAliasMap) (size, align uint32, err error) {
 	// Resolve alias first (aliases take priority to preserve the caller's intent).
 	if aliases != nil {
@@ -88,7 +88,7 @@ func typeSizeResolved(typeName string, aliases TypeAliasMap) (size, align uint32
 // which means that if a config already contains correctly-placed pad entries
 // the result is identical (idempotent).
 //
-// The optional aliases parameter provides @type alias resolution so that
+// The optional aliases parameter provides @enum/@struct alias resolution so that
 // user-defined type names (e.g. "EN_DISP_MSGTYPE") are correctly mapped to
 // their base types for size/alignment computation.
 func ComputeLayout(roots []*Node, aliases ...TypeAliasMap) ([]LayoutPin, error) {

@@ -51,6 +51,7 @@ Options:
   -bind string        IP address to bind the ADS server to (default "0.0.0.0")
   -ams-net-id string  AMS Net ID of this device (default "192.168.0.99.1.1")
   -verbose            Enable verbose debug logging
+  -xml                Generate PLCopen TC6 XML from config and exit
 ```
 
 ### Loading from halcmd
@@ -62,12 +63,13 @@ halcmd loadusr -W hal-ads-server /path/to/my-symbols.cfg
 ## Config File Format
 
 The config file uses consistent indentation (any number of spaces or tabs) to define the ADS symbol hierarchy. The indent style is auto-detected from the first indented line; all subsequent lines must use the same character (spaces or tabs) and a consistent multiple of that indent unit.
+Lines starting with `#` are comments and are ignored.
 Each leaf line (with `in`, `out`, `inout`, or `pad`) creates a HAL pin (except
 `pad`, which only reserves space in the process image).
 
 ```
 stDISPLAY_DATA
-  in bErrRest bool
+  in bErrRest BOOL
   in aFlags[1..8] BOOL
   struct stPOOL ST_POOL
   struct stPOOLs[1..9] ST_POOL
@@ -234,6 +236,10 @@ The server implements the ADS/AMS protocol over TCP (default port 48898):
 > symbol count. An ADS **ReadWrite** (write data = symbol name) returns the
 > extended symbol info (`ADSIGRP_SYM_INFOBYNAMEEX`) used by TwinCAT HMI
 > clients to resolve type metadata including array dimensions and data-type GUIDs.
+
+> **Unsupported commands:** ADS notification commands (AddNotification,
+> DelNotification, DeviceNotification) are not implemented. Requests for
+> these commands receive an "unknown command" error response.
 
 ## License
 
