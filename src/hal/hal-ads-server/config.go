@@ -37,16 +37,20 @@ type EnumValue struct {
 }
 
 // TypeAlias maps a custom/derived type name to its base ADS type and data-type GUID.
-// @type and @enum directives in the config file populate this.
+// @enum and @struct directives in the config file populate this.
 type TypeAlias struct {
 	// BaseType is the underlying ADS primitive type, e.g. "WORD".
+	// Empty for @struct aliases (struct types are not aliases of a primitive).
 	BaseType string
 	// GUID is the 16-byte data type GUID in Microsoft COM wire format.
 	// All zeros if no GUID was specified.
 	GUID [16]byte
 	// EnumValues holds the ordered enum member definitions for @enum types.
-	// It is nil for plain @type aliases and non-nil (possibly empty) for @enum types.
+	// It is nil for plain aliases and non-nil (possibly empty) for @enum types.
 	EnumValues []EnumValue
+	// StructDef holds the parsed member tree for @struct types.
+	// It is nil for non-struct aliases and non-nil (possibly empty) for @struct types.
+	StructDef []*Node
 }
 
 // TypeAliasMap is a map from alias name to TypeAlias definition.
@@ -86,28 +90,39 @@ type configLine struct {
 }
 
 // ParseTreeWithAliases reads the HAL-ADS config format from r and returns both
-// the TypeAliasMap (from @type and @enum directives) and the tree of Nodes
+// the TypeAliasMap (from @enum and @struct directives) and the tree of Nodes
 // representing the symbol hierarchy.
 //
-// @type directives must appear at depth 0 and have the form:
-//
-//	@type <AliasName> <BaseType> <GUID>
-//
-// @enum directives must also appear at depth 0 and support an optional
-// indented block of enum member definitions:
+// @enum directives must appear at depth 0 and support an optional indented
+// block of enum member definitions:
 //
 //	@enum <EnumName> <BaseType> <GUID>
 //	  <memberName> [intValue]
 //	  ...
 //
-// Example:
+// @struct directives must also appear at depth 0 and are followed by an
+// indented block of member field definitions. Members may be leaf pins
+// (in/out/inout/pad), containers, arrays, or struct-keyword references:
 //
-//	@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+//	@struct <StructName> <GUID>
+//	  <dir> <fieldName> <Type>
+//	  <containerName>
+//	    <dir> <fieldName> <Type>
+//	  <arrayName>[start..end]
+//	    struct _ <OtherStructType>
+//	  struct <fieldName> <OtherStructType>
+//
+// Example:
 //
 //	@enum EN_DISP_POOL_STATE WORD 4bb8098e-6846-4a59-915d-71a3e3d369c0
 //	  empty 0
 //	  newForm
 //	  formLoaded
+//
+//	@struct ST_DISP_MSG 702ba601-5f18-413a-95f1-5fe16503843e
+//	  in eType EN_DISP_MSGTYPE
+//	  in bEnableOk BOOL
+//	  out bOk BOOL
 func ParseTreeWithAliases(r io.Reader) (TypeAliasMap, []*Node, error) {
 	aliases, lines, err := readConfigLinesWithAliases(r)
 	if err != nil {
@@ -115,7 +130,7 @@ func ParseTreeWithAliases(r io.Reader) (TypeAliasMap, []*Node, error) {
 	}
 	var roots []*Node
 	idx := 0
-	if err := parseTreeBlock(lines, &idx, -1, &roots); err != nil {
+	if err := parseTreeBlock(lines, &idx, -1, &roots, aliases); err != nil {
 		return nil, nil, err
 	}
 	return aliases, roots, nil
@@ -124,8 +139,9 @@ func ParseTreeWithAliases(r io.Reader) (TypeAliasMap, []*Node, error) {
 // ParseTree reads the HAL-ADS config format from r and returns the tree of
 // Nodes representing the symbol hierarchy.
 //
-// @type directives are parsed and silently discarded; use ParseTreeWithAliases
-// to retrieve the alias registry alongside the node tree.
+// @enum and @struct directives are parsed and used to resolve struct/enum
+// references; use ParseTreeWithAliases to retrieve the alias registry alongside
+// the node tree.
 //
 // Format (any consistent indentation — spaces or tabs):
 //
@@ -135,6 +151,7 @@ func ParseTreeWithAliases(r io.Reader) (TypeAliasMap, []*Node, error) {
 //	out leafName TYPE
 //	inout leafName TYPE
 //	pad leafName TYPE
+//	struct varName StructTypeName
 //	ArrayName[start..end]
 //	  in leafName TYPE
 func ParseTree(r io.Reader) ([]*Node, error) {
@@ -143,11 +160,15 @@ func ParseTree(r io.Reader) ([]*Node, error) {
 }
 
 // readConfigLinesWithAliases reads and pre-processes all non-blank, non-comment
-// lines. It strips and collects @type and @enum directives into a TypeAliasMap,
+// lines. It strips and collects @enum and @struct directives into a TypeAliasMap,
 // then returns the remaining lines for tree parsing.
 //
 // For @enum directives, any subsequent indented lines are consumed as enum
 // member definitions (memberName [intValue]) before the alias is registered.
+//
+// For @struct directives, any subsequent indented lines are consumed as struct
+// member definitions (parsed with the same rules as the main tree) before the
+// alias is registered.
 func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error) {
 	scanner := bufio.NewScanner(r)
 	aliases := make(TypeAliasMap)
@@ -163,6 +184,46 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 	var pendingEnumValues []EnumValue
 	nextAutoValue := 0 // auto-increment counter for enum members without explicit value
 
+	// State for @struct member collection.
+	inStructDef := false
+	var pendingStructName string
+	var pendingStructAlias TypeAlias
+	var pendingStructLines []configLine
+
+	// finalizeEnum commits the pending @enum definition into the alias map.
+	finalizeEnum := func() {
+		pendingEnumAlias.EnumValues = pendingEnumValues
+		aliases[pendingEnumName] = pendingEnumAlias
+		inEnumDef = false
+		pendingEnumValues = []EnumValue{}
+	}
+
+	// finalizeStruct parses the collected struct member lines and commits
+	// the @struct definition into the alias map.
+	finalizeStruct := func() error {
+		// Adjust depths: subtract 1 so that depth-1 lines become depth-0.
+		adjusted := make([]configLine, len(pendingStructLines))
+		for i, cl := range pendingStructLines {
+			adjusted[i] = configLine{lineNo: cl.lineNo, depth: cl.depth - 1, trimmed: cl.trimmed}
+		}
+		var nodes []*Node
+		idx := 0
+		if err := parseTreeBlock(adjusted, &idx, -1, &nodes, aliases); err != nil {
+			return fmt.Errorf("@struct %q member: %w", pendingStructName, err)
+		}
+		if nodes == nil {
+			// Ensure StructDef is non-nil even for empty @struct bodies so that
+			// nil (non-struct alias) can be distinguished from a struct with no
+			// members. parseTreeBlock leaves the slice nil when there are no lines.
+			nodes = []*Node{}
+		}
+		pendingStructAlias.StructDef = nodes
+		aliases[pendingStructName] = pendingStructAlias
+		inStructDef = false
+		pendingStructLines = nil
+		return nil
+	}
+
 	for scanner.Scan() {
 		lineNo++
 		rawLine := scanner.Text()
@@ -175,6 +236,37 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 		wsLen := 0
 		for wsLen < len(rawLine) && (rawLine[wsLen] == ' ' || rawLine[wsLen] == '\t') {
 			wsLen++
+		}
+
+		// If we are collecting members for an @struct block, check whether
+		// this line is still an indented member line.
+		if inStructDef {
+			if wsLen > 0 {
+				// Indented line → struct member line (depth tracking below).
+				depth := 0
+				if indentUnit == 0 {
+					indentChar = rawLine[0]
+					indentUnit = wsLen
+				}
+				for i := 0; i < wsLen; i++ {
+					if rawLine[i] != indentChar {
+						return nil, nil, fmt.Errorf("line %d: mixed indentation (indent uses %s but line has %s)",
+							lineNo, indentCharName(indentChar), indentCharName(rawLine[i]))
+					}
+				}
+				if wsLen%indentUnit != 0 {
+					return nil, nil, fmt.Errorf("line %d: indentation of %d %s(s) is not a multiple of the indent unit (%d)",
+						lineNo, wsLen, indentCharName(indentChar), indentUnit)
+				}
+				depth = wsLen / indentUnit
+				pendingStructLines = append(pendingStructLines, configLine{lineNo: lineNo, depth: depth, trimmed: trimmed})
+				continue
+			}
+			// Non-indented line → end of @struct member block; finalize.
+			if err := finalizeStruct(); err != nil {
+				return nil, nil, err
+			}
+			// Fall through to process the current (non-indented) line normally.
 		}
 
 		// If we are collecting members for an @enum block, check whether
@@ -204,10 +296,7 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 				continue
 			}
 			// Non-indented line → end of @enum member block; finalize the alias.
-			pendingEnumAlias.EnumValues = pendingEnumValues
-			aliases[pendingEnumName] = pendingEnumAlias
-			inEnumDef = false
-			pendingEnumValues = []EnumValue{}
+			finalizeEnum()
 			// Fall through to process the current (non-indented) line normally.
 		}
 
@@ -230,20 +319,31 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 			continue
 		}
 
-		// Handle @type directives at depth 0 (no leading whitespace).
+		// Handle @struct directives at depth 0 (no leading whitespace).
+		if strings.HasPrefix(trimmed, "@struct ") {
+			tokens := strings.Fields(trimmed)
+			if len(tokens) != 3 {
+				return nil, nil, fmt.Errorf("line %d: @struct requires exactly 2 arguments: @struct <StructName> <GUID>", lineNo)
+			}
+			pendingStructName = strings.ToUpper(tokens[1])
+			guid, err := parseGUID(tokens[2])
+			if err != nil {
+				return nil, nil, fmt.Errorf("line %d: @struct %q invalid GUID: %w", lineNo, pendingStructName, err)
+			}
+			pendingStructAlias = TypeAlias{GUID: guid}
+			pendingStructLines = nil
+			inStructDef = true
+			continue
+		}
+
+		// Reject deprecated @type directives.
 		if strings.HasPrefix(trimmed, "@type ") {
 			tokens := strings.Fields(trimmed)
-			if len(tokens) != 4 {
-				return nil, nil, fmt.Errorf("line %d: @type requires exactly 3 arguments: @type <AliasName> <BaseType> <GUID>", lineNo)
+			name := ""
+			if len(tokens) >= 2 {
+				name = tokens[1]
 			}
-			aliasName := strings.ToUpper(tokens[1])
-			baseType := strings.ToUpper(tokens[2])
-			guid, err := parseGUID(tokens[3])
-			if err != nil {
-				return nil, nil, fmt.Errorf("line %d: @type %q invalid GUID: %w", lineNo, aliasName, err)
-			}
-			aliases[aliasName] = TypeAlias{BaseType: baseType, GUID: guid}
-			continue
+			return nil, nil, fmt.Errorf("line %d: @type %q is no longer supported; use @enum for enum types or @struct for struct types", lineNo, name)
 		}
 
 		// Regular tree line: compute depth with indentation tracking.
@@ -275,10 +375,14 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 		return nil, nil, fmt.Errorf("config read error: %w", err)
 	}
 
-	// Finalize any pending @enum block that reached EOF without a non-indented line.
+	// Finalize any pending @enum or @struct block that reached EOF without a non-indented line.
 	if inEnumDef {
-		pendingEnumAlias.EnumValues = pendingEnumValues
-		aliases[pendingEnumName] = pendingEnumAlias
+		finalizeEnum()
+	}
+	if inStructDef {
+		if err := finalizeStruct(); err != nil {
+			return nil, nil, err
+		}
 	}
 
 	return aliases, lines, nil
@@ -349,7 +453,9 @@ func indentCharName(ch byte) string {
 // parseTreeBlock processes config lines starting at *idx, adding discovered
 // Nodes to *nodes. It stops when it encounters a line at depth <= minDepth
 // (that line is left for the caller to process).
-func parseTreeBlock(lines []configLine, idx *int, minDepth int, nodes *[]*Node) error {
+//
+// aliases is optional; it is used to resolve the struct keyword.
+func parseTreeBlock(lines []configLine, idx *int, minDepth int, nodes *[]*Node, aliases TypeAliasMap) error {
 	for *idx < len(lines) {
 		cl := lines[*idx]
 		if cl.depth <= minDepth {
@@ -377,6 +483,26 @@ func parseTreeBlock(lines []configLine, idx *int, minDepth int, nodes *[]*Node) 
 			continue
 		}
 
+		// Struct keyword: create a container node from an @struct definition.
+		if tokens[0] == "struct" {
+			if len(tokens) < 3 {
+				return fmt.Errorf("line %d: struct requires name and type: struct <varName> <StructType>", cl.lineNo)
+			}
+			varName := tokens[1]
+			typeName := strings.ToUpper(tokens[2])
+			alias, ok := aliases[typeName]
+			if !ok || alias.StructDef == nil {
+				return fmt.Errorf("line %d: struct %q references undefined struct type %q", cl.lineNo, varName, typeName)
+			}
+			*nodes = append(*nodes, &Node{
+				Name:     varName,
+				TypeName: typeName,
+				Children: cloneNodes(alias.StructDef),
+			})
+			*idx++
+			continue
+		}
+
 		// Container line: plain struct or array.
 		node, err := parseContainerNode(tokens[0], cl.lineNo)
 		if err != nil {
@@ -385,13 +511,47 @@ func parseTreeBlock(lines []configLine, idx *int, minDepth int, nodes *[]*Node) 
 		*idx++ // consume the container line
 
 		var children []*Node
-		if err := parseTreeBlock(lines, idx, cl.depth, &children); err != nil {
+		if err := parseTreeBlock(lines, idx, cl.depth, &children, aliases); err != nil {
 			return err
 		}
-		node.Children = children
+
+		// Special case: an array whose sole child is a struct-keyword container
+		// (e.g. "struct _ TypeName") — promote the struct type to the array node
+		// so that its element type is the named struct. This avoids an extra path
+		// component in the symbol hierarchy (e.g. "aPools[1].sName" not
+		// "aPools[1]._.sName") and produces the correct <derived name="ST_...">
+		// element type in the generated XML.
+		if node.ArrayStart > 0 && len(children) == 1 {
+			single := children[0]
+			if single.TypeName != "" && single.Name == "_" && len(single.Children) > 0 {
+				// Promote: the array element type IS the struct type.
+				node.TypeName = single.TypeName
+				node.Children = single.Children
+			} else {
+				node.Children = children
+			}
+		} else {
+			node.Children = children
+		}
 		*nodes = append(*nodes, node)
 	}
 	return nil
+}
+
+// cloneNodes returns a deep copy of a []*Node slice.
+// Each Node is copied and its Children are recursively cloned.
+// This ensures that struct instances share no mutable state.
+func cloneNodes(src []*Node) []*Node {
+	if src == nil {
+		return nil
+	}
+	dst := make([]*Node, len(src))
+	for i, n := range src {
+		c := *n // copy the Node struct value
+		c.Children = cloneNodes(n.Children)
+		dst[i] = &c
+	}
+	return dst
 }
 
 // parseContainerNode parses a container token (plain name or "name[start..end]")

@@ -475,12 +475,15 @@ func xmlStructVarsToChildren(vars []xmlVariable, typeMap map[string]*xmlDataType
 
 // TestGenerateXMLAliasedTypeDerived verifies that GenerateXML emits a
 // <derived name="AliasName" /> element for leaf nodes whose TypeName matches
-// an @type alias, and emits a <dataType> entry for the alias.
+// an @enum alias, and emits a <dataType> entry for the alias.
 func TestGenerateXMLAliasedTypeDerived(t *testing.T) {
 	cfg := `
-@type MY_WORD_ALIAS WORD 00000000-0000-0000-0000-000000000001
+@enum MY_ENUM WORD 00000000-0000-0000-0000-000000000001
+  a 0
+  b
+
 stBlock
-  in eType MY_WORD_ALIAS
+  in eType MY_ENUM
   in bFlag BOOL
 `
 	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
@@ -506,14 +509,14 @@ stBlock
 		}
 	}
 
-	// The alias should appear as a <derived name="MY_WORD_ALIAS"> in the variable.
-	if !strings.Contains(out, `name="MY_WORD_ALIAS"`) {
-		t.Error("expected <derived name=\"MY_WORD_ALIAS\"> in XML output")
+	// The alias should appear as a <derived name="MY_ENUM"> in the variable.
+	if !strings.Contains(out, `name="MY_ENUM"`) {
+		t.Error("expected <derived name=\"MY_ENUM\"> in XML output")
 	}
 
-	// The alias should appear as a <dataType name="MY_WORD_ALIAS"> entry.
-	if !strings.Contains(out, `<dataType name="MY_WORD_ALIAS"`) {
-		t.Error("expected <dataType name=\"MY_WORD_ALIAS\"> in XML output")
+	// The alias should appear as a <dataType name="MY_ENUM"> entry.
+	if !strings.Contains(out, `<dataType name="MY_ENUM"`) {
+		t.Error("expected <dataType name=\"MY_ENUM\"> in XML output")
 	}
 
 	// The raw WORD element should NOT appear directly for the alias field
@@ -625,17 +628,19 @@ stBlock
 	}
 }
 
-// TestGenerateXMLEnumVsType verifies that @type aliases still emit a plain
-// primitive type while @enum aliases emit the <enum> block.
-func TestGenerateXMLEnumVsType(t *testing.T) {
+// TestGenerateXMLEnumVsStruct verifies that @enum aliases emit an enum block
+// while @struct aliases emit a struct block in the generated XML.
+func TestGenerateXMLEnumVsStruct(t *testing.T) {
 	cfg := `
-@type PLAIN_WORD WORD 00000000-0000-0000-0000-000000000001
+@struct MY_STRUCT 00000000-0000-0000-0000-000000000001
+  in bFlag BOOL
+
 @enum MY_ENUM WORD 00000000-0000-0000-0000-000000000002
   a 0
   b
 
 stBlock
-  in x PLAIN_WORD
+  struct stX MY_STRUCT
   in y MY_ENUM
 `
 	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
@@ -649,13 +654,20 @@ stBlock
 	}
 	out := buf.String()
 
-	// PLAIN_WORD should have <WORD /> as its base type (not an enum block).
-	if !strings.Contains(out, "<WORD") {
-		t.Error("expected <WORD /> for plain @type alias")
+	// MY_STRUCT should have a <struct> body.
+	if !strings.Contains(out, `<dataType name="MY_STRUCT"`) {
+		t.Error("expected <dataType name=\"MY_STRUCT\"> in output")
+	}
+	if !strings.Contains(out, "<struct>") {
+		t.Error("expected <struct> block for @struct alias")
 	}
 	// MY_ENUM should have an <enum> block.
 	if !strings.Contains(out, "<enum>") {
 		t.Error("expected <enum> block for @enum alias")
+	}
+	// stX should reference MY_STRUCT via <derived>.
+	if !strings.Contains(out, `name="MY_STRUCT"`) {
+		t.Error("expected <derived name=\"MY_STRUCT\"> for stX variable")
 	}
 }
 
@@ -707,5 +719,158 @@ func TestGenerateXMLEnumGalvHmiEnums(t *testing.T) {
 	}
 	if !strings.Contains(out, `name="finished"`) {
 		t.Error("expected finished member in EN_DISP_POOL_STATE enum")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// @struct XML generation tests
+// ---------------------------------------------------------------------------
+
+// TestGenerateXMLStructDerived verifies that GenerateXML emits
+// <derived name="ST_DISP_MSG" /> (using the declared struct name) instead of
+// a generated T_xxx name for container nodes from the struct keyword.
+func TestGenerateXMLStructDerived(t *testing.T) {
+	cfg := `
+@struct ST_DISP_MSG 702ba601-5f18-413a-95f1-5fe16503843e
+  in bEnableOk BOOL
+  out bOk BOOL
+
+stBlock
+  struct stMsg ST_DISP_MSG
+  in bExtra BOOL
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	// Verify valid XML.
+	dec := xml.NewDecoder(strings.NewReader(out))
+	for {
+		_, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatalf("invalid XML: %v\n%s", err, out)
+		}
+	}
+
+	// stMsg should reference the declared struct name, not T_stMsg.
+	if strings.Contains(out, `T_stMsg`) {
+		t.Error("must not emit T_stMsg; should use declared name ST_DISP_MSG")
+	}
+	if !strings.Contains(out, `name="ST_DISP_MSG"`) {
+		t.Error("expected <derived name=\"ST_DISP_MSG\" /> or similar in XML output")
+	}
+}
+
+// TestGenerateXMLStructDataType verifies that GenerateXML emits a proper
+// <dataType name="ST_DISP_MSG"><baseType><struct>...</struct></baseType></dataType>
+// block for a @struct alias.
+func TestGenerateXMLStructDataType(t *testing.T) {
+	cfg := `
+@struct ST_DISP_MSG 702ba601-5f18-413a-95f1-5fe16503843e
+  in bEnableOk BOOL
+  in bEnableCancel BOOL
+  out bOk BOOL
+  out bCancel BOOL
+
+stBlock
+  struct stMsg ST_DISP_MSG
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	// Verify valid XML.
+	dec := xml.NewDecoder(strings.NewReader(out))
+	for {
+		_, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatalf("invalid XML: %v\n%s", err, out)
+		}
+	}
+
+	// The @struct should appear as a <dataType name="ST_DISP_MSG"> with a struct body.
+	if !strings.Contains(out, `<dataType name="ST_DISP_MSG"`) {
+		t.Error("expected <dataType name=\"ST_DISP_MSG\"> in output")
+	}
+	if !strings.Contains(out, "<struct>") {
+		t.Error("expected <struct> block inside ST_DISP_MSG dataType")
+	}
+	// Members should appear as variables.
+	if !strings.Contains(out, `name="bEnableOk"`) {
+		t.Error("expected variable bEnableOk in ST_DISP_MSG struct")
+	}
+	if !strings.Contains(out, `name="bOk"`) {
+		t.Error("expected variable bOk in ST_DISP_MSG struct")
+	}
+}
+
+// TestGenerateXMLStructGalvHmi verifies that the updated galv-hmi.conf with
+// @struct directives generates XML matching the structure of DISPLAY_DATA.xml.
+func TestGenerateXMLStructGalvHmi(t *testing.T) {
+	f, err := os.Open("configs/galv-hmi.conf")
+	if err != nil {
+		t.Skipf("galv-hmi.conf not found: %v", err)
+	}
+	defer f.Close()
+
+	aliases, roots, err := ParseTreeWithAliases(f)
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	// All 8 struct dataTypes must be present.
+	for _, structName := range []string{
+		"ST_DISP_DATA", "ST_DISP_POOL", "ST_DISP_MSG",
+		"ST_DISP_MIXER", "ST_DISP_ERRORS",
+		"ST_DISP_GOLBAL_ERRORS", "ST_DISP_POOL_ERRORS", "ST_DISP_MIXER_ERRORS",
+	} {
+		if !strings.Contains(out, `<dataType name="`+structName+`"`) {
+			t.Errorf("expected <dataType name=%q> in XML", structName)
+		}
+	}
+
+	// Struct types must reference each other via <derived>.
+	if !strings.Contains(out, `name="ST_DISP_POOL"`) {
+		t.Error("expected <derived name=\"ST_DISP_POOL\"> (array element type)")
+	}
+	if !strings.Contains(out, `name="ST_DISP_MSG"`) {
+		t.Error("expected <derived name=\"ST_DISP_MSG\"> (stMsg field type)")
+	}
+	if !strings.Contains(out, `name="ST_DISP_MIXER"`) {
+		t.Error("expected <derived name=\"ST_DISP_MIXER\"> (array element type)")
+	}
+
+	// GVL variables should use the declared struct types.
+	if !strings.Contains(out, `name="ST_DISP_DATA"`) {
+		t.Error("expected <derived name=\"ST_DISP_DATA\"> for stData variable")
+	}
+	if !strings.Contains(out, `name="ST_DISP_ERRORS"`) {
+		t.Error("expected <derived name=\"ST_DISP_ERRORS\"> for stErrors variable")
 	}
 }

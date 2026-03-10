@@ -54,10 +54,12 @@ type nodeTypeMap map[*Node]string
 // (struct). Type names are derived from the node name with a "T_" prefix;
 // array element types get an additional "_ITEM" suffix.
 //
-// The optional aliases parameter provides the @type alias map from the config
-// file. Each alias generates a <dataType> entry with its base type, and leaf
-// nodes whose TypeName matches an alias emit a <derived name="AliasName" />
-// element instead of the raw primitive element.
+// The optional aliases parameter provides the @enum and @struct alias map from
+// the config file. Each @enum alias generates a <dataType> entry with an enum
+// block, and each @struct alias generates a <dataType> entry with a struct block.
+// Leaf nodes whose TypeName matches an alias emit a <derived name="AliasName" />
+// element instead of the raw primitive element. Container nodes from the
+// "struct varName TypeName" syntax emit <derived name="TypeName" />.
 //
 // Usage:
 //
@@ -79,8 +81,29 @@ func GenerateXML(w io.Writer, roots []*Node, aliasOpts ...TypeAliasMap) error {
 	tm := make(nodeTypeMap)
 	nameSet := make(map[string]int)
 	var typeDefs []genTypeDef
+
+	// First walk @struct StructDef member trees so that their internal
+	// containers (e.g. arrays inside a struct) are registered in tm.
+	// This allows emitAliasDataTypes to look up type names for those nodes.
+	if aliases != nil {
+		// Walk in sorted order for determinism.
+		structNames := make([]string, 0)
+		for name, alias := range aliases {
+			if alias.StructDef != nil {
+				structNames = append(structNames, name)
+			}
+		}
+		sort.Strings(structNames)
+		for _, name := range structNames {
+			alias := aliases[name]
+			for _, child := range alias.StructDef {
+				collectTypeDefs(child, nameSet, tm, &typeDefs, aliases)
+			}
+		}
+	}
+
 	for _, child := range gvlNode.Children {
-		collectTypeDefs(child, nameSet, tm, &typeDefs)
+		collectTypeDefs(child, nameSet, tm, &typeDefs, aliases)
 	}
 
 	// Write the XML processing instruction first (encoder doesn't add it).
@@ -121,8 +144,9 @@ func GenerateXML(w io.Writer, roots []*Node, aliasOpts ...TypeAliasMap) error {
 	// <types> <dataTypes> ... </dataTypes> <pous /> </types>
 	e.start("types")
 	e.start("dataTypes")
-	// Emit @type alias dataType entries first (they may be referenced by struct members).
-	if err := emitAliasDataTypes(e, aliases); err != nil {
+	// Emit @enum and @struct alias dataType entries first (they may be
+	// referenced by container type definitions below).
+	if err := emitAliasDataTypes(e, aliases, tm); err != nil {
 		return err
 	}
 	for _, td := range typeDefs {
@@ -162,15 +186,27 @@ func GenerateXML(w io.Writer, roots []*Node, aliasOpts ...TypeAliasMap) error {
 }
 
 // collectTypeDefs walks the node tree (post-order) and appends a genTypeDef
-// for each container node. It also populates tm with type name mappings.
-func collectTypeDefs(node *Node, nameSet map[string]int, tm nodeTypeMap, typeDefs *[]genTypeDef) {
+// for each container node that needs a generated type definition. Container
+// nodes that reference a named @struct type (node.TypeName != "") use the
+// declared struct name directly instead of a generated T_xxx name, and are
+// not added to typeDefs (their dataType is emitted by emitAliasDataTypes).
+func collectTypeDefs(node *Node, nameSet map[string]int, tm nodeTypeMap, typeDefs *[]genTypeDef, aliases TypeAliasMap) {
 	if len(node.Children) == 0 {
 		return // leaf; no type definition needed
 	}
 
+	// If this container references a named @struct, register its type name
+	// from the alias map and skip generating a T_xxx entry.
+	if node.TypeName != "" && aliases != nil {
+		if alias, ok := aliases[node.TypeName]; ok && alias.StructDef != nil {
+			tm[node] = node.TypeName
+			return
+		}
+	}
+
 	// Post-order: collect children first so inner types are emitted first.
 	for _, child := range node.Children {
-		collectTypeDefs(child, nameSet, tm, typeDefs)
+		collectTypeDefs(child, nameSet, tm, typeDefs, aliases)
 	}
 
 	// Determine base name for this type.
@@ -201,11 +237,7 @@ func uniqueName(prefix string, nameSet map[string]int) string {
 	}
 }
 
-// emitAliasDataTypes emits <dataType> entries for each @type and @enum alias.
-//
-// For plain @type aliases it emits:
-//
-//	<dataType name="AliasName"><baseType><BaseType /></baseType></dataType>
+// emitAliasDataTypes emits <dataType> entries for each @enum and @struct alias.
 //
 // For @enum aliases (where alias.EnumValues != nil) it emits:
 //
@@ -219,9 +251,20 @@ func uniqueName(prefix string, nameSet map[string]int) string {
 //	  </baseType>
 //	</dataType>
 //
-// Only members with HasExplicitValue == true include a value="N" attribute,
+// For @struct aliases (where alias.StructDef != nil) it emits:
+//
+//	<dataType name="StructName">
+//	  <baseType>
+//	    <struct>
+//	      <variable name="fieldName"><type>...</type></variable>
+//	      ...
+//	    </struct>
+//	  </baseType>
+//	</dataType>
+//
+// Only @enum members with HasExplicitValue == true include a value="N" attribute,
 // matching the TwinCAT PLCopen XML convention.
-func emitAliasDataTypes(e *errEncoder, aliases TypeAliasMap) error {
+func emitAliasDataTypes(e *errEncoder, aliases TypeAliasMap, tm nodeTypeMap) error {
 	if len(aliases) == 0 {
 		return nil
 	}
@@ -250,10 +293,17 @@ func emitAliasDataTypes(e *errEncoder, aliases TypeAliasMap) error {
 			}
 			e.end("values")
 			e.end("enum")
-		} else {
-			if err := emitPrimitiveTypeElem(e, alias.BaseType); err != nil {
-				return err
+		} else if alias.StructDef != nil {
+			// Emit <struct>...</struct> block with variables for each member.
+			e.start("struct")
+			for _, child := range alias.StructDef {
+				if err := emitVariable(e, child, tm, aliases); err != nil {
+					return err
+				}
 			}
+			e.end("struct")
+		} else {
+			return fmt.Errorf("alias %q has neither EnumValues nor StructDef; @type aliases are no longer supported", name)
 		}
 		e.end("baseType")
 		e.end("dataType")
@@ -296,11 +346,11 @@ func emitVariable(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMa
 
 // emitTypeRef emits the type element(s) for a node: a primitive element
 // (e.g. <BOOL />), a <string length="n" /> element, a <derived name="..." />
-// element for struct containers or @type aliases, or an <array> block for
-// array containers.
+// element for struct containers or @enum/@struct aliases, or an <array> block
+// for array containers.
 func emitTypeRef(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMap) error {
 	if len(node.Children) == 0 {
-		// Leaf: check if TypeName is an @type alias → emit <derived name="AliasName" />.
+		// Leaf: check if TypeName is an alias → emit <derived name="AliasName" />.
 		if aliases != nil {
 			if _, ok := aliases[node.TypeName]; ok {
 				e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.TypeName})
@@ -311,6 +361,15 @@ func emitTypeRef(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMap
 		// Primitive or string type.
 		return emitPrimitiveTypeElem(e, node.TypeName)
 	}
+
+	// Container node with TypeName set (from a "struct varName TypeName" or
+	// a promoted array element): emit a <derived name="TypeName" /> reference.
+	if node.TypeName != "" {
+		e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.TypeName})
+		e.end("derived")
+		return e.err
+	}
+
 	if node.ArrayStart > 0 {
 		// Array container.
 		elemTypeName := tm[node]

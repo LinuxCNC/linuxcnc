@@ -403,17 +403,50 @@ stBlock
 }
 
 // ---------------------------------------------------------------------------
-// @type directive tests
+// @type directive removal tests and @struct directive tests
 // ---------------------------------------------------------------------------
 
-// TestParseTypeAliasBasic verifies that a single @type directive is parsed
-// into the TypeAliasMap with the correct BaseType and GUID.
-func TestParseTypeAliasBasic(t *testing.T) {
+// TestParseTypeRejected verifies that a @type directive produces an error,
+// since @type has been superseded by @enum (for enum types) and @struct (for
+// struct types).
+func TestParseTypeRejected(t *testing.T) {
+	cfg := "@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0\nstBlock\n  in x BOOL\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for @type directive, got nil")
+	}
+}
+
+// TestParseTypeAliasInvalidGUID verifies that a malformed GUID in a directive
+// returns a parse error (tests @type removal too).
+func TestParseTypeAliasInvalidGUID(t *testing.T) {
+	cfg := "@type BAD WORD not-a-valid-guid\nstBlock\n  in x BOOL\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error, got nil")
+	}
+}
+
+// TestParseTypeAliasMissingArgs verifies that an @type line returns a parse error.
+func TestParseTypeAliasMissingArgs(t *testing.T) {
+	cfg := "@type JUST_TWO_ARGS WORD\nstBlock\n  in x BOOL\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for @type, got nil")
+	}
+}
+
+// TestParseStructBasic verifies that a @struct directive is parsed into the
+// TypeAliasMap with the correct GUID and member children.
+func TestParseStructBasic(t *testing.T) {
 	cfg := `
-@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+@struct ST_DISP_MSG 702ba601-5f18-413a-95f1-5fe16503843e
+  in eType WORD
+  in bEnableOk BOOL
+  out bOk BOOL
 
 stBlock
-  in eType EN_DISP_MSGTYPE
+  struct stMsg ST_DISP_MSG
 `
 	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
@@ -424,42 +457,74 @@ stBlock
 	if len(aliases) != 1 {
 		t.Fatalf("expected 1 alias, got %d", len(aliases))
 	}
-	alias, ok := aliases["EN_DISP_MSGTYPE"]
+	alias, ok := aliases["ST_DISP_MSG"]
 	if !ok {
-		t.Fatal("alias EN_DISP_MSGTYPE not found")
+		t.Fatal("alias ST_DISP_MSG not found")
 	}
-	if alias.BaseType != "WORD" {
-		t.Errorf("BaseType = %q, want WORD", alias.BaseType)
+	if alias.BaseType != "" {
+		t.Errorf("BaseType = %q, want empty for @struct", alias.BaseType)
+	}
+	if alias.StructDef == nil {
+		t.Fatal("StructDef is nil, want non-nil for @struct")
+	}
+	if len(alias.StructDef) != 3 {
+		t.Fatalf("len(StructDef) = %d, want 3", len(alias.StructDef))
 	}
 
 	// Check GUID (Microsoft GUID encoding):
-	// 96656ea5-0db7-49b0-86ec-56cef26b56d0
-	// Data1=0x96656ea5 LE: a5 6e 65 96
-	// Data2=0x0db7 LE: b7 0d
-	// Data3=0x49b0 LE: b0 49
-	// Data4: 86 ec 56 ce f2 6b 56 d0
-	want := [16]byte{0xa5, 0x6e, 0x65, 0x96, 0xb7, 0x0d, 0xb0, 0x49,
-		0x86, 0xec, 0x56, 0xce, 0xf2, 0x6b, 0x56, 0xd0}
+	// 702ba601-5f18-413a-95f1-5fe16503843e
+	// Data1=0x702ba601 LE: 01 a6 2b 70
+	// Data2=0x5f18 LE: 18 5f
+	// Data3=0x413a LE: 3a 41
+	// Data4: 95 f1 5f e1 65 03 84 3e
+	want := [16]byte{0x01, 0xa6, 0x2b, 0x70, 0x18, 0x5f, 0x3a, 0x41,
+		0x95, 0xf1, 0x5f, 0xe1, 0x65, 0x03, 0x84, 0x3e}
 	if alias.GUID != want {
 		t.Errorf("GUID = %x, want %x", alias.GUID, want)
 	}
 
-	// Check that the node preserves the alias name.
-	if len(roots) != 1 || len(roots[0].Children) != 1 {
-		t.Fatalf("unexpected tree structure")
+	// Check struct fields.
+	if alias.StructDef[0].Name != "eType" || alias.StructDef[0].Dir != DirIn {
+		t.Errorf("StructDef[0] = %+v, want {eType in}", alias.StructDef[0])
 	}
-	leaf := roots[0].Children[0]
-	if leaf.TypeName != "EN_DISP_MSGTYPE" {
-		t.Errorf("leaf TypeName = %q, want EN_DISP_MSGTYPE", leaf.TypeName)
+	if alias.StructDef[1].Name != "bEnableOk" || alias.StructDef[1].Dir != DirIn {
+		t.Errorf("StructDef[1] = %+v, want {bEnableOk in}", alias.StructDef[1])
+	}
+	if alias.StructDef[2].Name != "bOk" || alias.StructDef[2].Dir != DirOut {
+		t.Errorf("StructDef[2] = %+v, want {bOk out}", alias.StructDef[2])
+	}
+
+	// Check tree: struct stMsg ST_DISP_MSG should produce a container node.
+	if len(roots) != 1 || len(roots[0].Children) != 1 {
+		t.Fatalf("unexpected tree structure: roots=%d, children=%d", len(roots), len(roots[0].Children))
+	}
+	stMsg := roots[0].Children[0]
+	if stMsg.Name != "stMsg" {
+		t.Errorf("container Name = %q, want stMsg", stMsg.Name)
+	}
+	if stMsg.TypeName != "ST_DISP_MSG" {
+		t.Errorf("container TypeName = %q, want ST_DISP_MSG", stMsg.TypeName)
+	}
+	if stMsg.Dir != "" {
+		t.Errorf("container Dir = %q, want empty", stMsg.Dir)
+	}
+	if len(stMsg.Children) != 3 {
+		t.Fatalf("container children count = %d, want 3", len(stMsg.Children))
+	}
+	if stMsg.Children[0].Name != "eType" {
+		t.Errorf("cloned child[0].Name = %q, want eType", stMsg.Children[0].Name)
 	}
 }
 
-// TestParseTypeAliasMultiple verifies that multiple @type directives are all
+// TestParseStructMultiple verifies that multiple @struct directives are all
 // collected into the alias map.
-func TestParseTypeAliasMultiple(t *testing.T) {
+func TestParseStructMultiple(t *testing.T) {
 	cfg := `
-@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
-@type EN_DISP_POOL_STATE WORD 4bb8098e-6846-4a59-915d-71a3e3d369c0
+@struct ST_A 00000000-0000-0000-0000-000000000001
+  in bFlag BOOL
+
+@struct ST_B 00000000-0000-0000-0000-000000000002
+  in nVal DWORD
 
 stBlock
   in x BOOL
@@ -471,70 +536,43 @@ stBlock
 	if len(aliases) != 2 {
 		t.Fatalf("expected 2 aliases, got %d", len(aliases))
 	}
-	if _, ok := aliases["EN_DISP_MSGTYPE"]; !ok {
-		t.Error("alias EN_DISP_MSGTYPE not found")
+	if _, ok := aliases["ST_A"]; !ok {
+		t.Error("alias ST_A not found")
 	}
-	if _, ok := aliases["EN_DISP_POOL_STATE"]; !ok {
-		t.Error("alias EN_DISP_POOL_STATE not found")
+	if _, ok := aliases["ST_B"]; !ok {
+		t.Error("alias ST_B not found")
 	}
 }
 
-// TestParseTypeAliasCaseNormalization verifies that @type alias names are
+// TestParseStructCaseNormalization verifies that @struct alias names are
 // normalised to upper case.
-func TestParseTypeAliasCaseNormalization(t *testing.T) {
+func TestParseStructCaseNormalization(t *testing.T) {
 	cfg := `
-@type MyAlias DINT 00000000-0000-0000-0000-000000000000
-stBlock
+@struct myStruct 00000000-0000-0000-0000-000000000000
   in x BOOL
+stBlock
+  in y BOOL
 `
 	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
 		t.Fatalf("ParseTreeWithAliases: %v", err)
 	}
-	if _, ok := aliases["MYALIAS"]; !ok {
-		t.Error("expected alias to be normalised to MYALIAS")
+	if _, ok := aliases["MYSTRUCT"]; !ok {
+		t.Error("expected alias to be normalised to MYSTRUCT")
 	}
 }
 
-// TestParseTypeAliasInvalidGUID verifies that a malformed GUID in an @type
-// directive returns a parse error.
-func TestParseTypeAliasInvalidGUID(t *testing.T) {
-	cfg := "@type BAD WORD not-a-valid-guid\nstBlock\n  in x BOOL\n"
-	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
-	if err == nil {
-		t.Error("expected error for invalid GUID, got nil")
-	}
-}
-
-// TestParseTypeAliasMissingArgs verifies that an @type line with wrong number
-// of arguments returns a parse error.
-func TestParseTypeAliasMissingArgs(t *testing.T) {
-	cfg := "@type JUST_TWO_ARGS WORD\nstBlock\n  in x BOOL\n"
-	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
-	if err == nil {
-		t.Error("expected error for @type with missing GUID arg, got nil")
-	}
-}
-
-// TestParseTreeBackwardCompat verifies that ParseTree (without aliases) still
-// works correctly and does not return an error for configs with @type directives.
+// TestParseTreeBackwardCompat verifies that @type directives now return an
+// error (they have been removed in favour of @enum and @struct).
 func TestParseTreeBackwardCompat(t *testing.T) {
 	cfg := `
 @type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
 stBlock
   in eType EN_DISP_MSGTYPE
 `
-	roots, err := ParseTree(strings.NewReader(cfg))
-	if err != nil {
-		t.Fatalf("ParseTree with @type directive: %v", err)
-	}
-	if len(roots) != 1 || len(roots[0].Children) != 1 {
-		t.Fatalf("unexpected tree structure")
-	}
-	// The node should have the alias name (not the base type).
-	leaf := roots[0].Children[0]
-	if leaf.TypeName != "EN_DISP_MSGTYPE" {
-		t.Errorf("leaf TypeName = %q, want EN_DISP_MSGTYPE", leaf.TypeName)
+	_, err := ParseTree(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for @type directive, got nil")
 	}
 }
 
@@ -749,7 +787,7 @@ stBlock
 }
 
 // TestParseEnumMultiple verifies that multiple @enum directives are all
-// collected and that a following @type still works.
+// collected and coexist with @struct in the alias map.
 func TestParseEnumMultiple(t *testing.T) {
 	cfg := `
 @enum EN_A WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
@@ -760,7 +798,8 @@ func TestParseEnumMultiple(t *testing.T) {
   alpha 0
   beta
 
-@type PLAIN_ALIAS DINT 00000000-0000-0000-0000-000000000002
+@struct ST_PLAIN 00000000-0000-0000-0000-000000000002
+  in x BOOL
 
 stBlock
   in x BOOL
@@ -780,9 +819,9 @@ stBlock
 	if !ok || len(enB.EnumValues) != 2 {
 		t.Errorf("EN_B: ok=%v, members=%d", ok, len(enB.EnumValues))
 	}
-	plain, ok := aliases["PLAIN_ALIAS"]
-	if !ok || plain.EnumValues != nil {
-		t.Errorf("PLAIN_ALIAS: ok=%v, EnumValues should be nil", ok)
+	stPlain, ok := aliases["ST_PLAIN"]
+	if !ok || stPlain.EnumValues != nil || stPlain.StructDef == nil {
+		t.Errorf("ST_PLAIN: ok=%v, EnumValues should be nil, StructDef should be non-nil", ok)
 	}
 }
 
@@ -841,19 +880,21 @@ stBlock
 	}
 }
 
-// TestParseEnumBackwardCompatType verifies that @type directives still work
-// when mixed with @enum directives.
-func TestParseEnumBackwardCompatType(t *testing.T) {
+// TestParseEnumBackwardCompatStruct verifies that @enum and @struct directives
+// coexist correctly in the same config file.
+func TestParseEnumBackwardCompatStruct(t *testing.T) {
 	cfg := `
 @enum EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
   none 0
   precheck
 
-@type PLAIN DINT 00000000-0000-0000-0000-000000000000
+@struct ST_MSG 00000000-0000-0000-0000-000000000000
+  in eType EN_DISP_MSGTYPE
+  in bOk BOOL
 
 stBlock
-  in eType EN_DISP_MSGTYPE
-  in x PLAIN
+  struct stMsg ST_MSG
+  in x BOOL
 `
 	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
@@ -866,11 +907,223 @@ stBlock
 	if enumAlias.EnumValues == nil {
 		t.Error("EN_DISP_MSGTYPE: EnumValues should be non-nil")
 	}
-	plainAlias := aliases["PLAIN"]
-	if plainAlias.EnumValues != nil {
-		t.Error("PLAIN: EnumValues should be nil for @type alias")
+	structAlias := aliases["ST_MSG"]
+	if structAlias.StructDef == nil {
+		t.Error("ST_MSG: StructDef should be non-nil")
 	}
 	if len(roots) != 1 || len(roots[0].Children) != 2 {
 		t.Fatalf("unexpected tree structure")
+	}
+	// First child is struct stMsg → container node
+	if roots[0].Children[0].TypeName != "ST_MSG" {
+		t.Errorf("stMsg TypeName = %q, want ST_MSG", roots[0].Children[0].TypeName)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Additional @struct directive tests
+// ---------------------------------------------------------------------------
+
+// TestParseStructWithNestedContainers verifies that @struct definitions can
+// include sub-containers (nested structs and arrays).
+func TestParseStructWithNestedContainers(t *testing.T) {
+	cfg := `
+@struct ST_INNER 00000000-0000-0000-0000-000000000001
+  in bFlag BOOL
+
+@struct ST_OUTER 00000000-0000-0000-0000-000000000002
+  in nVal DWORD
+  struct stInner ST_INNER
+  aItems[1..3]
+    struct _ ST_INNER
+
+stRoot
+  struct stObj ST_OUTER
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	outer, ok := aliases["ST_OUTER"]
+	if !ok || outer.StructDef == nil {
+		t.Fatal("ST_OUTER not found or StructDef nil")
+	}
+	// nVal, stInner (container), aItems (array)
+	if len(outer.StructDef) != 3 {
+		t.Fatalf("ST_OUTER StructDef len = %d, want 3", len(outer.StructDef))
+	}
+
+	// stInner should be a struct-keyword container with TypeName ST_INNER
+	innerNode := outer.StructDef[1]
+	if innerNode.Name != "stInner" || innerNode.TypeName != "ST_INNER" {
+		t.Errorf("StructDef[1] = {Name:%q TypeName:%q}, want {stInner ST_INNER}", innerNode.Name, innerNode.TypeName)
+	}
+
+	// aItems should be a promoted array with TypeName ST_INNER
+	arrNode := outer.StructDef[2]
+	if arrNode.Name != "aItems" || arrNode.ArrayStart != 1 || arrNode.ArrayEnd != 3 {
+		t.Errorf("StructDef[2] array = %+v, want aItems[1..3]", arrNode)
+	}
+	if arrNode.TypeName != "ST_INNER" {
+		t.Errorf("aItems TypeName = %q, want ST_INNER (promoted from struct _ ST_INNER)", arrNode.TypeName)
+	}
+
+	// The tree node should have TypeName=ST_OUTER and cloned children
+	if len(roots) != 1 || len(roots[0].Children) != 1 {
+		t.Fatalf("unexpected tree structure")
+	}
+	stObj := roots[0].Children[0]
+	if stObj.TypeName != "ST_OUTER" || len(stObj.Children) != 3 {
+		t.Errorf("stObj: TypeName=%q children=%d, want ST_OUTER/3", stObj.TypeName, len(stObj.Children))
+	}
+}
+
+// TestParseStructWithEnumRef verifies that @struct members can reference @enum
+// type names.
+func TestParseStructWithEnumRef(t *testing.T) {
+	cfg := `
+@enum EN_STATE WORD 00000000-0000-0000-0000-000000000001
+  idle 0
+  running
+
+@struct ST_STATUS 00000000-0000-0000-0000-000000000002
+  in eState EN_STATE
+  in bReady BOOL
+
+stRoot
+  struct stStatus ST_STATUS
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	st, ok := aliases["ST_STATUS"]
+	if !ok || st.StructDef == nil {
+		t.Fatal("ST_STATUS not found or StructDef nil")
+	}
+	// First member has TypeName EN_STATE (enum reference)
+	if st.StructDef[0].TypeName != "EN_STATE" {
+		t.Errorf("StructDef[0].TypeName = %q, want EN_STATE", st.StructDef[0].TypeName)
+	}
+
+	// In the tree, struct stStatus should have cloned children with EN_STATE ref
+	stStatus := roots[0].Children[0]
+	if stStatus.TypeName != "ST_STATUS" {
+		t.Fatalf("stStatus TypeName = %q, want ST_STATUS", stStatus.TypeName)
+	}
+	if stStatus.Children[0].TypeName != "EN_STATE" {
+		t.Errorf("stStatus.Children[0].TypeName = %q, want EN_STATE", stStatus.Children[0].TypeName)
+	}
+}
+
+// TestParseStructMissingGUID verifies that a @struct directive with a missing
+// GUID returns a parse error.
+func TestParseStructMissingGUID(t *testing.T) {
+	cfg := "@struct NOARGS\nstBlock\n  in x BOOL\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for @struct with missing GUID, got nil")
+	}
+}
+
+// TestParseStructInvalidGUID verifies that a @struct with a malformed GUID
+// returns a parse error.
+func TestParseStructInvalidGUID(t *testing.T) {
+	cfg := "@struct ST_BAD not-a-guid\nstBlock\n  in x BOOL\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for @struct with invalid GUID, got nil")
+	}
+}
+
+// TestParseStructUndefinedRef verifies that using struct keyword with an
+// undefined type name returns a parse error.
+func TestParseStructUndefinedRef(t *testing.T) {
+	cfg := "stBlock\n  struct stX UNDEFINED_TYPE\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for struct referencing undefined type, got nil")
+	}
+}
+
+// TestParseStructNoMembers verifies that a @struct with no indented members
+// is valid and produces an alias with a non-nil but empty StructDef.
+func TestParseStructNoMembers(t *testing.T) {
+	cfg := `
+@struct EMPTY_STRUCT 00000000-0000-0000-0000-000000000000
+stBlock
+  in x BOOL
+`
+	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	alias, ok := aliases["EMPTY_STRUCT"]
+	if !ok {
+		t.Fatal("alias EMPTY_STRUCT not found")
+	}
+	if alias.StructDef == nil {
+		t.Error("StructDef should be non-nil (empty slice) for @struct with no members")
+	}
+	if len(alias.StructDef) != 0 {
+		t.Errorf("expected 0 members, got %d", len(alias.StructDef))
+	}
+}
+
+// TestParseStructAtEOF verifies that a @struct block at the end of the file
+// (without a trailing non-indented line) is correctly finalized.
+func TestParseStructAtEOF(t *testing.T) {
+	cfg := `
+stBlock
+  in x BOOL
+
+@struct TAIL_STRUCT 00000000-0000-0000-0000-000000000000
+  in bFlag BOOL
+  out nVal DINT
+`
+	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	alias, ok := aliases["TAIL_STRUCT"]
+	if !ok {
+		t.Fatal("alias TAIL_STRUCT not found")
+	}
+	if len(alias.StructDef) != 2 {
+		t.Fatalf("expected 2 members, got %d", len(alias.StructDef))
+	}
+	if alias.StructDef[1].Name != "nVal" {
+		t.Errorf("member[1].Name = %q, want nVal", alias.StructDef[1].Name)
+	}
+}
+
+// TestParseStructCloningIsDeep verifies that two separate struct instances
+// (from the same @struct definition) have independent children (deep cloned).
+func TestParseStructCloningIsDeep(t *testing.T) {
+	cfg := `
+@struct ST_FOO 00000000-0000-0000-0000-000000000000
+  in bFlag BOOL
+
+stRoot
+  struct a ST_FOO
+  struct b ST_FOO
+`
+	_, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	nodeA := roots[0].Children[0]
+	nodeB := roots[0].Children[1]
+
+	// Both containers have the same structure but different node pointers.
+	if nodeA == nodeB {
+		t.Error("both struct instances share the same container pointer (not deep cloned)")
+	}
+	if len(nodeA.Children) != 1 || len(nodeB.Children) != 1 {
+		t.Fatalf("expected 1 child each, got %d and %d", len(nodeA.Children), len(nodeB.Children))
+	}
+	if nodeA.Children[0] == nodeB.Children[0] {
+		t.Error("struct instances share a child pointer (not deep cloned)")
 	}
 }
