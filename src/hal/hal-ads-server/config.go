@@ -25,14 +25,28 @@ const (
 	DirPad PinDir = "pad"
 )
 
+// EnumValue holds one member of an @enum type definition.
+type EnumValue struct {
+	// Name is the enum member name, e.g. "none", "precheck".
+	Name string
+	// Value is the integer value of the member.
+	Value int
+	// HasExplicitValue is true if the value was explicitly specified in the config.
+	// Only members with HasExplicitValue == true emit a value="N" attribute in XML.
+	HasExplicitValue bool
+}
+
 // TypeAlias maps a custom/derived type name to its base ADS type and data-type GUID.
-// @type directives in the config file populate this.
+// @type and @enum directives in the config file populate this.
 type TypeAlias struct {
 	// BaseType is the underlying ADS primitive type, e.g. "WORD".
 	BaseType string
 	// GUID is the 16-byte data type GUID in Microsoft COM wire format.
 	// All zeros if no GUID was specified.
 	GUID [16]byte
+	// EnumValues holds the ordered enum member definitions for @enum types.
+	// It is nil for plain @type aliases and non-nil (possibly empty) for @enum types.
+	EnumValues []EnumValue
 }
 
 // TypeAliasMap is a map from alias name to TypeAlias definition.
@@ -72,17 +86,28 @@ type configLine struct {
 }
 
 // ParseTreeWithAliases reads the HAL-ADS config format from r and returns both
-// the TypeAliasMap (from @type directives) and the tree of Nodes representing
-// the symbol hierarchy.
+// the TypeAliasMap (from @type and @enum directives) and the tree of Nodes
+// representing the symbol hierarchy.
 //
-// @type directives must appear at depth 0 (before any indented block) and have
-// the form:
+// @type directives must appear at depth 0 and have the form:
 //
 //	@type <AliasName> <BaseType> <GUID>
+//
+// @enum directives must also appear at depth 0 and support an optional
+// indented block of enum member definitions:
+//
+//	@enum <EnumName> <BaseType> <GUID>
+//	  <memberName> [intValue]
+//	  ...
 //
 // Example:
 //
 //	@type EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+//
+//	@enum EN_DISP_POOL_STATE WORD 4bb8098e-6846-4a59-915d-71a3e3d369c0
+//	  empty 0
+//	  newForm
+//	  formLoaded
 func ParseTreeWithAliases(r io.Reader) (TypeAliasMap, []*Node, error) {
 	aliases, lines, err := readConfigLinesWithAliases(r)
 	if err != nil {
@@ -118,8 +143,11 @@ func ParseTree(r io.Reader) ([]*Node, error) {
 }
 
 // readConfigLinesWithAliases reads and pre-processes all non-blank, non-comment
-// lines. It strips and collects @type directives into a TypeAliasMap, then
-// returns the remaining lines for tree parsing.
+// lines. It strips and collects @type and @enum directives into a TypeAliasMap,
+// then returns the remaining lines for tree parsing.
+//
+// For @enum directives, any subsequent indented lines are consumed as enum
+// member definitions (memberName [intValue]) before the alias is registered.
 func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error) {
 	scanner := bufio.NewScanner(r)
 	aliases := make(TypeAliasMap)
@@ -128,11 +156,77 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 	indentUnit := 0       // chars per depth level (0 = not yet detected)
 	indentChar := byte(0) // ' ' or '\t' (0 = not yet detected)
 
+	// State for @enum member collection.
+	inEnumDef := false
+	var pendingEnumName string
+	var pendingEnumAlias TypeAlias
+	var pendingEnumValues []EnumValue
+	nextAutoValue := 0 // auto-increment counter for enum members without explicit value
+
 	for scanner.Scan() {
 		lineNo++
 		rawLine := scanner.Text()
 		trimmed := strings.TrimSpace(rawLine)
 		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+
+		// Count leading whitespace to decide if this line is indented.
+		wsLen := 0
+		for wsLen < len(rawLine) && (rawLine[wsLen] == ' ' || rawLine[wsLen] == '\t') {
+			wsLen++
+		}
+
+		// If we are collecting members for an @enum block, check whether
+		// this line is still an indented member line.
+		if inEnumDef {
+			if wsLen > 0 {
+				// Indented line → enum member definition.
+				tokens := strings.Fields(trimmed)
+				if len(tokens) == 0 || len(tokens) > 2 {
+					return nil, nil, fmt.Errorf("line %d: @enum member must be \"<name>\" or \"<name> <intValue>\"", lineNo)
+				}
+				member := EnumValue{Name: tokens[0]}
+				if len(tokens) == 2 {
+					v, err := strconv.ParseInt(tokens[1], 0, 64)
+					if err != nil {
+						return nil, nil, fmt.Errorf("line %d: @enum member %q has invalid value %q: %w", lineNo, tokens[0], tokens[1], err)
+					}
+					member.Value = int(v)
+					member.HasExplicitValue = true
+					nextAutoValue = member.Value + 1
+				} else {
+					member.Value = nextAutoValue
+					member.HasExplicitValue = false
+					nextAutoValue++
+				}
+				pendingEnumValues = append(pendingEnumValues, member)
+				continue
+			}
+			// Non-indented line → end of @enum member block; finalize the alias.
+			pendingEnumAlias.EnumValues = pendingEnumValues
+			aliases[pendingEnumName] = pendingEnumAlias
+			inEnumDef = false
+			pendingEnumValues = []EnumValue{}
+			// Fall through to process the current (non-indented) line normally.
+		}
+
+		// Handle @enum directives at depth 0 (no leading whitespace).
+		if strings.HasPrefix(trimmed, "@enum ") {
+			tokens := strings.Fields(trimmed)
+			if len(tokens) != 4 {
+				return nil, nil, fmt.Errorf("line %d: @enum requires exactly 3 arguments: @enum <EnumName> <BaseType> <GUID>", lineNo)
+			}
+			pendingEnumName = strings.ToUpper(tokens[1])
+			baseType := strings.ToUpper(tokens[2])
+			guid, err := parseGUID(tokens[3])
+			if err != nil {
+				return nil, nil, fmt.Errorf("line %d: @enum %q invalid GUID: %w", lineNo, pendingEnumName, err)
+			}
+			pendingEnumAlias = TypeAlias{BaseType: baseType, GUID: guid}
+			pendingEnumValues = []EnumValue{}
+			nextAutoValue = 0
+			inEnumDef = true
 			continue
 		}
 
@@ -152,12 +246,7 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 			continue
 		}
 
-		// Count leading whitespace characters.
-		wsLen := 0
-		for wsLen < len(rawLine) && (rawLine[wsLen] == ' ' || rawLine[wsLen] == '\t') {
-			wsLen++
-		}
-
+		// Regular tree line: compute depth with indentation tracking.
 		depth := 0
 		if wsLen > 0 {
 			if indentUnit == 0 {
@@ -185,6 +274,13 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 	if err := scanner.Err(); err != nil {
 		return nil, nil, fmt.Errorf("config read error: %w", err)
 	}
+
+	// Finalize any pending @enum block that reached EOF without a non-indented line.
+	if inEnumDef {
+		pendingEnumAlias.EnumValues = pendingEnumValues
+		aliases[pendingEnumName] = pendingEnumAlias
+	}
+
 	return aliases, lines, nil
 }
 

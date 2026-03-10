@@ -569,3 +569,308 @@ func TestParseTypeInfo(t *testing.T) {
 		}
 	}
 }
+
+// ---------------------------------------------------------------------------
+// @enum directive tests
+// ---------------------------------------------------------------------------
+
+// TestParseEnumBasic verifies that a @enum directive with explicit values is
+// parsed into the TypeAliasMap with the correct BaseType, GUID, and members.
+func TestParseEnumBasic(t *testing.T) {
+	cfg := `
+@enum EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+  none 0
+  precheck
+  finishedOk
+
+stBlock
+  in eType EN_DISP_MSGTYPE
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	// Check alias registry.
+	if len(aliases) != 1 {
+		t.Fatalf("expected 1 alias, got %d", len(aliases))
+	}
+	alias, ok := aliases["EN_DISP_MSGTYPE"]
+	if !ok {
+		t.Fatal("alias EN_DISP_MSGTYPE not found")
+	}
+	if alias.BaseType != "WORD" {
+		t.Errorf("BaseType = %q, want WORD", alias.BaseType)
+	}
+	if alias.EnumValues == nil {
+		t.Fatal("EnumValues is nil, want non-nil for @enum")
+	}
+	if len(alias.EnumValues) != 3 {
+		t.Fatalf("len(EnumValues) = %d, want 3", len(alias.EnumValues))
+	}
+
+	// "none 0" — explicit value
+	if alias.EnumValues[0].Name != "none" {
+		t.Errorf("EnumValues[0].Name = %q, want none", alias.EnumValues[0].Name)
+	}
+	if alias.EnumValues[0].Value != 0 {
+		t.Errorf("EnumValues[0].Value = %d, want 0", alias.EnumValues[0].Value)
+	}
+	if !alias.EnumValues[0].HasExplicitValue {
+		t.Error("EnumValues[0].HasExplicitValue should be true")
+	}
+
+	// "precheck" — auto-incremented to 1
+	if alias.EnumValues[1].Name != "precheck" {
+		t.Errorf("EnumValues[1].Name = %q, want precheck", alias.EnumValues[1].Name)
+	}
+	if alias.EnumValues[1].Value != 1 {
+		t.Errorf("EnumValues[1].Value = %d, want 1", alias.EnumValues[1].Value)
+	}
+	if alias.EnumValues[1].HasExplicitValue {
+		t.Error("EnumValues[1].HasExplicitValue should be false")
+	}
+
+	// "finishedOk" — auto-incremented to 2
+	if alias.EnumValues[2].Value != 2 {
+		t.Errorf("EnumValues[2].Value = %d, want 2", alias.EnumValues[2].Value)
+	}
+	if alias.EnumValues[2].HasExplicitValue {
+		t.Error("EnumValues[2].HasExplicitValue should be false")
+	}
+
+	// The node must preserve the alias name.
+	if len(roots) != 1 || len(roots[0].Children) != 1 {
+		t.Fatalf("unexpected tree structure")
+	}
+	leaf := roots[0].Children[0]
+	if leaf.TypeName != "EN_DISP_MSGTYPE" {
+		t.Errorf("leaf TypeName = %q, want EN_DISP_MSGTYPE", leaf.TypeName)
+	}
+}
+
+// TestParseEnumAutoIncrement verifies that auto-increment picks up after an
+// explicit value and that multiple explicit value resets work correctly.
+func TestParseEnumAutoIncrement(t *testing.T) {
+	cfg := `
+@enum MY_ENUM WORD 00000000-0000-0000-0000-000000000000
+  a 5
+  b
+  c 10
+  d
+
+stBlock
+  in x BOOL
+`
+	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	alias, ok := aliases["MY_ENUM"]
+	if !ok {
+		t.Fatal("alias MY_ENUM not found")
+	}
+	wantValues := []struct {
+		name             string
+		value            int
+		hasExplicitValue bool
+	}{
+		{"a", 5, true},
+		{"b", 6, false},
+		{"c", 10, true},
+		{"d", 11, false},
+	}
+	if len(alias.EnumValues) != len(wantValues) {
+		t.Fatalf("len(EnumValues) = %d, want %d", len(alias.EnumValues), len(wantValues))
+	}
+	for i, w := range wantValues {
+		ev := alias.EnumValues[i]
+		if ev.Name != w.name {
+			t.Errorf("EnumValues[%d].Name = %q, want %q", i, ev.Name, w.name)
+		}
+		if ev.Value != w.value {
+			t.Errorf("EnumValues[%d].Value = %d, want %d", i, ev.Value, w.value)
+		}
+		if ev.HasExplicitValue != w.hasExplicitValue {
+			t.Errorf("EnumValues[%d].HasExplicitValue = %v, want %v", i, ev.HasExplicitValue, w.hasExplicitValue)
+		}
+	}
+}
+
+// TestParseEnumNoMembers verifies that a @enum with no indented members is
+// valid and produces an alias with a non-nil but empty EnumValues slice.
+func TestParseEnumNoMembers(t *testing.T) {
+	cfg := `
+@enum EMPTY_ENUM WORD 00000000-0000-0000-0000-000000000000
+stBlock
+  in x BOOL
+`
+	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	alias, ok := aliases["EMPTY_ENUM"]
+	if !ok {
+		t.Fatal("alias EMPTY_ENUM not found")
+	}
+	if alias.EnumValues == nil {
+		t.Error("EnumValues should be non-nil (empty slice) for @enum with no members")
+	}
+	if len(alias.EnumValues) != 0 {
+		t.Errorf("expected 0 members, got %d", len(alias.EnumValues))
+	}
+}
+
+// TestParseEnumAtEOF verifies that an @enum block at the end of the file
+// (without a trailing non-indented line) is correctly finalized.
+func TestParseEnumAtEOF(t *testing.T) {
+	cfg := `
+stBlock
+  in x BOOL
+
+@enum TAIL_ENUM WORD 00000000-0000-0000-0000-000000000000
+  first 0
+  second
+`
+	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	alias, ok := aliases["TAIL_ENUM"]
+	if !ok {
+		t.Fatal("alias TAIL_ENUM not found")
+	}
+	if len(alias.EnumValues) != 2 {
+		t.Fatalf("expected 2 members, got %d", len(alias.EnumValues))
+	}
+	if alias.EnumValues[1].Value != 1 {
+		t.Errorf("second member value = %d, want 1", alias.EnumValues[1].Value)
+	}
+}
+
+// TestParseEnumMultiple verifies that multiple @enum directives are all
+// collected and that a following @type still works.
+func TestParseEnumMultiple(t *testing.T) {
+	cfg := `
+@enum EN_A WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+  x 0
+  y
+
+@enum EN_B WORD 4bb8098e-6846-4a59-915d-71a3e3d369c0
+  alpha 0
+  beta
+
+@type PLAIN_ALIAS DINT 00000000-0000-0000-0000-000000000002
+
+stBlock
+  in x BOOL
+`
+	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	if len(aliases) != 3 {
+		t.Fatalf("expected 3 aliases, got %d", len(aliases))
+	}
+	enA, ok := aliases["EN_A"]
+	if !ok || len(enA.EnumValues) != 2 {
+		t.Errorf("EN_A: ok=%v, members=%d", ok, len(enA.EnumValues))
+	}
+	enB, ok := aliases["EN_B"]
+	if !ok || len(enB.EnumValues) != 2 {
+		t.Errorf("EN_B: ok=%v, members=%d", ok, len(enB.EnumValues))
+	}
+	plain, ok := aliases["PLAIN_ALIAS"]
+	if !ok || plain.EnumValues != nil {
+		t.Errorf("PLAIN_ALIAS: ok=%v, EnumValues should be nil", ok)
+	}
+}
+
+// TestParseEnumCaseNormalization verifies that @enum alias names are
+// normalised to upper case.
+func TestParseEnumCaseNormalization(t *testing.T) {
+	cfg := `
+@enum myEnum DINT 00000000-0000-0000-0000-000000000000
+  val 1
+
+stBlock
+  in x BOOL
+`
+	aliases, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	if _, ok := aliases["MYENUM"]; !ok {
+		t.Error("expected @enum name to be normalised to MYENUM")
+	}
+}
+
+// TestParseEnumInvalidGUID verifies that a malformed GUID in an @enum
+// directive returns a parse error.
+func TestParseEnumInvalidGUID(t *testing.T) {
+	cfg := "@enum BAD WORD not-a-valid-guid\nstBlock\n  in x BOOL\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for invalid GUID, got nil")
+	}
+}
+
+// TestParseEnumMissingArgs verifies that an @enum line with wrong number of
+// arguments returns a parse error.
+func TestParseEnumMissingArgs(t *testing.T) {
+	cfg := "@enum JUST_TWO_ARGS WORD\nstBlock\n  in x BOOL\n"
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for @enum with missing GUID arg, got nil")
+	}
+}
+
+// TestParseEnumInvalidMemberValue verifies that an @enum member with a
+// non-integer value returns a parse error.
+func TestParseEnumInvalidMemberValue(t *testing.T) {
+	cfg := `
+@enum BAD_VAL WORD 00000000-0000-0000-0000-000000000000
+  member notAnInt
+
+stBlock
+  in x BOOL
+`
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for invalid enum member value, got nil")
+	}
+}
+
+// TestParseEnumBackwardCompatType verifies that @type directives still work
+// when mixed with @enum directives.
+func TestParseEnumBackwardCompatType(t *testing.T) {
+	cfg := `
+@enum EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
+  none 0
+  precheck
+
+@type PLAIN DINT 00000000-0000-0000-0000-000000000000
+
+stBlock
+  in eType EN_DISP_MSGTYPE
+  in x PLAIN
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+	if len(aliases) != 2 {
+		t.Fatalf("expected 2 aliases, got %d", len(aliases))
+	}
+	enumAlias := aliases["EN_DISP_MSGTYPE"]
+	if enumAlias.EnumValues == nil {
+		t.Error("EN_DISP_MSGTYPE: EnumValues should be non-nil")
+	}
+	plainAlias := aliases["PLAIN"]
+	if plainAlias.EnumValues != nil {
+		t.Error("PLAIN: EnumValues should be nil for @type alias")
+	}
+	if len(roots) != 1 || len(roots[0].Children) != 2 {
+		t.Fatalf("unexpected tree structure")
+	}
+}

@@ -33,19 +33,21 @@ stRoot
 		t.Fatalf("GenerateXML: %v", err)
 	}
 
+	// Capture the output string before the decoder consumes the buffer.
+	out := buf.String()
+
 	// Verify it parses as valid XML.
-	dec := xml.NewDecoder(&buf)
+	dec := xml.NewDecoder(strings.NewReader(out))
 	for {
 		_, err := dec.Token()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			t.Fatalf("generated XML is not valid: %v\n%s", err, buf.String())
+			t.Fatalf("generated XML is not valid: %v\n%s", err, out)
 		}
 	}
 
-	out := buf.String()
 	// Verify key structural elements are present (using substrings that are
 	// insensitive to exact whitespace/formatting decisions by the encoder).
 	for _, want := range []string{
@@ -93,7 +95,8 @@ func TestGenerateXMLGalvHmi(t *testing.T) {
 		t.Fatalf("GenerateXML: %v", err)
 	}
 
-	dec := xml.NewDecoder(&buf)
+	out := buf.String()
+	dec := xml.NewDecoder(strings.NewReader(out))
 	for {
 		_, err := dec.Token()
 		if err == io.EOF {
@@ -492,9 +495,7 @@ stBlock
 	out := buf.String()
 
 	// Verify the output is valid XML.
-	dec := xml.NewDecoder(&buf)
-	buf2 := bytes.NewBufferString(out)
-	dec = xml.NewDecoder(buf2)
+	dec := xml.NewDecoder(strings.NewReader(out))
 	for {
 		_, err := dec.Token()
 		if err == io.EOF {
@@ -544,5 +545,167 @@ stBlock
 	out := buf.String()
 	if !strings.Contains(out, "<BOOL") || !strings.Contains(out, "<DWORD") {
 		t.Error("expected <BOOL /> and <DWORD /> elements in XML output")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// @enum XML generation tests
+// ---------------------------------------------------------------------------
+
+// TestGenerateXMLEnumBlock verifies that GenerateXML emits a proper
+// <enum><values>...</values></enum> block for a @enum type alias, and that
+// only members with explicit values include a value="N" attribute.
+func TestGenerateXMLEnumBlock(t *testing.T) {
+	cfg := `
+@enum MY_ENUM WORD 00000000-0000-0000-0000-000000000001
+  none 0
+  first
+  second
+  reset 10
+  next
+
+stBlock
+  in eVal MY_ENUM
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+
+	// Verify valid XML.
+	out := buf.String()
+	dec := xml.NewDecoder(strings.NewReader(out))
+	for {
+		_, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatalf("invalid XML: %v\n%s", err, out)
+		}
+	}
+
+	// The dataType block for MY_ENUM must contain an <enum> block.
+	if !strings.Contains(out, `<dataType name="MY_ENUM"`) {
+		t.Error("expected <dataType name=\"MY_ENUM\"> in output")
+	}
+	if !strings.Contains(out, "<enum>") {
+		t.Error("expected <enum> block in output")
+	}
+	if !strings.Contains(out, "<values>") {
+		t.Error("expected <values> block in output")
+	}
+
+	// Members with explicit values must have value="N" attribute.
+	if !strings.Contains(out, `name="none" value="0"`) {
+		t.Error("expected value=\"0\" attribute for explicit member none")
+	}
+	if !strings.Contains(out, `name="reset" value="10"`) {
+		t.Error("expected value=\"10\" attribute for explicit member reset")
+	}
+
+	// Auto-incremented members must NOT have a value attribute.
+	// We check that the raw member elements don't carry value= for "first", "second", "next".
+	for _, member := range []string{"first", "second", "next"} {
+		// The member element for auto-incremented values should only have name= attribute.
+		// We look for value elements that have both name="<member>" and value= which would be wrong.
+		if strings.Contains(out, `name="`+member+`" value=`) {
+			t.Errorf("auto-incremented member %q should not have a value= attribute", member)
+		}
+	}
+
+	// The variable eVal should reference MY_ENUM via <derived>.
+	if !strings.Contains(out, `name="MY_ENUM"`) {
+		t.Error("expected <derived name=\"MY_ENUM\"> reference for variable eVal")
+	}
+}
+
+// TestGenerateXMLEnumVsType verifies that @type aliases still emit a plain
+// primitive type while @enum aliases emit the <enum> block.
+func TestGenerateXMLEnumVsType(t *testing.T) {
+	cfg := `
+@type PLAIN_WORD WORD 00000000-0000-0000-0000-000000000001
+@enum MY_ENUM WORD 00000000-0000-0000-0000-000000000002
+  a 0
+  b
+
+stBlock
+  in x PLAIN_WORD
+  in y MY_ENUM
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	// PLAIN_WORD should have <WORD /> as its base type (not an enum block).
+	if !strings.Contains(out, "<WORD") {
+		t.Error("expected <WORD /> for plain @type alias")
+	}
+	// MY_ENUM should have an <enum> block.
+	if !strings.Contains(out, "<enum>") {
+		t.Error("expected <enum> block for @enum alias")
+	}
+}
+
+// TestGenerateXMLEnumGalvHmiEnums verifies that the galv-hmi.conf enum types
+// produce <enum><values> blocks in the generated XML, matching the structure
+// of the reference DISPLAY_DATA.xml.
+func TestGenerateXMLEnumGalvHmiEnums(t *testing.T) {
+	f, err := os.Open("configs/galv-hmi.conf")
+	if err != nil {
+		t.Skipf("galv-hmi.conf not found: %v", err)
+	}
+	defer f.Close()
+
+	aliases, roots, err := ParseTreeWithAliases(f)
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	// Both enum types must appear with <enum><values> blocks.
+	for _, enumName := range []string{"EN_DISP_MSGTYPE", "EN_DISP_POOL_STATE"} {
+		if !strings.Contains(out, `<dataType name="`+enumName+`"`) {
+			t.Errorf("expected <dataType name=%q> in XML", enumName)
+		}
+	}
+	if !strings.Contains(out, "<enum>") {
+		t.Error("expected <enum> block in XML output")
+	}
+	if !strings.Contains(out, "<values>") {
+		t.Error("expected <values> block in XML output")
+	}
+
+	// Spot-check specific enum members from EN_DISP_MSGTYPE.
+	if !strings.Contains(out, `name="none" value="0"`) {
+		t.Error("expected none=0 in EN_DISP_MSGTYPE enum")
+	}
+	if !strings.Contains(out, `name="precheck"`) {
+		t.Error("expected precheck member in EN_DISP_MSGTYPE enum")
+	}
+
+	// Spot-check EN_DISP_POOL_STATE members.
+	if !strings.Contains(out, `name="empty" value="0"`) {
+		t.Error("expected empty=0 in EN_DISP_POOL_STATE enum")
+	}
+	if !strings.Contains(out, `name="finished"`) {
+		t.Error("expected finished member in EN_DISP_POOL_STATE enum")
 	}
 }

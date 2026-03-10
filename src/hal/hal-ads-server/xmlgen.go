@@ -201,8 +201,26 @@ func uniqueName(prefix string, nameSet map[string]int) string {
 	}
 }
 
-// emitAliasDataTypes emits <dataType> entries for each @type alias.
-// Each alias produces a <dataType name="AliasName"><baseType><BaseType /></baseType></dataType>.
+// emitAliasDataTypes emits <dataType> entries for each @type and @enum alias.
+//
+// For plain @type aliases it emits:
+//
+//	<dataType name="AliasName"><baseType><BaseType /></baseType></dataType>
+//
+// For @enum aliases (where alias.EnumValues != nil) it emits:
+//
+//	<dataType name="EnumName">
+//	  <baseType>
+//	    <enum><values>
+//	      <value name="none" value="0" />
+//	      <value name="precheck" />
+//	      ...
+//	    </values></enum>
+//	  </baseType>
+//	</dataType>
+//
+// Only members with HasExplicitValue == true include a value="N" attribute,
+// matching the TwinCAT PLCopen XML convention.
 func emitAliasDataTypes(e *errEncoder, aliases TypeAliasMap) error {
 	if len(aliases) == 0 {
 		return nil
@@ -217,8 +235,25 @@ func emitAliasDataTypes(e *errEncoder, aliases TypeAliasMap) error {
 		alias := aliases[name]
 		e.start("dataType", xml.Attr{Name: xml.Name{Local: "name"}, Value: name})
 		e.start("baseType")
-		if err := emitPrimitiveTypeElem(e, alias.BaseType); err != nil {
-			return err
+		if alias.EnumValues != nil {
+			// Emit <enum><values>...</values></enum> block.
+			e.start("enum")
+			e.start("values")
+			for _, ev := range alias.EnumValues {
+				var attrs []xml.Attr
+				attrs = append(attrs, xml.Attr{Name: xml.Name{Local: "name"}, Value: ev.Name})
+				if ev.HasExplicitValue {
+					attrs = append(attrs, xml.Attr{Name: xml.Name{Local: "value"}, Value: fmt.Sprintf("%d", ev.Value)})
+				}
+				e.start("value", attrs...)
+				e.end("value")
+			}
+			e.end("values")
+			e.end("enum")
+		} else {
+			if err := emitPrimitiveTypeElem(e, alias.BaseType); err != nil {
+				return err
+			}
 		}
 		e.end("baseType")
 		e.end("dataType")
