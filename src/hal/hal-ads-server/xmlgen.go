@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -306,6 +307,7 @@ func emitAliasDataTypes(e *errEncoder, aliases TypeAliasMap, tm nodeTypeMap) err
 			return fmt.Errorf("alias %q has neither EnumValues nor StructDef; @type aliases are no longer supported", name)
 		}
 		e.end("baseType")
+		emitObjectIdAddData(e, alias.GUID)
 		e.end("dataType")
 	}
 	return e.err
@@ -391,6 +393,38 @@ func emitTypeRef(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMap
 	e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: structTypeName})
 	e.end("derived")
 	return e.err
+}
+
+// formatGUID converts a 16-byte Microsoft COM wire-format GUID to the standard
+// "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" string representation.
+// This is the exact inverse of parseGUID in config.go.
+func formatGUID(g [16]byte) string {
+	data1 := binary.LittleEndian.Uint32(g[0:4])
+	data2 := binary.LittleEndian.Uint16(g[4:6])
+	data3 := binary.LittleEndian.Uint16(g[6:8])
+	return fmt.Sprintf("%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+		data1, data2, data3,
+		g[8], g[9],
+		g[10], g[11], g[12], g[13], g[14], g[15])
+}
+
+// emitObjectIdAddData emits the <addData><data name="...objectid"><ObjectId>
+// block for the given GUID. If the GUID is all zeros, the block is not emitted.
+func emitObjectIdAddData(e *errEncoder, guid [16]byte) {
+	var zero [16]byte
+	if guid == zero {
+		return
+	}
+	e.start("addData")
+	e.start("data",
+		xml.Attr{Name: xml.Name{Local: "name"}, Value: "http://www.3s-software.com/plcopenxml/objectid"},
+		xml.Attr{Name: xml.Name{Local: "handleUnknown"}, Value: "discard"},
+	)
+	e.start("ObjectId")
+	e.token(xml.CharData(formatGUID(guid)))
+	e.end("ObjectId")
+	e.end("data")
+	e.end("addData")
 }
 
 // emitPrimitiveTypeElem emits the XML element for a primitive IEC 61131-3 type.

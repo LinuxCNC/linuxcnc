@@ -874,3 +874,123 @@ func TestGenerateXMLStructGalvHmi(t *testing.T) {
 		t.Error("expected <derived name=\"ST_DISP_ERRORS\"> for stErrors variable")
 	}
 }
+
+// ---------------------------------------------------------------------------
+// GUID formatting and ObjectId XML emission tests
+// ---------------------------------------------------------------------------
+
+// TestFormatGUIDRoundTrip verifies that formatGUID is the exact inverse of
+// parseGUID: formatGUID(parseGUID(s)) == s for various known GUIDs.
+func TestFormatGUIDRoundTrip(t *testing.T) {
+	guids := []string{
+		"354914ab-5602-4319-a5dd-d33707893044",
+		"96656ea5-0db7-49b0-86ec-56cef26b56d0",
+		"4bb8098e-6846-4a59-915d-71a3e3d369c0",
+		"47068e7e-0738-4746-acaa-9138b857c754",
+		"00000000-0000-0000-0000-000000000000",
+		"ffffffff-ffff-ffff-ffff-ffffffffffff",
+	}
+	for _, guidStr := range guids {
+		guid, err := parseGUID(guidStr)
+		if err != nil {
+			t.Fatalf("parseGUID(%q): %v", guidStr, err)
+		}
+		got := formatGUID(guid)
+		if got != guidStr {
+			t.Errorf("formatGUID(parseGUID(%q)) = %q, want %q", guidStr, got, guidStr)
+		}
+	}
+}
+
+// TestEmitObjectIdAddDataEnum verifies that GenerateXML emits an <ObjectId>
+// element inside <addData> for a @enum alias with a non-zero GUID.
+func TestEmitObjectIdAddDataEnum(t *testing.T) {
+	const guidStr = "96656ea5-0db7-49b0-86ec-56cef26b56d0"
+	cfg := `
+@enum MY_ENUM WORD ` + guidStr + `
+  none 0
+  active
+
+stBlock
+  in eVal MY_ENUM
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	// Output must contain the ObjectId with the correct GUID string.
+	if !strings.Contains(out, "<ObjectId>"+guidStr+"</ObjectId>") {
+		t.Errorf("expected <ObjectId>%s</ObjectId> in output, got:\n%s", guidStr, out)
+	}
+	// Must also contain the objectid data element wrapper.
+	if !strings.Contains(out, "plcopenxml/objectid") {
+		t.Error("expected objectid data element in output")
+	}
+}
+
+// TestEmitObjectIdAddDataStruct verifies that GenerateXML emits an <ObjectId>
+// element inside <addData> for a @struct alias with a non-zero GUID.
+func TestEmitObjectIdAddDataStruct(t *testing.T) {
+	const guidStr = "354914ab-5602-4319-a5dd-d33707893044"
+	cfg := `
+@struct MY_STRUCT ` + guidStr + `
+  in bFlag BOOL
+  out nVal DWORD
+
+stBlock
+  struct stItem MY_STRUCT
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	// Output must contain the ObjectId with the correct GUID string.
+	if !strings.Contains(out, "<ObjectId>"+guidStr+"</ObjectId>") {
+		t.Errorf("expected <ObjectId>%s</ObjectId> in output, got:\n%s", guidStr, out)
+	}
+}
+
+// TestEmitObjectIdAddDataZeroGUID verifies that GenerateXML does NOT emit an
+// <addData> block for an alias whose GUID is all zeros.
+func TestEmitObjectIdAddDataZeroGUID(t *testing.T) {
+	// Use an all-zero GUID explicitly.
+	cfg := `
+@enum MY_ENUM WORD 00000000-0000-0000-0000-000000000000
+  none 0
+  active
+
+stBlock
+  in eVal MY_ENUM
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	if strings.Contains(out, "plcopenxml/objectid") {
+		t.Error("expected no objectid addData block for zero GUID, but found one")
+	}
+	if strings.Contains(out, "<ObjectId>") {
+		t.Error("expected no <ObjectId> element for zero GUID, but found one")
+	}
+}
