@@ -276,8 +276,8 @@ func applyContainerTypeInfo(nodes []*Node, adsPrefix string, st *ads.SymbolTable
 		adsPath := joinName(adsPrefix, node.Name)
 
 		if node.ArrayStart > 0 {
-			// Array container: if TypeName was promoted from a "struct _ TypeName"
-			// element, each array element [i] gets the struct type info.
+			// Array container: each array element [i] gets the struct type info
+			// when the array was declared with "struct name[s..e] TypeName" syntax.
 			for i := node.ArrayStart; i <= node.ArrayEnd; i++ {
 				elemPath := fmt.Sprintf("%s[%d]", adsPath, i)
 				if node.TypeName != "" {

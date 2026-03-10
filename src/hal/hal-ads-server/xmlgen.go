@@ -351,6 +351,33 @@ func emitVariable(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMa
 // element for struct containers or @enum/@struct aliases, or an <array> block
 // for array containers.
 func emitTypeRef(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMap) error {
+	// Scalar leaf array (ArrayStart > 0, no Children): emit <array> with a
+	// primitive or alias base type directly.
+	if node.ArrayStart > 0 && len(node.Children) == 0 {
+		e.start("array")
+		e.start("dimension",
+			xml.Attr{Name: xml.Name{Local: "lower"}, Value: fmt.Sprintf("%d", node.ArrayStart)},
+			xml.Attr{Name: xml.Name{Local: "upper"}, Value: fmt.Sprintf("%d", node.ArrayEnd)},
+		)
+		e.end("dimension")
+		e.start("baseType")
+		if aliases != nil {
+			if _, ok := aliases[node.TypeName]; ok {
+				e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.TypeName})
+				e.end("derived")
+				e.end("baseType")
+				e.end("array")
+				return e.err
+			}
+		}
+		if err := emitPrimitiveTypeElem(e, node.TypeName); err != nil {
+			return err
+		}
+		e.end("baseType")
+		e.end("array")
+		return e.err
+	}
+
 	if len(node.Children) == 0 {
 		// Leaf: check if TypeName is an alias → emit <derived name="AliasName" />.
 		if aliases != nil {
@@ -365,7 +392,7 @@ func emitTypeRef(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMap
 	}
 
 	// Container node with TypeName set (from a "struct varName TypeName" or
-	// a promoted array element): emit a <derived name="TypeName" /> reference.
+	// a "struct varName[s..e] TypeName" inline array): emit a <derived name="TypeName" /> reference.
 	if node.TypeName != "" {
 		e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.TypeName})
 		e.end("derived")

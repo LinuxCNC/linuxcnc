@@ -106,11 +106,11 @@ type configLine struct {
 //
 //	@struct <StructName> <GUID>
 //	  <dir> <fieldName> <Type>
+//	  <dir> <fieldName>[start..end] <Type>
+//	  struct <fieldName> <OtherStructType>
+//	  struct <fieldName>[start..end] <OtherStructType>
 //	  <containerName>
 //	    <dir> <fieldName> <Type>
-//	  <arrayName>[start..end]
-//	    struct _ <OtherStructType>
-//	  struct <fieldName> <OtherStructType>
 //
 // Example:
 //
@@ -151,7 +151,9 @@ func ParseTreeWithAliases(r io.Reader) (TypeAliasMap, []*Node, error) {
 //	out leafName TYPE
 //	inout leafName TYPE
 //	pad leafName TYPE
+//	in leafName[start..end] TYPE
 //	struct varName StructTypeName
+//	struct varName[start..end] StructTypeName
 //	ArrayName[start..end]
 //	  in leafName TYPE
 func ParseTree(r io.Reader) ([]*Node, error) {
@@ -474,11 +476,24 @@ func parseTreeBlock(lines []configLine, idx *int, minDepth int, nodes *[]*Node, 
 			if len(tokens) < 3 {
 				return fmt.Errorf("line %d: leaf line requires direction, name, and type", cl.lineNo)
 			}
-			*nodes = append(*nodes, &Node{
-				Name:     tokens[1],
-				Dir:      PinDir(tokens[0]),
-				TypeName: parseTypeName(tokens[2:]),
-			})
+			nameToken := tokens[1]
+			typeName := parseTypeName(tokens[2:])
+			if strings.ContainsRune(nameToken, '[') {
+				// Inline leaf array: <dir> name[start..end] Type
+				arrNode, err := parseContainerNode(nameToken, cl.lineNo)
+				if err != nil {
+					return err
+				}
+				arrNode.Dir = PinDir(tokens[0])
+				arrNode.TypeName = typeName
+				*nodes = append(*nodes, arrNode)
+			} else {
+				*nodes = append(*nodes, &Node{
+					Name:     nameToken,
+					Dir:      PinDir(tokens[0]),
+					TypeName: typeName,
+				})
+			}
 			*idx++
 			continue
 		}
@@ -494,11 +509,22 @@ func parseTreeBlock(lines []configLine, idx *int, minDepth int, nodes *[]*Node, 
 			if !ok || alias.StructDef == nil {
 				return fmt.Errorf("line %d: struct %q references undefined struct type %q", cl.lineNo, varName, typeName)
 			}
-			*nodes = append(*nodes, &Node{
-				Name:     varName,
-				TypeName: typeName,
-				Children: cloneNodes(alias.StructDef),
-			})
+			if strings.ContainsRune(varName, '[') {
+				// Inline struct array: struct name[start..end] StructType
+				arrNode, err := parseContainerNode(varName, cl.lineNo)
+				if err != nil {
+					return err
+				}
+				arrNode.TypeName = typeName
+				arrNode.Children = cloneNodes(alias.StructDef)
+				*nodes = append(*nodes, arrNode)
+			} else {
+				*nodes = append(*nodes, &Node{
+					Name:     varName,
+					TypeName: typeName,
+					Children: cloneNodes(alias.StructDef),
+				})
+			}
 			*idx++
 			continue
 		}
@@ -515,24 +541,7 @@ func parseTreeBlock(lines []configLine, idx *int, minDepth int, nodes *[]*Node, 
 			return err
 		}
 
-		// Special case: an array whose sole child is a struct-keyword container
-		// (e.g. "struct _ TypeName") — promote the struct type to the array node
-		// so that its element type is the named struct. This avoids an extra path
-		// component in the symbol hierarchy (e.g. "aPools[1].sName" not
-		// "aPools[1]._.sName") and produces the correct <derived name="ST_...">
-		// element type in the generated XML.
-		if node.ArrayStart > 0 && len(children) == 1 {
-			single := children[0]
-			if single.TypeName != "" && single.Name == "_" && len(single.Children) > 0 {
-				// Promote: the array element type IS the struct type.
-				node.TypeName = single.TypeName
-				node.Children = single.Children
-			} else {
-				node.Children = children
-			}
-		} else {
-			node.Children = children
-		}
+		node.Children = children
 		*nodes = append(*nodes, node)
 	}
 	return nil

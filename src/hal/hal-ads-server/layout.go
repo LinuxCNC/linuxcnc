@@ -144,7 +144,11 @@ func layoutNode(node *Node, offset uint32, halPfx, adsPfx string, pins *[]Layout
 	adsName := joinName(adsPfx, node.Name)
 
 	if len(node.Children) == 0 {
-		// Leaf node.
+		// Leaf node (may be a scalar leaf array).
+		if node.ArrayStart > 0 {
+			return layoutLeafArray(node, offset, halName, adsName, pins, aliases)
+		}
+		// Plain leaf node.
 		sz, al, err := typeSizeResolved(node.TypeName, aliases)
 		if err != nil {
 			return 0, fmt.Errorf("field %q: %w", node.Name, err)
@@ -229,6 +233,32 @@ func layoutArray(node *Node, offset uint32, halPfx, adsPfx string, pins *[]Layou
 			return 0, err
 		}
 		offset = elemBase + elemSz
+	}
+	return offset, nil
+}
+
+// layoutLeafArray lays out a scalar leaf array: a node with ArrayStart > 0 and
+// no Children where each element is a scalar of node.TypeName (e.g. BOOL, REAL).
+// Elements are packed contiguously at the natural alignment of the element type.
+func layoutLeafArray(node *Node, offset uint32, halPfx, adsPfx string, pins *[]LayoutPin, aliases TypeAliasMap) (uint32, error) {
+	sz, al, err := typeSizeResolved(node.TypeName, aliases)
+	if err != nil {
+		return 0, fmt.Errorf("field %q: %w", node.Name, err)
+	}
+	offset = alignUp(offset, al)
+	for i := node.ArrayStart; i <= node.ArrayEnd; i++ {
+		if pins != nil {
+			*pins = append(*pins, LayoutPin{
+				Dir:      node.Dir,
+				HALPath:  fmt.Sprintf("%s.%d", halPfx, i),
+				ADSName:  fmt.Sprintf("%s[%d]", adsPfx, i),
+				TypeName: node.TypeName,
+				Offset:   offset,
+				Size:     sz,
+				Align:    al,
+			})
+		}
+		offset += sz
 	}
 	return offset, nil
 }

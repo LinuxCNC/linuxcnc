@@ -68,12 +68,27 @@ Each leaf line (with `in`, `out`, `inout`, or `pad`) creates a HAL pin (except
 ```
 stDISPLAY_DATA
   in bErrRest bool
-  stPOOL[1..9]
-    in bReady bool
-    out nErrCount dint
-    inout fSetpoint real
-    in bAck bool
-    in sName string(32)
+  in aFlags[1..8] BOOL
+  struct stPOOL ST_POOL
+  struct stPOOLs[1..9] ST_POOL
+```
+
+The `struct` keyword references a named struct type declared with `@struct`. Both
+`struct varName TypeName` (single instance) and `struct varName[start..end] TypeName`
+(array of struct instances) are supported. Similarly, all direction keywords
+(`in`, `out`, `inout`, `pad`) accept an optional `[start..end]` suffix to declare
+a scalar array inline.
+
+Plain unnamed containers (struct groupings without a type) still use
+depth-based indentation:
+
+```
+DISPLAY_DATA
+  stData
+    in bFlag BOOL
+    stItems[1..9]
+      in bReady bool
+      out nErrCount dint
 ```
 
 ### Direction semantics
@@ -128,48 +143,66 @@ For the example above (with component name `hal-ads-server`):
 
 ```
 hal-ads-server.stDISPLAY_DATA.bErrRest           (bit, in)
-hal-ads-server.stDISPLAY_DATA.stPOOL.1.bReady    (bit, in)
-hal-ads-server.stDISPLAY_DATA.stPOOL.1.nErrCount (s32, out)
-hal-ads-server.stDISPLAY_DATA.stPOOL.1.bAck      (bit, in)
-hal-ads-server.stDISPLAY_DATA.stPOOL.1.sName     (port, in)
-...through stPOOL.9...
+hal-ads-server.stDISPLAY_DATA.aFlags.1            (bit, in)
+hal-ads-server.stDISPLAY_DATA.stPOOLs.1.bReady   (bit, in)
+hal-ads-server.stDISPLAY_DATA.stPOOLs.1.nErrCount (s32, out)
+...through stPOOLs.9...
 ```
 
 ### ADS symbol names (as seen by the HMI)
 
 ```
 stDISPLAY_DATA.bErrRest
-stDISPLAY_DATA.stPOOL[1].bReady
-stDISPLAY_DATA.stPOOL[1].nErrCount
-...through stPOOL[9]...
+stDISPLAY_DATA.aFlags[1]
+stDISPLAY_DATA.stPOOLs[1].bReady
+stDISPLAY_DATA.stPOOLs[1].nErrCount
+...through stPOOLs[9]...
 ```
 
-### `@type` directives
+### `@enum` and `@struct` directives
 
-Before the symbol tree, you may declare named TwinCAT type aliases:
+Before the symbol tree, you may declare named TwinCAT type aliases with `@enum`
+(for enumeration types) or `@struct` (for struct types):
 
 ```
-@type <AliasName> <BaseType> <GUID>
+@enum <EnumName> <BaseType> <GUID>
+  <memberName> [intValue]
+  ...
+
+@struct <StructName> <GUID>
+  <dir> <fieldName> <Type>
+  struct <fieldName> <OtherStructType>
+  struct <fieldName>[start..end] <OtherStructType>
+  ...
 ```
 
 Example:
 
 ```
-@type EN_DISP_MSGTYPE     WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
-@type EN_DISP_POOL_STATE  WORD 4bb8098e-6846-4a59-915d-71a3e3d369c0
+# @enum members: explicit value sets the member value; subsequent members
+# without a value auto-increment from the previous value.
+@enum EN_DISP_POOL_STATE WORD 4bb8098e-6846-4a59-915d-71a3e3d369c0
+  empty 0       # explicit value 0
+  newForm       # auto-increments to 1
+  formLoaded    # auto-increments to 2
+
+@struct ST_POOL 5d3e96cf-52f5-40f7-8f2f-03f772b420db
+  in eState EN_DISP_POOL_STATE
+  in fTemp REAL
+
+@struct ST_DATA 354914ab-5602-4319-a5dd-d33707893044
+  in bGlobalErr BOOL
+  struct aPools[1..4] ST_POOL
 
 DISPLAY_DATA
-  stData
-    aPools[1..1]
-      in eState EN_DISP_POOL_STATE
-      stMsg
-        in eType EN_DISP_MSGTYPE
+  struct stData ST_DATA
 ```
 
-- **AliasName** — the TwinCAT derived type name (stored upper-cased). Use this
-  name as the `TYPE` field for leaf nodes in the config.
-- **BaseType** — the underlying ADS primitive type (e.g. `WORD`, `DINT`). Used
-  for size/alignment computation and HAL pin creation.
+- **EnumName / StructName** — the TwinCAT derived type name (stored upper-cased).
+  Use this name as the `TYPE` field for leaf nodes in the config, or as the
+  `StructType` argument to `struct varName TypeName`.
+- **BaseType** — (`@enum` only) the underlying ADS primitive type (e.g. `WORD`, `DINT`).
+  Used for size/alignment computation and HAL pin creation.
 - **GUID** — the 16-byte data-type GUID in Microsoft COM wire format
   (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`). Returned in
   `ADSIGRP_SYM_INFOBYNAMEEX` (0xF009) responses so TwinCAT HMI clients can

@@ -54,14 +54,16 @@ stDISPLAY_DATA
 
 func TestParseTreeArray(t *testing.T) {
 	cfg := `
+@struct ST_POOL 00000000-0000-0000-0000-000000000001
+  in bReady BOOL
+  out nCount DINT
+
 stROOT
-  stPOOL[1..3]
-    in bReady bool
-    out nCount dint
+  struct stPOOL[1..3] ST_POOL
 `
-	roots, err := ParseTree(strings.NewReader(cfg))
+	_, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
-		t.Fatalf("ParseTree error: %v", err)
+		t.Fatalf("ParseTreeWithAliases error: %v", err)
 	}
 	if len(roots) != 1 {
 		t.Fatalf("expected 1 root, got %d", len(roots))
@@ -81,11 +83,131 @@ stROOT
 	if arr.ArrayEnd != 3 {
 		t.Errorf("ArrayEnd = %d, want 3", arr.ArrayEnd)
 	}
+	if arr.TypeName != "ST_POOL" {
+		t.Errorf("array.TypeName = %q, want ST_POOL", arr.TypeName)
+	}
 	if len(arr.Children) != 2 {
-		t.Fatalf("expected 2 template children, got %d", len(arr.Children))
+		t.Fatalf("expected 2 template children (from ST_POOL), got %d", len(arr.Children))
 	}
 	if arr.Children[0].Name != "bReady" {
-		t.Errorf("arr.Children[0].Name = %q", arr.Children[0].Name)
+		t.Errorf("arr.Children[0].Name = %q, want bReady", arr.Children[0].Name)
+	}
+}
+
+// TestParseTreeInlineLeafArray verifies that "in name[start..end] TYPE" creates
+// a leaf array node (ArrayStart/ArrayEnd set, no Children) rather than a container.
+func TestParseTreeInlineLeafArray(t *testing.T) {
+	cfg := `
+stROOT
+  in aFlags[1..4] BOOL
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree error: %v", err)
+	}
+	if len(roots) != 1 {
+		t.Fatalf("expected 1 root, got %d", len(roots))
+	}
+	root := roots[0]
+	if len(root.Children) != 1 {
+		t.Fatalf("expected 1 child (leaf array), got %d", len(root.Children))
+	}
+
+	arr := root.Children[0]
+	if arr.Name != "aFlags" {
+		t.Errorf("array.Name = %q, want aFlags", arr.Name)
+	}
+	if arr.Dir != DirIn {
+		t.Errorf("array.Dir = %q, want %q", arr.Dir, DirIn)
+	}
+	if arr.TypeName != "BOOL" {
+		t.Errorf("array.TypeName = %q, want BOOL", arr.TypeName)
+	}
+	if arr.ArrayStart != 1 {
+		t.Errorf("ArrayStart = %d, want 1", arr.ArrayStart)
+	}
+	if arr.ArrayEnd != 4 {
+		t.Errorf("ArrayEnd = %d, want 4", arr.ArrayEnd)
+	}
+	if arr.Children != nil {
+		t.Errorf("leaf array must have nil Children, got %v", arr.Children)
+	}
+}
+
+// TestParseTreeInlineLeafArrayDirections verifies all direction keywords with
+// the inline array syntax.
+func TestParseTreeInlineLeafArrayDirections(t *testing.T) {
+	cfg := `
+stROOT
+  in aIn[1..2] BOOL
+  out aOut[1..2] DWORD
+  inout aInOut[1..2] REAL
+  pad aPad[1..2] BYTE
+`
+	roots, err := ParseTree(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTree error: %v", err)
+	}
+	children := roots[0].Children
+	if len(children) != 4 {
+		t.Fatalf("expected 4 children, got %d", len(children))
+	}
+	cases := []struct {
+		dir      PinDir
+		name     string
+		typeName string
+	}{
+		{DirIn, "aIn", "BOOL"},
+		{DirOut, "aOut", "DWORD"},
+		{DirInOut, "aInOut", "REAL"},
+		{DirPad, "aPad", "BYTE"},
+	}
+	for i, tc := range cases {
+		c := children[i]
+		if c.Dir != tc.dir {
+			t.Errorf("children[%d].Dir = %q, want %q", i, c.Dir, tc.dir)
+		}
+		if c.Name != tc.name {
+			t.Errorf("children[%d].Name = %q, want %q", i, c.Name, tc.name)
+		}
+		if c.TypeName != tc.typeName {
+			t.Errorf("children[%d].TypeName = %q, want %q", i, c.TypeName, tc.typeName)
+		}
+		if c.ArrayStart != 1 || c.ArrayEnd != 2 {
+			t.Errorf("children[%d] range = [%d..%d], want [1..2]", i, c.ArrayStart, c.ArrayEnd)
+		}
+		if c.Children != nil {
+			t.Errorf("children[%d]: leaf array must have nil Children", i)
+		}
+	}
+}
+
+// TestParseTreeInlineStructArrayInvalidRange verifies that an invalid array
+// range in inline struct array syntax returns an error.
+func TestParseTreeInlineStructArrayInvalidRange(t *testing.T) {
+	cfg := `
+@struct ST_FOO 00000000-0000-0000-0000-000000000001
+  in bFlag BOOL
+
+stRoot
+  struct aFoo[1..0] ST_FOO
+`
+	_, _, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for invalid array range [1..0], got nil")
+	}
+}
+
+// TestParseTreeInlineLeafArrayInvalidRange verifies that an invalid range in
+// inline leaf array syntax returns an error.
+func TestParseTreeInlineLeafArrayInvalidRange(t *testing.T) {
+	cfg := `
+stRoot
+  in aBad[5..3] BOOL
+`
+	_, err := ParseTree(strings.NewReader(cfg))
+	if err == nil {
+		t.Error("expected error for invalid array range [5..3], got nil")
 	}
 }
 
@@ -934,8 +1056,7 @@ func TestParseStructWithNestedContainers(t *testing.T) {
 @struct ST_OUTER 00000000-0000-0000-0000-000000000002
   in nVal DWORD
   struct stInner ST_INNER
-  aItems[1..3]
-    struct _ ST_INNER
+  struct aItems[1..3] ST_INNER
 
 stRoot
   struct stObj ST_OUTER
@@ -960,13 +1081,13 @@ stRoot
 		t.Errorf("StructDef[1] = {Name:%q TypeName:%q}, want {stInner ST_INNER}", innerNode.Name, innerNode.TypeName)
 	}
 
-	// aItems should be a promoted array with TypeName ST_INNER
+	// aItems should be an inline struct array with TypeName ST_INNER
 	arrNode := outer.StructDef[2]
 	if arrNode.Name != "aItems" || arrNode.ArrayStart != 1 || arrNode.ArrayEnd != 3 {
 		t.Errorf("StructDef[2] array = %+v, want aItems[1..3]", arrNode)
 	}
 	if arrNode.TypeName != "ST_INNER" {
-		t.Errorf("aItems TypeName = %q, want ST_INNER (promoted from struct _ ST_INNER)", arrNode.TypeName)
+		t.Errorf("aItems TypeName = %q, want ST_INNER", arrNode.TypeName)
 	}
 
 	// The tree node should have TypeName=ST_OUTER and cloned children
