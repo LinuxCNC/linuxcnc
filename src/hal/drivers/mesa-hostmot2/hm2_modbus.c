@@ -374,23 +374,27 @@ static void setup_icdelay(hm2_modbus_inst_t *inst, unsigned baudrate, unsigned p
 	inst->hal->icdelay = inst->maxicharbits;
 }
 
+#define HARDWARE_MAX_DELAY (1020)	//!< Maximum ifdelay in number of bits limited by hardware.
+#define HARDWARE_BAUD_LIMIT  ((HARDWARE_MAX_DELAY*100000-99999)/175) //!< Baud that limits out the hardware ifdelay.
 //
-// Calculate the inter-frame delay time:
+// Calculate the inter-frame delay time in units of numbers of bits.
+// Returns:
+// - HARDWARE_MAX_DELAY bits if baud > HARDWARE_BAUD_LIMIT
 // - 3.5 chars if baudrate <= 19200
-// - 1750 microseconds if baudrate > 19200
+// - 1750 microseconds worth of bits when baudrate > 19200 and <= HARDWARE_BAUD_LIMIT
 //
 static unsigned calc_ifdelay(hm2_modbus_inst_t *inst, unsigned baudrate, unsigned parity, unsigned stopbits)
 {
-	if(baudrate > 582000) {
+	if(baudrate > HARDWARE_BAUD_LIMIT) {
 		MSG_WARN("%s: warning: Baudrate > 582000 will make inter-frame timer overflow. Setting to maximum.\n", inst->name);
-		return 1020;
+		return HARDWARE_MAX_DELAY;
 	}
 
 	// calculation works for baudrates less than ~24 Mbit/s
-	if(baudrate <= 19200)
+	if(baudrate > 19200)
 		return (175u * baudrate + 99999u) / 100000u;
 	unsigned bits = 1 + 8 + (parity ? 1 : 0) + (stopbits > 1 ? 2 : 1);
-	return (bits * 35 + 9) / 10;	// Bit-times * 3.5 rounded up
+	return (bits * 35 + 9) / 10;	// Ceil of bits in 3.5 characters.
 }
 
 //
@@ -1053,8 +1057,6 @@ fetch_more_data:
 					inst->name, inst->cmdidx,
 					HM2_PKTUART_RCR_ICHARBITS_VAL(frsize), inst->maxicharbits);
 			set_error(inst, ENOMSG);
-			force_resend(inst);
-			break;
 		}
 		inst->rxdata[0] = 0;	// This will fail the parse packet if the read did not resolve
 		r = hm2_pktuart_queue_read_data(inst->uart, inst->rxdata, HM2_PKTUART_RCR_NBYTES_VAL(frsize));
