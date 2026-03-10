@@ -3762,6 +3762,15 @@ static char *halpr_type_string(int type, char *buf, size_t nbuf) {
 HAL PORT functions
 ******************************************************************************/
 
+// This struct is purely local to this file to keep track of the
+// port data in shmem.
+typedef struct __hal_port_shm_t {
+    atomic_uint read;  // offset into buff that outgoing data gets read from
+    atomic_uint write; // offset into buff that incoming data gets written to
+    unsigned int size; // size of allocated buffer
+    char buff[];
+} hal_port_shm_t;
+
 static void hal_port_atomic_load(hal_port_shm_t* port_shm, unsigned* read, unsigned* write)
 {
     *read = atomic_load_explicit(&port_shm->read, memory_order_acquire);
@@ -4067,6 +4076,22 @@ void hal_port_wait_writable(hal_port_t** port, unsigned count, sig_atomic_t* sto
 /*
 hal stream implementation
 */
+
+// This struct is purely local to this file to keep track of the stream
+// data in shmem.
+struct hal_stream_shm {
+    unsigned magic;
+    atomic_uint in;
+    atomic_uint out;
+    unsigned this_sample;
+    unsigned depth;
+    int num_pins;
+    atomic_uint num_overruns;
+    atomic_uint num_underruns;
+    hal_type_t type[HAL_STREAM_MAX_PINS];
+    union hal_stream_data data[];
+};
+
 int halpr_parse_types(hal_type_t type[HAL_STREAM_MAX_PINS], const char *cfg)
 {
     const char *c;
