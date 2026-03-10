@@ -15,21 +15,23 @@ import (
 
 func TestGenerateXMLBasicStructure(t *testing.T) {
 	cfg := `
+@struct ST_AST_ITEM 00000000-0000-0000-0000-000000000000
+  in fPower REAL
+  out bManu BOOL
+
 stRoot
   stSub
     in bFlag BOOL
     out nVal DWORD
-  aSt[1..2]
-    in fPower REAL
-    out bManu BOOL
+  struct aSt[1..2] ST_AST_ITEM
 `
-	roots, err := ParseTree(strings.NewReader(cfg))
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
-		t.Fatalf("ParseTree: %v", err)
+		t.Fatalf("ParseTreeWithAliases: %v", err)
 	}
 
 	var buf bytes.Buffer
-	if err := GenerateXML(&buf, roots); err != nil {
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
 		t.Fatalf("GenerateXML: %v", err)
 	}
 
@@ -56,7 +58,7 @@ stRoot
 		`<contentHeader`,
 		`<dataTypes`,
 		`globalVars`,
-		`T_aSt_ITEM`,
+		`ST_AST_ITEM`,
 		`T_stSub`,
 		`bFlag`,
 		`BOOL`,

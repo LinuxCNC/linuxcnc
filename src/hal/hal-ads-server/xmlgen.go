@@ -193,7 +193,7 @@ func GenerateXML(w io.Writer, roots []*Node, aliasOpts ...TypeAliasMap) error {
 // not added to typeDefs (their dataType is emitted by emitAliasDataTypes).
 func collectTypeDefs(node *Node, nameSet map[string]int, tm nodeTypeMap, typeDefs *[]genTypeDef, aliases TypeAliasMap) {
 	if len(node.Children) == 0 {
-		return // leaf; no type definition needed
+		return // leaf (including leaf arrays) — no container type definition needed
 	}
 
 	// If this container references a named @struct, register its type name
@@ -361,17 +361,17 @@ func emitTypeRef(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMap
 		)
 		e.end("dimension")
 		e.start("baseType")
-		if aliases != nil {
-			if _, ok := aliases[node.TypeName]; ok {
-				e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.TypeName})
-				e.end("derived")
-				e.end("baseType")
-				e.end("array")
-				return e.err
-			}
+		isAlias := aliases != nil
+		if isAlias {
+			_, isAlias = aliases[node.TypeName]
 		}
-		if err := emitPrimitiveTypeElem(e, node.TypeName); err != nil {
-			return err
+		if isAlias {
+			e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.TypeName})
+			e.end("derived")
+		} else {
+			if err := emitPrimitiveTypeElem(e, node.TypeName); err != nil {
+				return err
+			}
 		}
 		e.end("baseType")
 		e.end("array")

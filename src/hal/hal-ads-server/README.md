@@ -86,9 +86,7 @@ depth-based indentation:
 DISPLAY_DATA
   stData
     in bFlag BOOL
-    stItems[1..9]
-      in bReady bool
-      out nErrCount dint
+    struct stMsg ST_MSG
 ```
 
 ### Direction semantics

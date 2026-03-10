@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -124,10 +125,12 @@ func TestLayoutStructTailPadding(t *testing.T) {
 	// raw end = 5; max_align = 4; tail padding → 8
 	// array element size must be 8.
 	cfg := `
+@struct ST_TAIL_TEST 00000000-0000-0000-0000-000000000000
+  in fVal REAL
+  in bFlag BOOL
+
 stRoot
-  aSt[1..2]
-    in fVal REAL
-    in bFlag BOOL
+  struct aSt[1..2] ST_TAIL_TEST
 `
 	roots, err := ParseTree(strings.NewReader(cfg))
 	if err != nil {
@@ -258,10 +261,12 @@ func TestLayoutArrayOfStructs(t *testing.T) {
 	// struct { REAL f; BOOL b; } → size 5, maxAlign 4, alignedSize 8
 	// aSt[1..3] → offsets: [0,8,16]
 	cfg := `
+@struct ST_AST 00000000-0000-0000-0000-000000000000
+  in fPower REAL
+  out bManu BOOL
+
 root
-  aSt[1..3]
-    in fPower REAL
-    out bManu BOOL
+  struct aSt[1..3] ST_AST
 `
 	roots, err := ParseTree(strings.NewReader(cfg))
 	if err != nil {
@@ -522,4 +527,163 @@ stFoo
 	if pins[1].Offset != 2 || pins[1].Size != 2 {
 		t.Errorf("eVal: offset=%d size=%d, want 2/2", pins[1].Offset, pins[1].Size)
 	}
+}
+
+// TestLayoutLeafArray verifies the layout of scalar leaf arrays (inline arrays
+// with a direction keyword: "in/out/inout/pad name[start..end] TYPE").
+func TestLayoutLeafArray(t *testing.T) {
+	t.Run("BoolArrayOffsets", func(t *testing.T) {
+		cfg := "stRoot\n  in aFlags[1..4] BOOL\n"
+		roots, err := ParseTree(strings.NewReader(cfg))
+		if err != nil {
+			t.Fatalf("ParseTree: %v", err)
+		}
+		pins, err := ComputeLayout(roots)
+		if err != nil {
+			t.Fatalf("ComputeLayout: %v", err)
+		}
+		if len(pins) != 4 {
+			t.Fatalf("expected 4 pins, got %d", len(pins))
+		}
+		for i, p := range pins {
+			wantOffset := uint32(i)
+			if p.Offset != wantOffset {
+				t.Errorf("aFlags[%d] offset = %d, want %d", i+1, p.Offset, wantOffset)
+			}
+			if p.Size != 1 {
+				t.Errorf("aFlags[%d] size = %d, want 1", i+1, p.Size)
+			}
+			if p.Align != 1 {
+				t.Errorf("aFlags[%d] align = %d, want 1", i+1, p.Align)
+			}
+		}
+	})
+
+	t.Run("DwordArrayOffsets", func(t *testing.T) {
+		cfg := "stRoot\n  in aVals[1..3] DWORD\n"
+		roots, err := ParseTree(strings.NewReader(cfg))
+		if err != nil {
+			t.Fatalf("ParseTree: %v", err)
+		}
+		pins, err := ComputeLayout(roots)
+		if err != nil {
+			t.Fatalf("ComputeLayout: %v", err)
+		}
+		if len(pins) != 3 {
+			t.Fatalf("expected 3 pins, got %d", len(pins))
+		}
+		for i, p := range pins {
+			wantOffset := uint32(i) * 4
+			if p.Offset != wantOffset {
+				t.Errorf("aVals[%d] offset = %d, want %d", i+1, p.Offset, wantOffset)
+			}
+			if p.Size != 4 {
+				t.Errorf("aVals[%d] size = %d, want 4", i+1, p.Size)
+			}
+		}
+	})
+
+	t.Run("HALPathDotNotation", func(t *testing.T) {
+		cfg := "stRoot\n  in aFlags[1..4] BOOL\n"
+		roots, err := ParseTree(strings.NewReader(cfg))
+		if err != nil {
+			t.Fatalf("ParseTree: %v", err)
+		}
+		pins, err := ComputeLayout(roots)
+		if err != nil {
+			t.Fatalf("ComputeLayout: %v", err)
+		}
+		for i := 1; i <= 4; i++ {
+			want := fmt.Sprintf("stRoot.aFlags.%d", i)
+			if pins[i-1].HALPath != want {
+				t.Errorf("pins[%d].HALPath = %q, want %q", i-1, pins[i-1].HALPath, want)
+			}
+		}
+	})
+
+	t.Run("ADSNameBracketNotation", func(t *testing.T) {
+		cfg := "stRoot\n  in aFlags[1..4] BOOL\n"
+		roots, err := ParseTree(strings.NewReader(cfg))
+		if err != nil {
+			t.Fatalf("ParseTree: %v", err)
+		}
+		pins, err := ComputeLayout(roots)
+		if err != nil {
+			t.Fatalf("ComputeLayout: %v", err)
+		}
+		for i := 1; i <= 4; i++ {
+			want := fmt.Sprintf("stRoot.aFlags[%d]", i)
+			if pins[i-1].ADSName != want {
+				t.Errorf("pins[%d].ADSName = %q, want %q", i-1, pins[i-1].ADSName, want)
+			}
+		}
+	})
+
+	t.Run("AlignmentAfterPrecedingField", func(t *testing.T) {
+		// BOOL at 0, then DWORD array aligned to 4.
+		cfg := "stRoot\n  in bPrev BOOL\n  in aVals[1..2] DWORD\n"
+		roots, err := ParseTree(strings.NewReader(cfg))
+		if err != nil {
+			t.Fatalf("ParseTree: %v", err)
+		}
+		pins, err := ComputeLayout(roots)
+		if err != nil {
+			t.Fatalf("ComputeLayout: %v", err)
+		}
+		// 3 pins: bPrev, aVals[1], aVals[2]
+		if len(pins) != 3 {
+			t.Fatalf("expected 3 pins, got %d", len(pins))
+		}
+		if pins[0].Offset != 0 {
+			t.Errorf("bPrev offset = %d, want 0", pins[0].Offset)
+		}
+		// DWORD align=4; alignUp(1,4)=4
+		if pins[1].Offset != 4 {
+			t.Errorf("aVals[1] offset = %d, want 4", pins[1].Offset)
+		}
+		if pins[2].Offset != 8 {
+			t.Errorf("aVals[2] offset = %d, want 8", pins[2].Offset)
+		}
+	})
+
+	t.Run("StructArrayOffsets", func(t *testing.T) {
+		cfg := `
+@struct ST_TEST 00000000-0000-0000-0000-000000000001
+  in bFlag BOOL
+  in nVal DWORD
+
+stRoot
+  struct aPools[1..2] ST_TEST
+`
+		_, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+		if err != nil {
+			t.Fatalf("ParseTreeWithAliases: %v", err)
+		}
+		pins, err := ComputeLayout(roots)
+		if err != nil {
+			t.Fatalf("ComputeLayout: %v", err)
+		}
+		// 2 elements × 2 fields = 4 pins.
+		// Element: BOOL at 0 (1B), DWORD at 4 (4B), tail pad to 8. elemSz = 8.
+		if len(pins) != 4 {
+			t.Fatalf("expected 4 pins, got %d", len(pins))
+		}
+		expected := []struct {
+			path   string
+			offset uint32
+		}{
+			{"stRoot.aPools.1.bFlag", 0},
+			{"stRoot.aPools.1.nVal", 4},
+			{"stRoot.aPools.2.bFlag", 8},
+			{"stRoot.aPools.2.nVal", 12},
+		}
+		for i, e := range expected {
+			if pins[i].HALPath != e.path {
+				t.Errorf("pins[%d].HALPath = %q, want %q", i, pins[i].HALPath, e.path)
+			}
+			if pins[i].Offset != e.offset {
+				t.Errorf("pins[%d].Offset = %d, want %d", i, pins[i].Offset, e.offset)
+			}
+		}
+	})
 }

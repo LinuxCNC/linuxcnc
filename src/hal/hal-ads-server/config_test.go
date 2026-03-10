@@ -247,14 +247,16 @@ stBlock
 
 func TestParseTreeArrayFollowedBySibling(t *testing.T) {
 	cfg := `
+@struct ST_POOL 00000000-0000-0000-0000-000000000001
+  in bReady bool
+
 stROOT
-  stPOOL[1..2]
-    in bReady bool
+  struct stPOOL[1..2] ST_POOL
   in bGlobal bool
 `
-	roots, err := ParseTree(strings.NewReader(cfg))
+	_, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
-		t.Fatalf("ParseTree error: %v", err)
+		t.Fatalf("ParseTreeWithAliases error: %v", err)
 	}
 	if len(roots) != 1 {
 		t.Fatalf("expected 1 root, got %d", len(roots))
@@ -335,14 +337,16 @@ stBlock
 
 func TestParseTreePadInArray(t *testing.T) {
 	cfg := `
+@struct ST_ITEMS 00000000-0000-0000-0000-000000000001
+  pad _hdr BYTE
+  in bReady BOOL
+
 stRoot
-  stItems[1..2]
-    pad _hdr BYTE
-    in bReady BOOL
+  struct stItems[1..2] ST_ITEMS
 `
-	roots, err := ParseTree(strings.NewReader(cfg))
+	_, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
-		t.Fatalf("ParseTree error: %v", err)
+		t.Fatalf("ParseTreeWithAliases error: %v", err)
 	}
 	if len(roots) != 1 {
 		t.Fatalf("expected 1 root, got %d", len(roots))
@@ -397,6 +401,34 @@ stBad[1..0]
 	}
 }
 
+// TestParseTreeOldArraySyntaxRejected verifies that the old standalone
+// container-array syntax (name[start..end] as a container with indented
+// children) is rejected. Arrays must now use the inline syntax with a
+// direction keyword (in/out/inout/pad) or the struct keyword prefix.
+func TestParseTreeOldArraySyntaxRejected(t *testing.T) {
+	tests := []struct {
+		name string
+		cfg  string
+	}{
+		{
+			name: "standalone array container with leaf children",
+			cfg:  "stRoot\n  stPOOL[1..3]\n    in bReady bool\n",
+		},
+		{
+			name: "standalone array container at root level",
+			cfg:  "aPools[1..4]\n  in bFlag BOOL\n",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := ParseTree(strings.NewReader(tc.cfg))
+			if err == nil {
+				t.Errorf("expected error for old array syntax %q, got nil", tc.name)
+			}
+		})
+	}
+}
+
 func TestParseConfigTabIndent(t *testing.T) {
 	// Tab indentation: 1 tab = depth 1, 2 tabs = depth 2.
 	cfg := "stDISPLAY_DATA\n\tin bErrRest bool\n\tout nState dint\n"
@@ -423,11 +455,16 @@ func TestParseConfigTabIndent(t *testing.T) {
 }
 
 func TestParseConfigTabIndentNested(t *testing.T) {
-	// Two levels of tab indentation.
-	cfg := "stROOT\n\tstPOOL[1..3]\n\t\tin bReady bool\n\t\tout nCount dint\n"
-	roots, err := ParseTree(strings.NewReader(cfg))
+	// Two levels of tab indentation with new inline struct array syntax.
+	// The raw string uses literal tab characters to match the indent style being tested.
+	cfg := "@struct ST_POOL 00000000-0000-0000-0000-000000000001\n" +
+		"\tin bReady bool\n" +
+		"\tout nCount dint\n\n" +
+		"stROOT\n" +
+		"\tstruct stPOOL[1..3] ST_POOL\n"
+	_, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
-		t.Fatalf("ParseTree error: %v", err)
+		t.Fatalf("ParseTreeWithAliases error: %v", err)
 	}
 	if len(roots) != 1 {
 		t.Fatalf("expected 1 root, got %d", len(roots))
@@ -464,13 +501,15 @@ stDISPLAY_DATA
 
 func TestParseConfigFourSpaceIndentNested(t *testing.T) {
 	cfg := `
+@struct ST_POOL 00000000-0000-0000-0000-000000000001
+    in bReady bool
+
 stROOT
-    stPOOL[1..2]
-        in bReady bool
+    struct stPOOL[1..2] ST_POOL
 `
-	roots, err := ParseTree(strings.NewReader(cfg))
+	_, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
-		t.Fatalf("ParseTree error: %v", err)
+		t.Fatalf("ParseTreeWithAliases error: %v", err)
 	}
 	if len(roots) != 1 || len(roots[0].Children) != 1 {
 		t.Fatalf("unexpected structure")

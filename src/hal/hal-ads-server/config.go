@@ -102,7 +102,7 @@ type configLine struct {
 //
 // @struct directives must also appear at depth 0 and are followed by an
 // indented block of member field definitions. Members may be leaf pins
-// (in/out/inout/pad), containers, arrays, or struct-keyword references:
+// (in/out/inout/pad), plain named containers, or struct-keyword references:
 //
 //	@struct <StructName> <GUID>
 //	  <dir> <fieldName> <Type>
@@ -154,8 +154,6 @@ func ParseTreeWithAliases(r io.Reader) (TypeAliasMap, []*Node, error) {
 //	in leafName[start..end] TYPE
 //	struct varName StructTypeName
 //	struct varName[start..end] StructTypeName
-//	ArrayName[start..end]
-//	  in leafName TYPE
 func ParseTree(r io.Reader) ([]*Node, error) {
 	_, nodes, err := ParseTreeWithAliases(r)
 	return nodes, err
@@ -529,7 +527,11 @@ func parseTreeBlock(lines []configLine, idx *int, minDepth int, nodes *[]*Node, 
 			continue
 		}
 
-		// Container line: plain struct or array.
+		// Container line: plain named container (no array syntax allowed here).
+		// Arrays must use the inline syntax with a direction keyword or struct prefix.
+		if strings.ContainsRune(tokens[0], '[') {
+			return fmt.Errorf("line %d: array syntax requires a direction keyword (in/out/inout/pad) or struct prefix", cl.lineNo)
+		}
 		node, err := parseContainerNode(tokens[0], cl.lineNo)
 		if err != nil {
 			return err
