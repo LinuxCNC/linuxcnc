@@ -392,8 +392,24 @@ func emitTypeRef(e *errEncoder, node *Node, tm nodeTypeMap, aliases TypeAliasMap
 	}
 
 	// Container node with TypeName set (from a "struct varName TypeName" or
-	// a "struct varName[s..e] TypeName" inline array): emit a <derived name="TypeName" /> reference.
+	// a "struct varName[s..e] TypeName" inline array).
 	if node.TypeName != "" {
+		if node.ArrayStart > 0 {
+			// Struct array with TypeName: emit <array> wrapper with <derived> base type.
+			e.start("array")
+			e.start("dimension",
+				xml.Attr{Name: xml.Name{Local: "lower"}, Value: fmt.Sprintf("%d", node.ArrayStart)},
+				xml.Attr{Name: xml.Name{Local: "upper"}, Value: fmt.Sprintf("%d", node.ArrayEnd)},
+			)
+			e.end("dimension")
+			e.start("baseType")
+			e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.TypeName})
+			e.end("derived")
+			e.end("baseType")
+			e.end("array")
+			return e.err
+		}
+		// Plain struct with TypeName: emit <derived name="TypeName" /> directly.
 		e.start("derived", xml.Attr{Name: xml.Name{Local: "name"}, Value: node.TypeName})
 		e.end("derived")
 		return e.err

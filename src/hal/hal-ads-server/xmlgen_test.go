@@ -966,6 +966,88 @@ stBlock
 	}
 }
 
+// TestGenerateXMLInlineStructArray verifies that a "struct name[s..e] TypeName"
+// node emits an <array><dimension .../><baseType><derived name="TypeName" /></baseType></array>
+// wrapper rather than a bare <derived name="TypeName" />.
+func TestGenerateXMLInlineStructArray(t *testing.T) {
+	cfg := `
+@struct ST_POOL_ERRORS 00000000-0000-0000-0000-000000000001
+  in bFault BOOL
+  out nCode DWORD
+
+@struct ST_ERRORS 00000000-0000-0000-0000-000000000002
+  in bGlobal BOOL
+  struct aPoolErrors[1..1] ST_POOL_ERRORS
+
+stRoot
+  struct stErrors ST_ERRORS
+`
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
+	if err != nil {
+		t.Fatalf("ParseTreeWithAliases: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := GenerateXML(&buf, roots, aliases); err != nil {
+		t.Fatalf("GenerateXML: %v", err)
+	}
+	out := buf.String()
+
+	// Verify the output is valid XML.
+	var proj xmlProject
+	if err := xml.NewDecoder(strings.NewReader(out)).Decode(&proj); err != nil {
+		t.Fatalf("generated XML is not valid: %v\n%s", err, out)
+	}
+
+	// Locate the ST_ERRORS dataType and find the aPoolErrors variable within it.
+	var stErrors *xmlDataType
+	for i := range proj.DataTypes {
+		if proj.DataTypes[i].Name == "ST_ERRORS" {
+			stErrors = &proj.DataTypes[i]
+			break
+		}
+	}
+	if stErrors == nil {
+		t.Fatalf("ST_ERRORS dataType not found in output:\n%s", out)
+	}
+	if stErrors.BaseType.Struct == nil {
+		t.Fatalf("ST_ERRORS baseType is not a struct:\n%s", out)
+	}
+
+	// Find the aPoolErrors variable inside ST_ERRORS.
+	var aPoolErrorsVar *xmlVariable
+	for i := range stErrors.BaseType.Struct.Variables {
+		if stErrors.BaseType.Struct.Variables[i].Name == "aPoolErrors" {
+			aPoolErrorsVar = &stErrors.BaseType.Struct.Variables[i]
+			break
+		}
+	}
+	if aPoolErrorsVar == nil {
+		t.Fatalf("aPoolErrors variable not found in ST_ERRORS struct:\n%s", out)
+	}
+
+	// aPoolErrors must have an <array> type (not a bare <derived>).
+	arr := aPoolErrorsVar.Type.Array
+	if arr == nil {
+		t.Fatalf("aPoolErrors type is not an <array>; got bare <derived> or other:\n%s", out)
+	}
+
+	// Verify dimension bounds.
+	if arr.Dimension.Lower != 1 || arr.Dimension.Upper != 1 {
+		t.Errorf("aPoolErrors dimension: got lower=%d upper=%d, want lower=1 upper=1",
+			arr.Dimension.Lower, arr.Dimension.Upper)
+	}
+
+	// Verify baseType is <derived name="ST_POOL_ERRORS" />.
+	if arr.BaseType == nil || arr.BaseType.Derived == nil {
+		t.Fatalf("aPoolErrors array baseType is not a <derived> element:\n%s", out)
+	}
+	if arr.BaseType.Derived.Name != "ST_POOL_ERRORS" {
+		t.Errorf("aPoolErrors array baseType derived name: got %q, want %q",
+			arr.BaseType.Derived.Name, "ST_POOL_ERRORS")
+	}
+}
+
 // TestEmitObjectIdAddDataZeroGUID verifies that GenerateXML does NOT emit an
 // <addData> block for an alias whose GUID is all zeros.
 func TestEmitObjectIdAddDataZeroGUID(t *testing.T) {
