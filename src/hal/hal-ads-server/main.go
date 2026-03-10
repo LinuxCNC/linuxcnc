@@ -98,6 +98,9 @@ func main() {
 	if _, err := NewBridge(comp, layoutPins, st, aliases); err != nil {
 		log.Fatalf("Failed to create HAL pins: %v", err)
 	}
+	// Propagate @struct type names and GUIDs to container group symbols so that
+	// ADSIGRP_SYM_INFOBYNAMEEX responses include the correct TwinCAT metadata.
+	applyContainerTypeInfo(tree, "", st, aliases)
 
 	// Mark component ready (allows 'loadusr -W' to proceed).
 	if err := comp.Ready(); err != nil {

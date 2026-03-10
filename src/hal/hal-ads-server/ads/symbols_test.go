@@ -1098,3 +1098,116 @@ type mockPinWithGUID struct {
 }
 
 func (m *mockPinWithGUID) TypeGUID() [16]byte { return m.guid }
+
+// ---------------------------------------------------------------------------
+// Tests for SetGroupTypeInfo
+// ---------------------------------------------------------------------------
+
+// TestSetGroupTypeInfoOverridesTypeName verifies that SetGroupTypeInfo sets the
+// override type name on the group symbol's accessor, making TypeName() return
+// the declared @struct name instead of the default path-segment name.
+func TestSetGroupTypeInfoOverridesTypeName(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stData.bFlag", newBoolPin(true))
+
+	// Before: TypeName() should return the last path segment.
+	sym := st.GetByName("stData")
+	if sym == nil {
+		t.Fatal("group symbol stData not found")
+	}
+	if sym.Accessor.TypeName() != "stData" {
+		t.Errorf("initial TypeName = %q, want %q", sym.Accessor.TypeName(), "stData")
+	}
+
+	// Set override type name.
+	st.SetGroupTypeInfo("stData", "ST_DISP_DATA", [16]byte{})
+
+	if sym.Accessor.TypeName() != "ST_DISP_DATA" {
+		t.Errorf("after SetGroupTypeInfo, TypeName = %q, want %q", sym.Accessor.TypeName(), "ST_DISP_DATA")
+	}
+}
+
+// TestSetGroupTypeInfoOverridesGUID verifies that SetGroupTypeInfo sets the
+// GUID on the group symbol's accessor, making TypeGUID() return the @struct GUID.
+func TestSetGroupTypeInfoOverridesGUID(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stData.nVal", newDintPin(0))
+
+	// Before: TypeGUID() should return all zeros.
+	sym := st.GetByName("stData")
+	if sym == nil {
+		t.Fatal("group symbol stData not found")
+	}
+	zeroGUID := [16]byte{}
+	if sym.Accessor.TypeGUID() != zeroGUID {
+		t.Errorf("initial TypeGUID should be all zeros, got %v", sym.Accessor.TypeGUID())
+	}
+
+	// Set override GUID.
+	guid := [16]byte{0x01, 0xa6, 0x2b, 0x70, 0x18, 0x5f, 0x3a, 0x41, 0x95, 0xf1, 0x5f, 0xe1, 0x65, 0x03, 0x84, 0x3e}
+	st.SetGroupTypeInfo("stData", "ST_DISP_DATA", guid)
+
+	if sym.Accessor.TypeGUID() != guid {
+		t.Errorf("after SetGroupTypeInfo, TypeGUID = %v, want %v", sym.Accessor.TypeGUID(), guid)
+	}
+}
+
+// TestSetGroupTypeInfoNonExistentNoOp verifies that SetGroupTypeInfo on a
+// non-existent symbol name does not panic and is a no-op.
+func TestSetGroupTypeInfoNonExistentNoOp(t *testing.T) {
+	st := NewSymbolTable()
+	// Must not panic.
+	st.SetGroupTypeInfo("doesNotExist", "ST_SOMETHING", [16]byte{1, 2, 3})
+}
+
+// TestSetGroupTypeInfoEncodedInSymbolInfoEx verifies that after SetGroupTypeInfo,
+// the buildSymbolInfoEx response encodes the override type name and GUID
+// correctly in the AdsSymbolEntry wire format.
+func TestSetGroupTypeInfoEncodedInSymbolInfoEx(t *testing.T) {
+	st := NewSymbolTable()
+	st.Register("stMsg.eType", newDintPin(0))
+	st.Register("stMsg.bFlag", newBoolPin(false))
+
+	guid := [16]byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+		0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10}
+	st.SetGroupTypeInfo("stMsg", "ST_DISP_MSG", guid)
+
+	sym := st.GetByName("stMsg")
+	if sym == nil {
+		t.Fatal("group symbol stMsg not found")
+	}
+
+	buf := buildSymbolInfoEx(sym)
+	base := buildSymbolInfo(sym)
+	extOff := len(base)
+
+	if len(buf) < extOff+2+16 {
+		t.Fatalf("buildSymbolInfoEx too short: got %d bytes", len(buf))
+	}
+
+	// arrayDim = 0 (not an array).
+	arrayDim := binary.LittleEndian.Uint16(buf[extOff : extOff+2])
+	if arrayDim != 0 {
+		t.Errorf("arrayDim = %d, want 0", arrayDim)
+	}
+
+	// dataTypeGUID must match the override.
+	for i := 0; i < 16; i++ {
+		if buf[extOff+2+i] != guid[i] {
+			t.Errorf("GUID[%d] = 0x%02x, want 0x%02x", i, buf[extOff+2+i], guid[i])
+		}
+	}
+
+	// The standard AdsSymbolEntry part must encode the override type name.
+	// Wire format: 6×uint32 (24 bytes) + 3×uint16 (6 bytes) = 30-byte header,
+	// then null-terminated name (nameLen+1), null-terminated type name (typeLen+1),
+	// then null comment byte.
+	// nameLength at bytes 24-25; typeLength at bytes 26-27.
+	nameLen := int(binary.LittleEndian.Uint16(buf[24:26]))
+	typeLen := int(binary.LittleEndian.Uint16(buf[26:28]))
+	typeStart := 30 + nameLen + 1
+	typeName := string(buf[typeStart : typeStart+typeLen])
+	if typeName != "ST_DISP_MSG" {
+		t.Errorf("encoded type name = %q, want %q", typeName, "ST_DISP_MSG")
+	}
+}

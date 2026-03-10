@@ -259,6 +259,48 @@ func newStringAccessor(pin *hal.Pin[string], ti typeInfo) *halPinAccessor {
 	}
 }
 
+// applyContainerTypeInfo walks the parsed Node tree and, for every container
+// node whose TypeName resolves to a @struct alias, sets the override type name
+// and GUID on the corresponding groupAccessor in the symbol table. This
+// propagates declared TwinCAT struct names and GUIDs to ADS group symbols so
+// that ADSIGRP_SYM_INFOBYNAMEEX responses include the correct metadata.
+//
+// It must be called after NewBridge has registered all symbols (so that
+// groupAccessors exist in the table), but before the ADS server starts
+// serving requests.
+func applyContainerTypeInfo(nodes []*Node, adsPrefix string, st *ads.SymbolTable, aliases TypeAliasMap) {
+	for _, node := range nodes {
+		if len(node.Children) == 0 {
+			continue // leaf node — type info is set on leaf accessors directly
+		}
+		adsPath := joinName(adsPrefix, node.Name)
+
+		if node.ArrayStart > 0 {
+			// Array container: if TypeName was promoted from a "struct _ TypeName"
+			// element, each array element [i] gets the struct type info.
+			for i := node.ArrayStart; i <= node.ArrayEnd; i++ {
+				elemPath := fmt.Sprintf("%s[%d]", adsPath, i)
+				if node.TypeName != "" {
+					if alias, ok := aliases[node.TypeName]; ok && alias.StructDef != nil {
+						st.SetGroupTypeInfo(elemPath, node.TypeName, alias.GUID)
+					}
+				}
+				// Recursively apply to children within each array element.
+				applyContainerTypeInfo(node.Children, elemPath, st, aliases)
+			}
+		} else {
+			// Struct container: set type info if TypeName refers to a @struct alias.
+			if node.TypeName != "" {
+				if alias, ok := aliases[node.TypeName]; ok && alias.StructDef != nil {
+					st.SetGroupTypeInfo(adsPath, node.TypeName, alias.GUID)
+				}
+			}
+			// Recursively apply to children.
+			applyContainerTypeInfo(node.Children, adsPath, st, aliases)
+		}
+	}
+}
+
 // Bridge holds all HAL pins and their corresponding ADS symbol registrations.
 type Bridge struct {
 	// pins retains references so the GC does not collect them.

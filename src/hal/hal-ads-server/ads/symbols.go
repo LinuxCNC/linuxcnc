@@ -69,9 +69,11 @@ func NewSymbolTable() *SymbolTable {
 // It holds references to all descendant leaf Symbols sorted by IndexOffset and
 // provides read/write access to them as a single contiguous buffer.
 type groupAccessor struct {
-	children     []*Symbol // sorted by IndexOffset (ascending); leaf symbols only
-	typeName     string    // last path segment, used as the ADS TypeName
-	overrideSize uint32    // when non-zero, returned by Size() instead of the computed span
+	children         []*Symbol // sorted by IndexOffset (ascending); leaf symbols only
+	typeName         string    // last path segment, used as the ADS TypeName (default)
+	overrideSize     uint32    // when non-zero, returned by Size() instead of the computed span
+	overrideTypeName string    // when set, TypeName() returns this instead of typeName
+	typeGUID         [16]byte  // returned by TypeGUID(); all zeros unless set via SetGroupTypeInfo
 }
 
 func (g *groupAccessor) baseOffset() uint32 {
@@ -121,9 +123,14 @@ func (g *groupAccessor) WriteBytes(data []byte) error {
 	return nil
 }
 
-func (g *groupAccessor) TypeName() string   { return g.typeName }
+func (g *groupAccessor) TypeName() string {
+	if g.overrideTypeName != "" {
+		return g.overrideTypeName
+	}
+	return g.typeName
+}
 func (g *groupAccessor) TypeID() uint32     { return 0 }
-func (g *groupAccessor) TypeGUID() [16]byte { return [16]byte{} }
+func (g *groupAccessor) TypeGUID() [16]byte { return g.typeGUID }
 
 // parentPrefixes returns all non-leaf path prefixes for a dotted name.
 // E.g. "A.B.C" → ["A", "A.B"]. Single-segment names return nil.
@@ -297,6 +304,21 @@ func (st *SymbolTable) SetGroupArrayInfo(name string, arrayDim uint16, lBound, e
 	sym.ArrayDim = arrayDim
 	sym.ArrayLBound = lBound
 	sym.ArrayElems = elems
+}
+
+// SetGroupTypeInfo sets the override type name and GUID on a group symbol's
+// accessor. It is used to propagate @struct type information to container
+// symbols after bridge creation, so that ADSIGRP_SYM_INFOBYNAMEEX responses
+// include the declared TwinCAT struct name and its data-type GUID.
+func (st *SymbolTable) SetGroupTypeInfo(name, typeName string, guid [16]byte) {
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	if sym, ok := st.byName[name]; ok {
+		if ga, ok := sym.Accessor.(*groupAccessor); ok {
+			ga.overrideTypeName = typeName
+			ga.typeGUID = guid
+		}
+	}
 }
 
 // GetByName returns the symbol with the given name, or nil if not found.
