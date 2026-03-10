@@ -132,11 +132,11 @@ func TestLayoutStructTailPadding(t *testing.T) {
 stRoot
   struct aSt[1..2] ST_TAIL_TEST
 `
-	roots, err := ParseTree(strings.NewReader(cfg))
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
-		t.Fatalf("ParseTree: %v", err)
+		t.Fatalf("ParseTreeWithAliases: %v", err)
 	}
-	pins, err := ComputeLayout(roots)
+	pins, err := ComputeLayout(roots, aliases)
 	if err != nil {
 		t.Fatalf("ComputeLayout: %v", err)
 	}
@@ -268,11 +268,11 @@ func TestLayoutArrayOfStructs(t *testing.T) {
 root
   struct aSt[1..3] ST_AST
 `
-	roots, err := ParseTree(strings.NewReader(cfg))
+	aliases, roots, err := ParseTreeWithAliases(strings.NewReader(cfg))
 	if err != nil {
-		t.Fatalf("ParseTree: %v", err)
+		t.Fatalf("ParseTreeWithAliases: %v", err)
 	}
-	pins, err := ComputeLayout(roots)
+	pins, err := ComputeLayout(roots, aliases)
 	if err != nil {
 		t.Fatalf("ComputeLayout: %v", err)
 	}
