@@ -401,11 +401,11 @@ stBad[1..0]
 	}
 }
 
-// TestParseTreeOldArraySyntaxRejected verifies that the old standalone
+// TestParseTreeStandaloneArraySyntaxRejected verifies that the standalone
 // container-array syntax (name[start..end] as a container with indented
 // children) is rejected. Arrays must now use the inline syntax with a
 // direction keyword (in/out/inout/pad) or the struct keyword prefix.
-func TestParseTreeOldArraySyntaxRejected(t *testing.T) {
+func TestParseTreeStandaloneArraySyntaxRejected(t *testing.T) {
 	tests := []struct {
 		name string
 		cfg  string
@@ -997,9 +997,9 @@ stBlock
 	}
 }
 
-// TestParseEnumBackwardCompatStruct verifies that @enum and @struct directives
+// TestParseEnumAndStructCoexist verifies that @enum and @struct directives
 // coexist correctly in the same config file.
-func TestParseEnumBackwardCompatStruct(t *testing.T) {
+func TestParseEnumAndStructCoexist(t *testing.T) {
 	cfg := `
 @enum EN_DISP_MSGTYPE WORD 96656ea5-0db7-49b0-86ec-56cef26b56d0
   none 0

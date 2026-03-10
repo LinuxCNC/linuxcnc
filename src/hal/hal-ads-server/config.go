@@ -112,6 +112,10 @@ type configLine struct {
 //	  <containerName>
 //	    <dir> <fieldName> <Type>
 //
+// Note: @struct directives must appear in dependency order (declare before use).
+// If @struct ST_B references struct stInner ST_A, then @struct ST_A must appear
+// before @struct ST_B in the config file.
+//
 // Example:
 //
 //	@enum EN_DISP_POOL_STATE WORD 4bb8098e-6846-4a59-915d-71a3e3d369c0
@@ -243,22 +247,10 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 		if inStructDef {
 			if wsLen > 0 {
 				// Indented line → struct member line (depth tracking below).
-				depth := 0
-				if indentUnit == 0 {
-					indentChar = rawLine[0]
-					indentUnit = wsLen
+				depth, err := computeDepth(rawLine, wsLen, lineNo, &indentUnit, &indentChar)
+				if err != nil {
+					return nil, nil, err
 				}
-				for i := 0; i < wsLen; i++ {
-					if rawLine[i] != indentChar {
-						return nil, nil, fmt.Errorf("line %d: mixed indentation (indent uses %s but line has %s)",
-							lineNo, indentCharName(indentChar), indentCharName(rawLine[i]))
-					}
-				}
-				if wsLen%indentUnit != 0 {
-					return nil, nil, fmt.Errorf("line %d: indentation of %d %s(s) is not a multiple of the indent unit (%d)",
-						lineNo, wsLen, indentCharName(indentChar), indentUnit)
-				}
-				depth = wsLen / indentUnit
 				pendingStructLines = append(pendingStructLines, configLine{lineNo: lineNo, depth: depth, trimmed: trimmed})
 				continue
 			}
@@ -343,26 +335,9 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 		}
 
 		// Regular tree line: compute depth with indentation tracking.
-		depth := 0
-		if wsLen > 0 {
-			if indentUnit == 0 {
-				// First indented line: record indent character and unit size.
-				indentChar = rawLine[0]
-				indentUnit = wsLen
-			}
-			// Verify all leading whitespace uses the same character.
-			for i := 0; i < wsLen; i++ {
-				if rawLine[i] != indentChar {
-					return nil, nil, fmt.Errorf("line %d: mixed indentation (indent uses %s but line has %s)",
-						lineNo, indentCharName(indentChar), indentCharName(rawLine[i]))
-				}
-			}
-			// Depth must be an exact multiple of the indent unit.
-			if wsLen%indentUnit != 0 {
-				return nil, nil, fmt.Errorf("line %d: indentation of %d %s(s) is not a multiple of the indent unit (%d)",
-					lineNo, wsLen, indentCharName(indentChar), indentUnit)
-			}
-			depth = wsLen / indentUnit
+		depth, err := computeDepth(rawLine, wsLen, lineNo, &indentUnit, &indentChar)
+		if err != nil {
+			return nil, nil, err
 		}
 
 		lines = append(lines, configLine{lineNo: lineNo, depth: depth, trimmed: trimmed})
@@ -384,12 +359,29 @@ func readConfigLinesWithAliases(r io.Reader) (TypeAliasMap, []configLine, error)
 	return aliases, lines, nil
 }
 
-// readConfigLines reads and pre-processes all non-blank, non-comment lines.
-// It auto-detects the indent style from the first indented line (spaces or
-// tabs) and rejects mixed indentation or inconsistent indent depths.
-func readConfigLines(r io.Reader) ([]configLine, error) {
-	_, lines, err := readConfigLinesWithAliases(r)
-	return lines, err
+// computeDepth validates indentation consistency and returns the depth for a
+// line that has wsLen leading whitespace characters. It initialises indentUnit
+// and indentChar on the first indented line it encounters. Returns 0, nil when
+// wsLen == 0 (unindented line).
+func computeDepth(rawLine string, wsLen, lineNo int, indentUnit *int, indentChar *byte) (int, error) {
+	if wsLen == 0 {
+		return 0, nil
+	}
+	if *indentUnit == 0 {
+		*indentChar = rawLine[0]
+		*indentUnit = wsLen
+	}
+	for i := 0; i < wsLen; i++ {
+		if rawLine[i] != *indentChar {
+			return 0, fmt.Errorf("line %d: mixed indentation (indent uses %s but line has %s)",
+				lineNo, indentCharName(*indentChar), indentCharName(rawLine[i]))
+		}
+	}
+	if wsLen%(*indentUnit) != 0 {
+		return 0, fmt.Errorf("line %d: indentation of %d %s(s) is not a multiple of the indent unit (%d)",
+			lineNo, wsLen, indentCharName(*indentChar), *indentUnit)
+	}
+	return wsLen / (*indentUnit), nil
 }
 
 // parseGUID parses a GUID string in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
