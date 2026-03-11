@@ -387,7 +387,7 @@ static unsigned calc_ifdelay(hm2_modbus_inst_t *inst, unsigned baudrate, unsigne
 	}
 
 	// calculation works for baudrates less than ~24 Mbit/s
-	if(19200 < baudrate)
+	if(baudrate > 19200)
 		return (175u * baudrate + 99999u) / 100000u;
 	unsigned bits = 1 + 8 + (parity ? 1 : 0) + (stopbits > 1 ? 2 : 1);
 	return (bits * 35 + 9) / 10;	// Ceil of bits in 3.5 characters.
