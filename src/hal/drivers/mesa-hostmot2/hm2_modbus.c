@@ -387,7 +387,7 @@ static unsigned calc_ifdelay(hm2_modbus_inst_t *inst, unsigned baudrate, unsigne
 	}
 
 	// calculation works for baudrates less than ~24 Mbit/s
-	if(19200 < baudrate)
+	if(baudrate > 19200)
 		return (175u * baudrate + 99999u) / 100000u;
 	unsigned bits = 1 + 8 + (parity ? 1 : 0) + (stopbits > 1 ? 2 : 1);
 	return (bits * 35 + 9) / 10;	// Ceil of bits in 3.5 characters.
@@ -1049,7 +1049,7 @@ fetch_more_data:
 			break;
 		}
 		if(inst->maxicharbits && HM2_PKTUART_RCR_ICHARBITS_VAL(frsize) > inst->maxicharbits) {
-			MSG_WARN("%s: warning: reply to command %u had too long inter-character delay (%u > %u), dropping\n",
+			MSG_WARN("%s: warning: reply to command %u had too long inter-character delay (%u > %u), trying to interpret\n",
 					inst->name, inst->cmdidx,
 					HM2_PKTUART_RCR_ICHARBITS_VAL(frsize), inst->maxicharbits);
 			set_error(inst, ENOMSG);
