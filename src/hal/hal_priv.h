@@ -494,17 +494,6 @@ extern int hal_port_alloc(unsigned size, hal_port_t *port);
 
 
 #define HAL_STREAM_MAGIC_NUM		0x4649464F
-struct hal_stream_shm {
-    unsigned magic;
-    volatile unsigned in;
-    volatile unsigned out;
-    unsigned this_sample;
-    unsigned depth;
-    int num_pins;
-    unsigned long num_overruns, num_underruns;
-    hal_type_t type[HAL_STREAM_MAX_PINS];
-    union hal_stream_data data[];
-};
 
 extern int halpr_parse_types(hal_type_t type[HAL_STREAM_MAX_PINS], const char *fcg);
 RTAPI_END_DECLS
