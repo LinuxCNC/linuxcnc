@@ -1,4 +1,4 @@
-VERSION = '016.083'
+VERSION = '016.084'
 LCNCVER = '2.10'
 
 '''
@@ -1481,6 +1481,10 @@ class HandlerClass:
                 self.laserDryRunCoords = None
                 self.laserOnPin.set(0)
                 hal.set_p('plasmac.dry-run', '0')
+                self.w.gcodegraphics.logger.clear()
+        if self.framing:
+                self.framing = False
+                self.laserOnPin.set(0)
                 self.w.gcodegraphics.logger.clear()
         if self.w.preview_stack.currentIndex() != self.PREVIEW:
             self.preview_stack_changed()

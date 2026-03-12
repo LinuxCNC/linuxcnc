@@ -374,6 +374,7 @@ INTERLOCK_RULES = {
             'previewstack_is_offsets': False,
             'previewstack_is_open': False,
             'previewstack_is_user_manual': False,
+            'probe_test': False,
             'single_cut_dialog': False
         },
         'any': {
