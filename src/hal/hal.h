@@ -339,13 +339,6 @@ typedef union {
     hal_u64_t lu;
 } hal_data_u;
 
-typedef struct {
-    volatile unsigned int read;  //offset into buff that outgoing data gets read from
-    volatile unsigned int write; //offset into buff that incoming data gets written to
-    unsigned int size;           //size of allocated buffer
-    char buff[];
-} hal_port_shm_t;
-
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
 ************************************************************************/
@@ -945,6 +938,7 @@ union hal_stream_data {
     uint32_t u;
 };
 
+struct hal_stream_shm; // Forward declaration. Only relevant in hal_lib.c.
 typedef struct {
     int comp_id, shmem_id;
     struct hal_stream_shm *fifo;

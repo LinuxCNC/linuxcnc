@@ -5,7 +5,6 @@
 #include  <errno.h>
 #include <stdio.h>
 #include <cstring>
-#include <atomic>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
@@ -14,7 +13,7 @@ namespace
 {
 struct RtaiTask : rtapi_task {
     RtaiTask() : rtapi_task{}, cancel{}, thr{} {}
-    std::atomic<int> cancel;
+    std::atomic_int cancel;
     pthread_t thr;
 };
 

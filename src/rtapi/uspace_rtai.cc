@@ -5,7 +5,6 @@
 #pragma GCC diagnostic ignored "-Wnarrowing"
 #include <rtai_lxrt.h>
 #pragma GCC diagnostic pop
-#include <atomic>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
@@ -16,7 +15,7 @@ RtapiApp *app;
 
 struct RtaiTask : rtapi_task {
     RtaiTask() : rtapi_task{}, cancel{}, rt_task{}, thr{} {}
-    std::atomic<int> cancel;
+    std::atomic_int cancel;
     RT_TASK *rt_task;
     pthread_t thr;
 };
