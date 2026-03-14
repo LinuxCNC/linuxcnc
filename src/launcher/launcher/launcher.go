@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -110,10 +111,11 @@ func (l *Launcher) Run() error {
 	// --- Stubs for M3/M5–M7 ---
 	l.logger.Info("would start linuxcncsvr (M5)")
 
-	// Inject tp= and hp= arguments into [EMCMOT]EMCMOT so that halcmd
-	// receives e.g. "loadrt motmod tp=tpmod hp=homemod ..." instead of
-	// just "loadrt motmod ...".  This mirrors the logic in scripts/linuxcnc.in.
-	l.injectEmcmotModules()
+	// Pre-load trajectory planner and homing modules before HAL file execution.
+	// This mirrors scripts/linuxcnc.in lines 865-868.
+	if err := l.preloadMotionModules(); err != nil {
+		return fmt.Errorf("preloading motion modules: %w", err)
+	}
 
 	// M3: Load HAL files.
 	halExec := halfile.New(l.ini, filepath.Join(config.EMC2BinDir, "halcmd"), os.Getenv("HALLIB_PATH"), l.logger)
@@ -228,14 +230,17 @@ func (l *Launcher) logConfiguration() {
 	l.logger.Debug("INI configuration loaded", fields...)
 }
 
-// injectEmcmotModules modifies the in-memory [EMCMOT]EMCMOT INI value to
-// append "tp=<TPMOD> hp=<HOMEMOD>".  This mirrors the logic in
-// scripts/linuxcnc.in so that halcmd receives the full module load string,
-// e.g. "loadrt motmod tp=tpmod hp=homemod servo_period_nsec=...".
+// preloadMotionModules loads the trajectory planner and homing modules via
+// separate "halcmd loadrt" commands before any HAL files execute.
+//
+// This mirrors scripts/linuxcnc.in lines 865-868:
+//
+//	eval $HALCMD loadrt "$TPMOD"
+//	eval $HALCMD loadrt "$HOMEMOD"
 //
 // Priority for TPMOD: CLI flag (-t) > [TRAJ]TPMOD > "tpmod".
 // Priority for HOMEMOD: CLI flag (-m) > [EMCMOT]HOMEMOD > "homemod".
-func (l *Launcher) injectEmcmotModules() {
+func (l *Launcher) preloadMotionModules() error {
 	tpMod := l.opts.TpMod
 	if tpMod == "" {
 		tpMod = l.ini.Get("TRAJ", "TPMOD")
@@ -252,12 +257,23 @@ func (l *Launcher) injectEmcmotModules() {
 		homeMod = "homemod"
 	}
 
-	emcmot := l.ini.Get("EMCMOT", "EMCMOT")
-	if emcmot == "" {
-		l.logger.Warn("EMCMOT not set in [EMCMOT] section; tp/hp injection skipped")
-		return
+	l.logger.Debug("preloading motion modules", "tpmod", tpMod, "homemod", homeMod)
+
+	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
+
+	tpCmd := exec.Command(halcmdPath, "loadrt", tpMod)
+	tpCmd.Stdout = os.Stdout
+	tpCmd.Stderr = os.Stderr
+	if err := tpCmd.Run(); err != nil {
+		return fmt.Errorf("halcmd loadrt %s: %w", tpMod, err)
 	}
-	newEmcmot := emcmot + " tp=" + tpMod + " hp=" + homeMod
-	l.ini.Set("EMCMOT", "EMCMOT", newEmcmot)
-	l.logger.Debug("injected TPMOD/HOMEMOD into EMCMOT", "tpmod", tpMod, "homemod", homeMod, "emcmot", newEmcmot)
+
+	homeCmd := exec.Command(halcmdPath, "loadrt", homeMod)
+	homeCmd.Stdout = os.Stdout
+	homeCmd.Stderr = os.Stderr
+	if err := homeCmd.Run(); err != nil {
+		return fmt.Errorf("halcmd loadrt %s: %w", homeMod, err)
+	}
+
+	return nil
 }
