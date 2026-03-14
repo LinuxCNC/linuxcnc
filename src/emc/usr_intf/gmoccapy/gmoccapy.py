@@ -4118,6 +4118,7 @@ class gmoccapy(object):
             self.widgets.rbt_mdi.set_sensitive(False)
             self.widgets.rbt_auto.set_sensitive(False)
             self.widgets.tbtn_user_tabs.set_sensitive(False)
+            self.widgets.tbtn_user_tabs.set_active(False)
             code = False
             # here the user don"t want an unlock code
             if self.widgets.rbt_no_unlock.get_active():
@@ -4164,11 +4165,8 @@ class gmoccapy(object):
 
             if self.user_tab_enabled:
                 self.widgets.tbtn_user_tabs.set_sensitive(True)
-            # if user tab was open before, switch back
-            if self.widgets.tbtn_user_tabs.get_active():
-                self.widgets.ntb_main.set_current_page(2)
             # if task_mode didn't change, enable tab "Manual Mode"
-            elif self.last_mode == self.stat.task_mode:
+            if self.last_mode == self.stat.task_mode:
                 # this is needed here, because we do not
                 # change mode, so on_hal_status_manual will not be called
                 self.widgets.ntb_main.set_current_page(0)
@@ -4189,9 +4187,10 @@ class gmoccapy(object):
             self.widgets.tbtn_fullsize_preview0.set_sensitive(False)
             widget.set_image(self.widgets.img_user_tabs_on)
         else:
-            self.widgets.ntb_main.set_current_page(0)
-            self.widgets.tbtn_fullsize_preview0.set_sensitive(True)
-            widget.set_image(self.widgets.img_user_tabs)
+            if not self.widgets.tbtn_setup.get_active():
+                self.widgets.ntb_main.set_current_page(0)
+                self.widgets.tbtn_fullsize_preview0.set_sensitive(True)
+                widget.set_image(self.widgets.img_user_tabs)
 
 # =========================================================
 # The homing functions
