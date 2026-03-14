@@ -17,6 +17,7 @@ import (
 	"github.com/sittner/linuxcnc/src/launcher/halfile"
 	"github.com/sittner/linuxcnc/src/launcher/inifile"
 	"github.com/sittner/linuxcnc/src/launcher/lockfile"
+	"github.com/sittner/linuxcnc/src/launcher/realtime"
 )
 
 // Options holds the parsed command-line options.
@@ -59,12 +60,12 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 
 // Run executes the full LinuxCNC startup sequence.
 //
-// Current implementation (M1/M2):
+// Current implementation (M1/M2/M4):
 //  1. Sets up environment variables.
 //  2. Acquires the lock file.
 //  3. Parses the INI file.
-//  4. Logs the parsed configuration.
-//  5–7. Stubs for later milestones (M3–M7).
+//  4. Starts the realtime environment (M4).
+//  5–7. Stubs for later milestones (M3/M5–M7).
 func (l *Launcher) Run() error {
 	l.setupEnvironment()
 
@@ -94,8 +95,20 @@ func (l *Launcher) Run() error {
 	l.ini = ini
 	l.logConfiguration()
 
-	// --- Stubs for M3–M7 ---
-	l.logger.Info("would start realtime (M4)")
+	// --- M4: Realtime Manager ---
+	rtMgr := realtime.New(l.logger)
+	l.logger.Info("starting realtime environment")
+	if err := rtMgr.Start(); err != nil {
+		return fmt.Errorf("realtime start failed: %w", err)
+	}
+	defer func() {
+		l.logger.Info("stopping realtime environment")
+		if err := rtMgr.Stop(); err != nil {
+			l.logger.Error("realtime stop failed", "error", err)
+		}
+	}()
+
+	// --- Stubs for M3/M5–M7 ---
 	l.logger.Info("would start linuxcncsvr (M5)")
 
 	// M3: Load HAL files.
