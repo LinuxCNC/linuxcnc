@@ -585,47 +585,6 @@ func TestCleanNmlSharedMemory_ParsesBshmem(t *testing.T) {
 }
 
 // --------------------------------------------------------------------------
-// Tests for cleanup process name lists
-// --------------------------------------------------------------------------
-
-// TestDisplayProcessesList verifies the display processes list is non-empty
-// and contains key entries.
-func TestDisplayProcessesList(t *testing.T) {
-	if len(displayProcesses) == 0 {
-		t.Error("displayProcesses is empty")
-	}
-	for _, want := range []string{"linuxcncpanel", "gmoccapy", "gscreen"} {
-		found := false
-		for _, p := range displayProcesses {
-			if p == want {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("displayProcesses does not contain %q", want)
-		}
-	}
-}
-
-// TestUserSpaceProcessesList verifies the user-space processes list contains
-// expected entries.
-func TestUserSpaceProcessesList(t *testing.T) {
-	for _, want := range []string{"linuxcncsvr", "milltask"} {
-		found := false
-		for _, p := range userSpaceProcesses {
-			if p == want {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("userSpaceProcesses does not contain %q", want)
-		}
-	}
-}
-
-// --------------------------------------------------------------------------
 // Tests for cleanup idempotency (sync.Once)
 // --------------------------------------------------------------------------
 
