@@ -38,6 +38,7 @@ author "David Mueller";
 
 #include <rtapi_math.h>
 #include <kinematics.h>
+#include "comp_kins_uspace.h"    /* +++ planner 2 glue */
 
 static struct haldata {
 
@@ -53,6 +54,17 @@ static struct haldata {
   hal_bit_t   *kinstype_is_0;
   hal_bit_t   *kinstype_is_1;
 } *haldata;
+
+/*
+ * Parameter index map for params.raw[]:
+ *   0 = switchkins_type (reserved by convention)
+ *   1 = tool_offset_z
+ *   2 = x_offset
+ *   3 = z_offset
+ *   4 = x_rot_point
+ *   5 = y_rot_point
+ *   6 = z_rot_point
+ */
 
 static int xyzab_tdr_setup(void) {
 #define HAL_PREFIX "xyzab_tdr_kins"
@@ -83,6 +95,10 @@ static int xyzab_tdr_setup(void) {
 
     if (res) goto error;
     hal_ready(comp_id);
+
+    // +++ Register shared memory for planner type 2 userspace access
+    comp_kins_uspace_setup(comp_id, HAL_PREFIX, 5, "XYZAB");
+
     rtapi_print("*** %s setup ok\n",__FILE__);
     return 0;
 error:
@@ -104,6 +120,7 @@ int kinematicsSwitchable() {return 1;}
 int kinematicsSwitch(int new_switchkins_type)
 {
     switchkins_type = new_switchkins_type;
+    COMP_KINS_SET_SWITCH_TYPE(switchkins_type);  /* +++ sync to userspace */
     rtapi_print("kinematicsSwitch(): type=%d\n",switchkins_type);
     // create case structure for switchable kinematics
     switch (switchkins_type) {
@@ -145,12 +162,14 @@ int kinematicsForward(const double *j,
 {
     (void)fflags;
     (void)iflags;
-    double x_rot_point = *(haldata->x_rot_point);
-    double y_rot_point = *(haldata->y_rot_point);
-    double z_rot_point = *(haldata->z_rot_point);
+    COMP_KINS_BEGIN(haldata);  /* +++ snapshot shmem if userspace */
 
-    double dz = *(haldata->z_offset);
-    double dt = *(haldata->tool_offset_z);
+    double x_rot_point = KINS_READ(haldata->x_rot_point, 4);
+    double y_rot_point = KINS_READ(haldata->y_rot_point, 5);
+    double z_rot_point = KINS_READ(haldata->z_rot_point, 6);
+
+    double dz = KINS_READ(haldata->z_offset, 3);
+    double dt = KINS_READ(haldata->tool_offset_z, 1);
 
     // substitutions as used in mathematical documentation
     // including degree -> radians angle conversion
@@ -166,7 +185,9 @@ int kinematicsForward(const double *j,
 
     // define forward kinematic models using case structure for
     // for switchable kinematics
-    switch (switchkins_type) {
+    int sw = _comp_uspace_loaded ? COMP_KINS_GET_SWITCH_TYPE()
+                                 : (int)switchkins_type;
+    switch (sw) {
         case 0: // ====================== IDENTITY kinematics FORWARD ====================
             pos->tran.x = j[0];
             pos->tran.y = j[1];
@@ -199,6 +220,7 @@ int kinematicsForward(const double *j,
     pos->v = 0;
     pos->w = 0;
 
+    COMP_KINS_END();  /* +++ close shmem write batch */
     return 0;
 } // kinematicsForward()
 
@@ -209,13 +231,15 @@ int kinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-    double x_rot_point = *(haldata->x_rot_point);
-    double y_rot_point = *(haldata->y_rot_point);
-    double z_rot_point = *(haldata->z_rot_point);
+    COMP_KINS_BEGIN(haldata);  /* +++ snapshot shmem if userspace */
 
-    double dx = *(haldata->x_offset);
-    double dz = *(haldata->z_offset);
-    double dt = *(haldata->tool_offset_z);
+    double x_rot_point = KINS_READ(haldata->x_rot_point, 4);
+    double y_rot_point = KINS_READ(haldata->y_rot_point, 5);
+    double z_rot_point = KINS_READ(haldata->z_rot_point, 6);
+
+    double dx = KINS_READ(haldata->x_offset, 2);
+    double dz = KINS_READ(haldata->z_offset, 3);
+    double dt = KINS_READ(haldata->tool_offset_z, 1);
 
     // substitutions as used in mathematical documentation
     // including degree -> radians angle conversion
@@ -229,7 +253,9 @@ int kinematicsInverse(const EmcPose * pos,
     double       qy = 0;
     double       qz = 0;
 
-    switch (switchkins_type) {
+    int sw = _comp_uspace_loaded ? COMP_KINS_GET_SWITCH_TYPE()
+                                 : (int)switchkins_type;
+    switch (sw) {
         case 0:// ====================== IDENTITY kinematics INVERSE =====================
             j[0] = pos->tran.x;
             j[1] = pos->tran.y;
@@ -256,5 +282,9 @@ int kinematicsInverse(const EmcPose * pos,
             break;
     }
 
+    COMP_KINS_END();  /* +++ close shmem write batch */
     return 0;
 } // kinematicsInverse()
+
+/* +++ Planner type 2 userspace entry point */
+COMP_KINS_NONRT_ATTACH("xyzab_tdr_kins")
