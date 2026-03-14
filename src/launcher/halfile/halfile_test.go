@@ -297,9 +297,9 @@ func TestExecuteAll_EmptyIni(t *testing.T) {
 	}
 }
 
-// TestExecuteAll_InterleavedOrder verifies that HALFILE and HALCMD entries are
-// processed in INI-file order, not grouped by key type.
-func TestExecuteAll_InterleavedOrder(t *testing.T) {
+// TestExecuteAll_SkipsHalcmdEntries verifies that ExecuteAll() only processes
+// HALFILE entries and skips HALCMD entries (which are handled by ExecuteHalCommands()).
+func TestExecuteAll_SkipsHalcmdEntries(t *testing.T) {
 	dir := t.TempDir()
 
 	iniContent := "[HAL]\nHALFILE = a.hal\nHALCMD = setp foo 1\nHALFILE = b.hal\n"
@@ -324,6 +324,65 @@ func TestExecuteAll_InterleavedOrder(t *testing.T) {
 		if e.Value != wantVals[i] {
 			t.Errorf("entry[%d].Value = %q; want %q", i, e.Value, wantVals[i])
 		}
+	}
+
+	// ExecuteAll() must only return HALFILE entries (not HALCMD).
+	var halfiles []string
+	for _, e := range entries {
+		if e.Key == "HALFILE" {
+			halfiles = append(halfiles, e.Value)
+		}
+	}
+	if len(halfiles) != 2 {
+		t.Errorf("expected 2 HALFILE entries, got %d", len(halfiles))
+	}
+	if halfiles[0] != "a.hal" {
+		t.Errorf("halfiles[0] = %q; want %q", halfiles[0], "a.hal")
+	}
+	if halfiles[1] != "b.hal" {
+		t.Errorf("halfiles[1] = %q; want %q", halfiles[1], "b.hal")
+	}
+}
+
+// TestExecuteHalCommands_ReadsHalcmdEntries verifies that the INI parser
+// correctly returns HALCMD entries for ExecuteHalCommands() to consume.
+// The actual halcmd subprocess is not invoked (no binary is available in unit
+// tests); this test validates the INI reading side only.
+func TestExecuteHalCommands_ReadsHalcmdEntries(t *testing.T) {
+	dir := t.TempDir()
+
+	iniContent := "[HAL]\nHALFILE = a.hal\nHALCMD = setp foo 1\nHALCMD = setp bar 2\n"
+	iniPath := writeTemp(t, dir, "machine.ini", iniContent)
+	ini, err := inifile.Parse(iniPath)
+	if err != nil {
+		t.Fatalf("parsing INI: %v", err)
+	}
+
+	// Verify that GetAll("HAL", "HALCMD") returns the expected entries.
+	cmds := ini.GetAll("HAL", "HALCMD")
+	if len(cmds) != 2 {
+		t.Fatalf("expected 2 HALCMD entries, got %d", len(cmds))
+	}
+	if cmds[0] != "setp foo 1" {
+		t.Errorf("cmds[0] = %q; want %q", cmds[0], "setp foo 1")
+	}
+	if cmds[1] != "setp bar 2" {
+		t.Errorf("cmds[1] = %q; want %q", cmds[1], "setp bar 2")
+	}
+
+	// ExecuteHalCommands with no halcmd binary should not be called; we only
+	// verify the INI reading side here (no subprocess spawned).
+	_ = New(ini, "/usr/bin/halcmd", "", nil, "")
+}
+
+// TestExecuteHalCommands_EmptyIni verifies that ExecuteHalCommands on an INI
+// with no HALCMD entries is a no-op.
+func TestExecuteHalCommands_EmptyIni(t *testing.T) {
+	ini := parseIni(t, "[EMC]\nMACHINE = TestMachine\n")
+	e := New(ini, "/usr/bin/halcmd", "", nil, "")
+	// No HALCMD entries — no subprocess is spawned so this should return nil.
+	if err := e.ExecuteHalCommands(); err != nil {
+		t.Errorf("ExecuteHalCommands on INI with no HALCMD entries: %v", err)
 	}
 }
 

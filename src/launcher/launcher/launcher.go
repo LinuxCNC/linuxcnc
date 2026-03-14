@@ -79,12 +79,17 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 //  6. Starts iocontrol via halcmd loadusr -Wn (M5).
 //  7. Starts halui via halcmd loadusr -Wn if configured (M5).
 //  8. Preloads tpmod/homemod (M4).
-//  9. Executes HAL files (M3).
-// 10. Starts the task controller in background (M6).
-// 11. Executes post-GUI HAL files (M6).
-// 12. Starts HAL threads (M6).
-// 13. Launches [APPLICATIONS]APP entries in background (M6).
-// 14. Launches the display in the foreground — blocks until the user closes the GUI (M6).
+//  9. Executes [HAL]HALFILE entries (M3, step 4.3.6).
+// 10. Starts the task controller in background (M6, step 4.3.7).
+// 11. Executes [HAL]HALCMD entries (M6, step 4.3.8).
+// 12. Loads retained signals if any are present (M6, step 4.3.9).
+// 13. Starts HAL threads (M6, step 4.3.10).
+// 14. Launches [APPLICATIONS]APP entries in background (M6, step 4.3.11).
+// 15. Launches the display in the foreground — blocks until the user closes the GUI (M6, step 4.3.12).
+//
+// Note: POSTGUI_HALFILE loading is intentionally omitted here; it is the
+// responsibility of the display GUI (AXIS, QtVCP, gmoccapy, etc.) to load
+// its own post-GUI HAL files after creating its HAL pins.
 func (l *Launcher) Run() error {
 	l.setupEnvironment()
 
@@ -191,32 +196,41 @@ func (l *Launcher) Run() error {
 
 	// --- M6: Task + Display Launch ---
 
-	// 6a. Start task controller in background.
+	// 6a. Start task controller in background (step 4.3.7).
 	if err := l.startTask(); err != nil {
 		return fmt.Errorf("starting task: %w", err)
 	}
 	defer l.stopTask()
 
-	// 6b. Execute post-GUI HAL files ([HAL]POSTGUI_HALFILE).
-	if err := halExec.ExecutePostHalCommands(); err != nil {
+	// 6b. Execute [HAL]HALCMD entries (step 4.3.8).
+	// These run after the task controller has started, matching the bash launcher.
+	if err := halExec.ExecuteHalCommands(); err != nil {
 		if !l.opts.ContinueOnError {
-			return fmt.Errorf("post-GUI HAL execution failed: %w", err)
+			return fmt.Errorf("HAL command execution failed: %w", err)
 		}
-		l.logger.Warn("post-GUI HAL execution error (continuing)", "error", err)
+		l.logger.Warn("HAL command execution error (continuing)", "error", err)
 	}
 
-	// 6c. Start HAL threads (halcmd start).
+	// 6c. Load retained signals if any are present (step 4.3.9).
+	if err := l.loadRetain(halExec); err != nil {
+		if !l.opts.ContinueOnError {
+			return fmt.Errorf("loading retain: %w", err)
+		}
+		l.logger.Warn("retain load error (continuing)", "error", err)
+	}
+
+	// 6d. Start HAL threads (step 4.3.10).
 	if err := l.startHalThreads(); err != nil {
 		return fmt.Errorf("halcmd start: %w", err)
 	}
 
-	// 6d. Launch application entries ([APPLICATIONS]APP) in background.
+	// 6e. Launch application entries ([APPLICATIONS]APP) in background (step 4.3.11).
 	if err := l.runApplications(); err != nil {
 		l.logger.Warn("application launch error", "error", err)
 	}
 	defer l.stopApplications()
 
-	// 6e. Launch display in foreground (blocks until user closes GUI).
+	// 6f. Launch display in foreground (blocks until user closes GUI, step 4.3.12).
 	if err := l.startDisplay(); err != nil {
 		return fmt.Errorf("display: %w", err)
 	}
@@ -615,6 +629,77 @@ func (l *Launcher) startHalThreads() error {
 func isExecutable(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && !info.IsDir() && info.Mode()&0o111 != 0
+}
+
+// loadRetain checks for retained HAL signals and, if any are found, loads the
+// retain component and the retain_usr userspace process.
+//
+// This mirrors scripts/linuxcnc.in lines 975–996 (step 4.3.9):
+//
+//	if $HALCMD list retain | grep -q '.'; then
+//	    $HALCMD loadrt retain
+//	    $HALCMD addf retain.sync <SYNC_THREAD>
+//	    $HALCMD loadusr -W retain_usr <VAR_FILE> <POLL_PERIOD>
+//	fi
+//
+// Note: the bash script has a bug where it checks the wrong variable before
+// setting RETAIN_SYNC_THREAD; the Go implementation checks the correct one.
+func (l *Launcher) loadRetain(halExec *halfile.Executor) error {
+	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
+
+	// Check whether any retained signals exist.
+	out, err := exec.Command(halcmdPath, "list", "retain").Output()
+	if err != nil {
+		// "halcmd list retain" errors when no retain component is loaded — treat
+		// as no retained signals.
+		l.logger.Debug("halcmd list retain returned error (no retain signals)", "error", err)
+		return nil
+	}
+	if len(strings.TrimSpace(string(out))) == 0 {
+		l.logger.Debug("no retained signals found, skipping retain load")
+		return nil
+	}
+
+	l.logger.Info("Loading retain")
+
+	// Load the realtime retain component.
+	if err := halExec.RunHalcmdArgs([]string{"loadrt", "retain"}); err != nil {
+		return fmt.Errorf("halcmd loadrt retain: %w", err)
+	}
+
+	// Determine the sync thread.
+	syncThread := l.ini.Get("RETAIN", "SYNC_THREAD")
+	if syncThread == "" {
+		syncThread = "servo-thread"
+	}
+	if err := halExec.RunHalcmdArgs([]string{"addf", "retain.sync", syncThread}); err != nil {
+		return fmt.Errorf("halcmd addf retain.sync %s: %w", syncThread, err)
+	}
+
+	// Determine the variable file path.
+	varFile := l.ini.Get("RETAIN", "VAR_FILE")
+	if varFile == "" {
+		varFile = "retain.var"
+	}
+	// Resolve relative paths against the INI directory.
+	if !filepath.IsAbs(varFile) {
+		varFile = filepath.Join(filepath.Dir(l.opts.IniFile), varFile)
+	}
+
+	// Determine the poll period (may be empty — retain_usr handles a missing arg).
+	pollPeriod := l.ini.Get("RETAIN", "POLL_PERIOD")
+
+	// Build loadusr args: pass varFile and (optionally) pollPeriod as separate
+	// arguments so that paths containing spaces are handled correctly.
+	loadusrArgs := []string{"loadusr", "-W", "retain_usr", varFile}
+	if pollPeriod != "" {
+		loadusrArgs = append(loadusrArgs, pollPeriod)
+	}
+	if err := halExec.RunHalcmdArgs(loadusrArgs); err != nil {
+		return fmt.Errorf("halcmd loadusr retain_usr: %w", err)
+	}
+
+	return nil
 }
 
 // runApplications launches [APPLICATIONS]APP entries from the INI file in the
