@@ -20,11 +20,12 @@ import (
 
 // Executor loads and executes HAL files for a LinuxCNC configuration.
 type Executor struct {
-	ini        *inifile.IniFile
-	halcmdPath string
-	halibPath  string
-	logger     *slog.Logger
-	configDir  string
+	ini         *inifile.IniFile
+	iniFilePath string // effective INI path for -i args (may be .expanded)
+	halcmdPath  string
+	halibPath   string
+	logger      *slog.Logger
+	configDir   string
 }
 
 // New creates a new Executor for HAL file loading.
@@ -33,7 +34,10 @@ type Executor struct {
 //   - halcmdPath is the absolute path to the halcmd binary.
 //   - halibPath is the colon-separated HALLIB_PATH search list.
 //   - logger is used for diagnostic output; if nil a default stderr logger is used.
-func New(ini *inifile.IniFile, halcmdPath string, halibPath string, logger *slog.Logger) *Executor {
+//   - iniFilePath overrides the INI path passed to subprocesses via -i.
+//     Pass the expanded INI path here when #INCLUDE directives have been
+//     resolved; pass "" to fall back to ini.SourceFile().
+func New(ini *inifile.IniFile, halcmdPath string, halibPath string, logger *slog.Logger, iniFilePath string) *Executor {
 	if logger == nil {
 		logger = slog.New(slog.NewTextHandler(os.Stderr, nil))
 	}
@@ -41,13 +45,23 @@ func New(ini *inifile.IniFile, halcmdPath string, halibPath string, logger *slog
 	if ini != nil && ini.SourceFile() != "" {
 		configDir = filepath.Dir(ini.SourceFile())
 	}
-	return &Executor{
-		ini:        ini,
-		halcmdPath: halcmdPath,
-		halibPath:  halibPath,
-		logger:     logger,
-		configDir:  configDir,
+	if iniFilePath == "" && ini != nil {
+		iniFilePath = ini.SourceFile()
 	}
+	return &Executor{
+		ini:         ini,
+		iniFilePath: iniFilePath,
+		halcmdPath:  halcmdPath,
+		halibPath:   halibPath,
+		logger:      logger,
+		configDir:   configDir,
+	}
+}
+
+// effectiveIniPath returns the INI file path to pass to subprocesses via -i.
+// This may be the expanded (.expanded) path when #INCLUDE directives were resolved.
+func (e *Executor) effectiveIniPath() string {
+	return e.iniFilePath
 }
 
 // ExecuteAll reads all [HAL]HALFILE entries from the INI file and executes
@@ -208,8 +222,8 @@ func (e *Executor) ExecutePostHalCommands() error {
 // runHalcmdFile executes a HAL file via "halcmd [-i <inifile>] -f <file>".
 func (e *Executor) runHalcmdFile(path string) error {
 	var args []string
-	if e.ini != nil && e.ini.SourceFile() != "" {
-		args = append(args, "-i", e.ini.SourceFile())
+	if p := e.effectiveIniPath(); p != "" {
+		args = append(args, "-i", p)
 	}
 	args = append(args, "-f", path)
 	return e.runHalcmdArgs(args)
@@ -225,8 +239,8 @@ func (e *Executor) runHalcmd(cmd string) error {
 		return nil
 	}
 	var args []string
-	if e.ini != nil && e.ini.SourceFile() != "" {
-		args = append(args, "-i", e.ini.SourceFile())
+	if p := e.effectiveIniPath(); p != "" {
+		args = append(args, "-i", p)
 	}
 	args = append(args, parts...)
 	return e.runHalcmdArgs(args)
@@ -259,8 +273,8 @@ func (e *Executor) runHaltcl(path string, args []string) error {
 
 	var cmdArgs []string
 	iniFile := ""
-	if e.ini != nil && e.ini.SourceFile() != "" {
-		iniFile = e.ini.SourceFile()
+	if p := e.effectiveIniPath(); p != "" {
+		iniFile = p
 		cmdArgs = append(cmdArgs, "-i", iniFile)
 	}
 	cmdArgs = append(cmdArgs, path)

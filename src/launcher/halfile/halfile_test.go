@@ -38,7 +38,7 @@ func parseIni(t *testing.T, content string) *inifile.IniFile {
 
 func TestSubstituteLine_NoMatch(t *testing.T) {
 	ini := parseIni(t, "[EMC]\nMACHINE = TestMachine\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil)
+	e := New(ini, "/usr/bin/halcmd", "", nil, "")
 
 	in := "loadrt trivkins"
 	got := e.substituteLine(in)
@@ -49,7 +49,7 @@ func TestSubstituteLine_NoMatch(t *testing.T) {
 
 func TestSubstituteLine_SimpleSubstitution(t *testing.T) {
 	ini := parseIni(t, "[EMCMOT]\nSERVO_PERIOD = 1000000\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil)
+	e := New(ini, "/usr/bin/halcmd", "", nil, "")
 
 	in := "loadrt motmod servo_period_nsec=[EMCMOT]SERVO_PERIOD"
 	want := "loadrt motmod servo_period_nsec=1000000"
@@ -61,7 +61,7 @@ func TestSubstituteLine_SimpleSubstitution(t *testing.T) {
 
 func TestSubstituteLine_MultiplePatterns(t *testing.T) {
 	ini := parseIni(t, "[AXIS_X]\nMIN_LIMIT = -100\nMAX_LIMIT = 100\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil)
+	e := New(ini, "/usr/bin/halcmd", "", nil, "")
 
 	in := "setp axis.0.min-limit [AXIS_X]MIN_LIMIT"
 	want := "setp axis.0.min-limit -100"
@@ -73,7 +73,7 @@ func TestSubstituteLine_MultiplePatterns(t *testing.T) {
 
 func TestSubstituteLine_UnknownPatternUnchanged(t *testing.T) {
 	ini := parseIni(t, "[EMC]\nMACHINE = TestMachine\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil)
+	e := New(ini, "/usr/bin/halcmd", "", nil, "")
 
 	in := "setp something [UNKNOWN]KEY"
 	got := e.substituteLine(in)
@@ -83,7 +83,7 @@ func TestSubstituteLine_UnknownPatternUnchanged(t *testing.T) {
 }
 
 func TestSubstituteLine_NilIni(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "", nil)
+	e := New(nil, "/usr/bin/halcmd", "", nil, "")
 
 	in := "loadrt trivkins"
 	got := e.substituteLine(in)
@@ -100,7 +100,7 @@ func TestResolvePath_AbsoluteExists(t *testing.T) {
 	dir := t.TempDir()
 	halPath := writeTemp(t, dir, "test.hal", "# empty")
 
-	e := New(nil, "/usr/bin/halcmd", "", nil)
+	e := New(nil, "/usr/bin/halcmd", "", nil, "")
 	got, err := e.resolvePath(halPath)
 	if err != nil {
 		t.Fatalf("resolvePath(%q) error: %v", halPath, err)
@@ -111,7 +111,7 @@ func TestResolvePath_AbsoluteExists(t *testing.T) {
 }
 
 func TestResolvePath_AbsoluteMissing(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "", nil)
+	e := New(nil, "/usr/bin/halcmd", "", nil, "")
 	_, err := e.resolvePath("/nonexistent/path/file.hal")
 	if err == nil {
 		t.Error("resolvePath for missing absolute path should return error")
@@ -130,7 +130,7 @@ func TestResolvePath_RelativeInConfigDir(t *testing.T) {
 		t.Fatalf("parsing INI: %v", err)
 	}
 
-	e := New(ini, "/usr/bin/halcmd", "", nil)
+	e := New(ini, "/usr/bin/halcmd", "", nil, "")
 	got, err := e.resolvePath("spindle.hal")
 	if err != nil {
 		t.Fatalf("resolvePath error: %v", err)
@@ -145,7 +145,7 @@ func TestResolvePath_RelativeInHalibPath(t *testing.T) {
 	halibDir := t.TempDir()
 	writeTemp(t, halibDir, "common.hal", "# common")
 
-	e := New(nil, "/usr/bin/halcmd", halibDir, nil)
+	e := New(nil, "/usr/bin/halcmd", halibDir, nil, "")
 	got, err := e.resolvePath("common.hal")
 	if err != nil {
 		t.Fatalf("resolvePath error: %v", err)
@@ -157,7 +157,7 @@ func TestResolvePath_RelativeInHalibPath(t *testing.T) {
 }
 
 func TestResolvePath_NotFound(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "/nonexistent", nil)
+	e := New(nil, "/usr/bin/halcmd", "/nonexistent", nil, "")
 	_, err := e.resolvePath("missing.hal")
 	if err == nil {
 		t.Error("resolvePath for missing file should return error")
@@ -170,7 +170,7 @@ func TestResolvePath_MultipleHalibDirs(t *testing.T) {
 	writeTemp(t, dir2, "target.hal", "# target")
 
 	halibPath := dir1 + ":" + dir2
-	e := New(nil, "/usr/bin/halcmd", halibPath, nil)
+	e := New(nil, "/usr/bin/halcmd", halibPath, nil, "")
 	got, err := e.resolvePath("target.hal")
 	if err != nil {
 		t.Fatalf("resolvePath error: %v", err)
@@ -185,7 +185,7 @@ func TestResolvePath_LibPrefix(t *testing.T) {
 	halibDir := t.TempDir()
 	writeTemp(t, halibDir, "basic_sim.tcl", "# basic_sim")
 
-	e := New(nil, "/usr/bin/halcmd", halibDir, nil)
+	e := New(nil, "/usr/bin/halcmd", halibDir, nil, "")
 	got, err := e.resolvePath("LIB:basic_sim.tcl")
 	if err != nil {
 		t.Fatalf("resolvePath(LIB:basic_sim.tcl) error: %v", err)
@@ -210,7 +210,7 @@ func TestResolvePath_LibPrefix_SkipsConfigDir(t *testing.T) {
 
 	// Use a separate empty hallib dir so the file won't be found there.
 	halibDir := t.TempDir()
-	e := New(ini, "/usr/bin/halcmd", halibDir, nil)
+	e := New(ini, "/usr/bin/halcmd", halibDir, nil, "")
 
 	_, err = e.resolvePath("LIB:only_in_config.tcl")
 	if err == nil {
@@ -224,7 +224,7 @@ func TestResolvePath_LibPrefix_MultipleHalibDirs(t *testing.T) {
 	writeTemp(t, dir2, "lib.tcl", "# lib")
 
 	halibPath := dir1 + ":" + dir2
-	e := New(nil, "/usr/bin/halcmd", halibPath, nil)
+	e := New(nil, "/usr/bin/halcmd", halibPath, nil, "")
 	got, err := e.resolvePath("LIB:lib.tcl")
 	if err != nil {
 		t.Fatalf("resolvePath(LIB:lib.tcl) error: %v", err)
@@ -236,7 +236,7 @@ func TestResolvePath_LibPrefix_MultipleHalibDirs(t *testing.T) {
 }
 
 func TestResolvePath_LibPrefix_NotFound(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", t.TempDir(), nil)
+	e := New(nil, "/usr/bin/halcmd", t.TempDir(), nil, "")
 	_, err := e.resolvePath("LIB:missing.tcl")
 	if err == nil {
 		t.Error("resolvePath(LIB:missing.tcl) should return error when file not found")
@@ -274,7 +274,7 @@ func TestExecuteAll_ReadsHalfileEntriesInOrder(t *testing.T) {
 	}
 
 	// resolvePath should find both files in the config directory.
-	e := New(ini, "/usr/bin/halcmd", "", nil)
+	e := New(ini, "/usr/bin/halcmd", "", nil, "")
 	for _, f := range files {
 		if _, err := e.resolvePath(f); err != nil {
 			t.Errorf("resolvePath(%q) error: %v", f, err)
@@ -284,7 +284,7 @@ func TestExecuteAll_ReadsHalfileEntriesInOrder(t *testing.T) {
 
 func TestExecuteAll_EmptyIni(t *testing.T) {
 	ini := parseIni(t, "[EMC]\nMACHINE = TestMachine\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil)
+	e := New(ini, "/usr/bin/halcmd", "", nil, "")
 	// ExecuteAll with no HALFILE entries should not error.
 	// We cannot actually run halcmd in tests, so we rely on the INI having no
 	// HALFILE entries so that no subprocess is spawned.
@@ -332,7 +332,7 @@ func TestExecuteAll_InterleavedOrder(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestHalibDir_LastEntry(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", ".:/usr/share/linuxcnc/hallib", nil)
+	e := New(nil, "/usr/bin/halcmd", ".:/usr/share/linuxcnc/hallib", nil, "")
 	got := e.halibDir()
 	want := "/usr/share/linuxcnc/hallib"
 	if got != want {
@@ -341,7 +341,7 @@ func TestHalibDir_LastEntry(t *testing.T) {
 }
 
 func TestHalibDir_SingleEntry(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "/some/hallib", nil)
+	e := New(nil, "/usr/bin/halcmd", "/some/hallib", nil, "")
 	got := e.halibDir()
 	want := "/some/hallib"
 	if got != want {
@@ -350,7 +350,7 @@ func TestHalibDir_SingleEntry(t *testing.T) {
 }
 
 func TestHalibDir_Empty(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "", nil)
+	e := New(nil, "/usr/bin/halcmd", "", nil, "")
 	got := e.halibDir()
 	if got != "" {
 		t.Errorf("halibDir() with empty halibPath = %q; want empty string", got)
@@ -374,7 +374,7 @@ func TestHalfileFieldSplitting_ResolveFilename(t *testing.T) {
 		t.Fatalf("parsing INI: %v", err)
 	}
 
-	e := New(ini, "/usr/bin/halcmd", "", nil)
+	e := New(ini, "/usr/bin/halcmd", "", nil, "")
 
 	// Verify that resolvePath works on the filename portion after splitting.
 	entry := ini.GetSection("HAL")[0]
@@ -404,7 +404,7 @@ func TestHalfileFieldSplitting_LibWithArgs(t *testing.T) {
 	halibDir := t.TempDir()
 	writeTemp(t, halibDir, "basic_sim.tcl", "# basic_sim")
 
-	e := New(nil, "/usr/bin/halcmd", halibDir, nil)
+	e := New(nil, "/usr/bin/halcmd", halibDir, nil, "")
 
 	// Simulate what ExecuteAll does: split "LIB:basic_sim.tcl -no_sim_spindle"
 	raw := "LIB:basic_sim.tcl -no_sim_spindle"

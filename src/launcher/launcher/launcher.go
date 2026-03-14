@@ -164,7 +164,7 @@ func (l *Launcher) Run() error {
 	}
 
 	// M3: Load HAL files.
-	halExec := halfile.New(l.ini, filepath.Join(config.EMC2BinDir, "halcmd"), os.Getenv("HALLIB_PATH"), l.logger)
+	halExec := halfile.New(l.ini, filepath.Join(config.EMC2BinDir, "halcmd"), os.Getenv("HALLIB_PATH"), l.logger, l.opts.IniFile)
 	if err := halExec.ExecuteAll(); err != nil {
 		if !l.opts.ContinueOnError {
 			return fmt.Errorf("HAL file execution failed: %w", err)

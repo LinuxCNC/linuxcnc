@@ -20,7 +20,7 @@ func TestFindTwopassTcl_HalibDir(t *testing.T) {
 		t.Fatalf("creating twopass.tcl: %v", err)
 	}
 
-	e := New(nil, "/usr/bin/halcmd", dir, nil)
+	e := New(nil, "/usr/bin/halcmd", dir, nil, "")
 	got, err := e.findTwopassTcl()
 	if err != nil {
 		t.Fatalf("findTwopassTcl() error: %v", err)
@@ -40,7 +40,7 @@ func TestFindTwopassTcl_LinuxcncTclDir(t *testing.T) {
 	t.Setenv("LINUXCNC_TCL_DIR", tclDir)
 
 	// Use an empty halibDir so the HALLIB_DIR candidate is not generated.
-	e := New(nil, "/usr/bin/halcmd", "", nil)
+	e := New(nil, "/usr/bin/halcmd", "", nil, "")
 	got, err := e.findTwopassTcl()
 	if err != nil {
 		t.Fatalf("findTwopassTcl() error: %v", err)
@@ -64,7 +64,7 @@ func TestFindTwopassTcl_LinuxcncHome(t *testing.T) {
 	t.Setenv("LINUXCNC_TCL_DIR", "")
 	t.Setenv("LINUXCNC_HOME", home)
 
-	e := New(nil, "/usr/bin/halcmd", "", nil)
+	e := New(nil, "/usr/bin/halcmd", "", nil, "")
 	got, err := e.findTwopassTcl()
 	if err != nil {
 		t.Fatalf("findTwopassTcl() error: %v", err)
@@ -95,7 +95,7 @@ func TestFindTwopassTcl_RIPFallback(t *testing.T) {
 	t.Setenv("LINUXCNC_TCL_DIR", "")
 	t.Setenv("LINUXCNC_HOME", "")
 
-	e := New(nil, "/usr/bin/halcmd", halibDir, nil)
+	e := New(nil, "/usr/bin/halcmd", halibDir, nil, "")
 	got, err := e.findTwopassTcl()
 	if err != nil {
 		t.Fatalf("findTwopassTcl() error: %v", err)
@@ -109,7 +109,7 @@ func TestFindTwopassTcl_NotFound(t *testing.T) {
 	t.Setenv("LINUXCNC_TCL_DIR", "")
 	t.Setenv("LINUXCNC_HOME", "")
 
-	e := New(nil, "/usr/bin/halcmd", t.TempDir(), nil)
+	e := New(nil, "/usr/bin/halcmd", t.TempDir(), nil, "")
 	_, err := e.findTwopassTcl()
 	if err == nil {
 		t.Fatal("findTwopassTcl() should return error when twopass.tcl is not found")
@@ -160,7 +160,7 @@ func TestExecuteAll_TwopassDelegates(t *testing.T) {
 		t.Fatalf("parsing INI: %v", err)
 	}
 
-	e := New(ini, "/usr/bin/halcmd", halibDir, nil)
+	e := New(ini, "/usr/bin/halcmd", halibDir, nil, "")
 	if err := e.ExecuteAll(); err != nil {
 		t.Fatalf("ExecuteAll() error: %v", err)
 	}
@@ -194,7 +194,7 @@ func TestExecuteAll_NoTwopassNormalExecution(t *testing.T) {
 	}
 
 	// Use an empty halibDir — findTwopassTcl would fail if called.
-	e := New(ini, "/usr/bin/halcmd", t.TempDir(), nil)
+	e := New(ini, "/usr/bin/halcmd", t.TempDir(), nil, "")
 
 	// Should succeed without calling haltcl (no TWOPASS, no HALFILE entries).
 	if err := e.ExecuteAll(); err != nil {
@@ -218,7 +218,7 @@ func TestExecuteAll_TwopassMissingTclError(t *testing.T) {
 	}
 
 	// Use a temp dir that has no twopass.tcl.
-	e := New(ini, "/usr/bin/halcmd", t.TempDir(), nil)
+	e := New(ini, "/usr/bin/halcmd", t.TempDir(), nil, "")
 	err = e.ExecuteAll()
 	if err == nil {
 		t.Fatal("ExecuteAll() should return error when twopass.tcl not found")
