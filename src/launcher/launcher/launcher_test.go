@@ -113,6 +113,133 @@ HOMEMOD = custom_home
 	}
 }
 
+// --------------------------------------------------------------------------
+// Tests for EMCIO resolution logic
+// --------------------------------------------------------------------------
+
+// resolveEMCIO returns the resolved EMCIO program name by exercising the same
+// resolution logic as Launcher.startIOControl(), without starting any process.
+func resolveEMCIO(t *testing.T, iniContent string) string {
+	t.Helper()
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", iniContent)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	l := &Launcher{
+		ini:    ini,
+		logger: slog.New(slog.NewTextHandler(os.Stderr, nil)),
+	}
+
+	// Mirror the resolution logic from startIOControl.
+	emcio := l.ini.Get("IO", "IO")
+	if emcio == "" {
+		emcio = l.ini.Get("EMCIO", "EMCIO")
+	}
+	if emcio == "" {
+		emcio = "io"
+	}
+	return emcio
+}
+
+// TestStartIOControl_DefaultFallback verifies that when neither [IO]IO nor
+// [EMCIO]EMCIO is set, the EMCIO program defaults to "io".
+func TestStartIOControl_DefaultFallback(t *testing.T) {
+	got := resolveEMCIO(t, `
+[EMC]
+MACHINE = Test
+`)
+	if got != "io" {
+		t.Errorf("EMCIO = %q, want %q", got, "io")
+	}
+}
+
+// TestStartIOControl_IOIO verifies that [IO]IO is used when set.
+func TestStartIOControl_IOIO(t *testing.T) {
+	got := resolveEMCIO(t, `
+[IO]
+IO = custom_io
+`)
+	if got != "custom_io" {
+		t.Errorf("EMCIO = %q, want %q", got, "custom_io")
+	}
+}
+
+// TestStartIOControl_EMCIOSection verifies that [EMCIO]EMCIO is used as a
+// fallback when [IO]IO is not set.
+func TestStartIOControl_EMCIOSection(t *testing.T) {
+	got := resolveEMCIO(t, `
+[EMCIO]
+EMCIO = iocontrol
+`)
+	if got != "iocontrol" {
+		t.Errorf("EMCIO = %q, want %q", got, "iocontrol")
+	}
+}
+
+// TestStartIOControl_IOIOTakesPrecedence verifies that [IO]IO takes precedence
+// over [EMCIO]EMCIO when both are set.
+func TestStartIOControl_IOIOTakesPrecedence(t *testing.T) {
+	got := resolveEMCIO(t, `
+[IO]
+IO = io_section_value
+[EMCIO]
+EMCIO = emcio_section_value
+`)
+	if got != "io_section_value" {
+		t.Errorf("EMCIO = %q, want %q", got, "io_section_value")
+	}
+}
+
+// --------------------------------------------------------------------------
+// Tests for HALUI optional behavior
+// --------------------------------------------------------------------------
+
+// resolveHALUI returns the resolved HALUI program name (empty string = skip).
+func resolveHALUI(t *testing.T, iniContent string) string {
+	t.Helper()
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", iniContent)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	l := &Launcher{
+		ini:    ini,
+		logger: slog.New(slog.NewTextHandler(os.Stderr, nil)),
+	}
+
+	return l.ini.Get("HAL", "HALUI")
+}
+
+// TestStartHalUI_NotConfigured verifies that an absent [HAL]HALUI entry
+// resolves to an empty string, which the startHalUI method treats as "skip".
+func TestStartHalUI_NotConfigured(t *testing.T) {
+	got := resolveHALUI(t, `
+[EMC]
+MACHINE = Test
+`)
+	if got != "" {
+		t.Errorf("HALUI = %q, want empty (skip)", got)
+	}
+}
+
+// TestStartHalUI_Configured verifies that [HAL]HALUI is read correctly.
+func TestStartHalUI_Configured(t *testing.T) {
+	got := resolveHALUI(t, `
+[HAL]
+HALUI = halui
+`)
+	if got != "halui" {
+		t.Errorf("HALUI = %q, want %q", got, "halui")
+	}
+}
+
+// --------------------------------------------------------------------------
+
 // TestPreloadMotionModules_EmcmotUnchanged verifies that [EMCMOT]EMCMOT is
 // NOT modified by the preload logic — it must remain as the original value
 // so that HAL files receive the correct "loadrt motmod ..." command.

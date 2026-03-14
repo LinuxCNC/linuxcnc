@@ -1,9 +1,8 @@
 // Package launcher provides the main Launcher struct and orchestration logic
 // for the LinuxCNC Go launcher.
 //
-// This package is a skeleton for M3–M7 implementation.  Currently it wires
-// together the parsed CLI options, INI file, and compile-time configuration
-// and provides stub methods for the full startup/shutdown sequence.
+// This package implements M1–M5 of the Go launcher and provides stub
+// methods for the remaining milestones (M6–M7).
 package launcher
 
 import (
@@ -13,6 +12,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/sittner/linuxcnc/src/launcher/config"
 	"github.com/sittner/linuxcnc/src/launcher/halfile"
@@ -45,9 +46,11 @@ type Options struct {
 
 // Launcher orchestrates the LinuxCNC startup and shutdown sequence.
 type Launcher struct {
-	opts   Options
-	ini    *inifile.IniFile
-	logger *slog.Logger
+	opts          Options
+	ini           *inifile.IniFile
+	logger        *slog.Logger
+	serverProcess *exec.Cmd  // background linuxcncsvr process
+	serverDone    chan error  // receives the result of cmd.Wait() for linuxcncsvr
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -61,17 +64,24 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 
 // Run executes the full LinuxCNC startup sequence.
 //
-// Current implementation (M1/M2/M4):
-//  1. Sets up environment variables.
+// Implemented milestones M1–M5; stubs remain for M6–M7.
+// Startup order matches scripts/linuxcnc.in:
+//  1. Sets up environment variables (INI_FILE_NAME exported before any subprocess).
 //  2. Acquires the lock file.
 //  3. Parses the INI file.
-//  4. Starts the realtime environment (M4).
-//  5–7. Stubs for later milestones (M3/M5–M7).
+//  4. Starts linuxcncsvr (NML server) — must precede realtime (M5).
+//  5. Starts the realtime environment (M4).
+//  6. Starts iocontrol via halcmd loadusr -Wn (M5).
+//  7. Starts halui via halcmd loadusr -Wn if configured (M5).
+//  8. Preloads tpmod/homemod (M4).
+//  9. Executes HAL files (M3).
+// 10. Stubs for task and display (M6–M7).
 func (l *Launcher) Run() error {
 	l.setupEnvironment()
 
 	// Export INI file path and config directory so that child processes
 	// (linuxcncsvr, iocontrol, task, etc.) can find the configuration.
+	// These must be set before startServer() is called.
 	if l.opts.IniFile != "" {
 		os.Setenv("INI_FILE_NAME", l.opts.IniFile)
 		os.Setenv("CONFIG_DIR", filepath.Dir(l.opts.IniFile))
@@ -96,6 +106,16 @@ func (l *Launcher) Run() error {
 	l.ini = ini
 	l.logConfiguration()
 
+	// --- M5: Process Manager ---
+
+	// Start NML server (linuxcncsvr) before realtime.  linuxcncsvr creates
+	// the NML shared memory buffers that realtime components depend on.
+	// This mirrors scripts/linuxcnc.in lines 817–825.
+	if err := l.startServer(); err != nil {
+		return fmt.Errorf("starting linuxcncsvr: %w", err)
+	}
+	defer l.stopServer()
+
 	// --- M4: Realtime Manager ---
 	rtMgr := realtime.New(l.logger)
 	l.logger.Info("starting realtime environment")
@@ -108,8 +128,18 @@ func (l *Launcher) Run() error {
 		}
 	}()
 
-	// --- Stubs for M3/M5–M7 ---
-	l.logger.Info("would start linuxcncsvr (M5)")
+	// Start iocontrol via halcmd loadusr -Wn iocontrol.
+	// iocontrol is a HAL userspace component; HAL manages its lifecycle and
+	// will terminate it when halcmd exits or HAL is shut down.
+	if err := l.startIOControl(); err != nil {
+		return fmt.Errorf("starting iocontrol: %w", err)
+	}
+
+	// Start halui if configured.
+	// halui is also a HAL userspace component managed by HAL's lifecycle.
+	if err := l.startHalUI(); err != nil {
+		return fmt.Errorf("starting halui: %w", err)
+	}
 
 	// Pre-load trajectory planner and homing modules before HAL file execution.
 	// This mirrors scripts/linuxcnc.in lines 865-868.
@@ -126,8 +156,127 @@ func (l *Launcher) Run() error {
 		l.logger.Warn("HAL file execution error (continuing)", "error", err)
 	}
 
-	l.logger.Info("would start task / display (M5)")
+	l.logger.Info("would start task / display (M6)")
 	l.logger.Info("would wait for display to exit (M7)")
+
+	return nil
+}
+
+// startServer starts linuxcncsvr as a background subprocess.
+//
+// This mirrors scripts/linuxcnc.in lines 817–825:
+//
+//	export INI_FILE_NAME="$INIFILE"
+//	$EMCSERVER -ini "$INIFILE"
+//
+// After starting, a brief 100 ms window is checked for immediate failure
+// (e.g., bad INI path, port conflict).  A background goroutine calls
+// cmd.Wait() and signals serverDone so that both this check and
+// stopServer() share the single Wait() call.
+func (l *Launcher) startServer() error {
+	serverBin := filepath.Join(config.EMC2BinDir, "linuxcncsvr")
+	l.logger.Info("starting NML server", "binary", serverBin)
+
+	cmd := exec.Command(serverBin, "-ini", l.opts.IniFile)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("exec %s: %w", serverBin, err)
+	}
+
+	l.serverProcess = cmd
+	l.serverDone = make(chan error, 1)
+	go func() { l.serverDone <- cmd.Wait() }()
+
+	// Give the server a brief window to fail fast (e.g., bad INI, port conflict).
+	select {
+	case err := <-l.serverDone:
+		return fmt.Errorf("linuxcncsvr (pid %d) exited immediately: %w", cmd.Process.Pid, err)
+	case <-time.After(100 * time.Millisecond):
+		// Still running — good.
+	}
+
+	l.logger.Info("linuxcncsvr started", "pid", cmd.Process.Pid)
+	return nil
+}
+
+// stopServer terminates the linuxcncsvr background process gracefully.
+//
+// It sends SIGTERM first and waits up to 2 seconds for a clean exit.
+// If the process has not exited by then, SIGKILL is sent.
+func (l *Launcher) stopServer() {
+	if l.serverProcess == nil || l.serverProcess.Process == nil {
+		return
+	}
+	l.logger.Info("stopping linuxcncsvr")
+	if err := l.serverProcess.Process.Signal(syscall.SIGTERM); err != nil {
+		l.logger.Debug("SIGTERM failed (process may have already exited)", "error", err)
+	}
+	select {
+	case <-l.serverDone:
+		l.logger.Debug("linuxcncsvr exited cleanly")
+	case <-time.After(2 * time.Second):
+		l.logger.Warn("linuxcncsvr did not exit in time, sending SIGKILL")
+		_ = l.serverProcess.Process.Kill()
+		<-l.serverDone
+	}
+}
+
+// startIOControl starts the IO controller process via halcmd loadusr.
+//
+// This mirrors scripts/linuxcnc.in lines 839–850:
+//
+//	$HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
+//
+// EMCIO resolution: [IO]IO → [EMCIO]EMCIO → default "io".
+func (l *Launcher) startIOControl() error {
+	emcio := l.ini.Get("IO", "IO")
+	if emcio == "" {
+		emcio = l.ini.Get("EMCIO", "EMCIO")
+	}
+	if emcio == "" {
+		emcio = "io"
+	}
+
+	l.logger.Info("starting IO controller", "program", emcio)
+
+	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
+	cmd := exec.Command(halcmdPath, "loadusr", "-Wn", "iocontrol", emcio, "-ini", l.opts.IniFile)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("halcmd loadusr -Wn iocontrol %s: %w", emcio, err)
+	}
+
+	return nil
+}
+
+// startHalUI starts the halui process via halcmd loadusr, if configured.
+//
+// This mirrors scripts/linuxcnc.in lines 852–861:
+//
+//	$HALCMD loadusr -Wn halui $HALUI -ini "$INIFILE"
+//
+// If [HAL]HALUI is not set, this is a no-op.
+func (l *Launcher) startHalUI() error {
+	halui := l.ini.Get("HAL", "HALUI")
+	if halui == "" {
+		l.logger.Debug("HALUI not configured, skipping")
+		return nil
+	}
+
+	l.logger.Info("starting HAL user interface", "program", halui)
+
+	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
+	cmd := exec.Command(halcmdPath, "loadusr", "-Wn", "halui", halui, "-ini", l.opts.IniFile)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("halcmd loadusr -Wn halui %s: %w", halui, err)
+	}
 
 	return nil
 }
