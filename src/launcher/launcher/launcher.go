@@ -83,10 +83,7 @@ func (l *Launcher) Run() error {
 	// Export INI file path and config directory so that child processes
 	// (linuxcncsvr, iocontrol, task, etc.) can find the configuration.
 	// These must be set before startServer() is called.
-	if l.opts.IniFile != "" {
-		os.Setenv("INI_FILE_NAME", l.opts.IniFile)
-		os.Setenv("CONFIG_DIR", filepath.Dir(l.opts.IniFile))
-	}
+	l.setConfigEnv()
 
 	l.logger.Info("acquiring lock file")
 	l.lock = lockfile.New(lockfile.LockFilePath)
@@ -106,6 +103,23 @@ func (l *Launcher) Run() error {
 		return err
 	}
 	l.ini = ini
+
+	// If the INI file contains #INCLUDE directives, write a fully-expanded copy
+	// alongside the original (e.g. "foo.ini.expanded") and update the path used
+	// for all subsequent subprocess launches.  Subprocesses such as iocontrol,
+	// halcmd, and milltask use the C IniFile class which does not handle
+	// #INCLUDE, so they must receive the pre-expanded file.
+	// This mirrors the handle_includes() function in scripts/linuxcnc.in.
+	effectiveIni, err := inifile.WriteExpanded(l.opts.IniFile)
+	if err != nil {
+		return fmt.Errorf("expanding INI file includes: %w", err)
+	}
+	if effectiveIni != l.opts.IniFile {
+		l.logger.Info("INI file expanded", "original", l.opts.IniFile, "expanded", effectiveIni)
+		l.opts.IniFile = effectiveIni
+		l.setConfigEnv()
+	}
+
 	l.logConfiguration()
 
 	// --- M5: Process Manager ---
@@ -290,6 +304,17 @@ func (l *Launcher) startHalUI() error {
 	}
 
 	return nil
+}
+
+// setConfigEnv exports INI_FILE_NAME and CONFIG_DIR to the process environment
+// so that child processes (linuxcncsvr, iocontrol, task, etc.) can find the
+// configuration.  It is called both at initial startup and again after INI
+// include expansion (which may change the effective path).
+func (l *Launcher) setConfigEnv() {
+	if l.opts.IniFile != "" {
+		os.Setenv("INI_FILE_NAME", l.opts.IniFile)
+		os.Setenv("CONFIG_DIR", filepath.Dir(l.opts.IniFile))
+	}
 }
 
 // setupEnvironment configures process environment variables to match what
