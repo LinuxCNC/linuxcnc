@@ -53,9 +53,17 @@ func New(ini *inifile.IniFile, halcmdPath string, halibPath string, logger *slog
 // ExecuteAll reads all [HAL]HALFILE entries from the INI file and executes
 // them in order.  After the HALFILE entries, any [HAL]HALCMD direct command
 // entries are also executed.
+//
+// When [HAL]TWOPASS is set to a non-empty value, execution is delegated
+// entirely to the legacy twopass.tcl script via haltcl.
 func (e *Executor) ExecuteAll() error {
 	if e.ini == nil {
 		return nil
+	}
+
+	// When TWOPASS is set, delegate entirely to the legacy twopass.tcl.
+	if tp := e.ini.Get("HAL", "TWOPASS"); tp != "" {
+		return e.executeTwopass()
 	}
 
 	// Iterate [HAL] section entries in INI-file order, dispatching on key.
