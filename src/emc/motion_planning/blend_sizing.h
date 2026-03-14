@@ -13,8 +13,9 @@
 #ifndef BLEND_SIZING_H
 #define BLEND_SIZING_H
 
-#include "posemath.h"
-#include "emcpos.h"
+#include <posemath.h>
+#include <emcpos.h>
+
 #include "../tp/tc_types.h"
 #include "bezier9.h"
 
