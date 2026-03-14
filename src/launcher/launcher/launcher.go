@@ -7,12 +7,14 @@
 package launcher
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/sittner/linuxcnc/src/launcher/config"
+	"github.com/sittner/linuxcnc/src/launcher/halfile"
 	"github.com/sittner/linuxcnc/src/launcher/inifile"
 	"github.com/sittner/linuxcnc/src/launcher/lockfile"
 )
@@ -95,7 +97,16 @@ func (l *Launcher) Run() error {
 	// --- Stubs for M3–M7 ---
 	l.logger.Info("would start realtime (M4)")
 	l.logger.Info("would start linuxcncsvr (M5)")
-	l.logger.Info("would load HAL files (M3)")
+
+	// M3: Load HAL files.
+	halExec := halfile.New(l.ini, filepath.Join(config.EMC2BinDir, "halcmd"), os.Getenv("HALLIB_PATH"), l.logger)
+	if err := halExec.ExecuteAll(); err != nil {
+		if !l.opts.ContinueOnError {
+			return fmt.Errorf("HAL file execution failed: %w", err)
+		}
+		l.logger.Warn("HAL file execution error (continuing)", "error", err)
+	}
+
 	l.logger.Info("would start task / display (M5)")
 	l.logger.Info("would wait for display to exit (M7)")
 
