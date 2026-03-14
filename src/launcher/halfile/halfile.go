@@ -64,14 +64,26 @@ func (e *Executor) ExecuteAll() error {
 	for _, entry := range e.ini.GetSection("HAL") {
 		switch entry.Key {
 		case "HALFILE":
-			f := entry.Value
+			// Split into filename and optional arguments (e.g. "LIB:basic_sim.tcl -no_sim_spindle").
+			fields := strings.Fields(entry.Value)
+			if len(fields) == 0 {
+				continue
+			}
+			f := fields[0]
+			args := fields[1:]
 			resolved, err := e.resolvePath(f)
 			if err != nil {
 				return fmt.Errorf("resolving HAL file %q: %w", f, err)
 			}
 			e.logger.Info("loading HAL file", "path", resolved)
-			if err := e.ExecuteFile(resolved); err != nil {
-				return fmt.Errorf("executing HAL file %q: %w", resolved, err)
+			if strings.HasSuffix(resolved, ".tcl") {
+				if err := e.runHaltcl(resolved, args); err != nil {
+					return fmt.Errorf("executing HAL file %q: %w", resolved, err)
+				}
+			} else {
+				if err := e.ExecuteFile(resolved); err != nil {
+					return fmt.Errorf("executing HAL file %q: %w", resolved, err)
+				}
 			}
 		case "HALCMD":
 			cmd := strings.TrimSpace(entry.Value)
@@ -160,13 +172,26 @@ func (e *Executor) ExecutePostHalCommands() error {
 	}
 	e.logger.Info("loading post-GUI HAL files")
 	for _, f := range files {
-		resolved, err := e.resolvePath(f)
+		// Split into filename and optional arguments.
+		fields := strings.Fields(f)
+		if len(fields) == 0 {
+			continue
+		}
+		fname := fields[0]
+		args := fields[1:]
+		resolved, err := e.resolvePath(fname)
 		if err != nil {
-			return fmt.Errorf("resolving POSTGUI_HALFILE %q: %w", f, err)
+			return fmt.Errorf("resolving POSTGUI_HALFILE %q: %w", fname, err)
 		}
 		e.logger.Info("loading post-GUI HAL file", "path", resolved)
-		if err := e.ExecuteFile(resolved); err != nil {
-			return fmt.Errorf("executing POSTGUI_HALFILE %q: %w", resolved, err)
+		if strings.HasSuffix(resolved, ".tcl") {
+			if err := e.runHaltcl(resolved, args); err != nil {
+				return fmt.Errorf("executing POSTGUI_HALFILE %q: %w", resolved, err)
+			}
+		} else {
+			if err := e.ExecuteFile(resolved); err != nil {
+				return fmt.Errorf("executing POSTGUI_HALFILE %q: %w", resolved, err)
+			}
 		}
 	}
 	return nil
@@ -210,4 +235,49 @@ func (e *Executor) runHalcmdArgs(args []string) error {
 		return fmt.Errorf("halcmd %s: %w", strings.Join(args, " "), err)
 	}
 	return nil
+}
+
+// runHaltcl executes a TCL HAL file via "haltcl [-i <inifile>] <file> [args...]".
+// The haltcl binary is expected to live in the same directory as halcmd.
+// HALLIB_DIR and INI_FILE_NAME are set in the subprocess environment so that
+// TCL scripts can access them via $::env(HALLIB_DIR) and $::env(INI_FILE_NAME).
+func (e *Executor) runHaltcl(path string, args []string) error {
+	haltclPath := filepath.Join(filepath.Dir(e.halcmdPath), "haltcl")
+
+	var cmdArgs []string
+	iniFile := ""
+	if e.ini != nil && e.ini.SourceFile() != "" {
+		iniFile = e.ini.SourceFile()
+		cmdArgs = append(cmdArgs, "-i", iniFile)
+	}
+	cmdArgs = append(cmdArgs, path)
+	cmdArgs = append(cmdArgs, args...)
+
+	e.logger.Debug("running haltcl", "args", strings.Join(cmdArgs, " "))
+	cmd := exec.Command(haltclPath, cmdArgs...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	env := append(os.Environ(), "HALLIB_DIR="+e.halibDir())
+	if iniFile != "" {
+		env = append(env, "INI_FILE_NAME="+iniFile)
+	}
+	cmd.Env = env
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("haltcl %s: %w", strings.Join(cmdArgs, " "), err)
+	}
+	return nil
+}
+
+// halibDir returns the system HAL library directory extracted from halibPath.
+// By convention, halibPath is built as ".:HALLIB_DIR" so the last non-empty
+// entry is HALLIB_DIR.
+func (e *Executor) halibDir() string {
+	dirs := strings.Split(e.halibPath, ":")
+	for i := len(dirs) - 1; i >= 0; i-- {
+		d := strings.TrimSpace(dirs[i])
+		if d != "" {
+			return d
+		}
+	}
+	return ""
 }

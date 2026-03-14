@@ -3,6 +3,7 @@ package halfile
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/sittner/linuxcnc/src/launcher/inifile"
@@ -180,6 +181,68 @@ func TestResolvePath_MultipleHalibDirs(t *testing.T) {
 	}
 }
 
+func TestResolvePath_LibPrefix(t *testing.T) {
+	halibDir := t.TempDir()
+	writeTemp(t, halibDir, "basic_sim.tcl", "# basic_sim")
+
+	e := New(nil, "/usr/bin/halcmd", halibDir, nil)
+	got, err := e.resolvePath("LIB:basic_sim.tcl")
+	if err != nil {
+		t.Fatalf("resolvePath(LIB:basic_sim.tcl) error: %v", err)
+	}
+	want := filepath.Join(halibDir, "basic_sim.tcl")
+	if got != want {
+		t.Errorf("resolvePath = %q; want %q", got, want)
+	}
+}
+
+func TestResolvePath_LibPrefix_SkipsConfigDir(t *testing.T) {
+	// The file exists ONLY in configDir, not in halibPath.
+	// LIB: prefix must NOT find it in configDir.
+	dir := t.TempDir()
+	writeTemp(t, dir, "only_in_config.tcl", "# config-only")
+
+	iniPath := writeTemp(t, dir, "machine.ini", "[HAL]\n")
+	ini, err := inifile.Parse(iniPath)
+	if err != nil {
+		t.Fatalf("parsing INI: %v", err)
+	}
+
+	// Use a separate empty hallib dir so the file won't be found there.
+	halibDir := t.TempDir()
+	e := New(ini, "/usr/bin/halcmd", halibDir, nil)
+
+	_, err = e.resolvePath("LIB:only_in_config.tcl")
+	if err == nil {
+		t.Error("resolvePath(LIB:...) should not find file in configDir")
+	}
+}
+
+func TestResolvePath_LibPrefix_MultipleHalibDirs(t *testing.T) {
+	dir1 := t.TempDir()
+	dir2 := t.TempDir()
+	writeTemp(t, dir2, "lib.tcl", "# lib")
+
+	halibPath := dir1 + ":" + dir2
+	e := New(nil, "/usr/bin/halcmd", halibPath, nil)
+	got, err := e.resolvePath("LIB:lib.tcl")
+	if err != nil {
+		t.Fatalf("resolvePath(LIB:lib.tcl) error: %v", err)
+	}
+	want := filepath.Join(dir2, "lib.tcl")
+	if got != want {
+		t.Errorf("resolvePath = %q; want %q", got, want)
+	}
+}
+
+func TestResolvePath_LibPrefix_NotFound(t *testing.T) {
+	e := New(nil, "/usr/bin/halcmd", t.TempDir(), nil)
+	_, err := e.resolvePath("LIB:missing.tcl")
+	if err == nil {
+		t.Error("resolvePath(LIB:missing.tcl) should return error when file not found")
+	}
+}
+
 // ---------------------------------------------------------------------------
 // ExecuteAll order test (no actual halcmd, only verifying INI reading)
 // ---------------------------------------------------------------------------
@@ -261,5 +324,107 @@ func TestExecuteAll_InterleavedOrder(t *testing.T) {
 		if e.Value != wantVals[i] {
 			t.Errorf("entry[%d].Value = %q; want %q", i, e.Value, wantVals[i])
 		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// halibDir helper tests
+// ---------------------------------------------------------------------------
+
+func TestHalibDir_LastEntry(t *testing.T) {
+	e := New(nil, "/usr/bin/halcmd", ".:/usr/share/linuxcnc/hallib", nil)
+	got := e.halibDir()
+	want := "/usr/share/linuxcnc/hallib"
+	if got != want {
+		t.Errorf("halibDir() = %q; want %q", got, want)
+	}
+}
+
+func TestHalibDir_SingleEntry(t *testing.T) {
+	e := New(nil, "/usr/bin/halcmd", "/some/hallib", nil)
+	got := e.halibDir()
+	want := "/some/hallib"
+	if got != want {
+		t.Errorf("halibDir() = %q; want %q", got, want)
+	}
+}
+
+func TestHalibDir_Empty(t *testing.T) {
+	e := New(nil, "/usr/bin/halcmd", "", nil)
+	got := e.halibDir()
+	if got != "" {
+		t.Errorf("halibDir() with empty halibPath = %q; want empty string", got)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// HALFILE field splitting tests
+// ---------------------------------------------------------------------------
+
+// TestHalfileFieldSplitting verifies that a HALFILE value with arguments is
+// correctly split so that the filename is resolved and args are preserved.
+// This tests the resolution step only (no halcmd/haltcl subprocess is spawned).
+func TestHalfileFieldSplitting_ResolveFilename(t *testing.T) {
+	dir := t.TempDir()
+	writeTemp(t, dir, "test.hal", "# test")
+
+	iniPath := writeTemp(t, dir, "machine.ini", "[HAL]\nHALFILE = test.hal -some-arg\n")
+	ini, err := inifile.Parse(iniPath)
+	if err != nil {
+		t.Fatalf("parsing INI: %v", err)
+	}
+
+	e := New(ini, "/usr/bin/halcmd", "", nil)
+
+	// Verify that resolvePath works on the filename portion after splitting.
+	entry := ini.GetSection("HAL")[0]
+	fields := strings.Fields(entry.Value)
+	if len(fields) != 2 {
+		t.Fatalf("expected 2 fields, got %d: %v", len(fields), fields)
+	}
+	if fields[0] != "test.hal" {
+		t.Errorf("fields[0] = %q; want %q", fields[0], "test.hal")
+	}
+	if fields[1] != "-some-arg" {
+		t.Errorf("fields[1] = %q; want %q", fields[1], "-some-arg")
+	}
+
+	// The filename part should resolve correctly.
+	resolved, err := e.resolvePath(fields[0])
+	if err != nil {
+		t.Fatalf("resolvePath(%q) error: %v", fields[0], err)
+	}
+	want := filepath.Join(dir, "test.hal")
+	if resolved != want {
+		t.Errorf("resolvePath = %q; want %q", resolved, want)
+	}
+}
+
+func TestHalfileFieldSplitting_LibWithArgs(t *testing.T) {
+	halibDir := t.TempDir()
+	writeTemp(t, halibDir, "basic_sim.tcl", "# basic_sim")
+
+	e := New(nil, "/usr/bin/halcmd", halibDir, nil)
+
+	// Simulate what ExecuteAll does: split "LIB:basic_sim.tcl -no_sim_spindle"
+	raw := "LIB:basic_sim.tcl -no_sim_spindle"
+	fields := strings.Fields(raw)
+	if len(fields) != 2 {
+		t.Fatalf("expected 2 fields, got %d", len(fields))
+	}
+
+	resolved, err := e.resolvePath(fields[0])
+	if err != nil {
+		t.Fatalf("resolvePath(%q) error: %v", fields[0], err)
+	}
+	want := filepath.Join(halibDir, "basic_sim.tcl")
+	if resolved != want {
+		t.Errorf("resolvePath = %q; want %q", resolved, want)
+	}
+	if !strings.HasSuffix(resolved, ".tcl") {
+		t.Errorf("resolved path %q should have .tcl suffix", resolved)
+	}
+	if fields[1] != "-no_sim_spindle" {
+		t.Errorf("arg = %q; want %q", fields[1], "-no_sim_spindle")
 	}
 }
