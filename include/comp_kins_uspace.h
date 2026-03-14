@@ -41,8 +41,8 @@
 #ifndef COMP_KINS_USPACE_H
 #define COMP_KINS_USPACE_H
 
-#include "kinematics_params.h"
-#include "hal.h"
+#include <kinematics_params.h>
+#include <hal.h>
 
 /* ====================================================================
  * Static state — one instance per .so (separate for RT and userspace)
