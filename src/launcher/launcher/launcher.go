@@ -128,6 +128,15 @@ func (l *Launcher) Run() error {
 		l.setConfigEnv()
 	}
 
+	// Change to the INI file's directory so that relative paths in the INI
+	// (e.g., sim.var, sim.tbl, position.txt) resolve correctly.
+	// This mirrors scripts/linuxcnc.in line 783: cd "$INI_DIR"
+	iniDir := filepath.Dir(l.opts.IniFile)
+	if err := os.Chdir(iniDir); err != nil {
+		return fmt.Errorf("chdir to INI directory %s: %w", iniDir, err)
+	}
+	l.logger.Info("changed working directory", "dir", iniDir)
+
 	l.logConfiguration()
 
 	// --- M5: Process Manager ---
