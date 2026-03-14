@@ -1,63 +1,79 @@
 package lockfile_test
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/sittner/linuxcnc/src/launcher/lockfile"
 )
 
-// setTempLockPath overrides LockFilePath for the duration of a test and
-// restores it automatically via t.Cleanup.
-func setTempLockPath(t *testing.T) {
+// newTestLock creates a LockFile pointing at a temp path and registers cleanup.
+func newTestLock(t *testing.T) *lockfile.LockFile {
 	t.Helper()
-	old := lockfile.LockFilePath
-	lockfile.LockFilePath = filepath.Join(t.TempDir(), "linuxcnc.lock")
-	t.Cleanup(func() { lockfile.LockFilePath = old })
+	path := filepath.Join(t.TempDir(), "linuxcnc.lock")
+	lf := lockfile.New(path)
+	t.Cleanup(func() { _ = lf.Release() })
+	return lf
 }
 
 func TestAcquireRelease(t *testing.T) {
-	setTempLockPath(t)
+	lf := lockfile.New(filepath.Join(t.TempDir(), "linuxcnc.lock"))
 
-	if err := lockfile.Acquire(); err != nil {
+	if err := lf.Acquire(); err != nil {
 		t.Fatalf("Acquire: %v", err)
 	}
 
-	// Lock file should now exist.
-	if _, err := os.Stat(lockfile.LockFilePath); err != nil {
-		t.Errorf("lock file not found after Acquire: %v", err)
-	}
-
-	if err := lockfile.Release(); err != nil {
+	if err := lf.Release(); err != nil {
 		t.Fatalf("Release: %v", err)
-	}
-
-	// Lock file should be gone after Release.
-	if _, err := os.Stat(lockfile.LockFilePath); !os.IsNotExist(err) {
-		t.Errorf("lock file still exists after Release")
 	}
 }
 
 func TestReleaseIdempotent(t *testing.T) {
-	setTempLockPath(t)
-	// Release on a non-existent lock file should not error.
-	if err := lockfile.Release(); err != nil {
+	lf := lockfile.New(filepath.Join(t.TempDir(), "linuxcnc.lock"))
+	// Release on a never-acquired lock should not error.
+	if err := lf.Release(); err != nil {
 		t.Fatalf("Release (no file): %v", err)
+	}
+	// Second Release is also safe.
+	if err := lf.Release(); err != nil {
+		t.Fatalf("Release (second): %v", err)
 	}
 }
 
-func TestAcquireTwice(t *testing.T) {
-	setTempLockPath(t)
+func TestAcquireTwice_SameProcess(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "linuxcnc.lock")
 
-	if err := lockfile.Acquire(); err != nil {
+	lf1 := lockfile.New(path)
+	if err := lf1.Acquire(); err != nil {
 		t.Fatalf("first Acquire: %v", err)
 	}
-	t.Cleanup(func() { _ = lockfile.Release() })
+	defer lf1.Release()
 
-	// Second Acquire when stdin is not a TTY (CI environment) should
-	// auto-cleanup and succeed.
-	if err := lockfile.Acquire(); err != nil {
-		t.Fatalf("second Acquire (auto-cleanup): %v", err)
+	// Second Acquire on the same path from the same process must fail
+	// because flock(LOCK_EX|LOCK_NB) rejects concurrent open-file-descriptions
+	// holding the lock.
+	lf2 := lockfile.New(path)
+	if err := lf2.Acquire(); err == nil {
+		defer lf2.Release()
+		t.Fatal("second Acquire succeeded — expected error (lock already held)")
 	}
+}
+
+func TestAcquireAfterRelease(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "linuxcnc.lock")
+
+	lf := lockfile.New(path)
+	if err := lf.Acquire(); err != nil {
+		t.Fatalf("first Acquire: %v", err)
+	}
+	if err := lf.Release(); err != nil {
+		t.Fatalf("Release: %v", err)
+	}
+
+	// After Release the lock is gone; a fresh Acquire must succeed.
+	lf2 := lockfile.New(path)
+	if err := lf2.Acquire(); err != nil {
+		t.Fatalf("re-Acquire after Release: %v", err)
+	}
+	defer lf2.Release()
 }

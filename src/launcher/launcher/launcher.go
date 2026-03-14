@@ -49,8 +49,9 @@ type Launcher struct {
 	opts          Options
 	ini           *inifile.IniFile
 	logger        *slog.Logger
-	serverProcess *exec.Cmd  // background linuxcncsvr process
-	serverDone    chan error  // receives the result of cmd.Wait() for linuxcncsvr
+	lock          *lockfile.LockFile // flock-based instance lock
+	serverProcess *exec.Cmd          // background linuxcncsvr process
+	serverDone    chan error          // receives the result of cmd.Wait() for linuxcncsvr
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -88,12 +89,13 @@ func (l *Launcher) Run() error {
 	}
 
 	l.logger.Info("acquiring lock file")
-	if err := lockfile.Acquire(); err != nil {
+	l.lock = lockfile.New(lockfile.LockFilePath)
+	if err := l.lock.Acquire(); err != nil {
 		return err
 	}
 	defer func() {
 		l.logger.Info("releasing lock file")
-		if err := lockfile.Release(); err != nil {
+		if err := l.lock.Release(); err != nil {
 			l.logger.Error("releasing lock file", "error", err)
 		}
 	}()
@@ -177,9 +179,12 @@ func (l *Launcher) startServer() error {
 	serverBin := filepath.Join(config.EMC2BinDir, "linuxcncsvr")
 	l.logger.Info("starting NML server", "binary", serverBin)
 
-	cmd := exec.Command(serverBin, "-ini", l.opts.IniFile)
+	cmd := exec.Command(serverBin, "-n", "-ini", l.opts.IniFile)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
 
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("exec %s: %w", serverBin, err)
@@ -245,6 +250,9 @@ func (l *Launcher) startIOControl() error {
 	cmd := exec.Command(halcmdPath, "loadusr", "-Wn", "iocontrol", emcio, "-ini", l.opts.IniFile)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("halcmd loadusr -Wn iocontrol %s: %w", emcio, err)
@@ -273,6 +281,9 @@ func (l *Launcher) startHalUI() error {
 	cmd := exec.Command(halcmdPath, "loadusr", "-Wn", "halui", halui, "-ini", l.opts.IniFile)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("halcmd loadusr -Wn halui %s: %w", halui, err)
@@ -413,6 +424,9 @@ func (l *Launcher) preloadMotionModules() error {
 	tpCmd := exec.Command(halcmdPath, "loadrt", tpMod)
 	tpCmd.Stdout = os.Stdout
 	tpCmd.Stderr = os.Stderr
+	tpCmd.SysProcAttr = &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
 	if err := tpCmd.Run(); err != nil {
 		return fmt.Errorf("halcmd loadrt %s: %w", tpMod, err)
 	}
@@ -420,6 +434,9 @@ func (l *Launcher) preloadMotionModules() error {
 	homeCmd := exec.Command(halcmdPath, "loadrt", homeMod)
 	homeCmd.Stdout = os.Stdout
 	homeCmd.Stderr = os.Stderr
+	homeCmd.SysProcAttr = &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
 	if err := homeCmd.Run(); err != nil {
 		return fmt.Errorf("halcmd loadrt %s: %w", homeMod, err)
 	}

@@ -1,78 +1,67 @@
 // Package lockfile manages the LinuxCNC lock file (/tmp/linuxcnc.lock).
 //
 // The lock file prevents multiple concurrent LinuxCNC instances from running.
-// If the lock file already exists when Acquire is called, the function prompts
-// the user (when connected to a TTY) or proceeds with automatic cleanup.
+// flock(LOCK_EX|LOCK_NB) is used so that the kernel automatically releases
+// the lock when the holding process exits — even on kill -9.
 package lockfile
 
 import (
-	"bufio"
 	"fmt"
 	"os"
-	"strings"
+	"syscall"
 )
 
 // LockFilePath is the canonical path of the LinuxCNC lock file.
 // It is a var (not const) so tests can override it with a temp path.
 var LockFilePath = "/tmp/linuxcnc.lock"
 
-// Acquire creates the lock file.  If the lock file already exists it checks
-// whether to clean up the previous instance:
-//   - When stdin is a TTY the user is prompted interactively.
-//   - When stdin is not a TTY (e.g. automated tests) cleanup proceeds
-//     automatically.
-//
-// Returns an error if the lock file cannot be created.
-func Acquire() error {
-	if _, err := os.Stat(LockFilePath); err == nil {
-		// Lock file exists – ask user or auto-cleanup.
-		if err := handleExistingLock(); err != nil {
-			return err
-		}
-	}
-	f, err := os.Create(LockFilePath)
-	if err != nil {
-		return fmt.Errorf("lockfile: creating %s: %w", LockFilePath, err)
-	}
-	return f.Close()
+// LockFile represents an exclusive lock backed by an OS file.
+type LockFile struct {
+	path string
+	file *os.File
 }
 
-// Release removes the lock file.  It is safe to call even if the file no
-// longer exists (e.g. after a crash cleanup).
-func Release() error {
-	if err := os.Remove(LockFilePath); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("lockfile: removing %s: %w", LockFilePath, err)
+// New returns a new LockFile for the given path.
+func New(path string) *LockFile {
+	return &LockFile{path: path}
+}
+
+// Acquire opens/creates the lock file, applies flock(LOCK_EX|LOCK_NB),
+// and writes the current PID. If another instance holds the lock,
+// an error is returned immediately — no stale-lock handling needed because
+// flock is auto-released by the kernel when the process exits.
+func (l *LockFile) Acquire() error {
+	f, err := os.OpenFile(l.path, os.O_CREATE|os.O_RDWR, 0666)
+	if err != nil {
+		return fmt.Errorf("open lock file: %w", err)
 	}
+
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		f.Close()
+		return fmt.Errorf("another LinuxCNC instance is running (lock held on %s)", l.path)
+	}
+
+	// Write our PID (truncate first in case the file had old content).
+	// Errors here are intentionally ignored: the PID content is informational
+	// only and does not affect locking correctness.
+	_ = f.Truncate(0)
+	_, _ = f.Seek(0, 0)
+	fmt.Fprintf(f, "%d\n", os.Getpid())
+	f.Sync()
+
+	l.file = f
 	return nil
 }
 
-// handleExistingLock is called when the lock file already exists.
-// It either prompts the user or proceeds automatically.
-//
-// TODO(M5): When an existing lock is found, perform orderly shutdown
-// of the previous LinuxCNC instance (kill processes, stop HAL, etc.)
-// matching the bash script's "Cleanup other" behavior.
-func handleExistingLock() error {
-	if isTTY() {
-		fmt.Print("LinuxCNC is still running.  Restart it? [Y/n] ")
-		reader := bufio.NewReader(os.Stdin)
-		line, _ := reader.ReadString('\n')
-		line = strings.TrimSpace(strings.ToLower(line))
-		if line != "" && line != "y" && line != "yes" {
-			return fmt.Errorf("lockfile: not starting new LinuxCNC instance")
-		}
-		fmt.Println("Cleaning up old LinuxCNC...")
-	} else {
-		fmt.Fprintln(os.Stderr, "lockfile: no TTY, cleaning up previous instance automatically")
+// Release releases the flock and removes the PID file.
+func (l *LockFile) Release() error {
+	if l.file == nil {
+		return nil
 	}
-	return Release()
-}
-
-// isTTY reports whether stdin is connected to a terminal.
-func isTTY() bool {
-	fi, err := os.Stdin.Stat()
-	if err != nil {
-		return false
-	}
-	return (fi.Mode() & os.ModeCharDevice) != 0
+	// flock is released automatically when the file is closed, but be explicit.
+	syscall.Flock(int(l.file.Fd()), syscall.LOCK_UN)
+	l.file.Close()
+	os.Remove(l.path)
+	l.file = nil
+	return nil
 }

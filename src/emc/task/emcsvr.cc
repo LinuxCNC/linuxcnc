@@ -32,6 +32,7 @@
 #include <rtapi_string.h>
 
 static int tool_channels = 1;
+static int foreground = 0;
 
 static int iniLoad(const char *filename)
 {
@@ -105,6 +106,14 @@ static RCS_STAT_CHANNEL *toolStatusChannel = NULL;
 int main(int argc, char *argv[])
 {
     double start_time;
+
+    // Check for -n (no-daemonize / foreground) flag before emcGetArgs(),
+    // since emcGetArgs() only knows -ini, -rcsdebug, -queryhost, -host.
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-n") == 0) {
+            foreground = 1;
+        }
+    }
 
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
@@ -208,7 +217,7 @@ int main(int argc, char *argv[])
 				     emc_nmlfile);
 	}
     }
-    daemonize();
+    if (!foreground) daemonize();
     run_nml_servers();
 
     return 0;
