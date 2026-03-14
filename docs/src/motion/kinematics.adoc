@@ -815,4 +815,158 @@ RT `.so` to load and resolves `nonrt_attach` from it at startup.
   `maxkins.c` (dynamic params, not switchkins), `5axiskins.c`
   (switchkins with dynamic params).
 
+[[sec:comp-kins-planner2]]
+=== Adding planner type 2 support to .comp kinematics
+
+Kinematics modules written as `.comp` files (compiled by `halcompile`)
+can be made compatible with the userspace planner (planner type 2) by
+using the `comp_kins_uspace.h` glue header.  This avoids converting the
+module to a hand-written `.c` file while still providing the
+`nonrt_attach()` entry point and shared-memory parameter bridge that
+the planner requires.
+
+==== How it works
+
+In the RT module, `kinematicsForward()` and `kinematicsInverse()` read
+parameters from HAL pins via `*(haldata->pin)`.  When the userspace
+planner loads the same `.so` via `dlopen()`, the `haldata` pointer is
+`NULL` because the HAL pin infrastructure only exists in the RT instance.
+
+The glue header solves this with a dual-path approach:
+
+- *RT path* (`haldata` is set): reads HAL pins as normal, and mirrors
+  each value into a `params.raw[]` slot in HAL shared memory so the
+  userspace side can see it.
+- *Userspace path* (`haldata` is `NULL`): reads a consistent snapshot
+  from the shared-memory `params.raw[]` array instead of touching HAL pins.
+
+The `KINS_READ()` macro handles the switching automatically -- the
+ternary short-circuits so that the HAL pin expression is never evaluated
+when `haldata` is `NULL`.
+
+==== Conversion recipe
+
+Five mechanical steps turn any `.comp` kinematics into a planner-2-aware
+module:
+
+===== Step 1: Include the glue header
+
+Add one include after the `;;` line, alongside the existing kinematics
+headers:
+
+[source,c]
+----
+#include <rtapi_math.h>
+#include <kinematics.h>
+#include "comp_kins_uspace.h"    // planner 2 glue
+----
+
+===== Step 2: Register shared memory in setup
+
+After `hal_ready()` in your setup function, call:
+
+[source,c]
+----
+comp_kins_uspace_setup(comp_id, "mykins", num_joints, "XYZAB");
+----
+
+Arguments: the HAL component ID, the module name (must match
+`[KINS]KINEMATICS` in the INI), the number of joints, and the
+coordinate letters.
+
+===== Step 3: Assign parameter indices
+
+Create a parameter index map.  Each HAL pin that is read inside
+`kinematicsForward()` or `kinematicsInverse()` gets a unique integer
+index into `params.raw[]` (up to 127 slots).  For switchable kinematics,
+index 0 is reserved for the switch type.
+
+[source,c]
+----
+/*
+ * Parameter index map for params.raw[]:
+ *   0 = switchkins_type (reserved for switchable modules)
+ *   1 = tool_offset_z
+ *   2 = x_offset
+ *   3 = z_offset
+ *   4 = x_rot_point
+ *   5 = y_rot_point
+ *   6 = z_rot_point
+ */
+----
+
+===== Step 4: Modify kinematicsForward / kinematicsInverse
+
+Replace each `*(haldata->pin)` read with `KINS_READ(haldata->pin, IDX)`
+and bracket the function body with `COMP_KINS_BEGIN` / `COMP_KINS_END`:
+
+[source,c]
+----
+int kinematicsForward(const double *j,
+                      EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
+{
+    (void)fflags;
+    (void)iflags;
+    COMP_KINS_BEGIN(haldata);   // <1>
+
+    double x_rot = KINS_READ(haldata->x_rot_point, 4);   // <2>
+    double y_rot = KINS_READ(haldata->y_rot_point, 5);
+    double z_rot = KINS_READ(haldata->z_rot_point, 6);
+    double dz    = KINS_READ(haldata->z_offset, 3);
+    double dt    = KINS_READ(haldata->tool_offset_z, 1);
+
+    // ... kinematics math (unchanged) ...
+
+    COMP_KINS_END();            // <3>
+    return 0;
+}
+----
+<1> Snapshots shared memory in userspace; opens a write batch in RT.
+<2> Reads the HAL pin in RT (and pushes to shmem); reads from shmem in
+    userspace.  The index (second argument) must match the parameter map.
+<3> Closes the shmem write batch (sets `tail = head` in RT).
+
+For switchable kinematics, replace `switch (switchkins_type)` with:
+
+[source,c]
+----
+int sw = _comp_uspace_loaded ? COMP_KINS_GET_SWITCH_TYPE()
+                             : (int)switchkins_type;
+switch (sw) {
+----
+
+And in `kinematicsSwitch()`, add:
+
+[source,c]
+----
+COMP_KINS_SET_SWITCH_TYPE(switchkins_type);
+----
+
+===== Step 5: Add the nonrt_attach entry point
+
+At the very end of the file, add one line:
+
+[source,c]
+----
+COMP_KINS_NONRT_ATTACH("mykins")
+----
+
+This generates the `nonrt_attach()` function and its `EXPORT_SYMBOL`.
+The module name must match the string used in `comp_kins_uspace_setup()`.
+
+==== Additional macros
+
+For non-float HAL pin types, use `KINS_READ_S32()` and `KINS_READ_BIT()`
+instead of `KINS_READ()`.  They store integer values as doubles in
+`params.raw[]` and cast back on read.
+
+==== Reference example
+
+See `src/hal/components/xyzab_tdr_kins.comp` for a complete working
+example of a switchable `.comp` kinematics module converted using this
+approach.  The lines marked with `+++` comments show all the additions
+relative to the original module.
+
 // vim: set syntax=asciidoc:
