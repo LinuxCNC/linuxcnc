@@ -1,0 +1,6 @@
+28.ENC MM  GR + ST -  ~0.002"/s UNS  may be run neg pol 
+NR  IP  P  HV GVHI GVLO  TON   TOF  ISO  AJD    ET   CB  RAD   SPA  VDI   VE    VW
+25   8  0  0   40   30     8    12   0    3.6   1.4  10 0.051   0.0  0     0     0 
+24   3  0  0   40   30     4    12   0    3.6   1.4  10  0.02  45.0  0     0     0 
+23   1  0  0   40   30     4    12   0    3.6   1.4  10 0.028  40.0  0     0     0 
+[END]

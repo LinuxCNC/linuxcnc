@@ -1,0 +1,53 @@
+#!/bin/bash
+# 24.11.2025 test the value reciorded is as expected POS NEG or ZERO
+
+# vvv this will silebvce bash, handy when i use pruntf to cnvrt strg to float
+#exec >/dev/null 2>&1 # Redirects all stdout and stderr for the rest of the
+
+# usage
+# M162 P<FullDepth> Q<RPlane>
+
+#halcmd sets dFullDEPTHf $1
+
+## vvv o dfomnt want to set 2x...
+##halcmd setp SEDM.FullDEPTHf $1
+#echo "start 10 sec"
+#sleep 10
+#echo "end  10 sec"
+#d=$(halcmd setp SEDM.FullDEPTHf $1)
+#
+## get value setp[d  to chceck it
+#e=$(halcmd getp SEDM.FullDEPTHf)
+#echo "getp rtns $e"  # OK
+#
+## cnvet strg to floast
+#fd=$(echo "$e" | bc -l)
+#echo "fd is $fd" # OK
+#
+## vvv  XMPL a test of maths on vars
+##printf 'fd + fd is= %f\n' "$( bc <<<"$fd + $fd" )" # OK
+#
+## evaluate fd >0 <0 ==0
+#if (( $(echo "$fd > 0" | bc -l) )); then
+#    echo "$fd is greater than 0"
+#elif (( $(echo "$fd < 0" | bc -l) )); then
+#    echo "$fd is less than 0"
+#else
+#    echo "$fd is equal to 0"
+#fi
+#echo "start 10 sec"
+#sleep 10
+#echo "end  10 sec"
+
+# revert to orig, that seems yto work
+#  querying the comp seems to NOT work
+halcmd setp SEDM.FullDEPTHf $1
+
+#echo "Rplane dist is $2"
+
+halcmd setp SEDM.RPlaneDist $2
+
+
+
+
+exit 0

@@ -1,0 +1,56 @@
+;nuZnegWigl-17-15.ngc
+; lookinmg for why tal skinny tri ovveurs
+;  seems to happern mostly on final ornits
+; use ZNR17-15
+o200 sub
+	M66 E0 L0 ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
+	M199
+	M162 P-1.304 Q+1.00     ; more tests per hr lookimg fdor bad tri from peri tto SPO
+	M163 P0 Q0; OrbType SQR, no Wigl for more tests per hr
+	M160 P19 Q0.635 ; etabnum, MsrdUNS
+	M161 P17 Q15
+	M00
+	M198
+o200 endsub
+
+;///////////////////// PREAMBLE
+G21                       ; mm 
+G90
+G17
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000 ; wishful thinnking
+
+G10L2P1 X0 Y0 Z0 ; UNSHIFT, cut posns will be G43 msr and rel dro
+
+#1 = 0 (assign parameter #1 the value of 0)
+#2 = 1 (was 100 limit)
+#3 = +2.000 ; CPlane  small for more test s per hr
+#4 = +1.0   ; RPlane  small for more test s per hr
+
+o110 while [#1 LT #2]
+
+	g10l2p1 x0 y0 z0; UNSHIFT
+	G0Z#3; CPlane
+
+	;//////////////////// Posn 1
+	g10l2p1 x1 y 0 z1 ;was x0 y0 z2; DATUM for cut #1
+	g0 x0 y0
+	z#4;RPlane rel to  DATUM   at G53 2.5 now
+	;//////////////////// Cut 1 code
+	o200 call
+	;//////////////////// posn 2
+	g10l2p1 x0 y0 z0       ;UNSHIFT
+	G0Z#3;CPlane abso mc coords
+	;
+	#1 = [#1 + 1]
+o110 endwhile
+
+;//////////////////// goto  exit posn
+G10L2P1X0Y0Z0
+G0Z3
+G0X0Y0 ; alreaady at Cplane, moce to convenient x  y 
+;////////// end pgm
+M197 ( turn off JumpENA if leaft on )
+M02
+%

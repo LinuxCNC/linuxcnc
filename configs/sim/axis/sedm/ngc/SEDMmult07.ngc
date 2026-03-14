@@ -1,0 +1,136 @@
+;SEDMmult07.ngc
+;
+o200 sub
+	M66 E0 L0 ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
+	M199
+	M162 P-2.304 Q.255 ; expect DRO 
+	M163 P0 Q00.10
+	M160 P34
+	M161 P25 Q25
+	M166 P0 ; no jump
+	M165 P1	; pitch
+	M00
+	M198
+o200 endsub
+
+;///////////////////// PREAMBLE
+G21                       ; mm 
+G90
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000 ; wishful thinnking
+
+#1 = 0 (assign parameter #1 the value of 0)
+#2 = 100 (limit)
+
+o110 while [#1 LT #2]
+	;//////////////////// Posn 1
+	G0Z3
+	G0X1Y0
+	G0Z0
+	;//////////////////// Cut 1 code
+	o200 call
+	;//////////////////// posn 2
+	G0Z1
+	G0X2Y0
+	G0Z0
+	;//////////////////// CUT 2 code
+	o200 call
+	;//////////////////// posn 3
+	G0Z1
+	G0X3Y0
+	G0Z0
+	;//////////////////// CUT 3 cmds
+	o200 call
+	;//////////////////// posn 4
+	G0Z1
+	G0X4Y0
+	G0Z0
+	;//////////////////// CUT 4 ccmds
+	o200 call
+	;>>>>>>>>>>>>>>>>>>>>>>>>>
+	;//////////////////// Posn 5
+	G0Z1
+	G0X4Y1
+	G0Z0
+	;//////////////////// Cut 5 code
+	o200 call
+	;//////////////////// posn 6
+	G0Z1
+	G0X3Y1
+	G0Z0
+	;//////////////////// CUT 6 code
+	o200 call
+	;//////////////////// posn 7
+	G0Z1
+	G0X2Y1
+	G0Z0
+	;//////////////////// CUT 7 cmds
+	o200 call
+	;//////////////////// posn 8
+	G0Z1
+	G0X1Y1
+	G0Z0
+	;//////////////////// CUT 8 ccmds
+	o200 call
+	;>>>>>>>>>>>>>>>>>>>>>>>>>
+	;*************************
+	;//////////////////// Posn 1
+	G0Z1
+	G0X1Y2
+	G0Z0
+	;//////////////////// Cut 1 code
+	o200 call
+	;//////////////////// posn 2
+	G0Z1
+	G0X2Y2
+	G0Z0
+	;//////////////////// CUT 2 code
+	o200 call
+	;//////////////////// posn 3
+	G0Z1
+	G0X3Y2
+	G0Z0
+	;//////////////////// CUT 3 cmds
+	o200 call
+	;//////////////////// posn 4
+	G0Z1
+	G0X4Y2
+	G0Z0
+	;//////////////////// CUT 4 ccmds
+	o200 call
+	;>>>>>>>>>>>>>>>>>>>>>>>>>
+	;//////////////////// Posn 5
+	G0Z1
+	G0X4Y3
+	G0Z0
+	;//////////////////// Cut 5 code
+	o200 call
+	;//////////////////// posn 6
+	G0Z1
+	G0X3Y3
+	G0Z0
+	;//////////////////// CUT 6 code
+	o200 call
+	;//////////////////// posn 7
+	G0Z1
+	G0X2Y3
+	G0Z0
+	;//////////////////// CUT 7 cmds
+	o200 call
+	;//////////////////// posn 8
+	G0Z1
+	G0X1Y3
+	G0Z0
+	;//////////////////// CUT 8 ccmds
+	o200 call
+	;>>>>>>>>>>>>>>>>>>>>>>>>>
+	#1 = [#1 + 1]
+o110 endwhile
+
+;//////////////////// goto  exit posn
+G0Z3
+G0X0Y0
+;////////// end pgm
+M02
+%

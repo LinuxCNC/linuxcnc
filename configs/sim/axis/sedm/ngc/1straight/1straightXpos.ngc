@@ -1,0 +1,63 @@
+;1straightXpos.ngc
+;
+o200 sub
+	M66 E0 L0 ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
+	M199
+	M162 P1.304 Q-1.00     ; more tests per hr lookimg fdor bad tri from peri tto SPO
+	M163 P0 Q0; OrbType SQR, no Wigl for more tests per hr
+	M160 P34 Q0.254 ; etabnum, MsrdUNS
+	M161 P25 Q25
+	M00
+	M198
+o200 endsub
+
+;///////////////////// PREAMBLE
+G21                       ; mm 
+G90
+G19
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000 ; wishful thinnking
+
+G10L2P1 X0 Y0 Z0 ; UNSHIFT, cut posns will be G43 msr and rel dro
+
+G0Z5		;prepositiomning is done with G17 in mind
+G0X0Y0		; after datum is set, thnik in G1? ( whatever) 
+G0Z0		; until then, Z 1st XY 2nd
+
+#1 = 0 (assign parameter #1 the value of 0)
+#2 = 1 (was 100 limit)
+#3 =  -2.000 ; CPlane  small for more test s per hr
+#4 =  -1.000 ; RPlane  small for more test s per hr
+
+; unshigted ordinates of datum ( cut posn )
+#10 = +3.123
+#11 = 0
+#12 = 0
+ 
+o110 while [#1 LT #2]
+
+	;//////////////////// Posn 1
+	g10l2p1 x#10 y#11 z#12 ; cut ref pt /datum
+	
+	g0 y0 z0 ;  above bore ctr
+	g0 X#3   ; move to Cplane
+	g0 X#4   ; move to Rplane above bore ctr
+	
+	;//////////////////// Cut 1 code
+	o200 call
+	;//////////////////// posn 2
+
+	g10l2p1 x0 y0 z0       ;UNSHIFT
+	G0X0
+	;
+	#1 = [#1 + 1]
+o110 endwhile
+
+;//////////////////// goto  exit posn
+G0Z5
+
+;////////// end pgm
+M197 ( turn off JumpENA if leaft on )
+M02
+%

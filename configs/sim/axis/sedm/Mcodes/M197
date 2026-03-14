@@ -1,0 +1,17 @@
+#!/bin/bash
+# M197  no P no Q
+# turn of jump if it was left on
+# place this in ,ngc just before M02
+
+# M197 toggles SEDM.JumpEna
+#   get checkbnox state
+a="$(halcmd getp SEDM.JumpENA)"
+
+#echo "M197 getp said SEDM.JumpENA was $a "
+
+if [[ $a == "TRUE" ]]; then
+	#echo "was TRUE,so toggling "
+	b="$(halcmd setp techGui.JumpENA.changepin 1)"
+fi
+
+exit 0

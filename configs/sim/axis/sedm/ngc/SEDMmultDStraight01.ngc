@@ -1,0 +1,210 @@
+;SEDMmult07.ngc
+; hard to press PEEK bntn cuz yimw winoiw when bvtn enabled is small, so make it deeper  DUH
+;
+; YAY DRO is relative to THID cut, and is Rel to MC0,0,0, when m,ovinge to nrxt cut
+; one shift is wrong, bad copy and paste  out of sync
+o200 sub
+	M66 E0 L0 ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
+	M199
+	M162 P-5.304 Q.255 ; wasa -2.304   expect DRO 
+	; vvv straight cut (no wigl)
+	M163 P0 Q0.0
+	M160 P34
+	M161 P25 Q25
+	M166 P0 ; no jump
+	M165 P1	; pitch
+	M00
+	M198
+o200 endsub
+
+;///////////////////// PREAMBLE
+G21                       ; mm 
+G90
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000 ; wishful thinnking
+
+#1 = 0 (assign parameter #1 the value of 0)
+#2 = 100 (limit)
+
+o110 while [#1 LT #2]
+	;//////////////////// Posn 1
+	
+	; remove G54 offsets ( G34 id aligned w L1  in G10L2Pi....msr from 'here'
+	g10l2p1x0y0z0; remove shift
+	
+	G0Z3; keep constant ht in wk area
+	# ^^^ motion msrd from ??? G53 ???
+	
+	g10l2p1x1y0z0; add shift, mder from HERE
+	
+	g0x0y0z1; x at Rplane above shifted posn ??? above
+	;G0X1Y0
+	;G0Z0
+	;//////////////////// Cut 1 code
+	o200 call
+	;//////////////////// posn 2
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x2y0z0
+	g0x0y0z1
+	;G0Z1
+	;G0X2Y0
+	;G0Z0
+	;//////////////////// CUT 2 code
+	o200 call
+	;//////////////////// posn 3
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x3y0z0
+	g0x0y0z1
+	;G0Z1
+	;G0X3Y0
+	;G0Z0
+	;//////////////////// CUT 3 cmds
+	o200 call
+	;//////////////////// posn 4
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x4y0z0
+	g0x0y0z1
+	;G0Z1
+	;G0X4Y0
+	;G0Z0
+	;//////////////////// CUT 4 ccmds
+	o200 call
+	;>>>>>>>>>>>>>>>>>>>>>>>>>
+	;//////////////////// Posn 5
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x4y1z0
+	g0x0y0z1
+	;G0Z1
+	;G0X4Y1
+	;G0Z0
+	;//////////////////// Cut 5 code
+	o200 call
+	;//////////////////// posn 6
+	g10l2p1x3y1z0
+	G0Z3; keep constant ht in wk area	g10l2p1x3y1z0
+	g0x0y0z1
+	;G0Z1
+	;G0X3Y1
+	;G0Z0
+	;//////////////////// CUT 6 code
+	o200 call
+	;//////////////////// posn 7
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x1y3z0
+	g0x0y0z1
+	;G0Z1
+	;G0X2Y1
+	;G0Z0
+	;//////////////////// CUT 7 cmds
+	o200 call
+	;//////////////////// posn 8
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x2y1z0
+	g0x0y0z1
+	;G0Z1
+	;G0X1Y1
+	;G0Z0
+	;//////////////////// CUT 8 ccmds
+	o200 call
+	;>>>>>>>>>>>>>>>>>>>>>>>>>
+	;*************************
+	;//////////////////// Posn 1
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x1y1z0
+	g0x0y0z1
+	;G0Z1
+	;G0X1Y2
+	;G0Z0
+	;//////////////////// Cut 1 code
+	o200 call
+	;//////////////////// posn 2
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x1y2z0
+	g0x0y0z1
+	;G0Z1
+	;G0X2Y2
+	;G0Z0
+	;//////////////////// CUT 2 code
+	o200 call
+	;//////////////////// posn 3
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x2y2z0
+	g0x0y0z1
+	;G0Z1
+	;G0X3Y2
+	;G0Z0
+	;//////////////////// CUT 3 cmds
+	o200 call
+	;//////////////////// posn 4
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x3y2z0
+	g0x0y0z1
+	;G0Z1
+	;G0X4Y2
+	;G0Z0
+	;//////////////////// CUT 4 ccmds
+	o200 call
+	;>>>>>>>>>>>>>>>>>>>>>>>>>
+	;//////////////////// Posn 5
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x4y2z0
+	g0x0y0z1
+	;G0Z1
+	;G0X4Y3
+	;G0Z0
+	;//////////////////// Cut 5 code
+	o200 call
+	;//////////////////// posn 6
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x4y3z0
+	g0x0y0z1
+	;G0Z1
+	;G0X3Y3
+	;G0Z0
+	;//////////////////// CUT 6 code
+	o200 call
+	;//////////////////// posn 7
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x3y3z0
+	g0x0y0z1
+	;G0Z1
+	;G0X2Y3
+	;G0Z0
+	;//////////////////// CUT 7 cmds
+	o200 call
+	;//////////////////// posn 8
+	g10l2p1x0y0z0
+	G0Z3; keep constant ht in wk area
+	g10l2p1x2y3z0
+	g0x0y0z1
+	;G0Z1
+	;G0X1Y3
+	;G0Z0
+	;//////////////////// CUT 8 ccmds
+	o200 call
+	;>>>>>>>>>>>>>>>>>>>>>>>>>
+	#1 = [#1 + 1]
+o110 endwhile
+
+;//////////////////// goto  exit posn
+G10l2p1x0y0z0
+
+G0Z3
+G0X0Y0
+;////////// end pgm
+M02
+%

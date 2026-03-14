@@ -1,0 +1,17 @@
+#!/bin/bash
+# 22.11.2025 WAS only SET eTABnUM
+# CHGD TO p ETABNUM q MSRDuns
+
+exec >/dev/null 2>&1 # Redirects all stdout and stderr for the rest of the
+
+# usage
+# M160 P<EtabNum> Q <msrdUns>
+
+# EtabNum, will become a U32 ( bash always give a f;loat)
+# vvv trick to cnvrt Float to INT (U32)
+printf -v EtabNumInt '%d' "$1"
+halcmd sets dEtabNum $EtabNumInt
+
+halcmd sets dMsrdUNSf $2
+
+exit 0
