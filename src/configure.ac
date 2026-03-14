@@ -1633,7 +1633,6 @@ if test "x$enable_golang" = "xyes" && test "x$HAVE_GOLANG" != "xyes"; then
     AC_MSG_ERROR([Go 1.21+ required but not found])
 fi
 
-AM_CONDITIONAL([BUILD_GOLANG], [test "x$HAVE_GOLANG" = "xyes"])
 AC_SUBST([GO])
 AC_SUBST([HAVE_GOLANG])
 

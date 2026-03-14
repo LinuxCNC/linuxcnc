@@ -1,0 +1,65 @@
+# launcher/Submakefile - Go-based LinuxCNC launcher
+# Only included if BUILD_GOLANG is true (Go 1.21+ detected)
+
+ifeq ($(BUILD_GOLANG),yes)
+
+# Build directory for absolute paths
+TOP := $(shell cd ..; pwd)
+
+# Package path for -ldflags -X injection
+LAUNCHER_LDFLAGS_PKG := github.com/sittner/linuxcnc/src/launcher/config
+
+# Compile-time variables injected via -ldflags
+LAUNCHER_LDFLAGS := \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2Home=$(EMC2_HOME)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2BinDir=$(EMC2_BIN_DIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2TclDir=$(EMC2_TCL_DIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2HelpDir=$(EMC2_HELP_DIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2RtlibDir=$(EMC2_RTLIB_DIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2ConfigPath=$(LINUXCNC_CONFIG_PATH)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2NCFilesDir=$(EMC2_NCFILES_DIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2LangDir=$(EMC2_LANG_DIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2ImageDir=$(EMC2_IMAGEDIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2TclLibDir=$(EMC2_TCL_LIB_DIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).HalibDir=$(HALLIB_DIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2Version=$(EMC2VERSION)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).RunInPlace=$(RUN_IN_PLACE)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).DefaultNmlFile=$(DEFAULT_NMLFILE)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).ModExt=$(MODULE_EXT)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).KernelVers=$(kernelvers)'
+
+# Go source files (dependencies for the build target)
+LAUNCHER_GO_SRC := \
+    launcher/main.go \
+    launcher/config/paths.go \
+    launcher/inifile/parser.go \
+    launcher/inifile/types.go \
+    launcher/lockfile/lockfile.go \
+    launcher/launcher/launcher.go
+
+# Build the launcher binary
+../bin/linuxcnc-launcher: $(LAUNCHER_GO_SRC)
+	$(ECHO) Building Go launcher
+	$(Q)cd launcher && $(GO) build -ldflags "$(LAUNCHER_LDFLAGS)" -o $(TOP)/bin/linuxcnc-launcher .
+
+TARGETS += ../bin/linuxcnc-launcher
+
+# Test target
+.PHONY: test-launcher
+test-launcher:
+	$(Q)cd launcher && $(GO) test ./...
+
+# Clean
+clean: launcher-clean
+.PHONY: launcher-clean
+launcher-clean:
+	rm -f ../bin/linuxcnc-launcher
+
+# Install
+install: launcher-install
+.PHONY: launcher-install
+launcher-install: ../bin/linuxcnc-launcher
+	$(DIR) $(DESTDIR)$(EMC2_BIN_DIR)
+	$(INSTALL) -m 0755 ../bin/linuxcnc-launcher $(DESTDIR)$(EMC2_BIN_DIR)/linuxcnc-launcher
+
+endif # BUILD_GOLANG
