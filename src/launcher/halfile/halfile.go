@@ -238,11 +238,16 @@ func (e *Executor) runHalcmdArgs(args []string) error {
 }
 
 // runHaltcl executes a TCL HAL file via "haltcl [-i <inifile>] <file> [args...]".
-// The haltcl binary is expected to live in the same directory as halcmd.
+// In a RIP (run-in-place) build, haltcl lives in scripts/ which is prepended to
+// PATH by setupEnvironment, so exec.LookPath will find it. For installed systems,
+// haltcl lives in the same directory as halcmd (the fallback).
 // HALLIB_DIR and INI_FILE_NAME are set in the subprocess environment so that
 // TCL scripts can access them via $::env(HALLIB_DIR) and $::env(INI_FILE_NAME).
 func (e *Executor) runHaltcl(path string, args []string) error {
-	haltclPath := filepath.Join(filepath.Dir(e.halcmdPath), "haltcl")
+	haltclPath, err := exec.LookPath("haltcl")
+	if err != nil {
+		haltclPath = filepath.Join(filepath.Dir(e.halcmdPath), "haltcl")
+	}
 
 	var cmdArgs []string
 	iniFile := ""
