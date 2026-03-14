@@ -1,7 +1,8 @@
 // Package launcher provides the main Launcher struct and orchestration logic
 // for the LinuxCNC Go launcher.
 //
-// This package implements M1–M6 of the Go launcher (task + display launch).
+// This package implements M1–M7 of the Go launcher (task + display launch +
+// orderly shutdown).
 package launcher
 
 import (
@@ -10,9 +11,11 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -50,12 +53,14 @@ type Launcher struct {
 	opts          Options
 	ini           *inifile.IniFile
 	logger        *slog.Logger
-	lock          *lockfile.LockFile // flock-based instance lock
-	serverProcess *exec.Cmd          // background linuxcncsvr process
-	serverDone    chan error          // receives the result of cmd.Wait() for linuxcncsvr
-	taskProcess   *exec.Cmd          // background milltask/linuxcnctask process
-	taskDone      chan error          // receives the result of cmd.Wait() for task
-	appProcesses  []*exec.Cmd        // [APPLICATIONS]APP background processes
+	lock          *lockfile.LockFile   // flock-based instance lock
+	rtMgr         *realtime.Manager    // realtime environment manager
+	cleanupOnce   sync.Once            // ensures cleanup runs exactly once
+	serverProcess *exec.Cmd            // background linuxcncsvr process
+	serverDone    chan error            // receives the result of cmd.Wait() for linuxcncsvr
+	taskProcess   *exec.Cmd            // background milltask/linuxcnctask process
+	taskDone      chan error            // receives the result of cmd.Wait() for task
+	appProcesses  []*exec.Cmd          // [APPLICATIONS]APP background processes
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -69,7 +74,7 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 
 // Run executes the full LinuxCNC startup sequence.
 //
-// Implemented milestones M1–M6:
+// Implemented milestones M1–M7:
 // Startup order matches scripts/linuxcnc.in:
 //  1. Sets up environment variables (INI_FILE_NAME exported before any subprocess).
 //  2. Acquires the lock file.
@@ -86,6 +91,8 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 // 13. Starts HAL threads (M6, step 4.3.10).
 // 14. Launches [APPLICATIONS]APP entries in background (M6, step 4.3.11).
 // 15. Launches the display in the foreground — blocks until the user closes the GUI (M6, step 4.3.12).
+// 16. Shuts down in ordered sequence (M7): display helpers → AXIS quit → [HAL]SHUTDOWN →
+//     user-space → halcmd stop → halcmd unload all → wait → realtime stop → NML shm → lock.
 //
 // Note: POSTGUI_HALFILE loading is intentionally omitted here; it is the
 // responsibility of the display GUI (AXIS, QtVCP, gmoccapy, etc.) to load
@@ -103,11 +110,22 @@ func (l *Launcher) Run() error {
 	if err := l.lock.Acquire(); err != nil {
 		return err
 	}
-	defer func() {
-		l.logger.Info("releasing lock file")
-		if err := l.lock.Release(); err != nil {
-			l.logger.Error("releasing lock file", "error", err)
-		}
+	// M7: Single deferred cleanup replaces individual defers.
+	// cleanup() is idempotent (sync.Once) so it is also safe to call from
+	// the signal handler goroutine below.
+	defer l.cleanup()
+
+	// M7: Trap SIGINT and SIGTERM so that Ctrl-C triggers an ordered shutdown
+	// instead of an abrupt process exit that leaves HAL loaded.
+	// This mirrors scripts/linuxcnc.in line 778:
+	//   trap 'Cleanup ; exit 0' SIGINT SIGTERM
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		sig := <-sigCh
+		l.logger.Info("received signal, shutting down", "signal", sig)
+		l.cleanup()
+		os.Exit(0)
 	}()
 
 	l.logger.Info("parsing INI file", "path", l.opts.IniFile)
@@ -152,19 +170,13 @@ func (l *Launcher) Run() error {
 	if err := l.startServer(); err != nil {
 		return fmt.Errorf("starting linuxcncsvr: %w", err)
 	}
-	defer l.stopServer()
 
 	// --- M4: Realtime Manager ---
-	rtMgr := realtime.New(l.logger)
+	l.rtMgr = realtime.New(l.logger)
 	l.logger.Info("starting realtime environment")
-	if err := rtMgr.Start(); err != nil {
+	if err := l.rtMgr.Start(); err != nil {
 		return fmt.Errorf("realtime start failed: %w", err)
 	}
-	defer func() {
-		if err := rtMgr.Stop(); err != nil {
-			l.logger.Error("realtime stop failed", "error", err)
-		}
-	}()
 
 	// Start iocontrol via halcmd loadusr -Wn iocontrol.
 	// iocontrol is a HAL userspace component; HAL manages its lifecycle and
@@ -200,7 +212,6 @@ func (l *Launcher) Run() error {
 	if err := l.startTask(); err != nil {
 		return fmt.Errorf("starting task: %w", err)
 	}
-	defer l.stopTask()
 
 	// 6b. Execute [HAL]HALCMD entries (step 4.3.8).
 	// These run after the task controller has started, matching the bash launcher.
@@ -228,15 +239,15 @@ func (l *Launcher) Run() error {
 	if err := l.runApplications(); err != nil {
 		l.logger.Warn("application launch error", "error", err)
 	}
-	defer l.stopApplications()
 
 	// 6f. Launch display in foreground (blocks until user closes GUI, step 4.3.12).
 	if err := l.startDisplay(); err != nil {
 		return fmt.Errorf("display: %w", err)
 	}
 
-	// Display has exited — cleanup happens via defers:
-	//   stopApplications → stopTask → realtime.Stop → stopServer → lock.Release
+	// Display has exited — cleanup runs via deferred l.cleanup():
+	//   kill displays → axis-remote quit → [HAL]SHUTDOWN → kill user-space →
+	//   halcmd stop → halcmd unload all → wait → realtime stop → NML shm → lock
 	return nil
 }
 
