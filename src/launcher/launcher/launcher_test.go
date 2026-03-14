@@ -1,13 +1,16 @@
 package launcher
 
 import (
+	"errors"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/sittner/linuxcnc/src/launcher/config"
 	"github.com/sittner/linuxcnc/src/launcher/inifile"
 )
 
@@ -636,5 +639,215 @@ func TestResolveRelativePath_Relative(t *testing.T) {
 	want := "/configs/sim/linuxcnc.nml"
 	if got != filepath.Clean(want) {
 		t.Errorf("resolveRelativePath = %q, want %q", got, want)
+	}
+}
+
+// --------------------------------------------------------------------------
+// Tests for checkVersion
+// --------------------------------------------------------------------------
+
+// newLauncherWithIniPath is a helper that creates a Launcher with a parsed INI.
+func newLauncherWithIniPath(t *testing.T, iniFilePath string) *Launcher {
+	t.Helper()
+	ini, err := inifile.Parse(iniFilePath)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	return &Launcher{
+		opts:   Options{IniFile: iniFilePath},
+		ini:    ini,
+		logger: slog.New(slog.NewTextHandler(os.Stderr, nil)),
+	}
+}
+
+// TestCheckVersion_CurrentVersion verifies that version "1.1" is a no-op.
+func TestCheckVersion_CurrentVersion(t *testing.T) {
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", `[EMC]
+VERSION = 1.1
+`)
+	l := newLauncherWithIniPath(t, f)
+	if err := l.checkVersion(); err != nil {
+		t.Errorf("checkVersion with VERSION=1.1 returned error: %v", err)
+	}
+}
+
+// TestCheckVersion_MissingVersion verifies that a missing [EMC]VERSION triggers
+// the update path; when DISPLAY is unset an error about the missing X display is returned.
+func TestCheckVersion_MissingVersion(t *testing.T) {
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", `[EMC]
+MACHINE = Test
+`)
+	l := newLauncherWithIniPath(t, f)
+
+	// Ensure DISPLAY is not set so we exercise the no-display error path.
+	origDisplay := os.Getenv("DISPLAY")
+	os.Unsetenv("DISPLAY")
+	defer func() { os.Setenv("DISPLAY", origDisplay) }()
+
+	err := l.checkVersion()
+	if err == nil {
+		t.Fatal("checkVersion with no VERSION and no DISPLAY should return error")
+	}
+	if !strings.Contains(err.Error(), "without an X display") {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+// --------------------------------------------------------------------------
+// Tests for checkPlasmaC
+// --------------------------------------------------------------------------
+
+// TestCheckPlasmaC_NoPlasmaC verifies that a non-PlasmaC INI is a no-op.
+func TestCheckPlasmaC_NoPlasmaC(t *testing.T) {
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", `[EMC]
+MACHINE = Test
+`)
+	l := newLauncherWithIniPath(t, f)
+	if err := l.checkPlasmaC(); err != nil {
+		t.Errorf("checkPlasmaC on non-PlasmaC INI returned error: %v", err)
+	}
+}
+
+// TestCheckPlasmaC_PlasmaC verifies that [PLASMAC]MODE triggers ErrPlasmaC.
+func TestCheckPlasmaC_PlasmaC(t *testing.T) {
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", `[PLASMAC]
+MODE = 0
+`)
+	l := newLauncherWithIniPath(t, f)
+	err := l.checkPlasmaC()
+	if !errors.Is(err, ErrPlasmaC) {
+		t.Errorf("checkPlasmaC on PlasmaC INI returned %v, want ErrPlasmaC", err)
+	}
+}
+
+// --------------------------------------------------------------------------
+// Tests for showIntroGraphic path resolution
+// --------------------------------------------------------------------------
+
+// resolveIntroGraphicPath exercises the image path resolution logic from
+// showIntroGraphic without actually launching popimage.
+func resolveIntroGraphicPath(img, iniDir, imageDir string) string {
+	switch {
+	case fileExists(img):
+		return img
+	case fileExists(filepath.Join(iniDir, img)):
+		return filepath.Join(iniDir, img)
+	case fileExists(filepath.Join(imageDir, img)):
+		return filepath.Join(imageDir, img)
+	}
+	return ""
+}
+
+// TestShowIntroGraphic_ImageInIniDir verifies that an image found in the INI
+// directory is resolved correctly.
+func TestShowIntroGraphic_ImageInIniDir(t *testing.T) {
+	dir := t.TempDir()
+
+	// Create a fake image file in the INI directory.
+	imgPath := filepath.Join(dir, "splash.png")
+	if err := os.WriteFile(imgPath, []byte{}, 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	got := resolveIntroGraphicPath("splash.png", dir, "/nonexistent")
+	if got != imgPath {
+		t.Errorf("resolved = %q, want %q", got, imgPath)
+	}
+}
+
+// TestShowIntroGraphic_NotFound verifies that a missing image resolves to "".
+func TestShowIntroGraphic_NotFound(t *testing.T) {
+	got := resolveIntroGraphicPath("nosuchfile.png", "/tmp/nosuchdir", "/tmp/nosuchdir2")
+	if got != "" {
+		t.Errorf("resolved = %q, want empty", got)
+	}
+}
+
+// TestShowIntroGraphic_NoOp verifies that showIntroGraphic is a no-op when
+// [DISPLAY]INTRO_GRAPHIC is not set.
+func TestShowIntroGraphic_NoOp(t *testing.T) {
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", `[DISPLAY]
+DISPLAY = axis
+`)
+	l := newLauncherWithIniPath(t, f)
+	// Should not panic or error.
+	l.showIntroGraphic()
+}
+
+// --------------------------------------------------------------------------
+// Tests for checkConfig
+// --------------------------------------------------------------------------
+
+// checkConfigLauncher is a helper that creates a Launcher and overrides
+// config.HalibDir/config.Tclsh with the given values for the duration of a
+// test.  It returns the Launcher and a cleanup function.
+func checkConfigLauncher(t *testing.T, tclsh, halibDir, iniFile string) (*Launcher, func()) {
+	t.Helper()
+	ini, err := inifile.Parse(iniFile)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	l := &Launcher{
+		opts:   Options{IniFile: iniFile},
+		ini:    ini,
+		logger: slog.New(slog.NewTextHandler(os.Stderr, nil)),
+	}
+	origHalibDir := config.HalibDir
+	origTclsh := config.Tclsh
+	config.HalibDir = halibDir
+	config.Tclsh = tclsh
+	return l, func() {
+		config.HalibDir = origHalibDir
+		config.Tclsh = origTclsh
+	}
+}
+
+// TestCheckConfig_ScriptSucceeds verifies that checkConfig() returns nil when
+// the check_config.tcl script exits with code 0.  A temporary Tcl script that
+// does nothing (exits 0) is used in place of the real check_config.tcl.
+func TestCheckConfig_ScriptSucceeds(t *testing.T) {
+	tclsh, err := exec.LookPath("tclsh")
+	if err != nil {
+		t.Skip("tclsh not found on PATH")
+	}
+
+	dir := t.TempDir()
+	iniFile := writeIni(t, dir, "test.ini", "[EMC]\nMACHINE = Test\n")
+	if err := os.WriteFile(filepath.Join(dir, "check_config.tcl"), []byte("exit 0\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	l, cleanup := checkConfigLauncher(t, tclsh, dir, iniFile)
+	defer cleanup()
+
+	if err := l.checkConfig(); err != nil {
+		t.Errorf("checkConfig() with exit-0 script returned error: %v", err)
+	}
+}
+
+// TestCheckConfig_ScriptFails verifies that checkConfig() returns an error when
+// the check_config.tcl script exits with a non-zero status.
+func TestCheckConfig_ScriptFails(t *testing.T) {
+	tclsh, err := exec.LookPath("tclsh")
+	if err != nil {
+		t.Skip("tclsh not found on PATH")
+	}
+
+	dir := t.TempDir()
+	iniFile := writeIni(t, dir, "test.ini", "[EMC]\nMACHINE = Test\n")
+	if err := os.WriteFile(filepath.Join(dir, "check_config.tcl"), []byte("exit 1\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	l, cleanup := checkConfigLauncher(t, tclsh, dir, iniFile)
+	defer cleanup()
+
+	if err := l.checkConfig(); err == nil {
+		t.Error("checkConfig() with exit-1 script should return error, got nil")
 	}
 }

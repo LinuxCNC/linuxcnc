@@ -49,6 +49,10 @@ var (
 	// DefaultNmlFile is the path to the default NML configuration file (@DEFAULT_NMLFILE@).
 	DefaultNmlFile string
 
+	// Tclsh is the path to the Tcl shell interpreter (@TCLSH@).
+	// Falls back to looking up "tclsh" on PATH when empty.
+	Tclsh string
+
 	// ModExt is the module file extension for loadable kernel modules (@MODEXT@).
 	ModExt string
 

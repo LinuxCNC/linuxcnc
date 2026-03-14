@@ -7,6 +7,7 @@ package launcher
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -161,6 +162,34 @@ func (l *Launcher) Run() error {
 	l.logger.Info("changed working directory", "dir", iniDir)
 
 	l.logConfiguration()
+
+	// Pre-launch validation checks (mirrors scripts/linuxcnc.in lines 495–530
+	// and 791–812): run after INI parsing + include expansion + chdir, but
+	// before startServer().
+
+	// 1. [EMC]VERSION check + update_ini (lines 495–508).
+	if err := l.checkVersion(); err != nil {
+		if errors.Is(err, ErrUpdateCancelled) {
+			return nil // user cancelled — clean exit
+		}
+		return err
+	}
+
+	// 2. PlasmaC migration check (lines 511–522).
+	if err := l.checkPlasmaC(); err != nil {
+		if errors.Is(err, ErrPlasmaC) {
+			return nil // PlasmaC handled — clean exit
+		}
+		return err
+	}
+
+	// 3. check_config.tcl validation (lines 524–529).
+	if err := l.checkConfig(); err != nil {
+		return err
+	}
+
+	// 4. Intro graphic popup (lines 791–812).
+	l.showIntroGraphic()
 
 	// --- M5: Process Manager ---
 
