@@ -95,10 +95,16 @@ DISPLAY_DATA
 
 | Config dir | HAL direction | Meaning                                                      |
 |------------|---------------|--------------------------------------------------------------|
-| `in`       | HAL_IN        | HMI writes to HAL (component reads)                         |
-| `out`      | HAL_OUT       | HMI reads from HAL (component writes)                       |
-| `inout`    | HAL_IO        | Bidirectional: both HMI and HAL can read and write          |
+| `in`       | HAL_IN        | Input to the component: read-only from HMI                  |
+| `out`      | HAL_OUT       | Output from the component: writable from HMI via ADS        |
+| `inout`    | HAL_IO        | Bidirectional: readable and writable from HMI               |
 | `pad`      | *(none)*      | Reserved space; no HAL pin, not listed in ADS symbol table  |
+
+> **Note:** Directions use standard LinuxCNC HAL convention and are named from
+> the component's perspective. `in` means the component receives (reads) the
+> value — from the HMI's point of view these pins are read-only. `out` means
+> the component produces (writes) the value — the HMI writes to these pins
+> via ADS and the component pushes them into HAL via `pin.Set()`.
 
 ### Automatic struct alignment
 

@@ -13,9 +13,12 @@ import (
 type PinDir string
 
 const (
-	// DirIn means the HAL component receives this value (HMI writes TO the PLC/HAL).
+	// DirIn means input to the HAL component (HAL_IN): the pin is read by the
+	// component. From the HMI's perspective this pin is read-only.
 	DirIn PinDir = "in"
-	// DirOut means the HAL component produces this value (HMI reads FROM the PLC/HAL).
+	// DirOut means output from the HAL component (HAL_OUT): the pin is written by
+	// the component (via ADS writes from the HMI). From the HMI's perspective
+	// this pin is writable.
 	DirOut PinDir = "out"
 	// DirInOut means the HAL component can both read and write the value (bidirectional).
 	DirInOut PinDir = "inout"
