@@ -351,6 +351,9 @@ func (l *Launcher) setupEnvironment() {
 		}
 	}
 
+	// LINUXCNC_TCL_DIR — needed by twopass.tcl and other TCL scripts.
+	setIfEmpty("LINUXCNC_TCL_DIR", config.EMC2TclDir)
+
 	// HALLIB_PATH – start with ".:HALLIB_DIR", then prepend -H dirs.
 	halibPath := "."
 	if config.HalibDir != "" {
