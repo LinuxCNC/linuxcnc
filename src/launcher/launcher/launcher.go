@@ -1,16 +1,17 @@
 // Package launcher provides the main Launcher struct and orchestration logic
 // for the LinuxCNC Go launcher.
 //
-// This package implements M1–M5 of the Go launcher and provides stub
-// methods for the remaining milestones (M6–M7).
+// This package implements M1–M6 of the Go launcher (task + display launch).
 package launcher
 
 import (
+	"bufio"
 	"fmt"
 	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -52,6 +53,9 @@ type Launcher struct {
 	lock          *lockfile.LockFile // flock-based instance lock
 	serverProcess *exec.Cmd          // background linuxcncsvr process
 	serverDone    chan error          // receives the result of cmd.Wait() for linuxcncsvr
+	taskProcess   *exec.Cmd          // background milltask/linuxcnctask process
+	taskDone      chan error          // receives the result of cmd.Wait() for task
+	appProcesses  []*exec.Cmd        // [APPLICATIONS]APP background processes
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -65,7 +69,7 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 
 // Run executes the full LinuxCNC startup sequence.
 //
-// Implemented milestones M1–M5; stubs remain for M6–M7.
+// Implemented milestones M1–M6:
 // Startup order matches scripts/linuxcnc.in:
 //  1. Sets up environment variables (INI_FILE_NAME exported before any subprocess).
 //  2. Acquires the lock file.
@@ -76,7 +80,11 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 //  7. Starts halui via halcmd loadusr -Wn if configured (M5).
 //  8. Preloads tpmod/homemod (M4).
 //  9. Executes HAL files (M3).
-// 10. Stubs for task and display (M6–M7).
+// 10. Starts the task controller in background (M6).
+// 11. Executes post-GUI HAL files (M6).
+// 12. Starts HAL threads (M6).
+// 13. Launches [APPLICATIONS]APP entries in background (M6).
+// 14. Launches the display in the foreground — blocks until the user closes the GUI (M6).
 func (l *Launcher) Run() error {
 	l.setupEnvironment()
 
@@ -172,9 +180,40 @@ func (l *Launcher) Run() error {
 		l.logger.Warn("HAL file execution error (continuing)", "error", err)
 	}
 
-	l.logger.Info("would start task / display (M6)")
-	l.logger.Info("would wait for display to exit (M7)")
+	// --- M6: Task + Display Launch ---
 
+	// 6a. Start task controller in background.
+	if err := l.startTask(); err != nil {
+		return fmt.Errorf("starting task: %w", err)
+	}
+	defer l.stopTask()
+
+	// 6b. Execute post-GUI HAL files ([HAL]POSTGUI_HALFILE).
+	if err := halExec.ExecutePostHalCommands(); err != nil {
+		if !l.opts.ContinueOnError {
+			return fmt.Errorf("post-GUI HAL execution failed: %w", err)
+		}
+		l.logger.Warn("post-GUI HAL execution error (continuing)", "error", err)
+	}
+
+	// 6c. Start HAL threads (halcmd start).
+	if err := l.startHalThreads(); err != nil {
+		return fmt.Errorf("halcmd start: %w", err)
+	}
+
+	// 6d. Launch application entries ([APPLICATIONS]APP) in background.
+	if err := l.runApplications(); err != nil {
+		l.logger.Warn("application launch error", "error", err)
+	}
+	defer l.stopApplications()
+
+	// 6e. Launch display in foreground (blocks until user closes GUI).
+	if err := l.startDisplay(); err != nil {
+		return fmt.Errorf("display: %w", err)
+	}
+
+	// Display has exited — cleanup happens via defers:
+	//   stopApplications → stopTask → realtime.Stop → stopServer → lock.Release
 	return nil
 }
 
@@ -469,5 +508,279 @@ func (l *Launcher) preloadMotionModules() error {
 		return fmt.Errorf("halcmd loadrt %s: %w", homeMod, err)
 	}
 
+	return nil
+}
+
+// startTask starts the task controller (milltask/linuxcnctask) as a background
+// process via halcmd loadusr.
+//
+// This mirrors scripts/linuxcnc.in line 954:
+//
+//	halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE" &
+//
+// The -Wn inihal flag makes halcmd wait for the inihal HAL component to register
+// before returning; the & means the launcher doesn't block on this.
+// INI resolution: [TASK]TASK → default "linuxcnctask"; legacy rename "emctask" → "linuxcnctask".
+func (l *Launcher) startTask() error {
+	emctask := l.ini.Get("TASK", "TASK")
+	if emctask == "" || emctask == "emctask" {
+		emctask = "linuxcnctask"
+	}
+
+	l.logger.Info("starting task controller", "program", emctask)
+
+	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
+	cmd := exec.Command(halcmdPath, "loadusr", "-Wn", "inihal", emctask, "-ini", l.opts.IniFile)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("exec halcmd loadusr -Wn inihal %s: %w", emctask, err)
+	}
+
+	l.taskProcess = cmd
+	l.taskDone = make(chan error, 1)
+	go func() { l.taskDone <- cmd.Wait() }()
+
+	// Give the task a brief window to fail fast.
+	select {
+	case err := <-l.taskDone:
+		return fmt.Errorf("task process (pid %d) exited immediately: %w", cmd.Process.Pid, err)
+	case <-time.After(100 * time.Millisecond):
+		// Still running — good.
+	}
+
+	l.logger.Info("task controller started", "pid", cmd.Process.Pid)
+	return nil
+}
+
+// stopTask terminates the task controller background process gracefully.
+//
+// It sends SIGTERM first and waits up to 2 seconds for a clean exit.
+// If the process has not exited by then, SIGKILL is sent.
+func (l *Launcher) stopTask() {
+	if l.taskProcess == nil || l.taskProcess.Process == nil {
+		return
+	}
+	l.logger.Info("stopping task controller")
+	if err := l.taskProcess.Process.Signal(syscall.SIGTERM); err != nil {
+		l.logger.Debug("SIGTERM failed (process may have already exited)", "error", err)
+	}
+	select {
+	case <-l.taskDone:
+		l.logger.Debug("task controller exited cleanly")
+	case <-time.After(2 * time.Second):
+		l.logger.Warn("task controller did not exit in time, sending SIGKILL")
+		_ = l.taskProcess.Process.Kill()
+		<-l.taskDone
+	}
+}
+
+// startHalThreads executes "halcmd start" to start all HAL threads.
+//
+// This mirrors scripts/linuxcnc.in line 999:
+//
+//	$HALCMD start
+func (l *Launcher) startHalThreads() error {
+	l.logger.Info("starting HAL threads")
+
+	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
+	cmd := exec.Command(halcmdPath, "start")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("halcmd start: %w", err)
+	}
+
+	return nil
+}
+
+// isExecutable reports whether the given path is a regular, executable file.
+func isExecutable(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && !info.IsDir() && info.Mode()&0o111 != 0
+}
+
+// runApplications launches [APPLICATIONS]APP entries from the INI file in the
+// background.  This mirrors the run_applications() function in
+// scripts/linuxcnc.in lines 394–428.
+//
+// If no APP entries are found, this is a no-op.
+// [APPLICATIONS]DELAY specifies a sleep (in seconds) before each app launch.
+func (l *Launcher) runApplications() error {
+	apps := l.ini.GetAll("APPLICATIONS", "APP")
+	if len(apps) == 0 {
+		return nil
+	}
+
+	delayStr := l.ini.Get("APPLICATIONS", "DELAY")
+	if delayStr == "" {
+		delayStr = "0"
+	}
+	delaySecs, err := strconv.ParseFloat(delayStr, 64)
+	if err != nil {
+		l.logger.Warn("invalid [APPLICATIONS]DELAY, defaulting to 0", "value", delayStr)
+		delaySecs = 0
+	}
+	delay := time.Duration(delaySecs * float64(time.Second))
+
+	configDir := filepath.Dir(l.opts.IniFile)
+
+	for _, app := range apps {
+		fields := strings.Fields(app)
+		if len(fields) == 0 {
+			continue
+		}
+		name := fields[0]
+		args := fields[1:]
+
+		// Resolve the executable path.
+		var execPath string
+		switch {
+		case filepath.IsAbs(name):
+			// Absolute path — use as-is.
+			execPath = name
+		case strings.HasPrefix(name, "./"):
+			// Relative path — resolve relative to CONFIG_DIR.
+			execPath = filepath.Join(configDir, name)
+		default:
+			// Try CONFIG_DIR/name first; fall back to PATH lookup.
+			candidate := filepath.Join(configDir, name)
+			if isExecutable(candidate) {
+				execPath = candidate
+			} else {
+				found, lookErr := exec.LookPath(name)
+				if lookErr != nil {
+					l.logger.Warn("application not found, skipping", "app", name)
+					continue
+				}
+				execPath = found
+			}
+		}
+
+		// Verify the resolved path is executable.
+		if !isExecutable(execPath) {
+			l.logger.Warn("application not executable, skipping", "path", execPath)
+			continue
+		}
+
+		// Sleep before launching if a delay is configured.
+		if delay > 0 {
+			time.Sleep(delay)
+		}
+
+		cmd := exec.Command(execPath, args...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			Pdeathsig: syscall.SIGTERM,
+		}
+
+		if err := cmd.Start(); err != nil {
+			l.logger.Warn("failed to start application", "app", execPath, "error", err)
+			continue
+		}
+
+		// Reap the child process to prevent zombies if it exits before stopApplications().
+		go func() { _ = cmd.Wait() }()
+
+		l.logger.Info("started application", "app", execPath, "pid", cmd.Process.Pid)
+		l.appProcesses = append(l.appProcesses, cmd)
+	}
+
+	return nil
+}
+
+// stopApplications kills all background application processes launched by
+// runApplications().  Best-effort — errors are logged but not returned.
+// Note: cmd.Wait() was already called by the reaper goroutine in runApplications(),
+// so we only send signals here without waiting.
+func (l *Launcher) stopApplications() {
+	for _, cmd := range l.appProcesses {
+		if cmd.Process == nil {
+			continue
+		}
+		l.logger.Debug("stopping application", "pid", cmd.Process.Pid)
+		if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
+			l.logger.Debug("SIGTERM failed for application (may have already exited)", "pid", cmd.Process.Pid, "error", err)
+			continue
+		}
+		// Give the process a moment to exit after SIGTERM.
+		time.Sleep(500 * time.Millisecond)
+		// Best-effort SIGKILL if still running.
+		_ = cmd.Process.Kill()
+	}
+}
+
+// startDisplay launches the configured display GUI in the foreground (blocking).
+//
+// This mirrors scripts/linuxcnc.in lines 1004–1036.  The display program is
+// read from [DISPLAY]DISPLAY and dispatched based on the program name:
+//
+//   - tklinuxcnc / mini: $LINUXCNC_TCL_DIR/<display>.tcl -ini <ini> [args]
+//   - dummy:             prints a prompt and waits for Enter
+//   - linuxcncrsh:       <display> [args] -- -ini <ini>
+//   - default:           <display> -ini <ini> [args]
+//
+// cmd.Run() blocks until the user closes the GUI.
+func (l *Launcher) startDisplay() error {
+	displayVal := l.ini.Get("DISPLAY", "DISPLAY")
+	if displayVal == "" {
+		return fmt.Errorf("no [DISPLAY]DISPLAY configured")
+	}
+
+	fields := strings.Fields(displayVal)
+	emcDisplay := fields[0]
+	displayArgs := fields[1:]
+
+	// Legacy rename.
+	if emcDisplay == "tkemc" {
+		emcDisplay = "tklinuxcnc"
+	}
+
+	l.logger.Info("starting display", "display", emcDisplay)
+
+	var cmd *exec.Cmd
+
+	switch emcDisplay {
+	case "tklinuxcnc", "mini":
+		tclScript := filepath.Join(config.EMC2TclDir, emcDisplay+".tcl")
+		args := append([]string{"-ini", l.opts.IniFile}, displayArgs...)
+		cmd = exec.Command(tclScript, args...)
+
+	case "dummy":
+		fmt.Println("DUMMY DISPLAY MODULE, press <ENTER> to continue.")
+		_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
+		return nil
+
+	case "linuxcncrsh":
+		// Note the -- separator before -ini.
+		args := make([]string, 0, len(displayArgs)+3)
+		args = append(args, displayArgs...)
+		args = append(args, "--", "-ini", l.opts.IniFile)
+		cmd = exec.Command(emcDisplay, args...)
+
+	default:
+		args := append([]string{"-ini", l.opts.IniFile}, displayArgs...)
+		cmd = exec.Command(emcDisplay, args...)
+	}
+
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
+
+	if err := cmd.Run(); err != nil {
+		l.logger.Warn("display exited with error", "display", emcDisplay, "error", err)
+	}
 	return nil
 }

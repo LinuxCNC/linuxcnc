@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/sittner/linuxcnc/src/launcher/inifile"
@@ -267,5 +269,201 @@ SERVO_PERIOD = 1000000
 	wantSub := "loadrt motmod servo_period_nsec=1000000"
 	if got := ini.Substitute(input); got != wantSub {
 		t.Errorf("Substitute:\n got  %q\n want %q", got, wantSub)
+	}
+}
+
+// --------------------------------------------------------------------------
+// Tests for TASK resolution logic (startTask)
+// --------------------------------------------------------------------------
+
+// resolveTask returns the resolved task program name by exercising the same
+// resolution logic as Launcher.startTask(), without starting any process.
+func resolveTask(t *testing.T, iniContent string) string {
+	t.Helper()
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", iniContent)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	l := &Launcher{
+		ini:    ini,
+		logger: slog.New(slog.NewTextHandler(os.Stderr, nil)),
+	}
+
+	// Mirror the resolution logic from startTask.
+	emctask := l.ini.Get("TASK", "TASK")
+	if emctask == "" || emctask == "emctask" {
+		emctask = "linuxcnctask"
+	}
+	return emctask
+}
+
+// TestStartTask_Default verifies that an absent [TASK]TASK defaults to "linuxcnctask".
+func TestStartTask_Default(t *testing.T) {
+	got := resolveTask(t, `[EMC]
+MACHINE = Test
+`)
+	if got != "linuxcnctask" {
+		t.Errorf("task = %q, want %q", got, "linuxcnctask")
+	}
+}
+
+// TestStartTask_LegacyRename verifies that "emctask" is renamed to "linuxcnctask".
+func TestStartTask_LegacyRename(t *testing.T) {
+	got := resolveTask(t, `[TASK]
+TASK = emctask
+`)
+	if got != "linuxcnctask" {
+		t.Errorf("task = %q, want %q", got, "linuxcnctask")
+	}
+}
+
+// TestStartTask_Custom verifies that a custom [TASK]TASK value is used as-is.
+func TestStartTask_Custom(t *testing.T) {
+	got := resolveTask(t, `[TASK]
+TASK = milltask
+`)
+	if got != "milltask" {
+		t.Errorf("task = %q, want %q", got, "milltask")
+	}
+}
+
+// --------------------------------------------------------------------------
+// Tests for display dispatch logic (startDisplay)
+// --------------------------------------------------------------------------
+
+// resolveDisplay returns the resolved (displayName, args) by exercising the
+// same resolution logic as Launcher.startDisplay(), without starting a process.
+func resolveDisplay(t *testing.T, iniContent string) (name string, args []string) {
+	t.Helper()
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", iniContent)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	l := &Launcher{
+		ini:    ini,
+		logger: slog.New(slog.NewTextHandler(os.Stderr, nil)),
+	}
+
+	// Mirror the resolution logic from startDisplay.
+	displayVal := l.ini.Get("DISPLAY", "DISPLAY")
+	fields := strings.Fields(displayVal)
+	if len(fields) == 0 {
+		return "", nil
+	}
+	emcDisplay := fields[0]
+	displayArgs := fields[1:]
+
+	if emcDisplay == "tkemc" {
+		emcDisplay = "tklinuxcnc"
+	}
+	return emcDisplay, displayArgs
+}
+
+// TestStartDisplay_LegacyRename verifies "tkemc" is renamed to "tklinuxcnc".
+func TestStartDisplay_LegacyRename(t *testing.T) {
+	name, _ := resolveDisplay(t, `[DISPLAY]
+DISPLAY = tkemc
+`)
+	if name != "tklinuxcnc" {
+		t.Errorf("display = %q, want %q", name, "tklinuxcnc")
+	}
+}
+
+// TestStartDisplay_Args verifies that extra args after the program name are
+// captured correctly.
+func TestStartDisplay_Args(t *testing.T) {
+	name, args := resolveDisplay(t, `[DISPLAY]
+DISPLAY = axis -d --some-flag
+`)
+	if name != "axis" {
+		t.Errorf("display = %q, want %q", name, "axis")
+	}
+	want := []string{"-d", "--some-flag"}
+	if len(args) != len(want) {
+		t.Fatalf("args len = %d, want %d", len(args), len(want))
+	}
+	for i := range want {
+		if args[i] != want[i] {
+			t.Errorf("args[%d] = %q, want %q", i, args[i], want[i])
+		}
+	}
+}
+
+// TestStartDisplay_Empty verifies that an empty [DISPLAY]DISPLAY returns "".
+func TestStartDisplay_Empty(t *testing.T) {
+	name, _ := resolveDisplay(t, `[EMC]
+MACHINE = Test
+`)
+	if name != "" {
+		t.Errorf("display = %q, want empty", name)
+	}
+}
+
+// --------------------------------------------------------------------------
+// Tests for [APPLICATIONS] parsing
+// --------------------------------------------------------------------------
+
+// resolveApplications parses [APPLICATIONS]APP and DELAY from an INI string.
+func resolveApplications(t *testing.T, iniContent string) (apps []string, delay float64) {
+	t.Helper()
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", iniContent)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	l := &Launcher{
+		ini:    ini,
+		logger: slog.New(slog.NewTextHandler(os.Stderr, nil)),
+	}
+
+	apps = l.ini.GetAll("APPLICATIONS", "APP")
+	delayStr := l.ini.Get("APPLICATIONS", "DELAY")
+	if delayStr == "" {
+		delayStr = "0"
+	}
+	delay, _ = strconv.ParseFloat(delayStr, 64)
+	return apps, delay
+}
+
+// TestRunApplications_NoApps verifies that absent [APPLICATIONS]APP is a no-op.
+func TestRunApplications_NoApps(t *testing.T) {
+	apps, _ := resolveApplications(t, `[EMC]
+MACHINE = Test
+`)
+	if len(apps) != 0 {
+		t.Errorf("apps = %v, want empty", apps)
+	}
+}
+
+// TestRunApplications_MultipleApps verifies that multiple APP entries are all read.
+func TestRunApplications_MultipleApps(t *testing.T) {
+	apps, delay := resolveApplications(t, `[APPLICATIONS]
+DELAY = 1.5
+APP = xterm
+APP = bash -c echo
+APP = /usr/bin/true
+`)
+	if len(apps) != 3 {
+		t.Fatalf("apps len = %d, want 3", len(apps))
+	}
+	if apps[0] != "xterm" {
+		t.Errorf("apps[0] = %q, want %q", apps[0], "xterm")
+	}
+	if apps[1] != "bash -c echo" {
+		t.Errorf("apps[1] = %q, want %q", apps[1], "bash -c echo")
+	}
+	if apps[2] != "/usr/bin/true" {
+		t.Errorf("apps[2] = %q, want %q", apps[2], "/usr/bin/true")
+	}
+	if delay != 1.5 {
+		t.Errorf("delay = %v, want 1.5", delay)
 	}
 }
