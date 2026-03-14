@@ -102,7 +102,6 @@ func (l *Launcher) Run() error {
 		return fmt.Errorf("realtime start failed: %w", err)
 	}
 	defer func() {
-		l.logger.Info("stopping realtime environment")
 		if err := rtMgr.Stop(); err != nil {
 			l.logger.Error("realtime stop failed", "error", err)
 		}
@@ -110,6 +109,11 @@ func (l *Launcher) Run() error {
 
 	// --- Stubs for M3/M5–M7 ---
 	l.logger.Info("would start linuxcncsvr (M5)")
+
+	// Inject tp= and hp= arguments into [EMCMOT]EMCMOT so that halcmd
+	// receives e.g. "loadrt motmod tp=tpmod hp=homemod ..." instead of
+	// just "loadrt motmod ...".  This mirrors the logic in scripts/linuxcnc.in.
+	l.injectEmcmotModules()
 
 	// M3: Load HAL files.
 	halExec := halfile.New(l.ini, filepath.Join(config.EMC2BinDir, "halcmd"), os.Getenv("HALLIB_PATH"), l.logger)
@@ -222,4 +226,38 @@ func (l *Launcher) logConfiguration() {
 		"twopass", l.ini.Get("HAL", "TWOPASS"),
 	}
 	l.logger.Debug("INI configuration loaded", fields...)
+}
+
+// injectEmcmotModules modifies the in-memory [EMCMOT]EMCMOT INI value to
+// append "tp=<TPMOD> hp=<HOMEMOD>".  This mirrors the logic in
+// scripts/linuxcnc.in so that halcmd receives the full module load string,
+// e.g. "loadrt motmod tp=tpmod hp=homemod servo_period_nsec=...".
+//
+// Priority for TPMOD: CLI flag (-t) > [TRAJ]TPMOD > "tpmod".
+// Priority for HOMEMOD: CLI flag (-m) > [EMCMOT]HOMEMOD > "homemod".
+func (l *Launcher) injectEmcmotModules() {
+	tpMod := l.opts.TpMod
+	if tpMod == "" {
+		tpMod = l.ini.Get("TRAJ", "TPMOD")
+	}
+	if tpMod == "" {
+		tpMod = "tpmod"
+	}
+
+	homeMod := l.opts.HomeMod
+	if homeMod == "" {
+		homeMod = l.ini.Get("EMCMOT", "HOMEMOD")
+	}
+	if homeMod == "" {
+		homeMod = "homemod"
+	}
+
+	emcmot := l.ini.Get("EMCMOT", "EMCMOT")
+	if emcmot == "" {
+		l.logger.Warn("EMCMOT not set in [EMCMOT] section; tp/hp injection skipped")
+		return
+	}
+	newEmcmot := emcmot + " tp=" + tpMod + " hp=" + homeMod
+	l.ini.Set("EMCMOT", "EMCMOT", newEmcmot)
+	l.logger.Debug("injected TPMOD/HOMEMOD into EMCMOT", "tpmod", tpMod, "homemod", homeMod, "emcmot", newEmcmot)
 }

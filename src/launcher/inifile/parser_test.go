@@ -459,3 +459,82 @@ KEY3 = no comment here
 		t.Errorf("KEY3 = %q, want %q", got, "no comment here")
 	}
 }
+
+// --------------------------------------------------------------------------
+// Set — update and append
+// --------------------------------------------------------------------------
+
+func TestSet_UpdatesExistingKey(t *testing.T) {
+	dir := t.TempDir()
+	f := writeFile(t, dir, "set.ini", `
+[EMCMOT]
+EMCMOT = motmod
+SERVO_PERIOD = 1000000
+`)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	updated := ini.Set("EMCMOT", "EMCMOT", "motmod tp=tpmod hp=homemod")
+	if !updated {
+		t.Error("Set: expected true (existing entry updated), got false")
+	}
+	if got := ini.Get("EMCMOT", "EMCMOT"); got != "motmod tp=tpmod hp=homemod" {
+		t.Errorf("Get after Set = %q, want %q", got, "motmod tp=tpmod hp=homemod")
+	}
+	// Other entries in the section must be unaffected.
+	if got := ini.Get("EMCMOT", "SERVO_PERIOD"); got != "1000000" {
+		t.Errorf("SERVO_PERIOD after Set = %q, want %q", got, "1000000")
+	}
+	// Substitute must reflect the updated value.
+	input := "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD"
+	want := "loadrt motmod tp=tpmod hp=homemod servo_period_nsec=1000000"
+	if got := ini.Substitute(input); got != want {
+		t.Errorf("Substitute after Set:\n got  %q\n want %q", got, want)
+	}
+}
+
+func TestSet_AppendsNewKey(t *testing.T) {
+	dir := t.TempDir()
+	f := writeFile(t, dir, "setnew.ini", `
+[EMCMOT]
+SERVO_PERIOD = 1000000
+`)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	updated := ini.Set("EMCMOT", "EMCMOT", "motmod tp=tpmod hp=homemod")
+	if updated {
+		t.Error("Set: expected false (new entry added), got true")
+	}
+	if got := ini.Get("EMCMOT", "EMCMOT"); got != "motmod tp=tpmod hp=homemod" {
+		t.Errorf("Get new key = %q, want %q", got, "motmod tp=tpmod hp=homemod")
+	}
+}
+
+func TestSet_CreatesNewSection(t *testing.T) {
+	dir := t.TempDir()
+	f := writeFile(t, dir, "setsec.ini", `
+[OTHER]
+FOO = bar
+`)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	updated := ini.Set("NEWSEC", "NEWKEY", "newval")
+	if updated {
+		t.Error("Set: expected false (new section created), got true")
+	}
+	if got := ini.Get("NEWSEC", "NEWKEY"); got != "newval" {
+		t.Errorf("Get new section/key = %q, want %q", got, "newval")
+	}
+	// Existing section must be unaffected.
+	if got := ini.Get("OTHER", "FOO"); got != "bar" {
+		t.Errorf("OTHER/FOO after Set = %q, want %q", got, "bar")
+	}
+}

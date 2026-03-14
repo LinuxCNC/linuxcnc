@@ -243,6 +243,37 @@ func (ini *IniFile) GetWithFallback(pairs [][2]string) (string, bool) {
 	return "", false
 }
 
+// Set updates the first occurrence of key in the named section to the given
+// value.  If the key does not exist in the section, a new entry is appended.
+// If the section itself does not exist, it is created with the single entry.
+// Returns true if an existing entry was updated, false if a new entry was
+// added.
+//
+// When the same section name appears more than once (e.g. via #INCLUDE), only
+// entries in the first matching section are considered.
+func (ini *IniFile) Set(section, key, value string) bool {
+	for i := range ini.Sections {
+		if ini.Sections[i].Name != section {
+			continue
+		}
+		for j := range ini.Sections[i].Entries {
+			if ini.Sections[i].Entries[j].Key == key {
+				ini.Sections[i].Entries[j].Value = value
+				return true
+			}
+		}
+		// Section exists but key not found — append to first matching section.
+		ini.Sections[i].Entries = append(ini.Sections[i].Entries, Entry{Key: key, Value: value})
+		return false
+	}
+	// Section does not exist — create it with the single entry.
+	ini.Sections = append(ini.Sections, Section{
+		Name:    section,
+		Entries: []Entry{{Key: key, Value: value}},
+	})
+	return false
+}
+
 // Substitute replaces [SECTION]KEY patterns in input with the corresponding
 // values from the INI file.  This is used when processing HAL files that
 // reference INI variables, e.g.:
