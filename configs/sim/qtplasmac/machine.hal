@@ -1,7 +1,7 @@
 # GENERIC HAL FILE FOR QTPLASMAC SIM CONFIGS
 {{- $zAxis := 0 -}}
 {{- range $i, $v := .Axes -}}
-{{- if eq (lower $v) "z" -}}{{- $zAxis = $i -}}{{- end -}}
+{{- if eq (upper $v) "Z" -}}{{- $zAxis = $i -}}{{- end -}}
 {{- end}}
 
 # ---COMPONENTS---

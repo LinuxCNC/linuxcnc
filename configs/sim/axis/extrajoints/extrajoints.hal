@@ -1,10 +1,12 @@
 # extrajoints.hal (requires [HAL]TWOPASS)
 # create limit3 and signals for all extra joints
-# Pass 1: load limit3 for all possible extra joint slots (0..15)
+# Pass 1: load limit3 for joints that have a JOINT_N INI section
 # Pass 2: wire only joints that actually have a posthome-cmd pin
 {{- range $j := seq 0 16}}
 {{- if eq $.PassNumber 1}}
+{{- if ini (printf "JOINT_%d" $j) "MIN_LIMIT"}}
 loadrt limit3 names=j{{$j}}.limit3
+{{- end}}
 {{- end}}
 {{- if and (eq $.PassNumber 2) (pinExists (printf "joint.%d.posthome-cmd" $j))}}
 addf j{{$j}}.limit3 servo-thread
