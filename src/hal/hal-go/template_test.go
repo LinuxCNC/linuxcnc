@@ -182,3 +182,48 @@ func TestNewHalTemplateData_AxesConcatenated(t *testing.T) {
 		t.Errorf("expected 3 axes for 'XYZ', got %d: %v", len(data.Axes), data.Axes)
 	}
 }
+
+// TestRenderHalTemplate_PassNumber verifies that .PassNumber is accessible
+// inside templates and can be used to gate pass-specific output.
+func TestRenderHalTemplate_PassNumber(t *testing.T) {
+	data := &HalTemplateData{
+		INI:        map[string]map[string]string{},
+		PassNumber: 2,
+	}
+	input := `{{if eq .PassNumber 2}}pass2{{else}}other{{end}}`
+	out, err := RenderHalTemplate("test.hal", input, data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out != "pass2" {
+		t.Errorf("expected 'pass2', got %q", out)
+	}
+}
+
+// TestRenderHalTemplate_PinExists verifies that pinExists is callable from
+// templates and returns false (stub behavior).
+func TestRenderHalTemplate_PinExists(t *testing.T) {
+	data := &HalTemplateData{INI: map[string]map[string]string{}}
+	input := `{{if pinExists "joint.0.posthome-cmd"}}yes{{else}}no{{end}}`
+	out, err := RenderHalTemplate("test.hal", input, data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out != "no" {
+		t.Errorf("pinExists stub should return false, got %q", out)
+	}
+}
+
+// TestRenderHalTemplate_CompExists verifies that compExists is callable from
+// templates and returns false (stub behavior).
+func TestRenderHalTemplate_CompExists(t *testing.T) {
+	data := &HalTemplateData{INI: map[string]map[string]string{}}
+	input := `{{if compExists "plasmac"}}yes{{else}}no{{end}}`
+	out, err := RenderHalTemplate("test.hal", input, data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out != "no" {
+		t.Errorf("compExists stub should return false, got %q", out)
+	}
+}

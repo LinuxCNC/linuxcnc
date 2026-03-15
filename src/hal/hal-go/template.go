@@ -11,10 +11,11 @@ import (
 
 // HalTemplateData holds the data context available to HAL file templates.
 type HalTemplateData struct {
-	INI    map[string]map[string]string
-	Axes   []string
-	Joints int
-	Env    map[string]string
+	INI        map[string]map[string]string
+	Axes       []string
+	Joints     int
+	Env        map[string]string
+	PassNumber int // twopass support: 1 for first pass, 2 for second pass
 }
 
 // NewHalTemplateData creates a HalTemplateData from an INI data map.
@@ -163,6 +164,12 @@ func halTemplateFuncs(iniData map[string]map[string]string) template.FuncMap {
 			return strconv.ParseFloat(s, 64)
 		},
 		"itoa": strconv.Itoa,
+
+		// HAL introspection stubs — the real HAL runtime replaces these with
+		// live implementations.  For now they always return false so that
+		// templates that use them on pass 2 compile correctly.
+		"pinExists":  func(name string) bool { return false },
+		"compExists": func(name string) bool { return false },
 	}
 }
 
