@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	hal "linuxcnc.org/hal"
+
 	"github.com/sittner/linuxcnc/src/launcher/config"
 )
 
@@ -52,38 +54,31 @@ func (l *Launcher) doCleanup() {
 		}
 	}
 
-	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
-
-	// Step 4 — halcmd stop (stop all realtime threads).
+	// Step 4 — stop all realtime threads.
 	// mirrors scripts/linuxcnc.in line 711.
 	l.logger.Debug("stopping realtime threads")
-	stopCmd := exec.Command(halcmdPath, "stop")
-	stopCmd.Stdout = os.Stdout
-	stopCmd.Stderr = os.Stderr
-	if err := stopCmd.Run(); err != nil {
-		l.logger.Debug("halcmd stop returned error", "error", err)
+	if err := hal.StopThreads(); err != nil {
+		l.logger.Debug("hal stop threads returned error", "error", err)
 	}
 
-	// Step 5 — halcmd unload all (unload all HAL components).
+	// Step 5 — unload all HAL components.
 	// mirrors scripts/linuxcnc.in line 713.
+	// Pass 0 as exceptCompID — halcmd doesn't exclude itself either.
 	l.logger.Debug("unloading HAL components")
-	unloadCmd := exec.Command(halcmdPath, "unload", "all")
-	unloadCmd.Stdout = os.Stdout
-	unloadCmd.Stderr = os.Stderr
-	if err := unloadCmd.Run(); err != nil {
-		l.logger.Debug("halcmd unload all returned error", "error", err)
+	if err := hal.UnloadAll(0); err != nil {
+		l.logger.Debug("hal unload all returned error", "error", err)
 	}
 
-	// Step 6 — Wait for HAL component unload.
-	// Polls up to 10 times (200 ms apart) until only 1 component remains
-	// (halcmd itself).  mirrors scripts/linuxcnc.in lines 715–719.
+	// Step 6 — wait for HAL components to unload.
+	// Polls up to 10 times (200 ms apart) until only 1 component remains.
+	// mirrors scripts/linuxcnc.in lines 715–719.
 	l.logger.Debug("waiting for HAL components to unload")
 	for i := 0; i < 10; i++ {
-		out, err := exec.Command(halcmdPath, "list", "comp").Output()
+		comps, err := hal.ListComponents()
 		if err != nil {
 			break
 		}
-		if len(strings.Fields(string(out))) <= 1 {
+		if len(comps) <= 1 {
 			break
 		}
 		time.Sleep(200 * time.Millisecond)
@@ -113,6 +108,14 @@ func (l *Launcher) doCleanup() {
 		l.logger.Info("releasing lock file")
 		if err := l.lock.Release(); err != nil {
 			l.logger.Error("releasing lock file", "error", err)
+		}
+	}
+
+	// Final step — exit the launcher's HAL connection.
+	// hal_exit() must be the last HAL operation, after everything else is done.
+	if l.halComp != nil {
+		if err := l.halComp.Exit(); err != nil {
+			l.logger.Debug("hal exit returned error", "error", err)
 		}
 	}
 }
