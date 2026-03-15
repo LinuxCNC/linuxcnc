@@ -5,12 +5,18 @@
 #include <string>
 #include <variant>
 #include "hal.h"
-#include "hal_priv.h"
 
 enum class hal_dir{
     IN = HAL_IN,
     OUT = HAL_OUT,
 };
+
+#if 0
+// If this class is ever necessary, then it needs to be moved into a new
+// header 'hal_priv.hh' because it uses internal access methods from
+// 'hal_priv.h' that should not be available to the casual source file.
+
+#include "hal_priv.h"
 
 class hal{
     public:
@@ -34,6 +40,7 @@ class hal{
         return thecomp && (thecomp->ready != 0);
     }
 };
+#endif
 
 template<typename T>
 class hal_pin{
