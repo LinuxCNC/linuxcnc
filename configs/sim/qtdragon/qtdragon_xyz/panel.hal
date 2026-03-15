@@ -6,6 +6,8 @@ net sy  halui.axis.y.select  panel.axis-y
 net sy  axis.y.jog-enable
 net sz  halui.axis.z.select  panel.axis-z
 net sz  axis.z.jog-enable
+net sgui  halui.mpg-select.0  panel.select-gui0
+
 
 net mpg-scale   axis.x.jog-scale    panel.mpg-scale
 net mpg-scale   axis.y.jog-scale

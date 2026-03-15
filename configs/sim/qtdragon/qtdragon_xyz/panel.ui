@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>418</width>
+    <width>495</width>
     <height>587</height>
    </rect>
   </property>
@@ -25,6 +25,22 @@
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="PushButton" name="pushbutton_9">
+           <property name="text">
+            <string>GUI</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>select-gui0</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_15">
            <property name="text">
             <string>None</string>
            </property>
@@ -148,7 +164,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_11">
         <item>
-         <widget class="QGroupBox" name="">
+         <widget class="QGroupBox" name="groupBox">
           <property name="title">
            <string>MPG</string>
           </property>
@@ -476,7 +492,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>418</width>
+     <width>495</width>
      <height>22</height>
     </rect>
    </property>
