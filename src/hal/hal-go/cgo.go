@@ -5,7 +5,10 @@ package hal
 #cgo LDFLAGS: -L${SRCDIR}/../../../lib -llinuxcnchal
 
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #include "hal.h"
+#include "../hal_priv.h"
 
 // Helper to convert hal_type_t to int for Go
 static inline int get_hal_type(hal_type_t t) { return (int)t; }
@@ -26,9 +29,82 @@ static inline unsigned go_hal_port_readable(hal_port_t* p) {
 static inline void go_hal_port_clear(hal_port_t* p) {
     hal_port_clear(*p);
 }
+
+// hal_shim_list_comps walks the HAL component list and writes each component
+// name as a null-terminated string into buf (strings are concatenated).
+// Returns the number of components found, or a negative errno value on error.
+// Returns -ENOSPC if the buffer is too small to hold all names.
+static int hal_shim_list_comps(char *buf, int buf_size) {
+    int next;
+    hal_comp_t *comp;
+    int count = 0;
+    int pos = 0;
+    int name_len;
+
+    if (hal_data == NULL) {
+        return -EINVAL;
+    }
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->comp_list_ptr;
+    while (next != 0) {
+        comp = (hal_comp_t *)SHMPTR(next);
+        name_len = (int)strlen(comp->name) + 1; // include null terminator
+        if (pos + name_len > buf_size) {
+            rtapi_mutex_give(&(hal_data->mutex));
+            return -ENOSPC;
+        }
+        memcpy(buf + pos, comp->name, name_len);
+        pos += name_len;
+        count++;
+        next = comp->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return count;
+}
+
+// HAL_SHIM_MAX_COMPS is the maximum number of components tracked by the shim
+// helpers. 256 exceeds any realistic LinuxCNC machine configuration.
+#define HAL_SHIM_MAX_COMPS 256
+
+// hal_shim_unload_all exits all HAL components except the one with the given
+// comp_id. The mutex is held only while collecting component IDs, and
+// hal_exit() is called for each ID outside the mutex.
+// Returns 0 on success, or a negative errno value on error.
+static int hal_shim_unload_all(int except_id) {
+    int ids[HAL_SHIM_MAX_COMPS];
+    int count = 0;
+    int next;
+    hal_comp_t *comp;
+    int i;
+
+    if (hal_data == NULL) {
+        return -EINVAL;
+    }
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->comp_list_ptr;
+    while (next != 0 && count < HAL_SHIM_MAX_COMPS) {
+        comp = (hal_comp_t *)SHMPTR(next);
+        if (comp->comp_id != except_id) {
+            ids[count++] = comp->comp_id;
+        }
+        next = comp->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+
+    int overflow = (next != 0);
+
+    for (i = count - 1; i >= 0; i--) {
+        hal_exit(ids[i]);
+    }
+
+    return overflow ? -ENOSPC : 0;
+}
 */
 import "C"
 import (
+	"bytes"
 	"fmt"
 	"unsafe"
 )
@@ -221,6 +297,64 @@ func halPortClear(portPtr *C.hal_port_t) {
 	C.go_hal_port_clear(portPtr)
 }
 
+// halStartThreads wraps hal_start_threads() to start all HAL realtime threads.
+func halStartThreads() error {
+	ret := C.hal_start_threads()
+	return halError(int(ret), "hal_start_threads")
+}
+
+// halStopThreads wraps hal_stop_threads() to stop all HAL realtime threads.
+func halStopThreads() error {
+	ret := C.hal_stop_threads()
+	return halError(int(ret), "hal_stop_threads")
+}
+
+// halListComponents wraps hal_shim_list_comps() to return all HAL component names.
+// Returns a slice of component name strings, or an error on failure.
+func halListComponents() ([]string, error) {
+	// Allocate a buffer sized for HAL_SHIM_MAX_COMPS components, each with a
+	// name up to HAL_NAME_LEN+1 bytes (HAL_NAME_LEN is 127, defined in hal.h).
+	bufSize := int(C.HAL_SHIM_MAX_COMPS) * (int(C.HAL_NAME_LEN) + 1)
+	buf := make([]byte, bufSize)
+
+	ret := C.hal_shim_list_comps((*C.char)(unsafe.Pointer(unsafe.SliceData(buf))), C.int(bufSize))
+	if ret < 0 {
+		return nil, halError(int(ret), "hal_shim_list_comps")
+	}
+	if ret == 0 {
+		return []string{}, nil
+	}
+
+	// Scan only the portion of the buffer that was actually written.
+	// The C function writes exactly `ret` null-terminated strings starting at
+	// offset 0.  Find the end by counting null terminators.
+	end := 0
+	remaining := int(ret)
+	for end < len(buf) && remaining > 0 {
+		if buf[end] == 0 {
+			remaining--
+		}
+		end++
+	}
+
+	// Split the written portion on null bytes and collect non-empty strings.
+	parts := bytes.Split(buf[:end], []byte{0})
+	names := make([]string, 0, int(ret))
+	for _, p := range parts {
+		if len(p) > 0 {
+			names = append(names, string(p))
+		}
+	}
+	return names, nil
+}
+
+// halUnloadAll wraps hal_shim_unload_all() to exit all HAL components except
+// the one identified by exceptID.
+func halUnloadAll(exceptID int) error {
+	ret := C.hal_shim_unload_all(C.int(exceptID))
+	return halError(int(ret), "hal_shim_unload_all")
+}
+
 // halError translates a HAL C error code to a Go error.
 // Returns nil if the code is 0 (success).
 func halError(code int, op string) error {
@@ -233,7 +367,7 @@ func halError(code int, op string) error {
 	var message string
 	switch code {
 	case -1:
-		message = "general HAL error"
+		message = "general HAL error or operation not permitted (HAL may be locked)"
 	case -12: // -ENOMEM
 		message = "insufficient HAL shared memory"
 	case -16: // -EBUSY

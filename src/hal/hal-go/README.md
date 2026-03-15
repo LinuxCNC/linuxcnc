@@ -106,6 +106,46 @@ for comp.Running() {
 }
 ```
 
+### System Control
+
+The package exposes system-level HAL controls that are equivalent to `halcmd`
+commands. These operate on the entire HAL system rather than on a single
+component.
+
+```go
+// Start all HAL realtime threads (equivalent to "halcmd start")
+if err := hal.StartThreads(); err != nil {
+    log.Fatal(err)
+}
+
+// Stop all HAL realtime threads (equivalent to "halcmd stop")
+if err := hal.StopThreads(); err != nil {
+    log.Fatal(err)
+}
+
+// List all currently loaded HAL components (equivalent to "halcmd list comp")
+names, err := hal.ListComponents()
+if err != nil {
+    log.Fatal(err)
+}
+for _, name := range names {
+    fmt.Println(name)
+}
+
+// Unload all HAL components except the caller's own component
+// (equivalent to "halcmd unload all")
+if err := hal.UnloadAll(comp.ID()); err != nil {
+    log.Fatal(err)
+}
+```
+
+| Function | halcmd equivalent | Description |
+|---|---|---|
+| `StartThreads()` | `halcmd start` | Start all HAL realtime threads |
+| `StopThreads()` | `halcmd stop` | Stop all HAL realtime threads |
+| `ListComponents()` | `halcmd list comp` | Return names of all loaded components |
+| `UnloadAll(exceptID)` | `halcmd unload all` | Exit all components except one |
+
 ### Pin Types
 
 The package supports all HAL data types through Go's generics:
