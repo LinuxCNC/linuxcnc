@@ -12,6 +12,7 @@ HAL_GO_SRC := $(addprefix $(HAL_GO_DIR)/, \
     types.go \
     errors.go \
     cgo.go \
+    command.go \
     doc.go)
 
 # Build directory for absolute paths
@@ -57,6 +58,7 @@ HAL_GO_SHARE_FILES := \
 	../share/linuxcnc/hal-go/types.go \
 	../share/linuxcnc/hal-go/errors.go \
 	../share/linuxcnc/hal-go/cgo.go \
+	../share/linuxcnc/hal-go/command.go \
 	../share/linuxcnc/hal-go/doc.go \
 	../share/linuxcnc/hal-go/go.mod
 
@@ -117,6 +119,7 @@ hal-go-install: $(HAL_GO_EXAMPLES) $(HAL_GO_SHARE_FILES) $(HAL_GO_TEMPLATE_FILES
 	$(FILE) ../share/linuxcnc/hal-go/types.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
 	$(FILE) ../share/linuxcnc/hal-go/errors.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
 	$(FILE) ../share/linuxcnc/hal-go/cgo.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
+	$(FILE) ../share/linuxcnc/hal-go/command.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
 	$(FILE) ../share/linuxcnc/hal-go/doc.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
 	$(FILE) ../share/linuxcnc/hal-go/go.mod $(DESTDIR)$(datadir)/linuxcnc/hal-go/
 	# Install template for external component development
