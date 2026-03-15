@@ -1,7 +1,7 @@
 package hal
 
 /*
-#cgo CFLAGS: -I${SRCDIR}/.. -I${SRCDIR}/../../rtapi -I${SRCDIR}/../../../include -DULAPI
+#cgo CFLAGS: -I${SRCDIR}/.. -I${SRCDIR}/../.. -I${SRCDIR}/../../rtapi -I${SRCDIR}/../../../include -DULAPI
 #cgo LDFLAGS: -L${SRCDIR}/../../../lib -llinuxcnchal
 
 #include <stdlib.h>

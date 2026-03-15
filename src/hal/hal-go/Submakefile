@@ -18,7 +18,7 @@ HAL_GO_SRC := $(addprefix $(HAL_GO_DIR)/, \
 TOP := $(shell cd ..; pwd)
 
 # CGO environment for building
-HAL_GO_CGO_CFLAGS := -I$(TOP)/src/hal -I$(TOP)/src/rtapi -I$(TOP)/include -DULAPI
+HAL_GO_CGO_CFLAGS := -I$(TOP)/src -I$(TOP)/src/hal -I$(TOP)/src/rtapi -I$(TOP)/include -DULAPI
 HAL_GO_CGO_LDFLAGS := -L$(TOP)/lib -llinuxcnchal
 
 # Build the passthrough example
