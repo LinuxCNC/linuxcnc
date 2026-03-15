@@ -141,6 +141,7 @@ setup::setup() :
     tool_table{},
     traverse_rate (0.0),
     orient_offset (0.0),
+    g43_with_zero_offset(false),
 
     defining_sub(0),
     sub_name(NULL),

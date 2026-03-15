@@ -6239,9 +6239,9 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.v);
     tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.w);
     settings->g43_with_zero_offset =
-      (settings->tool_offset.tran.x || settings->tool_offset.tran.y || settings->tool_offset.tran.z ||
-       settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
-       settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w);
+      !(tool_offset.tran.x || tool_offset.tran.y || tool_offset.tran.z ||
+        tool_offset.a || tool_offset.b || tool_offset.c ||
+        tool_offset.u || tool_offset.v || tool_offset.w);
   } else if (g_code == G_43_1) {
     tool_offset = settings->tool_offset;
     idx = -1;
