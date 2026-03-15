@@ -741,14 +741,123 @@ Detection: if a HAL file path ends with `.tcl`, `ExecuteFile` returns an error
 recommending the caller use `haltcl`; the halfile executor handles this routing before
 calling `ExecuteFile`.
 
-### TWOPASS
+---
 
-When `[HAL]TWOPASS` is set in the INI file, `twopass.tcl` is invoked by
-`src/launcher/halfile/twopass.go`. Twopass performs two-pass analysis of HAL component
-instantiation and cannot be replicated in Go without rewriting significant TCL logic.
+## 6a. Go Template Engine
 
-`twopass.go` continues to delegate to `twopass.tcl` as a subprocess. The Go interpreter
-is not involved in the twopass path.
+The Go interpreter supports `.hal` files that use Go `text/template` syntax as an
+alternative to TCL. This is **not** a general-purpose scripting language — it is a
+parameterized configuration template engine.
+
+The template is rendered **before** the HAL command interpreter sees the output.
+The pipeline is:
+
+```
+.hal file (raw text with {{...}} directives)
+  → text/template.Execute() with INI data context
+  → rendered plain HAL commands
+  → Go interpreter tokenizes + dispatches
+```
+
+### Template data context
+
+The following data context is provided to every template:
+
+```go
+type HalTemplateData struct {
+    INI    map[string]map[string]string  // INI[SECTION][KEY] → value
+    Axes   []string                      // from [TRAJ]COORDINATES, split into letters
+    Joints int                           // from [KINS]JOINTS
+    Env    map[string]string             // environment variables
+}
+```
+
+### Built-in template functions
+
+| Category    | Functions |
+|-------------|-----------|
+| String      | `lower`, `upper`, `replace`, `contains`, `split`, `join`, `printf`, `trim` |
+| Math        | `add`, `sub`, `mul`, `div`, `neg` |
+| Iteration   | `seq` (start, end → []int), `count` (n → []int) |
+| INI access  | `ini` (section, key → string) |
+| Environment | `env` (name → string) |
+| Conversion  | `atoi`, `atof`, `itoa` |
+
+### Example: TCL vs Go template
+
+Current TCL:
+
+```tcl
+set axes [split [hal gets ini.traj.coordinates] ""]
+foreach axis $axes {
+    set letter [string tolower $axis]
+    loadrt pid names=pid.$letter
+    addf pid.$letter.do-pid-calcs servo-thread
+    setp pid.$letter.Pgain [hal gets ini.joint_${letter}.p]
+}
+```
+
+Go template equivalent:
+
+```
+{{range $i, $axis := .Axes}}
+{{$letter := lower $axis}}
+loadrt pid names=pid.{{$letter}}
+addf pid.{{$letter}}.do-pid-calcs servo-thread
+setp pid.{{$letter}}.Pgain {{index .INI (printf "JOINT_%s" $axis) "P"}}
+{{end}}
+```
+
+### Detection
+
+If a `.hal` file contains `{{` anywhere, it is rendered through `text/template` first.
+Otherwise it is passed directly to the interpreter. `.tcl` files are still delegated
+to `haltcl` as a subprocess.
+
+### Implementation
+
+Implemented in `template.go` (`RenderHalTemplate`, `NewHalTemplateData`,
+`halTemplateFuncs`). Tests in `template_test.go`. Both files are pure Go with no CGO
+dependencies.
+
+---
+
+## 6b. Native Twopass Support
+
+Twopass is implemented natively in Go rather than delegated to `twopass.tcl`.
+
+### Algorithm
+
+```
+Pass 0 (collect):
+  For each HALFILE:
+    1. If .hal: render template (if needed), parse all lines
+    2. Collect all `loadrt` and `loadusr -Wn` commands
+    3. Merge duplicate `loadrt` calls (combine count= parameters, merge names=)
+
+Pass 1 (execute):
+  1. Execute merged `loadrt` commands (creates all RT components)
+  2. Execute merged `loadusr -Wn` commands (starts all userspace components)
+  3. For each HALFILE (in order):
+     Re-parse and execute all non-loadrt/non-loadusr commands
+```
+
+### Merging logic for `loadrt`
+
+| Parameter   | Merge strategy |
+|-------------|---------------|
+| `count=N`   | Take the maximum |
+| `names=a,b` | Concatenate unique names |
+| `num_chan=N` | Take the maximum |
+| Other       | First-wins |
+
+### Implementation
+
+Implemented in `twopass.go` (`TwopassCollector`, `TwopassLoadRT`,
+`NewTwopassCollector`, `CollectLoadRT`, `MergedLoadRTCommands`, `IsLoadRT`). Tests in
+`twopass_test.go`. Both files are pure Go with no CGO dependencies.
+
+This replaces the ~600 lines of TCL in `twopass.tcl` with ~50–100 lines of Go.
 
 ---
 
