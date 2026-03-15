@@ -6,7 +6,11 @@ package hal
 
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include <errno.h>
+#include "config.h"
 #include "hal.h"
 #include "../hal_priv.h"
 
@@ -67,39 +71,88 @@ static int hal_shim_list_comps(char *buf, int buf_size) {
 // helpers. 256 exceeds any realistic LinuxCNC machine configuration.
 #define HAL_SHIM_MAX_COMPS 256
 
-// hal_shim_unload_all exits all HAL components except the one with the given
-// comp_id. The mutex is held only while collecting component IDs, and
-// hal_exit() is called for each ID outside the mutex.
+// shim_systemv forks and execs argv[0] with the given argument vector,
+// waits for it to exit, and returns its exit status.
+// This replicates what hal_systemv() does in halcmd_commands.cc, but
+// hal_systemv() is not part of liblinuxcnchal so we implement it inline.
+static int shim_systemv(const char *const argv[]) {
+    pid_t pid = fork();
+    if (pid < 0) return -1;
+    if (pid == 0) {
+        execvp(argv[0], (char *const *)argv);
+        _exit(127);
+    }
+    int status;
+    if (waitpid(pid, &status, 0) < 0) return -1;
+    if (WIFEXITED(status)) return WEXITSTATUS(status);
+    return -1;
+}
+
+// hal_shim_unload_all unloads all HAL components, exactly as halcmd's
+// "unload all" command does:
+//   - Userspace components: send SIGTERM to their owning process
+//   - Realtime components: call "rtapi_app unload <name>" via shim_systemv
+// The component identified by except_id is skipped (pass 0 to not skip any).
 // Returns 0 on success, or a negative errno value on error.
 static int hal_shim_unload_all(int except_id) {
-    int ids[HAL_SHIM_MAX_COMPS];
-    int count = 0;
     int next;
     hal_comp_t *comp;
-    int i;
+    pid_t ourpid = getpid();
 
     if (hal_data == NULL) {
         return -EINVAL;
     }
 
+    // Phase 1: send SIGTERM to userspace components (same as do_unloadusr_cmd)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
-    while (next != 0 && count < HAL_SHIM_MAX_COMPS) {
+    while (next != 0) {
         comp = (hal_comp_t *)SHMPTR(next);
-        if (comp->comp_id != except_id) {
-            ids[count++] = comp->comp_id;
+        if (comp->type == COMPONENT_TYPE_USER && comp->pid != ourpid) {
+            if (comp->comp_id != except_id) {
+                kill(abs(comp->pid), SIGTERM);
+            }
         }
         next = comp->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
 
-    int overflow = (next != 0);
+    // Phase 2: collect realtime component names then unload via rtapi_app
+    // (same as do_unloadrt_cmd)
+    {
+        char comps[HAL_SHIM_MAX_COMPS][HAL_NAME_LEN+1];
+        int n = 0;
+        int i;
 
-    for (i = count - 1; i >= 0; i--) {
-        hal_exit(ids[i]);
+        rtapi_mutex_get(&(hal_data->mutex));
+        next = hal_data->comp_list_ptr;
+        while (next != 0) {
+            comp = (hal_comp_t *)SHMPTR(next);
+            if (comp->type == COMPONENT_TYPE_REALTIME) {
+                if (comp->comp_id != except_id && n < HAL_SHIM_MAX_COMPS) {
+                    // skip pseudo-components (names starting with "__")
+                    if (strstr(comp->name, HAL_PSEUDO_COMP_PREFIX) != comp->name) {
+                        snprintf(comps[n], sizeof(comps[n]), "%s", comp->name);
+                        n++;
+                    }
+                }
+            }
+            next = comp->next_ptr;
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+
+        // unload each realtime component via rtapi_app
+        for (i = 0; i < n; i++) {
+            const char *argv[4];
+            argv[0] = EMC2_BIN_DIR "/rtapi_app";
+            argv[1] = "unload";
+            argv[2] = comps[i];
+            argv[3] = NULL;
+            shim_systemv(argv);
+        }
     }
 
-    return overflow ? -ENOSPC : 0;
+    return 0;
 }
 */
 import "C"
