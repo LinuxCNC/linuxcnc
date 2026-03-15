@@ -28,8 +28,8 @@ parser Hal:
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token STARREDNAME: "[*]*[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"
-    token FPNUMBER: "-?([0-9]*\\.[0-9]+|[0-9]+\\.?)([Ee][+-]?[0-9]+)?f?"
-    token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
+    token FPNUMBER: "[+-]?((([0-9]*\\.[0-9]+|[0-9]+\\.)([Ee][+-]?[0-9]+)?)|([0-9]+[Ee][+-]?[0-9]+))[fF]?"
+    token NUMBER: "0x[0-9a-fA-F]+|0b[01]+|0o[0-7]+|[+-]?[0-9]+"
     token STRING: "\"(\\.|[^\\\"])*\""
     token HEADER: "<.*?>"
     token POP: "[-()+*/:?]|&&|\\|\\||personality|==|&|!=|<<|<|<=|>>|>|>="
@@ -354,9 +354,9 @@ static int comp_id;
 
     for type, name, array, value in variables:
         if array:
-            print("    %s %s_p[%d];\n" % (type, name, array), file=f)
+            print("    %s %s_p[%d];" % (type, name, array), file=f)
         else:
-            print("    %s %s_p;\n" % (type, name), file=f)
+            print("    %s %s_p;" % (type, name), file=f)
     if has_data:
         print("    void *_data;", file=f)
 
@@ -955,7 +955,10 @@ def document(filename, outfilebase):
                 else:
                     print("*loadrt %s* [*count*=_N_|*names*=_name1_[,_name2_...]]" % comp_name, end='', file=f)
             for type, name, default, doc in modparams:
-                print(" [*%s*=_N_]" % name, end='', file=f)
+                if type == "dummy":
+                    print(" [*%s*=_value_[,_value_...]]" % name, end='', file=f)
+                else:
+                    print(" [*%s*=_N_]" % name, end='', file=f)
             print("", file=f)
 
             hasparamdoc = False
