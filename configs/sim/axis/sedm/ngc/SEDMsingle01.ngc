@@ -1,0 +1,50 @@
+;SEDMsingl101.ngc
+;
+o200 sub
+	M66 E0 L0 ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
+	M199
+	M162 P-2.304 Q.255; RifPt at -2.049 ?? NO at -1.049
+	;                   so i hace depth rel to startposn
+	;                   I'd like septh to be absolut ( butt reduce by UNS...
+	;                   DOH i have nbo Datum Sjift l;ike Herif
+	;                   with Datum Shift, i  cvould mopbve 1mm over shift pt
+	;                   then cut rel to ahift pt
+	;??? how to set  G5x from ttable??
+	;
+	M163 P0 Q0.0;starghtr plunge
+	M160 P34
+	M161 P25 Q25
+	M166 P0 ; no jump
+	M165 P1	; pitch
+	M00
+	M198
+o200 endsub
+
+;///////////////////// PREAMBLE
+G21                       ; mm 
+G90
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000 ; wishful thinnking
+
+#1 = 0 (assign parameter #1 the value of 0)
+#2 = 1 (limit)
+
+o110 while [#1 LT #2]
+	;//////////////////// Posn 1
+	G0Z3
+	G0X1Y0
+	;G0Z1; cut to -1.049
+	G0Z-1; cit to -3.049
+	;//////////////////// Cut 1 code
+	o200 call
+	;>>>>>>>>>>>>>>>>>>>>>>>>>
+	#1 = [#1 + 1]
+o110 endwhile
+
+;//////////////////// goto  exit posn
+G0Z3
+G0X0Y0
+;////////// end pgm
+M02
+%

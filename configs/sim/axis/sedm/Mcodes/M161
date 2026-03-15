@@ -1,0 +1,24 @@
+#!/bin/bash
+
+exec >/dev/null 2>&1 # Redirects all stdout and stderr for the rest of the
+
+#21.08.2025 M161
+
+# usage
+# M161 P<BegNR> Q<EndNR>
+# BegNR is U32    must  be >= EndNR
+# EndNR is U32    must  be <= BegNR
+
+# and Bash retns Floaats
+# so this vvv print trick cnvrts f2i
+printf -v BegNRint '%d' "$1"
+
+# no more GUI BegNR nor EndNR
+# this makes techGui smaller
+# and fit next to std ZXIS gui
+halcmd setp SEDM.BegNR $BegNRint
+
+printf -v EndNRint '%d' "$2"
+halcmd setp SEDM.EndNR $EndNRint
+
+exit 0

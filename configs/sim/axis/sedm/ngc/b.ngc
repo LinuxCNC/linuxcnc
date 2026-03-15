@@ -1,0 +1,49 @@
+;b.ngc test orbits
+;06.12.2025 never got to NR24
+o200 sub
+	M66 E0 L0 ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
+	M199
+	M162 P-1.254 Q-1.000 ;fd -1.254  RPlane 1.000
+	; vvv otbtype is circ (notused tho) no wigl
+	;M163 P0 Q0.005; wigl should be smaller than 1st orbRAD
+	M163 P1 Q0.01; orbtype wiglrad
+	M160 P34 Q.254; etab filename msrdUNS
+	M161 P25 Q15
+	M166 P0 ; no jump
+	M165 P1	; pitch
+	g4p2
+	M00
+	M198
+o200 endsub
+
+;///////////////////// PREAMBLE
+G21                      ; mm 
+G18 ; NECC TO BE AWARE OFTOOL AXIS
+G90
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000 ; wishful thinnking
+
+g10l2p1x0y0z0; UNSHIFT simplify dro to G53
+
+;//////////////////// Posn 1
+
+G10L2P1X5Y-1Z5 ; NEW DATUM 
+
+G0Y-1; move to RPlane 1mm furtgher than the 1mm of datum
+G0X0Z0 ; move to ctr
+
+;//////////////////// Cut 1 code
+o200 call
+ 
+;//////////////////// 
+; this doesnt get exec'd if QUIT
+; BUT
+; pgm b3gina w same, so safe
+
+G10L2P1x0y0z0 ; UNSHIFT
+
+G0X5Y-2Z5
+
+M02
+%

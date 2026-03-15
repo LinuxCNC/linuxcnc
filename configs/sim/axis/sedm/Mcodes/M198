@@ -1,0 +1,12 @@
+#!/bin/bash
+#  for SEDM suite
+
+#echo "M198 begin"
+
+halcmd setp axis.x.eoffset-enable False
+halcmd setp axis.y.eoffset-enable False
+halcmd setp axis.z.eoffset-enable False
+
+#echo "M198 end"
+
+exit 0

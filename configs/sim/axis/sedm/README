@@ -1,0 +1,170 @@
+README for comp[ SEDM
+
+SEDM comp emulates Sink EDM orbiting
+
+EDM is a machinhing method that removes
+microscppic bits of the workpiece
+using electrical sparks.
+
+Sink EDM is the variant used to make molds.
+(vs WEDSM for dies and Jole EDM or EDG grinding)
+Sink EDM uses shaped tools. 
+These tools do not rotate.
+All the plasic items on your desktop come
+from mol;ds that wer EDM'ed.
+
+Orbiting ius a way to simplify the
+manufacture of the shaped tools.
+
+EDM'ed cavities are larger than the tool 
+by the length of the spark. The spark
+length ( Overburn) is proportional 
+to the spark's energy 
+( Currrent * Duration * Dischharge Voltage)
+(xmpl 10amps * 10uS * 32Volts)
+
+Sparks with more energy make larger craters
+(rougher surface)
+and have larger overburn.
+Conversely, sparks with less energy make 
+shallower craters (smoother surface).
+
+A molding surface must be smooth 
+to release the part.
+
+So the Sink EDM process traditionally used
+different sized tools, roughers,
+pre-finishers- and finisjers.
+
+Tools like that are difficukt to make.
+Look at an RJ45 connector and image making 3 tools like that form, 
+one 0.15mm smaller, one 0.100 smaller
+and one 0.075 smaller.
+All these tool must have the same center.
+
+Well, Orniting allow the 0.15mm tool do
+thhe same work as the smaller ones.
+Orgiting remoives the 'many sizes' issue,
+by moving the tool in tiny patterns called orbits.
+
+SEDM comp is mot difficult to use.
+The user negins with blueprint/cad drawing
+and finds the Fp ( frontal projection 
+
+Get Fp
+
+of a detail to EDM.
+The Fp is the scross sectinal area of the tool
+at 'parting line'
+
+Determine PAARUNG ( Tool and work materials)
+In the US and Canada, Graphite is
+commonly used for tools, and Steel or Aluminum
+for workpiece materials.
+
+CHOOSE the RTable
+Many Etables are provided
+Eaxh has a Fp and a Paarung
+In thje table, there is a clumn
+titled 'RAD'. Then RAD entry 
+for the 1st line in the Etable is the
+UNDERSIZE PER SIDE   aka 'UNS'
+Make your tool this much smaller.
+Aftwr manufacture, measure the tool
+to find the MeasuredUNS.
+If the MeasuredUNS > UNS, then you 
+are not finished making the tool.
+Go back and grind some more ;-)
+
+The UNS and ORBITs supllied are 2D,
+so only remove lateral stock.
+Later I plan on Spherical Orbiting
+( a stack of circle) that will require 
+the UNS applied in 3D. Thats for FUTURE FEATURE.
+
+Next finbf the cavity depth and refrenev
+for that depth.
+
+Now you have the dimensions, positiins,
+UNS, Etable and can begin progtramming.
+Most NGC EDM code is finng in Mcode P's & Q's.
+
+NB: Orbits are TINY motions, 
+so zoom WAY in!  To see beteer,
+do not show Tool,  avoid perspective view.
+
+NB The motion may zeem unevne. It IS uneven.
+The progress alomg a perdetermioned path is
+comtrolled by a random generator that moves 
+FWD HOLD or BWD along the path. If Bwd occurs, there will be a 
+DETOUR gnerated to move the tool away from stock.
+Aee the X view of the demo below and observe the 
+'fringe' on the square path. Those ar 'detours'.
+Tirn the JUMP on and off, using the checkbox.
+Try The PEEK button and when the tool returns to
+its starting position, try RESUME or WUIT.
+
+
+
+control signal is moving FWD or HOLD or Bed thru a predetermined path.
+controls signal is moving Fwd abd Bwd 
+example
+
+;XMPLE.ngc cuts Z negative  -1.204mm deerp
+;           DATUN for cut X1.0 Y 0 Z1.0
+;           ORBIT type SQUARE
+;           ETABLE 34.ENC (This just finishing a cavity)
+;             ETABLE BegNR 17 EndNR 15
+;           MsrdUNS == Etable UNS
+o200 sub
+	M66 E0 L0 				;NEED QUEIE BUSTER so motion is stopped
+	M199					; This begins EDM control
+	M162 P-1.304 Q+1.00     ; awt PrintDepth and Rplanemore tests per hr lookimg fdor bad tri from peri tto SPO
+	M163 P1 Q0				; OrbType SQR, no 'Wigl' for bore
+	M160 P34 Q0.254 		; Etable, MsrdUNS
+	M161 P17 Q15			; BeginningNR in Etable, EndNR
+	M00						; needed for ExternalOffsets
+	M198					; Rnd SEDM control
+							; thsi last line wont be executed
+							; untill AEDM comp finisshes
+o200 endsub					; return to NGC code and LCNC position control
+;now thw main NGC progtram poses the tool. and calls the o-sub.
+;///////////////////// PREAMBLE
+G21                       ; mm 
+G90
+G17
+G61							; exact path mode
+G64 P0						; set blend toleranve to 0
+F5000						; posing can be rapid
+G10L2P1 X0 Y0 Z0 			;'UNSHIFT'
+;
+#1 = 0						;counter initial value
+#2 = 1						;counte max value
+#3 = +2.000 				; Cplane above clamping/fixtires
+#4 = +1.0					; Rplane above woek wher EDM Power is turned on
+;
+o110 while [#1 LT #2]
+	g10l2p1 x0 y0 z0		; UNSHIFT
+	G0Z5					; mNUl tool chg for ToolAxis
+	;//////////////////// DATUN for cut
+	g10l2p1 x1 y 0 z1		;DATUM ref [posn
+	g0z#3					;Cplane rek to Datum
+	g0 x0 y0				;cavity center
+	z#4						;RPlane rel to  DATUM   at G53 2.5 now
+	;//////////////////// Cut
+	o200 call
+	;//////////////////// 
+	g10l2p1 x0 y0 z0		;UNSHIFT
+	G0Z#3					;Cplane rel toDATUM
+	;
+	#1 = [#1 + 1]			;bump ctr, Useful for usinga Positionn list
+o110 endwhile
+;//////////////////// goto  exit posn, adjust fdor G17.18/19 and CutDirection
+G10L2P1X0Y0Z0				;UNHIFT
+G0Z5						;manual Tool Chg height and tool axis
+G0X0Y0						;manual Tool Vhg posn for 'other' axis alreaady at Cplane, moce to convenient x  y 
+;//////////////////// end pgm
+M197 						;T turn off JumpENA if leaft on
+M02
+%
+

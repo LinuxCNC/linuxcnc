@@ -1,0 +1,157 @@
+;1rowEachType.ngc
+;
+; thinks its at SPO
+; BEFORE calle to doCtrSpo
+;
+; single row with 1 cut of each type
+; just wigl
+; jist 1st orb
+; just last orb
+;  wigl and all robs
+;
+; there some  left  over nad thing
+; so swap the order of types to  see  and test
+;
+; 1st err, when allorbs follow justlast, the 1st  move seems to be 
+; fro ryfpt  to startpt
+; the line is curved and quick
+;
+; test1: sub call order is 210 220 230 240
+; make same Z datum
+;
+; res: i  see  LastOrb posn hozz  fro RufPtTipl
+; tyo get to AllOrbs cut
+; so LastOrb  needs rtn to DPO b4 exit
+; why doesnt 1stOrb show  similar???
+; sunno
+; do g10l2p1x0y0z0 AND rehome befoore  xit LCNC and wacth again
+; esp watch 1stOrb to  LastOrb motion
+; 1stOrb motion to LastOrb is correct
+; motion LastOrb to AllOrb is ng
+;
+o210 sub
+	M66 E0 L0              ;QBUSTER AND sleep(0.010) in rComp BOTH
+	M199                   ;  start PV control
+	M162 P-1.254 Q1.000     ; FD    RPlane
+	
+	M163 P0 Q0.05          ; OrbType Circle, WiglRad 50um5
+	M160 P34 Q0.254  ; etabnum, MsrdUNS
+
+	M161 P25 Q25           ; BegNR EndNR
+
+	M166 P0                ; no jump
+	M165 P1                ; Pitch == 1
+	M00
+	M198
+o210 endsub 
+
+o220 sub
+	M66 E0 L0              ;QBUSTER AND sleep(0.010) in rComp BOTH
+	M199                   ;  start PV control
+	M162 P-1.254 Q1.000     ; FD    RPlane
+	M163 P0 Q0.0          ; OrbType Circle, WiglRad 50um5
+	M160 P88888834 Q0.254  ; etabnum, MsrdUNS
+	M161 P25 Q24           ; BegNR EndNR
+	M00
+	M198
+o220 endsub 
+
+o230 sub
+	; just last orb
+	M66 E0 L0              ;QBUSTER AND sleep(0.010) in rComp BOTH
+	M199                   ;  start PV control
+	M162 P-1.254 Q1.0      ; FD RPlabe
+
+	M163 P0 Q0.0           ; OrbType Circle, EiglRad 50um
+	M160 P88888834 Q0.254  ; etabnum, MsrdUNS
+
+	M161 P15 Q15           ; BegNR EndNR
+
+	M166 P0                ; no jump
+	M165 P1                ; Pitch == 1
+	M00
+	M198
+o230 endsub 
+;end just last orb
+
+o240 sub
+	; wigl and all orbits
+	M66 E0 L0              ;QBUSTER AND sleep(0.010) in rComp BOTH
+	M199                   ; start PV control
+	M162 P-1.254 Q1.0      ; FD RPlabe
+
+	M163 P1 Q0.012         ; OrbType Circle, EiglRad 50um
+	M160 P88888834 Q0.254  ; etabnum, MsrdUNS
+
+	M161 P25 Q15           ; BegNR EndNR
+
+	M166 P0                ; no jump
+	M165 P1                ; Pitch == 1
+	M00
+	M198
+o240 endsub 
+;end  wigl and all orbits
+
+; /////////////// end subs ////////
+;///////////////////// PREAMBLE
+G21                       ; mm 
+G90
+G17
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000 ; wishful thinnking
+
+G10L2P1X0Y0Z0 ; UNSHIFT, cut posns will be G43 msr and rel dro
+
+#1 = 0 (assign parameter #1 the value of 0)
+#2 = 10(limit)
+#3 = +5.000 ; CPlane
+#4 = +1.000 ; RPlane
+
+o110 while [#1 LT #2]
+
+	g10l2p1 x0 y0 z0       ; UNSHIFT
+	G0Z#3                  ; CPlane
+
+	;;-DETAIL 1  -------------
+	;g10l2p1 x10 y0 z-2     ;DATUM 1
+	;g0x0y0
+	;z#4                    ;RPlane rel to  DATUM
+	;o210 call
+	;g10l2p1 x0 y0 z0       ;UNSHIFT
+	;G0Z#3                  ;CPlane abso mc coords
+
+	;-DETAIL 2-------------------------
+	;g10l2p1 x12 y0 z-2     ; DATUM 2
+	;g0x0y0                 ; rapid to DATUM 2 ctr
+	;z#4                    ; rapid to RPlane
+	;o220 call              ; cut Detail 2
+	;g10l2p1x0y0z0          ; UNSHIFT
+	;G0Z#3 
+
+	;g10l2p1 x14 y0 z-2      ; Set DATUM 3
+	;g0x0y0                 ; rapid to DATUM 3 ctr
+	;z#4
+	;o230 call              ; cut dertail 3
+	;g10l2p1x0y0z0          ;UNSHIFT
+	;G0Z#3
+	
+	g10l2p1 x16 y0 z-2      ;  set DATUM 4
+	g0x0y0
+	z#4
+	o240 call              ; cut detail 4
+	g10l2p1x0y0z0          ;UNSHIFT
+	G0Z#3
+
+
+	#1 = [#1 + 1]
+o110 endwhile
+
+;//////////////////// goto  exit posn
+G10L2P1X0Y0Z0              ;UNSHIFT
+G0Z#3
+
+;////////// end pgm
+M197 ( turn off JumpENA if leaft on )
+M02
+%

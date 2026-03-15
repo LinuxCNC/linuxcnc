@@ -1,0 +1,20 @@
+#!/bin/bash
+
+exec >/dev/null 2>&1 # Redirects all stdout and stderr for the rest of the
+
+# 03.10.2025
+# M165 P Pitch
+# pitch is how many of path are done for 3 FWDS chg i ToolAxis
+#  0 means all
+# init to -1 so use S32
+
+
+# usage
+# M65 P<pitch>
+
+# EtabNum, will become a U32 ( bash always give a f;loat)
+# vvv trick to cnvrt Float to INT (U32)
+printf -v PitchInt '%d' "$1"
+halcmd sets dPitch  $PitchInt
+
+exit 0

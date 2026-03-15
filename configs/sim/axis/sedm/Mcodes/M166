@@ -1,0 +1,26 @@
+#!/bin/bash
+
+exec >/dev/null 2>&1 # Redirects all stdout and stderr for the rest of the
+
+# 03.10.2025
+# M166 P jumpwanted
+# jump is a clockwork peck dtill
+# Etrab has suggested CutTimes  and JumpDist AJD
+# init to 0
+# later allow hdwr swx to control 
+# swx overridfes etab and M1`66
+printf -v JumpInt '%d' "$1"
+halcmd sets dJump $JumpInt
+
+# 15.02.2026 i has iof [#a = 1]
+# chg to use bash -eq
+if [ $JumpInt -eq 1 ]; then
+	halcmd sets dJump True
+	# Commands to execute if the condition is true
+elif [ $JumpInt -eq 0 ]; then
+	halcmd sets dJump False
+else
+	echo "M166 needs jump = 1 or 0"
+fi
+# TODO i funno how to exit mauin app when not 0 not 1
+exit 0

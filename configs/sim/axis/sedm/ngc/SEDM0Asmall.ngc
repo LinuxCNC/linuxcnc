@@ -1,0 +1,41 @@
+;SEDM0Asmall.ngc
+; 1st 2 posmns of SEDM0A.ngc
+;
+o200 sub
+	M66 E0 L0 ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
+	M199
+	M162 P-1.254 Q.255 ; wasa -2.304   expect DRO 
+	; vvv otbtype is circ (notused tho) no wigl
+	M163 P0 Q0.0
+	M160 P34
+	M161 P25 Q25
+	M166 P0 ; no jump
+	M165 P1	; pitch
+	M00
+	M198
+o200 endsub
+
+;///////////////////// PREAMBLE
+G21                       ; mm 
+G90
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000 ; wishful thinnking
+
+G10L2P1X0Y0Z0 ; UNSHUFT, msr as if G53
+;//////////////////// Posn 1
+G0Z3; this is G53 coords doe to UNSHIDT
+
+G10L2P1X1Y0Z1 ; NEW DATUM
+
+G0X0Y10 ; move over new datum
+G0Z1.0;   move to RPlaneDist abve new  datum
+;//////////////////// Cut 1 code
+o200 call
+;//////////////////// posn 2
+G10L2P1x0y0z0 ; msr like G53
+G0Z3
+;should be at +1 +0 +3  anf g54 is x0 y0 z0
+;////////// end pgm
+M02
+%

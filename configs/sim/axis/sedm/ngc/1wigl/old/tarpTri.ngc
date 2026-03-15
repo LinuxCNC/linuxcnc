@@ -1,0 +1,80 @@
+;trapTri.ngc
+;
+; sometimes i get no stairs
+; just liL
+;tehn a line to ?RufPtTupl,
+;then a line to sSPO
+; incosistant, rare
+; so loop the cut in smae place 
+; and use dbug prints, naybe traps to catch it
+;
+;
+; i have spcl code for when 1st stepop ofsatairs gets a BWD
+; suing a ctr
+; but maybe nore than 1 of tyhe 1stmoives on stairs is BWD
+;
+; CUTS Z NEG g17 'down'
+; x0 y-2 z2  is DATUM (z#3)
+; sub gets all parms from Mcodes
+;	M162 P-1.304 Q+1.00
+; set P as FullDepth ( per print)
+; set Q as RPlane, a dist above DATUM where power is turned on
+;
+
+;///////////////////// PREAMBLE
+G21           ;  mm 
+G90
+
+G17           ;  defines ToolAxis as Y
+
+G61           ; exact path mode
+G64 P0        ; set blend toleranve to 0
+F5000         ; wishful thinnking
+
+#1 = 0        (counter)
+#2 = 100        (limit)
+#3  = -2.00      ( ToolAxis Datum)
+#4 = +1.000   ( RPlane above DATUM, in free space outside of stock)
+
+;------------------ pre posn
+G10L2P1 X0 Y0 Z0 ; UNSHIFT
+
+G0            Z5   ; PrePosn to LEFT of satum ( Right of DATUN is inside stock)
+G0      X0 Y0    ; PRE POSN,while unshifted, 
+
+; loop framework
+o110 while [#1 LT #2]
+	g10l2p1 x0 y0 z#3 ; DATUM
+	g0      x0 y0      ; center over DATUM
+	G0             z#4     ;get to RPlaane over DATUM
+	;
+	o210 call
+	;
+	g10l2p1 x0 y0 z0 ; UNSHIFT
+	;  sub call endds at  RPlane above DATUM on ctr
+	G0            z5  ; rtn to pre posn
+	G0      x0 y0     ; << thes 2 can be 1 line
+	;
+	#1 = [#1 + 1]
+o110 endwhile
+M197 ( turn off JumpENA if leaft on )
+M02
+
+; subs can be after M02, just   to unclutter
+o210 sub
+	M66 E0 L0              ;QBUSTER AND sleep(0.010) in rComp BOTH
+	M199                   ;  start PV control
+	M162 P-0.304 Q+1.00     ; FD    RPlane
+
+	M163 P0 Q0.05         ; OrbType Circle, WiglRad 50um5
+
+	M160 P88888834 Q0.254  ; etabnum, MsrdUNS
+
+	M161 P25 Q25           ; BegNR EndNR
+	M166 P0                ; no jump
+	M165 P1                ; Pitch == 1
+	M00
+	M198
+o210 endsub 
+;
+%
