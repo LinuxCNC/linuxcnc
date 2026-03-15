@@ -16,40 +16,58 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <rtapi.h>
-#include <rtapi_math.h>
-#include <rtapi_app.h>
-#include <hal.h>
-#include <kinematics.h>
+#include "kinematics.h"
+#include "posemath.h"
+#include "hal.h"
+#include "rtapi.h"
+#include "rtapi_math.h"
+#include "rtapi_app.h"
+#include "kinematics_params.h"
+#include <string.h>
+
+const char* kinematicsGetName(void) { return "rosekins"; }
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
-#ifndef hypot
-#define hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
+/* ---- Math types and functions (from rosekins_math.h) ---- */
+
+#ifndef PM_PI
+#define PM_PI 3.14159265358979323846
+#endif
+#ifndef PM_2_PI
+#define PM_2_PI 6.28318530717958647692
+#endif
+#ifndef TO_RAD
+#define TO_RAD (PM_PI / 180.0)
+#endif
+#ifndef TO_DEG
+#define TO_DEG (180.0 / PM_PI)
+#endif
+#ifndef rosekins_hypot
+#define rosekins_hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
 #endif
 
-struct haldata {
-    hal_float_t *revolutions;
-    hal_float_t *theta_degrees;
-    hal_float_t *bigtheta_degrees;
-} *haldata;
+typedef struct {
+    int oldquad;
+    int revolutions;
+} rosekins_state_t;
 
-int kinematicsForward(const double *joints,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
+typedef struct {
+    double revolutions;
+    double theta_degrees;
+    double bigtheta_degrees;
+} rosekins_output_t;
+
+static int rosekins_forward_math(const double *joints, EmcPose *pos)
 {
-    (void)fflags;
-    (void)iflags;
-    double radius,z,theta;
-
-    radius = joints[0];
-    z      = joints[1];
-    theta  = TO_RAD * joints[2];
+    double radius = joints[0];
+    double z = joints[1];
+    double theta = TO_RAD * joints[2];
 
     pos->tran.x = radius * cos(theta);
     pos->tran.y = radius * sin(theta);
@@ -64,41 +82,34 @@ int kinematicsForward(const double *joints,
     return 0;
 }
 
-int kinematicsInverse(const EmcPose * pos,
-                      double *joints,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+static int rosekins_inverse_math(const EmcPose *pos, double *joints,
+                                 rosekins_state_t *state,
+                                 rosekins_output_t *output)
 {
-    (void)iflags;
-    (void)fflags;
-// There is a potential problem when accumulating bigtheta -- loss of
-// precision based on size of mantissa -- but in practice, it is probably ok
-
-    static int oldquad;
-    static int revolutions;
-
-    double     theta,bigtheta;
-    int        nowquad = 0;
-    double     x = pos->tran.x;
-    double     y = pos->tran.y;
-    double     z = pos->tran.z;
+    double theta, bigtheta;
+    int nowquad = 0;
+    double x = pos->tran.x;
+    double y = pos->tran.y;
+    double z = pos->tran.z;
 
     if      (x >= 0 && y >= 0) nowquad = 1;
     else if (x <  0 && y >= 0) nowquad = 2;
     else if (x <  0 && y <  0) nowquad = 3;
     else if (x >= 0 && y <  0) nowquad = 4;
 
-    if (oldquad == 2 && nowquad == 3) {revolutions += 1;}
-    if (oldquad == 3 && nowquad == 2) {revolutions -= 1;}
+    if (state->oldquad == 2 && nowquad == 3) { state->revolutions += 1; }
+    if (state->oldquad == 3 && nowquad == 2) { state->revolutions -= 1; }
 
-    theta     = atan2(y,x);
-    bigtheta  = theta + PM_2_PI * revolutions;
+    theta = atan2(y, x);
+    bigtheta = theta + PM_2_PI * state->revolutions;
 
-    *(haldata->revolutions) = revolutions;
-    *(haldata->theta_degrees) = theta * TO_DEG;
-    *(haldata->bigtheta_degrees) = bigtheta * TO_DEG;
+    if (output) {
+        output->revolutions = state->revolutions;
+        output->theta_degrees = theta * TO_DEG;
+        output->bigtheta_degrees = bigtheta * TO_DEG;
+    }
 
-    joints[0] = hypot(x,y);
+    joints[0] = rosekins_hypot(x, y);
     joints[1] = z;
     joints[2] = TO_DEG * bigtheta;
     joints[3] = 0;
@@ -108,8 +119,51 @@ int kinematicsInverse(const EmcPose * pos,
     joints[7] = 0;
     joints[8] = 0;
 
-    oldquad = nowquad;
+    state->oldquad = nowquad;
     return 0;
+}
+
+/* ---- End math functions ---- */
+
+struct haldata {
+    hal_float_t *revolutions;
+    hal_float_t *theta_degrees;
+    hal_float_t *bigtheta_degrees;
+} *haldata;
+
+/* State for revolution tracking */
+static rosekins_state_t kins_state;
+
+int kinematicsForward(const double *joints,
+                      EmcPose * pos,
+                      const KINEMATICS_FORWARD_FLAGS * fflags,
+                      KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)fflags;
+    (void)iflags;
+    return rosekins_forward_math(joints, pos);
+}
+
+int kinematicsInverse(const EmcPose * pos,
+                      double *joints,
+                      const KINEMATICS_INVERSE_FLAGS * iflags,
+                      KINEMATICS_FORWARD_FLAGS * fflags)
+{
+    (void)iflags;
+    (void)fflags;
+    if (!haldata) {
+        /* userspace path: no HAL pins to write */
+        return rosekins_inverse_math(pos, joints, &kins_state, NULL);
+    }
+    rosekins_output_t output;
+    int result = rosekins_inverse_math(pos, joints, &kins_state, &output);
+
+    /* Write diagnostic values to HAL pins */
+    *(haldata->revolutions) = output.revolutions;
+    *(haldata->theta_degrees) = output.theta_degrees;
+    *(haldata->bigtheta_degrees) = output.bigtheta_degrees;
+
+    return result;
 }
 
 KINEMATICS_TYPE kinematicsType()
@@ -118,6 +172,7 @@ KINEMATICS_TYPE kinematicsType()
 }
 
 static int comp_id;
+static kinematics_params_t *uspace_params;
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
 
@@ -135,9 +190,33 @@ int rtapi_app_main(void) {
     if((ans = hal_pin_float_new("rosekins.bigtheta_degrees",
               HAL_OUT, &(haldata->bigtheta_degrees), comp_id)) < 0) goto error;
 
+    if ((ans = hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                               "rosekins.params")) < 0) goto error;
+    if ((ans = hal_struct_attach("rosekins.params", (void **)&uspace_params)) < 0) goto error;
+    uspace_params->num_joints  = 3;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
+    uspace_params->head = 1;
+    uspace_params->tail = 1;
+
     hal_ready(comp_id);
     return 0;
 
 error:
     return ans;
 }
+
+/* ========================================================================
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Returns forward/inverse
+ * function pointers.  (No kinematics-specific parameters to attach.)
+ * ======================================================================== */
+
+void nonrt_attach(nonrt_ops_t *ops)
+{
+    ops->forward = kinematicsForward;
+    ops->inverse = kinematicsInverse;
+}
+
+EXPORT_SYMBOL(nonrt_attach);

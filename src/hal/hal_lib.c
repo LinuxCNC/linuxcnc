@@ -128,6 +128,8 @@ hal_comp_t *halpr_alloc_comp_struct(void);
 static hal_pin_t *alloc_pin_struct(void);
 static hal_sig_t *alloc_sig_struct(void);
 static hal_param_t *alloc_param_struct(void);
+static hal_struct_entry_t *alloc_struct_entry(void);
+static void free_struct_entry(hal_struct_entry_t *p);
 static hal_oldname_t *halpr_alloc_oldname_struct(void);
 #ifdef RTAPI
 static hal_funct_t *alloc_funct_struct(void);
@@ -2688,6 +2690,23 @@ hal_param_t *halpr_find_param_by_name(const char *name)
     return 0;
 }
 
+hal_struct_entry_t *halpr_find_struct_by_name(const char *name)
+{
+    int next;
+    hal_struct_entry_t *entry;
+
+    /* search struct list for 'name' */
+    next = hal_data->struct_list_ptr;
+    while (next != 0) {
+	entry = SHMPTR(next);
+	if (strcmp(entry->name, name) == 0) {
+	    return entry;
+	}
+	next = entry->next_ptr;
+    }
+    return 0;
+}
+
 hal_thread_t *halpr_find_thread_by_name(const char *name)
 {
     int next;
@@ -3084,6 +3103,7 @@ static int init_hal_data(void)
     hal_data->pin_list_ptr = 0;
     hal_data->sig_list_ptr = 0;
     hal_data->param_list_ptr = 0;
+    hal_data->struct_list_ptr = 0;
     hal_data->funct_list_ptr = 0;
     hal_data->thread_list_ptr = 0;
     hal_data->base_period = 0;
@@ -3093,6 +3113,7 @@ static int init_hal_data(void)
     hal_data->pin_free_ptr = 0;
     hal_data->sig_free_ptr = 0;
     hal_data->param_free_ptr = 0;
+    hal_data->struct_free_ptr = 0;
     hal_data->funct_free_ptr = 0;
     hal_data->pending_constructor = 0;
     hal_data->constructor_prefix[0] = 0;
@@ -3283,6 +3304,34 @@ static hal_param_t *alloc_param_struct(void)
 	p->name[0] = '\0';
     }
     return p;
+}
+
+static hal_struct_entry_t *alloc_struct_entry(void)
+{
+    hal_struct_entry_t *p;
+
+    /* check the free list */
+    if (hal_data->struct_free_ptr != 0) {
+	p = SHMPTR(hal_data->struct_free_ptr);
+	hal_data->struct_free_ptr = p->next_ptr;
+	p->next_ptr = 0;
+    } else {
+	p = shmalloc_dn(sizeof(hal_struct_entry_t));
+    }
+    if (p) {
+	p->next_ptr = 0;
+	p->owner_ptr = 0;
+	p->data_ptr = 0;
+	p->attach_count = 0;
+	p->name[0] = '\0';
+    }
+    return p;
+}
+
+static void free_struct_entry(hal_struct_entry_t *p)
+{
+    p->next_ptr = hal_data->struct_free_ptr;
+    hal_data->struct_free_ptr = SHMOFF(p);
 }
 
 static hal_oldname_t *halpr_alloc_oldname_struct(void)
@@ -4355,6 +4404,165 @@ int hal_stream_num_underruns(hal_stream_t *stream) {
     return stream->fifo->num_underruns;
 }
 
+/* ========================================================================
+ * Named struct API — allocates an opaque blob in HAL shmem and registers
+ * it in a dedicated struct namespace, separate from pins, signals, and
+ * parameters.  The struct list in hal_data tracks all entries by name and
+ * maintains a reference count so hal_struct_detach() is meaningful.
+ * ======================================================================== */
+
+int hal_struct_newf(int comp_id, long int size, const void *defval,
+		    const char *fmt, ...)
+{
+	char name[HAL_NAME_LEN + 1];
+	int sz, cmp;
+	hal_comp_t *comp;
+	hal_struct_entry_t *new_entry, *ptr;
+	rtapi_intptr_t *prev, next;
+	void *data;
+	va_list ap;
+
+	va_start(ap, fmt);
+	sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
+	va_end(ap);
+	if (sz < 0 || sz > HAL_NAME_LEN) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf: name too long\n");
+		return -ENOMEM;
+	}
+	if (hal_data == 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf called before init\n");
+		return -EINVAL;
+	}
+
+	rtapi_mutex_get(&(hal_data->mutex));
+
+	comp = halpr_find_comp_by_id(comp_id);
+	if (!comp) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf: component %d not found\n", comp_id);
+		return -EINVAL;
+	}
+	if (comp->ready) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf called after hal_ready\n");
+		return -EINVAL;
+	}
+
+	/* Check for duplicate name before allocating the data blob.
+	 * shmalloc_up has no corresponding free, so we must not allocate
+	 * memory we cannot use. */
+	prev = &(hal_data->struct_list_ptr);
+	next = *prev;
+	while (next != 0) {
+		ptr = SHMPTR(next);
+		cmp = strcmp(ptr->name, name);
+		if (cmp == 0) {
+			rtapi_mutex_give(&(hal_data->mutex));
+			rtapi_print_msg(RTAPI_MSG_ERR,
+			    "HAL: hal_struct_newf: duplicate name '%s'\n", name);
+			return -EINVAL;
+		}
+		if (cmp > 0)
+			break; /* insertion point found */
+		prev = &(ptr->next_ptr);
+		next = *prev;
+	}
+
+	/* Allocate the entry metadata */
+	new_entry = alloc_struct_entry();
+	if (!new_entry) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf: insufficient memory for entry '%s'\n", name);
+		return -ENOMEM;
+	}
+
+	/* Allocate the data blob — shmalloc_up, mutex already held */
+	data = shmalloc_up(size);
+	if (!data) {
+		free_struct_entry(new_entry);
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_newf: can't allocate %ld bytes for '%s'\n",
+		    size, name);
+		return -ENOMEM;
+	}
+
+	if (defval)
+		memcpy(data, defval, (size_t)size);
+	else
+		memset(data, 0, (size_t)size);
+
+	/* Fill in and insert the entry at the position found above */
+	new_entry->owner_ptr = SHMOFF(comp);
+	new_entry->data_ptr = SHMOFF(data);
+	new_entry->attach_count = 0;
+	rtapi_snprintf(new_entry->name, sizeof(new_entry->name), "%s", name);
+	new_entry->next_ptr = next;
+	*prev = SHMOFF(new_entry);
+
+	rtapi_mutex_give(&(hal_data->mutex));
+	return 0;
+}
+
+int hal_struct_attach(const char *name, void **memptr)
+{
+	hal_struct_entry_t *entry;
+
+	if (hal_data == 0) {
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_attach called before init\n");
+		return -EINVAL;
+	}
+	if (!name || !memptr)
+		return -EINVAL;
+
+	rtapi_mutex_get(&(hal_data->mutex));
+	entry = halpr_find_struct_by_name(name);
+	if (entry == 0) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_attach: '%s' not found\n", name);
+		return -ENOENT;
+	}
+	entry->attach_count++;
+	*memptr = SHMPTR(entry->data_ptr);
+	rtapi_mutex_give(&(hal_data->mutex));
+	return 0;
+}
+
+int hal_struct_detach(const char *name)
+{
+	hal_struct_entry_t *entry;
+
+	if (hal_data == 0)
+		return -EINVAL;
+	if (!name)
+		return -EINVAL;
+
+	rtapi_mutex_get(&(hal_data->mutex));
+	entry = halpr_find_struct_by_name(name);
+	if (entry == 0) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_detach: '%s' not found\n", name);
+		return -ENOENT;
+	}
+	if (entry->attach_count == 0) {
+		rtapi_mutex_give(&(hal_data->mutex));
+		rtapi_print_msg(RTAPI_MSG_ERR,
+		    "HAL: hal_struct_detach: '%s' has no attachments\n", name);
+		return -EINVAL;
+	}
+	entry->attach_count--;
+	rtapi_mutex_give(&(hal_data->mutex));
+	return 0;
+}
+
 #ifdef RTAPI
 /* only export symbols when we're building a kernel module */
 
@@ -4451,6 +4659,10 @@ EXPORT_SYMBOL(hal_port_readable);
 EXPORT_SYMBOL(hal_port_writable);
 EXPORT_SYMBOL(hal_port_buffer_size);
 EXPORT_SYMBOL(hal_port_clear);
+
+EXPORT_SYMBOL(hal_struct_newf);
+EXPORT_SYMBOL(hal_struct_attach);
+EXPORT_SYMBOL(hal_struct_detach);
 
 EXPORT_SYMBOL_GPL(hal_stream_create);
 EXPORT_SYMBOL_GPL(hal_stream_destroy);

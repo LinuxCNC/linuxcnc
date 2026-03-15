@@ -6,61 +6,53 @@
 *
 * Author: Chris Radek
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2007 Chris Radek
 ********************************************************************/
 
 /********************************************************************
-* Note: The direction of the B axis is the opposite of the 
-* conventional axis direction. See 
+* Note: The direction of the B axis is the opposite of the
+* conventional axis direction. See
 * https://linuxcnc.org/docs/html/gcode/machining-center.html
 ********************************************************************/
 
-#include <rtapi.h>
-#include <rtapi_app.h>
-#include <rtapi_math.h>
-#include <hal.h>
-#include <kinematics.h>		/* these decls */
 
-#define d2r(d) ((d)*PM_PI/180.0)
-#define r2d(r) ((r)*180.0/PM_PI)
+#include "kinematics.h"		/* these decls */
+#include "posemath.h"
+#include "hal.h"
+#include "rtapi.h"
+#include "rtapi_math.h"
+#include "kinematics_params.h"
+#include <string.h>
 
-#ifndef hypot
-#define hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
+/* ========================================================================
+ * Internal math (was in maxkins_math.h)
+ * ======================================================================== */
+
+#ifndef PM_PI
+#define PM_PI 3.14159265358979323846
 #endif
+#define maxkins_d2r(d) ((d)*PM_PI/180.0)
+#define maxkins_r2d(r) ((r)*180.0/PM_PI)
+#define maxkins_hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
 
-struct haldata {
-    hal_float_t *pivot_length;
-    hal_bit_t *conventional_directions; //default is false
-} *haldata;
-
-int kinematicsForward(const double *joints,
-		      EmcPose * pos,
-		      const KINEMATICS_FORWARD_FLAGS * fflags,
-		      KINEMATICS_INVERSE_FLAGS * iflags)
+static int maxkins_forward_impl(double pivot_length, int conventional_directions,
+                                const double *joints, EmcPose *pos)
 {
-    (void)fflags;
-    (void)iflags;
+    const double con = conventional_directions ? 1.0 : -1.0;
 
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
+    const double zb = (pivot_length + joints[8]) * cos(maxkins_d2r(joints[4]));
+    const double xb = (pivot_length + joints[8]) * sin(maxkins_d2r(joints[4]));
 
-    // B correction
-    const double zb = (*(haldata->pivot_length) + joints[8]) * cos(d2r(joints[4]));
-    const double xb = (*(haldata->pivot_length) + joints[8]) * sin(d2r(joints[4]));
-        
-    // C correction
-    const double xyr = hypot(joints[0], joints[1]);
-    const double xytheta = atan2(joints[1], joints[0]) + d2r(joints[5]);
+    const double xyr = maxkins_hypot(joints[0], joints[1]);
+    const double xytheta = atan2(joints[1], joints[0]) + maxkins_d2r(joints[5]);
 
-    // U correction
-    const double zv = joints[6] * sin(d2r(joints[4]));
-    const double xv = joints[6] * cos(d2r(joints[4]));
-
-    // V correction is always in joint 1 only
+    const double zv = joints[6] * sin(maxkins_d2r(joints[4]));
+    const double xv = joints[6] * cos(maxkins_d2r(joints[4]));
 
     pos->tran.x = xyr * cos(xytheta) - (con * xb) - xv;
     pos->tran.y = xyr * sin(xytheta) - joints[7];
-    pos->tran.z = joints[2] - zb - (con * zv) + *(haldata->pivot_length);
+    pos->tran.z = joints[2] - zb - (con * zv) + pivot_length;
 
     pos->a = joints[3];
     pos->b = joints[4];
@@ -72,33 +64,23 @@ int kinematicsForward(const double *joints,
     return 0;
 }
 
-int kinematicsInverse(const EmcPose * pos,
-		      double *joints,
-		      const KINEMATICS_INVERSE_FLAGS * iflags,
-		      KINEMATICS_FORWARD_FLAGS * fflags)
+static int maxkins_inverse_impl(double pivot_length, int conventional_directions,
+                                const EmcPose *pos, double *joints)
 {
-    (void)iflags;
-    (void)fflags;
+    const double con = conventional_directions ? 1.0 : -1.0;
 
-    const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
+    const double zb = (pivot_length + pos->w) * cos(maxkins_d2r(pos->b));
+    const double xb = (pivot_length + pos->w) * sin(maxkins_d2r(pos->b));
 
-    // B correction
-    const double zb = (*(haldata->pivot_length) + pos->w) * cos(d2r(pos->b));
-    const double xb = (*(haldata->pivot_length) + pos->w) * sin(d2r(pos->b));
-        
-    // C correction
-    const double xyr = hypot(pos->tran.x, pos->tran.y);
-    const double xytheta = atan2(pos->tran.y, pos->tran.x) - d2r(pos->c);
+    const double xyr = maxkins_hypot(pos->tran.x, pos->tran.y);
+    const double xytheta = atan2(pos->tran.y, pos->tran.x) - maxkins_d2r(pos->c);
 
-    // U correction
-    const double zv = pos->u * sin(d2r(pos->b));
-    const double xv = pos->u * cos(d2r(pos->b));
-
-    // V correction is always in joint 1 only
+    const double zv = pos->u * sin(maxkins_d2r(pos->b));
+    const double xv = pos->u * cos(maxkins_d2r(pos->b));
 
     joints[0] = xyr * cos(xytheta) + (con * xb) + xv;
     joints[1] = xyr * sin(xytheta) + pos->v;
-    joints[2] = pos->tran.z + zb - (con * zv) - *(haldata->pivot_length);
+    joints[2] = pos->tran.z + zb - (con * zv) - pivot_length;
 
     joints[3] = pos->a;
     joints[4] = pos->b;
@@ -110,15 +92,75 @@ int kinematicsInverse(const EmcPose * pos,
     return 0;
 }
 
+/* ========================================================================
+ * RT interface (reads HAL pins)
+ * ======================================================================== */
+
+struct haldata {
+    hal_float_t *pivot_length;
+    hal_bit_t *conventional_directions; //default is false
+} *haldata;
+
+static kinematics_params_t *uspace_params;
+
+int kinematicsForward(const double *joints,
+		      EmcPose * pos,
+		      const KINEMATICS_FORWARD_FLAGS * fflags,
+		      KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    (void)fflags;
+    (void)iflags;
+    if (!haldata) {
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        return maxkins_forward_impl(local.params.maxkins.pivot_length,
+                                    local.params.maxkins.conventional_directions,
+                                    joints, pos);
+    }
+    if (uspace_params) {
+        uspace_params->head++;
+        uspace_params->params.maxkins.pivot_length = *(haldata->pivot_length);
+        uspace_params->params.maxkins.conventional_directions = *(haldata->conventional_directions);
+        uspace_params->tail = uspace_params->head;
+    }
+    return maxkins_forward_impl(*(haldata->pivot_length),
+                                *(haldata->conventional_directions),
+                                joints, pos);
+}
+
+int kinematicsInverse(const EmcPose * pos,
+		      double *joints,
+		      const KINEMATICS_INVERSE_FLAGS * iflags,
+		      KINEMATICS_FORWARD_FLAGS * fflags)
+{
+    (void)iflags;
+    (void)fflags;
+    if (!haldata) {
+        kinematics_params_t local;
+        KINS_SHMEM_READ(uspace_params, local);
+        return maxkins_inverse_impl(local.params.maxkins.pivot_length,
+                                    local.params.maxkins.conventional_directions,
+                                    pos, joints);
+    }
+    return maxkins_inverse_impl(*(haldata->pivot_length),
+                                *(haldata->conventional_directions),
+                                pos, joints);
+}
+
 KINEMATICS_TYPE kinematicsType()
 {
     return KINEMATICS_BOTH;
 }
 
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+
+const char* kinematicsGetName(void) { return "maxkins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
 
 int comp_id;
@@ -130,13 +172,22 @@ int rtapi_app_main(void) {
     haldata = hal_malloc(sizeof(struct haldata));
 
     result = hal_pin_float_new("maxkins.pivot-length", HAL_IO, &(haldata->pivot_length), comp_id);
-
     result += hal_pin_bit_new("maxkins.conventional-directions", HAL_IN, &(haldata->conventional_directions), comp_id);
-
     if(result < 0) goto error;
 
     *(haldata->pivot_length) = 0.666;
     *(haldata->conventional_directions) = 0; // default is unconventional
+
+    result = hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                             "maxkins.params");
+    if (result < 0) goto error;
+    if (hal_struct_attach("maxkins.params", (void **)&uspace_params) < 0) goto error;
+    uspace_params->num_joints = 9;
+    uspace_params->params.maxkins.pivot_length = 0.666;
+    uspace_params->params.maxkins.conventional_directions = 0;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
+
     hal_ready(comp_id);
     return 0;
 
@@ -146,3 +197,20 @@ error:
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
+
+/* ========================================================================
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Attaches to the
+ * kinematics_params_t registered in HAL shmem by rtapi_app_main()
+ * via hal_struct_newf() and returns forward/inverse function pointers.
+ * ======================================================================== */
+
+void nonrt_attach(nonrt_ops_t *ops)
+{
+    hal_struct_attach("maxkins.params", (void **)&uspace_params);
+    ops->forward   = kinematicsForward;
+    ops->inverse   = kinematicsInverse;
+}
+
+EXPORT_SYMBOL(nonrt_attach);

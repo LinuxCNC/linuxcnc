@@ -12,11 +12,59 @@
 *
 ********************************************************************/
 
-#include <rtapi.h>
-#include <rtapi_app.h>
-#include <rtapi_math.h>
-#include <hal.h>
-#include <kinematics.h>		/* these decls */
+#include "kinematics.h"		/* these decls */
+
+#ifdef RTAPI
+#include "rtapi_math.h"
+#else
+#include <math.h>
+#endif
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+/*
+ * Rotatekins - simple rotary table kinematics
+ *
+ * The C axis (joint 5) rotates the XY plane.
+ *
+ * Forward: Rotate (J0, J1) by -C to get (X, Y)
+ * Inverse: Rotate (X, Y) by +C to get (J0, J1)
+ */
+static int rotate_forward_math(const double *joints, EmcPose *world)
+{
+    double c_rad = -joints[5] * M_PI / 180.0;
+
+    world->tran.x = joints[0] * cos(c_rad) - joints[1] * sin(c_rad);
+    world->tran.y = joints[0] * sin(c_rad) + joints[1] * cos(c_rad);
+    world->tran.z = joints[2];
+    world->a = joints[3];
+    world->b = joints[4];
+    world->c = joints[5];
+    world->u = joints[6];
+    world->v = joints[7];
+    world->w = joints[8];
+
+    return 0;
+}
+
+static int rotate_inverse_math(const EmcPose *world, double *joints)
+{
+    double c_rad = world->c * M_PI / 180.0;
+
+    joints[0] = world->tran.x * cos(c_rad) - world->tran.y * sin(c_rad);
+    joints[1] = world->tran.x * sin(c_rad) + world->tran.y * cos(c_rad);
+    joints[2] = world->tran.z;
+    joints[3] = world->a;
+    joints[4] = world->b;
+    joints[5] = world->c;
+    joints[6] = world->u;
+    joints[7] = world->v;
+    joints[8] = world->w;
+
+    return 0;
+}
 
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
@@ -25,18 +73,7 @@ int kinematicsForward(const double *joints,
 {
     (void)fflags;
     (void)iflags;
-    double c_rad = -joints[5]*M_PI/180;
-    pos->tran.x = joints[0] * cos(c_rad) - joints[1] * sin(c_rad);
-    pos->tran.y = joints[0] * sin(c_rad) + joints[1] * cos(c_rad);
-    pos->tran.z = joints[2];
-    pos->a = joints[3];
-    pos->b = joints[4];
-    pos->c = joints[5];
-    pos->u = joints[6];
-    pos->v = joints[7];
-    pos->w = joints[8];
-
-    return 0;
+    return rotate_forward_math(joints, pos);
 }
 
 int kinematicsInverse(const EmcPose * pos,
@@ -46,18 +83,7 @@ int kinematicsInverse(const EmcPose * pos,
 {
     (void)iflags;
     (void)fflags;
-    double c_rad = pos->c*M_PI/180;
-    joints[0] = pos->tran.x * cos(c_rad) - pos->tran.y * sin(c_rad);
-    joints[1] = pos->tran.x * sin(c_rad) + pos->tran.y * cos(c_rad);
-    joints[2] = pos->tran.z;
-    joints[3] = pos->a;
-    joints[4] = pos->b;
-    joints[5] = pos->c;
-    joints[6] = pos->u;
-    joints[7] = pos->v;
-    joints[8] = pos->w;
-
-    return 0;
+    return rotate_inverse_math(pos, joints);
 }
 
 /* implemented for these kinematics as giving joints preference */
@@ -77,20 +103,58 @@ KINEMATICS_TYPE kinematicsType()
     return KINEMATICS_BOTH;
 }
 
+#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "hal.h"
+#include "kinematics_params.h"
+#include <string.h>
+
+const char* kinematicsGetName(void) { return "rotatekins"; }
+
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsGetName);
 MODULE_LICENSE("GPL");
+
+static kinematics_params_t *uspace_params;
 
 int comp_id;
 int rtapi_app_main(void) {
     comp_id = hal_init("rotatekins");
-    if(comp_id > 0) {
-	hal_ready(comp_id);
-	return 0;
+    if(comp_id < 0) return comp_id;
+
+    if (hal_struct_newf(comp_id, sizeof(kinematics_params_t), NULL,
+                        "rotatekins.params") < 0) {
+        hal_exit(comp_id); return -1;
     }
-    return comp_id;
+    if (hal_struct_attach("rotatekins.params", (void **)&uspace_params) < 0) {
+        hal_exit(comp_id); return -1;
+    }
+    uspace_params->num_joints  = 6;
+    uspace_params->valid       = 1;
+    uspace_params->is_identity = 0;
+    uspace_params->head = 1;
+    uspace_params->tail = 1;
+
+    hal_ready(comp_id);
+    return 0;
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
+
+/* ========================================================================
+ * Non-RT interface
+ *
+ * Called by kinematics_user.c after dlopen().  Returns forward/inverse
+ * function pointers.  (No kinematics-specific parameters to attach.)
+ * ======================================================================== */
+
+void nonrt_attach(nonrt_ops_t *ops)
+{
+    ops->forward = kinematicsForward;
+    ops->inverse = kinematicsInverse;
+}
+
+EXPORT_SYMBOL(nonrt_attach);
