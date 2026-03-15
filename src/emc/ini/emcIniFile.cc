@@ -43,7 +43,7 @@ EmcIniFile::ErrorCode
 EmcIniFile::Find(EmcJointType *result,
                  const char *tag, const char *section, int num)
 {
-    return(IniFile::Find((int *)result, jointTypeMap, tag, section, num));
+    return(IniFile::Find(reinterpret_cast<int *>(result), jointTypeMap, tag, section, num));
 }
 
 

@@ -78,6 +78,10 @@ class TCP_BUFFER_SUBSCRIPTION_INFO {
   public:
     TCP_BUFFER_SUBSCRIPTION_INFO();
     ~TCP_BUFFER_SUBSCRIPTION_INFO();
+    // Not copyable
+    TCP_BUFFER_SUBSCRIPTION_INFO(const TCP_BUFFER_SUBSCRIPTION_INFO&) = delete;
+    TCP_BUFFER_SUBSCRIPTION_INFO& operator= (const TCP_BUFFER_SUBSCRIPTION_INFO&) = delete;
+
     int buffer_number;
     int min_last_id;
     int list_id;
@@ -105,6 +109,10 @@ class CLIENT_TCP_PORT {
   public:
     CLIENT_TCP_PORT();
     ~CLIENT_TCP_PORT();
+    // Not copyable
+    CLIENT_TCP_PORT(const CLIENT_TCP_PORT&) = delete;
+    CLIENT_TCP_PORT& operator= (const CLIENT_TCP_PORT&) = delete;
+
     long serial_number;
     int errors, max_errors;
     struct sockaddr_in address;

@@ -339,6 +339,11 @@ class Hal
 public:
     Hal(Profiles::HalRequestProfile halRequestProfile=Profiles::halRequestSlowProfile());
     ~Hal();
+
+    // Not copyable
+    Hal(const Hal&) = delete;
+    Hal& operator= (const Hal&) = delete;
+
     //! Initializes HAL memory and pins according to simulation mode. Must not be called more than once.
     //! If \ref mIsSimulationMode is true heap memory will be used, shared HAL memory otherwise.
     //! \ref setIsSimulationMode() must be set before accordingly

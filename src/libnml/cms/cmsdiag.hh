@@ -82,6 +82,10 @@ class CMS_DIAGNOSTICS_INFO:public CMS_DIAG_HEADER {
   public:
     CMS_DIAGNOSTICS_INFO();
     virtual ~ CMS_DIAGNOSTICS_INFO();
+    // Not copyable
+    CMS_DIAGNOSTICS_INFO(const CMS_DIAGNOSTICS_INFO&) = delete;
+    CMS_DIAGNOSTICS_INFO& operator= (const CMS_DIAGNOSTICS_INFO&) = delete;
+
     CMS_DIAG_PROC_INFO *last_writer_dpi;
     CMS_DIAG_PROC_INFO *last_reader_dpi;
     LinkedList *dpis;

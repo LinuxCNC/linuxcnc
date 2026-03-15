@@ -74,6 +74,10 @@ struct CONFIG_FILE_INFO {
 	}
     };
 
+    // Not copyable
+    CONFIG_FILE_INFO(const CONFIG_FILE_INFO&) = delete;
+    CONFIG_FILE_INFO& operator= (const CONFIG_FILE_INFO&) = delete;
+
     LinkedList *lines_list;
     char file_name[80];
 };

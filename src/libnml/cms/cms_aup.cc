@@ -224,7 +224,7 @@ int safe_strlen(char *string, int max)
 CMS_STATUS CMS_ASCII_UPDATER::update(bool &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(bool))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(bool))) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -318,7 +318,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(uint8_t *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(int16_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(int16_t))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(int16_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -363,7 +363,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int16_t &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(int16_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(int16_t) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(int16_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -378,7 +378,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int16_t *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(uint16_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(uint16_t))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(uint16_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -423,7 +423,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(uint16_t &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(uint16_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(uint16_t) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(uint16_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -440,7 +440,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(uint16_t *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(int32_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(int32_t))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(int32_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -491,7 +491,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int32_t &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(int32_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(int32_t) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(int32_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -506,7 +506,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int32_t *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(uint32_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(uint32_t))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(uint32_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -557,7 +557,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(uint32_t &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(uint32_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(uint32_t) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(uint32_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -574,7 +574,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(uint32_t *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(int64_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(int64_t))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(int64_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -612,7 +612,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int64_t &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(int64_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(int64_t) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(int64_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -627,7 +627,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int64_t *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(uint64_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(uint64_t))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(uint64_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -666,7 +666,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(uint64_t &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(uint64_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(uint64_t) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(uint64_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -683,7 +683,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(uint64_t *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(float &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(float))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(float))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -728,7 +728,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(float &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(float *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(float) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(float) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -745,7 +745,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(float *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(double &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(double))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(double))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -783,7 +783,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(double &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(double *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(double) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(double) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -800,7 +800,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(double *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(long double &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(long double))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(long double))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -838,7 +838,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(long double &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(long double *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(long double) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(long double) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 

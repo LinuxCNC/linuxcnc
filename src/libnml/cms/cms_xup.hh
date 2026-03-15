@@ -53,6 +53,10 @@ class CMS_XDR_UPDATER:public CMS_UPDATER {
     int check_pointer(char *, long);
       CMS_XDR_UPDATER(CMS *);
       virtual ~ CMS_XDR_UPDATER();
+    // Not copyable
+    CMS_XDR_UPDATER(const CMS_XDR_UPDATER&) = delete;
+    CMS_XDR_UPDATER& operator= (const CMS_XDR_UPDATER&) = delete;
+
     friend class CMS;
     XDR *encode_data_stream;	/* XDR streams for data */
     XDR *decode_data_stream;
