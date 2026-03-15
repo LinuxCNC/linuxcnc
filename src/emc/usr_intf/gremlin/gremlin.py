@@ -331,9 +331,9 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             for i in range(9):
                 if s.axis_mask & (1<<i):
                     axis = "XYZABCUVW"[i]
-                    if (axis == "A" and a_axis_wrapped) or\
-                       (axis == "B" and b_axis_wrapped) or\
-                       (axis == "C" and c_axis_wrapped):
+                    if (axis == "A" and self.a_axis_wrapped) or\
+                       (axis == "B" and self.b_axis_wrapped) or\
+                       (axis == "C" and self.c_axis_wrapped):
                         pos = s.position[i] % 360.000
                     else:
                         pos = s.position[i]
