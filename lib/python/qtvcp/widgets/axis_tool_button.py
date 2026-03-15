@@ -226,6 +226,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         return axis, r[jnum]
 
     def selectJoint(self):
+        print(self.objectName(),'select',self._joint,self._axis,self.isChecked())
         if self._block_signal or self._joint == -1 or self._axis == '': return
         if self.isChecked() == True:
             if STATUS.is_joint_mode():
@@ -251,7 +252,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
                 self.hal_pin_axis.set(False)
 
     def ChangeState(self, joint = None, axis = None):
-        #print(self.objectName(),'change',joint,axis,self._axis)
+        print(self.objectName(),'change',joint,axis,self._axis,self.isChecked())
         # joint mode
         if STATUS.is_joint_mode():
             if int(joint) != self._joint:
@@ -269,12 +270,18 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         # axis mode
         else:
             if str(axis) != self._axis and self.isChecked():
+                print(self.objectName(),'Set false')
+                if not self.group() == 0:
+                    self.group().setExclusive(False)
                 self._block_signal = True
                 self.setChecked(False)
                 self._block_signal = False
+                if not self.group() == 0:
+                    self.group().setExclusive(True)
                 if self._halpin_option and self._axis != '':
                     self.hal_pin_joint.set(False)
             elif str(axis) == self._axis and not self.isChecked():
+                print(self.objectName(),'Set True')
                 self._block_signal = True
                 self.setChecked(True)
                 self._block_signal = False

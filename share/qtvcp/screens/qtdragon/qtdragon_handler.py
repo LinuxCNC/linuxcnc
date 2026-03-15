@@ -157,6 +157,7 @@ class HandlerClass:
         STATUS.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
         STATUS.connect('ok-request', lambda w, state: self.dialog_ext_control(w,1,1))
         STATUS.connect('cancel-request', lambda w, state: self.dialog_ext_control(w,1,0))
+        STATUS.connect('axis-selection-changed', lambda w,data: self.mpg_selection_changed(data))
 
         self.swoopPath = os.path.join(paths.IMAGEDIR,'lcnc_swoop.png')
         self.swoopURL = QtCore.QUrl.fromLocalFile(self.swoopPath)
@@ -1418,6 +1419,16 @@ class HandlerClass:
         if state:
             STATUS.emit('dro-reference-change-request', 1)
 
+    def mpg_selection_changed(self, data):
+        if data =='MPG0':
+            self.w.btn_mpg_scroll.setChecked(True)
+            self.recolorMPGFocusBorder()
+        elif data == 'None':
+            self.w.btn_mpg_scroll.group().setExclusive(False)
+            self.w.btn_mpg_scroll.setChecked(False)
+            self.w.btn_mpg_scroll.group().setExclusive(True)
+            self.removeMPGFocusBorder()
+
     def MPG_select_changed(self, button):
         #print(button)
         # Auto exclusive doesn't allow unchecking all buttons
@@ -1437,8 +1448,10 @@ class HandlerClass:
             if self.w.btn_mpg_scroll.isChecked():
                 ACTION.SET_SELECTED_AXIS('MPG0')
                 self.recolorMPGFocusBorder()
-        else:
+            else:
                 self.removeMPGFocusBorder()
+        else:
+            self.removeMPGFocusBorder()
 
         #self.set_statusbar('MPG output Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
         self._lastSelectButton = button
