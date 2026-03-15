@@ -255,7 +255,6 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
 
     def ChangeState(self, joint = None, axis = None):
         #print(self.objectName(),f'change: j{joint} a{axis} type{self._axis} ck{self.isChecked()}')
-
         # joint mode
         if STATUS.is_joint_mode():
             if int(joint) != self._joint:
