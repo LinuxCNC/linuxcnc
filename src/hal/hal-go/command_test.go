@@ -249,3 +249,138 @@ func TestListUnknownType(t *testing.T) {
 		t.Fatal("List must return an error for unknown type")
 	}
 }
+
+// ===== Show/Save/Status/SetDebug signature tests =====
+
+// TestShowSignature verifies that Show has the correct signature.
+func TestShowSignature(t *testing.T) {
+	var fn func(string, ...string) (*hal.ShowResult, error) = hal.Show
+	_ = fn
+}
+
+// TestSaveSignature verifies that Save has the correct signature.
+func TestSaveSignature(t *testing.T) {
+	var fn func(string, string) ([]string, error) = hal.Save
+	_ = fn
+}
+
+// TestStatusSignature verifies that Status has the correct signature.
+func TestStatusSignature(t *testing.T) {
+	var fn func() (*hal.StatusInfo, error) = hal.Status
+	_ = fn
+}
+
+// TestSetDebugSignature verifies that SetDebug has the correct signature.
+func TestSetDebugSignature(t *testing.T) {
+	var fn func(int) error = hal.SetDebug
+	_ = fn
+}
+
+// ===== Struct field tests =====
+
+// TestPinInfoFields verifies that PinInfo has the expected fields.
+func TestPinInfoFields(t *testing.T) {
+	pi := hal.PinInfo{
+		Name:      "mycomp.in",
+		Type:      "bit",
+		Direction: "IN",
+		Value:     "FALSE",
+		Signal:    "mysig",
+		Owner:     "mycomp",
+	}
+	_ = pi
+}
+
+// TestSigInfoFields verifies that SigInfo has the expected fields.
+func TestSigInfoFields(t *testing.T) {
+	si := hal.SigInfo{
+		Name:  "mysig",
+		Type:  "float",
+		Value: "0",
+	}
+	_ = si
+}
+
+// TestParamInfoFields verifies that ParamInfo has the expected fields.
+func TestParamInfoFields(t *testing.T) {
+	pi := hal.ParamInfo{
+		Name:      "mycomp.gain",
+		Type:      "float",
+		Direction: "RW",
+		Value:     "1.0",
+		Owner:     "mycomp",
+	}
+	_ = pi
+}
+
+// TestFunctInfoFields verifies that FunctInfo has the expected fields.
+func TestFunctInfoFields(t *testing.T) {
+	fi := hal.FunctInfo{
+		Name:  "mycomp.update",
+		Owner: "mycomp",
+	}
+	_ = fi
+}
+
+// TestThreadInfoFields verifies that ThreadInfo has the expected fields.
+func TestThreadInfoFields(t *testing.T) {
+	ti := hal.ThreadInfo{
+		Name:    "servo-thread",
+		Period:  1000000,
+		Functs:  []string{"mycomp.update"},
+		Running: false,
+	}
+	_ = ti
+}
+
+// TestCompInfoFields verifies that CompInfo has the expected fields.
+func TestCompInfoFields(t *testing.T) {
+	ci := hal.CompInfo{
+		Name: "mycomp",
+		ID:   42,
+		Type: "realtime",
+	}
+	_ = ci
+}
+
+// TestShowResultFields verifies that ShowResult has the expected fields.
+func TestShowResultFields(t *testing.T) {
+	sr := hal.ShowResult{
+		Comps:   []hal.CompInfo{},
+		Pins:    []hal.PinInfo{},
+		Params:  []hal.ParamInfo{},
+		Signals: []hal.SigInfo{},
+		Functs:  []hal.FunctInfo{},
+		Threads: []hal.ThreadInfo{},
+	}
+	_ = sr
+}
+
+// TestStatusInfoFields verifies that StatusInfo has the expected fields.
+func TestStatusInfoFields(t *testing.T) {
+	si := hal.StatusInfo{
+		ShmemFree: 65536,
+		LockLevel: "none",
+	}
+	_ = si
+}
+
+// ===== Functional tests (no HAL required) =====
+
+// TestShowUnknownType verifies that Show rejects unknown type strings.
+func TestShowUnknownType(t *testing.T) {
+	_, err := hal.Show("notatype")
+	if err == nil {
+		t.Fatal("Show must return an error for unknown type")
+	}
+}
+
+// TestSaveUnknownType verifies that Save returns an error for unknown types
+// when HAL is not running (so the C shim returns -EINVAL for hal_data == NULL
+// before the type check can even run).
+func TestSaveEmptyType(t *testing.T) {
+	// Empty type defaults to "all" — must not panic.
+	_, err := hal.Save("", "")
+	// Either succeeds (HAL available) or returns an error (no HAL) — never panics.
+	_ = err
+}

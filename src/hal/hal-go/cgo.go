@@ -866,6 +866,532 @@ static int hal_shim_list_threads(const char *pattern, char *buf, int buf_size) {
     rtapi_mutex_give(&(hal_data->mutex));
     return count;
 }
+
+// ===== 1f. Show/status/save/debug shim structs and helpers =====
+
+// HAL_SHIM_MAX_ITEMS is the initial result-array capacity for hal_shim_show_*
+// functions.  If the real count exceeds this the shim returns -ENOSPC and the
+// Go caller retries with a doubled capacity (up to showMaxCap).
+#define HAL_SHIM_MAX_ITEMS 1024
+
+// HAL_SHIM_MAX_TH_FNCTS is the maximum number of functions per thread stored
+// in hal_shim_thread_info_t.funct_names.  In practice LinuxCNC threads rarely
+// have more than a handful of functions; 32 is well above any real-world value.
+// Functions beyond this limit are silently truncated in the output.
+#define HAL_SHIM_MAX_TH_FNCTS 32
+
+typedef struct {
+    char name[HAL_NAME_LEN + 1];
+    int  comp_id;
+    int  type;   // component_type_t: 0=user, 1=realtime, 2=other
+    int  ready;
+} hal_shim_comp_info_t;
+
+typedef struct {
+    char name[HAL_NAME_LEN + 1];
+    char owner[HAL_NAME_LEN + 1];
+    char signal[HAL_NAME_LEN + 1]; // empty if not linked
+    // value[64]: sufficient for all HAL types — "%.7g" float ≤15 chars,
+    // boolean is "TRUE"/"FALSE", s32/u32 ≤12 decimal digits.
+    char value[64];
+    int  type;   // hal_type_t
+    int  dir;    // hal_pin_dir_t
+} hal_shim_pin_info_t;
+
+typedef struct {
+    char name[HAL_NAME_LEN + 1];
+    char owner[HAL_NAME_LEN + 1];
+    // value[64]: sufficient for all HAL types (see hal_shim_pin_info_t).
+    char value[64];
+    int  type;   // hal_type_t
+    int  dir;    // hal_param_dir_t
+} hal_shim_param_info_t;
+
+typedef struct {
+    char name[HAL_NAME_LEN + 1];
+    // value[64]: sufficient for all HAL types (see hal_shim_pin_info_t).
+    char value[64];
+    int  type;     // hal_type_t
+    int  readers;
+    int  writers;
+    int  bidirs;
+} hal_shim_sig_info_t;
+
+typedef struct {
+    char name[HAL_NAME_LEN + 1];
+    char owner[HAL_NAME_LEN + 1];
+    int  users;
+} hal_shim_funct_info_t;
+
+typedef struct {
+    char name[HAL_NAME_LEN + 1];
+    long period;   // period in nanoseconds
+    int  running;  // non-zero if threads are started
+    int  nfuncts;
+    char funct_names[HAL_SHIM_MAX_TH_FNCTS][HAL_NAME_LEN + 1];
+} hal_shim_thread_info_t;
+
+typedef struct {
+    int shmem_avail;
+    int lock;
+} hal_shim_status_t;
+
+// hal_shim_show_comps fills arr with up to max_items components matching pattern.
+// Returns the number filled, or negative errno on error.
+static int hal_shim_show_comps(const char *pattern, hal_shim_comp_info_t *arr, int max_items) {
+    int next, count = 0;
+    hal_comp_t *comp;
+
+    if (hal_data == NULL) return -EINVAL;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->comp_list_ptr;
+    while (next != 0) {
+        comp = (hal_comp_t *)SHMPTR(next);
+        if (pattern == NULL || *pattern == '\0' ||
+            fnmatch(pattern, comp->name, 0) == 0) {
+            if (count >= max_items) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                return -ENOSPC;
+            }
+            snprintf(arr[count].name, sizeof(arr[count].name), "%s", comp->name);
+            arr[count].comp_id = comp->comp_id;
+            arr[count].type    = (int)comp->type;
+            arr[count].ready   = comp->ready;
+            count++;
+        }
+        next = comp->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return count;
+}
+
+// hal_shim_show_pins fills arr with up to max_items pins matching pattern.
+static int hal_shim_show_pins(const char *pattern, hal_shim_pin_info_t *arr, int max_items) {
+    int next, count = 0;
+    hal_pin_t  *pin;
+    hal_sig_t  *sig;
+    hal_comp_t *comp;
+    void       *d_ptr;
+
+    if (hal_data == NULL) return -EINVAL;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->pin_list_ptr;
+    while (next != 0) {
+        pin = (hal_pin_t *)SHMPTR(next);
+        if (pattern == NULL || *pattern == '\0' ||
+            fnmatch(pattern, pin->name, 0) == 0) {
+            if (count >= max_items) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                return -ENOSPC;
+            }
+            snprintf(arr[count].name, sizeof(arr[count].name), "%s", pin->name);
+            arr[count].type = (int)pin->type;
+            arr[count].dir  = (int)pin->dir;
+
+            if (pin->owner_ptr != 0) {
+                comp = (hal_comp_t *)SHMPTR(pin->owner_ptr);
+                snprintf(arr[count].owner, sizeof(arr[count].owner), "%s", comp->name);
+            } else {
+                arr[count].owner[0] = '\0';
+            }
+
+            if (pin->signal != 0) {
+                sig = (hal_sig_t *)SHMPTR(pin->signal);
+                snprintf(arr[count].signal, sizeof(arr[count].signal), "%s", sig->name);
+                d_ptr = SHMPTR(sig->data_ptr);
+            } else {
+                arr[count].signal[0] = '\0';
+                d_ptr = (void *)&pin->dummysig;
+            }
+            hal_shim_format_value(pin->type, d_ptr,
+                                  arr[count].value, sizeof(arr[count].value));
+            count++;
+        }
+        next = pin->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return count;
+}
+
+// hal_shim_show_params fills arr with up to max_items parameters matching pattern.
+static int hal_shim_show_params(const char *pattern, hal_shim_param_info_t *arr, int max_items) {
+    int next, count = 0;
+    hal_param_t *param;
+    hal_comp_t  *comp;
+
+    if (hal_data == NULL) return -EINVAL;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->param_list_ptr;
+    while (next != 0) {
+        param = (hal_param_t *)SHMPTR(next);
+        if (pattern == NULL || *pattern == '\0' ||
+            fnmatch(pattern, param->name, 0) == 0) {
+            if (count >= max_items) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                return -ENOSPC;
+            }
+            snprintf(arr[count].name, sizeof(arr[count].name), "%s", param->name);
+            arr[count].type = (int)param->type;
+            arr[count].dir  = (int)param->dir;
+
+            if (param->owner_ptr != 0) {
+                comp = (hal_comp_t *)SHMPTR(param->owner_ptr);
+                snprintf(arr[count].owner, sizeof(arr[count].owner), "%s", comp->name);
+            } else {
+                arr[count].owner[0] = '\0';
+            }
+            hal_shim_format_value(param->type, SHMPTR(param->data_ptr),
+                                  arr[count].value, sizeof(arr[count].value));
+            count++;
+        }
+        next = param->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return count;
+}
+
+// hal_shim_show_sigs fills arr with up to max_items signals matching pattern.
+static int hal_shim_show_sigs(const char *pattern, hal_shim_sig_info_t *arr, int max_items) {
+    int next, count = 0;
+    hal_sig_t *sig;
+
+    if (hal_data == NULL) return -EINVAL;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->sig_list_ptr;
+    while (next != 0) {
+        sig = (hal_sig_t *)SHMPTR(next);
+        if (pattern == NULL || *pattern == '\0' ||
+            fnmatch(pattern, sig->name, 0) == 0) {
+            if (count >= max_items) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                return -ENOSPC;
+            }
+            snprintf(arr[count].name, sizeof(arr[count].name), "%s", sig->name);
+            arr[count].type    = (int)sig->type;
+            arr[count].readers = sig->readers;
+            arr[count].writers = sig->writers;
+            arr[count].bidirs  = sig->bidirs;
+            hal_shim_format_value(sig->type, SHMPTR(sig->data_ptr),
+                                  arr[count].value, sizeof(arr[count].value));
+            count++;
+        }
+        next = sig->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return count;
+}
+
+// hal_shim_show_functs fills arr with up to max_items functions matching pattern.
+static int hal_shim_show_functs(const char *pattern, hal_shim_funct_info_t *arr, int max_items) {
+    int next, count = 0;
+    hal_funct_t *funct;
+    hal_comp_t  *comp;
+
+    if (hal_data == NULL) return -EINVAL;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->funct_list_ptr;
+    while (next != 0) {
+        funct = (hal_funct_t *)SHMPTR(next);
+        if (pattern == NULL || *pattern == '\0' ||
+            fnmatch(pattern, funct->name, 0) == 0) {
+            if (count >= max_items) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                return -ENOSPC;
+            }
+            snprintf(arr[count].name, sizeof(arr[count].name), "%s", funct->name);
+            arr[count].users = funct->users;
+            if (funct->owner_ptr != 0) {
+                comp = (hal_comp_t *)SHMPTR(funct->owner_ptr);
+                snprintf(arr[count].owner, sizeof(arr[count].owner), "%s", comp->name);
+            } else {
+                arr[count].owner[0] = '\0';
+            }
+            count++;
+        }
+        next = funct->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return count;
+}
+
+// hal_shim_show_threads fills arr with up to max_items threads matching pattern.
+static int hal_shim_show_threads(const char *pattern, hal_shim_thread_info_t *arr, int max_items) {
+    int next, count = 0;
+    hal_thread_t      *tptr;
+    hal_list_t        *list_root, *list_entry;
+    hal_funct_entry_t *fentry;
+    hal_funct_t       *funct;
+
+    if (hal_data == NULL) return -EINVAL;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->thread_list_ptr;
+    while (next != 0) {
+        tptr = (hal_thread_t *)SHMPTR(next);
+        if (pattern == NULL || *pattern == '\0' ||
+            fnmatch(pattern, tptr->name, 0) == 0) {
+            if (count >= max_items) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                return -ENOSPC;
+            }
+            snprintf(arr[count].name, sizeof(arr[count].name), "%s", tptr->name);
+            arr[count].period  = tptr->period;
+            arr[count].running = hal_data->threads_running;
+            arr[count].nfuncts = 0;
+
+            list_root  = &(tptr->funct_list);
+            list_entry = list_next(list_root);
+            while (list_entry != list_root &&
+                   arr[count].nfuncts < HAL_SHIM_MAX_TH_FNCTS) {
+                fentry = (hal_funct_entry_t *)list_entry;
+                funct  = (hal_funct_t *)SHMPTR(fentry->funct_ptr);
+                snprintf(arr[count].funct_names[arr[count].nfuncts],
+                         HAL_NAME_LEN + 1, "%s", funct->name);
+                arr[count].nfuncts++;
+                list_entry = list_next(list_entry);
+            }
+            count++;
+        }
+        next = tptr->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return count;
+}
+
+// hal_shim_status reads HAL shared-memory status into *st.
+// Returns 0 on success or -EINVAL if hal_data is NULL.
+static int hal_shim_status(hal_shim_status_t *st) {
+    if (hal_data == NULL) return -EINVAL;
+    rtapi_mutex_get(&(hal_data->mutex));
+    st->shmem_avail = (int)hal_data->shmem_avail;
+    st->lock        = (int)hal_data->lock;
+    rtapi_mutex_give(&(hal_data->mutex));
+    return 0;
+}
+
+// hal_shim_debug sets the RTAPI message level (0–5).
+// Returns 0 on success or a negative errno value on error.
+static int hal_shim_debug(int level) {
+    return rtapi_set_msg_level(level);
+}
+
+// buf_write_line copies line into buf[*pos] as a null-terminated entry and
+// advances *pos.  Returns 0 on success or -ENOSPC if the buffer is full.
+static int buf_write_line(char *buf, int *pos, int buf_size, const char *line) {
+    int len = (int)strlen(line);
+    if (*pos + len + 1 > buf_size) return -ENOSPC;
+    memcpy(buf + *pos, line, len);
+    *pos += len;
+    buf[(*pos)++] = '\0';
+    return 0;
+}
+
+// hal_shim_save serializes the current HAL state as halcmd command strings.
+// type selects what to save: "all", "allu", "comp", "alias", "sig", "signal",
+// "sigu", "link", "linka", "net", "neta", "netl", "netla", "netal", "param",
+// "parameter", "thread".  Lines are written null-separated into buf.
+// Returns the number of lines written, or a negative errno value on error.
+static int hal_shim_save(const char *type, char *buf, int buf_size) {
+    int pos   = 0;
+    int count = 0;
+    int next;
+    char tmp[2048]; // large enough for any single halcmd line
+
+    if (hal_data == NULL) return -EINVAL;
+    if (type == NULL || *type == '\0') type = "all";
+
+    int do_comps   = (strcmp(type,"all")==0 || strcmp(type,"allu")==0 ||
+                      strcmp(type,"comp")==0);
+    int do_aliases = (strcmp(type,"all")==0 || strcmp(type,"allu")==0 ||
+                      strcmp(type,"alias")==0);
+    int do_sigs    = (strcmp(type,"all")==0 || strcmp(type,"allu")==0 ||
+                      strcmp(type,"sig")==0 || strcmp(type,"signal")==0 ||
+                      strcmp(type,"sigu")==0);
+    int do_nets    = (strcmp(type,"all")==0 || strcmp(type,"allu")==0 ||
+                      strcmp(type,"net")==0 || strcmp(type,"neta")==0 ||
+                      strcmp(type,"netl")==0 || strcmp(type,"netla")==0 ||
+                      strcmp(type,"netal")==0);
+    int do_links   = (strcmp(type,"link")==0 || strcmp(type,"linka")==0);
+    int do_params  = (strcmp(type,"all")==0 || strcmp(type,"allu")==0 ||
+                      strcmp(type,"param")==0 || strcmp(type,"parameter")==0);
+    int do_threads = (strcmp(type,"all")==0 || strcmp(type,"allu")==0 ||
+                      strcmp(type,"thread")==0);
+
+    if (!do_comps && !do_aliases && !do_sigs && !do_nets &&
+        !do_links && !do_params && !do_threads) {
+        return -EINVAL;
+    }
+
+#define SAVE_LINE(fmt, ...) do { \
+    snprintf(tmp, sizeof(tmp), fmt, ##__VA_ARGS__); \
+    if (buf_write_line(buf, &pos, buf_size, tmp) != 0) return -ENOSPC; \
+    count++; \
+} while (0)
+
+    // save realtime components
+    if (do_comps) {
+        rtapi_mutex_get(&(hal_data->mutex));
+        next = hal_data->comp_list_ptr;
+        while (next != 0) {
+            hal_comp_t *comp = (hal_comp_t *)SHMPTR(next);
+            if (comp->type == COMPONENT_TYPE_REALTIME) {
+                if (comp->insmod_args == 0) {
+                    SAVE_LINE("#loadrt %s  (not loaded by loadrt, no args saved)",
+                              comp->name);
+                } else {
+                    SAVE_LINE("loadrt %s %s", comp->name,
+                              (char *)SHMPTR(comp->insmod_args));
+                }
+            }
+            next = comp->next_ptr;
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+
+    // save aliases
+    if (do_aliases) {
+        rtapi_mutex_get(&(hal_data->mutex));
+        next = hal_data->pin_list_ptr;
+        while (next != 0) {
+            hal_pin_t *pin = (hal_pin_t *)SHMPTR(next);
+            if (pin->oldname != 0) {
+                hal_oldname_t *oldname = (hal_oldname_t *)SHMPTR(pin->oldname);
+                SAVE_LINE("alias pin %s %s", oldname->name, pin->name);
+            }
+            next = pin->next_ptr;
+        }
+        next = hal_data->param_list_ptr;
+        while (next != 0) {
+            hal_param_t *param = (hal_param_t *)SHMPTR(next);
+            if (param->oldname != 0) {
+                hal_oldname_t *oldname = (hal_oldname_t *)SHMPTR(param->oldname);
+                SAVE_LINE("alias param %s %s", oldname->name, param->name);
+            }
+            next = param->next_ptr;
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+
+    // save signals (newsig lines)
+    if (do_sigs) {
+        int only_unlinked = (strcmp(type,"sigu") == 0 ||
+                             strcmp(type,"allu") == 0);
+        rtapi_mutex_get(&(hal_data->mutex));
+        next = hal_data->sig_list_ptr;
+        while (next != 0) {
+            hal_sig_t *sig = (hal_sig_t *)SHMPTR(next);
+            if (only_unlinked && (sig->readers || sig->writers)) {
+                next = sig->next_ptr;
+                continue;
+            }
+            const char *type_name;
+            switch (sig->type) {
+            case HAL_BIT:   type_name = "bit";   break;
+            case HAL_FLOAT: type_name = "float"; break;
+            case HAL_S32:   type_name = "s32";   break;
+            case HAL_U32:   type_name = "u32";   break;
+            default:        type_name = "unknown"; break;
+            }
+            SAVE_LINE("newsig %s %s", sig->name, type_name);
+            next = sig->next_ptr;
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+
+    // save nets
+    if (do_nets) {
+        int net_size = HAL_NAME_LEN * 64 + 64;
+        char *net_line = (char *)malloc(net_size);
+        if (!net_line) return -ENOMEM;
+        rtapi_mutex_get(&(hal_data->mutex));
+        next = hal_data->sig_list_ptr;
+        while (next != 0) {
+            hal_sig_t *sig = (hal_sig_t *)SHMPTR(next);
+            hal_pin_t *pin = halpr_find_pin_by_sig(sig, 0);
+            if (pin) {
+                // net <signame> <pins...
+                int net_pos = 0;
+                int wr = snprintf(net_line, net_size, "net %s", sig->name);
+                if (wr > 0 && wr < net_size) net_pos = wr;
+                pin = halpr_find_pin_by_sig(sig, 0);
+                while (pin != 0 && net_pos < net_size - 1) {
+                    wr = snprintf(net_line + net_pos, net_size - net_pos,
+                                  " %s", pin->name);
+                    if (wr > 0 && wr < net_size - net_pos) net_pos += wr;
+                    pin = halpr_find_pin_by_sig(sig, pin);
+                }
+                if (buf_write_line(buf, &pos, buf_size, net_line) != 0) {
+                    rtapi_mutex_give(&(hal_data->mutex));
+                    free(net_line);
+                    return -ENOSPC;
+                }
+                count++;
+            }
+            next = sig->next_ptr;
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+        free(net_line);
+    }
+
+    // save links (linkps lines)
+    if (do_links) {
+        rtapi_mutex_get(&(hal_data->mutex));
+        next = hal_data->pin_list_ptr;
+        while (next != 0) {
+            hal_pin_t *pin = (hal_pin_t *)SHMPTR(next);
+            if (pin->signal != 0) {
+                hal_sig_t *sig = (hal_sig_t *)SHMPTR(pin->signal);
+                SAVE_LINE("linkps %s %s", pin->name, sig->name);
+            }
+            next = pin->next_ptr;
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+
+    // save writable parameter values
+    if (do_params) {
+        char val_buf[64];
+        rtapi_mutex_get(&(hal_data->mutex));
+        next = hal_data->param_list_ptr;
+        while (next != 0) {
+            hal_param_t *param = (hal_param_t *)SHMPTR(next);
+            if (param->dir != HAL_RO) {
+                hal_shim_format_value(param->type, SHMPTR(param->data_ptr),
+                                      val_buf, sizeof(val_buf));
+                SAVE_LINE("setp %s %s", param->name, val_buf);
+            }
+            next = param->next_ptr;
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+
+    // save thread function assignments
+    if (do_threads) {
+        rtapi_mutex_get(&(hal_data->mutex));
+        next = hal_data->thread_list_ptr;
+        while (next != 0) {
+            hal_thread_t *tptr = (hal_thread_t *)SHMPTR(next);
+            hal_list_t *list_root  = &(tptr->funct_list);
+            hal_list_t *list_entry = list_next(list_root);
+            while (list_entry != list_root) {
+                hal_funct_entry_t *fentry = (hal_funct_entry_t *)list_entry;
+                hal_funct_t *funct = (hal_funct_t *)SHMPTR(fentry->funct_ptr);
+                SAVE_LINE("addf %s %s", funct->name, tptr->name);
+                list_entry = list_next(list_entry);
+            }
+            next = tptr->next_ptr;
+        }
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+
+#undef SAVE_LINE
+    return count;
+}
 */
 import "C"
 import (
@@ -1493,4 +2019,344 @@ func halListThreads(pattern string) ([]string, error) {
 	return halListGeneric(pattern, func(p *C.char, buf *C.char, size C.int) C.int {
 		return C.hal_shim_list_threads(p, buf, size)
 	})
+}
+
+// ===== Go wrappers for 1f show/status/save/debug shims =====
+
+// cHalTypeName converts a C hal_type_t integer to a Go type name string.
+func cHalTypeName(t C.int) string {
+	switch PinType(t) {
+	case TypeBit:
+		return "bit"
+	case TypeFloat:
+		return "float"
+	case TypeS32:
+		return "s32"
+	case TypeU32:
+		return "u32"
+	default:
+		return "unknown"
+	}
+}
+
+// cPinDirName converts a C hal_pin_dir_t integer to a direction string.
+func cPinDirName(d C.int) string {
+	switch Direction(d) {
+	case In:
+		return "IN"
+	case Out:
+		return "OUT"
+	case IO:
+		return "IO"
+	default:
+		return "unknown"
+	}
+}
+
+// cParamDirName converts a C hal_param_dir_t integer to a direction string.
+func cParamDirName(d C.int) string {
+	switch d {
+	case 64: // HAL_RO
+		return "RO"
+	case 192: // HAL_RW = HAL_RO | HAL_WO
+		return "RW"
+	default:
+		return "unknown"
+	}
+}
+
+// cCompTypeName converts a C component_type_t integer to a type string.
+func cCompTypeName(t C.int) string {
+	switch t {
+	case 0: // COMPONENT_TYPE_USER
+		return "user"
+	case 1: // COMPONENT_TYPE_REALTIME
+		return "realtime"
+	default:
+		return "other"
+	}
+}
+
+// lockLevelName converts a HAL lock bitmask to a human-readable string.
+func lockLevelName(lock C.int) string {
+	switch lock {
+	case 0:
+		return "none"
+	case 1:
+		return "load"
+	case 2:
+		return "config"
+	case 3:
+		return "tune"
+	case 4:
+		return "params"
+	case 8:
+		return "run"
+	case 255:
+		return "all"
+	default:
+		return fmt.Sprintf("0x%02x", int(lock))
+	}
+}
+
+// showMaxCap is the upper bound for the number of items any halShow* call
+// will allocate before giving up.  The initial attempt uses HAL_SHIM_MAX_ITEMS;
+// on -ENOSPC the capacity is doubled each time up to this limit.
+const showMaxCap = 65536
+
+// saveBufMax is the upper bound in bytes for the hal_shim_save output buffer.
+// The initial attempt uses 64 KiB; on -ENOSPC the buffer is doubled up to this limit.
+const saveBufMax = 4 * 1024 * 1024 // 4 MiB
+
+// halShowComps returns structured information about all components matching pattern.
+// Note: C struct fields named with Go keywords (e.g. "type") are accessed as "type_"
+// in Go CGO code — this is the standard CGO renaming convention for keyword conflicts.
+func halShowComps(pattern string) ([]CompInfo, error) {
+	var cPat *C.char
+	if pattern != "" {
+		cPat = C.CString(pattern)
+		defer C.free(unsafe.Pointer(cPat))
+	}
+
+	for cap := int(C.HAL_SHIM_MAX_ITEMS); cap <= showMaxCap; cap *= 2 {
+		arr := make([]C.hal_shim_comp_info_t, cap)
+		n := C.hal_shim_show_comps(cPat, &arr[0], C.int(cap))
+		if n < 0 {
+			if int(n) == -int(C.ENOSPC) {
+				continue // result truncated: retry with doubled capacity
+			}
+			return nil, halError(int(n), "hal_shim_show_comps")
+		}
+		result := make([]CompInfo, int(n))
+		for i := range result {
+			result[i] = CompInfo{
+				Name: C.GoString(&arr[i].name[0]),
+				ID:   int(arr[i].comp_id),
+				Type: cCompTypeName(arr[i].type_),
+			}
+		}
+		return result, nil
+	}
+	return nil, fmt.Errorf("hal_shim_show_comps: result set exceeds maximum capacity (%d items)", showMaxCap)
+}
+
+// halShowPins returns structured information about all pins matching pattern.
+func halShowPins(pattern string) ([]PinInfo, error) {
+	var cPat *C.char
+	if pattern != "" {
+		cPat = C.CString(pattern)
+		defer C.free(unsafe.Pointer(cPat))
+	}
+
+	for cap := int(C.HAL_SHIM_MAX_ITEMS); cap <= showMaxCap; cap *= 2 {
+		arr := make([]C.hal_shim_pin_info_t, cap)
+		n := C.hal_shim_show_pins(cPat, &arr[0], C.int(cap))
+		if n < 0 {
+			if int(n) == -int(C.ENOSPC) {
+				continue // result truncated: retry with doubled capacity
+			}
+			return nil, halError(int(n), "hal_shim_show_pins")
+		}
+		result := make([]PinInfo, int(n))
+		for i := range result {
+			result[i] = PinInfo{
+				Name:      C.GoString(&arr[i].name[0]),
+				Type:      cHalTypeName(arr[i].type_),
+				Direction: cPinDirName(arr[i].dir),
+				Value:     C.GoString(&arr[i].value[0]),
+				Signal:    C.GoString(&arr[i].signal[0]),
+				Owner:     C.GoString(&arr[i].owner[0]),
+			}
+		}
+		return result, nil
+	}
+	return nil, fmt.Errorf("hal_shim_show_pins: result set exceeds maximum capacity (%d items)", showMaxCap)
+}
+
+// halShowParams returns structured information about all parameters matching pattern.
+func halShowParams(pattern string) ([]ParamInfo, error) {
+	var cPat *C.char
+	if pattern != "" {
+		cPat = C.CString(pattern)
+		defer C.free(unsafe.Pointer(cPat))
+	}
+
+	for cap := int(C.HAL_SHIM_MAX_ITEMS); cap <= showMaxCap; cap *= 2 {
+		arr := make([]C.hal_shim_param_info_t, cap)
+		n := C.hal_shim_show_params(cPat, &arr[0], C.int(cap))
+		if n < 0 {
+			if int(n) == -int(C.ENOSPC) {
+				continue // result truncated: retry with doubled capacity
+			}
+			return nil, halError(int(n), "hal_shim_show_params")
+		}
+		result := make([]ParamInfo, int(n))
+		for i := range result {
+			result[i] = ParamInfo{
+				Name:      C.GoString(&arr[i].name[0]),
+				Type:      cHalTypeName(arr[i].type_),
+				Direction: cParamDirName(arr[i].dir),
+				Value:     C.GoString(&arr[i].value[0]),
+				Owner:     C.GoString(&arr[i].owner[0]),
+			}
+		}
+		return result, nil
+	}
+	return nil, fmt.Errorf("hal_shim_show_params: result set exceeds maximum capacity (%d items)", showMaxCap)
+}
+
+// halShowSigs returns structured information about all signals matching pattern.
+func halShowSigs(pattern string) ([]SigInfo, error) {
+	var cPat *C.char
+	if pattern != "" {
+		cPat = C.CString(pattern)
+		defer C.free(unsafe.Pointer(cPat))
+	}
+
+	for cap := int(C.HAL_SHIM_MAX_ITEMS); cap <= showMaxCap; cap *= 2 {
+		arr := make([]C.hal_shim_sig_info_t, cap)
+		n := C.hal_shim_show_sigs(cPat, &arr[0], C.int(cap))
+		if n < 0 {
+			if int(n) == -int(C.ENOSPC) {
+				continue // result truncated: retry with doubled capacity
+			}
+			return nil, halError(int(n), "hal_shim_show_sigs")
+		}
+		result := make([]SigInfo, int(n))
+		for i := range result {
+			result[i] = SigInfo{
+				Name:  C.GoString(&arr[i].name[0]),
+				Type:  cHalTypeName(arr[i].type_),
+				Value: C.GoString(&arr[i].value[0]),
+			}
+		}
+		return result, nil
+	}
+	return nil, fmt.Errorf("hal_shim_show_sigs: result set exceeds maximum capacity (%d items)", showMaxCap)
+}
+
+// halShowFuncts returns structured information about all functions matching pattern.
+func halShowFuncts(pattern string) ([]FunctInfo, error) {
+	var cPat *C.char
+	if pattern != "" {
+		cPat = C.CString(pattern)
+		defer C.free(unsafe.Pointer(cPat))
+	}
+
+	for cap := int(C.HAL_SHIM_MAX_ITEMS); cap <= showMaxCap; cap *= 2 {
+		arr := make([]C.hal_shim_funct_info_t, cap)
+		n := C.hal_shim_show_functs(cPat, &arr[0], C.int(cap))
+		if n < 0 {
+			if int(n) == -int(C.ENOSPC) {
+				continue // result truncated: retry with doubled capacity
+			}
+			return nil, halError(int(n), "hal_shim_show_functs")
+		}
+		result := make([]FunctInfo, int(n))
+		for i := range result {
+			result[i] = FunctInfo{
+				Name:  C.GoString(&arr[i].name[0]),
+				Owner: C.GoString(&arr[i].owner[0]),
+			}
+		}
+		return result, nil
+	}
+	return nil, fmt.Errorf("hal_shim_show_functs: result set exceeds maximum capacity (%d items)", showMaxCap)
+}
+
+// halShowThreads returns structured information about all threads matching pattern.
+func halShowThreads(pattern string) ([]ThreadInfo, error) {
+	var cPat *C.char
+	if pattern != "" {
+		cPat = C.CString(pattern)
+		defer C.free(unsafe.Pointer(cPat))
+	}
+
+	for cap := int(C.HAL_SHIM_MAX_ITEMS); cap <= showMaxCap; cap *= 2 {
+		arr := make([]C.hal_shim_thread_info_t, cap)
+		n := C.hal_shim_show_threads(cPat, &arr[0], C.int(cap))
+		if n < 0 {
+			if int(n) == -int(C.ENOSPC) {
+				continue // result truncated: retry with doubled capacity
+			}
+			return nil, halError(int(n), "hal_shim_show_threads")
+		}
+		result := make([]ThreadInfo, int(n))
+		for i := range result {
+			nf := int(arr[i].nfuncts)
+			functs := make([]string, nf)
+			for j := 0; j < nf; j++ {
+				functs[j] = C.GoString(&arr[i].funct_names[j][0])
+			}
+			result[i] = ThreadInfo{
+				Name:    C.GoString(&arr[i].name[0]),
+				Period:  int64(arr[i].period),
+				Running: arr[i].running != 0,
+				Functs:  functs,
+			}
+		}
+		return result, nil
+	}
+	return nil, fmt.Errorf("hal_shim_show_threads: result set exceeds maximum capacity (%d items)", showMaxCap)
+}
+
+// halStatus returns HAL shared-memory status information.
+func halStatus() (*StatusInfo, error) {
+	var st C.hal_shim_status_t
+	ret := C.hal_shim_status(&st)
+	if ret < 0 {
+		return nil, halError(int(ret), "hal_shim_status")
+	}
+	return &StatusInfo{
+		ShmemFree: int(st.shmem_avail),
+		LockLevel: lockLevelName(st.lock),
+	}, nil
+}
+
+// halSave serializes current HAL state as halcmd command strings.
+// type selects what to save (see hal_shim_save for valid types).
+// The output buffer starts at 64 KiB and doubles on -ENOSPC up to saveBufMax.
+func halSave(saveType string) ([]string, error) {
+	cType := C.CString(saveType)
+	defer C.free(unsafe.Pointer(cType))
+
+	for bufSize := 65536; bufSize <= saveBufMax; bufSize *= 2 {
+		buf := make([]byte, bufSize)
+		n := C.hal_shim_save(cType, (*C.char)(unsafe.Pointer(unsafe.SliceData(buf))), C.int(bufSize))
+		if n < 0 {
+			if int(n) == -int(C.ENOSPC) {
+				continue // output truncated: retry with doubled buffer
+			}
+			return nil, halError(int(n), "hal_shim_save")
+		}
+		if n == 0 {
+			return []string{}, nil
+		}
+
+		// Parse null-separated lines.
+		end := 0
+		remaining := int(n)
+		for end < len(buf) && remaining > 0 {
+			if buf[end] == 0 {
+				remaining--
+			}
+			end++
+		}
+
+		parts := bytes.Split(buf[:end], []byte{0})
+		lines := make([]string, 0, int(n))
+		for _, p := range parts {
+			if len(p) > 0 {
+				lines = append(lines, string(p))
+			}
+		}
+		return lines, nil
+	}
+	return nil, fmt.Errorf("hal_shim_save: output exceeds maximum buffer size (%d bytes)", saveBufMax)
+}
+
+// halSetDebug sets the RTAPI message verbosity level.
+func halSetDebug(level int) error {
+	ret := C.hal_shim_debug(C.int(level))
+	return halError(int(ret), "hal_shim_debug")
 }

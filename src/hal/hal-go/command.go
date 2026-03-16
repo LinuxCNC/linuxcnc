@@ -2,6 +2,7 @@ package hal
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"strings"
 )
@@ -352,4 +353,207 @@ func matchPattern(pat, name string) (bool, error) {
 	}
 	// Use path.Match for glob patterns (*, ?, [...] syntax).
 	return path.Match(pat, name)
+}
+
+// ===== Structured info types =====
+
+// CompInfo holds the attributes of a HAL component.
+type CompInfo struct {
+	Name string `json:"name"`
+	ID   int    `json:"id"`
+	Type string `json:"type"`
+}
+
+// PinInfo holds all attributes of a HAL pin.
+type PinInfo struct {
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	Direction string `json:"direction"`
+	Value     string `json:"value"`
+	Signal    string `json:"signal,omitempty"`
+	Owner     string `json:"owner"`
+}
+
+// ParamInfo holds all attributes of a HAL parameter.
+type ParamInfo struct {
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	Direction string `json:"direction"`
+	Value     string `json:"value"`
+	Owner     string `json:"owner"`
+}
+
+// SigInfo holds all attributes of a HAL signal.
+type SigInfo struct {
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
+// FunctInfo holds all attributes of a HAL realtime function.
+type FunctInfo struct {
+	Name  string `json:"name"`
+	Owner string `json:"owner"`
+}
+
+// ThreadInfo holds all attributes of a HAL thread.
+type ThreadInfo struct {
+	Name    string   `json:"name"`
+	Period  int64    `json:"period_ns"`
+	Functs  []string `json:"functs"`
+	Running bool     `json:"running"`
+}
+
+// ShowResult aggregates the results of a Show() call.
+type ShowResult struct {
+	Comps   []CompInfo   `json:"comps,omitempty"`
+	Pins    []PinInfo    `json:"pins,omitempty"`
+	Params  []ParamInfo  `json:"params,omitempty"`
+	Signals []SigInfo    `json:"signals,omitempty"`
+	Functs  []FunctInfo  `json:"functs,omitempty"`
+	Threads []ThreadInfo `json:"threads,omitempty"`
+}
+
+// StatusInfo holds HAL shared-memory status information.
+type StatusInfo struct {
+	ShmemFree int    `json:"shmem_free_bytes"`
+	LockLevel string `json:"lock_level"`
+}
+
+// ===== Show / Save / Status / SetDebug =====
+
+// Show returns structured information about HAL objects of the given type
+// that match any of the provided glob patterns.
+// halType can be "all", "comp", "pin", "param", "sig", "funct", or "thread".
+// If no patterns are given, all objects of that type are returned.
+// Equivalent to "halcmd show <type> [patterns...]".
+func Show(halType string, patterns ...string) (*ShowResult, error) {
+	if len(patterns) == 0 {
+		patterns = []string{""}
+	}
+
+	result := &ShowResult{}
+
+	showComps := func(pat string) error {
+		items, err := halShowComps(pat)
+		if err != nil {
+			return err
+		}
+		result.Comps = append(result.Comps, items...)
+		return nil
+	}
+	showPins := func(pat string) error {
+		items, err := halShowPins(pat)
+		if err != nil {
+			return err
+		}
+		result.Pins = append(result.Pins, items...)
+		return nil
+	}
+	showParams := func(pat string) error {
+		items, err := halShowParams(pat)
+		if err != nil {
+			return err
+		}
+		result.Params = append(result.Params, items...)
+		return nil
+	}
+	showSigs := func(pat string) error {
+		items, err := halShowSigs(pat)
+		if err != nil {
+			return err
+		}
+		result.Signals = append(result.Signals, items...)
+		return nil
+	}
+	showFuncts := func(pat string) error {
+		items, err := halShowFuncts(pat)
+		if err != nil {
+			return err
+		}
+		result.Functs = append(result.Functs, items...)
+		return nil
+	}
+	showThreads := func(pat string) error {
+		items, err := halShowThreads(pat)
+		if err != nil {
+			return err
+		}
+		result.Threads = append(result.Threads, items...)
+		return nil
+	}
+
+	var showFns []func(string) error
+	switch strings.ToLower(halType) {
+	case "all", "":
+		showFns = []func(string) error{showComps, showPins, showParams, showSigs, showFuncts, showThreads}
+	case "comp":
+		showFns = []func(string) error{showComps}
+	case "pin":
+		showFns = []func(string) error{showPins}
+	case "param":
+		showFns = []func(string) error{showParams}
+	case "sig", "signal":
+		showFns = []func(string) error{showSigs}
+	case "funct", "function":
+		showFns = []func(string) error{showFuncts}
+	case "thread":
+		showFns = []func(string) error{showThreads}
+	default:
+		return nil, fmt.Errorf("show: unknown type %q: valid types are all, comp, pin, param, sig, funct, thread", halType)
+	}
+
+	for _, fn := range showFns {
+		for _, pat := range patterns {
+			if err := fn(pat); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return result, nil
+}
+
+// Save serializes the current HAL state as halcmd commands.
+// halType selects what to save: "all", "allu", "comp", "alias", "sig",
+// "signal", "sigu", "link", "linka", "net", "neta", "netl", "netla",
+// "netal", "param", "parameter", or "thread".
+// If filename is non-empty the output is written to that file; otherwise
+// the lines are returned as a slice.
+// Equivalent to "halcmd save [type] [filename]".
+func Save(halType string, filename string) ([]string, error) {
+	if halType == "" {
+		halType = "all"
+	}
+	lines, err := halSave(halType)
+	if err != nil {
+		return nil, err
+	}
+	if filename != "" {
+		f, err := os.Create(filename)
+		if err != nil {
+			return nil, fmt.Errorf("save: cannot open %q: %w", filename, err)
+		}
+		defer f.Close()
+		for _, line := range lines {
+			if _, err := fmt.Fprintln(f, line); err != nil {
+				return nil, fmt.Errorf("save: write error: %w", err)
+			}
+		}
+		return nil, nil
+	}
+	return lines, nil
+}
+
+// Status returns a summary of HAL shared-memory usage and lock state.
+// Equivalent to "halcmd status".
+func Status() (*StatusInfo, error) {
+	return halStatus()
+}
+
+// SetDebug sets the RTAPI message verbosity level (0–5).
+// 0 = RTAPI_MSG_NONE, 1 = RTAPI_MSG_ERR, 2 = RTAPI_MSG_WARN,
+// 3 = RTAPI_MSG_INFO, 4 = RTAPI_MSG_DBG, 5 = RTAPI_MSG_ALL.
+// Equivalent to "halcmd debug <level>".
+func SetDebug(level int) error {
+	return halSetDebug(level)
 }
