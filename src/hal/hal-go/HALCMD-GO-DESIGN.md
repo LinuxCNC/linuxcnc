@@ -46,17 +46,22 @@ To be added: `Net()`, `LoadRT()`, `LoadUSR()`, `AddF()`, `DelF()`, `NewSig()`, `
 `SetP()`, `GetP()`, `SetS()`, `GetS()`, `PType()`, `SType()`, `LinkPS()`, `LinkSP()`,
 `UnlinkP()`, `Alias()`, `UnAlias()`, `Show()`, `List()`, `Save()`, `WaitUSR()`, etc.
 
-### Layer 3 — Go Interpreter (`interpreter.go`, new file)
+### Layer 3 — Go Parser and Executor (`token.go`, `parser.go`, `executor.go`, new files)
 
-A line-oriented parser and file executor. It:
+A typed-token, parse-then-execute pipeline. It:
 
-- Tokenizes each line (quotes, backslash escapes, comment stripping, line continuation).
-- Substitutes `[SECTION]VAR` from INI and `$ENV` from environment.
-- Dispatches token[0] as a command name to Layer 2 functions.
-- Handles flow control: `if`/`elif`/`else`/`endif`, `while`/`endwhile`.
-- Handles `source` (recursive file inclusion).
-- Strips `=>`, `<=`, `<=>` arrow tokens from `net` argument lists.
-- Tracks filename and line number for error messages.
+- Parses each HAL file through a three-tier pipeline: `SingleFileParser` (template +
+  INI/ENV substitution + source recursion + token classification) → `LineParser`
+  (per-command typed token) → `MultiFileParser` (loops over files and merges results).
+- Produces strongly-typed token structs with all parameters already validated (strings
+  → enums, `count=5` → int, arrow tokens stripped from `net` pin lists, etc.).
+- Classifies tokens into `loadrt`, `loadusr`, and `halcmd` lists inside
+  `SingleFileParser`, then executes them in order (merged `loadrt` first via
+  `TwopassCollector`, then `loadusr`, then `halcmd`).
+- Handles `source` (recursive file inclusion) at parse time inside `SingleFileParser`.
+- Tracks filename and line number in every `Token.Location` for error messages.
+- The caller provides `INILookup`, `*HalTemplateData`, and `PathResolver` — the parser
+  has no knowledge of specific INI parsers, path resolution, or template construction.
 
 Replaces the `halcmd -f` subprocess call in `src/launcher/halfile/halfile.go`.
 
@@ -65,11 +70,15 @@ Replaces the `halcmd -f` subprocess call in `src/launcher/halfile/halfile.go`.
 ```
 ┌──────────────────────────────────────────────┐
 │  REST API / Launcher / Other Go callers       │
+│  Provides: INILookup, *HalTemplateData,       │
+│            PathResolver                       │
 └──────────────────────────┬───────────────────┘
                            │  calls
 ┌──────────────────────────▼───────────────────┐
-│  Layer 3: Go Interpreter  (interpreter.go)    │
-│  tokenize → substitute → dispatch             │
+│  Layer 3: Go Parser + Executor                │
+│  (token.go, parser.go, executor.go)           │
+│  MultiFileParser → SingleFileParser →         │
+│  LineParser → classify → execute              │
 └──────────────────────────┬───────────────────┘
                            │  calls
 ┌──────────────────────────▼───────────────────┐
@@ -380,258 +389,539 @@ func (e *HalError) Error() string
 
 ---
 
-## 4. Interpreter Design
+## 4. Parser and Executor Design
 
-The interpreter (new file `interpreter.go`, package `hal`) replaces `halcmd -f`.
+The interpreter (new files `token.go`, `parser.go`, `executor.go`, package `hal`)
+replaces `halcmd -f` using a **typed-token, parse-then-execute** architecture. Instead
+of a monolithic line-by-line interpreter with runtime string dispatch, the pipeline
+is split into three distinct tiers:
 
-### 4a. Tokenizer
+1. **Parse and classify** each input file into strongly-typed token lists (inside
+   `SingleFileParser`).
+2. **Merge** results across files (inside `MultiFileParser`).
+3. **Execute** buckets in order: merged `loadrt` → `loadusr` → `halcmd`.
 
-The tokenizer processes a single input line into a slice of tokens. Rules (matching
-halcmd's C tokenizer exactly):
+Flow control (`if`/`elif`/`else`/`endif`, `while`/`endwhile`) is **not** handled by
+the interpreter — it is entirely replaced by Go `text/template` conditionals and loops
+that run inside `SingleFileParser` before any token is produced (see Section 6a).
 
-1. Strip trailing `\r` (DOS line ending).
-2. Strip comments: `#` not inside a string is a line comment; everything from `#` to
-   EOL is discarded. A `\#` sequence is an escaped `#` that becomes a literal `#`.
-3. Split on whitespace. Tokens are separated by one or more spaces or tabs.
-4. **Single-quoted strings** `'...'`: no escape processing inside; the quotes are removed.
-5. **Double-quoted strings** `"..."`: backslash escapes `\\`, `\"` processed; the quotes
-   are removed.
-6. **Backslash continuation**: a `\` as the last non-whitespace character on the line
-   means the next line is a continuation (lines are joined before tokenizing).
-7. The resulting token slice includes the command name as token[0].
+---
+
+### 4a. Three-Tier Parser
+
+#### Caller-provided interfaces and data-flow diagram
+
+The caller (e.g. the launcher) constructs the callback objects and passes them to
+`MultiFileParser`. `SingleFileParser` calls back through these interfaces and never
+imports the launcher's INI parser, path resolver, or template-data builder directly.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Caller (Launcher)                                      │
+│  Provides: INILookup, *HalTemplateData, PathResolver    │
+│  Calls: MultiFileParser.Parse(halfiles)                 │
+└─────────────────┬───────────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────────────┐
+│  MultiFileParser                                        │
+│  For each file: call SingleFileParser, merge results    │
+└─────────────────┬───────────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────────────┐
+│  SingleFileParser                                       │
+│  1. Read file                                           │
+│  2. RenderHalTemplate (if {{)                           │
+│  3. For each line: INI/ENV sub → tokenize → LineParser  │
+│  4. Classify token → LoadRT / LoadUSR / HALCmd          │
+│  5. source → recursive SingleFileParser (depth+1)       │
+│  Returns: ParseResult{LoadRT, LoadUSR, HALCmd}          │
+└─────────────────┬───────────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────────────┐
+│  LineParser (parseLine function)                        │
+│  tokens[] → per-command parse → Token{Data: *XxxToken}  │
+└─────────────────────────────────────────────────────────┘
+```
 
 ```go
-// tokenizeLine splits a (possibly multi-line-continued) line into tokens.
+// PathResolver resolves source file paths. The caller provides an implementation
+// backed by whatever path resolution logic they have (e.g. the launcher's
+// resolve.go with LIB: prefix and HALLIB_PATH support).
+type PathResolver interface {
+    Resolve(path string) (string, error)
+}
+
+// INILookup provides access to INI file values. The caller provides an
+// implementation backed by whatever INI parser they already have.
+type INILookup interface {
+    Get(section, key string) (string, error)
+    GetAll() map[string]map[string]string  // needed for HalTemplateData
+}
+```
+
+#### Tier 1: LineParser
+
+LineParser takes a single pre-processed line (after quote/escape/comment handling and
+variable substitution) and produces one typed token. It:
+
+- Splits the line into tokens on whitespace (handling single/double quotes and
+  backslash escapes using the same rules as halcmd's C tokenizer).
+- Identifies the command from `tokens[0]`.
+- Dispatches to a per-command parse function that validates and converts all arguments
+  into fully-typed fields (strings → enums, `count=5` → int, arrow tokens stripped
+  from `net` pin lists, etc.).
+- Returns a `Token` (with a fully-populated `Data` field) or a `*ParseError`.
+
+Errors are caught at parse time, before any HAL state is modified.
+
+```go
+// tokenizeLine splits a single line into raw string tokens.
 // It handles single/double quotes and backslash escapes.
 // Returns (tokens, error).
 func tokenizeLine(line string) ([]string, error)
+
+// parseLine converts a raw token slice into a typed Token.
+// loc is used to populate the returned Token.Location and any ParseError.
+func parseLine(tokens []string, loc SourceLoc) (Token, *ParseError)
 ```
 
-### 4b. Variable Substitution
+#### Tier 2: SingleFileParser
 
-After tokenization (or before, as a pre-pass on the raw line — same as halcmd):
+`SingleFileParser` takes a **file path**, reads the file, and returns a `*ParseResult`
+with tokens already classified into the three execution buckets. It:
 
-1. **INI substitution** — `[SECTION]VAR` is replaced with the value from the loaded INI
-   file. The halfile executor (`src/launcher/halfile/substitute.go`) already implements
-   `substituteLine()`. The interpreter should either reuse that function or incorporate
-   the same logic.
-2. **Environment substitution** — `$VARNAME` is replaced with `os.Getenv("VARNAME")`.
-   Unset variables expand to empty string (same as halcmd).
+1. Reads the file from disk.
+2. Runs the content through `RenderHalTemplate` (from `template.go`) so that
+   `{{...}}` directives are expanded before any line is parsed.  Template expansion
+   is per-file, so `source`'d files get their own independent template context.
+3. Handles `[SECTION]KEY` INI substitution (via `ini.Get(section, key)`) and `$ENV`
+   environment substitution on each raw line.
+4. Handles line continuation (`\` at end of line) and strips comments (`#`).
+5. Feeds each resulting line to `LineParser`, then immediately classifies the token:
+   - `*LoadRTToken` → `result.LoadRT`
+   - `*LoadUSRToken` with `WaitReady || WaitName != ""` → `result.LoadUSR`
+   - Everything else → `result.HALCmd`
+6. When it encounters a `source <file>` command it calls `resolver.Resolve(path)` to
+   resolve the path, then **recursively calls itself** on the resolved file (steps
+   1–6 above) and merges the returned `ParseResult` into its own.  A depth counter
+   (maximum 20) prevents infinite recursion.
 
-Both substitutions operate on the raw line *before* tokenization, so they can span
-inside quoted strings. This matches halcmd's `replace_vars()` order.
-
-```go
-// substituteLine expands [SECTION]VAR and $ENV references in a raw line.
-// ini may be nil if no INI file is loaded.
-func substituteLine(line string, ini IniReader) string
-```
-
-### 4c. Command Dispatch
-
-After tokenizing and substituting, the interpreter looks up `tokens[0]` in a command
-table and validates the argument count before calling the Layer 2 Go function.
+`source` is resolved at parse time — it never appears as a token.
 
 ```go
-// cmdEntry describes a single halcmd command in the dispatch table.
-type cmdEntry struct {
-    name    string
-    minArgs int       // minimum additional args after command name
-    maxArgs int       // -1 = unlimited
-    fn      func(args []string) error
+// SingleFileParser parses a single HAL file (and any source'd files recursively)
+// into a ParseResult with tokens classified into three execution buckets.
+type SingleFileParser struct {
+    ini          INILookup
+    templateData *HalTemplateData
+    resolver     PathResolver
+    depth        int  // current recursion depth; rejects > 20
 }
 
-// commandTable is sorted alphabetically for binary search (matching halcmd).
-var commandTable = []cmdEntry{
-    {"addf",     2, 3,  dispatchAddF},
-    {"alias",    3, 3,  dispatchAlias},
-    {"delf",     1, 2,  dispatchDelF},
-    {"delsig",   1, 1,  dispatchDelSig},
-    {"getp",     1, 1,  dispatchGetP},
-    {"gets",     1, 1,  dispatchGetS},
-    {"linkpp",   2, 2,  dispatchLinkPP},
-    {"linkps",   2, 2,  dispatchLinkPS},
-    {"linksp",   2, 2,  dispatchLinkSP},
-    {"list",     1, -1, dispatchList},
-    {"loadrt",   1, -1, dispatchLoadRT},
-    {"loadusr",  1, -1, dispatchLoadUSR},
-    {"lock",     0, 1,  dispatchLock},
-    {"net",      2, -1, dispatchNet},
-    {"newsig",   2, 2,  dispatchNewSig},
-    {"ptype",    1, 1,  dispatchPType},
-    {"save",     0, 2,  dispatchSave},
-    {"setp",     2, 2,  dispatchSetP},
-    {"sets",     2, 2,  dispatchSetS},
-    {"show",     0, -1, dispatchShow},
-    {"source",   1, 1,  dispatchSource},
-    {"start",    0, 0,  dispatchStart},
-    {"status",   0, 1,  dispatchStatus},
-    {"stop",     0, 0,  dispatchStop},
-    {"stype",    1, 1,  dispatchSType},
-    {"unalias",  2, 2,  dispatchUnAlias},
-    {"unlink",   1, 1,  dispatchUnlinkP},   // "unlinkp" alias
-    {"unlinkp",  1, 1,  dispatchUnlinkP},
-    {"unload",   1, 1,  dispatchUnload},
-    {"unloadrt", 1, 1,  dispatchUnloadRT},
-    {"unloadusr",1, 1,  dispatchUnloadUSR},
-    {"unlock",   0, 1,  dispatchUnlock},
-    {"waitusr",  1, 1,  dispatchWaitUSR},
-    // interpreter-only commands (no Layer 2 function):
-    {"echo",     0, 0,  dispatchEcho},
-    {"print",    0, -1, dispatchPrint},
-    {"unecho",   0, 0,  dispatchUnecho},
-    // flow control is handled before dispatch:
-    // "if", "elif", "else", "endif", "while", "endwhile"
-}
+// Parse reads path, renders templates, performs substitutions, feeds each line to
+// LineParser, classifies each token, and recurses for source commands.
+func (sp *SingleFileParser) Parse(path string) (*ParseResult, error)
 ```
 
-### 4d. Arrow Removal for `net`
+#### Tier 3: MultiFileParser
 
-The `net` command ignores `=>`, `<=`, and `<=>` tokens in the pin list. These are
-stripped before calling `Net()`:
+`MultiFileParser` takes an array of file paths (the `[HAL]HALFILE` entries), creates a
+`SingleFileParser` for each one, and merges the returned `ParseResult` objects into a
+single `ParseResult`:
+
+- **`LoadRT`** — every `loadrt` token (collected from all files).
+- **`LoadUSR`** — `loadusr` tokens with `-W` or `-Wn` flags set (collected from all
+  files).
+- **`HALCmd`** — everything else.
+
+`MultiFileParser` is a trivial collector; all classification logic lives in
+`SingleFileParser`.
 
 ```go
-// removeArrows filters arrow tokens from a net argument list.
-func removeArrows(pins []string) []string {
-    out := pins[:0]
-    for _, p := range pins {
-        if p != "=>" && p != "<=" && p != "<=>" {
-            out = append(out, p)
+// MultiFileParser parses a set of HAL files and merges the ParseResult from each
+// SingleFileParser into a single result.
+type MultiFileParser struct {
+    ini          INILookup
+    templateData *HalTemplateData
+    resolver     PathResolver
+}
+
+// Parse processes each file path in order and returns a merged ParseResult.
+func (mp *MultiFileParser) Parse(paths []string) (*ParseResult, error) {
+    merged := &ParseResult{}
+    for _, path := range paths {
+        sp := &SingleFileParser{
+            ini:          mp.ini,
+            templateData: mp.templateData,
+            resolver:     mp.resolver,
         }
+        result, err := sp.Parse(path)
+        if err != nil {
+            return nil, err
+        }
+        merged.LoadRT  = append(merged.LoadRT,  result.LoadRT...)
+        merged.LoadUSR = append(merged.LoadUSR, result.LoadUSR...)
+        merged.HALCmd  = append(merged.HALCmd,  result.HALCmd...)
     }
-    return out
+    return merged, nil
 }
 ```
 
-### 4e. Flow Control
+---
 
-The interpreter maintains a **condition stack** — a slice of `condState` values. Each
-`if` or `while` pushes a new state onto the stack; `endif`/`endwhile` pops it.
+### 4b. Typed Tokens — Sealed Interface Pattern
+
+Every token carries a `SourceLoc` (for error reporting) and a `TokenData` value
+whose **concrete type** is the discriminator — no separate enum field is needed.
 
 ```go
-type condKind int
+// TokenData is implemented by all per-command token structs.
+// The unexported marker method seals the interface to this package.
+type TokenData interface {
+    tokenData()
+}
+
+// Token is the parsed representation of one HAL command line.
+type Token struct {
+    Location SourceLoc
+    Data     TokenData  // exactly one concrete type
+}
+
+// SourceLoc records the file and line number where a token originated.
+type SourceLoc struct {
+    File string
+    Line int
+}
+```
+
+---
+
+### 4c. Enums for Categorical Values
+
+Every field that has a fixed set of valid values uses an enum, not a string.
+String-to-enum conversion happens inside the per-command parse functions; an invalid
+string causes a `*ParseError` before any token is added to the list.
+
+```go
+// AliasKind distinguishes pin aliases from param aliases.
+type AliasKind int
 const (
-    condIf    condKind = iota
-    condWhile
+    AliasPin   AliasKind = iota
+    AliasParam
 )
 
-type condState struct {
-    kind      condKind
-    active    bool   // true if we are currently executing inside this block
-    seenElse  bool   // true after "else" (for if/elif)
-    startLine int    // line number where "while" started (for looping)
-    startFile string // filename for "while" (supports source'd files)
-}
+// LockLevel maps to HAL's HAL_LOCK_* constants.
+type LockLevel int
+const (
+    LockNone   LockLevel = 0
+    LockLoad   LockLevel = 1
+    LockConfig LockLevel = 2
+    LockTune   LockLevel = 3
+    LockParams LockLevel = 4
+    LockRun    LockLevel = 8
+    LockAll    LockLevel = 255
+)
 
-// Interpreter holds the interpreter state across a file execution.
-type Interpreter struct {
-    ini        IniReader        // INI file for variable substitution
-    condStack  []condState      // flow control stack
-    output     io.Writer        // for "print" and show/list output (defaults to os.Stdout)
-    errWriter  io.Writer        // for error messages (defaults to os.Stderr)
-}
+// HalObjType enumerates the object classes accepted by list/show.
+type HalObjType int
+const (
+    ObjPin    HalObjType = iota
+    ObjSig
+    ObjParam
+    ObjFunct
+    ObjThread
+    ObjComp
+    ObjAll
+)
 
-// NewInterpreter creates an Interpreter with the given INI reader.
-func NewInterpreter(ini IniReader) *Interpreter
+// SaveType enumerates the save sub-commands.
+type SaveType int
+const (
+    SaveComp   SaveType = iota
+    SaveSig
+    SaveLink
+    SaveNet
+    SaveParam
+    SaveThread
+    SaveAll
+)
 
-// ExecuteFile parses and executes a HAL file.
-func (interp *Interpreter) ExecuteFile(path string) error
-
-// ExecuteLine parses and executes a single line.
-// filename and lineNo are used for error messages.
-func (interp *Interpreter) ExecuteLine(line, filename string, lineNo int) error
+// PinType is already defined in types.go (TypeBit, TypeFloat, TypeS32, TypeU32).
 ```
 
-Flow control logic overview:
+---
 
-```
-For each line:
-  1. Check condStack.active — if false and not a control keyword, skip the line.
-  2. If token[0] == "if":     evaluate condition; push condIf state
-     If token[0] == "elif":   check seenElse; pop/re-evaluate condition
-     If token[0] == "else":   flip active if top-of-stack is condIf and !seenElse
-     If token[0] == "endif":  pop condIf state
-     If token[0] == "while":  evaluate condition; if false skip to "endwhile"
-     If token[0] == "endwhile": re-evaluate while condition; loop or pop
-  3. Otherwise: dispatch to command table.
-```
+### 4d. Per-Command Token Structs
 
-Conditions are evaluated by comparing two halcmd-style expressions. Supported
-operators (matching halcmd): `=`, `!=`, `<`, `>`, `<=`, `>=`. Operands are strings;
-numeric comparison is used when both sides are valid numbers.
-
-### 4f. `source` — Recursive File Inclusion
+One struct per halcmd command, each implementing `TokenData`.
 
 ```go
-// dispatchSource handles the "source" command.
-// It calls ExecuteFile recursively with a new line counter.
-func (interp *Interpreter) dispatchSource(args []string) error {
-    return interp.ExecuteFile(args[0])
+type LoadRTToken struct {
+    Comp   string
+    Count  int               // parsed from count=N; 0 if absent
+    Names  []string          // parsed from names=a,b,c; nil if absent
+    Params map[string]string // remaining key=value args (module-specific)
 }
+func (*LoadRTToken) tokenData() {}
+
+type LoadUSRToken struct {
+    WaitReady bool     // -W flag
+    WaitName  string   // -Wn <name> flag
+    WaitExit  bool     // -w flag
+    NoStdin   bool     // -i flag
+    Timeout   int      // -T <secs> flag; 0 = default
+    Prog      string
+    Args      []string
+}
+func (*LoadUSRToken) tokenData() {}
+
+type NetToken struct {
+    Signal string
+    Pins   []string  // arrow tokens (=>, <=, <=>) already stripped at parse time
+}
+func (*NetToken) tokenData() {}
+
+type SetPToken struct {
+    Name  string
+    Value string  // stays string — C shim interprets based on runtime pin type
+}
+func (*SetPToken) tokenData() {}
+
+type SetSToken struct {
+    Name  string
+    Value string
+}
+func (*SetSToken) tokenData() {}
+
+type GetPToken   struct{ Name string }
+func (*GetPToken) tokenData() {}
+
+type GetSToken   struct{ Name string }
+func (*GetSToken) tokenData() {}
+
+type AddFToken struct {
+    Funct  string
+    Thread string
+    Pos    int  // parsed from optional 3rd arg; default -1 (append)
+}
+func (*AddFToken) tokenData() {}
+
+type DelFToken struct {
+    Funct  string
+    Thread string
+}
+func (*DelFToken) tokenData() {}
+
+type NewSigToken struct {
+    Name    string
+    SigType PinType  // parsed from "bit"/"float"/"s32"/"u32" at parse time
+}
+func (*NewSigToken) tokenData() {}
+
+type DelSigToken struct{ Name string }
+func (*DelSigToken) tokenData() {}
+
+type LinkPSToken struct{ Pin, Sig string }
+func (*LinkPSToken) tokenData() {}
+
+type LinkSPToken struct{ Sig, Pin string }
+func (*LinkSPToken) tokenData() {}
+
+type UnlinkPToken struct{ Pin string }
+func (*UnlinkPToken) tokenData() {}
+
+type AliasToken struct {
+    Kind  AliasKind  // AliasPin or AliasParam
+    Name  string
+    Alias string
+}
+func (*AliasToken) tokenData() {}
+
+type UnAliasToken struct {
+    Kind AliasKind
+    Name string
+}
+func (*UnAliasToken) tokenData() {}
+
+type StartToken  struct{}
+func (*StartToken) tokenData() {}
+
+type StopToken   struct{}
+func (*StopToken) tokenData() {}
+
+type LockToken struct {
+    Level LockLevel  // parsed from "none"/"load"/"config"/"tune"/"params"/"run"/"all"
+}
+func (*LockToken) tokenData() {}
+
+type UnlockToken struct {
+    Level LockLevel
+}
+func (*UnlockToken) tokenData() {}
+
+type UnloadRTToken  struct{ Comp string }
+func (*UnloadRTToken) tokenData() {}
+
+type UnloadUSRToken struct{ Comp string }
+func (*UnloadUSRToken) tokenData() {}
+
+type UnloadToken    struct{ Comp string }
+func (*UnloadToken) tokenData() {}
+
+type WaitUSRToken   struct{ Comp string }
+func (*WaitUSRToken) tokenData() {}
+
+type ListToken struct {
+    ObjType  HalObjType
+    Patterns []string
+}
+func (*ListToken) tokenData() {}
+
+type ShowToken struct {
+    ObjType  HalObjType
+    Patterns []string
+}
+func (*ShowToken) tokenData() {}
+
+type SaveToken struct {
+    SaveType SaveType
+    File     string  // empty string means stdout
+}
+func (*SaveToken) tokenData() {}
+
+type StatusToken struct{}
+func (*StatusToken) tokenData() {}
+
+type DebugToken struct {
+    Level int  // already parsed integer
+}
+func (*DebugToken) tokenData() {}
+
+type PTypeToken struct{ Name string }
+func (*PTypeToken) tokenData() {}
+
+type STypeToken struct{ Name string }
+func (*STypeToken) tokenData() {}
+
+// EchoToken and UnEchoToken are kept as no-op tokens for backward compatibility.
+type EchoToken   struct{}
+func (*EchoToken) tokenData() {}
+
+type UnEchoToken struct{}
+func (*UnEchoToken) tokenData() {}
+
+type PrintToken struct {
+    Message string  // free-form text, already joined at parse time
+}
+func (*PrintToken) tokenData() {}
 ```
 
-File inclusion nesting depth should be capped (e.g. 20 levels) to prevent infinite loops.
+Full list of token structs (one per halcmd command): `LoadRTToken`, `LoadUSRToken`,
+`NetToken`, `SetPToken`, `SetSToken`, `GetPToken`, `GetSToken`, `AddFToken`,
+`DelFToken`, `NewSigToken`, `DelSigToken`, `LinkPSToken`, `LinkSPToken`,
+`UnlinkPToken`, `AliasToken`, `UnAliasToken`, `StartToken`, `StopToken`, `LockToken`,
+`UnlockToken`, `UnloadRTToken`, `UnloadUSRToken`, `UnloadToken`, `WaitUSRToken`,
+`ListToken`, `ShowToken`, `SaveToken`, `StatusToken`, `DebugToken`, `PTypeToken`,
+`STypeToken`, `EchoToken`, `UnEchoToken`, `PrintToken`.
 
-### 4g. `print`, `echo`, and `unecho`
+`source` is **not** in this list — it is not a token at all.  It is resolved at parse
+time by `SingleFileParser` recursion and never passed through to the token lists.
 
-These three commands are handled entirely within the interpreter and have no
-corresponding Layer 2 Go function.
+---
 
-**`print <message>`** writes the joined remaining tokens to the interpreter's output
-writer (defaulting to `os.Stdout`), followed by a newline. It is always executed
-regardless of `echo` state and regardless of flow-control active/inactive state (i.e.
-a `print` inside an inactive `if` block is still skipped; the `echo` setting only
-affects command echoing, not `print` itself).
+### 4e. Fields That Must Stay Strings
 
-**`echo`** sets an interpreter flag `echoMode = true`. When echo mode is active, every
-command line is printed to the output writer before it is executed (matching halcmd's
-`-e` flag behaviour). The command table entry for `echo` sets this flag directly instead
-of calling any Layer 2 function.
+Not every field can be converted to a richer type at parse time:
 
-**`unecho`** sets `echoMode = false`, disabling line echoing.
+| Field | Reason |
+|---|---|
+| Pin / signal / component names | User-defined, unbounded set |
+| `SetPToken.Value` / `SetSToken.Value` | C shim parses based on runtime pin type |
+| `LoadRTToken.Params` values | Module-specific, opaque to the parser |
+| `PrintToken.Message` | Free-form text |
+| `LoadUSRToken.Prog` / `.Args` | Arbitrary paths and arguments |
+
+---
+
+### 4f. ParseResult and Execution
+
+`ParseResult` holds the three classified token lists produced by `MultiFileParser` (via
+`SingleFileParser` per file).
 
 ```go
-// echo state is stored on the Interpreter struct:
-type Interpreter struct {
-    // ... existing fields ...
-    echoMode   bool   // true when "echo" command has been issued
+// ParseResult holds the three execution buckets produced by MultiFileParser.
+type ParseResult struct {
+    LoadRT  []Token  // merged via TwopassCollector, then executed
+    LoadUSR []Token  // executed in order after loadrt
+    HALCmd  []Token  // executed in order after loadusr
 }
 
-// dispatchEcho enables command echoing.
-func (interp *Interpreter) dispatchEcho(_ []string) error {
-    interp.echoMode = true
-    return nil
-}
-
-// dispatchUnecho disables command echoing.
-func (interp *Interpreter) dispatchUnecho(_ []string) error {
-    interp.echoMode = false
-    return nil
-}
-
-// dispatchPrint writes its arguments joined by spaces to interp.output.
-func (interp *Interpreter) dispatchPrint(args []string) error {
-    fmt.Fprintln(interp.output, strings.Join(args, " "))
-    return nil
-}
+// Execute runs all tokens in the correct order:
+//   1. Merge LoadRT via TwopassCollector, then execute.
+//   2. Execute LoadUSR in order.
+//   3. Execute HALCmd in order.
+func (r *ParseResult) Execute() error
 ```
 
-### 4h. Error Reporting
-
-Each error returned by the interpreter includes the filename and line number:
+Execution dispatches via a type switch — each case is a one-line call to the
+existing `command.go` API:
 
 ```go
-type InterpError struct {
-    File    string
-    Line    int
-    Command string
-    Cause   error
+func executeToken(tok Token) error {
+    switch d := tok.Data.(type) {
+    case *LoadRTToken:
+        return hal.LoadRT(d.Comp, loadRTArgs(d)...)
+    case *LoadUSRToken:
+        return hal.LoadUSR(loadUSROpts(d), d.Prog, d.Args...)
+    case *NetToken:
+        return hal.Net(d.Signal, d.Pins...)
+    case *SetPToken:
+        return hal.SetP(d.Name, d.Value)
+    case *SetSToken:
+        return hal.SetS(d.Name, d.Value)
+    case *AddFToken:
+        return hal.AddF(d.Funct, d.Thread, d.Pos)
+    case *NewSigToken:
+        return hal.NewSig(d.Name, d.SigType)
+    case *LockToken:
+        return hal.SetLock(int(d.Level))
+    case *UnlockToken:
+        return hal.SetLock(int(d.Level))
+    case *EchoToken, *UnEchoToken:
+        return nil  // no-op for backward compatibility
+    // ... one case per token type ...
+    default:
+        return fmt.Errorf("%s:%d: unknown token type %T",
+            tok.Location.File, tok.Location.Line, tok.Data)
+    }
 }
-func (e *InterpError) Error() string {
-    return fmt.Sprintf("%s:%d: %s: %v", e.File, e.Line, e.Command, e.Cause)
-}
-func (e *InterpError) Unwrap() error { return e.Cause }
 ```
+
+`LockToken.Level` and `UnlockToken.Level` are `LockLevel` enum values (Section 4c).
+`hal.SetLock(int(d.Level))` passes the enum's integer value directly to the C shim
+(`hal_set_lock`), with no intermediate string conversion.  The existing `Lock()` /
+`Unlock()` string-accepting functions in `command.go` are kept for callers that use
+them from the REST API or interactive mode, but `executeToken` bypasses them.
+
+---
+
+### 4g. Error Reporting
+
+```go
+// ParseError is returned by LineParser when a line cannot be parsed.
+// It always carries the SourceLoc of the offending line.
+type ParseError struct {
+    Loc SourceLoc
+    Msg string
+}
+func (e *ParseError) Error() string {
+    return fmt.Sprintf("%s:%d: %s", e.Loc.File, e.Loc.Line, e.Msg)
+}
+```
+
+Every `Token` also carries its `SourceLoc`, so execution errors can report the
+original file and line number even after the three lists have been reordered for
+twopass merging.
 
 ---
 
@@ -659,38 +949,55 @@ Work items:
 
 **Deliverable**: Any Go code can call individual HAL commands without spawning halcmd.
 
-### Phase 2 — Build the Go Interpreter
+### Phase 2 — Build the Typed-Token Parser and Executor
 
-**Goal**: `interpreter.go` provides a complete halcmd-compatible line interpreter.
+**Goal**: Implement the three-tier parse-then-execute pipeline described in Section 4.
+New HAL files are parsed into typed token lists and executed without any line-by-line
+interpreter state machine or runtime string dispatch.
 
 Work items:
-- Implement `tokenizeLine()` with full quote/escape/continuation support.
-- Implement `substituteLine()` (may reuse/adapt `src/launcher/halfile/substitute.go`).
-- Implement `commandTable` and dispatch loop.
-- Implement `removeArrows()` for `net`.
-- Implement flow control (`if`/`elif`/`else`/`endif`, `while`/`endwhile`).
-- Implement `source` recursion with depth limit.
-- Implement `InterpError` with file/line context.
-- Write table-driven tests covering tokenization edge cases, substitution, flow control,
-  and command dispatch (using mock command functions to avoid needing a live HAL).
-- Test against the existing HAL file corpus in `src/configs/` (integration tests that
-  run the Go interpreter and the C halcmd on the same file and compare results).
+- Implement `token.go` — all token data structs (`LoadRTToken`, `NetToken`, etc.),
+  enums (`AliasKind`, `LockLevel`, `HalObjType`, `SaveType`), the `TokenData` sealed
+  interface, `Token`, `SourceLoc`, `ParseError`, `INILookup`, and `PathResolver`.
+- Implement `parser.go` — `tokenizeLine()` (quote/escape/continuation), per-command
+  parse functions (string → enum conversion, typed field population), `LineParser`,
+  `SingleFileParser` (template rendering + INI/`$ENV` substitution + token
+  classification + source recursion with depth limit of 20 via `resolver.Resolve()`),
+  and `MultiFileParser` (trivial multi-file loop that merges `ParseResult` objects).
+- Implement `executor.go` — `ParseResult.Execute()` with a type-switch dispatch to
+  the `command.go` API; `loadrt` merging via the existing `TwopassCollector`;
+  `LockToken` / `UnlockToken` executed via `hal.SetLock(int(d.Level))`.
+- Implement `parser_test.go` — table-driven tests for `tokenizeLine` edge cases,
+  per-command parse functions (including enum validation and invalid-input rejection),
+  `SingleFileParser` (template expansion, `source` recursion, token classification),
+  and `MultiFileParser` (correct merging of `loadrt`/`loadusr`/other tokens across
+  files).  All tests must be pure Go with **no CGO dependency** (mock or stub the
+  `command.go` layer).
+- Update `twopass.go` — add an adapter so `TwopassCollector` can accept `LoadRTToken`
+  structs directly in addition to the existing string-slice interface, or expose the
+  merge logic as a function that `ParseResult.Execute()` can call.
 
-**Deliverable**: `hal.NewInterpreter(ini).ExecuteFile("foo.hal")` works identically to
-`halcmd -i foo.ini -f foo.hal`.
+**Deliverable**: `new(MultiFileParser).Parse(halFiles).Execute()` processes a set of
+`[HAL]HALFILE` entries identically to the old `halcmd -f` pipeline, with all parsing
+errors caught before any HAL state is modified.
 
 ### Phase 3 — Replace `halcmd -f` in the Halfile Executor
 
 **Goal**: `src/launcher/halfile/halfile.go` stops forking `halcmd`.
 
 Work items:
-- Replace `runHalcmdFile(path)` with a call to `hal.NewInterpreter(ini).ExecuteFile(path)`.
-- The existing `substituteLine()` in `substitute.go` can be removed once the interpreter
-  takes over INI substitution, or retained as a shared utility.
-- `runHalcmd(cmd)` (single command execution) can be replaced with
-  `hal.NewInterpreter(ini).ExecuteLine(cmd, "<halcmd>", 0)`.
+- Replace `runHalcmdFile(path)` with a call to
+  `new(hal.MultiFileParser).Parse([]string{path}).Execute()`.  The caller constructs
+  `INILookup`, `*HalTemplateData`, and `PathResolver` (backed by the launcher's
+  existing `resolve.go`) and passes them to `MultiFileParser`.
+- The existing `substituteLine()` in `substitute.go` can be removed once
+  `SingleFileParser` takes over INI/`$ENV` substitution, or retained as a shared
+  utility.
+- `runHalcmd(cmd)` (single-command execution) can be replaced by constructing a
+  `SingleFileParser` from an inline string or by calling `parseLine` / `executeToken`
+  directly.
 - `RunHalcmdArgs(args)` is used by the launcher for `[HAL]HALCMD` lines; replace with
-  the interpreter's `ExecuteLine`.
+  the new `parseLine` + `executeToken` path.
 - Keep `runHaltcl(path, args)` unchanged (TCL files still go to `haltcl` subprocess —
   see Section 6).
 - Update the halfile tests to use the Go path.
@@ -737,26 +1044,26 @@ bindings), not by halcmd. The halfile executor's `runHaltcl()` dispatches to `ha
 as a subprocess and this must remain unchanged. The Go interpreter does **not** attempt
 to interpret TCL syntax.
 
-Detection: if a HAL file path ends with `.tcl`, `ExecuteFile` returns an error
-recommending the caller use `haltcl`; the halfile executor handles this routing before
-calling `ExecuteFile`.
+Detection: if a HAL file path ends with `.tcl`, `SingleFileParser.Parse` returns an
+error recommending the caller use `haltcl`; the halfile executor handles this routing
+before calling `SingleFileParser.Parse`.
 
 ---
 
 ## 6a. Go Template Engine
 
-The Go interpreter supports `.hal` files that use Go `text/template` syntax as an
+The Go pipeline supports `.hal` files that use Go `text/template` syntax as an
 alternative to TCL. This is **not** a general-purpose scripting language — it is a
 parameterized configuration template engine.
 
-The template is rendered **before** the HAL command interpreter sees the output.
-The pipeline is:
+The template is rendered **inside `SingleFileParser`**, before `LineParser` sees any
+line.  The per-file pipeline is:
 
 ```
 .hal file (raw text with {{...}} directives)
-  → text/template.Execute() with INI data context
+  → text/template.Execute() with INI data context   [SingleFileParser step 2]
   → rendered plain HAL commands
-  → Go interpreter tokenizes + dispatches
+  → LineParser produces typed tokens                [SingleFileParser step 5]
 ```
 
 ### Template data context
@@ -826,13 +1133,14 @@ setp j{{$j}}.limit3.min  {{ini (printf "JOINT_%d" $j) "MIN_LIMIT"}}
 {{- end}}
 ```
 
-The template expands **once** to produce pure halcmd text. The two-pass executor
-then handles separating `loadrt` (pass 1) from `addf`/`setp`/`net` (pass 2).
+The template expands **once** to produce pure halcmd text. `SingleFileParser` then
+classifies the resulting tokens into `loadrt`, `loadusr`, and `halcmd` lists, and
+`MultiFileParser` merges the results across files for ordered execution.
 
 ### Detection
 
 If a `.hal` file contains `{{` anywhere, it is rendered through `text/template` first.
-Otherwise it is passed directly to the interpreter.
+Otherwise it is passed directly to LineParser.
 
 ### Implementation
 
@@ -844,25 +1152,30 @@ dependencies.
 
 ## 6b. Native Twopass Support
 
-Twopass is implemented natively in Go rather than delegated to `twopass.tcl`.
+Twopass is now **inherent in the three-tier architecture** — no separate two-pass
+bookkeeping is needed.
 
-### Algorithm
+### How twopass falls out of the architecture
 
-```
-Pass 0 (collect):
-  For each HALFILE:
-    1. If .hal: render template (if needed), parse all lines
-    2. Collect all `loadrt` and `loadusr -Wn` commands
-    3. Merge duplicate `loadrt` calls (combine count= parameters, merge names=)
+`SingleFileParser` classifies every token into one of three lists during its parse
+pass, and `MultiFileParser` merges results across all `[HAL]HALFILE` entries:
 
-Pass 1 (execute):
-  1. Execute merged `loadrt` commands (creates all RT components)
-  2. Execute merged `loadusr -Wn` commands (starts all userspace components)
-  3. For each HALFILE (in order):
-     Re-parse and execute all non-loadrt/non-loadusr commands
-```
+- **`LoadRT`** — all `loadrt` tokens, regardless of which file they came from.
+- **`LoadUSR`** — `loadusr` tokens with `-W` or `-Wn` flags (wait for component).
+- **`HALCmd`** — everything else.
 
-### Merging logic for `loadrt`
+`ParseResult.Execute()` then:
+
+1. Passes `LoadRT` tokens through the existing `TwopassCollector` to merge duplicates
+   (combining `count=` and `names=` parameters across files), then executes the merged
+   set.
+2. Executes `LoadUSR` tokens in order (after all RT components are loaded).
+3. Executes `HALCmd` tokens in order (after all components have started).
+
+This replaces the two-pass algorithm described below (which is no longer needed as a
+separate concept) while preserving identical execution semantics.
+
+### Merging logic for `loadrt` (unchanged, handled by TwopassCollector)
 
 | Parameter   | Merge strategy |
 |-------------|---------------|
@@ -873,11 +1186,13 @@ Pass 1 (execute):
 
 ### Implementation
 
-Implemented in `twopass.go` (`TwopassCollector`, `TwopassLoadRT`,
-`NewTwopassCollector`, `CollectLoadRT`, `MergedLoadRTCommands`, `IsLoadRT`). Tests in
-`twopass_test.go`. Both files are pure Go with no CGO dependencies.
+The `TwopassCollector` in `twopass.go` is updated to accept `LoadRTToken` structs
+directly (or via an adapter) in addition to the existing string-slice interface.
+`ParseResult.Execute()` in `executor.go` drives the merge + execution sequence.
 
-This replaces the ~600 lines of TCL in `twopass.tcl` with ~50–100 lines of Go.
+This replaces the ~600 lines of TCL in `twopass.tcl` with a small amount of Go that
+is a natural consequence of the three-list classification in `SingleFileParser` and the
+merge loop in `MultiFileParser`.
 
 ---
 
@@ -885,22 +1200,27 @@ This replaces the ~600 lines of TCL in `twopass.tcl` with ~50–100 lines of Go.
 
 ### Behavioral Compatibility
 
-The Go interpreter **must** produce identical HAL state to halcmd for all supported
-commands. This means:
+The Go parser and executor **must** produce identical HAL state to halcmd for all
+supported commands. This means:
 
 - `net` must create the signal with the same type inference rules.
 - `setp` must accept the same value formats (including scientific notation for floats,
   `TRUE`/`FALSE`/`true`/`false`/`1`/`0` for bits).
 - `addf` position argument (`-1` = append to end) must be handled identically.
-- Arrow tokens (`=>`, `<=`, `<=>`) in `net` arguments must be silently ignored.
-- `source` must follow the same path resolution rules as halcmd (`LIB:` prefix,
-  `HALLIB_PATH` environment variable — see `src/launcher/halfile/resolve.go`).
+- Arrow tokens (`=>`, `<=`, `<=>`) in `net` arguments are stripped at parse time inside
+  `LineParser` (in `NetToken.Pins`) before `Net()` is ever called.
+- `source` path resolution is delegated to the `PathResolver` interface provided by the
+  caller.  The launcher's implementation in `src/launcher/halfile/resolve.go` handles
+  the `LIB:` prefix and `HALLIB_PATH` environment variable.  `SingleFileParser` calls
+  `resolver.Resolve(path)` before recursing and has no knowledge of the resolution
+  rules itself.
 
 ### Error Message Format
 
 Error messages **do not** need to be byte-identical to halcmd's output. They should be
-descriptive and include the filename and line number. The `InterpError` type serves this
-purpose.
+descriptive and include the filename and line number. The `ParseError` type (Section 4g)
+serves this purpose for parse-time errors; execution errors wrap the underlying
+`command.go` error with the originating `Token.Location`.
 
 ### `halcmd` Binary Preservation
 
@@ -909,18 +1229,17 @@ The `halcmd` binary is not deleted or deprecated. It continues to be:
 - Built by the LinuxCNC build system.
 - Available for manual use (`halcmd show all`, `halrun`, interactive `halcmd` session).
 - Used by third-party scripts and integrations that invoke it directly.
-- The reference implementation against which the Go interpreter is tested.
+- The reference implementation against which the Go parser/executor is tested.
 
 ### `show`/`list`/`save` Output Format
 
 The C halcmd formats `show`, `list`, and `save` output as human-readable text printed
 to stdout. The Go command functions (`Show()`, `List()`, `Save()`) return **structured
-data** (slices of `*Info` structs or `[]string`). When the Go interpreter executes a
-`show` or `list` command interactively (i.e. output is a terminal), it should format
-the data identically to halcmd's text output. The REST API uses the structured form
-directly. Scripts that currently parse `halcmd show` output are unaffected as long as
-they use the `halcmd` binary; scripts migrated to use the REST API should use the JSON
-form.
+data** (slices of `*Info` structs or `[]string`). When `executeToken` processes a
+`ShowToken` or `ListToken` at startup (i.e. output is a terminal), it formats the data
+identically to halcmd's text output. The REST API uses the structured form directly.
+Scripts that currently parse `halcmd show` output are unaffected as long as they use
+the `halcmd` binary; scripts migrated to use the REST API should use the JSON form.
 
 ---
 
@@ -951,7 +1270,7 @@ proposed Go function names, and shim categories.
 | `setp <name> <value>` | `do_setp_cmd` | `SetP(name, value)` | Shmem access |
 | `sets <sig> <value>` | `do_sets_cmd` | `SetS(name, value)` | Shmem access |
 | `show [type] [patterns]` | `do_show_cmd` | `Show(halType, patterns...)` | Shmem access |
-| `source <file>` | `do_source_cmd` | handled by interpreter | n/a |
+| `source <file>` | `do_source_cmd` | resolved by SingleFileParser | n/a |
 | `start` | `do_start_cmd` | `StartThreads()` | Simple wrapper ✅ |
 | `status [type]` | `do_status_cmd` | `Status()` | Shmem access |
 | `stop` | `do_stop_cmd` | `StopThreads()` | Simple wrapper ✅ |
@@ -965,8 +1284,8 @@ proposed Go function names, and shim categories.
 | `unlock [level]` | `do_unlock_cmd` | `Unlock(level)` | Simple wrapper |
 | `waitusr <comp>` | `do_waitusr_cmd` | `WaitUSR(comp)` | Multi-call |
 | `debug <level>` | `do_set_debug_cmd` | `SetDebug(level)` | Simple wrapper |
-| `print <msg>` | `do_print_cmd` | handled by interpreter | n/a |
-| `echo` / `unecho` | `do_echo_cmd` | interpreter state | n/a |
+| `print <msg>` | `do_print_cmd` | `PrintToken` (no-op at startup) | n/a |
+| `echo` / `unecho` | `do_echo_cmd` | `EchoToken`/`UnEchoToken` (no-op) | n/a |
 | `list comp` | (print_comp_names) | `ListComponents()` | Shmem access ✅ |
 | `unload all` | (unload all comps) | `UnloadAll(exceptID)` | Process mgmt ✅ |
 
