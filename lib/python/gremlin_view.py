@@ -81,7 +81,6 @@ import sys
 import gladevcp.hal_actions  # reqd for Builder
 import linuxcnc
 import time
-import subprocess
 import gettext
 import datetime
 import glib # for glib.GError
@@ -114,27 +113,7 @@ def ini_check ():
     return False # exit here crashes glade-gtk2
 
 def get_linuxcnc_ini_file():
-    """Get LinuxCNC INI file from environment variable."""
-    ini = os.environ.get('INI_FILE_NAME')
-    if ini:
-        return ini
-    # Fallback: try ps -C linuxcncsvr for backward compatibility
-    try:
-        ps = subprocess.Popen('ps -C linuxcncsvr --no-header -o args'.split(),
-                               stdout=subprocess.PIPE)
-        p, e = ps.communicate()
-        if p is not None: p = p.decode()
-        if e is not None: e = e.decode()
-        if not ps.returncode and p:
-            args = p.split()
-            if '-ini' in args:
-                idx = args.index('-ini')
-                if idx + 1 < len(args):
-                    return args[idx + 1]
-    except Exception:
-        pass
-    print(_('get_linuxcnc_ini_file: INI file not found'))
-    return None
+    return os.environ.get('INI_FILE_NAME')
 
 class GremlinView():
     """Implement a standalone gremlin with some buttons

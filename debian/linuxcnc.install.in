@@ -47,7 +47,6 @@ usr/bin/linuxcnc_var
 usr/bin/linuxcnclcd
 usr/bin/linuxcncmkdesktop
 usr/bin/linuxcncrsh
-usr/bin/linuxcncsvr
 usr/bin/linuxcnctop
 usr/bin/maho600gui
 usr/bin/max5gui

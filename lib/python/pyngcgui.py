@@ -190,20 +190,7 @@ def save_a_copy(fname,archive_dir='/tmp/old_ngc'):
         sys.exit(1)
 
 def get_linuxcnc_ini_file():
-    ps   = subprocess.Popen('ps -C linuxcncsvr --no-header -o args'.split(),
-                             stdout=subprocess.PIPE
-                           )
-    p,e = ps.communicate()
-
-    if ps.returncode:
-        print(_('get_linuxcnc_ini_file: stdout= %s') % p)
-        print(_('get_linuxcnc_ini_file: stderr= %s') % e)
-        return None
-
-    if p is not None: p = p.decode()
-    if e is not None: e = e.decode()
-    ans = p.split()[p.split().index('-ini')+1]
-    return ans
+    return os.environ.get('INI_FILE_NAME')
 
 def dummy_send(filename):
     return False # always fail

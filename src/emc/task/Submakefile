@@ -1,12 +1,4 @@
 
-EMCSVRSRCS := \
-	emc/task/emcsvr.cc
-USERSRCS += $(EMCSVRSRCS)
-
-../bin/linuxcncsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $^ $(LDFLAGS)
-TARGETS += ../bin/linuxcncsvr
 
 EMCSVRLIB_SRCS := emc/task/emcsvr_lib.cc
 USERSRCS += $(EMCSVRLIB_SRCS)
