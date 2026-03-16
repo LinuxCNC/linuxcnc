@@ -883,7 +883,7 @@ static int hal_shim_list_threads(const char *pattern, char *buf, int buf_size) {
 typedef struct {
     char name[HAL_NAME_LEN + 1];
     int  comp_id;
-    int  type;   // component_type_t: 0=user, 1=realtime, 2=other
+    int  type_;  // component_type_t: 0=user, 1=realtime, 2=other
     int  ready;
 } hal_shim_comp_info_t;
 
@@ -894,7 +894,7 @@ typedef struct {
     // value[64]: sufficient for all HAL types — "%.7g" float ≤15 chars,
     // boolean is "TRUE"/"FALSE", s32/u32 ≤12 decimal digits.
     char value[64];
-    int  type;   // hal_type_t
+    int  type_;  // hal_type_t
     int  dir;    // hal_pin_dir_t
 } hal_shim_pin_info_t;
 
@@ -903,7 +903,7 @@ typedef struct {
     char owner[HAL_NAME_LEN + 1];
     // value[64]: sufficient for all HAL types (see hal_shim_pin_info_t).
     char value[64];
-    int  type;   // hal_type_t
+    int  type_;  // hal_type_t
     int  dir;    // hal_param_dir_t
 } hal_shim_param_info_t;
 
@@ -911,7 +911,7 @@ typedef struct {
     char name[HAL_NAME_LEN + 1];
     // value[64]: sufficient for all HAL types (see hal_shim_pin_info_t).
     char value[64];
-    int  type;     // hal_type_t
+    int  type_;    // hal_type_t
     int  readers;
     int  writers;
     int  bidirs;
@@ -956,7 +956,7 @@ static int hal_shim_show_comps(const char *pattern, hal_shim_comp_info_t *arr, i
             }
             snprintf(arr[count].name, sizeof(arr[count].name), "%s", comp->name);
             arr[count].comp_id = comp->comp_id;
-            arr[count].type    = (int)comp->type;
+            arr[count].type_   = (int)comp->type;
             arr[count].ready   = comp->ready;
             count++;
         }
@@ -987,7 +987,7 @@ static int hal_shim_show_pins(const char *pattern, hal_shim_pin_info_t *arr, int
                 return -ENOSPC;
             }
             snprintf(arr[count].name, sizeof(arr[count].name), "%s", pin->name);
-            arr[count].type = (int)pin->type;
+            arr[count].type_ = (int)pin->type;
             arr[count].dir  = (int)pin->dir;
 
             if (pin->owner_ptr != 0) {
@@ -1034,7 +1034,7 @@ static int hal_shim_show_params(const char *pattern, hal_shim_param_info_t *arr,
                 return -ENOSPC;
             }
             snprintf(arr[count].name, sizeof(arr[count].name), "%s", param->name);
-            arr[count].type = (int)param->type;
+            arr[count].type_ = (int)param->type;
             arr[count].dir  = (int)param->dir;
 
             if (param->owner_ptr != 0) {
@@ -1071,7 +1071,7 @@ static int hal_shim_show_sigs(const char *pattern, hal_shim_sig_info_t *arr, int
                 return -ENOSPC;
             }
             snprintf(arr[count].name, sizeof(arr[count].name), "%s", sig->name);
-            arr[count].type    = (int)sig->type;
+            arr[count].type_   = (int)sig->type;
             arr[count].readers = sig->readers;
             arr[count].writers = sig->writers;
             arr[count].bidirs  = sig->bidirs;
