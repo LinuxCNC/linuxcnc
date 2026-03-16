@@ -851,3 +851,324 @@ func TestCheckConfig_ScriptFails(t *testing.T) {
 		t.Error("checkConfig() with exit-1 script should return error, got nil")
 	}
 }
+
+// --------------------------------------------------------------------------
+// Tests for validateDependencies
+// --------------------------------------------------------------------------
+
+// newLauncherWithIniContent is a helper that creates a Launcher from raw INI
+// content written to a temporary file.
+func newLauncherWithIniContent(t *testing.T, content string) *Launcher {
+	t.Helper()
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", content)
+	return newLauncherWithIniPath(t, f)
+}
+
+// TestValidateDependencies_HALOnlyMode verifies that a HAL-only configuration
+// (no [TASK]TASK, no [DISPLAY]DISPLAY) is accepted.
+func TestValidateDependencies_HALOnlyMode(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = my-hardware.hal
+HALFILE = my-logic.hal
+`)
+	if err := l.validateDependencies(); err != nil {
+		t.Errorf("HAL-only config should be valid, got error: %v", err)
+	}
+}
+
+// TestValidateDependencies_NoHALFile verifies that a missing [HAL]HALFILE is
+// rejected.
+func TestValidateDependencies_NoHALFile(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+`)
+	err := l.validateDependencies()
+	if err == nil {
+		t.Fatal("config without [HAL]HALFILE should be rejected")
+	}
+	if !strings.Contains(err.Error(), "HALFILE") {
+		t.Errorf("error should mention HALFILE, got: %v", err)
+	}
+}
+
+// TestValidateDependencies_HALUIWithoutTask verifies that [HAL]HALUI without
+// [TASK]TASK is rejected.
+func TestValidateDependencies_HALUIWithoutTask(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = hardware.hal
+HALUI = halui
+
+# No [TASK]TASK
+`)
+	err := l.validateDependencies()
+	if err == nil {
+		t.Fatal("[HAL]HALUI without [TASK]TASK should be rejected")
+	}
+	if !strings.Contains(err.Error(), "HALUI") || !strings.Contains(err.Error(), "TASK") {
+		t.Errorf("error should mention HALUI and TASK, got: %v", err)
+	}
+}
+
+// TestValidateDependencies_EMCIOWithoutTask verifies that [EMCIO]EMCIO without
+// [TASK]TASK is rejected.
+func TestValidateDependencies_EMCIOWithoutTask(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = hardware.hal
+
+[EMCIO]
+EMCIO = io
+
+# No [TASK]TASK
+`)
+	err := l.validateDependencies()
+	if err == nil {
+		t.Fatal("[EMCIO]EMCIO without [TASK]TASK should be rejected")
+	}
+	if !strings.Contains(err.Error(), "TASK") {
+		t.Errorf("error should mention TASK, got: %v", err)
+	}
+}
+
+// TestValidateDependencies_IOWithoutTask verifies that [IO]IO without
+// [TASK]TASK is rejected.
+func TestValidateDependencies_IOWithoutTask(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = hardware.hal
+
+[IO]
+IO = custom_io
+
+# No [TASK]TASK
+`)
+	err := l.validateDependencies()
+	if err == nil {
+		t.Fatal("[IO]IO without [TASK]TASK should be rejected")
+	}
+	if !strings.Contains(err.Error(), "TASK") {
+		t.Errorf("error should mention TASK, got: %v", err)
+	}
+}
+
+// TestValidateDependencies_TaskWithMissingKins verifies that [TASK]TASK without
+// [KINS]KINEMATICS is rejected.
+func TestValidateDependencies_TaskWithMissingKins(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = hardware.hal
+
+[TASK]
+TASK = milltask
+
+[TRAJ]
+COORDINATES = X Y Z
+
+[EMCMOT]
+EMCMOT = motmod
+SERVO_PERIOD = 1000000
+
+[RS274NGC]
+PARAMETER_FILE = linuxcnc.var
+
+# Missing [KINS]KINEMATICS
+`)
+	err := l.validateDependencies()
+	if err == nil {
+		t.Fatal("[TASK]TASK without [KINS]KINEMATICS should be rejected")
+	}
+	if !strings.Contains(err.Error(), "KINS") {
+		t.Errorf("error should mention KINS, got: %v", err)
+	}
+}
+
+// TestValidateDependencies_TaskWithMissingTraj verifies that [TASK]TASK without
+// [TRAJ]COORDINATES is rejected.
+func TestValidateDependencies_TaskWithMissingTraj(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = hardware.hal
+
+[TASK]
+TASK = milltask
+
+[KINS]
+KINEMATICS = trivkins
+JOINTS = 3
+
+[EMCMOT]
+EMCMOT = motmod
+SERVO_PERIOD = 1000000
+
+[RS274NGC]
+PARAMETER_FILE = linuxcnc.var
+
+# Missing [TRAJ]COORDINATES
+`)
+	err := l.validateDependencies()
+	if err == nil {
+		t.Fatal("[TASK]TASK without [TRAJ]COORDINATES should be rejected")
+	}
+	if !strings.Contains(err.Error(), "TRAJ") {
+		t.Errorf("error should mention TRAJ, got: %v", err)
+	}
+}
+
+// TestValidateDependencies_TaskWithMissingEmcmot verifies that [TASK]TASK
+// without [EMCMOT]SERVO_PERIOD is rejected.
+func TestValidateDependencies_TaskWithMissingEmcmot(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = hardware.hal
+
+[TASK]
+TASK = milltask
+
+[KINS]
+KINEMATICS = trivkins
+JOINTS = 3
+
+[TRAJ]
+COORDINATES = X Y Z
+
+[RS274NGC]
+PARAMETER_FILE = linuxcnc.var
+
+# Missing [EMCMOT]SERVO_PERIOD
+`)
+	err := l.validateDependencies()
+	if err == nil {
+		t.Fatal("[TASK]TASK without [EMCMOT]SERVO_PERIOD should be rejected")
+	}
+	if !strings.Contains(err.Error(), "EMCMOT") {
+		t.Errorf("error should mention EMCMOT, got: %v", err)
+	}
+}
+
+// TestValidateDependencies_TaskWithMissingRS274NGC verifies that [TASK]TASK
+// without [RS274NGC]PARAMETER_FILE is rejected.
+func TestValidateDependencies_TaskWithMissingRS274NGC(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = hardware.hal
+
+[TASK]
+TASK = milltask
+
+[KINS]
+KINEMATICS = trivkins
+JOINTS = 3
+
+[TRAJ]
+COORDINATES = X Y Z
+
+[EMCMOT]
+EMCMOT = motmod
+SERVO_PERIOD = 1000000
+
+# Missing [RS274NGC]PARAMETER_FILE
+`)
+	err := l.validateDependencies()
+	if err == nil {
+		t.Fatal("[TASK]TASK without [RS274NGC]PARAMETER_FILE should be rejected")
+	}
+	if !strings.Contains(err.Error(), "RS274NGC") {
+		t.Errorf("error should mention RS274NGC, got: %v", err)
+	}
+}
+
+// TestValidateDependencies_FullCNCMode verifies that a complete CNC
+// configuration is accepted.
+func TestValidateDependencies_FullCNCMode(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = hardware.hal
+
+[TASK]
+TASK = milltask
+
+[KINS]
+KINEMATICS = trivkins
+JOINTS = 3
+
+[TRAJ]
+COORDINATES = X Y Z
+
+[EMCMOT]
+EMCMOT = motmod
+SERVO_PERIOD = 1000000
+
+[RS274NGC]
+PARAMETER_FILE = linuxcnc.var
+
+[DISPLAY]
+DISPLAY = axis
+`)
+	if err := l.validateDependencies(); err != nil {
+		t.Errorf("full CNC config should be valid, got error: %v", err)
+	}
+}
+
+// TestValidateDependencies_HALUIWithTask verifies that [HAL]HALUI with
+// [TASK]TASK and all required sections is accepted.
+func TestValidateDependencies_HALUIWithTask(t *testing.T) {
+	l := newLauncherWithIniContent(t, `
+[EMC]
+MACHINE = TestMachine
+
+[HAL]
+HALFILE = hardware.hal
+HALUI = halui
+
+[TASK]
+TASK = milltask
+
+[KINS]
+KINEMATICS = trivkins
+JOINTS = 3
+
+[TRAJ]
+COORDINATES = X Y Z
+
+[EMCMOT]
+EMCMOT = motmod
+SERVO_PERIOD = 1000000
+
+[RS274NGC]
+PARAMETER_FILE = linuxcnc.var
+`)
+	if err := l.validateDependencies(); err != nil {
+		t.Errorf("config with HALUI and TASK should be valid, got error: %v", err)
+	}
+}

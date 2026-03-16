@@ -56,15 +56,15 @@ type Launcher struct {
 	opts          Options
 	ini           *inifile.IniFile
 	logger        *slog.Logger
-	lock          *lockfile.LockFile   // flock-based instance lock
-	rtMgr         *realtime.Manager    // realtime environment manager
-	cleanupOnce   sync.Once            // ensures cleanup runs exactly once
-	serverProcess *exec.Cmd            // background linuxcncsvr process
-	serverDone    chan error            // receives the result of cmd.Wait() for linuxcncsvr
-	taskProcess   *exec.Cmd            // background milltask/linuxcnctask process
-	taskDone      chan error            // receives the result of cmd.Wait() for task
-	appProcesses  []*exec.Cmd          // [APPLICATIONS]APP background processes
-	halComp       *hal.Component       // launcher's HAL component (like halcmd's hal_init)
+	lock          *lockfile.LockFile // flock-based instance lock
+	rtMgr         *realtime.Manager  // realtime environment manager
+	cleanupOnce   sync.Once          // ensures cleanup runs exactly once
+	serverProcess *exec.Cmd          // background linuxcncsvr process
+	serverDone    chan error         // receives the result of cmd.Wait() for linuxcncsvr
+	taskProcess   *exec.Cmd          // background milltask/linuxcnctask process
+	taskDone      chan error         // receives the result of cmd.Wait() for task
+	appProcesses  []*exec.Cmd        // [APPLICATIONS]APP background processes
+	halComp       *hal.Component     // launcher's HAL component (like halcmd's hal_init)
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -83,20 +83,31 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 //  1. Sets up environment variables (INI_FILE_NAME exported before any subprocess).
 //  2. Acquires the lock file.
 //  3. Parses the INI file.
-//  4. Starts linuxcncsvr (NML server) — must precede realtime (M5).
-//  5. Starts the realtime environment (M4).
-//  6. Starts iocontrol via halcmd loadusr -Wn (M5).
-//  7. Starts halui via halcmd loadusr -Wn if configured (M5).
-//  8. Preloads tpmod/homemod (M4).
-//  9. Executes [HAL]HALFILE entries (M3, step 4.3.6).
-// 10. Starts the task controller in background (M6, step 4.3.7).
-// 11. Executes [HAL]HALCMD entries (M6, step 4.3.8).
-// 12. Loads retained signals if any are present (M6, step 4.3.9).
-// 13. Starts HAL threads (M6, step 4.3.10).
-// 14. Launches [APPLICATIONS]APP entries in background (M6, step 4.3.11).
-// 15. Launches the display in the foreground — blocks until the user closes the GUI (M6, step 4.3.12).
-// 16. Shuts down in ordered sequence (M7): display helpers → AXIS quit → [HAL]SHUTDOWN →
+//  4. Validates cross-section INI dependencies (validateDependencies).
+//  5. Starts linuxcncsvr (NML server) — only if [TASK]TASK is configured (M5).
+//  6. Starts the realtime environment (M4).
+//  7. Starts iocontrol via halcmd loadusr -Wn — only if [TASK]TASK is configured (M5).
+//  8. Starts halui via halcmd loadusr -Wn — only if [HAL]HALUI is configured (M5).
+//  9. Preloads tpmod/homemod — only if [TASK]TASK is configured (M4).
+//  10. Executes [HAL]HALFILE entries (M3, step 4.3.6).
+//  11. Starts the task controller in background — only if [TASK]TASK is configured (M6, step 4.3.7).
+//  12. Executes [HAL]HALCMD entries (M6, step 4.3.8).
+//  13. Loads retained signals if any are present (M6, step 4.3.9).
+//  14. Starts HAL threads (M6, step 4.3.10).
+//  15. Launches [APPLICATIONS]APP entries in background (M6, step 4.3.11).
+//  16. If [DISPLAY]DISPLAY is configured: launches the display in the foreground — blocks
+//     until the user closes the GUI (M6, step 4.3.12).
+//     Otherwise (HAL-only mode): blocks until SIGINT/SIGTERM is received.
+//  17. Shuts down in ordered sequence (M7): display helpers → AXIS quit → [HAL]SHUTDOWN →
 //     user-space → halcmd stop → halcmd unload all → wait → realtime stop → NML shm → lock.
+//
+// Operational modes:
+//   - Full CNC mode: [TASK]TASK is set → linuxcncsvr, iocontrol, task controller and
+//     optionally halui and a display are started.
+//   - HAL-only mode: [TASK]TASK is not set → only the realtime environment, HAL files,
+//     and HAL threads are started.  The launcher blocks until a signal is received.
+//     This mode is suitable for machines that only require HAL-based automation without
+//     the full CNC stack (G-code interpreter, trajectory planner, etc.).
 //
 // Note: POSTGUI_HALFILE loading is intentionally omitted here; it is the
 // responsibility of the display GUI (AXIS, QtVCP, gmoccapy, etc.) to load
@@ -166,6 +177,28 @@ func (l *Launcher) Run() error {
 
 	l.logConfiguration()
 
+	// Determine operational mode from the INI configuration.
+	// hasTask is true when [TASK]TASK is set; this enables the full CNC stack
+	// (NML server, iocontrol, motion modules, task controller).
+	// hasDisplay is true when [DISPLAY]DISPLAY is set; if false the launcher
+	// runs in HAL-only mode and blocks waiting for a shutdown signal.
+	hasTask := l.ini.Get("TASK", "TASK") != ""
+	hasDisplay := l.ini.Get("DISPLAY", "DISPLAY") != ""
+
+	// Validate cross-section INI dependencies before starting any processes.
+	// This catches contradictory configurations (e.g. [HAL]HALUI without
+	// [TASK]TASK) and missing required sections early, rather than failing
+	// with cryptic errors at runtime.
+	if err := l.validateDependencies(); err != nil {
+		return fmt.Errorf("configuration error: %w", err)
+	}
+
+	if hasTask {
+		l.logger.Info("mode: full CNC (task controller enabled)")
+	} else {
+		l.logger.Info("mode: HAL-only (no task controller)")
+	}
+
 	// Pre-launch validation checks (mirrors scripts/linuxcnc.in lines 495–530
 	// and 791–812): run after INI parsing + include expansion + chdir, but
 	// before startServer().
@@ -187,8 +220,12 @@ func (l *Launcher) Run() error {
 	}
 
 	// 3. check_config.tcl validation (lines 524–529).
-	if err := l.checkConfig(); err != nil {
-		return err
+	// Only run for full CNC mode: the Tcl validator expects [KINS], [TRAJ],
+	// [EMCMOT], and [RS274NGC] sections which are not required in HAL-only mode.
+	if hasTask {
+		if err := l.checkConfig(); err != nil {
+			return err
+		}
 	}
 
 	// 4. Intro graphic popup (lines 791–812).
@@ -196,11 +233,15 @@ func (l *Launcher) Run() error {
 
 	// --- M5: Process Manager ---
 
-	// Start NML server (linuxcncsvr) before realtime.  linuxcncsvr creates
-	// the NML shared memory buffers that realtime components depend on.
+	// Start NML server (linuxcncsvr) before realtime — only when the task
+	// controller is running.  linuxcncsvr creates the NML shared memory buffers
+	// that realtime components depend on.  In HAL-only mode there are no NML
+	// buffers to serve.
 	// This mirrors scripts/linuxcnc.in lines 817–825.
-	if err := l.startServer(); err != nil {
-		return fmt.Errorf("starting linuxcncsvr: %w", err)
+	if hasTask {
+		if err := l.startServer(); err != nil {
+			return fmt.Errorf("starting linuxcncsvr: %w", err)
+		}
 	}
 
 	// --- M4: Realtime Manager ---
@@ -218,11 +259,15 @@ func (l *Launcher) Run() error {
 	}
 	l.halComp = halComp
 
-	// Start iocontrol via halcmd loadusr -Wn iocontrol.
-	// iocontrol is a HAL userspace component; HAL manages its lifecycle and
-	// will terminate it when halcmd exits or HAL is shut down.
-	if err := l.startIOControl(); err != nil {
-		return fmt.Errorf("starting iocontrol: %w", err)
+	// Start iocontrol via halcmd loadusr -Wn iocontrol — only when the task
+	// controller is running.  iocontrol is a HAL userspace component that
+	// communicates with the task controller via NML; HAL manages its lifecycle
+	// and will terminate it when halcmd exits or HAL is shut down.
+	// validateDependencies() ensures [EMCIO]EMCIO is not set without [TASK]TASK.
+	if hasTask {
+		if err := l.startIOControl(); err != nil {
+			return fmt.Errorf("starting iocontrol: %w", err)
+		}
 	}
 
 	// Start halui if configured.
@@ -231,10 +276,13 @@ func (l *Launcher) Run() error {
 		return fmt.Errorf("starting halui: %w", err)
 	}
 
-	// Pre-load trajectory planner and homing modules before HAL file execution.
+	// Pre-load trajectory planner and homing modules before HAL file execution
+	// — only for full CNC mode.
 	// This mirrors scripts/linuxcnc.in lines 865-868.
-	if err := l.preloadMotionModules(); err != nil {
-		return fmt.Errorf("preloading motion modules: %w", err)
+	if hasTask {
+		if err := l.preloadMotionModules(); err != nil {
+			return fmt.Errorf("preloading motion modules: %w", err)
+		}
 	}
 
 	// M3: Load HAL files.
@@ -248,9 +296,12 @@ func (l *Launcher) Run() error {
 
 	// --- M6: Task + Display Launch ---
 
-	// 6a. Start task controller in background (step 4.3.7).
-	if err := l.startTask(); err != nil {
-		return fmt.Errorf("starting task: %w", err)
+	// 6a. Start task controller in background — only if [TASK]TASK is configured
+	// (step 4.3.7).
+	if hasTask {
+		if err := l.startTask(); err != nil {
+			return fmt.Errorf("starting task: %w", err)
+		}
 	}
 
 	// 6b. Execute [HAL]HALCMD entries (step 4.3.8).
@@ -280,9 +331,18 @@ func (l *Launcher) Run() error {
 		l.logger.Warn("application launch error", "error", err)
 	}
 
-	// 6f. Launch display in foreground (blocks until user closes GUI, step 4.3.12).
-	if err := l.startDisplay(); err != nil {
-		return fmt.Errorf("display: %w", err)
+	// 6f. Launch display in foreground or wait in HAL-only mode (step 4.3.12).
+	if hasDisplay {
+		if err := l.startDisplay(); err != nil {
+			return fmt.Errorf("display: %w", err)
+		}
+	} else {
+		// HAL-only mode: no display is configured.  Log and block until the
+		// signal handler goroutine calls os.Exit(0) on SIGINT/SIGTERM.
+		l.logger.Info("HAL-only mode: no display configured, waiting for shutdown signal (Ctrl+C to stop)")
+		// select{} blocks indefinitely.  The signal handler goroutine calls
+		// l.cleanup() and os.Exit(0), so deferred cleanup is not needed here.
+		select {}
 	}
 
 	// Display has exited — cleanup runs via deferred l.cleanup():
@@ -594,10 +654,16 @@ func (l *Launcher) preloadMotionModules() error {
 //
 // The -Wn inihal flag makes halcmd wait for the inihal HAL component to register
 // before returning; the & means the launcher doesn't block on this.
-// INI resolution: [TASK]TASK → default "linuxcnctask"; legacy rename "emctask" → "linuxcnctask".
+// INI resolution: [TASK]TASK is required; legacy rename "emctask" → "linuxcnctask".
+// If [TASK]TASK is not set, startTask is a no-op (Run() skips calling it anyway).
 func (l *Launcher) startTask() error {
 	emctask := l.ini.Get("TASK", "TASK")
-	if emctask == "" || emctask == "emctask" {
+	if emctask == "" {
+		l.logger.Debug("TASK not configured, skipping task controller")
+		return nil
+	}
+	// Legacy rename: "emctask" was renamed to "linuxcnctask" in 2.9.
+	if emctask == "emctask" {
 		emctask = "linuxcnctask"
 	}
 
@@ -865,10 +931,15 @@ func (l *Launcher) stopApplications() {
 //   - default:           <display> -ini <ini> [args]
 //
 // cmd.Run() blocks until the user closes the GUI.
+// startDisplay is only called when [DISPLAY]DISPLAY is configured; Run()
+// handles the no-display (HAL-only) case separately.
 func (l *Launcher) startDisplay() error {
 	displayVal := l.ini.Get("DISPLAY", "DISPLAY")
 	if displayVal == "" {
-		return fmt.Errorf("no [DISPLAY]DISPLAY configured")
+		// This should not be reached — Run() only calls startDisplay when
+		// hasDisplay is true.  Return nil for safety (HAL-only wait is in Run()).
+		l.logger.Debug("no [DISPLAY]DISPLAY configured, startDisplay is a no-op")
+		return nil
 	}
 
 	fields := strings.Fields(displayVal)

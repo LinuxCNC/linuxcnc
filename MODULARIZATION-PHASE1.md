@@ -8,6 +8,10 @@ This document describes the implementation of a Go-based LinuxCNC server that co
 
 **Compatibility:** All existing UIs (AXIS, gmoccapy, QtVCP, etc.) continue to work unchanged via NML.
 
+**HAL-only mode:** When `[TASK]TASK` is not set in the INI file, the launcher starts only the
+realtime environment and HAL components — no NML server, no iocontrol, no task controller.
+This enables machines that only need HAL-based automation without the full CNC stack.
+
 ---
 
 ## 1. Architecture Overview
@@ -70,6 +74,95 @@ linuxcnc-server (single Go process)
 | Task/IOControl | Linked as libraries | Minimal changes to existing code |
 | Configuration | Go parses INI, passes to components | Centralized config handling |
 | HAL loading | Execute existing HAL file commands | Reuse proven mechanism |
+| Conditional startup | Components started only when configured | Enables HAL-only mode |
+
+---
+
+## 1.4 Conditional Startup and HAL-only Mode
+
+The launcher supports two operational modes determined entirely by the INI file:
+
+### Full CNC Mode
+
+When `[TASK]TASK` is set in the INI file, all CNC components are started:
+
+```
+INI file has [TASK]TASK
+    │
+    ├── linuxcncsvr (NML server) — started before realtime
+    ├── Realtime environment (rtapi_app)
+    ├── iocontrol (only if [TASK]TASK is set)
+    ├── halui (only if [HAL]HALUI is set)
+    ├── tpmod / homemod (trajectory + homing modules)
+    ├── [HAL]HALFILE entries
+    ├── Task controller ([TASK]TASK)
+    ├── [HAL]HALCMD entries
+    ├── retain (if retained signals exist)
+    ├── HAL threads (halcmd start)
+    ├── [APPLICATIONS]APP entries
+    └── Display ([DISPLAY]DISPLAY) — if set, runs in foreground; else HAL-only wait
+```
+
+### HAL-only Mode
+
+When `[TASK]TASK` is **not** set, only the realtime/HAL stack is started:
+
+```
+INI file has NO [TASK]TASK
+    │
+    ├── Realtime environment (rtapi_app)
+    ├── (no iocontrol, no tpmod/homemod, no linuxcncsvr, no task controller)
+    ├── [HAL]HALFILE entries
+    ├── [HAL]HALCMD entries
+    ├── retain (if retained signals exist)
+    ├── HAL threads (halcmd start)
+    ├── [APPLICATIONS]APP entries
+    └── Wait for SIGINT/SIGTERM (Ctrl+C) — no display launched
+```
+
+A custom UI that communicates via HAL pins directly (e.g., a Python script using `hal` module,
+or a Go program using `hal-go`) can run alongside the launcher in HAL-only mode.
+
+### Component Startup Rules
+
+| Component | Condition | Notes |
+|-----------|-----------|-------|
+| `linuxcncsvr` | `[TASK]TASK` set | NML server only needed with task controller |
+| `iocontrol` | `[TASK]TASK` set | IO communicates with task via NML |
+| `halui` | `[HAL]HALUI` set | Already conditional; `[TASK]TASK` required if set |
+| `tpmod` / `homemod` | `[TASK]TASK` set | Motion modules only needed with task |
+| Task controller | `[TASK]TASK` set | |
+| Display | `[DISPLAY]DISPLAY` set | If not set → HAL-only wait loop |
+
+### Dependency Validation
+
+The launcher validates cross-section INI dependencies at startup and rejects contradictory
+configurations with clear error messages before starting any processes:
+
+| Configuration | Result |
+|---------------|--------|
+| No `[HAL]HALFILE` | ❌ Error: at least one `[HAL]HALFILE` required |
+| `[HAL]HALUI` without `[TASK]TASK` | ❌ Error: halui requires task controller |
+| `[EMCIO]EMCIO` or `[IO]IO` without `[TASK]TASK` | ❌ Error: iocontrol requires task controller |
+| `[TASK]TASK` without `[KINS]KINEMATICS` | ❌ Error: kinematics required |
+| `[TASK]TASK` without `[TRAJ]COORDINATES` | ❌ Error: trajectory config required |
+| `[TASK]TASK` without `[EMCMOT]SERVO_PERIOD` | ❌ Error: motion config required |
+| `[TASK]TASK` without `[RS274NGC]PARAMETER_FILE` | ❌ Error: G-code interpreter config required |
+
+### Example: Minimal HAL-only INI File
+
+```ini
+[EMC]
+MACHINE = MyHALMachine
+
+[HAL]
+HALFILE = my-hardware.hal
+HALFILE = my-logic.hal
+
+# No [TASK], no [DISPLAY], no [EMCIO]
+# → linuxcnc runs in HAL-only mode
+# → custom UI connects via HAL pins or the hal-go/Python hal API
+```
 
 ---
 
