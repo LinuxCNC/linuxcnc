@@ -92,8 +92,8 @@ func (l *Launcher) doCleanup() {
 		}
 	}
 
-	// Step 8 — Stop tracked server process.
-	l.logger.Debug("stopping server process")
+	// Step 8 — Stop in-process NML server.
+	l.logger.Debug("stopping NML server")
 	l.stopServer()
 
 	// Step 9 — Remove NML shared memory segments.

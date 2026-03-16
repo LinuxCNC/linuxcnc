@@ -23,6 +23,7 @@ import (
 	hal "linuxcnc.org/hal"
 
 	"github.com/sittner/linuxcnc/src/launcher/config"
+	"github.com/sittner/linuxcnc/src/launcher/emcsvr"
 	"github.com/sittner/linuxcnc/src/launcher/halfile"
 	"github.com/sittner/linuxcnc/src/launcher/inifile"
 	"github.com/sittner/linuxcnc/src/launcher/lockfile"
@@ -53,18 +54,17 @@ type Options struct {
 
 // Launcher orchestrates the LinuxCNC startup and shutdown sequence.
 type Launcher struct {
-	opts          Options
-	ini           *inifile.IniFile
-	logger        *slog.Logger
-	lock          *lockfile.LockFile // flock-based instance lock
-	rtMgr         *realtime.Manager  // realtime environment manager
-	cleanupOnce   sync.Once          // ensures cleanup runs exactly once
-	serverProcess *exec.Cmd          // background linuxcncsvr process
-	serverDone    chan error         // receives the result of cmd.Wait() for linuxcncsvr
-	taskProcess   *exec.Cmd          // background milltask/linuxcnctask process
-	taskDone      chan error         // receives the result of cmd.Wait() for task
-	appProcesses  []*exec.Cmd        // [APPLICATIONS]APP background processes
-	halComp       *hal.Component     // launcher's HAL component (like halcmd's hal_init)
+	opts         Options
+	ini          *inifile.IniFile
+	logger       *slog.Logger
+	lock         *lockfile.LockFile // flock-based instance lock
+	rtMgr        *realtime.Manager  // realtime environment manager
+	cleanupOnce  sync.Once          // ensures cleanup runs exactly once
+	serverDone   chan struct{}       // closed when emcsvr goroutine returns
+	taskProcess  *exec.Cmd          // background milltask/linuxcnctask process
+	taskDone     chan error         // receives the result of cmd.Wait() for task
+	appProcesses []*exec.Cmd        // [APPLICATIONS]APP background processes
+	halComp      *hal.Component     // launcher's HAL component (like halcmd's hal_init)
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -84,7 +84,7 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 //  2. Acquires the lock file.
 //  3. Parses the INI file.
 //  4. Validates cross-section INI dependencies (validateDependencies).
-//  5. Starts linuxcncsvr (NML server) — only if [TASK]TASK is configured (M5).
+//  5. Starts in-process NML server (emcsvr goroutine) — only if [TASK]TASK is configured (M5).
 //  6. Starts the realtime environment (M4).
 //  7. Starts iocontrol via halcmd loadusr -Wn — only if [TASK]TASK is configured (M5).
 //  8. Starts halui via halcmd loadusr -Wn — only if [HAL]HALUI is configured (M5).
@@ -233,14 +233,14 @@ func (l *Launcher) Run() error {
 
 	// --- M5: Process Manager ---
 
-	// Start NML server (linuxcncsvr) before realtime — only when the task
-	// controller is running.  linuxcncsvr creates the NML shared memory buffers
+	// Start in-process NML server before realtime — only when the task
+	// controller is running.  The NML server creates the shared memory buffers
 	// that realtime components depend on.  In HAL-only mode there are no NML
 	// buffers to serve.
 	// This mirrors scripts/linuxcnc.in lines 817–825.
 	if hasTask {
 		if err := l.startServer(); err != nil {
-			return fmt.Errorf("starting linuxcncsvr: %w", err)
+			return fmt.Errorf("starting NML server: %w", err)
 		}
 	}
 
@@ -351,68 +351,56 @@ func (l *Launcher) Run() error {
 	return nil
 }
 
-// startServer starts linuxcncsvr as a background subprocess.
+// startServer initializes and starts the NML server as an in-process goroutine.
 //
 // This mirrors scripts/linuxcnc.in lines 817–825:
 //
 //	export INI_FILE_NAME="$INIFILE"
 //	$EMCSERVER -ini "$INIFILE"
 //
-// After starting, a brief 100 ms window is checked for immediate failure
-// (e.g., bad INI path, port conflict).  A background goroutine calls
-// cmd.Wait() and signals serverDone so that both this check and
-// stopServer() share the single Wait() call.
+// After init, a brief 100 ms window is given to let NML channels become ready.
+// The server runs in a goroutine; serverDone is closed when it returns.
 func (l *Launcher) startServer() error {
-	serverBin := filepath.Join(config.EMC2BinDir, "linuxcncsvr")
-	l.logger.Info("starting NML server", "binary", serverBin)
-
-	cmd := exec.Command(serverBin, "-n", "-ini", l.opts.IniFile)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Pdeathsig: syscall.SIGTERM,
+	l.logger.Info("initializing NML server (in-process)")
+	if err := emcsvr.Init(l.opts.IniFile); err != nil {
+		return fmt.Errorf("emcsvr init: %w", err)
 	}
 
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("exec %s: %w", serverBin, err)
-	}
+	l.serverDone = make(chan struct{})
+	go func() {
+		defer close(l.serverDone)
+		if err := emcsvr.Run(); err != nil {
+			l.logger.Error("NML server error", "error", err)
+		}
+	}()
 
-	l.serverProcess = cmd
-	l.serverDone = make(chan error, 1)
-	go func() { l.serverDone <- cmd.Wait() }()
-
-	// Give the server a brief window to fail fast (e.g., bad INI, port conflict).
-	select {
-	case err := <-l.serverDone:
-		return fmt.Errorf("linuxcncsvr (pid %d) exited immediately: %w", cmd.Process.Pid, err)
-	case <-time.After(100 * time.Millisecond):
-		// Still running — good.
-	}
-
-	l.logger.Info("linuxcncsvr started", "pid", cmd.Process.Pid)
+	// Brief startup window to let NML channels initialize.
+	time.Sleep(100 * time.Millisecond)
+	l.logger.Info("NML server running (in-process thread)")
 	return nil
 }
 
-// stopServer terminates the linuxcncsvr background process gracefully.
+// stopServer stops the in-process NML server goroutine gracefully.
 //
-// It sends SIGTERM first and waits up to 2 seconds for a clean exit.
-// If the process has not exited by then, SIGKILL is sent.
+// It signals the server to stop and waits up to 2 seconds for it to return.
 func (l *Launcher) stopServer() {
-	if l.serverProcess == nil || l.serverProcess.Process == nil {
+	if l.serverDone == nil {
 		return
 	}
-	l.logger.Info("stopping linuxcncsvr")
-	if err := l.serverProcess.Process.Signal(syscall.SIGTERM); err != nil {
-		l.logger.Debug("SIGTERM failed (process may have already exited)", "error", err)
-	}
+	l.logger.Info("stopping NML server")
+	emcsvr.Stop()
+
+	// Wait for emcsvr_run() goroutine to finish (kill_all_servers completes)
 	select {
 	case <-l.serverDone:
-		l.logger.Debug("linuxcncsvr exited cleanly")
+		l.logger.Debug("NML server stopped")
 	case <-time.After(2 * time.Second):
-		l.logger.Warn("linuxcncsvr did not exit in time, sending SIGKILL")
-		_ = l.serverProcess.Process.Kill()
-		<-l.serverDone
+		l.logger.Warn("NML server did not stop in time")
+		<-l.serverDone // MUST wait — cannot call Cleanup() concurrently
 	}
+
+	// Now safe to delete channels — server threads are fully stopped
+	emcsvr.Cleanup()
 }
 
 // startIOControl starts the IO controller process via halcmd loadusr.
