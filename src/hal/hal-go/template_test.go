@@ -183,47 +183,55 @@ func TestNewHalTemplateData_AxesConcatenated(t *testing.T) {
 	}
 }
 
-// TestRenderHalTemplate_PassNumber verifies that .PassNumber is accessible
-// inside templates and can be used to gate pass-specific output.
-func TestRenderHalTemplate_PassNumber(t *testing.T) {
+// TestRenderHalTemplate_HasJoint verifies that hasJoint performs a range check
+// against .Joints without requiring any HAL runtime probing.
+func TestRenderHalTemplate_HasJoint(t *testing.T) {
 	data := &HalTemplateData{
-		INI:        map[string]map[string]string{},
-		PassNumber: 2,
+		INI:    map[string]map[string]string{},
+		Joints: 3,
 	}
-	input := `{{if eq .PassNumber 2}}pass2{{else}}other{{end}}`
-	out, err := RenderHalTemplate("test.hal", input, data)
-	if err != nil {
-		t.Fatal(err)
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`{{if hasJoint 0}}yes{{else}}no{{end}}`, "yes"},
+		{`{{if hasJoint 2}}yes{{else}}no{{end}}`, "yes"},
+		{`{{if hasJoint 3}}yes{{else}}no{{end}}`, "no"},
+		{`{{if hasJoint -1}}yes{{else}}no{{end}}`, "no"},
 	}
-	if out != "pass2" {
-		t.Errorf("expected 'pass2', got %q", out)
-	}
-}
-
-// TestRenderHalTemplate_PinExists verifies that pinExists is callable from
-// templates and returns false (stub behavior).
-func TestRenderHalTemplate_PinExists(t *testing.T) {
-	data := &HalTemplateData{INI: map[string]map[string]string{}}
-	input := `{{if pinExists "joint.0.posthome-cmd"}}yes{{else}}no{{end}}`
-	out, err := RenderHalTemplate("test.hal", input, data)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if out != "no" {
-		t.Errorf("pinExists stub should return false, got %q", out)
+	for _, tt := range tests {
+		out, err := RenderHalTemplate("test.hal", tt.input, data)
+		if err != nil {
+			t.Fatalf("input %q: unexpected error: %v", tt.input, err)
+		}
+		if out != tt.expected {
+			t.Errorf("input %q: expected %q, got %q", tt.input, tt.expected, out)
+		}
 	}
 }
 
-// TestRenderHalTemplate_CompExists verifies that compExists is callable from
-// templates and returns false (stub behavior).
-func TestRenderHalTemplate_CompExists(t *testing.T) {
-	data := &HalTemplateData{INI: map[string]map[string]string{}}
-	input := `{{if compExists "plasmac"}}yes{{else}}no{{end}}`
-	out, err := RenderHalTemplate("test.hal", input, data)
-	if err != nil {
-		t.Fatal(err)
+// TestRenderHalTemplate_HasAxis verifies that hasAxis checks .Axes
+// case-insensitively without requiring any HAL runtime probing.
+func TestRenderHalTemplate_HasAxis(t *testing.T) {
+	data := &HalTemplateData{
+		INI:  map[string]map[string]string{},
+		Axes: []string{"X", "Y", "Z"},
 	}
-	if out != "no" {
-		t.Errorf("compExists stub should return false, got %q", out)
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`{{if hasAxis "X"}}yes{{else}}no{{end}}`, "yes"},
+		{`{{if hasAxis "x"}}yes{{else}}no{{end}}`, "yes"},
+		{`{{if hasAxis "A"}}yes{{else}}no{{end}}`, "no"},
+	}
+	for _, tt := range tests {
+		out, err := RenderHalTemplate("test.hal", tt.input, data)
+		if err != nil {
+			t.Fatalf("input %q: unexpected error: %v", tt.input, err)
+		}
+		if out != tt.expected {
+			t.Errorf("input %q: expected %q, got %q", tt.input, tt.expected, out)
+		}
 	}
 }

@@ -11,11 +11,10 @@ import (
 
 // HalTemplateData holds the data context available to HAL file templates.
 type HalTemplateData struct {
-	INI        map[string]map[string]string
-	Axes       []string
-	Joints     int
-	Env        map[string]string
-	PassNumber int // twopass support: 1 for first pass, 2 for second pass
+	INI    map[string]map[string]string
+	Axes   []string
+	Joints int
+	Env    map[string]string
 }
 
 // NewHalTemplateData creates a HalTemplateData from an INI data map.
@@ -89,7 +88,9 @@ func convertTwoArgs(a, b any) (float64, float64, error) {
 // halTemplateFuncs returns the function map for HAL file templates.
 // The ini function is a closure over the provided INI data so that templates
 // can call {{ini "SECTION" "KEY"}} without explicitly passing .INI.
-func halTemplateFuncs(iniData map[string]map[string]string) template.FuncMap {
+// hasJoint and hasAxis are closures over the HalTemplateData for INI-derived
+// range checks that require no HAL runtime probing.
+func halTemplateFuncs(data *HalTemplateData) template.FuncMap {
 	return template.FuncMap{
 		// String operations
 		"lower":    strings.ToLower,
@@ -147,7 +148,7 @@ func halTemplateFuncs(iniData map[string]map[string]string) template.FuncMap {
 
 		// INI access — closure over the template's own INI data
 		"ini": func(section, key string) string {
-			if s, ok := iniData[section]; ok {
+			if s, ok := data.INI[section]; ok {
 				if v, ok := s[key]; ok {
 					return v
 				}
@@ -165,11 +166,21 @@ func halTemplateFuncs(iniData map[string]map[string]string) template.FuncMap {
 		},
 		"itoa": strconv.Itoa,
 
-		// HAL introspection stubs — the real HAL runtime replaces these with
-		// live implementations.  For now they always return false so that
-		// templates that use them on pass 2 compile correctly.
-		"pinExists":  func(name string) bool { return false },
-		"compExists": func(name string) bool { return false },
+		// INI-derived range checks — no HAL runtime probing needed.
+		// hasJoint returns true if joint n is within the configured range [0, .Joints).
+		"hasJoint": func(n int) bool {
+			return n >= 0 && n < data.Joints
+		},
+		// hasAxis returns true if the given letter (case-insensitive) appears in .Axes.
+		"hasAxis": func(letter string) bool {
+			upper := strings.ToUpper(letter)
+			for _, a := range data.Axes {
+				if strings.ToUpper(a) == upper {
+					return true
+				}
+			}
+			return false
+		},
 	}
 }
 
@@ -182,7 +193,7 @@ func RenderHalTemplate(name, content string, data *HalTemplateData) (string, err
 		return content, nil
 	}
 
-	tmpl, err := template.New(name).Funcs(halTemplateFuncs(data.INI)).Parse(content)
+	tmpl, err := template.New(name).Funcs(halTemplateFuncs(data)).Parse(content)
 	if err != nil {
 		return "", fmt.Errorf("template parse error in %s: %w", name, err)
 	}

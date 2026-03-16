@@ -772,6 +772,10 @@ type HalTemplateData struct {
 }
 ```
 
+Templates are expanded **once** before any `loadrt` is executed. All template
+conditionals must therefore be resolvable from INI data alone — no HAL runtime
+probing is possible or needed.
+
 ### Built-in template functions
 
 | Category    | Functions |
@@ -782,37 +786,53 @@ type HalTemplateData struct {
 | INI access  | `ini` (section, key → string) |
 | Environment | `env` (name → string) |
 | Conversion  | `atoi`, `atof`, `itoa` |
+| Range checks | `hasJoint` (n → bool), `hasAxis` (letter → bool) |
+
+#### `hasJoint(n int) bool`
+
+Returns `true` if joint `n` is within the configured range: `0 <= n < .Joints`
+(from `[KINS]JOINTS`). Use this instead of runtime `pinExists` checks on
+`joint.N.*` pins.
+
+#### `hasAxis(letter string) bool`
+
+Returns `true` if the given axis letter (case-insensitive) appears in `.Axes`
+(from `[TRAJ]COORDINATES`). Use this instead of runtime `pinExists` checks on
+axis pins.
 
 ### Example: TCL vs Go template
 
-Current TCL:
+Current TCL (`extrajoints.tcl`, uses runtime `getp` probing):
 
 ```tcl
-set axes [split [hal gets ini.traj.coordinates] ""]
-foreach axis $axes {
-    set letter [string tolower $axis]
-    loadrt pid names=pid.$letter
-    addf pid.$letter.do-pid-calcs servo-thread
-    setp pid.$letter.Pgain [hal gets ini.joint_${letter}.p]
+for {set j 0} {$j <= 15} {incr j} {
+    if [catch {getp joint.${j}.posthome-cmd} msg] { continue }
+    loadrt limit3 names=j${j}.limit3
+    addf  j${j}.limit3 servo-thread
+    ...
 }
 ```
 
-Go template equivalent:
+Go template equivalent (INI-derived range check, no runtime probing):
 
 ```
-{{range $i, $axis := .Axes}}
-{{$letter := lower $axis}}
-loadrt pid names=pid.{{$letter}}
-addf pid.{{$letter}}.do-pid-calcs servo-thread
-setp pid.{{$letter}}.Pgain {{index .INI (printf "JOINT_%s" $axis) "P"}}
-{{end}}
+{{- range $j := seq 0 16}}
+{{- if hasJoint $j}}
+loadrt limit3 names=j{{$j}}.limit3
+addf j{{$j}}.limit3 servo-thread
+setp j{{$j}}.limit3.min  {{ini (printf "JOINT_%d" $j) "MIN_LIMIT"}}
+...
+{{- end}}
+{{- end}}
 ```
+
+The template expands **once** to produce pure halcmd text. The two-pass executor
+then handles separating `loadrt` (pass 1) from `addf`/`setp`/`net` (pass 2).
 
 ### Detection
 
 If a `.hal` file contains `{{` anywhere, it is rendered through `text/template` first.
-Otherwise it is passed directly to the interpreter. `.tcl` files are still delegated
-to `haltcl` as a subprocess.
+Otherwise it is passed directly to the interpreter.
 
 ### Implementation
 
