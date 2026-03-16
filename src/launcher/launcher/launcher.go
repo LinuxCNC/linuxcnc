@@ -60,7 +60,7 @@ type Launcher struct {
 	lock         *lockfile.LockFile // flock-based instance lock
 	rtMgr        *realtime.Manager  // realtime environment manager
 	cleanupOnce  sync.Once          // ensures cleanup runs exactly once
-	serverDone   chan struct{}       // closed when emcsvr goroutine returns
+	serverDone   chan struct{}      // closed when emcsvr goroutine returns
 	taskProcess  *exec.Cmd          // background milltask/linuxcnctask process
 	taskDone     chan error         // receives the result of cmd.Wait() for task
 	appProcesses []*exec.Cmd        // [APPLICATIONS]APP background processes
@@ -86,6 +86,7 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 //  4. Validates cross-section INI dependencies (validateDependencies).
 //  5. Starts in-process NML server (emcsvr goroutine) — only if [TASK]TASK is configured (M5).
 //  6. Starts the realtime environment (M4).
+//     6.5. Loads threads HAL component (creates servo-thread, optionally base-thread).
 //  7. Starts iocontrol via halcmd loadusr -Wn — only if [TASK]TASK is configured (M5).
 //  8. Starts halui via halcmd loadusr -Wn — only if [HAL]HALUI is configured (M5).
 //  9. Preloads tpmod/homemod — only if [TASK]TASK is configured (M4).
@@ -258,6 +259,16 @@ func (l *Launcher) Run() error {
 		return fmt.Errorf("hal init: %w", err)
 	}
 	l.halComp = halComp
+
+	// Load the threads HAL component to create RT threads (servo-thread,
+	// optionally base-thread). Thread creation has been decoupled from
+	// motmod — the launcher now loads the threads component which runs
+	// inside rtapi_app with proper RT scheduling.
+	// This must happen before motmod, HAL files, or any component that
+	// uses addf to attach functions to threads.
+	if err := l.loadThreads(); err != nil {
+		return fmt.Errorf("loading threads: %w", err)
+	}
 
 	// Start iocontrol via halcmd loadusr -Wn iocontrol — only when the task
 	// controller is running.  iocontrol is a HAL userspace component that
@@ -577,6 +588,61 @@ func (l *Launcher) logConfiguration() {
 		"twopass", l.ini.Get("HAL", "TWOPASS"),
 	}
 	l.logger.Debug("INI configuration loaded", fields...)
+}
+
+// loadThreads loads the threads HAL component to create RT threads.
+//
+// Thread creation has been decoupled from motmod — motmod now only exports
+// functions, so the threads must exist before motmod or HAL files run.
+//
+// The threads component is loaded via "halcmd loadrt threads" which sends
+// the command to rtapi_app (the privileged RT process). rtapi_app dlopen()s
+// threads.so and calls hal_create_thread() inside its own process space,
+// ensuring the RT pthreads get proper RT scheduling and root privileges.
+//
+// Logic (reads [EMCMOT]SERVO_PERIOD and [EMCMOT]BASE_PERIOD from INI):
+//   - If [EMCMOT]BASE_PERIOD is set and > 0:
+//     halcmd loadrt threads name1=base-thread period1=<BASE_PERIOD> name2=servo-thread period2=<SERVO_PERIOD>
+//   - Otherwise (no BASE_PERIOD or BASE_PERIOD=0):
+//     halcmd loadrt threads name1=servo-thread period1=<SERVO_PERIOD>
+//
+// Threads are created fastest-first (base-thread before servo-thread) for
+// proper rate monotonic priority scheduling.
+func (l *Launcher) loadThreads() error {
+	servoPeriodStr := l.ini.Get("EMCMOT", "SERVO_PERIOD")
+	if servoPeriodStr == "" {
+		return fmt.Errorf("[EMCMOT]SERVO_PERIOD is required but not set")
+	}
+
+	basePeriodStr := l.ini.Get("EMCMOT", "BASE_PERIOD")
+
+	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
+
+	var args []string
+	if basePeriodStr != "" && basePeriodStr != "0" {
+		// Two threads: base-thread (fast, no FP) + servo-thread (slow, FP)
+		l.logger.Info("loading threads component",
+			"base_period", basePeriodStr, "servo_period", servoPeriodStr)
+		args = []string{"loadrt", "threads",
+			"name1=base-thread", "period1=" + basePeriodStr,
+			"name2=servo-thread", "period2=" + servoPeriodStr}
+	} else {
+		// One thread: servo-thread only
+		l.logger.Info("loading threads component",
+			"servo_period", servoPeriodStr)
+		args = []string{"loadrt", "threads",
+			"name1=servo-thread", "period1=" + servoPeriodStr}
+	}
+
+	cmd := exec.Command(halcmdPath, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{Pdeathsig: syscall.SIGTERM}
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("halcmd loadrt threads: %w", err)
+	}
+
+	return nil
 }
 
 // preloadMotionModules loads the trajectory planner and homing modules via

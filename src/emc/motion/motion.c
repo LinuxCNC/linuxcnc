@@ -142,12 +142,15 @@ static int export_spindle(int num, spindle_hal_t * addr);
 */
 static int init_comm_buffers(void);
 
-/* init_threads() creates realtime threads, exports functions to
-   do the realtime control, and adds the functions to the threads.
+/* export_functions() exports realtime functions for the motion controller.
+   Thread creation is handled externally (by the launcher loading the
+   threads component); motmod only exports its functions here. The caller
+   is responsible for adding these functions to the appropriate threads via
+   `addf` (e.g., `addf motion-command-handler servo-thread`).
 */
-static int init_threads(void);
+static int export_functions(void);
 
-/* functions called by init_threads() */
+/* functions called by export_functions() */
 static int setTrajCycleTime(double secs);
 static int setServoCycleTime(double secs);
 
@@ -384,10 +387,10 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-    /* set up for realtime execution of code */
-    retval = init_threads();
+    /* export realtime functions for the motion controller */
+    retval = export_functions();
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: init_threads() failed\n"));
+	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: export_functions() failed\n"));
 	hal_exit(mot_comp_id);
 	return -1;
     }
@@ -975,16 +978,20 @@ static int init_comm_buffers(void)
     return 0;
 }
 
-/* init_threads() creates realtime threads, exports functions to
-   do the realtime control, and adds the functions to the threads.
+/* export_functions() exports the realtime functions that implement
+   the motion controller. Thread creation is handled externally by
+   the launcher (which loads the threads component); motmod only
+   exports its functions so they can be added to threads via addf
+   (e.g., `addf motion-command-handler servo-thread` and
+   `addf motion-controller servo-thread`).
 */
-static int init_threads(void)
+static int export_functions(void)
 {
     double base_period_sec, servo_period_sec;
     int servo_base_ratio;
     int retval;
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_threads() starting...\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: export_functions() starting...\n");
 
     /* if base_period not specified, assume same as servo_period */
     if (base_period_nsec == 0) {
@@ -1006,24 +1013,6 @@ static int init_threads(void)
     servo_base_ratio = (servo_period_sec / base_period_sec) + 0.5;
     /* revise desired periods to be integer multiples of each other */
     servo_period_nsec = base_period_nsec * servo_base_ratio;
-    /* create HAL threads for each period */
-    /* only create base thread if it is faster than servo thread */
-    if (servo_base_ratio > 1) {
-	retval = hal_create_thread("base-thread", base_period_nsec, base_thread_fp);
-	if (retval < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"MOTION: failed to create %ld nsec base thread\n",
-		base_period_nsec);
-	    return -1;
-	}
-    }
-    retval = hal_create_thread("servo-thread", servo_period_nsec, 1);
-    if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to create %ld nsec servo thread\n",
-	    servo_period_nsec);
-	return -1;
-    }
     /* export realtime functions that do the real work */
     retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg
 	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
@@ -1058,7 +1047,7 @@ static int init_threads(void)
     setServoCycleTime(servo_period_nsec * 1e-9);
     setTrajCycleTime(traj_period_nsec * 1e-9);
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_threads() complete\n");
+    rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: export_functions() complete\n");
     return 0;
 }
 

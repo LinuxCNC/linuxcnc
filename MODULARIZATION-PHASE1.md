@@ -91,6 +91,10 @@ INI file has [TASK]TASK
     │
     ├── linuxcncsvr (NML server) — started before realtime
     ├── Realtime environment (rtapi_app)
+    ├── threads component (creates servo-thread, optionally base-thread)
+    ├── motmod (exports functions only, no thread creation)
+    ├── addf motion-command-handler servo-thread
+    ├── addf motion-controller servo-thread
     ├── iocontrol (only if [TASK]TASK is set)
     ├── halui (only if [HAL]HALUI is set)
     ├── tpmod / homemod (trajectory + homing modules)
@@ -111,8 +115,9 @@ When `[TASK]TASK` is **not** set, only the realtime/HAL stack is started:
 INI file has NO [TASK]TASK
     │
     ├── Realtime environment (rtapi_app)
-    ├── (no iocontrol, no tpmod/homemod, no linuxcncsvr, no task controller)
-    ├── [HAL]HALFILE entries
+    ├── threads component (creates servo-thread from [EMCMOT]SERVO_PERIOD)
+    ├── (no motmod, no iocontrol, no tpmod/homemod, no linuxcncsvr, no task)
+    ├── [HAL]HALFILE entries (load joint_ctrl, drivers, addf to servo-thread)
     ├── [HAL]HALCMD entries
     ├── retain (if retained signals exist)
     ├── HAL threads (halcmd start)
@@ -127,7 +132,9 @@ or a Go program using `hal-go`) can run alongside the launcher in HAL-only mode.
 
 | Component | Condition | Notes |
 |-----------|-----------|-------|
+| `threads` | Always (when `[EMCMOT]SERVO_PERIOD` set) | Creates RT threads; loaded by launcher before motmod |
 | `linuxcncsvr` | `[TASK]TASK` set | NML server only needed with task controller |
+| `motmod` | `[TASK]TASK` set | Only exports HAL functions, no thread creation |
 | `iocontrol` | `[TASK]TASK` set | IO communicates with task via NML |
 | `halui` | `[HAL]HALUI` set | Already conditional; `[TASK]TASK` required if set |
 | `tpmod` / `homemod` | `[TASK]TASK` set | Motion modules only needed with task |
@@ -155,12 +162,16 @@ configurations with clear error messages before starting any processes:
 [EMC]
 MACHINE = MyHALMachine
 
+[EMCMOT]
+SERVO_PERIOD = 1000000
+
 [HAL]
 HALFILE = my-hardware.hal
 HALFILE = my-logic.hal
 
 # No [TASK], no [DISPLAY], no [EMCIO]
 # → linuxcnc runs in HAL-only mode
+# → launcher creates servo-thread from [EMCMOT]SERVO_PERIOD
 # → custom UI connects via HAL pins or the hal-go/Python hal API
 ```
 
@@ -360,6 +371,43 @@ func run(iniFile string, debug bool) error {
 
 	fmt.Println("HAL initialized")
 
+	// ===== Step 4b: Create RT threads via threads component =====
+	// Load the threads component to create servo-thread (and optionally
+	// base-thread). This is done before loading motmod so that thread
+	// creation is decoupled from the motion controller.
+	if cfg.EMCMOT.ServoPeriod > 0 {
+		threadsArgs := fmt.Sprintf("name1=servo-thread period1=%d fp1=1",
+			int64(cfg.EMCMOT.ServoPeriod))
+		if cfg.EMCMOT.BasePeriod > 0 && cfg.EMCMOT.BasePeriod != cfg.EMCMOT.ServoPeriod {
+			threadsArgs = fmt.Sprintf(
+				"name1=base-thread period1=%d fp1=0 name2=servo-thread period2=%d fp2=1",
+				int64(cfg.EMCMOT.BasePeriod), int64(cfg.EMCMOT.ServoPeriod))
+		}
+		if err := rt.LoadModule("threads", threadsArgs); err != nil {
+			return fmt.Errorf("failed to create RT threads: %w", err)
+		}
+		fmt.Printf("RT threads created (servo_period=%dns)\n",
+			int64(cfg.EMCMOT.ServoPeriod))
+	}
+
+	// ===== Step 4c: Load motmod and wire functions (full CNC mode only) =====
+	// motmod no longer creates threads; it only exports motion-controller
+	// and motion-command-handler functions that must be added to servo-thread.
+	if cfg.Task.TaskBinary != "" {
+		motArgs := fmt.Sprintf("servo_period_nsec=%d num_joints=%d",
+			int64(cfg.EMCMOT.ServoPeriod), cfg.Kins.Joints)
+		if err := rt.LoadModule("motmod", motArgs); err != nil {
+			return fmt.Errorf("failed to load motmod: %w", err)
+		}
+		if err := h.ExecuteCommand("addf motion-command-handler servo-thread"); err != nil {
+			return fmt.Errorf("addf motion-command-handler failed: %w", err)
+		}
+		if err := h.ExecuteCommand("addf motion-controller servo-thread"); err != nil {
+			return fmt.Errorf("addf motion-controller failed: %w", err)
+		}
+		fmt.Println("motmod loaded and functions added to servo-thread")
+	}
+
 	// ===== Step 5: Load HAL configuration =====
 	halLoader := hal.NewLoader(h, cfg)
 	if err := halLoader.LoadFiles(cfg.HAL.Files); err != nil {
@@ -472,7 +520,8 @@ type Config struct {
 
 	// [TASK] section
 	Task struct {
-		CycleTime float64 `ini:"CYCLE_TIME"`
+		TaskBinary string  `ini:"TASK"`
+		CycleTime  float64 `ini:"CYCLE_TIME"`
 	}
 
 	// [RS274NGC] section
@@ -2183,14 +2232,18 @@ MAX_LIMIT = 0
 ```hal
 # tests/server/test.hal
 # Test HAL configuration
+#
+# Prerequisites (performed by the launcher before loading this file):
+#   loadrt threads name1=servo-thread period1=1000000 fp1=1
+#   loadrt motmod servo_period_nsec=1000000 num_joints=3
+#   addf motion-command-handler servo-thread
+#   addf motion-controller servo-thread
+#
+# This file only configures kinematics and signal connections,
+# relying on the launcher to have created threads and loaded motmod.
 
 # Load realtime components
 loadrt trivkins
-loadrt motmod servo_period_nsec=1000000 num_joints=3
-
-# Set up motion controller
-addf motion-command-handler servo-thread
-addf motion-controller servo-thread
 
 # Minimal connections for testing
 net xpos-cmd joint.0.motor-pos-cmd
