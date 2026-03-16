@@ -1436,8 +1436,10 @@ func halMalloc(size int) unsafe.Pointer {
 }
 
 // halPinBitNew wraps hal_pin_bit_new() to create a new bit (boolean) pin.
-// Returns a pointer to the HAL shared memory for the pin value.
-func halPinBitNew(name string, dir Direction, compID int) (*C.hal_bit_t, error) {
+// Returns the double-pointer (unsafe.Pointer to **hal_bit_t) so the caller
+// can dereference at access time. HAL updates *ptrPtr when the pin is linked
+// to a signal via net, so the double-pointer must be preserved.
+func halPinBitNew(name string, dir Direction, compID int) (unsafe.Pointer, error) {
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
@@ -1454,13 +1456,16 @@ func halPinBitNew(name string, dir Direction, compID int) (*C.hal_bit_t, error) 
 		return nil, halError(int(ret), "hal_pin_bit_new")
 	}
 
-	// Return the pointer to the actual pin data
-	return *ptrPtr, nil
+	// Return the double-pointer itself — the caller must dereference at access time
+	// because HAL updates *ptrPtr when the pin is linked to a signal via net.
+	return unsafe.Pointer(ptrPtr), nil
 }
 
 // halPinFloatNew wraps hal_pin_float_new() to create a new float pin.
-// Returns a pointer to the HAL shared memory for the pin value.
-func halPinFloatNew(name string, dir Direction, compID int) (*C.hal_float_t, error) {
+// Returns the double-pointer (unsafe.Pointer to **hal_float_t) so the caller
+// can dereference at access time. HAL updates *ptrPtr when the pin is linked
+// to a signal via net, so the double-pointer must be preserved.
+func halPinFloatNew(name string, dir Direction, compID int) (unsafe.Pointer, error) {
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
@@ -1477,13 +1482,16 @@ func halPinFloatNew(name string, dir Direction, compID int) (*C.hal_float_t, err
 		return nil, halError(int(ret), "hal_pin_float_new")
 	}
 
-	// Return the pointer to the actual pin data
-	return *ptrPtr, nil
+	// Return the double-pointer itself — the caller must dereference at access time
+	// because HAL updates *ptrPtr when the pin is linked to a signal via net.
+	return unsafe.Pointer(ptrPtr), nil
 }
 
 // halPinS32New wraps hal_pin_s32_new() to create a new signed 32-bit integer pin.
-// Returns a pointer to the HAL shared memory for the pin value.
-func halPinS32New(name string, dir Direction, compID int) (*C.hal_s32_t, error) {
+// Returns the double-pointer (unsafe.Pointer to **hal_s32_t) so the caller
+// can dereference at access time. HAL updates *ptrPtr when the pin is linked
+// to a signal via net, so the double-pointer must be preserved.
+func halPinS32New(name string, dir Direction, compID int) (unsafe.Pointer, error) {
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
@@ -1500,13 +1508,16 @@ func halPinS32New(name string, dir Direction, compID int) (*C.hal_s32_t, error) 
 		return nil, halError(int(ret), "hal_pin_s32_new")
 	}
 
-	// Return the pointer to the actual pin data
-	return *ptrPtr, nil
+	// Return the double-pointer itself — the caller must dereference at access time
+	// because HAL updates *ptrPtr when the pin is linked to a signal via net.
+	return unsafe.Pointer(ptrPtr), nil
 }
 
 // halPinU32New wraps hal_pin_u32_new() to create a new unsigned 32-bit integer pin.
-// Returns a pointer to the HAL shared memory for the pin value.
-func halPinU32New(name string, dir Direction, compID int) (*C.hal_u32_t, error) {
+// Returns the double-pointer (unsafe.Pointer to **hal_u32_t) so the caller
+// can dereference at access time. HAL updates *ptrPtr when the pin is linked
+// to a signal via net, so the double-pointer must be preserved.
+func halPinU32New(name string, dir Direction, compID int) (unsafe.Pointer, error) {
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
@@ -1523,8 +1534,9 @@ func halPinU32New(name string, dir Direction, compID int) (*C.hal_u32_t, error) 
 		return nil, halError(int(ret), "hal_pin_u32_new")
 	}
 
-	// Return the pointer to the actual pin data
-	return *ptrPtr, nil
+	// Return the double-pointer itself — the caller must dereference at access time
+	// because HAL updates *ptrPtr when the pin is linked to a signal via net.
+	return unsafe.Pointer(ptrPtr), nil
 }
 
 // halPinPortNew wraps hal_pin_port_new() to create a new port pin.

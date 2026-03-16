@@ -87,21 +87,13 @@ func NewPin[T PinValue](c *Component, name string, dir Direction) (*Pin[T], erro
 	var zeroValue T
 	switch any(zeroValue).(type) {
 	case bool:
-		cPtr, e := halPinBitNew(fullName, dir, c.id)
-		ptr = unsafe.Pointer(cPtr)
-		err = e
+		ptr, err = halPinBitNew(fullName, dir, c.id)
 	case float64:
-		cPtr, e := halPinFloatNew(fullName, dir, c.id)
-		ptr = unsafe.Pointer(cPtr)
-		err = e
+		ptr, err = halPinFloatNew(fullName, dir, c.id)
 	case int32:
-		cPtr, e := halPinS32New(fullName, dir, c.id)
-		ptr = unsafe.Pointer(cPtr)
-		err = e
+		ptr, err = halPinS32New(fullName, dir, c.id)
 	case uint32:
-		cPtr, e := halPinU32New(fullName, dir, c.id)
-		ptr = unsafe.Pointer(cPtr)
-		err = e
+		ptr, err = halPinU32New(fullName, dir, c.id)
 	case string:
 		ptr, err = halPinPortNew(fullName, dir, c.id)
 	default:
@@ -136,24 +128,28 @@ func (p *Pin[T]) Get() T {
 	var zeroValue T
 	switch any(zeroValue).(type) {
 	case bool:
-		// HAL bool is stored as hal_bit_t (C bool)
-		cPtr := (*C.hal_bit_t)(p.ptr)
-		val := bool(*cPtr)
+		// p.ptr is **hal_bit_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_bit_t)(p.ptr)
+		val := bool(**ptrPtr)
 		return any(val).(T)
 	case float64:
-		// HAL float is stored as hal_float_t (C double)
-		cPtr := (*C.hal_float_t)(p.ptr)
-		val := float64(*cPtr)
+		// p.ptr is **hal_float_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_float_t)(p.ptr)
+		val := float64(**ptrPtr)
 		return any(val).(T)
 	case int32:
-		// HAL S32 is stored as hal_s32_t (C int32_t)
-		cPtr := (*C.hal_s32_t)(p.ptr)
-		val := int32(*cPtr)
+		// p.ptr is **hal_s32_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_s32_t)(p.ptr)
+		val := int32(**ptrPtr)
 		return any(val).(T)
 	case uint32:
-		// HAL U32 is stored as hal_u32_t (C uint32_t)
-		cPtr := (*C.hal_u32_t)(p.ptr)
-		val := uint32(*cPtr)
+		// p.ptr is **hal_u32_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_u32_t)(p.ptr)
+		val := uint32(**ptrPtr)
 		return any(val).(T)
 	case string:
 		// String pins use HAL_PORT with 4-byte big-endian length-prefix framing.
@@ -206,21 +202,25 @@ func (p *Pin[T]) Set(value T) {
 	var zeroValue T
 	switch any(zeroValue).(type) {
 	case bool:
-		// HAL bool is stored as hal_bit_t (C bool)
-		cPtr := (*C.hal_bit_t)(p.ptr)
-		*cPtr = C.hal_bit_t(any(value).(bool))
+		// p.ptr is **hal_bit_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_bit_t)(p.ptr)
+		**ptrPtr = C.hal_bit_t(any(value).(bool))
 	case float64:
-		// HAL float is stored as hal_float_t (C double)
-		cPtr := (*C.hal_float_t)(p.ptr)
-		*cPtr = C.hal_float_t(any(value).(float64))
+		// p.ptr is **hal_float_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_float_t)(p.ptr)
+		**ptrPtr = C.hal_float_t(any(value).(float64))
 	case int32:
-		// HAL S32 is stored as hal_s32_t (C int32_t)
-		cPtr := (*C.hal_s32_t)(p.ptr)
-		*cPtr = C.hal_s32_t(any(value).(int32))
+		// p.ptr is **hal_s32_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_s32_t)(p.ptr)
+		**ptrPtr = C.hal_s32_t(any(value).(int32))
 	case uint32:
-		// HAL U32 is stored as hal_u32_t (C uint32_t)
-		cPtr := (*C.hal_u32_t)(p.ptr)
-		*cPtr = C.hal_u32_t(any(value).(uint32))
+		// p.ptr is **hal_u32_t; dereference at access time so HAL's updated
+		// pointer (set when pin is linked via net) is always followed.
+		ptrPtr := (**C.hal_u32_t)(p.ptr)
+		**ptrPtr = C.hal_u32_t(any(value).(uint32))
 	case string:
 		// String pins use HAL_PORT with 4-byte big-endian length-prefix framing.
 		// Clear first for "latest value" semantics, then write the framed message.
