@@ -1,4 +1,3 @@
-
 //
 //    Copyright (C) 2007-2008 Sebastian Kuzminsky
 //
@@ -36,29 +35,53 @@
 #include "hostmot2-lowlevel.h"
 #include "hm2_test.h"
 
+#include "test_pattern15.h" // Output from tests/hm-modbus/dump_config.sh for a particular configuration.
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sebastian Kuzminsky");
 MODULE_DESCRIPTION("Test pattern for the hostmot2 driver, does not talk to any hardware");
 
-
 static char *config[HM2_TEST_MAX_BOARDS];
 RTAPI_MP_ARRAY_STRING(config, HM2_TEST_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
-
-int test_pattern = 0;
+int test_pattern = 0;  // This value is controlled by the test script.
 RTAPI_MP_INT(test_pattern, "The test pattern to show to the hostmot2 driver.");
 
+static hm2_test_t *board[1];  // Set up for one board. Should this be dimensioned HM2_TEST_MAX_BOARDS???
+static int comp_id;         // HAL component id.
 
-static int comp_id;
+// 
+// these are the "low-level I/O" functions exported up
+//
 
-static hm2_test_t board[1];
+/*
+    This function will return values read from the shared memory buffer representing hostmot2 variables.
+*/
+static int hm2_test_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+    hm2_test_t *me = this->private;
+    if ((addr + size) < sizeof(me->test_pattern)) {
+        (void)memcpy(buffer, &me->test_pattern.tp8[addr], size);
+        return 1;  // success
+    }else {
+        LL_ERR("read outside shared memory buffer.\n");
+        return -1; // failure.
+    }
+}
 
+static int hm2_test_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
+    return 1;  // success
+}
 
-
+static int hm2_test_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) { return 0; }
+static int hm2_test_reset(hm2_lowlevel_io_t *this) { return 0;}
+//static int hm2_test_queue_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) { return 0;}
+//static int hm2_test_send_queued_reads(hm2_lowlevel_io_t *this) { return 0;}
+//static int hm2_test_receive_queued_reads(hm2_lowlevel_io_t *this) { return 0;}
+//static int hm2_test_queue_write(hm2_lowlevel_io_t *self, rtapi_u32 addr, const void *buffer, int size) { return 0;}
+//static int hm2_test_send_queued_writes(hm2_lowlevel_io_t *self) { return 0;}
 
 //
-// Functions for initializing the register file on the pretend hm2 board.
+// Functions for initializing the register file (shared memory) on the pretend hm2 board.
 //
 
 static void set8(hm2_test_t *me, uint16_t addr, uint8_t val) {
@@ -68,51 +91,41 @@ static void set8(hm2_test_t *me, uint16_t addr, uint8_t val) {
 static void set32(hm2_test_t *me, uint16_t addr, uint32_t val) {
     me->test_pattern.tp32[addr/4] = val;
 }
-
-
-// 
-// these are the "low-level I/O" functions exported up
-//
-
-
-static int hm2_test_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
-    hm2_test_t *me = this->private;
-    memcpy(buffer, &me->test_pattern.tp8[addr], size);
-    return 1;  // success
+/*
+    Simple helper function to reduce codesize and clutter.
+*/
+static void set_cookie_motname(hm2_test_t *me) {
+    set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+    set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+    set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+    set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+    set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+    set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+    set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+    set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+    set8(me, HM2_ADDR_CONFIGNAME+7, '2');
 }
-
-
-static int hm2_test_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
-    return 1;  // success
-}
-
-
-static int hm2_test_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
-    return 0;
-}
-
-
-static int hm2_test_reset(hm2_lowlevel_io_t *this) {
-    return 0;
-}
-
-
-
 
 int rtapi_app_main(void) {
-    hm2_test_t *me;
-    hm2_lowlevel_io_t *this;
+    hm2_test_t *me = NULL;
+
     int r = 0;
 
-    LL_ERR("loading HostMot2 test driver with test pattern %d\n", test_pattern);
+    LL_ERR("loading HostMot2 test driver with test pattern %d.\n", test_pattern);
 
     comp_id = hal_init(HM2_LLIO_NAME);
     if (comp_id < 0) return comp_id;
+    //static hm2_test_t board[1];  // Set up memory for one board.
+    //me = &board[0];
+    me = hal_malloc(sizeof(hm2_test_t));    // Allocate memory which can be shared with user component.
+    if (NULL == me) {
+        LL_PRINT("hal_malloc failed.\n");
+        return(-1);
+    }
 
-    me = &board[0];
-
-    this = &me->llio;
-    memset(this, 0, sizeof(hm2_lowlevel_io_t));
+    (void)memset(me, 0, sizeof(hm2_test_t)); // Zero all the hm2_test_t memory.
+    hm2_lowlevel_io_t *this = &me->llio;    // I don't understand why "this"
+    board[0] = me;
 
     me->llio.num_ioport_connectors = 1;
     me->llio.pins_per_connector = 24;
@@ -145,15 +158,7 @@ int rtapi_app_main(void) {
         // 
 
         case 2: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             break;
         }
 
@@ -164,15 +169,7 @@ int rtapi_app_main(void) {
         // 
 
         case 3: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
 
             // put the IDROM at 0x400, where it usually lives
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400);
@@ -191,15 +188,7 @@ int rtapi_app_main(void) {
         // 
 
         case 4: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
             break;
@@ -213,15 +202,7 @@ int rtapi_app_main(void) {
         // 
 
         case 5: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -239,15 +220,7 @@ int rtapi_app_main(void) {
         // 
 
         case 6: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -265,15 +238,7 @@ int rtapi_app_main(void) {
         // 
 
         case 7: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -297,15 +262,7 @@ int rtapi_app_main(void) {
         // 
 
         case 8: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
             set32(me, 0x424, 24); // PortWidth = 24
@@ -328,15 +285,7 @@ int rtapi_app_main(void) {
         // 
 
         case 9: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
             set32(me, 0x424, 24); // PortWidth = 24
@@ -360,15 +309,7 @@ int rtapi_app_main(void) {
         // 
 
         case 10: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
             set32(me, 0x41c, 1);  // IOPorts = 1
@@ -395,15 +336,7 @@ int rtapi_app_main(void) {
         //
 
         case 11: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -452,15 +385,7 @@ int rtapi_app_main(void) {
             int num_io_pins = 24;
             int pd_index;
 
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -502,15 +427,7 @@ int rtapi_app_main(void) {
 
         // this board has a non-standard (ie, non-24) number of pins per connector, but the idrom does not match that
         case 13: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -531,15 +448,7 @@ int rtapi_app_main(void) {
         // 
 
         case 14: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
-            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
-            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
-            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
-            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set_cookie_motname(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -549,13 +458,105 @@ int rtapi_app_main(void) {
 
             break;
         }
+        /*
+            7i96 configuration, enough to load pktUart driver. 
+            Use script based on 
+                mesaflash  --addr 10.10.10.10 --device 7i96 --rpo 0x0100 
+            to find the memory values.         
+        */
+        case 15: {
+            LL_PRINT("test pattern %d, llio and pattern copy\n", test_pattern); 
+            static const char *hm2_7i96_pin_names[] = {
+                "TB3-01",
+                "TB3-02",
+                "TB3-03",
+                "TB3-04",
+                "TB3-05",
+                "TB3-06",
+                "TB3-07",
+                "TB3-08",
+                "TB3-09",
+                "TB3-10",
+                "TB3-11",
+                "TB3-13/TB3-14",
+                "TB3-15/TB3-16",
+                "TB3-17/TB3-18",
+                "TB3-19/TB3-20",
+                "TB3-21/TB3-22",
+                "TB3-23/TB3-24",
 
-        default: {
-            LL_ERR("unknown test pattern %d", test_pattern); 
-            return -ENODEV;
+                "TB1-02/TB1-03",
+                "TB1-04/TB1-05",
+                "TB1-08/TB1-09",
+                "TB1-10/TB1-11",
+                "TB1-14/TB1-15",
+                "TB1-16/TB1-17",
+                "TB1-20/TB1-21",
+                "TB1-22-TB1-23",
+
+                "TB2-02/TB2-03",
+                "TB2-04/TB2-05",
+                "TB2-07/TB2-08",
+                "TB2-10/TB2-11",
+                "TB2-13/TB2-14",
+                "TB2-16/TB2-17",
+                "TB2-18/TB2-19",
+
+                "internal",  /* SSerial TXEN */
+                "internal",  /* SSR AC Reference pin */
+
+                "P1-01/DB25-01", /* P1 parallel expansion */
+                "P1-02/DB25-14",
+                "P1-03/DB25-02",
+                "P1-04/DB25-15",
+                "P1-05/DB25-03",
+                "P1-06/DB25-16",
+                "P1-07/DB25-04",
+                "P1-08/DB25-17",
+                "P1-09/DB25-05",
+                "P1-11/DB25-06",
+                "P1-13/DB25-07",
+                "P1-15/DB25-08",
+                "P1-17/DB25-09",
+                "P1-19/DB25-10",
+                "P1-21/DB25-11",
+                "P1-23/DB25-12",
+                "P1-25/DB25-13",
+            };
+
+            /*
+                low level needs setup per board.
+                Copy this block from hm2_eth.c for your configuration.
+            */
+            //memcpy(llio_name, "7i96", 4);
+            me->llio.num_ioport_connectors = 3;
+            me->llio.pins_per_connector = 17;
+            me->llio.io_connector_pin_names = (char**)hm2_7i96_pin_names;
+
+            me->llio.ioport_connector_name[0] = "P1";    // DB25, 17 pins used, IO 34 to IO 50
+            me->llio.ioport_connector_name[1] = "TB1";   // terminal block, 8 pins used, Step & Dir 0-3
+            me->llio.ioport_connector_name[2] = "TB2";   // terminal block, 7 pins used, Step & Dir 4, Enc A, B, Z, serial Rx/Tx            
+            me->llio.ioport_connector_name[3] = "TB3";   // terminal block, 11 inputs, 6 SSR outputs
+
+            me->llio.fpga_part_number = "6slx9tqg144";
+            me->llio.num_leds = 4;
+
+            /*
+                Fill memory based on file.
+            */
+#if (1)
+            size_t pattern_size = (sizeof(me->test_pattern) > sizeof(config_memory_dump)) ? sizeof(config_memory_dump) : sizeof(me->test_pattern);
+            (void)memcpy(me->test_pattern.tp8, config_memory_dump, pattern_size);
+#else
+    LL_PRINT("shared memory method for filling test-pattern.\n");
+#endif
+            break;
         }
-    }
 
+        default: 
+            LL_ERR("unknown test pattern %d\n", test_pattern); 
+            return -ENODEV;        
+    }
 
     rtapi_snprintf(me->llio.name, sizeof(me->llio.name), "hm2_test.0");
 
@@ -572,7 +573,7 @@ int rtapi_app_main(void) {
     me->llio.read = hm2_test_read;
     me->llio.write = hm2_test_write;
 
-    r = hm2_register(&board->llio, config[0]);
+    r = hm2_register(&me->llio, config[0]);
     if (r != 0) {
         THIS_ERR("hm2_test fails HM2 registration\n");
         return -EIO;
@@ -584,13 +585,11 @@ int rtapi_app_main(void) {
     return 0;
 }
 
-
 void rtapi_app_exit(void) {
-    hm2_test_t *me = &board[0];
+    hm2_test_t *me = board[0];
 
     hm2_unregister(&me->llio);
 
     LL_PRINT("driver unloaded\n");
     hal_exit(comp_id);
 }
-
