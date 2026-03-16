@@ -32,8 +32,7 @@ LAUNCHER_LDFLAGS := \
 # .PHONY ensures make always invokes go build; Go's own build cache
 # handles fine-grained dependency tracking and skips recompilation
 # when sources are unchanged.
-.PHONY: ../bin/linuxcnc-launcher
-../bin/linuxcnc-launcher:
+../bin/linuxcnc-launcher: ../lib/liblinuxcnchal.so
 	$(ECHO) Building Go launcher
 	$(Q)cd launcher && $(GO) build -ldflags "$(LAUNCHER_LDFLAGS)" -o $(TOP)/bin/linuxcnc-launcher .
 
