@@ -93,9 +93,15 @@ static void set32(hm2_test_t *me, uint16_t addr, uint32_t val) {
 }
 /*
     Simple helper function to reduce codesize and clutter.
+    As level increases more valid fields are initialized.
 */
-static void set_cookie_motname(hm2_test_t *me) {
-    set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+static void set_pattern(hm2_test_t *me, unsigned level) {
+    
+    if (0 == level) return; // Nothing to do.
+    
+    set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE); // Valid cookie.
+    if (1 == level) return;
+
     set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
     set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
     set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
@@ -103,7 +109,23 @@ static void set_cookie_motname(hm2_test_t *me) {
     set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
     set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
     set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
-    set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+    set8(me, HM2_ADDR_CONFIGNAME+7, '2');   // Good HOSTMOT2 name.
+    if (2 == level) return;
+        
+    set32(me, HM2_ADDR_IDROM_OFFSET, 0x400);    // put the IDROM at 0x400, where it usually lives.
+    if (3 == level) return;
+
+    set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+    set32(me, 0x400, 2); // standard idrom type
+    if (level < 5) return;
+
+    set32(me, 0x424, 24);               // good PortWidth
+    if (6 == level) return;
+    
+    set32(me, 0x41c, 1);    // IOPorts = 1
+    set32(me, 0x420, 99);   // IOWidth = 99 (!= IOPorts * PortWidth)
+    if (7 == level) return;
+
 }
 
 int rtapi_app_main(void) {
@@ -133,127 +155,38 @@ int rtapi_app_main(void) {
 
     switch (test_pattern) {
 
-        // 
-        // this one has nothing
-        // 
-
-        case 0: {
+        case 0: // No values initialized.
+        case 1: // Just the cookie.
+        case 2: // and the config name.        
+        case 4: // and the IDROM offset is the usual, 0x400, and there's a good IDROM type there
+        case 6: // and good PortWidth
+        case 7: // and good IOPorts
+        {
+            set_pattern(me, test_pattern);
             break;
         }
-
-
-        // 
-        // this one has a good IO Cookie, but that's it
-        // 
-
-        case 1: {
-            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
-            break;
-        }
-
-
-        // 
-        // this one has a good IO Cookie and Config Name
-        // the idrom offset is 0, and there's nothing there
-        // 
-
-        case 2: {
-            set_cookie_motname(me);
-            break;
-        }
-
-
         // 
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's an invalid IDROM type there
         // 
 
         case 3: {
-            set_cookie_motname(me);
-
-            // put the IDROM at 0x400, where it usually lives
-            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400);
-
-            // bad idrom type
-            set32(me, 0x400, 0x1234);
-
+            set_pattern(me, test_pattern);
+            set32(me, 0x400, 0x1234);   // bad idrom type
             break;
         }
-
-
-        // 
-        // good IO Cookie, Config Name, and IDROM Type
-        // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
-        // but the portwidth is 0
-        // 
-
-        case 4: {
-            set_cookie_motname(me);
-            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
-            set32(me, 0x400, 2); // standard idrom type
-            break;
-        }
-
 
         // 
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // but the portwidth is 29 which is bogus
         // 
-
         case 5: {
-            set_cookie_motname(me);
-            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
-            set32(me, 0x400, 2); // standard idrom type
-
+            set_pattern(me, test_pattern);
             // bad PortWidth
             set32(me, 0x424, 29);
-
             break;
         }
-
-
-        // 
-        // good IO Cookie, Config Name, and IDROM Type
-        // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
-        // good PortWidth
-        // 
-
-        case 6: {
-            set_cookie_motname(me);
-            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
-            set32(me, 0x400, 2); // standard idrom type
-
-            // good PortWidth
-            set32(me, 0x424, 24);
-
-            break;
-        }
-
-
-        // 
-        // good IO Cookie, Config Name, and IDROM Type
-        // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
-        // good PortWidth, but problematic IOPorts and IOWidth
-        // 
-
-        case 7: {
-            set_cookie_motname(me);
-            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
-            set32(me, 0x400, 2); // standard idrom type
-
-            // good PortWidth = 24, which is standard
-            set32(me, 0x424, 24);
-
-            // IOPorts = 1
-            set32(me, 0x41c, 1);
-
-            // IOWidth = 99 (!= IOPorts * PortWidth)
-            set32(me, 0x420, 99);
-
-            break;
-        }
-
 
         // 
         // good IO Cookie, Config Name, and IDROM Type
@@ -262,7 +195,7 @@ int rtapi_app_main(void) {
         // 
 
         case 8: {
-            set_cookie_motname(me);
+            set_pattern(me, test_pattern);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
             set32(me, 0x424, 24); // PortWidth = 24
@@ -276,7 +209,6 @@ int rtapi_app_main(void) {
             break;
         }
 
-
         // 
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
@@ -285,10 +217,7 @@ int rtapi_app_main(void) {
         // 
 
         case 9: {
-            set_cookie_motname(me);
-            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
-            set32(me, 0x400, 2); // standard idrom type
-            set32(me, 0x424, 24); // PortWidth = 24
+            set_pattern(me, test_pattern);
 
             // IOWidth = (IOPorts * PortWidth)
             set32(me, 0x41c, 1);
@@ -309,7 +238,7 @@ int rtapi_app_main(void) {
         // 
 
         case 10: {
-            set_cookie_motname(me);
+            set_pattern(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
             set32(me, 0x41c, 1);  // IOPorts = 1
@@ -336,7 +265,7 @@ int rtapi_app_main(void) {
         //
 
         case 11: {
-            set_cookie_motname(me);
+            set_pattern(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -385,7 +314,7 @@ int rtapi_app_main(void) {
             int num_io_pins = 24;
             int pd_index;
 
-            set_cookie_motname(me);
+            set_pattern(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -427,7 +356,7 @@ int rtapi_app_main(void) {
 
         // this board has a non-standard (ie, non-24) number of pins per connector, but the idrom does not match that
         case 13: {
-            set_cookie_motname(me);
+            set_pattern(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
@@ -448,7 +377,7 @@ int rtapi_app_main(void) {
         // 
 
         case 14: {
-            set_cookie_motname(me);
+            set_pattern(me);
             set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
             set32(me, 0x400, 2); // standard idrom type
 
