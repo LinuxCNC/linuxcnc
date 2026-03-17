@@ -489,62 +489,13 @@ func (l *Launcher) setConfigEnv() {
 	}
 }
 
-// setupEnvironment configures process environment variables to match what
-// the bash linuxcnc.in script sets before launching components.
+// setupEnvironment configures process environment variables that are not
+// provided by rip-environment (for RIP builds), system packages (for installed
+// builds), or the linuxcnc wrapper script.
 func (l *Launcher) setupEnvironment() {
 	setIfEmpty := func(key, val string) {
 		if os.Getenv(key) == "" {
 			os.Setenv(key, val)
-		}
-	}
-	prependPath := func(key, dir string) {
-		cur := os.Getenv(key)
-		if cur == "" {
-			os.Setenv(key, dir)
-		} else {
-			os.Setenv(key, dir+":"+cur)
-		}
-	}
-
-	// PATH – add bin dir and (for RIP) scripts dir.
-	if config.EMC2BinDir != "" {
-		prependPath("PATH", config.EMC2BinDir)
-	}
-	if config.RunInPlace == "yes" && config.EMC2Home != "" {
-		scriptsDir := filepath.Join(config.EMC2Home, "scripts")
-		if info, err := os.Stat(scriptsDir); err == nil && info.IsDir() {
-			prependPath("PATH", scriptsDir)
-		}
-	}
-
-	// HOME/.local/bin
-	if home := os.Getenv("HOME"); home != "" {
-		localBin := filepath.Join(home, ".local", "bin")
-		if info, err := os.Stat(localBin); err == nil && info.IsDir() {
-			if !strings.Contains(os.Getenv("PATH"), ".local/bin") {
-				prependPath("PATH", localBin)
-			}
-		}
-	}
-
-	// LD_LIBRARY_PATH (RIP only).
-	if config.RunInPlace == "yes" && config.EMC2Home != "" {
-		prependPath("LD_LIBRARY_PATH", filepath.Join(config.EMC2Home, "lib"))
-	}
-
-	// PYTHONPATH.
-	if config.EMC2Home != "" {
-		prependPath("PYTHONPATH", filepath.Join(config.EMC2Home, "lib", "python"))
-	}
-
-	// TCLLIBPATH (space-separated).
-	if config.EMC2Home != "" {
-		tclDir := filepath.Join(config.EMC2Home, "tcl")
-		cur := os.Getenv("TCLLIBPATH")
-		if cur == "" {
-			os.Setenv("TCLLIBPATH", tclDir)
-		} else {
-			os.Setenv("TCLLIBPATH", tclDir+" "+cur)
 		}
 	}
 
@@ -567,13 +518,6 @@ func (l *Launcher) setupEnvironment() {
 
 	// LINUXCNC_HOME.
 	setIfEmpty("LINUXCNC_HOME", config.EMC2Home)
-
-	// Force GLX/X11 backends (matching linuxcnc.in behaviour).
-	if plat := os.Getenv("LINUXCNC_OPENGL_PLATFORM"); plat == "" || plat == "glx" {
-		setIfEmpty("PYOPENGL_PLATFORM", "x11")
-		setIfEmpty("GDK_BACKEND", "x11")
-		setIfEmpty("QT_QPA_PLATFORM", "xcb")
-	}
 }
 
 // logConfiguration logs key INI settings at debug level.
