@@ -79,6 +79,8 @@ func halUnlinkP(_ string) error               { return errNoCGO }
 func halAddF(_, _ string, _ int) error        { return errNoCGO }
 func halDelF(_, _ string) error               { return errNoCGO }
 func halSetLock(_ int) error                  { return errNoCGO }
+func halAlias(_, _, _ string) error            { return errNoCGO }
+func halUnAlias(_, _ string) error             { return errNoCGO }
 func halLoadRT(_ string, _ []string) error    { return errNoCGO }
 func halUnloadRT(_ string) error              { return errNoCGO }
 func halUnloadUSR(_ string) error             { return errNoCGO }

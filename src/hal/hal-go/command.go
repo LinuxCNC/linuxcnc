@@ -231,6 +231,22 @@ func WaitUSR(comp string) error {
 	return halWaitUSR(comp, 0)
 }
 
+// ===== Alias commands =====
+
+// Alias creates an alternate name for a HAL pin or parameter.
+// kind is "pin" or "param", name is the real name, alias is the alternate name.
+// Equivalent to "halcmd alias <kind> <name> <alias>".
+func Alias(kind, name, alias string) error {
+	return halAlias(kind, name, alias)
+}
+
+// UnAlias removes an alias from a HAL pin or parameter.
+// kind is "pin" or "param", name is the real or aliased name.
+// Equivalent to "halcmd unalias <kind> <name>".
+func UnAlias(kind, name string) error {
+	return halUnAlias(kind, name)
+}
+
 // ===== Lock/unlock =====
 
 // parseLockLevel maps a string level name to the HAL lock bitmask.
