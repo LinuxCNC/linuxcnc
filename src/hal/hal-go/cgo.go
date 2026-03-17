@@ -1791,6 +1791,32 @@ func halParamAlias(paramName, alias string) error {
 	return halError(int(ret), "hal_shim_param_alias")
 }
 
+// halAlias creates an alias for a pin or parameter.
+// kind must be "pin" or "param".
+func halAlias(kind, name, alias string) error {
+	switch kind {
+	case "pin":
+		return halPinAlias(name, alias)
+	case "param":
+		return halParamAlias(name, alias)
+	default:
+		return fmt.Errorf("alias: unknown kind %q: must be \"pin\" or \"param\"", kind)
+	}
+}
+
+// halUnAlias removes an alias from a pin or parameter.
+// kind must be "pin" or "param".
+func halUnAlias(kind, name string) error {
+	switch kind {
+	case "pin":
+		return halPinAlias(name, "")
+	case "param":
+		return halParamAlias(name, "")
+	default:
+		return fmt.Errorf("unalias: unknown kind %q: must be \"pin\" or \"param\"", kind)
+	}
+}
+
 // ===== Go wrappers for 1b shmem access shims =====
 
 // halSetP wraps hal_shim_setp() to set a pin or parameter value by name.
