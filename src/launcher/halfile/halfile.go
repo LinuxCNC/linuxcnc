@@ -97,6 +97,14 @@ func (e *Executor) iniLookup() hal.INILookup {
 	return &iniLookupAdapter{ini: e.ini}
 }
 
+// IniLookup returns a hal.INILookup adapter for the INI file associated with
+// this Executor. Returns nil when no INI file is set.
+// This is the public accessor used by callers (e.g. cleanup.go) that need to
+// pass an INILookup to hal.NewSingleFileParser directly.
+func (e *Executor) IniLookup() hal.INILookup {
+	return e.iniLookup()
+}
+
 // ExecuteAll reads all [HAL]HALFILE entries from the INI file and executes
 // them in order using the hal-go native Go parser and executor.
 //
@@ -190,4 +198,82 @@ func (e *Executor) ExecuteHalCommands() error {
 	}
 
 	return nil
+}
+
+// ExecuteShutdown reads the [HAL]SHUTDOWN entry from the INI file and executes
+// it via the native Go HAL file parser. This is the Go-native replacement for
+// the "halcmd -f $SHUTDOWN" shell-out in the bash launcher.
+//
+// This mirrors scripts/linuxcnc.in lines 697–701:
+//
+//	SHUTDOWN=`$INIVAR -ini "$INIFILE" -var SHUTDOWN -sec HAL 2> /dev/null`
+//	if [ -n "$SHUTDOWN" ]; then
+//	    $HALCMD -f $SHUTDOWN
+//	fi
+func (e *Executor) ExecuteShutdown() error {
+	if e.ini == nil {
+		return nil
+	}
+	shutdown := e.ini.Get("HAL", "SHUTDOWN")
+	if shutdown == "" {
+		return nil
+	}
+	resolved, err := e.resolvePath(shutdown)
+	if err != nil {
+		return fmt.Errorf("resolving HAL shutdown script %q: %w", shutdown, err)
+	}
+	e.logger.Info("running HAL shutdown script", "script", resolved)
+	sp := hal.NewSingleFileParser(e.iniLookup(), e)
+	result, err := sp.Parse(resolved)
+	if err != nil {
+		return fmt.Errorf("parsing HAL shutdown script %q: %w", resolved, err)
+	}
+	return result.Execute()
+}
+
+// ExecutePostGUI reads [HAL]POSTGUI_HALFILE entries from the INI file and
+// executes them via the native Go HAL file parser.
+//
+// POSTGUI_HALFILE files are typically executed after the GUI has created its
+// HAL pins. GUIs that manage this themselves (AXIS, QtVCP, gmoccapy, etc.)
+// do not need to call this method. It is provided for configurations that
+// delegate post-GUI HAL setup to the launcher.
+//
+// This method does NOT run as part of the normal ExecuteAll() startup path.
+// Call it explicitly after the display is ready.
+func (e *Executor) ExecutePostGUI() error {
+	if e.ini == nil {
+		return nil
+	}
+
+	var paths []string
+	for _, entry := range e.ini.GetSection("HAL") {
+		if entry.Key != "POSTGUI_HALFILE" {
+			continue
+		}
+		fields := strings.Fields(entry.Value)
+		if len(fields) == 0 {
+			continue
+		}
+		resolved, err := e.resolvePath(fields[0])
+		if err != nil {
+			return fmt.Errorf("resolving POSTGUI_HALFILE %q: %w", fields[0], err)
+		}
+		if strings.HasSuffix(strings.ToLower(resolved), ".tcl") {
+			return fmt.Errorf("POSTGUI_HALFILE %q: TCL HAL files (.tcl) are not supported", resolved)
+		}
+		e.logger.Info("loading POSTGUI_HALFILE", "path", resolved)
+		paths = append(paths, resolved)
+	}
+
+	if len(paths) == 0 {
+		return nil
+	}
+
+	mp := hal.NewMultiFileParser(e.iniLookup(), e)
+	result, err := mp.Parse(paths)
+	if err != nil {
+		return fmt.Errorf("parsing POSTGUI_HALFILE: %w", err)
+	}
+	return result.Execute()
 }

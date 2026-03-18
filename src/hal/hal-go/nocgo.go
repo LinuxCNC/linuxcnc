@@ -90,11 +90,12 @@ func halLoadUSR(_ int, _ string, _ int, _ string, _ []string) error {
 	return errNoCGO
 }
 
-func halListPins(_ string) ([]string, error)   { return nil, errNoCGO }
-func halListSigs(_ string) ([]string, error)   { return nil, errNoCGO }
-func halListParams(_ string) ([]string, error) { return nil, errNoCGO }
-func halListFuncts(_ string) ([]string, error) { return nil, errNoCGO }
-func halListThreads(_ string) ([]string, error) { return nil, errNoCGO }
+func halListPins(_ string) ([]string, error)         { return nil, errNoCGO }
+func halListSigs(_ string) ([]string, error)         { return nil, errNoCGO }
+func halListRetainSigs(_ string) ([]string, error)   { return nil, errNoCGO }
+func halListParams(_ string) ([]string, error)       { return nil, errNoCGO }
+func halListFuncts(_ string) ([]string, error)       { return nil, errNoCGO }
+func halListThreads(_ string) ([]string, error)      { return nil, errNoCGO }
 
 func halShowComps(_ string) ([]CompInfo, error)    { return nil, errNoCGO }
 func halShowPins(_ string) ([]PinInfo, error)      { return nil, errNoCGO }

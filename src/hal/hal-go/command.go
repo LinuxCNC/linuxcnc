@@ -104,11 +104,14 @@ func removeArrows(pins []string) []string {
 
 // Net connects one or more pins to a signal, creating the signal if needed.
 // Arrow tokens (=>, <=, <=>) are automatically stripped.
+// If no pins remain after filtering, Net returns nil (matching halcmd behaviour
+// which allows "net signame" with no pins to check/display a signal's status).
 // Equivalent to "halcmd net <signame> [pins...]".
 func Net(signame string, pins ...string) error {
 	filtered := removeArrows(pins)
 	if len(filtered) == 0 {
-		return fmt.Errorf("net: no pins specified for signal %q", signame)
+		// No pins specified — no-op, matching halcmd which allows this.
+		return nil
 	}
 	return halNet(signame, filtered)
 }
@@ -283,16 +286,17 @@ func Lock(level string) error {
 }
 
 // Unlock sets the HAL lock level to allow previously restricted commands.
-// Call Unlock("none") to fully unlock (allow all commands).
-// The level argument specifies the new lock level, same as Lock —
-// lower levels mean less restriction (e.g., "none" < "tune" < "all").
+// The level argument names the bits to clear: "unlock all" removes all lock
+// bits (resulting in LockNone=0), "unlock tune" removes the tune bits, etc.
+// This mirrors the halcmd semantics: unlock sets the lock mask to the
+// complement of the named level (LockAll &^ lvl).
 // Equivalent to "halcmd unlock <level>".
 func Unlock(level string) error {
 	lvl, err := parseLockLevel(level)
 	if err != nil {
 		return err
 	}
-	return halSetLock(lvl)
+	return halSetLock(int(LockAll) &^ lvl)
 }
 
 // ===== Query commands =====
@@ -318,6 +322,8 @@ func List(halType string, patterns ...string) ([]string, error) {
 		listFn = halListFuncts
 	case "thread":
 		listFn = halListThreads
+	case "retain":
+		listFn = halListRetainSigs
 	case "comp":
 		listFn = func(pat string) ([]string, error) {
 			all, err := halListComponents()
@@ -339,7 +345,7 @@ func List(halType string, patterns ...string) ([]string, error) {
 			return filtered, nil
 		}
 	default:
-		return nil, fmt.Errorf("list: unknown type %q: valid types are pin, sig, param, funct, thread, comp", halType)
+		return nil, fmt.Errorf("list: unknown type %q: valid types are pin, sig, param, funct, thread, comp, retain", halType)
 	}
 
 	// Collect results for all patterns, deduplicating by name.

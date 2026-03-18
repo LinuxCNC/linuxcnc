@@ -66,7 +66,10 @@ func executeToken(tok Token) error {
 	case *LockToken:
 		err = halSetLock(int(d.Level))
 	case *UnlockToken:
-		err = halSetLock(int(d.Level))
+		// unlock semantics: clear the specified lock bits.
+		// e.g. "unlock all" (level=255) → set lock to 0 (LockNone)
+		// e.g. "unlock tune" (level=3)  → set lock to LockAll &^ 3
+		err = halSetLock(int(LockAll) &^ int(d.Level))
 	case *UnloadRTToken:
 		err = UnloadRT(d.Comp)
 	case *UnloadUSRToken:

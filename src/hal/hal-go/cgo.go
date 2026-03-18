@@ -779,6 +779,40 @@ static int hal_shim_list_sigs(const char *pattern, char *buf, int buf_size) {
     return count;
 }
 
+// hal_shim_list_retain_sigs lists signal names that have the HAL_SIGFLAG_RETAIN
+// flag set and whose name matches pattern (NULL or empty string matches all).
+// This mirrors halcmd's do_list_cmd "retain" special case.
+static int hal_shim_list_retain_sigs(const char *pattern, char *buf, int buf_size) {
+    hal_sig_t *sig;
+    int next;
+    int count = 0;
+    int pos = 0;
+    int name_len;
+
+    if (hal_data == NULL) return -EINVAL;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->sig_list_ptr;
+    while (next != 0) {
+        sig = (hal_sig_t *)SHMPTR(next);
+        if ((sig->flags & HAL_SIGFLAG_RETAIN) &&
+            (pattern == NULL || *pattern == '\0' ||
+             fnmatch(pattern, sig->name, 0) == 0)) {
+            name_len = (int)strlen(sig->name) + 1;
+            if (pos + name_len > buf_size) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                return -ENOSPC;
+            }
+            memcpy(buf + pos, sig->name, name_len);
+            pos += name_len;
+            count++;
+        }
+        next = sig->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return count;
+}
+
 // hal_shim_list_params lists parameter names matching pattern.
 static int hal_shim_list_params(const char *pattern, char *buf, int buf_size) {
     hal_param_t *param;
@@ -2040,6 +2074,13 @@ func halListPins(pattern string) ([]string, error) {
 func halListSigs(pattern string) ([]string, error) {
 	return halListGeneric(pattern, func(p *C.char, buf *C.char, size C.int) C.int {
 		return C.hal_shim_list_sigs(p, buf, size)
+	})
+}
+
+// halListRetainSigs returns names of retain-flagged signals matching the given pattern.
+func halListRetainSigs(pattern string) ([]string, error) {
+	return halListGeneric(pattern, func(p *C.char, buf *C.char, size C.int) C.int {
+		return C.hal_shim_list_retain_sigs(p, buf, size)
 	})
 }
 
