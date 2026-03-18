@@ -503,7 +503,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	       does yet), and if in free mode, it disables the free mode traj
 	       planners which stops joint motion */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ABORT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
                 axis_jog_abort_all(0);
@@ -536,6 +535,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	case EMCMOT_JOG_ABORT:
 	    /* abort one joint number or axis number */
 	    /* can happen at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABORT: %i", joint_num);
 	    if (GET_MOTION_TELEOP_FLAG()) {
 	        /* tell teleop planner to stop */
 	        if ((emcmotCommand->axis >= 0) && (emcmotCommand->axis < EMCMOT_MAX_AXIS)) {
@@ -1590,7 +1590,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 
     case EMCMOT_SET_SPINDLE_PARAMS:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_SETUP: spindle %d/%d max_pos %f min_pos %f"
-                "max_neg %f min_neg %f, home: %f, %f, %d\n",
+                "max_neg %f min_neg %f, home: %f, %f, %d",
                         emcmotCommand->spindle, emcmotConfig->numSpindles, emcmotCommand->maxLimit,
                         emcmotCommand->min_pos_speed, emcmotCommand->max_neg_speed, emcmotCommand->minLimit,
                         emcmotCommand->search_vel, emcmotCommand->home, emcmotCommand->home_sequence);
@@ -1871,6 +1871,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    break;
 
         case EMCMOT_SET_OFFSET:
+            rtapi_print_msg(RTAPI_MSG_DBG, "SET_OFFSET");
             emcmotStatus->tool_offset = emcmotCommand->tool_offset;
             break;
 
@@ -1941,9 +1942,11 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    emcmotStatus->commandStatus = EMCMOT_COMMAND_UNKNOWN_COMMAND;
 	    break;
         case EMCMOT_SET_MAX_FEED_OVERRIDE:
+            rtapi_print_msg(RTAPI_MSG_DBG, "SET_MAX_FEED_OVERRIDE");
             emcmotConfig->maxFeedScale = emcmotCommand->maxFeedScale;
             break;
         case EMCMOT_SETUP_ARC_BLENDS:
+            rtapi_print_msg(RTAPI_MSG_DBG, "SETUP_ARC_BLENDS");
             emcmotConfig->arcBlendEnable = emcmotCommand->arcBlendEnable;
             emcmotConfig->arcBlendFallbackEnable = emcmotCommand->arcBlendFallbackEnable;
             emcmotConfig->arcBlendOptDepth = emcmotCommand->arcBlendOptDepth;
@@ -1952,6 +1955,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             emcmotConfig->arcBlendTangentKinkRatio = emcmotCommand->arcBlendTangentKinkRatio;
             break;
         case EMCMOT_SET_PROBE_ERR_INHIBIT:
+            rtapi_print_msg(RTAPI_MSG_DBG, "SET_PROBE_ERR_INHIBIT");
             emcmotConfig->inhibit_probe_jog_error = emcmotCommand->probe_jog_err_inhibit;
             emcmotConfig->inhibit_probe_home_error = emcmotCommand->probe_home_err_inhibit;
             break;
