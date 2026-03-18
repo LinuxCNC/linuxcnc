@@ -845,11 +845,36 @@ func (sp *SingleFileParser) Parse(path string) (*ParseResult, error) {
 	return result, nil
 }
 
+// NewSingleFileParser creates a SingleFileParser with the given INILookup and
+// PathResolver. Either argument may be nil.
+func NewSingleFileParser(ini INILookup, resolver PathResolver) *SingleFileParser {
+	return &SingleFileParser{ini: ini, resolver: resolver}
+}
+
+// ParseContent parses HAL commands from an in-memory string instead of a file.
+// filename is used only for error-location reporting; no filesystem access is
+// performed. This is useful for executing [HAL]HALCMD lines that are already
+// held in memory.
+func (sp *SingleFileParser) ParseContent(filename, content string) (*ParseResult, error) {
+	// Temporarily install a readFile shim that returns our in-memory content.
+	saved := sp.readFile
+	sp.readFile = func(_ string) (string, error) { return content, nil }
+	result, err := sp.Parse(filename)
+	sp.readFile = saved
+	return result, err
+}
+
 // MultiFileParser parses multiple HAL files and merges their ParseResults.
 type MultiFileParser struct {
 	ini          INILookup
 	templateData *HalTemplateData
 	resolver     PathResolver
+}
+
+// NewMultiFileParser creates a MultiFileParser with the given INILookup and
+// PathResolver. Either argument may be nil.
+func NewMultiFileParser(ini INILookup, resolver PathResolver) *MultiFileParser {
+	return &MultiFileParser{ini: ini, resolver: resolver}
 }
 
 // Parse parses each file and returns a single merged ParseResult. The first

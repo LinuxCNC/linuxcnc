@@ -981,43 +981,55 @@ Work items:
 `[HAL]HALFILE` entries identically to the old `halcmd -f` pipeline, with all parsing
 errors caught before any HAL state is modified.
 
-### Phase 3 — Replace `halcmd -f` in the Halfile Executor
+### Phase 3 — Replace `halcmd -f` in the Halfile Executor ✅ COMPLETE
 
 **Goal**: `src/launcher/halfile/halfile.go` stops forking `halcmd`.
 
-Work items:
-- Replace `runHalcmdFile(path)` with a call to
-  `new(hal.MultiFileParser).Parse([]string{path}).Execute()`.  The caller constructs
-  `INILookup`, `*HalTemplateData`, and `PathResolver` (backed by the launcher's
-  existing `resolve.go`) and passes them to `MultiFileParser`.
-- The existing `substituteLine()` in `substitute.go` can be removed once
-  `SingleFileParser` takes over INI/`$ENV` substitution, or retained as a shared
-  utility.
-- `runHalcmd(cmd)` (single-command execution) can be replaced by constructing a
-  `SingleFileParser` from an inline string or by calling `parseLine` / `executeToken`
-  directly.
-- `RunHalcmdArgs(args)` is used by the launcher for `[HAL]HALCMD` lines; replace with
-  the new `parseLine` + `executeToken` path.
-- Keep `runHaltcl(path, args)` unchanged (TCL files still go to `haltcl` subprocess —
-  see Section 6).
-- Update the halfile tests to use the Go path.
+**Status**: Completed. TCL support has been cancelled entirely.
+
+Work items completed:
+- Replaced `runHalcmdFile(path)` with `hal.NewMultiFileParser(ini, resolver).Parse(paths).Execute()`.
+- Removed `substitute.go` — INI/`$ENV` substitution is now handled by `SingleFileParser`.
+- Replaced `runHalcmd(cmd)` / `RunHalcmdArgs(args)` with `SingleFileParser.ParseContent()` +
+  `ParseResult.Execute()` for `[HAL]HALCMD` lines.
+- Removed `runHaltcl()`, `executeTwopass()`, `findTwopassTcl()` — **TCL support cancelled**.
+  `.tcl` HALFILE entries now return a hard error.
+- Removed `halcmdPath` from `halfile.Executor` struct and `New()` signature.
+- Removed `twopass.go` from `src/launcher/halfile/` (TCL twopass delegation deleted).
+- Updated halfile tests to use the Go path.
 
 **Deliverable**: No `halcmd` subprocess is spawned during normal machine startup.
 
-### Phase 4 — Remove halcmd Binary Dependency from the Launcher
+### Phase 4 — Remove halcmd Binary Dependency from the Launcher ✅ MOSTLY COMPLETE
 
 **Goal**: The Go launcher never calls halcmd as a subprocess.
 
-Work items:
-- Audit all remaining halcmd subprocess calls in the launcher package:
-  - `[HAL]SHUTDOWN` script: if it is a `.hal` file, use the Go interpreter; if it is a
-    shell script, continue using `exec.Command`.
-  - `halrun` is a separate tool and is out of scope.
-- Verify that the `halcmd` binary is no longer listed as a required runtime dependency
-  of the launcher binary (update packaging metadata if needed).
-- The `halcmd` binary continues to be built and installed as a standalone tool.
+Work items completed:
+- Replaced `exec.Command(halcmdPath, "loadrt", "threads", ...)` in `loadThreads()` with
+  `hal.LoadRT("threads", ...)`.
+- Replaced `exec.Command(halcmdPath, "loadusr", "-Wn", "iocontrol", ...)` in
+  `startIOControl()` with `hal.LoadUSR(&hal.LoadUSROptions{WaitReady: true, WaitName: "iocontrol"}, ...)`.
+- Replaced `exec.Command(halcmdPath, "loadusr", "-Wn", "halui", ...)` in `startHalUI()`
+  with `hal.LoadUSR(...)`.
+- Replaced both `exec.Command(halcmdPath, "loadrt", tpMod)` and `exec.Command(halcmdPath,
+  "loadrt", homeMod)` in `preloadMotionModules()` with `hal.LoadRT(tpMod)` /
+  `hal.LoadRT(homeMod)`.
+- Replaced `exec.Command(halcmdPath, "loadusr", "-Wn", "inihal", emctask, ...)` in
+  `startTask()` with `hal.LoadUSR(&hal.LoadUSROptions{WaitReady: true, WaitName: "inihal"}, ...)`.
+  Updated `stopTask()` to use `hal.UnloadUSR("inihal")` + `hal.WaitUSR("inihal")`.
+- Replaced `exec.Command(halcmdPath, "list", "retain")` in `loadRetain()` with
+  `hal.List("retain")`; replaced `halExec.RunHalcmdArgs(["loadrt", "retain"])` with
+  `hal.LoadRT("retain")`; replaced `halExec.RunHalcmdArgs(["addf", ...])` with
+  `hal.AddF(...)`; replaced `halExec.RunHalcmdArgs(["loadusr", ...])` with
+  `hal.LoadUSR(...)`.
 
-**Deliverable**: A machine can start and stop without the `halcmd` binary present.
+Remaining item:
+- `[HAL]SHUTDOWN` script in cleanup.go still uses `exec.Command(halcmdPath, "-f", shutdown)`.
+  This will be replaced when the `[HAL]SHUTDOWN` script execution is migrated to the Go
+  interpreter in a future phase.
+
+**Deliverable**: A machine can start and stop without the `halcmd` binary present (except
+for `[HAL]SHUTDOWN` script execution).
 
 ### Phase 5 — REST API Using Go Command Functions Directly
 
@@ -1035,26 +1047,32 @@ Work items:
 
 ---
 
-## 6. TCL / Twopass Considerations
+## 6. TCL Support — CANCELLED
 
-### haltcl
+**TCL support has been completely removed.** The following applies:
 
-HAL files with a `.tcl` extension are executed by `haltcl` (a TCL interpreter with HAL
-bindings), not by halcmd. The halfile executor's `runHaltcl()` dispatches to `haltcl`
-as a subprocess and this must remain unchanged. The Go interpreter does **not** attempt
-to interpret TCL syntax.
-
-Detection: if a HAL file path ends with `.tcl`, `SingleFileParser.Parse` returns an
-error recommending the caller use `haltcl`; the halfile executor handles this routing
-before calling `SingleFileParser.Parse`.
+- `.tcl` HALFILE entries cause a hard error: `SingleFileParser.Parse` returns an error
+  for any file ending in `.tcl`, and `halfile.Executor.ExecuteAll()` propagates this as a
+  fatal error.
+- `runHaltcl()`, `executeTwopass()`, `findTwopassTcl()` have been deleted from
+  `src/launcher/halfile/`.
+- `twopass.go` in `src/launcher/halfile/` has been deleted.
+- `LINUXCNC_TCL_DIR` environment variable is no longer set by the launcher.
+- TCL display dispatching (`tklinuxcnc`, `mini`) has been removed from `startDisplay()`.
+  These display programs can still be launched as regular executables via the `default`
+  case (they must be on PATH or specified with an absolute path in the INI).
+- The Go `text/template` engine (see Section 6a) provides flow control and
+  parameterization for HAL files, replacing what TCL was used for in `.tcl` HALFILE
+  entries.
 
 ---
 
 ## 6a. Go Template Engine
 
-The Go pipeline supports `.hal` files that use Go `text/template` syntax as an
-alternative to TCL. This is **not** a general-purpose scripting language — it is a
-parameterized configuration template engine.
+The Go pipeline supports `.hal` files that use Go `text/template` syntax for
+parameterized configuration. This replaces the flow-control that was previously
+provided by TCL (`.tcl`) HAL files. This is **not** a general-purpose scripting
+language — it is a parameterized configuration template engine.
 
 The template is rendered **inside `SingleFileParser`**, before `LineParser` sees any
 line.  The per-file pipeline is:
@@ -1107,9 +1125,9 @@ Returns `true` if the given axis letter (case-insensitive) appears in `.Axes`
 (from `[TRAJ]COORDINATES`). Use this instead of runtime `pinExists` checks on
 axis pins.
 
-### Example: TCL vs Go template
+### Example: Go template for parameterized HAL configuration
 
-Current TCL (`extrajoints.tcl`, uses runtime `getp` probing):
+Before (TCL `extrajoints.tcl`, uses runtime `getp` probing — **no longer supported**):
 
 ```tcl
 for {set j 0} {$j <= 15} {incr j} {

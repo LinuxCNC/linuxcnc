@@ -535,27 +535,6 @@ static int hal_shim_net(const char *sig_name, const char *pin_names, int num_pin
 
 // ===== 1d. Process management shims =====
 
-// hal_shim_loadrt loads a realtime module via rtapi_app.
-// On USPACE: fork+exec "rtapi_app load <mod> [args]" and wait.
-// Returns 0 on success, non-zero on error.
-static int hal_shim_loadrt(const char *mod, const char *const args[], int nargs) {
-    const char *argv[256];
-    int m = 0;
-    int i;
-
-    if (m + 3 + nargs >= 256) return -E2BIG;
-
-    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
-    argv[m++] = "load";
-    argv[m++] = mod;
-    for (i = 0; i < nargs; i++) {
-        argv[m++] = args[i];
-    }
-    argv[m] = NULL;
-
-    return shim_systemv(argv);
-}
-
 // HAL_SHIM_USECS_PER_SEC converts seconds to microseconds for usleep.
 #define HAL_SHIM_USECS_PER_SEC 1000000
 
@@ -644,6 +623,32 @@ static int hal_shim_loadusr(int flags, const char *wait_name, int timeout_s,
     }
 
     return 0;
+}
+
+// hal_shim_loadrt loads a realtime module via rtapi_app.
+// On USPACE: fork "rtapi_app load <mod> [args]" and poll HAL shared memory
+// until the component <mod> becomes ready, matching what halcmd's
+// do_loadrt_cmd() does (routes through do_loadusr_cmd with -Wn <mod>).
+// Using shim_systemv() here would block forever because rtapi_app is a
+// persistent daemon that never exits after loading a module.
+// Returns 0 on success, non-zero on error.
+static int hal_shim_loadrt(const char *mod, const char *const args[], int nargs) {
+    // Build the args for hal_shim_loadusr: ["load", mod, args...]
+    const char *uargs[256];
+    int m = 0;
+    int i;
+
+    if (2 + nargs >= 256) return -E2BIG;
+
+    uargs[m++] = "load";
+    uargs[m++] = mod;
+    for (i = 0; i < nargs; i++) {
+        uargs[m++] = args[i];
+    }
+
+    // flags=1: wait_ready — poll until component <mod> appears in HAL.
+    // timeout_s=0: use default (10 seconds).
+    return hal_shim_loadusr(1, mod, 0, EMC2_BIN_DIR "/rtapi_app", uargs, m);
 }
 
 // hal_shim_unloadrt unloads a realtime module via rtapi_app.
