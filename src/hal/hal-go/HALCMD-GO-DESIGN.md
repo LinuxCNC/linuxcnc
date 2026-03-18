@@ -1000,7 +1000,7 @@ Work items completed:
 
 **Deliverable**: No `halcmd` subprocess is spawned during normal machine startup.
 
-### Phase 4 — Remove halcmd Binary Dependency from the Launcher ✅ MOSTLY COMPLETE
+### Phase 4 — Remove halcmd Binary Dependency from the Launcher ✅ COMPLETE
 
 **Goal**: The Go launcher never calls halcmd as a subprocess.
 
@@ -1022,14 +1022,12 @@ Work items completed:
   `hal.LoadRT("retain")`; replaced `halExec.RunHalcmdArgs(["addf", ...])` with
   `hal.AddF(...)`; replaced `halExec.RunHalcmdArgs(["loadusr", ...])` with
   `hal.LoadUSR(...)`.
+- Replaced `exec.Command(halcmdPath, "-f", shutdown)` in `cleanup.go` with
+  `halfile.Executor.ExecuteShutdown()` which uses `hal.NewSingleFileParser` — the same
+  native Go parser/executor used for startup HAL files.  Errors are logged but do not
+  abort the shutdown sequence.
 
-Remaining item:
-- `[HAL]SHUTDOWN` script in cleanup.go still uses `exec.Command(halcmdPath, "-f", shutdown)`.
-  This will be replaced when the `[HAL]SHUTDOWN` script execution is migrated to the Go
-  interpreter in a future phase.
-
-**Deliverable**: A machine can start and stop without the `halcmd` binary present (except
-for `[HAL]SHUTDOWN` script execution).
+**Deliverable**: A machine can start and stop without the `halcmd` binary present.
 
 ### Phase 5 — REST API Using Go Command Functions Directly
 
