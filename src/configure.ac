@@ -126,17 +126,6 @@ RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
 
-NONDISTRIBUTABLE=false
-AC_ARG_ENABLE(non-distributable,
-    AS_HELP_STRING(
-        [--enable-non-distributable],
-        [To build LinuxCNC even if a license problem would render the resulting binaries non-distributable under the terms of the LinuxCNC license]),
-    [
-        case "$enableval" in
-        (yes) NONDISTRIBUTABLE=true ;;
-        esac
-    ])
-
 ##############################################################################
 # Subsection 2.1                                                             #
 # Check for arguments to ./configure                                         #
