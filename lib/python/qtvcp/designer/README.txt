@@ -21,7 +21,7 @@ python3-xlib
 python3-numpy
 python3-cairo
 python3-gi-cairo
-python3-poppler-qt5
+python3-pyqt6.qtpdf
 pyqt5-dev-tools
 
 -------------------------------------------------------------------------------

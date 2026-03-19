@@ -15,7 +15,7 @@ sudo apt-get install python3-scipy
 sudo apt-get install python3-matplotlib
 
 #### To view PDF files
-sudo apt-get install python3-poppler-qt5
+sudo apt-get install python3-pyqt6.qtpdf
 
 ### To numstr.py
 File line_number.txt to the /home/name/line-number.txt according to the address in numstr.py. 

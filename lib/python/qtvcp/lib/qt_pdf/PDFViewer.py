@@ -1,18 +1,12 @@
 import sys
 import os
-from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt6 import QtGui, QtWidgets
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtPdf import QPdfDocument, QPdfDocumentRenderOptions
 
 # Set up logging
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
-
-try:
-    import popplerqt5
-    LIB_BAD = False
-except:
-    LIB_BAD = True
-    LOG.warning('PDFViwer - Is python3-poppler-qt5 installed?')
 
 class PDFView(QtWidgets.QScrollArea):
     def __init__(self, parent=None):
@@ -24,10 +18,12 @@ class PDFView(QtWidgets.QScrollArea):
         self.vbox = QtWidgets.QVBoxLayout()
         self.widget.setLayout(self.vbox)
         self._zoom = 1.0
-
-        if LIB_BAD:
-            label = QtWidgets.QLabel('<b>Missing python3-poppler-qt5 module</b>')
-            self.vbox.addWidget(label)
+        self.doc = None
+        self._render_opts = QPdfDocumentRenderOptions()
+        self._render_opts.setRenderFlags(
+            QPdfDocumentRenderOptions.RenderFlag.Antialiasing |
+            QPdfDocumentRenderOptions.RenderFlag.TextAntialiasing
+        )
 
     def loadSample(self, name):
         n = os.path.join(os.path.dirname(__file__),name+'.pdf')
@@ -39,28 +35,32 @@ class PDFView(QtWidgets.QScrollArea):
     def loadView(self, path):
         filename = os.path.expanduser(path)
         if not os.path.exists(filename):
-            print('No path:',filename)
-
-        if LIB_BAD:
+            print('No path:', filename)
             return
 
-        self.doc = doc = popplerqt5.Poppler.Document.load(filename)
-        doc.setRenderHint(popplerqt5.Poppler.Document.Antialiasing)
-        doc.setRenderHint(popplerqt5.Poppler.Document.TextAntialiasing)
+        self.doc = QPdfDocument(self)
+        self.doc.load(filename)
         self.refreshPages()
 
     def refreshPages(self):
+        if self.doc is None:
+            return
+
         # clear layout of pages
-        for i in reversed(range(self.vbox.count())): 
+        for i in reversed(range(self.vbox.count())):
             self.vbox.itemAt(i).widget().setParent(None)
 
         # convert pages to images in a label
-        for i in range(0,self.doc.numPages()):
+        for i in range(self.doc.pageCount()):
             label = QtWidgets.QLabel()
             label.setScaledContents(True)
 
-            page = self.doc.page(i)
-            image = page.renderToImage(72.0*self._zoom, 72.0*self._zoom)
+            page_size = self.doc.pagePointSize(i)
+            image_size = QSize(
+                int(page_size.width() * self._zoom),
+                int(page_size.height() * self._zoom)
+            )
+            image = self.doc.render(i, image_size, self._render_opts)
 
             label.setPixmap(QtGui.QPixmap.fromImage(image))
             self.vbox.addWidget(label)
@@ -78,23 +78,29 @@ def pdf_view(filename):
     """Return a Scrollarea showing the pages of the specified PDF file."""
     filename = os.path.expanduser(filename)
     if not os.path.exists(filename):
-        print('No path:',filename)
+        print('No path:', filename)
+        return None
 
-    doc = popplerqt5.Poppler.Document.load(filename)
-    doc.setRenderHint(popplerqt5.Poppler.Document.Antialiasing)
-    doc.setRenderHint(popplerqt5.Poppler.Document.TextAntialiasing)
+    doc = QPdfDocument()
+    doc.load(filename)
 
     area = QtWidgets.QScrollArea()
     area.setWidgetResizable(True)
     widget = QtWidgets.QWidget()
     vbox = QtWidgets.QVBoxLayout()
 
-    for i in range(0,doc.numPages()):
+    for i in range(doc.pageCount()):
         label = QtWidgets.QLabel()
         label.setScaledContents(True)
 
-        page = doc.page(i)
-        image = page.renderToImage()
+        page_size = doc.pagePointSize(i)
+        image_size = QSize(int(page_size.width()), int(page_size.height()))
+        render_opts = QPdfDocumentRenderOptions()
+        render_opts.setRenderFlags(
+            QPdfDocumentRenderOptions.RenderFlag.Antialiasing |
+            QPdfDocumentRenderOptions.RenderFlag.TextAntialiasing
+        )
+        image = doc.render(i, image_size, render_opts)
 
         label.setPixmap(QtGui.QPixmap.fromImage(image))
         vbox.addWidget(label)
@@ -112,7 +118,7 @@ def main():
         filename = argv[-1]
     view = pdf_view(filename)
     view.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 if __name__ == '__main__':
     main()
