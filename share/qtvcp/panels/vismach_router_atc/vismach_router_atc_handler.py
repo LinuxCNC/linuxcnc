@@ -3,9 +3,9 @@
 ############################
 import sys
 import os
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 from qtvcp.core import Status, Path
 from qtvcp.lib.qt_vismach.qt_vismach import *
 

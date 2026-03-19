@@ -14,10 +14,10 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import (QToolButton, QMenu, QAction,
+from PyQt6.QtWidgets import (QToolButton, QMenu, QAction,
     QComboBox, QWidgetAction)
-from PyQt5.QtCore import pyqtProperty
-from PyQt5.QtGui import QIcon
+from PyQt6.QtCore import pyqtProperty
+from PyQt6.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
@@ -228,11 +228,11 @@ class ActionToolButton(QToolButton, IndicatedMixIn):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = ActionToolButton()
     widget.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

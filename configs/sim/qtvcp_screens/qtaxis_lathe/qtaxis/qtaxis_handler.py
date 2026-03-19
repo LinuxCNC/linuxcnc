@@ -5,8 +5,8 @@ import sys
 import os
 import linuxcnc
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QColor
+from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtGui import QColor
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
@@ -161,8 +161,8 @@ class HandlerClass:
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
-                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
+        if code not in(QtCore.Qt.Key.Key_Escape,QtCore.Qt.Key.Key_F1 ,QtCore.Qt.Key.Key_F2,
+                    QtCore.Qt.Key.Key_F3,QtCore.Qt.Key.Key_F5,QtCore.Qt.Key.Key_F5):
 
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
@@ -430,7 +430,7 @@ class HandlerClass:
         msg.setLayout(layout)
         msg.setMinimumSize(700,800)
         msg.show()
-        retval = msg.exec_()
+        retval = msg.exec()
 
     def launch_log_dialog(self):
         ACTION.CALL_DIALOG({'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
@@ -484,7 +484,7 @@ class HandlerClass:
         self.w.tool_stat.setProperty('tool_number_status', True)
         self.w.tool_stat.setProperty('textTemplate', 'Tool %d')
         self.w.tool_stat.hal_init()
-        self.w.tool_stat.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.w.tool_stat.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.w.tool_stat.setFixedWidth(60)
         self.w.leftTab.setCornerWidget(self.w.tool_stat)
 

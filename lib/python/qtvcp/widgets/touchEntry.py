@@ -1,6 +1,6 @@
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QObject, Qt
-from PyQt5.QtGui import QDoubleValidator, QIntValidator
-from PyQt5.QtWidgets import QWidget, QPushButton,QLineEdit, QHBoxLayout
+from PyQt6.QtCore import pyqtProperty, pyqtSignal, QSize, QObject, Qt
+from PyQt6.QtGui import QDoubleValidator, QIntValidator
+from PyQt6.QtWidgets import QWidget, QPushButton,QLineEdit, QHBoxLayout
 
 import decimal
 from decimal import Decimal
@@ -272,9 +272,9 @@ class TouchDoubleSpinBox(TouchSpinBox):
 
 # for direct testing
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from PyQt6.QtWidgets import *
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
     import sys
 
     app = QApplication(sys.argv)
@@ -282,4 +282,4 @@ if __name__ == "__main__":
     w.show()
     w = TouchDoubleSpinBox()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )

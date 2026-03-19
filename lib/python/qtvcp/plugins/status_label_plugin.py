@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QVariant
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, QExtensionFactory, QPyDesignerTaskMenuExtension, \
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtDesigner import QPyDesignerCustomWidgetPlugin, QExtensionFactory, QPyDesignerTaskMenuExtension, \
     QPyDesignerPropertySheetExtension, QDesignerFormWindowInterface
 
 from qtvcp.widgets.richtext_selector import RichTextEditorDialog
@@ -101,7 +100,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
         # print self.widget.pyqtConfigure.__sizeof__()
         for i in StatusLabel.__dict__:
             # print i
-            if 'PyQt5.QtCore.pyqtProperty' in str(StatusLabel.__dict__[i]):
+            if 'PyQt6.QtCore.pyqtProperty' in str(StatusLabel.__dict__[i]):
                 self.propertylist.append(i)
                 print(i)
         # print dir(self.widget)
@@ -113,12 +112,12 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
         name = self.propertyName(index)
         print('property index:', index, name)
         if 'object' in name:
-            return QVariant('default')
+            return 'default'
         if 'orient' in name:
-            return QVariant(False)
+            return False
         if 'text' == name or 'alt' in name:
-            return QVariant(self.widget.text)
-        return QVariant(self.widget[str(name)])
+            return self.widget.text
+        return self.widget[str(name)]
 
     def indexOf(self, name):
         # print 'NAME:',name
@@ -166,7 +165,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
 
         return
         if self.formWindow:
-            self.formWindow.cursor().setProperty(self.propertyName(index), QVariant(value))
+            self.formWindow.cursor().setProperty(self.propertyName(index), value)
         return
 
     def getVisible(self, index, data):
@@ -204,7 +203,7 @@ class StatusLabelMenuEntry(QPyDesignerTaskMenuExtension):
 
     def updateOptions(self):
         dialog = StatusLabelDialog(self.widget)
-        dialog.exec_()
+        dialog.exec()
 
 
 class StatusLabelTaskMenuFactory(QExtensionFactory):
@@ -227,7 +226,7 @@ class TreeComboBox(QtWidgets.QComboBox):
         self.__skip_next_hide = False
 
         tree_view = QtWidgets.QTreeView(self)
-        tree_view.setFrameShape(QtWidgets.QFrame.NoFrame)
+        tree_view.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         tree_view.setEditTriggers(tree_view.NoEditTriggers)
         tree_view.setAlternatingRowColors(True)
         tree_view.setSelectionBehavior(tree_view.SelectRows)
@@ -256,7 +255,7 @@ class TreeComboBox(QtWidgets.QComboBox):
     def eventFilter(self, object, event):
         if event.type() == QtCore.QEvent.MouseButtonPress and object is self.view().viewport():
             index = self.view().indexAt(event.pos())
-            # print index.parent(),index.row(),index.column(),index.data(),index.data(QtCore.Qt.UserRole + 1)
+            # print index.parent(),index.row(),index.column(),index.data(),index.data(QtCore.Qt.ItemDataRole.UserRole + 1)
             # print self.view().isExpanded(self.view().currentIndex())
             # if self.itemAt(event.pos()) is None
             self.__skip_next_hide = not self.view().visualRect(index).contains(event.pos())
@@ -265,8 +264,8 @@ class TreeComboBox(QtWidgets.QComboBox):
     def addItems(self, parent, elements):
         for text, value, children in elements:
             item = QtGui.QStandardItem(text)
-            item.setData(value[0], role=QtCore.Qt.UserRole + 1)
-            item.setData(value[1], role=QtCore.Qt.UserRole + 2)
+            item.setData(value[0], role=QtCore.Qt.ItemDataRole.UserRole + 1)
+            item.setData(value[1], role=QtCore.Qt.ItemDataRole.UserRole + 2)
             parent.appendRow(item)
             if children:
                 self.addItems(item, children)
@@ -285,7 +284,7 @@ class StatusLabelDialog(QtWidgets.QDialog):
 
         self.setWindowTitle(self.tr("Set Options"))
         self.setGeometry(300, 300, 200, 200)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
         self.widget = widget
         self.previewWidget = StatusLabel()
 
@@ -320,7 +319,7 @@ class StatusLabelDialog(QtWidgets.QDialog):
     def buildtab1(self):
         self.combo = TreeComboBox()
         model = QtGui.QStandardItemModel()
-        model.setHeaderData(0, QtCore.Qt.Horizontal, 'Name', QtCore.Qt.DisplayRole)
+        model.setHeaderData(0, QtCore.Qt.Orientation.Horizontal, 'Name', QtCore.Qt.ItemDataRole.DisplayRole)
 
         # (('Displayed name',['widget property name', code to show related data],[])
         node_1 = (('Set Feed Override', ['feed_override', 2], []),
@@ -478,8 +477,8 @@ class StatusLabelDialog(QtWidgets.QDialog):
             widget.setText(style)
 
     def selectionChanged(self, i):
-        winPropertyName = self.combo.itemData(i, role=QtCore.Qt.UserRole + 1)
-        userDataCode = self.combo.itemData(i, role=QtCore.Qt.UserRole + 2)
+        winPropertyName = self.combo.itemData(i, role=QtCore.Qt.ItemDataRole.UserRole + 1)
+        userDataCode = self.combo.itemData(i, role=QtCore.Qt.ItemDataRole.UserRole + 2)
         # print 'selected property,related data code:',winPropertyName,userDataCode,i
         if winPropertyName is None:
             # collapsed = self.combo.view().isExpanded(self.combo.view().currentIndex())
@@ -498,7 +497,7 @@ class StatusLabelDialog(QtWidgets.QDialog):
 
     def updateWidget(self):
         i = self.combo.currentIndex()
-        winProperty = self.combo.itemData(i, role=QtCore.Qt.UserRole + 1)
+        winProperty = self.combo.itemData(i, role=QtCore.Qt.ItemDataRole.UserRole + 1)
         if winProperty is None:
             self.combo.select(0, 0)
             return
@@ -516,17 +515,17 @@ class StatusLabelDialog(QtWidgets.QDialog):
 
         # set related data
         formWindow.cursor().setProperty('index_number',
-                                        QtCore.QVariant(self.JNumSpinBox.value()))
+                                        QtCore.self.JNumSpinBox.value())
         # block signal so button text doesn't change when selecting action
         self.widget._designer_block_signal = True
         formWindow.cursor().setProperty('textTemplate',
-                                        QtCore.QVariant(self.textTemplateEditBox.text()))
+                                        QtCore.self.textTemplateEditBox.text())
         formWindow.cursor().setProperty('alt_textTemplate',
-                                        QtCore.QVariant(self.altTextTemplateEditBox.text()))
+                                        QtCore.self.altTextTemplateEditBox.text())
         formWindow.cursor().setProperty('text',
-                                        QtCore.QVariant(self.defaultTextTemplateEditBox.text()))
+                                        QtCore.self.defaultTextTemplateEditBox.text())
         formWindow.cursor().setProperty('halpin_name',
-                                        QtCore.QVariant(self.halpinEditBox.text()))
+                                        QtCore.self.halpinEditBox.text())
         self.widget._designer_block_signal = False
 
         self.accept()

@@ -19,9 +19,9 @@ import sys
 import os
 import hal
 import json
-from PyQt5.QtCore import QProcess, QRegExp, QFile, QEvent, Qt, pyqtProperty
-from PyQt5 import QtGui, QtWidgets, uic, QtCore
-from PyQt5.QtWidgets import QDialogButtonBox, QAbstractSlider, QLineEdit, qApp
+from PyQt6.QtCore import QProcess, QRegularExpression, QFile, QEvent, Qt, pyqtProperty
+from PyQt6 import QtGui, QtWidgets, uic, QtCore
+from PyQt6.QtWidgets import QDialogButtonBox, QAbstractSlider, QLineEdit, QApplication.instance()
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path
 from qtvcp.widgets.dialogMixin import GeometryMixin
@@ -56,9 +56,9 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         self.hilightStyle = "border: 2px solid red;"
 
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QRegExpValidator(QRegExp(r'^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
+            self.valid = QtGui.QRegularExpressionValidator(QRegularExpression(r'^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
         else:
-            self.valid = QtGui.QRegExpValidator(QRegExp(r'^[+-]?((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
+            self.valid = QtGui.QRegularExpressionValidator(QRegularExpression(r'^[+-]?((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
         self.setMinimumSize(600, 420)
         # load the widgets ui file
         self.filename = PATH.find_widget_path('basic_probe.ui')
@@ -119,7 +119,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         self.cmb_probe_select.addItems(self.probe_list)
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
         # define validators for all lineEdit widgets
-        self.lineEdit_probe_tool.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
+        self.lineEdit_probe_tool.setValidator(QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,5}')))
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
 
@@ -272,7 +272,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
     def popEntry(self, obj, next=False):
         STATUS.emit('focus-overlay-changed', False, None, None)
         obj.setStyleSheet(self.hilightStyle)
-        qApp.processEvents()
+        QApplication.instance().processEvents()
 
         mess = {'NAME':self.dialog_code,
                 'ID':'%s__' % self.objectName(),
@@ -493,9 +493,9 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
     # with pre-select option
     def set_checkableButtons(self, state):
         if state:
-            policy = Qt.ClickFocus
+            policy = Qt.FocusPolicy.ClickFocus
         else:
-            policy = Qt.NoFocus
+            policy = Qt.FocusPolicy.NoFocus
         self.setFocusPolicy(policy)
         for i in self.outside_buttonGroup.buttons():
             i.setCheckable(state)
@@ -548,8 +548,8 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
     def __init__(self, parent=None):
         super(HelpDialog, self).__init__(parent)
         self._title = 'Basic Probe Help'
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
         self.currentHelpPage=-1
         self.setMinimumWidth(600)
@@ -598,10 +598,10 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         self.pageStepDwnbutton.clicked.connect(lambda : self.pageStep(t,True))
 
         bBox = QDialogButtonBox(buttons)
-        bBox.addButton(self.pageStepUpbutton, QDialogButtonBox.ActionRole)
-        bBox.addButton(self.pageStepDwnbutton, QDialogButtonBox.ActionRole)
-        bBox.addButton(previousbutton, QDialogButtonBox.ActionRole)
-        bBox.addButton(nextbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(self.pageStepUpbutton, QDialogButtonBox.ButtonRole.ActionRole)
+        bBox.addButton(self.pageStepDwnbutton, QDialogButtonBox.ButtonRole.ActionRole)
+        bBox.addButton(previousbutton, QDialogButtonBox.ButtonRole.ActionRole)
+        bBox.addButton(nextbutton, QDialogButtonBox.ButtonRole.ActionRole)
         bBox.addButton(closebutton, QDialogButtonBox.DestructiveRole)
         bBox.rejected.connect(self.reject)
 
@@ -663,7 +663,7 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
     def showDialog(self):
         self.setWindowTitle(self._title);
         self.set_geometry()
-        retval = self.exec_()
+        retval = self.exec()
         LOG.debug('Value of pressed button: {}'.format(retval))
 
 # look for a custom version of basicProbe
@@ -679,11 +679,11 @@ class BasicProbe(module):
     # Testing                   #
     #############################
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from PyQt6.QtWidgets import *
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
     app = QtWidgets.QApplication(sys.argv)
     w = BasicProbe()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

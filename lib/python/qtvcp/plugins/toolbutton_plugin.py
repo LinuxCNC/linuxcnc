@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from PyQt5 import QtGui
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt6 import QtGui
+from PyQt6.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.system_tool_button import SystemToolButton
 from qtvcp.widgets.action_tool_button import ActionToolButton
 from qtvcp.widgets.axisPickTool_button import AxisPickToolButton

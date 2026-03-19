@@ -22,9 +22,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 import sys
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtGui import *
 
 
 class MaterialConverter(QMainWindow, object):
@@ -522,7 +522,7 @@ class MaterialConverter(QMainWindow, object):
                              QLineEdit { border: 1px solid #ffee06; border-radius: 4 } \
                            QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 80} \
                            QPushButton:pressed {color: #16160e; background: #ffee06}')
-        response = dialog.exec_()
+        response = dialog.exec()
         if self.inManual.isChecked():
             self.fNUM = dNU.text()
             self.fNAM = dNA.text()
@@ -546,4 +546,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = MaterialConverter()
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

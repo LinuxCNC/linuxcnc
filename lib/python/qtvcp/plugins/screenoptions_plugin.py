@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, \
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtDesigner import QPyDesignerCustomWidgetPlugin, \
     QPyDesignerTaskMenuExtension, QExtensionFactory, \
     QDesignerFormWindowInterface
 
@@ -118,19 +118,19 @@ class screenOptionsDialog(QtWidgets.QDialog):
 
         if formWindow:
             formWindow.cursor().setProperty("notify_option",
-                                            QtCore.QVariant(self.c_notify.isChecked()))
+                                            QtCore.self.c_notify.isChecked())
             formWindow.cursor().setProperty("notify_max_messages",
-                                            QtCore.QVariant(self.c_notify_max_msgs.value()))
+                                            QtCore.self.c_notify_max_msgs.value())
             formWindow.cursor().setProperty("catch_errors_option",
-                                            QtCore.QVariant(self.c_errors.isChecked()))
+                                            QtCore.self.c_errors.isChecked())
             formWindow.cursor().setProperty("catch_close_option",
-                                            QtCore.QVariant(self.c_close.isChecked()))
+                                            QtCore.self.c_close.isChecked())
             formWindow.cursor().setProperty("play_sounds_option",
-                                            QtCore.QVariant(self.c_play_sounds.isChecked()))
+                                            QtCore.self.c_play_sounds.isChecked())
             formWindow.cursor().setProperty("use_pref_file_option",
-                                            QtCore.QVariant(self.c_use_pref_file.isChecked()))
+                                            QtCore.self.c_use_pref_file.isChecked())
             formWindow.cursor().setProperty("halCompBaseName",
-                                            QtCore.QVariant(self.e_hal_base_name.text()))
+                                            QtCore.self.e_hal_base_name.text())
         self.accept()
 
 
@@ -152,7 +152,7 @@ class screenOptionsMenuEntry(QPyDesignerTaskMenuExtension):
 
     def updateLocation(self):
         dialog = screenOptionsDialog(self.widget)
-        dialog.exec_()
+        dialog.exec()
 
 
 class screenOptionsTaskMenuFactory(QExtensionFactory):

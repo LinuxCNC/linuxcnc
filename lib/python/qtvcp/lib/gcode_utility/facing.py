@@ -6,9 +6,9 @@ import tempfile
 import atexit
 import shutil
 
-from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtCore import QFile, QRegExp
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt6 import QtGui, QtWidgets, uic
+from PyQt6.QtCore import QFile, QRegularExpression
+from PyQt6.QtWidgets import QFileDialog, QMessageBox
 
 from linuxcnc import OPERATOR_ERROR, NML_ERROR
 from qtvcp.core import Info, Status, Action, Path
@@ -34,10 +34,10 @@ class Facing(QtWidgets.QWidget):
         help_file = open(os.path.join(HERE,"facing_help.txt"), "r")
         help_text = help_file.read()
         self.mb = QMessageBox()
-        self.mb.setIcon(QMessageBox.Information)
+        self.mb.setIcon(QMessageBox.Icon.Information)
         self.mb.setWindowTitle("Facing Help")
         self.mb.setText(help_text)
-        self.mb.setStandardButtons(QMessageBox.Ok)
+        self.mb.setStandardButtons(QMessageBox.StandardButton.Ok)
         STATUS.connect('forced-update',lambda w:self.init())
 
     def init(self):
@@ -107,15 +107,15 @@ class Facing(QtWidgets.QWidget):
     def set_validator(self):
         # set valid input formats for lineEdits
         if self.rbtn_inch.isChecked():
-            valid_size = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,4}'))
-            valid_step = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,2}'))
-            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
+            valid_size = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,6}[.][0-9]{0,4}'))
+            valid_step = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,6}[.][0-9]{0,2}'))
+            valid_feed = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,6}[.][0-9]{0,3}'))
         else:
-            valid_size = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
-            valid_step = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
-            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
+            valid_size = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,6}[.][0-9]{0,3}'))
+            valid_step = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,5}[.][0-9]{0,1}'))
+            valid_feed = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,5}[.][0-9]{0,1}'))
         self.lineEdit_tool.setValidator(valid_size)
-        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
+        self.lineEdit_spindle.setValidator(QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,5}')))
         self.lineEdit_feedrate.setValidator(valid_feed)
         self.lineEdit_stepover.setValidator(valid_step)
         self.lineEdit_size_x.setValidator(valid_size)
@@ -207,7 +207,7 @@ class Facing(QtWidgets.QWidget):
             STATUS.emit('error', OPERATOR_ERROR, "Facing: There are errors in the input fields")
             return
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.Option.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             self.calculate_toolpath(fileName)
@@ -462,5 +462,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = Facing()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

@@ -31,9 +31,9 @@ import sys
 import os
 import re
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize
-from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
-from PyQt5.QtWidgets import QWidget, QAction,\
+from PyQt6.QtCore import pyqtProperty, pyqtSignal, QSize
+from PyQt6.QtGui import QFont, QFontMetrics, QColor, QIcon
+from PyQt6.QtWidgets import QWidget, QAction,\
         QVBoxLayout, QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
         QFrame, QLabel, QStyle
 
@@ -55,9 +55,9 @@ LOG = logger.getLogger(__name__)
 
 # load this after Logging set up so we get a nice dialog.
 try:
-    from PyQt5.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
+    from PyQt6.Qsci import QsciScintilla, QsciLexerCustom, QsciLexerPython
 except ImportError as e:
-    LOG.critical("Can't import QsciScintilla - is package python3-pyqt5.qsci installed?", exc_info=e)
+    LOG.critical("Can't import QsciScintilla - is package python3-pyqt6.qsci installed?", exc_info=e)
     sys.exit(1)
 
 
@@ -171,8 +171,8 @@ class EditorBase(QsciScintilla):
     # set in the dict manually, or by CSS properties.
     _styleFont = {
         0: QFont("Courier", 11),                    # Default Font
-#        2: QFont("Courier", 20, weight=QFont.Bold), # Gcode
-#        5: QFont("Courier", 11, weight=QFont.Bold), # Other
+#        2: QFont("Courier", 20, weight=QFont.Weight.Bold), # Gcode
+#        5: QFont("Courier", 11, weight=QFont.Weight.Bold), # Other
 #        "Margins": QFont("Courier", 9),            # Margins
     }
 
@@ -807,7 +807,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.isCaseSensitive = 0
 
         self.setMinimumSize(QSize(300, 200))
-        self.setWindowTitle("PyQt5 editor test example")
+        self.setWindowTitle("PyQt6 editor test example")
 
         lay = QVBoxLayout()
         lay.setContentsMargins(0,0,0,0)
@@ -828,21 +828,21 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         ################################
 
         # Create new action
-        icon = self.style().standardIcon( QStyle.SP_FileIcon)
+        icon = self.style().standardIcon( QStyle.StandardPixmap.SP_FileIcon)
         self.newAction = QAction(icon, 'New', self)
         self.newAction.setShortcut('Ctrl+N')
         self.newAction.setStatusTip('New document')
         self.newAction.triggered.connect(self.newCall)
 
         # Create open action
-        icon = self.style().standardIcon( QStyle.SP_DirOpenIcon)
+        icon = self.style().standardIcon( QStyle.StandardPixmap.SP_DirOpenIcon)
         self.openAction = QAction(icon, '&Open', self)
         self.openAction.setShortcut('Ctrl+O')
         self.openAction.setStatusTip('Open document')
         self.openAction.triggered.connect(self.openCall)
 
         # Create save action
-        icon = self.style().standardIcon( QStyle.SP_DialogSaveButton)
+        icon = self.style().standardIcon( QStyle.StandardPixmap.SP_DialogSaveButton)
         self.saveAction = QAction(icon, '&Save', self)
         self.saveAction.setShortcut('Ctrl+S')
         self.saveAction.setStatusTip('Save document')
@@ -1101,8 +1101,8 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def killCheck(self):
         choice = QMessageBox.question(self, 'Warning!!',
                                             "This file has changed since loading...Still want to proceed?",
-                                            QMessageBox.Yes | QMessageBox.No)
-        if choice == QMessageBox.Yes:
+                                            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if choice == QMessageBox.StandardButton.Yes:
             return True
         else:
             return False
@@ -1157,9 +1157,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
 # for direct testing
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from PyQt6.QtWidgets import *
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
 
     sample_text = r"""( ----- Simple G-Code -----)
 G17 G20 G40 G49 G54 G80 G90 G94
@@ -1215,5 +1215,5 @@ N98765 G0 Z30"""
     if 1:
         w.label.setText('<b>Edit mode title label</b>')
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

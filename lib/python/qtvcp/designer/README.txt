@@ -8,29 +8,27 @@ espeak
 espeak-ng
 sound-theme-freedesktop
 python3-opengl
-python3-pyqt5
-python3-pyqt5.qsci
-python3-pyqt5.qtsvg
-python3-pyqt5.qtopengl
+python3-pyqt6
+python3-pyqt6.qsci
+python3-pyqt6.qtsvg
 python3-opencv
 python3-dbus
-python3-dbus.mainloop.pyqt5
+python3-dbus.mainloop.pyqt6
 python3-espeak
-python3-pyqt5.qtwebengine
+python3-pyqt6.qtwebengine
 python3-xlib
 python3-numpy
 python3-cairo
 python3-gi-cairo
 python3-pyqt6.qtpdf
-pyqt5-dev-tools
+pyqt6-dev-tools
 
 -------------------------------------------------------------------------------
 
 Below are requirements for using Designer to edit or create new QtVCP screens or panels:
 
 Required packages:
-qttools5-dev
-qttools5-dev-tools
+qt6-tools-dev
 libpython3-dev
 
 To enable LinuxCNC specific widgets to appear in Designer:
@@ -55,4 +53,4 @@ For a RIP install only:
     source ~/linuxcnc-dev/scripts/rip-environment
 
 Start designer with:
-    designer -qt=5
+    designer -qt=6

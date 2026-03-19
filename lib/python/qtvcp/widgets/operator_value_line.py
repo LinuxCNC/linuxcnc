@@ -23,8 +23,8 @@ import time
 
 import subprocess
 
-from PyQt5.QtWidgets import QLineEdit, QApplication
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty
+from PyQt6.QtWidgets import QLineEdit, QApplication
+from PyQt6.QtCore import Qt, QEvent, pyqtProperty
 
 from qtvcp.core import Status, Action, Info
 from qtvcp.widgets.entry_widget import SoftInputWidget
@@ -208,10 +208,10 @@ class OperatorValueLine(OperatorValue):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = OperatorValueLine()
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

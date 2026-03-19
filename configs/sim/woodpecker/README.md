@@ -2,7 +2,7 @@
 ### Extra libraries are required in addition to those for the installation of QTVCP for additional functionality
 
 #### For viewing job setup sheets and help pages formatted in HTML
-sudo apt-get install python3-pyqt5.qtwebengine
+sudo apt-get install python3-pyqt6.qtwebengine
 
 #### To communicate with Huanyang GT series VFDs
 sudo apt-get install python3-pymodbus

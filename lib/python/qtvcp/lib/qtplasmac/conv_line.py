@@ -19,8 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QMessageBox
+from PyQt6.QtCore import Qt, QCoreApplication
+from PyQt6.QtWidgets import QLabel, QMessageBox
 from importlib import reload
 from plasmac import line as LINE
 
@@ -265,7 +265,7 @@ def set_arc_widgets(P, W):
 
 
 def error_set(P, error):
-    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Line Error'), error)
+    P.dialog_show_ok(QMessageBox.Icon.Warning, _translate('Conversational', 'Line Error'), error)
 
 
 def widgets(P, W, Conv):
@@ -280,11 +280,11 @@ def widgets(P, W, Conv):
     rButton = ['g23Arc']
     pButton = ['preview', 'add', 'undo']
     for widget in rightAlign:
-        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[widget].setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     for widget in centerAlign:
-        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        W[widget].setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
         W[widget].setFixedWidth(240)
         W[widget].setFixedHeight(24)
     for widget in rButton:

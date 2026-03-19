@@ -19,8 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QMessageBox
+from PyQt6.QtCore import Qt, QCoreApplication
+from PyQt6.QtWidgets import QLabel, QMessageBox
 from importlib import reload
 from plasmac import star as STAR
 
@@ -41,7 +41,7 @@ def preview(P, W, Conv):
                          W.pEntry.text(), W.odEntry.text(), W.idEntry.text(), W.aEntry.text())
     if error:
         P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Star Error'), error)
+        P.dialog_show_ok(QMessageBox.Icon.Warning, _translate('Conversational', 'Star Error'), error)
     else:
         W.conv_preview.load(P.fNgc)
         W.conv_preview.set_current_view()
@@ -82,11 +82,11 @@ def widgets(P, W, Conv):
     rButton = ['intExt', 'centLeft']
     pButton = ['preview', 'add', 'undo']
     for widget in rightAlign:
-        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[widget].setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     for widget in centerAlign:
-        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        W[widget].setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
         W[widget].setFixedWidth(240)
         W[widget].setFixedHeight(24)
     for widget in rButton:

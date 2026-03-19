@@ -1,17 +1,17 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
+from PyQt6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
                             QVBoxLayout,QDialogButtonBox)
-from PyQt5.QtCore import QTimer, Qt
+from PyQt6.QtCore import QTimer, Qt
 
 class CustomDialog(QDialog):
 
     def __init__(self, *args, **kwargs):
         super(CustomDialog, self).__init__(*args, **kwargs)
 
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
         self.setWindowTitle("Filter-with-GUI Test")
 
-        QBtn = QDialogButtonBox.Cancel
+        QBtn = QDialogButtonBox.StandardButton.Cancel
 
         self.buttonBox = QDialogButtonBox(QBtn)
         self.buttonBox.rejected.connect(self.reject)
@@ -60,5 +60,5 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     w = CustomDialog()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

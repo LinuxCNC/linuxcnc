@@ -29,9 +29,9 @@
 
 import sys
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QEvent, Qt, QByteArray, QVariant
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QAction,\
+from PyQt6.QtCore import pyqtProperty, pyqtSignal, QSize, QEvent, Qt, QByteArray
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QMainWindow, QAction,\
          QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
             QFrame, QLabel
 
@@ -71,7 +71,7 @@ class GEditor(QMainWindow, _HalWidgetBase):
         self.isCaseSensitive = 0
 
         self.setMinimumSize(QSize(300, 200))
-        self.setWindowTitle("PyQt5 editor test example")
+        self.setWindowTitle("PyQt6 editor test example")
 
         # make editor
         self.editor = GcodeDisplay(self)
@@ -337,7 +337,7 @@ class GEditor(QMainWindow, _HalWidgetBase):
 
     def saveSettings(self):
         self.SETTINGS_.beginGroup("geditor-{}".format(self.objectName()))
-        self.SETTINGS_.setValue('state', QVariant(self.saveState().data()))
+        self.SETTINGS_.setValue('state', self.saveState(.data()))
         self.SETTINGS_.endGroup()
 
     def restoreSettings(self):
@@ -433,8 +433,8 @@ class GEditor(QMainWindow, _HalWidgetBase):
              """This file has changed since loading and
 has not been saved. You will lose your changes.
 Still want to proceed?""",
-                                            QMessageBox.Yes | QMessageBox.No)
-        if choice == QMessageBox.Yes:
+                                            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if choice == QMessageBox.StandardButton.Yes:
             return True
         else:
             return False
@@ -520,9 +520,9 @@ Still want to proceed?""",
 
 # for direct testing
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from PyQt6.QtWidgets import *
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
 
     app = QApplication(sys.argv)
     w = GcodeEditor()
@@ -554,6 +554,6 @@ This is the end of the test text.''')
     if 0:
         w.label.setText('<b>Edit mode title label</b>')
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 
 

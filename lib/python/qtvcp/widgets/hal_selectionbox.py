@@ -14,9 +14,9 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QComboBox, QTreeView, QFrame
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtCore import Qt, QEvent, QModelIndex, pyqtSignal
+from PyQt6.QtWidgets import QComboBox, QTreeView, QFrame
+from PyQt6.QtGui import QStandardItemModel, QStandardItem
+from PyQt6.QtCore import Qt, QEvent, QModelIndex, pyqtSignal
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 
@@ -41,7 +41,7 @@ class TreeComboBox(QComboBox):
 
         tree_view = QTreeView(self)
         tree_view.setHeaderHidden( False )
-        tree_view.setFrameShape(QFrame.NoFrame)
+        tree_view.setFrameShape(QFrame.Shape.NoFrame)
         tree_view.setEditTriggers(tree_view.NoEditTriggers)
         tree_view.setAlternatingRowColors(True)
         tree_view.setSelectionBehavior(tree_view.SelectItems)
@@ -66,7 +66,7 @@ class TreeComboBox(QComboBox):
     def eventFilter(self, object, event):
         if event.type() == QEvent.MouseButtonPress and object is self.view().viewport():
             index = self.view().indexAt(event.pos())
-            # print index.parent(),index.row(),index.column(),index.data(),index.data(Qt.UserRole + 1)
+            # print index.parent(),index.row(),index.column(),index.data(),index.data(Qt.ItemDataRole.UserRole + 1)
             # print self.view().isExpanded(self.view().currentIndex())
             # if self.itemAt(event.pos()) is None
             self.__skip_next_hide = not self.view().visualRect(index).contains(event.pos())
@@ -78,13 +78,13 @@ class TreeComboBox(QComboBox):
             # don't let title lines be selectable
             if not value[1]:
                 item.setFlags(item.flags() & -(1<<1))
-            item.setData(value[0], role=Qt.ToolTipRole)
+            item.setData(value[0], role=Qt.ItemDataRole.ToolTipRole)
             # store the HAL name and selectability in Qt user roles
-            item.setData(value[0], role=Qt.UserRole + self.NAME)
+            item.setData(value[0], role=Qt.ItemDataRole.UserRole + self.NAME)
             # selectability in Qt user roles
-            item.setData(value[1], role=Qt.UserRole + self.SELECTABLE)
+            item.setData(value[1], role=Qt.ItemDataRole.UserRole + self.SELECTABLE)
             # all info of object
-            item.setData(value[2], role=Qt.UserRole + self.OBJECT)
+            item.setData(value[2], role=Qt.ItemDataRole.UserRole + self.OBJECT)
             parent.appendRow(item)
 
             # next level
@@ -93,7 +93,7 @@ class TreeComboBox(QComboBox):
 
     # emit the (by default) signal name
     def getSelectionData(self, index,userIndex=1):
-        choice = self.itemData(self.currentIndex(), Qt.UserRole + userIndex)
+        choice = self.itemData(self.currentIndex(), Qt.ItemDataRole.UserRole + userIndex)
         return choice
 
     def selected(self,index):
@@ -227,13 +227,13 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     x = hal.component('_X_')
     widget = HALSelectionBox()
     widget._hal_init()
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

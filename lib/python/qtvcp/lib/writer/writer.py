@@ -5,10 +5,10 @@
 import sys
 import os
 
-from PyQt5 import QtWidgets
-from PyQt5 import QtPrintSupport
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt
+from PyQt6 import QtWidgets
+from PyQt6 import QtPrintSupport
+from PyQt6 import QtGui, QtCore
+from PyQt6.QtCore import Qt
 
 from .ext import *
 from qtvcp.core import Path
@@ -340,7 +340,7 @@ class Main(QtWidgets.QMainWindow):
         self.text.cursorPositionChanged.connect(self.cursorPosition)
 
         # We need our own context menu for tables
-        self.text.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.text.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.text.customContextMenuRequested.connect(self.context)
 
         self.text.textChanged.connect(self.changed)
@@ -362,24 +362,24 @@ class Main(QtWidgets.QMainWindow):
 
             popup = QtWidgets.QMessageBox(self)
 
-            popup.setIcon(QtWidgets.QMessageBox.Warning)
+            popup.setIcon(QtWidgets.QMessageBox.Icon.Warning)
 
             popup.setText("The document has been modified")
 
             popup.setInformativeText("Do you want to save your changes?")
 
-            popup.setStandardButtons(QtWidgets.QMessageBox.Save |
-                                     QtWidgets.QMessageBox.Cancel |
-                                     QtWidgets.QMessageBox.Discard)
+            popup.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Save |
+                                     QtWidgets.QMessageBox.StandardButton.Cancel |
+                                     QtWidgets.QMessageBox.StandardButton.Discard)
 
-            popup.setDefaultButton(QtWidgets.QMessageBox.Save)
+            popup.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Save)
 
-            answer = popup.exec_()
+            answer = popup.exec()
 
-            if answer == QtWidgets.QMessageBox.Save:
+            if answer == QtWidgets.QMessageBox.StandardButton.Save:
                 self.save()
 
-            elif answer == QtWidgets.QMessageBox.Discard:
+            elif answer == QtWidgets.QMessageBox.StandardButton.Discard:
                 event.accept()
 
             else:
@@ -570,7 +570,7 @@ class Main(QtWidgets.QMainWindow):
     def open(self):
 
         # Get filename and show only .writer files
-        # PYQT5 Returns a tuple in PyQt5, we only need the filename
+        # PYQT5 Returns a tuple in PyQt6, we only need the filename
         if self.filename is None:
             searchDir = self.default_path
         else:
@@ -611,14 +611,14 @@ class Main(QtWidgets.QMainWindow):
         # If a print is requested, open print dialog
         preview.paintRequested.connect(lambda p: self.text.print_(p))
 
-        preview.exec_()
+        preview.exec()
 
     def printHandler(self):
 
         # Open printing dialog
         dialog = QtPrintSupport.QPrintDialog()
 
-        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
             self.text.document().print_(dialog.printer())
 
     def cursorPosition(self):
@@ -658,10 +658,10 @@ class Main(QtWidgets.QMainWindow):
             # Error if unloadable
             if image.isNull():
 
-                popup = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Critical,
+                popup = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Icon.Critical,
                                               "Image load error",
                                               "Could not load image file!",
-                                              QtWidgets.QMessageBox.Ok,
+                                              QtWidgets.QMessageBox.StandardButton.Ok,
                                               self)
                 popup.show()
 
@@ -687,13 +687,13 @@ class Main(QtWidgets.QMainWindow):
 
     def bold(self):
 
-        if self.text.fontWeight() == QtGui.QFont.Bold:
+        if self.text.fontWeight() == QtGui.QFont.Weight.Bold:
 
-            self.text.setFontWeight(QtGui.QFont.Normal)
+            self.text.setFontWeight(QtGui.QFont.Weight.Normal)
 
         else:
 
-            self.text.setFontWeight(QtGui.QFont.Bold)
+            self.text.setFontWeight(QtGui.QFont.Weight.Bold)
 
     def italic(self):
 
@@ -759,16 +759,16 @@ class Main(QtWidgets.QMainWindow):
         self.text.setCurrentCharFormat(fmt)
 
     def alignLeft(self):
-        self.text.setAlignment(Qt.AlignLeft)
+        self.text.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
     def alignRight(self):
-        self.text.setAlignment(Qt.AlignRight)
+        self.text.setAlignment(Qt.AlignmentFlag.AlignRight)
 
     def alignCenter(self):
-        self.text.setAlignment(Qt.AlignCenter)
+        self.text.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def alignJustify(self):
-        self.text.setAlignment(Qt.AlignJustify)
+        self.text.setAlignment(Qt.AlignmentFlag.AlignJustify)
 
     def indent(self):
 
@@ -791,7 +791,7 @@ class Main(QtWidgets.QMainWindow):
             # Iterate over lines (diff absolute value)
             for n in range(abs(diff) + 1):
                 # Move to start of each line
-                cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+                cursor.movePosition(QtGui.QTextCursor.MoveOperation.StartOfLine)
 
                 # Insert tabbing
                 cursor.insertText("\t")
@@ -806,7 +806,7 @@ class Main(QtWidgets.QMainWindow):
 
     def handleDedent(self, cursor):
 
-        cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+        cursor.movePosition(QtGui.QTextCursor.MoveOperation.StartOfLine)
 
         # Grab the current line
         line = cursor.block().text()
@@ -874,7 +874,7 @@ def main():
     main = Main()
     main.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

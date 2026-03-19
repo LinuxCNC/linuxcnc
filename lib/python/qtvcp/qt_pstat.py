@@ -18,7 +18,7 @@
 import os
 import sys
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 # Set up logging
 from . import logger

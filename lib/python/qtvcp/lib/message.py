@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
 from qtvcp.core import Status, Info
 from qtvcp.widgets.dialog_widget import LcncDialog
 import hal
@@ -21,10 +21,10 @@ CRITICAL = 2
 
 class Message:
     def __init__(self):
-        self.QUESTION = QMessageBox.Question
-        self.INFO = QMessageBox.Information
-        self.WARNING = QMessageBox.Warning
-        self.CRITICAL = QMessageBox.Critical
+        self.QUESTION = QMessageBox.Icon.Question
+        self.INFO = QMessageBox.Icon.Information
+        self.WARNING = QMessageBox.Icon.Warning
+        self.CRITICAL = QMessageBox.Icon.Critical
         self._color = QColor(0, 0, 0, 150)
         self.focus_text = ' '
         self.play_sounds = True
@@ -51,10 +51,10 @@ class Message:
                     log.info('invalid message type {} in INI File [DISPLAY] section'.format(details))
                     continue
 
-                if icon.upper() == 'CRITICAL': icon = QMessageBox.Critical
-                elif icon.upper() == 'INFO': icon = QMessageBox.Information
-                elif icon.upper() == 'WARNING': icon = QMessageBox.Warning
-                else: icon = QMessageBox.Question
+                if icon.upper() == 'CRITICAL': icon = QMessageBox.Icon.Critical
+                elif icon.upper() == 'INFO': icon = QMessageBox.Icon.Information
+                elif icon.upper() == 'WARNING': icon = QMessageBox.Icon.Warning
+                else: icon = QMessageBox.Icon.Question
 
                 if not name == None:
                     D = self['dialog-{}'.format(name)] = LcncDialog(window)
@@ -178,23 +178,23 @@ class Message:
             self.showDialog(dialog, boldtext, text, details, style, icon, pinname)
 
     def showDialog(self, dialog, message, more_info=None, details=None, display_type='OK',
-                   icon=QMessageBox.Information, pinname=None, focus_text=None,
+                   icon=QMessageBox.Icon.Information, pinname=None, focus_text=None,
                            focus_color=None, play_alert=None, nblock= False,
                            return_callback = None, flags = None, setflags = None,
                             title = None):
 
         if type(icon) == str:
-            if icon.upper() == 'CRITICAL': icon = QMessageBox.Critical
-            elif icon.upper() == 'INFO': icon = QMessageBox.Information
-            elif icon.upper() == 'WARNING': icon = QMessageBox.Warning
-            else: icon = QMessageBox.Question
+            if icon.upper() == 'CRITICAL': icon = QMessageBox.Icon.Critical
+            elif icon.upper() == 'INFO': icon = QMessageBox.Icon.Information
+            elif icon.upper() == 'WARNING': icon = QMessageBox.Icon.Warning
+            else: icon = QMessageBox.Icon.Question
 
         if return_callback == None:
             return_callback = self.dialog_return
-        flags =  (Qt.Tool | Qt.Dialog | Qt.WindowStaysOnTopHint\
-                | Qt.WindowSystemMenuHint | Qt.CustomizeWindowHint)
+        flags =  (Qt.WindowType.Tool | Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint\
+                | Qt.WindowSystemMenuHint | Qt.WindowType.CustomizeWindowHint)
         title = 'User Message'
-        setFlags = {Qt.WindowCloseButtonHint: False}
+        setFlags = {Qt.WindowType.WindowCloseButtonHint: False}
         dialog.showdialog( message, more_info=more_info, details=details, display_type=display_type,
                            icon=icon, pinname=pinname, focus_text=None,
                            focus_color=None, play_alert=None, nblock= nblock,
@@ -251,7 +251,7 @@ class Message:
 
 if __name__ == '__main__':
     import sys
-    from PyQt5.QtCore import *
+    from PyQt6.QtCore import *
 
     def callreturn(dialog, btn, pinname):
         result = dialog.qualifiedReturn(btn)
@@ -295,4 +295,4 @@ if __name__ == '__main__':
     w.setWindowTitle("PyQt Dialog demo")
     w.setGeometry(300, 300, 300, 150)
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

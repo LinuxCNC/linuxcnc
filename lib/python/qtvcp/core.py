@@ -8,7 +8,7 @@ import inspect
 import _hal
 import hal
 import traceback
-from PyQt5.QtCore import QObject, QTimer, pyqtSignal
+from PyQt6.QtCore import QObject, QTimer, pyqtSignal
 
 from common.hal_glib import GStat
 from common.iniinfo import _IStat as IStatParent

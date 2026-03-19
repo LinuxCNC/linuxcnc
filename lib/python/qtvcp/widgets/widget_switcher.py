@@ -16,8 +16,8 @@
 #################################################################################
 
 
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QStackedWidget, QLayout
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtWidgets import QStackedWidget, QLayout
 
 from collections import OrderedDict
 

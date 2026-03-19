@@ -17,7 +17,7 @@
 
 import os
 
-from PyQt5 import QtCore, QtWidgets, uic
+from PyQt6 import QtCore, QtWidgets, uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Path
@@ -331,9 +331,9 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
             tail = t[len(head):]
             self.mdi.set_word(head, tail)
         if len(t) < 2:
-            w.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+            w.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
         else:
-            w.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+            w.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
 
     def cycle_ocodes(self):
         # strip off richText bold encoding
@@ -391,13 +391,13 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
 # Testing
 ####################################
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from PyQt6.QtWidgets import *
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
     w = MDITouchy()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

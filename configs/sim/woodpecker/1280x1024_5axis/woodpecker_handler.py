@@ -2,12 +2,12 @@ import os
 import linuxcnc
 import hal
 import sys
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5 import QtCore, QtWidgets, QtGui, uic
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6 import QtCore, QtWidgets, QtGui, uic
 try:
-    from PyQt5.QtWebKitWidgets import QWebView
+    from PyQt6.QtWebKitWidgets import QWebView
 except ImportError:
-    raise Exception("Qtvcp error with woodpecker - is package python-pyqt5.qtwebkit installed?")
+    raise Exception("Qtvcp error with woodpecker - is package python-pyqt6.qtwebkit installed?")
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -63,7 +63,7 @@ class HandlerClass:
         self.PATHS = paths
         self.gcodes = GCodes(widgets)
         self._last_count = 0
-        self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('-?[0-9]{0,6}[.][0-9]{0,3}'))
+        self.valid = QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('-?[0-9]{0,6}[.][0-9]{0,3}'))
         self.styleeditor = SSE(widgets, paths)
         KEYBIND.add_call('Key_F10','on_keycall_F10')
         KEYBIND.add_call('Key_F11','on_keycall_F11')
@@ -417,7 +417,7 @@ class HandlerClass:
 
         # gcode file history
         self.w.cmb_gcode_history.addItem("No File Loaded")
-        self.w.cmb_gcode_history.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.w.cmb_gcode_history.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         # mdi history
         self.w.mdihistory.MDILine.setFixedHeight(30)
         self.w.mdihistory.MDILine.setPlaceholderText('MDI:')
@@ -434,7 +434,7 @@ class HandlerClass:
 
         #tool icons
         self.w.cmb_tool_icons.addItem("SELECT\nICON")
-        self.w.cmb_tool_icons.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.w.cmb_tool_icons.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         path = os.path.join(PATH.CONFIGPATH, "tool_icons")
         if os.path.isdir(path):
             icons = os.listdir(path)
@@ -520,8 +520,8 @@ class HandlerClass:
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2):
-#                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F4,QtCore.Qt.Key_F5):
+        if code not in(QtCore.Qt.Key.Key_Escape,QtCore.Qt.Key.Key_F1 ,QtCore.Qt.Key.Key_F2):
+#                    QtCore.Qt.Key.Key_F3,QtCore.Qt.Key.Key_F4,QtCore.Qt.Key.Key_F5):
 
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
@@ -1310,12 +1310,12 @@ class HandlerClass:
         return
         # pop a dialog of the properties
         msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
         msg.setText(smallmess)
         msg.setWindowTitle("Gcode Properties")
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
         msg.show()
-        retval = msg.exec_()                
+        retval = msg.exec()
                     
     def touchoff(self, selector):
         if selector == 'touchplate':

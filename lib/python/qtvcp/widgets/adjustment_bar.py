@@ -14,9 +14,9 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout, QMenu, QAction
-from PyQt5.QtCore import Qt, pyqtProperty, QBasicTimer, pyqtSignal
-from PyQt5.QtGui import QPainter, QFont, QIcon
+from PyQt6.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout, QMenu, QAction
+from PyQt6.QtCore import Qt, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt6.QtGui import QPainter, QFont, QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -61,7 +61,7 @@ class LabeledBar(QProgressBar):
     def drawText(self, qp):
         qp.setOpacity(1.0)
         qp.setFont(self.font)
-        qp.drawText(self.rect(), Qt.AlignCenter, self.text)
+        qp.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, self.text)
 
 
 class HAdjustmentBar(QWidget):
@@ -78,7 +78,7 @@ class HAdjustmentBar(QWidget):
         self.showToggleButton = True
         self.showSettingMenu = True
         self.bar = LabeledBar()
-        #self.bar.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+        #self.bar.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
         # black magic class patching
         # so calling these functions actually calls the self.bar's functions.
         self.minimum = self.bar.minimum
@@ -111,7 +111,7 @@ class HAdjustmentBar(QWidget):
             tb_set.setText('<>')
             if self.showSettingMenu:
                 tb_set.setMenu(SettingMenu)
-                tb_set.setPopupMode(QToolButton.DelayedPopup)
+                tb_set.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
 
         layout.addWidget(self.tb_down)
         layout.addWidget(self.bar)
@@ -388,7 +388,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = StatusAdjustmentBar()
     widget.PREFS_=None
@@ -397,6 +397,6 @@ def main():
     widget.setValue(75)
     widget.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

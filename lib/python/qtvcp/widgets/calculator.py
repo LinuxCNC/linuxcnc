@@ -2,13 +2,13 @@
 import math
 import sys
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QApplication, QGridLayout, QLayout, QLineEdit,
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (QApplication, QGridLayout, QLayout, QLineEdit,
         QSizePolicy, QPushButton, QDialog, QDialogButtonBox, QMenu, QAction,
         QVBoxLayout, QToolButton, QLabel)
-from PyQt5.QtGui import QDoubleValidator
-from PyQt5.QtGui import QIcon
-from PyQt5 import QtCore
+from PyQt6.QtGui import QDoubleValidator
+from PyQt6.QtGui import QIcon
+from PyQt6 import QtCore
 from qtvcp.core import Status, Info
 STATUS = Status()
 INFO = Info()
@@ -26,7 +26,7 @@ class CalculatorLineEdit(QLineEdit):
     def __init__(self, parent=None):
         super(CalculatorLineEdit, self).__init__(parent)
         self.setMaxLength(15)
-        self.setAlignment(Qt.AlignRight)
+        self.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         # set up a validator so the input text can only be a number
         validator = QDoubleValidator()
@@ -38,7 +38,7 @@ class CalculatorLineEdit(QLineEdit):
     def keyPressEvent(self, event):
         # The digit and decimal keys emit a digitKeyPressed signal
 
-        if (event.key() >= Qt.Key_0 and event.key() <= Qt.Key_9) or event.key() == Qt.Key_Period:
+        if (event.key() >= Qt.Key.Key_0 and event.key() <= Qt.Key.Key_9) or event.key() == Qt.Key.Key_Period:
             self.digitKeyPressed.emit(str(event.text()))
 
         # these keys are absorbed and not sent to QLineEdit but a signal is emitted
@@ -47,14 +47,14 @@ class CalculatorLineEdit(QLineEdit):
         # ALT+Right - move to next field
         # ALT+Backspace - cancel
         key_map = {
-            Qt.Key_Minus: lambda: self.operatorKeyPressed.emit('-'),
-            Qt.Key_Plus: lambda: self.operatorKeyPressed.emit('+'),
-            Qt.Key_Asterisk: lambda: self.operatorKeyPressed.emit('*'),
-            Qt.Key_Slash: lambda: self.operatorKeyPressed.emit('/'),
-            Qt.Key_Equal: lambda: self.operatorKeyPressed.emit('='),
-            (Qt.Key_Right, Qt.AltModifier): lambda: self.fieldKeyPressed.emit('next'),
-            (Qt.Key_Left, Qt.AltModifier): lambda: self.fieldKeyPressed.emit('previous'),
-            (Qt.Key_Backspace, Qt.AltModifier): self.cancelKeyPressed.emit
+            Qt.Key.Key_Minus: lambda: self.operatorKeyPressed.emit('-'),
+            Qt.Key.Key_Plus: lambda: self.operatorKeyPressed.emit('+'),
+            Qt.Key.Key_Asterisk: lambda: self.operatorKeyPressed.emit('*'),
+            Qt.Key.Key_Slash: lambda: self.operatorKeyPressed.emit('/'),
+            Qt.Key.Key_Equal: lambda: self.operatorKeyPressed.emit('='),
+            (Qt.Key.Key_Right, Qt.AltModifier): lambda: self.fieldKeyPressed.emit('next'),
+            (Qt.Key.Key_Left, Qt.AltModifier): lambda: self.fieldKeyPressed.emit('previous'),
+            (Qt.Key.Key_Backspace, Qt.AltModifier): self.cancelKeyPressed.emit
         }
 
         key = event.key()
@@ -89,17 +89,17 @@ class Calculator(QDialog):
 
         self.display = CalculatorLineEdit('0')
         self.display.setMinimumHeight(30)
-        self.display.setAlignment(Qt.AlignRight)
+        self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.display.setMaxLength(15)
 
         self.display.textEdited.connect(self.displayTextEdited)
         self.display.textChanged.connect(self.displayTextChanged)
 
         self.pendingLabel = QLabel()
-        self.pendingLabel.setAlignment(Qt.AlignRight)
+        self.pendingLabel.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         self.memoryLabel = QLabel()
-        self.memoryLabel.setAlignment(Qt.AlignRight)
+        self.memoryLabel.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.updateMemLabel()
 
         self.display.digitKeyPressed.connect(self.physDigitPressed)
@@ -181,8 +181,8 @@ class Calculator(QDialog):
                 constValues = ''.join(constValues.split())
                 for value in constValues.split(',')[:6]:
                     constButton = QPushButton(value)
-                    constButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-                    constButton.setFocusPolicy(Qt.NoFocus)
+                    constButton.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+                    constButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
                     constButton.clicked.connect(self.constClicked)
                     mainLayout.addWidget(constButton, len(self.constButtons) + 2, 6)
                     self.constButtons.append(constButton)
@@ -192,28 +192,28 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.memoryLabel, 1, 1, 1, mainLayout.columnCount()-1)
 
         self.backButton = QPushButton('Back')
-        self.backButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        self.backButton.setFocusPolicy(Qt.NoFocus)
+        self.backButton.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        self.backButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.backButton.clicked.connect(self.backActionWrapper)
 
         self.nextButton = QPushButton('Next')
-        self.nextButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        self.nextButton.setFocusPolicy(Qt.NoFocus)
+        self.nextButton.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        self.nextButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.nextButton.clicked.connect(self.nextActionWrapper)
         self.applyNextButton = QPushButton('Apply\nNext')
-        self.applyNextButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.applyNextButton.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         self.applyNextButton.clicked.connect(self.applyActionWrapper)
         self.applyNextButton.setVisible(False)
 
         self.bBox = QDialogButtonBox()
 
         cancelButton = self.bBox.addButton(QDialogButtonBox.StandardButton.Cancel)
-        cancelButton.setFocusPolicy(Qt.NoFocus)
+        cancelButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         applyButton = self.bBox.addButton(QDialogButtonBox.StandardButton.Apply)
-        applyButton.setFocusPolicy(Qt.NoFocus)
-        self.bBox.addButton(self.backButton, QDialogButtonBox.ActionRole)
-        self.bBox.addButton(self.nextButton, QDialogButtonBox.ActionRole)
-        self.bBox.addButton(self.applyNextButton, QDialogButtonBox.ActionRole)
+        applyButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.bBox.addButton(self.backButton, QDialogButtonBox.ButtonRole.ActionRole)
+        self.bBox.addButton(self.nextButton, QDialogButtonBox.ButtonRole.ActionRole)
+        self.bBox.addButton(self.applyNextButton, QDialogButtonBox.ButtonRole.ActionRole)
         self.bBox.rejected.connect(self.reject)
         self.bBox.accepted.connect(self.accept)
 
@@ -227,7 +227,7 @@ class Calculator(QDialog):
 
         for button in self.bBox.buttons():
             if button.text() == 'Cancel' or button.text() == 'Apply':
-                button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+                button.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
 
         self.setWindowTitle("Calculator")
         if not INFO.LINUXCNC_IS_RUNNING:
@@ -554,8 +554,8 @@ class Calculator(QDialog):
 
     def createButton(self, text, member, tip=None):
         button = QPushButton(text)
-        button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        button.setFocusPolicy(Qt.NoFocus)
+        button.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         button.setMinimumSize(70, 40)
         button.clicked.connect(member)
         if tip is not None:
@@ -565,7 +565,7 @@ class Calculator(QDialog):
     def createAxisButton(self, text, member):
         button = QToolButton()
         button.setText(text)
-        button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        button.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         button.setMinimumSize(70, 40)
         button.clicked.connect(member)
         SettingMenu = QMenu()
@@ -635,4 +635,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     calc = Calculator()
     calc.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

@@ -17,9 +17,9 @@
 import linuxcnc
 from math import isclose
 
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMenu, QAction
-from PyQt5.QtGui import QIcon, QColor
+from PyQt6 import QtCore
+from PyQt6.QtWidgets import QMenu, QAction
+from PyQt6.QtGui import QIcon, QColor
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -288,11 +288,11 @@ class UserDROLabel(ScaledLabel, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     widget = UserDROLabel()
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

@@ -24,9 +24,9 @@ import os
 import sys
 import hal
 from subprocess import run as RUN
-from PyQt5 import QtCore
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMessageBox
+from PyQt6 import QtCore
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QMessageBox
 from qtvcp.core import Info
 from qtvcp.lib.preferences import Access
 
@@ -39,9 +39,9 @@ class HandlerClass:
         self.w = widgets
         self.paths = paths
         self.iniFile = INFO.INI
-        self.w.setWindowFlags(QtCore.Qt.CustomizeWindowHint |
-                              QtCore.Qt.WindowTitleHint |
-                              QtCore.Qt.WindowStaysOnTopHint)
+        self.w.setWindowFlags(QtCore.Qt.WindowType.CustomizeWindowHint |
+                              QtCore.Qt.WindowType.WindowTitleHint |
+                              QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.styleFile = f'{self.paths.CONFIGPATH}/qtplasmac_sim.qss'
         self.set_style()
@@ -367,10 +367,10 @@ class HandlerClass:
 
     def help_pressed(self):
         msg = QMessageBox(self.w)
-        buttonY = msg.addButton(QMessageBox.Ok)
+        buttonY = msg.addButton(QMessageBox.StandardButton.Ok)
         buttonY.setText('OK')
-        buttonY.setFocusPolicy(QtCore.Qt.NoFocus)
-        msg.setIcon(QMessageBox.Information)
+        buttonY.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        msg.setIcon(QMessageBox.Icon.Information)
         msg.setWindowTitle('Sim Panel Help')
         message = 'This panel provides buttons for simulating basic plasma signals.\n'
         message += '\nThe operating mode of QtPlasmaC determines which widgets appear on the panel.\n'
@@ -382,7 +382,7 @@ class HandlerClass:
         message += '\nFor Mode 2 the UP and DOWN buttons can be pressed during the "cut" and the "torch" will respond appropriately.\n'
         message += '\nOther buttons can be pressed at any stage of a program run to show the various effect that they have on a running program.\n'
         msg.setText(message)
-        msg.exec_()
+        msg.exec()
 
 
 def get_handlers(halcomp, widgets, paths):

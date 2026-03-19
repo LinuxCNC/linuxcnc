@@ -15,7 +15,7 @@
 #
 #################################################################################
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -217,4 +217,4 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     combo = JogIncrements()
     combo.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

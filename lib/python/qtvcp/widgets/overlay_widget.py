@@ -16,11 +16,11 @@
 
 import os
 
-from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout,
+from PyQt6.QtWidgets import (QWidget, QLabel, QHBoxLayout,
                 QVBoxLayout, QPushButton, QDialog, QProgressBar)
-from PyQt5.QtCore import (Qt, QEvent, pyqtSlot, pyqtProperty, QChildEvent,
+from PyQt6.QtCore import (Qt, QEvent, pyqtSlot, pyqtProperty, QChildEvent,
                  )
-from PyQt5.QtGui import QColor, QImage, QResizeEvent, QPainter, QMoveEvent
+from PyQt6.QtGui import QColor, QImage, QResizeEvent, QPainter, QMoveEvent
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status
@@ -49,12 +49,12 @@ class OverlayWidget(QWidget):
         self.top_level = parent
         super(OverlayWidget, self).__init__(parent)
         self.parent = parent
-        #self.setAttribute(Qt.WA_NoSystemBackground)
-        #self.setAttribute(Qt.WA_TransparentForMouseEvents)
+        #self.setAttribute(Qt.WidgetAttribute.WA_NoSystemBackground)
+        #self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
 
-        self.setWindowFlags( self.windowFlags() |Qt.Tool |
-                        Qt.FramelessWindowHint  |
-                             Qt.WindowStaysOnTopHint )
+        self.setWindowFlags( self.windowFlags() |Qt.WindowType.Tool |
+                        Qt.WindowType.FramelessWindowHint  |
+                             Qt.WindowType.WindowStaysOnTopHint )
         if not self.parent is None:
             self.parent.installEventFilter(self)
 
@@ -126,7 +126,7 @@ class OverlayWidget(QWidget):
 class FocusOverlay(OverlayWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(FocusOverlay, self).__init__(parent)
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.bg_color = QColor(0, 0, 0, 150)
         self.text = "Loading..."
         self._state = False
@@ -247,7 +247,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         h = size.height()
         qp.setPen(self.text_color)
         qp.setFont(self.font)
-        qp.drawText(self.rect(), Qt.AlignCenter, self.text)
+        qp.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, self.text)
 
     # build a black label with text and optionally some buttons
     # using a label rather then drawing text allows options suck as rich text
@@ -260,7 +260,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         self.mb = QLabel('<html><head/><body><p><span style=" font-size:30pt; \
                        font-weight:600;">%s</span></p></body></html>' % self.text, self)
         self.mb.setStyleSheet("background-color: black; color: white")
-        self.mb.setAlignment(Qt.AlignVCenter | Qt.AlignCenter)
+        self.mb.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter)
         self.mb.setVisible(self._show_text)
         hbox2.addWidget(self.mb)
 
@@ -385,12 +385,12 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
 #################
 def main():
     import sys
-    from PyQt5.QtWidgets import QWidget, QApplication
-    from PyQt5.QtCore import QTimer
+    from PyQt6.QtWidgets import QWidget, QApplication
+    from PyQt6.QtCore import QTimer
     app = QApplication(sys.argv)
 
     w = QWidget()
-    #w.setWindowFlags( Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint )
+    #w.setWindowFlags( Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint )
     w.setGeometry(300, 300, 250, 150)
     w.setWindowTitle('Test')
 
@@ -428,7 +428,7 @@ def main():
     timer2.timeout.connect(lambda:pop() )
     timer2.start(1500)
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':

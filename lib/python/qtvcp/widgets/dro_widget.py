@@ -16,9 +16,9 @@
 
 import linuxcnc
 
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMenu, QAction
-from PyQt5.QtGui import QIcon
+from PyQt6 import QtCore
+from PyQt6.QtWidgets import QMenu, QAction
+from PyQt6.QtGui import QIcon
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -502,11 +502,11 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     widget = DROLabel()
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

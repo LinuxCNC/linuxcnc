@@ -23,9 +23,9 @@ import os
 import re
 from shutil import copy as COPY
 from importlib import reload
-from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QPushButton, QLabel, QLineEdit
-from PyQt5.QtWidgets import QComboBox
+from PyQt6.QtCore import Qt, QCoreApplication
+from PyQt6.QtWidgets import QFileDialog, QMessageBox, QPushButton, QLabel, QLineEdit
+from PyQt6.QtWidgets import QComboBox
 from qtvcp.core import Status, Action
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE
@@ -205,7 +205,7 @@ def conv_new_pressed(P, W, button):
         else:
             msg0 = _translate('HandlerClass', 'You have an unsaved, unsent, or active previewed shape')
             msg1 = _translate('HandlerClass', 'If you continue it will be deleted')
-        if not P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
+        if not P.dialog_show_yesno(QMessageBox.Icon.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
             return
     if P.oldConvButton == 'conv_line':
         if W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT'):
@@ -240,17 +240,17 @@ def conv_save_pressed(P, W):
         for line in inFile:
             if '(new conversational file)' in line:
                 msg0 = _translate('HandlerClass', 'An empty file cannot be saved')
-                P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'{msg0}\n')
+                P.dialog_show_ok(QMessageBox.Icon.Warning, f'{head}', f'{msg0}\n')
                 return
     P.vkb_show()
     dlg = QFileDialog(W)
-    dlg.setOptions(QFileDialog.DontUseNativeDialog)
-    dlg.setAcceptMode(QFileDialog.AcceptSave)
+    dlg.setOptions(QFileDialog.Option.DontUseNativeDialog)
+    dlg.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
     dlg.setNameFilters(['G-Code Files (*.ngc *.nc *.tap)', 'All Files (*)'])
     dlg.setDefaultSuffix('ngc')
     dlg.setDirectory(P.programPrefix)
     name = ''
-    if dlg.exec_():
+    if dlg.exec():
         name = dlg.selectedFiles()[0]
     if name:
         COPY(P.fNgc, name)
@@ -289,13 +289,13 @@ def conv_block_pressed(P, W):
             for line in inFile:
                 if '(new conversational file)' in line:
                     msg0 = _translate('HandlerClass', 'An empty file cannot be arrayed, rotated, or scaled')
-                    P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'{msg0}\n')
+                    P.dialog_show_ok(QMessageBox.Icon.Warning, f'{head}', f'{msg0}\n')
                     return
                 # see if we can do something about NURBS blocks down the track
                 # elif 'g5.2' in line.lower() or 'g5.3' in line.lower():
                 #     head = _translate('HandlerClass', 'Scale Error')
                 #     msg0 = _translate('HandlerClass', 'Cannot scale a GCode NURBS block')
-                #     P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{line}')
+                #     P.dialog_show_ok(QMessageBox.Icon.Warning, f'{head}', f'{msg0}\n\n{line}')
                 #     return
                 elif 'M3' in line.upper() or 'M03' in line.upper():
                     break
@@ -412,7 +412,7 @@ def conv_active_shape(P, W):
     head = _translate('HandlerClass', 'Active Preview')
     msg0 = _translate('HandlerClass', 'You have an active previewed shape')
     msg1 = _translate('HandlerClass', 'If you continue it will be deleted')
-    response = P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}')
+    response = P.dialog_show_yesno(QMessageBox.Icon.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}')
     if response:
         conv_undo_shape(P, W)
         conv_preview_button(P, W, False)
@@ -552,12 +552,12 @@ def conv_undo_shape(P, W):
             name = os.path.basename(ACTION.prefilter_path)
             msg0 = _translate('HandlerClass', 'The original file will be loaded')
             msg1 = _translate('HandlerClass', 'If you continue all changes will be deleted')
-            if not P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}:\n\n{name}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
+            if not P.dialog_show_yesno(QMessageBox.Icon.Warning, f'{head}', f'{msg0}:\n\n{name}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
                 return(True)
         else:
             msg0 = _translate('HandlerClass', 'An empty file will be loaded')
             msg1 = _translate('HandlerClass', 'If you continue all changes will be deleted')
-            if not P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
+            if not P.dialog_show_yesno(QMessageBox.Icon.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
                 return(True)
         P.validShape = False
         W.preview.setEnabled(True)
@@ -665,14 +665,14 @@ def conv_widgets(P, W):
     ''' create all required widgets without showing them '''
     # common
     W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
-    W.preview.setFocusPolicy(Qt.ClickFocus)
+    W.preview.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.undo = QPushButton(_translate('Conversational', 'RELOAD'))
-    W.undo.setFocusPolicy(Qt.ClickFocus)
+    W.undo.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.centLeft = QPushButton(_translate('Conversational', 'BTM LEFT'), objectName='centLeft')
-    W.centLeft.setFocusPolicy(Qt.ClickFocus)
+    W.centLeft.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.centLeft.setCheckable(True)
     W.intExt = QPushButton(_translate('Conversational', 'EXTERNAL'), objectName='intExt')
-    W.intExt.setFocusPolicy(Qt.ClickFocus)
+    W.intExt.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.intExt.setCheckable(True)
     W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.liEntry = QLineEdit(objectName='liEntry')
@@ -685,7 +685,7 @@ def conv_widgets(P, W):
     W.ysLabel = QLabel(_translate('Conversational', 'Y ORIGIN'))
     W.ysEntry = QLineEdit('0.000', objectName='ysEntry')
     W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
-    W.overcut.setFocusPolicy(Qt.ClickFocus)
+    W.overcut.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.overcut.setEnabled(False)
     W.overcut.setCheckable(True)
     W.ocLabel = QLabel(_translate('Conversational', 'OC LENGTH'))
@@ -693,10 +693,10 @@ def conv_widgets(P, W):
     W.ocEntry.setEnabled(False)
     W.ocEntry.setText(f'{4 * P.unitsPerMm}')
     W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.add.setFocusPolicy(Qt.ClickFocus)
+    W.add.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.lDesc = QLabel('')
     W.iLabel = QLabel()
-    W.iLabel.setAlignment(Qt.AlignRight | Qt.AlignTop)
+    W.iLabel.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop)
     W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
     W.aEntry = QLineEdit('0.0', objectName='aEntry')
     W.dLabel = QLabel(_translate('Conversational', 'DIAMETER'))
@@ -711,26 +711,26 @@ def conv_widgets(P, W):
     W.wEntry = QLineEdit(objectName='')
     W.rLabel = QLabel(_translate('Conversational', 'RADIUS'))
     W.rButton = QPushButton(_translate('Conversational', 'RADIUS'))
-    W.rButton.setFocusPolicy(Qt.ClickFocus)
+    W.rButton.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.rEntry = QLineEdit('')
     W.sLabel = QLabel()  # shared with different uses
     W.sEntry = QLineEdit()  # shared with different uses
     W.mCombo = QComboBox()
-    W.mCombo.setFocusPolicy(Qt.ClickFocus)
+    W.mCombo.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.mCombo.addItem(_translate('Conversational', 'CIRCUMSCRIBED'))
     W.mCombo.addItem(_translate('Conversational', 'INSCRIBED'))
     W.mCombo.addItem(_translate('Conversational', 'SIDE LENGTH'))
     W.r1Button = QPushButton(_translate('Conversational', 'RADIUS 1'))
-    W.r1Button.setFocusPolicy(Qt.ClickFocus)
+    W.r1Button.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.r1Entry = QLineEdit()
     W.r2Button = QPushButton(_translate('Conversational', 'RADIUS 2'))
-    W.r2Button.setFocusPolicy(Qt.ClickFocus)
+    W.r2Button.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.r2Entry = QLineEdit()
     W.r3Button = QPushButton(_translate('Conversational', 'RADIUS 3'))
-    W.r3Button.setFocusPolicy(Qt.ClickFocus)
+    W.r3Button.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.r3Entry = QLineEdit()
     W.r4Button = QPushButton(_translate('Conversational', 'RADIUS 4'))
-    W.r4Button.setFocusPolicy(Qt.ClickFocus)
+    W.r4Button.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.r4Entry = QLineEdit()
     W.lLabel = QLabel(_translate('Conversational', 'LENGTH'))
     W.lEntry = QLineEdit()
@@ -776,12 +776,12 @@ def conv_widgets(P, W):
     W.rtEntry = QLineEdit('0.0', objectName='aEntry')
     W.rtLabel = QLabel(_translate('Conversational', 'ROTATION'))
     W.mirror = QPushButton(_translate('Conversational', 'MIRROR'))
-    W.mirror.setFocusPolicy(Qt.ClickFocus)
+    W.mirror.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.flip = QPushButton(_translate('Conversational', 'FLIP'))
-    W.flip.setFocusPolicy(Qt.ClickFocus)
+    W.flip.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     # lines and arcs
     W.lType = QComboBox()
-    W.lType.setFocusPolicy(Qt.ClickFocus)
+    W.lType.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.label1 = QLabel()
     W.entry1 = QLineEdit(objectName='neg')
     W.label2 = QLabel()
@@ -795,7 +795,7 @@ def conv_widgets(P, W):
     W.label6 = QLabel()
     W.entry6 = QLineEdit(objectName='neg')
     W.g23Arc = QPushButton('CW - G2')
-    W.g23Arc.setFocusPolicy(Qt.ClickFocus)
+    W.g23Arc.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.g23Arc.setCheckable(True)
     # settings
     W.preLabel = QLabel(_translate('Conversational', 'PREAMBLE'))
@@ -810,11 +810,11 @@ def conv_widgets(P, W):
     W.gsLabel = QLabel(_translate('Conversational', 'GRID SIZE'))
     W.gsEntry = QLineEdit(objectName='gsEntry')
     W.save = QPushButton(_translate('Conversational', 'SAVE'))
-    W.save.setFocusPolicy(Qt.ClickFocus)
+    W.save.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.reload = QPushButton(_translate('Conversational', 'RELOAD'))
-    W.reload.setFocusPolicy(Qt.ClickFocus)
+    W.reload.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     W.cExit = QPushButton(_translate('Conversational', 'EXIT'))
-    W.cExit.setFocusPolicy(Qt.ClickFocus)
+    W.cExit.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
     if not W.lType.count():
         W.lType.addItem(_translate('Conversational', 'LINE POINT ~ POINT'))
         W.lType.addItem(_translate('Conversational', 'LINE BY ANGLE'))

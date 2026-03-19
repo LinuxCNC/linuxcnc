@@ -13,14 +13,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-try:
-    from PyQt5.QtCore import Q_ENUM
-except:
-    # before qt5.10
-    from PyQt5.QtCore import Q_ENUMS as Q_ENUM
+from PyQt6.QtCore import Q_ENUM
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtProperty, pyqtSlot
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import pyqtProperty, pyqtSlot
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
         _HalToggleBase, _HalSensitiveBase, _HalScaleBase)
 from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
@@ -306,8 +302,8 @@ class RichButton(QtWidgets.QPushButton):
         self._text = self.text()
 
         self._label = QtWidgets.QLabel(self._text, self)
-        self._label.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents )
-        self._label.setAlignment(QtCore.Qt.AlignCenter|QtCore.Qt.AlignVCenter)
+        self._label.setAttribute(QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents )
+        self._label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self._label.show()
 
     def setText(self, text):
@@ -363,12 +359,6 @@ class IndicatedPushButton(QtWidgets.QPushButton, IndicatedMixIn):
 class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
     HALPinType = HALPinType
     Q_ENUM(HALPinType)
-
-    # older version of pyqt5 need this as well as Q_ENUM
-    NONE = 0
-    BIT = hal.HAL_BIT
-    S32 = hal.HAL_S32
-    FLOAT = hal.HAL_FLOAT
 
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
@@ -522,8 +512,8 @@ class ScaledLabel(QtWidgets.QLabel):
 
     def _hal_init(self):
         if self.textFormat() in( 0,1) and self._scaled:
-            self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Ignored,
-                                             QtWidgets.QSizePolicy.Ignored))
+            self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Ignored,
+                                             QtWidgets.QSizePolicy.Policy.Ignored))
             self.setMinSize(15)
 
     def textSample(self):
@@ -550,10 +540,10 @@ class ScaledLabel(QtWidgets.QLabel):
         super(ScaledLabel, self).resizeEvent(event)
         if not self._scaled:
             return
-        #if  self.textFormat() == QtCore.Qt.RichText:
+        #if  self.textFormat() == QtCore.Qt.TextFormat.RichText:
             #print(self.text())
             #print(self.styleSheet(),self.text(),self.font().pointSizeF())
-        if not self.text() or self.textFormat() == QtCore.Qt.AutoText:
+        if not self.text() or self.textFormat() == QtCore.Qt.TextFormat.AutoText:
             return
 
         #--- fetch current parameters ----
@@ -587,7 +577,7 @@ class ScaledLabel(QtWidgets.QLabel):
 
         #print (br, cr)
         #--- update font size ---
-        if self.textFormat() == QtCore.Qt.RichText:
+        if self.textFormat() == QtCore.Qt.TextFormat.RichText:
             self.setStyleFontSize(f.pointSizeF())
         else:
             self.setFont(f)

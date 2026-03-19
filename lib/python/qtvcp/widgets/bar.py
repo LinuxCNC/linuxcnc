@@ -1,13 +1,9 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QColor, QBrush, QPainter, QLinearGradient
-from PyQt5.QtCore import (Qt, pyqtSlot, pyqtProperty, pyqtSignal, QVariant, QRectF,
+from PyQt6 import QtWidgets
+from PyQt6.QtGui import QColor, QBrush, QPainter, QLinearGradient
+from PyQt6.QtCore import (Qt, pyqtSlot, pyqtProperty, pyqtSignal, QRectF,
     QSize)
 
-try:
-    from PyQt5.QtCore import Q_ENUM
-except:
-    # before Qt 5.10
-    from PyQt5.QtCore import Q_ENUMS as Q_ENUM
+from PyQt6.QtCore import Q_ENUM
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 import hal
@@ -32,8 +28,8 @@ class Bar(QtWidgets.QWidget):
         self._value = 100
 
         self.setSizePolicy(
-            QtWidgets.QSizePolicy.MinimumExpanding,
-            QtWidgets.QSizePolicy.MinimumExpanding
+            QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+            QtWidgets.QSizePolicy.Policy.MinimumExpanding
         )
 
         # set default number of colored steps
@@ -51,7 +47,7 @@ class Bar(QtWidgets.QWidget):
 
         brush = QBrush()
         brush.setColor(self._background_color)
-        brush.setStyle(Qt.SolidPattern)
+        brush.setStyle(Qt.BrushStyle.SolidPattern)
         rect = QRectF(0, 0, painter.device().width(), painter.device().height())
         painter.fillRect(rect, brush)
 
@@ -391,7 +387,7 @@ class Bar(QtWidgets.QWidget):
         self.update()
 
     stepColorList = pyqtProperty(
-                        QVariant.typeToName(QVariant.StringList),
+                        .typeToName(.StringList),
                          get_step_color_l, set_step_color_l, reset_step_color_l)
 
     backgroundColor = pyqtProperty(QColor, getBackgroundColor, setBackgroundColor)
@@ -412,11 +408,6 @@ class HALPinType:
 class  HalBar(Bar, _HalWidgetBase):
     HALPinType = HALPinType
     Q_ENUM(HALPinType)
-
-    # older version of pyqt5 need this as well as Q_ENUM
-    NONE = 0
-    S32 = hal.HAL_S32
-    FLOAT = hal.HAL_FLOAT
 
     def __init__(self, *args, **kwargs):
         super(). __init__( *args, **kwargs)
@@ -474,7 +465,7 @@ class  HalBar(Bar, _HalWidgetBase):
     invertOnNegative = pyqtProperty(bool, get_invert_negative, set_invert_negative, reset_invert_negative)
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import (QLabel, QSlider, QWidget, QVBoxLayout,
+    from PyQt6.QtWidgets import (QLabel, QSlider, QWidget, QVBoxLayout,
         QHBoxLayout, QPushButton, QCheckBox)
 
     app = QtWidgets.QApplication([])
@@ -491,7 +482,7 @@ if __name__ == '__main__':
 
     #bar.setValue(51)
 
-    slider = QSlider(Qt.Horizontal)
+    slider = QSlider(Qt.Orientation.Horizontal)
     slider.setMinimum(0)
     slider.setMaximum(200)
     slider.setSingleStep(10)
@@ -537,5 +528,5 @@ if __name__ == '__main__':
     layout.addLayout(lyt)
 
     w.show()
-    app.exec_()
+    app.exec()
 

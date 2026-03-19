@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action
@@ -62,7 +62,7 @@ class RadioAxisSelector(QtWidgets.QRadioButton, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = QtWidgets.QWidget()
     layout = QtWidgets.QHBoxLayout()
@@ -74,6 +74,6 @@ def main():
     layout.addWidget(cb2)
 
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

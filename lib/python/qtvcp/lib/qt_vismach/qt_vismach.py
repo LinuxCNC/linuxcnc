@@ -2,9 +2,9 @@
 
 import sys
 
-from PyQt5.QtCore import pyqtSignal, QPoint, QSize, Qt, QTimer
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QOpenGLWidget, QSlider,
+from PyQt6.QtCore import pyqtSignal, QPoint, QSize, Qt, QTimer
+from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QOpenGLWidget, QSlider,
                              QWidget)
 
 import OpenGL.GL as GL
@@ -51,7 +51,7 @@ class Window(QWidget):
         self.setWindowTitle("Qt Vismach")
 
     def createSlider(self):
-        slider = QSlider(Qt.Vertical)
+        slider = QSlider(Qt.Orientation.Vertical)
 
         slider.setRange(0, 360 * 16)
         slider.setSingleStep(16)
@@ -407,10 +407,10 @@ class GLWidget(QOpenGLWidget):
         dx = event.x() - self.lastPos.x()
         dy = event.y() - self.lastPos.y()
 
-        if event.buttons() & Qt.LeftButton:
+        if event.buttons() & Qt.MouseButton.LeftButton:
             self.setXRotation(self.xRot + 8 * dy)
             self.setYRotation(self.yRot - 8 * dx)
-        elif event.buttons() & Qt.RightButton:
+        elif event.buttons() & Qt.MouseButton.RightButton:
             self.setXRotation(self.xRot + 8 * dy)
             self.setZRotation(self.zRot + 8 * dx)
         else:
@@ -427,7 +427,7 @@ class GLWidget(QOpenGLWidget):
         self.lastPos = event.pos()
 
     def mouseDoubleClickEvent(self, event):
-        if event.button() & Qt.RightButton:
+        if event.button() & Qt.MouseButton.RightButton:
             self.plotclear()
 
     def wheelEvent(self, event):
@@ -471,7 +471,7 @@ def main(model, tool, work, size=10, hud=None, rotation_vectors=None, lat=0, lon
 
     window.setZoomRange(int(t.near),int(t.far))
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':

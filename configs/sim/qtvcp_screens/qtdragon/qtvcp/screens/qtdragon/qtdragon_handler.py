@@ -1,5 +1,5 @@
 import os, time
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets, QtGui
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.gcode_graphics import GCodeGraphics as GRAPHICS
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
@@ -28,9 +28,9 @@ WRITER = writer.Main()
 QHAL = Qhal()
 
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEnginePage
+    from PyQt6.QtWebEngineWidgets import QWebEnginePage
 except:
-    LOG.warning('QtDragon Warning with loading QtWebEngineWidget - is python3-pyqt5.qtwebengine installed?')
+    LOG.warning('QtDragon Warning with loading QtWebEngineWidget - is python3-pyqt6.qtwebengine installed?')
 
 # constants for tab pages
 TAB_MAIN = 0
@@ -66,7 +66,7 @@ class HandlerClass:
         self.w = widgets
         self.gcodes = GCodes(widgets)
         # This validator precludes using comma as a decimal
-        self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('-?[0-9]{0,6}[.][0-9]{0,3}'))
+        self.valid = QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('-?[0-9]{0,6}[.][0-9]{0,3}'))
         self.KEYBIND = KEYBIND
         KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
@@ -478,7 +478,7 @@ class HandlerClass:
             self.probe.setObjectName('versaprobe')
             # only use cycle start button to start probing
             self.probe.setProperty('runImmediately',False)
-            self.probe.setFocusPolicy(QtCore.Qt.ClickFocus)
+            self.probe.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
 
         elif probe == 'basicprobe':
             LOG.info("Using Basic Probe")
@@ -488,7 +488,7 @@ class HandlerClass:
             self.probe.setObjectName('basicprobe')
             # only use cycle start button to start probing
             self.probe.setProperty('runImmediately',False)
-            self.probe.setFocusPolicy(QtCore.Qt.ClickFocus)
+            self.probe.setFocusPolicy(QtCore.Qt.FocusPolicy.ClickFocus)
 
         else:
             LOG.info("No valid probe widget specified")
@@ -603,8 +603,8 @@ class HandlerClass:
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2):
-#                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F4,QtCore.Qt.Key_F5):
+        if code not in(QtCore.Qt.Key.Key_Escape,QtCore.Qt.Key.Key_F1 ,QtCore.Qt.Key.Key_F2):
+#                    QtCore.Qt.Key.Key_F3,QtCore.Qt.Key.Key_F4,QtCore.Qt.Key.Key_F5):
 
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
@@ -1390,12 +1390,12 @@ class HandlerClass:
         return
         # pop a dialog of the properties
         msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
         msg.setText(smallmess)
         msg.setWindowTitle("Gcode Properties")
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
         msg.show()
-        retval = msg.exec_()
+        retval = msg.exec()
 
     def touchoff(self, selector):
         if selector == 'touchplate':
@@ -1702,7 +1702,7 @@ class HandlerClass:
         #print ('CURRENT:',name)
         # record current qsplitter settings
         self.w.settings.beginGroup("qtdragon-{}".format(self.w.splitter_h.objectName()))
-        self.w.settings.setValue(name, QtCore.QVariant(self.w.splitter_h.saveState().data()))
+        self.w.settings.setValue(name, QtCore.self.w.splitter_h.saveState(.data()))
         self.w.settings.endGroup()
 
         # ignore, show or hide jog controls

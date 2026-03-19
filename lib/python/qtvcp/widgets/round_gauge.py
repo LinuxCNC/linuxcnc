@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import sys
 import math
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QPointF, QLine, QRect, QSize, pyqtSlot, pyqtProperty
-from PyQt5.QtGui import QPainter, QBrush, QPen, QFont, QColor, QRadialGradient
+from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtCore import Qt, QPoint, QPointF, QLine, QRect, QSize, pyqtSlot, pyqtProperty
+from PyQt6.QtGui import QPainter, QBrush, QPen, QFont, QColor, QRadialGradient
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 
 class Gauge(QtWidgets.QWidget, _HalWidgetBase):
@@ -101,7 +101,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         rect.setSize(QSize(w, w))
         rect.moveCenter(event.rect().center())
         center = rect.center()
-        qp.setPen(QPen(Qt.white, self.tick_width, cap = Qt.FlatCap))
+        qp.setPen(QPen(Qt.GlobalColor.white, self.tick_width, cap = Qt.FlatCap))
         qp.drawArc(rect, (-45 * 16), (270 * 16))
         rad = rect.width()/2
         inc = 270.0 / (self._num_ticks - 1)
@@ -118,7 +118,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         center = event.rect().center()
         rect = QRect()
         rect.setSize(QSize(40,18))
-        qp.setPen(QPen(Qt.white, self.tick_width))
+        qp.setPen(QPen(Qt.GlobalColor.white, self.tick_width))
         qp.setFont(QFont('Lato Heavy', self._dial_font_size))
         rad = w/2
         inc = 270.0 / (self._num_ticks - 1)
@@ -130,7 +130,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
             x = int(rad * math.cos(math.radians(angle)) + center.x())
             y = int(rad * math.sin(math.radians(angle)) + center.y())
             rect.moveCenter(QPoint(x, y))
-            qp.drawText(rect, Qt.AlignCenter, text)
+            qp.drawText(rect, Qt.AlignmentFlag.AlignCenter, text)
 
     def draw_center(self, qp, event, w):
         w *= 0.2
@@ -154,7 +154,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         p = self._setpoint * rad
         p += center
         rect.moveCenter(p.toPoint())
-        qp.fillRect(rect, QColor(Qt.yellow))
+        qp.fillRect(rect, QColor(Qt.GlobalColor.yellow))
 
     def draw_needle(self, qp, event, w):
         w *= 0.6
@@ -164,7 +164,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         x = int(rad * math.cos(math.radians(angle)) + center.x())
         y = int(rad * math.sin(math.radians(angle)) + center.y())
         line = QLine(center.x(), center.y(), x, y)
-        qp.setPen(QPen(Qt.red, 4))
+        qp.setPen(QPen(Qt.GlobalColor.red, 4))
         qp.drawLine(line)
 
     def draw_readout(self, qp, event, w):
@@ -173,13 +173,13 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         rect.setSize(QSize(int(w/4), int(w/8)))
         rect.moveCenter(QPoint(center.x(), center.y() + int(w/4)))
         text = "{}".format(self.value)
-        qp.setPen(QPen(Qt.white, 4))
+        qp.setPen(QPen(Qt.GlobalColor.white, 4))
         qp.setFont(QFont('Lato Heavy', self._value_font_size))
-        qp.drawText(rect, Qt.AlignCenter, text)
+        qp.drawText(rect, Qt.AlignmentFlag.AlignCenter, text)
         rect.moveCenter(QPoint(center.x(), center.y() + int(w/3)))
         text = self._gauge_label
         qp.setFont(QFont('Lato Heavy', self._label_font_size))
-        qp.drawText(rect, Qt.AlignCenter, text)
+        qp.drawText(rect, Qt.AlignmentFlag.AlignCenter, text)
 
     @pyqtSlot(float)
     @pyqtSlot(int)
@@ -409,7 +409,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     #############################
 if __name__ == "__main__":
     import sys
-    from PyQt5.QtWidgets import QSlider, QWidget, QVBoxLayout
+    from PyQt6.QtWidgets import QSlider, QWidget, QVBoxLayout
     app = QtWidgets.QApplication(sys.argv)
     w = QWidget()
     w.setGeometry(100, 100, 400, 400)
@@ -425,7 +425,7 @@ if __name__ == "__main__":
     gauge._value_font_size = 10
     gauge._label_font_size = 10
     gauge._dial_font_size = 10
-    slider = QSlider(Qt.Horizontal)
+    slider = QSlider(Qt.Orientation.Horizontal)
     slider.setMinimum(0)
     slider.setMaximum(20000)
     slider.setSingleStep(10)
@@ -434,4 +434,4 @@ if __name__ == "__main__":
     layout.addWidget(gauge)
     layout.addWidget(slider)
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )

@@ -4,9 +4,9 @@
 import sys
 import os
 import shutil
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.core import Info
 ###########################################
@@ -241,7 +241,7 @@ class HandlerClass:
                     more_info=info,
                     details=' To Folder:\n {}'.format(dest),
                     display_type='YESNO',
-                    icon=QMessageBox.Information, pinname=None,
+                    icon=QMessageBox.Icon.Information, pinname=None,
                     focus_text=None,
                     focus_color=None,
                     play_alert=None,
@@ -261,7 +261,7 @@ class HandlerClass:
                     more_info=info,
                     details=' To Folder:\n {}'.format(dest),
                     display_type='YESNO',
-                    icon=QMessageBox.Information, pinname=None,
+                    icon=QMessageBox.Icon.Information, pinname=None,
                     focus_text=None,
                     focus_color=None,
                     play_alert=None,
@@ -276,8 +276,8 @@ class HelpDialog(QDialog):
     def __init__(self, parent=None):
         super(HelpDialog, self).__init__(parent)
         self._title = 'Copy Help'
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
         self.currentHelpPage=-1
         self.setMinimumWidth(400)
@@ -322,10 +322,10 @@ class HelpDialog(QDialog):
         self.pageStepDwnbutton.clicked.connect(lambda : self.pageStep(t,True))
 
         bBox = QDialogButtonBox(buttons)
-        #bBox.addButton(self.pageStepUpbutton, QDialogButtonBox.ActionRole)
-        #bBox.addButton(self.pageStepDwnbutton, QDialogButtonBox.ActionRole)
-        bBox.addButton(previousbutton, QDialogButtonBox.ActionRole)
-        bBox.addButton(nextbutton, QDialogButtonBox.ActionRole)
+        #bBox.addButton(self.pageStepUpbutton, QDialogButtonBox.ButtonRole.ActionRole)
+        #bBox.addButton(self.pageStepDwnbutton, QDialogButtonBox.ButtonRole.ActionRole)
+        bBox.addButton(previousbutton, QDialogButtonBox.ButtonRole.ActionRole)
+        bBox.addButton(nextbutton, QDialogButtonBox.ButtonRole.ActionRole)
         bBox.addButton(closebutton, QDialogButtonBox.DestructiveRole)
         bBox.rejected.connect(self.reject)
 
@@ -379,7 +379,7 @@ class HelpDialog(QDialog):
 
     def showDialog(self):
         self.setWindowTitle(self._title);
-        retval = self.exec_()
+        retval = self.exec()
 
     #####################
     # KEY BINDING CALLS #

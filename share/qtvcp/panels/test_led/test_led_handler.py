@@ -2,9 +2,9 @@
 # **** IMPORT SECTION **** #
 ############################
 import sys
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 from qtvcp.core import Status
 from qtvcp.widgets.hal_selectionbox import HALSelectionBox
 from qtvcp.widgets.led_widget import LED
@@ -39,7 +39,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         geom = self.w.frameGeometry()
-        geom.moveCenter(QDesktopWidget().availableGeometry().center())
+        geom.moveCenter(QApplication.primaryScreen().availableGeometry().center())
         self.w.setGeometry(geom)
 
         if self.w.USEROPTIONS_ is not None:
@@ -61,7 +61,7 @@ class HandlerClass:
                     self.w.setMinimumHeight(h)
 
         self.addLED()
-        self.w.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.w.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
         self.w.setWindowTitle('{}'.format(self.h.comp.getprefix()))
 
     # build a LED/controls line

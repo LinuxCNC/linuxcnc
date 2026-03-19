@@ -17,7 +17,7 @@
 # the other subclasses are for simple HAL widget functionality
 
 import hal
-from PyQt5.QtCore import pyqtProperty
+from PyQt6.QtCore import pyqtProperty
 from qtvcp import logger
 
 # Instantiate the libraries with global reference

@@ -14,11 +14,11 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from PyQt5.QtCore import pyqtSlot, pyqtProperty
+from PyQt6.QtCore import pyqtSlot, pyqtProperty
 from qtvcp import logger
 
 # Instantiate the libraries with global reference

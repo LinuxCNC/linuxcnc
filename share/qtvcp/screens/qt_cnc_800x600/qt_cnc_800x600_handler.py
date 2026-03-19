@@ -2,9 +2,9 @@
 # **** IMPORT SECTION **** #
 ############################
 
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
-from PyQt5 import QtGui
+from PyQt6 import QtCore
+from PyQt6 import QtWidgets
+from PyQt6 import QtGui
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.notify import Notify
@@ -132,7 +132,7 @@ class HandlerClass:
         self.jog_velocity = rate
 
     def on_error_message(self, w, message):
-        NOTE.notify('Error',message,QtWidgets.QMessageBox.Information,10)
+        NOTE.notify('Error',message,QtWidgets.QMessageBox.Icon.Information,10)
 
     def on_periodic(self,w):
         try:

@@ -2,9 +2,9 @@
 # **** IMPORT SECTION **** #
 ############################
 import sys
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 from qtvcp.core import Status
 from qtvcp.widgets.simple_widgets import DoubleScale
 from qtvcp.widgets.hal_selectionbox import HALSelectionBox
@@ -67,7 +67,7 @@ class HandlerClass:
         # make sure scalewidgets get proper starting values
         self.w.dial_1.valueChanged.emit(self.w.dial_1.value())
 
-        self.w.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.w.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
         self.w.setWindowTitle('{}'.format(self.h.comp.getprefix()))
 
     ########################

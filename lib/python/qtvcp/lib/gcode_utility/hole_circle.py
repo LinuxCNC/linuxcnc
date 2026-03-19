@@ -7,10 +7,10 @@ import tempfile
 import atexit
 import shutil
 
-from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent, QRegExp
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
-from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
+from PyQt6 import QtGui, QtWidgets, uic
+from PyQt6.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent, QRegularExpression
+from PyQt6.QtWidgets import QFileDialog, QMessageBox
+from PyQt6.QtGui import QPainter, QBrush, QPen, QColor
 
 from linuxcnc import OPERATOR_ERROR, NML_ERROR
 from qtvcp.core import Info, Status, Action, Path
@@ -44,7 +44,7 @@ class Preview(QtWidgets.QWidget):
         h = size.height()/2
         center = QPointF(w, h)
         radius = min(w, h) - 35
-        qp.setPen(QPen(Qt.black, 1))
+        qp.setPen(QPen(Qt.GlobalColor.black, 1))
         qp.drawEllipse(center, radius, radius)
 
     def draw_crosshair(self, event, qp):
@@ -52,7 +52,7 @@ class Preview(QtWidgets.QWidget):
         cx = int(size.width()/2)
         cy = int(size.height()/2)
         L = min(cx, cy) - 25
-        qp.setPen(QPen(Qt.black, 1))
+        qp.setPen(QPen(Qt.GlobalColor.black, 1))
         p1 = QPoint(cx + L, cy)
         p2 = QPoint(cx, cy - L)
         p3 = QPoint(cx - L, cy)
@@ -63,10 +63,10 @@ class Preview(QtWidgets.QWidget):
         br2 = QRect(cx-15, cy - L - 12, 30, 12)
         br3 = QRect(cx - L - 30, cy-6, 30, 12)
         br4 = QRect(cx-15, cy + L, 30, 12)
-        qp.drawText(br1, Qt.AlignHCenter|Qt.AlignVCenter, "0")
-        qp.drawText(br2, Qt.AlignHCenter|Qt.AlignVCenter, "90")
-        qp.drawText(br3, Qt.AlignHCenter|Qt.AlignVCenter, "180")
-        qp.drawText(br4, Qt.AlignHCenter|Qt.AlignVCenter, "270")
+        qp.drawText(br1, Qt.AlignmentFlag.AlignHCenter|Qt.AlignmentFlag.AlignVCenter, "0")
+        qp.drawText(br2, Qt.AlignmentFlag.AlignHCenter|Qt.AlignmentFlag.AlignVCenter, "90")
+        qp.drawText(br3, Qt.AlignmentFlag.AlignHCenter|Qt.AlignmentFlag.AlignVCenter, "180")
+        qp.drawText(br4, Qt.AlignmentFlag.AlignHCenter|Qt.AlignmentFlag.AlignVCenter, "270")
 
     def draw_holes(self, event, qp):
         size = self.size()
@@ -74,10 +74,10 @@ class Preview(QtWidgets.QWidget):
         h = size.height()
         center = QPointF(w/2, h/2)
         r = (min(w, h) - 70)/2
-        qp.setPen(QPen(Qt.red, 2))
+        qp.setPen(QPen(Qt.GlobalColor.red, 2))
         for i in range(self.num_holes):
             if i ==1:
-                qp.setPen(QPen(Qt.black, 2))
+                qp.setPen(QPen(Qt.GlobalColor.black, 2))
             theta = ((360.0/self.num_holes) * i) + self.first_angle
             x = r * math.cos(math.radians(theta))
             y = r * math.sin(math.radians(theta))
@@ -108,10 +108,10 @@ class Hole_Circle(QtWidgets.QWidget):
         help_file = open(os.path.join(HERE,"hole_circle_help.txt"), "r")
         help_text = help_file.read()
         self.mb = QMessageBox()
-        self.mb.setIcon(QMessageBox.Information)
+        self.mb.setIcon(QMessageBox.Icon.Information)
         self.mb.setWindowTitle("Hole Circle Help")
         self.mb.setText(help_text)
-        self.mb.setStandardButtons(QMessageBox.Ok)
+        self.mb.setStandardButtons(QMessageBox.StandardButton.Ok)
 
         # Initial values
         self._tmp = None
@@ -168,18 +168,18 @@ class Hole_Circle(QtWidgets.QWidget):
     def set_validator(self):
         # set valid input formats for lineEdits
         if self.btn_inch.isChecked():
-            valid_size = QtGui.QRegExpValidator(QRegExp(r'^((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
-            valid_radius = QtGui.QRegExpValidator(QRegExp(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
-            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
+            valid_size = QtGui.QRegularExpressionValidator(QRegularExpression(r'^((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
+            valid_radius = QtGui.QRegularExpressionValidator(QRegularExpression(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
+            valid_feed = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,6}[.][0-9]{0,3}'))
         else:
-            valid_size = QtGui.QRegExpValidator(QRegExp(r'^((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
-            valid_radius = QtGui.QRegExpValidator(QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
-            valid_feed = QtGui.QRegExpValidator(QRegExp(r'\d{0,5}[.]\d{0,1}'))
+            valid_size = QtGui.QRegularExpressionValidator(QRegularExpression(r'^((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
+            valid_radius = QtGui.QRegularExpressionValidator(QRegularExpression(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
+            valid_feed = QtGui.QRegularExpressionValidator(QRegularExpression(r'\d{0,5}[.]\d{0,1}'))
 
-        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QRegExp(r'\d{0,5}')))
+        self.lineEdit_spindle.setValidator(QtGui.QRegularExpressionValidator(QRegularExpression(r'\d{0,5}')))
         self.lineEdit_num_holes.setValidator(QtGui.QDoubleValidator(0, 99, 0))
         self.lineEdit_radius.setValidator(valid_radius)
-        self.lineEdit_first.setValidator(QtGui.QRegExpValidator(QRegExp(r'\d{0,3}[.]\d{0,2}')))
+        self.lineEdit_first.setValidator(QtGui.QRegularExpressionValidator(QRegularExpression(r'\d{0,3}[.]\d{0,2}')))
         self.lineEdit_safe_z.setValidator(valid_size)
         self.lineEdit_start_height.setValidator(valid_size)
         self.lineEdit_depth.setValidator(valid_size)
@@ -290,7 +290,7 @@ class Hole_Circle(QtWidgets.QWidget):
             STATUS.emit('error', OPERATOR_ERROR, "Hole Circle: There are errors in input fields")
             return
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.Option.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             self.calculate_toolpath(fileName)
@@ -396,5 +396,5 @@ if __name__ == "__main__":
     w = Hole_Circle()
 
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

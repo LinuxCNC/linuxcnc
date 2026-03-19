@@ -19,8 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QMessageBox
+from PyQt6.QtCore import Qt, QCoreApplication
+from PyQt6.QtWidgets import QLabel, QMessageBox
 
 _translate = QCoreApplication.translate
 
@@ -55,7 +55,7 @@ def save(P, W, Conv):
         error += f'{msg}\n\n'
     if error:
         P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Settings Error'), error)
+        P.dialog_show_ok(QMessageBox.Icon.Warning, _translate('Conversational', 'Settings Error'), error)
         return
     P.PREFS.putpref('Preamble', P.preAmble, str, 'CONVERSATIONAL')
     P.PREFS.putpref('Postamble', P.postAmble, str, 'CONVERSATIONAL')
@@ -137,15 +137,15 @@ def widgets(P, W, Conv):
     rb = ['centLeft']
     bt = ['save', 'reload', 'cExit']
     for w in ra:
-        W[w].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[w].setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         W[w].setFixedWidth(80)
         W[w].setFixedHeight(24)
     for w in la:
-        W[w].setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        W[w].setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         W[w].setFixedWidth(80)
         W[w].setFixedHeight(24)
     for w in ca:
-        W[w].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        W[w].setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
         W[w].setFixedWidth(240)
         W[w].setFixedHeight(24)
     for w in rb:

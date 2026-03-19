@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 
 import os
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
 from qtvcp.core import Status, Action, Info
 from qtvcp.qt_makegui import VCPWindow
 from qtvcp.lib.aux_program_loader import Aux_program_loader
@@ -449,12 +449,12 @@ class ToolBarActions():
 
         # pop a dialog of the properties
         msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
         msg.setText(mess)
         msg.setWindowTitle("Gcode Properties")
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
         msg.show()
-        retval = msg.exec_()
+        retval = msg.exec()
 
     def actOnRun(self, widget, state=None):
         ACTION.RUN()
@@ -577,10 +577,10 @@ class ToolBarActions():
             mess = 'This is a QtVCP based screen for Linuxcnc'
 
         msg.setText(mess)
-        msg.setIcon(QtWidgets.QMessageBox.Information)
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
         msg.show()
-        retval = msg.exec_()
+        retval = msg.exec()
 
     def actOnRunFromLine(self, widget, state=False):
         STATUS.emit('dialog-request', {'NAME': 'RUNFROMLINE', 'LINE':self.selected_line})
@@ -847,7 +847,7 @@ class ToolBarActions():
         bar.setMaximumHeight(20)
         bar.setSizeGripEnabled(False)
         WIDGETS.statusClear = QtWidgets.QPushButton()
-        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxCritical)
+        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_MessageBoxCritical)
         WIDGETS.statusClear.setIcon(icon)
         WIDGETS.statusClear.setMaximumSize(20, 20)
         WIDGETS.statusClear.setIconSize(QtCore.QSize(22, 22))
@@ -860,7 +860,7 @@ class ToolBarActions():
 
         bar.setMaximumHeight(20)
         bar.setSizeGripEnabled(False)
-        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
+        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_MessageBoxInformation)
         WIDGETS.statusLast = QtWidgets.QPushButton()
         WIDGETS.statusLast.setIcon(icon)
         WIDGETS.statusLast.setMaximumSize(20, 20)

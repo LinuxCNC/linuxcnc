@@ -17,8 +17,8 @@
 
 import hal
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtProperty, pyqtSignal
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import pyqtProperty, pyqtSignal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger

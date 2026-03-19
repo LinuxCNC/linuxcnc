@@ -15,7 +15,7 @@
 #
 #################################################################################
 
-from PyQt5.QtCore import pyqtProperty
+from PyQt6.QtCore import pyqtProperty
 import hal
 from qtvcp.widgets.led_widget import LED
 from qtvcp.core import Status
@@ -556,9 +556,9 @@ class StateLED(LED):
 if __name__ == "__main__":
 
     import sys
-    from PyQt5.QtGui import QApplication
+    from PyQt6.QtGui import QApplication
     app = QApplication(sys.argv)
     led = StateLED()
     led.show()
     #led.startFlashing()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

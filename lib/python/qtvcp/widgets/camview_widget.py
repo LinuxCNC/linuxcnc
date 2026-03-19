@@ -20,8 +20,8 @@ import _thread as Thread
 
 import hal
 
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QImage
+from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtGui import QColor, QFont, QPainter, QPen, QImage
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp import logger
@@ -75,9 +75,9 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.setWindowTitle('Cam View')
         self.setGeometry(100, 100, 200, 200)
         self.text_color = QColor(255, 255, 255)
-        self.circle_color = QtCore.Qt.red
-        self.cross_color = QtCore.Qt.yellow
-        self.cross_pointer_color = QtCore.Qt.white
+        self.circle_color = QtCore.Qt.GlobalColor.red
+        self.cross_color = QtCore.Qt.GlobalColor.yellow
+        self.cross_pointer_color = QtCore.Qt.GlobalColor.white
         self.font = QFont("arial,helvetica", 40)
         self.SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
         if LIB_GOOD:
@@ -111,43 +111,43 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     ##################################
     def wheelEvent(self, event):
         super(CamView, self).wheelEvent(event)
-        mouse_state = QtWidgets.qApp.mouseButtons()
+        mouse_state = QtWidgets.QApplication.instance().mouseButtons()
         if event.angleDelta().y() < 0:
-            if mouse_state == QtCore.Qt.NoButton:
+            if mouse_state == QtCore.Qt.MouseButton.NoButton:
                 self.diameter -= self.rotationIncrement
-            if mouse_state == QtCore.Qt.LeftButton:
+            if mouse_state == QtCore.Qt.MouseButton.LeftButton:
                 self.scale -= .1
-            if mouse_state == QtCore.Qt.RightButton:
+            if mouse_state == QtCore.Qt.MouseButton.RightButton:
                 if not self._noRotate:
                     self.rotation += self.rotationIncrement
         else:
-            if mouse_state == QtCore.Qt.NoButton:
+            if mouse_state == QtCore.Qt.MouseButton.NoButton:
                 self.diameter += self.rotationIncrement
-            if mouse_state == QtCore.Qt.LeftButton:
+            if mouse_state == QtCore.Qt.MouseButton.LeftButton:
                 self.scale += .1
-            if mouse_state == QtCore.Qt.RightButton:
+            if mouse_state == QtCore.Qt.MouseButton.RightButton:
                 if not self._noRotate:
                     self.rotation -= self.rotationIncrement
         self.limitChecks()
 
     def mousePressEvent(self, event):
-        if event.button() & QtCore.Qt.LeftButton:
+        if event.button() & QtCore.Qt.MouseButton.LeftButton:
             if not self._noRotate:
                 self.rotation += self.rotationIncrement
                 self.limitChecks()
-        elif event.button() & QtCore.Qt.RightButton:
+        elif event.button() & QtCore.Qt.MouseButton.RightButton:
             if not self._noRotate:
                 self.rotation -= self.rotationIncrement
                 self.limitChecks()
-        elif event.button() & QtCore.Qt.MiddleButton:
+        elif event.button() & QtCore.Qt.MouseButton.MiddleButton:
             self.rotation_increments_changed()
 
     def mouseDoubleClickEvent(self, event):
-        if event.button() & QtCore.Qt.LeftButton:
+        if event.button() & QtCore.Qt.MouseButton.LeftButton:
             self.scale = 1
-        elif event.button() & QtCore.Qt.RightButton:
+        elif event.button() & QtCore.Qt.MouseButton.RightButton:
             self.rotation = 0
-        elif event.button() & QtCore.Qt.MiddleButton:
+        elif event.button() & QtCore.Qt.MouseButton.MiddleButton:
             self.diameter = 20
 
     def zoom_in(self):
@@ -349,7 +349,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         # Create a square base size of 10x10 and scale it to the new size
         # maintaining aspect ratio.
         new_size = QtCore.QSize(10, 10)
-        new_size.scale(event.size(), QtCore.Qt.KeepAspectRatio)
+        new_size.scale(event.size(), QtCore.Qt.AspectRatioMode.KeepAspectRatio)
         self.resize(new_size)
 
     def paintEvent(self, event):
@@ -373,10 +373,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         else:
             inc = str(self.rotationIncrement).translate(self.SUB)
         if self.pix:
-            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{:.1f}{} {:>}'.format(self.rotation,self.degree,
+            qp.drawText(self.rect(), QtCore.Qt.AlignmentFlag.AlignTop, '{:.1f}{} {:>}'.format(self.rotation,self.degree,
             inc))
         else:
-            qp.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
+            qp.drawText(self.rect(), QtCore.Qt.AlignmentFlag.AlignCenter, self.text)
 
     def drawCircle(self, event, gp):
         size = self.size()
@@ -393,8 +393,8 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         size = self.size()
         w = size.width()//2
         h = size.height()//2
-        pen0 = QPen(self.cross_pointer_color, 1, QtCore.Qt.SolidLine)
-        pen = QPen(self.cross_color, 1, QtCore.Qt.SolidLine)
+        pen0 = QPen(self.cross_pointer_color, 1, QtCore.Qt.PenStyle.SolidLine)
+        pen = QPen(self.cross_color, 1, QtCore.Qt.PenStyle.SolidLine)
         gp.translate(w, h)
         gp.rotate(-self.rotation)
         gp.setPen(pen0)
@@ -664,25 +664,25 @@ class CamAngle(CamView):
         super(CamAngle, self).__init__(parent)
 
     def mouseDoubleClickEvent(self, event):
-        if event.button() & QtCore.Qt.LeftButton:
+        if event.button() & QtCore.Qt.MouseButton.LeftButton:
             # zoom
             self.scale = 1
-        elif event.button() & QtCore.Qt.MiddleButton:
+        elif event.button() & QtCore.Qt.MouseButton.MiddleButton:
             self.diameter = 40
 
     def wheelEvent(self, event):
-        mouse_state = QtWidgets.qApp.mouseButtons()
+        mouse_state = QtWidgets.QApplication.instance().mouseButtons()
         size = self.size()
         w = size.width()
         if event.angleDelta().y() < 0:
-            if mouse_state == QtCore.Qt.NoButton:
+            if mouse_state == QtCore.Qt.MouseButton.NoButton:
                 self.diameter -= 2
-            if mouse_state == QtCore.Qt.LeftButton:
+            if mouse_state == QtCore.Qt.MouseButton.LeftButton:
                 self.scale -= .1
         else:
-            if mouse_state == QtCore.Qt.NoButton:
+            if mouse_state == QtCore.Qt.MouseButton.NoButton:
                 self.diameter += 2
-            if mouse_state == QtCore.Qt.LeftButton:
+            if mouse_state == QtCore.Qt.MouseButton.LeftButton:
                 self.scale += .1
         if self.diameter < 2: self.diameter = 2
         if self.diameter > w: self.diameter = w
@@ -697,17 +697,17 @@ class CamAngle(CamView):
         qp.setFont(self.font)
         if self.pix:
             angle = 0.0 if self.rotation == 0 else 360 - self.rotation
-            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{:0.3f}{}'.format(angle, self.degree))
+            qp.drawText(self.rect(), QtCore.Qt.AlignmentFlag.AlignTop, '{:0.3f}{}'.format(angle, self.degree))
         else:
-            qp.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
+            qp.drawText(self.rect(), QtCore.Qt.AlignmentFlag.AlignCenter, self.text)
 
 
 if __name__ == '__main__':
 
     import sys
-    from PyQt5.QtWidgets import (QLabel, QSlider, QDial,QWidget, QVBoxLayout,
+    from PyQt6.QtWidgets import (QLabel, QSlider, QDial,QWidget, QVBoxLayout,
         QHBoxLayout)
-    from PyQt5.QtCore import (Qt)
+    from PyQt6.QtCore import (Qt)
 
     def hDialMoved():
         print("Dial value = %i" % (hdial.value()))
@@ -730,7 +730,7 @@ if __name__ == '__main__':
 
     capture = CamAngle()
 
-    slider = QSlider(Qt.Horizontal)
+    slider = QSlider(Qt.Orientation.Horizontal)
     slider.setMinimum(100)
     slider.setMaximum(400)
     slider.setSingleStep(10)
@@ -765,4 +765,4 @@ if __name__ == '__main__':
     timer.start(100)
 
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

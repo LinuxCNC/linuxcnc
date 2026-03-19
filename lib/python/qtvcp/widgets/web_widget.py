@@ -1,7 +1,7 @@
 import os
 
-from PyQt5.QtCore import QUrl, QFile, QUrl
-from PyQt5.QtWidgets import (QWidget,QVBoxLayout,QLabel)
+from PyQt6.QtCore import QUrl, QFile, QUrl
+from PyQt6.QtWidgets import (QWidget,QVBoxLayout,QLabel)
 from qtvcp.core import Path
 
 # Set up logging
@@ -11,14 +11,14 @@ PATH = Path()
 
 good = True
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEngineView as WebBase
+    from PyQt6.QtWebEngineWidgets import QWebEngineView as WebBase
 except:
     try:
-        from PyQt5.QtWebKitWidgets import QWebView as WebBase
+        from PyQt6.QtWebKitWidgets import QWebView as WebBase
     except:
         LOG.warning('WebWidget - Is python3-pyqt-QtWebEngine installed?')
         # fail safe - mostly for designer
-        # PyQt5.QtWebEngineWidgets must be loaded before QApplication
+        # PyQt6.QtWebEngineWidgets must be loaded before QApplication
         # which doesn't happen in designer. Also screen won't immediately 
         # crash if both libraries are not missing
         WebBase = QWidget

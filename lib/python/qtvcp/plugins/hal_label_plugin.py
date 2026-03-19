@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.hal_label import HALLabel
 from qtvcp.widgets.qtvcp_icons import Icon
 

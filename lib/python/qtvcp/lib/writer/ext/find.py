@@ -1,12 +1,11 @@
 
 
 
-from PyQt5 import QtWidgets
-#PYQT5 QTextEdit, QDialog, QPushButton, QRadioButton, QGridLayout
+from PyQt6 import QtWidgets
 
 
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt
+from PyQt6 import QtGui, QtCore
+from PyQt6.QtCore import Qt
 
 import re
 
@@ -94,7 +93,7 @@ class Find(QtWidgets.QDialog):
                 # Make the next search start from the beginning again
                 self.lastStart = 0
                 
-                self.parent.text.moveCursor(QtGui.QTextCursor.End)
+                self.parent.text.moveCursor(QtGui.QTextCursor.MoveOperation.End)
 
         else:
 
@@ -115,7 +114,7 @@ class Find(QtWidgets.QDialog):
                 self.lastStart = 0
                 
                 # We set the cursor to the end if the search was unsuccessful
-                self.parent.text.moveCursor(QtGui.QTextCursor.End)
+                self.parent.text.moveCursor(QtGui.QTextCursor.MoveOperation.End)
 
     def replace(self):
 
@@ -153,7 +152,7 @@ class Find(QtWidgets.QDialog):
 
         # Next we move the Cursor by over the match and pass the KeepAnchor parameter
         # which will make the cursor select the the match's text
-        cursor.movePosition(QtGui.QTextCursor.Right,QtGui.QTextCursor.KeepAnchor,end - start)
+        cursor.movePosition(QtGui.QTextCursor.Right,QtGui.QTextCursor.MoveMode.KeepAnchor,end - start)
 
         # And finally we set this new cursor as the parent's 
         self.parent.text.setTextCursor(cursor)

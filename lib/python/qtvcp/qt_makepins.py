@@ -20,8 +20,8 @@
 import os
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.widgets.screen_options import ScreenOptions
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QDesktopWidget
+from PyQt6.QtCore import QObject
+from PyQt6.QtWidgets import QApplication
 
 from qtvcp.core import Info
 
@@ -203,7 +203,7 @@ class QTPanel():
                 return
             elif 'center' in self._geo_string.lower():
                 geom = self.window.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                geom.moveCenter(QApplication.primaryScreen().availableGeometry().center())
                 self.window.setGeometry(geom)
                 return
             else:

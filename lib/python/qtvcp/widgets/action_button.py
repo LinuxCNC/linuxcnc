@@ -19,7 +19,7 @@
 # In the designer editor, it is possible to select what the button will do.
 ###############################################################################
 
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -1679,7 +1679,7 @@ class ActionButton(IndicatedPushButton):
 if __name__ == "__main__":
 
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
 
     widget = ActionButton('Action')
@@ -1692,4 +1692,4 @@ if __name__ == "__main__":
     widget._hal_init()
 
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import (QToolButton, QMenu, QAction,
+from PyQt6.QtWidgets import (QToolButton, QMenu, QAction,
     QComboBox, QWidgetAction, QSizePolicy)
-from PyQt5.QtCore import pyqtProperty, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt6.QtCore import pyqtProperty, pyqtSignal
+from PyQt6.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
@@ -38,7 +38,7 @@ class AxisPickToolButton(QToolButton, IndicatedMixIn):
     def createAxisButton(self, text):
         tmpl = lambda s: self._textTemplate % s
         self.setText(tmpl(text))
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         self.setMinimumSize(70, 40)
         self.clicked.connect(self.axisClicked)
         SettingMenu = QMenu()

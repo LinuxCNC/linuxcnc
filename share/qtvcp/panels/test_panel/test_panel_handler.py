@@ -3,9 +3,9 @@
 ############################
 import sys
 import shutil
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 from qtvcp.core import Status
 ###########################################
 # **** instantiate libraries section **** #
@@ -173,7 +173,7 @@ class embterminal(QWidget):
         layout = QVBoxLayout(self)
         layout.addWidget(self.terminal)
 
-        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        size_policy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setSizePolicy(size_policy)
 
         # xterm

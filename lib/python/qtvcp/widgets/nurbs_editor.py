@@ -42,9 +42,9 @@
 import os
 import sys
 import traceback
-from PyQt5 import uic
-from PyQt5.QtCore import pyqtSlot, QFile, QTextStream
-from PyQt5.QtWidgets import (QApplication, QDialog)
+from PyQt6 import uic
+from PyQt6.QtCore import pyqtSlot, QFile, QTextStream
+from PyQt6.QtWidgets import (QApplication, QDialog)
 
 import gcode
 from qt5_graphics import Lcnc_3dGraphics
@@ -302,5 +302,5 @@ if __name__ == '__main__':
         sys.exit(1)
     window = NurbsEditor(path = inifilename)
     window.load_dialog()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 

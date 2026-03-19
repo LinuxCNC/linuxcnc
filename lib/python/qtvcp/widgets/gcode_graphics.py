@@ -17,15 +17,15 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
-PyQt5 widget for plotting gcode.
+PyQt6 widget for plotting gcode.
 """
 
 import sys
 import os
 import gcode
 import linuxcnc
-from PyQt5.QtCore import pyqtProperty, QTimer, Qt
-from PyQt5.QtGui import QColor
+from PyQt6.QtCore import pyqtProperty, QTimer, Qt
+from PyQt6.QtGui import QColor
 
 from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -304,29 +304,29 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     def updateMouseMode(self, value):
         if value == 0:
-            m = Qt.LeftButton;   z = Qt.MiddleButton; r = Qt.RightButton
+            m = Qt.MouseButton.LeftButton;   z = Qt.MouseButton.MiddleButton; r = Qt.MouseButton.RightButton
         elif value == 1:
-            m = Qt.MiddleButton; z = Qt.RightButton;  r = Qt.LeftButton
+            m = Qt.MouseButton.MiddleButton; z = Qt.MouseButton.RightButton;  r = Qt.MouseButton.LeftButton
         elif value == 2:
-            m = Qt.MiddleButton; z = Qt.LeftButton;   r = Qt.RightButton
+            m = Qt.MouseButton.MiddleButton; z = Qt.MouseButton.LeftButton;   r = Qt.MouseButton.RightButton
         elif value == 3:
-            m = Qt.LeftButton;   z = Qt.RightButton;  r = Qt.MiddleButton
+            m = Qt.MouseButton.LeftButton;   z = Qt.MouseButton.RightButton;  r = Qt.MouseButton.MiddleButton
         elif value == 4:
-            m = Qt.RightButton;  z = Qt.LeftButton;   r = Qt.MiddleButton
+            m = Qt.MouseButton.RightButton;  z = Qt.MouseButton.LeftButton;   r = Qt.MouseButton.MiddleButton
         elif value == 5:
-            m = Qt.RightButton;  z = Qt.MiddleButton; r = Qt.LeftButton
+            m = Qt.MouseButton.RightButton;  z = Qt.MouseButton.MiddleButton; r = Qt.MouseButton.LeftButton
         elif value == 6:
-            m = Qt.LeftButton;   z = Qt.MiddleButton; r = False
+            m = Qt.MouseButton.LeftButton;   z = Qt.MouseButton.MiddleButton; r = False
         elif value == 7:
-            m = Qt.MiddleButton; z = Qt.LeftButton;   r = False
+            m = Qt.MouseButton.MiddleButton; z = Qt.MouseButton.LeftButton;   r = False
         elif value == 8:
-            m = Qt.RightButton;  z = Qt.LeftButton;   r = False
+            m = Qt.MouseButton.RightButton;  z = Qt.MouseButton.LeftButton;   r = False
         elif value == 9:
-            m = Qt.LeftButton;   z = Qt.RightButton;  r = False
+            m = Qt.MouseButton.LeftButton;   z = Qt.MouseButton.RightButton;  r = False
         elif value == 10:
-            m = Qt.MiddleButton; z = Qt.RightButton;  r = False
+            m = Qt.MouseButton.MiddleButton; z = Qt.MouseButton.RightButton;  r = False
         elif value == 11:
-            m = Qt.RightButton;  z = Qt.MiddleButton; r = False
+            m = Qt.MouseButton.RightButton;  z = Qt.MouseButton.MiddleButton; r = False
         else:
             return
         self._buttonList =[m,z,r]
@@ -582,12 +582,12 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 if __name__ == "__main__":
 
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     widget =  GCodeGraphics()
     widget.use_gradient_background = True
     widget.enable_dro = True
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 

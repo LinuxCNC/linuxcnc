@@ -5,9 +5,9 @@ import tempfile
 import atexit
 import shutil
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import QFile
-from PyQt5.QtWidgets import QFileDialog
+from PyQt6 import QtCore, QtGui, QtWidgets, uic
+from PyQt6.QtCore import QFile
+from PyQt6.QtWidgets import QFileDialog
 
 #from linuxcnc import OPERATOR_ERROR, NML_ERROR
 from qtvcp.core import Status, Action, Info
@@ -84,7 +84,7 @@ class ZLevel(QtWidgets.QWidget):
             self.add_status("GCode file not created yet")
             return
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.Option.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             shutil.copy(self._tmp, fileName)
@@ -187,5 +187,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = ZLevel()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

@@ -1,8 +1,8 @@
 import os, time
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QAction, QMenu
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QCoreApplication
+from PyQt6 import QtCore, QtWidgets, QtGui
+from PyQt6.QtWidgets import QAction, QMenu
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QCoreApplication
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.gcode_graphics import GCodeGraphics as GRAPHICS
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
@@ -35,9 +35,9 @@ WRITER = writer.Main()
 QHAL = Qhal()
 
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEnginePage
+    from PyQt6.QtWebEngineWidgets import QWebEnginePage
 except:
-    LOG.warning('QtDragon warning with loading QtWebEngineWidget - is python3-pyqt5.qtwebengine installed?')
+    LOG.warning('QtDragon warning with loading QtWebEngineWidget - is python3-pyqt6.qtwebengine installed?')
 
 _translate = QCoreApplication.translate
 
@@ -80,7 +80,7 @@ class HandlerClass:
         self.w = widgets
         self.gcodes = GCodes(widgets)
         # This validator precludes using comma as a decimal
-        self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('-?[0-9]{0,6}[.][0-9]{0,3}'))
+        self.valid = QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('-?[0-9]{0,6}[.][0-9]{0,3}'))
         self.styleeditor = SSE(widgets, paths)
         self.KEYBIND = KEYBIND
         KEYBIND.add_call('Key_F4', 'on_keycall_F4')
@@ -238,7 +238,7 @@ class HandlerClass:
         for i in ["search_vel_units", "probe_vel_units", "jog_linear"]:
             self.w['lbl_' + i].setText(unit)
 
-        self.w.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.w.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
 
         self.configureMacroButtons()
 
@@ -481,7 +481,7 @@ class HandlerClass:
                     # set to apropriate size for panel
                     d.setMinimumSize(600,400)
                     d.setWindowTitle(name)
-                    d.setWindowFlags(d.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+                    d.setWindowFlags(d.windowFlags() | QtCore.Qt.WindowType.WindowStaysOnTopHint)
                     d.finished.connect(self.onClosePopup)
                     d._lastgeometry = None
 
@@ -662,8 +662,8 @@ class HandlerClass:
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2):
-#                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F4,QtCore.Qt.Key_F5):
+        if code not in(QtCore.Qt.Key.Key_Escape,QtCore.Qt.Key.Key_F1 ,QtCore.Qt.Key.Key_F2):
+#                    QtCore.Qt.Key.Key_F3,QtCore.Qt.Key.Key_F4,QtCore.Qt.Key.Key_F5):
 
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
@@ -1587,12 +1587,12 @@ class HandlerClass:
         return
         # pop a dialog of the properties
         msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setIcon(QtWidgets.QMessageBox.Icon.Information)
         msg.setText(smallmess)
         msg.setWindowTitle("Gcode Properties")
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
         msg.show()
-        retval = msg.exec_()
+        retval = msg.exec()
 
     def touchoff(self, selector):
         if selector == 'touchplate':

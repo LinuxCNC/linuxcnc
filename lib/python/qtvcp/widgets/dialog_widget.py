@@ -18,13 +18,13 @@
 import os
 import hal
 
-from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
+from PyQt6.QtWidgets import (QMessageBox, QFileDialog,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
         QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget,
         QTextEdit,QLabel)
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, QEvent, QUrl
-from PyQt5 import uic
+from PyQt6.QtGui import QColor
+from PyQt6.QtCore import Qt, pyqtSlot, pyqtProperty, QEvent, QUrl
+from PyQt6 import uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
@@ -80,10 +80,10 @@ class LcncDialog(QMessageBox, GeometryMixin):
 
     def __init__(self, parent=None):
         super(LcncDialog, self).__init__(parent)
-        self.setTextFormat(Qt.RichText)
+        self.setTextFormat(Qt.TextFormat.RichText)
         self.setText('<b>Sample Text?</b>')
-        self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        self.setIcon(QMessageBox.Critical)
+        self.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        self.setIcon(QMessageBox.Icon.Critical)
         self.setDetailedText('')
         self.mtype = 'OK'
         self._possibleTypes = ('OK','YESNO','OKCANCEL','CLOSEPROMPT','NONE')
@@ -151,7 +151,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
     # - callback return                     (return_callback = function_name)
     # - by direct return statement          (use_exec = True)
     def showdialog(self, messagetext, more_info=None, details=None, display_type='OK',
-                   icon=QMessageBox.Information, pinname=None, focus_text=None,
+                   icon=QMessageBox.Icon.Information, pinname=None, focus_text=None,
                    focus_color=None, play_alert=None, nblock=False,
                    return_callback = None, flags = None, setflags = None,
                     title = None, use_exec = False,geoname=None,
@@ -171,17 +171,17 @@ class LcncDialog(QMessageBox, GeometryMixin):
         # set standard flags or allow external selection
         if flags is None:
             if nblock:
-                self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                                Qt.Dialog | Qt.WindowStaysOnTopHint
+                self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                                Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint
                                 | Qt.WindowSystemMenuHint)
                 if display_type == LcncDialog.NONE:
-                    self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
-                    self.setWindowFlag(Qt.WindowCloseButtonHint, False)
+                    self.setWindowFlags(self.windowFlags() | Qt.WindowType.CustomizeWindowHint)
+                    self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
 
             else:
-                self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                                Qt.FramelessWindowHint | Qt.Dialog |
-                                Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+                self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                                Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog |
+                                Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         else:
             self.setWindowFlags(self.windowFlags() | flags)
 
@@ -198,10 +198,10 @@ class LcncDialog(QMessageBox, GeometryMixin):
             color = self._color
 
         # convert text descriptions to actual icons
-        if icon == 'QUESTION': icon = QMessageBox.Question
-        elif icon == 'WARNING': icon = QMessageBox.Warning
-        elif icon == 'CRITICAL': icon = QMessageBox.Critical
-        elif icon == 'INFO' or isinstance(icon,str): icon = QMessageBox.Information
+        if icon == 'QUESTION': icon = QMessageBox.Icon.Question
+        elif icon == 'WARNING': icon = QMessageBox.Icon.Warning
+        elif icon == 'CRITICAL': icon = QMessageBox.Icon.Critical
+        elif icon == 'INFO' or isinstance(icon,str): icon = QMessageBox.Icon.Information
         self.setIcon(icon)
 
         self.setText('<b>%s</b>' % messagetext)
@@ -221,11 +221,11 @@ class LcncDialog(QMessageBox, GeometryMixin):
         if display_type not in self._possibleTypes:
             display_type = LcncDialog.OK
         if display_type == LcncDialog.OK:
-            self.setStandardButtons(QMessageBox.Ok)
+            self.setStandardButtons(QMessageBox.StandardButton.Ok)
         elif display_type == LcncDialog.YESNO:
-            self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            self.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         elif display_type == LcncDialog.OKCANCEL:
-            self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            self.setStandardButtons(QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
         elif display_type == LcncDialog.NONE:
             self.setStandardButtons(QMessageBox.NoButton)
 
@@ -244,7 +244,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self.forceDetailsOpen()
 
         if use_exec:
-            retval = self.exec_()
+            retval = self.exec()
             STATUS.emit('focus-overlay-changed', False, None, None)
             LOG.debug('Value of pressed button: {}'.format(retval))
             return self.qualifiedReturn(retval)
@@ -267,9 +267,9 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self._forcedFlag = True
 
     def qualifiedReturn(self, retval):
-        if retval in(QMessageBox.No, QMessageBox.Cancel):
+        if retval in(QMessageBox.StandardButton.No, QMessageBox.StandardButton.Cancel):
             return False
-        elif retval in(QMessageBox.Ok, QMessageBox.Yes):
+        elif retval in(QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Yes):
             return True
         else:
             return self.buttonRole(self.clickedButton())
@@ -283,7 +283,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
             self.set_geometry()
         else:
             geom = self.frameGeometry()
-            geom.moveCenter(QDesktopWidget().availableGeometry().center())
+            geom.moveCenter(QApplication.primaryScreen().availableGeometry().center())
             self.setGeometry(geom)
         super(LcncDialog, self).showEvent(event)
 
@@ -400,8 +400,8 @@ class ToolDialog(LcncDialog, GeometryMixin):
         super(ToolDialog, self).__init__(parent)
         self.setText('<b>Manual Tool Change Request</b>')
         self.setInformativeText('Please Insert Tool 0')
-        self.setStandardButtons(QMessageBox.Ok)
-        self.setDefaultButton(QMessageBox.Ok)
+        self.setStandardButtons(QMessageBox.StandardButton.Ok)
+        self.setDefaultButton(QMessageBox.StandardButton.Ok)
         self._useDesktopNotify = False
         self._frameless = False
         self._curLine = 0
@@ -525,22 +525,22 @@ class ToolDialog(LcncDialog, GeometryMixin):
 
         self.setWindowModality(Qt.ApplicationModal)
         if frameless:
-            self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.FramelessWindowHint | Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+            self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         else:
-            self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint
+            self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint
                             | Qt.WindowSystemMenuHint)
-        self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
-        self.setWindowFlag(Qt.WindowCloseButtonHint, False)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.CustomizeWindowHint)
+        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
 
         self.setWindowTitle(self._title)
-        self.setIcon(QMessageBox.Critical)
+        self.setIcon(QMessageBox.Icon.Critical)
         self.setText('<b>%s</b>' % message)
         self.setInformativeText(more_info)
         self.setDetailedText(details)
-        self.setStandardButtons(QMessageBox.Ok)
+        self.setStandardButtons(QMessageBox.StandardButton.Ok)
         self.buttonClicked.connect(self.msgbtn)
         # force the details box open on first time display
         if self._flag and details != ' Tool Info: ':
@@ -563,7 +563,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
         LOG.debug('Button pressed is: {}'.format(i.text()))
         if self.clickedButton() == self._actionbutton:
             self._processChange(-1)
-        elif self.standardButton(self.clickedButton()) == QMessageBox.Ok:
+        elif self.standardButton(self.clickedButton()) == QMessageBox.StandardButton.Ok:
             self._processChange(True)
         else:
             self._processChange(False)
@@ -605,12 +605,12 @@ class FileDialog(QFileDialog, GeometryMixin):
         self._save_request_name = 'SAVE'
         self._color = QColor(0, 0, 0, 150)
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.Option.DontUseNativeDialog
         self.setOptions(options)
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
 
         self.INI_exts = INFO.get_qt_filter_extensions()
         self.setNameFilter(self.INI_exts)
@@ -664,8 +664,8 @@ class FileDialog(QFileDialog, GeometryMixin):
     def load_dialog(self, extensions = None, preselect = None, directory = None, return_path=False):
         #print(extensions,preselect,os.path.expanduser(directory))
 
-        self.setFileMode(QFileDialog.ExistingFile)
-        self.setAcceptMode(QFileDialog.AcceptOpen)
+        self.setFileMode(QFileDialog.FileMode.ExistingFile)
+        self.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
 
         if extensions:
             self.setNameFilter(extensions)
@@ -686,7 +686,7 @@ class FileDialog(QFileDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         fname = None
-        if (self.exec_()):
+        if (self.exec()):
             fname = self.selectedFiles()[0]
             path = self.directory().absolutePath()
             self.setDirectory(path)
@@ -704,8 +704,8 @@ class FileDialog(QFileDialog, GeometryMixin):
 
     def save_dialog(self, extensions = None, preselect = None, directory = None):
 
-        self.setFileMode(QFileDialog.AnyFile)
-        self.setAcceptMode(QFileDialog.AcceptSave)
+        self.setFileMode(QFileDialog.FileMode.AnyFile)
+        self.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
         self.setDefaultSuffix('ngc')
 
         if extensions:
@@ -727,7 +727,7 @@ class FileDialog(QFileDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         fname = None
-        if (self.exec_()):
+        if (self.exec()):
             fname = self.selectedFiles()[0]
             path = self.directory().absolutePath()
             self.setDirectory(path)
@@ -795,9 +795,9 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
         self._request_name = 'ORIGINOFFSET'
 
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         self.setMinimumSize(200, 200)
         buttonBox = QDialogButtonBox()
         buttonBox.setEnabled(False)
@@ -855,7 +855,7 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', True, 'Set Origin Offsets', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -915,9 +915,9 @@ class ToolOffsetDialog(QDialog, GeometryMixin):
         self._request_name = 'TOOLOFFSET'
 
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         self.setMinimumSize(200, 200)
 
         self._o = TOOLVIEW_WIDGET()
@@ -989,7 +989,7 @@ class ToolOffsetDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', True, 'Set Tool Offsets', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -1048,9 +1048,9 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         self._title = 'Choose Tool'
 
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         self.setMinimumSize(200, 200)
 
         self._o = TOOLCHOOSER_WIDGET()
@@ -1072,8 +1072,8 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         v.addWidget(self._o)
 
         self.bBox = QDialogButtonBox()
-        self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
-        self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
+        self.bBox.addButton('Apply', QDialogButtonBox.ButtonRole.AcceptRole)
+        self.bBox.addButton('Cancel', QDialogButtonBox.ButtonRole.RejectRole)
         self.bBox.rejected.connect(self.reject)
         self.bBox.accepted.connect(self.accept)
 
@@ -1123,22 +1123,22 @@ class ToolChooserDialog(QDialog, GeometryMixin):
 
         self.setWindowModality(Qt.ApplicationModal)
         if frameless:
-            self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.FramelessWindowHint | Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+            self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         else:
-            self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint
+            self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint
                             | Qt.WindowSystemMenuHint)
-        self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
-        self.setWindowFlag(Qt.WindowCloseButtonHint, False)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.CustomizeWindowHint)
+        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
 
         self.setWindowTitle(self._title)
 
         STATUS.emit('focus-overlay-changed', True, 'Tool Chooser', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -1193,9 +1193,9 @@ class CamViewDialog(QDialog, GeometryMixin):
         self._request_name = 'CAMVIEW'
 
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         self.setMinimumSize(200, 200)
         h = QHBoxLayout()
         h.addStretch(1)
@@ -1220,15 +1220,15 @@ class CamViewDialog(QDialog, GeometryMixin):
             nblock = message.get('NONBLOCKING')
             if nblock:
                 self.setWindowModality(Qt.NonModal)
-                self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint
+                self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint
                             | Qt.WindowSystemMenuHint)
                 self.load_dialog_nonblocking()
             else:
                 self.setWindowModality(Qt.ApplicationModal)
-                self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.FramelessWindowHint | Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+                self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
                 self.load_dialog()
 
     def close(self):
@@ -1243,7 +1243,7 @@ class CamViewDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', True, 'Cam View Dialog', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
 
     # **********************
@@ -1292,9 +1292,9 @@ class MacroTabDialog(QDialog, GeometryMixin):
         self._state = False
         self._request_name = 'MACROTAB'
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         self.setMinimumSize(00, 200)
         self.resize(600, 400)
         # patch class to call our button methods rather then the
@@ -1345,7 +1345,7 @@ class MacroTabDialog(QDialog, GeometryMixin):
         self.tab.stack.setCurrentIndex(0)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -1393,12 +1393,12 @@ class VersaProbeDialog(QDialog, GeometryMixin):
         self._state = False
         self._request_name  = 'VERSAPROBE'
         self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         self.setMinimumSize(200, 200)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
-        b = buttonBox.button(QDialogButtonBox.Ok)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        b = buttonBox.button(QDialogButtonBox.StandardButton.Ok)
         b.clicked.connect(lambda: self.close())
         l = QVBoxLayout()
         self._o = VersaProbe()
@@ -1427,7 +1427,7 @@ class VersaProbeDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', True, 'VersaProbe Dialog', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -1475,8 +1475,8 @@ class EntryDialog(QDialog, GeometryMixin):
         self.play_sound = False
         self._request_name = 'ENTRY'
         self._title = 'Numerical Entry'
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
         self._softKey = SoftInputWidget(self, 'numeric')
 
@@ -1493,8 +1493,8 @@ class EntryDialog(QDialog, GeometryMixin):
         gl.addWidget(self.Num)
 
         self.bBox = QDialogButtonBox()
-        self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
-        self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
+        self.bBox.addButton('Apply', QDialogButtonBox.ButtonRole.AcceptRole)
+        self.bBox.addButton('Cancel', QDialogButtonBox.ButtonRole.RejectRole)
         self.bBox.rejected.connect(self.reject)
         self.bBox.accepted.connect(self.accept)
 
@@ -1551,7 +1551,7 @@ class EntryDialog(QDialog, GeometryMixin):
         flag = False
         while flag == False:
             self.Num.setFocus()
-            retval = self.exec_()
+            retval = self.exec()
             if retval:
                 try:
                     answer = float(self.Num.text())
@@ -1618,8 +1618,8 @@ class KeyboardDialog(QDialog, GeometryMixin):
         self.play_sound = False
         self._request_name = 'KEYBOARD'
         self._title = 'Keyboard Entry'
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
         self.keybrd = VirtualKeyboard()
         self.edit = QLineEdit()
@@ -1629,8 +1629,8 @@ class KeyboardDialog(QDialog, GeometryMixin):
         gl.addWidget(self.keybrd)
 
         self.bBox = QDialogButtonBox()
-        self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
-        self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
+        self.bBox.addButton('Apply', QDialogButtonBox.ButtonRole.AcceptRole)
+        self.bBox.addButton('Cancel', QDialogButtonBox.ButtonRole.RejectRole)
         self.bBox.rejected.connect(self.reject)
         self.bBox.accepted.connect(self.accept)
 
@@ -1680,7 +1680,7 @@ class KeyboardDialog(QDialog, GeometryMixin):
             self.edit.setFocus()
             self.edit.setText(str(preload))
             self.edit.deselect()
-        retval = self.exec_()
+        retval = self.exec()
         answer = self.edit.text()
         if retval:
             STATUS.emit('update-machine-log', 'keyboard Entry {}'.format(answer), 'TIME,DEBUG')
@@ -1735,8 +1735,8 @@ class CalculatorDialog(Calculator, GeometryMixin):
         self._nblock = False
         self._message = None
         self._overlay = None
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
 
     def _hal_init(self):
@@ -1822,7 +1822,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
         else:
             if overlay:
                 STATUS.emit('focus-overlay-changed', True, '', self._color)
-            retval = self.exec_()
+            retval = self.exec()
             if overlay:
                 STATUS.emit('focus-overlay-changed', False, None, None)
 
@@ -1912,8 +1912,8 @@ class MachineLogDialog(QDialog, GeometryMixin):
         self.play_sound = False
         self._request_name = 'MACHINELOG'
         self._title = 'Machine Log'
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
 
 
@@ -1948,7 +1948,7 @@ class MachineLogDialog(QDialog, GeometryMixin):
 
         # build dialog buttons
         self.bBox = QDialogButtonBox()
-        self.bBox.addButton('Ok', QDialogButtonBox.AcceptRole)
+        self.bBox.addButton('Ok', QDialogButtonBox.ButtonRole.AcceptRole)
         self.bBox.accepted.connect(self.accept)
         # add buttons to layout
         l.addWidget(self.bBox)
@@ -1981,7 +1981,7 @@ class MachineLogDialog(QDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         if nonblock is not None:
-            self.exec_()
+            self.exec()
             STATUS.emit('focus-overlay-changed', False, None, None)
             self.record_geometry()
             return False
@@ -2032,8 +2032,8 @@ class RunFromLineDialog(QDialog, GeometryMixin):
         self.play_sound = False
         self._request_name = 'RUNFROMLINE'
         self._title = 'Run from line preset Dialog'
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
         self.buttonBox.clicked.connect(self.Clicked)
 
@@ -2087,7 +2087,7 @@ class RunFromLineDialog(QDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         if not nonblock:
-            self.exec_()
+            self.exec()
             STATUS.emit('focus-overlay-changed', False, None, None)
             self.record_geometry()
             return False
@@ -2128,8 +2128,8 @@ class AboutDialog(QDialog, GeometryMixin):
         self.play_sound = False
         self.text  = QTextEdit('This is an ABOUT dialog')
         self.text.setReadOnly(True)
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
 
     def _hal_init(self):
@@ -2145,7 +2145,7 @@ class AboutDialog(QDialog, GeometryMixin):
         l.addWidget(self.text)
         # build dialog buttons
         self.bBox = QDialogButtonBox()
-        self.bBox.addButton('Ok', QDialogButtonBox.AcceptRole)
+        self.bBox.addButton('Ok', QDialogButtonBox.ButtonRole.AcceptRole)
         self.bBox.accepted.connect(self.accept)
         # add buttons to layout
         l.addWidget(self.bBox)
@@ -2181,7 +2181,7 @@ class AboutDialog(QDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         if nonblock is not None:
-            self.exec_()
+            self.exec()
             STATUS.emit('focus-overlay-changed', False, None, None)
             self.record_geometry()
             return False
@@ -2215,7 +2215,7 @@ class AboutDialog(QDialog, GeometryMixin):
 ################################
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     #widget = AboutDialog()

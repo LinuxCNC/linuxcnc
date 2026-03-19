@@ -1,12 +1,11 @@
 import sys
 
-from PyQt5 import QtWidgets
-#PYQT5 QSpinBox, QMessageBox, QDialog, QPushButton, QGridLayout, QLabel
+from PyQt6 import QtWidgets
 
 
 
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt
+from PyQt6 import QtGui, QtCore
+from PyQt6.QtCore import Qt
 
 class Table(QtWidgets.QDialog):
     def __init__(self,parent = None):
@@ -76,10 +75,10 @@ class Table(QtWidgets.QDialog):
 
         if not rows or not cols:
 
-            popup = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning,
+            popup = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Icon.Warning,
                                       "Parameter error",
                                       "Row and column numbers may not be zero!",
-                                      QtWidgets.QMessageBox.Ok,
+                                      QtWidgets.QMessageBox.StandardButton.Ok,
                                       self)
             popup.show()
 

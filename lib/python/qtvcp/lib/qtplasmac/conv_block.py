@@ -19,8 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QMessageBox
+from PyQt6.QtCore import Qt, QCoreApplication
+from PyQt6.QtWidgets import QLabel, QMessageBox
 from qtvcp.core import Status
 from importlib import reload
 from plasmac import block as BLOCK
@@ -38,7 +38,7 @@ def preview(P, W, Conv, doMirror=False, doFlip=False):
                           W.aEntry.text(), W.scEntry.text(), W.rtEntry.text(), doMirror, doFlip)
     if error:
         P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Block Error'), error)
+        P.dialog_show_ok(QMessageBox.Icon.Warning, _translate('Conversational', 'Block Error'), error)
     else:
         W.conv_preview.load(P.fNgc)
         W.conv_preview.set_current_view()
@@ -89,15 +89,15 @@ def widgets(P, W, Conv):
     centerAlign = ['lDesc', 'ccLabel', 'rrLabel', 'oLabel', 'shLabel', 'ptLabel']
     pButton = ['preview', 'add', 'undo', 'mirror', 'flip']
     for widget in rightAlign:
-        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[widget].setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     for widget in leftAlign:
-        W[widget].setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        W[widget].setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     for widget in centerAlign:
-        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        W[widget].setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignVCenter)
         if widget == 'lDesc':
             W[widget].setFixedWidth(240)
         else:

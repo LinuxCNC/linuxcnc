@@ -19,7 +19,7 @@
 
 # embed qt instance 'window' into X11 window 'parent'
 def reparent_qt_to_x11(window, parent):
-    """ Forced reparent. When reparenting pyqt5 applications into Tk
+    """ Forced reparent. When reparenting PyQt6 applications into Tk
     some extra protocol calls are needed.
     """
     try:

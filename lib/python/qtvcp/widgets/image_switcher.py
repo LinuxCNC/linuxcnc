@@ -17,9 +17,9 @@
 
 import os
 
-from PyQt5.QtCore import pyqtSignal, pyqtProperty, QVariant
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtGui import QPixmap
+from PyQt6.QtCore import pyqtSignal, pyqtProperty
+from PyQt6.QtWidgets import QLabel
+from PyQt6.QtGui import QPixmap
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Tool, Path
@@ -121,7 +121,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
         return self._imagePath
     def reset_image_l(self):
         self._imagePath = [self._defaultImage]
-    image_list = pyqtProperty(QVariant.typeToName(QVariant.StringList), get_image_l, set_image_l, reset_image_l)
+    image_list = pyqtProperty(.typeToName(.StringList), get_image_l, set_image_l, reset_image_l)
 
     def setImagePath(self, data):
         self.defaultPixmap = data
@@ -440,13 +440,13 @@ class StatusImageSwitcher(ImageSwitcher):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = ImageSwitcher()
     widget._hal_init()
 
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()
 

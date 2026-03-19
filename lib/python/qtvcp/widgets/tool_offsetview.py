@@ -18,10 +18,10 @@ import sys
 import os
 import operator
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, QSize, pyqtSlot
-from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
-QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate, qApp)
+from PyQt6.QtCore import Qt, QAbstractTableModel, pyqtProperty, QSize, pyqtSlot
+from PyQt6.QtGui import QColor, QIcon
+from PyQt6.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
+QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate, QApplication.instance())
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Tool, Path
 from qtvcp import logger
@@ -53,13 +53,13 @@ class ItemEditorFactory(QItemEditorFactory):
         super(ItemEditorFactory,self).__init__()
 
     def createEditor(self, userType, parent):
-        if userType == QVariant.Double:
+        if userType == .Double:
             doubleSpinBox = QDoubleSpinBox(parent)
             doubleSpinBox.setDecimals(4)
             doubleSpinBox.setMaximum(99999)
             doubleSpinBox.setMinimum(-99999)
             return doubleSpinBox
-        elif userType == QVariant.Int:
+        elif userType == .Int:
             spinBox = QSpinBox(parent)
             spinBox.setMaximum(20000)
             spinBox.setMinimum(1)
@@ -125,8 +125,8 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.setItemDelegate(styledItemDelegate)
 
         # create the view
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
-        #self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        #self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
 
         # set the table model
         self.tablemodel = MyTableModel(self)
@@ -143,7 +143,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         hh.setSectionResizeMode(3)
 
         hh.setStretchLastSection(True)
-        hh.setSortIndicator(1,Qt.AscendingOrder)
+        hh.setSortIndicator(1,Qt.SortOrder.AscendingOrder)
 
         vh = self.verticalHeader()
         vh.setVisible(False)
@@ -228,7 +228,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
                 text = cellContent
 
                 # update the screen
-                qApp.processEvents()
+                QApplication.instance().processEvents()
 
                 # update the dialog
                 self.callDialog(text,newobj,True)
@@ -247,7 +247,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
                 text = cellContent
 
                 # update the screen
-                qApp.processEvents()
+                QApplication.instance().processEvents()
 
                 # update the dialog
                 self.callDialog(text,newobj,True)
@@ -490,16 +490,16 @@ class MyTableModel(QAbstractTableModel):
         return 0
 
     # Returns the data stored under the given role for the item referred to by the index.
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
 
-        if role == Qt.EditRole:
+        if role == Qt.ItemDataRole.EditRole:
             return self.arraydata[index.row()][index.column()]
 
-        elif role == Qt.DecorationRole and index.column() == 18:
+        elif role == Qt.ItemDataRole.DecorationRole and index.column() == 18:
             value = self.arraydata[index.row()][index.column()]
             return QIcon(os.path.join(ICONPATH, "tool_pos_{}.png".format(value)))
 
-        elif role == Qt.DisplayRole:
+        elif role == Qt.ItemDataRole.DisplayRole:
             value = self.arraydata[index.row()][index.column()]
             col = index.column()
             if isinstance(value, float):
@@ -530,7 +530,7 @@ class MyTableModel(QAbstractTableModel):
             # Default (anything not captured above: e.g. int)
             return value
 
-        elif role == Qt.BackgroundRole:
+        elif role == Qt.ItemDataRole.BackgroundRole:
             value = self.arraydata[index.row()][index.column()]
             if (isinstance(value, int) or isinstance(value, float) or
                   isinstance(value, str), isinstance(value, QCheckBox)):
@@ -539,24 +539,24 @@ class MyTableModel(QAbstractTableModel):
                 elif self.arraydata[index.row()][0].isChecked():
                     return QColor(self._selectedcolor)
                 else:
-                    return QVariant()
+                    return None
 
-        elif role == Qt.CheckStateRole:
+        elif role == Qt.ItemDataRole.CheckStateRole:
             if index.column() == 0:
                 # print(">>> data() row,col = %d, %d" % (index.row(), index.column()))
                 if self.arraydata[index.row()][index.column()].isChecked():
-                    return Qt.Checked
+                    return Qt.CheckState.Checked
                 else:
-                    return Qt.Unchecked
+                    return Qt.CheckState.Unchecked
 
-        elif role == Qt.ForegroundRole:
+        elif role == Qt.ItemDataRole.ForegroundRole:
             value = self.arraydata[index.row()][index.column()]
 
             if ((isinstance(value, int) or isinstance(value, float))
                 and value < 0 ):
                 return QColor('red')
 
-        return QVariant()
+        return None
 
 
     # Returns the item flags for the given index.
@@ -564,9 +564,9 @@ class MyTableModel(QAbstractTableModel):
         if not index.isValid():
             return None
         if index.column() == 0:
-            return Qt.ItemIsEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsSelectable
+            return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsSelectable
         else:
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
     # Sets the role data for the item at index to value.
     # Returns true if successful; otherwise returns false.
@@ -581,10 +581,10 @@ class MyTableModel(QAbstractTableModel):
         LOG.debug("original value:{}".format(self.arraydata[index.row()][col]))
         LOG.debug(">>> setData() role = {}".format(role))
         LOG.debug(">>> setData() column() = {}".format(col))
-        if role == Qt.CheckStateRole and index.column() == 0:
+        if role == Qt.ItemDataRole.CheckStateRole and index.column() == 0:
             #print(">>> setData() role = ", role)
             #print(">>> setData() index.column() = ", index.column())
-            if value == Qt.Checked:
+            if value == Qt.CheckState.Checked:
                 self.uncheckAllTools()
                 self.arraydata[index.row()][index.column()].setChecked(True)
                 #self.arraydata[index.row()][index.column()].setText("Delete")
@@ -622,11 +622,11 @@ class MyTableModel(QAbstractTableModel):
     # For horizontal headers, the section number corresponds to the column number.
     # Similarly, for vertical headers, the section number corresponds to the row number.
     def headerData(self, col, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant(self.headerdata[col])
-        if orientation != Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant('')
-        return QVariant()
+        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
+            return self.headerdata[col]
+        if orientation != Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
+            return ''
+        return None
 
     # Sorts the model by column in the given order.
     def sort(self, Ncol, order):
@@ -637,12 +637,12 @@ class MyTableModel(QAbstractTableModel):
         if Ncol != 0:
             self.layoutAboutToBeChanged.emit()
             self.arraydata = sorted(self.arraydata, key=operator.itemgetter(Ncol))
-            if order == Qt.DescendingOrder:
+            if order == Qt.SortOrder.DescendingOrder:
                 self.arraydata.reverse()
             self.layoutChanged.emit()
 
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     w = ToolOffsetView()
     w.setEnabled(True)
@@ -650,4 +650,4 @@ if __name__ == "__main__":
     w.highlight('lightblue')
     #w.setProperty('styleColorHighlight',QColor('purple'))
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

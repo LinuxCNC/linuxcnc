@@ -2,7 +2,7 @@ import os
 import sys
 import subprocess
 
-from PyQt5 import QtGui, QtCore, QtWidgets, uic
+from PyQt6 import QtGui, QtCore, QtWidgets, uic
 import traceback
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # Set up logging
@@ -41,7 +41,7 @@ class MyEventFilter(QtCore.QObject):
         return (pressed, key, code, shift, ctrl)
 
     def eventFilter(self, receiver, event):
-        # in pyqt5 QWindow gets all events before the widgets inside it do
+        # in pyqt5/6 QWindow gets all events before the widgets inside it do
         # we need the widgets inside it to get their events first
         # this line line provides that.
         # (pyqt4 did not require this)
@@ -143,24 +143,29 @@ class _VCPWindow(QtWidgets.QMainWindow):
         def qrccompile(qrcname, qrcpy):
             log.info('Compiling qrc: {} to \n {}'.format(qrcname, qrcpy))
             try:
-                subprocess.call(["pyrcc5", "-o", "{}".format(qrcpy), "{}".format(qrcname)])
+                subprocess.call(["pyside6-rcc", "-o", "{}".format(qrcpy), "{}".format(qrcname)])
+                with open(qrcpy, 'r') as f:
+                    content = f.read()
+                content = content.replace('from PySide6', 'from PyQt6').replace('import PySide6', 'import PyQt6')
+                with open(qrcpy, 'w') as f:
+                    f.write(content)
             except OSError as e:
                 log.error(
-                    '{}, pyrcc5 error. try in terminal: sudo apt install pyqt5-dev-tools to install dev tools'.format(
+                    '{}, pyside6-rcc error. try in terminal: sudo apt install pyside6-tools to install dev tools'.format(
                         e))
                 msg = QtWidgets.QMessageBox()
-                msg.setIcon(QtWidgets.QMessageBox.Critical)
+                msg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 msg.setText("QTvcp qrc compiling ERROR! ")
                 msg.setInformativeText(
-                    'Qrc Compile error, try: "sudo apt install pyqt5-dev-tools" to install dev tools')
+                    'Qrc Compile error, try: "sudo apt install pyside6-tools" to install dev tools')
                 msg.setWindowTitle("Error")
                 msg.setDetailedText('You can continue but some images may be missing')
                 msg.setStandardButtons(QtWidgets.QMessageBox.Retry | QtWidgets.QMessageBox.Abort)
                 msg.show()
-                retval = msg.exec_()
+                retval = msg.exec()
                 if retval == QtWidgets.QMessageBox.Abort:  # cancel button
                     log.critical("Canceled from qrc compiling Error Dialog.\n")
-                    raise SystemError('pyrcc5 compiling error: try: "sudo apt install pyqt5-dev-tools"')
+                    raise SystemError('pyside6-rcc compiling error: try: "sudo apt install pyside6-tools"')
 
         qrcname = self.PATHS.QRC
         qrcpy = self.PATHS.QRCPY
@@ -222,7 +227,7 @@ Python Error:\n {}'''.format(str(e))
             BNAME = self.PATHS.BASENAME
         # apply one word system theme
         if fname in (list(QtWidgets.QStyleFactory.keys())):
-            QtWidgets.qApp.setStyle(fname)
+            QtWidgets.QApplication.instance().setStyle(fname)
             log.info('Applied System Style name: yellow<{}>'.format(fname))
             return
 
@@ -263,7 +268,7 @@ Python Error:\n {}'''.format(str(e))
                 themes = ''
                 log.error('QSS Filepath Error: {}'.format(qssname))
                 log.error("{} theme not available.".format(fname))
-                current_theme = str(QtWidgets.qApp.style().objectName())
+                current_theme = str(QtWidgets.QApplication.instance().style().objectName())
                 for i in (list(QtWidgets.QStyleFactory.keys())):
                     themes += (', {}'.format(i))
                 log.error('QTvcp Available system themes: green<{}> {}'.format(current_theme, themes))

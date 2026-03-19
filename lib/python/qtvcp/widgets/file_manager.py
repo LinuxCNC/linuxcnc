@@ -5,13 +5,13 @@ import os
 import shutil
 from collections import OrderedDict
 
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import (QApplication, QFileSystemModel, QWidget, QVBoxLayout, QHBoxLayout,
+from PyQt6.QtCore import QCoreApplication
+from PyQt6.QtWidgets import (QApplication, QFileSystemModel, QWidget, QVBoxLayout, QHBoxLayout,
                              QListView, QComboBox, QPushButton, QToolButton, QSizePolicy,
                              QMenu, QAction, QLineEdit, QCheckBox, QTableView, QHeaderView,
                                 QMessageBox)
-from PyQt5.QtGui import QIcon, QDragEnterEvent, QDropEvent
-from PyQt5.QtCore import (QModelIndex, QDir, Qt, pyqtSlot, pyqtSignal, pyqtProperty, QFileInfo, QMimeData,
+from PyQt6.QtGui import QIcon, QDragEnterEvent, QDropEvent
+from PyQt6.QtCore import (QModelIndex, QDir, Qt, pyqtSlot, pyqtSignal, pyqtProperty, QFileInfo, QMimeData,
                           QItemSelectionModel, QItemSelection, QSortFilterProxyModel)
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -174,10 +174,10 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred))
-        line_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        button_policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        box_policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred))
+        line_policy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        button_policy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        box_policy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
 
         self.textLine = QLineEdit()
         self.textLine.setToolTip('Current Directory/selected File')
@@ -214,7 +214,7 @@ class FileManager(QWidget, _HalWidgetBase):
 
         self.model = QFileSystemModel()
         self.model.setRootPath(QDir.currentPath())
-        self.model.setFilter(QDir.AllDirs | QDir.NoDot | QDir.Files)
+        self.model.setFilter(QDir.Filter.AllDirs | QDir.NoDot | QDir.Filter.Files)
         self.model.setNameFilterDisables(False)
         self.model.rootPathChanged.connect(self.folderChanged)
 
@@ -233,11 +233,11 @@ class FileManager(QWidget, _HalWidgetBase):
         self.table.setAlternatingRowColors(True)
 
         header = self.table.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
         header.swapSections(1,3)
-        header.setSortIndicator(1,Qt.AscendingOrder)
+        header.setSortIndicator(1,Qt.SortOrder.AscendingOrder)
 
         self.table.setSortingEnabled(True)
         self.table.setColumnHidden(2, True) # type
@@ -247,7 +247,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.cb.currentIndexChanged.connect(self.filterChanged)
         self.fillCombobox(INFO.PROGRAM_FILTERS_EXTENSIONS)
         self.cb.setMinimumSize(200,40)
-        self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+        self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed))
 
         self.jumpButton = QToolButton()
         self.jumpButton.setText(_translate('FileManager','User'))
@@ -563,10 +563,10 @@ class FileManager(QWidget, _HalWidgetBase):
     def overwriteMessage(self, d):
         title = "File Already Exists"
         info = f"Overwrite {d}?"
-        buttons = QMessageBox.No | QMessageBox.Yes
+        buttons = QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes
         retval =  QMessageBox.warning(
             self, title, info, buttons)
-        if retval == QMessageBox.No:
+        if retval == QMessageBox.StandardButton.No:
             return False
         return True
 
@@ -745,5 +745,5 @@ if __name__ == "__main__":
     gui.onUserClicked()
 #    gui.onMediaClicked()
     gui.setRestricted(True)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 

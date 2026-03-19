@@ -1,8 +1,7 @@
-from PyQt5 import QtWidgets
-#PYQT5 QDialog, QPushButton, QGridLayout, QComboBox
+from PyQt6 import QtWidgets
 
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt
+from PyQt6 import QtGui, QtCore
+from PyQt6.QtCore import Qt
 
 from time import strftime
 

@@ -1,6 +1,6 @@
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt6.QtGui import *
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import *
 
 class DetachTabWidget(QTabWidget):
     def __init__(self, parent=None):
@@ -141,7 +141,7 @@ class DetachTabWidget(QTabWidget):
             self.contentWidget = contentWidget            
             layout.addWidget(self.contentWidget)
             self.contentWidget.show()
-            self.setWindowFlags(Qt.Window)
+            self.setWindowFlags(Qt.WindowType.Window)
 
 
         ##
@@ -180,7 +180,7 @@ class DetachTabWidget(QTabWidget):
             QTabBar.__init__(self, parent)
 
             self.setAcceptDrops(True)
-            self.setElideMode(Qt.ElideRight)
+            self.setElideMode(Qt.TextElideMode.ElideRight)
             self.setSelectionBehaviorOnRemove(QTabBar.SelectLeftTab)
 
             self.dragStartPos = QPoint()
@@ -203,7 +203,7 @@ class DetachTabWidget(QTabWidget):
         #
         #  @param    event    a mouse press event
         def mousePressEvent(self, event):
-            if event.button() == Qt.LeftButton:
+            if event.button() == Qt.MouseButton.LeftButton:
                 self.dragStartPos = event.pos()
 
             self.dragDropedPos.setX(0)
@@ -227,10 +227,10 @@ class DetachTabWidget(QTabWidget):
                 self.dragInitiated = True
 
             # If the current movement is a drag initiated by the left button
-            if (((event.buttons() & Qt.LeftButton)) and self.dragInitiated):
+            if (((event.buttons() & Qt.MouseButton.LeftButton)) and self.dragInitiated):
 
                 # Stop the move event
-                finishMoveEvent = QMouseEvent(QEvent.MouseMove, event.pos(), Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+                finishMoveEvent = QMouseEvent(QEvent.MouseMove, event.pos(), Qt.MouseButton.NoButton, Qt.MouseButton.NoButton, Qt.NoModifier)
                 QTabBar.mouseMoveEvent(self, finishMoveEvent)
 
                 # Convert the move event into a drag
@@ -242,7 +242,7 @@ class DetachTabWidget(QTabWidget):
                 #Create the appearance of dragging the tab content
                 pixmap = self.parentWidget().grab()
                 targetPixmap = QPixmap(pixmap.size())
-                targetPixmap.fill(Qt.transparent)
+                targetPixmap.fill(Qt.GlobalColor.transparent)
                 painter = QPainter(targetPixmap)
                 painter.setOpacity(0.85)
                 painter.drawPixmap(0, 0, pixmap)
@@ -250,16 +250,16 @@ class DetachTabWidget(QTabWidget):
                 drag.setPixmap(targetPixmap)
 
                 # Initiate the drag
-                dropAction = drag.exec_(Qt.MoveAction | Qt.CopyAction)
+                dropAction = drag.exec_(Qt.DropAction.MoveAction | Qt.DropAction.CopyAction)
 
                 # If the drag completed outside of the tab bar, detach the tab and move
                 # the content to the current cursor position
-                if dropAction == Qt.IgnoreAction:
+                if dropAction == Qt.DropAction.IgnoreAction:
                     event.accept()
                     self.onDetachTabSignal.emit(self.tabAt(self.dragStartPos), self.mouseCursor.pos())
 
                 # Else if the drag completed inside the tab bar, move the selected tab to the new position
-                elif dropAction == Qt.MoveAction:
+                elif dropAction == Qt.DropAction.MoveAction:
                     if not self.dragDropedPos.isNull():
                         event.accept()
                         self.onMoveTabSignal.emit(self.tabAt(self.dragStartPos), self.tabAt(self.dragDropedPos))
@@ -308,7 +308,7 @@ class SurfViewer(QMainWindow):
         LineEdit.setFixedWidth(180)
         vbox.addWidget(Label)
         vbox.addWidget(LineEdit)
-        vbox.setAlignment(Qt.AlignTop)
+        vbox.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.tab_1.setLayout(vbox)
 
         #tab 2
@@ -321,7 +321,7 @@ class SurfViewer(QMainWindow):
         LineEdit.setFixedWidth(180)
         vbox.addWidget(Label)
         vbox.addWidget(LineEdit)
-        vbox.setAlignment(Qt.AlignTop)
+        vbox.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.tab_2.setLayout(vbox)
 
 if __name__ == '__main__':

@@ -21,10 +21,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 from shutil import copy as COPY
-from PyQt5 import QtCore
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel, QComboBox
-from PyQt5.QtGui import QIcon
+from PyQt6 import QtCore
+from PyQt6.QtCore import QCoreApplication
+from PyQt6.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel, QComboBox
+from PyQt6.QtGui import QIcon
 
 _translate = QCoreApplication.translate
 
@@ -88,7 +88,7 @@ def dlg_laser_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1
         P.laserOnPin.set(0)
         head = _translate('HandlerClass', 'Laser Offsets')
         msg0 = _translate('HandlerClass', 'Laser offsets have been saved')
-        P.dialog_show_ok(QMessageBox.Information, f'{head}', f'\n{msg0}\n')
+        P.dialog_show_ok(QMessageBox.Icon.Information, f'{head}', f'\n{msg0}\n')
         dlg.close()
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -97,7 +97,7 @@ def dlg_laser_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1
 def dlg_camera_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4):
     if 'CAMERA' in btn2.text():
         dlg.hide()
-        W.setCursor(QtCore.Qt.WaitCursor)
+        W.setCursor(QtCore.Qt.CursorShape.WaitCursor)
         cameras = camera_search(P, W, dlg)
         if not cameras:
             W.unsetCursor()
@@ -131,7 +131,7 @@ def dlg_camera_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn
         W.preview_stack.setCurrentIndex(0)
         head = _translate('HandlerClass', 'Camera Offsets')
         msg0 = _translate('HandlerClass', 'Camera offsets have been saved')
-        P.dialog_show_ok(QMessageBox.Information, f'{head}', f'\n{msg0}\n')
+        P.dialog_show_ok(QMessageBox.Icon.Information, f'{head}', f'\n{msg0}\n')
         dlg.close()
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -167,7 +167,7 @@ def dlg_scribe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn
         P.offsetSetScribePin.set(0)
         head = _translate('HandlerClass', 'Scribe Offsets')
         msg0 = _translate('HandlerClass', 'Scribe offsets have been saved')
-        P.dialog_show_ok(QMessageBox.Information, f'{head}', f'\n{msg0}\n')
+        P.dialog_show_ok(QMessageBox.Icon.Information, f'{head}', f'\n{msg0}\n')
         dlg.close()
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -191,7 +191,7 @@ def dlg_probe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1
         except:
             head = _translate('HandlerClass', 'Entry Error')
             msg0 = _translate('HandlerClass', 'is not a valid number')
-            P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\'{value}\' {msg0}\n')
+            P.dialog_show_ok(QMessageBox.Icon.Warning, f'{head}', f'\'{value}\' {msg0}\n')
             return
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -214,7 +214,7 @@ def dlg_probe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1
             W.offset_feed_rate_lbl.hide()
         head = _translate('HandlerClass', 'Probe Offsets')
         msg0 = _translate('HandlerClass', 'Probe offsets have been saved')
-        P.dialog_show_ok(QMessageBox.Information, f'{head}', f'\n{msg0}\n')
+        P.dialog_show_ok(QMessageBox.Icon.Information, f'{head}', f'\n{msg0}\n')
         dlg.close()
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -263,7 +263,7 @@ def get_reply(P, STATUS, xOffset, yOffset, probe=False, delay=0.0, new=0.0):
         msg0 += f':\nX:{xP:0.4f}   Y:{yP:0.4f}   Delay:{new:0.2f}\n'
     else:
         msg0 += f':\nX:{xP:0.4f}   Y:{yP:0.4f}\n'
-    if P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{msg0}', f'{btn1}', f'{btn2}'):
+    if P.dialog_show_yesno(QMessageBox.Icon.Warning, f'{head}', f'\n{msg0}', f'{btn1}', f'{btn2}'):
         return True
     else:
         return False
@@ -278,7 +278,7 @@ def camera_search(P, W, dlg):
         msg1 = _translate('Offsets', 'Try installing by entering the following in a terminal')
         msg2 = _translate('Offsets', 'sudo apt install python3-opencv')
         W.unsetCursor()
-        P.dialog_show_ok(QMessageBox.Critical, f'{head}', f'\n{msg0}.\n\n{msg1}:\n\n{msg2}\n')
+        P.dialog_show_ok(QMessageBox.Icon.Critical, f'{head}', f'\n{msg0}.\n\n{msg1}:\n\n{msg2}\n')
         return
     for file in os.listdir('/dev'):
         if file.startswith('video'):
@@ -290,7 +290,7 @@ def camera_search(P, W, dlg):
                 cap.release()
     if not cameras:
         msg0 = _translate('HandlerClass', 'No cameras have been found')
-        P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msg0}\n')
+        P.dialog_show_ok(QMessageBox.Icon.Warning, f'{head}', f'\n{msg0}\n')
     return cameras
 
 def camera_select(P, W, STATUS, cameras):
@@ -327,8 +327,8 @@ def camera_select(P, W, STATUS, cameras):
     dlg.exec()
 
 def camera_changed(P, W, STATUS, dlg, camnum):
-    dlg.setCursor(QtCore.Qt.WaitCursor)
-    W.setCursor(QtCore.Qt.WaitCursor)
+    dlg.setCursor(QtCore.Qt.CursorShape.WaitCursor)
+    W.setCursor(QtCore.Qt.CursorShape.WaitCursor)
     W.camview.hideEvent(None)
     W.camview.set_camnum(camnum)
     W.camview.showEvent(None)

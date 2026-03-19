@@ -1,8 +1,8 @@
 
-from PyQt5 import QtCore, QtGui, Qt
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QWidget
+from PyQt6 import QtCore, QtGui, Qt
+from PyQt6.QtGui import QColor
+from PyQt6.QtCore import pyqtSlot
+from PyQt6.QtWidgets import QWidget
 
 class RoundProgressBar(QWidget):
 
@@ -128,7 +128,7 @@ class RoundProgressBar(QWidget):
         buffer.fill(0)
 
         p = QtGui.QPainter(buffer)
-        p.setRenderHint(QtGui.QPainter.Antialiasing)
+        p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
 
         # data brush
         self.rebuildDataBrushIfNeeded()
@@ -171,7 +171,7 @@ class RoundProgressBar(QWidget):
             p.drawEllipse(baseRect)
         elif bs == self.StyleLine:
             p.setPen(QtGui.QPen(self.palette().base().color(), self.outlinePenWidth))
-            p.setBrush(Qt.Qt.NoBrush)
+            p.setBrush(Qt.Qt.BrushStyle.NoBrush)
             p.drawEllipse(baseRect.adjusted(self.outlinePenWidth/2, self.outlinePenWidth/2, -self.outlinePenWidth/2, -self.outlinePenWidth/2))
 
     def drawValue(self, p, baseRect, value, arcLength):
@@ -182,7 +182,7 @@ class RoundProgressBar(QWidget):
         # for Line style
         if self.barStyle == self.StyleLine:
             p.setPen(QtGui.QPen(self.palette().highlight().color(), self.dataPenWidth))
-            p.setBrush(Qt.Qt.NoBrush)
+            p.setBrush(Qt.Qt.BrushStyle.NoBrush)
             p.drawArc(baseRect.adjusted(self.outlinePenWidth/2, self.outlinePenWidth/2, -self.outlinePenWidth/2, -self.outlinePenWidth/2),
                       self.nullPosition * 16,
                       -arcLength * 16)
@@ -217,7 +217,7 @@ class RoundProgressBar(QWidget):
             p.setBrush(self.palette().alternateBase())
 
             cmod = p.compositionMode()
-            p.setCompositionMode(QtGui.QPainter.CompositionMode_Source)
+            p.setCompositionMode(QtGui.QPainter.CompositionMode.CompositionMode_Source)
 
             p.drawEllipse(innerRect)
 
@@ -237,7 +237,7 @@ class RoundProgressBar(QWidget):
 
         textRect = innerRect
         p.setPen(self.palette().text().color())
-        p.drawText(textRect, Qt.Qt.AlignCenter, text)
+        p.drawText(textRect, Qt.Qt.AlignmentFlag.AlignCenter, text)
 
     def valueToText(self, value):
         textToDraw = self.format
@@ -291,11 +291,11 @@ class RoundProgressBar(QWidget):
 
 if __name__ == "__main__":
     import sys
-    from PyQt5.QtWidgets import QDial, QWidget, QHBoxLayout, QApplication
+    from PyQt6.QtWidgets import QDial, QWidget, QHBoxLayout, QApplication
     app = QApplication(sys.argv)
 
     w = QWidget()
-    #w.setWindowFlags( Qt.FramelessWindowHint | Qt.Dialog | Qt.WindowStaysOnTopHint )
+    #w.setWindowFlags( Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint )
     w.setGeometry(300, 300, 250, 150)
     w.setWindowTitle('Test')
 
@@ -321,7 +321,7 @@ if __name__ == "__main__":
     h.addWidget(qd)
     h.addWidget(gui)
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 

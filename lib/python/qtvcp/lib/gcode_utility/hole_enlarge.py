@@ -16,8 +16,8 @@ import os
 import tempfile
 import atexit
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt6 import QtCore, QtGui, QtWidgets, uic
+from PyQt6.QtWidgets import QFileDialog, QMessageBox
 from qtvcp.core import Info, Status, Action, Tool, Path
 
 INFO = Info()
@@ -57,15 +57,15 @@ class Hole_Enlarge(QtWidgets.QWidget):
         except AttributeError as e:
             print("Error: ", e)
 
-        self.lineEdit_tool.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}')))
-        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}')))
-        self.lineEdit_feed.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}')))
-        self.lineEdit_tool_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,3}[.][0-9]{0,4}')))
-        self.lineEdit_start_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}[.][0-9]{0,4}')))
-        self.lineEdit_final_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}[.][0-9]{0,4}')))
-        self.lineEdit_loops.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,2}')))
-        self.lineEdit_cut_depth.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}[.][0-9]{0,4}')))
-        self.lineEdit_z_safe.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}')))
+        self.lineEdit_tool.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,5}')))
+        self.lineEdit_spindle.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,5}')))
+        self.lineEdit_feed.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,4}')))
+        self.lineEdit_tool_dia.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,3}[.][0-9]{0,4}')))
+        self.lineEdit_start_dia.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,5}[.][0-9]{0,4}')))
+        self.lineEdit_final_dia.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,5}[.][0-9]{0,4}')))
+        self.lineEdit_loops.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,2}')))
+        self.lineEdit_cut_depth.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,4}[.][0-9]{0,4}')))
+        self.lineEdit_z_safe.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,4}')))
 
         self.red_border = "border: 2px solid red;"
         self.black_border = "border: 2px solid black;"
@@ -77,11 +77,11 @@ class Hole_Enlarge(QtWidgets.QWidget):
         with open(help_path) as file:
             help_text = file.read()
         self.mb = QMessageBox()
-        self.mb.setIcon(QMessageBox.Information)
+        self.mb.setIcon(QMessageBox.Icon.Information)
         self.mb.setWindowTitle("Hole Enlarge Help")
-        self.mb.setTextFormat(QtCore.Qt.RichText)
+        self.mb.setTextFormat(QtCore.Qt.TextFormat.RichText)
         self.mb.setText(help_text)
-        self.mb.setStandardButtons(QMessageBox.Ok)
+        self.mb.setStandardButtons(QMessageBox.StandardButton.Ok)
 
         # signal connections
         STATUS.connect('metric-mode-changed', lambda w, mode: self.units_changed(mode))
@@ -98,7 +98,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
         if not self.validate(): return
         self.estimate_runtime()
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.Option.DontUseNativeDialog
         sub_path = INFO.SUB_PATH_LIST
         _dir = os.path.expanduser(sub_path[0])
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file",_dir,"All Files (*);;ngc Files (*.ngc)", options=options)
@@ -232,7 +232,7 @@ class Hole_Enlarge(QtWidgets.QWidget):
 
     def create_gcode(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.Option.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(self,"Save to file","","All Files (*);;ngc Files (*.ngc)", options=options)
         if fileName:
             self.calculate_program(fileName)
@@ -381,5 +381,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = Hole_Enlarge()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

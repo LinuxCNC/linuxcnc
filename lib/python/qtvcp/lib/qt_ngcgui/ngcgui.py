@@ -21,9 +21,9 @@ import re
 import hashlib
 import datetime
 import shutil
-from PyQt5 import QtGui, QtWidgets, QtCore, uic
-from PyQt5.QtCore import QRegExp
-from PyQt5.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLineEdit, QMessageBox
+from PyQt6 import QtGui, QtWidgets, QtCore, uic
+from PyQt6.QtCore import QRegularExpression
+from PyQt6.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLineEdit, QMessageBox
 from qtvcp.core import Action, Info, Path
 from qtvcp import logger
 
@@ -139,7 +139,7 @@ class OnePg(QWidget):
 
     def empty_label(self):
         lbl = QLabel()
-        lbl.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding))
+        lbl.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding,QtWidgets.QSizePolicy.Policy.Expanding))
         return lbl
 
     def new_label(self, width, text):
@@ -150,8 +150,8 @@ class OnePg(QWidget):
         return lbl
 
     def new_lineedit(self, key, data):
-        # QRegExp('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$' allows max 4 digits after the decimal
-        valid = QtGui.QRegExpValidator(QRegExp(r'^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
+        # QRegularExpression('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$' allows max 4 digits after the decimal
+        valid = QtGui.QRegularExpressionValidator(QRegularExpression(r'^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
         lineedit = QLineEdit(str(data))
         lineedit.parm_no = key
         lineedit.setMaxLength(10)
@@ -688,22 +688,22 @@ class NgcGui(QtWidgets.QWidget):
         if len(plist) > 1:
             msgBox = QMessageBox()
             msgBox.setWindowTitle('Finalize Features')
-            msgBox.setIcon(QMessageBox.Question)
-            msgBox.setStandardButtons(QMessageBox.No | QMessageBox.Yes | QMessageBox.Cancel)
-            msgBox.setIcon(QMessageBox.Information)
+            msgBox.setIcon(QMessageBox.Icon.Question)
+            msgBox.setStandardButtons(QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel)
+            msgBox.setIcon(QMessageBox.Icon.Information)
             msgBox.setText('Finalize all Tabs?\n\n'
                         'No:     Current page only\n'
                         'Yes:    All pages\n'
                         'Cancel: Nevermind\n\n'
                         'Order: left to right')
             returnValue = msgBox.exec()
-            if returnValue == QMessageBox.Yes:
+            if returnValue == QMessageBox.StandardButton.Yes:
                 pass # use plist for all pages
-            elif returnValue == QMessageBox.No:
+            elif returnValue == QMessageBox.StandardButton.No:
                 pno = self.tabWidget.currentIndex()
                 npage = self.tabWidget.widget(pno)
                 plist = [nset.pg_for_npage[npage]]
-            elif returnValue == QMessageBox.Cancel:
+            elif returnValue == QMessageBox.StandardButton.Cancel:
                 return # do nothing
             else:
                 self.textEdit_status.append('finalize_features: unknown return value')
@@ -956,7 +956,7 @@ def find_positional_parms(s):
 def get_file_open(caption):
     dialog = QFileDialog()
     options = QFileDialog.Options()
-    options |= QFileDialog.DontUseNativeDialog
+    options |= QFileDialog.Option.DontUseNativeDialog
     _filter = "GCode Files (*.ngc *.nc)"
     _dir = os.path.abspath(INFO.NGC_SUB_PATH)
     fname, _ =  dialog.getOpenFileName(None, caption, _dir, _filter, options=options)
@@ -965,7 +965,7 @@ def get_file_open(caption):
 def get_file_save(caption):
     dialog = QFileDialog()
     options = QFileDialog.Options()
-    options |= QFileDialog.DontUseNativeDialog
+    options |= QFileDialog.Option.DontUseNativeDialog
     _filter = "GCode Files (*.ngc)"
     _dir = os.path.abspath(INFO.NGC_SUB_PATH)
     fname, _ =  dialog.getSaveFileName(None, caption, _dir, _filter, options=options)
@@ -1011,5 +1011,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = NgcGui()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

@@ -8,7 +8,7 @@ import json
 import signal
 
 import hal
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 from qtvcp.qt_halobjects import Qhal
 from common.iniinfo import _IStat as IStatParent
 from common import logger
@@ -227,7 +227,7 @@ class Bridge(object):
 if __name__ == "__main__":
     import sys
     import getopt
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
 
     letters = 'dh' # the : means an argument needs to be passed after the letter
     keywords = ['readport=', 'writeport=' ] # the = means that a value is expected after 
@@ -257,4 +257,4 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     test = Bridge(readport, writeport)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

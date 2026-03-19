@@ -18,7 +18,7 @@
 # This widget pops up an onscreen keyboard for entries
 # Used in the Macro and MDI line widget
 
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt6 import QtWidgets, QtCore, QtGui
 #from decimal import Decimal
 
 # applicationle widgets
@@ -29,7 +29,7 @@ class MyFlatPushButton(QtWidgets.QPushButton):
     def __init__(self, caption, min_size=(50, 50)):
         self.MIN_SIZE = min_size
         super(MyFlatPushButton, self).__init__(caption)
-        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
     def sizeHint(self):
         return QtCore.QSize(self.MIN_SIZE[0], self.MIN_SIZE[1])
@@ -38,21 +38,21 @@ class SoftInputWidget(QtWidgets.QDialog):
     def __init__(self, parent=None, keyboard_type='default'):
         super(SoftInputWidget, self).__init__(parent)
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint |
-                            QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowType.FramelessWindowHint |
+                            QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self.INPUT_WIDGET = None
         self.PARENT_OBJECT = parent
         self.signalMapper = QtCore.QSignalMapper(self)
 
         self.NO_ORD_KEY_LIST = list()
-        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key_Left)
-        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key_Up)
-        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key_Right)
-        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key_Down)
-        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key_Backspace)
-        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key_Enter)
-        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key_Tab)
-        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key_Escape)
+        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key.Key_Left)
+        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key.Key_Up)
+        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key.Key_Right)
+        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key.Key_Down)
+        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key.Key_Backspace)
+        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key.Key_Enter)
+        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key.Key_Tab)
+        self.NO_ORD_KEY_LIST.append(QtCore.Qt.Key.Key_Escape)
 
         self.do_layout(keyboard_type)
 
@@ -98,35 +98,35 @@ class SoftInputWidget(QtWidgets.QDialog):
 
         button = MyFlatPushButton('LINE\nUP')
         button.setToolTip('Cursor Up')
-        button.KEY_CHAR = QtCore.Qt.Key_Up
+        button.KEY_CHAR = QtCore.Qt.Key.Key_Up
         control_widget_list.append(button)
 
         button = MyFlatPushButton('LINE\nDOWN')
         button.setToolTip('Cursor Down')
-        button.KEY_CHAR = QtCore.Qt.Key_Down
+        button.KEY_CHAR = QtCore.Qt.Key.Key_Down
         control_widget_list.append(button)
 
         # space
         button = MyFlatPushButton('SPACE', min_size=(160, 50))
-        button.KEY_CHAR = QtCore.Qt.Key_Space
+        button.KEY_CHAR = QtCore.Qt.Key.Key_Space
         control_widget_list.append(button)
 
         # back space
         button = MyFlatPushButton('BACK')
         button.setToolTip('Backspace')
-        button.KEY_CHAR = QtCore.Qt.Key_Backspace
+        button.KEY_CHAR = QtCore.Qt.Key.Key_Backspace
         control_widget_list.append(button)
 
         # close
         button = MyFlatPushButton('CLOSE')
         button.setToolTip('Close Keyboard')
-        button.KEY_CHAR = QtCore.Qt.Key_Escape
+        button.KEY_CHAR = QtCore.Qt.Key.Key_Escape
         control_widget_list.append(button)
 
         # enter
         button = MyFlatPushButton('ENTER', min_size=(105, 50))
         button.setToolTip('Enter Command')
-        button.KEY_CHAR = QtCore.Qt.Key_Enter
+        button.KEY_CHAR = QtCore.Qt.Key.Key_Enter
         control_widget_list.append(button)
 
         MAX_COL = 10
@@ -178,7 +178,7 @@ class SoftInputWidget(QtWidgets.QDialog):
         self.setLayout(gl)
 
     def reject(self):
-        self.buttonClicked(QtCore.Qt.Key_Escape)
+        self.buttonClicked(QtCore.Qt.Key.Key_Escape)
 
     def buttonClicked(self, char_ord):
         w = self.INPUT_WIDGET
@@ -187,12 +187,12 @@ class SoftInputWidget(QtWidgets.QDialog):
         else:
             keyPress = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, char_ord, QtCore.Qt.NoModifier, chr(char_ord))
         # hide on enter or esc button click
-        if char_ord == QtCore.Qt.Key_Escape:
+        if char_ord == QtCore.Qt.Key.Key_Escape:
             self.hide()
         else:
             # send keypress event to widget
             QtWidgets.QApplication.sendEvent(w, keyPress)
-            if char_ord == QtCore.Qt.Key_Enter:
+            if char_ord == QtCore.Qt.Key.Key_Enter:
                 self.hide()
 
         # line edit returnPressed event is triggering twice for press and release both
@@ -215,7 +215,7 @@ class SoftInputWidget(QtWidgets.QDialog):
         widget_rect = widget.rect()
         widget_bottom = widget.mapToGlobal(QtCore.QPoint(widget.frameGeometry().x(),
                                                          widget.frameGeometry().y())).y()
-        screen_height = QtWidgets.qApp.desktop().availableGeometry().height()
+        screen_height = QtWidgets.QApplication.instance().desktop().availableGeometry().height()
         input_panel_height = self.geometry().height() + 5
 
         if (screen_height - widget_bottom) > input_panel_height:
@@ -267,7 +267,7 @@ class TouchInterface(QtWidgets.QWidget):
 ## testing ##
 if __name__ == '__main__':
     import sys
-    from PyQt5.QtWidgets import QWidget
+    from PyQt6.QtWidgets import QWidget
     app = QtWidgets.QApplication([])
     w = QWidget()
     w.setGeometry(100, 100, 200, 100)
@@ -281,4 +281,4 @@ if __name__ == '__main__':
     test.callDialog(line, 'default')
     w.setLayout(layout)
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

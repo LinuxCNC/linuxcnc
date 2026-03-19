@@ -20,7 +20,7 @@
 # In the designer editor, it is possible to select what the button will do.
 ###############################################################################
 
-from PyQt5 import QtGui, QtCore
+from PyQt6 import QtGui, QtCore
 
 from qtvcp.widgets.action_button import ActionButton
 
@@ -28,7 +28,7 @@ class RoundButton(ActionButton):
     def __init__(self, parent=None):
         super(RoundButton, self).__init__(parent)
         self.setCheckable(True)
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.pixmap = QtGui.QPixmap()
         self.false_pixmap = QtGui.QPixmap()
         self.clip_region = QtGui.QRegion(QtCore.QRect(5, 5, self.width()-10, self.height()-10), QtGui.QRegion.Ellipse)
@@ -79,11 +79,11 @@ class RoundButton(ActionButton):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = RoundButton()
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()
 

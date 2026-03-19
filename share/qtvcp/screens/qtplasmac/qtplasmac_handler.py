@@ -36,11 +36,11 @@ import glob
 import linuxcnc
 import hal
 from OpenGL.GL import glTranslatef
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.Qsci import QsciScintilla
+from PyQt6 import QtCore, QtWidgets, QtGui
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtGui import *
+from PyQt6.Qsci import QsciScintilla
 from qtvcp import logger
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp.lib.gcodes import GCodes
@@ -65,7 +65,7 @@ from qtvcp.widgets.stylesheeteditor import StyleSheetEditor as SSE
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from plasmac import run_from_line as RFL
 from rs274.glcanon import GlCanonDraw as DRAW
-from qt5_graphics import Lcnc_3dGraphics as DRO
+from qtvcp.widgets.gcode_graphics import GCodeGraphics as DRO
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -654,7 +654,7 @@ class HandlerClass:
                     head = _translate('HandlerClass', 'Save Error')
                     msg0 = _translate('HandlerClass', 'The file name')
                     msg1 = _translate('HandlerClass', 'is not allowed')
-                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msg0} "{os.path.basename(path)}" {msg1}\n\n')
+                    self.dialog_show_ok(QMessageBox.Icon.Warning, f'{head}', f'\n{msg0} "{os.path.basename(path)}" {msg1}\n\n')
                     self.w.gcode_editor.getSaveFileName()
                     return
 
@@ -687,24 +687,24 @@ class HandlerClass:
         qp.setPen(self.w.camview.text_color)
         qp.setFont(self.w.camview.font)
         if self.w.camview.pix:
-            qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignTop, f'{self.w.camview.rotation:0.3f}{self.degreeSymbol}')
+            qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignmentFlag.AlignTop, f'{self.w.camview.rotation:0.3f}{self.degreeSymbol}')
         else:
-            qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignCenter, self.w.camview.text)
+            qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignmentFlag.AlignCenter, self.w.camview.text)
 
     # limit scale and diameter, don't allow mouse rotation
     def new_wheelEvent(self, event):
-        mouseState = qApp.mouseButtons()
+        mouseState = QApplication.instance().mouseButtons()
         w = self.w.camview.size().width()
         h = self.w.camview.size().height()
         if event.angleDelta().y() < 0:
-            if mouseState == QtCore.Qt.NoButton:
+            if mouseState == QtCore.Qt.MouseButton.NoButton:
                 self.w.camview.diameter -= 2
-            if mouseState == QtCore.Qt.LeftButton:
+            if mouseState == QtCore.Qt.MouseButton.LeftButton:
                 self.w.camview.scale -= .1
         else:
-            if mouseState == QtCore.Qt.NoButton:
+            if mouseState == QtCore.Qt.MouseButton.NoButton:
                 self.w.camview.diameter += 2
-            if mouseState == QtCore.Qt.LeftButton:
+            if mouseState == QtCore.Qt.MouseButton.LeftButton:
                 self.w.camview.scale += .1
         if self.w.camview.diameter < 2:
             self.w.camview.diameter = 2
@@ -723,9 +723,9 @@ class HandlerClass:
 
     # don't reset rotation with double click
     def new_mouseDoubleClickEvent(self, event):
-        if event.button() & QtCore.Qt.LeftButton:
+        if event.button() & QtCore.Qt.MouseButton.LeftButton:
             self.w.camview.scale = 1
-        elif event.button() & QtCore.Qt.MiddleButton:
+        elif event.button() & QtCore.Qt.MouseButton.MiddleButton:
             self.w.camview.diameter = 20
 
 # patched offset table functions
@@ -738,19 +738,19 @@ class HandlerClass:
         if not index.isValid():
             return None
         if index.column() == 9 and index.row() in (0, 1, 2, 3):
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         elif index.row() == 0:
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         elif index.row() == 1 and not index.column() == 2:
-            return Qt.NoItemFlags
+            return Qt.ItemFlag.NoItemFlags
         # prevent z axis offset editing
         elif index.column() == 2:
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         # prevent g92 offset editing
         elif index.row() == 2:
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         else:
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
 # patched qt5_graphics functions
     def qt5_graphics_patch(self):
@@ -1126,12 +1126,12 @@ class HandlerClass:
         # for copy/paste control if required
         self.w.filemanager.copy_control.hide()
         # add vertical and horizontal scroll bars to the materials QComboBoxs
-        self.w.material_selector.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.w.material_selector.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.w.conv_material.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.w.conv_material.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.w.materials_box.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.w.materials_box.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.w.material_selector.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.w.material_selector.view().setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.w.conv_material.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.w.conv_material.view().setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.w.materials_box.view().setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.w.materials_box.view().setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.w.gcode_display.set_margin_metric(3)
         self.w.gcode_display.setBraceMatching(False)
         self.w.gcode_display.setCaretWidth(0)
@@ -1167,8 +1167,8 @@ class HandlerClass:
             self.w.estop.setEnabled(False)
         if self.w.estopButton == 1:
             self.w.estop.hide()
-        self.w.camview.cross_color = QtCore.Qt.red
-        self.w.camview.cross_pointer_color = QtCore.Qt.red
+        self.w.camview.cross_color = QtCore.Qt.GlobalColor.red
+        self.w.camview.cross_pointer_color = QtCore.Qt.GlobalColor.red
         self.w.camview.font = QFont('arial,helvetica', 16)
         self.flashState = False
         self.flashRate = 4
@@ -1184,7 +1184,7 @@ class HandlerClass:
         self.laserButtonState = 'laser'
         self.camButtonState = 'markedge'
         self.overlayProgress = QProgressBar(self.w.gcode_display)
-        self.overlayProgress.setOrientation(Qt.Vertical)
+        self.overlayProgress.setOrientation(Qt.Orientation.Vertical)
         self.overlayProgress.setInvertedAppearance(True)
         self.overlayProgress.setFormat('')
         self.overlayProgress.hide()
@@ -1313,7 +1313,7 @@ class HandlerClass:
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if code not in (Qt.Key_Escape, Qt.Key_F1, Qt.Key_F2):
+        if code not in (Qt.Key.Key_Escape, Qt.Key.Key_F1, Qt.Key.Key_F2):
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
             flag = False
@@ -1356,11 +1356,11 @@ class HandlerClass:
                 receiver2 = receiver2.parent()
             if flag:
                 if is_pressed:
-                    if allowTab and (code == Qt.Key_Tab or code == Qt.Key_BackTab):
+                    if allowTab and (code == Qt.Key.Key_Tab or code == Qt.Key.Key_BackTab):
                         self.keyPressEvent(event)
                     else:
                         receiver.keyPressEvent(event)
-                    if mdiBlank and (code == Qt.Key_Return or code == Qt.Key_Enter):
+                    if mdiBlank and (code == Qt.Key.Key_Return or code == Qt.Key.Key_Enter):
                         self.keyPressEvent(event)
                     event.accept()
                     return True
@@ -1529,15 +1529,15 @@ class HandlerClass:
         if percent < 0:
             self.overlayProgress.setValue(0)
             self.overlayProgress.hide()
-            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-            self.w.gcode_display.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+            self.w.gcode_display.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         else:
             self.overlayProgress.setValue(percent)
             self.overlayProgress.show()
             self.overlayProgress.setFixedHeight(self.w.gcode_display.geometry().height())
             self.overlayProgress.move(self.w.gcode_display.geometry().width() - 20, 0)
-            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.w.gcode_display.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            self.w.gcode_display.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
     def user_system_changed(self, obj, data):
         userSys = self.systemList[int(data)]
@@ -1598,7 +1598,7 @@ class HandlerClass:
                 self.w.gcode_editor.set_margin_metric(3)
         ACTION.SET_MANUAL_MODE()
         if not len(self.w.gcode_display.text()):
-            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         if self.w.main_tab_widget.currentIndex() != self.MAIN:
             self.w.main_tab_widget.setCurrentIndex(self.MAIN)
         # forces the view to remain "table view" if T is checked when a file is loaded, or change to table view upon clicking CLEAR
@@ -2072,7 +2072,7 @@ class HandlerClass:
         head = _translate('HandlerClass', 'Backup Complete')
         msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
         msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')
-        self.dialog_show_ok(QMessageBox.Information, head, f'\n{msg0}:\n{bkpName}\n\n{msg1}\n')
+        self.dialog_show_ok(QMessageBox.Icon.Information, head, f'\n{msg0}:\n{bkpName}\n\n{msg1}\n')
 
     def set_offsets_clicked(self):
         if self.developmentPin.get():
@@ -2402,7 +2402,7 @@ class HandlerClass:
     def closeEvent(self, event):
         O = self.w.screen_options
         if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
-            icon = QMessageBox.Question if STATUS.is_interp_idle() else QMessageBox.Critical
+            icon = QMessageBox.Icon.Question if STATUS.is_interp_idle() else QMessageBox.Icon.Critical
             head = _translate('HandlerClass', 'Shutdown')
             if not STATUS.is_interp_idle():
                 msg0 = _translate('HandlerClass', 'Current operation is not complete')
@@ -2626,7 +2626,7 @@ class HandlerClass:
             head = _translate('HandlerClass', 'Unsaved Editor Changes')
             msg0 = _translate('HandlerClass', 'Unsaved changes will be lost')
             msg1 = _translate('HandlerClass', 'Do you want to proceed')
-            if not self.dialog_show_yesno(QMessageBox.Question, head, f'\n{msg0}\n\n{msg1}?\n'):
+            if not self.dialog_show_yesno(QMessageBox.Icon.Question, head, f'\n{msg0}\n\n{msg1}?\n'):
                 self.w.preview_stack.setCurrentIndex(self.EDIT)
                 self.w.gcode_editor.editor.setFocus()
                 return False
@@ -3284,31 +3284,31 @@ class HandlerClass:
 
     def dialog_show_ok(self, icon, title, error, bText=_translate('HandlerClass', 'OK')):
         msg = QMessageBox(self.w)
-        buttonY = msg.addButton(QMessageBox.Yes)
+        buttonY = msg.addButton(QMessageBox.StandardButton.Yes)
         buttonY.setText(bText)
         buttonY.setIcon(QIcon())
         msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
-        msg.setWindowFlag(Qt.Popup)
-        msg.exec_()
+        msg.setWindowFlag(Qt.WindowType.Popup)
+        msg.exec()
         self.dialogError = False
         return msg
 
     def dialog_show_yesno(self, icon, title, error, bY=_translate('HandlerClass', 'YES'), bN=_translate('HandlerClass', 'NO')):
         msg = QMessageBox(self.w)
-        buttonY = msg.addButton(QMessageBox.Yes)
+        buttonY = msg.addButton(QMessageBox.StandardButton.Yes)
         buttonY.setText(bY)
         buttonY.setIcon(QIcon())
-        buttonN = msg.addButton(QMessageBox.No)
+        buttonN = msg.addButton(QMessageBox.StandardButton.No)
         buttonN.setText(bN)
         buttonN.setIcon(QIcon())
         msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
-        msg.setWindowFlag(Qt.WindowStaysOnTopHint) if 'shutdown' in error else msg.setWindowFlag(Qt.Popup)
-        choice = msg.exec_()
-        if choice == QMessageBox.Yes:
+        msg.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint) if 'shutdown' in error else msg.setWindowFlag(Qt.WindowType.Popup)
+        choice = msg.exec()
+        if choice == QMessageBox.StandardButton.Yes:
             return True
         else:
             return False
@@ -3330,7 +3330,7 @@ class HandlerClass:
             self.vkb_show(False)
         elif virtkb in (2, 4, 6):
             self.vkb_show(True)
-        valid = dialog.exec_()
+        valid = dialog.exec()
         if virtkb < 3:
             self.vkb_hide()
         elif virtkb in (3, 4):
@@ -3350,14 +3350,14 @@ class HandlerClass:
         leadinDo = QCheckBox()
         leadinLength = QDoubleSpinBox()
         leadinAngle = QDoubleSpinBox()
-        buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttons = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         buttonBox = QDialogButtonBox(buttons)
         buttonBox.accepted.connect(rFl.accept)
         buttonBox.rejected.connect(rFl.reject)
-        buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'LOAD'))
-        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
-        buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
-        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_translate('HandlerClass', 'LOAD'))
+        buttonBox.button(QDialogButtonBox.StandardButton.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
+        buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setIcon(QIcon())
         layout = QGridLayout()
         layout.addWidget(lbl1, 0, 0)
         layout.addWidget(lbl2, 1, 0)
@@ -3368,9 +3368,9 @@ class HandlerClass:
         layout.addWidget(leadinAngle, 2, 1)
         layout.addWidget(buttonBox, 4, 0, 1, 2)
         rFl.setLayout(layout)
-        lbl1.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-        lbl2.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-        lbl3.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        lbl1.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
+        lbl2.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
+        lbl3.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
         if self.units == 'in':
             leadinLength.setDecimals(2)
             leadinLength.setSingleStep(0.05)
@@ -3387,7 +3387,7 @@ class HandlerClass:
         leadinAngle.setRange(-359, 359)
         leadinAngle.setWrapping(True)
         self.vkb_show(True)
-        result = rFl.exec_()
+        result = rFl.exec()
         self.vkb_hide()
         # load clicked
         if result:
@@ -3402,14 +3402,14 @@ class HandlerClass:
         run = QRadioButton(_translate('HandlerClass', 'HERE TO END'))
         cut = QRadioButton(_translate('HandlerClass', 'THIS CUTPATH'))
         lbl = QLabel('')
-        buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttons = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         buttonBox = QDialogButtonBox(buttons)
         buttonBox.accepted.connect(rflT.accept)
         buttonBox.rejected.connect(rflT.reject)
-        buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'OK'))
-        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
-        buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
-        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_translate('HandlerClass', 'OK'))
+        buttonBox.button(QDialogButtonBox.StandardButton.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
+        buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setIcon(QIcon())
         layout = QGridLayout()
         layout.addWidget(run, 0, 0)
         layout.addWidget(cut, 1, 0)
@@ -3418,7 +3418,7 @@ class HandlerClass:
         rflT.setLayout(layout)
         run.setChecked(True)
         self.vkb_show(True)
-        result = rflT.exec_()
+        result = rflT.exec()
         self.vkb_hide()
         # ok clicked
         if result:
@@ -3436,7 +3436,7 @@ class HandlerClass:
                         QCheckBox { font-size: 11pt; }'
         ccr = QDialog(self.w)
         ccr.setWindowTitle(_translate('HandlerClass', 'Untoggled Cut Critical Buttons'))
-        icon = QApplication.style().standardIcon(QStyle.SP_MessageBoxWarning)
+        icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxWarning)
         iconLabel = QLabel()
         iconLabel.setPixmap(icon.pixmap(32, 32))
         msg0 = _translate('HandlerClass', 'The following buttons have not been toggled')
@@ -3445,14 +3445,14 @@ class HandlerClass:
         lbl1 = QLabel('')
         lbl2 = QLabel(f'\n{msg1}\n')
         lbl2.setStyleSheet("padding-left: 1px;")
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         buttonBox.accepted.connect(ccr.accept)
         buttonBox.rejected.connect(ccr.reject)
-        buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'CONTINUE'))
-        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
-        buttonBox.button(QDialogButtonBox.Ok).setMinimumWidth(120)
-        buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
-        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_translate('HandlerClass', 'CONTINUE'))
+        buttonBox.button(QDialogButtonBox.StandardButton.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.StandardButton.Ok).setMinimumWidth(120)
+        buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
+        buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setIcon(QIcon())
         hLayout = QHBoxLayout()
         hLayout.addWidget(iconLabel)
         hLayout.addWidget(lbl0)
@@ -3470,11 +3470,11 @@ class HandlerClass:
             toggleAll.setStyleSheet(checkStyle)
             vLayout.addWidget(lbl1)
             vLayout.addWidget(toggleAll)
-            toggleAll.stateChanged.connect(lambda state: [checkBox.setChecked(state == Qt.Checked) for checkBox in checkBoxes])
+            toggleAll.stateChanged.connect(lambda state: [checkBox.setChecked(state == Qt.CheckState.Checked) for checkBox in checkBoxes])
         vLayout.addWidget(lbl2)
         vLayout.addWidget(buttonBox)
         ccr.setLayout(vLayout)
-        result = ccr.exec_()
+        result = ccr.exec()
         checkList = [checkBox.text() for checkBox in checkBoxes if checkBox.isChecked()]
         return result, checkList
 
@@ -3669,7 +3669,7 @@ class HandlerClass:
     def startup_timeout(self):
         if STATUS.stat.estop:
             self.estop_state(True)
-        self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.view_t_pressed(self.w.gcodegraphics)
         self.set_signal_connections()
         if self.firstRun is True:
@@ -4107,14 +4107,14 @@ class HandlerClass:
             elif code == 'user-manual':
                 self.umButton = f'button_{bNum}'
                 self.interlockRules[self.umButton] = self.interlockRules['user-manual_template'].copy()
-                if util.find_spec("PyQt5.QtWebEngineWidgets") is not None:
+                if util.find_spec("PyQt6.QtWebEngineWidgets") is not None:
                     self.w.webview.page().loadFinished.connect(self.style_user_manual)
                     self.w.webview.page().setBackgroundColor(QColor(self.backColor))
                 else:
                     head = _translate('HandlerClass', 'User Button Warning')
                     msg1 = _translate('HandlerClass', 'QtWebEngine dependency missing for user button')
                     msg2 = _translate('HandlerClass', 'User Manual styling will not match GUI')
-                    msg3 = _translate('HandlerClass', 'Fix using "sudo apt install python3-pyqt5.qtwebengine"')
+                    msg3 = _translate('HandlerClass', 'Fix using "sudo apt install python3-pyqt6.qtwebengine"')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg1} #{bNum}\n{msg2}\n{msg3}\n')
                 self.w.webview.load(self.umUrl)
             elif code == 'toggle-joint':
@@ -4602,7 +4602,7 @@ class HandlerClass:
                 if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
                     framingError += _translate('HandlerClass', '\n\nFrame the job using the torch instead?\n')
-                    response = self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    response = self.dialog_show_yesno(QMessageBox.Icon.Warning, f'{head}', f'\n{framingError}')
                     if response:
                         framePoints = self.bounds_check_framing()[1]
                     else:
@@ -4644,25 +4644,25 @@ class HandlerClass:
         sC.setWindowTitle(_translate('HandlerClass', 'Single Cut'))
         l1 = QLabel(_translate('HandlerClass', 'X LENGTH:'))
         xLength = QDoubleSpinBox()
-        xLength.setAlignment(Qt.AlignRight)
+        xLength.setAlignment(Qt.AlignmentFlag.AlignRight)
         xLength.setMinimum(-9999)
         xLength.setMaximum(9999)
         xLength.setDecimals(1)
         l2 = QLabel(_translate('HandlerClass', 'Y LENGTH:'))
         yLength = QDoubleSpinBox()
-        yLength.setAlignment(Qt.AlignRight)
+        yLength.setAlignment(Qt.AlignmentFlag.AlignRight)
         yLength.setMinimum(-9999)
         yLength.setMaximum(9999)
         yLength.setDecimals(1)
         l3 = QLabel('')
-        buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttons = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         buttonBox = QDialogButtonBox(buttons)
         buttonBox.accepted.connect(sC.accept)
         buttonBox.rejected.connect(sC.reject)
-        buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'CUT'))
-        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
-        buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
-        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_translate('HandlerClass', 'CUT'))
+        buttonBox.button(QDialogButtonBox.StandardButton.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
+        buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setIcon(QIcon())
         layout = QVBoxLayout()
         layout.addWidget(l1)
         layout.addWidget(xLength)
@@ -4674,7 +4674,7 @@ class HandlerClass:
         xLength.setValue(self.PREFS.getpref('X length', 0.0, float, 'SINGLE CUT'))
         yLength.setValue(self.PREFS.getpref('Y length', 0.0, float, 'SINGLE CUT'))
         self.vkb_show(True)
-        result = sC.exec_()
+        result = sC.exec()
         self.singleCutDialog = False
         self.refresh_button_states()
         self.vkb_hide()
@@ -5001,7 +5001,7 @@ class HandlerClass:
             break
         head = _translate('HandlerClass', 'Delete Material')
         msg0 = _translate('HandlerClass', 'Do you really want to delete material')
-        if not self.dialog_show_yesno(QMessageBox.Question, f'{head}', f'\n{msg0} #{matNum}?\n'):
+        if not self.dialog_show_yesno(QMessageBox.Icon.Question, f'{head}', f'\n{msg0} #{matNum}?\n'):
             return
         self.MATS.remove_section(f'MATERIAL_NUMBER_{matNum}')
         self.MATS.write(open(self.MATS.fn, 'w'))
@@ -5945,7 +5945,7 @@ class HandlerClass:
             self.set_basic_colors()
             self.set_color_styles()
             self.preview_stack_changed()
-            if self.umButton and util.find_spec("PyQt5.QtWebEngineWidgets") is not None:
+            if self.umButton and util.find_spec("PyQt6.QtWebEngineWidgets") is not None:
                 self.w.webview.page().loadFinished.connect(self.style_user_manual)
                 self.w.webview.page().setBackgroundColor(QColor(self.backColor))
                 self.w.webview.reload()
@@ -6073,19 +6073,19 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid number of colors defined')
             msg1 = _translate('HandlerClass', 'in custom stylesheet header')
             msg2 = _translate('HandlerClass', 'Reverting to standard stylesheet')
-            self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msg0}\n{msg1}\n\n{msg2}\n')
+            self.dialog_show_ok(QMessageBox.Icon.Warning, f'{head}', f'\n{msg0}\n{msg1}\n\n{msg2}\n')
             self.standard_stylesheet()
         except:
             msg0 = _translate('HandlerClass', 'Cannot open custom stylesheet')
             msg1 = _translate('HandlerClass', 'Reverting to standard stylesheet')
-            self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msg0}\n\n{msg1}\n')
+            self.dialog_show_ok(QMessageBox.Icon.Warning, f'{head}', f'\n{msg0}\n\n{msg1}\n')
             self.standard_stylesheet()
 
     def color_item(self, item, color, type):
         image_path = f'{self.IMAGES}{item}.svg'
         self.image = QPixmap(image_path)
         colorChange = QPainter(self.image)
-        colorChange.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        colorChange.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
         colorChange.fillRect(self.image.rect(), QColor(color))
         colorChange.end()
         if type == 'button':

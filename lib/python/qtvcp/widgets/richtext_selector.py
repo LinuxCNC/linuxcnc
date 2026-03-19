@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtPrintSupport import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtPrintSupport import *
 
 from qtvcp.core import Info, Path
 
@@ -178,7 +178,7 @@ class MainWindow(QMainWindow):
         self.bold_action.setStatusTip("Bold")
         self.bold_action.setShortcut(QKeySequence.Bold)
         self.bold_action.setCheckable(True)
-        self.bold_action.toggled.connect(lambda x: self.editor.setFontWeight(QFont.Bold if x else QFont.Normal))
+        self.bold_action.toggled.connect(lambda x: self.editor.setFontWeight(QFont.Weight.Bold if x else QFont.Weight.Normal))
         format_toolbar.addAction(self.bold_action)
         format_menu.addAction(self.bold_action)
 
@@ -210,28 +210,28 @@ class MainWindow(QMainWindow):
         self.alignl_action = QAction(QIcon(os.path.join(filepath, 'edit-alignment.png')), "Align left", self)
         self.alignl_action.setStatusTip("Align text left")
         self.alignl_action.setCheckable(True)
-        self.alignl_action.triggered.connect(lambda: self.editor.setAlignment(Qt.AlignLeft))
+        self.alignl_action.triggered.connect(lambda: self.editor.setAlignment(Qt.AlignmentFlag.AlignLeft))
         format_toolbar.addAction(self.alignl_action)
         format_menu.addAction(self.alignl_action)
 
         self.alignc_action = QAction(QIcon(os.path.join(filepath, 'edit-alignment-center.png')), "Align center", self)
         self.alignc_action.setStatusTip("Align text center")
         self.alignc_action.setCheckable(True)
-        self.alignc_action.triggered.connect(lambda: self.editor.setAlignment(Qt.AlignCenter))
+        self.alignc_action.triggered.connect(lambda: self.editor.setAlignment(Qt.AlignmentFlag.AlignCenter))
         format_toolbar.addAction(self.alignc_action)
         format_menu.addAction(self.alignc_action)
 
         self.alignr_action = QAction(QIcon(os.path.join(filepath, 'edit-alignment-right.png')), "Align right", self)
         self.alignr_action.setStatusTip("Align text right")
         self.alignr_action.setCheckable(True)
-        self.alignr_action.triggered.connect(lambda: self.editor.setAlignment(Qt.AlignRight))
+        self.alignr_action.triggered.connect(lambda: self.editor.setAlignment(Qt.AlignmentFlag.AlignRight))
         format_toolbar.addAction(self.alignr_action)
         format_menu.addAction(self.alignr_action)
 
         self.alignj_action = QAction(QIcon(os.path.join(filepath, 'edit-alignment-justify.png')), "Justify", self)
         self.alignj_action.setStatusTip("Justify text")
         self.alignj_action.setCheckable(True)
-        self.alignj_action.triggered.connect(lambda: self.editor.setAlignment(Qt.AlignJustify))
+        self.alignj_action.triggered.connect(lambda: self.editor.setAlignment(Qt.AlignmentFlag.AlignJustify))
         format_toolbar.addAction(self.alignj_action)
         format_menu.addAction(self.alignj_action)
 
@@ -279,19 +279,19 @@ class MainWindow(QMainWindow):
 
         self.italic_action.setChecked(self.editor.fontItalic())
         self.underline_action.setChecked(self.editor.fontUnderline())
-        self.bold_action.setChecked(self.editor.fontWeight() == QFont.Bold)
+        self.bold_action.setChecked(self.editor.fontWeight() == QFont.Weight.Bold)
 
-        self.alignl_action.setChecked(self.editor.alignment() == Qt.AlignLeft)
-        self.alignc_action.setChecked(self.editor.alignment() == Qt.AlignCenter)
-        self.alignr_action.setChecked(self.editor.alignment() == Qt.AlignRight)
-        self.alignj_action.setChecked(self.editor.alignment() == Qt.AlignJustify)
+        self.alignl_action.setChecked(self.editor.alignment() == Qt.AlignmentFlag.AlignLeft)
+        self.alignc_action.setChecked(self.editor.alignment() == Qt.AlignmentFlag.AlignCenter)
+        self.alignr_action.setChecked(self.editor.alignment() == Qt.AlignmentFlag.AlignRight)
+        self.alignj_action.setChecked(self.editor.alignment() == Qt.AlignmentFlag.AlignJustify)
 
         self.block_signals(self._format_actions, False)
 
     def dialog_critical(self, s):
         dlg = QMessageBox(self)
         dlg.setText(s)
-        dlg.setIcon(QMessageBox.Critical)
+        dlg.setIcon(QMessageBox.Icon.Critical)
         dlg.show()
 
     def file_open(self):
@@ -367,8 +367,8 @@ class RichTextEditorDialog(QDialog):
         l.addWidget(self.window)
 
         self.bBox = QDialogButtonBox()
-        self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
-        self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
+        self.bBox.addButton('Apply', QDialogButtonBox.ButtonRole.AcceptRole)
+        self.bBox.addButton('Cancel', QDialogButtonBox.ButtonRole.RejectRole)
         self.bBox.rejected.connect(self.reject)
         self.bBox.accepted.connect(self.accept)
         l.addWidget(self.bBox)
@@ -377,7 +377,7 @@ class RichTextEditorDialog(QDialog):
     def showDialog(self, pretext = None):
         if pretext:
             self.window.editor.setText(pretext)
-        retval = self.exec_()
+        retval = self.exec()
         self.hide()
         if retval:
             return self.window.editor.toHtml()
@@ -399,12 +399,12 @@ if __name__ == '__main__':
     l.addWidget(window)
 
     bBox = QDialogButtonBox()
-    bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
-    bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
+    bBox.addButton('Apply', QDialogButtonBox.ButtonRole.AcceptRole)
+    bBox.addButton('Cancel', QDialogButtonBox.ButtonRole.RejectRole)
     bBox.rejected.connect(app.exit)
     bBox.accepted.connect(p)
     l.addWidget(bBox)
 
     d.setLayout(l)
     d.show()
-    app.exec_()
+    app.exec()

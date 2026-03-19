@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from PyQt5 import QtGui
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt6 import QtGui
+from PyQt6.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.container_widgets import StateEnableGridLayout
 from qtvcp.widgets.container_widgets import JointEnableWidget
 from qtvcp.widgets.qtvcp_icons import Icon

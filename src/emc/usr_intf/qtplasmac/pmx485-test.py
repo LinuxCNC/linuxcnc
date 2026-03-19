@@ -22,9 +22,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 import sys
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
 
 try:
     import serial
@@ -58,7 +58,7 @@ class App(QWidget):
                   '\nsudo apt-get install python3-serial\n'
             response = QMessageBox()
             response.setText(msg)
-            response.exec_()
+            response.exec()
             raise SystemExit
         self.iconPath = 'share/icons/hicolor/scalable/apps/linuxcnc_alt/linuxcncicon_plasma.svg'
         appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
@@ -66,7 +66,7 @@ class App(QWidget):
         self.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
         self.setWindowTitle('Powermax Communicator')
         qtRectangle = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
+        centerPoint = QApplication.primaryScreen().availableGeometry().center()
         qtRectangle.moveCenter(centerPoint)
         self.move(qtRectangle.topLeft())
         self.createGridLayout()
@@ -413,7 +413,7 @@ class App(QWidget):
         response.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
         response.setWindowTitle(title)
         response.setText(text)
-        response.exec_()
+        response.exec()
         return response
 
     def createGridLayout(self):
@@ -579,4 +579,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
     app.aboutToQuit.connect(ex.shut_down)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

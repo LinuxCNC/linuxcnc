@@ -2,8 +2,8 @@ import os
 import linuxcnc
 import hal
 import sys
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5 import QtCore, QtWidgets, QtGui, uic
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6 import QtCore, QtWidgets, QtGui, uic
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -366,7 +366,7 @@ class HandlerClass:
         self.w.filemanager_usb.showList()
         #tool icons
         self.w.cmb_tool_icons.addItem("SELECT\nICON")
-        self.w.cmb_tool_icons.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.w.cmb_tool_icons.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         path = os.path.join(PATH.SCREENDIR,PATH.BASENAME, "tool_icons")
         if os.path.isdir(path):
             icons = os.listdir(path)
@@ -448,8 +448,8 @@ class HandlerClass:
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2):
-#                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F4,QtCore.Qt.Key_F5):
+        if code not in(QtCore.Qt.Key.Key_Escape,QtCore.Qt.Key.Key_F1 ,QtCore.Qt.Key.Key_F2):
+#                    QtCore.Qt.Key.Key_F3,QtCore.Qt.Key.Key_F4,QtCore.Qt.Key.Key_F5):
 
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to

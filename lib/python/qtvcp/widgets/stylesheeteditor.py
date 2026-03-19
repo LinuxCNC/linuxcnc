@@ -40,10 +40,10 @@
 ###########################################################################
 
 import os
-from PyQt5 import uic
-from PyQt5.QtCore import pyqtSlot, QFile, QTextStream, QUrl, Qt
-from PyQt5.QtGui import QStandardItem, QTextCursor, QTextCharFormat, QTextDocument, QColor
-from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox, QColorDialog
+from PyQt6 import uic
+from PyQt6.QtCore import pyqtSlot, QFile, QTextStream, QUrl, Qt
+from PyQt6.QtGui import QStandardItem, QTextCursor, QTextCharFormat, QTextDocument, QColor
+from PyQt6.QtWidgets import QDialog, QFileDialog, QMessageBox, QColorDialog
 
 from qtvcp.core import Path
 from qtvcp.qt_makegui import VCPWindow
@@ -81,7 +81,7 @@ class StyleSheetEditor(QDialog):
         if WIDGETS.PREFS_:
             path =  WIDGETS.PREFS_.getpref('style_QSS_Path', 'DEFAULT' , str, 'BOOK_KEEPING')
             self.preferencePath = path
-            self.loadedItem.setData( path, role = Qt.UserRole + 1)
+            self.loadedItem.setData( path, role = Qt.ItemDataRole.UserRole + 1)
             self.lineEdit_path.setText(path)
             self.styleSheetCombo.setToolTip('<b>{}</b>'.format(path))
         self.origStyleSheet = self.parent.styleSheet()
@@ -99,14 +99,14 @@ class StyleSheetEditor(QDialog):
 
         # add an 'As Loaded' entry to follow the preference file's entry
         self.loadedItem = QStandardItem('As Loaded')
-        self.loadedItem.setData( 'As Loaded', role = Qt.UserRole + 1)
-        self.loadedItem.setData("Use the preference loaded Stylesheet", role = Qt.ToolTipRole)
+        self.loadedItem.setData( 'As Loaded', role = Qt.ItemDataRole.UserRole + 1)
+        self.loadedItem.setData("Use the preference loaded Stylesheet", role = Qt.ItemDataRole.ToolTipRole)
         model.appendRow(self.loadedItem)
 
         # add 'None' to cancel all stylesheet changes
         item = QStandardItem('None')
-        item.setData( 'None', role = Qt.UserRole + 1)
-        item.setData("Use system default Stylesheet", role = Qt.ToolTipRole)
+        item.setData( 'None', role = Qt.ItemDataRole.UserRole + 1)
+        item.setData("Use system default Stylesheet", role = Qt.ItemDataRole.ToolTipRole)
         model.appendRow(item)
 
         # call PATH function to get the found default and local qss files
@@ -114,16 +114,16 @@ class StyleSheetEditor(QDialog):
             for group in (PATH.getQSSPaths(self.addBuiltinStyles)):
               for directory, name in(group):
                 item = QStandardItem(name)
-                item.setData(os.path.join(directory, name), role = Qt.UserRole + 1)
-                item.setData(os.path.join(directory, name), role = Qt.ToolTipRole)
+                item.setData(os.path.join(directory, name), role = Qt.ItemDataRole.UserRole + 1)
+                item.setData(os.path.join(directory, name), role = Qt.ItemDataRole.ToolTipRole)
                 model.appendRow(item)
         except Exception as e:
             print(e)
 
     def selectionChanged(self,i):
         self.search_box.clear()
-        path = self.styleSheetCombo.itemData(i,role = Qt.UserRole + 1)
-        name = self.styleSheetCombo.itemData(i,role = Qt.DisplayRole)
+        path = self.styleSheetCombo.itemData(i,role = Qt.ItemDataRole.UserRole + 1)
+        name = self.styleSheetCombo.itemData(i,role = Qt.ItemDataRole.DisplayRole)
         self.styleSheetCombo.setToolTip('<b>{}</b>'.format(path))
         self.loadStyleSheet(path)
 
@@ -135,7 +135,7 @@ class StyleSheetEditor(QDialog):
             return
 
         cursor = self.styleTextEdit.textCursor()
-        cursor.movePosition(QTextCursor.Start)
+        cursor.movePosition(QTextCursor.MoveOperation.Start)
 
         format = QTextCharFormat()
         format.setBackground(QColor('#808080'))
@@ -185,7 +185,7 @@ class StyleSheetEditor(QDialog):
             self.parent.setStyleSheet(self.styleTextView.toPlainText())
             if WIDGETS.PREFS_:
                 index = self.styleSheetCombo.currentIndex()
-                path = self.styleSheetCombo.itemData(index,role = Qt.UserRole + 1)
+                path = self.styleSheetCombo.itemData(index,role = Qt.ItemDataRole.UserRole + 1)
                 WIDGETS.PREFS_.putpref('style_QSS_Path', path , str, 'BOOK_KEEPING')
         else:
             self.parent.setStyleSheet(self.styleTextEdit.toPlainText())
@@ -194,7 +194,7 @@ class StyleSheetEditor(QDialog):
         # make sure one can still read the combo box
         self.styleSheetCombo.setFixedWidth(200)
         try:
-            path = self.styleSheetCombo.itemData(index,role = Qt.UserRole + 1)
+            path = self.styleSheetCombo.itemData(index,role = Qt.ItemDataRole.UserRole + 1)
             self.parent.statusbar.showMessage(f"Stylesheet set to {path}")
         except:
             pass
@@ -210,10 +210,10 @@ class StyleSheetEditor(QDialog):
 
         dialog = QFileDialog(self)
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.Option.DontUseNativeDialog
         dialog.setOptions(options)
         dialog.setDirectory(DIR)
-        dialog.setFileMode(QFileDialog.ExistingFile)
+        dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
         dialog.setNameFilter("style files (*.qss *.style);;All files (*.*)")
         dialog.setWindowTitle('Open StyleSheet')
 
@@ -227,7 +227,7 @@ class StyleSheetEditor(QDialog):
                     'qtvcp/screens',PATH.BASENAME)))
         dialog.setSidebarUrls(urls)
 
-        result = dialog.exec_()
+        result = dialog.exec()
         if result:
             fileName = dialog.selectedFiles()[0]
             file = QFile(fileName)
@@ -236,7 +236,7 @@ class StyleSheetEditor(QDialog):
             self.styleTextView.setPlainText(str(styleSheet, encoding='utf8'))
             model = self.styleSheetCombo.model()
             item = QStandardItem(os.path.basename(fileName))
-            item.setData( fileName, role = Qt.UserRole + 1)
+            item.setData( fileName, role = Qt.ItemDataRole.UserRole + 1)
             model.appendRow(item)
             self.styleSheetCombo.setCurrentIndex(self.styleSheetCombo.count()-1)
 
@@ -251,10 +251,10 @@ class StyleSheetEditor(QDialog):
 
         dialog = QFileDialog(self)
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.Option.DontUseNativeDialog
         dialog.setOptions(options)
         dialog.setDirectory(DIR)
-        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setFileMode(QFileDialog.FileMode.AnyFile)
         dialog.setNameFilter("style files (*.qss *.style);;All files (*.*)")
         dialog.setWindowTitle('Save StyleSheet')
         dialog.setLabelText( QFileDialog.Accept, "Save" )
@@ -267,7 +267,7 @@ class StyleSheetEditor(QDialog):
 
         dialog.setSidebarUrls(urls)
 
-        result = dialog.exec_()
+        result = dialog.exec()
         if result:
             fileName = dialog.selectedFiles()[0]
             self.saveStyleSheet(fileName)

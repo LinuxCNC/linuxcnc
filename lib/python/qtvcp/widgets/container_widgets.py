@@ -17,8 +17,8 @@
 import os
 import linuxcnc
 
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import pyqtProperty
+from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import pyqtProperty
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info

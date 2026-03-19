@@ -2,10 +2,10 @@ import os
 import math
 import subprocess
 from time import sleep
-from PyQt5.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
+from PyQt6.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
     QWidget, QGridLayout,QGraphicsBlurEffect, QGraphicsDropShadowEffect,
                 QGraphicsColorizeEffect)
-from PyQt5.QtCore import Qt, QProcess
+from PyQt6.QtCore import Qt, QProcess
 
 import linuxcnc
 
@@ -752,7 +752,7 @@ class _Lcnc_Action(object):
 
     def HIDE_POINTER(self, state):
         if state:
-            QApplication.setOverrideCursor(Qt.BlankCursor)
+            QApplication.setOverrideCursor(Qt.CursorShape.BlankCursor)
         else:
             QApplication.restoreOverrideCursor()
 
@@ -942,7 +942,7 @@ class _Lcnc_Action(object):
         if not os.path.exists(path):
             path = os.path.join(PATH.CONFIGPATH, 'README')
             if not os.path.exists(path):
-                return "This is a Pyqt5/QtVCP based screen for Linuxcnc\n No ABOUT or README found."
+                return "This is a PyQt6/QtVCP based screen for Linuxcnc\n No ABOUT or README found."
 
         for line in open(path):
             mess += line

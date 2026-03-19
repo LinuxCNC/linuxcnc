@@ -17,8 +17,8 @@
 
 import os
 
-from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import qApp
+from PyQt6 import QtWidgets, QtCore, QtGui
+from PyQt6.QtWidgets import QApplication.instance()
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.entry_widget import TouchInterface
 from qtvcp.core import Status, Action, Info
@@ -39,9 +39,9 @@ LOG = logger.getLogger(__name__)
 if not INFO.LINUXCNC_IS_RUNNING:
     LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 try:
-    from PyQt5 import QtSvg
+    from PyQt6 import QtSvg
 except:
-    LOG.critical("Qtvcp error with macro_widget - is package python3-pyqt5.qtsvg installed?")
+    LOG.critical("Qtvcp error with macro_widget - is package python3-pyqt6.qtsvg installed?")
 
 ###############################################################
 # helper widget for SVG display on Button
@@ -303,8 +303,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     if img_info[0].endswith('.svg'):
                         svgpath = os.path.join(path, img_info[0])
                         self['sw%d' % i] = CustomSVG(svgpath,  int(img_info[1]))
-                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
-                                    QtWidgets.QSizePolicy.MinimumExpanding)
+                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+                                    QtWidgets.QSizePolicy.Policy.MinimumExpanding)
                     # some other supported image file?
                     else:
                         # get image path
@@ -318,8 +318,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         self['sw%d' % i] = QtWidgets.QLabel()
                         self['sw%d' % i].setPixmap(QtGui.QPixmap(imgpath))
                         self['sw%d' % i].setScaledContents(True)
-                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
-                                    QtWidgets.QSizePolicy.MinimumExpanding)
+                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+                                    QtWidgets.QSizePolicy.Policy.MinimumExpanding)
 
                     # add image to the main layout for this tab
                     hbox.addWidget(self['sw%d' % i])
@@ -367,8 +367,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             btn.setToolTip('Macro: {}'.format(tName))
             btn.setWhatsThis('This button will select The entry page for the {} macro'.format(tName))
             btn.clicked.connect(self.menuButtonPress(i))
-            btn.setSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                              QtWidgets.QSizePolicy.Preferred)
+            btn.setSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred,
+                              QtWidgets.QSizePolicy.Policy.Preferred)
             grid.addWidget(btn, row, col, 1, 1)
             row += 1
             if row > 4:
@@ -614,7 +614,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self._oldstyle = widget.styleSheet()
         # change to highlight style
         widget.setStyleSheet(self.hilightStyle) 
-        qApp.processEvents()
+        QApplication.instance().processEvents()
 
         # dialog call
         mess = {'NAME':self._request_name,
@@ -789,4 +789,4 @@ if __name__ == "__main__":
     sw.buildStack(['~/linuxcnc/nc_files/examples/macros/lathe'])
     sw.setGeometry(50, 50, 759, 668)
     sw.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

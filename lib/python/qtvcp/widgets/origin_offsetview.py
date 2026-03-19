@@ -18,9 +18,9 @@ import sys
 import os
 import locale
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, pyqtSlot
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QTableView, QAbstractItemView, qApp
+from PyQt6.QtCore import Qt, QAbstractTableModel, pyqtProperty, pyqtSlot
+from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import QTableView, QAbstractItemView, QApplication.instance()
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -136,7 +136,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                           [0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 'System 9']]
 
         # create the view
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
         # set the table model
         header = ['X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Rot', 'Name']
@@ -234,7 +234,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                 text = cellContent
 
                 # update the screen
-                qApp.processEvents()
+                QApplication.instance().processEvents()
 
                 # update the dialog
                 self.callDialog(text,newobj,True)
@@ -246,7 +246,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                 text = cellContent
 
                 # update the screen
-                qApp.processEvents()
+                QApplication.instance().processEvents()
 
                 # update the dialog
                 self.callDialog(text,newobj,True)
@@ -525,19 +525,19 @@ class MyTableModel(QAbstractTableModel):
         return 0
 
     def data(self, index, role):
-        if role == Qt.EditRole:
+        if role == Qt.ItemDataRole.EditRole:
             return self.arraydata[index.row()][index.column()]
-        if role == Qt.DisplayRole:
-            return QVariant(self.arraydata[index.row()][index.column()])
-        elif role == Qt.BackgroundRole:
+        if role == Qt.ItemDataRole.DisplayRole:
+            return self.arraydata[index.row(][index.column()])
+        elif role == Qt.ItemDataRole.BackgroundRole:
             value = self.arraydata[index.row()][index.column()]
             if (isinstance(value, int) or isinstance(value, float) or
                   isinstance(value, str)):
                 if int(index.row()) == self.parent()._system_int + 3:
                     return QColor(self._highlightcolor)
                 else:
-                    return QVariant()
-        return QVariant()
+                    return None
+        return None
 
 
     def flags(self, index):
@@ -545,15 +545,15 @@ class MyTableModel(QAbstractTableModel):
             return None
         # print(">>> flags() index.column() = ", index.column())
         if index.column() == 10 and index.row() in(0, 1, 2, 3):
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         elif index.row() == 0:
-            return Qt.ItemIsEnabled
+            return Qt.ItemFlag.ItemIsEnabled
         elif index.row() == 1 and not index.column() == 2:
-            return Qt.NoItemFlags
+            return Qt.ItemFlag.NoItemFlags
         elif index.row() in(2, 3) and index.column() == 9:
-            return Qt.NoItemFlags
+            return Qt.ItemFlag.NoItemFlags
         else:
-            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            return Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
     def setData(self, index, value, role):
         if not index.isValid():
@@ -579,18 +579,18 @@ class MyTableModel(QAbstractTableModel):
         return True
 
     def headerData(self, col, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant(self.headerdata[col])
-        if orientation != Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant(self.Vheaderdata[col])
-        return QVariant()
+        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
+            return self.headerdata[col]
+        if orientation != Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
+            return self.Vheaderdata[col]
+        return None
 
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication([])
     w = OriginOffsetView()
     w.PREFS_ = None
     w._hal_init()
     w.setProperty('styleColorHighlight',QColor('purple'))
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

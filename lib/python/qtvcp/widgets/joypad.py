@@ -14,15 +14,11 @@
 # GNU General Public License for more details.
 ###############################################################################
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QPointF, QRect, QRectF, QSize, QSizeF, QEvent
-from PyQt5.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt, QPoint, QPointF, QRect, QRectF, QSize, QSizeF, QEvent
+from PyQt6.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
 
-try:
-    from PyQt5.QtCore import Q_ENUM
-except:
-    # before qt5.10
-    from PyQt5.QtCore import Q_ENUMS as Q_ENUM
+from PyQt6.QtCore import Q_ENUM
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -91,7 +87,7 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
     def eventFilter(self, obj, event):
         if obj is self and self.isEnabled():
             if event.type() == QEvent.MouseButtonPress:
-                if event.button() == Qt.RightButton:
+                if event.button() == Qt.MouseButton.RightButton:
                     event.ignore()
                 else:
                     pos = event.localPos()
@@ -100,7 +96,7 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
                     if active_btn is not None:
                         self._pressedOutput(active_btn)
             elif event.type() == QEvent.MouseButtonRelease:
-                if event.button() == Qt.RightButton:
+                if event.button() == Qt.MouseButton.RightButton:
                     event.ignore()
                 elif self.last_active_btn is not None:
                     self._releasedOutput(self.last_active_btn)
@@ -174,7 +170,7 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
         bg.setColorAt(0, QColor(180, 180, 180))
         bg.setColorAt(1, QColor(40, 40, 40))
         qp.setBrush(QBrush(bg))
-        qp.setPen(QPen(QColor(Qt.black), 4))
+        qp.setPen(QPen(QColor(Qt.GlobalColor.black), 4))
         qp.drawPath(self.left_path)
         qp.drawPath(self.right_path)
         qp.drawPath(self.top_path)
@@ -193,35 +189,35 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
             pix = self.left_image
             qp.drawPixmap(rect, pix, pix.rect())
         elif isinstance(self.left_image, str):
-            qp.drawText(rect, Qt.AlignCenter, self.left_image)
+            qp.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.left_image)
         # right button
         rect.moveCenter(QPoint(int(center.x() + self.rect2.width()/3), center.y()))
         if isinstance(self.right_image, QPixmap):
             pix = self.right_image
             qp.drawPixmap(rect, pix, pix.rect())
         elif isinstance(self.right_image, str):
-            qp.drawText(rect, Qt.AlignCenter, self.right_image)
+            qp.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.right_image)
         # bottom button
         rect.moveCenter(QPoint(center.x(), int(center.y() + self.rect2.width()/3)))
         if isinstance(self.bottom_image, QPixmap):
             pix = self.bottom_image
             qp.drawPixmap(rect, pix, pix.rect())
         elif isinstance(self.bottom_image, str):
-            qp.drawText(rect, Qt.AlignCenter, self.bottom_image)
+            qp.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.bottom_image)
         # top button
         rect.moveCenter(QPoint(center.x(), int(center.y() - self.rect2.width()/3)))
         if isinstance(self.top_image, QPixmap):
             pix = self.top_image
             qp.drawPixmap(rect, pix, pix.rect())
         elif isinstance(self.top_image, str):
-            qp.drawText(rect, Qt.AlignCenter, self.top_image)
+            qp.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.top_image)
         # center button
         rect.moveCenter(QPoint(center.x(), center.y()))
         if isinstance(self.center_image, QPixmap):
             pix = self.center_image
             qp.drawPixmap(rect, pix, pix.rect())
         elif isinstance(self.center_image, str):
-            qp.drawText(rect, Qt.AlignCenter, self.center_image)
+            qp.drawText(rect, Qt.AlignmentFlag.AlignCenter, self.center_image)
 
     def draw_highlight(self, qp, event):
         rect = QRectF()
@@ -544,12 +540,6 @@ class HALPad(JoyPad, _HalWidgetBase, HALPinType):
     HALPinType = HALPinType
     Q_ENUM(HALPinType)
 
-    # older version of pyqt5 need this as well as Q_ENUM
-    NONE = 0
-    BIT = hal.HAL_BIT
-    S32 = hal.HAL_S32
-    FLOAT = hal.HAL_FLOAT
-
     def __init__(self, parent=None):
         super(HALPad, self).__init__(parent)
         self._pin_name = ''
@@ -653,7 +643,7 @@ class HALPad(JoyPad, _HalWidgetBase, HALPinType):
     #############################
 if __name__ == "__main__":
     import sys
-    from PyQt5.QtWidgets import QWidget
+    from PyQt6.QtWidgets import QWidget
     app = QtWidgets.QApplication(sys.argv)
     w = QWidget()
     w.setGeometry(100, 100, 600, 400)
@@ -674,5 +664,5 @@ if __name__ == "__main__":
     layout.addWidget(joy)
     w.setLayout(layout)
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

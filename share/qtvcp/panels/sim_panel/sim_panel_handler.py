@@ -1,8 +1,8 @@
 ############################
 # **** IMPORT SECTION **** #
 ############################
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget
 from qtvcp.core import Status, Action
 
 # Set up logging
@@ -41,10 +41,10 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        self.w.setFocusPolicy(Qt.NoFocus)
+        self.w.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         for widget in self.w.children():
             try:
-                widget.setFocusPolicy(QtCore.Qt.NoFocus)
+                widget.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
             except:
                 pass
         number = 0

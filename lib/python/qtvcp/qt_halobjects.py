@@ -1,7 +1,7 @@
 import hal
 import _hal
 import traceback
-from PyQt5.QtCore import QObject, QTimer, pyqtSignal
+from PyQt6.QtCore import QObject, QTimer, pyqtSignal
 
 # Set up logging
 from common import logger

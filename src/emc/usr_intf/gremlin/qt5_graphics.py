@@ -8,9 +8,9 @@ import math
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, Qt, QTimer
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QSlider,
+from PyQt6.QtCore import pyqtProperty, pyqtSignal, QSize, Qt, QTimer
+from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import (QApplication, QHBoxLayout, QSlider,
         QWidget, QOpenGLWidget)
 
 LIB_GOOD = True
@@ -1320,7 +1320,7 @@ if __name__ == '__main__':
         usage()
     window = Window(inifilename)
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 

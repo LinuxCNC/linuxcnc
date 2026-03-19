@@ -3,7 +3,7 @@
 p, li { white-space: pre-wrap; }
 </style></head><body style=" font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;">
 <p align="center" style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:28pt; font-weight:600;">QtDragon</span></p>
-<p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:18pt;">Is a linuxcnc screen based on PyQt5/Qtvcp</span></p>
+<p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:18pt;">Is a linuxcnc screen based on PyQt6/Qtvcp</span></p>
 <p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:18pt;">for running XYZ Mills or Routers, optionally with 4th or 5th axis.</span></p>
 <p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:18pt; color:#000000;">This screen is resizable (1280x768 to 1680x1200)</span></p>
 <p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" font-size:18pt; color:#000000;">Optional Z axis lift at spindle pause</span></p>

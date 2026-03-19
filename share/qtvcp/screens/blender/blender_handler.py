@@ -5,7 +5,7 @@ import sys
 import os
 import linuxcnc
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
@@ -62,8 +62,8 @@ class HandlerClass:
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
-        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
-                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
+        if code not in(QtCore.Qt.Key.Key_Escape,QtCore.Qt.Key.Key_F1 ,QtCore.Qt.Key.Key_F2,
+                    QtCore.Qt.Key.Key_F3,QtCore.Qt.Key.Key_F5,QtCore.Qt.Key.Key_F5):
 
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to

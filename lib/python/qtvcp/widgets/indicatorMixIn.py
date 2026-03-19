@@ -1,5 +1,5 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtProperty, pyqtSlot
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import pyqtProperty, pyqtSlot
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase)
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
 from qtvcp.core import Action, Status, Info
@@ -461,7 +461,7 @@ class IndicatedMixIn( _HalWidgetBase):
                     size = int(self.height() * self._size)
 
                 gradient = QtGui.QLinearGradient(top_right- QtCore.QPoint(size, 0), top_right)
-                gradient.setColorAt(0, QtCore.Qt.white)
+                gradient.setColorAt(0, QtCore.Qt.GlobalColor.white)
                 gradient.setColorAt(1, color)
                 p.setBrush(QtGui.QBrush(gradient))
                 p.setPen(color)
@@ -476,7 +476,7 @@ class IndicatedMixIn( _HalWidgetBase):
                     bot_right = rect.bottomRight() - QtCore.QPoint(self._right_edge_offset,self._top_edge_offset)
 
                     gradient = QtGui.QLinearGradient(bot_right- QtCore.QPoint(size, 0), bot_right)
-                    gradient.setColorAt(0, QtCore.Qt.white)
+                    gradient.setColorAt(0, QtCore.Qt.GlobalColor.white)
                     gradient.setColorAt(1, color2)
                     p.setBrush(QtGui.QBrush(gradient))
                     p.setPen(color2)
@@ -492,11 +492,11 @@ class IndicatedMixIn( _HalWidgetBase):
                 y = int(0 + self._top_edge_offset)
                 gradient = QtGui.QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
                                    self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
-                gradient.setColorAt(0, QtCore.Qt.white)
+                gradient.setColorAt(0, QtCore.Qt.GlobalColor.white)
                 gradient.setColorAt(1, color)
                 p.setBrush(QtGui.QBrush(gradient))
                 p.setPen(color)
-                p.setRenderHint(QtGui.QPainter.Antialiasing, True)
+                p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing, True)
                 p.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
 
                 # second LED
@@ -504,11 +504,11 @@ class IndicatedMixIn( _HalWidgetBase):
                     y = self.height() - self._diameter - self._top_edge_offset
                     gradient = QtGui.QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
                                        self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
-                    gradient.setColorAt(0, QtCore.Qt.white)
+                    gradient.setColorAt(0, QtCore.Qt.GlobalColor.white)
                     gradient.setColorAt(1, color2)
                     p.setBrush(QtGui.QBrush(gradient))
                     p.setPen(color2)
-                    p.setRenderHint(QtGui.QPainter.Antialiasing, True)
+                    p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing, True)
                     p.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
 
             # top bar
@@ -516,13 +516,13 @@ class IndicatedMixIn( _HalWidgetBase):
                 rect = p.window()
                 topLeft = rect.topLeft()
                 #p.setPen(color)
-                #p.setBrush(QtGui.QBrush(color, QtCore.Qt.SolidPattern))
+                #p.setBrush(QtGui.QBrush(color, QtCore.Qt.BrushStyle.SolidPattern))
                 grad = QtGui.QLinearGradient()
                 grad.setCoordinateMode(QtGui.QGradient.ObjectBoundingMode)
                 grad.setStart(0,0)
                 grad.setFinalStop(0,.8)
                 grad.setColorAt(0, color)
-                grad.setColorAt(.5, QtCore.Qt.white)
+                grad.setColorAt(.5, QtCore.Qt.GlobalColor.white)
                 grad.setColorAt(.8, color)
                 p.setBrush(QtGui.QBrush(grad))
                 p.drawRoundedRect(int(topLeft.x()+(self.width()*((1-self._w_fraction)/2)) + self._top_edge_offset),
@@ -537,13 +537,13 @@ class IndicatedMixIn( _HalWidgetBase):
                 rect = p.window()
                 topRight = rect.topRight()
                 #p.setPen(color)
-                #p.setBrush(QtGui.QBrush(color, QtCore.Qt.SolidPattern))
+                #p.setBrush(QtGui.QBrush(color, QtCore.Qt.BrushStyle.SolidPattern))
                 grad = QtGui.QLinearGradient()
                 grad.setCoordinateMode(QtGui.QGradient.ObjectBoundingMode)
                 grad.setStart(0,0)
                 grad.setFinalStop(0,.8)
                 grad.setColorAt(0, color)
-                grad.setColorAt(.5, QtCore.Qt.white)
+                grad.setColorAt(.5, QtCore.Qt.GlobalColor.white)
                 grad.setColorAt(.8, color)
                 p.setBrush(QtGui.QBrush(grad))
                 p.drawRoundedRect(int(topRight.x()- self.width()*self._w_fraction-self._right_edge_offset),
@@ -562,7 +562,7 @@ class IndicatedMixIn( _HalWidgetBase):
                     size = int(self.height() * self._size)
 
                 gradient = QtGui.QLinearGradient(top_left + QtCore.QPoint(size, 0), top_left)
-                gradient.setColorAt(0, QtCore.Qt.white)
+                gradient.setColorAt(0, QtCore.Qt.GlobalColor.white)
                 gradient.setColorAt(1, color)
                 p.setBrush(QtGui.QBrush(gradient))
                 p.setPen(color)
@@ -576,7 +576,7 @@ class IndicatedMixIn( _HalWidgetBase):
                 if self._doubleIndicator:
                     top_bot = rect.bottomLeft() - QtCore.QPoint(self._right_edge_offset, self._top_edge_offset)
                     gradient = QtGui.QLinearGradient(top_bot + QtCore.QPoint(size, 0), top_bot)
-                    gradient.setColorAt(0, QtCore.Qt.white)
+                    gradient.setColorAt(0, QtCore.Qt.GlobalColor.white)
                     gradient.setColorAt(1, color2)
                     p.setBrush(QtGui.QBrush(gradient))
                     p.setPen(color2)
@@ -1176,7 +1176,7 @@ class IndicatedToolButton(QtWidgets.QToolButton, IndicatedMixIn):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = IndicatedToolButton()
     widget.setCheckable(True)
@@ -1191,6 +1191,6 @@ def main():
     widget._hal_init()
     widget.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

@@ -15,9 +15,9 @@
 #
 #################################################################################
 
-from PyQt5.QtCore import pyqtProperty, pyqtSlot, Qt, QTimer, QSize
-from PyQt5.QtGui import QColor, QPainter, QBrush, QRadialGradient
-from PyQt5.QtWidgets import QWidget
+from PyQt6.QtCore import pyqtProperty, pyqtSlot, Qt, QTimer, QSize
+from PyQt6.QtGui import QColor, QPainter, QBrush, QRadialGradient
+from PyQt6.QtWidgets import QWidget
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp import logger
 
@@ -38,10 +38,10 @@ class LED(QWidget, _HalWidgetBase):
         self._color = QColor("red")
         self._off_color = QColor("black")
         self._gradient = True
-        self._on_gradient_color = Qt.white
-        self._off_gradient_color = Qt.white
+        self._on_gradient_color = Qt.GlobalColor.white
+        self._off_gradient_color = Qt.GlobalColor.white
         self._border_color = QColor("black")
-        self._alignment = Qt.AlignCenter
+        self._alignment = Qt.AlignmentFlag.AlignCenter
         self.state = False
         self.flash = False
         self._state = False
@@ -82,20 +82,20 @@ class LED(QWidget, _HalWidgetBase):
         painter = QPainter()
         x = 0
         y = 0
-        if self._alignment & Qt.AlignLeft:
+        if self._alignment & Qt.AlignmentFlag.AlignLeft:
             x = 0
-        elif self._alignment & Qt.AlignRight:
+        elif self._alignment & Qt.AlignmentFlag.AlignRight:
             x = self.width() - self._diameter
-        elif self._alignment & Qt.AlignHCenter:
+        elif self._alignment & Qt.AlignmentFlag.AlignHCenter:
             x = (self.width() - self._diameter) // 2
-        elif self._alignment & Qt.AlignJustify:
+        elif self._alignment & Qt.AlignmentFlag.AlignJustify:
             x = 0
 
-        if self._alignment & Qt.AlignTop:
+        if self._alignment & Qt.AlignmentFlag.AlignTop:
             y = 0
-        elif self._alignment & Qt.AlignBottom:
+        elif self._alignment & Qt.AlignmentFlag.AlignBottom:
             y = self.height() - self._diameter
-        elif self._alignment & Qt.AlignVCenter:
+        elif self._alignment & Qt.AlignmentFlag.AlignVCenter:
             y = (self.height() - self._diameter) // 2
 
         if self._gradient:
@@ -116,7 +116,7 @@ class LED(QWidget, _HalWidgetBase):
 
         painter.begin(self)
         painter.setPen(self._border_color)
-        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setBrush(brush)
         painter.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
         painter.end()
@@ -165,7 +165,7 @@ class LED(QWidget, _HalWidgetBase):
         self._on_gradient_color = value
         self.update()
     def resetOnGradientColor(self, value):
-        self._on_gradient_color = Qt.white
+        self._on_gradient_color = Qt.GlobalColor.white
         self.update()
 
     def getOffGradientColor(self):
@@ -175,7 +175,7 @@ class LED(QWidget, _HalWidgetBase):
         self._off_gradient_color = value
         self.update()
     def resetOffGradientColor(self, value):
-        self._off_gradient_color = Qt.white
+        self._off_gradient_color = Qt.GlobalColor.white
         self.update()
 
     def getGradient(self):
@@ -206,7 +206,7 @@ class LED(QWidget, _HalWidgetBase):
         self.update()
 
     def resetAlignment(self):
-        self._alignment = Qt.AlignCenter
+        self._alignment = Qt.AlignmentFlag.AlignCenter
 
     @pyqtSlot(bool)
     @pyqtSlot(int)
@@ -281,7 +281,7 @@ class LED(QWidget, _HalWidgetBase):
 if __name__ == "__main__":
 
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     led = LED()
     led.show()
@@ -296,4 +296,4 @@ if __name__ == "__main__":
     # only flash when this is true
     led.change_state(False)
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

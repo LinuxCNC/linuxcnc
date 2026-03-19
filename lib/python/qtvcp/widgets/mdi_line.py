@@ -22,8 +22,8 @@ import re
 
 import subprocess
 
-from PyQt5.QtWidgets import QLineEdit, QApplication
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty
+from PyQt6.QtWidgets import QLineEdit, QApplication
+from PyQt6.QtCore import Qt, QEvent, pyqtProperty
 
 from qtvcp.core import Status, Action, Info
 from qtvcp.widgets.entry_widget import SoftInputWidget
@@ -153,9 +153,9 @@ class MDI(QLineEdit):
 
     def keyPressEvent(self, event):
         super(MDI, self).keyPressEvent(event)
-        if event.key() == Qt.Key_Up:
+        if event.key() == Qt.Key.Key_Up:
             self.line_up()
-        if event.key() == Qt.Key_Down:
+        if event.key() == Qt.Key.Key_Down:
             self.line_down()
 
     def line_up(self):
@@ -339,10 +339,10 @@ class MDILine(MDI):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = MDILine()
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

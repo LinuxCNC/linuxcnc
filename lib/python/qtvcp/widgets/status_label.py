@@ -16,7 +16,7 @@
 
 import time
 import os
-from PyQt5 import QtCore
+from PyQt6 import QtCore
 
 from qtvcp import logger
 from qtvcp.widgets.simple_widgets import ScaledLabel
@@ -961,8 +961,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     time_stamp_status = QtCore.pyqtProperty(bool, get_time_stamp, set_time_stamp,
                                                       reset_time_stamp)
     halpin_status = QtCore.pyqtProperty(bool, get_halpin, set_halpin, reset_halpin)
-    state_label_list = QtCore.pyqtProperty(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_state_label_l, set_state_label_l, reset_state_label_l)
-    motion_type_list = QtCore.pyqtProperty(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_motion_label_l, set_motion_label_l, reset_motion_label_l)
+    state_label_list = QtCore.pyqtProperty(QtCore..typeToName(QtCore..StringList), get_state_label_l, set_state_label_l, reset_state_label_l)
+    motion_type_list = QtCore.pyqtProperty(QtCore..typeToName(QtCore..StringList), get_motion_label_l, set_motion_label_l, reset_motion_label_l)
     halpin_name = QtCore.pyqtProperty(str, get_halpin_name, set_halpin_name, reset_halpin_name)
     # boilder code
     def __getitem__(self, item):
@@ -971,9 +971,9 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         return setattr(self, item, value)
 
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from PyQt6.QtWidgets import *
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
 
     import sys
 
@@ -982,4 +982,4 @@ if __name__ == "__main__":
     label.setProperty('motion_type_status',True)
     label._hal_init()
     label.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

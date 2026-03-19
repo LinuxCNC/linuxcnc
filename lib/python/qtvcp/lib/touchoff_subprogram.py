@@ -21,7 +21,7 @@ import json
 import time
 import linuxcnc
 
-from PyQt5.QtCore import QObject
+from PyQt6.QtCore import QObject
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 LOG = logger.getLogger(__name__)

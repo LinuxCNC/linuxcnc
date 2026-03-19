@@ -15,9 +15,9 @@
 ###############################################################################
 import os
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListView
-from PyQt5.QtCore import pyqtProperty, QSize, QModelIndex, QItemSelectionModel, QItemSelection, QPoint
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListView
+from PyQt6.QtCore import pyqtProperty, QSize, QModelIndex, QItemSelectionModel, QItemSelection, QPoint
+from PyQt6.QtGui import QStandardItemModel, QStandardItem
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.mdi_line import MDILine
@@ -40,7 +40,7 @@ class MDIHistory(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(MDIHistory, self).__init__(parent)
         self.setMinimumSize(QSize(200, 150))
-        self.setWindowTitle("PyQt5 editor test example")
+        self.setWindowTitle("PyQt6 editor test example")
 
         lay = QVBoxLayout()
         lay.setContentsMargins(0,0,0,0)
@@ -177,12 +177,12 @@ class MDIHistory(QWidget, _HalWidgetBase):
 
 
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from PyQt6.QtWidgets import *
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
     import sys
 
     app = QApplication(sys.argv)
     w = MDIHistory()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )

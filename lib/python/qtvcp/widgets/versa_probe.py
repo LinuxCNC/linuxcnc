@@ -20,9 +20,9 @@ import os
 import hal
 import json
 
-from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from PyQt5.QtCore import QProcess, QEvent, Qt, pyqtProperty
-from PyQt5.QtWidgets import QDialogButtonBox, QAbstractSlider
+from PyQt6 import QtGui, QtCore, QtWidgets, uic
+from PyQt6.QtCore import QProcess, QEvent, Qt, pyqtProperty
+from PyQt6.QtWidgets import QDialogButtonBox, QAbstractSlider
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Path
@@ -63,9 +63,9 @@ class VersaProbeParent(QtWidgets.QWidget, _HalWidgetBase):
 
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
+            self.valid = QtGui.QRegularExpressionValidator(QtCore.QRegularExpression(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
         else:
-            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
+            self.valid = QtGui.QRegularExpressionValidator(QtCore.QRegularExpression(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
         self.setMinimumSize(600, 420)
         # Load the widgets UI file will use local file if available:
         self.filename = PATH.find_widget_path('versa_probe.ui')
@@ -571,9 +571,9 @@ class VersaProbeParent(QtWidgets.QWidget, _HalWidgetBase):
 
     def set_checkableButtons(self, state):
         if state:
-            policy = Qt.ClickFocus
+            policy = Qt.FocusPolicy.ClickFocus
         else:
-            policy = Qt.NoFocus
+            policy = Qt.FocusPolicy.NoFocus
         for i in self.outside_buttonGroup.buttons():
             i.setCheckable(state)
         for i in self.inside_buttonGroup.buttons():
@@ -622,8 +622,8 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
     def __init__(self, parent=None):
         super(HelpDialog, self).__init__(parent)
         self._title = 'Versa Help'
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.Tool |
+                            Qt.WindowType.Dialog | Qt.WindowType.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
         self.currentHelpPage=-1
         self.setMinimumWidth(600)
@@ -672,10 +672,10 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         self.pageStepDwnbutton.clicked.connect(lambda : self.pageStep(t,True))
 
         bBox = QDialogButtonBox(buttons)
-        bBox.addButton(self.pageStepUpbutton, QDialogButtonBox.ActionRole)
-        bBox.addButton(self.pageStepDwnbutton, QDialogButtonBox.ActionRole)
-        bBox.addButton(previousbutton, QDialogButtonBox.ActionRole)
-        bBox.addButton(nextbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(self.pageStepUpbutton, QDialogButtonBox.ButtonRole.ActionRole)
+        bBox.addButton(self.pageStepDwnbutton, QDialogButtonBox.ButtonRole.ActionRole)
+        bBox.addButton(previousbutton, QDialogButtonBox.ButtonRole.ActionRole)
+        bBox.addButton(nextbutton, QDialogButtonBox.ButtonRole.ActionRole)
         bBox.addButton(closebutton, QDialogButtonBox.DestructiveRole)
         bBox.rejected.connect(self.reject)
 
@@ -734,7 +734,7 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
     def showDialog(self):
         self.setWindowTitle(self._title);
         self.set_geometry()
-        retval = self.exec_()
+        retval = self.exec()
         LOG.debug('Value of pressed button: {}'.format(retval))
 
 # look for a custom version of Versa Probe
@@ -750,13 +750,13 @@ class VersaProbe(module):
 # Testing
 ####################################
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from PyQt6.QtWidgets import *
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
 
     app = QtWidgets.QApplication(sys.argv)
     w = VersaProbeParent()
     w.setObjectName('versaprobeParent')
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

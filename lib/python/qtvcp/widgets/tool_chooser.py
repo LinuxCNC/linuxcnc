@@ -18,10 +18,10 @@
 import sys
 import os
 import operator
-from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
-from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,QStyledItemDelegate, qApp)
+from PyQt6 import QtGui, QtWidgets, uic
+from PyQt6.QtCore import Qt, QAbstractTableModel
+from PyQt6.QtGui import QColor, QIcon
+from PyQt6.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,QStyledItemDelegate, QApplication.instance())
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp import logger
@@ -75,7 +75,7 @@ class ToolChooser(QTableView, _HalWidgetBase):
         hh = self.horizontalHeader()
         hh.setSectionResizeMode(3)
         hh.setStretchLastSection(True)
-        hh.setSortIndicator(1,Qt.AscendingOrder)
+        hh.setSortIndicator(1,Qt.SortOrder.AscendingOrder)
 
         vh = self.verticalHeader()
         vh.setVisible(False)
@@ -84,8 +84,8 @@ class ToolChooser(QTableView, _HalWidgetBase):
         self.setSortingEnabled(True)
         self.setAlternatingRowColors(True)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
     def getSelectedTool(self):
         index = self.selectionModel().currentIndex()
@@ -131,40 +131,40 @@ class ToolTableModel(QAbstractTableModel):
             return len(self.arraydata[0])
         return 0
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             value = self.arraydata[index.row()][index.column()]
             if isinstance(value, str):
                 return '%s' % value
             return value
         
-        elif role == Qt.BackgroundRole:
+        elif role == Qt.ItemDataRole.BackgroundRole:
             if self.arraydata[index.row()][1] == self.parent()._current_tool:
                 return QColor(self._current_tool_bg_color)
-            return QVariant()
+            return None
         
-        elif role == Qt.ForegroundRole:
+        elif role == Qt.ItemDataRole.ForegroundRole:
             if self.arraydata[index.row()][1] == self.parent()._current_tool:
                 return QColor(self._current_tool_color)
-            return QVariant()
+            return None
 
     def flags(self, index):
         if not index.isValid():
             return None
         else:
-            return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
     def headerData(self, col, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant(self.headerdata[col])
-        elif orientation != Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant('')
-        return QVariant()
+        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
+            return self.headerdata[col]
+        elif orientation != Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
+            return ''
+        return None
 
     def sort(self, Ncol, order):
         self.layoutAboutToBeChanged.emit()
         self.arraydata = sorted(self.arraydata, key=operator.itemgetter(Ncol))
-        if order == Qt.DescendingOrder:
+        if order == Qt.SortOrder.DescendingOrder:
             self.arraydata.reverse()
         self.layoutChanged.emit()
 
@@ -172,11 +172,11 @@ class ToolTableModel(QAbstractTableModel):
     # Testing                   #
     #############################
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from PyQt6.QtWidgets import *
+    from PyQt6.QtCore import *
+    from PyQt6.QtGui import *
     app = QtWidgets.QApplication(sys.argv)
     w = ToolChooser()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

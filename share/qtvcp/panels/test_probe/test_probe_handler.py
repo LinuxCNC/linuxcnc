@@ -1,7 +1,7 @@
 ############################
 # **** IMPORT SECTION **** #
 ############################
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
 from qtvcp.core import Status, Action
 
@@ -42,7 +42,7 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        self.w.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.w.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
 
     ########################
     # callbacks from STATUS #

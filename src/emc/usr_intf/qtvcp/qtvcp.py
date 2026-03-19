@@ -9,15 +9,15 @@ import signal
 import subprocess
 
 from optparse import Option, OptionParser
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt6 import QtWidgets, QtCore, QtGui
 
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
+    from PyQt6.QtWebEngineWidgets import QWebEngineView as QWebView
 except:
     try:
-        from PyQt5.QtWebKitWidgets import QWebView
+        from PyQt6.QtWebKitWidgets import QWebView
     except:
-        print('Qtvcp Error with loading webView - is python3-pyqt5.qtwebengine installed?')
+        print('Qtvcp Error with loading webView - is python3-pyqt6.qtwebengine installed?')
 
 # keep track of the number of traceback errors
 ERROR_COUNT = 0
@@ -53,7 +53,7 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help='pass USEROPTS strings to handler under self.w.USEROPTIONS_ list variable')
           ]
 
-from PyQt5.QtCore import QObject, QEvent, pyqtSignal
+from PyQt6.QtCore import QObject, QEvent, pyqtSignal
 
 class inputFocusFilter(QObject):
     focusIn = pyqtSignal(object)
@@ -552,7 +552,7 @@ Pressing cancel will close linuxcnc.""" % target)
                 if msg.buttonRole(i) == QtWidgets.QMessageBox.ActionRole:
                     i.click()
 
-            retval = msg.exec_()
+            retval = msg.exec()
             if retval == QtWidgets.QMessageBox.Abort: #cancel button
                 LOG.critical("Aborted from Error Dialog\n {}\n{}\n".format(self._message,''.join(lines)))
                 self.shutdown()

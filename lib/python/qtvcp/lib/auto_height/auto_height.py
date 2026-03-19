@@ -18,9 +18,9 @@ import os
 import linuxcnc
 import json
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import QProcess
+from PyQt6 import QtCore, QtGui, QtWidgets, uic
+from PyQt6.QtWidgets import QMessageBox
+from PyQt6.QtCore import QProcess
 from qtvcp.core import Info, Status, Action, Path
 from qtvcp import logger
 
@@ -86,11 +86,11 @@ class Auto_Measure(QtWidgets.QWidget):
         help_file = open(os.path.join(HERE,"auto_height.txt"), "r")
         help_text = help_file.read()
         self.mb = QMessageBox()
-        self.mb.setIcon(QMessageBox.Information)
+        self.mb.setIcon(QMessageBox.Icon.Information)
         self.mb.setWindowTitle("Auto Workpiece Height Measurement")
         self.mb.setText("Auto Height Measure")
         self.mb.setInformativeText(help_text)
-        self.mb.setStandardButtons(QMessageBox.Ok)
+        self.mb.setStandardButtons(QMessageBox.StandardButton.Ok)
 
         # signal connections
         self.chk_enable_set.stateChanged.connect(self.chk_enable_changed)
@@ -231,4 +231,4 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = Auto_Measure()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )

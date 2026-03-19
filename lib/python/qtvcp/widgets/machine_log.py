@@ -18,10 +18,10 @@ import os
 import hashlib
 import time
 
-from PyQt5.QtWidgets import QWidget, QTextEdit, QTableWidget, QTableWidgetItem, QVBoxLayout
-from PyQt5.QtCore import QFile, pyqtProperty
-import PyQt5.QtWidgets as QtWidgets
-from PyQt5.QtGui import QColor
+from PyQt6.QtWidgets import QWidget, QTextEdit, QTableWidget, QTableWidgetItem, QVBoxLayout
+from PyQt6.QtCore import QFile, pyqtProperty
+import PyQt6.QtWidgets as QtWidgets
+from PyQt6.QtGui import QColor
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info
 from qtvcp import logger
@@ -69,19 +69,19 @@ class MachineLog(QWidget, _HalWidgetBase):
 
         self.logTable.setColumnCount(3)
         self.logTable.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.logTable.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
-        self.logTable.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.logTable.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.NoSelection)
+        self.logTable.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
         self.logTable.setShowGrid(False)
         self.logTable.setSortingEnabled(False)
 
         horizontalHeader = self.logTable.horizontalHeader()
         horizontalHeader.resizeSection(0, 100)
         horizontalHeader.resizeSection(1, 75)
-        horizontalHeader.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+        horizontalHeader.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
         horizontalHeader.setVisible(False)
 
         verticalHeader = self.logTable.verticalHeader()
-        verticalHeader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        verticalHeader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         verticalHeader.setVisible(False)
 
     def _hal_init(self):
@@ -392,10 +392,10 @@ class MachineLog(QWidget, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = MachineLog()
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

@@ -15,8 +15,8 @@
 ###############################################################################
 
 
-from PyQt5.QtWidgets import QToolButton, QMenu, QAction
-from PyQt5.QtGui import QIcon
+from PyQt6.QtWidgets import QToolButton, QMenu, QAction
+from PyQt6.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.dialog_widget import EntryDialog
@@ -52,7 +52,7 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
 
         self.setMenu(SettingMenu)
         self.dialog = EntryDialog()
-        #self.setPopupMode(QToolButton.DelayedPopup)
+        #self.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
 
     def _hal_init(self):
         if not self.text() == '':
@@ -121,11 +121,11 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt6.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = SystemToolButton()
     widget.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()
