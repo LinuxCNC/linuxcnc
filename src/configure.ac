@@ -126,17 +126,6 @@ RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
 
-NONDISTRIBUTABLE=false
-AC_ARG_ENABLE(non-distributable,
-    AS_HELP_STRING(
-        [--enable-non-distributable],
-        [To build LinuxCNC even if a license problem would render the resulting binaries non-distributable under the terms of the LinuxCNC license]),
-    [
-        case "$enableval" in
-        (yes) NONDISTRIBUTABLE=true ;;
-        esac
-    ])
-
 ##############################################################################
 # Subsection 2.1                                                             #
 # Check for arguments to ./configure                                         #
@@ -1531,59 +1520,14 @@ if test "x$HAVE_LIBFMT" = "xno"; then
     AC_MSG_ERROR([libfmt header not found. Install with 'sudo apt-get install libfmt-dev'])
 fi
 
-# check for readline.h and friends, optional for halcmd
-AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
-AC_CHECK_HEADERS(readline/history.h, [], [HAVE_READLINE=no])
-
-echo "Trying readline without -ltermcap"
-AC_CHECK_LIB(readline, readline, [HAVE_READLINE_NOTERMCAP=yes], [])
-unset ac_cv_lib_readline_readline
-echo "Trying readline with -ltermcap"
-AC_CHECK_LIB(readline, readline, [HAVE_READLINE_TERMCAP=yes], [], -ltermcap)
-unset ac_cv_lib_readline_readline
-
-if test "x$HAVE_READLINE_NOTERMCAP" = "xyes"; then
-    echo "Readline does not require -ltermcap"
-    READLINE_LIBS="-lreadline"
-elif test "x$HAVE_READLINE_TERMCAP" = "xyes"; then
-    echo "Readline requires -ltermcap"
-    READLINE_LIBS="-lreadline -ltermcap"
-else
-    HAVE_READLINE=no
-fi
-
-AC_MSG_CHECKING([whether readline license is compatible with GPL-2])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #include <stdio.h>
-        #include <readline/readline.h>
-    ]], [[
-        #if RL_VERSION_MAJOR > 5
-        #error Readline version 6 and up are not compatible with GPL-2
-        #endif
-    ]])],[AC_MSG_RESULT(yes)],[
-        AC_MSG_RESULT(no)
-        AC_MSG_WARN(
-[The LinuxCNC binary you are building may not be
-distributable due to a license incompatibility with LinuxCNC (some portions
-GPL-2 only) and Readline version 6 and greater (GPL-3 or later).])
-        if $NONDISTRIBUTABLE; then
-            AC_MSG_WARN(
-[User requested to enable non-distributable builds.  Continuing.])
-        else
-            AC_MSG_ERROR(
-[To configure LinuxCNC in this way, you must
-invoke configure with "--enable-non-distributable=yes".  Note that on
-Debian-based systems, you may be able to use libeditreadline-dev or
-libreadline-gplv2-dev instead of libreadline-dev.])
-        fi
+AC_CHECK_HEADERS([editline/readline.h histedit.h], [], [
+    AC_MSG_ERROR([libedit headers not found. Please install libedit-dev or libedit-devel.])
 ])
-
-if test "x$HAVE_READLINE" = "xyes"; then
-    AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the 'readline' library (-lreadline) and required headers])
-else
-    AC_MSG_ERROR([Required library 'readline' missing.])
-fi
-AC_SUBST([HAVE_READLINE])
+AC_CHECK_LIB([edit], [readline], [
+    READLINE_LIBS="-ledit"
+], [
+    AC_MSG_ERROR([libedit library (-ledit) not found.])
+])
 AC_SUBST([READLINE_LIBS])
 
 ##############################################################################

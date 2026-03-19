@@ -31,8 +31,8 @@
 #include <stdarg.h>
 #include <string>
 
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <editline/readline.h>
+#include <histedit.h>
 #include <glob.h>
 #include <wordexp.h>
 #include <rtapi_string.h>
