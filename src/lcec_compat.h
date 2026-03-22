@@ -32,27 +32,8 @@
 #include <string.h>
 #include <sys/time.h>
 
-/**
- * @brief Allocate zeroed memory.
- *
- * Calls `malloc` and immediately zero-fills the returned block with
- * `memset`.
- *
- * @param size Number of bytes to allocate.
- * @return Pointer to zeroed memory on success, or NULL if `malloc` fails.
- */
-static inline void *lcec_zalloc(size_t size) {
-  void *p = malloc(size);
-  if (p) memset(p, 0, size);
-  return p;
-}
-
-/**
- * @brief Free memory previously allocated with `lcec_zalloc`.
- *
- * @param ptr Pointer to memory to free (may be NULL).
- */
-#define lcec_free(ptr) free(ptr)
+#define lcec_zalloc(size) rtapi_calloc(size)
+#define lcec_free(ptr) rtapi_free(ptr)
 
 /**
  * @brief Retrieve the current wall-clock time.
