@@ -33,7 +33,7 @@
 #ifndef _LCEC_H_
 #define _LCEC_H_
 
-#include "pal/pal.h"
+#include "lcec_compat.h"
 
 #include "hal.h"
 
