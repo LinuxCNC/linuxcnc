@@ -6,12 +6,6 @@
 #include <stdint.h>
 #include <errno.h>
 
-/*
- * Define RTAPI_UINT64_MAX so that pal/pal.h knows to include rtapi_mutex.h
- * and activates the LinuxCNC >= 2.8 path.
- */
-#define RTAPI_UINT64_MAX UINT64_MAX
-
 /* Message severity levels */
 #define RTAPI_MSG_NONE  0
 #define RTAPI_MSG_ERR   1

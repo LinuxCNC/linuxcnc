@@ -80,6 +80,6 @@ static inline long long lcec_mod_64(long long val, unsigned long div) {
  * The unify-apis LinuxCNC has a stable shmem API that always accepts a third
  * `size` output parameter.
  */
-#define lcec_rtapi_shmem_getptr(id, ptr) rtapi_shmem_getptr(id, ptr, NULL)
+#define lcec_rtapi_shmem_getptr(id, ptr) rtapi_shmem_getptr(id, ptr)
 
 #endif

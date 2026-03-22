@@ -66,7 +66,7 @@
 #include "rtapi.h"
 #include "hal.h"
 
-#include "pal/pal.h"
+#include "lcec_compat.h"
 #include "conf.h"
 #include "conf_priv.h"
 
