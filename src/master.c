@@ -30,6 +30,8 @@
 
 #include "priv.h"
 
+#include "rtapi_mutex.h"
+
 /** @brief HAL pin descriptors exported for every master instance, including the global summary master. */
 static const lcec_pindesc_t master_global_pins[] = {
   { HAL_U32, HAL_OUT, offsetof(lcec_master_data_t, slaves_responding), "%s.slaves-responding" },

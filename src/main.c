@@ -43,7 +43,6 @@
 
 #include "priv.h"
 #include "rtapi_app.h"
-#include "rtapi_mutex.h"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sascha Ittner <sascha.ittner@modusoft.de>");
