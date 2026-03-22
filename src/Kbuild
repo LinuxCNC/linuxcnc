@@ -1,4 +1,4 @@
-obj-m += lcec.o
+RTMODULES += lcec.o
 lcec-objs := \
     main.o \
     typelist.o \

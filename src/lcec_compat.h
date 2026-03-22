@@ -1,14 +1,10 @@
 /**
- * @file pal_user.h
- * @brief Userspace PAL implementation.
+ * @file lcec_compat.h
+ * @brief Userspace-only compatibility shims replacing the PAL layer.
  *
- * Provides thin wrappers around standard POSIX / C-library APIs so that the
- * rest of the LinuxCNC EtherCAT driver can use the same platform-neutral
- * interface as the kernel-module build.  This header is included automatically
- * by `pal.h` when `__KERNEL__` is *not* defined (i.e. when building for the
- * userspace EtherCAT master).
- *
- * @note Do not include this header directly; use `pal.h` instead.
+ * Since the build now targets uspace only (linuxcnc unify-apis), this header
+ * provides thin wrappers around standard POSIX/C-library APIs so the rest of
+ * the driver can use the same platform-neutral interface it always has.
  *
  * @copyright Copyright (C) 2015-2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *
@@ -27,20 +23,20 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef _LCEC_PAL_USER_H_
-#define _LCEC_PAL_USER_H_
+#ifndef _LCEC_COMPAT_H_
+#define _LCEC_COMPAT_H_
 
+#include <rtapi.h>
+#include <rtapi_stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <sys/time.h>
-#include <sched.h>
 
 /**
- * @brief Allocate zeroed memory (userspace variant).
+ * @brief Allocate zeroed memory.
  *
  * Calls `malloc` and immediately zero-fills the returned block with
- * `memset`, mirroring the behaviour of `kzalloc` in the kernel build.
+ * `memset`.
  *
  * @param size Number of bytes to allocate.
  * @return Pointer to zeroed memory on success, or NULL if `malloc` fails.
@@ -54,27 +50,21 @@ static inline void *lcec_zalloc(size_t size) {
 /**
  * @brief Free memory previously allocated with `lcec_zalloc`.
  *
- * Wraps the standard `free`.
- *
  * @param ptr Pointer to memory to free (may be NULL).
  */
 #define lcec_free(ptr) free(ptr)
 
 /**
- * @brief Retrieve the current wall-clock time (userspace variant).
+ * @brief Retrieve the current wall-clock time.
  *
- * Wraps `gettimeofday` with a NULL timezone argument, populating a
- * `struct timeval` with seconds and microseconds since the Unix epoch.
+ * Wraps `gettimeofday` with a NULL timezone argument.
  *
  * @param x Pointer to a `struct timeval` to populate.
  */
 #define lcec_gettimeofday(x) gettimeofday(x, NULL)
 
 /**
- * @brief Compute a signed 64-bit modulo (userspace variant).
- *
- * In userspace the standard `%` operator handles 64-bit values correctly
- * on all supported architectures, so no kernel helper is required.
+ * @brief Compute a signed 64-bit modulo.
  *
  * @param val  The dividend (64-bit signed).
  * @param div  The divisor (unsigned long).
@@ -83,5 +73,13 @@ static inline void *lcec_zalloc(size_t size) {
 static inline long long lcec_mod_64(long long val, unsigned long div) {
   return val % div;
 }
+
+/**
+ * @brief Portable wrapper for `rtapi_shmem_getptr`.
+ *
+ * The unify-apis LinuxCNC has a stable shmem API that always accepts a third
+ * `size` output parameter.
+ */
+#define lcec_rtapi_shmem_getptr(id, ptr) rtapi_shmem_getptr(id, ptr)
 
 #endif
