@@ -20,7 +20,6 @@
 // Onboard LED driver for the Mesa FPGA cards
 
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -70,7 +69,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
         r = -ENOMEM;
         goto fail0;
     }
-    hm2->led.led_reg = (rtapi_u32 *)rtapi_kmalloc( sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->led.led_reg = (rtapi_u32 *)rtapi_malloc( sizeof(rtapi_u32));
     if (hm2->led.led_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -95,7 +94,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
     fail1:
 
-        rtapi_kfree(hm2->led.led_reg);
+        rtapi_free(hm2->led.led_reg);
 
     fail0:
         return r;
@@ -122,7 +121,7 @@ void hm2_led_write(hostmot2_t *hm2) {
 
 void hm2_led_cleanup(hostmot2_t *hm2) {
     if (hm2->led.led_reg != NULL) {
-	rtapi_kfree(hm2->led.led_reg);
+	rtapi_free(hm2->led.led_reg);
 	hm2->led.led_reg = NULL;
     }
 }

@@ -20,21 +20,37 @@
 //
 // It gets compiled into the hostmot2 driver if the kernel does not provide
 // its own versions of these functions: argv_split(), argv_free(), and
-// kstrndup().
+// strndup().
 //
 
 
 #include <rtapi_ctype.h>
-#include <rtapi_slab.h>
 #include <rtapi_string.h>
 
+char *rtapi_strdup(const char *s)
+{
+	size_t len;
+	char *buf;
+
+	if (!s)
+		return NULL;
+
+	len = strlen(s);
+	buf = rtapi_malloc(len+1);
+	if (buf) {
+		memcpy(buf, s, len);
+		buf[len] = '\0';
+	}
+	return buf;
+}
+
+
 /**
- * rtapi_kstrndup - allocate space for and copy an existing string
+ * rtapi_strndup - allocate space for and copy an existing string
  * @s: the string to duplicate
  * @max: read at most @max chars from @s
- * @gfp: the GFP mask used in the rtapi_kmalloc() call when allocating memory
  */
-char *rtapi_kstrndup(const char *s, size_t max, rtapi_gfp_t gfp)
+char *rtapi_strndup(const char *s, size_t max)
 {
 	size_t len;
 	char *buf;
@@ -43,7 +59,7 @@ char *rtapi_kstrndup(const char *s, size_t max, rtapi_gfp_t gfp)
 		return NULL;
 
 	len = strnlen(s, max);
-	buf = rtapi_kmalloc(len+1, gfp);
+	buf = rtapi_malloc(len+1);
 	if (buf) {
 		memcpy(buf, s, len);
 		buf[len] = '\0';
@@ -97,14 +113,13 @@ void rtapi_argv_free(char **argv)
 {
 	char **p;
 	for (p = argv; *p; p++)
-		rtapi_kfree(*p);
+		rtapi_free(*p);
 
-	rtapi_kfree(argv);
+	rtapi_free(argv);
 }
 
 /**
  * rtapi_argv_split - split a string at whitespace, returning an argv
- * @gfp: the GFP mask used to allocate memory
  * @str: the string to be split
  * @argcp: returned argument count
  *
@@ -115,10 +130,10 @@ void rtapi_argv_free(char **argv)
  * is always NULL-terminated.  Returns NULL on memory allocation
  * failure.
  */
-char **rtapi_argv_split(rtapi_gfp_t gfp, const char *str, int *argcp)
+char **rtapi_argv_split(const char *str, int *argcp)
 {
 	int argc = count_argc(str);
-	char **argv = rtapi_kzalloc(sizeof(*argv) * (argc+1), gfp);
+	char **argv = rtapi_calloc(sizeof(*argv) * (argc+1));
 	char **argvp;
 
 	if (argv == NULL)
@@ -138,7 +153,7 @@ char **rtapi_argv_split(rtapi_gfp_t gfp, const char *str, int *argcp)
 
 			str = skip_arg(str);
 
-			t = rtapi_kstrndup(p, str-p, gfp);
+			t = rtapi_strndup(p, str-p);
 			if (t == NULL)
 				goto fail;
 			*argvp++ = t;
@@ -154,6 +169,7 @@ char **rtapi_argv_split(rtapi_gfp_t gfp, const char *str, int *argcp)
 	return NULL;
 }
 
-EXPORT_SYMBOL(rtapi_kstrndup);
+EXPORT_SYMBOL(rtapi_strdup);
+EXPORT_SYMBOL(rtapi_strndup);
 EXPORT_SYMBOL(rtapi_argv_split);
 EXPORT_SYMBOL(rtapi_argv_free);

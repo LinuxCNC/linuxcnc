@@ -135,14 +135,14 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
             if(pin && pin->signal) {
                 hal_sig_t *sig = SHMPTR(pin->signal);
                 if(0 != sig->name[0]) {
-                    static char sig_name[100];
+                    static char sig_name[HAL_NAME_LEN + 4];
                     // char *arrow = "\xe2\x86\x90";
                     char *arrow = "\xe2\x87\x92";
 
                     if(arrowside == 0) {
-                        snprintf(sig_name, 100, "%s%s", sig->name, arrow);
+                        snprintf(sig_name, sizeof(sig_name), "%s%s", sig->name, arrow);
                     } else {
-                        snprintf(sig_name, 100, "%s%s", arrow, sig->name);
+                        snprintf(sig_name, sizeof(sig_name), "%s%s", arrow, sig->name);
                     }
 
                     return sig_name;

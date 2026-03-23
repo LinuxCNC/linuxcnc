@@ -16,28 +16,6 @@
 #ifndef RTAPI_PCI_H
 #define RTAPI_PCI_H
 
-#ifdef __KERNEL__
-#include <linux/pci.h>
-#define rtapi__iomem __iomem
-#define rtapi_pci_device_id pci_device_id
-#define rtapi_pci_name pci_name
-#define rtapi_pci_dev pci_dev
-#define rtapi_pci_driver pci_driver
-#define rtapi_pci_name pci_name
-#define rtapi_pci_enable_device pci_enable_device
-#define rtapi_pci_ioremap_bar pci_ioremap_bar
-#define rtapi_pci_register_driver pci_register_driver
-#define rtapi_pci_unregister_driver pci_unregister_driver
-#define rtapi_pci_disable_device pci_disable_device
-#define rtapi_pci_enable_device pci_enable_device
-#define rtapi_pci_resource_start(dev, bar) pci_resource_start(dev, bar)
-#define rtapi_pci_resource_end(dev, bar) pci_resource_end(dev, bar)
-#define rtapi_pci_resource_flags(dev, bar) pci_resource_flags(dev, bar)
-#define rtapi_pci_resource_len(dev, bar) pci_resource_len(dev, bar)
-#define rtapi_pci_set_drvdata pci_set_drvdata
-#define rtapi_iounmap iounmap
-
-#else
 #include <rtapi.h>
 #include <rtapi_stdint.h>
 #define rtapi__iomem /* nothing */
@@ -113,5 +91,4 @@ int rtapi_pci_register_driver(struct rtapi_pci_driver *driver);
 void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver);
 
 RTAPI_END_DECLS
-#endif
 #endif

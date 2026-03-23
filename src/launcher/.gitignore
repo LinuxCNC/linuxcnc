@@ -1,0 +1,3 @@
+# Built binaries (when running go build from module root)
+/ads-xml-gen
+/linuxcnc-launcher

@@ -386,8 +386,8 @@ rtapi_pci_device_id gm_pci_tbl[] = {
   static void gm_pci_remove(struct rtapi_pci_dev *dev);
 
 //Methods exported to HAL
-  static void read(void *arg, long period);
-  static void write(void *arg, long period);
+  static void do_read(void *arg, long period);
+  static void do_write(void *arg, long period);
   static void RS485(void *arg, long period);
 
 //Private methods
@@ -1100,12 +1100,12 @@ static int ExportFunctions(void *arg, int comp_id, int boardId)
 	gm_device_t	*device = (gm_device_t *)arg;
 
 	rtapi_snprintf(str, sizeof(str), "gm.%d.write", boardId);
-	error = hal_export_funct(str, write, device, 1, 0, comp_id);
+	error = hal_export_funct(str, do_write, device, 1, 0, comp_id);
 
 	if(error == 0)
 	{
 		rtapi_snprintf(str, sizeof(str), "gm.%d.read", boardId);
-		error = hal_export_funct(str, read, device, 1, 0, comp_id);
+		error = hal_export_funct(str, do_read, device, 1, 0, comp_id);
 	}
 	
 	if(error == 0)
@@ -1122,7 +1122,7 @@ static int ExportFunctions(void *arg, int comp_id, int boardId)
 //////////////////////////////////////////////////////////////////////////////
 
 static void
-read(void *arg, long period)
+do_read(void *arg, long period)
 {
     	gm_device_t	*device = (gm_device_t *)arg;
     	card	*pCard = device->pCard;
@@ -1145,7 +1145,7 @@ read(void *arg, long period)
 }
 
 static void
-write(void *arg, long period)
+do_write(void *arg, long period)
 {
 	gm_device_t	*device = (gm_device_t *)arg;
 	card	*pCard = device->pCard;

@@ -29,7 +29,7 @@ endif
 # The module is named joint_ctrl.  Because Makefile.modinc would
 # otherwise try to compile joint_ctrl.c (same stem as the module),
 # the main translation unit is named joint_ctrl_main.c.
-obj-m += joint_ctrl.o
+RTMODULES += joint_ctrl.o
 joint_ctrl-objs := joint_ctrl_main.o joint_simple_tp.o joint_homing.o
 
 EXTRA_CFLAGS += -I$(CURDIR)

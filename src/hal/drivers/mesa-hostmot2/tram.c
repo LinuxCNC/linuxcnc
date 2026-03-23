@@ -17,7 +17,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 #include <rtapi_list.h>
 
 #include "rtapi.h"
@@ -46,7 +45,7 @@
 int hm2_register_tram_read_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 size, rtapi_u32 **buffer) {
     hm2_tram_entry_t *tram_entry;
 
-    tram_entry = rtapi_kmalloc(sizeof(hm2_tram_entry_t), RTAPI_GFP_KERNEL);
+    tram_entry = rtapi_malloc(sizeof(hm2_tram_entry_t));
     if (tram_entry == NULL) {
         HM2_ERR("out of memory!\n");
         return -ENOMEM;
@@ -65,7 +64,7 @@ int hm2_register_tram_read_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 siz
 int hm2_register_tram_write_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 size, rtapi_u32 **buffer) {
     hm2_tram_entry_t *tram_entry;
 
-    tram_entry = rtapi_kmalloc(sizeof(hm2_tram_entry_t), RTAPI_GFP_KERNEL);
+    tram_entry = rtapi_malloc(sizeof(hm2_tram_entry_t));
     if (tram_entry == NULL) {
         HM2_ERR("out of memory!\n");
         return -ENOMEM;
@@ -106,7 +105,7 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
         hm2->tram_write_size
     );
 
-    hm2->tram_read_buffer = (rtapi_u32 *)rtapi_krealloc(hm2->tram_read_buffer, hm2->tram_read_size, RTAPI_GFP_KERNEL);
+    hm2->tram_read_buffer = (rtapi_u32 *)rtapi_realloc(hm2->tram_read_buffer, hm2->tram_read_size);
     if (hm2->tram_read_buffer == NULL) {
         HM2_ERR("Error while (re)allocating Translation RAM read buffer (%d bytes)\n", hm2->tram_read_size);
         return -ENOMEM;
@@ -114,7 +113,7 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
     if(hm2->tram_read_size>old_tram_read_size)
         memset((char*)hm2->tram_read_buffer+old_tram_read_size, 0, hm2->tram_read_size-old_tram_read_size);
     
-    hm2->tram_write_buffer = (rtapi_u32 *)rtapi_krealloc(hm2->tram_write_buffer, hm2->tram_write_size, RTAPI_GFP_KERNEL);
+    hm2->tram_write_buffer = (rtapi_u32 *)rtapi_realloc(hm2->tram_write_buffer, hm2->tram_write_size);
     if (hm2->tram_write_buffer == NULL) {
         HM2_ERR("Error while (re)allocating Translation RAM write buffer (%d bytes)\n", hm2->tram_write_size);
         return -ENOMEM;
@@ -219,17 +218,17 @@ void hm2_tram_cleanup(hostmot2_t *hm2) {
         struct rtapi_list_head *te_ptr = hm2->tram_read_entries.next;
         hm2_tram_entry_t *te = rtapi_list_entry(te_ptr, hm2_tram_entry_t, list);
         rtapi_list_del(te_ptr);
-        rtapi_kfree(te);
+        rtapi_free(te);
     }
     while (hm2->tram_write_entries.next != &hm2->tram_write_entries) {
         struct rtapi_list_head *te_ptr = hm2->tram_write_entries.next;
         hm2_tram_entry_t *te = rtapi_list_entry(te_ptr, hm2_tram_entry_t, list);
         rtapi_list_del(te_ptr);
-        rtapi_kfree(te);
+        rtapi_free(te);
     }
 
     // free the tram buffers
-    if (hm2->tram_read_buffer != NULL) rtapi_kfree(hm2->tram_read_buffer);
-    if (hm2->tram_write_buffer != NULL) rtapi_kfree(hm2->tram_write_buffer);
+    if (hm2->tram_read_buffer != NULL) rtapi_free(hm2->tram_read_buffer);
+    if (hm2->tram_write_buffer != NULL) rtapi_free(hm2->tram_write_buffer);
 }
 

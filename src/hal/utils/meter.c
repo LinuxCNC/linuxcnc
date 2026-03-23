@@ -374,8 +374,8 @@ probe_t *probe_new(char *probe_name)
     new->pin = NULL;
     new->sig = NULL;
     new->param = NULL;
-    strncpy(new->probe_name, probe_name, HAL_NAME_LEN);
-    new->probe_name[HAL_NAME_LEN] = '\0';
+    strncpy(new->probe_name, probe_name, PROBE_NAME_LEN);
+    new->probe_name[PROBE_NAME_LEN] = '\0';
     /* window will be created just before it is displayed */
     new->window = NULL;
     /* done */

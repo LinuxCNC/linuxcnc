@@ -63,11 +63,14 @@ FILE *halcmd_inifile = NULL;
 #include <time.h>
 #include <fnmatch.h>
 #include <search.h>
+#include <spawn.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
+
+extern char **environ;
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -193,46 +196,41 @@ static int compare_command(const void *namep, const void *commandp) {
 pid_t hal_systemv_nowait(const char *const argv[]) {
     pid_t pid;
     int n;
+    posix_spawn_file_actions_t file_actions;
+    posix_spawnattr_t attr;
+    int spawn_ret;
 
-    /* now we need to fork, and then exec .... */
-    /* disconnect from the HAL shmem area before forking */
+    /* print debugging info if "very verbose" (-V) */
+    for(n=0; argv[n] != NULL; n++) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
+    }
+    if (n == 0) {
+        halcmd_error("hal_systemv_nowait: empty argv array passed in\n");
+        return -1;
+    }
+    rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
+
+    /* disconnect from the HAL shmem area before spawning */
     hal_exit(comp_id);
     comp_id = 0;
-    /* now the fork() */
-    pid = fork();
-    if ( pid < 0 ) {
-	/* fork failed */
-	halcmd_error("fork() failed\n");
-	/* reconnect to the HAL shmem area */
-	comp_id = hal_init(comp_name);
-	if (comp_id < 0) {
-	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
-                    comp_id );
-	    exit(-1);
-	}
-        hal_ready(comp_id);
-	return -1;
-    }
-    if ( pid == 0 ) {
-	/* child process */
-	/* print debugging info if "very verbose" (-V) */
-        for(n=0; argv[n] != NULL; n++) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
-	}
-        if (n == 0) {
-            halcmd_error("hal_systemv_nowait: empty argv array passed in\n");
-            exit(1);
-        }
-	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
-        /* call execv() to invoke command */
-	execvp(argv[0], (char * const *)argv);
-	/* should never get here */
-	halcmd_error("execv(%s): %s\n", argv[0], strerror(errno) );
-	exit(1);
-    }
-    /* parent process */
+
+    posix_spawn_file_actions_init(&file_actions);
+    posix_spawnattr_init(&attr);
+
+    spawn_ret = posix_spawnp(&pid, argv[0], &file_actions, &attr,
+                             (char *const *)argv, environ);
+
+    posix_spawn_file_actions_destroy(&file_actions);
+    posix_spawnattr_destroy(&attr);
+
     /* reconnect to the HAL shmem area */
     comp_id = hal_init(comp_name);
+
+    if (spawn_ret != 0) {
+        halcmd_error("posix_spawnp() failed: %s\n", strerror(spawn_ret));
+        if (comp_id >= 0) hal_ready(comp_id);
+        return -1;
+    }
 
     return pid;
 }

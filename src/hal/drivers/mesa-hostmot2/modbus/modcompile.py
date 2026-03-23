@@ -101,7 +101,7 @@ def main():
         modname = os.path.splitext(os.path.basename(f))[0]
         # The module definition is #included as mesa_modbus.h
         m = open(os.path.join(tempdir, "Makefile"), "w")
-        print("obj-m += %s.o" % modname, file=m)
+        print("RTMODULES += %s.o" % modname, file=m)
         print("%s-objs:=mesa_modbus.o" % modname, file=m)
         print("include %s" % find_modinc(), file=m)
         print("EXTRA_CFLAGS += -I%s" % tempdir, file=m)

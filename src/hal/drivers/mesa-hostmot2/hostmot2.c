@@ -17,7 +17,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 #include <rtapi_ctype.h>
 #include <rtapi_list.h>
 
@@ -358,7 +357,7 @@ int hm2_fabs_parse(hostmot2_t *hm2, char *token, int gtag){
             return -1;
         }
     }
-    def = rtapi_kzalloc(sizeof(hm2_absenc_format_t), RTAPI_GFP_KERNEL);
+    def = rtapi_calloc(sizeof(hm2_absenc_format_t));
     if (def == NULL){
         HM2_ERR("out of memory!\n");
         return -ENOMEM;
@@ -408,7 +407,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     HM2_DBG("parsing config string \"%s\"\n", config_string);
 
-    argv = rtapi_argv_split(RTAPI_GFP_KERNEL, config_string, &argc);
+    argv = rtapi_argv_split(config_string, &argc);
     if (argv == NULL) {
         HM2_ERR("out of memory while parsing config string\n");
         return -ENOMEM;
@@ -538,7 +537,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
         } else if (strncmp(token, "firmware=", 9) == 0) {
             // FIXME: we leak this in hm2_register
-            hm2->config.firmware = rtapi_kstrdup(token + 9, RTAPI_GFP_KERNEL);
+            hm2->config.firmware = rtapi_strdup(token + 9);
             if (hm2->config.firmware == NULL) {
                 goto fail;
             }
@@ -1122,7 +1121,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
 
 static void hm2_cleanup(hostmot2_t *hm2) {
     // clean up the Pins, if they're initialized
-    if (hm2->pin != NULL) rtapi_kfree(hm2->pin);
+    if (hm2->pin != NULL) rtapi_free(hm2->pin);
 
     // clean up the Modules
     hm2_ioport_cleanup(hm2);
@@ -1302,7 +1301,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     // make a hostmot2_t struct to represent this device
     //
 
-    hm2 = rtapi_kmalloc(sizeof(hostmot2_t), RTAPI_GFP_KERNEL);
+    hm2 = rtapi_malloc(sizeof(hostmot2_t));
     if (hm2 == NULL) {
         HM2_PRINT_NO_LL("out of memory!\n");
         return -ENOMEM;
@@ -1748,7 +1747,7 @@ fail1:
 
 fail0:
     rtapi_list_del(&hm2->list);
-    rtapi_kfree(hm2);
+    rtapi_free(hm2);
     return r;
 }
 
@@ -1775,7 +1774,7 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
         hm2_cleanup(hm2);
 
         rtapi_list_del(ptr);
-        rtapi_kfree(hm2);
+        rtapi_free(hm2);
 
         return;
     }

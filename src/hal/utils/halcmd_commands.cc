@@ -533,7 +533,6 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
         return -EINVAL;
     }	
 
-#if defined(RTAPI_USPACE)
     {
         char *argv[MAX_TOK];
         int m = 0, result;
@@ -548,54 +547,6 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
             return -EINVAL;
         }
     }
-#else
-    {
-    FILE *f;
-    f = fopen("/proc/rtapi/hal/newinst", "w");
-    if(!f) {
-        halcmd_error( "cannot open proc entry: %s\n",
-                strerror(errno));
-        return -EINVAL;
-    }
-
-    rtapi_mutex_get(&(hal_data->mutex));
-
-    while(hal_data->pending_constructor) {
-        struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
-        rtapi_mutex_give(&(hal_data->mutex));
-        nanosleep(&ts, NULL);
-        rtapi_mutex_get(&(hal_data->mutex));
-    }
-    rtapi_strlcpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
-    hal_data->constructor_prefix[HAL_NAME_LEN]=0;
-    hal_data->pending_constructor = comp->make;
-    rtapi_mutex_give(&(hal_data->mutex));
-
-    if(fputc(' ', f) == EOF) {
-        halcmd_error( "cannot write to proc entry: %s\n",
-                strerror(errno));
-        fclose(f);
-        rtapi_mutex_get(&(hal_data->mutex));
-        hal_data->pending_constructor = 0;
-        rtapi_mutex_give(&(hal_data->mutex));
-        return -EINVAL;
-    }
-    if(fclose(f) != 0) {
-        halcmd_error(
-                "cannot close proc entry: %s\n",
-                strerror(errno));
-        rtapi_mutex_get(&(hal_data->mutex));
-        hal_data->pending_constructor = 0;
-        rtapi_mutex_give(&(hal_data->mutex));
-        return -EINVAL;
-    }
-
-    while(hal_data->pending_constructor) {
-        struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
-        nanosleep(&ts, NULL);
-    }
-    }
-#endif
     rtapi_mutex_get(&hal_data->mutex);
     {
     hal_comp_t *inst = halpr_alloc_comp_struct();
@@ -1098,111 +1049,9 @@ int do_status_cmd(char *type)
 
 int do_loadrt_cmd(char *mod_name, char *args[])
 {
-    char arg_string[MAX_CMD_LEN+1];
-    int m=0, n=0, retval;
-    hal_comp_t *comp;
-    const char *argv[MAX_TOK+3];
-    char *cp1;
-#if defined(RTAPI_USPACE)
-    argv[m++] = "-Wn";
-    argv[m++] = mod_name;
-    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
-    argv[m++] = "load";
-    argv[m++] = mod_name;
-    /* loop thru remaining arguments */
-    while ( args[n] && args[n][0] != '\0' ) {
-        argv[m++] = args[n++];
-    }
-    argv[m++] = NULL;
-    retval = do_loadusr_cmd(argv);
-#else
-    static char *rtmod_dir = EMC2_RTLIB_DIR;
-    struct stat stat_buf;
-    char mod_path[MAX_CMD_LEN+1];
-
-    if (hal_get_lock()&HAL_LOCK_LOAD) {
-	halcmd_error("HAL is locked, loading of modules is not permitted\n");
-	return -EPERM;
-    }
-    if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
-	halcmd_error("Module path too long\n");
-	return -1;
-    }
-
-    /* make full module name '<path>/<name>.o' */
-    {
-        int r;
-        r = snprintf(mod_path, sizeof(mod_path), "%s/%s%s", rtmod_dir, mod_name, MODULE_EXT);
-        if (r < 0) {
-            halcmd_error("error making module path for %s/%s%s\n", rtmod_dir, mod_name, MODULE_EXT);
-            return -1;
-        } else if (r >= sizeof(mod_path)) {
-            // truncation!
-            halcmd_error("module path too long (max %lu) for %s/%s%s\n", (unsigned long)sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
-            return -1;
-        }
-    }
-
-    /* is there a file with that name? */
-    if ( stat(mod_path, &stat_buf) != 0 ) {
-        /* can't find it */
-        halcmd_error("Can't find module '%s' in %s\n", mod_name, rtmod_dir);
-        return -1;
-    }
-    
-    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
-    argv[1] = "insert";
-    argv[2] = mod_path;
-    /* loop thru remaining arguments */
-    n = 0;
-    m = 3;
-    while ( args[n] && args[n][0] != '\0' ) {
-        argv[m++] = args[n++];
-    }
-    /* add a NULL to terminate the argv array */
-    argv[m] = NULL;
-
-    retval = hal_systemv(argv);
-#endif
-
-    if ( retval != 0 ) {
-	halcmd_error("insmod for %s failed, returned %d\n"
-#if !defined(RTAPI_USPACE)
-            "See the output of 'dmesg' for more information.\n"
-#endif
-        , mod_name, retval );
-	return -1;
-    }
-    /* make the args that were passed to the module into a single string */
-    n = 0;
-    arg_string[0] = '\0';
-    while ( args[n] && args[n][0] != '\0' ) {
-	strncat(arg_string, args[n++], MAX_CMD_LEN);
-	strncat(arg_string, " ", MAX_CMD_LEN);
-    }
-    /* allocate HAL shmem for the string */
-    cp1 = (char*)hal_malloc(strlen(arg_string)+1);
-    if ( cp1 == NULL ) {
-	halcmd_error("failed to allocate memory for module args\n");
-	return -1;
-    }
-    /* copy string to shmem */
-    strcpy(cp1, arg_string);
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
-    /* search component list for the newly loaded component */
-    comp = halpr_find_comp_by_name(mod_name);
-    if (comp == 0) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	halcmd_error("module '%s' not loaded\n", mod_name);
-	return -EINVAL;
-    }
-    /* link args to comp struct */
-    comp->insmod_args = SHMOFF(cp1);
-    rtapi_mutex_give(&(hal_data->mutex));
-    /* print success message */
-    halcmd_info("Realtime module '%s' loaded\n", mod_name);
-    return 0;
+    halcmd_error("loadrt is not available in standalone halcmd.\n"
+                 "RT module loading is handled in-process by the launcher.\n");
+    return -ENOSYS;
 }
 
 int do_delsig_cmd(char *mod_name)
@@ -1365,30 +1214,9 @@ int do_unloadrt_cmd(char *mod_name)
 
 static int unloadrt_comp(char *mod_name)
 {
-    int retval;
-    const char *argv[4];
-
-#if defined(RTAPI_USPACE)
-    argv[0] = EMC2_BIN_DIR "/rtapi_app";
-    argv[1] = "unload";
-#else
-    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
-    argv[1] = "remove";
-#endif
-    argv[2] = mod_name;
-    /* add a NULL to terminate the argv array */
-    argv[3] = NULL;
-
-    retval = hal_systemv(argv);
-
-    if ( retval != 0 ) {
-	halcmd_error("rmmod failed, returned %d\n", retval);
-	return -1;
-    }
-    /* print success message */
-    halcmd_info("Realtime module '%s' unloaded\n",
-	mod_name);
-    return 0;
+    halcmd_error("unloadrt is not available in standalone halcmd.\n"
+                 "RT module unloading is handled in-process by the launcher.\n");
+    return -ENOSYS;
 }
 
 int do_unload_cmd(char *mod_name) {

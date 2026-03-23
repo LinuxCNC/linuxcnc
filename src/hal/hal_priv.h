@@ -521,5 +521,9 @@ struct hal_stream_shm {
 };
 
 extern int halpr_parse_types(hal_type_t type[HAL_STREAM_MAX_PINS], const char *fcg);
+
+extern int halpr_rtapi_app_main(void);
+extern void halpr_rtapi_app_exit(void);
+
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */

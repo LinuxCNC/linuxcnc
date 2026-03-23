@@ -7,7 +7,7 @@ ifeq ($(BUILD_GOLANG),yes)
 TOP := $(shell cd ..; pwd)
 
 # Package path for -ldflags -X injection
-LAUNCHER_LDFLAGS_PKG := github.com/sittner/linuxcnc/src/launcher/config
+LAUNCHER_LDFLAGS_PKG := github.com/sittner/linuxcnc/src/launcher/internal/config
 
 # Compile-time variables injected via -ldflags
 LAUNCHER_LDFLAGS := \
@@ -28,19 +28,30 @@ LAUNCHER_LDFLAGS := \
     -X '$(LAUNCHER_LDFLAGS_PKG).ModExt=$(MODULE_EXT)' \
     -X '$(LAUNCHER_LDFLAGS_PKG).KernelVers=$(kernelvers)'
 
+# All Go source files in the launcher module (recursive wildcard for
+# sub-packages).  Make will rebuild when any .go file or go.mod changes.
+LAUNCHER_SRC := $(wildcard launcher/*.go) \
+    $(wildcard launcher/cmd/*/*.go) \
+    $(wildcard launcher/pkg/*/*.go) \
+    $(wildcard launcher/internal/*/*.go) \
+    $(wildcard launcher/internal/*/*/*.go) \
+    launcher/go.mod
+
 # Build the launcher binary.
-# .PHONY ensures make always invokes go build; Go's own build cache
-# handles fine-grained dependency tracking and skips recompilation
-# when sources are unchanged.
 #
 # CGO_LDFLAGS adds -Wl,-rpath so the dynamic linker finds liblinuxcnchal.so
 # and its companions at runtime (RIP and installed builds alike).
-# LIB_DIR is $(EMC2_HOME)/lib, defined in Makefile.inc.../bin/linuxcnc-launcher: ../lib/liblinuxcnchal.so ../lib/libemcsvr.so
-../bin/linuxcnc-launcher: ../lib/liblinuxcnchal.so ../lib/libemcsvr.so
+# LIB_DIR is $(EMC2_HOME)/lib, defined in Makefile.inc.
+../bin/linuxcnc-launcher: $(LAUNCHER_SRC) ../lib/liblinuxcnchal.so ../lib/libemcsvr.so
 	$(ECHO) Building Go launcher
-	$(Q)cd launcher && CGO_LDFLAGS="-Wl,-rpath,$(LIB_DIR)" $(GO) build -ldflags "$(LAUNCHER_LDFLAGS)" -o $(TOP)/bin/linuxcnc-launcher .
+	$(Q)cd launcher && CGO_LDFLAGS="-Wl,-rpath,$(LIB_DIR)" $(GO) build -ldflags "$(LAUNCHER_LDFLAGS)" -o $(TOP)/bin/linuxcnc-launcher ./cmd/linuxcnc-launcher
 
-TARGETS += ../bin/linuxcnc-launcher
+# Build the ads-xml-gen tool (pure Go, no CGO).
+../bin/ads-xml-gen: $(LAUNCHER_SRC)
+	$(ECHO) Building ads-xml-gen
+	$(Q)cd launcher && CGO_ENABLED=0 $(GO) build -o $(TOP)/bin/ads-xml-gen ./cmd/ads-xml-gen
+
+TARGETS += ../bin/linuxcnc-launcher ../bin/ads-xml-gen
 
 # Test target
 .PHONY: test-launcher
@@ -51,13 +62,14 @@ test-launcher:
 clean: launcher-clean
 .PHONY: launcher-clean
 launcher-clean:
-	rm -f ../bin/linuxcnc-launcher
+	rm -f ../bin/linuxcnc-launcher ../bin/ads-xml-gen
 
 # Install
 install: launcher-install
 .PHONY: launcher-install
-launcher-install: ../bin/linuxcnc-launcher
+launcher-install: ../bin/linuxcnc-launcher ../bin/ads-xml-gen
 	$(DIR) $(DESTDIR)$(EMC2_BIN_DIR)
 	$(INSTALL) -m 0755 ../bin/linuxcnc-launcher $(DESTDIR)$(EMC2_BIN_DIR)/linuxcnc-launcher
+	$(INSTALL) -m 0755 ../bin/ads-xml-gen $(DESTDIR)$(EMC2_BIN_DIR)/ads-xml-gen
 
 endif # BUILD_GOLANG

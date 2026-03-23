@@ -330,8 +330,4 @@ int joint_is_lockable(int joint_num);
 
 #define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_FAULT_BIT; else (joint)->flag &= ~EMCMOT_JOINT_FAULT_BIT;
 
-#if defined(__KERNEL__)
-#define HAVE_CPU_KHZ
-#endif
-
 #endif /* MOT_PRIV_H */

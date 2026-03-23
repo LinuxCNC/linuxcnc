@@ -18,15 +18,12 @@
 // Convert bit pins to enumerated ints and vice-versa
 
 #include "rtapi.h"
-#include "rtapi_slab.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "hal.h"
 
-#if !defined(__KERNEL__)
 #include <stdio.h>
 #include <stdlib.h>
-#endif
 
 /* module information */
 MODULE_AUTHOR("Andy Pugh");
@@ -95,7 +92,7 @@ int rtapi_app_main(void){
         return -EINVAL;
     }
     // allocate memory for the base struct
-    e.insts = (enum_inst_t *)rtapi_kmalloc(e.num_insts * sizeof(enum_inst_t), RTAPI_GFP_KERNEL);
+    e.insts = (enum_inst_t *)rtapi_malloc(e.num_insts * sizeof(enum_inst_t));
     for (i = 0; i < e.num_insts; i++){
         enum_inst_t *inst = &(e.insts[i]);
         char this[HAL_NAME_LEN];
@@ -178,7 +175,7 @@ int rtapi_app_main(void){
     return 0;
 
     fail0:
-    rtapi_kfree(e.insts);
+    rtapi_free(e.insts);
     hal_exit(comp_id);
     return -1;
 

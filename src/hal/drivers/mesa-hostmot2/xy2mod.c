@@ -17,7 +17,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -502,7 +501,7 @@ int hm2_xy2mod_parse_md(hostmot2_t *hm2, int md_index) {
         goto fail0;
     }
 
-    hm2->xy2mod.command_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->xy2mod.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->xy2mod.command_reg = (rtapi_u32 *)rtapi_malloc(hm2->xy2mod.num_instances * sizeof(rtapi_u32));
     if (hm2->xy2mod.command_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;

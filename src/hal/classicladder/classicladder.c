@@ -246,7 +246,7 @@ int main( int   argc, char *argv[] )
 	if (compId<0) return -1; //emc
 	signal(SIGTERM,do_exit); //emc
 	InitModbusMasterBeforeReadConf( );
-	if (ClassicLadder_AllocAll())
+	if (ClassicLadder_AllocAll(FALSE))
 	{
 		char ProjectLoadedOk=TRUE;		
 		process_options (argc, argv);

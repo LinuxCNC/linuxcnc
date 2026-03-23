@@ -16,20 +16,6 @@
 #ifndef RTAPI_FIRMWARE_H
 #define RTAPI_FIRMWARE_H
 
-#ifdef __KERNEL__
-#include <linux/firmware.h>
-
-// types
-#define rtapi_firmware firmware
-#ifndef rtapi_device // could be defined in first-included rtapi_device.h
-#define rtapi_device device
-#endif
-
-// functions
-#define rtapi_request_firmware request_firmware
-#define rtapi_release_firmware release_firmware
-
-#else
 #include <rtapi.h>
 
 RTAPI_BEGIN_DECLS
@@ -50,5 +36,4 @@ extern void rtapi_release_firmware(const struct rtapi_firmware *fw);
 
 RTAPI_END_DECLS
 
-#endif
 #endif

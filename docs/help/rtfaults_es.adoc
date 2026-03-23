@@ -15,11 +15,7 @@ tiempo real
   EXTRA_CFLAGS += -g
 +
 Para módulos independientes, agregue la misma línea justo encima de la
-línea:
-+
-  ifeq ($(BUILDSYS),kbuild)
-+
-y (re)compile el componente
+línea `include` para `Makefile.modinc`:
 
 3. Ejecute hal hasta que ocurra el fallo. +
    *NO SALGA DE LA SESIÓN HAL TODAVÍA*. +

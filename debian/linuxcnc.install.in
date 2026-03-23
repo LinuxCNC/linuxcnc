@@ -17,11 +17,9 @@ usr/bin/hal-histogram
 usr/bin/hal_input
 usr/bin/hal_manualtoolchange
 usr/bin/halcmd
-usr/bin/halcmd_twopass
 usr/bin/halmeter
 usr/bin/halreport
 usr/bin/halrmt
-usr/bin/halrun
 usr/bin/halsampler
 usr/bin/halscope
 usr/bin/halshow
@@ -42,7 +40,6 @@ usr/bin/latency-test
 usr/bin/lineardelta
 usr/bin/linuxcnc
 usr/bin/linuxcnc_info
-usr/bin/linuxcnc_module_helper
 usr/bin/linuxcnc_var
 usr/bin/linuxcnclcd
 usr/bin/linuxcncmkdesktop
@@ -82,7 +79,6 @@ usr/bin/qtvcp
 usr/bin/retain_usr
 usr/bin/rotarydelta
 usr/bin/rs274
-usr/bin/rtapi_app
 usr/bin/scaragui
 usr/bin/schedrmt
 usr/bin/scorbot-er-3

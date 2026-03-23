@@ -24,14 +24,17 @@
 .\"
 .TH RTAPI_APP "1"  "2020-08-26" "LinuxCNC Documentation" "The Enhanced Machine Controller"
 .SH NAME
-rtapi_app \- creates a simulated real time environment
+rtapi_app \- DEPRECATED \- former realtime module loader
 .SH SYNOPSIS
 .B rtapi_app
 
 .SH DESCRIPTION
-\fBrtapi_app\fR Creates a simulated real time environment.
-
-Used for loading real time modules on systems without real time (for simulation).
+\fBrtapi_app\fR is no longer built or used.  Realtime module loading is now
+handled in-process by the LinuxCNC launcher (linuxcnc-launcher) via dlopen.
+.PP
+The \fBrtapi_app_main\fR and \fBrtapi_app_exit\fR entry points in HAL
+components are still used as the dlsym symbols for module initialization
+and teardown.
 
 .SH "SEE ALSO"
 \fBLinuxCNC(1)\fR

@@ -17,7 +17,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -469,7 +468,7 @@ int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 fail1:
-    rtapi_kfree(hm2->oneshot.control_reg);
+    rtapi_free(hm2->oneshot.control_reg);
 
 fail0:
     hm2->oneshot.num_instances = 0;
@@ -482,7 +481,7 @@ fail0:
 void hm2_oneshot_cleanup(hostmot2_t *hm2) {
     if (hm2->oneshot.num_instances <= 0) return;
     if (hm2->oneshot.control_reg != NULL) {
-        rtapi_kfree(hm2->oneshot.control_reg);
+        rtapi_free(hm2->oneshot.control_reg);
         hm2->oneshot.control_reg = NULL;
     }
     hm2->oneshot.num_instances = 0;

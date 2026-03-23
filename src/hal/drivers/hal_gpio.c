@@ -36,7 +36,6 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_slab.h"  	/* kmalloc() */
 #include "hal.h"		/* HAL public API decls */
 #include <gpiod.h>
 #include <string.h>
@@ -207,7 +206,7 @@ int allocate_lines(char **names, hal_gpio_bulk_t **bulk){
 	rtapi_print_msg(RTAPI_MSG_DBG, "hal_gpio processing chip %s\n", namelist[n]->d_name);
 	int l = 0;
 
-	*bulk = rtapi_krealloc(*bulk, sizeof(hal_gpio_bulk_t) * (b + 1), RTAPI_GFP_KERNEL);
+	*bulk = rtapi_realloc(*bulk, sizeof(hal_gpio_bulk_t) * (b + 1));
 	(*bulk)[b].offsets = NULL;
 	(*bulk)[b].flags = NULL;
 	(*bulk)[b].vals = NULL;
@@ -218,11 +217,11 @@ int allocate_lines(char **names, hal_gpio_bulk_t **bulk){
 	    offset = gpiod_chip_get_line_offset_from_name((*bulk)[b].chip, names[i]);
 	    if (offset >= 0){
 		rtapi_print_msg(RTAPI_MSG_DBG, "hal_gpio processing line %s found at offset %i\n", names[i], offset);
-		(*bulk)[b].offsets = rtapi_krealloc((*bulk)[b].offsets, (l + 1) * sizeof(offset), RTAPI_GFP_KERNEL);
+		(*bulk)[b].offsets = rtapi_realloc((*bulk)[b].offsets, (l + 1) * sizeof(offset));
 		(*bulk)[b].offsets[l] = offset;
-		(*bulk)[b].flags = rtapi_krealloc((*bulk)[b].flags, (l + 1) * sizeof(offset), RTAPI_GFP_KERNEL);
+		(*bulk)[b].flags = rtapi_realloc((*bulk)[b].flags, (l + 1) * sizeof(offset));
 		(*bulk)[b].flags[l] = flags(names[i]);
-		(*bulk)[b].vals = rtapi_krealloc((*bulk)[b].vals, (l + 1) * sizeof(int), RTAPI_GFP_KERNEL);
+		(*bulk)[b].vals = rtapi_realloc((*bulk)[b].vals, (l + 1) * sizeof(int));
 		(*bulk)[b].num_lines = ++l;
 	    }
 	    for (int o = 0; o < l; o++) rtapi_print_msg(RTAPI_MSG_DBG, "chip %i offset %i = %i\n", b, o, (*bulk)[b].offsets[o]);
@@ -314,25 +313,25 @@ int build_chips_collection(char **names, hal_gpio_bulk_t **ptr){
 
 	if (c >= count){
 		(count)++;
-		*ptr = rtapi_krealloc(*ptr, sizeof(hal_gpio_bulk_t) * count, RTAPI_GFP_KERNEL);
+		*ptr = rtapi_realloc(*ptr, sizeof(hal_gpio_bulk_t) * count);
 		(*ptr)[c].chip = NULL;
 		(*ptr)[c].flags = NULL;
 		(*ptr)[c].vals = NULL;
 		(*ptr)[c].num_lines = 0;
 		(*ptr)[c].chip = gpiod_line_get_chip(temp_line);
-		(*ptr)[c].lines = rtapi_kmalloc(sizeof(*(*ptr)[c].lines), RTAPI_GFP_KERNEL);
+		(*ptr)[c].lines = rtapi_malloc(sizeof(*(*ptr)[c].lines));
 		gpiod_line_bulk_init((*ptr)[c].lines);
 		rtapi_print_msg(RTAPI_MSG_INFO, "hal_gpio: added chip %s index %i\n", gpiod_chip_name((*ptr)[c].chip), c);
 	}
 	rtapi_print_msg(RTAPI_MSG_INFO, "hal_gpio: adding IO line %s to chip %i\n", name, c);
 	temp_line = gpiod_chip_find_line((*ptr)[c].chip, name);
 	(*ptr)[c].num_lines++;
-	(*ptr)[c].flags = rtapi_krealloc((*ptr)[c].flags, (*ptr)[c].num_lines * sizeof(int), RTAPI_GFP_KERNEL);
+	(*ptr)[c].flags = rtapi_realloc((*ptr)[c].flags, (*ptr)[c].num_lines * sizeof(int));
 	(*ptr)[c].flags[(*ptr)[c].num_lines - 1] = flags(name);
 #if LIBGPIOD_VER >= 105
 	gpiod_line_set_flags(temp_line, (*ptr)[c].flags[(*ptr)[c].num_lines - 1]);
 #endif
-	(*ptr)[c].vals = rtapi_krealloc((*ptr)[c].vals, (*ptr)[c].num_lines * sizeof(int), RTAPI_GFP_KERNEL);
+	(*ptr)[c].vals = rtapi_realloc((*ptr)[c].vals, (*ptr)[c].num_lines * sizeof(int));
 	gpiod_line_bulk_add((*ptr)[c].lines, temp_line);
     }
 
@@ -359,13 +358,7 @@ int rtapi_app_main(void){
 
 rtapi_print_msg(RTAPI_MSG_INFO, "Libgpiod is %i\n", LIBGPIOD_VER);
 
-#ifdef __KERNEL__
-    // this calculation fits in a 32-bit unsigned
-    // as long as CPUs are under about 6GHz
-    ns2tsc_factor = (cpu_khz << 6) / 15625ul;
-#else
     ns2tsc_factor = 1ll<<12;
-#endif
     
     comp_id = hal_init("hal_gpio");
     if (comp_id < 0) {
@@ -374,7 +367,7 @@ rtapi_print_msg(RTAPI_MSG_INFO, "Libgpiod is %i\n", LIBGPIOD_VER);
     }
 
     // allocate shared memory for the base struct
-    gpio = rtapi_kmalloc(sizeof(hal_gpio_t), RTAPI_GFP_KERNEL);
+    gpio = rtapi_malloc(sizeof(hal_gpio_t));
     if (gpio == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "hal_gpio component: Out of Memory\n");
@@ -554,7 +547,7 @@ void rtapi_app_exit(void) {
 #if LIBGPIOD_VER >= 200
 	gpiod_line_request_release(gpio->in_chips[c].lines);
 #else
-	rtapi_kfree(gpio->in_chips[c].lines);
+	rtapi_free(gpio->in_chips[c].lines);
 #endif
 	gpiod_chip_close(gpio->in_chips[c].chip);
     }
@@ -562,13 +555,13 @@ void rtapi_app_exit(void) {
 #if LIBGPIOD_VER >= 200
 	gpiod_line_request_release(gpio->out_chips[c].lines);
 #else
-	rtapi_kfree(gpio->out_chips[c].lines);
+	rtapi_free(gpio->out_chips[c].lines);
 #endif
 	gpiod_chip_close(gpio->out_chips[c].chip);
     }
-    rtapi_kfree(gpio->in_chips);
-    rtapi_kfree(gpio->out_chips);
-    rtapi_kfree(gpio);
+    rtapi_free(gpio->in_chips);
+    rtapi_free(gpio->out_chips);
+    rtapi_free(gpio);
     hal_exit(comp_id);
 }
 

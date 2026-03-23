@@ -404,7 +404,9 @@ int main(int argc, char **argv) {
     // check for SIGTERM
     // set only a flag to do a final sync
     if (FD_ISSET(exit_event, &rfds)) {
-      read(exit_event, &u, sizeof(uint64_t));
+      if (read(exit_event, &u, sizeof(uint64_t)) < 0) {
+        goto fail2;
+      }
       do_exit = 1;
     }
   }

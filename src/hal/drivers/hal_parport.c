@@ -201,13 +201,7 @@ int rtapi_app_main(void)
     int n, retval;
 
 
-#ifdef __KERNEL__
-    // this calculation fits in a 32-bit unsigned 
-    // as long as CPUs are under about 6GHz
-    ns2tsc_factor = (cpu_khz << 6) / 15625ul;
-#else
     ns2tsc_factor = 1ll<<12;
-#endif
 
     /* test for config string */
     if (cfg == 0) {

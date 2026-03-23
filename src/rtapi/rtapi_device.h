@@ -16,21 +16,6 @@
 #ifndef RTAPI_DEVICE_H
 #define RTAPI_DEVICE_H
 
-#ifdef __KERNEL__
-#include <linux/device.h>
-
-// type
-#ifndef rtapi_device // could be defined in first-included rtapi_firmware.h
-#define rtapi_device device
-#endif
-
-// functions
-#define rtapi_dev_set_name dev_set_name
-#define rtapi_device_register device_register
-#define rtapi_device_unregister device_unregister
-
-#else
-
 #include <rtapi.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -62,5 +47,4 @@ static __inline__ void rtapi_device_unregister(struct rtapi_device *dev) { dev->
 
 RTAPI_END_DECLS
 
-#endif
 #endif

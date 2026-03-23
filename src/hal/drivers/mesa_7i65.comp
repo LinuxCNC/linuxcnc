@@ -50,7 +50,7 @@ include <hostmot2-serial.h>;
 char *bspi_chans[16] = {0,};
 RTAPI_MP_ARRAY_STRING(bspi_chans, 16, "BSPI Channel names");
 
-static int read(void *subdata) {
+static int do_read(void *subdata) {
     struct __comp_state *__comp_inst = subdata;
     int i;
     double aout[8];
@@ -240,7 +240,7 @@ EXTRA_SETUP(){
     r += hm2_allocate_bspi_tram(name);
 
     // Tell the bspi driver which function to call
-    r += hm2_bspi_set_read_function(name, &read, __comp_inst);
+    r += hm2_bspi_set_read_function(name, &do_read, __comp_inst);
 
     // no separate write function in this example, but it would be:
     // r += hm2_bspi_set_write_function(name, &write, __comp_inst);

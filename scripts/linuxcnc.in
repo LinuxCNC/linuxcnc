@@ -13,6 +13,19 @@
 # Copyright (c) 2004-2009 All rights reserved.
 ################################################################################
 
+LINUXCNC_TCL_DIR=@EMC2_TCL_DIR@
+LINUXCNC_EMCSH=@WISH@
+LINUXCNC_HELP_DIR=@EMC2_HELP_DIR@
+LINUXCNC_LANG_DIR=@EMC2_LANG_DIR@
+LINUXCNC_NCFILES_DIR=@EMC2_NCFILES_DIR@
+
+#export some common directories, used by some of the GUI's
+export LINUXCNC_TCL_DIR
+export LINUXCNC_EMCSH
+export LINUXCNC_HELP_DIR
+export LINUXCNC_LANG_DIR
+export LINUXCNC_NCFILES_DIR
+
 # For RIP builds: if the environment has not been sourced yet, re-exec
 # through rip-environment so that PATH, LD_LIBRARY_PATH, PYTHONPATH,
 # TCLLIBPATH, etc. are all set up.

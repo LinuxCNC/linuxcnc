@@ -17,7 +17,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -124,7 +123,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     // allocate memory for register buffers
     //
 
-    hm2->watchdog.timer_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->watchdog.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->watchdog.timer_reg = (rtapi_u32 *)rtapi_malloc(hm2->watchdog.num_instances * sizeof(rtapi_u32));
     if (hm2->watchdog.timer_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -176,7 +175,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 fail1:
-    rtapi_kfree(hm2->watchdog.timer_reg);
+    rtapi_free(hm2->watchdog.timer_reg);
 
 fail0:
     hm2->watchdog.num_instances = 0;
@@ -204,7 +203,7 @@ void hm2_watchdog_print_module(hostmot2_t *hm2) {
 
 void hm2_watchdog_cleanup(hostmot2_t *hm2) {
     if (hm2->watchdog.num_instances <= 0) return;
-    if (hm2->watchdog.timer_reg != NULL) rtapi_kfree(hm2->watchdog.timer_reg);
+    if (hm2->watchdog.timer_reg != NULL) rtapi_free(hm2->watchdog.timer_reg);
 }
 
 

@@ -30,7 +30,6 @@
 #include <rtapi.h>
 #include <rtapi_app.h>
 #include <rtapi_bool.h>
-#include <rtapi_gfp.h>
 #include <hal.h>
 
 #include "hostmot2-lowlevel.h"

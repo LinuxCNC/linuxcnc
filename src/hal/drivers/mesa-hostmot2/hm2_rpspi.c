@@ -36,7 +36,6 @@
 #include <hal.h>
 #include <rtapi.h>
 #include <rtapi_app.h>
-#include <rtapi_slab.h>
 
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
@@ -1210,14 +1209,14 @@ static uint8_t *read_file(const char *fname, size_t maxsize, size_t minsize)
 	}
 
 	nn = sb.st_size > maxsize ? maxsize : sb.st_size;
-	if(!(buf = rtapi_kmalloc(nn+1, RTAPI_GFP_KERNEL))) {
+	if(!(buf = rtapi_malloc(nn+1))) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: No dynamic memory\n");
 		return NULL;
 	}
 	memset(buf, 0, nn+1);
 	if(!(fp = fopen(fname, "r"))) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot open '%s' for read\n", fname);
-		rtapi_kfree(buf);
+		rtapi_free(buf);
 		return NULL;
 	}
 
@@ -1225,12 +1224,12 @@ static uint8_t *read_file(const char *fname, size_t maxsize, size_t minsize)
 	fclose(fp);
 	if(!fsize) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Nothing read from '%s' (errno=%d)\n", fname, errno);
-		rtapi_kfree(buf);
+		rtapi_free(buf);
 		return NULL;
 	}
 	if(fsize < nn) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Short read from '%s'; read=%zu required>=%zu\n", fname, fsize, nn);
-		rtapi_kfree(buf);
+		rtapi_free(buf);
 		return NULL;
 	}
 
@@ -1271,7 +1270,7 @@ static int hm2_rpspi_setup(void)
 		return -1;
 	}
 	rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: Platform: %s\n", *buf ? (const char *)buf : "<no data from /proc/device-tree/model>");
-	rtapi_kfree(buf);
+	rtapi_free(buf);
 
 	// Extract the IO base and size
 	// The ranges file in the device-tree has the physical mappings of the
@@ -1311,7 +1310,7 @@ static int hm2_rpspi_setup(void)
 		// This is (probably) a RPi4 and the ranges file has a zero at
 		// the base address. Here we need to read four 32-bit words to
 		// get to the right values.
-		rtapi_kfree(buf);
+		rtapi_free(buf);
 		if(!(buf = read_file("/proc/device-tree/soc/ranges", 4095, 16))) {
 			rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot determine IO base address and size.\n");
 			return -1;
@@ -1319,7 +1318,7 @@ static int hm2_rpspi_setup(void)
 		pmembase = be32toh(((uint32_t *)buf)[2]);
 		pmemsize = be32toh(((uint32_t *)buf)[3]);
 	}
-	rtapi_kfree(buf);
+	rtapi_free(buf);
 
 	if(!pmembase || !pmemsize) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: IO base address (0x%08x) or size (0x%08x) are zero.\n", pmembase, pmemsize);

@@ -30,7 +30,6 @@
 // PWM frequency = (register_value+2)/Clocklow
 //
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "hal.h"
@@ -92,7 +91,7 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
         goto fail0;
     }
     
-    hm2->rcpwmgen.width_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->rcpwmgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->rcpwmgen.width_reg = (rtapi_u32 *)rtapi_malloc(hm2->rcpwmgen.num_instances * sizeof(rtapi_u32));
     if (hm2->rcpwmgen.width_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -163,7 +162,7 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->rcpwmgen.num_instances;
 
 fail1:
-    rtapi_kfree(hm2->rcpwmgen.width_reg);
+    rtapi_free(hm2->rcpwmgen.width_reg);
 
 fail0:
     hm2->rcpwmgen.num_instances = 0;

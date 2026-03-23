@@ -20,7 +20,6 @@
 
 #include <rtapi_firmware.h>
 #include <rtapi_string.h>
-#include <rtapi_gfp.h>
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
@@ -422,7 +421,7 @@ int rtapi_app_main(void)
     comp_id = hal_init("setsserial");
     hal_ready(comp_id);
     
-    cmd_list = rtapi_argv_split(RTAPI_GFP_KERNEL, cmd, &cnt);
+    cmd_list = rtapi_argv_split(cmd, &cnt);
     
     remote = hm2_get_sserial(&hm2, cmd_list[1]);
     if (! remote) {   

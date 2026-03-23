@@ -246,7 +246,7 @@ error:
 	}
 
 	hal_ready(compId);
-	ClassicLadder_AllocAll( );
+	ClassicLadder_AllocAll( TRUE );
 	return 0;
 }
 

@@ -1,7 +1,3 @@
-ifneq ($(KERNELRELEASE),)
-COMPS := $(filter-out %/tpcomp.comp, $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp)))
-include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
-else
 CONVERTERS :=  \
     conv_float_s32.comp conv_float_u32.comp \
     conv_bit_s32.comp conv_bit_u32.comp conv_bit_float.comp \
@@ -9,13 +5,9 @@ CONVERTERS :=  \
     conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
 COMPS := $(filter-out hal/components/tpcomp.comp, $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS))))
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS)) ../docs/man/man9/tpcomp.9
-ifeq ($(BUILD_SYS),uspace)
 COMP_DRIVERS += hal/drivers/serport.comp
 COMP_DRIVERS += hal/drivers/mesa_7i65.comp
 COMP_DRIVERS += hal/drivers/mesa_uart.comp
-else
-COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
-endif
 COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
 TARGETS += manpages
 GENERATED_MANPAGES += $(COMP_MANPAGES)
@@ -25,9 +17,8 @@ ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
 Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
 endif
-endif
 
-obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS) $(COMP_DRIVERS)))
+RTMODULES += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS) $(COMP_DRIVERS)))
 
 $(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/halcompile
 	$(ECHO) Making halcompile manpage $(notdir $@)

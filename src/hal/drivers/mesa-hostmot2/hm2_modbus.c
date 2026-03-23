@@ -20,7 +20,6 @@
 
 
 #include "rtapi.h"
-#include "rtapi_slab.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "rtapi_byteorder.h"
@@ -31,7 +30,6 @@
 
 #include "hm2_modbus.h"
 
-#if !defined(__KERNEL__)
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -39,14 +37,6 @@
 #include <endian.h>
 static inline rtapi_u32 be32_to_cpu(rtapi_u32 v) { return be32toh(v); }
 static inline rtapi_u16 be16_to_cpu(rtapi_u16 v) { return be16toh(v); }
-#else
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/fs.h>
-#include <linux/file.h>
-#include <linux/uaccess.h>
-#include <linux/byteorder/generic.h>
-#endif
 
 // Define to compile in debug messages
 #define DEBUG
@@ -2061,7 +2051,6 @@ static rtapi_u16 crc_modbus(const rtapi_u8 *buffer, size_t len)
 /*                     Mbccb file read and validation                      */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#if !defined(__KERNEL__)
 // Userspace file read
 static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_modbus_mbccb_header_t **pmbccb)
 {
@@ -2088,7 +2077,7 @@ static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_
 	}
 
 	// Allocate memory
-	*pmbccb = rtapi_kzalloc(sb.st_size, RTAPI_GFP_KERNEL);
+	*pmbccb = rtapi_calloc(sb.st_size);
 	if(!*pmbccb) {
 		MSG_ERR("%s: error: Failed to allocate %zd bytes memory for mbccb buffer\n", inst->name, (ssize_t)sb.st_size);
 		close(fd);
@@ -2104,14 +2093,14 @@ retry_read:
 		if(errno == EINTR)
 			goto retry_read;	// Interrupted syscall
 		MSG_ERR("%s: error: Failed to read from '%s' (error %d)\n", inst->name, fname, errno);
-		rtapi_kfree(*pmbccb);
+		rtapi_free(*pmbccb);
 		*pmbccb = NULL;
 		close(fd);
 		return rv;
 	}
 	if(err != (ssize_t)sb.st_size) {
 		MSG_ERR("%s: error: Read %zd bytes instead of %zd bytes from '%s', aborting\n", inst->name, err, (ssize_t)sb.st_size, fname);
-		rtapi_kfree(*pmbccb);
+		rtapi_free(*pmbccb);
 		*pmbccb = NULL;
 		close(fd);
 		return -EIO;
@@ -2119,56 +2108,6 @@ retry_read:
 	close(fd);
 	return err;	// Read it all, return the size
 }
-
-#else
-
-// In-kernel file read
-static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_modbus_mbccb_header_t **pmbccb)
-{
-	if(!pmbccb)
-		return -EINVAL;
-
-	struct file *fp;
-	*pmbccb = NULL;
-
-	// Open the file
-	fp = filp_open(fname, O_RDONLY, 0);
-	if(IS_ERR(fp)) {
-		MSG_ERR("%s: error: Failed to open '%s' for reading (error %d)\n", inst->name, fname, (int)PTR_ERR(fp));
-		// FIXME: is it necessary to check negative?
-		return PTR_ERR(fp) < 0 ? PTR_ERR(fp) : -PTR_ERR(fp);
-	}
-
-	ssize_t fsize = fp->f_inode->i_size;	// File's inode file size
-
-	// Allocate memory
-	*pmbccb = rtapi_kzalloc(fsize, RTAPI_GFP_KERNEL);
-	if(!*pmbccb) {
-		MSG_ERR("%s: error: Failed to allocate %zd bytes memory for mbccb buffer\n", inst->name, fsize);
-		filp_close(fp, NULL);
-		return -ENOMEM;
-	}
-
-	// Read the entire file
-	ssize_t err = kernel_read(fp, *pmbccb, fsize, NULL);
-	if(err < 0) {
-		MSG_ERR("%s: error: Failed to read from '%s' (error %zd)\n", inst->name, fname, err);
-		rtapi_kfree(*pmbccb);
-		*pmbccb = NULL;
-		filp_close(fp, NULL);
-		return err;
-	}
-	if(err != fsize) {
-		MSG_ERR("%s: error: Read %zd bytes instead of %zd bytes from '%s', aborting\n", inst->name, err, fsize, fname);
-		rtapi_kfree(*pmbccb);
-		*pmbccb = NULL;
-		filp_close(fp, NULL);
-		return -EIO;	// Assume IO error if the sizes do not match
-	}
-	filp_close(fp, NULL);
-	return err;	// Read it all, return the size
-}
-#endif
 
 
 static int check_htype(unsigned type)
@@ -2596,7 +2535,7 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 	return 0;	// Success
 
 errout:
-	rtapi_kfree(mbccb);
+	rtapi_free(mbccb);
 	return rv;
 }
 
@@ -2612,11 +2551,11 @@ static void docleanup(void)
 	if(mb.insts) {
 		for(int i = 0; i < mb.ninsts; i++) {
 			if(mb.insts[i].cmds)
-				rtapi_kfree(mb.insts[i].cmds);
+				rtapi_free(mb.insts[i].cmds);
 			if(mb.insts[i].mbccb)
-				rtapi_kfree(mb.insts[i].mbccb);
+				rtapi_free(mb.insts[i].mbccb);
 		}
-		rtapi_kfree(mb.insts);
+		rtapi_free(mb.insts);
 	}
 }
 
@@ -2642,7 +2581,7 @@ int rtapi_app_main(void)
 	// Count the instances.
 	for(mb.ninsts = 0; mb.ninsts < MAX_PORTS && ports[mb.ninsts]; mb.ninsts++) {}
 	// Allocate memory for the instances
-	if(!(mb.insts = (hm2_modbus_inst_t *)rtapi_kzalloc(mb.ninsts * sizeof(*mb.insts), RTAPI_GFP_KERNEL))) {
+	if(!(mb.insts = (hm2_modbus_inst_t *)rtapi_calloc(mb.ninsts * sizeof(*mb.insts)))) {
 		MSG_ERR(COMP_NAME": Allocate instance memory failed\n");
 		hal_exit(comp_id);
 		return -ENOMEM;
@@ -2690,7 +2629,7 @@ int rtapi_app_main(void)
 
 		if(inst->ninit > 0) {
 			// Allocate inits memory
-			if(!(inst->_init = rtapi_kzalloc(inst->ninit * sizeof(*inst->_init), RTAPI_GFP_KERNEL))) {
+			if(!(inst->_init = rtapi_calloc(inst->ninit * sizeof(*inst->_init)))) {
 				MSG_ERR("%s: error: Failed to allocate init commands memory\n", inst->name);
 				retval = -ENOMEM;
 				goto errout;
@@ -2698,7 +2637,7 @@ int rtapi_app_main(void)
 		}
 
 		// Allocate commands memory
-		if(!(inst->_cmds = rtapi_kzalloc(inst->ncmds * sizeof(*inst->_cmds), RTAPI_GFP_KERNEL))) {
+		if(!(inst->_cmds = rtapi_calloc(inst->ncmds * sizeof(*inst->_cmds)))) {
 			MSG_ERR("%s: error: Failed to allocate commands memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;

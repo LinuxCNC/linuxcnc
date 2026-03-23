@@ -17,7 +17,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -702,7 +701,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
     const rtapi_u8 DB25[] = {1,14,2,15,3,16,4,17,5,6,7,8,9,10,11,12,13};
     
     hm2->num_pins = hm2->idrom.io_width;
-    hm2->pin = rtapi_kmalloc(sizeof(hm2_pin_t) * hm2->num_pins, RTAPI_GFP_KERNEL);
+    hm2->pin = rtapi_malloc(sizeof(hm2_pin_t) * hm2->num_pins);
     if (hm2->pin == NULL) {
         HM2_ERR("out of memory!\n");
         return -ENOMEM;

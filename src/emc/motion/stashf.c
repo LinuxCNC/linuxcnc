@@ -21,25 +21,16 @@
 #include "rtapi_string.h"
 #include <stdarg.h>
 
-#ifdef __KERNEL__
-#include <linux/kernel.h>
-#define gettext(s) s
-#else
 #include <stdio.h>
 #include <libintl.h>
-#endif
 
 static int SET_ERRNO(int value) {
-#ifdef RTAPI
-    return value;
-#else
     if(value < 0) {
         errno = value;
         return -1;
     } else {
         return value;
     }
-#endif
 }
 
 static int get_code(const char **fmt_io, int *modifier_l) {
@@ -112,25 +103,20 @@ int stashf(struct dbuf_iter *o, const char *fmt, ...) {
     return result;
 }
 
-#ifdef RTAPI
-extern int rtapi_snprintf(char *, unsigned long, const char *, ...);
-#define PRINT(...) rtapi_snprintf(buf, n, ## __VA_ARGS__)
-#else
 #define PRINT(...) snprintf(buf, n, ## __VA_ARGS__)
-#endif
 #define EXTRA buf += result; n -= result; if(n<0) n = 0;
 int snprintdbuf(char *buf, int n, struct dbuf_iter *o) {
 #include "stashf_wrap.h"
 }
 
-#ifndef RTAPI
+#undef PRINT
 #define PRINT(...) fprintf(f, ## __VA_ARGS__)
 int fprintdbuf(FILE *f, struct dbuf_iter *o) {
 #include "stashf_wrap.h"
 }
 
+#undef PRINT
 #define PRINT(...) printf(__VA_ARGS__)
 int printdbuf(struct dbuf_iter *o) {
 #include "stashf_wrap.h"
 }
-#endif

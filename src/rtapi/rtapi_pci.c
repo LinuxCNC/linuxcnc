@@ -562,15 +562,17 @@ int rtapi_request_firmware(const struct rtapi_firmware **fw, const char *name, s
     {
         rtapi_print_msg(RTAPI_MSG_ERR, "Could not determine size of file \"%s\". (%s)\n",
                         path, strerror(errno));
+        close(fd);
         free(lfw);
         return -1;
     }
 
     lfw->size = st.st_size;
     lfw->data = (const rtapi_u8 *)mmap(NULL, lfw->size, PROT_READ, MAP_PRIVATE, fd, 0);
+    close(fd);
 
     if (lfw->data == NULL || lfw->data == MAP_FAILED) {
-        if (lfw->data == NULL)
+        if (lfw->data == MAP_FAILED)
             munmap((void*)lfw->data, lfw->size);
         rtapi_print_msg(RTAPI_MSG_ERR, "Failed to mmap file %s\n", path);
         free(lfw);
@@ -592,6 +594,8 @@ EXPORT_SYMBOL(rtapi_pci_disable_device);
 EXPORT_SYMBOL(rtapi_pci_register_driver);
 EXPORT_SYMBOL(rtapi_pci_unregister_driver);
 EXPORT_SYMBOL(rtapi_pci_ioremap_bar);
+EXPORT_SYMBOL(rtapi_request_firmware);
+EXPORT_SYMBOL(rtapi_release_firmware);
 
 /* Initialize euid/ruid for with_root functions */
 void __attribute__((constructor)) rtapi_pci_init(void) {

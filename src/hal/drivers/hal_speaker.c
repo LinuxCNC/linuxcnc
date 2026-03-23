@@ -67,20 +67,6 @@
 #include "rtapi_io.h"
 #include "hal.h"		/* HAL public API decls */
 
-/* If FASTIO is defined, uses outb() and inb() from <asm.io>,
-   instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
-   are inlined, and save a microsecond or two (on my 233MHz box)
-*/
-#if defined(RTAPI_RTAI)
-#define FASTIO
-#endif /* RTAPI_RTAI */
-
-#ifdef FASTIO
-#define rtapi_inb inb
-#define rtapi_outb outb
-#include <asm/io.h>
-#endif
-
 /* module information */
 MODULE_AUTHOR("Jeff Epler");
 MODULE_DESCRIPTION("PC Speaker Driver");
@@ -160,15 +146,13 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-#if !defined(RTAPI_RTAI)
-    /* STEP 1.1: get access to port, only needed in uspace builds */
+    /* get access to port */
     if (rtapi_ioperm(SPEAKER_PORT, 1, 1) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SPEAKER: ERROR: ioperm() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
-#endif /* RTAPI_RTAI */
 
     /* STEP 2: allocate shared memory for skeleton data */
     port_data_array = hal_malloc(num_ports * sizeof(speaker_t));

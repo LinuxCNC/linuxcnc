@@ -29,6 +29,9 @@ KeyboardInterrupt exception will be raised.
 
 import _hal
 from _hal import *
+import atexit
+import signal
+import sys
 
 class _ItemWrap(object):
     def __new__(cls, item):
@@ -64,6 +67,18 @@ class Param(_ItemWrap):
             raise TypeError("Must be constructed from param object")
 
 class component(_hal.component):
+    def __init__(self, *a, **kw):
+        _hal.component.__init__(self, *a, **kw)
+        # Ensure hal_exit() is called during interpreter shutdown even if
+        # the process is terminated by SIGTERM (whose default Python action
+        # is immediate exit without cleanup).
+        atexit.register(self.exit)
+        # Convert SIGTERM into SystemExit so that Python's normal cleanup
+        # (atexit handlers, try/finally blocks) runs.  Only install if
+        # the current handler is the default one to avoid overriding
+        # application-specific handlers.
+        if signal.getsignal(signal.SIGTERM) == signal.SIG_DFL:
+            signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0))
     def newpin(self, *a, **kw): return Pin(_hal.component.newpin(self, *a, **kw))
     def newparam(self, *a, **kw): return Param(_hal.component.newparam(self, *a, **kw))
 

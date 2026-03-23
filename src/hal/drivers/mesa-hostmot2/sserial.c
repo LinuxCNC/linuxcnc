@@ -17,7 +17,6 @@
 //
 
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -29,6 +28,7 @@
 #include "hostmot2.h"
 #include "bitfile.h"
 
+#include <stdlib.h>
 
 int getbits(hm2_sserial_remote_t *chan, rtapi_u64 *val, int start, int len){
     //load the bits from the registers in to bit 0+ of *val
@@ -312,7 +312,7 @@ void config_8i20(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
     rtapi_u32 buff;
     chan->num_modes=0;
     chan->num_confs = sizeof(hm2_8i20_params) / sizeof(hm2_sserial_data_t);
-    chan->confs = rtapi_kzalloc(sizeof(hm2_8i20_params),RTAPI_GFP_KERNEL);
+    chan->confs = rtapi_calloc(sizeof(hm2_8i20_params));
     memcpy(chan->confs, hm2_8i20_params, sizeof(hm2_8i20_params));
 
     //8i20 has reprogrammable current scaling:
@@ -320,7 +320,7 @@ void config_8i20(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
     hm2_sserial_get_bytes(hm2, chan, &buff, 0x8E8, 2);
     chan->confs[1].ParmMax = buff * 0.01;
     chan->confs[1].ParmMin = buff * -0.01;
-    chan->globals = rtapi_kzalloc(sizeof(hm2_8i20_globals), RTAPI_GFP_KERNEL);
+    chan->globals = rtapi_calloc(sizeof(hm2_8i20_globals));
     memcpy(chan->globals, hm2_8i20_globals, sizeof(hm2_8i20_globals));
     chan->num_globals = sizeof(hm2_8i20_globals) / sizeof(hm2_sserial_data_t);
 }
@@ -328,7 +328,7 @@ void config_8i20(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
 void config_7i64(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
     chan->num_modes=0;
     chan->num_confs = sizeof(hm2_7i64_params) / sizeof(hm2_sserial_data_t);
-    chan->confs = rtapi_kzalloc(sizeof(hm2_7i64_params), RTAPI_GFP_KERNEL);
+    chan->confs = rtapi_calloc(sizeof(hm2_7i64_params));
     memcpy(chan->confs, hm2_7i64_params, sizeof(hm2_7i64_params));
 }
 
@@ -510,9 +510,8 @@ int hm2_sserial_get_globals_list(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                            data.NameString, data.RecordType, data.DataType, data.DataDir, data.ParmAddr, data.DataLength);
                 chan->num_globals++;
                 chan->globals = (hm2_sserial_data_t *)
-                         rtapi_krealloc(chan->globals,
-                         chan->num_globals * sizeof(hm2_sserial_data_t),
-                         RTAPI_GFP_KERNEL);
+                         rtapi_realloc(chan->globals,
+                         chan->num_globals * sizeof(hm2_sserial_data_t));
                 chan->globals[chan->num_globals - 1] = data;
             }
             else if (data.RecordType== LBP_MODE){
@@ -953,8 +952,7 @@ int hm2_sserial_setup_remotes(hostmot2_t *hm2,
     int buff;
 
     inst->remotes =
-    (hm2_sserial_remote_t *)rtapi_kzalloc(inst->num_remotes*sizeof(hm2_sserial_remote_t),
-                                    RTAPI_GFP_KERNEL);
+    (hm2_sserial_remote_t *)rtapi_calloc(inst->num_remotes*sizeof(hm2_sserial_remote_t));
     if (inst->remotes == NULL) {
         HM2_ERR("out of memory!\n");
         return -ENOMEM;
@@ -1054,9 +1052,8 @@ int hm2_sserial_read_configs(hostmot2_t *hm2,  hm2_sserial_remote_t *chan){
         if (rectype == LBP_DATA) {
             c = chan->num_confs++;
             chan->confs = (hm2_sserial_data_t *)
-                            rtapi_krealloc(chan->confs,
-                                    chan->num_confs * sizeof(hm2_sserial_data_t),
-                                    RTAPI_GFP_KERNEL);
+                            rtapi_realloc(chan->confs,
+                                    chan->num_confs * sizeof(hm2_sserial_data_t));
             addr = hm2_sserial_get_bytes(hm2, chan, &chan->confs[c], addr, 14);
             if (addr < 0){ return -EINVAL;}
             addr = hm2_sserial_get_bytes(hm2, chan,
@@ -1082,9 +1079,8 @@ int hm2_sserial_read_configs(hostmot2_t *hm2,  hm2_sserial_remote_t *chan){
             chan->num_modes++;
             m = chan->num_modes - 1;
             chan->modes = (hm2_sserial_mode_t *)
-                            rtapi_krealloc(chan->modes,
-                                     chan->num_modes * sizeof(hm2_sserial_mode_t),
-                                     RTAPI_GFP_KERNEL);
+                            rtapi_realloc(chan->modes,
+                                     chan->num_modes * sizeof(hm2_sserial_mode_t));
             addr = hm2_sserial_get_bytes(hm2, chan, &chan->modes[m], addr, 4);
             if (addr < 0){ return -EINVAL;}
             addr = hm2_sserial_get_bytes(hm2, chan,
@@ -2259,13 +2255,13 @@ void hm2_sserial_cleanup(hostmot2_t *hm2){
             if (hm2->sserial.instance[i].remotes){
                 for (r = 0 ; r < hm2->sserial.instance[i].num_remotes; r++){
                     if (hm2->sserial.instance[i].remotes[r].num_confs > 0){
-                        rtapi_kfree(hm2->sserial.instance[i].remotes[r].confs);
+                        rtapi_free(hm2->sserial.instance[i].remotes[r].confs);
                     };
                     if (hm2->sserial.instance[i].remotes[r].num_modes > 0){
-                        rtapi_kfree(hm2->sserial.instance[i].remotes[r].modes);
+                        rtapi_free(hm2->sserial.instance[i].remotes[r].modes);
                     }
                 }
-                rtapi_kfree(hm2->sserial.instance[i].remotes);
+                rtapi_free(hm2->sserial.instance[i].remotes);
             }
         }
 

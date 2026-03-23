@@ -13,11 +13,8 @@ Finding line number information for faults in realtime components
 +
   EXTRA_CFLAGS += -g
 +
-For standalone modules, add the same line just above the line:
-+
-  ifeq ($(BUILDSYS),kbuild)
-+
-and (re)build the component
+For standalone modules, add the same line just above the `include` line
+for `Makefile.modinc`:
 
 3. Run hal until the following fault occurs:
    *DO NOT EXIT THE HAL SESSION YET*. +

@@ -23,7 +23,6 @@
 
 #include <rtapi.h>
 #include <rtapi_app.h>
-#include <rtapi_slab.h>
 
 #define HM2_LLIO_NAME "hm2_spix"
 
@@ -171,7 +170,7 @@ static int buffer_check_room(buffer_t *b, size_t n, size_t elmsize)
 	if(!b->ptr || !b->na) {
 		b->na = 64;	// Default to this many elements
 		b->n = 0;
-		b->ptr = rtapi_kmalloc(elmsize * b->na, RTAPI_GPF_KERNEL);
+		b->ptr = rtapi_malloc(elmsize * b->na);
 		return b->ptr == NULL;
 	}
 
@@ -179,7 +178,7 @@ static int buffer_check_room(buffer_t *b, size_t n, size_t elmsize)
 		do {
 			b->na *= 2;	// Double storage capacity
 		} while(b->n + n > b->na);	// Until we have enough room
-		void *p = rtapi_krealloc(b->ptr, elmsize * b->na, RTAPI_GPF_KERNEL);
+		void *p = rtapi_realloc(b->ptr, elmsize * b->na);
 		if(!p)
 			return 1;
 		b->ptr = p;
@@ -190,7 +189,7 @@ static int buffer_check_room(buffer_t *b, size_t n, size_t elmsize)
 static void buffer_free(buffer_t *b)
 {
 	if(b->ptr) {
-		rtapi_kfree(b->ptr);
+		rtapi_free(b->ptr);
 		b->ptr = NULL;
 		b->n = b->na = 0;
 	}

@@ -35,7 +35,6 @@
 //
 
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "hal.h"
@@ -108,7 +107,7 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->ssr.data_addr = md->base_address + (0 * md->register_stride);
     hm2->ssr.rate_addr = md->base_address + (1 * md->register_stride);
 
-    hm2->ssr.rate_reg = (rtapi_u32*)rtapi_kmalloc(hm2->ssr.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->ssr.rate_reg = (rtapi_u32*)rtapi_malloc(hm2->ssr.num_instances * sizeof(rtapi_u32));
     if (hm2->ssr.rate_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -211,7 +210,7 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->ssr.num_instances;
 
 fail1:
-    rtapi_kfree(hm2->ssr.rate_reg);
+    rtapi_free(hm2->ssr.rate_reg);
 
 fail0:
     hm2->ssr.num_instances = 0;

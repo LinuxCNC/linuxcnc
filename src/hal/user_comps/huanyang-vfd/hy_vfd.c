@@ -20,10 +20,6 @@
 //
 
 
-#ifndef ULAPI
-#error This is intended as a userspace component only.
-#endif
-
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>

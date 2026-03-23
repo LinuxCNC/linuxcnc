@@ -38,10 +38,9 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #include "config.h"
 
-/* For C code using RTAPI, provide a compatible WITH_ROOT macro */
-#if defined(RTAPI) && !defined(__cplusplus) && !defined(WITH_ROOT)
-extern void with_root_enter(void);
-extern void with_root_exit(void);
+/* Provide WITH_ROOT macro for privilege escalation during shmem operations.
+ * Includers must define with_root_enter()/with_root_exit() before including this file. */
+#ifndef WITH_ROOT
 #define WITH_ROOT for(int _wr = (with_root_enter(), 1); _wr; _wr = 0, with_root_exit())
 #endif
 
@@ -62,9 +61,7 @@ static rtapi_shmem_handle shmem_array[MAX_SHM] = {{0},};
 
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
-#ifdef RTAPI
   WITH_ROOT;
-#endif
   rtapi_shmem_handle *shmem;
   int i;
 
@@ -102,18 +99,10 @@ shmget_again:
   int res = shmctl(shmem->id, IPC_STAT, &stat);
   if(res < 0) perror("shmctl IPC_STAT");
 
-#ifdef RTAPI
-  /* At present, setuid rtapi_app runs with geteuid() == 0 at all times but the
-   * fsuid is ruid except when WITH_ROOT when it's 0.
-   *
-   * Filesystem operations such as creat() respect the fsuid, but as shmget is
-   * not a filesystem operation, it does not respect the fsuid. So, if
-   * rtapi_app has created the segment in question, its owning uid is root.
-   * Changing the permission here is racy, but it is the best alternative
-   * currently available.
-   *
-   * The race causes a low probability (<1/1000 in testing in a VM) chance of
-   * linuxcnc/halrun to fail to start
+  /* When running with capabilities (cap_sys_nice, cap_ipc_lock, cap_sys_rawio)
+   * instead of setuid, the process euid is the real user.  If running as root
+   * (e.g. during testing), ensure the segment ownership is corrected so
+   * unprivileged processes can attach.
    */
   /* ensure the segment is owned by user, not root */
   if(geteuid() == 0) {
@@ -135,7 +124,6 @@ shmget_again:
       rtapi_print_msg(RTAPI_MSG_ERR,
           "shared memory segment not locked as requested\n");
   }
-#endif
 #endif
 
   /* and map it into process space */
@@ -376,23 +364,13 @@ static int detect_preempt_rt() {
     return 0;
 }
 #endif
-static int detect_rtai() {
-    return 0;
-}
-static int detect_xenomai() {
-    return 0;
-}
 static int detect_env_override() {
     char *p = getenv("LINUXCNC_FORCE_REALTIME");
     return p != NULL && atoi(p) != 0;
 }
 
 static int detect_realtime() {
-    struct stat st;
-    if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) < 0)
-            || st.st_uid != 0 || !(st.st_mode & S_ISUID))
-        return 0;
-    return detect_env_override() || detect_preempt_rt() || detect_rtai() || detect_xenomai();
+    return detect_env_override() || detect_preempt_rt();
 }
 
 int rtapi_is_realtime() {

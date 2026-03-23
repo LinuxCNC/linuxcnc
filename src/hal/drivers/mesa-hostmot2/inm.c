@@ -49,7 +49,6 @@
 
 
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "hal.h"
@@ -111,13 +110,13 @@ int hm2_inm_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->inm.mpg_read_addr = md->base_address + (4 * md->register_stride);
     hm2->inm.mpg_mode_addr = md->base_address + (4 * md->register_stride);
 
-    hm2->inm.control_reg = (rtapi_u32*)rtapi_kmalloc(hm2->inm.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->inm.control_reg = (rtapi_u32*)rtapi_malloc(hm2->inm.num_instances * sizeof(rtapi_u32));
     if (hm2->inm.control_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
-    hm2->inm.mpg_mode_reg = (rtapi_u32*)rtapi_kmalloc(hm2->inm.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->inm.mpg_mode_reg = (rtapi_u32*)rtapi_malloc(hm2->inm.num_instances * sizeof(rtapi_u32));
     if (hm2->inm.mpg_mode_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -352,7 +351,7 @@ int hm2_inm_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->inm.num_instances;
 
 fail1:
-    rtapi_kfree(hm2->inm.control_reg);
+    rtapi_free(hm2->inm.control_reg);
 
 fail0:
     hm2->inm.num_instances = 0;

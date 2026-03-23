@@ -271,9 +271,7 @@ def prologue(f):
         sys.argv[0], time.asctime()), file=f)
     print("""\
 #include "rtapi.h"
-#ifdef RTAPI
 #include "rtapi_app.h"
-#endif
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
 #include "hal.h"
@@ -295,7 +293,6 @@ static int comp_id;
         s = s.replace("\v", "\\v")
         return '"%s"' % s
 
-    print("#ifdef MODULE_INFO", file=f)
     for v in docs:
         if not v: continue
         v = ":".join(map(str, v))
@@ -303,7 +300,6 @@ static int comp_id;
         license = finddoc('license')
     if license and license[1]:
         print("MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0], file=f)
-    print("#endif // MODULE_INFO", file=f)
     print("", file=f)
 
 
@@ -368,7 +364,7 @@ static int comp_id;
     for name, fp in functions:
         if name in names:
             Error("Duplicate item name: %s" % name)
-        print("static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name), file=f)
+        print("static void funct_%s(struct __comp_state *__comp_inst, long period);" % to_c(name), file=f)
         names[name] = 1
 
     print("static int __comp_get_data_size(void);", file=f)
@@ -484,7 +480,7 @@ static int comp_id;
     for name, fp in functions:
         print("    rtapi_snprintf(buf, sizeof(buf), \"%%s%s\", prefix);"\
             % to_hal("." + name), file=f)
-        print("    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, %s, 0, comp_id);" % (
+        print("    r = hal_export_funct(buf, (void(*)(void *inst, long))funct_%s, inst, %s, 0, comp_id);" % (
             to_c(name), int(fp)), file=f)
         print("    if(r != 0) return r;", file=f)
     print("    if(__comp_last_inst) __comp_last_inst->_next = inst;", file=f)
@@ -720,7 +716,7 @@ int __comp_parse_names(int *argc, char **argv) {
     print("", file=f)
     if not options.get("no_convenience_defines"):
         print("#undef FUNCTION", file=f)
-        print("#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)", file=f)
+        print("#define FUNCTION(name) static void funct_##name(struct __comp_state *__comp_inst, long period)", file=f)
         print("#undef EXTRA_SETUP", file=f)
         print("#define EXTRA_SETUP() static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg)", file=f)
         print("#undef EXTRA_CLEANUP", file=f)
@@ -797,7 +793,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print("%s: %s" % (binname, filename), file=f)
-    print("\t$(CC) -I%s -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+    print("\t$(CC) -I%s -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
 
         os.path.abspath(os.path.dirname(origfilename)),
         options.get("extra_compile_args", ""),
@@ -817,7 +813,7 @@ def build_rt(tempdir, filename, mode, origfilename):
     objname = os.path.basename(os.path.splitext(filename)[0] + ".o")
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
-    print("obj-m += %s" % objname, file=f)
+    print("RTMODULES += %s" % objname, file=f)
     print("include %s" % find_modinc(), file=f)
     print("EXTRA_CFLAGS += -I%s" % os.path.abspath(os.path.dirname(origfilename)), file=f)
     print("EXTRA_CFLAGS += -I%s" % os.path.abspath('.'), file=f)
@@ -830,7 +826,7 @@ def build_rt(tempdir, filename, mode, origfilename):
     if result != 0:
         raise SystemExit(os.WEXITSTATUS(result) or 1)
     if mode == COMPILE:
-        for extension in ".ko", ".so", ".o":
+        for extension in ".so", ".o":
             kobjname = os.path.splitext(filename)[0] + extension
             if os.path.exists(kobjname):
                 shutil.copy(kobjname, os.path.basename(kobjname))

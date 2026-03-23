@@ -19,7 +19,6 @@
 
 
 #include "rtapi.h"
-#include "rtapi_slab.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "hal.h"
@@ -199,7 +198,7 @@ int rtapi_app_main(void){
     }
 
     // allocate shared memory for the base struct
-    m = (hm2_modbus_t*)rtapi_kmalloc(sizeof(hm2_modbus_t), RTAPI_GFP_KERNEL);
+    m = (hm2_modbus_t*)rtapi_malloc(sizeof(hm2_modbus_t));
     //m = (hm2_modbus_t*)hal_malloc(sizeof(hm2_modbus_t));
     if (m == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, COMP_NAME": Out of Memory\n");
@@ -209,7 +208,7 @@ int rtapi_app_main(void){
 
     // Count the instances.
     for (m->num_insts = 0; ports[m->num_insts];m->num_insts++) {}
-    m->insts = (hm2_modbus_inst_t*)rtapi_kmalloc(m->num_insts * sizeof(hm2_modbus_inst_t), RTAPI_GFP_KERNEL);
+    m->insts = (hm2_modbus_inst_t*)rtapi_malloc(m->num_insts * sizeof(hm2_modbus_inst_t));
     // Parse the config string
     for (i = 0; i < m->num_insts; i++) {
         hm2_modbus_inst_t *inst = &m->insts[i];
@@ -220,7 +219,7 @@ int rtapi_app_main(void){
             inst->num_pins += channels[c].count;
         }
         // Malloc structs and pins, some in main or kernel memory, some in HAL
-        inst->chans = (hm2_modbus_channel_t *)rtapi_kmalloc(inst->num_chans * sizeof(hm2_modbus_channel_t), RTAPI_GFP_KERNEL);
+        inst->chans = (hm2_modbus_channel_t *)rtapi_malloc(inst->num_chans * sizeof(hm2_modbus_channel_t));
         inst->hal =   (hm2_modbus_hal_t *) hal_malloc(sizeof(hm2_modbus_hal_t));
         inst->hal->pins =  (hal_data_u **) hal_malloc(inst->num_pins * sizeof(hal_data_u));
         inst->hal->scale = (hal_float_t **)hal_malloc(inst->num_pins * sizeof(hal_float_t));
@@ -865,10 +864,10 @@ static int parse_data_frame(hm2_modbus_inst_t *inst){
 void rtapi_app_exit(void){
 int i;
 for (i = 0; i < m->num_insts;i++){
-    if (m->insts[i].chans != NULL) rtapi_kfree(m->insts[i].chans);
-    // rtapi_kfree(m->insts[i].hal); Automatically freed as was hal_malloc-ed
+    if (m->insts[i].chans != NULL) rtapi_free(m->insts[i].chans);
+    // rtapi_free(m->insts[i].hal); Automatically freed as was hal_malloc-ed
 }
-if (m != NULL) rtapi_kfree(m);
+if (m != NULL) rtapi_free(m);
 
 hal_exit(comp_id);
 }

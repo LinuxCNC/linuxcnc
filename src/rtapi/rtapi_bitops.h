@@ -15,9 +15,6 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifndef RTAPI_BITOPS_H
 #define RTAPI_BITOPS_H
-#if defined(__KERNEL__)
-#include <asm/bitops.h>
-#else
 #include <limits.h>
 #define RTAPI_LONG_BIT (CHAR_BIT * sizeof(unsigned long))
 static __inline__ void set_bit(int nr, volatile void *addr) {
@@ -56,5 +53,4 @@ static __inline__ long test_and_clear_bit(int nr, volatile void *addr) {
     unsigned long oldval = __sync_fetch_and_and(laddr + loff, ~(1lu << boff));
     return (oldval & (1lu << boff)) != 0;
 }
-#endif
 #endif

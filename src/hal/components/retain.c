@@ -18,7 +18,7 @@ typedef struct {
 
 static int comp_id;
 
-static void sync(void *arg, long period);
+static void do_sync(void *arg, long period);
 static int sync_read(void);
 
 int rtapi_app_main(void) {
@@ -40,7 +40,7 @@ int rtapi_app_main(void) {
     rtapi_print_msg(RTAPI_MSG_ERR, COMPNAME ": ERROR: export of param " RETAIN_ACTION_PARAM " failed\n");
     goto fail1;
   }
-  if (hal_export_funct(COMPNAME ".sync", sync, hal, 1, 0, comp_id)) {
+  if (hal_export_funct(COMPNAME ".sync", do_sync, hal, 1, 0, comp_id)) {
     rtapi_print_msg(RTAPI_MSG_ERR, COMPNAME ": ERROR: export of function " COMPNAME ".sync failed\n");
     goto fail1;
   }
@@ -61,7 +61,7 @@ void rtapi_app_exit(void)
   hal_exit(comp_id);
 }
 
-static void sync(void *arg, long period) {
+static void do_sync(void *arg, long period) {
   hal_retain_t *hal = (hal_retain_t *) arg;
   int ret;
 

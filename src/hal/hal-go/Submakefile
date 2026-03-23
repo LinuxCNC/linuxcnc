@@ -5,21 +5,26 @@ ifeq ($(BUILD_GOLANG),yes)
 
 # Go build settings
 HAL_GO_DIR := hal/hal-go
-HAL_GO_SRC := $(addprefix $(HAL_GO_DIR)/, \
+
+# Library source files tracked for rebuild (wildcard catches new files automatically).
+HAL_GO_SRC := $(wildcard $(HAL_GO_DIR)/*.go)
+
+# Explicit list of files to install/copy for external component development.
+# This is intentionally manual so we don't ship test files or build tags.
+HAL_GO_INSTALL_FILES := \
     hal.go \
     component.go \
     pin.go \
     types.go \
     errors.go \
     cgo.go \
-    command.go \
-    doc.go)
+    doc.go
 
 # Build directory for absolute paths
 TOP := $(shell cd ..; pwd)
 
 # CGO environment for building
-HAL_GO_CGO_CFLAGS := -I$(TOP)/src -I$(TOP)/src/hal -I$(TOP)/src/rtapi -I$(TOP)/include -DULAPI
+HAL_GO_CGO_CFLAGS := -I$(TOP)/src -I$(TOP)/src/hal -I$(TOP)/src/rtapi -I$(TOP)/include
 HAL_GO_CGO_LDFLAGS := -L$(TOP)/lib -llinuxcnchal
 
 # Build the passthrough example
@@ -51,15 +56,7 @@ HAL_GO_EXAMPLES := ../bin/passthrough ../bin/str-sender ../bin/str-receiver
 	$(GO) build -o $(TOP)/bin/str-receiver .
 
 # Copy hal-go package files for RIP builds
-HAL_GO_SHARE_FILES := \
-	../share/linuxcnc/hal-go/hal.go \
-	../share/linuxcnc/hal-go/component.go \
-	../share/linuxcnc/hal-go/pin.go \
-	../share/linuxcnc/hal-go/types.go \
-	../share/linuxcnc/hal-go/errors.go \
-	../share/linuxcnc/hal-go/cgo.go \
-	../share/linuxcnc/hal-go/command.go \
-	../share/linuxcnc/hal-go/doc.go \
+HAL_GO_SHARE_FILES := $(addprefix ../share/linuxcnc/hal-go/, $(HAL_GO_INSTALL_FILES)) \
 	../share/linuxcnc/hal-go/go.mod
 
 ../share/linuxcnc/hal-go/%.go: $(HAL_GO_DIR)/%.go
@@ -113,15 +110,9 @@ hal-go-install: $(HAL_GO_EXAMPLES) $(HAL_GO_SHARE_FILES) $(HAL_GO_TEMPLATE_FILES
 	$(FILE) $(HAL_GO_EXAMPLES) $(DESTDIR)$(EMC2_HOME)/bin/
 	# Install hal-go package for external component development
 	$(DIR) $(DESTDIR)$(datadir)/linuxcnc/hal-go
-	$(FILE) ../share/linuxcnc/hal-go/hal.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
-	$(FILE) ../share/linuxcnc/hal-go/component.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
-	$(FILE) ../share/linuxcnc/hal-go/pin.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
-	$(FILE) ../share/linuxcnc/hal-go/types.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
-	$(FILE) ../share/linuxcnc/hal-go/errors.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
-	$(FILE) ../share/linuxcnc/hal-go/cgo.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
-	$(FILE) ../share/linuxcnc/hal-go/command.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
-	$(FILE) ../share/linuxcnc/hal-go/doc.go $(DESTDIR)$(datadir)/linuxcnc/hal-go/
-	$(FILE) ../share/linuxcnc/hal-go/go.mod $(DESTDIR)$(datadir)/linuxcnc/hal-go/
+	$(Q)for f in $(HAL_GO_INSTALL_FILES) go.mod; do \
+		$(INSTALL) -m 0644 ../share/linuxcnc/hal-go/$$f $(DESTDIR)$(datadir)/linuxcnc/hal-go/; \
+	done
 	# Install template for external component development
 	$(DIR) $(DESTDIR)$(datadir)/linuxcnc/hal-go-template
 	$(FILE) ../share/linuxcnc/hal-go-template/README.md $(DESTDIR)$(datadir)/linuxcnc/hal-go-template/

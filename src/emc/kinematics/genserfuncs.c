@@ -39,10 +39,7 @@
 #include "genserkins.h" /* these decls */
 #include "kinematics.h"
 #include "hal.h"
-
-#ifdef RTAPI
 #include "rtapi.h"
-#endif
 
 static struct haldata {
     hal_u32_t     *max_iterations;
@@ -430,14 +427,12 @@ int genserKinematicsInverse(const EmcPose * world,
     // rtapi_print("kineInverse(world: %f %f %f %f %f %f)\n",
     //      world->tran.x, world->tran.y, world->tran.z, world->a, world->b, world->c);
 
-#ifndef ULAPI
     genser_kin_init();
     if (!genser_hal_inited) {
         rtapi_print_msg(RTAPI_MSG_ERR,
              "genserKinematicsInverse: not initialized\n");
         return -1;
     }
-#endif
 
     // FIXME-AJ: rpy or zyx ?
     rpy.y = world->c * PM_PI / 180;

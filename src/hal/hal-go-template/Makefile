@@ -7,7 +7,7 @@ COMPONENT := mycomponent
 ifdef EMC2_HOME
     # RIP (Run-In-Place) environment
     HAL_GO_DIR := $(EMC2_HOME)/share/linuxcnc/hal-go
-    CGO_CFLAGS := -I$(EMC2_HOME)/include -I$(EMC2_HOME)/src/hal -I$(EMC2_HOME)/src/rtapi -DULAPI
+    CGO_CFLAGS := -I$(EMC2_HOME)/include -I$(EMC2_HOME)/src/hal -I$(EMC2_HOME)/src/rtapi
     CGO_LDFLAGS := -L$(EMC2_HOME)/lib -Wl,-rpath,$(EMC2_HOME)/lib -llinuxcnchal
 else
     # Installed LinuxCNC - check standard locations
@@ -19,7 +19,7 @@ else
         else \
             echo ""; \
         fi)
-    CGO_CFLAGS := -I/usr/include/linuxcnc -DULAPI
+    CGO_CFLAGS := -I/usr/include/linuxcnc
     CGO_LDFLAGS := -L/usr/lib/linuxcnc -Wl,-rpath,/usr/lib/linuxcnc -llinuxcnchal
 endif
 

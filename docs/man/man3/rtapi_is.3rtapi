@@ -36,9 +36,8 @@ run in userspace (e.g., under uspace).
 
 \fBrtapi_is_realtime()\fR returns nonzero when capable of running with realtime
 guarantees. For uspace, this returns nonzero when the running kernel indicates it is capable of
-realtime performance.  If \fBrtapi_app\fR is not setuid root, this returns nonzero
-even though \fBrtapi_app\fR will not be able to obtain realtime scheduling or
-hardware access, so e.g., attempting to \fBloadrt\fR a hardware driver will fail.
+realtime performance.  The launcher binary requires appropriate Linux capabilities
+(set via \fBsetcap\fR) for realtime scheduling and hardware access.
 
 .SH REALTIME CONSIDERATIONS
 May be called from non-realtime or from realtime setup code.

@@ -30,8 +30,8 @@
 #include <spawn.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 
-#include <rtapi_slab.h>
 #include <rtapi_ctype.h>
 #include <rtapi_list.h>
 #include <rtapi_math64.h>
@@ -61,7 +61,7 @@ static int *kvlist_lookup(struct rtapi_list_head *head, const char *name) {
         struct kvlist *ent = rtapi_list_entry(ptr, struct kvlist, list);
         if(strncmp(name, ent->key, sizeof(ent->key)) == 0) return &ent->value;
     }
-    struct kvlist *ent = rtapi_kzalloc(sizeof(struct kvlist), RTAPI_GPF_KERNEL);
+    struct kvlist *ent = rtapi_calloc(sizeof(struct kvlist));
     strncpy(ent->key, name, sizeof(ent->key));
     rtapi_list_add(&ent->list, head);
     return &ent->value;
@@ -74,16 +74,14 @@ static void kvlist_free(struct rtapi_list_head *head) {
         head = head->next;
         struct kvlist *ent = rtapi_list_entry(ptr, struct kvlist, list);
         rtapi_list_del(ptr);
-        rtapi_kfree(ent);
+        rtapi_free(ent);
     }
 }
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Geszkiewicz");
 MODULE_DESCRIPTION("Driver for HostMot2 on the 7i80 Anything I/O board from Mesa Electronics");
-#ifdef MODULE_SUPPORTED_DEVICE
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-7i80");
-#endif
 
 static char *board_ip[MAX_ETH_BOARDS];
 RTAPI_MP_ARRAY_STRING(board_ip, MAX_ETH_BOARDS, "ip address of ethernet board(s)");

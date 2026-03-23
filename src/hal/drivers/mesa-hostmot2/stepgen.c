@@ -17,7 +17,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -813,35 +812,35 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
         }
     }
  
-    hm2->stepgen.mode_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->stepgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->stepgen.mode_reg = (rtapi_u32 *)rtapi_malloc(hm2->stepgen.num_instances * sizeof(rtapi_u32));
     if (hm2->stepgen.mode_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
 
-    hm2->stepgen.dir_setup_time_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->stepgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->stepgen.dir_setup_time_reg = (rtapi_u32 *)rtapi_malloc(hm2->stepgen.num_instances * sizeof(rtapi_u32));
     if (hm2->stepgen.dir_setup_time_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail1;
     }
 
-    hm2->stepgen.dir_hold_time_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->stepgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->stepgen.dir_hold_time_reg = (rtapi_u32 *)rtapi_malloc(hm2->stepgen.num_instances * sizeof(rtapi_u32));
     if (hm2->stepgen.dir_hold_time_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail2;
     }
 
-    hm2->stepgen.pulse_width_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->stepgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->stepgen.pulse_width_reg = (rtapi_u32 *)rtapi_malloc(hm2->stepgen.num_instances * sizeof(rtapi_u32));
     if (hm2->stepgen.pulse_width_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail3;
     }
 
-    hm2->stepgen.pulse_idle_width_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->stepgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->stepgen.pulse_idle_width_reg = (rtapi_u32 *)rtapi_malloc(hm2->stepgen.num_instances * sizeof(rtapi_u32));
     if (hm2->stepgen.pulse_idle_width_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -1196,19 +1195,19 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 fail5:
-    rtapi_kfree(hm2->stepgen.pulse_idle_width_reg);
+    rtapi_free(hm2->stepgen.pulse_idle_width_reg);
 
 fail4:
-    rtapi_kfree(hm2->stepgen.pulse_width_reg);
+    rtapi_free(hm2->stepgen.pulse_width_reg);
 
 fail3:
-    rtapi_kfree(hm2->stepgen.dir_hold_time_reg);
+    rtapi_free(hm2->stepgen.dir_hold_time_reg);
 
 fail2:
-    rtapi_kfree(hm2->stepgen.dir_setup_time_reg);
+    rtapi_free(hm2->stepgen.dir_setup_time_reg);
 
 fail1:
-    rtapi_kfree(hm2->stepgen.mode_reg);
+    rtapi_free(hm2->stepgen.mode_reg);
 
 fail0:
     hm2->stepgen.num_instances = 0;

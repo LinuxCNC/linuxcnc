@@ -59,13 +59,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#if ( !defined RTAPI ) && ( !defined ULAPI )
-#error "Please define either RTAPI or ULAPI!"
-#endif
-#if ( defined RTAPI ) && ( defined ULAPI )
-#error "Can't define both RTAPI and ULAPI!"
-#endif
-
 #include <stddef.h> // provides NULL
 
 
@@ -190,10 +183,8 @@ RTAPI_BEGIN_DECLS
     with rtapi_print_msg().
 */
     typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt, va_list ap);
-#ifdef RTAPI
     extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
     extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
-#endif
 
 /***********************************************************************
 *                      TIME RELATED FUNCTIONS                          *
@@ -202,7 +193,6 @@ RTAPI_BEGIN_DECLS
 /** NOTE: These timing related functions are only available in
     realtime modules.  User processes may not call them!
 */
-#ifdef RTAPI
 
 /** 'rtapi_clock_set_period() sets the basic time interval for realtime
     tasks.  All periodic tasks will run at an integer multiple of this
@@ -222,7 +212,6 @@ RTAPI_BEGIN_DECLS
     available from user (non-realtime) code.
 */
     extern long int rtapi_clock_set_period(long int nsecs);
-#endif /* RTAPI */
 
 /** rtapi_delay() is a simple delay.  It is intended only for short
     delays, since it simply loops, wasting CPU cycles.  'nsec' is the
@@ -300,7 +289,6 @@ RTAPI_BEGIN_DECLS
 /** NOTE: These realtime task related functions are only available in
     realtime modules.  User processes may not call them!
 */
-#ifdef RTAPI
 
 /** NOTE: The RTAPI is designed to be a _simple_ API.  As such, it uses
     a very simple strategy to deal with SMP systems.  It ignores them!
@@ -419,8 +407,6 @@ RTAPI_BEGIN_DECLS
 */
     extern int rtapi_task_self(void);
 
-#if defined(RTAPI_USPACE) || defined(USPACE)
-
 #define RTAPI_TASK_PLL_SUPPORT
 
 /** 'rtapi_task_pll_get_reference()' gets the reference timestamp
@@ -437,9 +423,6 @@ RTAPI_BEGIN_DECLS
     platforms that do not support this.
 */
     extern int rtapi_task_pll_set_correction(long value);
-#endif /* USPACE */
-
-#endif /* RTAPI */
 
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *
@@ -484,7 +467,6 @@ RTAPI_BEGIN_DECLS
     realtime modules.  User processes may not call them!  Consider
     the mutex functions listed above instead.
 */
-#ifdef RTAPI
 
 /** 'rtapi_sem_new()' creates a realtime semaphore.  'key' identifies
     identifies the semaphore, and must be non-zero.  All modules wishing
@@ -528,8 +510,6 @@ RTAPI_BEGIN_DECLS
     a realtime task.
 */
     extern int rtapi_sem_try(int sem_id);
-
-#endif /* RTAPI */
 
 /***********************************************************************
 *                        FIFO RELATED FUNCTIONS                        *
@@ -579,7 +559,6 @@ RTAPI_BEGIN_DECLS
     functions, but for now, just read the following docs carefully!
 */
 
-#ifdef RTAPI
 /** 'rtapi_fifo_read()' reads data from 'fifo_id'.  'buf' is a buffer
     for the data, and 'size' is the maximum number of bytes to read.
     Returns the number of bytes actually read, or -EINVAL.  Does not
@@ -587,7 +566,7 @@ RTAPI_BEGIN_DECLS
     available, and return that count (which could be zero).  Call only
     from within a realtime task.
 */
-#else /* ULAPI */
+
 /** 'rtapi_fifo_read()' reads data from 'fifo_id'.  'buf' is a buffer
     for the data, and 'size' is the maximum number of bytes to read.
     Returns the number of bytes actually read, or -EINVAL.  If
@@ -597,19 +576,17 @@ RTAPI_BEGIN_DECLS
     greater than zero).  If interrupted by a signal or some other
     error occurs, will return -EINVAL.
 */
-#endif /* ULAPI */
 
     extern int rtapi_fifo_read(int fifo_id, char *buf,
 	unsigned long int size);
 
-#ifdef RTAPI
 /** 'rtapi_fifo_write()' writes data to 'fifo_id'. Up to 'size' bytes
     are taken from the buffer at 'buf'.  Returns the number of bytes
     actually written, or -EINVAL.  Does not block.  If 'size' bytes
     of space are not available in the fifo, it will write as many bytes
     as it can and return that count (which may be zero).
 */
-#else /* ULAPI */
+
 /** 'rtapi_fifo_write()' writes data to 'fifo_id'. Up to 'size' bytes
     are taken from the buffer at 'buf'.  Returns the number of bytes
     actually written, or -EINVAL.  If 'size' bytes of space are
@@ -617,7 +594,6 @@ RTAPI_BEGIN_DECLS
     may write as many bytes as it can and return that count (which
     may be zero).
 */
-#endif /* ULAPI */
 
     extern int rtapi_fifo_write(int fifo_id, char *buf,
 	unsigned long int size);
@@ -629,7 +605,6 @@ RTAPI_BEGIN_DECLS
 /** NOTE: These interrupt related functions are only available in
     realtime modules.  User processes may not call them!
 */
-#ifdef RTAPI
 
 /** 'rtapi_assign_interrupt_handler()' is used to set up a handler for
     a hardware interrupt.  'irq' is the interrupt number, and 'handler'
@@ -660,8 +635,6 @@ RTAPI_BEGIN_DECLS
     extern int rtapi_enable_interrupt(unsigned int irq);
     extern int rtapi_disable_interrupt(unsigned int irq);
 
-#endif /* RTAPI */
-
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *
 ************************************************************************/
@@ -680,42 +653,12 @@ RTAPI_BEGIN_DECLS
 */
     extern unsigned char rtapi_inb(unsigned int port);
 
-#if defined(__KERNEL__)
-/** 'rtapi_request_region() reserves I/O memory starting at 'base',
-    going for 'size' bytes, for component 'name'.
-
-    Note that on kernels before 2.4.0, this function always succeeds.
-
-    If the allocation fails, this function returns NULL.  Otherwise, it returns
-    a non-NULL value.
-*/
-#include <linux/version.h>
-#include <linux/ioport.h>
-
-    static __inline__ void *rtapi_request_region(unsigned long base,
-            unsigned long size, const char *name) {
-        return (void*)request_region(base, size, name);
-    }
-
-/** 'rtapi_release_region() releases I/O memory reserved by 
-    'rtapi_request_region', starting at 'base' and going for 'size' bytes.
-    'base' and 'size' must exactly match an earlier successful call to
-    rtapi_request_region or the result is undefined.
-*/
-    static __inline__ void rtapi_release_region(unsigned long base,
-            unsigned long int size) {
-        release_region(base, size);
-    }
-#else
-    #define rtapi_request_region(base, size, name) ((void*)-1)
-    #define rtapi_release_region(base, size) ((void)0)
-#endif
+#define rtapi_request_region(base, size, name) ((void*)-1)
+#define rtapi_release_region(base, size) ((void)0)
 
 /***********************************************************************
 *                      MODULE PARAMETER MACROS                         *
 ************************************************************************/
-
-#ifdef RTAPI
 
 /* The API for module parameters has changed as the kernel evolved,
    and will probably change again.  We define our own macro for
@@ -735,41 +678,35 @@ RTAPI_BEGIN_DECLS
     'num' is the number of elements in an array.
 */
 
-#if !defined(__KERNEL__)
-#define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
-#define MODULE_INFO2x(t, a, b, c) MODULE_INFO2(t,a,b,c)
-#define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a##_##b = c; EXPORT_SYMBOL(rtapi_info_##a##_##b);
-#define MODULE_PARM(v,t) MODULE_INFO2(const char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
-#define MODULE_PARM_DESC(v,t) MODULE_INFO2(const char*, description, v, t)
-#define MODULE_LICENSE(s) MODULE_INFO1(const char*, license, s)
-#define MODULE_AUTHOR(s) MODULE_INFO1(const char*, author, s)
-#define MODULE_DESCRIPTION(s) MODULE_INFO1(const char*, description, s)
-#define MODULE_SUPPORTED_DEVICE(s) MODULE_INFO1(const char*, supported_device, s)
-#define MODULE_DEVICE_TABLE(x,y) MODULE_INFO2(struct rtapi_pci_device_id*, device_table, x, y)
-#define MODULE_INFO(x,y) MODULE_INFO2x(char*, x, __LINE__, y)
+/* --- MODULE_INFO / EXPORT infrastructure --- */
+
 #define EXPORT_SYMBOL(x) __attribute__((section(".rtapi_export"))) \
     char rtapi_exported_##x[] = #x;
+
 #define EXPORT_SYMBOL_GPL(x) __attribute__((section(".rtapi_export"))) \
     char rtapi_exported_##x[] = #x;
-#else
-#ifndef LINUX_VERSION_CODE
-#include <linux/version.h>
-#endif
-#endif
-#ifndef KERNEL_VERSION
-#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
-#endif
 
-#ifndef LINUX_VERSION_CODE
-#define LINUX_VERSION_CODE 0
-#endif
+#define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
+    t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
 
-#if !defined(__KERNEL__)
-#define RTAPI_STRINGIFY(x)    #x
+#define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
+    t rtapi_info_##a##_##b = c; EXPORT_SYMBOL(rtapi_info_##a##_##b);
 
-   
+#define MODULE_INFO2x(t, a, b, c) MODULE_INFO2(t,a,b,c)
+
+#define MODULE_PARM(v,t)             MODULE_INFO2(const char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
+#define MODULE_PARM_DESC(v,t)        MODULE_INFO2(const char*, description, v, t)
+#define MODULE_LICENSE(s)            MODULE_INFO1(const char*, license, s)
+#define MODULE_AUTHOR(s)             MODULE_INFO1(const char*, author, s)
+#define MODULE_DESCRIPTION(s)        MODULE_INFO1(const char*, description, s)
+#define MODULE_SUPPORTED_DEVICE(s)   MODULE_INFO1(const char*, supported_device, s)
+#define MODULE_DEVICE_TABLE(x,y)     MODULE_INFO2(struct rtapi_pci_device_id*, device_table, x, y)
+#define MODULE_INFO(x,y)             MODULE_INFO2x(char*, x, __LINE__, y)
+
+/* --- RTAPI_MP_* parameter macros --- */
+
+#define RTAPI_STRINGIFY(x) #x
+
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
   MODULE_PARM_DESC(var,descr);
@@ -795,43 +732,6 @@ RTAPI_BEGIN_DECLS
 
 #define RTAPI_MP_ARRAY_STRING(var,num,descr)       \
   RTAPI_MP_ARRAY("s", var, num, descr);
-
-#else /* kernel */
-
-#include <linux/module.h>
-
-#define RTAPI_MP_INT(var,descr)    \
-  module_param(var, int, 0);       \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_LONG(var,descr)   \
-  module_param(var, long, 0);      \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_STRING(var,descr) \
-  module_param(var, charp, 0);     \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_ARRAY_INT(var,num,descr)                \
-  int __dummy_##var;                                     \
-  module_param_array(var, int, &(__dummy_##var), 0);     \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_ARRAY_LONG(var,num,descr)               \
-  int __dummy_##var;                                     \
-  module_param_array(var, long, &(__dummy_##var), 0);    \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_ARRAY_STRING(var,num,descr)             \
-  int __dummy_##var;                                     \
-  module_param_array(var, charp, &(__dummy_##var), 0);  \
-  MODULE_PARM_DESC(var,descr);
-
-#endif
-
-#endif /* RTAPI */
-
-#if !defined(__KERNEL__)
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 
 #include <spawn.h>
@@ -845,12 +745,36 @@ int rtapi_spawnp_as_root(pid_t *pid, const char *path,
     const posix_spawn_file_actions_t *file_actions,
     const posix_spawnattr_t *attrp,
     char *const argv[], char *const envp[]);
-#endif
 
 extern int rtapi_is_kernelspace(void);
 extern int rtapi_is_realtime(void);
 
 int rtapi_open_as_root(const char *filename, int mode);
+
+
+void rtapi_set_namef(const char *fmt, ...);
+
+/** 'rtapi_malloc()' allocates 'size' bytes of memory suitable for
+    realtime use: all pages are pre-faulted and locked into physical RAM
+    via mlock() so they will never be swapped out.  Returns a pointer to
+    the allocated memory on success, or NULL on failure.
+*/
+extern void *rtapi_malloc(size_t size);
+extern void *rtapi_calloc(size_t size);
+extern void *rtapi_realloc(void *ptr, size_t size);
+
+/** 'rtapi_free()' releases memory previously allocated by rtapi_malloc().
+    call.  The pages are unlocked (munlock()) before the memory is freed.
+*/
+extern void rtapi_free(void *p);
+
+extern int rtapi_lock_mem(void *p, size_t size, int prefault_rw);
+extern void rtapi_unlock_mem(void *p, size_t size);
+
+extern void *rtapi_dlopen(const char *path, int flags);
+extern int rtapi_dlclose(void *handle);
+
+extern void rtapi_initialize_app(void);
 
 RTAPI_END_DECLS
 

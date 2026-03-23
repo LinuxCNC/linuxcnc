@@ -26,20 +26,15 @@
 // this adaptation was started Jan 2008 by Chis Morley
 // see EMC_readme for more info
 
-#ifndef MODULE
 #include <stdio.h>
 #include <stdlib.h>
-#endif
 
 //for emc next 2 lines
 #include "rtapi.h"
 #include "rtapi_string.h"
-//#include <linux/string.h>
 
 #include "classicladder.h"
-#ifndef RTAPI //for EMC :realtime has no directory access
-#include "files.h" 
-#endif
+#include "files.h"
 #include "calc.h"
 #include "vars_access.h"
 #include "vars_names.h"
@@ -151,120 +146,100 @@ void InitInfosGene( void )
 }
 
 
-// Classicladder_allocAll() is used by realtime module and userspace program
-// the RTAPI define is used to select which allocation is done
-//           ***REALTIME***
-// -module_hal.c copies any changes to the number of elements into GeneralParamsMirror structure
-// then calls Classicladder_Alloc() , which uses that info to calculate how much shared memory to reserve 
-// -register the realtime side of shared memory
-// -copies GeneralPararsmirror into GeneralParams now that the number of elements are set
-// -set each element pointer to it's realtime shared memory address
-// -Initialize realtime Infosgene and returns
-//          ***USERSPACE***
-// -regester user space side of shared memory
-// -check that realtime shared memory has been done 
-// -set each element pointer to it's user space shared memory address
-// -Initialize user space Infosgene and return
+// ClassicLadder_AllocAll() is used by realtime module and userspace program.
+// When is_creator is true (RT module), it calculates shmem size, creates the
+// shared memory region, and initializes it.
+// When is_creator is false (userspace GUI), it attaches to the existing shared
+// memory created by the RT module.
 
-int ClassicLadder_AllocAll()
+int ClassicLadder_AllocAll(int is_creator)
 {
    	 unsigned char *pByte; 
    	 unsigned long bytes = sizeof(StrInfosGene) + sizeof(long);
    	 unsigned long *shmBase;
  	 plc_sizeinfo_s *pSizesInfos;
 
-#ifdef RTAPI // for realtime
-    int numBits, numWords, numFloats;
-    pSizesInfos = &GeneralParamsMirror.SizesInfos;
-    // Calculate SHMEM size.
-    numBits = pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs + pSizesInfos->nbr_error_bits;
-    numWords = pSizesInfos->nbr_words+pSizesInfos->nbr_phys_words_inputs+pSizesInfos->nbr_phys_words_outputs;
-    numFloats = pSizesInfos->nbr_phys_float_inputs+pSizesInfos->nbr_phys_float_outputs;
+    if (is_creator) {
+        // RT module: calculate shmem size and create it
+        int numBits, numWords, numFloats;
+        pSizesInfos = &GeneralParamsMirror.SizesInfos;
+        numBits = pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs + pSizesInfos->nbr_error_bits;
+        numWords = pSizesInfos->nbr_words+pSizesInfos->nbr_phys_words_inputs+pSizesInfos->nbr_phys_words_outputs;
+        numFloats = pSizesInfos->nbr_phys_float_inputs+pSizesInfos->nbr_phys_float_outputs;
 #ifdef SEQUENTIAL_SUPPORT
-    numBits += NBR_STEPS;
-    numWords += NBR_STEPS;
+        numBits += NBR_STEPS;
+        numWords += NBR_STEPS;
 #endif
-    bytes += pSizesInfos->nbr_rungs * sizeof(StrRung);
-    bytes += pSizesInfos->nbr_timers * sizeof(StrTimer);
-    bytes += pSizesInfos->nbr_monostables * sizeof(StrMonostable);
-    bytes += pSizesInfos->nbr_counters * sizeof(StrCounter);
-    bytes += pSizesInfos->nbr_timers_iec * sizeof(StrTimerIEC);
-    bytes += pSizesInfos->nbr_arithm_expr * sizeof(StrArithmExpr);
-    bytes += pSizesInfos->nbr_sections * sizeof(StrSection);
-    bytes += pSizesInfos->nbr_symbols * sizeof(StrSymbol);
-    
+        bytes += pSizesInfos->nbr_rungs * sizeof(StrRung);
+        bytes += pSizesInfos->nbr_timers * sizeof(StrTimer);
+        bytes += pSizesInfos->nbr_monostables * sizeof(StrMonostable);
+        bytes += pSizesInfos->nbr_counters * sizeof(StrCounter);
+        bytes += pSizesInfos->nbr_timers_iec * sizeof(StrTimerIEC);
+        bytes += pSizesInfos->nbr_arithm_expr * sizeof(StrArithmExpr);
+        bytes += pSizesInfos->nbr_sections * sizeof(StrSection);
+        bytes += pSizesInfos->nbr_symbols * sizeof(StrSymbol);
 #ifdef SEQUENTIAL_SUPPORT
-    bytes += sizeof(StrSequential);
+        bytes += sizeof(StrSequential);
 #endif
-    bytes += numWords * sizeof(int);
-    bytes += numFloats * sizeof(double);
-    bytes += numBits * sizeof(TYPE_FOR_BOOL_VAR);
-    
-    // Attach SHMEM with proper size.
-    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) 
-              {
-                rtapi_print_msg(RTAPI_MSG_DBG,"Failed to alloc shared memory (%x %d %lu) !\n",CL_SHMEM_KEY, compId, bytes);
-               return FALSE;
-              }
-    rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",CL_SHMEM_KEY, compId, bytes);
-    // Map SHMEM (shared memory).
-    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) 
-              {
-  	       rtapi_print("Failed to map shared memory !\n");
-  	       return FALSE;
-              }
-	
-     shmBase[0] = CL_SHMEM_KEY;
-     shmBase[1] = bytes;
-     InfosGene = (StrInfosGene*)(shmBase+1);
-     InfosGene->GeneralParams.SizesInfos = *pSizesInfos;
-     memcpy( &InfosGene->GeneralParams, &GeneralParamsMirror, sizeof( StrGeneralParams ) );
-     rtapi_print_msg(RTAPI_MSG_INFO,"INFO----REALTIME allocations for classicladder:\n");
-#endif //end of realtime code
+        bytes += numWords * sizeof(int);
+        bytes += numFloats * sizeof(double);
+        bytes += numBits * sizeof(TYPE_FOR_BOOL_VAR);
 
-#ifndef RTAPI// for user space
+        if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0)
+        {
+            rtapi_print_msg(RTAPI_MSG_DBG,"Failed to alloc shared memory (%x %d %lu) !\n",CL_SHMEM_KEY, compId, bytes);
+            return FALSE;
+        }
+        rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",CL_SHMEM_KEY, compId, bytes);
+        if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0)
+        {
+            rtapi_print("Failed to map shared memory !\n");
+            return FALSE;
+        }
 
-	
-    // Attach SHMEM with proper size.
-    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0)
-              {
-               rtapi_print("Failed to alloc shared memory (%x %d %lu) !\n",
-               CL_SHMEM_KEY, compId, bytes);
-               return FALSE;
-              }
-     rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",
-     CL_SHMEM_KEY, compId, bytes);
-    // Map SHMEM.
-    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) 
-          {
-           rtapi_print("Failed to map shared memory !\n");
-           return FALSE;
-          }
+        shmBase[0] = CL_SHMEM_KEY;
+        shmBase[1] = bytes;
+        InfosGene = (StrInfosGene*)(shmBase+1);
+        InfosGene->GeneralParams.SizesInfos = *pSizesInfos;
+        memcpy( &InfosGene->GeneralParams, &GeneralParamsMirror, sizeof( StrGeneralParams ) );
+        rtapi_print_msg(RTAPI_MSG_INFO,"INFO----REALTIME allocations for classicladder:\n");
+    } else {
+        // Userspace GUI: attach to existing shmem created by RT module
+        if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0)
+        {
+            rtapi_print("Failed to alloc shared memory (%x %d %lu) !\n",
+                CL_SHMEM_KEY, compId, bytes);
+            return FALSE;
+        }
+        rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",
+            CL_SHMEM_KEY, compId, bytes);
+        if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0)
+        {
+            rtapi_print("Failed to map shared memory !\n");
+            return FALSE;
+        }
 
-    // Check signature written by RT module to make sure we have the
-    // right region and RT module is loaded.
-    rtapi_print_msg(RTAPI_MSG_INFO,"INFO----USERSPACE allocations for classicladder\n");
-    if (shmBase[0] != CL_SHMEM_KEY) 
-          {
-           rtapi_print("Shared memory conflict or RT component not loaded!\n");
-           return FALSE;
-          }
-     bytes = shmBase[1];   
-     InfosGene = (StrInfosGene*)(shmBase+1);
-     pSizesInfos = &(InfosGene->GeneralParams.SizesInfos);
+        rtapi_print_msg(RTAPI_MSG_INFO,"INFO----USERSPACE allocations for classicladder\n");
+        if (shmBase[0] != CL_SHMEM_KEY)
+        {
+            rtapi_print("Shared memory conflict or RT component not loaded!\n");
+            return FALSE;
+        }
+        bytes = shmBase[1];
+        InfosGene = (StrInfosGene*)(shmBase+1);
+        pSizesInfos = &(InfosGene->GeneralParams.SizesInfos);
 
-        // copy generalparams to gen paramsMirror so Config window displays properly
-	memcpy(  &GeneralParamsMirror,&InfosGene->GeneralParams, sizeof( StrGeneralParams ) );
-  	UpdateSizesOfConvVarNameTable();
+        memcpy( &GeneralParamsMirror,&InfosGene->GeneralParams, sizeof( StrGeneralParams ) );
+        UpdateSizesOfConvVarNameTable();
 #ifdef GTK_INTERFACE
-	EditArithmExpr = (StrArithmExpr *)malloc(  pSizesInfos->nbr_arithm_expr * sizeof(StrArithmExpr) );
-	if (!EditArithmExpr)
-	{
-		rtapi_print("Failed to alloc EditArithmExpr !\n");
-		return FALSE;
-	}
+        EditArithmExpr = (StrArithmExpr *)malloc( pSizesInfos->nbr_arithm_expr * sizeof(StrArithmExpr) );
+        if (!EditArithmExpr)
+        {
+            rtapi_print("Failed to alloc EditArithmExpr !\n");
+            return FALSE;
+        }
 #endif
-#endif
+    }
 
 // the rest is for both realtime and userspace program
 
@@ -326,10 +301,8 @@ void ClassicLadder_FreeAll(char CleanAndRemoveTmpDir)
 	if (EditArithmExpr)
 		free(EditArithmExpr);
 #endif
-#ifndef RTAPI // there is no directory in realtime!
 if ( CleanAndRemoveTmpDir )
 		CleanTmpLadderDirectory( TRUE/*RemoveTmpDirAtEnd*/ );
-#endif
 #ifdef HAL_SUPPORT
 	rtapi_shmem_delete(ShmemId,compId);
 #endif	

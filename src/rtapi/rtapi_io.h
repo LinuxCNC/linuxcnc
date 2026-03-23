@@ -18,9 +18,7 @@
 
 #include <rtapi.h>
 
-#ifdef __KERNEL__
-#include <asm/io.h>
-#elif defined(__i386) || defined(__x86_64)
+#if defined(__i386) || defined(__x86_64)
 #include <sys/io.h>
 #endif
 

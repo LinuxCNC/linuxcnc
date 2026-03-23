@@ -250,7 +250,6 @@ RTPREFIX=uspace
 RTDIR=$(pwd -P)
 ULAPI_CFLAGS=""
 RTFLAGS="-DUSPACE"
-BUILD_SYS=uspace
 MODEXT=.so
 MODULE_DIR=${prefix}/lib/linuxcnc/modules
 ULAPI_LDFLAGS=""
@@ -441,68 +440,8 @@ PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 3.0.0],
 # compiled against.                                                          #
 ##############################################################################
 
-if test $RTS '!=' uspace; then
-AC_MSG_CHECKING([for kernel version string])
-
-if test -e $KERNELDIR/include/linux/utsrelease.h; then
-    VERSION_FILE=$KERNELDIR/include/linux/utsrelease.h
-elif test -e $KERNELDIR/include/generated/utsrelease.h; then
-    VERSION_FILE=$KERNELDIR/include/generated/utsrelease.h
-else
-    VERSION_FILE=$KERNELDIR/include/linux/version.h
-fi
-KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -s -d '"' -f 2`
-
-if test -z "$KERNEL_VERS"; then
-    AC_MSG_ERROR(Kernel version string not found)
-fi
-
-AC_MSG_RESULT([$KERNEL_VERS])
-AC_SUBST([KERNEL_VERS])
-AC_DEFINE_UNQUOTED([RTAPI_KERNEL_VERSION], "$KERNEL_VERS", [Required kernel version])
-
-# Do a quick test for module extension..
-AC_MSG_CHECKING([for kernel module extension])
-MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
-if test "x" = "x$MODEXT"; then
-    MODEXT=".o"
-fi
-AC_MSG_RESULT([$MODEXT])
-
-# This check should see if kbuild is or isn't used
-AC_MSG_CHECKING([kernel build system])
-# FIXME FIXME FIXME
-# right now it will assume based on the kernel module extension
-EXT_RTFLAGS=""
-BUILD_SYS="normal"
-
-if test "x$MODEXT" = "x.ko" ; then
-    BUILD_SYS="kbuild"
-else
-    EXT_RTFLAGS="-DEXPORT_SYMTAB"
-fi
-
-AC_ARG_WITH(kbuild,
-    AS_HELP_STRING(
-        [--with-kbuild],
-        [Specify if your kernel uses kbuild or not.]
-    ),
-    [
-        case "$withval" in
-        "" | y | ye | yes )
-	    BUILD_SYS="kbuild"
-          ;;
-        n | no )
-	    BUILD_SYS="normal"
-          ;;
-        esac
-    ])
-AC_MSG_RESULT([$BUILD_SYS])
-fi
 AC_SUBST([MODEXT])
 AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
-AC_SUBST([BUILD_SYS])
-AC_SUBST([EXT_RTFLAGS])
 
 ##############################################################################
 # Subsection 3.3 - check the moduledir where modules can get installed       #
@@ -600,7 +539,6 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
-    REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
     HALLIB_DIR=$EMC2_HOME/lib/hallib
 else
@@ -622,7 +560,6 @@ else
     esac
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
-    REALTIME=${prefix}/lib/linuxcnc/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
     HALLIB_DIR=${prefix}/share/linuxcnc/hallib
 fi
@@ -645,7 +582,6 @@ AC_SUBST([EMC2_RTLIB_DIR])
 AC_SUBST([EMC2_LANG_DIR])
 AC_SUBST([LINUXCNC_CONFIG_PATH])
 AC_SUBST([EMC2_NCFILES_DIR])
-AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
 AC_SUBST([EMC2_SCRIPT])
 AC_SUBST([EMC2_LATENCY_SCRIPT])
@@ -796,27 +732,6 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-if test "$RTS" != uspace; then
-    # Module utilities not needed for uspace
-    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-    if test $INSMOD = "none"
-    then
-        AC_MSG_ERROR([insmod not found])
-    fi
-
-    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-    if test $RMMOD = "none"
-    then
-        AC_MSG_ERROR([rmmod not found])
-    fi
-
-    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-    if test $LSMOD = "none"
-    then
-        AC_MSG_ERROR([lsmod not found])
-    fi
-fi
-
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
 if test $PIDOF = "none"
 then
@@ -850,48 +765,6 @@ if test $INTLTOOL_EXTRACT = "none"
 then
     AC_MSG_ERROR([intltool-extract not found])
 fi
-
-AC_ARG_WITH(rmmod,
-    AS_HELP_STRING(
-        [--with-rmmod=PATH],
-        [Location of the rmmod program to use.]
-    ),
-    [
-	case "$withval" in
-	"" | y | ye | yes)
-	    AC_MSG_ERROR([You must supply an argument to --with-rmmod.])
-	  ;;
-	n | no | none)
-	    RMMOD=""
-	  ;;
-	*)
-	    RMMOD="$withval"
-	esac
-    ],
-    [
-            RMMOD="$EMC2_BIN_DIR/linuxcnc_module_helper remove"
-    ])
-
-AC_ARG_WITH(insmod,
-    AS_HELP_STRING(
-        [--with-insmod=PATH],
-        [Location of the insmod program to use.]
-    ),
-    [
-	case "$withval" in
-	"" | y | ye | yes)
-	    AC_MSG_ERROR([You must supply an argument to --with-insmod.])
-	  ;;
-	n | no | none)
-	    INSMOD=""
-	  ;;
-	*)
-	    INSMOD="$withval"
-	esac
-    ],
-    [
-            INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
-    ])
 
 AC_PATH_PROGS(YAPPS, [yapps yapps2])
 if test -z "$YAPPS"; then
@@ -1643,11 +1516,8 @@ AC_SUBST([HAVE_GOLANG])
 AC_CONFIG_FILES([../scripts/rtapi.conf])
 AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/linuxcnc_info], [chmod +x ../scripts/linuxcnc_info])
-AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
-AC_CONFIG_FILES([../scripts/halcmd_twopass], [chmod +x ../scripts/halcmd_twopass])
-AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES([../scripts/runtests], [chmod +x ../scripts/runtests])
 AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
 AC_CONFIG_FILES([../scripts/linuxcnc-checklink], [chmod +x ../scripts/linuxcnc-checklink])
