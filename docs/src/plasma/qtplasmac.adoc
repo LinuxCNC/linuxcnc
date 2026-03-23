@@ -4240,9 +4240,9 @@ It will be referred to as `_xx` in this document, so `qtplasmac_xx.ts` in this d
 
 The default locale for QtPlasmaC is `_en` which means that any translation files created as `qtplasmac_en.*` will not be used for translations.
 
-If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install the required development tools:
+If any of the required utilities (pyuic6, pylupdate6, linguist) are not installed then the user will need to install the required development tools:
 ----
-sudo apt install qttools5-dev-tools pyqt5-dev-tools
+sudo apt install qt6-tools-dev-tools pyqt6-dev-tools
 ----
 
 Change to the languages directory:
@@ -4252,7 +4252,7 @@ cd ~/linuxcnc-dev/share/qtvcp/screens/qtplasmac/languages
 
 If any text changes have been made to the GUI then run the following to update the GUI Python file:
 ----
-pyuic5 ../qtplasmac.ui > qtplasmac.py
+pyuic6 ../qtplasmac.ui > qtplasmac.py
 ----
 
 The user can either create a new translation source file for a non-existing language translation
@@ -4265,7 +4265,7 @@ Create or edit a .ts file:
 ----
 
 [NOTE]
-this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtplasmac/*.py -ts qtplasmac_xx.ts
+this command is a script which runs the following: $ pylupdate6 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtplasmac/*.py -ts qtplasmac_xx.ts
 
 The editing of the translation is done with the linguist application:
 ----

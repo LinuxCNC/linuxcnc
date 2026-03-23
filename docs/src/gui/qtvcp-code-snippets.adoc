@@ -563,8 +563,8 @@ First we must import the libraries we need, if they're not already imported in t
 # **** IMPORT SECTION **** #
 ############################
 
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QColor
+from PyQt6 import QtWidgets
+from PyQt6.QtGui import QColor
 from qtvcp.widgets.state_led import StateLED as LED
 from qtvcp.core import Status, Info
 ----
@@ -675,7 +675,7 @@ def make_corner_widgets(self):
 *`self.PREFS_`*:: the _instance of an optional preference file_
 *`self.SETTINGS_`*:: the `Qsettings` _object_
 
-<5> Initializes a PyQt5 `QProgressBar`.
+<5> Initializes a PyQt6 `QProgressBar`.
 <6> Sets the max range of the progress bar to the max specified in the `INI`.
 <7> We create a QWidget +
     Since you can only add one widget to the tab corner and we want two there, we must add both into a *container*.

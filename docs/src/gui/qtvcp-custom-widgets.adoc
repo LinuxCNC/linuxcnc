@@ -101,7 +101,7 @@ This is where we import libraries that our widget class needs.
 ###############################
 # Imports
 ###############################
-from PyQt5 import QtWidgets                     # <1>
+from PyQt6 import QtWidgets                     # <1>
 from qtvcp.widgets.widget_baseclass \
     import _HalWidgetBase, _HalSensitiveBase    # <2>
 import hal                                      # <3>
@@ -171,7 +171,7 @@ This LED indicator widget will respond to selectable LinuxCNC controller states.
 ###############################
 # Imports
 ###############################
-from PyQt5.QtCore import pyqtProperty
+from PyQt6.QtCore import pyqtProperty
 from qtvcp.widgets.led_widget import LED
 from qtvcp.core import Status
 
@@ -252,7 +252,7 @@ This is where we import libraries that our widget class needs.
 ###############################
 # Imports
 ###############################
-from PyQt5.QtCore import pyqtProperty       # <1>
+from PyQt6.QtCore import pyqtProperty       # <1>
 from qtvcp.widgets.led_widget import LED    # <2>
 from qtvcp.core import Status               # <3>
 ----
@@ -457,9 +457,9 @@ It changes:
 import os
 import hal
 
-from PyQt5.QtWidgets import QWidget, QToolButton, QMenu, QAction
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt6.QtWidgets import QWidget, QToolButton, QMenu, QAction
+from PyQt6.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt6.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.dialog_widget import EntryDialog
@@ -659,8 +659,8 @@ Then `qtvcp/plugins/qtvcp_plugin.py` would need to be adjusted to _import_ them.
 ----
 #!/usr/bin/env python3
 
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt6 import QtCore, QtGui
+from PyQt6.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.simple_widgets import Lcnc_GridLayout
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
@@ -704,8 +704,8 @@ class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
 ----
 #!/usr/bin/env python3
 
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from PyQt6 import QtCore, QtGui
+from PyQt6.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.system_tool_button import SystemToolButton
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
@@ -756,8 +756,8 @@ This is the plugin used for _action buttons_.
 #!/usr/bin/env python3
 
 import sip
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, \
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtDesigner import QPyDesignerCustomWidgetPlugin, \
                 QPyDesignerTaskMenuExtension, QExtensionFactory, \
                 QDesignerFormWindowInterface, QPyDesignerMemberSheetExtension
 from qtvcp.widgets.action_button import ActionButton

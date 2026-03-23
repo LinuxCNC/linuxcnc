@@ -509,7 +509,7 @@ Here is a sample to change the circle color in cam_align: +
 import sys
 import os
 import importlib
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 from qtvcp.core import Path
 
 PATH = Path()

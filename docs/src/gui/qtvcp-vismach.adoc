@@ -585,7 +585,7 @@ part1 = Translate([dogs],-1,49,0)
 # create a top-level model
 model = Collection([base, saddle, head, carousel])
 
-# we want to either embed into qtvcp or display directly with PyQt5
+# we want to either embed into qtvcp or display directly with PyQt6
 # so build a window to display the model
 
 class Window(QWidget):
@@ -624,7 +624,7 @@ class Window(QWidget):
         mainLayout.addWidget(self.glWidget)
         self.setLayout(mainLayout)
 
-# if you call this file directly from python3, it will display a PyQt5 window
+# if you call this file directly from python3, it will display a PyQt6 window
 # good for confirming the parts of the assembly.
 
 if __name__ == '__main__':

@@ -92,7 +92,7 @@ for i in range(0,100):
 ----
 
 Here is a similar program but it actually could filter.
-It puts up a PyQt5 dialog with a cancel button.
+It puts up a PyQt6 dialog with a cancel button.
 Then it reads the program line by line and passes it to standard output.
 As it goes along, it updates any process listening to standard error output.
 
@@ -104,9 +104,9 @@ import sys
 import os
 import time
 
-from PyQt5.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
+from PyQt6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
                             QVBoxLayout,QDialogButtonBox)
-from PyQt5.QtCore import QTimer, Qt
+from PyQt6.QtCore import QTimer, Qt
 
 class CustomDialog(QDialog):
 

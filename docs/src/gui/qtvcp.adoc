@@ -57,7 +57,7 @@ Normally QtVCP uses the stock UI and handler file, but you can specify QtVCP to 
 A *'local' file* is one that is in the _configuration folder_ that defines the rest of the machine's requirements.
 
 One is not restricted to adding a custom panel on the right or a custom tab as QtVCP leverages _Qt Designer_ (the editor)
-and _PyQt5_ (the widget toolkit).
+and _PyQt6_ (the widget toolkit).
 
 QtVCP has some added *special LinuxCNC widgets and actions*. +
 There are special widgets to bridge third party widgets to HAL pins. +
@@ -65,9 +65,9 @@ It's possible to create widget responses by connecting signals to Python code in
 
 === QtVCP Widgets
 
-QtVCP uses the *PyQt5 toolkit's widgets* for LinuxCNC integration.
+QtVCP uses the *PyQt6 toolkit's widgets* for LinuxCNC integration.
 
-*Widget* is the _general name for user interface objects_ such as buttons and labels in PyQt5.
+*Widget* is the _general name for user interface objects_ such as buttons and labels in PyQt6.
 
 You are free to use any available *default widgets* in the Qt Designer editor.
 
@@ -145,7 +145,7 @@ If the update time is not set right the screen can become unresponsive or very j
 
 A Qt Designer file is a text file organized in the _XML_ standard that describes the *layout and widgets* of the screen.
 
-_PyQt5_ uses this file to build the display and react to those widgets.
+_PyQt6_ uses this file to build the display and react to those widgets.
 
 The Qt Designer editor makes it relatively easy to build and edit this file.
 
@@ -525,7 +525,7 @@ First you must have the *Qt Designer installed*. +
 The following commands should add it to your system, or use your package manager to do the same:
 
 ----
-sudo apt-get install qttools5-dev-tools qttools5-dev libpython3-dev
+sudo apt-get install pyqt6-dev-tools libpython3-dev
 ----
 
 ////
@@ -577,14 +577,14 @@ You may need to create the `plugins/python` folder.
 +
 ----
 . scripts/rip-environment   <1>
-designer -qt=5              <2>
+designer -qt=6              <2>
 ----
 
 * For a _package install_: +
   Open a terminal and type:
 +
 ----
-designer -qt=5
+designer -qt=6
 ----
 
 If all goes right, Qt Designer will launch and you will see the selectable LinuxCNC widgets on the left hand side.
@@ -734,7 +734,7 @@ import sys
 import os
 import linuxcnc
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
