@@ -535,27 +535,6 @@ static int hal_shim_net(const char *sig_name, const char *pin_names, int num_pin
 
 // ===== 1d. Process management shims =====
 
-// hal_shim_loadrt loads a realtime module via rtapi_app.
-// On USPACE: fork+exec "rtapi_app load <mod> [args]" and wait.
-// Returns 0 on success, non-zero on error.
-static int hal_shim_loadrt(const char *mod, const char *const args[], int nargs) {
-    const char *argv[256];
-    int m = 0;
-    int i;
-
-    if (m + 3 + nargs >= 256) return -E2BIG;
-
-    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
-    argv[m++] = "load";
-    argv[m++] = mod;
-    for (i = 0; i < nargs; i++) {
-        argv[m++] = args[i];
-    }
-    argv[m] = NULL;
-
-    return shim_systemv(argv);
-}
-
 // HAL_SHIM_USECS_PER_SEC converts seconds to microseconds for usleep.
 #define HAL_SHIM_USECS_PER_SEC 1000000
 
@@ -644,6 +623,32 @@ static int hal_shim_loadusr(int flags, const char *wait_name, int timeout_s,
     }
 
     return 0;
+}
+
+// hal_shim_loadrt loads a realtime module via rtapi_app.
+// On USPACE: fork "rtapi_app load <mod> [args]" and poll HAL shared memory
+// until the component <mod> becomes ready, matching what halcmd's
+// do_loadrt_cmd() does (routes through do_loadusr_cmd with -Wn <mod>).
+// Using shim_systemv() here would block forever because rtapi_app is a
+// persistent daemon that never exits after loading a module.
+// Returns 0 on success, non-zero on error.
+static int hal_shim_loadrt(const char *mod, const char *const args[], int nargs) {
+    // Build the args for hal_shim_loadusr: ["load", mod, args...]
+    const char *uargs[256];
+    int m = 0;
+    int i;
+
+    if (2 + nargs >= 256) return -E2BIG;
+
+    uargs[m++] = "load";
+    uargs[m++] = mod;
+    for (i = 0; i < nargs; i++) {
+        uargs[m++] = args[i];
+    }
+
+    // flags=1: wait_ready — poll until component <mod> appears in HAL.
+    // timeout_s=0: use default (10 seconds).
+    return hal_shim_loadusr(1, mod, 0, EMC2_BIN_DIR "/rtapi_app", uargs, m);
 }
 
 // hal_shim_unloadrt unloads a realtime module via rtapi_app.
@@ -759,6 +764,40 @@ static int hal_shim_list_sigs(const char *pattern, char *buf, int buf_size) {
         sig = (hal_sig_t *)SHMPTR(next);
         if (pattern == NULL || *pattern == '\0' ||
             fnmatch(pattern, sig->name, 0) == 0) {
+            name_len = (int)strlen(sig->name) + 1;
+            if (pos + name_len > buf_size) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                return -ENOSPC;
+            }
+            memcpy(buf + pos, sig->name, name_len);
+            pos += name_len;
+            count++;
+        }
+        next = sig->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    return count;
+}
+
+// hal_shim_list_retain_sigs lists signal names that have the HAL_SIGFLAG_RETAIN
+// flag set and whose name matches pattern (NULL or empty string matches all).
+// This mirrors halcmd's do_list_cmd "retain" special case.
+static int hal_shim_list_retain_sigs(const char *pattern, char *buf, int buf_size) {
+    hal_sig_t *sig;
+    int next;
+    int count = 0;
+    int pos = 0;
+    int name_len;
+
+    if (hal_data == NULL) return -EINVAL;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->sig_list_ptr;
+    while (next != 0) {
+        sig = (hal_sig_t *)SHMPTR(next);
+        if ((sig->flags & HAL_SIGFLAG_RETAIN) &&
+            (pattern == NULL || *pattern == '\0' ||
+             fnmatch(pattern, sig->name, 0) == 0)) {
             name_len = (int)strlen(sig->name) + 1;
             if (pos + name_len > buf_size) {
                 rtapi_mutex_give(&(hal_data->mutex));
@@ -1791,6 +1830,32 @@ func halParamAlias(paramName, alias string) error {
 	return halError(int(ret), "hal_shim_param_alias")
 }
 
+// halAlias creates an alias for a pin or parameter.
+// kind must be "pin" or "param".
+func halAlias(kind, name, alias string) error {
+	switch kind {
+	case "pin":
+		return halPinAlias(name, alias)
+	case "param":
+		return halParamAlias(name, alias)
+	default:
+		return fmt.Errorf("alias: unknown kind %q: must be \"pin\" or \"param\"", kind)
+	}
+}
+
+// halUnAlias removes an alias from a pin or parameter.
+// kind must be "pin" or "param".
+func halUnAlias(kind, name string) error {
+	switch kind {
+	case "pin":
+		return halPinAlias(name, "")
+	case "param":
+		return halParamAlias(name, "")
+	default:
+		return fmt.Errorf("unalias: unknown kind %q: must be \"pin\" or \"param\"", kind)
+	}
+}
+
 // ===== Go wrappers for 1b shmem access shims =====
 
 // halSetP wraps hal_shim_setp() to set a pin or parameter value by name.
@@ -2009,6 +2074,13 @@ func halListPins(pattern string) ([]string, error) {
 func halListSigs(pattern string) ([]string, error) {
 	return halListGeneric(pattern, func(p *C.char, buf *C.char, size C.int) C.int {
 		return C.hal_shim_list_sigs(p, buf, size)
+	})
+}
+
+// halListRetainSigs returns names of retain-flagged signals matching the given pattern.
+func halListRetainSigs(pattern string) ([]string, error) {
+	return halListGeneric(pattern, func(p *C.char, buf *C.char, size C.int) C.int {
+		return C.hal_shim_list_retain_sigs(p, buf, size)
 	})
 }
 

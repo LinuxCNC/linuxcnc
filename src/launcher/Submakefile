@@ -32,9 +32,13 @@ LAUNCHER_LDFLAGS := \
 # .PHONY ensures make always invokes go build; Go's own build cache
 # handles fine-grained dependency tracking and skips recompilation
 # when sources are unchanged.
-../bin/linuxcnc-launcher: ../lib/liblinuxcnchal.so
+#
+# CGO_LDFLAGS adds -Wl,-rpath so the dynamic linker finds liblinuxcnchal.so
+# and its companions at runtime (RIP and installed builds alike).
+# LIB_DIR is $(EMC2_HOME)/lib, defined in Makefile.inc.../bin/linuxcnc-launcher: ../lib/liblinuxcnchal.so ../lib/libemcsvr.so
+../bin/linuxcnc-launcher: ../lib/liblinuxcnchal.so ../lib/libemcsvr.so
 	$(ECHO) Building Go launcher
-	$(Q)cd launcher && $(GO) build -ldflags "$(LAUNCHER_LDFLAGS)" -o $(TOP)/bin/linuxcnc-launcher .
+	$(Q)cd launcher && CGO_LDFLAGS="-Wl,-rpath,$(LIB_DIR)" $(GO) build -ldflags "$(LAUNCHER_LDFLAGS)" -o $(TOP)/bin/linuxcnc-launcher .
 
 TARGETS += ../bin/linuxcnc-launcher
 

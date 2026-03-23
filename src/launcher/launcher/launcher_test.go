@@ -276,6 +276,112 @@ SERVO_PERIOD = 1000000
 }
 
 // --------------------------------------------------------------------------
+// Tests for loadThreads argument-building logic
+// --------------------------------------------------------------------------
+
+// resolveThreadArgs returns the halcmd args slice that loadThreads() would
+// build, using the same logic as the method but without spawning a subprocess.
+func resolveThreadArgs(t *testing.T, iniContent string) ([]string, error) {
+	t.Helper()
+	dir := t.TempDir()
+	f := writeIni(t, dir, "test.ini", iniContent)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	l := &Launcher{
+		ini:    ini,
+		logger: slog.New(slog.NewTextHandler(os.Stderr, nil)),
+	}
+
+	// Mirror the argument-building logic from loadThreads.
+	servoPeriodStr := l.ini.Get("EMCMOT", "SERVO_PERIOD")
+	if servoPeriodStr == "" {
+		return nil, errors.New("[EMCMOT]SERVO_PERIOD is required but not set")
+	}
+	basePeriodStr := l.ini.Get("EMCMOT", "BASE_PERIOD")
+
+	var args []string
+	if basePeriodStr != "" && basePeriodStr != "0" {
+		args = []string{"loadrt", "threads",
+			"name1=base-thread", "period1=" + basePeriodStr,
+			"name2=servo-thread", "period2=" + servoPeriodStr}
+	} else {
+		args = []string{"loadrt", "threads",
+			"name1=servo-thread", "period1=" + servoPeriodStr}
+	}
+	return args, nil
+}
+
+// TestLoadThreads_ServoOnly verifies that when BASE_PERIOD is absent, only the
+// servo-thread arguments are produced.
+func TestLoadThreads_ServoOnly(t *testing.T) {
+	args, err := resolveThreadArgs(t, `
+[EMCMOT]
+SERVO_PERIOD = 1000000
+`)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	want := []string{"loadrt", "threads", "name1=servo-thread", "period1=1000000"}
+	if strings.Join(args, " ") != strings.Join(want, " ") {
+		t.Errorf("args = %v, want %v", args, want)
+	}
+}
+
+// TestLoadThreads_BaseAndServo verifies that when BASE_PERIOD is set and
+// non-zero, both base-thread and servo-thread arguments are produced with
+// base-thread listed first.
+func TestLoadThreads_BaseAndServo(t *testing.T) {
+	args, err := resolveThreadArgs(t, `
+[EMCMOT]
+BASE_PERIOD = 50000
+SERVO_PERIOD = 1000000
+`)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	want := []string{
+		"loadrt", "threads",
+		"name1=base-thread", "period1=50000",
+		"name2=servo-thread", "period2=1000000",
+	}
+	if strings.Join(args, " ") != strings.Join(want, " ") {
+		t.Errorf("args = %v, want %v", args, want)
+	}
+}
+
+// TestLoadThreads_BasePeriodZero verifies that a BASE_PERIOD of "0" is treated
+// the same as absent — only a servo-thread is created.
+func TestLoadThreads_BasePeriodZero(t *testing.T) {
+	args, err := resolveThreadArgs(t, `
+[EMCMOT]
+BASE_PERIOD = 0
+SERVO_PERIOD = 1000000
+`)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	want := []string{"loadrt", "threads", "name1=servo-thread", "period1=1000000"}
+	if strings.Join(args, " ") != strings.Join(want, " ") {
+		t.Errorf("args = %v, want %v", args, want)
+	}
+}
+
+// TestLoadThreads_MissingServoPeriod verifies that an absent SERVO_PERIOD
+// returns an error.
+func TestLoadThreads_MissingServoPeriod(t *testing.T) {
+	_, err := resolveThreadArgs(t, `
+[EMC]
+MACHINE = Test
+`)
+	if err == nil {
+		t.Error("expected error for missing SERVO_PERIOD, got nil")
+	}
+}
+
+// --------------------------------------------------------------------------
 // Tests for TASK resolution logic (startTask)
 // --------------------------------------------------------------------------
 

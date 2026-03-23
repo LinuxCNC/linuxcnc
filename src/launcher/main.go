@@ -1,11 +1,12 @@
-// Command linuxcnc is the Go-based launcher for LinuxCNC.
+// Command linuxcnc-launcher is the Go-based launcher for LinuxCNC.
 //
-// It is designed as a drop-in replacement for the legacy scripts/linuxcnc.in
-// bash script and accepts the same command-line flags.
+// It is invoked by the scripts/linuxcnc wrapper script after environment
+// setup (via rip-environment for RIP builds) and accepts the same
+// command-line flags as the legacy scripts/linuxcnc.in bash script.
 //
 // Usage:
 //
-//	linuxcnc [Options] [path/to/ini_file]
+//	linuxcnc-launcher [Options] [path/to/ini_file]
 //
 // Options:
 //
@@ -57,12 +58,12 @@ func main() {
 }
 
 func run(args []string) int {
-	fs := flag.NewFlagSet("linuxcnc", flag.ContinueOnError)
+	fs := flag.NewFlagSet("linuxcnc-launcher", flag.ContinueOnError)
 	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, `linuxcnc: Run LinuxCNC
+		fmt.Fprintf(os.Stderr, `linuxcnc-launcher: Run LinuxCNC
 
 Usage:
-  linuxcnc [Options] [path/to/ini_file]
+  linuxcnc-launcher [Options] [path/to/ini_file]
 
   path/to/ini_file  Path to the INI configuration file.
                     Pass '-' to use the last-used INI file (same as -l).
@@ -94,7 +95,7 @@ Options:
 	// Validate -H directories.
 	for _, d := range halLibDirs {
 		if info, err := os.Stat(d); err != nil || !info.IsDir() {
-			fmt.Fprintf(os.Stderr, "linuxcnc: invalid directory specified with -H: %s\n", d)
+			fmt.Fprintf(os.Stderr, "linuxcnc-launcher: invalid directory specified with -H: %s\n", d)
 			return 1
 		}
 	}
@@ -108,7 +109,7 @@ Options:
 		} else {
 			abs, err := filepath.Abs(arg)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "linuxcnc: resolving INI file path: %v\n", err)
+				fmt.Fprintf(os.Stderr, "linuxcnc-launcher: resolving INI file path: %v\n", err)
 				return 1
 			}
 			iniFile = abs
@@ -118,13 +119,13 @@ Options:
 	// TODO (M7): if useLast && iniFile == "", look up the last-used INI file
 	// from ~/.linuxcncrc or similar.
 	if *useLast && iniFile == "" {
-		fmt.Fprintln(os.Stderr, "linuxcnc: -l / last-used INI file not yet implemented")
+		fmt.Fprintln(os.Stderr, "linuxcnc-launcher: -l / last-used INI file not yet implemented")
 		return 1
 	}
 
 	// TODO (M7): if no INI file specified, launch pickconfig.tcl GUI.
 	if iniFile == "" {
-		fmt.Fprintln(os.Stderr, "linuxcnc: no INI file specified (GUI picker not yet implemented)")
+		fmt.Fprintln(os.Stderr, "linuxcnc-launcher: no INI file specified (GUI picker not yet implemented)")
 		return 1
 	}
 
@@ -149,7 +150,7 @@ Options:
 
 	l := launcher.New(opts, logger)
 	if err := l.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "linuxcnc: %v\n", err)
+		fmt.Fprintf(os.Stderr, "linuxcnc-launcher: %v\n", err)
 		return 1
 	}
 	return 0

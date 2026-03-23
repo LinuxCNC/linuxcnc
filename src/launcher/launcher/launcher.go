@@ -23,6 +23,7 @@ import (
 	hal "linuxcnc.org/hal"
 
 	"github.com/sittner/linuxcnc/src/launcher/config"
+	"github.com/sittner/linuxcnc/src/launcher/emcsvr"
 	"github.com/sittner/linuxcnc/src/launcher/halfile"
 	"github.com/sittner/linuxcnc/src/launcher/inifile"
 	"github.com/sittner/linuxcnc/src/launcher/lockfile"
@@ -53,18 +54,15 @@ type Options struct {
 
 // Launcher orchestrates the LinuxCNC startup and shutdown sequence.
 type Launcher struct {
-	opts          Options
-	ini           *inifile.IniFile
-	logger        *slog.Logger
-	lock          *lockfile.LockFile // flock-based instance lock
-	rtMgr         *realtime.Manager  // realtime environment manager
-	cleanupOnce   sync.Once          // ensures cleanup runs exactly once
-	serverProcess *exec.Cmd          // background linuxcncsvr process
-	serverDone    chan error         // receives the result of cmd.Wait() for linuxcncsvr
-	taskProcess   *exec.Cmd          // background milltask/linuxcnctask process
-	taskDone      chan error         // receives the result of cmd.Wait() for task
-	appProcesses  []*exec.Cmd        // [APPLICATIONS]APP background processes
-	halComp       *hal.Component     // launcher's HAL component (like halcmd's hal_init)
+	opts         Options
+	ini          *inifile.IniFile
+	logger       *slog.Logger
+	lock         *lockfile.LockFile // flock-based instance lock
+	rtMgr        *realtime.Manager  // realtime environment manager
+	cleanupOnce  sync.Once          // ensures cleanup runs exactly once
+	serverDone   chan struct{}      // closed when emcsvr goroutine returns
+	appProcesses []*exec.Cmd        // [APPLICATIONS]APP background processes
+	halComp      *hal.Component     // launcher's HAL component (like halcmd's hal_init)
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -84,8 +82,9 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 //  2. Acquires the lock file.
 //  3. Parses the INI file.
 //  4. Validates cross-section INI dependencies (validateDependencies).
-//  5. Starts linuxcncsvr (NML server) — only if [TASK]TASK is configured (M5).
+//  5. Starts in-process NML server (emcsvr goroutine) — only if [TASK]TASK is configured (M5).
 //  6. Starts the realtime environment (M4).
+//     6.5. Loads threads HAL component (creates servo-thread, optionally base-thread).
 //  7. Starts iocontrol via halcmd loadusr -Wn — only if [TASK]TASK is configured (M5).
 //  8. Starts halui via halcmd loadusr -Wn — only if [HAL]HALUI is configured (M5).
 //  9. Preloads tpmod/homemod — only if [TASK]TASK is configured (M4).
@@ -233,14 +232,14 @@ func (l *Launcher) Run() error {
 
 	// --- M5: Process Manager ---
 
-	// Start NML server (linuxcncsvr) before realtime — only when the task
-	// controller is running.  linuxcncsvr creates the NML shared memory buffers
+	// Start in-process NML server before realtime — only when the task
+	// controller is running.  The NML server creates the shared memory buffers
 	// that realtime components depend on.  In HAL-only mode there are no NML
 	// buffers to serve.
 	// This mirrors scripts/linuxcnc.in lines 817–825.
 	if hasTask {
 		if err := l.startServer(); err != nil {
-			return fmt.Errorf("starting linuxcncsvr: %w", err)
+			return fmt.Errorf("starting NML server: %w", err)
 		}
 	}
 
@@ -258,6 +257,22 @@ func (l *Launcher) Run() error {
 		return fmt.Errorf("hal init: %w", err)
 	}
 	l.halComp = halComp
+	// Mark the launcher's HAL component ready — halcmd always calls hal_ready()
+	// immediately after hal_init(). Without this, other components that poll for
+	// the launcher component being ready will time out.
+	if err := halComp.Ready(); err != nil {
+		return fmt.Errorf("hal ready: %w", err)
+	}
+
+	// Load the threads HAL component to create RT threads (servo-thread,
+	// optionally base-thread). Thread creation has been decoupled from
+	// motmod — the launcher now loads the threads component which runs
+	// inside rtapi_app with proper RT scheduling.
+	// This must happen before motmod, HAL files, or any component that
+	// uses addf to attach functions to threads.
+	if err := l.loadThreads(); err != nil {
+		return fmt.Errorf("loading threads: %w", err)
+	}
 
 	// Start iocontrol via halcmd loadusr -Wn iocontrol — only when the task
 	// controller is running.  iocontrol is a HAL userspace component that
@@ -286,7 +301,7 @@ func (l *Launcher) Run() error {
 	}
 
 	// M3: Load HAL files.
-	halExec := halfile.New(l.ini, filepath.Join(config.EMC2BinDir, "halcmd"), os.Getenv("HALLIB_PATH"), l.logger, l.opts.IniFile)
+	halExec := halfile.New(l.ini, os.Getenv("HALLIB_PATH"), l.logger, l.opts.IniFile)
 	if err := halExec.ExecuteAll(); err != nil {
 		if !l.opts.ContinueOnError {
 			return fmt.Errorf("HAL file execution failed: %w", err)
@@ -296,8 +311,10 @@ func (l *Launcher) Run() error {
 
 	// --- M6: Task + Display Launch ---
 
-	// 6a. Start task controller in background — only if [TASK]TASK is configured
-	// (step 4.3.7).
+	// 6a. Fire-and-forget task controller — only if [TASK]TASK is configured
+	// (step 4.3.7). The task controller is started without waiting for the
+	// "inihal" component to register; HAL threads (step 6d) must be running
+	// before milltask can complete its motion initialization.
 	if hasTask {
 		if err := l.startTask(); err != nil {
 			return fmt.Errorf("starting task: %w", err)
@@ -314,7 +331,7 @@ func (l *Launcher) Run() error {
 	}
 
 	// 6c. Load retained signals if any are present (step 4.3.9).
-	if err := l.loadRetain(halExec); err != nil {
+	if err := l.loadRetain(); err != nil {
 		if !l.opts.ContinueOnError {
 			return fmt.Errorf("loading retain: %w", err)
 		}
@@ -351,71 +368,59 @@ func (l *Launcher) Run() error {
 	return nil
 }
 
-// startServer starts linuxcncsvr as a background subprocess.
+// startServer initializes and starts the NML server as an in-process goroutine.
 //
 // This mirrors scripts/linuxcnc.in lines 817–825:
 //
 //	export INI_FILE_NAME="$INIFILE"
 //	$EMCSERVER -ini "$INIFILE"
 //
-// After starting, a brief 100 ms window is checked for immediate failure
-// (e.g., bad INI path, port conflict).  A background goroutine calls
-// cmd.Wait() and signals serverDone so that both this check and
-// stopServer() share the single Wait() call.
+// After init, a brief 100 ms window is given to let NML channels become ready.
+// The server runs in a goroutine; serverDone is closed when it returns.
 func (l *Launcher) startServer() error {
-	serverBin := filepath.Join(config.EMC2BinDir, "linuxcncsvr")
-	l.logger.Info("starting NML server", "binary", serverBin)
-
-	cmd := exec.Command(serverBin, "-n", "-ini", l.opts.IniFile)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Pdeathsig: syscall.SIGTERM,
+	l.logger.Info("initializing NML server (in-process)")
+	if err := emcsvr.Init(l.opts.IniFile); err != nil {
+		return fmt.Errorf("emcsvr init: %w", err)
 	}
 
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("exec %s: %w", serverBin, err)
-	}
+	l.serverDone = make(chan struct{})
+	go func() {
+		defer close(l.serverDone)
+		if err := emcsvr.Run(); err != nil {
+			l.logger.Error("NML server error", "error", err)
+		}
+	}()
 
-	l.serverProcess = cmd
-	l.serverDone = make(chan error, 1)
-	go func() { l.serverDone <- cmd.Wait() }()
-
-	// Give the server a brief window to fail fast (e.g., bad INI, port conflict).
-	select {
-	case err := <-l.serverDone:
-		return fmt.Errorf("linuxcncsvr (pid %d) exited immediately: %w", cmd.Process.Pid, err)
-	case <-time.After(100 * time.Millisecond):
-		// Still running — good.
-	}
-
-	l.logger.Info("linuxcncsvr started", "pid", cmd.Process.Pid)
+	// Brief startup window to let NML channels initialize.
+	time.Sleep(100 * time.Millisecond)
+	l.logger.Info("NML server running (in-process thread)")
 	return nil
 }
 
-// stopServer terminates the linuxcncsvr background process gracefully.
+// stopServer stops the in-process NML server goroutine gracefully.
 //
-// It sends SIGTERM first and waits up to 2 seconds for a clean exit.
-// If the process has not exited by then, SIGKILL is sent.
+// It signals the server to stop and waits up to 2 seconds for it to return.
 func (l *Launcher) stopServer() {
-	if l.serverProcess == nil || l.serverProcess.Process == nil {
+	if l.serverDone == nil {
 		return
 	}
-	l.logger.Info("stopping linuxcncsvr")
-	if err := l.serverProcess.Process.Signal(syscall.SIGTERM); err != nil {
-		l.logger.Debug("SIGTERM failed (process may have already exited)", "error", err)
-	}
+	l.logger.Info("stopping NML server")
+	emcsvr.Stop()
+
+	// Wait for emcsvr_run() goroutine to finish (kill_all_servers completes)
 	select {
 	case <-l.serverDone:
-		l.logger.Debug("linuxcncsvr exited cleanly")
+		l.logger.Debug("NML server stopped")
 	case <-time.After(2 * time.Second):
-		l.logger.Warn("linuxcncsvr did not exit in time, sending SIGKILL")
-		_ = l.serverProcess.Process.Kill()
-		<-l.serverDone
+		l.logger.Warn("NML server did not stop in time")
+		<-l.serverDone // MUST wait — cannot call Cleanup() concurrently
 	}
+
+	// Now safe to delete channels — server threads are fully stopped
+	emcsvr.Cleanup()
 }
 
-// startIOControl starts the IO controller process via halcmd loadusr.
+// startIOControl starts the IO controller process via hal.LoadUSR.
 //
 // This mirrors scripts/linuxcnc.in lines 839–850:
 //
@@ -433,22 +438,14 @@ func (l *Launcher) startIOControl() error {
 
 	l.logger.Info("starting IO controller", "program", emcio)
 
-	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
-	cmd := exec.Command(halcmdPath, "loadusr", "-Wn", "iocontrol", emcio, "-ini", l.opts.IniFile)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Pdeathsig: syscall.SIGTERM,
-	}
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("halcmd loadusr -Wn iocontrol %s: %w", emcio, err)
+	if err := hal.LoadUSR(&hal.LoadUSROptions{WaitReady: true, WaitName: "iocontrol"}, emcio, "-ini", l.opts.IniFile); err != nil {
+		return fmt.Errorf("loadusr iocontrol %s: %w", emcio, err)
 	}
 
 	return nil
 }
 
-// startHalUI starts the halui process via halcmd loadusr, if configured.
+// startHalUI starts the halui process via hal.LoadUSR, if configured.
 //
 // This mirrors scripts/linuxcnc.in lines 852–861:
 //
@@ -464,16 +461,8 @@ func (l *Launcher) startHalUI() error {
 
 	l.logger.Info("starting HAL user interface", "program", halui)
 
-	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
-	cmd := exec.Command(halcmdPath, "loadusr", "-Wn", "halui", halui, "-ini", l.opts.IniFile)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Pdeathsig: syscall.SIGTERM,
-	}
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("halcmd loadusr -Wn halui %s: %w", halui, err)
+	if err := hal.LoadUSR(&hal.LoadUSROptions{WaitReady: true, WaitName: "halui"}, halui, "-ini", l.opts.IniFile); err != nil {
+		return fmt.Errorf("loadusr halui %s: %w", halui, err)
 	}
 
 	return nil
@@ -490,67 +479,15 @@ func (l *Launcher) setConfigEnv() {
 	}
 }
 
-// setupEnvironment configures process environment variables to match what
-// the bash linuxcnc.in script sets before launching components.
+// setupEnvironment configures process environment variables that are not
+// provided by rip-environment (for RIP builds), system packages (for installed
+// builds), or the linuxcnc wrapper script.
 func (l *Launcher) setupEnvironment() {
 	setIfEmpty := func(key, val string) {
 		if os.Getenv(key) == "" {
 			os.Setenv(key, val)
 		}
 	}
-	prependPath := func(key, dir string) {
-		cur := os.Getenv(key)
-		if cur == "" {
-			os.Setenv(key, dir)
-		} else {
-			os.Setenv(key, dir+":"+cur)
-		}
-	}
-
-	// PATH – add bin dir and (for RIP) scripts dir.
-	if config.EMC2BinDir != "" {
-		prependPath("PATH", config.EMC2BinDir)
-	}
-	if config.RunInPlace == "yes" && config.EMC2Home != "" {
-		scriptsDir := filepath.Join(config.EMC2Home, "scripts")
-		if info, err := os.Stat(scriptsDir); err == nil && info.IsDir() {
-			prependPath("PATH", scriptsDir)
-		}
-	}
-
-	// HOME/.local/bin
-	if home := os.Getenv("HOME"); home != "" {
-		localBin := filepath.Join(home, ".local", "bin")
-		if info, err := os.Stat(localBin); err == nil && info.IsDir() {
-			if !strings.Contains(os.Getenv("PATH"), ".local/bin") {
-				prependPath("PATH", localBin)
-			}
-		}
-	}
-
-	// LD_LIBRARY_PATH (RIP only).
-	if config.RunInPlace == "yes" && config.EMC2Home != "" {
-		prependPath("LD_LIBRARY_PATH", filepath.Join(config.EMC2Home, "lib"))
-	}
-
-	// PYTHONPATH.
-	if config.EMC2Home != "" {
-		prependPath("PYTHONPATH", filepath.Join(config.EMC2Home, "lib", "python"))
-	}
-
-	// TCLLIBPATH (space-separated).
-	if config.EMC2Home != "" {
-		tclDir := filepath.Join(config.EMC2Home, "tcl")
-		cur := os.Getenv("TCLLIBPATH")
-		if cur == "" {
-			os.Setenv("TCLLIBPATH", tclDir)
-		} else {
-			os.Setenv("TCLLIBPATH", tclDir+" "+cur)
-		}
-	}
-
-	// LINUXCNC_TCL_DIR — needed by twopass.tcl and other TCL scripts.
-	setIfEmpty("LINUXCNC_TCL_DIR", config.EMC2TclDir)
 
 	// HALLIB_PATH – start with ".:HALLIB_DIR", then prepend -H dirs.
 	halibPath := "."
@@ -568,13 +505,6 @@ func (l *Launcher) setupEnvironment() {
 
 	// LINUXCNC_HOME.
 	setIfEmpty("LINUXCNC_HOME", config.EMC2Home)
-
-	// Force GLX/X11 backends (matching linuxcnc.in behaviour).
-	if plat := os.Getenv("LINUXCNC_OPENGL_PLATFORM"); plat == "" || plat == "glx" {
-		setIfEmpty("PYOPENGL_PLATFORM", "x11")
-		setIfEmpty("GDK_BACKEND", "x11")
-		setIfEmpty("QT_QPA_PLATFORM", "xcb")
-	}
 }
 
 // logConfiguration logs key INI settings at debug level.
@@ -586,13 +516,63 @@ func (l *Launcher) logConfiguration() {
 		"machine", l.ini.Get("EMC", "MACHINE"),
 		"display", l.ini.Get("DISPLAY", "DISPLAY"),
 		"task", l.ini.Get("TASK", "TASK"),
-		"twopass", l.ini.Get("HAL", "TWOPASS"),
 	}
 	l.logger.Debug("INI configuration loaded", fields...)
 }
 
+// loadThreads loads the threads HAL component to create RT threads.
+//
+// Thread creation has been decoupled from motmod — motmod now only exports
+// functions, so the threads must exist before motmod or HAL files run.
+//
+// The threads component is loaded via hal.LoadRT() which sends the command to
+// rtapi_app (the privileged RT process). rtapi_app dlopen()s threads.so and
+// calls hal_create_thread() inside its own process space, ensuring the RT
+// pthreads get proper RT scheduling.
+//
+// Logic (reads [EMCMOT]SERVO_PERIOD and [EMCMOT]BASE_PERIOD from INI):
+//   - If [EMCMOT]BASE_PERIOD is set and > 0:
+//     loadrt threads name1=base-thread period1=<BASE_PERIOD> name2=servo-thread period2=<SERVO_PERIOD>
+//   - Otherwise (no BASE_PERIOD or BASE_PERIOD=0):
+//     loadrt threads name1=servo-thread period1=<SERVO_PERIOD>
+//
+// Threads are created fastest-first (base-thread before servo-thread) for
+// proper rate monotonic priority scheduling.
+func (l *Launcher) loadThreads() error {
+	servoPeriodStr := l.ini.Get("EMCMOT", "SERVO_PERIOD")
+	if servoPeriodStr == "" {
+		return fmt.Errorf("[EMCMOT]SERVO_PERIOD is required but not set")
+	}
+
+	basePeriodStr := l.ini.Get("EMCMOT", "BASE_PERIOD")
+
+	var args []string
+	if basePeriodStr != "" && basePeriodStr != "0" {
+		// Two threads: base-thread (fast, no FP) + servo-thread (slow, FP)
+		l.logger.Info("loading threads component",
+			"base_period", basePeriodStr, "servo_period", servoPeriodStr)
+		args = []string{
+			"name1=base-thread", "period1=" + basePeriodStr,
+			"name2=servo-thread", "period2=" + servoPeriodStr,
+		}
+	} else {
+		// One thread: servo-thread only
+		l.logger.Info("loading threads component",
+			"servo_period", servoPeriodStr)
+		args = []string{
+			"name1=servo-thread", "period1=" + servoPeriodStr,
+		}
+	}
+
+	if err := hal.LoadRT("threads", args...); err != nil {
+		return fmt.Errorf("loadrt threads: %w", err)
+	}
+
+	return nil
+}
+
 // preloadMotionModules loads the trajectory planner and homing modules via
-// separate "halcmd loadrt" commands before any HAL files execute.
+// separate hal.LoadRT() calls before any HAL files execute.
 //
 // This mirrors scripts/linuxcnc.in lines 865-868:
 //
@@ -620,40 +600,36 @@ func (l *Launcher) preloadMotionModules() error {
 
 	l.logger.Debug("preloading motion modules", "tpmod", tpMod, "homemod", homeMod)
 
-	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
-
-	tpCmd := exec.Command(halcmdPath, "loadrt", tpMod)
-	tpCmd.Stdout = os.Stdout
-	tpCmd.Stderr = os.Stderr
-	tpCmd.SysProcAttr = &syscall.SysProcAttr{
-		Pdeathsig: syscall.SIGTERM,
-	}
-	if err := tpCmd.Run(); err != nil {
-		return fmt.Errorf("halcmd loadrt %s: %w", tpMod, err)
+	if err := hal.LoadRT(tpMod); err != nil {
+		return fmt.Errorf("loadrt %s: %w", tpMod, err)
 	}
 
-	homeCmd := exec.Command(halcmdPath, "loadrt", homeMod)
-	homeCmd.Stdout = os.Stdout
-	homeCmd.Stderr = os.Stderr
-	homeCmd.SysProcAttr = &syscall.SysProcAttr{
-		Pdeathsig: syscall.SIGTERM,
-	}
-	if err := homeCmd.Run(); err != nil {
-		return fmt.Errorf("halcmd loadrt %s: %w", homeMod, err)
+	if err := hal.LoadRT(homeMod); err != nil {
+		return fmt.Errorf("loadrt %s: %w", homeMod, err)
 	}
 
 	return nil
 }
 
-// startTask starts the task controller (milltask/linuxcnctask) as a background
-// process via halcmd loadusr.
+// startTask launches the task controller (milltask/linuxcnctask) as a
+// fire-and-forget background process without waiting for the "inihal" HAL
+// component to register as ready.
 //
-// This mirrors scripts/linuxcnc.in line 954:
+// This mirrors the bash launcher (scripts/linuxcnc.in line 957):
 //
 //	halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE" &
 //
-// The -Wn inihal flag makes halcmd wait for the inihal HAL component to register
-// before returning; the & means the launcher doesn't block on this.
+// Note the trailing "&" — the bash launcher does NOT block on this call.
+// milltask calls emcMotionInit() during startup, which requires the motion
+// controller (motmod) to process commands via servo-thread. Those functions
+// are not running until startHalThreads() (step 6d) completes. Waiting here
+// would create a deadlock:
+//  1. startTask() blocks waiting for inihal to be ready
+//  2. milltask waits for motion controller to process commands
+//  3. motion controller waits for servo-thread to run
+//  4. servo-thread won't run until startHalThreads() is called
+//  5. startHalThreads() can't run because startTask() hasn't returned
+//
 // INI resolution: [TASK]TASK is required; legacy rename "emctask" → "linuxcnctask".
 // If [TASK]TASK is not set, startTask is a no-op (Run() skips calling it anyway).
 func (l *Launcher) startTask() error {
@@ -669,53 +645,27 @@ func (l *Launcher) startTask() error {
 
 	l.logger.Info("starting task controller", "program", emctask)
 
-	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
-	cmd := exec.Command(halcmdPath, "loadusr", "-Wn", "inihal", emctask, "-ini", l.opts.IniFile)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Pdeathsig: syscall.SIGTERM,
+	// Fire-and-forget: do NOT wait for inihal to register as ready.
+	// HAL threads (servo-thread) must be running before milltask can finish
+	// motion initialization. Threads are started in step 6d, after this call.
+	if err := hal.LoadUSR(&hal.LoadUSROptions{}, emctask, "-ini", l.opts.IniFile); err != nil {
+		return fmt.Errorf("loadusr %s: %w", emctask, err)
 	}
 
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("exec halcmd loadusr -Wn inihal %s: %w", emctask, err)
-	}
-
-	l.taskProcess = cmd
-	l.taskDone = make(chan error, 1)
-	go func() { l.taskDone <- cmd.Wait() }()
-
-	// Give the task a brief window to fail fast.
-	select {
-	case err := <-l.taskDone:
-		return fmt.Errorf("task process (pid %d) exited immediately: %w", cmd.Process.Pid, err)
-	case <-time.After(100 * time.Millisecond):
-		// Still running — good.
-	}
-
-	l.logger.Info("task controller started", "pid", cmd.Process.Pid)
 	return nil
 }
 
-// stopTask terminates the task controller background process gracefully.
-//
-// It sends SIGTERM first and waits up to 2 seconds for a clean exit.
-// If the process has not exited by then, SIGKILL is sent.
+// stopTask sends SIGTERM to the task controller (identified by the "inihal"
+// HAL component) and waits for it to unregister from HAL.
 func (l *Launcher) stopTask() {
-	if l.taskProcess == nil || l.taskProcess.Process == nil {
+	l.logger.Info("stopping task controller")
+	if err := hal.UnloadUSR("inihal"); err != nil {
+		l.logger.Debug("unload inihal returned error (may already be gone)", "error", err)
 		return
 	}
-	l.logger.Info("stopping task controller")
-	if err := l.taskProcess.Process.Signal(syscall.SIGTERM); err != nil {
-		l.logger.Debug("SIGTERM failed (process may have already exited)", "error", err)
-	}
-	select {
-	case <-l.taskDone:
-		l.logger.Debug("task controller exited cleanly")
-	case <-time.After(2 * time.Second):
-		l.logger.Warn("task controller did not exit in time, sending SIGKILL")
-		_ = l.taskProcess.Process.Kill()
-		<-l.taskDone
+	// Wait up to 2 seconds for the component to unregister.
+	if err := hal.WaitUSR("inihal"); err != nil {
+		l.logger.Debug("wait for inihal to unregister returned error", "error", err)
 	}
 }
 
@@ -751,18 +701,15 @@ func isExecutable(path string) bool {
 //
 // Note: the bash script has a bug where it checks the wrong variable before
 // setting RETAIN_SYNC_THREAD; the Go implementation checks the correct one.
-func (l *Launcher) loadRetain(halExec *halfile.Executor) error {
-	halcmdPath := filepath.Join(config.EMC2BinDir, "halcmd")
-
+func (l *Launcher) loadRetain() error {
 	// Check whether any retained signals exist.
-	out, err := exec.Command(halcmdPath, "list", "retain").Output()
+	signals, err := hal.List("retain")
 	if err != nil {
-		// "halcmd list retain" errors when no retain component is loaded — treat
-		// as no retained signals.
-		l.logger.Debug("halcmd list retain returned error (no retain signals)", "error", err)
+		// hal.List errors when no retain component is loaded — treat as no signals.
+		l.logger.Debug("hal list retain returned error (no retain signals)", "error", err)
 		return nil
 	}
-	if len(strings.TrimSpace(string(out))) == 0 {
+	if len(signals) == 0 {
 		l.logger.Debug("no retained signals found, skipping retain load")
 		return nil
 	}
@@ -770,8 +717,8 @@ func (l *Launcher) loadRetain(halExec *halfile.Executor) error {
 	l.logger.Info("Loading retain")
 
 	// Load the realtime retain component.
-	if err := halExec.RunHalcmdArgs([]string{"loadrt", "retain"}); err != nil {
-		return fmt.Errorf("halcmd loadrt retain: %w", err)
+	if err := hal.LoadRT("retain"); err != nil {
+		return fmt.Errorf("loadrt retain: %w", err)
 	}
 
 	// Determine the sync thread.
@@ -779,8 +726,8 @@ func (l *Launcher) loadRetain(halExec *halfile.Executor) error {
 	if syncThread == "" {
 		syncThread = "servo-thread"
 	}
-	if err := halExec.RunHalcmdArgs([]string{"addf", "retain.sync", syncThread}); err != nil {
-		return fmt.Errorf("halcmd addf retain.sync %s: %w", syncThread, err)
+	if err := hal.AddF("retain.sync", syncThread, 0); err != nil {
+		return fmt.Errorf("addf retain.sync %s: %w", syncThread, err)
 	}
 
 	// Determine the variable file path.
@@ -796,14 +743,14 @@ func (l *Launcher) loadRetain(halExec *halfile.Executor) error {
 	// Determine the poll period (may be empty — retain_usr handles a missing arg).
 	pollPeriod := l.ini.Get("RETAIN", "POLL_PERIOD")
 
-	// Build loadusr args: pass varFile and (optionally) pollPeriod as separate
+	// Start retain_usr, passing varFile and (optionally) pollPeriod as separate
 	// arguments so that paths containing spaces are handled correctly.
-	loadusrArgs := []string{"loadusr", "-W", "retain_usr", varFile}
+	usrArgs := []string{varFile}
 	if pollPeriod != "" {
-		loadusrArgs = append(loadusrArgs, pollPeriod)
+		usrArgs = append(usrArgs, pollPeriod)
 	}
-	if err := halExec.RunHalcmdArgs(loadusrArgs); err != nil {
-		return fmt.Errorf("halcmd loadusr retain_usr: %w", err)
+	if err := hal.LoadUSR(&hal.LoadUSROptions{WaitReady: true}, "retain_usr", usrArgs...); err != nil {
+		return fmt.Errorf("loadusr retain_usr: %w", err)
 	}
 
 	return nil
@@ -925,10 +872,9 @@ func (l *Launcher) stopApplications() {
 // This mirrors scripts/linuxcnc.in lines 1004–1036.  The display program is
 // read from [DISPLAY]DISPLAY and dispatched based on the program name:
 //
-//   - tklinuxcnc / mini: $LINUXCNC_TCL_DIR/<display>.tcl -ini <ini> [args]
-//   - dummy:             prints a prompt and waits for Enter
-//   - linuxcncrsh:       <display> [args] -- -ini <ini>
-//   - default:           <display> -ini <ini> [args]
+//   - dummy:         prints a prompt and waits for Enter
+//   - linuxcncrsh:   <display> [args] -- -ini <ini>
+//   - default:       <display> -ini <ini> [args]
 //
 // cmd.Run() blocks until the user closes the GUI.
 // startDisplay is only called when [DISPLAY]DISPLAY is configured; Run()
@@ -956,11 +902,6 @@ func (l *Launcher) startDisplay() error {
 	var cmd *exec.Cmd
 
 	switch emcDisplay {
-	case "tklinuxcnc", "mini":
-		tclScript := filepath.Join(config.EMC2TclDir, emcDisplay+".tcl")
-		args := append([]string{"-ini", l.opts.IniFile}, displayArgs...)
-		cmd = exec.Command(tclScript, args...)
-
 	case "dummy":
 		fmt.Println("DUMMY DISPLAY MODULE, press <ENTER> to continue.")
 		_, _ = bufio.NewReader(os.Stdin).ReadString('\n')

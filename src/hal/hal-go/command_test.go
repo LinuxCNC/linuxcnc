@@ -1,6 +1,7 @@
 package hal_test
 
 import (
+	"strings"
 	"testing"
 
 	"linuxcnc.org/hal"
@@ -224,13 +225,13 @@ func TestListSignature(t *testing.T) {
 // ===== Functional tests (no HAL required) =====
 
 // TestNetArrowFiltering verifies that Net strips arrow tokens before passing to HAL.
-// Since HAL is not running, the call will return an error — we only verify that
-// providing only arrow tokens returns a Go-level error (not a panic).
+// After stripping arrow tokens, if no pins remain, Net returns nil (matching
+// halcmd behaviour which allows "net signame" with no pins).
 func TestNetArrowFiltering(t *testing.T) {
 	err := hal.Net("mysig", "=>", "<=", "<=>")
-	// Must return an error (no pins after filtering), not panic.
-	if err == nil {
-		t.Fatal("Net with only arrow tokens must return an error")
+	// No pins after filtering — must return nil, not an error.
+	if err != nil {
+		t.Fatalf("Net with only arrow tokens must return nil, got: %v", err)
 	}
 }
 
@@ -247,6 +248,48 @@ func TestListUnknownType(t *testing.T) {
 	_, err := hal.List("notatype")
 	if err == nil {
 		t.Fatal("List must return an error for unknown type")
+	}
+}
+
+// TestListRetainAccepted verifies that List("retain") is accepted as a valid type
+// and does not return an "unknown type" error.  When HAL is not running the
+// underlying C shim returns -EINVAL (hal_data == NULL), which surfaces as an
+// error, but it must NOT be an "unknown type" error.
+func TestListRetainAccepted(t *testing.T) {
+	_, err := hal.List("retain")
+	if err != nil {
+		if strings.Contains(err.Error(), "unknown type") {
+			t.Fatalf(`List("retain") must not return an "unknown type" error, got: %v`, err)
+		}
+		// Any other error (e.g. HAL not available) is acceptable.
+		t.Skipf("HAL not available: %v", err)
+	}
+}
+
+// TestNetNoPins verifies that Net with no pins (after arrow filtering) returns nil.
+// This matches halcmd behaviour which allows "net signame" with no pins.
+func TestNetNoPins(t *testing.T) {
+	err := hal.Net("mysig")
+	if err != nil {
+		t.Fatalf("Net with no pins must return nil, got: %v", err)
+	}
+}
+
+// TestUnlockSemantics verifies that Unlock computes the complement of Lock for
+// the same level name. "unlock all" should produce lock level 0 (LockNone)
+// rather than 255 (LockAll).
+// When HAL is not running the calls return errors, so we only test the
+// error-free path by relying on HAL availability.
+func TestUnlockSemantics(t *testing.T) {
+	// Calling Unlock("all") should not return an "unknown level" error.
+	// The only expected error is the HAL-not-running error.
+	err := hal.Unlock("all")
+	if err != nil {
+		const unknownLvl = "unknown lock level"
+		if len(err.Error()) > len(unknownLvl) && err.Error()[:len(unknownLvl)] == unknownLvl {
+			t.Fatalf("Unlock(\"all\") must not return an unknown-level error: %v", err)
+		}
+		t.Skipf("HAL not available: %v", err)
 	}
 }
 

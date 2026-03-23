@@ -44,19 +44,7 @@ else:
 from hal_glib import GStat
 
 def get_linuxcnc_ini_file():
-    """find LinuxCNC INI file with pgrep"""
-    import subprocess
-    ps   = subprocess.Popen('ps -C linuxcncsvr --no-header -o args'.split(),
-                             stdout=subprocess.PIPE
-                           )
-    p,e = ps.communicate()
-
-    if ps.returncode:
-        print(_('\nhal_gremlin: cannot find INI file\n'))
-        return None
-
-    ans = p.split()[p.split().index('-ini')+1]
-    return ans
+    return os.environ.get('INI_FILE_NAME')
 
 class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gtype_name__ = "HAL_Gremlin"

@@ -1,12 +1,14 @@
 
-EMCSVRSRCS := \
-	emc/task/emcsvr.cc
-USERSRCS += $(EMCSVRSRCS)
 
-../bin/linuxcncsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
+EMCSVRLIB_SRCS := emc/task/emcsvr_lib.cc
+USERSRCS += $(EMCSVRLIB_SRCS)
+
+$(call TOOBJSDEPS, $(EMCSVRLIB_SRCS)): EXTRAFLAGS += -fPIC
+
+../lib/libemcsvr.so: $(call TOOBJS, $(EMCSVRLIB_SRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $^ $(LDFLAGS)
-TARGETS += ../bin/linuxcncsvr
+	$(Q)$(CXX) -shared -o $@ $^ $(LDFLAGS)
+TARGETS += ../lib/libemcsvr.so
 
 # disabled:	emc/task/iotaskintf.cc
 MILLTASKSRCS := \

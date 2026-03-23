@@ -680,38 +680,8 @@ static int get_fifo_path_buf(char *buf, size_t bufsize) {
     return 0;
 }
 
-int main(int argc, char **argv) {
-    if(getuid() == 0) {
-        char *fallback_uid_str = getenv("RTAPI_UID");
-        int fallback_uid = fallback_uid_str ? atoi(fallback_uid_str) : 0;
-        if(fallback_uid == 0)
-        {
-            fprintf(stderr,
-                "Refusing to run as root without fallback UID specified\n"
-                "To run under a debugger with I/O, use e.g.,\n"
-                "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
-            exit(1);
-        }
-        if (setreuid(fallback_uid, 0) != 0) { perror("setreuid"); abort(); }
-        fprintf(stderr,
-            "Running with fallback_uid.  getuid()=%d geteuid()=%d\n",
-            getuid(), geteuid());
-    }
-    ruid = getuid();
-    euid = geteuid();
-    if (setresuid(euid, euid, ruid) != 0) { perror("setresuid"); abort(); }
-#ifdef __linux__
-    setfsuid(ruid);
-#endif
-    
-    char *args[MAX_ARGS];
-    int nargs = 0;
-    for(int i = 1; i < argc && nargs < MAX_ARGS; i++) {
-        args[nargs++] = argv[i];
-    }
-
-become_master:
-    {
+int rtapi_become_master(char **args, int nargs) {
+  while (1) {
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if(fd == -1) { perror("socket"); exit(1); }
 
@@ -745,14 +715,47 @@ become_master:
             unlink(get_fifo_path());
             fprintf(stderr, "Waited 3 seconds for master. Giving up.\n");
             close(fd);
-            goto become_master;
+            continue;
         }
         if(result < 0) { fprintf(stderr, "connect %s: %s\n", addr.sun_path, strerror(errno)); exit(1); }
         return slave(fd, args, nargs);
     } else {
         perror("bind"); exit(1);
     }
+  }
+}
+
+int main(int argc, char **argv) {
+    if(getuid() == 0) {
+        char *fallback_uid_str = getenv("RTAPI_UID");
+        int fallback_uid = fallback_uid_str ? atoi(fallback_uid_str) : 0;
+        if(fallback_uid == 0)
+        {
+            fprintf(stderr,
+                "Refusing to run as root without fallback UID specified\n"
+                "To run under a debugger with I/O, use e.g.,\n"
+                "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
+            exit(1);
+        }
+        if (setreuid(fallback_uid, 0) != 0) { perror("setreuid"); abort(); }
+        fprintf(stderr,
+            "Running with fallback_uid.  getuid()=%d geteuid()=%d\n",
+            getuid(), geteuid());
     }
+    ruid = getuid();
+    euid = geteuid();
+    if (setresuid(euid, euid, ruid) != 0) { perror("setresuid"); abort(); }
+#ifdef __linux__
+    setfsuid(ruid);
+#endif
+
+    char *args[MAX_ARGS];
+    int nargs = 0;
+    for(int i = 1; i < argc && nargs < MAX_ARGS; i++) {
+        args[nargs++] = argv[i];
+    }
+
+    return rtapi_become_master(args, nargs);
 }
 
 

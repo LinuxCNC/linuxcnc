@@ -116,6 +116,22 @@ func (c *TwopassCollector) MergedLoadRTCommands() [][]string {
 	return result
 }
 
+// CollectLoadRTToken converts a LoadRTToken into the CollectLoadRT call format,
+// enabling ParseResult execution to feed LoadRTToken structs to the twopass collector.
+func (c *TwopassCollector) CollectLoadRTToken(tok *LoadRTToken) {
+	var args []string
+	if tok.Count > 0 {
+		args = append(args, fmt.Sprintf("count=%d", tok.Count))
+	}
+	if len(tok.Names) > 0 {
+		args = append(args, fmt.Sprintf("names=%s", strings.Join(tok.Names, ",")))
+	}
+	for k, v := range tok.Params {
+		args = append(args, fmt.Sprintf("%s=%s", k, v))
+	}
+	c.CollectLoadRT(tok.Comp, args)
+}
+
 // IsLoadRT returns true if the tokenized command line is a loadrt command.
 func IsLoadRT(tokens []string) bool {
 	return len(tokens) > 0 && tokens[0] == "loadrt"

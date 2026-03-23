@@ -10,7 +10,6 @@ import (
 )
 
 // writeTemp creates a temporary file with the given content and returns its path.
-// The caller is responsible for removing it.
 func writeTemp(t *testing.T, dir, name, content string) string {
 	t.Helper()
 	path := filepath.Join(dir, name)
@@ -33,66 +32,6 @@ func parseIni(t *testing.T, content string) *inifile.IniFile {
 }
 
 // ---------------------------------------------------------------------------
-// Substitution tests
-// ---------------------------------------------------------------------------
-
-func TestSubstituteLine_NoMatch(t *testing.T) {
-	ini := parseIni(t, "[EMC]\nMACHINE = TestMachine\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil, "")
-
-	in := "loadrt trivkins"
-	got := e.substituteLine(in)
-	if got != in {
-		t.Errorf("substituteLine(%q) = %q; want unchanged %q", in, got, in)
-	}
-}
-
-func TestSubstituteLine_SimpleSubstitution(t *testing.T) {
-	ini := parseIni(t, "[EMCMOT]\nSERVO_PERIOD = 1000000\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil, "")
-
-	in := "loadrt motmod servo_period_nsec=[EMCMOT]SERVO_PERIOD"
-	want := "loadrt motmod servo_period_nsec=1000000"
-	got := e.substituteLine(in)
-	if got != want {
-		t.Errorf("substituteLine(%q) = %q; want %q", in, got, want)
-	}
-}
-
-func TestSubstituteLine_MultiplePatterns(t *testing.T) {
-	ini := parseIni(t, "[AXIS_X]\nMIN_LIMIT = -100\nMAX_LIMIT = 100\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil, "")
-
-	in := "setp axis.0.min-limit [AXIS_X]MIN_LIMIT"
-	want := "setp axis.0.min-limit -100"
-	got := e.substituteLine(in)
-	if got != want {
-		t.Errorf("substituteLine(%q) = %q; want %q", in, got, want)
-	}
-}
-
-func TestSubstituteLine_UnknownPatternUnchanged(t *testing.T) {
-	ini := parseIni(t, "[EMC]\nMACHINE = TestMachine\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil, "")
-
-	in := "setp something [UNKNOWN]KEY"
-	got := e.substituteLine(in)
-	if got != in {
-		t.Errorf("substituteLine(%q) = %q; want unchanged %q", in, got, in)
-	}
-}
-
-func TestSubstituteLine_NilIni(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "", nil, "")
-
-	in := "loadrt trivkins"
-	got := e.substituteLine(in)
-	if got != in {
-		t.Errorf("substituteLine with nil INI(%q) = %q; want unchanged %q", in, got, in)
-	}
-}
-
-// ---------------------------------------------------------------------------
 // Path resolution tests
 // ---------------------------------------------------------------------------
 
@@ -100,7 +39,7 @@ func TestResolvePath_AbsoluteExists(t *testing.T) {
 	dir := t.TempDir()
 	halPath := writeTemp(t, dir, "test.hal", "# empty")
 
-	e := New(nil, "/usr/bin/halcmd", "", nil, "")
+	e := New(nil, "", nil, "")
 	got, err := e.resolvePath(halPath)
 	if err != nil {
 		t.Fatalf("resolvePath(%q) error: %v", halPath, err)
@@ -111,7 +50,7 @@ func TestResolvePath_AbsoluteExists(t *testing.T) {
 }
 
 func TestResolvePath_AbsoluteMissing(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "", nil, "")
+	e := New(nil, "", nil, "")
 	_, err := e.resolvePath("/nonexistent/path/file.hal")
 	if err == nil {
 		t.Error("resolvePath for missing absolute path should return error")
@@ -121,7 +60,6 @@ func TestResolvePath_AbsoluteMissing(t *testing.T) {
 func TestResolvePath_RelativeInConfigDir(t *testing.T) {
 	dir := t.TempDir()
 
-	// Create the HAL file and an INI file in the same directory.
 	writeTemp(t, dir, "spindle.hal", "# spindle")
 	iniContent := "[HAL]\nHALFILE = spindle.hal\n"
 	iniPath := writeTemp(t, dir, "machine.ini", iniContent)
@@ -130,7 +68,7 @@ func TestResolvePath_RelativeInConfigDir(t *testing.T) {
 		t.Fatalf("parsing INI: %v", err)
 	}
 
-	e := New(ini, "/usr/bin/halcmd", "", nil, "")
+	e := New(ini, "", nil, "")
 	got, err := e.resolvePath("spindle.hal")
 	if err != nil {
 		t.Fatalf("resolvePath error: %v", err)
@@ -145,7 +83,7 @@ func TestResolvePath_RelativeInHalibPath(t *testing.T) {
 	halibDir := t.TempDir()
 	writeTemp(t, halibDir, "common.hal", "# common")
 
-	e := New(nil, "/usr/bin/halcmd", halibDir, nil, "")
+	e := New(nil, halibDir, nil, "")
 	got, err := e.resolvePath("common.hal")
 	if err != nil {
 		t.Fatalf("resolvePath error: %v", err)
@@ -157,7 +95,7 @@ func TestResolvePath_RelativeInHalibPath(t *testing.T) {
 }
 
 func TestResolvePath_NotFound(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "/nonexistent", nil, "")
+	e := New(nil, "/nonexistent", nil, "")
 	_, err := e.resolvePath("missing.hal")
 	if err == nil {
 		t.Error("resolvePath for missing file should return error")
@@ -170,7 +108,7 @@ func TestResolvePath_MultipleHalibDirs(t *testing.T) {
 	writeTemp(t, dir2, "target.hal", "# target")
 
 	halibPath := dir1 + ":" + dir2
-	e := New(nil, "/usr/bin/halcmd", halibPath, nil, "")
+	e := New(nil, halibPath, nil, "")
 	got, err := e.resolvePath("target.hal")
 	if err != nil {
 		t.Fatalf("resolvePath error: %v", err)
@@ -183,14 +121,14 @@ func TestResolvePath_MultipleHalibDirs(t *testing.T) {
 
 func TestResolvePath_LibPrefix(t *testing.T) {
 	halibDir := t.TempDir()
-	writeTemp(t, halibDir, "basic_sim.tcl", "# basic_sim")
+	writeTemp(t, halibDir, "basic_sim.hal", "# basic_sim")
 
-	e := New(nil, "/usr/bin/halcmd", halibDir, nil, "")
-	got, err := e.resolvePath("LIB:basic_sim.tcl")
+	e := New(nil, halibDir, nil, "")
+	got, err := e.resolvePath("LIB:basic_sim.hal")
 	if err != nil {
-		t.Fatalf("resolvePath(LIB:basic_sim.tcl) error: %v", err)
+		t.Fatalf("resolvePath(LIB:basic_sim.hal) error: %v", err)
 	}
-	want := filepath.Join(halibDir, "basic_sim.tcl")
+	want := filepath.Join(halibDir, "basic_sim.hal")
 	if got != want {
 		t.Errorf("resolvePath = %q; want %q", got, want)
 	}
@@ -200,7 +138,7 @@ func TestResolvePath_LibPrefix_SkipsConfigDir(t *testing.T) {
 	// The file exists ONLY in configDir, not in halibPath.
 	// LIB: prefix must NOT find it in configDir.
 	dir := t.TempDir()
-	writeTemp(t, dir, "only_in_config.tcl", "# config-only")
+	writeTemp(t, dir, "only_in_config.hal", "# config-only")
 
 	iniPath := writeTemp(t, dir, "machine.ini", "[HAL]\n")
 	ini, err := inifile.Parse(iniPath)
@@ -208,11 +146,10 @@ func TestResolvePath_LibPrefix_SkipsConfigDir(t *testing.T) {
 		t.Fatalf("parsing INI: %v", err)
 	}
 
-	// Use a separate empty hallib dir so the file won't be found there.
 	halibDir := t.TempDir()
-	e := New(ini, "/usr/bin/halcmd", halibDir, nil, "")
+	e := New(ini, halibDir, nil, "")
 
-	_, err = e.resolvePath("LIB:only_in_config.tcl")
+	_, err = e.resolvePath("LIB:only_in_config.hal")
 	if err == nil {
 		t.Error("resolvePath(LIB:...) should not find file in configDir")
 	}
@@ -221,36 +158,35 @@ func TestResolvePath_LibPrefix_SkipsConfigDir(t *testing.T) {
 func TestResolvePath_LibPrefix_MultipleHalibDirs(t *testing.T) {
 	dir1 := t.TempDir()
 	dir2 := t.TempDir()
-	writeTemp(t, dir2, "lib.tcl", "# lib")
+	writeTemp(t, dir2, "lib.hal", "# lib")
 
 	halibPath := dir1 + ":" + dir2
-	e := New(nil, "/usr/bin/halcmd", halibPath, nil, "")
-	got, err := e.resolvePath("LIB:lib.tcl")
+	e := New(nil, halibPath, nil, "")
+	got, err := e.resolvePath("LIB:lib.hal")
 	if err != nil {
-		t.Fatalf("resolvePath(LIB:lib.tcl) error: %v", err)
+		t.Fatalf("resolvePath(LIB:lib.hal) error: %v", err)
 	}
-	want := filepath.Join(dir2, "lib.tcl")
+	want := filepath.Join(dir2, "lib.hal")
 	if got != want {
 		t.Errorf("resolvePath = %q; want %q", got, want)
 	}
 }
 
 func TestResolvePath_LibPrefix_NotFound(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", t.TempDir(), nil, "")
-	_, err := e.resolvePath("LIB:missing.tcl")
+	e := New(nil, t.TempDir(), nil, "")
+	_, err := e.resolvePath("LIB:missing.hal")
 	if err == nil {
-		t.Error("resolvePath(LIB:missing.tcl) should return error when file not found")
+		t.Error("resolvePath(LIB:missing.hal) should return error when file not found")
 	}
 }
 
 // ---------------------------------------------------------------------------
-// ExecuteAll order test (no actual halcmd, only verifying INI reading)
+// ExecuteAll tests (INI reading / path resolution; no actual HAL execution)
 // ---------------------------------------------------------------------------
 
 func TestExecuteAll_ReadsHalfileEntriesInOrder(t *testing.T) {
 	dir := t.TempDir()
 
-	// Create two dummy HAL files.
 	writeTemp(t, dir, "first.hal", "# first")
 	writeTemp(t, dir, "second.hal", "# second")
 
@@ -261,7 +197,6 @@ func TestExecuteAll_ReadsHalfileEntriesInOrder(t *testing.T) {
 		t.Fatalf("parsing INI: %v", err)
 	}
 
-	// Verify GetAll returns entries in order (underlying INI behaviour).
 	files := ini.GetAll("HAL", "HALFILE")
 	if len(files) != 2 {
 		t.Fatalf("expected 2 HALFILE entries, got %d", len(files))
@@ -273,8 +208,7 @@ func TestExecuteAll_ReadsHalfileEntriesInOrder(t *testing.T) {
 		t.Errorf("second HALFILE = %q; want %q", files[1], "second.hal")
 	}
 
-	// resolvePath should find both files in the config directory.
-	e := New(ini, "/usr/bin/halcmd", "", nil, "")
+	e := New(ini, "", nil, "")
 	for _, f := range files {
 		if _, err := e.resolvePath(f); err != nil {
 			t.Errorf("resolvePath(%q) error: %v", f, err)
@@ -284,10 +218,7 @@ func TestExecuteAll_ReadsHalfileEntriesInOrder(t *testing.T) {
 
 func TestExecuteAll_EmptyIni(t *testing.T) {
 	ini := parseIni(t, "[EMC]\nMACHINE = TestMachine\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil, "")
-	// ExecuteAll with no HALFILE entries should not error.
-	// We cannot actually run halcmd in tests, so we rely on the INI having no
-	// HALFILE entries so that no subprocess is spawned.
+	e := New(ini, "", nil, "")
 	files := ini.GetAll("HAL", "HALFILE")
 	if len(files) != 0 {
 		t.Skipf("unexpected HALFILE entries: %v", files)
@@ -297,8 +228,30 @@ func TestExecuteAll_EmptyIni(t *testing.T) {
 	}
 }
 
+// TestExecuteAll_TclFileReturnsError verifies that a .tcl HALFILE entry
+// causes a hard error (TCL HAL files are no longer supported).
+func TestExecuteAll_TclFileReturnsError(t *testing.T) {
+	dir := t.TempDir()
+	writeTemp(t, dir, "twopass.tcl", "# tcl file")
+
+	iniPath := writeTemp(t, dir, "machine.ini", "[HAL]\nHALFILE = twopass.tcl\n")
+	ini, err := inifile.Parse(iniPath)
+	if err != nil {
+		t.Fatalf("parsing INI: %v", err)
+	}
+
+	e := New(ini, "", nil, "")
+	err = e.ExecuteAll()
+	if err == nil {
+		t.Error("ExecuteAll with .tcl HALFILE should return an error")
+	}
+	if !strings.Contains(err.Error(), ".tcl") && !strings.Contains(err.Error(), "TCL") {
+		t.Errorf("error should mention TCL, got: %v", err)
+	}
+}
+
 // TestExecuteAll_SkipsHalcmdEntries verifies that ExecuteAll() only processes
-// HALFILE entries and skips HALCMD entries (which are handled by ExecuteHalCommands()).
+// HALFILE entries and skips HALCMD entries.
 func TestExecuteAll_SkipsHalcmdEntries(t *testing.T) {
 	dir := t.TempDir()
 
@@ -309,7 +262,6 @@ func TestExecuteAll_SkipsHalcmdEntries(t *testing.T) {
 		t.Fatalf("parsing INI: %v", err)
 	}
 
-	// Verify that GetSection returns entries in the correct interleaved order.
 	entries := ini.GetSection("HAL")
 	if len(entries) != 3 {
 		t.Fatalf("expected 3 HAL entries, got %d", len(entries))
@@ -326,7 +278,6 @@ func TestExecuteAll_SkipsHalcmdEntries(t *testing.T) {
 		}
 	}
 
-	// ExecuteAll() must only return HALFILE entries (not HALCMD).
 	var halfiles []string
 	for _, e := range entries {
 		if e.Key == "HALFILE" {
@@ -336,18 +287,12 @@ func TestExecuteAll_SkipsHalcmdEntries(t *testing.T) {
 	if len(halfiles) != 2 {
 		t.Errorf("expected 2 HALFILE entries, got %d", len(halfiles))
 	}
-	if halfiles[0] != "a.hal" {
-		t.Errorf("halfiles[0] = %q; want %q", halfiles[0], "a.hal")
-	}
-	if halfiles[1] != "b.hal" {
-		t.Errorf("halfiles[1] = %q; want %q", halfiles[1], "b.hal")
-	}
 }
 
-// TestExecuteHalCommands_ReadsHalcmdEntries verifies that the INI parser
-// correctly returns HALCMD entries for ExecuteHalCommands() to consume.
-// The actual halcmd subprocess is not invoked (no binary is available in unit
-// tests); this test validates the INI reading side only.
+// ---------------------------------------------------------------------------
+// ExecuteHalCommands tests
+// ---------------------------------------------------------------------------
+
 func TestExecuteHalCommands_ReadsHalcmdEntries(t *testing.T) {
 	dir := t.TempDir()
 
@@ -358,7 +303,6 @@ func TestExecuteHalCommands_ReadsHalcmdEntries(t *testing.T) {
 		t.Fatalf("parsing INI: %v", err)
 	}
 
-	// Verify that GetAll("HAL", "HALCMD") returns the expected entries.
 	cmds := ini.GetAll("HAL", "HALCMD")
 	if len(cmds) != 2 {
 		t.Fatalf("expected 2 HALCMD entries, got %d", len(cmds))
@@ -369,50 +313,13 @@ func TestExecuteHalCommands_ReadsHalcmdEntries(t *testing.T) {
 	if cmds[1] != "setp bar 2" {
 		t.Errorf("cmds[1] = %q; want %q", cmds[1], "setp bar 2")
 	}
-
-	// ExecuteHalCommands with no halcmd binary should not be called; we only
-	// verify the INI reading side here (no subprocess spawned).
-	_ = New(ini, "/usr/bin/halcmd", "", nil, "")
 }
 
-// TestExecuteHalCommands_EmptyIni verifies that ExecuteHalCommands on an INI
-// with no HALCMD entries is a no-op.
 func TestExecuteHalCommands_EmptyIni(t *testing.T) {
 	ini := parseIni(t, "[EMC]\nMACHINE = TestMachine\n")
-	e := New(ini, "/usr/bin/halcmd", "", nil, "")
-	// No HALCMD entries — no subprocess is spawned so this should return nil.
+	e := New(ini, "", nil, "")
 	if err := e.ExecuteHalCommands(); err != nil {
 		t.Errorf("ExecuteHalCommands on INI with no HALCMD entries: %v", err)
-	}
-}
-
-// ---------------------------------------------------------------------------
-// halibDir helper tests
-// ---------------------------------------------------------------------------
-
-func TestHalibDir_LastEntry(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", ".:/usr/share/linuxcnc/hallib", nil, "")
-	got := e.halibDir()
-	want := "/usr/share/linuxcnc/hallib"
-	if got != want {
-		t.Errorf("halibDir() = %q; want %q", got, want)
-	}
-}
-
-func TestHalibDir_SingleEntry(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "/some/hallib", nil, "")
-	got := e.halibDir()
-	want := "/some/hallib"
-	if got != want {
-		t.Errorf("halibDir() = %q; want %q", got, want)
-	}
-}
-
-func TestHalibDir_Empty(t *testing.T) {
-	e := New(nil, "/usr/bin/halcmd", "", nil, "")
-	got := e.halibDir()
-	if got != "" {
-		t.Errorf("halibDir() with empty halibPath = %q; want empty string", got)
 	}
 }
 
@@ -420,9 +327,6 @@ func TestHalibDir_Empty(t *testing.T) {
 // HALFILE field splitting tests
 // ---------------------------------------------------------------------------
 
-// TestHalfileFieldSplitting verifies that a HALFILE value with arguments is
-// correctly split so that the filename is resolved and args are preserved.
-// This tests the resolution step only (no halcmd/haltcl subprocess is spawned).
 func TestHalfileFieldSplitting_ResolveFilename(t *testing.T) {
 	dir := t.TempDir()
 	writeTemp(t, dir, "test.hal", "# test")
@@ -433,9 +337,8 @@ func TestHalfileFieldSplitting_ResolveFilename(t *testing.T) {
 		t.Fatalf("parsing INI: %v", err)
 	}
 
-	e := New(ini, "/usr/bin/halcmd", "", nil, "")
+	e := New(ini, "", nil, "")
 
-	// Verify that resolvePath works on the filename portion after splitting.
 	entry := ini.GetSection("HAL")[0]
 	fields := strings.Fields(entry.Value)
 	if len(fields) != 2 {
@@ -448,7 +351,6 @@ func TestHalfileFieldSplitting_ResolveFilename(t *testing.T) {
 		t.Errorf("fields[1] = %q; want %q", fields[1], "-some-arg")
 	}
 
-	// The filename part should resolve correctly.
 	resolved, err := e.resolvePath(fields[0])
 	if err != nil {
 		t.Fatalf("resolvePath(%q) error: %v", fields[0], err)
@@ -461,12 +363,11 @@ func TestHalfileFieldSplitting_ResolveFilename(t *testing.T) {
 
 func TestHalfileFieldSplitting_LibWithArgs(t *testing.T) {
 	halibDir := t.TempDir()
-	writeTemp(t, halibDir, "basic_sim.tcl", "# basic_sim")
+	writeTemp(t, halibDir, "basic_sim.hal", "# basic_sim")
 
-	e := New(nil, "/usr/bin/halcmd", halibDir, nil, "")
+	e := New(nil, halibDir, nil, "")
 
-	// Simulate what ExecuteAll does: split "LIB:basic_sim.tcl -no_sim_spindle"
-	raw := "LIB:basic_sim.tcl -no_sim_spindle"
+	raw := "LIB:basic_sim.hal -no_sim_spindle"
 	fields := strings.Fields(raw)
 	if len(fields) != 2 {
 		t.Fatalf("expected 2 fields, got %d", len(fields))
@@ -476,12 +377,9 @@ func TestHalfileFieldSplitting_LibWithArgs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolvePath(%q) error: %v", fields[0], err)
 	}
-	want := filepath.Join(halibDir, "basic_sim.tcl")
+	want := filepath.Join(halibDir, "basic_sim.hal")
 	if resolved != want {
 		t.Errorf("resolvePath = %q; want %q", resolved, want)
-	}
-	if !strings.HasSuffix(resolved, ".tcl") {
-		t.Errorf("resolved path %q should have .tcl suffix", resolved)
 	}
 	if fields[1] != "-no_sim_spindle" {
 		t.Errorf("arg = %q; want %q", fields[1], "-no_sim_spindle")
