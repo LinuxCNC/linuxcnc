@@ -274,7 +274,7 @@ static void set_ref(lcec_class_enc_data_t *hal_data, long long ref) {
 /**
  * @brief Compute a signed modulo in the range [-(div/2), +(div/2)].
  *
- * First obtains the non-negative remainder via `lcec_mod_64`, then folds it
+ * First obtains the non-negative remainder, then folds it
  * into the symmetric range so that values just below @p div are reported as
  * small negative numbers rather than large positives.  This is used by the
  * index-pulse detection code to determine which "side" of the revolution
@@ -285,7 +285,7 @@ static void set_ref(lcec_class_enc_data_t *hal_data, long long ref) {
  * @return     Remainder in the range [-(div/2), +(div/2)].
  */
 static long long signed_mod_64(long long val, unsigned long div) {
-  long long rem = lcec_mod_64(val, div);
+  long long rem = val % div;
 
   if (rem < 0) {
     rem += div;

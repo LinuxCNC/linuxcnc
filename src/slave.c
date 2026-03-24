@@ -84,7 +84,7 @@ lcec_slave_t *lcec_create_slave(lcec_master_t *master, LCEC_CONF_SLAVE_T *slave_
   }
 
   // create new slave
-  slave = lcec_zalloc(sizeof(lcec_slave_t));
+  slave = rtapi_calloc(sizeof(lcec_slave_t));
   if (slave == NULL) {
     rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s structure memory\n", master->name, slave_conf->name);
     goto fail0;
@@ -112,7 +112,7 @@ lcec_slave_t *lcec_create_slave(lcec_master_t *master, LCEC_CONF_SLAVE_T *slave_
 
   // alloc sdo config memory
   if (slave_conf->sdoConfigLength > 0) {
-    slave->sdo_config = lcec_zalloc(slave_conf->sdoConfigLength + sizeof(lcec_slave_sdoconf_t));
+    slave->sdo_config = rtapi_calloc(slave_conf->sdoConfigLength + sizeof(lcec_slave_sdoconf_t));
     if (slave->sdo_config == NULL) {
       rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s sdo entry memory\n", master->name, slave_conf->name);
       goto fail1;
@@ -121,7 +121,7 @@ lcec_slave_t *lcec_create_slave(lcec_master_t *master, LCEC_CONF_SLAVE_T *slave_
 
   // alloc idn config memory
   if (slave_conf->idnConfigLength > 0) {
-    slave->idn_config = lcec_zalloc(slave_conf->idnConfigLength + sizeof(lcec_slave_idnconf_t));
+    slave->idn_config = rtapi_calloc(slave_conf->idnConfigLength + sizeof(lcec_slave_idnconf_t));
     if (slave->idn_config == NULL) {
       rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s idn entry memory\n", master->name, slave_conf->name);
       goto fail1;
@@ -130,7 +130,7 @@ lcec_slave_t *lcec_create_slave(lcec_master_t *master, LCEC_CONF_SLAVE_T *slave_
 
   // alloc modparam memory
   if (slave_conf->modParamCount > 0) {
-    slave->modparams = lcec_zalloc(sizeof(lcec_slave_modparam_t) * (slave_conf->modParamCount + 1));
+    slave->modparams = rtapi_calloc(sizeof(lcec_slave_modparam_t) * (slave_conf->modParamCount + 1));
     if (slave->modparams == NULL) {
       rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s modparam memory\n", master->name, slave_conf->name);
       goto fail1;
@@ -169,21 +169,21 @@ void lcec_free_slave(lcec_slave_t *slave) {
   lcec_generic_free_slave(slave);
 
   if (slave->modparams != NULL) {
-    lcec_free(slave->modparams);
+    rtapi_free(slave->modparams);
   }
   if (slave->sdo_config != NULL) {
-    lcec_free(slave->sdo_config);
+    rtapi_free(slave->sdo_config);
   }
   if (slave->idn_config != NULL) {
-    lcec_free(slave->idn_config);
+    rtapi_free(slave->idn_config);
   }
   if (slave->dc_conf != NULL) {
-    lcec_free(slave->dc_conf);
+    rtapi_free(slave->dc_conf);
   }
   if (slave->wd_conf != NULL) {
-    lcec_free(slave->wd_conf);
+    rtapi_free(slave->wd_conf);
   }
-  lcec_free(slave);
+  rtapi_free(slave);
 }
 
 /**
@@ -213,7 +213,7 @@ int lcec_slave_conf_dc(lcec_slave_t *slave, LCEC_CONF_DC_T *dc_conf) {
   }
 
   // create new dc config
-  dc = lcec_zalloc(sizeof(lcec_slave_dc_t));
+  dc = rtapi_calloc(sizeof(lcec_slave_dc_t));
   if (dc == NULL) {
     rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s dc config memory\n", slave->master->name, slave->name);
     return -1;
@@ -259,7 +259,7 @@ int lcec_slave_conf_wd(lcec_slave_t *slave, LCEC_CONF_WATCHDOG_T *wd_conf) {
   }
 
   // create new wd config
-  wd = lcec_zalloc(sizeof(lcec_slave_watchdog_t));
+  wd = rtapi_calloc(sizeof(lcec_slave_watchdog_t));
   if (wd == NULL) {
     rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s watchdog config memory\n", slave->master->name, slave->name);
     return -1;

@@ -147,7 +147,7 @@ lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf) {
 #endif
 
   // alloc master memory
-  master = lcec_zalloc(sizeof(lcec_master_t));
+  master = rtapi_calloc(sizeof(lcec_master_t));
   if (master == NULL) {
     rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate master %d structure memory\n", master_conf->index);
     goto fail0;

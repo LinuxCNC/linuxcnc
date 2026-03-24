@@ -66,7 +66,6 @@
 #include "rtapi.h"
 #include "hal.h"
 
-#include "lcec_compat.h"
 #include "conf.h"
 #include "conf_priv.h"
 
@@ -628,7 +627,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "%s: ERROR: couldn't allocate user/RT shared memory\n", modname);
     goto fail4;
   }
-  if (lcec_rtapi_shmem_getptr(shmem_id, &shmem_ptr) < 0) {
+  if (rtapi_shmem_getptr(shmem_id, &shmem_ptr) < 0) {
     fprintf(stderr, "%s: ERROR: couldn't map user/RT shared memory\n", modname);
     goto fail5;
   }

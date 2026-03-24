@@ -115,7 +115,7 @@ int rtapi_app_main(void) {
   long long rtapi_now;
 
   // get time base
-  lcec_gettimeofday(&tv);
+  gettimeofday(&tv, NULL);
   rtapi_now = rtapi_get_time();
   dc_time_offset = EC_TIMEVAL2NANO(tv) - rtapi_now;
 
@@ -413,7 +413,7 @@ int lcec_parse_config(void) {
     rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't allocate user/RT shared memory\n");
     goto fail0;
   }
-  if (lcec_rtapi_shmem_getptr(shmem_id, &shmem_ptr) < 0 ) {
+  if (rtapi_shmem_getptr(shmem_id, &shmem_ptr) < 0 ) {
     rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't map user/RT shared memory\n");
     goto fail1;
   }
@@ -433,7 +433,7 @@ int lcec_parse_config(void) {
     rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't allocate user/RT shared memory\n");
     goto fail0;
   }
-  if (lcec_rtapi_shmem_getptr(shmem_id, &shmem_ptr) < 0 ) {
+  if (rtapi_shmem_getptr(shmem_id, &shmem_ptr) < 0 ) {
     rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't map user/RT shared memory\n");
     goto fail1;
   }
@@ -605,7 +605,7 @@ int lcec_parse_config(void) {
     }
 
     // alloc mem for pdo mappings
-    pdo_entry_regs = lcec_zalloc(sizeof(ec_pdo_entry_reg_t) * (master->pdo_entry_count + 1));
+    pdo_entry_regs = rtapi_calloc(sizeof(ec_pdo_entry_reg_t) * (master->pdo_entry_count + 1));
     if (pdo_entry_regs == NULL) {
       rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate master %s PDO entry memory\n", master->name);
       goto fail2;
@@ -667,11 +667,11 @@ void lcec_clear_config(void) {
 
     // free PDO entry memory
     if (master->pdo_entry_regs != NULL) {
-      lcec_free(master->pdo_entry_regs);
+      rtapi_free(master->pdo_entry_regs);
     }
 
     // free master
-    lcec_free(master);
+    rtapi_free(master);
     master = prev_master;
   }
 }

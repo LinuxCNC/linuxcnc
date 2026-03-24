@@ -33,7 +33,11 @@
 #ifndef _LCEC_H_
 #define _LCEC_H_
 
-#include "lcec_compat.h"
+#include <rtapi.h>
+#include <rtapi_stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
 
 #include "hal.h"
 

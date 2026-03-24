@@ -82,21 +82,21 @@ int lcec_generic_conf_init(lcec_slave_t *slave, LCEC_CONF_SLAVE_T *slave_conf, l
   memset(slave->hal_data, 0, sizeof(lcec_generic_pin_t) * slave_conf->pdoMappingCount);
 
   // alloc pdo entry memory
-  slave->generic.pdo_entries = lcec_zalloc(sizeof(ec_pdo_entry_info_t) * slave_conf->pdoEntryCount);
+  slave->generic.pdo_entries = rtapi_calloc(sizeof(ec_pdo_entry_info_t) * slave_conf->pdoEntryCount);
   if (slave->generic.pdo_entries == NULL) {
     rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s generic pdo entry memory\n", slave->master->name, slave_conf->name);
     return -1;
   }
 
   // alloc pdo memory
-  slave->generic.pdos = lcec_zalloc(sizeof(ec_pdo_info_t) * slave_conf->pdoCount);
+  slave->generic.pdos = rtapi_calloc(sizeof(ec_pdo_info_t) * slave_conf->pdoCount);
   if (slave->generic.pdos == NULL) {
     rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s generic pdo memory\n", slave->master->name, slave_conf->name);
     return -1;
   }
 
   // alloc sync manager memory
-  slave->generic.sync_managers = lcec_zalloc(sizeof(ec_sync_info_t) * (slave_conf->syncManagerCount + 1));
+  slave->generic.sync_managers = rtapi_calloc(sizeof(ec_sync_info_t) * (slave_conf->syncManagerCount + 1));
   if (slave->generic.sync_managers == NULL) {
     rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s generic sync manager memory\n", slave->master->name, slave_conf->name);
     return -1;
@@ -125,13 +125,13 @@ int lcec_generic_conf_init(lcec_slave_t *slave, LCEC_CONF_SLAVE_T *slave_conf, l
  */
 void lcec_generic_free_slave(lcec_slave_t *slave) {
   if (slave->generic.pdo_entries != NULL) {
-    lcec_free(slave->generic.pdo_entries);
+    rtapi_free(slave->generic.pdo_entries);
   }
   if (slave->generic.pdos != NULL) {
-    lcec_free(slave->generic.pdos);
+    rtapi_free(slave->generic.pdos);
   }
   if (slave->generic.sync_managers != NULL) {
-    lcec_free(slave->generic.sync_managers);
+    rtapi_free(slave->generic.sync_managers);
   }
 }
 
