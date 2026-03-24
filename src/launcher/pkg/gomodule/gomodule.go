@@ -53,12 +53,21 @@ type Module interface {
 // Parameters:
 //   - ini: the parsed INI configuration file for the current machine config
 //   - logger: a structured logger scoped to the launcher
+//   - name: the instance name for this module instance, to be used as the
+//     HAL component name. Defaults to the module's base filename (without .so)
+//     when no explicit names are given. For multi-instance loading, each
+//     instance receives a distinct name from the [name1,name2,...] syntax.
 //   - args: the arguments from the "load" command line (everything after the
-//     module path), split by the parser into individual tokens
+//     module path and optional name list), split by the parser into individual
+//     tokens
 //
 // Example HAL file usage:
 //
-//	load /usr/lib/linuxcnc/go-modules/mymodule.so config=/path/to/config.ini
+//	load mymodule config=/path/to/config.ini
 //
-// In this example, args would be []string{"config=/path/to/config.ini"}.
-type Factory func(ini *inifile.IniFile, logger *slog.Logger, args []string) (Module, error)
+// creates one instance named "mymodule" with args ["config=/path/to/config.ini"].
+//
+//	load mymodule [inst1,inst2] config=/path/to/config.ini
+//
+// creates two instances named "inst1" and "inst2", each receiving the same args.
+type Factory func(ini *inifile.IniFile, logger *slog.Logger, name string, args []string) (Module, error)

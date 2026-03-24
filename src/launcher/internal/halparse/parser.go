@@ -644,8 +644,26 @@ func parseLoad(tokens []string, loc SourceLoc) (Token, *ParseError) {
 	tok := &LoadToken{
 		Path: tokens[0],
 	}
-	if len(tokens) > 1 {
-		tok.Args = tokens[1:]
+	rest := tokens[1:]
+	// Check for optional [name1,name2,...] instance name list.
+	if len(rest) > 0 && strings.HasPrefix(rest[0], "[") && strings.HasSuffix(rest[0], "]") {
+		nameList := rest[0][1 : len(rest[0])-1] // strip brackets
+		if nameList == "" {
+			return Token{}, &ParseError{Loc: loc, Msg: "load: empty instance name list []"}
+		}
+		names := strings.Split(nameList, ",")
+		for i, n := range names {
+			n = strings.TrimSpace(n)
+			if n == "" {
+				return Token{}, &ParseError{Loc: loc, Msg: "load: empty name in instance name list"}
+			}
+			names[i] = n
+		}
+		tok.Names = names
+		rest = rest[1:]
+	}
+	if len(rest) > 0 {
+		tok.Args = rest
 	}
 	return Token{Location: loc, Data: tok}, nil
 }

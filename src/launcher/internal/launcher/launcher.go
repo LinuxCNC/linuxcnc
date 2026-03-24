@@ -333,8 +333,8 @@ func (l *Launcher) Run() error {
 	// Phase 1.3: Load Go plugin modules from "load" commands.
 	// The "load" command is exclusively for Go plugins; bare module names
 	// are resolved against EMC2_GOMOD_DIR (same pattern as loadrt/EMC2_RTLIB_DIR).
-	if err := halResult.IterLoads(func(path string, args []string) error {
-		return l.loadGoPlugin(resolveGoModulePath(path), args)
+	if err := halResult.IterLoads(func(path string, name string, args []string) error {
+		return l.loadGoPlugin(resolveGoModulePath(path), name, args)
 	}); err != nil {
 		if !l.opts.ContinueOnError {
 			return fmt.Errorf("module loading (load command) failed: %w", err)

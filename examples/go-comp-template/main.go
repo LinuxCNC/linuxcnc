@@ -23,6 +23,7 @@ import (
 // to an output float pin.  Replace this with your own logic.
 type passthroughModule struct {
 	logger  *slog.Logger
+	name    string
 	args    []string
 	comp    *hal.Component
 	inputF  *hal.Pin[float64] // in  float64
@@ -33,9 +34,9 @@ type passthroughModule struct {
 // This is called after the plugin is loaded and before HAL file wiring,
 // so the pins created here can be connected via net/setp/addf in the HAL file.
 func (m *passthroughModule) Init() error {
-	m.logger.Info("passthroughModule Init()", "args", m.args)
+	m.logger.Info("passthroughModule Init()", "name", m.name, "args", m.args)
 
-	comp, err := hal.NewComponent("go-passthrough")
+	comp, err := hal.NewComponent(m.name)
 	if err != nil {
 		return fmt.Errorf("hal.NewComponent: %w", err)
 	}
@@ -84,9 +85,14 @@ func (m *passthroughModule) Stop() {
 //
 // The signature must match gomodule.Factory exactly:
 //
-//	func(ini *inifile.IniFile, logger *slog.Logger, args []string) (gomodule.Module, error)
+//	func(ini *inifile.IniFile, logger *slog.Logger, name string, args []string) (gomodule.Module, error)
 //
-// args contains the individual arguments after the module path on the "load" line, e.g.:
+// name is the instance name — use it as the HAL component name.
+// For single-instance loading it defaults to the module's base filename.
+// For multi-instance loading via [name1,name2,...] each instance gets a distinct name.
+//
+// args contains the individual arguments after the module path (and optional name list)
+// on the "load" line, e.g.:
 //
 //	load /path/to/mygomodule.so config=/path/to/config.ini key=value
 //
@@ -95,9 +101,10 @@ func (m *passthroughModule) Stop() {
 // The variable is exported by name: the launcher calls plugin.Lookup("New")
 // at runtime to find it.  It must be declared as a package-level var (not a
 // function) so that its address is stable and the linker exports it correctly.
-var New gomodule.Factory = func(ini *inifile.IniFile, logger *slog.Logger, args []string) (gomodule.Module, error) {
+var New gomodule.Factory = func(ini *inifile.IniFile, logger *slog.Logger, name string, args []string) (gomodule.Module, error) {
 	return &passthroughModule{
-		logger: logger.With("plugin", "go-passthrough"),
+		logger: logger.With("plugin", name),
+		name:   name,
 		args:   args,
 	}, nil
 }

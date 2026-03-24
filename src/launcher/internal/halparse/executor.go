@@ -177,23 +177,39 @@ func (r *ParseResult) Execute() error {
 	return nil
 }
 
-// IterLoads calls fn once for each "load" command token in ParseResult.Loads,
-// passing the module path and its argument slice.
+// IterLoads calls fn once for each instance described by "load" command tokens
+// in ParseResult.Loads, passing the module path, instance name, and argument slice.
+//
+// When a LoadToken has no explicit Names, a single call is made with the default
+// name derived from the module path (basename without .so).  When Names are set
+// (via the [name1,name2,...] syntax), fn is called once per name.
 //
 // The "load" command is exclusively for Go plugins.  The launcher resolves
 // bare module names against EMC2_GOMOD_DIR and loads them via plugin.Open.
 //
-//	err := result.IterLoads(func(path string, args []string) error {
-//	    return loadGoPlugin(resolveGoModulePath(path), args)
+//	err := result.IterLoads(func(path string, name string, args []string) error {
+//	    return loadGoPlugin(resolveGoModulePath(path), name, args)
 //	})
-func (r *ParseResult) IterLoads(fn func(path string, args []string) error) error {
+func (r *ParseResult) IterLoads(fn func(path string, name string, args []string) error) error {
 	for _, tok := range r.Loads {
 		d, ok := tok.Data.(*LoadToken)
 		if !ok {
 			continue
 		}
-		if err := fn(d.Path, d.Args); err != nil {
-			return &ExecutionError{Loc: tok.Location, Err: err}
+		names := d.Names
+		if len(names) == 0 {
+			// Default: basename without .so extension.
+			base := d.Path
+			if i := strings.LastIndex(base, "/"); i >= 0 {
+				base = base[i+1:]
+			}
+			base = strings.TrimSuffix(base, ".so")
+			names = []string{base}
+		}
+		for _, name := range names {
+			if err := fn(d.Path, name, d.Args); err != nil {
+				return &ExecutionError{Loc: tok.Location, Err: err}
+			}
 		}
 	}
 	return nil

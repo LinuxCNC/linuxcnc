@@ -32,8 +32,8 @@ func resolveGoModulePath(name string) string {
 // Note: Go plugins can be loaded but never unloaded (plugin.Open has no Close).
 // Stop() handles logical shutdown; the plugin code stays resident until the
 // process exits.
-func (l *Launcher) loadGoPlugin(path string, args []string) error {
-	l.logger.Info("loading Go plugin", "path", path)
+func (l *Launcher) loadGoPlugin(path string, name string, args []string) error {
+	l.logger.Info("loading Go plugin", "path", path, "name", name)
 
 	p, err := plugin.Open(path)
 	if err != nil {
@@ -50,7 +50,7 @@ func (l *Launcher) loadGoPlugin(path string, args []string) error {
 		return fmt.Errorf("load Go plugin %q: \"New\" symbol has wrong type %T (expected *gomodule.Factory)", path, sym)
 	}
 
-	mod, err := (*factoryPtr)(l.ini, l.logger, args)
+	mod, err := (*factoryPtr)(l.ini, l.logger, name, args)
 	if err != nil {
 		return fmt.Errorf("load Go plugin %q: factory error: %w", path, err)
 	}

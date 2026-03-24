@@ -335,7 +335,7 @@ func TestParseResultLoad_LoadRTMerge(t *testing.T) {
 }
 
 // TestParseResultIterLoads verifies that IterLoads calls the callback for each
-// LoadToken in Loads, providing the correct path and args.
+// LoadToken in Loads, providing the correct path, name, and args.
 func TestParseResultIterLoads(t *testing.T) {
 	r := &ParseResult{
 		Loads: []Token{
@@ -352,12 +352,13 @@ func TestParseResultIterLoads(t *testing.T) {
 
 	type call struct {
 		path string
+		name string
 		args []string
 	}
 	var calls []call
 
-	err := r.IterLoads(func(path string, args []string) error {
-		calls = append(calls, call{path, args})
+	err := r.IterLoads(func(path string, name string, args []string) error {
+		calls = append(calls, call{path, name, args})
 		return nil
 	})
 	if err != nil {
@@ -369,11 +370,63 @@ func TestParseResultIterLoads(t *testing.T) {
 	if calls[0].path != "/tmp/foo.so" {
 		t.Errorf("calls[0].path = %q, want %q", calls[0].path, "/tmp/foo.so")
 	}
+	if calls[0].name != "foo" {
+		t.Errorf("calls[0].name = %q, want %q", calls[0].name, "foo")
+	}
 	if len(calls[0].args) != 2 || calls[0].args[0] != "a=1" || calls[0].args[1] != "b=2" {
 		t.Errorf("calls[0].args = %v, want [a=1 b=2]", calls[0].args)
 	}
 	if calls[1].path != "/tmp/bar.so" {
 		t.Errorf("calls[1].path = %q, want %q", calls[1].path, "/tmp/bar.so")
+	}
+	if calls[1].name != "bar" {
+		t.Errorf("calls[1].name = %q, want %q", calls[1].name, "bar")
+	}
+}
+
+// TestParseResultIterLoads_MultiInstance verifies that IterLoads expands
+// the Names list into one callback per instance name.
+func TestParseResultIterLoads_MultiInstance(t *testing.T) {
+	r := &ParseResult{
+		Loads: []Token{
+			{
+				Location: SourceLoc{File: "test.hal", Line: 1},
+				Data:     &LoadToken{Path: "mymod", Names: []string{"inst1", "inst2"}, Args: []string{"x=1"}},
+			},
+		},
+	}
+
+	type call struct {
+		path string
+		name string
+		args []string
+	}
+	var calls []call
+
+	err := r.IterLoads(func(path string, name string, args []string) error {
+		calls = append(calls, call{path, name, args})
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("IterLoads returned unexpected error: %v", err)
+	}
+	if len(calls) != 2 {
+		t.Fatalf("expected 2 calls, got %d", len(calls))
+	}
+	if calls[0].name != "inst1" {
+		t.Errorf("calls[0].name = %q, want %q", calls[0].name, "inst1")
+	}
+	if calls[1].name != "inst2" {
+		t.Errorf("calls[1].name = %q, want %q", calls[1].name, "inst2")
+	}
+	// Both calls should receive the same path and args
+	for i, c := range calls {
+		if c.path != "mymod" {
+			t.Errorf("calls[%d].path = %q, want %q", i, c.path, "mymod")
+		}
+		if len(c.args) != 1 || c.args[0] != "x=1" {
+			t.Errorf("calls[%d].args = %v, want [x=1]", i, c.args)
+		}
 	}
 }
 
@@ -388,7 +441,7 @@ func TestParseResultIterLoads_ErrorPropagation(t *testing.T) {
 	}
 
 	sentinelErr := errors.New("intentional failure")
-	err := r.IterLoads(func(_ string, _ []string) error {
+	err := r.IterLoads(func(_ string, _ string, _ []string) error {
 		return sentinelErr
 	})
 	if err == nil {
