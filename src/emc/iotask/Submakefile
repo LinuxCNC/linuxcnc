@@ -9,9 +9,11 @@ $(call TOOBJS, $(IOSRCS)): EXTRAFLAGS += -fPIC
 	@mkdir -p ../cmod
 	@$(CXX) -shared -o $@ $^ $(LDFLAGS)
 
-../bin/iov2: $(call TOOBJS, $(IOV2SRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
+$(call TOOBJS, $(IOV2SRCS)): EXTRAFLAGS += -fPIC
+../cmod/iov2.so: $(call TOOBJS, $(IOV2SRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
            ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@mkdir -p ../cmod
+	@$(CXX) -shared -o $@ $^ $(LDFLAGS)
 
-TARGETS += ../cmod/io.so ../bin/iov2
+TARGETS += ../cmod/io.so ../cmod/iov2.so
