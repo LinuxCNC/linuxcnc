@@ -99,9 +99,9 @@ net y2enable joint.3.amp-enable-out => stepgen.3.enable
 net min-home-y2 => joint.3.home-sw-in
 net min-home-y2 => joint.3.neg-lim-sw-in
 
-net estop-out <= iocontrol.0.user-enable-out
-net estop-out => iocontrol.0.emc-enable-in
+net estop-out <= iocontrol.user-enable-out
+net estop-out => iocontrol.emc-enable-in
 
-net tool-number <= iocontrol.0.tool-prep-number
-net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-number <= iocontrol.tool-prep-number
+net tool-change-loopback iocontrol.tool-change => iocontrol.tool-changed
+net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared

@@ -21,8 +21,8 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 loadrt charge_pump
 
 # These loopbacks are usually disconnected by a postgui halfile
-net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
-net tool-prepare-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.tool-change iocontrol.tool-changed
+net tool-prepare-loopback iocontrol.tool-prepare iocontrol.tool-prepared
 
 #the Enable signal is used to permanently enable things
 newsig Enable bit
@@ -105,7 +105,7 @@ setp hm2_5i20.0.gpio.022.is_output TRUE
 net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
 
 # Safety Relay Monitoring Contacts
-net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
+net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.emc-enable-in
 # Run Switch
 net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
 
@@ -159,11 +159,11 @@ net KA2 spindle.0.on => hm2_5i20.0.gpio.042.out
 # Flood Coolant
 setp hm2_5i20.0.gpio.043.is_output TRUE
 setp hm2_5i20.0.gpio.043.invert_output TRUE
-net M8 hm2_5i20.0.gpio.043.out => iocontrol.0.coolant-flood
+net M8 hm2_5i20.0.gpio.043.out => iocontrol.coolant-flood
 # Mist Coolant
 setp hm2_5i20.0.gpio.045.is_output TRUE
 setp hm2_5i20.0.gpio.045.invert_output TRUE
-net M7 hm2_5i20.0.gpio.045.out => iocontrol.0.coolant-mist
+net M7 hm2_5i20.0.gpio.045.out => iocontrol.coolant-mist
 
 # hook the functions to threads
 # read inputs

@@ -95,13 +95,13 @@ addf vti.do-write servo-thread -1
 #newsig EstopSense bit
 #newsig EstopWrite bit
 #linksp EstopSense <= vti.in-12
-#linksp EstopSense => iocontrol.0.emc-enable-in
+#linksp EstopSense => iocontrol.emc-enable-in
 #linksp EstopWrite <= vti.out-07
-#linksp EstopWrite => iocontrol.0.user-enable-out
+#linksp EstopWrite => iocontrol.user-enable-out
 
 # ESTOP loopback, only use this for a simple machine without external ESTOP
 # you really SHOULDN'T use a servo machine without proper ESTOP
-#net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+#net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 # connect spindle fwd/rev to I/O controller
 #newsig SpindleFwd bit
@@ -120,16 +120,16 @@ addf vti.do-write servo-thread -1
 #newsig MistOn bit
 #newsig FloodOn bit
 #linksp MistOn <= vti.out-11
-#linksp MistOn => iocontrol.0.coolant-mist
+#linksp MistOn => iocontrol.coolant-mist
 #linksp FloodOn <= vti.out-12
-#linksp FloodOn => iocontrol.0.coolant-flood
+#linksp FloodOn => iocontrol.coolant-flood
 
 # connect lube motor run to I/O controller
 #newsig LubeOn bit
 #linksp LubeOn <= vti.out-13
-#linksp LubeOn => iocontrol.0.lube
+#linksp LubeOn => iocontrol.lube
 
 # connect lube level to I/O controller
 #newsig LubeLevel bit
 #linksp LubeLevel <= vti.in-13
-#linksp LubeLevel => iocontrol.0.lube_level
+#linksp LubeLevel => iocontrol.lube_level

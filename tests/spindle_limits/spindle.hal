@@ -11,7 +11,7 @@ addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 
 # estop loopback
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 
 

@@ -106,5 +106,5 @@ net zdir <= stepgen.2.dir
 net zenable joint.2.amp-enable-out => stepgen.2.enable
 #net all-home => joint.2.home-sw-in
 
-net estop-out <= iocontrol.0.user-enable-out
-net estop-out => iocontrol.0.emc-enable-in
+net estop-out <= iocontrol.user-enable-out
+net estop-out => iocontrol.emc-enable-in

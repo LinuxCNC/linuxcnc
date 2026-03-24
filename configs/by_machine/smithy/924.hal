@@ -97,7 +97,7 @@ setp hm2_5i20.0.gpio.022.is_output TRUE
 net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
 
 # Safety Relay Monitoring Contacts
-net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
+net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.emc-enable-in
 # Run Switch
 net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
 
@@ -123,13 +123,13 @@ net ACOK hm2_5i20.0.gpio.035.in_not
 net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 
 #Tool Post Control Inputs
-net PrepNo iocontrol.0.tool-prep-number => classicladder.0.s32in-00
-net TC iocontrol.0.tool-change => classicladder.0.in-00
+net PrepNo iocontrol.tool-prep-number => classicladder.0.s32in-00
+net TC iocontrol.tool-change => classicladder.0.in-00
 net T1 hm2_5i20.0.gpio.032.in => classicladder.0.in-01
 net T2 hm2_5i20.0.gpio.034.in => classicladder.0.in-02
 net T3 hm2_5i20.0.gpio.036.in => classicladder.0.in-03
 net T4 hm2_5i20.0.gpio.038.in => classicladder.0.in-04
-net TP iocontrol.0.tool-prepare => classicladder.0.in-05
+net TP iocontrol.tool-prepare => classicladder.0.in-05
 
 #Door Sensor
 net SS hm2_5i20.0.gpio.029.in
@@ -144,8 +144,8 @@ setp hm2_5i20.0.gpio.042.is_output TRUE
 setp hm2_5i20.0.gpio.042.invert_output TRUE
 net KA2 spindle.0.on => hm2_5i20.0.gpio.042.out
 #Tool Post Control Outputs
-net TD classicladder.0.out-00 => iocontrol.0.tool-changed
-net TQ classicladder.0.out-03 => iocontrol.0.tool-prepared
+net TD classicladder.0.out-00 => iocontrol.tool-changed
+net TQ classicladder.0.out-03 => iocontrol.tool-prepared
 #KA3
 setp hm2_5i20.0.gpio.044.is_output TRUE
 setp hm2_5i20.0.gpio.044.invert_output TRUE
@@ -161,11 +161,11 @@ net Enable => hm2_5i20.0.gpio.041.out
 # Flood Coolant
 setp hm2_5i20.0.gpio.043.is_output TRUE
 setp hm2_5i20.0.gpio.043.invert_output TRUE
-net M8 hm2_5i20.0.gpio.043.out => iocontrol.0.coolant-flood
+net M8 hm2_5i20.0.gpio.043.out => iocontrol.coolant-flood
 # Mist Coolant
 setp hm2_5i20.0.gpio.045.is_output TRUE
 setp hm2_5i20.0.gpio.045.invert_output TRUE
-net M7 hm2_5i20.0.gpio.045.out => iocontrol.0.coolant-mist
+net M7 hm2_5i20.0.gpio.045.out => iocontrol.coolant-mist
 
 # hook the functions to threads
 # read inputs

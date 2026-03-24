@@ -290,8 +290,8 @@ class _GStat(GObject.GObject):
         self.old['homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
         try:
-            if hal.get_value('iocontrol.0.tool-prepare'):
-                self.old['tool-prep-number'] = hal.get_value('iocontrol.0.tool-prep-number')
+            if hal.get_value('iocontrol.tool-prepare'):
+                self.old['tool-prep-number'] = hal.get_value('iocontrol.tool-prep-number')
         except RuntimeError:
              self.old['tool-prep-number'] = -1
         self.old['motion-mode'] = self.stat.motion_mode

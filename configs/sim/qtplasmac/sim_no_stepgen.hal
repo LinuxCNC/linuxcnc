@@ -62,9 +62,9 @@ addf db_arc-ok    servo-thread
 net plasmac:axis-position joint.{{$zAxis}}.pos-fb => plasmac.axis-z-position
 
 # ---TOOL CHANGE PASSTHROUGH
-net sim:tool-number                                    <= iocontrol.0.tool-prep-number
-net sim:tool-change-loopback  iocontrol.0.tool-change  => iocontrol.0.tool-changed
-net sim:tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net sim:tool-number                                    <= iocontrol.tool-prep-number
+net sim:tool-change-loopback  iocontrol.tool-change  => iocontrol.tool-changed
+net sim:tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared
 
 # ---ESTOP HANDLING---
 loadrt or2 names=estop_or
@@ -73,4 +73,4 @@ addf estop_or    servo-thread
 addf estop_not   servo-thread
 addf estop_not_1 servo-thread
 net sim:estop-raw estop_or.out  => estop_not.in
-net sim:estop-out estop_not.out => iocontrol.0.emc-enable-in
+net sim:estop-out estop_not.out => iocontrol.emc-enable-in

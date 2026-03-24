@@ -23,11 +23,11 @@ net machine-on halui.machine.is-on => gladevcp.commands
 net spindle-speed-cmd spindle.0.speed-out => gladevcp.spindle-rpm-hbar
 
 # the first and second labels show prepared and current tool
-unlinkp iocontrol.0.tool-prep-number
+unlinkp iocontrol.tool-prep-number
 unlinkp hal_manualtoolchange.number
 
-net tool-prepared iocontrol.0.tool-prep-number => gladevcp.prepared-tool hal_manualtoolchange.number
-net tool-number iocontrol.0.tool-number => gladevcp.current-tool
+net tool-prepared iocontrol.tool-prep-number => gladevcp.prepared-tool hal_manualtoolchange.number
+net tool-number iocontrol.tool-number => gladevcp.current-tool
 
 net cb1     gladevcp.check  => gladevcp.led1
 net b1      gladevcp.button => gladevcp.led2

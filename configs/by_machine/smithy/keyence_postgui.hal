@@ -1,12 +1,12 @@
 loadusr -W hal_manualtoolchange
 
 # in case they were linked already
-unlinkp iocontrol.0.tool-change
-unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.tool-change
+unlinkp iocontrol.tool-changed
 
-net tool-change hal_manualtoolchange.change iocontrol.0.tool-change 
-net tool-changed hal_manualtoolchange.changed iocontrol.0.tool-changed
-net tool-prep-number hal_manualtoolchange.number iocontrol.0.tool-prep-number
+net tool-change hal_manualtoolchange.change iocontrol.tool-change 
+net tool-changed hal_manualtoolchange.changed iocontrol.tool-changed
+net tool-prep-number hal_manualtoolchange.number iocontrol.tool-prep-number
 
 #configure the encoder input for the Keyence sensor
 setp hm2_5i20.0.encoder.00.scale 25641.025641026

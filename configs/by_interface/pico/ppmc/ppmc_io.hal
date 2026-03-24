@@ -55,20 +55,20 @@ net EstopOkIn estop-latch.0.fault-in
 net EstopOkIn and2.0.out
 net EstopOkOut ppmc.0.dout.07.out
 net EstopOkOut ppmc.0.dout.Estop.out
-net EstopOkOut iocontrol.0.emc-enable-in
+net EstopOkOut iocontrol.emc-enable-in
 net EstopOkOut estop-latch.0.ok-out
 net EstopOkOut and2.0.in1
-net emc-estop-out iocontrol.0.user-enable-out
+net emc-estop-out iocontrol.user-enable-out
 net emc-estop-out estop-latch.0.ok-in
-net emc-estop-reset iocontrol.0.user-request-enable
+net emc-estop-reset iocontrol.user-request-enable
 net emc-estop-reset estop-latch.0.reset
 
 #newsig EstopSense bit
 #newsig EstopWrite bit
 #linksp EstopSense <= ppmc.0.din.estop.in-not
-#linksp EstopSense => iocontrol.0.emc-enable-in
+#linksp EstopSense => iocontrol.emc-enable-in
 #linksp EstopWrite <= ppmc.0.dout.07.out
-#linksp EstopWrite => iocontrol.0.user-enable-out
+#linksp EstopWrite => iocontrol.user-enable-out
 #estop may need to be inverted
 
 # connect spindle fwd/rev to I/O controller
@@ -83,6 +83,6 @@ net SpindleBrakeOn => spindle.0.brake
 
 # connect mist/flood coolant to I/O controller
 net MistOn <= ppmc.0.dout.03.out
-net MistOn => iocontrol.0.coolant-mist
+net MistOn => iocontrol.coolant-mist
 net FloodOn <= ppmc.0.dout.04.out
-net FloodOn => iocontrol.0.coolant-flood
+net FloodOn => iocontrol.coolant-flood

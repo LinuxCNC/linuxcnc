@@ -6,13 +6,13 @@ net joint_4_pos joint.4.motor-pos-cmd => joint.4.motor-pos-fb
 
 # the unlink pin commands are only used, because they are connected 
 # in core_sim.hal and we use this file to simulate
-unlinkp iocontrol.0.tool-change
-unlinkp iocontrol.0.tool-changed
-unlinkp iocontrol.0.tool-prep-number
+unlinkp iocontrol.tool-change
+unlinkp iocontrol.tool-changed
+unlinkp iocontrol.tool-prep-number
 
-net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
-net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
-net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.tool-change 
+net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.tool-changed
+net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.tool-prep-number
 # woodpecker.spindle-pause does not exist
 #net spindle-pause    woodpecker.spindle-pause      <= spindle.0.inhibit
 

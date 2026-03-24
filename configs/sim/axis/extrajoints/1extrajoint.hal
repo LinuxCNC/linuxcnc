@@ -6,7 +6,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JO
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 net J0:loop <= joint.0.motor-pos-cmd
 net J0:loop => joint.0.motor-pos-fb

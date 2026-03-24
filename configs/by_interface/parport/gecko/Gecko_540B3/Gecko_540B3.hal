@@ -7,7 +7,7 @@ loadrt hal_parport cfg="0x378 out  "
 setp parport.0.reset-time 1000
 loadrt stepgen step_type=0,0,0
 loadrt charge_pump
-net estop-out charge-pump.enable iocontrol.0.user-enable-out
+net estop-out charge-pump.enable iocontrol.user-enable-out
 net charge-pump <= charge-pump.out
 
 addf parport.0.read base-thread
@@ -72,11 +72,11 @@ net zstep <= stepgen.2.step
 net zdir <= stepgen.2.dir
 net zenable joint.2.amp-enable-out => stepgen.2.enable
 
-net estop-out <= iocontrol.0.user-enable-out
-net estop-out => iocontrol.0.emc-enable-in
+net estop-out <= iocontrol.user-enable-out
+net estop-out => iocontrol.emc-enable-in
 
 loadusr -W hal_manualtoolchange
-net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
-net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
-net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-change iocontrol.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.tool-changed <= hal_manualtoolchange.changed
+net tool-number iocontrol.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared

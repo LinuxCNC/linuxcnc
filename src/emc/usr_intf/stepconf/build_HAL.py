@@ -99,7 +99,7 @@ class HAL:
                    print("loadrt near", file=file)
         if pump:
             print("loadrt charge_pump", file=file)
-            print("net estop-out charge-pump.enable iocontrol.0.user-enable-out", file=file)
+            print("net estop-out charge-pump.enable iocontrol.user-enable-out", file=file)
             print("net charge-pump <= charge-pump.out", file=file)
 
         if limits_homes:
@@ -193,10 +193,10 @@ class HAL:
                 print("net spindle-brake <= spindle.0.brake", file=file)
 
         if SIG.MIST in outputs:
-            print("net coolant-mist <= iocontrol.0.coolant-mist", file=file)
+            print("net coolant-mist <= iocontrol.coolant-mist", file=file)
 
         if SIG.FLOOD in outputs:
-            print("net coolant-flood <= iocontrol.0.coolant-flood", file=file)
+            print("net coolant-flood <= iocontrol.coolant-flood", file=file)
 
         # do the qtplasmac connections and preferences file
         if self.d.select_qtplasmac:
@@ -285,36 +285,36 @@ class HAL:
             print("addf estop_or servo-thread", file=file)
             print("addf estop_not servo-thread", file=file)
             print("net sim:estop-raw estop_or.out estop_not.in", file=file)
-            print("net sim:estop-out estop_not.out iocontrol.0.emc-enable-in", file=file)
+            print("net sim:estop-out estop_not.out iocontrol.emc-enable-in", file=file)
         else:
         # standard estop handling
-            print("net estop-out <= iocontrol.0.user-enable-out", file=file)
+            print("net estop-out <= iocontrol.user-enable-out", file=file)
             if  self.d.classicladder and self.d.ladderhaltype == 1 and self.d.ladderconnect: # external estop program
                 print(file=file) 
                 print(_("# **** Setup for external estop ladder program -START ****"), file=file)
                 print(file=file)
                 print("net estop-out => classicladder.0.in-00", file=file)
                 print("net estop-ext => classicladder.0.in-01", file=file)
-                print("net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable", file=file)
-                print("net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in", file=file)
+                print("net estop-strobe classicladder.0.in-02 <= iocontrol.user-request-enable", file=file)
+                print("net estop-outcl classicladder.0.out-00 => iocontrol.emc-enable-in", file=file)
                 print(file=file)
                 print(_("# **** Setup for external estop ladder program -END ****"), file=file)
             elif SIG.ESTOP_IN in inputs:
-                print("net estop-ext => iocontrol.0.emc-enable-in", file=file)
+                print("net estop-ext => iocontrol.emc-enable-in", file=file)
             else:
-                print("net estop-out => iocontrol.0.emc-enable-in", file=file)
+                print("net estop-out => iocontrol.emc-enable-in", file=file)
 
         print(file=file)
         if self.d.manualtoolchange:
             if not self.d.select_qtdragon:
                 print("loadusr -W hal_manualtoolchange", file=file)
-                print("net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change", file=file)
-                print("net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed", file=file)
-                print("net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number", file=file)
+                print("net tool-change iocontrol.tool-change => hal_manualtoolchange.change", file=file)
+                print("net tool-changed iocontrol.tool-changed <= hal_manualtoolchange.changed", file=file)
+                print("net tool-number iocontrol.tool-prep-number => hal_manualtoolchange.number", file=file)
             else:
-                print("net tool-change  <= iocontrol.0.tool-change", file=file)
-                print("net tool-changed  => iocontrol.0.tool-changed", file=file)
-                print("net tool-number <= iocontrol.0.tool-prep-number", file=file)
+                print("net tool-change  <= iocontrol.tool-change", file=file)
+                print("net tool-changed  => iocontrol.tool-changed", file=file)
+                print("net tool-number <= iocontrol.tool-prep-number", file=file)
                 qt = os.path.join(base, "qtvcp_postgui.hal")
                 if not os.path.exists(qt):
                     f1 = open(qt, "w")
@@ -323,9 +323,9 @@ class HAL:
                     print("net tool-number  => hal_manualtoolchange.number", file=f1)
                     f1.close()
         else:
-            print("net tool-number <= iocontrol.0.tool-prep-number", file=file)
-            print("net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed", file=file)
-        print("net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared", file=file)
+            print("net tool-number <= iocontrol.tool-prep-number", file=file)
+            print("net tool-change-loopback iocontrol.tool-change => iocontrol.tool-changed", file=file)
+        print("net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared", file=file)
         if self.d.classicladder:
             print(file=file)
             if self.d.modbus:

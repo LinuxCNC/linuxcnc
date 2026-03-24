@@ -48,16 +48,16 @@ net XYvel hypot.0.out => hypot.1.in1
 net XYZvel <= hypot.1.out
 
 # estop loopback
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 # create signals for tool loading loopback
-net tool-prepare <= iocontrol.0.tool-prepare
-net tool-prepare => iocontrol.0.tool-prepared
+net tool-prepare <= iocontrol.tool-prepare
+net tool-prepare => iocontrol.tool-prepared
 
-net tool-change <= iocontrol.0.tool-change
-net tool-change => iocontrol.0.tool-changed
+net tool-change <= iocontrol.tool-change
+net tool-change => iocontrol.tool-changed
 
-net tool-number <= iocontrol.0.tool-number
-net tool-prep-number <= iocontrol.0.tool-prep-number
-net tool-prep-pocket <= iocontrol.0.tool-prep-pocket
+net tool-number <= iocontrol.tool-number
+net tool-prep-number <= iocontrol.tool-prep-number
+net tool-prep-pocket <= iocontrol.tool-prep-pocket
 

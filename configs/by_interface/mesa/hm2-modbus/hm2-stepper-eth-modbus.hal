@@ -167,11 +167,11 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.step_type       0
 # ##################################################
 
 # A basic estop loop that only includes the hostmot watchdog.
-net user-enable iocontrol.0.user-request-enable => estop-latch.0.reset
-net enable-latch estop-latch.0.ok-out => iocontrol.0.emc-enable-in
+net user-enable iocontrol.user-request-enable => estop-latch.0.reset
+net enable-latch estop-latch.0.ok-out => iocontrol.emc-enable-in
 net watchdog hm2_[HOSTMOT2](BOARD).0.watchdog.has_bit => estop-latch.0.fault-in
 
 # create signals for tool loading loopback
-net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
-net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
+net tool-prep-loop iocontrol.tool-prepare => iocontrol.tool-prepared
+net tool-change-loop iocontrol.tool-change => iocontrol.tool-changed
 

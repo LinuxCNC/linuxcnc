@@ -11,12 +11,12 @@ net spindle-at-speed      gmoccapy.spindle_at_speed_led
 
 # the unlink pin commands are only used, because they are connected 
 # in core_sim.hal and we use this file to simulate
-unlinkp iocontrol.0.tool-change
-unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.tool-change
+unlinkp iocontrol.tool-changed
 
-net tool-change      gmoccapy.toolchange-change   <=  iocontrol.0.tool-change 
-net tool-changed     gmoccapy.toolchange-changed  <=  iocontrol.0.tool-changed
-net tool-prep-number gmoccapy.toolchange-number   <=  iocontrol.0.tool-prep-number
+net tool-change      gmoccapy.toolchange-change   <=  iocontrol.tool-change 
+net tool-changed     gmoccapy.toolchange-changed  <=  iocontrol.tool-changed
+net tool-prep-number gmoccapy.toolchange-number   <=  iocontrol.tool-prep-number
 
 net tooloffset-x  gmoccapy.tooloffset-x  <=  motion.tooloffset.x
 net tooloffset-z  gmoccapy.tooloffset-z  <=  motion.tooloffset.z

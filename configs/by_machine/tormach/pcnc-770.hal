@@ -19,7 +19,7 @@ addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 addf stepgen.update-freq servo-thread
 net spindle-cw <= spindle.0.forward
-net coolant-flood <= iocontrol.0.coolant-flood
+net coolant-flood <= iocontrol.coolant-flood
 net spindle-on spindle.0.on stepgen.4.enable
 
 
@@ -146,15 +146,15 @@ net aenable joint.3.amp-enable-out => stepgen.3.enable
 net home-a => joint.3.home-sw-in
 
 #linksp xenable estop-latch.0.ok-out
-net estop-out <= iocontrol.0.user-enable-out
+net estop-out <= iocontrol.user-enable-out
 net machine-ok => estop-latch.0.ok-in
-net estop estop-latch.0.ok-out => iocontrol.0.emc-enable-in
-net estop-reset iocontrol.0.user-request-enable => estop-latch.0.reset
+net estop estop-latch.0.ok-out => iocontrol.emc-enable-in
+net estop-reset iocontrol.user-request-enable => estop-latch.0.reset
 
 loadusr -W hal_manualtoolchange
-net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
-net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
-net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-change iocontrol.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.tool-changed <= hal_manualtoolchange.changed
+net tool-number iocontrol.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared
 
 net probe parport.0.pin-13-in-not => motion.probe-input

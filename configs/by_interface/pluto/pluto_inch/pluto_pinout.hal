@@ -27,10 +27,10 @@ net Yen joint.1.amp-enable-out => pluto-step.stepgen.1.enable
 net Zen joint.2.amp-enable-out => pluto-step.stepgen.2.enable
 
 # create a signal for the estop loopback
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 # create signals for tool prepare loopback
-net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-prep-loop iocontrol.tool-prepare iocontrol.tool-prepared
 
 # create a signal for "spindle on"
 net spindle_on spindle.0.on => pluto-step.dout.00

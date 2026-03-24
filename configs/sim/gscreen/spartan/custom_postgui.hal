@@ -10,7 +10,7 @@ net spindle-cw gscreen.led_spindle_fwd
 net spindle-ccw gscreen.led_spindle_rev spindle.0.reverse
 net spindle-cmd-rpm-abs gscreen.spindle-spd-disp
 
-net tool-change gscreen.change-tool iocontrol.0.tool-change 
-net tool-changed gscreen.tool-changed iocontrol.0.tool-changed
-net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
-net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change gscreen.change-tool iocontrol.tool-change 
+net tool-changed gscreen.tool-changed iocontrol.tool-changed
+net tool-prep-number gscreen.tool-number iocontrol.tool-prep-number
+net tool-prep-loop iocontrol.tool-prepare iocontrol.tool-prepared

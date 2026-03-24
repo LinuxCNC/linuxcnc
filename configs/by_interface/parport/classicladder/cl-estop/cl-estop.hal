@@ -77,8 +77,8 @@ net both-home-z => joint.2.home-sw-in
 net both-home-z => joint.2.neg-lim-sw-in
 net both-home-z => joint.2.pos-lim-sw-in
 
-# net estop-out <= iocontrol.0.user-enable-out
-# net estop-out => iocontrol.0.emc-enable-in
+# net estop-out <= iocontrol.user-enable-out
+# net estop-out => iocontrol.emc-enable-in
 
-net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-change-loopback iocontrol.tool-change => iocontrol.tool-changed
+net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared

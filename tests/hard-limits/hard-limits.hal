@@ -11,5 +11,5 @@ net ypos joint.1.motor-pos-cmd => joint.1.motor-pos-fb
 
 net zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb
 
-net estop-out <= iocontrol.0.user-enable-out
-net estop-out => iocontrol.0.emc-enable-in
+net estop-out <= iocontrol.user-enable-out
+net estop-out => iocontrol.emc-enable-in

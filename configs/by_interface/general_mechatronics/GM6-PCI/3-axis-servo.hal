@@ -39,7 +39,7 @@ net pwrEnable motion.motion-enabled => gm.0.power-enable
 
 # create power fault loopback
 net hw_fault gm.0.power-fault => not.0.in
-net estop not.0.out => iocontrol.0.emc-enable-in
+net estop not.0.out => iocontrol.emc-enable-in
 
 # connect enable signals for DAC and PID
 net Xen joint.0.amp-enable-out => gm.0.dac.0.enable

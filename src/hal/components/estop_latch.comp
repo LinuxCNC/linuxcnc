@@ -58,8 +58,8 @@ For estop-latch to ever be able to signal a fault, at least one of these
 inputs must be connected.
 
 Typically, an external fault or estop input is connected to \\fBfault-in\\fR,
-\\fBiocontrol.0.user-request-enable\\fR is connected to \\fBreset\\fR,
-and \\fBok-out\\fR is connected to \\fBiocontrol.0.emc-enable-in\\fB.
+\\fBiocontrol.user-request-enable\\fR is connected to \\fBreset\\fR,
+and \\fBok-out\\fR is connected to \\fBiocontrol.emc-enable-in\\fB.
 
 In more complex systems, it may be more appropriate to use classicladder to
 manage the software portion of the estop chain.

@@ -24,8 +24,8 @@ net z-neg-lim joint.2.neg-lim-sw-in
 
 
 # estop loopback
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
-net lube iocontrol.0.lube
-net flood iocontrol.0.coolant-flood
-net mist iocontrol.0.coolant-mist
+net lube iocontrol.lube
+net flood iocontrol.coolant-flood
+net mist iocontrol.coolant-mist

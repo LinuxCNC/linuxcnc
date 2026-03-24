@@ -44,13 +44,13 @@ net XYvel vel_xy.out => vel_xyz.in1
 net XYZvel <= vel_xyz.out
 
 # estop loopback
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 loadusr -W hal_manualtoolchange
-net tool-change  iocontrol.0.tool-change => hal_manualtoolchange.change
-net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
-net tool-number  iocontrol.0.tool-prep-number => hal_manualtoolchange.number
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-change  iocontrol.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.tool-changed <= hal_manualtoolchange.changed
+net tool-number  iocontrol.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared
 
 # start 3axis-tutorial vismach addition
 loadusr -W  ./3axis-tutorial

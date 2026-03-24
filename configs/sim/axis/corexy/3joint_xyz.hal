@@ -95,10 +95,10 @@ net j2dir     <= stepgen.2.dir
 net j2homesw  <= j2home.home-sw
 net j2homesw  => joint.2.home-sw-in
 #----------------------------------------------------------
-net estop-out <= iocontrol.0.user-enable-out
-net estop-out => iocontrol.0.emc-enable-in
+net estop-out <= iocontrol.user-enable-out
+net estop-out => iocontrol.emc-enable-in
 
-net tool-change-loopback  <= iocontrol.0.tool-change
-net tool-change-loopback  => iocontrol.0.tool-changed
-net tool-prepare-loopback <= iocontrol.0.tool-prepare
-net tool-prepare-loopback => iocontrol.0.tool-prepared
+net tool-change-loopback  <= iocontrol.tool-change
+net tool-change-loopback  => iocontrol.tool-changed
+net tool-prepare-loopback <= iocontrol.tool-prepare
+net tool-prepare-loopback => iocontrol.tool-prepared

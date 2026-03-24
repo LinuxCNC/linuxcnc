@@ -56,14 +56,14 @@ net Zdir parport.0.pin-08-out
 
 # Estop signals
 # This signal is the internal or gui estop command from EMC
-net estop-out iocontrol.0.user-enable-out classicladder.0.in-00
+net estop-out iocontrol.user-enable-out classicladder.0.in-00
 # This is a one-shot on timer when signal above goes high.
-net estop-in iocontrol.0.user-request-enable  classicladder.0.in-02
+net estop-in iocontrol.user-request-enable  classicladder.0.in-02
 # This bit is an external estop button connected to parport pin 10 
 net ext-estop parport.0.pin-10-in
 net ext-estop classicladder.0.in-01
 # This bit signal is command to estop from CL to EMC
-net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
+net emc-enable-in iocontrol.emc-enable-in classicladder.0.out-00 
 
 
 # Spindle Signal, forward drives Torch ON

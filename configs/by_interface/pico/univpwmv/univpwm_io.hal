@@ -72,14 +72,14 @@ linksp EstopOkIn estop-latch.0.fault-in
 linksp EstopOkIn and2.0.out
 newsig EstopOkOut bit
 linksp EstopOkOut <= ppmc.0.dout.07.out
-linksp EstopOkOut iocontrol.0.emc-enable-in
+linksp EstopOkOut iocontrol.emc-enable-in
 linksp EstopOkOut estop-latch.0.ok-out
 linksp EstopOkOut and2.0.in1
 newsig emc-estop-out bit
-linksp emc-estop-out iocontrol.0.user-enable-out
+linksp emc-estop-out iocontrol.user-enable-out
 linksp emc-estop-out estop-latch.0.ok-in
 newsig emc-estop-reset bit
-linksp emc-estop-reset iocontrol.0.user-request-enable
+linksp emc-estop-reset iocontrol.user-request-enable
 linksp emc-estop-reset estop-latch.0.reset
 
 # connect spindle fwd/rev to I/O controller
@@ -107,6 +107,6 @@ linksp SpindleBrakeOn => spindle.0.brake
 newsig MistOn bit
 newsig FloodOn bit
 linksp MistOn <= ppmc.0.dout.03.out
-linksp MistOn => iocontrol.0.coolant-mist
+linksp MistOn => iocontrol.coolant-mist
 linksp FloodOn <= ppmc.0.dout.04.out
-linksp FloodOn => iocontrol.0.coolant-flood
+linksp FloodOn => iocontrol.coolant-flood

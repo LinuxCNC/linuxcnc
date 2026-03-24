@@ -23,7 +23,7 @@ setp change_pulse.falling   1
 
 #==========================================================
 # simulate tool prepare,tool change
-net db:tool-prepare <= iocontrol.0.tool-prepare
+net db:tool-prepare <= iocontrol.tool-prepare
 net db:tool-prepare => change_pulse.reset
 net db:tool-prepare => prepare_time.in
 net db:tool-prepare => pyvcp.tool-prepare
@@ -32,10 +32,10 @@ net db:start_prepare_pulse <= prepare_time.out
 net db:start_prepare_pulse => prepare_pulse.in
 
 net db:tool-prepared <= prepare_pulse.out
-net db:tool-prepared => iocontrol.0.tool-prepared
+net db:tool-prepared => iocontrol.tool-prepared
 net db:tool-prepared => pyvcp.tool-prepared
 
-net db:tool-change <= iocontrol.0.tool-change
+net db:tool-change <= iocontrol.tool-change
 net db:tool-change => prepare_pulse.reset
 net db:tool-change => change_time.in
 net db:tool-change => pyvcp.tool-change
@@ -44,22 +44,22 @@ net db:start_change_pulse <= change_time.out
 net db:start_change_pulse => change_pulse.in
 
 net db:tool-changed <= change_pulse.out
-net db:tool-changed => iocontrol.0.tool-changed
+net db:tool-changed => iocontrol.tool-changed
 net db:tool-changed => pyvcp.tool-changed
 
-net db:tool-number <= iocontrol.0.tool-number
+net db:tool-number <= iocontrol.tool-number
 net db:tool-number => pyvcp.tool-number
 
-net db:tool-prep-index <= iocontrol.0.tool-prep-index
+net db:tool-prep-index <= iocontrol.tool-prep-index
 net db:tool-prep-index => pyvcp.tool-prep-index
 
-net db:tool-prep-number <= iocontrol.0.tool-prep-number
+net db:tool-prep-number <= iocontrol.tool-prep-number
 net db:tool-prep-number => pyvcp.tool-prep-number
 
-net db:tool-prep-pocket <= iocontrol.0.tool-prep-pocket
+net db:tool-prep-pocket <= iocontrol.tool-prep-pocket
 net db:tool-prep-pocket => pyvcp.tool-prep-pocket
 
-net db:tool-from-pocket <= iocontrol.0.tool-from-pocket
+net db:tool-from-pocket <= iocontrol.tool-from-pocket
 net db:tool-from-pocket => pyvcp.tool-from-pocket
 #==========================================================
 # tooloffsets

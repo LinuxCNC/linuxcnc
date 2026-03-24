@@ -31,7 +31,7 @@ addf match8.0 servo-thread
 net spindle-cmd spindle.0.speed-out pwmgen.0.value
 net spindle-enable spindle.0.on pwmgen.0.enable
 
-net coolant-flood parport.0.pin-01-out iocontrol.0.coolant-flood
+net coolant-flood parport.0.pin-01-out iocontrol.coolant-flood
 net xdir parport.0.pin-02-out stepgen.0.dir
 net xstep parport.0.pin-03-out stepgen.0.step
 setp parport.0.pin-03-out-reset 1
@@ -57,7 +57,7 @@ net spindle-fwd parport.0.pin-14-out spindle.0.forward
 
 net spindle-pwm parport.0.pin-16-out pwmgen.0.pwm
 net charge-pump parport.0.pin-17-out charge-pump.out
-net estop-in parport.0.pin-10-in-not iocontrol.0.emc-enable-in
+net estop-in parport.0.pin-10-in-not iocontrol.emc-enable-in
 net estop-out charge-pump.enable halui.machine.is-on
 
 #PMDX-110
@@ -121,5 +121,5 @@ net all-home match8.0.in
 net limit match8.0.out joint.0.neg-lim-sw-in
 
 # These loopbacks are usually disconnected by a postgui halfile
-net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
-net tool-prepare-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.tool-change iocontrol.tool-changed
+net tool-prepare-loopback iocontrol.tool-prepare iocontrol.tool-prepared

@@ -114,11 +114,11 @@ net zstep <= stepgen.1.step
 net zdir <= stepgen.1.dir
 net zenable joint.1.amp-enable-out => stepgen.1.enable
 
-net estop-out <= iocontrol.0.user-enable-out
-net estop-out => iocontrol.0.emc-enable-in
+net estop-out <= iocontrol.user-enable-out
+net estop-out => iocontrol.emc-enable-in
 
 loadusr -W hal_manualtoolchange
-net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
-net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
-net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-change iocontrol.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.tool-changed <= hal_manualtoolchange.changed
+net tool-number iocontrol.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared

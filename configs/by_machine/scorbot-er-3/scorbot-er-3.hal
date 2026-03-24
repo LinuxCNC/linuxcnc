@@ -19,7 +19,7 @@ loadusr -W scorbot-er-3
 # E-Stop
 #
 
-net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out => iocontrol.emc-enable-in
 
 
 #

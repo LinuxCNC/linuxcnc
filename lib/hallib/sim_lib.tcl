@@ -193,14 +193,14 @@ proc core_sim {axes
   }
 
   # signal connections:
-  net estop:loop <= iocontrol.0.user-enable-out
-  net estop:loop => iocontrol.0.emc-enable-in
+  net estop:loop <= iocontrol.user-enable-out
+  net estop:loop => iocontrol.emc-enable-in
 
-  net tool:prep-loop <= iocontrol.0.tool-prepare
-  net tool:prep-loop => iocontrol.0.tool-prepared
+  net tool:prep-loop <= iocontrol.tool-prepare
+  net tool:prep-loop => iocontrol.tool-prepared
 
-  net tool:change-loop <= iocontrol.0.tool-change
-  net tool:change-loop => iocontrol.0.tool-changed
+  net tool:change-loop <= iocontrol.tool-change
+  net tool:change-loop => iocontrol.tool-changed
 
   net sample:enable <= motion.motion-enabled
 
@@ -280,19 +280,19 @@ proc use_hal_manualtoolchange {} {
   loadusr -W hal_manualtoolchange
 
   # disconnect if previously connected:
-  unlinkp iocontrol.0.tool-change
-  unlinkp iocontrol.0.tool-changed
+  unlinkp iocontrol.tool-change
+  unlinkp iocontrol.tool-changed
   # remove signal with no connections:
   delsig tool:change-loop
 
-  net tool:change <= iocontrol.0.tool-change
+  net tool:change <= iocontrol.tool-change
   net tool:change => hal_manualtoolchange.change
 
   net tool:changed <= hal_manualtoolchange.changed
-  net tool:changed => iocontrol.0.tool-changed
+  net tool:changed => iocontrol.tool-changed
 
   net tool:prep-number <= hal_manualtoolchange.number
-  net tool:prep-number => iocontrol.0.tool-prep-number
+  net tool:prep-number => iocontrol.tool-prep-number
 } ;# use_hal_manualtoolchange
 
 proc simulated_home {number_of_joints} {
