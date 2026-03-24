@@ -83,6 +83,7 @@ type cModule struct {
 	handle *C.void // dlopen handle
 	mod    *C.cmod_t
 	hCtx   cgo.Handle // Go↔C handle for the Launcher pointer
+	name   string
 }
 
 // resolveCModulePath resolves a C module name or path to an absolute .so path.
@@ -178,6 +179,7 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 	// Build the environment callback struct.
 	cm := &cModule{
 		handle: (*C.void)(handle),
+		name:   name,
 	}
 
 	env := (*C.cmod_env_t)(C.malloc(C.size_t(unsafe.Sizeof(C.cmod_env_t{}))))
@@ -231,7 +233,7 @@ func (l *Launcher) startCModules() error {
 	for _, cm := range l.cModules {
 		rc := C.cmod_call_start(cm.mod)
 		if rc != 0 {
-			return fmt.Errorf("C module Start() returned error code %d", int(rc))
+			return fmt.Errorf("C module %q Start() returned error code %d", cm.name, int(rc))
 		}
 	}
 	return nil
