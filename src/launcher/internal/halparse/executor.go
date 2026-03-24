@@ -99,6 +99,13 @@ func executeToken(tok Token) error {
 		return nil
 	case *PrintToken:
 		return nil
+	case *LoadToken:
+		// The "load" command is exclusively for Go plugins.  It is handled
+		// by the launcher via IterLoads, never by executeToken directly.
+		return &ExecutionError{
+			Loc: tok.Location,
+			Err: fmt.Errorf("load command cannot be executed directly; use the launcher"),
+		}
 	default:
 		return &ExecutionError{
 			Loc: tok.Location,
@@ -118,6 +125,10 @@ func executeToken(tok Token) error {
 // After Load returns, all RT and USR components are loaded and ready,
 // but no wiring (net, addf, setp, etc.) has been performed yet.
 // Call Execute() afterwards to run the remaining HAL commands.
+//
+// Note: Loads tokens (from the "load" command) are NOT processed
+// here. The launcher iterates ParseResult.Loads directly after calling Load()
+// to load Go plugins via resolveGoModulePath + plugin.Open.
 func (r *ParseResult) Load() error {
 	// Phase 1: execute loadusr tokens
 	for _, tok := range r.LoadUSR {
@@ -163,6 +174,28 @@ func (r *ParseResult) Execute() error {
 		}
 	}
 
+	return nil
+}
+
+// IterLoads calls fn once for each "load" command token in ParseResult.Loads,
+// passing the module path and its argument slice.
+//
+// The "load" command is exclusively for Go plugins.  The launcher resolves
+// bare module names against EMC2_GOMOD_DIR and loads them via plugin.Open.
+//
+//	err := result.IterLoads(func(path string, args []string) error {
+//	    return loadGoPlugin(resolveGoModulePath(path), args)
+//	})
+func (r *ParseResult) IterLoads(fn func(path string, args []string) error) error {
+	for _, tok := range r.Loads {
+		d, ok := tok.Data.(*LoadToken)
+		if !ok {
+			continue
+		}
+		if err := fn(d.Path, d.Args); err != nil {
+			return &ExecutionError{Loc: tok.Location, Err: err}
+		}
+	}
 	return nil
 }
 

@@ -30,7 +30,7 @@ Example:
 		"log"
 		"time"
 
-		"linuxcnc.org/hal"
+		"github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 	)
 
 	func main() {
@@ -104,7 +104,7 @@ Pins have a direction that specifies how data flows:
 
 # Build Requirements
 
-This package uses CGO to interface with the LinuxCNC HAL library. To build 
+This package uses CGO to interface with the LinuxCNC HAL library. To build
 programs using this package, you need:
 
   - Go 1.21 or later

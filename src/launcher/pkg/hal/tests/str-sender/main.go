@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"linuxcnc.org/hal"
+	"github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 func main() {

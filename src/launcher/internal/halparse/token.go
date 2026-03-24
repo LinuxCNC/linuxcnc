@@ -3,7 +3,7 @@ package halparse
 import (
 	"fmt"
 
-	hal "linuxcnc.org/hal"
+	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // SourceLoc records the file and line number where a token originated.
@@ -320,6 +320,16 @@ type PrintToken struct {
 
 func (*PrintToken) tokenData() {}
 
+// LoadToken represents the "load" command for Go plugin modules.
+// The launcher resolves bare module names against EMC2_GOMOD_DIR and
+// loads them via plugin.Open.  C RT modules use "loadrt" instead.
+type LoadToken struct {
+	Path string   // module name or absolute path to .so
+	Args []string // remaining arguments after the path
+}
+
+func (*LoadToken) tokenData() {}
+
 // PathResolver resolves source file paths. The caller provides an implementation
 // backed by whatever path resolution logic they have (e.g. the launcher's
 // resolve.go with LIB: prefix and HALLIB_PATH support).
@@ -334,12 +344,15 @@ type INILookup interface {
 	GetAll() map[string]map[string]string // needed for HalTemplateData
 }
 
-// ParseResult holds the three execution buckets produced by MultiFileParser.
+// ParseResult holds the execution buckets produced by MultiFileParser.
 // LoadRT tokens are merged via TwopassCollector before execution.
 // LoadUSR tokens with -W or -Wn flags are executed after all RT components load.
+// Loads tokens are from the "load" command; they are exclusively for Go
+// plugins and resolved against EMC2_GOMOD_DIR by the launcher.
 // HALCmd tokens are everything else, executed in order after components start.
 type ParseResult struct {
 	LoadRT  []Token
 	LoadUSR []Token
+	Loads   []Token // "load" command tokens (*LoadToken) — Go plugins only
 	HALCmd  []Token
 }

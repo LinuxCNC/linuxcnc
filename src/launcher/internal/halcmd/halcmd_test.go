@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	halcmd "github.com/sittner/linuxcnc/src/launcher/internal/halcmd"
-	hal "linuxcnc.org/hal"
+	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // TestStartThreadsSignature verifies that StartThreads has the correct signature.

@@ -6,7 +6,7 @@ import (
 	"path"
 	"strings"
 
-	hal "linuxcnc.org/hal"
+	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // lockAll is the HAL_LOCK_ALL bitmask value.

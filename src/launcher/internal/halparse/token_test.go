@@ -3,7 +3,7 @@ package halparse
 import (
 	"testing"
 
-	hal "linuxcnc.org/hal"
+	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // Compile-time interface compliance checks for all 35 token structs.

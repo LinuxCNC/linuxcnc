@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	hal "linuxcnc.org/hal"
+	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // mockINI is a test implementation of INILookup.
@@ -262,6 +262,103 @@ func TestParseLoadUSR(t *testing.T) {
 			t.Errorf("Args = %v, want [a]", lt.Args)
 		}
 	})
+}
+
+// --- TestParseLoad ---
+
+func TestParseLoad(t *testing.T) {
+	loc := SourceLoc{File: "test.hal", Line: 1}
+
+	t.Run("path only", func(t *testing.T) {
+		tok, err := parseLoad([]string{"/tmp/foo.so"}, loc)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		lt := tok.Data.(*LoadToken)
+		if lt.Path != "/tmp/foo.so" {
+			t.Errorf("Path = %q, want %q", lt.Path, "/tmp/foo.so")
+		}
+		if len(lt.Args) != 0 {
+			t.Errorf("Args = %v, want []", lt.Args)
+		}
+	})
+
+	t.Run("path with single arg", func(t *testing.T) {
+		tok, err := parseLoad([]string{"/tmp/foo.so", "config=/etc/foo.ini"}, loc)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		lt := tok.Data.(*LoadToken)
+		if lt.Path != "/tmp/foo.so" {
+			t.Errorf("Path = %q, want %q", lt.Path, "/tmp/foo.so")
+		}
+		if len(lt.Args) != 1 || lt.Args[0] != "config=/etc/foo.ini" {
+			t.Errorf("Args = %v, want [config=/etc/foo.ini]", lt.Args)
+		}
+	})
+
+	t.Run("path with multiple args", func(t *testing.T) {
+		tok, err := parseLoad([]string{"/tmp/foo.so", "a=1", "b=2"}, loc)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		lt := tok.Data.(*LoadToken)
+		if len(lt.Args) != 2 {
+			t.Errorf("Args len = %d, want 2", len(lt.Args))
+		}
+	})
+
+	t.Run("missing path error", func(t *testing.T) {
+		_, err := parseLoad([]string{}, loc)
+		if err == nil {
+			t.Error("expected error for missing path, got nil")
+		}
+	})
+}
+
+// --- TestParseLine_load ---
+
+func TestParseLine_load(t *testing.T) {
+	loc := SourceLoc{File: "test.hal", Line: 1}
+
+	tok, err := parseLine([]string{"load", "/tmp/foo.so", "x=1"}, loc)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	lt, ok := tok.Data.(*LoadToken)
+	if !ok {
+		t.Fatalf("expected *LoadToken, got %T", tok.Data)
+	}
+	if lt.Path != "/tmp/foo.so" {
+		t.Errorf("Path = %q, want %q", lt.Path, "/tmp/foo.so")
+	}
+}
+
+// --- TestSingleFileParser_load_classified ---
+
+func TestSingleFileParser_load_classified(t *testing.T) {
+	content := "load /tmp/foo.so config=bar\n"
+	sp := &SingleFileParser{}
+	result, err := sp.ParseContent("test.hal", content)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(result.Loads) != 1 {
+		t.Fatalf("expected 1 Loads token, got %d", len(result.Loads))
+	}
+	lt, ok := result.Loads[0].Data.(*LoadToken)
+	if !ok {
+		t.Fatalf("expected *LoadToken, got %T", result.Loads[0].Data)
+	}
+	if lt.Path != "/tmp/foo.so" {
+		t.Errorf("Path = %q, want %q", lt.Path, "/tmp/foo.so")
+	}
+	if len(result.LoadRT) != 0 {
+		t.Errorf("expected 0 LoadRT tokens, got %d", len(result.LoadRT))
+	}
+	if len(result.HALCmd) != 0 {
+		t.Errorf("expected 0 HALCmd tokens, got %d", len(result.HALCmd))
+	}
 }
 
 // --- TestParseNet ---

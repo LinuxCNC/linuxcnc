@@ -10,7 +10,7 @@ import (
 	"log/slog"
 	"path/filepath"
 
-	"linuxcnc.org/hal"
+	"github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 
 	adsProto "github.com/sittner/linuxcnc/src/launcher/pkg/ads"
 	"github.com/sittner/linuxcnc/src/launcher/pkg/adsbridge"

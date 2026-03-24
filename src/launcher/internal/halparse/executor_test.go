@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	halcmd "github.com/sittner/linuxcnc/src/launcher/internal/halcmd"
-	hal "linuxcnc.org/hal"
+	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // TestExecuteToken_AllTypes verifies that executeToken dispatches each concrete
@@ -75,6 +75,7 @@ func TestExecuteToken_AllTypes(t *testing.T) {
 		{"Echo", Token{loc, &EchoToken{}}, noOp},
 		{"UnEcho", Token{loc, &UnEchoToken{}}, noOp},
 		{"Print", Token{loc, &PrintToken{Message: "hello"}}, noOp},
+		{"Load", Token{loc, &LoadToken{Path: "/tmp/foo.so", Args: []string{"a=1"}, Params: "a=1"}}, noCGO},
 	}
 
 	for _, tc := range tests {
@@ -330,5 +331,74 @@ func TestParseResultLoad_LoadRTMerge(t *testing.T) {
 	}
 	if !errors.Is(err, halcmd.ErrNoCGO) {
 		t.Errorf("expected ErrNoCGO, got %v", err)
+	}
+}
+
+// TestParseResultIterLoads verifies that IterLoads calls the callback for each
+// LoadToken in Loads, providing the correct path and args.
+func TestParseResultIterLoads(t *testing.T) {
+	r := &ParseResult{
+		Loads: []Token{
+			{
+				Location: SourceLoc{File: "test.hal", Line: 1},
+				Data:     &LoadToken{Path: "/tmp/foo.so", Args: []string{"a=1", "b=2"}},
+			},
+			{
+				Location: SourceLoc{File: "test.hal", Line: 2},
+				Data:     &LoadToken{Path: "/tmp/bar.so", Args: nil},
+			},
+		},
+	}
+
+	type call struct {
+		path string
+		args []string
+	}
+	var calls []call
+
+	err := r.IterLoads(func(path string, args []string) error {
+		calls = append(calls, call{path, args})
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("IterLoads returned unexpected error: %v", err)
+	}
+	if len(calls) != 2 {
+		t.Fatalf("expected 2 calls, got %d", len(calls))
+	}
+	if calls[0].path != "/tmp/foo.so" {
+		t.Errorf("calls[0].path = %q, want %q", calls[0].path, "/tmp/foo.so")
+	}
+	if len(calls[0].args) != 2 || calls[0].args[0] != "a=1" || calls[0].args[1] != "b=2" {
+		t.Errorf("calls[0].args = %v, want [a=1 b=2]", calls[0].args)
+	}
+	if calls[1].path != "/tmp/bar.so" {
+		t.Errorf("calls[1].path = %q, want %q", calls[1].path, "/tmp/bar.so")
+	}
+}
+
+// TestParseResultIterLoads_ErrorPropagation verifies that IterLoads stops on
+// the first error and wraps it with the source location.
+func TestParseResultIterLoads_ErrorPropagation(t *testing.T) {
+	loc := SourceLoc{File: "test.hal", Line: 7}
+	r := &ParseResult{
+		Loads: []Token{
+			{Location: loc, Data: &LoadToken{Path: "/tmp/fail.so"}},
+		},
+	}
+
+	sentinelErr := errors.New("intentional failure")
+	err := r.IterLoads(func(_ string, _ []string) error {
+		return sentinelErr
+	})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !errors.Is(err, sentinelErr) {
+		t.Errorf("expected sentinel error via errors.Is, got %v", err)
+	}
+	// ExecutionError should include the source location
+	if !strings.Contains(err.Error(), "test.hal:7") {
+		t.Errorf("error %q should contain source location 'test.hal:7'", err.Error())
 	}
 }

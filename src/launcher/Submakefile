@@ -16,6 +16,7 @@ LAUNCHER_LDFLAGS := \
     -X '$(LAUNCHER_LDFLAGS_PKG).EMC2TclDir=$(EMC2_TCL_DIR)' \
     -X '$(LAUNCHER_LDFLAGS_PKG).EMC2HelpDir=$(EMC2_HELP_DIR)' \
     -X '$(LAUNCHER_LDFLAGS_PKG).EMC2RtlibDir=$(EMC2_RTLIB_DIR)' \
+    -X '$(LAUNCHER_LDFLAGS_PKG).EMC2GomodDir=$(EMC2_GOMOD_DIR)' \
     -X '$(LAUNCHER_LDFLAGS_PKG).EMC2ConfigPath=$(LINUXCNC_CONFIG_PATH)' \
     -X '$(LAUNCHER_LDFLAGS_PKG).EMC2NCFilesDir=$(EMC2_NCFILES_DIR)' \
     -X '$(LAUNCHER_LDFLAGS_PKG).EMC2LangDir=$(EMC2_LANG_DIR)' \
@@ -51,7 +52,71 @@ LAUNCHER_SRC := $(wildcard launcher/*.go) \
 	$(ECHO) Building ads-xml-gen
 	$(Q)cd launcher && CGO_ENABLED=0 $(GO) build -o $(TOP)/bin/ads-xml-gen ./cmd/ads-xml-gen
 
-TARGETS += ../bin/linuxcnc-launcher ../bin/ads-xml-gen
+# ---------------------------------------------------------------------------
+# Copy launcher public packages to share/ for RIP builds
+# ---------------------------------------------------------------------------
+
+# Files that external Go plugins need (hal bindings + gomodule interface +
+# inifile parser).
+LAUNCHER_PKG_FILES := \
+    ../share/linuxcnc/launcher/pkg/hal/hal.go \
+    ../share/linuxcnc/launcher/pkg/hal/component.go \
+    ../share/linuxcnc/launcher/pkg/hal/pin.go \
+    ../share/linuxcnc/launcher/pkg/hal/types.go \
+    ../share/linuxcnc/launcher/pkg/hal/errors.go \
+    ../share/linuxcnc/launcher/pkg/hal/cgo.go \
+    ../share/linuxcnc/launcher/pkg/hal/doc.go \
+    ../share/linuxcnc/launcher/pkg/gomodule/gomodule.go \
+    ../share/linuxcnc/launcher/pkg/inifile/types.go \
+    ../share/linuxcnc/launcher/pkg/inifile/parser.go \
+    ../share/linuxcnc/launcher/pkg/inifile/expand.go \
+    ../share/linuxcnc/launcher/go.mod
+
+../share/linuxcnc/launcher/pkg/%: launcher/pkg/%
+	$(ECHO) Copying launcher pkg file $<
+	@mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+# The installed go.mod must not carry the local replace directive.
+../share/linuxcnc/launcher/go.mod: launcher/go.mod
+	$(ECHO) Generating launcher share go.mod
+	@mkdir -p $(dir $@)
+	$(Q)printf 'module github.com/sittner/linuxcnc/src/launcher\n\ngo 1.21\n' > $@
+
+# ---------------------------------------------------------------------------
+# HAL Go example / test binaries (standalone processes using the hal package)
+# ---------------------------------------------------------------------------
+
+HAL_GO_CGO_CFLAGS := -I$(TOP)/src -I$(TOP)/src/hal -I$(TOP)/src/rtapi -I$(TOP)/include
+HAL_GO_CGO_LDFLAGS := -L$(TOP)/lib -llinuxcnchal
+
+HAL_GO_EXAMPLES := ../bin/passthrough ../bin/str-sender ../bin/str-receiver
+
+../bin/passthrough: $(LAUNCHER_SRC) launcher/pkg/hal/examples/passthrough/main.go launcher/pkg/hal/examples/passthrough/go.mod ../lib/liblinuxcnchal.so
+	$(ECHO) Building hal-go passthrough example
+	$(Q)cd launcher/pkg/hal/examples/passthrough && \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(HAL_GO_CGO_CFLAGS)" \
+	CGO_LDFLAGS="$(HAL_GO_CGO_LDFLAGS)" \
+	$(GO) build -o $(TOP)/bin/passthrough .
+
+../bin/str-sender: $(LAUNCHER_SRC) launcher/pkg/hal/tests/str-sender/main.go launcher/pkg/hal/tests/str-sender/go.mod ../lib/liblinuxcnchal.so
+	$(ECHO) Building hal-go str-sender test component
+	$(Q)cd launcher/pkg/hal/tests/str-sender && \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(HAL_GO_CGO_CFLAGS)" \
+	CGO_LDFLAGS="$(HAL_GO_CGO_LDFLAGS)" \
+	$(GO) build -o $(TOP)/bin/str-sender .
+
+../bin/str-receiver: $(LAUNCHER_SRC) launcher/pkg/hal/tests/str-receiver/main.go launcher/pkg/hal/tests/str-receiver/go.mod ../lib/liblinuxcnchal.so
+	$(ECHO) Building hal-go str-receiver test component
+	$(Q)cd launcher/pkg/hal/tests/str-receiver && \
+	CGO_ENABLED=1 \
+	CGO_CFLAGS="$(HAL_GO_CGO_CFLAGS)" \
+	CGO_LDFLAGS="$(HAL_GO_CGO_LDFLAGS)" \
+	$(GO) build -o $(TOP)/bin/str-receiver .
+
+TARGETS += ../bin/linuxcnc-launcher ../bin/ads-xml-gen $(LAUNCHER_PKG_FILES) $(HAL_GO_EXAMPLES)
 
 # Test target
 .PHONY: test-launcher
@@ -63,13 +128,25 @@ clean: launcher-clean
 .PHONY: launcher-clean
 launcher-clean:
 	rm -f ../bin/linuxcnc-launcher ../bin/ads-xml-gen
+	rm -f $(HAL_GO_EXAMPLES)
+	rm -f $(LAUNCHER_PKG_FILES)
 
 # Install
 install: launcher-install
 .PHONY: launcher-install
-launcher-install: ../bin/linuxcnc-launcher ../bin/ads-xml-gen
+launcher-install: ../bin/linuxcnc-launcher ../bin/ads-xml-gen $(LAUNCHER_PKG_FILES) $(HAL_GO_EXAMPLES)
 	$(DIR) $(DESTDIR)$(EMC2_BIN_DIR)
 	$(INSTALL) -m 0755 ../bin/linuxcnc-launcher $(DESTDIR)$(EMC2_BIN_DIR)/linuxcnc-launcher
 	$(INSTALL) -m 0755 ../bin/ads-xml-gen $(DESTDIR)$(EMC2_BIN_DIR)/ads-xml-gen
+	$(FILE) $(HAL_GO_EXAMPLES) $(DESTDIR)$(EMC2_BIN_DIR)/
+	# Install launcher public packages for external Go plugin development
+	$(DIR) $(DESTDIR)$(datadir)/linuxcnc/launcher/pkg/hal
+	$(DIR) $(DESTDIR)$(datadir)/linuxcnc/launcher/pkg/gomodule
+	$(DIR) $(DESTDIR)$(datadir)/linuxcnc/launcher/pkg/inifile
+	$(Q)for f in $(LAUNCHER_PKG_FILES); do \
+		dest=$(DESTDIR)$(datadir)/linuxcnc/launcher/$$(echo $$f | sed 's|^../share/linuxcnc/launcher/||'); \
+		mkdir -p $$(dirname $$dest); \
+		$(INSTALL) -m 0644 $$f $$dest; \
+	done
 
 endif # BUILD_GOLANG

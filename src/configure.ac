@@ -537,6 +537,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
+    EMC2_GOMOD_DIR=$EMC2_HOME/gomod
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     EMC2_IMAGE_DIR=$EMC2_HOME
@@ -558,6 +559,7 @@ else
         */linuxcnc*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
 	*) EMC2_RTLIB_DIR=$MODULE_DIR/linuxcnc
     esac
+    EMC2_GOMOD_DIR=${prefix}/lib/linuxcnc/gomod
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
@@ -569,6 +571,7 @@ AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
 AC_DEFINE_UNQUOTED([EMC2_TCL_DIR], "$EMC2_TCL_DIR", [Directory for tcl scripts])
 AC_DEFINE_UNQUOTED([EMC2_HELP_DIR], "$EMC2_HELP_DIR", [Directory for help files])
 AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory of realtime system])
+AC_DEFINE_UNQUOTED([EMC2_GOMOD_DIR], "$EMC2_GOMOD_DIR", [Directory for Go plugin modules])
 AC_DEFINE_UNQUOTED([EMC2_LANG_DIR], "$EMC2_LANG_DIR", [Directory for tcl translation files])
 AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
@@ -579,6 +582,7 @@ AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
 AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
+AC_SUBST([EMC2_GOMOD_DIR])
 AC_SUBST([EMC2_LANG_DIR])
 AC_SUBST([LINUXCNC_CONFIG_PATH])
 AC_SUBST([EMC2_NCFILES_DIR])

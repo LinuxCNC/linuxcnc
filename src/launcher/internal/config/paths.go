@@ -22,6 +22,9 @@ var (
 	// EMC2RtlibDir is the directory containing LinuxCNC realtime libraries (@EMC2_RTLIB_DIR@).
 	EMC2RtlibDir string
 
+	// EMC2GomodDir is the directory containing Go plugin modules (@EMC2_GOMOD_DIR@).
+	EMC2GomodDir string
+
 	// EMC2ConfigPath is the colon-separated list of config search directories (@LINUXCNC_CONFIG_PATH@).
 	EMC2ConfigPath string
 

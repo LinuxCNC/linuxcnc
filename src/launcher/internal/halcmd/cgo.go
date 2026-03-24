@@ -1760,7 +1760,7 @@ import (
 	"fmt"
 	"unsafe"
 
-	hal "linuxcnc.org/hal"
+	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // halError translates a HAL C error code to a Go error.

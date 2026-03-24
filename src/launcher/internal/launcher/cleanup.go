@@ -35,6 +35,10 @@ func (l *Launcher) doCleanup() {
 	l.logger.Debug("stopping task process")
 	l.stopTask()
 
+	// Step 2.3 — Stop Go plugin modules (before protocol shutdown).
+	l.logger.Debug("stopping Go plugin modules")
+	l.stopGoModules()
+
 	// Step 2.5 — Stop protocol servers (ADS, etc.).
 	l.logger.Debug("stopping protocol servers")
 	l.stopProtocols()

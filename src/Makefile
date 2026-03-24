@@ -172,7 +172,6 @@ SUBDIRS := \
     hal/user_comps/pi500_vfd \
     hal/user_comps/huanyang-vfd \
 	hal/user_comps/xhc-whb04b-6 \
-	hal/hal-go \
 	hal/hal-ads-server \
 	launcher \
     \
@@ -645,6 +644,7 @@ install-docs:
 
 install-dirs:
 	$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR) \
+		$(DESTDIR)$(EMC2_GOMOD_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) $(DESTDIR)$(libdir) \
 		$(DESTDIR)/lib/linuxcnc $(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \

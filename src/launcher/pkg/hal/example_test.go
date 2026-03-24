@@ -3,7 +3,7 @@ package hal_test
 import (
 	"fmt"
 
-	"linuxcnc.org/hal"
+	"github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // Example demonstrates basic usage of the hal package.

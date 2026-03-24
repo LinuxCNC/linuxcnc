@@ -5,7 +5,7 @@ package halcmd
 import (
 	"errors"
 
-	hal "linuxcnc.org/hal"
+	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // ErrNoCGO is returned by all stub functions when CGO is not available.

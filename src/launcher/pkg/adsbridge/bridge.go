@@ -7,7 +7,7 @@ import (
 	"math"
 	"strings"
 
-	"linuxcnc.org/hal"
+	"github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 
 	"github.com/sittner/linuxcnc/src/launcher/pkg/ads"
 	"github.com/sittner/linuxcnc/src/launcher/pkg/adsconfig"

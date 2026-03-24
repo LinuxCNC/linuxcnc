@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	hal "linuxcnc.org/hal"
+	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
 
 // tokenizeLine splits a single HAL config line into raw string tokens.
@@ -637,6 +637,19 @@ func parsePrint(tokens []string, loc SourceLoc) (Token, *ParseError) {
 	return Token{Location: loc, Data: &PrintToken{Message: strings.Join(tokens, " ")}}, nil
 }
 
+func parseLoad(tokens []string, loc SourceLoc) (Token, *ParseError) {
+	if len(tokens) < 1 {
+		return Token{}, &ParseError{Loc: loc, Msg: "load: missing module path"}
+	}
+	tok := &LoadToken{
+		Path: tokens[0],
+	}
+	if len(tokens) > 1 {
+		tok.Args = tokens[1:]
+	}
+	return Token{Location: loc, Data: tok}, nil
+}
+
 // parseLine dispatches a tokenized line to the appropriate per-command parse
 // function. The command name (tokens[0]) is matched case-insensitively.
 // The "source" command is NOT handled here — it is resolved by SingleFileParser.
@@ -718,6 +731,8 @@ func parseLine(tokens []string, loc SourceLoc) (Token, *ParseError) {
 		return parseUnEcho(args, loc)
 	case "print":
 		return parsePrint(args, loc)
+	case "load":
+		return parseLoad(args, loc)
 	case "source":
 		return Token{}, &ParseError{Loc: loc, Msg: "source: not a halcmd command (resolved at parse time)"}
 	default:
@@ -819,6 +834,7 @@ func (sp *SingleFileParser) Parse(path string) (*ParseResult, error) {
 			}
 			result.LoadRT = append(result.LoadRT, childResult.LoadRT...)
 			result.LoadUSR = append(result.LoadUSR, childResult.LoadUSR...)
+			result.Loads = append(result.Loads, childResult.Loads...)
 			result.HALCmd = append(result.HALCmd, childResult.HALCmd...)
 			continue
 		}
@@ -839,6 +855,8 @@ func (sp *SingleFileParser) Parse(path string) (*ParseResult, error) {
 			} else {
 				result.HALCmd = append(result.HALCmd, tok)
 			}
+		case *LoadToken:
+			result.Loads = append(result.Loads, tok)
 		default:
 			result.HALCmd = append(result.HALCmd, tok)
 		}
@@ -895,6 +913,7 @@ func (mp *MultiFileParser) Parse(paths []string) (*ParseResult, error) {
 		}
 		result.LoadRT = append(result.LoadRT, fileResult.LoadRT...)
 		result.LoadUSR = append(result.LoadUSR, fileResult.LoadUSR...)
+		result.Loads = append(result.Loads, fileResult.Loads...)
 		result.HALCmd = append(result.HALCmd, fileResult.HALCmd...)
 	}
 	return result, nil
