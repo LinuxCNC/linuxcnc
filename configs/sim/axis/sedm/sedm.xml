@@ -2,7 +2,7 @@
 	<!-- now using fixed font make colums easier -->
 	<!-- size 12 and bild is because I am mostly blind  -->
 	<!-- to view -->
-	<!--  halcmd loadusr pyvcp ./SEDM.xml -->
+	<!--  halcmd loadusr pyvcp ./sedm.xml -->
 	<!-- 03.02.2026 no luck getting larger checkbutton -->
 	<vbox>
 		<hbox>

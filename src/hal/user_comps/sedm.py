@@ -1,29 +1,24 @@
-#!/usr/bin/python3.11
-#######################################
-#    This is a component of linuxcnc
-#    SEDM Copyright 2026 Thomas J Powderly
-#
-#
-#    This program is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#######################################
+#!/usr/bin/env python3
 
-#17.03.2026 
-# Thi file should be copied tobin/SEDM and made executable.
+# FIXED proibs w jump sedm.JumpLtype not set
+# re: sedm.JunpTODO iy looked like some set b4 call some set inside call
 
-#07.03.2026 cleaned ~/Doenloads/SEDM of crudt
-#  chgd .ini to use ~/Download/SEDM/Mcodes for mcodes
+# 24.03.2026 after moving of constanst fro sedmhdrs.py
+# to top of code here
+# git errs becuz constants not know to funs
+
+# 23.03.2026 chg shebang
+# 23.03.2026 I had a seperate file foy constants
+#   but probs in build pkgs suggest that causes probs
+#   so now the conternts are inised this file
+
+# 23.03.2026 chg all sedm to sedm
+#07.03.2026 cleaned ~/Doenloads/sedmM of crudt
+#  chgd .ini to use ~/Download/sedm/Mcodes for mcodes
 # TODO backup 
 #    docstrings
 #    get new clone of linuxcnc
-#    add my SEDM to that
+#    add my sedm to that
 #     test
 #     if ok, notify devs of intent
 #     commit chgs.pulll rtequest ( jibberish GIT speak )
@@ -38,7 +33,7 @@
 # 25.02.2026 now using new etab format
 #  work znegstraight zneg1orn usimg 19/ENC yable
 #
-# FIXED in SEDM.xml
+# FIXED in sedm.xml
 #    SPA can look like int, not so wide
 #
 # 22.02.2026 work onn etab ccnvrsn
@@ -96,9 +91,77 @@ import time
 import sys, subprocess
 import os.path
 from random import uniform
-# SEDMhdrs.py must be in /usr/lib/python3.11
-#   or    ~/yourRIP/lib/python    
-from SEDMhdrs import *
+
+# 23.03.2026 no more headers file \sedmhdrs.py'
+"""
+# 23.03.2026 build pkgs failed
+# I think >I< put this file where a std build would find it
+# but a pkg build may not
+# The prpose of this file was to isolate a lot of 'equares'
+# but because Python has no .h/inmclude/or hgeader files,
+# I made it a python file accessible by 'import'
+# That trick might make build pkgs or some rule break/fail.
+# I will put thi inside the top[ of the sedm.py comp srrc file
+# 
+#
+# OLD NOTES  sedmhdrs.py
+# resides in /usr/lib/python3.11
+#   or       ~/yourRIP/lib/python
+#
+"""
+# beg--------- CONSTANTS --------
+
+# JumpLtypes The detour path varies with jumptype
+#  sometime a single line, and sometimes 3 with and angle between
+JumpBoreType      = 1 # use part of sexisyting BoreL
+JumpStairsType    = 2 # create a leg shape beg at BP end at BP
+JumpOrbLeadInType = 3 #use section of existing Legshape
+JumpOrbPathType   = 4 #create dwtour wqith legshape 
+#JumpOrbPathDetour = 5 #NO dont jump , thertes only 1 posn where there may be stock, else its just backaway to clear low V
+NoJump = 10 # avoid 0 for unitialized cars
+
+# motion directions 
+FWD = +1
+HOLD = 0
+BWD = -1
+
+# how many consecutive BWD evaluations before ABORT
+ContBWDmax = 20 # maxximum continouous   low voltage sample, causes ABORT
+
+#02.09.2025 i  want to set GVMAX and GV<IN using this vv data . so it innn Edm3 comp
+#  since pin and  'constant' had same anmes, i added uscore to constant
+GVMIN = 0
+GVMAX = 100
+
+#24.03.2026 dx not needed as global
+#ndx = 0 # need this global or pass, global may be correct here
+
+NEG = -1
+POS = +1
+
+CIRCLE = 0
+SQUARE = 1
+
+# ---- states of state machine ----
+# WaitFullDepthMsrdUNS     = 1
+WaitFullDepthRplaneDist  = 1
+WaitOrbitTypeWiglRADf    = 2
+WaitEttabNumberMsrdUNS   = 3
+WaitBegEndNR             = 4
+WaitPitch                = 5
+WaitJumpwANTED           = 6
+WaitGenReady             = 7
+WaitM199                 = 8
+# no 9 no 10 no good reason
+WaitPlunge               = 11
+WaitDoPlungeOrbit        = 12
+WaitAllNRsDone           = 13
+WaitThisOrbitDone        = 14
+WaitNewNR                = 15
+CleanUpPutAway           = 16
+# ------ end states of state macghine
+
+# ----- end of constants -------
 
 def mkStairsJumpLegL( bP ):
 	"""
@@ -143,15 +206,15 @@ def mkStairsJumpLegL( bP ):
 	"""
 	SPO = (0,0,0) #StartPtOffset nit Posn
 	#
-	WiglRADi = int(round(SEDM.WiglRADf / SEDM.xyzSCALEfOUT))
+	WiglRADi = int(round(sedm.WiglRADf / sedm.xyzSCALEfOUT))
 	# get ctrLevel, above breakPt by ThisRA
-	ctrLevel = bP[SEDM.ToolAxis]  - (WiglRADi * SEDM.CutDir) 
+	ctrLevel = bP[sedm.ToolAxis]  - (WiglRADi * sedm.CutDir) 
 	# get anklePt
-	if SEDM.ToolAxis == 2: # Z
+	if sedm.ToolAxis == 2: # Z
 			anklePt = ( ( 0,0,ctrLevel ) )
-	if SEDM.ToolAxis == 1: # Y
+	if sedm.ToolAxis == 1: # Y
 			anklePt = ( ( 0,  ctrLevel, 0 ) )
-	if SEDM.ToolAxis == 0: # X   13.02.2026 damn had = 2 and spent a day
+	if sedm.ToolAxis == 0: # X   13.02.2026 damn had = 2 and spent a day
 			anklePt = ( ( ctrLevel, 0, 0 ) )
 	footL = L3D(bP, anklePt)
 	lFL = len(footL)-1
@@ -162,8 +225,9 @@ def mkStairsJumpLegL( bP ):
 	return legL,ankleNdx
 #
 def mkJupLJdnL( L, bPndx):
-	if SEDM.JumpLtype == JumpBoreType:
-		AJDi = int(SEDM.AJD *1000)
+	#
+	if sedm.JumpLtype == JumpBoreType:
+		AJDi = int(sedm.AJD *1000)
 		#
 		bPtupl = L[bPndx]
 		hiPtNdx = bPndx - AJDi
@@ -189,9 +253,9 @@ def mkJupLJdnL( L, bPndx):
 		
 		return Jaway, Jback
 		#
-	if SEDM.JumpLtype == JumpStairsType:
+	if sedm.JumpLtype == JumpStairsType:
 		#            0.050  *1000  = 50
-		AJDi = int(SEDM.AJD * 1000)
+		AJDi = int(sedm.AJD * 1000)
 		
 		bPtupl = L[bPndx]
 		JL, ankleNdx = mkStairsJumpLegL( bPtupl )   # ignore ankleNdx
@@ -213,10 +277,10 @@ def mkJupLJdnL( L, bPndx):
 		
 		return Jaway, Jback
 	#
-	if SEDM.JumpLtype == JumpOrbLeadInType:
+	if sedm.JumpLtype == JumpOrbLeadInType:
 		#13.02.2026 TODO reduce   same as BoreL
 		
-		AJDi = int(SEDM.AJD *1000)
+		AJDi = int(sedm.AJD *1000)
 		#
 		bPtupl = L[bPndx]
 		hiPtNdx = bPndx - AJDi
@@ -241,9 +305,9 @@ def mkJupLJdnL( L, bPndx):
 		
 		return Jaway, Jback
 	#
-	if SEDM.JumpLtype == JumpOrbPathType:
+	if sedm.JumpLtype == JumpOrbPathType:
 		#
-		AJDi = int(SEDM.AJD *1000)
+		AJDi = int(sedm.AJD *1000)
 		bPtupl = L[bPndx]
 		JL, ankleNdx = mkDetourLegL( L[bPndx] )   # ignore ankleNdx
 		#
@@ -263,6 +327,9 @@ def mkJupLJdnL( L, bPndx):
 		Jback = Jback[hiPtNdx:]
 		return Jaway, Jback
 	#
+	if sedm/JumpLtype == NoJump:
+		print(357,"dont call mkJupLJdnL) wityh NoJimp")
+		trap()
 #
 # vvv rqrs JumpL and doMove()
 def doJump(JupL,JdnL):
@@ -279,7 +346,7 @@ def doJump(JupL,JdnL):
 		doMove(p)
 #
 #05.02.2026 TODO small enuf to so inline
-def mkJT(): # sets SEDM.endJT
+def mkJT(): # sets sedm.endJT
 	"""
 	creates float 
 	repressenting when next Jump 
@@ -287,7 +354,7 @@ def mkJT(): # sets SEDM.endJT
 	"""
 	Tnow = time.time()
 	# vvv these are all floats
-	SEDM.endJT = Tnow + SEDM.ET
+	sedm.endJT = Tnow + sedm.ET
 #
 #05.02.2026 TODO small enuf to so inline
 def chkJT(): # run this every loop while cuttinmg
@@ -297,7 +364,7 @@ def chkJT(): # run this every loop while cuttinmg
 	and it is time to Jump
 	"""
 	Tnow = time.time()
-	timesUp = (Tnow >= SEDM.endJT)
+	timesUp = (Tnow >= sedm.endJT)
 	return timesUp
 #
 def IsFreebie(posn): # posn is an x y z tuplke
@@ -322,7 +389,7 @@ def IsFreebie(posn): # posn is an x y z tuplke
 	 Freebies are set in NOTheaders.py
 	"""
 	
-	f =  SEDM.freebies # avoid looking it up 3x
+	f =  sedm.freebies # avoid looking it up 3x
 	if   abs(posn[0]) > f:
 		return False
 	elif abs(posn[1])> f:
@@ -334,12 +401,12 @@ def IsFreebie(posn): # posn is an x y z tuplke
 #
 # 14.02.2026 TODO likely there are unused/refundamt pis
 #   clean them out
-def mkSEDMcomp():
+def mksedmcomp():
 	"""
 	creates the LinuxCNC hal component
 	for orbiting sink EDM.
 	"""
-	h = hal.component("SEDM")
+	h = hal.component("sedm")
 	#
 	h.newpin("EDMgrade",     hal.HAL_S32,   hal.HAL_OUT)
 	h.newpin("EDpeek",     hal.HAL_BIT,   hal.HAL_IN)
@@ -409,7 +476,7 @@ def mkSEDMcomp():
 	#new 01.02.2026 the sys time when next jump occurs
 	h.newpin("endJT",           hal.HAL_FLOAT, hal.HAL_OUT)
 	# 06.02.2026 new pin JumpLtype
-	# defines in SEDMhdrs.py
+	# defines in sedmhdrs.py
 	h.newpin("JumpLtype",           hal.HAL_U32, hal.HAL_IN)
 	# vvv new 01.02.2026, cnx to gui checkbutton
 	h.newpin("JumpENA",         hal.HAL_BIT, hal.HAL_IN)
@@ -511,7 +578,7 @@ def getPgmUnits():
 	set pins dor SmallestCmdZise  
 	to .0001 (inch) or .001 (mm(
 	"""
-	global SEDM # some SEDM pins gets chgd
+	global sedm # some sedm pins gets chgd
 	#
 	s = linuxcnc.stat()
 	s.poll()
@@ -526,13 +593,13 @@ def getPgmUnits():
 	# tmp will be 0 1  or 2 right now
 	tmp = tmp - 1 # now 0 means INCH   and 1   means MM
 	if tmp == 0:# if INCH
-		SEDM.PgmIsMM = False
-		SEDM.xyzSCALEfIN = 0.0001
-		SEDM.xyzSCALEfOUT = SEDM.xyzSCALEfIN
+		sedm.PgmIsMM = False
+		sedm.xyzSCALEfIN = 0.0001
+		sedm.xyzSCALEfOUT = sedm.xyzSCALEfIN
 	else:# else tmp == 1 meaning METRIC
-		SEDM.PgmIsMM = True
-		SEDM.xyzSCALEfIN = 0.001
-		SEDM.xyzSCALEfOUT = SEDM.xyzSCALEfIN
+		sedm.PgmIsMM = True
+		sedm.xyzSCALEfIN = 0.001
+		sedm.xyzSCALEfOUT = sedm.xyzSCALEfIN
 #
 def trap():
 	"""
@@ -550,7 +617,7 @@ def getToolAxis():# s now global
 	  G18 = 1 (Y toolAxis)
 	  G19 = 0 (X toolAxis)
 	"""
-	global SEDM
+	global sedm
 	#
 	s = linuxcnc.stat()
 	s.poll()
@@ -558,11 +625,11 @@ def getToolAxis():# s now global
 	# get G17 G18 G19 info 
 	t= int(s.gcodes[3])
 	if t == 190:
-		SEDM.ToolAxis = 0 # for X is toolAxis
+		sedm.ToolAxis = 0 # for X is toolAxis
 	elif t == 180:
-		SEDM.ToolAxis = 1 # for Y is ToolAxis
+		sedm.ToolAxis = 1 # for Y is ToolAxis
 	elif t == 170:
-		SEDM.ToolAxis = 2 # for Z is ToolAxis
+		sedm.ToolAxis = 2 # for Z is ToolAxis
 	else:
 		#TODO 16.11.2025 allow any of xyz abv uvw
 		print(t," Err invalid Plane, shouyld be 190 180 170")
@@ -685,9 +752,9 @@ def getStartPtF():
 	# wait for position to be true
 	time.sleep(0.1)# was ng at 0.01
 	# collect posn at rest
-	SEDM.xsp = SEDM.xFBf  # x posn feedback NOE
-	SEDM.ysp = SEDM.yFBf
-	SEDM.zsp = SEDM.zFBf
+	sedm.xsp = sedm.xFBf  # x posn feedback NOE
+	sedm.ysp = sedm.yFBf
+	sedm.zsp = sedm.zFBf
 #
 def setGen(NRval):
 	"""
@@ -701,7 +768,7 @@ def setGen(NRval):
 	
 	The dunction relies on the data order in the dile .
 	
-	The SEDM system is an automatically
+	The sedm system is an automatically
 	sequencing system.
 	When a single tool 'roughs' the net shape,
 	The system automtically decreaes the power
@@ -741,10 +808,10 @@ def setGen(NRval):
 		"""
 		NRstr = str(NRval)#key  to  dict is  of form 'keyname' ( note ticks~)
 		#
-		SEDM.NR =    NRval # local storage on SEDM pin
-		SEDM.IP =    EtabDict[NRstr][0]  #'peak' current
-		SEDM.P  =    EtabDict[NRstr][1]  #Pollarity
-		SEDM.HV =    EtabDict[NRstr][2]  #ignitionVoltage
+		sedm.NR =    NRval # local storage on sedm pin
+		sedm.IP =    EtabDict[NRstr][0]  #'peak' current
+		sedm.P  =    EtabDict[NRstr][1]  #Pollarity
+		sedm.HV =    EtabDict[NRstr][2]  #ignitionVoltage
 		"""
 		 a milliamp supply used to initialize the spark,
 		 a higher HV makes it easier for system to 'see' 
@@ -753,89 +820,89 @@ def setGen(NRval):
 		"""
 		#
 		# TODO vvv for real use
-		#SEDM.GVHI = EtabDict[NRstr][3]
-		#SEDM.GVLO = EtabDict[NRstr][4]
+		#sedm.GVHI = EtabDict[NRstr][3]
+		#sedm.GVLO = EtabDict[NRstr][4]
 		# TODO  vvv for testing
-		SEDM.GVHI =   50#35#40# 45# 2 #45 #
-		SEDM.GVLO =   40#28#30# 35# 1 #40 #
+		sedm.GVHI =   50#35#40# 45# 2 #45 #
+		sedm.GVLO =   40#28#30# 35# 1 #40 #
 		#
-		SEDM.TON =   EtabDict[NRstr][5]  
-		SEDM.TOF =   EtabDict[NRstr][6]  
-		SEDM.ISO =   EtabDict[NRstr][7]  #in IsoPulse mode,
+		sedm.TON =   EtabDict[NRstr][5]  
+		sedm.TOF =   EtabDict[NRstr][6]  
+		sedm.ISO =   EtabDict[NRstr][7]  #in IsoPulse mode,
 		#
-		SEDM.AJD =   EtabDict[NRstr][8] 
+		sedm.AJD =   EtabDict[NRstr][8] 
 		# 'peck' cycle jump distance, decimal mm
-		SEDM.ET  =   EtabDict[NRstr][9]
+		sedm.ET  =   EtabDict[NRstr][9]
 		# 'peck' cycle cut duration, decimal Secs
 		#
-		SEDM.BWDmax =  EtabDict[NRstr][10]
+		sedm.BWDmax =  EtabDict[NRstr][10]
 		# max number of contiguous low voltage samples,
 		# eceeding will cause abort and return to start point
 		#
-		SEDM.RADf    = EtabDict[NRstr][11]  #radius per side
-		SEDM.SPAf   =  EtabDict[NRstr][12]  #spherical step angle
+		sedm.RADf    = EtabDict[NRstr][11]  #radius per side
+		sedm.SPAf   =  EtabDict[NRstr][12]  #spherical step angle
 		# for sphertical orbit
 		#  a hemisphere is a stack of circles
 		#  these data are placeholders, neyonf my ability 
 		#  to measueree and erecord
-		SEDM.VEf  =   EtabDict[NRstr][13] #electrode wear
-		SEDM.VWf  =   EtabDict[NRstr][14] #MMR metal removal rate
-		SEDM.VDIf =   EtabDict[NRstr][15] #surface roughness
+		sedm.VEf  =   EtabDict[NRstr][13] #electrode wear
+		sedm.VWf  =   EtabDict[NRstr][14] #MMR metal removal rate
+		sedm.VDIf =   EtabDict[NRstr][15] #surface roughness
 		#
-		SEDM.ThisNR = NRval # non zero
+		sedm.ThisNR = NRval # non zero
 	#
 	else: # NRval == 0 means clear the gennrator
 		NRstr = "0" #str(NRval)
 		#
-		SEDM.BWDcount    = 0
-		SEDM.CutDir      = 0
-		SEDM.EtabNum     = 0
-		SEDM.BegNR       = 0
-		SEDM.EndNR       = 0
+		sedm.BWDcount    = 0
+		sedm.CutDir      = 0
+		sedm.EtabNum     = 0
+		sedm.BegNR       = 0
+		sedm.EndNR       = 0
 		#
-		SEDM.FullDEPTHf  = 0
-		SEDM.MsrdUNSf    = 0
-		SEDM.RADf        = 0
-		SEDM.RufPtDEPTHf = 0
+		sedm.FullDEPTHf  = 0
+		sedm.MsrdUNSf    = 0
+		sedm.RADf        = 0
+		sedm.RufPtDEPTHf = 0
 		#
-		SEDM.state       = 0
+		sedm.state       = 0
 		#
-		SEDM.xsp         = 0
-		SEDM.ysp         = 0
-		SEDM.zsp         = 0
+		sedm.xsp         = 0
+		sedm.ysp         = 0
+		sedm.zsp         = 0
 		#
 		#data  specific to Etaab and TechGui
-		SEDM.NR          = 0
-		SEDM.IP          = 0
-		SEDM.HV          = 0
-		SEDM.P           = 0
-		SEDM.ISO         = 0
-		SEDM.BWDmax      = 0
-		SEDM.AJD         = 0
-		SEDM.ET          = 0
+		sedm.NR          = 0
+		sedm.IP          = 0
+		sedm.HV          = 0
+		sedm.P           = 0
+		sedm.ISO         = 0
+		sedm.BWDmax      = 0
+		sedm.AJD         = 0
+		sedm.ET          = 0
 		#
 		#31.01.2026 TON TOF are integer uSec
-		SEDM.TON         = 0
-		SEDM.TOF         = 0
+		sedm.TON         = 0
+		sedm.TOF         = 0
 		#
-		SEDM.GVHI    = 0
-		SEDM.GVLO    = 0
+		sedm.GVHI    = 0
+		sedm.GVLO    = 0
 		#
-		SEDM.SPAf        = 0
+		sedm.SPAf        = 0
 		#
-		SEDM.VEf         = 0
-		SEDM.VWf         = 0
-		SEDM.VDIf        = 0
+		sedm.VEf         = 0
+		sedm.VWf         = 0
+		sedm.VDIf        = 0
 		#
 		# TODO vvv
 		# vvv **** spcl values NOT set to 0
 		#25.11.2025 make sure user answered Pitch w value >=0
-		SEDM.Pitch    = -1
+		sedm.Pitch    = -1
 		#
-		SEDM.ThisNR      = -1 # after clean up
+		sedm.ThisNR      = -1 # after clean up
 		#
-		SEDM.inpo     = False
-		SEDM.isEna    = False
+		sedm.inpo     = False
+		sedm.isEna    = False
 #
 def parseEtab(fqfn):
 	"""
@@ -940,117 +1007,37 @@ def parseEtab(fqfn):
 		for lPartNdx in range(1, nP+1): # # skip 0th thats Nr the key  lpl already  is leen *vlah)  -1
 			
 			ftmp=float(lineParts[lPartNdx]) #
-			
-			
-			
-			
-			"""#
-			#/////// for new
-			#25.02.2026 FOR NEW STYLE ETABS,,,
-			# OLDNOTE  skip #7  AJD   8 ET  15 RAD  16  SPA
-			# NEWNOTE 24.02.2026 does lineParts start w NR or IP, 
-			#  thats would chg all ndxsd  
-			# NEW NOTE 24.02.2026 need to chg code for 3 indices
-			# NEW NOTE 24.02.2026 new schem  8 AJD 9 ET  11 RAD 12 SPA
-			# NEW NOTE 24.02.2026    those are the only floats in
-			#    new xsheme
-			# 25.02.2026 ndxs 7 8 15 16 
-			#  are for lists beginning at IP
-			# ? in 19/WBC got 15 16 look ok? 
-			# RESULT [0] is val of IP (noy NR)
-			# i say 8 AJD  9 ET   11 RAD  12 SPA  are floats in the dile (* mno cnvrsb needed)
-			if ( (lPartNdx  != 8) and ( lPartNdx  != 9) and ( lPartNdx  != 11)   and (lPartNdx  != 12) ):
-				tupl=tupl+( int(ftmp),) # weird   comma to make it
-				#  a tuple so iy can be concvatenated
 			#
-			else:
-				tupl=tupl+( ftmp, )
-			# -----
-			////// for new
-			#"""#
-
-
-
-
-			#"""#
-			#\\\\\\ for old
 			if ( (lPartNdx  != 9) and ( lPartNdx  != 10) and ( lPartNdx  != 12)   and (lPartNdx  != 13) ):
 				tupl=tupl+( int(ftmp),) # weird   comma to make it a tuple so iy can be concvatenated
 			else:
 				tupl=tupl+( ftmp, )
-			
-			#/// end old
-			#"""#
-
-
-
+			#
 
 		#
 		if tupl != ():
 			numLines+=1
 			EtabDict[ lineParts[0] ] = tupl[0:] # 25.02.2026 isnt [9:] same as []??
 			# looked ok rint(9741,EtabDict[ lineParts[0] ] )
-			"""
-			print()
-			print(989,EtabDict[lineParts[0]][9])
-			print(989,EtabDict[lineParts[0]][10])
-			print(989,EtabDict[lineParts[0]][12])
-			print(989,EtabDict[lineParts[0]][13])
-			print()
-			# NR 25 got
-			#3.0 10 0.0 0
-			#NR 24 got
-			#3.0 10 45.0 0
-			#NR 12 got
-			#3.0 10 3.0 0
-			#which are
-			# ET CB  SPA VDI
-			"""
-			
-			"""
-			# I want 8 9 11 12
-			print()
-			print(989,EtabDict[lineParts[0]][8])
-			#print(989,lineParts)
-			# got 989 ['25', '91', '0', '0', '40', '30', '440', '212', '0', '2.032', '3.0', '10', '0.635', '0.0', '0', '0', '0']
-			# so lineparts begins at NR so interesting vcalue is at
-			# EtabDict index + 1
-			print(989,lineParts[9])
-			#trap()
-			
-			print(989,EtabDict[lineParts[0]][9])
-			print(989,lineParts[10])
-			print(989,EtabDict[lineParts[0]][11])
-			print(989,lineParts[12])
-			print(989,EtabDict[lineParts[0]][12])
-			print(989,lineParts[13])
-			# either the list begins at NR or ...
-			# those ^^^ data are correct 
-			# check 0yh to see if EtabDict[NR][0] is NR (25) or IP (~100)
-			#print(989,EtabDict[lineParts[0]][0])
-			# NB this is LineParts[] not EtabDict
-			# i get IP values  not NR valyes
-			# result YES Etab9 is lineParts9
-			print()
-			"""
+
 #
 def mkThisRADf(): # used every ThisNR EXCEPT 25  ( handled by mkRufPtTup/// l)
 
-	SEDM.XtraRADf =  round(SEDM.MsrdUNSf - SEDM.UNSf,3)
+	sedm.XtraRADf =  round(sedm.MsrdUNSf - sedm.UNSf,3)
 
-	if SEDM.ThisNR != 25: # call herte b4 dec'd
-		SEDM.ThisRADf = SEDM.RADf + SEDM.XtraRADf
+	if sedm.ThisNR != 25: # call herte b4 dec'd
+		sedm.ThisRADf = sedm.RADf + sedm.XtraRADf
 		# now make an INT of 'steps' in ThisRADf
-		# store it in SEDM.RADi
-		x = SEDM.ThisRADf
-		# SEDM.xyzSCALEfOUT or IN are .002 for MM and .0001 for Inch
-		x = x * (1/SEDM.xyzSCALEfOUT)
+		# store it in sedm.RADi
+		x = sedm.ThisRADf
+		# sedm.xyzSCALEfOUT or IN are .002 for MM and .0001 for Inch
+		x = x * (1/sedm.xyzSCALEfOUT)
 		x = round(x)
-		SEDM.RADi = int(x)
+		sedm.RADi = int(x)
 	else: # ThisNR == 25
-		SEDM.UNSf = SEDM.RADf
-		SEDM.ThisRADf = 0.0 # there is no orbit on NR 25, only wigl
-		SEDM.RADi = 0 # there is no orbit on NR 25, only wigl
+		sedm.UNSf = sedm.RADf
+		sedm.ThisRADf = 0.0 # there is no orbit on NR 25, only wigl
+		sedm.RADi = 0 # there is no orbit on NR 25, only wigl
 #
 #05.02.2026 this vvv looks at ctrl variable PV
 # In EDM it would be called GapValue 
@@ -1063,8 +1050,10 @@ def mkThisRADf(): # used every ThisNR EXCEPT 25  ( handled by mkRufPtTup/// l)
 #  Is it time to do a 'jump' ( fluching techique)
 #06.02.2026 vvv chg to pass ndx not tipl
 #  CutL should become global
-def getEvalPV( Ltype,L,ndx ): # rtns FWD HOLD BWD for EDM
-	# TODO06.02.2026 xhg pnow  s tp l[ndx]
+# 24.03.2026 no need to pass Ltype, use sedm.JumpLtype instead
+#24.03.2026 vhg ndx to myNdx so gloab ndx not needed
+def getEvalPV(L,myNdx ): # rtns FWD HOLD BWD for EDM
+	# TODO06.02.2026 chg pnow  s to l[myNdx]
 	""" doc  line
 	Rtruns a value that controls tool position.
 	This value is 1 of FWD HOLD or BWD.
@@ -1077,7 +1066,7 @@ def getEvalPV( Ltype,L,ndx ): # rtns FWD HOLD BWD for EDM
 	
 	The limits for the call to uniform()
 	are FvMin and GvMax taken from a file
-	similare tro an .ini file ( called SEDMhdrs,py)
+	similare tro an .ini file ( called sedmhdrs,py)
 	
 	The evaluation of the uniform value uses
 	2 threshodls forming the window comparator.
@@ -1098,9 +1087,11 @@ def getEvalPV( Ltype,L,ndx ): # rtns FWD HOLD BWD for EDM
 	FWD HOLD VWD deide the next smae or previous tuple
 	in the lts.
 	"""
+	
 	# for debugm i pu EDMgrade on a pin do halmeter can onserve
 	# 03.01.2026 straight kubne bore alwayts FWD , 1wiglZneg gets bwds gets holds
 	#
+	
 	SPO = ( (0,0,0) )
 	"""
 	# This dunction is central to the entire system
@@ -1111,46 +1102,47 @@ def getEvalPV( Ltype,L,ndx ): # rtns FWD HOLD BWD for EDM
 	"""
 	#
 	# handle PEEK Return QUIT btns
-	SEDM.QuitHit = False; #no lingetring flags
+	sedm.QuitHit = False; #no lingetring flags
 	#
 	# ceck if time to jump
-	if (SEDM.JumpENA == True) and (SEDM.JumpOn == True):
+	if (sedm.JumpENA == True) and (sedm.JumpOn == True):
 		t2jump = chkJT()
 		if t2jump:
-			JupL,JdnL = mkJupLJdnL(L,ndx)
+			# vvv uses sedm.JunpLtype
+			JupL,JdnL = mkJupLJdnL(L,myNdx)
 			doJump(JupL,JdnL)
 			mkJT() # make a new endJT
 			#
-	if SEDM.EDpeek == True:
-		SEDM.disableOsc = True      # power off asap , during tool withdrawl
+	if sedm.EDpeek == True:
+		sedm.disableOsc = True      # power off asap , during tool withdrawl
 		
 		# return began to work, but at bP it rtnd to SPO
 		# i trhibnk becus PEEK still active
 		# ao tyurn it off like the other btns get turnmed off
 		# YAY peek return quit work 
-		SEDM.EDpeek = False
+		sedm.EDpeek = False
 		
 		peekL = []
 		retL = []
-		peekL, retL = mkPeekL( L[ndx] )
+		peekL, retL = mkPeekL( L[myNdx] )
 		doExitL(peekL)
 		#
 		# at SPO, user just did PEEK
 		while 1: 
-			if SEDM.EDquit == True:# vvv already at SPO becuz ^^^
-				SEDM.disableOsc = True
-				SEDM.QuitHit = True
-				SEDM.EDquit = False #  release  btn
+			if sedm.EDquit == True:# vvv already at SPO becuz ^^^
+				sedm.disableOsc = True
+				sedm.QuitHit = True
+				sedm.EDquit = False #  release  btn
 				return BWD #retval is bogud,  caller must test Quit and Return before eval
-			if SEDM.EDreturn == True :# more readble than elseif ,
+			if sedm.EDreturn == True :# more readble than elseif ,
 				#  the reason why is not hidden
 				
 				# this vvv setgen is dore RETURN after PEEK
-				setGen(SEDM.ThisNR) #  maybe useless. unnecc
+				setGen(sedm.ThisNR) #  maybe useless. unnecc
 				
-				SEDM.disableOsc = False
+				sedm.disableOsc = False
 				doExitL(retL)# rwtL was made during Peek hanfler
-				SEDM.EDreturn = False # 05.01.2026 missimg turn of btn 
+				sedm.EDreturn = False # 05.01.2026 missimg turn of btn 
 				#
 				
 				# NO DONT RETURN JUDST CONTINUE return FWD # cade in ca;;er excpect FWD to continue
@@ -1159,28 +1151,28 @@ def getEvalPV( Ltype,L,ndx ): # rtns FWD HOLD BWD for EDM
 				
 				return FWD
 		#end while 1
-	#end if SEDM.EDpeek == True
+	#end if sedm.EDpeek == True
 	#/// can i get return wokinmg 
-	elif IsFreebie(L[ndx]) == True:
+	elif IsFreebie(L[myNdx]) == True:
 		return FWD # was EDMgrade = FWD
 		#ng EDMgrade = FWD # get return continuing???
 	#///
 	else: # else PEEK was not pressed se use PV
-		pv = uniform(GVMIN, GVMAX)# GVMAX GV<IN from SEDMhdrs.py
-		if   pv > SEDM.GVHI: # HIGVLIM  in SEDMhdrs.py 
-			SEDM.BWDcount = 0
+		pv = uniform(GVMIN, GVMAX)# GVMAX GV<IN from sedmhdrs.py
+		if   pv > sedm.GVHI: # HIGVLIM  in sedmhdrs.py 
+			sedm.BWDcount = 0
 			#29.12.2025 wasreturn FWD
 			EDMgrade = FWD
-		elif pv < SEDM.GVLO:# LOGVLIM  in SEDMhdrs.py 
-			SEDM.BWDcount += 1
-			if SEDM.BWDcount >= SEDM.BWDmax:
-				SEDM.BwdMaxHit == True
+		elif pv < sedm.GVLO:# LOGVLIM  in sedmhdrs.py 
+			sedm.BWDcount += 1
+			if sedm.BWDcount >= sedm.BWDmax:
+				sedm.BwdMaxHit == True
 			EDMgrade = BWD
 		else:
 			# 29.12.2025 was return HOLD # caller can ignore it
 			EDMgrade = HOLD
 		# common exit for PV
-		SEDM.EDMgrade = EDMgrade
+		sedm.EDMgrade = EDMgrade
 		return EDMgrade
 # end test
 #
@@ -1218,21 +1210,21 @@ def mkOrbitEntryLegL( EntryPt ):
 	SPO = (0,0,0) #StartPtOffset nit Posn
 	
 	# make CtrPt tupl using radi and entrypt
-	if SEDM.ToolAxis == 2:    #Z
+	if sedm.ToolAxis == 2:    #Z
 		cZ = EntryPt[2] 
-		cZ -= SEDM.RADi * SEDM.CutDir
+		cZ -= sedm.RADi * sedm.CutDir
 		CtrPt = ( ( 0, 0, cZ)  )
-	elif SEDM.ToolAxis == 1:  #Y
+	elif sedm.ToolAxis == 1:  #Y
 		cY =EntryPt[1] 
 		#10.02.2026 vvv i used  -=  for toolAxis =2
-		#cY += SEDM.RADi * SEDM.CutDir
-		cY -= SEDM.RADi * SEDM.CutDir
+		#cY += sedm.RADi * sedm.CutDir
+		cY -= sedm.RADi * sedm.CutDir
 		CtrPt = ( ( 0, cY, 0 ) )
 	else:                     #X
 		cX = EntryPt[0] 
 		#10.02.2026 vvv i used  -=  for toolAxis =2
-		#cX += SEDM.RADi * SEDM.CutDir
-		cX -= SEDM.RADi * SEDM.CutDir
+		#cX += sedm.RADi * sedm.CutDir
+		cX -= sedm.RADi * sedm.CutDir
 		CtrPt = ( ( cX, 0, 0)  )
 	#
 	footL = L3D( EntryPt, CtrPt ) #  path exits at  'TOE'
@@ -1265,7 +1257,7 @@ def mkFootLeadInL( PathEntryPt ):
 def mkPeekL( pNow ):
 	
 	SPO = ( (0,0,0) )
-	if SEDM.ToolAxis == 2:
+	if sedm.ToolAxis == 2:
 		# if at ctr
 		if (pNow[0] == 0) and (pNow[1] == 0):
 			xL = L3D( pNow, SPO)
@@ -1277,8 +1269,8 @@ def mkPeekL( pNow ):
 			# 27.11.2025 if cutting sown,
 			# then REDUCE the distancve to 0,0,0
 			# so, subtract an neg numbert to get a less neg result
-			ctrPosn = ( (0,0, pNow[SEDM.ToolAxis] - (SEDM.RADi * SEDM.CutDir) )  )
-	elif SEDM.ToolAxis == 1:
+			ctrPosn = ( (0,0, pNow[sedm.ToolAxis] - (sedm.RADi * sedm.CutDir) )  )
+	elif sedm.ToolAxis == 1:
 		if (pNow[0] == 0) and (pNow[2] == 0):
 			xL = L3D( pNow, SPO)
 			rL = L3D( SPO,pNow)
@@ -1287,8 +1279,8 @@ def mkPeekL( pNow ):
 			return xL,rl
 		else:# else NOT at ctr
 			#27.11.2025 subtract
-			ctrPosn = ( (0, pNow[SEDM.ToolAxis] - (SEDM.RADi * SEDM.CutDir) ,0) )
-	elif SEDM.ToolAxis == 0:
+			ctrPosn = ( (0, pNow[sedm.ToolAxis] - (sedm.RADi * sedm.CutDir) ,0) )
+	elif sedm.ToolAxis == 0:
 		if (pNow[1] == 0) and (pNow[2] == 0):
 			xL = L3D( pNow, SPO)
 			rL = L3D( SPO, pNow)
@@ -1298,8 +1290,8 @@ def mkPeekL( pNow ):
 		else:# else NOT atr ctr
 			#27.11.2025 subtract
 			# 12.02.2026 was
-			#ctrPosn = ( (posn[SEDM.ToolAxis] - (SEDM.RADi * SEDM.CutDir),0,0) ) 
-			ctrPosn = ( (pNow[SEDM.ToolAxis] - (SEDM.RADi * SEDM.CutDir),0,0) ) 
+			#ctrPosn = ( (posn[sedm.ToolAxis] - (sedm.RADi * sedm.CutDir),0,0) ) 
+			ctrPosn = ( (pNow[sedm.ToolAxis] - (sedm.RADi * sedm.CutDir),0,0) ) 
 	# only those NOT atr xtr are left
 	footL = L3D( pNow,ctrPosn)
 	shinL = L3D(ctrPosn,SPO)
@@ -1328,13 +1320,13 @@ def mkcL( radi, cLevel ): # pass LeadInLine
 	re = 0 # radius error
 	#
 	while a >= b: #
-		if SEDM.ToolAxis == 2: #Z  plnne is XY
+		if sedm.ToolAxis == 2: #Z  plnne is XY
 			tupl = (a,     b,      cLevel )
 		
 		
-		elif SEDM.ToolAxis == 1: #Y  plane is ZX
+		elif sedm.ToolAxis == 1: #Y  plane is ZX
 			tupl = ( a,    cLevel, b)
-		elif SEDM.ToolAxis == 0: #X  plane is YZ
+		elif sedm.ToolAxis == 0: #X  plane is YZ
 			tupl = (cLevel, a,     b)
 		oct1L.append( tupl )
 		# -------------------
@@ -1352,18 +1344,19 @@ def mkcL( radi, cLevel ): # pass LeadInLine
 	#
 	# ------- beg octant 2
 	oct2L = []
+	# 24.03.2026 no need gor global index, ndx is init'd here
 	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
-		if SEDM.ToolAxis == 2: #Z G17
+		if sedm.ToolAxis == 2: #Z G17
 			nux = oct1L[ndx][1]
 			nuy = oct1L[ndx][0]
 			nuz = oct1L[ndx][2]
 			tupl=( (nux,nuy,nuz) )
-		elif SEDM.ToolAxis == 1: #Y G18
+		elif sedm.ToolAxis == 1: #Y G18
 			nux = oct1L[ndx][2]
 			nuy = oct1L[ndx][1]
 			nuz = oct1L[ndx][0]
 			tupl=( (nux,nuy,nuz) )
-		elif SEDM.ToolAxis == 0: #X G19
+		elif sedm.ToolAxis == 0: #X G19
 			nux = oct1L[ndx][0]
 			nuy = oct1L[ndx][2]
 			nuz = oct1L[ndx][1]
@@ -1373,18 +1366,19 @@ def mkcL( radi, cLevel ): # pass LeadInLine
 	#
 	# ------- beg octant 3
 	oct3L = []
+	#24.03.2026 no need for gloabl ndx, it is initd here
 	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
-		if SEDM.ToolAxis == 2: #Z G17
+		if sedm.ToolAxis == 2: #Z G17
 			nux = oct2L[ndx][0]
 			nuy = oct2L[ndx][1]
 			nuz = oct2L[ndx][2]
 			tupl=( (-nux,nuy,nuz) )
-		elif SEDM.ToolAxis == 1: #Y G18
+		elif sedm.ToolAxis == 1: #Y G18
 			nux = oct2L[ndx][0]
 			nuy = oct2L[ndx][1]
 			nuz = oct2L[ndx][2]
 			tupl=( (-nux,nuy,nuz) )
-		elif SEDM.ToolAxis == 0: #X G19
+		elif sedm.ToolAxis == 0: #X G19
 			nux = oct2L[ndx][0]
 			nuy = oct2L[ndx][1]
 			nuz = oct2L[ndx][2]
@@ -1393,18 +1387,19 @@ def mkcL( radi, cLevel ): # pass LeadInLine
 		oct3L.append(tupl)
 	# ------- beg octant 4
 	oct4L = []
+	#24.03.2026 no need for global ndx, initd here
 	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
-		if SEDM.ToolAxis == 2: #Z G17
+		if sedm.ToolAxis == 2: #Z G17
 			nux = oct3L[ndx][1]
 			nuy = oct3L[ndx][0]
 			nuz = oct3L[ndx][2]
 			tupl=( (-nux,-nuy,nuz) )
-		elif SEDM.ToolAxis == 1: #Y G18
+		elif sedm.ToolAxis == 1: #Y G18
 			nux = oct3L[ndx][2]
 			nuy = oct3L[ndx][1]
 			nuz = oct3L[ndx][0]
 			tupl=( (-nux,nuy,-nuz) )
-		elif SEDM.ToolAxis == 0: #X G19
+		elif sedm.ToolAxis == 0: #X G19
 			nux = oct3L[ndx][0]
 			nuy = oct3L[ndx][2]
 			nuz = oct3L[ndx][1]
@@ -1413,18 +1408,19 @@ def mkcL( radi, cLevel ): # pass LeadInLine
 		oct4L.append(tupl)
 	# ------- beg octant 5
 	oct5L = []
+	#24.03.2026 no need for global ndx, initd here
 	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
-		if SEDM.ToolAxis == 2: #Z G17
+		if sedm.ToolAxis == 2: #Z G17
 			nux = oct4L[ndx][0]
 			nuy = oct4L[ndx][1]
 			nuz = oct4L[ndx][2]
 			tupl=( (nux,-nuy,nuz) )
-		elif SEDM.ToolAxis == 1: #Y G18
+		elif sedm.ToolAxis == 1: #Y G18
 			nux = oct4L[ndx][0]
 			nuy = oct4L[ndx][1]
 			nuz = oct4L[ndx][2]
 			tupl=( (nux,nuy,-nuz) )
-		elif SEDM.ToolAxis == 0: #X G19
+		elif sedm.ToolAxis == 0: #X G19
 			nux = oct4L[ndx][0]
 			nuy = oct4L[ndx][1]
 			nuz = oct4L[ndx][2]
@@ -1433,18 +1429,19 @@ def mkcL( radi, cLevel ): # pass LeadInLine
 		oct5L.append(tupl)
 	# ------- beg octant 6
 	oct6L = []
+	#24.03.2026 no need for global ndx, initd here
 	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
-		if SEDM.ToolAxis == 2: #Z G17
+		if sedm.ToolAxis == 2: #Z G17
 			nux = oct5L[ndx][1]
 			nuy = oct5L[ndx][0]
 			nuz = oct5L[ndx][2]
 			tupl=( (nux,nuy,nuz) )
-		elif SEDM.ToolAxis == 1: #Y G18
+		elif sedm.ToolAxis == 1: #Y G18
 			nux = oct5L[ndx][2]
 			nuy = oct5L[ndx][1]
 			nuz = oct5L[ndx][0]
 			tupl=( (nux,nuy,nuz) )
-		elif SEDM.ToolAxis == 0: #X G19
+		elif sedm.ToolAxis == 0: #X G19
 			nux = oct5L[ndx][0]
 			nuy = oct5L[ndx][2]
 			nuz = oct5L[ndx][1]
@@ -1453,18 +1450,19 @@ def mkcL( radi, cLevel ): # pass LeadInLine
 		oct6L.append(tupl)
 	# ------- beg octant 7
 	oct7L = []
+	#24.03.2026 no need for global ndx, initd here
 	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
-		if SEDM.ToolAxis == 2: #Z G17
+		if sedm.ToolAxis == 2: #Z G17
 			nux = oct6L[ndx][0]
 			nuy = oct6L[ndx][1]
 			nuz = oct6L[ndx][2]
 			tupl=( (-nux,nuy,nuz) )
-		elif SEDM.ToolAxis == 1: #Y G18
+		elif sedm.ToolAxis == 1: #Y G18
 			nux = oct6L[ndx][0]
 			nuy = oct6L[ndx][1]
 			nuz = oct6L[ndx][2]
 			tupl=( (-nux,nuy,nuz) )
-		elif SEDM.ToolAxis == 0: #X G19
+		elif sedm.ToolAxis == 0: #X G19
 			nux = oct6L[ndx][0]
 			nuy = oct6L[ndx][1]
 			nuz = oct6L[ndx][2]
@@ -1473,18 +1471,19 @@ def mkcL( radi, cLevel ): # pass LeadInLine
 		oct7L.append(tupl)
 	# ------- beg octant 8
 	oct8L = []
+	#24.03.2026 no need for global ndx, initd here
 	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
-		if SEDM.ToolAxis == 2: #Z G17
+		if sedm.ToolAxis == 2: #Z G17
 			nux = oct7L[ndx][1]
 			nuy = oct7L[ndx][0]
 			nuz = oct7L[ndx][2]
 			tupl=( (-nux,-nuy,nuz) )
-		elif SEDM.ToolAxis == 1: #Y G18
+		elif sedm.ToolAxis == 1: #Y G18
 			nux = oct7L[ndx][2]
 			nuy = oct7L[ndx][1]
 			nuz = oct7L[ndx][0]
 			tupl=( (-nux,nuy,-nuz) )
-		elif SEDM.ToolAxis == 0: #X G19
+		elif sedm.ToolAxis == 0: #X G19
 			nux = oct7L[ndx][0]
 			nuy = oct7L[ndx][2]
 			nuz = oct7L[ndx][1]
@@ -1511,7 +1510,7 @@ def mksqrL( radi,cLevel):# yeah radius is bad word but its ok
 	# 29.11.2025 RADi passed
 	
 	# Right Middle a,b
-	rMida = radi #like 5,0  was  SEDM.RADf # wasradCounts
+	rMida = radi #like 5,0  was  sedm.RADf # wasradCounts
 	rMidb =  0
 	# Top Right a,b
 	tRa =  rMida # was Mda  eg 5,5
@@ -1532,20 +1531,20 @@ def mksqrL( radi,cLevel):# yeah radius is bad word but its ok
 	sqrDp =  cLevel
 	
 	# ---------------
-	if SEDM.ToolAxis== 2: #Z G17  XY  plane
+	if sedm.ToolAxis== 2: #Z G17  XY  plane
 		topRtHalfL = L3D( (rMida, rMidb ,  sqrDp) , (tRa,tRb ,  sqrDp)  )
 		topL       = L3D( (	tRa, tRb ,  sqrDp) , (tLa,tLb ,  sqrDp)  )
 		leftL      = L3D( (	tLa,    tLb ,  sqrDp) , (bLa, bLb ,  sqrDp)  )
 		botL       = L3D( (	bLa, bLb ,  sqrDp) , (bRa, bRb ,  sqrDp)  )
 		botRtHalfL = L3D((bRa,bRb,sqrDp),(rMida,rMidb,sqrDp))
 
-	if SEDM.ToolAxis== 1:
+	if sedm.ToolAxis== 1:
 		topRtHalfL = L3D( (rMida,   sqrDp, rMidb ) , (tRa,   sqrDp ,tRb )  )
 		topL       = L3D( (	tRa,   sqrDp, tRb ) , (tLa,  sqrDp, tRb )  )
 		leftL      = L3D( (	tLa,   sqrDp ,tLb ) , (bLa,   sqrDp, bLb)  )
 		botL       = L3D( (	bLa,   sqrDp, bLb) , (bRa,   sqrDp, bRb )  )
 		botRtHalfL = L3D( ( bRa,   sqrDp, bRb ) , (rMida,   sqrDp, rMidb ) )
-	if SEDM.ToolAxis== 0:
+	if sedm.ToolAxis== 0:
 		topRtHalfL = L3D( (   sqrDp, rMida, rMidb ) , (   sqrDp, tRa,tRb )  )
 		topL       = L3D( (  sqrDp, tRa, tRb ) , (  sqrDp, tLa, tLb )  )
 		leftL      = L3D( (	  sqrDp ,tLa,  tLb ) , (   sqrDp, bLa, bLb)  )
@@ -1567,13 +1566,13 @@ def mkOrbitPathL(radi, cLevel):
 	
 	# 10.02.2026 ???? doe opL contain leadinline>>>
 	
-	if SEDM.OrbitType == CIRCLE:
+	if sedm.OrbitType == CIRCLE:
 		orbL = mkcL( radi, cLevel)
 		entryPt = orbL[0]
 		# add a cxopy of 1st posn onto  end of list
 		orbL.append(entryPt) # dipe 1st to last
 		#
-	if SEDM.OrbitType == SQUARE:
+	if sedm.OrbitType == SQUARE:
 		orbL = mksqrL( radi,cLevel)
 		entryPt = orbL[0]
 		orbL.append(entryPt) # dipe 1st to last
@@ -1581,31 +1580,20 @@ def mkOrbitPathL(radi, cLevel):
 	# 04.01.2026 c hec klist for SPO
 	SPO = ( ( 0,0,0 ) )
 	
-	""" re: tall skinny triangles
-	# this code never tripped
-	# so the tall skiunny trinagle tip
-	# is Not SPO 
-	# or
-	# not due to the path list
-	for p in orbL:
-		if p == SPO:
-			print(1555,"orbL containds SPO")
-	"""
-	#
 	return orbL
 #
-def mkDetourWiglL( posn): #SEDM.ToolAxis ):
+def mkDetourWiglL( posn): #sedm.ToolAxis ):
 	#
-	WiglRADi = int(round(SEDM.WiglRADf / SEDM.xyzSCALEfOUT))
+	WiglRADi = int(round(sedm.WiglRADf / sedm.xyzSCALEfOUT))
 	
-	cDeep = posn[SEDM.ToolAxis] - ( WiglRADi * SEDM.CutDir)
+	cDeep = posn[sedm.ToolAxis] - ( WiglRADi * sedm.CutDir)
 	
-	if SEDM.ToolAxis == 2:
-		CtrNow = (0,0,cDeep) #posn[SEDM.ToolAxis])
-	elif SEDM.ToolAxis == 1:
-		CtrNow = (0,cDeep,0) #posn[SEDM.ToolAxis],0)
-	elif SEDM.ToolAxis == 0:
-		CtrNow = (cDeep,0,0) #posn[SEDM.ToolAxis],0,0)
+	if sedm.ToolAxis == 2:
+		CtrNow = (0,0,cDeep) #posn[sedm.ToolAxis])
+	elif sedm.ToolAxis == 1:
+		CtrNow = (0,cDeep,0) #posn[sedm.ToolAxis],0)
+	elif sedm.ToolAxis == 0:
+		CtrNow = (cDeep,0,0) #posn[sedm.ToolAxis],0,0)
 	#
 	footL = L3D(posn,CtrNow)
 	#
@@ -1623,43 +1611,47 @@ def doOrbL( OrbL): # begins at EnrtyPt
 	endNdx = len(OrbL) -1
 	begNdx = 0
 
-	#12.02.2026 new 3 lines do vvv alays if SEDM.JumpENA == True:
-	SEDM.JumpLtype = JumpOrbPathType
-	SEDM.JumpOn = True
+	#12.02.2026 new 3 lines do vvv alays if sedm.JumpENA == True:
+	sedm.JumpLtype = JumpOrbPathType
+	sedm.JumpOn = True
 	
 	OrbEndPt = OrbL[endNdx]
 	
 	#02.01.2026 why start at ndx 1  other codes start at ndx 0
-	ndx = 1
+	#24.03.2026 chg ndx to oLndx
+	oLndx = 1
 	#
-	doMove(OrbL[ndx])
+	doMove(OrbL[oLndx])
 	#
-	# ??? importannt ??? not yet SEDM.JumpoOn = True
+	# ??? importannt ??? not yet sedm.JumpoOn = True
 	while 1: # # seq is 
-		nextDir = getEvalPV( JumpOrbPathType,OrbL,ndx )
+		#24.03.2026 vhg vvv 
+		#nextDir = getEvalPV( JumpOrbPathType,OrbL,ndx )
+		# 24.03.2026 vhg to vvv
+		nextDir = getEvalPV( OrbL,oLndx )
 		#
-		if (SEDM.BwdMaxHit == True) or (SEDM.QuitHit == True):
+		if (sedm.BwdMaxHit == True) or (sedm.QuitHit == True):
 			return 
 			# rtn w flag set    let CUPA move to ctr, move to SPO
 		else:
 			if nextDir == FWD:# check all done and SUCCESS
-				if ndx == endNdx: #goodLim = len(OrbL) -1
+				if oLndx == endNdx: #goodLim = len(OrbL) -1
 					#
 					# if ALREADY at end of orbList and FWD
-					loL = L3D(OrbL[ndx],RufPtTupl)
+					loL = L3D(OrbL[oLndx],RufPtTupl)
 					doExitL(loL) # MOVES TO RUFPTTUPL  NOT SPO
 					return 
 					# rtn w NO flag set   p = RufPtTupl no flags
 					#
 				else: # else  FWD and ndx < goodLim
-					oldP = OrbL[ndx]
-					ndx += 1
-					newP = OrbL[ndx]
+					oldP = OrbL[oLndx]
+					oLndx += 1
+					newP = OrbL[oLndx]
 					#
 					doMove(newP)
 					#test fatyal flags
-					if (SEDM.BwdMaxHit == True) or (SEDM.QuitHit == True):
-						SEDM.JumpOn = False
+					if (sedm.BwdMaxHit == True) or (sedm.QuitHit == True):
+						sedm.JumpOn = False
 						return 
 						# rtn w flag set    
 						# let CUPA move to ctr, move to SPO
@@ -1667,24 +1659,25 @@ def doOrbL( OrbL): # begins at EnrtyPt
 			elif nextDir == BWD: 
 				# done aLREADY   1st check for fatal
 				#
-				bP = OrbL[ndx] #make a detour path  frm BreakPt bP
+				bP = OrbL[oLndx] #make a detour path  frm BreakPt bP
 				legL,ankleNdx = mkDetourLegL(bP)
 				doDetourLegL(legL,begNdx)
 				# 0 is BegNdx , hwre to start in List
 				#
-				if ( SEDM.BwdMaxHit == True) or (SEDM.QuitHit == True):
-					SEDM.JumpOn = False
+				if ( sedm.BwdMaxHit == True) or (sedm.QuitHit == True):
+					sedm.JumpOn = False
 					return 
 #
 def doExitL( xL): # no  getEvalPV, just cloicck out stepsxl[0] is  
-	ndx = 0
+	#24.03.2026 chg ndx to xNdx 
+	xNdx= 0
 	goodLim = len(xL)-1
 	badLim = 0
-	while ndx < goodLim: #
+	while xNdx < goodLim: #
 		#
-		oldP = xL[ ndx ]
-		ndx += 1
-		newP =  xL[ ndx ]
+		oldP = xL[ xNdx ]
+		xNdx += 1
+		newP = xL[ xNdx ]
 		#
 		doMove( newP )
 		time.sleep(.001)
@@ -1692,44 +1685,44 @@ def doExitL( xL): # no  getEvalPV, just cloicck out stepsxl[0] is
 def doMove( posn): # caller must make sure podn is adjacen to last
 	#
 	# 02.01.2026 neccc   this is the cmd to move  to posn
-	SEDM.XOffsetCmd = posn[0]
-	SEDM.YOffsetCmd = posn[1]
-	SEDM.ZOffsetCmd = posn[2]
+	sedm.XOffsetCmd = posn[0]
+	sedm.YOffsetCmd = posn[1]
+	sedm.ZOffsetCmd = posn[2]
 	# !?!? NECC yes !!!thius is MIN and NECC
 	time.sleep(0.001)
 #
 def getAtctr(posn):
 	#rtns atctr CtrPosn
-	if SEDM.ToolAxis == 2:# Z
+	if sedm.ToolAxis == 2:# Z
 		if (posn[0] == 0)  and (posn[1] == 0):
 			atctr = True
 		else:# else tool is NOT at ctr
-			CtrPosn = ( ( 0,0,posn[SEDM.ToolAxis] ) )
+			CtrPosn = ( ( 0,0,posn[sedm.ToolAxis] ) )
 			atctr = False
-	elif SEDM.ToolAxis == 1 : # Y
+	elif sedm.ToolAxis == 1 : # Y
 		if (posn[0] == 0)  and (posn[2] == 0):
 			atctr = True
 		else:
-			CtrPogsn = ( ( 0,posn[SEDM.ToolAxis],0 ) )
+			CtrPogsn = ( ( 0,posn[sedm.ToolAxis],0 ) )
 			atctr = False
-	elif SEDM.ToolAxis == 0:# X
+	elif sedm.ToolAxis == 0:# X
 		if (posn[1] == 0)  and (posn[2] == 0):
 			atctr =  True
 		else:
-			CtrPosn = ( ( posn[SEDM.ToolAxis],0,0 ) )
+			CtrPosn = ( ( posn[sedm.ToolAxis],0,0 ) )
 			atctr = False
 #
 def mkStairsL( cL):  # now  RufPtTupl is global;ly readable
 	#
-	s = SEDM.CutDir # just a short name
+	s = sedm.CutDir # just a short name
 	StairsL=[] # empty list to hold stairsteps
-	WiglRADi = int(round(SEDM.WiglRADf / SEDM.xyzSCALEfOUT))
+	WiglRADi = int(round(sedm.WiglRADf / sedm.xyzSCALEfOUT))
 	TopStairLevel = ( s * WiglRADi)
 	# 23.12.2025 REMEBNER rUFpTtUPL MAY BE RADI ABOVE 
 	# DEEPEST PT OF STAIRS
 	beg = abs(TopStairLevel)
-	RufPtDepth = RufPtTupl[SEDM.ToolAxis]
-	BotStairLevel = RufPtTupl[SEDM.ToolAxis] + TopStairLevel
+	RufPtDepth = RufPtTupl[sedm.ToolAxis]
+	BotStairLevel = RufPtTupl[sedm.ToolAxis] + TopStairLevel
 	end = abs(BotStairLevel)
 	#
 	cLlen =  len(cL) # yes, not -1
@@ -1744,11 +1737,11 @@ def mkStairsL( cL):  # now  RufPtTupl is global;ly readable
 		tmpX, tmpY, tmpZ = cL[cLndx] 
 		# retrieve but ignore toolaxis value
 		# Next, calc ToolAxis posn
-		if SEDM.ToolAxis == 2: # Z G17  plabe is XY
+		if sedm.ToolAxis == 2: # Z G17  plabe is XY
 			p=( tmpX, tmpY,  deepNow)
-		elif SEDM.ToolAxis == 1: # Y G18  plane is ZX
+		elif sedm.ToolAxis == 1: # Y G18  plane is ZX
 			p=( tmpX, deepNow, tmpZ)
-		elif SEDM.ToolAxis == 0: # X G19  plabe is YZ
+		elif sedm.ToolAxis == 0: # X G19  plabe is YZ
 			p=( deepNow, tmpY, tmpZ)
 		#
 		StairsL.append(p)
@@ -1758,52 +1751,49 @@ def mkStairsL( cL):  # now  RufPtTupl is global;ly readable
 # TODO 05.02.2026 ugly   lotda ferad cats 
 def doWiglLeadIn(liL):
 	#
-	ndx = 0
+	#24.03.2026 chg mdx to wiglNdx
+	wiglNdx = 0
 	#
 	lim = len(liL) - 1
 	#
+	sedm.JumpLtyp = JumpOrbLeadInType
+	#print("JumpBoreType =1, JumpStairsType =2 JumpOrbLeadInType =3 JumpOrbPathType =4 JumpOrbPathDetour =5 NoJump = 10"
+	#
 	while 1: #
-		nextDir = getEvalPV( NoJump,liL,ndx )# 0 indicates dont jump
-		if SEDM.QuitHit  == True:
+		nextDir = getEvalPV( liL,wiglNdx )# 0 indicates dont jump
+		if sedm.QuitHit  == True:
 			return BWD # well,QuitHit is bnetter name (nit taken)
-		elif SEDM.BwdMaxHit == True:
+		elif sedm.BwdMaxHit == True:
 			return BWD # well,BwdMaxHit is better name ( but taken)
 		else:
 			if nextDir == FWD:  
 				# FWD is towards liL[lim] (stairs top step)
 				#
-				if ndx >= lim: # all done  if at lim and FWD
+				if wiglNdx >= lim: # all done  if at lim and FWD
 					# caller must look at rtn'd FWD 
 					# and set state = CUPA
 					return FWD # well, Done_Success is  better name
 				#
 				else:
-					oldP  = liL[ndx]
+					oldP = liL[wiglNdx]
 					ndx += 1
-					newP = liL[ndx]
+					newP = liL[wiglNdx]
 				#
 			elif nextDir == BWD:   # BWD is tiwards lissr[0]
 				#
-				if ndx <= 0:# if at badLim and  BWD
+				if wiglNdx <= 0:# if at badLim and  BWD
 					# is ndx wronG
-					SEDM.BwdMaxHit = True # well , really BwdTooMuch is bettwer name
+					sedm.BwdMaxHit = True # well , really BwdTooMuch is bettwer name
 					#caller must look at rtnd BWD and set state CUPA
 					return BWD; # well TooManyBwd is better name
 				#
 				else:
-					oldP  = liL[ndx]
+					oldP = liL[wiglNdx]
 					ndx -= 1
-					newP = liL[ndx]
+					newP = liL[wiglNdx]
 		#
 		SPO = ( ( 0,0,0 ) )
 		
-		""" re: tall skinmmy triamg;es
-		# vvv this never tripped
-		if newP == SPO:
-			print(2229,"in doWiglLeadIn newP == SPO")
-			trap()
-		#
-		"""
 		doMove(newP)
 #
 def doPlunge(): 
@@ -1817,17 +1807,17 @@ def doPlunge():
 	#  the motion makes sides spark
 	"""
 	#
-	if SEDM.WiglRADf != 0:# else doBoreL( BoreL )
-		WiglRADi = int(round(SEDM.WiglRADf / SEDM.xyzSCALEfOUT))
-		if SEDM.ToolAxis == 2:
-			liLdest = ( (WiglRADi, 0, WiglRADi * SEDM.CutDir) )
-		elif SEDM.ToolAxis == 1:
-			liLdest = ( (WiglRADi, WiglRADi * SEDM.CutDir, 0) )
-		elif SEDM.ToolAxis == 0:
-			liLdest = ( (WiglRADi * SEDM.CutDir ,WiglRADi, 0) )
+	if sedm.WiglRADf != 0:# else doBoreL( BoreL )
+		WiglRADi = int(round(sedm.WiglRADf / sedm.xyzSCALEfOUT))
+		if sedm.ToolAxis == 2:
+			liLdest = ( (WiglRADi, 0, WiglRADi * sedm.CutDir) )
+		elif sedm.ToolAxis == 1:
+			liLdest = ( (WiglRADi, WiglRADi * sedm.CutDir, 0) )
+		elif sedm.ToolAxis == 0:
+			liLdest = ( (WiglRADi * sedm.CutDir ,WiglRADi, 0) )
 		#
 		# make a list of circle pts
-		cLevel = liLdest[SEDM.ToolAxis] # cLevel is ToolAxis dimension at lilDest
+		cLevel = liLdest[sedm.ToolAxis] # cLevel is ToolAxis dimension at lilDest
 		cL =  mkcL( WiglRADi, cLevel )
 		# make lead in line . dtartPyt to TopSair
 		EntryPt = cL[0]
@@ -1847,7 +1837,7 @@ def doPlunge():
 		
 		#######################
 		# power up and start cutting
-		SEDM.disableOsc = False # power on
+		sedm.disableOsc = False # power on
 		#
 		####################
 		# process WiglLiL StairsL WiglLoL
@@ -1857,7 +1847,7 @@ def doPlunge():
 		doWiglLeadIn(liL)
 		#31.01.2026 ??? allow jump on ewigl leadin limne//\
 		
-		if (SEDM.QuitHit == True) or (SEDM.BwdMaxHit == True) :
+		if (sedm.QuitHit == True) or (sedm.BwdMaxHit == True) :
 			return BWD #caller must look foe fatal flag and set state accordingly
 		# else: # liL success, begin StairsL
 		#
@@ -1867,7 +1857,7 @@ def doPlunge():
 		
 		
 		#
-		if (SEDM.QuitHit == True) or (SEDM.BwdMaxHit == True) :
+		if (sedm.QuitHit == True) or (sedm.BwdMaxHit == True) :
 			return BWD #caller must look foe fatal flag and set state accordingly
 		# else: # StairsL sL success, beginloL
 		#
@@ -1880,25 +1870,26 @@ def doPlunge():
 		BoreL = L3D(SPO,RufPtTupl)
 		#
 		#05.02.2026 jump
-		if SEDM.JumpENA == True:
+		if sedm.JumpENA == True:
 			#06.02.2026 this may be good palces
 			# to sets pin JumpLtype
-			SEDM.JumpLtype = JumpBoreType #1
+			sedm.JumpLtype = JumpBoreType #1
+			
 			#vvv dunno BPndx now,  putyin getEval
 			# THIS BELONNGS IN GEETEVALPV  JumL = mkJupLJdnL(JumpBoreType,BoreL, BPndx)
 			# no, let getREva;lPV get L LType BP
 			#  and let getEvalPV call mkJupLJdnL
-			# do i need an SEDM.cutLndx??
-			# already got SEDM.JumpLtype
+			# do i need an sedm.cutLndx??
+			# already got sedm.JumpLtype
 			# do I need global ThisCutL??
 			
-			mkJT() # sets SEDM.endJT 
+			mkJT() # sets sedm.endJT 
 			# halmeter ahoew 1.401 # suspiciously like ET in etab + 1mS 
 			# check the \yimenow' valu
 			
 			# use an LED or Halmeter to watch
 		#power on
-		SEDM.disableOsc = False
+		sedm.disableOsc = False
 		#
 		# process BoreL
 		doBoreL(BoreL)
@@ -1906,20 +1897,20 @@ def doPlunge():
 		
 		#
 		#test fatal
-		if (SEDM.QuitHit == True) or (SEDM.BwdMaxHit == True) :
+		if (sedm.QuitHit == True) or (sedm.BwdMaxHit == True) :
 			return BWD #caller must look foe fatal flag and set state accordingly
 		# else: else dObreL() success
 	# tool now at RufPtTupl
 	# power off
-	SEDM.disableOsc = True
+	sedm.disableOsc = True
 	return FWD
 #
 def getCutDir(): 
-	if   SEDM.FullDEPTHf > 0:
-		SEDM.CutDir = POS
-	elif SEDM.FullDEPTHf < 0:
-		SEDM.CutDir = NEG
-	else:# else SEDM.FullDEPTHf == 0
+	if   sedm.FullDEPTHf > 0:
+		sedm.CutDir = POS
+	elif sedm.FullDEPTHf < 0:
+		sedm.CutDir = NEG
+	else:# else sedm.FullDEPTHf == 0
 		msg ="1694 RufPt is same as StartPt"
 		c = linuxcnc.command()
 		c.error_msg(msg)
@@ -1927,53 +1918,53 @@ def getCutDir():
 #
 def chkAtCtr(posn):
 	atctr = False # guilty tiill proven innocent
-	if SEDM.ToolAxis == 2:
+	if sedm.ToolAxis == 2:
 		if (posn[0] == 0) and ( posn[1] == 0): # if x and y are 0
 			atctr = True
-	if SEDM.ToolAxis == 1:
+	if sedm.ToolAxis == 1:
 		if (posn[0] == 0) and ( posn[2] == 0):# if x and z are 0
 			atctr = True
-	if SEDM.ToolAxis == 0:
+	if sedm.ToolAxis == 0:
 		if (posn[0] == 0) and ( posn[2] == 0):# if y and z are 0
 			atctr = True
 	return atctr
 #
 def mkRufPtTupl(): #called 1x per cut, setGen(25) before call
 	global RufPtTupl
-	SEDM.ThisRADf = 0.0
-	SEDM.RADi     = 0
+	sedm.ThisRADf = 0.0
+	sedm.RADi     = 0
 	#
-	if SEDM.CutDir == NEG:
-		tmp = SEDM.FullDEPTHf + SEDM.MsrdUNSf # makes LESS neg
-		tmp = tmp - SEDM.RPlaneDist # more neg  to get CutDiost
-		SEDM.FullDEPTHf = tmp
+	if sedm.CutDir == NEG:
+		tmp = sedm.FullDEPTHf + sedm.MsrdUNSf # makes LESS neg
+		tmp = tmp - sedm.RPlaneDist # more neg  to get CutDiost
+		sedm.FullDEPTHf = tmp
 		
-		SEDM.RufPtDEPTHf  = round(tmp,3)
-		RufPtINT = int( round(tmp / SEDM.xyzSCALEfOUT ))
-	if SEDM.CutDir == POS: # say cyt fro -15 to -10
-		tmp = SEDM.FullDEPTHf - SEDM.MsrdUNSf # makes LESS neg
-		tmp = tmp - SEDM.RPlaneDist # more neg  to get CutDiost
-		SEDM.FullDEPTHf = tmp
+		sedm.RufPtDEPTHf  = round(tmp,3)
+		RufPtINT = int( round(tmp / sedm.xyzSCALEfOUT ))
+	if sedm.CutDir == POS: # say cyt fro -15 to -10
+		tmp = sedm.FullDEPTHf - sedm.MsrdUNSf # makes LESS neg
+		tmp = tmp - sedm.RPlaneDist # more neg  to get CutDiost
+		sedm.FullDEPTHf = tmp
 		
-		SEDM.RufPtDEPTHf  = round(tmp,3)
-		RufPtINT = int( round(tmp / SEDM.xyzSCALEfOUT ))
+		sedm.RufPtDEPTHf  = round(tmp,3)
+		RufPtINT = int( round(tmp / sedm.xyzSCALEfOUT ))
 	# 2nd create RufPtTupl
-	if SEDM.ToolAxis == 0:
+	if sedm.ToolAxis == 0:
 		RufPtTupl = ( ( RufPtINT,0,0) )
-	elif SEDM.ToolAxis ==1:
+	elif sedm.ToolAxis ==1:
 		RufPtTupl = ( ( 0, RufPtINT,0) )
-	elif SEDM.ToolAxis == 2:
+	elif sedm.ToolAxis == 2:
 		RufPtTupl = ( ( 0, 0, RufPtINT) )
 #
 def doCtrSpo():# move tool to ctr then to StartPtOffset
 	#
-	posn = (  (SEDM.XOffsetCmd , SEDM.YOffsetCmd , SEDM.ZOffsetCmd ) )
+	posn = (  (sedm.XOffsetCmd , sedm.YOffsetCmd , sedm.ZOffsetCmd ) )
 	atctr = chkAtCtr(posn)
 	if atctr != True:
 		# TODO isa RufPt correct for all cases??
 		rcL = L3D(posn,RufPtTupl)
 		doExitL(rcL)
-		posn = (  (SEDM.XOffsetCmd , SEDM.YOffsetCmd , SEDM.ZOffsetCmd ) )
+		posn = (  (sedm.XOffsetCmd , sedm.YOffsetCmd , sedm.ZOffsetCmd ) )
 	if posn != SPO:
 		xL = L3D(posn,SPO)
 		doExitL(xL)
@@ -1991,46 +1982,50 @@ def stop_ngc_program():
 		c.abort()
 #
 def doBoreL( BoreL ): # ,  destPt):
-	ndx = 0 
+	#
+	#24.03.2026 add set pin for jump typr
+	sedm.JumpLtype = JumpBoreType
+	#24.03.2026 chg ndx to boreBdx
+	boreNdx = 0 
 	lim = len(BoreL)-1
 	
 	# vvv brware JumpENA and JumpOn
 	# JumpENA set in techGui, higher level than KumpOn
 	# JumpOn set in code, ineach of 4 jump list typrs
-	SEDM.JumpOn = True # turn off after L complted/failed
+	sedm.JumpOn = True # turn off after L complted/failed
 	#
 	while 1: # TODO while 1 is bad form, find a proper limit
 		#
 		# 07.01.2026 work jump imn at top of hgwile
 		#
-		nextDir = getEvalPV(JumpBoreType, BoreL,ndx )
+		nextDir = getEvalPV(BoreL,boreNdx )
 		# test w 1st run NO jump chheckntn
 		# and 3nd smae no chkbtn, 3nd hangs
-		if (SEDM.QuitHit == True) or (SEDM.BwdMaxHit == True):
-			SEDM.JumpOn = False # turn off after L complted/failed
+		if (sedm.QuitHit == True) or (sedm.BwdMaxHit == True):
+			sedm.JumpOn = False # turn off after L complted/failed
 			return BWD
 		#
 		if nextDir != HOLD:
 			if nextDir == FWD:
 				BwdMaxCount = False
-				if ndx == lim:
-					SEDM.JumpOn = False 
+				if boreNdx == lim:
+					sedm.JumpOn = False 
 					# turn off after L complted/failed
 					return FWD # ~ OK  
 				else:
-					ndx += 1 # doMove comes later
+					boreNdx += 1 # doMove comes later
 			elif nextDir == BWD:
-				if ndx == 0: # at SPO and gap eval is BWD
-					SEDM.BwdMaxHit= True
-					SEDM.JumpOn = False
+				if boreNdx == 0: # at SPO and gap eval is BWD
+					sedm.BwdMaxHit= True
+					sedm.JumpOn = False
 					# turn off after L complted/failed
 					return BWD # 05.01.2026 new  had no ret vak
 				else:
-					ndx -=  1 # doMove comes later
-			newP = BoreL[ndx]
+					boreNdx -=  1 # doMove comes later
+			newP = BoreL[boreNdx]
 			SPO = ( ( 0,0,0 ) )
 			if newP == SPO:
-				SEDM.JumpOn = False
+				sedm.JumpOn = False
 				# turn off after L complted/failed
 				trap()
 			doMove(newP)
@@ -2044,97 +2039,95 @@ def doStairsL( StairsL):
 	 BWD call detor
 	"""
 	#
+	#
 	SPO = (0,0,0) 
-	ndx = 0  
+	# 24.03.2026 chg ndx to sNdx
+	sNdx = 0  
 	GoodLim = len(StairsL)-1
 	BadLim = 0# StairsL inclunde liL do sL[0] is startPt )also is SPO)
 	EntryPt = StairsL[0]
 	
-	ctr = 0 # prob dteing backed up to ndx 0 vd just stated at ndx0
+	ctr = 0 # prob dteing backed up to sNdx 0 vd just stated at ndx0
 	#
-	SEDM.JumpLtype = JumpStairsType
-	SEDM.JumpOn = True
+	sedm.JumpLtype = JumpStairsType
+	
+	sedm.JumpOn = True
 	#
-	while ndx <= GoodLim:
+	while sNdx <= GoodLim:
 		# vvv this will jump if needed
-		nextDir = getEvalPV(JumpStairsType, StairsL,ndx )
+		nextDir = getEvalPV(StairsL,sNdx )
 		#
-		if (SEDM.QuitHit   == True) or (SEDM.BwdMaxHit == True):
+		if (sedm.QuitHit   == True) or (sedm.BwdMaxHit == True):
 			return BWD
 		#
 		if   nextDir == FWD:# FWD is toqerda BotStep (  dowqn stairs)
-			if ndx >= GoodLim: # >= BptStep
+			if sNdx >= GoodLim: # >= BptStep
 				return FWD # 12.02.2026 why return FWD why etn anythinf
 			else:
-				oldP = StairsL[ndx]   # keep copy for adjancency tests
-				ndx += 1
-				newP = StairsL[ndx]
+				oldP = StairsL[sNdx]   # keep copy for adjancency tests
+				sNdx += 1
+				newP = StairsL[sNdx]
 				#
 				# 12.02.2026 vvv paranoia
-				if StairsL[ndx] == SPO:
+				# vv re unresolved phantom lurchs to SPO, nevert triggerts, but i see AXIS trace
+				if StairsL[sNdx] == SPO:
 					print(1812,"in doStairsL   StairsL[ndx] == SPO")
 					trap()
 				#
-				doMove( StairsL[ndx] ) # more dlear meaning
+				doMove( StairsL[sNdx] ) # more dlear meaning
 		#
 		elif nextDir == BWD:   # BWD is tiwards startposn
-			bP = StairsL[ndx] # BreaakPt
+			bP = StairsL[sNdx] # BreaakPt
 			#
 			DetourWiglL, ankleNdx = mkDetourWiglL( bP )
 			#
 			doDetourWiglL( DetourWiglL, ankleNdx) 
 			#
 			# test fdatal flags
-			if (SEDM.QuitHit   == True) or (SEDM.BwdMaxHit == True):
+			if (sedm.QuitHit   == True) or (sedm.BwdMaxHit == True):
 				return BWD
 #
 def doOrbitEntryLegL( legL, ankleNdx):
+	#
 	SPO = ( ( 0,0,0) )
-	ndx = ankleNdx
+	#24.03.2026 chg ndx to entryNdx
+	entryNdx = ankleNdx
 	#
 	goodLim =len(legL) -1
 	badLim = 0
 	#
-	#do vvv alays if SEDM.JumpENA == True:
-	SEDM.JumpLtype = JumpOrbLeadInType
-	SEDM.JumpOn = True
+	#do vvv alays if sedm.JumpENA == True:
+	sedm.JumpLtype = JumpOrbLeadInType
+	sedm.JumpOn = True
 	#
 	while 1: # # seq is 
 		#
-		nextDir = getEvalPV( SEDM.JumpLtype, legL,ndx )
+		nextDir = getEvalPV( legL,entryNdx )
 		#
-		if (SEDM.BwdMaxHit == True) or (SEDM.QuitHit == True):
-			SEDM.JumpOn = False
+		if (sedm.BwdMaxHit == True) or (sedm.QuitHit == True):
+			sedm.JumpOn = False
 			return # let CUPA move to ctr, move to SPO
 		else:
 			if nextDir == FWD:# FWD is towards RufPt
-				if ndx >= goodLim:
-					SEDM.JumpOn = False
+				if entryNdx >= goodLim:
+					sedm.JumpOn = False
 					return # no flags
 				else:
-					oldP = legL[ndx]
-					if ndx > 0:
-						ndx += 1 
+					oldP = legL[entryNdx]
+					if entryNdx > 0:
+						entryNdx += 1 
 			elif nextDir == BWD:
-				if ndx <= badLim : # backed up to SPO
-					SEDM.BwdMaxHit = True
-					SEDM.JumpOn = False
+				if entryNdx <= badLim : # backed up to SPO
+					sedm.BwdMaxHit = True
+					sedm.JumpOn = False
 					return
 				else:
-					oldP = legL[ndx]
-					ndx -= 1 
+					oldP = legL[entryNdx]
+					entryNdx -= 1 
 			#
 			if nextDir != HOLD: # move but stay in limits
-				newP = legL[ndx]
+				newP = legL[entryNdx]
 				#
-				""" re: tall skinny triales
-				# vv never triggered
-				if newP == SPO:
-					print(1772,"in doOrbitEntryLegL newP == SPO|")
-					SEDM.JumpOn = False
-					trap()
-					#
-				"""
 				doMove(newP)
 #
 def doDetourWiglL( DetourWiglL,ankleNdx):
@@ -2152,96 +2145,68 @@ def doDetourWiglL( DetourWiglL,ankleNdx):
 	# BWDF must INC mdx towrads HIP
 	#
 	SPO = (0,0,0)
+	#24.03.2026 vhg ndx to wiglDtrNdx
+	wiglDtrNdx = 0 #
 	
-	ndx = 0 #
-	
-	posnb = DetourWiglL[ndx]
-	#posn = ( ( SEDM.XOffsetCmd , SEDM.YOffsetCmd , SEDM.ZOffsetCmd ) )
+	posnb = DetourWiglL[wiglDtrNdx]
+	#posn = ( ( sedm.XOffsetCmd , sedm.YOffsetCmd , sedm.ZOffsetCmd ) )
 	
 	goodLim = 0 # toe
 	badLim = len(DetourWiglL)-1 # hip
 	
+	sedm.JumpLtype = JumpStairsType
 	while 1: # begin lpp[
 		#
 		#07.01.2026 work jump into yop of while loop
 		#
 
 		#
-		nextDir = getEvalPV( NoJump,DetourWiglL,ndx )
+		nextDir = getEvalPV( DetourWiglL,wiglDtrNdx )
 		#
 		if nextDir == FWD:   # FWD is GOOD  butr nmust DEC ndx
-			ndx -= 1 #
-			if ndx <= goodLim:
+			wiglDtrNdx -= 1 #
+			if wiglDtrNdx <= goodLim:
 				return FWD # success
 		#
 		elif nextDir == BWD:   # BWD INCs ndx towards SPO  BAD
-			oldP = DetourWiglL[ndx] # where tool was on entry to this dunc
-			ndx += 1 # BWD INCs the ndx towards HIP SPO
+			oldP = DetourWiglL[wiglDtrNdx] # where tool was on entry to this dunc
+			wiglDtrNdx += 1 # BWD INCs the ndx towards HIP SPO
 
 			#01.01.2026 new
 			ctr += 1
 			#
-			if ndx  >= badLim: #
-				SEDM.BwdMaxHit = True
+			if wiglDtrNdx  >= badLim: #
+				sedm.BwdMaxHit = True
 				return BWD # yes FWD means successm bad wors, correct axtion
 			#
-			newP = DetourWiglL[ndx] # get  newP from list, ndx already INCd
-			""" re tall skinny triaNGLES
-			# vvv never tripped
-			# check  old and new re adjacent
-			# vvv doesbnt show up on tall skinng tri prob
-			if aj(oldP, newP ) == False:
-				#print(1652,"in doDetourWiglL() TRAP prev possn was ", oldP)
-				#print(1853,"in doDetourWiglL() TRAP new posn    is ", newP)
-				#print( 1854," ndx of nmewP is  TRAP ", ndx)
-				
-				#if ndx > 0:# next line accesec ndx - 1 fo besure ndx > 0
-				#	print("in doDetourWiglL TRAP prev posn in list ",DetourWiglL[ndx-1])
-				#	# NB the prev posnn is asj to last cmds  posn
-					
-				#print("in doDetourWiglL TRAP next posn in list ",DetourWiglL[ndx+1])
-				#print("in doDetourWiglL TRAP 0th posn in list ",DetourWiglL[0])
-				#print("in doDetourWiglL TRAP whole list ",DetourWiglL)
-				# NB he next posn in list is too far deom last  cmd [posn
-				print(2191,"aj(oldP, newP ) == False")
-				trap()
-			else: # aj(oldP, newP ) == True
-				# dupe posn = DetourWiglL[ndx]
-				# dumb doMove( posn)
-				
-				if newP == SPO:
-					print(1812,"in doDetourWiglL  newP == SPO")
-					trap()
-				
-				doMove( newP)
-			#
-			if newP == SPO:
-				print(1812,"in doDetourWiglL  newP == SPO")
-				trap()
-			"""
+			newP = DetourWiglL[wiglDtrNdx] # get  newP from list, ndx already INCd
 			doMove( newP)
 #
 def doDetourLegL( legL, BegNdx): # wasankleNdx):
+	#
 	# BegNdx is 0 when making detour from peri
 	SPO = ( ( 0,0,0) )
 	#
-	ndx = BegNdx #maybe ankle, maybe toe,    wasankleNdx # Begin at ankl ndx
+	#24.03.2026 chg ndx to detourLegLndx
+	detourLegLndx = BegNdx #maybe ankle, maybe toe,    wasankleNdx # Begin at ankl ndx
 	goodLim =0  #TOE
 	badLim =  len(legL) -1 # HIP
 	
 	#stepNum = 0
 	#
+	sedm.JumpLtype = JumpOrbPathType
+	#
 	while 1: # # seq is 
 		#
 		#07.01.2026 work jump into yop of while loop
 		#
-		nextDir = getEvalPV( NoJump,legL,ndx )# 0 means  DONT JUMMP
+		nextDir = getEvalPV( legL,detourLegLndx )# 0 means  DONT JUMMP
 		# check fataal flags
-		if (SEDM.BwdMaxHit == True) or (SEDM.QuitHit == True):
+		if (sedm.BwdMaxHit == True) or (sedm.QuitHit == True):
 			return BWD# let CUPA move to ctr, move to SPO
 		#
 		if nextDir == FWD:# FWD is DEC   towards TOE, towards ndx == 0
-			if ndx == 0:  #aka goodLim: # ndx 0  is TOE
+			if detourLegLndx == 0:  #aka goodLim: # ndx 0  is TOE
 				return# ok retn to caller, we all done w fetote and gotr a FWD PV   no flags # no rtn value  needed
 			else: #FWD and ndx != 0, not at TOE
 				#oldP = legL[ndx]
@@ -2249,16 +2214,16 @@ def doDetourLegL( legL, BegNdx): # wasankleNdx):
 				######## legL[badLim == SPO)
 				######## ??? is legL[-1] == SPO???   YES
 				######## DONT DEC ndx if ndx == 0
-				ndx -= 1 # FWD is DEC  towards TOE towrads PeriPath Towars ndx == 0
-				newP = legL[ndx]
+				detourLegLndx -= 1 # FWD is DEC  towards TOE towrads PeriPath Towars ndx == 0
+				newP = legL[detourLegLndx]
 		elif nextDir == BWD:   # BWD is INC ndx  BWD is tiwards SPO , ndx  gets larger
-			if (ndx == badLim): # and  (stepNum != 0): # backed up to SPO
-				SEDM.BwdMaxHit = True
+			if (detourLegLndx == badLim): # and  (stepNum != 0): # backed up to SPO
+				sedm.BwdMaxHit = True
 				return
 			else:
 				#oldP = legL[ndx]
-				ndx += 1 # BWD is towards HIP. ndx is larger
-				newP = legL[ndx]
+				detourLegLndx += 1 # BWD is towards HIP. ndx is larger
+				newP = legL[detourLegLndx]
 		if (nextDir != HOLD):
 			
 			""" re TST nevcer tyrihghered
@@ -2270,27 +2235,27 @@ def doDetourLegL( legL, BegNdx): # wasankleNdx):
 
 # ......... end funcs needing Hump code
 #
-SEDM = mkSEDMcomp()
+sedm = mksedmcomp()
 
 
-try: # SEDM preparation 
+try: # sedm preparation 
 	# vvv initl state of state machine
-	SEDM.state = WaitFullDepthRplaneDist
+	sedm.state = WaitFullDepthRplaneDist
 	#
 	# i needed a while for the try, EDMmode is  ON:Y uised to keep the while open
 	EDMmode = True 
 	time.sleep(0.10) # nECC as well as QBreaker
-	SEDM.xyzSCALEfOUT = SEDM.xyzSCALEfIN
-	SEDM.mlt = 1/SEDM.xyzSCALEfOUT
+	sedm.xyzSCALEfOUT = sedm.xyzSCALEfIN
+	sedm.mlt = 1/sedm.xyzSCALEfOUT
 	
 	getPgmUnits() # should ONLY be called 1x per pgm ( tho user could tryt G20 G21 G20 G31 blah
 	#
-	SEDM.ctr = 0
+	sedm.ctr = 0
 	
 	while EDMmode == True:
-		if SEDM.isEna == True: # set by M199  clrd by M198
+		if sedm.isEna == True: # set by M199  clrd by M198
 			# vvv new 11.12.2025  reset at top, not bot
-			#SEDM.ctr = 0
+			#sedm.ctr = 0
 			
 			# peek rwtr wuit btns enabled at start up  NG
 			# so wait isEna
@@ -2301,102 +2266,102 @@ try: # SEDM preparation
 			# so TODO fix btns ena too eartly
 			# BTW PEEK enable as soon as 1st getEvalPV()_ ca;;ed
 			# these vvv 2 lines are va
-			SEDM.BwdMaxHit = False
-			SEDM.BWDcount = 0
+			sedm.BwdMaxHit = False
+			sedm.BWDcount = 0
 			
 			time.sleep(0.10) # nECC as well as QBreaker
 			# vvv call 1s
-			if SEDM.NR == SEDM.BegNR:
+			if sedm.NR == sedm.BegNR:
 				getStartPtF()
 			#
-			SEDM.disableOsc = True
+			sedm.disableOsc = True
 			
 			
 			
 			#----------------------------------------
 			#----------- begin state machine --------
 			#----------------------------------------
-			if SEDM.state ==  WaitFullDepthRplaneDist:
+			if sedm.state ==  WaitFullDepthRplaneDist:
 				
 				
 				#25.11.2025 this is top of state machuien for subsequent iters
 				time.sleep(0.1)
 				
 				# M162 sets FullDEPTHf and RPlaneDist
-				SEDM.restart = False
+				sedm.restart = False
 				
 				# vvv doews NOT use mly
 				getToolAxis() # ths need to run for each tool change
 				
-				if SEDM.RPlaneDist != 0:
+				if sedm.RPlaneDist != 0:
 					#vvv asets
-					#	SEDM.CutDir
-					#	SEDM.FullDEPTHf = SEDM.FullDEPTHf + SEDM.RPlaneDist
+					#	sedm.CutDir
+					#	sedm.FullDEPTHf = sedm.FullDEPTHf + sedm.RPlaneDist
 					getCutDir() # also combine RPlane and FullDpeeth tto  make CutTraavel
 					#
-					SEDM.state = WaitOrbitTypeWiglRADf 
+					sedm.state = WaitOrbitTypeWiglRADf 
 				#
-				else: # SEDM.RPlaneDist == 0:
+				else: # sedm.RPlaneDist == 0:
 					# FAIL becuz RPlaneDisst == 0
-					msg = "SEDM.RPlaneDist = 0"
-					msg = msg + str(SEDM.RPlaneDist)
+					msg = "sedm.RPlaneDist = 0"
+					msg = msg + str(sedm.RPlaneDist)
 					c = linuxcnc.command()
 					c.error_msg(msg)
 					raise SystemExit
 			#
-			if SEDM.state == WaitOrbitTypeWiglRADf:
+			if sedm.state == WaitOrbitTypeWiglRADf:
 				# test OrbitType valid
-				if (SEDM.OrbitType == CIRCLE) or (SEDM.OrbitType == SQUARE) :
+				if (sedm.OrbitType == CIRCLE) or (sedm.OrbitType == SQUARE) :
 					# ^^^ must be circle or sqr for now 26.11.2025
 					#
 					# test WiglRADf valid ( >=0)
-					# M163 SEDM.OrbitType SEDM.WiglRADf vi dignals
-					if SEDM.WiglRADf >= 0:#15.11.2025 vhg to >=  hung at 0
-						SEDM.state = WaitEttabNumberMsrdUNS
+					# M163 sedm.OrbitType sedm.WiglRADf vi dignals
+					if sedm.WiglRADf >= 0:#15.11.2025 vhg to >=  hung at 0
+						sedm.state = WaitEttabNumberMsrdUNS
 			#
 			#TODO 25.11.2025 no testing dict creation success
-			if SEDM.state == WaitEttabNumberMsrdUNS:
+			if sedm.state == WaitEttabNumberMsrdUNS:
 				# 
 				# Path to ETAB is \local'
 				etabPath = "./Etabs"#25.02.2026 <<<  make etab path ='HERE'
 				#
-				if (SEDM.EtabNum > 0):
+				if (sedm.EtabNum > 0):
 					# construct file name from number
-					EtabNumStr = str(SEDM.EtabNum) #"99999944"
+					EtabNumStr = str(sedm.EtabNum) #"99999944"
 					fqfn = etabPath + "/" + EtabNumStr +".ENC"
 					#
 					# read file, make dict of lists made from lines in file
 					parseEtab(fqfn) 
 					#
-					SEDM.state =  WaitBegEndNR
+					sedm.state =  WaitBegEndNR
 			#
-			if SEDM.state == WaitBegEndNR:
-				if(SEDM.BegNR != 0) and (SEDM.EndNR != 0 ):
-					if (SEDM.EndNR <= SEDM.BegNR)and(SEDM.EndNR > 0):
-						if SEDM.BegNR !=  25:
-							SEDM.PlungeOrbitWanted = True
+			if sedm.state == WaitBegEndNR:
+				if(sedm.BegNR != 0) and (sedm.EndNR != 0 ):
+					if (sedm.EndNR <= sedm.BegNR)and(sedm.EndNR > 0):
+						if sedm.BegNR !=  25:
+							sedm.PlungeOrbitWanted = True
 						# dont progress until EndNR <= BegNR
 						# the PlungOrnbWantewds is a side issue
-						SEDM.state = WaitPitch
+						sedm.state = WaitPitch
 					#
 					# I dont handfle plungeOrbWanted correctly
 					#  ... dont undeterdtansd yet...
 			#
-			if SEDM.state == WaitPitch: # WaitPitch is state 5
+			if sedm.state == WaitPitch: # WaitPitch is state 5
 				#15.02.2026 pitch is not used now
 				# so not good to wait for M???
 				# so i shoirt shank this state
-				SEDM.state = WaitGenReady
+				sedm.state = WaitGenReady
 			#
 			# TODO JumpENA is BIT, will never be -1
-			#if SEDM.state == WaitJumpwANTED:
-			#	if SEDM.JumpENA != -1:  #insist M166 is used( oper must say he wants.doersmnt want jump)
-			#		SEDM.state = WaitGenReady
+			#if sedm.state == WaitJumpwANTED:
+			#	if sedm.JumpENA != -1:  #insist M166 is used( oper must say he wants.doersmnt want jump)
+			#		sedm.state = WaitGenReady
 			#
-			if SEDM.state == WaitGenReady:# i need UNS to caLC
+			if sedm.state == WaitGenReady:# i need UNS to caLC
 				# ThisRADf, SO NAME GENREADY MISLEADING MORE LIKE # # GENPrepared MAYBE
-				#vvv makes UNSf, SEDM.RufPtDEPTHf, RufPtTupl, 
-				if SEDM.ThisNR == SEDM.BegNR:
+				#vvv makes UNSf, sedm.RufPtDEPTHf, RufPtTupl, 
+				if sedm.ThisNR == sedm.BegNR:
 					# temp set ThisNR = 25 to get UND asnd???
 					# reset ThisNR to BegNR afterwards
 					
@@ -2407,62 +2372,62 @@ try: # SEDM preparation
 					#  so, ThisNR is LIEF to, just to get UNS
 					# bur 25.02.2026 in new scheme
 					#  thhe etavDixr['25'][11] hol;ds UNS ( tho collumn hdr sez RAD
-					SEDM.ThisNR = 25
-					setGen(SEDM.ThisNR)
+					sedm.ThisNR = 25
+					setGen(sedm.ThisNR)
 					mkThisRADf() # get UNS 
 					
 				else: # 15.02.2026 thius line was missing
 					# reset to BegNR
-					SEDM.ThisNR = SEDM.BegNR
+					sedm.ThisNR = sedm.BegNR
 					
 				#
 				mkRufPtTupl()# the 25 could be embedded inside mkRufPtTupl, but keeping it outside shows better
 				
-				setGen(SEDM.BegNR)
-				SEDM.UNSf = EtabDict['25'][11]
-				SEDM.GenReady = 1 # domt say True  it can be -1 0 or 1
-				SEDM.state = WaitPlunge
+				setGen(sedm.BegNR)
+				sedm.UNSf = EtabDict['25'][11]
+				sedm.GenReady = 1 # domt say True  it can be -1 0 or 1
+				sedm.state = WaitPlunge
 			#
-			if SEDM.state == WaitPlunge:
-				SEDM.disableOsc = False # turn ON power to tll
+			if sedm.state == WaitPlunge:
+				sedm.disableOsc = False # turn ON power to tll
 				doPlunge()              # main entry to plunge
 				# we are done with NR 25, so dec ThisNR
-				if SEDM.BegNR == 25:
-					SEDM.ThisNR -= 1
+				if sedm.BegNR == 25:
+					sedm.ThisNR -= 1
 					
 				#else leave nr alone,
 				#  user may wantplungeOrb when BegNR != 25
-				SEDM.disableOsc = True # turn OFF power to tool
+				sedm.disableOsc = True # turn OFF power to tool
 				# duting DoPlunge some fatal falgs may have been set
-				if SEDM.QuitHit == True:
-					SEDM.state = CleanUpPutAway # handle fatal flag, exit clean
-				elif SEDM.BwdMaxHit == True:
-					SEDM.state = CleanUpPutAway # handle fatal flag, exit clean
+				if sedm.QuitHit == True:
+					sedm.state = CleanUpPutAway # handle fatal flag, exit clean
+				elif sedm.BwdMaxHit == True:
+					sedm.state = CleanUpPutAway # handle fatal flag, exit clean
 				else:
-					SEDM.state = WaitDoPlungeOrbit
+					sedm.state = WaitDoPlungeOrbit
 			#
 			# if here Gen NR == ThisNR < 25
 			# TODO 13.12.2025 state can be removed
-			if SEDM.state == WaitDoPlungeOrbit: # MISSING 03.12.2025
-				SEDM.state = WaitAllNRsDone
+			if sedm.state == WaitDoPlungeOrbit: # MISSING 03.12.2025
+				sedm.state = WaitAllNRsDone
 			#
-			if SEDM.state == WaitAllNRsDone: # 13  NRs remaining are ORBITS
-				if (SEDM.QuitHit == True)or(SEDM.BwdMaxHit == True):
-					SEDM.state =  CleanUpPutAway
+			if sedm.state == WaitAllNRsDone: # 13  NRs remaining are ORBITS
+				if (sedm.QuitHit == True)or(sedm.BwdMaxHit == True):
+					sedm.state =  CleanUpPutAway
 					# ??? break??? no rtn in state mc
 				else:# no fatalflags
-					if (SEDM.ThisNR < SEDM.EndNR):#  all NRs are done, 
-						SEDM.state = CleanUpPutAway 
+					if (sedm.ThisNR < sedm.EndNR):#  all NRs are done, 
+						sedm.state = CleanUpPutAway 
 					else: #else do more orbits, ThisNR  IS NOT   EndNR, so  do more orbits
 						#
-						setGen(SEDM.ThisNR) # get power back on
+						setGen(sedm.ThisNR) # get power back on
 						
-						SEDM.disableOsc = False
+						sedm.disableOsc = False
 						# get paths: legEntryL  legL opL
 						mkThisRADf()
 						#
-						cLevel = RufPtTupl[SEDM.ToolAxis] + (SEDM.RADi * SEDM.CutDir)
-						opL = mkOrbitPathL(SEDM.RADi,cLevel)
+						cLevel = RufPtTupl[sedm.ToolAxis] + (sedm.RADi * sedm.CutDir)
+						opL = mkOrbitPathL(sedm.RADi,cLevel)
 						entryPt = opL[0]
 						#
 						legL,ankleNdx = mkOrbitEntryLegL(entryPt)
@@ -2471,42 +2436,45 @@ try: # SEDM preparation
 						legL.reverse()
 						ankleNdx = legL.index(ankleTupl)
 						#
+						# sedm.JumpLtype is set inside doOrbitEntryLegL() to 3
 						doOrbitEntryLegL(legL,ankleNdx) #
 						#
+						
 						# test for fatal flags
-						if (SEDM.BwdMaxHit == True) or (SEDM.QuitHit == True):
-							SEDM.state = CleanUpPutAway # let CUPA move to ctr, move to SPO
+						if (sedm.BwdMaxHit == True) or (sedm.QuitHit == True):
+							sedm.state = CleanUpPutAway # let CUPA move to ctr, move to SPO
 						else:
-							#
+							#>>> need to set sedm.jumpltype???
+							# sedm.JumpLtype sets to JumpOrbPathType
 							doOrbL(opL)# whwrw does doOrbL end???
 							#
-							if (SEDM.QuitHit == True)or(SEDM.BwdMaxHit == True):
-								SEDM.state = CleanUpPutAway
+							if (sedm.QuitHit == True)or(sedm.BwdMaxHit == True):
+								sedm.state = CleanUpPutAway
 							else: # turn off power, dec ThisNR
-								SEDM.disableOsc = True
-								SEDM.ThisNR = SEDM.ThisNR - 1
+								sedm.disableOsc = True
+								sedm.ThisNR = sedm.ThisNR - 1
 								# any more NRstoprocess???
-								if SEDM.ThisNR < SEDM.EndNR:
-									SEDM.state = CleanUpPutAway
+								if sedm.ThisNR < sedm.EndNR:
+									sedm.state = CleanUpPutAway
 			#
-			if SEDM.state == CleanUpPutAway : # ALSO SUCCRESS
+			if sedm.state == CleanUpPutAway : # ALSO SUCCRESS
 				SPO = ( (0,0,0) )
 				doCtrSpo()
 				c = linuxcnc.command()
-				SEDM.disableOsc = True
-				SEDM.isEna = False
-				SEDM.BWDcount = 0
+				sedm.disableOsc = True
+				sedm.isEna = False
+				sedm.BWDcount = 0
 				#
 				setGen(0)
-				SEDM.state = WaitFullDepthRplaneDist
-				SEDM.ctr +=  1 # report count ( for multiple cut loops )
-				if SEDM.QuitHit == True:
-					SEDM.QuitHit = False
+				sedm.state = WaitFullDepthRplaneDist
+				sedm.ctr +=  1 # report count ( for multiple cut loops )
+				if sedm.QuitHit == True:
+					sedm.QuitHit = False
 					msg = "Operator Aborted"
 					c.error_msg(msg) # stop_ngc_program()
 					stop_ngc_program()
-				elif SEDM.BwdMaxHit == True:
-					SEDM.BwdMaxHit = False
+				elif sedm.BwdMaxHit == True:
+					sedm.BwdMaxHit = False
 					msg = "BwdMaxHit True"
 					c.error_msg(msg)
 					stop_ngc_program()

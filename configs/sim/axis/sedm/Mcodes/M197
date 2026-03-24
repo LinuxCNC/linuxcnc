@@ -3,11 +3,11 @@
 # turn of jump if it was left on
 # place this in ,ngc just before M02
 
-# M197 toggles SEDM.JumpEna
+# M197 toggles sedm.JumpEna
 #   get checkbnox state
-a="$(halcmd getp SEDM.JumpENA)"
+a="$(halcmd getp sedm.JumpENA)"
 
-#echo "M197 getp said SEDM.JumpENA was $a "
+#echo "M197 getp said sedm.JumpENA was $a "
 
 if [[ $a == "TRUE" ]]; then
 	#echo "was TRUE,so toggling "

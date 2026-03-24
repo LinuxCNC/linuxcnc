@@ -10,14 +10,14 @@
 #halcmd sets dFullDEPTHf $1
 
 ## vvv o dfomnt want to set 2x...
-##halcmd setp SEDM.FullDEPTHf $1
+##halcmd setp sedm.FullDEPTHf $1
 #echo "start 10 sec"
 #sleep 10
 #echo "end  10 sec"
-#d=$(halcmd setp SEDM.FullDEPTHf $1)
+#d=$(halcmd setp sedm.FullDEPTHf $1)
 #
 ## get value setp[d  to chceck it
-#e=$(halcmd getp SEDM.FullDEPTHf)
+#e=$(halcmd getp sedm.FullDEPTHf)
 #echo "getp rtns $e"  # OK
 #
 ## cnvet strg to floast
@@ -41,11 +41,11 @@
 
 # revert to orig, that seems yto work
 #  querying the comp seems to NOT work
-halcmd setp SEDM.FullDEPTHf $1
+halcmd setp sedm.FullDEPTHf $1
 
 #echo "Rplane dist is $2"
 
-halcmd setp SEDM.RPlaneDist $2
+halcmd setp sedm.RPlaneDist $2
 
 
 

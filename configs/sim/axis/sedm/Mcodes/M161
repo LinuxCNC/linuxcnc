@@ -16,9 +16,9 @@ printf -v BegNRint '%d' "$1"
 # no more GUI BegNR nor EndNR
 # this makes techGui smaller
 # and fit next to std ZXIS gui
-halcmd setp SEDM.BegNR $BegNRint
+halcmd setp sedm.BegNR $BegNRint
 
 printf -v EndNRint '%d' "$2"
-halcmd setp SEDM.EndNR $EndNRint
+halcmd setp sedm.EndNR $EndNRint
 
 exit 0

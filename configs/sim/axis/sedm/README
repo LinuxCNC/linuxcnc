@@ -1,6 +1,6 @@
-README for comp[ SEDM
+README for comp[ sedm
 
-SEDM comp emulates Sink EDM orbiting
+sedm comp emulates Sink EDM orbiting
 
 EDM is a machinhing method that removes
 microscppic bits of the workpiece
@@ -47,7 +47,7 @@ thhe same work as the smaller ones.
 Orgiting remoives the 'many sizes' issue,
 by moving the tool in tiny patterns called orbits.
 
-SEDM comp is mot difficult to use.
+sedm comp is mot difficult to use.
 The user negins with blueprint/cad drawing
 and finds the Fp ( frontal projection 
 
@@ -124,7 +124,7 @@ o200 sub
 	M160 P34 Q0.254 		; Etable, MsrdUNS
 	M161 P17 Q15			; BeginningNR in Etable, EndNR
 	M00						; needed for ExternalOffsets
-	M198					; Rnd SEDM control
+	M198					; Rnd sedm control
 							; thsi last line wont be executed
 							; untill AEDM comp finisshes
 o200 endsub					; return to NGC code and LCNC position control

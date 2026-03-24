@@ -1,14 +1,12 @@
-;ZnwgWigl88888819-all-circ.ngc
-;22.02.2026 i just hanad edited 99999919
-; hwci lookls ;like a CU/ST etab
+;ZnwgWigl-Etab19-allNrs-circ.ngc
+; Etab 19 looks like  CU/ST
 ;
 o200 sub
-	M66 E0 L0 ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
+	M66 E0 L0               ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
 	M199
-	
-	; vvv i dont like Rplane being a #var AND psassed to SEDM
-	; but BASH cant hanfl r #vcars ( or $vars can work w bash, as you wisj)
-	M162 P-0.304 Q0.5 ; more tests per hr lookimg fdor bad tri from peri tto SPO
+	; vvv i dont like Rplane being a #var AND psassed to sedm
+	; but BASH cant handle #vcars ( or $vars can work w bash)
+	M162 P-0.304 Q0.5       ; more tests per hr lookimg fdor bad tri from peri tto SPO
 	
 	M163 P1 Q0.05; OrbType SQR, no Wigl for more tests per hr
 	M160 P19 Q0.500 ; etabnum, MsrdUNS
