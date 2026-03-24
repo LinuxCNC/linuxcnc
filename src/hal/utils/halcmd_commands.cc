@@ -241,12 +241,18 @@ int do_unlinkp_cmd(char *pin)
 }
 
 int do_set_debug_cmd(char* level){
-    int new_level = atoi(level);
-    if (new_level < 0 || new_level > 5){
-        halcmd_error("Debug level must be >=0 and <= 5\n");
-        return -EINVAL;
-    }
-    return rtapi_set_msg_level(atoi(level));
+    int m=0,retval=-EINVAL;
+    const char *argv[4];
+#if defined(RTAPI_USPACE)
+    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+    argv[m++] = "debug";
+    argv[m++] = level;
+    argv[m++] = NULL;
+    retval = hal_systemv(argv);
+#else
+    halcmd_error("debug: not implemented for anything else than uspace\n");
+#endif
+    return retval;
 }
 
 int do_source_cmd(char *hal_filename) {
