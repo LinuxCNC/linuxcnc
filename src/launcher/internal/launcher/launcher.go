@@ -120,7 +120,7 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 // Note: POSTGUI_HALFILE loading is intentionally omitted here; it is the
 // responsibility of the display GUI (AXIS, QtVCP, gmoccapy, etc.) to load
 // its own post-GUI HAL files after creating its HAL pins.
-func (l *Launcher) Run() error {
+func (l *Launcher) Run() (runErr error) {
 	l.setupEnvironment()
 
 	// Export INI file path and config directory so that child processes
@@ -136,7 +136,12 @@ func (l *Launcher) Run() error {
 	// M7: Single deferred cleanup replaces individual defers.
 	// cleanup() is idempotent (sync.Once) so it is also safe to call from
 	// the signal handler goroutine below.
-	defer l.cleanup()
+	defer func() {
+		if runErr != nil {
+			l.logger.Error("startup failed", "error", runErr)
+		}
+		l.cleanup()
+	}()
 
 	// M7: Trap SIGINT and SIGTERM so that Ctrl-C triggers an ordered shutdown
 	// instead of an abrupt process exit that leaves HAL loaded.
@@ -494,7 +499,7 @@ func (l *Launcher) stopServer() {
 
 // startIOControl loads and initialises the IO controller as a C module plugin.
 //
-// EMCIO resolution: [IO]IO → [EMCIO]EMCIO → default "iocontrol".
+// EMCIO resolution: [IO]IO → [EMCIO]EMCIO → default "io".
 // The resolved name is looked up in EMC2_CMOD_DIR as a .so file.
 func (l *Launcher) startIOControl() error {
 	emcio := l.ini.Get("IO", "IO")
@@ -502,7 +507,7 @@ func (l *Launcher) startIOControl() error {
 		emcio = l.ini.Get("EMCIO", "EMCIO")
 	}
 	if emcio == "" {
-		emcio = "iocontrol"
+		emcio = "io"
 	}
 
 	path := resolveCModulePath(emcio)

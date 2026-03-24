@@ -71,6 +71,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime/cgo"
 	"strings"
 	"unsafe"
 
@@ -81,6 +82,7 @@ import (
 type cModule struct {
 	handle *C.void // dlopen handle
 	mod    *C.cmod_t
+	hCtx   cgo.Handle // Go↔C handle for the Launcher pointer
 }
 
 // resolveCModulePath resolves a C module name or path to an absolute .so path.
@@ -106,7 +108,7 @@ func cModuleExists(path string) bool {
 
 //export cmod_get_ini
 func cmod_get_ini(ctx unsafe.Pointer, section, key *C.char) *C.char {
-	l := (*Launcher)(ctx)
+	l := cgo.Handle(uintptr(ctx)).Value().(*Launcher)
 	val := l.ini.Get(C.GoString(section), C.GoString(key))
 	if val == "" {
 		return nil
@@ -118,7 +120,7 @@ func cmod_get_ini(ctx unsafe.Pointer, section, key *C.char) *C.char {
 
 //export cmod_ini_source_file
 func cmod_ini_source_file(ctx unsafe.Pointer) *C.char {
-	l := (*Launcher)(ctx)
+	l := cgo.Handle(uintptr(ctx)).Value().(*Launcher)
 	cs := C.CString(l.ini.SourceFile())
 	l.cModArena = append(l.cModArena, unsafe.Pointer(cs))
 	return cs
@@ -126,25 +128,25 @@ func cmod_ini_source_file(ctx unsafe.Pointer) *C.char {
 
 //export cmod_log_info
 func cmod_log_info(ctx unsafe.Pointer, component, msg *C.char) {
-	l := (*Launcher)(ctx)
+	l := cgo.Handle(uintptr(ctx)).Value().(*Launcher)
 	l.logger.Info(C.GoString(msg), "component", C.GoString(component))
 }
 
 //export cmod_log_warn
 func cmod_log_warn(ctx unsafe.Pointer, component, msg *C.char) {
-	l := (*Launcher)(ctx)
+	l := cgo.Handle(uintptr(ctx)).Value().(*Launcher)
 	l.logger.Warn(C.GoString(msg), "component", C.GoString(component))
 }
 
 //export cmod_log_error
 func cmod_log_error(ctx unsafe.Pointer, component, msg *C.char) {
-	l := (*Launcher)(ctx)
+	l := cgo.Handle(uintptr(ctx)).Value().(*Launcher)
 	l.logger.Error(C.GoString(msg), "component", C.GoString(component))
 }
 
 //export cmod_log_debug
 func cmod_log_debug(ctx unsafe.Pointer, component, msg *C.char) {
-	l := (*Launcher)(ctx)
+	l := cgo.Handle(uintptr(ctx)).Value().(*Launcher)
 	l.logger.Debug(C.GoString(msg), "component", C.GoString(component))
 }
 
@@ -178,8 +180,10 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 		handle: (*C.void)(handle),
 	}
 
-	var env C.cmod_env_t
-	C.cmod_env_init(&env, unsafe.Pointer(l))
+	env := (*C.cmod_env_t)(C.malloc(C.size_t(unsafe.Sizeof(C.cmod_env_t{}))))
+	hCtx := cgo.NewHandle(l)
+	C.cmod_env_init(env, unsafe.Pointer(uintptr(hCtx)))
+	l.cModArena = append(l.cModArena, unsafe.Pointer(env))
 
 	// Convert args to C strings.
 	cName := C.CString(name)
@@ -201,7 +205,7 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 	}
 
 	var mod *C.cmod_t
-	rc := C.cmod_call_new(factory, &env, cName, argc, argv, &mod)
+	rc := C.cmod_call_new(factory, env, cName, argc, argv, &mod)
 	if rc != 0 {
 		C.dlclose(handle)
 		return fmt.Errorf("load C plugin %q: factory returned error code %d", path, int(rc))
@@ -215,8 +219,9 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 		return fmt.Errorf("load C plugin %q: Init() returned error code %d", path, int(rc))
 	}
 
+	cm.hCtx = hCtx
 	l.cModules = append(l.cModules, cm)
-	l.logger.Info("C plugin loaded and initialized", "path", path, "name", name)
+	l.logger.Debug("C plugin loaded and initialized", "path", path, "name", name)
 
 	return nil
 }
@@ -248,6 +253,7 @@ func (l *Launcher) deinitCModules() {
 		if cm.handle != nil {
 			C.dlclose(unsafe.Pointer(cm.handle))
 		}
+		cm.hCtx.Delete()
 	}
 	// Free arena strings after all modules have been deinitialized.
 	for _, p := range l.cModArena {

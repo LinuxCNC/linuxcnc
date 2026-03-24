@@ -968,20 +968,13 @@ static void *iocontrol_loop(void *arg)
 static int iocontrol_init(cmod_t *self)
 {
     iocontrol_module *m = (iocontrol_module *)self->priv;
-    return iocontrol_hal_init(m);
-}
 
-static int iocontrol_start(cmod_t *self)
-{
-    iocontrol_module *m = (iocontrol_module *)self->priv;
-
-    if (0 != emcIoNmlGet(m)) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "can't connect to NML buffers in %s\n",
-                        emc_nmlfile);
+    if (iocontrol_hal_init(m) != 0)
         return -1;
-    }
 
+    // Initialise tool data and create the mmap file early so that milltask,
+    // halui, and the display (which all start before Start()) can access
+    // the shared tool table.
     for(int i=0; i<CANON_POCKETS_MAX; i++) {
         m->ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
     }
@@ -1031,6 +1024,20 @@ static int iocontrol_start(cmod_t *self)
     m->emcioStatus.lube.on = 0;
     m->emcioStatus.lube.level = 1;
     *(m->hal_data->tool_number) = m->emcioStatus.tool.toolInSpindle;
+
+    return 0;
+}
+
+static int iocontrol_start(cmod_t *self)
+{
+    iocontrol_module *m = (iocontrol_module *)self->priv;
+
+    if (0 != emcIoNmlGet(m)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "can't connect to NML buffers in %s\n",
+                        emc_nmlfile);
+        return -1;
+    }
 
     m->done = 0;
     m->thread_started = true;

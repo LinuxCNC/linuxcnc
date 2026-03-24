@@ -72,7 +72,7 @@ typedef struct {
 
 static char* tool_mmap_fname(void) {
     if (*filename) {return filename;}
-    char* hdir = secure_getenv("HOME");
+    char* hdir = getenv("HOME");
     if (!hdir) {hdir = (char*)"/tmp";}
     snprintf(filename,sizeof(filename),"%s/%s",hdir,TOOL_MMAP_FILENAME);
     return(filename);
