@@ -3,10 +3,10 @@ IOV2SRCS := emc/iotask/ioControl_v2.cc
 USERSRCS += $(IOSRCS) $(IOV2SRCS)
 
 $(call TOOBJS, $(IOSRCS)): EXTRAFLAGS += -fPIC
-../lib/cmod/io.so: $(call TOOBJS, $(IOSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
+../cmod/io.so: $(call TOOBJS, $(IOSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
            ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
-	@mkdir -p ../lib/cmod
+	@mkdir -p ../cmod
 	@$(CXX) -shared -o $@ $^ $(LDFLAGS)
 
 ../bin/iov2: $(call TOOBJS, $(IOV2SRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
@@ -14,4 +14,4 @@ $(call TOOBJS, $(IOSRCS)): EXTRAFLAGS += -fPIC
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) -o $@ $^ $(LDFLAGS)
 
-TARGETS += ../lib/cmod/io.so ../bin/iov2
+TARGETS += ../cmod/io.so ../bin/iov2
