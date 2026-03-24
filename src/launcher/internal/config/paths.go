@@ -25,6 +25,9 @@ var (
 	// EMC2GomodDir is the directory containing Go plugin modules (@EMC2_GOMOD_DIR@).
 	EMC2GomodDir string
 
+	// EMC2CmodDir is the directory containing C plugin modules (@EMC2_CMOD_DIR@).
+	EMC2CmodDir string
+
 	// EMC2ConfigPath is the colon-separated list of config search directories (@LINUXCNC_CONFIG_PATH@).
 	EMC2ConfigPath string
 

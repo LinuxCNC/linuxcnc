@@ -19,6 +19,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"unsafe"
 
 	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 
@@ -69,6 +70,8 @@ type Launcher struct {
 	halComp      *hal.Component       // launcher's HAL component (like halcmd's hal_init)
 	protocols    []protocols.Protocol // active protocol instances (ADS, etc.)
 	goModules    []gomodule.Module    // Go plugin modules loaded via "load" command
+	cModules     []*cModule           // C plugin modules loaded via "load" command
+	cModArena    []unsafe.Pointer     // arena-tracked C strings freed in deinitCModules
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -289,10 +292,10 @@ func (l *Launcher) Run() error {
 		return fmt.Errorf("loading threads: %w", err)
 	}
 
-	// Start iocontrol via halcmd loadusr -Wn iocontrol — only when the task
-	// controller is running.  iocontrol is a HAL userspace component that
-	// communicates with the task controller via NML; HAL manages its lifecycle
-	// and will terminate it when halcmd exits or HAL is shut down.
+	// Load the iocontrol C module plugin — only when the task controller
+	// is running.  iocontrol is a HAL userspace component that communicates
+	// with the task controller via NML.  Its Start() (which spawns
+	// the NML processing thread) is called later in startCModules().
 	// validateDependencies() ensures [EMCIO]EMCIO is not set without [TASK]TASK.
 	if hasTask {
 		if err := l.startIOControl(); err != nil {
@@ -330,10 +333,17 @@ func (l *Launcher) Run() error {
 		l.logger.Warn("HAL component loading error (continuing)", "error", err)
 	}
 
-	// Phase 1.3: Load Go plugin modules from "load" commands.
-	// The "load" command is exclusively for Go plugins; bare module names
-	// are resolved against EMC2_GOMOD_DIR (same pattern as loadrt/EMC2_RTLIB_DIR).
+	// Phase 1.3: Load plugin modules from "load" commands.
+	// The "load" command loads plugin modules (.so).  For each module,
+	// the launcher checks EMC2_CMOD_DIR first (C plugins via dlopen);
+	// if no C module is found, it falls back to EMC2_GOMOD_DIR (Go plugins
+	// via plugin.Open).  Bare module names are resolved against these
+	// directories; paths containing "/" are used as-is.
 	if err := halResult.IterLoads(func(path string, name string, args []string) error {
+		cmodPath := resolveCModulePath(path)
+		if cModuleExists(cmodPath) {
+			return l.loadCPlugin(cmodPath, name, args)
+		}
 		return l.loadGoPlugin(resolveGoModulePath(path), name, args)
 	}); err != nil {
 		if !l.opts.ContinueOnError {
@@ -393,6 +403,11 @@ func (l *Launcher) Run() error {
 	// 6d.3. Start Go plugin modules (Start() is called after HAL threads are running).
 	if err := l.startGoModules(); err != nil {
 		return fmt.Errorf("Go module start failed: %w", err)
+	}
+
+	// 6d.4. Start C plugin modules.
+	if err := l.startCModules(); err != nil {
+		return fmt.Errorf("C module start failed: %w", err)
 	}
 
 	// 6d.5. Start protocol network listeners (ADS TCP, etc.).
@@ -477,29 +492,25 @@ func (l *Launcher) stopServer() {
 	emcsvr.Cleanup()
 }
 
-// startIOControl starts the IO controller process via hal.LoadUSR.
+// startIOControl loads and initialises the IO controller as a C module plugin.
 //
-// This mirrors scripts/linuxcnc.in lines 839–850:
-//
-//	$HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
-//
-// EMCIO resolution: [IO]IO → [EMCIO]EMCIO → default "io".
+// EMCIO resolution: [IO]IO → [EMCIO]EMCIO → default "iocontrol".
+// The resolved name is looked up in EMC2_CMOD_DIR as a .so file.
 func (l *Launcher) startIOControl() error {
 	emcio := l.ini.Get("IO", "IO")
 	if emcio == "" {
 		emcio = l.ini.Get("EMCIO", "EMCIO")
 	}
 	if emcio == "" {
-		emcio = "io"
+		emcio = "iocontrol"
 	}
 
-	l.logger.Info("starting IO controller", "program", emcio)
-
-	if err := halcmd.LoadUSR(&halcmd.LoadUSROptions{WaitReady: true, WaitName: "iocontrol"}, emcio, "-ini", l.opts.IniFile); err != nil {
-		return fmt.Errorf("loadusr iocontrol %s: %w", emcio, err)
+	path := resolveCModulePath(emcio)
+	if !cModuleExists(path) {
+		return fmt.Errorf("IO controller C module not found: %s", path)
 	}
 
-	return nil
+	return l.loadCPlugin(path, "iocontrol", nil)
 }
 
 // startHalUI starts the halui process via hal.LoadUSR, if configured.

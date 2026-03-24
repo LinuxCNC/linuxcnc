@@ -68,11 +68,16 @@ func (m *passthroughModule) Start() error {
 }
 
 // Stop shuts down the module gracefully.  Called during launcher cleanup.
-// Note: the plugin code is never actually unloaded from memory (plugin.Open
-// has no Close), but all goroutines should be stopped here.
+// Stop background goroutines and close connections here.
+// DeInit releases remaining resources (HAL component).
 func (m *passthroughModule) Stop() {
 	m.logger.Info("passthroughModule Stop()")
 	// TODO: stop background goroutines, close connections, etc.
+}
+
+// DeInit releases all resources. Called after all modules have been stopped.
+func (m *passthroughModule) DeInit() {
+	m.logger.Info("passthroughModule DeInit()")
 	if m.comp != nil {
 		if err := m.comp.Exit(); err != nil {
 			m.logger.Warn("HAL component exit error", "error", err)

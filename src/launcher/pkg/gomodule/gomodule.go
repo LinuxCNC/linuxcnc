@@ -12,6 +12,7 @@
 //  2. Init — create HAL pins/components (before HAL file wiring)
 //  3. Start — begin active operation (after HAL threads start)
 //  4. Stop — shut down gracefully (during launcher cleanup)
+//  5. DeInit — release resources (after all modules have stopped)
 //
 // # Important constraints
 //
@@ -30,8 +31,8 @@ import (
 
 // Module is the interface that Go plugin .so files must satisfy.
 //
-// The launcher calls Init, Start, and Stop in that order during the
-// startup/shutdown lifecycle.
+// The launcher calls Init, Start, Stop, and DeInit in that order during
+// the startup/shutdown lifecycle.
 type Module interface {
 	// Init creates HAL components and registers pins. Called after
 	// ParseResult.Load() but before ParseResult.Execute(), so that
@@ -42,9 +43,16 @@ type Module interface {
 	// network connections). Called after HAL threads are started.
 	Start() error
 
-	// Stop shuts down the module gracefully. Called during launcher
-	// cleanup before HAL components are unloaded.
+	// Stop shuts down the module gracefully. Signals shutdown, joins
+	// goroutines, and closes connections. Called during launcher
+	// cleanup before DeInit. All modules are stopped before any
+	// module's DeInit is called.
 	Stop()
+
+	// DeInit releases all resources (HAL components, allocated memory).
+	// Called after all modules have been stopped. The module must not
+	// use any shared resources after DeInit returns.
+	DeInit()
 }
 
 // Factory is the function signature that plugins must export as the symbol

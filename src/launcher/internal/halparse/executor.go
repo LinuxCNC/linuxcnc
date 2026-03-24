@@ -100,7 +100,7 @@ func executeToken(tok Token) error {
 	case *PrintToken:
 		return nil
 	case *LoadToken:
-		// The "load" command is exclusively for Go plugins.  It is handled
+		// The "load" command is for C and Go plugin modules.  It is handled
 		// by the launcher via IterLoads, never by executeToken directly.
 		return &ExecutionError{
 			Loc: tok.Location,
@@ -128,7 +128,7 @@ func executeToken(tok Token) error {
 //
 // Note: Loads tokens (from the "load" command) are NOT processed
 // here. The launcher iterates ParseResult.Loads directly after calling Load()
-// to load Go plugins via resolveGoModulePath + plugin.Open.
+// to load C or Go plugin modules.
 func (r *ParseResult) Load() error {
 	// Phase 1: execute loadusr tokens
 	for _, tok := range r.LoadUSR {
@@ -184,11 +184,12 @@ func (r *ParseResult) Execute() error {
 // name derived from the module path (basename without .so).  When Names are set
 // (via the [name1,name2,...] syntax), fn is called once per name.
 //
-// The "load" command is exclusively for Go plugins.  The launcher resolves
-// bare module names against EMC2_GOMOD_DIR and loads them via plugin.Open.
+// The "load" command supports both C and Go plugins.  The launcher checks
+// EMC2_CMOD_DIR first (C plugins via dlopen), then falls back to
+// EMC2_GOMOD_DIR (Go plugins via plugin.Open).
 //
 //	err := result.IterLoads(func(path string, name string, args []string) error {
-//	    return loadGoPlugin(resolveGoModulePath(path), name, args)
+//	    return loadModule(path, name, args)
 //	})
 func (r *ParseResult) IterLoads(fn func(path string, name string, args []string) error) error {
 	for _, tok := range r.Loads {

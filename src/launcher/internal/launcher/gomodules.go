@@ -56,7 +56,7 @@ func (l *Launcher) loadGoPlugin(path string, name string, args []string) error {
 	}
 
 	if err := mod.Init(); err != nil {
-		mod.Stop() // clean up factory-allocated resources
+		mod.DeInit() // clean up factory-allocated resources
 		return fmt.Errorf("load Go plugin %q: Init() error: %w", path, err)
 	}
 
@@ -78,9 +78,17 @@ func (l *Launcher) startGoModules() error {
 }
 
 // stopGoModules calls Stop() on all loaded Go plugin modules in reverse order.
-// Called during cleanup before protocol shutdown.
+// Called during cleanup before DeInit.
 func (l *Launcher) stopGoModules() {
 	for i := len(l.goModules) - 1; i >= 0; i-- {
 		l.goModules[i].Stop()
+	}
+}
+
+// deinitGoModules calls DeInit() on all loaded Go plugin modules in reverse order.
+// Called after all modules have been stopped to release resources.
+func (l *Launcher) deinitGoModules() {
+	for i := len(l.goModules) - 1; i >= 0; i-- {
+		l.goModules[i].DeInit()
 	}
 }
