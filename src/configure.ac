@@ -1517,6 +1517,43 @@ fi
 AC_SUBST([GO])
 AC_SUBST([HAVE_GOLANG])
 
+# Check for IgH EtherCAT master library and libexpat (optional, for lcec driver)
+AC_ARG_ENABLE([ethercat],
+    AS_HELP_STRING([--enable-ethercat], [Build EtherCAT HAL driver (requires IgH EtherCAT master and libexpat)]),
+    [enable_ethercat=$enableval],
+    [enable_ethercat=auto])
+
+if test "x$enable_ethercat" != "xno"; then
+    AC_MSG_CHECKING([for IgH EtherCAT master library])
+    save_LIBS="$LIBS"
+    have_ecrt=no
+    have_libethercat=no
+    have_expat_h=no
+    have_libexpat=no
+    AC_CHECK_HEADER([ecrt.h], [have_ecrt=yes])
+    AC_CHECK_LIB([ethercat], [ecrt_request_master], [have_libethercat=yes])
+    AC_CHECK_HEADER([expat.h], [have_expat_h=yes])
+    AC_CHECK_LIB([expat], [XML_ParserCreate], [have_libexpat=yes])
+    LIBS="$save_LIBS"
+
+    if test "x$have_ecrt" = "xyes" && test "x$have_libethercat" = "xyes" \
+       && test "x$have_expat_h" = "xyes" && test "x$have_libexpat" = "xyes"; then
+        HAVE_ETHERCAT=yes
+        AC_MSG_RESULT([yes])
+    else
+        HAVE_ETHERCAT=no
+        AC_MSG_RESULT([no])
+    fi
+else
+    HAVE_ETHERCAT=no
+fi
+
+if test "x$enable_ethercat" = "xyes" && test "x$HAVE_ETHERCAT" != "xyes"; then
+    AC_MSG_ERROR([EtherCAT support requested but IgH EtherCAT master library or libexpat not found])
+fi
+
+AC_SUBST([HAVE_ETHERCAT])
+
 ##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
@@ -1569,6 +1606,7 @@ echo "#              Configuration Summary                                 #"
 echo "######################################################################"
 echo ""
 echo "  Build Golang HAL components: $HAVE_GOLANG"
+echo "  Build EtherCAT HAL driver:    $HAVE_ETHERCAT"
 echo ""
 echo "######################################################################"
 echo "#                LinuxCNC - Enhanced Machine Controller              #"

@@ -1,0 +1,94 @@
+ifeq ($(BUILD_ETHERCAT),yes)
+
+LCEC_DIR := hal/proto/ethercat/src
+
+# ---------- Realtime module: lcec.so ----------
+
+RTMODULES += lcec.o
+lcec-objs := \
+    $(LCEC_DIR)/main.o \
+    $(LCEC_DIR)/typelist.o \
+    $(LCEC_DIR)/master.o \
+    $(LCEC_DIR)/slave.o \
+    $(LCEC_DIR)/util.o \
+    $(LCEC_DIR)/dcsync_r2m.o \
+    $(LCEC_DIR)/dcsync_m2r.o \
+    $(LCEC_DIR)/classes/class_enc.o \
+    $(LCEC_DIR)/classes/class_ax5.o \
+    $(LCEC_DIR)/devices/generic.o \
+    $(LCEC_DIR)/devices/ax5100.o \
+    $(LCEC_DIR)/devices/ax5200.o \
+    $(LCEC_DIR)/devices/ax5805.o \
+    $(LCEC_DIR)/devices/el1xxx.o \
+    $(LCEC_DIR)/devices/el1252.o \
+    $(LCEC_DIR)/devices/el1859.o \
+    $(LCEC_DIR)/devices/el1904.o \
+    $(LCEC_DIR)/devices/el1918_logic.o \
+    $(LCEC_DIR)/devices/el2202.o \
+    $(LCEC_DIR)/devices/el2521.o \
+    $(LCEC_DIR)/devices/el2904.o \
+    $(LCEC_DIR)/devices/el2xxx.o \
+    $(LCEC_DIR)/devices/el31x2.o \
+    $(LCEC_DIR)/devices/el31x4.o \
+    $(LCEC_DIR)/devices/el32x4.o \
+    $(LCEC_DIR)/devices/el3255.o \
+    $(LCEC_DIR)/devices/el3314.o \
+    $(LCEC_DIR)/devices/el40x1.o \
+    $(LCEC_DIR)/devices/el40x2.o \
+    $(LCEC_DIR)/devices/el40x8.o \
+    $(LCEC_DIR)/devices/el41x2.o \
+    $(LCEC_DIR)/devices/el41x4.o \
+    $(LCEC_DIR)/devices/el5002.o \
+    $(LCEC_DIR)/devices/el5021.o \
+    $(LCEC_DIR)/devices/el5032.o \
+    $(LCEC_DIR)/devices/el5101.o \
+    $(LCEC_DIR)/devices/el5122.o \
+    $(LCEC_DIR)/devices/el5151.o \
+    $(LCEC_DIR)/devices/el5152.o \
+    $(LCEC_DIR)/devices/el6900.o \
+    $(LCEC_DIR)/devices/el7041_1000.o \
+    $(LCEC_DIR)/devices/el70x1.o \
+    $(LCEC_DIR)/devices/el7211.o \
+    $(LCEC_DIR)/devices/el7342.o \
+    $(LCEC_DIR)/devices/el7411.o \
+    $(LCEC_DIR)/devices/el95xx.o \
+    $(LCEC_DIR)/devices/em3712.o \
+    $(LCEC_DIR)/devices/em7004.o \
+    $(LCEC_DIR)/devices/stmds5k.o \
+    $(LCEC_DIR)/devices/deasda.o \
+    $(LCEC_DIR)/devices/dems300.o \
+    $(LCEC_DIR)/devices/omrg5.o \
+    $(LCEC_DIR)/devices/ph3lm2rm.o
+
+# Add include path for lcec private headers
+$(call TORTOBJS,lcec.o): EXTRAFLAGS += -I$(BASEPWD)/$(LCEC_DIR)
+
+# Explicit link rule: lcec needs -lethercat beyond the standard -lm.
+../rtlib/lcec.so:
+	$(ECHO) Linking $@
+	$(Q)ld -d -r -o objects/lcec.tmp $^
+	$(Q)objdump -w -j .rtapi_export -t objects/lcec.tmp \
+	    | awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
+	    > objects/lcec.ver
+	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/lcec.ver \
+	    -o $@ $^ -lm -lethercat $(LDFLAGS)
+	$(Q)chmod -x $@
+
+# ---------- Userspace binary: lcec_conf ----------
+
+LCEC_CONF_SRCS := \
+    $(LCEC_DIR)/conf.c \
+    $(LCEC_DIR)/conf_util.c \
+    $(LCEC_DIR)/conf_icmds.c
+
+USERSRCS += $(LCEC_CONF_SRCS)
+$(call TOOBJSDEPS, $(LCEC_CONF_SRCS)): EXTRAFLAGS += \
+    -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR)
+
+../bin/lcec_conf: $(call TOOBJS, $(LCEC_CONF_SRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lexpat
+
+TARGETS += ../bin/lcec_conf
+
+endif # BUILD_ETHERCAT
