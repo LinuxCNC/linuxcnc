@@ -774,6 +774,14 @@ extern void rtapi_unlock_mem(void *p, size_t size);
 extern void *rtapi_dlopen(const char *path, int flags);
 extern int rtapi_dlclose(void *handle);
 
+/** 'rtapi_lock_dl_handle()' locks all PT_LOAD segments of a previously
+    dlopen'd shared library into physical memory (mlock).  This is used
+    by the launcher to lock cmod plugin .so files that contain RT code.
+    'rtapi_unlock_dl_handle()' reverses the locking.
+*/
+extern void rtapi_lock_dl_handle(void *handle);
+extern void rtapi_unlock_dl_handle(void *handle);
+
 extern void rtapi_initialize_app(void);
 
 RTAPI_END_DECLS

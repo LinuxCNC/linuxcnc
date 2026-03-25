@@ -167,6 +167,31 @@ RTAPI_BEGIN_DECLS
 */
 extern int hal_init(const char *name);
 
+/** Component type classification. */
+typedef enum {
+    COMPONENT_TYPE_UNKNOWN = -1,
+    COMPONENT_TYPE_USER,
+    COMPONENT_TYPE_REALTIME,
+    COMPONENT_TYPE_OTHER
+} component_type_t;
+
+/** 'hal_init_ex()' is an extended version of hal_init() that allows
+    explicit specification of the component type and the dlopen handle
+    of the .so that contains the component's code.
+    'name' is the component name (same rules as hal_init).
+    'dl_handle' is the dlopen() handle of the .so file, or NULL for
+    components not loaded via dlopen.  Used by the launcher to identify
+    which .so files need memory locking for RT components.
+    'type' is the component type (COMPONENT_TYPE_USER or
+    COMPONENT_TYPE_REALTIME).
+    Returns a positive component ID on success, negative error code
+    on failure.
+    Legacy components should continue to use hal_init(), which auto-
+    detects the type based on process identity.
+*/
+extern int hal_init_ex(const char *name, void *dl_handle,
+                       component_type_t type);
+
 /** 'hal_exit()' must be called before a HAL component exits, to
     free resources associated with the component.
     'comp_id' is the ID of the component as returned from its initial

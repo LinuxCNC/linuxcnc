@@ -322,6 +322,10 @@ static int dl_munlock_callback(struct dl_phdr_info *info, size_t size, void *dat
     return 1;
 }
 
+/* Forward declarations — defined below rtapi_dlclose */
+void rtapi_lock_dl_handle(void *handle);
+void rtapi_unlock_dl_handle(void *handle);
+
 void *rtapi_dlopen(const char *path, int flags) {
     void *handle = dlopen(path, flags);
     if (!handle) {
