@@ -1,126 +1,58 @@
 # sedmpost.hal 30.09.2025
-# 02.02.2026 TODO need dummy genetatyoe comp 'gen'
-#  just rcvs gen inmfo untyil real gen buiult
-#
-# 11.12.2025 the sedmctr cant be cleared  not writeavle
-#
-#==============beg loads===============
-
+# 25.03.2026 cleaned
+#==============begin loads===============
 loadusr -Wn techGui  pyvcp -c techGui ./sedm.xml
 loadusr -Wn EDpanel pyvcp   -g 200x150+800+50 -c EDpanel ./sedmpause.xml
 loadusr -W sedm
-
 #==============end loads===============
+setp sedm.xyzSCALEfIN 0.001
+setp sedm.freebies   20 #12
 
 net inpo motion.in-position sedm.inpo
-
 net J0:pos-fb sedm.xFBf
 net J1:pos-fb sedm.yFBf
 net J2:pos-fb sedm.zFBf
-
-#net  sABORT    =>  halui.abort
-
-setp sedm.xyzSCALEfIN 0.001
-
 net stepSize sedm.xyzSCALEfOUT axis.x.eoffset-scale
 net stepSize                    axis.y.eoffset-scale
 net stepSize                    axis.z.eoffset-scale
-
-# cnx non editable parms im sedm to techGUI and generator
 net  dNR                sedm.NR   techGui.NR #gen.NR #U32
 net  dIP                sedm.IP   techGui.IP #gen.IP #u32
 net  dHV                sedm.HV   techGui.HV #gen.HV #U32
-
 net  dTON               sedm.TON  techGui.TON #gen.TONO #FLOAT
-
 net  dP                 sedm.P   techGui.P    # gen.IP
 net  dISO               sedm.ISO techGui.ISO  # gen/ISO
-
-#01.02.2026 try set spinbox initial value to etab value
 net  sTOFetab  sedm.TOF  techGui.spinbox.0.param_pin
 net  sGVHIetab sedm.GVHI techGui.spinbox.1.param_pin
 net  sGVLOetab sedm.GVLO techGui.spinbox.2.param_pin
 net  sETetab   sedm.ET   techGui.spinbox.3.param_pin
 net  sAHDetab  sedm.AJD  techGui.spinbox.4.param_pin
-
-#02.02.2026 set generator with spinbox value
 net  sTOFout  techGui.TOF  #gen.TOF 
 net  sGVHIout techGui.GVHI #gen.GVHI 
 net  sGVLOout techGui.GVLO #gen.GVLO 
 net  sETout   techGui.ET   #gen.ET
 net  sAJDout  techGui.AJD  #gen.AJD
-
 net  sJumpENA  techGui.JumpENA  sedm.JumpENA
-#02.02.2026 after a progtram is done
-# if sedm.JumpENA == True:
-#    #turn iot off before next use
-#    sedm.ChgJumpENA = 0
-#03.02.2026 unlink these 2 
-# domt use a net , dfo manually
-# net  sChgJumpENA sedm.ChgJumpENA techGui.JumpENA.changepin
-
-# set other etab values direct to generator
-#/////
-# TODO 02.02.2026 i tyhink gen shoulf be src for genready
-#	h.newpin("GenReady",     hal.HAL_S32,    hal.HAL_IN) 
-#	#??? really??? was it but code cant set  that  DOUT) 
-#/////
- 
 net  dBWDmax            sedm.BWDmax techGui.BWDmax
-
-# 31.01.2026 removed net  dVE                sedm.VEf              techGui.Ve
-# 31.01.2026 removed net  dVw                sedm.VWf              techGui.Vw
 net  dVDI               sedm.VDIf             techGui.VDI
-
 net  dRAD              sedm.RADf             techGui.RAD
 net  dSPA              sedm.SPAf             techGui.SPA
-
 net  dOrbitType         sedm.OrbitType
 net  dWiglRADf          sedm.WiglRADf
 net  dPlungeOrbitWanted sedm.PlungeOrbitWanted
-
 net  dPitch             sedm.Pitch
-
 net  dUNS               sedm.UNSf         techGui.UNS
 net  dThisRad           sedm.ThisRADf     techGui.ThisRAD
-
 net  dEtabNum         sedm.EtabNum          techGui.EtabNum
-
-# 04.02.2026 no more techGui BegNR EndNR
-
 net eox sedm.XOffsetCmd  axis.x.eoffset-counts
 net eoy sedm.YOffsetCmd  axis.y.eoffset-counts
 net eoz sedm.ZOffsetCmd  axis.z.eoffset-counts
-
-#15.02.2026 not used setp sedm.PulseCount 0
-setp sedm.freebies   20 #12
-
 net die sedm.abort halui.abort
-
-# 02.02.2026 TODO need trhhisvvv??? i got disableOsc
 net hot     sedm.disableOsc  EDpanel.EDpeek.disable
-
-# make sure  sedm.isNotCutting is True asap after start
-
 net EDpk  EDpanel.EDpeek   sedm.EDpeek
 net EDret EDpanel.EDreturn sedm.EDreturn
 net EDq   EDpanel.EDquit   sedm.EDquit
-
 net dMsrdUNSf   sedm.MsrdUNSf
-
 net ForzFWD  sedm.ForceFWD  EDpanel.ForzFWD
 net ForzHOLD sedm.ForceHOLD EDpanel.ForzHOLD
 net ForzBWD  sedm.ForceBWD  EDpanel.ForzBWD
-
 net inpo motion.in-position sedm.inpo
-
-#loadusr halmeter -g 800 10 pin sedm.JumpENA
-#loadusr halmeter -g 800 210 pin sedm.endJT
-#loadusr halmeter -g 800 410 pin sedm.JumpOn
-#loadusr halmeter -g 800 610 pin sedm.AJD
-
-
-# vvv not writeable    tyep HAL_IN
-# awtting up initl state is a prob to be solved
-#setp sedm.DontEnaPeek     True      NOT WRITREABLE
-#setp sedm.DisableRetQuit  True      NOT WRITREABLE

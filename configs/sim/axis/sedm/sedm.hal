@@ -1,14 +1,6 @@
-# sedm.hal 30.09.2025
+# sedm.hal
+#  25.03.2026 cleaned
 #
-#07.01.2026 DD Bae tghrwAA TO TRY CAPTIRE UNWNATED JUMPS TO spo
-#
-#28.10.2025 author used a cale and renamed it
-# this cuased helll when i wnated to afdd 3 scales
-#  becuz his qwoukld never be dounf searchinf for scale.0/1/2...
-# so i renamed his singlke to scale.,4, 
-# xhgf the addf for all 4
-#
-# 
 # user space components
 loadusr -W hal_manualtoolchange
 
@@ -194,9 +186,3 @@ setp limit_speed.maxv               5000.0
 setp spindle_mass.gain              .07
 setp near_speed.scale               1.1
 setp near_speed.difference          10
-
-#/// old  pin settung
-#setp axis.x.eoffset-scale 0.001
-#setp axis.y.eoffset-scale 0.001
-#setp axis..eoffset-scale 0.001
-#///
