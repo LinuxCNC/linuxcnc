@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"unsafe"
 
 	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
@@ -46,11 +47,15 @@ func UnloadAll(exceptCompID int) error {
 	return halUnloadAll(exceptCompID)
 }
 
-// LockRTComponents iterates all HAL components and locks the memory of
-// unique dl_handles belonging to COMPONENT_TYPE_REALTIME components.
-// Call after all components are initialized, before starting threads.
-func LockRTComponents() error {
-	return halLockRTComponents()
+// LockDLHandle locks the PT_LOAD segments of a single dlopen handle
+// into memory, preventing page faults during RT execution.
+func LockDLHandle(handle unsafe.Pointer) {
+	halLockDLHandle(handle)
+}
+
+// UnlockDLHandle unlocks the PT_LOAD segments of a single dlopen handle.
+func UnlockDLHandle(handle unsafe.Pointer) {
+	halUnlockDLHandle(handle)
 }
 
 // NewInst creates a new instance of a HAL component type.

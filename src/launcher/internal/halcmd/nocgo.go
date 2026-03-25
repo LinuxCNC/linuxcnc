@@ -4,6 +4,7 @@ package halcmd
 
 import (
 	"errors"
+	"unsafe"
 
 	hal "github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 )
@@ -20,7 +21,8 @@ func halStartThreads() error               { return ErrNoCGO }
 func halStopThreads() error                { return ErrNoCGO }
 func halListComponents() ([]string, error) { return nil, ErrNoCGO }
 func halUnloadAll(_ int) error             { return ErrNoCGO }
-func halLockRTComponents() error           { return ErrNoCGO }
+func halLockDLHandle(_ unsafe.Pointer)     {}
+func halUnlockDLHandle(_ unsafe.Pointer)   {}
 
 func halNewSig(_ string, _ hal.PinType) error { return ErrNoCGO }
 func halDelSig(_ string) error                { return ErrNoCGO }

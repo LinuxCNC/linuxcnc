@@ -72,6 +72,7 @@ import (
 	"unsafe"
 
 	"github.com/sittner/linuxcnc/src/launcher/internal/config"
+	halcmd "github.com/sittner/linuxcnc/src/launcher/internal/halcmd"
 )
 
 // cModule holds a loaded C plugin module.
@@ -257,6 +258,26 @@ func (l *Launcher) startCModuleByName(name string) error {
 	return fmt.Errorf("C module %q not loaded", name)
 }
 
+// lockCModules locks the PT_LOAD segments of all loaded C plugin .so files
+// into memory. Call after all components are initialized, before starting
+// RT threads.
+func (l *Launcher) lockCModules() {
+	for _, cm := range l.cModules {
+		if cm.handle != nil {
+			halcmd.LockDLHandle(unsafe.Pointer(cm.handle))
+		}
+	}
+}
+
+// unlockCModules unlocks the PT_LOAD segments of all loaded C plugin .so files.
+func (l *Launcher) unlockCModules() {
+	for _, cm := range l.cModules {
+		if cm.handle != nil {
+			halcmd.UnlockDLHandle(unsafe.Pointer(cm.handle))
+		}
+	}
+}
+
 // stopCModules calls Stop() on all loaded C plugin modules in reverse order.
 func (l *Launcher) stopCModules() {
 	for i := len(l.cModules) - 1; i >= 0; i-- {
@@ -265,8 +286,10 @@ func (l *Launcher) stopCModules() {
 }
 
 // destroyCModules calls Destroy() on all loaded C plugin modules in reverse
-// order, closes the dlopen handles, and frees all arena-tracked strings.
+// order, unlocks and closes the dlopen handles, and frees all arena-tracked
+// strings.
 func (l *Launcher) destroyCModules() {
+	l.unlockCModules()
 	for i := len(l.cModules) - 1; i >= 0; i-- {
 		cm := l.cModules[i]
 		C.cmod_call_destroy(cm.mod)

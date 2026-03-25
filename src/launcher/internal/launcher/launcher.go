@@ -390,7 +390,8 @@ func (l *Launcher) Run() (runErr error) {
 		l.logger.Warn("retain load error (continuing)", "error", err)
 	}
 
-	// 6d. Start HAL threads (step 4.3.10).
+	// 6d. Lock C plugin memory and start HAL threads (step 4.3.10).
+	l.lockCModules()
 	if err := l.startHalThreads(); err != nil {
 		return fmt.Errorf("hal start threads: %w", err)
 	}

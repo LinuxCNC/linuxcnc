@@ -416,38 +416,14 @@ static int hal_shim_unload_all(int except_id) {
     return 0;
 }
 
-// hal_shim_lock_rt_components iterates all HAL components and locks
-// the memory of unique dl_handles belonging to COMPONENT_TYPE_REALTIME
-// components, using rtapi_lock_dl_handle().
-static int hal_shim_lock_rt_components(void) {
-    int next;
-    hal_comp_t *comp;
-    void *locked[64];
-    int nlocked = 0;
+// hal_shim_lock_dl_handle locks the PT_LOAD segments of a single dlopen handle.
+static void hal_shim_lock_dl_handle(void *handle) {
+    rtapi_lock_dl_handle(handle);
+}
 
-    if (hal_data == NULL) return -EINVAL;
-
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-        comp = (hal_comp_t *)SHMPTR(next);
-        if (comp->type == COMPONENT_TYPE_REALTIME && comp->dl_handle != NULL) {
-            int already = 0;
-            for (int i = 0; i < nlocked; i++) {
-                if (locked[i] == comp->dl_handle) { already = 1; break; }
-            }
-            if (!already && nlocked < 64) {
-                locked[nlocked++] = comp->dl_handle;
-            }
-        }
-        next = comp->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-
-    for (int i = 0; i < nlocked; i++) {
-        rtapi_lock_dl_handle(locked[i]);
-    }
-    return 0;
+// hal_shim_unlock_dl_handle unlocks the PT_LOAD segments of a single dlopen handle.
+static void hal_shim_unlock_dl_handle(void *handle) {
+    rtapi_unlock_dl_handle(handle);
 }
 
 // ===== 1a. Simple wrapper shims =====
@@ -1890,11 +1866,15 @@ func halUnloadAll(exceptID int) error {
 	return halError(int(ret), "hal_shim_unload_all")
 }
 
-// halLockRTComponents iterates all HAL components and locks the memory
-// of unique dl_handles belonging to RT components.
-func halLockRTComponents() error {
-	ret := C.hal_shim_lock_rt_components()
-	return halError(int(ret), "hal_shim_lock_rt_components")
+// halLockDLHandle locks the PT_LOAD segments of a single dlopen handle
+// into memory, preventing page faults during RT execution.
+func halLockDLHandle(handle unsafe.Pointer) {
+	C.hal_shim_lock_dl_handle(handle)
+}
+
+// halUnlockDLHandle unlocks the PT_LOAD segments of a single dlopen handle.
+func halUnlockDLHandle(handle unsafe.Pointer) {
+	C.hal_shim_unlock_dl_handle(handle)
 }
 
 // ===== Go wrappers for 1a simple shims =====
