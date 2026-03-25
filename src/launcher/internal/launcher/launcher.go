@@ -26,7 +26,6 @@ import (
 	halcmd "github.com/sittner/linuxcnc/src/launcher/internal/halcmd"
 
 	"github.com/sittner/linuxcnc/src/launcher/internal/config"
-	"github.com/sittner/linuxcnc/src/launcher/internal/emcsvr"
 	"github.com/sittner/linuxcnc/src/launcher/internal/halfile"
 	"github.com/sittner/linuxcnc/src/launcher/internal/lockfile"
 	"github.com/sittner/linuxcnc/src/launcher/internal/realtime"
@@ -64,7 +63,6 @@ type Launcher struct {
 	lock         *lockfile.LockFile // flock-based instance lock
 	rtMgr        *realtime.Manager  // realtime environment manager
 	cleanupOnce  sync.Once          // ensures cleanup runs exactly once
-	serverDone   chan struct{}      // closed when emcsvr goroutine returns
 	appProcesses []*exec.Cmd        // [APPLICATIONS]APP background processes
 	halComp      *hal.Component     // launcher's HAL component (like halcmd's hal_init)
 	goModules    []gomodule.Module  // Go plugin modules loaded via "load" command
@@ -89,7 +87,7 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 //  2. Acquires the lock file.
 //  3. Parses the INI file.
 //  4. Validates cross-section INI dependencies (validateDependencies).
-//  5. Starts in-process NML server (emcsvr goroutine) — only if [TASK]TASK is configured (M5).
+//  5. Starts NML server (emcsvr cmod plugin) — only if [TASK]TASK is configured (M5).
 //  6. Starts the realtime environment (M4).
 //     6.5. Loads threads HAL component (creates servo-thread, optionally base-thread).
 //  7. Starts iocontrol via halcmd loadusr -Wn — only if [TASK]TASK is configured (M5).
@@ -432,56 +430,34 @@ func (l *Launcher) Run() (runErr error) {
 	return nil
 }
 
-// startServer initializes and starts the NML server as an in-process goroutine.
+// startServer loads and starts the NML server as a cmod plugin.
 //
-// This mirrors scripts/linuxcnc.in lines 817–825:
+// The NML server creates shared memory buffers that realtime components and
+// NML clients (iocontrol, task) depend on, so it must be started before
+// realtime init.  It is loaded via the standard cmod mechanism (dlopen +
+// New/Start) and its Stop/Destroy are handled by the normal cmod teardown.
 //
-//	export INI_FILE_NAME="$INIFILE"
-//	$EMCSERVER -ini "$INIFILE"
-//
-// After init, a brief 100 ms window is given to let NML channels become ready.
-// The server runs in a goroutine; serverDone is closed when it returns.
+// After Start(), a brief 100 ms window is given to let NML channels initialize.
 func (l *Launcher) startServer() error {
-	l.logger.Info("initializing NML server (in-process)")
-	if err := emcsvr.Init(l.opts.IniFile); err != nil {
-		return fmt.Errorf("emcsvr init: %w", err)
+	l.logger.Info("loading NML server (cmod plugin)")
+
+	path := resolveCModulePath("emcsvr")
+	if !cModuleExists(path) {
+		return fmt.Errorf("NML server C module not found: %s", path)
 	}
 
-	l.serverDone = make(chan struct{})
-	go func() {
-		defer close(l.serverDone)
-		if err := emcsvr.Run(); err != nil {
-			l.logger.Error("NML server error", "error", err)
-		}
-	}()
+	if err := l.loadCPlugin(path, "emcsvr", nil); err != nil {
+		return fmt.Errorf("loading NML server cmod: %w", err)
+	}
+
+	if err := l.startCModuleByName("emcsvr"); err != nil {
+		return fmt.Errorf("starting NML server cmod: %w", err)
+	}
 
 	// Brief startup window to let NML channels initialize.
 	time.Sleep(100 * time.Millisecond)
-	l.logger.Info("NML server running (in-process thread)")
+	l.logger.Info("NML server running (cmod plugin)")
 	return nil
-}
-
-// stopServer stops the in-process NML server goroutine gracefully.
-//
-// It signals the server to stop and waits up to 2 seconds for it to return.
-func (l *Launcher) stopServer() {
-	if l.serverDone == nil {
-		return
-	}
-	l.logger.Info("stopping NML server")
-	emcsvr.Stop()
-
-	// Wait for emcsvr_run() goroutine to finish (kill_all_servers completes)
-	select {
-	case <-l.serverDone:
-		l.logger.Debug("NML server stopped")
-	case <-time.After(2 * time.Second):
-		l.logger.Warn("NML server did not stop in time")
-		<-l.serverDone // MUST wait — cannot call Cleanup() concurrently
-	}
-
-	// Now safe to delete channels — server threads are fully stopped
-	emcsvr.Cleanup()
 }
 
 // startIOControl loads and initialises the IO controller as a C module plugin.

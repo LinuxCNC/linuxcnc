@@ -108,16 +108,12 @@ func (l *Launcher) doCleanup() {
 	l.logger.Debug("shutting down RTAPI app (in-process)")
 	halcmd.RtapiAppCleanup()
 
-	// Step 9 — Stop in-process NML server.
-	// stopServer() signals the server to stop, waits for the goroutine to
-	// exit, then calls emcsvr.Cleanup() which runs the C++ NML destructors.
-	// Those destructors call shmdt() for each attached segment and invoke
-	// shmctl(IPC_RMID) once nattch reaches zero, so no manual ipcrm is
-	// needed here.  Attempting ipcrm while other processes (e.g. linuxcnctask)
-	// may still be attached causes consistent failures; the OS reclaims the
-	// segments automatically once every process has detached.
-	l.logger.Debug("stopping NML server")
-	l.stopServer()
+	// Step 9 — NML server shutdown.
+	// The NML server is now a cmod plugin — it was stopped in step 2.4
+	// (stopCModules, reverse order) and destroyed in step 2.5
+	// (destroyCModules).  The C++ NML destructors call shmdt() for each
+	// attached segment and invoke shmctl(IPC_RMID) once nattch reaches
+	// zero, so no manual ipcrm is needed.
 
 	// Step 10 — Release lock file.
 	// mirrors scripts/linuxcnc.in lines 733–735.

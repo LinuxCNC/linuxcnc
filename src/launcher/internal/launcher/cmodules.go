@@ -75,10 +75,11 @@ import (
 
 // cModule holds a loaded C plugin module.
 type cModule struct {
-	handle *C.void // dlopen handle
-	mod    *C.cmod_t
-	hCtx   cgo.Handle // Go↔C handle for the Launcher pointer
-	name   string
+	handle  *C.void    // dlopen handle
+	mod     *C.cmod_t
+	hCtx    cgo.Handle // Go↔C handle for the Launcher pointer
+	name    string
+	started bool // true after Start() has been called
 }
 
 // resolveCModulePath resolves a C module name or path to an absolute .so path.
@@ -219,15 +220,40 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 	return nil
 }
 
-// startCModules calls Start() on all loaded C plugin modules.
+// startCModules calls Start() on all loaded C plugin modules that have not
+// already been started (e.g. modules started early via startCModuleByName).
 func (l *Launcher) startCModules() error {
 	for _, cm := range l.cModules {
+		if cm.started {
+			continue
+		}
 		rc := C.cmod_call_start(cm.mod)
 		if rc != 0 {
 			return fmt.Errorf("C module %q Start() returned error code %d", cm.name, int(rc))
 		}
+		cm.started = true
 	}
 	return nil
+}
+
+// startCModuleByName calls Start() on a single loaded C module identified by
+// name.  This is used when a module must be started before the batch
+// startCModules() call (e.g. the NML server must run before NML clients).
+func (l *Launcher) startCModuleByName(name string) error {
+	for _, cm := range l.cModules {
+		if cm.name == name {
+			if cm.started {
+				return nil
+			}
+			rc := C.cmod_call_start(cm.mod)
+			if rc != 0 {
+				return fmt.Errorf("C module %q Start() returned error code %d", name, int(rc))
+			}
+			cm.started = true
+			return nil
+		}
+	}
+	return fmt.Errorf("C module %q not loaded", name)
 }
 
 // stopCModules calls Stop() on all loaded C plugin modules in reverse order.
