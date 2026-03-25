@@ -60,8 +60,8 @@ lcec-objs := \
     $(LCEC_DIR)/devices/omrg5.o \
     $(LCEC_DIR)/devices/ph3lm2rm.o
 
-# Add include path for lcec private headers
-$(call TORTOBJS,lcec.o): EXTRAFLAGS += -I$(BASEPWD)/$(LCEC_DIR)
+# Add include path for lcec private headers and ethercat library
+$(call TORTOBJS,lcec.o): EXTRAFLAGS += -I$(BASEPWD)/$(LCEC_DIR) $(ETHERCAT_CFLAGS)
 
 # Explicit link rule: lcec needs -lethercat beyond the standard -lm.
 ../rtlib/lcec.so:
@@ -71,7 +71,7 @@ $(call TORTOBJS,lcec.o): EXTRAFLAGS += -I$(BASEPWD)/$(LCEC_DIR)
 	    | awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
 	    > objects/lcec.ver
 	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/lcec.ver \
-	    -o $@ $^ -lm -lethercat $(LDFLAGS)
+	    -o $@ $^ -lm $(ETHERCAT_LIBS) $(LDFLAGS)
 	$(Q)chmod -x $@
 
 # ---------- Userspace binary: lcec_conf ----------
@@ -83,7 +83,7 @@ LCEC_CONF_SRCS := \
 
 USERSRCS += $(LCEC_CONF_SRCS)
 $(call TOOBJSDEPS, $(LCEC_CONF_SRCS)): EXTRAFLAGS += \
-    -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR)
+    -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR) $(ETHERCAT_CFLAGS)
 
 ../bin/lcec_conf: $(call TOOBJS, $(LCEC_CONF_SRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)

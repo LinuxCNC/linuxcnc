@@ -1523,26 +1523,35 @@ AC_ARG_ENABLE([ethercat],
     [enable_ethercat=$enableval],
     [enable_ethercat=auto])
 
+ETHERCAT_CFLAGS=
+ETHERCAT_LIBS=
+
 if test "x$enable_ethercat" != "xno"; then
     AC_MSG_CHECKING([for IgH EtherCAT master library])
-    save_LIBS="$LIBS"
-    have_ecrt=no
-    have_libethercat=no
-    have_expat_h=no
-    have_libexpat=no
-    AC_CHECK_HEADER([ecrt.h], [have_ecrt=yes])
-    AC_CHECK_LIB([ethercat], [ecrt_request_master], [have_libethercat=yes])
-    AC_CHECK_HEADER([expat.h], [have_expat_h=yes])
-    AC_CHECK_LIB([expat], [XML_ParserCreate], [have_libexpat=yes])
-    LIBS="$save_LIBS"
+    if pkg-config libethercat >/dev/null 2>&1; then
+        ETHERCAT_CFLAGS=`pkg-config libethercat --cflags`
+        ETHERCAT_LIBS=`pkg-config libethercat --libs`
+        have_libethercat=yes
+    else
+        have_libethercat=no
+    fi
 
-    if test "x$have_ecrt" = "xyes" && test "x$have_libethercat" = "xyes" \
-       && test "x$have_expat_h" = "xyes" && test "x$have_libexpat" = "xyes"; then
-        HAVE_ETHERCAT=yes
+    if test "x$have_libethercat" = "xyes"; then
         AC_MSG_RESULT([yes])
     else
-        HAVE_ETHERCAT=no
         AC_MSG_RESULT([no])
+    fi
+
+    AC_CHECK_HEADER([expat.h], [have_expat_h=yes], [have_expat_h=no])
+    save_LIBS="$LIBS"
+    AC_CHECK_LIB([expat], [XML_ParserCreate], [have_libexpat=yes], [have_libexpat=no])
+    LIBS="$save_LIBS"
+
+    if test "x$have_libethercat" = "xyes" \
+       && test "x$have_expat_h" = "xyes" && test "x$have_libexpat" = "xyes"; then
+        HAVE_ETHERCAT=yes
+    else
+        HAVE_ETHERCAT=no
     fi
 else
     HAVE_ETHERCAT=no
@@ -1553,6 +1562,8 @@ if test "x$enable_ethercat" = "xyes" && test "x$HAVE_ETHERCAT" != "xyes"; then
 fi
 
 AC_SUBST([HAVE_ETHERCAT])
+AC_SUBST([ETHERCAT_CFLAGS])
+AC_SUBST([ETHERCAT_LIBS])
 
 ##############################################################################
 # files that get created by ./configure                                      #
