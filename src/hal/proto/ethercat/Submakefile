@@ -60,8 +60,9 @@ lcec-objs := \
     $(LCEC_DIR)/devices/omrg5.o \
     $(LCEC_DIR)/devices/ph3lm2rm.o
 
-# Add include path for lcec private headers and ethercat library
-$(call TORTOBJS,lcec.o): EXTRAFLAGS += -I$(BASEPWD)/$(LCEC_DIR) $(ETHERCAT_CFLAGS)
+# Add include path for lcec private headers and ethercat library to RT compile flags.
+# RTFLAGS is appended here (before RTCFLAGS is constructed from it in Makefile).
+RTFLAGS += -I$(BASEPWD)/$(LCEC_DIR) $(ETHERCAT_CFLAGS)
 
 # Explicit link rule: lcec needs -lethercat beyond the standard -lm.
 ../rtlib/lcec.so:
