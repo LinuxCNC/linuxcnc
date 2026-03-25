@@ -583,6 +583,7 @@ int New(const cmod_env_t *env, const char *name,
   state.xml.mod = m;
 
   initOutputBuffer(&state.outputBuf);
+  state.outputBuf.mod = m;
   for (done=0; !done;) {
     // read block
     int len = fread(buffer, 1, BUFFSIZE, file);
@@ -762,7 +763,7 @@ static void parseMasterAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **
       } else if (strcmp(val, "xdp-native") == 0) {
         p->transportType = EC_TRANSPORT_XDP_NATIVE;
       } else {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Unknown transportType '%s' (valid values: raw, xdp-skb, xdp-native)", val); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Unknown transportType '%s' (valid values: raw, xdp-skb, xdp-native)", val);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -783,14 +784,14 @@ static void parseMasterAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **
 #endif
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid master attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid master attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
 
 #ifdef EC_USPACE_MASTER
   if (p->interface[0] == 0) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Master %d requires 'interface' attribute", p->index); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Master %d requires 'interface' attribute", p->index);
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -852,7 +853,7 @@ static void parseSlaveAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **a
         }
       }
       if (slaveType->name == NULL) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid slave type %s", val); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid slave type %s", val);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -905,7 +906,7 @@ static void parseSlaveAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **a
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid slave attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid slave attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -917,7 +918,7 @@ static void parseSlaveAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **a
 
   // type is required
   if (p->type == lcecSlaveTypeInvalid) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Slave has no type attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Slave has no type attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -990,7 +991,7 @@ static void parseDcConfAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid dcConfig attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid dcConfig attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1036,7 +1037,7 @@ static void parseWatchdogAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid watchdog attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid watchdog attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1080,7 +1081,7 @@ static void parseSdoConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
     if (strcmp(name, "idx") == 0) {
       tmp = strtol(val, NULL, 16);
       if (tmp < 0 || tmp >= 0xffff) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid sdoConfig idx %d", tmp); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid sdoConfig idx %d", tmp);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1096,7 +1097,7 @@ static void parseSdoConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
       }
       tmp = strtol(val, NULL, 16);
       if (tmp < 0 || tmp >= 0xff) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid sdoConfig subIdx %d", tmp); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid sdoConfig subIdx %d", tmp);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1105,21 +1106,21 @@ static void parseSdoConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid sdoConfig attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid sdoConfig attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // idx is required
   if (p->index == 0xffff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "sdoConfig has no idx attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "sdoConfig has no idx attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // subIdx is required
   if (p->subindex == 0xff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "sdoConfig has no subIdx attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "sdoConfig has no subIdx attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1167,7 +1168,7 @@ static void parseIdnConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
     if (strcmp(name, "drive") == 0) {
       tmp = atoi(val);
       if (tmp < 0 || tmp > 7) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid idnConfig drive %d", tmp); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid idnConfig drive %d", tmp);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1180,7 +1181,7 @@ static void parseIdnConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
     if (strcmp(name, "idn") == 0) {
       char pfx = val[0];
       if (pfx == 0) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Missing idnConfig idn value"); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Missing idnConfig idn value");
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1193,13 +1194,13 @@ static void parseIdnConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
         int block;
 	if (sscanf(val, "%c-%d-%d", &pfx, &set, &block) == 3) {
           if (set < 0 || set >= (1 << 3)) {
-            { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid idnConfig idn set %d", set); xml_log_error(inst, _buf); }
+            xml_log_error_fmt(inst, "Invalid idnConfig idn set %d", set);
             XML_StopParser(inst->parser, 0);
             return;
           }
 
           if (block < 0 || block >= (1 << 12)) {
-            { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid idnConfig idn block %d", block); xml_log_error(inst, _buf); }
+            xml_log_error_fmt(inst, "Invalid idnConfig idn block %d", block);
             XML_StopParser(inst->parser, 0);
             return;
           }
@@ -1214,7 +1215,7 @@ static void parseIdnConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
       }
 
       if (tmp == 0xffff) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid idnConfig idn value '%s'", val); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid idnConfig idn value '%s'", val);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1230,7 +1231,7 @@ static void parseIdnConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
       } else if (strcmp(val, "SAFEOP") == 0) {
         p->state = EC_AL_STATE_SAFEOP;
       } else {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid idnConfig state '%s'", val); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid idnConfig state '%s'", val);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1239,21 +1240,21 @@ static void parseIdnConfigAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid idnConfig attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid idnConfig attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // idn is required
   if (p->idn == 0xffff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "idnConfig has no idn attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "idnConfig has no idn attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // state is required
   if (p->state == 0) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "idnConfig has no state attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "idnConfig has no state attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1291,7 +1292,7 @@ static void parseDataRawAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char *
     if (strcmp(name, "data") == 0) {
       len = parseHex(val, -1, NULL);
       if (len < 0) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid dataRaw data"); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid dataRaw data");
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1315,7 +1316,7 @@ static void parseDataRawAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char *
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid pdoEntry attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid pdoEntry attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1351,14 +1352,14 @@ static void parseInitCmdsAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid syncManager attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid syncManager attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // filename is required
   if (filename == NULL || *filename == 0) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "initCmds has no filename attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "initCmds has no filename attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1393,7 +1394,7 @@ static void parseSyncManagerAttrs(LCEC_CONF_XML_INST_T *inst, int next, const ch
 
   // only allowed on generic slave
   if (state->currSlave->type != lcecSlaveTypeGeneric) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "syncManager is only allowed on generic slaves"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "syncManager is only allowed on generic slaves");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1415,7 +1416,7 @@ static void parseSyncManagerAttrs(LCEC_CONF_XML_INST_T *inst, int next, const ch
     if (strcmp(name, "idx") == 0) {
       tmp = atoi(val);
       if (tmp < 0 || tmp >= EC_MAX_SYNC_MANAGERS) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid syncManager idx %d", tmp); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid syncManager idx %d", tmp);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1433,27 +1434,27 @@ static void parseSyncManagerAttrs(LCEC_CONF_XML_INST_T *inst, int next, const ch
         p->dir = EC_DIR_OUTPUT;
         continue;
       }
-      { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid syncManager dir %s", val); xml_log_error(inst, _buf); }
+      xml_log_error_fmt(inst, "Invalid syncManager dir %s", val);
       XML_StopParser(inst->parser, 0);
       return;
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid syncManager attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid syncManager attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // idx is required
   if (p->index == 0xff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "syncManager has no idx attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "syncManager has no idx attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // dir is required
   if (p->dir == EC_DIR_INVALID) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "syncManager has no dir attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "syncManager has no dir attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1496,7 +1497,7 @@ static void parsePdoAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **att
     if (strcmp(name, "idx") == 0) {
       tmp = strtol(val, NULL, 16);
       if (tmp < 0 || tmp >= 0xffff) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid pdo idx %d", tmp); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid pdo idx %d", tmp);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1505,14 +1506,14 @@ static void parsePdoAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char **att
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid pdo attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid pdo attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // idx is required
   if (p->index == 0xffff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "pdo has no idx attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "pdo has no idx attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1568,7 +1569,7 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     if (strcmp(name, "idx") == 0) {
       tmp = strtol(val, NULL, 16);
       if (tmp < 0 || tmp >= 0xffff) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid pdoEntry idx %d", tmp); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid pdoEntry idx %d", tmp);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1580,7 +1581,7 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     if (strcmp(name, "subIdx") == 0) {
       tmp = strtol(val, NULL, 16);
       if (tmp < 0 || tmp >= 0xff) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid pdoEntry subIdx %d", tmp); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid pdoEntry subIdx %d", tmp);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1592,7 +1593,7 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     if (strcmp(name, "bitLen") == 0) {
       tmp = atoi(val);
       if (tmp <= 0 || tmp > LCEC_CONF_GENERIC_MAX_BITLEN) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid pdoEntry bitLen %d", tmp); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid pdoEntry bitLen %d", tmp);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1635,7 +1636,7 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
         p->halType = HAL_FLOAT;
         continue;
       }
-      { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid pdoEntry halType %s", val); xml_log_error(inst, _buf); }
+      xml_log_error_fmt(inst, "Invalid pdoEntry halType %s", val);
       XML_StopParser(inst->parser, 0);
       return;
     }
@@ -1662,41 +1663,41 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid pdoEntry attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid pdoEntry attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // idx is required
   if (p->index == 0xffff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "pdoEntry has no idx attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "pdoEntry has no idx attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // subIdx is required
   if (p->subindex == 0xff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "pdoEntry has no subIdx attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "pdoEntry has no subIdx attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // bitLen is required
   if (p->bitLength == 0) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "pdoEntry has no bitLen attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "pdoEntry has no bitLen attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // pin name must not be given for complex subtype
   if (p->subType == lcecPdoEntTypeComplex && p->halPin[0] != 0) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "pdoEntry has halPin attributes but pin type is 'complex'"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "pdoEntry has halPin attributes but pin type is 'complex'");
     XML_StopParser(inst->parser, 0);
   }
 
   // check for float type if required
   if (floatReq && p->halType != HAL_FLOAT) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "pdoEntry has scale/offset attributes but pin type is not 'float'"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "pdoEntry has scale/offset attributes but pin type is not 'float'");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1754,12 +1755,12 @@ static void parseComplexEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const c
     if (strcmp(name, "bitLen") == 0) {
       tmp = atoi(val);
       if (tmp <= 0 || tmp > LCEC_CONF_GENERIC_MAX_SUBPINS) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid complexEntry bitLen %d", tmp); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid complexEntry bitLen %d", tmp);
         XML_StopParser(inst->parser, 0);
         return;
       }
       if ((state->currComplexBitOffset + tmp) > state->currPdoEntry->bitLength) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "complexEntry bitLen sum exceeded pdoEntry bitLen %d", state->currPdoEntry->bitLength); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "complexEntry bitLen sum exceeded pdoEntry bitLen %d", state->currPdoEntry->bitLength);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1799,7 +1800,7 @@ static void parseComplexEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const c
         p->halType = HAL_FLOAT;
         continue;
       }
-      { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid complexEntry halType %s", val); xml_log_error(inst, _buf); }
+      xml_log_error_fmt(inst, "Invalid complexEntry halType %s", val);
       XML_StopParser(inst->parser, 0);
       return;
     }
@@ -1826,21 +1827,21 @@ static void parseComplexEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const c
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid complexEntry attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid complexEntry attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // bitLen is required
   if (p->bitLength == 0) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "complexEntry has no bitLen attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "complexEntry has no bitLen attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // check for float type if required
   if (floatReq && p->halType != HAL_FLOAT) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "complexEntry has scale/offset attributes but pin type is not 'float'"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "complexEntry has scale/offset attributes but pin type is not 'float'");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1875,7 +1876,7 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
   const LCEC_CONF_MODPARAM_DESC_T *modParams;
 
   if (state->currSlaveType->modParams == NULL) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "modParam not allowed for this slave"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "modParam not allowed for this slave");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1907,21 +1908,21 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     }
 
     // handle error
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid modParam attribute %s", name); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid modParam attribute %s", name);
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // name is required
   if (pname == NULL || pname[0] == 0) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "modParam has no name attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "modParam has no name attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   // value is required
   if (pval == NULL || pval[0] == 0) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "modParam has no value attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "modParam has no value attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1933,7 +1934,7 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     }
   }
   if (modParams->name == NULL) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid modParam '%s'", pname); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "Invalid modParam '%s'", pname);
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -1950,7 +1951,7 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
       } else if ((strcmp("0", pval) == 0) || (strcasecmp("FALSE", pval)) == 0) {
         p->value.bit = 0;
       } else {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid modParam bit value '%s' for param '%s'", pval, pname); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid modParam bit value '%s' for param '%s'", pval, pname);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1959,7 +1960,7 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     case MODPARAM_TYPE_U32:
       p->value.u32 = strtoul(pval, &s, 0);
       if (*s != 0) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid modParam u32 value '%s' for param '%s'", pval, pname); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid modParam u32 value '%s' for param '%s'", pval, pname);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1968,7 +1969,7 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     case MODPARAM_TYPE_S32:
       p->value.s32 = strtol(pval, &s, 0);
       if (*s != 0) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid modParam s32 value '%s' for param '%s'", pval, pname); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid modParam s32 value '%s' for param '%s'", pval, pname);
         XML_StopParser(inst->parser, 0);
         return;
       }
@@ -1977,7 +1978,7 @@ static void parseModParamAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     case MODPARAM_TYPE_FLOAT:
       p->value.flt = strtod(pval, &s);
       if (*s != 0) {
-        { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid modParam float value '%s' for param '%s'", pval, pname); xml_log_error(inst, _buf); }
+        xml_log_error_fmt(inst, "Invalid modParam float value '%s' for param '%s'", pval, pname);
         XML_StopParser(inst->parser, 0);
         return;
       }

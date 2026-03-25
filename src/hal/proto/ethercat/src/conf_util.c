@@ -73,7 +73,10 @@ void *addOutputBuffer(LCEC_CONF_OUTBUF_T *buf, size_t len) {
 
   void *p = calloc(1, sizeof(LCEC_CONF_OUTBUF_ITEM_T) + len);
   if (p == NULL) {
-    fprintf(stderr, "ERROR: Couldn't allocate memory for config token\n");
+    if (buf->mod) {
+      buf->mod->env->log_error(buf->mod->env->ctx, buf->mod->name,
+          "Couldn't allocate memory for config token");
+    }
     return NULL;
   }
 
@@ -186,7 +189,7 @@ static void xml_start_handler(void *data, const char *el, const char **attr) {
     } 
   }
 
-  { char _buf[512]; snprintf(_buf, sizeof(_buf), "unexpected node %s found", el); xml_log_error(inst, _buf); }
+  xml_log_error_fmt(inst, "unexpected node %s found", el);
   XML_StopParser(inst->parser, 0);
 }
 
@@ -215,7 +218,7 @@ static void xml_end_handler(void *data, const char *el) {
     } 
   }
 
-  { char _buf[512]; snprintf(_buf, sizeof(_buf), "unexpected close tag %s found", el); xml_log_error(inst, _buf); }
+  xml_log_error_fmt(inst, "unexpected close tag %s found", el);
   XML_StopParser(inst->parser, 0);
 }
 

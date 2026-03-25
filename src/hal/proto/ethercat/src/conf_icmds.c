@@ -169,21 +169,21 @@ int parseIcmds(lcec_conf_module *mod, LCEC_CONF_SLAVE_T *slave, LCEC_CONF_OUTBUF
   FILE *file;
   LCEC_CONF_ICMDS_STATE_T state;
 
+  memset(&state, 0, sizeof(state));
+  state.xml.mod = mod;
+
   // open file
   file = fopen(filename, "r");
   if (file == NULL) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "unable to open config file %s", filename);
-      mod->env->log_error(mod->env->ctx, mod->name, _buf); }
+    xml_log_error_fmt((LCEC_CONF_XML_INST_T *)&state, "unable to open config file %s", filename);
     goto fail1;
   }
 
   // create xml parser
-  memset(&state, 0, sizeof(state));
   if (initXmlInst((LCEC_CONF_XML_INST_T *) &state, xml_states)) {
     mod->env->log_error(mod->env->ctx, mod->name, "couldn't allocate memory for parser");
     goto fail2;
   }
-  state.xml.mod = mod;
 
   // setup handlers
   XML_SetCharacterDataHandler(state.xml.parser, xml_data_handler);
@@ -194,8 +194,7 @@ int parseIcmds(lcec_conf_module *mod, LCEC_CONF_SLAVE_T *slave, LCEC_CONF_OUTBUF
     // read block
     int len = fread(buffer, 1, BUFFSIZE, file);
     if (ferror(file)) {
-      { char _buf[512]; snprintf(_buf, sizeof(_buf), "couldn't read from file %s", filename);
-        xml_log_error((LCEC_CONF_XML_INST_T *)&state, _buf); }
+      xml_log_error_fmt((LCEC_CONF_XML_INST_T *)&state, "couldn't read from file %s", filename);
       goto fail3;
     }
 
@@ -204,10 +203,9 @@ int parseIcmds(lcec_conf_module *mod, LCEC_CONF_SLAVE_T *slave, LCEC_CONF_OUTBUF
 
     // parse current block
     if (!XML_Parse(state.xml.parser, buffer, len, done)) {
-      { char _buf[512]; snprintf(_buf, sizeof(_buf), "parse error at line %u: %s",
+      xml_log_error_fmt((LCEC_CONF_XML_INST_T *)&state, "parse error at line %u: %s",
         (unsigned int)XML_GetCurrentLineNumber(state.xml.parser),
         XML_ErrorString(XML_GetErrorCode(state.xml.parser)));
-        xml_log_error((LCEC_CONF_XML_INST_T *)&state, _buf); }
       goto fail3;
     }
   }
@@ -257,7 +255,7 @@ static void xml_data_handler(void *data, const XML_Char *s, int len) {
           return;
         }
       }
-      { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid Transition state"); xml_log_error(inst, _buf); }
+      xml_log_error_fmt(inst, "Invalid Transition state");
       XML_StopParser(inst->parser, 0);
       return;
     case icmdTypeCoeIcmdIndex:
@@ -287,7 +285,7 @@ static void xml_data_handler(void *data, const XML_Char *s, int len) {
           return;
         }
       }
-      { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid Transition state"); xml_log_error(inst, _buf); }
+      xml_log_error_fmt(inst, "Invalid Transition state");
       XML_StopParser(inst->parser, 0);
       return;
     case icmdTypeSoeIcmdDriveno:
@@ -360,13 +358,13 @@ static void icmdTypeCoeIcmdEnd(LCEC_CONF_XML_INST_T *inst, int next) {
   LCEC_CONF_ICMDS_STATE_T *state = (LCEC_CONF_ICMDS_STATE_T *) inst;
 
   if (state->currSdoConf->index == 0xffff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "sdoConfig has no idx attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "sdoConfig has no idx attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   if (state->currSdoConf->subindex == 0xff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "sdoConfig has no subIdx attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "sdoConfig has no subIdx attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -417,13 +415,13 @@ static void icmdTypeSoeIcmdEnd(LCEC_CONF_XML_INST_T *inst, int next) {
   LCEC_CONF_ICMDS_STATE_T *state = (LCEC_CONF_ICMDS_STATE_T *) inst;
 
   if (state->currIdnConf->idn == 0xffff) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "idnConfig has no idn attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "idnConfig has no idn attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
 
   if (state->currIdnConf->state == 0) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "idnConfig has no state attribute"); xml_log_error(inst, _buf); }
+    xml_log_error_fmt(inst, "idnConfig has no state attribute");
     XML_StopParser(inst->parser, 0);
     return;
   }
@@ -468,7 +466,7 @@ static long int parse_int(LCEC_CONF_ICMDS_STATE_T *state, const char *s, int len
 
   ret = strtol(buf, &end, 0);
   if (*end != 0 || ret < min || ret > max) {
-    { char _buf[512]; snprintf(_buf, sizeof(_buf), "Invalid number value '%s'", buf); xml_log_error((LCEC_CONF_XML_INST_T *)state, _buf); }
+    xml_log_error_fmt((LCEC_CONF_XML_INST_T *)state, "Invalid number value '%s'", buf);
     XML_StopParser(state->xml.parser, 0);
     return 0;
   }

@@ -28,6 +28,7 @@
 #define _LCEC_CONF_PRIV_H_
 
 #include <expat.h>
+#include <stdarg.h>
 
 #include "hal.h"
 #include "launcher/pkg/cmodule/cmodule.h"
@@ -103,6 +104,7 @@ typedef struct {
   LCEC_CONF_OUTBUF_ITEM_T *head; /**< First item in the list, or @c NULL if empty. */
   LCEC_CONF_OUTBUF_ITEM_T *tail; /**< Last item in the list, used for O(1) append. */
   size_t len;                    /**< Running total of all payload bytes in the list. */
+  lcec_conf_module *mod;         /**< Owning module instance (for error logging). */
 } LCEC_CONF_OUTBUF_T;
 
 /**
@@ -137,6 +139,17 @@ static inline const char *xml_modname(const LCEC_CONF_XML_INST_T *inst) {
 /** @brief Log an error through the cmod environment. */
 static inline void xml_log_error(const LCEC_CONF_XML_INST_T *inst, const char *msg) {
   inst->mod->env->log_error(inst->mod->env->ctx, inst->mod->name, msg);
+}
+
+/** @brief Log a formatted error through the cmod environment. */
+static inline __attribute__((format(printf, 2, 3)))
+void xml_log_error_fmt(const LCEC_CONF_XML_INST_T *inst, const char *fmt, ...) {
+  char buf[512];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  xml_log_error(inst, buf);
 }
 
 /** @brief Log an info message through the cmod environment. */
