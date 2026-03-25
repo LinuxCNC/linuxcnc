@@ -33,7 +33,7 @@
 #include "ecrt.h"
 
 /** @brief HAL / LinuxCNC module name used for pin and component registration. */
-#define LCEC_MODULE_NAME "lcec"
+#define LCEC_MODULE_NAME "ethercat_rt"
 
 /** @brief System-V shared-memory key used to create/attach the config segment. */
 #define LCEC_CONF_SHMEM_KEY   0xACB572C7

@@ -38,7 +38,7 @@
 #include "conf_priv.h"
 
 /** @brief Module name used in error messages; defined here, declared extern in conf_priv.h. */
-char *modname = "lcec_conf";
+char *modname = "ethercat";
 
 static void xml_start_handler(void *data, const char *el, const char **attr);
 static void xml_end_handler(void *data, const char *el);
