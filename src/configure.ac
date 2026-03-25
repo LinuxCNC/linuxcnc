@@ -1528,12 +1528,41 @@ ETHERCAT_LIBS=
 
 if test "x$enable_ethercat" != "xno"; then
     AC_MSG_CHECKING([for IgH EtherCAT master library])
+    have_libethercat=no
+
+    # 1) Try pkg-config (default paths)
     if pkg-config libethercat >/dev/null 2>&1; then
         ETHERCAT_CFLAGS=`pkg-config libethercat --cflags`
         ETHERCAT_LIBS=`pkg-config libethercat --libs`
         have_libethercat=yes
-    else
-        have_libethercat=no
+    fi
+
+    # 2) Try pkg-config with /usr/local/lib/pkgconfig
+    if test "x$have_libethercat" != "xyes"; then
+        _ec_pkg="/usr/local/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+        if PKG_CONFIG_PATH="$_ec_pkg" pkg-config libethercat >/dev/null 2>&1; then
+            ETHERCAT_CFLAGS=`PKG_CONFIG_PATH="$_ec_pkg" pkg-config libethercat --cflags`
+            ETHERCAT_LIBS=`PKG_CONFIG_PATH="$_ec_pkg" pkg-config libethercat --libs`
+            have_libethercat=yes
+        fi
+    fi
+
+    # 3) Direct file detection (no .pc file at all)
+    if test "x$have_libethercat" != "xyes"; then
+        for _ec_pfx in /usr /usr/local; do
+            if test -f "$_ec_pfx/include/ecrt.h"; then
+                _ec_cflags=""
+                _ec_libs="-lethercat"
+                if test "$_ec_pfx" != "/usr"; then
+                    _ec_cflags="-I$_ec_pfx/include"
+                    _ec_libs="-L$_ec_pfx/lib -Wl,-rpath,$_ec_pfx/lib -lethercat"
+                fi
+                ETHERCAT_CFLAGS="$_ec_cflags"
+                ETHERCAT_LIBS="$_ec_libs"
+                have_libethercat=yes
+                break
+            fi
+        done
     fi
 
     if test "x$have_libethercat" = "xyes"; then
