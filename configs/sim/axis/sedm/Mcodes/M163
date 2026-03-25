@@ -2,17 +2,11 @@
 
 exec >/dev/null 2>&1 # Redirects all stdout and stderr for the rest of the
 
-#10.08.2025 M163
-
 # usage
 # M163 P<OrbType> Q<WiglRad>
 
-#set OrbCut.OrbTypeIN
-#set OrbCutWiglRadIN
-
-
-# OrbType is U32  0 circ 1 sqr
-# WiglRad is pod Float
+# OrbType is U32  0 for circle, 1 for square orbit.
+# WiglRad is positive Float
 
 # and Bash rerbs Floaatrs
 # so this vvv print trick cnvrts 
@@ -21,5 +15,5 @@ halcmd sets dOrbitType $OrbTypeInt
 
 # WiglRad  is already a float
 halcmd sets dWiglRADf $2
-#echo "WiglRad $2"
+
 exit 0

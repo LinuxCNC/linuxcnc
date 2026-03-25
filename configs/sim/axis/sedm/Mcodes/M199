@@ -1,31 +1,12 @@
 #!/bin/bash
-#  for sedm suite
 
-# 24.10.2025  maybe  not necc, could be set in post.hal
-#   and left set  just dont use
-#
-# M199
 # usage:  M199      ( no P Q  parms)
-# purpose: begin Edm work
-#
-
-#echo "M199 begin"
+# purpose: begin using eoffsets
 
 halcmd setp axis.x.eoffset-enable True
 halcmd setp axis.y.eoffset-enable True
 halcmd setp axis.z.eoffset-enable True
 
-# 12.11.2025 vvv added
 halcmd setp sedm.isEna True
 
-# 05.02.2026 try to hide pin
-#techGui.hiddenU32.forget()
-# RESULT:
-# ./M199: line 25: syntax error near unexpected token `exit'
-# ./M199: line 25: `exit 0'
-
-# ??? grbg   sedm.RPlaneDist = 00.0
-
-
-#echo "M199 end"
 exit 0

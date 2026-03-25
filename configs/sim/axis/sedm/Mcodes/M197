@@ -1,13 +1,12 @@
 #!/bin/bash
 # M197  no P no Q
-# turn of jump if it was left on
-# place this in ,ngc just before M02
+# It turns of jump 
+# if jump weas left on at end of NGC.
+# Place this in .ngc just before M02
 
 # M197 toggles sedm.JumpEna
-#   get checkbnox state
+#   get pyvcp gui checkbnox state
 a="$(halcmd getp sedm.JumpENA)"
-
-#echo "M197 getp said sedm.JumpENA was $a "
 
 if [[ $a == "TRUE" ]]; then
 	#echo "was TRUE,so toggling "
