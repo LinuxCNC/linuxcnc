@@ -61,52 +61,56 @@ func (l *Launcher) doCleanup() {
 		}
 	}
 
-	// Step 4 — stop all realtime threads.
-	// mirrors scripts/linuxcnc.in line 711.
-	l.logger.Debug("stopping realtime threads")
-	if err := halcmd.StopThreads(); err != nil {
-		l.logger.Debug("hal stop threads returned error", "error", err)
-	}
-
-	// Step 5 — unload all HAL components.
-	// mirrors scripts/linuxcnc.in line 713.
-	// Pass 0 as exceptCompID — halcmd doesn't exclude itself either.
-	l.logger.Debug("unloading HAL components")
-	if err := halcmd.UnloadAll(0); err != nil {
-		l.logger.Debug("hal unload all returned error", "error", err)
-	}
-
-	// Step 6 — wait for HAL components to unload.
-	// Polls up to 10 times (200 ms apart) until only 1 component remains.
-	// mirrors scripts/linuxcnc.in lines 715–719.
-	l.logger.Debug("waiting for HAL components to unload")
-	for i := 0; i < 10; i++ {
-		comps, err := halcmd.ListComponents()
-		if err != nil {
-			break
-		}
-		if len(comps) <= 1 {
-			break
-		}
-		time.Sleep(200 * time.Millisecond)
-	}
-
-	// Step 7 — Exit the launcher's own HAL component.
-	// Must happen while HAL shared memory is still valid, i.e. before
-	// RtapiAppCleanup() tears it down.
+	// Steps 4–8 require the RTAPI/HAL environment to have been initialized
+	// (RtapiAppInit + hal.NewComponent succeeded).  When startup fails before
+	// that point (e.g. INI file not found), these would crash by accessing
+	// uninitialized HAL shared memory (SIGSEGV in halpr_rtapi_app_exit).
 	if l.halComp != nil {
+		// Step 4 — stop all realtime threads.
+		// mirrors scripts/linuxcnc.in line 711.
+		l.logger.Debug("stopping realtime threads")
+		if err := halcmd.StopThreads(); err != nil {
+			l.logger.Debug("hal stop threads returned error", "error", err)
+		}
+
+		// Step 5 — unload all HAL components.
+		// mirrors scripts/linuxcnc.in line 713.
+		// Pass 0 as exceptCompID — halcmd doesn't exclude itself either.
+		l.logger.Debug("unloading HAL components")
+		if err := halcmd.UnloadAll(0); err != nil {
+			l.logger.Debug("hal unload all returned error", "error", err)
+		}
+
+		// Step 6 — wait for HAL components to unload.
+		// Polls up to 10 times (200 ms apart) until only 1 component remains.
+		// mirrors scripts/linuxcnc.in lines 715–719.
+		l.logger.Debug("waiting for HAL components to unload")
+		for i := 0; i < 10; i++ {
+			comps, err := halcmd.ListComponents()
+			if err != nil {
+				break
+			}
+			if len(comps) <= 1 {
+				break
+			}
+			time.Sleep(200 * time.Millisecond)
+		}
+
+		// Step 7 — Exit the launcher's own HAL component.
+		// Must happen while HAL shared memory is still valid, i.e. before
+		// RtapiAppCleanup() tears it down.
 		if err := l.halComp.Exit(); err != nil {
 			l.logger.Debug("hal exit returned error", "error", err)
 		}
-	}
 
-	// Step 8 — Shut down the in-process RTAPI/HAL environment.
-	// This tears down HAL threads, releases shared memory (via
-	// rtapi_shmem_delete → shmdt/shmctl), and stops the message queue
-	// thread.  Must happen after all HAL components (including the
-	// launcher's own) have exited.  No external ipcrm is needed.
-	l.logger.Debug("shutting down RTAPI app (in-process)")
-	halcmd.RtapiAppCleanup()
+		// Step 8 — Shut down the in-process RTAPI/HAL environment.
+		// This tears down HAL threads, releases shared memory (via
+		// rtapi_shmem_delete → shmdt/shmctl), and stops the message queue
+		// thread.  Must happen after all HAL components (including the
+		// launcher's own) have exited.  No external ipcrm is needed.
+		l.logger.Debug("shutting down RTAPI app (in-process)")
+		halcmd.RtapiAppCleanup()
+	}
 
 	// Step 9 — NML server shutdown.
 	// The NML server is now a cmod plugin — it was stopped in step 2.4
