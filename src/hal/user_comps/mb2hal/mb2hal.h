@@ -120,6 +120,8 @@ typedef struct {
     int        mb_tx_1st_addr; //MB first register
     int        mb_tx_nelem;    //MB n registers
     char **    mb_tx_names;    //MB register pin names. NULL if no names are specified
+    double *   pin_scale;      //per-pin scale factor (default 1.0), float pins only
+    double *   pin_offset;     //per-pin offset (default 0.0), float pins only
     int        mb_response_timeout_ms; //MB response timeout
     int        mb_byte_timeout_ms;     //MB byte timeout
     //cfg_* are others INI config params

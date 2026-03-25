@@ -121,9 +121,11 @@ static retCode parse_pin_names(mb2hal_module *m, const char * const names_string
     int name_count = 0;
     int name_buf_size = NAME_ALLOC_SIZE;
     char **name_ptrs = malloc(sizeof(char *) * name_buf_size);
+    double *scales = malloc(sizeof(double) * name_buf_size);
+    double *offsets = malloc(sizeof(double) * name_buf_size);
     /* FIXME This memory block is leaked */
     char *names = strndup(names_string,999942);
-    if(name_ptrs == NULL || names == NULL)
+    if(name_ptrs == NULL || names == NULL || scales == NULL || offsets == NULL)
     {
         ERR(m, m->init_dbg, "Failed allocating memory");
         return retERR;
@@ -140,12 +142,39 @@ static retCode parse_pin_names(mb2hal_module *m, const char * const names_string
         {
             name_buf_size += NAME_ALLOC_SIZE;
             name_ptrs = realloc(name_ptrs, sizeof(char *) * name_buf_size);
-            if(name_ptrs == NULL)
+            scales = realloc(scales, sizeof(double) * name_buf_size);
+            offsets = realloc(offsets, sizeof(double) * name_buf_size);
+            if(name_ptrs == NULL || scales == NULL || offsets == NULL)
             {
                 ERR(m, m->init_dbg, "Failed allocating memory");
                 return retERR;
             }
         }
+        // Parse optional [*SCALE+OFFSET] or [*SCALE] or [+OFFSET] or [-OFFSET]
+        double scale = 1.0;
+        double offset = 0.0;
+        char *bracket = strchr(name, '[');
+        if (bracket) {
+            *bracket = '\0'; // terminate the pin name
+            char *p = bracket + 1;
+            if (*p == '*') {
+                p++;
+                char *end;
+                scale = strtod(p, &end);
+                p = end;
+            }
+            if (*p == '+' || *p == '-') {
+                char *end;
+                offset = strtod(p, &end);
+                p = end;
+            }
+            if (*p != ']') {
+                ERR(m, m->init_dbg, "pin name '%s': malformed [*scale+offset] (expected ']' but got '%c')", name, *p);
+                return retERR;
+            }
+        }
+        scales[name_count] = scale;
+        offsets[name_count] = offset;
         name_ptrs[name_count++]=name;
         name = strtok(NULL, ",");
     }
@@ -156,6 +185,8 @@ static retCode parse_pin_names(mb2hal_module *m, const char * const names_string
     }
     this_mb_tx->mb_tx_nelem = name_count;
     this_mb_tx->mb_tx_names = name_ptrs;
+    this_mb_tx->pin_scale = scales;
+    this_mb_tx->pin_offset = offsets;
     return retOK;
 }
 

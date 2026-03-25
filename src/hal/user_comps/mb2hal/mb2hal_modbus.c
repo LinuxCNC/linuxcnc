@@ -104,6 +104,8 @@ retCode fnct_03_read_holding_registers(mb2hal_module *m, mb_tx_t *this_mb_tx, mb
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         float val = data[counter];
+        if (this_mb_tx->pin_scale)
+            val = val * this_mb_tx->pin_scale[counter] + this_mb_tx->pin_offset[counter];
         *(this_mb_tx->float_value[counter]) = val;
         *(this_mb_tx->int_value[counter]) = data[counter];
     }
@@ -141,6 +143,8 @@ retCode fnct_04_read_input_registers(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_l
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         float val = data[counter];
+        if (this_mb_tx->pin_scale)
+            val = val * this_mb_tx->pin_scale[counter] + this_mb_tx->pin_offset[counter];
         *(this_mb_tx->float_value[counter]) = val;
         *(this_mb_tx->int_value[counter]) = data[counter];
     }
@@ -192,7 +196,12 @@ retCode fnct_06_write_single_register(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_
         return retERR;
     }
 
-    data = *(this_mb_tx->float_value[0]);
+    {
+        float fval = *(this_mb_tx->float_value[0]);
+        if (this_mb_tx->pin_scale && this_mb_tx->pin_scale[0] != 0.0)
+            fval = (fval - this_mb_tx->pin_offset[0]) / this_mb_tx->pin_scale[0];
+        data = (int)fval;
+    }
     if (m->version > 1000)
         data += *(this_mb_tx->int_value[0]);
     if(data > UINT16_MAX) { // prevent wrap on overflow
@@ -266,7 +275,10 @@ retCode fnct_16_write_multiple_registers(mb2hal_module *m, mb_tx_t *this_mb_tx, 
     }
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
-        int data32 = (uint16_t) *(this_mb_tx->float_value[counter]);
+        float fval = *(this_mb_tx->float_value[counter]);
+        if (this_mb_tx->pin_scale && this_mb_tx->pin_scale[counter] != 0.0)
+            fval = (fval - this_mb_tx->pin_offset[counter]) / this_mb_tx->pin_scale[counter];
+        int data32 = (uint16_t) fval;
         if (m->version > 1000)
             data32 += *(this_mb_tx->int_value[counter]);
         if(data32 > UINT16_MAX) { // prevent wrap on overflow
