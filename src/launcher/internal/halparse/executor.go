@@ -118,34 +118,22 @@ func executeToken(tok Token) error {
 	return nil
 }
 
-// Load executes all component loading phases in the correct order:
-//   - Phase 1: loadusr commands (with -W/-Wn flags)
-//   - Phase 2: plugin modules from "load" commands (via loadFn callback)
-//   - Phase 3: merged loadrt commands (via TwopassCollector)
-//
-// Plugin modules ("load" commands) are executed before loadrt so that
-// userspace plugins that prepare shared state (e.g. ethercat config) are
-// ready when realtime modules initialise.
-//
-// After Load returns, all RT, USR, and plugin components are loaded and
-// ready, but no wiring (net, addf, setp, etc.) has been performed yet.
-// Call Execute() afterwards to run the remaining HAL commands.
-func (r *ParseResult) Load(loadFn func(path, name string, args []string) error) error {
-	// Phase 1: execute loadusr tokens
+// ExecLoadUSR executes the loadusr phase: all "loadusr" commands with their
+// -W/-Wn wait flags.  Call this before loading plugin modules and before
+// ExecLoadRT.
+func (r *ParseResult) ExecLoadUSR() error {
 	for _, tok := range r.LoadUSR {
 		if err := executeToken(tok); err != nil {
 			return err
 		}
 	}
+	return nil
+}
 
-	// Phase 2: execute load (plugin module) tokens
-	if loadFn != nil {
-		if err := r.IterLoads(loadFn); err != nil {
-			return err
-		}
-	}
-
-	// Phase 3: merge and execute loadrt tokens
+// ExecLoadRT executes the loadrt phase: all "loadrt" commands are merged via
+// TwopassCollector and then loaded.  Call this after ExecLoadUSR and after any
+// plugin modules have been loaded.
+func (r *ParseResult) ExecLoadRT() error {
 	collector := NewTwopassCollector()
 	for _, tok := range r.LoadRT {
 		if d, ok := tok.Data.(*LoadRTToken); ok {
@@ -169,7 +157,6 @@ func (r *ParseResult) Load(loadFn func(path, name string, args []string) error) 
 			return &ExecutionError{Loc: loc, Err: err}
 		}
 	}
-
 	return nil
 }
 
@@ -186,9 +173,8 @@ func (r *ParseResult) Execute() error {
 }
 
 // IterLoads calls fn once for each instance described by "load" command tokens
-// in ParseResult.Loads, passing the module path, instance name, and argument slice.
-// It is called by Load() during Phase 2 (before loadrt) with the launcher's
-// plugin loader callback.
+// in ParseResult.Loads, passing the module path, instance name, and argument
+// slice.
 //
 // When a LoadToken has no explicit Names, a single call is made with the default
 // name derived from the module path (basename without .so).  When Names are set
@@ -220,7 +206,7 @@ func (r *ParseResult) IterLoads(fn func(path string, name string, args []string)
 
 // buildLoadRTArgs reconstructs the string args from a LoadRTToken for LoadRT().
 // This is used only by executeToken() for direct single-token dispatch (e.g.
-// interactive halcmd calls). ParseResult.Load() does NOT use this function;
+// interactive halcmd calls). ParseResult.LoadRT() does NOT use this function;
 // it feeds LoadRTTokens through TwopassCollector.CollectLoadRTToken() →
 // MergedLoadRTCommands() instead.
 func buildLoadRTArgs(d *LoadRTToken) []string {

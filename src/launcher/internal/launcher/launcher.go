@@ -326,11 +326,18 @@ func (l *Launcher) Run() (runErr error) {
 		return fmt.Errorf("HAL file parsing failed: %w", err)
 	}
 
-	// Phase 1: Load components (loadusr + load plugins + loadrt).
-	// Plugin modules ("load" command) are loaded between loadusr and loadrt
-	// so that userspace plugins that prepare shared state are ready when
-	// realtime modules initialise.
-	if err := halResult.Load(func(path string, name string, args []string) error {
+	// Load components in dependency order:
+	//  1. loadusr — userspace components (e.g. halui)
+	//  2. load   — plugin modules that prepare shared state for RT modules
+	//  3. loadrt — realtime components (merged via twopass)
+	if err := halResult.ExecLoadUSR(); err != nil {
+		if !l.opts.ContinueOnError {
+			return fmt.Errorf("HAL loadusr failed: %w", err)
+		}
+		l.logger.Warn("HAL loadusr error (continuing)", "error", err)
+	}
+
+	if err := halResult.IterLoads(func(path string, name string, args []string) error {
 		cmodPath := resolveCModulePath(path)
 		if cModuleExists(cmodPath) {
 			return l.loadCPlugin(cmodPath, name, args)
@@ -338,9 +345,16 @@ func (l *Launcher) Run() (runErr error) {
 		return l.loadGoPlugin(resolveGoModulePath(path), name, args)
 	}); err != nil {
 		if !l.opts.ContinueOnError {
-			return fmt.Errorf("HAL component loading failed: %w", err)
+			return fmt.Errorf("plugin module loading failed: %w", err)
 		}
-		l.logger.Warn("HAL component loading error (continuing)", "error", err)
+		l.logger.Warn("plugin module loading error (continuing)", "error", err)
+	}
+
+	if err := halResult.ExecLoadRT(); err != nil {
+		if !l.opts.ContinueOnError {
+			return fmt.Errorf("HAL loadrt failed: %w", err)
+		}
+		l.logger.Warn("HAL loadrt error (continuing)", "error", err)
 	}
 
 	// Phase 2: Execute HAL wiring commands (net, addf, setp, etc.).

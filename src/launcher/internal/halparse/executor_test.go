@@ -263,7 +263,7 @@ func TestParseResultLoad(t *testing.T) {
 			},
 		},
 	}
-	err := r.Load(nil)
+	err := r.ExecLoadUSR()
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
@@ -295,8 +295,11 @@ func TestParseResultExecute(t *testing.T) {
 // TestParseResultLoad_Empty verifies that an empty ParseResult's Load returns nil.
 func TestParseResultLoad_Empty(t *testing.T) {
 	r := &ParseResult{}
-	if err := r.Load(nil); err != nil {
-		t.Errorf("expected nil for empty ParseResult Load, got %v", err)
+	if err := r.ExecLoadUSR(); err != nil {
+		t.Errorf("expected nil for empty ParseResult ExecLoadUSR, got %v", err)
+	}
+	if err := r.ExecLoadRT(); err != nil {
+		t.Errorf("expected nil for empty ParseResult ExecLoadRT, got %v", err)
 	}
 }
 
@@ -323,7 +326,7 @@ func TestParseResultLoad_LoadRTMerge(t *testing.T) {
 			},
 		},
 	}
-	err := r.Load(nil)
+	err := r.ExecLoadRT()
 	// Both tokens are for the same module; TwopassCollector merges them into a
 	// single LoadRT("and2", "count=3") call.  The call fails with ErrNoCGO.
 	if err == nil {
