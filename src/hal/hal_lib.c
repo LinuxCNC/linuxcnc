@@ -239,11 +239,10 @@ int hal_init(const char *name)
     }
     /* initialize the structure */
     comp->comp_id = comp_id;
+    comp->type = COMPONENT_TYPE_USER;
     if (rtapi_pid == getpid()) {
-        comp->type = COMPONENT_TYPE_REALTIME;
         comp->pid = 0;
     } else {
-        comp->type = COMPONENT_TYPE_USER;
         comp->pid = getpid();
     }
     comp->ready = 0;
@@ -1805,13 +1804,14 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	    "HAL: ERROR: component %d not found\n", comp_id);
 	return -EINVAL;
     }
-    if (comp->type == COMPONENT_TYPE_USER) {
+    if (comp->pid != 0) {
 	/* not a realtime component */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d is not realtime\n", comp_id);
 	return -EINVAL;
     }
+    comp->type = COMPONENT_TYPE_REALTIME;
     if(comp->ready) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,

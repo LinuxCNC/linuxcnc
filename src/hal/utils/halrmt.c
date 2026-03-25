@@ -1254,7 +1254,7 @@ static int doUnload(char *mod_name, connectionRecType *context)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
+	if ( comp->pid == 0 ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
@@ -2030,7 +2030,7 @@ static void save_comps(FILE *dst)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
+	if ( comp->pid == 0 ) {
 	    /* only print realtime components */
 	    if ( comp->insmod_args == 0 ) {
 		fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);

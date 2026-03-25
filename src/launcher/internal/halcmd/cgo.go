@@ -370,7 +370,7 @@ static int hal_shim_unload_all(int except_id) {
     next = hal_data->comp_list_ptr;
     while (next != 0) {
         comp = (hal_comp_t *)SHMPTR(next);
-        if (comp->type == COMPONENT_TYPE_USER && comp->pid != ourpid) {
+        if (comp->pid != 0 && comp->pid != ourpid) {
             if (comp->comp_id != except_id) {
                 kill(abs(comp->pid), SIGTERM);
             }
@@ -389,7 +389,7 @@ static int hal_shim_unload_all(int except_id) {
         next = hal_data->comp_list_ptr;
         while (next != 0) {
             comp = (hal_comp_t *)SHMPTR(next);
-            if (comp->type == COMPONENT_TYPE_REALTIME) {
+            if (comp->pid == 0) {
                 if (comp->comp_id != except_id && n < HAL_SHIM_MAX_COMPS) {
                     if (strstr(comp->name, HAL_PSEUDO_COMP_PREFIX) != comp->name) {
                         snprintf(comps[n], sizeof(comps[n]), "%s", comp->name);
@@ -1600,7 +1600,7 @@ static int hal_shim_save(const char *type, char *buf, int buf_size) {
         next = hal_data->comp_list_ptr;
         while (next != 0) {
             hal_comp_t *comp = (hal_comp_t *)SHMPTR(next);
-            if (comp->type == COMPONENT_TYPE_REALTIME) {
+            if (comp->pid == 0) {
                 if (comp->insmod_args == 0) {
                     SAVE_LINE("#loadrt %s  (not loaded by loadrt, no args saved)",
                               comp->name);
