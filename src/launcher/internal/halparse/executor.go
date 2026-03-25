@@ -118,18 +118,19 @@ func executeToken(tok Token) error {
 	return nil
 }
 
-// Load executes only the component loading phases:
+// Load executes all component loading phases in the correct order:
 //   - Phase 1: loadusr commands (with -W/-Wn flags)
-//   - Phase 2: merged loadrt commands (via TwopassCollector)
+//   - Phase 2: plugin modules from "load" commands (via loadFn callback)
+//   - Phase 3: merged loadrt commands (via TwopassCollector)
 //
-// After Load returns, all RT and USR components are loaded and ready,
-// but no wiring (net, addf, setp, etc.) has been performed yet.
+// Plugin modules ("load" commands) are executed before loadrt so that
+// userspace plugins that prepare shared state (e.g. ethercat config) are
+// ready when realtime modules initialise.
+//
+// After Load returns, all RT, USR, and plugin components are loaded and
+// ready, but no wiring (net, addf, setp, etc.) has been performed yet.
 // Call Execute() afterwards to run the remaining HAL commands.
-//
-// Note: Loads tokens (from the "load" command) are NOT processed
-// here. The launcher iterates ParseResult.Loads directly after calling Load()
-// to load C or Go plugin modules.
-func (r *ParseResult) Load() error {
+func (r *ParseResult) Load(loadFn func(path, name string, args []string) error) error {
 	// Phase 1: execute loadusr tokens
 	for _, tok := range r.LoadUSR {
 		if err := executeToken(tok); err != nil {
@@ -137,7 +138,14 @@ func (r *ParseResult) Load() error {
 		}
 	}
 
-	// Phase 2: merge and execute loadrt tokens
+	// Phase 2: execute load (plugin module) tokens
+	if loadFn != nil {
+		if err := r.IterLoads(loadFn); err != nil {
+			return err
+		}
+	}
+
+	// Phase 3: merge and execute loadrt tokens
 	collector := NewTwopassCollector()
 	for _, tok := range r.LoadRT {
 		if d, ok := tok.Data.(*LoadRTToken); ok {
@@ -179,18 +187,12 @@ func (r *ParseResult) Execute() error {
 
 // IterLoads calls fn once for each instance described by "load" command tokens
 // in ParseResult.Loads, passing the module path, instance name, and argument slice.
+// It is called by Load() during Phase 2 (before loadrt) with the launcher's
+// plugin loader callback.
 //
 // When a LoadToken has no explicit Names, a single call is made with the default
 // name derived from the module path (basename without .so).  When Names are set
 // (via the [name1,name2,...] syntax), fn is called once per name.
-//
-// The "load" command supports both C and Go plugins.  The launcher checks
-// EMC2_CMOD_DIR first (C plugins via dlopen), then falls back to
-// EMC2_GOMOD_DIR (Go plugins via plugin.Open).
-//
-//	err := result.IterLoads(func(path string, name string, args []string) error {
-//	    return loadModule(path, name, args)
-//	})
 func (r *ParseResult) IterLoads(fn func(path string, name string, args []string) error) error {
 	for _, tok := range r.Loads {
 		d, ok := tok.Data.(*LoadToken)

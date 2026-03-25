@@ -192,7 +192,7 @@ func (e *Executor) ExecuteHalCommands() error {
 		if err != nil {
 			return fmt.Errorf("parsing HALCMD %q: %w", cmd, err)
 		}
-		if err := result.Load(); err != nil {
+		if err := result.Load(nil); err != nil {
 			return fmt.Errorf("loading HALCMD %q: %w", cmd, err)
 		}
 		if err := result.Execute(); err != nil {
@@ -231,7 +231,7 @@ func (e *Executor) ExecuteShutdown() error {
 	if err != nil {
 		return fmt.Errorf("parsing HAL shutdown script %q: %w", resolved, err)
 	}
-	if err := result.Load(); err != nil {
+	if err := result.Load(nil); err != nil {
 		return fmt.Errorf("loading HAL shutdown script %q: %w", resolved, err)
 	}
 	return result.Execute()
@@ -281,7 +281,7 @@ func (e *Executor) ExecutePostGUI() error {
 	if err != nil {
 		return fmt.Errorf("parsing POSTGUI_HALFILE: %w", err)
 	}
-	if err := result.Load(); err != nil {
+	if err := result.Load(nil); err != nil {
 		return fmt.Errorf("loading POSTGUI_HALFILE: %w", err)
 	}
 	return result.Execute()

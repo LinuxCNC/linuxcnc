@@ -326,21 +326,11 @@ func (l *Launcher) Run() (runErr error) {
 		return fmt.Errorf("HAL file parsing failed: %w", err)
 	}
 
-	// Phase 1: Load components (loadusr + loadrt).
-	if err := halResult.Load(); err != nil {
-		if !l.opts.ContinueOnError {
-			return fmt.Errorf("HAL component loading failed: %w", err)
-		}
-		l.logger.Warn("HAL component loading error (continuing)", "error", err)
-	}
-
-	// Phase 1.3: Load plugin modules from "load" commands.
-	// The "load" command loads plugin modules (.so).  For each module,
-	// the launcher checks EMC2_CMOD_DIR first (C plugins via dlopen);
-	// if no C module is found, it falls back to EMC2_GOMOD_DIR (Go plugins
-	// via plugin.Open).  Bare module names are resolved against these
-	// directories; paths containing "/" are used as-is.
-	if err := halResult.IterLoads(func(path string, name string, args []string) error {
+	// Phase 1: Load components (loadusr + load plugins + loadrt).
+	// Plugin modules ("load" command) are loaded between loadusr and loadrt
+	// so that userspace plugins that prepare shared state are ready when
+	// realtime modules initialise.
+	if err := halResult.Load(func(path string, name string, args []string) error {
 		cmodPath := resolveCModulePath(path)
 		if cModuleExists(cmodPath) {
 			return l.loadCPlugin(cmodPath, name, args)
@@ -348,9 +338,9 @@ func (l *Launcher) Run() (runErr error) {
 		return l.loadGoPlugin(resolveGoModulePath(path), name, args)
 	}); err != nil {
 		if !l.opts.ContinueOnError {
-			return fmt.Errorf("module loading (load command) failed: %w", err)
+			return fmt.Errorf("HAL component loading failed: %w", err)
 		}
-		l.logger.Warn("module loading error (continuing)", "error", err)
+		l.logger.Warn("HAL component loading error (continuing)", "error", err)
 	}
 
 	// Phase 2: Execute HAL wiring commands (net, addf, setp, etc.).
