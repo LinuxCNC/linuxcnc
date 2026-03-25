@@ -67,10 +67,6 @@ struct XenomaiApp : RtapiApp {
         int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
         CPU_SET(nprocs-1, &cpuset); // assumes processor numbers are contiguous
 
-        fprintf(stderr,
-            "Start.  getuid()=%d geteuid()=%d\n",
-            getuid(), geteuid());
-
         int ret;
         pthread_attr_t attr;
         if((ret = pthread_attr_init(&attr)) != 0)
@@ -96,15 +92,14 @@ struct XenomaiApp : RtapiApp {
         auto task = reinterpret_cast<RtaiTask*>(arg);
         pthread_setspecific(key, arg);
 
-        fprintf(stderr,
-            "Wrapper.  getuid()=%d geteuid()=%d\n",
-            getuid(), geteuid());
-
-        /* Attach to the core. */
-        rtapi_print("linuxcnc-thread:%d\n", gettid());
-        int tfd = evl_attach_self("linuxcnc-thread:%d", gettid());
-        if (tfd < 0){
-            rtapi_print("evl_attach_self() failed ret %i errno %i\n", tfd, errno);
+        {
+            WithRoot r;
+            /* Attach to the core. */
+            rtapi_print("linuxcnc-thread:%d\n", gettid());
+            int tfd = evl_attach_self("linuxcnc-thread:%d", gettid());
+            if (tfd < 0){
+                rtapi_print("evl_attach_self() failed ret %i errno %i\n", tfd, errno);
+            }
         }
 
         struct timespec now;
