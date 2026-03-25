@@ -253,6 +253,10 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
     AC_DEFINE([USPACE_XENOMAI], [], [Define if uspace realtime should optionally support Xenomai])
   fi
 
+  AC_SUBST([CONFIG_USPACE_XENOMAI])
+  AC_SUBST([XENOMAI_CFLAGS])
+  AC_SUBST([XENOMAI_LDFLAGS])
+
   if test "$CONFIG_USPACE_XENOMAI_EVL" = "n" ; then
     USPACE_XENOMAI_EVL=
     XENOMAI_EVL_CFLAGS=
@@ -264,9 +268,9 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
     AC_DEFINE([USPACE_XENOMAI_EVL], [], [Define if uspace realtime should optionally support Xenomai])
   fi
 
-  AC_SUBST([CONFIG_USPACE_XENOMAI])
-  AC_SUBST([XENOMAI_CFLAGS])
-  AC_SUBST([XENOMAI_LDFLAGS])
+  AC_SUBST([CONFIG_USPACE_XENOMAI_EVL])
+  AC_SUBST([XENOMAI_EVL_CFLAGS])
+  AC_SUBST([XENOMAI_EVL_LDFLAGS])
 
   AC_MSG_RESULT([$RTS$USPACE_RTAI$USPACE_XENOMAI$USPACE_XENOMAI_EVL])
 
