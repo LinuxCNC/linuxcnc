@@ -68,3 +68,14 @@ $(call TOOBJSDEPS, $(USPACE_XENOMAI_SRCS)): EXTRAFLAGS += -fPIC $(XENOMAI_CFLAGS
 TARGETS += ../lib/libuspace-xenomai.so.0
 TARGETS += ../lib/libuspace-xenomai.so
 endif
+
+ifeq ($(CONFIG_USPACE_XENOMAI_EVL),y)
+USPACE_XENOMAI_EVL_SRCS := rtapi/uspace_xenomai_evl.cc
+USERSRCS += $(USPACE_XENOMAI_EVL_SRCS)
+$(call TOOBJSDEPS, $(USPACE_XENOMAI_EVL_SRCS)): EXTRAFLAGS += -fPIC $(XENOMAI_EVL_CFLAGS)
+../lib/libuspace-xenomai-evl.so.0: $(call TOOBJS, $(USPACE_XENOMAI_EVL_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) -shared $(LDFLAGS) -o $@ $^ $(XENOMAI_EVL_LDFLAGS) -Wl,-soname,$(notdir $@)
+TARGETS += ../lib/libuspace-xenomai-evl.so.0
+TARGETS += ../lib/libuspace-xenomai-evl.so
+endif
