@@ -4,13 +4,13 @@
 // a symbol named "New" with the signature cmod_new_fn.
 //
 // Lifecycle order:
-//   New(env, name, argc, argv) → Init() → Start() → Stop() → DeInit()
+//   New(env, name, argc, argv) → Start() → Stop() → Destroy()
 //
 // The launcher guarantees:
-//   - All modules are stopped (Stop) before any module's DeInit is called.
+//   - All modules are stopped (Stop) before any module's Destroy is called.
 //   - Strings returned by env callbacks (get_ini, ini_source_file) remain
-//     valid until DeInit is called on the module that requested them (arena).
-//   - The env pointer remains valid from New() through DeInit().
+//     valid until Destroy is called on the module that requested them (arena).
+//   - The env pointer remains valid from New() through Destroy().
 //
 // For C++ plugins: declare the New symbol as extern "C".
 
@@ -29,11 +29,11 @@ typedef struct {
 
     // get_ini returns the value for the given section/key from the parsed INI
     // file.  Returns NULL if the key does not exist.  The returned string is
-    // valid until DeInit() is called on this module (arena lifetime).
+    // valid until Destroy() is called on this module (arena lifetime).
     const char* (*get_ini)(void *ctx, const char *section, const char *key);
 
     // ini_source_file returns the absolute path of the INI file.  Valid until
-    // DeInit().  Useful for NML initialization and subprocess launching.
+    // Destroy().  Useful for NML initialization and subprocess launching.
     const char* (*ini_source_file)(void *ctx);
 
     // Structured logging callbacks.  The component argument should be the
@@ -47,11 +47,13 @@ typedef struct {
 // cmod_t is the module instance returned by the constructor.
 // The plugin fills in the function pointers; the launcher calls them in order.
 // The priv pointer is for the plugin's private data.
+//
+// Destroy must release all resources including the cmod_t itself (e.g.
+// "delete m" for C++ modules).
 typedef struct cmod {
-    int  (*Init)(struct cmod *self);
     int  (*Start)(struct cmod *self);
     void (*Stop)(struct cmod *self);
-    void (*DeInit)(struct cmod *self);
+    void (*Destroy)(struct cmod *self);
     void *priv;
 } cmod_t;
 

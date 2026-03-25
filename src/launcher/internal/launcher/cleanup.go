@@ -47,11 +47,11 @@ func (l *Launcher) doCleanup() {
 	l.logger.Debug("stopping protocol servers")
 	l.stopProtocols()
 
-	// Step 2.6 — DeInit all plugin modules (release resources after all are stopped).
-	l.logger.Debug("deinitializing Go plugin modules")
-	l.deinitGoModules()
-	l.logger.Debug("deinitializing C plugin modules")
-	l.deinitCModules()
+	// Step 2.6 — Destroy all plugin modules (release resources after all are stopped).
+	l.logger.Debug("destroying Go plugin modules")
+	l.destroyGoModules()
+	l.logger.Debug("destroying C plugin modules")
+	l.destroyCModules()
 
 	// Step 3 — Run [HAL]SHUTDOWN script if configured.
 	// mirrors scripts/linuxcnc.in lines 697–701.

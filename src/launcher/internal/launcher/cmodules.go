@@ -4,7 +4,7 @@
 // C plugins are resolved from EMC2_CMOD_DIR (bare names) and loaded via
 // dlopen/dlsym.  They share the same lifecycle as Go plugins:
 //
-//	New(env, name, args) → Init() → Start() → Stop() → DeInit()
+//	New(env, name, args) → Start() → Stop() → Destroy()
 //
 // The launcher provides INI access and logging to C plugins via the
 // cmod_env_t callback struct, so plugins never parse config files directly.
@@ -45,11 +45,6 @@ static int cmod_call_new(cmod_new_fn fn, const cmod_env_t *env,
     return fn(env, name, argc, argv, out);
 }
 
-// cmod_call_init calls the module's Init function.
-static int cmod_call_init(cmod_t *m) {
-    return m->Init(m);
-}
-
 // cmod_call_start calls the module's Start function.
 static int cmod_call_start(cmod_t *m) {
     return m->Start(m);
@@ -60,9 +55,9 @@ static void cmod_call_stop(cmod_t *m) {
     m->Stop(m);
 }
 
-// cmod_call_deinit calls the module's DeInit function.
-static void cmod_call_deinit(cmod_t *m) {
-    m->DeInit(m);
+// cmod_call_destroy calls the module's Destroy function.
+static void cmod_call_destroy(cmod_t *m) {
+    m->Destroy(m);
 }
 */
 import "C"
@@ -105,7 +100,7 @@ func cModuleExists(path string) bool {
 // Callback implementations — these are Go functions exported to C via
 // //export.  They are called from C code via function pointers in cmod_env_t.
 // Arena-tracked strings returned by get_ini and ini_source_file are freed
-// in deinitCModules.
+// in destroyCModules.
 
 //export cmod_get_ini
 func cmod_get_ini(ctx unsafe.Pointer, section, key *C.char) *C.char {
@@ -152,8 +147,11 @@ func cmod_log_debug(ctx unsafe.Pointer, component, msg *C.char) {
 }
 
 // loadCPlugin loads a C plugin .so via dlopen, looks up the "New" symbol,
-// builds the cmod_env_t with launcher callbacks, calls the factory, calls
-// Init(), and appends the module to l.cModules.
+// builds the cmod_env_t with launcher callbacks, calls the factory, and
+// appends the module to l.cModules.
+//
+// The factory is expected to create and fully initialize the module (including
+// HAL component/pin creation) before returning.
 func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 	l.logger.Info("loading C plugin", "path", path, "name", name)
 
@@ -214,13 +212,6 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 	}
 	cm.mod = mod
 
-	rc = C.cmod_call_init(mod)
-	if rc != 0 {
-		C.cmod_call_deinit(mod)
-		C.dlclose(handle)
-		return fmt.Errorf("load C plugin %q: Init() returned error code %d", path, int(rc))
-	}
-
 	cm.hCtx = hCtx
 	l.cModules = append(l.cModules, cm)
 	l.logger.Debug("C plugin loaded and initialized", "path", path, "name", name)
@@ -246,18 +237,18 @@ func (l *Launcher) stopCModules() {
 	}
 }
 
-// deinitCModules calls DeInit() on all loaded C plugin modules in reverse
+// destroyCModules calls Destroy() on all loaded C plugin modules in reverse
 // order, closes the dlopen handles, and frees all arena-tracked strings.
-func (l *Launcher) deinitCModules() {
+func (l *Launcher) destroyCModules() {
 	for i := len(l.cModules) - 1; i >= 0; i-- {
 		cm := l.cModules[i]
-		C.cmod_call_deinit(cm.mod)
+		C.cmod_call_destroy(cm.mod)
 		if cm.handle != nil {
 			C.dlclose(unsafe.Pointer(cm.handle))
 		}
 		cm.hCtx.Delete()
 	}
-	// Free arena strings after all modules have been deinitialized.
+	// Free arena strings after all modules have been destroyed.
 	for _, p := range l.cModArena {
 		C.free(p)
 	}

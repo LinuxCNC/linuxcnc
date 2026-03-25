@@ -71,7 +71,7 @@ type Launcher struct {
 	protocols    []protocols.Protocol // active protocol instances (ADS, etc.)
 	goModules    []gomodule.Module    // Go plugin modules loaded via "load" command
 	cModules     []*cModule           // C plugin modules loaded via "load" command
-	cModArena    []unsafe.Pointer     // arena-tracked C strings freed in deinitCModules
+	cModArena    []unsafe.Pointer     // arena-tracked C strings freed in destroyCModules
 }
 
 // New creates a new Launcher with the given options and logger.

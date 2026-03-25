@@ -8,11 +8,11 @@
 // # Plugin lifecycle
 //
 // The launcher calls these methods in order:
-//  1. Factory (New symbol) — create and configure the module instance
-//  2. Init — create HAL pins/components (before HAL file wiring)
-//  3. Start — begin active operation (after HAL threads start)
-//  4. Stop — shut down gracefully (during launcher cleanup)
-//  5. DeInit — release resources (after all modules have stopped)
+//  1. Factory (New symbol) — create, configure, and initialize the module
+//     (including HAL component/pin creation, before HAL file wiring)
+//  2. Start — begin active operation (after HAL threads start)
+//  3. Stop — shut down gracefully (during launcher cleanup)
+//  4. Destroy — release all resources (after all modules have stopped)
 //
 // # Important constraints
 //
@@ -31,28 +31,24 @@ import (
 
 // Module is the interface that Go plugin .so files must satisfy.
 //
-// The launcher calls Init, Start, Stop, and DeInit in that order during
-// the startup/shutdown lifecycle.
+// The launcher calls Start, Stop, and Destroy in that order during
+// the startup/shutdown lifecycle. HAL component and pin creation
+// happens in the Factory (New) before the module is returned.
 type Module interface {
-	// Init creates HAL components and registers pins. Called after
-	// ParseResult.Load() but before ParseResult.Execute(), so that
-	// HAL files can wire the module's pins via net/addf/setp.
-	Init() error
-
 	// Start begins active operation (e.g. starts goroutines, opens
 	// network connections). Called after HAL threads are started.
 	Start() error
 
 	// Stop shuts down the module gracefully. Signals shutdown, joins
 	// goroutines, and closes connections. Called during launcher
-	// cleanup before DeInit. All modules are stopped before any
-	// module's DeInit is called.
+	// cleanup before Destroy. All modules are stopped before any
+	// module's Destroy is called.
 	Stop()
 
-	// DeInit releases all resources (HAL components, allocated memory).
+	// Destroy releases all resources (HAL components, allocated memory).
 	// Called after all modules have been stopped. The module must not
-	// use any shared resources after DeInit returns.
-	DeInit()
+	// use any shared resources after Destroy returns.
+	Destroy()
 }
 
 // Factory is the function signature that plugins must export as the symbol

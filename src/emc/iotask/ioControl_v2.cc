@@ -8,8 +8,8 @@
  *
  *       load iov2
  *
- *   The launcher calls New (constructor), Init (HAL pins), Start
- *   (NML + main loop thread), Stop (signal shutdown), and DeInit
+ *   The launcher calls New (constructor + HAL init), Start
+ *   (NML + main loop thread), Stop (signal shutdown), and Destroy
  *   (release resources) in that order during its lifecycle.
  *
  *  ENABLE logic:  this module exports three HAL pins related to ENABLE.
@@ -186,7 +186,7 @@ struct iocontrol_str {
 };
 
 // iocontrol_module holds all per-instance state.  Allocated in New(),
-// freed in DeInit().
+// freed in Destroy().
 struct iocontrol_module {
     cmod_t base;                        // must be first — contains lifecycle vtable
     const cmod_env_t *env;              // launcher-provided environment
@@ -373,7 +373,7 @@ static int iniLoad(iocontrol_module *m)
 *
 * Side Effects: Exports HAL pins.
 *
-* Called By: iocontrol_init()
+* Called By: New()
 ********************************************************************/
 static int iocontrol_hal_init(iocontrol_module *m)
 {
@@ -669,7 +669,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
  *
  * Side Effects: Sets HAL pins default values.
  *
- * Called By: iocontrol_init, EMC_IO_INIT handler
+ * Called By: New, EMC_IO_INIT handler
  ********************************************************************/
 static void hal_init_pins(iocontrol_module *m)
 {
@@ -1310,74 +1310,6 @@ static void *iocontrol_loop(void *arg)
 * cmod lifecycle functions
 ********************************************************************/
 
-static int iocontrol_init(cmod_t *self)
-{
-    iocontrol_module *m = (iocontrol_module *)self->priv;
-
-    if (iocontrol_hal_init(m) != 0)
-        return -1;
-
-    for(int i=0; i<CANON_POCKETS_MAX; i++) {
-        m->ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
-    }
-
-    tooldata_init(m->random_toolchanger);
-    tooldata_set_db(m->io_db_mode);
-
-#ifdef TOOL_NML //{
-    tool_nml_register( (CANON_TOOL_TABLE*)&(m->emcioStatus.tool.toolTable));
-    if (m->io_debug) {
-        fprintf(stderr,"IOV2: REGISTER %p\n",
-                (CANON_TOOL_TABLE*)&(m->emcioStatus.tool.toolTable));
-    }
-#else //}{
-    tool_mmap_creator((EMC_TOOL_STAT*)&(m->emcioStatus.tool), m->random_toolchanger);
-    if (m->io_debug) {
-        fprintf(stderr,"IOV2: CREATOR  random_toolchanger=%d\n", m->random_toolchanger);
-    }
-#endif //}
-
-    if (m->io_db_mode == DB_ACTIVE) {
-        if (tooldata_db_init(m->db_program, m->random_toolchanger)) {
-            fprintf(stderr,"\n%5d IOV2::tooldata_db_init() FAIL\n\n",getpid());
-            m->io_db_mode = DB_NOTUSED;
-        }
-    }
-
-    if(!m->random_toolchanger) {
-        m->ttcomments[0][0] = '\0';
-        CANON_TOOL_TABLE tdata = tooldata_entry_init();
-        tdata.pocketno =  0;
-        tdata.toolno   = -1;
-        if (tooldata_put(tdata,0) == IDX_FAIL) {
-            UNEXPECTED_MSG;
-        }
-    }
-
-    if (0 != tooldata_load(m->io_tool_table_file, m->ttcomments)) {
-        rcs_print_error("can't load tool table.\n");
-    }
-
-    m->emcioStatus.aux.estop = 1;
-    m->emcioStatus.tool.pocketPrepped = -1;
-    if (m->random_toolchanger) {
-        CANON_TOOL_TABLE tdata;
-        if (tooldata_get(&tdata,0) != IDX_OK) {
-            UNEXPECTED_MSG; return -1;
-        }
-        m->emcioStatus.tool.toolInSpindle = tdata.toolno;
-    } else {
-        m->emcioStatus.tool.toolInSpindle = 0;
-    }
-    m->emcioStatus.coolant.mist = 0;
-    m->emcioStatus.coolant.flood = 0;
-    m->emcioStatus.lube.on = 0;
-    m->emcioStatus.lube.level = 1;
-    *(m->hal_data->tool_number) = m->emcioStatus.tool.toolInSpindle;
-
-    return 0;
-}
-
 static int iocontrol_start(cmod_t *self)
 {
     iocontrol_module *m = (iocontrol_module *)self->priv;
@@ -1411,7 +1343,7 @@ static void iocontrol_stop(cmod_t *self)
     }
 }
 
-static void iocontrol_deinit(cmod_t *self)
+static void iocontrol_destroy(cmod_t *self)
 {
     iocontrol_module *m = (iocontrol_module *)self->priv;
 
@@ -1494,12 +1426,82 @@ extern "C" int New(const cmod_env_t *env, const char *name,
         return -1;
     }
 
+    // Initialise HAL component and pins.
+    if (iocontrol_hal_init(m) != 0) {
+        delete m;
+        return -1;
+    }
+
+    // Initialise tool data and create the mmap file early so that milltask,
+    // halui, and the display (which all start before Start()) can access
+    // the shared tool table.
+    for(int i=0; i<CANON_POCKETS_MAX; i++) {
+        m->ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
+    }
+
+    tooldata_init(m->random_toolchanger);
+    tooldata_set_db(m->io_db_mode);
+
+#ifdef TOOL_NML //{
+    tool_nml_register( (CANON_TOOL_TABLE*)&(m->emcioStatus.tool.toolTable));
+    if (m->io_debug) {
+        fprintf(stderr,"IOV2: REGISTER %p\n",
+                (CANON_TOOL_TABLE*)&(m->emcioStatus.tool.toolTable));
+    }
+#else //}{
+    tool_mmap_creator((EMC_TOOL_STAT*)&(m->emcioStatus.tool), m->random_toolchanger);
+    if (m->io_debug) {
+        fprintf(stderr,"IOV2: CREATOR  random_toolchanger=%d\n", m->random_toolchanger);
+    }
+#endif //}
+
+    if (m->io_db_mode == DB_ACTIVE) {
+        if (tooldata_db_init(m->db_program, m->random_toolchanger)) {
+            fprintf(stderr,"\n%5d IOV2::tooldata_db_init() FAIL\n\n",getpid());
+            m->io_db_mode = DB_NOTUSED;
+        }
+    }
+
+    if(!m->random_toolchanger) {
+        m->ttcomments[0][0] = '\0';
+        CANON_TOOL_TABLE tdata = tooldata_entry_init();
+        tdata.pocketno =  0;
+        tdata.toolno   = -1;
+        if (tooldata_put(tdata,0) == IDX_FAIL) {
+            UNEXPECTED_MSG;
+        }
+    }
+
+    if (0 != tooldata_load(m->io_tool_table_file, m->ttcomments)) {
+        rcs_print_error("can't load tool table.\n");
+    }
+
+    m->emcioStatus.aux.estop = 1;
+    m->emcioStatus.tool.pocketPrepped = -1;
+    if (m->random_toolchanger) {
+        CANON_TOOL_TABLE tdata;
+        if (tooldata_get(&tdata,0) != IDX_OK) {
+            UNEXPECTED_MSG;
+            hal_exit(m->comp_id);
+            for(int i=0; i<CANON_POCKETS_MAX; i++) free(m->ttcomments[i]);
+            delete m;
+            return -1;
+        }
+        m->emcioStatus.tool.toolInSpindle = tdata.toolno;
+    } else {
+        m->emcioStatus.tool.toolInSpindle = 0;
+    }
+    m->emcioStatus.coolant.mist = 0;
+    m->emcioStatus.coolant.flood = 0;
+    m->emcioStatus.lube.on = 0;
+    m->emcioStatus.lube.level = 1;
+    *(m->hal_data->tool_number) = m->emcioStatus.tool.toolInSpindle;
+
     // Wire up the cmod vtable
-    m->base.Init   = iocontrol_init;
-    m->base.Start  = iocontrol_start;
-    m->base.Stop   = iocontrol_stop;
-    m->base.DeInit = iocontrol_deinit;
-    m->base.priv   = m;
+    m->base.Start   = iocontrol_start;
+    m->base.Stop    = iocontrol_stop;
+    m->base.Destroy = iocontrol_destroy;
+    m->base.priv    = m;
 
     *out = &m->base;
     return 0;
