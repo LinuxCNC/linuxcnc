@@ -28,7 +28,6 @@
 #define _LCEC_CONF_PRIV_H_
 
 #include <expat.h>
-#include <stdarg.h>
 
 #include "hal.h"
 #include "launcher/pkg/cmodule/cmodule.h"
@@ -144,12 +143,10 @@ static inline void xml_log_error(const LCEC_CONF_XML_INST_T *inst, const char *m
 /** @brief Log a formatted error through the cmod environment. */
 static inline __attribute__((format(printf, 2, 3)))
 void xml_log_error_fmt(const LCEC_CONF_XML_INST_T *inst, const char *fmt, ...) {
-  char buf[512];
   va_list ap;
   va_start(ap, fmt);
-  vsnprintf(buf, sizeof(buf), fmt, ap);
+  cmod_log_errorv(inst->mod->env, inst->mod->name, fmt, ap);
   va_end(ap);
-  xml_log_error(inst, buf);
 }
 
 /** @brief Log an info message through the cmod environment. */

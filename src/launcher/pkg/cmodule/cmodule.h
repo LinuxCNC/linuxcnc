@@ -17,6 +17,10 @@
 #ifndef CMODULE_H
 #define CMODULE_H
 
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -79,6 +83,88 @@ typedef int (*cmod_new_fn)(
     int argc, const char **argv,
     cmod_t **out
 );
+
+// ---- Formatted logging convenience functions ----
+//
+// These use vasprintf() for dynamic allocation so callers don't need
+// fixed-size stack buffers.  The "v" variants accept a va_list;
+// the "f" variants are printf-style wrappers with format checking.
+
+static inline void
+cmod_log_infov(const cmod_env_t *env, const char *component,
+               const char *fmt, va_list ap) {
+    char *msg;
+    if (vasprintf(&msg, fmt, ap) >= 0) {
+        env->log_info(env->ctx, component, msg);
+        free(msg);
+    }
+}
+
+static inline void
+cmod_log_warnv(const cmod_env_t *env, const char *component,
+               const char *fmt, va_list ap) {
+    char *msg;
+    if (vasprintf(&msg, fmt, ap) >= 0) {
+        env->log_warn(env->ctx, component, msg);
+        free(msg);
+    }
+}
+
+static inline void
+cmod_log_errorv(const cmod_env_t *env, const char *component,
+                const char *fmt, va_list ap) {
+    char *msg;
+    if (vasprintf(&msg, fmt, ap) >= 0) {
+        env->log_error(env->ctx, component, msg);
+        free(msg);
+    }
+}
+
+static inline void
+cmod_log_debugv(const cmod_env_t *env, const char *component,
+                const char *fmt, va_list ap) {
+    char *msg;
+    if (vasprintf(&msg, fmt, ap) >= 0) {
+        env->log_debug(env->ctx, component, msg);
+        free(msg);
+    }
+}
+
+static inline __attribute__((format(printf, 3, 4))) void
+cmod_log_infof(const cmod_env_t *env, const char *component,
+               const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    cmod_log_infov(env, component, fmt, ap);
+    va_end(ap);
+}
+
+static inline __attribute__((format(printf, 3, 4))) void
+cmod_log_warnf(const cmod_env_t *env, const char *component,
+               const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    cmod_log_warnv(env, component, fmt, ap);
+    va_end(ap);
+}
+
+static inline __attribute__((format(printf, 3, 4))) void
+cmod_log_errorf(const cmod_env_t *env, const char *component,
+                const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    cmod_log_errorv(env, component, fmt, ap);
+    va_end(ap);
+}
+
+static inline __attribute__((format(printf, 3, 4))) void
+cmod_log_debugf(const cmod_env_t *env, const char *component,
+                const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    cmod_log_debugv(env, component, fmt, ap);
+    va_end(ap);
+}
 
 #ifdef __cplusplus
 }

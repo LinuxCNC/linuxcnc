@@ -466,10 +466,8 @@ static const LCEC_CONF_XML_HANLDER_T xml_states[] = {
 
 static int parseSyncCycle(LCEC_CONF_XML_STATE_T *state, const char *nptr);
 
-#define LOG_ERR(m, fmt, ...) do { \
-    char _buf[512]; snprintf(_buf, sizeof(_buf), fmt, ##__VA_ARGS__); \
-    (m)->env->log_error((m)->env->ctx, (m)->name, _buf); \
-  } while(0)
+#define LOG_ERR(m, fmt, ...) \
+  cmod_log_errorf((m)->env, (m)->name, fmt, ##__VA_ARGS__)
 
 /********************************************************************
  * cmod lifecycle functions
