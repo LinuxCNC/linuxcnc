@@ -2,10 +2,10 @@ ifeq ($(BUILD_ETHERCAT),yes)
 
 LCEC_DIR := hal/proto/ethercat/src
 
-# ---------- Realtime module: lcec.so ----------
+# ---------- Realtime module: ethercat_rt.so ----------
 
-RTMODULES += lcec.o
-lcec-objs := \
+RTMODULES += ethercat_rt.o
+ethercat_rt-objs := \
     $(LCEC_DIR)/main.o \
     $(LCEC_DIR)/typelist.o \
     $(LCEC_DIR)/master.o \
@@ -64,18 +64,18 @@ lcec-objs := \
 # RTFLAGS is appended here (before RTCFLAGS is constructed from it in Makefile).
 RTFLAGS += -I$(BASEPWD)/$(LCEC_DIR) $(ETHERCAT_CFLAGS)
 
-# Explicit link rule: lcec needs -lethercat beyond the standard -lm.
-../rtlib/lcec.so:
+# Explicit link rule: ethercat_rt needs -lethercat beyond the standard -lm.
+../rtlib/ethercat_rt.so:
 	$(ECHO) Linking $@
-	$(Q)ld -d -r -o objects/lcec.tmp $^
-	$(Q)objdump -w -j .rtapi_export -t objects/lcec.tmp \
+	$(Q)ld -d -r -o objects/ethercat_rt.tmp $^
+	$(Q)objdump -w -j .rtapi_export -t objects/ethercat_rt.tmp \
 	    | awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
-	    > objects/lcec.ver
-	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/lcec.ver \
+	    > objects/ethercat_rt.ver
+	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/ethercat_rt.ver \
 	    -o $@ $^ -lm $(ETHERCAT_LIBS) $(LDFLAGS)
 	$(Q)chmod -x $@
 
-# ---------- Userspace binary: lcec_conf ----------
+# ---------- Userspace binary: ethercat ----------
 
 LCEC_CONF_SRCS := \
     $(LCEC_DIR)/conf.c \
@@ -86,10 +86,10 @@ USERSRCS += $(LCEC_CONF_SRCS)
 $(call TOOBJSDEPS, $(LCEC_CONF_SRCS)): EXTRAFLAGS += \
     -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR) $(ETHERCAT_CFLAGS)
 
-../bin/lcec_conf: $(call TOOBJS, $(LCEC_CONF_SRCS)) ../lib/liblinuxcnchal.so.0
+../bin/ethercat: $(call TOOBJS, $(LCEC_CONF_SRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lexpat
 
-TARGETS += ../bin/lcec_conf
+TARGETS += ../bin/ethercat
 
 endif # BUILD_ETHERCAT
