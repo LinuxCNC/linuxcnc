@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3.11
 
 # FIXED proibs w jump sedm.JumpLtype not set
 # re: sedm.JunpTODO iy looked like some set b4 call some set inside call
@@ -1345,148 +1345,148 @@ def mkcL( radi, cLevel ): # pass LeadInLine
 	# ------- beg octant 2
 	oct2L = []
 	# 24.03.2026 no need gor global index, ndx is init'd here
-	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
+	for bcNdx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
 		if sedm.ToolAxis == 2: #Z G17
-			nux = oct1L[ndx][1]
-			nuy = oct1L[ndx][0]
-			nuz = oct1L[ndx][2]
+			nux = oct1L[bcNdx][1]
+			nuy = oct1L[bcNdx][0]
+			nuz = oct1L[bcNdx][2]
 			tupl=( (nux,nuy,nuz) )
 		elif sedm.ToolAxis == 1: #Y G18
-			nux = oct1L[ndx][2]
-			nuy = oct1L[ndx][1]
-			nuz = oct1L[ndx][0]
+			nux = oct1L[bcNdx][2]
+			nuy = oct1L[bcNdx][1]
+			nuz = oct1L[bcNdx][0]
 			tupl=( (nux,nuy,nuz) )
 		elif sedm.ToolAxis == 0: #X G19
-			nux = oct1L[ndx][0]
-			nuy = oct1L[ndx][2]
-			nuz = oct1L[ndx][1]
+			nux = oct1L[bcNdx][0]
+			nuy = oct1L[bcNdx][2]
+			nuz = oct1L[bcNdx][1]
 			tupl=( (nux,nuy,nuz) )
 		#
 		oct2L.append(tupl)
 	#
 	# ------- beg octant 3
 	oct3L = []
-	#24.03.2026 no need for gloabl ndx, it is initd here
-	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
+	#24.03.2026 no need for gloabl bcNdx, it is initd here
+	for bcNdx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
 		if sedm.ToolAxis == 2: #Z G17
-			nux = oct2L[ndx][0]
-			nuy = oct2L[ndx][1]
-			nuz = oct2L[ndx][2]
+			nux = oct2L[bcNdx][0]
+			nuy = oct2L[bcNdx][1]
+			nuz = oct2L[bcNdx][2]
 			tupl=( (-nux,nuy,nuz) )
 		elif sedm.ToolAxis == 1: #Y G18
-			nux = oct2L[ndx][0]
-			nuy = oct2L[ndx][1]
-			nuz = oct2L[ndx][2]
+			nux = oct2L[bcNdx][0]
+			nuy = oct2L[bcNdx][1]
+			nuz = oct2L[bcNdx][2]
 			tupl=( (-nux,nuy,nuz) )
 		elif sedm.ToolAxis == 0: #X G19
-			nux = oct2L[ndx][0]
-			nuy = oct2L[ndx][1]
-			nuz = oct2L[ndx][2]
+			nux = oct2L[bcNdx][0]
+			nuy = oct2L[bcNdx][1]
+			nuz = oct2L[bcNdx][2]
 			tupl=( (nux,-nuy,nuz) )
 		#
 		oct3L.append(tupl)
 	# ------- beg octant 4
 	oct4L = []
-	#24.03.2026 no need for global ndx, initd here
-	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
+	#24.03.2026 no need for global bcNdx, initd here
+	for bcNdx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
 		if sedm.ToolAxis == 2: #Z G17
-			nux = oct3L[ndx][1]
-			nuy = oct3L[ndx][0]
-			nuz = oct3L[ndx][2]
+			nux = oct3L[bcNdx][1]
+			nuy = oct3L[bcNdx][0]
+			nuz = oct3L[bcNdx][2]
 			tupl=( (-nux,-nuy,nuz) )
 		elif sedm.ToolAxis == 1: #Y G18
-			nux = oct3L[ndx][2]
-			nuy = oct3L[ndx][1]
-			nuz = oct3L[ndx][0]
+			nux = oct3L[bcNdx][2]
+			nuy = oct3L[bcNdx][1]
+			nuz = oct3L[bcNdx][0]
 			tupl=( (-nux,nuy,-nuz) )
 		elif sedm.ToolAxis == 0: #X G19
-			nux = oct3L[ndx][0]
-			nuy = oct3L[ndx][2]
-			nuz = oct3L[ndx][1]
+			nux = oct3L[bcNdx][0]
+			nuy = oct3L[bcNdx][2]
+			nuz = oct3L[bcNdx][1]
 			tupl=( (nux,-nuy,-nuz) )
 		#
 		oct4L.append(tupl)
 	# ------- beg octant 5
 	oct5L = []
-	#24.03.2026 no need for global ndx, initd here
-	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
+	#24.03.2026 no need for global bcNdx, initd here
+	for bcNdx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
 		if sedm.ToolAxis == 2: #Z G17
-			nux = oct4L[ndx][0]
-			nuy = oct4L[ndx][1]
-			nuz = oct4L[ndx][2]
+			nux = oct4L[bcNdx][0]
+			nuy = oct4L[bcNdx][1]
+			nuz = oct4L[bcNdx][2]
 			tupl=( (nux,-nuy,nuz) )
 		elif sedm.ToolAxis == 1: #Y G18
-			nux = oct4L[ndx][0]
-			nuy = oct4L[ndx][1]
-			nuz = oct4L[ndx][2]
+			nux = oct4L[bcNdx][0]
+			nuy = oct4L[bcNdx][1]
+			nuz = oct4L[bcNdx][2]
 			tupl=( (nux,nuy,-nuz) )
 		elif sedm.ToolAxis == 0: #X G19
-			nux = oct4L[ndx][0]
-			nuy = oct4L[ndx][1]
-			nuz = oct4L[ndx][2]
+			nux = oct4L[bcNdx][0]
+			nuy = oct4L[bcNdx][1]
+			nuz = oct4L[bcNdx][2]
 			tupl=( (nux,nuy,-nuz) )
 		#
 		oct5L.append(tupl)
 	# ------- beg octant 6
 	oct6L = []
-	#24.03.2026 no need for global ndx, initd here
-	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
+	#24.03.2026 no need for global bcNdx, initd here
+	for bcNdx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
 		if sedm.ToolAxis == 2: #Z G17
-			nux = oct5L[ndx][1]
-			nuy = oct5L[ndx][0]
-			nuz = oct5L[ndx][2]
+			nux = oct5L[bcNdx][1]
+			nuy = oct5L[bcNdx][0]
+			nuz = oct5L[bcNdx][2]
 			tupl=( (nux,nuy,nuz) )
 		elif sedm.ToolAxis == 1: #Y G18
-			nux = oct5L[ndx][2]
-			nuy = oct5L[ndx][1]
-			nuz = oct5L[ndx][0]
+			nux = oct5L[bcNdx][2]
+			nuy = oct5L[bcNdx][1]
+			nuz = oct5L[bcNdx][0]
 			tupl=( (nux,nuy,nuz) )
 		elif sedm.ToolAxis == 0: #X G19
-			nux = oct5L[ndx][0]
-			nuy = oct5L[ndx][2]
-			nuz = oct5L[ndx][1]
+			nux = oct5L[bcNdx][0]
+			nuy = oct5L[bcNdx][2]
+			nuz = oct5L[bcNdx][1]
 			tupl=( (nux,nuy,nuz) )
 		#
 		oct6L.append(tupl)
 	# ------- beg octant 7
 	oct7L = []
-	#24.03.2026 no need for global ndx, initd here
-	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
+	#24.03.2026 no need for global bcNdx, initd here
+	for bcNdx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
 		if sedm.ToolAxis == 2: #Z G17
-			nux = oct6L[ndx][0]
-			nuy = oct6L[ndx][1]
-			nuz = oct6L[ndx][2]
+			nux = oct6L[bcNdx][0]
+			nuy = oct6L[bcNdx][1]
+			nuz = oct6L[bcNdx][2]
 			tupl=( (-nux,nuy,nuz) )
 		elif sedm.ToolAxis == 1: #Y G18
-			nux = oct6L[ndx][0]
-			nuy = oct6L[ndx][1]
-			nuz = oct6L[ndx][2]
+			nux = oct6L[bcNdx][0]
+			nuy = oct6L[bcNdx][1]
+			nuz = oct6L[bcNdx][2]
 			tupl=( (-nux,nuy,nuz) )
 		elif sedm.ToolAxis == 0: #X G19
-			nux = oct6L[ndx][0]
-			nuy = oct6L[ndx][1]
-			nuz = oct6L[ndx][2]
+			nux = oct6L[bcNdx][0]
+			nuy = oct6L[bcNdx][1]
+			nuz = oct6L[bcNdx][2]
 			tupl=( (nux,-nuy,nuz) )
 		#
 		oct7L.append(tupl)
 	# ------- beg octant 8
 	oct8L = []
-	#24.03.2026 no need for global ndx, initd here
-	for ndx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
+	#24.03.2026 no need for global bcNdx, initd here
+	for bcNdx in range(l-1,  -1, -1):#  loop bwds thri octant 1 data
 		if sedm.ToolAxis == 2: #Z G17
-			nux = oct7L[ndx][1]
-			nuy = oct7L[ndx][0]
-			nuz = oct7L[ndx][2]
+			nux = oct7L[bcNdx][1]
+			nuy = oct7L[bcNdx][0]
+			nuz = oct7L[bcNdx][2]
 			tupl=( (-nux,-nuy,nuz) )
 		elif sedm.ToolAxis == 1: #Y G18
-			nux = oct7L[ndx][2]
-			nuy = oct7L[ndx][1]
-			nuz = oct7L[ndx][0]
+			nux = oct7L[bcNdx][2]
+			nuy = oct7L[bcNdx][1]
+			nuz = oct7L[bcNdx][0]
 			tupl=( (-nux,nuy,-nuz) )
 		elif sedm.ToolAxis == 0: #X G19
-			nux = oct7L[ndx][0]
-			nuy = oct7L[ndx][2]
-			nuz = oct7L[ndx][1]
+			nux = oct7L[bcNdx][0]
+			nuy = oct7L[bcNdx][2]
+			nuz = oct7L[bcNdx][1]
 			tupl=( (nux,-nuy,-nuz) )
 		#
 		oct8L.append(tupl)
@@ -1756,7 +1756,10 @@ def doWiglLeadIn(liL):
 	#
 	lim = len(liL) - 1
 	#
-	sedm.JumpLtyp = JumpOrbLeadInType
+	sedm.JumpLtype = JumpOrbLeadInType
+	# 25.03.2026  'e' missing from pin
+	# ??? bad Geany? bbad memory? i have not esited near here for many days
+	
 	#print("JumpBoreType =1, JumpStairsType =2 JumpOrbLeadInType =3 JumpOrbPathType =4 JumpOrbPathDetour =5 NoJump = 10"
 	#
 	while 1: #
@@ -1776,7 +1779,8 @@ def doWiglLeadIn(liL):
 				#
 				else:
 					oldP = liL[wiglNdx]
-					ndx += 1
+					#25.03.2026 vvv there shoulf be no 'ndx'  asll were cleaned out yesterday
+					wiglNdx += 1
 					newP = liL[wiglNdx]
 				#
 			elif nextDir == BWD:   # BWD is tiwards lissr[0]
@@ -1789,7 +1793,7 @@ def doWiglLeadIn(liL):
 				#
 				else:
 					oldP = liL[wiglNdx]
-					ndx -= 1
+					wiglNdx -= 1
 					newP = liL[wiglNdx]
 		#
 		SPO = ( ( 0,0,0 ) )
