@@ -1,0 +1,11 @@
+Source: linuxcnc-ethercat
+Section: unknown
+Priority: extra
+Maintainer: Sascha Ittner <sascha.ittner@modusoft.de>
+Build-Depends: debhelper (>= 8.0.0), libexpat1-dev, linuxcnc-dev | linuxcnc-sim-dev | linuxcnc-uspace-dev | machinekit-dev, etherlabmaster-dev
+Standards-Version: 3.9.3
+
+Package: linuxcnc-ethercat
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, linuxcnc | linuxcnc-sim | linuxcnc-uspace | machinekit, etherlabmaster
+Description: LinuxCNC EtherCAT HAL driver

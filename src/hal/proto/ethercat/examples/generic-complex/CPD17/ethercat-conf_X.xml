@@ -1,0 +1,174 @@
+<masters>
+<master idx="0" appTimePeriod="1000000" refClockSyncCycles="1000">
+  <slave idx="0" type="EK1100" name="Busklemme"/>
+  <slave idx="1" type="EL1002"/>
+  <slave idx="2" type="EL2008"/>
+  <!-- EL6751 CANopen slave -->
+  <slave idx="3" type="generic" vid="00000002" pid="1a5f3052" configPdos="true">
+
+    <sdoConfig idx="1c32" subIdx="complete">
+      <sdoDataRaw data="03 00 01 00 00 09 3D 00"/>
+      <sdoDataRaw data="00 00 00 00"/>
+    </sdoConfig>
+
+    <sdoConfig idx="1c33" subIdx="complete">
+      <sdoDataRaw data="03 00 22 00 00 00 00 00"/>
+      <sdoDataRaw data="00 9F 24 00"/>
+    </sdoConfig>
+
+    <sdoConfig idx="f800" subIdx="complete">
+      <sdoDataRaw data="0A 00 7F 02 80 00 1E 00"/>
+      <sdoDataRaw data="01 00 11 00 64 00"/>
+    </sdoConfig>
+
+    <!--SDO Init Cmds Node 0 -->
+    <sdoConfig idx="8000" subIdx="complete">
+      <sdoDataRaw data="2B 00 02 00 00 00 00 00"/>
+      <sdoDataRaw data="00 00 00 00 00 00 00 00"/>
+      <sdoDataRaw data="00 00 00 00 92 01 42 00"/>
+      <sdoDataRaw data="A4 00 00 00 D0 20 00 00"/>
+      <sdoDataRaw data="00 00 00 00 00 00 00 00"/>
+      <sdoDataRaw data="00 00 00 00 00 00 00 00"/>
+      <sdoDataRaw data="00 00 00 00 64 00 03 00"/>
+      <sdoDataRaw data="D0 07 D0 07 03 03 77 00"/>
+      <sdoDataRaw data="0A 0A"/>
+    </sdoConfig>
+
+    <sdoConfig idx="8001" subIdx="complete">
+      <sdoDataRaw data="03 00 01 00 00 00 FF 02"/>
+      <sdoDataRaw data="82 01 00 00 00 00 00 18"/>
+      <sdoDataRaw data="01 00 00 00 FF 06 82 02"/>
+      <sdoDataRaw data="00 00 00 00 01 18 01 00"/>
+      <sdoDataRaw data="00 00 FF 06 82 03 00 00"/>
+      <sdoDataRaw data="00 00 02 18"/>
+    </sdoConfig>
+
+    <sdoConfig idx="8002" subIdx="complete">
+      <sdoDataRaw data="03 00 00 00 00 00 FF 02"/>
+      <sdoDataRaw data="02 02 00 00 00 00 00 14"/>
+      <sdoDataRaw data="00 00 00 00 FF 06 02 03"/>
+      <sdoDataRaw data="00 00 00 00 01 14 00 00"/>
+      <sdoDataRaw data="00 00 FF 06 02 04 00 00"/>
+      <sdoDataRaw data="00 00 02 14"/>
+    </sdoConfig>
+   
+    <sdoConfig idx="8003" subIdx="complete">
+      <sdoDataRaw data="10 00 00 18 01 04 00 82"/>
+      <sdoDataRaw data="01 00 00 00 18 02 01 00"/>
+      <sdoDataRaw data="FF 01 18 01 04 00 82 02"/>
+      <sdoDataRaw data="00 00 01 18 02 01 00 FF"/>
+      <sdoDataRaw data="02 18 01 04 00 82 03 00"/>
+      <sdoDataRaw data="00 02 18 02 01 00 FF 00"/>
+      <sdoDataRaw data="14 01 04 00 02 02 00 00"/>
+      <sdoDataRaw data="00 14 02 01 00 FF 01 14"/>
+      <sdoDataRaw data="01 04 00 02 03 00 00 01"/>
+      <sdoDataRaw data="14 02 01 00 FF 02 14 01"/>
+      <sdoDataRaw data="04 00 02 04 00 00 02 14"/>
+      <sdoDataRaw data="02 01 00 FF"/>
+      <!-- 0x6081 Geschwindigkeit 0x2710 (10000)-->
+      <sdoDataRaw data="81 60 00 04 00 10 27 00 00"/>
+      <!-- 0x6083 Beschleunigung 0x2CFFFF (2949119)-->
+      <sdoDataRaw data="83 60 00 04 00 FF FF 2C 00"/>
+      <!-- 0x6084 Verzögerung 0x2CFFFF (2949119)-->
+      <sdoDataRaw data="84 60 00 04 00 FF FF 2C 00"/>
+      <!-- 0x6040 Commandregister 0x0080-->
+      <sdoDataRaw data="40 60 00 02 00 80 00"/>
+      <!-- 0x6040 Commandregister 0x000F-->
+      <sdoDataRaw data="40 60 00 02 00 0F 00"/>
+      <!-- 0x6060 Mode Positionsregelung 0x01-->
+      <sdoDataRaw data="60 60 00 01 00 01"/>
+    </sdoConfig>
+
+    <sdoConfig idx="1c12" subIdx="complete">
+      <sdoDataRaw data="01 00 00 16"/>
+    </sdoConfig>
+
+    <sdoConfig idx="1c13" subIdx="complete">
+      <sdoDataRaw data="02 00 00 1A 80 1A"/>
+    </sdoConfig>
+
+    <syncManager idx="0" dir="out">
+    </syncManager>
+    <syncManager idx="1" dir="in">
+    </syncManager>
+
+    <syncManager idx="2" dir="out">
+      <pdo idx="1600">
+        <pdoEntry idx="7000" subIdx="01" bitLen="16" halPin="1-RxPDO_1" halType="u32"/>
+        <pdoEntry idx="7000" subIdx="02" bitLen="48" halType="complex">
+		<complexEntry bitLen="1" halPin="X-cmd-SwitchOn" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-EnableVoltage" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-/QuickStop" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-EnableOperation" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-NewSetpoint" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-ChangeSetImmediatly" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-RelativPos" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-FaultReset" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-Halt" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-bit09" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-bit10" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-bit11" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-bit12" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-bit13" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-bit14" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-cmd-bit15" halType="bit"/>
+		<complexEntry bitLen="32" halPin="X-TargetPos" halType="float" scale="1000"/>
+	</pdoEntry>
+        <pdoEntry idx="7000" subIdx="03" bitLen="48" halType="complex">
+	      <complexEntry bitLen="16" halPin="1-RxPDO_3-cmd" halType="u32"/>
+	      <complexEntry bitLen="32" halPin="1-RxPDO_3-vel" halType="s32"/>
+	</pdoEntry>
+      </pdo>
+    </syncManager>
+
+    <syncManager idx="3" dir="in">
+      <pdo idx="1a00">
+        <pdoEntry idx="6000" subIdx="01" bitLen="16" halPin="1-TxPDO_1" halType="u32"/>
+        <pdoEntry idx="6000" subIdx="02" bitLen="48" halType="complex">
+		<complexEntry bitLen="1" halPin="X-stat-ReadyToSwitchOn" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-SwitchOn" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-OperationEnable" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-Fault" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-VoltageEnabled" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-QuickStop" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-SwitchOnDisable" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-Warning" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-HaltRequestActive" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-Remote" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-TargetIsReached" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-bit11" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-SetpointAck" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-x_err" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-x_end" halType="bit"/>
+		<complexEntry bitLen="1" halPin="X-stat-RefOk" halType="bit"/>
+		<complexEntry bitLen="32" halPin="X-Pos" halType="float" scale="0.001"/>
+	</pdoEntry>
+        <pdoEntry idx="6000" subIdx="03" bitLen="48" halType="complex">
+	      <complexEntry bitLen="16" halPin="1-TxPDO_3-cmd" halType="u32"/>
+	      <complexEntry bitLen="32" halPin="1-TxPDO_3-vel" halType="s32"/>
+	</pdoEntry>
+      </pdo>
+
+      <pdo idx="1a80">
+        <pdoEntry idx="f102" subIdx="01" bitLen="8" halPin="CanNode1State" halType="u32"/>
+        <pdoEntry idx="f101" subIdx="03" bitLen="8" halPin="f101:03/8" halType="u32"/>
+        <pdoEntry idx="f108" subIdx="01" bitLen="1" halPin="CanBusOff" halType="bit"/>
+        <pdoEntry idx="f108" subIdx="02" bitLen="1" halPin="CanWarnLimit" halType="bit"/>
+        <pdoEntry idx="f108" subIdx="03" bitLen="1" halPin="RxFifoOverflow" halType="bit"/>
+        <pdoEntry idx="0000" subIdx="00" bitLen="1" halPin="0000:00/1" halType="bit"/>
+        <pdoEntry idx="f108" subIdx="05" bitLen="1" halPin="TxFifoOverflow" halType="bit"/>
+        <pdoEntry idx="f108" subIdx="06" bitLen="1" halPin="CanAckErr" halType="bit"/>
+        <pdoEntry idx="0000" subIdx="00" bitLen="2" halPin="0000:00/2" halType="bit"/>
+        <pdoEntry idx="0000" subIdx="00" bitLen="8" halPin="0000:00/8" halType="bit"/>
+        <pdoEntry idx="f108" subIdx="21" bitLen="8" halPin="RxErrCount" halType="u32"/>
+        <pdoEntry idx="f108" subIdx="22" bitLen="8" halPin="TxErrCount" halType="u32"/>
+        <pdoEntry idx="f101" subIdx="14" bitLen="1" halPin="f101:14/1" halType="bit"/>
+        <pdoEntry idx="f103" subIdx="01" bitLen="1" halPin="CanDiagSlave1" halType="bit"/>
+        <pdoEntry idx="0000" subIdx="00" bitLen="6" halPin="0000:00/6" halType="bit"/>
+      </pdo>
+    </syncManager>
+  </slave>
+
+  <slave idx="4" type="EL1008"/>
+</master>
+</masters>

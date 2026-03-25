@@ -1,0 +1,21 @@
+<masters>
+  <master idx="0" appTimePeriod="1000000" refClockSyncCycles="-1">
+    <slave idx="0" type="EK1100"/>
+
+    <slave idx="1" type="EL6900">
+      <modParam name="stdInName" value="run"/>
+      <modParam name="stdInName" value="reset"/>
+      <modParam name="fsoeSlaveIdx" value="6"/>
+      <modParam name="fsoeSlaveIdx" value="4"/>
+      <modParam name="fsoeSlaveIdx" value="5"/>
+    </slave>
+
+    <slave idx="2" type="EL1808"/>
+    <slave idx="3" type="EL2808"/>
+
+    <slave idx="4" type="EL1904"/>
+    <slave idx="5" type="EL1904"/>
+    <slave idx="6" type="EL2904"/>
+  </master>
+</masters>
+

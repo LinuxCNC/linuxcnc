@@ -1,0 +1,148 @@
+<masters>
+  <master idx="0" appTimePeriod="1000000" refClockSyncCycles="5">
+    <slave idx="0" type="EK1100"/>
+    <slave idx="1" type="EL1809"/>
+    <slave idx="2" type="EL1809"/>
+    <slave idx="3" type="EL2809"/>
+    <slave idx="4" type="EL4002"/>
+    <slave idx="5" type="EL4002"/>
+    <slave idx="6" type="EL7342">
+      <dcConf assignActivate="300" sync0Cycle="*1" sync0Shift="-25000"/>
+      <watchdog divider="2498" intervals="2000"/>
+    </slave>
+    <slave idx="7" type="EL7342">
+      <dcConf assignActivate="300" sync0Cycle="*1" sync0Shift="-25000"/>
+      <watchdog divider="2498" intervals="2000"/>
+    </slave>
+    <!-- EL6751 CANopen slave -->
+    <slave idx="8" type="generic" vid="00000002" pid="1a5f3052" configPdos="true">
+      <sdoConfig idx="f800" subIdx="complete">
+        <sdoDataRaw data="0A 00 05 02 80 00 1E 00"/>
+        <sdoDataRaw data="01 00 12 80 64 00"/>
+      </sdoConfig>
+      <sdoConfig idx="8000" subIdx="complete">
+        <sdoDataRaw data="2B 00 05 00 00 00 00 00"/>
+        <sdoDataRaw data="00 00 00 00 00 00 00 00"/>
+        <sdoDataRaw data="00 00 00 00 05 04 00 00"/>
+        <sdoDataRaw data="02 00 00 00 5F 1A 00 00"/>
+        <sdoDataRaw data="00 00 00 00 00 00 00 00"/>
+        <sdoDataRaw data="00 00 00 00 00 00 00 00"/>
+        <sdoDataRaw data="00 00 02 00 64 00 03 00"/>
+        <sdoDataRaw data="00 00 00 00 01 01 00 00"/>
+        <sdoDataRaw data="0A 00"/>
+      </sdoConfig>
+      <sdoConfig idx="8001" subIdx="complete">
+        <sdoDataRaw data="01 00 01 00 00 00 FF 08"/>
+        <sdoDataRaw data="85 01 00 00 00 00 00 18"/>
+      </sdoConfig>
+      <sdoConfig idx="8002" subIdx="complete">
+        <sdoDataRaw data="01 00 00 00 00 00 FF 08"/>
+        <sdoDataRaw data="05 02 00 00 00 00 00 14"/>
+      </sdoConfig>
+      <syncManager idx="0" dir="out">
+      </syncManager>
+      <syncManager idx="1" dir="in">
+      </syncManager>
+      <syncManager idx="2" dir="out">
+        <pdo idx="1600">
+          <!-- Byte 0 -->
+          <pdoEntry idx="7000" subIdx="01" bitLen="1" halPin="eps-tog-out" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="02" bitLen="1" halPin="emc-on" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="03" bitLen="1" halPin="emc-auto" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="04" bitLen="1" halPin="eps-request" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="05" bitLen="1" halPin="eps-unload" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="06" bitLen="1" halPin="out-nc0.5" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="07" bitLen="1" halPin="eps-vc-rdy" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="08" bitLen="1" halPin="out-nc0.7" halType="bit"/>
+          <!-- Byte 1 -->
+          <pdoEntry idx="7000" subIdx="09" bitLen="1" halPin="eps-vc-ena" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="0a" bitLen="1" halPin="eps-vc-part-ok" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="0b" bitLen="1" halPin="setup-pos-up" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="0c" bitLen="1" halPin="setup-pos-down" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="0d" bitLen="1" halPin="setup-prestop-on" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="0e" bitLen="1" halPin="setup-prestop-off" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="0f" bitLen="1" halPin="setup-mainstop-on" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="10" bitLen="1" halPin="setup-mainstop-off" halType="bit"/>
+          <!-- Byte 2 -->
+          <pdoEntry idx="7000" subIdx="11" bitLen="1" halPin="setup-belt-on" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="12" bitLen="1" halPin="setup-belt-off" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="13" bitLen="1" halPin="cablamp-on" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="14" bitLen="1" halPin="cablamp-off" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="15" bitLen="1" halPin="eps-trash-empty" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="16" bitLen="1" halPin="setup-picker1-on" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="17" bitLen="1" halPin="setup-picker1-off" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="18" bitLen="1" halPin="setup-picker2-on" halType="bit"/>
+          <!-- Byte 3 -->
+          <pdoEntry idx="7000" subIdx="19" bitLen="1" halPin="setup-picker2-off" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="1a" bitLen="1" halPin="setup-start" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="1b" bitLen="1" halPin="setup-stop" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="1c" bitLen="1" halPin="setup-cycle" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="1d" bitLen="1" halPin="setup-home" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="1e" bitLen="1" halPin="signal-green" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="1f" bitLen="1" halPin="signal-yellow" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="20" bitLen="1" halPin="signal-red" halType="bit"/>
+          <!-- Byte 4 -->
+          <pdoEntry idx="7000" subIdx="21" bitLen="8" halPin="eps-pickup-offset" halType="u32"/>
+          <!-- Byte 5 -->
+          <pdoEntry idx="7000" subIdx="22" bitLen="1" halPin="chuck-coat-loaded" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="23" bitLen="1" halPin="chuck-cam-loaded" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="24" bitLen="1" halPin="trash-infinite" halType="bit"/>
+          <pdoEntry idx="7000" subIdx="25" bitLen="5" halPin="out-nc5" halType="u32"/>
+          <!-- Byte 6 -->
+          <pdoEntry idx="7000" subIdx="26" bitLen="8" halPin="out-nc6" halType="u32"/>
+          <!-- Byte 7 -->
+          <pdoEntry idx="7000" subIdx="27" bitLen="8" halPin="out-nc7" halType="u32"/>
+        </pdo>
+      </syncManager>
+      <syncManager idx="3" dir="in">
+        <pdo idx="1a00">
+          <!-- Byte 0 -->
+          <pdoEntry idx="6000" subIdx="01" bitLen="1" halPin="eps-tog-in" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="02" bitLen="1" halPin="eps-error" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="03" bitLen="1" halPin="eps-ready" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="04" bitLen="1" halPin="eps-has-tray" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="05" bitLen="1" halPin="eps-vc-req" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="06" bitLen="1" halPin="eps-vc-ack" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="07" bitLen="1" halPin="eps-homed" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="08" bitLen="1" halPin="eps-trash-is-full" halType="bit"/>
+          <!-- Byte 1 -->
+          <pdoEntry idx="6000" subIdx="09" bitLen="1" halPin="eps-trash-is-empty" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="0a" bitLen="1" halPin="eps-unload-active" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="0b" bitLen="1" halPin="setup-pos-active" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="0c" bitLen="1" halPin="setup-prestop-active" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="0d" bitLen="1" halPin="setup-mainstop-active" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="0e" bitLen="1" halPin="setup-belt-active" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="0f" bitLen="1" halPin="cablamp-active" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="10" bitLen="1" halPin="setup-picker1-active" halType="bit"/>
+          <!-- Byte 2 -->
+          <pdoEntry idx="6000" subIdx="11" bitLen="1" halPin="setup-picker1-loaded" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="12" bitLen="1" halPin="setup-picker2-active" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="13" bitLen="1" halPin="setup-picker2-loaded" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="14" bitLen="1" halPin="eps-active" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="15" bitLen="1" halPin="eps-vc-start" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="16" bitLen="1" halPin="eps-busy" halType="bit"/>
+          <pdoEntry idx="6000" subIdx="17" bitLen="2" halPin="in-nc2.6" halType="bit"/>
+          <!-- Byte 3 -->
+          <pdoEntry idx="6000" subIdx="18" bitLen="8" halPin="in-nc3" halType="u32"/>
+          <!-- Byte 4 -->
+          <pdoEntry idx="6000" subIdx="19" bitLen="8" halPin="in-nc4" halType="u32"/>
+          <!-- Byte 5 -->
+          <pdoEntry idx="6000" subIdx="1a" bitLen="8" halPin="in-nc5" halType="u32"/>
+          <!-- Byte 6 + 7 -->
+          <pdoEntry idx="6000" subIdx="1b" bitLen="16" halPin="eps-error-code" halType="u32"/>
+        </pdo>
+        <pdo idx="1a80">
+          <pdoEntry idx="a000" subIdx="01" bitLen="8" halPin="can-slave-nodestate" halType="u32"/>
+          <pdoEntry idx="f100" subIdx="01" bitLen="8" halPin="can-error" halType="u32"/>
+          <pdoEntry idx="f100" subIdx="03" bitLen="16" halPin="can-state" halType="u32"/>
+          <pdoEntry idx="f100" subIdx="02" bitLen="1" halPin="can-diagflag" halType="bit"/>
+          <pdoEntry idx="a000" subIdx="02" bitLen="1" halPin="can-slave-diagflag" halType="bit"/>
+          <pdoEntry idx="0000" subIdx="00" bitLen="6"/>
+        </pdo>
+      </syncManager>
+    </slave>
+    <slave idx="9" type="EL2809"/>
+    <slave idx="10" type="EL9505"/>
+  </master>
+</masters>
+

@@ -1,0 +1,8 @@
+<masters>
+	<master idx="0" appTimePeriod="1000000" refClockSyncCycles="1">
+		<slave idx="0" type="R88D-KN04H-ECT">
+			<dcConf assignActivate="300" sync0Cycle="*1" sync0Shift="0"/>
+			<watchdog divider="2498" intervals="1000"/>
+		</slave>
+	</master>
+</masters>

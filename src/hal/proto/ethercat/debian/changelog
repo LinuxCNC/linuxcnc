@@ -1,0 +1,91 @@
+linuxcnc-ethercat (0.9.4) unstable; urgency=low
+
+  * added EL7211 debug pins
+  * route digital input to HAL for EL7201-9014
+  * added ramp function with at-speed pin to el7211/el7411 for use as spindle
+  * Add support for all Omron G5 drives
+  * added EP2809, EP2008, EK1120
+  * added EL7411 (HALL velocity mode)
+  * added EL7201-9014
+  * added EL7031 and EL7041_0052 support
+  * added EL1859
+  * added EL2634
+  * added EL3164
+  * added EL1819
+  * add SK1110 support
+  * add linuxcnc 2.8 support
+  * add 3lm2rm support
+  * add el4134 support
+  * moved from PI to BANG-BANG controller for task PLL.
+  * add EL7221 support
+  * added EL40x8 support
+  * add support for EL2612
+  * fixed fsoe command read data type
+  * allow IP trsition on SDO initialization
+  * added external encoder supoort for MDS5000
+  * support for complete write on SDO init commads
+  * added support for ax5203
+  * add fsoe support
+  * fixed a problem that could not read an unordered property
+  * fix segfault during `lcec_update_slave_state_hal()` on Machinekit HAL
+  * fixed el2521 sdo 8000:07 read size
+
+ -- Sascha Ittner <sascha.ittner@modusoft.de>  Wed, 21 Jul 2021 11:47:50 +0200
+
+linuxcnc-ethercat (0.9.3) unstable; urgency=low
+
+  * NEW: support to sync master's task to the EC refclock (sittner)
+      enabled via refSyncCycle="1", needs supplied patch against linuxcnc
+  * NEW: support for EL2798 (frankbrossette)
+  * NEW: support for EL41x4 (frankbrossette)
+  * NEW: support for EL3255 5 Ch Potentiometer input device (sittner)
+  * NEW: support EP2028 (sittner)
+  * NEW: support for EL7211 (sittner)
+  * NEW: support for AX5206 (sittner)
+  * NEW: added SoE setup function for ethercat-config.xml (sittner)
+  * NEW: added support to include external CoE/SoE init commands for ethercat-config.xml (sittner)
+  * NEW: new module specific parameter support (narogon, sittner)
+  * NEW: stmds5k, deasda, ax5206 and el7211 uses same encoder class for position feedback (sittner)
+      ATTENTION: this may need some changes to existing configs, as some pins have changed
+  * FIX: Fixed conceptual bug in intermediate config buffer handling (sittner)
+  * FIX: sync refclock to masterclock now respects local jitter (sittner)
+  * FIX: use master's synchronous ecrt_master_sdo_upload to read SDOs on init (sittner)
+  * FIX: build script uses Makefile.modinc (sirop, sittner)
+  * DEPRECATE: RTAI is not tested anymore (sittner)
+  * CLEANUP: reworked pin export method (sittner)
+  * CLEANUP: introduced function class concept (sittner)
+
+ -- Sascha Ittner <sascha.ittner@modusoft.de>  Fri, 23 Mar 2018 14:38:41 +0200
+
+linuxcnc-ethercat (0.9.2) unstable; urgency=low
+
+  * added autoreset fault retry option for delta asda driver (sittner)
+  * add driver support for EL2622 (koppi)
+  * EL7342: fix counter underflow, counter overflow PDOs (koppi)
+  * add device driver for EL7041-1000 (koppi)
+  * fixed scale/offset config parsing (sittner)
+  * GENERIC: support for complex pins (frankbrossette, sittner)
+  * support for EL2202 and EL1252 added (claudiolorini)
+
+ -- Sascha Ittner <sascha.ittner@modusoft.de>  Sun, 04 Oct 2015 21:51:14 +0200
+
+linuxcnc-ethercat (0.9.1) unstable; urgency=low
+
+  * Stoeber MDS5000 tourque calculation fixed
+  * Support for simulation mode
+  * Rework of build system
+
+ -- Sascha Ittner <sascha.ittner@modusoft.de>  Wed, 11 Mar 2015 00:00:00 +0100
+
+linuxcnc-ethercat (0.9.0-2) unstable; urgency=low
+
+  * added example files
+
+ -- Sascha Ittner <sascha.ittner@modusoft.de>  Tue, 28 Jan 2015 16:26:32 +0100
+
+linuxcnc-ethercat (0.9.0-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Sascha Ittner <sascha.ittner@modusoft.de>  Mon, 12 Jan 2015 10:19:04 +0100
+

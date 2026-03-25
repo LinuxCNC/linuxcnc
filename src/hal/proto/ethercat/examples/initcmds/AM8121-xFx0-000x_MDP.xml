@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<EtherCATMailbox><CoE><InitCmds>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Max current]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32785</Index>
+		<SubIndex>17</SubIndex>
+		<Data>10270000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Rated current]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32785</Index>
+		<SubIndex>18</SubIndex>
+		<Data>a00f0000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Motor thermal time constant]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32785</Index>
+		<SubIndex>45</SubIndex>
+		<Data>c800</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Motor pole pairs]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32785</Index>
+		<SubIndex>19</SubIndex>
+		<Data>03</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Commutation offset]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32785</Index>
+		<SubIndex>21</SubIndex>
+		<Data>a6ff</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Torque constant]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32785</Index>
+		<SubIndex>22</SubIndex>
+		<Data>82000000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Rotor moment of inertia ]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32785</Index>
+		<SubIndex>24</SubIndex>
+		<Data>86000000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Winding inductance]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32785</Index>
+		<SubIndex>25</SubIndex>
+		<Data>1e00</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Motor speed limitation]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32785</Index>
+		<SubIndex>27</SubIndex>
+		<Data>b80b0000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Current loop proportional gain]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32784</Index>
+		<SubIndex>19</SubIndex>
+		<Data>6401</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Current loop integral time]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32784</Index>
+		<SubIndex>18</SubIndex>
+		<Data>0500</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Velocity loop proportional gain]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32784</Index>
+		<SubIndex>21</SubIndex>
+		<Data>70000000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Velocity loop integral time]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32784</Index>
+		<SubIndex>20</SubIndex>
+		<Data>96000000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Release delay]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32786</Index>
+		<SubIndex>17</SubIndex>
+		<Data>0000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Application delay]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32786</Index>
+		<SubIndex>18</SubIndex>
+		<Data>0000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Emergency application timeout]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32786</Index>
+		<SubIndex>19</SubIndex>
+		<Data>0000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Brake moment of inertia]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32786</Index>
+		<SubIndex>20</SubIndex>
+		<Data>0000</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Stand still window]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32784</Index>
+		<SubIndex>51</SubIndex>
+		<Data>0a00</Data>
+	</InitCmd>
+	<InitCmd>
+		<Transition>PS</Transition>
+		<Comment><![CDATA[Nominal DC Link Voltage]]></Comment>
+		<Timeout>0</Timeout>
+		<Ccs>1</Ccs>
+		<Index>32784</Index>
+		<SubIndex>25</SubIndex>
+		<Data>80bb0000</Data>
+	</InitCmd>
+</InitCmds></CoE></EtherCATMailbox>

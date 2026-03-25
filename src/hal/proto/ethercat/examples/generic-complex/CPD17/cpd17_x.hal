@@ -1,0 +1,59 @@
+loadusr -W lcec_conf /home/frank/linuxcnc/configs/ethercat/ethercat-conf_X.xml
+loadrt lcec
+loadrt trivkins
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt not count=1
+
+#-----------------------------------------------------------
+
+addf lcec.read-all servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf not.0 servo-thread
+addf lcec.write-all servo-thread
+
+#-----------------------------------------------------------
+
+net bus_up lcec.state-op 		=>	iocontrol.0.emc-enable-in 
+
+net tool-change  iocontrol.0.tool-change  	iocontrol.0.tool-changed
+net tool-prepare iocontrol.0.tool-prepare 	iocontrol.0.tool-prepared
+#-----------------------------------------------------------
+
+net Spindel_enable motion.spindle-on 	=> 	lcec.0.2.dout-0
+net Spindel_dir motion.spindle-reverse 	=> 	lcec.0.2.dout-1
+
+# Test Homefahrt
+net RefX halui.spindle.is-on => axis.0.home-sw-in
+
+#-----------------------------------------------------------
+
+# ChangeSetImmediatly: true -> neuer Zielwert sofort aktivieren
+setp lcec.0.3.X-cmd-ChangeSetImmediatly 	true
+
+# NewSetpoint in jedem Zyklus Ã¤ndern 
+net NewSetpoint not.0.out 		=>	not.0.in
+
+#-----------------------------------------------------------
+# X-Achse
+#-----------------------------------------------------------
+net EnableAmpX axis.0.amp-enable-out 	=>	lcec.0.3.X-cmd-SwitchOn
+net EnableAmpX					lcec.0.3.X-cmd-EnableVoltage
+net EnableAmpX					lcec.0.3.X-cmd-/QuickStop
+net EnableAmpX					lcec.0.3.X-cmd-EnableOperation
+#-----------------------------------------------------------
+# Istposition vom Motor an axis Ã¼bergeben 
+net Xachse_fb 	lcec.0.3.X-Pos 		=> 	axis.0.motor-pos-fb
+#-----------------------------------------------------------
+# Sollposition von axis an den Motor Ã¼bergeben 
+net Xachse_cmd 	axis.0.motor-pos-cmd 	=>	lcec.0.3.X-TargetPos
+#-----------------------------------------------------------
+# NewSetpoint an den Motor Ã¼bergeben 
+net NewSetpoint				=>	lcec.0.3.X-cmd-NewSetpoint
+
+#-----------------------------------------------------------
+# Y+Z-Achse simulieren
+#-----------------------------------------------------------
+net Ypos axis.1.motor-pos-cmd => axis.1.motor-pos-fb
+net Zpos axis.2.motor-pos-cmd => axis.2.motor-pos-fb
+

@@ -1,0 +1,72 @@
+###########################################################
+#
+# Master HAL file for SWM FM45A DRO Profi
+#
+# Created 2014/10/21 by Sascha Ittner
+#
+# Global HAL configuration file
+#
+###########################################################
+
+###########################################################
+# Setup
+###########################################################
+
+# load kinematiks and motion controller (realtime)
+loadrt trivkins
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+
+# load ethercat config parser
+loadusr -W lcec_conf ethercat-conf.xml
+# load ethercat realtime module
+loadrt lcec
+
+# load position controller PID instances
+loadrt pid names=x-pid,y-pid,z-pid 
+
+###########################################################
+# Functions
+#
+# specify the thead and the order where component functions
+# will be called. Since we need no high speed pulse generation
+# like soft pwm and stepper generator, only the servo thread
+# is used (wich allows floating point calculations and runs
+# at 1ms cycle time per default). Functions be called in the
+# order of definition.
+#
+# Base thread could be used in simple systems for high speed
+# tasks like mentioned above. Base thread only supports
+# integer arithmetics.
+#
+###########################################################
+
+addf lcec.read-all servo-thread
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+addf x-pid.do-pid-calcs servo-thread
+addf y-pid.do-pid-calcs servo-thread
+addf z-pid.do-pid-calcs servo-thread
+
+addf lcec.write-all servo-thread
+
+###########################################################
+# E-Stop
+###########################################################
+
+net voltage-on => iocontrol.0.emc-enable-in
+
+###########################################################
+# Toolchange
+#
+# Manual tool change window
+#
+###########################################################
+
+loadusr -W hal_manualtoolchange
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
+net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+
