@@ -20,6 +20,7 @@ func halStartThreads() error               { return ErrNoCGO }
 func halStopThreads() error                { return ErrNoCGO }
 func halListComponents() ([]string, error) { return nil, ErrNoCGO }
 func halUnloadAll(_ int) error             { return ErrNoCGO }
+func halLockRTComponents() error           { return ErrNoCGO }
 
 func halNewSig(_ string, _ hal.PinType) error { return ErrNoCGO }
 func halDelSig(_ string) error                { return ErrNoCGO }

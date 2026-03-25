@@ -330,25 +330,33 @@ void *rtapi_dlopen(const char *path, int flags) {
         return NULL;
     }
 
-    // Lock all segments of the loaded library
-    const char *resolved = dl_resolve_name(handle);
-    if (resolved) {
-        dl_iterate_phdr(dl_mlock_callback, (void *)resolved);
-    }
+    rtapi_lock_dl_handle(handle);
 
     return handle;
 }
 
 int rtapi_dlclose(void *handle) {
-    // Unlock all segments of the loaded library
     if (handle) {
-        const char *resolved = dl_resolve_name(handle);
-        if (resolved) {
-            dl_iterate_phdr(dl_munlock_callback, (void *)resolved);
-        }
+        rtapi_unlock_dl_handle(handle);
     }
 
     return dlclose(handle);
+}
+
+void rtapi_lock_dl_handle(void *handle) {
+    if (!handle) return;
+    const char *resolved = dl_resolve_name(handle);
+    if (resolved) {
+        dl_iterate_phdr(dl_mlock_callback, (void *)resolved);
+    }
+}
+
+void rtapi_unlock_dl_handle(void *handle) {
+    if (!handle) return;
+    const char *resolved = dl_resolve_name(handle);
+    if (resolved) {
+        dl_iterate_phdr(dl_munlock_callback, (void *)resolved);
+    }
 }
 
 static void configure_memory(void)

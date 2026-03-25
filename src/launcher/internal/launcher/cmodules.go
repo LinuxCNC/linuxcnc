@@ -28,8 +28,9 @@ extern void cmod_log_debug(void *ctx, char *component, char *msg);
 
 // cmod_env_init populates a cmod_env_t with the launcher's callback functions.
 // Casts bridge the const-correct header types with CGO's non-const exports.
-static void cmod_env_init(cmod_env_t *env, void *ctx) {
+static void cmod_env_init(cmod_env_t *env, void *ctx, void *dl_handle) {
     env->ctx             = ctx;
+    env->dl_handle       = dl_handle;
     env->get_ini         = (const char*(*)(void*,const char*,const char*))cmod_get_ini;
     env->ini_source_file = (const char*(*)(void*))cmod_ini_source_file;
     env->log_info        = (void(*)(void*,const char*,const char*))cmod_log_info;
@@ -75,7 +76,7 @@ import (
 
 // cModule holds a loaded C plugin module.
 type cModule struct {
-	handle  *C.void    // dlopen handle
+	handle  *C.void // dlopen handle
 	mod     *C.cmod_t
 	hCtx    cgo.Handle // Go↔C handle for the Launcher pointer
 	name    string
@@ -183,7 +184,7 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 
 	env := (*C.cmod_env_t)(C.malloc(C.size_t(unsafe.Sizeof(C.cmod_env_t{}))))
 	hCtx := cgo.NewHandle(l)
-	C.cmod_env_init(env, unsafe.Pointer(uintptr(hCtx)))
+	C.cmod_env_init(env, unsafe.Pointer(uintptr(hCtx)), handle)
 	l.cModArena = append(l.cModArena, unsafe.Pointer(env))
 
 	// Convert args to C strings.

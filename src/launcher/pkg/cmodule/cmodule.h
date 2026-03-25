@@ -27,6 +27,11 @@ extern "C" {
 typedef struct {
     void *ctx;
 
+    // dl_handle is the dlopen() handle of the .so file that contains this
+    // plugin.  Plugins that create RT HAL components should pass this to
+    // hal_init_ex() so the launcher can lock the .so's memory pages.
+    void *dl_handle;
+
     // get_ini returns the value for the given section/key from the parsed INI
     // file.  Returns NULL if the key does not exist.  The returned string is
     // valid until Destroy() is called on this module (arena lifetime).

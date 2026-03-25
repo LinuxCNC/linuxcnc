@@ -149,6 +149,17 @@ static int ref_cnt = 0;
 #include <stdio.h>
 int hal_init(const char *name)
 {
+    component_type_t type;
+    if (rtapi_pid == getpid()) {
+        type = COMPONENT_TYPE_REALTIME;
+    } else {
+        type = COMPONENT_TYPE_USER;
+    }
+    return hal_init_ex(name, NULL, type);
+}
+
+int hal_init_ex(const char *name, void *dl_handle, component_type_t type)
+{
     int comp_id;
     int retval;
     void *mem;
@@ -239,7 +250,8 @@ int hal_init(const char *name)
     }
     /* initialize the structure */
     comp->comp_id = comp_id;
-    comp->type = COMPONENT_TYPE_USER;
+    comp->type = type;
+    comp->dl_handle = dl_handle;
     if (rtapi_pid == getpid()) {
         comp->pid = 0;
     } else {
@@ -1811,7 +1823,6 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	    "HAL: ERROR: component %d is not realtime\n", comp_id);
 	return -EINVAL;
     }
-    comp->type = COMPONENT_TYPE_REALTIME;
     if(comp->ready) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -3002,6 +3013,7 @@ hal_comp_t *halpr_alloc_comp_struct(void)
 	p->comp_id = 0;
 	p->mem_id = 0;
 	p->type = COMPONENT_TYPE_USER;
+	p->dl_handle = 0;
 	p->shmem_base = 0;
 	p->name[0] = '\0';
     }
@@ -3260,6 +3272,7 @@ static void free_comp_struct(hal_comp_t * comp)
     comp->comp_id = 0;
     comp->mem_id = 0;
     comp->type = COMPONENT_TYPE_USER;
+    comp->dl_handle = 0;
     comp->shmem_base = 0;
     comp->name[0] = '\0';
     /* add it to free list */

@@ -46,6 +46,13 @@ func UnloadAll(exceptCompID int) error {
 	return halUnloadAll(exceptCompID)
 }
 
+// LockRTComponents iterates all HAL components and locks the memory of
+// unique dl_handles belonging to COMPONENT_TYPE_REALTIME components.
+// Call after all components are initialized, before starting threads.
+func LockRTComponents() error {
+	return halLockRTComponents()
+}
+
 // NewInst creates a new instance of a HAL component type.
 // Equivalent to "halcmd newinst <type> <name> [arg]".
 func NewInst(compType, name, arg string) error {
