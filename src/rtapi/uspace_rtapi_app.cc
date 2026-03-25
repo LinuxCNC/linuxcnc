@@ -855,7 +855,10 @@ static RtapiApp *makeApp()
     }
     WithRoot r;
     void *dll = nullptr;
-    if(detect_xenomai()) {
+    if(detect_xenomai_evl()) {
+        dll = dlopen(EMC2_HOME "/lib/libuspace-xenomai-evl.so.0", RTLD_NOW);
+        if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+    }else if(detect_xenomai()) {
         dll = dlopen(EMC2_HOME "/lib/libuspace-xenomai.so.0", RTLD_NOW);
         if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
     } else if(detect_rtai()) {

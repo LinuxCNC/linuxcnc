@@ -1,8 +1,18 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_uspace.hh"
+
+#include <sched.h>
+
+#include <evl/thread.h>
+#include <evl/timer.h>
+#include <evl/clock.h>
+#include <evl/proxy.h>
+
+#include <error.h> //ToDo: Remove
+
 #include <pthread.h>
-#include  <errno.h>
+#include <errno.h>
 #include <stdio.h>
 #include <cstring>
 #ifdef HAVE_SYS_IO_H
@@ -57,6 +67,10 @@ struct XenomaiApp : RtapiApp {
         int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
         CPU_SET(nprocs-1, &cpuset); // assumes processor numbers are contiguous
 
+        fprintf(stderr,
+            "Start.  getuid()=%d geteuid()=%d\n",
+            getuid(), geteuid());
+
         int ret;
         pthread_attr_t attr;
         if((ret = pthread_attr_init(&attr)) != 0)
@@ -81,6 +95,17 @@ struct XenomaiApp : RtapiApp {
     static void *wrapper(void *arg) {
         auto task = reinterpret_cast<RtaiTask*>(arg);
         pthread_setspecific(key, arg);
+
+        fprintf(stderr,
+            "Wrapper.  getuid()=%d geteuid()=%d\n",
+            getuid(), geteuid());
+
+        /* Attach to the core. */
+        rtapi_print("linuxcnc-thread:%d\n", gettid());
+        int tfd = evl_attach_self("linuxcnc-thread:%d", gettid());
+        if (tfd < 0){
+            rtapi_print("evl_attach_self() failed ret %i errno %i\n", tfd, errno);
+        }
 
         struct timespec now;
         clock_gettime(CLOCK_MONOTONIC, &now);
@@ -194,6 +219,6 @@ pthread_key_t XenomaiApp::key;
 extern "C" RtapiApp *make();
 
 RtapiApp *make() {
-    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI (posix-skin) realtime\n");
+    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI4 EVL (posix-skin) realtime\n");
     return new XenomaiApp;
 }
