@@ -29,10 +29,16 @@
 
 #include <expat.h>
 
+#include "hal.h"
+#include "launcher/pkg/cmodule/cmodule.h"
+
 /** @brief Size in bytes of the read buffer used when feeding data to expat. */
 #define BUFFSIZE 8192
 
 struct LCEC_CONF_XML_HANLDER;
+
+/** @brief Forward declaration of per-instance module state. */
+typedef struct lcec_conf_module lcec_conf_module;
 
 /**
  * @brief Runtime state of an active expat XML parse instance.
@@ -47,6 +53,8 @@ typedef struct LCEC_CONF_XML_INST {
                                                *   (array terminated by a sentinel entry). */
   int state;                                /**< Current parser state, an integer drawn from
                                              *   the relevant @c LCEC_*_TYPE_T enum. */
+  lcec_conf_module *mod;                    /**< Back-pointer to the owning module instance
+                                             *   for logging and per-instance state access. */
 } LCEC_CONF_XML_INST_T;
 
 /**
@@ -97,8 +105,44 @@ typedef struct {
   size_t len;                    /**< Running total of all payload bytes in the list. */
 } LCEC_CONF_OUTBUF_T;
 
-/** @brief Name of the HAL component; defined in conf_util.c, used in error messages. */
-extern char *modname;
+/**
+ * @brief HAL pin data for the ethercat config component.
+ */
+typedef struct {
+  hal_u32_t *master_count;
+  hal_u32_t *slave_count;
+} LCEC_CONF_HAL_T;
+
+/**
+ * @brief Per-instance module state for the ethercat config cmod plugin.
+ *
+ * Encapsulates all state that was previously held in file-scope globals,
+ * enabling multi-instance operation.
+ */
+struct lcec_conf_module {
+  cmod_t base;                     /**< cmod lifecycle vtable; must be first. */
+  const cmod_env_t *env;           /**< Launcher-provided environment. */
+  char name[64];                   /**< Instance name (used as HAL component name). */
+
+  int hal_comp_id;                 /**< HAL component ID from hal_init_ex(). */
+  LCEC_CONF_HAL_T *conf_hal_data;  /**< HAL pin data block. */
+  int shmem_id;                    /**< RTAPI shared-memory segment ID. */
+};
+
+/** @brief Retrieve the component name from an XML parse instance. */
+static inline const char *xml_modname(const LCEC_CONF_XML_INST_T *inst) {
+  return inst->mod->name;
+}
+
+/** @brief Log an error through the cmod environment. */
+static inline void xml_log_error(const LCEC_CONF_XML_INST_T *inst, const char *msg) {
+  inst->mod->env->log_error(inst->mod->env->ctx, inst->mod->name, msg);
+}
+
+/** @brief Log an info message through the cmod environment. */
+static inline void xml_log_info(const LCEC_CONF_XML_INST_T *inst, const char *msg) {
+  inst->mod->env->log_info(inst->mod->env->ctx, inst->mod->name, msg);
+}
 
 /**
  * @brief Initialise an output buffer to the empty state.
@@ -126,13 +170,14 @@ void copyFreeOutputBuffer(LCEC_CONF_OUTBUF_T *buf, void *dest);
 
 /**
  * @brief Parse init-commands from an EtherCAT ESI-style XML file.
+ * @param mod        Module instance (for logging).
  * @param slave      Slave record whose sdoConfigLength / idnConfigLength
  *                   fields are updated as commands are parsed.
  * @param outputBuf  Shared output buffer to which CoE/SoE records are appended.
  * @param filename   Path to the XML file containing @c \<EtherCATMailbox\> data.
  * @return 0 on success, 1 on any parse or I/O error.
  */
-int parseIcmds(LCEC_CONF_SLAVE_T *slave, LCEC_CONF_OUTBUF_T *outputBuf, const char *filename);
+int parseIcmds(lcec_conf_module *mod, LCEC_CONF_SLAVE_T *slave, LCEC_CONF_OUTBUF_T *outputBuf, const char *filename);
 
 /**
  * @brief Initialise an expat XML parse instance with a state-transition table.
@@ -147,16 +192,10 @@ int initXmlInst(LCEC_CONF_XML_INST_T *inst, const LCEC_CONF_XML_HANLDER_T *state
 /**
  * @brief Parse a hex-encoded byte string into a byte buffer.
  *
- * Hex digits may be separated by whitespace (spaces, tabs, newlines).
- * Each pair of hex digits produces one output byte.
- *
- * @param s     Input string of hex characters (need not be NUL-terminated if
- *              @p slen is non-negative).
+ * @param s     Input string of hex characters.
  * @param slen  Number of characters to consume, or -1 to consume until NUL.
- * @param buf   Output buffer to write decoded bytes into, or @c NULL to
- *              perform a dry-run that only counts the output bytes.
- * @return Number of decoded bytes on success, or -1 if the input contains an
- *         invalid character or ends mid-nibble.
+ * @param buf   Output buffer, or @c NULL for a dry-run.
+ * @return Number of decoded bytes on success, or -1 on error.
  */
 int parseHex(const char *s, int slen, uint8_t *buf);
 

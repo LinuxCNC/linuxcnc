@@ -75,7 +75,7 @@ RTFLAGS += -I$(BASEPWD)/$(LCEC_DIR) $(ETHERCAT_CFLAGS)
 	    -o $@ $^ -lm $(ETHERCAT_LIBS) $(LDFLAGS)
 	$(Q)chmod -x $@
 
-# ---------- Userspace binary: ethercat ----------
+# ---------- Userspace cmod plugin: ethercat.so ----------
 
 LCEC_CONF_SRCS := \
     $(LCEC_DIR)/conf.c \
@@ -84,12 +84,13 @@ LCEC_CONF_SRCS := \
 
 USERSRCS += $(LCEC_CONF_SRCS)
 $(call TOOBJSDEPS, $(LCEC_CONF_SRCS)): EXTRAFLAGS += \
-    -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR) $(ETHERCAT_CFLAGS)
+    -fPIC -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR) -I$(BASEPWD) $(ETHERCAT_CFLAGS)
 
-../bin/ethercat: $(call TOOBJS, $(LCEC_CONF_SRCS)) ../lib/liblinuxcnchal.so.0
+../cmod/ethercat.so: $(call TOOBJS, $(LCEC_CONF_SRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lexpat
+	@mkdir -p ../cmod
+	$(Q)$(CC) -shared -o $@ $^ $(LDFLAGS) -lexpat
 
-TARGETS += ../bin/ethercat
+TARGETS += ../cmod/ethercat.so
 
 endif # BUILD_ETHERCAT

@@ -37,9 +37,6 @@
 #include "conf.h"
 #include "conf_priv.h"
 
-/** @brief Module name used in error messages; defined here, declared extern in conf_priv.h. */
-char *modname = "ethercat";
-
 static void xml_start_handler(void *data, const char *el, const char **attr);
 static void xml_end_handler(void *data, const char *el);
 
@@ -76,7 +73,7 @@ void *addOutputBuffer(LCEC_CONF_OUTBUF_T *buf, size_t len) {
 
   void *p = calloc(1, sizeof(LCEC_CONF_OUTBUF_ITEM_T) + len);
   if (p == NULL) {
-    fprintf(stderr, "%s: ERROR: Couldn't allocate memory for config token\n", modname);
+    fprintf(stderr, "ERROR: Couldn't allocate memory for config token\n");
     return NULL;
   }
 
@@ -189,7 +186,7 @@ static void xml_start_handler(void *data, const char *el, const char **attr) {
     } 
   }
 
-  fprintf(stderr, "%s: ERROR: unexpected node %s found\n", modname, el);
+  { char _buf[512]; snprintf(_buf, sizeof(_buf), "unexpected node %s found", el); xml_log_error(inst, _buf); }
   XML_StopParser(inst->parser, 0);
 }
 
@@ -218,7 +215,7 @@ static void xml_end_handler(void *data, const char *el) {
     } 
   }
 
-  fprintf(stderr, "%s: ERROR: unexpected close tag %s found\n", modname, el);
+  { char _buf[512]; snprintf(_buf, sizeof(_buf), "unexpected close tag %s found", el); xml_log_error(inst, _buf); }
   XML_StopParser(inst->parser, 0);
 }
 
