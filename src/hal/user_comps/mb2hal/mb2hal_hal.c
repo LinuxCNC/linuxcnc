@@ -1,14 +1,14 @@
 #include "mb2hal.h"
 
-retCode create_HAL_pins()
+retCode create_HAL_pins(mb2hal_module *m)
 {
     char *fnct_name = "create_HAL_pins";
     int tx_counter;
 
-    for (tx_counter = 0; tx_counter < gbl.tot_mb_tx; tx_counter++) {
-        if (create_each_mb_tx_hal_pins(&gbl.mb_tx[tx_counter]) != retOK) {
-            ERR(gbl.init_dbg, "failed to initialize hal pins in tx_num[%d] [%d] [%s]",
-                tx_counter, gbl.mb_tx[tx_counter].mb_tx_fnct, gbl.mb_tx[tx_counter].mb_tx_fnct_name);
+    for (tx_counter = 0; tx_counter < m->tot_mb_tx; tx_counter++) {
+        if (create_each_mb_tx_hal_pins(m, &m->mb_tx[tx_counter]) != retOK) {
+            ERR(m, m->init_dbg, "failed to initialize hal pins in tx_num[%d] [%d] [%s]",
+                tx_counter, m->mb_tx[tx_counter].mb_tx_fnct, m->mb_tx[tx_counter].mb_tx_fnct_name);
             return retERR;
         }
     }
@@ -16,7 +16,7 @@ retCode create_HAL_pins()
     return retOK;
 }
 
-retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
+retCode create_each_mb_tx_hal_pins(mb2hal_module *m, mb_tx_t *mb_tx)
 {
     char *fnct_name = "create_each_mb_tx_hal_pins";
     char hal_pin_name[HAL_NAME_LEN + 1];
@@ -24,25 +24,25 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
     int ret;
 
     if (mb_tx == NULL) {
-        ERR(gbl.init_dbg, "NULL pointer");
+        ERR(m, m->init_dbg, "NULL pointer");
         return retERR;
     }
 
     //num_errors hal pin
     mb_tx->num_errors = hal_malloc(sizeof(hal_u32_t *));
     if (mb_tx->num_errors == NULL) {
-        ERR(gbl.init_dbg, "[%d] [%s] NULL hal_malloc num_errors",
+        ERR(m, m->init_dbg, "[%d] [%s] NULL hal_malloc num_errors",
             mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name);
         return retERR;
     }
     memset(mb_tx->num_errors, 0, sizeof(hal_u32_t *));
-    ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.num_errors", gbl.hal_mod_name, mb_tx->hal_tx_name);
-    if (ret >= HAL_NAME_LEN || ret < 0 || 0 != hal_pin_u32_newf(HAL_OUT, mb_tx->num_errors, gbl.hal_mod_id, "%s", hal_pin_name)) {
-        ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_u32_newf failed", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
+    ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.num_errors", m->name, mb_tx->hal_tx_name);
+    if (ret >= HAL_NAME_LEN || ret < 0 || 0 != hal_pin_u32_newf(HAL_OUT, mb_tx->num_errors, m->hal_mod_id, "%s", hal_pin_name)) {
+        ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_u32_newf failed", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
         return retERR;
     }
     **(mb_tx->num_errors) = 0;
-    DBG(gbl.init_dbg, "mb_tx_num [%d] pin_name [%s]", mb_tx->mb_tx_num, hal_pin_name);
+    DBG(m, m->init_dbg, "mb_tx_num [%d] pin_name [%s]", mb_tx->mb_tx_num, hal_pin_name);
 
     switch (mb_tx->mb_tx_fnct) {
 
@@ -54,7 +54,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
         mb_tx->bit_inv = hal_malloc(sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
         
         if (mb_tx->bit == NULL || mb_tx->bit_inv == NULL) {
-            ERR(gbl.init_dbg, "[%d] [%s] NULL hal_malloc [%d] elements",
+            ERR(m, m->init_dbg, "[%d] [%s] NULL hal_malloc [%d] elements",
                 mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, mb_tx->mb_tx_nelem);
             return retERR;
         }
@@ -68,50 +68,44 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
     case mbtx_16_WRITE_MULTIPLE_REGISTERS:
         mb_tx->float_value= hal_malloc(sizeof(hal_float_t *) * mb_tx->mb_tx_nelem);
         mb_tx->int_value  = hal_malloc(sizeof(hal_s32_t *) * mb_tx->mb_tx_nelem);
-        //mb_tx->scale      = hal_malloc(sizeof(hal_float_t) * mb_tx->mb_tx_nelem);
-        //mb_tx->offset     = hal_malloc(sizeof(hal_float_t) * mb_tx->mb_tx_nelem);
-        //if (mb_tx->float_value == NULL || mb_tx->int_value == NULL
-        //        || mb_tx->scale == NULL || mb_tx->offset == NULL) {
         if (mb_tx->float_value == NULL || mb_tx->int_value == NULL) {
-            ERR(gbl.init_dbg, "[%d] [%s] NULL hal_malloc [%d] elements",
+            ERR(m, m->init_dbg, "[%d] [%s] NULL hal_malloc [%d] elements",
                 mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, mb_tx->mb_tx_nelem);
             return retERR;
         }
         memset(mb_tx->float_value,     0, sizeof(hal_float_t *) * mb_tx->mb_tx_nelem);
         memset(mb_tx->int_value,       0, sizeof(hal_s32_t *)   * mb_tx->mb_tx_nelem);
-        //memset((void *) mb_tx->scale,  0, sizeof(hal_float_t)   * mb_tx->mb_tx_nelem);
-        //memset((void *) mb_tx->offset, 0, sizeof(hal_float_t)   * mb_tx->mb_tx_nelem);
         break;
 
     default:
-        ERR(gbl.init_dbg, "[%d] wrong mb_tx_fnct", mb_tx->mb_tx_fnct);
+        ERR(m, m->init_dbg, "[%d] wrong mb_tx_fnct", mb_tx->mb_tx_fnct);
         return retERR;
         break;
     }
 
     for (pin_counter = 0; pin_counter < mb_tx->mb_tx_nelem; pin_counter++) {
         if(mb_tx->mb_tx_names){
-            ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%s", gbl.hal_mod_name, mb_tx->hal_tx_name, mb_tx->mb_tx_names[pin_counter]);
+            ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%s", m->name, mb_tx->hal_tx_name, mb_tx->mb_tx_names[pin_counter]);
         }else{
-            ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%02d", gbl.hal_mod_name, mb_tx->hal_tx_name, pin_counter);
+            ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%02d", m->name, mb_tx->hal_tx_name, pin_counter);
         }
-        if (ret >= HAL_NAME_LEN || ret < 0) ERR(gbl.init_dbg, "hal pin name too long");
-        DBG(gbl.init_dbg, "mb_tx_num [%d] pin_name [%s]", mb_tx->mb_tx_num, hal_pin_name);
+        if (ret >= HAL_NAME_LEN || ret < 0) ERR(m, m->init_dbg, "hal pin name too long");
+        DBG(m, m->init_dbg, "mb_tx_num [%d] pin_name [%s]", mb_tx->mb_tx_num, hal_pin_name);
 
         switch (mb_tx->mb_tx_fnct) {
         case mbtx_05_WRITE_SINGLE_COIL:
         case mbtx_15_WRITE_MULTIPLE_COILS:
-            if(gbl.version < 1001){
-                if (0 != hal_pin_bit_newf(HAL_IN, mb_tx->bit + pin_counter, gbl.hal_mod_id,
+            if(m->version < 1001){
+                if (0 != hal_pin_bit_newf(HAL_IN, mb_tx->bit + pin_counter, m->hal_mod_id,
                                         "%s", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
+                    ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
             } else {
-                if (0 != hal_pin_bit_newf(HAL_IN, mb_tx->bit + pin_counter, gbl.hal_mod_id,
+                if (0 != hal_pin_bit_newf(HAL_IN, mb_tx->bit + pin_counter, m->hal_mod_id,
                                         "%s.bit", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
+                    ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
@@ -120,24 +114,24 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
             break;
         case mbtx_01_READ_COILS:
         case mbtx_02_READ_DISCRETE_INPUTS:
-            if (gbl.version < 1001) {
-                if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit + pin_counter, gbl.hal_mod_id,
+            if (m->version < 1001) {
+                if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit + pin_counter, m->hal_mod_id,
                                         "%s", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
+                    ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
                 *mb_tx->bit[pin_counter] = 0;
             } else {
-                if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit + pin_counter, gbl.hal_mod_id,
+                if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit + pin_counter, m->hal_mod_id,
                                         "%s.bit", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
+                    ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
-                if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit_inv + pin_counter, gbl.hal_mod_id,
+                if (0 != hal_pin_bit_newf(HAL_OUT, mb_tx->bit_inv + pin_counter, m->hal_mod_id,
                                         "%s.bit-inv", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
+                    ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_bit_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
@@ -147,74 +141,50 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
             break;
         case mbtx_04_READ_INPUT_REGISTERS:
         case mbtx_03_READ_HOLDING_REGISTERS:
-            if (0 != hal_pin_float_newf(HAL_OUT, mb_tx->float_value + pin_counter, gbl.hal_mod_id,
+            if (0 != hal_pin_float_newf(HAL_OUT, mb_tx->float_value + pin_counter, m->hal_mod_id,
                                         "%s.float", hal_pin_name)) {
-                ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_float_newf failed",
+                ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_float_newf failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
-            if (0 != hal_pin_s32_newf(HAL_OUT, mb_tx->int_value + pin_counter, gbl.hal_mod_id,
+            if (0 != hal_pin_s32_newf(HAL_OUT, mb_tx->int_value + pin_counter, m->hal_mod_id,
                                       "%s.int", hal_pin_name)) {
-                ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_s32_newf failed",
+                ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_s32_newf failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
-            //if (0 != hal_param_float_newf(HAL_RW, mb_tx->scale + pin_counter, gbl.hal_mod_id,
-            //                              "%s.scale", hal_pin_name)) {
-            //    ERR(gbl.init_dbg, "[%d] [%s] [%s]", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
-            //    return retERR;
-            //}
-            //if (0 != hal_param_float_newf(HAL_RW, mb_tx->offset + pin_counter, gbl.hal_mod_id,
-            //                              "%s.offset", hal_pin_name)) {
-            //    ERR(gbl.init_dbg, "[%d] [%s] [%s]", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
-            //    return retERR;
-            //}
             *mb_tx->float_value[pin_counter] = 0;
             *mb_tx->int_value[pin_counter] = 0;
-            //mb_tx->scale[pin_counter] = 1;
-            //mb_tx->offset[pin_counter] = 0;
             break;
         case mbtx_06_WRITE_SINGLE_REGISTER:
         case mbtx_16_WRITE_MULTIPLE_REGISTERS:
-            if (gbl.version < 1001) {
-                if (0 != hal_pin_float_newf(HAL_IN, mb_tx->float_value + pin_counter, gbl.hal_mod_id,
+            if (m->version < 1001) {
+                if (0 != hal_pin_float_newf(HAL_IN, mb_tx->float_value + pin_counter, m->hal_mod_id,
                                         "%s", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_float_newf failed",
+                    ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_float_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
                 *mb_tx->float_value[pin_counter] = 0;
             } else {
-                if (0 != hal_pin_float_newf(HAL_IN, mb_tx->float_value + pin_counter, gbl.hal_mod_id,
+                if (0 != hal_pin_float_newf(HAL_IN, mb_tx->float_value + pin_counter, m->hal_mod_id,
                                             "%s.float", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_float_newf failed",
+                    ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_float_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
-                if (0 != hal_pin_s32_newf(HAL_IN, mb_tx->int_value + pin_counter, gbl.hal_mod_id,
+                if (0 != hal_pin_s32_newf(HAL_IN, mb_tx->int_value + pin_counter, m->hal_mod_id,
                                         "%s.int", hal_pin_name)) {
-                    ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_s32_newf failed",
+                    ERR(m, m->init_dbg, "[%d] [%s] [%s] hal_pin_s32_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
-                //if (0 != hal_param_float_newf(HAL_RW, mb_tx->scale + pin_counter, gbl.hal_mod_id,
-                //                              "%s.scale", hal_pin_name)) {
-                //    ERR(gbl.init_dbg, "[%d] [%s] [%s]", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
-                //    return retERR;
-                //}
-                //if (0 != hal_param_float_newf(HAL_RW, mb_tx->offset + pin_counter, gbl.hal_mod_id,
-                //                              "%s.offset", hal_pin_name)) {
-                //    ERR(gbl.init_dbg, "[%d] [%s]", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name);
-                //    return retERR;
-                //}
                 *mb_tx->float_value[pin_counter] = 0;
                 *mb_tx->int_value[pin_counter] = 0;
-                //mb_tx->scale[pin_counter] = 1;
-                //mb_tx->offset[pin_counter] = 0;
             }
             break;
         default:
-            ERR(gbl.init_dbg, "[%d]", mb_tx->mb_tx_fnct);
+            ERR(m, m->init_dbg, "[%d]", mb_tx->mb_tx_fnct);
             return retERR;
             break;
         }

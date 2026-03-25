@@ -1,6 +1,7 @@
 /*
  * mb2hal.c
  * Userspace HAL component to communicate with one or more Modbus devices.
+ * Migrated to cmod plugin API for in-process launcher operation.
  *
  * Victor Rocco, adapted from Les Newell's modbuscomms.c which is
  * Copyright (C) 2009-2012 Les Newell <les@sheetcam.com>
@@ -26,105 +27,13 @@
 
 #include "mb2hal.h"
 
-gbl_t gbl;
-
-/*
- * Main: init global params, parse args, open ini file, parse ini file
- * (transaction structures), init links (links structures), init and
- * create hal pins, create a thread for each link , and wait forever
- */
-
-int main(int argc, char **argv)
-{
-    char *fnct_name = "main";
-    pthread_attr_t thrd_attr;
-    int counter;
-    int ret;
-
-    set_init_gbl_params();
-
-    if (parse_main_args(argc, argv) != 0) {
-        ERR(gbl.init_dbg, "Unable to parse arguments");
-        return -1;
-    }
-
-    gbl.ini_file_ptr = fopen(gbl.ini_file_path, "r");
-    if (gbl.ini_file_ptr == NULL) {
-        ERR(gbl.init_dbg, "Unable to open INI file [%s]", gbl.ini_file_path);
-        return -1;
-    }
-
-    if (parse_ini_file() != 0) {
-        ERR(gbl.init_dbg, "Unable to parse INI file [%s]", gbl.ini_file_path);
-        goto QUIT_CLEANUP;
-    }
-    OK(gbl.init_dbg, "parse_ini_file done OK");
-
-    if (init_mb_links() != retOK) {
-        ERR(gbl.init_dbg, "init_mb_links failed");
-        goto QUIT_CLEANUP;
-    }
-    OK(gbl.init_dbg, "init_gbl.mb_link done OK");
-
-    if (init_mb_tx() != retOK) {
-        ERR(gbl.init_dbg, "init_mb_tx failed");
-        goto QUIT_CLEANUP;
-    }
-    OK(gbl.init_dbg, "init_gbl.mb_tx done OK");
-
-    gbl.hal_mod_id = hal_init(gbl.hal_mod_name);
-    if (gbl.hal_mod_id < 0) {
-        ERR(gbl.init_dbg, "Unable to initialize HAL component [%s]", gbl.hal_mod_name);
-        goto QUIT_CLEANUP;
-    }
-    if (create_HAL_pins() != retOK) {
-        ERR(gbl.init_dbg, "Unable to create HAL pins");
-        goto QUIT_CLEANUP;
-    }
-    gbl.quit_flag = 0; //tell the threads to quit (SIGTERM or SIGINT) (unloadusr mb2hal).
-    signal(SIGINT, quit_signal);
-    //unloadusr and unload commands of halrun
-    signal(SIGTERM, quit_signal);
-
-    hal_ready(gbl.hal_mod_id);
-    OK(gbl.init_dbg, "HAL components created OK");
-
-    /* Each link has it's own thread */
-    pthread_attr_init(&thrd_attr);
-    for (counter = 0; counter < gbl.tot_mb_links; counter++) {
-        ret = pthread_create(&gbl.mb_links[counter].thrd, &thrd_attr, link_loop_and_logic, (void *) &gbl.mb_links[counter].mb_link_num);
-        if (ret != 0) {
-            ERR(gbl.init_dbg, "Unable to start thread for link number %d", counter);
-        }
-        OK(gbl.init_dbg, "Link thread loop and logic %d created OK", counter);
-    }
-
-    OK(gbl.init_dbg, "%s is running", gbl.hal_mod_name);
-    while (gbl.quit_flag == 0) {
-        sleep(1);
-    }
-
-    for (counter = 0; counter < gbl.tot_mb_links; counter++) {
-        ret = pthread_join(gbl.mb_links[counter].thrd, NULL);
-        if (ret != 0) {
-            ERR(gbl.init_dbg, "Unable to join thread for link number %d: %s", counter, strerror(ret));
-        }
-        // OK(gbl.init_dbg, "Link thread %d joined OK OK", counter);
-    }
-
-QUIT_CLEANUP:
-    quit_cleanup();
-    OK(gbl.init_dbg, "going to exit!");
-    return 0;
-}
-
 /*
  * One thread loop for each link
  * The LOGIC is here
- * thrd_link_num is the corresponding link of this thread (int *)
+ * arg is a pointer to this thread's mb_link_t (which includes a back-pointer to the module)
  */
 
-void *link_loop_and_logic(void *thrd_link_num)
+void *link_loop_and_logic(void *arg)
 {
     char *fnct_name = "link_loop_and_logic";
     int ret, ret_available, ret_connected;
@@ -134,116 +43,117 @@ void *link_loop_and_logic(void *thrd_link_num)
     mb_link_t *this_mb_link = NULL;
     int        this_mb_link_num;
 
-    if (thrd_link_num == NULL) {
-        ERR(gbl.init_dbg, "NULL pointer");
+    if (arg == NULL) {
         return NULL;
     }
-    this_mb_link_num = *((int *)thrd_link_num);
-    if (this_mb_link_num < 0 || this_mb_link_num >= gbl.tot_mb_links) {
-        ERR(gbl.init_dbg, "parameter out of range this_mb_link_num[%d]", this_mb_link_num);
+    this_mb_link = (mb_link_t *)arg;
+    mb2hal_module *m = this_mb_link->m;
+    this_mb_link_num = this_mb_link->mb_link_num;
+
+    if (this_mb_link_num < 0 || this_mb_link_num >= m->tot_mb_links) {
+        ERR(m, m->init_dbg, "parameter out of range this_mb_link_num[%d]", this_mb_link_num);
         return NULL;
     }
-    this_mb_link = &gbl.mb_links[this_mb_link_num];
 
     while (1) {
 
-        for (tx_counter = 0; tx_counter < gbl.tot_mb_tx; tx_counter++) {
+        for (tx_counter = 0; tx_counter < m->tot_mb_tx; tx_counter++) {
 
-            if (gbl.quit_flag != 0) {
+            if (m->done != 0) {
                 return NULL;
             }
 
             this_mb_tx_num = tx_counter;
-            this_mb_tx = &gbl.mb_tx[this_mb_tx_num];
+            this_mb_tx = &m->mb_tx[this_mb_tx_num];
 
-            DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST availability",
+            DBGMAX(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST availability",
                 this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
 
             //corresponding link and time (update_rate)
-            if (is_this_tx_ready(this_mb_link_num, this_mb_tx_num, &ret_available) != retOK) {
-                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] is_this_tx_ready ERR",
+            if (is_this_tx_ready(m, this_mb_link_num, this_mb_tx_num, &ret_available) != retOK) {
+                ERR(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] is_this_tx_ready ERR",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 return NULL;
             }
             if (ret_available == 0) {
-                DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT available",
+                DBGMAX(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT available",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 usleep(1000);
                 continue;
             }
 
-            DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST connection",
+            DBGMAX(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST connection",
                 this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
 
             //first time connection or reconnection, run time parameters setting
-            if (get_tx_connection(this_mb_tx_num, &ret_connected) != retOK) {
-                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] get_tx_connection ERR",
+            if (get_tx_connection(m, this_mb_tx_num, &ret_connected) != retOK) {
+                ERR(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] get_tx_connection ERR",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 return NULL;
             }
             if (ret_connected == 0) {
-                DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT connected",
+                DBGMAX(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT connected",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 usleep(1000);
                 continue;
             }
 
-            DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] lk_dbg[%d] going to EXECUTE transaction",
+            DBGMAX(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] lk_dbg[%d] going to EXECUTE transaction",
                 this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus),
                 this_mb_tx->protocol_debug);
 
             switch (this_mb_tx->mb_tx_fnct) {
 
             case mbtx_01_READ_COILS:
-                ret = fnct_01_read_coils(this_mb_tx, this_mb_link);
+                ret = fnct_01_read_coils(m, this_mb_tx, this_mb_link);
                 break;
             case mbtx_02_READ_DISCRETE_INPUTS:
-                ret = fnct_02_read_discrete_inputs(this_mb_tx, this_mb_link);
+                ret = fnct_02_read_discrete_inputs(m, this_mb_tx, this_mb_link);
                 break;
             case mbtx_03_READ_HOLDING_REGISTERS:
-                ret = fnct_03_read_holding_registers(this_mb_tx, this_mb_link);
+                ret = fnct_03_read_holding_registers(m, this_mb_tx, this_mb_link);
                 break;
             case mbtx_04_READ_INPUT_REGISTERS:
-                ret = fnct_04_read_input_registers(this_mb_tx, this_mb_link);
+                ret = fnct_04_read_input_registers(m, this_mb_tx, this_mb_link);
                 break;
             case mbtx_05_WRITE_SINGLE_COIL:
-                ret = fnct_05_write_single_coil(this_mb_tx, this_mb_link);
+                ret = fnct_05_write_single_coil(m, this_mb_tx, this_mb_link);
                 break;
             case mbtx_06_WRITE_SINGLE_REGISTER:
-                ret = fnct_06_write_single_register(this_mb_tx, this_mb_link);
+                ret = fnct_06_write_single_register(m, this_mb_tx, this_mb_link);
                 break;
             case mbtx_15_WRITE_MULTIPLE_COILS:
-                ret = fnct_15_write_multiple_coils(this_mb_tx, this_mb_link);
+                ret = fnct_15_write_multiple_coils(m, this_mb_tx, this_mb_link);
                 break;
             case mbtx_16_WRITE_MULTIPLE_REGISTERS:
-                ret = fnct_16_write_multiple_registers(this_mb_tx, this_mb_link);
+                ret = fnct_16_write_multiple_registers(m, this_mb_tx, this_mb_link);
                 break;
             default:
                 ret = -1;
-                ERR(this_mb_tx->cfg_debug, "case error with mb_tx_fnct %d [%s] in mb_tx_num[%d]",
+                ERR(m, this_mb_tx->cfg_debug, "case error with mb_tx_fnct %d [%s] in mb_tx_num[%d]",
                     this_mb_tx->mb_tx_fnct, this_mb_tx->mb_tx_fnct_name, this_mb_tx_num);
                 break;
             }
 
-            if (gbl.quit_flag != 0) {
+            if (m->done != 0) {
                 return NULL;
             }
 
             if (ret != retOK && modbus_get_socket(this_mb_link->modbus) < 0) { //link failure
                 (**this_mb_tx->num_errors)++;
-                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] link failure, going to close link",
+                ERR(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] link failure, going to close link",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 modbus_close(this_mb_link->modbus);
             }
             else if (ret != retOK) {  //transaction failure but link OK
                 (**this_mb_tx->num_errors)++;
-                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%d]",
+                ERR(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%d]",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), **this_mb_tx->num_errors);
                 // Clear any unread data. Otherwise the link might get out of sync
                 modbus_flush(this_mb_link->modbus);
             }
             else { //transaction and link OK
-                OK(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction OK, update_HZ[%0.03f]",
+                OK(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction OK, update_HZ[%0.03f]",
                    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus),
                    1.0/(get_time()-this_mb_tx->last_time_ok));
                 this_mb_tx->last_time_ok = get_time();
@@ -255,17 +165,17 @@ void *link_loop_and_logic(void *thrd_link_num)
 
             //wait time for serial lines
             if (this_mb_tx->cfg_link_type == linkRTU) {
-                DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] SERIAL_DELAY_MS activated [%d]",
+                DBG(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] SERIAL_DELAY_MS activated [%d]",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus),
                     this_mb_tx->cfg_serial_delay_ms);
                 usleep(this_mb_tx->cfg_serial_delay_ms * 1000);
             }
 
-            //wait time to gbl.slowdown activity (debugging)
-            if (gbl.slowdown > 0) {
-                DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] gbl.slowdown activated [%0.3f]",
-                    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), gbl.slowdown);
-                usleep(gbl.slowdown * 1000 * 1000);
+            //wait time to slowdown activity (debugging)
+            if (m->slowdown > 0) {
+                DBG(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] slowdown activated [%0.3f]",
+                    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), m->slowdown);
+                usleep(m->slowdown * 1000 * 1000);
             }
         }  //end for
 
@@ -278,26 +188,26 @@ void *link_loop_and_logic(void *thrd_link_num)
  * Check if the transaction is available for this link
  */
 
-retCode is_this_tx_ready(const int this_mb_link_num, const int this_mb_tx_num, int *ret_available)
+retCode is_this_tx_ready(mb2hal_module *m, const int this_mb_link_num, const int this_mb_tx_num, int *ret_available)
 {
     char *fnct_name = "is_this_tx_available";
     mb_tx_t *this_mb_tx;
     int this_mb_tx_link_num;
 
-    if (this_mb_tx_num < 0 || this_mb_tx_num > gbl.tot_mb_tx) {
-        ERR(gbl.init_dbg, "parameter out of range this_mb_tx_num[%d]", this_mb_tx_num);
+    if (this_mb_tx_num < 0 || this_mb_tx_num > m->tot_mb_tx) {
+        ERR(m, m->init_dbg, "parameter out of range this_mb_tx_num[%d]", this_mb_tx_num);
         return retERR;
     }
-    this_mb_tx = &gbl.mb_tx[this_mb_tx_num];
+    this_mb_tx = &m->mb_tx[this_mb_tx_num];
 
     if (ret_available == NULL) {
-        ERR(this_mb_tx->cfg_debug, "NULL pointer");
+        ERR(m, this_mb_tx->cfg_debug, "NULL pointer");
         return retERR;
     }
 
     this_mb_tx_link_num = this_mb_tx->mb_link_num;
-    if (this_mb_tx_link_num < 0 || this_mb_tx_link_num >= gbl.tot_mb_links) {
-        ERR(this_mb_tx->cfg_debug, "parameter out of range this_mb_tx_link_num[%d]", this_mb_tx_link_num);
+    if (this_mb_tx_link_num < 0 || this_mb_tx_link_num >= m->tot_mb_links) {
+        ERR(m, this_mb_tx->cfg_debug, "parameter out of range this_mb_tx_link_num[%d]", this_mb_tx_link_num);
         return retERR;
     }
 
@@ -321,7 +231,7 @@ retCode is_this_tx_ready(const int this_mb_link_num, const int this_mb_tx_num, i
  * First time connection or reconnection
  */
 
-retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
+retCode get_tx_connection(mb2hal_module *m, const int this_mb_tx_num, int *ret_connected)
 {
     char *fnct_name = "get_tx_connection";
     int ret;
@@ -330,23 +240,23 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
     int        this_mb_link_num;
     struct timeval timeout;
 
-    if (this_mb_tx_num < 0 || this_mb_tx_num > gbl.tot_mb_tx) {
-        ERR(gbl.init_dbg, "parameter out of range this_mb_tx_num[%d]", this_mb_tx_num);
+    if (this_mb_tx_num < 0 || this_mb_tx_num > m->tot_mb_tx) {
+        ERR(m, m->init_dbg, "parameter out of range this_mb_tx_num[%d]", this_mb_tx_num);
         return retERR;
     }
-    this_mb_tx = &gbl.mb_tx[this_mb_tx_num];
+    this_mb_tx = &m->mb_tx[this_mb_tx_num];
 
     if (ret_connected == NULL) {
-        ERR(this_mb_tx->cfg_debug, "NULL pointer");
+        ERR(m, this_mb_tx->cfg_debug, "NULL pointer");
         return retERR;
     }
 
     this_mb_link_num = this_mb_tx->mb_link_num;
-    if (this_mb_link_num < 0 || this_mb_link_num >= gbl.tot_mb_links) {
-        ERR(this_mb_tx->cfg_debug, "parameter out of range this_mb_link_num[%d]", this_mb_link_num);
+    if (this_mb_link_num < 0 || this_mb_link_num >= m->tot_mb_links) {
+        ERR(m, this_mb_tx->cfg_debug, "parameter out of range this_mb_link_num[%d]", this_mb_link_num);
         return retERR;
     }
-    this_mb_link = &gbl.mb_links[this_mb_link_num];
+    this_mb_link = &m->mb_links[this_mb_link_num];
 
     *ret_connected = 0; //defaults to not connected
 
@@ -355,22 +265,22 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
         if (ret != 0 || modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_set_socket(this_mb_link->modbus, -1); //some times ret was < 0 and fd > 0
             (**this_mb_tx->num_errors)++;
-            ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] cannot connect to link, ret[%d] fd[%d]",
+            ERR(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] cannot connect to link, ret[%d] fd[%d]",
                 this_mb_tx_num, this_mb_tx->mb_link_num, ret, modbus_get_socket(this_mb_link->modbus));
             return retOK; //not connected
         }
-        DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] new connection -> fd[%d]",
+        DBGMAX(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] new connection -> fd[%d]",
             this_mb_tx_num, this_mb_tx->mb_link_num, modbus_get_socket(this_mb_link->modbus));
     }
     else {
-        DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] already connected to fd[%d]",
+        DBGMAX(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] already connected to fd[%d]",
             this_mb_tx_num, this_mb_tx->mb_link_num, modbus_get_socket(this_mb_link->modbus));
     }
 
     //set slave id according to each mb_tx
     ret = modbus_set_slave(this_mb_link->modbus, this_mb_tx->mb_tx_slave_id);
     if (ret != 0) {
-        ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] cannot set slave [%d]",
+        ERR(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] cannot set slave [%d]",
             this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id);
         return retOK; //not connected
     }
@@ -386,9 +296,6 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
 #else
     modbus_set_response_timeout(this_mb_link->modbus, &timeout);
 #endif
-    //DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] response timeout [%d] ([%d] [%d])",
-    //    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_response_timeout_ms,
-    //    (int) timeout.tv_sec, (int) timeout.tv_usec);
 
     timeout.tv_sec  = this_mb_tx->mb_byte_timeout_ms / 1000;
     timeout.tv_usec = (this_mb_tx->mb_byte_timeout_ms % 1000) * 1000;
@@ -397,32 +304,9 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
 #else
     modbus_set_byte_timeout(this_mb_link->modbus, &timeout);
 #endif
-    //DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] byte timeout [%d] ([%d] [%d])",
-    //    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_byte_timeout_ms,
-    //    (int) timeout.tv_sec, (int) timeout.tv_usec);
 
     *ret_connected = 1; //is connected (fd >= 0)
     return retOK;
-}
-
-void set_init_gbl_params()
-{
-    gbl.hal_mod_name = "mb2hal"; //until read in config file
-    gbl.hal_mod_id   = -1;
-    gbl.init_dbg     = debugERR; //until read in config file
-    gbl.version      = 1000;     //defaults to 1000 (= 1.000) if not set
-    gbl.slowdown     = 0;        //until read in config file
-    gbl.mb_tx_fncts[mbtxERR]                         = "";
-    gbl.mb_tx_fncts[mbtx_01_READ_COILS]              = "fnct_01_read_coils";
-    gbl.mb_tx_fncts[mbtx_02_READ_DISCRETE_INPUTS]    = "fnct_02_read_discrete_inputs";
-    gbl.mb_tx_fncts[mbtx_03_READ_HOLDING_REGISTERS]  = "fnct_03_read_holding_registers";
-    gbl.mb_tx_fncts[mbtx_04_READ_INPUT_REGISTERS]    = "fnct_04_read_input_registers";
-    gbl.mb_tx_fncts[mbtx_05_WRITE_SINGLE_COIL]       = "fnct_05_write_single_coil";
-    gbl.mb_tx_fncts[mbtx_06_WRITE_SINGLE_REGISTER]   = "fnct_06_write_single_register";
-    gbl.mb_tx_fncts[mbtx_15_WRITE_MULTIPLE_COILS]    = "fnct_15_write_multiple_coils";
-    gbl.mb_tx_fncts[mbtx_16_WRITE_MULTIPLE_REGISTERS]= "fnct_16_write_multiple_registers";
-
-    return;
 }
 
 double get_time()
@@ -433,44 +317,222 @@ double get_time()
 }
 
 /*
- * Called to unload HAL module
- * unloadusr and unload commands
+ * Clean up all module resources
  */
 
-void quit_signal(int signal)
+static void mb2hal_cleanup(mb2hal_module *m)
 {
-    char *fnct_name = "quit_signal";
+    char *fnct_name = "mb2hal_cleanup";
+    int counter;
 
-    gbl.quit_flag = 1; //tell the threads to quit (SIGTERM or SIGINT) (unloadusr mb2hal).
-    DBG(gbl.init_dbg, "signal [%d] received", signal);
-}
+    DBG(m, m->init_dbg, "started");
 
-void quit_cleanup(void)
-{
-    char *fnct_name = "quit_cleanup";
-    int counter, ret;
-
-    DBG(gbl.init_dbg, "started");
-
-    for (counter = 0; counter < gbl.tot_mb_links; counter++) {
-        if (gbl.mb_links[counter].modbus != NULL) {
-            modbus_close(gbl.mb_links[counter].modbus);
-            modbus_free(gbl.mb_links[counter].modbus);
-            gbl.mb_links[counter].modbus = NULL;
+    for (counter = 0; counter < m->tot_mb_links; counter++) {
+        if (m->mb_links[counter].modbus != NULL) {
+            modbus_close(m->mb_links[counter].modbus);
+            modbus_free(m->mb_links[counter].modbus);
+            m->mb_links[counter].modbus = NULL;
         }
     }
-    gbl.tot_mb_links = 0;
+    m->tot_mb_links = 0;
 
-    if (gbl.mb_tx != NULL) {
-        free(gbl.mb_tx);
+    if (m->mb_tx != NULL) {
+        free(m->mb_tx);
+        m->mb_tx = NULL;
     }
-    gbl.mb_tx = NULL;
-    gbl.tot_mb_tx = 0;
+    m->tot_mb_tx = 0;
 
-    if (gbl.hal_mod_id >= 0) {
-        ret = hal_exit(gbl.hal_mod_id);
-        DBG(gbl.init_dbg, "unloading HAL module [%d] ret[%d]", gbl.hal_mod_id, ret);
+    if (m->mb_links != NULL) {
+        free(m->mb_links);
+        m->mb_links = NULL;
     }
 
-    DBG(gbl.init_dbg, "done OK");
+    if (m->ini_file_ptr != NULL) {
+        fclose(m->ini_file_ptr);
+        m->ini_file_ptr = NULL;
+    }
+
+    if (m->ini_file_path != NULL) {
+        free(m->ini_file_path);
+        m->ini_file_path = NULL;
+    }
+
+    DBG(m, m->init_dbg, "done OK");
+}
+
+/********************************************************************
+* cmod lifecycle functions
+********************************************************************/
+
+static int mb2hal_start(cmod_t *self)
+{
+    mb2hal_module *m = (mb2hal_module *)self->priv;
+    char *fnct_name = "mb2hal_start";
+    int counter, ret;
+
+    m->done = 0;
+
+    /* Each link has it's own thread */
+    for (counter = 0; counter < m->tot_mb_links; counter++) {
+        ret = pthread_create(&m->mb_links[counter].thrd, NULL, link_loop_and_logic, (void *) &m->mb_links[counter]);
+        if (ret != 0) {
+            ERR(m, m->init_dbg, "Unable to start thread for link number %d", counter);
+            /* Stop already-started threads */
+            m->done = 1;
+            for (int i = 0; i < counter; i++) {
+                pthread_join(m->mb_links[i].thrd, NULL);
+            }
+            return -1;
+        }
+        OK(m, m->init_dbg, "Link thread loop and logic %d created OK", counter);
+    }
+
+    OK(m, m->init_dbg, "%s is running", m->name);
+    return 0;
+}
+
+static void mb2hal_stop(cmod_t *self)
+{
+    mb2hal_module *m = (mb2hal_module *)self->priv;
+    char *fnct_name = "mb2hal_stop";
+    int counter;
+
+    m->done = 1;
+
+    for (counter = 0; counter < m->tot_mb_links; counter++) {
+        int ret = pthread_join(m->mb_links[counter].thrd, NULL);
+        if (ret != 0) {
+            ERR(m, m->init_dbg, "Unable to join thread for link number %d: %s", counter, strerror(ret));
+        }
+    }
+
+    DBG(m, m->init_dbg, "all threads joined");
+}
+
+static void mb2hal_destroy(cmod_t *self)
+{
+    mb2hal_module *m = (mb2hal_module *)self->priv;
+    char *fnct_name = "mb2hal_destroy";
+    int ret;
+
+    mb2hal_cleanup(m);
+
+    if (m->hal_mod_id >= 0) {
+        ret = hal_exit(m->hal_mod_id);
+        DBG(m, m->init_dbg, "unloading HAL module [%d] ret[%d]", m->hal_mod_id, ret);
+    }
+
+    OK(m, m->init_dbg, "going to exit!");
+    free(m);
+}
+
+/********************************************************************
+* New — cmod factory function.
+* The launcher calls dlsym(handle, "New") to find this.
+*
+* Init sequence: parse args, open ini file, parse ini file
+* (transaction structures), init links (links structures), init and
+* create hal pins.
+********************************************************************/
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
+{
+    char *fnct_name = "New";
+    mb2hal_module *m;
+
+    m = calloc(1, sizeof(mb2hal_module));
+    if (m == NULL) {
+        return -1;
+    }
+
+    m->env = env;
+    strncpy(m->name, name, sizeof(m->name) - 1);
+
+    // Set defaults
+    m->hal_mod_id   = -1;
+    m->init_dbg     = debugERR;
+    m->version      = 1000;
+    m->slowdown     = 0;
+    m->done         = 0;
+    m->ini_file_ptr = NULL;
+    m->ini_file_path = NULL;
+    m->mb_tx        = NULL;
+    m->mb_links     = NULL;
+    m->tot_mb_tx    = 0;
+    m->tot_mb_links = 0;
+    m->mb_tx_fncts[mbtxERR]                         = "";
+    m->mb_tx_fncts[mbtx_01_READ_COILS]              = "fnct_01_read_coils";
+    m->mb_tx_fncts[mbtx_02_READ_DISCRETE_INPUTS]    = "fnct_02_read_discrete_inputs";
+    m->mb_tx_fncts[mbtx_03_READ_HOLDING_REGISTERS]  = "fnct_03_read_holding_registers";
+    m->mb_tx_fncts[mbtx_04_READ_INPUT_REGISTERS]    = "fnct_04_read_input_registers";
+    m->mb_tx_fncts[mbtx_05_WRITE_SINGLE_COIL]       = "fnct_05_write_single_coil";
+    m->mb_tx_fncts[mbtx_06_WRITE_SINGLE_REGISTER]   = "fnct_06_write_single_register";
+    m->mb_tx_fncts[mbtx_15_WRITE_MULTIPLE_COILS]    = "fnct_15_write_multiple_coils";
+    m->mb_tx_fncts[mbtx_16_WRITE_MULTIPLE_REGISTERS]= "fnct_16_write_multiple_registers";
+
+    if (parse_args(m, argc, argv) != retOK) {
+        ERR(m, m->init_dbg, "Unable to parse arguments");
+        free(m);
+        return -1;
+    }
+
+    m->ini_file_ptr = fopen(m->ini_file_path, "r");
+    if (m->ini_file_ptr == NULL) {
+        ERR(m, m->init_dbg, "Unable to open INI file [%s]", m->ini_file_path);
+        free(m->ini_file_path);
+        free(m);
+        return -1;
+    }
+
+    if (parse_ini_file(m) != retOK) {
+        ERR(m, m->init_dbg, "Unable to parse INI file [%s]", m->ini_file_path);
+        mb2hal_cleanup(m);
+        free(m);
+        return -1;
+    }
+    OK(m, m->init_dbg, "parse_ini_file done OK");
+
+    if (init_mb_links(m) != retOK) {
+        ERR(m, m->init_dbg, "init_mb_links failed");
+        mb2hal_cleanup(m);
+        free(m);
+        return -1;
+    }
+    OK(m, m->init_dbg, "init_mb_links done OK");
+
+    if (init_mb_tx(m) != retOK) {
+        ERR(m, m->init_dbg, "init_mb_tx failed");
+        mb2hal_cleanup(m);
+        free(m);
+        return -1;
+    }
+    OK(m, m->init_dbg, "init_mb_tx done OK");
+
+    // Use the component name from the constructor
+    m->hal_mod_id = hal_init(m->name);
+    if (m->hal_mod_id < 0) {
+        ERR(m, m->init_dbg, "Unable to initialize HAL component [%s]", m->name);
+        mb2hal_cleanup(m);
+        free(m);
+        return -1;
+    }
+    if (create_HAL_pins(m) != retOK) {
+        ERR(m, m->init_dbg, "Unable to create HAL pins");
+        hal_exit(m->hal_mod_id);
+        mb2hal_cleanup(m);
+        free(m);
+        return -1;
+    }
+
+    hal_ready(m->hal_mod_id);
+    OK(m, m->init_dbg, "HAL component [%s] created OK", m->name);
+
+    // Wire up the lifecycle vtable
+    m->base.Start   = mb2hal_start;
+    m->base.Stop    = mb2hal_stop;
+    m->base.Destroy = mb2hal_destroy;
+    m->base.priv    = m;
+
+    *out = &m->base;
+    return 0;
 }
