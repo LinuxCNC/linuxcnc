@@ -29,7 +29,6 @@ import (
 	"github.com/sittner/linuxcnc/src/launcher/internal/emcsvr"
 	"github.com/sittner/linuxcnc/src/launcher/internal/halfile"
 	"github.com/sittner/linuxcnc/src/launcher/internal/lockfile"
-	"github.com/sittner/linuxcnc/src/launcher/internal/protocols"
 	"github.com/sittner/linuxcnc/src/launcher/internal/realtime"
 	"github.com/sittner/linuxcnc/src/launcher/pkg/gomodule"
 	"github.com/sittner/linuxcnc/src/launcher/pkg/inifile"
@@ -62,16 +61,15 @@ type Launcher struct {
 	opts         Options
 	ini          *inifile.IniFile
 	logger       *slog.Logger
-	lock         *lockfile.LockFile   // flock-based instance lock
-	rtMgr        *realtime.Manager    // realtime environment manager
-	cleanupOnce  sync.Once            // ensures cleanup runs exactly once
-	serverDone   chan struct{}        // closed when emcsvr goroutine returns
-	appProcesses []*exec.Cmd          // [APPLICATIONS]APP background processes
-	halComp      *hal.Component       // launcher's HAL component (like halcmd's hal_init)
-	protocols    []protocols.Protocol // active protocol instances (ADS, etc.)
-	goModules    []gomodule.Module    // Go plugin modules loaded via "load" command
-	cModules     []*cModule           // C plugin modules loaded via "load" command
-	cModArena    []unsafe.Pointer     // arena-tracked C strings freed in destroyCModules
+	lock         *lockfile.LockFile // flock-based instance lock
+	rtMgr        *realtime.Manager  // realtime environment manager
+	cleanupOnce  sync.Once          // ensures cleanup runs exactly once
+	serverDone   chan struct{}      // closed when emcsvr goroutine returns
+	appProcesses []*exec.Cmd        // [APPLICATIONS]APP background processes
+	halComp      *hal.Component     // launcher's HAL component (like halcmd's hal_init)
+	goModules    []gomodule.Module  // Go plugin modules loaded via "load" command
+	cModules     []*cModule         // C plugin modules loaded via "load" command
+	cModArena    []unsafe.Pointer   // arena-tracked C strings freed in destroyCModules
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -357,12 +355,6 @@ func (l *Launcher) Run() (runErr error) {
 		l.logger.Warn("module loading error (continuing)", "error", err)
 	}
 
-	// Phase 1.5: Initialize protocols (ADS, etc.) — creates HAL pins that
-	// can be wired by net/addf/setp in the HAL files.
-	if err := l.initProtocols(); err != nil {
-		return fmt.Errorf("protocol initialization failed: %w", err)
-	}
-
 	// Phase 2: Execute HAL wiring commands (net, addf, setp, etc.).
 	if err := halResult.Execute(); err != nil {
 		if !l.opts.ContinueOnError {
@@ -413,11 +405,6 @@ func (l *Launcher) Run() (runErr error) {
 	// 6d.4. Start C plugin modules.
 	if err := l.startCModules(); err != nil {
 		return fmt.Errorf("C module start failed: %w", err)
-	}
-
-	// 6d.5. Start protocol network listeners (ADS TCP, etc.).
-	if err := l.startProtocols(); err != nil {
-		return fmt.Errorf("protocol start failed: %w", err)
 	}
 
 	// 6e. Launch application entries ([APPLICATIONS]APP) in background (step 4.3.11).

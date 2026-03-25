@@ -48,10 +48,35 @@ LAUNCHER_SRC := $(wildcard launcher/*.go) \
 	$(ECHO) Building Go launcher
 	$(Q)cd launcher && CGO_LDFLAGS="-Wl,-rpath,$(LIB_DIR)" $(GO) build -ldflags "$(LAUNCHER_LDFLAGS)" -o $(TOP)/bin/linuxcnc-launcher ./cmd/linuxcnc-launcher
 
-# Build the ads-xml-gen tool (pure Go, no CGO).
-../bin/ads-xml-gen: $(LAUNCHER_SRC)
+# ---------------------------------------------------------------------------
+# ADS server Go plugin (.so) — built from src/hal/proto/ads-server
+# ---------------------------------------------------------------------------
+
+ADS_SERVER_DIR := hal/proto/ads-server
+ADS_SERVER_SRC := $(wildcard $(ADS_SERVER_DIR)/*.go) \
+    $(wildcard $(ADS_SERVER_DIR)/internal/*/*.go) \
+    $(wildcard $(ADS_SERVER_DIR)/cmd/*/*.go) \
+    $(ADS_SERVER_DIR)/go.mod
+
+# go.work wires the launcher dependency for the ads-server module.
+$(ADS_SERVER_DIR)/go.work: $(ADS_SERVER_DIR)/go.mod launcher/go.mod
+	@rm -f $(ADS_SERVER_DIR)/go.work $(ADS_SERVER_DIR)/go.work.sum
+	$(Q)cd $(ADS_SERVER_DIR) && GOTOOLCHAIN=local $(GO) work init
+	$(Q)cd $(ADS_SERVER_DIR) && GOTOOLCHAIN=local $(GO) work use .
+	$(Q)cd $(ADS_SERVER_DIR) && GOTOOLCHAIN=local $(GO) work use ../../../launcher
+
+../gomod/ads-server.so: $(ADS_SERVER_SRC) $(ADS_SERVER_DIR)/go.work $(LAUNCHER_SRC) ../lib/liblinuxcnchal.so
+	$(ECHO) Building ads-server.so Go plugin
+	$(Q)cd $(ADS_SERVER_DIR) && \
+	CGO_ENABLED=1 \
+	CGO_LDFLAGS="-Wl,-rpath,$(LIB_DIR)" \
+	GOTOOLCHAIN=local \
+	$(GO) build -buildmode=plugin -o $(TOP)/gomod/ads-server.so .
+
+# Build the ads-xml-gen tool from the ads-server module (pure Go, no CGO).
+../bin/ads-xml-gen: $(ADS_SERVER_SRC) $(ADS_SERVER_DIR)/go.work
 	$(ECHO) Building ads-xml-gen
-	$(Q)cd launcher && CGO_ENABLED=0 $(GO) build -o $(TOP)/bin/ads-xml-gen ./cmd/ads-xml-gen
+	$(Q)cd $(ADS_SERVER_DIR) && CGO_ENABLED=0 GOTOOLCHAIN=local $(GO) build -o $(TOP)/bin/ads-xml-gen ./cmd/ads-xml-gen
 
 # ---------------------------------------------------------------------------
 # Copy launcher public packages to share/ for RIP builds
@@ -117,7 +142,7 @@ HAL_GO_EXAMPLES := ../bin/passthrough ../bin/str-sender ../bin/str-receiver
 	CGO_LDFLAGS="$(HAL_GO_CGO_LDFLAGS)" \
 	$(GO) build -o $(TOP)/bin/str-receiver .
 
-TARGETS += ../bin/linuxcnc-launcher ../bin/ads-xml-gen $(LAUNCHER_PKG_FILES) $(HAL_GO_EXAMPLES)
+TARGETS += ../bin/linuxcnc-launcher ../bin/ads-xml-gen ../gomod/ads-server.so $(LAUNCHER_PKG_FILES) $(HAL_GO_EXAMPLES)
 
 # Test target
 .PHONY: test-launcher
@@ -128,17 +153,19 @@ test-launcher:
 clean: launcher-clean
 .PHONY: launcher-clean
 launcher-clean:
-	rm -f ../bin/linuxcnc-launcher ../bin/ads-xml-gen
+	rm -f ../bin/linuxcnc-launcher ../bin/ads-xml-gen ../gomod/ads-server.so
 	rm -f $(HAL_GO_EXAMPLES)
 	rm -f $(LAUNCHER_PKG_FILES)
 
 # Install
 install: launcher-install
 .PHONY: launcher-install
-launcher-install: ../bin/linuxcnc-launcher ../bin/ads-xml-gen $(LAUNCHER_PKG_FILES) $(HAL_GO_EXAMPLES)
+launcher-install: ../bin/linuxcnc-launcher ../bin/ads-xml-gen ../gomod/ads-server.so $(LAUNCHER_PKG_FILES) $(HAL_GO_EXAMPLES)
 	$(DIR) $(DESTDIR)$(EMC2_BIN_DIR)
 	$(INSTALL) -m 0755 ../bin/linuxcnc-launcher $(DESTDIR)$(EMC2_BIN_DIR)/linuxcnc-launcher
 	$(INSTALL) -m 0755 ../bin/ads-xml-gen $(DESTDIR)$(EMC2_BIN_DIR)/ads-xml-gen
+	$(DIR) $(DESTDIR)$(EMC2_GOMOD_DIR)
+	$(INSTALL) -m 0644 ../gomod/ads-server.so $(DESTDIR)$(EMC2_GOMOD_DIR)/ads-server.so
 	$(FILE) $(HAL_GO_EXAMPLES) $(DESTDIR)$(EMC2_BIN_DIR)/
 	# Install launcher public packages for external Go plugin development
 	$(DIR) $(DESTDIR)$(datadir)/linuxcnc/launcher/pkg/hal

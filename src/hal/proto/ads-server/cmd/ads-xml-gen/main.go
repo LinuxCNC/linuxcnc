@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/sittner/linuxcnc/src/launcher/pkg/adsconfig"
+	"github.com/sittner/linuxcnc/src/hal/proto/ads-server/internal/adsconfig"
 )
 
 func main() {

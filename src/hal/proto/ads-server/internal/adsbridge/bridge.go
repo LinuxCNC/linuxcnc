@@ -9,8 +9,8 @@ import (
 
 	"github.com/sittner/linuxcnc/src/launcher/pkg/hal"
 
-	"github.com/sittner/linuxcnc/src/launcher/pkg/ads"
-	"github.com/sittner/linuxcnc/src/launcher/pkg/adsconfig"
+	"github.com/sittner/linuxcnc/src/hal/proto/ads-server/internal/ads"
+	"github.com/sittner/linuxcnc/src/hal/proto/ads-server/internal/adsconfig"
 )
 
 // typeInfo holds the ADS/TwinCAT type metadata for a single symbol.
