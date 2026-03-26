@@ -7,9 +7,8 @@
  *     (@c \<name\>.conf.master-count and @c \<name\>.conf.slave-count).
  *  2. Reads and parses the EtherCAT bus topology from an XML configuration
  *     file supplied via the @c config= parameter.
- *  3. Serialises the parsed records into a POSIX shared-memory segment keyed
- *     by @ref LCEC_CONF_SHMEM_KEY so that the realtime @c lcec component can
- *     read them at startup.
+ *  3. Serialises the parsed records into a flat buffer and passes them
+ *     to the RT init function.
  *  4. Calls @c hal_ready() and returns.  The launcher manages the lifecycle.
  *
  * The XML grammar handled here is:
@@ -490,9 +489,6 @@ static void lcec_conf_destroy(cmod_t *self) {
 
   lcec_rt_cleanup(&m->rt_ctx);
 
-  if (m->shmem_id >= 0 && m->hal_comp_id >= 0) {
-    rtapi_shmem_delete(m->shmem_id, m->hal_comp_id);
-  }
   if (m->hal_comp_id >= 0) {
     hal_exit(m->hal_comp_id);
   }
@@ -511,8 +507,8 @@ static void lcec_conf_destroy(cmod_t *self) {
  *  -# Parses the file using expat and the @c xml_states transition table,
  *     accumulating configuration records in @c state.outputBuf.
  *  -# Appends a @ref LCEC_CONF_NULL_T end-of-stream sentinel.
- *  -# Creates a shared-memory segment and writes the @ref LCEC_CONF_HEADER_T
- *     followed by the serialised records.
+ *  -# Copies the serialised records into an rtapi_calloc'd buffer
+ *     stored in the RT context.
  *  -# Calls @c hal_ready() and returns.
  *
  * @return 0 on success, non-zero on error.
@@ -526,9 +522,8 @@ int New(const cmod_env_t *env, const char *name,
   char buffer[BUFFSIZE];
   FILE *file = NULL;
   LCEC_CONF_NULL_T *end;
-  void *shmem_ptr;
-  LCEC_CONF_HEADER_T *header;
   LCEC_CONF_XML_STATE_T state;
+  void *conf;
 
   lcec_conf_module *m = calloc(1, sizeof(lcec_conf_module));
   if (m == NULL) {
@@ -538,7 +533,6 @@ int New(const cmod_env_t *env, const char *name,
   m->env = env;
   strncpy(m->name, name, sizeof(m->name) - 1);
   m->hal_comp_id = -1;
-  m->shmem_id = -1;
 
   // parse config= and ipc_socket= parameters from argv
   for (int i = 0; i < argc; i++) {
@@ -623,25 +617,15 @@ int New(const cmod_env_t *env, const char *name,
   }
   end->confType = lcecConfTypeNone;
 
-  // setup shared mem for config
-  m->shmem_id = rtapi_shmem_new(LCEC_CONF_SHMEM_KEY, m->hal_comp_id, sizeof(LCEC_CONF_HEADER_T) + state.outputBuf.len);
-  if (m->shmem_id < 0) {
-    LOG_ERR(m, "couldn't allocate user/RT shared memory");
+  // allocate flat config buffer
+  conf = calloc(1, state.outputBuf.len);
+  if (conf == NULL) {
+    LOG_ERR(m, "couldn't allocate config buffer");
     goto fail3;
   }
-  if (rtapi_shmem_getptr(m->shmem_id, &shmem_ptr) < 0) {
-    LOG_ERR(m, "couldn't map user/RT shared memory");
-    goto fail4;
-  }
 
-  // setup header
-  header = shmem_ptr;
-  shmem_ptr += sizeof(LCEC_CONF_HEADER_T);
-  header->magic = LCEC_CONF_SHMEM_MAGIC;
-  header->length = state.outputBuf.len;
-
-  // copy data and free buffer
-  copyFreeOutputBuffer(&state.outputBuf, shmem_ptr);
+  // copy data and free linked-list nodes
+  copyFreeOutputBuffer(&state.outputBuf, conf);
 
   // initialize RT context
   m->rt_ctx.comp_id = m->hal_comp_id;
@@ -653,9 +637,9 @@ int New(const cmod_env_t *env, const char *name,
   memset(&m->rt_ctx.global_ms, 0, sizeof(ec_master_state_t));
 
   // initialize RT component (parses config, starts masters, exports HAL functions)
-  if (lcec_rt_init(&m->rt_ctx) != 0) {
+  if (lcec_rt_init(&m->rt_ctx, conf) != 0) {
     LOG_ERR(m, "RT initialization failed");
-    goto fail4;
+    goto fail3;
   }
 
   // everything is fine
@@ -669,14 +653,11 @@ int New(const cmod_env_t *env, const char *name,
 
   *out = &m->base;
 
-  // cleanup parse state (keep shmem and HAL alive)
+  // cleanup parse state
   XML_ParserFree(state.xml.parser);
   fclose(file);
   return 0;
 
-fail4:
-  rtapi_shmem_delete(m->shmem_id, m->hal_comp_id);
-  m->shmem_id = -1;
 fail3:
   copyFreeOutputBuffer(&state.outputBuf, NULL);
   XML_ParserFree(state.xml.parser);

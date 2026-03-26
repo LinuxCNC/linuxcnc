@@ -1,13 +1,11 @@
 /**
  * @file conf.h
- * @brief Configuration data structures shared between the lcec_conf userspace
- *        tool and the lcec realtime component.
+ * @brief Configuration data structures for the EtherCAT HAL driver.
  *
- * This header defines the binary layout of the EtherCAT bus topology that
- * lcec_conf writes into a POSIX shared-memory segment and that the realtime
- * HAL component reads at startup.  Every record begins with a
- * @ref LCEC_CONF_TYPE_T discriminator so the reader can walk the flat buffer
- * without additional framing.
+ * This header defines the binary layout of the EtherCAT bus topology
+ * configuration.  Every record begins with a @ref LCEC_CONF_TYPE_T
+ * discriminator so the reader can walk the flat buffer without additional
+ * framing.
  *
  * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *
@@ -32,16 +30,11 @@
 #include "hal.h"
 #include "ecrt.h"
 
-/** @brief Legacy module name constant — kept for shared-memory protocol compatibility.
+/** @brief Legacy module name constant.
  *  Pin and function names now use the per-instance name from cmod New(). */
 #define LCEC_MODULE_NAME "ethercat"
 
-/** @brief System-V shared-memory key used to create/attach the config segment. */
-#define LCEC_CONF_SHMEM_KEY   0xACB572C7
 
-/** @brief Magic number written at the start of the shared-memory header to
- *         verify that the segment was populated by a compatible lcec_conf. */
-#define LCEC_CONF_SHMEM_MAGIC 0x036ED5A3
 
 /** @brief Maximum length (including NUL terminator) for name/interface strings
  *         stored inside configuration records. */
@@ -251,19 +244,7 @@ typedef enum {
   lcecSlaveTypePh3LM2RM  /**< Modusoft PH3LM2RM three-phase converter. */
 } LCEC_SLAVE_TYPE_T;
 
-/**
- * @brief Shared-memory segment header placed at the very start of the buffer.
- *
- * The lcec_conf tool writes this record first, followed immediately by a
- * stream of configuration records.  The realtime component validates the
- * magic number before consuming any further data.
- */
-typedef struct {
-  uint32_t magic;  /**< Must equal @ref LCEC_CONF_SHMEM_MAGIC for the segment to
-                    *   be considered valid. */
-  size_t length;   /**< Total byte length of all configuration records that follow
-                    *   the header (does NOT include the size of the header itself). */
-} LCEC_CONF_HEADER_T;
+
 
 /**
  * @brief Configuration record for one EtherCAT master.

@@ -97,7 +97,7 @@ typedef struct LCEC_CONF_OUTBUF_ITEM {
  * @brief Head/tail descriptor for the dynamically-grown output buffer.
  *
  * The output buffer accumulates configuration records during XML parsing
- * and is later serialised into the shared-memory segment in a single pass
+ * and is later serialised into a flat buffer in a single pass
  * by @ref copyFreeOutputBuffer().
  */
 typedef struct {
@@ -128,7 +128,6 @@ struct lcec_conf_module {
 
   int hal_comp_id;                 /**< HAL component ID from hal_init_ex(). */
   LCEC_CONF_HAL_T *conf_hal_data;  /**< HAL pin data block. */
-  int shmem_id;                    /**< RTAPI shared-memory segment ID. */
 
   lcec_rt_context_t rt_ctx;        /**< RT component lifecycle context. */
 };

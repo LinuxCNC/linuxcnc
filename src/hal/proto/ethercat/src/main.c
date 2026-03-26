@@ -45,7 +45,7 @@ static void lcec_ec_log_callback(int level, const char *fmt, va_list ap) {
 }
 #endif
 
-static int lcec_parse_config(lcec_rt_context_t *ctx);
+static int lcec_parse_config(lcec_rt_context_t *ctx, void *conf);
 static void lcec_clear_config(lcec_rt_context_t *ctx);
 
 static void lcec_read_all(void *arg, long period);
@@ -65,7 +65,7 @@ void lcec_write_master(void *arg, long period);
  * @param ctx  Per-instance context; comp_id and instance_name must be set.
  * @return 0 on success, negative on error.
  */
-int lcec_rt_init(lcec_rt_context_t *ctx) {
+int lcec_rt_init(lcec_rt_context_t *ctx, void *conf) {
   int slave_count;
   lcec_master_t *master;
   lcec_slave_t *slave;
@@ -82,7 +82,7 @@ int lcec_rt_init(lcec_rt_context_t *ctx) {
   ctx->dc_time_offset = EC_TIMEVAL2NANO(tv) - rtapi_now;
 
   // parse configuration
-  if ((slave_count = lcec_parse_config(ctx)) < 0) {
+  if ((slave_count = lcec_parse_config(ctx, conf)) < 0) {
     goto fail0;
   }
 
@@ -333,17 +333,13 @@ void lcec_rt_stop(lcec_rt_context_t *ctx)  {
 
 
 /**
- * @brief Parse the lcec configuration from RTAPI shared memory.
+ * @brief Parse the lcec configuration from the flat config buffer.
  *
- * @param ctx  Per-instance context; comp_id must be set.
+ * @param ctx  Per-instance context; conf_data and conf_length must be set.
  * @return Total number of configured slaves on success, -1 on error.
  */
-static int lcec_parse_config(lcec_rt_context_t *ctx) {
-  int shmem_id;
-  void *shmem_ptr;
-  LCEC_CONF_HEADER_T *header;
-  size_t length;
-  void *conf;
+static int lcec_parse_config(lcec_rt_context_t *ctx, void *conf) {
+  void *conf_base = conf;
   int slave_count;
   lcec_master_t *master;
   lcec_slave_t *slave;
@@ -365,40 +361,6 @@ static int lcec_parse_config(lcec_rt_context_t *ctx) {
   // initialize list
   ctx->first_master = NULL;
   ctx->last_master = NULL;
-
-  // try to get config header
-  shmem_id = rtapi_shmem_new(LCEC_CONF_SHMEM_KEY, ctx->comp_id, sizeof(LCEC_CONF_HEADER_T));
-  if (shmem_id < 0) {
-    rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't allocate user/RT shared memory\n");
-    goto fail0;
-  }
-  if (rtapi_shmem_getptr(shmem_id, &shmem_ptr) < 0 ) {
-    rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't map user/RT shared memory\n");
-    goto fail1;
-  }
-
-  // check magic, get length and close shmem
-  header = shmem_ptr;
-  if (header->magic != LCEC_CONF_SHMEM_MAGIC) {
-    rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "lcec_conf is not loaded\n");
-    goto fail1;
-  }
-  length = header->length;
-  rtapi_shmem_delete(shmem_id, ctx->comp_id);
-
-  // reopen shmem with proper size
-  shmem_id = rtapi_shmem_new(LCEC_CONF_SHMEM_KEY, ctx->comp_id, sizeof(LCEC_CONF_HEADER_T) + length);
-  if (shmem_id < 0) {
-    rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't allocate user/RT shared memory\n");
-    goto fail0;
-  }
-  if (rtapi_shmem_getptr(shmem_id, &shmem_ptr) < 0 ) {
-    rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't map user/RT shared memory\n");
-    goto fail1;
-  }
-
-  // get pointer to config
-  conf = (uint8_t *)shmem_ptr + sizeof(LCEC_CONF_HEADER_T);
 
   // process config items
   slave_count = 0;
@@ -535,9 +497,6 @@ static int lcec_parse_config(lcec_rt_context_t *ctx) {
     }
   }
 
-  // close shmem
-  rtapi_shmem_delete(shmem_id, ctx->comp_id);
-
   // allocate PDO entity memory
   for (master = ctx->first_master; master != NULL; master = master->next) {
     // stage 1 preinit: process all but FSOE logic devices
@@ -572,13 +531,14 @@ static int lcec_parse_config(lcec_rt_context_t *ctx) {
     master->pdo_entry_regs = pdo_entry_regs;
   }
 
+  // free config buffer
+  free(conf_base);
+
   return slave_count;
 
 fail2:
   lcec_clear_config(ctx);
-fail1:
-  rtapi_shmem_delete(shmem_id, ctx->comp_id);
-fail0:
+  free(conf_base);
   return -1;
 }
 

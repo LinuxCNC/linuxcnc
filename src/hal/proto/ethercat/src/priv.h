@@ -155,14 +155,15 @@ typedef struct lcec_rt_context {
 /**
  * @brief Initialise the EtherCAT RT component (replaces rtapi_app_main).
  *
- * Parses the configuration from shared memory, starts all masters, configures
- * all slaves, and exports the HAL read/write functions.  Does NOT call
+ * Parses the configuration from the flat config buffer in @c ctx->conf_data,
+ * starts all masters, configures all slaves, and exports the HAL read/write
+ * functions.  Frees the config buffer after parsing.  Does NOT call
  * hal_init() or hal_ready() — the caller (cmod New) handles those.
  *
  * @param ctx  Per-instance context; comp_id and instance_name must be set.
  * @return 0 on success, negative on error.
  */
-int lcec_rt_init(lcec_rt_context_t *ctx);
+int lcec_rt_init(lcec_rt_context_t *ctx, void *conf);
 
 /**
  * @brief Tear down the EtherCAT RT component (replaces rtapi_app_exit).
