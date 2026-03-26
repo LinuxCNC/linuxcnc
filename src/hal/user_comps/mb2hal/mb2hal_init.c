@@ -133,7 +133,7 @@ static retCode parse_pin_names(mb2hal_module *m, const char * const names_string
     char * name = strtok(names, ",");
     while(name)
     {
-        if(strlen(name) > HAL_NAME_LEN - 15) //this is only a rough estimate
+        if(strlen(name) > GOMC_HAL_NAME_LEN - 15) //this is only a rough estimate
         {
             ERR(m, m->init_dbg, "pin name '%s' is too long", name);
             return retERR;
@@ -389,7 +389,7 @@ retCode parse_transaction_section(mb2hal_module *m, const int mb_tx_num)
     tag = "HAL_TX_NAME"; //optional
     tmpstr = iniFind(m->ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
-        strncpy(this_mb_tx->hal_tx_name, tmpstr, HAL_NAME_LEN);
+        strncpy(this_mb_tx->hal_tx_name, tmpstr, GOMC_HAL_NAME_LEN);
     }
     else {
         snprintf(this_mb_tx->hal_tx_name, sizeof(this_mb_tx->hal_tx_name), "%02d", mb_tx_num);

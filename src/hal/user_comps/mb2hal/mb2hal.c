@@ -147,8 +147,8 @@ void *link_loop_and_logic(void *arg)
             }
             else if (ret != retOK) {  //transaction failure but link OK
                 (**this_mb_tx->num_errors)++;
-                ERR(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%d]",
-                    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), **this_mb_tx->num_errors);
+                ERR(m, this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%u]",
+                    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), (unsigned int) **this_mb_tx->num_errors);
                 // Clear any unread data. Otherwise the link might get out of sync
                 modbus_flush(this_mb_link->modbus);
             }
@@ -413,13 +413,12 @@ static void mb2hal_destroy(cmod_t *self)
 {
     mb2hal_module *m = (mb2hal_module *)self->priv;
     char *fnct_name = "mb2hal_destroy";
-    int ret;
 
     mb2hal_cleanup(m);
 
     if (m->hal_mod_id >= 0) {
-        ret = hal_exit(m->hal_mod_id);
-        DBG(m, m->init_dbg, "unloading HAL module [%d] ret[%d]", m->hal_mod_id, ret);
+        m->env->hal->exit(m->env->hal->ctx, m->hal_mod_id);
+        DBG(m, m->init_dbg, "unloading HAL module [%d]", m->hal_mod_id);
     }
 
     OK(m, m->init_dbg, "going to exit!");
@@ -509,7 +508,8 @@ int New(const cmod_env_t *env, const char *name,
     OK(m, m->init_dbg, "init_mb_tx done OK");
 
     // Use the component name from the constructor
-    m->hal_mod_id = hal_init(m->name);
+    m->hal_mod_id = env->hal->init(env->hal->ctx, m->name, env->dl_handle,
+                                   GOMC_HAL_COMP_USER);
     if (m->hal_mod_id < 0) {
         ERR(m, m->init_dbg, "Unable to initialize HAL component [%s]", m->name);
         mb2hal_cleanup(m);
@@ -518,13 +518,13 @@ int New(const cmod_env_t *env, const char *name,
     }
     if (create_HAL_pins(m) != retOK) {
         ERR(m, m->init_dbg, "Unable to create HAL pins");
-        hal_exit(m->hal_mod_id);
+        env->hal->exit(env->hal->ctx, m->hal_mod_id);
         mb2hal_cleanup(m);
         free(m);
         return -1;
     }
 
-    hal_ready(m->hal_mod_id);
+    env->hal->ready(env->hal->ctx, m->hal_mod_id);
     OK(m, m->init_dbg, "HAL component [%s] created OK", m->name);
 
     // Wire up the lifecycle vtable

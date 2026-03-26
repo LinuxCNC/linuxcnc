@@ -31,12 +31,11 @@
 #include "rtapi.h"
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
-#include "hal.h"
 #include "inifile.h"
 
 #include <modbus.h>
 
-#include "launcher/pkg/cmodule/cmodule.h"
+#include "launcher/pkg/cmodule/gomc_env.h"
 
 #define MB2HAL_MAX_LINKS            32
 #define MB2HAL_MAX_DEVICE_LENGTH    32
@@ -78,24 +77,20 @@ typedef enum { retOK, retOKwithWarning, retERR
 // Logging macros — route through the cmod env callbacks.
 // Each takes a module pointer as the first argument.
 #define ERR(m, debug, fmt, args...) do { if((debug) >= debugERR) { \
-    char _mb2hal_buf[512]; snprintf(_mb2hal_buf, sizeof(_mb2hal_buf), \
-    "%s ERR: " fmt, fnct_name, ## args); \
-    (m)->env->log_error((m)->env->ctx, (m)->name, _mb2hal_buf); } } while(0)
+    gomc_log_errorf((m)->env->log, (m)->name, "%s ERR: " fmt, fnct_name, ## args); \
+    } } while(0)
 
 #define OK(m, debug, fmt, args...) do { if((debug) >= debugOK) { \
-    char _mb2hal_buf[512]; snprintf(_mb2hal_buf, sizeof(_mb2hal_buf), \
-    "%s OK: " fmt, fnct_name, ## args); \
-    (m)->env->log_info((m)->env->ctx, (m)->name, _mb2hal_buf); } } while(0)
+    gomc_log_infof((m)->env->log, (m)->name, "%s OK: " fmt, fnct_name, ## args); \
+    } } while(0)
 
 #define DBG(m, debug, fmt, args...) do { if((debug) >= debugDEBUG) { \
-    char _mb2hal_buf[512]; snprintf(_mb2hal_buf, sizeof(_mb2hal_buf), \
-    "%s DEBUG: " fmt, fnct_name, ## args); \
-    (m)->env->log_debug((m)->env->ctx, (m)->name, _mb2hal_buf); } } while(0)
+    gomc_log_debugf((m)->env->log, (m)->name, "%s DEBUG: " fmt, fnct_name, ## args); \
+    } } while(0)
 
 #define DBGMAX(m, debug, fmt, args...) do { if((debug) >= debugMAX) { \
-    char _mb2hal_buf[512]; snprintf(_mb2hal_buf, sizeof(_mb2hal_buf), \
-    "%s DEBUGMAX: " fmt, fnct_name, ## args); \
-    (m)->env->log_debug((m)->env->ctx, (m)->name, _mb2hal_buf); } } while(0)
+    gomc_log_debugf((m)->env->log, (m)->name, "%s DEBUGMAX: " fmt, fnct_name, ## args); \
+    } } while(0)
 
 //Modbus transaction structure (mb_tx_t)
 //Store each transaction defined in INI config file
@@ -137,12 +132,12 @@ typedef struct {
     double next_time;      //next time for this tx
     double last_time_ok;   //last OK tx time
     //HAL related params
-    char hal_tx_name[HAL_NAME_LEN + 1];
-    hal_float_t **float_value;
-    hal_s32_t **int_value;
-    hal_bit_t **bit;
-    hal_bit_t **bit_inv;
-    hal_u32_t **num_errors;     //num of acummulated errors (0=last tx OK)
+    char hal_tx_name[GOMC_HAL_NAME_LEN + 1];
+    gomc_hal_float_t **float_value;
+    gomc_hal_s32_t **int_value;
+    gomc_hal_bit_t **bit;
+    gomc_hal_bit_t **bit_inv;
+    gomc_hal_u32_t **num_errors;     //num of acummulated errors (0=last tx OK)
 } mb_tx_t;
 
 //Modbus link structure (mb_link_t)

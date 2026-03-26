@@ -15,7 +15,7 @@ $(call TOOBJS, $(MB2HAL_SRCS)): Makefile.inc
 
 USERSRCS += $(MB2HAL_SRCS)
 
-../cmod/mb2hal.so: $(call TOOBJS, $(MB2HAL_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+../cmod/mb2hal.so: $(call TOOBJS, $(MB2HAL_SRCS)) ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../cmod
 	@$(CC) -shared -o $@ $^ $(LDFLAGS) $(MB2HAL_LDFLAGS)
