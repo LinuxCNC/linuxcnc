@@ -95,7 +95,7 @@ struct XenomaiApp : RtapiApp {
         {
             WithRoot r;
             /* Attach to the core. */
-            rtapi_print("linuxcnc-thread:%d\n", gettid());
+            rtapi_print("linuxcnc-task:%d\n", gettid());
             int tfd = evl_attach_self("linuxcnc-thread:%d", gettid());
             if (tfd < 0){
                 rtapi_print("evl_attach_self() failed ret %i errno %i\n", tfd, errno);
@@ -103,7 +103,7 @@ struct XenomaiApp : RtapiApp {
         }
 
         struct timespec now;
-        clock_gettime(CLOCK_MONOTONIC, &now);
+        evl_read_clock(EVL_CLOCK_MONOTONIC, &now);
 
         // originally, I used pthread_make_periodic_np here, and
         // pthread_wait_np in wait(), but in about 1 run in 50 this led to
@@ -149,7 +149,7 @@ struct XenomaiApp : RtapiApp {
         }
         rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
         struct timespec now;
-        clock_gettime(CLOCK_MONOTONIC, &now);
+        evl_read_clock(EVL_CLOCK_MONOTONIC, &now);
         if(rtapi_timespec_less(task->nextstart, now))
         {
             if(policy == SCHED_FIFO)
@@ -197,13 +197,13 @@ struct XenomaiApp : RtapiApp {
 
     long long do_get_time() {
         struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
+        evl_read_clock(EVL_CLOCK_MONOTONIC, &ts);
         return ts.tv_sec * 1000000000LL + ts.tv_nsec;
     }
 
     void do_delay(long ns) {
         struct timespec ts = {0, ns};
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, nullptr);
+        evl_sleep_until(EVL_CLOCK_MONOTONIC, &ts);
     }
 };
 
