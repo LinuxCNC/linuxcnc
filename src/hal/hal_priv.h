@@ -406,6 +406,7 @@ struct hal_thread_t {
     hal_list_t funct_list;	/* list of functions to run */
     char name[HAL_NAME_LEN + 1];	/* thread name */
     int comp_id;
+    volatile int idle;		/* set by thread_task when not executing functions */
 };
 
 /***********************************************************************

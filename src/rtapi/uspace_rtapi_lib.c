@@ -792,7 +792,11 @@ static int task_delete(int id)
     struct posix_task *task = (struct posix_task*)get_task(id);
     if(!task) return -EINVAL;
 
-    pthread_cancel(task->thr);
+    /* Request cooperative exit and wait for the thread to return
+       naturally instead of using pthread_cancel, which can crash
+       during clock_nanosleep unwind (SIGSEGV in _Unwind_ForcedUnwind). */
+    task->task.task_exit = 1;
+    __sync_synchronize();
     pthread_join(task->thr, 0);
     task->task.magic = 0;
     task_array[id] = 0;
@@ -865,10 +869,15 @@ static int task_self(void) {
 static void task_wait(void) {
     if(do_thread_lock)
         pthread_mutex_unlock(&thread_lock);
-    pthread_testcancel();
     struct rtapi_task *task = (struct rtapi_task*)pthread_getspecific(task_key);
     if(!task) {
         rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_wait called from non-task thread\n");
+        if(do_thread_lock)
+            pthread_mutex_lock(&thread_lock);
+        return;
+    }
+    /* Check cooperative exit flag before sleeping */
+    if(task->task_exit) {
         if(do_thread_lock)
             pthread_mutex_lock(&thread_lock);
         return;
@@ -991,6 +1000,12 @@ int rtapi_task_resume(int task_id)
 int rtapi_task_self(void)
 {
     return task_self();
+}
+
+struct rtapi_task *rtapi_task_self_ptr(void)
+{
+    pthread_once(&key_once, init_task_key);
+    return (struct rtapi_task*)pthread_getspecific(task_key);
 }
 
 long long rtapi_task_pll_get_reference(void)

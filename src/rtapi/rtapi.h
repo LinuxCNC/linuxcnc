@@ -407,6 +407,13 @@ RTAPI_BEGIN_DECLS
 */
     extern int rtapi_task_self(void);
 
+/** 'rtapi_task_self_ptr()' returns a pointer to the current task's
+    rtapi_task struct, or NULL if not called from a task context.
+    Used by thread_task() to check the cooperative exit flag.
+*/
+    struct rtapi_task;
+    extern struct rtapi_task *rtapi_task_self_ptr(void);
+
 #define RTAPI_TASK_PLL_SUPPORT
 
 /** 'rtapi_task_pll_get_reference()' gets the reference timestamp

@@ -21,6 +21,7 @@ struct rtapi_task {
     long pll_correction_limit;
     void *arg;
     void (*taskcode)(void*);
+    volatile int task_exit;  /* cooperative exit flag — set to 1 to request clean shutdown */
 };
 
 #define MAX_TASKS  64
