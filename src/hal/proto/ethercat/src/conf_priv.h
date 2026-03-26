@@ -100,7 +100,7 @@ typedef struct LCEC_CONF_OUTBUF_ITEM {
  * and is later serialised into a flat buffer in a single pass
  * by @ref copyFreeOutputBuffer().
  */
-typedef struct {
+typedef struct lcec_conf_outbuf {
   LCEC_CONF_OUTBUF_ITEM_T *head; /**< First item in the list, or @c NULL if empty. */
   LCEC_CONF_OUTBUF_ITEM_T *tail; /**< Last item in the list, used for O(1) append. */
   size_t len;                    /**< Running total of all payload bytes in the list. */

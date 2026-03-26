@@ -33,6 +33,7 @@
  */
 
 #include "priv.h"
+#include "conf_priv.h"
 
 #ifdef EC_USPACE_MASTER
 /**
@@ -45,7 +46,7 @@ static void lcec_ec_log_callback(int level, const char *fmt, va_list ap) {
 }
 #endif
 
-static int lcec_parse_config(lcec_rt_context_t *ctx, void *conf);
+static int lcec_parse_config(lcec_rt_context_t *ctx, LCEC_CONF_OUTBUF_T *buf);
 static void lcec_clear_config(lcec_rt_context_t *ctx);
 
 static void lcec_read_all(void *arg, long period);
@@ -65,7 +66,7 @@ void lcec_write_master(void *arg, long period);
  * @param ctx  Per-instance context; comp_id and instance_name must be set.
  * @return 0 on success, negative on error.
  */
-int lcec_rt_init(lcec_rt_context_t *ctx, void *conf) {
+int lcec_rt_init(lcec_rt_context_t *ctx, LCEC_CONF_OUTBUF_T *buf) {
   int slave_count;
   lcec_master_t *master;
   lcec_slave_t *slave;
@@ -82,7 +83,7 @@ int lcec_rt_init(lcec_rt_context_t *ctx, void *conf) {
   ctx->dc_time_offset = EC_TIMEVAL2NANO(tv) - rtapi_now;
 
   // parse configuration
-  if ((slave_count = lcec_parse_config(ctx, conf)) < 0) {
+  if ((slave_count = lcec_parse_config(ctx, buf)) < 0) {
     goto fail0;
   }
 
@@ -333,29 +334,24 @@ void lcec_rt_stop(lcec_rt_context_t *ctx)  {
 
 
 /**
- * @brief Parse the lcec configuration from the flat config buffer.
+ * @brief Parse the lcec configuration from the output buffer linked list.
  *
- * @param ctx  Per-instance context; conf_data and conf_length must be set.
+ * Iterates the linked-list nodes produced by the XML parser, creating masters
+ * and slaves, then runs the preinit stages and allocates PDO entry memory.
+ * Frees all linked-list nodes when done (both success and error paths).
+ *
+ * @param ctx  Per-instance context; comp_id must be set.
+ * @param buf  Output buffer containing the parsed configuration records.
  * @return Total number of configured slaves on success, -1 on error.
  */
-static int lcec_parse_config(lcec_rt_context_t *ctx, void *conf) {
-  void *conf_base = conf;
+static int lcec_parse_config(lcec_rt_context_t *ctx, LCEC_CONF_OUTBUF_T *buf) {
+  LCEC_CONF_OUTBUF_ITEM_T *node;
+  void *payload;
   int slave_count;
   lcec_master_t *master;
   lcec_slave_t *slave;
   ec_pdo_entry_reg_t *pdo_entry_regs;
   LCEC_CONF_TYPE_T conf_type;
-  LCEC_CONF_MASTER_T *master_conf;
-  LCEC_CONF_SLAVE_T *slave_conf;
-  LCEC_CONF_DC_T *dc_conf;
-  LCEC_CONF_WATCHDOG_T *wd_conf;
-  LCEC_CONF_SYNCMANAGER_T *sm_conf;
-  LCEC_CONF_PDO_T *pdo_conf;
-  LCEC_CONF_PDOENTRY_T *pe_conf;
-  LCEC_CONF_COMPLEXENTRY_T *ce_conf;
-  LCEC_CONF_SDOCONF_T *sdo_conf;
-  LCEC_CONF_IDNCONF_T *idn_conf;
-  LCEC_CONF_MODPARAM_T *modparam_conf;
   lcec_slave_conf_state_t slave_conf_state;
 
   // initialize list
@@ -366,134 +362,118 @@ static int lcec_parse_config(lcec_rt_context_t *ctx, void *conf) {
   slave_count = 0;
   master = NULL;
   slave = NULL;
-  pe_conf = NULL;
   memset(&slave_conf_state, 0, sizeof(lcec_slave_conf_state_t));
-  while((conf_type = ((LCEC_CONF_NULL_T *)conf)->confType) != lcecConfTypeNone) {
-    // get type
+  for (node = buf->head; node != NULL; node = node->next) {
+    payload = (void *)(node + 1);
+    conf_type = ((LCEC_CONF_NULL_T *)payload)->confType;
+
+    if (conf_type == lcecConfTypeNone) {
+      break;
+    }
+
     switch (conf_type) {
       case lcecConfTypeMaster:
-        // get config token
-        master_conf = (LCEC_CONF_MASTER_T *)conf;
-        conf += sizeof(LCEC_CONF_MASTER_T);
-
-        // create master
-        master = lcec_create_master(master_conf);
+        master = lcec_create_master((LCEC_CONF_MASTER_T *)payload);
         if (master == NULL) {
-          goto fail2;
+          goto fail;
         }
-
-        // add master to list
         LCEC_LIST_APPEND(ctx->first_master, ctx->last_master, master);
         break;
 
       case lcecConfTypeSlave:
-        // get config token
-        slave_conf = (LCEC_CONF_SLAVE_T *)conf;
-        conf += sizeof(LCEC_CONF_SLAVE_T);
-
-        slave = lcec_create_slave(master, slave_conf, &slave_conf_state);
+        slave = lcec_create_slave(master, (LCEC_CONF_SLAVE_T *)payload, &slave_conf_state);
         if (slave == NULL) {
-          goto fail2;
+          goto fail;
         }
-
-        // add slave to list
         LCEC_LIST_APPEND(master->first_slave, master->last_slave, slave);
         slave_count++;
         break;
 
       case lcecConfTypeDcConf:
-        // get config token
-        dc_conf = (LCEC_CONF_DC_T *)conf;
-        conf += sizeof(LCEC_CONF_DC_T);
-
-        // configure dc
-        if (lcec_slave_conf_dc(slave, dc_conf)) {
-          goto fail2;
+        if (lcec_slave_conf_dc(slave, (LCEC_CONF_DC_T *)payload)) {
+          goto fail;
         }
         break;
 
       case lcecConfTypeWatchdog:
-        // get config token
-        wd_conf = (LCEC_CONF_WATCHDOG_T *)conf;
-        conf += sizeof(LCEC_CONF_WATCHDOG_T);
-
-        // configure wd
-        if (lcec_slave_conf_wd(slave, wd_conf)) {
-          goto fail2;
+        if (lcec_slave_conf_wd(slave, (LCEC_CONF_WATCHDOG_T *)payload)) {
+          goto fail;
         }
         break;
 
       case lcecConfTypeSyncManager:
-        // get config token
-        sm_conf = (LCEC_CONF_SYNCMANAGER_T *)conf;
-        conf += sizeof(LCEC_CONF_SYNCMANAGER_T);
-
-        // configure syncmanager
-        if (lcec_generic_conf_sm(&slave_conf_state.generic, sm_conf)) {
-          goto fail2;
+        if (lcec_generic_conf_sm(&slave_conf_state.generic, (LCEC_CONF_SYNCMANAGER_T *)payload)) {
+          goto fail;
         }
         break;
 
       case lcecConfTypePdo:
-        // get config token
-        pdo_conf = (LCEC_CONF_PDO_T *)conf;
-        conf += sizeof(LCEC_CONF_PDO_T);
-
-        // configure PDO
-        if (lcec_generic_conf_pdo(&slave_conf_state.generic, pdo_conf)) {
-          goto fail2;
+        if (lcec_generic_conf_pdo(&slave_conf_state.generic, (LCEC_CONF_PDO_T *)payload)) {
+          goto fail;
         }
         break;
 
       case lcecConfTypePdoEntry:
-        // get config token
-        pe_conf = (LCEC_CONF_PDOENTRY_T *)conf;
-        conf += sizeof(LCEC_CONF_PDOENTRY_T);
-
-        // configure PDO entry
-        if (lcec_generic_conf_pdo_entry(&slave_conf_state.generic, pe_conf)) {
-          goto fail2;
+        if (lcec_generic_conf_pdo_entry(&slave_conf_state.generic, (LCEC_CONF_PDOENTRY_T *)payload)) {
+          goto fail;
         }
         break;
 
       case lcecConfTypeComplexEntry:
-        // get config token
-        ce_conf = (LCEC_CONF_COMPLEXENTRY_T *)conf;
-        conf += sizeof(LCEC_CONF_COMPLEXENTRY_T);
-
-        // configure complex entry
-        if (lcec_generic_conf_complex_entry(&slave_conf_state.generic, ce_conf)) {
-          goto fail2;
+        if (lcec_generic_conf_complex_entry(&slave_conf_state.generic, (LCEC_CONF_COMPLEXENTRY_T *)payload)) {
+          goto fail;
         }
         break;
 
-      case lcecConfTypeSdoConfig:
-        // get config token
-        sdo_conf = (LCEC_CONF_SDOCONF_T *)conf;
-        conf += sizeof(LCEC_CONF_SDOCONF_T) + sdo_conf->length;
-
-        lcec_slave_conf_sdo(&slave_conf_state, sdo_conf);
+      case lcecConfTypeSdoConfig: {
+        LCEC_CONF_SDOCONF_T *sdo_conf = (LCEC_CONF_SDOCONF_T *)payload;
+        slave_conf_state.sdo_config->index = sdo_conf->index;
+        slave_conf_state.sdo_config->subindex = sdo_conf->subindex;
+        slave_conf_state.sdo_config->length = sdo_conf->length;
+        // consume following data nodes
+        size_t remaining = sdo_conf->length;
+        uint8_t *dest = slave_conf_state.sdo_config->data;
+        while (remaining > 0 && node->next != NULL) {
+          node = node->next;
+          size_t chunk = node->len;
+          if (chunk > remaining) chunk = remaining;
+          memcpy(dest, (void *)(node + 1), chunk);
+          dest += chunk;
+          remaining -= chunk;
+        }
+        slave_conf_state.sdo_config = (lcec_slave_sdoconf_t *) &slave_conf_state.sdo_config->data[slave_conf_state.sdo_config->length];
+        slave_conf_state.sdo_config->index = 0xffff;
         break;
+      }
 
-      case lcecConfTypeIdnConfig:
-        // get config token
-        idn_conf = (LCEC_CONF_IDNCONF_T *)conf;
-        conf += sizeof(LCEC_CONF_IDNCONF_T) + idn_conf->length;
-
-        lcec_slave_conf_idn(&slave_conf_state, idn_conf);
+      case lcecConfTypeIdnConfig: {
+        LCEC_CONF_IDNCONF_T *idn_conf = (LCEC_CONF_IDNCONF_T *)payload;
+        slave_conf_state.idn_config->drive = idn_conf->drive;
+        slave_conf_state.idn_config->idn = idn_conf->idn;
+        slave_conf_state.idn_config->state = idn_conf->state;
+        slave_conf_state.idn_config->length = idn_conf->length;
+        // consume following data nodes
+        size_t remaining = idn_conf->length;
+        uint8_t *dest = slave_conf_state.idn_config->data;
+        while (remaining > 0 && node->next != NULL) {
+          node = node->next;
+          size_t chunk = node->len;
+          if (chunk > remaining) chunk = remaining;
+          memcpy(dest, (void *)(node + 1), chunk);
+          dest += chunk;
+          remaining -= chunk;
+        }
+        slave_conf_state.idn_config = (lcec_slave_idnconf_t *) &slave_conf_state.idn_config->data[slave_conf_state.idn_config->length];
         break;
+      }
 
       case lcecConfTypeModParam:
-        // get config token
-        modparam_conf = (LCEC_CONF_MODPARAM_T *)conf;
-        conf += sizeof(LCEC_CONF_MODPARAM_T);
-
-        lcec_slave_conf_modparam(&slave_conf_state, modparam_conf);
+        lcec_slave_conf_modparam(&slave_conf_state, (LCEC_CONF_MODPARAM_T *)payload);
         break;
 
       default:
         rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unknown config item type\n");
-        goto fail2;
+        goto fail;
     }
   }
 
@@ -503,7 +483,7 @@ static int lcec_parse_config(lcec_rt_context_t *ctx, void *conf) {
     for (slave = master->first_slave; slave != NULL; slave = slave->next) {
       if (!slave->is_fsoe_logic && slave->proc_preinit != NULL) {
         if (slave->proc_preinit(slave) < 0) {
-          goto fail2;
+          goto fail;
         }
       }
     }
@@ -512,7 +492,7 @@ static int lcec_parse_config(lcec_rt_context_t *ctx, void *conf) {
     for (slave = master->first_slave; slave != NULL; slave = slave->next) {
       if (slave->is_fsoe_logic  && slave->proc_preinit != NULL) {
         if (slave->proc_preinit(slave) < 0) {
-          goto fail2;
+          goto fail;
         }
       }
     }
@@ -526,19 +506,19 @@ static int lcec_parse_config(lcec_rt_context_t *ctx, void *conf) {
     pdo_entry_regs = rtapi_calloc(sizeof(ec_pdo_entry_reg_t) * (master->pdo_entry_count + 1));
     if (pdo_entry_regs == NULL) {
       rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate master %s PDO entry memory\n", master->name);
-      goto fail2;
+      goto fail;
     }
     master->pdo_entry_regs = pdo_entry_regs;
   }
 
-  // free config buffer
-  free(conf_base);
+  // free config linked-list nodes
+  copyFreeOutputBuffer(buf, NULL);
 
   return slave_count;
 
-fail2:
+fail:
   lcec_clear_config(ctx);
-  free(conf_base);
+  copyFreeOutputBuffer(buf, NULL);
   return -1;
 }
 

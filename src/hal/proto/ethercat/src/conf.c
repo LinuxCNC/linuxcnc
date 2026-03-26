@@ -523,7 +523,6 @@ int New(const cmod_env_t *env, const char *name,
   FILE *file = NULL;
   LCEC_CONF_NULL_T *end;
   LCEC_CONF_XML_STATE_T state;
-  void *conf;
 
   lcec_conf_module *m = calloc(1, sizeof(lcec_conf_module));
   if (m == NULL) {
@@ -617,16 +616,6 @@ int New(const cmod_env_t *env, const char *name,
   }
   end->confType = lcecConfTypeNone;
 
-  // allocate flat config buffer
-  conf = calloc(1, state.outputBuf.len);
-  if (conf == NULL) {
-    LOG_ERR(m, "couldn't allocate config buffer");
-    goto fail3;
-  }
-
-  // copy data and free linked-list nodes
-  copyFreeOutputBuffer(&state.outputBuf, conf);
-
   // initialize RT context
   m->rt_ctx.comp_id = m->hal_comp_id;
   m->rt_ctx.instance_name = name;
@@ -637,7 +626,7 @@ int New(const cmod_env_t *env, const char *name,
   memset(&m->rt_ctx.global_ms, 0, sizeof(ec_master_state_t));
 
   // initialize RT component (parses config, starts masters, exports HAL functions)
-  if (lcec_rt_init(&m->rt_ctx, conf) != 0) {
+  if (lcec_rt_init(&m->rt_ctx, &state.outputBuf) != 0) {
     LOG_ERR(m, "RT initialization failed");
     goto fail3;
   }

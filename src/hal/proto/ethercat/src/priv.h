@@ -31,6 +31,9 @@
 
 #include "devices/generic.h"
 
+/** @brief Forward declaration for the config output buffer (defined in conf_priv.h). */
+struct lcec_conf_outbuf;
+
 /**
  * @brief Entry in the global slave-type registry.
  *
@@ -155,15 +158,16 @@ typedef struct lcec_rt_context {
 /**
  * @brief Initialise the EtherCAT RT component (replaces rtapi_app_main).
  *
- * Parses the configuration from the flat config buffer in @c ctx->conf_data,
- * starts all masters, configures all slaves, and exports the HAL read/write
- * functions.  Frees the config buffer after parsing.  Does NOT call
- * hal_init() or hal_ready() — the caller (cmod New) handles those.
+ * Parses the configuration from the output buffer linked list, starts all
+ * masters, configures all slaves, and exports the HAL read/write functions.
+ * Frees the linked-list nodes after parsing.  Does NOT call hal_init() or
+ * hal_ready() — the caller (cmod New) handles those.
  *
  * @param ctx  Per-instance context; comp_id and instance_name must be set.
+ * @param buf  Output buffer containing the parsed XML configuration records.
  * @return 0 on success, negative on error.
  */
-int lcec_rt_init(lcec_rt_context_t *ctx, void *conf);
+int lcec_rt_init(lcec_rt_context_t *ctx, struct lcec_conf_outbuf *buf);
 
 /**
  * @brief Tear down the EtherCAT RT component (replaces rtapi_app_exit).
