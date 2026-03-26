@@ -26,6 +26,7 @@
  */
 
 #include "priv.h"
+#include "conf_priv.h"
 
 /** @brief HAL pin descriptors exported for each slave's EtherCAT AL state. */
 static const lcec_pindesc_t slave_pins[] = {
@@ -286,18 +287,29 @@ int lcec_slave_conf_wd(lcec_slave_t *slave, LCEC_CONF_WATCHDOG_T *wd_conf) {
  *
  * @param state     Traversal state holding the current SDO write pointer.
  * @param sdo_conf  Parsed SDO configuration record to append.
+ * @param node_ptr  Pointer to the current linked-list node pointer; advanced
+ *                  past any trailing raw-data nodes.
  *
  * @note @c state->sdo_config must point into a buffer large enough for all
  *       SDO entries; @c lcec_create_slave() pre-allocates this buffer.
  */
-void lcec_slave_conf_sdo(lcec_slave_conf_state_t *state, LCEC_CONF_SDOCONF_T *sdo_conf) {
+void lcec_slave_conf_sdo(lcec_slave_conf_state_t *state, LCEC_CONF_SDOCONF_T *sdo_conf, LCEC_CONF_OUTBUF_ITEM_T **node_ptr) {
   // copy attributes
   state->sdo_config->index = sdo_conf->index;
   state->sdo_config->subindex = sdo_conf->subindex;
   state->sdo_config->length = sdo_conf->length;
 
-  // copy data
-  memcpy(state->sdo_config->data, sdo_conf->data, state->sdo_config->length);
+  // consume following data nodes
+  size_t remaining = sdo_conf->length;
+  uint8_t *dest = state->sdo_config->data;
+  while (remaining > 0 && (*node_ptr)->next != NULL) {
+    *node_ptr = (*node_ptr)->next;
+    size_t chunk = (*node_ptr)->len;
+    if (chunk > remaining) chunk = remaining;
+    memcpy(dest, (void *)(*node_ptr + 1), chunk);
+    dest += chunk;
+    remaining -= chunk;
+  }
 
   state->sdo_config = (lcec_slave_sdoconf_t *) &state->sdo_config->data[state->sdo_config->length];
   state->sdo_config->index = 0xffff;
@@ -312,19 +324,30 @@ void lcec_slave_conf_sdo(lcec_slave_conf_state_t *state, LCEC_CONF_SDOCONF_T *sd
  *
  * @param state     Traversal state holding the current IDN write pointer.
  * @param idn_conf  Parsed IDN configuration record to append.
+ * @param node_ptr  Pointer to the current linked-list node pointer; advanced
+ *                  past any trailing raw-data nodes.
  *
  * @note No sentinel is written; the buffer length is bounded by the count
  *       established during @c lcec_create_slave().
  */
-void lcec_slave_conf_idn(lcec_slave_conf_state_t *state, LCEC_CONF_IDNCONF_T *idn_conf) {
+void lcec_slave_conf_idn(lcec_slave_conf_state_t *state, LCEC_CONF_IDNCONF_T *idn_conf, LCEC_CONF_OUTBUF_ITEM_T **node_ptr) {
   // copy attributes
   state->idn_config->drive = idn_conf->drive;
   state->idn_config->idn = idn_conf->idn;
   state->idn_config->state = idn_conf->state;
   state->idn_config->length = idn_conf->length;
 
-  // copy data
-  memcpy(state->idn_config->data, idn_conf->data, state->idn_config->length);
+  // consume following data nodes
+  size_t remaining = idn_conf->length;
+  uint8_t *dest = state->idn_config->data;
+  while (remaining > 0 && (*node_ptr)->next != NULL) {
+    *node_ptr = (*node_ptr)->next;
+    size_t chunk = (*node_ptr)->len;
+    if (chunk > remaining) chunk = remaining;
+    memcpy(dest, (void *)(*node_ptr + 1), chunk);
+    dest += chunk;
+    remaining -= chunk;
+  }
 
   state->idn_config = (lcec_slave_idnconf_t *) &state->idn_config->data[state->idn_config->length];
 }

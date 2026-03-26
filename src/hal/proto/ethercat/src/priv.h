@@ -33,6 +33,9 @@
 
 /** @brief Forward declaration for the config output buffer (defined in conf_priv.h). */
 struct lcec_conf_outbuf;
+/** @brief Forward declaration for the config output buffer node (defined in conf_priv.h). */
+struct LCEC_CONF_OUTBUF_ITEM;
+typedef struct LCEC_CONF_OUTBUF_ITEM LCEC_CONF_OUTBUF_ITEM_T;
 
 /**
  * @brief Entry in the global slave-type registry.
@@ -87,9 +90,9 @@ int lcec_slave_conf_dc(lcec_slave_t *slave, LCEC_CONF_DC_T *dc_conf);
 /** @brief Apply a watchdog configuration to a slave. @see slave.c */
 int lcec_slave_conf_wd(lcec_slave_t *slave, LCEC_CONF_WATCHDOG_T *wd_conf);
 /** @brief Append an SDO configuration entry to the slave's SDO config buffer. @see slave.c */
-void lcec_slave_conf_sdo(lcec_slave_conf_state_t *state, LCEC_CONF_SDOCONF_T *sdo_conf);
+void lcec_slave_conf_sdo(lcec_slave_conf_state_t *state, LCEC_CONF_SDOCONF_T *sdo_conf, LCEC_CONF_OUTBUF_ITEM_T **node_ptr);
 /** @brief Append an IDN configuration entry to the slave's IDN config buffer. @see slave.c */
-void lcec_slave_conf_idn(lcec_slave_conf_state_t *state, LCEC_CONF_IDNCONF_T *idn_conf);
+void lcec_slave_conf_idn(lcec_slave_conf_state_t *state, LCEC_CONF_IDNCONF_T *idn_conf, LCEC_CONF_OUTBUF_ITEM_T **node_ptr);
 /** @brief Append a module parameter entry to the slave's modparam array. @see slave.c */
 void lcec_slave_conf_modparam(lcec_slave_conf_state_t *state, LCEC_CONF_MODPARAM_T *modparam_conf);
 /** @brief Allocate and export HAL state pins for a slave. @see slave.c */

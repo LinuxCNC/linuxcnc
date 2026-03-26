@@ -648,7 +648,7 @@ int New(const cmod_env_t *env, const char *name,
   return 0;
 
 fail3:
-  copyFreeOutputBuffer(&state.outputBuf, NULL);
+  freeOutputBuffer(&state.outputBuf);
   XML_ParserFree(state.xml.parser);
 fail2:
   fclose(file);

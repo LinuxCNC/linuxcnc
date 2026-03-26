@@ -425,47 +425,13 @@ static int lcec_parse_config(lcec_rt_context_t *ctx, LCEC_CONF_OUTBUF_T *buf) {
         }
         break;
 
-      case lcecConfTypeSdoConfig: {
-        LCEC_CONF_SDOCONF_T *sdo_conf = (LCEC_CONF_SDOCONF_T *)payload;
-        slave_conf_state.sdo_config->index = sdo_conf->index;
-        slave_conf_state.sdo_config->subindex = sdo_conf->subindex;
-        slave_conf_state.sdo_config->length = sdo_conf->length;
-        // consume following data nodes
-        size_t remaining = sdo_conf->length;
-        uint8_t *dest = slave_conf_state.sdo_config->data;
-        while (remaining > 0 && node->next != NULL) {
-          node = node->next;
-          size_t chunk = node->len;
-          if (chunk > remaining) chunk = remaining;
-          memcpy(dest, (void *)(node + 1), chunk);
-          dest += chunk;
-          remaining -= chunk;
-        }
-        slave_conf_state.sdo_config = (lcec_slave_sdoconf_t *) &slave_conf_state.sdo_config->data[slave_conf_state.sdo_config->length];
-        slave_conf_state.sdo_config->index = 0xffff;
+      case lcecConfTypeSdoConfig:
+        lcec_slave_conf_sdo(&slave_conf_state, (LCEC_CONF_SDOCONF_T *)payload, &node);
         break;
-      }
 
-      case lcecConfTypeIdnConfig: {
-        LCEC_CONF_IDNCONF_T *idn_conf = (LCEC_CONF_IDNCONF_T *)payload;
-        slave_conf_state.idn_config->drive = idn_conf->drive;
-        slave_conf_state.idn_config->idn = idn_conf->idn;
-        slave_conf_state.idn_config->state = idn_conf->state;
-        slave_conf_state.idn_config->length = idn_conf->length;
-        // consume following data nodes
-        size_t remaining = idn_conf->length;
-        uint8_t *dest = slave_conf_state.idn_config->data;
-        while (remaining > 0 && node->next != NULL) {
-          node = node->next;
-          size_t chunk = node->len;
-          if (chunk > remaining) chunk = remaining;
-          memcpy(dest, (void *)(node + 1), chunk);
-          dest += chunk;
-          remaining -= chunk;
-        }
-        slave_conf_state.idn_config = (lcec_slave_idnconf_t *) &slave_conf_state.idn_config->data[slave_conf_state.idn_config->length];
+      case lcecConfTypeIdnConfig:
+        lcec_slave_conf_idn(&slave_conf_state, (LCEC_CONF_IDNCONF_T *)payload, &node);
         break;
-      }
 
       case lcecConfTypeModParam:
         lcec_slave_conf_modparam(&slave_conf_state, (LCEC_CONF_MODPARAM_T *)payload);
@@ -512,13 +478,13 @@ static int lcec_parse_config(lcec_rt_context_t *ctx, LCEC_CONF_OUTBUF_T *buf) {
   }
 
   // free config linked-list nodes
-  copyFreeOutputBuffer(buf, NULL);
+  freeOutputBuffer(buf);
 
   return slave_count;
 
 fail:
   lcec_clear_config(ctx);
-  copyFreeOutputBuffer(buf, NULL);
+  freeOutputBuffer(buf);
   return -1;
 }
 

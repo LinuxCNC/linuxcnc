@@ -99,30 +99,20 @@ void *addOutputBuffer(LCEC_CONF_OUTBUF_T *buf, size_t len) {
 }
 
 /**
- * @brief Serialise the output buffer into a flat memory region, then free all nodes.
+ * @brief Free all linked-list nodes in the output buffer.
  *
- * Iterates the linked list from @c buf->head to the end, copying each payload
- * block contiguously into @p dest (if non-NULL) and freeing the node memory
- * regardless.  After this call the buffer is empty and all associated heap
- * memory has been released.
+ * Iterates the linked list from @c buf->head to the end, freeing each node.
+ * After this call the buffer is empty and all associated heap memory has been
+ * released.
  *
- * @param buf   Output buffer to drain.
- * @param dest  Destination area that receives the concatenated payloads in
- *              insertion order.  Pass @c NULL to discard the data and only
- *              free memory (e.g. on error paths).
- * @note The caller must ensure that @p dest has at least @c buf->len bytes of
- *       writable space before calling this function.
+ * @param buf  Output buffer to drain.
  */
-void copyFreeOutputBuffer(LCEC_CONF_OUTBUF_T *buf, void *dest) {
-  void *p;
+void freeOutputBuffer(LCEC_CONF_OUTBUF_T *buf) {
+  LCEC_CONF_OUTBUF_ITEM_T *p;
 
   while (buf->head != NULL) {
     p = buf->head;
-    if (dest != NULL) {
-      memcpy(dest, p + sizeof(LCEC_CONF_OUTBUF_ITEM_T), buf->head->len);
-      dest += buf->head->len;
-    }
-    buf->head = buf->head->next;
+    buf->head = p->next;
     free(p);
   }
 }

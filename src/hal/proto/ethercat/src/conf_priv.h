@@ -97,8 +97,8 @@ typedef struct LCEC_CONF_OUTBUF_ITEM {
  * @brief Head/tail descriptor for the dynamically-grown output buffer.
  *
  * The output buffer accumulates configuration records during XML parsing
- * and is later serialised into a flat buffer in a single pass
- * by @ref copyFreeOutputBuffer().
+ * and is later consumed directly by the configuration parser.
+ * Nodes are freed by @ref freeOutputBuffer().
  */
 typedef struct lcec_conf_outbuf {
   LCEC_CONF_OUTBUF_ITEM_T *head; /**< First item in the list, or @c NULL if empty. */
@@ -172,13 +172,11 @@ void initOutputBuffer(LCEC_CONF_OUTBUF_T *buf);
 void *addOutputBuffer(LCEC_CONF_OUTBUF_T *buf, size_t len);
 
 /**
- * @brief Copy every payload block from the buffer into @p dest, then free all nodes.
- * @param buf   Output buffer whose contents are to be flushed.
- * @param dest  Destination memory area.  If @c NULL the data is discarded and
- *              only the memory is freed (useful for cleanup on error paths).
+ * @brief Free all linked-list nodes in the output buffer.
+ * @param buf   Output buffer whose nodes are to be freed.
  * @note After this call the buffer is empty and all its node memory is freed.
  */
-void copyFreeOutputBuffer(LCEC_CONF_OUTBUF_T *buf, void *dest);
+void freeOutputBuffer(LCEC_CONF_OUTBUF_T *buf);
 
 /**
  * @brief Parse init-commands from an EtherCAT ESI-style XML file.
