@@ -149,6 +149,7 @@ typedef struct lcec_rt_context {
   lcec_master_t *last_master;         /**< Tail of the master linked list. */
   lcec_master_data_t *global_hal_data; /**< HAL pins for aggregate EtherCAT state. */
   ec_master_state_t global_ms;        /**< Aggregate master state updated each cycle. */
+  int64_t dc_time_offset;            /**< Nanosecond offset between RTAPI monotonic and EtherCAT wall-clock time. */
 } lcec_rt_context_t;
 
 /**

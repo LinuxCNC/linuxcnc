@@ -75,12 +75,11 @@ int lcec_rt_init(lcec_rt_context_t *ctx) {
   lcec_slave_idnconf_t *idn_config;
   struct timeval tv;
   long long rtapi_now;
-  int64_t dc_time_offset;
 
   // get time base
   gettimeofday(&tv, NULL);
   rtapi_now = rtapi_get_time();
-  dc_time_offset = EC_TIMEVAL2NANO(tv) - rtapi_now;
+  ctx->dc_time_offset = EC_TIMEVAL2NANO(tv) - rtapi_now;
 
   // parse configuration
   if ((slave_count = lcec_parse_config(ctx)) < 0) {
@@ -107,7 +106,7 @@ int lcec_rt_init(lcec_rt_context_t *ctx) {
     master->comp_id = ctx->comp_id;
     strncpy(master->instance_name, ctx->instance_name, LCEC_CONF_STR_MAXLEN - 1);
     master->instance_name[LCEC_CONF_STR_MAXLEN - 1] = '\0';
-    master->dc_time_offset = dc_time_offset;
+    master->rt_ctx = ctx;
 
     // startup master
     if (lcec_startup_master(master)) {

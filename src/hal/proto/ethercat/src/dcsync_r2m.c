@@ -56,7 +56,7 @@
  * @note Side effect: modifies @c master->app_time_ns.
  */
 static void cycle_start(struct lcec_master *master) {
-  master->app_time_ns = master->dc_time_offset + rtapi_task_pll_get_reference();
+  master->app_time_ns = master->rt_ctx->dc_time_offset + rtapi_task_pll_get_reference();
   ecrt_master_application_time(master->master, master->app_time_ns);
 }
 
@@ -95,7 +95,7 @@ static void pre_send(struct lcec_master *master) {
     // sync reference clock to master
     // use current time here to compensate run time delay, as this get called
     // late in the rt cycle
-    ecrt_master_sync_reference_clock_to(master->master, master->dc_time_offset + rtapi_get_time());
+    ecrt_master_sync_reference_clock_to(master->master, master->rt_ctx->dc_time_offset + rtapi_get_time());
   }
 
   // call to sync slaves to ref slave

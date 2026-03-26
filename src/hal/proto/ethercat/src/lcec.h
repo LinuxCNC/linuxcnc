@@ -199,6 +199,7 @@ do {                        \
 
 struct lcec_master;
 struct lcec_slave;
+struct lcec_rt_context;
 
 /**
  * @brief Callback invoked before slave initialisation to query PDO entry counts.
@@ -337,7 +338,7 @@ typedef struct lcec_master {
   int index;                /**< Zero-based master index from the XML configuration. */
   int comp_id;              /**< HAL component ID (from the owning module instance). */
   char instance_name[LCEC_CONF_STR_MAXLEN]; /**< Instance name from cmod New(); used as HAL pin name prefix. */
-  int64_t dc_time_offset;  /**< Nanosecond offset between RTAPI monotonic and EtherCAT wall-clock time. */
+  struct lcec_rt_context *rt_ctx; /**< Back-pointer to the owning RT context (for per-instance state). */
 #ifdef EC_USPACE_MASTER
   int transport_type;                          /**< Transport layer type identifier (userspace build only). */
   char interface[LCEC_CONF_STR_MAXLEN];        /**< Primary network interface name (e.g. "eth0"). */

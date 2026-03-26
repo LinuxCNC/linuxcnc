@@ -127,7 +127,7 @@ static inline int32_t clamp32(int64_t val) {
  */
 static void cycle_start(struct lcec_master *master) {
   if (master->app_time_ns == 0) {
-    master->app_time_ns = master->dc_time_offset + rtapi_task_pll_get_reference();
+    master->app_time_ns = master->rt_ctx->dc_time_offset + rtapi_task_pll_get_reference();
   } else {
     master->app_time_ns += master->app_time_period;
   }
