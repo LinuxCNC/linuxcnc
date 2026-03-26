@@ -34,6 +34,7 @@ extern "C" {
 // ---------------------------------------------------------------------------
 
 typedef enum {
+    GOMC_HAL_TYPE_UNSPECIFIED = -1,
     GOMC_HAL_BIT   = 1,
     GOMC_HAL_FLOAT = 2,
     GOMC_HAL_S32   = 3,

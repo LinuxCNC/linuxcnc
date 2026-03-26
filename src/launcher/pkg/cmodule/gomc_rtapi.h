@@ -25,6 +25,9 @@
 extern "C" {
 #endif
 
+// PLL functions are always available in gomc_rtapi_t.
+#define GOMC_RTAPI_TASK_PLL_SUPPORT
+
 // ---------------------------------------------------------------------------
 // gomc_rtapi_t — RTAPI callback table.
 // ---------------------------------------------------------------------------
