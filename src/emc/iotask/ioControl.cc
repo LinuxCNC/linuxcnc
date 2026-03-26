@@ -66,7 +66,6 @@
 #include <ctype.h>
 #include <pthread.h>
 #include <atomic>
-#include "hal.h"                /* access to HAL functions/definitions */
 #include "rtapi.h"                /* rtapi_print_msg */
 #include "rcs.hh"                /* RCS_CMD_CHANNEL */
 #include "emc.hh"                /* EMC NML */
@@ -77,29 +76,35 @@
 #include "rcs_print.hh"
 #include <rtapi_string.h>
 #include "tooldata.hh"
-#include "launcher/pkg/cmodule/cmodule.h"
+// gomc_log.h uses C11 _Atomic which does not compile under GNU C++. Since
+// this module uses rtapi_print_msg for logging (not gomc_log_*), we only
+// need the opaque pointer in cmod_env_t — skip the full header body.
+struct gomc_log_t;      // forward decl — sufficient for the const * pointer
+#define GOMC_LOG_H      // prevent gomc_log.h from being processed
+
+#include "launcher/pkg/cmodule/gomc_env.h"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
 struct iocontrol_str {
-    hal_bit_t *user_enable_out;        /* output, TRUE when EMC wants stop */
-    hal_bit_t *emc_enable_in;        /* input, TRUE on any external stop */
-    hal_bit_t *user_request_enable;        /* output, used to reset ENABLE latch */
-    hal_bit_t *coolant_mist;        /* coolant mist output pin */
-    hal_bit_t *coolant_flood;        /* coolant flood output pin */
-    hal_bit_t *lube;                /* lube output pin */
-    hal_bit_t *lube_level;        /* lube level input pin */
+    gomc_hal_bit_t *user_enable_out;        /* output, TRUE when EMC wants stop */
+    gomc_hal_bit_t *emc_enable_in;        /* input, TRUE on any external stop */
+    gomc_hal_bit_t *user_request_enable;        /* output, used to reset ENABLE latch */
+    gomc_hal_bit_t *coolant_mist;        /* coolant mist output pin */
+    gomc_hal_bit_t *coolant_flood;        /* coolant flood output pin */
+    gomc_hal_bit_t *lube;                /* lube output pin */
+    gomc_hal_bit_t *lube_level;        /* lube level input pin */
 
     // the following pins are needed for toolchanging
-    hal_bit_t *tool_prepare;        /* output, pin that notifies HAL it needs to prepare a tool */
-    hal_s32_t *tool_prep_pocket;/* output, pin that holds the pocketno for the tool table entry matching the tool to be prepared */
-    hal_s32_t *tool_from_pocket;/* output, pin indicating pocket current load tool retrieved from*/
-    hal_s32_t *tool_prep_index; /* output, pin for internal index (idx) of prepped tool above */
-    hal_s32_t *tool_prep_number;/* output, pin that holds the tool number to be prepared */
-    hal_s32_t *tool_number;     /* output, pin that holds the tool number currently in the spindle */
-    hal_bit_t *tool_prepared;        /* input, pin that notifies that the tool has been prepared */
-    hal_bit_t *tool_change;        /* output, notifies a tool-change should happen */
-    hal_bit_t *tool_changed;        /* input, notifies tool has been changed */
+    gomc_hal_bit_t *tool_prepare;        /* output, pin that notifies HAL it needs to prepare a tool */
+    gomc_hal_s32_t *tool_prep_pocket;/* output, pin that holds the pocketno for the tool table entry matching the tool to be prepared */
+    gomc_hal_s32_t *tool_from_pocket;/* output, pin indicating pocket current load tool retrieved from*/
+    gomc_hal_s32_t *tool_prep_index; /* output, pin for internal index (idx) of prepped tool above */
+    gomc_hal_s32_t *tool_prep_number;/* output, pin that holds the tool number to be prepared */
+    gomc_hal_s32_t *tool_number;     /* output, pin that holds the tool number currently in the spindle */
+    gomc_hal_bit_t *tool_prepared;        /* input, pin that notifies that the tool has been prepared */
+    gomc_hal_bit_t *tool_change;        /* output, notifies a tool-change should happen */
+    gomc_hal_bit_t *tool_changed;        /* input, notifies tool has been changed */
 };
 
 // iocontrol_module holds all per-instance state.  Allocated in New(),
@@ -214,13 +219,13 @@ static int iniLoad(iocontrol_module *m)
     const char *val;
     bool tooltable_specified = false;
 
-    val = env->get_ini(env->ctx, "EMCIO", "TOOL_TABLE");
+    val = env->ini->get(env->ini->ctx, "EMCIO", "TOOL_TABLE");
     if (val) {
         strncpy(m->io_tool_table_file, val, sizeof(m->io_tool_table_file) - 1);
         tooltable_specified = true;
     }
 
-    val = env->get_ini(env->ctx, "EMC", "DEBUG");
+    val = env->ini->get(env->ini->ctx, "EMC", "DEBUG");
     if (val) {
         if (1 != sscanf(val, "%i", &emc_debug)) {
             emc_debug = 0;
@@ -229,12 +234,12 @@ static int iniLoad(iocontrol_module *m)
         emc_debug = 0;
     }
 
-    val = env->get_ini(env->ctx, "EMC", "NML_FILE");
+    val = env->ini->get(env->ini->ctx, "EMC", "NML_FILE");
     if (val) {
         rtapi_strxcpy(emc_nmlfile, val);
     }
 
-    val = env->get_ini(env->ctx, "EMCIO", "CYCLE_TIME");
+    val = env->ini->get(env->ini->ctx, "EMCIO", "CYCLE_TIME");
     if (val) {
         double temp = emc_io_cycle_time;
         if (1 != sscanf(val, "%lf", &emc_io_cycle_time)) {
@@ -244,13 +249,13 @@ static int iniLoad(iocontrol_module *m)
         }
     }
 
-    val = env->get_ini(env->ctx, "EMCIO", "RANDOM_TOOLCHANGER");
+    val = env->ini->get(env->ini->ctx, "EMCIO", "RANDOM_TOOLCHANGER");
     if (val) {
         m->random_toolchanger = atoi(val);
     }
 
     m->io_db_mode = DB_NOTUSED;
-    val = env->get_ini(env->ctx, "EMCIO", "DB_PROGRAM");
+    val = env->ini->get(env->ini->ctx, "EMCIO", "DB_PROGRAM");
     if (val) {
         rtapi_strxcpy(m->db_program, val);
         m->io_db_mode = DB_ACTIVE;
@@ -276,7 +281,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     int retval;
 
     /* STEP 1: initialise the hal component */
-    m->comp_id = hal_init(m->name);
+    m->comp_id = m->env->hal->init(m->env->hal->ctx, m->name, m->env->dl_handle, GOMC_HAL_COMP_USER);
     if (m->comp_id < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: hal_init() failed\n");
@@ -284,182 +289,182 @@ static int iocontrol_hal_init(iocontrol_module *m)
     }
 
     /* STEP 2: allocate shared memory for iocontrol data */
-    m->hal_data = (iocontrol_str *) hal_malloc(sizeof(iocontrol_str));
+    m->hal_data = (iocontrol_str *) m->env->hal->malloc(m->env->hal->ctx, sizeof(iocontrol_str));
     if (m->hal_data == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: hal_malloc() failed\n");
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
 
     /* STEP 3a: export the out-pin(s) */
 
     // user-enable-out
-    retval = hal_pin_bit_newf(HAL_OUT, &(m->hal_data->user_enable_out), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->user_enable_out), m->comp_id,
                               "%s.user-enable-out", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin user-enable-out export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // user-request-enable
-    retval = hal_pin_bit_newf(HAL_OUT, &(m->hal_data->user_request_enable), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->user_request_enable), m->comp_id,
                              "%s.user-request-enable", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin user-request-enable export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // coolant-flood
-    retval = hal_pin_bit_newf(HAL_OUT, &(m->hal_data->coolant_flood), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->coolant_flood), m->comp_id,
                          "%s.coolant-flood", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin coolant-flood export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // coolant-mist
-    retval = hal_pin_bit_newf(HAL_OUT, &(m->hal_data->coolant_mist), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->coolant_mist), m->comp_id,
                               "%s.coolant-mist", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin coolant-mist export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // lube
-    retval = hal_pin_bit_newf(HAL_OUT, &(m->hal_data->lube), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->lube), m->comp_id,
                               "%s.lube", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin lube export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // tool-prepare
-    retval = hal_pin_bit_newf(HAL_OUT, &(m->hal_data->tool_prepare), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_prepare), m->comp_id,
                               "%s.tool-prepare", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin tool-prepare export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // tool-number
-    retval = hal_pin_s32_newf(HAL_OUT, &(m->hal_data->tool_number), m->comp_id,
+    retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_number), m->comp_id,
                               "%s.tool-number", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin tool-number export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // tool-prep-number
-    retval = hal_pin_s32_newf(HAL_OUT, &(m->hal_data->tool_prep_number), m->comp_id,
+    retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_prep_number), m->comp_id,
                               "%s.tool-prep-number", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin tool-prep-number export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
 
     // tool-prep-index (idx)
-    retval = hal_pin_s32_newf(HAL_OUT, &(m->hal_data->tool_prep_index), m->comp_id,
+    retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_prep_index), m->comp_id,
                               "%s.tool-prep-index", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin tool-prep-index export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
 
     // tool-prep-pocket
-    retval = hal_pin_s32_newf(HAL_OUT, &(m->hal_data->tool_prep_pocket), m->comp_id,
+    retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_prep_pocket), m->comp_id,
                               "%s.tool-prep-pocket", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin tool-prep-pocket export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // tool-from-pocket
-    retval = hal_pin_s32_newf(HAL_OUT, &(m->hal_data->tool_from_pocket), m->comp_id,
+    retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_from_pocket), m->comp_id,
                               "%s.tool-from-pocket", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin tool-from-pocket export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // tool-prepared
-    retval = hal_pin_bit_newf(HAL_IN, &(m->hal_data->tool_prepared), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_IN, &(m->hal_data->tool_prepared), m->comp_id,
                               "%s.tool-prepared", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin tool-prepared export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // tool-change
-    retval = hal_pin_bit_newf(HAL_OUT, &(m->hal_data->tool_change), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_change), m->comp_id,
                               "%s.tool-change", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin tool-change export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // tool-changed
-    retval = hal_pin_bit_newf(HAL_IN, &(m->hal_data->tool_changed), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_IN, &(m->hal_data->tool_changed), m->comp_id,
                         "%s.tool-changed", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin tool-changed export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     /* STEP 3b: export the in-pin(s) */
 
     // emc-enable-in
-    retval = hal_pin_bit_newf(HAL_IN, &(m->hal_data->emc_enable_in), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_IN, &(m->hal_data->emc_enable_in), m->comp_id,
                              "%s.emc-enable-in", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin emc-enable-in export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
     // lube_level
-    retval = hal_pin_bit_newf(HAL_IN, &(m->hal_data->lube_level), m->comp_id,
+    retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_IN, &(m->hal_data->lube_level), m->comp_id,
                              "%s.lube_level", m->name);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "IOCONTROL: ERROR: %s pin lube_level export failed with err=%i\n",
                         m->name, retval);
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
 
-    hal_ready(m->comp_id);
+    m->env->hal->ready(m->env->hal->ctx, m->comp_id);
 
     return 0;
 }
@@ -1026,7 +1031,7 @@ static void iocontrol_destroy(cmod_t *self)
 #endif
 
     if (m->comp_id > 0) {
-        hal_exit(m->comp_id);
+        m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         m->comp_id = 0;
     }
 
@@ -1107,7 +1112,7 @@ extern "C" int New(const cmod_env_t *env, const char *name,
         CANON_TOOL_TABLE tdata;
         if (tooldata_get(&tdata,0) != IDX_OK) {
             UNEXPECTED_MSG;
-            hal_exit(m->comp_id);
+            m->env->hal->exit(m->env->hal->ctx, m->comp_id);
             for(int i=0; i<CANON_POCKETS_MAX; i++) free(m->ttcomments[i]);
             delete m;
             return -1;
