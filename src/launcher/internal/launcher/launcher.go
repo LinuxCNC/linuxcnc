@@ -68,6 +68,7 @@ type Launcher struct {
 	goModules    []gomodule.Module  // Go plugin modules loaded via "load" command
 	cModules     []*cModule         // C plugin modules loaded via "load" command
 	cModArena    []unsafe.Pointer   // arena-tracked C strings freed in destroyCModules
+	logRing      *gomcLogRing       // shared log ring buffer for C module FIFO logging
 }
 
 // New creates a new Launcher with the given options and logger.
@@ -77,6 +78,16 @@ func New(opts Options, logger *slog.Logger) *Launcher {
 		logger = slog.New(slog.NewTextHandler(os.Stderr, nil))
 	}
 	return &Launcher{opts: opts, logger: logger}
+}
+
+// ensureLogRing creates the shared log ring buffer and starts the drain
+// goroutine if not already running.  Called lazily on the first loadCPlugin.
+func (l *Launcher) ensureLogRing() {
+	if l.logRing != nil {
+		return
+	}
+	l.logRing = newGomcLogRing()
+	l.logRing.startDrain(l.logger)
 }
 
 // Run executes the full LinuxCNC startup sequence.
