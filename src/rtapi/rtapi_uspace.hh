@@ -75,6 +75,7 @@ struct RtapiApp
     virtual int prio_lowest() const;
     int prio_higher_delta() const;
     int prio_bound(int prio) const;
+    bool prio_check(int prio) const;
     int prio_next_higher(int prio) const;
     int prio_next_lower(int prio) const;
     long clock_set_period(long int period_nsec);
