@@ -30,7 +30,15 @@
 #include "nml.hh"
 #include <rtapi_string.h>
 
-#include "launcher/pkg/cmodule/cmodule.h"
+// emcsvr_lib.cc only uses the INI sub-API.  gomc_log.h's _Atomic struct
+// members are C11-only and do not compile under GNU C++17.  Pre-define the
+// header's include guard to skip the incompatible body; forward-declare the
+// opaque gomc_log_t so that cmod_env_t (which holds a gomc_log_t pointer)
+// compiles correctly without needing the full definition.
+struct gomc_log_t;      // forward decl — sufficient for the const * pointer
+#define GOMC_LOG_H      // prevent gomc_log.h from being processed
+
+#include "launcher/pkg/cmodule/gomc_env.h"
 
 // nml_control_C_caught is a non-static global in nml_srv.cc.
 extern int nml_control_C_caught;
@@ -66,7 +74,7 @@ static int iniLoad(emcsvr_module *m)
     const cmod_env_t *env = m->env;
     const char *val;
 
-    val = env->get_ini(env->ctx, "EMC", "DEBUG");
+    val = env->ini->get(env->ini->ctx, "EMC", "DEBUG");
     if (val) {
         if (1 != sscanf(val, "%x", &emc_debug)) {
             emc_debug = 0;
@@ -79,12 +87,12 @@ static int iniLoad(emcsvr_module *m)
         max_rcs_errors_to_print = -1;
     }
 
-    val = env->get_ini(env->ctx, "EMC", "NML_FILE");
+    val = env->ini->get(env->ini->ctx, "EMC", "NML_FILE");
     if (val) {
         rtapi_strxcpy(emc_nmlfile, val);
     }
 
-    val = env->get_ini(env->ctx, "EMC", "TOOL_CHANNELS");
+    val = env->ini->get(env->ini->ctx, "EMC", "TOOL_CHANNELS");
     if (val) {
         m->tool_channels = atoi(val);
     }
@@ -98,7 +106,7 @@ static int initChannels(emcsvr_module *m)
     double start_time;
 
     // Store INI source file path for NML config resolution.
-    const char *ini_path = m->env->ini_source_file(m->env->ctx);
+    const char *ini_path = m->env->ini->source_file(m->env->ini->ctx);
     if (ini_path) {
         rtapi_strxcpy(emc_inifile, ini_path);
     }
