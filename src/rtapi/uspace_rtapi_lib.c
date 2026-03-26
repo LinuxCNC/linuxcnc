@@ -783,7 +783,7 @@ static void *task_wrapper(void *arg)
     rtapi_unlock_mem(stack_lockaddr, stack_locksize);
 #endif
 
-    rtapi_print("ERROR: reached end of wrapper for task %d\n", task->id);
+    rtapi_print_msg(RTAPI_MSG_DBG, "task %d exited cleanly\n", task->id);
     return NULL;
 }
 
