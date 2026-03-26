@@ -17,6 +17,11 @@
 #ifndef CMODULE_H
 #define CMODULE_H
 
+// vasprintf() is a GNU extension; ensure it is declared in <stdio.h>.
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
