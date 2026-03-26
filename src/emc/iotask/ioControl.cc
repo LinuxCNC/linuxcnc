@@ -76,11 +76,6 @@
 #include "rcs_print.hh"
 #include <rtapi_string.h>
 #include "tooldata.hh"
-// gomc_log.h uses C11 _Atomic which does not compile under GNU C++. Since
-// this module uses rtapi_print_msg for logging (not gomc_log_*), we only
-// need the opaque pointer in cmod_env_t — skip the full header body.
-struct gomc_log_t;      // forward decl — sufficient for the const * pointer
-#define GOMC_LOG_H      // prevent gomc_log.h from being processed
 
 #include "launcher/pkg/cmodule/gomc_env.h"
 

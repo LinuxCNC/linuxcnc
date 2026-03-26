@@ -30,14 +30,6 @@
 #include "nml.hh"
 #include <rtapi_string.h>
 
-// emcsvr_lib.cc only uses the INI sub-API.  gomc_log.h's _Atomic struct
-// members are C11-only and do not compile under GNU C++17.  Pre-define the
-// header's include guard to skip the incompatible body; forward-declare the
-// opaque gomc_log_t so that cmod_env_t (which holds a gomc_log_t pointer)
-// compiles correctly without needing the full definition.
-struct gomc_log_t;      // forward decl — sufficient for the const * pointer
-#define GOMC_LOG_H      // prevent gomc_log.h from being processed
-
 #include "launcher/pkg/cmodule/gomc_env.h"
 
 // nml_control_C_caught is a non-static global in nml_srv.cc.

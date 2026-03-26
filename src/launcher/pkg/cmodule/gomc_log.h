@@ -17,7 +17,6 @@
 #endif
 
 #include <stdarg.h>
-#include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +46,7 @@ typedef enum {
 #define GOMC_LOG_MSG_LEN       216
 
 typedef struct {
-    _Atomic uint32_t  seq;                              // sequence number (0 = free)
+    uint32_t          seq;                              // sequence number (0 = free)
     uint32_t          level;                            // gomc_log_level_t
     int64_t           timestamp_ns;                     // CLOCK_MONOTONIC nanoseconds
     char              component[GOMC_LOG_COMPONENT_LEN];
@@ -69,12 +68,12 @@ typedef struct {
 typedef struct {
     // Producer side — each writer does atomic fetch-add on write_pos to
     // claim a slot, then fills it and publishes via store-release on seq.
-    _Atomic uint32_t write_pos;
+    uint32_t write_pos;
 
     // Consumer side — the Go drain goroutine tracks its own read position.
     // Padding avoids false sharing between producer and consumer cache lines.
     char _pad[60];
-    _Atomic uint32_t read_pos;
+    uint32_t read_pos;
 
     // Slot array.
     gomc_log_slot_t slots[GOMC_LOG_RING_SIZE];
@@ -107,17 +106,15 @@ gomc_log_emit(const gomc_log_t *log, gomc_log_level_t level,
     gomc_log_ring_t *ring = log->ring;
 
     // Claim a slot (lock-free, multi-producer safe).
-    uint32_t pos = atomic_fetch_add_explicit(&ring->write_pos, 1,
-                                             memory_order_relaxed);
+    uint32_t pos = __atomic_fetch_add(&ring->write_pos, 1, __ATOMIC_RELAXED);
     uint32_t idx = pos & GOMC_LOG_RING_MASK;
     gomc_log_slot_t *slot = &ring->slots[idx];
 
     // Check if the consumer has drained this slot (seq == 0 means free).
     // If not, the ring is full — drop the message to avoid blocking.
     uint32_t expected = 0;
-    if (!atomic_compare_exchange_strong_explicit(
-            &slot->seq, &expected, 1,
-            memory_order_acquire, memory_order_relaxed)) {
+    if (!__atomic_compare_exchange_n(&slot->seq, &expected, 1, 0,
+                                     __ATOMIC_ACQUIRE, __ATOMIC_RELAXED)) {
         // Ring full — message dropped.  This should be rare if the Go drain
         // goroutine keeps up.  A dropped-message counter could be added here.
         return -1;
@@ -132,7 +129,7 @@ gomc_log_emit(const gomc_log_t *log, gomc_log_level_t level,
 
     // Publish: set seq to pos+1 so the consumer knows this slot is ready.
     // The consumer reads slots in order and waits for seq == expected_seq.
-    atomic_store_explicit(&slot->seq, pos + 1, memory_order_release);
+    __atomic_store_n(&slot->seq, pos + 1, __ATOMIC_RELEASE);
 
     return 0;
 }
@@ -200,7 +197,7 @@ gomc_ring_try_read(gomc_log_ring_t *ring, uint32_t read_pos,
     uint32_t idx = read_pos & GOMC_LOG_RING_MASK;
     gomc_log_slot_t *slot = &ring->slots[idx];
 
-    uint32_t seq = atomic_load_explicit(&slot->seq, memory_order_acquire);
+    uint32_t seq = __atomic_load_n(&slot->seq, __ATOMIC_ACQUIRE);
     if (seq != read_pos + 1) {
         return 0;  // slot not ready yet
     }
@@ -211,7 +208,7 @@ gomc_ring_try_read(gomc_log_ring_t *ring, uint32_t read_pos,
     memcpy(out_msg, slot->msg, GOMC_LOG_MSG_LEN);
 
     // Release the slot for reuse.
-    atomic_store_explicit(&slot->seq, 0, memory_order_release);
+    __atomic_store_n(&slot->seq, 0, __ATOMIC_RELEASE);
     return 1;
 }
 
