@@ -473,8 +473,17 @@ static int parseSyncCycle(LCEC_CONF_XML_STATE_T *state, const char *nptr);
  * cmod lifecycle functions
  ********************************************************************/
 
-static int lcec_conf_start(cmod_t *self)  { return 0; }
-static void lcec_conf_stop(cmod_t *self)  { }
+static int lcec_conf_start(cmod_t *self) {
+  lcec_conf_module *m = (lcec_conf_module *)self->priv;
+
+  return lcec_rt_start(&m->rt_ctx);
+}
+
+static void lcec_conf_stop(cmod_t *self) {
+  lcec_conf_module *m = (lcec_conf_module *)self->priv;
+
+  lcec_rt_stop(&m->rt_ctx);
+}
 
 static void lcec_conf_destroy(cmod_t *self) {
   lcec_conf_module *m = (lcec_conf_module *)self->priv;
@@ -545,7 +554,7 @@ int New(const cmod_env_t *env, const char *name,
   }
 
   // initialize component
-  m->hal_comp_id = hal_init_ex(name, env->dl_handle, COMPONENT_TYPE_USER);
+  m->hal_comp_id = hal_init_ex(name, env->dl_handle, COMPONENT_TYPE_REALTIME);
   if (m->hal_comp_id < 1) {
     LOG_ERR(m, "hal_init_ex failed");
     goto fail0;

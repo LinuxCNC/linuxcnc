@@ -354,6 +354,11 @@ void lcec_read_master(void *arg, long period) {
   lcec_slave_t *slave;
   int check_states;
 
+  // check for initialized proc data pointer
+  if (master->process_data == NULL) {
+    return;
+  }
+
   // check period
   if (period != master->period_last) {
     master->period_last = period;
@@ -428,6 +433,11 @@ void lcec_read_master(void *arg, long period) {
 void lcec_write_master(void *arg, long period) {
   lcec_master_t *master = (lcec_master_t *) arg;
   lcec_slave_t *slave;
+
+  // check for initialized proc data pointer
+  if (master->process_data == NULL) {
+    return;
+  }
 
   // process slaves
   for (slave = master->first_slave; slave != NULL; slave = slave->next) {

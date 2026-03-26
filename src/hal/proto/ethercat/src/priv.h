@@ -173,4 +173,7 @@ int lcec_rt_init(lcec_rt_context_t *ctx);
  */
 void lcec_rt_cleanup(lcec_rt_context_t *ctx);
 
+int lcec_rt_start(lcec_rt_context_t *ctx);
+void lcec_rt_stop(lcec_rt_context_t *ctx);
+
 #endif

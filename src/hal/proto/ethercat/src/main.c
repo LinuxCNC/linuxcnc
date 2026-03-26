@@ -206,48 +206,6 @@ int lcec_rt_init(lcec_rt_context_t *ctx) {
       goto fail1;
     }
 
-    // initialize dc sync
-    if (master->ref_clock_sync_cycles >= 0) {
-      lcec_dc_init_r2m(master);
-    } else {
-#ifdef RTAPI_TASK_PLL_SUPPORT
-      lcec_dc_init_m2r(master);
-#else
-      rtapi_print_msg(RTAPI_MSG_ERR,
-          LCEC_MSG_PFX "master %s: M2R DC sync mode not available"
-          " (RTAPI_TASK_PLL_SUPPORT missing).\n", master->name);
-      goto fail1;
-#endif
-    }
-
-    // select reference clock slave (if configured)
-    if (master->ref_clock_slave_idx >= 0) {
-      lcec_slave_t *ref_slave = lcec_slave_by_index(master, master->ref_clock_slave_idx);
-      if (ref_slave == NULL) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            LCEC_MSG_PFX "master %s: refClockSlaveIdx %d not found\n",
-            master->name, master->ref_clock_slave_idx);
-        goto fail1;
-      }
-      if (ref_slave->config == NULL) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            LCEC_MSG_PFX "master %s: refClockSlaveIdx %d has no EtherCAT config\n",
-            master->name, master->ref_clock_slave_idx);
-        goto fail1;
-      }
-      ecrt_master_select_reference_clock(master->master, ref_slave->config);
-    }
-
-    // activating master
-    if (ecrt_master_activate(master->master)) {
-      rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "failed to activate master %s\n", master->name);
-      goto fail1;
-    }
-
-    // Get internal process data for domain
-    master->process_data = ecrt_domain_data(master->domain);
-    master->process_data_len = ecrt_domain_size(master->domain);
-
     // init hal data
     rtapi_snprintf(name, HAL_NAME_LEN, "%s.%s", ctx->instance_name, master->name);
     if ((master->hal_data = lcec_init_master_hal(ctx->comp_id, name, 0)) == NULL) {
@@ -302,6 +260,68 @@ fail0:
  * @param ctx  Per-instance context.
  */
 void lcec_rt_cleanup(lcec_rt_context_t *ctx) {
+  lcec_clear_config(ctx);
+#ifdef EC_USPACE_MASTER
+  ecrt_lib_cleanup();
+#endif
+}
+
+int lcec_rt_start(lcec_rt_context_t *ctx)  {
+  lcec_master_t *master;
+
+  // activate all masters
+  for (master = ctx->first_master; master != NULL; master = master->next) {
+    if (!master->master) {
+      continue;
+    }
+
+    // initialize dc sync
+    if (master->ref_clock_sync_cycles >= 0) {
+      lcec_dc_init_r2m(master);
+    } else {
+#ifdef RTAPI_TASK_PLL_SUPPORT
+      lcec_dc_init_m2r(master);
+#else
+      rtapi_print_msg(RTAPI_MSG_ERR,
+          LCEC_MSG_PFX "master %s: M2R DC sync mode not available"
+          " (RTAPI_TASK_PLL_SUPPORT missing).\n", master->name);
+      return -EINVAL;
+#endif
+    }
+
+    // select reference clock slave (if configured)
+    if (master->ref_clock_slave_idx >= 0) {
+      lcec_slave_t *ref_slave = lcec_slave_by_index(master, master->ref_clock_slave_idx);
+      if (ref_slave == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            LCEC_MSG_PFX "master %s: refClockSlaveIdx %d not found\n",
+            master->name, master->ref_clock_slave_idx);
+        return -EINVAL;
+      }
+      if (ref_slave->config == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            LCEC_MSG_PFX "master %s: refClockSlaveIdx %d has no EtherCAT config\n",
+            master->name, master->ref_clock_slave_idx);
+        return -EINVAL;
+      }
+      ecrt_master_select_reference_clock(master->master, ref_slave->config);
+    }
+
+    // activating master
+    if (ecrt_master_activate(master->master)) {
+      rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "failed to activate master %s\n", master->name);
+      return -EINVAL;
+    }
+
+    // Get internal process data for domain
+    master->process_data = ecrt_domain_data(master->domain);
+    master->process_data_len = ecrt_domain_size(master->domain);
+  }
+
+ return 0;
+}
+
+void lcec_rt_stop(lcec_rt_context_t *ctx)  {
   lcec_master_t *master;
 
   // deactivate all masters
@@ -310,12 +330,8 @@ void lcec_rt_cleanup(lcec_rt_context_t *ctx) {
       ecrt_master_deactivate(master->master);
     }
   }
-
-  lcec_clear_config(ctx);
-#ifdef EC_USPACE_MASTER
-  ecrt_lib_cleanup();
-#endif
 }
+
 
 /**
  * @brief Parse the lcec configuration from RTAPI shared memory.
