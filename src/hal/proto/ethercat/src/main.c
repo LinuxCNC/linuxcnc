@@ -1,28 +1,19 @@
 /**
  * @file main.c
- * @brief LinuxCNC EtherCAT HAL component entry point.
+ * @brief LinuxCNC EtherCAT HAL component — RT initialisation and real-time functions.
  *
- * Implements the RTAPI module lifecycle (rtapi_app_main() / rtapi_app_exit()),
+ * Implements the RT lifecycle (lcec_rt_init() / lcec_rt_cleanup()),
  * the configuration parser (lcec_parse_config()), and the global real-time
  * HAL functions (lcec_read_all() / lcec_write_all()) for the lcec driver.
+ *
+ * All per-instance state is held in the lcec_rt_context_t passed by the
+ * cmod plugin (conf.c).  There are no file-scope globals.
  *
  * @section rt_constraints Real-Time Constraints
  * lcec_read_all(), lcec_write_all(), lcec_read_master(), and
  * lcec_write_master() are exported as HAL functions and execute in the
  * LinuxCNC real-time servo thread.  These functions must @b not block, sleep,
  * or perform any dynamic memory allocation or deallocation.
- *
- * @section init_sequence Initialisation Sequence
- * -# rtapi_app_main() records the DC time base (wall clock vs. RTAPI monotonic).
- * -# Registers the HAL component with hal_init().
- * -# lcec_parse_config() reads the binary config blob from RTAPI shared memory,
- *    builds the master/slave linked lists, and allocates PDO entry arrays.
- * -# For each master: creates the EtherCAT domain, configures every slave
- *    (SDOs, IDNs, PDOs, DC, watchdog), registers PDO entries with the domain,
- *    initialises DC synchronisation, activates the master, and exports the
- *    per-master HAL read/write functions.
- * -# Exports the global @c read-all and @c write-all HAL functions.
- * -# hal_ready() signals successful initialisation to LinuxCNC.
  *
  * @copyright Copyright (C) 2012-2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *
@@ -42,38 +33,10 @@
  */
 
 #include "priv.h"
-#include "rtapi_app.h"
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Sascha Ittner <sascha.ittner@modusoft.de>");
-MODULE_DESCRIPTION("Driver for EtherCAT devices");
-
-/** @brief Head of the doubly-linked list of all configured EtherCAT masters. */
-static lcec_master_t *first_master = NULL;
-/** @brief Tail of the doubly-linked list of all configured EtherCAT masters. */
-static lcec_master_t *last_master = NULL;
-
-/** @brief HAL component ID returned by hal_init(); -1 before successful initialisation. */
-int comp_id = -1;
-
-/** @brief HAL pins for the aggregate (all-masters combined) EtherCAT state. */
-static lcec_master_data_t *global_hal_data;
-/** @brief Aggregate EtherCAT master state updated each cycle by lcec_read_all(). */
-ec_master_state_t global_ms;
 
 #ifdef EC_USPACE_MASTER
-static char *ipc_socket = NULL;
-RTAPI_MP_STRING(ipc_socket, "EtherCAT userspace master IPC socket path (NULL = no tool access)");
-
 /**
  * @brief Log callback that forwards EtherCAT library messages to the RTAPI log.
- *
- * Registered with ecrt_lib_init() so that library diagnostics appear in the
- * LinuxCNC message stream prefixed with @c LCEC_MSG_PFX.
- *
- * @param level  Library-defined severity level (not mapped; all messages forwarded).
- * @param fmt    printf-style format string from the EtherCAT library.
- * @param ap     Variadic argument list for @p fmt.
  */
 static void lcec_ec_log_callback(int level, const char *fmt, va_list ap) {
   char buf[256];
@@ -82,28 +45,27 @@ static void lcec_ec_log_callback(int level, const char *fmt, va_list ap) {
 }
 #endif
 
-int lcec_parse_config(void);
-void lcec_clear_config(void);
+static int lcec_parse_config(lcec_rt_context_t *ctx);
+static void lcec_clear_config(lcec_rt_context_t *ctx);
 
-void lcec_read_all(void *arg, long period);
-void lcec_write_all(void *arg, long period);
+static void lcec_read_all(void *arg, long period);
+static void lcec_write_all(void *arg, long period);
 void lcec_read_master(void *arg, long period);
 void lcec_write_master(void *arg, long period);
 
-/** @brief Offset (ns) between RTAPI monotonic time and EtherCAT application wall-clock time. */
-int64_t dc_time_offset;
-
 /**
- * @brief LinuxCNC HAL component entry point.
+ * @brief Initialise the EtherCAT RT component.
  *
- * Called once by the RTAPI loader when the lcec module is inserted.
- * Performs all non-real-time initialisation as described in the file-level
- * documentation, then marks the component ready for the servo thread.
+ * Called from the cmod New() function after hal_init_ex().
+ * Parses configuration from shared memory, starts all EtherCAT masters,
+ * configures all slaves, and exports the HAL read/write functions.
  *
- * @return 0 on success.
- * @return -EINVAL on any failure; partial resources are freed before returning.
+ * Does NOT call hal_init() or hal_ready() — the caller handles those.
+ *
+ * @param ctx  Per-instance context; comp_id and instance_name must be set.
+ * @return 0 on success, negative on error.
  */
-int rtapi_app_main(void) {
+int lcec_rt_init(lcec_rt_context_t *ctx) {
   int slave_count;
   lcec_master_t *master;
   lcec_slave_t *slave;
@@ -113,48 +75,49 @@ int rtapi_app_main(void) {
   lcec_slave_idnconf_t *idn_config;
   struct timeval tv;
   long long rtapi_now;
+  int64_t dc_time_offset;
 
   // get time base
   gettimeofday(&tv, NULL);
   rtapi_now = rtapi_get_time();
   dc_time_offset = EC_TIMEVAL2NANO(tv) - rtapi_now;
 
-  // connect to the HAL
-  if ((comp_id = hal_init (LCEC_MODULE_NAME)) < 0) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_init() failed\n");
+  // parse configuration
+  if ((slave_count = lcec_parse_config(ctx)) < 0) {
     goto fail0;
   }
 
-  // parse configuration
-  if ((slave_count = lcec_parse_config()) < 0) {
-    goto fail1;
-  }
-
   // init global hal data
-  if ((global_hal_data = lcec_init_master_hal(LCEC_MODULE_NAME, 1)) == NULL) {
-    goto fail2;
+  if ((ctx->global_hal_data = lcec_init_master_hal(ctx->comp_id, ctx->instance_name, 1)) == NULL) {
+    goto fail1;
   }
 
 #ifdef EC_USPACE_MASTER
   // initialize userspace ethercat master library
-  if (ecrt_lib_init(lcec_ec_log_callback, ipc_socket) < 0) {
+  if (ecrt_lib_init(lcec_ec_log_callback, ctx->ipc_socket) < 0) {
     rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "ecrt_lib_init() failed (ipc_socket=%s)\n",
-        ipc_socket ? ipc_socket : "NULL");
-    goto fail2;
+        ctx->ipc_socket ? ctx->ipc_socket : "NULL");
+    goto fail1;
   }
 #endif
 
   // initialize masters
-  for (master = first_master; master != NULL; master = master->next) {
+  for (master = ctx->first_master; master != NULL; master = master->next) {
+    // set per-instance fields on master
+    master->comp_id = ctx->comp_id;
+    strncpy(master->instance_name, ctx->instance_name, LCEC_CONF_STR_MAXLEN - 1);
+    master->instance_name[LCEC_CONF_STR_MAXLEN - 1] = '\0';
+    master->dc_time_offset = dc_time_offset;
+
     // startup master
     if (lcec_startup_master(master)) {
-      goto fail2;
+      goto fail1;
     }
 
     // create domain
     if (!(master->domain = ecrt_master_create_domain(master->master))) {
       rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "master %s domain creation failed\n", master->name);
-      goto fail2;
+      goto fail1;
     }
 
     // initialize slaves
@@ -163,7 +126,7 @@ int rtapi_app_main(void) {
       // read slave config
       if (!(slave->config = ecrt_master_slave_config(master->master, 0, slave->index, slave->vid, slave->pid))) {
         rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to read slave %s.%s configuration\n", master->name, slave->name);
-        goto fail2;
+        goto fail1;
       }
 
       // initialize sdos
@@ -194,13 +157,13 @@ int rtapi_app_main(void) {
       // setup pdos
       if (slave->proc_init != NULL) {
         ec_pdo_entry_reg_t *checkpoint = pdo_entry_regs;
-        if ((slave->proc_init(comp_id, slave, &pdo_entry_regs)) != 0) {
-          goto fail2;
+        if ((slave->proc_init(ctx->comp_id, slave, &pdo_entry_regs)) != 0) {
+          goto fail1;
         }
         if (pdo_entry_regs != (checkpoint + slave->pdo_entry_count)) {
           rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "Slave %s.%s configured wrong count of PDOs: required %d, configured %d\n",
             master->name, slave->name, slave->pdo_entry_count, (int) (pdo_entry_regs - checkpoint));
-          goto fail2;
+          goto fail1;
         }
       }
 
@@ -224,13 +187,13 @@ int rtapi_app_main(void) {
       if (slave->sync_info != NULL) {
         if (ecrt_slave_config_pdos(slave->config, EC_END, slave->sync_info)) {
           rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s\n", master->name, slave->name);
-          goto fail2;
+          goto fail1;
         }
       }
 
       // export state pins
-      if ((slave->hal_state_data = lcec_init_slave_state_hal(master->name, slave->name)) == NULL) {
-        goto fail2;
+      if ((slave->hal_state_data = lcec_init_slave_state_hal(ctx->comp_id, ctx->instance_name, master->name, slave->name)) == NULL) {
+        goto fail1;
       }
     }
 
@@ -240,7 +203,7 @@ int rtapi_app_main(void) {
     // register PDO entries
     if (ecrt_domain_reg_pdo_entry_list(master->domain, master->pdo_entry_regs)) {
       rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "master %s PDO entry registration failed\n", master->name);
-      goto fail2;
+      goto fail1;
     }
 
     // initialize dc sync
@@ -253,7 +216,7 @@ int rtapi_app_main(void) {
       rtapi_print_msg(RTAPI_MSG_ERR,
           LCEC_MSG_PFX "master %s: M2R DC sync mode not available"
           " (RTAPI_TASK_PLL_SUPPORT missing).\n", master->name);
-      goto fail2;
+      goto fail1;
 #endif
     }
 
@@ -264,13 +227,13 @@ int rtapi_app_main(void) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             LCEC_MSG_PFX "master %s: refClockSlaveIdx %d not found\n",
             master->name, master->ref_clock_slave_idx);
-        goto fail2;
+        goto fail1;
       }
       if (ref_slave->config == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             LCEC_MSG_PFX "master %s: refClockSlaveIdx %d has no EtherCAT config\n",
             master->name, master->ref_clock_slave_idx);
-        goto fail2;
+        goto fail1;
       }
       ecrt_master_select_reference_clock(master->master, ref_slave->config);
     }
@@ -278,7 +241,7 @@ int rtapi_app_main(void) {
     // activating master
     if (ecrt_master_activate(master->master)) {
       rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "failed to activate master %s\n", master->name);
-      goto fail2;
+      goto fail1;
     }
 
     // Get internal process data for domain
@@ -286,100 +249,81 @@ int rtapi_app_main(void) {
     master->process_data_len = ecrt_domain_size(master->domain);
 
     // init hal data
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s.%s", LCEC_MODULE_NAME, master->name);
-    if ((master->hal_data = lcec_init_master_hal(name, 0)) == NULL) {
-      goto fail2;
+    rtapi_snprintf(name, HAL_NAME_LEN, "%s.%s", ctx->instance_name, master->name);
+    if ((master->hal_data = lcec_init_master_hal(ctx->comp_id, name, 0)) == NULL) {
+      goto fail1;
     }
 
     // export read function
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s.%s.read", LCEC_MODULE_NAME, master->name);
-    if (hal_export_funct(name, lcec_read_master, master, 0, 0, comp_id) != 0) {
+    rtapi_snprintf(name, HAL_NAME_LEN, "%s.%s.read", ctx->instance_name, master->name);
+    if (hal_export_funct(name, lcec_read_master, master, 0, 0, ctx->comp_id) != 0) {
       rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "master %s read funct export failed\n", master->name);
-      goto fail2;
+      goto fail1;
     }
     // export write function
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s.%s.write", LCEC_MODULE_NAME, master->name);
-    if (hal_export_funct(name, lcec_write_master, master, 0, 0, comp_id) != 0) {
+    rtapi_snprintf(name, HAL_NAME_LEN, "%s.%s.write", ctx->instance_name, master->name);
+    if (hal_export_funct(name, lcec_write_master, master, 0, 0, ctx->comp_id) != 0) {
       rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "master %s write funct export failed\n", master->name);
-      goto fail2;
+      goto fail1;
     }
   }
 
   // export read-all function
-  rtapi_snprintf(name, HAL_NAME_LEN, "%s.read-all", LCEC_MODULE_NAME);
-  if (hal_export_funct(name, lcec_read_all, NULL, 0, 0, comp_id) != 0) {
+  rtapi_snprintf(name, HAL_NAME_LEN, "%s.read-all", ctx->instance_name);
+  if (hal_export_funct(name, lcec_read_all, ctx, 0, 0, ctx->comp_id) != 0) {
     rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "read-all funct export failed\n");
-    goto fail2;
+    goto fail1;
   }
   // export write-all function
-  rtapi_snprintf(name, HAL_NAME_LEN, "%s.write-all", LCEC_MODULE_NAME);
-  if (hal_export_funct(name, lcec_write_all, NULL, 0, 0, comp_id) != 0) {
+  rtapi_snprintf(name, HAL_NAME_LEN, "%s.write-all", ctx->instance_name);
+  if (hal_export_funct(name, lcec_write_all, ctx, 0, 0, ctx->comp_id) != 0) {
     rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "write-all funct export failed\n");
-    goto fail2;
+    goto fail1;
   }
 
   rtapi_print_msg(RTAPI_MSG_INFO, LCEC_MSG_PFX "installed driver for %d slaves\n", slave_count);
-  hal_ready (comp_id);
   return 0;
 
-fail2:
-  lcec_clear_config();
 fail1:
-  hal_exit(comp_id);
+  lcec_clear_config(ctx);
 fail0:
   return -EINVAL;
 }
 
 /**
- * @brief LinuxCNC HAL component exit point.
+ * @brief Tear down the EtherCAT RT component.
  *
- * Called by the RTAPI loader when the lcec module is removed.  Deactivates
- * every EtherCAT master, releases all driver and HAL resources, and
- * unregisters the HAL component.
+ * Called from the cmod Destroy() function before hal_exit().
+ * Deactivates every EtherCAT master, releases all driver resources,
+ * and cleans up the EtherCAT library.
  *
- * @note All exported HAL real-time functions must have been removed from any
- *       thread before this function is called.
+ * Does NOT call hal_exit() — the caller handles that.
+ *
+ * @param ctx  Per-instance context.
  */
-void rtapi_app_exit(void) {
+void lcec_rt_cleanup(lcec_rt_context_t *ctx) {
   lcec_master_t *master;
 
   // deactivate all masters
-  for (master = first_master; master != NULL; master = master->next) {
+  for (master = ctx->first_master; master != NULL; master = master->next) {
     if (master->master) {
       ecrt_master_deactivate(master->master);
     }
   }
 
-  lcec_clear_config();
+  lcec_clear_config(ctx);
 #ifdef EC_USPACE_MASTER
   ecrt_lib_cleanup();
 #endif
-  hal_exit(comp_id);
 }
 
 /**
  * @brief Parse the lcec configuration from RTAPI shared memory.
  *
- * The userspace configurator tool (@c lcec_conf) writes a binary, type-tagged
- * record stream to a shared-memory segment keyed by @c LCEC_CONF_SHMEM_KEY.
- * This function:
- *  -# Maps the segment and validates its magic number.
- *  -# Remaps the segment at the correct full size.
- *  -# Walks the record stream, creating @c lcec_master_t and @c lcec_slave_t
- *     instances and applying DC, watchdog, SDO, IDN, and modparam settings.
- *  -# Runs slave pre-initialisation in two stages: non-FsoE slaves first so
- *     that FsoE logic devices can reference the @c fsoeConf data they set.
- *  -# Allocates the PDO entry registration array for each master.
- *
- * @return Total number of configured slaves across all masters on success.
- * @return -1 on any error; all partial allocations are freed via lcec_clear_config().
- *
- * @note Must not be called from a real-time context (performs heap allocation
- *       and RTAPI shared-memory operations).
- *
- * @sideeffect Populates the ::first_master / ::last_master global linked list.
+ * @param ctx  Per-instance context; comp_id must be set.
+ * @return Total number of configured slaves on success, -1 on error.
  */
-int lcec_parse_config(void) {
+static int lcec_parse_config(lcec_rt_context_t *ctx) {
   int shmem_id;
   void *shmem_ptr;
   LCEC_CONF_HEADER_T *header;
@@ -404,11 +348,11 @@ int lcec_parse_config(void) {
   lcec_slave_conf_state_t slave_conf_state;
 
   // initialize list
-  first_master = NULL;
-  last_master = NULL;
+  ctx->first_master = NULL;
+  ctx->last_master = NULL;
 
   // try to get config header
-  shmem_id = rtapi_shmem_new(LCEC_CONF_SHMEM_KEY, comp_id, sizeof(LCEC_CONF_HEADER_T));
+  shmem_id = rtapi_shmem_new(LCEC_CONF_SHMEM_KEY, ctx->comp_id, sizeof(LCEC_CONF_HEADER_T));
   if (shmem_id < 0) {
     rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't allocate user/RT shared memory\n");
     goto fail0;
@@ -425,10 +369,10 @@ int lcec_parse_config(void) {
     goto fail1;
   }
   length = header->length;
-  rtapi_shmem_delete(shmem_id, comp_id);
+  rtapi_shmem_delete(shmem_id, ctx->comp_id);
 
   // reopen shmem with proper size
-  shmem_id = rtapi_shmem_new(LCEC_CONF_SHMEM_KEY, comp_id, sizeof(LCEC_CONF_HEADER_T) + length);
+  shmem_id = rtapi_shmem_new(LCEC_CONF_SHMEM_KEY, ctx->comp_id, sizeof(LCEC_CONF_HEADER_T) + length);
   if (shmem_id < 0) {
     rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "couldn't allocate user/RT shared memory\n");
     goto fail0;
@@ -462,7 +406,7 @@ int lcec_parse_config(void) {
         }
 
         // add master to list
-        LCEC_LIST_APPEND(first_master, last_master, master);
+        LCEC_LIST_APPEND(ctx->first_master, ctx->last_master, master);
         break;
 
       case lcecConfTypeSlave:
@@ -577,10 +521,10 @@ int lcec_parse_config(void) {
   }
 
   // close shmem
-  rtapi_shmem_delete(shmem_id, comp_id);
+  rtapi_shmem_delete(shmem_id, ctx->comp_id);
 
   // allocate PDO entity memory
-  for (master = first_master; master != NULL; master = master->next) {
+  for (master = ctx->first_master; master != NULL; master = master->next) {
     // stage 1 preinit: process all but FSOE logic devices
     for (slave = master->first_slave; slave != NULL; slave = slave->next) {
       if (!slave->is_fsoe_logic && slave->proc_preinit != NULL) {
@@ -616,34 +560,22 @@ int lcec_parse_config(void) {
   return slave_count;
 
 fail2:
-  lcec_clear_config();
+  lcec_clear_config(ctx);
 fail1:
-  rtapi_shmem_delete(shmem_id, comp_id);
+  rtapi_shmem_delete(shmem_id, ctx->comp_id);
 fail0:
   return -1;
 }
 
 /**
  * @brief Free all resources allocated by lcec_parse_config().
- *
- * Iterates the master and slave linked lists in reverse order.  For each
- * slave, calls @c proc_cleanup (if set) then frees the slave object.  For
- * each master, calls lcec_shutdown_master(), frees the PDO entry registration
- * array, and frees the master object.
- *
- * Safe to call after a partial initialisation (e.g. lcec_parse_config()
- * failed mid-way); NULL pointers and empty lists are handled gracefully.
- *
- * @note Must not be called from a real-time context.
- *
- * @sideeffect Resets ::first_master and ::last_master to NULL.
  */
-void lcec_clear_config(void) {
+static void lcec_clear_config(lcec_rt_context_t *ctx) {
   lcec_master_t *master, *prev_master;
   lcec_slave_t *slave, *prev_slave;
 
   // iterate all masters
-  master = last_master;
+  master = ctx->last_master;
   while (master != NULL) {
     prev_master = master->prev;
 
@@ -674,53 +606,52 @@ void lcec_clear_config(void) {
     rtapi_free(master);
     master = prev_master;
   }
+
+  ctx->first_master = NULL;
+  ctx->last_master = NULL;
 }
 
 /**
  * @brief HAL real-time function: read process data from all EtherCAT masters.
  *
- * Exported as @c lcec.read-all.  Resets the aggregate master-state counters,
- * delegates to lcec_read_master() for every configured master in list order,
- * then updates the global aggregate HAL state pins.
- *
- * @param arg     Unused; @c NULL is passed at export time.
+ * @param arg     Pointer to the lcec_rt_context_t for this instance.
  * @param period  Servo period in nanoseconds.
- *
- * @note Runs in real-time context.  Must not block or allocate memory.
  */
-void lcec_read_all(void *arg, long period) {
+static void lcec_read_all(void *arg, long period) {
+  lcec_rt_context_t *ctx = (lcec_rt_context_t *)arg;
   lcec_master_t *master;
 
   // initialize global state
-  global_ms.slaves_responding = 0;
-  global_ms.al_states = 0;
-  global_ms.link_up = (first_master != NULL);
+  ctx->global_ms.slaves_responding = 0;
+  ctx->global_ms.al_states = 0;
+  ctx->global_ms.link_up = (ctx->first_master != NULL);
 
-  // process slaves
-  for (master = first_master; master != NULL; master = master->next) {
+  // process masters
+  for (master = ctx->first_master; master != NULL; master = master->next) {
     lcec_read_master(master, period);
+
+    // accumulate global state from each master
+    ctx->global_ms.slaves_responding += master->ms.slaves_responding;
+    ctx->global_ms.al_states |= master->ms.al_states;
+    ctx->global_ms.link_up = ctx->global_ms.link_up && master->ms.link_up;
   }
 
   // update global state pins
-  lcec_update_master_hal(global_hal_data, &global_ms);
+  lcec_update_master_hal(ctx->global_hal_data, &ctx->global_ms);
 }
 
 /**
  * @brief HAL real-time function: write process data to all EtherCAT masters.
  *
- * Exported as @c lcec.write-all.  Delegates to lcec_write_master() for every
- * configured master in list order.
- *
- * @param arg     Unused; @c NULL is passed at export time.
+ * @param arg     Pointer to the lcec_rt_context_t for this instance.
  * @param period  Servo period in nanoseconds.
- *
- * @note Runs in real-time context.  Must not block or allocate memory.
  */
-void lcec_write_all(void *arg, long period) {
+static void lcec_write_all(void *arg, long period) {
+  lcec_rt_context_t *ctx = (lcec_rt_context_t *)arg;
   lcec_master_t *master;
 
-  // process slaves
-  for (master = first_master; master != NULL; master = master->next) {
+  // process masters
+  for (master = ctx->first_master; master != NULL; master = master->next) {
     lcec_write_master(master, period);
   }
 }

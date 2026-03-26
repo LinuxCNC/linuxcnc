@@ -139,11 +139,11 @@ int lcec_el1904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   }
 
   // export pins
-  if ((err = lcec_pin_newf_list(hal_data, slave_pins, LCEC_MODULE_NAME, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
   for (i = 0, in = hal_data->inputs; i < LCEC_EL1904_INPUT_COUNT; i++, in++) {
-    if ((err = lcec_pin_newf_list(in, slave_in_pins, LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(comp_id, in, slave_in_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
   }

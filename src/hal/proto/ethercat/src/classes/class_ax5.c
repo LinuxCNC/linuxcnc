@@ -177,12 +177,12 @@ int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x0018, 0x01 + index, &chan->vel_cmd_pdo_os, NULL);
 
   // export pins
-  if ((err = lcec_pin_newf_list(chan, slave_pins, LCEC_MODULE_NAME, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_pin_newf_list(master->comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
   // export params
-  if ((err = lcec_param_newf_list(chan, slave_params, LCEC_MODULE_NAME, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_param_newf_list(master->comp_id, chan, slave_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
@@ -195,7 +195,7 @@ int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry
   chan->fb2_enabled = get_param_flag(slave, LCEC_AX5_PARAM_ENABLE_FB2);
   if (chan->fb2_enabled) {
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x0035, 0x01 + index, &chan->pos_fb2_pdo_os, NULL);
-    if ((err = lcec_param_newf_list(chan, slave_fb2_params, LCEC_MODULE_NAME, master->name, slave->name, pfx)) != 0) {
+    if ((err = lcec_param_newf_list(master->comp_id, chan, slave_fb2_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
       return err;
     }
 
@@ -208,7 +208,7 @@ int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry
   chan->diag_enabled = get_param_flag(slave, LCEC_AX5_PARAM_ENABLE_DIAG);
   if (chan->diag_enabled) {
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x0186, 0x01 + index, &chan->diag_pdo_os, NULL);
-    if ((err = lcec_pin_newf_list(chan, slave_diag_pins, LCEC_MODULE_NAME, master->name, slave->name, pfx)) != 0) {
+    if ((err = lcec_pin_newf_list(master->comp_id, chan, slave_diag_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
       return err;
     }
   }

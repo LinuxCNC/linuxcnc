@@ -222,7 +222,7 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000, i + 1, &din->pdo_os, &din->pdo_bp);
 
     // export pins
-    if ((err = lcec_pin_newf_list(din, slave_din_pins, LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(comp_id, din, slave_din_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
   }
@@ -233,10 +233,10 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7010, i + 1, &dout->pdo_os, &dout->pdo_bp);
 
     // export pins
-    if ((err = lcec_pin_newf_list(dout, slave_dout_pins, LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(comp_id, dout, slave_dout_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
-    if ((err = lcec_param_newf_list(dout, slave_dout_params, LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_param_newf_list(comp_id, dout, slave_dout_params, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
   }
@@ -247,7 +247,7 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7020 + (i << 4), 0x11, &aout->val_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(aout, slave_aout_pins, LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(comp_id, aout, slave_aout_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 
@@ -278,7 +278,7 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7060 + (i << 4), 0x11, &enc->set_count_val_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(enc, slave_enc_pins, LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(comp_id, enc, slave_enc_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 

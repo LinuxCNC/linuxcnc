@@ -2,94 +2,82 @@ ifeq ($(BUILD_ETHERCAT),yes)
 
 LCEC_DIR := hal/proto/ethercat/src
 
-# ---------- Realtime module: ethercat_rt.so ----------
+# ---------- Unified cmod plugin: ethercat.so ----------
+#
+# All RT core sources (main, master, slave, devices, ...) and the
+# configuration sources (conf, conf_util, conf_icmds) are compiled into
+# a single shared library loaded as a cmod plugin by the launcher.
 
-RTMODULES += ethercat_rt.o
-ethercat_rt-objs := \
-    $(LCEC_DIR)/main.o \
-    $(LCEC_DIR)/typelist.o \
-    $(LCEC_DIR)/master.o \
-    $(LCEC_DIR)/slave.o \
-    $(LCEC_DIR)/util.o \
-    $(LCEC_DIR)/dcsync_r2m.o \
-    $(LCEC_DIR)/dcsync_m2r.o \
-    $(LCEC_DIR)/classes/class_enc.o \
-    $(LCEC_DIR)/classes/class_ax5.o \
-    $(LCEC_DIR)/devices/generic.o \
-    $(LCEC_DIR)/devices/ax5100.o \
-    $(LCEC_DIR)/devices/ax5200.o \
-    $(LCEC_DIR)/devices/ax5805.o \
-    $(LCEC_DIR)/devices/el1xxx.o \
-    $(LCEC_DIR)/devices/el1252.o \
-    $(LCEC_DIR)/devices/el1859.o \
-    $(LCEC_DIR)/devices/el1904.o \
-    $(LCEC_DIR)/devices/el1918_logic.o \
-    $(LCEC_DIR)/devices/el2202.o \
-    $(LCEC_DIR)/devices/el2521.o \
-    $(LCEC_DIR)/devices/el2904.o \
-    $(LCEC_DIR)/devices/el2xxx.o \
-    $(LCEC_DIR)/devices/el31x2.o \
-    $(LCEC_DIR)/devices/el31x4.o \
-    $(LCEC_DIR)/devices/el32x4.o \
-    $(LCEC_DIR)/devices/el3255.o \
-    $(LCEC_DIR)/devices/el3314.o \
-    $(LCEC_DIR)/devices/el40x1.o \
-    $(LCEC_DIR)/devices/el40x2.o \
-    $(LCEC_DIR)/devices/el40x8.o \
-    $(LCEC_DIR)/devices/el41x2.o \
-    $(LCEC_DIR)/devices/el41x4.o \
-    $(LCEC_DIR)/devices/el5002.o \
-    $(LCEC_DIR)/devices/el5021.o \
-    $(LCEC_DIR)/devices/el5032.o \
-    $(LCEC_DIR)/devices/el5101.o \
-    $(LCEC_DIR)/devices/el5122.o \
-    $(LCEC_DIR)/devices/el5151.o \
-    $(LCEC_DIR)/devices/el5152.o \
-    $(LCEC_DIR)/devices/el6900.o \
-    $(LCEC_DIR)/devices/el7041_1000.o \
-    $(LCEC_DIR)/devices/el70x1.o \
-    $(LCEC_DIR)/devices/el7211.o \
-    $(LCEC_DIR)/devices/el7342.o \
-    $(LCEC_DIR)/devices/el7411.o \
-    $(LCEC_DIR)/devices/el95xx.o \
-    $(LCEC_DIR)/devices/em3712.o \
-    $(LCEC_DIR)/devices/em7004.o \
-    $(LCEC_DIR)/devices/stmds5k.o \
-    $(LCEC_DIR)/devices/deasda.o \
-    $(LCEC_DIR)/devices/dems300.o \
-    $(LCEC_DIR)/devices/omrg5.o \
-    $(LCEC_DIR)/devices/ph3lm2rm.o
-
-# Add include path for lcec private headers and ethercat library to RT compile flags.
-# RTFLAGS is appended here (before RTCFLAGS is constructed from it in Makefile).
-RTFLAGS += -I$(BASEPWD)/$(LCEC_DIR) $(ETHERCAT_CFLAGS)
-
-# Explicit link rule: ethercat_rt needs -lethercat beyond the standard -lm.
-../rtlib/ethercat_rt.so:
-	$(ECHO) Linking $@
-	$(Q)ld -d -r -o objects/ethercat_rt.tmp $^
-	$(Q)objdump -w -j .rtapi_export -t objects/ethercat_rt.tmp \
-	    | awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
-	    > objects/ethercat_rt.ver
-	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/ethercat_rt.ver \
-	    -o $@ $^ -lm $(ETHERCAT_LIBS) $(LDFLAGS)
-	$(Q)chmod -x $@
-
-# ---------- Userspace cmod plugin: ethercat.so ----------
+LCEC_RT_SRCS := \
+    $(LCEC_DIR)/main.c \
+    $(LCEC_DIR)/typelist.c \
+    $(LCEC_DIR)/master.c \
+    $(LCEC_DIR)/slave.c \
+    $(LCEC_DIR)/util.c \
+    $(LCEC_DIR)/dcsync_r2m.c \
+    $(LCEC_DIR)/dcsync_m2r.c \
+    $(LCEC_DIR)/classes/class_enc.c \
+    $(LCEC_DIR)/classes/class_ax5.c \
+    $(LCEC_DIR)/devices/generic.c \
+    $(LCEC_DIR)/devices/ax5100.c \
+    $(LCEC_DIR)/devices/ax5200.c \
+    $(LCEC_DIR)/devices/ax5805.c \
+    $(LCEC_DIR)/devices/el1xxx.c \
+    $(LCEC_DIR)/devices/el1252.c \
+    $(LCEC_DIR)/devices/el1859.c \
+    $(LCEC_DIR)/devices/el1904.c \
+    $(LCEC_DIR)/devices/el1918_logic.c \
+    $(LCEC_DIR)/devices/el2202.c \
+    $(LCEC_DIR)/devices/el2521.c \
+    $(LCEC_DIR)/devices/el2904.c \
+    $(LCEC_DIR)/devices/el2xxx.c \
+    $(LCEC_DIR)/devices/el31x2.c \
+    $(LCEC_DIR)/devices/el31x4.c \
+    $(LCEC_DIR)/devices/el32x4.c \
+    $(LCEC_DIR)/devices/el3255.c \
+    $(LCEC_DIR)/devices/el3314.c \
+    $(LCEC_DIR)/devices/el40x1.c \
+    $(LCEC_DIR)/devices/el40x2.c \
+    $(LCEC_DIR)/devices/el40x8.c \
+    $(LCEC_DIR)/devices/el41x2.c \
+    $(LCEC_DIR)/devices/el41x4.c \
+    $(LCEC_DIR)/devices/el5002.c \
+    $(LCEC_DIR)/devices/el5021.c \
+    $(LCEC_DIR)/devices/el5032.c \
+    $(LCEC_DIR)/devices/el5101.c \
+    $(LCEC_DIR)/devices/el5122.c \
+    $(LCEC_DIR)/devices/el5151.c \
+    $(LCEC_DIR)/devices/el5152.c \
+    $(LCEC_DIR)/devices/el6900.c \
+    $(LCEC_DIR)/devices/el7041_1000.c \
+    $(LCEC_DIR)/devices/el70x1.c \
+    $(LCEC_DIR)/devices/el7211.c \
+    $(LCEC_DIR)/devices/el7342.c \
+    $(LCEC_DIR)/devices/el7411.c \
+    $(LCEC_DIR)/devices/el95xx.c \
+    $(LCEC_DIR)/devices/em3712.c \
+    $(LCEC_DIR)/devices/em7004.c \
+    $(LCEC_DIR)/devices/stmds5k.c \
+    $(LCEC_DIR)/devices/deasda.c \
+    $(LCEC_DIR)/devices/dems300.c \
+    $(LCEC_DIR)/devices/omrg5.c \
+    $(LCEC_DIR)/devices/ph3lm2rm.c
 
 LCEC_CONF_SRCS := \
     $(LCEC_DIR)/conf.c \
     $(LCEC_DIR)/conf_util.c \
     $(LCEC_DIR)/conf_icmds.c
 
-USERSRCS += $(LCEC_CONF_SRCS)
-$(call TOOBJSDEPS, $(LCEC_CONF_SRCS)): EXTRAFLAGS += \
+LCEC_ALL_SRCS := $(LCEC_RT_SRCS) $(LCEC_CONF_SRCS)
+
+USERSRCS += $(LCEC_ALL_SRCS)
+$(call TOOBJSDEPS, $(LCEC_ALL_SRCS)): EXTRAFLAGS += \
     -fPIC -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR) -I$(BASEPWD) $(ETHERCAT_CFLAGS)
 
-../cmod/ethercat.so: $(call TOOBJS, $(LCEC_CONF_SRCS)) ../lib/liblinuxcnchal.so.0
+../cmod/ethercat.so: $(call TOOBJS, $(LCEC_ALL_SRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../cmod
-	$(Q)$(CC) -shared -o $@ $^ $(LDFLAGS) -lexpat
+	$(Q)$(CC) -shared -o $@ $^ $(LDFLAGS) -lexpat $(ETHERCAT_LIBS)
 
 TARGETS += ../cmod/ethercat.so
 

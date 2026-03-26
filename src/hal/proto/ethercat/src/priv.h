@@ -64,10 +64,6 @@ typedef struct {
 
 extern const lcec_typelist_t typelist[]; /**< Global slave-type registry, terminated by an entry with type @c lcecSlaveTypeInvalid. */
 
-extern int comp_id;               /**< HAL component ID returned by @c hal_init(). */
-extern ec_master_state_t global_ms; /**< Aggregate master state accumulated across all masters each servo cycle. */
-extern int64_t dc_time_offset;    /**< Nanosecond offset applied when computing the distributed clock application time. */
-
 /** @brief Create and initialise an @c lcec_master_t. @see master.c */
 lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf);
 /** @brief Open the EtherCAT master (userspace or kernel build). @see master.c */
@@ -75,7 +71,7 @@ int lcec_startup_master(lcec_master_t *master);
 /** @brief Release the EtherCAT master and free transport resources. @see master.c */
 void lcec_shutdown_master(lcec_master_t *master);
 /** @brief Allocate and export HAL pins for a master. @see master.c */
-lcec_master_data_t *lcec_init_master_hal(const char *pfx, int global);
+lcec_master_data_t *lcec_init_master_hal(int comp_id, const char *pfx, int global);
 /** @brief Update master HAL output pins from the current EtherCAT master state. @see master.c */
 void lcec_update_master_hal(lcec_master_data_t *hal_data, ec_master_state_t *ms);
 
@@ -94,7 +90,7 @@ void lcec_slave_conf_idn(lcec_slave_conf_state_t *state, LCEC_CONF_IDNCONF_T *id
 /** @brief Append a module parameter entry to the slave's modparam array. @see slave.c */
 void lcec_slave_conf_modparam(lcec_slave_conf_state_t *state, LCEC_CONF_MODPARAM_T *modparam_conf);
 /** @brief Allocate and export HAL state pins for a slave. @see slave.c */
-lcec_slave_state_t *lcec_init_slave_state_hal(char *master_name, char *slave_name);
+lcec_slave_state_t *lcec_init_slave_state_hal(int comp_id, const char *instance_name, char *master_name, char *slave_name);
 /** @brief Update slave HAL state pins from the current EtherCAT slave config state. @see slave.c */
 void lcec_update_slave_state_hal(lcec_slave_state_t *hal_data, ec_slave_config_state_t *ss);
 
@@ -108,39 +104,13 @@ void lcec_update_slave_state_hal(lcec_slave_state_t *hal_data, ec_slave_config_s
  * @param ap             Argument list for @p fmt.
  * @return 0 on success, non-zero on failure.
  */
-int lcec_pin_newfv(hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, va_list ap);
+int lcec_pin_newfv(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, va_list ap);
 
-/**
- * @brief Create HAL pins for every entry in a NULL-terminated descriptor list.
- *
- * @param base  Base address of the HAL data struct (offsets in @p list are relative to this).
- * @param list  NULL-terminated array of @c lcec_pindesc_t descriptors.
- * @param ap    @c va_list of name arguments consumed by the format strings in @p list.
- * @return 0 on success, non-zero on first failure.
- */
-int lcec_pin_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap);
+int lcec_pin_newfv_list(int comp_id, void *base, const lcec_pindesc_t *list, va_list ap);
 
-/**
- * @brief Create a single HAL parameter using a printf-style format string and @c va_list.
- *
- * @param type       HAL data type.
- * @param dir        HAL parameter direction (@c HAL_RO or @c HAL_RW).
- * @param data_addr  Address of the parameter value storage.
- * @param fmt        printf-style format string for the parameter name.
- * @param ap         Argument list for @p fmt.
- * @return 0 on success, non-zero on failure.
- */
-int lcec_param_newfv(hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, va_list ap);
+int lcec_param_newfv(int comp_id, hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, va_list ap);
 
-/**
- * @brief Create HAL parameters for every entry in a NULL-terminated descriptor list.
- *
- * @param base  Base address of the HAL data struct.
- * @param list  NULL-terminated array of @c lcec_pindesc_t descriptors.
- * @param ap    @c va_list of name arguments consumed by the format strings in @p list.
- * @return 0 on success, non-zero on first failure.
- */
-int lcec_param_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap);
+int lcec_param_newfv_list(int comp_id, void *base, const lcec_pindesc_t *list, va_list ap);
 
 /**
  * @brief Initialise DC synchronisation callbacks for ref-clock → master mode.
@@ -164,5 +134,43 @@ void lcec_dc_init_r2m(struct lcec_master *master);
  */
 void lcec_dc_init_m2r(struct lcec_master *master);
 #endif
+
+/**
+ * @brief Context struct passed from the cmod plugin to the RT init/cleanup functions.
+ *
+ * Holds all per-instance state that was previously stored in file-scope globals
+ * in main.c, enabling multi-instance support.
+ */
+typedef struct lcec_rt_context {
+  int comp_id;                        /**< HAL component ID from hal_init_ex(). */
+  const char *instance_name;          /**< Instance name from cmod New(). */
+  const char *ipc_socket;             /**< IPC socket path (EC_USPACE_MASTER), or NULL. */
+  lcec_master_t *first_master;        /**< Head of the master linked list (populated by lcec_parse_config). */
+  lcec_master_t *last_master;         /**< Tail of the master linked list. */
+  lcec_master_data_t *global_hal_data; /**< HAL pins for aggregate EtherCAT state. */
+  ec_master_state_t global_ms;        /**< Aggregate master state updated each cycle. */
+} lcec_rt_context_t;
+
+/**
+ * @brief Initialise the EtherCAT RT component (replaces rtapi_app_main).
+ *
+ * Parses the configuration from shared memory, starts all masters, configures
+ * all slaves, and exports the HAL read/write functions.  Does NOT call
+ * hal_init() or hal_ready() — the caller (cmod New) handles those.
+ *
+ * @param ctx  Per-instance context; comp_id and instance_name must be set.
+ * @return 0 on success, negative on error.
+ */
+int lcec_rt_init(lcec_rt_context_t *ctx);
+
+/**
+ * @brief Tear down the EtherCAT RT component (replaces rtapi_app_exit).
+ *
+ * Deactivates all masters, frees all configuration, and cleans up the
+ * EtherCAT library.  Does NOT call hal_exit() — the caller handles that.
+ *
+ * @param ctx  Per-instance context.
+ */
+void lcec_rt_cleanup(lcec_rt_context_t *ctx);
 
 #endif

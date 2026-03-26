@@ -296,12 +296,12 @@ int lcec_el7211_export_pins(lcec_master_t *master, struct lcec_slave *slave, lce
   sdo_pos_resolution = EC_READ_U32(sdo_buf);
 
   // export pins
-  if ((err = lcec_pin_newf_list(hal_data, slave_pins, LCEC_MODULE_NAME, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(master->comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 
   // export parameters
-  if ((err = lcec_param_newf_list(hal_data, slave_params, LCEC_MODULE_NAME, master->name, slave->name)) != 0) {
+  if ((err = lcec_param_newf_list(master->comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 
@@ -433,7 +433,7 @@ int lcec_el7201_9014_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_re
   }
 
   // export extra pins
-  if ((err = lcec_pin_newf_list(hal_data, slave_pins_el7201_9014, LCEC_MODULE_NAME, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins_el7201_9014, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 

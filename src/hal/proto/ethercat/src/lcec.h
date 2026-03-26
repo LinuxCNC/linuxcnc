@@ -335,6 +335,9 @@ typedef struct lcec_master {
   struct lcec_master *prev; /**< Previous master in the global linked list, or NULL if head. */
   struct lcec_master *next; /**< Next master in the global linked list, or NULL if tail. */
   int index;                /**< Zero-based master index from the XML configuration. */
+  int comp_id;              /**< HAL component ID (from the owning module instance). */
+  char instance_name[LCEC_CONF_STR_MAXLEN]; /**< Instance name from cmod New(); used as HAL pin name prefix. */
+  int64_t dc_time_offset;  /**< Nanosecond offset between RTAPI monotonic and EtherCAT wall-clock time. */
 #ifdef EC_USPACE_MASTER
   int transport_type;                          /**< Transport layer type identifier (userspace build only). */
   char interface[LCEC_CONF_STR_MAXLEN];        /**< Primary network interface name (e.g. "eth0"). */
@@ -581,7 +584,7 @@ int lcec_read_idn(struct lcec_slave *slave, uint8_t drive_no, uint16_t idn, uint
  * @param ...            Format arguments.
  * @return 0 on success, negative HAL error code on failure.
  */
-int lcec_pin_newf(hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, ...);
+int lcec_pin_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, ...);
 
 /**
  * @brief Create a list of HAL pins described by a NULL-terminated lcec_pindesc_t array.
@@ -589,16 +592,18 @@ int lcec_pin_newf(hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, cons
  * Iterates @p list until an entry with @c fmt == NULL is found.  Each pin's
  * storage pointer is derived as @p base + descriptor->offset.
  *
+ * @param comp_id  HAL component ID.
  * @param base  Base pointer added to each descriptor's @c offset field.
  * @param list  NULL-terminated array of pin descriptors.
  * @param ...   Format arguments applied to every descriptor's @c fmt string.
  * @return 0 on success, negative HAL error code on the first failure.
  */
-int lcec_pin_newf_list(void *base, const lcec_pindesc_t *list, ...);
+int lcec_pin_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...);
 
 /**
  * @brief Create a single HAL parameter with a printf-formatted name.
  *
+ * @param comp_id    HAL component ID.
  * @param type       HAL data type.
  * @param dir        Parameter direction (HAL_RO or HAL_RW).
  * @param data_addr  Address of the parameter's storage.
@@ -606,17 +611,18 @@ int lcec_pin_newf_list(void *base, const lcec_pindesc_t *list, ...);
  * @param ...        Format arguments.
  * @return 0 on success, negative HAL error code on failure.
  */
-int lcec_param_newf(hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, ...);
+int lcec_param_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, ...);
 
 /**
  * @brief Create a list of HAL parameters described by a NULL-terminated lcec_pindesc_t array.
  *
+ * @param comp_id  HAL component ID.
  * @param base  Base pointer added to each descriptor's @c offset field.
  * @param list  NULL-terminated array of parameter descriptors.
  * @param ...   Format arguments applied to every descriptor's @c fmt string.
  * @return 0 on success, negative HAL error code on the first failure.
  */
-int lcec_param_newf_list(void *base, const lcec_pindesc_t *list, ...);
+int lcec_param_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...);
 
 /**
  * @brief Look up a module parameter value for a slave by its driver-defined ID.

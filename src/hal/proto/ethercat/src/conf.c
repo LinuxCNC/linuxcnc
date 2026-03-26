@@ -479,6 +479,8 @@ static void lcec_conf_stop(cmod_t *self)  { }
 static void lcec_conf_destroy(cmod_t *self) {
   lcec_conf_module *m = (lcec_conf_module *)self->priv;
 
+  lcec_rt_cleanup(&m->rt_ctx);
+
   if (m->shmem_id >= 0 && m->hal_comp_id >= 0) {
     rtapi_shmem_delete(m->shmem_id, m->hal_comp_id);
   }
@@ -510,6 +512,7 @@ int New(const cmod_env_t *env, const char *name,
         int argc, const char **argv, cmod_t **out) {
   int ret = -1;
   const char *filename = NULL;
+  const char *ipc_socket = NULL;
   int done;
   char buffer[BUFFSIZE];
   FILE *file = NULL;
@@ -528,10 +531,12 @@ int New(const cmod_env_t *env, const char *name,
   m->hal_comp_id = -1;
   m->shmem_id = -1;
 
-  // parse config= parameter from argv
+  // parse config= and ipc_socket= parameters from argv
   for (int i = 0; i < argc; i++) {
     if (strncmp(argv[i], "config=", 7) == 0) {
       filename = argv[i] + 7;
+    } else if (strncmp(argv[i], "ipc_socket=", 11) == 0) {
+      ipc_socket = argv[i] + 11;
     }
   }
   if (filename == NULL || *filename == 0) {
@@ -628,6 +633,21 @@ int New(const cmod_env_t *env, const char *name,
 
   // copy data and free buffer
   copyFreeOutputBuffer(&state.outputBuf, shmem_ptr);
+
+  // initialize RT context
+  m->rt_ctx.comp_id = m->hal_comp_id;
+  m->rt_ctx.instance_name = name;
+  m->rt_ctx.ipc_socket = ipc_socket;
+  m->rt_ctx.first_master = NULL;
+  m->rt_ctx.last_master = NULL;
+  m->rt_ctx.global_hal_data = NULL;
+  memset(&m->rt_ctx.global_ms, 0, sizeof(ec_master_state_t));
+
+  // initialize RT component (parses config, starts masters, exports HAL functions)
+  if (lcec_rt_init(&m->rt_ctx) != 0) {
+    LOG_ERR(m, "RT initialization failed");
+    goto fail4;
+  }
 
   // everything is fine
   hal_ready(m->hal_comp_id);

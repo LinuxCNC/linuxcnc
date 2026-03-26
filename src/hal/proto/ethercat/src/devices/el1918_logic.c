@@ -118,7 +118,7 @@ static int export_std_pins(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_en
     }
 
     // export pin
-    if ((err = lcec_pin_newf(HAL_BIT, dir, (void *) pin, "%s.%s.%s.%s", LCEC_MODULE_NAME, master->name, slave->name, p->value.str)) != 0) {
+    if ((err = lcec_pin_newf(master->comp_id, HAL_BIT, dir, (void *) pin, "%s.%s.%s.%s", master->instance_name, master->name, slave->name, p->value.str)) != 0) {
       return err;
     }
 
@@ -226,7 +226,7 @@ int lcec_el1918_logic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_r
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0xf100, 0x02, &hal_data->cycle_counter_os, NULL);
 
   // export pins
-  if ((err = lcec_pin_newf_list(hal_data, slave_pins, LCEC_MODULE_NAME, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 
@@ -276,7 +276,7 @@ int lcec_el1918_logic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_r
       LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6080 + (fsoe_idx << 4), 0x02, &fsoe_data->fsoe_master_connid_os, NULL);
 
       // export pins
-      if ((err = lcec_pin_newf_list(fsoe_data, fsoe_pins, LCEC_MODULE_NAME, master->name, slave->name, fsoe_idx)) != 0) {
+      if ((err = lcec_pin_newf_list(comp_id, fsoe_data, fsoe_pins, master->instance_name, master->name, slave->name, fsoe_idx)) != 0) {
         return err;
       }
 
@@ -284,7 +284,7 @@ int lcec_el1918_logic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_r
       for (index = 0, crc = fsoe_data->fsoe_crc; index < fsoeConf->data_channels; index++, crc++) {
         LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7080 + (fsoe_idx << 4), 0x03 + index, &crc->fsoe_slave_crc_os, NULL);
         LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6080 + (fsoe_idx << 4), 0x03 + index, &crc->fsoe_master_crc_os, NULL);
-        if ((err = lcec_pin_newf_list(crc, fsoe_crc_pins, LCEC_MODULE_NAME, master->name, slave->name, fsoe_idx, index)) != 0) {
+        if ((err = lcec_pin_newf_list(comp_id, crc, fsoe_crc_pins, master->instance_name, master->name, slave->name, fsoe_idx, index)) != 0) {
           return err;
         }
       }

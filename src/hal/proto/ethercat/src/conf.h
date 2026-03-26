@@ -32,8 +32,9 @@
 #include "hal.h"
 #include "ecrt.h"
 
-/** @brief HAL / LinuxCNC module name used for pin and component registration. */
-#define LCEC_MODULE_NAME "ethercat_rt"
+/** @brief Legacy module name constant — kept for shared-memory protocol compatibility.
+ *  Pin and function names now use the per-instance name from cmod New(). */
+#define LCEC_MODULE_NAME "ethercat"
 
 /** @brief System-V shared-memory key used to create/attach the config segment. */
 #define LCEC_CONF_SHMEM_KEY   0xACB572C7

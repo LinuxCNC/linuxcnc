@@ -358,14 +358,14 @@ int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t 
       case HAL_BIT:
         if (hal_data->bitLength == 1) {
           // single bit pin
-          err = lcec_pin_newf(hal_data->type, hal_data->dir, &hal_data->pin[0], "%s.%s.%s.%s", LCEC_MODULE_NAME, master->name, slave->name, hal_data->name);
+          err = lcec_pin_newf(comp_id, hal_data->type, hal_data->dir, &hal_data->pin[0], "%s.%s.%s.%s", master->instance_name, master->name, slave->name, hal_data->name);
           if (err != 0) {
             return err;
           }
         } else {
           // bit pin array
           for (j=0; j < LCEC_CONF_GENERIC_MAX_SUBPINS && j < hal_data->bitLength; j++) {
-            err = lcec_pin_newf(hal_data->type, hal_data->dir, &hal_data->pin[j], "%s.%s.%s.%s-%d", LCEC_MODULE_NAME, master->name, slave->name, hal_data->name, j);
+            err = lcec_pin_newf(comp_id, hal_data->type, hal_data->dir, &hal_data->pin[j], "%s.%s.%s.%s-%d", master->instance_name, master->name, slave->name, hal_data->name, j);
             if (err != 0) {
               return err;
             }
@@ -377,12 +377,12 @@ int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t 
       case HAL_U32:
         // check data size
         if (hal_data->bitLength > 32) {
-          rtapi_print_msg(RTAPI_MSG_WARN, LCEC_MSG_PFX "unable to export pin %s.%s.%s.%s: invalid process data bitlen!\n", LCEC_MODULE_NAME, master->name, slave->name, hal_data->name);
+          rtapi_print_msg(RTAPI_MSG_WARN, LCEC_MSG_PFX "unable to export pin %s.%s.%s.%s: invalid process data bitlen!\n", master->instance_name, master->name, slave->name, hal_data->name);
           continue;
         }
 
         // export pin
-        err = lcec_pin_newf(hal_data->type, hal_data->dir, &hal_data->pin[0], "%s.%s.%s.%s", LCEC_MODULE_NAME, master->name, slave->name, hal_data->name);
+        err = lcec_pin_newf(comp_id, hal_data->type, hal_data->dir, &hal_data->pin[0], "%s.%s.%s.%s", master->instance_name, master->name, slave->name, hal_data->name);
         if (err != 0) {
           return err;
         }
@@ -391,12 +391,12 @@ int lcec_generic_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t 
       case HAL_FLOAT:
         // check data size
         if (hal_data->bitLength > 32) {
-          rtapi_print_msg(RTAPI_MSG_WARN, LCEC_MSG_PFX "unable to export pin %s.%s.%s.%s: invalid process data bitlen!\n", LCEC_MODULE_NAME, master->name, slave->name, hal_data->name);
+          rtapi_print_msg(RTAPI_MSG_WARN, LCEC_MSG_PFX "unable to export pin %s.%s.%s.%s: invalid process data bitlen!\n", master->instance_name, master->name, slave->name, hal_data->name);
           continue;
         }
 
         // export pin
-        err = lcec_pin_newf(hal_data->type, hal_data->dir, &hal_data->pin[0], "%s.%s.%s.%s", LCEC_MODULE_NAME, master->name, slave->name, hal_data->name);
+        err = lcec_pin_newf(comp_id, hal_data->type, hal_data->dir, &hal_data->pin[0], "%s.%s.%s.%s", master->instance_name, master->name, slave->name, hal_data->name);
         if (err != 0) {
           return err;
         }

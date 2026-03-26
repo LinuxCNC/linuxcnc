@@ -356,24 +356,25 @@ void lcec_slave_conf_modparam(lcec_slave_conf_state_t *state, LCEC_CONF_MODPARAM
  * all HAL output pins described by @c slave_pins using the three-component
  * name @c "<module>.<master>.<slave>".
  *
+ * @param instance_name Module instance name (first name component, replaces LCEC_MODULE_NAME).
  * @param master_name  Name of the owning master (second name component).
  * @param slave_name   Name of the slave (third name component).
  * @return Pointer to the allocated HAL state structure, or NULL on failure.
  *
  * @note Must be called from init context, not from a real-time thread.
  */
-lcec_slave_state_t *lcec_init_slave_state_hal(char *master_name, char *slave_name) {
+lcec_slave_state_t *lcec_init_slave_state_hal(int comp_id, const char *instance_name, char *master_name, char *slave_name) {
   lcec_slave_state_t *hal_data;
 
   // alloc hal data
   if ((hal_data = hal_malloc(sizeof(lcec_slave_state_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for %s.%s.%s failed\n", LCEC_MODULE_NAME, master_name, slave_name);
+    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for %s.%s.%s failed\n", instance_name, master_name, slave_name);
     return NULL;
   }
   memset(hal_data, 0, sizeof(lcec_slave_state_t));
 
   // export pins
-  if (lcec_pin_newf_list(hal_data, slave_pins, LCEC_MODULE_NAME, master_name, slave_name) != 0) {
+  if (lcec_pin_newf_list(comp_id, hal_data, slave_pins, instance_name, master_name, slave_name) != 0) {
     return NULL;
   }
 

@@ -87,7 +87,7 @@ int lcec_el1xxx_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000 + (i << 4), 0x01, &pin->pdo_os, &pin->pdo_bp);
 
     // export pins
-    if ((err = lcec_pin_newf_list(pin, slave_pins, LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(comp_id, pin, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
   }

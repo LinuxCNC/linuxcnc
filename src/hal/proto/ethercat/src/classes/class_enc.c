@@ -97,12 +97,12 @@ int class_enc_init(struct lcec_slave *slave, lcec_class_enc_data_t *hal_data, in
   int err;
 
   // export pins
-  if ((err = lcec_pin_newf_list(hal_data, slave_pins, LCEC_MODULE_NAME, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_pin_newf_list(master->comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
   // export parameters
-  if ((err = lcec_param_newf_list(hal_data, slave_params, LCEC_MODULE_NAME, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_param_newf_list(master->comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 

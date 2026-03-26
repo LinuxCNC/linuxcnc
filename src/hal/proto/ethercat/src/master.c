@@ -74,7 +74,7 @@ static const lcec_pindesc_t master_pins[] = {
  *
  * @note Must be called from init context, not from a real-time thread.
  */
-lcec_master_data_t *lcec_init_master_hal(const char *pfx, int global) {
+lcec_master_data_t *lcec_init_master_hal(int comp_id, const char *pfx, int global) {
   lcec_master_data_t *hal_data;
 
   // alloc hal data
@@ -85,11 +85,11 @@ lcec_master_data_t *lcec_init_master_hal(const char *pfx, int global) {
   memset(hal_data, 0, sizeof(lcec_master_data_t));
 
   // export pins
-  if (lcec_pin_newf_list(hal_data, master_global_pins, pfx) != 0) {
+  if (lcec_pin_newf_list(comp_id, hal_data, master_global_pins, pfx) != 0) {
     return NULL;
   }
   if (!global) {
-    if (lcec_pin_newf_list(hal_data, master_pins, pfx) != 0) {
+    if (lcec_pin_newf_list(comp_id, hal_data, master_pins, pfx) != 0) {
       return NULL;
     }
   }
@@ -386,11 +386,6 @@ void lcec_read_master(void *arg, long period) {
 
   // update state pins
   lcec_update_master_hal(master->hal_data, &master->ms);
-
-  // update global state
-  global_ms.slaves_responding += master->ms.slaves_responding;
-  global_ms.al_states |= master->ms.al_states;
-  global_ms.link_up = global_ms.link_up && master->ms.link_up;
 
   // process slaves
   for (slave = master->first_slave; slave != NULL; slave = slave->next) {

@@ -31,6 +31,7 @@
 
 #include "hal.h"
 #include "launcher/pkg/cmodule/cmodule.h"
+#include "priv.h"
 
 /** @brief Size in bytes of the read buffer used when feeding data to expat. */
 #define BUFFSIZE 8192
@@ -128,6 +129,8 @@ struct lcec_conf_module {
   int hal_comp_id;                 /**< HAL component ID from hal_init_ex(). */
   LCEC_CONF_HAL_T *conf_hal_data;  /**< HAL pin data block. */
   int shmem_id;                    /**< RTAPI shared-memory segment ID. */
+
+  lcec_rt_context_t rt_ctx;        /**< RT component lifecycle context. */
 };
 
 /** @brief Retrieve the component name from an XML parse instance. */

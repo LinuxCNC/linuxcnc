@@ -381,7 +381,7 @@ int lcec_el7041_1000_init(int comp_id, struct lcec_slave *s, ec_pdo_entry_reg_t 
   LCEC_PDO_INIT(r, s->index, s->vid, s->pid, 0x6010, 0x10, &hd->dcm_tx_toggle_pdo_os,       &hd->dcm_tx_toggle_pdo_bp);
 
   // export pins
-  if ((err = lcec_pin_newf_list(hd, slave_pins, LCEC_MODULE_NAME, m->name, s->name)) != 0) {
+  if ((err = lcec_pin_newf_list(comp_id, hd, slave_pins, m->instance_name, m->name, s->name)) != 0) {
     return err;
   }
 

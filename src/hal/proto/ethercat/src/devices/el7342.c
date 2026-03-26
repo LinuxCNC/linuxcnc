@@ -489,16 +489,16 @@ int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7020 + (i << 4), 0x21, &chan->dcm_velo_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(chan, slave_pins, LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
     if (info1_select == INFO_SEL_MOTOR_VELO || info2_select == INFO_SEL_MOTOR_VELO) {
-      if ((err = lcec_pin_newf(HAL_FLOAT, HAL_OUT, (void **) &(chan->dcm_velo_fb), "%s.%s.%s.srv-%d-velo-fb", LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+      if ((err = lcec_pin_newf(comp_id, HAL_FLOAT, HAL_OUT, (void **) &(chan->dcm_velo_fb), "%s.%s.%s.srv-%d-velo-fb", master->instance_name, master->name, slave->name, i)) != 0) {
         return err;
       }
     }
     if (info1_select == INFO_SEL_MOTOR_CURR || info2_select == INFO_SEL_MOTOR_CURR) {
-      if ((err = lcec_pin_newf(HAL_FLOAT, HAL_OUT, (void **) &(chan->dcm_current_fb), "%s.%s.%s.srv-%d-current-fb", LCEC_MODULE_NAME, master->name, slave->name, i)) != 0) {
+      if ((err = lcec_pin_newf(comp_id, HAL_FLOAT, HAL_OUT, (void **) &(chan->dcm_current_fb), "%s.%s.%s.srv-%d-current-fb", master->instance_name, master->name, slave->name, i)) != 0) {
         return err;
       }
     }

@@ -133,7 +133,7 @@ int lcec_read_idn(struct lcec_slave *slave, uint8_t drive_no, uint16_t idn, uint
  * @return 0 on success, @c -ENOMEM if the formatted name exceeds
  *         @c HAL_NAME_LEN, or the negative error code from @c hal_pin_new().
  */
-int lcec_pin_newfv(hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, va_list ap) {
+int lcec_pin_newfv(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, va_list ap) {
   char name[HAL_NAME_LEN + 1];
   int sz;
   int err;
@@ -183,12 +183,12 @@ int lcec_pin_newfv(hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, con
  * @param ...            Format arguments.
  * @return 0 on success, negative error code on failure.
  */
-int lcec_pin_newf(hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, ...) {
+int lcec_pin_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, ...) {
   va_list ap;
   int err;
 
   va_start(ap, fmt);
-  err = lcec_pin_newfv(type, dir, data_ptr_addr, fmt, ap);
+  err = lcec_pin_newfv(comp_id, type, dir, data_ptr_addr, fmt, ap);
   va_end(ap);
 
   return err;
@@ -211,14 +211,14 @@ int lcec_pin_newf(hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, cons
  * @return 0 on success, negative error code from lcec_pin_newfv() on the
  *         first failure (remaining descriptors are not processed).
  */
-int lcec_pin_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap) {
+int lcec_pin_newfv_list(int comp_id, void *base, const lcec_pindesc_t *list, va_list ap) {
   va_list ac;
   int err;
   const lcec_pindesc_t *p;
 
   for (p = list; p->type != HAL_TYPE_UNSPECIFIED; p++) {
     va_copy(ac, ap);
-    err = lcec_pin_newfv(p->type, p->dir, (void **) ((uint8_t *)base + p->offset), p->fmt, ac);
+    err = lcec_pin_newfv(comp_id, p->type, p->dir, (void **) ((uint8_t *)base + p->offset), p->fmt, ac);
     va_end(ac);
     if (err) {
       return err;
@@ -239,12 +239,12 @@ int lcec_pin_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap) {
  * @param ...   Format arguments consumed by each descriptor's @c fmt string.
  * @return 0 on success, negative error code on the first failure.
  */
-int lcec_pin_newf_list(void *base, const lcec_pindesc_t *list, ...) {
+int lcec_pin_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...) {
   va_list ap;
   int err;
 
   va_start(ap, list);
-  err = lcec_pin_newfv_list(base, list, ap);
+  err = lcec_pin_newfv_list(comp_id, base, list, ap);
   va_end(ap);
 
   return err;
@@ -267,7 +267,7 @@ int lcec_pin_newf_list(void *base, const lcec_pindesc_t *list, ...) {
  * @return 0 on success, @c -ENOMEM if the name is too long, or the
  *         negative error code from @c hal_param_new().
  */
-int lcec_param_newfv(hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, va_list ap) {
+int lcec_param_newfv(int comp_id, hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, va_list ap) {
   char name[HAL_NAME_LEN + 1];
   int sz;
   int err;
@@ -316,12 +316,12 @@ int lcec_param_newfv(hal_type_t type, hal_pin_dir_t dir, void *data_addr, const 
  * @param ...        Format arguments.
  * @return 0 on success, negative error code on failure.
  */
-int lcec_param_newf(hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, ...) {
+int lcec_param_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, ...) {
   va_list ap;
   int err;
 
   va_start(ap, fmt);
-  err = lcec_param_newfv(type, dir, data_addr, fmt, ap);
+  err = lcec_param_newfv(comp_id, type, dir, data_addr, fmt, ap);
   va_end(ap);
 
   return err;
@@ -340,14 +340,14 @@ int lcec_param_newf(hal_type_t type, hal_pin_dir_t dir, void *data_addr, const c
  * @return 0 on success, negative error code from lcec_param_newfv() on the
  *         first failure.
  */
-int lcec_param_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap) {
+int lcec_param_newfv_list(int comp_id, void *base, const lcec_pindesc_t *list, va_list ap) {
   va_list ac;
   int err;
   const lcec_pindesc_t *p;
 
   for (p = list; p->type != HAL_TYPE_UNSPECIFIED; p++) {
     va_copy(ac, ap);
-    err = lcec_param_newfv(p->type, p->dir, (void *) ((uint8_t *)base + p->offset), p->fmt, ac);
+    err = lcec_param_newfv(comp_id, p->type, p->dir, (void *) ((uint8_t *)base + p->offset), p->fmt, ac);
     va_end(ac);
     if (err) {
       return err;
@@ -367,12 +367,12 @@ int lcec_param_newfv_list(void *base, const lcec_pindesc_t *list, va_list ap) {
  * @param ...   Format arguments for each descriptor's @c fmt string.
  * @return 0 on success, negative error code on the first failure.
  */
-int lcec_param_newf_list(void *base, const lcec_pindesc_t *list, ...) {
+int lcec_param_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...) {
   va_list ap;
   int err;
 
   va_start(ap, list);
-  err = lcec_param_newfv_list(base, list, ap);
+  err = lcec_param_newfv_list(comp_id, base, list, ap);
   va_end(ap);
 
   return err;
