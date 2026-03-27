@@ -1,4 +1,4 @@
-#!/usr/bin/python3.11
+#!/usr/bin/env python3
 
 #26.03.2026 clean comments and doclines
 #
