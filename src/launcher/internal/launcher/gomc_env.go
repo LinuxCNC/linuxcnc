@@ -160,3 +160,30 @@ func gomc_ini_source_file(ctx unsafe.Pointer) *C.char {
 	l.cModArena = append(l.cModArena, unsafe.Pointer(cs))
 	return cs
 }
+
+//export gomc_ini_get_all
+func gomc_ini_get_all(ctx unsafe.Pointer, section, key *C.char, outCount *C.int) **C.char {
+	l := cgo.Handle(uintptr(ctx)).Value().(*Launcher)
+	vals := l.ini.GetAll(C.GoString(section), C.GoString(key))
+	n := len(vals)
+	*outCount = C.int(n)
+	if n == 0 {
+		return nil
+	}
+
+	// Arena-allocate the pointer array (n+1 entries, NULL-terminated)
+	// and each string.  All freed in destroyCModules via cModArena.
+	ptrSize := unsafe.Sizeof((*C.char)(nil))
+	arr := (**C.char)(C.malloc(C.size_t(uintptr(n+1) * ptrSize)))
+	l.cModArena = append(l.cModArena, unsafe.Pointer(arr))
+
+	for i, v := range vals {
+		cs := C.CString(v)
+		l.cModArena = append(l.cModArena, unsafe.Pointer(cs))
+		*(**C.char)(unsafe.Add(unsafe.Pointer(arr), uintptr(i)*ptrSize)) = cs
+	}
+	// NULL terminator
+	*(**C.char)(unsafe.Add(unsafe.Pointer(arr), uintptr(n)*ptrSize)) = nil
+
+	return arr
+}

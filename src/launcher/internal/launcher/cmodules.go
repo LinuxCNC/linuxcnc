@@ -88,6 +88,7 @@ static int gomc_rtapi_pll_set_correction_cb(void *ctx, long value) {
 // --- INI callbacks (forward-declared, implemented in Go via //export) ---
 
 extern char* gomc_ini_get(void *ctx, char *section, char *key);
+extern char** gomc_ini_get_all(void *ctx, char *section, char *key, int *out_count);
 extern char* gomc_ini_source_file(void *ctx);
 
 // --- Env initialisation helpers ---
@@ -99,6 +100,7 @@ static void gomc_log_init(gomc_log_t *log, gomc_log_ring_t *ring) {
 static void gomc_ini_init(gomc_ini_t *ini, void *ctx) {
     ini->ctx         = ctx;
     ini->get         = (const char*(*)(void*,const char*,const char*))gomc_ini_get;
+    ini->get_all     = (const char**(*)(void*,const char*,const char*,int*))gomc_ini_get_all;
     ini->source_file = (const char*(*)(void*))gomc_ini_source_file;
 }
 
