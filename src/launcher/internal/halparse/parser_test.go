@@ -1744,3 +1744,83 @@ func TestCollectLoadRTToken(t *testing.T) {
 		}
 	})
 }
+
+// TestSingleFileParser_TemplateRendering verifies that NewSingleFileParser
+// builds templateData from INI so that Go templates in HAL files are rendered
+// before parsing.
+func TestSingleFileParser_TemplateRendering(t *testing.T) {
+	ini := &mockINI{data: map[string]map[string]string{
+		"GALV": {"POOL_COUNT": "2", "MIXERS_PER_POOL": "3"},
+	}}
+	sp := NewSingleFileParser(ini, nil)
+
+	content := `{{- $n := atoi (ini "GALV" "POOL_COUNT") -}}
+{{- range $i := count $n}}
+setp pool.{{$i}}.enable 1
+{{- end}}
+`
+	result, err := sp.ParseContent("test.hal", content)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	// count 2 → indices 0, 1 → two setp commands
+	if len(result.HALCmd) != 2 {
+		t.Fatalf("expected 2 HALCmd tokens, got %d", len(result.HALCmd))
+	}
+	for i, tok := range result.HALCmd {
+		st, ok := tok.Data.(*SetPToken)
+		if !ok {
+			t.Fatalf("token %d: expected *SetPToken, got %T", i, tok.Data)
+		}
+		want := fmt.Sprintf("pool.%d.enable", i)
+		if st.Name != want {
+			t.Errorf("token %d: Name = %q, want %q", i, st.Name, want)
+		}
+	}
+}
+
+// TestSingleFileParser_TemplateDisabledWithoutINI verifies that when no INI
+// is provided, template directives pass through (no panic / no rendering).
+func TestSingleFileParser_TemplateDisabledWithoutINI(t *testing.T) {
+	sp := NewSingleFileParser(nil, nil)
+	content := "{{range count 2}}setp x.{{.}} 1\n{{end}}"
+	// Without INI the template should NOT be rendered; the "{{range" token
+	// will be seen as an unknown command, producing a parse error.
+	_, err := sp.ParseContent("test.hal", content)
+	if err == nil {
+		t.Fatal("expected parse error when templates are used without INI, got nil")
+	}
+}
+
+// TestMultiFileParser_TemplateRendering verifies that NewMultiFileParser
+// propagates templateData so templates work across multiple files.
+func TestMultiFileParser_TemplateRendering(t *testing.T) {
+	ini := &mockINI{data: map[string]map[string]string{
+		"TEST": {"COUNT": "2"},
+	}}
+	mp := NewMultiFileParser(ini, nil)
+
+	// Write a temp HAL file with a template
+	tmp, err := os.CreateTemp("", "hal-tmpl-*.hal")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmp.Name())
+	content := `{{- $n := atoi (ini "TEST" "COUNT") -}}
+{{- range $i := count $n}}
+setp axis.{{$i}}.scale 100
+{{- end}}
+`
+	if _, err := tmp.WriteString(content); err != nil {
+		t.Fatal(err)
+	}
+	tmp.Close()
+
+	result, err := mp.Parse([]string{tmp.Name()})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(result.HALCmd) != 2 {
+		t.Fatalf("expected 2 HALCmd tokens, got %d", len(result.HALCmd))
+	}
+}

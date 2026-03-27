@@ -886,7 +886,11 @@ func (sp *SingleFileParser) Parse(path string) (*ParseResult, error) {
 // NewSingleFileParser creates a SingleFileParser with the given INILookup and
 // PathResolver. Either argument may be nil.
 func NewSingleFileParser(ini INILookup, resolver PathResolver) *SingleFileParser {
-	return &SingleFileParser{ini: ini, resolver: resolver}
+	var td *HalTemplateData
+	if ini != nil {
+		td = NewHalTemplateData(ini.GetAll())
+	}
+	return &SingleFileParser{ini: ini, templateData: td, resolver: resolver}
 }
 
 // ParseContent parses HAL commands from an in-memory string instead of a file.
@@ -912,7 +916,11 @@ type MultiFileParser struct {
 // NewMultiFileParser creates a MultiFileParser with the given INILookup and
 // PathResolver. Either argument may be nil.
 func NewMultiFileParser(ini INILookup, resolver PathResolver) *MultiFileParser {
-	return &MultiFileParser{ini: ini, resolver: resolver}
+	var td *HalTemplateData
+	if ini != nil {
+		td = NewHalTemplateData(ini.GetAll())
+	}
+	return &MultiFileParser{ini: ini, templateData: td, resolver: resolver}
 }
 
 // Parse parses each file and returns a single merged ParseResult. The first
