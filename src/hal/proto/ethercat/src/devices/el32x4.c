@@ -37,15 +37,15 @@
  * @brief Per-channel HAL pins and PDO offsets for one EL32x4 input channel.
  */
 typedef struct {
-  hal_bit_t *overrange;      /**< HAL bit output: signal exceeds measurable range. */
-  hal_bit_t *underrange;     /**< HAL bit output: signal is below the measurable range. */
-  hal_bit_t *error;          /**< HAL bit output: channel error flag. */
-  hal_bit_t *tx_state;       /**< HAL bit output: TxPDO state indicator. */
-  hal_bit_t *tx_toggle;      /**< HAL bit output: TxPDO toggle bit; toggles each cycle to confirm data freshness. */
-  hal_s32_t *raw_val;        /**< HAL s32 output: raw 16-bit signed ADC value from the terminal. */
-  hal_float_t *scale;        /**< HAL float I/O: multiplier applied before adding bias (default 1.0). */
-  hal_float_t *bias;         /**< HAL float I/O: offset added after scaling (default 0.0). */
-  hal_float_t *val;          /**< HAL float output: final value = bias + scale * raw * 0.1. */
+  gomc_hal_bit_t *overrange;      /**< HAL bit output: signal exceeds measurable range. */
+  gomc_hal_bit_t *underrange;     /**< HAL bit output: signal is below the measurable range. */
+  gomc_hal_bit_t *error;          /**< HAL bit output: channel error flag. */
+  gomc_hal_bit_t *tx_state;       /**< HAL bit output: TxPDO state indicator. */
+  gomc_hal_bit_t *tx_toggle;      /**< HAL bit output: TxPDO toggle bit; toggles each cycle to confirm data freshness. */
+  gomc_hal_s32_t *raw_val;        /**< HAL s32 output: raw 16-bit signed ADC value from the terminal. */
+  gomc_hal_float_t *scale;        /**< HAL float I/O: multiplier applied before adding bias (default 1.0). */
+  gomc_hal_float_t *bias;         /**< HAL float I/O: offset added after scaling (default 0.0). */
+  gomc_hal_float_t *val;          /**< HAL float output: final value = bias + scale * raw * 0.1. */
   unsigned int ovr_pdo_os;   /**< Byte offset of the overrange bit in the EtherCAT process data image. */
   unsigned int ovr_pdo_bp;   /**< Bit position of the overrange flag within its byte. */
   unsigned int udr_pdo_os;   /**< Byte offset of the underrange bit in the EtherCAT process data image. */
@@ -60,16 +60,16 @@ typedef struct {
 } lcec_el32x4_chan_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el32x4_chan_t, error), "%s.%s.%s.ain-%d-error" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el32x4_chan_t, overrange), "%s.%s.%s.ain-%d-overrange" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el32x4_chan_t, underrange), "%s.%s.%s.ain-%d-underrange" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el32x4_chan_t, tx_state), "%s.%s.%s.ain-%d-tx-state" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el32x4_chan_t, tx_toggle), "%s.%s.%s.ain-%d-tx-toggle" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el32x4_chan_t, raw_val), "%s.%s.%s.ain-%d-raw" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el32x4_chan_t, val), "%s.%s.%s.ain-%d-val" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el32x4_chan_t, scale), "%s.%s.%s.ain-%d-scale" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el32x4_chan_t, bias), "%s.%s.%s.ain-%d-bias" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el32x4_chan_t, error), "%s.%s.%s.ain-%d-error" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el32x4_chan_t, overrange), "%s.%s.%s.ain-%d-overrange" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el32x4_chan_t, underrange), "%s.%s.%s.ain-%d-underrange" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el32x4_chan_t, tx_state), "%s.%s.%s.ain-%d-tx-state" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el32x4_chan_t, tx_toggle), "%s.%s.%s.ain-%d-tx-toggle" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el32x4_chan_t, raw_val), "%s.%s.%s.ain-%d-raw" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el32x4_chan_t, val), "%s.%s.%s.ain-%d-val" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el32x4_chan_t, scale), "%s.%s.%s.ain-%d-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el32x4_chan_t, bias), "%s.%s.%s.ain-%d-bias" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /**
@@ -98,6 +98,7 @@ void lcec_el32x4_read(struct lcec_slave *slave, long period);
  */
 int lcec_el32x4_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el32x4_data_t *hal_data;
   lcec_el32x4_chan_t *chan;
   int i;
@@ -107,8 +108,8 @@ int lcec_el32x4_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_read = lcec_el32x4_read;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el32x4_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el32x4_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el32x4_data_t));
@@ -127,7 +128,7 @@ int lcec_el32x4_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000 + (i << 4), 0x11, &chan->val_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 

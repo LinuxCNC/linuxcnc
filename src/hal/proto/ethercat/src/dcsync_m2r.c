@@ -20,7 +20,7 @@
  *      synchronisation.
  *   3. post_send()   – runs the PI controller and applies the PLL correction.
  *
- * This file is compiled only when @c RTAPI_TASK_PLL_SUPPORT is defined.
+ * This file is compiled only when @c GOMC_RTAPI_TASK_PLL_SUPPORT is defined.
  *
  * @copyright Copyright (C) 2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *
@@ -41,7 +41,7 @@
 
 #include "priv.h"
 
-#ifdef RTAPI_TASK_PLL_SUPPORT
+#ifdef GOMC_RTAPI_TASK_PLL_SUPPORT
 
 /**
  * @brief Target closed-loop settling time in seconds.
@@ -126,8 +126,9 @@ static inline int32_t clamp32(int64_t val) {
  * @note Side effect: modifies @c master->app_time_ns.
  */
 static void cycle_start(struct lcec_master *master) {
+  const gomc_rtapi_t *rtapi = master->rt_ctx->env->rtapi;
   if (master->app_time_ns == 0) {
-    master->app_time_ns = master->rt_ctx->dc_time_offset + rtapi_task_pll_get_reference();
+    master->app_time_ns = master->rt_ctx->dc_time_offset + rtapi->pll_get_reference(rtapi->ctx);
   } else {
     master->app_time_ns += master->app_time_period;
   }
@@ -170,6 +171,7 @@ static void cycle_start(struct lcec_master *master) {
  *       @c pll_reset_cnt HAL pins.
  */
 static void pre_send(struct lcec_master *master) {
+  const gomc_rtapi_t *rtapi = master->rt_ctx->env->rtapi;
   lcec_master_data_t *hal_data = master->hal_data;
   uint32_t ref_time_ns;
 
@@ -215,7 +217,7 @@ static void pre_send(struct lcec_master *master) {
 
   // capture current time for next cycle
   master->dc_time_ns = master->app_time_ns
-    + (rtapi_get_time() - rtapi_task_pll_get_reference());
+    + (rtapi->get_time(rtapi->ctx) - rtapi->pll_get_reference(rtapi->ctx));
 }
 
 /**
@@ -248,6 +250,7 @@ static void pre_send(struct lcec_master *master) {
  *       @c rtapi_task_pll_set_correction(), and updates the @c pll_out HAL pin.
  */
 static void post_send(struct lcec_master *master) {
+  const gomc_rtapi_t *rtapi = master->rt_ctx->env->rtapi;
   lcec_master_data_t *hal_data = master->hal_data;
 
   // check if DC has started initially
@@ -274,7 +277,7 @@ static void post_send(struct lcec_master *master) {
   if (correction < -DC_CORRECTION_MAX_NS) correction = -DC_CORRECTION_MAX_NS;
 
   int32_t correction_ns = (int32_t)correction;
-  rtapi_task_pll_set_correction(correction_ns);
+  rtapi->pll_set_correction(rtapi->ctx, correction_ns);
   *(hal_data->pll_out) = correction_ns;
 }
 
@@ -302,7 +305,7 @@ static void post_send(struct lcec_master *master) {
  * @param master  Master to configure.  @c master->app_time_period must already
  *                be set to the servo period in nanoseconds before this call.
  *
- * @note This function is available only when @c RTAPI_TASK_PLL_SUPPORT is
+ * @note This function is available only when @c GOMC_RTAPI_TASK_PLL_SUPPORT is
  *       defined at compile time.
  * @note Non-real-time: called once during component initialisation.
  */

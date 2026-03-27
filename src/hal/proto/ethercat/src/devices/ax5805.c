@@ -37,18 +37,18 @@
  * @brief Internal HAL data for the AX5805 TwinSAFE card.
  */
 typedef struct {
-  hal_u32_t *fsoe_master_cmd;      /**< HAL OUT: FSoE master command byte. */
-  hal_u32_t *fsoe_master_crc0;     /**< HAL OUT: FSoE master CRC for channel 0. */
-  hal_u32_t *fsoe_master_crc1;     /**< HAL OUT: FSoE master CRC for channel 1 (dual-axis only). */
-  hal_u32_t *fsoe_master_connid;   /**< HAL OUT: FSoE master connection ID. */
+  gomc_hal_u32_t *fsoe_master_cmd;      /**< HAL OUT: FSoE master command byte. */
+  gomc_hal_u32_t *fsoe_master_crc0;     /**< HAL OUT: FSoE master CRC for channel 0. */
+  gomc_hal_u32_t *fsoe_master_crc1;     /**< HAL OUT: FSoE master CRC for channel 1 (dual-axis only). */
+  gomc_hal_u32_t *fsoe_master_connid;   /**< HAL OUT: FSoE master connection ID. */
 
-  hal_u32_t *fsoe_slave_cmd;       /**< HAL OUT: FSoE slave command byte. */
-  hal_u32_t *fsoe_slave_crc0;      /**< HAL OUT: FSoE slave CRC for channel 0. */
-  hal_u32_t *fsoe_slave_crc1;      /**< HAL OUT: FSoE slave CRC for channel 1 (dual-axis only). */
-  hal_u32_t *fsoe_slave_connid;    /**< HAL OUT: FSoE slave connection ID. */
+  gomc_hal_u32_t *fsoe_slave_cmd;       /**< HAL OUT: FSoE slave command byte. */
+  gomc_hal_u32_t *fsoe_slave_crc0;      /**< HAL OUT: FSoE slave CRC for channel 0. */
+  gomc_hal_u32_t *fsoe_slave_crc1;      /**< HAL OUT: FSoE slave CRC for channel 1 (dual-axis only). */
+  gomc_hal_u32_t *fsoe_slave_connid;    /**< HAL OUT: FSoE slave connection ID. */
 
-  hal_bit_t *fsoe_in_sto0;         /**< HAL OUT: Safe Torque Off status for axis 0. */
-  hal_bit_t *fsoe_in_sto1;         /**< HAL OUT: Safe Torque Off status for axis 1 (dual-axis only). */
+  gomc_hal_bit_t *fsoe_in_sto0;         /**< HAL OUT: Safe Torque Off status for axis 0. */
+  gomc_hal_bit_t *fsoe_in_sto1;         /**< HAL OUT: Safe Torque Off status for axis 1 (dual-axis only). */
 
   unsigned int fsoe_master_cmd_os;    /**< PDO byte offset: FSoE master command. */
   unsigned int fsoe_master_crc0_os;   /**< PDO byte offset: FSoE master CRC channel 0. */
@@ -68,28 +68,28 @@ typedef struct {
 } lcec_ax5805_data_t;
 
 static const lcec_pindesc_t slave_pins_1ch[] = {
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_cmd), "%s.%s.%s.fsoe-master-cmd" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_crc0), "%s.%s.%s.fsoe-master-crc" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_connid), "%s.%s.%s.fsoe-master-connid" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_cmd), "%s.%s.%s.fsoe-slave-cmd" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_crc0), "%s.%s.%s.fsoe-slave-crc" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_connid), "%s.%s.%s.fsoe-slave-connid" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_in_sto0), "%s.%s.%s.fsoe-in-sto" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_cmd), "%s.%s.%s.fsoe-master-cmd" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_crc0), "%s.%s.%s.fsoe-master-crc" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_connid), "%s.%s.%s.fsoe-master-connid" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_cmd), "%s.%s.%s.fsoe-slave-cmd" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_crc0), "%s.%s.%s.fsoe-slave-crc" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_connid), "%s.%s.%s.fsoe-slave-connid" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_in_sto0), "%s.%s.%s.fsoe-in-sto" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_pins_2ch[] = {
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_cmd), "%s.%s.%s.fsoe-master-cmd" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_crc0), "%s.%s.%s.fsoe-master-crc-0" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_crc1), "%s.%s.%s.fsoe-master-crc-1" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_connid), "%s.%s.%s.fsoe-master-connid" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_cmd), "%s.%s.%s.fsoe-slave-cmd" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_crc0), "%s.%s.%s.fsoe-slave-crc-0" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_crc1), "%s.%s.%s.fsoe-slave-crc-1" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_connid), "%s.%s.%s.fsoe-slave-connid" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_in_sto0), "%s.%s.%s.fsoe-in-sto-0" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_in_sto1), "%s.%s.%s.fsoe-in-sto-1" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_cmd), "%s.%s.%s.fsoe-master-cmd" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_crc0), "%s.%s.%s.fsoe-master-crc-0" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_crc1), "%s.%s.%s.fsoe-master-crc-1" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_master_connid), "%s.%s.%s.fsoe-master-connid" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_cmd), "%s.%s.%s.fsoe-slave-cmd" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_crc0), "%s.%s.%s.fsoe-slave-crc-0" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_crc1), "%s.%s.%s.fsoe-slave-crc-1" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_slave_connid), "%s.%s.%s.fsoe-slave-connid" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_in_sto0), "%s.%s.%s.fsoe-in-sto-0" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ax5805_data_t, fsoe_in_sto1), "%s.%s.%s.fsoe-in-sto-1" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 void lcec_ax5805_chancount(struct lcec_slave *slave);
@@ -102,13 +102,13 @@ int lcec_ax5805_preinit(struct lcec_slave *slave) {
   // try to find corresponding ax5n
   ax5n_slave = lcec_slave_by_index(master, slave->index - 1);
   if (ax5n_slave == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "%s.%s: Unable to find corresponding AX5nxx with index %d.\n", master->name, slave->name, slave->index - 1);
+    LCEC_ERR(master, "%s.%s: Unable to find corresponding AX5nxx with index %d.", master->name, slave->name, slave->index - 1);
     return -EINVAL;
   }
 
   // check for AX5nxx
   if (ax5n_slave->proc_preinit != lcec_ax5100_preinit && ax5n_slave->proc_preinit != lcec_ax5200_preinit) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "%s.%s: Slave with index %d is not an AX5nxx.\n", master->name, slave->name, ax5n_slave->index);
+    LCEC_ERR(master, "%s.%s: Slave with index %d is not an AX5nxx.", master->name, slave->name, ax5n_slave->index);
     return -EINVAL;
   }
 
@@ -118,7 +118,7 @@ int lcec_ax5805_preinit(struct lcec_slave *slave) {
   // use FSOE config from AX5nxx
   slave->fsoeConf = ax5n_slave->fsoeConf;
   if (slave->fsoeConf == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "%s.%s: Corresponding AX5nxx with index %d has no FSOE config.\n", master->name, slave->name, ax5n_slave->index);
+    LCEC_ERR(master, "%s.%s: Corresponding AX5nxx with index %d has no FSOE config.", master->name, slave->name, ax5n_slave->index);
     return -EINVAL;
   }
 
@@ -130,6 +130,7 @@ int lcec_ax5805_preinit(struct lcec_slave *slave) {
 
 int lcec_ax5805_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_ax5805_data_t *hal_data;
   int err;
   const lcec_pindesc_t *slave_pins;
@@ -138,8 +139,8 @@ int lcec_ax5805_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_read = lcec_ax5805_read;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_ax5805_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_ax5805_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_ax5805_data_t));
@@ -166,7 +167,7 @@ int lcec_ax5805_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   }
 
   // export pins
-  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 

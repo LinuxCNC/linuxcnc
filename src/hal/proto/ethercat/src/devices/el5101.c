@@ -54,30 +54,30 @@
  * @brief HAL pins and PDO mapping data for the EL5101 incremental encoder.
  */
 typedef struct {
-  hal_bit_t *ena_latch_c;         /**< HAL IO: enable C-index latch; cleared automatically when latch is captured. */
-  hal_bit_t *ena_latch_ext_pos;   /**< HAL IO: enable external latch on positive edge; auto-cleared on capture. */
-  hal_bit_t *ena_latch_ext_neg;   /**< HAL IO: enable external latch on negative edge; auto-cleared on capture. */
-  hal_bit_t *reset;               /**< HAL IN: reset the relative position counter to zero. */
-  hal_bit_t *inext;               /**< HAL OUT: current state of the external latch input (status bit 5). */
-  hal_bit_t *overflow;            /**< HAL OUT: counter overflow flag (status bit 4). */
-  hal_bit_t *underflow;           /**< HAL OUT: counter underflow flag (status bit 3). */
-  hal_bit_t *latch_c_valid;       /**< HAL OUT: C-index latch value is valid (status bit 0). */
-  hal_bit_t *latch_ext_valid;     /**< HAL OUT: external latch value is valid (status bit 1). */
-  hal_bit_t *set_raw_count;       /**< HAL IO: pulse high to preset the hardware counter; cleared when acknowledged. */
-  hal_s32_t *set_raw_count_val;   /**< HAL IN: value to load into the counter when set_raw_count is asserted. */
-  hal_s32_t *raw_count;           /**< HAL OUT: raw 16-bit counter value from the terminal. */
-  hal_s32_t *raw_latch;           /**< HAL OUT: counter value captured at the last latch event. */
-  hal_u32_t *raw_frequency;       /**< HAL OUT: raw frequency measurement value from the terminal. */
-  hal_u32_t *raw_period;          /**< HAL OUT: raw period measurement value from the terminal. */
-  hal_u32_t *raw_window;          /**< HAL OUT: raw measurement window value from the terminal. */
-  hal_s32_t *count;               /**< HAL OUT: relative position count (zeroed on reset or latch event). */
-  hal_float_t *pos_scale;         /**< HAL IO: counts per user unit; reciprocal applied internally. */
-  hal_float_t *pos;               /**< HAL OUT: scaled position in user units. */
-  hal_float_t *period;            /**< HAL OUT: encoder period in seconds (raw_period * LCEC_EL5101_PERIOD_SCALE). */
-  hal_float_t *frequency;         /**< HAL OUT: encoder frequency in Hz (raw_frequency * LCEC_EL5101_FREQUENCY_SCALE * freq_scale). */
-  hal_float_t *freq_scale;        /**< HAL IO: additional frequency scaling factor applied on top of LCEC_EL5101_FREQUENCY_SCALE. */
-  hal_float_t *freq_filter_gain;  /**< HAL IO: IIR filter gain (0–1) applied to the frequency output; 1.0 = no filtering. */
-  hal_float_t *freq_filtered;     /**< HAL OUT: low-pass filtered frequency value. */
+  gomc_hal_bit_t *ena_latch_c;         /**< HAL IO: enable C-index latch; cleared automatically when latch is captured. */
+  gomc_hal_bit_t *ena_latch_ext_pos;   /**< HAL IO: enable external latch on positive edge; auto-cleared on capture. */
+  gomc_hal_bit_t *ena_latch_ext_neg;   /**< HAL IO: enable external latch on negative edge; auto-cleared on capture. */
+  gomc_hal_bit_t *reset;               /**< HAL IN: reset the relative position counter to zero. */
+  gomc_hal_bit_t *inext;               /**< HAL OUT: current state of the external latch input (status bit 5). */
+  gomc_hal_bit_t *overflow;            /**< HAL OUT: counter overflow flag (status bit 4). */
+  gomc_hal_bit_t *underflow;           /**< HAL OUT: counter underflow flag (status bit 3). */
+  gomc_hal_bit_t *latch_c_valid;       /**< HAL OUT: C-index latch value is valid (status bit 0). */
+  gomc_hal_bit_t *latch_ext_valid;     /**< HAL OUT: external latch value is valid (status bit 1). */
+  gomc_hal_bit_t *set_raw_count;       /**< HAL IO: pulse high to preset the hardware counter; cleared when acknowledged. */
+  gomc_hal_s32_t *set_raw_count_val;   /**< HAL IN: value to load into the counter when set_raw_count is asserted. */
+  gomc_hal_s32_t *raw_count;           /**< HAL OUT: raw 16-bit counter value from the terminal. */
+  gomc_hal_s32_t *raw_latch;           /**< HAL OUT: counter value captured at the last latch event. */
+  gomc_hal_u32_t *raw_frequency;       /**< HAL OUT: raw frequency measurement value from the terminal. */
+  gomc_hal_u32_t *raw_period;          /**< HAL OUT: raw period measurement value from the terminal. */
+  gomc_hal_u32_t *raw_window;          /**< HAL OUT: raw measurement window value from the terminal. */
+  gomc_hal_s32_t *count;               /**< HAL OUT: relative position count (zeroed on reset or latch event). */
+  gomc_hal_float_t *pos_scale;         /**< HAL IO: counts per user unit; reciprocal applied internally. */
+  gomc_hal_float_t *pos;               /**< HAL OUT: scaled position in user units. */
+  gomc_hal_float_t *period;            /**< HAL OUT: encoder period in seconds (raw_period * LCEC_EL5101_PERIOD_SCALE). */
+  gomc_hal_float_t *frequency;         /**< HAL OUT: encoder frequency in Hz (raw_frequency * LCEC_EL5101_FREQUENCY_SCALE * freq_scale). */
+  gomc_hal_float_t *freq_scale;        /**< HAL IO: additional frequency scaling factor applied on top of LCEC_EL5101_FREQUENCY_SCALE. */
+  gomc_hal_float_t *freq_filter_gain;  /**< HAL IO: IIR filter gain (0–1) applied to the frequency output; 1.0 = no filtering. */
+  gomc_hal_float_t *freq_filtered;     /**< HAL OUT: low-pass filtered frequency value. */
 
   unsigned int status_pdo_os;     /**< Byte offset of the 8-bit status byte in process data image. */
   unsigned int value_pdo_os;      /**< Byte offset of the 16-bit counter value in process data image. */
@@ -97,31 +97,31 @@ typedef struct {
 } lcec_el5101_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5101_data_t, ena_latch_c), "%s.%s.%s.enc-index-c-enable" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5101_data_t, ena_latch_ext_pos), "%s.%s.%s.enc-index-ext-pos-enable" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5101_data_t, ena_latch_ext_neg), "%s.%s.%s.enc-index-ext-neg-enable" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el5101_data_t, reset), "%s.%s.%s.enc-reset" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5101_data_t, inext), "%s.%s.%s.enc-inext" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5101_data_t, overflow), "%s.%s.%s.enc-overflow" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5101_data_t, underflow), "%s.%s.%s.enc-underflow" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5101_data_t, latch_c_valid), "%s.%s.%s.enc-latch-c-valid" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5101_data_t, latch_ext_valid), "%s.%s.%s.enc-latch-ext-valid" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5101_data_t, set_raw_count), "%s.%s.%s.enc-set-raw-count" },
-  { HAL_S32, HAL_IN, offsetof(lcec_el5101_data_t, set_raw_count_val), "%s.%s.%s.enc-set-raw-count-val" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5101_data_t, raw_count), "%s.%s.%s.enc-raw-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5101_data_t, count), "%s.%s.%s.enc-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5101_data_t, raw_latch), "%s.%s.%s.enc-raw-latch" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el5101_data_t, raw_frequency), "%s.%s.%s.enc-raw-freq" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el5101_data_t, raw_period), "%s.%s.%s.enc-raw-period" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el5101_data_t, raw_window), "%s.%s.%s.enc-raw-window" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el5101_data_t, pos), "%s.%s.%s.enc-pos" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el5101_data_t, period), "%s.%s.%s.enc-period" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el5101_data_t, frequency), "%s.%s.%s.enc-frequency" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el5101_data_t, pos_scale), "%s.%s.%s.enc-pos-scale" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el5101_data_t, freq_scale), "%s.%s.%s.enc-freq-scale" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el5101_data_t, freq_filter_gain), "%s.%s.%s.enc-freq-filter-gain" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el5101_data_t, freq_filtered), "%s.%s.%s.enc-freq-filtered" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5101_data_t, ena_latch_c), "%s.%s.%s.enc-index-c-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5101_data_t, ena_latch_ext_pos), "%s.%s.%s.enc-index-ext-pos-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5101_data_t, ena_latch_ext_neg), "%s.%s.%s.enc-index-ext-neg-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el5101_data_t, reset), "%s.%s.%s.enc-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, inext), "%s.%s.%s.enc-inext" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, overflow), "%s.%s.%s.enc-overflow" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, underflow), "%s.%s.%s.enc-underflow" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, latch_c_valid), "%s.%s.%s.enc-latch-c-valid" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, latch_ext_valid), "%s.%s.%s.enc-latch-ext-valid" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5101_data_t, set_raw_count), "%s.%s.%s.enc-set-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_IN, offsetof(lcec_el5101_data_t, set_raw_count_val), "%s.%s.%s.enc-set-raw-count-val" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, raw_count), "%s.%s.%s.enc-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, count), "%s.%s.%s.enc-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, raw_latch), "%s.%s.%s.enc-raw-latch" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, raw_frequency), "%s.%s.%s.enc-raw-freq" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, raw_period), "%s.%s.%s.enc-raw-period" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, raw_window), "%s.%s.%s.enc-raw-window" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, pos), "%s.%s.%s.enc-pos" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, period), "%s.%s.%s.enc-period" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, frequency), "%s.%s.%s.enc-frequency" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el5101_data_t, pos_scale), "%s.%s.%s.enc-pos-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el5101_data_t, freq_scale), "%s.%s.%s.enc-freq-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el5101_data_t, freq_filter_gain), "%s.%s.%s.enc-freq-filter-gain" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el5101_data_t, freq_filtered), "%s.%s.%s.enc-freq-filtered" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_el5101_in[] = {
@@ -176,6 +176,7 @@ void lcec_el5101_write(struct lcec_slave *slave, long period);
  */
 int lcec_el5101_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el5101_data_t *hal_data;
   int err;
 
@@ -184,8 +185,8 @@ int lcec_el5101_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_el5101_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el5101_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el5101_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el5101_data_t));
@@ -208,7 +209,7 @@ int lcec_el5101_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7000, 0x02, &hal_data->setval_pdo_os, NULL);
 
   // export pins
-  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 

@@ -34,29 +34,29 @@
 
 /** @brief HAL pin descriptors exported for every master instance, including the global summary master. */
 static const lcec_pindesc_t master_global_pins[] = {
-  { HAL_U32, HAL_OUT, offsetof(lcec_master_data_t, slaves_responding), "%s.slaves-responding" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_master_data_t, state_init), "%s.state-init" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_master_data_t, state_preop), "%s.state-preop" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_master_data_t, state_safeop), "%s.state-safeop" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_master_data_t, state_op), "%s.state-op" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_master_data_t, link_up), "%s.link-up" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_master_data_t, all_op), "%s.all-op" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_master_data_t, slaves_responding), "%s.slaves-responding" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_master_data_t, state_init), "%s.state-init" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_master_data_t, state_preop), "%s.state-preop" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_master_data_t, state_safeop), "%s.state-safeop" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_master_data_t, state_op), "%s.state-op" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_master_data_t, link_up), "%s.link-up" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_master_data_t, all_op), "%s.all-op" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /**
  * @brief HAL pin descriptors exported only for individual (non-global) master instances.
  *
- * These pins are conditionally compiled based on @c RTAPI_TASK_PLL_SUPPORT and
+ * These pins are conditionally compiled based on @c GOMC_RTAPI_TASK_PLL_SUPPORT and
  * provide PLL synchronisation diagnostics for the DC reference clock.
  */
 static const lcec_pindesc_t master_pins[] = {
-#ifdef RTAPI_TASK_PLL_SUPPORT
-  { HAL_S32, HAL_OUT, offsetof(lcec_master_data_t, pll_err), "%s.pll-err" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_master_data_t, pll_out), "%s.pll-out" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_master_data_t, pll_reset_cnt), "%s.pll-reset-count" },
+#ifdef GOMC_RTAPI_TASK_PLL_SUPPORT
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_master_data_t, pll_err), "%s.pll-err" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_master_data_t, pll_out), "%s.pll-out" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_master_data_t, pll_reset_cnt), "%s.pll-reset-count" },
 #endif
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /**
@@ -65,7 +65,7 @@ static const lcec_pindesc_t master_pins[] = {
  * Allocates a zeroed @c lcec_master_data_t from HAL shared memory and registers
  * all HAL output pins described by @c master_global_pins.  When @p global is
  * zero the per-master pins from @c master_pins are also registered (includes
- * PLL diagnostic pins when @c RTAPI_TASK_PLL_SUPPORT is defined).
+ * PLL diagnostic pins when @c GOMC_RTAPI_TASK_PLL_SUPPORT is defined).
  *
  * @param pfx    HAL name prefix for all pins (e.g. @c "lcec.0").
  * @param global Non-zero when creating the aggregate "global" summary master;
@@ -74,22 +74,22 @@ static const lcec_pindesc_t master_pins[] = {
  *
  * @note Must be called from init context, not from a real-time thread.
  */
-lcec_master_data_t *lcec_init_master_hal(int comp_id, const char *pfx, int global) {
+lcec_master_data_t *lcec_init_master_hal(const cmod_env_t *env, int comp_id, const char *pfx, int global) {
   lcec_master_data_t *hal_data;
 
   // alloc hal data
-  if ((hal_data = hal_malloc(sizeof(lcec_master_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for %s failed\n", pfx);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_master_data_t))) == NULL) {
+    gomc_log_errorf(env->log, pfx, "hal_malloc() for %s failed", pfx);
     return NULL;
   }
   memset(hal_data, 0, sizeof(lcec_master_data_t));
 
   // export pins
-  if (lcec_pin_newf_list(comp_id, hal_data, master_global_pins, pfx) != 0) {
+  if (lcec_pin_newf_list(env, comp_id, hal_data, master_global_pins, pfx) != 0) {
     return NULL;
   }
   if (!global) {
-    if (lcec_pin_newf_list(comp_id, hal_data, master_pins, pfx) != 0) {
+    if (lcec_pin_newf_list(env, comp_id, hal_data, master_pins, pfx) != 0) {
       return NULL;
     }
   }
@@ -134,22 +134,24 @@ void lcec_update_master_hal(lcec_master_data_t *hal_data, ec_master_state_t *ms)
  * @return Pointer to the new master, or NULL on allocation failure or invalid
  *         configuration (e.g. @c refClockSyncCycles < 0 without PLL support).
  */
-lcec_master_t * lcec_create_master(LCEC_CONF_MASTER_T *master_conf) {
+lcec_master_t * lcec_create_master(const cmod_env_t *env, LCEC_CONF_MASTER_T *master_conf) {
   lcec_master_t *master;
 
-#ifndef RTAPI_TASK_PLL_SUPPORT
+#ifndef GOMC_RTAPI_TASK_PLL_SUPPORT
   if (master_conf->refClockSyncCycles < 0) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Master %d: refClockSyncCycles < 0"
-      " (sync master to ref) not available (RTAPI_TASK_PLL_SUPPORT missing)\n",
+    gomc_log_errorf(env->log, "ethercat",
+      "Master %d: refClockSyncCycles < 0"
+      " (sync master to ref) not available (GOMC_RTAPI_TASK_PLL_SUPPORT missing)",
       master_conf->index);
     goto fail0;
   }
 #endif
 
   // alloc master memory
-  master = rtapi_calloc(sizeof(lcec_master_t));
+  master = env->rtapi->calloc(env->rtapi->ctx, sizeof(lcec_master_t));
   if (master == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate master %d structure memory\n", master_conf->index);
+    gomc_log_errorf(env->log, "ethercat",
+        "Unable to allocate master %d structure memory", master_conf->index);
     goto fail0;
   }
 
@@ -191,12 +193,12 @@ fail0:
  * @return 0 on success, -1 on failure (error message sent to RTAPI log).
  */
 int lcec_startup_master(lcec_master_t *master) {
+
   // create main transport
   master->transport = ec_transport_create(
       (ec_transport_type_t) master->transport_type, master->interface);
   if (!master->transport) {
-    rtapi_print_msg(RTAPI_MSG_ERR,
-        LCEC_MSG_PFX "failed to create transport for master %s (iface %s)\n",
+    LCEC_ERR(master, "failed to create transport for master %s (iface %s)",
         master->name, master->interface);
     goto fail0;
   }
@@ -207,8 +209,7 @@ int lcec_startup_master(lcec_master_t *master) {
     master->backup_transport = ec_transport_create(
         (ec_transport_type_t) master->transport_type, master->backup_interface);
     if (!master->backup_transport) {
-      rtapi_print_msg(RTAPI_MSG_ERR,
-          LCEC_MSG_PFX "failed to create backup transport for master %s (iface %s)\n",
+      LCEC_ERR(master, "failed to create backup transport for master %s (iface %s)",
           master->name, master->backup_interface);
       goto fail1;
     }
@@ -219,8 +220,7 @@ int lcec_startup_master(lcec_master_t *master) {
       master->index, master->transport, master->backup_transport,
       master->debug_level, master->run_on_cpu);
   if (!master->master) {
-    rtapi_print_msg(RTAPI_MSG_ERR,
-        LCEC_MSG_PFX "startup of master %s (index %d, iface %s) failed\n",
+    LCEC_ERR(master, "startup of master %s (index %d, iface %s) failed",
         master->name, master->index, master->interface);
     goto fail2;
   }
@@ -299,8 +299,7 @@ static void lcec_release_lock(void *data) {
  */
 int lcec_startup_master(lcec_master_t *master) {
     if (!(master->master = ecrt_request_master(master->index))) {
-      rtapi_print_msg(RTAPI_MSG_ERR,
-          LCEC_MSG_PFX "requesting master %s (index %d) failed\n",
+      LCEC_ERR(master, "requesting master %s (index %d) failed",
           master->name, master->index);
       return -1;
     }
@@ -363,7 +362,7 @@ void lcec_read_master(void *arg, long period) {
   if (period != master->period_last) {
     master->period_last = period;
     if (master->app_time_period != period) {
-      rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Invalid appTimePeriod of %u for master %s (should be %ld).\n",
+      LCEC_ERR(master, "Invalid appTimePeriod of %u for master %s (should be %ld).",
         master->app_time_period, master->name, period);
     }
   }

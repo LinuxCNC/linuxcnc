@@ -39,37 +39,37 @@
 
 /** @brief HAL pin descriptors for the mandatory per-channel servo pins. */
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_IN, offsetof(lcec_class_ax5_chan_t, drive_on), "%s.%s.%s.%ssrv-drive-on" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_class_ax5_chan_t, enable), "%s.%s.%s.%ssrv-enable" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_class_ax5_chan_t, enabled), "%s.%s.%s.%ssrv-enabled" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_class_ax5_chan_t, halted), "%s.%s.%s.%ssrv-halted" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_class_ax5_chan_t, fault), "%s.%s.%s.%ssrv-fault" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_class_ax5_chan_t, halt), "%s.%s.%s.%ssrv-halt" },
-  { HAL_FLOAT, HAL_IN, offsetof(lcec_class_ax5_chan_t, velo_cmd), "%s.%s.%s.%ssrv-velo-cmd" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_class_ax5_chan_t, drive_on), "%s.%s.%s.%ssrv-drive-on" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_class_ax5_chan_t, enable), "%s.%s.%s.%ssrv-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_class_ax5_chan_t, enabled), "%s.%s.%s.%ssrv-enabled" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_class_ax5_chan_t, halted), "%s.%s.%s.%ssrv-halted" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_class_ax5_chan_t, fault), "%s.%s.%s.%ssrv-fault" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_class_ax5_chan_t, halt), "%s.%s.%s.%ssrv-halt" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN, offsetof(lcec_class_ax5_chan_t, velo_cmd), "%s.%s.%s.%ssrv-velo-cmd" },
 
-  { HAL_U32, HAL_IN, offsetof(lcec_class_ax5_chan_t, status), "%s.%s.%s.%ssrv-status" },
-  { HAL_FLOAT, HAL_IN, offsetof(lcec_class_ax5_chan_t, torque_fb_pct), "%s.%s.%s.%ssrv-torque-fb-pct" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_U32, GOMC_HAL_IN, offsetof(lcec_class_ax5_chan_t, status), "%s.%s.%s.%ssrv-status" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN, offsetof(lcec_class_ax5_chan_t, torque_fb_pct), "%s.%s.%s.%ssrv-torque-fb-pct" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /** @brief HAL pin descriptors for the optional diagnostics word pin. */
 static const lcec_pindesc_t slave_diag_pins[] = {
-  { HAL_U32, HAL_IN, offsetof(lcec_class_ax5_chan_t, diag), "%s.%s.%s.%ssrv-diag" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_U32, GOMC_HAL_IN, offsetof(lcec_class_ax5_chan_t, diag), "%s.%s.%s.%ssrv-diag" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /** @brief HAL parameter descriptors for primary-feedback scaling and resolution. */
 static const lcec_pindesc_t slave_params[] = {
-  { HAL_FLOAT, HAL_RW, offsetof(lcec_class_ax5_chan_t, scale), "%s.%s.%s.%ssrv-scale" },
-  { HAL_FLOAT, HAL_RO, offsetof(lcec_class_ax5_chan_t, vel_scale), "%s.%s.%s.%ssrv-vel-scale" },
-  { HAL_U32, HAL_RO, offsetof(lcec_class_ax5_chan_t, pos_resolution), "%s.%s.%s.%ssrv-pos-resolution" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_RW, offsetof(lcec_class_ax5_chan_t, scale), "%s.%s.%s.%ssrv-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RO, offsetof(lcec_class_ax5_chan_t, vel_scale), "%s.%s.%s.%ssrv-vel-scale" },
+  { GOMC_HAL_U32, GOMC_HAL_RO, offsetof(lcec_class_ax5_chan_t, pos_resolution), "%s.%s.%s.%ssrv-pos-resolution" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /** @brief HAL parameter descriptors for secondary-feedback scaling (FB2). */
 static const lcec_pindesc_t slave_fb2_params[] = {
-  { HAL_FLOAT, HAL_RW, offsetof(lcec_class_ax5_chan_t, scale_fb2), "%s.%s.%s.%ssrv-scale-fb2" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_RW, offsetof(lcec_class_ax5_chan_t, scale_fb2), "%s.%s.%s.%ssrv-scale-fb2" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /**
@@ -147,12 +147,13 @@ int lcec_class_ax5_pdos(struct lcec_slave *slave) {
  */
 int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, lcec_class_ax5_chan_t *chan, int index, const char *pfx) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   int err;
   uint8_t idn_buf[4];
   uint32_t idn_pos_resolution;
   uint16_t idn_vel_scale;
   int16_t idn_vel_exp;
-  char enc_pfx[HAL_NAME_LEN];
+  char enc_pfx[GOMC_HAL_NAME_LEN];
 
   // read idns
   if (lcec_read_idn(slave, index, LCEC_IDN(LCEC_IDN_TYPE_S, 0, 79), idn_buf, 4)) {
@@ -177,17 +178,17 @@ int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x0018, 0x01 + index, &chan->vel_cmd_pdo_os, NULL);
 
   // export pins
-  if ((err = lcec_pin_newf_list(master->comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_pin_newf_list(env, master->comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
   // export params
-  if ((err = lcec_param_newf_list(master->comp_id, chan, slave_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_param_newf_list(env, master->comp_id, chan, slave_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
   // initialie encoder
-  rtapi_snprintf(enc_pfx, HAL_NAME_LEN, "%senc", pfx);
+  snprintf(enc_pfx, GOMC_HAL_NAME_LEN, "%senc", pfx);
   if ((err = class_enc_init(slave, &chan->enc, 32, enc_pfx)) != 0) {
     return err;
   }
@@ -195,11 +196,11 @@ int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry
   chan->fb2_enabled = get_param_flag(slave, LCEC_AX5_PARAM_ENABLE_FB2);
   if (chan->fb2_enabled) {
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x0035, 0x01 + index, &chan->pos_fb2_pdo_os, NULL);
-    if ((err = lcec_param_newf_list(master->comp_id, chan, slave_fb2_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
+    if ((err = lcec_param_newf_list(env, master->comp_id, chan, slave_fb2_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
       return err;
     }
 
-    rtapi_snprintf(enc_pfx, HAL_NAME_LEN, "%senc-fb2", pfx);
+    snprintf(enc_pfx, GOMC_HAL_NAME_LEN, "%senc-fb2", pfx);
     if ((err = class_enc_init(slave, &chan->enc_fb2, 32, enc_pfx)) != 0) {
       return err;
     }
@@ -208,7 +209,7 @@ int lcec_class_ax5_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry
   chan->diag_enabled = get_param_flag(slave, LCEC_AX5_PARAM_ENABLE_DIAG);
   if (chan->diag_enabled) {
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x0186, 0x01 + index, &chan->diag_pdo_os, NULL);
-    if ((err = lcec_pin_newf_list(master->comp_id, chan, slave_diag_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
+    if ((err = lcec_pin_newf_list(env, master->comp_id, chan, slave_diag_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
       return err;
     }
   }

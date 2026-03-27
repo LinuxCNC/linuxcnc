@@ -36,50 +36,50 @@
  * @brief Per-slave HAL data structure for the Omron G5 servo driver.
  */
 typedef struct {
-  hal_float_t *pos_cmd;               /**< Position command in user units. */
-  hal_s32_t *pos_cmd_raw;             /**< Position command in encoder counts. */
-  hal_float_t *pos_fb;                /**< Position feedback in user units. */
-  hal_float_t *pos_ferr;              /**< Following error in user units. */
-  hal_float_t *torque_fb;             /**< Torque feedback in percent of rated. */
-  hal_s32_t *pos_fb_raw;              /**< Position feedback in encoder counts. */
-  hal_s32_t *pos_ferr_raw;            /**< Following error in encoder counts. */
-  hal_bit_t *fault;                   /**< Fault output (gated by enable). */
-  hal_bit_t *fault_reset;             /**< Input: reset drive fault. */
-  hal_bit_t *enable;                  /**< Input: enable drive operation. */
-  hal_u32_t *error_code;              /**< Drive error code (object 0x603F). */
+  gomc_hal_float_t *pos_cmd;               /**< Position command in user units. */
+  gomc_hal_s32_t *pos_cmd_raw;             /**< Position command in encoder counts. */
+  gomc_hal_float_t *pos_fb;                /**< Position feedback in user units. */
+  gomc_hal_float_t *pos_ferr;              /**< Following error in user units. */
+  gomc_hal_float_t *torque_fb;             /**< Torque feedback in percent of rated. */
+  gomc_hal_s32_t *pos_fb_raw;              /**< Position feedback in encoder counts. */
+  gomc_hal_s32_t *pos_ferr_raw;            /**< Following error in encoder counts. */
+  gomc_hal_bit_t *fault;                   /**< Fault output (gated by enable). */
+  gomc_hal_bit_t *fault_reset;             /**< Input: reset drive fault. */
+  gomc_hal_bit_t *enable;                  /**< Input: enable drive operation. */
+  gomc_hal_u32_t *error_code;              /**< Drive error code (object 0x603F). */
 
-  hal_bit_t *din_not;                 /**< Digital input: negative over-travel. */
-  hal_bit_t *din_pot;                 /**< Digital input: positive over-travel. */
-  hal_bit_t *din_dec;                 /**< Digital input: deceleration input. */
-  hal_bit_t *din_pc;                  /**< Digital input: origin proximity. */
-  hal_bit_t *din_ext1;                /**< Digital input: external input 1. */
-  hal_bit_t *din_ext2;                /**< Digital input: external input 2. */
-  hal_bit_t *din_ext3;                /**< Digital input: external input 3. */
-  hal_bit_t *din_mon0;                /**< Digital input: monitor 0. */
-  hal_bit_t *din_mon1;                /**< Digital input: monitor 1. */
-  hal_bit_t *din_mon2;                /**< Digital input: monitor 2. */
-  hal_bit_t *din_pcl;                 /**< Digital input: positive torque limit. */
-  hal_bit_t *din_ncl;                 /**< Digital input: negative torque limit. */
-  hal_bit_t *din_stop;                /**< Digital input: stop input. */
-  hal_bit_t *din_bkir;                /**< Digital input: brake interlock. */
-  hal_bit_t *din_sf1;                 /**< Digital input: safety function 1. */
-  hal_bit_t *din_sf2;                 /**< Digital input: safety function 2. */
-  hal_bit_t *din_edm;                 /**< Digital input: external device monitor. */
+  gomc_hal_bit_t *din_not;                 /**< Digital input: negative over-travel. */
+  gomc_hal_bit_t *din_pot;                 /**< Digital input: positive over-travel. */
+  gomc_hal_bit_t *din_dec;                 /**< Digital input: deceleration input. */
+  gomc_hal_bit_t *din_pc;                  /**< Digital input: origin proximity. */
+  gomc_hal_bit_t *din_ext1;                /**< Digital input: external input 1. */
+  gomc_hal_bit_t *din_ext2;                /**< Digital input: external input 2. */
+  gomc_hal_bit_t *din_ext3;                /**< Digital input: external input 3. */
+  gomc_hal_bit_t *din_mon0;                /**< Digital input: monitor 0. */
+  gomc_hal_bit_t *din_mon1;                /**< Digital input: monitor 1. */
+  gomc_hal_bit_t *din_mon2;                /**< Digital input: monitor 2. */
+  gomc_hal_bit_t *din_pcl;                 /**< Digital input: positive torque limit. */
+  gomc_hal_bit_t *din_ncl;                 /**< Digital input: negative torque limit. */
+  gomc_hal_bit_t *din_stop;                /**< Digital input: stop input. */
+  gomc_hal_bit_t *din_bkir;                /**< Digital input: brake interlock. */
+  gomc_hal_bit_t *din_sf1;                 /**< Digital input: safety function 1. */
+  gomc_hal_bit_t *din_sf2;                 /**< Digital input: safety function 2. */
+  gomc_hal_bit_t *din_edm;                 /**< Digital input: external device monitor. */
 
-  hal_bit_t *stat_switchon_ready;     /**< Status: ready to switch on. */
-  hal_bit_t *stat_switched_on;        /**< Status: switched on. */
-  hal_bit_t *stat_op_enabled;         /**< Status: operation enabled. */
-  hal_bit_t *stat_fault;              /**< Status: fault present. */
-  hal_bit_t *stat_volt_enabled;       /**< Status: voltage enabled. */
-  hal_bit_t *stat_quick_stop;         /**< Status: quick stop active. */
-  hal_bit_t *stat_switchon_disabled;  /**< Status: switch-on disabled. */
-  hal_bit_t *stat_warning;            /**< Status: warning present. */
-  hal_bit_t *stat_remote;             /**< Status: remote control active. */
+  gomc_hal_bit_t *stat_switchon_ready;     /**< Status: ready to switch on. */
+  gomc_hal_bit_t *stat_switched_on;        /**< Status: switched on. */
+  gomc_hal_bit_t *stat_op_enabled;         /**< Status: operation enabled. */
+  gomc_hal_bit_t *stat_fault;              /**< Status: fault present. */
+  gomc_hal_bit_t *stat_volt_enabled;       /**< Status: voltage enabled. */
+  gomc_hal_bit_t *stat_quick_stop;         /**< Status: quick stop active. */
+  gomc_hal_bit_t *stat_switchon_disabled;  /**< Status: switch-on disabled. */
+  gomc_hal_bit_t *stat_warning;            /**< Status: warning present. */
+  gomc_hal_bit_t *stat_remote;             /**< Status: remote control active. */
 
-  hal_float_t pos_scale;              /**< Parameter: encoder counts per user unit. */
-  hal_bit_t auto_fault_reset;         /**< Parameter: enable automatic fault reset on enable edge. */
+  gomc_hal_float_t pos_scale;              /**< Parameter: encoder counts per user unit. */
+  gomc_hal_bit_t auto_fault_reset;         /**< Parameter: enable automatic fault reset on enable edge. */
 
-  hal_float_t pos_scale_old;          /**< Previous pos_scale for change detection. */
+  gomc_hal_float_t pos_scale_old;          /**< Previous pos_scale for change detection. */
   double pos_scale_rcpt;              /**< Reciprocal of pos_scale for efficient conversion. */
 
   unsigned int error_pdo_os;          /**< PDO offset for error code (0x603F). */
@@ -96,56 +96,56 @@ typedef struct {
   unsigned int latch_fnk_os;          /**< PDO offset for latch function (0x60B8). */
   unsigned int dout_pdo_os;           /**< PDO offset for digital outputs (0x60FE:01). */
 
-  hal_bit_t enable_old;               /**< Previous enable state for rising-edge detection. */
+  gomc_hal_bit_t enable_old;               /**< Previous enable state for rising-edge detection. */
   long long auto_fault_reset_delay;   /**< Remaining nanoseconds of auto-reset inhibit delay. */
 
 } lcec_omrg5_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_FLOAT, HAL_IN, offsetof(lcec_omrg5_data_t, pos_cmd), "%s.%s.%s.pos-cmd" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_omrg5_data_t, pos_fb), "%s.%s.%s.pos-fb" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_omrg5_data_t, pos_ferr), "%s.%s.%s.pos-ferr" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_omrg5_data_t, torque_fb), "%s.%s.%s.torque-fb-pct" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_omrg5_data_t, pos_cmd_raw), "%s.%s.%s.pos-cmd-raw" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_omrg5_data_t, pos_fb_raw), "%s.%s.%s.pos-fb-raw" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_omrg5_data_t, pos_ferr_raw), "%s.%s.%s.pos-ferr-raw" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, fault), "%s.%s.%s.fault" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, fault_reset), "%s.%s.%s.fault-reset" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_omrg5_data_t, enable), "%s.%s.%s.enable" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, stat_switchon_ready), "%s.%s.%s.stat-switchon-ready" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, stat_switched_on), "%s.%s.%s.stat-switched-on" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, stat_op_enabled), "%s.%s.%s.stat-op-enabled" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, stat_fault), "%s.%s.%s.stat-fault" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, stat_volt_enabled), "%s.%s.%s.stat-volt-enabled" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, stat_quick_stop), "%s.%s.%s.stat-quick-stop" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, stat_switchon_disabled), "%s.%s.%s.stat-switchon-disabled" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, stat_warning), "%s.%s.%s.stat-warning" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, stat_remote), "%s.%s.%s.stat-remote" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_omrg5_data_t, error_code), "%s.%s.%s.error-code" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_not), "%s.%s.%s.din-not" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_pot), "%s.%s.%s.din-pot" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_dec), "%s.%s.%s.din-dec" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_pc), "%s.%s.%s.din-pc" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_ext1), "%s.%s.%s.din-ext1" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_ext2), "%s.%s.%s.din-ext2" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_ext3), "%s.%s.%s.din-ext3" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_mon0), "%s.%s.%s.din-mon0" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_mon1), "%s.%s.%s.din-mon1" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_mon2), "%s.%s.%s.din-mon2" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_pcl), "%s.%s.%s.din-pcl" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_ncl), "%s.%s.%s.din-ncl" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_stop), "%s.%s.%s.din-stop" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_bkir), "%s.%s.%s.din-bkir" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_sf1), "%s.%s.%s.din-sf1" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_sf2), "%s.%s.%s.din-sf2" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_omrg5_data_t, din_edm), "%s.%s.%s.din-edm" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN, offsetof(lcec_omrg5_data_t, pos_cmd), "%s.%s.%s.pos-cmd" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, pos_fb), "%s.%s.%s.pos-fb" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, pos_ferr), "%s.%s.%s.pos-ferr" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, torque_fb), "%s.%s.%s.torque-fb-pct" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, pos_cmd_raw), "%s.%s.%s.pos-cmd-raw" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, pos_fb_raw), "%s.%s.%s.pos-fb-raw" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, pos_ferr_raw), "%s.%s.%s.pos-ferr-raw" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, fault), "%s.%s.%s.fault" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, fault_reset), "%s.%s.%s.fault-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_omrg5_data_t, enable), "%s.%s.%s.enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, stat_switchon_ready), "%s.%s.%s.stat-switchon-ready" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, stat_switched_on), "%s.%s.%s.stat-switched-on" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, stat_op_enabled), "%s.%s.%s.stat-op-enabled" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, stat_fault), "%s.%s.%s.stat-fault" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, stat_volt_enabled), "%s.%s.%s.stat-volt-enabled" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, stat_quick_stop), "%s.%s.%s.stat-quick-stop" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, stat_switchon_disabled), "%s.%s.%s.stat-switchon-disabled" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, stat_warning), "%s.%s.%s.stat-warning" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, stat_remote), "%s.%s.%s.stat-remote" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, error_code), "%s.%s.%s.error-code" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_not), "%s.%s.%s.din-not" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_pot), "%s.%s.%s.din-pot" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_dec), "%s.%s.%s.din-dec" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_pc), "%s.%s.%s.din-pc" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_ext1), "%s.%s.%s.din-ext1" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_ext2), "%s.%s.%s.din-ext2" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_ext3), "%s.%s.%s.din-ext3" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_mon0), "%s.%s.%s.din-mon0" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_mon1), "%s.%s.%s.din-mon1" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_mon2), "%s.%s.%s.din-mon2" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_pcl), "%s.%s.%s.din-pcl" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_ncl), "%s.%s.%s.din-ncl" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_stop), "%s.%s.%s.din-stop" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_bkir), "%s.%s.%s.din-bkir" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_sf1), "%s.%s.%s.din-sf1" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_sf2), "%s.%s.%s.din-sf2" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_omrg5_data_t, din_edm), "%s.%s.%s.din-edm" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_params[] = {
-  { HAL_FLOAT, HAL_RW, offsetof(lcec_omrg5_data_t, pos_scale), "%s.%s.%s.pos-scale" },
-  { HAL_BIT, HAL_RW, offsetof(lcec_omrg5_data_t, auto_fault_reset), "%s.%s.%s.auto-fault-reset" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_RW, offsetof(lcec_omrg5_data_t, pos_scale), "%s.%s.%s.pos-scale" },
+  { GOMC_HAL_BIT, GOMC_HAL_RW, offsetof(lcec_omrg5_data_t, auto_fault_reset), "%s.%s.%s.auto-fault-reset" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_omrg5_in[] = {
@@ -200,6 +200,7 @@ void lcec_omrg5_write(struct lcec_slave *slave, long period);
  */
 int lcec_omrg5_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_omrg5_data_t *hal_data;
   int err;
 
@@ -208,8 +209,8 @@ int lcec_omrg5_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **
   slave->proc_write = lcec_omrg5_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_omrg5_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_omrg5_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_omrg5_data_t));
@@ -217,7 +218,7 @@ int lcec_omrg5_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **
 
   // set to cyclic synchronous position mode
   if (ecrt_slave_config_sdo8(slave->config, 0x6060, 0x00, 8) != 0) {
-    rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo velo mode\n", master->name, slave->name);
+    LCEC_ERR(master, "fail to configure slave %s.%s sdo velo mode", master->name, slave->name);
   }
 
   // initialize sync info
@@ -239,12 +240,12 @@ int lcec_omrg5_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x60FE, 0x01, &hal_data->dout_pdo_os, NULL);
 
   // export pins
-  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 
   // export parameters
-  if ((err = lcec_param_newf_list(comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_param_newf_list(env, comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 

@@ -54,54 +54,54 @@
  * of one channel.
  */
 typedef struct {
-  hal_bit_t *reset;               /**< IN: reset the encoder count to zero */
-  hal_bit_t *ina;                 /**< OUT: encoder channel A state */
-  hal_bit_t *inb;                 /**< OUT: encoder channel B state */
-  hal_bit_t *inext;               /**< OUT: external latch input state */
-  hal_bit_t *sync_err;            /**< OUT: encoder sync error flag */
-  hal_bit_t *expol_stall;         /**< OUT: encoder extrapolation stall flag */
-  hal_bit_t *count_overflow;      /**< OUT: encoder counter overflow flag */
-  hal_bit_t *count_underflow;     /**< OUT: encoder counter underflow flag */
-  hal_bit_t *tx_toggle;           /**< OUT: encoder TxPDO toggle (new data indicator) */
-  hal_bit_t *set_raw_count;       /**< IO: write 1 to preset the encoder counter */
-  hal_s32_t *set_raw_count_val;   /**< IN: preset value for the encoder counter */
-  hal_bit_t *latch_ext_valid;     /**< OUT: external latch valid flag */
-  hal_bit_t *ena_latch_ext_pos;   /**< IO: enable external latch on positive edge */
-  hal_bit_t *ena_latch_ext_neg;   /**< IO: enable external latch on negative edge */
-  hal_s32_t *raw_count;           /**< OUT: raw encoder counter value */
-  hal_s32_t *raw_latch;           /**< OUT: raw encoder latch value */
-  hal_s32_t *count;               /**< OUT: accumulated encoder count */
-  hal_float_t *pos_scale;         /**< IO: encoder counts per user unit */
-  hal_float_t *pos;               /**< OUT: position in user units */
+  gomc_hal_bit_t *reset;               /**< IN: reset the encoder count to zero */
+  gomc_hal_bit_t *ina;                 /**< OUT: encoder channel A state */
+  gomc_hal_bit_t *inb;                 /**< OUT: encoder channel B state */
+  gomc_hal_bit_t *inext;               /**< OUT: external latch input state */
+  gomc_hal_bit_t *sync_err;            /**< OUT: encoder sync error flag */
+  gomc_hal_bit_t *expol_stall;         /**< OUT: encoder extrapolation stall flag */
+  gomc_hal_bit_t *count_overflow;      /**< OUT: encoder counter overflow flag */
+  gomc_hal_bit_t *count_underflow;     /**< OUT: encoder counter underflow flag */
+  gomc_hal_bit_t *tx_toggle;           /**< OUT: encoder TxPDO toggle (new data indicator) */
+  gomc_hal_bit_t *set_raw_count;       /**< IO: write 1 to preset the encoder counter */
+  gomc_hal_s32_t *set_raw_count_val;   /**< IN: preset value for the encoder counter */
+  gomc_hal_bit_t *latch_ext_valid;     /**< OUT: external latch valid flag */
+  gomc_hal_bit_t *ena_latch_ext_pos;   /**< IO: enable external latch on positive edge */
+  gomc_hal_bit_t *ena_latch_ext_neg;   /**< IO: enable external latch on negative edge */
+  gomc_hal_s32_t *raw_count;           /**< OUT: raw encoder counter value */
+  gomc_hal_s32_t *raw_latch;           /**< OUT: raw encoder latch value */
+  gomc_hal_s32_t *count;               /**< OUT: accumulated encoder count */
+  gomc_hal_float_t *pos_scale;         /**< IO: encoder counts per user unit */
+  gomc_hal_float_t *pos;               /**< OUT: position in user units */
 
-  hal_bit_t *dcm_reset;           /**< IN: drive reset (clear faults) */
-  hal_bit_t *dcm_reduce_torque;   /**< IN: activate reduced torque */
-  hal_bit_t *dcm_enable;          /**< IN: enable the drive */
-  hal_bit_t *dcm_absmode;         /**< IN: use absolute velocity mode */
-  hal_float_t *dcm_value;         /**< IN: commanded velocity in user units */
-  hal_float_t *dcm_scale;         /**< IO: velocity scale factor */
-  hal_float_t *dcm_offset;        /**< IO: velocity offset */
-  hal_float_t *dcm_min_dc;        /**< IO: minimum duty cycle */
-  hal_float_t *dcm_max_dc;        /**< IO: maximum duty cycle */
-  hal_float_t *dcm_curr_dc;       /**< OUT: current duty cycle */
-  hal_s32_t *dcm_raw_val;         /**< OUT: raw 16-bit velocity setpoint */
-  hal_bit_t *dcm_ready_to_enable; /**< OUT: drive ready-to-enable */
-  hal_bit_t *dcm_ready;           /**< OUT: drive ready */
-  hal_bit_t *dcm_warning;         /**< OUT: drive warning */
-  hal_bit_t *dcm_error;           /**< OUT: drive error */
-  hal_bit_t *dcm_move_pos;        /**< OUT: moving in positive direction */
-  hal_bit_t *dcm_move_neg;        /**< OUT: moving in negative direction */
-  hal_bit_t *dcm_torque_reduced;  /**< OUT: reduced torque active */
-  hal_bit_t *dcm_din1;            /**< OUT: digital input 1 state */
-  hal_bit_t *dcm_din2;            /**< OUT: digital input 2 state */
-  hal_bit_t *dcm_sync_err;        /**< OUT: drive sync error flag */
-  hal_bit_t *dcm_tx_toggle;       /**< OUT: drive TxPDO toggle */
-  hal_s32_t *dcm_raw_info1;       /**< OUT: raw value from synchronous info channel 1 */
-  hal_s32_t *dcm_raw_info2;       /**< OUT: raw value from synchronous info channel 2 */
-  hal_u32_t *dcm_sel_info1;       /**< OUT: selected info channel 1 type (INFO_SEL_*) */
-  hal_u32_t *dcm_sel_info2;       /**< OUT: selected info channel 2 type (INFO_SEL_*) */
-  hal_float_t *dcm_velo_fb;       /**< OUT: velocity feedback (reserved) */
-  hal_float_t *dcm_current_fb;    /**< OUT: current feedback (reserved) */
+  gomc_hal_bit_t *dcm_reset;           /**< IN: drive reset (clear faults) */
+  gomc_hal_bit_t *dcm_reduce_torque;   /**< IN: activate reduced torque */
+  gomc_hal_bit_t *dcm_enable;          /**< IN: enable the drive */
+  gomc_hal_bit_t *dcm_absmode;         /**< IN: use absolute velocity mode */
+  gomc_hal_float_t *dcm_value;         /**< IN: commanded velocity in user units */
+  gomc_hal_float_t *dcm_scale;         /**< IO: velocity scale factor */
+  gomc_hal_float_t *dcm_offset;        /**< IO: velocity offset */
+  gomc_hal_float_t *dcm_min_dc;        /**< IO: minimum duty cycle */
+  gomc_hal_float_t *dcm_max_dc;        /**< IO: maximum duty cycle */
+  gomc_hal_float_t *dcm_curr_dc;       /**< OUT: current duty cycle */
+  gomc_hal_s32_t *dcm_raw_val;         /**< OUT: raw 16-bit velocity setpoint */
+  gomc_hal_bit_t *dcm_ready_to_enable; /**< OUT: drive ready-to-enable */
+  gomc_hal_bit_t *dcm_ready;           /**< OUT: drive ready */
+  gomc_hal_bit_t *dcm_warning;         /**< OUT: drive warning */
+  gomc_hal_bit_t *dcm_error;           /**< OUT: drive error */
+  gomc_hal_bit_t *dcm_move_pos;        /**< OUT: moving in positive direction */
+  gomc_hal_bit_t *dcm_move_neg;        /**< OUT: moving in negative direction */
+  gomc_hal_bit_t *dcm_torque_reduced;  /**< OUT: reduced torque active */
+  gomc_hal_bit_t *dcm_din1;            /**< OUT: digital input 1 state */
+  gomc_hal_bit_t *dcm_din2;            /**< OUT: digital input 2 state */
+  gomc_hal_bit_t *dcm_sync_err;        /**< OUT: drive sync error flag */
+  gomc_hal_bit_t *dcm_tx_toggle;       /**< OUT: drive TxPDO toggle */
+  gomc_hal_s32_t *dcm_raw_info1;       /**< OUT: raw value from synchronous info channel 1 */
+  gomc_hal_s32_t *dcm_raw_info2;       /**< OUT: raw value from synchronous info channel 2 */
+  gomc_hal_u32_t *dcm_sel_info1;       /**< OUT: selected info channel 1 type (INFO_SEL_*) */
+  gomc_hal_u32_t *dcm_sel_info2;       /**< OUT: selected info channel 2 type (INFO_SEL_*) */
+  gomc_hal_float_t *dcm_velo_fb;       /**< OUT: velocity feedback (reserved) */
+  gomc_hal_float_t *dcm_current_fb;    /**< OUT: current feedback (reserved) */
 
   unsigned int set_count_pdo_os;          /**< PDO byte offset: set counter command */
   unsigned int set_count_pdo_bp;          /**< Bit position: set counter command */
@@ -184,55 +184,55 @@ typedef struct {
 
 static const lcec_pindesc_t slave_pins[] = {
   // encoder pins
-  { HAL_BIT, HAL_IN, offsetof(lcec_el7342_chan_t, reset), "%s.%s.%s.enc-%d-reset" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, ina), "%s.%s.%s.enc-%d-ina" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, inb), "%s.%s.%s.enc-%d-inb" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, inext), "%s.%s.%s.enc-%d-inext" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, sync_err), "%s.%s.%s.enc-%d-sync-error" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, expol_stall), "%s.%s.%s.enc-%d-expol-stall" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, tx_toggle), "%s.%s.%s.enc-%d-tx-toggle" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, count_overflow), "%s.%s.%s.enc-%d-count-overflow" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, count_underflow), "%s.%s.%s.enc-%d-count-underflow" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, latch_ext_valid), "%s.%s.%s.enc-%d-latch-ext-valid" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el7342_chan_t, set_raw_count), "%s.%s.%s.enc-%d-set-raw-count" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el7342_chan_t, ena_latch_ext_pos), "%s.%s.%s.enc-%d-index-ext-pos-enable" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el7342_chan_t, ena_latch_ext_neg), "%s.%s.%s.enc-%d-index-ext-neg-enable" },
-  { HAL_S32, HAL_IN, offsetof(lcec_el7342_chan_t, set_raw_count_val), "%s.%s.%s.enc-%d-set-raw-count-val" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el7342_chan_t, raw_count), "%s.%s.%s.enc-%d-raw-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el7342_chan_t, count), "%s.%s.%s.enc-%d-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el7342_chan_t, raw_latch), "%s.%s.%s.enc-%d-raw-latch" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el7342_chan_t, pos), "%s.%s.%s.enc-%d-pos" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el7342_chan_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el7342_chan_t, reset), "%s.%s.%s.enc-%d-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, ina), "%s.%s.%s.enc-%d-ina" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, inb), "%s.%s.%s.enc-%d-inb" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, inext), "%s.%s.%s.enc-%d-inext" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, sync_err), "%s.%s.%s.enc-%d-sync-error" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, expol_stall), "%s.%s.%s.enc-%d-expol-stall" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, tx_toggle), "%s.%s.%s.enc-%d-tx-toggle" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, count_overflow), "%s.%s.%s.enc-%d-count-overflow" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, count_underflow), "%s.%s.%s.enc-%d-count-underflow" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, latch_ext_valid), "%s.%s.%s.enc-%d-latch-ext-valid" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el7342_chan_t, set_raw_count), "%s.%s.%s.enc-%d-set-raw-count" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el7342_chan_t, ena_latch_ext_pos), "%s.%s.%s.enc-%d-index-ext-pos-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el7342_chan_t, ena_latch_ext_neg), "%s.%s.%s.enc-%d-index-ext-neg-enable" },
+  { GOMC_HAL_S32, GOMC_HAL_IN, offsetof(lcec_el7342_chan_t, set_raw_count_val), "%s.%s.%s.enc-%d-set-raw-count-val" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, raw_count), "%s.%s.%s.enc-%d-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, count), "%s.%s.%s.enc-%d-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, raw_latch), "%s.%s.%s.enc-%d-raw-latch" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, pos), "%s.%s.%s.enc-%d-pos" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el7342_chan_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
 
   // encoder pins
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el7342_chan_t, dcm_scale), "%s.%s.%s.srv-%d-scale" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el7342_chan_t, dcm_offset), "%s.%s.%s.srv-%d-offset" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el7342_chan_t, dcm_min_dc), "%s.%s.%s.srv-%d-min-dc" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el7342_chan_t, dcm_max_dc), "%s.%s.%s.srv-%d-max-dc" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_curr_dc), "%s.%s.%s.srv-%d-curr-dc" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el7342_chan_t, dcm_enable), "%s.%s.%s.srv-%d-enable" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el7342_chan_t, dcm_absmode), "%s.%s.%s.srv-%d-absmode" },
-  { HAL_FLOAT, HAL_IN, offsetof(lcec_el7342_chan_t, dcm_value), "%s.%s.%s.srv-%d-cmd" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_raw_val), "%s.%s.%s.srv-%d-raw-cmd" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el7342_chan_t, dcm_reset), "%s.%s.%s.srv-%d-reset" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el7342_chan_t, dcm_reduce_torque), "%s.%s.%s.srv-%d-reduce-torque" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_ready_to_enable), "%s.%s.%s.srv-%d-ready-to-enable" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_ready), "%s.%s.%s.srv-%d-ready" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_warning), "%s.%s.%s.srv-%d-warning" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_error), "%s.%s.%s.srv-%d-error" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_move_pos), "%s.%s.%s.srv-%d-move-pos" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_move_neg), "%s.%s.%s.srv-%d-move-neg" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_torque_reduced), "%s.%s.%s.srv-%d-torque-reduced" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_din1), "%s.%s.%s.srv-%d-din1" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_din2), "%s.%s.%s.srv-%d-din2" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_sync_err), "%s.%s.%s.srv-%d-sync-error" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_tx_toggle), "%s.%s.%s.srv-%d-tx-toggle" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_raw_info1), "%s.%s.%s.srv-%d-raw-info1" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_raw_info2), "%s.%s.%s.srv-%d-raw-info2" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_sel_info1), "%s.%s.%s.srv-%d-sel-info1" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_sel_info2), "%s.%s.%s.srv-%d-sel-info2" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el7342_chan_t, dcm_scale), "%s.%s.%s.srv-%d-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el7342_chan_t, dcm_offset), "%s.%s.%s.srv-%d-offset" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el7342_chan_t, dcm_min_dc), "%s.%s.%s.srv-%d-min-dc" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el7342_chan_t, dcm_max_dc), "%s.%s.%s.srv-%d-max-dc" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_curr_dc), "%s.%s.%s.srv-%d-curr-dc" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el7342_chan_t, dcm_enable), "%s.%s.%s.srv-%d-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el7342_chan_t, dcm_absmode), "%s.%s.%s.srv-%d-absmode" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN, offsetof(lcec_el7342_chan_t, dcm_value), "%s.%s.%s.srv-%d-cmd" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_raw_val), "%s.%s.%s.srv-%d-raw-cmd" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el7342_chan_t, dcm_reset), "%s.%s.%s.srv-%d-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el7342_chan_t, dcm_reduce_torque), "%s.%s.%s.srv-%d-reduce-torque" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_ready_to_enable), "%s.%s.%s.srv-%d-ready-to-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_ready), "%s.%s.%s.srv-%d-ready" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_warning), "%s.%s.%s.srv-%d-warning" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_error), "%s.%s.%s.srv-%d-error" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_move_pos), "%s.%s.%s.srv-%d-move-pos" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_move_neg), "%s.%s.%s.srv-%d-move-neg" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_torque_reduced), "%s.%s.%s.srv-%d-torque-reduced" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_din1), "%s.%s.%s.srv-%d-din1" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_din2), "%s.%s.%s.srv-%d-din2" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_sync_err), "%s.%s.%s.srv-%d-sync-error" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_tx_toggle), "%s.%s.%s.srv-%d-tx-toggle" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_raw_info1), "%s.%s.%s.srv-%d-raw-info1" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_raw_info2), "%s.%s.%s.srv-%d-raw-info2" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_sel_info1), "%s.%s.%s.srv-%d-sel-info1" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el7342_chan_t, dcm_sel_info2), "%s.%s.%s.srv-%d-sel-info2" },
 
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_el7342_channel1_enc_out[] = {
@@ -402,7 +402,7 @@ void lcec_el7342_write(struct lcec_slave *slave, long period);
  * @param raw_info Pointer to the raw info HAL pin to update.
  * @param sel_info Pointer to the selector HAL pin choosing which value to read.
  */
-void lcec_el7342_set_info(lcec_el7342_chan_t *chan, hal_s32_t *raw_info, hal_u32_t *sel_info);
+void lcec_el7342_set_info(lcec_el7342_chan_t *chan, gomc_hal_s32_t *raw_info, gomc_hal_u32_t *sel_info);
 
 /**
  * @brief Initialise the EL7342 2-channel DC motor terminal.
@@ -414,6 +414,7 @@ void lcec_el7342_set_info(lcec_el7342_chan_t *chan, hal_s32_t *raw_info, hal_u32
  */
 int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el7342_data_t *hal_data;
   int i;
   lcec_el7342_chan_t *chan;
@@ -425,8 +426,8 @@ int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_el7342_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el7342_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el7342_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el7342_data_t));
@@ -489,16 +490,16 @@ int lcec_el7342_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7020 + (i << 4), 0x21, &chan->dcm_velo_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
     if (info1_select == INFO_SEL_MOTOR_VELO || info2_select == INFO_SEL_MOTOR_VELO) {
-      if ((err = lcec_pin_newf(comp_id, HAL_FLOAT, HAL_OUT, (void **) &(chan->dcm_velo_fb), "%s.%s.%s.srv-%d-velo-fb", master->instance_name, master->name, slave->name, i)) != 0) {
+      if ((err = lcec_pin_newf(env, comp_id, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void **) &(chan->dcm_velo_fb), "%s.%s.%s.srv-%d-velo-fb", master->instance_name, master->name, slave->name, i)) != 0) {
         return err;
       }
     }
     if (info1_select == INFO_SEL_MOTOR_CURR || info2_select == INFO_SEL_MOTOR_CURR) {
-      if ((err = lcec_pin_newf(comp_id, HAL_FLOAT, HAL_OUT, (void **) &(chan->dcm_current_fb), "%s.%s.%s.srv-%d-current-fb", master->instance_name, master->name, slave->name, i)) != 0) {
+      if ((err = lcec_pin_newf(env, comp_id, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void **) &(chan->dcm_current_fb), "%s.%s.%s.srv-%d-current-fb", master->instance_name, master->name, slave->name, i)) != 0) {
         return err;
       }
     }
@@ -752,7 +753,7 @@ void lcec_el7342_write(struct lcec_slave *slave, long period) {
  * @param raw_info Raw info word read from PDO.
  * @param sel_info Pointer to the selector HAL pin indicating which quantity is present.
  */
-void lcec_el7342_set_info(lcec_el7342_chan_t *chan, hal_s32_t *raw_info, hal_u32_t *sel_info) {
+void lcec_el7342_set_info(lcec_el7342_chan_t *chan, gomc_hal_s32_t *raw_info, gomc_hal_u32_t *sel_info) {
   switch(*sel_info) {
     case INFO_SEL_MOTOR_VELO:
       *(chan->dcm_velo_fb) = (double) *raw_info * 0.0001 * chan->dcm_old_scale;

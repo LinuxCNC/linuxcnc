@@ -54,23 +54,23 @@
  * instances are allocated side-by-side (index 0 and 1).
  */
 typedef struct {
-  hal_bit_t *drive_on;        /**< HAL IN: assert to allow the power stage to be energised. */
+  gomc_hal_bit_t *drive_on;        /**< HAL IN: assert to allow the power stage to be energised. */
 
-  hal_bit_t *enable;          /**< HAL IN: assert to enable closed-loop velocity control. */
-  hal_bit_t *enabled;         /**< HAL OUT: drive reports ready-to-operate level 3 (fully enabled). */
-  hal_bit_t *halted;          /**< HAL OUT: drive velocity is zero / axis is in halt state. */
-  hal_bit_t *fault;           /**< HAL OUT: drive fault or error shut-off is active. */
+  gomc_hal_bit_t *enable;          /**< HAL IN: assert to enable closed-loop velocity control. */
+  gomc_hal_bit_t *enabled;         /**< HAL OUT: drive reports ready-to-operate level 3 (fully enabled). */
+  gomc_hal_bit_t *halted;          /**< HAL OUT: drive velocity is zero / axis is in halt state. */
+  gomc_hal_bit_t *fault;           /**< HAL OUT: drive fault or error shut-off is active. */
 
-  hal_bit_t *halt;            /**< HAL IN: assert to command an immediate halt (velocity → 0). */
+  gomc_hal_bit_t *halt;            /**< HAL IN: assert to command an immediate halt (velocity → 0). */
 
-  hal_float_t *velo_cmd;      /**< HAL IN: velocity command in user units per second. */
+  gomc_hal_float_t *velo_cmd;      /**< HAL IN: velocity command in user units per second. */
 
   int fb2_enabled;            /**< Non-zero when secondary feedback PDO was activated via module param. */
   int diag_enabled;           /**< Non-zero when diagnostics PDO was activated via module param. */
 
-  hal_u32_t *status;          /**< HAL IN: raw 16-bit drive status word (IDN S-0-0135). */
-  hal_float_t *torque_fb_pct; /**< HAL OUT: actual torque feedback as percentage of rated torque. */
-  hal_u32_t *diag;            /**< HAL OUT: raw 32-bit diagnostics word (only valid if diag_enabled). */
+  gomc_hal_u32_t *status;          /**< HAL IN: raw 16-bit drive status word (IDN S-0-0135). */
+  gomc_hal_float_t *torque_fb_pct; /**< HAL OUT: actual torque feedback as percentage of rated torque. */
+  gomc_hal_u32_t *diag;            /**< HAL OUT: raw 32-bit diagnostics word (only valid if diag_enabled). */
 
   unsigned int status_pdo_os;     /**< Process-data byte offset of the status word PDO (0x0087). */
   unsigned int pos_fb_pdo_os;     /**< Process-data byte offset of the primary position feedback PDO (0x0033). */
@@ -80,10 +80,10 @@ typedef struct {
   unsigned int ctrl_pdo_os;       /**< Process-data byte offset of the control word PDO (0x0086). */
   unsigned int vel_cmd_pdo_os;    /**< Process-data byte offset of the velocity command PDO (0x0018). */
 
-  hal_float_t scale;          /**< HAL RW param: user-units per encoder count for primary feedback. */
-  hal_float_t scale_fb2;      /**< HAL RW param: user-units per encoder count for secondary feedback. */
-  hal_float_t vel_scale;      /**< HAL RO param: drive velocity scaling factor read from IDN S-0-0045/46. */
-  hal_u32_t pos_resolution;   /**< HAL RO param: encoder counts per revolution read from IDN S-0-0079. */
+  gomc_hal_float_t scale;          /**< HAL RW param: user-units per encoder count for primary feedback. */
+  gomc_hal_float_t scale_fb2;      /**< HAL RW param: user-units per encoder count for secondary feedback. */
+  gomc_hal_float_t vel_scale;      /**< HAL RO param: drive velocity scaling factor read from IDN S-0-0045/46. */
+  gomc_hal_u32_t pos_resolution;   /**< HAL RO param: encoder counts per revolution read from IDN S-0-0079. */
 
   lcec_class_enc_data_t enc;      /**< Primary encoder state (position tracking, index, etc.). */
   lcec_class_enc_data_t enc_fb2;  /**< Secondary encoder state (only meaningful when fb2_enabled). */

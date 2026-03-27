@@ -8,8 +8,8 @@
  *  - Product code: 0x089A3052            — use ::LCEC_EL2202_PID
  *
  * HAL pins exported per channel (N = 0 … LCEC_EL2202_CHANS-1):
- *  - @c dout-N   (HAL_BIT, IN) — output logic level
- *  - @c tristate-N (HAL_BIT, IN) — enable tri-state / high-Z on the output
+ *  - @c dout-N   (GOMC_HAL_BIT, IN) — output logic level
+ *  - @c tristate-N (GOMC_HAL_BIT, IN) — enable tri-state / high-Z on the output
  *
  * @copyright Copyright (C) 2015-2026 Claudio lorini <claudio.lorini@iit.it>
  * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>

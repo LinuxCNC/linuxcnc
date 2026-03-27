@@ -7,7 +7,7 @@
  * the RTAPI task PLL is @b not adjusted; instead the EtherCAT bus time follows
  * the LinuxCNC time base passively.
  *
- * This mode is suitable when no @c RTAPI_TASK_PLL_SUPPORT is available or
+ * This mode is suitable when no @c GOMC_RTAPI_TASK_PLL_SUPPORT is available or
  * when the system integrator prefers the simpler, one-direction scheme.
  *
  * Call sequence each servo cycle:
@@ -56,7 +56,8 @@
  * @note Side effect: modifies @c master->app_time_ns.
  */
 static void cycle_start(struct lcec_master *master) {
-  master->app_time_ns = master->rt_ctx->dc_time_offset + rtapi_task_pll_get_reference();
+  const gomc_rtapi_t *rtapi = master->rt_ctx->env->rtapi;
+  master->app_time_ns = master->rt_ctx->dc_time_offset + rtapi->pll_get_reference(rtapi->ctx);
   ecrt_master_application_time(master->master, master->app_time_ns);
 }
 
@@ -84,6 +85,8 @@ static void cycle_start(struct lcec_master *master) {
  * @note Side effect: modifies @c master->ref_clock_sync_counter.
  */
 static void pre_send(struct lcec_master *master) {
+  const gomc_rtapi_t *rtapi = master->rt_ctx->env->rtapi;
+
   if (master->ref_clock_sync_cycles <= 0) {
     return;
   }
@@ -95,7 +98,7 @@ static void pre_send(struct lcec_master *master) {
     // sync reference clock to master
     // use current time here to compensate run time delay, as this get called
     // late in the rt cycle
-    ecrt_master_sync_reference_clock_to(master->master, master->rt_ctx->dc_time_offset + rtapi_get_time());
+    ecrt_master_sync_reference_clock_to(master->master, master->rt_ctx->dc_time_offset + rtapi->get_time(rtapi->ctx));
   }
 
   // call to sync slaves to ref slave

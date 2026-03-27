@@ -37,14 +37,14 @@
  * @brief Per-channel HAL pins and PDO offsets for one EL3255 potentiometer channel.
  */
 typedef struct {
-  hal_bit_t *overrange;      /**< HAL bit output: measurement exceeds the upper limit. */
-  hal_bit_t *underrange;     /**< HAL bit output: measurement is below the lower limit. */
-  hal_bit_t *error;          /**< HAL bit output: channel error flag (object 0x6000+n, subindex 0x07). */
-  hal_bit_t *sync_err;       /**< HAL bit output: TxPDO synchronisation error flag. */
-  hal_s32_t *raw_val;        /**< HAL s32 output: raw 16-bit signed potentiometer value. */
-  hal_float_t *scale;        /**< HAL float I/O: multiplier applied to the normalised value (default 1.0). */
-  hal_float_t *bias;         /**< HAL float I/O: offset added after scaling (default 0.0). */
-  hal_float_t *val;          /**< HAL float output: final value = bias + scale * raw / 0x7fff. */
+  gomc_hal_bit_t *overrange;      /**< HAL bit output: measurement exceeds the upper limit. */
+  gomc_hal_bit_t *underrange;     /**< HAL bit output: measurement is below the lower limit. */
+  gomc_hal_bit_t *error;          /**< HAL bit output: channel error flag (object 0x6000+n, subindex 0x07). */
+  gomc_hal_bit_t *sync_err;       /**< HAL bit output: TxPDO synchronisation error flag. */
+  gomc_hal_s32_t *raw_val;        /**< HAL s32 output: raw 16-bit signed potentiometer value. */
+  gomc_hal_float_t *scale;        /**< HAL float I/O: multiplier applied to the normalised value (default 1.0). */
+  gomc_hal_float_t *bias;         /**< HAL float I/O: offset added after scaling (default 0.0). */
+  gomc_hal_float_t *val;          /**< HAL float output: final value = bias + scale * raw / 0x7fff. */
   unsigned int ovr_pdo_os;   /**< Byte offset of the overrange bit in the EtherCAT process data image. */
   unsigned int ovr_pdo_bp;   /**< Bit position of the overrange flag within its byte. */
   unsigned int udr_pdo_os;   /**< Byte offset of the underrange bit in the EtherCAT process data image. */
@@ -64,15 +64,15 @@ typedef struct {
 } lcec_el3255_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el3255_chan_t, overrange), "%s.%s.%s.pot-%d-overrange" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el3255_chan_t, underrange), "%s.%s.%s.pot-%d-underrange" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el3255_chan_t, error), "%s.%s.%s.pot-%d-error" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el3255_chan_t, sync_err), "%s.%s.%s.pot-%d-sync-err" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el3255_chan_t, raw_val), "%s.%s.%s.pot-%d-raw" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el3255_chan_t, val), "%s.%s.%s.pot-%d-val" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el3255_chan_t, scale), "%s.%s.%s.pot-%d-scale" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el3255_chan_t, bias), "%s.%s.%s.pot-%d-bias" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el3255_chan_t, overrange), "%s.%s.%s.pot-%d-overrange" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el3255_chan_t, underrange), "%s.%s.%s.pot-%d-underrange" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el3255_chan_t, error), "%s.%s.%s.pot-%d-error" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el3255_chan_t, sync_err), "%s.%s.%s.pot-%d-sync-err" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el3255_chan_t, raw_val), "%s.%s.%s.pot-%d-raw" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el3255_chan_t, val), "%s.%s.%s.pot-%d-val" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el3255_chan_t, scale), "%s.%s.%s.pot-%d-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el3255_chan_t, bias), "%s.%s.%s.pot-%d-bias" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_el3255_channel1[] = {
@@ -179,6 +179,7 @@ void lcec_el3255_read(struct lcec_slave *slave, long period);
  */
 int lcec_el3255_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el3255_data_t *hal_data;
   lcec_el3255_chan_t *chan;
   int i;
@@ -188,8 +189,8 @@ int lcec_el3255_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_read = lcec_el3255_read;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el3255_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el3255_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el3255_data_t));
@@ -210,7 +211,7 @@ int lcec_el3255_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000 + (i << 4), 0x11, &chan->val_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 

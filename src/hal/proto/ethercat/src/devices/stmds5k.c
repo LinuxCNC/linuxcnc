@@ -102,32 +102,32 @@ typedef struct {
  * @brief HAL data structure for the MDS5000 drive.
  */
 typedef struct {
-  hal_float_t *vel_cmd;             /**< HAL IN:  Velocity command (scale units/s). */
-  hal_float_t *vel_fb;              /**< HAL OUT: Velocity feedback (scale units/s). */
-  hal_float_t *vel_fb_rpm;          /**< HAL OUT: Velocity feedback (RPM). */
-  hal_float_t *vel_fb_rpm_abs;      /**< HAL OUT: Absolute velocity feedback (RPM). */
-  hal_float_t *vel_rpm;             /**< HAL OUT: Velocity command sent to drive (RPM). */
-  hal_float_t *torque_fb;           /**< HAL OUT: Torque feedback (Nm). */
-  hal_float_t *torque_fb_abs;       /**< HAL OUT: Absolute torque feedback (Nm). */
-  hal_float_t *torque_fb_pct;       /**< HAL OUT: Torque feedback (% of torque reference). */
-  hal_float_t *torque_lim;          /**< HAL IN:  Torque limit (0.0–2.0 × rated torque). */
-  hal_bit_t *stopped;               /**< HAL OUT: Motor is stopped. */
-  hal_bit_t *at_speed;              /**< HAL OUT: Motor has reached commanded speed. */
-  hal_bit_t *overload;              /**< HAL OUT: Torque overload active. */
-  hal_bit_t *ready;                 /**< HAL OUT: Drive is ready. */
-  hal_bit_t *error;                 /**< HAL OUT: Drive fault active. */
-  hal_bit_t *toggle;                /**< HAL OUT: Watchdog toggle bit from drive. */
-  hal_bit_t *loc_ena;               /**< HAL OUT: Local enable active. */
-  hal_bit_t *enable;                /**< HAL IN:  Enable drive operation. */
-  hal_bit_t *err_reset;             /**< HAL IN:  Reset drive fault. */
-  hal_bit_t *fast_ramp;             /**< HAL IN:  Select fast deceleration ramp. */
-  hal_bit_t *brake;                 /**< HAL IN:  Activate drive brake output. */
+  gomc_hal_float_t *vel_cmd;             /**< HAL IN:  Velocity command (scale units/s). */
+  gomc_hal_float_t *vel_fb;              /**< HAL OUT: Velocity feedback (scale units/s). */
+  gomc_hal_float_t *vel_fb_rpm;          /**< HAL OUT: Velocity feedback (RPM). */
+  gomc_hal_float_t *vel_fb_rpm_abs;      /**< HAL OUT: Absolute velocity feedback (RPM). */
+  gomc_hal_float_t *vel_rpm;             /**< HAL OUT: Velocity command sent to drive (RPM). */
+  gomc_hal_float_t *torque_fb;           /**< HAL OUT: Torque feedback (Nm). */
+  gomc_hal_float_t *torque_fb_abs;       /**< HAL OUT: Absolute torque feedback (Nm). */
+  gomc_hal_float_t *torque_fb_pct;       /**< HAL OUT: Torque feedback (% of torque reference). */
+  gomc_hal_float_t *torque_lim;          /**< HAL IN:  Torque limit (0.0–2.0 × rated torque). */
+  gomc_hal_bit_t *stopped;               /**< HAL OUT: Motor is stopped. */
+  gomc_hal_bit_t *at_speed;              /**< HAL OUT: Motor has reached commanded speed. */
+  gomc_hal_bit_t *overload;              /**< HAL OUT: Torque overload active. */
+  gomc_hal_bit_t *ready;                 /**< HAL OUT: Drive is ready. */
+  gomc_hal_bit_t *error;                 /**< HAL OUT: Drive fault active. */
+  gomc_hal_bit_t *toggle;                /**< HAL OUT: Watchdog toggle bit from drive. */
+  gomc_hal_bit_t *loc_ena;               /**< HAL OUT: Local enable active. */
+  gomc_hal_bit_t *enable;                /**< HAL IN:  Enable drive operation. */
+  gomc_hal_bit_t *err_reset;             /**< HAL IN:  Reset drive fault. */
+  gomc_hal_bit_t *fast_ramp;             /**< HAL IN:  Select fast deceleration ramp. */
+  gomc_hal_bit_t *brake;                 /**< HAL IN:  Activate drive brake output. */
 
-  hal_float_t speed_max_rpm;        /**< HAL RO param: Maximum motor speed (RPM) from SDO C01. */
-  hal_float_t speed_max_rpm_sp;     /**< HAL RO param: Setpoint maximum speed (RPM) from SDO D02. */
-  hal_float_t torque_reference;     /**< HAL RO param: Torque reference (Nm) from SDO B18. */
-  hal_float_t pos_scale;            /**< HAL RW param: Position/velocity scale factor. */
-  hal_float_t extenc_scale;         /**< HAL RW param: External encoder scale factor. */
+  gomc_hal_float_t speed_max_rpm;        /**< HAL RO param: Maximum motor speed (RPM) from SDO C01. */
+  gomc_hal_float_t speed_max_rpm_sp;     /**< HAL RO param: Setpoint maximum speed (RPM) from SDO D02. */
+  gomc_hal_float_t torque_reference;     /**< HAL RO param: Torque reference (Nm) from SDO B18. */
+  gomc_hal_float_t pos_scale;            /**< HAL RW param: Position/velocity scale factor. */
+  gomc_hal_float_t extenc_scale;         /**< HAL RW param: External encoder scale factor. */
   double speed_max_rpm_sp_rcpt;     /**< Reciprocal of speed_max_rpm_sp (cached). */
 
   double pos_scale_old;             /**< Last seen pos_scale value (change detection). */
@@ -155,36 +155,36 @@ typedef struct {
 } lcec_stmds5k_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_FLOAT, HAL_IN, offsetof(lcec_stmds5k_data_t, vel_cmd), "%s.%s.%s.srv-vel-cmd" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_stmds5k_data_t, vel_fb), "%s.%s.%s.srv-vel-fb" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_stmds5k_data_t, vel_fb_rpm), "%s.%s.%s.srv-vel-fb-rpm" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_stmds5k_data_t, vel_fb_rpm_abs), "%s.%s.%s.srv-vel-fb-rpm-abs" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_stmds5k_data_t, vel_rpm), "%s.%s.%s.srv-vel-rpm" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_stmds5k_data_t, torque_fb), "%s.%s.%s.srv-torque-fb" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_stmds5k_data_t, torque_fb_abs), "%s.%s.%s.srv-torque-fb-abs" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_stmds5k_data_t, torque_fb_pct), "%s.%s.%s.srv-torque-fb-pct" },
-  { HAL_FLOAT, HAL_IN, offsetof(lcec_stmds5k_data_t, torque_lim), "%s.%s.%s.srv-torque-lim" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_stmds5k_data_t, stopped), "%s.%s.%s.srv-stopped" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_stmds5k_data_t, at_speed), "%s.%s.%s.srv-at-speed" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_stmds5k_data_t, overload), "%s.%s.%s.srv-overload" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_stmds5k_data_t, ready), "%s.%s.%s.srv-ready" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_stmds5k_data_t, error), "%s.%s.%s.srv-error" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_stmds5k_data_t, toggle), "%s.%s.%s.srv-toggle" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_stmds5k_data_t, loc_ena), "%s.%s.%s.srv-loc-ena" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_stmds5k_data_t, enable), "%s.%s.%s.srv-enable" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_stmds5k_data_t, err_reset), "%s.%s.%s.srv-err-reset" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_stmds5k_data_t, fast_ramp), "%s.%s.%s.srv-fast-ramp" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_stmds5k_data_t, brake), "%s.%s.%s.srv-brake" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN, offsetof(lcec_stmds5k_data_t, vel_cmd), "%s.%s.%s.srv-vel-cmd" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, vel_fb), "%s.%s.%s.srv-vel-fb" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, vel_fb_rpm), "%s.%s.%s.srv-vel-fb-rpm" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, vel_fb_rpm_abs), "%s.%s.%s.srv-vel-fb-rpm-abs" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, vel_rpm), "%s.%s.%s.srv-vel-rpm" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, torque_fb), "%s.%s.%s.srv-torque-fb" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, torque_fb_abs), "%s.%s.%s.srv-torque-fb-abs" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, torque_fb_pct), "%s.%s.%s.srv-torque-fb-pct" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN, offsetof(lcec_stmds5k_data_t, torque_lim), "%s.%s.%s.srv-torque-lim" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, stopped), "%s.%s.%s.srv-stopped" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, at_speed), "%s.%s.%s.srv-at-speed" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, overload), "%s.%s.%s.srv-overload" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, ready), "%s.%s.%s.srv-ready" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, error), "%s.%s.%s.srv-error" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, toggle), "%s.%s.%s.srv-toggle" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_stmds5k_data_t, loc_ena), "%s.%s.%s.srv-loc-ena" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_stmds5k_data_t, enable), "%s.%s.%s.srv-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_stmds5k_data_t, err_reset), "%s.%s.%s.srv-err-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_stmds5k_data_t, fast_ramp), "%s.%s.%s.srv-fast-ramp" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_stmds5k_data_t, brake), "%s.%s.%s.srv-brake" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_params[] = {
-  { HAL_FLOAT, HAL_RW, offsetof(lcec_stmds5k_data_t, pos_scale), "%s.%s.%s.srv-pos-scale" },
-  { HAL_FLOAT, HAL_RO, offsetof(lcec_stmds5k_data_t, torque_reference), "%s.%s.%s.srv-torque-ref" },
-  { HAL_FLOAT, HAL_RO, offsetof(lcec_stmds5k_data_t, speed_max_rpm), "%s.%s.%s.srv-max-rpm" },
-  { HAL_FLOAT, HAL_RO, offsetof(lcec_stmds5k_data_t, speed_max_rpm_sp), "%s.%s.%s.srv-max-rpm-sp" },
-  { HAL_FLOAT, HAL_RW, offsetof(lcec_stmds5k_data_t, extenc_scale), "%s.%s.%s.extenc-scale" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_RW, offsetof(lcec_stmds5k_data_t, pos_scale), "%s.%s.%s.srv-pos-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RO, offsetof(lcec_stmds5k_data_t, torque_reference), "%s.%s.%s.srv-torque-ref" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RO, offsetof(lcec_stmds5k_data_t, speed_max_rpm), "%s.%s.%s.srv-max-rpm" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RO, offsetof(lcec_stmds5k_data_t, speed_max_rpm_sp), "%s.%s.%s.srv-max-rpm-sp" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RW, offsetof(lcec_stmds5k_data_t, extenc_scale), "%s.%s.%s.extenc-scale" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_stmds5k_syncs_t lcec_stmds5k_syncs_tmpl = {
@@ -277,7 +277,7 @@ int lcec_stmds5k_preinit(struct lcec_slave *slave) {
   pval = lcec_modparam_get(slave, LCEC_STMDS5K_PARAM_EXTENC);
   if (pval != NULL) {
     if (lcec_stmds5k_get_extenc_conf(pval->u32) == NULL) {
-      rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "invalied extenc type %u for slave %s.%s\n", pval->u32, master->name, slave->name);
+      LCEC_ERR(master, "invalied extenc type %u for slave %s.%s", pval->u32, master->name, slave->name);
       return -EINVAL;
     }
     slave->pdo_entry_count += LCEC_STMDS5K_EXTINC_PDOS;
@@ -288,6 +288,7 @@ int lcec_stmds5k_preinit(struct lcec_slave *slave) {
 
 int lcec_stmds5k_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_stmds5k_data_t *hal_data;
   int err;
   uint8_t sdo_buf[4];
@@ -314,8 +315,8 @@ int lcec_stmds5k_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t 
   slave->proc_write = lcec_stmds5k_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_stmds5k_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_stmds5k_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -ENOMEM;
   }
   memset(hal_data, 0, sizeof(lcec_stmds5k_data_t));
@@ -383,12 +384,12 @@ int lcec_stmds5k_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t 
   }
 
   // export pins
-  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 
   // export parameters
-  if ((err = lcec_param_newf_list(comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_param_newf_list(env, comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 

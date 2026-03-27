@@ -1,9 +1,8 @@
 // gomc_hal.h — HAL component/pin/param/function API for gomc C modules.
 //
 // All HAL operations go through callbacks in gomc_hal_t, which the launcher
-// populates at module load time.  Initially these callbacks delegate to the
-// existing liblinuxcnchal.so implementation; they will be replaced with
-// native Go implementations over time.
+// populates at module load time.  These callbacks delegate to
+// liblinuxcnchal.so.
 //
 // Typed pin/param creation and printf-style name formatting are provided as
 // inline convenience functions in this header — the callbacks themselves use
@@ -21,6 +20,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +43,7 @@ typedef enum {
 } gomc_hal_type_t;
 
 typedef enum {
+    GOMC_HAL_DIR_UNSPECIFIED = -1,
     GOMC_HAL_IN  = 16,
     GOMC_HAL_OUT = 32,
     GOMC_HAL_IO  = (16 | 32),
@@ -50,7 +51,7 @@ typedef enum {
 
 typedef enum {
     GOMC_HAL_RO = 64,
-    GOMC_HAL_RW = (64 | 32),
+    GOMC_HAL_RW = (64 | 128),
 } gomc_hal_param_dir_t;
 
 typedef enum {
@@ -59,11 +60,11 @@ typedef enum {
 } gomc_hal_comp_type_t;
 
 // HAL data types — these must match hal.h typedefs.
-typedef volatile signed long       gomc_hal_s32_t;
-typedef volatile unsigned long     gomc_hal_u32_t;
-typedef volatile double            gomc_hal_float_t;
-typedef volatile unsigned          gomc_hal_bit_t;
-typedef volatile unsigned          gomc_hal_port_t;
+typedef volatile int32_t      gomc_hal_s32_t;
+typedef volatile uint32_t     gomc_hal_u32_t;
+typedef volatile double       gomc_hal_float_t;
+typedef volatile unsigned     gomc_hal_bit_t;
+typedef volatile unsigned     gomc_hal_port_t;
 
 // Maximum HAL name length (matches HAL_NAME_LEN in hal.h).
 #define GOMC_HAL_NAME_LEN 127

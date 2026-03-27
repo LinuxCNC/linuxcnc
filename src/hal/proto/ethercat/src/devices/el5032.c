@@ -32,19 +32,19 @@
  * @brief Per-channel HAL pins and PDO mapping data for one EL5032 EnDat channel.
  */
 typedef struct {
-  hal_bit_t *reset;         /**< HAL IN: reset the relative position counter to zero. */
-  hal_bit_t *abs_mode;      /**< HAL IN: when high, pos outputs the raw absolute position; otherwise relative. */
-  hal_bit_t *warn;          /**< HAL OUT: warning flag from the EnDat encoder (PDO 0x6000/0x01). */
-  hal_bit_t *error;         /**< HAL OUT: error flag from the EnDat encoder (PDO 0x6000/0x02). */
-  hal_bit_t *ready;         /**< HAL OUT: encoder ready flag — communication established (PDO 0x6000/0x03). */
-  hal_bit_t *diag;          /**< HAL OUT: diagnostic flag from the EnDat encoder (PDO 0x6000/0x0d). */
-  hal_bit_t *tx_state;      /**< HAL OUT: TxPDO state bit indicating PDO validity (PDO 0x6000/0x0e). */
-  hal_u32_t *cyc_cnt;       /**< HAL OUT: 2-bit cycle counter; increments each new PDO frame (PDO 0x6000/0x0f). */
-  hal_u32_t *raw_count_lo;  /**< HAL OUT: lower 32 bits of the 64-bit absolute position counter. */
-  hal_u32_t *raw_count_hi;  /**< HAL OUT: upper 32 bits of the 64-bit absolute position counter. */
-  hal_s32_t *count;         /**< HAL OUT: relative position count (zeroed on reset or initialisation). */
-  hal_float_t *pos;         /**< HAL OUT: scaled position in user units. */
-  hal_float_t *pos_scale;   /**< HAL IO: counts per user unit; reciprocal applied internally. */
+  gomc_hal_bit_t *reset;         /**< HAL IN: reset the relative position counter to zero. */
+  gomc_hal_bit_t *abs_mode;      /**< HAL IN: when high, pos outputs the raw absolute position; otherwise relative. */
+  gomc_hal_bit_t *warn;          /**< HAL OUT: warning flag from the EnDat encoder (PDO 0x6000/0x01). */
+  gomc_hal_bit_t *error;         /**< HAL OUT: error flag from the EnDat encoder (PDO 0x6000/0x02). */
+  gomc_hal_bit_t *ready;         /**< HAL OUT: encoder ready flag — communication established (PDO 0x6000/0x03). */
+  gomc_hal_bit_t *diag;          /**< HAL OUT: diagnostic flag from the EnDat encoder (PDO 0x6000/0x0d). */
+  gomc_hal_bit_t *tx_state;      /**< HAL OUT: TxPDO state bit indicating PDO validity (PDO 0x6000/0x0e). */
+  gomc_hal_u32_t *cyc_cnt;       /**< HAL OUT: 2-bit cycle counter; increments each new PDO frame (PDO 0x6000/0x0f). */
+  gomc_hal_u32_t *raw_count_lo;  /**< HAL OUT: lower 32 bits of the 64-bit absolute position counter. */
+  gomc_hal_u32_t *raw_count_hi;  /**< HAL OUT: upper 32 bits of the 64-bit absolute position counter. */
+  gomc_hal_s32_t *count;         /**< HAL OUT: relative position count (zeroed on reset or initialisation). */
+  gomc_hal_float_t *pos;         /**< HAL OUT: scaled position in user units. */
+  gomc_hal_float_t *pos_scale;   /**< HAL IO: counts per user unit; reciprocal applied internally. */
 
   unsigned int warn_os;       /**< Byte offset of warn bit in process data image. */
   unsigned int warn_bp;       /**< Bit position of warn within the byte. */
@@ -75,20 +75,20 @@ typedef struct {
 } lcec_el5032_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_IN, offsetof(lcec_el5032_chan_t, reset), "%s.%s.%s.enc-%d-reset" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el5032_chan_t, abs_mode), "%s.%s.%s.enc-%d-abs-mode" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5032_chan_t, warn), "%s.%s.%s.enc-%d-warn" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5032_chan_t, error), "%s.%s.%s.enc-%d-error" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5032_chan_t, ready), "%s.%s.%s.enc-%d-ready" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5032_chan_t, diag), "%s.%s.%s.enc-%d-diag" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5032_chan_t, tx_state), "%s.%s.%s.enc-%d-tx-state" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5032_chan_t, cyc_cnt), "%s.%s.%s.enc-%d-cyc-cnt" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5032_chan_t, raw_count_lo), "%s.%s.%s.enc-%d-raw-count-lo" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5032_chan_t, raw_count_hi), "%s.%s.%s.enc-%d-raw-count-hi" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5032_chan_t, count), "%s.%s.%s.enc-%d-count" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el5032_chan_t, pos), "%s.%s.%s.enc-%d-pos" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el5032_chan_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el5032_chan_t, reset), "%s.%s.%s.enc-%d-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el5032_chan_t, abs_mode), "%s.%s.%s.enc-%d-abs-mode" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, warn), "%s.%s.%s.enc-%d-warn" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, error), "%s.%s.%s.enc-%d-error" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, ready), "%s.%s.%s.enc-%d-ready" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, diag), "%s.%s.%s.enc-%d-diag" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, tx_state), "%s.%s.%s.enc-%d-tx-state" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, cyc_cnt), "%s.%s.%s.enc-%d-cyc-cnt" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, raw_count_lo), "%s.%s.%s.enc-%d-raw-count-lo" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, raw_count_hi), "%s.%s.%s.enc-%d-raw-count-hi" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, count), "%s.%s.%s.enc-%d-count" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el5032_chan_t, pos), "%s.%s.%s.enc-%d-pos" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el5032_chan_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_el5032_channel1_in[] = {
@@ -145,6 +145,7 @@ void lcec_el5032_read(struct lcec_slave *slave, long period);
  */
 int lcec_el5032_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el5032_data_t *hal_data;
   int i;
   lcec_el5032_chan_t *chan;
@@ -154,8 +155,8 @@ int lcec_el5032_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_read = lcec_el5032_read;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el5032_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el5032_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el5032_data_t));
@@ -181,7 +182,7 @@ int lcec_el5032_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000 + (i << 4), 0x11, &chan->count_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 

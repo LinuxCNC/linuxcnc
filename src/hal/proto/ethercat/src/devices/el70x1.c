@@ -31,31 +31,31 @@
  * @brief HAL data for the EL70x1 stepper terminal.
  */
 typedef struct {
-  hal_bit_t auto_fault_reset;     /**< Parameter: 1 = automatically reset faults on enable */
+  gomc_hal_bit_t auto_fault_reset;     /**< Parameter: 1 = automatically reset faults on enable */
 
-  hal_float_t stm_pos_scale;      /**< Parameter: position scale factor (user units / raw count) */
-  hal_float_t *stm_pos_cmd;       /**< IN: commanded position in user units */
+  gomc_hal_float_t stm_pos_scale;      /**< Parameter: position scale factor (user units / raw count) */
+  gomc_hal_float_t *stm_pos_cmd;       /**< IN: commanded position in user units */
 
-  hal_float_t auto_reduce_tourque_delay;  /**< Parameter: seconds of idle before auto-reduce-torque fires */
+  gomc_hal_float_t auto_reduce_tourque_delay;  /**< Parameter: seconds of idle before auto-reduce-torque fires */
   long long auto_reduce_tourque_timer;    /**< Internal timer (ns) counting idle time */
 
-  hal_bit_t *stm_ready_to_enable; /**< OUT: drive ready-to-enable status */
-  hal_bit_t *stm_ready;           /**< OUT: drive ready status */
-  hal_bit_t *stm_warning;         /**< OUT: drive warning active */
-  hal_bit_t *stm_error;           /**< OUT: drive error active */
-  hal_bit_t *stm_move_pos;        /**< OUT: drive currently moving in positive direction */
-  hal_bit_t *stm_move_neg;        /**< OUT: drive currently moving in negative direction */
-  hal_bit_t *stm_torque_reduced;  /**< OUT: reduced torque mode currently active */
-  hal_bit_t *stm_din1;            /**< OUT: digital input 1 state */
-  hal_bit_t *stm_din2;            /**< OUT: digital input 2 state */
-  hal_bit_t *stm_sync_err;        /**< OUT: EtherCAT sync error flag */
-  hal_bit_t *stm_tx_toggle;       /**< OUT: TxPDO toggle (new data indicator) */
-  hal_bit_t *stm_enable;          /**< IN: enable the stepper drive */
-  hal_bit_t *stm_reset;           /**< IN: reset drive faults */
-  hal_bit_t *stm_reduce_torque;   /**< IN: manually request reduced torque */
-  hal_s32_t *stm_pos_cmd_raw;     /**< OUT: scaled 32-bit raw position setpoint */
+  gomc_hal_bit_t *stm_ready_to_enable; /**< OUT: drive ready-to-enable status */
+  gomc_hal_bit_t *stm_ready;           /**< OUT: drive ready status */
+  gomc_hal_bit_t *stm_warning;         /**< OUT: drive warning active */
+  gomc_hal_bit_t *stm_error;           /**< OUT: drive error active */
+  gomc_hal_bit_t *stm_move_pos;        /**< OUT: drive currently moving in positive direction */
+  gomc_hal_bit_t *stm_move_neg;        /**< OUT: drive currently moving in negative direction */
+  gomc_hal_bit_t *stm_torque_reduced;  /**< OUT: reduced torque mode currently active */
+  gomc_hal_bit_t *stm_din1;            /**< OUT: digital input 1 state */
+  gomc_hal_bit_t *stm_din2;            /**< OUT: digital input 2 state */
+  gomc_hal_bit_t *stm_sync_err;        /**< OUT: EtherCAT sync error flag */
+  gomc_hal_bit_t *stm_tx_toggle;       /**< OUT: TxPDO toggle (new data indicator) */
+  gomc_hal_bit_t *stm_enable;          /**< IN: enable the stepper drive */
+  gomc_hal_bit_t *stm_reset;           /**< IN: reset drive faults */
+  gomc_hal_bit_t *stm_reduce_torque;   /**< IN: manually request reduced torque */
+  gomc_hal_s32_t *stm_pos_cmd_raw;     /**< OUT: scaled 32-bit raw position setpoint */
 
-  hal_s32_t stm_pos_cmd_raw_last; /**< Previous raw position command for change detection */
+  gomc_hal_s32_t stm_pos_cmd_raw_last; /**< Previous raw position command for change detection */
 
   unsigned int stm_ready_to_enable_pdo_os; /**< PDO byte offset: ready-to-enable */
   unsigned int stm_ready_to_enable_pdo_bp; /**< Bit position: ready-to-enable */
@@ -211,31 +211,31 @@ static ec_sync_info_t lcec_el7041_0052_syncs[] = {
 
 static const lcec_pindesc_t slave_pins[] = {
   // servo pins
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_ready_to_enable), "%s.%s.%s.srv-ready-to-enable" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_ready),           "%s.%s.%s.srv-ready" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_warning),         "%s.%s.%s.srv-warning" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_error),           "%s.%s.%s.srv-error" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_move_pos),        "%s.%s.%s.srv-move-pos" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_move_neg),        "%s.%s.%s.srv-move-neg" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_torque_reduced),  "%s.%s.%s.srv-torque-reduced" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_din1),            "%s.%s.%s.srv-din1" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_din2),            "%s.%s.%s.srv-din2" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_sync_err),        "%s.%s.%s.srv-sync-error" },
-  { HAL_BIT,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_tx_toggle),       "%s.%s.%s.srv-tx-toggle" },
-  { HAL_BIT,   HAL_IN,  offsetof(lcec_el70x1_data_t, stm_enable),          "%s.%s.%s.srv-enable" },
-  { HAL_BIT,   HAL_IN,  offsetof(lcec_el70x1_data_t, stm_reset),           "%s.%s.%s.srv-reset" },
-  { HAL_BIT,   HAL_IN,  offsetof(lcec_el70x1_data_t, stm_reduce_torque),   "%s.%s.%s.srv-reduce-torque" },
-  { HAL_FLOAT, HAL_IN,  offsetof(lcec_el70x1_data_t, stm_pos_cmd),         "%s.%s.%s.srv-pos-cmd" },
-  { HAL_S32,   HAL_OUT, offsetof(lcec_el70x1_data_t, stm_pos_cmd_raw),     "%s.%s.%s.srv-pos-cmd-raw" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_ready_to_enable), "%s.%s.%s.srv-ready-to-enable" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_ready),           "%s.%s.%s.srv-ready" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_warning),         "%s.%s.%s.srv-warning" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_error),           "%s.%s.%s.srv-error" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_move_pos),        "%s.%s.%s.srv-move-pos" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_move_neg),        "%s.%s.%s.srv-move-neg" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_torque_reduced),  "%s.%s.%s.srv-torque-reduced" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_din1),            "%s.%s.%s.srv-din1" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_din2),            "%s.%s.%s.srv-din2" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_sync_err),        "%s.%s.%s.srv-sync-error" },
+  { GOMC_HAL_BIT,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_tx_toggle),       "%s.%s.%s.srv-tx-toggle" },
+  { GOMC_HAL_BIT,   GOMC_HAL_IN,  offsetof(lcec_el70x1_data_t, stm_enable),          "%s.%s.%s.srv-enable" },
+  { GOMC_HAL_BIT,   GOMC_HAL_IN,  offsetof(lcec_el70x1_data_t, stm_reset),           "%s.%s.%s.srv-reset" },
+  { GOMC_HAL_BIT,   GOMC_HAL_IN,  offsetof(lcec_el70x1_data_t, stm_reduce_torque),   "%s.%s.%s.srv-reduce-torque" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN,  offsetof(lcec_el70x1_data_t, stm_pos_cmd),         "%s.%s.%s.srv-pos-cmd" },
+  { GOMC_HAL_S32,   GOMC_HAL_OUT, offsetof(lcec_el70x1_data_t, stm_pos_cmd_raw),     "%s.%s.%s.srv-pos-cmd-raw" },
 
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_params[] = {
-  { HAL_FLOAT, HAL_RW, offsetof(lcec_el70x1_data_t, stm_pos_scale),  "%s.%s.%s.srv-pos-scale" },
-  { HAL_BIT, HAL_RW, offsetof(lcec_el70x1_data_t, auto_fault_reset), "%s.%s.%s.auto-fault-reset" },
-  { HAL_FLOAT, HAL_RW, offsetof(lcec_el70x1_data_t, auto_reduce_tourque_delay), "%s.%s.%s.auto-reduce-torque-delay" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_RW, offsetof(lcec_el70x1_data_t, stm_pos_scale),  "%s.%s.%s.srv-pos-scale" },
+  { GOMC_HAL_BIT, GOMC_HAL_RW, offsetof(lcec_el70x1_data_t, auto_fault_reset), "%s.%s.%s.auto-fault-reset" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RW, offsetof(lcec_el70x1_data_t, auto_reduce_tourque_delay), "%s.%s.%s.auto-reduce-torque-delay" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs);
@@ -286,6 +286,7 @@ int lcec_el7041_0052_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_re
  */
 int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_slave_modparam_t *p;
   lcec_el70x1_data_t *hal_data;
   int err;
@@ -296,7 +297,7 @@ int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
 
   // set to position mode
   if (ecrt_slave_config_sdo8(slave->config, 0x8012, 0x01, 3) != 0) {
-    rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo position mode\n", master->name, slave->name);
+    LCEC_ERR(master, "fail to configure slave %s.%s sdo position mode", master->name, slave->name);
     return -1;
   }
 
@@ -305,31 +306,31 @@ int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     switch(p->id) {
       case LCEC_EL70x1_PARAM_MAX_CURR:
         if (ecrt_slave_config_sdo16(slave->config, 0x8010, 0x01, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo maxCurrent\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo maxCurrent", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL70x1_PARAM_RED_CURR:
         if (ecrt_slave_config_sdo16(slave->config, 0x8010, 0x02, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo redCurrent\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo redCurrent", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL70x1_PARAM_NOM_VOLT:
         if (ecrt_slave_config_sdo16(slave->config, 0x8010, 0x03, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo nomVoltage\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo nomVoltage", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL70x1_PARAM_COIL_RES:
         if (ecrt_slave_config_sdo16(slave->config, 0x8010, 0x04, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo coilRes\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo coilRes", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL70x1_PARAM_MOTOR_EMF:
         if (ecrt_slave_config_sdo16(slave->config, 0x8010, 0x05, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo motorEMF\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo motorEMF", master->name, slave->name);
           return -1;
         }
         break;
@@ -337,8 +338,8 @@ int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   }
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el70x1_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el70x1_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el70x1_data_t));
@@ -364,12 +365,12 @@ int lcec_el70x1_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7010, 0x11, &hal_data->stm_pos_raw_pdo_os, NULL);
 
   // export pins
-  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 
   // export pins
-  if ((err = lcec_param_newf_list(comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_param_newf_list(env, comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 

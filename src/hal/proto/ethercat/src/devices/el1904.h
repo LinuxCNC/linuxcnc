@@ -6,14 +6,14 @@
  * Product ID: 0x07703052
  *
  * HAL pins exposed:
- *   - `<pfx>.fsoe-master-cmd`    (HAL_U32, HAL_OUT): FSoE master command word.
- *   - `<pfx>.fsoe-master-crc`    (HAL_U32, HAL_OUT): FSoE master CRC.
- *   - `<pfx>.fsoe-master-connid` (HAL_U32, HAL_OUT): FSoE master connection ID.
- *   - `<pfx>.fsoe-slave-cmd`     (HAL_U32, HAL_OUT): FSoE slave command word.
- *   - `<pfx>.fsoe-slave-crc`     (HAL_U32, HAL_OUT): FSoE slave CRC.
- *   - `<pfx>.fsoe-slave-connid`  (HAL_U32, HAL_OUT): FSoE slave connection ID.
- *   - `<pfx>.fsoe-in-<n>`        (HAL_BIT, HAL_OUT): Safe digital input state (n=0..3).
- *   - `<pfx>.fsoe-in-<n>-not`    (HAL_BIT, HAL_OUT): Inverted safe digital input state.
+ *   - `<pfx>.fsoe-master-cmd`    (GOMC_HAL_U32, GOMC_HAL_OUT): FSoE master command word.
+ *   - `<pfx>.fsoe-master-crc`    (GOMC_HAL_U32, GOMC_HAL_OUT): FSoE master CRC.
+ *   - `<pfx>.fsoe-master-connid` (GOMC_HAL_U32, GOMC_HAL_OUT): FSoE master connection ID.
+ *   - `<pfx>.fsoe-slave-cmd`     (GOMC_HAL_U32, GOMC_HAL_OUT): FSoE slave command word.
+ *   - `<pfx>.fsoe-slave-crc`     (GOMC_HAL_U32, GOMC_HAL_OUT): FSoE slave CRC.
+ *   - `<pfx>.fsoe-slave-connid`  (GOMC_HAL_U32, GOMC_HAL_OUT): FSoE slave connection ID.
+ *   - `<pfx>.fsoe-in-<n>`        (GOMC_HAL_BIT, GOMC_HAL_OUT): Safe digital input state (n=0..3).
+ *   - `<pfx>.fsoe-in-<n>-not`    (GOMC_HAL_BIT, GOMC_HAL_OUT): Inverted safe digital input state.
  *
  * @copyright Copyright (C) 2018-2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *

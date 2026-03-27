@@ -66,7 +66,6 @@
 #include <ctype.h>
 #include <pthread.h>
 #include <atomic>
-#include "rtapi.h"                /* rtapi_print_msg */
 #include "rcs.hh"                /* RCS_CMD_CHANNEL */
 #include "emc.hh"                /* EMC NML */
 #include "emc_nml.hh"
@@ -79,7 +78,7 @@
 
 #include "launcher/pkg/cmodule/gomc_env.h"
 
-#define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
+#define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d",__FILE__,__LINE__);
 
 struct iocontrol_str {
     gomc_hal_bit_t *user_enable_out;        /* output, TRUE when EMC wants stop */
@@ -158,8 +157,7 @@ static int emcIoNmlGet(iocontrol_module *m)
         m->emcioCommandBuffer =
             new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "tool", emc_nmlfile);
         if (!m->emcioCommandBuffer->valid()) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                            "emcToolCmd buffer not available\n");
+            gomc_log_errorf(m->env->log, m->name, "emcToolCmd buffer not available");
             delete m->emcioCommandBuffer;
             m->emcioCommandBuffer = 0;
             retval = -1;
@@ -175,8 +173,7 @@ static int emcIoNmlGet(iocontrol_module *m)
             new RCS_STAT_CHANNEL(emcFormat, "toolSts", "tool",
                                  emc_nmlfile);
         if (!m->emcioStatusBuffer->valid()) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                            "toolSts buffer not available\n");
+            gomc_log_errorf(m->env->log, m->name, "toolSts buffer not available");
             delete m->emcioStatusBuffer;
             m->emcioStatusBuffer = 0;
             retval = -1;
@@ -195,8 +192,7 @@ static int emcIoNmlGet(iocontrol_module *m)
         m->emcErrorBuffer =
             new NML(nmlErrorFormat, "emcError", "tool", emc_nmlfile);
         if (!m->emcErrorBuffer->valid()) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                            "emcError buffer not available\n");
+            gomc_log_errorf(m->env->log, m->name, "emcError buffer not available");
             delete m->emcErrorBuffer;
             m->emcErrorBuffer = 0;
             retval = -1;
@@ -239,7 +235,7 @@ static int iniLoad(iocontrol_module *m)
         double temp = emc_io_cycle_time;
         if (1 != sscanf(val, "%lf", &emc_io_cycle_time)) {
             emc_io_cycle_time = temp;
-            rtapi_print("invalid [EMCIO] CYCLE_TIME (%s); using default %f\n",
+            gomc_log_warnf(m->env->log, m->name, "invalid [EMCIO] CYCLE_TIME (%s); using default %f",
                         val, emc_io_cycle_time);
         }
     }
@@ -255,7 +251,7 @@ static int iniLoad(iocontrol_module *m)
         rtapi_strxcpy(m->db_program, val);
         m->io_db_mode = DB_ACTIVE;
         if (tooltable_specified) {
-            fprintf(stderr, "DB_PROGRAM active: IGNORING tool table file %s\n",
+            fprintf(stderr, "DB_PROGRAM active: IGNORING tool table file %s",
                     m->io_tool_table_file);
         }
     }
@@ -278,16 +274,14 @@ static int iocontrol_hal_init(iocontrol_module *m)
     /* STEP 1: initialise the hal component */
     m->comp_id = m->env->hal->init(m->env->hal->ctx, m->name, m->env->dl_handle, GOMC_HAL_COMP_USER);
     if (m->comp_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: hal_init() failed\n");
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: hal_init() failed");
         return -1;
     }
 
     /* STEP 2: allocate shared memory for iocontrol data */
     m->hal_data = (iocontrol_str *) m->env->hal->malloc(m->env->hal->ctx, sizeof(iocontrol_str));
     if (m->hal_data == 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: hal_malloc() failed\n");
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: hal_malloc() failed");
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
     }
@@ -298,8 +292,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->user_enable_out), m->comp_id,
                               "%s.user-enable-out", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin user-enable-out export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin user-enable-out export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -308,8 +301,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->user_request_enable), m->comp_id,
                              "%s.user-request-enable", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin user-request-enable export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin user-request-enable export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -318,8 +310,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->coolant_flood), m->comp_id,
                          "%s.coolant-flood", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin coolant-flood export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin coolant-flood export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -328,8 +319,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->coolant_mist), m->comp_id,
                               "%s.coolant-mist", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin coolant-mist export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin coolant-mist export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -338,8 +328,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->lube), m->comp_id,
                               "%s.lube", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin lube export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin lube export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -348,8 +337,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_prepare), m->comp_id,
                               "%s.tool-prepare", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin tool-prepare export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin tool-prepare export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -358,8 +346,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_number), m->comp_id,
                               "%s.tool-number", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin tool-number export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin tool-number export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -368,8 +355,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_prep_number), m->comp_id,
                               "%s.tool-prep-number", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin tool-prep-number export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin tool-prep-number export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -379,8 +365,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_prep_index), m->comp_id,
                               "%s.tool-prep-index", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin tool-prep-index export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin tool-prep-index export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -390,8 +375,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_prep_pocket), m->comp_id,
                               "%s.tool-prep-pocket", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin tool-prep-pocket export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin tool-prep-pocket export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -400,8 +384,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_s32_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_from_pocket), m->comp_id,
                               "%s.tool-from-pocket", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin tool-from-pocket export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin tool-from-pocket export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -410,8 +393,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_IN, &(m->hal_data->tool_prepared), m->comp_id,
                               "%s.tool-prepared", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin tool-prepared export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin tool-prepared export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -420,8 +402,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_OUT, &(m->hal_data->tool_change), m->comp_id,
                               "%s.tool-change", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin tool-change export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin tool-change export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -430,8 +411,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_IN, &(m->hal_data->tool_changed), m->comp_id,
                         "%s.tool-changed", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin tool-changed export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin tool-changed export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -442,8 +422,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_IN, &(m->hal_data->emc_enable_in), m->comp_id,
                              "%s.emc-enable-in", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin emc-enable-in export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin emc-enable-in export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -452,8 +431,7 @@ static int iocontrol_hal_init(iocontrol_module *m)
     retval = gomc_hal_pin_bit_newf(m->env->hal, GOMC_HAL_IN, &(m->hal_data->lube_level), m->comp_id,
                              "%s.lube_level", m->name);
     if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "IOCONTROL: ERROR: %s pin lube_level export failed with err=%i\n",
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: %s pin lube_level export failed with err=%i",
                         m->name, retval);
         m->env->hal->exit(m->env->hal->ctx, m->comp_id);
         return -1;
@@ -699,7 +677,7 @@ static void *iocontrol_loop(void *arg)
             break;
 
         case EMC_IO_INIT_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_IO_INIT\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_IO_INIT");
             hal_init_pins(m);
             break;
 
@@ -709,11 +687,11 @@ static void *iocontrol_loop(void *arg)
             break;
 
         case EMC_TOOL_HALT_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_HALT\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_TOOL_HALT");
             break;
 
         case EMC_TOOL_ABORT_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_TOOL_ABORT");
             m->emcioStatus.coolant.mist = 0;
             m->emcioStatus.coolant.flood = 0;
             *(d->coolant_mist)=0;
@@ -737,7 +715,7 @@ static void *iocontrol_loop(void *arg)
                     if (tooldata_get(&tdata,idx) != IDX_OK) {
                         UNEXPECTED_MSG;
                     }
-                    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d idx=%d\n", toolno, idx);
+                    gomc_log_debugf(m->env->log, m->name, "EMC_TOOL_PREPARE tool=%d idx=%d", toolno, idx);
 
                     *(d->tool_prep_index)  = idx;
 
@@ -771,7 +749,7 @@ static void *iocontrol_loop(void *arg)
             }
             break;
         case EMC_TOOL_LOAD_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", m->emcioStatus.tool.toolInSpindle, m->emcioStatus.tool.pocketPrepped);
+            gomc_log_debugf(m->env->log, m->name, "EMC_TOOL_LOAD loaded=%d prepped=%d", m->emcioStatus.tool.toolInSpindle, m->emcioStatus.tool.pocketPrepped);
 
         {
             if (m->random_toolchanger && m->emcioStatus.tool.pocketPrepped == 0) {
@@ -795,7 +773,7 @@ static void *iocontrol_loop(void *arg)
             break;
         }
         case EMC_TOOL_UNLOAD_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_UNLOAD\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_TOOL_UNLOAD");
             m->emcioStatus.tool.toolInSpindle = 0;
             break;
 
@@ -804,7 +782,7 @@ static void *iocontrol_loop(void *arg)
                 const char *filename =
                     ((EMC_TOOL_LOAD_TOOL_TABLE *) m->emcioCommand)->file;
                 if(!strlen(filename)) filename = m->io_tool_table_file;
-                rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
+                gomc_log_debugf(m->env->log, m->name, "EMC_TOOL_LOAD_TOOL_TABLE");
                 if (0 != tooldata_load(filename, m->ttcomments)) {
                     m->emcioStatus.status = RCS_ERROR;
                 } else {
@@ -826,10 +804,9 @@ static void *iocontrol_loop(void *arg)
                 b = ((EMC_TOOL_SET_OFFSET *) m->emcioCommand)->backangle;
                 o = ((EMC_TOOL_SET_OFFSET *) m->emcioCommand)->orientation;
 
-                rtapi_print_msg(RTAPI_MSG_DBG,
-                     "EMC_TOOL_SET_OFFSET idx=%d toolno=%d zoffset=%lf, "
+                gomc_log_debugf(m->env->log, m->name, "EMC_TOOL_SET_OFFSET idx=%d toolno=%d zoffset=%lf, "
                      "xoffset=%lf, diameter=%lf, "
-                     "frontangle=%lf, backangle=%lf, orientation=%d\n",
+                     "frontangle=%lf, backangle=%lf, orientation=%d",
                      idx, toolno, offs.tran.z, offs.tran.x, dd, f, b, o);
                 CANON_TOOL_TABLE tdata;
                 if (tooldata_get(&tdata,idx) != IDX_OK) {
@@ -873,8 +850,7 @@ static void *iocontrol_loop(void *arg)
                    UNEXPECTED_MSG;
                 }
                 m->emcioStatus.tool.toolInSpindle = tdata.toolno;
-                rtapi_print_msg(RTAPI_MSG_DBG,
-                     "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_idx_number=%d new_tool=%d\n"
+                gomc_log_debugf(m->env->log, m->name, "EMC_TOOL_SET_NUMBER old_loaded_tool=%d new_idx_number=%d new_tool=%d"
                      , m->emcioStatus.tool.toolInSpindle, idx, tdata.toolno);
                 *(d->tool_number) = m->emcioStatus.tool.toolInSpindle;
                 if (m->emcioStatus.tool.toolInSpindle == 0) {
@@ -884,68 +860,68 @@ static void *iocontrol_loop(void *arg)
             break;
 
         case EMC_COOLANT_MIST_ON_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_ON\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_COOLANT_MIST_ON");
             m->emcioStatus.coolant.mist = 1;
             *(d->coolant_mist) = 1;
             break;
 
         case EMC_COOLANT_MIST_OFF_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_OFF\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_COOLANT_MIST_OFF");
             m->emcioStatus.coolant.mist = 0;
             *(d->coolant_mist) = 0;
             break;
 
         case EMC_COOLANT_FLOOD_ON_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_FLOOD_ON\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_COOLANT_FLOOD_ON");
             m->emcioStatus.coolant.flood = 1;
             *(d->coolant_flood) = 1;
             break;
 
         case EMC_COOLANT_FLOOD_OFF_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_FLOOD_OFF\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_COOLANT_FLOOD_OFF");
             m->emcioStatus.coolant.flood = 0;
             *(d->coolant_flood) = 0;
             break;
 
         case EMC_AUX_ESTOP_ON_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_ON\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_AUX_ESTOP_ON");
             *(d->user_enable_out) = 0;
             hal_init_pins(m);
             break;
 
         case EMC_AUX_ESTOP_OFF_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_OFF\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_AUX_ESTOP_OFF");
             *(d->user_enable_out) = 1;
             *(d->user_request_enable) = 1;
             break;
 
         case EMC_AUX_ESTOP_RESET_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_RESET\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_AUX_ESTOP_RESET");
             break;
 
         case EMC_LUBE_ON_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_ON\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_LUBE_ON");
             m->emcioStatus.lube.on = 1;
             *(d->lube) = 1;
             break;
 
         case EMC_LUBE_OFF_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_OFF\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_LUBE_OFF");
             m->emcioStatus.lube.on = 0;
             *(d->lube) = 0;
             break;
 
         case EMC_SET_DEBUG_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SET_DEBUG\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_SET_DEBUG");
             emc_debug = ((EMC_SET_DEBUG *) m->emcioCommand)->debug;
             break;
 
         case EMC_TOOL_START_CHANGE_TYPE:
-            rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_START_CHANGE\n");
+            gomc_log_debugf(m->env->log, m->name, "EMC_TOOL_START_CHANGE");
             break;
 
         default:
-            rtapi_print("IO: unknown command %s\n", emcSymbolLookup(type));
+            gomc_log_warnf(m->env->log, m->name, "IO: unknown command %s", emcSymbolLookup(type));
             break;
         }
 
@@ -971,8 +947,7 @@ static int iocontrol_start(cmod_t *self)
     iocontrol_module *m = (iocontrol_module *)self->priv;
 
     if (0 != emcIoNmlGet(m)) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "can't connect to NML buffers in %s\n",
+        gomc_log_errorf(m->env->log, m->name, "can't connect to NML buffers in %s",
                         emc_nmlfile);
         return -1;
     }
@@ -980,7 +955,7 @@ static int iocontrol_start(cmod_t *self)
     m->done = 0;
     m->thread_started = true;
     if (pthread_create(&m->loop_thread, NULL, iocontrol_loop, m) != 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "IOCONTROL: ERROR: pthread_create failed\n");
+        gomc_log_errorf(m->env->log, m->name, "IOCONTROL: ERROR: pthread_create failed");
         m->thread_started = false;
         return -1;
     }
@@ -1083,7 +1058,7 @@ extern "C" int New(const cmod_env_t *env, const char *name,
 
     if (m->io_db_mode == DB_ACTIVE) {
         if (tooldata_db_init(m->db_program, m->random_toolchanger)) {
-            fprintf(stderr,"\n%5d IO::tooldata_db_init() FAIL\n\n",getpid());
+            fprintf(stderr,"\n%5d IO::tooldata_db_init() FAIL\n",getpid());
             m->io_db_mode = DB_NOTUSED;
         }
     }
@@ -1098,7 +1073,7 @@ extern "C" int New(const cmod_env_t *env, const char *name,
         }
     }
     if (0 != tooldata_load(m->io_tool_table_file, m->ttcomments)) {
-        rcs_print_error("can't load tool table.\n");
+        rcs_print_error("can't load tool table.");
     }
 
     m->emcioStatus.aux.estop = 1;

@@ -181,7 +181,7 @@ int parseIcmds(lcec_conf_module *mod, LCEC_CONF_SLAVE_T *slave, LCEC_CONF_OUTBUF
 
   // create xml parser
   if (initXmlInst((LCEC_CONF_XML_INST_T *) &state, xml_states)) {
-    mod->env->log_error(mod->env->ctx, mod->name, "couldn't allocate memory for parser");
+    xml_log_error_fmt((LCEC_CONF_XML_INST_T *)&state, "couldn't allocate memory for parser");
     goto fail2;
   }
 

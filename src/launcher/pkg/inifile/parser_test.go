@@ -370,6 +370,24 @@ CYCLE_TIME = 0.010
 	}
 }
 
+func TestSubstitute_HyphenatedKey(t *testing.T) {
+	dir := t.TempDir()
+	f := writeFile(t, dir, "hyphen.ini", `
+[XHC-HB04]
+goto-zero = halui.mdi-command-00
+`)
+	ini, err := inifile.Parse(f)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	input := "setp xhc-hb04.button-pin [XHC-HB04]goto-zero"
+	want := "setp xhc-hb04.button-pin halui.mdi-command-00"
+	if got := ini.Substitute(input); got != want {
+		t.Errorf("Substitute hyphenated key:\n got  %q\n want %q", got, want)
+	}
+}
+
 // --------------------------------------------------------------------------
 // 13. Environment variable expansion in #INCLUDE paths
 // --------------------------------------------------------------------------

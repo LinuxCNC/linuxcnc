@@ -74,7 +74,7 @@ void *addOutputBuffer(LCEC_CONF_OUTBUF_T *buf, size_t len) {
   void *p = calloc(1, sizeof(LCEC_CONF_OUTBUF_ITEM_T) + len);
   if (p == NULL) {
     if (buf->mod) {
-      buf->mod->env->log_error(buf->mod->env->ctx, buf->mod->name,
+      gomc_log_errorf(buf->mod->env->log, buf->mod->name,
           "Couldn't allocate memory for config token");
     }
     return NULL;

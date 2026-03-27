@@ -476,6 +476,34 @@ func (l *Launcher) startServer() error {
 	return nil
 }
 
+// resolveNmlFile determines the NML configuration file path.
+//
+// Resolution order:
+//  1. [LINUXCNC]NML_FILE (preferred, new canonical section)
+//  2. [EMC]NML_FILE (legacy fallback)
+//  3. config.DefaultNmlFile (build-time default)
+//
+// Relative paths are resolved against the INI file's directory.
+func (l *Launcher) resolveNmlFile() string {
+	nmlFile := l.ini.Get("LINUXCNC", "NML_FILE")
+	if nmlFile == "" {
+		nmlFile = l.ini.Get("EMC", "NML_FILE")
+	}
+	if nmlFile == "" {
+		return config.DefaultNmlFile
+	}
+	return l.resolveRelativePath(nmlFile)
+}
+
+// resolveRelativePath resolves path against the INI file's directory when it
+// is relative.  Absolute paths are returned unchanged.
+func (l *Launcher) resolveRelativePath(path string) string {
+	if filepath.IsAbs(path) || l.opts.IniFile == "" {
+		return path
+	}
+	return filepath.Join(filepath.Dir(l.opts.IniFile), path)
+}
+
 // startIOControl loads and initialises the IO controller as a C module plugin.
 //
 // EMCIO resolution: [IO]IO → [EMCIO]EMCIO → default "io".

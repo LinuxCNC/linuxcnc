@@ -26,10 +26,10 @@
  * @brief Per-channel HAL data for one EL1859 input/output pair.
  */
 typedef struct {
-  hal_bit_t *in;       /**< HAL output pin: digital input state. */
-  hal_bit_t *in_not;   /**< HAL output pin: inverted digital input state. */
-  hal_bit_t *out;      /**< HAL input pin: digital output command. */
-  hal_bit_t invert;    /**< HAL parameter: invert output polarity when non-zero. */
+  gomc_hal_bit_t *in;       /**< HAL output pin: digital input state. */
+  gomc_hal_bit_t *in_not;   /**< HAL output pin: inverted digital input state. */
+  gomc_hal_bit_t *out;      /**< HAL input pin: digital output command. */
+  gomc_hal_bit_t invert;    /**< HAL parameter: invert output polarity when non-zero. */
   unsigned int pdo_in_os;  /**< Byte offset of the input PDO entry in the process data image. */
   unsigned int pdo_in_bp;  /**< Bit position within pdo_in_os. */
   unsigned int pdo_out_os; /**< Byte offset of the output PDO entry in the process data image. */
@@ -38,15 +38,15 @@ typedef struct {
 } lcec_el1859_pin_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el1859_pin_t, in), "%s.%s.%s.din-%d" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el1859_pin_t, in_not), "%s.%s.%s.din-%d-not" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el1859_pin_t, out), "%s.%s.%s.dout-%d" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el1859_pin_t, in), "%s.%s.%s.din-%d" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el1859_pin_t, in_not), "%s.%s.%s.din-%d-not" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el1859_pin_t, out), "%s.%s.%s.dout-%d" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_params[] = {
-  { HAL_BIT, HAL_RW, offsetof(lcec_el1859_pin_t, invert), "%s.%s.%s.dout-%d-invert" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_RW, offsetof(lcec_el1859_pin_t, invert), "%s.%s.%s.dout-%d-invert" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /**
@@ -73,6 +73,7 @@ void lcec_el1859_write(struct lcec_slave *slave, long period);
  */
 int lcec_el1859_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el1859_pin_t *hal_data;
   lcec_el1859_pin_t *pin;
   int i;
@@ -83,8 +84,8 @@ int lcec_el1859_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_el1859_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el1859_pin_t) * LCEC_EL1859_PINS)) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el1859_pin_t) * LCEC_EL1859_PINS)) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el1859_pin_t) * LCEC_EL1859_PINS);
@@ -97,12 +98,12 @@ int lcec_el1859_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7080 + (i << 4), 0x01, &pin->pdo_out_os, &pin->pdo_out_bp);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, pin, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, pin, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 
     // export parameters
-    if ((err = lcec_param_newf_list(comp_id, pin, slave_params, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_param_newf_list(env, comp_id, pin, slave_params, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
   }

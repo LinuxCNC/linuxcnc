@@ -33,20 +33,38 @@
 #ifndef _LCEC_H_
 #define _LCEC_H_
 
-#include <rtapi.h>
-#include <rtapi_stdint.h>
+#include "launcher/pkg/cmodule/gomc_env.h"
+
+#include <errno.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <sys/time.h>
-
-#include "hal.h"
-
-#include "rtapi_ctype.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
+#include <ctype.h>
+#include <math.h>
 
 #include "ecrt.h"
 #include "conf.h"
+
+/**
+ * @defgroup lcec_log Logging wrapper macros
+ *
+ * Convenience macros that forward to gomc_log_*f() using the cached
+ * @c log / @c comp_name pointers on @c lcec_master_t.  Every macro
+ * expects a pointer to the master as its first argument.
+ * @{
+ */
+#define LCEC_ERR(master, fmt, ...) \
+  gomc_log_errorf((master)->log, (master)->comp_name, fmt, ##__VA_ARGS__)
+#define LCEC_WARN(master, fmt, ...) \
+  gomc_log_warnf((master)->log, (master)->comp_name, fmt, ##__VA_ARGS__)
+#define LCEC_INFO(master, fmt, ...) \
+  gomc_log_infof((master)->log, (master)->comp_name, fmt, ##__VA_ARGS__)
+#define LCEC_DBG(master, fmt, ...) \
+  gomc_log_debugf((master)->log, (master)->comp_name, fmt, ##__VA_ARGS__)
+/** @} */ // lcec_log
 
 /**
  * @defgroup lcec_list Linked-list helpers
@@ -114,9 +132,6 @@ do {                        \
 } while (0);                \
 
 /** @} */ // lcec_pdo
-
-/** @brief Log message prefix prepended to all LCEC diagnostic output. */
-#define LCEC_MSG_PFX "LCEC: "
 
 /**
  * @defgroup lcec_vendor_ids EtherCAT vendor IDs
@@ -291,17 +306,17 @@ typedef struct {
  * and remain valid for the lifetime of the HAL component.
  */
 typedef struct lcec_master_data {
-  hal_u32_t *slaves_responding; /**< Number of slaves currently visible on the bus. */
-  hal_bit_t *state_init;        /**< TRUE when at least one slave is in INIT state. */
-  hal_bit_t *state_preop;       /**< TRUE when at least one slave is in PRE-OP state. */
-  hal_bit_t *state_safeop;      /**< TRUE when at least one slave is in SAFE-OP state. */
-  hal_bit_t *state_op;          /**< TRUE when all slaves are in OP state. */
-  hal_bit_t *link_up;           /**< TRUE when the EtherCAT physical link is up. */
-  hal_bit_t *all_op;            /**< TRUE when the master reports all slaves operational. */
-#ifdef RTAPI_TASK_PLL_SUPPORT
-  hal_s32_t *pll_err;           /**< Current PLL phase error in nanoseconds. */
-  hal_s32_t *pll_out;           /**< Current PLL correction output in nanoseconds. */
-  hal_u32_t *pll_reset_cnt;     /**< Cumulative number of PLL resets since module load. */
+  gomc_hal_u32_t *slaves_responding; /**< Number of slaves currently visible on the bus. */
+  gomc_hal_bit_t *state_init;        /**< TRUE when at least one slave is in INIT state. */
+  gomc_hal_bit_t *state_preop;       /**< TRUE when at least one slave is in PRE-OP state. */
+  gomc_hal_bit_t *state_safeop;      /**< TRUE when at least one slave is in SAFE-OP state. */
+  gomc_hal_bit_t *state_op;          /**< TRUE when all slaves are in OP state. */
+  gomc_hal_bit_t *link_up;           /**< TRUE when the EtherCAT physical link is up. */
+  gomc_hal_bit_t *all_op;            /**< TRUE when the master reports all slaves operational. */
+#ifdef GOMC_RTAPI_TASK_PLL_SUPPORT
+  gomc_hal_s32_t *pll_err;           /**< Current PLL phase error in nanoseconds. */
+  gomc_hal_s32_t *pll_out;           /**< Current PLL correction output in nanoseconds. */
+  gomc_hal_u32_t *pll_reset_cnt;     /**< Cumulative number of PLL resets since module load. */
 #endif
 } lcec_master_data_t;
 
@@ -313,12 +328,12 @@ typedef struct lcec_master_data {
  * lifetime of the HAL component.
  */
 typedef struct lcec_slave_state {
-  hal_bit_t *online;        /**< TRUE when the slave is reachable on the bus. */
-  hal_bit_t *operational;   /**< TRUE when the slave is in OP state. */
-  hal_bit_t *state_init;    /**< TRUE when the slave AL state is INIT. */
-  hal_bit_t *state_preop;   /**< TRUE when the slave AL state is PRE-OP. */
-  hal_bit_t *state_safeop;  /**< TRUE when the slave AL state is SAFE-OP. */
-  hal_bit_t *state_op;      /**< TRUE when the slave AL state is OP. */
+  gomc_hal_bit_t *online;        /**< TRUE when the slave is reachable on the bus. */
+  gomc_hal_bit_t *operational;   /**< TRUE when the slave is in OP state. */
+  gomc_hal_bit_t *state_init;    /**< TRUE when the slave AL state is INIT. */
+  gomc_hal_bit_t *state_preop;   /**< TRUE when the slave AL state is PRE-OP. */
+  gomc_hal_bit_t *state_safeop;  /**< TRUE when the slave AL state is SAFE-OP. */
+  gomc_hal_bit_t *state_op;      /**< TRUE when the slave AL state is OP. */
 } lcec_slave_state_t;
 
 /**
@@ -339,6 +354,9 @@ typedef struct lcec_master {
   int comp_id;              /**< HAL component ID (from the owning module instance). */
   char instance_name[LCEC_CONF_STR_MAXLEN]; /**< Instance name from cmod New(); used as HAL pin name prefix. */
   struct lcec_rt_context *rt_ctx; /**< Back-pointer to the owning RT context (for per-instance state). */
+  const cmod_env_t *env;         /**< Convenience copy of rt_ctx->env for device/class code. */
+  const gomc_log_t *log;         /**< Convenience copy of env->log for logging macros. */
+  const char *comp_name;         /**< Component name for log messages (points to instance_name). */
 #ifdef EC_USPACE_MASTER
   int transport_type;                          /**< Transport layer type identifier (userspace build only). */
   char interface[LCEC_CONF_STR_MAXLEN];        /**< Primary network interface name (e.g. "eth0"). */
@@ -369,7 +387,7 @@ typedef struct lcec_master {
   int ref_clock_sync_counter;               /**< Remaining cycles before the next DC ref-clock sync. */
   uint64_t app_time_ns;    /**< Application time written to the EtherCAT master each cycle (ns). */
   uint64_t ref_time_ns;    /**< Reference time snapshot used for computing the DC time offset (ns). */
-#ifdef RTAPI_TASK_PLL_SUPPORT
+#ifdef GOMC_RTAPI_TASK_PLL_SUPPORT
   uint64_t dc_time_ns;     /**< DC system time read from the reference clock slave (ns). */
   int dc_started;          /**< Non-zero once the DC synchronisation PI controller has been seeded. */
   int64_t dc_diff_ns;      /**< Current DC phase error (application time minus DC time) in ns. */
@@ -518,8 +536,8 @@ typedef struct lcec_slave {
  * parameter.
  */
 typedef struct {
-  hal_type_t    type;   /**< HAL data type (HAL_BIT, HAL_U32, HAL_S32, HAL_FLOAT). */
-  hal_pin_dir_t dir;    /**< Pin/parameter direction (HAL_IN, HAL_OUT, HAL_IO, HAL_RO, HAL_RW). */
+  gomc_hal_type_t    type;   /**< HAL data type (GOMC_HAL_BIT, GOMC_HAL_U32, GOMC_HAL_S32, GOMC_HAL_FLOAT). */
+  int dir;    /**< Pin/parameter direction (GOMC_HAL_IN, GOMC_HAL_OUT, GOMC_HAL_IO, GOMC_HAL_RO, GOMC_HAL_RW). */
   int           offset; /**< Byte offset of the pointer field within the driver's HAL data struct. */
   const char   *fmt;    /**< printf-style name format string; NULL terminates the descriptor list. */
 } lcec_pindesc_t;
@@ -536,6 +554,9 @@ typedef struct {
  * @c LCEC_MAX_PDO_INFO_COUNT, and @c LCEC_MAX_PDO_ENTRY_COUNT.
  */
 typedef struct {
+  const gomc_log_t *log;           /**< Cached log handle for overflow diagnostics. */
+  const char       *comp_name;     /**< Component name for log messages. */
+
   int              sync_count;    /**< Number of sync managers added so far. */
   ec_sync_info_t  *curr_sync;     /**< Pointer to the sync manager currently being populated. */
   ec_sync_info_t   syncs[LCEC_MAX_SYNC_COUNT + 1]; /**< Sync-manager array; last slot holds the EC_END sentinel. */
@@ -585,45 +606,45 @@ int lcec_read_idn(struct lcec_slave *slave, uint8_t drive_no, uint16_t idn, uint
  * @param ...            Format arguments.
  * @return 0 on success, negative HAL error code on failure.
  */
-int lcec_pin_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, ...);
+int lcec_pin_newf(const cmod_env_t *env, int comp_id, gomc_hal_type_t type, int dir, void **data_ptr_addr, const char *fmt, ...);
 
 /**
  * @brief Create a list of HAL pins described by a NULL-terminated lcec_pindesc_t array.
  *
- * Iterates @p list until an entry with @c fmt == NULL is found.  Each pin's
- * storage pointer is derived as @p base + descriptor->offset.
- *
+ * @param env   Launcher-provided environment.
  * @param comp_id  HAL component ID.
  * @param base  Base pointer added to each descriptor's @c offset field.
  * @param list  NULL-terminated array of pin descriptors.
  * @param ...   Format arguments applied to every descriptor's @c fmt string.
  * @return 0 on success, negative HAL error code on the first failure.
  */
-int lcec_pin_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...);
+int lcec_pin_newf_list(const cmod_env_t *env, int comp_id, void *base, const lcec_pindesc_t *list, ...);
 
 /**
  * @brief Create a single HAL parameter with a printf-formatted name.
  *
+ * @param env        Launcher-provided environment.
  * @param comp_id    HAL component ID.
  * @param type       HAL data type.
- * @param dir        Parameter direction (HAL_RO or HAL_RW).
+ * @param dir        Parameter direction (GOMC_HAL_RO or GOMC_HAL_RW).
  * @param data_addr  Address of the parameter's storage.
  * @param fmt        printf-style format string for the parameter name.
  * @param ...        Format arguments.
  * @return 0 on success, negative HAL error code on failure.
  */
-int lcec_param_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, ...);
+int lcec_param_newf(const cmod_env_t *env, int comp_id, gomc_hal_type_t type, int dir, void *data_addr, const char *fmt, ...);
 
 /**
  * @brief Create a list of HAL parameters described by a NULL-terminated lcec_pindesc_t array.
  *
+ * @param env   Launcher-provided environment.
  * @param comp_id  HAL component ID.
  * @param base  Base pointer added to each descriptor's @c offset field.
  * @param list  NULL-terminated array of parameter descriptors.
  * @param ...   Format arguments applied to every descriptor's @c fmt string.
  * @return 0 on success, negative HAL error code on the first failure.
  */
-int lcec_param_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...);
+int lcec_param_newf_list(const cmod_env_t *env, int comp_id, void *base, const lcec_pindesc_t *list, ...);
 
 /**
  * @brief Look up a module parameter value for a slave by its driver-defined ID.
@@ -661,7 +682,7 @@ void copy_fsoe_data(struct lcec_slave *slave, unsigned int slave_offset, unsigne
  *
  * @param syncs  Builder structure to initialise.
  */
-void lcec_syncs_init(lcec_syncs_t *syncs);
+void lcec_syncs_init(lcec_syncs_t *syncs, struct lcec_master *master);
 
 /**
  * @brief Append a new sync manager entry to the syncs builder.

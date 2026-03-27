@@ -27,7 +27,8 @@
 #ifndef _LCEC_CONF_H_
 #define _LCEC_CONF_H_
 
-#include "hal.h"
+#include "launcher/pkg/cmodule/gomc_hal.h"
+
 #include "ecrt.h"
 
 /** @brief Legacy module name constant.
@@ -366,10 +367,10 @@ typedef struct {
   uint8_t subindex;                /**< Sub-index of the mapped object. */
   uint8_t bitLength;               /**< Length of the entry in bits (1–255). */
   LCEC_PDOENT_TYPE_T subType;      /**< Conversion type for raw-to-HAL mapping. */
-  hal_type_t halType;              /**< HAL data type of the pin to create. */
-  hal_float_t floatScale;          /**< Scale factor applied when @c subType is float
+  gomc_hal_type_t halType;              /**< HAL data type of the pin to create. */
+  gomc_hal_float_t floatScale;          /**< Scale factor applied when @c subType is float
                                     *   (raw × scale + offset → HAL float). */
-  hal_float_t floatOffset;         /**< Offset applied after scaling for float conversion. */
+  gomc_hal_float_t floatOffset;         /**< Offset applied after scaling for float conversion. */
   char halPin[LCEC_CONF_STR_MAXLEN]; /**< HAL pin name suffix, or empty string if the entry
                                       *   is mapped but no pin is desired. */
 } LCEC_CONF_PDOENTRY_T;
@@ -386,9 +387,9 @@ typedef struct {
   uint8_t bitOffset;               /**< Bit offset of this sub-field within the parent PDO entry. */
   uint8_t bitLength;               /**< Width of this sub-field in bits. */
   LCEC_PDOENT_TYPE_T subType;      /**< Conversion type for raw-to-HAL mapping. */
-  hal_type_t halType;              /**< HAL data type of the pin to create. */
-  hal_float_t floatScale;          /**< Scale factor (same semantics as @ref LCEC_CONF_PDOENTRY_T). */
-  hal_float_t floatOffset;         /**< Offset (same semantics as @ref LCEC_CONF_PDOENTRY_T). */
+  gomc_hal_type_t halType;              /**< HAL data type of the pin to create. */
+  gomc_hal_float_t floatScale;          /**< Scale factor (same semantics as @ref LCEC_CONF_PDOENTRY_T). */
+  gomc_hal_float_t floatOffset;         /**< Offset (same semantics as @ref LCEC_CONF_PDOENTRY_T). */
   char halPin[LCEC_CONF_STR_MAXLEN]; /**< HAL pin name suffix for this sub-field. */
 } LCEC_CONF_COMPLEXENTRY_T;
 
@@ -443,10 +444,10 @@ typedef struct {
  * (@ref LCEC_CONF_MODPARAM_TYPE_T in conf.c).
  */
 typedef union {
-  hal_bit_t bit;                   /**< Boolean (bit) value. */
-  hal_s32_t s32;                   /**< Signed 32-bit integer value. */
-  hal_u32_t u32;                   /**< Unsigned 32-bit integer value. */
-  hal_float_t flt;                 /**< Floating-point value. */
+  gomc_hal_bit_t bit;                   /**< Boolean (bit) value. */
+  gomc_hal_s32_t s32;                   /**< Signed 32-bit integer value. */
+  gomc_hal_u32_t u32;                   /**< Unsigned 32-bit integer value. */
+  gomc_hal_float_t flt;                 /**< Floating-point value. */
   char str[LCEC_CONF_STR_MAXLEN];  /**< String value. */
 } LCEC_CONF_MODPARAM_VAL_T;
 

@@ -27,8 +27,8 @@
  * Vendor ID: LCEC_BECKHOFF_VID (0x00000002)
  *
  * HAL pins exposed per channel:
- *   - `<pfx>.din-<n>`     (HAL_BIT, HAL_OUT): Digital input state.
- *   - `<pfx>.din-<n>-not` (HAL_BIT, HAL_OUT): Inverted digital input state.
+ *   - `<pfx>.din-<n>`     (GOMC_HAL_BIT, GOMC_HAL_OUT): Digital input state.
+ *   - `<pfx>.din-<n>-not` (GOMC_HAL_BIT, GOMC_HAL_OUT): Inverted digital input state.
  *
  * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *

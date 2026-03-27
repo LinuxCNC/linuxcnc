@@ -31,18 +31,18 @@
  * @brief Per-channel HAL pins and PDO mapping data for one EL5002 SSI channel.
  */
 typedef struct {
-  hal_bit_t *reset;       /**< HAL IN: reset the relative position counter to zero. */
-  hal_bit_t *abs_mode;    /**< HAL IN: when high, pos outputs the raw absolute count; otherwise outputs relative count. */
-  hal_bit_t *err_data;    /**< HAL OUT: data error flag from the SSI frame (PDO 0x6000/0x01). */
-  hal_bit_t *err_frame;   /**< HAL OUT: frame error flag from the SSI frame (PDO 0x6000/0x02). */
-  hal_bit_t *err_power;   /**< HAL OUT: power-fail flag from the SSI frame (PDO 0x6000/0x03). */
-  hal_bit_t *err_sync;    /**< HAL OUT: sync error flag (PDO 0x6000/0x0e). */
-  hal_bit_t *tx_state;    /**< HAL OUT: TxPDO state bit indicating PDO validity (PDO 0x6000/0x0f). */
-  hal_bit_t *tx_toggle;   /**< HAL OUT: TxPDO toggle bit; alternates each new PDO (PDO 0x6000/0x10). */
-  hal_s32_t *raw_count;   /**< HAL OUT: raw 32-bit position value directly from the SSI frame. */
-  hal_s32_t *count;       /**< HAL OUT: relative position count (zeroed on reset or initialisation). */
-  hal_float_t *pos;       /**< HAL OUT: scaled position in user units (count * scale or raw_count * scale). */
-  hal_float_t *pos_scale; /**< HAL IO: counts per user unit; reciprocal applied internally. */
+  gomc_hal_bit_t *reset;       /**< HAL IN: reset the relative position counter to zero. */
+  gomc_hal_bit_t *abs_mode;    /**< HAL IN: when high, pos outputs the raw absolute count; otherwise outputs relative count. */
+  gomc_hal_bit_t *err_data;    /**< HAL OUT: data error flag from the SSI frame (PDO 0x6000/0x01). */
+  gomc_hal_bit_t *err_frame;   /**< HAL OUT: frame error flag from the SSI frame (PDO 0x6000/0x02). */
+  gomc_hal_bit_t *err_power;   /**< HAL OUT: power-fail flag from the SSI frame (PDO 0x6000/0x03). */
+  gomc_hal_bit_t *err_sync;    /**< HAL OUT: sync error flag (PDO 0x6000/0x0e). */
+  gomc_hal_bit_t *tx_state;    /**< HAL OUT: TxPDO state bit indicating PDO validity (PDO 0x6000/0x0f). */
+  gomc_hal_bit_t *tx_toggle;   /**< HAL OUT: TxPDO toggle bit; alternates each new PDO (PDO 0x6000/0x10). */
+  gomc_hal_s32_t *raw_count;   /**< HAL OUT: raw 32-bit position value directly from the SSI frame. */
+  gomc_hal_s32_t *count;       /**< HAL OUT: relative position count (zeroed on reset or initialisation). */
+  gomc_hal_float_t *pos;       /**< HAL OUT: scaled position in user units (count * scale or raw_count * scale). */
+  gomc_hal_float_t *pos_scale; /**< HAL IO: counts per user unit; reciprocal applied internally. */
 
   unsigned int err_data_os;   /**< Byte offset of err_data bit in process data image. */
   unsigned int err_data_bp;   /**< Bit position of err_data within the byte. */
@@ -73,19 +73,19 @@ typedef struct {
 } lcec_el5002_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_IN, offsetof(lcec_el5002_chan_t, reset), "%s.%s.%s.enc-%d-reset" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el5002_chan_t, abs_mode), "%s.%s.%s.enc-%d-abs-mode" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5002_chan_t, err_data), "%s.%s.%s.enc-%d-err-data" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5002_chan_t, err_frame), "%s.%s.%s.enc-%d-err-frame" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5002_chan_t, err_power), "%s.%s.%s.enc-%d-err-power" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5002_chan_t, err_sync), "%s.%s.%s.enc-%d-err-sync" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5002_chan_t, tx_state), "%s.%s.%s.enc-%d-tx-state" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5002_chan_t, tx_toggle), "%s.%s.%s.enc-%d-tx-toggle" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5002_chan_t, raw_count), "%s.%s.%s.enc-%d-raw-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5002_chan_t, count), "%s.%s.%s.enc-%d-count" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el5002_chan_t, pos), "%s.%s.%s.enc-%d-pos" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el5002_chan_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el5002_chan_t, reset), "%s.%s.%s.enc-%d-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el5002_chan_t, abs_mode), "%s.%s.%s.enc-%d-abs-mode" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5002_chan_t, err_data), "%s.%s.%s.enc-%d-err-data" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5002_chan_t, err_frame), "%s.%s.%s.enc-%d-err-frame" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5002_chan_t, err_power), "%s.%s.%s.enc-%d-err-power" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5002_chan_t, err_sync), "%s.%s.%s.enc-%d-err-sync" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5002_chan_t, tx_state), "%s.%s.%s.enc-%d-tx-state" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5002_chan_t, tx_toggle), "%s.%s.%s.enc-%d-tx-toggle" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5002_chan_t, raw_count), "%s.%s.%s.enc-%d-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5002_chan_t, count), "%s.%s.%s.enc-%d-count" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el5002_chan_t, pos), "%s.%s.%s.enc-%d-pos" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el5002_chan_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_el5002_channel1_in[] = {
@@ -144,6 +144,7 @@ void lcec_el5002_read(struct lcec_slave *slave, long period);
  */
 int lcec_el5002_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_slave_modparam_t *p;
   lcec_el5002_data_t *hal_data;
   int i;
@@ -157,67 +158,67 @@ int lcec_el5002_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     switch(p->id & LCEC_EL5002_PARAM_FNK_MASK) {
       case LCEC_EL5002_PARAM_DIS_FRAME_ERR:
         if (ecrt_slave_config_sdo8(slave->config, 0x8000 + i, 0x01, p->value.bit) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo DisFrameErr\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo DisFrameErr", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_EN_PWR_FAIL_CHK:
         if (ecrt_slave_config_sdo8(slave->config, 0x8000 + i, 0x02, p->value.bit) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo EnPwrFailChk\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo EnPwrFailChk", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_EN_INHIBIT_TIME:
         if (ecrt_slave_config_sdo8(slave->config, 0x8000 + i, 0x03, p->value.bit) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo EnInhibitTime\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo EnInhibitTime", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_CODING:
         if (ecrt_slave_config_sdo8(slave->config, 0x8000 + i, 0x06, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo Coding\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo Coding", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_BAUDRATE:
         if (ecrt_slave_config_sdo8(slave->config, 0x8000 + i, 0x09, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo Baudrate\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo Baudrate", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_CLK_JIT_COMP:
         if (ecrt_slave_config_sdo8(slave->config, 0x8000 + i, 0x0c, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo ClkJitComp\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo ClkJitComp", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_FRAME_TYPE:
         if (ecrt_slave_config_sdo8(slave->config, 0x8000 + i, 0x0f, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo FrameType\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo FrameType", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_FRAME_SIZE:
         if (ecrt_slave_config_sdo16(slave->config, 0x8000 + i, 0x11, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo FrameSize\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo FrameSize", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_DATA_LEN:
         if (ecrt_slave_config_sdo16(slave->config, 0x8000 + i, 0x12, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo DataLen\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo DataLen", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_MIN_INHIBIT_TIME:
         if (ecrt_slave_config_sdo16(slave->config, 0x8000 + i, 0x13, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo MinInhibitTime\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo MinInhibitTime", master->name, slave->name);
           return -1;
         }
         break;
       case LCEC_EL5002_PARAM_NO_CLK_BURSTS:
         if (ecrt_slave_config_sdo16(slave->config, 0x8000 + i, 0x14, p->value.u32) != 0) {
-          rtapi_print_msg (RTAPI_MSG_ERR, LCEC_MSG_PFX "fail to configure slave %s.%s sdo NoClkBursts\n", master->name, slave->name);
+          LCEC_ERR(master, "fail to configure slave %s.%s sdo NoClkBursts", master->name, slave->name);
           return -1;
         }
         break;
@@ -228,8 +229,8 @@ int lcec_el5002_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_read = lcec_el5002_read;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el5002_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el5002_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el5002_data_t));
@@ -255,7 +256,7 @@ int lcec_el5002_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000 + (i << 4), 0x11, &chan->count_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 

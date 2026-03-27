@@ -63,19 +63,20 @@ int lcec_ax5200_preinit(struct lcec_slave *slave) {
 
 int lcec_ax5200_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_ax5200_data_t *hal_data;
   int i;
   lcec_class_ax5_chan_t *chan;
   int err;
-  char pfx[HAL_NAME_LEN];
+  char pfx[GOMC_HAL_NAME_LEN];
 
   // initialize callbacks
   slave->proc_read = lcec_ax5200_read;
   slave->proc_write = lcec_ax5200_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_ax5200_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_ax5200_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_ax5200_data_t));
@@ -86,14 +87,14 @@ int lcec_ax5200_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     chan = &hal_data->chans[i];
 
     // init subclasses
-    rtapi_snprintf(pfx, HAL_NAME_LEN, "ch%d.", i);
+    snprintf(pfx, GOMC_HAL_NAME_LEN, "ch%d.", i);
     if ((err = lcec_class_ax5_init(slave, pdo_entry_regs, chan, i, pfx)) != 0) {
       return err;
     }
   }
 
   // initialize sync info
-  lcec_syncs_init(&hal_data->syncs);
+  lcec_syncs_init(&hal_data->syncs, master);
     lcec_syncs_add_sync(&hal_data->syncs, EC_DIR_OUTPUT, EC_WD_DEFAULT);
     lcec_syncs_add_sync(&hal_data->syncs, EC_DIR_INPUT, EC_WD_DEFAULT);
     lcec_syncs_add_sync(&hal_data->syncs, EC_DIR_OUTPUT, EC_WD_DEFAULT);

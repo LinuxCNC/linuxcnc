@@ -101,7 +101,7 @@ ec_sync_info_t lcec_el1252_syncs[] = {
 /** \brief data structure of one channel of the device */
 typedef struct {
   // data exposed as PIN to Linuxcnc/Machinekit
-  hal_bit_t *in;      /**< HAL output pin: current digital input state. */
+  gomc_hal_bit_t *in;      /**< HAL output pin: current digital input state. */
 
   uint8_t    Status;     /**< Cached edge-detection status byte from the PDO. */
   uint64_t   LatchPos;   /**< Cached timestamp of last positive edge (0→1). */
@@ -118,8 +118,8 @@ typedef struct {
 } lcec_el1252_chan_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el1252_chan_t, in), "%s.%s.%s.din-%d" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el1252_chan_t, in), "%s.%s.%s.din-%d" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /** \brief complete data structure for EL1252 */
@@ -143,6 +143,7 @@ void lcec_el1252_read(struct lcec_slave *slave, long period);
  */
 int lcec_el1252_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el1252_data_t *hal_data;
   int i;
   lcec_el1252_chan_t *chan;
@@ -152,8 +153,8 @@ int lcec_el1252_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_read = lcec_el1252_read;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el1252_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el1252_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el1252_data_t));
@@ -172,7 +173,7 @@ int lcec_el1252_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x1d09, 0xb8 + (i << 4), &hal_data->chans[i].LatchNeg_offs, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
   }

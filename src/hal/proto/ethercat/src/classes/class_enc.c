@@ -46,27 +46,27 @@
 
 /** @brief HAL pin descriptors for encoder output and control pins. */
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_S32, HAL_OUT, offsetof(lcec_class_enc_data_t, raw), "%s.%s.%s.%s-raw" },
-  { HAL_U32, HAL_IO, offsetof(lcec_class_enc_data_t, ext_lo), "%s.%s.%s.%s-ext-lo" },
-  { HAL_U32, HAL_IO, offsetof(lcec_class_enc_data_t, ext_hi), "%s.%s.%s.%s-ext-hi" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_class_enc_data_t, ref_lo), "%s.%s.%s.%s-ref-lo" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_class_enc_data_t, ref_hi), "%s.%s.%s.%s-ref-hi" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_class_enc_data_t, index_ena), "%s.%s.%s.%s-index-ena" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_class_enc_data_t, pos_reset), "%s.%s.%s.%s-pos-reset" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_class_enc_data_t, pos_enc), "%s.%s.%s.%s-pos-enc" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_class_enc_data_t, pos_abs), "%s.%s.%s.%s-pos-abs" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_class_enc_data_t, pos), "%s.%s.%s.%s-pos" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_class_enc_data_t, on_home_neg), "%s.%s.%s.%s-on-home-neg" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_class_enc_data_t, on_home_pos), "%s.%s.%s.%s-on-home-pos" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_class_enc_data_t, raw), "%s.%s.%s.%s-raw" },
+  { GOMC_HAL_U32, GOMC_HAL_IO, offsetof(lcec_class_enc_data_t, ext_lo), "%s.%s.%s.%s-ext-lo" },
+  { GOMC_HAL_U32, GOMC_HAL_IO, offsetof(lcec_class_enc_data_t, ext_hi), "%s.%s.%s.%s-ext-hi" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_class_enc_data_t, ref_lo), "%s.%s.%s.%s-ref-lo" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_class_enc_data_t, ref_hi), "%s.%s.%s.%s-ref-hi" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_class_enc_data_t, index_ena), "%s.%s.%s.%s-index-ena" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_class_enc_data_t, pos_reset), "%s.%s.%s.%s-pos-reset" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_class_enc_data_t, pos_enc), "%s.%s.%s.%s-pos-enc" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_class_enc_data_t, pos_abs), "%s.%s.%s.%s-pos-abs" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_class_enc_data_t, pos), "%s.%s.%s.%s-pos" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_class_enc_data_t, on_home_neg), "%s.%s.%s.%s-on-home-neg" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_class_enc_data_t, on_home_pos), "%s.%s.%s.%s-on-home-pos" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /** @brief HAL parameter descriptors for encoder configuration (home position, bit width, scale). */
 static const lcec_pindesc_t slave_params[] = {
-  { HAL_U32, HAL_RW, offsetof(lcec_class_enc_data_t, raw_home), "%s.%s.%s.%s-raw-home" },
-  { HAL_U32, HAL_RO, offsetof(lcec_class_enc_data_t, raw_bits), "%s.%s.%s.%s-raw-bits" },
-  { HAL_FLOAT, HAL_RO, offsetof(lcec_class_enc_data_t, pprev_scale), "%s.%s.%s.%s-pprev-scale" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_U32, GOMC_HAL_RW, offsetof(lcec_class_enc_data_t, raw_home), "%s.%s.%s.%s-raw-home" },
+  { GOMC_HAL_U32, GOMC_HAL_RO, offsetof(lcec_class_enc_data_t, raw_bits), "%s.%s.%s.%s-raw-bits" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RO, offsetof(lcec_class_enc_data_t, pprev_scale), "%s.%s.%s.%s-pprev-scale" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 // Forward declarations for internal helper functions
@@ -94,15 +94,16 @@ static long long signed_mod_64(long long val, unsigned long div);
  */
 int class_enc_init(struct lcec_slave *slave, lcec_class_enc_data_t *hal_data, int raw_bits, const char *pfx) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   int err;
 
   // export pins
-  if ((err = lcec_pin_newf_list(master->comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_pin_newf_list(env, master->comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
   // export parameters
-  if ((err = lcec_param_newf_list(master->comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_param_newf_list(env, master->comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 

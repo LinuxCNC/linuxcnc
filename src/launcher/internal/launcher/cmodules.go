@@ -265,9 +265,10 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 	}
 	cm.env = env
 
-	// Convert args to C strings.
+	// Convert args to C strings.  Keep them alive for the full module
+	// lifecycle so C code can hold pointers into name/argv safely.
 	cName := C.CString(name)
-	defer C.free(unsafe.Pointer(cName))
+	l.cModArena = append(l.cModArena, unsafe.Pointer(cName))
 
 	argc := C.int(len(args))
 	var argv **C.char
@@ -275,12 +276,8 @@ func (l *Launcher) loadCPlugin(path string, name string, args []string) error {
 		cargs := make([]*C.char, len(args))
 		for i, a := range args {
 			cargs[i] = C.CString(a)
+			l.cModArena = append(l.cModArena, unsafe.Pointer(cargs[i]))
 		}
-		defer func() {
-			for _, ca := range cargs {
-				C.free(unsafe.Pointer(ca))
-			}
-		}()
 		argv = &cargs[0]
 	}
 

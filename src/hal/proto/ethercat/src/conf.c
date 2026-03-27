@@ -59,9 +59,6 @@
 #include <ctype.h>
 #include <expat.h>
 
-#include "rtapi.h"
-#include "hal.h"
-
 #include "conf.h"
 #include "conf_priv.h"
 
@@ -465,8 +462,9 @@ static const LCEC_CONF_XML_HANLDER_T xml_states[] = {
 
 static int parseSyncCycle(LCEC_CONF_XML_STATE_T *state, const char *nptr);
 
-#define LOG_ERR(m, fmt, ...) \
-  cmod_log_errorf((m)->env, (m)->name, fmt, ##__VA_ARGS__)
+/** @brief Log an error from the cmod lifecycle context (m = lcec_conf_module *). */
+#define CONF_ERR(m, fmt, ...) \
+  gomc_log_errorf((m)->env->log, (m)->name, fmt, ##__VA_ARGS__)
 
 /********************************************************************
  * cmod lifecycle functions
@@ -490,7 +488,7 @@ static void lcec_conf_destroy(cmod_t *self) {
   lcec_rt_cleanup(&m->rt_ctx);
 
   if (m->hal_comp_id >= 0) {
-    hal_exit(m->hal_comp_id);
+    m->env->hal->exit(m->env->hal->ctx, m->hal_comp_id);
   }
   free(m);
 }
@@ -542,31 +540,31 @@ int New(const cmod_env_t *env, const char *name,
     }
   }
   if (filename == NULL || *filename == 0) {
-    LOG_ERR(m, "missing required config= parameter");
+    CONF_ERR(m, "missing required config= parameter");
     goto fail0;
   }
 
   // initialize component
-  m->hal_comp_id = hal_init_ex(name, env->dl_handle, COMPONENT_TYPE_REALTIME);
+  m->hal_comp_id = env->hal->init(env->hal->ctx, name, env->dl_handle, GOMC_HAL_COMP_REALTIME);
   if (m->hal_comp_id < 1) {
-    LOG_ERR(m, "hal_init_ex failed");
+    CONF_ERR(m, "hal_init_ex failed");
     goto fail0;
   }
 
   // allocate hal memory
-  m->conf_hal_data = hal_malloc(sizeof(LCEC_CONF_HAL_T));
+  m->conf_hal_data = env->hal->malloc(env->hal->ctx, sizeof(LCEC_CONF_HAL_T));
   if (m->conf_hal_data == NULL) {
-    LOG_ERR(m, "unable to allocate HAL shared memory");
+    CONF_ERR(m, "unable to allocate HAL shared memory");
     goto fail1;
   }
 
   // register pins
-  if (hal_pin_u32_newf(HAL_OUT, &(m->conf_hal_data->master_count), m->hal_comp_id, "%s.conf.master-count", name) != 0) {
-    LOG_ERR(m, "unable to register pin %s.conf.master-count", name);
+  if (gomc_hal_pin_u32_newf(env->hal, GOMC_HAL_OUT, &(m->conf_hal_data->master_count), m->hal_comp_id, "%s.conf.master-count", name) != 0) {
+    CONF_ERR(m, "unable to register pin %s.conf.master-count", name);
     goto fail1;
   }
-  if (hal_pin_u32_newf(HAL_OUT, &(m->conf_hal_data->slave_count), m->hal_comp_id, "%s.conf.slave-count", name) != 0) {
-    LOG_ERR(m, "unable to register pin %s.conf.slave-count", name);
+  if (gomc_hal_pin_u32_newf(env->hal, GOMC_HAL_OUT, &(m->conf_hal_data->slave_count), m->hal_comp_id, "%s.conf.slave-count", name) != 0) {
+    CONF_ERR(m, "unable to register pin %s.conf.slave-count", name);
     goto fail1;
   }
   *(m->conf_hal_data->master_count) = 0;
@@ -575,14 +573,14 @@ int New(const cmod_env_t *env, const char *name,
   // open file
   file = fopen(filename, "r");
   if (file == NULL) {
-    LOG_ERR(m, "unable to open config file %s", filename);
+    CONF_ERR(m, "unable to open config file %s", filename);
     goto fail1;
   }
 
   // create xml parser
   memset(&state, 0, sizeof(state));
   if (initXmlInst((LCEC_CONF_XML_INST_T *) &state, xml_states)) {
-    LOG_ERR(m, "couldn't allocate memory for XML parser");
+    CONF_ERR(m, "couldn't allocate memory for XML parser");
     goto fail2;
   }
   state.xml.mod = m;
@@ -593,7 +591,7 @@ int New(const cmod_env_t *env, const char *name,
     // read block
     int len = fread(buffer, 1, BUFFSIZE, file);
     if (ferror(file)) {
-      LOG_ERR(m, "couldn't read from file %s", filename);
+      CONF_ERR(m, "couldn't read from file %s", filename);
       goto fail3;
     }
 
@@ -602,7 +600,7 @@ int New(const cmod_env_t *env, const char *name,
 
     // parse current block
     if (!XML_Parse(state.xml.parser, buffer, len, done)) {
-      LOG_ERR(m, "parse error at line %u: %s",
+      CONF_ERR(m, "parse error at line %u: %s",
         (unsigned int)XML_GetCurrentLineNumber(state.xml.parser),
         XML_ErrorString(XML_GetErrorCode(state.xml.parser)));
       goto fail3;
@@ -617,6 +615,7 @@ int New(const cmod_env_t *env, const char *name,
   end->confType = lcecConfTypeNone;
 
   // initialize RT context
+  m->rt_ctx.env = env;
   m->rt_ctx.comp_id = m->hal_comp_id;
   m->rt_ctx.instance_name = name;
   m->rt_ctx.ipc_socket = ipc_socket;
@@ -627,12 +626,12 @@ int New(const cmod_env_t *env, const char *name,
 
   // initialize RT component (parses config, starts masters, exports HAL functions)
   if (lcec_rt_init(&m->rt_ctx, &state.outputBuf) != 0) {
-    LOG_ERR(m, "RT initialization failed");
+    CONF_ERR(m, "RT initialization failed");
     goto fail3;
   }
 
   // everything is fine
-  hal_ready(m->hal_comp_id);
+  env->hal->ready(env->hal->ctx, m->hal_comp_id);
 
   // setup cmod lifecycle
   m->base.Start = lcec_conf_start;
@@ -653,7 +652,7 @@ fail3:
 fail2:
   fclose(file);
 fail1:
-  hal_exit(m->hal_comp_id);
+  m->env->hal->exit(m->env->hal->ctx, m->hal_comp_id);
   m->hal_comp_id = -1;
 fail0:
   free(m);
@@ -1601,27 +1600,27 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
     // parse halType
     if (strcmp(name, "halType") == 0) {
       if (strcasecmp(val, "bit") == 0) {
-        p->halType = HAL_BIT;
+        p->halType = GOMC_HAL_BIT;
         continue;
       }
       if (strcasecmp(val, "s32") == 0) {
         p->subType = lcecPdoEntTypeSimple;
-        p->halType = HAL_S32;
+        p->halType = GOMC_HAL_S32;
         continue;
       }
       if (strcasecmp(val, "u32") == 0) {
         p->subType = lcecPdoEntTypeSimple;
-        p->halType = HAL_U32;
+        p->halType = GOMC_HAL_U32;
         continue;
       }
       if (strcasecmp(val, "float") == 0) {
         p->subType = lcecPdoEntTypeFloatSigned;
-        p->halType = HAL_FLOAT;
+        p->halType = GOMC_HAL_FLOAT;
         continue;
       }
       if (strcasecmp(val, "float-unsigned") == 0) {
         p->subType = lcecPdoEntTypeFloatUnsigned;
-        p->halType = HAL_FLOAT;
+        p->halType = GOMC_HAL_FLOAT;
         continue;
       }
       if (strcasecmp(val, "complex") == 0) {
@@ -1630,7 +1629,7 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
       }
       if (strcasecmp(val, "float-ieee") == 0) {
         p->subType = lcecPdoEntTypeFloatIeee;
-        p->halType = HAL_FLOAT;
+        p->halType = GOMC_HAL_FLOAT;
         continue;
       }
       xml_log_error_fmt(inst, "Invalid pdoEntry halType %s", val);
@@ -1693,7 +1692,7 @@ static void parsePdoEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const char 
   }
 
   // check for float type if required
-  if (floatReq && p->halType != HAL_FLOAT) {
+  if (floatReq && p->halType != GOMC_HAL_FLOAT) {
     xml_log_error_fmt(inst, "pdoEntry has scale/offset attributes but pin type is not 'float'");
     XML_StopParser(inst->parser, 0);
     return;
@@ -1769,32 +1768,32 @@ static void parseComplexEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const c
     if (strcmp(name, "halType") == 0) {
       if (strcasecmp(val, "bit") == 0) {
         p->subType = lcecPdoEntTypeSimple;
-        p->halType = HAL_BIT;
+        p->halType = GOMC_HAL_BIT;
         continue;
       }
       if (strcasecmp(val, "s32") == 0) {
         p->subType = lcecPdoEntTypeSimple;
-        p->halType = HAL_S32;
+        p->halType = GOMC_HAL_S32;
         continue;
       }
       if (strcasecmp(val, "u32") == 0) {
         p->subType = lcecPdoEntTypeSimple;
-        p->halType = HAL_U32;
+        p->halType = GOMC_HAL_U32;
         continue;
       }
       if (strcasecmp(val, "float") == 0) {
         p->subType = lcecPdoEntTypeFloatSigned;
-        p->halType = HAL_FLOAT;
+        p->halType = GOMC_HAL_FLOAT;
         continue;
       }
       if (strcasecmp(val, "float-unsigned") == 0) {
         p->subType = lcecPdoEntTypeFloatUnsigned;
-        p->halType = HAL_FLOAT;
+        p->halType = GOMC_HAL_FLOAT;
         continue;
       }
       if (strcasecmp(val, "float-ieee") == 0) {
         p->subType = lcecPdoEntTypeFloatIeee;
-        p->halType = HAL_FLOAT;
+        p->halType = GOMC_HAL_FLOAT;
         continue;
       }
       xml_log_error_fmt(inst, "Invalid complexEntry halType %s", val);
@@ -1837,7 +1836,7 @@ static void parseComplexEntryAttrs(LCEC_CONF_XML_INST_T *inst, int next, const c
   }
 
   // check for float type if required
-  if (floatReq && p->halType != HAL_FLOAT) {
+  if (floatReq && p->halType != GOMC_HAL_FLOAT) {
     xml_log_error_fmt(inst, "complexEntry has scale/offset attributes but pin type is not 'float'");
     XML_StopParser(inst->parser, 0);
     return;

@@ -32,24 +32,24 @@
  * @brief Per-channel HAL pins and PDO mapping data for one EL5122 encoder channel.
  */
 typedef struct {
-  hal_bit_t *ena_latch_ext_pos;   /**< HAL IO: enable external latch on positive edge; auto-cleared on capture. */
-  hal_bit_t *ena_latch_ext_neg;   /**< HAL IO: enable external latch on negative edge; auto-cleared on capture. */
-  hal_bit_t *index;               /**< HAL IN: Z-index input signal (active high); rising edge triggers latch if index_ena is set. */
-  hal_bit_t *index_ena;           /**< HAL IO: enable index latch; cleared automatically when index event is processed. */
-  hal_bit_t *reset;               /**< HAL IN: reset the relative position counter to zero. */
-  hal_bit_t *underflow;           /**< HAL OUT: counter underflow flag (PDO 0x6000/0x04). */
-  hal_bit_t *overflow;            /**< HAL OUT: counter overflow flag (PDO 0x6000/0x05). */
-  hal_bit_t *ina;                 /**< HAL OUT: current state of encoder input A (PDO 0x6000/0x09). */
-  hal_bit_t *inb;                 /**< HAL OUT: current state of encoder input B (PDO 0x6000/0x0a). */
-  hal_bit_t *gate_state;          /**< HAL OUT: current state of the gate input (PDO 0x6000/0x0c). */
-  hal_bit_t *latch_ext_valid;     /**< HAL OUT: external latch value is valid and ready to read (PDO 0x6000/0x02). */
-  hal_bit_t *set_raw_count;       /**< HAL IO: pulse high to preset the hardware counter; cleared when acknowledged. */
-  hal_s32_t *set_raw_count_val;   /**< HAL IN: value to load into the counter when set_raw_count is asserted. */
-  hal_s32_t *raw_count;           /**< HAL OUT: raw 32-bit counter value from the terminal. */
-  hal_s32_t *raw_latch;           /**< HAL OUT: counter value captured at the last external latch event. */
-  hal_s32_t *count;               /**< HAL OUT: relative position count (zeroed on reset or index event). */
-  hal_float_t *pos_scale;         /**< HAL IO: counts per user unit; reciprocal applied internally. */
-  hal_float_t *pos;               /**< HAL OUT: scaled position in user units. */
+  gomc_hal_bit_t *ena_latch_ext_pos;   /**< HAL IO: enable external latch on positive edge; auto-cleared on capture. */
+  gomc_hal_bit_t *ena_latch_ext_neg;   /**< HAL IO: enable external latch on negative edge; auto-cleared on capture. */
+  gomc_hal_bit_t *index;               /**< HAL IN: Z-index input signal (active high); rising edge triggers latch if index_ena is set. */
+  gomc_hal_bit_t *index_ena;           /**< HAL IO: enable index latch; cleared automatically when index event is processed. */
+  gomc_hal_bit_t *reset;               /**< HAL IN: reset the relative position counter to zero. */
+  gomc_hal_bit_t *underflow;           /**< HAL OUT: counter underflow flag (PDO 0x6000/0x04). */
+  gomc_hal_bit_t *overflow;            /**< HAL OUT: counter overflow flag (PDO 0x6000/0x05). */
+  gomc_hal_bit_t *ina;                 /**< HAL OUT: current state of encoder input A (PDO 0x6000/0x09). */
+  gomc_hal_bit_t *inb;                 /**< HAL OUT: current state of encoder input B (PDO 0x6000/0x0a). */
+  gomc_hal_bit_t *gate_state;          /**< HAL OUT: current state of the gate input (PDO 0x6000/0x0c). */
+  gomc_hal_bit_t *latch_ext_valid;     /**< HAL OUT: external latch value is valid and ready to read (PDO 0x6000/0x02). */
+  gomc_hal_bit_t *set_raw_count;       /**< HAL IO: pulse high to preset the hardware counter; cleared when acknowledged. */
+  gomc_hal_s32_t *set_raw_count_val;   /**< HAL IN: value to load into the counter when set_raw_count is asserted. */
+  gomc_hal_s32_t *raw_count;           /**< HAL OUT: raw 32-bit counter value from the terminal. */
+  gomc_hal_s32_t *raw_latch;           /**< HAL OUT: counter value captured at the last external latch event. */
+  gomc_hal_s32_t *count;               /**< HAL OUT: relative position count (zeroed on reset or index event). */
+  gomc_hal_float_t *pos_scale;         /**< HAL IO: counts per user unit; reciprocal applied internally. */
+  gomc_hal_float_t *pos;               /**< HAL OUT: scaled position in user units. */
 
   unsigned int ena_latch_ext_pos_pdo_os;  /**< Byte offset of ena_latch_ext_pos output bit in process data. */
   unsigned int ena_latch_ext_pos_pdo_bp;  /**< Bit position of ena_latch_ext_pos within the byte. */
@@ -91,25 +91,25 @@ typedef struct {
 } lcec_el5122_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5122_chan_t, ena_latch_ext_pos), "%s.%s.%s.enc-%d-index-ext-pos-enable" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5122_chan_t, ena_latch_ext_neg), "%s.%s.%s.enc-%d-index-ext-neg-enable" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el5122_chan_t, index), "%s.%s.%s.enc-%d-index" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5122_chan_t, index_ena), "%s.%s.%s.enc-%d-index-enable" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el5122_chan_t, reset), "%s.%s.%s.enc-%d-reset" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5122_chan_t, underflow), "%s.%s.%s.enc-%d-underflow" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5122_chan_t, overflow), "%s.%s.%s.enc-%d-overflow" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5122_chan_t, ina), "%s.%s.%s.enc-%d-ina" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5122_chan_t, inb), "%s.%s.%s.enc-%d-inb" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5122_chan_t, gate_state), "%s.%s.%s.enc-%d-gate-state" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5122_chan_t, latch_ext_valid), "%s.%s.%s.enc-%d-latch-ext-valid" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5122_chan_t, set_raw_count), "%s.%s.%s.enc-%d-set-raw-count" },
-  { HAL_S32, HAL_IN, offsetof(lcec_el5122_chan_t, set_raw_count_val), "%s.%s.%s.enc-%d-set-raw-count-val" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5122_chan_t, raw_count), "%s.%s.%s.enc-%d-raw-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5122_chan_t, raw_latch), "%s.%s.%s.enc-%d-raw-latch" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5122_chan_t, count), "%s.%s.%s.enc-%d-count" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el5122_chan_t, pos), "%s.%s.%s.enc-%d-pos" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el5122_chan_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5122_chan_t, ena_latch_ext_pos), "%s.%s.%s.enc-%d-index-ext-pos-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5122_chan_t, ena_latch_ext_neg), "%s.%s.%s.enc-%d-index-ext-neg-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el5122_chan_t, index), "%s.%s.%s.enc-%d-index" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5122_chan_t, index_ena), "%s.%s.%s.enc-%d-index-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el5122_chan_t, reset), "%s.%s.%s.enc-%d-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, underflow), "%s.%s.%s.enc-%d-underflow" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, overflow), "%s.%s.%s.enc-%d-overflow" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, ina), "%s.%s.%s.enc-%d-ina" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, inb), "%s.%s.%s.enc-%d-inb" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, gate_state), "%s.%s.%s.enc-%d-gate-state" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, latch_ext_valid), "%s.%s.%s.enc-%d-latch-ext-valid" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5122_chan_t, set_raw_count), "%s.%s.%s.enc-%d-set-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_IN, offsetof(lcec_el5122_chan_t, set_raw_count_val), "%s.%s.%s.enc-%d-set-raw-count-val" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, raw_count), "%s.%s.%s.enc-%d-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, raw_latch), "%s.%s.%s.enc-%d-raw-latch" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, count), "%s.%s.%s.enc-%d-count" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el5122_chan_t, pos), "%s.%s.%s.enc-%d-pos" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el5122_chan_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_el5122_channel1_in[] = {
@@ -234,6 +234,7 @@ void lcec_el5122_write(struct lcec_slave *slave, long period);
  */
 int lcec_el5122_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el5122_data_t *hal_data;
   int i;
   lcec_el5122_chan_t *chan;
@@ -244,8 +245,8 @@ int lcec_el5122_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_el5122_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el5122_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el5122_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el5122_data_t));
@@ -277,7 +278,7 @@ int lcec_el5122_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7000 + (i << 4), 0x11, &chan->set_count_val_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 

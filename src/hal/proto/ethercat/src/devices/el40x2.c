@@ -36,19 +36,19 @@
  * and accessed by the real-time write callback.
  */
 typedef struct {
-  hal_bit_t *pos;       /**< Output HIGH when the commanded value is positive. */
-  hal_bit_t *neg;       /**< Output HIGH when the commanded value is negative. */
-  hal_bit_t *enable;    /**< Input: when 0 the DAC output is forced to zero. */
-  hal_bit_t *absmode;   /**< Input: when 1 the absolute value of @c value is used. */
-  hal_float_t *value;   /**< Input: desired analog output value (in user units). */
-  hal_float_t *scale;   /**< IO: full-scale user-unit value mapping to duty cycle ±1.0. */
-  hal_float_t *offset;  /**< IO: DC offset added to the scaled value before clamping. */
+  gomc_hal_bit_t *pos;       /**< Output HIGH when the commanded value is positive. */
+  gomc_hal_bit_t *neg;       /**< Output HIGH when the commanded value is negative. */
+  gomc_hal_bit_t *enable;    /**< Input: when 0 the DAC output is forced to zero. */
+  gomc_hal_bit_t *absmode;   /**< Input: when 1 the absolute value of @c value is used. */
+  gomc_hal_float_t *value;   /**< Input: desired analog output value (in user units). */
+  gomc_hal_float_t *scale;   /**< IO: full-scale user-unit value mapping to duty cycle ±1.0. */
+  gomc_hal_float_t *offset;  /**< IO: DC offset added to the scaled value before clamping. */
   double old_scale;     /**< Shadow copy of @c scale used to detect changes. */
   double scale_recip;   /**< Reciprocal of @c scale, recomputed when scale changes. */
-  hal_float_t *min_dc;  /**< IO: minimum allowable duty cycle (clamped to [-1, 1]). */
-  hal_float_t *max_dc;  /**< IO: maximum allowable duty cycle (clamped to [-1, 1]). */
-  hal_float_t *curr_dc; /**< Output: actual duty cycle sent to the terminal this cycle. */
-  hal_s32_t *raw_val;   /**< Output: raw 16-bit signed integer written to the PDO. */
+  gomc_hal_float_t *min_dc;  /**< IO: minimum allowable duty cycle (clamped to [-1, 1]). */
+  gomc_hal_float_t *max_dc;  /**< IO: maximum allowable duty cycle (clamped to [-1, 1]). */
+  gomc_hal_float_t *curr_dc; /**< Output: actual duty cycle sent to the terminal this cycle. */
+  gomc_hal_s32_t *raw_val;   /**< Output: raw 16-bit signed integer written to the PDO. */
   unsigned int val_pdo_os; /**< Byte offset of the output value entry in the process image. */
 } lcec_el40x2_chan_t;
 
@@ -62,18 +62,18 @@ typedef struct {
 } lcec_el40x2_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el40x2_chan_t, scale), "%s.%s.%s.aout-%d-scale" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el40x2_chan_t, offset), "%s.%s.%s.aout-%d-offset" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el40x2_chan_t, min_dc), "%s.%s.%s.aout-%d-min-dc" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el40x2_chan_t, max_dc), "%s.%s.%s.aout-%d-max-dc" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el40x2_chan_t, curr_dc), "%s.%s.%s.aout-%d-curr-dc" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el40x2_chan_t, enable), "%s.%s.%s.aout-%d-enable" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el40x2_chan_t, absmode), "%s.%s.%s.aout-%d-absmode" },
-  { HAL_FLOAT, HAL_IN, offsetof(lcec_el40x2_chan_t, value), "%s.%s.%s.aout-%d-value" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el40x2_chan_t, raw_val), "%s.%s.%s.aout-%d-raw" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el40x2_chan_t, pos), "%s.%s.%s.aout-%d-pos" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el40x2_chan_t, neg), "%s.%s.%s.aout-%d-neg" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el40x2_chan_t, scale), "%s.%s.%s.aout-%d-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el40x2_chan_t, offset), "%s.%s.%s.aout-%d-offset" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el40x2_chan_t, min_dc), "%s.%s.%s.aout-%d-min-dc" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el40x2_chan_t, max_dc), "%s.%s.%s.aout-%d-max-dc" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el40x2_chan_t, curr_dc), "%s.%s.%s.aout-%d-curr-dc" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el40x2_chan_t, enable), "%s.%s.%s.aout-%d-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el40x2_chan_t, absmode), "%s.%s.%s.aout-%d-absmode" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN, offsetof(lcec_el40x2_chan_t, value), "%s.%s.%s.aout-%d-value" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el40x2_chan_t, raw_val), "%s.%s.%s.aout-%d-raw" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el40x2_chan_t, pos), "%s.%s.%s.aout-%d-pos" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el40x2_chan_t, neg), "%s.%s.%s.aout-%d-neg" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_el40x2_channel1[] = {
@@ -113,6 +113,7 @@ void lcec_el40x2_write(struct lcec_slave *slave, long period);
  */
 int lcec_el40x2_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el40x2_data_t *hal_data;
   lcec_el40x2_chan_t *chan;
   int i;
@@ -122,8 +123,8 @@ int lcec_el40x2_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_el40x2_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el40x2_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el40x2_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el40x2_data_t));
@@ -140,7 +141,7 @@ int lcec_el40x2_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7000 + (i << 4), 0x01, &chan->val_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, chan, slave_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 

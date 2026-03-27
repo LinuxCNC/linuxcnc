@@ -6,7 +6,7 @@
  * Product ID: 0x04E43052
  *
  * HAL pins exposed per channel:
- *   - `<pfx>.din-<n>` (HAL_BIT, HAL_OUT): Digital input state.
+ *   - `<pfx>.din-<n>` (GOMC_HAL_BIT, GOMC_HAL_OUT): Digital input state.
  *
  * @note Timestamp/latch data is read internally but not yet exposed to HAL.
  *

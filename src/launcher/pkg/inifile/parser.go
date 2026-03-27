@@ -10,9 +10,7 @@ import (
 )
 
 // substitutePattern matches [SECTION]KEY references used in HAL files.
-// TODO: Consider adding '-' to the key character class if LinuxCNC
-// INI keys with hyphens are encountered in practice.
-var substitutePattern = regexp.MustCompile(`\[([^\]]+)\]([A-Za-z0-9_]+)`)
+var substitutePattern = regexp.MustCompile(`\[([^\]]+)\]([A-Za-z0-9_-]+)`)
 
 // Parse reads and parses an INI file, recursively handling #INCLUDE directives.
 // Relative paths in #INCLUDE are resolved relative to the directory of the

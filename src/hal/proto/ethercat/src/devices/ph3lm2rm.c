@@ -37,15 +37,15 @@
 #include "../classes/class_enc.h"
 
 typedef struct {
-  hal_bit_t *latch_ena_pos;   /**< Enable positive-edge latch output pin. */
-  hal_bit_t *latch_ena_neg;   /**< Enable negative-edge latch output pin. */
+  gomc_hal_bit_t *latch_ena_pos;   /**< Enable positive-edge latch output pin. */
+  gomc_hal_bit_t *latch_ena_neg;   /**< Enable negative-edge latch output pin. */
 
-  hal_bit_t *error;           /**< Encoder error status output pin. */
-  hal_bit_t *latch_valid;     /**< Latch position valid output pin. */
-  hal_bit_t *latch_state;     /**< Latch state output pin. */
-  hal_bit_t *latch_state_not; /**< Inverted latch state output pin. */
+  gomc_hal_bit_t *error;           /**< Encoder error status output pin. */
+  gomc_hal_bit_t *latch_valid;     /**< Latch position valid output pin. */
+  gomc_hal_bit_t *latch_state;     /**< Latch state output pin. */
+  gomc_hal_bit_t *latch_state_not; /**< Inverted latch state output pin. */
 
-  hal_float_t scale;          /**< Position scale parameter (user units per encoder count). */
+  gomc_hal_float_t scale;          /**< Position scale parameter (user units per encoder count). */
 
   lcec_class_enc_data_t enc;  /**< Generic encoder class data for position tracking. */
 
@@ -67,13 +67,13 @@ typedef struct {
 typedef struct {
   lcec_ph3lm2rm_enc_data_t ch; /**< Base encoder channel data. */
 
-  hal_u32_t *signal_level;         /**< Raw signal level output pin. */
+  gomc_hal_u32_t *signal_level;         /**< Raw signal level output pin. */
 
-  hal_bit_t *signal_level_warn;    /**< Signal level warning output pin. */
-  hal_bit_t *signal_level_err;     /**< Signal level error output pin. */
+  gomc_hal_bit_t *signal_level_warn;    /**< Signal level warning output pin. */
+  gomc_hal_bit_t *signal_level_err;     /**< Signal level error output pin. */
 
-  hal_u32_t signal_level_warn_val; /**< Warning threshold parameter. */
-  hal_u32_t signal_level_err_val;  /**< Error threshold parameter. */
+  gomc_hal_u32_t signal_level_warn_val; /**< Warning threshold parameter. */
+  gomc_hal_u32_t signal_level_err_val;  /**< Error threshold parameter. */
 
   unsigned int signal_level_os;    /**< PDO byte offset — signal level value. */
 } lcec_ph3lm2rm_lm_data_t;
@@ -82,7 +82,7 @@ typedef struct {
 typedef struct {
   lcec_ph3lm2rm_enc_data_t ch; /**< Base encoder channel data. */
 
-  hal_bit_t *latch_sel_idx;        /**< Index latch select output pin. */
+  gomc_hal_bit_t *latch_sel_idx;        /**< Index latch select output pin. */
 
   unsigned int latch_sel_idx_os;   /**< PDO byte offset — latch select index. */
   unsigned int latch_sel_idx_bp;   /**< PDO bit position — latch select index. */
@@ -93,8 +93,8 @@ typedef struct {
   lcec_ph3lm2rm_lm_data_t lms[LCEC_PH3LM2RM_LM_COUNT]; /**< Linear-motor channel data array. */
   lcec_ph3lm2rm_rm_data_t rms[LCEC_PH3LM2RM_RM_COUNT]; /**< Rotary-motor channel data array. */
 
-  hal_bit_t *err_reset;   /**< Error reset input pin. */
-  hal_bit_t *sync_locked; /**< Synchronisation locked status output pin. */
+  gomc_hal_bit_t *err_reset;   /**< Error reset input pin. */
+  gomc_hal_bit_t *sync_locked; /**< Synchronisation locked status output pin. */
 
   unsigned int err_reset_os;    /**< PDO byte offset — error reset bit. */
   unsigned int err_reset_bp;    /**< PDO bit position — error reset bit. */
@@ -103,42 +103,42 @@ typedef struct {
 } lcec_ph3lm2rm_data_t;
 
 static const lcec_pindesc_t enc_pins[] = {
-  { HAL_BIT, HAL_IO, offsetof(lcec_ph3lm2rm_enc_data_t, latch_ena_pos), "%s.%s.%s.%s-latch-ena-pos" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_ph3lm2rm_enc_data_t, latch_ena_neg), "%s.%s.%s.%s-latch-ena-neg" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ph3lm2rm_enc_data_t, error), "%s.%s.%s.%s-error" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ph3lm2rm_enc_data_t, latch_valid), "%s.%s.%s.%s-latch-valid" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ph3lm2rm_enc_data_t, latch_state), "%s.%s.%s.%s-latch-state" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ph3lm2rm_enc_data_t, latch_state_not), "%s.%s.%s.%s-latch-state-not" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_ph3lm2rm_enc_data_t, latch_ena_pos), "%s.%s.%s.%s-latch-ena-pos" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_ph3lm2rm_enc_data_t, latch_ena_neg), "%s.%s.%s.%s-latch-ena-neg" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ph3lm2rm_enc_data_t, error), "%s.%s.%s.%s-error" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ph3lm2rm_enc_data_t, latch_valid), "%s.%s.%s.%s-latch-valid" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ph3lm2rm_enc_data_t, latch_state), "%s.%s.%s.%s-latch-state" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ph3lm2rm_enc_data_t, latch_state_not), "%s.%s.%s.%s-latch-state-not" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t enc_params[] = {
-  { HAL_FLOAT, HAL_RW, offsetof(lcec_ph3lm2rm_enc_data_t, scale), "%s.%s.%s.%s-scale" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_RW, offsetof(lcec_ph3lm2rm_enc_data_t, scale), "%s.%s.%s.%s-scale" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t lm_pins[] = {
-  { HAL_U32, HAL_OUT, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level), "%s.%s.%s.%s-signal-level" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level_warn), "%s.%s.%s.%s-signal-level-warn" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level_err), "%s.%s.%s.%s-signal-level-err" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level), "%s.%s.%s.%s-signal-level" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level_warn), "%s.%s.%s.%s-signal-level-warn" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level_err), "%s.%s.%s.%s-signal-level-err" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t lm_params[] = {
-  { HAL_U32, HAL_RW, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level_warn_val), "%s.%s.%s.%s-signal-level-warn-val" },
-  { HAL_U32, HAL_RW, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level_err_val), "%s.%s.%s.%s-signal-level-err-val" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_U32, GOMC_HAL_RW, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level_warn_val), "%s.%s.%s.%s-signal-level-warn-val" },
+  { GOMC_HAL_U32, GOMC_HAL_RW, offsetof(lcec_ph3lm2rm_lm_data_t, signal_level_err_val), "%s.%s.%s.%s-signal-level-err-val" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t rm_pins[] = {
-  { HAL_BIT, HAL_IN, offsetof(lcec_ph3lm2rm_rm_data_t, latch_sel_idx), "%s.%s.%s.%s-latch-sel-idx" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_ph3lm2rm_rm_data_t, latch_sel_idx), "%s.%s.%s.%s-latch-sel-idx" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_IN, offsetof(lcec_ph3lm2rm_data_t, err_reset), "%s.%s.%s.err-reset" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_ph3lm2rm_data_t, sync_locked), "%s.%s.%s.sync-locked" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_ph3lm2rm_data_t, err_reset), "%s.%s.%s.err-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_ph3lm2rm_data_t, sync_locked), "%s.%s.%s.sync-locked" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /** @brief Initialise encoder HAL pins and parameters for one channel. */
@@ -167,8 +167,9 @@ void lcec_ph3lm2rm_enc_write(uint8_t *pd, lcec_ph3lm2rm_enc_data_t *ch);
  */
 int lcec_ph3lm2rm_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_ph3lm2rm_data_t *hal_data;
-  char pfx[HAL_NAME_LEN];
+  char pfx[GOMC_HAL_NAME_LEN];
   int err;
   int i;
   lcec_ph3lm2rm_rm_data_t *rm;
@@ -179,8 +180,8 @@ int lcec_ph3lm2rm_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t
   slave->proc_write = lcec_ph3lm2rm_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_ph3lm2rm_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_ph3lm2rm_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_ph3lm2rm_data_t));
@@ -191,19 +192,19 @@ int lcec_ph3lm2rm_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000, 0x01, &hal_data->sync_locked_os, &hal_data->sync_locked_bp);
 
   // export pins
-  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 
   // init subclasses
   for (i=0, lm = hal_data->lms; i<LCEC_PH3LM2RM_LM_COUNT; i++, lm++) {
-    rtapi_snprintf(pfx, HAL_NAME_LEN, "lm%d", i);
+    snprintf(pfx, GOMC_HAL_NAME_LEN, "lm%d", i);
     if ((err = lcec_ph3lm2rm_lm_init(slave, pdo_entry_regs, 0x10 + i, lm, pfx)) != 0) {
       return err;
     }
   }
   for (i=0, rm = hal_data->rms; i<LCEC_PH3LM2RM_RM_COUNT; i++, rm++) {
-    rtapi_snprintf(pfx, HAL_NAME_LEN, "rm%d", i);
+    snprintf(pfx, GOMC_HAL_NAME_LEN, "rm%d", i);
     if ((err = lcec_ph3lm2rm_rm_init(slave, pdo_entry_regs, 0x20 + i, rm, pfx)) != 0) {
       return err;
     }
@@ -214,6 +215,7 @@ int lcec_ph3lm2rm_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t
 
 int lcec_ph3lm2rm_enc_init(struct lcec_slave *slave, lcec_ph3lm2rm_enc_data_t *hal_data, const char *pfx, double scale) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   int err;
 
   // init encoder
@@ -222,12 +224,12 @@ int lcec_ph3lm2rm_enc_init(struct lcec_slave *slave, lcec_ph3lm2rm_enc_data_t *h
   }
 
   // export pins
-  if ((err = lcec_pin_newf_list(master->comp_id, hal_data, enc_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_pin_newf_list(env, master->comp_id, hal_data, enc_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
   // export parameters
-  if ((err = lcec_param_newf_list(master->comp_id, hal_data, enc_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_param_newf_list(env, master->comp_id, hal_data, enc_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
@@ -239,6 +241,7 @@ int lcec_ph3lm2rm_enc_init(struct lcec_slave *slave, lcec_ph3lm2rm_enc_data_t *h
 
 int lcec_ph3lm2rm_lm_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, int ios, lcec_ph3lm2rm_lm_data_t *hal_data, const char *pfx) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   int err;
 
   // initialize POD entries
@@ -257,12 +260,12 @@ int lcec_ph3lm2rm_lm_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_ent
   }
 
   // export pins
-  if ((err = lcec_pin_newf_list(master->comp_id, hal_data, lm_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_pin_newf_list(env, master->comp_id, hal_data, lm_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
   // export parameters
-  if ((err = lcec_param_newf_list(master->comp_id, hal_data, lm_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_param_newf_list(env, master->comp_id, hal_data, lm_params, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 
@@ -271,6 +274,7 @@ int lcec_ph3lm2rm_lm_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_ent
 
 int lcec_ph3lm2rm_rm_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs, int ios, lcec_ph3lm2rm_rm_data_t *hal_data, const char *pfx) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   int err;
 
   // initialize POD entries
@@ -289,7 +293,7 @@ int lcec_ph3lm2rm_rm_init(struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_ent
   }
 
   // export pins
-  if ((err = lcec_pin_newf_list(master->comp_id, hal_data, rm_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
+  if ((err = lcec_pin_newf_list(env, master->comp_id, hal_data, rm_pins, master->instance_name, master->name, slave->name, pfx)) != 0) {
     return err;
   }
 

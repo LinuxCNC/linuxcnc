@@ -58,13 +58,15 @@ int lcec_read_sdo(struct lcec_slave *slave, uint16_t index, uint8_t subindex, ui
   uint32_t abort_code;
 
   if ((err = ecrt_master_sdo_upload(master->master, slave->index, index, subindex, target, size, &result_size, &abort_code))) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "slave %s.%s: Failed to execute SDO upload (0x%04x:0x%02x, error %d, abort_code %08x)\n",
+    gomc_log_errorf(master->rt_ctx->env->log, master->instance_name,
+      "slave %s.%s: Failed to execute SDO upload (0x%04x:0x%02x, error %d, abort_code %08x)",
       master->name, slave->name, index, subindex, err, abort_code);
     return -1;
   }
 
   if (result_size != size) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "slave %s.%s: Invalid result size on SDO upload (0x%04x:0x%02x, req: %u, res: %u)\n",
+    gomc_log_errorf(master->rt_ctx->env->log, master->instance_name,
+      "slave %s.%s: Invalid result size on SDO upload (0x%04x:0x%02x, req: %u, res: %u)",
       master->name, slave->name, index, subindex, (unsigned int) size, (unsigned int) result_size);
     return -1;
   }
@@ -102,13 +104,15 @@ int lcec_read_idn(struct lcec_slave *slave, uint8_t drive_no, uint16_t idn, uint
   uint16_t error_code;
 
   if ((err = ecrt_master_read_idn(master->master, slave->index, drive_no, idn, target, size, &result_size, &error_code))) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "slave %s.%s: Failed to execute IDN read (drive %u idn %c-%u-%u, error %d, error_code %08x)\n",
+    gomc_log_errorf(master->rt_ctx->env->log, master->instance_name,
+      "slave %s.%s: Failed to execute IDN read (drive %u idn %c-%u-%u, error %d, error_code %08x)",
       master->name, slave->name, drive_no, (idn & 0x8000) ? 'P' : 'S', (idn >> 12) & 0x0007, idn & 0x0fff, err, error_code);
     return -1;
   }
 
   if (result_size != size) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "slave %s.%s: Invalid result size on IDN read (drive %u idn %c-%d-%d, req: %u, res: %u)\n",
+    gomc_log_errorf(master->rt_ctx->env->log, master->instance_name,
+      "slave %s.%s: Invalid result size on IDN read (drive %u idn %c-%d-%d, req: %u, res: %u)",
       master->name, slave->name, drive_no, (idn & 0x8000) ? 'P' : 'S', (idn >> 12) & 0x0007, idn & 0x0fff, (unsigned int) size, (unsigned int) result_size);
     return -1;
   }
@@ -123,45 +127,45 @@ int lcec_read_idn(struct lcec_slave *slave, uint8_t drive_no, uint16_t idn, uint
  * zero-initialises the pin value.  This is the @c va_list back-end shared by
  * lcec_pin_newf() and lcec_pin_newfv_list().
  *
- * @param type           HAL data type (e.g., @c HAL_BIT, @c HAL_U32).
- * @param dir            HAL pin direction (@c HAL_IN, @c HAL_OUT, or @c HAL_IO).
+ * @param type           HAL data type (e.g., @c GOMC_HAL_BIT, @c GOMC_HAL_U32).
+ * @param dir            HAL pin direction (@c GOMC_HAL_IN, @c GOMC_HAL_OUT, or @c GOMC_HAL_IO).
  * @param data_ptr_addr  Address of the driver's pointer-to-HAL-value field.
  *                       On success @c hal_pin_new() sets @c *data_ptr_addr
  *                       to point into the HAL shared memory area.
  * @param fmt            printf-style format string for the pin name.
  * @param ap             Argument list matching @p fmt.
  * @return 0 on success, @c -ENOMEM if the formatted name exceeds
- *         @c HAL_NAME_LEN, or the negative error code from @c hal_pin_new().
+ *         @c GOMC_HAL_NAME_LEN, or the negative error code from @c hal_pin_new().
  */
-int lcec_pin_newfv(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, va_list ap) {
-  char name[HAL_NAME_LEN + 1];
+int lcec_pin_newfv(const cmod_env_t *env, int comp_id, gomc_hal_type_t type, int dir, void **data_ptr_addr, const char *fmt, va_list ap) {
+  char name[GOMC_HAL_NAME_LEN + 1];
   int sz;
   int err;
 
-  sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
-  if(sz == -1 || sz > HAL_NAME_LEN) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "length %d too long for name starting '%s'\n", sz, name);
+  sz = vsnprintf(name, sizeof(name), fmt, ap);
+  if(sz == -1 || sz > GOMC_HAL_NAME_LEN) {
+    gomc_log_errorf(env->log, "ethercat", "length %d too long for name starting '%s'", sz, name);
     return -ENOMEM;
   }
 
-  err = hal_pin_new(name, type, dir, data_ptr_addr, comp_id);
+  err = env->hal->pin_new(env->hal->ctx, name, type, dir, data_ptr_addr, comp_id);
   if (err) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "exporting pin %s failed\n", name);
+    gomc_log_errorf(env->log, "ethercat", "exporting pin %s failed", name);
     return err;
   }
 
   switch (type) {
-    case HAL_BIT:
-      **((hal_bit_t **) data_ptr_addr) = 0;
+    case GOMC_HAL_BIT:
+      **((gomc_hal_bit_t **) data_ptr_addr) = 0;
       break;
-    case HAL_FLOAT:
-      **((hal_float_t **) data_ptr_addr) = 0.0;
+    case GOMC_HAL_FLOAT:
+      **((gomc_hal_float_t **) data_ptr_addr) = 0.0;
       break;
-    case HAL_S32:
-      **((hal_s32_t **) data_ptr_addr) = 0;
+    case GOMC_HAL_S32:
+      **((gomc_hal_s32_t **) data_ptr_addr) = 0;
       break;
-    case HAL_U32:
-      **((hal_u32_t **) data_ptr_addr) = 0;
+    case GOMC_HAL_U32:
+      **((gomc_hal_u32_t **) data_ptr_addr) = 0;
       break;
     default:
       break;
@@ -183,12 +187,12 @@ int lcec_pin_newfv(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_
  * @param ...            Format arguments.
  * @return 0 on success, negative error code on failure.
  */
-int lcec_pin_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_ptr_addr, const char *fmt, ...) {
+int lcec_pin_newf(const cmod_env_t *env, int comp_id, gomc_hal_type_t type, int dir, void **data_ptr_addr, const char *fmt, ...) {
   va_list ap;
   int err;
 
   va_start(ap, fmt);
-  err = lcec_pin_newfv(comp_id, type, dir, data_ptr_addr, fmt, ap);
+  err = lcec_pin_newfv(env, comp_id, type, dir, data_ptr_addr, fmt, ap);
   va_end(ap);
 
   return err;
@@ -197,7 +201,7 @@ int lcec_pin_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_p
 /**
  * @brief Create HAL pins for every entry in a descriptor list (va_list form).
  *
- * Iterates over @p list until an entry with @c type == @c HAL_TYPE_UNSPECIFIED
+ * Iterates over @p list until an entry with @c type == @c GOMC_HAL_TYPE_UNSPECIFIED
  * is encountered.  For each entry the pointer field located at
  * @c (base + entry->offset) is passed to lcec_pin_newfv() along with a copy
  * of @p ap so that each descriptor's format string receives the same set of
@@ -205,20 +209,20 @@ int lcec_pin_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void **data_p
  *
  * @param base  Base address of the driver's HAL data struct.
  * @param list  Descriptor array terminated by an entry whose @c type field is
- *              @c HAL_TYPE_UNSPECIFIED.
+ *              @c GOMC_HAL_TYPE_UNSPECIFIED.
  * @param ap    @c va_list of format arguments consumed by each descriptor's
  *              @c fmt string.
  * @return 0 on success, negative error code from lcec_pin_newfv() on the
  *         first failure (remaining descriptors are not processed).
  */
-int lcec_pin_newfv_list(int comp_id, void *base, const lcec_pindesc_t *list, va_list ap) {
+int lcec_pin_newfv_list(const cmod_env_t *env, int comp_id, void *base, const lcec_pindesc_t *list, va_list ap) {
   va_list ac;
   int err;
   const lcec_pindesc_t *p;
 
-  for (p = list; p->type != HAL_TYPE_UNSPECIFIED; p++) {
+  for (p = list; p->type != GOMC_HAL_TYPE_UNSPECIFIED; p++) {
     va_copy(ac, ap);
-    err = lcec_pin_newfv(comp_id, p->type, p->dir, (void **) ((uint8_t *)base + p->offset), p->fmt, ac);
+    err = lcec_pin_newfv(env, comp_id, p->type, p->dir, (void **) ((uint8_t *)base + p->offset), p->fmt, ac);
     va_end(ac);
     if (err) {
       return err;
@@ -235,16 +239,16 @@ int lcec_pin_newfv_list(int comp_id, void *base, const lcec_pindesc_t *list, va_
  * arguments are forwarded to each descriptor's format string in turn.
  *
  * @param base  Base address of the driver's HAL data struct.
- * @param list  Descriptor array terminated by a @c HAL_TYPE_UNSPECIFIED entry.
+ * @param list  Descriptor array terminated by a @c GOMC_HAL_TYPE_UNSPECIFIED entry.
  * @param ...   Format arguments consumed by each descriptor's @c fmt string.
  * @return 0 on success, negative error code on the first failure.
  */
-int lcec_pin_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...) {
+int lcec_pin_newf_list(const cmod_env_t *env, int comp_id, void *base, const lcec_pindesc_t *list, ...) {
   va_list ap;
   int err;
 
   va_start(ap, list);
-  err = lcec_pin_newfv_list(comp_id, base, list, ap);
+  err = lcec_pin_newfv_list(env, comp_id, base, list, ap);
   va_end(ap);
 
   return err;
@@ -257,8 +261,8 @@ int lcec_pin_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...)
  * and zero-initialises the parameter value.  This is the @c va_list back-end
  * shared by lcec_param_newf() and lcec_param_newfv_list().
  *
- * @param type       HAL data type (e.g., @c HAL_FLOAT, @c HAL_S32).
- * @param dir        HAL parameter direction (@c HAL_RO or @c HAL_RW).
+ * @param type       HAL data type (e.g., @c GOMC_HAL_FLOAT, @c GOMC_HAL_S32).
+ * @param dir        HAL parameter direction (@c GOMC_HAL_RO or @c GOMC_HAL_RW).
  * @param data_addr  Address of the parameter value storage within the
  *                   driver's HAL data struct.  Unlike pins, parameters store
  *                   their value directly (not via a pointer).
@@ -267,35 +271,35 @@ int lcec_pin_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...)
  * @return 0 on success, @c -ENOMEM if the name is too long, or the
  *         negative error code from @c hal_param_new().
  */
-int lcec_param_newfv(int comp_id, hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, va_list ap) {
-  char name[HAL_NAME_LEN + 1];
+int lcec_param_newfv(const cmod_env_t *env, int comp_id, gomc_hal_type_t type, int dir, void *data_addr, const char *fmt, va_list ap) {
+  char name[GOMC_HAL_NAME_LEN + 1];
   int sz;
   int err;
 
-  sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
-  if(sz == -1 || sz > HAL_NAME_LEN) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "length %d too long for name starting '%s'\n", sz, name);
+  sz = vsnprintf(name, sizeof(name), fmt, ap);
+  if(sz == -1 || sz > GOMC_HAL_NAME_LEN) {
+    gomc_log_errorf(env->log, "ethercat", "length %d too long for name starting '%s'", sz, name);
     return -ENOMEM;
   }
 
-  err = hal_param_new(name, type, dir, data_addr, comp_id);
+  err = env->hal->param_new(env->hal->ctx, name, type, dir, data_addr, comp_id);
   if (err) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "exporting param %s failed\n", name);
+    gomc_log_errorf(env->log, "ethercat", "exporting param %s failed", name);
     return err;
   }
 
   switch (type) {
-    case HAL_BIT:
-      *((hal_bit_t *) data_addr) = 0;
+    case GOMC_HAL_BIT:
+      *((gomc_hal_bit_t *) data_addr) = 0;
       break;
-    case HAL_FLOAT:
-      *((hal_float_t *) data_addr) = 0.0;
+    case GOMC_HAL_FLOAT:
+      *((gomc_hal_float_t *) data_addr) = 0.0;
       break;
-    case HAL_S32:
-      *((hal_s32_t *) data_addr) = 0;
+    case GOMC_HAL_S32:
+      *((gomc_hal_s32_t *) data_addr) = 0;
       break;
-    case HAL_U32:
-      *((hal_u32_t *) data_addr) = 0;
+    case GOMC_HAL_U32:
+      *((gomc_hal_u32_t *) data_addr) = 0;
       break;
     default:
       break;
@@ -310,18 +314,18 @@ int lcec_param_newfv(int comp_id, hal_type_t type, hal_pin_dir_t dir, void *data
  * Convenience wrapper around lcec_param_newfv().
  *
  * @param type       HAL data type.
- * @param dir        HAL parameter direction (@c HAL_RO or @c HAL_RW).
+ * @param dir        HAL parameter direction (@c GOMC_HAL_RO or @c GOMC_HAL_RW).
  * @param data_addr  Address of the parameter value storage.
  * @param fmt        printf-style format string for the parameter name.
  * @param ...        Format arguments.
  * @return 0 on success, negative error code on failure.
  */
-int lcec_param_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void *data_addr, const char *fmt, ...) {
+int lcec_param_newf(const cmod_env_t *env, int comp_id, gomc_hal_type_t type, int dir, void *data_addr, const char *fmt, ...) {
   va_list ap;
   int err;
 
   va_start(ap, fmt);
-  err = lcec_param_newfv(comp_id, type, dir, data_addr, fmt, ap);
+  err = lcec_param_newfv(env, comp_id, type, dir, data_addr, fmt, ap);
   va_end(ap);
 
   return err;
@@ -330,24 +334,24 @@ int lcec_param_newf(int comp_id, hal_type_t type, hal_pin_dir_t dir, void *data_
 /**
  * @brief Create HAL parameters for every entry in a descriptor list (va_list form).
  *
- * Iterates over @p list until a @c HAL_TYPE_UNSPECIFIED terminator is found.
+ * Iterates over @p list until a @c GOMC_HAL_TYPE_UNSPECIFIED terminator is found.
  * For each entry the value address at @c (base + entry->offset) is passed to
  * lcec_param_newfv().
  *
  * @param base  Base address of the driver's HAL data struct.
- * @param list  Descriptor array terminated by a @c HAL_TYPE_UNSPECIFIED entry.
+ * @param list  Descriptor array terminated by a @c GOMC_HAL_TYPE_UNSPECIFIED entry.
  * @param ap    @c va_list of format arguments for each descriptor's @c fmt string.
  * @return 0 on success, negative error code from lcec_param_newfv() on the
  *         first failure.
  */
-int lcec_param_newfv_list(int comp_id, void *base, const lcec_pindesc_t *list, va_list ap) {
+int lcec_param_newfv_list(const cmod_env_t *env, int comp_id, void *base, const lcec_pindesc_t *list, va_list ap) {
   va_list ac;
   int err;
   const lcec_pindesc_t *p;
 
-  for (p = list; p->type != HAL_TYPE_UNSPECIFIED; p++) {
+  for (p = list; p->type != GOMC_HAL_TYPE_UNSPECIFIED; p++) {
     va_copy(ac, ap);
-    err = lcec_param_newfv(comp_id, p->type, p->dir, (void *) ((uint8_t *)base + p->offset), p->fmt, ac);
+    err = lcec_param_newfv(env, comp_id, p->type, p->dir, (void *) ((uint8_t *)base + p->offset), p->fmt, ac);
     va_end(ac);
     if (err) {
       return err;
@@ -363,16 +367,16 @@ int lcec_param_newfv_list(int comp_id, void *base, const lcec_pindesc_t *list, v
  * Variadic convenience wrapper around lcec_param_newfv_list().
  *
  * @param base  Base address of the driver's HAL data struct.
- * @param list  Descriptor array terminated by a @c HAL_TYPE_UNSPECIFIED entry.
+ * @param list  Descriptor array terminated by a @c GOMC_HAL_TYPE_UNSPECIFIED entry.
  * @param ...   Format arguments for each descriptor's @c fmt string.
  * @return 0 on success, negative error code on the first failure.
  */
-int lcec_param_newf_list(int comp_id, void *base, const lcec_pindesc_t *list, ...) {
+int lcec_param_newf_list(const cmod_env_t *env, int comp_id, void *base, const lcec_pindesc_t *list, ...) {
   va_list ap;
   int err;
 
   va_start(ap, list);
-  err = lcec_param_newfv_list(comp_id, base, list, ap);
+  err = lcec_param_newfv_list(env, comp_id, base, list, ap);
   va_end(ap);
 
   return err;
@@ -481,8 +485,10 @@ void copy_fsoe_data(struct lcec_slave *slave, unsigned int slave_offset, unsigne
  *
  * @param syncs  Builder state to initialise.
  */
-void lcec_syncs_init(lcec_syncs_t *syncs) {
+void lcec_syncs_init(lcec_syncs_t *syncs, struct lcec_master *master) {
   memset(syncs, 0, sizeof(lcec_syncs_t));
+  syncs->log = master->log;
+  syncs->comp_name = master->comp_name;
 }
 
 /**
@@ -508,7 +514,7 @@ void lcec_syncs_init(lcec_syncs_t *syncs) {
  */
 void lcec_syncs_add_sync(lcec_syncs_t *syncs, ec_direction_t dir, ec_watchdog_mode_t watchdog_mode) {
   if (syncs->sync_count >= LCEC_MAX_SYNC_COUNT) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "too many syncs (max %d)\n", LCEC_MAX_SYNC_COUNT);
+    gomc_log_errorf(syncs->log, syncs->comp_name, "too many syncs (max %d)", LCEC_MAX_SYNC_COUNT);
     return;
   }
   syncs->curr_sync = &syncs->syncs[syncs->sync_count];
@@ -542,7 +548,7 @@ void lcec_syncs_add_sync(lcec_syncs_t *syncs, ec_direction_t dir, ec_watchdog_mo
  */
 void lcec_syncs_add_pdo_info(lcec_syncs_t *syncs, uint16_t index) {
   if (syncs->pdo_info_count >= LCEC_MAX_PDO_INFO_COUNT) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "too many PDO infos (max %d)\n", LCEC_MAX_PDO_INFO_COUNT);
+    gomc_log_errorf(syncs->log, syncs->comp_name, "too many PDO infos (max %d)", LCEC_MAX_PDO_INFO_COUNT);
     return;
   }
   syncs->curr_pdo_info = &syncs->pdo_infos[syncs->pdo_info_count];
@@ -578,7 +584,7 @@ void lcec_syncs_add_pdo_info(lcec_syncs_t *syncs, uint16_t index) {
  */
 void lcec_syncs_add_pdo_entry(lcec_syncs_t *syncs, uint16_t index, uint8_t subindex, uint8_t bit_length) {
   if (syncs->pdo_entry_count >= LCEC_MAX_PDO_ENTRY_COUNT) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "too many PDO entries (max %d)\n", LCEC_MAX_PDO_ENTRY_COUNT);
+    gomc_log_errorf(syncs->log, syncs->comp_name, "too many PDO entries (max %d)", LCEC_MAX_PDO_ENTRY_COUNT);
     return;
   }
   syncs->curr_pdo_entry = &syncs->pdo_entries[syncs->pdo_entry_count];

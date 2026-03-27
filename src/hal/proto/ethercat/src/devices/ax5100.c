@@ -66,6 +66,7 @@ int lcec_ax5100_preinit(struct lcec_slave *slave) {
 
 int lcec_ax5100_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_ax5100_data_t *hal_data;
   int err;
 
@@ -74,8 +75,8 @@ int lcec_ax5100_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_ax5100_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_ax5100_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_ax5100_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_ax5100_data_t));
@@ -87,7 +88,7 @@ int lcec_ax5100_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   }
 
   // initialize sync info
-  lcec_syncs_init(&hal_data->syncs);
+  lcec_syncs_init(&hal_data->syncs, master);
     lcec_syncs_add_sync(&hal_data->syncs, EC_DIR_OUTPUT, EC_WD_DEFAULT);
     lcec_syncs_add_sync(&hal_data->syncs, EC_DIR_INPUT, EC_WD_DEFAULT);
     lcec_syncs_add_sync(&hal_data->syncs, EC_DIR_OUTPUT, EC_WD_DEFAULT);

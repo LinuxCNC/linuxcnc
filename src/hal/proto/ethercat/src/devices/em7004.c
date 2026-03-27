@@ -29,8 +29,8 @@
  * @brief Per-channel HAL data for one digital input.
  */
 typedef struct {
-  hal_bit_t *in;     /**< OUT: digital input state */
-  hal_bit_t *in_not; /**< OUT: inverted digital input state */
+  gomc_hal_bit_t *in;     /**< OUT: digital input state */
+  gomc_hal_bit_t *in_not; /**< OUT: inverted digital input state */
   unsigned int pdo_os; /**< PDO byte offset */
   unsigned int pdo_bp; /**< Bit position within PDO byte */
 } lcec_em7004_din_t;
@@ -39,8 +39,8 @@ typedef struct {
  * @brief Per-channel HAL data for one digital output.
  */
 typedef struct {
-  hal_bit_t *out;    /**< IN: desired output state */
-  hal_bit_t invert;  /**< Parameter: 1 = invert the output */
+  gomc_hal_bit_t *out;    /**< IN: desired output state */
+  gomc_hal_bit_t invert;  /**< Parameter: 1 = invert the output */
   unsigned int pdo_os; /**< PDO byte offset */
   unsigned int pdo_bp; /**< Bit position within PDO byte */
 } lcec_em7004_dout_t;
@@ -49,19 +49,19 @@ typedef struct {
  * @brief Per-channel HAL data for one analog output.
  */
 typedef struct {
-  hal_bit_t *pos;         /**< OUT: output is in positive direction */
-  hal_bit_t *neg;         /**< OUT: output is in negative direction */
-  hal_bit_t *enable;      /**< IN: enable this output channel */
-  hal_bit_t *absmode;     /**< IN: use absolute value mode */
-  hal_float_t *value;     /**< IN: commanded value in user units */
-  hal_float_t *scale;     /**< IO: scale factor (user units → duty cycle) */
-  hal_float_t *offset;    /**< IO: offset added after scaling */
+  gomc_hal_bit_t *pos;         /**< OUT: output is in positive direction */
+  gomc_hal_bit_t *neg;         /**< OUT: output is in negative direction */
+  gomc_hal_bit_t *enable;      /**< IN: enable this output channel */
+  gomc_hal_bit_t *absmode;     /**< IN: use absolute value mode */
+  gomc_hal_float_t *value;     /**< IN: commanded value in user units */
+  gomc_hal_float_t *scale;     /**< IO: scale factor (user units → duty cycle) */
+  gomc_hal_float_t *offset;    /**< IO: offset added after scaling */
   double old_scale;       /**< Previously applied scale (change detection) */
   double scale_recip;     /**< Reciprocal of current scale */
-  hal_float_t *min_dc;    /**< IO: minimum duty cycle clamp */
-  hal_float_t *max_dc;    /**< IO: maximum duty cycle clamp */
-  hal_float_t *curr_dc;   /**< OUT: current duty cycle being applied */
-  hal_s32_t *raw_val;     /**< OUT: raw 16-bit output value written to PDO */
+  gomc_hal_float_t *min_dc;    /**< IO: minimum duty cycle clamp */
+  gomc_hal_float_t *max_dc;    /**< IO: maximum duty cycle clamp */
+  gomc_hal_float_t *curr_dc;   /**< OUT: current duty cycle being applied */
+  gomc_hal_s32_t *raw_val;     /**< OUT: raw 16-bit output value written to PDO */
   unsigned int val_pdo_os; /**< PDO byte offset of the 16-bit value */
 } lcec_em7004_aout_t;
 
@@ -69,21 +69,21 @@ typedef struct {
  * @brief Per-channel HAL data for one incremental encoder.
  */
 typedef struct {
-  hal_bit_t *ena_latch_ext_pos;  /**< IO: enable external latch on positive edge */
-  hal_bit_t *ena_latch_ext_neg;  /**< IO: enable external latch on negative edge */
-  hal_bit_t *reset;              /**< IN: reset accumulated count to zero */
-  hal_bit_t *ina;                /**< OUT: encoder channel A state */
-  hal_bit_t *inb;                /**< OUT: encoder channel B state */
-  hal_bit_t *ingate;             /**< OUT: encoder gate input state */
-  hal_bit_t *inext;              /**< OUT: external latch input state */
-  hal_bit_t *latch_ext_valid;    /**< OUT: external latch valid flag */
-  hal_bit_t *set_raw_count;      /**< IO: write 1 to preset the counter */
-  hal_s32_t *set_raw_count_val;  /**< IN: preset value for the counter */
-  hal_s32_t *raw_count;          /**< OUT: raw 16-bit counter value */
-  hal_s32_t *raw_latch;          /**< OUT: raw 16-bit latch value */
-  hal_s32_t *count;              /**< OUT: accumulated count */
-  hal_float_t *pos_scale;        /**< IO: counts per user unit */
-  hal_float_t *pos;              /**< OUT: position in user units */
+  gomc_hal_bit_t *ena_latch_ext_pos;  /**< IO: enable external latch on positive edge */
+  gomc_hal_bit_t *ena_latch_ext_neg;  /**< IO: enable external latch on negative edge */
+  gomc_hal_bit_t *reset;              /**< IN: reset accumulated count to zero */
+  gomc_hal_bit_t *ina;                /**< OUT: encoder channel A state */
+  gomc_hal_bit_t *inb;                /**< OUT: encoder channel B state */
+  gomc_hal_bit_t *ingate;             /**< OUT: encoder gate input state */
+  gomc_hal_bit_t *inext;              /**< OUT: external latch input state */
+  gomc_hal_bit_t *latch_ext_valid;    /**< OUT: external latch valid flag */
+  gomc_hal_bit_t *set_raw_count;      /**< IO: write 1 to preset the counter */
+  gomc_hal_s32_t *set_raw_count_val;  /**< IN: preset value for the counter */
+  gomc_hal_s32_t *raw_count;          /**< OUT: raw 16-bit counter value */
+  gomc_hal_s32_t *raw_latch;          /**< OUT: raw 16-bit latch value */
+  gomc_hal_s32_t *count;              /**< OUT: accumulated count */
+  gomc_hal_float_t *pos_scale;        /**< IO: counts per user unit */
+  gomc_hal_float_t *pos;              /**< OUT: position in user units */
 
   unsigned int ena_latch_ext_pos_pdo_os; /**< PDO byte offset: enable latch pos edge */
   unsigned int ena_latch_ext_pos_pdo_bp; /**< Bit position: enable latch pos edge */
@@ -125,53 +125,53 @@ typedef struct {
 } lcec_em7004_data_t;
 
 static const lcec_pindesc_t slave_din_pins[] = {
-  { HAL_BIT, HAL_OUT, offsetof(lcec_em7004_din_t, in), "%s.%s.%s.din-%d" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_em7004_din_t, in_not), "%s.%s.%s.din-%d-not" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em7004_din_t, in), "%s.%s.%s.din-%d" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em7004_din_t, in_not), "%s.%s.%s.din-%d-not" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_dout_pins[] = {
-  { HAL_BIT, HAL_IN, offsetof(lcec_em7004_dout_t, out), "%s.%s.%s.dout-%d" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_em7004_dout_t, out), "%s.%s.%s.dout-%d" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_dout_params[] = {
-  { HAL_BIT, HAL_RW, offsetof(lcec_em7004_dout_t, invert), "%s.%s.%s.dout-%d-invert" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_RW, offsetof(lcec_em7004_dout_t, invert), "%s.%s.%s.dout-%d-invert" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_aout_pins[] = {
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_em7004_aout_t, scale), "%s.%s.%s.aout-%d-scale" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_em7004_aout_t, offset), "%s.%s.%s.aout-%d-offset" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_em7004_aout_t, min_dc), "%s.%s.%s.aout-%d-min-dc" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_em7004_aout_t, max_dc), "%s.%s.%s.aout-%d-max-dc" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_em7004_aout_t, curr_dc), "%s.%s.%s.aout-%d-curr-dc" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_em7004_aout_t, enable), "%s.%s.%s.aout-%d-enable" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_em7004_aout_t, absmode), "%s.%s.%s.aout-%d-absmode" },
-  { HAL_FLOAT, HAL_IN, offsetof(lcec_em7004_aout_t, value), "%s.%s.%s.aout-%d-value" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_em7004_aout_t, raw_val), "%s.%s.%s.aout-%d-raw" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_em7004_aout_t, pos), "%s.%s.%s.aout-%d-pos" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_em7004_aout_t, neg), "%s.%s.%s.aout-%d-neg" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_em7004_aout_t, scale), "%s.%s.%s.aout-%d-scale" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_em7004_aout_t, offset), "%s.%s.%s.aout-%d-offset" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_em7004_aout_t, min_dc), "%s.%s.%s.aout-%d-min-dc" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_em7004_aout_t, max_dc), "%s.%s.%s.aout-%d-max-dc" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_em7004_aout_t, curr_dc), "%s.%s.%s.aout-%d-curr-dc" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_em7004_aout_t, enable), "%s.%s.%s.aout-%d-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_em7004_aout_t, absmode), "%s.%s.%s.aout-%d-absmode" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN, offsetof(lcec_em7004_aout_t, value), "%s.%s.%s.aout-%d-value" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_em7004_aout_t, raw_val), "%s.%s.%s.aout-%d-raw" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em7004_aout_t, pos), "%s.%s.%s.aout-%d-pos" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em7004_aout_t, neg), "%s.%s.%s.aout-%d-neg" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_enc_pins[] = {
-  { HAL_BIT, HAL_IO, offsetof(lcec_em7004_enc_t, ena_latch_ext_pos), "%s.%s.%s.enc-%d-index-ext-pos-enable" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_em7004_enc_t, ena_latch_ext_neg), "%s.%s.%s.enc-%d-index-ext-neg-enable" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_em7004_enc_t, reset), "%s.%s.%s.enc-%d-reset" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_em7004_enc_t, ina), "%s.%s.%s.enc-%d-ina" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_em7004_enc_t, inb), "%s.%s.%s.enc-%d-inb" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_em7004_enc_t, ingate), "%s.%s.%s.enc-%d-ingate" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_em7004_enc_t, inext), "%s.%s.%s.enc-%d-inext" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_em7004_enc_t, latch_ext_valid), "%s.%s.%s.enc-%d-latch-ext-valid" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_em7004_enc_t, set_raw_count), "%s.%s.%s.enc-%d-set-raw-count" },
-  { HAL_S32, HAL_IN, offsetof(lcec_em7004_enc_t, set_raw_count_val), "%s.%s.%s.enc-%d-set-raw-count-val" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_em7004_enc_t, raw_count), "%s.%s.%s.enc-%d-raw-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_em7004_enc_t, count), "%s.%s.%s.enc-%d-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_em7004_enc_t, raw_latch), "%s.%s.%s.enc-%d-raw-latch" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_em7004_enc_t, pos), "%s.%s.%s.enc-%d-pos" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_em7004_enc_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_em7004_enc_t, ena_latch_ext_pos), "%s.%s.%s.enc-%d-index-ext-pos-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_em7004_enc_t, ena_latch_ext_neg), "%s.%s.%s.enc-%d-index-ext-neg-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_em7004_enc_t, reset), "%s.%s.%s.enc-%d-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em7004_enc_t, ina), "%s.%s.%s.enc-%d-ina" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em7004_enc_t, inb), "%s.%s.%s.enc-%d-inb" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em7004_enc_t, ingate), "%s.%s.%s.enc-%d-ingate" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em7004_enc_t, inext), "%s.%s.%s.enc-%d-inext" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_em7004_enc_t, latch_ext_valid), "%s.%s.%s.enc-%d-latch-ext-valid" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_em7004_enc_t, set_raw_count), "%s.%s.%s.enc-%d-set-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_IN, offsetof(lcec_em7004_enc_t, set_raw_count_val), "%s.%s.%s.enc-%d-set-raw-count-val" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_em7004_enc_t, raw_count), "%s.%s.%s.enc-%d-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_em7004_enc_t, count), "%s.%s.%s.enc-%d-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_em7004_enc_t, raw_latch), "%s.%s.%s.enc-%d-raw-latch" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_em7004_enc_t, pos), "%s.%s.%s.enc-%d-pos" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_em7004_enc_t, pos_scale), "%s.%s.%s.enc-%d-pos-scale" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /**
@@ -193,6 +193,7 @@ void lcec_em7004_write(struct lcec_slave *slave, long period);
  */
 int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_em7004_data_t *hal_data;
   lcec_em7004_din_t *din;
   lcec_em7004_dout_t *dout;
@@ -206,8 +207,8 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_em7004_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_em7004_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_em7004_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_em7004_data_t));
@@ -222,7 +223,7 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000, i + 1, &din->pdo_os, &din->pdo_bp);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, din, slave_din_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, din, slave_din_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
   }
@@ -233,10 +234,10 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7010, i + 1, &dout->pdo_os, &dout->pdo_bp);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, dout, slave_dout_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, dout, slave_dout_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
-    if ((err = lcec_param_newf_list(comp_id, dout, slave_dout_params, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_param_newf_list(env, comp_id, dout, slave_dout_params, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
   }
@@ -247,7 +248,7 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7020 + (i << 4), 0x11, &aout->val_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, aout, slave_aout_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, aout, slave_aout_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 
@@ -278,7 +279,7 @@ int lcec_em7004_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
     LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7060 + (i << 4), 0x11, &enc->set_count_val_pdo_os, NULL);
 
     // export pins
-    if ((err = lcec_pin_newf_list(comp_id, enc, slave_enc_pins, master->instance_name, master->name, slave->name, i)) != 0) {
+    if ((err = lcec_pin_newf_list(env, comp_id, enc, slave_enc_pins, master->instance_name, master->name, slave->name, i)) != 0) {
       return err;
     }
 

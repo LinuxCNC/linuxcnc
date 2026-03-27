@@ -20,10 +20,10 @@
 #ifndef GOMC_ENV_H
 #define GOMC_ENV_H
 
-#include "gomc_log.h"
 #include "gomc_ini.h"
 #include "gomc_hal.h"
 #include "gomc_rtapi.h"
+#include "gomc_log.h"
 
 #ifdef __cplusplus
 extern "C" {

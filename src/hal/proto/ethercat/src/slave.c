@@ -30,13 +30,13 @@
 
 /** @brief HAL pin descriptors exported for each slave's EtherCAT AL state. */
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_OUT, offsetof(lcec_slave_state_t, online), "%s.%s.%s.slave-online" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_slave_state_t, operational), "%s.%s.%s.slave-oper" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_slave_state_t, state_init), "%s.%s.%s.slave-state-init" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_slave_state_t, state_preop), "%s.%s.%s.slave-state-preop" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_slave_state_t, state_safeop), "%s.%s.%s.slave-state-safeop" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_slave_state_t, state_op), "%s.%s.%s.slave-state-op" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_slave_state_t, online), "%s.%s.%s.slave-online" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_slave_state_t, operational), "%s.%s.%s.slave-oper" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_slave_state_t, state_init), "%s.%s.%s.slave-state-init" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_slave_state_t, state_preop), "%s.%s.%s.slave-state-preop" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_slave_state_t, state_safeop), "%s.%s.%s.slave-state-safeop" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_slave_state_t, state_op), "%s.%s.%s.slave-state-op" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 /**
@@ -63,15 +63,10 @@ static const lcec_pindesc_t slave_pins[] = {
 lcec_slave_t *lcec_create_slave(lcec_master_t *master, LCEC_CONF_SLAVE_T *slave_conf, lcec_slave_conf_state_t *conf_state) {
   lcec_slave_t *slave;
   const lcec_typelist_t *type;
+  const cmod_env_t *env = master->env;
 
   // reset config state
   memset(conf_state, 0, sizeof(lcec_slave_conf_state_t));
-
-  // check for master
-  if (master == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Master node for slave missing\n");
-    goto fail0;
-  }
 
   // check for valid slave type
   if (slave_conf->type == lcecSlaveTypeGeneric) {
@@ -79,15 +74,16 @@ lcec_slave_t *lcec_create_slave(lcec_master_t *master, LCEC_CONF_SLAVE_T *slave_
   } else {
     for (type = typelist; type->type != slave_conf->type && type->type != lcecSlaveTypeInvalid; type++);
     if (type->type == lcecSlaveTypeInvalid) {
-      rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Invalid slave type %d\n", slave_conf->type);
+      LCEC_ERR(master, "Invalid slave type %d", slave_conf->type);
       goto fail0;
     }
   }
 
   // create new slave
-  slave = rtapi_calloc(sizeof(lcec_slave_t));
+  slave = env->rtapi->calloc(env->rtapi->ctx, sizeof(lcec_slave_t));
   if (slave == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s structure memory\n", master->name, slave_conf->name);
+    LCEC_ERR(master,
+        "Unable to allocate slave %s.%s structure memory", master->name, slave_conf->name);
     goto fail0;
   }
 
@@ -113,27 +109,30 @@ lcec_slave_t *lcec_create_slave(lcec_master_t *master, LCEC_CONF_SLAVE_T *slave_
 
   // alloc sdo config memory
   if (slave_conf->sdoConfigLength > 0) {
-    slave->sdo_config = rtapi_calloc(slave_conf->sdoConfigLength + sizeof(lcec_slave_sdoconf_t));
+    slave->sdo_config = env->rtapi->calloc(env->rtapi->ctx, slave_conf->sdoConfigLength + sizeof(lcec_slave_sdoconf_t));
     if (slave->sdo_config == NULL) {
-      rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s sdo entry memory\n", master->name, slave_conf->name);
+      LCEC_ERR(master,
+          "Unable to allocate slave %s.%s sdo entry memory", master->name, slave_conf->name);
       goto fail1;
     }
   }
 
   // alloc idn config memory
   if (slave_conf->idnConfigLength > 0) {
-    slave->idn_config = rtapi_calloc(slave_conf->idnConfigLength + sizeof(lcec_slave_idnconf_t));
+    slave->idn_config = env->rtapi->calloc(env->rtapi->ctx, slave_conf->idnConfigLength + sizeof(lcec_slave_idnconf_t));
     if (slave->idn_config == NULL) {
-      rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s idn entry memory\n", master->name, slave_conf->name);
+      LCEC_ERR(master,
+          "Unable to allocate slave %s.%s idn entry memory", master->name, slave_conf->name);
       goto fail1;
     }
   }
 
   // alloc modparam memory
   if (slave_conf->modParamCount > 0) {
-    slave->modparams = rtapi_calloc(sizeof(lcec_slave_modparam_t) * (slave_conf->modParamCount + 1));
+    slave->modparams = env->rtapi->calloc(env->rtapi->ctx, sizeof(lcec_slave_modparam_t) * (slave_conf->modParamCount + 1));
     if (slave->modparams == NULL) {
-      rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s modparam memory\n", master->name, slave_conf->name);
+      LCEC_ERR(master,
+          "Unable to allocate slave %s.%s modparam memory", master->name, slave_conf->name);
       goto fail1;
     }
     slave->modparams[slave_conf->modParamCount].id = -1;
@@ -148,7 +147,7 @@ lcec_slave_t *lcec_create_slave(lcec_master_t *master, LCEC_CONF_SLAVE_T *slave_
   return slave;
 
 fail1:
-  lcec_free_slave(slave);
+  lcec_free_slave(env, slave);
 fail0:
   return NULL;
 }
@@ -165,26 +164,26 @@ fail0:
  * @note The slave must have been removed from the master's linked list before
  *       calling this function.
  */
-void lcec_free_slave(lcec_slave_t *slave) {
+void lcec_free_slave(const cmod_env_t *env, lcec_slave_t *slave) {
   // free generic device stuff
-  lcec_generic_free_slave(slave);
+  lcec_generic_free_slave(env, slave);
 
   if (slave->modparams != NULL) {
-    rtapi_free(slave->modparams);
+    env->rtapi->free(env->rtapi->ctx, slave->modparams);
   }
   if (slave->sdo_config != NULL) {
-    rtapi_free(slave->sdo_config);
+    env->rtapi->free(env->rtapi->ctx, slave->sdo_config);
   }
   if (slave->idn_config != NULL) {
-    rtapi_free(slave->idn_config);
+    env->rtapi->free(env->rtapi->ctx, slave->idn_config);
   }
   if (slave->dc_conf != NULL) {
-    rtapi_free(slave->dc_conf);
+    env->rtapi->free(env->rtapi->ctx, slave->dc_conf);
   }
   if (slave->wd_conf != NULL) {
-    rtapi_free(slave->wd_conf);
+    env->rtapi->free(env->rtapi->ctx, slave->wd_conf);
   }
-  rtapi_free(slave);
+  env->rtapi->free(env->rtapi->ctx, slave);
 }
 
 /**
@@ -200,23 +199,19 @@ void lcec_free_slave(lcec_slave_t *slave) {
  */
 int lcec_slave_conf_dc(lcec_slave_t *slave, LCEC_CONF_DC_T *dc_conf) {
   lcec_slave_dc_t *dc;
-
-  // check for slave
-  if (slave == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Slave node for dc config missing\n");
-    return -1;
-  }
+  lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
 
   // check for double dc config
   if (slave->dc_conf != NULL) {
-    rtapi_print_msg(RTAPI_MSG_WARN, LCEC_MSG_PFX "Double dc config for slave %s.%s\n", slave->master->name, slave->name);
+    LCEC_WARN(master, "Double dc config for slave %s.%s", master->name, slave->name);
     return -1;
   }
 
   // create new dc config
-  dc = rtapi_calloc(sizeof(lcec_slave_dc_t));
+  dc = env->rtapi->calloc(env->rtapi->ctx, sizeof(lcec_slave_dc_t));
   if (dc == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s dc config memory\n", slave->master->name, slave->name);
+    LCEC_ERR(master, "Unable to allocate slave %s.%s dc config memory", master->name, slave->name);
     return -1;
   }
 
@@ -246,23 +241,19 @@ int lcec_slave_conf_dc(lcec_slave_t *slave, LCEC_CONF_DC_T *dc_conf) {
  */
 int lcec_slave_conf_wd(lcec_slave_t *slave, LCEC_CONF_WATCHDOG_T *wd_conf) {
   lcec_slave_watchdog_t *wd;
-
-  // check for slave
-  if (slave == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Slave node for watchdog config missing\n");
-    return -1;
-  }
+  lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
 
   // check for double wd config
   if (slave->wd_conf != NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Double watchdog config for slave %s.%s\n", slave->master->name, slave->name);
+    LCEC_ERR(master, "Double watchdog config for slave %s.%s", master->name, slave->name);
     return -1;
   }
 
   // create new wd config
-  wd = rtapi_calloc(sizeof(lcec_slave_watchdog_t));
+  wd = env->rtapi->calloc(env->rtapi->ctx, sizeof(lcec_slave_watchdog_t));
   if (wd == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "Unable to allocate slave %s.%s watchdog config memory\n", slave->master->name, slave->name);
+    LCEC_ERR(master, "Unable to allocate slave %s.%s watchdog config memory", master->name, slave->name);
     return -1;
   }
 
@@ -386,18 +377,19 @@ void lcec_slave_conf_modparam(lcec_slave_conf_state_t *state, LCEC_CONF_MODPARAM
  *
  * @note Must be called from init context, not from a real-time thread.
  */
-lcec_slave_state_t *lcec_init_slave_state_hal(int comp_id, const char *instance_name, char *master_name, char *slave_name) {
+lcec_slave_state_t *lcec_init_slave_state_hal(const cmod_env_t *env, int comp_id, const char *instance_name, char *master_name, char *slave_name) {
   lcec_slave_state_t *hal_data;
 
   // alloc hal data
-  if ((hal_data = hal_malloc(sizeof(lcec_slave_state_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for %s.%s.%s failed\n", instance_name, master_name, slave_name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_slave_state_t))) == NULL) {
+    gomc_log_errorf(env->log, instance_name,
+        "hal_malloc() for %s.%s.%s failed", instance_name, master_name, slave_name);
     return NULL;
   }
   memset(hal_data, 0, sizeof(lcec_slave_state_t));
 
   // export pins
-  if (lcec_pin_newf_list(comp_id, hal_data, slave_pins, instance_name, master_name, slave_name) != 0) {
+  if (lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, instance_name, master_name, slave_name) != 0) {
     return NULL;
   }
 

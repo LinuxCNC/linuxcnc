@@ -13,14 +13,14 @@
  *  - Product code: 0x0B583052
  *
  * HAL pins exported:
- *  - @c fsoe-master-cmd    (HAL_U32, OUT) — FsoE command byte received from master PDO
- *  - @c fsoe-master-crc    (HAL_U32, OUT) — FsoE CRC word received from master PDO
- *  - @c fsoe-master-connid (HAL_U32, OUT) — FsoE connection ID from master PDO
- *  - @c fsoe-slave-cmd     (HAL_U32, OUT) — FsoE command byte in slave response PDO
- *  - @c fsoe-slave-crc     (HAL_U32, OUT) — FsoE CRC word in slave response PDO
- *  - @c fsoe-slave-connid  (HAL_U32, OUT) — FsoE connection ID in slave response PDO
- *  - @c fsoe-out-0 … fsoe-out-3 (HAL_BIT, OUT) — readback of safety outputs 0–3
- *  - @c out-0 … out-3      (HAL_BIT, IN)  — non-safety output commands 0–3
+ *  - @c fsoe-master-cmd    (GOMC_HAL_U32, OUT) — FsoE command byte received from master PDO
+ *  - @c fsoe-master-crc    (GOMC_HAL_U32, OUT) — FsoE CRC word received from master PDO
+ *  - @c fsoe-master-connid (GOMC_HAL_U32, OUT) — FsoE connection ID from master PDO
+ *  - @c fsoe-slave-cmd     (GOMC_HAL_U32, OUT) — FsoE command byte in slave response PDO
+ *  - @c fsoe-slave-crc     (GOMC_HAL_U32, OUT) — FsoE CRC word in slave response PDO
+ *  - @c fsoe-slave-connid  (GOMC_HAL_U32, OUT) — FsoE connection ID in slave response PDO
+ *  - @c fsoe-out-0 … fsoe-out-3 (GOMC_HAL_BIT, OUT) — readback of safety outputs 0–3
+ *  - @c out-0 … out-3      (GOMC_HAL_BIT, IN)  — non-safety output commands 0–3
  *
  * @copyright Copyright (C) 2018-2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *
@@ -50,23 +50,23 @@
  * output channels.
  */
 typedef struct {
-  hal_u32_t *fsoe_master_cmd;       /**< HAL OUT pin: FsoE master command byte (0x7000:01). */
-  hal_u32_t *fsoe_master_crc;       /**< HAL OUT pin: FsoE master CRC word (0x7000:02). */
-  hal_u32_t *fsoe_master_connid;    /**< HAL OUT pin: FsoE master connection ID (0x7000:03). */
+  gomc_hal_u32_t *fsoe_master_cmd;       /**< HAL OUT pin: FsoE master command byte (0x7000:01). */
+  gomc_hal_u32_t *fsoe_master_crc;       /**< HAL OUT pin: FsoE master CRC word (0x7000:02). */
+  gomc_hal_u32_t *fsoe_master_connid;    /**< HAL OUT pin: FsoE master connection ID (0x7000:03). */
 
-  hal_u32_t *fsoe_slave_cmd;        /**< HAL OUT pin: FsoE slave command byte (0x6000:01). */
-  hal_u32_t *fsoe_slave_crc;        /**< HAL OUT pin: FsoE slave CRC word (0x6000:03). */
-  hal_u32_t *fsoe_slave_connid;     /**< HAL OUT pin: FsoE slave connection ID (0x6000:04). */
+  gomc_hal_u32_t *fsoe_slave_cmd;        /**< HAL OUT pin: FsoE slave command byte (0x6000:01). */
+  gomc_hal_u32_t *fsoe_slave_crc;        /**< HAL OUT pin: FsoE slave CRC word (0x6000:03). */
+  gomc_hal_u32_t *fsoe_slave_connid;     /**< HAL OUT pin: FsoE slave connection ID (0x6000:04). */
 
-  hal_bit_t *fsoe_out_0;            /**< HAL OUT pin: safety output 0 readback (0x7001:01). */
-  hal_bit_t *fsoe_out_1;            /**< HAL OUT pin: safety output 1 readback (0x7001:02). */
-  hal_bit_t *fsoe_out_2;            /**< HAL OUT pin: safety output 2 readback (0x7001:03). */
-  hal_bit_t *fsoe_out_3;            /**< HAL OUT pin: safety output 3 readback (0x7001:04). */
+  gomc_hal_bit_t *fsoe_out_0;            /**< HAL OUT pin: safety output 0 readback (0x7001:01). */
+  gomc_hal_bit_t *fsoe_out_1;            /**< HAL OUT pin: safety output 1 readback (0x7001:02). */
+  gomc_hal_bit_t *fsoe_out_2;            /**< HAL OUT pin: safety output 2 readback (0x7001:03). */
+  gomc_hal_bit_t *fsoe_out_3;            /**< HAL OUT pin: safety output 3 readback (0x7001:04). */
 
-  hal_bit_t *out_0;                 /**< HAL IN pin: standard output channel 0 command (0x7010:01). */
-  hal_bit_t *out_1;                 /**< HAL IN pin: standard output channel 1 command (0x7010:02). */
-  hal_bit_t *out_2;                 /**< HAL IN pin: standard output channel 2 command (0x7010:03). */
-  hal_bit_t *out_3;                 /**< HAL IN pin: standard output channel 3 command (0x7010:04). */
+  gomc_hal_bit_t *out_0;                 /**< HAL IN pin: standard output channel 0 command (0x7010:01). */
+  gomc_hal_bit_t *out_1;                 /**< HAL IN pin: standard output channel 1 command (0x7010:02). */
+  gomc_hal_bit_t *out_2;                 /**< HAL IN pin: standard output channel 2 command (0x7010:03). */
+  gomc_hal_bit_t *out_3;                 /**< HAL IN pin: standard output channel 3 command (0x7010:04). */
 
   unsigned int fsoe_master_cmd_os;      /**< Byte offset of fsoe_master_cmd in the process image. */
   unsigned int fsoe_master_crc_os;      /**< Byte offset of fsoe_master_crc in the process image. */
@@ -97,21 +97,21 @@ typedef struct {
 } lcec_el2904_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_U32, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_master_cmd), "%s.%s.%s.fsoe-master-cmd" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_master_crc), "%s.%s.%s.fsoe-master-crc" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_master_connid), "%s.%s.%s.fsoe-master-connid" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_slave_cmd), "%s.%s.%s.fsoe-slave-cmd" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_slave_crc), "%s.%s.%s.fsoe-slave-crc" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_slave_connid), "%s.%s.%s.fsoe-slave-connid" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_out_0), "%s.%s.%s.fsoe-out-0" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_out_1), "%s.%s.%s.fsoe-out-1" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_out_2), "%s.%s.%s.fsoe-out-2" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_out_3), "%s.%s.%s.fsoe-out-3" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el2904_data_t, out_0), "%s.%s.%s.out-0" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el2904_data_t, out_1), "%s.%s.%s.out-1" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el2904_data_t, out_2), "%s.%s.%s.out-2" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el2904_data_t, out_3), "%s.%s.%s.out-3" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_master_cmd), "%s.%s.%s.fsoe-master-cmd" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_master_crc), "%s.%s.%s.fsoe-master-crc" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_master_connid), "%s.%s.%s.fsoe-master-connid" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_slave_cmd), "%s.%s.%s.fsoe-slave-cmd" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_slave_crc), "%s.%s.%s.fsoe-slave-crc" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_slave_connid), "%s.%s.%s.fsoe-slave-connid" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_out_0), "%s.%s.%s.fsoe-out-0" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_out_1), "%s.%s.%s.fsoe-out-1" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_out_2), "%s.%s.%s.fsoe-out-2" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el2904_data_t, fsoe_out_3), "%s.%s.%s.fsoe-out-3" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el2904_data_t, out_0), "%s.%s.%s.out-0" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el2904_data_t, out_1), "%s.%s.%s.out-1" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el2904_data_t, out_2), "%s.%s.%s.out-2" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el2904_data_t, out_3), "%s.%s.%s.out-3" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const LCEC_CONF_FSOE_T fsoe_conf = {
@@ -158,6 +158,7 @@ int lcec_el2904_preinit(struct lcec_slave *slave) {
  */
 int lcec_el2904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el2904_data_t *hal_data;
   int err;
 
@@ -166,8 +167,8 @@ int lcec_el2904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_el2904_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el2904_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el2904_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el2904_data_t));
@@ -190,7 +191,7 @@ int lcec_el2904_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x6000, 0x04, &hal_data->fsoe_slave_connid_os, NULL);
 
   // export pins
-  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 

@@ -4,14 +4,14 @@ USERSRCS += $(IOSRCS) $(IOV2SRCS)
 
 $(call TOOBJS, $(IOSRCS)): EXTRAFLAGS += -fPIC
 ../cmod/io.so: $(call TOOBJS, $(IOSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
-           ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/libtooldata.so.0
+           ../lib/liblinuxcncini.so.0 ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../cmod
 	@$(CXX) -shared -o $@ $^ $(LDFLAGS)
 
 $(call TOOBJS, $(IOV2SRCS)): EXTRAFLAGS += -fPIC
 ../cmod/iov2.so: $(call TOOBJS, $(IOV2SRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
-           ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/libtooldata.so.0
+           ../lib/liblinuxcncini.so.0 ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../cmod
 	@$(CXX) -shared -o $@ $^ $(LDFLAGS)

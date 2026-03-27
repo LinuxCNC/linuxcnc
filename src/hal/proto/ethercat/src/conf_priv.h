@@ -29,8 +29,6 @@
 
 #include <expat.h>
 
-#include "hal.h"
-#include "launcher/pkg/cmodule/cmodule.h"
 #include "priv.h"
 
 /** @brief Size in bytes of the read buffer used when feeding data to expat. */
@@ -111,8 +109,8 @@ typedef struct lcec_conf_outbuf {
  * @brief HAL pin data for the ethercat config component.
  */
 typedef struct {
-  hal_u32_t *master_count;
-  hal_u32_t *slave_count;
+  gomc_hal_u32_t *master_count;
+  gomc_hal_u32_t *slave_count;
 } LCEC_CONF_HAL_T;
 
 /**
@@ -124,7 +122,7 @@ typedef struct {
 struct lcec_conf_module {
   cmod_t base;                     /**< cmod lifecycle vtable; must be first. */
   const cmod_env_t *env;           /**< Launcher-provided environment. */
-  char name[64];                   /**< Instance name (used as HAL component name). */
+  char name[GOMC_RTAPI_NAME_LEN + 1];  /**< Instance name (used as HAL component name). */
 
   int hal_comp_id;                 /**< HAL component ID from hal_init_ex(). */
   LCEC_CONF_HAL_T *conf_hal_data;  /**< HAL pin data block. */
@@ -137,24 +135,14 @@ static inline const char *xml_modname(const LCEC_CONF_XML_INST_T *inst) {
   return inst->mod->name;
 }
 
-/** @brief Log an error through the cmod environment. */
-static inline void xml_log_error(const LCEC_CONF_XML_INST_T *inst, const char *msg) {
-  inst->mod->env->log_error(inst->mod->env->ctx, inst->mod->name, msg);
-}
+#define xml_log_error(inst, msg) \
+  gomc_log_errorf((inst)->mod->env->log, (inst)->mod->name, "%s", (msg))
 
-/** @brief Log a formatted error through the cmod environment. */
-static inline __attribute__((format(printf, 2, 3)))
-void xml_log_error_fmt(const LCEC_CONF_XML_INST_T *inst, const char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  cmod_log_errorv(inst->mod->env, inst->mod->name, fmt, ap);
-  va_end(ap);
-}
+#define xml_log_error_fmt(inst, fmt, ...) \
+  gomc_log_errorf((inst)->mod->env->log, (inst)->mod->name, fmt, ##__VA_ARGS__)
 
-/** @brief Log an info message through the cmod environment. */
-static inline void xml_log_info(const LCEC_CONF_XML_INST_T *inst, const char *msg) {
-  inst->mod->env->log_info(inst->mod->env->ctx, inst->mod->name, msg);
-}
+#define xml_log_info(inst, msg) \
+  gomc_log_infof((inst)->mod->env->log, (inst)->mod->name, "%s", (msg))
 
 /**
  * @brief Initialise an output buffer to the empty state.

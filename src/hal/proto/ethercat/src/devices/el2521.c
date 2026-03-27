@@ -13,23 +13,23 @@
  *  - Product code: 0x09D93052
  *
  * HAL pins exported:
- *  - @c stp-counts     (HAL_S32, OUT) — accumulated step count
- *  - @c stp-pos-fb     (HAL_FLOAT, OUT) — position feedback in position units
- *  - @c stp-ramp-active (HAL_BIT, OUT) — TRUE while frequency ramp is active
- *  - @c stp-ramp-disable (HAL_BIT, IN) — TRUE to bypass the ramp
- *  - @c stp-in-z       (HAL_BIT, OUT) — digital input Z state
- *  - @c stp-in-z-not   (HAL_BIT, OUT) — inverted digital input Z state
- *  - @c stp-in-t       (HAL_BIT, OUT) — digital input T state
- *  - @c stp-in-t-not   (HAL_BIT, OUT) — inverted digital input T state
- *  - @c stp-enable     (HAL_BIT, IN)  — enable pulse output
- *  - @c stp-velo-cmd   (HAL_FLOAT, IN) — velocity command (position units/s)
+ *  - @c stp-counts     (GOMC_HAL_S32, OUT) — accumulated step count
+ *  - @c stp-pos-fb     (GOMC_HAL_FLOAT, OUT) — position feedback in position units
+ *  - @c stp-ramp-active (GOMC_HAL_BIT, OUT) — TRUE while frequency ramp is active
+ *  - @c stp-ramp-disable (GOMC_HAL_BIT, IN) — TRUE to bypass the ramp
+ *  - @c stp-in-z       (GOMC_HAL_BIT, OUT) — digital input Z state
+ *  - @c stp-in-z-not   (GOMC_HAL_BIT, OUT) — inverted digital input Z state
+ *  - @c stp-in-t       (GOMC_HAL_BIT, OUT) — digital input T state
+ *  - @c stp-in-t-not   (GOMC_HAL_BIT, OUT) — inverted digital input T state
+ *  - @c stp-enable     (GOMC_HAL_BIT, IN)  — enable pulse output
+ *  - @c stp-velo-cmd   (GOMC_HAL_FLOAT, IN) — velocity command (position units/s)
  *
  * HAL parameters exported:
- *  - @c stp-freq         (HAL_FLOAT, RO) — current output frequency (Hz)
- *  - @c stp-maxvel       (HAL_FLOAT, RO) — maximum velocity (position units/s)
- *  - @c stp-maxaccel-fall (HAL_FLOAT, RO) — maximum deceleration (pos units/s²)
- *  - @c stp-maxaccel-rise (HAL_FLOAT, RO) — maximum acceleration (pos units/s²)
- *  - @c stp-pos-scale    (HAL_FLOAT, RW) — steps per position unit
+ *  - @c stp-freq         (GOMC_HAL_FLOAT, RO) — current output frequency (Hz)
+ *  - @c stp-maxvel       (GOMC_HAL_FLOAT, RO) — maximum velocity (position units/s)
+ *  - @c stp-maxaccel-fall (GOMC_HAL_FLOAT, RO) — maximum deceleration (pos units/s²)
+ *  - @c stp-maxaccel-rise (GOMC_HAL_FLOAT, RO) — maximum acceleration (pos units/s²)
+ *  - @c stp-pos-scale    (GOMC_HAL_FLOAT, RW) — steps per position unit
  *
  * @copyright Copyright (C) 2011-2026 Sascha Ittner <sascha.ittner@modusoft.de>
  *
@@ -48,8 +48,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "hal.h"
-
 #include "../lcec.h"
 #include "el2521.h"
 
@@ -61,23 +59,23 @@
  * position feedback accumulation.
  */
 typedef struct {
-  hal_s32_t *count;		/**< HAL OUT pin: accumulated step count. */
-  hal_float_t *pos_fb;		/**< HAL OUT pin: position feedback (position units). */
-  hal_bit_t *ramp_active;       /**< HAL OUT pin: TRUE while frequency ramp is active. */
-  hal_bit_t *ramp_disable;      /**< HAL IN pin: TRUE to disable the hardware ramp. */
-  hal_bit_t *in_z;              /**< HAL OUT pin: state of digital input Z. */
-  hal_bit_t *in_z_not;          /**< HAL OUT pin: inverted state of digital input Z. */
-  hal_bit_t *in_t;              /**< HAL OUT pin: state of digital input T. */
-  hal_bit_t *in_t_not;          /**< HAL OUT pin: inverted state of digital input T. */
+  gomc_hal_s32_t *count;		/**< HAL OUT pin: accumulated step count. */
+  gomc_hal_float_t *pos_fb;		/**< HAL OUT pin: position feedback (position units). */
+  gomc_hal_bit_t *ramp_active;       /**< HAL OUT pin: TRUE while frequency ramp is active. */
+  gomc_hal_bit_t *ramp_disable;      /**< HAL IN pin: TRUE to disable the hardware ramp. */
+  gomc_hal_bit_t *in_z;              /**< HAL OUT pin: state of digital input Z. */
+  gomc_hal_bit_t *in_z_not;          /**< HAL OUT pin: inverted state of digital input Z. */
+  gomc_hal_bit_t *in_t;              /**< HAL OUT pin: state of digital input T. */
+  gomc_hal_bit_t *in_t_not;          /**< HAL OUT pin: inverted state of digital input T. */
 
-  hal_bit_t *enable;		/**< HAL IN pin: enable pulse generation. */
-  hal_float_t *vel_cmd;		/**< HAL IN pin: velocity command (position units/s). */
+  gomc_hal_bit_t *enable;		/**< HAL IN pin: enable pulse generation. */
+  gomc_hal_float_t *vel_cmd;		/**< HAL IN pin: velocity command (position units/s). */
 
-  hal_float_t pos_scale;	/**< HAL RW parameter: steps per position unit. */
-  hal_float_t freq;		/**< HAL RO parameter: current output frequency (Hz). */
-  hal_float_t maxvel;		/**< HAL RO parameter: maximum velocity (position units/s). */
-  hal_float_t maxaccel_rise;	/**< HAL RO parameter: maximum acceleration (position units/s²). */
-  hal_float_t maxaccel_fall;	/**< HAL RO parameter: maximum deceleration (position units/s²). */
+  gomc_hal_float_t pos_scale;	/**< HAL RW parameter: steps per position unit. */
+  gomc_hal_float_t freq;		/**< HAL RO parameter: current output frequency (Hz). */
+  gomc_hal_float_t maxvel;		/**< HAL RO parameter: maximum velocity (position units/s). */
+  gomc_hal_float_t maxaccel_rise;	/**< HAL RO parameter: maximum acceleration (position units/s²). */
+  gomc_hal_float_t maxaccel_fall;	/**< HAL RO parameter: maximum deceleration (position units/s²). */
 
   int last_operational;         /**< Non-zero when the slave was operational on the previous cycle. */
   int16_t last_hw_count;	/**< Hardware counter value read on the previous cycle. */
@@ -104,26 +102,26 @@ typedef struct {
 } lcec_el2521_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_S32, HAL_OUT, offsetof(lcec_el2521_data_t, count), "%s.%s.%s.stp-counts" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el2521_data_t, pos_fb), "%s.%s.%s.stp-pos-fb" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el2521_data_t, ramp_active), "%s.%s.%s.stp-ramp-active" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el2521_data_t, ramp_disable), "%s.%s.%s.stp-ramp-disable" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el2521_data_t, in_z), "%s.%s.%s.stp-in-z" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el2521_data_t, in_z_not), "%s.%s.%s.stp-in-z-not" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el2521_data_t, in_t), "%s.%s.%s.stp-in-t" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el2521_data_t, in_t_not), "%s.%s.%s.stp-in-t-not" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el2521_data_t, enable), "%s.%s.%s.stp-enable" },
-  { HAL_FLOAT, HAL_IN, offsetof(lcec_el2521_data_t, vel_cmd), "%s.%s.%s.stp-velo-cmd" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el2521_data_t, count), "%s.%s.%s.stp-counts" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el2521_data_t, pos_fb), "%s.%s.%s.stp-pos-fb" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el2521_data_t, ramp_active), "%s.%s.%s.stp-ramp-active" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el2521_data_t, ramp_disable), "%s.%s.%s.stp-ramp-disable" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el2521_data_t, in_z), "%s.%s.%s.stp-in-z" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el2521_data_t, in_z_not), "%s.%s.%s.stp-in-z-not" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el2521_data_t, in_t), "%s.%s.%s.stp-in-t" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el2521_data_t, in_t_not), "%s.%s.%s.stp-in-t-not" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el2521_data_t, enable), "%s.%s.%s.stp-enable" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IN, offsetof(lcec_el2521_data_t, vel_cmd), "%s.%s.%s.stp-velo-cmd" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static const lcec_pindesc_t slave_params[] = {
-  { HAL_FLOAT, HAL_RO, offsetof(lcec_el2521_data_t, freq), "%s.%s.%s.stp-freq" },
-  { HAL_FLOAT, HAL_RO, offsetof(lcec_el2521_data_t, maxvel), "%s.%s.%s.stp-maxvel" },
-  { HAL_FLOAT, HAL_RO, offsetof(lcec_el2521_data_t, maxaccel_fall), "%s.%s.%s.stp-maxaccel-fall" },
-  { HAL_FLOAT, HAL_RO, offsetof(lcec_el2521_data_t, maxaccel_rise), "%s.%s.%s.stp-maxaccel-rise" },
-  { HAL_FLOAT, HAL_RW, offsetof(lcec_el2521_data_t, pos_scale), "%s.%s.%s.stp-pos-scale" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_FLOAT, GOMC_HAL_RO, offsetof(lcec_el2521_data_t, freq), "%s.%s.%s.stp-freq" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RO, offsetof(lcec_el2521_data_t, maxvel), "%s.%s.%s.stp-maxvel" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RO, offsetof(lcec_el2521_data_t, maxaccel_fall), "%s.%s.%s.stp-maxaccel-fall" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RO, offsetof(lcec_el2521_data_t, maxaccel_rise), "%s.%s.%s.stp-maxaccel-rise" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_RW, offsetof(lcec_el2521_data_t, pos_scale), "%s.%s.%s.stp-pos-scale" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_el2521_in[] = {
@@ -178,6 +176,7 @@ void lcec_el2521_write(struct lcec_slave *slave, long period);
  */
 int lcec_el2521_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el2521_data_t *hal_data;
   int err;
   double ramp_factor;
@@ -188,8 +187,8 @@ int lcec_el2521_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_el2521_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el2521_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el2521_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el2521_data_t));
@@ -227,12 +226,12 @@ int lcec_el2521_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7000, 0x02, &hal_data->freq_pdo_os, NULL);
 
   // export pins
-  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 
   // export parameters
-  if ((err = lcec_param_newf_list(comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_param_newf_list(env, comp_id, hal_data, slave_params, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 

@@ -33,28 +33,28 @@
  * @brief HAL pins and PDO mapping data for the EL5151 incremental encoder.
  */
 typedef struct {
-  hal_bit_t *ena_latch_c;         /**< HAL IO: enable C-index latch; auto-cleared when latch is captured. */
-  hal_bit_t *ena_latch_ext_pos;   /**< HAL IO: enable external latch on positive edge; auto-cleared on capture. */
-  hal_bit_t *ena_latch_ext_neg;   /**< HAL IO: enable external latch on negative edge; auto-cleared on capture. */
-  hal_bit_t *reset;               /**< HAL IN: reset the relative position counter to zero. */
-  hal_bit_t *ina;                 /**< HAL OUT: current state of encoder input A (PDO 0x6000/0x09). */
-  hal_bit_t *inb;                 /**< HAL OUT: current state of encoder input B (PDO 0x6000/0x0a). */
-  hal_bit_t *inc;                 /**< HAL OUT: current state of encoder input C / index (PDO 0x6000/0x0b). */
-  hal_bit_t *inext;               /**< HAL OUT: current state of external latch input (PDO 0x6000/0x0d). */
-  hal_bit_t *expol_stall;         /**< HAL OUT: extrapolation stall flag — encoder stopped during extrapolation (PDO 0x6000/0x08). */
-  hal_bit_t *sync_err;            /**< HAL OUT: EtherCAT sync error flag (PDO 0x1c32/0x20). */
-  hal_bit_t *latch_c_valid;       /**< HAL OUT: C-index latch value is valid (PDO 0x6000/0x01). */
-  hal_bit_t *latch_ext_valid;     /**< HAL OUT: external latch value is valid (PDO 0x6000/0x02). */
-  hal_bit_t *tx_toggle;           /**< HAL OUT: TxPDO toggle bit; alternates each new PDO (PDO 0x1800/0x09). */
-  hal_bit_t *set_raw_count;       /**< HAL IO: pulse high to preset the hardware counter; cleared when acknowledged. */
-  hal_s32_t *set_raw_count_val;   /**< HAL IN: value to load into the counter when set_raw_count is asserted. */
-  hal_s32_t *raw_count;           /**< HAL OUT: raw 32-bit counter value from the terminal (PDO 0x6000/0x11). */
-  hal_s32_t *raw_latch;           /**< HAL OUT: counter value captured at the last latch event (PDO 0x6000/0x12). */
-  hal_u32_t *raw_period;          /**< HAL OUT: raw 32-bit period measurement from the terminal (PDO 0x6000/0x14). */
-  hal_s32_t *count;               /**< HAL OUT: relative position count (zeroed on reset or latch event). */
-  hal_float_t *pos_scale;         /**< HAL IO: counts per user unit; reciprocal applied internally. */
-  hal_float_t *pos;               /**< HAL OUT: scaled position in user units. */
-  hal_float_t *period;            /**< HAL OUT: encoder period in seconds (raw_period * LCEC_EL5151_PERIOD_SCALE). */
+  gomc_hal_bit_t *ena_latch_c;         /**< HAL IO: enable C-index latch; auto-cleared when latch is captured. */
+  gomc_hal_bit_t *ena_latch_ext_pos;   /**< HAL IO: enable external latch on positive edge; auto-cleared on capture. */
+  gomc_hal_bit_t *ena_latch_ext_neg;   /**< HAL IO: enable external latch on negative edge; auto-cleared on capture. */
+  gomc_hal_bit_t *reset;               /**< HAL IN: reset the relative position counter to zero. */
+  gomc_hal_bit_t *ina;                 /**< HAL OUT: current state of encoder input A (PDO 0x6000/0x09). */
+  gomc_hal_bit_t *inb;                 /**< HAL OUT: current state of encoder input B (PDO 0x6000/0x0a). */
+  gomc_hal_bit_t *inc;                 /**< HAL OUT: current state of encoder input C / index (PDO 0x6000/0x0b). */
+  gomc_hal_bit_t *inext;               /**< HAL OUT: current state of external latch input (PDO 0x6000/0x0d). */
+  gomc_hal_bit_t *expol_stall;         /**< HAL OUT: extrapolation stall flag — encoder stopped during extrapolation (PDO 0x6000/0x08). */
+  gomc_hal_bit_t *sync_err;            /**< HAL OUT: EtherCAT sync error flag (PDO 0x1c32/0x20). */
+  gomc_hal_bit_t *latch_c_valid;       /**< HAL OUT: C-index latch value is valid (PDO 0x6000/0x01). */
+  gomc_hal_bit_t *latch_ext_valid;     /**< HAL OUT: external latch value is valid (PDO 0x6000/0x02). */
+  gomc_hal_bit_t *tx_toggle;           /**< HAL OUT: TxPDO toggle bit; alternates each new PDO (PDO 0x1800/0x09). */
+  gomc_hal_bit_t *set_raw_count;       /**< HAL IO: pulse high to preset the hardware counter; cleared when acknowledged. */
+  gomc_hal_s32_t *set_raw_count_val;   /**< HAL IN: value to load into the counter when set_raw_count is asserted. */
+  gomc_hal_s32_t *raw_count;           /**< HAL OUT: raw 32-bit counter value from the terminal (PDO 0x6000/0x11). */
+  gomc_hal_s32_t *raw_latch;           /**< HAL OUT: counter value captured at the last latch event (PDO 0x6000/0x12). */
+  gomc_hal_u32_t *raw_period;          /**< HAL OUT: raw 32-bit period measurement from the terminal (PDO 0x6000/0x14). */
+  gomc_hal_s32_t *count;               /**< HAL OUT: relative position count (zeroed on reset or latch event). */
+  gomc_hal_float_t *pos_scale;         /**< HAL IO: counts per user unit; reciprocal applied internally. */
+  gomc_hal_float_t *pos;               /**< HAL OUT: scaled position in user units. */
+  gomc_hal_float_t *period;            /**< HAL OUT: encoder period in seconds (raw_period * LCEC_EL5151_PERIOD_SCALE). */
 
   unsigned int ena_latch_c_pdo_os;          /**< Byte offset of ena_latch_c output bit in process data. */
   unsigned int ena_latch_c_pdo_bp;          /**< Bit position of ena_latch_c within the byte. */
@@ -98,29 +98,29 @@ typedef struct {
 } lcec_el5151_data_t;
 
 static const lcec_pindesc_t slave_pins[] = {
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5151_data_t, ena_latch_c), "%s.%s.%s.enc-index-c-enable" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5151_data_t, ena_latch_ext_pos), "%s.%s.%s.enc-index-ext-pos-enable" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5151_data_t, ena_latch_ext_neg), "%s.%s.%s.enc-index-ext-neg-enable" },
-  { HAL_BIT, HAL_IN, offsetof(lcec_el5151_data_t, reset), "%s.%s.%s.enc-reset" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5151_data_t, ina), "%s.%s.%s.enc-ina" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5151_data_t, inb), "%s.%s.%s.enc-inb" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5151_data_t, inc), "%s.%s.%s.enc-inc" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5151_data_t, inext), "%s.%s.%s.enc-inext" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5151_data_t, expol_stall), "%s.%s.%s.enc-expol-stall" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5151_data_t, sync_err), "%s.%s.%s.enc-sync-error" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5151_data_t, latch_c_valid), "%s.%s.%s.enc-latch-c-valid" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5151_data_t, latch_ext_valid), "%s.%s.%s.enc-latch-ext-valid" },
-  { HAL_BIT, HAL_OUT, offsetof(lcec_el5151_data_t, tx_toggle), "%s.%s.%s.enc-tx-toggle" },
-  { HAL_BIT, HAL_IO, offsetof(lcec_el5151_data_t, set_raw_count), "%s.%s.%s.enc-set-raw-count" },
-  { HAL_S32, HAL_IN, offsetof(lcec_el5151_data_t, set_raw_count_val), "%s.%s.%s.enc-set-raw-count-val" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5151_data_t, raw_count), "%s.%s.%s.enc-raw-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5151_data_t, count), "%s.%s.%s.enc-count" },
-  { HAL_S32, HAL_OUT, offsetof(lcec_el5151_data_t, raw_latch), "%s.%s.%s.enc-raw-latch" },
-  { HAL_U32, HAL_OUT, offsetof(lcec_el5151_data_t, raw_period), "%s.%s.%s.enc-raw-period" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el5151_data_t, pos), "%s.%s.%s.enc-pos" },
-  { HAL_FLOAT, HAL_OUT, offsetof(lcec_el5151_data_t, period), "%s.%s.%s.enc-period" },
-  { HAL_FLOAT, HAL_IO, offsetof(lcec_el5151_data_t, pos_scale), "%s.%s.%s.enc-pos-scale" },
-  { HAL_TYPE_UNSPECIFIED, HAL_DIR_UNSPECIFIED, -1, NULL }
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5151_data_t, ena_latch_c), "%s.%s.%s.enc-index-c-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5151_data_t, ena_latch_ext_pos), "%s.%s.%s.enc-index-ext-pos-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5151_data_t, ena_latch_ext_neg), "%s.%s.%s.enc-index-ext-neg-enable" },
+  { GOMC_HAL_BIT, GOMC_HAL_IN, offsetof(lcec_el5151_data_t, reset), "%s.%s.%s.enc-reset" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, ina), "%s.%s.%s.enc-ina" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, inb), "%s.%s.%s.enc-inb" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, inc), "%s.%s.%s.enc-inc" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, inext), "%s.%s.%s.enc-inext" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, expol_stall), "%s.%s.%s.enc-expol-stall" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, sync_err), "%s.%s.%s.enc-sync-error" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, latch_c_valid), "%s.%s.%s.enc-latch-c-valid" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, latch_ext_valid), "%s.%s.%s.enc-latch-ext-valid" },
+  { GOMC_HAL_BIT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, tx_toggle), "%s.%s.%s.enc-tx-toggle" },
+  { GOMC_HAL_BIT, GOMC_HAL_IO, offsetof(lcec_el5151_data_t, set_raw_count), "%s.%s.%s.enc-set-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_IN, offsetof(lcec_el5151_data_t, set_raw_count_val), "%s.%s.%s.enc-set-raw-count-val" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, raw_count), "%s.%s.%s.enc-raw-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, count), "%s.%s.%s.enc-count" },
+  { GOMC_HAL_S32, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, raw_latch), "%s.%s.%s.enc-raw-latch" },
+  { GOMC_HAL_U32, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, raw_period), "%s.%s.%s.enc-raw-period" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, pos), "%s.%s.%s.enc-pos" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_OUT, offsetof(lcec_el5151_data_t, period), "%s.%s.%s.enc-period" },
+  { GOMC_HAL_FLOAT, GOMC_HAL_IO, offsetof(lcec_el5151_data_t, pos_scale), "%s.%s.%s.enc-pos-scale" },
+  { GOMC_HAL_TYPE_UNSPECIFIED, GOMC_HAL_DIR_UNSPECIFIED, -1, NULL }
 };
 
 static ec_pdo_entry_info_t lcec_el5151_in[] = {
@@ -189,6 +189,7 @@ void lcec_el5151_write(struct lcec_slave *slave, long period);
  */
 int lcec_el5151_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t **pdo_entry_regs) {
   lcec_master_t *master = slave->master;
+  const cmod_env_t *env = master->env;
   lcec_el5151_data_t *hal_data;
   int err;
 
@@ -197,8 +198,8 @@ int lcec_el5151_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   slave->proc_write = lcec_el5151_write;
 
   // alloc hal memory
-  if ((hal_data = hal_malloc(sizeof(lcec_el5151_data_t))) == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR, LCEC_MSG_PFX "hal_malloc() for slave %s.%s failed\n", master->name, slave->name);
+  if ((hal_data = env->hal->malloc(env->hal->ctx, sizeof(lcec_el5151_data_t))) == NULL) {
+    LCEC_ERR(master, "hal_malloc() for slave %s.%s failed", master->name, slave->name);
     return -EIO;
   }
   memset(hal_data, 0, sizeof(lcec_el5151_data_t));
@@ -231,7 +232,7 @@ int lcec_el5151_init(int comp_id, struct lcec_slave *slave, ec_pdo_entry_reg_t *
   LCEC_PDO_INIT(pdo_entry_regs, slave->index, slave->vid, slave->pid, 0x7000, 0x11, &hal_data->set_count_val_pdo_os, NULL);
 
   // export pins
-  if ((err = lcec_pin_newf_list(comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
+  if ((err = lcec_pin_newf_list(env, comp_id, hal_data, slave_pins, master->instance_name, master->name, slave->name)) != 0) {
     return err;
   }
 
