@@ -1,170 +1,497 @@
-README for comp[ sedm
+README for comp sedm
+ ***  What is sedm? *** 
 
 sedm comp emulates Sink EDM orbiting
 
-EDM is a machinhing method that removes
-microscppic bits of the workpiece
-using electrical sparks.
+ *** Whar is Sink EDM? *** 
+EDM is a machining method that removes
+microscopic bits of the workpiece
+using electrical sparks. ( electrothermal machining)
 
 Sink EDM is the variant used to make molds.
-(vs WEDSM for dies and Jole EDM or EDG grinding)
+(vs WEDM for dies, Hole EDM and EDG grinding)
 Sink EDM uses shaped tools. 
-These tools do not rotate.
-All the plasic items on your desktop come
-from mol;ds that wer EDM'ed.
+Sink EDM tools do not rotate (like a mill),
+and the work does not rotate (like a lathe).
 
-Orbiting ius a way to simplify the
-manufacture of the shaped tools.
+All the plastic items on your desktop come
+from molds that used Sink EDM.
 
-EDM'ed cavities are larger than the tool 
-by the length of the spark. The spark
-length ( Overburn) is proportional 
+ *** What is Orbiting? *** 
+A way to simplify making the tools.
+
+
+ *** Tools are 3D shapes smaller than the created part *** 
+Mold cavities made with EDM are larger 
+than the tool. Larger by the length of 
+the spark.
+ 
+ *** Tools are smaller than cavity by spark length *** 
+The spark length ( Overburn) is proportional 
 to the spark's energy 
-( Currrent * Duration * Dischharge Voltage)
-(xmpl 10amps * 10uS * 32Volts)
+( Currrent * Duration * Dischharge Voltage , read ‘joules’)
 
+Sparks make craters in the work surface.
 Sparks with more energy make larger craters
 (rougher surface)
-and have larger overburn.
+and have larger over-burn.
+
 Conversely, sparks with less energy make 
-shallower craters (smoother surface).
+shallower craters (smoother surface),
+and smaller over-burn.
 
-A molding surface must be smooth 
-to release the part.
+ *** Tools can use many spark lengths *** 
+To produce a mold cavity, 
+more than 1 energy is used.
+There is a concept of 
+Rougher, Pre-Finisher and Finisher power stages.
 
-So the Sink EDM process traditionally used
-different sized tools, roughers,
-pre-finishers- and finisjers.
+The sedm comp extends 
+this idea to 10 or more power stages.
 
-Tools like that are difficukt to make.
-Look at an RJ45 connector and image making 3 tools like that form, 
-one 0.15mm smaller, one 0.100 smaller
-and one 0.075 smaller.
-All these tool must have the same center.
+Each stage is designed to refine the surface 
+with as little tool wars as possible.
 
-Well, Orniting allow the 0.15mm tool do
-thhe same work as the smaller ones.
-Orgiting remoives the 'many sizes' issue,
-by moving the tool in tiny patterns called orbits.
+Tool wear increases as finish improves,
+so it is necessary to work as little as 
+possible ( a tiny loss of tool for a
+increase in smoothness is a good trade off)
 
-sedm comp is mot difficult to use.
-The user negins with blueprint/cad drawing
-and finds the Fp ( frontal projection 
+A molding surface must be very smooth 
+for the part to release. 
+Molding surfaces shine like mirrors, 
+but EDM surfaces usually do not. 
+After EDM the cavity will usually be  polished.
 
-Get Fp
+ *** Orbiting allows one size to work like many sizes *** 
+The Sink EDM process traditionally 
+used different sized tools for the
+different power stages.
 
-of a detail to EDM.
-The Fp is the scross sectinal area of the tool
-at 'parting line'
+Making tools that mat match in shape and center,
+but with different sizes is difficult.
 
-Determine PAARUNG ( Tool and work materials)
+Look at an RJ45 connector and image 
+making 3 tools with that form, 
+one 0.15mm smaller, one 0.100 smaller, 
+another 0.075 smaller.
+
+All these tools must have the same center,
+so the tools can be exchanged.
+
+Well, Orbiting allows the 0.15mm tool do
+the same work as the smaller ones.
+
+Orbiting removes the 'many sizes' issue,
+by moving the tool in tiny motion patterns 
+called orbits.
+
+
+ *** How to use sedm comp *** 
+The comp is a state machine,
+and it insists on each state’s completion to
+advance to the next state.
+Data required comes from files called Etables
+and from Mcodes.
+The state machine expects data is supplied in 
+the order seen in example.ngc .
+
+It is mot difficult to use,
+most of the coding is filling out Mcodes.
+
+ *** Begin with a drawing *** 
+Get the  Fp: (frontal projection)
+
+The Fp is the cross sectional area of the tool
+at the 'parting line'.
+Fp is like a bird’s eye view of the tool’s shadow.
+
+The exact area is not important,
+you are trying to select a size from a list
+( 0.6mmx0.6mm  up to 100mm x 100mm) 
+
+ *** Cheatsheet *** 
+Cheatsheet.pdf help you to choose
+the Etable file using Fp and Pairing.
+
+So, refer to the ‘cheatsheet’
+( TODO make a copper to steel chheatsjeet )
+
+In the cheatsheet look for the closest Fp.
+There are 4 grades of graphite listed.
+The large work uses less expensive grahite
+( with larger particles)
+and the smaller work use materrial with smaller grain.
+Larger grain is cheaper and does not 
+machine fine fetails well.
+Smaller grain material can be used for
+very fine details, and costs a lot more.
+
+The columns 25 and 20 are fine grained,
+with 25 very dense and 20 less so.
+The column 9 is acceptable for general work,
+and 4 is only used for heavy roughing 
+of large castings..
+
+The cheatsheet #1 us for 
+cutting with flush holes thru the tool.
+Cheat sheet #2 is for without such,
+relying on external flushing and a lot of
+the Jump feature.
+
+( TODO copper to steel cheatsheets )
+
+I suggest you look at the POCO EDM Graphite manual.
+Be ary of sciencve vs sales pith in all things EDM.
+While you are searching, look fore Oel Held's book
+on dielect fluids.  There is alot
+of good free information on the web. 
+Very litlle is practical,
+but you should develope a mental image of what goes on in a cut.
+
+Back to the practical,
+In the Cheatsheet, pick out yor Fp and an Wtable.
+Open the Etablr file in a text editor and find
+the UNS value.
+
+ *** Pairing *** 
+The choice of tool and work materials.
+
 In the US and Canada, Graphite is
-commonly used for tools, and Steel or Aluminum
-for workpiece materials.
+commonly used for tools, 
+and Steel or Aluminum for workpiece.
 
-CHOOSE the RTable
-Many Etables are provided
-Eaxh has a Fp and a Paarung
-In thje table, there is a clumn
-titled 'RAD'. Then RAD entry 
-for the 1st line in the Etable is the
-UNDERSIZE PER SIDE   aka 'UNS'
-Make your tool this much smaller.
-Aftwr manufacture, measure the tool
-to find the MeasuredUNS.
-If the MeasuredUNS > UNS, then you 
-are not finished making the tool.
+Graphhite is wasy to machine, but dirty.
+Copper is difficult to machine but clean.
+Europe has used copper more than graphite.
+
+ *** Choose ETABLE file *** 
+Choose according to Fp and Pairing.
+
+ *** Choose the ToolAxis / select the Plane *** 
+If the caviy is cut ‘down’.
+The the ToolAxis is Z.
+
+If the cavity is cut forwards
+( away from the user),
+Then the ToolAxis is Y.
+Select the ToolAixs by choosing the PLANE
+with G17, G18, or G19.
+Circular motion is done in the ‘other 2 axis’.
+
+ *** sedm can vut in many directions *** 
+Up Down Left Right Forwards and Backwards.
+
+
+ *** Find the undersize (UNS) *** 
+In the table, there is a column
+titled 'RAD'. The RAD entry 
+for the 1st line is the UNS.
+UNS means ‘undersize per side’.
+
+ *** Make your tool *** 
+Make it smaller by UNS.
+This reduction is 2D, 
+so,only reduce X and Y for a G17 Z tool.
+Do not reduce the tool length.
+
+ *** Register the actual UNS *** 
+Measure the tool to find the ‘MeasuredUNS’.
+
+You wanted the tool to be UNS smaller,
+but its ok to be smaller .
+
+If the MeasuredUNS > UNS, 
+then you are not finished making the tool.
 Go back and grind some more ;-)
 
-The UNS and ORBITs supllied are 2D,
-so only remove lateral stock.
-Later I plan on Spherical Orbiting
-( a stack of circle) that will require 
-the UNS applied in 3D. Thats for FUTURE FEATURE.
+The sedm comp can exaggerate the orbiting
+to get the correct size.
 
-Next finbf the cavity depth and refrenev
-for that depth.
+ *** Prepare an Mcode *** 
+Use this formaat:
 
-Now you have the dimensions, positiins,
-UNS, Etable and can begin progtramming.
-Most NGC EDM code is finng in Mcode P's & Q's.
+M160 P<Etable numbe Q<measured UNS>
 
-NB: Orbits are TINY motions, 
-so zoom WAY in!  To see beteer,
-do not show Tool,  avoid perspective view.
+eg   M160 P34 Q0.508
+ 
 
-NB The motion may zeem unevne. It IS uneven.
-The progress alomg a perdetermioned path is
-comtrolled by a random generator that moves 
-FWD HOLD or BWD along the path. If Bwd occurs, there will be a 
-DETOUR gnerated to move the tool away from stock.
-Aee the X view of the demo below and observe the 
-'fringe' on the square path. Those ar 'detours'.
-Tirn the JUMP on and off, using the checkbox.
-Try The PEEK button and when the tool returns to
-its starting position, try RESUME or WUIT.
+ *** Get Print Depth and location *** 
+Find the cavity depth and a reference 
+for that depth. 
+(How deep, measured from where)
+
+You will set areference position
+using G10L2 P1 X(cval> Y<yval> Z<zval>
+The EDM motion will be realtive to that.
+
+ *** Rplane, where power is turned on *** 
+The Rplane is a small distance above the work.
+EDM requires starting with the tool
+not touching the work.
+Large values waste time,
+small values can be scary.
+
+Using the FullDepth and Rrplane values
+to fill M162 data.
+M162 P<FullDepth> Q<Rplane>
+
+eg  M162 P-1.304 Q1.0
+
+ *** Select Orbit Type and ‘WiglRadius’  *** 
+
+Orbit types supplied are
+ Circular 0
+ Square   1
+
+(more can be aded later)
+The difference:
+A right angle corner will result
+in a radius of UBNS in the work.
+The same corner will have a radius
+of the Etable’s RAD column.
+
+Circular cuts faster.
+Square benefits surface refinement 
+by sliding along walls.
+
+I found users prefered Circular.
+M163 P0 Q0.05
+
+WiglRadius:
+when the depth to Fp increases,
+Residue from the fluid can accumulate
+on trhe sides of the tool.
+A small oscillation helps brush this ‘slime’ off
+encouraging sparking over the lateral surfaces.
+NB Only use a small value, and only use if needed.
+I would suggest 0.02 to max 0.05.
+
+When a cut uses ‘Wigl’ you will see
+a corkscrew or staircase trace in AXIS.
+When WiglRadius is not used, enter 0.
+
+So, prepare M63
+
+M163 P<Orbit type> Q<EiglRad>
+
+wg M163 P0 Q.0015   for circular and a small wigl.
+
+ *** Choose the range of power settings *** 
+The chosen Etable will usually have many power settings.
+Each is identified by NR.
+M161 specifies the range to use.
+Sometime the user just wants to cut the net shape.
+  The user could specify BegNR = 25  EndNR = 25
+  That choice would not orbit, just ‘rough out’ the shape.
+Sometimes the user wants to get better detail.
+  The user migh set BegNR = 12 EndNR = 10
+  to only use the last 2 stages of a 16 stage Etable.
+Or simply use all stages:
+  BegNR = 25
+  EmdNR = whatever NR is on last line of chose table.
+
+So
+M161 P<BegNR> Q<EndNR.
+
+
+ *** Assemble the needed sequence *** 
+For the cut, I use an O-sub.
+For the position, use G10 L2 P1
 
 
 
-control signal is moving FWD or HOLD or Bed thru a predetermined path.
-controls signal is moving Fwd abd Bwd 
-example
 
-;XMPLE.ngc cuts Z negative  -1.204mm deerp
-;           DATUN for cut X1.0 Y 0 Z1.0
-;           ORBIT type SQUARE
-;           ETABLE 34.ENC (This just finishing a cavity)
-;             ETABLE BegNR 17 EndNR 15
-;           MsrdUNS == Etable UNS
 o200 sub
-	M66 E0 L0 				;NEED QUEIE BUSTER so motion is stopped
-	M199					; This begins EDM control
-	M162 P-1.304 Q+1.00     ; awt PrintDepth and Rplanemore tests per hr lookimg fdor bad tri from peri tto SPO
-	M163 P1 Q0				; OrbType SQR, no 'Wigl' for bore
-	M160 P34 Q0.254 		; Etable, MsrdUNS
-	M161 P17 Q15			; BeginningNR in Etable, EndNR
-	M00						; needed for ExternalOffsets
-	M198					; Rnd sedm control
-							; thsi last line wont be executed
-							; untill AEDM comp finisshes
-o200 endsub					; return to NGC code and LCNC position control
-;now thw main NGC progtram poses the tool. and calls the o-sub.
-;///////////////////// PREAMBLE
+	M66 E0 L0           ; necessary QBUSTER, no pending motion allowed
+	M199                ; begin sedm motion control
+	M162 P-1.304 Q1.0   ; FullDepth , RPlane 
+	M163 P0 Q0.05       ; OrbType SQR, Wigl radius
+	M160 P19 Q0.508     ; etabnum, MsrdUNS
+	M161 P12 Q10        ; BegNR EndNR 
+	M00                 ; neccesary for ExternalOffsets
+	M198                ; end sedm motion control
+o200 endsub
+
+Begin with a ‘preamble’
+;/////////////////////
 G21                       ; mm 
-G90
-G17
-G61							; exact path mode
-G64 P0						; set blend toleranve to 0
-F5000						; posing can be rapid
-G10L2P1 X0 Y0 Z0 			;'UNSHIFT'
+G90                       ; Absolute
+G17                       ; ToolAxis is Z
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000                     ;LinuxCNC code wil likely use Rapid movea
 ;
-#1 = 0						;counter initial value
-#2 = 1						;counte max value
-#3 = +2.000 				; Cplane above clamping/fixtires
-#4 = +1.0					; Rplane above woek wher EDM Power is turned on
-;
-o110 while [#1 LT #2]
-	g10l2p1 x0 y0 z0		; UNSHIFT
-	G0Z5					; mNUl tool chg for ToolAxis
-	;//////////////////// DATUN for cut
-	g10l2p1 x1 y 0 z1		;DATUM ref [posn
-	g0z#3					;Cplane rek to Datum
-	g0 x0 y0				;cavity center
-	z#4						;RPlane rel to  DATUM   at G53 2.5 now
-	;//////////////////// Cut
-	o200 call
-	;//////////////////// 
-	g10l2p1 x0 y0 z0		;UNSHIFT
-	G0Z#3					;Cplane rel toDATUM
+G10L2P1X0Y0Z0             ; UNSHIFT
+G00Z5                     ; get fAR above work, ambe ToolChange position
+
+ *** Next the ‘main’ code as a loop *** 
+#1 = 0 (counter init)
+#2 = 1 (limit)
+#3 = +3.000               ; CPlane  is clearance abobe clamps)
+#4 = +0.5                 ; RPlane  yes need entryu here and M162  *** ugly, sorry)
+         
+o110 while [#1 LT #2]     ; loop 
 	;
-	#1 = [#1 + 1]			;bump ctr, Useful for usinga Positionn list
+	g10l2p1 x0 y0 z0    ; UNSHIFT
+	G0Z#3               ; CPlane
+	;
+	g10l2p1 x1.0 y0 z2.0     ; DATUM for cut
+	g0x0y0              ; rapid to cavitycenter
+	z#4                 ; rapid to Rplane (relative) to  DATUM
+	;
+	o200 call           ; call the subroutine and sedm conmtrol
+	;
+	g10l2p1 x0 y0 z0    ;UNSHIFT
+	G0Z#3               ;rapid CPlane abso mc coords
+	;
+	#1 = [#1 + 1]       ; bump counter
 o110 endwhile
-;//////////////////// goto  exit posn, adjust fdor G17.18/19 and CutDirection
-G10L2P1X0Y0Z0				;UNHIFT
-G0Z5						;manual Tool Chg height and tool axis
-G0X0Y0						;manual Tool Vhg posn for 'other' axis alreaady at Cplane, moce to convenient x  y 
-;//////////////////// end pgm
-M197 						;T turn off JumpENA if leaft on
+
+end the ngc program:
+
+;//////////////////// goto  exit posn
+G10L2P1X0Y0Z0             ; UNSHIFT
+G0Z5                      ; rapid to Tool Chnage position
+G0X0Y0                    ; 
+;
+M197                      ; turn off JumpENA if leaft on 
 M02
 %
 
+ ***  Misc Notes  *** 
+NB: in M162, the 2 data will always have opposite signs,
+as they straddle the Reference point.
+
+NB: Orbits are TINY motions, 
+so zoom WAY in to see better,
+do not show tool (or use macro size),
+(cntd)
+Avoid perspective view,
+Use X Y or Z views.
+
+
+ *** why is the motion not smooth? *** 
+The motion may seem uneven. 
+It IS uneven. Thw tool is constantly 
+adjusting to a xhanging environment.
+
+ ***  Gap Voltage *** 
+In real EDM there is a ‘gap voltage’.
+The gap is a space between tool and work.
+The gap voltage is the potential between the two.
+
+ *** Taget Voltage *** 
+The ‘servo’ in EDM is constantly moving the tool to
+keep voltage between too and work close to
+a target voltage. 
+
+ *** The tool moves a long a predetermined path
+ when it can *** 
+There is no rate input.
+There is a resulting rate of progress.
+The progress is ‘generally forward’.
+
+ *** Python and a fake Gap Voltage *** 
+The gap voltage is imitated
+by a random generator 
+   python random:uniform() 
+the output is filtered by 
+a software ‘window comparator’.,
+The result ps 1 of 3 logical states
+FWD , HOLD, or BWD.
+
+ *** How the ‘fake GV’ drives motio *** 
+The evaluation determines the next tool position.
+From the path list.
+The path list si alist of XYZ eoffset typle,
+eg {(0,0,0), (0,0,-1), (0,0,-2)….}
+
+
+If FWD, the tool advances to the next element 
+in the list of offsets.
+
+The data is given to the axis eoffsets.
+
+If HOLD:
+There is no motion. The sparking process
+continues and eventually a new evaluation will
+be FWD or BWD. In the meantime the the tool keeps 
+removing tiny bits of stock, 
+enlarging the GAP distance, 
+and changing the gap voltage.
+
+
+If BWD:  
+BWD causes DETOURS:
+If BWD occurs, there will be a 
+new path generated to move the tool away from stock.
+
+ *** Detors are essential to sink EDM *** 
+
+Watch detours in action:
+Run the example.ngc file.
+Use the Y view and zoom in to watch. 
+You will see the Y profile of the motion.
+
+The bore wigl will be shown as a staircase,
+The orbit entry will be a diagonal motion,
+down and away from ToolAxis center.
+The orbit will appear as a horizontal motion.
+Realize this motion is the edge of a circle,
+so it will travel left and right of Tool Axis center
+
+ *** Notice the ‘fringe’ *** 
+
+The tool is moving horizontally 
+but with many tiny random vertical moves.
+
+Those are detours. 
+
+The DRO will show they are only a few microns travel.
+These are responses to BWD evaluations.
+
+You are seeing only part of the detour.
+You see the part needed to get the tool
+to agree with the servo target value.
+
+A BWD event moves the tool away from the planned path,
+and towards a ‘safe’ place,
+where the evaluation can become FWD or HOLD.
+
+On the detour, BWD moves away
+from the detour’s beginning,
+and FWD moves towards preplanned path.
+
+The whole detour path is much larger 
+than the traces you see.
+
+The detour is a path to the start of the cut.
+
+The entire detour is rarely used.
+
+
+ *** Interaction with sedm *** 
+
+ *** Peck EDM aka ‘Jump’ *** 
+Turn the JUMP on and off, using the checkbox.
+The machine will cut for ET value
+and retract for AJD distance.
+This will repeat until the ngc ends
+or the checkbox is no longer checked.
+
+
+
+ *** PEEK RESUME QUIT *** 
+Try The PEEK button while cutting.
+
+The cutting power is removed,
+and the tool returns to its start point
+
+Imagine you want to examine the tool
+or look into the cavity.
+
+After inspection , you can press
+RESUME or QUIT.
+
+Have fun. Post quwstions and suggestion and bugs.
