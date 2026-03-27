@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from qtpy.QtGui import QIcon, QPixmap
+from qtpy.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.led_widget import LED
 from qtvcp.widgets.qtvcp_icons import Icon
 

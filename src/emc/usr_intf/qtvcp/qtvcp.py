@@ -9,13 +9,13 @@ import signal
 import subprocess
 
 from optparse import Option, OptionParser
-from PyQt5 import QtWidgets, QtCore, QtGui
+from qtpy import QtWidgets, QtCore, QtGui
 
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
+    from qtpy.QtWebEngineWidgets import QWebEngineView as QWebView
 except:
     try:
-        from PyQt5.QtWebKitWidgets import QWebView
+        from qtpy.QtWebKitWidgets import QWebView
     except:
         print('Qtvcp Error with loading webView - is python3-pyqt5.qtwebengine installed?')
 
@@ -53,10 +53,10 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help='pass USEROPTS strings to handler under self.w.USEROPTIONS_ list variable')
           ]
 
-from PyQt5.QtCore import QObject, QEvent, pyqtSignal
+from qtpy.QtCore import QObject, QEvent, Signal
 
 class inputFocusFilter(QObject):
-    focusIn = pyqtSignal(object)
+    focusIn = Signal(object)
 
     def eventFilter(self, widget, event):
         if event.type() == QEvent.FocusIn and not isinstance(widget,QtWidgets.QCommonStyle):

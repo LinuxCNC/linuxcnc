@@ -19,9 +19,9 @@ import os
 import hal
 import json
 
-from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import QProcess, QEvent, Qt, pyqtProperty
+from qtpy import QtGui, QtCore, QtWidgets, uic
+from qtpy.QtCore import QObject
+from qtpy.QtCore import QProcess, QEvent, Qt, Property
 from qtvcp.core import Status, Action, Path
 from qtvcp import logger
 
@@ -120,9 +120,9 @@ class MDICommand(QObject):
 # Testing
 ####################################
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from qtpy.QtWidgets import *
+    from qtpy.QtCore import *
+    from qtpy.QtGui import *
 
     app = QtWidgets.QApplication(sys.argv)
     mdi = MDICommand()

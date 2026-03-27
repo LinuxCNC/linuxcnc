@@ -2,9 +2,9 @@
 # **** IMPORT SECTION **** #
 ############################
 import sys
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from qtpy.QtCore import *
+from qtpy.QtGui import *
+from qtpy.QtWidgets import *
 from qtvcp.core import Status
 from qtvcp.lib.qt_vismach import mill_xyz as MILL
 

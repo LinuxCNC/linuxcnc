@@ -1,7 +1,7 @@
 import os
 
-from PyQt5.QtCore import QUrl, QFile, QUrl
-from PyQt5.QtWidgets import (QWidget,QVBoxLayout,QLabel)
+from qtpy.QtCore import QUrl, QFile, QUrl
+from qtpy.QtWidgets import (QWidget,QVBoxLayout,QLabel)
 from qtvcp.core import Path
 
 # Set up logging
@@ -11,10 +11,10 @@ PATH = Path()
 
 good = True
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEngineView as WebBase
+    from qtpy.QtWebEngineWidgets import QWebEngineView as WebBase
 except:
     try:
-        from PyQt5.QtWebKitWidgets import QWebView as WebBase
+        from qtpy.QtWebKitWidgets import QWebView as WebBase
     except:
         LOG.warning('WebWidget - Is python3-pyqt-QtWebEngine installed?')
         # fail safe - mostly for designer

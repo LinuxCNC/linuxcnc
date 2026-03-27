@@ -22,8 +22,8 @@ import re
 
 import subprocess
 
-from PyQt5.QtWidgets import QLineEdit, QApplication
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty
+from qtpy.QtWidgets import QLineEdit, QApplication
+from qtpy.QtCore import Qt, QEvent, Property
 
 from qtvcp.core import Status, Action, Info
 from qtvcp.widgets.entry_widget import SoftInputWidget
@@ -312,7 +312,7 @@ class MDILine(MDI):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #########################################################################
 
@@ -324,7 +324,7 @@ class MDILine(MDI):
         self.soft_keyboard = False
 
     # designer will show these properties in this order:
-    soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
+    soft_keyboard_option = Property(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
 
     def set_dialog_keyboard(self, data):
         self.dialog_keyboard = data
@@ -334,12 +334,12 @@ class MDILine(MDI):
         self.dialog_keyboard = False
 
     # designer will show these properties in this order:
-    dialog_keyboard_option = pyqtProperty(bool, get_dialog_keyboard, set_dialog_keyboard, reset_dialog_keyboard)
+    dialog_keyboard_option = Property(bool, get_dialog_keyboard, set_dialog_keyboard, reset_dialog_keyboard)
 
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = MDILine()
     widget.show()

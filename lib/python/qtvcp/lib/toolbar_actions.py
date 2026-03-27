@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 
 import os
-from PyQt5 import QtWidgets, QtCore
+from qtpy import QtWidgets, QtCore
 from qtvcp.core import Status, Action, Info
 from qtvcp.qt_makegui import VCPWindow
 from qtvcp.lib.aux_program_loader import Aux_program_loader

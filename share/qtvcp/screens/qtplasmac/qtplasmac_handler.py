@@ -36,13 +36,24 @@ import glob
 import linuxcnc
 import hal
 from OpenGL.GL import glTranslatef
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.Qsci import QsciScintilla
+from qtpy import QtCore, QtWidgets, QtGui
+from qtpy.QtCore import *
+from qtpy.QtWidgets import *
+from qtpy.QtGui import *
+try:
+    from qtpy.Qsci import QsciScintilla
+except ImportError:
+    try:
+        from PyQt5.Qsci import QsciScintilla
+    except ImportError:
+        from PyQt6.Qsci import QsciScintilla
 from qtvcp import logger
 from qtvcp.core import Status, Action, Info, Tool
+try:
+    from qtpy.QtWebEngineWidgets import QWebEngineView as _QWebEngineView
+    _WEBENGINE_AVAILABLE = True
+except Exception:
+    _WEBENGINE_AVAILABLE = False
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.preferences import Access
@@ -94,7 +105,7 @@ class ColorError(Exception):
 # click signal for some labels
 def click_signal(widget):
     class Filter(QObject):
-        clicked = pyqtSignal()
+        clicked = Signal()
 
         def eventFilter(self, obj, event):
             if obj == widget:
@@ -4107,7 +4118,7 @@ class HandlerClass:
             elif code == 'user-manual':
                 self.umButton = f'button_{bNum}'
                 self.interlockRules[self.umButton] = self.interlockRules['user-manual_template'].copy()
-                if util.find_spec("PyQt5.QtWebEngineWidgets") is not None:
+                if _WEBENGINE_AVAILABLE:
                     self.w.webview.page().loadFinished.connect(self.style_user_manual)
                     self.w.webview.page().setBackgroundColor(QColor(self.backColor))
                 else:
@@ -5945,7 +5956,7 @@ class HandlerClass:
             self.set_basic_colors()
             self.set_color_styles()
             self.preview_stack_changed()
-            if self.umButton and util.find_spec("PyQt5.QtWebEngineWidgets") is not None:
+            if self.umButton and _WEBENGINE_AVAILABLE:
                 self.w.webview.page().loadFinished.connect(self.style_user_manual)
                 self.w.webview.page().setBackgroundColor(QColor(self.backColor))
                 self.w.webview.reload()

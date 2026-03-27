@@ -1,5 +1,5 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtProperty, pyqtSlot
+from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtCore import Property, Slot
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase)
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
 from qtvcp.core import Action, Status, Info
@@ -378,7 +378,7 @@ class IndicatedMixIn( _HalWidgetBase):
         else:
             self.setText(None)
 
-    @pyqtSlot()
+    @Slot()
     def toggleFlashState(self):
         self._flashState = not self._flashState
         self.update()
@@ -386,7 +386,7 @@ class IndicatedMixIn( _HalWidgetBase):
     def isFlashing(self):
         return self._flashing
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setFlashing(self, value):
         #self._flashing = value
         if self._flashRate > 0 and value:
@@ -658,7 +658,7 @@ class IndicatedMixIn( _HalWidgetBase):
 
     def getFlashRate(self):
         return self._flashRate
-    @pyqtSlot(int)
+    @Slot(int)
     def setFlashRate(self, value):
         self._flashRate = value
         self._timer.setInterval(self._flashRate)
@@ -777,33 +777,33 @@ class IndicatedMixIn( _HalWidgetBase):
     def reset_pin_name(self):
         self._pin_name_ = ''
 
-    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
-    indicator_option = QtCore.pyqtProperty(bool, get_indicator, set_indicator, reset_indicator)
-    doubleIndicator = QtCore.pyqtProperty(bool, get_doubleIndicator, set_doubleIndicator, reset_doubleIndicator)
-    indicator_HAL_pin_option = QtCore.pyqtProperty(bool, get_HAL_pin, set_HAL_pin, reset_HAL_pin)
-    indicator_status_option = QtCore.pyqtProperty(bool, get_ind_status, set_ind_status, reset_ind_status)
-    checked_state_text_option = QtCore.pyqtProperty(bool, get_state_text, set_state_text, reset_state_text)
-    python_command_option = QtCore.pyqtProperty(bool, get_python_command, set_python_command, reset_python_command)
-    on_color = QtCore.pyqtProperty(QtGui.QColor, get_on_color, set_on_color)
-    shape_option = QtCore.pyqtProperty(int, get_shape, set_shape, reset_shape)
-    off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
-    flashIndicator = pyqtProperty(bool, getFlashState, setFlashState)
-    flashRate = pyqtProperty(int, getFlashRate, setFlashRate)
-    indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
-    circle_diameter = QtCore.pyqtProperty(int, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
-    right_edge_offset = QtCore.pyqtProperty(int, get_right_edge_offset, set_right_edge_offset, reset_right_edge_offset)
-    top_edge_offset = QtCore.pyqtProperty(int, get_top_edge_offset, set_top_edge_offset, reset_top_edge_offset)
-    corner_radius = QtCore.pyqtProperty(float, get_corner_radius, set_corner_radius, reset_corner_radius)
-    height_fraction = QtCore.pyqtProperty(float, get_h_fraction, set_h_fraction, reset_h_fraction)
-    width_fraction = QtCore.pyqtProperty(float, get_w_fraction, set_w_fraction, reset_w_fraction)
-    true_state_string = QtCore.pyqtProperty(str, get_true_string, set_true_string, reset_true_string)
-    false_state_string = QtCore.pyqtProperty(str, get_false_string, set_false_string, reset_false_string)
-    true_python_cmd_string = QtCore.pyqtProperty(str, get_true_python_command, set_true_python_command, reset_true_python_command)
-    false_python_cmd_string = QtCore.pyqtProperty(str, get_false_python_command, set_false_python_command, reset_false_python_command)
+    pin_name = QtCore.Property(str, get_pin_name, set_pin_name, reset_pin_name)
+    indicator_option = QtCore.Property(bool, get_indicator, set_indicator, reset_indicator)
+    doubleIndicator = QtCore.Property(bool, get_doubleIndicator, set_doubleIndicator, reset_doubleIndicator)
+    indicator_HAL_pin_option = QtCore.Property(bool, get_HAL_pin, set_HAL_pin, reset_HAL_pin)
+    indicator_status_option = QtCore.Property(bool, get_ind_status, set_ind_status, reset_ind_status)
+    checked_state_text_option = QtCore.Property(bool, get_state_text, set_state_text, reset_state_text)
+    python_command_option = QtCore.Property(bool, get_python_command, set_python_command, reset_python_command)
+    on_color = QtCore.Property(QtGui.QColor, get_on_color, set_on_color)
+    shape_option = QtCore.Property(int, get_shape, set_shape, reset_shape)
+    off_color = QtCore.Property(QtGui.QColor, get_off_color, set_off_color)
+    flashIndicator = Property(bool, getFlashState, setFlashState)
+    flashRate = Property(int, getFlashRate, setFlashRate)
+    indicator_size = QtCore.Property(float, get_indicator_size, set_indicator_size, reset_indicator_size)
+    circle_diameter = QtCore.Property(int, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
+    right_edge_offset = QtCore.Property(int, get_right_edge_offset, set_right_edge_offset, reset_right_edge_offset)
+    top_edge_offset = QtCore.Property(int, get_top_edge_offset, set_top_edge_offset, reset_top_edge_offset)
+    corner_radius = QtCore.Property(float, get_corner_radius, set_corner_radius, reset_corner_radius)
+    height_fraction = QtCore.Property(float, get_h_fraction, set_h_fraction, reset_h_fraction)
+    width_fraction = QtCore.Property(float, get_w_fraction, set_w_fraction, reset_w_fraction)
+    true_state_string = QtCore.Property(str, get_true_string, set_true_string, reset_true_string)
+    false_state_string = QtCore.Property(str, get_false_string, set_false_string, reset_false_string)
+    true_python_cmd_string = QtCore.Property(str, get_true_python_command, set_true_python_command, reset_true_python_command)
+    false_python_cmd_string = QtCore.Property(str, get_false_python_command, set_false_python_command, reset_false_python_command)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the QtCore.pyqtProperty properties in the editor
+    # designer will show the QtCore.Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_status_properties makes it so we can only select one option
@@ -1022,145 +1022,145 @@ class IndicatedMixIn( _HalWidgetBase):
 
     # designer will show these properties in this order:
     # BOOL
-    invert_the_status = QtCore.pyqtProperty(bool, get_invert_status, set_invert_status, reset_invert_status)
-    is_paused_status = QtCore.pyqtProperty(bool, get_is_paused, set_is_paused, reset_is_paused)
-    is_estopped_status = QtCore.pyqtProperty(bool, get_is_estopped, set_is_estopped, reset_is_estopped)
-    is_on_status = QtCore.pyqtProperty(bool, get_is_on, set_is_on, reset_is_on)
-    is_idle_status = QtCore.pyqtProperty(bool, get_is_idle, set_is_idle, reset_is_idle)
-    is_mdi_finished_status = QtCore.pyqtProperty(bool, get_is_mdi_fin, set_is_mdi_fin, reset_is_mdi_fin)
-    is_homed_status = QtCore.pyqtProperty(bool, get_is_homed, set_is_homed, reset_is_homed)
-    is_flood_status = QtCore.pyqtProperty(bool, get_is_flood, set_is_flood, reset_is_flood)
-    is_mist_status = QtCore.pyqtProperty(bool, get_is_mist, set_is_mist, reset_is_mist)
-    is_block_delete_status = QtCore.pyqtProperty(bool, get_is_block_delete, set_is_block_delete, reset_is_block_delete)
-    is_optional_stop_status = QtCore.pyqtProperty(bool, get_is_optional_stop, set_is_optional_stop, reset_is_optional_stop)
-    is_joint_homed_status = QtCore.pyqtProperty(bool, get_is_joint_homed, set_is_joint_homed, reset_is_joint_homed)
-    is_limits_overridden_status = QtCore.pyqtProperty(bool, get_is_limits_overridden, set_is_limits_overridden,
+    invert_the_status = QtCore.Property(bool, get_invert_status, set_invert_status, reset_invert_status)
+    is_paused_status = QtCore.Property(bool, get_is_paused, set_is_paused, reset_is_paused)
+    is_estopped_status = QtCore.Property(bool, get_is_estopped, set_is_estopped, reset_is_estopped)
+    is_on_status = QtCore.Property(bool, get_is_on, set_is_on, reset_is_on)
+    is_idle_status = QtCore.Property(bool, get_is_idle, set_is_idle, reset_is_idle)
+    is_mdi_finished_status = QtCore.Property(bool, get_is_mdi_fin, set_is_mdi_fin, reset_is_mdi_fin)
+    is_homed_status = QtCore.Property(bool, get_is_homed, set_is_homed, reset_is_homed)
+    is_flood_status = QtCore.Property(bool, get_is_flood, set_is_flood, reset_is_flood)
+    is_mist_status = QtCore.Property(bool, get_is_mist, set_is_mist, reset_is_mist)
+    is_block_delete_status = QtCore.Property(bool, get_is_block_delete, set_is_block_delete, reset_is_block_delete)
+    is_optional_stop_status = QtCore.Property(bool, get_is_optional_stop, set_is_optional_stop, reset_is_optional_stop)
+    is_joint_homed_status = QtCore.Property(bool, get_is_joint_homed, set_is_joint_homed, reset_is_joint_homed)
+    is_limits_overridden_status = QtCore.Property(bool, get_is_limits_overridden, set_is_limits_overridden,
                                                reset_is_limits_overridden)
-    is_manual_status = QtCore.pyqtProperty(bool, get_is_manual, set_is_manual, reset_is_manual)
-    is_mdi_status = QtCore.pyqtProperty(bool, get_is_mdi, set_is_mdi, reset_is_mdi)
-    is_auto_status = QtCore.pyqtProperty(bool, get_is_auto, set_is_auto, reset_is_auto)
-    is_spindle_stopped_status = QtCore.pyqtProperty(bool, get_is_spindle_stopped, set_is_spindle_stopped, reset_is_spindle_stopped)
-    is_spindle_fwd_status = QtCore.pyqtProperty(bool, get_is_spindle_fwd, set_is_spindle_fwd, reset_is_spindle_fwd)
-    is_spindle_rev_status = QtCore.pyqtProperty(bool, get_is_spindle_rev, set_is_spindle_rev, reset_is_spindle_rev)
+    is_manual_status = QtCore.Property(bool, get_is_manual, set_is_manual, reset_is_manual)
+    is_mdi_status = QtCore.Property(bool, get_is_mdi, set_is_mdi, reset_is_mdi)
+    is_auto_status = QtCore.Property(bool, get_is_auto, set_is_auto, reset_is_auto)
+    is_spindle_stopped_status = QtCore.Property(bool, get_is_spindle_stopped, set_is_spindle_stopped, reset_is_spindle_stopped)
+    is_spindle_fwd_status = QtCore.Property(bool, get_is_spindle_fwd, set_is_spindle_fwd, reset_is_spindle_fwd)
+    is_spindle_rev_status = QtCore.Property(bool, get_is_spindle_rev, set_is_spindle_rev, reset_is_spindle_rev)
 
     # NON BOOL
-    joint_number_status = QtCore.pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)
+    joint_number_status = QtCore.Property(int, get_joint_number, set_joint_number, reset_joint_number)
 
 # properties for stylesheet dynamic changes
     def setisManual(self, data):
         self._isManualProp = data
     def getisManual(self):
         return self._isManualProp
-    isManual = QtCore.pyqtProperty(bool, getisManual, setisManual)
+    isManual = QtCore.Property(bool, getisManual, setisManual)
 
     def setisMDI(self, data):
         self._isMDIProp = data
     def getisMDI(self):
         return self._isMDIProp
-    isMDI = QtCore.pyqtProperty(bool, getisMDI, setisMDI)
+    isMDI = QtCore.Property(bool, getisMDI, setisMDI)
 
     def setisAuto(self, data):
         self._isAutoProp = data
     def getisAuto(self):
         return self._isAutoProp
-    isAuto = QtCore.pyqtProperty(bool, getisAuto, setisAuto)
+    isAuto = QtCore.Property(bool, getisAuto, setisAuto)
 
     def setisEstop(self, data):
         self._isEstopProp = data
     def getisEstop(self):
         return self._isEstopProp
-    isEstop = QtCore.pyqtProperty(bool, getisEstop, setisEstop)
+    isEstop = QtCore.Property(bool, getisEstop, setisEstop)
 
     def setisStateOn(self, data):
         self._isStateOnProp = data
     def getisStateOn(self):
         return self._isStateOnProp
-    isStateOn = QtCore.pyqtProperty(bool, getisStateOn, setisStateOn)
+    isStateOn = QtCore.Property(bool, getisStateOn, setisStateOn)
 
     def setisHomed(self, data):
         self._isHomed = data
     def getisHomed(self):
         return self._isHomed
-    isHomed = QtCore.pyqtProperty(bool, getisHomed, setisHomed)
+    isHomed = QtCore.Property(bool, getisHomed, setisHomed)
 
     def setisAllHomed(self, data):
         self._isAllHomed = data
     def getisAllHomed(self):
         return self._isAllHomed
-    isAllHomed = QtCore.pyqtProperty(bool, getisAllHomed, setisAllHomed)
+    isAllHomed = QtCore.Property(bool, getisAllHomed, setisAllHomed)
 
 # properties for enable/disable button on status state
     def setisAllHomedSensitive(self, data):
         self._is_all_homed_sensitive = data
     def getisAllHomedSensitive(self):
         return self._is_all_homed_sensitive
-    isAllHomedSensitive = QtCore.pyqtProperty(bool, getisAllHomedSensitive, setisAllHomedSensitive)
+    isAllHomedSensitive = QtCore.Property(bool, getisAllHomedSensitive, setisAllHomedSensitive)
 
     def setisOnSensitive(self, data):
         self._is_on_sensitive = data
     def getisOnSensitive(self):
         return self._is_on_sensitive
-    isOnSensitive = QtCore.pyqtProperty(bool, getisOnSensitive, setisOnSensitive)
+    isOnSensitive = QtCore.Property(bool, getisOnSensitive, setisOnSensitive)
 
     def setisIdleSensitive(self, data):
         self._is_idle_sensitive = data
     def getisIdleSensitive(self):
         return self._is_idle_sensitive
-    isIdleSensitive = QtCore.pyqtProperty(bool, getisIdleSensitive, setisIdleSensitive)
+    isIdleSensitive = QtCore.Property(bool, getisIdleSensitive, setisIdleSensitive)
 
     def setisRunSensitive(self, data):
         self._is_run_sensitive = data
     def getisRunSensitive(self):
         return self._is_run_sensitive
-    isRunSensitive = QtCore.pyqtProperty(bool, getisRunSensitive, setisRunSensitive)
+    isRunSensitive = QtCore.Property(bool, getisRunSensitive, setisRunSensitive)
 
     def setisRunPauseSensitive(self, data):
         self._is_run_paused_sensitive = data
     def getisRunPauseSensitive(self):
         return self._is_run_paused_sensitive
-    isRunPausedSensitive = QtCore.pyqtProperty(bool, getisRunPauseSensitive, setisRunPauseSensitive)
+    isRunPausedSensitive = QtCore.Property(bool, getisRunPauseSensitive, setisRunPauseSensitive)
 
     def setisAutoPauseSensitive(self, data):
         self._is_auto_pause_sensitive = data
     def getisAutoPauseSensitive(self):
         return self._is_auto_pause_sensitive
-    isAutoPauseSensitive = QtCore.pyqtProperty(bool, getisAutoPauseSensitive, setisAutoPauseSensitive)
+    isAutoPauseSensitive = QtCore.Property(bool, getisAutoPauseSensitive, setisAutoPauseSensitive)
 
     def setisManSensitive(self, data):
         self._is_manual_sensitive = data
     def getisManSensitive(self):
         return self._is_manual_sensitive
-    isManSensitive = QtCore.pyqtProperty(bool, getisManSensitive, setisManSensitive)
+    isManSensitive = QtCore.Property(bool, getisManSensitive, setisManSensitive)
 
     def setisMDISensitive(self, data):
         self._is_mdi_sensitive = data
     def getisMDISensitive(self):
         return self._is_mdi_sensitive
-    isMDISensitive = QtCore.pyqtProperty(bool, getisMDISensitive, setisMDISensitive)
+    isMDISensitive = QtCore.Property(bool, getisMDISensitive, setisMDISensitive)
 
     def setisAutoSensitive(self, data):
         self._is_auto_sensitive = data
     def getisAutoSensitive(self):
         return self._is_auto_sensitive
-    isAutoSensitive = QtCore.pyqtProperty(bool, getisAutoSensitive, setisAutoSensitive)
+    isAutoSensitive = QtCore.Property(bool, getisAutoSensitive, setisAutoSensitive)
 
     def setisSpindleOffSensitive(self, data):
         self._is_spindle_off_sensitive = data
     def getisSpindleOffSensitive(self):
         return self._is_spindle_off_sensitive
-    isSpindleOffSensitive = QtCore.pyqtProperty(bool, getisSpindleOffSensitive, setisSpindleOffSensitive)
+    isSpindleOffSensitive = QtCore.Property(bool, getisSpindleOffSensitive, setisSpindleOffSensitive)
 
     def setisSpindleFwdSensitive(self, data):
         self._is_spindle_fwd_sensitive = data
     def getisSpindleFwdSensitive(self):
         return self._is_spindle_fwd_sensitive
-    isSpindleFwdSensitive = QtCore.pyqtProperty(bool, getisSpindleFwdSensitive, setisSpindleFwdSensitive)
+    isSpindleFwdSensitive = QtCore.Property(bool, getisSpindleFwdSensitive, setisSpindleFwdSensitive)
 
     def setisSpindleRevSensitive(self, data):
         self._is_spindle_rev_sensitive = data
     def getisSpindleRevSensitive(self):
         return self._is_spindle_rev_sensitive
-    isSpindleRevSensitive = QtCore.pyqtProperty(bool, getisSpindleRevSensitive, setisSpindleRevSensitive)
+    isSpindleRevSensitive = QtCore.Property(bool, getisSpindleRevSensitive, setisSpindleRevSensitive)
 
     # boilder code
     def __getitem__(self, item):
@@ -1176,7 +1176,7 @@ class IndicatedToolButton(QtWidgets.QToolButton, IndicatedMixIn):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = IndicatedToolButton()
     widget.setCheckable(True)

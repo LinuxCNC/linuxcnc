@@ -1,8 +1,8 @@
 import os, time
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QAction, QMenu
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QCoreApplication
+from qtpy import QtCore, QtWidgets, QtGui
+from qtpy.QtWidgets import QAction, QMenu
+from qtpy.QtGui import QIcon
+from qtpy.QtCore import QCoreApplication
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.gcode_graphics import GCodeGraphics as GRAPHICS
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
@@ -31,7 +31,7 @@ WRITER = writer.Main()
 QHAL = Qhal()
 
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEnginePage
+    from qtpy.QtWebEngineWidgets import QWebEnginePage
 except:
     LOG.warning('QtDragon Warning with loading QtWebEngineWidget - is python3-pyqt5.qtwebengine installed?')
 

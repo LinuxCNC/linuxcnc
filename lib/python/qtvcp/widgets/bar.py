@@ -1,13 +1,13 @@
-from PyQt5 import QtWidgets
-from PyQt5.QtGui import QColor, QBrush, QPainter, QLinearGradient
-from PyQt5.QtCore import (Qt, pyqtSlot, pyqtProperty, pyqtSignal, QVariant, QRectF,
+from qtpy import QtWidgets
+from qtpy.QtGui import QColor, QBrush, QPainter, QLinearGradient
+from qtpy.QtCore import (Qt, Slot, Property, Signal, QVariant, QRectF,
     QSize)
 
 try:
-    from PyQt5.QtCore import Q_ENUM
+    from qtpy.QtCore import Q_ENUM
 except:
     # before Qt 5.10
-    from PyQt5.QtCore import Q_ENUMS as Q_ENUM
+    from qtpy.QtCore import Q_ENUMS as Q_ENUM
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 import hal
@@ -20,7 +20,7 @@ LOG = logger.getLogger(__name__)
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Bar(QtWidgets.QWidget):
-    valueChanged = pyqtSignal([int],[float])
+    valueChanged = Signal([int],[float])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -267,8 +267,8 @@ class Bar(QtWidgets.QWidget):
     def value(self):
         return self._value
 
-    @pyqtSlot(float)
-    @pyqtSlot(int)
+    @Slot(float)
+    @Slot(int)
     def setValue(self, data):
         if data != self._value:
             if data >  self._maximum: data = self._maximum
@@ -314,7 +314,7 @@ class Bar(QtWidgets.QWidget):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
@@ -332,14 +332,14 @@ class Bar(QtWidgets.QWidget):
 
     def getBackgroundColor(self):
         return self._background_color
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def setBackgroundColor(self, value):
         self._background_color = value
         self.update()
 
     def get_indicatorColor(self):
         return self._singleIndicatorColor
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def set_indicatorColor(self, value):
         self._singleIndicatorColor = value
         self.update()
@@ -390,18 +390,18 @@ class Bar(QtWidgets.QWidget):
         self._vertical = False
         self.update()
 
-    stepColorList = pyqtProperty(
+    stepColorList = Property(
                         QVariant.typeToName(QVariant.StringList),
                          get_step_color_l, set_step_color_l, reset_step_color_l)
 
-    backgroundColor = pyqtProperty(QColor, getBackgroundColor, setBackgroundColor)
-    indicatorColor = pyqtProperty(QColor, get_indicatorColor, set_indicatorColor, reset_indicatorColor)
-    useMultiColorIndicator = pyqtProperty(bool, getMultiColor, setMultiColor, resetMultiColor)
-    split = pyqtProperty(int, getSplit, setSplit, resetSplit)
-    setMaximum = pyqtProperty(int, getMax, setMax, resetMax)
-    setMinimum = pyqtProperty(int, getMin, setMin, resetMin)
-    setVertical = pyqtProperty(bool, getVert, setVert, resetVert)
-    setInverted = pyqtProperty(bool, getInvertedAppearance, setInvertedAppearance, resetInvertedAppearance)
+    backgroundColor = Property(QColor, getBackgroundColor, setBackgroundColor)
+    indicatorColor = Property(QColor, get_indicatorColor, set_indicatorColor, reset_indicatorColor)
+    useMultiColorIndicator = Property(bool, getMultiColor, setMultiColor, resetMultiColor)
+    split = Property(int, getSplit, setSplit, resetSplit)
+    setMaximum = Property(int, getMax, setMax, resetMax)
+    setMinimum = Property(int, getMin, setMin, resetMin)
+    setVertical = Property(bool, getVert, setVert, resetVert)
+    setInverted = Property(bool, getInvertedAppearance, setInvertedAppearance, resetInvertedAppearance)
 
 class HALPinType:
     NONE = 0
@@ -469,12 +469,12 @@ class  HalBar(Bar, _HalWidgetBase):
     def reset_invert_negative(self):
         self._invert_negative = False
 
-    pinType = pyqtProperty(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
-    pinName = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
-    invertOnNegative = pyqtProperty(bool, get_invert_negative, set_invert_negative, reset_invert_negative)
+    pinType = Property(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
+    pinName = Property(str, get_pin_name, set_pin_name, reset_pin_name)
+    invertOnNegative = Property(bool, get_invert_negative, set_invert_negative, reset_invert_negative)
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import (QLabel, QSlider, QWidget, QVBoxLayout,
+    from qtpy.QtWidgets import (QLabel, QSlider, QWidget, QVBoxLayout,
         QHBoxLayout, QPushButton, QCheckBox)
 
     app = QtWidgets.QApplication([])

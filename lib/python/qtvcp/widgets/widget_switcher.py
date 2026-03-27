@@ -16,8 +16,8 @@
 #################################################################################
 
 
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QStackedWidget, QLayout
+from qtpy.QtCore import Signal
+from qtpy.QtWidgets import QStackedWidget, QLayout
 
 from collections import OrderedDict
 
@@ -32,7 +32,7 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
-    widgetChanged = pyqtSignal(int)
+    widgetChanged = Signal(int)
 
     def __init__(self, parent=None):
         super(WidgetSwitcher, self).__init__(parent)

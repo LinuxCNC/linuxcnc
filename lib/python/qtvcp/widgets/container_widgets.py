@@ -17,8 +17,8 @@
 import os
 import linuxcnc
 
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import pyqtProperty
+from qtpy.QtWidgets import QWidget
+from qtpy.QtCore import Property
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info
@@ -82,7 +82,7 @@ class StateEnableGridLayout(QWidget, _HalWidgetBase):
         return self.is_on
     def reset_is_on(self):
         self.is_on = False
-    is_on_status = pyqtProperty(bool, get_is_on, set_is_on, reset_is_on)
+    is_on_status = Property(bool, get_is_on, set_is_on, reset_is_on)
 
     # machine is idle status
     def set_is_idle(self, data):
@@ -93,7 +93,7 @@ class StateEnableGridLayout(QWidget, _HalWidgetBase):
         return self.is_idle
     def reset_is_idle(self):
         self.is_idle = False
-    is_idle_status = pyqtProperty(bool, get_is_idle, set_is_idle, reset_is_idle)
+    is_idle_status = Property(bool, get_is_idle, set_is_idle, reset_is_idle)
 
     # machine is not idle status
     def set_is_not_idle(self, data):
@@ -104,7 +104,7 @@ class StateEnableGridLayout(QWidget, _HalWidgetBase):
         return self.is_not_idle
     def reset_is_not_idle(self):
         self.is_not_idle = False
-    is_not_idle_status = pyqtProperty(bool, get_is_not_idle, set_is_not_idle, reset_is_not_idle)
+    is_not_idle_status = Property(bool, get_is_not_idle, set_is_not_idle, reset_is_not_idle)
 
     # machine is homed status
     def set_is_homed(self, data):
@@ -113,7 +113,7 @@ class StateEnableGridLayout(QWidget, _HalWidgetBase):
         return self.is_homed
     def reset_is_homed(self):
         self.is_homed = False
-    is_homed_status = pyqtProperty(bool, get_is_homed, set_is_homed, reset_is_homed)
+    is_homed_status = Property(bool, get_is_homed, set_is_homed, reset_is_homed)
 
 class JointEnableWidget(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -143,7 +143,7 @@ class JointEnableWidget(QWidget, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -203,12 +203,12 @@ class JointEnableWidget(QWidget, _HalWidgetBase):
     def reset_joint_available(self):
         self.if_joint_available = False
 
-    joint_number = pyqtProperty(int, get_joint, set_joint, reset_joint)
-    axis_letter = pyqtProperty(str, get_axis, set_axis, reset_axis)
-    only_in_joint_mode = pyqtProperty(bool, get_joint_mode, set_joint_mode, reset_joint_mode)
-    only_in_axis_mode = pyqtProperty(bool, get_axis_mode, set_axis_mode, reset_axis_mode)
-    only_if_axis_available = pyqtProperty(bool, get_axis_available, set_axis_available, reset_axis_available)
-    only_if_joint_available = pyqtProperty(bool, get_joint_available, set_joint_available, reset_joint_available)
+    joint_number = Property(int, get_joint, set_joint, reset_joint)
+    axis_letter = Property(str, get_axis, set_axis, reset_axis)
+    only_in_joint_mode = Property(bool, get_joint_mode, set_joint_mode, reset_joint_mode)
+    only_in_axis_mode = Property(bool, get_axis_mode, set_axis_mode, reset_axis_mode)
+    only_if_axis_available = Property(bool, get_axis_available, set_axis_available, reset_axis_available)
+    only_if_joint_available = Property(bool, get_joint_available, set_joint_available, reset_joint_available)
 
     ##############################
     # required class boiler code #

@@ -17,8 +17,8 @@
 
 import os
 
-from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import qApp
+from qtpy import QtWidgets, QtCore, QtGui
+from qtpy.QtWidgets import qApp
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.entry_widget import TouchInterface
 from qtvcp.core import Status, Action, Info
@@ -39,7 +39,7 @@ LOG = logger.getLogger(__name__)
 if not INFO.LINUXCNC_IS_RUNNING:
     LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 try:
-    from PyQt5 import QtSvg
+    from qtpy import QtSvg
 except:
     LOG.critical("Qtvcp error with macro_widget - is package python3-pyqt5.qtsvg installed?")
 

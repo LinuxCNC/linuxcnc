@@ -15,9 +15,9 @@
 ###############################################################################
 import os
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListView
-from PyQt5.QtCore import pyqtProperty, QSize, QModelIndex, QItemSelectionModel, QItemSelection, QPoint
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from qtpy.QtWidgets import QWidget, QVBoxLayout, QListView
+from qtpy.QtCore import Property, QSize, QModelIndex, QItemSelectionModel, QItemSelection, QPoint
+from qtpy.QtGui import QStandardItemModel, QStandardItem
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.mdi_line import MDILine
@@ -161,7 +161,7 @@ class MDIHistory(QWidget, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #########################################################################
 
@@ -173,13 +173,13 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.MDILine.soft_keyboard = False
 
     # designer will show these properties in this order:
-    soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
+    soft_keyboard_option = Property(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
 
 
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from qtpy.QtWidgets import *
+    from qtpy.QtCore import *
+    from qtpy.QtGui import *
     import sys
 
     app = QApplication(sys.argv)

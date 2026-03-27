@@ -25,10 +25,17 @@ from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
 DBusQtMainLoop = None
-try:
-    from dbus.mainloop.pyqt5 import DBusQtMainLoop
-except ImportError:
-    LOG.warning("Could not import DBusQtMainLoop, is package 'python3-dbus.mainloop.pyqt5' installed?")
+for _mod in ('dbus.mainloop.pyqt5', 'dbus.mainloop.pyqt6'):
+    try:
+        import importlib
+        DBusQtMainLoop = importlib.import_module(_mod).DBusQtMainLoop
+        break
+    except ImportError:
+        pass
+if DBusQtMainLoop is None:
+    LOG.warning("Could not import a DBus Qt main loop integration. "
+                "Install python3-dbus.mainloop.pyqt5 or python3-dbus.mainloop.pyqt6 "
+                "for desktop notification callbacks.")
 
 APP_NAME = ''
 DBUS_IFACE = None
@@ -253,7 +260,7 @@ def onClose(n):
 
 if __name__ == "__main__":
     import sys
-    from PyQt5.QtCore import QCoreApplication
+    from qtpy.QtCore import QCoreApplication
 
     app = QCoreApplication(sys.argv)
 

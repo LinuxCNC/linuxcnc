@@ -14,10 +14,10 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import (QToolButton, QMenu, QAction,
+from qtpy.QtWidgets import (QToolButton, QMenu, QAction,
     QComboBox, QWidgetAction)
-from PyQt5.QtCore import pyqtProperty
-from PyQt5.QtGui import QIcon
+from qtpy.QtCore import Property
+from qtpy.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
@@ -206,7 +206,7 @@ class ActionToolButton(QToolButton, IndicatedMixIn):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     ########################################################################
@@ -216,19 +216,19 @@ class ActionToolButton(QToolButton, IndicatedMixIn):
         self._userView = state
     def getViewAction(self):
         return self._userView
-    userViewAction = pyqtProperty(bool, getViewAction, setViewAction)
+    userViewAction = Property(bool, getViewAction, setViewAction)
 
     # option menu
     def setOptionMenu(self, state):
         self._optionMenu = state
     def getOptionMenu(self):
         return self._optionMenu
-    OptionMenuAction = pyqtProperty(bool, getOptionMenu, setOptionMenu)
+    OptionMenuAction = Property(bool, getOptionMenu, setOptionMenu)
 
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = ActionToolButton()
     widget.show()

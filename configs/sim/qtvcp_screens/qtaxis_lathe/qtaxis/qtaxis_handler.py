@@ -5,8 +5,8 @@ import sys
 import os
 import linuxcnc
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QColor
+from qtpy import QtCore, QtWidgets
+from qtpy.QtGui import QColor
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE

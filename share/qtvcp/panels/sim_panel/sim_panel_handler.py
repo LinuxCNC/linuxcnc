@@ -1,8 +1,8 @@
 ############################
 # **** IMPORT SECTION **** #
 ############################
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QWidget
 from qtvcp.core import Status, Action
 
 # Set up logging

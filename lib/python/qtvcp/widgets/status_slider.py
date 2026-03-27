@@ -17,8 +17,8 @@
 
 import hal
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtProperty, pyqtSignal
+from qtpy import QtWidgets
+from qtpy.QtCore import Property, Signal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
@@ -41,7 +41,7 @@ LOG = logger.getLogger(__name__)
 class DoubleSlider(QtWidgets.QSlider):
 
     # create our our signal that we can connect to if necessary
-    doubleValueChanged = pyqtSignal(float)
+    doubleValueChanged = Signal(float)
 
     def __init__(self, *args, **kargs):
         super(DoubleSlider, self).__init__( *args, **kargs)
@@ -172,7 +172,7 @@ class StatusSlider(DoubleSlider, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -254,14 +254,14 @@ class StatusSlider(DoubleSlider, _HalWidgetBase):
     def reset_pin_name(self):
         self._pin_name_ = ''
 
-    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
-    halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
-    rapid_rate = pyqtProperty(bool, getrapid, setrapid, resetrapid)
-    feed_rate = pyqtProperty(bool, getfeed, setfeed, resetfeed)
-    spindle_rate = pyqtProperty(bool, getspindle, setspindle, resetspindle)
-    jograte_rate = pyqtProperty(bool, getjograte, setjograte, resetjograte)
-    jograte_angular_rate = pyqtProperty(bool, getjograte_angular, setjograte_angular, resetjograte_angular)
-    max_velocity_rate = pyqtProperty(bool, getmax_velocity, setmax_velocity, resetmax_velocity)
+    pin_name = Property(str, get_pin_name, set_pin_name, reset_pin_name)
+    halpin_option = Property(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
+    rapid_rate = Property(bool, getrapid, setrapid, resetrapid)
+    feed_rate = Property(bool, getfeed, setfeed, resetfeed)
+    spindle_rate = Property(bool, getspindle, setspindle, resetspindle)
+    jograte_rate = Property(bool, getjograte, setjograte, resetjograte)
+    jograte_angular_rate = Property(bool, getjograte_angular, setjograte_angular, resetjograte_angular)
+    max_velocity_rate = Property(bool, getmax_velocity, setmax_velocity, resetmax_velocity)
 
     def setAlertState(self, data):
         self._alertState = data
@@ -282,9 +282,9 @@ class StatusSlider(DoubleSlider, _HalWidgetBase):
     def resetAlertOver(self):
         self._alertOver = 100.0
 
-    alertState = pyqtProperty(str, getAlertState, setAlertState)
-    alertUnder = pyqtProperty(float, getAlertUnder, setAlertUnder, resetAlertUnder)
-    alertOver = pyqtProperty(float, getAlertOver, setAlertOver, resetAlertOver)
+    alertState = Property(str, getAlertState, setAlertState)
+    alertUnder = Property(float, getAlertUnder, setAlertUnder, resetAlertUnder)
+    alertOver = Property(float, getAlertOver, setAlertOver, resetAlertOver)
 
     ##############################
     # required class boiler code #

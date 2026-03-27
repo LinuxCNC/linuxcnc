@@ -36,9 +36,9 @@ if 'axis' in INI.find('DISPLAY', 'DISPLAY'):
     from tkinter import Tk, Label, Text, Scrollbar, Button
     GUI = 'axis'
 else:
-    from PyQt5.QtCore import Qt
-    from PyQt5.QtGui import QIcon
-    from PyQt5.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLayout, QLabel, QPushButton, QStyle, QFrame
+    from qtpy.QtCore import Qt
+    from qtpy.QtGui import QIcon
+    from qtpy.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLayout, QLabel, QPushButton, QStyle, QFrame
     GUI = 'qtplasmac'
 
 class Filter():

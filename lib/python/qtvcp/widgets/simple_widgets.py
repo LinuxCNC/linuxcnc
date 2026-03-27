@@ -14,13 +14,13 @@
 # GNU General Public License for more details.
 
 try:
-    from PyQt5.QtCore import Q_ENUM
+    from qtpy.QtCore import Q_ENUM
 except:
     # before qt5.10
-    from PyQt5.QtCore import Q_ENUMS as Q_ENUM
+    from qtpy.QtCore import Q_ENUMS as Q_ENUM
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtProperty, pyqtSlot
+from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtCore import Property, Slot
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
         _HalToggleBase, _HalSensitiveBase, _HalScaleBase)
 from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
@@ -97,7 +97,7 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
@@ -150,11 +150,11 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
         self._floatTemplate = ''
 
     # designer will show these properties in this order:
-    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
-    bit_pin_type = QtCore.pyqtProperty(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
-    s32_pin_type = QtCore.pyqtProperty(bool, get_s32_pin_type, set_s32_pin_type, reset_s32_pin_type)
-    float_pin_type = QtCore.pyqtProperty(bool, get_float_pin_type, set_float_pin_type, reset_float_pin_type)
-    floatTemplate = QtCore.pyqtProperty(str, get_floatTemplate, set_floatTemplate, reset_floatTemplate)
+    pin_name = QtCore.Property(str, get_pin_name, set_pin_name, reset_pin_name)
+    bit_pin_type = QtCore.Property(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
+    s32_pin_type = QtCore.Property(bool, get_s32_pin_type, set_s32_pin_type, reset_s32_pin_type)
+    float_pin_type = QtCore.Property(bool, get_float_pin_type, set_float_pin_type, reset_float_pin_type)
+    floatTemplate = QtCore.Property(str, get_floatTemplate, set_floatTemplate, reset_floatTemplate)
 
     ##############################
     # required class boiler code #
@@ -202,7 +202,7 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
         return self._pin_name_
     def reset_pin_name(self):
         self._pin_name_ = ''
-    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    pin_name = QtCore.Property(str, get_pin_name, set_pin_name, reset_pin_name)
 
 class Dial(QtWidgets.QDial, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -262,11 +262,11 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         return self._pin_name_
     def reset_pin_name(self):
         self._pin_name_ = ''
-    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    pin_name = QtCore.Property(str, get_pin_name, set_pin_name, reset_pin_name)
 
 class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
-    intOutput = QtCore.pyqtSignal(int)
-    floatOutput = QtCore.pyqtSignal(float)
+    intOutput = QtCore.Signal(int)
+    floatOutput = QtCore.Signal(float)
 
     def __init__(self, parent=None):
         super(DoubleScale, self).__init__(parent)
@@ -274,8 +274,8 @@ class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
 
     # one can connect signals to this widget to
     # feed an input that gets scaled by this widget. 
-    @QtCore.pyqtSlot(float)
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(float)
+    @QtCore.Slot(int)
     def setInput(self, data):
         self.input = data
         self.valueChanged.emit(self.value())
@@ -293,7 +293,7 @@ class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
         return self._pin_name_
     def reset_pin_name(self):
         self._pin_name_ = ''
-    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    pin_name = QtCore.Property(str, get_pin_name, set_pin_name, reset_pin_name)
 
 class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
     def __init__(self, parent=None):
@@ -337,7 +337,7 @@ class RichButton(QtWidgets.QPushButton):
         return self.text()
     def reset_richText(self):
         self.setText('Button')
-    richtext_string = QtCore.pyqtProperty(str, get_richText, set_richText, reset_richText)
+    richtext_string = QtCore.Property(str, get_richText, set_richText, reset_richText)
 
 # button for function callbacks rather then HAL pins
 class IndicatedPushButton(QtWidgets.QPushButton, IndicatedMixIn):
@@ -477,7 +477,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
 
     ########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the QtCore.pyqtProperty properties in the editor
+    # designer will show the QtCore.Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
@@ -489,7 +489,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
         self._pin_type = HALPinType.S32
 
     # designer will show these properties in this order:
-    pin_type = QtCore.pyqtProperty(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
+    pin_type = QtCore.Property(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
 
     def set_group_pin_name(self, value):
         self._groupPinName = value
@@ -497,7 +497,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
         return self._groupPinName
     def reset_group_pin_name(self):
         self._groupPinName = ''
-    groupPinName = QtCore.pyqtProperty(str, get_group_pin_name, set_group_pin_name, reset_group_pin_name)
+    groupPinName = QtCore.Property(str, get_group_pin_name, set_group_pin_name, reset_group_pin_name)
 
     def set_exclusive_value(self, data):
         self._exclusiveValue = data
@@ -508,7 +508,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
         self._exclusiveValue = 0.0
         self.updateGroup()
 
-    exclusiveHALValue = QtCore.pyqtProperty(float, get_exclusive_value, set_exclusive_value, reset_exclusive_value)
+    exclusiveHALValue = QtCore.Property(float, get_exclusive_value, set_exclusive_value, reset_exclusive_value)
 
 class ScaledLabel(QtWidgets.QLabel):
     '''
@@ -609,6 +609,6 @@ class ScaledLabel(QtWidgets.QLabel):
     def reset_testSample(self):
         self._text = ''
 
-    scaleText = QtCore.pyqtProperty(bool, get_scaleText, set_scaleText, reset_scaleText)
-    textSpaceSample = QtCore.pyqtProperty(str, get_testSample, set_testSample, reset_testSample)
+    scaleText = QtCore.Property(bool, get_scaleText, set_scaleText, reset_scaleText)
+    textSpaceSample = QtCore.Property(str, get_testSample, set_testSample, reset_testSample)
 

@@ -5,10 +5,10 @@
 import sys
 import os
 
-from PyQt5 import QtWidgets
-from PyQt5 import QtPrintSupport
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt
+from qtpy import QtWidgets
+from qtpy import QtPrintSupport
+from qtpy import QtGui, QtCore
+from qtpy.QtCore import Qt
 
 from .ext import *
 from qtvcp.core import Path

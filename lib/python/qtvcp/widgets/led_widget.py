@@ -15,9 +15,9 @@
 #
 #################################################################################
 
-from PyQt5.QtCore import pyqtProperty, pyqtSlot, Qt, QTimer, QSize
-from PyQt5.QtGui import QColor, QPainter, QBrush, QRadialGradient
-from PyQt5.QtWidgets import QWidget
+from qtpy.QtCore import Property, Slot, Qt, QTimer, QSize
+from qtpy.QtGui import QColor, QPainter, QBrush, QRadialGradient
+from qtpy.QtWidgets import QWidget
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp import logger
 
@@ -67,7 +67,7 @@ class LED(QWidget, _HalWidgetBase):
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda s: self.change_state(s))
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def change_state(self, data):
         self.state = data
         if data and self.flash:
@@ -137,7 +137,7 @@ class LED(QWidget, _HalWidgetBase):
     def reset_halpin_option(self):
         self._halpin_option = True
 
-    @pyqtSlot(int)
+    @Slot(int)
     def setDiameter(self, value):
         self._diameter = value
         self.update()
@@ -145,7 +145,7 @@ class LED(QWidget, _HalWidgetBase):
     def getColor(self):
         return self._color
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def setColor(self, value):
         self._color = value
         self.update()
@@ -153,14 +153,14 @@ class LED(QWidget, _HalWidgetBase):
     def getOffColor(self):
         return self._off_color
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def setOffColor(self, value):
         self._off_color = value
         self.update()
 
     def getOnGradientColor(self):
         return self._on_gradient_color
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def setOnGradientColor(self, value):
         self._on_gradient_color = value
         self.update()
@@ -170,7 +170,7 @@ class LED(QWidget, _HalWidgetBase):
 
     def getOffGradientColor(self):
         return self._off_gradient_color
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def setOffGradientColor(self, value):
         self._off_gradient_color = value
         self.update()
@@ -181,7 +181,7 @@ class LED(QWidget, _HalWidgetBase):
     def getGradient(self):
         return self._gradient            
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setGradient(self, value):
         self._gradient = value
         self.update()            
@@ -192,7 +192,7 @@ class LED(QWidget, _HalWidgetBase):
     def getBorderColor(self):
         return self._border_color
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def setBorderColor(self, value):
         self._border_color = value
         self.update()
@@ -200,7 +200,7 @@ class LED(QWidget, _HalWidgetBase):
     def getAlignment(self):
         return self._alignment
 
-    @pyqtSlot(Qt.Alignment)
+    @Slot(Qt.Alignment)
     def setAlignment(self, value):
         self._alignment = value
         self.update()
@@ -208,8 +208,8 @@ class LED(QWidget, _HalWidgetBase):
     def resetAlignment(self):
         self._alignment = Qt.AlignCenter
 
-    @pyqtSlot(bool)
-    @pyqtSlot(int)
+    @Slot(bool)
+    @Slot(int)
     def setState(self, value):
         self.state = self._state = value
         self.update()
@@ -220,7 +220,7 @@ class LED(QWidget, _HalWidgetBase):
     def resetState(self):
         self.state = self._state = False
 
-    @pyqtSlot()
+    @Slot()
     def toggleState(self):
         self._state = not self._state
         self.update()
@@ -228,7 +228,7 @@ class LED(QWidget, _HalWidgetBase):
     def isFlashing(self):
         return self._flashing
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setFlashing(self, value):
         self._flashing = value
         if self._flashRate > 0 and value:
@@ -252,7 +252,7 @@ class LED(QWidget, _HalWidgetBase):
     def getFlashRate(self):
         return self._flashRate
 
-    @pyqtSlot(int)
+    @Slot(int)
     def setFlashRate(self, value):
         self._flashRate = value
         self.update()
@@ -264,24 +264,24 @@ class LED(QWidget, _HalWidgetBase):
     def reset_pin_name(self):
         self._pin_name_ = ''
 
-    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
-    halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
-    diameter = pyqtProperty(int, getDiameter, setDiameter)
-    gradient = pyqtProperty(bool, getGradient, setGradient, resetGradient)
-    color = pyqtProperty(QColor, getColor, setColor)
-    off_color = pyqtProperty(QColor, getOffColor, setOffColor)
-    off_gradient_color = pyqtProperty(QColor, getOffGradientColor, setOffGradientColor, resetOffGradientColor)
-    on_gradient_color = pyqtProperty(QColor, getOnGradientColor, setOnGradientColor, resetOnGradientColor)
-    border_color = pyqtProperty(QColor, getBorderColor, setBorderColor)
-    alignment = pyqtProperty(Qt.Alignment, getAlignment, setAlignment, resetAlignment)
-    currentstate = pyqtProperty(bool, getState, setState, resetState)
-    flashing = pyqtProperty(bool, getFlashState, setFlashState)
-    flashRate = pyqtProperty(int, getFlashRate, setFlashRate)
+    pin_name = Property(str, get_pin_name, set_pin_name, reset_pin_name)
+    halpin_option = Property(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
+    diameter = Property(int, getDiameter, setDiameter)
+    gradient = Property(bool, getGradient, setGradient, resetGradient)
+    color = Property(QColor, getColor, setColor)
+    off_color = Property(QColor, getOffColor, setOffColor)
+    off_gradient_color = Property(QColor, getOffGradientColor, setOffGradientColor, resetOffGradientColor)
+    on_gradient_color = Property(QColor, getOnGradientColor, setOnGradientColor, resetOnGradientColor)
+    border_color = Property(QColor, getBorderColor, setBorderColor)
+    alignment = Property(Qt.Alignment, getAlignment, setAlignment, resetAlignment)
+    currentstate = Property(bool, getState, setState, resetState)
+    flashing = Property(bool, getFlashState, setFlashState)
+    flashRate = Property(int, getFlashRate, setFlashRate)
 
 if __name__ == "__main__":
 
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     led = LED()
     led.show()

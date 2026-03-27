@@ -18,9 +18,9 @@ import os
 import linuxcnc
 import json
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtCore import QProcess
+from qtpy import QtCore, QtGui, QtWidgets, uic
+from qtpy.QtWidgets import QMessageBox
+from qtpy.QtCore import QProcess
 from qtvcp.core import Info, Status, Action, Path
 from qtvcp import logger
 

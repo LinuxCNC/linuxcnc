@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from PyQt5 import QtGui
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from qtpy import QtGui
+from qtpy.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.simple_widgets import IndicatedPushButton
 from qtvcp.widgets.simple_widgets import PushButton
 from qtvcp.widgets.simple_widgets import CheckBox

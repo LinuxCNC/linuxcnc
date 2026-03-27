@@ -1,8 +1,8 @@
 
-from PyQt5 import QtCore, QtGui, Qt
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QWidget
+from qtpy import QtCore, QtGui, Qt
+from qtpy.QtGui import QColor
+from qtpy.QtCore import Slot
+from qtpy.QtWidgets import QWidget
 
 class RoundProgressBar(QWidget):
 
@@ -62,8 +62,8 @@ class RoundProgressBar(QWidget):
     def sizeHint(self):
         return QtCore.QSize(100, 100)
 
-    @pyqtSlot(float)
-    @pyqtSlot(int)
+    @Slot(float)
+    @Slot(int)
     def setValue(self, val):
         if self.value != val:
             if val < self.min:
@@ -291,7 +291,7 @@ class RoundProgressBar(QWidget):
 
 if __name__ == "__main__":
     import sys
-    from PyQt5.QtWidgets import QDial, QWidget, QHBoxLayout, QApplication
+    from qtpy.QtWidgets import QDial, QWidget, QHBoxLayout, QApplication
     app = QApplication(sys.argv)
 
     w = QWidget()
