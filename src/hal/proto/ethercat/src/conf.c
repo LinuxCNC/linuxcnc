@@ -477,13 +477,15 @@ static int lcec_conf_start(cmod_t *self) {
 }
 
 static void lcec_conf_stop(cmod_t *self) {
-  lcec_conf_module *m = (lcec_conf_module *)self->priv;
-
-  lcec_rt_stop(&m->rt_ctx);
+  // NOP
 }
 
 static void lcec_conf_destroy(cmod_t *self) {
   lcec_conf_module *m = (lcec_conf_module *)self->priv;
+
+  // do rt_stop here, since that requires stopped thread
+  // but they are still active on lcec_conf_stop
+  lcec_rt_stop(&m->rt_ctx);
 
   lcec_rt_cleanup(&m->rt_ctx);
 
