@@ -284,6 +284,11 @@ int lcec_rt_init(lcec_rt_context_t *ctx, LCEC_CONF_OUTBUF_T *buf) {
 
 fail1:
   lcec_clear_config(ctx);
+#ifdef EC_USPACE_MASTER
+  ecrt_lib_cleanup();
+#endif
+  lcec_log_g = NULL;
+  lcec_name_g = NULL;
 fail0:
   return -EINVAL;
 }
