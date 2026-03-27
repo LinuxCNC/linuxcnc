@@ -28,6 +28,10 @@ MILLTASKSRCS := \
 
 $(call TOOBJSDEPS, emc/task/taskmodule.cc): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
 
+# All milltask sources need -fPIC so they can be used in both
+# the milltask binary and milltask.so cmod plugin.
+$(call TOOBJSDEPS, $(MILLTASKSRCS)): EXTRAFLAGS += -fPIC
+
 USERSRCS += $(MILLTASKSRCS)
 
 #LDFLAGS +=
@@ -41,3 +45,37 @@ USERSRCS += $(MILLTASKSRCS)
 	$(ECHO) Linking $(notdir $@)
 	$(CXX) -o $@ $^ $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
 TARGETS += ../bin/milltask
+
+# milltask.so — cmod plugin variant (uses gomc API, no liblinuxcnchal)
+MILLTASK_GOMC_SRCS := \
+	emc/motion/emcmotglb.c \
+	emc/task/emctask.cc \
+	emc/task/emccanon.cc \
+	emc/task/emctaskmain_gomc.cc \
+	emc/motion/usrmotintf.cc \
+	emc/motion/emcmotutil.c \
+	emc/task/taskintf_gomc.cc \
+	emc/motion/dbuf.c \
+	emc/motion/stashf.c \
+	emc/task/taskmodule.cc \
+	emc/task/taskclass.cc \
+	emc/task/backtrace.cc \
+	emc/task/inihal_gomc.cc \
+	emc/task/initraj_gomc.cc \
+	emc/task/inijoint_gomc.cc \
+	emc/task/iniaxis_gomc.cc \
+	emc/task/inispindle_gomc.cc \
+
+USERSRCS += $(MILLTASK_GOMC_SRCS)
+
+$(call TOOBJSDEPS, $(MILLTASK_GOMC_SRCS)): EXTRAFLAGS += -fPIC
+
+../cmod/milltask.so: $(call TOOBJS, $(MILLTASK_GOMC_SRCS)) \
+                     ../lib/librs274.so.0 ../lib/liblinuxcnc.a \
+                     ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 \
+                     ../lib/libposemath.so.0 ../lib/libpyplugin.so.0 \
+                     ../lib/libtooldata.so.0
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	@$(CXX) -shared -o $@ $^ $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
+TARGETS += ../cmod/milltask.so

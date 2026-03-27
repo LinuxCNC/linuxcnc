@@ -24,14 +24,8 @@ gomc variant: uses gomc_hal.h types instead of hal.h.
 #define INIHAL_H
 
 #include "launcher/pkg/cmodule/gomc_hal.h"
+#include "launcher/pkg/cmodule/gomc_log.h"
 #include "emcmotcfg.h"
-
-// Forward-declare gomc_log_t so ini_hal_init() prototype compiles
-// without pulling in gomc_log.h.  If gomc_log.h is included first,
-// the typedef is already present.
-#ifndef GOMC_LOG_H
-typedef struct gomc_log_s gomc_log_t;
-#endif
 
 int check_ini_hal_items(int numjoints);
 int ini_hal_init(const gomc_hal_t *hal, const gomc_log_t *log, int numjoints);
