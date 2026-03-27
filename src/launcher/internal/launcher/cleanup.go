@@ -60,8 +60,17 @@ func (l *Launcher) doCleanup() {
 	l.logger.Debug("stopping application processes")
 	l.stopApplications()
 
-	// Note: milltask is now a cmod plugin — its Stop()/Destroy() are
-	// handled by stopCModules()/destroyCModules() below (steps 4/7).
+	// Step 2 — Stop C plugin modules (reverse of startCModules).
+	// Runs BEFORE StopThreads so that modules can perform graceful
+	// shutdown while RT threads are still processing (e.g. milltask
+	// communicates with motmod via servo-thread during emcMotionHalt).
+	// Resource release (Destroy) happens later, after the RT barrier.
+	l.logger.Debug("stopping C plugin modules")
+	l.stopCModules()
+
+	// Step 2b — Stop Go plugin modules (reverse of startGoModules).
+	l.logger.Debug("stopping Go plugin modules")
+	l.stopGoModules()
 
 	// Steps 3–12 require the RTAPI/HAL environment to have been initialized
 	// (RtapiAppInit + hal.NewComponent succeeded).  When startup fails before
@@ -79,16 +88,6 @@ func (l *Launcher) doCleanup() {
 		}
 
 		// ── RT barrier: all threads are idle past this point ──
-
-		// Step 4 — Stop C plugin modules (reverse of startCModules).
-		// Safe because RT threads are idle — EtherCAT domain/datagram
-		// structures will not be accessed during ecrt_master_deactivate().
-		l.logger.Debug("stopping C plugin modules")
-		l.stopCModules()
-
-		// Step 5 — Stop Go plugin modules (reverse of startGoModules).
-		l.logger.Debug("stopping Go plugin modules")
-		l.stopGoModules()
 
 		// Step 6 — Run [HAL]SHUTDOWN script if configured.
 		if l.ini != nil {

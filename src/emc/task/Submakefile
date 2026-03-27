@@ -11,40 +11,7 @@ $(call TOOBJSDEPS, $(EMCSVRLIB_SRCS)): EXTRAFLAGS += -fPIC
 	@$(CXX) -shared -o $@ $^ $(LDFLAGS)
 TARGETS += ../cmod/emcsvr.so
 
-# disabled:	emc/task/iotaskintf.cc
-MILLTASKSRCS := \
-	emc/motion/emcmotglb.c \
-	emc/task/emctask.cc \
-	emc/task/emccanon.cc \
-	emc/task/emctaskmain.cc \
-	emc/motion/usrmotintf.cc \
-	emc/motion/emcmotutil.c \
-	emc/task/taskintf.cc \
-	emc/motion/dbuf.c \
-	emc/motion/stashf.c \
-	emc/task/taskmodule.cc \
-	emc/task/taskclass.cc \
-	emc/task/backtrace.cc \
-
 $(call TOOBJSDEPS, emc/task/taskmodule.cc): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
-
-# All milltask sources need -fPIC so they can be used in both
-# the milltask binary and milltask.so cmod plugin.
-$(call TOOBJSDEPS, $(MILLTASKSRCS)): EXTRAFLAGS += -fPIC
-
-USERSRCS += $(MILLTASKSRCS)
-
-#LDFLAGS +=
-
-../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a \
-                 ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 \
-                 ../lib/liblinuxcnchal.so.0 ../lib/libpyplugin.so.0 \
-                 ../lib/libtooldata.so.0
-
-
-	$(ECHO) Linking $(notdir $@)
-	$(CXX) -o $@ $^ $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
-TARGETS += ../bin/milltask
 
 # milltask.so — cmod plugin variant (uses gomc API, no liblinuxcnchal)
 MILLTASK_GOMC_SRCS := \

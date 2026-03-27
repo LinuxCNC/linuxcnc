@@ -341,12 +341,6 @@ build-software: $(INFILES)
 # in ../include is used when building external components of linuxcnc.
 SRCHEADERS := \
     emc/linuxcnc.h \
-    emc/ini/emcIniFile.hh \
-    emc/ini/iniaxis.hh \
-    emc/ini/inijoint.hh \
-    emc/ini/inispindle.hh \
-    emc/ini/initraj.hh \
-    emc/ini/inihal.hh \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
     emc/kinematics/switchkins.h \

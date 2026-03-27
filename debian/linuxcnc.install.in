@@ -51,7 +51,6 @@ usr/bin/mb2hal
 usr/bin/mdi
 usr/bin/melfagui
 usr/bin/mesambccc
-usr/bin/milltask
 usr/bin/millturngui
 usr/bin/mitsub_vfd
 usr/bin/mqtt-publisher

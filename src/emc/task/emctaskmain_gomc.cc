@@ -3498,16 +3498,20 @@ static void milltask_stop(cmod_t *self)
 {
     milltask_module *m = (milltask_module *)self->priv;
     done = 1;
-    if (m->thread_started) {
+    // exchange(0) ensures shutdown runs exactly once even if Stop()
+    // is called multiple times.
+    if (m->thread_started.exchange(0)) {
 	pthread_join(m->loop_thread, NULL);
-	m->thread_started = 0;
+	// Shut down subsystems (NML, motion, IO) while HAL threads are
+	// still running — emcMotionHalt() needs servo-thread to relay
+	// commands to motmod.
+	emctask_shutdown();
     }
 }
 
 static void milltask_destroy(cmod_t *self)
 {
     milltask_module *m = (milltask_module *)self->priv;
-    emctask_shutdown();
     delete m;
     the_module = NULL;
 }
