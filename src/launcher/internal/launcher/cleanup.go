@@ -60,9 +60,8 @@ func (l *Launcher) doCleanup() {
 	l.logger.Debug("stopping application processes")
 	l.stopApplications()
 
-	// Step 2 — Stop tracked task process (reverse of startTask).
-	l.logger.Debug("stopping task process")
-	l.stopTask()
+	// Note: milltask is now a cmod plugin — its Stop()/Destroy() are
+	// handled by stopCModules()/destroyCModules() below (steps 4/7).
 
 	// Steps 3–12 require the RTAPI/HAL environment to have been initialized
 	// (RtapiAppInit + hal.NewComponent succeeded).  When startup fails before

@@ -3560,8 +3560,8 @@ extern "C" int New(const cmod_env_t *env, const char *name,
 	return -1;
     }
 
-    // post-HAL-creation halcmd files
-    emcRunHalFiles(emc_inifile);
+    // NOTE: emcRunHalFiles() is NOT called here — the launcher already
+    // executes all HAL files before loading cmod plugins.
 
     // wire up cmod vtable
     m->base.Start   = milltask_start;

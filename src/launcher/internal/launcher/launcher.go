@@ -378,10 +378,9 @@ func (l *Launcher) Run() (runErr error) {
 
 	// --- M6: Task + Display Launch ---
 
-	// 6a. Fire-and-forget task controller — only if [TASK]TASK is configured
-	// (step 4.3.7). The task controller is started without waiting for the
-	// "inihal" component to register; HAL threads (step 6d) must be running
-	// before milltask can complete its motion initialization.
+	// 6a. Load task controller as cmod plugin — only if [TASK]TASK is
+	// configured.  New() reads INI config; Start() is deferred to
+	// startCModules() (step 6d.4) which runs after startHalThreads().
 	if hasTask {
 		if err := l.startTask(); err != nil {
 			return fmt.Errorf("starting task: %w", err)
@@ -709,44 +708,38 @@ func (l *Launcher) preloadMotionModules() error {
 //  4. servo-thread won't run until startHalThreads() is called
 //  5. startHalThreads() can't run because startTask() hasn't returned
 //
-// INI resolution: [TASK]TASK is required; legacy rename "emctask" → "linuxcnctask".
+// INI resolution: [TASK]TASK is required; legacy rename "emctask"/"linuxcnctask" → "milltask".
 // If [TASK]TASK is not set, startTask is a no-op (Run() skips calling it anyway).
+//
+// milltask is loaded as a cmod plugin (in-process).  New() reads INI config
+// and sets up data structures; Start() is deferred to startCModules() which
+// runs after startHalThreads(), avoiding the deadlock that the old
+// fire-and-forget subprocess approach had to work around.
 func (l *Launcher) startTask() error {
 	emctask := l.ini.Get("TASK", "TASK")
 	if emctask == "" {
 		l.logger.Debug("TASK not configured, skipping task controller")
 		return nil
 	}
-	// Legacy rename: "emctask" was renamed to "linuxcnctask" in 2.9.
-	if emctask == "emctask" {
-		emctask = "linuxcnctask"
+	// Legacy rename: "emctask" was renamed to "linuxcnctask" in 2.9,
+	// and the cmod plugin is named "milltask".
+	if emctask == "emctask" || emctask == "linuxcnctask" {
+		emctask = "milltask"
 	}
 
-	l.logger.Info("starting task controller", "program", emctask)
+	l.logger.Info("loading task controller (cmod plugin)", "module", emctask)
 
-	// Fire-and-forget: do NOT wait for inihal to register as ready.
-	// HAL threads (servo-thread) must be running before milltask can finish
-	// motion initialization. Threads are started in step 6d, after this call.
-	if err := halcmd.LoadUSR(&halcmd.LoadUSROptions{}, emctask, "-ini", l.opts.IniFile); err != nil {
-		return fmt.Errorf("loadusr %s: %w", emctask, err)
+	path := resolveCModulePath(emctask)
+	if !cModuleExists(path) {
+		return fmt.Errorf("task controller C module not found: %s", path)
 	}
 
-	return nil
+	return l.loadCPlugin(path, "milltask", nil)
 }
 
-// stopTask sends SIGTERM to the task controller (identified by the "inihal"
-// HAL component) and waits for it to unregister from HAL.
-func (l *Launcher) stopTask() {
-	l.logger.Info("stopping task controller")
-	if err := halcmd.UnloadUSR("inihal"); err != nil {
-		l.logger.Debug("unload inihal returned error (may already be gone)", "error", err)
-		return
-	}
-	// Wait up to 2 seconds for the component to unregister.
-	if err := halcmd.WaitUSR("inihal"); err != nil {
-		l.logger.Debug("wait for inihal to unregister returned error", "error", err)
-	}
-}
+// stopTask is a no-op — milltask is now a cmod plugin whose Stop() and
+// Destroy() are called by the normal stopCModules()/destroyCModules() path.
+func (l *Launcher) stopTask() {}
 
 // startHalThreads starts all HAL realtime threads via the hal-go API.
 //
