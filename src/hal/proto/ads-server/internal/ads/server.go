@@ -136,6 +136,10 @@ func (s *Server) handleConn(conn net.Conn) {
 		log.Printf("ADS connection from %s", conn.RemoteAddr())
 	}
 
+	nm := newNotifyManager(s, conn)
+	nm.start()
+	defer nm.stop()
+
 	for {
 		// Stage 1: short read deadline for the AMS/TCP header (idle-polling interval).
 		// This allows Stop() to interrupt blocked reads between packets.
@@ -212,6 +216,10 @@ func (s *Server) handleConn(conn net.Conn) {
 			s.handleWrite(conn, hdr, payload)
 		case CmdReadWrite:
 			s.handleReadWrite(conn, hdr, payload)
+		case CmdAddNotification:
+			s.handleAddNotification(conn, hdr, payload, nm)
+		case CmdDelNotification:
+			s.handleDelNotification(conn, hdr, payload, nm)
 		default:
 			// Respond with error for unsupported commands
 			s.sendErrorResponse(conn, hdr, ErrUnknownCommandID)
@@ -227,7 +235,7 @@ func (s *Server) handleReadDeviceInfo(conn net.Conn, hdr *AMSHeader) {
 	data[4] = 3                                         // major version
 	data[5] = 1                                         // minor version
 	binary.LittleEndian.PutUint16(data[6:], 4024)       // build version
-	copy(data[8:24], []byte("hal-ads-server\x00"))        // device name (up to 16 bytes)
+	copy(data[8:24], []byte("hal-ads-server\x00"))      // device name (up to 16 bytes)
 	if err := s.sendAMSResponse(conn, hdr, CmdReadDeviceInfo, ErrNoError, data); err != nil {
 		log.Printf("ADS sendReadDeviceInfo error: %v", err)
 	}
@@ -337,6 +345,76 @@ func (s *Server) handleReadWrite(conn net.Conn, hdr *AMSHeader, payload []byte) 
 
 	if err := s.sendAMSResponse(conn, hdr, CmdReadWrite, ErrNoError, resp); err != nil {
 		log.Printf("ADS sendReadWrite error: %v", err)
+	}
+}
+
+// handleAddNotification processes CmdAddNotification.
+// Payload: indexGroup(4) + indexOffset(4) + length(4) + transMode(4) +
+//
+//	maxDelay(4) + cycleTime(4) + reserved(16) = 40 bytes
+//
+// Response: result(4) + notificationHandle(4)
+func (s *Server) handleAddNotification(conn net.Conn, hdr *AMSHeader, payload []byte, nm *notifyManager) {
+	if len(payload) < 40 {
+		s.sendErrorResponse(conn, hdr, ErrInternal)
+		return
+	}
+	indexGroup := binary.LittleEndian.Uint32(payload[0:])
+	indexOffset := binary.LittleEndian.Uint32(payload[4:])
+	length := binary.LittleEndian.Uint32(payload[8:])
+	transMode := binary.LittleEndian.Uint32(payload[12:])
+	// maxDelay := binary.LittleEndian.Uint32(payload[16:]) // ignored for now
+	cycleTimeRaw := binary.LittleEndian.Uint32(payload[20:]) // in 100ns units
+
+	if s.verbose {
+		log.Printf("ADS AddNotification: IG=0x%08X IO=0x%08X len=%d mode=%d cycle=%d",
+			indexGroup, indexOffset, length, transMode, cycleTimeRaw)
+	}
+
+	// Convert cycleTime from 100ns units to Go duration.
+	cycleTime := time.Duration(cycleTimeRaw) * 100 * time.Nanosecond
+	if cycleTime < 10*time.Millisecond {
+		cycleTime = 10 * time.Millisecond // floor to avoid busy-looping
+	}
+
+	nm.setClientAddr(hdr)
+	handle := nm.add(indexGroup, indexOffset, length, transMode, cycleTime)
+
+	resp := make([]byte, 8)
+	binary.LittleEndian.PutUint32(resp[0:], ErrNoError)
+	binary.LittleEndian.PutUint32(resp[4:], handle)
+
+	if err := s.sendAMSResponse(conn, hdr, CmdAddNotification, ErrNoError, resp); err != nil {
+		log.Printf("ADS sendAddNotification error: %v", err)
+	}
+}
+
+// handleDelNotification processes CmdDelNotification.
+// Payload: notificationHandle(4)
+// Response: result(4)
+func (s *Server) handleDelNotification(conn net.Conn, hdr *AMSHeader, payload []byte, nm *notifyManager) {
+	if len(payload) < 4 {
+		s.sendErrorResponse(conn, hdr, ErrInternal)
+		return
+	}
+	handle := binary.LittleEndian.Uint32(payload[0:])
+
+	if s.verbose {
+		log.Printf("ADS DelNotification: handle=%d", handle)
+	}
+
+	var errCode uint32
+	if nm.del(handle) {
+		errCode = ErrNoError
+	} else {
+		errCode = ErrClientInvalidHdl
+	}
+
+	resp := make([]byte, 4)
+	binary.LittleEndian.PutUint32(resp[0:], errCode)
+
+	if err := s.sendAMSResponse(conn, hdr, CmdDelNotification, ErrNoError, resp); err != nil {
+		log.Printf("ADS sendDelNotification error: %v", err)
 	}
 }
 
