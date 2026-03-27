@@ -187,6 +187,8 @@ func parsePinType(s string, loc SourceLoc) (hal.PinType, *ParseError) {
 		return hal.TypeS32, nil
 	case "u32":
 		return hal.TypeU32, nil
+	case "port":
+		return hal.TypePort, nil
 	default:
 		return 0, &ParseError{Loc: loc, Msg: fmt.Sprintf("unknown pin type: %q", s)}
 	}

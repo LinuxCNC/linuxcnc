@@ -518,6 +518,15 @@ static int hal_shim_write_value(hal_type_t type, void *d_ptr, const char *value)
         if (*cp != '\0' && !isspace((unsigned char)*cp)) return -EINVAL;
         *(hal_u32_t *)d_ptr = (hal_u32_t)ulval;
         break;
+    case HAL_PORT:
+        cp = (char *)value;
+        ulval = strtoul(value, &cp, 0);
+        if (*cp != '\0' && !isspace((unsigned char)*cp)) return -EINVAL;
+        if ((*((hal_port_t *)d_ptr) != 0) && (hal_port_buffer_size(*((hal_port_t *)d_ptr)) > 0)) {
+            return -EINVAL;
+        }
+        *((hal_port_t *)d_ptr) = hal_port_alloc(ulval);
+        break;
     default:
         return -EINVAL;
     }
