@@ -557,23 +557,40 @@ func (st *SymbolTable) ReadWriteData(indexGroup, indexOffset, readLen uint32, wr
 }
 
 // readProcessImageRange reads a contiguous range of the process image.
-// It fills a buffer of length bytes by reading every symbol whose
-// IndexOffset falls within [offset, offset+length).
+// It fills a buffer of length bytes by reading every symbol that overlaps
+// the range [offset, offset+length), including partial overlaps (e.g. a
+// 1-byte read into a multi-byte STRING symbol).
 func (st *SymbolTable) readProcessImageRange(offset, length uint32) ([]byte, uint32) {
 	st.mu.RLock()
 	defer st.mu.RUnlock()
 
 	buf := make([]byte, length)
+	end := offset + length
 	found := false
 	for off, sym := range st.byOffset {
 		symSize := sym.Accessor.Size()
-		if off >= offset && off+symSize <= offset+length {
+		symEnd := off + symSize
+		// Check overlap: symbol range [off, symEnd) ∩ read range [offset, end)
+		if symEnd > offset && off < end {
 			found = true
 			data, err := sym.Accessor.ReadBytes()
 			if err != nil {
 				continue
 			}
-			copy(buf[off-offset:], data)
+			// Compute the overlapping slice.
+			srcStart := uint32(0)
+			if offset > off {
+				srcStart = offset - off
+			}
+			dstStart := uint32(0)
+			if off > offset {
+				dstStart = off - offset
+			}
+			copyLen := symSize - srcStart
+			if dstStart+copyLen > length {
+				copyLen = length - dstStart
+			}
+			copy(buf[dstStart:dstStart+copyLen], data[srcStart:srcStart+copyLen])
 		}
 	}
 	if !found {
@@ -583,20 +600,40 @@ func (st *SymbolTable) readProcessImageRange(offset, length uint32) ([]byte, uin
 }
 
 // writeProcessImageRange writes a contiguous range of the process image.
-// It distributes data to all symbols whose IndexOffset falls within
-// [offset, offset+len(data)).
+// It distributes data to all symbols that overlap [offset, offset+len(data)),
+// including partial overlaps. For partial writes the untouched bytes of the
+// symbol retain their current value (read-modify-write).
 func (st *SymbolTable) writeProcessImageRange(offset uint32, data []byte) uint32 {
 	st.mu.RLock()
 	defer st.mu.RUnlock()
 
 	length := uint32(len(data))
+	end := offset + length
 	found := false
 	for off, sym := range st.byOffset {
 		symSize := sym.Accessor.Size()
-		if off >= offset && off+symSize <= offset+length {
+		symEnd := off + symSize
+		if symEnd > offset && off < end {
 			found = true
-			start := off - offset
-			if err := sym.Accessor.WriteBytes(data[start : start+symSize]); err != nil {
+			// Read current value so untouched bytes are preserved.
+			current, err := sym.Accessor.ReadBytes()
+			if err != nil {
+				return ErrInternal
+			}
+			srcStart := uint32(0)
+			if off > offset {
+				srcStart = off - offset
+			}
+			dstStart := uint32(0)
+			if offset > off {
+				dstStart = offset - off
+			}
+			copyLen := length - srcStart
+			if dstStart+copyLen > symSize {
+				copyLen = symSize - dstStart
+			}
+			copy(current[dstStart:dstStart+copyLen], data[srcStart:srcStart+copyLen])
+			if err := sym.Accessor.WriteBytes(current); err != nil {
 				return ErrInternal
 			}
 		}
