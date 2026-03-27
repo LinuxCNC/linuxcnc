@@ -235,3 +235,20 @@ func TestRenderHalTemplate_HasAxis(t *testing.T) {
 		}
 	}
 }
+
+// TestRenderHalTemplate_Seq1Function verifies that seq1 produces a 1-based
+// slice [1, 2, ..., n].
+func TestRenderHalTemplate_Seq1Function(t *testing.T) {
+	data := &HalTemplateData{INI: map[string]map[string]string{}}
+	input := "{{range seq1 3}}pool.{{.}}\n{{end}}"
+	out, err := RenderHalTemplate("test.hal", input, data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, "pool.1") || !strings.Contains(out, "pool.2") || !strings.Contains(out, "pool.3") {
+		t.Errorf("expected pool.1/2/3, got %q", out)
+	}
+	if strings.Contains(out, "pool.0") {
+		t.Errorf("seq1 should not produce 0, got %q", out)
+	}
+}

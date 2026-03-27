@@ -138,6 +138,13 @@ func halTemplateFuncs(data *HalTemplateData) template.FuncMap {
 			}
 			return result
 		},
+		"seq1": func(n int) []int {
+			result := make([]int, n)
+			for i := range result {
+				result[i] = i + 1
+			}
+			return result
+		},
 		"count": func(n int) []int {
 			result := make([]int, n)
 			for i := range result {
