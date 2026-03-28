@@ -927,29 +927,31 @@ extern void hal_port_wait_writable(hal_port_t** port, unsigned count, sig_atomic
 #endif
 
 
-
-
-
-
-union hal_stream_data {
-    real_t f;
-    bool b;
-    int32_t s;
-    uint32_t u;
-};
-
-struct hal_stream_shm; // Forward declaration. Only relevant in hal_lib.c.
-typedef struct {
-    int comp_id, shmem_id;
-    struct hal_stream_shm *fifo;
-} hal_stream_t;
-
 /**
  * HAL streams are modeled after sampler/stream and will hopefully replace
  * the independent implementations there.
  *
  * There may only be one reader and one writer but this is not enforced
  */
+
+typedef union hal_stream_data {
+    real_t f;
+    bool b;
+    rtapi_s32 s;
+    rtapi_u32 u;
+    rtapi_s64 l;
+    rtapi_u64 k;
+} hal_stream_data_u;
+typedef hal_stream_data_u *hal_stream_data_ptr_u;
+
+struct __hal_stream_shm_t;  // Forward declaration. Only relevant in hal_lib.c.
+
+typedef struct __hal_stream_t {
+    int comp_id;
+    int shmem_id;
+    struct __hal_stream_shm_t *fifo;
+} hal_stream_t;
+typedef hal_stream_t *hal_stream_ptr_t;
 
 #define HAL_STREAM_MAX_PINS (21)
 /** create and attach a stream */
@@ -967,7 +969,7 @@ extern int hal_stream_element_count(hal_stream_t *stream);
 extern hal_type_t hal_stream_element_type(hal_stream_t *stream, int idx);
 
 // only one reader and one writer is allowed.
-extern int hal_stream_read(hal_stream_t *stream, union hal_stream_data *buf, unsigned *sampleno);
+extern int hal_stream_read(hal_stream_t *stream, hal_stream_data_u *buf, unsigned *sampleno);
 extern bool hal_stream_readable(hal_stream_t *stream);
 extern int hal_stream_depth(hal_stream_t *stream);
 extern unsigned hal_stream_maxdepth(hal_stream_t *stream);
@@ -977,7 +979,7 @@ extern int hal_stream_num_overruns(hal_stream_t *stream);
 extern void hal_stream_wait_readable(hal_stream_t *stream, sig_atomic_t *stop);
 #endif
 
-extern int hal_stream_write(hal_stream_t *stream, union hal_stream_data *buf);
+extern int hal_stream_write(hal_stream_t *stream, hal_stream_data_u *buf);
 extern bool hal_stream_writable(hal_stream_t *stream);
 #ifdef ULAPI
 extern void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop);
