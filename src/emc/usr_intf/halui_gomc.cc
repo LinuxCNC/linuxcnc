@@ -1,13 +1,17 @@
 /********************************************************************
-* Description: halui.cc
-*   HAL User-Interface component.
+* Description: halui_gomc.cc
+*   HAL User-Interface component — cmod plugin variant.
 *   This file exports various UI related hal pins, and communicates
-*   with EMC through NML messages
+*   with EMC through NML messages.
+*
+*   Ported from halui.cc to the gomc cmod API: HAL access goes through
+*   env->hal callbacks, INI access through env->ini callbacks, and
+*   the main loop runs in a pthread instead of main().
 *
 *   Derived from a work by Fred Proctor & Will Shackleford (emcsh.cc)
 *   some of the functions (sendFooBar() are adapted from there)
 *
-* Author: Alex Joni
+* Author: Alex Joni (original), ported to cmod API
 * License: GPL Version 2
 * System: Linux
 *
@@ -21,23 +25,32 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
 #include <math.h>
+#include <pthread.h>
+#include <atomic>
 
-#include "hal.h"		/* access to HAL functions/definitions */
-#include "rtapi.h"		/* rtapi_print_msg */
+#include "hal.h"		/* HAL type definitions (hal_bit_t etc.) */
+#include "rtapi.h"		/* RTAPI_MSG_ERR, rtapi_s32, rtapi_u32 */
+#include "launcher/pkg/cmodule/gomc_env.h"		/* cmod API: cmod_env_t, cmod_t, gomc_hal/ini/log */
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML
 #include "emc_nml.hh"
 #include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "inifile.hh"		// INIFILE
 #include "rcs_print.hh"
 #include "nml_oi.hh"
 #include "timer.hh"
 #include <rtapi_string.h>
 #include "tooldata.hh"
+
+// ---------------------------------------------------------------------------
+// File-static gomc API pointers — set by New(), used by helpers.
+// ---------------------------------------------------------------------------
+static const cmod_env_t  *the_env;
+static const gomc_hal_t  *the_hal;
+static const gomc_log_t  *the_log;
+static const gomc_ini_t  *the_ini;
 
 /* Using halui: see the man page */
 
@@ -213,8 +226,8 @@ struct PTR {
 
 template<class T> struct NATIVE {};
 template<> struct NATIVE<hal_bit_t> { typedef bool type; };
-template<> struct NATIVE<hal_s32_t> { typedef rtapi_s32 type; };
-template<> struct NATIVE<hal_u32_t> { typedef rtapi_u32 type; };
+template<> struct NATIVE<hal_s32_t> { typedef int32_t type; };
+template<> struct NATIVE<hal_u32_t> { typedef uint32_t type; };
 template<> struct NATIVE<hal_float_t> { typedef double type; };
 struct VALUE {
     template<class T> struct field { typedef typename NATIVE<T>::type type; };
@@ -270,11 +283,6 @@ static double receiveTimeout = 10.0;
 
 // how long to wait for Task to finish running our command
 static double doneTimeout = 60.;
-
-static void quit(int sig)
-{
-    done = 1;
-}
 
 static int emcTaskNmlGet()
 {
@@ -388,19 +396,19 @@ static int updateStatus()
     NMLTYPE type;
 
     if (0 == emcStatus || 0 == emcStatusBuffer) {
-        rtapi_print("halui: %s: no status buffer\n", __func__);
+        gomc_log_errorf(the_log, "halui", "%s: no status buffer", __func__);
         return -1;
     }
 
     if (!emcStatusBuffer->valid()) {
-        rtapi_print("halui: %s: status buffer is not valid\n", __func__);
+        gomc_log_errorf(the_log, "halui", "%s: status buffer is not valid", __func__);
 	return -1;
     }
 
     switch (type = emcStatusBuffer->peek()) {
     case -1:
 	// error on CMS channel
-        rtapi_print("halui: %s: error peeking status buffer\n", __func__);
+        gomc_log_errorf(the_log, "halui", "%s: error peeking status buffer", __func__);
 	return -1;
 	break;
 
@@ -409,7 +417,7 @@ static int updateStatus()
 	break;
 
     default:
-        rtapi_print("halui: %s: unknown error peeking status buffer\n", __func__);
+        gomc_log_errorf(the_log, "halui", "%s: unknown error peeking status buffer", __func__);
 	return -1;
 	break;
     }
@@ -453,7 +461,7 @@ static int emcCommandSend(RCS_CMD_MSG & cmd)
 {
     // write command
     if (emcCommandBuffer->write(&cmd)) {
-        rtapi_print("halui: %s: error writing to Task\n", __func__);
+        gomc_log_errorf(the_log, "halui", "%s: error writing to Task", __func__);
         return -1;
     }
     emcCommandSerialNumber = cmd.serial_number;
@@ -471,19 +479,17 @@ static int emcCommandSend(RCS_CMD_MSG & cmd)
 	esleep(EMC_COMMAND_DELAY);
     }
 
-    rtapi_print("halui: %s: no echo from Task after %.3f seconds\n", __func__, receiveTimeout);
+    gomc_log_errorf(the_log, "halui", "%s: no echo from Task after %.3f seconds", __func__, receiveTimeout);
     return -1;
 }
 
-static void thisQuit()
+static void halui_cleanup()
 {
-    //don't forget the big HAL sin ;)
-    hal_exit(comp_id);
+    the_hal->exit(the_hal->ctx, comp_id);
 
     if(emcCommandBuffer) { delete emcCommandBuffer;  emcCommandBuffer = 0; }
     if(emcStatusBuffer) { delete emcStatusBuffer;  emcStatusBuffer = 0; }
     if(emcErrorBuffer) { delete emcErrorBuffer;  emcErrorBuffer = 0; }
-    exit(0);
 }
 
 static enum {
@@ -512,10 +518,10 @@ static enum {
 int halui_export_pin_IN_bit(hal_bit_t **pin, const char *name)
 {
     int retval;
-    retval = hal_pin_bit_new(name, HAL_IN, pin, comp_id);
+    retval = the_hal->pin_new(the_hal->ctx, name, GOMC_HAL_BIT, GOMC_HAL_IN, (void **)pin, comp_id);
     if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
-	hal_exit(comp_id);
+	gomc_log_errorf(the_log, "halui", "pin %s export failed with err=%i", name, retval);
+	the_hal->exit(the_hal->ctx, comp_id);
 	return -1;
     }
     return 0;
@@ -524,10 +530,10 @@ int halui_export_pin_IN_bit(hal_bit_t **pin, const char *name)
 int halui_export_pin_IN_s32(hal_s32_t **pin, const char *name)
 {
     int retval;
-    retval = hal_pin_s32_new(name, HAL_IN, pin, comp_id);
+    retval = the_hal->pin_new(the_hal->ctx, name, GOMC_HAL_S32, GOMC_HAL_IN, (void **)pin, comp_id);
     if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
-	hal_exit(comp_id);
+	gomc_log_errorf(the_log, "halui", "pin %s export failed with err=%i", name, retval);
+	the_hal->exit(the_hal->ctx, comp_id);
 	return -1;
     }
     return 0;
@@ -536,10 +542,10 @@ int halui_export_pin_IN_s32(hal_s32_t **pin, const char *name)
 int halui_export_pin_OUT_u32(hal_u32_t **pin, const char *name)
 {
     int retval;
-    retval = hal_pin_u32_new(name, HAL_OUT, pin, comp_id);
+    retval = the_hal->pin_new(the_hal->ctx, name, GOMC_HAL_U32, GOMC_HAL_OUT, (void **)pin, comp_id);
     if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
-	hal_exit(comp_id);
+	gomc_log_errorf(the_log, "halui", "pin %s export failed with err=%i", name, retval);
+	the_hal->exit(the_hal->ctx, comp_id);
 	return -1;
     }
     return 0;
@@ -548,10 +554,10 @@ int halui_export_pin_OUT_u32(hal_u32_t **pin, const char *name)
 int halui_export_pin_IN_float(hal_float_t **pin, const char *name)
 {
     int retval;
-    retval = hal_pin_float_new(name, HAL_IN, pin, comp_id);
+    retval = the_hal->pin_new(the_hal->ctx, name, GOMC_HAL_FLOAT, GOMC_HAL_IN, (void **)pin, comp_id);
     if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
-	hal_exit(comp_id);
+	gomc_log_errorf(the_log, "halui", "pin %s export failed with err=%i", name, retval);
+	the_hal->exit(the_hal->ctx, comp_id);
 	return -1;
     }
     return 0;
@@ -561,10 +567,10 @@ int halui_export_pin_IN_float(hal_float_t **pin, const char *name)
 int halui_export_pin_OUT_bit(hal_bit_t **pin, const char *name)
 {
     int retval;
-    retval = hal_pin_bit_new(name, HAL_OUT, pin, comp_id);
+    retval = the_hal->pin_new(the_hal->ctx, name, GOMC_HAL_BIT, GOMC_HAL_OUT, (void **)pin, comp_id);
     if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,"HALUI: ERROR: halui pin %s export failed with err=%i\n", name, retval);
-	hal_exit(comp_id);
+	gomc_log_errorf(the_log, "halui", "pin %s export failed with err=%i", name, retval);
+	the_hal->exit(the_hal->ctx, comp_id);
 	return -1;
     }
     return 0;
@@ -587,19 +593,18 @@ int halui_hal_init(void)
     int axis_num;
 
     /* STEP 1: initialise the hal component */
-    comp_id = hal_init("halui");
+    comp_id = the_hal->init(the_hal->ctx, "halui", the_env->dl_handle, GOMC_HAL_COMP_USER);
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"HALUI: ERROR: hal_init() failed\n");
+	gomc_log_errorf(the_log, "halui", "hal_init() failed");
 	return -1;
     }
 
     /* STEP 2: allocate shared memory for halui data */
-    halui_data = (halui_str *) hal_malloc(sizeof(halui_str));
+    halui_data = (halui_str *) the_hal->malloc(the_hal->ctx, sizeof(halui_str));
     if (halui_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"HALUI: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
+	gomc_log_errorf(the_log, "halui", "hal_malloc() failed");
+	gomc_log_errorf(the_log, "halui", "hal_malloc() failed");
+	the_hal->exit(the_hal->ctx, comp_id);
 	return -1;
     }
 
@@ -609,7 +614,7 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     *halui_data->cycle_count = 0;
 
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->units_per_mm), comp_id, "halui.machine.units-per-mm");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->units_per_mm), comp_id, "halui.machine.units-per-mm");
     if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->machine_is_on), "halui.machine.is-on");
     if (retval < 0) return retval;
@@ -643,95 +648,95 @@ int halui_hal_init(void)
 
     for (spindle = 0; spindle < num_spindles; spindle++){
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_OUT, &(halui_data->spindle_is_on[spindle]), comp_id,  "halui.spindle.%i.is-on", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->spindle_is_on[spindle]), comp_id,  "halui.spindle.%i.is-on", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_OUT, &(halui_data->spindle_runs_forward[spindle]),comp_id,  "halui.spindle.%i.runs-forward", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->spindle_runs_forward[spindle]),comp_id,  "halui.spindle.%i.runs-forward", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_OUT, &(halui_data->spindle_runs_backward[spindle]), comp_id, "halui.spindle.%i.runs-backward", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->spindle_runs_backward[spindle]), comp_id, "halui.spindle.%i.runs-backward", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_OUT, &(halui_data->spindle_brake_is_on[spindle]), comp_id, "halui.spindle.%i.brake-is-on", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->spindle_brake_is_on[spindle]), comp_id, "halui.spindle.%i.brake-is-on", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->spindle_start[spindle]), comp_id, "halui.spindle.%i.start", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->spindle_start[spindle]), comp_id, "halui.spindle.%i.start", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->spindle_stop[spindle]), comp_id, "halui.spindle.%i.stop", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->spindle_stop[spindle]), comp_id, "halui.spindle.%i.stop", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->spindle_forward[spindle]), comp_id, "halui.spindle.%i.forward", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->spindle_forward[spindle]), comp_id, "halui.spindle.%i.forward", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->spindle_reverse[spindle]), comp_id, "halui.spindle.%i.reverse", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->spindle_reverse[spindle]), comp_id, "halui.spindle.%i.reverse", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->spindle_increase[spindle]), comp_id, "halui.spindle.%i.increase", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->spindle_increase[spindle]), comp_id, "halui.spindle.%i.increase", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->spindle_decrease[spindle]), comp_id, "halui.spindle.%i.decrease", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->spindle_decrease[spindle]), comp_id, "halui.spindle.%i.decrease", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->spindle_brake_on[spindle]), comp_id, "halui.spindle.%i.brake-on", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->spindle_brake_on[spindle]), comp_id, "halui.spindle.%i.brake-on", spindle);
 		if (retval < 0) return retval;
-		retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->spindle_brake_off[spindle]), comp_id, "halui.spindle.%i.brake-off", spindle);
+		retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->spindle_brake_off[spindle]), comp_id, "halui.spindle.%i.brake-off", spindle);
 		if (retval < 0) return retval;
-	    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->so_value[spindle]), comp_id, "halui.spindle.%i.override.value", spindle);
+	    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->so_value[spindle]), comp_id, "halui.spindle.%i.override.value", spindle);
 	    if (retval < 0) return retval;
-	    retval = hal_pin_s32_newf(HAL_IN,  &(halui_data->so_counts[spindle]), comp_id, "halui.spindle.%i.override.counts", spindle);
+	    retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_S32, GOMC_HAL_IN, (void**)&(halui_data->so_counts[spindle]), comp_id, "halui.spindle.%i.override.counts", spindle);
 	    if (retval < 0) return retval;
 	    *halui_data->so_counts[spindle] = 0;
-	    retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_count_enable[spindle]), comp_id, "halui.spindle.%i.override.count-enable", spindle);
+	    retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->so_count_enable[spindle]), comp_id, "halui.spindle.%i.override.count-enable", spindle);
 	    if (retval < 0) return retval;
 	    *halui_data->so_count_enable[spindle] = 1;
-	    retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_direct_value[spindle]), comp_id, "halui.spindle.%i.override.direct-value", spindle);
+	    retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->so_direct_value[spindle]), comp_id, "halui.spindle.%i.override.direct-value", spindle);
 	    if (retval < 0) return retval;
 	    *halui_data->so_direct_value[spindle] = 0;
-	    retval = hal_pin_float_newf(HAL_IN,  &(halui_data->so_scale[spindle]), comp_id, "halui.spindle.%i.override.scale", spindle);
+	    retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_IN, (void**)&(halui_data->so_scale[spindle]), comp_id, "halui.spindle.%i.override.scale", spindle);
 	    if (retval < 0) return retval;
-	    retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_increase[spindle]), comp_id, "halui.spindle.%i.override.increase", spindle);
+	    retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->so_increase[spindle]), comp_id, "halui.spindle.%i.override.increase", spindle);
 	    if (retval < 0) return retval;
-	    retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_decrease[spindle]), comp_id, "halui.spindle.%i.override.decrease", spindle);
+	    retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->so_decrease[spindle]), comp_id, "halui.spindle.%i.override.decrease", spindle);
             if (retval < 0) return retval;
-            retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_reset[spindle]), comp_id, "halui.spindle.%i.override.reset", spindle);
+            retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->so_reset[spindle]), comp_id, "halui.spindle.%i.override.reset", spindle);
     }
 
     for (joint=0; joint < num_joints ; joint++) {
-	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_is_homed[joint]), comp_id, "halui.joint.%d.is-homed", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_is_homed[joint]), comp_id, "halui.joint.%d.is-homed", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_is_selected[joint]), comp_id, "halui.joint.%d.is-selected", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_is_selected[joint]), comp_id, "halui.joint.%d.is-selected", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_soft_min_limit[joint]), comp_id, "halui.joint.%d.on-soft-min-limit", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_on_soft_min_limit[joint]), comp_id, "halui.joint.%d.on-soft-min-limit", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_soft_max_limit[joint]), comp_id, "halui.joint.%d.on-soft-max-limit", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_on_soft_max_limit[joint]), comp_id, "halui.joint.%d.on-soft-max-limit", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_hard_min_limit[joint]), comp_id, "halui.joint.%d.on-hard-min-limit", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_on_hard_min_limit[joint]), comp_id, "halui.joint.%d.on-hard-min-limit", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_hard_max_limit[joint]), comp_id, "halui.joint.%d.on-hard-max-limit", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_on_hard_max_limit[joint]), comp_id, "halui.joint.%d.on-hard-max-limit", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_override_limits[joint]), comp_id, "halui.joint.%d.override-limits", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_override_limits[joint]), comp_id, "halui.joint.%d.override-limits", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_has_fault[joint]), comp_id, "halui.joint.%d.has-fault", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_has_fault[joint]), comp_id, "halui.joint.%d.has-fault", joint);
 	if (retval < 0) return retval;
     }
 
-    retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_soft_min_limit[num_joints]), comp_id, "halui.joint.selected.on-soft-min-limit");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_on_soft_min_limit[num_joints]), comp_id, "halui.joint.selected.on-soft-min-limit");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_soft_max_limit[num_joints]), comp_id, "halui.joint.selected.on-soft-max-limit");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_on_soft_max_limit[num_joints]), comp_id, "halui.joint.selected.on-soft-max-limit");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_hard_min_limit[num_joints]), comp_id, "halui.joint.selected.on-hard-min-limit");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_on_hard_min_limit[num_joints]), comp_id, "halui.joint.selected.on-hard-min-limit");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_on_hard_max_limit[num_joints]), comp_id, "halui.joint.selected.on-hard-max-limit");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_on_hard_max_limit[num_joints]), comp_id, "halui.joint.selected.on-hard-max-limit");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_override_limits[num_joints]), comp_id, "halui.joint.selected.override-limits");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_override_limits[num_joints]), comp_id, "halui.joint.selected.override-limits");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_has_fault[num_joints]), comp_id, "halui.joint.selected.has-fault");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_has_fault[num_joints]), comp_id, "halui.joint.selected.has-fault");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->joint_is_homed[num_joints]), comp_id, "halui.joint.selected.is-homed");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->joint_is_homed[num_joints]), comp_id, "halui.joint.selected.is-homed");
     if (retval < 0) return retval;
 
     bool first_axis = true;
     for (axis_num=0; axis_num < EMCMOT_MAX_AXIS ; axis_num++) {
         if ( !(axis_mask & (1 << axis_num)) ) { continue; }
         char c = "xyzabcuvw"[axis_num];
-        retval =  hal_pin_bit_newf(HAL_OUT, &(halui_data->axis_is_selected[axis_num]), comp_id, "halui.axis.%c.is-selected", c);
+        retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_OUT, (void**)&(halui_data->axis_is_selected[axis_num]), comp_id, "halui.axis.%c.is-selected", c);
         if (retval < 0) return retval;
-	    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_commanded[axis_num]), comp_id, "halui.axis.%c.pos-commanded", c);
+	    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->axis_pos_commanded[axis_num]), comp_id, "halui.axis.%c.pos-commanded", c);
         if (retval < 0) return retval;
-	    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_feedback[axis_num]), comp_id, "halui.axis.%c.pos-feedback", c);
+	    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->axis_pos_feedback[axis_num]), comp_id, "halui.axis.%c.pos-feedback", c);
         if (retval < 0) return retval;
-	    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->axis_pos_relative[axis_num]), comp_id, "halui.axis.%c.pos-relative", c);
+	    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->axis_pos_relative[axis_num]), comp_id, "halui.axis.%c.pos-relative", c);
         if (retval < 0) return retval;
         if (first_axis) {
             // at startup, indicate first item is selected:
@@ -741,37 +746,37 @@ int halui_hal_init(void)
         first_axis = false;
     }
 
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->mv_value), comp_id, "halui.max-velocity.value");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->mv_value), comp_id, "halui.max-velocity.value");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->fo_value), comp_id, "halui.feed-override.value");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->fo_value), comp_id, "halui.feed-override.value");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->ro_value), comp_id, "halui.rapid-override.value");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->ro_value), comp_id, "halui.rapid-override.value");
     if (retval < 0) return retval;
-    retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->joint_selected), comp_id, "halui.joint.selected");
+    retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_U32, GOMC_HAL_OUT, (void**)&(halui_data->joint_selected), comp_id, "halui.joint.selected");
     if (retval < 0) return retval;
-    retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->axis_selected), comp_id, "halui.axis.selected");
+    retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_U32, GOMC_HAL_OUT, (void**)&(halui_data->axis_selected), comp_id, "halui.axis.selected");
     if (retval < 0) return retval;
-    retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->tool_number), comp_id, "halui.tool.number");
+    retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_U32, GOMC_HAL_OUT, (void**)&(halui_data->tool_number), comp_id, "halui.tool.number");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_x), comp_id, "halui.tool.length_offset.x");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_length_offset_x), comp_id, "halui.tool.length_offset.x");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_y), comp_id, "halui.tool.length_offset.y");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_length_offset_y), comp_id, "halui.tool.length_offset.y");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_z), comp_id, "halui.tool.length_offset.z");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_length_offset_z), comp_id, "halui.tool.length_offset.z");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_a), comp_id, "halui.tool.length_offset.a");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_length_offset_a), comp_id, "halui.tool.length_offset.a");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_b), comp_id, "halui.tool.length_offset.b");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_length_offset_b), comp_id, "halui.tool.length_offset.b");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_c), comp_id, "halui.tool.length_offset.c");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_length_offset_c), comp_id, "halui.tool.length_offset.c");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_u), comp_id, "halui.tool.length_offset.u");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_length_offset_u), comp_id, "halui.tool.length_offset.u");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_v), comp_id, "halui.tool.length_offset.v");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_length_offset_v), comp_id, "halui.tool.length_offset.v");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_w), comp_id, "halui.tool.length_offset.w");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_length_offset_w), comp_id, "halui.tool.length_offset.w");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_diameter), comp_id, "halui.tool.diameter");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_OUT, (void**)&(halui_data->tool_diameter), comp_id, "halui.tool.diameter");
     if (retval < 0) return retval;
 
     /* STEP 3b: export the in-pin(s) */
@@ -886,67 +891,67 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
 
     for (joint=0; joint < num_joints ; joint++) {
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[joint]), comp_id, "halui.joint.%d.home", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->joint_home[joint]), comp_id, "halui.joint.%d.home", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_unhome[joint]), comp_id, "halui.joint.%d.unhome", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->joint_unhome[joint]), comp_id, "halui.joint.%d.unhome", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_nr_select[joint]), comp_id, "halui.joint.%d.select", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->joint_nr_select[joint]), comp_id, "halui.joint.%d.select", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jjog_plus[joint]), comp_id, "halui.joint.%d.plus", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->jjog_plus[joint]), comp_id, "halui.joint.%d.plus", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jjog_minus[joint]), comp_id, "halui.joint.%d.minus", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->jjog_minus[joint]), comp_id, "halui.joint.%d.minus", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_float_newf(HAL_IN, &(halui_data->jjog_analog[joint]), comp_id, "halui.joint.%d.analog", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_IN, (void**)&(halui_data->jjog_analog[joint]), comp_id, "halui.joint.%d.analog", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_float_newf(HAL_IN, &(halui_data->jjog_increment[joint]), comp_id, "halui.joint.%d.increment", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_IN, (void**)&(halui_data->jjog_increment[joint]), comp_id, "halui.joint.%d.increment", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jjog_increment_plus[joint]), comp_id, "halui.joint.%d.increment-plus", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->jjog_increment_plus[joint]), comp_id, "halui.joint.%d.increment-plus", joint);
 	if (retval < 0) return retval;
-	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jjog_increment_minus[joint]), comp_id, "halui.joint.%d.increment-minus", joint);
+	retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->jjog_increment_minus[joint]), comp_id, "halui.joint.%d.increment-minus", joint);
 	if (retval < 0) return retval;
     }
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         char c = "xyzabcuvw"[axis_num];
-        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->axis_nr_select[axis_num]), comp_id, "halui.axis.%c.select", c);
+        retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->axis_nr_select[axis_num]), comp_id, "halui.axis.%c.select", c);
         if (retval < 0) return retval;
-        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_plus[axis_num]), comp_id, "halui.axis.%c.plus", c);
+        retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->ajog_plus[axis_num]), comp_id, "halui.axis.%c.plus", c);
         if (retval < 0) return retval;
-        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_minus[axis_num]), comp_id, "halui.axis.%c.minus", c);
+        retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->ajog_minus[axis_num]), comp_id, "halui.axis.%c.minus", c);
         if (retval < 0) return retval;
-        retval =  hal_pin_float_newf(HAL_IN, &(halui_data->ajog_analog[axis_num]), comp_id, "halui.axis.%c.analog", c);
+        retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_IN, (void**)&(halui_data->ajog_analog[axis_num]), comp_id, "halui.axis.%c.analog", c);
         if (retval < 0) return retval;
-        retval =  hal_pin_float_newf(HAL_IN, &(halui_data->ajog_increment[axis_num]), comp_id, "halui.axis.%c.increment", c);
+        retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_IN, (void**)&(halui_data->ajog_increment[axis_num]), comp_id, "halui.axis.%c.increment", c);
         if (retval < 0) return retval;
-        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_increment_plus[axis_num]), comp_id, "halui.axis.%c.increment-plus", c);
+        retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->ajog_increment_plus[axis_num]), comp_id, "halui.axis.%c.increment-plus", c);
         if (retval < 0) return retval;
-        retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_increment_minus[axis_num]), comp_id, "halui.axis.%c.increment-minus", c);
+        retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->ajog_increment_minus[axis_num]), comp_id, "halui.axis.%c.increment-minus", c);
         if (retval < 0) return retval;
     }
 
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[num_joints]), comp_id, "halui.joint.selected.home");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->joint_home[num_joints]), comp_id, "halui.joint.selected.home");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_unhome[num_joints]), comp_id, "halui.joint.selected.unhome");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->joint_unhome[num_joints]), comp_id, "halui.joint.selected.unhome");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jjog_plus[num_joints]), comp_id, "halui.joint.selected.plus");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->jjog_plus[num_joints]), comp_id, "halui.joint.selected.plus");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jjog_minus[num_joints]), comp_id, "halui.joint.selected.minus");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->jjog_minus[num_joints]), comp_id, "halui.joint.selected.minus");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_IN, &(halui_data->jjog_increment[num_joints]), comp_id, "halui.joint.selected.increment");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_IN, (void**)&(halui_data->jjog_increment[num_joints]), comp_id, "halui.joint.selected.increment");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jjog_increment_plus[num_joints]), comp_id, "halui.joint.selected.increment-plus");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->jjog_increment_plus[num_joints]), comp_id, "halui.joint.selected.increment-plus");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jjog_increment_minus[num_joints]), comp_id, "halui.joint.selected.increment-minus");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->jjog_increment_minus[num_joints]), comp_id, "halui.joint.selected.increment-minus");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_plus[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.plus");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->ajog_plus[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.plus");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_minus[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.minus");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->ajog_minus[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.minus");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_IN, &(halui_data->ajog_increment[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.increment");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_FLOAT, GOMC_HAL_IN, (void**)&(halui_data->ajog_increment[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.increment");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_increment_plus[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.increment-plus");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->ajog_increment_plus[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.increment-plus");
     if (retval < 0) return retval;
-    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->ajog_increment_minus[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.increment-minus");
+    retval =  gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->ajog_increment_minus[EMCMOT_MAX_AXIS]), comp_id, "halui.axis.selected.increment-minus");
     if (retval < 0) return retval;
 
     retval = halui_export_pin_IN_float(&(halui_data->jjog_speed), "halui.joint.jog-speed");
@@ -960,11 +965,11 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
 
     for (int n=0; n<num_mdi_commands; n++) {
-        retval = hal_pin_bit_newf(HAL_IN, &(halui_data->mdi_commands[n]), comp_id, "halui.mdi-command-%02d", n);
+        retval = gomc_hal_pin_newf(the_hal, GOMC_HAL_BIT, GOMC_HAL_IN, (void**)&(halui_data->mdi_commands[n]), comp_id, "halui.mdi-command-%02d", n);
         if (retval < 0) return retval;
     }
 
-    hal_ready(comp_id);
+    the_hal->ready(the_hal->ctx, comp_id);
     return 0;
 }
 
@@ -1054,21 +1059,21 @@ static int sendMdiCommand(int n)
     // switch to MDI mode if needed
     if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
 	if (sendMdi() != 0) {
-            rtapi_print("halui: %s: failed to Set Mode MDI\n", __func__);
+            gomc_log_errorf(the_log, "halui", "%s: failed to Set Mode MDI", __func__);
             return -1;
 	}
 	if (updateStatus() != 0) {
-            rtapi_print("halui: %s: failed to update status\n", __func__);
+            gomc_log_errorf(the_log, "halui", "%s: failed to update status", __func__);
 	    return -1;
 	}
 	if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
-            rtapi_print("halui: %s: switched mode, but got %d instead of mdi\n", __func__, emcStatus->task.mode);
+            gomc_log_errorf(the_log, "halui", "%s: switched mode, but got %d instead of mdi", __func__, emcStatus->task.mode);
 	    return -1;
 	}
     }
     rtapi_strxcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
     if (emcCommandSend(emc_task_plan_execute_msg)) {
-        rtapi_print("halui: %s: failed to send mdi command %d\n", __func__, n);
+        gomc_log_errorf(the_log, "halui", "%s: failed to send mdi command %d", __func__, n);
 	return -1;
     }
     halui_sent_mdi = 1;
@@ -1299,9 +1304,9 @@ static void sendJogStop(int ja, int jjogmode)
        return;
     }
 
-    if (  jjogmode &&  (ja < 0 || ja >= num_joints)) { rtapi_print("halui: unexpected_1 %d\n",ja); return; }
-    if ( !jjogmode &&  (ja < 0))                     { rtapi_print("halui: unexpected_2 %d\n",ja); return; }
-    if ( !jjogmode && !(axis_mask & (1 << ja)) )     { rtapi_print("halui: unexpected_3 %d\n",ja); return; }
+    if (  jjogmode &&  (ja < 0 || ja >= num_joints)) { gomc_log_errorf(the_log, "halui", "unexpected_1 %d",ja); return; }
+    if ( !jjogmode &&  (ja < 0))                     { gomc_log_errorf(the_log, "halui", "unexpected_2 %d",ja); return; }
+    if ( !jjogmode && !(axis_mask & (1 << ja)) )     { gomc_log_errorf(the_log, "halui", "unexpected_3 %d",ja); return; }
 
     emc_jog_stop_msg.jjogmode = jjogmode;
     emc_jog_stop_msg.joint_or_axis = ja;
@@ -1320,9 +1325,9 @@ static void sendJogCont(int ja, double speed, int jjogmode)
        return;
     }
 
-    if (  jjogmode &&  (ja < 0 || ja >= num_joints)) { rtapi_print("halui: unexpected_4 %d\n",ja); return; }
-    if ( !jjogmode &&  (ja < 0))                     { rtapi_print("halui: unexpected_5 %d\n",ja); return; }
-    if ( !jjogmode && !(axis_mask & (1 << ja)) )     { rtapi_print("halui: unexpected_6 %d\n",ja); return; }
+    if (  jjogmode &&  (ja < 0 || ja >= num_joints)) { gomc_log_errorf(the_log, "halui", "unexpected_4 %d",ja); return; }
+    if ( !jjogmode &&  (ja < 0))                     { gomc_log_errorf(the_log, "halui", "unexpected_5 %d",ja); return; }
+    if ( !jjogmode && !(axis_mask & (1 << ja)) )     { gomc_log_errorf(the_log, "halui", "unexpected_6 %d",ja); return; }
 
     emc_jog_cont_msg.jjogmode = jjogmode;
     emc_jog_cont_msg.joint_or_axis = ja;
@@ -1342,9 +1347,9 @@ static void sendJogIncr(int ja, double speed, double incr, int jjogmode)
        return;
     }
 
-    if (  jjogmode &&  (ja < 0 || ja >= num_joints)) { rtapi_print("halui: unexpected_7 %d\n",ja); return; }
-    if ( !jjogmode &&  (ja < 0))                     { rtapi_print("halui: unexpected_8 %d\n",ja); return; }
-    if ( !jjogmode && !(axis_mask & (1 << ja)) )     { rtapi_print("halui: unexpected_9 %d\n",ja); return; }
+    if (  jjogmode &&  (ja < 0 || ja >= num_joints)) { gomc_log_errorf(the_log, "halui", "unexpected_7 %d",ja); return; }
+    if ( !jjogmode &&  (ja < 0))                     { gomc_log_errorf(the_log, "halui", "unexpected_8 %d",ja); return; }
+    if ( !jjogmode && !(axis_mask & (1 << ja)) )     { gomc_log_errorf(the_log, "halui", "unexpected_9 %d",ja); return; }
 
     emc_jog_incr_msg.jjogmode = jjogmode;
     emc_jog_incr_msg.joint_or_axis = ja;
@@ -1419,58 +1424,64 @@ static int sendSpindleOverride(int spindle, double override)
     return emcCommandSend(emc_traj_set_spindle_scale_msg);
 }
 
-static int iniLoad(const char *filename)
+static int iniLoad(const gomc_ini_t *ini)
 {
-    IniFile inifile;
     const char *inistring;
     double d;
     int i;
 
-    // open it
-    if (inifile.Open(filename) == false) {
-	return -1;
-    }
-
-    if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
-	// copy to global
+    inistring = ini->get(ini->ctx, "EMC", "DEBUG");
+    if (inistring != NULL) {
 	if (1 != sscanf(inistring, "%i", &emc_debug)) {
 	    emc_debug = 0;
 	}
     } else {
-	// not found, use default
 	emc_debug = 0;
     }
 
-    if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
-	// copy to global
+    inistring = ini->get(ini->ctx, "EMC", "NML_FILE");
+    if (inistring != NULL) {
 	rtapi_strxcpy(emc_nmlfile, inistring);
+    }
+
+    inistring = ini->get(ini->ctx, "DISPLAY", "MAX_FEED_OVERRIDE");
+    if (inistring != NULL) {
+	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
+	    maxFeedOverride = d;
+	}
+    }
+
+    inistring = ini->get(ini->ctx, "TRAJ", "MAX_LINEAR_VELOCITY");
+    if (inistring != NULL) {
+        if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
+            maxMaxVelocity = d;
+        }
     } else {
-	// not found, use default
+        inistring = ini->get(ini->ctx, "AXIS_X", "MAX_VELOCITY");
+        if (inistring != NULL) {
+            if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
+                maxMaxVelocity = d;
+            }
+        } else {
+            maxMaxVelocity = 1.0;
+        }
     }
 
-    if (NULL != (inistring = inifile.Find("MAX_FEED_OVERRIDE", "DISPLAY"))) {
+    inistring = ini->get(ini->ctx, "DISPLAY", "MIN_SPINDLE_OVERRIDE");
+    if (inistring != NULL) {
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
-	    maxFeedOverride =  d;
+	    minSpindleOverride = d;
 	}
     }
 
-    if(inifile.Find(&maxMaxVelocity, "MAX_LINEAR_VELOCITY", "TRAJ") &&
-       inifile.Find(&maxMaxVelocity, "MAX_VELOCITY", "AXIS_X"))
-        maxMaxVelocity = 1.0;
-
-    if (NULL != (inistring = inifile.Find("MIN_SPINDLE_OVERRIDE", "DISPLAY"))) {
+    inistring = ini->get(ini->ctx, "DISPLAY", "MAX_SPINDLE_OVERRIDE");
+    if (inistring != NULL) {
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
-	    minSpindleOverride =  d;
+	    maxSpindleOverride = d;
 	}
     }
 
-    if (NULL != (inistring = inifile.Find("MAX_SPINDLE_OVERRIDE", "DISPLAY"))) {
-	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
-	    maxSpindleOverride =  d;
-	}
-    }
-
-    inistring = inifile.Find("COORDINATES", "TRAJ");
+    inistring = ini->get(ini->ctx, "TRAJ", "COORDINATES");
     num_axes = 0;
     if (inistring) {
         if(strchr(inistring, 'x') || strchr(inistring, 'X')) { axis_mask |= 0x0001; num_axes++; }
@@ -1483,29 +1494,32 @@ static int iniLoad(const char *filename)
         if(strchr(inistring, 'v') || strchr(inistring, 'V')) { axis_mask |= 0x0080; num_axes++; }
         if(strchr(inistring, 'w') || strchr(inistring, 'W')) { axis_mask |= 0x0100; num_axes++; }
     }
-    if (num_axes ==0) {
-       rcs_print("halui: no [TRAJ]COORDINATES specified, enabling all axes\n");
+    if (num_axes == 0) {
+       gomc_log_infof(the_log, "halui", "no [TRAJ]COORDINATES specified, enabling all axes");
        num_axes = EMCMOT_MAX_AXIS;
        axis_mask = 0xFFFF;
     }
 
-    if (NULL != (inistring = inifile.Find("JOINTS", "KINS"))) {
+    inistring = ini->get(ini->ctx, "KINS", "JOINTS");
+    if (inistring != NULL) {
         if (1 == sscanf(inistring, "%d", &i) && i > 0) {
-            num_joints =  i;
+            num_joints = i;
         }
     }
 
-    if (NULL != (inistring = inifile.Find("SPINDLES", "TRAJ"))) {
+    inistring = ini->get(ini->ctx, "TRAJ", "SPINDLES");
+    if (inistring != NULL) {
         if (1 == sscanf(inistring, "%d", &i) && i > 0) {
-            num_spindles =  i;
+            num_spindles = i;
         }
     }
 
-    if (NULL != inifile.Find("HOME_SEQUENCE", "JOINT_0")) {
+    if (NULL != ini->get(ini->ctx, "JOINT_0", "HOME_SEQUENCE")) {
         have_home_all = 1;
     }
 
-    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "DISPLAY"))) {
+    inistring = ini->get(ini->ctx, "DISPLAY", "LINEAR_UNITS");
+    if (inistring != NULL) {
 	if (!strcmp(inistring, "AUTO")) {
 	    linearUnitConversion = LINEAR_UNITS_AUTO;
 	} else if (!strcmp(inistring, "INCH")) {
@@ -1517,7 +1531,8 @@ static int iniLoad(const char *filename)
 	}
     }
 
-    if (NULL != (inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY"))) {
+    inistring = ini->get(ini->ctx, "DISPLAY", "ANGULAR_UNITS");
+    if (inistring != NULL) {
 	if (!strcmp(inistring, "AUTO")) {
 	    angularUnitConversion = ANGULAR_UNITS_AUTO;
 	} else if (!strcmp(inistring, "DEG")) {
@@ -1529,13 +1544,14 @@ static int iniLoad(const char *filename)
 	}
     }
 
-    const char *mc;
-    while(num_mdi_commands < MDI_MAX && (mc = inifile.Find("MDI_COMMAND", "HALUI", num_mdi_commands+1))) {
-        mdi_commands[num_mdi_commands++] = strdup(mc);
+    // Read MDI commands using get_all
+    int mdi_count = 0;
+    const char **mdi_vals = ini->get_all(ini->ctx, "HALUI", "MDI_COMMAND", &mdi_count);
+    if (mdi_vals) {
+        for (int n = 0; n < mdi_count && num_mdi_commands < MDI_MAX; n++) {
+            mdi_commands[num_mdi_commands++] = strdup(mdi_vals[n]);
+        }
     }
-
-    // close it
-    inifile.Close();
 
     return 0;
 }
@@ -2329,52 +2345,20 @@ static void modify_hal_pins()
 
 
 
-int main(int argc, char *argv[])
+// ---------------------------------------------------------------------------
+// cmod lifecycle
+// ---------------------------------------------------------------------------
+
+struct halui_module {
+    cmod_t base;
+    const cmod_env_t *env;
+    pthread_t loop_thread;
+    std::atomic<int> thread_started;
+};
+
+static void *halui_loop(void *arg)
 {
-    // process command line args
-    if (0 != emcGetArgs(argc, argv)) {
-	rcs_print_error("error in argument list\n");
-	exit(1);
-    }
-
-    // get configuration information
-    if (0 != iniLoad(emc_inifile)) {
-	rcs_print_error("iniLoad error\n");
-	exit(2);
-    }
-
-    //init HAL and export pins
-    if (0 != halui_hal_init()) {
-	rcs_print_error("hal_init error\n");
-	exit(1);
-    }
-
-    //initialize safe values
-    hal_init_pins();
-
-    // init NML
-    if (0 != tryNml()) {
-	rcs_print_error("can't connect to emc\n");
-	thisQuit();
-	exit(1);
-    }
-
-#ifdef TOOL_NML //{
-    //fprintf(stderr,"%8d HALUI REGISTER %p\n",getpid(),
-    tool_nml_register((CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
-#else //}{
-    tool_mmap_user();
-#endif //}
-
-    // get current serial number, and save it for restoring when we quit
-    // so as not to interfere with real operator interface
-    updateStatus();
-
-    done = 0;
-    /* Register the routine that catches the SIGINT signal */
-    signal(SIGINT, quit);
-    /* catch SIGTERM too - the run script uses it to shut things down */
-    signal(SIGTERM, quit);
+    (void)arg;
 
     while (!done) {
         static bool task_start_synced = 0;
@@ -2391,6 +2375,100 @@ int main(int argc, char *argv[])
         esleep(0.02); //sleep for a while
         updateStatus();
     }
-    thisQuit();
+
+    return NULL;
+}
+
+static int halui_start(cmod_t *self)
+{
+    halui_module *m = (halui_module *)self->priv;
+
+    // init NML
+    if (0 != tryNml()) {
+	gomc_log_errorf(the_log, "halui", "can't connect to emc");
+	return -1;
+    }
+
+#ifdef TOOL_NML //{
+    tool_nml_register((CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
+#else //}{
+    tool_mmap_user();
+#endif //}
+
+    // get current serial number, and save it for restoring when we quit
+    // so as not to interfere with real operator interface
+    updateStatus();
+
+    // spawn the main loop thread
+    done = 0;
+    m->thread_started = 1;
+    if (pthread_create(&m->loop_thread, NULL, halui_loop, m) != 0) {
+	gomc_log_errorf(the_log, "halui", "failed to create loop thread");
+	m->thread_started = 0;
+	return -1;
+    }
+    return 0;
+}
+
+static void halui_stop(cmod_t *self)
+{
+    halui_module *m = (halui_module *)self->priv;
+    done = 1;
+    if (m->thread_started.exchange(0)) {
+	pthread_join(m->loop_thread, NULL);
+    }
+    halui_cleanup();
+}
+
+static void halui_destroy(cmod_t *self)
+{
+    halui_module *m = (halui_module *)self->priv;
+    for (int n = 0; n < num_mdi_commands; n++) {
+        free(mdi_commands[n]);
+        mdi_commands[n] = NULL;
+    }
+    delete m;
+}
+
+extern "C" int New(const cmod_env_t *env, const char *name,
+                   int argc, const char **argv, cmod_t **out)
+{
+    halui_module *m = new halui_module();
+    m->env = env;
+    m->thread_started = 0;
+
+    // store env pointers for file-static access
+    the_env = env;
+    the_hal = env->hal;
+    the_log = env->log;
+    the_ini = env->ini;
+
+    // set print destination to stdout, for console apps
+    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
+
+    // get configuration information
+    if (0 != iniLoad(env->ini)) {
+	gomc_log_errorf(the_log, "halui", "iniLoad error");
+	delete m;
+	return -1;
+    }
+
+    // init HAL and export pins
+    if (0 != halui_hal_init()) {
+	gomc_log_errorf(the_log, "halui", "hal_init error");
+	delete m;
+	return -1;
+    }
+
+    // initialize safe values
+    hal_init_pins();
+
+    // wire up cmod vtable
+    m->base.Start   = halui_start;
+    m->base.Stop    = halui_stop;
+    m->base.Destroy = halui_destroy;
+    m->base.priv    = m;
+
+    *out = &m->base;
     return 0;
 }

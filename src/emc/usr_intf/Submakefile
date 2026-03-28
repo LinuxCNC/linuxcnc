@@ -9,9 +9,7 @@ EMCLCDSRCS := emc/usr_intf/emclcd.cc \
               emc/usr_intf/shcom.cc \
               emc/usr_intf/sockets.c
 
-HALUISRCS := emc/usr_intf/halui.cc
-
-USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS)
+USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS)
 
 $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
 
@@ -35,7 +33,17 @@ TARGETS += ../bin/schedrmt
 	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
 TARGETS += ../bin/linuxcnclcd
 
-../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libtooldata.so.0
+# halui.so — cmod plugin variant (uses gomc API, no liblinuxcnchal)
+HALUI_GOMC_SRCS := emc/usr_intf/halui_gomc.cc
+
+USERSRCS += $(HALUI_GOMC_SRCS)
+
+$(call TOOBJSDEPS, $(HALUI_GOMC_SRCS)): EXTRAFLAGS += -fPIC
+
+../cmod/halui.so: $(call TOOBJS, $(HALUI_GOMC_SRCS)) \
+                  ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 \
+                  ../lib/libnml.so.0 ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(CXXFLAGS) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
-TARGETS += ../bin/halui
+	@mkdir -p ../cmod
+	@$(CXX) -shared -o $@ $^ $(LDFLAGS)
+TARGETS += ../cmod/halui.so

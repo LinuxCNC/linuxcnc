@@ -524,13 +524,11 @@ func (l *Launcher) startIOControl() error {
 	return l.loadCPlugin(path, "iocontrol", nil)
 }
 
-// startHalUI starts the halui process via hal.LoadUSR, if configured.
-//
-// This mirrors scripts/linuxcnc.in lines 852–861:
-//
-//	$HALCMD loadusr -Wn halui $HALUI -ini "$INIFILE"
+// startHalUI loads the halui HAL user-interface as a C module plugin,
+// if configured.
 //
 // If [HAL]HALUI is not set, this is a no-op.
+// The resolved name is looked up in EMC2_CMOD_DIR as a .so file.
 func (l *Launcher) startHalUI() error {
 	halui := l.ini.Get("HAL", "HALUI")
 	if halui == "" {
@@ -540,11 +538,12 @@ func (l *Launcher) startHalUI() error {
 
 	l.logger.Info("starting HAL user interface", "program", halui)
 
-	if err := halcmd.LoadUSR(&halcmd.LoadUSROptions{WaitReady: true, WaitName: "halui"}, halui, "-ini", l.opts.IniFile); err != nil {
-		return fmt.Errorf("loadusr halui %s: %w", halui, err)
+	path := resolveCModulePath("halui")
+	if !cModuleExists(path) {
+		return fmt.Errorf("halui C module not found: %s", path)
 	}
 
-	return nil
+	return l.loadCPlugin(path, "halui", nil)
 }
 
 // setConfigEnv exports INI_FILE_NAME and CONFIG_DIR to the process environment
