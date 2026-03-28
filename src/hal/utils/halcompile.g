@@ -48,7 +48,7 @@ parser Hal:
       | "notes" String ";"   {{ notes(String) }}
       | "description" String ";"   {{ description(String) }}
       | "examples" String ";"   {{ examples(String) }}
-      | "license" String ";"   {{ license(String) }}
+      | "license" String ";"   {{ license_(String) }}
       | "author" String ";"   {{ author(String) }}
       | "include" Header ";"   {{ include(Header) }}
       | "modparam" NAME {{ NAME1=NAME; }} NAME OptSAssign OptString ";" {{ modparam(NAME1, NAME, OptSAssign, OptString) }}
@@ -187,7 +187,7 @@ def description(doc):
 def examples(doc):
     docs.append(('examples', doc));
 
-def license(doc):
+def license_(doc):
     docs.append(('license', doc));
 
 def author(doc):
@@ -199,9 +199,9 @@ def see_also(doc):
 def notes(doc):
     docs.append(('notes', doc));
 
-def type2type(type):
+def type2type(type_):
     # When we start warning about s32/u32 this is where the warning goes
-    return typemap.get(type, type)
+    return typemap.get(type_, type_)
 
 def checkarray(name, array):
     hashes = len(re.findall("#+", name))
@@ -217,21 +217,21 @@ def check_name_ok(name):
     if name in names:
         Error("Duplicate item name %s" % name)
 
-def pin(name, type, array, dir, doc, value, personality):
+def pin(name, type_, array, dir_, doc, value, personality):
     checkarray(name, array)
-    type = type2type(type)
+    type_ = type2type(type_)
     check_name_ok(name)
-    docs.append(('pin', name, type, array, dir, doc, value, personality))
+    docs.append(('pin', name, type_, array, dir_, doc, value, personality))
     names[name] = None
-    pins.append((name, type, array, dir, value, personality))
+    pins.append((name, type_, array, dir_, value, personality))
 
-def param(name, type, array, dir, doc, value, personality):
+def param(name, type_, array, dir_, doc, value, personality):
     checkarray(name, array)
-    type = type2type(type)
+    type_ = type2type(type_)
     check_name_ok(name)
-    docs.append(('param', name, type, array, dir, doc, value, personality))
+    docs.append(('param', name, type_, array, dir_, doc, value, personality))
     names[name] = None
-    params.append((name, type, array, dir, value, personality))
+    params.append((name, type_, array, dir_, value, personality))
 
 def function(name, fp, doc):
     check_name_ok(name)
@@ -244,15 +244,15 @@ def option(name, value):
         Error("Duplicate option name %s" % name)
     options[name] = value
 
-def variable(type, name, array, default):
+def variable(type_, name, array, default):
     check_name_ok(name)
     names[name] = None
-    variables.append((type, name, array, default))
+    variables.append((type_, name, array, default))
 
-def modparam(type, name, default, doc):
+def modparam(type_, name, default, doc):
     check_name_ok(name)
     names[name] = None
-    modparams.append((type, name, default, doc))
+    modparams.append((type_, name, default, doc))
 
 def include(value):
     includes.append((value))
@@ -299,13 +299,14 @@ static int comp_id;
         return '"%s"' % s
 
     print("#ifdef MODULE_INFO", file=f)
+    licens = None
     for v in docs:
         if not v: continue
         v = ":".join(map(str, v))
         print("MODULE_INFO(linuxcnc, %s);" % q(v), file=f)
-        license = finddoc('license')
-    if license and license[1]:
-        print("MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0], file=f)
+        licens = finddoc('license')
+    if licens and licens[1]:
+        print("MODULE_LICENSE(\"%s\");" % licens[1].split("\n")[0], file=f)
     print("#endif // MODULE_INFO", file=f)
     print("", file=f)
 
@@ -314,18 +315,18 @@ static int comp_id;
 
     has_array = False
     has_personality = False
-    for name, type, array, dir, value, personality in pins:
+    for name, type_, array, dir_, value, personality in pins:
         if array: has_array = True
         if isinstance(array, tuple): has_personality = True
         if personality: has_personality = True
-    for name, type, array, dir, value, personality in params:
+    for name, type_, array, dir_, value, personality in params:
         if array: has_array = True
         if isinstance(array, tuple): has_personality = True
         if personality: has_personality = True
-    for type, name, default, doc in modparams:
-        decl = mp_decl_map[type]
+    for type_, name, default, doc in modparams:
+        decl = mp_decl_map[type_]
         if decl:
-            print("%s %s" % (type, name), end=' ', file=f)
+            print("%s %s" % (type_, name), end=' ', file=f)
             if default: print("= %s;" % default, file=f)
             else: print(";", file=f)
             print("%s(%s, %s);" % (decl, name, q(doc)), file=f)
@@ -336,27 +337,27 @@ static int comp_id;
     if has_personality:
         print("    int _personality;", file=f)
 
-    for name, type, array, dir, value, personality in pins:
+    for name, type_, array, dir_, value, personality in pins:
         if array:
             if isinstance(array, tuple): array = array[0]
-            print("    hal_%s_t *%s_p[%s];" % (type, to_c(name), array), file=f)
+            print("    hal_%s_t *%s_p[%s];" % (type_, to_c(name), array), file=f)
         else:
-            print("    hal_%s_t *%s_p;" % (type, to_c(name)), file=f)
+            print("    hal_%s_t *%s_p;" % (type_, to_c(name)), file=f)
         names[name] = 1
 
-    for name, type, array, dir, value, personality in params:
+    for name, type_, array, dir_, value, personality in params:
         if array:
             if isinstance(array, tuple): array = array[0]
-            print("    hal_%s_t %s_p[%s];" % (type, to_c(name), array), file=f)
+            print("    hal_%s_t %s_p[%s];" % (type_, to_c(name), array), file=f)
         else:
-            print("    hal_%s_t %s_p;" % (type, to_c(name)), file=f)
+            print("    hal_%s_t %s_p;" % (type_, to_c(name)), file=f)
         names[name] = 1
 
-    for type, name, array, value in variables:
+    for type_, name, array, value in variables:
         if array:
-            print("    %s %s_p[%d];" % (type, name, array), file=f)
+            print("    %s %s_p[%d];" % (type_, name, array), file=f)
         else:
-            print("    %s %s_p;" % (type, name), file=f)
+            print("    %s %s_p;" % (type_, name), file=f)
     if has_data:
         print("    void *_data;", file=f)
 
@@ -422,7 +423,7 @@ static int comp_id;
         # the extra_setup() function may have changed the personality
         if has_personality:
             print("    personality = inst->_personality;", file=f)
-    for name, type, array, dir, value, personality in pins:
+    for name, type_, array, dir_, value, personality in pins:
         if personality:
             print("if(%s) {" % personality, file=f)
         if array:
@@ -437,7 +438,7 @@ static int comp_id;
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
             print("        r = hal_pin_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
-                type, dirmap[dir], to_c(name)), file=f)
+                type_, dirmap[dir_], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
             if value is not None:
@@ -445,7 +446,7 @@ static int comp_id;
             print("    }", file=f)
         else:
             print("    r = hal_pin_%s_newf(%s, &(inst->%s_p), comp_id," % (
-                type, dirmap[dir], to_c(name)), file=f)
+                type_, dirmap[dir_], to_c(name)), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             print("    if(r != 0) return r;", file=f)
             if value is not None:
@@ -453,7 +454,7 @@ static int comp_id;
         if personality:
             print("}", file=f)
 
-    for name, type, array, dir, value, personality in params:
+    for name, type_, array, dir_, value, personality in params:
         if personality:
             print("if(%s) {" % personality, file=f)
         if array:
@@ -468,7 +469,7 @@ static int comp_id;
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
             print("        r = hal_param_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
-                type, dirmap[dir], to_c(name)), file=f)
+                type_, dirmap[dir_], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
             if value is not None:
@@ -476,7 +477,7 @@ static int comp_id;
             print("    }", file=f)
         else:
             print("    r = hal_param_%s_newf(%s, &(inst->%s_p), comp_id," % (
-                type, dirmap[dir], to_c(name)), file=f)
+                type_, dirmap[dir_], to_c(name)), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             if value is not None:
                 print("    inst->%s_p = %s;" % (to_c(name), value), file=f)
@@ -484,7 +485,7 @@ static int comp_id;
         if personality:
             print("}", file=f)
 
-    for type, name, array, value in variables:
+    for type_, name, array, value in variables:
         if value is None: continue
         if array:
             print("    for(j=0; j < %s; j++) {" % array, file=f)
@@ -743,29 +744,29 @@ int __comp_parse_names(int *argc, char **argv) {
         if options.get("period"):
             print("#undef fperiod", file=f)
             print("#define fperiod (period * 1e-9)", file=f)
-        for name, type, array, dir, value, personality in pins:
+        for name, type_, array, dir_, value, personality in pins:
             print("#undef %s" % to_c(name), file=f)
             print("#undef %s_ptr" % to_c(name), file=f)
             if array:
                 print("#define %s_ptr(i) (__comp_inst->%s_p[i])" % (to_c(name), to_c(name)), file=f)
-                if dir == 'in':
+                if dir_ == 'in':
                     print("#define %s(i) (0+*(__comp_inst->%s_p[i]))" % (to_c(name), to_c(name)), file=f)
                 else:
                     print("#define %s(i) (*(__comp_inst->%s_p[i]))" % (to_c(name), to_c(name)), file=f)
             else:
                 print("#define %s_ptr (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
-                if dir == 'in':
+                if dir_ == 'in':
                     print("#define %s (0+*__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
                 else:
                     print("#define %s (*__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
-        for name, type, array, dir, value, personality in params:
+        for name, type_, array, dir_, value, personality in params:
             print("#undef %s" % to_c(name), file=f)
             if array:
                 print("#define %s(i) (__comp_inst->%s_p[i])" % (to_c(name), to_c(name)), file=f)
             else:
                 print("#define %s (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
 
-        for type, name, array, value in variables:
+        for type_, name, array, value in variables:
             name = name.replace("*", "")
             print("#undef %s" % name, file=f)
             print("#define %s (__comp_inst->%s_p)" % (name, name), file=f)
@@ -898,10 +899,10 @@ def document(filename, outfilebase):
     f = open(outfilename, "w")
 
     has_personality = False
-    for name, type, array, dir, value, personality in pins:
+    for name, type_, array, dir_, value, personality in pins:
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
-    for name, type, array, dir, value, personality in params:
+    for name, type_, array, dir_, value, personality in params:
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
@@ -954,19 +955,19 @@ def document(filename, outfilebase):
                     print("*loadrt %s* [*count*=_N_|*names*=_name1_[,_name2_...]] [*personality*=_P1_[,_P2_...]]" % comp_name, end='', file=f)
                 else:
                     print("*loadrt %s* [*count*=_N_|*names*=_name1_[,_name2_...]]" % comp_name, end='', file=f)
-            for type, name, default, doc in modparams:
-                if type == "dummy":
+            for type_, name, default, doc in modparams:
+                if type_ == "dummy":
                     print(" [*%s*=_value_[,_value_...]]" % name, end='', file=f)
                 else:
                     print(" [*%s*=_N_]" % name, end='', file=f)
             print("", file=f)
 
             hasparamdoc = False
-            for type, name, default, doc in modparams:
+            for type_, name, default, doc in modparams:
                 if doc: hasparamdoc = True
 
             if hasparamdoc:
-                for type, name, default, doc in modparams:
+                for type_, name, default, doc in modparams:
                     print("\n*%s*" % name, end='', file=f)
                     if default:
                         print(" [default: %s]::" % default, file=f)
@@ -997,9 +998,9 @@ def document(filename, outfilebase):
                 print("// missing description\n", file=f)
 
     print("\n== PINS\n", file=f)
-    for _, name, type, array, dir, doc, value, personality in finddocs('pin'):
+    for _, name, type_, array, dir_, doc, value, personality in finddocs('pin'):
         print("%s" % to_hal_man(name), end=' ', file=f)
-        print(type, dir, end=' ', file=f)
+        print(type_, dir_, end=' ', file=f)
         if array:
             sz = name.count("#")
             if isinstance(array, tuple):
@@ -1020,9 +1021,9 @@ def document(filename, outfilebase):
 
     if params:
         print("\n== PARAMETERS\n", file=f)
-        for _, name, type, array, dir, doc, value, personality in finddocs('param'):
+        for _, name, type_, array, dir_, doc, value, personality in finddocs('param'):
             print("%s" % to_hal_man(name), end=' ', file=f)
-            print(type, dir, end=' ', file=f)
+            print(type_, dir_, end=' ', file=f)
             if array:
                 sz = name.count("#")
                 if isinstance(array, tuple):
