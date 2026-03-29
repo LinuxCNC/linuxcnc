@@ -20,7 +20,7 @@ o200 endsub
 ;///////////////////// PREAMBLE
 G21                       ; mm 
 G90                       ; Absolute
-G17                       ; ToolAxis is X
+G17                       ; ToolAxis is Z
 G61                       ; exact path mode
 G64 P0                    ; set blend toleranve to 0
 F5000                     ;LinuxCNC wil likely use Radoi move
