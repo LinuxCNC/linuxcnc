@@ -6,6 +6,9 @@ linuxcnc (1:2.10.0~pre1) UNRELEASED; urgency=medium
   [ andypugh ]
   * Add a finite-jerk trajectory planner
 
+  [ Bastian Germann ]
+  * Move python3-poppler-qt5 to Suggests (Closes: #1129683)
+
  -- andypugh <andy@bodgesoc.org>  Wed, 07 Jan 2026 22:15:18 +0000
 
 linuxcnc (1:2.9.8) UNRELEASED; urgency=medium
