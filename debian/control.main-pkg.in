@@ -35,6 +35,7 @@ Recommends:
     linuxcnc-doc-en | linuxcnc-doc,
     librsvg2-dev,
     x11-xserver-utils,
+    python3-poppler-qt5,
     @EXTRA_RECOMMENDS@,
     @PYTHON_IMAGING@,
     @PYTHON_IMAGING_TK@
