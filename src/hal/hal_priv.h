@@ -491,10 +491,5 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 */
 extern int hal_port_alloc(unsigned size, hal_port_t *port);
 
-
-
-#define HAL_STREAM_MAGIC_NUM		0x4649464F
-
-extern int halpr_parse_types(hal_type_t type[HAL_STREAM_MAX_PINS], const char *fcg);
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */

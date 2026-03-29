@@ -21,10 +21,10 @@ int hal_stream_maxdepth(hal_stream_t* stream);
 int hal_stream_num_underruns(hal_stream_t* stream);
 int hal_stream_num_overruns(hal_stream_t* stream);
 
-int hal_stream_read(hal_stream_t* stream, union hal_stream_data* buf, unsigned* sampleno);
+int hal_stream_read(hal_stream_t* stream, hal_stream_data_u *buf, unsigned* sampleno);
 bool hal_stream_readable(hal_stream_t* stream);
 
-int hal_stream_write(hal_stream_t* stream, union hal_stream_data* buf);
+int hal_stream_write(hal_stream_t* stream, hal_stream_data_u *buf);
 bool hal_stream_writable(hal_stream_t* stream);
 
 #ifdef ULAPI
@@ -115,16 +115,16 @@ depth::
   The number of samples that can be unread before any samples are lost
   (overrun)
 typestring::
-  A typestring is a case-insensitive string which consists of one or
-  more of the following type characters:
+  A typestring is limited to 20 characters. A typestring is a
+  case-insensitive string which consists of one or more of the
+  following type characters:
   +
-  [upperalpha, start=2]
-  . for bool / hal_bit_t
-  . for int32_t / hal_s32_t
-  . for uint32_t / hal_u32_t
-  . for real_t / hal_float_t
-  +
-  A typestring is limited to 16 characters.
+  * B for bool / hal_bit_t
+  * S for rtapi_s32 / hal_s32_t
+  * U for rtapi_u32 / hal_u32_t
+  * F for real_t / hal_float_t
+  * L for rtapi_s64 / hal_s64_t
+  * K for rtapi_u64 / hal_u64_t
 
 buf::
   A buffer big enough to hold all the data in one sample.
