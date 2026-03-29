@@ -869,6 +869,14 @@ int RtapiApp::prio_bound(int prio) const {
     return prio;
 }
 
+bool RtapiApp::prio_check(int prio) const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        return (prio <= rtapi_prio_highest()) && (prio >= rtapi_prio_lowest());
+    } else {
+        return (prio <= rtapi_prio_lowest()) && (prio >= rtapi_prio_highest());
+    }
+}
+
 int RtapiApp::prio_next_higher(int prio) const
 {
     prio = prio_bound(prio);
@@ -899,8 +907,10 @@ int RtapiApp::allocate_task_id()
 int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
         int prio, int owner, unsigned long int stacksize, int uses_fp) {
   /* check requested priority */
-  if ((prio > rtapi_prio_highest()) || (prio < rtapi_prio_lowest()))
+  if (!prio_check(prio))
   {
+    rtapi_print_msg(RTAPI_MSG_ERR,"rtapi:task_new prio is not in bound lowest %i prio %i highest %i\n",
+        rtapi_prio_lowest(), prio, rtapi_prio_highest());
     return -EINVAL;
   }
 
