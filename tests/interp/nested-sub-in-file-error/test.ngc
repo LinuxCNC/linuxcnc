@@ -1,0 +1,3 @@
+(Test: numbered sub after named endsub in same file should error)
+o<sequential> call [7] [8] [9]
+M2
