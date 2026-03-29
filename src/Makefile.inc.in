@@ -77,7 +77,7 @@ RTAI = @RTAI@
 RTFLAGS = @RTFLAGS@ @EXT_RTFLAGS@
 KERNELDIR = @KERNELDIR@
 RTFLAGS := -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime
-ULFLAGS = -Wall -g -I. -I@RTDIR@/include -DULAPI -D_GNU_SOURCE -Os -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
+ULFLAGS = -Wall -g -I. -I@RTDIR@/include -DULAPI -D_GNU_SOURCE -O2 -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
 MODULE_EXT = @MODEXT@
 BUILD_SYS = @BUILD_SYS@
 CC = @CC@

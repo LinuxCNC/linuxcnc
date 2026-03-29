@@ -817,7 +817,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print("%s: %s" % (binname, filename), file=f)
-    print("\t$(CC) -I%s -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+    print("\t$(CC) -I%s -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -URTAPI -U__MODULE__ -DULAPI -O2 %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
 
         os.path.abspath(os.path.dirname(origfilename)),
         options.get("extra_compile_args", ""),
