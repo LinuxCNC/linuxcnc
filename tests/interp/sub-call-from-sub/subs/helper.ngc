@@ -1,0 +1,4 @@
+o<helper> sub
+(PRINT,X helper: #1 #2 #3)
+o<helper> endsub
+M2

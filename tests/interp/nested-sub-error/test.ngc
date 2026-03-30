@@ -1,0 +1,3 @@
+(Test: nested sub definition inside named sub should error)
+o<nested> call [7] [8] [9]
+M2

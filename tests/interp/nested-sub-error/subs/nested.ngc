@@ -1,0 +1,7 @@
+o<nested> sub
+o100 sub
+(DEBUG, inner o100: #1 #2 #3)
+o100 endsub
+o100 call [4] [5] [6]
+o<nested> endsub
+M2

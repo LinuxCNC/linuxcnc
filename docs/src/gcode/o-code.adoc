@@ -123,8 +123,37 @@ o100 endsub
 o100 call [100] [2] [325]
 ----
 
-Subroutine bodies may not be nested.
-They may only be called after they are defined.
+Subroutine *definitions* may not be nested.
+Defining a subroutine inside another subroutine is not allowed and will
+produce an error.  For example, the following is *invalid*:
+
+.Invalid Nested Subroutine Definition (produces an error)
+[source,{ngc}]
+----
+o<outer> sub
+  o100 sub       (INVALID: nested subroutine definition)
+    (code here)
+  o100 endsub
+o<outer> endsub
+----
+
+However, *calling* a subroutine from within another subroutine is perfectly
+valid.  It is the `sub`/`endsub` definition that cannot be nested, not the
+`call`:
+
+.Valid Nested Subroutine Call
+[source,{ngc}]
+----
+o<outer> sub
+  (code here)
+  o<helper> call [1] [2]  (OK: calling another sub)
+o<outer> endsub
+----
+
+Other O-code control flow such as `if`/`endif`, `while`/`endwhile`,
+`do`/`while`, and `repeat`/`endrepeat` may be used freely inside subroutines.
+
+Subroutines may only be called after they are defined.
 They may be called from other functions, and may call themselves recursively if it makes sense to do so.
 The maximum subroutine nesting level is 10.
 
@@ -391,6 +420,10 @@ your call and include a sub and endsub in the file. The file must be in the
 directory pointed to by 'PROGRAM_PREFIX' or 'SUBROUTINE_PATH' in the INI file.
 The file name can include *lowercase* letters, numbers, dash, and underscore
 only. A named subroutine file can contain only a single subroutine definition.
+Do not place additional numbered subroutine definitions (e.g. `o100 sub`)
+in the same file as a named subroutine.  Numbered subroutines share a global
+namespace and can silently conflict across files.  If you need helper
+subroutines, place each one in its own file.
 
 .Named File Example
 [source,{ngc}]
@@ -455,6 +488,9 @@ interpreter:
  - a label on `else`, `elseif` or `endif` not pointing to a matching `if`
  - a label on `break` or `continue` which does not point to a matching `while` or `do`
  - a label on `endrepeat` or `endwhile` no referring to a corresponding `while` or `repeat`
+ - a subroutine definition (`sub`) inside another subroutine body (nested definitions)
+ - a numbered subroutine called from within a named subroutine file but not found in the
+   offset table or as a separate file
 
 To make these errors non-fatal  warnings on stderr, set bit 0x20 in
 the `[RS274NGC]FEATURE=` mask ini option.

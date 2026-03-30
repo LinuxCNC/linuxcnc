@@ -277,7 +277,6 @@ int Interp::execute_call(setup_pointer settings,
 	    logOword("M98 L0 instruction; skipping call");
 	else if (control_back_to(eblock, settings) == INTERP_ERROR) {
 	    settings->call_level--;
-	    ERS(NCE_UNABLE_TO_OPEN_FILE,eblock->o_name);
 	    return INTERP_ERROR;
 	}
 
@@ -605,6 +604,20 @@ int Interp::control_back_to( block_pointer block, // pointer to block
         }
         strncpy(settings->filename, newFileName, sizeof(settings->filename));
     } else {
+	// No file found for this sub name.
+	// Block forward-seek if the current file is not the main program.
+	// Numbered subs after a named endsub pollute the global offset
+	// map and silently conflict across files.  Forward-seek in the
+	// main program's own file (call_level 0) is still allowed.
+	if (settings->call_level > 0) {
+	    context_pointer main_frame = &settings->sub_context[0];
+	    if (main_frame->filename == NULL ||
+		strcmp(settings->filename, main_frame->filename) != 0) {
+		ERS(_("Subroutine 'O%s' not found -- "
+		      "not in offset table and no file '%s' found"),
+		    block->o_name, newFileName);
+	    }
+	}
 	char *dirname = getcwd(NULL, 0);
 	logOword("fopen: |%s| failed CWD:|%s|", newFileName,
 		 dirname);
@@ -792,6 +805,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	// if the level is not zero, this is a call
 	// not the definition
 	if (settings->call_level != 0) {
+	    // Check for nested or extra sub definitions inside a called sub.
+	    // Only the entry sub (matching the call) is allowed; any other
+	    // 'sub' keyword is an error (nested def or numbered sub in file).
+	    context_pointer cf = &settings->sub_context[settings->call_level];
+	    CHKS((cf->subName && strcmp(cf->subName, block->o_name) != 0),
+		 _("Nested subroutine definition: 'O%s sub' found inside "
+		   "called subroutine 'O%s'"),
+		 block->o_name, cf->subName);
 	    logOword("call:%f:%f:%f",
 		     settings->parameters[1],
 		     settings->parameters[2],
