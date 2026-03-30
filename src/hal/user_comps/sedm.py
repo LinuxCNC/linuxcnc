@@ -1,9 +1,24 @@
 #!/usr/bin/env python3
-#30.03.2026 chg ectant ETNCo enc
-#           chg dir Etabs to etabs
 #
 #26.03.2026 clean comments and doclines
 #
+#*
+#* This library is free software; you can redistribute it and/or modify it
+#* under the terms of the GNU Lesser General Public License as published
+#* by the Free Software Foundation; either version 2 of the License, or
+#* (at your option) any later version.
+#*
+#* This library is distributed in the hope that it will be useful, but
+#* WITHOUT ANY WARRANTY; without even the implied warranty of
+#* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#* Lesser General Public License for more details.
+#*
+#* You should have received a copy of the GNU Lesser General Public
+#* License along with this library; if not, write to the Free Software
+#* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301-1307
+#* USA.
+#*
+
 import linuxcnc
 import hal
 import time
@@ -2246,13 +2261,11 @@ try: # sedm preparation
 			if sedm.state == WaitEttabNumberMsrdUNS:
 				# 
 				# Path to ETAB is \local'
-				# 30.03.2026 chg dir Etabs to etabs
 				etabPath = "./etabs"#25.02.2026 <<<  make etab path ='HERE'
 				#
 				if (sedm.EtabNum > 0):
 					# construct file name from number
 					EtabNumStr = str(sedm.EtabNum) #"99999944"
-					# 30.03.2026 chhg extant ENC to enc
 					fqfn = etabPath + "/" + EtabNumStr +".enc"
 					#
 					# read file, make dict of lists made from lines in file
