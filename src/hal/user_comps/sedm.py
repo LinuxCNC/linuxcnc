@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-
+#30.03.2026 chg ectant ETNCo enc
+#           chg dir Etabs to etabs
+#
 #26.03.2026 clean comments and doclines
 #
 import linuxcnc
@@ -2244,12 +2246,14 @@ try: # sedm preparation
 			if sedm.state == WaitEttabNumberMsrdUNS:
 				# 
 				# Path to ETAB is \local'
-				etabPath = "./Etabs"#25.02.2026 <<<  make etab path ='HERE'
+				# 30.03.2026 chg dir Etabs to etabs
+				etabPath = "./etabs"#25.02.2026 <<<  make etab path ='HERE'
 				#
 				if (sedm.EtabNum > 0):
 					# construct file name from number
 					EtabNumStr = str(sedm.EtabNum) #"99999944"
-					fqfn = etabPath + "/" + EtabNumStr +".ENC"
+					# 30.03.2026 chhg extant ENC to enc
+					fqfn = etabPath + "/" + EtabNumStr +".enc"
 					#
 					# read file, make dict of lists made from lines in file
 					parseEtab(fqfn) 
