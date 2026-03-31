@@ -631,7 +631,7 @@ void FeedRotaryButton::update()
         mStepSize    = mStepSizeMapper.getStepSize(second);
         mIsPermitted = mStepSizeMapper.isPermitted(second);
         
-        if (!mIsStepMode_5_10 && mStepSize > 2) {mStepSize    = 0;}
+        if (!mIsStepMode_5_10 && mStepSize > 2) {mStepSize    = 1.0;}
         
     }
     else if (mStepMode == HandwheelStepmodes::Mode::CON)
