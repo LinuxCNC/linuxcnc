@@ -1,6 +1,19 @@
 #!/usr/bin/env python3
 #
-#26.03.2026 clean comments and doclines
+# 31.03.2026  the is SCRTCHsedm31032026.oy
+# where i look at state machine...
+#
+#1 the state machine entry and exit condfitions are muffled
+
+#2 teh waitM199 is not tested for
+# near try: at bottom of this file....
+#   while EDMmode == True:
+#		# vvv flag set by M199, so making state waitM199 useless
+#		if sedm.isEna == True:
+# so the waitM199 state is not usedull, but setting sedm.isEna is necc ( fone by M100)
+# i can remove waitM199 state
+
+#3 the sequence / states have gaps  8-???
 #
 #*
 #* This library is free software; you can redistribute it and/or modify it
@@ -26,23 +39,6 @@ import sys, subprocess
 import os.path
 from random import uniform
 
-# 23.03.2026 no more headers file \sedmhdrs.py'
-"""
-# 23.03.2026 build pkgs failed
-# I think >I< put this file where a std build would find it
-# but a pkg build may not
-# The prpose of this file was to isolate a lot of 'equares'
-# but because Python has no .h/inmclude/or hgeader files,
-# I made it a python file accessible by 'import'
-# That trick might make build pkgs or some rule break/fail.
-# I will put thi inside the top[ of the sedm.py comp srrc file
-# 
-#
-# OLD NOTES  sedmhdrs.py
-# resides in /usr/lib/python3.11
-#   or       ~/yourRIP/lib/python
-#
-"""
 # beg--------- CONSTANTS --------
 
 # JumpLtypes The detour path varies with jumptype
@@ -85,14 +81,12 @@ WaitBegEndNR             = 4
 WaitPitch                = 5
 WaitJumpwANTED           = 6
 WaitGenReady             = 7
-WaitM199                 = 8
-# no 9 no 10 no good reason
-WaitPlunge               = 11
-WaitDoPlungeOrbit        = 12
-WaitAllNRsDone           = 13
-WaitThisOrbitDone        = 14
-WaitNewNR                = 15
-CleanUpPutAway           = 16
+WaitPlunge               = 8
+WaitDoPlungeOrbit        = 9
+WaitAllNRsDone           = 10
+WaitThisOrbitDone        = 11
+WaitNewNR                = 12
+CleanUpPutAway           = 13
 # ------ end states of state macghine
 
 # ----- end of constants -------
@@ -2191,7 +2185,11 @@ try: # sedm preparation
 	sedm.ctr = 0
 	
 	while EDMmode == True:
-		if sedm.isEna == True: # set by M199  clrd by M198
+		# vvv flag set by M199, so making state waitM199 useless
+		if sedm.isEna == True: # set by M199  
+			# NOT TRUE clrd by M198
+			# where is it clrd??
+			
 			# vvv new 11.12.2025  reset at top, not bot
 			#sedm.ctr = 0
 			
@@ -2281,89 +2279,67 @@ try: # sedm preparation
 						# dont progress until EndNR <= BegNR
 						# the PlungOrnbWantewds is a side issue
 						sedm.state = WaitPitch
-					#
-					# I dont handfle plungeOrbWanted correctly
-					#  ... dont undeterdtansd yet...
 			#
 			if sedm.state == WaitPitch: # WaitPitch is state 5
-				#15.02.2026 pitch is not used now
-				# so not good to wait for M???
-				# so i shoirt shank this state
+				"""
+				15.02.2026 pitch is not used now
+				 so not good to wait for M???
+				 so i shoirt shank this state
+				"""
 				sedm.state = WaitGenReady
 			#
-			# TODO JumpENA is BIT, will never be -1
-			#if sedm.state == WaitJumpwANTED:
-			#	if sedm.JumpENA != -1:  #insist M166 is used( oper must say he wants.doersmnt want jump)
-			#		sedm.state = WaitGenReady
-			#
 			if sedm.state == WaitGenReady:# i need UNS to caLC
-				# ThisRADf, SO NAME GENREADY MISLEADING MORE LIKE # # GENPrepared MAYBE
-				#vvv makes UNSf, sedm.RufPtDEPTHf, RufPtTupl, 
 				if sedm.ThisNR == sedm.BegNR:
-					# temp set ThisNR = 25 to get UND asnd???
-					# reset ThisNR to BegNR afterwards
-					
-					
-					# this chink is dfor spcl case
+					# temp set ThisNR = 25 just for getting UNS, reset ThisNR to BegNR afterwards
+					#
+					# code near here  is dfor spcl case
 					#  where BegNR != 25
-					#  and mkThusRAD and UND not normally called
-					#  so, ThisNR is LIEF to, just to get UNS
-					# bur 25.02.2026 in new scheme
-					#  thhe etavDixr['25'][11] hol;ds UNS ( tho collumn hdr sez RAD
-					sedm.ThisNR = 25
-					setGen(sedm.ThisNR)
+					sedm.ThisNR = 25 # force it
+					setGen(sedm.ThisNR) # make NR 25's data avauilable
 					mkThisRADf() # get UNS 
-					
-				else: # 15.02.2026 thius line was missing
-					# reset to BegNR
+					#
+				else: # else reset ThisNR to BegNR
 					sedm.ThisNR = sedm.BegNR
-					
 				#
 				mkRufPtTupl()# the 25 could be embedded inside mkRufPtTupl, but keeping it outside shows better
-				
+				#
 				setGen(sedm.BegNR)
 				sedm.UNSf = EtabDict['25'][11]
 				sedm.GenReady = 1 # domt say True  it can be -1 0 or 1
 				sedm.state = WaitPlunge
 			#
 			if sedm.state == WaitPlunge:
-				sedm.disableOsc = False # turn ON power to tll
+				sedm.disableOsc = False # turn cutting power ON ( turn on oscillator)
 				doPlunge()              # main entry to plunge
-				# we are done with NR 25, so dec ThisNR
+				#
 				if sedm.BegNR == 25:
-					sedm.ThisNR -= 1
+					sedm.ThisNR -= 1 #If done with NR 25, so dec ThisNR
 					
-				#else leave nr alone,
-				#  user may wantplungeOrb when BegNR != 25
+				#else sont chg NR
+				#because user may wantplungeOrb when BegNR != 25
 				sedm.disableOsc = True # turn OFF power to tool
-				# duting DoPlunge some fatal falgs may have been set
-				if sedm.QuitHit == True:
-					sedm.state = CleanUpPutAway # handle fatal flag, exit clean
-				elif sedm.BwdMaxHit == True:
-					sedm.state = CleanUpPutAway # handle fatal flag, exit clean
+				#
+				# duting DoPlunge some fatal flags may have been set
+				
+				if (sedm.QuitHit == True)or(sedm.BwdMaxHit == True):
+					sedm.state =  CleanUpPutAway
 				else:
 					sedm.state = WaitDoPlungeOrbit
 			#
-			# if here Gen NR == ThisNR < 25
-			# TODO 13.12.2025 state can be removed
-			if sedm.state == WaitDoPlungeOrbit: # MISSING 03.12.2025
+			if sedm.state == WaitDoPlungeOrbit:
 				sedm.state = WaitAllNRsDone
 			#
-			if sedm.state == WaitAllNRsDone: # 13  NRs remaining are ORBITS
+			if sedm.state == WaitAllNRsDone:
 				if (sedm.QuitHit == True)or(sedm.BwdMaxHit == True):
 					sedm.state =  CleanUpPutAway
-					# ??? break??? no rtn in state mc
-				else:# no fatalflags
-					if (sedm.ThisNR < sedm.EndNR):#  all NRs are done, 
+				else:
+					if (sedm.ThisNR < sedm.EndNR):# chk if all NRs are done, 
 						sedm.state = CleanUpPutAway 
-					else: #else do more orbits, ThisNR  IS NOT   EndNR, so  do more orbits
-						#
-						setGen(sedm.ThisNR) # get power back on
-						
-						sedm.disableOsc = False
-						# get paths: legEntryL  legL opL
+					else: #else do more orbits
+						setGen(sedm.ThisNR) 
+						sedm.disableOsc = False # turn power back on
 						mkThisRADf()
-						#
+						# get paths: legEntryL  legL opL
 						cLevel = RufPtTupl[sedm.ToolAxis] + (sedm.RADi * sedm.CutDir)
 						opL = mkOrbitPathL(sedm.RADi,cLevel)
 						entryPt = opL[0]
@@ -2373,25 +2349,21 @@ try: # sedm preparation
 						ankleTupl = legL[ankleNdx]
 						legL.reverse()
 						ankleNdx = legL.index(ankleTupl)
-						#
 						# sedm.JumpLtype is set inside doOrbitEntryLegL() to 3
 						doOrbitEntryLegL(legL,ankleNdx) #
 						#
-						
 						# test for fatal flags
 						if (sedm.BwdMaxHit == True) or (sedm.QuitHit == True):
 							sedm.state = CleanUpPutAway # let CUPA move to ctr, move to SPO
 						else:
-							#>>> need to set sedm.jumpltype???
-							# sedm.JumpLtype sets to JumpOrbPathType
-							doOrbL(opL)# whwrw does doOrbL end???
+							doOrbL(opL)
 							#
 							if (sedm.QuitHit == True)or(sedm.BwdMaxHit == True):
 								sedm.state = CleanUpPutAway
 							else: # turn off power, dec ThisNR
 								sedm.disableOsc = True
 								sedm.ThisNR = sedm.ThisNR - 1
-								# any more NRstoprocess???
+								# chk if any more NRstoprocess
 								if sedm.ThisNR < sedm.EndNR:
 									sedm.state = CleanUpPutAway
 			#
