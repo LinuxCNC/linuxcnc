@@ -143,7 +143,7 @@ see_also """The \\fIpluto_step\\fR section in the HAL User Manual, which shows t
 
 license "GPL";
 include <rtapi_math.h>;
-include "pluto_common.h";
+include "hal/drivers/pluto_common.h";
 ;;
 
 static int speedrange=0;
