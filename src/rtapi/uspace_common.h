@@ -409,7 +409,7 @@ static int detect_realtime() {
     if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) < 0)
             || st.st_uid != 0 || !(st.st_mode & S_ISUID))
         return 0;
-    return detect_env_override() || detect_preempt_rt() || detect_rtai() || detect_xenomai();
+    return detect_env_override() || detect_preempt_rt() || detect_rtai() || detect_xenomai() || detect_xenomai_evl();
 }
 
 int rtapi_is_realtime() {
