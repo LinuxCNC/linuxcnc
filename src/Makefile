@@ -245,7 +245,7 @@ $(shell $(VECHO) 1>&2 Done reading dependencies)
 endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
-INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/../include
+INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(EMC2_HOME)/include
 INCLUDE += $(PYTHON_CPPFLAGS)
 INCLUDE += $(LIBTIRPC_CFLAGS)
 
