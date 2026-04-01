@@ -227,7 +227,7 @@ class _Lcnc_Action(object):
             self.ensure_mode(premode)
         return 0
 
-    def CALL_INI_MDI(self, key):
+    def CALL_INI_MDI(self, key, mode_return = False):
         try:
             # prefer named INI MDI commands
             mdi = INFO.get_ini_mdi_command(key)
@@ -244,10 +244,20 @@ class _Lcnc_Action(object):
                 return
 
         mdi_list = mdi.split(';')
+        if mode_return:
+            self.RECORD_CURRENT_MODE()
+            self._a = STATUS.connect('command-stopped', lambda w: self.return_mode_after_finish())
         self.ensure_mode(linuxcnc.MODE_MDI)
         for code in (mdi_list):
             LOG.debug('CALL_INI_MDI command:{}'.format(code))
             self.cmd.mdi('%s' % code)
+
+    # when command stops - we try to continue the generator.
+    # if generator is done - return to recorded mode.
+    def return_mode_after_finish(self):
+        print('ini command end')
+        self.RESTORE_RECORDED_MODE()
+        STATUS.handler_disconnect(self._a)
 
     def CALL_OWORD(self, code, time=5):
         LOG.debug('OWORD_COMMAND= {}'.format(code))
