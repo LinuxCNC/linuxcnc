@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# end use of external offsets for XYZ
+# TODO 25.03.2026 discover axis using eoffsets
+#  and disable those axis
+halcmd setp axis.x.eoffset-enable False
+halcmd setp axis.y.eoffset-enable False
+halcmd setp axis.z.eoffset-enable False
+
+exit 0

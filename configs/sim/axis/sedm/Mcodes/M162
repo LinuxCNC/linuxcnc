@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# usage
+# M162 P<FullDepth> Q<RPlane>
+
+halcmd setp sedm.FullDEPTHf $1
+
+halcmd setp sedm.RPlaneDist $2
+
+exit 0

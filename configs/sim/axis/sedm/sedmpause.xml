@@ -1,0 +1,41 @@
+<pyvcp>	<!--sedmpause a toggle btn,halts EDM motion -->
+	<!-- 19.11.2025-->
+	<hbox>
+		<vbox>
+			<button>
+				<halpin>"EDpeek"</halpin>
+				<text>"EDpeek"</text>
+				<disable_pin>True</disable_pin> 
+			</button>
+			<hbox>
+				<button>
+					<halpin>"EDreturn"</halpin>
+					<text>"Return"</text>
+					<disable_pin>True</disable_pin> 
+				</button>
+				<button>
+					<halpin>"EDquit"</halpin>
+					<text>"Quit"</text>
+					<disable_pin>True</disable_pin> 
+				</button>
+			</hbox>
+		</vbox>
+		<vbox>
+			<button>
+				<halpin>"ForzFWD"</halpin>
+				<text>"FWD"</text>
+				<!-- disable_pin>True</disable_pin -->
+			</button>
+			<button>
+				<halpin>"ForzHOLD"</halpin>
+				<text>"HOLD"</text>
+				<!-- disable_pin>True</disable_pin --> 
+			</button>
+			<button>
+				<halpin>"ForzBWD"</halpin>
+				<text>"BWD"</text>
+				<!-- disable_pin>True</disable_pin --> 
+			</button>
+		</vbox>
+	</hbox>
+</pyvcp>

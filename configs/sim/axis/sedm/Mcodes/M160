@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# usage
+# M160 P<EtabNum> Q <msrdUns>
+
+exec >/dev/null 2>&1     # quiet
+
+
+# EtabNum, will become a U32 
+#  ( bash always give a flloat)
+#  vvv trick to cnvrt Float to INT (U32)
+printf -v EtabNumInt '%d' "$1"
+halcmd sets dEtabNum $EtabNumInt
+
+halcmd sets dMsrdUNSf $2
+
+exit 0

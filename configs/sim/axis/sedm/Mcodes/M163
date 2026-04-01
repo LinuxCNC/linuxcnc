@@ -1,0 +1,19 @@
+#!/bin/bash
+
+exec >/dev/null 2>&1 # Redirects all stdout and stderr for the rest of the
+
+# usage
+# M163 P<OrbType> Q<WiglRad>
+
+# OrbType is U32  0 for circle, 1 for square orbit.
+# WiglRad is positive Float
+
+# and Bash rerbs Floaatrs
+# so this vvv print trick cnvrts 
+printf -v OrbTypeInt '%d' "$1"
+halcmd sets dOrbitType $OrbTypeInt
+
+# WiglRad  is already a float
+halcmd sets dWiglRADf $2
+
+exit 0

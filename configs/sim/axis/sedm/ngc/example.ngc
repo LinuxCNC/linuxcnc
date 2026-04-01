@@ -1,0 +1,171 @@
+;Xmpll2.ngc
+; see notes below peogram
+; try it as is before modifying\; always qoek on a copy
+;
+; Turn 'jump' on and off with checkbox in 'techgui'
+; Use PEEK while cutting to retract tool sto start p[osition
+; then use RESUME or QUIT.
+
+o200 sub
+	M66 E0 L0           ;NEED QBUSTER AND sleep(0.010) in rComp BOTH
+	M199                ; begin sedm motion control
+	M162 P-1.304 Q1.0   ; FullDepth , RPlane 
+	M163 P0 Q0.05       ; OrbType SQR, Wigl radius
+	M160 P19 Q0.508     ; etabnum, MsrdUNS
+	M161 P12 Q10        ; BegNR EndNR (this examle only 'finheshes' a cut for bervity.
+	M00                 ; neccesary for ExternalOffsets
+	M198                ; wns sedm motion control
+o200 endsub
+
+;///////////////////// PREAMBLE
+G21                       ; mm 
+G90                       ; Absolute
+G17                       ; ToolAxis is Z
+G61                       ; exact path mode
+G64 P0                    ; set blend toleranve to 0
+F5000                     ;LinuxCNC wil likely use Radoi move
+;
+G10L2P1X0Y0Z0             ; UNSHIFT, cut posns will be G43 msr and DRO reports relative value
+G00Z5                     ; get fAR above work
+;
+#1 = 0 (counter init)
+#2 = 1 (limit)
+#3 = +3.000               ; CPlane  small for more test s per hr
+#4 = +0.5                 ; RPlane  small for more test s per hr
+;
+o110 while [#1 LT #2]
+	;
+	g10l2p1 x0 y0 z0; UNSHIFT
+	G0Z#3; CPlane
+	;
+	g10l2p1 x1.0 y0 z2.0     ; DATUM for cut #1
+	g0x0y0                ; rapid to bore center
+	z#4                   ; rapid to RPlane rel to  DATUM
+	;
+	o200 call             ;
+	;
+	g10l2p1 x0 y0 z0      ;UNSHIFT
+	G0Z#3                 ;rapid CPlane abso mc coords
+	;
+	#1 = [#1 + 1]         ; bump counter
+o110 endwhile
+
+;//////////////////// goto  exit posn
+G10L2P1X0Y0Z0             ; UNSHIFT
+G0Z5                      ; rapis to Cplane
+G0X0Y0                    ; good form, but not neccesary
+;////////// end pgm
+M197                      ; turn off JumpENA if leaft on 
+M02
+%
+
+; This is an ecetcose of the features of sedm comp
+; Copy it and save it with a useful naame.
+;
+; 1) edit the PLANE with G17 G18 or G19
+; This will control the tol's axis.
+;  eg G17 will cut parallel to the Z axis and
+;  make circles in the XY plane.
+; You can also edit to cut parallel to X or Y axis.
+;
+; editt the DATUM position
+; eg  G10 L2 P1 X3.0 y2.0 z 1.0
+; sedm wil cut reltive to that position.
+;
+; edit the FuulDepth and Rplane
+; FullDepth is what the part print dictates,
+; Do not adjust for undersize or overborn.
+;  The sedm comp does that using ETABLE data.
+; Rplane is a distance away from  the DATUM.
+; In EDM, thhe tool cannot move if shorted,
+; and the DATUM posiyion is where you touched off,
+; and there is no clearance there. Do begi a small
+; distance away.
+; Rule: the FullDepth and Rplane have 
+; opposite signs, as they straddle the DATUM.
+; eg G17 
+;    G10 L2 P1 X0.0 Y0.0 Z-5.0
+;     M162 P-1.304 Q+1.00 
+;    thi will cut down (to maxhine Z -6.304)
+;    and will turn on power at machine Z - 4.
+; eg G19
+;    G10 L2 P1 X5.0 Y0.0 Z0
+;    G162 P-1.304 Q+1.00 
+;    thi will cut towrds left (to maxhine X +3.606)
+;    and will turn on power at machine Z + 6.
+; User is warned tp move in free space.
+; It is easy to command tool motion,
+; but it is also easy to be on weong side of a tombstone.
+; 
+; Set orbit type ands wiggloe radius
+;  Orbit Type
+;   Currently orbit typrs arr 0 and 1
+;    0 means Circular   1 mean Swuare
+;  Wiggle Radius
+;   This is a feature to aid deep cuts.
+;   As the depth inmcreases, warf may
+;   accumulate on the sides of the tool.
+;   This effectively increases the tool size.
+;   Thhe wiggle is an exccentric motion that
+;   will shake off the swarf.
+;   It is like a boring or threading cycle in appearance.
+;   It is only used with small raii
+;   ( 1 to 200mucrons in use)
+;
+; set ETABLE number and Meadured undersize per side
+;  ETABLES are files with lists of settings for your EDM spark generator.
+;  A single line in an ETABLE is a comp;lete set of needed data.
+;  Users are urged to make thier own cipies and keep them
+;  in a private folder ( eg JamesETABS)
+;  and editr the comp to reflect that loaction.
+;  The Etables are lists of such data with indexes
+;  ranging from 25 down towards 1.
+;  Each l;ine is designmed to cut as little as possible, yet
+;  significantly refdine the size and surface finish.
+;  All 1st lines contain a RAD ( raius) entry.
+;  RAD us used for the orbital radius.
+;  The 1st power setting line has no use for a radius,
+;  as it does not orbit.
+;  Instaed, an ETABLE's 1st line's RAD entry
+;  is where the UnderSizePerSide )UNS) is stored.
+;  That value is what the tool shoudl measure
+;  (like  0.056 mm ).
+;  The user has a tool that was meassured, and that
+;  measured value is entered in rhe Q value
+;  The MeasureUndersize must be <= Etable UNS.
+;  Else the user has not finisehd machining the tool.
+;  If the MsrdUNS < EtabUNS, then
+;  the sedm comp will adap to achieve the correct szie and depth.
+; eg  M160 P19 Q0.508     P is ETABLR number  and Q is MsrdUNS
+;
+; swt thg BegNR and EndNR
+;  An Etable may hav lines NR 25 thru NR 10.
+;  The user may only wish to 'rough' and set
+;   BegNR = 25  EndNR = 23
+;   eg M161 P25 Q23
+; or
+;  a user may only be finshing a cavity and use
+;   BegNR =14 EndNR = 10
+;   eg M161 P14 Q10
+; or
+;  a user may only want a single power settinng
+;   BegNR =25 EndNR = 25
+;   eg M161 P25 Q25
+;
+; ETABLE adjustments
+' GVHI and GVLO
+;   The user can adjust the 'einfow comparator's edges,
+;   and thsi will influence teh cut,
+;   Raising both GVHI and GVLO will get more cahnce BWDs, and less FWD's.
+;   Loweing Both will get more FWD's and less BWD's
+;   Thie suggested target value is 32V for fishing and 28V for rougjing.
+;    (in my 40+ years experience)
+; ET and AJD
+; When Jump is enabled on the TechGui checkmark,
+; ET is the decimal seconds spent cutting,
+; and AJD is the decimal mm jump height
+; For dun asjust an ETABLE line
+; to 0.5 ET and 0.1mm AJD.
+; this will be a very quick PECK EDM .
+
+; Incxreasing the gap netween wiil increase HOLD's.

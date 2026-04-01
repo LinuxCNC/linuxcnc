@@ -1,0 +1,315 @@
+<pyvcp>
+	<!-- now using fixed font make colums easier -->
+	<!-- size 12 and bild is because I am mostly blind  -->
+	<!-- to view -->
+	<!--  halcmd loadusr pyvcp ./sedm.xml -->
+	<!-- 03.02.2026 no luck getting larger checkbutton -->
+	<vbox>
+		<hbox>
+			
+			<label><!-- File-->
+				<font>("DejaVu Sans Mono",12,"bold","bold")</font>
+				<text>"File:"</text>
+			</label>
+			<u32><!-- EtabNum-->
+				<halpin>"EtabNum"</halpin>
+				<font>("DejaVu Sans Mono",18,"bold")</font>
+				<format>"8d"</format>
+				<width>8</width>
+				<bg>"red"</bg>
+			</u32>
+			
+			<label><!-- UNS -->
+				<font>("DejaVu Sans Mono",12,"bold")</font>
+				<text>"UNS:"</text>
+			</label>
+			<number><!-- UNS -->
+				<halpin>"UNS"</halpin>
+				<font>("DejaVu Sans Mono",12,"bold")</font>
+				<bg>"LightBlue3"</bg>
+				<format>"2.3f"</format>
+			</number>
+			
+			<label><!-- ThiusRad -->
+				<font>("DejaVu Sans Mono",12,"bold")</font>
+				<text>"ThisRAD:"</text>
+			</label>
+			<number><!-- ThiusRad -->
+				<halpin>"ThisRAD"</halpin>
+				<font>("DejaVu Sans Mono",12,"bold")</font>
+				<bg>"LightBlue3"</bg>
+				<format>"2.3f"</format>
+			</number>
+			
+		</hbox>
+		<labelframe text="TECHNOLOGY">
+			<font>("DejaVu Sans Mono",12,"bold")</font>
+			<table>
+				<tablerow/><!-- Headers-->
+					<label><!--NR-->
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<text>"NR" </text>
+						<bg>"LightBlue3"</bg>
+						<width>2</width>
+					</label>
+					<label><!--IP-->
+						<text>"IP" </text>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>3</width>
+					</label>
+					<label><!--P-->
+						<text>"P" </text>
+						<bg>"LightBlue3"</bg>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>1</width>
+					</label>
+					<label>
+						<text>"HV" </text>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>3</width>
+					</label>
+					<label><!--TON-->
+						<text>"TON"</text>
+						<bg>"LightBlue3"</bg>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>4</width>
+					</label>
+					<label><!--ISO-->
+						<text>"ISO" </text>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>3</width>
+					</label>
+					<label><!--CB-->
+						<text>"CB" </text>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<bg>"LightBlue3"</bg>
+						<width>3</width>
+					</label>
+					<label><!--RAD-->
+						<text>"RAD"</text>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>5</width>
+					</label>
+					<label><!--SPA-->
+						<text>"SPA" </text>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<bg>"LightBlue3"</bg>
+						<width>5</width>
+					</label>
+					<label><!--VDI-->
+						<text>"VDI" </text>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>3</width>
+					</label>
+				<tablerow/><!--Value-->
+					<u32><!-- NR -->
+						<halpin>"NR"</halpin>
+						<format>"2d"</format>
+						<bg>"LightBlue3"</bg>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>2</width>
+					</u32>
+					<u32><!-- IP  -->
+						<halpin>"IP"</halpin>
+						<format>"3d"</format>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>3</width>
+					</u32>
+					<u32><!--- P -->
+						<halpin>"P"</halpin>
+						<format>"1d"</format >
+						<bg>"LightBlue3"</bg>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>1</width>
+					</u32>
+					<u32><!-- HV -->
+						<halpin>"HV"</halpin>
+						<format>"1d"</format>
+						<width>3</width>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+					</u32>
+					<number><!-- TON -->
+						<halpin>"TON"</halpin>
+						<format>"4d"</format>
+						<bg>"LightBlue3"</bg>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>4</width>
+					</number>
+					<u32><!-- ISO -->
+						<halpin>"ISO"</halpin>
+						<format>"1d"</format>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>3</width>
+					</u32>
+					<u32><!-- CB -->
+						<halpin>"BWDmax"</halpin>
+						<format>"2d"</format>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<bg>"LightBlue3"</bg>
+						<width>3</width>
+					</u32>
+					<number><!-- RAD -->
+						<halpin>"RAD"</halpin>
+						<format>"1.3f"</format>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>5</width>
+					</number>
+					<number><!-- SPA -->
+						<halpin>"SPA"</halpin>
+						<format>"1.0f"</format>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<bg>"LightBlue3"</bg>
+						<width>5</width>
+					</number>
+					<number><!-- VDI -->
+						<halpin>"VDI"</halpin>
+						<format>"3d"</format>
+						<font>("DejaVu Sans Mono",12,"bold")</font>
+						<width>3</width>
+					</number>
+			</table>
+		</labelframe>
+		<labelframe text="ADJUSTMENTS">
+		<!--justify>"center"</justify-->
+		<font>("DejaVu Sans Mono",12,"bold")</font>
+		<hbox><!-- for 3 labelframes  stecions  offt jump  target -->
+		<labelframe text="OffTime">
+			<font>("DejaVu Sans Mono",12,"bold")</font>
+			<hbox>
+			<vbox>
+				<label><!--OffTime-->
+					<font>("DejaVu Sans Mono",12,"bold")</font>
+					<text>"  TOF  " </text>
+					<bg>"LightBlue3"</bg>
+				</label>
+				<spinbox>
+					<justify>"right"</justify>
+					<halpin>"TOF"</halpin> 
+					<min_>1</min_>
+					<max_>9999</max_>
+					<initval>0000</initval>
+					<resolution>1.0</resolution>
+					<format>"4.0f"</format>
+					<font>("DejaVu Sans Mono",12,"bold")</font>
+					<param_pin>1</param_pin>
+					<width>7</width>
+				</spinbox>
+			</vbox>
+			</hbox>
+		</labelframe>
+		<labelframe text="Target">
+			<font>("DejaVu Sans Mono",12,"bold")</font>
+			<hbox>
+			<vbox>
+				<label><!--GVHI-->
+					<font>("DejaVu Sans Mono",12,"bold")</font>
+					<text>"GVHI" </text>
+					<bg>"LightBlue3"</bg>
+				</label>
+				<spinbox>
+					<halpin>"GVHI"</halpin>
+					<min_>0</min_>
+					<max_>100</max_>
+					<initval>0000</initval>
+					<resolution>1</resolution>
+					<format>"3f"</format>
+					<font>("DejaVu Sans Mono",12,"bold")</font>
+					<param_pin>1</param_pin>
+					<width>4</width>
+				</spinbox>
+			</vbox>
+			<vbox>
+				<label><!--GVlo-->
+					<font>("DejaVu Sans Mono",12,"bold")</font>
+					<text>"GVLO" </text>
+					<bg>"LightBlue3"</bg>
+				</label>
+				<spinbox>
+					<halpin>"GVLO"</halpin>
+					<min_>0</min_>
+					<max_>100</max_>
+					<initval>0000</initval>
+					<resolution>1</resolution>
+					<format>"3f"</format>
+					<font>("DejaVu Sans Mono",12,"bold")</font>
+					<param_pin>1</param_pin>
+					<width>4</width>
+				</spinbox>
+			</vbox>
+			</hbox>
+		</labelframe>
+		<labelframe text="Jump">
+			<font>("DejaVu Sans Mono",12,"bold")</font>
+			<hbox>
+			<vbox>
+			<label>
+				<font>("DejaVu Sans Mono",12,"bold")</font>
+				<text>"ENA"</text>
+				<bg>"LightBlue3"</bg>
+				<width>3</width>
+			</label>
+			<checkbutton>
+				<halpin>"JumpENA"</halpin>
+				<!--font>("DejaVu Sans Mono",12,"bold")</font-->
+				<!--text>"J"</text-->
+				<initval>0</initval>
+				<width>1</width>
+				<!-- vvv else jahgged vert align,ment -->
+				<height>1 </height>
+				<!--on_image>tk.PhotoImage(file='/usr/share/icons/HighContrast/48x48/status/checkbox-checked.png')</on_image-->
+				<!--off_image>tk.PhotoImage(file='/usr/share/icons/HighContrast/48x48/status/checkbox.png')</off_image-->
+				<!-- Widget checkbutton, Property on_image-->
+				<!--NameError: name 'tk' is not defined-->
+				
+				<!-- on_image> '/usr/share/icons/HighContrast/48x48/status/checkbox-checked.png'</on_image -->
+				<!-- off_image>'/usr/share/icons/HighContrast/48x48/status/checkbox.png'</off_image -->
+				<!-- unknown option on)image -->
+			</checkbutton>
+			</vbox>
+			<vbox>
+			<label><!--Erosion Time-->
+				<font>("DejaVu Sans Mono",12,"bold")</font>
+				<text>"ET sec" </text>
+				<bg>"LightBlue3"</bg>
+			</label>
+			<spinbox>
+				<halpin>"ET"</halpin>
+				<min_>0.001</min_>
+				<max_>10.0</max_>
+				<initval>0000</initval>
+				<resolution>0.001</resolution>
+				<format>"1.3f"</format>
+				<font>("DejaVu Sans Mono",12,"bold")</font>
+				<param_pin>1</param_pin>
+				<width>6</width>
+			</spinbox>
+			</vbox>
+			<vbox>
+			<label><!--JumpDist-->
+				<font>("DejaVu Sans Mono",12,"bold")</font>
+				<text>"Dist mm" </text>
+				<bg>"LightBlue3"</bg>
+			</label>
+			<spinbox>
+				<halpin>"AJD"</halpin>
+				<min_>0.010</min_>
+				<max_>10.0</max_>
+				<initval>0000</initval>
+				<resolution>0.01</resolution>
+				<format>"1.2f"</format>
+				<font>("DejaVu Sans Mono",12,"bold")</font>
+				<param_pin>1</param_pin>
+				<width>6</width>
+			</spinbox>
+			</vbox>
+			</hbox>
+		</labelframe>
+		</hbox>
+		</labelframe>
+	</vbox>
+	<!-- 05.02.2026 test invisble pins -->
+	<!-- no success using widget.forget() in M199 -->
+	<!--u32>
+		<halpin>"hiddenU32"</halpin>
+	</u32-->
+</pyvcp>

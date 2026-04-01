@@ -1,0 +1,16 @@
+#!/bin/bash
+# M197  no P no Q
+# It turns of jump 
+# if jump weas left on at end of NGC.
+# Place this in .ngc just before M02
+
+# M197 toggles sedm.JumpEna
+#   get pyvcp gui checkbnox state
+a="$(halcmd getp sedm.JumpENA)"
+
+if [[ $a == "TRUE" ]]; then
+	#echo "was TRUE,so toggling "
+	b="$(halcmd setp techGui.JumpENA.changepin 1)"
+fi
+
+exit 0

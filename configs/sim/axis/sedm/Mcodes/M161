@@ -1,0 +1,19 @@
+#!/bin/bash
+
+exec >/dev/null 2>&1 # quiet
+
+# usage
+# M161 P<BegNR> Q<EndNR>
+# BegNR is U32    must  be >= EndNR
+# EndNR is U32    must  be <= BegNR
+
+# and Bash retns Floaats
+# so this vvv print trick cnvrts f2i
+printf -v BegNRint '%d' "$1"
+
+halcmd setp sedm.BegNR $BegNRint
+
+printf -v EndNRint '%d' "$2"
+halcmd setp sedm.EndNR $EndNRint
+
+exit 0

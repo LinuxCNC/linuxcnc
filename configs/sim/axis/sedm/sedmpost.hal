@@ -1,0 +1,58 @@
+# sedmpost.hal 30.09.2025
+# 25.03.2026 cleaned
+#==============begin loads===============
+loadusr -Wn techGui  pyvcp -c techGui ./sedm.xml
+loadusr -Wn EDpanel pyvcp   -g 200x150+800+50 -c EDpanel ./sedmpause.xml
+loadusr -W sedm
+#==============end loads===============
+setp sedm.xyzSCALEfIN 0.001
+setp sedm.freebies   20 #12
+
+net inpo motion.in-position sedm.inpo
+net J0:pos-fb sedm.xFBf
+net J1:pos-fb sedm.yFBf
+net J2:pos-fb sedm.zFBf
+net stepSize sedm.xyzSCALEfOUT axis.x.eoffset-scale
+net stepSize                    axis.y.eoffset-scale
+net stepSize                    axis.z.eoffset-scale
+net  dNR                sedm.NR   techGui.NR #gen.NR #U32
+net  dIP                sedm.IP   techGui.IP #gen.IP #u32
+net  dHV                sedm.HV   techGui.HV #gen.HV #U32
+net  dTON               sedm.TON  techGui.TON #gen.TONO #FLOAT
+net  dP                 sedm.P   techGui.P    # gen.IP
+net  dISO               sedm.ISO techGui.ISO  # gen/ISO
+net  sTOFetab  sedm.TOF  techGui.spinbox.0.param_pin
+net  sGVHIetab sedm.GVHI techGui.spinbox.1.param_pin
+net  sGVLOetab sedm.GVLO techGui.spinbox.2.param_pin
+net  sETetab   sedm.ET   techGui.spinbox.3.param_pin
+net  sAHDetab  sedm.AJD  techGui.spinbox.4.param_pin
+net  sTOFout  techGui.TOF  #gen.TOF 
+net  sGVHIout techGui.GVHI #gen.GVHI 
+net  sGVLOout techGui.GVLO #gen.GVLO 
+net  sETout   techGui.ET   #gen.ET
+net  sAJDout  techGui.AJD  #gen.AJD
+net  sJumpENA  techGui.JumpENA  sedm.JumpENA
+net  dBWDmax            sedm.BWDmax techGui.BWDmax
+net  dVDI               sedm.VDIf             techGui.VDI
+net  dRAD              sedm.RADf             techGui.RAD
+net  dSPA              sedm.SPAf             techGui.SPA
+net  dOrbitType         sedm.OrbitType
+net  dWiglRADf          sedm.WiglRADf
+net  dPlungeOrbitWanted sedm.PlungeOrbitWanted
+net  dPitch             sedm.Pitch
+net  dUNS               sedm.UNSf         techGui.UNS
+net  dThisRad           sedm.ThisRADf     techGui.ThisRAD
+net  dEtabNum         sedm.EtabNum          techGui.EtabNum
+net eox sedm.XOffsetCmd  axis.x.eoffset-counts
+net eoy sedm.YOffsetCmd  axis.y.eoffset-counts
+net eoz sedm.ZOffsetCmd  axis.z.eoffset-counts
+net die sedm.abort halui.abort
+net hot     sedm.disableOsc  EDpanel.EDpeek.disable
+net EDpk  EDpanel.EDpeek   sedm.EDpeek
+net EDret EDpanel.EDreturn sedm.EDreturn
+net EDq   EDpanel.EDquit   sedm.EDquit
+net dMsrdUNSf   sedm.MsrdUNSf
+net ForzFWD  sedm.ForceFWD  EDpanel.ForzFWD
+net ForzHOLD sedm.ForceHOLD EDpanel.ForzHOLD
+net ForzBWD  sedm.ForceBWD  EDpanel.ForzBWD
+net inpo motion.in-position sedm.inpo

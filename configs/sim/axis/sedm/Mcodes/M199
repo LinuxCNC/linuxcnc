@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# usage:  M199      ( no P Q  parms)
+# purpose: begin using eoffsets
+
+# TODO 25.03.2026 discover axis using eoffsets
+#  and enable those
+
+halcmd setp axis.x.eoffset-enable True
+halcmd setp axis.y.eoffset-enable True
+halcmd setp axis.z.eoffset-enable True
+
+#TODO 31.03.2026 pin and setting the pin may not be needed, but harmless.The whioe trigger/gotsleep needs review
+halcmd setp sedm.isEna True
+
+exit 0
