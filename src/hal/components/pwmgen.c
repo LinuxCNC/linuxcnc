@@ -135,7 +135,7 @@ static long periodns;		/* makepulses function period in nanosec */
 ************************************************************************/
 
 static int export_pwmgen(int num, pwmgen_t * addr, int output_type);
-static void make_pulses(void *arg, long period);
+static void __attribute__((target("general-regs-only"))) make_pulses(void *arg, long period);
 static void update(void *arg, long period);
 
 /***********************************************************************
@@ -231,7 +231,7 @@ void rtapi_app_exit(void)
     added and subtracted.
 */
 
-static void make_pulses(void *arg, long period)
+static void __attribute__((target("general-regs-only"))) make_pulses(void *arg, long period)
 {
     pwmgen_t *pwmgen;
     int n;
