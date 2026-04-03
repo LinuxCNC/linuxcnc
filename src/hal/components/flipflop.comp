@@ -7,7 +7,7 @@ pin io bit out "output";
 pin io bit out-not "inverted output";
 option data flipflop_data;
 
-function _ nofp;
+function _;
 license "GPL";
 author "John Kasunich";
 ;;

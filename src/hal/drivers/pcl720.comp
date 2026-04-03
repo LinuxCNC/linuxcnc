@@ -15,9 +15,9 @@ param rw bit pin-##-out-invert[32] "Set to true to invert the sense of the outpu
 
 pin out  unsigned wait_clocks;
 
-function read nofp "Reads each of the digital inputs and updates the HAL pins";
-function write nofp "Writes the values of the output HAL pins to the digital IO";
-function reset nofp """Waits for the length of time specified by the
+function read "Reads each of the digital inputs and updates the HAL pins";
+function write "Writes the values of the output HAL pins to the digital IO";
+function reset """Waits for the length of time specified by the
 \\fBreset-time\\fP parameter and resets any pins for which the \\fBreset\\fP
 parameter has been set. This can be used to allow step generators to make a step
 every thread rather than every other thread. This function must be added to the

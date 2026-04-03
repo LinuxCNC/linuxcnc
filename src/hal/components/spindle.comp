@@ -132,7 +132,7 @@ If multiple select inputs are active then the highest is selected.
 variable float ngears;
 variable gear_t gears[16];
 
-function _ fp;
+function _;
 license "GPL";
 author "Les Newell";
 option extra_setup yes;

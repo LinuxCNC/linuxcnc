@@ -16,7 +16,7 @@ pin io bit out "on/off output";
 param rw u32 debounce = 2 "debounce delay in periods";
 option data toggle_data;
 
-function _ nofp;
+function _;
 license "GPL";
 author "John Kasunich";
 ;;

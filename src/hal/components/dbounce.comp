@@ -9,7 +9,7 @@ pin out bit out;
 pin in  u32 delay = 5;
 
 variable int state;
-function _ nofp;
+function _;
 license "GPL";
 author "Dewey Garrett";
 ;;

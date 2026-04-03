@@ -72,7 +72,7 @@ variable hal_bit_t prev_edge = TRUE;
  
 option extra_setup yes;
  
-function _ nofp "Display a message";
+function _ "Display a message";
 license "GPL v2";
 author "Les Newell";
 ;;

@@ -24,7 +24,7 @@ pin out float et "Elapsed time since rising edge in seconds";
 
 param rw float pt "Delay time in seconds";
 
-function _ fp "Update the timer";
+function _ "Update the timer";
 license "GPL";
 author "Chad Woitas";
 ;;

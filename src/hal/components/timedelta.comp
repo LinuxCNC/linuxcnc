@@ -19,7 +19,7 @@ pin out s32 err=0 "Cumulative time error (in ns).  Probably not useful.";
 pin out float avg_err=0 "The average scheduling error (in ns).";
 
 
-function _ nofp;
+function _;
 variable rtapi_s64 last=0;
 variable int first=1;
 license "GPL";

@@ -35,7 +35,7 @@ pin out bit on;
 pin out bit off;
 variable int old_in;
 variable int to_state=0;
-function _ nofp;
+function _;
 license "GPL";
 author "Anders Wallin";
 ;;

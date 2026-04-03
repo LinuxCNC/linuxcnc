@@ -1,7 +1,7 @@
 component not "Inverter";
 pin in bit in;
 pin out bit out;
-function _ nofp;
+function _;
 see_also """
 \\fBand2\\fR(9),
 \\fBlogic\\fR(9),
