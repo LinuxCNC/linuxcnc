@@ -212,14 +212,11 @@ AC_SUBST([RTAI_CONFIG])
 AC_PATH_PROG([XENOMAI_CONFIG], [xeno-config], [none])
 AC_SUBST([XENOMAI_CONFIG])
 
-#Just check a header to decide if EVL is installed
-AC_CHECK_HEADER([evl/thread.h],[
-    AC_MSG_NOTICE([libevl evl/thread.h found, building xenomai4 (EVL)])
-    CONFIG_USPACE_XENOMAI_EVL=y
-  ],[
-    AC_MSG_NOTICE([libevl evl/thread.h missing, not building xenomai4 (EVL)])
-    CONFIG_USPACE_XENOMAI_EVL=n
-  ])
+#Xenomai evl
+HAS_EVL=n
+AC_CHECK_HEADER([evl/evl.h],[
+  HAS_EVL=y
+])
 
 AC_MSG_CHECKING([for realtime API(s) to use])
 if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
@@ -257,15 +254,17 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
   AC_SUBST([XENOMAI_CFLAGS])
   AC_SUBST([XENOMAI_LDFLAGS])
 
-  if test "$CONFIG_USPACE_XENOMAI_EVL" = "n" ; then
+  if test "$HAS_EVL" = "n" ; then
     USPACE_XENOMAI_EVL=
+    CONFIG_USPACE_XENOMAI_EVL=n
     XENOMAI_EVL_CFLAGS=
     XENOMAI_EVL_LDFLAGS=
   else
     USPACE_XENOMAI_EVL=+xenomai4
+    CONFIG_USPACE_XENOMAI_EVL=y
     XENOMAI_EVL_CFLAGS=
     XENOMAI_EVL_LDFLAGS=-levl
-    AC_DEFINE([USPACE_XENOMAI_EVL], [], [Define if uspace realtime should optionally support Xenomai])
+    AC_DEFINE([USPACE_XENOMAI_EVL], [], [Define if uspace realtime should optionally support Xenomai-evl])
   fi
 
   AC_SUBST([CONFIG_USPACE_XENOMAI_EVL])
