@@ -1917,6 +1917,12 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     long prev_period, curr_period;
     char buf[HAL_NAME_LEN + 1];
 
+    if (!uses_fp) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "HAL: WARNING: thread '%s' created with uses_fp=0, "
+	    "overriding to uses_fp=1 (uses_fp is deprecated).\n", name);
+	uses_fp = 1;
+    }
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: creating thread %s, %ld nsec\n", name, period_nsec);
     if (hal_data == 0) {
@@ -2202,13 +2208,8 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 	    "HAL: ERROR: thread '%s' not found\n", thread_name);
 	return -EINVAL;
     }
-    /* ok, we have thread and function, are they compatible? */
-    if ((funct->uses_fp) && (!thread->uses_fp)) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: function '%s' needs FP\n", funct_name);
-	return -EINVAL;
-    }
+    /* All threads now save FPU state (uses_fp is deprecated),
+       so the FP compatibility check is no longer needed. */
     /* find insertion point */
     list_root = &(thread->funct_list);
     list_entry = list_root;
