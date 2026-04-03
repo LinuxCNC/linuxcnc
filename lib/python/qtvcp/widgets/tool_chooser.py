@@ -18,10 +18,10 @@
 import sys
 import os
 import operator
-from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
-from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,QStyledItemDelegate, qApp)
+from qtpy import QtGui, QtWidgets, uic
+from qtpy.QtCore import Qt, QAbstractTableModel, QVariant
+from qtpy.QtGui import QColor, QIcon
+from qtpy.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,QStyledItemDelegate, qApp)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp import logger
@@ -172,9 +172,9 @@ class ToolTableModel(QAbstractTableModel):
     # Testing                   #
     #############################
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from qtpy.QtWidgets import *
+    from qtpy.QtCore import *
+    from qtpy.QtGui import *
     app = QtWidgets.QApplication(sys.argv)
     w = ToolChooser()
     w.show()

@@ -8,9 +8,9 @@ import math
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, Qt, QTimer
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QSlider,
+from qtpy.QtCore import Property, Signal, QSize, Qt, QTimer
+from qtpy.QtGui import QColor
+from qtpy.QtWidgets import (QApplication, QHBoxLayout, QSlider,
         QWidget, QOpenGLWidget)
 
 LIB_GOOD = True
@@ -178,10 +178,10 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
 # widget for graphics plotting
 ###############################
 class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
-    percentLoaded = pyqtSignal(int)
-    xRotationChanged = pyqtSignal(int)
-    yRotationChanged = pyqtSignal(int)
-    zRotationChanged = pyqtSignal(int)
+    percentLoaded = Signal(int)
+    xRotationChanged = Signal(int)
+    yRotationChanged = Signal(int)
+    zRotationChanged = Signal(int)
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
 
     def __init__(self, parent=None):
@@ -1295,7 +1295,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         return self._font
     def resetfont(self):
         self._font = 'monospace bold 16'
-    dro_font = pyqtProperty(str, getfont, setfont, resetfont)
+    dro_font = Property(str, getfont, setfont, resetfont)
 
     def setfontlarge(self, font):
         self._fontLarge = font
@@ -1304,7 +1304,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         return self._fontLarge
     def resetfontlarge(self):
         self._fontLarge = 'monospace bold 22'
-    dro_large_font = pyqtProperty(str, getfontlarge, setfontlarge, resetfontlarge)
+    dro_large_font = Property(str, getfontlarge, setfontlarge, resetfontlarge)
 
 ###########
 # Testing

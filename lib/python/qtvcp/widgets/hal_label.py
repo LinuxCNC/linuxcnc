@@ -17,7 +17,7 @@
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from PyQt5.QtCore import pyqtProperty, pyqtSlot, QVariant
+from qtpy.QtCore import Property, Slot, QVariant
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp import logger
 
@@ -78,19 +78,19 @@ class HALLabel(ScaledLabel, _HalWidgetBase):
 
     # one can connect signals to this widget to
     # feed an input that gets formatted by this widget.
-    @pyqtSlot(float)
-    @pyqtSlot(int)
-    @pyqtSlot(bool)
+    @Slot(float)
+    @Slot(int)
+    @Slot(bool)
     def setDisplay(self, data):
         self._setText(data)
 
-    @pyqtSlot(int)
+    @Slot(int)
     def selectLabel(self,data):
         self._changeText(data)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
@@ -160,14 +160,14 @@ class HALLabel(ScaledLabel, _HalWidgetBase):
         self._multi_label_list = ['Label 0','Label 1','Label 2']
 
     # designer will show these properties in this order:
-    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
-    bit_pin_type = pyqtProperty(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
-    s32_pin_type = pyqtProperty(bool, get_s32_pin_type, set_s32_pin_type, reset_s32_pin_type)
-    float_pin_type = pyqtProperty(bool, get_float_pin_type, set_float_pin_type, reset_float_pin_type)
-    use_multi_label = pyqtProperty(bool, get_use_multi_label, set_use_multi_label, reset_use_multi_label)
-    textTemplate = pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
+    pin_name = Property(str, get_pin_name, set_pin_name, reset_pin_name)
+    bit_pin_type = Property(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
+    s32_pin_type = Property(bool, get_s32_pin_type, set_s32_pin_type, reset_s32_pin_type)
+    float_pin_type = Property(bool, get_float_pin_type, set_float_pin_type, reset_float_pin_type)
+    use_multi_label = Property(bool, get_use_multi_label, set_use_multi_label, reset_use_multi_label)
+    textTemplate = Property(str, get_textTemplate, set_textTemplate, reset_textTemplate)
 
-    multi_label_list = pyqtProperty(QVariant.typeToName(QVariant.StringList),
+    multi_label_list = Property(QVariant.typeToName(QVariant.StringList),
             get_multi_label_l, set_multi_label_l, reset_multi_label_l)
     ##############################
     # required class boiler code #

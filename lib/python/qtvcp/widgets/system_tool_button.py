@@ -15,8 +15,8 @@
 ###############################################################################
 
 
-from PyQt5.QtWidgets import QToolButton, QMenu, QAction
-from PyQt5.QtGui import QIcon
+from qtpy.QtWidgets import QToolButton, QMenu, QAction
+from qtpy.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.dialog_widget import EntryDialog
@@ -121,7 +121,7 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = SystemToolButton()
     widget.show()

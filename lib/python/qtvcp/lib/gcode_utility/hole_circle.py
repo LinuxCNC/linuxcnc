@@ -7,10 +7,10 @@ import tempfile
 import atexit
 import shutil
 
-from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent, QRegExp
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
-from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
+from qtpy import QtGui, QtWidgets, uic
+from qtpy.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent, QRegExp
+from qtpy.QtWidgets import QFileDialog, QMessageBox
+from qtpy.QtGui import QPainter, QBrush, QPen, QColor
 
 from linuxcnc import OPERATOR_ERROR, NML_ERROR
 from qtvcp.core import Info, Status, Action, Path

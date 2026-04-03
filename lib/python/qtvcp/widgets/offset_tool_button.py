@@ -14,9 +14,9 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QToolButton, QMenu, QAction
-from PyQt5.QtCore import pyqtProperty
-from PyQt5.QtGui import QIcon
+from qtpy.QtWidgets import QToolButton, QMenu, QAction
+from qtpy.QtCore import Property
+from qtpy.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -169,7 +169,7 @@ class OffsetToolButton(QToolButton, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     ########################################################################
@@ -181,7 +181,7 @@ class OffsetToolButton(QToolButton, _HalWidgetBase):
         return self._axis
     def reset_axis(self):
         self._axis = ''
-    axis_letter = pyqtProperty(str, get_axis, set_axis, reset_axis)
+    axis_letter = Property(str, get_axis, set_axis, reset_axis)
 
 
     def set_dialog_code(self, data):
@@ -190,7 +190,7 @@ class OffsetToolButton(QToolButton, _HalWidgetBase):
         return self.dialog_code
     def reset_dialog_code(self):
         self.dialog_code = 'CALCULATOR'
-    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    dialog_code_string = Property(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -200,7 +200,7 @@ class OffsetToolButton(QToolButton, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = OffsetToolButton()
     widget.show()

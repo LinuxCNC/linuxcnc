@@ -2,8 +2,8 @@
 # **** IMPORT SECTION **** #
 ############################
 
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from qtpy import QtCore
+from qtpy import QtWidgets
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
 from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW

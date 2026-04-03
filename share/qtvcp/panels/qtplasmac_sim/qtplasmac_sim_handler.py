@@ -24,9 +24,9 @@ import os
 import sys
 import hal
 from subprocess import run as RUN
-from PyQt5 import QtCore
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMessageBox
+from qtpy import QtCore
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import QMessageBox
 from qtvcp.core import Info
 from qtvcp.lib.preferences import Access
 

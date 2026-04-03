@@ -2,7 +2,7 @@ import os
 import sys
 import subprocess
 
-from PyQt5 import QtGui, QtCore, QtWidgets, uic
+from qtpy import QtGui, QtCore, QtWidgets, uic
 import traceback
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # Set up logging

@@ -19,8 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QMessageBox
+from qtpy.QtCore import Qt, QCoreApplication
+from qtpy.QtWidgets import QLabel, QMessageBox
 from importlib import reload
 from plasmac import sector as SECTOR
 

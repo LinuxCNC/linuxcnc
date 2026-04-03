@@ -18,7 +18,7 @@
 # This widget pops up an onscreen keyboard for entries
 # Used in the Macro and MDI line widget
 
-from PyQt5 import QtWidgets, QtCore, QtGui
+from qtpy import QtWidgets, QtCore, QtGui
 #from decimal import Decimal
 
 # applicationle widgets
@@ -267,7 +267,7 @@ class TouchInterface(QtWidgets.QWidget):
 ## testing ##
 if __name__ == '__main__':
     import sys
-    from PyQt5.QtWidgets import QWidget
+    from qtpy.QtWidgets import QWidget
     app = QtWidgets.QApplication([])
     w = QWidget()
     w.setGeometry(100, 100, 200, 100)

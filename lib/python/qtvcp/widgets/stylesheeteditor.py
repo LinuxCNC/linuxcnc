@@ -40,10 +40,10 @@
 ###########################################################################
 
 import os
-from PyQt5 import uic
-from PyQt5.QtCore import pyqtSlot, QFile, QTextStream, QUrl, Qt
-from PyQt5.QtGui import QStandardItem, QTextCursor, QTextCharFormat, QTextDocument, QColor
-from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox, QColorDialog
+from qtpy import uic
+from qtpy.QtCore import Slot, QFile, QTextStream, QUrl, Qt
+from qtpy.QtGui import QStandardItem, QTextCursor, QTextCharFormat, QTextDocument, QColor
+from qtpy.QtWidgets import QDialog, QFileDialog, QMessageBox, QColorDialog
 
 from qtvcp.core import Path
 from qtvcp.qt_makegui import VCPWindow
@@ -173,11 +173,11 @@ class StyleSheetEditor(QDialog):
         cursor = self.matches[self.current_match_index]
         self.styleTextEdit.setTextCursor(cursor)
 
-    @pyqtSlot()
+    @Slot()
     def on_styleTextView_textChanged(self):
         self.applyButton.setEnabled(True)
 
-    @pyqtSlot()
+    @Slot()
     def on_applyButton_clicked(self):
         self.parent.setStyleSheet("")
         if self.tabWidget.currentIndex() == 0:
@@ -199,7 +199,7 @@ class StyleSheetEditor(QDialog):
         except:
             pass
 
-    @pyqtSlot()
+    @Slot()
     def on_openButton_clicked(self):
         if PATH.IS_SCREEN:
             DIR = PATH.SCREENDIR
@@ -240,7 +240,7 @@ class StyleSheetEditor(QDialog):
             model.appendRow(item)
             self.styleSheetCombo.setCurrentIndex(self.styleSheetCombo.count()-1)
 
-    @pyqtSlot()
+    @Slot()
     def on_saveButton_clicked(self):
         if PATH.IS_SCREEN:
             DIR = PATH.SCREENDIR
@@ -272,19 +272,19 @@ class StyleSheetEditor(QDialog):
             fileName = dialog.selectedFiles()[0]
             self.saveStyleSheet(fileName)
 
-    @pyqtSlot()
+    @Slot()
     def on_closeButton_clicked(self):
         self.close()
 
-    @pyqtSlot()
+    @Slot()
     def on_clearButton_clicked(self):
         self.styleTextEdit.clear()
 
-    @pyqtSlot()
+    @Slot()
     def on_copyButton_clicked(self):
         self.styleTextEdit.setPlainText(self.styleTextView.toPlainText())
 
-    @pyqtSlot()
+    @Slot()
     def on_colorButton_clicked(self):
         _color = QColorDialog.getColor()
         if _color.isValid():

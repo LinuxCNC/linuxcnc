@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from PyQt5 import QtGui
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from qtpy import QtGui
+from qtpy.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.dro_widget import DROLabel
 from qtvcp.widgets.user_dro_label import UserDROLabel
 from qtvcp.widgets.mdi_line import MDILine

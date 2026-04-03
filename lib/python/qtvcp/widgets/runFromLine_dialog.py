@@ -18,7 +18,7 @@
 import sys
 import os
 
-from PyQt5 import QtWidgets, uic
+from qtpy import QtWidgets, uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -73,9 +73,9 @@ class RunFromLineDialog(QtWidgets.QDialog, _HalWidgetBase):
 # Testing
 ####################################
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from qtpy.QtWidgets import *
+    from qtpy.QtCore import *
+    from qtpy.QtGui import *
 
     app = QtWidgets.QApplication(sys.argv)
     w = RunFromLineDialog()

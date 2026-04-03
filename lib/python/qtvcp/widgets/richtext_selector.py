@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtPrintSupport import *
+from qtpy.QtGui import *
+from qtpy.QtWidgets import *
+from qtpy.QtCore import *
+from qtpy.QtPrintSupport import *
 
 from qtvcp.core import Info, Path
 

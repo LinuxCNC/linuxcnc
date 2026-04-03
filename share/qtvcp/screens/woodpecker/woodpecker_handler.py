@@ -2,8 +2,8 @@ import os
 import linuxcnc
 import hal
 import sys
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5 import QtCore, QtWidgets, QtGui, uic
+from qtpy.QtWidgets import QMessageBox
+from qtpy import QtCore, QtWidgets, QtGui, uic
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE

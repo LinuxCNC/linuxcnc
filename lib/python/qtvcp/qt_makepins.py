@@ -20,8 +20,8 @@
 import os
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.widgets.screen_options import ScreenOptions
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QDesktopWidget
+from qtpy.QtCore import QObject
+from qtpy.QtWidgets import QDesktopWidget
 
 from qtvcp.core import Info
 

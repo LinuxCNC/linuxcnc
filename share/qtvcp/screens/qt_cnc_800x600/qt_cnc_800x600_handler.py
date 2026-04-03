@@ -2,9 +2,9 @@
 # **** IMPORT SECTION **** #
 ############################
 
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
-from PyQt5 import QtGui
+from qtpy import QtCore
+from qtpy import QtWidgets
+from qtpy import QtGui
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.notify import Notify

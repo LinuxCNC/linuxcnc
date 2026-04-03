@@ -17,9 +17,9 @@
 import linuxcnc
 from math import isclose
 
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMenu, QAction
-from PyQt5.QtGui import QIcon, QColor
+from qtpy import QtCore
+from qtpy.QtWidgets import QMenu, QAction
+from qtpy.QtGui import QIcon, QColor
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -155,17 +155,17 @@ class UserDROLabel(ScaledLabel, _HalWidgetBase):
             p = INFO.convert_units_9(p)
         return p[self.axis_index]
 
-    @QtCore.pyqtSlot(bool)
+    @QtCore.Slot(bool)
     def zero (self, data=True):
         p = self.get_current_position()
         self._lastOffset[self.axis_index] = self._offset[self.axis_index]
         self._offset[self.axis_index] = - p
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def setAxisIndex(self, num):
         self.axis_index = num
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def setAxisLetter(self, let):
         self.axis_index = self.axisToIndex(let)
         print(let,self.axis_index)
@@ -221,7 +221,7 @@ class UserDROLabel(ScaledLabel, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
@@ -232,7 +232,7 @@ class UserDROLabel(ScaledLabel, _HalWidgetBase):
         return self.metric_text_template
     def resetmetrictemplate(self):
         self.metric_text_template =  '%10.3f'
-    metric_template = QtCore.pyqtProperty(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
+    metric_template = QtCore.Property(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
 
     def setimperialtexttemplate(self, data):
         self.imperial_text_template = data
@@ -241,7 +241,7 @@ class UserDROLabel(ScaledLabel, _HalWidgetBase):
         return self.imperial_text_template
     def resetimperialtexttemplate(self):
         self.imperial_text_template =  '%9.4f'
-    imperial_template = QtCore.pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
+    imperial_template = QtCore.Property(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
 
     def setangulartexttemplate(self, data):
         self.angular_text_template = data
@@ -250,19 +250,19 @@ class UserDROLabel(ScaledLabel, _HalWidgetBase):
         return self.angular_text_template
     def resetangulartexttemplate(self):
         self.angular_text_template =  '%9.2f'
-    angularTemplate = QtCore.pyqtProperty(str, getangulartexttemplate, setangulartexttemplate, resetangulartexttemplate)
+    angularTemplate = QtCore.Property(str, getangulartexttemplate, setangulartexttemplate, resetangulartexttemplate)
 
     def getNegativeColor(self):
         return self._negativeColor
     def setNegativeColor(self, value):
         self._negativeColor = value
-    negativeColor = QtCore.pyqtProperty(QColor, getNegativeColor, setNegativeColor)
+    negativeColor = QtCore.Property(QColor, getNegativeColor, setNegativeColor)
 
     def getPositiveColor(self):
         return self._positiveColor
     def setPositiveColor(self, value):
         self._positiveColor = value
-    positiveColor = QtCore.pyqtProperty(QColor, getPositiveColor, setPositiveColor)
+    positiveColor = QtCore.Property(QColor, getPositiveColor, setPositiveColor)
 
     ####################
     ## menu properties
@@ -274,7 +274,7 @@ class UserDROLabel(ScaledLabel, _HalWidgetBase):
         return self.dialog_code
     def reset_dialog_code(self):
         self.dialog_code = 'CALCULATOR'
-    dialogName = QtCore.pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    dialogName = QtCore.Property(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     ##############################
     # required class boiler code #
@@ -288,7 +288,7 @@ class UserDROLabel(ScaledLabel, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     widget = UserDROLabel()

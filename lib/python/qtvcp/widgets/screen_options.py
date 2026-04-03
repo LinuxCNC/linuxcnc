@@ -15,10 +15,10 @@
 ###############################################################################
 
 import os
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import (QGraphicsBlurEffect,
+from qtpy import QtCore, QtWidgets, QtGui
+from qtpy.QtWidgets import (QGraphicsBlurEffect,
                 QGraphicsColorizeEffect)
-from PyQt5.QtCore import QVariant
+from qtpy.QtCore import QVariant
 
 import linuxcnc
 
@@ -535,8 +535,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.aboutDialog_.setText(info)
         w.aboutDialog_.hal_init(HAL_NAME='aboutDialog')
 
-    @QtCore.pyqtSlot(bool)
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(bool)
+    @QtCore.Slot(int)
     def showAboutDialog(self, value):
         self.QTVCP_INSTANCE_.aboutDialog_.showdialog()
 
@@ -778,7 +778,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -792,7 +792,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     ########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
@@ -868,20 +868,20 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_receive_zmq
 
     # designer will show these properties in this order:
-    notify_option = QtCore.pyqtProperty(bool, get_notify, set_notify, reset_notify)
-    notify_max_messages = QtCore.pyqtProperty(int, get_max_messages, set_max_messages, reset_max_messages)
+    notify_option = QtCore.Property(bool, get_notify, set_notify, reset_notify)
+    notify_max_messages = QtCore.Property(int, get_max_messages, set_max_messages, reset_max_messages)
 
-    catch_close_option = QtCore.pyqtProperty(bool, get_close, set_close, reset_close)
-    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor, resetColor)
+    catch_close_option = QtCore.Property(bool, get_close, set_close, reset_close)
+    close_overlay_color = QtCore.Property(QtGui.QColor, getColor, setColor, resetColor)
 
-    catch_errors_option = QtCore.pyqtProperty(bool, get_errors, set_errors, reset_errors)
-    play_sounds_option = QtCore.pyqtProperty(bool, get_play_sounds, set_play_sounds, reset_play_sounds)
+    catch_errors_option = QtCore.Property(bool, get_errors, set_errors, reset_errors)
+    play_sounds_option = QtCore.Property(bool, get_play_sounds, set_play_sounds, reset_play_sounds)
 
-    use_pref_file_option = QtCore.pyqtProperty(bool, get_use_pref_file, set_use_pref_file, reset_use_pref_file)
-    pref_filename_string = QtCore.pyqtProperty(str, get_pref_filename, set_pref_filename, reset_pref_filename)
+    use_pref_file_option = QtCore.Property(bool, get_use_pref_file, set_use_pref_file, reset_use_pref_file)
+    pref_filename_string = QtCore.Property(str, get_pref_filename, set_pref_filename, reset_pref_filename)
 
-    use_send_zmq_option = QtCore.pyqtProperty(bool, get_send_zmg, set_send_zmg)
-    use_receive_zmq_option = QtCore.pyqtProperty(bool, get_receive_zmg, set_receive_zmg)
+    use_send_zmq_option = QtCore.Property(bool, get_send_zmg, set_send_zmg)
+    use_receive_zmq_option = QtCore.Property(bool, get_receive_zmg, set_receive_zmg)
     # Embeddable program info ##########################
 
     def set_embed_prgm(self, data):
@@ -890,12 +890,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.process_tabs
     def reset_embed_prgm(self):
         self.process_tabs = True
-    embedded_program_option = QtCore.pyqtProperty(bool, get_embed_prgm, set_embed_prgm, reset_embed_prgm)
+    embedded_program_option = QtCore.Property(bool, get_embed_prgm, set_embed_prgm, reset_embed_prgm)
     def set_default_tab(self, data):
         self._default_tab_name = data
     def get_default_tab(self):
         return self._default_tab_name
-    default_embed_tab = QtCore.pyqtProperty(str, get_default_tab, set_default_tab)
+    default_embed_tab = QtCore.Property(str, get_default_tab, set_default_tab)
 
     # Focus overlay ####################################
 
@@ -905,7 +905,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_focus_overlay
     def reset_focusOverlay(self):
         self.add_focus_overlay = False
-    focusOverlay_option = QtCore.pyqtProperty(bool, get_focusOverlay, set_focusOverlay, reset_focusOverlay)
+    focusOverlay_option = QtCore.Property(bool, get_focusOverlay, set_focusOverlay, reset_focusOverlay)
 
     def set_focusEffect(self, data):
         self.add_focus_effect = data
@@ -913,7 +913,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_focus_effect
     def reset_focusEffect(self):
         self.add_focus_effect = False
-    focusEffect_option = QtCore.pyqtProperty(bool, get_focusEffect, set_focusEffect, reset_focusEffect)
+    focusEffect_option = QtCore.Property(bool, get_focusEffect, set_focusEffect, reset_focusEffect)
 
     def set_focusBlur(self, data):
         self.use_focus_blur = data
@@ -923,7 +923,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.use_focus_blur
     def reset_focusBlur(self):
         self.use_focus_blur = False
-    focusBlur_option = QtCore.pyqtProperty(bool, get_focusBlur, set_focusBlur, reset_focusBlur)
+    focusBlur_option = QtCore.Property(bool, get_focusBlur, set_focusBlur, reset_focusBlur)
 
     def set_blurList(self, data):
         self.__blurList = data
@@ -931,7 +931,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.__blurList
     def reset_blurList(self):
         self.__blurList = []
-    focusBlurList = QtCore.pyqtProperty(QVariant.typeToName(QVariant.StringList), get_blurList, set_blurList, reset_blurList)
+    focusBlurList = QtCore.Property(QVariant.typeToName(QVariant.StringList), get_blurList, set_blurList, reset_blurList)
 
     def set_focusTint(self, data):
         self.use_focus_tint = data
@@ -941,7 +941,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.use_focus_tint
     def reset_focusTint(self):
         self.use_focus_tint = False
-    focusTint_option = QtCore.pyqtProperty(bool, get_focusTint, set_focusTint, reset_focusTint)
+    focusTint_option = QtCore.Property(bool, get_focusTint, set_focusTint, reset_focusTint)
 
     def set_tintList(self, data):
         self.__tintList = data
@@ -949,7 +949,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.__tintList
     def reset_tintList(self):
         self.__tintList = []
-    focusTintList = QtCore.pyqtProperty(QVariant.typeToName(QVariant.StringList), get_tintList, set_tintList, reset_tintList)
+    focusTintList = QtCore.Property(QVariant.typeToName(QVariant.StringList), get_tintList, set_tintList, reset_tintList)
 
     # Dialogs ##########################################
 
@@ -959,12 +959,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_message_dialog
     def reset_messageDialog(self):
         self.add_message_dialog = False
-    messageDialog_option = QtCore.pyqtProperty(bool, get_messageDialog, set_messageDialog, reset_messageDialog)
+    messageDialog_option = QtCore.Property(bool, get_messageDialog, set_messageDialog, reset_messageDialog)
     def get_messageDialogColor(self):
         return self._messageDialogColor
     def set_messageDialogColor(self, value):
         self._messageDialogColor = value
-    message_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_messageDialogColor, set_messageDialogColor)
+    message_overlay_color = QtCore.Property(QtGui.QColor, get_messageDialogColor, set_messageDialogColor)
 
     def set_closeDialog(self, data):
         self.add_close_dialog = data
@@ -972,7 +972,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_close_dialog
     def reset_closeDialog(self):
         self.add_close_dialog = False
-    closeDialog_option = QtCore.pyqtProperty(bool, get_closeDialog, set_closeDialog, reset_closeDialog)
+    closeDialog_option = QtCore.Property(bool, get_closeDialog, set_closeDialog, reset_closeDialog)
 
     def set_entryDialog(self, data):
         self.add_entry_dialog = data
@@ -980,19 +980,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_entry_dialog
     def reset_entryDialog(self):
         self.add_entry_dialog = False
-    entryDialog_option = QtCore.pyqtProperty(bool, get_entryDialog, set_entryDialog, reset_entryDialog)
+    entryDialog_option = QtCore.Property(bool, get_entryDialog, set_entryDialog, reset_entryDialog)
     def set_entryDialogSoftkey(self, data):
         self._entryDialogSoftkey = data
     def get_entryDialogSoftkey(self):
         return self._entryDialogSoftkey
     def reset_entryDialogSoftkey(self):
         self._entryDialogSoftkey = False
-    entryDialogSoftkey_option = QtCore.pyqtProperty(bool, get_entryDialogSoftkey, set_entryDialogSoftkey, reset_entryDialogSoftkey)
+    entryDialogSoftkey_option = QtCore.Property(bool, get_entryDialogSoftkey, set_entryDialogSoftkey, reset_entryDialogSoftkey)
     def get_entryDialogColor(self):
         return self._entryDialogColor
     def set_entryDialogColor(self, value):
         self._entryDialogColor = value
-    entry_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_entryDialogColor, set_entryDialogColor)
+    entry_overlay_color = QtCore.Property(QtGui.QColor, get_entryDialogColor, set_entryDialogColor)
 
     def set_toolDialog(self, data):
         self.add_tool_dialog = data
@@ -1000,26 +1000,26 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_tool_dialog
     def reset_toolDialog(self):
         self.add_tool_dialog = False
-    toolDialog_option = QtCore.pyqtProperty(bool, get_toolDialog, set_toolDialog, reset_toolDialog)
+    toolDialog_option = QtCore.Property(bool, get_toolDialog, set_toolDialog, reset_toolDialog)
     def get_toolDialogColor(self):
         return self._toolDialogColor
     def set_toolDialogColor(self, value):
         self._toolDialogColor = value
-    tool_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_toolDialogColor, set_toolDialogColor)
+    tool_overlay_color = QtCore.Property(QtGui.QColor, get_toolDialogColor, set_toolDialogColor)
     def setUseDesktopNotify(self, value):
         self._toolUseDesktopNotify = value
     def getUseDesktopNotify(self):
         return self._toolUseDesktopNotify
     def resetUseDesktopNotify(self):
         self._toolUseDesktopNotify = False
-    ToolUseDesktopNotify = QtCore.pyqtProperty(bool, getUseDesktopNotify, setUseDesktopNotify, resetUseDesktopNotify)
+    ToolUseDesktopNotify = QtCore.Property(bool, getUseDesktopNotify, setUseDesktopNotify, resetUseDesktopNotify)
     def setFrameless(self, value):
         self._toolFrameless = value
     def getFrameless(self):
         return self._toolFrameless
     def resetFrameless(self):
         self._toolFrameless = False
-    ToolFrameless = QtCore.pyqtProperty(bool, getFrameless, setFrameless, resetFrameless)
+    ToolFrameless = QtCore.Property(bool, getFrameless, setFrameless, resetFrameless)
 
     def set_fileDialog(self, data):
         self.add_file_dialog = data
@@ -1027,12 +1027,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_file_dialog
     def reset_fileDialog(self):
         self.add_file_dialog = False
-    fileDialog_option = QtCore.pyqtProperty(bool, get_fileDialog, set_fileDialog, reset_fileDialog)
+    fileDialog_option = QtCore.Property(bool, get_fileDialog, set_fileDialog, reset_fileDialog)
     def get_fileDialogColor(self):
         return self._fileDialogColor
     def set_fileDialogColor(self, value):
         self._fileDialogColor = value
-    file_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_fileDialogColor, set_fileDialogColor)
+    file_overlay_color = QtCore.Property(QtGui.QColor, get_fileDialogColor, set_fileDialogColor)
 
     def set_keyboardDialog(self, data):
         self.add_keyboard_dialog = data
@@ -1040,12 +1040,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_keyboard_dialog
     def reset_keyboardDialog(self):
         self.add_keyboard_dialog = False
-    keyboardDialog_option = QtCore.pyqtProperty(bool, get_keyboardDialog, set_keyboardDialog, reset_keyboardDialog)
+    keyboardDialog_option = QtCore.Property(bool, get_keyboardDialog, set_keyboardDialog, reset_keyboardDialog)
     def get_keyboardDialogColor(self):
         return self._keyboardDialogColor
     def set_keyboardDialogColor(self, value):
         self._keyboardDialogColor = value
-    keyboard_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_keyboardDialogColor, set_keyboardDialogColor)
+    keyboard_overlay_color = QtCore.Property(QtGui.QColor, get_keyboardDialogColor, set_keyboardDialogColor)
 
     def set_versaProbeDialog(self, data):
         self.add_versaprobe_dialog = data
@@ -1053,12 +1053,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_versaprobe_dialog
     def reset_versaProbeDialog(self):
         self.add_versaprobe_dialog = False
-    versaProbeDialog_option = QtCore.pyqtProperty(bool, get_versaProbeDialog, set_versaProbeDialog, reset_versaProbeDialog)
+    versaProbeDialog_option = QtCore.Property(bool, get_versaProbeDialog, set_versaProbeDialog, reset_versaProbeDialog)
     def get_versaProbeDialogColor(self):
         return self._versaProbeDialogColor
     def set_versaProbeDialogColor(self, value):
         self._versaProbeDialogColor = value
-    versaProbe_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_versaProbeDialogColor, set_versaProbeDialogColor)
+    versaProbe_overlay_color = QtCore.Property(QtGui.QColor, get_versaProbeDialogColor, set_versaProbeDialogColor)
 
     def set_macroTabDialog(self, data):
         self.add_macrotab_dialog = data
@@ -1066,12 +1066,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_macrotab_dialog
     def reset_macroTabDialog(self):
         self.add_macrotab_dialog = False
-    macroTabDialog_option = QtCore.pyqtProperty(bool, get_macroTabDialog, set_macroTabDialog, reset_macroTabDialog)
+    macroTabDialog_option = QtCore.Property(bool, get_macroTabDialog, set_macroTabDialog, reset_macroTabDialog)
     def get_macroTabDialogColor(self):
         return self._macroTabDialogColor
     def set_macroTabDialogColor(self, value):
         self._macroTabDialogColor = value
-    macroTab_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_macroTabDialogColor, set_macroTabDialogColor)
+    macroTab_overlay_color = QtCore.Property(QtGui.QColor, get_macroTabDialogColor, set_macroTabDialogColor)
 
     def set_camViewDialog(self, data):
         self.add_camview_dialog = data
@@ -1079,12 +1079,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_camview_dialog
     def reset_camViewDialog(self):
         self.add_camview_dialog = False
-    camViewDialog_option = QtCore.pyqtProperty(bool, get_camViewDialog, set_camViewDialog, reset_camViewDialog)
+    camViewDialog_option = QtCore.Property(bool, get_camViewDialog, set_camViewDialog, reset_camViewDialog)
     def get_camViewDialogColor(self):
         return self._camViewDialogColor
     def set_camViewDialogColor(self, value):
         self._camViewDialogColor = value
-    camView_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_camViewDialogColor, set_camViewDialogColor)
+    camView_overlay_color = QtCore.Property(QtGui.QColor, get_camViewDialogColor, set_camViewDialogColor)
 
     def set_toolChooserDialog(self, data):
         self.add_toolchooser_dialog = data
@@ -1092,13 +1092,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_toolchooser_dialog
     def reset_toolChooserDialog(self):
         self.add_toolchooser_dialog = False
-    toolChooserDialog_option = QtCore.pyqtProperty(bool, get_toolChooserDialog, set_toolChooserDialog, reset_toolChooserDialog)
+    toolChooserDialog_option = QtCore.Property(bool, get_toolChooserDialog, set_toolChooserDialog, reset_toolChooserDialog)
 
     def get_toolChooserDialogColor(self):
             return self._toolChooserDialogColor
     def set_toolChooserDialogColor(self, value):
             self._toolChooserDialogColor = value
-    toolChooser_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_toolChooserDialogColor, set_toolChooserDialogColor)
+    toolChooser_overlay_color = QtCore.Property(QtGui.QColor, get_toolChooserDialogColor, set_toolChooserDialogColor)
 
     def set_toolOffsetDialog(self, data):
         self.add_tooloffset_dialog = data
@@ -1106,12 +1106,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_tooloffset_dialog
     def reset_toolOffsetDialog(self):
         self.add_tooloffset_dialog = False
-    toolOffsetDialog_option = QtCore.pyqtProperty(bool, get_toolOffsetDialog, set_toolOffsetDialog, reset_toolOffsetDialog)
+    toolOffsetDialog_option = QtCore.Property(bool, get_toolOffsetDialog, set_toolOffsetDialog, reset_toolOffsetDialog)
     def get_toolOffsetDialogColor(self):
         return self._toolOffsetDialogColor
     def set_toolOffsetDialogColor(self, value):
         self._toolOffsetDialogColor = value
-    toolOffset_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_toolOffsetDialogColor, set_toolOffsetDialogColor)
+    toolOffset_overlay_color = QtCore.Property(QtGui.QColor, get_toolOffsetDialogColor, set_toolOffsetDialogColor)
 
     def set_originOffsetDialog(self, data):
         self.add_originoffset_dialog = data
@@ -1119,12 +1119,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_originoffset_dialog
     def reset_originOffsetDialog(self):
         self.add_originoffset_dialog = False
-    originOffsetDialog_option = QtCore.pyqtProperty(bool, get_originOffsetDialog, set_originOffsetDialog, reset_originOffsetDialog)
+    originOffsetDialog_option = QtCore.Property(bool, get_originOffsetDialog, set_originOffsetDialog, reset_originOffsetDialog)
     def get_originOffsetDialogColor(self):
         return self._originOffsetDialogColor
     def set_originOffsetDialogColor(self, value):
         self._originOffsetDialogColor = value
-    originOffset_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_originOffsetDialogColor, set_originOffsetDialogColor)
+    originOffset_overlay_color = QtCore.Property(QtGui.QColor, get_originOffsetDialogColor, set_originOffsetDialogColor)
 
     def set_calculatorDialog(self, data):
         self.add_calculator_dialog = data
@@ -1132,12 +1132,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_calculator_dialog
     def reset_calculatorDialog(self):
         self.add_calculator_dialog = False
-    calculatorDialog_option = QtCore.pyqtProperty(bool, get_calculatorDialog, set_calculatorDialog, reset_calculatorDialog)
+    calculatorDialog_option = QtCore.Property(bool, get_calculatorDialog, set_calculatorDialog, reset_calculatorDialog)
     def get_calculatorDialogColor(self):
         return self._calculatorDialogColor
     def set_calculatorDialogColor(self, value):
         self._calculatorDialogColor = value
-    calculator_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_calculatorDialogColor, set_calculatorDialogColor)
+    calculator_overlay_color = QtCore.Property(QtGui.QColor, get_calculatorDialogColor, set_calculatorDialogColor)
 
     def set_machineLogDialog(self, data):
         self.add_machinelog_dialog = data
@@ -1145,12 +1145,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_machinelog_dialog
     def reset_machineLogDialog(self):
         self.add_machinelog_dialog = False
-    machineLogDialog_option = QtCore.pyqtProperty(bool, get_machineLogDialog, set_machineLogDialog, reset_machineLogDialog)
+    machineLogDialog_option = QtCore.Property(bool, get_machineLogDialog, set_machineLogDialog, reset_machineLogDialog)
     def get_machineLogDialogColor(self):
         return self._machineLogDialogColor
     def set_machineLogDialogColor(self, value):
         self._machineLogDialogColor = value
-    machineLog_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_machineLogDialogColor, set_machineLogDialogColor)
+    machineLog_overlay_color = QtCore.Property(QtGui.QColor, get_machineLogDialogColor, set_machineLogDialogColor)
 
     def set_runFromLineDialog(self, data):
         self.add_runFromLine_dialog = data
@@ -1158,72 +1158,72 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.add_runFromLine_dialog
     def reset_runFromLineDialog(self):
         self.add_runFromLine_dialog = False
-    runFromLineDialog_option = QtCore.pyqtProperty(bool, get_runFromLineDialog, set_runFromLineDialog, reset_runFromLineDialog)
+    runFromLineDialog_option = QtCore.Property(bool, get_runFromLineDialog, set_runFromLineDialog, reset_runFromLineDialog)
     def get_runFromLineDialogColor(self):
         return self._runFromLineDialogColor
     def set_runFromLineDialogColor(self, value):
         self._runFromLineDialogColor = value
-    runFromLine_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_runFromLineDialogColor, set_runFromLineDialogColor)
+    runFromLine_overlay_color = QtCore.Property(QtGui.QColor, get_runFromLineDialogColor, set_runFromLineDialogColor)
 
     def get_User1Color(self):
         return self._User1Color
     def set_User1Color(self, value):
         self._User1Color = value
-    user1Color = QtCore.pyqtProperty(QtGui.QColor, get_User1Color, set_User1Color)
+    user1Color = QtCore.Property(QtGui.QColor, get_User1Color, set_User1Color)
 
     def get_User2Color(self):
         return self._User2Color
     def set_User2Color(self, value):
         self._User2Color = value
-    user2Color = QtCore.pyqtProperty(QtGui.QColor, get_User2Color, set_User2Color)
+    user2Color = QtCore.Property(QtGui.QColor, get_User2Color, set_User2Color)
 
     def get_User3Color(self):
         return self._User3Color
     def set_User3Color(self, value):
         self._User3Color = value
-    user3Color = QtCore.pyqtProperty(QtGui.QColor, get_User3Color, set_User3Color)
+    user3Color = QtCore.Property(QtGui.QColor, get_User3Color, set_User3Color)
 
     def get_User4Color(self):
         return self._User4Color
     def set_User4Color(self, value):
         self._User4Color = value
-    user4Color = QtCore.pyqtProperty(QtGui.QColor, get_User4Color, set_User4Color)
+    user4Color = QtCore.Property(QtGui.QColor, get_User4Color, set_User4Color)
 
     def get_User5Color(self):
         return self._User5Color
     def set_User5Color(self, value):
         self._User5Color = value
-    user5Color = QtCore.pyqtProperty(QtGui.QColor, get_User5Color, set_User5Color)
+    user5Color = QtCore.Property(QtGui.QColor, get_User5Color, set_User5Color)
 
     def get_User6Color(self):
         return self._User6Color
     def set_User6Color(self, value):
         self._User6Color = value
-    user6Color = QtCore.pyqtProperty(QtGui.QColor, get_User6Color, set_User6Color)
+    user6Color = QtCore.Property(QtGui.QColor, get_User6Color, set_User6Color)
 
     def get_User7Color(self):
         return self._User7Color
     def set_User7Color(self, value):
         self._User7Color = value
-    user7Color = QtCore.pyqtProperty(QtGui.QColor, get_User7Color, set_User7Color)
+    user7Color = QtCore.Property(QtGui.QColor, get_User7Color, set_User7Color)
 
     def get_User8Color(self):
         return self._User8Color
     def set_User8Color(self, value):
         self._User8Color = value
-    user8Color = QtCore.pyqtProperty(QtGui.QColor, get_User8Color, set_User8Color)
+    user8Color = QtCore.Property(QtGui.QColor, get_User8Color, set_User8Color)
 
     def get_User9Color(self):
         return self._User9Color
     def set_User9Color(self, value):
         self._User9Color = value
-    user9Color = QtCore.pyqtProperty(QtGui.QColor, get_User9Color, set_User9Color)
+    user9Color = QtCore.Property(QtGui.QColor, get_User9Color, set_User9Color)
 
     def get_User10Color(self):
         return self._User10Color
     def set_User10Color(self, value):
         self._User10Color = value
-    user10Color = QtCore.pyqtProperty(QtGui.QColor, get_User10Color, set_User10Color)
+    user10Color = QtCore.Property(QtGui.QColor, get_User10Color, set_User10Color)
 
     def getHalCompName(self):
         return self._halBaseName
@@ -1231,7 +1231,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._halBaseName = value
     def resetHalCompName(self):
         self._halBaseName = ''
-    halCompBaseName = QtCore.pyqtProperty(str, getHalCompName, setHalCompName, resetHalCompName)
+    halCompBaseName = QtCore.Property(str, getHalCompName, setHalCompName, resetHalCompName)
 
     ##############################
     # required boiler code #

@@ -1,7 +1,7 @@
 ############################
 # **** IMPORT SECTION **** #
 ############################
-from PyQt5.QtCore import Qt
+from qtpy.QtCore import Qt
 
 from qtvcp.core import Status, Action
 

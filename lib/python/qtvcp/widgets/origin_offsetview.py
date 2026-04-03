@@ -18,9 +18,9 @@ import sys
 import os
 import locale
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, pyqtSlot
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QTableView, QAbstractItemView, qApp
+from qtpy.QtCore import Qt, QAbstractTableModel, QVariant, Property, Slot
+from qtpy.QtGui import QColor
+from qtpy.QtWidgets import QTableView, QAbstractItemView, qApp
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -439,12 +439,12 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         return True
 
     # moves the selection up
-    @pyqtSlot()
+    @Slot()
     def up(self):
         self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveUp,Qt.NoModifier))
 
     # moves the selection down
-    @pyqtSlot()
+    @Slot()
     def down(self):
         self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveDown,Qt.NoModifier))
 
@@ -456,7 +456,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     ########################################################################
@@ -467,7 +467,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         return self.dialog_code
     def reset_dialog_code(self):
         self.dialog_code = 'CALCULATOR'
-    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    dialog_code_string = Property(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     def set_keyboard_code(self, data):
         self.text_dialog_code = data
@@ -475,7 +475,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         return self.text_dialog_code
     def reset_keyboard_code(self):
         self.text_dialog_code = 'KEYBOARD'
-    text_dialog_code_string = pyqtProperty(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
+    text_dialog_code_string = Property(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
 
     def setmetrictemplate(self, data):
         self.metric_text_template = data
@@ -483,7 +483,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         return self.metric_text_template
     def resetmetrictemplate(self):
         self.metric_text_template =  '%10.3f'
-    metric_template = pyqtProperty(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
+    metric_template = Property(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
 
     def setimperialtexttemplate(self, data):
         self.imperial_text_template = data
@@ -491,14 +491,14 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         return self.imperial_text_template
     def resetimperialtexttemplate(self):
         self.imperial_text_template =  '%9.4f'
-    imperial_template = pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
+    imperial_template = Property(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
 
     def getColorHighlight(self):
         return QColor(self.tablemodel._highlightcolor)
     def setColorHighlight(self, value):
         self.tablemodel._highlightcolor = value.name()
         #self.tablemodel.layoutChanged.emit()
-    styleColorHighlight = pyqtProperty(QColor, getColorHighlight, setColorHighlight)
+    styleColorHighlight = Property(QColor, getColorHighlight, setColorHighlight)
 
 #########################################
 # custom model
@@ -586,7 +586,7 @@ class MyTableModel(QAbstractTableModel):
         return QVariant()
 
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication([])
     w = OriginOffsetView()
     w.PREFS_ = None

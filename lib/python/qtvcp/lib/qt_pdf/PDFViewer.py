@@ -1,18 +1,30 @@
 import sys
 import os
-from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtCore import Qt
+from qtpy import QtGui, QtWidgets
+from qtpy.QtCore import Qt
 
 # Set up logging
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
+USE_QTPDF = False
+USE_POPPLER = False
+
 try:
-    import popplerqt5
-    LIB_BAD = False
-except:
-    LIB_BAD = True
-    LOG.warning('PDFViwer - Is python3-poppler-qt5 installed?')
+    from qtpy.QtPdf import QPdfDocument, QPdfDocumentRenderOptions
+    _QTPDF_RENDER_OPTS = QPdfDocumentRenderOptions()
+    _QTPDF_RENDER_OPTS.setRenderFlags(
+        QPdfDocumentRenderOptions.RenderFlag.Annotations
+    )
+    USE_QTPDF = True
+except Exception:
+    try:
+        import popplerqt5
+        USE_POPPLER = True
+    except Exception:
+        LOG.warning('PDFViewer - Neither QtPdf nor python3-poppler-qt5 is available.')
+
+LIB_BAD = not USE_QTPDF and not USE_POPPLER
 
 class PDFView(QtWidgets.QScrollArea):
     def __init__(self, parent=None):
@@ -24,9 +36,10 @@ class PDFView(QtWidgets.QScrollArea):
         self.vbox = QtWidgets.QVBoxLayout()
         self.widget.setLayout(self.vbox)
         self._zoom = 1.0
+        self._doc = None
 
         if LIB_BAD:
-            label = QtWidgets.QLabel('<b>Missing python3-poppler-qt5 module</b>')
+            label = QtWidgets.QLabel('<b>Missing PDF backend: install python3-poppler-qt5 or use Qt6 with QtPdf</b>')
             self.vbox.addWidget(label)
 
     def loadSample(self, name):
@@ -39,38 +52,54 @@ class PDFView(QtWidgets.QScrollArea):
     def loadView(self, path):
         filename = os.path.expanduser(path)
         if not os.path.exists(filename):
-            print('No path:',filename)
+            print('No path:', filename)
+            return
 
         if LIB_BAD:
             return
 
-        self.doc = doc = popplerqt5.Poppler.Document.load(filename)
-        doc.setRenderHint(popplerqt5.Poppler.Document.Antialiasing)
-        doc.setRenderHint(popplerqt5.Poppler.Document.TextAntialiasing)
+        if USE_QTPDF:
+            if self._doc is None:
+                self._doc = QPdfDocument(self)
+            self._doc.load(filename)
+        else:
+            self._doc = popplerqt5.Poppler.Document.load(filename)
+            self._doc.setRenderHint(popplerqt5.Poppler.Document.Antialiasing)
+            self._doc.setRenderHint(popplerqt5.Poppler.Document.TextAntialiasing)
         self.refreshPages()
 
     def refreshPages(self):
+        if self._doc is None:
+            return
         # clear layout of pages
-        for i in reversed(range(self.vbox.count())): 
+        for i in reversed(range(self.vbox.count())):
             self.vbox.itemAt(i).widget().setParent(None)
 
         # convert pages to images in a label
-        for i in range(0,self.doc.numPages()):
-            label = QtWidgets.QLabel()
-            label.setScaledContents(True)
-
-            page = self.doc.page(i)
-            image = page.renderToImage(72.0*self._zoom, 72.0*self._zoom)
-
-            label.setPixmap(QtGui.QPixmap.fromImage(image))
-            self.vbox.addWidget(label)
+        if USE_QTPDF:
+            for i in range(self._doc.pageCount()):
+                label = QtWidgets.QLabel()
+                label.setScaledContents(True)
+                page_size = self._doc.pagePointSize(i)
+                render_size = (page_size * self._zoom).toSize()
+                image = self._doc.render(i, render_size, _QTPDF_RENDER_OPTS)
+                label.setPixmap(QtGui.QPixmap.fromImage(image))
+                self.vbox.addWidget(label)
+        else:
+            for i in range(self._doc.numPages()):
+                label = QtWidgets.QLabel()
+                label.setScaledContents(True)
+                page = self._doc.page(i)
+                image = page.renderToImage(72.0 * self._zoom, 72.0 * self._zoom)
+                label.setPixmap(QtGui.QPixmap.fromImage(image))
+                self.vbox.addWidget(label)
 
     def zoomFactor(self):
         return self._zoom
 
     def setZoomFactor(self, factor):
         if factor > 3: factor = 3.0
-        if factor < .5: factor =.5
+        if factor < .5: factor = .5
         self._zoom = factor
         self.refreshPages()
 
@@ -78,26 +107,35 @@ def pdf_view(filename):
     """Return a Scrollarea showing the pages of the specified PDF file."""
     filename = os.path.expanduser(filename)
     if not os.path.exists(filename):
-        print('No path:',filename)
-
-    doc = popplerqt5.Poppler.Document.load(filename)
-    doc.setRenderHint(popplerqt5.Poppler.Document.Antialiasing)
-    doc.setRenderHint(popplerqt5.Poppler.Document.TextAntialiasing)
+        print('No path:', filename)
 
     area = QtWidgets.QScrollArea()
     area.setWidgetResizable(True)
     widget = QtWidgets.QWidget()
     vbox = QtWidgets.QVBoxLayout()
 
-    for i in range(0,doc.numPages()):
-        label = QtWidgets.QLabel()
-        label.setScaledContents(True)
+    if USE_QTPDF:
+        doc = QPdfDocument()
+        doc.load(filename)
+        for i in range(doc.pageCount()):
+            label = QtWidgets.QLabel()
+            label.setScaledContents(True)
+            page_size = doc.pagePointSize(i)
+            image = doc.render(i, page_size.toSize(), _QTPDF_RENDER_OPTS)
+            label.setPixmap(QtGui.QPixmap.fromImage(image))
+            vbox.addWidget(label)
+    else:
+        doc = popplerqt5.Poppler.Document.load(filename)
+        doc.setRenderHint(popplerqt5.Poppler.Document.Antialiasing)
+        doc.setRenderHint(popplerqt5.Poppler.Document.TextAntialiasing)
+        for i in range(doc.numPages()):
+            label = QtWidgets.QLabel()
+            label.setScaledContents(True)
+            page = doc.page(i)
+            image = page.renderToImage()
+            label.setPixmap(QtGui.QPixmap.fromImage(image))
+            vbox.addWidget(label)
 
-        page = doc.page(i)
-        image = page.renderToImage()
-
-        label.setPixmap(QtGui.QPixmap.fromImage(image))
-        vbox.addWidget(label)
     widget.setLayout(vbox)
     area.setWidget(widget)
     return area

@@ -17,9 +17,9 @@
 
 import os
 
-from PyQt5.QtCore import pyqtSignal, pyqtProperty, QVariant
-from PyQt5.QtWidgets import QLabel
-from PyQt5.QtGui import QPixmap
+from qtpy.QtCore import Signal, Property, QVariant
+from qtpy.QtWidgets import QLabel
+from qtpy.QtGui import QPixmap
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Tool, Path
@@ -43,7 +43,7 @@ else:
     DEFAULTIMAGE = ''
 
 class ImageSwitcher(QLabel, _HalWidgetBase):
-    widgetChanged = pyqtSignal(int)
+    widgetChanged = Signal(int)
 
     def __init__(self, parent=None):
         super(ImageSwitcher, self).__init__(parent)
@@ -113,7 +113,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
         return self._current_number
     def reset_image_number(self):
         self._current_number = 0
-    image_number = pyqtProperty(int, get_image_number, set_image_number, reset_image_number)
+    image_number = Property(int, get_image_number, set_image_number, reset_image_number)
 
     def set_image_l(self, data):
         self._imagePath = data
@@ -121,7 +121,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
         return self._imagePath
     def reset_image_l(self):
         self._imagePath = [self._defaultImage]
-    image_list = pyqtProperty(QVariant.typeToName(QVariant.StringList), get_image_l, set_image_l, reset_image_l)
+    image_list = Property(QVariant.typeToName(QVariant.StringList), get_image_l, set_image_l, reset_image_l)
 
     def setImagePath(self, data):
         self.defaultPixmap = data
@@ -130,7 +130,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
     def resetImagePath(self):
         self.defaultPixmap
 
-    image_default = pyqtProperty(QPixmap, getImagePath, setImagePath, resetImagePath)
+    image_default = Property(QPixmap, getImagePath, setImagePath, resetImagePath)
 
 
     ##############################
@@ -283,7 +283,7 @@ class StatusImageSwitcher(ImageSwitcher):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -310,7 +310,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.spindle
     def reset_spindle(self):
         self.spindle = False
-    watch_spindle = pyqtProperty(bool, get_spindle, set_spindle, reset_spindle)
+    watch_spindle = Property(bool, get_spindle, set_spindle, reset_spindle)
 
     # machine_homed status
     def set_homed(self, data):
@@ -321,7 +321,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.all_homed
     def reset_homed(self):
         self.all_homed = False
-    watch_all_homed = pyqtProperty(bool, get_homed, set_homed, reset_homed)
+    watch_all_homed = Property(bool, get_homed, set_homed, reset_homed)
 
     # machine_axis_homed status
     def set_axis_homed(self, data):
@@ -332,7 +332,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.axis_homed
     def reset_axis_homed(self):
         self.axis_homed = False
-    watch_axis_homed = pyqtProperty(bool, get_axis_homed, set_axis_homed, reset_axis_homed)
+    watch_axis_homed = Property(bool, get_axis_homed, set_axis_homed, reset_axis_homed)
 
 
     # machine_limits status
@@ -344,7 +344,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.hard_limits
     def reset_limits(self):
         self.hard_limits = False
-    watch_hard_limits = pyqtProperty(bool, get_limits, set_limits, reset_limits)
+    watch_hard_limits = Property(bool, get_limits, set_limits, reset_limits)
 
     # machine_state status
     def set_machine_state(self, data):
@@ -355,7 +355,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.machine_state
     def reset_machine_state(self):
         self.machine_state = False
-    watch_machine_state = pyqtProperty(bool, get_machine_state, set_machine_state,
+    watch_machine_state = Property(bool, get_machine_state, set_machine_state,
                                                       reset_machine_state)
 
     # command_state status
@@ -367,7 +367,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.command_state
     def reset_command_state(self):
         self.command_state = False
-    watch_command_state = pyqtProperty(bool, get_command_state, set_command_state,
+    watch_command_state = Property(bool, get_command_state, set_command_state,
                                                       reset_command_state)
 
     # feedmode_state status
@@ -379,7 +379,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.feedmode_state
     def reset_feedmode_state(self):
         self.feedmode_state = False
-    watch_feedmode_state = pyqtProperty(bool, get_feedmode_state, set_feedmode_state,
+    watch_feedmode_state = Property(bool, get_feedmode_state, set_feedmode_state,
                                                       reset_feedmode_state)
     # spindlemode_state status
     def set_spindlemode_state(self, data):
@@ -390,7 +390,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.spindlemode_state
     def reset_spindlemode_state(self):
         self.spindlemode_state = False
-    watch_spindlemode_state = pyqtProperty(bool, get_spindlemode_state, set_spindlemode_state,
+    watch_spindlemode_state = Property(bool, get_spindlemode_state, set_spindlemode_state,
                                                       reset_spindlemode_state)
 
     # toolnumber_state status
@@ -402,7 +402,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.toolnumber_state
     def reset_toolnumber_state(self):
         self.toolnumber_state = False
-    watch_toolnumber_state = pyqtProperty(bool, get_toolnumber_state, set_toolnumber_state,
+    watch_toolnumber_state = Property(bool, get_toolnumber_state, set_toolnumber_state,
                                                       reset_toolnumber_state)
 
     # tool_orientation_state status
@@ -414,7 +414,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.tool_orientation_state
     def reset_tool_orientation_state(self):
         self.tool_orientation_state = False
-    watch_tool_orientation_state = pyqtProperty(bool, get_tool_orientation_state, set_tool_orientation_state,
+    watch_tool_orientation_state = Property(bool, get_tool_orientation_state, set_tool_orientation_state,
                                                       reset_tool_orientation_state)
 
     def set_axis(self, data):
@@ -424,7 +424,7 @@ class StatusImageSwitcher(ImageSwitcher):
         return self.axis
     def reset_axis(self):
         self.axis = 'X'
-    axis_letter = pyqtProperty(str, get_axis, set_axis, reset_axis)
+    axis_letter = Property(str, get_axis, set_axis, reset_axis)
 
     ##############################
     # required class boiler code #
@@ -440,7 +440,7 @@ class StatusImageSwitcher(ImageSwitcher):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = ImageSwitcher()
     widget._hal_init()

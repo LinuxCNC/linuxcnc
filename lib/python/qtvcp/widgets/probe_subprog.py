@@ -18,7 +18,7 @@ import sys
 import time
 import json
 
-from PyQt5.QtCore import QObject
+from qtpy.QtCore import QObject
 from qtvcp.core import Status, Action, Info
 from qtvcp.widgets.probe_routines import ProbeRoutines
 

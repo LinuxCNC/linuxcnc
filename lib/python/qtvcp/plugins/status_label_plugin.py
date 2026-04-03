@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QVariant
-from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, QExtensionFactory, QPyDesignerTaskMenuExtension, \
+from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtGui import QIcon, QPixmap
+from qtpy.QtCore import QVariant
+from qtpy.QtDesigner import QPyDesignerCustomWidgetPlugin, QExtensionFactory, QPyDesignerTaskMenuExtension, \
     QPyDesignerPropertySheetExtension, QDesignerFormWindowInterface
 
 from qtvcp.widgets.richtext_selector import RichTextEditorDialog
@@ -99,9 +99,13 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
         self.temp_flag = True
         # print dir(self.widget.pyqtConfigure.__sizeof__)
         # print self.widget.pyqtConfigure.__sizeof__()
+        try:
+            from qtpy.QtCore import Property as _QtProperty
+        except Exception:
+            from PyQt5.QtCore import pyqtProperty as _QtProperty
         for i in StatusLabel.__dict__:
             # print i
-            if 'PyQt5.QtCore.pyqtProperty' in str(StatusLabel.__dict__[i]):
+            if isinstance(StatusLabel.__dict__[i], _QtProperty):
                 self.propertylist.append(i)
                 print(i)
         # print dir(self.widget)

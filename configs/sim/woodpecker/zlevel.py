@@ -5,9 +5,9 @@ import tempfile
 import atexit
 import shutil
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import QFile
-from PyQt5.QtWidgets import QFileDialog
+from qtpy import QtCore, QtGui, QtWidgets, uic
+from qtpy.QtCore import QFile
+from qtpy.QtWidgets import QFileDialog
 
 #from linuxcnc import OPERATOR_ERROR, NML_ERROR
 from qtvcp.core import Status, Action, Info

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import sys
 import math
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QPointF, QLine, QRect, QSize, pyqtSlot, pyqtProperty
-from PyQt5.QtGui import QPainter, QBrush, QPen, QFont, QColor, QRadialGradient
+from qtpy import QtCore, QtWidgets
+from qtpy.QtCore import Qt, QPoint, QPointF, QLine, QRect, QSize, Slot, Property
+from qtpy.QtGui import QPainter, QBrush, QPen, QFont, QColor, QRadialGradient
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 
 class Gauge(QtWidgets.QWidget, _HalWidgetBase):
@@ -181,8 +181,8 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         qp.setFont(QFont('Lato Heavy', self._label_font_size))
         qp.drawText(rect, Qt.AlignCenter, text)
 
-    @pyqtSlot(float)
-    @pyqtSlot(int)
+    @Slot(float)
+    @Slot(int)
     def update_value(self, value):
         if value != self.value:
             self.value = int(value)
@@ -200,7 +200,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         self._setpoint = QPointF(x, y)
         self.update()
 
-    @pyqtSlot(int)
+    @Slot(int)
     def set_threshold(self, value):
         if value > self._max_value:
             self._threshold = self._max_value
@@ -216,7 +216,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_threshold(self):
         self._threshold = 50
 
-    @pyqtSlot(int)
+    @Slot(int)
     def set_max_value(self, value):
         self._max_value = value
 
@@ -226,7 +226,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_max_value(self):
         self._max_value = 100
 
-    @pyqtSlot(int)
+    @Slot(int)
     def set_max_reading(self, value):
         self._max_reading = value
         self.update()
@@ -237,7 +237,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_max_reading(self):
         self._max_reading = 100
 
-    @pyqtSlot(int)
+    @Slot(int)
     def set_num_ticks(self, value):
         # cannot allow value <= 1 or there will be division by 0 errors
         self._num_ticks = value if value > 1 else 2
@@ -250,7 +250,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_num_ticks(self):
         self._num_ticks = 11
 
-    @pyqtSlot(str)
+    @Slot(str)
     def set_label(self, label):
         self._gauge_label = label
         self.update()
@@ -261,7 +261,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_label(self):
         self._gauge_label = "GAUGE"
         
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def set_base_gradient_color(self, color):
         self._base_gradient_color = color
         self.update()
@@ -273,7 +273,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         self._base_gradient_color = QColor(180, 180, 180)
         self.update()
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def set_base_color(self, color):
         self._base_color = color
         self.update()
@@ -285,7 +285,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         self._base_color = QColor(40, 40, 40)        
         self.update()
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def set_center_gradient_color(self, color):
         self._center_gradient_color = color
         self.update()
@@ -297,7 +297,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         self._center_gradient_color = QColor("gray")
         self.update()
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def set_center_color(self, color):
         self._center_color = color
         self.update()
@@ -309,7 +309,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         self._center_color = QColor("#404040")        
         self.update()
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def set_zone2_color(self, color):
         self._zone2_color = color
         self.update()
@@ -320,7 +320,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_zone2_color(self):
         self._zone2_color = QColor("red")        
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def set_zone1_color(self, color):
         self._zone1_color = color
         self.update()
@@ -331,7 +331,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_zone1_color(self):
         self._zone1_color = QColor("green")
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def set_zone2_color(self, color):
         self._zone2_color = color
         self.update()
@@ -342,7 +342,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_zone2_color(self):
         self._zone2_color = QColor("red")
 
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def set_bezel_color(self, color):
         self._bezel_color = color
         self.update()
@@ -365,7 +365,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_halpin_option(self):
         self._halpin_option = True
         
-    @pyqtSlot(int)
+    @Slot(int)
     def set_bezel_width(self, value):
         self._bezel_width = value
         self.update()
@@ -389,27 +389,27 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def reset_halpin_option(self):
         self._halpin_option = True        
 
-    halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
-    threshold = pyqtProperty(int, get_threshold, set_threshold, reset_threshold)
-    max_value = pyqtProperty(int, get_max_value, set_max_value, reset_max_value)
-    max_reading = pyqtProperty(int, get_max_reading, set_max_reading, reset_max_reading)
-    num_ticks = pyqtProperty(int, get_num_ticks, set_num_ticks, reset_num_ticks)
-    gauge_label = pyqtProperty(str, get_label, set_label, reset_label)
-    base_gradient_color = pyqtProperty(QColor, get_base_gradient_color, set_base_gradient_color, reset_base_gradient_color)
-    base_color = pyqtProperty(QColor, get_base_color, set_base_color, reset_base_color)
-    center_gradient_color = pyqtProperty(QColor, get_center_gradient_color, set_center_gradient_color, reset_center_gradient_color)
-    center_color = pyqtProperty(QColor, get_center_color, set_center_color, reset_center_color)
-    zone1_color = pyqtProperty(QColor, get_zone1_color, set_zone1_color, reset_zone1_color)
-    zone2_color = pyqtProperty(QColor, get_zone2_color, set_zone2_color, reset_zone2_color)
-    bezel_color = pyqtProperty(QColor, get_bezel_color, set_bezel_color, reset_bezel_color)
-    bezel_width = pyqtProperty(int, get_bezel_width, set_bezel_width, reset_bezel_width)
+    halpin_option = Property(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
+    threshold = Property(int, get_threshold, set_threshold, reset_threshold)
+    max_value = Property(int, get_max_value, set_max_value, reset_max_value)
+    max_reading = Property(int, get_max_reading, set_max_reading, reset_max_reading)
+    num_ticks = Property(int, get_num_ticks, set_num_ticks, reset_num_ticks)
+    gauge_label = Property(str, get_label, set_label, reset_label)
+    base_gradient_color = Property(QColor, get_base_gradient_color, set_base_gradient_color, reset_base_gradient_color)
+    base_color = Property(QColor, get_base_color, set_base_color, reset_base_color)
+    center_gradient_color = Property(QColor, get_center_gradient_color, set_center_gradient_color, reset_center_gradient_color)
+    center_color = Property(QColor, get_center_color, set_center_color, reset_center_color)
+    zone1_color = Property(QColor, get_zone1_color, set_zone1_color, reset_zone1_color)
+    zone2_color = Property(QColor, get_zone2_color, set_zone2_color, reset_zone2_color)
+    bezel_color = Property(QColor, get_bezel_color, set_bezel_color, reset_bezel_color)
+    bezel_width = Property(int, get_bezel_width, set_bezel_width, reset_bezel_width)
 
     #############################
     # Testing                   #
     #############################
 if __name__ == "__main__":
     import sys
-    from PyQt5.QtWidgets import QSlider, QWidget, QVBoxLayout
+    from qtpy.QtWidgets import QSlider, QWidget, QVBoxLayout
     app = QtWidgets.QApplication(sys.argv)
     w = QWidget()
     w.setGeometry(100, 100, 400, 400)

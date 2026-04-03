@@ -4,9 +4,9 @@
 import sys
 import os
 import shutil
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from qtpy.QtCore import *
+from qtpy.QtGui import *
+from qtpy.QtWidgets import *
 from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.core import Info
 ###########################################

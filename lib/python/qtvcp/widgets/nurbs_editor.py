@@ -42,9 +42,9 @@
 import os
 import sys
 import traceback
-from PyQt5 import uic
-from PyQt5.QtCore import pyqtSlot, QFile, QTextStream
-from PyQt5.QtWidgets import (QApplication, QDialog)
+from qtpy import uic
+from qtpy.QtCore import Slot, QFile, QTextStream
+from qtpy.QtWidgets import (QApplication, QDialog)
 
 import gcode
 from qt5_graphics import Lcnc_3dGraphics
@@ -250,7 +250,7 @@ class NurbsEditor(QDialog):
         self.graphics.set_current_view()
         #self.activateWindow()
 
-    @pyqtSlot()
+    @Slot()
     def on_makeButton_clicked(self):
         print('make')
         file = QFile(self.workpath)
@@ -264,12 +264,12 @@ class NurbsEditor(QDialog):
             gcode = str(gcode, encoding='utf8')
         self.gcodeText.setPlainText(gcode)
 
-    @pyqtSlot()
+    @Slot()
     def on_applyButton_clicked(self):
         self.finalizeGcode()
         ACTION.OPEN_PROGRAM(self.workpath)
 
-    @pyqtSlot()
+    @Slot()
     def on_closeButton_clicked(self):
         self.close()
 

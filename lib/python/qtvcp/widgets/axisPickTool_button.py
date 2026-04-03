@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import (QToolButton, QMenu, QAction,
+from qtpy.QtWidgets import (QToolButton, QMenu, QAction,
     QComboBox, QWidgetAction, QSizePolicy)
-from PyQt5.QtCore import pyqtProperty, pyqtSignal
-from PyQt5.QtGui import QIcon
+from qtpy.QtCore import Property, Signal
+from qtpy.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
@@ -22,8 +22,8 @@ LOG = logger.getLogger(__name__)
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class AxisPickToolButton(QToolButton, IndicatedMixIn):
-    AxisSelected = pyqtSignal(str)
-    CurrentAxisPosition = pyqtSignal(str,float)
+    AxisSelected = Signal(str)
+    CurrentAxisPosition = Signal(str,float)
 
     def __init__(self, parent=None):
         super(AxisPickToolButton, self).__init__(parent)
@@ -78,7 +78,7 @@ class AxisPickToolButton(QToolButton, IndicatedMixIn):
         return self._textTemplate
     def resetTextTemplate(self):
         self._textTemplate =  'Axis: %s'
-    textTemplate = pyqtProperty(str, getTextTemplate, setTextTemplate, resetTextTemplate)
+    textTemplate = Property(str, getTextTemplate, setTextTemplate, resetTextTemplate)
 
     def setCurrentAxis(self, data):
         self._currentAxis = data
@@ -86,5 +86,5 @@ class AxisPickToolButton(QToolButton, IndicatedMixIn):
         return self._currentAxis
     def resetCurrentAxis(self):
         self._currentAxis = 'X'
-    currentAxis = pyqtProperty(str, getCurrentAxis, setCurrentAxis, resetCurrentAxis)
+    currentAxis = Property(str, getCurrentAxis, setCurrentAxis, resetCurrentAxis)
 

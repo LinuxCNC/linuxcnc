@@ -15,7 +15,7 @@
 #
 #################################################################################
 
-from PyQt5.QtCore import pyqtProperty
+from qtpy.QtCore import Property
 import hal
 from qtvcp.widgets.led_widget import LED
 from qtvcp.core import Status
@@ -238,7 +238,7 @@ class StateLED(LED):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -517,35 +517,35 @@ class StateLED(LED):
 
     # designer will show these properties in this order:
     # BOOL
-    invert_state_status = pyqtProperty(bool, get_invert_state, set_invert_state, reset_invert_state)
-    is_paused_status = pyqtProperty(bool, get_is_paused, set_is_paused, reset_is_paused)
-    is_estopped_status = pyqtProperty(bool, get_is_estopped, set_is_estopped, reset_is_estopped)
-    is_on_status = pyqtProperty(bool, get_is_on, set_is_on, reset_is_on)
-    is_idle_status = pyqtProperty(bool, get_is_idle, set_is_idle, reset_is_idle)
-    is_homed_status = pyqtProperty(bool, get_is_homed, set_is_homed, reset_is_homed)
-    is_flood_status = pyqtProperty(bool, get_is_flood, set_is_flood, reset_is_flood)
-    is_mist_status = pyqtProperty(bool, get_is_mist, set_is_mist, reset_is_mist)
-    is_block_delete_status = pyqtProperty(bool, get_is_block_delete, set_is_block_delete, reset_is_block_delete)
-    is_optional_stop_status = pyqtProperty(bool, get_is_optional_stop, set_is_optional_stop, reset_is_optional_stop)
-    is_joint_homed_status = pyqtProperty(bool, get_is_joint_homed, set_is_joint_homed, reset_is_joint_homed)
-    is_limits_overridden_status = pyqtProperty(bool, get_is_limits_overridden, set_is_limits_overridden,
+    invert_state_status = Property(bool, get_invert_state, set_invert_state, reset_invert_state)
+    is_paused_status = Property(bool, get_is_paused, set_is_paused, reset_is_paused)
+    is_estopped_status = Property(bool, get_is_estopped, set_is_estopped, reset_is_estopped)
+    is_on_status = Property(bool, get_is_on, set_is_on, reset_is_on)
+    is_idle_status = Property(bool, get_is_idle, set_is_idle, reset_is_idle)
+    is_homed_status = Property(bool, get_is_homed, set_is_homed, reset_is_homed)
+    is_flood_status = Property(bool, get_is_flood, set_is_flood, reset_is_flood)
+    is_mist_status = Property(bool, get_is_mist, set_is_mist, reset_is_mist)
+    is_block_delete_status = Property(bool, get_is_block_delete, set_is_block_delete, reset_is_block_delete)
+    is_optional_stop_status = Property(bool, get_is_optional_stop, set_is_optional_stop, reset_is_optional_stop)
+    is_joint_homed_status = Property(bool, get_is_joint_homed, set_is_joint_homed, reset_is_joint_homed)
+    is_limits_overridden_status = Property(bool, get_is_limits_overridden, set_is_limits_overridden,
                                                reset_is_limits_overridden)
-    is_manual_status = pyqtProperty(bool, get_is_manual, set_is_manual, reset_is_manual)
-    is_mdi_status = pyqtProperty(bool, get_is_mdi, set_is_mdi, reset_is_mdi)
-    is_auto_status = pyqtProperty(bool, get_is_auto, set_is_auto, reset_is_auto)
-    is_spindle_stopped_status = pyqtProperty(bool, get_is_spindle_stopped, set_is_spindle_stopped, reset_is_spindle_stopped)
-    is_spindle_fwd_status = pyqtProperty(bool, get_is_spindle_fwd, set_is_spindle_fwd, reset_is_spindle_fwd)
-    is_spindle_rev_status = pyqtProperty(bool, get_is_spindle_rev, set_is_spindle_rev, reset_is_spindle_rev)
-    is_spindle_at_speed_status = pyqtProperty(bool, get_is_spindle_at_speed, set_is_spindle_at_speed, reset_is_spindle_at_speed)
-    neg_hard_limit_state = pyqtProperty(bool, get_neg_limit_tripped, set_neg_limit_tripped, reset_neg_limit_tripped)
-    pos_hard_limit_state = pyqtProperty(bool, get_pos_limit_tripped, set_pos_limit_tripped, reset_pos_limit_tripped)
-    hard_limits_state = pyqtProperty(bool, get_limits_tripped, set_limits_tripped, reset_limits_tripped)
-    follow_halpin_state = pyqtProperty(bool, get_follow_pin, set_follow_pin, reset_follow_pin)
+    is_manual_status = Property(bool, get_is_manual, set_is_manual, reset_is_manual)
+    is_mdi_status = Property(bool, get_is_mdi, set_is_mdi, reset_is_mdi)
+    is_auto_status = Property(bool, get_is_auto, set_is_auto, reset_is_auto)
+    is_spindle_stopped_status = Property(bool, get_is_spindle_stopped, set_is_spindle_stopped, reset_is_spindle_stopped)
+    is_spindle_fwd_status = Property(bool, get_is_spindle_fwd, set_is_spindle_fwd, reset_is_spindle_fwd)
+    is_spindle_rev_status = Property(bool, get_is_spindle_rev, set_is_spindle_rev, reset_is_spindle_rev)
+    is_spindle_at_speed_status = Property(bool, get_is_spindle_at_speed, set_is_spindle_at_speed, reset_is_spindle_at_speed)
+    neg_hard_limit_state = Property(bool, get_neg_limit_tripped, set_neg_limit_tripped, reset_neg_limit_tripped)
+    pos_hard_limit_state = Property(bool, get_pos_limit_tripped, set_pos_limit_tripped, reset_pos_limit_tripped)
+    hard_limits_state = Property(bool, get_limits_tripped, set_limits_tripped, reset_limits_tripped)
+    follow_halpin_state = Property(bool, get_follow_pin, set_follow_pin, reset_follow_pin)
 
     # NON BOOL
-    joint_number_status = pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)
-    spindle_near_percent_status = pyqtProperty(int, get_spindle_near_percent, set_spindle_near_percent, reset_spindle_near_percent)
-    halpin_name = pyqtProperty(str, get_halpin_name, set_halpin_name, reset_halpin_name)
+    joint_number_status = Property(int, get_joint_number, set_joint_number, reset_joint_number)
+    spindle_near_percent_status = Property(int, get_spindle_near_percent, set_spindle_near_percent, reset_spindle_near_percent)
+    halpin_name = Property(str, get_halpin_name, set_halpin_name, reset_halpin_name)
 
     # boilder code
     def __getitem__(self, item):
@@ -556,7 +556,7 @@ class StateLED(LED):
 if __name__ == "__main__":
 
     import sys
-    from PyQt5.QtGui import QApplication
+    from qtpy.QtGui import QApplication
     app = QApplication(sys.argv)
     led = StateLED()
     led.show()

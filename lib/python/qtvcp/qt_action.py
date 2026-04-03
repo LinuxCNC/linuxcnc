@@ -2,10 +2,10 @@ import os
 import math
 import subprocess
 from time import sleep
-from PyQt5.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
+from qtpy.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
     QWidget, QGridLayout,QGraphicsBlurEffect, QGraphicsDropShadowEffect,
                 QGraphicsColorizeEffect)
-from PyQt5.QtCore import Qt, QProcess
+from qtpy.QtCore import Qt, QProcess
 
 import linuxcnc
 

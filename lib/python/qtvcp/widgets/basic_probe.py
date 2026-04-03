@@ -19,9 +19,9 @@ import sys
 import os
 import hal
 import json
-from PyQt5.QtCore import QProcess, QRegExp, QFile, QEvent, Qt, pyqtProperty
-from PyQt5 import QtGui, QtWidgets, uic, QtCore
-from PyQt5.QtWidgets import QDialogButtonBox, QAbstractSlider, QLineEdit, qApp
+from qtpy.QtCore import QProcess, QRegExp, QFile, QEvent, Qt, Property
+from qtpy import QtGui, QtWidgets, uic, QtCore
+from qtpy.QtWidgets import QDialogButtonBox, QAbstractSlider, QLineEdit, qApp
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path
 from qtvcp.widgets.dialogMixin import GeometryMixin
@@ -512,7 +512,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #########################################################################
 
@@ -522,7 +522,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         return self.dialog_code
     def reset_dialog_code(self):
         self.dialog_code = 'CALCULATOR'
-    dialogCodeString = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    dialogCodeString = Property(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     def set_runImmediately(self, data):
         self._runImmediately = data
@@ -533,7 +533,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         self._runImmediately = True
 
     # toggle run on button push or run on function call
-    runImmediately = pyqtProperty(bool, get_runImmediately, set_runImmediately, reset_runImmediately)
+    runImmediately = Property(bool, get_runImmediately, set_runImmediately, reset_runImmediately)
 
     ##############################
     # required class boiler code #
@@ -679,9 +679,9 @@ class BasicProbe(module):
     # Testing                   #
     #############################
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from qtpy.QtWidgets import *
+    from qtpy.QtCore import *
+    from qtpy.QtGui import *
     app = QtWidgets.QApplication(sys.argv)
     w = BasicProbe()
     w.show()
