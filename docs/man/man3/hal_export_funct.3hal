@@ -20,8 +20,8 @@ The pointer to the function
 The argument to be passed as the first parameter of \fIfunct\fR
 
 .IP \fIuses_fp\fR
-Nonzero if the function uses floating-point operations, including assignment
-of floating point values with "=".
+\fBDeprecated.\fR All threads now unconditionally save and restore
+floating-point state, so this flag has no effect.
 
 .IP \fIreentrant\fR
 If reentrant is non-zero, the function may be preempted and called again

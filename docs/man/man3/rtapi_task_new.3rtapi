@@ -19,7 +19,8 @@ started
 .IP \fIprio\fR
 A task priority value returned by \fBrtapi_prio_xxxx\fR
 .IP \fIuses_fp\fR
-A flag that tells the OS whether the task uses floating point or not.
+\fBDeprecated.\fR All tasks now unconditionally save and restore
+floating-point state.  This parameter is accepted but ignored.
 .IP \fItask_id\fR
 A task ID returned by a previous call to \fBrtapi_task_new\fR
 .SH DESCRIPTION
