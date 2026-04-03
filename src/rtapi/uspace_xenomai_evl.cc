@@ -9,8 +9,6 @@
 #include <evl/clock.h>
 #include <evl/proxy.h>
 
-#include <error.h> //ToDo: Remove
-
 #include <pthread.h>
 #include <errno.h>
 #include <stdio.h>
@@ -157,8 +155,8 @@ struct XenomaiApp : RtapiApp {
         }
         else
         {
-            int res = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &task->nextstart, nullptr);
-            if(res < 0) perror("clock_nanosleep");
+            int res = evl_sleep_until(EVL_CLOCK_MONOTONIC, &task->nextstart);
+            if(res < 0) perror("evl_sleep_until");
         }
     }
 
@@ -202,7 +200,9 @@ struct XenomaiApp : RtapiApp {
     }
 
     void do_delay(long ns) {
-        struct timespec ts = {0, ns};
+        struct timespec ts;
+        evl_read_clock(EVL_CLOCK_MONOTONIC, &ts);
+        rtapi_timespec_advance(ts, ts, ns);
         evl_sleep_until(EVL_CLOCK_MONOTONIC, &ts);
     }
 };
