@@ -47,7 +47,7 @@ Check linuxcnc.log for debug output.
 author "Boris Skegin";
 license "GPL";
 
-include "hal/drivers/mesa-hostmot2/hostmot2-serial.h";
+include <hostmot2-serial.h>;
 include "hal/drivers/mesa-hostmot2/hostmot2.h";
 
 

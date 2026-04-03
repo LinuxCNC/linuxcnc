@@ -189,14 +189,14 @@ AC_ARG_ENABLE(toolnml,
 
 #at this point if RTS is empty, we need to find RT ourselves
 AC_MSG_CHECKING([for rtai-config])
-if test -z "$RTS"; then
+if test -z "$RTS" || test "$RTS" = uspace; then
   DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
 else
   DIRS="$RTS"
 fi
-  RTAI_CONFIG=none
-  for location in $DIRS; do
-    for subdir in . scripts bin; do
+RTAI_CONFIG=none
+for location in $DIRS; do
+  for subdir in . scripts bin; do
     for signature in rtai; do
       candidate=$location/$subdir/$signature-config
       if test "$RTAI_CONFIG" = "none" -a -x $candidate; then

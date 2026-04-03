@@ -60,7 +60,7 @@ to another.
 #ifndef MOTION_H
 #define MOTION_H
 
-#include <stdint.h>
+#include <rtapi_stdint.h>
 #include <stdarg.h>
 
 #include <rtapi_bool.h>
