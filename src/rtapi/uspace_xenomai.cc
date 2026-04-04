@@ -99,10 +99,12 @@ struct XenomaiApp : RtapiApp {
     }
 
     int task_pause(int task_id) {
+        (void)task_id;
         return -ENOSYS;
     }
 
     int task_resume(int task_id) {
+        (void)task_id;
         return -ENOSYS;
     }
 
