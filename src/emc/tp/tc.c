@@ -26,6 +26,7 @@
 #include "spherical_arc.h"
 #include "../motion/motion.h"
 #include "ruckig_wrapper.h"
+#include "cruckig/roots.h"
 
 //Debug output
 #include "tp_debug.h"
@@ -890,7 +891,7 @@ int tcUpdateArcLimits(TC_STRUCT * tc)
         // The jerk budget is shared between steady-state (v³/R²) and transitions.
         // Solving: v³ ≤ R² × j × φ / (2 + φ)
         // The (2 + φ) term: 2 for two transitions, φ for steady-state budget
-        double v_max_jerk_steady = cbrt(R_sq * jerk * angle / (2.0 + angle));
+        double v_max_jerk_steady = cruckig_cbrt(R_sq * jerk * angle / (2.0 + angle));
 
         // Constraint 2: Normal jerk from tangential acceleration coupling
         // During S-curve ramps on arc: j_n = 3·v·a_t/R

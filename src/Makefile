@@ -279,29 +279,17 @@ $(sort $(CUSEROBJS)) : objects/%.o: %.c
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
-# Ruckig files need C++20
-RUCKIG_CXX_FILES := $(filter emc/tp/ruckig%,$(CXXUSERSRCS))
-NON_RUCKIG_CXX_FILES := $(filter-out emc/tp/ruckig%,$(CXXUSERSRCS))
-
-$(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(RUCKIG_CXX_FILES)))) : objects/%.o: %.cpp
+# Cruckig (pure C) source files — compiled as C, no C++ needed
+# Headers are local ("" includes relative to cruckig/), no -I needed
+objects/emc/tp/cruckig/%.o : emc/tp/cruckig/%.c
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
-	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 \
-		-I$(BASEPWD)/emc/tp/ruckig/include \
+	$(Q)$(CC) -c $(CFLAGS) $(EXTRAFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
-$(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(RUCKIG_CXX_FILES)))) : objects/%.o: %.cc
-	$(ECHO) Compiling $<
-	@mkdir -p $(dir $@)
-	@rm -f $@
-	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 \
-		-I$(BASEPWD)/emc/tp/ruckig/include \
-		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
-		$< -o $@
-
-$(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(NON_RUCKIG_CXX_FILES)))) : objects/%.o: %.cpp
+$(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(CXXUSERSRCS)))) : objects/%.o: %.cpp
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
@@ -309,7 +297,7 @@ $(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(NON_RUCKIG_CXX_FILES)))) : 
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
-$(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(NON_RUCKIG_CXX_FILES)))) : objects/%.o: %.cc
+$(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(CXXUSERSRCS)))) : objects/%.o: %.cc
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
@@ -1198,17 +1186,25 @@ motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
 motmod-objs += emc/tp/sp_scurve.o
 motmod-objs += emc/tp/ruckig_wrapper.o
-motmod-objs += emc/tp/ruckig/src/ruckig/brake.o
-motmod-objs += emc/tp/ruckig/src/ruckig/position_first_step1.o
-motmod-objs += emc/tp/ruckig/src/ruckig/position_first_step2.o
-motmod-objs += emc/tp/ruckig/src/ruckig/position_second_step1.o
-motmod-objs += emc/tp/ruckig/src/ruckig/position_second_step2.o
-motmod-objs += emc/tp/ruckig/src/ruckig/position_third_step1.o
-motmod-objs += emc/tp/ruckig/src/ruckig/position_third_step2.o
-motmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step1.o
-motmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step2.o
-motmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step1.o
-motmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step2.o
+motmod-objs += emc/tp/cruckig/block.o
+motmod-objs += emc/tp/cruckig/brake.o
+motmod-objs += emc/tp/cruckig/calculator.o
+motmod-objs += emc/tp/cruckig/cruckig.o
+motmod-objs += emc/tp/cruckig/input_parameter.o
+motmod-objs += emc/tp/cruckig/output_parameter.o
+motmod-objs += emc/tp/cruckig/profile.o
+motmod-objs += emc/tp/cruckig/roots.o
+motmod-objs += emc/tp/cruckig/trajectory.o
+motmod-objs += emc/tp/cruckig/position_first_step1.o
+motmod-objs += emc/tp/cruckig/position_first_step2.o
+motmod-objs += emc/tp/cruckig/position_second_step1.o
+motmod-objs += emc/tp/cruckig/position_second_step2.o
+motmod-objs += emc/tp/cruckig/position_third_step1.o
+motmod-objs += emc/tp/cruckig/position_third_step2.o
+motmod-objs += emc/tp/cruckig/velocity_second_step1.o
+motmod-objs += emc/tp/cruckig/velocity_second_step2.o
+motmod-objs += emc/tp/cruckig/velocity_third_step1.o
+motmod-objs += emc/tp/cruckig/velocity_third_step2.o
 
 obj-m += homemod.o
 homemod-objs := emc/motion/homemod.o
@@ -1225,17 +1221,25 @@ tpmod-objs += emc/nml_intf/emcpose.o
 tpmod-objs += libnml/posemath/_posemath.o
 tpmod-objs += emc/tp/sp_scurve.o
 tpmod-objs += emc/tp/ruckig_wrapper.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/brake.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/position_first_step1.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/position_first_step2.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/position_second_step1.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/position_second_step2.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/position_third_step1.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/position_third_step2.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step1.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_second_step2.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step1.o
-tpmod-objs += emc/tp/ruckig/src/ruckig/velocity_third_step2.o
+tpmod-objs += emc/tp/cruckig/block.o
+tpmod-objs += emc/tp/cruckig/brake.o
+tpmod-objs += emc/tp/cruckig/calculator.o
+tpmod-objs += emc/tp/cruckig/cruckig.o
+tpmod-objs += emc/tp/cruckig/input_parameter.o
+tpmod-objs += emc/tp/cruckig/output_parameter.o
+tpmod-objs += emc/tp/cruckig/profile.o
+tpmod-objs += emc/tp/cruckig/roots.o
+tpmod-objs += emc/tp/cruckig/trajectory.o
+tpmod-objs += emc/tp/cruckig/position_first_step1.o
+tpmod-objs += emc/tp/cruckig/position_first_step2.o
+tpmod-objs += emc/tp/cruckig/position_second_step1.o
+tpmod-objs += emc/tp/cruckig/position_second_step2.o
+tpmod-objs += emc/tp/cruckig/position_third_step1.o
+tpmod-objs += emc/tp/cruckig/position_third_step2.o
+tpmod-objs += emc/tp/cruckig/velocity_second_step1.o
+tpmod-objs += emc/tp/cruckig/velocity_second_step2.o
+tpmod-objs += emc/tp/cruckig/velocity_third_step1.o
+tpmod-objs += emc/tp/cruckig/velocity_third_step2.o
 tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
@@ -1257,7 +1261,7 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 RTFLAGS += -fno-strict-aliasing -fwrapv
 
 # Rules to make .o (object) files for C files
-$(sort $(filter-out objects/rtemc/tp/ruckig_wrapper.o objects/rtemc/tp/ruckig/src/ruckig/%,$(RTOBJS))) : objects/rt%.o : %.c
+$(sort $(filter-out objects/rtemc/tp/cruckig/%,$(RTOBJS))) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
@@ -1266,30 +1270,13 @@ $(sort $(filter-out objects/rtemc/tp/ruckig_wrapper.o objects/rtemc/tp/ruckig/sr
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
-# C++ flags for Ruckig: drop C-only -Wno-declaration-after-statement, and suppress
-# false-positive -Warray-bounds and -Wunused-parameter in Ruckig library
-RUCKIG_CXXFLAGS := $(filter-out -Wno-declaration-after-statement,$(EXTRA_CFLAGS)) \
-	-Wno-array-bounds -Wno-unused-parameter
-
-# Rules for C++ .cc files in realtime modules
-objects/rtemc/tp/ruckig_wrapper.o : emc/tp/ruckig_wrapper.cc
+# Rules for cruckig C files in realtime modules
+objects/rtemc/tp/cruckig/%.o : emc/tp/cruckig/%.c
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI -std=c++20 \
-		-I$(BASEPWD)/emc/tp/ruckig/include \
-		$(RUCKIG_CXXFLAGS) \
-		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
-		$< -o $@
-
-# Rules for C++ .cpp files in realtime modules
-objects/rtemc/tp/ruckig/src/ruckig/%.o : emc/tp/ruckig/src/ruckig/%.cpp
-	$(ECHO) Compiling realtime $<
-	@rm -f $@
-	@mkdir -p $(dir $@)
-	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI -std=c++20 \
-		-I$(BASEPWD)/emc/tp/ruckig/include \
-		$(RUCKIG_CXXFLAGS) \
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI \
+		$(EXTRA_CFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 endif

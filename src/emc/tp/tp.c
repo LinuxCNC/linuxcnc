@@ -41,7 +41,6 @@
 #include "tp_debug.h"
 #include "sp_scurve.h"
 #include "ruckig_wrapper.h"
-#include <stdio.h>
 // FIXME: turn off this feature, which causes blends between rapids to
 // use the feed override instead of the rapid override
 #undef TP_SHOW_BLENDS

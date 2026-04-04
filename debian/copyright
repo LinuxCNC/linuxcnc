@@ -151,14 +151,15 @@ Copyright: 2004-2025 The LinuxCNC Developers and notably
  Please inspect the logs of the git repository to learn about the >230 (11/2021) committers.
 License: GPL-2+
 
-Files: src/emc/tp/ruckig/*
+Files: src/emc/tp/cruckig/*
 Copyright:
+ 2025 Yang Yang <mika-net@outlook.com>
  2021-2024 Lars Berscheid
 License: Expat
 
 Files: src/emc/tp/ruckig_wrapper.*
 Copyright:
- 2024 杨阳 <mika-net@outlook.com>
+ 2024-2026 杨阳 <mika-net@outlook.com>
 License: GPL-2
  
 Files: docs/*
