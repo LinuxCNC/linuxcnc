@@ -274,23 +274,19 @@ private:
 class Usb : public UsbRawInputListener
 {
 public:
+    enum class InitStatus{
+        EXIT,  //Program should exit
+        RETRY, //Program should retry
+        OK     //All fine
+    };
     static const ConstantUsbPackages ConstantPackages;
     //! \param name device string used for printing messages
     //! \param onDataReceivedCallback called when received data is ready
     Usb(const char* name, OnUsbInputPackageListener& onDataReceivedCallback, Hal &hal);
     ~Usb();
-    uint16_t getUsbVendorId() const;
-    uint16_t getUsbProductId() const;
     void setUsbProductId(uint16_t usbProductId);
     bool isDeviceOpen() const;
-    libusb_context** getContextReference();
-    libusb_context* getContext();
-    void setContext(libusb_context* context);
-    libusb_device_handle* getDeviceHandle();
-    void setDeviceHandle(libusb_device_handle* deviceHandle);
     bool isWaitForPendantBeforeHalEnabled() const;
-    bool getDoReconnect() const;
-    void setDoReconnect(bool doReconnect);
     void onUsbDataReceived(struct libusb_transfer* transfer) override;
     void setSimulationMode(bool isSimulationMode);
     void setIsRunning(bool enableRunning);
@@ -302,12 +298,16 @@ public:
     void enableVerboseTx(bool enable);
     void enableVerboseRx(bool enable);
     void enableVerboseInit(bool enable);
-    bool init();
+    InitStatus init();
+    void process();
+    void close();
     void setWaitWithTimeout(uint8_t waitSecs);
 
     UsbOutPackageData& getOutputPackageData();
 
 private:
+    void closeHandle();
+    void closeLibusb();
     const uint16_t usbVendorId{0x10ce};
     uint16_t usbProductId{0xeb93};
     libusb_context      * context{nullptr};
@@ -317,6 +317,7 @@ private:
     bool                mIsSimulationMode{false};
     SleepDetect         sleepState;
     bool                mIsRunning{false};
+    bool                transferFailed{false};
     UsbInPackageBuffer  inputPackageBuffer;
     UsbOutPackageBuffer outputPackageBuffer;
     UsbOutPackageData   outputPackageData;

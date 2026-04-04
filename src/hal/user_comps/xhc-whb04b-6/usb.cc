@@ -54,13 +54,13 @@ const ConstantUsbPackages Usb::ConstantPackages;
 UsbOutPackageBlock::UsbOutPackageBlock() :
     asBlock()
 {
-    assert(sizeof(UsbOutPackageBlockBuffer) == sizeof(UsbOutPackageBlockFields));
+    static_assert(sizeof(UsbOutPackageBlockBuffer) == sizeof(UsbOutPackageBlockFields));
 }
 // ----------------------------------------------------------------------
 UsbInPackageBuffer::UsbInPackageBuffer() :
     asBuffer{0}
 {
-    assert(sizeof(asFields) == sizeof(asBuffer));
+    static_assert(sizeof(asFields) == sizeof(asBuffer));
 }
 // ----------------------------------------------------------------------
 UsbEmptyPackage::UsbEmptyPackage() :
@@ -125,59 +125,14 @@ ConstantUsbPackages::ConstantUsbPackages() :
 {
 }
 // ----------------------------------------------------------------------
-uint16_t Usb::getUsbVendorId() const
-{
-    return usbVendorId;
-}
-// ----------------------------------------------------------------------
-uint16_t Usb::getUsbProductId() const
-{
-    return usbProductId;
-}
-// ----------------------------------------------------------------------
 bool Usb::isDeviceOpen() const
 {
     return deviceHandle != nullptr;
 }
 // ----------------------------------------------------------------------
-libusb_context** Usb::getContextReference()
-{
-    return &context;
-}
-// ----------------------------------------------------------------------
-libusb_context* Usb::getContext()
-{
-    return context;
-}
-// ----------------------------------------------------------------------
-void Usb::setContext(libusb_context* context)
-{
-    this->context = context;
-}
-// ----------------------------------------------------------------------
-libusb_device_handle* Usb::getDeviceHandle()
-{
-    return deviceHandle;
-}
-// ----------------------------------------------------------------------
-void Usb::setDeviceHandle(libusb_device_handle* deviceHandle)
-{
-    this->deviceHandle = deviceHandle;
-}
-// ----------------------------------------------------------------------
 bool Usb::isWaitForPendantBeforeHalEnabled() const
 {
     return isWaitWithTimeout;
-}
-// ----------------------------------------------------------------------
-bool Usb::getDoReconnect() const
-{
-    return mDoReconnect;
-}
-// ----------------------------------------------------------------------
-void Usb::setDoReconnect(bool doReconnect)
-{
-    this->mDoReconnect = doReconnect;
 }
 // ----------------------------------------------------------------------
 void Usb::setUsbProductId(uint16_t usbProductId)
@@ -204,6 +159,12 @@ Usb::Usb(const char* name, OnUsbInputPackageListener& onDataReceivedCallback, Ha
 // ----------------------------------------------------------------------
 void Usb::sendDisplayData()
 {
+    if(deviceHandle == nullptr)
+    {
+        std::cerr << endl << "Bug: sendDisplayData: deviceHandle is null!" << endl;
+        return;
+    }
+
     outputPackageBuffer.asBlocks.init(&outputPackageData);
 
     if (mIsSimulationMode)
@@ -240,7 +201,7 @@ void Usb::sendDisplayData()
         if (r < 0)
         {
             std::cerr << "transmission failed, try to reconnect ..." << endl;
-            setDoReconnect(true);
+            mDoReconnect = true;
             return;
         }
     }
@@ -405,9 +366,9 @@ UsbOutPackageBuffer::UsbOutPackageBuffer() :
                   << " sizeof array   " << sizeof(asBlockArray) << endl
                   << " sizeof package " << sizeof(UsbOutPackageData) << endl;
     }
-    assert(sizeof(UsbOutPackageBlocks) == sizeof(asBlockArray));
-    size_t blocksCount = sizeof(UsbOutPackageBlocks) / sizeof(UsbOutPackageBlockFields);
-    assert((sizeof(UsbOutPackageData) + blocksCount) == sizeof(UsbOutPackageBlocks));
+    static_assert(sizeof(UsbOutPackageBlocks) == sizeof(asBlockArray));
+    constexpr size_t blocksCount = sizeof(UsbOutPackageBlocks) / sizeof(UsbOutPackageBlockFields);
+    static_assert((sizeof(UsbOutPackageData) + blocksCount) == sizeof(UsbOutPackageBlocks));
 }
 // ----------------------------------------------------------------------
 UsbInPackage::UsbInPackage() :
@@ -454,7 +415,13 @@ void Usb::requestTermination()
 bool Usb::setupAsyncTransfer()
 {
     assert(inTransfer != nullptr);
-    libusb_fill_bulk_transfer(inTransfer, deviceHandle,
+    if(deviceHandle == nullptr)
+    {
+        std::cerr << endl << "Bug: setupAsyncTransfer: deviceHandle is null!" << endl;
+        return false;
+    }
+
+    libusb_fill_interrupt_transfer(inTransfer, deviceHandle,
                               (0x1 | LIBUSB_ENDPOINT_IN), inputPackageBuffer.asBuffer,
                               sizeof(inputPackageBuffer.asBuffer), mRawDataCallback,
         //! pass this object as callback data
@@ -462,13 +429,24 @@ bool Usb::setupAsyncTransfer()
         //! timeout[ms]
                               750);
     int r = libusb_submit_transfer(inTransfer);
-    assert(0 == r);
-    return (0 == r);
+    if(r != 0)
+    {
+        std::cerr << "libusb_submit_transfer failed with " << r << endl;
+        mDoReconnect = true;
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 // ----------------------------------------------------------------------
 void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
 {
     assert(mHal.isInitialized());
+
+    //DO NOT call close from here, it is a callback from libusb
+    //and will deadlock!!
 
     int      expectedPackageSize = static_cast<int>(sizeof(UsbInPackage));
     std::ios init(NULL);
@@ -538,7 +516,10 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
 
             if (mIsRunning)
             {
-                setupAsyncTransfer();
+                if(!setupAsyncTransfer())
+                {
+                    transferFailed = true;
+                }
             }
 
             break;
@@ -547,7 +528,10 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
         case (LIBUSB_TRANSFER_TIMED_OUT):
             if (mIsRunning)
             {
-                setupAsyncTransfer();
+                if(!setupAsyncTransfer())
+                {
+                    transferFailed = true;
+                }
             }
             break;
 
@@ -559,19 +543,24 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
         case (LIBUSB_TRANSFER_OVERFLOW):
         case (LIBUSB_TRANSFER_ERROR):
             std::cerr << "transfer error: " << transfer->status << endl;
-            requestTermination();
+            transferFailed = true;
             break;
 
         default:
             std::cerr << "unknown transfer status: " << transfer->status << endl;
-            requestTermination();
+            transferFailed = true;
             break;
     }
-    //libusb_free_transfer(transfer);
 }
 // ----------------------------------------------------------------------
 Usb::~Usb()
 {
+    if(deviceHandle != nullptr)
+    {
+        close();
+    }
+    libusb_free_transfer(inTransfer);
+    libusb_free_transfer(outTransfer);
 }
 // ----------------------------------------------------------------------
 void Usb::enableVerboseTx(bool enable)
@@ -610,9 +599,17 @@ void Usb::enableVerboseInit(bool enable)
     }
 }
 // ----------------------------------------------------------------------
-bool Usb::init()
+Usb::InitStatus Usb::init()
 {
-    if (getDoReconnect())
+    if(context != nullptr)
+    {
+        std::cerr << endl << "Bug: Not cleaned up context properly before calling init again!" << endl;
+    }
+    if(deviceHandle != nullptr)
+    {
+        std::cerr << endl << "Bug: Not cleaned up deviceHandle properly before calling init again!" << endl;
+    }
+    if (mDoReconnect)
     {
         int pauseSecs = 3;
         *verboseInitOut << "init  pausing " << pauseSecs << "s, waiting for device to be gone ...";
@@ -621,16 +618,17 @@ bool Usb::init()
             *verboseInitOut << "." << std::flush;
             sleep(1);
         }
-        setDoReconnect(false);
+        mDoReconnect=false;
         *verboseInitOut << " done" << endl;
     }
 
     *verboseInitOut << "init  usb context ...";
-    int r = libusb_init(&context);
+    int r = libusb_init(&context); //This function is deprecated. However, Debian 12 doesn't have it, so we leave it in for now.
     if (r != 0)
     {
         std::cerr << endl << "failed to initialize usb context" << endl;
-        return false;
+        mDoReconnect=true;
+        return InitStatus::RETRY;
     }
     *verboseInitOut << " ok" << endl;
 
@@ -664,13 +662,15 @@ bool Usb::init()
         if (devicesCount < 0)
         {
             std::cerr << endl << "failed to get device list" << endl;
-            return false;
+            closeLibusb();
+            mDoReconnect=true;
+            return InitStatus::RETRY;
         }
 
         deviceHandle = libusb_open_device_with_vid_pid(context, usbVendorId, usbProductId);
         libusb_free_device_list(devicesReference, 1);
         *verboseInitOut << "." << std::flush;
-        if (!isDeviceOpen())
+        if (deviceHandle == nullptr)
         {
             *verboseInitOut << "." << std::flush;
             if (isWaitWithTimeout)
@@ -678,39 +678,137 @@ bool Usb::init()
                 *verboseInitOut << "." << std::flush;
                 if ((mWaitSecs--) <= 0)
                 {
-                    std::cerr << endl << "timeout exceeded, exiting" << endl;
-                    return false;
+                    std::cerr << endl << "Configured timeout exceeded, exiting" << endl;
+                    closeLibusb();
+                    return InitStatus::EXIT;
                 }
             }
             sleep(1);
         }
-    } while (!isDeviceOpen() && mIsRunning);
-    *verboseInitOut << " ok" << endl
-                    << "init  " << mName << " device found" << endl;
+    } while (deviceHandle == nullptr && mIsRunning);
 
-    if (isDeviceOpen())
+    if (deviceHandle != nullptr)
     {
+        *verboseInitOut << " ok" << endl
+                        << "init  " << mName << " device found" << endl;
         *verboseInitOut << "init  detaching active kernel driver ...";
-        if (libusb_kernel_driver_active(deviceHandle, 0) == 1)
+        r = libusb_kernel_driver_active(deviceHandle, 0);
+        if (r == 1)
         {
-            int r = libusb_detach_kernel_driver(deviceHandle, 0);
-            assert(0 == r);
+            r = libusb_detach_kernel_driver(deviceHandle, 0);
+            if(r < 0)
+            {
+                std::cerr << "libusb_detach_kernel_driver failed with " << r << endl;
+                closeHandle();
+                closeLibusb();
+                mDoReconnect=true;
+                return InitStatus::RETRY;
+            }
             *verboseInitOut << " ok" << endl;
         }
-        else
+        else if(r == 0)
         {
             *verboseInitOut << " already detached" << endl;
         }
+        else
+        {
+            std::cerr << "libusb_kernel_driver_active failed with " << r << endl;
+            closeHandle();
+            closeLibusb();
+            mDoReconnect=true;
+            return InitStatus::RETRY;
+        }
         *verboseInitOut << "init  claiming interface ...";
-        int r = libusb_claim_interface(deviceHandle, 0);
+        r = libusb_claim_interface(deviceHandle, 0);
         if (r != 0)
         {
             std::cerr << endl << "failed to claim interface" << endl;
-            return false;
+            closeHandle();
+            closeLibusb();
+            mDoReconnect=true;
+            return InitStatus::RETRY;
         }
         *verboseInitOut << " ok" << endl;
     }
-    return true;
+    return InitStatus::OK;
+}
+// ----------------------------------------------------------------------
+void Usb::process()
+{
+    if(context == nullptr)
+    {
+        std::cerr << endl << "Bug: process context is closed!" << endl;
+        return;
+    }
+
+    struct timeval timeout;
+    timeout.tv_sec  = 0;
+    timeout.tv_usec = 200 * 1000;
+
+    int r = libusb_handle_events_timeout_completed(context, &timeout, nullptr);
+    //LIBUSB_ERROR_INTERRUPTED can happen on shutdown signal and is fine
+    if(r != 0 && r != LIBUSB_ERROR_INTERRUPTED)
+    {
+        std::cerr << endl << "Error: process() libusb_handle_events_timeout_completed returned " << r << endl;
+    }
+
+    if(transferFailed)
+    {
+        close();
+        transferFailed = false;
+        mDoReconnect = true;
+    }
+}
+// ----------------------------------------------------------------------
+void Usb::closeHandle()
+{
+    if(deviceHandle == nullptr)
+    {
+        std::cerr << endl << "Bug: closeHandle allready closed!" << endl;
+        return;
+    }
+    libusb_close(deviceHandle);
+    deviceHandle = nullptr;
+}
+// ----------------------------------------------------------------------
+void Usb::closeLibusb()
+{
+    if(context == nullptr)
+    {
+        std::cerr << endl << "Bug: closeLibusb allready closed!" << endl;
+        return;
+    }
+    libusb_exit(context);
+    context = nullptr;
+}
+// ----------------------------------------------------------------------
+void Usb::close()
+{
+    if(context == nullptr)
+    {
+        std::cerr << endl << "Bug: close context allready closed!" << endl;
+        return;
+    }
+    if(deviceHandle == nullptr)
+    {
+        std::cerr << endl << "Bug: close deviceHandle allready closed!" << endl;
+        return;
+    }
+    struct timeval tv;
+    tv.tv_sec  = 1;
+    tv.tv_usec = 0;
+    int r = libusb_handle_events_timeout_completed(context, &tv, nullptr);
+    if(r != 0)
+    {
+        std::cerr << endl << "Error: close() libusb_handle_events_timeout_completed returned " << r << endl;
+    }
+    r = libusb_release_interface(deviceHandle, 0);
+    if(r != 0 && r != LIBUSB_ERROR_NO_DEVICE)
+    {
+        std::cerr << endl << "Error: close() libusb_release_interface returned " << r << endl;
+    }
+    closeHandle();
+    closeLibusb();
 }
 // ----------------------------------------------------------------------
 void Usb::setWaitWithTimeout(uint8_t waitSecs)
