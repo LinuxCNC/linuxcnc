@@ -56,7 +56,7 @@
 #include "rtapi.h"
 #include <hal.h>
 #include "hal/hal_priv.h"
-#include "rtapi_uspace.hh"
+#include "uspace_rtapi.hh"
 
 std::atomic_int WithRoot::level;
 static uid_t euid, ruid;

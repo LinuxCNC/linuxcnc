@@ -39,7 +39,7 @@ static msg_level_t msg_level = RTAPI_MSG_ERR;	/* message printing level */
 #include "config.h"
 
 #ifdef RTAPI
-#include "rtapi_uspace.hh"
+#include "uspace_rtapi.hh"
 #endif
 
 typedef struct {

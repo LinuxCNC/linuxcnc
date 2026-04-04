@@ -1,6 +1,6 @@
 #include "config.h"
 #include "rtapi.h"
-#include "rtapi_uspace.hh"
+#include "uspace_rtapi.hh"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
 #include <rtai_lxrt.h>
