@@ -1362,7 +1362,9 @@ class gmoccapy(object):
     # halui/external cycle start request
     def request_start(self,data):
         print('start request')
-        if self.stat.task_mode == linuxcnc.MODE_MDI:
+        if self.GSTAT.is_auto_paused():
+            self.command.auto(linuxcnc.AUTO_RESUME)
+        elif self.stat.task_mode == linuxcnc.MODE_MDI:
             print('Submit MDI')
             self.widgets.hal_mdihistory.submit()
         elif self.stat.task_mode == linuxcnc.MODE_MANUAL:
@@ -1374,7 +1376,15 @@ class gmoccapy(object):
     # halui/external pause request
     def request_pause(self,data):
         print('pause request')
-        self.widgets.tbtn_pause.emit('clicked')
+
+        # don't toggle
+        if self.GSTAT.is_auto_paused():
+            return
+
+        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+            self.widgets.tbtn_pause.emit('clicked')
+        else:
+            self.command.auto(linuxcnc.AUTO_PAUSE)
 
     # call INI macro (from hal_glib message)
     def request_macro_call(self, data):
