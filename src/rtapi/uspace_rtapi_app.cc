@@ -57,9 +57,8 @@
 #include <hal.h>
 #include "hal/hal_priv.h"
 #include "uspace_common.h"
+#include "uspace_rtapi_posix.hh"
 
-namespace
-{
 RtapiApp &App();
 
 struct message_t {
@@ -69,24 +68,6 @@ struct message_t {
 
 boost::lockfree::queue<message_t, boost::lockfree::capacity<128>>
 rtapi_msg_queue;
-
-static void set_namef(const char *fmt, ...) {
-    char *buf = NULL;
-    va_list ap;
-
-    va_start(ap, fmt);
-    if (vasprintf(&buf, fmt, ap) < 0) {
-        va_end(ap);
-        return;
-    }
-    va_end(ap);
-
-    int res = pthread_setname_np(pthread_self(), buf);
-    if (res) {
-        fprintf(stderr, "pthread_setname_np() failed for %s: %d\n", buf, res);
-    }
-    free(buf);
-}
 
 pthread_t queue_thread;
 void *queue_function(void * /*arg*/) {
@@ -105,7 +86,6 @@ void *queue_function(void * /*arg*/) {
         rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
     }
     return nullptr;
-}
 }
 
 static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
@@ -604,62 +584,6 @@ struct rtapi_module {
 #define MAX_MODULES  64
 #define MODULE_OFFSET 32768
 
-namespace
-{
-struct PosixTask : rtapi_task
-{
-    PosixTask() : rtapi_task{}, thr{}
-    {}
-
-    pthread_t thr;                /* thread's context */
-};
-
-struct Posix : RtapiApp
-{
-    Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
-        pthread_once(&key_once, init_key);
-        if(do_thread_lock) {
-            pthread_once(&lock_once, init_lock);
-        }
-    }
-    int task_delete(int id);
-    int task_start(int task_id, unsigned long period_nsec);
-    int task_pause(int task_id);
-    int task_resume(int task_id);
-    int task_self();
-    long long task_pll_get_reference(void);
-    int task_pll_set_correction(long value);
-    void wait();
-    struct rtapi_task *do_task_new() {
-        return new PosixTask;
-    }
-    unsigned char do_inb(unsigned int port);
-    void do_outb(unsigned char value, unsigned int port);
-    int run_threads(int fd, int (*callback)(int fd));
-    static void *wrapper(void *arg);
-    bool do_thread_lock;
-
-    static pthread_once_t key_once;
-    static pthread_key_t key;
-    static void init_key(void) {
-        pthread_key_create(&key, NULL);
-    }
-
-    static pthread_once_t lock_once;
-    static pthread_mutex_t thread_lock;
-    static void init_lock(void) {
-        pthread_mutex_init(&thread_lock, NULL);
-    }
-
-    long long do_get_time(void) {
-        struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
-        return ts.tv_sec * 1000000000LL + ts.tv_nsec;
-    }
-
-    void do_delay(long ns);
-};
-
 static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/)
 {
     switch (sig) {
@@ -854,260 +778,9 @@ RtapiApp &App()
     return *app;
 }
 
-}
 /* data for all tasks */
 struct rtapi_task *task_array[MAX_TASKS];
 
-int Posix::task_delete(int id)
-{
-  auto task = ::rtapi_get_task<PosixTask>(id);
-  if(!task) return -EINVAL;
-
-  pthread_cancel(task->thr);
-  pthread_join(task->thr, 0);
-  task->magic = 0;
-  task_array[id] = 0;
-  delete task;
-  return 0;
-}
-
-//parse_cpu_list from https://gitlab.com/Xenomai/xenomai4/libevl/-/blob/11e6a1fb183a315ae861762e7650fd5e10d83ff5/tests/helpers.c
-//License: MIT
-static void parse_cpu_list(const char *path, cpu_set_t *cpuset)
-{
-    char *p, *range, *range_p = NULL, *id, *id_r;
-    int start, end, cpu;
-    char buf[BUFSIZ];
-    FILE *fp;
-
-    CPU_ZERO(cpuset);
-
-    fp = fopen(path, "r");
-    if (fp == NULL)
-        return;
-
-    if (!fgets(buf, sizeof(buf), fp))
-        goto out;
-
-    p = buf;
-    while ((range = strtok_r(p, ",", &range_p)) != NULL) {
-        if (*range == '\0' || *range == '\n')
-            goto next;
-        end = -1;
-        id = strtok_r(range, "-", &id_r);
-        if (id) {
-            start = atoi(id);
-            id = strtok_r(NULL, "-", &id_r);
-            if (id)
-                end = atoi(id);
-            else if (end < 0)
-                end = start;
-            for (cpu = start; cpu <= end; cpu++)
-                CPU_SET(cpu, cpuset);
-        }
-    next:
-        p = NULL;
-    }
-out:
-    fclose(fp);
-}
-
-int find_rt_cpu_number() {
-    if(getenv("RTAPI_CPU_NUMBER")) return atoi(getenv("RTAPI_CPU_NUMBER"));
-
-#ifdef __linux__
-    const char* isolated_file="/sys/devices/system/cpu/isolated";
-    cpu_set_t cpuset;
-
-    parse_cpu_list(isolated_file, &cpuset);
-
-    //Print list
-    rtapi_print_msg(RTAPI_MSG_INFO, "cpuset isolated ");
-    for(int i=0; i<CPU_SETSIZE; i++) {
-        if(CPU_ISSET(i, &cpuset)){
-            rtapi_print_msg(RTAPI_MSG_INFO, "%i ", i);
-        }
-    }
-    rtapi_print_msg(RTAPI_MSG_INFO, "\n");
-
-    int top = -1;
-    for(int i=0; i<CPU_SETSIZE; i++) {
-        if(CPU_ISSET(i, &cpuset)) top = i;
-    }
-    if(top == -1){
-        rtapi_print_msg(RTAPI_MSG_ERR, "No isolated CPU's found, expect some latency or set RTAPI_CPU_NUMBER to select CPU\n");
-    }
-    return top;
-#else
-    return (-1);
-#endif
-}
-
-int Posix::task_start(int task_id, unsigned long int period_nsec)
-{
-  auto task = ::rtapi_get_task<PosixTask>(task_id);
-  if(!task) return -EINVAL;
-
-  if(period_nsec < (unsigned long)period) period_nsec = (unsigned long)period;
-  task->period = period_nsec;
-  task->ratio = period_nsec / period;
-
-  struct sched_param param;
-  memset(&param, 0, sizeof(param));
-  param.sched_priority = task->prio;
-
-  // limit PLL correction values to +/-1% of cycle time
-  task->pll_correction_limit = period_nsec / 100;
-  task->pll_correction = 0;
-
-  int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
-
-  pthread_attr_t attr;
-  int ret;
-  if((ret = pthread_attr_init(&attr)) != 0)
-      return -ret;
-  if((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
-      return -ret;
-  if((ret = pthread_attr_setschedpolicy(&attr, policy)) != 0)
-      return -ret;
-  if((ret = pthread_attr_setschedparam(&attr, &param)) != 0)
-      return -ret;
-  if((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
-      return -ret;
-  if(nprocs > 1) {
-      const static int rt_cpu_number = find_rt_cpu_number();
-      rtapi_print_msg(RTAPI_MSG_INFO, "rt_cpu_number = %i\n", rt_cpu_number);
-      if(rt_cpu_number != -1) {
-#ifdef __FreeBSD__
-          cpuset_t cpuset;
-#else
-          cpu_set_t cpuset;
-#endif
-          CPU_ZERO(&cpuset);
-          CPU_SET(rt_cpu_number, &cpuset);
-          if((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
-               return -ret;
-      }
-  }
-  if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
-      return -ret;
-
-  return 0;
-}
-
-#define RTAPI_CLOCK (CLOCK_MONOTONIC)
-
-pthread_once_t Posix::key_once = PTHREAD_ONCE_INIT;
-pthread_once_t Posix::lock_once = PTHREAD_ONCE_INIT;
-pthread_key_t Posix::key;
-pthread_mutex_t Posix::thread_lock;
-
-void *Posix::wrapper(void *arg)
-{
-  struct rtapi_task *task;
-
-  /* use the argument to point to the task data */
-  task = (struct rtapi_task*)arg;
-  long int period = App().period;
-  if(task->period < period) task->period = period;
-  task->ratio = task->period / period;
-  task->period = task->ratio * period;
-  rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %lu ratio=%u\n",
-	  task, task->period, task->ratio);
-
-  pthread_setspecific(key, arg);
-  set_namef("rtapi_app:T#%d", task->id);
-
-  Posix &papp = reinterpret_cast<Posix&>(App());
-  if(papp.do_thread_lock)
-      pthread_mutex_lock(&papp.thread_lock);
-
-  struct timespec now;
-  clock_gettime(RTAPI_CLOCK, &now);
-  rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
-
-  /* call the task function with the task argument */
-  (task->taskcode) (task->arg);
-
-  rtapi_print("ERROR: reached end of wrapper for task %d\n", task->id);
-  return NULL;
-}
-
-long long Posix::task_pll_get_reference(void) {
-    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-    if(!task) return 0;
-    return task->nextstart.tv_sec * 1000000000LL + task->nextstart.tv_nsec;
-}
-
-int Posix::task_pll_set_correction(long value) {
-    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-    if(!task) return -EINVAL;
-    if (value > task->pll_correction_limit) value = task->pll_correction_limit;
-    if (value < -(task->pll_correction_limit)) value = -(task->pll_correction_limit);
-    task->pll_correction = value;
-    return 0;
-}
-
-int Posix::task_pause(int) {
-    return -ENOSYS;
-}
-
-int Posix::task_resume(int) {
-    return -ENOSYS;
-}
-
-int Posix::task_self() {
-    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-    if(!task) return -EINVAL;
-    return task->id;
-}
-
-void Posix::wait() {
-    if(do_thread_lock)
-        pthread_mutex_unlock(&thread_lock);
-    pthread_testcancel();
-    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-    rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
-    struct timespec now;
-    clock_gettime(RTAPI_CLOCK, &now);
-    if(rtapi_timespec_less(task->nextstart, now))
-    {
-        if(policy == SCHED_FIFO)
-            unexpected_realtime_delay(task);
-    }
-    else
-    {
-        int res = rtapi_clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, nullptr, &now);
-        if(res < 0) perror("clock_nanosleep");
-    }
-    if(do_thread_lock)
-        pthread_mutex_lock(&thread_lock);
-}
-
-unsigned char Posix::do_inb(unsigned int port)
-{
-#ifdef HAVE_SYS_IO_H
-    return inb(port);
-#else
-    (void)port;
-    return 0;
-#endif
-}
-
-void Posix::do_outb(unsigned char val, unsigned int port)
-{
-#ifdef HAVE_SYS_IO_H
-    return outb(val, port);
-#else
-    (void)val;
-    (void)port;
-#endif
-}
-
-void Posix::do_delay(long ns) {
-    struct timespec ts = {0, ns};
-    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
-}
 int rtapi_prio_highest(void)
 {
     return App().prio_highest();
@@ -1132,9 +805,6 @@ long rtapi_clock_set_period(long nsecs)
 {
     return App().clock_set_period(nsecs);
 }
-
-
-
 
 int rtapi_task_new(void (*taskcode) (void*), void *arg,
         int prio, int owner, unsigned long int stacksize, int uses_fp) {
@@ -1197,11 +867,6 @@ unsigned char rtapi_inb(unsigned int port)
 
 long int simple_strtol(const char *nptr, char **endptr, int base) {
   return strtol(nptr, endptr, base);
-}
-
-int Posix::run_threads(int fd, int(*callback)(int fd)) {
-    while(callback(fd)) { /* nothing */ }
-    return 0;
 }
 
 int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {

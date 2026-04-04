@@ -21,6 +21,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/utsname.h>
 #include <string.h>
 #include <unistd.h>

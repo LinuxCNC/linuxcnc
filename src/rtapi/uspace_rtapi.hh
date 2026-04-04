@@ -108,6 +108,7 @@ T *rtapi_get_task(int task_id) {
 }
 
 int find_rt_cpu_number();
+void set_namef(const char *fmt, ...);
 
 #define MAX_TASKS  64
 #define TASK_MAGIC    21979	/* random numbers used as signatures */

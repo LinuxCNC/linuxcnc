@@ -1,6 +1,10 @@
 #include "rtapi.h"
 #include "uspace_rtapi.hh"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 std::atomic_int WithRoot::level;
 uid_t euid, ruid;
 
@@ -161,4 +165,94 @@ long RtapiApp::clock_set_period(long nsecs)
   }
   period = nsecs;
   return period;
+}
+
+//parse_cpu_list from https://gitlab.com/Xenomai/xenomai4/libevl/-/blob/11e6a1fb183a315ae861762e7650fd5e10d83ff5/tests/helpers.c
+//License: MIT
+static void parse_cpu_list(const char *path, cpu_set_t *cpuset)
+{
+    char *p, *range, *range_p = NULL, *id, *id_r;
+    int start, end, cpu;
+    char buf[BUFSIZ];
+    FILE *fp;
+
+    CPU_ZERO(cpuset);
+
+    fp = fopen(path, "r");
+    if (fp == NULL)
+        return;
+
+    if (!fgets(buf, sizeof(buf), fp))
+        goto out;
+
+    p = buf;
+    while ((range = strtok_r(p, ",", &range_p)) != NULL) {
+        if (*range == '\0' || *range == '\n')
+            goto next;
+        end = -1;
+        id = strtok_r(range, "-", &id_r);
+        if (id) {
+            start = atoi(id);
+            id = strtok_r(NULL, "-", &id_r);
+            if (id)
+                end = atoi(id);
+            else if (end < 0)
+                end = start;
+            for (cpu = start; cpu <= end; cpu++)
+                CPU_SET(cpu, cpuset);
+        }
+    next:
+        p = NULL;
+    }
+out:
+    fclose(fp);
+}
+
+int find_rt_cpu_number() {
+    if(getenv("RTAPI_CPU_NUMBER")) return atoi(getenv("RTAPI_CPU_NUMBER"));
+
+#ifdef __linux__
+    const char* isolated_file="/sys/devices/system/cpu/isolated";
+    cpu_set_t cpuset;
+
+    parse_cpu_list(isolated_file, &cpuset);
+
+    //Print list
+    rtapi_print_msg(RTAPI_MSG_INFO, "cpuset isolated ");
+    for(int i=0; i<CPU_SETSIZE; i++) {
+        if(CPU_ISSET(i, &cpuset)){
+            rtapi_print_msg(RTAPI_MSG_INFO, "%i ", i);
+        }
+    }
+    rtapi_print_msg(RTAPI_MSG_INFO, "\n");
+
+    int top = -1;
+    for(int i=0; i<CPU_SETSIZE; i++) {
+        if(CPU_ISSET(i, &cpuset)) top = i;
+    }
+    if(top == -1){
+        rtapi_print_msg(RTAPI_MSG_ERR, "No isolated CPU's found, expect some latency or set RTAPI_CPU_NUMBER to select CPU\n");
+    }
+    return top;
+#else
+    return (-1);
+#endif
+}
+
+void set_namef(const char *fmt, ...) {
+    char *buf = NULL;
+    va_list ap;
+
+    va_start(ap, fmt);
+    if (vasprintf(&buf, fmt, ap) < 0) {
+        va_end(ap);
+        return;
+    }
+    va_end(ap);
+
+    int res = pthread_setname_np(pthread_self(), buf);
+    if (res) {
+        fprintf(stderr, "pthread_setname_np() failed for %s: %d\n", buf, res);
+    }
+    free(buf);
 }
