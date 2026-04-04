@@ -60,10 +60,7 @@ struct XenomaiApp : RtapiApp {
         task->pll_correction_limit = period_nsec / 100;
         task->pll_correction = 0;
 
-        cpu_set_t cpuset;
-        CPU_ZERO(&cpuset);
         int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
-        CPU_SET(nprocs-1, &cpuset); // assumes processor numbers are contiguous
 
         int ret;
         pthread_attr_t attr;
@@ -77,9 +74,17 @@ struct XenomaiApp : RtapiApp {
             return -ret;
         if((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
             return -ret;
-        if(nprocs > 1)
-            if((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
-                return -ret;
+        if(nprocs > 1){
+            const static int rt_cpu_number = find_rt_cpu_number();
+            rtapi_print_msg(RTAPI_MSG_INFO, "rt_cpu_number = %i\n", rt_cpu_number);
+            if(rt_cpu_number != -1) {
+                cpu_set_t cpuset;
+                CPU_ZERO(&cpuset);
+                CPU_SET(rt_cpu_number, &cpuset);
+                if((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
+                    return -ret;
+            }
+        }
         if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
             return -ret;
 

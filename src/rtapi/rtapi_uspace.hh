@@ -106,6 +106,8 @@ T *rtapi_get_task(int task_id) {
     return static_cast<T*>(RtapiApp::get_task(task_id));
 }
 
+int find_rt_cpu_number();
+
 #define MAX_TASKS  64
 #define TASK_MAGIC    21979	/* random numbers used as signatures */
 #define TASK_MAGIC_INIT   ((rtapi_task*)(-1))
