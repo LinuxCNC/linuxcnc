@@ -1087,7 +1087,7 @@ int find_rt_cpu_number() {
         if(CPU_ISSET(i, &cpuset)) top = i;
     }
     if(top == -1){
-        rtapi_print_msg(RTAPI_MSG_ERR, "No isolated CPU's found, expect some latency!");
+        rtapi_print_msg(RTAPI_MSG_ERR, "No isolated CPU's found, expect some latency or set RTAPI_CPU_NUMBER to select CPU\n");
     }
     return top;
 #else
