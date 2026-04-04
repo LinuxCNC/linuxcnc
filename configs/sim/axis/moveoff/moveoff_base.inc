@@ -54,7 +54,6 @@ MAX_ACCELERATION = 50.0
         HOME_SEARCH_VEL = 20.0
          HOME_LATCH_VEL = 20.0
           HOME_SEQUENCE = 1
-         HOME_IS_SHARED = 1
 
 [AXIS_Y]
        MIN_LIMIT = -40.0
@@ -73,7 +72,6 @@ MAX_ACCELERATION = 50.0
         HOME_SEARCH_VEL = 20.0
          HOME_LATCH_VEL = 20.0
           HOME_SEQUENCE = 1
-         HOME_IS_SHARED = 0
 
 [AXIS_Z]
        MIN_LIMIT = -8.0
@@ -92,4 +90,3 @@ MAX_ACCELERATION = 50.0
         HOME_SEARCH_VEL = 20.0
          HOME_LATCH_VEL = 20.0
           HOME_SEQUENCE = 0
-         HOME_IS_SHARED = 1

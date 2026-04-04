@@ -1,0 +1,5 @@
+This config simulates shared homing switch on joint_0 (X-Axis) and joint_2 (Z-Axis).
+
+Note that the shared home switch signal (ie 'joint.0.home-sw-in', 'joint.2.home-sw-in') needs to be low in order to rehome the machine.
+
+Also note that 'simulate_home_is_shared.hal' is only used to simulate the homing process and should not be used for a real machine.
