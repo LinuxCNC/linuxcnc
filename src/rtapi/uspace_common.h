@@ -381,24 +381,28 @@ static int detect_rtai() {
 }
 #endif
 #ifdef USPACE_XENOMAI
-static int detect_xenomai_evl() {
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-xenomai4") != 0; //ToDo: This is not nice
-}
 static int detect_xenomai() {
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-xenomai3") != 0; //ToDo: This is not nice
+    struct stat sb;
+    //Running xenomai has /proc/xenomai
+    return stat("/proc/xenomai", &sb) == 0;
+}
+#else
+static int detect_xenomai() {
+    return 0;
+}
+#endif
+#ifdef USPACE_XENOMAI_EVL
+static int detect_xenomai_evl() {
+    struct stat sb;
+    //Running xenomai evl has /dev/evl but no /proc/xenomai
+    return stat("/dev/evl", &sb) == 0;
 }
 #else
 static int detect_xenomai_evl() {
     return 0;
 }
-static int detect_xenomai() {
-    return 0;
-}
 #endif
+
 static int detect_env_override() {
     char *p = getenv("LINUXCNC_FORCE_REALTIME");
     return p != NULL && atoi(p) != 0;

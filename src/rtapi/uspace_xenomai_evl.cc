@@ -221,6 +221,6 @@ pthread_key_t XenomaiApp::key;
 extern "C" RtapiApp *make();
 
 RtapiApp *make() {
-    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI4 EVL (posix-skin) realtime\n");
+    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI4 EVL realtime\n");
     return new XenomaiApp;
 }
