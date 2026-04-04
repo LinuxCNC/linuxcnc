@@ -1,6 +1,5 @@
 #include "uspace_rtapi_posix.hh"
 #include "rtapi.h"
-#include "uspace_common.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -96,6 +95,8 @@ pthread_once_t Posix::lock_once = PTHREAD_ONCE_INIT;
 pthread_key_t Posix::key;
 pthread_mutex_t Posix::thread_lock;
 
+extern RtapiApp &App(); //ToDo: Nicer
+
 void *Posix::wrapper(void *arg)
 {
   struct rtapi_task *task;
@@ -171,7 +172,7 @@ void Posix::wait() {
     }
     else
     {
-        int res = rtapi_clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, nullptr, &now);
+        int res = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &task->nextstart, nullptr);
         if(res < 0) perror("clock_nanosleep");
     }
     if(do_thread_lock)
@@ -204,7 +205,7 @@ void Posix::do_outb(unsigned char val, unsigned int port)
 
 void Posix::do_delay(long ns) {
     struct timespec ts = {0, ns};
-    rtapi_clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, NULL, NULL);
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, nullptr);
 }
 
 int Posix::run_threads(int fd, int(*callback)(int fd)) {
