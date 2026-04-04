@@ -71,7 +71,6 @@ if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
 fi
 
 EXTRA_BUILD=
-PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
 LIBREADLINE_DEV="libeditreadline-dev"
 
 ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
@@ -199,7 +198,6 @@ sed \
     -e "s#@PYTHON_IMAGING@#$PYTHON_IMAGING#g" \
     -e "s#@PYTHON_IMAGING_TK@#$PYTHON_IMAGING_TK#g" \
     -e "s#@PYTHON_PACKAGING_DEPENDS@#$PYTHON_PACKAGING_DEPENDS#g" \
-    -e "s#@PYTHON_VERSION_NEXT@#$PYTHON_VERSION_NEXT#g" \
     -e "s#@QTVCP_DEPENDS@#$QTVCP_DEPENDS#g" \
     -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
     -e "s#@TARGET@#$TARGET#g" \
