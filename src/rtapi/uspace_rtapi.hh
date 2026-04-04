@@ -115,5 +115,7 @@ int find_rt_cpu_number();
 
 extern struct rtapi_task *task_array[MAX_TASKS];
 
+extern uid_t euid, ruid; //ToDo: Improve
+
 #define WITH_ROOT WithRoot root
 #endif
