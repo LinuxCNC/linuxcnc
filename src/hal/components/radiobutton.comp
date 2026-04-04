@@ -1,0 +1,39 @@
+component radiobutton "Select one from several outputs with momentary switches";
+
+description """This component creates \\fBpersonality\\fR inputs to select
+one of several outputs. When \\fBsel-N\\fR is momentarily set high then the
+corresponding bit output \\fBout-N\\fR will be set high and other outputs will
+be set low. Simultaneously the value on the pin \\fBinput-N\\fR will be copied
+to the \\fBvalue\\fR pin.
+The \\fBselected\\fR pin will indicate which set of outputs is currently
+active.
+Note that channel-0 should be used to provide the default values.""";
+
+pin in bit sel-##[32:personality] "Inputs to select a channel";
+pin out bit out-##[32:personality] "output selected";
+pin out signed selected = 0 "indicates which output is currently active";
+pin in float input-##[32:personality] "Possible output values";
+pin out float value "currently-selected output value";
+
+function _;
+license "GPL 2+";
+author "Andy Pugh";
+
+;;
+
+FUNCTION(_){
+	int i;
+	for(i = 0; i < personality; i++){
+		if(sel(i) !=0){
+			selected = i;
+		}
+	}
+	for(i = 0; i < personality; i++){
+		if(i == selected){
+			out(i) = 1;
+			value = input(i);
+		} else {
+			out(i) = 0;
+		}
+	}
+}
