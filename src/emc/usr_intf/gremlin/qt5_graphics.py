@@ -69,7 +69,7 @@ class Window(QWidget):
         self.xSlider.setValue(15 * 16)
         self.ySlider.setValue(345 * 16)
         self.zSlider.setValue(0 * 16)
-        self.zSlider.setValue(10)
+        self.zoomSlider.setValue(10)
 
         self.setWindowTitle("Hello GL")
 
@@ -379,6 +379,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         td = tempfile.mkdtemp()
         self._current_file = filename
         load_result = True
+        canon = None
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
             arcdivision = int(self.inifile.find("DISPLAY", "ARCDIVISION") or 64)
@@ -387,7 +388,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                                 self.get_geometry(),
                                 self.foam_option,
                                 self.lathe_option,
-                                s, text, random, i,
+                                s, random, text, i,
                                 progress, arcdivision)
             # monkey patched function to call ours
             canon.output_notify_message = self.output_notify_message
@@ -1063,7 +1064,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def select_prime(self, x, y):
         self.select_primed = x, y
 
-    # If the hcode program is large the display pauses plotting update 
+    # If the hcode program is large the display pauses plotting update
     # while searching. probably needs a thread or compiled code.
     # the actual opengl search is in glcanon.py, GlCanonDraw: select()
     def select_fire(self):
@@ -1223,6 +1224,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.extrude(x3, y3, x4, y4, z= .05, color = self.Green)
         self.extrude(x4, y4, y4, x4, z= .05, color = self.Green)
         self.extrude(y4, x4, y3, x3, z= .05, color = self.Green)
+        self.extrude(y3, x3, x3, y3, z= .05, color = self.Green)
 
         NumSectors = 200
 
