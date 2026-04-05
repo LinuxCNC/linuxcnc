@@ -251,7 +251,7 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 | link:../man/man9/mux2.9.html[mux2]         |Select from one of two input values (multiplexer). ||
 | link:../man/man9/mux4.9.html[mux4]         |Select from one of four input values (multiplexer). ||
 | link:../man/man9/mux8.9.html[mux8]         |Select from one of eight input values (multiplexer). ||
-| link:../man/man9/mux_generic.9.html[mux_generic] | Select one from several input values (multiplexer). ||
+| link:../man/man9/mux_generic.9.html[mux_generic] | Select one from several inputs and forwards it to a single output (multiplexer). ||
 | link:../man/man9/near.9.html[near]         |Determine whether two values are roughly equal. ||
 | link:../man/man9/offset.9.html[offset]     |Adds an offset to an input, and subtracts it from the feedback value. ||
 | link:../man/man9/safety_latch.9.html[safety_latch] |latch for error signals   ||
