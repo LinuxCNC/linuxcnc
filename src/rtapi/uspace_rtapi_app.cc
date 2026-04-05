@@ -1023,7 +1023,7 @@ int Posix::task_delete(int id)
   return 0;
 }
 
-//parse_cpu_list from https://gitlab.com/Xenomai/xenomai4/libevl/-/blob/master/tests/helpers.c?ref_type=heads
+//parse_cpu_list from https://gitlab.com/Xenomai/xenomai4/libevl/-/blob/11e6a1fb183a315ae861762e7650fd5e10d83ff5/tests/helpers.c
 //License: MIT
 static void parse_cpu_list(const char *path, cpu_set_t *cpuset)
 {
