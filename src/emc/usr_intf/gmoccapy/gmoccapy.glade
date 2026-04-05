@@ -151,7 +151,7 @@
     <signal name="value-changed" handler="on_adj_width_popup_value_changed" swapped="no"/>
   </object>
   <object class="GtkAdjustment" id="adj_x_pos">
-    <property name="upper">1024</property>
+    <property name="upper">2500</property>
     <property name="value">40</property>
     <property name="step-increment">1</property>
     <signal name="value-changed" handler="on_adj_x_pos_value_changed" swapped="no"/>
@@ -4959,8 +4959,8 @@ to test your settings.</property>
                       <object class="GtkBox" id="hbox_setup_behaviour">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="margin-start">5</property>
-                        <property name="margin-end">5</property>
+                        <property name="margin-start">3</property>
+                        <property name="margin-end">3</property>
                         <property name="margin-top">3</property>
                         <property name="margin-bottom">3</property>
                         <property name="spacing">5</property>
@@ -4969,6 +4969,7 @@ to test your settings.</property>
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
                             <child>
                               <object class="GtkFrame" id="frm_keyboard">
                                 <property name="visible">True</property>
@@ -5349,6 +5350,7 @@ to test your settings.</property>
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
                             <child>
                               <object class="GtkFrame" id="frm_file_to_load">
                                 <property name="visible">True</property>
@@ -5474,6 +5476,129 @@ to test your settings.</property>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
                                 <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame" id="frm_iconview">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label-xalign">0.5</property>
+                                <child>
+                                  <object class="GtkBox" id="vbox_iconview_sort">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-start">3</property>
+                                    <property name="margin-end">3</property>
+                                    <property name="margin-top">3</property>
+                                    <property name="margin-bottom">3</property>
+                                    <property name="orientation">vertical</property>
+                                    <property name="spacing">5</property>
+                                    <child>
+                                      <object class="GtkLabel" id="lbl_sortorder">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="halign">start</property>
+                                        <property name="label" translatable="yes">Sort order by name</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkComboBoxText" id="cmb_sortorder">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="active">0</property>
+                                        <items>
+                                          <item id="0" translatable="yes">Ascending</item>
+                                          <item id="1" translatable="yes">Descending</item>
+                                        </items>
+                                        <signal name="changed" handler="on_sortorder_changed" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="lbl_sortbydate">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="halign">start</property>
+                                        <property name="label" translatable="yes">Sort order by date </property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkComboBoxText" id="cmb_sortbydate">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="active">1</property>
+                                        <items>
+                                          <item id="1" translatable="yes">Ascending</item>
+                                          <item id="2" translatable="yes">Descending</item>
+                                        </items>
+                                        <signal name="changed" handler="on_sortorder_date_changed" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">3</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="lbl_sort_folders">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="halign">start</property>
+                                        <property name="label" translatable="yes">Separate folders/files</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">4</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkComboBoxText" id="cmb_folderfirst">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="active">0</property>
+                                        <items>
+                                          <item id="0" translatable="yes">Folders first</item>
+                                          <item id="1" translatable="yes">Files first</item>
+                                          <item id="2" translatable="yes">None</item>
+                                        </items>
+                                        <signal name="changed" handler="on_folderfirst_changed" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">5</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;File and folder list&lt;/b&gt;</property>
+                                    <property name="use-markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
@@ -8032,6 +8157,22 @@ tool z</property>
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkToggleButton" id="tbtn_sort">
+                    <property name="label" translatable="yes">Sort by
+date</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Sort files by date, newest first</property>
+                    <signal name="toggled" handler="on_tbtn_sort_toggled" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkLabel" id="lbl_space_11">
                     <property name="width-request">90</property>
                     <property name="height-request">56</property>
@@ -8041,7 +8182,7 @@ tool z</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">6</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
                 <child>
@@ -8058,19 +8199,6 @@ tool z</property>
                     <property name="image">img_select</property>
                     <property name="image-position">top</property>
                     <signal name="clicked" handler="on_btn_select_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">7</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbl_space_12">
-                    <property name="width-request">90</property>
-                    <property name="height-request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>

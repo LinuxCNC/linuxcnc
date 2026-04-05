@@ -2484,6 +2484,21 @@ class gmoccapy(object):
             filetypes += ext.replace("*.", "") + ","
         self.widgets.IconFileSelection1.set_property("filetypes", filetypes)
 
+        self.iconview_sortorder = self.prefs.getpref("iconview_sortorder", 0, int)
+        self.iconview_sortbydate = self.prefs.getpref("iconview_sortbydate", 1, int)
+        self.iconview_folderfirst = self.prefs.getpref("iconview_folderfirst", 0, int)
+        self.sort_by_date = self.prefs.getpref("sort_by_date", False, bool) # state of toggle button
+        self.widgets.tbtn_sort.set_active(self.sort_by_date)
+        self.widgets.cmb_sortorder.set_active_id(str(self.iconview_sortorder))
+        self.widgets.cmb_sortbydate.set_active_id(str(self.iconview_sortbydate))
+        self.widgets.cmb_folderfirst.set_active_id(str(self.iconview_folderfirst))
+        self.widgets.IconFileSelection1.set_property("sortorder", self.iconview_sortorder)
+        self.widgets.IconFileSelection1.set_property("folderfirst", self.iconview_folderfirst)
+        if self.sort_by_date:
+            self.widgets.IconFileSelection1.set_property("sortbydate", self.iconview_sortbydate)
+        else:
+            self.widgets.IconFileSelection1.set_property("sortbydate", 0)
+        
         jump_to_dir = self.prefs.getpref("jump_to_dir", os.path.expanduser("~"), str)
         self.widgets.jump_to_dir_chooser.set_current_folder(jump_to_dir)
         self.widgets.IconFileSelection1.set_property("jump_to_dir", jump_to_dir)
@@ -5389,6 +5404,27 @@ class gmoccapy(object):
         index = widget.get_active()
         self.widgets.gremlin.set_property("mouse_btn_mode", index)
         self.prefs.putpref("mouse_btn_mode", index, int)
+    
+    def on_sortorder_changed(self, widget):
+        id = int(widget.get_active_id())
+        self.iconview_sortorder = id
+        self.widgets.IconFileSelection1.set_property("sortorder", id)
+        self.prefs.putpref("iconview_sortorder", id)
+
+    def on_sortorder_date_changed(self, widget):
+        id = int(widget.get_active_id())
+        self.iconview_sortbydate = id
+        self.prefs.putpref("iconview_sortbydate", id)
+        if self.sort_by_date:
+            self.widgets.IconFileSelection1.set_property("sortbydate", self.iconview_sortbydate)
+        else:
+            self.widgets.IconFileSelection1.set_property("sortbydate", 0)
+
+    def on_folderfirst_changed(self, widget):
+        id = int(widget.get_active_id())
+        self.iconview_folderfirst = id
+        self.widgets.IconFileSelection1.set_property("folderfirst", id)
+        self.prefs.putpref("iconview_folderfirst", id)
 
 # =========================================================
 # tool stuff
@@ -5895,6 +5931,14 @@ class gmoccapy(object):
             self.widgets.tbtn_switch_mode.set_label(_("World\nmode"))
             self._set_motion_mode(1)
             
+    def on_tbtn_sort_toggled(self, widget, data=None):
+        if widget.get_active():
+            self.widgets.IconFileSelection1.set_property("sortbydate", self.iconview_sortbydate)
+        else:
+            self.widgets.IconFileSelection1.set_property("sortbydate", 0)
+        self.sort_by_date = widget.get_active()
+        self.prefs.putpref("sort_by_date", self.sort_by_date)
+        
     def on_tbtn_split_view_toggled(self, widget, data=None):
         if widget.get_active():
             self.widgets.ntb_preview.show()
