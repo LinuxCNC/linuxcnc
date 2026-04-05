@@ -68,8 +68,13 @@ Owner   CodeAddr  Arg       FP   Users  Name
 
 You have to add a function from a HAL real time component to a thread to get the function to update at the rate of the thread.
 Usually there are two threads as shown in this example.
-Some components use floating point math and must be added to a thread that supports floating point math.
-The `FP` indicates if floating point math is supported in that thread.
+
+[NOTE]
+====
+The `FP` column and the `uses_fp` parameter are deprecated.
+All threads now unconditionally save and restore floating point state.
+The `fp`/`nofp` distinction will be removed in a future version.
+====
 
 ----
 $ halrun
@@ -78,14 +83,13 @@ halcmd: show thread
 Realtime Threads:
      Period  FP     Name               (     Time, Max-Time )
      995976  YES          servo-thread (        0,        0 )
-      55332  NO            base-thread (        0,        0 )
+      55332  YES           base-thread (        0,        0 )
 ----
 
 - base-thread (the high-speed thread):
   This thread handles items that need a fast response, like making step pulses, and reading and writing the parallel port.
-  Does not support floating point math.
 - servo-thread (the slow-speed thread):
-  This thread handles items that can tolerate a slower response, like the motion controller, ClassicLadder, and the motion command handler and supports floating point math.
+  This thread handles items that can tolerate a slower response, like the motion controller, ClassicLadder, and the motion command handler.
 
 .addf Syntax and Example
 [source,{hal}]
@@ -93,9 +97,6 @@ Realtime Threads:
 addf <function> <thread>
 addf mux4.0 servo-thread
 ----
-
-[NOTE]
-If the component requires a floating point thread that is usually the slower servo-thread.
 
 [[sub:hal-loadusr]]
 === loadusr

@@ -1,7 +1,7 @@
 component test_use1;
 
 pin out s32 out;
-function _ nofp;
+function _;
 license "GPL";
 ;;
 int testdefine;

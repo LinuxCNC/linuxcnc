@@ -162,7 +162,7 @@ image::images/stepgen-type11-14.png["Step Types: Five-Phase",align="center"]
 The component exports three functions.
 Each function acts on all of the step pulse generators - running different generators in different threads is not supported.
 
-* (funct) `stepgen.make-pulses` - High speed function to generate and count pulses (no floating point).
+* (funct) `stepgen.make-pulses` - High speed function to generate and count pulses.
 * (funct) `stepgen.update-freq` - Low speed function does position to velocity conversion, scaling and limiting.
 * (funct) `stepgen.capture-position` - Low speed function for feedback, updates latches and scales position.
 
@@ -258,7 +258,7 @@ Each PWM generator will also have some of these pins, depending on the output ty
 
 The component exports two functions. Each function acts on all of the PWM generators - running different generators in different threads is not supported.
 
-* (funct) `pwmgen.make-pulses` - High speed function to generate PWM waveforms (no floating point).
+* (funct) `pwmgen.make-pulses` - High speed function to generate PWM waveforms.
   The high speed function `pwmgen.make-pulses` should be run in the base (fastest) thread, from 10 to 50&#8239;µs depending on the capabilities of the computer.
   That thread's period determines the maximum PWM carrier frequency, as well as the resolution of the PWM or PDM signals.
   If the base thread is 50,000&#8239;ns then every 50&#8239;µs the module decides if it is time to change the state of the output.
@@ -361,7 +361,7 @@ halcmd: unloadrt encoder
 The component exports two functions.
 Each function acts on all of the encoder counters - running different counters in different threads is not supported.
 
-* (funct) `encoder.update-counters` - High speed function to count pulses (no floating point).
+* (funct) `encoder.update-counters` - High speed function to count pulses.
 * (funct) `encoder.capture-position` - Low speed function to update latches and scale position.
 
 [[sec:pid]]
@@ -515,7 +515,7 @@ Most encoder counters will count four times during one complete cycle.
 
 The component exports two functions. Each function affects all simulated encoders.
 
-* (funct) `sim-encoder.make-pulses` - High speed function to generate quadrature pulses (no floating point).
+* (funct) `sim-encoder.make-pulses` - High speed function to generate quadrature pulses.
 * (funct) `sim-encoder.update-speed` - Low speed function to read `.speed`, do scaling, and set up `.make-pulses`.
 
 [[sec:debounce]]
@@ -638,7 +638,7 @@ They were changed to pins to allow control by other components.]
 (((lut5)))
 The `lut5` component is a 5 input logic component based on a look up table.
 
-* `lut5` does not require a floating point thread.
+* `lut5` does not use floating point math.
 
 .Loading `lut5`
 ----

@@ -1,7 +1,7 @@
 component test_use;
 
 pin out bit out;
-function _ nofp;
+function _;
 license "GPL";
 ;;
 void testuse(void);

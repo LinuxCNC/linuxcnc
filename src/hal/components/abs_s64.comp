@@ -24,7 +24,7 @@ pin out bit is_positive "true if input is positive, false if input is 0 or negat
 pin out bit is_negative "true if input is negative, false if input is 0 or positive";
 
 option period no;
-function _ nofp;
+function _;
 license "GPL";
 author "ArcEye based on code from Sebastian Kuzminsky";
 ;;

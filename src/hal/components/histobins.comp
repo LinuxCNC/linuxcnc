@@ -74,7 +74,7 @@ pin out float  mean;
 pin out s32 availablebins = 200; //MAXBINNUMBER
 
 option period no;
-function _ fp;
+function _;
 
 variable int bin[200]; // MAXBINNUMBER
 variable int first = 1;

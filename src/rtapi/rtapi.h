@@ -414,12 +414,9 @@ RTAPI_BEGIN_DECLS
   * arbitrary void pointer when the task is started, and can be used to pass any
   * amount of data to the task (by pointing to a struct, or other such tricks).
   *
-  * @c uses_fp is a flag that tells the OS whether the task uses floating point
-  * so it can save the FPU registers on a task switch. Failing to save registers
-  * when needed causes the dreaded "NAN bug", so most tasks should set @c
-  * uses_fp to ::RTAPI_USES_FP. If a task definitely does not use floating
-  * point, setting @c uses_fp to ::RTAPI_NO_FP saves a few microseconds per task
-  * switch.
+  * @c uses_fp is deprecated and ignored.  All tasks now unconditionally
+  * save and restore FPU/SSE state on context switch.  This parameter
+  * will be removed in a future version.
   * @param taskcode Pointer to the function to be called when the task is
   *                 started.
   * @param arg Argument to be passed to the taskcode function.
@@ -427,8 +424,7 @@ RTAPI_BEGIN_DECLS
   * @param owner ID of the module that is making the call see rtapi_init().
   * @param stacksize The amount of stack to be used for the task, be generous,
   *                  hardware interrupts may use the same stack.
-  * @param uses_fp Whether the task uses floating point set with ::RTAPI_NO_FP
-  *                or ::RTAPI_USES_FP.
+  * @param uses_fp Deprecated and ignored.  Kept for API compatibility.
   * @return On success, returns a positive integer task ID, @c task_id. This ID
   *         is used for all subsequent calls that need to act on the task. On
   *         failure, returns a negative error code as listed above.

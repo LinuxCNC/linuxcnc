@@ -974,7 +974,8 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
   if(stacksize < (1024*1024)) stacksize = (1024*1024);
   task->id = n;
   task->owner = owner;
-  task->uses_fp = uses_fp;
+  /* uses_fp is deprecated and ignored; always save FPU state */
+  task->uses_fp = 1;
   task->arg = arg;
   task->stacksize = stacksize;
   task->taskcode = taskcode;

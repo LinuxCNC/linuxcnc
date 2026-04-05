@@ -25,7 +25,7 @@ pin out bit out;
 param rw bit invert;
 
 option period no;
-function _ nofp;
+function _;
 
 license "GPL";
 author "Jeff Epler";

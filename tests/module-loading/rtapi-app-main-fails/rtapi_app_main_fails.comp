@@ -1,7 +1,7 @@
 component rtapi_app_main_fails "rtapi_app_main error test";
 pin out bit boo;
 option rtapi_app no;
-function _ nofp;
+function _;
 license "GPL";
 
 ;;

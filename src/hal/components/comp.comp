@@ -13,7 +13,7 @@ Keep in mind that floating point calculations are never absolute
 and it is wise to always set *hyst* if you intend to use equal """;
 
 option period no;
-function _ fp "Update the comparator";
+function _ "Update the comparator";
 license "GPL";
 author "Jeff Epler";
 ;;

@@ -68,7 +68,7 @@ pin out bit ok_out = true "Ok output";
 variable hal_bit_t last_reset = false;
 
 option period no;
-function _ nofp;
+function _;
 license "GPL";
 author "Alexander Rössler";
 ;;

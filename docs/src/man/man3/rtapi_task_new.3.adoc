@@ -24,7 +24,8 @@ arg::
 prio::
   A task priority value returned by *rtapi_prio_xxxx*
 uses_fp::
-  A flag that tells the OS whether the task uses floating point or not.
+  Deprecated and ignored. All tasks now unconditionally save and restore
+  floating point state. This parameter will be removed in a future version.
 task_id::
   A task ID returned by a previous call to *rtapi_task_new*
 

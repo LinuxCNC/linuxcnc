@@ -36,7 +36,7 @@ variable unsigned debounce_set;
 variable int state;
 
 option period no;
-function _ nofp;
+function _;
 license "GPL";
 author "Anders Wallin, David Mueller";
 ;;

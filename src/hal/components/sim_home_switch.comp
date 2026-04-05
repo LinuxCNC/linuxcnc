@@ -19,7 +19,7 @@ pin in float index_delay_ms = 10 "delay in msec to reset index-enable";
 variable int    old_index_enable;
 variable double index_timer_ms;
 
-function _ fp;
+function _;
 license "GPL";
 author "Dewey Garrett";
 ;;

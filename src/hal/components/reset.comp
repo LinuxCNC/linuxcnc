@@ -50,7 +50,7 @@ pin in  bit     retriggerable = true  "Allow additional edges to reset";
 pin in  bit     rising        = true  "Trigger on rising edge";
 pin in  bit     falling       = false "Trigger on falling edge";
 option period no;
-function _  fp "Update the output value";
+function _ "Update the output value";
 description """
 Component to reset IO signals.
 

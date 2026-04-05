@@ -7,7 +7,7 @@ pin out u32 out "The output value";
 pin in  bit in-##[32:personality];
 author "Andy Pugh";
 license "GPL2+";
-function _ nofp;
+function _;
 option personality yes;
 option period no;
 ;;

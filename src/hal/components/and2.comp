@@ -22,7 +22,7 @@ to the following truth table:
 """
 ;
 option period no;
-function _ nofp;
+function _;
 see_also """
 *logic*(9),
 *lut5*(9),

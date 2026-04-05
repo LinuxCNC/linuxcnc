@@ -213,7 +213,6 @@ Owner   CodeAddr  Arg       FP   Users  Name
 ----
 
 The siggen component exported a single function.
-It requires floating point.
 It is not currently linked to any threads, so 'users' is
 zero footnote:[CodeAddr and Arg fields were used during development and
 should probably disappear.].
@@ -241,7 +240,7 @@ Realtime Threads:
 
 It did. The period is not exactly 1,000,000 ns because of hardware
 limitations, but we have a thread that runs at approximately the
-correct rate, and which can handle floating point functions.
+correct rate.
 The next step is to connect the function to the thread:
 
 .Add Function
@@ -557,13 +556,15 @@ component.
 halrun
 halcmd: loadrt stepgen step_type=0,0 ctrl_type=v,v
 halcmd: loadrt siggen
-halcmd: loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
+halcmd: loadrt threads name1=fast period1=50000 name2=slow period2=1000000
 ----
 
 The first command loads two step generators, both configured to generate stepping type 0.
 The second command loads our old friend siggen, and the third one creates two threads,
 a fast one with a period of 50 microseconds (µs) and a slow one with a period of 1 millisecond (ms).
-The fast thread doesn't support floating point functions.
+
+NOTE: The `fp1=` parameter is deprecated and ignored.
+All threads now unconditionally support floating point.
 
 As before, we can use `halcmd show` to take a look at the HAL.
 This time we have a lot more pins and parameters than before:
@@ -731,7 +732,6 @@ is time to take a step, and if so sets the outputs accordingly.
 For smooth step pulses, it should run as frequently as possible.
 Because it needs to run so fast, 'make_pulses'
 is highly optimized and performs only a few calculations.
-Unlike the others, it does not need floating point math.
 
 The last function, `stepgen.update-freq`, is responsible for doing
 scaling and some other calculations that need to be performed
@@ -754,13 +754,13 @@ halcmd: show thread
 Realtime Threads:
      Period  FP     Name               (     Time, Max-Time )
      996980  YES                  slow (        0,        0 )
-      49849  NO                   fast (        0,        0 )
+      49849  YES                  fast (        0,        0 )
 ----
 
 The two threads were created when we loaded `threads`.
-The first one, 'slow', runs every millisecond, and is capable of running floating point functions.
+The first one, 'slow', runs every millisecond.
 We will use it for `siggen.0.update` and `stepgen.update_freq`.
-The second thread is 'fast', which runs every 50 microseconds (µs), and does not support floating point.
+The second thread is 'fast', which runs every 50 microseconds (µs).
 We will use it for `stepgen.make_pulses`.
 To connect the functions to the proper thread, we use the `addf` command.
 We specify the function first, followed by the thread.
