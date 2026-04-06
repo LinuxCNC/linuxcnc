@@ -27,7 +27,7 @@ WithRoot::~WithRoot() {
 rtapi_task::rtapi_task()
     : magic{}, id{}, owner{}, uses_fp{}, stacksize{}, prio{},
       period{}, nextstart{},
-      ratio{}, pll_correction{}, pll_correction_limit{},
+      pll_correction{}, pll_correction_limit{},
       arg{}, taskcode{}
 
 {}

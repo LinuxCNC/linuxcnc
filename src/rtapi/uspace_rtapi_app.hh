@@ -59,7 +59,6 @@ struct rtapi_task {
   int prio;
   long period;
   struct timespec nextstart;
-  unsigned ratio;
   long pll_correction;
   long pll_correction_limit;
   void *arg;

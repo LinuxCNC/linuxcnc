@@ -54,10 +54,7 @@ struct Posix : RtapiApp
         auto task = ::rtapi_get_task<PosixTask>(task_id);
         if(!task) return -EINVAL;
 
-        if(period_nsec < (unsigned long)period) period_nsec = (unsigned long)period;
         task->period = period_nsec;
-        task->ratio = period_nsec / period;
-
         struct sched_param param;
         memset(&param, 0, sizeof(param));
         param.sched_priority = task->prio;
@@ -102,17 +99,7 @@ struct Posix : RtapiApp
     }
 
     static void *wrapper(void *arg) {
-        struct rtapi_task *task;
-
-        /* use the argument to point to the task data */
-        task = (struct rtapi_task*)arg;
-
-        long int period = instance->period;
-        if(task->period < period) task->period = period;
-        task->ratio = task->period / period;
-        task->period = task->ratio * period;
-        rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %lu ratio=%u\n",
-            task, task->period, task->ratio);
+        auto task = reinterpret_cast<PosixTask*>(arg);
 
         pthread_setspecific(key, arg);
         set_namef("rtapi_app:T#%d", task->id);
