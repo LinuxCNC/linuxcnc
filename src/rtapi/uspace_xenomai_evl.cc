@@ -62,8 +62,8 @@ struct XenomaiApp : RtapiApp {
 
         int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
 
-        int ret;
         pthread_attr_t attr;
+        int ret;
         if((ret = pthread_attr_init(&attr)) != 0)
             return -ret;
         if((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
@@ -171,6 +171,7 @@ struct XenomaiApp : RtapiApp {
 #ifdef HAVE_SYS_IO_H
         return inb(port);
 #else
+        (void)port;
         return 0;
 #endif
     }
@@ -179,7 +180,8 @@ struct XenomaiApp : RtapiApp {
 #ifdef HAVE_SYS_IO_H
         return outb(val, port);
 #else
-        return 0;
+        (void)val;
+        (void)port;
 #endif
     }
 

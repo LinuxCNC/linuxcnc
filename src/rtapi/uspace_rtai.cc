@@ -149,8 +149,8 @@ struct RtaiApp : RtapiApp {
 #ifdef HAVE_SYS_IO_H
         return outb(val, port);
 #else
+        (void)val;
         (void)port;
-        return 0;
 #endif
     }
 
