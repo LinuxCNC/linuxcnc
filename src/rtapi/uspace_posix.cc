@@ -22,14 +22,10 @@ struct PosixTask : rtapi_task
 struct PosixApp : RtapiApp
 {
     PosixApp(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
-        if(instance != nullptr){
-            throw std::invalid_argument("Only one instance allowed!");
-        }
         pthread_once(&key_once, init_key);
         if(do_thread_lock) {
             pthread_once(&lock_once, init_lock);
         }
-        instance = this;
     }
 
     struct rtapi_task *do_task_new() {
@@ -90,6 +86,8 @@ struct PosixApp : RtapiApp
                     return -ret;
             }
         }
+        if(do_thread_lock)
+            pthread_mutex_lock(&thread_lock);
         if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
             return -ret;
 
@@ -101,9 +99,6 @@ struct PosixApp : RtapiApp
 
         pthread_setspecific(key, arg);
         set_namef("rtapi_app:T#%d", task->id);
-
-        if(instance->do_thread_lock)
-            pthread_mutex_lock(&instance->thread_lock);
 
         struct timespec now;
         clock_gettime(CLOCK_MONOTONIC, &now);
@@ -216,11 +211,7 @@ struct PosixApp : RtapiApp
         struct timespec ts = {0, ns};
         clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, nullptr);
     }
-
-    static PosixApp* instance;
 };
-
-PosixApp* PosixApp::instance=nullptr;
 
 pthread_once_t PosixApp::key_once = PTHREAD_ONCE_INIT;
 pthread_once_t PosixApp::lock_once = PTHREAD_ONCE_INIT;
