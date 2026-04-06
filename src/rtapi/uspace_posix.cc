@@ -34,6 +34,10 @@ struct Posix : RtapiApp
         instance = this;
     }
 
+    struct rtapi_task *do_task_new() {
+        return new PosixTask;
+    }
+
     int task_delete(int id) {
         auto task = ::rtapi_get_task<PosixTask>(id);
         if(!task) return -EINVAL;
@@ -174,9 +178,6 @@ struct Posix : RtapiApp
             pthread_mutex_lock(&thread_lock);
     }
 
-    struct rtapi_task *do_task_new() {
-        return new PosixTask;
-    }
     unsigned char do_inb(unsigned int port) {
 #ifdef HAVE_SYS_IO_H
         return inb(port);

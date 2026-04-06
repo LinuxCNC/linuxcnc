@@ -5,14 +5,15 @@
 #include  <errno.h>
 #include <stdio.h>
 #include <cstring>
+#include <stdexcept>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
 
 namespace
 {
-struct RtaiTask : rtapi_task {
-    RtaiTask() : rtapi_task{}, cancel{}, thr{} {}
+struct XenomaiTask : rtapi_task {
+    XenomaiTask() : rtapi_task{}, cancel{}, thr{} {}
     std::atomic_int cancel;
     pthread_t thr;
 };
@@ -23,12 +24,12 @@ struct XenomaiApp : RtapiApp {
         pthread_once(&key_once, init_key);
     }
 
-    RtaiTask *do_task_new() {
-        return new RtaiTask;
+    struct rtapi_task *do_task_new() {
+        return new XenomaiTask;
     }
 
     int task_delete(int id) {
-        auto task = ::rtapi_get_task<RtaiTask>(id);
+        auto task = ::rtapi_get_task<XenomaiTask>(id);
         if(!task) return -EINVAL;
 
         task->cancel = 1;
@@ -40,7 +41,7 @@ struct XenomaiApp : RtapiApp {
     }
 
     int task_start(int task_id, unsigned long period_nsec) {
-        auto task = ::rtapi_get_task<RtaiTask>(task_id);
+        auto task = ::rtapi_get_task<XenomaiTask>(task_id);
         if(!task) return -EINVAL;
 
         task->period = period_nsec;
@@ -84,7 +85,7 @@ struct XenomaiApp : RtapiApp {
     }
 
     static void *wrapper(void *arg) {
-        auto task = reinterpret_cast<RtaiTask*>(arg);
+        auto task = reinterpret_cast<XenomaiTask*>(arg);
         pthread_setspecific(key, arg);
 
         struct timespec now;
@@ -130,7 +131,7 @@ struct XenomaiApp : RtapiApp {
 
     void wait() {
         int task_id = task_self();
-        auto task = ::rtapi_get_task<RtaiTask>(task_id);
+        auto task = ::rtapi_get_task<XenomaiTask>(task_id);
         if(task->cancel) {
             pthread_exit(nullptr);
         }
@@ -203,7 +204,9 @@ pthread_key_t XenomaiApp::key;
 extern "C" RtapiApp *make(int policy);
 
 RtapiApp *make(int policy) {
-    (void) policy;
+    if(policy != SCHED_FIFO){
+        throw std::invalid_argument("Only SCHED_FIFO allowed");
+    }
     rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI (posix-skin) realtime\n");
     return new XenomaiApp();
 }

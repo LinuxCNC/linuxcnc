@@ -5,6 +5,7 @@
 #pragma GCC diagnostic ignored "-Wnarrowing"
 #include <rtai_lxrt.h>
 #pragma GCC diagnostic pop
+#include <stdexcept>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
@@ -31,7 +32,7 @@ struct RtaiApp : RtapiApp {
         pthread_once(&key_once, init_key);
     }
 
-    RtaiTask *do_task_new() {
+    struct rtapi_task *do_task_new() {
         return new RtaiTask;
     }
 
@@ -195,7 +196,9 @@ pthread_key_t RtaiApp::key;
 extern "C" RtapiApp *make(int policy);
 
 RtapiApp *make(int policy) {
-    (void) policy;
+    if(policy != SCHED_FIFO){
+        throw std::invalid_argument("Only SCHED_FIFO allowed");
+    }
     rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using LXRT realtime\n");
     return app = new RtaiApp();
 }

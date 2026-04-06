@@ -13,30 +13,31 @@
 #include <errno.h>
 #include <stdio.h>
 #include <cstring>
+#include <stdexcept>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
 
 namespace
 {
-struct RtaiTask : rtapi_task {
-    RtaiTask() : rtapi_task{}, cancel{}, thr{} {}
+struct EvlTask : rtapi_task {
+    EvlTask() : rtapi_task{}, cancel{}, thr{} {}
     std::atomic_int cancel;
     pthread_t thr;
 };
 
 
-struct XenomaiApp : RtapiApp {
-    XenomaiApp() : RtapiApp(SCHED_FIFO) {
+struct EvlApp : RtapiApp {
+    EvlApp() : RtapiApp(SCHED_FIFO) {
         pthread_once(&key_once, init_key);
     }
 
-    RtaiTask *do_task_new() {
-        return new RtaiTask;
+    struct rtapi_task *do_task_new() {
+        return new EvlTask;
     }
 
     int task_delete(int id) {
-        auto task = ::rtapi_get_task<RtaiTask>(id);
+        auto task = ::rtapi_get_task<EvlTask>(id);
         if(!task) return -EINVAL;
 
         task->cancel = 1;
@@ -48,7 +49,7 @@ struct XenomaiApp : RtapiApp {
     }
 
     int task_start(int task_id, unsigned long period_nsec) {
-        auto task = ::rtapi_get_task<RtaiTask>(task_id);
+        auto task = ::rtapi_get_task<EvlTask>(task_id);
         if(!task) return -EINVAL;
 
         task->period = period_nsec;
@@ -92,7 +93,7 @@ struct XenomaiApp : RtapiApp {
     }
 
     static void *wrapper(void *arg) {
-        auto task = reinterpret_cast<RtaiTask*>(arg);
+        auto task = reinterpret_cast<EvlTask*>(arg);
         pthread_setspecific(key, arg);
 
         {
@@ -148,7 +149,7 @@ struct XenomaiApp : RtapiApp {
 
     void wait() {
         int task_id = task_self();
-        auto task = ::rtapi_get_task<RtaiTask>(task_id);
+        auto task = ::rtapi_get_task<EvlTask>(task_id);
         if(task->cancel) {
             pthread_exit(nullptr);
         }
@@ -216,14 +217,16 @@ struct XenomaiApp : RtapiApp {
     }
 };
 
-pthread_once_t XenomaiApp::key_once;
-pthread_key_t XenomaiApp::key;
+pthread_once_t EvlApp::key_once;
+pthread_key_t EvlApp::key;
 }
 
 extern "C" RtapiApp *make(int policy);
 
 RtapiApp *make(int policy) {
-    (void) policy;
+    if(policy != SCHED_FIFO){
+        throw std::invalid_argument("Only SCHED_FIFO allowed");
+    }
     rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI4 EVL realtime\n");
-    return new XenomaiApp();
+    return new EvlApp();
 }
