@@ -81,13 +81,18 @@ struct RtaiApp : RtapiApp {
     static void *wrapper(void *arg) {
         auto task = reinterpret_cast<RtaiTask*>(arg);
         pthread_setspecific(key, arg);
-        task->rt_task = rt_task_init(task->id, task->prio, 0, 0);
+        
+        int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
+        int cpus_allowed = 1 << (nprocs-1); //Use last CPU as default
+        const static int rt_cpu_number = find_rt_cpu_number();
+        if(rt_cpu_number != -1) {
+            rtapi_print_msg(RTAPI_MSG_INFO, "rt_cpu_number = %i\n", rt_cpu_number);
+            cpus_allowed = 1 << rt_cpu_number;
+        }
+        task->rt_task = rt_task_init_schmod(task->id, task->prio, 0, 0, SCHED_FIFO, cpus_allowed);
         rt_set_periodic_mode();
         start_rt_timer(nano2count(task->period));
         if(task->uses_fp) rt_task_use_fpu(task->rt_task, 1);
-        // assumes processor numbers are contiguous
-        int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
-        rt_set_runnable_on_cpus(task->rt_task, 1u << (nprocs - 1));
         rt_make_hard_real_time();
         rt_task_make_periodic_relative_ns(task->rt_task, task->period, task->period);
         (task->taskcode) (task->arg);
@@ -115,6 +120,7 @@ struct RtaiApp : RtapiApp {
     }
 
     int task_pll_set_correction(long value) {
+        (void)value;
         // PLL functions not supported
         return -EINVAL;
     }
@@ -133,6 +139,7 @@ struct RtaiApp : RtapiApp {
 #ifdef HAVE_SYS_IO_H
         return inb(port);
 #else
+        (void)port;
         return 0;
 #endif
     }
@@ -141,6 +148,7 @@ struct RtaiApp : RtapiApp {
 #ifdef HAVE_SYS_IO_H
         return outb(val, port);
 #else
+        (void)port;
         return 0;
 #endif
     }

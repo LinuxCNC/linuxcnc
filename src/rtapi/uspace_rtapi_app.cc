@@ -855,7 +855,10 @@ static RtapiApp *makeApp()
     }
     WithRoot r;
     void *dll = nullptr;
-    if(detect_xenomai()) {
+    if(detect_xenomai_evl()) {
+        dll = dlopen(EMC2_HOME "/lib/libuspace-xenomai-evl.so.0", RTLD_NOW);
+        if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+    }else if(detect_xenomai()) {
         dll = dlopen(EMC2_HOME "/lib/libuspace-xenomai.so.0", RTLD_NOW);
         if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
     } else if(detect_rtai()) {
@@ -918,6 +921,14 @@ int RtapiApp::prio_bound(int prio) const {
     return prio;
 }
 
+bool RtapiApp::prio_check(int prio) const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        return (prio <= rtapi_prio_highest()) && (prio >= rtapi_prio_lowest());
+    } else {
+        return (prio <= rtapi_prio_lowest()) && (prio >= rtapi_prio_highest());
+    }
+}
+
 int RtapiApp::prio_next_higher(int prio) const
 {
     prio = prio_bound(prio);
@@ -948,8 +959,10 @@ int RtapiApp::allocate_task_id()
 int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
         int prio, int owner, unsigned long int stacksize, int uses_fp) {
   /* check requested priority */
-  if ((prio > rtapi_prio_highest()) || (prio < rtapi_prio_lowest()))
+  if (!prio_check(prio))
   {
+    rtapi_print_msg(RTAPI_MSG_ERR,"rtapi:task_new prio is not in bound lowest %i prio %i highest %i\n",
+        rtapi_prio_lowest(), prio, rtapi_prio_highest());
     return -EINVAL;
   }
 
@@ -1010,47 +1023,71 @@ int Posix::task_delete(int id)
   return 0;
 }
 
-static int find_rt_cpu_number() {
+//parse_cpu_list from https://gitlab.com/Xenomai/xenomai4/libevl/-/blob/11e6a1fb183a315ae861762e7650fd5e10d83ff5/tests/helpers.c
+//License: MIT
+static void parse_cpu_list(const char *path, cpu_set_t *cpuset)
+{
+    char *p, *range, *range_p = NULL, *id, *id_r;
+    int start, end, cpu;
+    char buf[BUFSIZ];
+    FILE *fp;
+
+    CPU_ZERO(cpuset);
+
+    fp = fopen(path, "r");
+    if (fp == NULL)
+        return;
+
+    if (!fgets(buf, sizeof(buf), fp))
+        goto out;
+
+    p = buf;
+    while ((range = strtok_r(p, ",", &range_p)) != NULL) {
+        if (*range == '\0' || *range == '\n')
+            goto next;
+        end = -1;
+        id = strtok_r(range, "-", &id_r);
+        if (id) {
+            start = atoi(id);
+            id = strtok_r(NULL, "-", &id_r);
+            if (id)
+                end = atoi(id);
+            else if (end < 0)
+                end = start;
+            for (cpu = start; cpu <= end; cpu++)
+                CPU_SET(cpu, cpuset);
+        }
+    next:
+        p = NULL;
+    }
+out:
+    fclose(fp);
+}
+
+int find_rt_cpu_number() {
     if(getenv("RTAPI_CPU_NUMBER")) return atoi(getenv("RTAPI_CPU_NUMBER"));
 
 #ifdef __linux__
-    cpu_set_t cpuset_orig;
-    int r = sched_getaffinity(getpid(), sizeof(cpuset_orig), &cpuset_orig);
-    if(r < 0)
-        // if getaffinity fails, (it shouldn't be able to), just use CPU#0
-        return 0;
-
+    const char* isolated_file="/sys/devices/system/cpu/isolated";
     cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
-    long top_probe = sysconf(_SC_NPROCESSORS_CONF);
-    // in old glibc versions, it was an error to pass to sched_setaffinity bits
-    // that are higher than an imagined/probed kernel-side CPU mask size.
-    // this caused the message
-    //     sched_setaffinity: Invalid argument
-    // to be printed at startup, and the probed CPU would not take into
-    // account CPUs masked from this process by default (whether by
-    // isolcpus or taskset).  By only setting bits up to the "number of
-    // processes configured", the call is successful on glibc versions such as
-    // 2.19 and older.
-    for(long i=0; i<top_probe && i<CPU_SETSIZE; i++) CPU_SET(i, &cpuset);
 
-    r = sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
-    if(r < 0)
-        // if setaffinity fails, (it shouldn't be able to), go on with
-        // whatever the default CPUs were.
-        perror("sched_setaffinity");
+    parse_cpu_list(isolated_file, &cpuset);
 
-    r = sched_getaffinity(getpid(), sizeof(cpuset), &cpuset);
-    if(r < 0) {
-        // if getaffinity fails, (it shouldn't be able to), copy the
-        // original affinity list in and use it
-        perror("sched_getaffinity");
-        CPU_AND(&cpuset, &cpuset_orig, &cpuset);
+    //Print list
+    rtapi_print_msg(RTAPI_MSG_INFO, "cpuset isolated ");
+    for(int i=0; i<CPU_SETSIZE; i++) {
+        if(CPU_ISSET(i, &cpuset)){
+            rtapi_print_msg(RTAPI_MSG_INFO, "%i ", i);
+        }
     }
+    rtapi_print_msg(RTAPI_MSG_INFO, "\n");
 
     int top = -1;
     for(int i=0; i<CPU_SETSIZE; i++) {
         if(CPU_ISSET(i, &cpuset)) top = i;
+    }
+    if(top == -1){
+        rtapi_print_msg(RTAPI_MSG_ERR, "No isolated CPU's found, expect some latency or set RTAPI_CPU_NUMBER to select CPU\n");
     }
     return top;
 #else
@@ -1091,6 +1128,7 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
       return -ret;
   if(nprocs > 1) {
       const static int rt_cpu_number = find_rt_cpu_number();
+      rtapi_print_msg(RTAPI_MSG_INFO, "rt_cpu_number = %i\n", rt_cpu_number);
       if(rt_cpu_number != -1) {
 #ifdef __FreeBSD__
           cpuset_t cpuset;

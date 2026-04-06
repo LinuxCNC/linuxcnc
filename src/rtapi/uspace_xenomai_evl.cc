@@ -1,8 +1,16 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_uspace.hh"
+
+#include <sched.h>
+
+#include <evl/thread.h>
+#include <evl/timer.h>
+#include <evl/clock.h>
+#include <evl/proxy.h>
+
 #include <pthread.h>
-#include  <errno.h>
+#include <errno.h>
 #include <stdio.h>
 #include <cstring>
 #ifdef HAVE_SYS_IO_H
@@ -87,8 +95,18 @@ struct XenomaiApp : RtapiApp {
         auto task = reinterpret_cast<RtaiTask*>(arg);
         pthread_setspecific(key, arg);
 
+        {
+            WithRoot r;
+            /* Attach to the core. */
+            rtapi_print("linuxcnc-task:%d\n", gettid());
+            int tfd = evl_attach_self("linuxcnc-thread:%d", gettid());
+            if (tfd < 0){
+                rtapi_print("evl_attach_self() failed ret %i errno %i\n", tfd, errno);
+            }
+        }
+
         struct timespec now;
-        clock_gettime(CLOCK_MONOTONIC, &now);
+        evl_read_clock(EVL_CLOCK_MONOTONIC, &now);
 
         // originally, I used pthread_make_periodic_np here, and
         // pthread_wait_np in wait(), but in about 1 run in 50 this led to
@@ -136,7 +154,7 @@ struct XenomaiApp : RtapiApp {
         }
         rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
         struct timespec now;
-        clock_gettime(CLOCK_MONOTONIC, &now);
+        evl_read_clock(EVL_CLOCK_MONOTONIC, &now);
         if(rtapi_timespec_less(task->nextstart, now))
         {
             if(policy == SCHED_FIFO)
@@ -144,8 +162,8 @@ struct XenomaiApp : RtapiApp {
         }
         else
         {
-            int res = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &task->nextstart, nullptr);
-            if(res < 0) perror("clock_nanosleep");
+            int res = evl_sleep_until(EVL_CLOCK_MONOTONIC, &task->nextstart);
+            if(res < 0) perror("evl_sleep_until");
         }
     }
 
@@ -184,13 +202,15 @@ struct XenomaiApp : RtapiApp {
 
     long long do_get_time() {
         struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
+        evl_read_clock(EVL_CLOCK_MONOTONIC, &ts);
         return ts.tv_sec * 1000000000LL + ts.tv_nsec;
     }
 
     void do_delay(long ns) {
-        struct timespec ts = {0, ns};
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, nullptr);
+        struct timespec ts;
+        evl_read_clock(EVL_CLOCK_MONOTONIC, &ts);
+        rtapi_timespec_advance(ts, ts, ns);
+        evl_sleep_until(EVL_CLOCK_MONOTONIC, &ts);
     }
 };
 
@@ -201,6 +221,6 @@ pthread_key_t XenomaiApp::key;
 extern "C" RtapiApp *make();
 
 RtapiApp *make() {
-    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI (posix-skin) realtime\n");
+    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI4 EVL realtime\n");
     return new XenomaiApp;
 }

@@ -212,6 +212,12 @@ AC_SUBST([RTAI_CONFIG])
 AC_PATH_PROG([XENOMAI_CONFIG], [xeno-config], [none])
 AC_SUBST([XENOMAI_CONFIG])
 
+#Xenomai evl
+HAS_EVL=n
+AC_CHECK_HEADER([evl/evl.h],[
+  HAS_EVL=y
+])
+
 AC_MSG_CHECKING([for realtime API(s) to use])
 if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
   RTS=uspace
@@ -243,11 +249,29 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
     XENOMAI_LDFLAGS=`$XENOMAI_CONFIG --skin posix --ldflags`
     AC_DEFINE([USPACE_XENOMAI], [], [Define if uspace realtime should optionally support Xenomai])
   fi
+
   AC_SUBST([CONFIG_USPACE_XENOMAI])
   AC_SUBST([XENOMAI_CFLAGS])
   AC_SUBST([XENOMAI_LDFLAGS])
 
-  AC_MSG_RESULT([$RTS$USPACE_RTAI$USPACE_XENOMAI])
+  if test "$HAS_EVL" = "n" ; then
+    USPACE_XENOMAI_EVL=
+    CONFIG_USPACE_XENOMAI_EVL=n
+    XENOMAI_EVL_CFLAGS=
+    XENOMAI_EVL_LDFLAGS=
+  else
+    USPACE_XENOMAI_EVL=+xenomai4
+    CONFIG_USPACE_XENOMAI_EVL=y
+    XENOMAI_EVL_CFLAGS=
+    XENOMAI_EVL_LDFLAGS=-levl
+    AC_DEFINE([USPACE_XENOMAI_EVL], [], [Define if uspace realtime should optionally support Xenomai-evl])
+  fi
+
+  AC_SUBST([CONFIG_USPACE_XENOMAI_EVL])
+  AC_SUBST([XENOMAI_EVL_CFLAGS])
+  AC_SUBST([XENOMAI_EVL_LDFLAGS])
+
+  AC_MSG_RESULT([$RTS$USPACE_RTAI$USPACE_XENOMAI$USPACE_XENOMAI_EVL])
 
   AC_MSG_CHECKING([whether to enable userspace PCI access])
   AC_ARG_ENABLE(userspace-pci,

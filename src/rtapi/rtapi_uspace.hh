@@ -75,6 +75,7 @@ struct RtapiApp
     virtual int prio_lowest() const;
     int prio_higher_delta() const;
     int prio_bound(int prio) const;
+    bool prio_check(int prio) const;
     int prio_next_higher(int prio) const;
     int prio_next_lower(int prio) const;
     long clock_set_period(long int period_nsec);
@@ -105,6 +106,8 @@ template<class T=rtapi_task>
 T *rtapi_get_task(int task_id) {
     return static_cast<T*>(RtapiApp::get_task(task_id));
 }
+
+int find_rt_cpu_number();
 
 #define MAX_TASKS  64
 #define TASK_MAGIC    21979	/* random numbers used as signatures */

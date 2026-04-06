@@ -382,15 +382,27 @@ static int detect_rtai() {
 #endif
 #ifdef USPACE_XENOMAI
 static int detect_xenomai() {
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-xenomai") != 0;
+    struct stat sb;
+    //Running xenomai has /proc/xenomai
+    return stat("/proc/xenomai", &sb) == 0;
 }
 #else
 static int detect_xenomai() {
     return 0;
 }
 #endif
+#ifdef USPACE_XENOMAI_EVL
+static int detect_xenomai_evl() {
+    struct stat sb;
+    //Running xenomai evl has /dev/evl but no /proc/xenomai
+    return stat("/dev/evl", &sb) == 0;
+}
+#else
+static int detect_xenomai_evl() {
+    return 0;
+}
+#endif
+
 static int detect_env_override() {
     char *p = getenv("LINUXCNC_FORCE_REALTIME");
     return p != NULL && atoi(p) != 0;
@@ -401,7 +413,7 @@ static int detect_realtime() {
     if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) < 0)
             || st.st_uid != 0 || !(st.st_mode & S_ISUID))
         return 0;
-    return detect_env_override() || detect_preempt_rt() || detect_rtai() || detect_xenomai();
+    return detect_env_override() || detect_preempt_rt() || detect_rtai() || detect_xenomai() || detect_xenomai_evl();
 }
 
 int rtapi_is_realtime() {
