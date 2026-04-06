@@ -218,9 +218,10 @@ pthread_once_t XenomaiApp::key_once;
 pthread_key_t XenomaiApp::key;
 }
 
-extern "C" RtapiApp *make();
+extern "C" RtapiApp *make(int policy);
 
-RtapiApp *make() {
+RtapiApp *make(int policy) {
+    (void) policy;
     rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI4 EVL realtime\n");
-    return new XenomaiApp;
+    return new XenomaiApp();
 }

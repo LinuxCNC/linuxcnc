@@ -1,13 +1,16 @@
-#include "uspace_rtapi_posix.hh"
+#include "config.h"
 #include "rtapi.h"
-
+#include "uspace_rtapi.hh"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdexcept>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
 
+namespace
+{
 struct PosixTask : rtapi_task
 {
     PosixTask() : rtapi_task{}, thr{}
@@ -16,12 +19,59 @@ struct PosixTask : rtapi_task
     pthread_t thr;                /* thread's context */
 };
 
-Posix::Posix(int policy) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
-    pthread_once(&key_once, init_key);
-    if(do_thread_lock) {
-        pthread_once(&lock_once, init_lock);
+struct Posix : RtapiApp
+{
+    Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
+        if(instance != nullptr){
+            throw std::invalid_argument("Only one instance allowed!");
+        }
+        pthread_once(&key_once, init_key);
+        if(do_thread_lock) {
+            pthread_once(&lock_once, init_lock);
+        }
+        instance = this;
     }
-}
+    int task_delete(int id);
+    int task_start(int task_id, unsigned long period_nsec);
+    int task_pause(int task_id);
+    int task_resume(int task_id);
+    int task_self();
+    long long task_pll_get_reference(void);
+    int task_pll_set_correction(long value);
+    void wait();
+    struct rtapi_task *do_task_new(){
+        return new PosixTask;
+    }
+    unsigned char do_inb(unsigned int port);
+    void do_outb(unsigned char value, unsigned int port);
+    int run_threads(int fd, int (*callback)(int fd));
+    static void *wrapper(void *arg);
+    bool do_thread_lock;
+
+    static pthread_once_t key_once;
+    static pthread_key_t key;
+    static void init_key(void) {
+        pthread_key_create(&key, NULL);
+    }
+
+    static pthread_once_t lock_once;
+    static pthread_mutex_t thread_lock;
+    static void init_lock(void) {
+        pthread_mutex_init(&thread_lock, NULL);
+    }
+
+    long long do_get_time(void) {
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+    }
+
+    void do_delay(long ns);
+
+    static Posix* instance;
+};
+
+Posix* Posix::instance=nullptr;
 
 int Posix::task_delete(int id)
 {
@@ -95,15 +145,14 @@ pthread_once_t Posix::lock_once = PTHREAD_ONCE_INIT;
 pthread_key_t Posix::key;
 pthread_mutex_t Posix::thread_lock;
 
-extern RtapiApp &App(); //ToDo: Nicer
-
 void *Posix::wrapper(void *arg)
 {
   struct rtapi_task *task;
 
   /* use the argument to point to the task data */
   task = (struct rtapi_task*)arg;
-  long int period = App().period;
+
+  long int period = instance->period;
   if(task->period < period) task->period = period;
   task->ratio = task->period / period;
   task->period = task->ratio * period;
@@ -113,9 +162,8 @@ void *Posix::wrapper(void *arg)
   pthread_setspecific(key, arg);
   set_namef("rtapi_app:T#%d", task->id);
 
-  Posix &papp = reinterpret_cast<Posix&>(App());
-  if(papp.do_thread_lock)
-      pthread_mutex_lock(&papp.thread_lock);
+  if(instance->do_thread_lock)
+      pthread_mutex_lock(&instance->thread_lock);
 
   struct timespec now;
   clock_gettime(RTAPI_CLOCK, &now);
@@ -179,10 +227,6 @@ void Posix::wait() {
         pthread_mutex_lock(&thread_lock);
 }
 
-struct rtapi_task *Posix::do_task_new() {
-    return new PosixTask;
-}
-
 unsigned char Posix::do_inb(unsigned int port)
 {
 #ifdef HAVE_SYS_IO_H
@@ -211,4 +255,16 @@ void Posix::do_delay(long ns) {
 int Posix::run_threads(int fd, int(*callback)(int fd)) {
     while(callback(fd)) { /* nothing */ }
     return 0;
+}
+}
+
+extern "C" RtapiApp *make(int policy);
+
+RtapiApp *make(int policy) {
+    if(policy == SCHED_OTHER){
+        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
+    }else{
+        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
+    }
+    return new Posix(policy);
 }

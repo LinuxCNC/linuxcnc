@@ -34,7 +34,6 @@ ifeq ($(BUILD_SYS),uspace)
 RTAPI_APP_SRCS := \
 	rtapi/uspace_rtapi.cc \
 	rtapi/uspace_rtapi_app.cc \
-	rtapi/uspace_rtapi_posix.cc \
 	rtapi/uspace_rtapi_parport.cc \
 	rtapi/uspace_rtapi_string.c \
 	rtapi/rtapi_pci.cc
@@ -48,6 +47,15 @@ $(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += -DSIM \
 	$(Q)$(CXX) -rdynamic -o $@ $^ $(LIBDL) -pthread -lrt $(LIBUDEV_LIBS) -ldl $(LDFLAGS)
 TARGETS += ../bin/rtapi_app
 endif
+
+USPACE_POSIX_SRCS := rtapi/uspace_posix.cc
+USERSRCS += $(USPACE_POSIX_SRCS)
+$(call TOOBJSDEPS, $(USPACE_POSIX_SRCS)): EXTRAFLAGS += -pthread -fPIC
+../lib/libuspace-posix.so.0: $(call TOOBJS, $(USPACE_POSIX_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) -shared $(LDFLAGS) -o $@ $^ -Wl,-soname,$(notdir $@)
+TARGETS += ../lib/libuspace-posix.so.0
+TARGETS += ../lib/libuspace-posix.so
 
 ifeq ($(CONFIG_USPACE_RTAI),y)
 USPACE_RTAI_SRCS := rtapi/uspace_rtai.cc

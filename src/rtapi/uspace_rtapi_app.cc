@@ -57,7 +57,6 @@
 #include <hal.h>
 #include "hal/hal_priv.h"
 #include "uspace_common.h"
-#include "uspace_rtapi_posix.hh"
 
 RtapiApp &App();
 
@@ -740,37 +739,36 @@ static int harden_rt()
     return 0;
 }
 
+static RtapiApp *makeDllApp(string dllName, int policy){
+    void *dll = nullptr;
+    dll = dlopen(dllName.c_str(), RTLD_NOW);
+    if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+    auto fn = reinterpret_cast<RtapiApp*(*)(int policy)>(dlsym(dll, "make"));
+    if(!fn) fprintf(stderr, "dlopen: %s\n", dlerror());
+    auto result = fn ? fn(policy) : nullptr;
+    if(result) {
+        return result;
+    }else{
+        throw invalid_argument("Could not load DLL!");
+    }
+}
 
 static RtapiApp *makeApp()
 {
     if(euid != 0 || harden_rt() < 0)
     {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
-        return new Posix(SCHED_OTHER);
+        return makeDllApp(EMC2_HOME "/lib/libuspace-posix.so.0", SCHED_OTHER);
     }
     WithRoot r;
-    void *dll = nullptr;
     if(detect_xenomai_evl()) {
-        dll = dlopen(EMC2_HOME "/lib/libuspace-xenomai-evl.so.0", RTLD_NOW);
-        if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+        return makeDllApp(EMC2_HOME "/lib/libuspace-xenomai-evl.so.0", SCHED_FIFO);
     }else if(detect_xenomai()) {
-        dll = dlopen(EMC2_HOME "/lib/libuspace-xenomai.so.0", RTLD_NOW);
-        if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+        return makeDllApp(EMC2_HOME "/lib/libuspace-xenomai.so.0", SCHED_FIFO);
     } else if(detect_rtai()) {
-        dll = dlopen(EMC2_HOME "/lib/libuspace-rtai.so.0", RTLD_NOW);
-        if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
+        return makeDllApp(EMC2_HOME "/lib/libuspace-rtai.so.0", SCHED_FIFO);
+    } else {
+        return makeDllApp(EMC2_HOME "/lib/libuspace-posix.so.0", SCHED_FIFO);
     }
-    if(dll)
-    {
-        auto fn = reinterpret_cast<RtapiApp*(*)()>(dlsym(dll, "make"));
-        if(!fn) fprintf(stderr, "dlopen: %s\n", dlerror());
-        auto result = fn ? fn() : nullptr;
-        if(result) {
-            return result;
-        }
-    }
-    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
-    return new Posix(SCHED_FIFO);
 }
 RtapiApp &App()
 {

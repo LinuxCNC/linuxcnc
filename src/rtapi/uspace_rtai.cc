@@ -192,9 +192,10 @@ pthread_once_t RtaiApp::key_once;
 pthread_key_t RtaiApp::key;
 }
 
-extern "C" RtapiApp *make();
+extern "C" RtapiApp *make(int policy);
 
-RtapiApp *make() {
+RtapiApp *make(int policy) {
+    (void) policy;
     rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using LXRT realtime\n");
-    return app = new RtaiApp;
+    return app = new RtaiApp();
 }
