@@ -747,32 +747,46 @@ static int harden_rt()
 static RtapiApp *makeDllApp(string dllName, int policy){
     void *dll = nullptr;
     dll = dlopen(dllName.c_str(), RTLD_NOW);
-    if(!dll) fprintf(stderr, "dlopen: %s\n", dlerror());
-    auto fn = reinterpret_cast<RtapiApp*(*)(int policy)>(dlsym(dll, "make"));
-    if(!fn) fprintf(stderr, "dlopen: %s\n", dlerror());
-    auto result = fn ? fn(policy) : nullptr;
-    if(result) {
-        return result;
-    }else{
-        throw invalid_argument("Could not load DLL!");
+    if(!dll){
+        fprintf(stderr, "dlopen: %s\n", dlerror());
+        return nullptr;
     }
+    auto fn = reinterpret_cast<RtapiApp*(*)(int policy)>(dlsym(dll, "make"));
+    if(!fn){
+        fprintf(stderr, "dlsym: %s\n", dlerror());
+        return nullptr;
+    }
+    auto result = fn(policy);
+    if(!result) {
+        fprintf(stderr, "dlsym: %s\n", dlerror());
+        return nullptr;
+    }
+    return result;
 }
 
 static RtapiApp *makeApp()
 {
+    RtapiApp* app;
     if(euid != 0 || harden_rt() < 0)
     {
-        return makeDllApp(EMC2_HOME "/lib/libuspace-posix.so.0", SCHED_OTHER);
+        app=makeDllApp(EMC2_HOME "/lib/libuspace-posix.so.0", SCHED_OTHER);
+    }else{
+        WithRoot r;
+        if(detect_xenomai_evl()) {
+            app=makeDllApp(EMC2_HOME "/lib/libuspace-xenomai-evl.so.0", SCHED_FIFO);
+        }else if(detect_xenomai()) {
+            app=makeDllApp(EMC2_HOME "/lib/libuspace-xenomai.so.0", SCHED_FIFO);
+        } else if(detect_rtai()) {
+            app=makeDllApp(EMC2_HOME "/lib/libuspace-rtai.so.0", SCHED_FIFO);
+        } else {
+            app=makeDllApp(EMC2_HOME "/lib/libuspace-posix.so.0", SCHED_FIFO);
+        }
     }
-    WithRoot r;
-    if(detect_xenomai_evl()) {
-        return makeDllApp(EMC2_HOME "/lib/libuspace-xenomai-evl.so.0", SCHED_FIFO);
-    }else if(detect_xenomai()) {
-        return makeDllApp(EMC2_HOME "/lib/libuspace-xenomai.so.0", SCHED_FIFO);
-    } else if(detect_rtai()) {
-        return makeDllApp(EMC2_HOME "/lib/libuspace-rtai.so.0", SCHED_FIFO);
-    } else {
-        return makeDllApp(EMC2_HOME "/lib/libuspace-posix.so.0", SCHED_FIFO);
+    
+    if(!app){
+        throw invalid_argument("Could not load rtapi dll");
+    }else{
+        return app;
     }
 }
 RtapiApp &App()
