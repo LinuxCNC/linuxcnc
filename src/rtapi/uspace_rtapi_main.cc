@@ -541,6 +541,11 @@ become_master:
     int result = ::bind(fd, (sockaddr*)&addr, len+sizeof(addr.sun_family)+1); 
 
     if(result == 0) {
+        //If called in master mode with exit command, no need to start master
+        //and exit again
+        if(args.size() == 1 && args[0] == "exit") {
+            return 0;
+        }
         int result = listen(fd, 10);
         if(result != 0) { perror("listen"); exit(1); }
         setsid(); // create a new session if we can...
