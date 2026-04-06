@@ -19,11 +19,9 @@ struct PosixTask : rtapi_task
     pthread_t thr;                /* thread's context */
 };
 
-struct Posix : RtapiApp
+struct PosixApp : RtapiApp
 {
-    #define RTAPI_CLOCK (CLOCK_MONOTONIC)
-
-    Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
+    PosixApp(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
         if(instance != nullptr){
             throw std::invalid_argument("Only one instance allowed!");
         }
@@ -108,7 +106,7 @@ struct Posix : RtapiApp
             pthread_mutex_lock(&instance->thread_lock);
 
         struct timespec now;
-        clock_gettime(RTAPI_CLOCK, &now);
+        clock_gettime(CLOCK_MONOTONIC, &now);
         rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
 
         /* call the task function with the task argument */
@@ -150,7 +148,7 @@ struct Posix : RtapiApp
         struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
         rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
         struct timespec now;
-        clock_gettime(RTAPI_CLOCK, &now);
+        clock_gettime(CLOCK_MONOTONIC, &now);
         if(rtapi_timespec_less(task->nextstart, now))
         {
             if(policy == SCHED_FIFO)
@@ -219,15 +217,15 @@ struct Posix : RtapiApp
         clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, nullptr);
     }
 
-    static Posix* instance;
+    static PosixApp* instance;
 };
 
-Posix* Posix::instance=nullptr;
+PosixApp* PosixApp::instance=nullptr;
 
-pthread_once_t Posix::key_once = PTHREAD_ONCE_INIT;
-pthread_once_t Posix::lock_once = PTHREAD_ONCE_INIT;
-pthread_key_t Posix::key;
-pthread_mutex_t Posix::thread_lock;
+pthread_once_t PosixApp::key_once = PTHREAD_ONCE_INIT;
+pthread_once_t PosixApp::lock_once = PTHREAD_ONCE_INIT;
+pthread_key_t PosixApp::key;
+pthread_mutex_t PosixApp::thread_lock;
 
 }
 
@@ -239,5 +237,5 @@ RtapiApp *make(int policy) {
     }else{
         rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
     }
-    return new Posix(policy);
+    return new PosixApp(policy);
 }
