@@ -32,7 +32,7 @@ $(patsubst ./rtapi/%,../include/%,$(RTAPIINCS)): ../include/%.h: ./rtapi/%.h
 ifeq ($(BUILD_SYS),uspace)
 
 RTAPI_APP_SRCS := \
-	rtapi/uspace_rtapi.cc \
+	rtapi/uspace_rtapi_main.cc \
 	rtapi/uspace_rtapi_app.cc \
 	rtapi/uspace_rtapi_parport.cc \
 	rtapi/uspace_rtapi_string.c \

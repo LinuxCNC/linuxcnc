@@ -1,6 +1,6 @@
 #include "config.h"
 #include "rtapi.h"
-#include "uspace_rtapi.hh"
+#include "uspace_rtapi_app.hh"
 #include <pthread.h>
 #include  <errno.h>
 #include <stdio.h>

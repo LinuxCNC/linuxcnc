@@ -34,7 +34,7 @@
 #include <rtapi.h>
 #include <rtapi_pci.h>
 #include <rtapi_firmware.h>
-#include "uspace_rtapi.hh"
+#include "uspace_rtapi_app.hh"
 
 #include <dirent.h>
 #include <errno.h>
