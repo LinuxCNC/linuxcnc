@@ -858,7 +858,7 @@ proc watchHAL {which} {
         # ptype (and getp) fail when the item clicked is not a leaf
         # e.g., clicking "Pins / axis / 0"
         if {[catch {hal ptype $varname} type]} { 
-            setStatusbar $type
+            setStatusbar "Watch: $type"
             return $type
         }
     }
@@ -1113,12 +1113,22 @@ proc setWatchInterval {} {
 
 proc refreshItem {cnum vartype varname} {
     if {$vartype == "sig" } {
-        set ret [hal gets $varname]
-        set varnumtype [hal stype $varname]
+        set getCmd gets
+        set typeCmd stype
     } else {
-        set ret [hal getp $varname]
-        set varnumtype [hal ptype $varname]
+        set getCmd getp
+        set typeCmd ptype
     }
+
+    if {[catch { set ret [hal $getCmd $varname] } error]} {
+        setStatusbar $error
+        $::cisp itemconfigure text$cnum -text "----"
+        $::cisp itemconfigure oval$cnum -fill lightgray
+        return
+    }
+
+    set varnumtype [hal $typeCmd $varname]
+
     if {$ret == "TRUE"} {
         $::cisp itemconfigure oval$cnum -fill yellow
     } elseif {$ret == "FALSE"} {
