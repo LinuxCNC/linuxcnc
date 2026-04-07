@@ -26,7 +26,7 @@
 #include "posemath.h"
 #include "rtapi.h"            // For rtapi_print_msg
 #include <motion_types.h>         // For EMC_MOTION_TYPE_TRAVERSE
-#include <ruckig/ruckig.hpp>   // Ruckig integration
+#include "../tp/cruckig/ruckig_compat.hpp"   // cruckig with C++ API shim
 
 #include <algorithm>
 #include <climits>
