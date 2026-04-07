@@ -822,18 +822,23 @@ double bezier9PathDeviation(Bezier9 const * const b,
         return 0.0;
     }
 
-    double max_dev = 0.0;
+    /* G-code P tolerance convention (matching TP0): P is the distance from
+     * the programmed corner point to the closest point on the blend curve.
+     * This is the minimum distance from the corner to the Bezier, which
+     * occurs near the midpoint (t≈0.5) where the blend is closest to the
+     * corner.  The optimizer grows the blend until this distance equals P. */
+    double min_dist = 1e9;
     for (int i = 1; i <= n_samples; i++) {
         double t = (double)i / (double)(n_samples + 1);
         PmCartesian pt;
         bezier5_eval(b->P, t, &pt);
 
-        /* Distance to programmed path = min of distances to both segments */
-        double d1 = point_to_segment_dist(&pt, seg1_start, corner);
-        double d2 = point_to_segment_dist(&pt, corner, seg2_end);
-        double dev = fmin(d1, d2);
+        PmCartesian diff;
+        pmCartCartSub(&pt, corner, &diff);
+        double dist;
+        pmCartMag(&diff, &dist);
 
-        if (dev > max_dev) max_dev = dev;
+        if (dist < min_dist) min_dist = dist;
     }
-    return max_dev;
+    return min_dist;
 }
