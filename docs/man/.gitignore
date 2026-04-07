@@ -312,6 +312,7 @@ man9/ddt.9
 man9/deadzone.9
 man9/debounce.9
 man9/demux.9
+man9/demux_generic.9
 man9/differential.9
 man9/div2.9
 man9/edge.9
