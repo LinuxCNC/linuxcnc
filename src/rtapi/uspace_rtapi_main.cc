@@ -89,9 +89,7 @@ void *queue_function(void * /*arg*/) {
 
 static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
 
-using namespace std;
-
-template<class T> T DLSYM(void *handle, const string &name) {
+template<class T> T DLSYM(void *handle, const std::string &name) {
 	return (T)(dlsym(handle, name.c_str()));
 }
 
@@ -99,12 +97,12 @@ template<class T> T DLSYM(void *handle, const char *name) {
 	return (T)(dlsym(handle, name));
 }
 
-static std::map<string, void*> modules;
+static std::map<std::string, void*> modules;
 
 static int instance_count = 0;
 static int force_exit = 0;
 
-static int do_newinst_cmd(const string& type, const string& name, const string& arg) {
+static int do_newinst_cmd(const std::string& type, const std::string& name, const std::string& arg) {
     void *module = modules["hal_lib"];
     if(!module) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -130,7 +128,7 @@ static int do_newinst_cmd(const string& type, const string& name, const string& 
     return comp->make((char*)name.c_str(), (char*)arg.c_str());
 }
 
-static int do_one_item(char item_type_char, const string &param_name, const string &param_value, void *vitem, int idx=0) {
+static int do_one_item(char item_type_char, const std::string &param_name, const std::string &param_value, void *vitem, int idx=0) {
     char *endp;
     switch(item_type_char) {
         case 'l': {
@@ -169,22 +167,22 @@ static int do_one_item(char item_type_char, const string &param_name, const stri
     return 0;
 }
 
-void remove_quotes(string &s) {
+void remove_quotes(std::string &s) {
     s.erase(remove_copy(s.begin(), s.end(), s.begin(), '"'), s.end());
 }
 
-static int do_comp_args(void *module, vector<string> args) {
+static int do_comp_args(void *module, std::vector<std::string> args) {
     for(unsigned i=1; i < args.size(); i++) {
-        string &s = args[i];
+        std::string &s = args[i];
 	remove_quotes(s);
         size_t idx = s.find('=');
-        if(idx == string::npos) {
+        if(idx == std::string::npos) {
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid parameter `%s'\n",
                     s.c_str());
             return -1;
         }
-        string param_name(s, 0, idx);
-        string param_value(s, idx+1);
+        std::string param_name(s, 0, idx);
+        std::string param_value(s, idx+1);
         void *item=DLSYM<void*>(module, "rtapi_info_address_" + param_name);
         if(!item) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -206,7 +204,7 @@ static int do_comp_args(void *module, vector<string> args) {
             int max_size = *max_size_ptr;
             size_t idx = 0;
             int i = 0;
-            while(idx != string::npos) {
+            while(idx != std::string::npos) {
                 if(i == max_size) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
                             "%s: can only take %d arguments\n",
@@ -214,11 +212,11 @@ static int do_comp_args(void *module, vector<string> args) {
                     return -1;
                 }
                 size_t idx1 = param_value.find(",", idx);
-                string substr(param_value, idx, idx1 - idx);
+                std::string substr(param_value, idx, idx1 - idx);
                 int result = do_one_item(item_type_char, s, substr, item, i);
                 if(result != 0) return result;
                 i++;
-                idx = idx1 == string::npos ? idx1 : idx1 + 1;
+                idx = idx1 == std::string::npos ? idx1 : idx1 + 1;
             }
         } else {
             int result = do_one_item(item_type_char, s, param_value, item);
@@ -228,7 +226,7 @@ static int do_comp_args(void *module, vector<string> args) {
     return 0;
 }
 
-static int do_load_cmd(const string& name, const vector<string>& args) {
+static int do_load_cmd(const std::string& name, const std::vector<std::string>& args) {
     void *w = modules[name];
     if(w == NULL) {
         char what[LINELEN+1];
@@ -272,7 +270,7 @@ static int do_load_cmd(const string& name, const vector<string>& args) {
     }
 }
 
-static int do_unload_cmd(const string& name) {
+static int do_unload_cmd(const std::string& name) {
     void *w = modules[name];
     if(w == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: not loaded\n", name.c_str());
@@ -287,7 +285,7 @@ static int do_unload_cmd(const string& name) {
     return 0;
 }
 
-static int do_debug_cmd(const string& value) {
+static int do_debug_cmd(const std::string& value) {
     try{
         int new_level = stoi(value);
         if (new_level < 0 || new_level > 5){
@@ -295,7 +293,7 @@ static int do_debug_cmd(const string& value) {
             return -EINVAL;
         }
         return rtapi_set_msg_level(new_level);
-    }catch(invalid_argument &e){
+    }catch(std::invalid_argument &e){
         //stoi will throw an exception if parsing is not possible
         rtapi_print_msg(RTAPI_MSG_ERR, "Debug level is not a number\n");
         return -EINVAL;
@@ -318,20 +316,20 @@ static int read_number(int fd) {
     }
 }
 
-static string read_string(int fd) {
+static std::string read_string(int fd) {
     int len = read_number(fd);
     if(len < 0)
         throw ReadError();
     if(!len)
-        return string();
-    string str(len, 0);
+        return std::string();
+    std::string str(len, 0);
     if(read(fd, str.data(), len) != len)
         throw ReadError();
     return str;
 }
 
-static vector<string> read_strings(int fd) {
-    vector<string> result;
+static std::vector<std::string> read_strings(int fd) {
+    std::vector<std::string> result;
     int count = read_number(fd);
     if(count < 0)
         return result;
@@ -341,19 +339,19 @@ static vector<string> read_strings(int fd) {
     return result;
 }
 
-static void write_number(string &buf, int num) {
+static void write_number(std::string &buf, int num) {
     char numbuf[10];
     snprintf(numbuf, sizeof(numbuf), "%d ", num);
     buf = buf + numbuf;
 }
 
-static void write_string(string &buf, const string& s) {
+static void write_string(std::string &buf, const std::string& s) {
     write_number(buf, s.size());
     buf += s;
 }
 
-static void write_strings(int fd, const vector<string>& strings) {
-    string buf;
+static void write_strings(int fd, const std::vector<std::string>& strings) {
+    std::string buf;
     write_number(buf, strings.size());
     for(unsigned int i=0; i<strings.size(); i++) {
         write_string(buf, strings[i]);
@@ -361,13 +359,13 @@ static void write_strings(int fd, const vector<string>& strings) {
     if(write(fd, buf.data(), buf.size()) != (ssize_t)buf.size()) throw WriteError();
 }
 
-static int handle_command(vector<string> args) {
+static int handle_command(std::vector<std::string> args) {
     if(args.size() == 0) { return 0; }
     if(args.size() == 1 && args[0] == "exit") {
         force_exit = 1;
         return 0;
     } else if(args.size() >= 2 && args[0] == "load") {
-        string name = args[1];
+        std::string name = args[1];
         args.erase(args.begin());
         return do_load_cmd(name, args);
     } else if(args.size() == 2 && args[0] == "unload") {
@@ -386,7 +384,7 @@ static int handle_command(vector<string> args) {
     }
 }
 
-static int slave(int fd, const vector<string>& args) {
+static int slave(int fd, const std::vector<std::string>& args) {
     try {
         write_strings(fd, args);
     }
@@ -419,7 +417,7 @@ static int callback(int fd)
             close(fd1);
             return -1;
         }
-        string buf;
+        std::string buf;
         write_number(buf, result);
         if(write(fd1, buf.data(), buf.size()) != (ssize_t)buf.size()) {
             rtapi_print_msg(RTAPI_MSG_ERR,
@@ -432,7 +430,7 @@ static int callback(int fd)
 
 static pthread_t main_thread{};
 
-static int master(int fd, const vector<string>& args) {
+static int master(int fd, const std::vector<std::string>& args) {
     main_thread = pthread_self();
     int result;
     if((result = pthread_create(&queue_thread, nullptr, &queue_function, nullptr)) != 0) {
@@ -440,7 +438,7 @@ static int master(int fd, const vector<string>& args) {
         perror("pthread_create (queue function)");
         return -1;
     }
-    do_load_cmd("hal_lib", vector<string>());
+    do_load_cmd("hal_lib", std::vector<std::string>());
     instance_count = 0;
     App(); // force rtapi_app to be created
     if(args.size()) {
@@ -520,8 +518,8 @@ int main(int argc, char **argv) {
 #ifdef __linux__
     setfsuid(ruid);
 #endif
-    vector<string> args;
-    for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
+    std::vector<std::string> args;
+    for(int i=1; i<argc; i++) { args.push_back(std::string(argv[i])); }
 
 become_master:
     int len=0;
@@ -744,7 +742,7 @@ static int harden_rt()
     return 0;
 }
 
-static RtapiApp *makeDllApp(string dllName, int policy){
+static RtapiApp *makeDllApp(std::string dllName, int policy){
     void *dll = nullptr;
     dll = dlopen(dllName.c_str(), RTLD_NOW);
     if(!dll){
@@ -784,7 +782,7 @@ static RtapiApp *makeApp()
     }
     
     if(!app){
-        throw invalid_argument("Could not load rtapi dll");
+        throw std::invalid_argument("Could not load rtapi dll");
     }else{
         return app;
     }
