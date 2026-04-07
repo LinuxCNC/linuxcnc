@@ -21,8 +21,8 @@ funct::
 arg::
   The argument to be passed as the first parameter of _funct_.
 uses_fp::
-  Nonzero if the function uses floating-point operations, including
-  assignment of floating point values with "=".
+  Deprecated and ignored. All threads now unconditionally save and restore
+  floating point state. This parameter will be removed in a future version.
 reentrant::
   If reentrant is non-zero, the function may be preempted and called again before the first call completes.
   Otherwise, it may only be added to one thread.

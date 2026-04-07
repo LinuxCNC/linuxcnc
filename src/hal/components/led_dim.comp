@@ -38,7 +38,7 @@
 component led_dim "HAL component for dimming LEDs";
 pin in  float in "Brightness input value -> 0 to 1";
 pin out float out "Luminance output value -> 0 to 1";
-function _  fp "Update the output value";
+function _ "Update the output value";
 description """
 Component for LED dimming according to human perception of brightness of light.
 .LP

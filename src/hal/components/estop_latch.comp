@@ -43,7 +43,7 @@ pin out bit ok_out = false;
 pin out bit fault_out = true;
 pin out bit watchdog;
 option period no;
-function _ nofp;
+function _;
 option data estop_data;
 license "GPL";
 author "John Kasunich";

@@ -21,7 +21,7 @@ pin out bit out "Square wave if 'enable' is TRUE or unconnected, low if 'enable'
 pin out bit out-2 "Square wave at half the frequency of 'out'";
 pin out bit out-4 "Square wave at a quarter of the frequency of 'out'";
 pin in bit enable = TRUE "If FALSE, forces all 'out' pins to be low";
-function _ nofp "Toggle the output bit (if enabled)";
+function _ "Toggle the output bit (if enabled)";
 description """
 The 'Charge Pump' should be added to the base thread function.
 When enabled the output is on for one period and off for one period. To calculate the

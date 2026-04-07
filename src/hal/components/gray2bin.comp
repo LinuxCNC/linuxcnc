@@ -4,7 +4,7 @@ pin in unsigned in "gray code in";
 pin out unsigned out "binary code out";
 license "GPL";
 author "Andy Pugh";
-function _ nofp;
+function _;
 option period no;
 ;;
 unsigned int mask;

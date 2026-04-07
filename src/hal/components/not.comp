@@ -4,7 +4,7 @@ pin out bit out;
 description """
 The *out* output pin is set to the inverted logic level of the *in* input pin.
 """;
-function _ nofp;
+function _;
 see_also """
 *and2*(9),
 *logic*(9),

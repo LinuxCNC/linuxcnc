@@ -52,7 +52,7 @@ pin out s32 variance;
 // user may interrogate available bins to determine this compiled-in limit
 pin out s32 availablebins = 1000; // MAXBINNUMBER
 
-function _ nofp;
+function _;
 variable rtapi_s64  last_timer = 0;
 variable int    last_binmax = 0;
 variable int    first = 1;

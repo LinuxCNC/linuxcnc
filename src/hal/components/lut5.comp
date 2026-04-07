@@ -6,7 +6,7 @@ pin in bit in_3;
 pin in bit in_4;
 pin out bit out;
 param rw u32 function;
-function _ nofp;
+function _;
 description """
 *lut5*
 constructs a logic function with up to 5 inputs using a **l**ook-**u**p **t**able.

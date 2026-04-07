@@ -125,9 +125,9 @@ pin out bit pin_15_in_not;
 pin in float reset_time;
 
 option period no;
-function read nofp;
-function write nofp;
-function reset nofp;
+function read;
+function write;
+function reset;
 license "GPL";
 author "Chris S Morley";
 ;;

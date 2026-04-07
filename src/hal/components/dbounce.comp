@@ -11,7 +11,7 @@ pin in  u32 delay = 5;
 
 variable unsigned state;
 option period no;
-function _ nofp;
+function _;
 license "GPL";
 author "Dewey Garrett";
 ;;

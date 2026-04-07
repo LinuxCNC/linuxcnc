@@ -1964,8 +1964,9 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	    "HAL: ERROR: insufficient memory for function '%s'\n", name);
 	return -ENOMEM;
     }
-    /* initialize the structure */
-    new->uses_fp = uses_fp;
+    /* initialize the structure.
+       uses_fp is deprecated and ignored; always report as FP-capable. */
+    new->uses_fp = 1;
     new->owner_ptr = SHMOFF(comp);
     new->reentrant = reentrant;
     new->users = 0;
@@ -2089,8 +2090,9 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	    "HAL: ERROR: insufficient memory to create thread\n");
 	return -ENOMEM;
     }
-    /* initialize the structure */
-    new->uses_fp = uses_fp;
+    /* initialize the structure.
+       uses_fp is deprecated and ignored; always enable FPU save/restore. */
+    new->uses_fp = 1;
     rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* have to create and start a task to run the thread */
     if (hal_data->thread_list_ptr == 0) {
@@ -2150,9 +2152,10 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     }
     /* make priority one lower than previous */
     new->priority = rtapi_prio_next_lower(prev_priority);
-    /* create task - owned by library module, not caller */
+    /* create task - owned by library module, not caller.
+       Always pass 1 for uses_fp (deprecated, ignored by rtapi). */
     retval = rtapi_task_new(thread_task, new, new->priority,
-	lib_module_id, HAL_STACKSIZE, uses_fp);
+	lib_module_id, HAL_STACKSIZE, 1);
     if (retval < 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2324,13 +2327,9 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 	    "HAL: ERROR: thread '%s' not found\n", thread_name);
 	return -EINVAL;
     }
-    /* ok, we have thread and function, are they compatible? */
-    if ((funct->uses_fp) && (!thread->uses_fp)) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: function '%s' needs FP\n", funct_name);
-	return -EINVAL;
-    }
+    /* uses_fp is deprecated and ignored; all threads are FP-capable.
+       The FP compatibility check has been removed since all threads
+       and functions now effectively have uses_fp=1. */
     /* find insertion point */
     list_root = &(thread->funct_list);
     list_entry = list_root;

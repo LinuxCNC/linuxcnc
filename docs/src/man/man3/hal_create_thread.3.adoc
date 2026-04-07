@@ -17,7 +17,8 @@ name::
 period::
   The interval, in nanoseconds, between iterations of the thread.
 uses_fp::
-  Must be nonzero if a function which uses floating-point will be attached to this thread.
+  Deprecated and ignored. All threads now unconditionally save and restore
+  floating point state. This parameter will be removed in a future version.
 
 == DESCRIPTION
 

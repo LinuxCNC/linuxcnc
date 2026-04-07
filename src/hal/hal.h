@@ -714,10 +714,9 @@ extern int hal_get_param_value_by_name(
     C function will be exported several times with different HAL
     names, perhaps to deal with multiple instances of a hardware
     device.
-    'uses_fp' should be non-zero if the function uses floating
-    point.  When in doubt, make it non-zero.  If you are sure
-    that the function doesn't use the FPU, then set 'uses_fp'
-    to zero.
+    'uses_fp' is deprecated and ignored.  All threads now
+    unconditionally save and restore FPU/SSE state.  This
+    parameter will be removed in a future version.
     'reentrant' should be zero unless the function (and any
     hardware it accesses) is completely reentrant.  If reentrant
     is non-zero, the function may be prempted and called again
@@ -752,10 +751,9 @@ extern int hal_export_functf(void (*funct) (void *, long),
     threads that are created later, so creating them from fastest
     to slowest results in rate monotonic priority scheduling,
     usually a good thing.
-    'uses_fp' should be non-zero if the thread will call any
-    functions that use floating point.  In general, it should
-    be non-zero for most threads, with the possible exception
-    of the very fastest, most critical thread in a system.
+    'uses_fp' is deprecated and ignored.  All threads now
+    unconditionally save and restore FPU/SSE state.  This
+    parameter will be removed in a future version.
     On success, hal_create_thread() returns a positive integer
     thread ID.  On failure, returns an error code as defined
     above.  Call only from realtime init code, not from user

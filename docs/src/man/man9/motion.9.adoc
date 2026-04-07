@@ -60,10 +60,9 @@ the motion-controller function.
 
 == DESCRIPTION
 
-By default, the base thread does not support floating point. Software
-stepping, software encoder counting, and software pwm do not use floating point.
-*base_thread_fp* can be used to enable floating point in
-the base thread (for example for brushless DC motor control).
+NOTE: The *base_thread_fp* parameter is deprecated and ignored.
+All threads now unconditionally save and restore floating point state.
+This parameter will be removed in a future version.
 
 These pins and parameters are created by the realtime *motmod* module.
 This module provides a HAL interface for LinuxCNC's motion planner.

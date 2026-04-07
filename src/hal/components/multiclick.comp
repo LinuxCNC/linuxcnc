@@ -138,7 +138,7 @@ the click separator space timeout has expired to show that no further
 click is coming.  This is useful for triggering halui MDI commands.""";
 
 
-function _ nofp "Detect single-, double-, triple-, and quadruple-clicks";
+function _ "Detect single-, double-, triple-, and quadruple-clicks";
 
 ;;
 

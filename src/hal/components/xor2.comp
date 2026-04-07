@@ -20,7 +20,7 @@ to the following truth table:
 |===
 
 """;
-function _ nofp;
+function _;
 see_also """
 *and2*(9),
 *logic*(9),
