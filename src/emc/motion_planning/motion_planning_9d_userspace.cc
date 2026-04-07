@@ -832,11 +832,57 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
         }
     }
 
+    // Compute per-joint tangential jerk budget early, so we can subtract it
+    // from the centripetal jerk budget.  In joint space, tangential and
+    // centripetal jerk project onto the same axis and can ADD (worst case),
+    // so the total budget must be partitioned: j_tan*t[j] + j_cent*n[j] ≤ jlim[j].
+    double tangent_proj_early[9] = {0};
+    double j_tan_early = 1e9;
+    {
+        using motion_planning::g_userspace_kins_planner;
+        // Compute tangent projection per joint from entry/exit tangent vectors.
+        // Use the same u_prev/u_next already obtained for blend_proj above,
+        // re-fetched here because u_prev/u_next were local to that block.
+        double u_s[9], u_e[9];
+        if (tcGetTangentRate9D(prev_tc, 1, u_s) == 0 &&
+            tcGetTangentRate9D(tc, 0, u_e) == 0) {
+            if (have_J_blend) {
+                for (int j = 0; j < blend_num_joints; j++) {
+                    double ps = 0.0, pe = 0.0;
+                    for (int a = 0; a < 9; a++) {
+                        double jabs = fabs(J_blend[j][a]);
+                        ps += jabs * fabs(u_s[a]);
+                        pe += jabs * fabs(u_e[a]);
+                    }
+                    tangent_proj_early[j] = fmax(ps, pe);
+                }
+            } else {
+                for (int j = 0; j < blend_num_joints && j < 9; j++)
+                    tangent_proj_early[j] = fmax(fabs(u_s[j]), fabs(u_e[j]));
+            }
+        }
+        double tan_fraction = BLEND_ACC_RATIO_TANGENTIAL;
+        int nj = g_userspace_kins_planner.isEnabled()
+               ? g_userspace_kins_planner.getNumJoints() : 0;
+        if (nj > 9) nj = 9;
+        for (int j = 0; j < nj; j++) {
+            if (tangent_proj_early[j] < 1e-6) continue;
+            double jlim = g_userspace_kins_planner.getJointJerkLimit(j);
+            if (jlim > 0 && jlim < 1e9) {
+                double j_path = tan_fraction * jlim / tangent_proj_early[j];
+                if (j_path < j_tan_early)
+                    j_tan_early = j_path;
+            }
+        }
+    }
+
     // Compute direction-aware per-joint jerk limit for the alpha optimizer.
     // Only joints with non-zero projection onto the curvature normal direction
     // constrain blend velocity.  bezier9AccLimit applies BLEND_ACC_RATIO_NORMAL
     // internally, so we divide by that ratio to make them match:
     //   bezier9AccLimit: cbrt(RATIO * j_eff / dkds) → equals cbrt(jlim_eff / dkds)
+    // Deduct the tangential jerk share from each joint's budget before computing
+    // the centripetal limit: j_remaining[j] = jlim[j] - j_tan * tangent_proj[j].
     double j_max_for_blend = 0.0;
     {
         using motion_planning::g_userspace_kins_planner;
@@ -846,7 +892,12 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
             double jlim = g_userspace_kins_planner.isEnabled()
                         ? g_userspace_kins_planner.getJointJerkLimit(j) : 1e9;
             if (jlim > 0 && jlim < 1e9) {
-                double jlim_eff = jlim / blend_proj[j];
+                // Subtract tangential jerk contribution from this joint's budget
+                double j_tangential = (j_tan_early < 1e8)
+                                    ? j_tan_early * tangent_proj_early[j] : 0.0;
+                double j_remaining = jlim - j_tangential;
+                if (j_remaining < 1e-3) j_remaining = 1e-3;
+                double jlim_eff = j_remaining / blend_proj[j];
                 if (jlim_eff < jlim_eff_min)
                     jlim_eff_min = jlim_eff;
             }
@@ -895,8 +946,10 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
     double v_plan = solution.params.v_plan;
 
     // Per-joint curvature-rate jerk limit (hard cap, like kink_vel).
-    // Centripetal jerk = v³ · dκ/ds · proj[j] must stay within per-joint jerk budgets.
-    // Uses Jacobian-projected blend normal to only constrain loaded joints.
+    // Centripetal jerk = v³ · dκ/ds · proj[j] must stay within the per-joint jerk
+    // budget AFTER subtracting the tangential jerk share.  In joint space,
+    // tangential and centripetal jerk can be collinear (worst case: additive),
+    // so the budget is: v³·dκ/ds·blend_proj[j] ≤ jlim[j] - j_tan·tangent_proj[j].
     double v_jerk_cap = 1e9;
     {
         using motion_planning::g_userspace_kins_planner;
@@ -912,7 +965,12 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
                 double jlim = g_userspace_kins_planner.isEnabled()
                             ? g_userspace_kins_planner.getJointJerkLimit(j) : 1e9;
                 if (jlim > 0 && jlim < 1e9) {
-                    double v_j = cbrt(jlim / (blend_proj[j] * dkds));
+                    // Subtract tangential jerk contribution from this joint's budget
+                    double j_tangential = (j_tan_early < 1e8)
+                                        ? j_tan_early * tangent_proj_early[j] : 0.0;
+                    double j_remaining = jlim - j_tangential;
+                    if (j_remaining < 1e-3) j_remaining = 1e-3;
+                    double v_j = cbrt(j_remaining / (blend_proj[j] * dkds));
                     if (v_j < v_jerk_cap)
                         v_jerk_cap = v_j;
                 }
