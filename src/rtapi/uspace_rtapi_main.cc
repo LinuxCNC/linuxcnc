@@ -137,7 +137,7 @@ static int do_one_item(char item_type_char, const std::string &param_name, const
             litem[idx] = strtol(param_value.c_str(), &endp, 0);
 	    if(*endp) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                        "`%s' invalid for parameter `%s'",
+                        "`%s' invalid for parameter `%s'\n",
                         param_value.c_str(), param_name.c_str());
                 return -1;
             }
@@ -148,7 +148,7 @@ static int do_one_item(char item_type_char, const std::string &param_name, const
             iitem[idx] = strtol(param_value.c_str(), &endp, 0);
 	    if(*endp) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                        "`%s' invalid for parameter `%s'",
+                        "`%s' invalid for parameter `%s'\n",
                         param_value.c_str(), param_name.c_str());
                 return -1;
             }
@@ -458,20 +458,13 @@ out:
 static std::string
 get_fifo_path() {
     std::string s;
-    if(getenv("RTAPI_FIFO_PATH"))
+    if(getenv("RTAPI_FIFO_PATH")){
        s = getenv("RTAPI_FIFO_PATH");
-    else if(getenv("HOME"))
+    }else if(getenv("HOME")){
        s = std::string(getenv("HOME")) + "/.rtapi_fifo";
-    else {
+    }else{
        rtapi_print_msg(RTAPI_MSG_ERR,
-           "rtapi_app: RTAPI_FIFO_PATH and HOME are unset.  rtapi fifo creation is unsafe.");
-       return std::string();
-    }
-    if(s.size() + 1 > sizeof(sockaddr_un::sun_path)) {
-       rtapi_print_msg(RTAPI_MSG_ERR,
-           "rtapi_app: rtapi fifo path is too long (arch limit %zd): %s",
-               sizeof(sockaddr_un::sun_path), s.c_str());
-       return std::string();
+           "rtapi_app: RTAPI_FIFO_PATH and HOME are unset.  rtapi fifo creation is unsafe.\n");
     }
     return s;
 }
@@ -480,7 +473,15 @@ static int
 get_fifo_path(char *buf, size_t bufsize) {
 	int len;
     const std::string s = get_fifo_path();
-    if(s.empty()) return -1;
+    if(s.empty()){
+        return -1;
+    }
+    if(s.size() + 1 > sizeof(sockaddr_un::sun_path)) {
+       rtapi_print_msg(RTAPI_MSG_ERR,
+           "rtapi_app: rtapi fifo path is too long (arch limit %zd): %s\n",
+               sizeof(sockaddr_un::sun_path), s.c_str());
+       return -1;
+    }
     len=snprintf(buf+1, bufsize-1, "%s", s.c_str());
     return len;
 }
