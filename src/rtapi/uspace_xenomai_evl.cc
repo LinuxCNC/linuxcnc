@@ -37,10 +37,10 @@
 #include <sys/io.h>
 #endif
 
-namespace
-{
+namespace {
 struct EvlTask : rtapi_task {
-    EvlTask() : rtapi_task{}, cancel{}, thr{} {}
+    EvlTask() : rtapi_task{}, cancel{}, thr{} {
+    }
     std::atomic_int cancel;
     pthread_t thr;
 };
@@ -57,7 +57,8 @@ struct EvlApp : RtapiApp {
 
     int task_delete(int id) {
         auto task = ::rtapi_get_task<EvlTask>(id);
-        if(!task) return -EINVAL;
+        if (!task)
+            return -EINVAL;
 
         task->cancel = 1;
         pthread_join(task->thr, nullptr);
@@ -69,7 +70,8 @@ struct EvlApp : RtapiApp {
 
     int task_start(int task_id, unsigned long period_nsec) {
         auto task = ::rtapi_get_task<EvlTask>(task_id);
-        if(!task) return -EINVAL;
+        if (!task)
+            return -EINVAL;
 
         task->period = period_nsec;
         struct sched_param param;
@@ -80,39 +82,39 @@ struct EvlApp : RtapiApp {
         task->pll_correction_limit = period_nsec / 100;
         task->pll_correction = 0;
 
-        int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
+        int nprocs = sysconf(_SC_NPROCESSORS_ONLN);
 
         pthread_attr_t attr;
         int ret;
-        if((ret = pthread_attr_init(&attr)) != 0)
+        if ((ret = pthread_attr_init(&attr)) != 0)
             return -ret;
-        if((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
+        if ((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
             return -ret;
-        if((ret = pthread_attr_setschedpolicy(&attr, policy)) != 0)
+        if ((ret = pthread_attr_setschedpolicy(&attr, policy)) != 0)
             return -ret;
-        if((ret = pthread_attr_setschedparam(&attr, &param)) != 0)
+        if ((ret = pthread_attr_setschedparam(&attr, &param)) != 0)
             return -ret;
-        if((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
+        if ((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
             return -ret;
-        if(nprocs > 1){
+        if (nprocs > 1) {
             const static int rt_cpu_number = find_rt_cpu_number();
             rtapi_print_msg(RTAPI_MSG_INFO, "rt_cpu_number = %i\n", rt_cpu_number);
-            if(rt_cpu_number != -1) {
+            if (rt_cpu_number != -1) {
                 cpu_set_t cpuset;
                 CPU_ZERO(&cpuset);
                 CPU_SET(rt_cpu_number, &cpuset);
-                if((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
+                if ((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
                     return -ret;
             }
         }
-        if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
+        if ((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void *>(task))) != 0)
             return -ret;
 
         return 0;
     }
 
     static void *wrapper(void *arg) {
-        auto task = reinterpret_cast<EvlTask*>(arg);
+        auto task = reinterpret_cast<EvlTask *>(arg);
         pthread_setspecific(key, arg);
 
         {
@@ -120,7 +122,7 @@ struct EvlApp : RtapiApp {
             /* Attach to the core. */
             rtapi_print("linuxcnc-task:%d\n", gettid());
             int tfd = evl_attach_self("linuxcnc-thread:%d", gettid());
-            if (tfd < 0){
+            if (tfd < 0) {
                 rtapi_print("evl_attach_self() failed ret %i errno %i\n", tfd, errno);
             }
         }
@@ -135,7 +137,7 @@ struct EvlApp : RtapiApp {
         // encountered on: 3.18.20-xenomai-2.6.5 with a 2-thread SMP system
         rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
 
-        (task->taskcode) (task->arg);
+        (task->taskcode)(task->arg);
 
         rtapi_print("ERROR: reached end of wrapper for task %d\n", task->id);
         return nullptr;
@@ -152,16 +154,20 @@ struct EvlApp : RtapiApp {
     }
 
     long long task_pll_get_reference(void) {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-        if(!task) return 0;
+        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        if (!task)
+            return 0;
         return task->nextstart.tv_sec * 1000000000LL + task->nextstart.tv_nsec;
     }
 
     int task_pll_set_correction(long value) {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-        if(!task) return -EINVAL;
-        if (value > task->pll_correction_limit) value = task->pll_correction_limit;
-        if (value < -(task->pll_correction_limit)) value = -(task->pll_correction_limit);
+        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        if (!task)
+            return -EINVAL;
+        if (value > task->pll_correction_limit)
+            value = task->pll_correction_limit;
+        if (value < -(task->pll_correction_limit))
+            value = -(task->pll_correction_limit);
         task->pll_correction = value;
         return 0;
     }
@@ -169,21 +175,19 @@ struct EvlApp : RtapiApp {
     void wait() {
         int task_id = task_self();
         auto task = ::rtapi_get_task<EvlTask>(task_id);
-        if(task->cancel) {
+        if (task->cancel) {
             pthread_exit(nullptr);
         }
         rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
         struct timespec now;
         evl_read_clock(EVL_CLOCK_MONOTONIC, &now);
-        if(rtapi_timespec_less(task->nextstart, now))
-        {
-            if(policy == SCHED_FIFO)
+        if (rtapi_timespec_less(task->nextstart, now)) {
+            if (policy == SCHED_FIFO)
                 unexpected_realtime_delay(task);
-        }
-        else
-        {
+        } else {
             int res = evl_sleep_until(EVL_CLOCK_MONOTONIC, &task->nextstart);
-            if(res < 0) perror("evl_sleep_until");
+            if (res < 0)
+                perror("evl_sleep_until");
         }
     }
 
@@ -206,13 +210,16 @@ struct EvlApp : RtapiApp {
     }
 
     int run_threads(int fd, int (*callback)(int fd)) {
-        while(callback(fd)) { /* nothing */ }
+        while (callback(fd)) {
+            /* nothing */
+        }
         return 0;
     }
 
     int task_self() {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
-        if(!task) return -EINVAL;
+        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        if (!task)
+            return -EINVAL;
         return task->id;
     }
 
@@ -238,12 +245,12 @@ struct EvlApp : RtapiApp {
 
 pthread_once_t EvlApp::key_once;
 pthread_key_t EvlApp::key;
-}
+} // namespace
 
 extern "C" RtapiApp *make(int policy);
 
 RtapiApp *make(int policy) {
-    if(policy != SCHED_FIFO){
+    if (policy != SCHED_FIFO) {
         throw std::invalid_argument("Only SCHED_FIFO allowed");
     }
     rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI4 EVL realtime\n");
