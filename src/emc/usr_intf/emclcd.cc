@@ -51,7 +51,6 @@
 #include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "libnml/inifile/inifile.hh"		// INIFILE
 #include "config.h"		// Standard path definitions
 #include "libnml/rcs/rcs_print.hh"
 #include "sockets.h"		// TCP/IP common socket functions

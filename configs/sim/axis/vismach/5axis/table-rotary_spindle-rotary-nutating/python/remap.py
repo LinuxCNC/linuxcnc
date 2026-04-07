@@ -39,20 +39,17 @@ log.setLevel(logging.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # set up parsing of the inifile
 import os
-import configparser
+import linuxcnc
 # get the path for the ini file used to start this config
 inifile = os.environ.get("INI_FILE_NAME")
-# instantiate a parser in non-strict mode because we have multiple entries for
-# some sections in the ini
-config = configparser.ConfigParser(strict=False)
-# ingest the ini file
-config.read(inifile)
+# instantiate the LinuxCNC ini-parser
+config = linuxcnc.ini(inifile)
 
 ## SPINDLE ROTARY JOINT LETTERS
 # spindle primary joint
-joint_letter_primary = (config['TWP']['PRIMARY']).capitalize()
+joint_letter_primary = config.getstring('TWP', 'PRIMARY', fallback="").capitalize()
 # spindle secondary joint (ie the one closer to the tool)
-joint_letter_secondary = (config['TWP']['SECONDARY']).capitalize()
+joint_letter_secondary = config.getstring('TWP', 'SECONDARY', fallback="").capitalize()
 
 if not joint_letter_primary in ('A','B','C') or not joint_letter_secondary in ('A','B','C'):
     log.error("Unable to parse joint letters given in INI [TWP].")
@@ -61,18 +58,18 @@ elif joint_letter_primary == joint_letter_secondary:
 else:
     # get the MIN/MAX limits of the respective rotary joint letters
     category = 'AXIS_' +  joint_letter_primary
-    primary_min_limit = float(config[category]['MIN_LIMIT'])
-    primary_max_limit = float(config[category]['MAX_LIMIT'])
+    primary_min_limit = config.getreal(category, 'MIN_LIMIT', fallback=0.0)
+    primary_max_limit = config.getreal(category, 'MAX_LIMIT', fallback=0.0)
     log.info('Joint letter for primary   is %s with MIN/MAX limits: %s,%s', joint_letter_primary, primary_min_limit, primary_max_limit)
     category = 'AXIS_' +  joint_letter_secondary
-    secondary_min_limit = float(config[category]['MIN_LIMIT'])
-    secondary_max_limit = float(config[category]['MAX_LIMIT'])
+    secondary_min_limit = config.getreal(category, 'MIN_LIMIT', fallback=0.0)
+    secondary_max_limit = config.gerreal(category, 'MAX_LIMIT', fallback=0.0)
     log.info('Joint letter for secondary is %s with MIN/MAX Limits: %s,%s', joint_letter_secondary, secondary_min_limit, secondary_max_limit)
 
 
 ## CONNECTIONS TO THE KINEMATIC COMPONENT
-# get the name of the kinematic component (this seems to ingest also the next line)
-kins_comp = (config['KINS']['KINEMATICS']).partition('\n')[0]
+# get the name of the kinematic component
+kins_comp = config.getstring('KINS', 'KINEMATICS', fallback="")
 # name of the hal pin that represents the nutation-angle
 kins_nutation_angle = kins_comp + '_kins.nut-angle'
 # name of the hal pin that represents the pre-rotation

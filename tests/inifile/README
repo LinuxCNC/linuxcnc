@@ -1,4 +1,5 @@
-Tests for the library `liblinuxcncini`.
+Tests for the library `liblinuxcncini.so.1`.
 
-This is the library created from the files `src/libnml/inifile/inifile.*`. To
-simplify the testing we utilize the application `inivar`.
+This is the library created from the files `src/emc/ini/inifile.*`.
+The application `inivar` is used for compatibility. The new utility
+`inivalue` is tested in a separate extensive test script.

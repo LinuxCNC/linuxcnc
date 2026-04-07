@@ -193,21 +193,21 @@ class HandlerClass:
         self.gscreen.init_general_pref()
         self.gscreen.init_theme_pref()
         self.gscreen.init_window_geometry_pref()
-        self.no_force_homing = self.gscreen.inifile.find("TRAJ", "NO_FORCE_HOMING")
+        self.no_force_homing = self.gscreen.inifile.getbool("TRAJ", "NO_FORCE_HOMING", fallback=False)
         if self.no_force_homing:
             self.widgets.chk_reload_tool.set_sensitive(False)
             self.widgets.chk_reload_tool.set_active(False)
             self.widgets.lbl_reload_tool.set_visible(True)
-        default_spindle_speed = self.gscreen.inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED")
+        default_spindle_speed = self.gscreen.inifile.getreal("DISPLAY", "DEFAULT_SPINDLE_SPEED")
         self.spindle_start_rpm = self.gscreen.prefs.getpref( 'spindle_start_rpm', default_spindle_speed, float )
         # get the values for the sliders
-        default_jog_vel = float(self.gscreen.inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY"))
+        default_jog_vel = self.gscreen.inifile.getreal("TRAJ", "DEFAULT_LINEAR_VELOCITY")
         self.fast_jog = default_jog_vel
         self.slow_jog = default_jog_vel / self.slow_jog_factor
-        self.jog_rate_max = self.gscreen.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
-        self.data.spindle_override_max = self.gscreen.inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE")
-        self.data.spindle_override_min = self.gscreen.inifile.find("DISPLAY", "MIN_SPINDLE_OVERRIDE")
-        self.data.feed_override_max = self.gscreen.inifile.find("DISPLAY", "MAX_FEED_OVERRIDE")
+        self.jog_rate_max = self.gscreen.inifile.getreal("TRAJ", "MAX_LINEAR_VELOCITY")
+        self.data.spindle_override_max = self.gscreen.inifile.getreal("DISPLAY", "MAX_SPINDLE_OVERRIDE")
+        self.data.spindle_override_min = self.gscreen.inifile.getreal("DISPLAY", "MIN_SPINDLE_OVERRIDE")
+        self.data.feed_override_max = self.gscreen.inifile.getreal("DISPLAY", "MAX_FEED_OVERRIDE")
         self.data.dro_actual = self.gscreen.inifile.find("DISPLAY", "POSITION_FEEDBACK")
         # set the slider limits
         self.widgets.jog_speed.set_range(100, float(self.jog_rate_max) * 60)
@@ -226,19 +226,19 @@ class HandlerClass:
         self.widgets.window1.connect("key_release_event", self.gscreen.on_key_event, 0)
 
     def init_home(self):
-        self.home_x = self.gscreen.inifile.find("JOINT_0", "HOME")
-        self.home_y = self.gscreen.inifile.find("JOINT_1", "HOME")
-        self.home_z = self.gscreen.inifile.find("JOINT_2", "HOME")
+        self.home_x = self.gscreen.inifile.getreal("JOINT_0", "HOME")
+        self.home_y = self.gscreen.inifile.getreal("JOINT_1", "HOME")
+        self.home_z = self.gscreen.inifile.getreal("JOINT_2", "HOME")
 
     def init_tool_measurement(self):
         # set up auto zref
-        xpos = self.gscreen.inifile.find("TOOLSENSOR", "X")
-        ypos = self.gscreen.inifile.find("TOOLSENSOR", "Y")
-        zpos = self.gscreen.inifile.find("TOOLSENSOR", "Z")
-        sensor_height = self.gscreen.inifile.find("TOOLSENSOR", "SENSOR_HEIGHT")
-        maxprobe = self.gscreen.inifile.find("TOOLSENSOR", "MAXPROBE")
-        search_vel = self.gscreen.inifile.find("TOOLSENSOR", "SEARCH_VEL")
-        probe_vel = self.gscreen.inifile.find("TOOLSENSOR", "PROBE_VEL")
+        xpos = self.gscreen.inifile.getreal("TOOLSENSOR", "X")
+        ypos = self.gscreen.inifile.getreal("TOOLSENSOR", "Y")
+        zpos = self.gscreen.inifile.getreal("TOOLSENSOR", "Z")
+        sensor_height = self.gscreen.inifile.getreal("TOOLSENSOR", "SENSOR_HEIGHT")
+        maxprobe = self.gscreen.inifile.getreal("TOOLSENSOR", "MAXPROBE")
+        search_vel = self.gscreen.inifile.getreal("TOOLSENSOR", "SEARCH_VEL")
+        probe_vel = self.gscreen.inifile.getreal("TOOLSENSOR", "PROBE_VEL")
         self.halcomp["probe_vel"] = probe_vel
         self.halcomp["search_vel"] = search_vel
         self.halcomp["sensor_height"] = sensor_height
@@ -269,8 +269,8 @@ class HandlerClass:
             print(_("Block Height - Enabled"))
         self.widgets.chk_use_auto_zref.emit("toggled")
         # set up laser crosshair offsets
-        xpos = self.gscreen.inifile.find("LASER", "X")
-        ypos = self.gscreen.inifile.find("LASER", "Y")
+        xpos = self.gscreen.inifile.getreal("LASER", "X")
+        ypos = self.gscreen.inifile.getreal("LASER", "Y")
         if not xpos or not ypos:
             self.widgets.btn_laser_zero.set_sensitive(False)
             self.widgets.tbtn_laser.set_sensitive(False)

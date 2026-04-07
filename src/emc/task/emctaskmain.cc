@@ -73,7 +73,8 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/canon.hh"		// CANON_TOOL_TABLE stuff
-#include "libnml/inifile/inifile.hh"		// INIFILE
+#include <inifile.hh>
+#include "usr_intf/mapini.hh"
 #include "nml_intf/interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "nml_intf/emcglb.h"		// EMC_INIFILE,NMLFILE, EMC_TASK_CYCLE_TIME
 #include "nml_intf/interp_return.hh"	// public interpreter return values
@@ -85,6 +86,8 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "taskclass.hh"
 #include "motion/motion.h"             // EMCMOT_ORIENT_*
 #include "ini/inihal.hh"
+
+using namespace linuxcnc;
 
 static emcmot_config_t emcmotConfig;
 
@@ -120,8 +123,6 @@ static int emcTaskEager = 0;
 
 static int no_force_homing = 0; // forces the user to home first before allowing MDI and Program run
 //can be overridden by [TRAJ]NO_FORCE_HOMING=1
-
-static double EMC_TASK_CYCLE_TIME_ORIG = 0.0;
 
 // delay counter
 static double taskExecDelayTimeout = 0.0;
@@ -3095,55 +3096,23 @@ static int emctask_shutdown(void)
 
 static int iniLoad(const char *filename)
 {
-    IniFile inifile;
-    char version[LINELEN], machine[LINELEN];
-    double saveDouble;
-    int saveInt;
+    IniFile inifile(filename);
 
-    // open it
-    if (inifile.Open(filename) == false) {
-	return -1;
+    if (!inifile) {
+        return -1;
     }
 
-	if (auto inistring = inifile.Find("JOINTS", "KINS")) {
-	// copy to global
-	if (1 != sscanf(inistring->c_str(), "%i", &joints)) {
-	    joints = 0;
-	}
-    } else {
-	// not found, use default
-	joints = 0;
-    }
+    // FIXME: range limit [KINS]JOINTS
+    joints = inifile.findSIntV("JOINTS", "KINS", 0);
 
     // EMC debugging flags
-    emc_debug = 0;  // disabled by default
-    if (auto inistring = inifile.Find("DEBUG", "EMC")) {
-        // parse to global
-        if (sscanf(inistring->c_str(), "%x", &emc_debug) < 1) {
-            perror("failed to parse [EMC] DEBUG");
-        }
-    }
+    emc_debug = inifile.findUIntV("DEBUG", "EMC", 0);
 
     // set output for RCS messages
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
-    if (auto inistring = inifile.Find("RCS_DEBUG_DEST", "EMC")) {
-        static RCS_PRINT_DESTINATION_TYPE type;
-        if (*inistring == "STDOUT") {
-            type = RCS_PRINT_TO_STDOUT;
-        } else if (*inistring == "STDERR") {
-            type = RCS_PRINT_TO_STDERR;
-        } else if (*inistring == "FILE") {
-            type = RCS_PRINT_TO_FILE;
-        } else if (*inistring == "LOGGER") {
-            type = RCS_PRINT_TO_LOGGER;
-        } else if (*inistring == "MSGBOX") {
-            type = RCS_PRINT_TO_MESSAGE_BOX;
-        } else if (*inistring == "NULL") {
-            type = RCS_PRINT_TO_NULL;
-        } else {
-             type = RCS_PRINT_TO_STDOUT;
-        }
-        set_rcs_print_destination(type);
+    if (auto inival = mapRcsDestination(inifile, "RCS_DEBUG_DEST", "EMC")) {
+        set_rcs_print_destination(*inival);
+    } else {
+        set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
     }
 
     // NML/RCS debugging flags
@@ -3155,117 +3124,63 @@ static int iniLoad(const char *filename)
     }
 
     // set flags if RCS_DEBUG in ini file
-    if (auto inistring = inifile.Find("RCS_DEBUG", "EMC")) {
-        long unsigned int flags;
-        if (sscanf(inistring->c_str(), "%lx", &flags) < 1) {
-            perror("failed to parse [EMC] RCS_DEBUG");
-        }
+    if (auto inival = inifile.findUInt("RCS_DEBUG", "EMC")) {
         // clear all flags
         clear_rcs_print_flag(PRINT_EVERYTHING);
         // set parsed flags
-        set_rcs_print_flag((long)flags);
+        set_rcs_print_flag((long)*inival);
     }
     // output infinite RCS errors by default
-    max_rcs_errors_to_print = -1;
-    if (auto inistring = inifile.Find("RCS_MAX_ERR", "EMC")) {
-        if (sscanf(inistring->c_str(), "%d", &max_rcs_errors_to_print) < 1) {
-            perror("failed to parse [EMC] RCS_MAX_ERR");
+    max_rcs_errors_to_print = inifile.findSIntV("RCS_MAX_ERR", "EMC", -1);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
+        std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
+        extern char *program_invocation_short_name;
+        rcs_print(
+            "%s (%d) task: machine '%s'  version '%s'\n",
+            program_invocation_short_name, getpid(), machine.c_str(), version.c_str()
+        );
+    }
+
+    if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
+	// copy to global
+	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
+    } // else not found, use default
+
+    if (auto inival = inifile.findSInt("INTERP_MAX_LEN", "TASK")) {
+        if (*inival > 0) {
+            emc_task_interp_max_len = *inival;
         }
     }
 
-	if (emc_debug & EMC_DEBUG_CONFIG) {
-		auto ver = inifile.Find("VERSION", "EMC");
-		rtapi_strlcpy(version, ver ? ver->c_str() : "unknown", LINELEN-1);
-
-		auto mach = inifile.Find("MACHINE", "EMC");
-		rtapi_strlcpy(machine, mach ? mach->c_str() : "unknown", LINELEN-1);
-		extern char *program_invocation_short_name;
-		rcs_print(
-		"%s (%d) task: machine '%s'  version '%s'\n",
-		program_invocation_short_name, getpid(), machine, version
-		);
-	}
-
-    if (auto inistring = inifile.Find("NML_FILE", "EMC")) {
-	// copy to global
-	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
-    } else {
-	// not found, use default
-    }
-
-    saveInt = emc_task_interp_max_len; //remember default or previously set value
-    if (auto inistring = inifile.Find("INTERP_MAX_LEN", "TASK")) {
-	if (1 == sscanf(inistring->c_str(), "%d", &emc_task_interp_max_len)) {
-	    if (emc_task_interp_max_len <= 0) {
-	    	emc_task_interp_max_len = saveInt;
-	    }
-	} else {
-	    emc_task_interp_max_len = saveInt;
-	}
-    }
-
-    if (auto inistring = inifile.Find("RS274NGC_STARTUP_CODE", "RS274NGC")) {
+    if (auto inistring = inifile.findString("RS274NGC_STARTUP_CODE", "RS274NGC")) {
 	// copy to global
 	rtapi_strxcpy(rs274ngc_startup_code, inistring->c_str());
     }
 
-    saveDouble = emc_task_cycle_time;
-    EMC_TASK_CYCLE_TIME_ORIG = emc_task_cycle_time;
     emcTaskNoDelay = 0;
-    if (auto inistring = inifile.Find("CYCLE_TIME", "TASK")) {
-	if (1 == sscanf(inistring->c_str(), "%lf", &emc_task_cycle_time)) {
-	    // found it
-	    // if it's <= 0.0, then flag that we don't want to
-	    // wait at all, which will set the EMC_TASK_CYCLE_TIME
-	    // global to the actual time deltas
-	    if (emc_task_cycle_time <= 0.0) {
-		emcTaskNoDelay = 1;
-	    }
-	} else {
-	    // found, but invalid
-	    emc_task_cycle_time = saveDouble;
-	    rcs_print
-		("invalid [TASK] CYCLE_TIME in %s (%s); using default %f\n",
-		 filename, inistring->c_str(), emc_task_cycle_time);
-	}
+    if (auto inival = inifile.findReal("CYCLE_TIME", "TASK")) {
+        emc_task_cycle_time = *inival;
+        if (*inival <= 0.0) {
+            emcTaskNoDelay = 1;
+        }
     } else {
-	// not found, using default
-	rcs_print("[TASK] CYCLE_TIME not found in %s; using default %f\n",
-		  filename, emc_task_cycle_time);
+        // not found, using default
+        rcs_print("[TASK] CYCLE_TIME not found in %s; using default %f\n", filename, emc_task_cycle_time);
     }
 
-
-    if (auto inistring = inifile.Find("NO_FORCE_HOMING", "TRAJ")) {
-	if (1 == sscanf(inistring->c_str(), "%d", &no_force_homing)) {
-	    // found it
-	    // if it's <= 0.0, then set it 0 so that homing is required before MDI or Auto
-	    if (no_force_homing <= 0) {
-		no_force_homing = 0;
-	    }
-	} else {
-	    // found, but invalid
-	    no_force_homing = 0;
-	    rcs_print
-		("invalid [TRAJ] NO_FORCE_HOMING in %s (%s); using default %d\n",
-		 filename, inistring->c_str(), no_force_homing);
-	}
-    } else {
-	// not found, using default
-	no_force_homing = 0;
-    }
+    no_force_homing = inifile.findBoolV("NO_FORCE_HOMING", "TRAJ", false);
 
     // configurable template for iocontrol reason display
-    if (auto inistring = inifile.Find("IO_ERROR", "TASK")) {
+    if (auto inistring = inifile.findString("IO_ERROR", "TASK")) {
 	io_error = strdup(inistring->c_str());
     }
 
     // max number of queued MDI commands
-    if (auto inistring = inifile.Find("MDI_QUEUED_COMMANDS", "TASK")) {
-	max_mdi_queued_commands = atoi(inistring->c_str());
+    if (auto inival = inifile.findSInt("MDI_QUEUED_COMMANDS", "TASK")) {
+        max_mdi_queued_commands = *inival;
     }
-
-    // close it
-    inifile.Close();
 
     return 0;
 }

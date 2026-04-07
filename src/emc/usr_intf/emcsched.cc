@@ -32,7 +32,6 @@
 #include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "libnml/inifile/inifile.hh"		// INIFILE
 #include "libnml/nml/nml_oi.hh"            // nmlErrorFormat, NML_ERROR, etc
 #include "libnml/rcs/rcs_print.hh"
 #include "libnml/os_intf/timer.hh"             // esleep

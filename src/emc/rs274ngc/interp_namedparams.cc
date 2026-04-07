@@ -41,16 +41,19 @@ namespace bp = boost::python;
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sstream>
+#include <string>
 #include <map>
 
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
-#include "libnml/inifile/inifile.hh"
+#include <inifile.hh>
 
 // for HAL pin variables
 #include <hal.h>
+
+using namespace linuxcnc;
 
 enum predefined_named_parameters {
     NP_LINE,
@@ -193,45 +196,44 @@ int Interp::read_named_parameter(
 // the shortest possible INI variable is '_ini[s]n' or 8 chars long .
 int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 {
-    char *s;
     *status = 0;
     int n = strlen(nameBuf);
 
-     if ((n > 7) &&
-	((s = (char *) strchr(&nameBuf[6],']')) != NULL)) {
-
-	IniFile inifile;
-	const char *iniFileName;
-	int retval;
-	int closeBracket = s - nameBuf;
-
-	if ((iniFileName = getenv("INI_FILE_NAME")) == NULL) {
-	    logNP("warning: referencing INI parameter '%s': no INI file",nameBuf);
-	    *status = 0;
-	    return INTERP_OK;
-	}
-	if (!inifile.Open(iniFileName)) {
-	    *status = 0;
-	    ERS(_("can\'t open INI file '%s'"), iniFileName);
-	}
-
-	char capName[LINELEN];
-
-	snprintf(capName, LINELEN, "%s", nameBuf);
-	for (char *p = capName; *p != 0; p++)
-	    *p = toupper(*p);
-	capName[closeBracket] = '\0';
-
-	if ((retval = inifile.Find( value, &capName[closeBracket+1], &capName[5])) == 0) {
-	    *status = 1;
-	    inifile.Close();
-	} else {
-	    inifile.Close();
-	    *status = 0;
-	    ERS(_("Named INI parameter #<%s> not found in INI file '%s': error=0x%x"),
-		nameBuf, iniFileName, retval);
-	}
+    if(n < 8) {
+        return INTERP_OK;
     }
+
+    std::string sect = nameBuf + 5;  // skip the '_ini[' part
+    // Make it all upper case
+    for(auto &c : sect) {
+        c = toupper(c);
+    }
+    size_t i = sect.find(']');
+    if(std::string::npos == i) {
+        ERS(_("_ini expansion missing ']'"));
+        return INTERP_OK;
+    }
+    std::string var  = sect.substr(i+1);
+    sect.erase(i); // Remove everything from ']'and after
+
+    const char *iniFileName;
+    if ((iniFileName = getenv("INI_FILE_NAME")) == NULL) {
+        logNP("warning: referencing INI parameter '%s': no INI file", nameBuf);
+        return INTERP_OK;
+    }
+    IniFile inifile(iniFileName);
+    if (!inifile) {
+        ERS(_("can\'t open INI file '%s'"), iniFileName);
+        return INTERP_OK;
+    }
+
+    if (auto inival = inifile.findReal(var, sect)) {
+        *value = *inival;
+        *status = 1;
+    } else {
+        ERS(_("Named INI parameter #<%s> not found in INI file '%s'"), nameBuf, iniFileName);
+    }
+
     return INTERP_OK;
 }
 
@@ -300,6 +302,8 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     case HAL_BIT: *value = (double) (ptr->b); break;
     case HAL_U32: *value = (double) (ptr->u); break;
     case HAL_S32: *value = (double) (ptr->s); break;
+    case HAL_U64: *value = (double) (ptr->lu); break;
+    case HAL_S64: *value = (double) (ptr->ls); break;
     case HAL_FLOAT: *value = (double) (ptr->f); break;
     default: return -1;
     }
@@ -962,28 +966,24 @@ int Interp::init_named_parameters()
 
 double Interp::inicheck()
 {
-    IniFile inifile;
     const char *filename;
-    double result = -1.0;
 
-	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
-	    return -1.0;
+    if ((filename = getenv("INI_FILE_NAME")) == NULL) {
+        return -1.0;
     }
 
-    // open it
-    if (inifile.Open(filename) == false) {
-	    return -1.0;
+    IniFile inifile(filename);
+    if (!inifile) {
+        return -1.0;
     }
 
-    if (auto inistring = inifile.Find("LINEAR_UNITS", "TRAJ")) {
+    if (auto inistring = inifile.findString("LINEAR_UNITS", "TRAJ")) {
         if (*inistring == "inch") {
-             result = 0.0;
+            return 0.0;
         } else {
-            result = 1.0;
+            return 1.0;
         }
     }
-    // close it
-    inifile.Close();
 
-    return result;
+    return -1.0;
 }

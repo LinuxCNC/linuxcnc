@@ -164,7 +164,7 @@ GENERATED_MANPAGES :=
 
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
-    libnml/linklist libnml/cms libnml/rcs libnml/inifile libnml/os_intf \
+    libnml/linklist libnml/cms libnml/rcs libnml/os_intf \
     libnml/nml libnml/buffer libnml/posemath libnml \
     \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
@@ -391,6 +391,8 @@ SRCHEADERS := \
     emc/linuxcnc.h \
     emc/kinematics/kinematics.h \
     emc/motion/emcmotcfg.h \
+    emc/ini/inifile.hh \
+    emc/ini/inifile.h \
     emc/nml_intf/emcpos.h \
     emc/nml_intf/emcpose.h \
     emc/nml_intf/motion_types.h \
@@ -687,7 +689,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/update_ini $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halreport $(DESTDIR)$(bindir)
-	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
+	$(FILE) $(filter ../lib/%.a ../lib/%.so.0 ../lib/%.so.1,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(wildcard ../lib/*.so) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) ../lib/linuxcnc/canterp.so $(DESTDIR)$(libdir)/linuxcnc/
@@ -1445,6 +1447,9 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 	@sh move-if-change $@.tmp $@
 
 ../lib/%.so: ../lib/%.so.0
+	ln -sf $(notdir $<) $@
+
+../lib/%.so: ../lib/%.so.1
 	ln -sf $(notdir $<) $@
 
 cscope:

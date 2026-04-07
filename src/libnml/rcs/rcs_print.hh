@@ -127,7 +127,7 @@ extern "C" {
 #define PRINT_ALL_SOCKET_REQUESTS       0x10000000
 #define PRINT_EVERYTHING                0xFFFFFFFF	/* 4294967295 */
 #ifdef __cplusplus
-enum RCS_PRINT_DESTINATION_TYPE {
+enum RCS_PRINT_DESTINATION_TYPE : int {
 #else
 typedef enum {
 #endif

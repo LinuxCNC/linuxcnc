@@ -92,7 +92,7 @@ include an option for suppressing superfluous commands.
 #include <rtapi_string.h>	// rtapi_strlcpy()
 
 #include <rtapi.h>
-#include "libnml/inifile/inifile.hh"		// INIFILE
+#include <inifile.hh>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"	// interpreter private definitions
@@ -105,6 +105,7 @@ include an option for suppressing superfluous commands.
 
 #include "interp_parameter_def.hh"
 using namespace interp_param_global;
+using namespace linuxcnc;
 
 namespace bp = boost::python;
 
@@ -837,7 +838,6 @@ int Interp::init()
   char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
   char *iniFileName;
-  IniFile::ErrorCode r;
 
   INIT_CANON();
 
@@ -878,71 +878,60 @@ int Interp::init()
   _setup.center_arc_radius_tolerance_mm = CENTER_ARC_RADIUS_TOLERANCE_MM;
 
   if(iniFileName != NULL) {
-
-      IniFile inifile;
-      if (inifile.Open(iniFileName) == false) {
+      IniFile inifile(iniFileName);
+      if (!inifile) {
           fprintf(stderr,"Unable to open inifile:%s:\n", iniFileName);
       } else {
-          bool opt;
+          _setup.tool_change_at_g30 = inifile.findBoolV("TOOL_CHANGE_AT_G30", "EMCIO", false);
+          _setup.tool_change_quill_up = inifile.findBoolV("TOOL_CHANGE_QUILL_UP", "EMCIO", false);
+          _setup.tool_change_with_spindle_on = inifile.findBoolV("TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO", false);
+          _setup.a_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_A", false);
+          _setup.b_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_B", false);
+          _setup.c_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_C", false);
+          _setup.random_toolchanger = inifile.findBoolV("RANDOM_TOOLCHANGER", "EMCIO", false);
+          _setup.num_spindles = inifile.findIntV("SPINDLES", "TRAJ", 1);
 
-          inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
-          inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
-          inifile.Find(&_setup.tool_change_with_spindle_on, "TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO");
-          inifile.Find(&_setup.a_axis_wrapped, "WRAPPED_ROTARY", "AXIS_A");
-          inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_B");
-          inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
-          inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-          inifile.Find(&_setup.num_spindles, "SPINDLES", "TRAJ");
-
-          inifile.Find(&_setup.tolerance_default, "G64_DEFAULT_TOLERANCE", "RS274NGC");
-          inifile.Find(&_setup.naivecam_tolerance_default, "G64_DEFAULT_NAIVETOLERANCE", "RS274NGC");
+          _setup.tolerance_default = inifile.findRealV("G64_DEFAULT_TOLERANCE", "RS274NGC", 0.0);
+          _setup.naivecam_tolerance_default = inifile.findRealV("G64_DEFAULT_NAIVETOLERANCE", "RS274NGC", 0.0);
 
           // First the features that default to ON
-          opt = true;
-          inifile.Find(&opt, "INI_VARS", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_INI_VARS;
-          opt = true;
-          inifile.Find(&opt, "HAL_PIN_VARS", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_HAL_PIN_VARS;
+          if (inifile.findBoolV("INI_VARS", "RS274NGC", true))
+              _setup.feature_set |= FEATURE_INI_VARS;
+          if (inifile.findBoolV("HAL_PIN_VARS", "RS274NGC", true))
+              _setup.feature_set |= FEATURE_HAL_PIN_VARS;
 
           // Now those that (currently) default to off
-          opt = false;
-          inifile.Find(&opt, "RETAIN_G43", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_RETAIN_G43;
-          opt = false;
-          inifile.Find(&opt, "OWORD_NARGS", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_OWORD_N_ARGS;
-          opt = false;
-          inifile.Find(&opt, "NO_DOWNCASE_OWORD", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_NO_DOWNCASE_OWORD;
-          opt = false;
-          inifile.Find(&opt, "OWORD_WARNONLY", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_OWORD_WARNONLY;
+          if (inifile.findBoolV("RETAIN_G43", "RS274NGC", false))
+              _setup.feature_set |= FEATURE_RETAIN_G43;
+          if (inifile.findBoolV("OWORD_NARGS", "RS274NGC", false))
+              _setup.feature_set |= FEATURE_OWORD_N_ARGS;
+          if (inifile.findBoolV("NO_DOWNCASE_OWORD", "RS274NGC", false))
+              _setup.feature_set |= FEATURE_NO_DOWNCASE_OWORD;
+          if (inifile.findBoolV("OWORD_WARNONLY", "RS274NGC", false))
+              _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
-          if (auto inistring = inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A")) {
-              _setup.a_indexer_jnum = atol(inistring->c_str());
+          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_A")) {
+              _setup.a_indexer_jnum = *inival;
           }
-          if (auto inistring = inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B")) {
-              _setup.b_indexer_jnum = atol(inistring->c_str());
+          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_B")) {
+              _setup.b_indexer_jnum = *inival;
           }
-          if (auto inistring = inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C")) {
-              _setup.c_indexer_jnum = atol(inistring->c_str());
+          if (auto inival = inifile.findInt("LOCKING_INDEXER_JOINT", "AXIS_C")) {
+              _setup.c_indexer_jnum = *inival;
           }
-          inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
-          inifile.Find(&_setup.parameter_g73_peck_clearance, "G73_PECK_CLEARANCE", "RS274NGC");
-          inifile.Find(&_setup.parameter_g83_peck_clearance, "G83_PECK_CLEARANCE", "RS274NGC");
+          _setup.orient_offset = inifile.findRealV("ORIENT_OFFSET", "RS274NGC", 0.0);
+          double clr = _setup.length_units == CANON_UNITS_INCHES ? 0.050 : 1.0;
+          _setup.parameter_g73_peck_clearance = inifile.findRealV("G73_PECK_CLEARANCE", "RS274NGC", clr);
+          _setup.parameter_g83_peck_clearance = inifile.findRealV("G83_PECK_CLEARANCE", "RS274NGC", clr);
 
-          inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
+          _setup.debugmask = inifile.findUIntV("DEBUG", "EMC", 0);
 
-	  _setup.debugmask |= EMC_DEBUG_UNCONDITIONAL;
+          _setup.debugmask |= EMC_DEBUG_UNCONDITIONAL;
 
-          if(auto inistring = inifile.Find("LOG_LEVEL", "RS274NGC"))
-          {
-              _setup.loggingLevel = atol(inistring->c_str());
-          }
+          _setup.loggingLevel = inifile.findIntV("LOG_LEVEL", "RS274NGC", 0);
 
 	  // default the log_file to stderr.
-          if(auto inistring = inifile.Find("LOG_FILE", "RS274NGC"))
+          if(auto inistring = inifile.findString("LOG_FILE", "RS274NGC"))
           {
 	      if ((log_file = fopen(inistring->c_str(), "a"))  == NULL) {
 		  log_file = stderr;
@@ -956,7 +945,7 @@ int Interp::init()
           _setup.use_lazy_close = 1;
 
 	  _setup.wizard_root[0] = 0;
-          if(auto inistring = inifile.Find("WIZARD_ROOT", "WIZARD"))
+          if(auto inistring = inifile.findString("WIZARD_ROOT", "WIZARD"))
           {
 	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring->c_str());
             if (realpath(inistring->c_str(), _setup.wizard_root) == NULL) {
@@ -967,14 +956,14 @@ int Interp::init()
           logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
 
 	  _setup.program_prefix[0] = 0;
-          if(auto inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))
+          if(auto inistring = inifile.findString("PROGRAM_PREFIX", "DISPLAY"))
           {
 	    // found it
-            char expandinistring[LINELEN];
-            if (inifile.TildeExpansion(inistring->c_str(),expandinistring,sizeof(expandinistring))) {
+            std::string expandinistring;
+            if (inifile.TildeExpansion(*inistring, expandinistring)) {
                    logDebug("TildeExpansion failed for: %s",inistring->c_str());
             }
-            if (realpath(expandinistring, _setup.program_prefix) == NULL){
+            if (realpath(expandinistring.c_str(), _setup.program_prefix) == NULL){
         	//realpath didn't find the file
 		logDebug("realpath failed to find program_prefix:%s:", inistring->c_str());
             }
@@ -987,7 +976,7 @@ int Interp::init()
           }
           logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
 
-          if(auto inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC"))
+          if(auto inistring = inifile.findString("SUBROUTINE_PATH", "RS274NGC"))
           {
             // found it
             int dct;
@@ -1003,11 +992,11 @@ int Interp::init()
             dct = 0;
             while (1) {
                 char tmp_path[PATH_MAX];
-                char expandnextdir[LINELEN];
-                if (inifile.TildeExpansion(nextdir,expandnextdir,sizeof(expandnextdir))) {
+                std::string expandnextdir;
+                if (inifile.TildeExpansion(nextdir, expandnextdir)) {
                    logDebug("TildeExpansion failed for: %s",nextdir);
                 }
-                if (realpath(expandnextdir, tmp_path) == NULL){
+                if (realpath(expandnextdir.c_str(), tmp_path) == NULL){
                    //realpath didn't find the directory
                    logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir);
                     _setup.subroutines[dct] = NULL;
@@ -1030,29 +1019,31 @@ int Interp::init()
           }
           // subroutine to execute on aborts - for instance to retract
           // toolchange HAL pins
-          if (auto inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC")) {
-	      _setup.on_abort_command = strstore(inistring->c_str());
+          if (auto inistring = inifile.findString("ON_ABORT_COMMAND", "RS274NGC")) {
+              _setup.on_abort_command = strstore(inistring->c_str());
               logDebug("_setup.on_abort_command=%s", _setup.on_abort_command);
           } else {
-	      _setup.on_abort_command = NULL;
+              _setup.on_abort_command = NULL;
           }
 
-	  // initialize the Python plugin singleton
-          if (inifile.Find("TOPLEVEL", "PYTHON")) {
-	      int status = python_plugin->configure(iniFileName,"PYTHON");
-	      if (status != PLUGIN_OK) {
-		  Error("Python plugin configure() failed, status = %d", status);
-	      }
-	  }
+          // initialize the Python plugin singleton
+          if (inifile.isSet("TOPLEVEL", "PYTHON")) {
+              int status = python_plugin->configure(iniFileName,"PYTHON");
+              if (status != PLUGIN_OK) {
+                  Error("Python plugin configure() failed, status = %d", status);
+              }
+          }
  
 	  int n = 1;
-	  int lineno = -1;
 	  _setup.g_remapped.clear();
 	  _setup.m_remapped.clear();
 	  _setup.remaps.clear();
-	  while (auto inistring = inifile.Find("REMAP", "RS274NGC",
-						   n, &lineno)) {
-
+	  while (auto inistring = inifile.findString(n, "REMAP", "RS274NGC")) {
+	      // FIXME: This should make use of the path/lineno pair returned
+	      // by lineOf() because it may be coming from an include file.
+	      // However, it does require some extra work in
+	      // interp_remap.cc:parse_remap() to handle and use the extra arg.
+              int lineno = inifile.lineOf(n, "REMAP", "RS274NGC").second;
 	      CHP(parse_remap( inistring->c_str(),  lineno));
 	      n++;
 	  }
@@ -1060,42 +1051,32 @@ int Interp::init()
           // if exist and within bounds, apply INI file arc tolerances
           // limiting figures are defined in interp_internal.hh
 
-          r = inifile.Find(
-              &_setup.center_arc_radius_tolerance_inch,
-              MIN_CENTER_ARC_RADIUS_TOLERANCE_INCH,
-              CENTER_ARC_RADIUS_TOLERANCE_INCH,
-              "CENTER_ARC_RADIUS_TOLERANCE_INCH",
-              "RS274NGC"
-          );
-          if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in INI file\n");
+          if (inifile.isSet("CENTER_ARC_RADIUS_TOLERANCE_INCH", "RS274NGC")) {
+              if (auto inival = inifile.findReal("CENTER_ARC_RADIUS_TOLERANCE_INCH", "RS274NGC",
+                                    MIN_CENTER_ARC_RADIUS_TOLERANCE_INCH,
+                                    CENTER_ARC_RADIUS_TOLERANCE_INCH)) {
+                  _setup.center_arc_radius_tolerance_inch = *inival;
+              } else {
+                  Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in INI file\n");
+              }
           }
 
-          r = inifile.Find(
-              &_setup.center_arc_radius_tolerance_mm,
-              MIN_CENTER_ARC_RADIUS_TOLERANCE_MM,
-              CENTER_ARC_RADIUS_TOLERANCE_MM,
-              "CENTER_ARC_RADIUS_TOLERANCE_MM",
-              "RS274NGC"
-          );
-          if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in INI file\n");
+          if (inifile.isSet("CENTER_ARC_RADIUS_TOLERANCE_MM", "RS274NGC")) {
+              if (auto inival = inifile.findReal("CENTER_ARC_RADIUS_TOLERANCE_MM", "RS274NGC",
+                                    MIN_CENTER_ARC_RADIUS_TOLERANCE_MM,
+                                    CENTER_ARC_RADIUS_TOLERANCE_MM)) {
+                  _setup.center_arc_radius_tolerance_mm = *inival;
+              } else {
+                  Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in INI file\n");
+              }
           }
 
-	  // INI file g52/g92 offset persistence default setting
-	  inifile.Find(&_setup.disable_g92_persistence,
-		       "DISABLE_G92_PERSISTENCE",
-		       "RS274NGC");
+          // INI file g52/g92 offset persistence default setting
+          _setup.disable_g92_persistence = inifile.findBoolV("DISABLE_G92_PERSISTENCE", "RS274NGC", false);
 
-	  // INI file m98/m99 subprogram default setting
-	  inifile.Find(&_setup.disable_fanuc_style_sub,
-		       "DISABLE_FANUC_STYLE_SUB",
-		       "RS274NGC");
-	  logDebug("init:  DISABLE_FANUC_STYLE_SUB = %d",
-		   _setup.disable_fanuc_style_sub);
-
-          // close it
-          inifile.Close();
+          // INI file m98/m99 subprogram default setting
+          _setup.disable_fanuc_style_sub = inifile.findBoolV("DISABLE_FANUC_STYLE_SUB", "RS274NGC", false);
+          logDebug("init:  DISABLE_FANUC_STYLE_SUB = %d", _setup.disable_fanuc_style_sub);
       }
   }
 
@@ -2511,19 +2492,17 @@ VARIABLE_FILE = rs274ngc.var
 
 int Interp::ini_load(const char *filename)
 {
-    IniFile inifile;
+    IniFile inifile(filename);
 
-    // open it
-    if (inifile.Open(filename) == false) {
+    if (!inifile) {
         logDebug("Unable to open inifile:%s:", filename);
-	return -1;
+        return -1;
     }
 
     logDebug("Opened inifile:%s:", filename);
 
-
     char parameter_file_name[LINELEN]={};
-    if (auto inistring = inifile.Find("PARAMETER_FILE", "RS274NGC")) {
+    if (auto inistring = inifile.findString("PARAMETER_FILE", "RS274NGC")) {
         if (inistring->length() >= sizeof(parameter_file_name)) {
             logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %zu)",
                      filename, sizeof(parameter_file_name)-1);
@@ -2537,9 +2516,6 @@ int Interp::ini_load(const char *filename)
         logDebug("did not find PARAMETER_FILE");
     }
     SET_PARAMETER_FILE_NAME(parameter_file_name);
-
-    // close it
-    inifile.Close();
 
     CHKS((strlen(parameter_file_name) == 0), _("Parameter file name is missing"));
 

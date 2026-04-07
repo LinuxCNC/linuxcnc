@@ -28,13 +28,15 @@
 #include "libnml/os_intf/_timer.h"
 #include "libnml/rcs/rcs_print.hh"
 
-#include "libnml/inifile/inifile.hh"
+#include <inifile.hh>
 
 #define READ_TIMEOUT_SEC 0	/* seconds for timeout */
 #define READ_TIMEOUT_USEC 100000	/* microseconds for timeout */
 
 #include "dbuf.h"
 #include "stashf.h"
+
+using namespace linuxcnc;
 
 static int inited = 0;		/* flag if inited */
 
@@ -49,24 +51,26 @@ static emcmot_struct_t *emcmotStruct = 0;
    from named INI file */
 int usrmotIniLoad(const char *filename)
 {
-    IniFile inifile(IniFile::ERR_CONVERSION);   // Enable exception.
+    IniFile inifile(filename);
 
-    /* open it */
-    if (!inifile.Open(filename)) {
-	rtapi_print("can't find emcmot INI file %s\n", filename);
-	return -1;
+    if (!inifile) {
+        return -1;
     }
 
-    try {
-        inifile.Find((int *)&SHMEM_KEY, "SHMEM_KEY", "EMCMOT");
-        inifile.Find(&EMCMOT_COMM_TIMEOUT, "COMM_TIMEOUT", "EMCMOT");
+    if (inifile.isSet("SHMEM_KEY", "EMCMOT")) {
+        if (auto inival = inifile.findUInt("SHMEM_KEY", "EMCMOT")) {
+            SHMEM_KEY = *inival;
+        } else {
+            rcs_print("USRMOT: ERROR: Invalid [EMCMOT]SHMEM_KEY\n");
+        }
     }
-
-    catch(IniFile::Exception &e){
-        e.Print();
-	return -1;
+    if (inifile.isSet("COMM_TIMEOUT", "EMCMOT")) {
+        if (auto inival = inifile.findReal("COMM_TIMEOUT", "EMCMOT")) {
+            EMCMOT_COMM_TIMEOUT = *inival;
+        } else {
+            rcs_print("USRMOT: ERROR: Invalid [EMCMOT]COMM_TIMEOUT\n");
+        }
     }
-
     return 0;
 }
 

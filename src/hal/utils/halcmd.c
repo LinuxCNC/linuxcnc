@@ -46,8 +46,8 @@
 #include <linuxcnc.h>
 
 #ifndef NO_INI
-#include "libnml/inifile/inifile.h"		/* iniFindString() from libnml */
-FILE *halcmd_inifile = NULL;
+#include <inifile.h>
+const char *halcmd_inifile = NULL;
 #endif
 
 #include <stdio.h>
@@ -773,14 +773,15 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		    return -7;
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
+                replacement = ini_buf;
 		if ( strlen(sec) > 0 ) {
 		/* get value from INI file */
-		    replacement = (char *) iniFindString(halcmd_inifile, var, sec,
-		                                         ini_buf, sizeof(ini_buf));
+		    if (iniFindString(halcmd_inifile, var, sec, ini_buf, sizeof(ini_buf)))
+                        replacement = NULL;
 		} else {
 		/* no section specified */
-		    replacement = (char *) iniFindString(halcmd_inifile, var, NULL,
-		                                         ini_buf, sizeof(ini_buf));
+		    if (iniFindString(halcmd_inifile, var, NULL, ini_buf, sizeof(ini_buf)))
+                        replacement = NULL;
 		}
 		if (replacement==NULL) {
                     *detail = info;

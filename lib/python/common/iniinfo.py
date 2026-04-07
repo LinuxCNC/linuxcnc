@@ -1,7 +1,6 @@
 import os
 import linuxcnc
 import collections
-import configparser
 
 # Set up logging
 from . import logger
@@ -57,39 +56,31 @@ class _IStat(object):
         self.update()
 
     def update(self):
-
-        # use configParser so we can iter thru header
-        self.parser = configparser.RawConfigParser(strict=False)
-        self.parser.optionxform = str
-        try:
-            self.parser.read(filenames=self.INIPATH)
-        except:
-            pass
-
-        ct = float(self.INI.find('DISPLAY', 'CYCLE_TIME') or 100) # possibly in seconds or ms
+        ct = self.INI.getreal('DISPLAY', 'CYCLE_TIME', fallback=100) # possibly in seconds or ms
         if ct < 1:
             self.CYCLE_TIME = int(ct * 1000)
         else:
             self.CYCLE_TIME = int(ct)
-        self.GRAPHICS_CYCLE_TIME =int(self.INI.find('DISPLAY', 'GRAPHICS_CYCLE_TIME') or 100) # in seconds
-        self.HALPIN_CYCLE_TIME = int(self.INI.find('DISPLAY', 'HALPIN_CYCLE_TIME') or 100) # in seconds
-        self.MDI_HISTORY_PATH = self.INI.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
-        self.QTVCP_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'LOG_FILE') or '~/qtvcp.log'
-        self.MACHINE_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'MACHINE_LOG_PATH') or '~/.machine_log_history'
-        self.PREFERENCE_PATH = self.INI.find("DISPLAY", "PREFERENCE_FILE_PATH") or None
+        self.GRAPHICS_CYCLE_TIME = self.INI.getint('DISPLAY', 'GRAPHICS_CYCLE_TIME', fallback=100) # in seconds
+        self.HALPIN_CYCLE_TIME = self.INI.getint('DISPLAY', 'HALPIN_CYCLE_TIME', fallback=100) # in seconds
+        self.MDI_HISTORY_PATH = self.INI.getstring('DISPLAY', 'MDI_HISTORY_FILE', fallback='~/.axis_mdi_history')
+        self.QTVCP_LOG_HISTORY_PATH = self.INI.getstring('DISPLAY', 'LOG_FILE', fallback='~/qtvcp.log')
+        self.MACHINE_LOG_HISTORY_PATH = self.INI.getstring('DISPLAY', 'MACHINE_LOG_PATH', fallback='~/.machine_log_history')
+        self.PREFERENCE_PATH = self.INI.getstring("DISPLAY", "PREFERENCE_FILE_PATH") # or None
         self.PROGRAM_PREFIX = self.get_error_safe_setting("DISPLAY", "PROGRAM_PREFIX", '~/linuxcnc/nc_files')
+
         if not os.path.exists(os.path.expanduser(self.PROGRAM_PREFIX)):
             LOG.warning('Path not valid in INI File [DISPLAY] PROGRAM_PREFIX section')
 
-        temp = self.INI.find("DISPLAY", "USER_COMMAND_FILE")
+        temp = self.INI.getstring("DISPLAY", "USER_COMMAND_FILE")
         if not temp is None:
             self.USER_COMMAND_FILE = os.path.expanduser(temp)
         else:
             self.USER_COMMAND_FILE = None
 
-        self.STARTUP_CODES = (self.INI.find('RS274NGC', 'RS274NGC_STARTUP_CODE') ) or None
+        self.STARTUP_CODES = self.INI.getstring('RS274NGC', 'RS274NGC_STARTUP_CODE') # or None
 
-        self.SUB_PATH = (self.INI.find("RS274NGC", "SUBROUTINE_PATH")) or None
+        self.SUB_PATH = self.INI.getstring("RS274NGC", "SUBROUTINE_PATH") # or None
         if self.SUB_PATH is not None:
             for mpath in (self.SUB_PATH.split(':')):
                 self.SUB_PATH_LIST.append(mpath)
@@ -100,21 +91,21 @@ class _IStat(object):
         else:
             self.MACRO_PATH = None
 
-        self.USER_M_PATH = (self.INI.find("RS274NGC", "USER_M_PATH")) or None
+        self.USER_M_PATH = self.INI.getstring("RS274NGC", "USER_M_PATH") # or None
         if self.USER_M_PATH is not None:
             for mpath in (self.USER_M_PATH.split(':')):
                 self.USER_M_PATH_LIST.append(mpath)
 
         self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
 
-        self.NGC_SUB_PATH = (self.INI.find("DISPLAY","NGCGUI_SUBFILE_PATH")) or None
+        self.NGC_SUB_PATH = self.INI.getstring("DISPLAY","NGCGUI_SUBFILE_PATH") # or None
         if not self.NGC_SUB_PATH is None:
             self.NGC_SUB_PATH = os.path.expanduser(self.NGC_SUB_PATH)
-        self.NGC_SUB = (self.INI.findall("DISPLAY", "NGCGUI_SUBFILE")) or None
+        self.NGC_SUB = self.INI.findall("DISPLAY", "NGCGUI_SUBFILE") or None
 
-        self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
+        self.MACHINE_IS_LATHE = self.INI.getbool("DISPLAY", "LATHE", fallback=False)
         try:
-            self.MACHINE_IS_QTPLASMAC = 'qtplasmac' in self.INI.find("DISPLAY", "DISPLAY")
+            self.MACHINE_IS_QTPLASMAC = 'qtplasmac' in self.INI.getstring("DISPLAY", "DISPLAY")
         except:
             self.MACHINE_IS_QTPLASMAC = False
         extensions = self.INI.findall("FILTER", "PROGRAM_EXTENSION")
@@ -122,19 +113,19 @@ class _IStat(object):
         self.PROGRAM_FILTERS_EXTENSIONS = self.get_filters_extensions()
         self.VALID_PROGRAM_EXTENSIONS = self.get_all_valid_extensions()
 
-        self.PARAMETER_FILE = (self.INI.find("RS274NGC", "PARAMETER_FILE")) or None
+        self.PARAMETER_FILE = self.INI.getstring("RS274NGC", "PARAMETER_FILE") # or None
         if self.PARAMETER_FILE is None and self.LINUXCNC_IS_RUNNING:
             LOG.critical('Missing PARAMETER_FILE setting in RS274NGC section')
 
         try:
             # check the INI file if UNITS are set to mm"
             # first check the global settings
-            units = self.INI.find("TRAJ", "LINEAR_UNITS")
+            units = self.INI.getstring("TRAJ", "LINEAR_UNITS")
             if units is None:
                 if self.LINUXCNC_IS_RUNNING:
                     LOG.critical('Missing LINEAR_UNITS in TRAJ, guessing units for machine from JOINT 0')
                 # else then guess; The joint 0 is usually X axis
-                units = self.INI.find("JOINT_0", "UNITS")
+                units = self.INI.getstring("JOINT_0", "UNITS")
                 if units is None:
                     if self.LINUXCNC_IS_RUNNING:
                         LOG.critical('Missing UNITS in JOINT_0, assuming metric based machine')
@@ -157,9 +148,9 @@ class _IStat(object):
             self.MACHINE_UNIT_CONVERSION_10 = [25.4] * 3 + [1] * 3 + [25.4] * 3 + [1]
             LOG.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
 
-        axes = self.INI.find("TRAJ", "COORDINATES")
+        axes = self.INI.getstring("TRAJ", "COORDINATES")
         try:
-            self.trajcoordinates = self.INI.find("TRAJ", "COORDINATES").lower().replace(" ","")
+            self.trajcoordinates = self.INI.getstring("TRAJ", "COORDINATES").lower().replace(" ","")
         except:
             self.trajcoordinates ='xyz'
 
@@ -199,11 +190,11 @@ class _IStat(object):
                 self.AVAILABLE_JOINTS.append(num)
 
                 # AXIS sanity check
-                av = self.INI.find('AXIS_%s' % letter.upper(), 'MAX_VELOCITY') or None
-                aa = self.INI.find('AXIS_%s' % letter.upper(), 'MAX_ACCELERATION') or None
+                av = self.INI.find('AXIS_%s' % letter.upper(), 'MAX_VELOCITY') # or None
+                aa = self.INI.find('AXIS_%s' % letter.upper(), 'MAX_ACCELERATION') # or None
                 if av is None or aa is None:
                     # some lathe configs have dummy Y axis for axis rotation G code
-                    if letter == "Y" and self.MACHINE_IS_LATHE:
+                    if letter.upper() == "Y" and self.MACHINE_IS_LATHE:
                         pass
                     else:
                         LOG.critical(
@@ -219,7 +210,7 @@ class _IStat(object):
             self.GET_AXIS_INDEX_FROM_JOINT_NUM[int(i)] = int(axisnum)
             self.GET_JOINT_NUM_FROM_AXIS_INDEX[int(axisnum)] = int(i)
 
-        self.NO_HOME_REQUIRED = int(self.INI.find("TRAJ", "NO_FORCE_HOMING") or 0)
+        self.NO_HOME_REQUIRED = self.INI.getint("TRAJ", "NO_FORCE_HOMING", fallback=0)
 
         # home all check
         self.HOME_ALL_FLAG = 1
@@ -227,11 +218,11 @@ class _IStat(object):
         jointcount = len(self.AVAILABLE_JOINTS)
         self.JOINT_SEQUENCE_LIST = {}
         for j in range(jointcount):
-            seq = self.INI.find("JOINT_" + str(j), "HOME_SEQUENCE")
+            seq = self.INI.getint("JOINT_" + str(j), "HOME_SEQUENCE")
             if seq is None:
                 seq = 0
                 self.HOME_ALL_FLAG = 0
-            self.JOINT_SEQUENCE_LIST[j] = int(seq)
+            self.JOINT_SEQUENCE_LIST[j] = seq
         # joint sequence/type
         self.JOINT_TYPE = [None] * jointcount
         self.JOINT_TYPE_INT = [None] * jointcount
@@ -245,7 +236,7 @@ class _IStat(object):
             else:
                 self.JOINT_TYPE_INT[j] = 2
                 self.HAS_ANGULAR_JOINT = True
-            self.JOINT_SEQUENCE[j] = int(self.INI.find(section, "HOME_SEQUENCE") or 0)
+            self.JOINT_SEQUENCE[j] = self.INI.getint(section, "HOME_SEQUENCE", fallback=0)
 
         # jog synchronized sequence
         # gives a list of joints combined to make an axis
@@ -336,12 +327,12 @@ class _IStat(object):
             self.TRAJ_COORDINATES = temp.lower().replace(" ", "")
         else:
             self.TRAJ_COORDINATES = None
-        self.JOINT_COUNT = int(self.INI.find("KINS", "JOINTS") or 0)
+        self.JOINT_COUNT = self.INI.getint("KINS", "JOINTS", fallback=0)
 
         # check for weird kinematics like robots
         self.IS_TRIVIAL_MACHINE = bool('trivkins' in self.get_error_safe_setting("KINS", "KINEMATICS",'trivial'))
 
-        kinsmodule = self.INI.find("KINS", "KINEMATICS") or 'trivkins'
+        kinsmodule = self.INI.getstring("KINS", "KINEMATICS", fallback='trivkins')
         if kinsmodule.split()[0] == "trivkins":
             self.trivkinscoords = "XYZABCUVW"
             for item in kinsmodule.split():
@@ -349,57 +340,63 @@ class _IStat(object):
                     self.trivkinscoords = item.split("=")[1].upper()
 
         safe = 25 if self.MACHINE_IS_METRIC else 1
-        self.DEFAULT_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "DEFAULT_LINEAR_VELOCITY", safe)) * 60
-        self.MIN_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MIN_LINEAR_VELOCITY", 0)) * 60
+        self.DEFAULT_LINEAR_JOG_VEL = self.get_error_safe_float("DISPLAY", "DEFAULT_LINEAR_VELOCITY", safe) * 60
+        self.MIN_LINEAR_JOG_VEL = self.get_error_safe_float("DISPLAY", "MIN_LINEAR_VELOCITY", 0) * 60
         safe = 125 if self.MACHINE_IS_METRIC else 5
-        self.MAX_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MAX_LINEAR_VELOCITY", safe)) * 60
+        self.MAX_LINEAR_JOG_VEL = self.get_error_safe_float("DISPLAY", "MAX_LINEAR_VELOCITY", safe) * 60
         LOG.debug('DEFAULT_LINEAR_VELOCITY = {}'.format(self.DEFAULT_LINEAR_JOG_VEL))
         LOG.debug('MIN_LINEAR_VELOCITY = {}'.format(self.MIN_LINEAR_JOG_VEL))
         LOG.debug('MAX_LINEAR_VELOCITY = {}'.format(self.MAX_LINEAR_JOG_VEL))
 
-        self.DEFAULT_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "DEFAULT_ANGULAR_VELOCITY", 6)) * 60
-        self.MIN_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MIN_ANGULAR_VELOCITY", 0)) * 60
-        self.MAX_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MAX_ANGULAR_VELOCITY", 60)) * 60
+        self.DEFAULT_ANGULAR_JOG_VEL = self.get_error_safe_float("DISPLAY", "DEFAULT_ANGULAR_VELOCITY", 6) * 60
+        self.MIN_ANGULAR_JOG_VEL = self.get_error_safe_float("DISPLAY", "MIN_ANGULAR_VELOCITY", 0) * 60
+        self.MAX_ANGULAR_JOG_VEL = self.get_error_safe_float("DISPLAY", "MAX_ANGULAR_VELOCITY", 60) * 60
         LOG.debug('DEFAULT_ANGULAR_VELOCITY = {}'.format(self.DEFAULT_ANGULAR_JOG_VEL))
         LOG.debug('MIN_ANGULAR_VELOCITY = {}'.format(self.MIN_ANGULAR_JOG_VEL))
         LOG.debug('MAX_ANGULAR_VELOCITY = {}'.format(self.MAX_ANGULAR_JOG_VEL))
 
-        self.AVAILABLE_SPINDLES = int(self.INI.find("TRAJ", "SPINDLES") or 1)
-        self.SPINDLE_INCREMENT = int(self.INI.find("DISPLAY", "SPINDLE_INCREMENT") or 100)
+        self.AVAILABLE_SPINDLES = self.INI.getint("TRAJ", "SPINDLES", fallback=1)
+        self.SPINDLE_INCREMENT = self.INI.getint("DISPLAY", "SPINDLE_INCREMENT", fallback=100)
+# FIXME:vvvvv
+# FIXME: Aren't SPEED values real values? Velocity values are.
         for i in range(0, self.AVAILABLE_SPINDLES):
-            self['DEFAULT_SPINDLE_{}_SPEED'.format(i)] = int(
-                self.get_error_safe_setting("DISPLAY", "DEFAULT_SPINDLE_{}_SPEED".format(i), 200))
-            self['MIN_SPINDLE_{}_SPEED'.format(i)] = int(
-                self.get_error_safe_setting("DISPLAY", "MIN_SPINDLE_{}_SPEED".format(i), 100))
-            self['MAX_SPINDLE_{}_SPEED'.format(i)] = int(
-                self.get_error_safe_setting("DISPLAY", "MAX_SPINDLE_{}_SPEED".format(i), 2500))
-            self['MAX_SPINDLE_{}_OVERRIDE'.format(i)] = float(
-                self.get_error_safe_setting("DISPLAY", "MAX_SPINDLE_{}_OVERRIDE".format(i), 1)) * 100
-            self['MIN_SPINDLE_{}_OVERRIDE'.format(i)] = float(
-                self.get_error_safe_setting("DISPLAY", "MIN_SPINDLE_{}_OVERRIDE".format(i), 0.5)) * 100
+            self['DEFAULT_SPINDLE_{}_SPEED'.format(i)] = \
+                self.get_error_safe_int("DISPLAY", "DEFAULT_SPINDLE_{}_SPEED".format(i), 200)
+            self['MIN_SPINDLE_{}_SPEED'.format(i)] = \
+                self.get_error_safe_int("DISPLAY", "MIN_SPINDLE_{}_SPEED".format(i), 100)
+            self['MAX_SPINDLE_{}_SPEED'.format(i)] = \
+                self.get_error_safe_int("DISPLAY", "MAX_SPINDLE_{}_SPEED".format(i), 2500)
+            self['MAX_SPINDLE_{}_OVERRIDE'.format(i)] = \
+                self.get_error_safe_float("DISPLAY", "MAX_SPINDLE_{}_OVERRIDE".format(i), 1) * 100
+            self['MIN_SPINDLE_{}_OVERRIDE'.format(i)] = \
+                self.get_error_safe_float("DISPLAY", "MIN_SPINDLE_{}_OVERRIDE".format(i), 0.5) * 100
+# FIXME:^^^^^
         # check Legacy
-        self.DEFAULT_SPINDLE_SPEED = int(self.INI.find("DISPLAY", "DEFAULT_SPINDLE_SPEED") or -1)
+        self.DEFAULT_SPINDLE_SPEED = self.INI.getint("DISPLAY", "DEFAULT_SPINDLE_SPEED", fallback=-1)
         if self.DEFAULT_SPINDLE_SPEED < 0:
             self.DEFAULT_SPINDLE_SPEED = self.DEFAULT_SPINDLE_0_SPEED
-        self.MIN_SPINDLE_SPEED = int(self.INI.find("DISPLAY", "MIN_SPINDLE_SPEED") or -1)
+# FIXME:vvvvv
+# FIXME: MIN/MAX_SPINDLE_SPEED are real?
+        self.MIN_SPINDLE_SPEED = self.INI.getint("DISPLAY", "MIN_SPINDLE_SPEED", fallback=-1)
         if self.MIN_SPINDLE_SPEED < 0:
             self.MIN_SPINDLE_SPEED = self.MIN_SPINDLE_0_SPEED
-        self.MAX_SPINDLE_SPEED = int(self.INI.find("DISPLAY", "MAX_SPINDLE_SPEED") or -1)
+        self.MAX_SPINDLE_SPEED = self.INI.getint("DISPLAY", "MAX_SPINDLE_SPEED", fallback=-1)
         if self.MAX_SPINDLE_SPEED < 0:
             self.MAX_SPINDLE_SPEED = self.MAX_SPINDLE_0_SPEED
-        self.MAX_SPINDLE_OVERRIDE = float(self.INI.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or -1) * 100
+# FIXME:^^^^^
+        self.MAX_SPINDLE_OVERRIDE = self.INI.getreal("DISPLAY", "MAX_SPINDLE_OVERRIDE", fallback=-1) * 100
         if self.MAX_SPINDLE_OVERRIDE < 0:
             self.MAX_SPINDLE_OVERRIDE = self.MAX_SPINDLE_0_OVERRIDE
-        self.MIN_SPINDLE_OVERRIDE = float(self.INI.find("DISPLAY", "MIN_SPINDLE_OVERRIDE") or -1) * 100
+        self.MIN_SPINDLE_OVERRIDE = self.INI.getreal("DISPLAY", "MIN_SPINDLE_OVERRIDE", fallback=-1) * 100
         if self.MIN_SPINDLE_OVERRIDE < 0:
             self.MIN_SPINDLE_OVERRIDE = self.MIN_SPINDLE_0_OVERRIDE
 
-        self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY", "MAX_FEED_OVERRIDE", 1.5)) * 100
+        self.MAX_FEED_OVERRIDE = self.get_error_safe_float("DISPLAY", "MAX_FEED_OVERRIDE", 1.5) * 100
         if self.INI.find("TRAJ", "MAX_LINEAR_VELOCITY") is None:
             if self.LINUXCNC_IS_RUNNING:
                 LOG.critical('INI Parsing Error, No MAX_LINEAR_VELOCITY Entry in TRAJ')
-        self.MAX_TRAJ_VELOCITY = float(self.get_error_safe_setting("TRAJ", "MAX_LINEAR_VELOCITY",
-                                            self.get_error_safe_setting("AXIS_X", "MAX_VELOCITY", 5))) * 60
+        self.MAX_TRAJ_VELOCITY = self.get_error_safe_float("TRAJ", "MAX_LINEAR_VELOCITY",
+                                            self.get_error_safe_float("AXIS_X", "MAX_VELOCITY", 5)) * 60
 
         # user message dialog system
         self.USRMESS_BOLDTEXT = self.INI.findall("DISPLAY", "MESSAGE_BOLDTEXT")
@@ -507,7 +504,7 @@ class _IStat(object):
         ##############
 
         # AXIS panel style:
-        self.GLADEVCP = (self.INI.find("DISPLAY", "GLADEVCP")) or None
+        self.GLADEVCP = self.INI.find("DISPLAY", "GLADEVCP") # or None
 
         # tab style for qtvcp tab. style is used everywhere
         good_flag = True
@@ -567,10 +564,10 @@ class _IStat(object):
         self.MDI_COMMAND_LIST = []
         self.MDI_COMMAND_LABEL_LIST = []
 
-        # suppress error message is there is no section at all
-        if self.parser.has_section('MDI_COMMAND_LIST'):
+        # suppress error message if there is no section at all
+        if self.INI.hassection('MDI_COMMAND_LIST'):
             try:
-                for key in self.parser['MDI_COMMAND_LIST']:
+                for key,value in self.INI.getvariables('MDI_COMMAND_LIST'):
 
                     # legacy way: list of repeat 'MDI_COMMAND=XXXX'
                     # in this case order matters in the INI
@@ -602,13 +599,12 @@ class _IStat(object):
                         self.MDI_COMMAND_LIST.append(None)
                         self.MDI_COMMAND_LABEL_LIST.append(None)
                         try:
-                            temp = self.INI.find("MDI_COMMAND_LIST",key)
                             name = (key.replace('MDI_COMMAND_',''))
                             mdidatadict = {}
-                            for num,k in enumerate(temp.split(',')):
+                            for num,k in enumerate(value.split(',')):
                                 if num == 0:
                                     mdidatadict['cmd'] = k
-                                    if len(temp.split(',')) <2:
+                                    if len(value.split(',')) <2:
                                         mdidatadict['label'] = None
                                 else:
                                     mdidatadict['label'] = k
@@ -623,12 +619,12 @@ class _IStat(object):
         self.POSTGUI_HAL_COMMANDS = (self.INI.findall("HAL", "POSTGUI_HALCMD")) or None
 
         # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
-        self.DISABLE_REPEAT_KEYS_LIST = self.INI.find("DISPLAY", "DISABLE_REPEAT_KEYS") or None
+        self.DISABLE_REPEAT_KEYS_LIST = self.INI.getstring("DISPLAY", "DISABLE_REPEAT_KEYS") # or None
 
         # maximum number of errors shown in on screen display
-        self.MAX_DISPLAYED_ERRORS = int(self.INI.find("DISPLAY", "MAX_DISPLAYED_ERRORS") or 10)
-        self.TITLE = (self.INI.find("DISPLAY", "TITLE")) or ""
-        self.ICON = (self.INI.find("DISPLAY", "ICON")) or ""
+        self.MAX_DISPLAYED_ERRORS = self.INI.getint("DISPLAY", "MAX_DISPLAYED_ERRORS", fallback=10)
+        self.TITLE = self.INI.getstring("DISPLAY", "TITLE", fallback="")
+        self.ICON = self.INI.getstring("DISPLAY", "ICON", fallback="")
 
         # detect historical lathe config with dummy joint 1
         if      (self.MACHINE_IS_LATHE
@@ -643,33 +639,42 @@ class _IStat(object):
     ###################
     # return a found string or else None by default, anything else by option
     # since this is used in this file there are some workarounds for plasma machines
-    def get_error_safe_setting(self, heading, detail, default=None, warning = True):
-        result = self.INI.find(heading, detail)
-        if result:
+    def _opt_default_warn(self, heading, detail, default, warning):
+        if ('SPINDLE' in detail and self.MACHINE_IS_QTPLASMAC) or \
+           ('ANGULAR' in detail and not self.HAS_ANGULAR_JOINT):
+            return default
+        elif warning:
+            LOG.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
+        return default
+
+    def get_error_safe_int(self, heading, detail, default=None, warning = True):
+        result = self.INI.getint(heading, detail)
+        if result is not None:
             return result
         else:
-            if ('SPINDLE' in detail and self.MACHINE_IS_QTPLASMAC) or \
-               ('ANGULAR' in detail and not self.HAS_ANGULAR_JOINT):
-                return default
-            elif warning:
-                LOG.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
-            return default
+            return _opt_default_warn(heading, detail, default, warning)
+
+    def get_error_safe_float(self, heading, detail, default=None, warning = True):
+        result = self.INI.getreal(heading, detail)
+        if result is not None:
+            return result
+        else:
+            return _opt_default_warn(heading, detail, default, warning)
+
+    def get_error_safe_setting(self, heading, detail, default=None, warning = True):
+        result = self.INI.find(heading, detail)
+        if result is not None:
+            return result
+        else:
+            return _opt_default_warn(heading, detail, default, warning)
 
     # return a found float or else None by default, anything else by option
     def get_safe_float(self, heading, detail, default=None):
-        try:
-            result = float(self.INI.find(heading, detail))
-            return result
-        except:
-            return default
+        return self.INI.getreal(heading, detail, fallback=default)
 
     # return a found integer or else None by default, anything else by option
     def get_safe_int(self, heading, detail, default=None):
-        try:
-            result = int(self.INI.find(heading, detail))
-            return result
-        except:
-            return default
+        return self.INI.getint(heading, detail, fallback=default)
 
     def convert_machine_to_metric(self, data):
         if self.MACHINE_IS_METRIC:

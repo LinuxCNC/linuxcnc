@@ -29,11 +29,13 @@
 #include "nml_intf/canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
 #include "rs274ngc/rs274ngc_interp.hh"	// the interpreter
 #include "nml_intf/interp_return.hh"	// INTERP_FILE_NOT_OPEN
-#include "libnml/inifile/inifile.hh"
+#include <inifile.hh>
 #include "libnml/rcs/rcs_print.hh"
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"
 #include "motion/motion.h"
+
+using namespace linuxcnc;
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -115,13 +117,15 @@ int emcTaskInit()
     int num,dct,dmax;
     char path[EMC_SYSTEM_CMD_LEN];
     struct stat buf;
-    IniFile inifile;
+    IniFile inifile(emc_inifile);
     ZERO_EMC_POSE(emcStatus->task.toolOffset);
 
-    inifile.Open(emc_inifile);
+    if(!inifile) {
+        return -1;
+    }
 
     // Identify user_defined_function directories
-    if (auto inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")) {
+    if (auto inistring = inifile.findString("PROGRAM_PREFIX", "DISPLAY")) {
         if (inistring->length() >= sizeof(mdir[0])) {
             rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %zu)\n", sizeof(mdir[0]));
             return -1;
@@ -135,7 +139,7 @@ int emcTaskInit()
 
     // user can specify a list of directories for user defined functions
     // with a colon (:) separated list
-    if (auto inistring = inifile.Find("USER_M_PATH", "RS274NGC")) {
+    if (auto inistring = inifile.findString("USER_M_PATH", "RS274NGC")) {
         char* nextdir;
         char tmpdirs[PATH_MAX];
 
@@ -163,26 +167,25 @@ int emcTaskInit()
         }
         dmax=dct;
     }
-    inifile.Close();
 
     /* check for programs named programs/M100 .. programs/M199 and add
        any to the user defined functions list */
     for (num = 0; num < USER_DEFINED_FUNCTION_NUM; num++) {
 	for (dct=0; dct < dmax; dct++) {
-            char expanddir[LINELEN];
+	    std::string expanddir;
 	    if (!mdir[dct][0]) continue;
-            if (inifile.TildeExpansion(mdir[dct],expanddir,sizeof(expanddir))) {
+            if (inifile.TildeExpansion(mdir[dct],expanddir)) {
 		rcs_print("emcTaskInit: TildeExpansion failed for %s, ignoring\n",
 			 mdir[dct]);
             }
-	    size_t ret = snprintf(path, sizeof(path), "%s/M1%02d",expanddir,num);
+	    size_t ret = snprintf(path, sizeof(path), "%s/M1%02d",expanddir.c_str(),num);
 	    if (ret < sizeof(path) && 0 == stat(path, &buf)) {
 	        if (buf.st_mode & S_IXUSR) {
 		    // set the user_defined_fmt string with dirname
 		    // note the %%02d means 2 digits after the M code
 		    // and we need two % to get the literal %
 		    ret = snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[dct]),
-			     "%s/M1%%02d", expanddir); // update global
+			     "%s/M1%%02d", expanddir.c_str()); // update global
 		    if(ret >= sizeof(user_defined_fmt[0])){
 			return -EMSGSIZE; // name truncated
 		    } else {
@@ -430,17 +433,17 @@ static int waitFlag = 0;
 int emcTaskPlanInit()
 {
     if(!pinterp) {
-	IniFile inifile;
-	inifile.Open(emc_inifile);
-	if(auto inistring = inifile.Find("INTERPRETER", "TASK")) {
-	    pinterp = interp_from_shlib(inistring->c_str());
-	    fprintf(stderr, "interp_from_shlib() -> %p\n", pinterp);
-            if (!pinterp) {
-                fprintf(stderr, "failed to load [TASK]INTERPRETER (%s)\n", inistring->c_str());
-                return -1;
+	IniFile inifile(emc_inifile);
+        if(inifile) {
+            if(auto inistring = inifile.findString("INTERPRETER", "TASK")) {
+                pinterp = interp_from_shlib(inistring->c_str());
+                fprintf(stderr, "interp_from_shlib() -> %p\n", pinterp);
+                if (!pinterp) {
+                    fprintf(stderr, "failed to load [TASK]INTERPRETER (%s)\n", inistring->c_str());
+                    return -1;
+                }
             }
-	}
-        inifile.Close();
+        }
     }
     if(!pinterp) {
         pinterp = new Interp;

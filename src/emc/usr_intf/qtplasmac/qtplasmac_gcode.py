@@ -52,7 +52,7 @@ class Filter():
                     print(line.strip())
             sys.exit()
         self.set_gui_type()
-        self.machine = INI.find('EMC', 'MACHINE')
+        self.machine = INI.getstring('EMC', 'MACHINE', fallback="<unknown>")
         self.filteredBkp = f'{self.tmpPath}/filtered_bkp.ngc'
         self.errorFile = f'{self.tmpPath}/gcode_errors.txt'
         self.materialFile = f'{self.machine}_material.cfg'

@@ -30,6 +30,7 @@ usr/share/man/man1/hexagui.1
 usr/share/man/man1/hy_gt_vfd.1
 usr/share/man/man1/hy_vfd.1
 usr/share/man/man1/image-to-gcode.1
+usr/share/man/man1/inivalue.1
 usr/share/man/man1/inivar.1
 usr/share/man/man1/io.1
 usr/share/man/man1/iocontrol.1

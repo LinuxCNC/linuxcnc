@@ -18,7 +18,7 @@ class HandlerClass:
         self.max_value.connect('value-changed', self._on_max_value_change)
 
         inifile = linuxcnc.ini(os.getenv("INI_FILE_NAME"))
-        mmax = float(inifile.find("METER", "MAX") or 100.0)
+        mmax = inifile.getreal("METER", "MAX", fallback=100.0)
         self.meter = self.builder.get_object('meter')
         self.max_value.set(mmax)
 

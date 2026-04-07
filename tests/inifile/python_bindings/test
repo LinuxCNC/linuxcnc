@@ -1,17 +1,101 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import linuxcnc
 
-inifile = linuxcnc.ini("values.ini")
+ini = linuxcnc.ini("values.ini")
 
-missing_value = inifile.find("section1", "missing")
-value_with_space = inifile.find("section1", "key3")
-numbered_value = inifile.find("section1", "number")
-list_of_values = inifile.findall("section2", "key1")
+# Test availability testing
+if ini.hassection("notasection"):
+    print("Missing section was wrongfully detected")
+else:
+    print("Missing section was missing")
 
-for value in list_of_values:
-    print(value)
-if missing_value is None:
-    print("Did not find missing value")
-print(value_with_space)
-print(numbered_value)
+if ini.hassection("section"):
+    print("Present section was present")
+else:
+    print("Present section was wrongfully detected as not present")
+
+if ini.hasvariable("section", "missing"):
+    print("Missing variable was detected to be present")
+else:
+    print("Missing variable was missing")
+
+if ini.hasvariable("section", "variable"):
+    print("Present [section]variable was present")
+else:
+    print("Present [section]variable was wrongfully detected as not present")
+
+# Test booleans
+for n in range(1, 9+1):
+    print("Bool {}: {}".format(n, ini.getbool("booleans", "bool", n)))
+if True != ini.getbool("booleans", "missing", fallback=True):
+    print("Bool default True failed")
+if False != ini.getbool("booleans", "missing", fallback=False):
+    print("Bool default False failed")
+if "hello" != ini.getbool("booleans", "missing", fallback="hello"):
+    print("Bool default 'hello' failed")
+
+# Test integers
+for n in range(1, 9+1):
+    print("Int {}: {}".format(n, ini.getsint("integers", "int", n)))
+if 42 != ini.getsint("integers", "missing", fallback=42):
+    print("Int default 42 failed")
+if "_42" != ini.getsint("integers", "missing", fallback="_42"): # any fallback type is returned
+    print("Int default '_42' failed")
+if ini.getsint("integers", "int") != ini.getint("integers", "int"):
+    print("getsint/getint alias error")
+
+# Test unsigneds
+for n in range(1, 6+1):
+    print("Unsigned {}: {}".format(n, ini.getuint("unsigneds", "unsigned", n)))
+if 42 != ini.getuint("unsigneds", "missing", fallback=42):
+    print("Unsigned default 42 failed")
+if "_42" != ini.getuint("unsigneds", "missing", fallback="_42"): # any fallback type is returned
+    print("Unsigned default '_42' failed")
+
+# Test reals
+for n in range(1, 5+1):
+    print("Real {}: {}".format(n, ini.getreal("reals", "real", n)))
+if 42 != ini.getreal("reals", "missing", fallback=4.2e1):
+    print("Real default 4.2e1 failed")
+if "_42" != ini.getreal("reals", "missing", fallback="_42"): # any fallback type is returned
+    print("Real default '_42' failed")
+if ini.getreal("reals", "real") != ini.getfloat("reals", "real"):
+    print("getreal/getfloat alias error")
+
+# Test strings
+for n in range(1, 8+1):
+    print("String {}: '{}'".format(n, ini.getstring("strings", "string", n)))
+# One more to get None back, but we don't want the quotes
+print("String {}: {}".format(n+1, ini.getstring("strings", "string", n+1)))
+if None != ini.getstring("strings", "missing"):
+    print("String not found failed")
+if "|_-42-_|" != ini.getstring("strings", "missing", fallback="|_-42-_|"):
+    print("String default '|_-42-_|' failed")
+
+# Test sections and variables
+print("Sections:")
+for s in ini.getsections():
+    print("-> {}".format(s))
+print("Variables of [section]:")
+for v in ini.getvariables("section"):
+    print("-> {}".format(v))
+print("Variables of all sections:")
+for v in ini.getvariables():
+    print("-> {}".format(v))
+print("Variables of non-existent section:", ini.getvariables("not_a_section_we_know_of"))
+
+# Test find/findall
+if None != ini.find("section", "missing"):
+    print("find: Missing value was not missing")
+
+# Test lineof
+f, l = ini.lineof("integers", "int")
+print("{}:{}: [integers]int='{}'".format(f, l, ini.getint("integers", "int")))
+f, l = ini.lineof("strings", "string", 3)
+print("{}:{}: [strings]string='{}'".format(f, l, ini.getstring("strings", "string", 3)))
+f, l = ini.lineof("missing", "missing")
+print("{}:{}: [missing]missing={}".format(f, l, ini.getstring("missing", "missing")))
+
+print("findall [section2]key1:", ", ".join(ini.findall("section2", "key1")))
+print("findall [section2]:", ", ".join(ini.findall("section2", "")))

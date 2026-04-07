@@ -33,9 +33,11 @@
 #include <stdarg.h>
 
 #include <hal.h>
-#include "libnml/inifile/inifile.hh"
+#include <inifile.hh>
 
 #include "config.h"
+
+using namespace linuxcnc;
 
 const char *modname = "xhc-hb04";
 int hal_comp_id;
@@ -667,15 +669,15 @@ static int hal_setup()
 
 int read_ini_file(char *filename)
 {
-	IniFile iniFile;
+	IniFile iniFile(filename);
 	int nb_buttons = 0;
-	if (!iniFile.Open(filename)) {
+	if (!iniFile) {
 		fprintf(stderr, "%s: Could not open configuration file: %s\n",
 			modname, filename);
 		return -1;
 	}
 
-	while (auto bt = iniFile.Find("BUTTON", section, nb_buttons+1)) {
+	while (auto bt = iniFile.findString(nb_buttons+1, "BUTTON", section)) {
 		if (nb_buttons >= NB_MAX_BUTTONS) break;
 		if (sscanf(bt->c_str(), "%x:%255s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
 			fprintf(stderr, "%s: syntax error\n", bt->c_str());

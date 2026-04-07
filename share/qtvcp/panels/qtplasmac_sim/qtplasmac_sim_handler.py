@@ -42,7 +42,7 @@ class HandlerClass:
         self.w.setWindowFlags(QtCore.Qt.CustomizeWindowHint |
                               QtCore.Qt.WindowTitleHint |
                               QtCore.Qt.WindowStaysOnTopHint)
-        self.machineName = self.iniFile.find('EMC', 'MACHINE')
+        self.machineName = self.iniFile.getstring('EMC', 'MACHINE', fallback="<unknown>")
         self.styleFile = f'{self.paths.CONFIGPATH}/qtplasmac_sim.qss'
         self.set_style()
         self.set_estop()

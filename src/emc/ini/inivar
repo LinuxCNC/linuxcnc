@@ -1,0 +1,74 @@
+#!/bin/bash
+
+errexit() {
+	echo "inivar:" "$@" 1>&2;
+	exit 1
+}
+
+checkarganddup() {
+	if [ "$2" -ne 0 ]; then
+		errexit "Duplicate $1 option"
+	fi
+	if [ "$3" -lt 2 ]; then
+		errexit "Missing argument to $1"
+	fi
+}
+
+DIR="$(dirname "$0")"
+# Try to find the inivalue program
+INIVALUE="$(command -v "$DIR/inivalue")"
+if [ -z "$INIVALUE" ]; then
+	INIVALUE="./inivalue"
+fi
+
+[ -x "$INIVALUE" ] || errexit "Program 'inivalue' not found"
+
+OPTS=( )
+HAVEVAR=0
+HAVENUM=0
+HAVESEC=0
+HAVEINI=0
+
+# Map the 'inivar' options to 'inival' options
+while [ $# -gt 0 ]; do
+	case "$1" in
+	-var)
+		checkarganddup "-var" "$HAVEVAR" "$#"
+		OPTS+=( "--var=$2" )
+		HAVEVAR=1
+		shift 2
+		;;
+	-sec)
+		checkarganddup "-sec" "$HAVESEC" "$#"
+		OPTS+=( "--sec=$2" )
+		HAVESEC=1
+		shift 2
+		;;
+	-ini)
+		checkarganddup "-ini" "$HAVEINI" "$#"
+		INIFILE="$2"
+		HAVEINI=1
+		shift 2
+		;;
+	-num)
+		checkarganddup "-num" "$HAVENUM" "$#"
+		OPTS+=( "--num=$2" )
+		HAVENUM=1
+		shift 2
+		;;
+	-tildeexpand)
+		OPTS+=( "--tildeexpand" )
+		shift
+		;;
+	*)
+		errexit "Invalid option '$1'"
+		;;
+	esac
+done
+
+[ $HAVEVAR -eq 0 ] && errexit "No variable supplied (missing -var)"
+[ $HAVEINI -eq 0 ] && INIFILE="emc.ini"
+
+exec "$INIVALUE" "${OPTS[@]}" "$INIFILE"
+
+# vim: ts=4 sw=4

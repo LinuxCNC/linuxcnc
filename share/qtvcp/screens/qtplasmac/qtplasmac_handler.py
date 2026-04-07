@@ -180,7 +180,7 @@ class HandlerClass:
             if os.path.isfile(os.path.join(path, 'M190')):
                 self.mPath = 'valid'
                 break
-        self.machineName = self.iniFile.find('EMC', 'MACHINE')
+        self.machineName = self.iniFile.getstring('EMC', 'MACHINE', fallback='<unknown>')
         self.machineTitle = f'{self.machineName} - QtPlasmaC v{LCNCVER}-{VERSION}, powered by QtVCP and LinuxCNC'
         self.docsVer = 'devel' if 'pre' in linuxcnc.version else LCNCVER
         self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
@@ -266,19 +266,19 @@ class HandlerClass:
                               'jog_z_plus', 'jog_z_minus', 'jog_a_plus', 'jog_a_minus',
                               'jog_b_plus', 'jog_b_minus', 'jog_c_plus', 'jog_c_minus']
         self.jogSyncList = []
-        self.xMin = float(self.iniFile.find('AXIS_X', 'MIN_LIMIT'))
-        self.xMax = float(self.iniFile.find('AXIS_X', 'MAX_LIMIT'))
-        self.yMin = float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT'))
-        self.yMax = float(self.iniFile.find('AXIS_Y', 'MAX_LIMIT'))
-        self.zMin = float(self.iniFile.find('AXIS_Z', 'MIN_LIMIT'))
-        self.zMax = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT'))
+        self.xMin = self.iniFile.getreal('AXIS_X', 'MIN_LIMIT')
+        self.xMax = self.iniFile.getreal('AXIS_X', 'MAX_LIMIT')
+        self.yMin = self.iniFile.getreal('AXIS_Y', 'MIN_LIMIT')
+        self.yMax = self.iniFile.getreal('AXIS_Y', 'MAX_LIMIT')
+        self.zMin = self.iniFile.getreal('AXIS_Z', 'MIN_LIMIT')
+        self.zMax = self.iniFile.getreal('AXIS_Z', 'MAX_LIMIT')
         self.xLen = self.xMax - self.xMin
         self.yLen = self.yMax - self.yMin
-        self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
-            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
-        self.offsetFeedRate = min(float(self.iniFile.find('AXIS_X', 'MAX_VELOCITY')) * 30,
-                                  float(self.iniFile.find('AXIS_Y', 'MAX_VELOCITY')) * 30,
-                                  float(self.iniFile.find('TRAJ', 'MAX_LINEAR_VELOCITYs') or 100000))
+        self.thcFeedRate = self.iniFile.getreal('AXIS_Z', 'MAX_VELOCITY') * \
+            self.iniFile.getreal('AXIS_Z', 'OFFSET_AV_RATIO') * 60
+        self.offsetFeedRate = min(self.iniFile.getreal('AXIS_X', 'MAX_VELOCITY') * 30,
+                                  self.iniFile.getreal('AXIS_Y', 'MAX_VELOCITY') * 30,
+                                  self.iniFile.getreal('TRAJ', 'MAX_LINEAR_VELOCITY', fallback=100000))
         self.maxHeight = self.zMax - self.zMin
         self.maxPidP = self.thcFeedRate / self.unitsPerMm * 0.1
         self.tmpPath = '/tmp/qtplasmac/'
@@ -304,7 +304,7 @@ class HandlerClass:
         self.filteredBkp = f'{self.tmpPath}filtered_bkp.ngc'
         self.oldConvButton = False
         self.convWidgetsLoaded = False
-        self.programPrefix = self.iniFile.find('DISPLAY', 'PROGRAM_PREFIX') or os.environ['LINUXCNC_NCFILES_DIR']
+        self.programPrefix = self.iniFile.getstring('DISPLAY', 'PROGRAM_PREFIX', fallback=os.environ['LINUXCNC_NCFILES_DIR'])
         self.dialogError = False
         self.cutTypeText = ''
         self.heightOvr = 0.0
@@ -2448,7 +2448,7 @@ class HandlerClass:
         # newest update must be added last in this function
         # if any writing to the INI file is required then that needs
         # to be done later in the update_iniwrite function
-        halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
+        halfiles = self.iniFile.findall('HAL', 'HALFILE')
         qtvcpPrefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
         self.restart = False
         # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)

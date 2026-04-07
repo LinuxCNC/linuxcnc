@@ -13,7 +13,7 @@ $(call TOOBJSDEPS, $(LIBPPSRCS)) : EXTRAFLAGS=-fPIC $(BOOST_DEBUG_FLAGS)
 
 TARGETS += ../lib/libpyplugin.so.0 
 
-../lib/libpyplugin.so.0: $(patsubst %.cc,objects/%.o,$(LIBPPSRCS)) ../lib/liblinuxcncini.so
+../lib/libpyplugin.so.0: $(patsubst %.cc,objects/%.o,$(LIBPPSRCS)) ../lib/liblinuxcncini.so.1
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@

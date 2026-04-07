@@ -17,7 +17,7 @@
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "python_plugin.hh"
-#include "libnml/inifile/inifile.hh"
+#include <inifile.hh>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +31,7 @@
 #include <pyconfig.h>
 
 namespace bp = boost::python;
+using namespace linuxcnc;
 
 #define MAX_ERRMSG_SIZE 256
 
@@ -338,8 +339,6 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
 int PythonPlugin::configure(const char *iniFilename,
 			   const char *section) 
 {
-    IniFile inifile;
-
     if (section == NULL) {
 	logPP(1, "no section");
 	status = PLUGIN_NO_SECTION;
@@ -351,24 +350,25 @@ int PythonPlugin::configure(const char *iniFilename,
 	status = PLUGIN_NO_INIFILE;
 	return status;
     }
-    if (inifile.Open(iniFilename) == false) {
+
+    IniFile inifile(iniFilename);
+    if (!inifile) {
           logPP(-1, "Unable to open inifile:%s:\n", iniFilename);
 	  status = PLUGIN_BAD_INIFILE;
 	  return status;
     }
 
     char real_path[PATH_MAX];
-    char expandinistring[PATH_MAX];
-    if (auto inistring = inifile.Find("TOPLEVEL", section)) {
-        if (inifile.TildeExpansion(inistring->c_str(),expandinistring,sizeof(expandinistring))) {
+    std::string expandinistring;
+    if (auto inistring = inifile.findString("TOPLEVEL", section)) {
+        if (inifile.TildeExpansion(*inistring, expandinistring)) {
 	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
 	        status = PLUGIN_BAD_PATH;
 	        return status;
         }
-	toplevel = strstore(expandinistring);
+	toplevel = strstore(expandinistring.c_str());
 
-	if (auto reload_str = inifile.Find("RELOAD_ON_CHANGE", section))
-	    reload_on_change = (atoi(reload_str->c_str()) > 0);
+        reload_on_change = inifile.findBoolV("RELOAD_ON_CHANGE", section, false);
 
 	if (realpath(toplevel, real_path) == NULL) {
 	    logPP(-1, "can\'t resolve path to '%s'", toplevel);
@@ -393,25 +393,22 @@ int PythonPlugin::configure(const char *iniFilename,
 	abs_path = strstore(real_path);
     }
 
-    if (auto inistring = inifile.Find("LOG_LEVEL", section))
-	log_level = atoi(inistring->c_str());
-    else log_level = 0;
+    log_level = inifile.findIntV("LOG_LEVEL", section, 0);
 
     char pycmd[PATH_MAX + 64];
     int n = 1;
-    int lineno;
-    while (auto inistring = inifile.Find("PATH_PREPEND", "PYTHON",
-					     n, &lineno)) {
-        if (inifile.TildeExpansion(inistring->c_str(),expandinistring,sizeof(expandinistring))) {
+    while (auto inistring = inifile.findString(n, "PATH_PREPEND", "PYTHON")) {
+        auto lineno = inifile.lineOf(n, "PATH_PREPEND", "PYTHON");
+        if (inifile.TildeExpansion(*inistring, expandinistring)) {
 	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
 	        status = PLUGIN_EXCEPTION_DURING_PATH_PREPEND;
 	        return status;
         }
-	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.insert(0,\"%s\")", expandinistring);
-	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
+	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.insert(0,\"%s\")", expandinistring.c_str());
+	logPP(1, "%s:%d: executing '%s'", lineno.first.c_str(), lineno.second, pycmd);
 
 	if (PyRun_SimpleString(pycmd)) {
-	    logPP(-1, "%s:%d: exception running '%s'",iniFilename, lineno, pycmd);
+	    logPP(-1, "%s:%d: exception running '%s'", lineno.first.c_str(), lineno.second, pycmd);
 	    exception_msg = "exception running:" + std::string((const char*)pycmd);
 	    status = PLUGIN_EXCEPTION_DURING_PATH_PREPEND;
 	    return status;
@@ -419,17 +416,17 @@ int PythonPlugin::configure(const char *iniFilename,
 	n++;
     }
     n = 1;
-    while (auto inistring = inifile.Find("PATH_APPEND", "PYTHON",
-					     n, &lineno)) {
-        if (inifile.TildeExpansion(inistring->c_str(),expandinistring,sizeof(expandinistring))) {
+    while (auto inistring = inifile.findString(n, "PATH_APPEND", "PYTHON")) {
+        auto lineno = inifile.lineOf(n, "PATH_APPEND", "PYTHON");
+        if (inifile.TildeExpansion(*inistring, expandinistring)) {
 	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
 	        status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
 	        return status;
         }
-	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.append(\"%s\")", expandinistring);
-	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
+	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.append(\"%s\")", expandinistring.c_str());
+	logPP(1, "%s:%d: executing '%s'", lineno.first.c_str(), lineno.second, pycmd);
 	if (PyRun_SimpleString(pycmd)) {
-	    logPP(-1, "%s:%d: exception running '%s'",iniFilename, lineno, pycmd);
+	    logPP(-1, "%s:%d: exception running '%s'", lineno.first.c_str(), lineno.second, pycmd);
 	    exception_msg = "exception running " + std::string((const char*)pycmd);
 	    status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
 	    return status;

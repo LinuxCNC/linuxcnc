@@ -506,7 +506,7 @@ class VersaProbeParent(QtWidgets.QWidget, _HalWidgetBase):
     def update_block_height_pin(self, text):
         value = float(text)
         #if value == self.pin_bheight.get(): return
-        origin = float(INFO.INI.find("AXIS_Z", "MIN_LIMIT")) + value
+        origin = INFO.INI.getreal("AXIS_Z", "MIN_LIMIT") + value
         ACTION.CALL_MDI_WAIT( "G10 L2 P0 Z%s" % origin )
         try:
             self.pin_bheight.set(value)

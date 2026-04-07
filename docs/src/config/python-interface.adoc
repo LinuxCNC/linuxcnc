@@ -871,7 +871,7 @@ inifile = linuxcnc.ini(sys.argv[1])
 # inifile.find() returns None if the key wasn't found - the
 # following idiom is useful for setting a default value:
 
-machine_name = inifile.find("EMC", "MACHINE") or "unknown"
+machine_name = inifile.getstring("EMC", "MACHINE", fallback="unknown")
 print("machine name: ", machine_name)
 
 # inifile.findall() returns a list of matches, or an empty list
@@ -881,9 +881,19 @@ extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
 print("extensions: ", extensions)
 
 # override default NML file by INI parameter if given
-nmlfile = inifile.find("EMC", "NML_FILE")
+nmlfile = inifile.getstring("EMC", "NML_FILE", fallback="")
 if nmlfile:
     linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[1]), nmlfile)
+
+# Other examples:
+realval = inifile.getreal("AXIS_X", "MAX_VELOCITY", fallback=5.0)
+boolval = inifile.getbool("JOINT_0", "HOME_USE_INDEX", fallback=False)
+
+# None is returned without fallback= if the variable was not found
+intval  = inifile.getint( "KINS", "JOINTS")
+if None == intval:
+    print("Error: [KINS]JOINTS not defined or an invalid integer"
+
 ----
 
 Or for the same INI file as LinuxCNC:

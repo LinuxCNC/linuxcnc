@@ -187,7 +187,7 @@ program_start_line_last = -1
 lathe = 0
 mdi_history_max_entries = 1000
 mdi_history_save_filename =\
-    inifile.find('DISPLAY', 'MDI_HISTORY_FILE') or "~/.axis_mdi_history"
+    inifile.getstring('DISPLAY', 'MDI_HISTORY_FILE', fallback="~/.axis_mdi_history")
 
 
 feedrate_blackout = 0
@@ -1254,13 +1254,13 @@ def open_file_guts(f, filtered=False, addrecent=True):
             shutil.copy(parameter, temp_parameter)
         canon.parameter_file = temp_parameter
 
-        timeout = inifile.find("DISPLAY", "PREVIEW_TIMEOUT") or ""
+        timeout = inifile.getstring("DISPLAY", "PREVIEW_TIMEOUT", fallback="")
         if timeout:
             canon.set_timeout(float(timeout))
 
-        initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
+        initcode = inifile.getstring("EMC", "RS274NGC_STARTUP_CODE", fallback="")
         if initcode == "":
-            initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+            initcode = inifile.getstring("RS274NGC", "RS274NGC_STARTUP_CODE", fallback="")
         initcodes = []
         if initcode:
             initcodes.append(initcode)
@@ -2247,7 +2247,7 @@ class TclCommands(nf.TclCommands):
         s.poll()
         if s.task_state == linuxcnc.STATE_ESTOP_RESET:
             c.state(linuxcnc.STATE_ON)
-            homing_prompt = bool(inifile.find("DISPLAY", "HOMING_PROMPT"))
+            homing_prompt = inifile.getbool("DISPLAY", "HOMING_PROMPT")
             if homing_prompt:
                 run_homing = prompt_areyousure(_("Homing request"),_("After turning On the machine power,\nYou need find axes origins.\n\n            Run homing process?"))
                 if run_homing:
@@ -3384,22 +3384,22 @@ def units(s, d=1.0):
     except ValueError:
         return unit_values.get(s, d)
 
-random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
+random_toolchanger = inifile.getbool("EMCIO", "RANDOM_TOOLCHANGER", fallback=False)
 vars.emcini.set(sys.argv[2])
-jointcount = int(inifile.find("KINS", "JOINTS"))
-open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX") or open_directory
-vars.machine.set(inifile.find("EMC", "MACHINE"))
+jointcount = inifile.getint("KINS", "JOINTS", fallback=0)
+open_directory = inifile.getstring("DISPLAY", "PROGRAM_PREFIX", fallback=open_directory)
+vars.machine.set(inifile.getstring("EMC", "MACHINE", fallback="<unknown>"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
 extensions = [e.split(None, 1) for e in extensions]
 extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
 postgui_halfile = inifile.findall("HAL", "POSTGUI_HALFILE") or None
 postgui_halcmds = inifile.findall("HAL", "POSTGUI_HALCMD") or None
-max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE") or 1.0)
-max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
+max_feed_override = inifile.getreal("DISPLAY", "MAX_FEED_OVERRIDE", fallback=1.0)
+max_spindle_override = inifile.getreal("DISPLAY", "MAX_SPINDLE_OVERRIDE", fallback=max_feed_override)
 max_feed_override = int(max_feed_override * 100 + 0.5)
 max_spindle_override = int(max_spindle_override * 100 + 0.5)
-default_spindle_speed = int(inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED") or 1)
-geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZABCUVW"
+default_spindle_speed = inifile.getint("DISPLAY", "DEFAULT_SPINDLE_SPEED", fallback=1)
+geometry = inifile.getstring("DISPLAY", "GEOMETRY", fallback="XYZABCUVW")
 geometry = re.split(" *(-?[XYZABCUVW])", geometry.upper())
 geometry = "".join(reversed(geometry))
 
@@ -3413,8 +3413,8 @@ joint_type = [None] * jointcount
 joint_sequence = [None] * jointcount
 for j in range(jointcount):
     section = "JOINT_%d" % j
-    joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
-    joint_sequence[j]  = inifile.find(section, "HOME_SEQUENCE") or ""
+    joint_type[j] = inifile.getstring(section, "TYPE", fallback="LINEAR")
+    joint_sequence[j]  = inifile.getstring(section, "HOME_SEQUENCE", fallback="")
 
 axis_type = [None] * linuxcnc.MAX_AXIS
 for a in range(linuxcnc.MAX_AXIS):
@@ -3437,6 +3437,7 @@ has_linear_joint_or_axis = (    ("LINEAR" in joint_type)
                              or ("LINEAR" in axis_type) )
 
 # Search rules for slider items
+# FIXME: These ini-values are not type-checked.
 max_linear_speed = (
     inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
     or inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
@@ -3536,9 +3537,9 @@ if nmlfile:
 vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
-lathe = bool(inifile.find("DISPLAY", "LATHE"))
-lathe_backtool = bool(inifile.find("DISPLAY", "BACK_TOOL_LATHE"))
-foam = bool(inifile.find("DISPLAY", "FOAM"))
+lathe = inifile.getbool("DISPLAY", "LATHE", fallback=False)
+lathe_backtool = inifile.getbool("DISPLAY", "BACK_TOOL_LATHE", fallback=False)
+foam = inifile.getbool("DISPLAY", "FOAM", fallback=False)
 editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
 
@@ -3551,7 +3552,7 @@ if (db_program is not None and tooltable is not None):
 default_tooleditor = "tooledit"
 if db_program is not None: default_tooleditor = None
 
-tooleditor = inifile.find("DISPLAY","TOOL_EDITOR") or default_tooleditor
+tooleditor = inifile.getstring("DISPLAY","TOOL_EDITOR", fallback=default_tooleditor)
 
 if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
     raise SystemExit("Missing INI file setting for [RS274NGC]PARAMETER_FILE")
@@ -3559,9 +3560,9 @@ try:
     lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
 except TypeError:
     raise SystemExit("Missing [TRAJ]LINEAR_UNITS or ANGULAR_UNITS")
-a_axis_wrapped = inifile.find("AXIS_A", "WRAPPED_ROTARY")
-b_axis_wrapped = inifile.find("AXIS_B", "WRAPPED_ROTARY")
-c_axis_wrapped = inifile.find("AXIS_C", "WRAPPED_ROTARY")
+a_axis_wrapped = inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
+b_axis_wrapped = inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
+c_axis_wrapped = inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
 if coordinate_display:
     if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
     else: vars.metric.set(0)
@@ -3583,12 +3584,12 @@ for j in range(jointcount):
          homing_order_defined = 0
          break
 
-ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or .020)
+ct = inifile.getreal('DISPLAY', 'CYCLE_TIME', fallback=.020)
 if ct < 1:
     update_ms = int(ct * 1000)
 else:
     update_ms = int(ct)
-interpname = inifile.find("TASK", "INTERPRETER") or ""
+interpname = inifile.getstring("TASK", "INTERPRETER", fallback="")
 
 s = linuxcnc.stat();
 s.poll()
@@ -3627,7 +3628,7 @@ if homing_order_defined:
 widgets.unhomemenu.add_command(command=commands.unhome_all_joints)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All %s") % ja_name)
 
-kinsmodule=inifile.find("KINS", "KINEMATICS")
+kinsmodule=inifile.getstring("KINS", "KINEMATICS", fallback="")
 kins_is_trivkins = False
 if kinsmodule.split()[0] == "trivkins":
     kins_is_trivkins = True
@@ -3733,7 +3734,7 @@ for a in range(linuxcnc.MAX_AXIS):
     a = "XYZABCUVW"[a]
     if s.axis_mask & (1<<i) == 0: continue
     section = "AXIS_%s" % a
-    unit = inifile.find(section, "UNITS") or lu
+    unit = inifile.getstring(section, "UNITS", fallback=lu)
     unit = units(unit) * 25.4
     f = inifile.find(section, "SCALE") or inifile.find(section, "INPUT_SCALE") or "8000"
     try:
@@ -3747,17 +3748,17 @@ for a in range(linuxcnc.MAX_AXIS):
            elif a in 'ABC': astep_size = step_size_tmp
            else: step_size = step_size_tmp
 
-if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
-    root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)
-elif inifile.find("DISPLAY", "MIN_VELOCITY"):
-    root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY"))*60)
+if inifile.hasvariable("DISPLAY", "MIN_LINEAR_VELOCITY"):
+    root_window.tk.call("set_slider_min", inifile.getreal("DISPLAY", "MIN_LINEAR_VELOCITY")*60)
+elif inifile.hasvariable("DISPLAY", "MIN_VELOCITY"):
+    root_window.tk.call("set_slider_min", inifile.getreal("DISPLAY", "MIN_VELOCITY")*60)
 elif step_size != 1:
     root_window.tk.call("set_slider_min", step_size*30)
 
-if inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY"):
-    root_window.tk.call("set_aslider_min", float(inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY"))*60)
-elif inifile.find("DISPLAY", "MIN_VELOCITY"):
-    root_window.tk.call("set_aslider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY"))*60)
+if inifile.hasvariable("DISPLAY", "MIN_ANGULAR_VELOCITY"):
+    root_window.tk.call("set_aslider_min", inifile.getreal("DISPLAY", "MIN_ANGULAR_VELOCITY")*60)
+elif inifile.hasvariable("DISPLAY", "MIN_VELOCITY"):
+    root_window.tk.call("set_aslider_min", inifile.getreal("DISPLAY", "MIN_VELOCITY")*60)
 elif astep_size != 1:
     root_window.tk.call("set_aslider_min", astep_size*30)
 
@@ -3774,7 +3775,7 @@ root_window.call(widgets.jogincr._w, "select", 0)
 
 vcp = inifile.find("DISPLAY", "PYVCP")
 
-arcdivision = int(inifile.find("DISPLAY", "ARCDIVISION") or 64)
+arcdivision = inifile.getint("DISPLAY", "ARCDIVISION", fallback=64)
 
 del sys.argv[1:3]
 
@@ -3877,8 +3878,7 @@ def setup_grid_menu(grids):
                 variable="grid_size", command="set_grid_size")
     match_grid_size(vars.grid_size.get())
 
-grids = inifile.find("DISPLAY", "GRIDS") \
-        or "10mm 20mm 50mm 100mm 1in 2in 5in 10in"
+grids = inifile.getstring("DISPLAY", "GRIDS", fallback="10mm 20mm 50mm 100mm 1in 2in 5in 10in")
 setup_grid_menu(grids)
 
 
@@ -4040,7 +4040,7 @@ if args:
     initialfile = args[0]
 elif "AXIS_OPEN_FILE" in os.environ:
     initialfile = os.environ["AXIS_OPEN_FILE"]
-elif inifile.find("DISPLAY", "OPEN_FILE"):
+elif inifile.hasvariable("DISPLAY", "OPEN_FILE"):
     initialfile = inifile.find("DISPLAY", "OPEN_FILE")
 elif lathe:
     initialfile = os.path.join(BASE, "share", "axis", "images","axis-lathe.ngc")
@@ -4172,7 +4172,7 @@ for win in root_window, widgets.about_window, widgets.help_window:
     root_window.tk.call("wm", "iconphoto", win, *icons)
 
 vars.kinematics_type.set(s.kinematics_type)
-vars.max_queued_mdi_commands.set(int(inifile.find("TASK", "MDI_QUEUED_COMMANDS") or  10))
+vars.max_queued_mdi_commands.set(inifile.getint("TASK", "MDI_QUEUED_COMMANDS", fallback=10))
 
 def balance_ja():
     w = max(widgets.axes.winfo_reqwidth(), widgets.joints.winfo_reqwidth())
@@ -4266,7 +4266,7 @@ forget(widgets.flood, "iocontrol.0.coolant-flood")
 forget(widgets.coolant, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
 
 rcfile = "~/.axisrc"
-user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""
+user_command_file = inifile.getstring("DISPLAY", "USER_COMMAND_FILE", fallback="")
 if user_command_file:
     rcfile = user_command_file
 rcfile = os.path.expanduser(rcfile)

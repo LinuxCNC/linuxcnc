@@ -27,12 +27,14 @@
 #include "nml_intf/emc_nml.hh"
 #include "libnml/rcs/rcs_print.hh"
 #include "libnml/os_intf/timer.hh"
-#include "libnml/inifile/inifile.hh"
+#include <inifile.hh>
 #include "ini/iniaxis.hh"
 #include "ini/inijoint.hh"
 #include "ini/inispindle.hh"
 #include "ini/initraj.hh"
 #include "ini/inihal.hh"
+
+using namespace linuxcnc;
 
 value_inihal_data old_inihal_data;
 
@@ -1729,10 +1731,11 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
 int emcPositionLoad() {
     double positions[EMCMOT_MAX_JOINTS];
-    IniFile ini;
-    ini.Open(emc_inifile);
-    auto posfile = ini.Find("POSITION_FILE", "TRAJ");
-    ini.Close();
+    IniFile ini(emc_inifile);
+    if(!ini) {
+        return -1;
+    }
+    auto posfile = ini.findString("POSITION_FILE", "TRAJ");
     if(!posfile || posfile->empty()) return 0;
     FILE *f = fopen(posfile->c_str(), "r");
     if(!f) return 0;
@@ -1757,17 +1760,11 @@ int emcPositionLoad() {
 
 
 int emcPositionSave() {
-    IniFile ini;
-
-    ini.Open(emc_inifile);
-    std::optional<std::string> posfile;
-    try {
-        posfile = ini.Find("POSITION_FILE", "TRAJ");
-    } catch (IniFile::Exception e) {
-        ini.Close();
+    IniFile ini(emc_inifile);
+    if(!ini) {
         return -1;
     }
-    ini.Close();
+    auto posfile = ini.findString("POSITION_FILE", "TRAJ");
 
     if(!posfile || posfile->empty()) return 0;
     // like the var file, make sure the posfile is recreated according to umask
