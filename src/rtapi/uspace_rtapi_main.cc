@@ -51,6 +51,7 @@
 #include <pthread_np.h>
 #endif
 
+#include <fmt/format.h>
 #include <boost/lockfree/queue.hpp>
 
 #include "rtapi.h"
@@ -229,9 +230,9 @@ static int do_comp_args(void *module, std::vector<std::string> args) {
 static int do_load_cmd(const std::string& name, const std::vector<std::string>& args) {
     void *w = modules[name];
     if(w == NULL) {
-        char what[LINELEN+1];
-        snprintf(what, LINELEN, "%s/%s.so", EMC2_RTLIB_DIR, name.c_str());
-        void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_NOW);
+        std::string what;
+        what=fmt::format("{}/{}.so", EMC2_RTLIB_DIR, name);
+        void *module = modules[name] = dlopen(what.c_str(), RTLD_GLOBAL | RTLD_NOW);
         if(!module) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
             modules.erase(name);
@@ -340,9 +341,7 @@ static std::vector<std::string> read_strings(int fd) {
 }
 
 static void write_number(std::string &buf, int num) {
-    char numbuf[10];
-    snprintf(numbuf, sizeof(numbuf), "%d ", num);
-    buf = buf + numbuf;
+    buf = buf + fmt::format("{} ", num);
 }
 
 static void write_string(std::string &buf, const std::string& s) {
@@ -457,7 +456,7 @@ out:
 }
 
 static std::string
-_get_fifo_path() {
+get_fifo_path() {
     std::string s;
     if(getenv("RTAPI_FIFO_PATH"))
        s = getenv("RTAPI_FIFO_PATH");
@@ -466,29 +465,23 @@ _get_fifo_path() {
     else {
        rtapi_print_msg(RTAPI_MSG_ERR,
            "rtapi_app: RTAPI_FIFO_PATH and HOME are unset.  rtapi fifo creation is unsafe.");
-       return NULL;
+       return std::string();
     }
     if(s.size() + 1 > sizeof(sockaddr_un::sun_path)) {
        rtapi_print_msg(RTAPI_MSG_ERR,
            "rtapi_app: rtapi fifo path is too long (arch limit %zd): %s",
                sizeof(sockaddr_un::sun_path), s.c_str());
-       return NULL;
+       return std::string();
     }
     return s;
-}
-
-static const char *
-get_fifo_path() {
-    static std::string path = _get_fifo_path();
-    return path.c_str();
 }
 
 static int
 get_fifo_path(char *buf, size_t bufsize) {
 	int len;
-    const char *s = get_fifo_path();
-    if(!s) return -1;
-    len=snprintf(buf+1, bufsize-1, "%s", s);
+    const std::string s = get_fifo_path();
+    if(s.empty()) return -1;
+    len=snprintf(buf+1, bufsize-1, "%s", s.c_str());
     return len;
 }
 
