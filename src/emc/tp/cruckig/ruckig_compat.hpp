@@ -47,8 +47,6 @@ struct InputParameter {
     std::array<double, 1> max_velocity = {0};
     std::array<double, 1> max_acceleration = {0};
     std::array<double, 1> max_jerk = {0};
-    std::array<double, 1> min_velocity = {0};
-    std::array<double, 1> min_acceleration = {0};
     ControlInterface control_interface = ControlInterface::Position;
 };
 
@@ -159,8 +157,8 @@ public:
         cinp->max_velocity[0]         = input.max_velocity[0];
         cinp->max_acceleration[0]     = input.max_acceleration[0];
         cinp->max_jerk[0]             = input.max_jerk[0];
-        cinp->min_velocity[0]         = input.min_velocity[0];
-        cinp->min_acceleration[0]     = input.min_acceleration[0];
+        // min_velocity and min_acceleration are NULL in cruckig (optional).
+        // cruckig uses -max when NULL, which matches ruckig's default.
         cinp->control_interface       = static_cast<CRuckigControlInterface>(input.control_interface);
 
         CRuckigResult cresult = cruckig_calculate(otg_, cinp, traj.c_ptr());
