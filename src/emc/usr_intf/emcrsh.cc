@@ -2375,7 +2375,7 @@ static cmdResponseType getJointVelocity(connectionRecType &ctx)
 	} else {
 		std::string jl = "JOINT_VELOCITY";
 		for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
-			jl += fmt::format(" {:f}", emcStatus->motion.joint[joint].velocity);
+			jl += fmt::format(" {:f}", emcStatus->motion.joint[i].velocity);
 		}
 		replynl(ctx, jl);
 	}
