@@ -1907,6 +1907,7 @@ int hal_export_functf(void (*funct) (void *, long),
 int hal_export_funct(const char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id)
 {
+    (void)uses_fp;
     rtapi_intptr_t *prev, next;
     int cmp;
     hal_funct_t *new, *fptr;
@@ -2034,6 +2035,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 
 int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 {
+    (void)uses_fp;
     int next, cmp, prev_priority;
     int retval, n;
     hal_thread_t *new, *tptr;
