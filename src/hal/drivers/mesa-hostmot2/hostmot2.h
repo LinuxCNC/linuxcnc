@@ -140,12 +140,18 @@
 // IDROM and MD structs
 //
 
+// Need clang 21+ for the nonstring attribute
+#if !defined(__clang__) || (defined(__clang_major__) && __clang_major__ >= 21)
+#define HM2_ATTRIBUTE_NONSTRING __attribute__((nonstring))
+#else
+#define HM2_ATTRIBUTE_NONSTRING
+#endif
 
 typedef struct {
     rtapi_u32 idrom_type;
     rtapi_u32 offset_to_modules;
     rtapi_u32 offset_to_pin_desc;
-    rtapi_u8 board_name[8] __attribute__ ((nonstring));  // ASCII string, but not NULL terminated!
+    rtapi_u8 board_name[8] HM2_ATTRIBUTE_NONSTRING;  // ASCII string, but not NULL terminated!
     rtapi_u32 fpga_size;
     rtapi_u32 fpga_pins;
     rtapi_u32 io_ports;
