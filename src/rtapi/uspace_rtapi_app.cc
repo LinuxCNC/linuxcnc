@@ -957,7 +957,7 @@ int RtapiApp::allocate_task_id()
 }
 
 int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
-        int prio, int owner, unsigned long int stacksize, int uses_fp) {
+        int prio, int owner, unsigned long int stacksize, int /*uses_fp*/) {
   /* check requested priority */
   if (!prio_check(prio))
   {
