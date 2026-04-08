@@ -4743,6 +4743,7 @@ to test your settings.</property>
                                     <property name="margin-end">3</property>
                                     <property name="margin-top">5</property>
                                     <property name="margin-bottom">5</property>
+                                    <property name="hexpand">False</property>
                                     <property name="row-spacing">5</property>
                                     <property name="column-spacing">3</property>
                                     <child>
@@ -4761,6 +4762,7 @@ to test your settings.</property>
                                       <object class="GtkComboBox" id="theme_choice">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="hexpand">True</property>
                                         <property name="model">lstst_themes</property>
                                         <signal name="changed" handler="on_theme_choice_changed" swapped="no"/>
                                         <child>
@@ -4810,71 +4812,6 @@ to test your settings.</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkFileChooserButton" id="audio_error_chooser">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <signal name="file-set" handler="on_change_sound" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">1</property>
-                                        <property name="top-attach">9</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label27">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="margin-start">3</property>
-                                        <property name="margin-end">3</property>
-                                        <property name="label" translatable="yes">Alert Audio</property>
-                                        <property name="xalign">0</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">0</property>
-                                        <property name="top-attach">9</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label25">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="margin-start">3</property>
-                                        <property name="margin-end">3</property>
-                                        <property name="label" translatable="yes">Warning Audio</property>
-                                        <property name="xalign">0</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">0</property>
-                                        <property name="top-attach">8</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkFileChooserButton" id="audio_alert_chooser">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <signal name="file-set" handler="on_change_sound" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">1</property>
-                                        <property name="top-attach">8</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="chk_en_audio">
-                                        <property name="label" translatable="yes">Enable sound</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_chk_en_audio_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">0</property>
-                                        <property name="top-attach">7</property>
-                                        <property name="width">2</property>
-                                      </packing>
-                                    </child>
-                                    <child>
                                       <object class="GtkLabel" id="lbl_sourceview_icon_themes">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
@@ -4916,13 +4853,72 @@ to test your settings.</property>
                                         <property name="width">2</property>
                                       </packing>
                                     </child>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">G-code Font</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">7</property>
+                                        <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFontButton" id="fontbutton_gcodeview">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">True</property>
+                                        <property name="font">Sans 12</property>
+                                        <property name="language">de-de</property>
+                                        <property name="level">GTK_FONT_CHOOSER_LEVEL_SIZE | GTK_FONT_CHOOSER_LEVEL_FAMILY</property>
+                                        <property name="preview-text">N1200 G1 X4.05 Y3.725 F240 S3500 M3</property>
+                                        <signal name="font-set" handler="on_fontbutton_gcodeview_font_set" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">8</property>
+                                        <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="chk_font_monospace">
+                                        <property name="label" translatable="yes">Monospace</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_chk_font_monospace_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">9</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="chk_font_regular">
+                                        <property name="label" translatable="yes">Regular/Medium</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_chk_font_regular_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">1</property>
+                                        <property name="top-attach">9</property>
+                                      </packing>
+                                    </child>
                                   </object>
                                 </child>
                                 <child type="label">
                                   <object class="GtkLabel" id="lbl_frm_themes">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Themes and sound&lt;/b&gt;</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Themes&lt;/b&gt;</property>
                                     <property name="use-markup">True</property>
                                   </object>
                                 </child>
@@ -4934,7 +4930,102 @@ to test your settings.</property>
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkFrame" id="frm_gcodeview_font">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label-xalign">0.5</property>
+                                <child>
+                                  <!-- n-columns=2 n-rows=3 -->
+                                  <object class="GtkGrid" id="grid_sound">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-start">3</property>
+                                    <property name="margin-end">3</property>
+                                    <property name="margin-top">3</property>
+                                    <property name="margin-bottom">3</property>
+                                    <property name="row-spacing">3</property>
+                                    <property name="column-spacing">3</property>
+                                    <child>
+                                      <object class="GtkCheckButton" id="chk_en_audio">
+                                        <property name="label" translatable="yes">Enable sound</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_chk_en_audio_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">0</property>
+                                        <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label25">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="margin-start">3</property>
+                                        <property name="margin-end">3</property>
+                                        <property name="label" translatable="yes">Warning Audio</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFileChooserButton" id="audio_alert_chooser">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <signal name="file-set" handler="on_change_sound" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">1</property>
+                                        <property name="top-attach">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="label27">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="margin-start">3</property>
+                                        <property name="margin-end">3</property>
+                                        <property name="label" translatable="yes">Alert Audio</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkFileChooserButton" id="audio_error_chooser">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <signal name="file-set" handler="on_change_sound" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">1</property>
+                                        <property name="top-attach">2</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Sound&lt;/b&gt;</property>
+                                    <property name="use-markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
                             </child>
                           </object>
                           <packing>

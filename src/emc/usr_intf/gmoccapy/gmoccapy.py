@@ -33,6 +33,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
 from gi.repository import GLib
+from gi.repository import Pango
 
 import traceback            # needed to launch traceback errors
 import hal                  # base hal class to react to hal signals
@@ -1781,6 +1782,11 @@ class gmoccapy(object):
             self.widgets.spc_ang_jog_vel.set_property("min", self.get_ini_info.get_min_ang_jog_vel())
             self.widgets.spc_ang_jog_vel.set_property("max", self.get_ini_info.get_max_ang_jog_vel())
             self.widgets.spc_ang_jog_vel.set_value(self.get_ini_info.get_default_ang_jog_vel())
+            
+        font = self.prefs.getpref("gcodeview_font", "monospace 10", str)
+        font_desc = Pango.FontDescription.from_string(font)
+        self.widgets.fontbutton_gcodeview.set_font(font)
+        self.widgets.gcode_view.modify_font(font_desc)
 
 # =============================================================
 # Dynamic tabs handling Start
@@ -2152,7 +2158,18 @@ class gmoccapy(object):
 
         # load theme
         self._set_sourceview_theme(model[theme_choice.get_active_iter()][0])
+        
+        self._update_gcodeview_font_filter()
 
+    # Filter function for Gcodeview font selection
+    def _gcodeview_font_filter(self, family, face, monospace, regular):
+        mono = not monospace or family.is_monospace()
+        reg = not regular or face.get_face_name()=="Regular" or face.get_face_name()=="Medium" or face.get_face_name()=="Book"
+        return mono and reg
+    
+    def _update_gcodeview_font_filter(self):
+        self.widgets.fontbutton_gcodeview.set_filter_func(self._gcodeview_font_filter, self.widgets.chk_font_monospace.get_active(), self.widgets.chk_font_regular.get_active())
+    
 
     def _init_audio(self):
         # try to add ability for audio feedback to user.
@@ -4040,6 +4057,16 @@ class gmoccapy(object):
         self.prefs.putpref("message_font", self.widgets.fontbutton_popup.get_font())
         self._init_notification()
 
+    def on_fontbutton_gcodeview_font_set(self, widget):
+        self.widgets.gcode_view.modify_font(widget.get_font_desc())
+        self.prefs.putpref("gcodeview_font", widget.get_font())
+        
+    def on_chk_font_monospace_toggled(self, widget):
+        self._update_gcodeview_font_filter()
+        
+    def on_chk_font_regular_toggled(self, widget):
+        self._update_gcodeview_font_filter()
+    
     def on_btn_launch_test_message_pressed(self, widget=None, data=None):
         index = len(self.notification.messages)
         text = _("Halo, welcome to the test message {0}").format(index)
