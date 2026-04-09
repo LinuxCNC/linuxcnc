@@ -19,7 +19,7 @@
 #include <map>
 #include <rtapi.h>
 #include <rtapi_parport.h>
-#include "uspace_rtapi_app.hh"
+#include "rtapi_uspace.hh"
 #include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
