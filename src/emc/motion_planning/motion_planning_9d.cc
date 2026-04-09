@@ -1513,16 +1513,7 @@ static void copyRuckigProfile(ruckig::Trajectory<1> &traj, ruckig_profile_t *pro
     __atomic_store_n(&profile->valid, 1, __ATOMIC_RELEASE);
 }
 
-/**
- * @brief Parameters for computing and storing a Ruckig profile on a TC segment
- */
-struct RuckigProfileParams {
-    double v_entry, v_exit;
-    double max_vel, max_acc, max_jrk;
-    double target_dist;
-    double feed_scale, vel_limit, vLimit;
-    double desired_fvel;
-};
+// RuckigProfileParams is defined in motion_planning_9d.hh
 
 /**
  * @brief Compute a Ruckig profile and store it on a TC segment
@@ -1538,7 +1529,7 @@ struct RuckigProfileParams {
  * @param p Profile parameters (velocities, limits, metadata)
  * @return true on success, false on Ruckig failure (profile marked invalid)
  */
-static bool computeAndStoreProfile(TC_STRUCT *tc, const RuckigProfileParams &p)
+bool computeAndStoreProfile(TC_STRUCT *tc, const RuckigProfileParams &p)
 {
     static ruckig::Ruckig<1> otg(g_handoff_config.servo_cycle_time_sec);
     ruckig::InputParameter<1> input;
@@ -2216,7 +2207,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
 
     bool unlimited = (budget_sec <= 0.0);
     double tick_start = etime_user();
-    int fo_dirty_count = 0, fo_skip_count = 0;
 
     bool prev_was_corridor = false;
     int i = 0;
@@ -2254,6 +2244,21 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 } else {
                     double pu = profileExitVelUnscaled(&tc->shared_9d.profile);
                     prev_exit_vel = pu * tc->shared_9d.profile.computed_feed_scale;
+                }
+                // Guard against stale profile exit after blend-trimming.
+                // Blend creation sets final_vel = v_plan for the trimmed active
+                // segment, but can't recompute its RT-owned profile.  If the
+                // profile exit is near-zero while final_vel indicates a planned
+                // non-zero exit, the profile is stale — use final_vel instead.
+                {
+                    double fv = atomicLoadDouble(&tc->shared_9d.final_vel);
+                    if (fv > 0.1) {
+                        double feed_active = snap.forSegment(tc);
+                        double fv_scaled = fv * feed_active;
+                        if (prev_exit_vel < fv_scaled * 0.1) {
+                            prev_exit_vel = fv_scaled;
+                        }
+                    }
                 }
                 prev_exit_vel_known = true;
             }
@@ -2359,7 +2364,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             bool exit_ok  = fabs(tc->shared_9d.profile.computed_desired_fvel - desired_fvel) < 1e-6;
             if (entry_ok && feed_ok && exit_ok) {
                 // Profile is clean — propagate its actual exit and continue
-                fo_skip_count++;
                 // Re-stamp FINALIZED if backward pass knocked it back to SMOOTHED
                 bool boundaries_known_skip = (tc->term_cond == TC_TERM_COND_EXACT)
                                            || (i + 1 < queue_len)
@@ -2429,7 +2433,7 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
             prev_exit_vel = 0.0;
             prev_exit_vel_known = true;
             prev_was_corridor = false;
-            fo_dirty_count++;
+
             continue;
         }
 
@@ -2521,7 +2525,6 @@ static int replanForward(TP_STRUCT *tp, double v0_override, double budget_sec)
                 computeAndStoreProfile(tc, rp);
             }
             if (tc->shared_9d.profile.valid) {
-                fo_dirty_count++;
                 // Only finalize when exit boundary conditions are known.
                 // STOP segments may be promoted to TANGENT when the next
                 // segment creates a blend, so require a successor in queue.
@@ -4046,6 +4049,7 @@ extern "C" void checkFeedOverride(TP_STRUCT *tp)
                 tcqLen_user(&tp->queue), g_feed_mgr.committed_feed, hal, seg_id);
         }
     }
+
 }
 
 //============================================================================

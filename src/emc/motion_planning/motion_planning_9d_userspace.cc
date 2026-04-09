@@ -1054,6 +1054,29 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
                                           : fmin(prev_tc->maxjerk, tc->maxjerk);
     }
 
+    // Pre-compute Ruckig profile for the blend segment so RT has a valid
+    // profile when it enters via split cycle.  Without this, the bezier
+    // enters the queue with v0=0 because the forward pass can't propagate
+    // through the active segment (whose profile still has exit=0 from
+    // before the blend was created).  The forward pass will refine this
+    // profile later once it has correct predecessor information, but this
+    // ensures RT always has a physically reasonable starting point.
+    {
+        double blend_acc = blend_tc.maxaccel * blend_tc.acc_ratio_tan;
+        double blend_jrk = blend_tc.maxjerk > 0
+                         ? blend_tc.maxjerk : fmin(prev_tc->maxjerk, tc->maxjerk);
+        double blend_max_vel = fmax(v_entry, blend_tc.maxvel);
+        RuckigProfileParams rp = {
+            v_entry, v_exit,
+            blend_max_vel, blend_acc, blend_jrk, blend_tc.target,
+            1.0,                        // feed_scale (nominal)
+            blend_tc.maxvel,            // vel_limit
+            tp->vLimit,                 // vLimit
+            v_exit                      // desired_fvel
+        };
+        computeAndStoreProfile(&blend_tc, rp);
+    }
+
     // Enqueue blend segment
     TC_QUEUE_STRUCT *queue = &tp->queue;
     res = tcqPut_user(queue, &blend_tc);

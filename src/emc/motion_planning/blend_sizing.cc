@@ -864,7 +864,7 @@ static double findOptimalAlpha9(double Rb,
     PmCartesian wu_e_abc = {boundary->u_end_abc.x * we1, boundary->u_end_abc.y * we1, boundary->u_end_abc.z * we1};
     PmCartesian wu_e_uvw = {boundary->u_end_uvw.x * we2, boundary->u_end_uvw.y * we2, boundary->u_end_uvw.z * we2};
 
-    if (bezier9Init(&trial1, &boundary->P_start, &boundary->P_end,
+    if (bezier9InitFast(&trial1, &boundary->P_start, &boundary->P_end,
                     &wu_s_xyz, &wu_e_xyz,
                     &wu_s_abc, &wu_e_abc,
                     &wu_s_uvw, &wu_e_uvw,
@@ -872,7 +872,7 @@ static double findOptimalAlpha9(double Rb,
         v1 = bezier9AccLimit(&trial1, v_goal, a_max, j_max);
     }
 
-    if (bezier9Init(&trial2, &boundary->P_start, &boundary->P_end,
+    if (bezier9InitFast(&trial2, &boundary->P_start, &boundary->P_end,
                     &wu_s_xyz, &wu_e_xyz,
                     &wu_s_abc, &wu_e_abc,
                     &wu_s_uvw, &wu_e_uvw,
@@ -888,7 +888,7 @@ static double findOptimalAlpha9(double Rb,
             v1 = v2;
             trial1 = trial2;
             a2 = a_lo + gr * (a_hi - a_lo);
-            if (bezier9Init(&trial2, &boundary->P_start, &boundary->P_end,
+            if (bezier9InitFast(&trial2, &boundary->P_start, &boundary->P_end,
                             &wu_s_xyz, &wu_e_xyz,
                             &wu_s_abc, &wu_e_abc,
                             &wu_s_uvw, &wu_e_uvw,
@@ -904,7 +904,7 @@ static double findOptimalAlpha9(double Rb,
             v2 = v1;
             trial2 = trial1;
             a1 = a_hi - gr * (a_hi - a_lo);
-            if (bezier9Init(&trial1, &boundary->P_start, &boundary->P_end,
+            if (bezier9InitFast(&trial1, &boundary->P_start, &boundary->P_end,
                             &wu_s_xyz, &wu_e_xyz,
                             &wu_s_abc, &wu_e_abc,
                             &wu_s_uvw, &wu_e_uvw,
@@ -1103,6 +1103,9 @@ int optimizeBlendSize9(TC_STRUCT const * const prev_tc,
         result->status = BLEND9_TOLERANCE_EXCEEDED;
         return TP_ERR_FAIL;
     }
+
+    /* Rebuild winning bezier at full arc-length resolution for RT use */
+    bezier9RebuildFull(&result->bezier);
 
     /* Compute trim amounts */
     result->trim_prev = prev_tc->target - result->boundary.s_prev;

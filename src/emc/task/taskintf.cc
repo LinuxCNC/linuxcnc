@@ -1682,15 +1682,11 @@ int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxve
             int result = tpAddLine_9D(tp, end, type, vel, ini_maxvel, acc, enables, localEmcTrajTag);
 
             if (result == 0) {
-                // Success - motion queued in userspace
-                // Tell RT to skip re-queuing (but RT still executes from queue)
-                emcmotCommand.command = EMCMOT_SET_LINE;
-                emcmotCommand.pos = end;
-                emcmotCommand.id = TrajConfig.MotionId;
-                emcmotCommand.tag = localEmcTrajTag;
-                emcmotCommand.motion_type = type;
-                emcmotCommand.userspace_already_queued = 1;  // Skip RT queuing
-                return usrmotWriteEmcmotCommand(&emcmotCommand);
+                // Success - motion queued directly in userspace shmem.
+                // RT executes from the shared queue; no command handshake
+                // needed.  Skipping usrmotWriteEmcmotCommand() eliminates
+                // the ~1ms RT ack poll per segment.
+                return 0;
             }
 
             // If userspace planning failed, fall back to NML
@@ -1746,22 +1742,9 @@ int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
                                         vel, ini_maxvel, acc, enables, localEmcTrajTag);
 
             if (result == 0) {
-                // Success - motion queued in userspace
-                // Tell RT to skip re-queuing (but RT still executes from queue)
-                emcmotCommand.command = EMCMOT_SET_CIRCLE;
-                emcmotCommand.pos = end;
-                emcmotCommand.motion_type = type;
-                emcmotCommand.center.x = center.x;
-                emcmotCommand.center.y = center.y;
-                emcmotCommand.center.z = center.z;
-                emcmotCommand.normal.x = normal.x;
-                emcmotCommand.normal.y = normal.y;
-                emcmotCommand.normal.z = normal.z;
-                emcmotCommand.turn = turn;
-                emcmotCommand.id = TrajConfig.MotionId;
-                emcmotCommand.tag = localEmcTrajTag;
-                emcmotCommand.userspace_already_queued = 1;  // Skip RT queuing
-                return usrmotWriteEmcmotCommand(&emcmotCommand);
+                // Success - arc queued directly in userspace shmem.
+                // No RT command handshake needed (same as linear path).
+                return 0;
             }
 
             // If userspace planning failed, fall back to NML
@@ -2444,3 +2427,4 @@ int emcGetExternalOffsetApplied(void) {
 EmcPose emcGetExternalOffsets(void) {
     return emcmotStatus.eoffset_pose;
 }
+

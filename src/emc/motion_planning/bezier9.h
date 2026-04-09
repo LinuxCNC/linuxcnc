@@ -14,6 +14,7 @@ extern "C" {
 #define BEZIER9_CURVATURE_EPSILON 1e-8
 #define BEZIER9_POS_EPSILON 1e-12
 #define BEZIER9_ARC_LENGTH_SAMPLES 1024
+#define BEZIER9_ARC_LENGTH_SAMPLES_FAST 32
 #define BEZIER9_CURVATURE_SAMPLES 30
 #define BEZIER9_GOLDEN_RATIO 0.618033988749895
 
@@ -52,6 +53,7 @@ typedef struct {
 
     // Arc-length parameterization lookup tables
     // Map arc-length s to Bezier parameter t via binary search + cubic Hermite
+    int arc_samples;  // actual sample count (may be < BEZIER9_ARC_LENGTH_SAMPLES for fast init)
     double t_table[BEZIER9_ARC_LENGTH_SAMPLES + 1];
     double s_table[BEZIER9_ARC_LENGTH_SAMPLES + 1];
     double d_table[BEZIER9_ARC_LENGTH_SAMPLES + 1]; // dt/ds at each node
@@ -103,6 +105,36 @@ int bezier9Init(Bezier9 * const b,
                 double kappa_end,
                 PmCartesian const * const n_end,
                 double alpha);
+
+/**
+ * bezier9InitFast - Lightweight init for optimizer trial curves
+ *
+ * Same as bezier9Init but uses BEZIER9_ARC_LENGTH_SAMPLES_FAST samples
+ * for the arc-length table.  ~32x faster than full init.
+ * Call bezier9RebuildFull() on the winning curve before RT use.
+ */
+int bezier9InitFast(Bezier9 * const b,
+                    EmcPose const * const start,
+                    EmcPose const * const end,
+                    PmCartesian const * const u_start_xyz,
+                    PmCartesian const * const u_end_xyz,
+                    PmCartesian const * const u_start_abc,
+                    PmCartesian const * const u_end_abc,
+                    PmCartesian const * const u_start_uvw,
+                    PmCartesian const * const u_end_uvw,
+                    double kappa_start,
+                    PmCartesian const * const n_start,
+                    double kappa_end,
+                    PmCartesian const * const n_end,
+                    double alpha);
+
+/**
+ * bezier9RebuildFull - Rebuild arc-length table at full resolution
+ *
+ * Call on a fast-init curve to upgrade to full 1024-sample table
+ * before the curve is used for RT execution.
+ */
+void bezier9RebuildFull(Bezier9 * const b);
 
 /**
  * bezier9Point - Evaluate position on curve at arc-length parameter

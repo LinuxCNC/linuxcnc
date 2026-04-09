@@ -216,12 +216,13 @@ static void build_arc_length_table(Bezier9 * const b)
         }
     }
 
+    int N = b->arc_samples;
     b->t_table[0] = 0.0;
     b->s_table[0] = 0.0;
 
-    for (int i = 1; i <= BEZIER9_ARC_LENGTH_SAMPLES; i++) {
-        double t_prev = (double)(i - 1) / BEZIER9_ARC_LENGTH_SAMPLES;
-        double t_curr = (double)i / BEZIER9_ARC_LENGTH_SAMPLES;
+    for (int i = 1; i <= N; i++) {
+        double t_prev = (double)(i - 1) / N;
+        double t_curr = (double)i / N;
 
         double ds = gauss_legendre_integrate(b, t_prev, t_curr, primary);
 
@@ -229,12 +230,12 @@ static void build_arc_length_table(Bezier9 * const b)
         b->s_table[i] = b->s_table[i - 1] + ds;
     }
 
-    b->total_length = b->s_table[BEZIER9_ARC_LENGTH_SAMPLES];
+    b->total_length = b->s_table[N];
 
     // Precompute dt/ds at each node for cubic Hermite interpolation.
     // dt/ds = 1 / |B'(t)| eliminates the slope discontinuities that
     // linear interpolation creates at table boundaries.
-    for (int i = 0; i <= BEZIER9_ARC_LENGTH_SAMPLES; i++) {
+    for (int i = 0; i <= N; i++) {
         double dmag = bezier9_deriv_mag(b, b->t_table[i], primary);
         b->d_table[i] = (dmag > BEZIER9_POS_EPSILON) ? 1.0 / dmag : 0.0;
     }
@@ -256,7 +257,7 @@ static double arc_length_to_t(Bezier9 const * const b, double s)
 
     // Binary search for interval containing s
     int lo = 0;
-    int hi = BEZIER9_ARC_LENGTH_SAMPLES;
+    int hi = b->arc_samples;
 
     while (hi - lo > 1) {
         int mid = (lo + hi) / 2;
@@ -358,6 +359,8 @@ int bezier9Init(Bezier9 * const b,
         return TP_ERR_FAIL;
     }
 
+    b->arc_samples = BEZIER9_ARC_LENGTH_SAMPLES;
+
     // Extract 3D start/end for each subspace
     PmCartesian start_xyz = {start->tran.x, start->tran.y, start->tran.z};
     PmCartesian end_xyz   = {end->tran.x,   end->tran.y,   end->tran.z};
@@ -425,6 +428,101 @@ int bezier9Init(Bezier9 * const b,
                    b->total_length, b->max_kappa, b->min_radius, b->max_dkappa_ds);
 
     return TP_ERR_OK;
+}
+
+int bezier9InitFast(Bezier9 * const b,
+                    EmcPose const * const start,
+                    EmcPose const * const end,
+                    PmCartesian const * const u_start_xyz,
+                    PmCartesian const * const u_end_xyz,
+                    PmCartesian const * const u_start_abc,
+                    PmCartesian const * const u_end_abc,
+                    PmCartesian const * const u_start_uvw,
+                    PmCartesian const * const u_end_uvw,
+                    double kappa_start,
+                    PmCartesian const * const n_start,
+                    double kappa_end,
+                    PmCartesian const * const n_end,
+                    double alpha)
+{
+    if (!b) return TP_ERR_MISSING_INPUT;
+    // Set fast sample count THEN call bezier9Init which will override
+    // to 1024.  Instead, we set it after the override point.
+    // Trick: bezier9Init sets arc_samples = 1024, then calls
+    // build_arc_length_table.  We can't intercept that.  Instead,
+    // just call bezier9Init normally and then rebuild at low res.
+    // But that defeats the purpose — we'd build at 1024 then rebuild at 32.
+    //
+    // So we override the field AFTER bezier9Init sets it but BEFORE
+    // build_arc_length_table runs.  Since we can't do that without
+    // refactoring bezier9Init, we take the simpler approach:
+    // set arc_samples after init and rebuild cheaply.
+    //
+    // Actually — just patch the field and rebuild. The control points
+    // and curvature are already correct from bezier9Init; only the
+    // arc-length table needs to be rebuilt at lower resolution.
+    // But that means we still pay the 1024-sample cost once...
+    //
+    // Better: just set arc_samples before the call. bezier9Init will
+    // override it, so we patch it right back and rebuild.
+
+    // The only clean way: set arc_samples to fast, call bezier9Init,
+    // which overrides to 1024 and builds at 1024. Then we restore fast
+    // and rebuild at 32.  That's still 1024+32 = 1056 evaluations.
+    // NOT what we want.
+
+    // Real fix: just duplicate the 3 lines that differ.
+    b->arc_samples = BEZIER9_ARC_LENGTH_SAMPLES_FAST;
+
+    // Validate (same as bezier9Init)
+    if (!start || !end) return TP_ERR_MISSING_INPUT;
+    if (!u_start_xyz || !u_end_xyz || !u_start_abc || !u_end_abc ||
+        !u_start_uvw || !u_end_uvw) return TP_ERR_MISSING_INPUT;
+    if (alpha <= 0.0) return TP_ERR_FAIL;
+
+    // Build control points (same as bezier9Init)
+    PmCartesian start_xyz = {start->tran.x, start->tran.y, start->tran.z};
+    PmCartesian end_xyz   = {end->tran.x,   end->tran.y,   end->tran.z};
+    PmCartesian start_abc = {start->a, start->b, start->c};
+    PmCartesian end_abc   = {end->a,   end->b,   end->c};
+    PmCartesian start_uvw = {start->u, start->v, start->w};
+    PmCartesian end_uvw   = {end->u,   end->v,   end->w};
+
+    set_quintic_control_points(b->P, &start_xyz, &end_xyz, u_start_xyz, u_end_xyz, alpha);
+    set_quintic_control_points(b->A, &start_abc, &end_abc, u_start_abc, u_end_abc, alpha);
+    set_quintic_control_points(b->U, &start_uvw, &end_uvw, u_start_uvw, u_end_uvw, alpha);
+
+    if (kappa_start > BEZIER9_CURVATURE_EPSILON && n_start) {
+        double u_mag = sqrt(u_start_xyz->x * u_start_xyz->x +
+                            u_start_xyz->y * u_start_xyz->y +
+                            u_start_xyz->z * u_start_xyz->z);
+        double alpha_eff = alpha * u_mag;
+        double delta = 5.0 * alpha_eff * alpha_eff * kappa_start / 4.0;
+        b->P[2].x += delta * n_start->x;
+        b->P[2].y += delta * n_start->y;
+        b->P[2].z += delta * n_start->z;
+    }
+    if (kappa_end > BEZIER9_CURVATURE_EPSILON && n_end) {
+        double u_mag = sqrt(u_end_xyz->x * u_end_xyz->x +
+                            u_end_xyz->y * u_end_xyz->y +
+                            u_end_xyz->z * u_end_xyz->z);
+        double alpha_eff = alpha * u_mag;
+        double delta = 5.0 * alpha_eff * alpha_eff * kappa_end / 4.0;
+        b->P[3].x += delta * n_end->x;
+        b->P[3].y += delta * n_end->y;
+        b->P[3].z += delta * n_end->z;
+    }
+
+    build_arc_length_table(b);
+    if (b->total_length < BEZIER9_MIN_LENGTH) return TP_ERR_ZERO_LENGTH;
+    return bezier9MaxCurvature(b);
+}
+
+void bezier9RebuildFull(Bezier9 * const b)
+{
+    if (!b) return;
+    b->arc_samples = BEZIER9_ARC_LENGTH_SAMPLES;
+    build_arc_length_table(b);
 }
 
 int bezier9Point(Bezier9 const * const b,
