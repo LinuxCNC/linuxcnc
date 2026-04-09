@@ -775,17 +775,17 @@ static RtapiApp *makeDllApp(std::string dllName, int policy) {
 static RtapiApp *makeApp() {
     RtapiApp *app;
     if (euid != 0 || harden_rt() < 0) {
-        app = makeDllApp(EMC2_HOME "/lib/libuspace-posix.so.0", SCHED_OTHER);
+        app = makeDllApp("libuspace-posix.so.0", SCHED_OTHER);
     } else {
         WithRoot r;
         if (detect_xenomai_evl()) {
-            app = makeDllApp(EMC2_HOME "/lib/libuspace-xenomai-evl.so.0", SCHED_FIFO);
+            app = makeDllApp("libuspace-xenomai-evl.so.0", SCHED_FIFO);
         } else if (detect_xenomai()) {
-            app = makeDllApp(EMC2_HOME "/lib/libuspace-xenomai.so.0", SCHED_FIFO);
+            app = makeDllApp("libuspace-xenomai.so.0", SCHED_FIFO);
         } else if (detect_rtai()) {
-            app = makeDllApp(EMC2_HOME "/lib/libuspace-rtai.so.0", SCHED_FIFO);
+            app = makeDllApp("libuspace-rtai.so.0", SCHED_FIFO);
         } else {
-            app = makeDllApp(EMC2_HOME "/lib/libuspace-posix.so.0", SCHED_FIFO);
+            app = makeDllApp("libuspace-posix.so.0", SCHED_FIFO);
         }
     }
 
