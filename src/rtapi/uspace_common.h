@@ -21,7 +21,6 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <sys/utsname.h>
 #include <string.h>
 #include <unistd.h>
@@ -40,7 +39,7 @@ static msg_level_t msg_level = RTAPI_MSG_ERR;	/* message printing level */
 #include "config.h"
 
 #ifdef RTAPI
-#include "uspace_rtapi_app.hh"
+#include "rtapi_uspace.hh"
 #endif
 
 typedef struct {
