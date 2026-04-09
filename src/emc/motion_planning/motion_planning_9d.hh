@@ -134,6 +134,26 @@ struct PredictedState {
     PredictedState() : position(0), velocity(0), acceleration(0), jerk(0), valid(false) {}
 };
 
+/**
+ * @brief Parameters for computing and storing a Ruckig profile on a TC segment
+ */
+struct RuckigProfileParams {
+    double v_entry, v_exit;
+    double max_vel, max_acc, max_jrk;
+    double target_dist;
+    double feed_scale, vel_limit, vLimit;
+    double desired_fvel;
+};
+
+/**
+ * @brief Compute a Ruckig profile and store it on a TC segment
+ *
+ * @param tc Segment to store the profile on
+ * @param p Profile parameters
+ * @return true on success, false on Ruckig failure (profile marked invalid)
+ */
+bool computeAndStoreProfile(TC_STRUCT *tc, const RuckigProfileParams &p);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
