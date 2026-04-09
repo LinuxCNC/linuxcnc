@@ -2167,8 +2167,18 @@ class gmoccapy(object):
         reg = not regular or face.get_face_name()=="Regular" or face.get_face_name()=="Medium" or face.get_face_name()=="Book"
         return mono and reg
     
+    # Filter function for messages font selection
+    def _messages_font_filter(self, family, face, wanted_face):
+        if wanted_face == "All":
+            return True
+        else:
+            return face.get_face_name() == wanted_face
+    
     def _update_gcodeview_font_filter(self):
         self.widgets.fontbutton_gcodeview.set_filter_func(self._gcodeview_font_filter, self.widgets.chk_font_monospace.get_active(), self.widgets.chk_font_regular.get_active())
+    
+    def _update_messages_font_filter(self):
+        self.widgets.fontbutton_popup.set_filter_func(self._messages_font_filter, self.widgets.cmb_messages_font_face.get_active_text())
     
 
     def _init_audio(self):
@@ -4056,6 +4066,9 @@ class gmoccapy(object):
     def on_fontbutton_popup_font_set(self, font):
         self.prefs.putpref("message_font", self.widgets.fontbutton_popup.get_font())
         self._init_notification()
+        
+    def on_cmb_messages_font_face_changed(self, widget):
+        self._update_messages_font_filter()
 
     def on_fontbutton_gcodeview_font_set(self, widget):
         self.widgets.gcode_view.modify_font(widget.get_font_desc())

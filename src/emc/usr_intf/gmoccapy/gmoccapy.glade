@@ -4512,7 +4512,7 @@ clicking on the DRO</property>
                                 <property name="hexpand">False</property>
                                 <property name="label-xalign">0.5</property>
                                 <child>
-                                  <!-- n-columns=2 n-rows=7 -->
+                                  <!-- n-columns=2 n-rows=8 -->
                                   <object class="GtkGrid" id="grid_messages_style">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
@@ -4691,7 +4691,7 @@ will be in a frame.</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
-                                        <property name="top-attach">5</property>
+                                        <property name="top-attach">6</property>
                                         <property name="width">2</property>
                                       </packing>
                                     </child>
@@ -4708,8 +4708,42 @@ to test your settings.</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">0</property>
-                                        <property name="top-attach">6</property>
+                                        <property name="top-attach">7</property>
                                         <property name="width">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="lbl_messages_font_filter">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="margin-start">3</property>
+                                        <property name="hexpand">True</property>
+                                        <property name="label" translatable="yes">Font filter</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">5</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkComboBoxText" id="cmb_messages_font_face">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="active">0</property>
+                                        <items>
+                                          <item id="0">All</item>
+                                          <item id="1">Regular</item>
+                                          <item id="2">Bold</item>
+                                          <item id="3">Medium</item>
+                                          <item id="4">Book</item>
+                                          <item id="5">Italic</item>
+                                        </items>
+                                        <signal name="changed" handler="on_cmb_messages_font_face_changed" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">1</property>
+                                        <property name="top-attach">5</property>
                                       </packing>
                                     </child>
                                   </object>
