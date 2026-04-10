@@ -2506,7 +2506,7 @@ uncomment selection</property>
                                           </object>
                                         </child>
                                         <child type="tab">
-                                          <object class="GtkLabel">
+                                          <object class="GtkLabel" id="lbl_toolinfo_gcodes">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <property name="label" translatable="yes">Tool info and G-codes</property>

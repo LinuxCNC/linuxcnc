@@ -1,5 +1,8 @@
 from gi.repository import Pango
 
+second_row_gremlin_buttons = False
+show_toolinfo_on_main_page = True
+
 # reduce size of v-buttons
 self.widgets["vbtb_main"].set_size_request(78, -1)
 self.widgets["lbl_time"].hide()
@@ -31,18 +34,20 @@ self.widgets["vbx_jog"].set_size_request(-1, -1)
 # second row for gremlin buttons
 self.widgets["box_gremlin_buttons"].remove(self.widgets["tbtn_view_dimension"])
 self.widgets["box_gremlin_buttons"].remove(self.widgets["tbtn_view_tool_path"])
-self.widgets["box_gremlin_buttons"].remove(self.widgets["btn_delete_view"])
-self.widgets["btn_zoom_out"].set_margin_end(0)
-hbox_gremlin_buttons_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-hbox_gremlin_buttons_2.show()
-hbox_gremlin_buttons_2.pack_end(self.widgets["btn_delete_view"], False, False, 0)
-hbox_gremlin_buttons_2.pack_end(self.widgets["tbtn_view_tool_path"], False, False, 0)
-hbox_gremlin_buttons_2.pack_end(self.widgets["tbtn_view_dimension"], False, False, 0)
-self.widgets["vbox15"].pack_end(hbox_gremlin_buttons_2, False, False, 3)
+if second_row_gremlin_buttons:
+    self.widgets["box_gremlin_buttons"].remove(self.widgets["btn_delete_view"])
+    self.widgets["btn_zoom_out"].set_margin_end(0)
+    hbox_gremlin_buttons_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+    hbox_gremlin_buttons_2.show()
+    hbox_gremlin_buttons_2.pack_end(self.widgets["btn_delete_view"], False, False, 0)
+    hbox_gremlin_buttons_2.pack_end(self.widgets["tbtn_view_tool_path"], False, False, 0)
+    hbox_gremlin_buttons_2.pack_end(self.widgets["tbtn_view_dimension"], False, False, 0)
+    self.widgets["vbox15"].pack_end(hbox_gremlin_buttons_2, False, False, 3)     
 
 # reorder settings page
 self.widgets["vbox_file"].remove(self.widgets["frm_message_position"])
 self.widgets["vbox_file"].remove(self.widgets["frm_themes"])
+self.widgets["vbox_file"].remove(self.widgets["frm_gcodeview_font"])
 vbox_c1 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 vbox_c2 = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 hbox_setup_appearance_2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
@@ -50,6 +55,7 @@ hbox_setup_appearance_2.pack_start(vbox_c1, False, False, 3)
 hbox_setup_appearance_2.pack_start(vbox_c2, False, False, 3)
 hbox_setup_appearance_2.show()
 vbox_c1.pack_start(self.widgets["frm_message_position"], False, False, 3)
+vbox_c1.pack_start(self.widgets["frm_gcodeview_font"], False, False, 3)
 vbox_c2.pack_start(self.widgets["frm_themes"], False, False, 3)
 vbox_c1.show()
 vbox_c2.show()
@@ -64,6 +70,10 @@ self.widgets["hbox_main_info"].remove(self.widgets["box_tool_and_code_info"])
 
 box_info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 box_info.show()
+if show_toolinfo_on_main_page:
+    self.widgets.box_tool_and_code_info_2.remove(self.widgets.box_tool_info)
+    self.widgets.vbox15.pack_start(self.widgets.box_tool_info, False, False, 0)
+    self.widgets.lbl_toolinfo_gcodes.set_text("G-codes")
 box_info.pack_start(self.widgets["box_tool_and_code_info"], False, False, 0)
 box_info.pack_end(self.widgets["hbox_main_info"], False, False, 0)
 self.widgets["ntb_user_tabs"].append_page(box_info, Gtk.Label("Info"))
@@ -81,3 +91,5 @@ self.widgets.adj_x_pos.set_value(self.xpos)
 self.widgets.adj_y_pos.set_value(self.ypos)
 self.widgets.adj_width.set_value(self.width)
 self.widgets.adj_height.set_value(self.height)
+self.widgets.adj_jog_box_width.set_value(300)
+self.widgets.vbx_jog.set_size_request(self.widgets.adj_jog_box_width.get_value(), -1)
