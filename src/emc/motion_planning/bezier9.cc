@@ -768,9 +768,17 @@ int bezier9MaxCurvature(Bezier9 * const b)
     // Compute max |dκ/ds| using arc-length table nodes.
     // The curvature rate determines the centripetal jerk = v³ · dκ/ds,
     // which must be bounded for smooth motion at blend entry/exit.
+    //
+    // Loop bound MUST be b->arc_samples, not BEZIER9_ARC_LENGTH_SAMPLES.
+    // bezier9InitFast populates only SAMPLES_FAST entries; reading past that
+    // returns uninitialized stack memory and produces non-deterministic
+    // max_dkappa_ds values that depend on prior call-stack contents.
+    int n_samples = b->arc_samples;
+    if (n_samples <= 0 || n_samples > BEZIER9_ARC_LENGTH_SAMPLES)
+        n_samples = BEZIER9_ARC_LENGTH_SAMPLES;
     double max_dkds = 0.0;
     double prev_kappa = bezier9Curvature(b, 0.0);
-    for (int i = 1; i <= BEZIER9_ARC_LENGTH_SAMPLES; i++) {
+    for (int i = 1; i <= n_samples; i++) {
         double kappa_i = bezier9Curvature(b, b->t_table[i]);
         double ds = b->s_table[i] - b->s_table[i - 1];
         if (ds > BEZIER9_MIN_LENGTH) {
@@ -788,9 +796,10 @@ int bezier9MaxCurvature(Bezier9 * const b)
     // axes change rapidly through the blend, max_dkappa_ds (xyz-only) is
     // near zero while the actual joint-space jerk from the Jacobian-
     // amplified rotary curvature is large.  max_dkappa_ds_9d captures this.
+    // Same loop-bound rule as above.
     double max_dkds_9d = 0.0;
     double prev_kappa_9d = bezier9Curvature9D(b, 0.0);
-    for (int i = 1; i <= BEZIER9_ARC_LENGTH_SAMPLES; i++) {
+    for (int i = 1; i <= n_samples; i++) {
         double kappa_9d_i = bezier9Curvature9D(b, b->t_table[i]);
         double ds_i = b->s_table[i] - b->s_table[i - 1];
         if (ds_i > BEZIER9_MIN_LENGTH) {
