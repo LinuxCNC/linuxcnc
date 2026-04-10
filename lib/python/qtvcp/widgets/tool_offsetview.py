@@ -18,9 +18,9 @@ import sys
 import os
 import operator
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, QSize, pyqtSlot
-from PyQt5.QtGui import QColor, QIcon
-from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
+from qtpy.QtCore import Qt, QAbstractTableModel, QVariant, Property, QSize, Slot
+from qtpy.QtGui import QColor, QIcon
+from qtpy.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
 QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate, qApp)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Tool, Path
@@ -307,8 +307,8 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.setProperty('styleColorSelection', QColor(color))
 
     # external controls
-    @pyqtSlot(float)
-    @pyqtSlot(int)
+    @Slot(float)
+    @Slot(int)
     def scroll(self, data):
         if data > self._last:
             self.right()
@@ -317,7 +317,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self._last = data
 
     # moves the selection up
-    @pyqtSlot()
+    @Slot()
     def up(self):
         cr = self.currentIndex().row()
         # state of checkbox ie. is this row selected?
@@ -330,7 +330,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
             self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveUp,Qt.NoModifier))
 
     # moves the selection down
-    @pyqtSlot()
+    @Slot()
     def down(self):
         cr = self.currentIndex().row()
         # state of checkbox ie. is this row selected?
@@ -353,7 +353,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     ########################################################################
@@ -364,7 +364,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         return self.dialog_code
     def reset_dialog_code(self):
         self.dialog_code = 'CALCULATOR'
-    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    dialog_code_string = Property(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     def set_keyboard_code(self, data):
         self.text_dialog_code = data
@@ -372,7 +372,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         return self.text_dialog_code
     def reset_keyboard_code(self):
         self.text_dialog_code = 'KEYBOARD'
-    text_dialog_code_string = pyqtProperty(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
+    text_dialog_code_string = Property(str, get_keyboard_code, set_keyboard_code, reset_keyboard_code)
 
     def setmetrictemplate(self, data):
         self.tablemodel.metric_text_template = data
@@ -380,7 +380,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         return self.tablemodel.metric_text_template
     def resetmetrictemplate(self):
         self.tablemodel.metric_text_template =  '%10.3f'
-    metric_template = pyqtProperty(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
+    metric_template = Property(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
 
     def setimperialtexttemplate(self, data):
         self.tablemodel.imperial_text_template = data
@@ -388,21 +388,21 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         return self.tablemodel.imperial_text_template
     def resetimperialtexttemplate(self):
         self.tablemodel.imperial_text_template =  '%9.4f'
-    imperial_template = pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
+    imperial_template = Property(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
 
     def getColorHighlight(self):
         return QColor(self.tablemodel._highlightcolor)
     def setColorHighlight(self, value):
         self.tablemodel._highlightcolor = value.name()
         #self.tablemodel.layoutChanged.emit()
-    styleColorHighlight = pyqtProperty(QColor, getColorHighlight, setColorHighlight)
+    styleColorHighlight = Property(QColor, getColorHighlight, setColorHighlight)
 
     def getColorSelection(self):
         return QColor(self.tablemodel._selectedcolor)
     def setColorSelection(self, value):
         self.tablemodel._selectedcolor = value.name()
         #self.tablemodel.layoutChanged.emit()
-    styleColorSelection = pyqtProperty(QColor, getColorSelection, setColorSelection)
+    styleColorSelection = Property(QColor, getColorSelection, setColorSelection)
 
 #########################################
 # custom model
@@ -642,7 +642,7 @@ class MyTableModel(QAbstractTableModel):
             self.layoutChanged.emit()
 
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     w = ToolOffsetView()
     w.setEnabled(True)

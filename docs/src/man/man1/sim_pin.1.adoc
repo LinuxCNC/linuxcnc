@@ -6,12 +6,16 @@ sim_pin - GUI for displaying and setting one or more HAL inputs
 
 == SYNOPSIS
 
-**sim_pin* _[Options]_ _name1_ [_name2_ [_name3_ ...]]*
+*sim_pin* [_Options_] _name1_ [_name2_ [_name3_ ...]]
 
-_Options_: *--help* (shows help text) *--title title_string*
+_Options_:
+
+- *--help* (shows help text)
+- *--title* _title_string_
 
 For bit items, the name may include a /mode= specifier:
-_namei_*/mode=*[*pulse* | *toggle* | *hold*] (default is toggle)
+
+_namei_/*mode=*[*pulse* | *toggle* | *hold*] (default is toggle)
 
 == DESCRIPTION
 
@@ -20,15 +24,16 @@ supported.
 
 If the named input is a numerical type, the GUI displays:
 
-*Entry* Entry widget for value or a valid Tcl expression. +
-*Set* Pushbutton to set new value from Entry (or use <RETURN>). +
-*Reset* Pushbutton to reset to the value present on initiation If the
-input is a *bit* type, the GUI shows a single pushbutton that is
+*Entry*:: Entry widget for value or a valid Tcl expression.
+*Set*::  Pushbutton to set new value from Entry (or use <RETURN>).
+*Reset*::  Pushbutton to reset to the value present on initiation.
+
+If the input is a *bit* type, the GUI shows a single pushbutton that is
 controlled by radio-button selectors:
 
-mode=**pulse** Pulse input to 1 for each pushbutton press. +
-mode=**toggle** Toggle input for each pushbutton press. +
-mode=**hold** Set input to 1 while pushbutton pressed.
+- mode=**pulse** Pulse input to 1 for each pushbutton press. +
+- mode=**toggle** Toggle input for each pushbutton press. +
+- mode=**hold** Set input to 1 while pushbutton pressed.
 
 If the bit item mode begins with an uppercase letter, the radio buttons
 for selecting other modes are not shown
@@ -53,7 +58,9 @@ automatically from a configuration INI file.
 
 Example for INI file usage:
 
-[APPLICATIONS] DELAY = 5 APP = *sim_pin* \ +
-halui.machine.off/mode=pulse \ +
-ini.traj_arc_blend_enable \ +
-motion-command-handler-tmax
+    [APPLICATIONS]
+    DELAY = 5
+    APP = sim_pin \
+        halui.machine.off/mode=pulse \
+        ini.traj_arc_blend_enable \
+        motion-command-handler-tmax

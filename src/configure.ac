@@ -126,17 +126,6 @@ RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
 
-NONDISTRIBUTABLE=false
-AC_ARG_ENABLE(non-distributable,
-    AS_HELP_STRING(
-        [--enable-non-distributable],
-        [To build LinuxCNC even if a license problem would render the resulting binaries non-distributable under the terms of the LinuxCNC license]),
-    [
-        case "$enableval" in
-        (yes) NONDISTRIBUTABLE=true ;;
-        esac
-    ])
-
 ##############################################################################
 # Subsection 2.1                                                             #
 # Check for arguments to ./configure                                         #
@@ -200,14 +189,14 @@ AC_ARG_ENABLE(toolnml,
 
 #at this point if RTS is empty, we need to find RT ourselves
 AC_MSG_CHECKING([for rtai-config])
-if test -z "$RTS"; then
+if test -z "$RTS" || test "$RTS" = uspace; then
   DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
 else
   DIRS="$RTS"
 fi
-  RTAI_CONFIG=none
-  for location in $DIRS; do
-    for subdir in . scripts bin; do
+RTAI_CONFIG=none
+for location in $DIRS; do
+  for subdir in . scripts bin; do
     for signature in rtai; do
       candidate=$location/$subdir/$signature-config
       if test "$RTAI_CONFIG" = "none" -a -x $candidate; then
@@ -700,6 +689,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:$EMC2_HOME/configs"
+    LINUXCNC_CONFIG_PATH_TCL="$::env(HOME)/linuxcnc/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
@@ -722,6 +712,7 @@ else
 	*) EMC2_RTLIB_DIR=$MODULE_DIR/linuxcnc
     esac
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
+    LINUXCNC_CONFIG_PATH_TCL="$::env(HOME)/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=${prefix}/lib/linuxcnc/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
@@ -746,6 +737,7 @@ AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
 AC_SUBST([EMC2_LANG_DIR])
 AC_SUBST([LINUXCNC_CONFIG_PATH])
+AC_SUBST([LINUXCNC_CONFIG_PATH_TCL])
 AC_SUBST([EMC2_NCFILES_DIR])
 AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
@@ -983,6 +975,30 @@ if test "x" = "x$BOOST_PYTHON_LIB"; then
     AC_MSG_NOTICE([error: libboost-python not found])
     DEPFOUND=false
 fi
+
+# Test for a "maybe uninitialized" in the python::boost library in
+# extract<std::string> when compiled with g++ 15.2.[01] and maybe others.
+# The test needs to have -O2 and -Wall enabled to expose the probem.
+AC_LANG_PUSH([C++])
+CPPFLAGS_SAVED="$CPPFLAGS"
+CPPFLAGS="$PYTHON_CPPFLAGS $BOOST_CPPFLAGS $CPPFLAGS -O2 -Wall -Werror"
+AC_CACHE_CHECK(whether $CXX has a "maybe uninitialized" false positive, ax_cv_cxx_boost_maybe_uninit,
+    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <boost/python/extract.hpp>
+std::string func(boost::python::object& o) {
+	return boost::python::extract<std::string>(o);
+}
+int main() { return 0; }
+]])],
+        [ax_cv_cxx_boost_maybe_uninit=no],
+        [ax_cv_cxx_boost_maybe_uninit=yes])
+    ]
+)
+CPPFLAGS="$CPPFLAGS_SAVED"
+if test x$ax_cv_cxx_boost_maybe_uninit = xyes; then
+    CPPFLAGS="$CPPFLAGS -Wno-maybe-uninitialized"
+fi
+AC_LANG_POP([C++])
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
@@ -1354,9 +1370,9 @@ if test -z "$TKCONFIG"; then
 fi
 if (test "x$TKCONFIG" = "x"); then
     # search for tkConfig.sh
-    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | sort -r | head -n1)
+    TKCONFIG=$(find /usr/lib* -maxdepth 2 -name tkConfig.sh | sort -r | head -n1)
     if (test "x$TKCONFIG" = "x"); then
-	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+	TKCONFIG=$(find /usr/local/lib* -maxdepth 2 -name tkConfig.sh | head -n1)
     fi
 fi
 
@@ -1378,6 +1394,14 @@ if ! test -z "$TCL_VERSION" && ! test -z "$TK_VERSION" && ! test "$TCL_VERSION" 
     AC_MSG_ERROR([Tcl and Tk versions must be the same, but configure found
 Tcl $TCL_VERSION and Tk $TK_VERSION.  You can use --with-tkConfig= and --with-tclConfig=
 to override the autodetected versions.])
+fi
+
+if test -z "$TCL_MAJOR_VERSION" || test -z "$TCL_MINOR_VERSION" ; then
+    AC_MSG_ERROR([tclConfig was not found or did not export TCL_MAJOR_VERSION/TCL_MINOR_VERSION. Cannot determine exact Tcl version.])
+fi
+
+if test "(" "$TCL_MAJOR_VERSION" -lt 8 ")" -o "(" "(" "$TCL_MAJOR_VERSION" -eq 8 ")" -a "(" "$TCL_MINOR_VERSION" -lt 4 ")" ")" ; then
+    AC_MSG_ERROR([Tcl version must be 8.4 or better. Your Tcl version ${TCL_MAJOR_VERSION}.${TCL_MINOR_VERSION} is too old.])
 fi
 
 if test -f $TCL_EXEC_PREFIX/bin/wish$TCL_VERSION; then
@@ -1424,13 +1448,16 @@ if test "$RUNTIME_CHECK" = "yes"; then
         AC_MSG_RESULT([not found])
     fi
 
-    AC_MSG_CHECKING([for tclX using $TCLSH])
-    if (unset DISPLAY; echo ["catch { package require Tclx }; exit [expr [lsearch [package names] Tclx] == -1]"] | $TCLSH); then
-        AC_MSG_RESULT([found])
-    else
-        AC_MSG_RESULT(no)
-        AC_MSG_ERROR([Tclx not found!
-    install with "sudo apt-get install tclx"])
+    # Don't need tclX anymore in Tcl9
+    if test "$TCL_MAJOR_VERSION" -lt 9; then
+        AC_MSG_CHECKING([for tclX using $TCLSH])
+        if (unset DISPLAY; echo ["catch { package require Tclx }; exit [expr [lsearch [package names] Tclx] == -1]"] | $TCLSH); then
+            AC_MSG_RESULT([found])
+        else
+            AC_MSG_RESULT(no)
+            AC_MSG_ERROR([Tclx not found!
+        install with "sudo apt-get install tclx"])
+        fi
     fi
 
     AC_MSG_CHECKING([for python pango module])
@@ -1486,59 +1513,21 @@ fi
 temp_LIBS=$LIBS
 LIBS=
 
-# check for readline.h and friends, optional for halcmd
-AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
-AC_CHECK_HEADERS(readline/history.h, [], [HAVE_READLINE=no])
-
-echo "Trying readline without -ltermcap"
-AC_CHECK_LIB(readline, readline, [HAVE_READLINE_NOTERMCAP=yes], [])
-unset ac_cv_lib_readline_readline
-echo "Trying readline with -ltermcap"
-AC_CHECK_LIB(readline, readline, [HAVE_READLINE_TERMCAP=yes], [], -ltermcap)
-unset ac_cv_lib_readline_readline
-
-if test "x$HAVE_READLINE_NOTERMCAP" = "xyes"; then
-    echo "Readline does not require -ltermcap"
-    READLINE_LIBS="-lreadline"
-elif test "x$HAVE_READLINE_TERMCAP" = "xyes"; then
-    echo "Readline requires -ltermcap"
-    READLINE_LIBS="-lreadline -ltermcap"
-else
-    HAVE_READLINE=no
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([fmt/format.h],[HAVE_LIBFMT=yes],[HAVE_LIBFMT=no])
+AC_LANG_POP([C++])
+if test "x$HAVE_LIBFMT" = "xno"; then
+    AC_MSG_ERROR([libfmt header not found. Install with 'sudo apt-get install libfmt-dev'])
 fi
 
-AC_MSG_CHECKING([whether readline license is compatible with GPL-2])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-        #include <stdio.h>
-        #include <readline/readline.h>
-    ]], [[
-        #if RL_VERSION_MAJOR > 5
-        #error Readline version 6 and up are not compatible with GPL-2
-        #endif
-    ]])],[AC_MSG_RESULT(yes)],[
-        AC_MSG_RESULT(no)
-        AC_MSG_WARN(
-[The LinuxCNC binary you are building may not be
-distributable due to a license incompatibility with LinuxCNC (some portions
-GPL-2 only) and Readline version 6 and greater (GPL-3 or later).])
-        if $NONDISTRIBUTABLE; then
-            AC_MSG_WARN(
-[User requested to enable non-distributable builds.  Continuing.])
-        else
-            AC_MSG_ERROR(
-[To configure LinuxCNC in this way, you must
-invoke configure with "--enable-non-distributable=yes".  Note that on
-Debian-based systems, you may be able to use libeditreadline-dev or
-libreadline-gplv2-dev instead of libreadline-dev.])
-        fi
+AC_CHECK_HEADERS([editline/readline.h histedit.h], [], [
+    AC_MSG_ERROR([libedit headers not found. Please install libedit-dev or libedit-devel.])
 ])
-
-if test "x$HAVE_READLINE" = "xyes"; then
-    AC_DEFINE([HAVE_READLINE], [], [Define to 1 if you have the 'readline' library (-lreadline) and required headers])
-else
-    AC_MSG_ERROR([Required library 'readline' missing.])
-fi
-AC_SUBST([HAVE_READLINE])
+AC_CHECK_LIB([edit], [readline], [
+    READLINE_LIBS="-ledit"
+], [
+    AC_MSG_ERROR([libedit library (-ledit) not found.])
+])
 AC_SUBST([READLINE_LIBS])
 
 ##############################################################################

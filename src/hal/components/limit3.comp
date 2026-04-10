@@ -25,7 +25,7 @@ license "GPL";
 author "John Kasunich";
 ;;
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 
 #define SET_NEXT_STATE(_out, _in)			\
     do {						\

@@ -43,8 +43,8 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <hal.h>		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 
 #include <gtk/gtk.h>
@@ -256,7 +256,7 @@ static void init_trigger_info_window(void)
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
     gtk_label_new_in_box(_("Pos"), vbox, FALSE, FALSE, 0);
     trig->pos_adj =
-	gtk_adjustment_new(TRIG_POS_RESOLUTION / 2, 0, TRIG_POS_RESOLUTION, 1,
+	gtk_adjustment_new(TRIG_POS_RESOLUTION, 0, TRIG_POS_RESOLUTION, 1,
 	1, 0);
     trig->pos_slider = gtk_scale_new(
             GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(trig->pos_adj));

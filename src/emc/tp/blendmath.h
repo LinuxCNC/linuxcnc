@@ -13,7 +13,8 @@
 #ifndef BLENDMATH_H
 #define BLENDMATH_H
 
-#include "posemath.h"
+#include <posemath.h>
+
 #include "tc_types.h"
 #include "sp_scurve.h"
 
@@ -243,15 +244,6 @@ int blendPoints3Print(BlendPoints3 const * const points);
 
 double pmCartAbsMax(PmCartesian const * const v);
 
-typedef struct {
-    double v_max;
-    double acc_ratio;
-} PmCircleLimits;
-
-PmCircleLimits pmCircleActualMaxVel(const PmCircle *circle,
-        double v_max_nominal,
-        double a_max_nominal);
-
 int findSpiralArcLengthFit(PmCircle const * const circle,
         SpiralArcLengthFit * const fit);
 int pmCircleAngleFromProgress(PmCircle const * const circle,
@@ -273,15 +265,17 @@ static inline double findSCurveVPeak(double a_t_max, double j_t_max, double dist
         return 0.0;
     }
 
+    double triangular_v = findVPeak(a_t_max, distance);
+
     double req_v;
     int result = findSCurveVSpeed(distance, a_t_max, j_t_max, &req_v);
-    
+
     // If the S-curve calculation fails, revert to the simpler triangular velocity calculation.
     if (result != 1) {
-        return findVPeak(a_t_max, distance);
+        return triangular_v;
     }
 
     // Take the smaller value between the S-curve velocity and the triangular velocity.
-    return fmin(req_v, findVPeak(a_t_max, distance));
+    return fmin(req_v, triangular_v);
 }
 #endif

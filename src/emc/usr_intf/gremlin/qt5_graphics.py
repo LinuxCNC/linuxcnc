@@ -8,9 +8,9 @@ import math
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, Qt, QTimer
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QSlider,
+from qtpy.QtCore import Property, Signal, QSize, Qt, QTimer
+from qtpy.QtGui import QColor
+from qtpy.QtWidgets import (QApplication, QHBoxLayout, QSlider,
         QWidget, QOpenGLWidget)
 
 LIB_GOOD = True
@@ -69,7 +69,7 @@ class Window(QWidget):
         self.xSlider.setValue(15 * 16)
         self.ySlider.setValue(345 * 16)
         self.zSlider.setValue(0 * 16)
-        self.zSlider.setValue(10)
+        self.zoomSlider.setValue(10)
 
         self.setWindowTitle("Hello GL")
 
@@ -178,10 +178,10 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
 # widget for graphics plotting
 ###############################
 class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
-    percentLoaded = pyqtSignal(int)
-    xRotationChanged = pyqtSignal(int)
-    yRotationChanged = pyqtSignal(int)
-    zRotationChanged = pyqtSignal(int)
+    percentLoaded = Signal(int)
+    xRotationChanged = Signal(int)
+    yRotationChanged = Signal(int)
+    zRotationChanged = Signal(int)
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
 
     def __init__(self, parent=None):
@@ -379,6 +379,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         td = tempfile.mkdtemp()
         self._current_file = filename
         load_result = True
+        canon = None
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
             arcdivision = int(self.inifile.find("DISPLAY", "ARCDIVISION") or 64)
@@ -387,7 +388,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                                 self.get_geometry(),
                                 self.foam_option,
                                 self.lathe_option,
-                                s, text, random, i,
+                                s, random, text, i,
                                 progress, arcdivision)
             # monkey patched function to call ours
             canon.output_notify_message = self.output_notify_message
@@ -397,7 +398,18 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
             unitcode = "G%d" % (20 + (s.linear_units == 1))
-            initcode = ""
+            initcode = "G53 G0 "
+            for i in range(9):
+                if s.axis_mask & (1<<i):
+                    axis = "XYZABCUVW"[i]
+                    if (axis == "A" and self.a_axis_wrapped) or\
+                       (axis == "B" and self.b_axis_wrapped) or\
+                       (axis == "C" and self.c_axis_wrapped):
+                        pos = s.position[i] % 360.000
+                    else:
+                        pos = s.position[i]
+                    position = " %s%.8f" % (axis, pos)
+                    initcode += position
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
@@ -1052,7 +1064,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def select_prime(self, x, y):
         self.select_primed = x, y
 
-    # If the hcode program is large the display pauses plotting update 
+    # If the hcode program is large the display pauses plotting update
     # while searching. probably needs a thread or compiled code.
     # the actual opengl search is in glcanon.py, GlCanonDraw: select()
     def select_fire(self):
@@ -1212,6 +1224,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.extrude(x3, y3, x4, y4, z= .05, color = self.Green)
         self.extrude(x4, y4, y4, x4, z= .05, color = self.Green)
         self.extrude(y4, x4, y3, x3, z= .05, color = self.Green)
+        self.extrude(y3, x3, x3, y3, z= .05, color = self.Green)
 
         NumSectors = 200
 
@@ -1284,7 +1297,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         return self._font
     def resetfont(self):
         self._font = 'monospace bold 16'
-    dro_font = pyqtProperty(str, getfont, setfont, resetfont)
+    dro_font = Property(str, getfont, setfont, resetfont)
 
     def setfontlarge(self, font):
         self._fontLarge = font
@@ -1293,7 +1306,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         return self._fontLarge
     def resetfontlarge(self):
         self._fontLarge = 'monospace bold 22'
-    dro_large_font = pyqtProperty(str, getfontlarge, setfontlarge, resetfontlarge)
+    dro_large_font = Property(str, getfontlarge, setfontlarge, resetfontlarge)
 
 ###########
 # Testing

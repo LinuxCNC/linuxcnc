@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <boost/noncopyable.hpp>
 #include <emcpos.h>
-#include <modal_state.hh>
+#include "modal_state.hh"
 
 /* Size of certain arrays */
 #define ACTIVE_G_CODES 17

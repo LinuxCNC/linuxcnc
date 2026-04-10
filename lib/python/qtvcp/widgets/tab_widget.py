@@ -13,8 +13,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-from PyQt5.QtWidgets import (QTabWidget, QTabBar)
-from PyQt5.QtCore import pyqtProperty, QSize
+from qtpy.QtWidgets import (QTabWidget, QTabBar)
+from qtpy.QtCore import Property, QSize
 
 class TabWidget(QTabWidget):
     def __init__(self, parent=None):
@@ -30,7 +30,7 @@ class TabWidget(QTabWidget):
     def reset_tabSize(self):
         self._tabSize = 1.5
 
-    tabSize = pyqtProperty(float, get_tabSize, set_tabSize, reset_tabSize)
+    tabSize = Property(float, get_tabSize, set_tabSize, reset_tabSize)
 
 class TabBar(QTabBar):
     def __init__(self, parent=None, size=1.5):

@@ -105,14 +105,14 @@
 
  ----------------------------------------------------------------------------*/
 
-#include "rtapi.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
-#include "posemath.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <rtapi_string.h>
+#include <hal.h>
+#include <emcmotcfg.h>
+#include <kinematics.h>             /* these decls, KINEMATICS_FORWARD_FLAGS */
+
 #include "genhexkins.h"
-#include "motion.h"
-#include "kinematics.h"             /* these decls, KINEMATICS_FORWARD_FLAGS */
 #include "switchkins.h"
 
 static struct haldata {

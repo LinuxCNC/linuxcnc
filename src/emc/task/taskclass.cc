@@ -19,16 +19,14 @@
 #include <stdlib.h>		// malloc()
 #include <sys/wait.h>
 
-#include "rcs.hh"		// RCS_CMD_CHANNEL, etc.
-#include "rcs_print.hh"
-#include "timer.hh"             // esleep, etc.
-#include "emcglb.h"		// EMC_INIFILE
+#include "libnml/rcs/rcs.hh"		// RCS_CMD_CHANNEL, etc.
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/os_intf/timer.hh"             // esleep, etc.
+#include "nml_intf/emcglb.h"		// EMC_INIFILE
 
-#include "python_plugin.hh"
+#include "pythonplugin/python_plugin.hh"
 #include "taskclass.hh"
 #include <rtapi_string.h>
-
-#include "hal.hh"
 
 /********************************************************************
 *
@@ -129,6 +127,7 @@ struct _inittab builtin_modules[] = {
 
 Task::Task(EMC_IO_STAT & emcioStatus_in) :
     emcioStatus(emcioStatus_in),
+    iocontrol_data{},
     iocontrol("iocontrol.0"),
     ini_filename(emc_inifile),
     tool_status(0)
@@ -138,14 +137,13 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
 
     if (inifile.Open(ini_filename)) {
         inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-        std::optional<const char*> t;
-        if ((t = inifile.Find("TOOL_TABLE", "EMCIO")))
-            tooltable_filename = strdup(*t);
+        if (auto t = inifile.Find("TOOL_TABLE", "EMCIO"))
+            tooltable_filename = strdup(t->c_str());
 
-        if ((t = inifile.Find("DB_PROGRAM", "EMCIO"))) {
+        if (auto t = inifile.Find("DB_PROGRAM", "EMCIO")) {
             db_mode = tooldb_t::DB_ACTIVE;
             tooldata_set_db(db_mode);
-            strncpy(db_program, *t, LINELEN - 1);
+            strncpy(db_program, t->c_str(), LINELEN - 1);
         }
 
         if (tooltable_filename != NULL && db_program[0] != '\0') {
@@ -206,11 +204,11 @@ Task::~Task() {};
 static int readToolChange(IniFile *toolInifile)
 {
     int retval = 0;
-    std::optional<const char*> inistring;
 
-    if ((inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
+    auto inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO");
+    if (inistring) {
 	/* found an entry */
-        if (9 == sscanf(*inistring, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+        if (9 == sscanf(inistring->c_str(), "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
                         &tool_change_position.tran.x,
                         &tool_change_position.tran.y,
                         &tool_change_position.tran.z,
@@ -222,7 +220,7 @@ static int readToolChange(IniFile *toolInifile)
                         &tool_change_position.w)) {
             have_tool_change_position=9;
             retval=0;
-        } else if (6 == sscanf(*inistring, "%lf %lf %lf %lf %lf %lf",
+        } else if (6 == sscanf(inistring->c_str(), "%lf %lf %lf %lf %lf %lf",
                         &tool_change_position.tran.x,
                         &tool_change_position.tran.y,
                         &tool_change_position.tran.z,
@@ -234,7 +232,7 @@ static int readToolChange(IniFile *toolInifile)
 	    tool_change_position.w = 0.0;
             have_tool_change_position = 6;
             retval = 0;
-        } else if (3 == sscanf(*inistring, "%lf %lf %lf",
+        } else if (3 == sscanf(inistring->c_str(), "%lf %lf %lf",
                                &tool_change_position.tran.x,
                                &tool_change_position.tran.y,
                                &tool_change_position.tran.z)) {
@@ -376,6 +374,7 @@ int Task::emcAuxEstopOn()//EMC_AUX_ESTOP_ON_TYPE
 {
     /* assert an ESTOP to the outside world (thru HAL) */
     iocontrol_data.user_enable_out = 0; //disable on ESTOP_ON
+    iocontrol_data.user_request_enable = 0;
     hal_init_pins(); //resets all HAL pins to safe valuea
     return 0;
 }
@@ -649,6 +648,10 @@ void Task::run(){ // called periodically from emctaskmain.cc
     tool_status = read_tool_inputs();
     if (iocontrol_data.emc_enable_in == 0) //check for estop from HW
         emcioStatus.aux.estop = 1;
-    else
+    else {
         emcioStatus.aux.estop = 0;
+        if (iocontrol_data.user_request_enable == 1) {
+            iocontrol_data.user_request_enable = 0;
+        }
+    }
 }

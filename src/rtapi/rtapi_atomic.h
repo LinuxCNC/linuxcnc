@@ -1,4 +1,5 @@
 //    Copyright 2015 Jeff Epler
+//    Copyright 2026 B.Stultiens
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -13,38 +14,36 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#ifndef RTAPI_ATOMIC_H
-#define RTAPI_ATOMIC_H
+#ifndef __LINUXCNC_RTAPI_ATOMIC_H
+#define __LINUXCNC_RTAPI_ATOMIC_H
 
-#if defined(__GNUC__) && ((__GNUC__ << 8) | __GNUC_MINOR__) >= 0x409
+#if defined(__cplusplus)
+
+// We use C++20 and that has all the atomics we need
+#include <atomic>
+
+#else // defined(__cplusplus)
+
+// Standard C, we require C11 or better
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define RTAPI_USE_STDATOMIC
-#elif defined(__STDC_VERSION__) && __STDC_VERSION > 201112L
+#elif defined(__GNUC__) && ((__GNUC__ << 8) | __GNUC_MINOR__) >= 0x409
 #define RTAPI_USE_STDATOMIC
 #endif
 
-#ifdef RTAPI_USE_STDATOMIC
+#if defined(RTAPI_USE_STDATOMIC)
 #include <stdatomic.h>
-#else
 
-enum memory_order {
-    memory_order_relaxed,
-    memory_order_consume,
-    memory_order_acquire,
-    memory_order_release,
-    memory_order_acq_rel,
-    memory_order_seq_cst
-};
-
-#define atomic_store(obj, desired) atomic_store_explicit((obj), (desired), memory_order_seq_cst)
-#define atomic_load(obj) atomic_load_explicit((obj), memory_order_seq_cst)
-
-// note that in this implementation, only one level of synchronization is supported, equivalent to memory_order_seq_cst
-#define atomic_store_explicit(obj, desired, order) \
-    ({ (void)order; __sync_synchronize(); *(obj) = (desired); (void)0; })
-
-#define atomic_load_explicit(obj, order) \
-    ({ (void)order; __typeof__(*(obj)) v = *(obj); __sync_synchronize(); v; })
-
+#if defined(__STDC_NO_ATOMICS__)
+#error "Your compiler/libc has set __STDC_NO_ATOMICS__ and atomics are required."
 #endif
+
+#else // defined(RTAPI_USE_STDATOMIC)
+
+#error "Old compiler has no C11 atomics. Please upgrade your compiler to support C11 or better."
+
+#endif // defined(RTAPI_USE_STDATOMIC)
+
+#endif // defined(__cplusplus)
 
 #endif

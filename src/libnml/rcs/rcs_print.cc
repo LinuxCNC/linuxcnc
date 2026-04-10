@@ -12,10 +12,6 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdarg.h>		/* va_list, va_start(), va_end() */
 #include <stdio.h>		/* __printf()'s */
 #include <string.h>		/* strchr(), memmove() */
@@ -25,12 +21,9 @@ extern "C" {
 #include <sys/types.h>
 #include <unistd.h>		/* getpid() */
 
-#ifdef __cplusplus
-}
-#endif
 #include <rtapi_string.h>
-#include "rcs_print.hh"
-#include "linklist.hh"
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/linklist/linklist.hh"
 #ifndef _TIMER_H
 extern "C" double etime(void);
 #endif
@@ -276,9 +269,10 @@ int separate_words(char **_dest, int _max, char *_src)
 	return -1;
     }
     rtapi_strxcpy(word_buffer, _src);
-    _dest[0] = strtok(word_buffer, " \n\r\t");
+    char* saveptr;
+    _dest[0] = strtok_r(word_buffer, " \n\r\t", &saveptr);
     for (i = 0; i < _max - 1 && NULL != _dest[i]; i++) {
-	_dest[i + 1] = strtok(NULL, " \n\r\t");
+	_dest[i + 1] = strtok_r(NULL, " \n\r\t", &saveptr);
     }
     if (_dest[_max - 1] == NULL && i == _max - 1) {
 	i--;

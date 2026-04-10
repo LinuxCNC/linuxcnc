@@ -1,12 +1,12 @@
 import sys
 
-from PyQt5 import QtWidgets
+from qtpy import QtWidgets
 #PYQT5 QSpinBox, QMessageBox, QDialog, QPushButton, QGridLayout, QLabel
 
 
 
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import Qt
+from qtpy import QtGui, QtCore
+from qtpy.QtCore import Qt
 
 class Table(QtWidgets.QDialog):
     def __init__(self,parent = None):

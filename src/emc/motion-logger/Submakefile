@@ -4,11 +4,32 @@ MOTION_LOGGER_SRCS := \
 	$(addprefix emc/motion-logger/, motion-logger.c) \
 	emc/motion/axis.c \
 	emc/motion/simple_tp.c \
-	emc/tp/sp_scurve.c
+	emc/tp/sp_scurve.c \
+	emc/tp/ruckig_wrapper.c
 
-USERSRCS += $(MOTION_LOGGER_SRCS)
+CRUCKIG_SRCS := \
+	emc/tp/cruckig/block.c \
+	emc/tp/cruckig/brake.c \
+	emc/tp/cruckig/calculator.c \
+	emc/tp/cruckig/cruckig.c \
+	emc/tp/cruckig/input_parameter.c \
+	emc/tp/cruckig/output_parameter.c \
+	emc/tp/cruckig/profile.c \
+	emc/tp/cruckig/roots.c \
+	emc/tp/cruckig/trajectory.c \
+	emc/tp/cruckig/position_first_step1.c \
+	emc/tp/cruckig/position_first_step2.c \
+	emc/tp/cruckig/position_second_step1.c \
+	emc/tp/cruckig/position_second_step2.c \
+	emc/tp/cruckig/position_third_step1.c \
+	emc/tp/cruckig/position_third_step2.c \
+	emc/tp/cruckig/velocity_second_step1.c \
+	emc/tp/cruckig/velocity_second_step2.c \
+	emc/tp/cruckig/velocity_third_step1.c \
+	emc/tp/cruckig/velocity_third_step2.c
 
-../bin/motion-logger: $(call TOOBJS, $(MOTION_LOGGER_SRCS)) ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
+USERSRCS += $(MOTION_LOGGER_SRCS) $(CRUCKIG_SRCS)
+
+../bin/motion-logger: $(call TOOBJS, $(MOTION_LOGGER_SRCS) $(CRUCKIG_SRCS)) ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
-

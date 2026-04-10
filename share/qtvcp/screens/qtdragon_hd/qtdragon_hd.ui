@@ -6269,7 +6269,7 @@ LOG</string>
                    <number>3</number>
                   </property>
                   <item>
-                   <widget class="QTabWidget" name="tabWidget_utilities">
+                   <widget class="DetachTabWidget" name="tabWidget_utilities">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
@@ -17399,6 +17399,11 @@ ANGULAR</string>
    <class>Gauge</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.round_gauge</header>
+  </customwidget>
+  <customwidget>
+   <class>DetachTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>qtvcp.widgets.detach_tabs</header>
   </customwidget>
  </customwidgets>
  <resources>

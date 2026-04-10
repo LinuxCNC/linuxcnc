@@ -83,7 +83,8 @@ int tooldata_read_entry(const char *input_line)
         return -1;
     }
     if (input_line[0] == ';') {return 0;} //ignore leading ';'
-    strcpy(work_line, input_line);
+    strncpy(work_line, input_line, sizeof(work_line)-1);
+    work_line[sizeof(work_line)-1] = 0;
 
     CANON_TOOL_TABLE empty = tooldata_entry_init();
     toolno      = empty.toolno;
@@ -93,14 +94,15 @@ int tooldata_read_entry(const char *input_line)
     orientation = empty.orientation;
     offset      = empty.offset;
 
-    buff = strtok(work_line, ";");
+    char* saveptr;
+    buff = strtok_r(work_line, ";", &saveptr);
     if (strlen(buff) <=1) {
         //fprintf(stderr,"skip blankline %s\n",__FILE__);
         return 0;
     }
-    comment = strtok(NULL, "\n");
+    comment = strtok_r(NULL, "\n", &saveptr);
 
-    token = strtok(buff, " ");
+    token = strtok_r(buff, " ", &saveptr);
     while (token != NULL) {
         switch (toupper(token[0])) {
         case 'T':
@@ -188,7 +190,7 @@ int tooldata_read_entry(const char *input_line)
                 valid = 0;
             break;
         }
-        token = strtok(NULL, " ");
+        token = strtok_r(NULL, " ", &saveptr);
     } // while token
 
     if (valid) {
@@ -245,12 +247,13 @@ void tooldata_format_toolline (int idx,
     space -= len;
 // format zero float values as %.0f for brevity
 #define F_ITEM(item,letter) if (!ignore_zero_values || tdata.item) { \
+                                char local_tmp[64] = {}; \
                                 if (tdata.item) { \
-                                    len = snprintf(tmp,sizeof(tmp)," " letter "%+f", tdata.item); \
+                                    len = snprintf(local_tmp,sizeof(local_tmp)," " letter "%+f", tdata.item); \
                                 } else { \
-                                    len = snprintf(tmp,sizeof(tmp)," " letter "%.0f",tdata.item); \
+                                    len = snprintf(local_tmp,sizeof(local_tmp)," " letter "%.0f",tdata.item); \
                                 } \
-                                strncat(formatted_line,tmp,space); \
+                                strncat(formatted_line,local_tmp,space); \
                                 space -= len; \
                             }
 #define I_ITEM(item,letter) if (!ignore_zero_values || tdata.item) { \
@@ -387,6 +390,13 @@ int tooldata_save(const char *filename)
         if (!is_random_toolchanger) {return 0;}
         filename = DB_SPINDLE_SAVE; //one entry tbl (nonran only)
     } else {
+        // filename == NULL happens without ini entry [EMCIO]TOOL_TABLE
+        // and a Task::emcToolSetOffset is performed.
+        if (!filename) {
+            fprintf(stderr, "%s: No filename. Are you missing INI-entry [EMCIO]TOOL_TABLE?\n",
+                    __PRETTY_FUNCTION__);
+            return -1;
+        }
         if (filename[0] == 0) {
             UNEXPECTED_MSG;
         }

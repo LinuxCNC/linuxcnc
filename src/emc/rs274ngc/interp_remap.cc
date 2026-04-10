@@ -14,7 +14,7 @@
 #define _GNU_SOURCE
 #endif
 #define BOOST_PYTHON_MAX_ARITY 4
-#include "python_plugin.hh"
+#include "pythonplugin/python_plugin.hh"
 #include "interp_python.hh"
 #include <boost/python/list.hpp>
 namespace bp = boost::python;
@@ -421,11 +421,12 @@ int Interp::parse_remap(const char *inistring, int lineno)
     if ((s = strchr(iniline, '#')) != NULL) {
 	*s = '\0';
     }
-    s = strtok((char *) iniline, " \t");
+    char* saveptr;
+    s = strtok_r((char *) iniline, " \t", &saveptr);
 
     while( s != NULL && argc < MAX_REMAPOPTS - 1) {
 	argv[argc++] = s;
-	s = strtok( NULL, " \t" );
+	s = strtok_r( NULL, " \t", &saveptr);
     }
     if (argc == MAX_REMAPOPTS) {
 	Error("parse_remap: too many arguments (max %d)", MAX_REMAPOPTS);

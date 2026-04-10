@@ -15,11 +15,7 @@
 
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
-#include "rcsversion.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "libnml/rcs/rcsversion.h"
 
 #include <string.h>		// memcpy()
 #include <stdlib.h>		// atexit()
@@ -27,19 +23,16 @@ extern "C" {
 #include <netdb.h>
 #include <arpa/inet.h>		// inet_ntoa
 
-#ifdef __cplusplus
-}
-#endif
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include "nml.hh"		// class NML
 #include "nmlmsg.hh"		// class NMLmsg
-#include "cms.hh"		// class CMS
-#include "timer.hh"		// esleep()
+#include "libnml/cms/cms.hh"		// class CMS
+#include "libnml/os_intf/timer.hh"		// esleep()
 #include "nml_srv.hh"		// NML_Default_Super_Server
-#include "cms_cfg.hh"		// cms_config(), cms_copy()
-#include "linklist.hh"		// class LinkedList
-#include "rcs_print.hh"		// rcs_print_error()
-#include "physmem.hh"
+#include "libnml/cms/cms_cfg.hh"		// cms_config(), cms_copy()
+#include "libnml/linklist/linklist.hh"		// class LinkedList
+#include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
+#include "libnml/buffer/physmem.hh"
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif
@@ -115,7 +108,7 @@ void *NML::operator new(size_t size)
 	cptr = ((char *) nml_space) + sizeof(NML);
 	// guarantee alignment
 	cptr += sizeof(int) - (((size_t) cptr) % sizeof(int));
-	*((int *) cptr) = dynamic_list_id;
+	*reinterpret_cast<int *>(cptr) = dynamic_list_id;
     }
     rcs_print_debug(PRINT_NML_CONSTRUCTORS, "%p = NML::operator new(%zd)\n",
 	nml_space, size);
@@ -137,7 +130,7 @@ void NML::operator delete(void *nml_space)
     if (NULL != Dynamically_Allocated_NML_Objects) {
 	cptr = ((char *) nml_space) + sizeof(NML);
 	cptr += sizeof(int) - (((size_t) cptr) % sizeof(int));
-	dynamic_list_id = *((int *) cptr);
+	dynamic_list_id = *reinterpret_cast<int *>(cptr);
 	Dynamically_Allocated_NML_Objects->delete_node(dynamic_list_id);
 	if (Dynamically_Allocated_NML_Objects->list_size == 0) {
 	    delete Dynamically_Allocated_NML_Objects;
@@ -1865,7 +1858,7 @@ int NML::format_input(NMLmsg * nml_msg)
 	    return (-1);
 	}
 
-	cms->format_low_ptr = (char *) nml_msg;
+	cms->format_low_ptr = reinterpret_cast<char *>(nml_msg);
 	cms->format_high_ptr = cms->format_low_ptr + nml_msg->size;
 	/* Handle the generic part of the message. */
 	cms->rewind();		/* Move to the start of the encoded buffer. */
@@ -2436,7 +2429,7 @@ NML_DIAGNOSTICS_INFO *NML::get_diagnostics_info()
     if (NULL == cms) {
 	return NULL;
     }
-    return (NML_DIAGNOSTICS_INFO *) cms->get_diagnostics_info();
+    return reinterpret_cast<NML_DIAGNOSTICS_INFO *>(cms->get_diagnostics_info());
 }
 
 void nmlSetHostAlias(const char * const hostName, const char * const hostAlias)

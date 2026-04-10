@@ -20,8 +20,8 @@ import _thread as Thread
 
 import hal
 
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QImage
+from qtpy import QtWidgets, QtCore
+from qtpy.QtGui import QColor, QFont, QPainter, QPen, QImage
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp import logger
@@ -62,7 +62,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.grabbed = None
         self.frame = None
         self._camNum = 0
-        self.api = CV.CAP_ANY
+        self.api = DEFAULT_API
         self.resolution=None
         self.diameter = 20
         self.rotation = 0
@@ -430,6 +430,8 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     # if data is a string or int, search for name/int in library and use it.
     def setAPI(self, data):
+        if not LIB_GOOD:
+            return
         camera_backends = CV.videoio_registry.getCameraBackends()
 
         if isinstance(data,str):
@@ -471,7 +473,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # These can also be set as  WIDGET.setProperty('property_name', data)
@@ -491,11 +493,11 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def reset_camnum(self):
         self._camNum = 0
     # designer will show these properties in this order:
-    block_wheel_rotation = QtCore.pyqtProperty(bool, get_wheel_rotation, set_wheel_rotation, reset_wheel_rotation)
-    camera_number = QtCore.pyqtProperty(int, get_camnum, set_camnum, reset_camnum)
+    block_wheel_rotation = QtCore.Property(bool, get_wheel_rotation, set_wheel_rotation, reset_wheel_rotation)
+    camera_number = QtCore.Property(int, get_camnum, set_camnum, reset_camnum)
 
 class WebcamVideoStream:
-    def __init__(self, src=0, api=CV.CAP_ANY, res=None):
+    def __init__(self, src=0, api=DEFAULT_API, res=None):
         self.possible_resolutions = []
         # initialize the video camera stream and read the first frame
         # from the stream
@@ -703,9 +705,9 @@ class CamAngle(CamView):
 if __name__ == '__main__':
 
     import sys
-    from PyQt5.QtWidgets import (QLabel, QSlider, QDial,QWidget, QVBoxLayout,
+    from qtpy.QtWidgets import (QLabel, QSlider, QDial,QWidget, QVBoxLayout,
         QHBoxLayout)
-    from PyQt5.QtCore import (Qt)
+    from qtpy.QtCore import (Qt)
 
     def hDialMoved():
         print("Dial value = %i" % (hdial.value()))

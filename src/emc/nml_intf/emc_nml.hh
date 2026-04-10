@@ -14,15 +14,15 @@
 ********************************************************************/
 #ifndef EMC_NML_HH
 #define EMC_NML_HH
-#include "linuxcnc.h"
+#include <linuxcnc.h>
+#include <emcpos.h>
 #include "emc.hh"
-#include "rcs.hh"
-#include "cmd_msg.hh"
-#include "stat_msg.hh"
-#include "emcpos.h"
-#include "modal_state.hh"
+#include "libnml/rcs/rcs.hh"
+#include "libnml/nml/cmd_msg.hh"
+#include "libnml/nml/stat_msg.hh"
+#include "rs274ngc/modal_state.hh"
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
-#include "rs274ngc.hh"		// ACTIVE_G_CODES, etc
+#include "rs274ngc/rs274ngc.hh"		// ACTIVE_G_CODES, etc
 
 // ------------------
 // CLASS DECLARATIONS
@@ -735,6 +735,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
         vel(0.0),
         ini_maxvel(0.0),
         acc(0.0),
+        ini_maxjerk(0.0),
         feed_mode(0),
         indexer_jnum(0)
     {};
@@ -763,6 +764,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
         vel(0.0),
         ini_maxvel(0.0),
         acc(0.0),
+        ini_maxjerk(0.0),
         feed_mode(0)
     {};
 
@@ -794,8 +796,8 @@ class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     int cond;
-    double tolerance; // used to set the precision/tolerance of path deviation 
-		      // during CONTINUOUS motion mode. 
+    double tolerance; // used to set the precision/tolerance of path deviation
+		      // during CONTINUOUS motion mode.
 };
 
 class EMC_TRAJ_SET_SPINDLESYNC:public EMC_TRAJ_CMD_MSG {
@@ -913,6 +915,7 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
         vel(0.0),
         ini_maxvel(0.0),
         acc(0.0),
+        ini_maxjerk(0.0),
         probe_type(0)
     {};
 
@@ -935,7 +938,8 @@ class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
         vel(0.0),
         ini_maxvel(0.0),
         acc(0.0),
-        scale(1.0)
+        scale(1.0),
+        ini_maxjerk(0.0)
     {};
 
     // For internal NML/CMS use only.
@@ -984,6 +988,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     bool queueFull;		// non-zero means can't accept another motion
     int id;			// id of the currently executing motion
     bool paused;			// non-zero means motion paused
+    bool single_stepping;    // non-zero means motion stepping single block
     double scale;		// velocity scale factor
     double rapid_scale;		// rapid scale factor
     //double spindle_scale;	// moved to EMC_SPINDLE_STAT
@@ -1152,6 +1157,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     EmcPose eoffset_pose;
     int numExtraJoints;
     bool jogging_active;
+    uint64_t heartbeat;  // motion controller's heartbeat counter
 };
 
 // declarations for EMC_TASK classes
@@ -1379,7 +1385,7 @@ class EMC_TASK_PLAN_SET_OPTIONAL_STOP:public EMC_TASK_CMD_MSG {
     // Sub-class update() calls base-class update()
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
-    
+
     bool state; //state == ON, optional stop is on (e.g. we stop on any stops)
 };
 
@@ -1394,7 +1400,7 @@ class EMC_TASK_PLAN_SET_BLOCK_DELETE:public EMC_TASK_CMD_MSG {
     // Sub-class update() calls base-class update()
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
-    
+
     bool state; //state == ON, block delete is on, we ignore lines starting with "/"
 };
 
@@ -1408,7 +1414,7 @@ class EMC_TASK_PLAN_OPTIONAL_STOP:public EMC_TASK_CMD_MSG {
     // Sub-class update() calls base-class update()
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
-    
+
 };
 
 
@@ -1417,13 +1423,13 @@ class EMC_TASK_STAT_MSG:public RCS_STAT_MSG {
   public:
     EMC_TASK_STAT_MSG(NMLTYPE t, size_t s)
       : RCS_STAT_MSG(t, s),
-	heartbeat(0)
+	taskbeat(0)
     {};
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    uint32_t heartbeat;
+    uint64_t taskbeat;  // milltask's main loop heartbeat counter
 };
 
 class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
@@ -1460,7 +1466,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     double activeSettings[ACTIVE_SETTINGS];
     CANON_UNITS programUnits;	// CANON_UNITS_INCHES, MM, CM
 
-    int interpreter_errcode;	// return value from rs274ngc function 
+    int interpreter_errcode;	// return value from rs274ngc function
     // (only useful for new interpreter.)
     int task_paused;		// non-zero means task is paused
     double delayLeft;           // delay time left of G4, M66..
@@ -1747,7 +1753,7 @@ class EMC_SPINDLE_ORIENT:public EMC_SPINDLE_CMD_MSG {
 
     int spindle;
     double orientation;   // desired spindle position
-    int    mode;   
+    int    mode;
 };
 
 class EMC_SPINDLE_WAIT_ORIENT_COMPLETE:public EMC_SPINDLE_CMD_MSG {

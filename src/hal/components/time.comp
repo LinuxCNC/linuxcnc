@@ -116,7 +116,7 @@ function _;
 
 ;;
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 
 FUNCTION(_) {
     rtapi_u32 totalseconds;

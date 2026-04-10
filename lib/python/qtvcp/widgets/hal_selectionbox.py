@@ -14,9 +14,9 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QComboBox, QTreeView, QFrame
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtCore import Qt, QEvent, QModelIndex, pyqtSignal
+from qtpy.QtWidgets import QComboBox, QTreeView, QFrame
+from qtpy.QtGui import QStandardItemModel, QStandardItem
+from qtpy.QtCore import Qt, QEvent, QModelIndex, Signal
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 
@@ -30,8 +30,8 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class TreeComboBox(QComboBox):
-    selectionUpdated = pyqtSignal('PyQt_PyObject')
-    objectSelected = pyqtSignal('PyQt_PyObject')
+    selectionUpdated = Signal('PyQt_PyObject')
+    objectSelected = Signal('PyQt_PyObject')
     NAME = 1
     SELECTABLE = 2
     OBJECT = 3
@@ -227,7 +227,7 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     x = hal.component('_X_')

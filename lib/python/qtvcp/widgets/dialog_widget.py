@@ -18,13 +18,13 @@
 import os
 import hal
 
-from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
+from qtpy.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
         QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget,
         QTextEdit,QLabel)
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, QEvent, QUrl
-from PyQt5 import uic
+from qtpy.QtGui import QColor
+from qtpy.QtCore import Qt, Slot, Property, QEvent, QUrl
+from qtpy import uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
@@ -352,7 +352,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
     # **********************
     # Designer properties
     # **********************
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setState(self, value):
         self._state = value
         if value:
@@ -378,9 +378,9 @@ class LcncDialog(QMessageBox, GeometryMixin):
     def resetIdName(self):
         self._request_name = 'MESSAGE'
 
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
-    state = pyqtProperty(bool, getState, setState, resetState)
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
+    overlay_color = Property(QColor, getColor, setColor)
+    state = Property(bool, getState, setState, resetState)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
 
 ################################################################################
 # Close Dialog
@@ -583,7 +583,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
     def resetFrameless(self):
         self._frameless = False
 
-    frameless = pyqtProperty(bool, getFrameless, setFrameless, resetFrameless)
+    frameless = Property(bool, getFrameless, setFrameless, resetFrameless)
 
     def setUseDesktopNotify(self, value):
         self._useDesktopNotify = value
@@ -592,7 +592,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
     def resetUseDesktopNotify(self):
         self._useDesktopNotify = False
 
-    useDesktopNotify = pyqtProperty(bool, getUseDesktopNotify, setUseDesktopNotify, resetUseDesktopNotify)
+    useDesktopNotify = Property(bool, getUseDesktopNotify, setUseDesktopNotify, resetUseDesktopNotify)
 
 ################################################################################
 # File Open Dialog
@@ -716,8 +716,10 @@ class FileDialog(QFileDialog, GeometryMixin):
             self.setDirectory(os.path.expanduser(directory))
         if preselect:
             self.selectFile(os.path.basename(preselect))
-        else:
-            self.selectFile(' ')
+
+        # disable filename auto completer
+        for le in self.findChildren(QLineEdit):
+            le.setCompleter(None)
 
         self.setWindowTitle('Save')
         STATUS.emit('focus-overlay-changed', True, 'Save Gcode', self._color)
@@ -743,7 +745,7 @@ class FileDialog(QFileDialog, GeometryMixin):
     # Designer properties
     #**********************
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setState(self, value):
         self._state = value
         if value:
@@ -762,8 +764,8 @@ class FileDialog(QFileDialog, GeometryMixin):
     def resetState(self):
         self._color = QColor(0, 0, 0, 150)
 
-    state = pyqtProperty(bool, getState, setState, resetState)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    state = Property(bool, getState, setState, resetState)
+    overlay_color = Property(QColor, getColor, setColor)
 
     def getLoadIdName(self):
         return self._load_request_name
@@ -779,8 +781,8 @@ class FileDialog(QFileDialog, GeometryMixin):
     def resetSaveIdName(self):
         self._save_request_name = 'SAVE'
 
-    launch_load_id = pyqtProperty(str, getLoadIdName, setLoadIdName, resetLoadIdName)
-    launch_save_id = pyqtProperty(str, getSaveIdName, setSaveIdName, resetSaveIdName)
+    launch_load_id = Property(str, getLoadIdName, setLoadIdName, resetLoadIdName)
+    launch_save_id = Property(str, getSaveIdName, setSaveIdName, resetSaveIdName)
 
 ################################################################################
 # origin Offset Dialog
@@ -871,7 +873,7 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
     # Designer properties
     # **********************
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setState(self, value):
         self._state = value
         if value:
@@ -897,9 +899,9 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
     def resetIdName(self):
         self._request_name = 'ORIGINOFFSET'
 
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    state = pyqtProperty(bool, getState, setState, resetState)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    state = Property(bool, getState, setState, resetState)
+    overlay_color = Property(QColor, getColor, setColor)
 
 
 ################################################################################
@@ -1002,7 +1004,7 @@ class ToolOffsetDialog(QDialog, GeometryMixin):
     # Designer properties
     # **********************
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setState(self, value):
         self._state = value
         if value:
@@ -1028,9 +1030,9 @@ class ToolOffsetDialog(QDialog, GeometryMixin):
     def resetIdName(self):
         self._request_name = 'TOOLOFFSET'
 
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    state = pyqtProperty(bool, getState, setState, resetState)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    state = Property(bool, getState, setState, resetState)
+    overlay_color = Property(QColor, getColor, setColor)
 
 
 ################################################################################
@@ -1149,7 +1151,7 @@ class ToolChooserDialog(QDialog, GeometryMixin):
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setState(self, value):
         self._state = value
         if value:
@@ -1175,9 +1177,9 @@ class ToolChooserDialog(QDialog, GeometryMixin):
     def resetIdName(self):
         self._request_name = 'TOOLCHOOSER'
 
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    state = pyqtProperty(bool, getState, setState, resetState)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    state = Property(bool, getState, setState, resetState)
+    overlay_color = Property(QColor, getColor, setColor)
 
 ################################################################################
 # CamView Dialog
@@ -1248,7 +1250,7 @@ class CamViewDialog(QDialog, GeometryMixin):
     # Designer properties
     # **********************
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setState(self, value):
         self._state = value
         if value:
@@ -1274,9 +1276,9 @@ class CamViewDialog(QDialog, GeometryMixin):
     def resetIdName(self):
         self._request_name = 'CAMVIEW'
 
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    state = pyqtProperty(bool, getState, setState, resetState)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    state = Property(bool, getState, setState, resetState)
+    overlay_color = Property(QColor, getColor, setColor)
 
 
 ################################################################################
@@ -1351,7 +1353,7 @@ class MacroTabDialog(QDialog, GeometryMixin):
     # Designer properties
     # **********************
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setState(self, value):
         self._state = value
         if value:
@@ -1377,9 +1379,9 @@ class MacroTabDialog(QDialog, GeometryMixin):
     def resetIdName(self):
         self._request_name = 'MACROTAB'
 
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    state = pyqtProperty(bool, getState, setState, resetState)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    state = Property(bool, getState, setState, resetState)
+    overlay_color = Property(QColor, getColor, setColor)
 
 ################################################################################
 # Versaprobe Dialog
@@ -1433,7 +1435,7 @@ class VersaProbeDialog(QDialog, GeometryMixin):
     # Designer properties
     # **********************
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setState(self, value):
         self._state = value
         if value:
@@ -1459,9 +1461,9 @@ class VersaProbeDialog(QDialog, GeometryMixin):
     def resetIdName(self):
         self._request_name = 'VERSAPROBE'
 
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    state = pyqtProperty(bool, getState, setState, resetState)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    state = Property(bool, getState, setState, resetState)
+    overlay_color = Property(QColor, getColor, setColor)
 
 ############################################
 # Entry Dialog
@@ -1602,9 +1604,9 @@ class EntryDialog(QDialog, GeometryMixin):
         self.Num.keyboard_enable = True
 
     # designer will show these properties in this order:
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
-    soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    overlay_color = Property(QColor, getColor, setColor)
+    soft_keyboard_option = Property(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
 
 ############################################
 # Keyboard Dialog
@@ -1715,9 +1717,9 @@ class KeyboardDialog(QDialog, GeometryMixin):
         self.Num.keyboard_enable = True
 
     # designer will show these properties in this order:
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
-    soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    overlay_color = Property(QColor, getColor, setColor)
+    soft_keyboard_option = Property(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
 
 
 ############################################
@@ -1897,8 +1899,8 @@ class CalculatorDialog(Calculator, GeometryMixin):
     def resetIdName(self):
         self._request_name = 'CALCULATOR'
 
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    overlay_color = Property(QColor, getColor, setColor)
 
 ############################################
 # machine Log Dialog
@@ -2009,8 +2011,8 @@ class MachineLogDialog(QDialog, GeometryMixin):
         self._request_name = 'MACHINELOG'
 
     # designer will show these properties in this order:
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    overlay_color = Property(QColor, getColor, setColor)
 
 ############################################
 # Run from line prestart Dialog
@@ -2205,15 +2207,15 @@ class AboutDialog(QDialog, GeometryMixin):
         self._request_name = 'ABOUT'
 
     # designer will show these properties in this order:
-    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
-    overlay_color = pyqtProperty(QColor, getColor, setColor)
+    launch_id = Property(str, getIdName, setIdName, resetIdName)
+    overlay_color = Property(QColor, getColor, setColor)
 
 ################################
 # for testing without editor:
 ################################
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     #widget = AboutDialog()

@@ -11,8 +11,8 @@
 *
 * Last change:
 ********************************************************************/
-#ifndef EMCPOS_H
-#define EMCPOS_H
+#ifndef __LINUXCNC_EMCPOS_H
+#define __LINUXCNC_EMCPOS_H
 
 #include "posemath.h"		/* PmCartesian */
 
@@ -23,14 +23,14 @@ typedef struct EmcPose {
 } EmcPose;
 
 #define ZERO_EMC_POSE(pos) do { \
-pos.tran.x = 0.0;               \
-pos.tran.y = 0.0;               \
-pos.tran.z = 0.0;               \
-pos.a = 0.0;                    \
-pos.b = 0.0;                    \
-pos.c = 0.0;                    \
-pos.u = 0.0;                    \
-pos.v = 0.0;                    \
-pos.w = 0.0; } while(0)
+(pos).tran.x = 0.0;             \
+(pos).tran.y = 0.0;             \
+(pos).tran.z = 0.0;             \
+(pos).a = 0.0;                  \
+(pos).b = 0.0;                  \
+(pos).c = 0.0;                  \
+(pos).u = 0.0;                  \
+(pos).v = 0.0;                  \
+(pos).w = 0.0; } while(0)
 
 #endif

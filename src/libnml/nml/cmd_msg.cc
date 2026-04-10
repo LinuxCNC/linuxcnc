@@ -12,20 +12,14 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdio.h>
-#ifdef __cplusplus
-}
-#endif
 #include "nml.hh"
 #include "nmlmsg.hh"
-#include "cms.hh"
+#include "libnml/cms/cms.hh"
 NMLTYPE nmltype;
 
 #include "cmd_msg.hh"
-#include "linklist.hh"
+#include "libnml/linklist/linklist.hh"
 
 RCS_CMD_MSG::RCS_CMD_MSG(NMLTYPE t, long sz):NMLmsg(t, sz)
 {

@@ -51,10 +51,10 @@
 
 #include <rtapi_slab.h>
 
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2.h"
 
 
 int hm2_inmux_parse_md(hostmot2_t *hm2, int md_index) {

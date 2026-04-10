@@ -1,7 +1,7 @@
 ############################
 # **** IMPORT SECTION **** #
 ############################
-from PyQt5.QtWidgets import (QMessageBox)
+from qtpy.QtWidgets import (QMessageBox)
 from qtvcp.core import Status, Action
 
 # Set up logging

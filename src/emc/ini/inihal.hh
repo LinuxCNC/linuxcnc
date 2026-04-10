@@ -19,8 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ----------------------------------------------------------------------*/
 #ifndef INIHAL_H
 #define INIHAL_H
-#include "hal.h"
-#include "emcmotcfg.h"
+#include <hal.h>
+#include <emcmotcfg.h>
 
 int check_ini_hal_items(int numjoints);
 int ini_hal_init(int numjoints);
@@ -52,7 +52,6 @@ int ini_hal_init_pins(int numjoints);
     FIELD(hal_float_t,traj_max_velocity) \
     FIELD(hal_float_t,traj_default_acceleration) \
     FIELD(hal_float_t,traj_max_acceleration) \
-    FIELD(hal_float_t,traj_default_jerk) \
     FIELD(hal_float_t,traj_max_jerk) \
     FIELD(hal_s32_t,traj_planner_type) \
 \

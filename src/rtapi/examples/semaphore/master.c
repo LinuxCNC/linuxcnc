@@ -21,8 +21,8 @@
   the global referenced by slave task.
 */
 
-#include "rtapi.h"
-#include "rtapi_app.h"		/* rtapi_app_main,exit() */
+#include <rtapi.h>
+#include <rtapi_app.h>		/* rtapi_app_main,exit() */
 #include "common.h"		/* semaphore key */
 
 static int module;

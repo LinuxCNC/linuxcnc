@@ -21,7 +21,7 @@ import os
 import time
 import linuxcnc
 import hal
-from PyQt5 import QtGui, QtWidgets
+from qtpy import QtGui, QtWidgets
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm

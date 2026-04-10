@@ -21,19 +21,19 @@
 #include <dlfcn.h>
 #include <memory>
 
-#include "rcs.hh"		// INIFILE
-#include "emc.hh"		// EMC NML
-#include "emc_nml.hh"
-#include "emcglb.h"		// EMC_INIFILE
-#include "interpl.hh"		// NML_INTERP_LIST, interp_list
-#include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
-#include "rs274ngc_interp.hh"	// the interpreter
-#include "interp_return.hh"	// INTERP_FILE_NOT_OPEN
-#include "inifile.hh"
-#include "rcs_print.hh"
+#include "libnml/rcs/rcs.hh"		// INIFILE
+#include "nml_intf/emc.hh"		// EMC NML
+#include "nml_intf/emc_nml.hh"
+#include "nml_intf/emcglb.h"		// EMC_INIFILE
+#include "nml_intf/interpl.hh"		// NML_INTERP_LIST, interp_list
+#include "nml_intf/canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
+#include "rs274ngc/rs274ngc_interp.hh"	// the interpreter
+#include "nml_intf/interp_return.hh"	// INTERP_FILE_NOT_OPEN
+#include "libnml/inifile/inifile.hh"
+#include "libnml/rcs/rcs_print.hh"
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"
-#include "motion.h"
+#include "motion/motion.h"
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -116,18 +116,17 @@ int emcTaskInit()
     char path[EMC_SYSTEM_CMD_LEN];
     struct stat buf;
     IniFile inifile;
-    std::optional<const char*> inistring;
     ZERO_EMC_POSE(emcStatus->task.toolOffset);
 
     inifile.Open(emc_inifile);
 
     // Identify user_defined_function directories
-    if ((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
-        if (strlen(*inistring) >= sizeof(mdir[0])) {
+    if (auto inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")) {
+        if (inistring->length() >= sizeof(mdir[0])) {
             rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %zu)\n", sizeof(mdir[0]));
             return -1;
         }
-        strncpy(mdir[0], *inistring, sizeof(mdir[0]));
+        rtapi_strlcpy(mdir[0], inistring->c_str(), sizeof(mdir[0]));
     } else {
         // default dir if no PROGRAM_PREFIX
         rtapi_strlcpy(mdir[0], "nc_files", sizeof(mdir[0]));
@@ -136,19 +135,20 @@ int emcTaskInit()
 
     // user can specify a list of directories for user defined functions
     // with a colon (:) separated list
-    if ((inistring = inifile.Find("USER_M_PATH", "RS274NGC"))) {
+    if (auto inistring = inifile.Find("USER_M_PATH", "RS274NGC")) {
         char* nextdir;
         char tmpdirs[PATH_MAX];
 
         for (dct=1; dct < MAX_M_DIRS; dct++) mdir[dct][0] = 0;
 
-        if (strlen(*inistring) >= sizeof(tmpdirs)) {
+        if (inistring->length() >= sizeof(tmpdirs)) {
             rcs_print("[RS274NGC]USER_M_PATH too long (max len %zu)\n", sizeof(tmpdirs));
             return -1;
         }
-        strncpy(tmpdirs, *inistring, sizeof(tmpdirs));
+        rtapi_strlcpy(tmpdirs, inistring->c_str(), sizeof(tmpdirs));
 
-        nextdir = strtok(tmpdirs,":");  // first token
+        char* saveptr;
+        nextdir = strtok_r(tmpdirs,":", &saveptr);  // first token
         dct = 1;
         while (dct < MAX_M_DIRS) {
             if (nextdir == NULL) break; // no more tokens
@@ -158,7 +158,7 @@ int emcTaskInit()
                 return -1;
             }
             strncpy(mdir[dct], nextdir, sizeof(mdir[dct]));
-            nextdir = strtok(NULL,":");
+            nextdir = strtok_r(NULL,":",&saveptr);
             dct++;
         }
         dmax=dct;
@@ -431,13 +431,12 @@ int emcTaskPlanInit()
 {
     if(!pinterp) {
 	IniFile inifile;
-	std::optional<const char*> inistring;
 	inifile.Open(emc_inifile);
-	if((inistring = inifile.Find("INTERPRETER", "TASK"))) {
-	    pinterp = interp_from_shlib(*inistring);
+	if(auto inistring = inifile.Find("INTERPRETER", "TASK")) {
+	    pinterp = interp_from_shlib(inistring->c_str());
 	    fprintf(stderr, "interp_from_shlib() -> %p\n", pinterp);
             if (!pinterp) {
-                fprintf(stderr, "failed to load [TASK]INTERPRETER (%s)\n", *inistring);
+                fprintf(stderr, "failed to load [TASK]INTERPRETER (%s)\n", inistring->c_str());
                 return -1;
             }
 	}
@@ -735,6 +734,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     
     //update state of block delete
     stat->block_delete_state = GET_BLOCK_DELETE();
+
+    extern uint64_t task_beat;  // Main loop heartbeat in emctaskmain.cc
+    stat->taskbeat = task_beat;
 
     return 0;
 }

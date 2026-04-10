@@ -15,7 +15,7 @@
 # you can add or change these
 
 import traceback
-from PyQt5.QtCore import Qt
+from qtpy.QtCore import Qt
 
 # Set up logging
 from qtvcp import logger

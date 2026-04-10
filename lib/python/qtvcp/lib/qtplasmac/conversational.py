@@ -23,9 +23,9 @@ import os
 import re
 from shutil import copy as COPY
 from importlib import reload
-from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QPushButton, QLabel, QLineEdit
-from PyQt5.QtWidgets import QComboBox
+from qtpy.QtCore import Qt, QCoreApplication
+from qtpy.QtWidgets import QFileDialog, QMessageBox, QPushButton, QLabel, QLineEdit
+from qtpy.QtWidgets import QComboBox
 from qtvcp.core import Status, Action
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE

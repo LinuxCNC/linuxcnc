@@ -17,11 +17,11 @@
  */
 #ifndef INTERP_ARRAY_TYPES_HH
 #define INTERP_ARRAY_TYPES_HH
-#include <interp_base.hh>
-#include <paramclass.hh>
-#include <array1.hh>
+#include "interp_base.hh"
+#include "paramclass.hh"
+#include "array1.hh"
 
-#include <interp_internal.hh>
+#include "interp_internal.hh"
 
 namespace pp = pyplusplus::containers::static_sized;
 

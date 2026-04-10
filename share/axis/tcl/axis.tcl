@@ -1963,26 +1963,26 @@ set metric 0
 set max_speed 1
 set queued_mdi_commands 0
 set max_queued_mdi_commands 10
-trace variable taskfile w update_title
-trace variable machine w update_title
-trace variable taskfile w queue_update_state
-trace variable task_state w queue_update_state
-trace variable task_mode w queue_update_state
-trace variable task_paused w queue_update_state
-trace variable optional_stop w queue_update_state
-trace variable block_delete w queue_update_state
-trace variable interp_pause w queue_update_state
-trace variable interp_state w queue_update_state
-trace variable running_line w queue_update_state
-trace variable highlight_line w queue_update_state
-trace variable spindledir w queue_update_state
-trace variable coord_type w queue_update_state
-trace variable display_type w queue_update_state
-trace variable motion_mode w queue_update_state
-trace variable kinematics_type w queue_update_state
-trace variable on_any_limit w queue_update_state
-trace variable motion_mode w joint_mode_switch
-trace variable queued_mdi_commands  w queue_update_state
+trace add variable taskfile write update_title
+trace add variable machine write update_title
+trace add variable taskfile write queue_update_state
+trace add variable task_state write queue_update_state
+trace add variable task_mode write queue_update_state
+trace add variable task_paused write queue_update_state
+trace add variable optional_stop write queue_update_state
+trace add variable block_delete write queue_update_state
+trace add variable interp_pause write queue_update_state
+trace add variable interp_state write queue_update_state
+trace add variable running_line write queue_update_state
+trace add variable highlight_line write queue_update_state
+trace add variable spindledir write queue_update_state
+trace add variable coord_type write queue_update_state
+trace add variable display_type write queue_update_state
+trace add variable motion_mode write queue_update_state
+trace add variable kinematics_type write queue_update_state
+trace add variable on_any_limit write queue_update_state
+trace add variable motion_mode write joint_mode_switch
+trace add variable queued_mdi_commands write queue_update_state
 
 set editor_deleted 0
 

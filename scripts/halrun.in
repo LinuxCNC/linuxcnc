@@ -141,6 +141,7 @@ esac
 
 $REALTIME start || exit $?
 
+result=0
 if $HAVEFILE ; then
   if $IS_INI; then
     if ! inivar -ini "$filename" -sec HAL -var TWOPASS > /dev/null 2>&1 ; then

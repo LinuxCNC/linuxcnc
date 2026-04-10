@@ -49,7 +49,7 @@ author "Alexander Rössler";
 option period no;
 variable hal_float_t last_in = 0.0;
 ;;
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #define MIN(x,y) (x < y ? x : y)
 #define MAX(x,y) (x > y ? x : y)
 

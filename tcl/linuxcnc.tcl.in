@@ -25,14 +25,15 @@ namespace eval linuxcnc {
     variable TCL_SCRIPT_DIR @EMC2_TCL_DIR@/scripts
     variable HELP_DIR @EMC2_HELP_DIR@
     variable RTLIB_DIR @EMC2_RTLIB_DIR@
-    variable CONFIG_PATH {@LINUXCNC_CONFIG_PATH@}
+    variable CONFIG_PATH {@LINUXCNC_CONFIG_PATH_TCL@}
     variable NCFILES_DIR @EMC2_NCFILES_DIR@
     variable LANG_DIR @EMC2_LANG_DIR@
     variable IMAGEDIR @EMC2_IMAGE_DIR@
     variable REALTIME @REALTIME@
     variable RTS @RTS@
     variable CONFIG_DIR {}
-    foreach _dir  [split {@LINUXCNC_CONFIG_PATH@} :] {
+    variable _dir
+    foreach _dir  [split {@LINUXCNC_CONFIG_PATH_TCL@} :] {
 	lappend CONFIG_DIR [file normalize $_dir]
     }
     unset _dir
@@ -47,7 +48,7 @@ if {[string first $::linuxcnc::BIN_DIR: $env(PATH)] != 0} {
 }
 
 proc linuxcnc::image_search i {
-    set paths "$linuxcnc::IMAGEDIR $linuxcnc::HOME $linuxcnc::HOME/etc/linuxcnc /etc/linuxcnc ."
+    set paths "$::linuxcnc::IMAGEDIR $::linuxcnc::HOME $::linuxcnc::HOME/etc/linuxcnc /etc/linuxcnc ."
     foreach f $paths {
         if [file exists $f/$i] {
             return [image create photo -file $f/$i]

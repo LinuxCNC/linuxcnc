@@ -279,6 +279,8 @@ MAX_JERK = 1000.0
 
 S-curve planning is only active when `PLANNER_TYPE = 1` and `MAX_LINEAR_JERK > 0`.
 
+NOTE: If `MAX_LINEAR_JERK` is not specified, it defaults to 1e9 (1 billion), which effectively disables jerk limiting while maintaining S-curve calculations. This produces motion similar to trapezoidal planning but not identical. The maximum allowed value is 1e9 to prevent numerical instability.
+
 === Tuning
 
 Start with a conservative jerk value and increase gradually:
@@ -292,6 +294,8 @@ Typical values: 100-100,000 units/s^3^ depending on machine rigidity and units
 
 Increase `MAX_LINEAR_JERK` until motion becomes sluggish or following errors
 increase, then reduce slightly. Test with coordinated moves and arcs.
+
+Values above 1e9 are automatically clamped to 1e9 to avoid numerical issues in the S-curve trajectory calculations.
 
 == RTAI
 

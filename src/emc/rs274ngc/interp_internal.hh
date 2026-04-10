@@ -15,14 +15,14 @@
 
 #include <locale.h>
 #include <algorithm>
-#include "linuxcnc.h"
+#include <linuxcnc.h>
 #include <limits.h>
 #include <stdio.h>
 #include <set>
 #include <map>
 #include <bitset>
-#include "canon.hh"
-#include "emcpos.h"
+#include "nml_intf/canon.hh"
+#include <emcpos.h>
 #include "libintl.h"
 #include <boost/python/object_fwd.hpp>
 #include <cmath>
@@ -30,7 +30,7 @@
 #include "interp_parameter_def.hh"
 #include "interp_fwd.hh"
 #include "interp_base.hh"
-#include "tooldata.hh"
+#include "tooldata/tooldata.hh"
 
 
 #define _(s) gettext(s)
@@ -648,6 +648,10 @@ struct setup
   setup();
   ~setup();
 
+  // Not copyable
+  setup(const setup&) = delete;
+  setup& operator= (const setup&) = delete;
+
   double AA_axis_offset;        // A-axis g92 offset
   double AA_current;            // current A-axis position
   double AA_origin_offset;      // A-axis origin offset
@@ -759,6 +763,7 @@ struct setup
   CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
   double orient_offset;         // added to M19 R word, from [RS274NGC]ORIENT_OFFSET
+  bool g43_with_zero_offset;    // added to allow active G43 with tool offset values all zero
 
   /* stuff for subroutines and control structures */
   int defining_sub;                  // true if in a subroutine defn

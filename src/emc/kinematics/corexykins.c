@@ -4,14 +4,14 @@
 * ref: http://corexy.com/theory.html
 ********************************************************************/
 
-#include "motion.h"
-#include "hal.h"
-#include "rtapi.h"
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
-#include "kinematics.h"
+#include <rtapi.h>
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_math.h>
+#include <rtapi_string.h>
+#include <hal.h>
+#include <emcmotcfg.h>
+#include <kinematics.h>
 
 static struct data {
     hal_s32_t joints[EMCMOT_MAX_JOINTS];

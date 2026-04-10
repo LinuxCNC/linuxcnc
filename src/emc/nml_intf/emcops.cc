@@ -17,7 +17,7 @@
 
 #include "emc.hh"
 #include "emc_nml.hh"
-#include "tooldata.hh"
+#include "tooldata/tooldata.hh"
 
 EMC_AXIS_STAT::EMC_AXIS_STAT()
   : EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT)),
@@ -70,6 +70,7 @@ EMC_TRAJ_STAT::EMC_TRAJ_STAT()
     queueFull(OFF),
     id(0),
     paused(OFF),
+    single_stepping(false),
     scale(0.0),
     rapid_scale(0.0),
 
@@ -110,7 +111,8 @@ EMC_MOTION_STAT::EMC_MOTION_STAT()
     external_offsets_applied(0),
     eoffset_pose{},
     numExtraJoints(0),
-    jogging_active(0)
+    jogging_active(0),
+    heartbeat(0)
 {
 }
 

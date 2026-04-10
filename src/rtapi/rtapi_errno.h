@@ -1,3 +1,5 @@
+#ifndef __LINUXCNC_RTAPI_ERRNO_H
+#define __LINUXCNC_RTAPI_ERRNO_H
 //    Copyright 2006 Jeff Epler
 //
 //    This program is free software; you can redistribute it and/or modify
@@ -19,3 +21,4 @@
 #include <errno.h>
 #endif
 
+#endif

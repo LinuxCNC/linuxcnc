@@ -1,5 +1,4 @@
 #Note: userspace test program ugenserkins.c is deprecated
-INCLUDES += emc/kinematics
 
 GENSERKINSSRCS := emc/kinematics/ugenserkins.c
 GENSERKINSSRCS += emc/kinematics/genserfuncs.c
@@ -35,7 +34,8 @@ $(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIB)
 PYTARGETS += $(RDELTAMODULE)
 
-$(patsubst ./emc/kinematics/%,../include/%,$(wildcard ./emc/kinematics/*.h)): ../include/%.h: ./emc/kinematics/%.h
-	cp $^ $@
-$(patsubst ./emc/kinematics/%,../include/%,$(wildcard ./emc/kinematics/*.hh)): ../include/%.hh: ./emc/kinematics/%.hh
+EMCKINEMATICSINCS = \
+	./emc/kinematics/kinematics.h
+
+$(patsubst ./emc/kinematics/%,../include/%,$(EMCKINEMATICSINCS)): ../include/%.h: ./emc/kinematics/%.h
 	cp $^ $@

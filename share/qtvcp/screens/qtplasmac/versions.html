@@ -26,6 +26,45 @@
 </table>
 <br>
 <!--- ****** ADD NEXT VERSION BELOW THIS LINE ****** --->
+<br><b><u>016.084 2026 Mar 12</u></b>
+<ul style="margin:0;">
+  <li>fix framing and missed interlock</li>
+</ul>
+
+<br><b><u>016.083 2026 Feb 20</u></b>
+<br><b>QtPlasmaC GUI</b>
+<ul style="margin:0;">
+  <li>update tooltips to included missing GUI elements and remove duplicate translations</li>
+  <li>fix RFL string comparisons</li>
+  <li>fix interlock for Material Parameters</li>
+  <li>add z-motion watchdog to GUI to catch any state-change hang ups not caught by monitoring motion.eoffset-limited</li>
+</ul>
+<b>PlasmaC Component</b>
+<ul style="margin:0;">
+  <li>monitor motion.eoffset-limited to determine if the commanded motion is outside of the soft limits</li>
+</ul>
+
+<br><b><u>015.082 2026 Feb 06</u></b>
+<ul style="margin:0;">
+  <li>refactor button interlocking</li>
+  <li>fix laser button state if bounds error during laser dry run</li>
+</ul>
+
+<br><b><u>015.081 2026 Feb 03</u></b>
+<ul style="margin:0;">
+  <li>rename variables to avoid conflict with python builtin names</li>
+  <li>remove redundant str() calls in f-strings</li>
+  <li>fix tab level</li>
+  <li>fix typo in pmx485 fault list</li>
+  <li>allow file clear button to work if single cut encounters a bounds error</li>
+  <li>clarify section/option error message for user buttons</li>
+</ul>
+
+<br><b><u>015.080 2026 Feb 01</u></b>
+<ul style="margin:0;">
+  <li>rework torch pulse</li>
+</ul>
+
 <br><b><u>014.079 2026 Jan 01</u></b>
 <br><b>QtPlasmaC GUI</b>
 <ul style="margin:0;">

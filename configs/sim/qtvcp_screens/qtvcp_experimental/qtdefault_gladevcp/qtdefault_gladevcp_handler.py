@@ -2,7 +2,7 @@
 # **** IMPORT SECTION **** #
 ############################
 
-from PyQt5 import QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
 from qtvcp.widgets.dialog_widget import MacroTabDialog as LATHEMACRO

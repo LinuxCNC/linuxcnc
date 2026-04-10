@@ -15,7 +15,7 @@
 #ifndef PHANTOM_HH
 #define PHANTOM_HH
 
-#include "cms.hh"
+#include "libnml/cms/cms.hh"
 
 class PHANTOMMEM:public CMS {
   public:

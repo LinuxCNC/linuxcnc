@@ -17,22 +17,22 @@
 #include <string.h>		// memcpy() strncpy()
 #include <unistd.h>             // unlink()
 
-#include "usrmotintf.h"		// usrmotInit(), usrmotReadEmcmotStatus(),
+#include "motion/usrmotintf.h"	// usrmotInit(), usrmotReadEmcmotStatus(),
 				// etc.
-#include "motion.h"		// emcmot_command_t,STATUS, etc.
-#include "homing.h"
-#include "emc.hh"
-#include "emccfg.h"		// EMC_INIFILE
-#include "emcglb.h"		// EMC_INIFILE
-#include "emc_nml.hh"
-#include "rcs_print.hh"
-#include "timer.hh"
-#include "inifile.hh"
-#include "iniaxis.hh"
-#include "inijoint.hh"
-#include "inispindle.hh"
-#include "initraj.hh"
-#include "inihal.hh"
+#include "motion/motion.h"		// emcmot_command_t,STATUS, etc.
+#include "motion/homing.h"
+#include "nml_intf/emc.hh"
+#include "nml_intf/emccfg.h"		// EMC_INIFILE
+#include "nml_intf/emcglb.h"		// EMC_INIFILE
+#include "nml_intf/emc_nml.hh"
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/os_intf/timer.hh"
+#include "libnml/inifile/inifile.hh"
+#include "ini/iniaxis.hh"
+#include "ini/inijoint.hh"
+#include "ini/inispindle.hh"
+#include "ini/initraj.hh"
+#include "ini/inihal.hh"
 
 value_inihal_data old_inihal_data;
 
@@ -1228,6 +1228,9 @@ int emcTrajSetMaxJerk(double jerk)
 {
     if (jerk < 0.0) {
 	jerk = 0.0;
+    } else if (jerk > 1e9) {
+	// Clamp to 1e9 to prevent numerical instability in S-curve calculations
+	jerk = 1e9;
     }
 
     TrajConfig.MaxJerk = jerk;
@@ -1730,14 +1733,14 @@ int emcPositionLoad() {
     ini.Open(emc_inifile);
     auto posfile = ini.Find("POSITION_FILE", "TRAJ");
     ini.Close();
-    if(!posfile || !posfile.value()[0]) return 0;
-    FILE *f = fopen(*posfile, "r");
+    if(!posfile || posfile->empty()) return 0;
+    FILE *f = fopen(posfile->c_str(), "r");
     if(!f) return 0;
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
 	int r = fscanf(f, "%lf", &positions[i]);
 	if(r != 1) {
             fclose(f);
-            rcs_print("%s: failed to load joint %d position from %s, ignoring\n", __FUNCTION__, i, *posfile);
+            rcs_print("%s: failed to load joint %d position from %s, ignoring\n", __FUNCTION__, i, posfile->c_str());
             return -1;
         }
     }
@@ -1745,7 +1748,7 @@ int emcPositionLoad() {
     int result = 0;
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
 	if(emcJointSetMotorOffset(i, -positions[i]) != 0) {
-            rcs_print("%s: failed to set joint %d position (%.6f) from %s, ignoring\n", __FUNCTION__, i, positions[i], *posfile);
+            rcs_print("%s: failed to set joint %d position (%.6f) from %s, ignoring\n", __FUNCTION__, i, positions[i], posfile->c_str());
             result = -1;
         }
     }
@@ -1755,9 +1758,9 @@ int emcPositionLoad() {
 
 int emcPositionSave() {
     IniFile ini;
-    std::optional<const char*> posfile;
 
     ini.Open(emc_inifile);
+    std::optional<std::string> posfile;
     try {
         posfile = ini.Find("POSITION_FILE", "TRAJ");
     } catch (IniFile::Exception e) {
@@ -1766,10 +1769,10 @@ int emcPositionSave() {
     }
     ini.Close();
 
-    if(!posfile || !posfile.value()[0]) return 0;
+    if(!posfile || posfile->empty()) return 0;
     // like the var file, make sure the posfile is recreated according to umask
-    unlink(*posfile);
-    FILE *f = fopen(*posfile, "w");
+    unlink(posfile->c_str());
+    FILE *f = fopen(posfile->c_str(), "w");
     if(!f) return -1;
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
 	int r = fprintf(f, "%.17f\n", emcmotStatus.joint_status[i].pos_fb);
@@ -2091,6 +2094,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
     stat->debug = emcmotConfig.debug;
+
+    stat->heartbeat = emcmotStatus.heartbeat; // Motion controller's heartbeat
 
     for (dio = 0; dio < EMCMOT_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];

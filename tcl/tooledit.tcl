@@ -62,9 +62,9 @@ if {"" == [info command "_"]} {
 
 
 proc ::tooledit::init { {columns ""} } {
-  if [file readable ~/.tooleditrc] {
-    if [catch {source ~/.tooleditrc} msg] {
-      puts stderr "[_ "Problem reading ~/.tooleditrc"]:\n$msg"
+  if [file readable $::env(HOME)/.tooleditrc] {
+    if [catch {source $::env(HOME)/.tooleditrc} msg] {
+      puts stderr "[_ "Problem reading $::env(HOME)/.tooleditrc"]:\n$msg"
     }
     if [info exists geometry] {
       set ::te(top,restore,geometry) $geometry
@@ -961,7 +961,7 @@ proc ::tooledit::bye {} {
 
   catch {after cancel $::te(afterid)}
 
-  if ![file exists ~/.tooleditrc] {
+  if ![file exists $::env(HOME)/.tooleditrc] {
     # first time use presumed, instruct for configuring columns
     set used ""
     foreach item $::te(items) {
@@ -1001,7 +1001,7 @@ proc ::tooledit::bye {} {
   }
 
   if [winfo exists $::te(top)] {
-    set fd [open ~/.tooleditrc w]
+    set fd [open $::env(HOME)/.tooleditrc w]
     set time [clock format [clock seconds] -format %Y%m%d.%H.%M.%S]
     puts $fd   "# $time [format [_ "Created by %s"] [file normalize $::argv0]]"
     puts $fd "\n# [_ "Saved geometry (updated on program termination)"]:"

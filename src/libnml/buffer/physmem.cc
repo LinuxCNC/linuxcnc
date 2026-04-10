@@ -14,19 +14,13 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <string.h>		/* memcpy(), memset() */
 #include <stdio.h>		// sprintf()
 #include <stdlib.h>		/* malloc() */
 
-#ifdef __cplusplus
-}
-#endif
 #include "physmem.hh"		/* class PHYSMEM_HANDLE */
-#include "rcs_print.hh"
+#include "libnml/rcs/rcs_print.hh"
+
 PHYSMEM_HANDLE::PHYSMEM_HANDLE()
   : offset(0),
     size(0),
@@ -103,7 +97,7 @@ int PHYSMEM_HANDLE::read(void *_to, long _read_size)
 	char *from;
 	from = ((char *) local_address) + offset;
 	if (_read_size == 2) {
-	    short *sfrom = (short *) from;
+	    short *sfrom = reinterpret_cast<short *>(from);
 	    short sval;
 	    sval = *sfrom;
 	    short *sto = (short *) _to;
@@ -153,7 +147,7 @@ int PHYSMEM_HANDLE::write(void *_from, long _write_size)
 	char *to;
 	to = ((char *) local_address) + offset;
 	if (_write_size == 2) {
-	    short *sto = (short *) to;
+	    short *sto = reinterpret_cast<short *>(to);
 	    short sval = *(short *) _from;
 	    *sto = sval;
 	} else {

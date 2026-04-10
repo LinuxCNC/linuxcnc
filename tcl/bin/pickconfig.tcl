@@ -100,7 +100,7 @@ proc initialize_config {} {
         exit
         destroy .
     } else {
-        if {[catch {open ~/.linuxcncrc} programin]} {
+        if {[catch {open $::env(HOME)/.linuxcncrc} programin]} {
             return 
         } else {
             set rcstring [read $programin]
@@ -660,7 +660,7 @@ proc prompt_copy configname {
     set ncfiles [file normalize [file join $::myconfigs_node ../nc_files]]
     file mkdir [file join $::myconfigs_node]
 
-    set obsoletedir [file normalize [file join ~ emc2]]
+    set obsoletedir [file normalize [file join $::env(HOME) emc2]]
     if [file isdir $obsoletedir] {
       tk_messageBox -title "Copy Configuration Notice" \
         -message "A directory named:\n \
@@ -891,11 +891,11 @@ while {1} {
         # test for ~/.linuxcncrc file and modify if needed.
         # or make this file and add the var.
 
-        if {[file exists ~/.linuxcncrc]} {
+        if {[file exists $::env(HOME)/.linuxcncrc]} {
             if {$::inifile == $::last_ini} {
                 exit
             } else {
-                if {[catch {open ~/.linuxcncrc} programin]} {
+                if {[catch {open $::env(HOME)/.linuxcncrc} programin]} {
                     return 
                 } else {
                     set rcstring [read $programin]
@@ -903,8 +903,8 @@ while {1} {
                 }
                 set ret [setVal $rcstring PICKCONFIG LAST_CONFIG $::inifile ]
                 catch {file copy -force $name $name.bak}
-                if {[catch {open ~/.linuxcncrc w} fileout]} {
-                    puts stdout [msgcat::mc "can't save %s" ~/.linuxcncrc ]
+                if {[catch {open $::env(HOME)/.linuxcncrc w} fileout]} {
+                    puts stdout [msgcat::mc "can't save %s" $::env(HOME)/.linuxcncrc ]
                     exit
                 }
                 puts $fileout $ret
@@ -914,8 +914,8 @@ while {1} {
         }
         set newfilestring "# .linuxcncrc is a startup configuration file for LinuxCNC. \n# format is INI like. \n# \[SECTION_NAME\] \n# VARNAME = varvalue \n# where section name is the name of the system writing to this file \n\n# written by pickconfig.tcl \n\[PICKCONFIG\]\nLAST_CONFIG = $::inifile\n"
                 
-        if {[catch {open ~/.linuxcncrc w+} fileout]} {
-            puts stderr [msgcat::mc "can't save %s" ~/.linuxcncrc ]
+        if {[catch {open $::env(HOME)/.linuxcncrc w+} fileout]} {
+            puts stderr [msgcat::mc "can't save %s" $::env(HOME)/.linuxcncrc ]
             exit
         }
 

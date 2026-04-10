@@ -20,8 +20,8 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 #ifdef HAL_SUPPORT
-#include "rtapi.h"
-#include "rtapi_string.h"
+#include <rtapi.h>
+#include <rtapi_string.h>
 #else
 #include <string.h>
 #endif

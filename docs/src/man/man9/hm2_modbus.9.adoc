@@ -23,6 +23,9 @@ PktUART ports.
   if *debug* is set to a positive value between 0 and 5, where 0 means no
   messages at all and 5 means everything. A value of -1 does not touch the
   current message level. +
+  Warning: setting *debug* to 0 (zero) will prevent any messages from being
+  printed. Not even errors will be printed when you set it to zero and you may
+  end up guessing why things went wrong. +
   Caveat Emptor: the driver must be compiled with debug messages enabled for it
   to start emitting messages at the debug level. Changing the message level is
   process-wide and all modules within the process will spit out messages at the
@@ -45,8 +48,28 @@ delay measurements. Warnings will be emitted if communication settings cannot
 be honored by the older PktUART version. PktUART versions older than 2 are not
 supported and the driver will abort with an error if encountered.
 
-The driver exports a set of HAL pins and parameters that can be used to inspect
-status and alter some settings in a live environment.
+Please note, the hostmot2 software will automatically create all nodes for
+all available devices in the board's bit-file. The PktUART nodes will be
+named 'pktuart.0', 'pktuart.1', etc.. You can see what your bit-file supports
+by using the *mesaflash*(1) utility (please adapt for your board and IP
+address accordingly):
+
+[source,sh]
+----
+sudo mesaflash --device 7i96s --addr 10.10.10.10 --readhmid
+----
+
+The *hostmot2* module should automatically print the name(s) of any PktUART
+found while the board's configuration is being traversed. You can check this on
+the command line by looking for lines like:
+
+[source,text]
+----
+hm2/hm2_7i96s.0: created PktUART Interface function hm2_7i96s.0.pktuart.0.
+----
+
+The *hm2_modbus* driver exports a set of HAL pins and parameters that can be
+used to inspect status and alter some settings in a live environment.
 
 Up to eight instances are supported, which are instantiated by setting
 the *ports* and *mbccbs* parameters. The instances are
@@ -55,7 +78,7 @@ driver will always be prefixed with the driver's name.
 
 [source,sh]
 ----
-loadrt hm2_modbus ports="7i96s.0.pktuart.0" mbccbs="/path/to/myfile.mbccb"
+loadrt hm2_modbus ports="hm2_7i96s.0.pktuart.0" mbccbs="/path/to/myfile.mbccb"
 ----
 
 The driver exports one function named 'process', which must be added to the
@@ -180,7 +203,8 @@ Each mbccb file will generate a set of pins as defined in the mbccb file. See
 == SEE ALSO
 
 *hostmot2*(9),
-*mesambccc*(1).
+*mesambccc*(1),
+*mesaflash*(1).
 
 == AUTHOR
 

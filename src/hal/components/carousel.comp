@@ -164,7 +164,7 @@ param r signed base_counts = 0;
 variable int old_unhome = 0;
 function _ ;
 
-include "rtapi_math.h";
+include <rtapi_math.h>;
 
 ;;
 

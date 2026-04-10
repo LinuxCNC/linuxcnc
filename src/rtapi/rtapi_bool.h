@@ -13,7 +13,7 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#ifndef RTAPI_BOOL_H
+#ifndef __LINUXCNC_RTAPI_BOOL_H
 
 #if defined(__KERNEL__)
 #include <linux/types.h>

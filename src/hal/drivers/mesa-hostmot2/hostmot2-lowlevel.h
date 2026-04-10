@@ -23,8 +23,8 @@
 #include <rtapi_device.h>
 #include <rtapi_firmware.h>
 
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 
 #include "bitfile.h"
 

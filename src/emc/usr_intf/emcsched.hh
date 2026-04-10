@@ -17,8 +17,8 @@
 #ifndef EMCSCHED_HH
 #define EMCSCHED_HH
 
-#include "emc_nml.hh"
-#include "nml_oi.hh"            // NML_ERROR_LEN
+#include "nml_intf/emc_nml.hh"
+#include "libnml/nml/nml_oi.hh"            // NML_ERROR_LEN
 #include <string>
 
 using namespace std;

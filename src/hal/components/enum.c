@@ -17,11 +17,11 @@
 
 // Convert bit pins to enumerated ints and vice-versa
 
-#include "rtapi.h"
-#include "rtapi_slab.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_slab.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <hal.h>
 
 #if !defined(__KERNEL__)
 #include <stdio.h>

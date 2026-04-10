@@ -14,11 +14,11 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QWidget
+from qtpy.QtWidgets import QWidget
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from PyQt5.QtCore import pyqtSlot, pyqtProperty
+from qtpy.QtCore import Slot, Property
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -70,7 +70,7 @@ class GeneralHALOutput(QWidget, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
@@ -81,20 +81,20 @@ class GeneralHALOutput(QWidget, _HalWidgetBase):
             if not i == picked:
                 self[i+'_pin_type'] = False
 
-    @pyqtSlot(bool)
-    @pyqtSlot(int)
+    @Slot(bool)
+    @Slot(int)
     def pin_bit_update(self, value):
         self._pin_bit_update(value)
 
-    @pyqtSlot(int)
-    @pyqtSlot(float)
+    @Slot(int)
+    @Slot(float)
     def pin_value_update(self, value):
         self._pin_value_update(value)
 
-    @pyqtSlot()
+    @Slot()
     def set_pin_true(self):
         self._pin_bit_update(1)
-    @pyqtSlot()
+    @Slot()
     def set_pin_false(self):
         self._pin_bit_update(0)
 
@@ -150,13 +150,13 @@ class GeneralHALOutput(QWidget, _HalWidgetBase):
         self._s32_scale = 1
 
     # designer will show these properties in this order:
-    initial_state = pyqtProperty(bool, get_istate, set_istate, reset_istate)
-    initial_float = pyqtProperty(float, get_initial_float, set_initial_float, reset_initial_float)
-    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
-    bit_pin_type = pyqtProperty(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
-    s32_float_pin_type = pyqtProperty(bool, get_s32_float_pin_type, set_s32_float_pin_type)
-    float_scale = pyqtProperty(float, get_float_scale, set_float_scale, reset_float_scale)
-    s32_scale = pyqtProperty(int, get_s32_scale, set_s32_scale, reset_s32_scale)
+    initial_state = Property(bool, get_istate, set_istate, reset_istate)
+    initial_float = Property(float, get_initial_float, set_initial_float, reset_initial_float)
+    pin_name = Property(str, get_pin_name, set_pin_name, reset_pin_name)
+    bit_pin_type = Property(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
+    s32_float_pin_type = Property(bool, get_s32_float_pin_type, set_s32_float_pin_type)
+    float_scale = Property(float, get_float_scale, set_float_scale, reset_float_scale)
+    s32_scale = Property(int, get_s32_scale, set_s32_scale, reset_s32_scale)
 
     ##############################
     # required class boiler code #

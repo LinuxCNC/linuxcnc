@@ -15,10 +15,10 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef RTAPI_MATH64_H
-#define RTAPI_MATH64_H
+#ifndef __LINUXCNC_RTAPI_MATH64_H
+#define __LINUXCNC_RTAPI_MATH64_H
 
-#include <rtapi_stdint.h>
+#include "rtapi_stdint.h"
 
 #ifdef __KERNEL__
 #include <linux/math64.h>

@@ -15,11 +15,10 @@
 #ifndef SHAREDMEM_HH
 #define SHAREDMEM_HH
 
-extern "C" {
 #include <sys/types.h>		/* key_t */
 #include <stddef.h>		/* size_t */
 #include "_shm.h"		/* shm_t */
-}
+
 #define RCS_SHAREDMEM_NOCREATE 0x00	/* just attach to existing sharedmem */
 #define RCS_SHAREDMEM_CREATE 0x01	/* create sharedmem */
 class RCS_SHAREDMEM {

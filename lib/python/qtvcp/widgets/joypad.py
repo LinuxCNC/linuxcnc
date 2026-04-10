@@ -14,15 +14,15 @@
 # GNU General Public License for more details.
 ###############################################################################
 import sys
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QPointF, QRect, QRectF, QSize, QSizeF, QEvent
-from PyQt5.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
+from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtCore import Qt, QPoint, QPointF, QRect, QRectF, QSize, QSizeF, QEvent
+from qtpy.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
 
 try:
-    from PyQt5.QtCore import Q_ENUM
+    from qtpy.QtCore import Q_ENUM
 except:
     # before qt5.10
-    from PyQt5.QtCore import Q_ENUMS as Q_ENUM
+    from qtpy.QtCore import Q_ENUMS as Q_ENUM
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -41,18 +41,18 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
     IndicatorPosition = IndicatorPosition
     Q_ENUM(IndicatorPosition)
 
-    joy_btn_pressed = QtCore.pyqtSignal(str)
-    joy_btn_released = QtCore.pyqtSignal(str)
-    joy_l_pressed = QtCore.pyqtSignal(bool)
-    joy_l_released = QtCore.pyqtSignal(bool)
-    joy_r_pressed = QtCore.pyqtSignal(bool)
-    joy_r_released = QtCore.pyqtSignal(bool)
-    joy_c_pressed = QtCore.pyqtSignal(bool)
-    joy_c_released = QtCore.pyqtSignal(bool)
-    joy_t_pressed = QtCore.pyqtSignal(bool)
-    joy_t_released = QtCore.pyqtSignal(bool)
-    joy_b_pressed = QtCore.pyqtSignal(bool)
-    joy_b_released = QtCore.pyqtSignal(bool)
+    joy_btn_pressed = QtCore.Signal(str)
+    joy_btn_released = QtCore.Signal(str)
+    joy_l_pressed = QtCore.Signal(bool)
+    joy_l_released = QtCore.Signal(bool)
+    joy_r_pressed = QtCore.Signal(bool)
+    joy_r_released = QtCore.Signal(bool)
+    joy_c_pressed = QtCore.Signal(bool)
+    joy_c_released = QtCore.Signal(bool)
+    joy_t_pressed = QtCore.Signal(bool)
+    joy_t_released = QtCore.Signal(bool)
+    joy_b_pressed = QtCore.Signal(bool)
+    joy_b_released = QtCore.Signal(bool)
     def __init__(self, parent=None):
         super(JoyPad, self).__init__(parent)
         self.rect1 = QRectF()
@@ -326,17 +326,17 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
         self.reset_highlight()
         self.update()
 
-    highlightPosition = QtCore.pyqtProperty(IndicatorPosition,
+    highlightPosition = QtCore.Property(IndicatorPosition,
                         get_HighlightPosition, set_HighlightPosition, reset_HighlightPosition)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def set_colorStateTrue(self):
         self.setLight(True)
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def set_colorStateFalse(self):
         self.setLight(False)
 
-    @QtCore.pyqtSlot(bool)
+    @QtCore.Slot(bool)
     def set_colorState(self, state):
         self.colorState = bool(state)
         self.setLight(state)
@@ -348,7 +348,7 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
         self.colorState = False
         self.setLight(False)
 
-    setColorState = QtCore.pyqtProperty(bool, get_colorState, set_colorState, reset_colorState)
+    setColorState = QtCore.Property(bool, get_colorState, set_colorState, reset_colorState)
 
     def setLeftImagePath(self, data):
         if data.isNull():
@@ -398,11 +398,11 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
     def resetBottomImagePath(self):
         pass
 
-    left_image_path = QtCore.pyqtProperty(QPixmap, getLeftImagePath, setLeftImagePath, resetLeftImagePath)
-    right_image_path = QtCore.pyqtProperty(QPixmap, getRightImagePath, setRightImagePath, resetRightImagePath)
-    center_image_path = QtCore.pyqtProperty(QPixmap, getCenterImagePath, setCenterImagePath, resetCenterImagePath)
-    top_image_path = QtCore.pyqtProperty(QPixmap, getTopImagePath, setTopImagePath, resetTopImagePath)
-    bottom_image_path = QtCore.pyqtProperty(QPixmap, getBottomImagePath, setBottomImagePath, resetBottomImagePath)
+    left_image_path = QtCore.Property(QPixmap, getLeftImagePath, setLeftImagePath, resetLeftImagePath)
+    right_image_path = QtCore.Property(QPixmap, getRightImagePath, setRightImagePath, resetRightImagePath)
+    center_image_path = QtCore.Property(QPixmap, getCenterImagePath, setCenterImagePath, resetCenterImagePath)
+    top_image_path = QtCore.Property(QPixmap, getTopImagePath, setTopImagePath, resetTopImagePath)
+    bottom_image_path = QtCore.Property(QPixmap, getBottomImagePath, setBottomImagePath, resetBottomImagePath)
 
 
     def getFont(self):
@@ -411,7 +411,7 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
         self._font = value
     def resetFont(self):
         self._font = QFont('Lato Heavy', 20)
-    button_font = QtCore.pyqtProperty(QFont, getFont, setFont, resetFont)
+    button_font = QtCore.Property(QFont, getFont, setFont, resetFont)
 
     def setLeftText(self, data):
         self._textL = data
@@ -468,17 +468,17 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
         self._textB = ''
         self.set_icon('B', 'text', '')
 
-    left_text = QtCore.pyqtProperty(str, getLeftText, setLeftText, resetLeftText)
-    right_text = QtCore.pyqtProperty(str, getRightText, setRightText, resetRightText)
-    center_text = QtCore.pyqtProperty(str, getCenterText, setCenterText, resetCenterText)
-    top_text = QtCore.pyqtProperty(str, getTopText, setTopText, resetTopText)
-    bottom_text = QtCore.pyqtProperty(str, getBottomText, setBottomText, resetBottomText)
+    left_text = QtCore.Property(str, getLeftText, setLeftText, resetLeftText)
+    right_text = QtCore.Property(str, getRightText, setRightText, resetRightText)
+    center_text = QtCore.Property(str, getCenterText, setCenterText, resetCenterText)
+    top_text = QtCore.Property(str, getTopText, setTopText, resetTopText)
+    bottom_text = QtCore.Property(str, getBottomText, setBottomText, resetBottomText)
 
-    @QtCore.pyqtSlot(QColor)
+    @QtCore.Slot(QColor)
     def set_true_color(self, color):
         self._true_color = color
         self.setLight(self.colorState)
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def set_true_color(self, color):
         self._true_color = QColor(color)
         self.setLight(self.colorState)
@@ -490,11 +490,11 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
         self._true_color = QColor('lawngreen')
         self.setLight(self.colorState)
 
-    @QtCore.pyqtSlot(QColor)
+    @QtCore.Slot(QColor)
     def set_false_color(self, color):
         self._false_color = color
         self.setLight(self.colorState)
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def set_false_color(self, color):
         self._false_color = QColor(color)
         self.setLight(self.colorState)
@@ -515,15 +515,15 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
         self._text_color = QColor('white')
         self.update()
 
-    true_color = QtCore.pyqtProperty(QColor, get_true_color, set_true_color, reset_true_color)
-    false_color = QtCore.pyqtProperty(QColor, get_false_color, set_false_color, reset_false_color)
-    text_color = QtCore.pyqtProperty(QColor, get_text_color, set_text_color, reset_text_color)
+    true_color = QtCore.Property(QColor, get_true_color, set_true_color, reset_true_color)
+    false_color = QtCore.Property(QColor, get_false_color, set_false_color, reset_false_color)
+    text_color = QtCore.Property(QColor, get_text_color, set_text_color, reset_text_color)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def btn_pressed(self, btn):
         print("Button pressed", btn)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def btn_released(self, btn):
         print("Button released", btn)
 
@@ -625,7 +625,7 @@ class HALPad(JoyPad, _HalWidgetBase, HALPinType):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
@@ -645,15 +645,15 @@ class HALPad(JoyPad, _HalWidgetBase, HALPinType):
         self._pin_type = HALPinType.BIT
 
     # designer will show these properties in this order:
-    pin_type = QtCore.pyqtProperty(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
-    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    pin_type = QtCore.Property(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
+    pin_name = QtCore.Property(str, get_pin_name, set_pin_name, reset_pin_name)
 
     #############################
     # Testing                   #
     #############################
 if __name__ == "__main__":
     import sys
-    from PyQt5.QtWidgets import QWidget
+    from qtpy.QtWidgets import QWidget
     app = QtWidgets.QApplication(sys.argv)
     w = QWidget()
     w.setGeometry(100, 100, 600, 400)

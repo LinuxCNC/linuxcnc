@@ -4,6 +4,9 @@ set -e
 
 cd "$(dirname "$0")"
 
+if [ -z "$AUTOPKGTEST_TMP" ]; then
+    AUTOPKGTEST_TMP="."
+fi
 log=$AUTOPKGTEST_TMP/rs274.out
 
 if ! rs274 -g rs274.ngc > "$log" 2>&1 ; then

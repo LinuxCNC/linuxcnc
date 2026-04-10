@@ -17,7 +17,7 @@
 # the other subclasses are for simple HAL widget functionality
 
 import hal
-from PyQt5.QtCore import pyqtProperty
+from qtpy.QtCore import Property
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -124,7 +124,7 @@ class _HalToggleBase(_HalWidgetBase):
         return self._pin_name_
     def reset_pin_name(self):
         self._pin_name_ = ''
-    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    pin_name = Property(str, get_pin_name, set_pin_name, reset_pin_name)
 
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
@@ -150,7 +150,7 @@ class _HalScaleBase(_HalWidgetBase):
         return self._pin_name_
     def reset_pin_name(self):
         self._pin_name_ = ''
-    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    pin_name = Property(str, get_pin_name, set_pin_name, reset_pin_name)
 
 # reacts to HAL pin changes
 class _HalSensitiveBase(_HalWidgetBase):
@@ -168,5 +168,5 @@ class _HalSensitiveBase(_HalWidgetBase):
         return self._pin_name_
     def reset_pin_name(self):
         self._pin_name_ = ''
-    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    pin_name = Property(str, get_pin_name, set_pin_name, reset_pin_name)
 

@@ -6,7 +6,7 @@ latency-test - test the realtime system latency
 
 == SYNOPSIS
 
-*latency-test* [*--help*] [_base-period_ [_servo-period_]]
+*latency-test* [*-h | --help*] [_base-period_ [_servo-period_]]
 
 == DESCRIPTION
 

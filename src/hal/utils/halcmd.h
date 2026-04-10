@@ -40,7 +40,7 @@
 #ifndef HALCMD_H
 #define HALCMD_H
 #include <stdio.h>
-#include "hal.h"
+#include <hal.h>
 
 RTAPI_BEGIN_DECLS
 

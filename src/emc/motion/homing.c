@@ -11,11 +11,12 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#include "rtapi.h"
-#include "rtapi_math.h"
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <hal.h>
+
 #include "motion.h"
 #include "homing.h"
-#include "hal.h"
 
 static double servo_freq;
 static emcmot_joint_t  * joints;
@@ -542,6 +543,19 @@ static void base_write_homing_out_pins(int njoints)
     one_joint_home_data_t *addr;
     for (jno = 0; jno < njoints; jno++) {
         addr = &(joint_home_data->jhd[jno]);
+        if(!(*(addr->homing) && !H[jno].homing && homing_active)) {
+            // Prevent race condition.
+            // (See also emc/motion/control.c: update_status())
+            // The homing status variable turns false before homing_active state
+            // turns false. This means that a new homing command on a joint might
+            // fail due to the homing state machine being active while all joints
+            // already are in the 'not homing' state.
+            // Solution:
+            // Do not update the homing status when going from homing --> not homing
+            // and the state machine is still active. The homing status deassertion
+            // must be delayed until the state machine is done.
+            *(addr->homing) = H[jno].homing;
+        }
         *(addr->homing)       = H[jno].homing;       // OUT
         *(addr->homed)        = H[jno].homed;        // OUT
         *(addr->home_state)   = H[jno].home_state;   // OUT
@@ -1128,6 +1142,10 @@ static int base_1joint_state_machine(int joint_num)
             /* set the current position to 'home_offset' */
             if (H[joint_num].home_flags & HOME_ABSOLUTE_ENCODER) {
                 offset = H[joint_num].home_offset;
+                joint->pos_cmd += joint->motor_offset;
+                joint->pos_fb += joint->motor_offset;
+                joint->free_tp.curr_pos += joint->motor_offset;
+                joint->motor_offset = 0;
             } else {
                 offset = H[joint_num].home_offset - joint->pos_fb;
             }

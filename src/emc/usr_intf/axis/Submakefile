@@ -1,14 +1,18 @@
 
 EMCMODULESRCS := emc/usr_intf/axis/extensions/emcmodule.cc
 TOGLMODULESRCS := emc/usr_intf/axis/extensions/_toglmodule.c
-PYSRCS += $(EMCMODULESRCS) $(TOGLMODULESRCS)
+TKDARMODULESRCS := emc/usr_intf/axis/extensions/tkdarmodule.c
+PYSRCS += $(EMCMODULESRCS) $(TOGLMODULESRCS) $(TKDARMODULESRCS)
 
 EMCMODULE := ../lib/python/linuxcnc.so
 TOGLMODULE := ../lib/python/_togl.so
+TKDARMODULE := ../lib/python/tkdar.so
 
 $(call TOOBJSDEPS, $(TOGLMODULESRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 
 $(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
+
+$(call TOOBJSDEPS, $(TKDARMODULESRCS)) : EXTRAFLAGS = $(TCL_CFLAGS)
 
 $(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
               ../lib/liblinuxcncini.so ../lib/libtooldata.so.0
@@ -19,7 +23,11 @@ $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lepoxy -lXmu $(TCL_LIBS)
 
-PYTARGETS += $(EMCMODULE) $(TOGLMODULE)
+$(TKDARMODULE): $(call TOOBJS, $(TKDARMODULESRCS))
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -lX11 $(TCL_LIBS)
+
+PYTARGETS += $(EMCMODULE) $(TOGLMODULE) $(TKDARMODULE)
 
 PYSCRIPTS := axis.py axis-remote.py linuxcnctop.py hal_manualtoolchange.py \
 	mdi.py image-to-gcode.py lintini.py debuglevel.py teach-in.py tracking-test.py

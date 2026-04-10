@@ -19,15 +19,15 @@
 /* A generic configurable Modbus component using Mesa PktUART interfaces */
 
 
-#include "rtapi.h"
-#include "rtapi_slab.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "rtapi_byteorder.h"
-#include "rtapi_ctype.h"
-#include "rtapi_math.h"
-#include "hal.h"
-#include "hostmot2-serial.h"
+#include <rtapi.h>
+#include <rtapi_slab.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <rtapi_byteorder.h>
+#include <rtapi_ctype.h>
+#include <rtapi_math.h>
+#include <hal.h>
+#include <hostmot2-serial.h>
 
 #include "hm2_modbus.h"
 
@@ -149,6 +149,7 @@ static inline unsigned mtypesize(unsigned mtype) {
 #define MSG_INFO(fmt...)	do { rtapi_print_msg(RTAPI_MSG_INFO, fmt); } while(0)
 #define MSG_ERR(fmt...)		do { rtapi_print_msg(RTAPI_MSG_ERR,  fmt); } while(0)
 #define MSG_WARN(fmt...)	do { rtapi_print_msg(RTAPI_MSG_WARN, fmt); } while(0)
+#define MSG_PRINT(fmt...)	do { rtapi_print(fmt); } while(0)
 
 // State-machine states
 enum {
@@ -386,10 +387,10 @@ static unsigned calc_ifdelay(hm2_modbus_inst_t *inst, unsigned baudrate, unsigne
 	}
 
 	// calculation works for baudrates less than ~24 Mbit/s
-	if(baudrate <= 19200)
+	if(baudrate > 19200)
 		return (175u * baudrate + 99999u) / 100000u;
 	unsigned bits = 1 + 8 + (parity ? 1 : 0) + (stopbits > 1 ? 2 : 1);
-	return (bits * 35 + 9) / 10;	// Bit-times * 3.5 rounded up
+	return (bits * 35 + 9) / 10;	// Ceil of bits in 3.5 characters.
 }
 
 //
@@ -1048,12 +1049,10 @@ fetch_more_data:
 			break;
 		}
 		if(inst->maxicharbits && HM2_PKTUART_RCR_ICHARBITS_VAL(frsize) > inst->maxicharbits) {
-			MSG_WARN("%s: warning: reply to command %u had too long inter-character delay (%u > %u), dropping\n",
+			MSG_WARN("%s: warning: reply to command %u had too long inter-character delay (%u > %u), trying to interpret\n",
 					inst->name, inst->cmdidx,
 					HM2_PKTUART_RCR_ICHARBITS_VAL(frsize), inst->maxicharbits);
 			set_error(inst, ENOMSG);
-			force_resend(inst);
-			break;
 		}
 		inst->rxdata[0] = 0;	// This will fail the parse packet if the read did not resolve
 		r = hm2_pktuart_queue_read_data(inst->uart, inst->rxdata, HM2_PKTUART_RCR_NBYTES_VAL(frsize));
@@ -2694,17 +2693,19 @@ int rtapi_app_main(void)
 	int retval;
 
 	// Only touch the message level if requested
+	if(!debug)
+		MSG_PRINT(COMP_NAME": warning: Setting debug to 0 (zero) prevents error messages from being printed\n");
 	if(debug >= 0)
 		rtapi_set_msg_level(debug);
 
 	if(!ports[0]) {
-		MSG_ERR(COMP_NAME": The component requires at least one valid pktuart port, eg ports=\"hm2_5i25.0.pktuart.7\"\n");
+		MSG_PRINT(COMP_NAME": error: The component requires at least one valid pktuart port, eg ports=\"hm2_5i25.0.pktuart.7\"\n");
 		return -EINVAL;
 	}
 
 	comp_id = hal_init(COMP_NAME);
 	if(comp_id < 0) {
-		MSG_ERR(COMP_NAME": hal_init() failed\n");
+		MSG_PRINT(COMP_NAME": error: hal_init() failed\n");
 		return comp_id;
 	}
 
@@ -2712,7 +2713,7 @@ int rtapi_app_main(void)
 	for(mb.ninsts = 0; mb.ninsts < MAX_PORTS && ports[mb.ninsts]; mb.ninsts++) {}
 	// Allocate memory for the instances
 	if(!(mb.insts = (hm2_modbus_inst_t *)rtapi_kzalloc(mb.ninsts * sizeof(*mb.insts), RTAPI_GFP_KERNEL))) {
-		MSG_ERR(COMP_NAME": Allocate instance memory failed\n");
+		MSG_PRINT(COMP_NAME": error: Allocate instance memory failed\n");
 		hal_exit(comp_id);
 		return -ENOMEM;
 	}
@@ -2725,13 +2726,15 @@ int rtapi_app_main(void)
 		rtapi_strlcpy(inst->uart, ports[i], sizeof(inst->uart)-1);
 
 		if(!mbccbs[i]) {
-			MSG_ERR("%s: error: Missing mbccb file path for instance %d in 'mbccbs' argument\n", inst->name, i);
+			MSG_PRINT("%s: error: Missing mbccb file path for instance %d in 'mbccbs' argument\n", inst->name, i);
 			retval = -EINVAL;
 			goto errout;
 		}
+/*
 		if('/' != mbccbs[i][0]) {
-			MSG_WARN("%s: warning: The 'mbccb' file path '%s' for instance %d in 'mbccbs' argument is not absolute\n", inst->name, mbccbs[i], i);
+			MSG_PRINT("%s: warning: The 'mbccb' file path '%s' for instance %d in 'mbccbs' argument is not absolute\n", inst->name, mbccbs[i], i);
 		}
+*/
 
 		if((retval = load_mbccb(inst, mbccbs[i])) < 0) {
 			// Messages printed in load function
@@ -2742,17 +2745,17 @@ int rtapi_app_main(void)
 
 		// Allocate HAL memory
 		if(!(inst->hal =  (hm2_modbus_hal_t *)hal_malloc(sizeof(*inst->hal)))) {
-			MSG_ERR("%s: error: Failed to allocate HAL memory\n", inst->name);
+			MSG_PRINT("%s: error: Failed to allocate HAL memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
 		if(!(inst->hal->pins = (mbt_pin_hal_t *)hal_malloc(inst->npins * sizeof(*inst->hal->pins)))) {
-			MSG_ERR("%s: error: Failed to allocate HAL pins memory\n", inst->name);
+			MSG_PRINT("%s: error: Failed to allocate HAL pins memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
 		if(!(inst->hal->cmds = (mbt_cmd_hal_t *)hal_malloc(inst->ncmds * sizeof(*inst->hal->cmds)))) {
-			MSG_ERR("%s: error: Failed to allocate HAL cmds memory\n", inst->name);
+			MSG_PRINT("%s: error: Failed to allocate HAL cmds memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
@@ -2760,7 +2763,7 @@ int rtapi_app_main(void)
 		if(inst->ninit > 0) {
 			// Allocate inits memory
 			if(!(inst->_init = rtapi_kzalloc(inst->ninit * sizeof(*inst->_init), RTAPI_GFP_KERNEL))) {
-				MSG_ERR("%s: error: Failed to allocate init commands memory\n", inst->name);
+				MSG_PRINT("%s: error: Failed to allocate init commands memory\n", inst->name);
 				retval = -ENOMEM;
 				goto errout;
 			}
@@ -2768,7 +2771,7 @@ int rtapi_app_main(void)
 
 		// Allocate commands memory
 		if(!(inst->_cmds = rtapi_kzalloc(inst->ncmds * sizeof(*inst->_cmds), RTAPI_GFP_KERNEL))) {
-			MSG_ERR("%s: error: Failed to allocate commands memory\n", inst->name);
+			MSG_PRINT("%s: error: Failed to allocate commands memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
@@ -2789,14 +2792,14 @@ int rtapi_app_main(void)
 
 		// Export the HAL process function
 		if((retval = hal_export_functf(process, inst, 1, 0, comp_id, COMP_NAME".%d.process", i)) < 0) {
-			MSG_ERR("%s: error: Function export failed\n", inst->name);
+			MSG_PRINT("%s: error: Function export failed\n", inst->name);
 			goto errout;
 		}
 
 #define CHECK(x) do { \
 					retval = (x); \
 					if(retval < 0) { \
-						MSG_ERR("%s: error: Failed to create pin or parameter\n", inst->name); \
+						MSG_PRINT("%s: error: Failed to create pin or parameter\n", inst->name); \
 						goto errout; \
 					} \
 				} while(0)
@@ -2858,7 +2861,8 @@ int rtapi_app_main(void)
 		inst->cfg_tx.flags |= HM2_PKTUART_CONFIG_DRIVEEN | HM2_PKTUART_CONFIG_DRIVEAUTO;
 
 		if((retval = hm2_pktuart_get_version(inst->uart)) < 0) {
-			MSG_ERR("%s: error: Cannot get PktUART version (error=%d)\n", inst->name, retval);
+			MSG_PRINT("%s: error: Cannot get PktUART version (error=%d)\n", inst->name, retval);
+			MSG_PRINT("%s: error: probable cause: port '%s' does not exist (typo?)\n", inst->name, inst->uart);
 			goto errout;
 		}
 		inst->rxversion = (retval >> 4) & 0x0f;
@@ -2869,28 +2873,28 @@ int rtapi_app_main(void)
 		// timing measurement.
 		if(inst->rxversion < 3 || inst->txversion < 3) {
 			if(inst->rxversion < 2 || inst->txversion < 2) {
-				MSG_ERR("%s: error: The driver does not support PktUART versions before 2 (Rx=%u Tx=%u), aborting.\n",
+				MSG_PRINT("%s: error: The driver does not support PktUART versions before 2 (Rx=%u Tx=%u), aborting.\n",
 						inst->name, inst->rxversion, inst->txversion);
 				goto errout;
 			}
-			MSG_WARN("%s: warning: PktUART version is less than 3 (Rx=%u Tx=%u). Please consider upgrading.\n",
+			MSG_PRINT("%s: warning: PktUART version is less than 3 (Rx=%u Tx=%u). Please consider upgrading.\n",
 					inst->name, inst->rxversion, inst->txversion);
 			if(stopbits > 1) {
-				MSG_WARN("%s: warning: Old PktUART cannot set two stop-bits. Setting to one.\n", inst->name);
+				MSG_PRINT("%s: warning: Old PktUART cannot set two stop-bits. Setting to one.\n", inst->name);
 				stopbits = 1;
 			}
 			if(inst->txversion < 3 && inst->cfg_tx.ifdelay > 0xff) {
-				MSG_WARN("%s: warning: Old PktUART cannot set txdelay to 0x%04x. Clamping to 0xff.\n",
+				MSG_PRINT("%s: warning: Old PktUART cannot set txdelay to 0x%04x. Clamping to 0xff.\n",
 						inst->name, inst->cfg_tx.ifdelay);
 				inst->cfg_tx.ifdelay = 0xff;
 			}
 			if(inst->rxversion < 3 && inst->cfg_rx.ifdelay > 0xff) {
-				MSG_WARN("%s: warning: Old PktUART cannot set rxdelay to 0x%04x. Clamping to 0xff.\n",
+				MSG_PRINT("%s: warning: Old PktUART cannot set rxdelay to 0x%04x. Clamping to 0xff.\n",
 						inst->name, inst->cfg_rx.ifdelay);
 				inst->cfg_rx.ifdelay = 0xff;
 			}
 			if(inst->rxversion < 3 && inst->mbccb->icdelay != 0) {
-				MSG_WARN("%s: warning: Old PktUART cannot set icdelay, disabling.\n", inst->name);
+				MSG_PRINT("%s: warning: Old PktUART cannot set icdelay, disabling.\n", inst->name);
 				inst->mbccb->icdelay = 0;
 			}
 		}
@@ -2898,20 +2902,21 @@ int rtapi_app_main(void)
 		setup_icdelay(inst, inst->mbccb->baudrate, parity, stopbits, inst->mbccb->icdelay);
 
 #ifdef DEBUG
-		MSG_INFO("%s: inst->name     : %s\n", inst->name, inst->name);
-		MSG_INFO("%s: inst->uart     : %s\n", inst->name, inst->uart);
-		MSG_INFO("%s: inst->mbccbsize: %zd\n", inst->name, inst->mbccbsize);
-		MSG_INFO("%s: inst->ninit    : %u\n", inst->name, inst->ninit);
-		MSG_INFO("%s: inst->ncmds    : %u\n", inst->name, inst->ncmds);
-		MSG_INFO("%s: inst->npins    : %u\n", inst->name, inst->npins);
-		MSG_INFO("%s: inst->icdelay  : %u\n", inst->name, inst->maxicharbits);
-		MSG_INFO("%s: inst->rxdelay  : %u\n", inst->name, inst->cfg_rx.ifdelay);
-		MSG_INFO("%s: inst->txdelay  : %u\n", inst->name, inst->cfg_tx.ifdelay);
-		MSG_INFO("%s: inst->drvdelay : %u\n", inst->name, inst->cfg_tx.drivedelay);
+		MSG_PRINT("%s: inst->name     : %s\n", inst->name, inst->name);
+		MSG_PRINT("%s: inst->uart     : %s\n", inst->name, inst->uart);
+		MSG_PRINT("%s: inst->mbccbsize: %zd\n", inst->name, inst->mbccbsize);
+		MSG_PRINT("%s: inst->ninit    : %u\n", inst->name, inst->ninit);
+		MSG_PRINT("%s: inst->ncmds    : %u\n", inst->name, inst->ncmds);
+		MSG_PRINT("%s: inst->npins    : %u\n", inst->name, inst->npins);
+		MSG_PRINT("%s: inst->icdelay  : %u\n", inst->name, inst->maxicharbits);
+		MSG_PRINT("%s: inst->rxdelay  : %u\n", inst->name, inst->cfg_rx.ifdelay);
+		MSG_PRINT("%s: inst->txdelay  : %u\n", inst->name, inst->cfg_tx.ifdelay);
+		MSG_PRINT("%s: inst->drvdelay : %u\n", inst->name, inst->cfg_tx.drivedelay);
 #endif
 
-		MSG_INFO("%s: PktUART serial configured to 8%c%c@%d\n",
+		MSG_PRINT("%s: PktUART serial port '%s' configured to 8%c%c@%d\n",
 					inst->name,
+					inst->uart,
 					parity ? (parity == 2 ? 'E' : 'O') : 'N',
 					stopbits > 1 ? '2' : '1',
 					inst->cfg_rx.baudrate);
@@ -3100,7 +3105,7 @@ int rtapi_app_main(void)
 		inst->cfg_rx.flags |= HM2_PKTUART_CONFIG_FLUSH;
 		inst->cfg_tx.flags |= HM2_PKTUART_CONFIG_FLUSH;
 		if((retval = hm2_pktuart_config(inst->uart, &inst->cfg_rx, &inst->cfg_tx, 0)) < 0) {
-			MSG_ERR("%s: error: PktUART setup problem: error=%d\n", inst->name, retval);
+			MSG_PRINT("%s: error: PktUART setup problem: error=%d\n", inst->name, retval);
 			goto errout;
 		}
 		inst->cfg_rx.flags &= ~HM2_PKTUART_CONFIG_FLUSH;

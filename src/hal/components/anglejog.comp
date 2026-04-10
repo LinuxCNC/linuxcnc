@@ -63,7 +63,7 @@ function _;
 license "GPL";
 author  "Dewey Garrett";
 ;;
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #define TO_RAD M_PI/180
 // replicate simple_tp.h define for tiny magnitude delta:
 #define TINY_DP(max_accel,period) (max_accel*period*period*0.001)

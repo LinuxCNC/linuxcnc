@@ -20,19 +20,20 @@
 #include <stdio.h>  // rtpreempt only, consolidate to stderr
 #endif
 
-#include "posemath.h"
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <hal.h>
+#include <posemath.h>
+#include <kinematics.h>  //for kinematicsSwitchable()
+#include <motion_types.h>
+
+#include "../tp/tp.h"
+#include "simple_tp.h"
 #include "motion.h"
 #include "mot_priv.h"
-#include "rtapi_math.h"
-#include "tp.h"
-#include "simple_tp.h"
 #include "config.h"
-#include "motion_types.h"
 #include "homing.h"
 #include "axis.h"
-#include "kinematics.h"  //for kinematicsSwitchable()
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -1396,6 +1397,24 @@ static void get_pos_cmds(long period)
 	    /* interpolate to get new position and velocity */
 		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd),  &(joint->jerk_cmd));
 	}
+
+	/* Use accurate jerk values from TP output (for Cartesian machines only)
+	 * For standard XYZ machines, joint[0-2] correspond to X, Y, Z axes
+	 * TP outputs: current_jerk (path jerk) and current_dir (direction unit vector)
+	 * Per-axis jerk = path_jerk * direction_component
+	 */
+	if (emcmotStatus->planner_type == 1) {
+	    // S-curve mode: use accurate jerk values
+	    double path_jerk = emcmotStatus->current_jerk;
+	    PmCartesian dir = emcmotStatus->current_dir;
+
+	    // For the first 3 joints (assuming X, Y, Z), use accurate jerk
+	    if (NO_OF_KINS_JOINTS >= 1) joints[0].jerk_cmd = path_jerk * dir.x;
+	    if (NO_OF_KINS_JOINTS >= 2) joints[1].jerk_cmd = path_jerk * dir.y;
+	    if (NO_OF_KINS_JOINTS >= 3) joints[2].jerk_cmd = path_jerk * dir.z;
+	    // Rotary axes (A, B, C) keep the cubic interpolator values for now
+	}
+
 	/* report motion status */
 	SET_MOTION_INPOS_FLAG(0);
 	if (tpIsDone(&emcmotInternal->coord_tp)) {
@@ -2104,7 +2123,19 @@ static void update_status(void)
 	}
 #endif
 	joint_status->flag = joint->flag;
-	joint_status->homing = get_homing(joint_num);
+	if(!(joint_status->homing && !get_homing(joint_num) && get_homing_is_active())) {
+		// Prevent race condition.
+		// (See also emc/motion/homing.c: base_write_homing_out_pins())
+		// The homing status variable turns false before get_homing_is_active()
+		// turns false. This means that a new homing command on a joint might
+		// fail due to the homing state machine being active while all joints
+		// already are in the 'not homing' state.
+		// Solution:
+		// Do not update the homing status when going from homing --> not homing
+		// and the state machine is still active. The homing status deassertion
+		// must be delayed until the state machine is done.
+		joint_status->homing = get_homing(joint_num);
+	}
 	joint_status->homed  = get_homed(joint_num);
 	joint_status->pos_cmd = joint->pos_cmd;
 	joint_status->pos_fb = joint->pos_fb;

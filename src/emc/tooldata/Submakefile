@@ -15,7 +15,6 @@ CXXUSERSRCS      += emc/tooldata/tooldata_db.cc
 LIBTOOLDATA_SRCS += emc/tooldata/tooldata_db.cc
 
 CXXUSERSRCS += emc/tooldata/tool_watch.cc
-INCLUDES += emc/tooldata
 USERSRCS += $(LIBTOOLDATA_SRCS)
 
 TARGETS += ../lib/libtooldata.so ../lib/libtooldata.so.0
@@ -29,9 +28,6 @@ $(call TOOBJSDEPS, $(LIBTOOLDATA_SRCS)) : EXTRAFLAGS=-fPIC
 	@mkdir -p ../lib
 	@rm -f $@
 	@$(CXX) $(CXXFLAGS) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(LIBDL)
-
-$(patsubst ./emc/tooldata/%,../include/%,$(wildcard ./emc/tooldata/*.hh)): ../include/%.hh: ./emc/tooldata/%.hh
-	cp $^ $@
 
 ifdef TOOL_NML_FLAG
 else

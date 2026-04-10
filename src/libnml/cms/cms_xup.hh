@@ -15,33 +15,33 @@
 #ifndef CMS_XUP_HH
 #define CMS_XUP_HH
 
-extern "C" {
 #include <rpc/rpc.h>		/* struct XDR */
 
-}
 #include "cms_up.hh"		/* class CMS_UPDATER */
+
 class CMS_XDR_UPDATER:public CMS_UPDATER {
   public:
     CMS_STATUS update(bool &x);
-    CMS_STATUS update(char &x);
-    CMS_STATUS update(unsigned char &x);
-    CMS_STATUS update(short int &x);
-    CMS_STATUS update(unsigned short int &x);
-    CMS_STATUS update(int &x);
-    CMS_STATUS update(unsigned int &x);
-    CMS_STATUS update(long int &x);
-    CMS_STATUS update(unsigned long int &x);
+    CMS_STATUS update(int8_t &x);
+    CMS_STATUS update(uint8_t &x);
+    CMS_STATUS update(int16_t &x);
+    CMS_STATUS update(uint16_t &x);
+    CMS_STATUS update(int32_t &x);
+    CMS_STATUS update(uint32_t &x);
+    CMS_STATUS update(int64_t &x);
+    CMS_STATUS update(uint64_t &x);
     CMS_STATUS update(float &x);
     CMS_STATUS update(double &x);
     CMS_STATUS update(long double &x);
-    CMS_STATUS update(char *x, unsigned int len);
-    CMS_STATUS update(unsigned char *x, unsigned int len);
-    CMS_STATUS update(short *x, unsigned int len);
-    CMS_STATUS update(unsigned short *x, unsigned int len);
-    CMS_STATUS update(int *x, unsigned int len);
-    CMS_STATUS update(unsigned int *x, unsigned int len);
-    CMS_STATUS update(long *x, unsigned int len);
-    CMS_STATUS update(unsigned long *x, unsigned int len);
+    CMS_STATUS update(char *x, unsigned int len) { return update(reinterpret_cast<int8_t *>(x), len); };
+    CMS_STATUS update(int8_t *x, unsigned int len);
+    CMS_STATUS update(uint8_t *x, unsigned int len);
+    CMS_STATUS update(int16_t *x, unsigned int len);
+    CMS_STATUS update(uint16_t *x, unsigned int len);
+    CMS_STATUS update(int32_t *x, unsigned int len);
+    CMS_STATUS update(uint32_t *x, unsigned int len);
+    CMS_STATUS update(int64_t *x, unsigned int len);
+    CMS_STATUS update(uint64_t *x, unsigned int len);
     CMS_STATUS update(float *x, unsigned int len);
     CMS_STATUS update(double *x, unsigned int len);
     CMS_STATUS update(long double *x, unsigned int len);
@@ -53,6 +53,10 @@ class CMS_XDR_UPDATER:public CMS_UPDATER {
     int check_pointer(char *, long);
       CMS_XDR_UPDATER(CMS *);
       virtual ~ CMS_XDR_UPDATER();
+    // Not copyable
+    CMS_XDR_UPDATER(const CMS_XDR_UPDATER&) = delete;
+    CMS_XDR_UPDATER& operator= (const CMS_XDR_UPDATER&) = delete;
+
     friend class CMS;
     XDR *encode_data_stream;	/* XDR streams for data */
     XDR *decode_data_stream;

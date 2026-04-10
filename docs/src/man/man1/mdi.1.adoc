@@ -26,7 +26,7 @@ interactive session
 $mdi
 MDI> m3 s1000
 MDI> G0 X100
-MDI>` ^Z
+MDI> ^Z
 $stopped
 ....
 

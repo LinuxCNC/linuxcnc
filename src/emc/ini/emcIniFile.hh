@@ -32,8 +32,8 @@
 #ifndef _EMCINIFILE_HH_
 #define _EMCINIFILE_HH_
  
-#include "emc.hh"
-#include "inifile.hh"
+#include "nml_intf/emc.hh"
+#include "libnml/inifile/inifile.hh"
 
 
 class EmcIniFile : public IniFile {
@@ -76,10 +76,9 @@ public:
                                     return(IniFile::Find(result,
                                                          tag, section, num));
                                 }
-    const char *                Find(const char *tag, const char *section=NULL,
+    std::optional<std::string>  Find(const char *tag, const char *section=NULL,
                                      int num = 1){
-                                    return(IniFile::Find(tag, section, num)
-                                      .value_or(nullptr));
+                                    return(IniFile::Find(tag, section, num));
                                 }
 
 private:

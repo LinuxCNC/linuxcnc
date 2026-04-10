@@ -16,11 +16,11 @@
 
 import os
 
-from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout,
+from qtpy.QtWidgets import (QWidget, QLabel, QHBoxLayout,
                 QVBoxLayout, QPushButton, QDialog, QProgressBar)
-from PyQt5.QtCore import (Qt, QEvent, pyqtSlot, pyqtProperty, QChildEvent,
+from qtpy.QtCore import (Qt, QEvent, Slot, Property, QChildEvent,
                  )
-from PyQt5.QtGui import QColor, QImage, QResizeEvent, QPainter, QMoveEvent
+from qtpy.QtGui import QColor, QImage, QResizeEvent, QPainter, QMoveEvent
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status
@@ -298,11 +298,11 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def setState(self, value):
         self._state = value
         if value:
@@ -316,7 +316,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
 
     def getOverayColor(self):
         return self.bg_color
-    @pyqtSlot(QColor)
+    @Slot(QColor)
     def setOverayColor(self, value):
         self.bg_color = value
     def resetOverayColor(self, value):
@@ -371,13 +371,13 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     def resetimage_path(self):
         self._image_path = False
 
-    overlay_color = pyqtProperty(QColor, getOverayColor, setOverayColor, resetOverayColor)
-    state = pyqtProperty(bool, getState, setState, resetState)
-    show_text = pyqtProperty(bool, getShowText, setShowText, resetShowText)
-    show_image_option = pyqtProperty(bool, getshow_image, setshow_image, resetshow_image)
-    image_transparency = pyqtProperty(float, get_image_transp, set_image_transp, reset_image_transp)
-    show_buttons_option = pyqtProperty(bool, getshow_buttons, setshow_buttons, resetshow_buttons)
-    image_path = pyqtProperty(str, getimage_path, setimage_path, resetimage_path)
+    overlay_color = Property(QColor, getOverayColor, setOverayColor, resetOverayColor)
+    state = Property(bool, getState, setState, resetState)
+    show_text = Property(bool, getShowText, setShowText, resetShowText)
+    show_image_option = Property(bool, getshow_image, setshow_image, resetshow_image)
+    image_transparency = Property(float, get_image_transp, set_image_transp, reset_image_transp)
+    show_buttons_option = Property(bool, getshow_buttons, setshow_buttons, resetshow_buttons)
+    image_path = Property(str, getimage_path, setimage_path, resetimage_path)
 
 
 #################
@@ -385,8 +385,8 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
 #################
 def main():
     import sys
-    from PyQt5.QtWidgets import QWidget, QApplication
-    from PyQt5.QtCore import QTimer
+    from qtpy.QtWidgets import QWidget, QApplication
+    from qtpy.QtCore import QTimer
     app = QApplication(sys.argv)
 
     w = QWidget()

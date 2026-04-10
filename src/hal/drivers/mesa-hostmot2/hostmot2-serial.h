@@ -17,10 +17,10 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifndef __HOSTMOT2_UART_H
-#define __HOSTMOT2_UART_H
+#ifndef __LINUXCNC_HOSTMOT2_UART_H
+#define __LINUXCNC_HOSTMOT2_UART_H
 
-#include <rtapi.h>
+#include "rtapi.h"
 
 /*
  * http://freeby.mesanet.com/regmap

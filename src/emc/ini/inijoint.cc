@@ -19,12 +19,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "emc.hh"
-#include "rcs_print.hh"
+#include "nml_intf/emc.hh"
+#include "libnml/rcs/rcs_print.hh"
 #include "emcIniFile.hh"
 #include "inijoint.hh"		// these decls
-#include "emcglb.h"		// EMC_DEBUG
-#include "emccfg.h"		// default values for globals
+#include "nml_intf/emcglb.h"		// EMC_DEBUG
+#include "nml_intf/emccfg.h"		// default values for globals
 
 #include "inihal.hh"
 
@@ -73,7 +73,6 @@ extern value_inihal_data old_inihal_data;
 static int loadJoint(int joint, EmcIniFile *jointIniFile)
 {
     char jointString[16];
-    const char *inistring;
     EmcJointType jointType;
     double units;
     double backlash;
@@ -234,8 +233,9 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
 
         comp_file_type = 0;             // default
         jointIniFile->Find(&comp_file_type, "COMP_FILE_TYPE", jointString);
-        if (NULL != (inistring = jointIniFile->Find("COMP_FILE", jointString))) {
-            if (0 != emcJointLoadComp(joint, inistring, comp_file_type)) {
+        auto comp_file = jointIniFile->Find("COMP_FILE", jointString);
+        if (comp_file) {
+            if (0 != emcJointLoadComp(joint, comp_file->c_str(), comp_file_type)) {
                 return -1;
             }
         }

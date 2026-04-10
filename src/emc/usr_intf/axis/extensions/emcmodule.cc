@@ -24,20 +24,20 @@
 #include <structmember.h>
 #include <inttypes.h>
 #include "config.h"
-#include "rcs.hh"
-#include "emc.hh"
-#include "emc_nml.hh"
-#include "kinematics.h"
+#include "libnml/rcs/rcs.hh"
+#include "nml_intf/emc.hh"
+#include "nml_intf/emc_nml.hh"
+#include <kinematics.h>
 #include "config.h"
-#include "inifile.hh"
-#include "timer.hh"
-#include "nml_oi.hh"
-#include "rcs_print.hh"
+#include "libnml/inifile/inifile.hh"
+#include "libnml/os_intf/timer.hh"
+#include "libnml/nml/nml_oi.hh"
+#include "libnml/rcs/rcs_print.hh"
 #include <rtapi_string.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "tooldata.hh"
+#include "tooldata/tooldata.hh"
 
 #include <cmath>
 
@@ -122,7 +122,7 @@ static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
     if(!PyArg_ParseTuple(args, "ss|i:find", &s1, &s2, &num)) return NULL;
 
     if (auto out = self->i->Find(s2, s1, num))
-        return PyUnicode_FromString(out.value());
+        return PyUnicode_FromString(out.value().c_str());
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -135,7 +135,7 @@ static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
 
     PyObject *result = PyList_New(0);
     while(auto out = self->i->Find(s2, s1, num)) {
-        PyList_Append(result, PyUnicode_FromString(out.value()));
+        PyList_Append(result, PyUnicode_FromString(out.value().c_str()));
         num++;
     }
     return result;
@@ -419,7 +419,6 @@ static PyMethodDef Stat_methods[] = {
 static PyMemberDef Stat_members[] = {
 // stat
     {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY, NULL},
-    {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY, NULL},
     {(char*)"state", T_INT, O(status), READONLY, NULL},
 
 // task
@@ -466,6 +465,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"queue_full", T_BOOL, O(motion.traj.queueFull), READONLY, NULL},
     {(char*)"motion_id", T_INT, O(motion.traj.id), READONLY, NULL},
     {(char*)"paused", T_BOOL, O(motion.traj.paused), READONLY, NULL},
+    {(char*)"single_stepping", T_BOOL, O(motion.traj.single_stepping), READONLY, NULL},
     {(char*)"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY, NULL},
     {(char*)"rapidrate", T_DOUBLE, O(motion.traj.rapid_scale), READONLY, NULL},
     {(char*)"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY, NULL},
@@ -804,6 +804,22 @@ static PyObject *Stat_tool_table(pyStatChannel * /*s*/, void *) {
     return res;
 }
 
+static PyObject *Stat_heartbeat(pyStatChannel *s, void *) {
+#if PY_VERSION_HEX >= 0x030e00f0  // 3.14
+    return PyLong_FromUInt64(s->status.motion.heartbeat);
+#else
+    return PyLong_FromUnsignedLongLong(s->status.motion.heartbeat);
+#endif
+}
+
+static PyObject *Stat_taskbeat(pyStatChannel *s, void *) {
+#if PY_VERSION_HEX >= 0x030e00f0  // 3.14
+    return PyLong_FromUInt64(s->status.task.taskbeat);
+#else
+    return PyLong_FromUnsignedLongLong(s->status.task.taskbeat);
+#endif
+}
+
 static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"actual_position", (getter)Stat_actual, NULL, NULL, NULL},
     {(char*)"ain", (getter)Stat_ain, NULL, NULL, NULL},
@@ -836,6 +852,12 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"tool_table", (getter)Stat_tool_table, (setter)NULL,
         (char*)"The tooltable, expressed as a list of tools.  Each tool is a dict with the\n"
         "tool id (tool number), diameter, offsets, etc.", NULL
+    },
+    {(char*)"heartbeat", (getter)Stat_heartbeat, NULL,
+        (char*)"Motion controller heartbeat counter. Increments every servo cycle.", NULL
+    },
+    {(char*)"taskbeat", (getter)Stat_taskbeat, NULL,
+        (char*)"Task main loop heartbeat counter. Increments every task cycle.", NULL
     },
     {}
 };
@@ -913,7 +935,7 @@ static int Command_init(pyCommandChannel *self, PyObject * /*a*/, PyObject * /*k
     }
     RCS_STAT_CHANNEL *s =
         new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", file);
-    if(!c) {
+    if(!s) {
 	delete s;
         PyErr_Format( error, "new RCS_STAT_CHANNEL failed");
         return -1;
@@ -1343,7 +1365,7 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
             m.remote_buffersize = bytes_read;
             /* send chunk */
             if(emcSendCommand(s, m) < 0) {
-                 PyErr_Format(PyExc_OSError, "emcSendCommand() error: %s");
+                 PyErr_Format(PyExc_OSError, "emcSendCommand() error: %s", strerror(errno));
                  return PyErr_SetFromErrno(PyExc_OSError);
             }
         }
@@ -1998,8 +2020,8 @@ static PyObject *pyvertex9(PyObject * /*s*/, PyObject *o) {
             &pt1[6], &pt1[7], &pt1[8]))
         return NULL;
 
-    vertex9(pt, pt1, geometry);
-    return Py_BuildValue("(ddd)", &pt[0], &pt[1], &pt[2]);
+    vertex9(pt1, pt, geometry);
+    return Py_BuildValue("(ddd)", pt[0], pt[1], pt[2]);
 }
 
 static PyObject *pygui_respect_offsets (PyObject * /*s*/, PyObject *o) {
@@ -2596,7 +2618,7 @@ static struct PyModuleDef linuxcnc_moduledef = {
 PyMODINIT_FUNC PyInit_linuxcnc(void);
 PyMODINIT_FUNC PyInit_linuxcnc(void)
 {
-        
+
     verbose_nml_error_messages = 0;
     clear_rcs_print_flag(~0);
 

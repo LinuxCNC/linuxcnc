@@ -135,7 +135,7 @@ cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-build-software: userspace modules
+build-software: headers userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),uspace)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `id -u` = 0 -a -O ../bin/linuxcnc_module_helper -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
@@ -213,9 +213,9 @@ PROGRAMS :=
 # file names, but this is what allows 'make src.i' to produce proper
 # preprocessed source when src.c needs a customized compile flag.
 # See Submakefile.skel for an example.
-TOOBJS = $(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1)))
-TODEPS = $(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1)))
-TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS, $(1)) $(patsubst %.cc,%.ii,$(patsubst %.c,%.i,$(1)))
+TOOBJS = $(patsubst %.cpp,objects/%.o,$(patsubst %.cc,objects/%.o,$(patsubst %.c,objects/%.o,$(1))))
+TODEPS = $(patsubst %.cpp,objects/%.d,$(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1))))
+TOOBJSDEPS = $(call TOOBJS,$(1)) $(call TODEPS, $(1)) $(patsubst %.cpp,%.ii,$(patsubst %.cc,%.ii,$(patsubst %.c,%.i,$(1))))
 
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 -include $(wildcard $(SUBMAKEFILES))
@@ -223,14 +223,14 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 # This checks that all the things listed in USERSRCS are either C files
 # or C++ files
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
-$(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.cpp, $(USERSRCS)))
 
 $(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC -fno-strict-aliasing
 USERSRCS += $(PYSRCS)
 
 # Find the list of object files for each type of source file
 CUSERSRCS := $(filter %.c,$(USERSRCS))
-CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
+CXXUSERSRCS := $(filter %.cc %.cpp,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
@@ -245,7 +245,7 @@ $(shell $(VECHO) 1>&2 Done reading dependencies)
 endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
-INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
+INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include -I../include
 INCLUDE += $(PYTHON_CPPFLAGS)
 INCLUDE += $(LIBTIRPC_CFLAGS)
 
@@ -279,7 +279,25 @@ $(sort $(CUSEROBJS)) : objects/%.o: %.c
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
-$(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
+# Cruckig (pure C) source files — compiled as C, no C++ needed
+# Headers are local ("" includes relative to cruckig/), no -I needed
+objects/emc/tp/cruckig/%.o : emc/tp/cruckig/%.c
+	$(ECHO) Compiling $<
+	@mkdir -p $(dir $@)
+	@rm -f $@
+	$(Q)$(CC) -c $(CFLAGS) $(EXTRAFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
+
+$(sort $(patsubst %.cpp,objects/%.o,$(filter %.cpp,$(CXXUSERSRCS)))) : objects/%.o: %.cpp
+	$(ECHO) Compiling $<
+	@mkdir -p $(dir $@)
+	@rm -f $@
+	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
+
+$(sort $(patsubst %.cc,objects/%.o,$(filter %.cc,$(CXXUSERSRCS)))) : objects/%.o: %.cc
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
@@ -292,7 +310,19 @@ $(sort $(patsubst %.c,%.i,$(CUSERSRCS))): %.i: %.c
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CC) -dD $(CFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
-$(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
+$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(RUCKIG_CXX_FILES)))): %.ii: %.cc
+	$(ECHO) Preprocessing $< to $@
+	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 -E $< -o $@
+
+$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(RUCKIG_CXX_FILES)))): %.ii: %.cpp
+	$(ECHO) Preprocessing $< to $@
+	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -std=c++20 -E $< -o $@
+
+$(sort $(patsubst %.cc,%.ii,$(filter %.cc,$(NON_RUCKIG_CXX_FILES)))): %.ii: %.cc
+	$(ECHO) Preprocessing $< to $@
+	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
+
+$(sort $(patsubst %.cpp,%.ii,$(filter %.cpp,$(NON_RUCKIG_CXX_FILES)))): %.ii: %.cpp
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
@@ -337,117 +367,46 @@ INFILES = \
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-build-software: $(INFILES)
+build-software: headers $(INFILES)
 
 # For each file to be copied to ../include, its location in the source tree
-# is listed here.  Note that due to $(INCLUDE), defined above, the include
-# files in the source tree are the ones used when building linuxcnc.  The copy
-# in ../include is used when building external components of linuxcnc.
+# is listed here.
+# Note that due to $(INCLUDE), defined above, the include files in the source
+# tree are normally the ones used or not found at all when building linuxcnc if
+# you are not aware of the differences between "" and <> includes.
+#
+# All sources should #include <> (like in #include <rtapi.h>) for these special
+# headers in the ../include directory to ensure they are used.
+# The *only* exception is those sources that use the include and reside in the
+# /same/ source directory as the include. That means that the local version
+# should have precedence over the global one.
+#
+# If you add to these headers, then you must make absolutely sure that they are
+# required for out-of-tree components and that the proper #include type is
+# used.
+#
 SRCHEADERS := \
+    hal/hal.h \
+    hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     emc/linuxcnc.h \
-    emc/ini/emcIniFile.hh \
-    emc/ini/iniaxis.hh \
-    emc/ini/inijoint.hh \
-    emc/ini/inispindle.hh \
-    emc/ini/initraj.hh \
-    emc/ini/inihal.hh \
-    emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
-    emc/kinematics/switchkins.h \
-    emc/kinematics/genhexkins.h \
-    emc/kinematics/genserkins.h \
-    emc/kinematics/pentakins.h \
-    emc/kinematics/pumakins.h \
-    emc/tp/tc.h \
-    emc/tp/tc_types.h \
-    emc/tp/tcq.h \
-    emc/tp/tp.h \
-    emc/tp/tp_types.h \
-    emc/tp/spherical_arc.h \
-    emc/tp/blendmath.h \
     emc/motion/emcmotcfg.h \
-    emc/motion/motion.h \
-    emc/motion/homing.h \
-    emc/motion/simple_tp.h \
-	emc/motion/sp_scurve.h \
-    emc/motion/state_tag.h \
-    emc/motion/usrmotintf.h \
-    emc/motion/axis.h \
-    emc/nml_intf/canon.hh \
-    emc/nml_intf/canon_position.hh \
-    emc/nml_intf/emctool.h \
-    emc/nml_intf/emc.hh \
-    emc/nml_intf/emc_nml.hh \
-    emc/nml_intf/emccfg.h \
-    emc/nml_intf/emcglb.h \
     emc/nml_intf/emcpos.h \
     emc/nml_intf/emcpose.h \
-    emc/nml_intf/interp_return.hh \
-    emc/nml_intf/interpl.hh \
     emc/nml_intf/motion_types.h \
-    emc/nml_intf/debugflags.h \
-    emc/rs274ngc/interp_internal.hh \
-    emc/rs274ngc/interp_fwd.hh \
-    emc/rs274ngc/interp_base.hh \
-    emc/rs274ngc/modal_state.hh \
-    emc/rs274ngc/rs274ngc.hh \
-    emc/rs274ngc/saicanon.hh \
-    emc/tooldata/tooldata.hh \
-    hal/hal.h \
-    hal/hal_parport.h \
-    hal/drivers/mesa-hostmot2/hostmot2-serial.h \
-    libnml/buffer/locmem.hh \
-    libnml/buffer/memsem.hh \
-    libnml/buffer/phantom.hh \
-    libnml/buffer/physmem.hh \
-    libnml/buffer/recvn.h \
-    libnml/buffer/rem_msg.hh \
-    libnml/buffer/sendn.h \
-    libnml/buffer/shmem.hh \
-    libnml/buffer/tcpmem.hh \
-    libnml/cms/cms.hh \
-    libnml/cms/cms_aup.hh \
-    libnml/cms/cms_cfg.hh \
-    libnml/cms/cms_dup.hh \
-    libnml/cms/cms_srv.hh \
-    libnml/cms/cms_up.hh \
-    libnml/cms/cms_user.hh \
-    libnml/cms/cms_xup.hh \
-    libnml/cms/cmsdiag.hh \
-    libnml/cms/tcp_opts.hh \
-    libnml/cms/tcp_srv.hh \
-    libnml/inifile/inifile.h \
-    libnml/inifile/inifile.hh \
-    libnml/linklist/linklist.hh \
-    libnml/nml/cmd_msg.hh \
-    libnml/nml/nml.hh \
-	libnml/nml/nml_oi.hh \
-    libnml/nml/nml_srv.hh \
-    libnml/nml/nml_type.hh \
-    libnml/nml/nmldiag.hh \
-    libnml/nml/nmlmsg.hh \
-    libnml/nml/stat_msg.hh \
-    libnml/os_intf/_sem.h \
-    libnml/os_intf/sem.hh \
-    libnml/os_intf/_shm.h \
-    libnml/os_intf/shm.hh \
-    libnml/os_intf/_timer.h \
-    libnml/os_intf/timer.hh \
-    libnml/posemath/posemath.h \
-    libnml/posemath/gotypes.h \
     libnml/posemath/gomath.h \
+    libnml/posemath/gotypes.h \
+    libnml/posemath/posemath.h \
     libnml/posemath/sincos.h \
-    libnml/rcs/rcs.hh \
-    libnml/rcs/rcs_exit.hh \
-    libnml/rcs/rcs_print.hh \
-    libnml/rcs/rcsversion.h \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
     rtapi/rtapi_atomic.h \
     rtapi/rtapi_bitops.h \
     rtapi/rtapi_bool.h \
     rtapi/rtapi_byteorder.h \
+    rtapi/rtapi_ctype.h \
     rtapi/rtapi_device.h \
+    rtapi/rtapi_errno.h \
     rtapi/rtapi_firmware.h \
     rtapi/rtapi_gfp.h \
     rtapi/rtapi_io.h \
@@ -461,8 +420,6 @@ SRCHEADERS := \
     rtapi/rtapi_pci.h \
     rtapi/rtapi_slab.h \
     rtapi/rtapi_stdint.h \
-    rtapi/rtapi_ctype.h \
-    rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_vsnprintf.h
 
@@ -612,10 +569,10 @@ endif
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
 # of each file that contains headers.
-$(patsubst %,../include/%,$(wildcard *.h)): ../include/%.h: %.h
-	$(Q)-cp $^ $@
-$(patsubst %,../include/%,$(wildcard *.hh)): ../include/%.hh: %.hh
-	$(Q)-cp $^ $@
+#$(patsubst %,../include/%,$(wildcard *.h)): ../include/%.h: %.h
+#	$(Q)-cp $^ $@
+#$(patsubst %,../include/%,$(wildcard *.hh)): ../include/%.hh: %.hh
+#	$(Q)-cp $^ $@
 
 INSTALL=install -o root
 DIR=$(INSTALL) -d -m 0755
@@ -884,11 +841,8 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD)/../include -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
-	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
-	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
-	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
-	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/tp -I$(BASEPWD)/emc/motion \
+EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ \
+	-I$(BASEPWD)/../include -I$(BASEPWD) \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
 	-Wno-declaration-after-statement \
@@ -1231,6 +1185,26 @@ motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
 motmod-objs += emc/tp/sp_scurve.o
+motmod-objs += emc/tp/ruckig_wrapper.o
+motmod-objs += emc/tp/cruckig/block.o
+motmod-objs += emc/tp/cruckig/brake.o
+motmod-objs += emc/tp/cruckig/calculator.o
+motmod-objs += emc/tp/cruckig/cruckig.o
+motmod-objs += emc/tp/cruckig/input_parameter.o
+motmod-objs += emc/tp/cruckig/output_parameter.o
+motmod-objs += emc/tp/cruckig/profile.o
+motmod-objs += emc/tp/cruckig/roots.o
+motmod-objs += emc/tp/cruckig/trajectory.o
+motmod-objs += emc/tp/cruckig/position_first_step1.o
+motmod-objs += emc/tp/cruckig/position_first_step2.o
+motmod-objs += emc/tp/cruckig/position_second_step1.o
+motmod-objs += emc/tp/cruckig/position_second_step2.o
+motmod-objs += emc/tp/cruckig/position_third_step1.o
+motmod-objs += emc/tp/cruckig/position_third_step2.o
+motmod-objs += emc/tp/cruckig/velocity_second_step1.o
+motmod-objs += emc/tp/cruckig/velocity_second_step2.o
+motmod-objs += emc/tp/cruckig/velocity_third_step1.o
+motmod-objs += emc/tp/cruckig/velocity_third_step2.o
 
 obj-m += homemod.o
 homemod-objs := emc/motion/homemod.o
@@ -1246,6 +1220,26 @@ tpmod-objs += emc/tp/blendmath.o
 tpmod-objs += emc/nml_intf/emcpose.o
 tpmod-objs += libnml/posemath/_posemath.o
 tpmod-objs += emc/tp/sp_scurve.o
+tpmod-objs += emc/tp/ruckig_wrapper.o
+tpmod-objs += emc/tp/cruckig/block.o
+tpmod-objs += emc/tp/cruckig/brake.o
+tpmod-objs += emc/tp/cruckig/calculator.o
+tpmod-objs += emc/tp/cruckig/cruckig.o
+tpmod-objs += emc/tp/cruckig/input_parameter.o
+tpmod-objs += emc/tp/cruckig/output_parameter.o
+tpmod-objs += emc/tp/cruckig/profile.o
+tpmod-objs += emc/tp/cruckig/roots.o
+tpmod-objs += emc/tp/cruckig/trajectory.o
+tpmod-objs += emc/tp/cruckig/position_first_step1.o
+tpmod-objs += emc/tp/cruckig/position_first_step2.o
+tpmod-objs += emc/tp/cruckig/position_second_step1.o
+tpmod-objs += emc/tp/cruckig/position_second_step2.o
+tpmod-objs += emc/tp/cruckig/position_third_step1.o
+tpmod-objs += emc/tp/cruckig/position_third_step2.o
+tpmod-objs += emc/tp/cruckig/velocity_second_step1.o
+tpmod-objs += emc/tp/cruckig/velocity_second_step2.o
+tpmod-objs += emc/tp/cruckig/velocity_third_step1.o
+tpmod-objs += emc/tp/cruckig/velocity_third_step2.o
 tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
@@ -1266,8 +1260,18 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 
 RTFLAGS += -fno-strict-aliasing -fwrapv
 
-# Rules to make .o (object) files
-$(sort $(RTOBJS)) : objects/rt%.o : %.c
+# Rules to make .o (object) files for C files
+$(sort $(filter-out objects/rtemc/tp/cruckig/%,$(RTOBJS))) : objects/rt%.o : %.c
+	$(ECHO) Compiling realtime $<
+	@rm -f $@
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI \
+		$(EXTRA_CFLAGS) \
+		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
+		$< -o $@
+
+# Rules for cruckig C files in realtime modules
+objects/rtemc/tp/cruckig/%.o : emc/tp/cruckig/%.c
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)

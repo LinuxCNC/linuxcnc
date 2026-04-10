@@ -5,13 +5,13 @@ import os
 import shutil
 from collections import OrderedDict
 
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import (QApplication, QFileSystemModel, QWidget, QVBoxLayout, QHBoxLayout,
+from qtpy.QtCore import QCoreApplication
+from qtpy.QtWidgets import (QApplication, QFileSystemModel, QWidget, QVBoxLayout, QHBoxLayout,
                              QListView, QComboBox, QPushButton, QToolButton, QSizePolicy,
                              QMenu, QAction, QLineEdit, QCheckBox, QTableView, QHeaderView,
                                 QMessageBox)
-from PyQt5.QtGui import QIcon, QDragEnterEvent, QDropEvent
-from PyQt5.QtCore import (QModelIndex, QDir, Qt, pyqtSlot, pyqtSignal, pyqtProperty, QFileInfo, QMimeData,
+from qtpy.QtGui import QIcon, QDragEnterEvent, QDropEvent
+from qtpy.QtCore import (QModelIndex, QDir, Qt, Slot, Signal, Property, QFileInfo, QMimeData,
                           QItemSelectionModel, QItemSelection, QSortFilterProxyModel)
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -34,7 +34,7 @@ LOG = logger.getLogger(__name__)
 _translate = QCoreApplication.translate
 
 class SharedViewMixin:
-    itemDropped = pyqtSignal(list)
+    itemDropped = Signal(list)
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
@@ -599,8 +599,8 @@ class FileManager(QWidget, _HalWidgetBase):
             STATUS.emit('error', STATUS.OPERATOR_ERROR, f"Copy file error: {e}")
             return False
 
-    @pyqtSlot(float)
-    @pyqtSlot(int)
+    @Slot(float)
+    @Slot(int)
     def scroll(self, data):
         if data > self._last:
             self.up()
@@ -722,7 +722,7 @@ class FileManager(QWidget, _HalWidgetBase):
     def resetDoubleClickSelection(self, state):
         self._doubleClick = False
         self.connectSelection()
-    doubleClickSelection = pyqtProperty(bool, getDoubleClickSelection, setDoubleClickSelection,  resetDoubleClickSelection)
+    doubleClickSelection = Property(bool, getDoubleClickSelection, setDoubleClickSelection,  resetDoubleClickSelection)
 
     # list/table view selection
     def setShowListView(self, state):
@@ -733,7 +733,7 @@ class FileManager(QWidget, _HalWidgetBase):
     def resetShowListView(self, state):
         self._showListView = False
         self.showList(False)
-    showListView = pyqtProperty(bool, getShowListView, setShowListView,  resetShowListView)
+    showListView = Property(bool, getShowListView, setShowListView,  resetShowListView)
 
 if __name__ == "__main__":
     import sys

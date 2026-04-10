@@ -43,10 +43,10 @@
 */
 
 #include "config.h"
-#include "emc/linuxcnc.h"
+#include <linuxcnc.h>
 
 #ifndef NO_INI
-#include "inifile.h"		/* iniFind() from libnml */
+#include "libnml/inifile/inifile.h"		/* iniFindString() from libnml */
 FILE *halcmd_inifile = NULL;
 #endif
 
@@ -64,9 +64,8 @@ FILE *halcmd_inifile = NULL;
 #include <fnmatch.h>
 #include <search.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <hal.h>		/* HAL public API decls */
 #include "halcmd_commands.h"
 
 /***********************************************************************
@@ -707,7 +706,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 {
     int retval = 0;
     int next_delim, remaining, buf_space;
-    char *replacement, sec[128], var[128];
+    char *replacement, sec[128], var[128], ini_buf[INI_MAX_LINELEN];
     static char info[256];
     char *sp=source_str, *dp=dest_str, *secP, *varP;
     const char 
@@ -776,11 +775,12 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		var[next_delim]='\0';
 		if ( strlen(sec) > 0 ) {
 		/* get value from INI file */
-		/* cast to char ptr, we are discarding the 'const' */
-		    replacement = (char *) iniFind(halcmd_inifile, var, sec);
+		    replacement = (char *) iniFindString(halcmd_inifile, var, sec,
+		                                         ini_buf, sizeof(ini_buf));
 		} else {
 		/* no section specified */
-		    replacement = (char *) iniFind(halcmd_inifile, var, NULL);
+		    replacement = (char *) iniFindString(halcmd_inifile, var, NULL,
+		                                         ini_buf, sizeof(ini_buf));
 		}
 		if (replacement==NULL) {
                     *detail = info;

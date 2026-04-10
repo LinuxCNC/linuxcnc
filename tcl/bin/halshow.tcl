@@ -42,8 +42,8 @@ if {[info exists ::env(CONFIG_DIR)]} {
     set ::INIDIR "${config_path}"
     set ::INIFILE "${config_path}halshow.preferences"
 } else {
-    set ::INIDIR "~"
-    set ::INIFILE "~/.halshow_preferences"
+    set ::INIDIR "$::env(HOME)"
+    set ::INIFILE "$::env(HOME)/.halshow_preferences"
 }
 # puts stderr "Halshow inifile: $::INIFILE"
 

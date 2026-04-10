@@ -21,11 +21,11 @@
 #include <rtapi_pci.h>
 #include <rtapi_io.h>
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
 
-#include "hal.h"
+#include <hal.h>
 
 #include "bitfile.h"
 #include "hostmot2-lowlevel.h"

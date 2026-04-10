@@ -16,8 +16,8 @@ import os
 import tempfile
 import atexit
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from qtpy import QtCore, QtGui, QtWidgets, uic
+from qtpy.QtWidgets import QFileDialog, QMessageBox
 from qtvcp.core import Info, Status, Action, Tool, Path
 
 INFO = Info()

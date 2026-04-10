@@ -12,7 +12,7 @@
 * Last change: 
 ********************************************************************/
 
-#include "cms.hh"		/* enum CMS_STATUS */
+#include "libnml/cms/cms.hh"		/* enum CMS_STATUS */
 #include "phantom.hh"		/* class PHANTOMMEM */
 
 PHANTOMMEM::PHANTOMMEM(const char *bufline, const char *procline):CMS(bufline, procline)

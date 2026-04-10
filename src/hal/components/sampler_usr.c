@@ -70,8 +70,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"                /* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <hal.h>                /* HAL public API decls */
 #include "streamer.h"
 
 /***********************************************************************

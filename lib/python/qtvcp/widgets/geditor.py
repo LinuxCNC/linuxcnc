@@ -29,9 +29,9 @@
 
 import sys
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QEvent, Qt, QByteArray, QVariant
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMainWindow, QAction,\
+from qtpy.QtCore import Property, Signal, QSize, QEvent, Qt, QByteArray, QVariant
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import QMainWindow, QAction,\
          QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
             QFrame, QLabel
 
@@ -55,7 +55,7 @@ LOG = logger.getLogger(__name__)
 #############################################
 
 class GEditor(QMainWindow, _HalWidgetBase):
-    percentDone = pyqtSignal(int)
+    percentDone = Signal(int)
 
     def __init__(self, parent=None, designer=False):
         if not designer:
@@ -481,7 +481,7 @@ Still want to proceed?""",
         return self.editor.auto_show_mdi
     def reset_auto_show_mdi(self):
         self.editor.auto_show_mdi = True
-    auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
+    auto_show_mdi_status = Property(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
 
     # designer recognized getter/setters
     # auto_show_manual status
@@ -491,7 +491,7 @@ Still want to proceed?""",
         return self.editor.auto_show_manual
     def reset_auto_show_manual(self):
         self.editor.auto_show_manual = True
-    auto_show_manual_status = pyqtProperty(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
+    auto_show_manual_status = Property(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
 
     # designer recognized getter/setters
     # show_editor status
@@ -515,14 +515,14 @@ Still want to proceed?""",
         self.toolBarLexer.show()
         self.toolBarEntry.show()
         self.toolBarEdit.show()
-    show_editor = pyqtProperty(bool, get_show_editor, set_show_editor, reset_show_editor)
+    show_editor = Property(bool, get_show_editor, set_show_editor, reset_show_editor)
 
 
 # for direct testing
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from qtpy.QtWidgets import *
+    from qtpy.QtCore import *
+    from qtpy.QtGui import *
 
     app = QApplication(sys.argv)
     w = GcodeEditor()

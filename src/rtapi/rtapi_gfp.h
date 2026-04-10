@@ -13,8 +13,8 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#ifndef RTAPI_GFP_H
-#define RTAPI_GFP_H
+#ifndef __LINUXCNC_RTAPI_GFP_H
+#define __LINUXCNC_RTAPI_GFP_H
 
 #ifdef __KERNEL__
 #include <linux/gfp.h>

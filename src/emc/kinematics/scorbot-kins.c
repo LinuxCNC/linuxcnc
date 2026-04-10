@@ -38,9 +38,12 @@
 //
 
 
-#include "kinematics.h"
-#include "rtapi_math.h"
-#include "gotypes.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_math.h>
+#include <hal.h>
+#include <gotypes.h>
+#include <kinematics.h>
 
 
 //
@@ -295,11 +298,6 @@ int kinematicsInverse(
 KINEMATICS_TYPE kinematicsType(void) {
     return KINEMATICS_BOTH;
 }
-
-
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "hal.h"
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);

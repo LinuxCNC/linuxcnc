@@ -37,10 +37,11 @@ https://www.mail-archive.com/emc-developers@lists.sourceforge.net/msg15285.html
   #pragma GCC diagnostic warning "-Wframe-larger-than=6000"
 #endif
 
-#include "rtapi.h"
+#include <rtapi.h>
 #include <rtapi_string.h>
+#include <emcmotcfg.h>
+
 #include "genserkins.h"
-#include "motion.h"
 #include "switchkins.h"
 
 //-7 is system defined -3 ok, -4 ok, -5 ok,-6 ok (mm system)

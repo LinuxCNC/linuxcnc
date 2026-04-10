@@ -16,9 +16,9 @@
 */
 
 // typical includes:
-//#include "rtapi_math.h" // if reqd
-#include "kinematics.h"
-#include "hal.h"
+//#include <rtapi_math.h> // if reqd
+#include <hal.h>
+#include <kinematics.h>
 
 // Add for kins based on genserkins:
 // #include "genserkins.h" //includes gomath,hal

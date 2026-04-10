@@ -21,10 +21,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 from shutil import copy as COPY
-from PyQt5 import QtCore
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel, QComboBox
-from PyQt5.QtGui import QIcon
+from qtpy import QtCore
+from qtpy.QtCore import QCoreApplication
+from qtpy.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel, QComboBox
+from qtpy.QtGui import QIcon
 
 _translate = QCoreApplication.translate
 

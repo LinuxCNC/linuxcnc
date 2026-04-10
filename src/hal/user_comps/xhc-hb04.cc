@@ -33,7 +33,7 @@
 #include <stdarg.h>
 
 #include <hal.h>
-#include <inifile.hh>
+#include "libnml/inifile/inifile.hh"
 
 #include "config.h"
 
@@ -191,14 +191,14 @@ int xhc_encode_float(float v, unsigned char *buf)
 	unsigned short int_part = int_v / 10000;
 	unsigned short fract_part = int_v % 10000;
 	if (v < 0) fract_part = fract_part | 0x8000;
-	*(short *)buf = int_part;
-	*((short *)buf+1) = fract_part;
+	*reinterpret_cast<short *>(buf) = int_part;
+	*(reinterpret_cast<short *>(buf)+1) = fract_part;
 	return 4;
 }
 
 int xhc_encode_s16(int v, unsigned char *buf)
 {
-	*(short *)buf = v;
+	*reinterpret_cast<short *>(buf) = v;
 	return 2;
 }
 
@@ -668,7 +668,6 @@ static int hal_setup()
 int read_ini_file(char *filename)
 {
 	IniFile iniFile;
-	std::optional<const char*> bt;
 	int nb_buttons = 0;
 	if (!iniFile.Open(filename)) {
 		fprintf(stderr, "%s: Could not open configuration file: %s\n",
@@ -676,9 +675,10 @@ int read_ini_file(char *filename)
 		return -1;
 	}
 
-	while ((bt = iniFile.Find("BUTTON", section, nb_buttons+1)) && nb_buttons < NB_MAX_BUTTONS) {
-		if (sscanf(*bt, "%x:%255s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
-			fprintf(stderr, "%s: syntax error\n", *bt);
+	while (auto bt = iniFile.Find("BUTTON", section, nb_buttons+1)) {
+		if (nb_buttons >= NB_MAX_BUTTONS) break;
+		if (sscanf(bt->c_str(), "%x:%255s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
+			fprintf(stderr, "%s: syntax error\n", bt->c_str());
 			return -1;
 		}
 		nb_buttons++;

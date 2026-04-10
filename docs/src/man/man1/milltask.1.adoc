@@ -9,7 +9,7 @@ milltask - Non-realtime task controller for LinuxCNC
 The internal process *milltask* of LinuxCNC is generally not
 invoked directly but by an INI file setting:
 `[TASK]TASK=milltask``.
-The *milltask* process creates the `ini.\*` HAL pins listed below and owned by the *inihal* component.
+The *milltask* process creates the `ini.*` HAL pins listed below and owned by the *inihal* component.
 These pins may be modified while LinuxCNC is running to alter values
 that are typically specified statically in an INI file.
 

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QDesktopWidget, QMessageBox)
+from qtpy.QtWidgets import (QDesktopWidget, QMessageBox)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp import logger
 

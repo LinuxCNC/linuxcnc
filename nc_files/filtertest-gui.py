@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
+from qtpy.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
                             QVBoxLayout,QDialogButtonBox)
-from PyQt5.QtCore import QTimer, Qt
+from qtpy.QtCore import QTimer, Qt
 
 class CustomDialog(QDialog):
 

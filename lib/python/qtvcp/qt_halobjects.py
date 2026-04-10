@@ -1,7 +1,7 @@
 import hal
 import _hal
 import traceback
-from PyQt5.QtCore import QObject, QTimer, pyqtSignal
+from qtpy.QtCore import QObject, QTimer, Signal
 
 # Set up logging
 from common import logger
@@ -10,9 +10,9 @@ log = logger.getLogger(__name__)
 
 class QPin(hal.Pin, QObject):
 
-    value_changed = pyqtSignal('PyQt_PyObject')# depreciated
-    pinValueChanged = pyqtSignal('PyQt_PyObject','PyQt_PyObject')
-    isDrivenChanged = pyqtSignal('PyQt_PyObject','PyQt_PyObject')
+    value_changed = Signal('PyQt_PyObject')# depreciated
+    pinValueChanged = Signal('PyQt_PyObject','PyQt_PyObject')
+    isDrivenChanged = Signal('PyQt_PyObject','PyQt_PyObject')
     REGISTRY = []
     UPDATE = False
 
@@ -86,7 +86,7 @@ class QPin(hal.Pin, QObject):
 
 # so errors when making QPins aren't fatal
 class DummyPin(QObject):
-    value_changed = pyqtSignal('PyQt_PyObject')
+    value_changed = Signal('PyQt_PyObject')
 
     def __init__(self, *a, **kw):
         super(DummyPin, self).__init__(None)

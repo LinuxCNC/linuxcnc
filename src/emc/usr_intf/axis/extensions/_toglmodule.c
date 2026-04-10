@@ -33,12 +33,12 @@ PyObject *install(PyObject *s, PyObject *arg) {
         PyErr_SetString(PyExc_TypeError, "get_interpreter() returned NULL");
         return NULL;
     }
-    if (Tcl_InitStubs(trp, "8.1", 0) == NULL) 
+    if (Tcl_InitStubs(trp, TCL_VERSION, 0) == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError, "Tcl_InitStubs returned NULL");
         return NULL;
     }
-    if (Tk_InitStubs(trp, "8.1", 0) == NULL) 
+    if (Tk_InitStubs(trp, TK_VERSION, 0) == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError, "Tk_InitStubs returned NULL");
         return NULL;

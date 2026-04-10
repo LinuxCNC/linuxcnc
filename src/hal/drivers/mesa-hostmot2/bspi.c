@@ -18,10 +18,10 @@
 
 #include <rtapi_slab.h>
 #include <rtapi_bool.h>
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_string.h>
+#include <rtapi_math.h>
+#include <hal.h>
 #include "hostmot2.h"
 
 int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index) 

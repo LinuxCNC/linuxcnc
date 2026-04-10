@@ -25,7 +25,7 @@
 #endif
 
 #define BOOST_PYTHON_MAX_ARITY 4
-#include "python_plugin.hh"
+#include "pythonplugin/python_plugin.hh"
 #include <boost/python/dict.hpp>
 #include <boost/python/extract.hpp>
 #include <boost/python/list.hpp>
@@ -47,10 +47,10 @@ namespace bp = boost::python;
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
-#include "inifile.hh"
+#include "libnml/inifile/inifile.hh"
 
 // for HAL pin variables
-#include "hal.h"
+#include <hal.h>
 
 enum predefined_named_parameters {
     NP_LINE,
@@ -964,7 +964,6 @@ double Interp::inicheck()
 {
     IniFile inifile;
     const char *filename;
-    std::optional<const char*> inistring;
     double result = -1.0;
 
 	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
@@ -976,8 +975,8 @@ double Interp::inicheck()
 	    return -1.0;
     }
 
-    if ((inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
-        if (!strcmp(*inistring, "inch")) {
+    if (auto inistring = inifile.Find("LINEAR_UNITS", "TRAJ")) {
+        if (*inistring == "inch") {
              result = 0.0;
         } else {
             result = 1.0;

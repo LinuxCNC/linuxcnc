@@ -2,9 +2,9 @@
 
 import sys
 
-from PyQt5.QtCore import pyqtSignal, QPoint, QSize, Qt, QTimer
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QOpenGLWidget, QSlider,
+from qtpy.QtCore import Signal, QPoint, QSize, Qt, QTimer
+from qtpy.QtGui import QColor
+from qtpy.QtWidgets import (QApplication, QHBoxLayout, QOpenGLWidget, QSlider,
                              QWidget)
 
 import OpenGL.GL as GL
@@ -65,10 +65,10 @@ class Window(QWidget):
         self.zoomSlider.setRange(small, big)
 
 class GLWidget(QOpenGLWidget):
-    xRotationChanged = pyqtSignal(int)
-    yRotationChanged = pyqtSignal(int)
-    zRotationChanged = pyqtSignal(int)
-    zoomChanged = pyqtSignal(int)
+    xRotationChanged = Signal(int)
+    yRotationChanged = Signal(int)
+    zRotationChanged = Signal(int)
+    zoomChanged = Signal(int)
 
     def __init__(self, parent=None):
         super(GLWidget, self).__init__(parent)

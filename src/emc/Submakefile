@@ -1,7 +1,5 @@
 INCLUDES += emc
 
-$(patsubst ./emc/%,../include/%,$(wildcard ./emc/*.h)): ../include/%.h: ./emc/%.h
-	cp $^ $@
-
-$(patsubst ./emc/%,../include/%,$(wildcard ./emc/*.hh)): ../include/%.hh: ./emc/%.hh
+# linuxcnc.h has some generic defines for many interfaces
+../include/linuxcnc.h: ./emc/linuxcnc.h
 	cp $^ $@

@@ -15,7 +15,7 @@
 #
 #################################################################################
 
-from PyQt5 import QtWidgets
+from qtpy import QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status

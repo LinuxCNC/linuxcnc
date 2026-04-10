@@ -17,7 +17,7 @@
 
 import os
 
-from PyQt5 import QtCore, QtWidgets, uic
+from qtpy import QtCore, QtWidgets, uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Path
@@ -391,9 +391,9 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
 # Testing
 ####################################
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from qtpy.QtWidgets import *
+    from qtpy.QtCore import *
+    from qtpy.QtGui import *
     import sys
 
     app = QtWidgets.QApplication(sys.argv)

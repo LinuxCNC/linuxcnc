@@ -13,10 +13,6 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>		/* sscanf(),NULL, FILE, fopen(), fgets() */
 #include <string.h>		/* strchr(), memcpy() */
 #include <stdlib.h>		/* malloc(), free(), exit() */
@@ -28,20 +24,17 @@ extern "C" {
 #include <sys/wait.h>		/* waitpid() */
 #include <signal.h>		/* sigvec(), struct sigvec, SIGINT, kill() */
 
-#ifdef __cplusplus
-}
-#endif
 #include "cms.hh"		/* class CMS */
-#include "rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
+#include "libnml/buffer/rem_msg.hh"		/* struct REMOTE_READ_REQUEST, */
 				/* struct REMOTE_WRITE_REQUEST, */
 #include "cms_srv.hh"		/* class CMS_SERVER */
 #include "cms_cfg.hh"		/* cms_config() */
-#include "rcs_print.hh"		/* rcs_print_error() */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 #ifndef NO_DCE_RPC
 #define NO_DCE_RPC
 #endif
 #include "tcp_srv.hh"		/* CMS_SERVER_TCP_PORT */
-#include "timer.hh"		// etime()
+#include "libnml/os_intf/timer.hh"		// etime()
 #include "cmsdiag.hh"
 
 int cms_server_count = 0;
@@ -639,14 +632,14 @@ REMOTE_CMS_REPLY *CMS_SERVER::process_request(REMOTE_CMS_REQUEST * _request)
 	}
 
     case REMOTE_CMS_READ_REQUEST_TYPE:
-	return (local_port->reader((REMOTE_READ_REQUEST *) request));
+	return (local_port->reader(reinterpret_cast<REMOTE_READ_REQUEST *>(request)));
     case REMOTE_CMS_GET_DIAG_INFO_REQUEST_TYPE:
 	return (local_port->get_diag_info
-	    ((REMOTE_GET_DIAG_INFO_REQUEST *) request));
+	    (reinterpret_cast<REMOTE_GET_DIAG_INFO_REQUEST *>(request)));
     case REMOTE_CMS_BLOCKING_READ_REQUEST_TYPE:
-	return (local_port->blocking_read((REMOTE_READ_REQUEST *) request));
+	return (local_port->blocking_read(reinterpret_cast<REMOTE_READ_REQUEST *>(request)));
     case REMOTE_CMS_WRITE_REQUEST_TYPE:
-	return (local_port->writer((REMOTE_WRITE_REQUEST *) request));
+	return (local_port->writer(reinterpret_cast<REMOTE_WRITE_REQUEST *>(request)));
     case REMOTE_CMS_CHECK_IF_READ_REQUEST_TYPE:
 	if (NULL == local_port->cms) {
 	    rcs_print_error
@@ -713,8 +706,8 @@ REMOTE_CMS_REPLY *CMS_SERVER::process_request(REMOTE_CMS_REQUEST * _request)
 	}
 	remote_port->current_connected_user_struct->user_info =
 	    get_user_info(
-	    ((REMOTE_LOGIN_REQUEST *) request)->name,
-	    ((REMOTE_LOGIN_REQUEST *) request)->passwd);
+	    reinterpret_cast<REMOTE_LOGIN_REQUEST *>(request)->name,
+	    reinterpret_cast<REMOTE_LOGIN_REQUEST *>(request)->passwd);
 	login_reply->success =
 	    (NULL != remote_port->current_connected_user_struct->user_info);
 	if (login_reply->success) {

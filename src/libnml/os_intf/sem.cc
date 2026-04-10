@@ -12,12 +12,10 @@
 * Last change: 
 ********************************************************************/
 
-extern "C" {
 #include <stdio.h>		/* NULL */
 #include "_sem.h"
-}
 #include "sem.hh"
-#include "rcs_print.hh"		// rcs_print_debug(),
+#include "libnml/rcs/rcs_print.hh"		// rcs_print_debug(),
 				// PRINT_SEMAPHORE_ACTIVITY
 #include "timer.hh"		// etime()
 RCS_SEMAPHORE::RCS_SEMAPHORE(key_t _id, int _oflag, double _time,

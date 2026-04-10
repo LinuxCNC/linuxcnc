@@ -83,7 +83,7 @@ Load and activate the module with HAL commands such as
 
 ----
 loadrt my_file ports=hm2_7i69.0.pktuart.0
-addf my_file servo-thread
+addf my_file.00 servo-thread
 ----
 
 == Modbus ==

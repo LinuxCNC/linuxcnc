@@ -15,7 +15,6 @@
 ********************************************************************/
 
 
-#define __STDC_FORMAT_MACROS
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -27,23 +26,22 @@
 #include <sys/types.h>
 #include <inttypes.h>
 
-#include "emc/linuxcnc.h"
-#include "rcs.hh"
-#include "posemath.h"		// PM_POSE, TO_RAD
-#include "emc.hh"		// EMC NML
-#include "emc_nml.hh"
-#include "canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
-#include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
-#include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "inifile.hh"		// INIFILE
-#include "nml_oi.hh"            // nmlErrorFormat, NML_ERROR, etc
-#include "rcs_print.hh"
-#include "timer.hh"             // esleep
-#include "shcom.hh"             // Common NML communications functions
 #include <rtapi_string.h>
+#include <posemath.h>		// PM_POSE, TO_RAD
+#include "libnml/rcs/rcs.hh"
+#include "nml_intf/emc.hh"		// EMC NML
+#include "nml_intf/emc_nml.hh"
+#include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
+#include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
+#include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
+#include "libnml/inifile/inifile.hh"		// INIFILE
+#include "libnml/nml/nml_oi.hh"            // nmlErrorFormat, NML_ERROR, etc
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/os_intf/timer.hh"             // esleep
+#include "shcom.hh"             // Common NML communications functions
 
-LINEAR_UNIT_CONVERSION linearUnitConversion;
-ANGULAR_UNIT_CONVERSION angularUnitConversion;
+LINEAR_UNIT_CONVERSION linearUnitConversion = LINEAR_UNITS_AUTO;
+ANGULAR_UNIT_CONVERSION angularUnitConversion = ANGULAR_UNITS_AUTO;
 
 static int num_joints = EMCMOT_MAX_JOINTS;
 
@@ -68,12 +66,11 @@ EMC_UPDATE_TYPE emcUpdateType;
 EMC_WAIT_TYPE emcWaitType;
 
 void strupr(char *s)
-{  
-  int i;
-  
-  for (i = 0; i < (int)strlen(s); i++)
-    if (s[i] > 96 && s[i] <= 'z')
-      s[i] -= 32;
+{
+    while(*s) {
+        *s = toupper((unsigned char)*s);
+         s++;
+    }
 }
 
 int emcTaskNmlGet()
@@ -103,7 +100,7 @@ int emcTaskNmlGet()
 	    emcStatus = 0;
 	    retval = -1;
 	} else {
-	    emcStatus = (EMC_STAT *) emcStatusBuffer->get_address();
+	    emcStatus = static_cast<EMC_STAT *>(emcStatusBuffer->get_address());
 	}
     }
 
@@ -167,30 +164,20 @@ int tryNml(double retry_time, double retry_interval)
 
 int updateStatus()
 {
-    NMLTYPE type;
-
-    if (0 == emcStatus || 0 == emcStatusBuffer
-	|| !emcStatusBuffer->valid()) {
-	return -1;
+    if (!emcStatus || !emcStatusBuffer || !emcStatusBuffer->valid()) {
+        return -1;
     }
 
-    switch (type = emcStatusBuffer->peek()) {
-    case -1:
-	// error on CMS channel
-	return -1;
-	break;
-
-    case 0:			// no new data
-    case EMC_STAT_TYPE:	// new data
-	// new data
-	break;
-
+    switch (emcStatusBuffer->peek()) {
+    case -1: // error on CMS channel
     default:
-	return -1;
-	break;
+        return -1;
+
+    case 0:             // no new data
+    case EMC_STAT_TYPE: // new data
+        return 0;
     }
 
-    return 0;
 }
 
 /*
@@ -201,7 +188,7 @@ int updateError()
 {
     NMLTYPE type;
 
-    if (0 == emcErrorBuffer || !emcErrorBuffer->valid()) {
+    if (!emcErrorBuffer || !emcErrorBuffer->valid()) {
 	return -1;
     }
 
@@ -209,7 +196,11 @@ int updateError()
     case -1:
 	// error reading channel
 	return -1;
-	break;
+
+    default:
+	// if not recognized, set the error string
+	snprintf(error_string, sizeof(error_string), "shcom:updateError(): unrecognized error %d", (int)type);
+	return 0;
 
     case 0:
 	// nothing new
@@ -217,82 +208,91 @@ int updateError()
 
     case EMC_OPERATOR_ERROR_TYPE:
 	strncpy(error_string,
-		((EMC_OPERATOR_ERROR *) (emcErrorBuffer->get_address()))->
-		error, LINELEN - 1);
+		(static_cast<EMC_OPERATOR_ERROR *>((emcErrorBuffer->get_address()))->error),
+                LINELEN - 1);
 	error_string[NML_ERROR_LEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_TEXT_TYPE:
 	strncpy(operator_text_string,
-		((EMC_OPERATOR_TEXT *) (emcErrorBuffer->get_address()))->
-		text, LINELEN - 1);
+		(static_cast<EMC_OPERATOR_TEXT *>((emcErrorBuffer->get_address()))->text),
+                LINELEN - 1);
 	operator_text_string[NML_TEXT_LEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_DISPLAY_TYPE:
 	strncpy(operator_display_string,
-		((EMC_OPERATOR_DISPLAY *) (emcErrorBuffer->
-					   get_address()))->display,
+		(static_cast<EMC_OPERATOR_DISPLAY *>((emcErrorBuffer->get_address()))->display),
 		LINELEN - 1);
 	operator_display_string[NML_DISPLAY_LEN - 1] = 0;
 	break;
 
     case NML_ERROR_TYPE:
 	strncpy(error_string,
-		((NML_ERROR *) (emcErrorBuffer->get_address()))->error,
+		(static_cast<NML_ERROR *>((emcErrorBuffer->get_address()))->error),
 		NML_ERROR_LEN - 1);
 	error_string[NML_ERROR_LEN - 1] = 0;
 	break;
 
     case NML_TEXT_TYPE:
 	strncpy(operator_text_string,
-		((NML_TEXT *) (emcErrorBuffer->get_address()))->text,
+		(static_cast<NML_TEXT *>((emcErrorBuffer->get_address()))->text),
 		NML_TEXT_LEN - 1);
 	operator_text_string[NML_TEXT_LEN - 1] = 0;
 	break;
 
     case NML_DISPLAY_TYPE:
 	strncpy(operator_display_string,
-		((NML_DISPLAY *) (emcErrorBuffer->get_address()))->display,
+		(static_cast<NML_DISPLAY *>((emcErrorBuffer->get_address()))->display),
 		NML_DISPLAY_LEN - 1);
 	operator_display_string[NML_DISPLAY_LEN - 1] = 0;
-	break;
-
-    default:
-	// if not recognized, set the error string
-	snprintf(error_string, sizeof(error_string), "unrecognized error %" PRId32, type);
-	return -1;
 	break;
     }
 
     return 0;
 }
 
-#define EMC_COMMAND_DELAY   0.1	// how long to sleep between checks
+// How long to start to sleep between checks.
+// It uses a progressive back-off strategy when it takes longer. This makes
+// fast commands faster and slow commands use fewer system resources.
+#define EMC_COMMAND_DELAY      0.001
+#define EMC_COMMAND_FACTOR_MAX 100
 
 int emcCommandWaitDone()
 {
     double end;
-    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY) {
-	updateStatus();
-	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
-	if (serial_diff < 0) {
-	    continue;
-	}
+    int factor = 1;
+    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY * factor) {
+        updateStatus();
+        int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 
-	if (serial_diff > 0) {
-	    return 0;
-	}
+        if (serial_diff > 0) { // We've past beyond our command
+            return 0;
+        }
 
-	if (emcStatus->status == RCS_STATUS::DONE) {
-	    return 0;
-	}
+        if (!serial_diff) { // We're at our command
+            switch (emcStatus->status) {
+            case RCS_STATUS::EXEC: // Still busy executing command
+                break;
 
-	if (emcStatus->status == RCS_STATUS::ERROR) {
-	    return -1;
-	}
+            case RCS_STATUS::DONE:
+                return 0;
 
-	esleep(EMC_COMMAND_DELAY);
+            case RCS_STATUS::ERROR: // The command failed
+                return -1;
+
+            default: // Default should never happen...
+                fprintf(stderr, "shcom.cc: emcCommandWaitDone(): unknown emcStatus->status=%d\n", (int)emcStatus->status);
+                return -1;
+            }
+        }
+        esleep(EMC_COMMAND_DELAY * factor);
+
+        // Progressive backoff until max
+        factor *= 2;
+        if (factor > EMC_COMMAND_FACTOR_MAX) {
+            factor = EMC_COMMAND_FACTOR_MAX;
+        }
     }
 
     return -1;
@@ -301,7 +301,8 @@ int emcCommandWaitDone()
 int emcCommandWaitReceived()
 {
     double end;
-    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY) {
+    int factor = 1;
+    for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY * factor) {
 	updateStatus();
 
 	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
@@ -309,7 +310,13 @@ int emcCommandWaitReceived()
 	    return 0;
 	}
 
-	esleep(EMC_COMMAND_DELAY);
+	esleep(EMC_COMMAND_DELAY * factor);
+
+        // Progressive backoff until max
+        factor *= 2;
+        if (factor > EMC_COMMAND_FACTOR_MAX) {
+            factor = EMC_COMMAND_FACTOR_MAX;
+        }
     }
 
     return -1;
@@ -322,6 +329,18 @@ int emcCommandSend(RCS_CMD_MSG & cmd)
         return -1;
     }
     emcCommandSerialNumber = cmd.serial_number;
+    return 0;
+}
+
+static inline int emcSendCommandAndWait(RCS_CMD_MSG& cmd)
+{
+    if (emcCommandSend(cmd))
+        return -1;
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+        return emcCommandWaitReceived();
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+        return emcCommandWaitDone();
+    }
     return 0;
 }
 
@@ -414,14 +433,7 @@ int sendDebug(int level)
     EMC_SET_DEBUG debug_msg;
 
     debug_msg.debug = level;
-    emcCommandSend(debug_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(debug_msg);
 }
 
 int sendEstop()
@@ -429,14 +441,7 @@ int sendEstop()
     EMC_TASK_SET_STATE state_msg;
 
     state_msg.state = EMC_TASK_STATE::ESTOP;
-    emcCommandSend(state_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(state_msg);
 }
 
 int sendEstopReset()
@@ -444,14 +449,7 @@ int sendEstopReset()
     EMC_TASK_SET_STATE state_msg;
 
     state_msg.state = EMC_TASK_STATE::ESTOP_RESET;
-    emcCommandSend(state_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(state_msg);
 }
 
 int sendMachineOn()
@@ -459,14 +457,7 @@ int sendMachineOn()
     EMC_TASK_SET_STATE state_msg;
 
     state_msg.state = EMC_TASK_STATE::ON;
-    emcCommandSend(state_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(state_msg);
 }
 
 int sendMachineOff()
@@ -474,14 +465,7 @@ int sendMachineOff()
     EMC_TASK_SET_STATE state_msg;
 
     state_msg.state = EMC_TASK_STATE::OFF;
-    emcCommandSend(state_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(state_msg);
 }
 
 int sendManual()
@@ -489,14 +473,7 @@ int sendManual()
     EMC_TASK_SET_MODE mode_msg;
 
     mode_msg.mode = EMC_TASK_MODE::MANUAL;
-    emcCommandSend(mode_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(mode_msg);
 }
 
 int sendAuto()
@@ -504,14 +481,7 @@ int sendAuto()
     EMC_TASK_SET_MODE mode_msg;
 
     mode_msg.mode = EMC_TASK_MODE::AUTO;
-    emcCommandSend(mode_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(mode_msg);
 }
 
 int sendMdi()
@@ -519,14 +489,7 @@ int sendMdi()
     EMC_TASK_SET_MODE mode_msg;
 
     mode_msg.mode = EMC_TASK_MODE::MDI;
-    emcCommandSend(mode_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(mode_msg);
 }
 
 int sendOverrideLimits(int joint)
@@ -534,14 +497,7 @@ int sendOverrideLimits(int joint)
     EMC_JOINT_OVERRIDE_LIMITS lim_msg;
 
     lim_msg.joint = joint;	// neg means off, else on for all
-    emcCommandSend(lim_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(lim_msg);
 }
 
 int sendJogStop(int ja, int jjogmode)
@@ -556,6 +512,7 @@ int sendJogStop(int ja, int jjogmode)
        return -1;
     }
 
+    // FIXME: these checks should use the emcStatus values
     if (  jjogmode &&  (ja < 0 || ja >= num_joints)) {
       fprintf(stderr,"shcom.cc: unexpected_1 %d\n",ja); return -1;
     }
@@ -565,8 +522,7 @@ int sendJogStop(int ja, int jjogmode)
 
     emc_jog_stop_msg.jjogmode = jjogmode;
     emc_jog_stop_msg.joint_or_axis = ja;
-    emcCommandSend(emc_jog_stop_msg);
-    return 0;
+    return emcSendCommandAndWait(emc_jog_stop_msg);
 }
 
 int sendJogCont(int ja, int jjogmode, double speed)
@@ -582,6 +538,7 @@ int sendJogCont(int ja, int jjogmode, double speed)
        return -1;
     }
 
+    // FIXME: these checks should use the emcStatus values
     if (  jjogmode &&  (ja < 0 || ja >= num_joints)) {
        fprintf(stderr,"shcom.cc: unexpected_3 %d\n",ja); return -1;
     }
@@ -593,9 +550,7 @@ int sendJogCont(int ja, int jjogmode, double speed)
     emc_jog_cont_msg.joint_or_axis = ja;
     emc_jog_cont_msg.vel = speed / 60.0;
 
-    emcCommandSend(emc_jog_cont_msg);
-
-    return 0;
+    return emcSendCommandAndWait(emc_jog_cont_msg);
 }
 
 int sendJogIncr(int ja, int jjogmode, double speed, double incr)
@@ -611,6 +566,7 @@ int sendJogIncr(int ja, int jjogmode, double speed, double incr)
        return -1;
     }
 
+    // FIXME: these checks should use the emcStatus values
     if (  jjogmode &&  (ja < 0 || ja >= num_joints)) {
         fprintf(stderr,"shcom.cc: unexpected_5 %d\n",ja); return -1;
     }
@@ -623,65 +579,35 @@ int sendJogIncr(int ja, int jjogmode, double speed, double incr)
     emc_jog_incr_msg.vel = speed / 60.0;
     emc_jog_incr_msg.incr = incr;
 
-    emcCommandSend(emc_jog_incr_msg);
-
-    return 0;
+    return emcSendCommandAndWait(emc_jog_incr_msg);
 }
 
 int sendMistOn()
 {
     EMC_COOLANT_MIST_ON emc_coolant_mist_on_msg;
 
-    emcCommandSend(emc_coolant_mist_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_coolant_mist_on_msg);
 }
 
 int sendMistOff()
 {
     EMC_COOLANT_MIST_OFF emc_coolant_mist_off_msg;
 
-    emcCommandSend(emc_coolant_mist_off_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_coolant_mist_off_msg);
 }
 
 int sendFloodOn()
 {
     EMC_COOLANT_FLOOD_ON emc_coolant_flood_on_msg;
 
-    emcCommandSend(emc_coolant_flood_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_coolant_flood_on_msg);
 }
 
 int sendFloodOff()
 {
     EMC_COOLANT_FLOOD_OFF emc_coolant_flood_off_msg;
 
-    emcCommandSend(emc_coolant_flood_off_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_coolant_flood_off_msg);
 }
 
 int sendSpindleForward(int spindle)
@@ -693,14 +619,7 @@ int sendSpindleForward(int spindle)
     } else {
 	emc_spindle_on_msg.speed = +500;
     }
-    emcCommandSend(emc_spindle_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_spindle_on_msg);
 }
 
 int sendSpindleReverse(int spindle)
@@ -713,70 +632,35 @@ int sendSpindleReverse(int spindle)
     } else {
 	emc_spindle_on_msg.speed = -500;
     }
-    emcCommandSend(emc_spindle_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_spindle_on_msg);
 }
 
 int sendSpindleOff(int spindle)
 {
     EMC_SPINDLE_OFF emc_spindle_off_msg;
     emc_spindle_off_msg.spindle = spindle;
-    emcCommandSend(emc_spindle_off_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_spindle_off_msg);
 }
 
 int sendSpindleIncrease(int spindle)
 {
     EMC_SPINDLE_INCREASE emc_spindle_increase_msg;
     emc_spindle_increase_msg.spindle = spindle;
-    emcCommandSend(emc_spindle_increase_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_spindle_increase_msg);
 }
 
 int sendSpindleDecrease(int spindle)
 {
     EMC_SPINDLE_DECREASE emc_spindle_decrease_msg;
     emc_spindle_decrease_msg.spindle = spindle;
-    emcCommandSend(emc_spindle_decrease_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_spindle_decrease_msg);
 }
 
 int sendSpindleConstant(int spindle)
 {
     EMC_SPINDLE_CONSTANT emc_spindle_constant_msg;
     emc_spindle_constant_msg.spindle = spindle;
-    emcCommandSend(emc_spindle_constant_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_spindle_constant_msg);
 }
 
 int sendBrakeEngage(int spindle)
@@ -784,14 +668,7 @@ int sendBrakeEngage(int spindle)
     EMC_SPINDLE_BRAKE_ENGAGE emc_spindle_brake_engage_msg;
 
     emc_spindle_brake_engage_msg.spindle = spindle;
-    emcCommandSend(emc_spindle_brake_engage_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_spindle_brake_engage_msg);
 }
 
 int sendBrakeRelease(int spindle)
@@ -799,28 +676,14 @@ int sendBrakeRelease(int spindle)
     EMC_SPINDLE_BRAKE_RELEASE emc_spindle_brake_release_msg;
 
     emc_spindle_brake_release_msg.spindle = spindle;
-    emcCommandSend(emc_spindle_brake_release_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_spindle_brake_release_msg);
 }
 
 int sendAbort()
 {
     EMC_TASK_ABORT task_abort_msg;
 
-    emcCommandSend(task_abort_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(task_abort_msg);
 }
 
 int sendHome(int joint)
@@ -828,14 +691,7 @@ int sendHome(int joint)
     EMC_JOINT_HOME emc_joint_home_msg;
 
     emc_joint_home_msg.joint = joint;
-    emcCommandSend(emc_joint_home_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_joint_home_msg);
 }
 
 int sendUnHome(int joint)
@@ -843,103 +699,68 @@ int sendUnHome(int joint)
     EMC_JOINT_UNHOME emc_joint_home_msg;
 
     emc_joint_home_msg.joint = joint;
-    emcCommandSend(emc_joint_home_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_joint_home_msg);
 }
 
-int sendFeedOverride(double override)
+int sendFeedOverride(double _override)
 {
     EMC_TRAJ_SET_SCALE emc_traj_set_scale_msg;
 
-    if (override < 0.0) {
-	override = 0.0;
+    if (_override < 0.0) {
+	_override = 0.0;
     }
 
-    emc_traj_set_scale_msg.scale = override;
-    emcCommandSend(emc_traj_set_scale_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    emc_traj_set_scale_msg.scale = _override;
+    return emcSendCommandAndWait(emc_traj_set_scale_msg);
 }
 
-int sendRapidOverride(double override)
+int sendRapidOverride(double _override)
 {
     EMC_TRAJ_SET_RAPID_SCALE emc_traj_set_scale_msg;
 
-    if (override < 0.0) {
-	override = 0.0;
+    if (_override < 0.0) {
+	_override = 0.0;
     }
 
-    if (override > 1.0) {
-	override = 1.0;
+    if (_override > 1.0) {
+	_override = 1.0;
     }
 
-    emc_traj_set_scale_msg.scale = override;
-    emcCommandSend(emc_traj_set_scale_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    emc_traj_set_scale_msg.scale = _override;
+    return emcSendCommandAndWait(emc_traj_set_scale_msg);
 }
 
 
-int sendSpindleOverride(int spindle, double override)
+int sendSpindleOverride(int spindle, double _override)
 {
     EMC_TRAJ_SET_SPINDLE_SCALE emc_traj_set_spindle_scale_msg;
 
-    if (override < 0.0) {
-	override = 0.0;
+    if (_override < 0.0) {
+	_override = 0.0;
     }
 
     emc_traj_set_spindle_scale_msg.spindle = spindle;
-    emc_traj_set_spindle_scale_msg.scale = override;
-    emcCommandSend(emc_traj_set_spindle_scale_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    emc_traj_set_spindle_scale_msg.scale = _override;
+    return emcSendCommandAndWait(emc_traj_set_spindle_scale_msg);
 }
 
 int sendTaskPlanInit()
 {
     EMC_TASK_PLAN_INIT task_plan_init_msg;
 
-    emcCommandSend(task_plan_init_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(task_plan_init_msg);
 }
 
 // saved value of last program opened
-static char lastProgramFile[LINELEN] = "";
+static std::string lastProgramFile;
 
-int sendProgramOpen(char *program)
+int sendProgramOpen(const char *program)
 {
     int res = 0;
     EMC_TASK_PLAN_OPEN msg;
 
     /* save this to run again */
-    rtapi_strxcpy(lastProgramFile, program);
+    lastProgramFile = program;
     /* store filename in message */
     rtapi_strxcpy(msg.file, program);
     /* clear optional fields */
@@ -997,14 +818,7 @@ int sendProgramOpen(char *program)
     }
 
     /* local process, just send filename */
-    emcCommandSend(msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-        return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-        return emcCommandWaitDone();
-    }
-
-    return res;
+    return emcSendCommandAndWait(msg);
 }
 
 int sendProgramRun(int line)
@@ -1017,48 +831,27 @@ int sendProgramRun(int line)
     // first reopen program if it's not open
     if (0 == emcStatus->task.file[0]) {
 	// send a request to open last one
-	sendProgramOpen(lastProgramFile);
+	sendProgramOpen(lastProgramFile.c_str());
     }
     // save the start line, to compare against active line later
     programStartLine = line;
 
     emc_task_plan_run_msg.line = line;
-    emcCommandSend(emc_task_plan_run_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_task_plan_run_msg);
 }
 
 int sendProgramPause()
 {
     EMC_TASK_PLAN_PAUSE emc_task_plan_pause_msg;
 
-    emcCommandSend(emc_task_plan_pause_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_task_plan_pause_msg);
 }
 
 int sendProgramResume()
 {
     EMC_TASK_PLAN_RESUME emc_task_plan_resume_msg;
 
-    emcCommandSend(emc_task_plan_resume_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_task_plan_resume_msg);
 }
 
 int sendSetOptionalStop(bool state)
@@ -1066,14 +859,7 @@ int sendSetOptionalStop(bool state)
     EMC_TASK_PLAN_SET_OPTIONAL_STOP emc_task_plan_set_optional_stop_msg;
 
     emc_task_plan_set_optional_stop_msg.state = state;
-    emcCommandSend(emc_task_plan_set_optional_stop_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_task_plan_set_optional_stop_msg);
 }
 
 
@@ -1084,14 +870,7 @@ int sendProgramStep()
     // clear out start line, if we had a verify before it would be -1
     programStartLine = 0;
 
-    emcCommandSend(emc_task_plan_step_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_task_plan_step_msg);
 }
 
 int sendMdiCmd(const char *mdi)
@@ -1099,14 +878,7 @@ int sendMdiCmd(const char *mdi)
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 
     rtapi_strxcpy(emc_task_plan_execute_msg.command, mdi);
-    emcCommandSend(emc_task_plan_execute_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_task_plan_execute_msg);
 }
 
 int sendLoadToolTable(const char *file)
@@ -1114,14 +886,7 @@ int sendLoadToolTable(const char *file)
     EMC_TOOL_LOAD_TOOL_TABLE emc_tool_load_tool_table_msg;
 
     rtapi_strxcpy(emc_tool_load_tool_table_msg.file, file);
-    emcCommandSend(emc_tool_load_tool_table_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_tool_load_tool_table_msg);
 }
 
 int sendToolSetOffset(int toolno, double zoffset, double diameter)
@@ -1133,17 +898,10 @@ int sendToolSetOffset(int toolno, double zoffset, double diameter)
     emc_tool_set_offset_msg.diameter = diameter;
     emc_tool_set_offset_msg.orientation = 0; // mill style tool table
 
-    emcCommandSend(emc_tool_set_offset_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_tool_set_offset_msg);
 }
 
-int sendToolSetOffset(int toolno, double zoffset, double xoffset, 
+int sendToolSetOffset(int toolno, double zoffset, double xoffset,
                       double diameter, double frontangle, double backangle,
                       int orientation)
 {
@@ -1152,19 +910,12 @@ int sendToolSetOffset(int toolno, double zoffset, double xoffset,
     emc_tool_set_offset_msg.toolno = toolno;
     emc_tool_set_offset_msg.offset.tran.z = zoffset;
     emc_tool_set_offset_msg.offset.tran.x = xoffset;
-    emc_tool_set_offset_msg.diameter = diameter;      
-    emc_tool_set_offset_msg.frontangle = frontangle;  
-    emc_tool_set_offset_msg.backangle = backangle;    
+    emc_tool_set_offset_msg.diameter = diameter;
+    emc_tool_set_offset_msg.frontangle = frontangle;
+    emc_tool_set_offset_msg.backangle = backangle;
     emc_tool_set_offset_msg.orientation = orientation;
 
-    emcCommandSend(emc_tool_set_offset_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_tool_set_offset_msg);
 }
 
 int sendJointSetBacklash(int joint, double backlash)
@@ -1173,14 +924,7 @@ int sendJointSetBacklash(int joint, double backlash)
 
     emc_joint_set_backlash_msg.joint = joint;
     emc_joint_set_backlash_msg.backlash = backlash;
-    emcCommandSend(emc_joint_set_backlash_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_joint_set_backlash_msg);
 }
 
 int sendJointLoadComp(int /*joint*/, const char *file, int type)
@@ -1189,14 +933,7 @@ int sendJointLoadComp(int /*joint*/, const char *file, int type)
 
     rtapi_strxcpy(emc_joint_load_comp_msg.file, file);
     emc_joint_load_comp_msg.type = type;
-    emcCommandSend(emc_joint_load_comp_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_joint_load_comp_msg);
 }
 
 int sendSetTeleopEnable(int enable)
@@ -1204,29 +941,14 @@ int sendSetTeleopEnable(int enable)
     EMC_TRAJ_SET_TELEOP_ENABLE emc_set_teleop_enable_msg;
 
     emc_set_teleop_enable_msg.enable = enable;
-    emcCommandSend(emc_set_teleop_enable_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_set_teleop_enable_msg);
 }
 
 int sendClearProbeTrippedFlag()
 {
     EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG emc_clear_probe_tripped_flag_msg;
 
-    emc_clear_probe_tripped_flag_msg.serial_number =
-	emcCommandSend(emc_clear_probe_tripped_flag_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_clear_probe_tripped_flag_msg);
 }
 
 int sendProbe(double x, double y, double z)
@@ -1237,21 +959,12 @@ int sendProbe(double x, double y, double z)
     emc_probe_msg.pos.tran.y = y;
     emc_probe_msg.pos.tran.z = z;
 
-    emcCommandSend(emc_probe_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
+    return emcSendCommandAndWait(emc_probe_msg);
 }
 
 int iniLoad(const char *filename)
 {
     IniFile inifile;
-    std::optional<const char*> inistring;
-    char version[LINELEN], machine[LINELEN];
     char displayString[LINELEN] = "";
     int t;
     int i;
@@ -1263,28 +976,28 @@ int iniLoad(const char *filename)
 
     // EMC debugging flags
 	emc_debug = 0;  // disabled by default
-    if ((inistring = inifile.Find("DEBUG", "EMC"))) {
+    if (auto inistring = inifile.Find("DEBUG", "EMC")) {
         // parse to global
-        if (sscanf(*inistring, "%x", &emc_debug) < 1) {
+        if (sscanf(inistring->c_str(), "%x", &emc_debug) < 1) {
             perror("failed to parse [EMC] DEBUG");
         }
     }
 
     // set output for RCS messages
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
-    if ((inistring = inifile.Find("RCS_DEBUG_DEST", "EMC"))) {
+    if (auto inistring = inifile.Find("RCS_DEBUG_DEST", "EMC")) {
         static RCS_PRINT_DESTINATION_TYPE type;
-        if (!strcmp(*inistring, "STDOUT")) {
+        if (*inistring == "STDOUT") {
             type = RCS_PRINT_TO_STDOUT;
-        } else if (!strcmp(*inistring, "STDERR")) {
+        } else if (*inistring == "STDERR") {
             type = RCS_PRINT_TO_STDERR;
-        } else if (!strcmp(*inistring, "FILE")) {
+        } else if (*inistring == "FILE") {
             type = RCS_PRINT_TO_FILE;
-        } else if (!strcmp(*inistring, "LOGGER")) {
+        } else if (*inistring == "LOGGER") {
             type = RCS_PRINT_TO_LOGGER;
-        } else if (!strcmp(*inistring, "MSGBOX")) {
+        } else if (*inistring == "MSGBOX") {
             type = RCS_PRINT_TO_MESSAGE_BOX;
-        } else if (!strcmp(*inistring, "NULL")) {
+        } else if (*inistring == "NULL") {
             type = RCS_PRINT_TO_NULL;
         } else {
              type = RCS_PRINT_TO_STDOUT;
@@ -1301,9 +1014,9 @@ int iniLoad(const char *filename)
     }
 
     // set flags if RCS_DEBUG in ini file
-    if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
+    if (auto inistring = inifile.Find("RCS_DEBUG", "EMC")) {
         long unsigned int flags;
-        if (sscanf(*inistring, "%lx", &flags) < 1) {
+        if (sscanf(inistring->c_str(), "%lx", &flags) < 1) {
             perror("failed to parse [EMC] RCS_DEBUG");
         }
         // clear all flags
@@ -1313,35 +1026,33 @@ int iniLoad(const char *filename)
     }
     // output infinite RCS errors by default
     max_rcs_errors_to_print = -1;
-    if ((inistring = inifile.Find("RCS_MAX_ERR", "EMC"))) {
-        if (sscanf(*inistring, "%d", &max_rcs_errors_to_print) < 1) {
+    if (auto inistring = inifile.Find("RCS_MAX_ERR", "EMC")) {
+        if (sscanf(inistring->c_str(), "%d", &max_rcs_errors_to_print) < 1) {
             perror("failed to parse [EMC] RCS_MAX_ERR");
         }
     }
 
-    strncpy(version, "unknown", LINELEN-1);
-    if ((inistring = inifile.Find("VERSION", "EMC"))) {
-	    strncpy(version, *inistring, LINELEN-1);
-    }
-
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        if ((inistring = inifile.Find("MACHINE", "EMC"))) {
-            strncpy(machine, *inistring, LINELEN-1);
-        } else {
-            strncpy(machine, "unknown", LINELEN-1);
+        std::string version = "<unknown>";
+        std::string machine = "<unknown>";
+        if (auto inistring = inifile.Find("VERSION", "EMC")) {
+            version = *inistring;
+        }
+
+        if (auto inistring = inifile.Find("MACHINE", "EMC")) {
+            machine = *inistring;
         }
 
         extern char *program_invocation_short_name;
         rcs_print(
             "%s (%d) shcom: machine '%s'  version '%s'\n",
-            program_invocation_short_name, getpid(), machine, version
+            program_invocation_short_name, getpid(), machine.c_str(), version.c_str()
         );
     }
 
-    if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
-
+    if (auto inistring = inifile.Find("NML_FILE", "EMC")) {
 	// copy to global
-	rtapi_strxcpy(emc_nmlfile, *inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
     } else {
 	// not found, use default
     }
@@ -1349,36 +1060,35 @@ int iniLoad(const char *filename)
     for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	jogPol[t] = 1;		// set to default
 	snprintf(displayString, sizeof(displayString), "JOINT_%d", t);
-	if ((inistring =
-		     inifile.Find("JOGGING_POLARITY", displayString)) &&
-	    1 == sscanf(*inistring, "%d", &i) && i == 0) {
+	auto inistring = inifile.Find("JOGGING_POLARITY", displayString);
+	if (inistring && 1 == sscanf(inistring->c_str(), "%d", &i) && i == 0) {
 	    // it read as 0, so override default
 	    jogPol[t] = 0;
 	}
     }
 
-    if ((inistring = inifile.Find("LINEAR_UNITS", "DISPLAY"))) {
-	if (!strcmp(*inistring, "AUTO")) {
+    if (auto inistring = inifile.Find("LINEAR_UNITS", "DISPLAY")) {
+	if (*inistring == "AUTO") {
 	    linearUnitConversion = LINEAR_UNITS_AUTO;
-	} else if (!strcmp(*inistring, "INCH")) {
+	} else if (*inistring == "INCH") {
 	    linearUnitConversion = LINEAR_UNITS_INCH;
-	} else if (!strcmp(*inistring, "MM")) {
+	} else if (*inistring == "MM") {
 	    linearUnitConversion = LINEAR_UNITS_MM;
-	} else if (!strcmp(*inistring, "CM")) {
+	} else if (*inistring == "CM") {
 	    linearUnitConversion = LINEAR_UNITS_CM;
 	}
     } else {
 	// not found, leave default alone
     }
 
-    if ((inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY"))) {
-	if (!strcmp(*inistring, "AUTO")) {
+    if (auto inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY")) {
+	if (*inistring == "AUTO") {
 	    angularUnitConversion = ANGULAR_UNITS_AUTO;
-	} else if (!strcmp(*inistring, "DEG")) {
+	} else if (*inistring == "DEG") {
 	    angularUnitConversion = ANGULAR_UNITS_DEG;
-	} else if (!strcmp(*inistring, "RAD")) {
+	} else if (*inistring == "RAD") {
 	    angularUnitConversion = ANGULAR_UNITS_RAD;
-	} else if (!strcmp(*inistring, "GRAD")) {
+	} else if (*inistring == "GRAD") {
 	    angularUnitConversion = ANGULAR_UNITS_GRAD;
 	}
     } else {
@@ -1393,9 +1103,6 @@ int iniLoad(const char *filename)
 
 int checkStatus ()
 {
-    if (emcStatus) return 1;    
-    return 0;
+    return emcStatus ? 1 : 0;
 }
-
-
 

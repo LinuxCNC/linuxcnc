@@ -94,7 +94,7 @@ int Hal_Init(Tcl_Interp *interp) {
 	return TCL_ERROR;
     }
 
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL)
+    if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL)
     {
         return TCL_ERROR;
     }

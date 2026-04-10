@@ -17,7 +17,7 @@
   21-Jan-2004  P.C. Moved across from the original EMC source tree.
 */
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #include "sincos.h"
 
 void pm_sincos(double x, double *sx, double *cx)

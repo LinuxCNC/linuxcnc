@@ -380,8 +380,8 @@ http://www.yorvic.york.ac.uk/~mjh/
         self.activate()
 
     def zoomwheel(self, event):
-        if event.delta > 0: self.zoomin(event)
-        else: self.zoomout(event)
+        if event.delta > 0: self.zoomin()
+        else: self.zoomout()
 
     def tkStartZoom(self, event):
         self.startZoom(event.y)

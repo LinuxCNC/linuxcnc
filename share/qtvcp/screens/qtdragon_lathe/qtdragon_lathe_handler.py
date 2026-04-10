@@ -1,8 +1,8 @@
 import os, time
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QAction, QMenu
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QCoreApplication
+from qtpy import QtCore, QtWidgets, QtGui
+from qtpy.QtWidgets import QAction, QMenu
+from qtpy.QtGui import QIcon
+from qtpy.QtCore import QCoreApplication
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.gcode_graphics import GCodeGraphics as GRAPHICS
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
@@ -31,7 +31,7 @@ WRITER = writer.Main()
 QHAL = Qhal()
 
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEnginePage
+    from qtpy.QtWebEngineWidgets import QWebEnginePage
 except:
     LOG.warning('QtDragon Warning with loading QtWebEngineWidget - is python3-pyqt5.qtwebengine installed?')
 
@@ -466,6 +466,38 @@ class HandlerClass:
         # hide user tab button if no user tabs
         if self.w.stackedWidget_mainTab.count() == 11:
             self.w.btn_user.hide()
+
+        # see if a popup window panels is required
+        self.Btn = None
+        if not INFO.ZIPPED_TABS is None:
+            for name, loc, cmd in INFO.ZIPPED_TABS:
+                if loc =='WINDOW':
+
+                    # add panel to a dialog window
+                    self.w['popup'] = d = QtWidgets.QDialog(self.w)
+                    temp = self.w[name.replace(' ','_')]
+                    # set to apropriate size for panel
+                    d.setMinimumSize(600,400)
+                    d.setWindowTitle(name)
+                    d.setWindowFlags(d.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+                    d.finished.connect(self.onClosePopup)
+                    d._lastgeometry = None
+
+                    layout = QtWidgets.QGridLayout(d)
+                    layout.setContentsMargins(0,0,0,0)
+                    layout.addWidget(temp, 0, 0)
+
+                    # add launch button to screen
+                    self.btn = QtWidgets.QPushButton(self.w)
+                    self.btn.setEnabled(True)
+                    self.btn.setMinimumSize(64, 40)
+                    self.btn.setIconSize(QtCore.QSize(38, 38))
+                    self.btn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/up-32.png'))
+                    self.btn.clicked.connect(self.togglePopup)
+                    self.w.layout_buttonbar.insertWidget(len(self.w.layout_buttonbar) - 4, self.btn)
+
+                    # only one allowed
+                    break
 
     def init_probe(self):
         probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
@@ -1855,7 +1887,8 @@ class HandlerClass:
         # show ngcgui info tab if utilities tab is selected
         # but only if the utilities tab has ngcgui selected
         if main_index == TAB_UTILITIES:
-            if self.w.tabWidget_utilities.currentIndex() == 2:
+            num = self.w.tabWidget_utilities.currentIndex()
+            if 'ngc' in self.w.tabWidget_utilities.tabText(num).lower():
                 self.w.stackedWidget.setCurrentIndex(PAGE_NGCGUI)
             else:
                 self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
@@ -2128,6 +2161,20 @@ class HandlerClass:
 
         button.pressed.emit()
         button.setProperty('ini_mdi_command_action', False)
+
+    # show/hide a popup window panel (if defined in the INI)
+    def togglePopup(self):
+        if self.w['popup'].isVisible():
+            self.w['popup']._lastgeometry = self.w['popup'].geometry()
+            self.w['popup'].hide()
+        else:
+            self.w['popup'].show()
+            if not self.w['popup']._lastgeometry is None:
+                self.w['popup'].setGeometry(self.w['popup']._lastgeometry)
+
+
+    def onClosePopup(self, *args):
+        self.w['popup']._lastgeometry = self.w['popup'].geometry()
 
     #####################
     # KEY BINDING CALLS #

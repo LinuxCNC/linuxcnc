@@ -15,10 +15,11 @@
 #ifndef TC_H
 #define TC_H
 
+#include <posemath.h>
+#include <emcpos.h>
+#include <emcmotcfg.h>
+
 #include "spherical_arc.h"
-#include "posemath.h"
-#include "emcpos.h"
-#include "emcmotcfg.h"
 #include "tc_types.h"
 #include "tp_types.h"
 
@@ -39,6 +40,7 @@ int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
 int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
+int tcGetCurrentTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 
 double tcGetDistanceToGo(TC_STRUCT const * const tc, int direction);
 double tcGetTarget(TC_STRUCT const * const tc, int direction);
@@ -105,7 +107,7 @@ int tcSetupMotion(TC_STRUCT * const tc,
 
 int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp);
 
-int tcUpdateCircleAccRatio(TC_STRUCT * tc);
+int tcUpdateArcLimits(TC_STRUCT * tc);
 
 int tcFinalizeLength(TC_STRUCT * const tc);
 
@@ -116,4 +118,11 @@ int tcPureRotaryCheck(TC_STRUCT const * const tc);
 int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ);
 
 int tcClearFlags(TC_STRUCT * const tc);
+
+/**
+ * Clean up Ruckig planner resources in a TC_STRUCT.
+ * Called when the trajectory segment is removed or reset.
+ */
+void tcCleanupRuckig(TC_STRUCT * const tc);
+
 #endif				/* TC_H */

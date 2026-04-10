@@ -1,5 +1,5 @@
 /********************************************************************
-* Description: linuxcnc.hh
+* Description: linuxcnc.h
 *	Common defines used in many emc2 source files.
 *
 *
@@ -10,8 +10,8 @@
 * Copyright (c) 2021 All rights reserved.
 ********************************************************************/
 
-#ifndef LINUXCNC_H
-#define LINUXCNC_H
+#ifndef __LINUXCNC_LINUXCNC_H
+#define __LINUXCNC_LINUXCNC_H
 
 /* LINELEN is used throughout for buffer sizes, length of file name strings,
    etc. Let's just have one instead of a multitude of defines all the same. */

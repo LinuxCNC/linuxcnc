@@ -1,9 +1,3 @@
-INCLUDES += libnml/inifile
-
-$(patsubst ./libnml/inifile/%,../include/%,$(wildcard ./libnml/inifile/*.h)): ../include/%.h: ./libnml/inifile/%.h
-	cp $^ $@
-$(patsubst ./libnml/inifile/%,../include/%,$(wildcard ./libnml/inifile/*.hh)): ../include/%.hh: ./libnml/inifile/%.hh
-	cp $^ $@
 
 LIBINISRCS := libnml/inifile/inifile.cc
 $(call TOOBJSDEPS, $(LIBINISRCS)) : EXTRAFLAGS=-fPIC

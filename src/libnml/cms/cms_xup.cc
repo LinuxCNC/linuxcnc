@@ -15,14 +15,12 @@
 * Last change: 
 ********************************************************************/
 
-extern "C" {
 #include <stdlib.h>		/* malloc(), free() */
-}
 
 #include <vector>
 #include "cms.hh"		/* class CMS */
 #include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
-#include "rcs_print.hh"		/* rcs_print_error() */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 
 /* Member functions for CMS_XDR_UPDATER Class */
 CMS_XDR_UPDATER::CMS_XDR_UPDATER(CMS * _cms_parent):CMS_UPDATER(_cms_parent,
@@ -71,7 +69,7 @@ CMS_XDR_UPDATER::CMS_XDR_UPDATER(CMS * _cms_parent):CMS_UPDATER(_cms_parent,
 	rcs_print_error("CMS:can't malloc encode_header_stream");
 	return;
     }
-    xdrmem_create((XDR *) encode_header_stream, (char *) encoded_header,
+    xdrmem_create(reinterpret_cast<XDR *>(encode_header_stream), (char *) encoded_header,
 	(int) neutral_size_factor * sizeof(CMS_HEADER), XDR_ENCODE);
 
     decode_header_stream = (XDR *) malloc(sizeof(XDR));
@@ -80,7 +78,7 @@ CMS_XDR_UPDATER::CMS_XDR_UPDATER(CMS * _cms_parent):CMS_UPDATER(_cms_parent,
 	status = CMS_CREATE_ERROR;
 	return;
     }
-    xdrmem_create((XDR *) decode_header_stream, (char *) encoded_header,
+    xdrmem_create(reinterpret_cast<XDR *>(decode_header_stream), (char *) encoded_header,
 	(int) neutral_size_factor * sizeof(CMS_HEADER), XDR_DECODE);
 
     /* If queuing is enabled, then initialize streams for */
@@ -101,7 +99,7 @@ CMS_XDR_UPDATER::CMS_XDR_UPDATER(CMS * _cms_parent):CMS_UPDATER(_cms_parent,
 	    rcs_print_error("CMS:can't malloc encode_queuing_header_stream");
 	    return;
 	}
-	xdrmem_create((XDR *) encode_queuing_header_stream,
+	xdrmem_create(reinterpret_cast<XDR *>(encode_queuing_header_stream),
 	    (char *) encoded_queuing_header,
 	    (int) neutral_size_factor * sizeof(CMS_QUEUING_HEADER),
 	    XDR_ENCODE);
@@ -112,7 +110,7 @@ CMS_XDR_UPDATER::CMS_XDR_UPDATER(CMS * _cms_parent):CMS_UPDATER(_cms_parent,
 	    status = CMS_CREATE_ERROR;
 	    return;
 	}
-	xdrmem_create((XDR *) decode_queuing_header_stream,
+	xdrmem_create(reinterpret_cast<XDR *>(decode_queuing_header_stream),
 	    (char *) encoded_queuing_header,
 	    (int) neutral_size_factor * sizeof(CMS_QUEUING_HEADER),
 	    XDR_DECODE);
@@ -145,22 +143,22 @@ CMS_XDR_UPDATER::~CMS_XDR_UPDATER()
 	decode_data_stream = (XDR *) NULL;
     }
     if (NULL != encode_header_stream) {
-	xdr_destroy(((XDR *) encode_header_stream));
+	xdr_destroy((reinterpret_cast<XDR *>(encode_header_stream)));
 	free(encode_header_stream);
 	encode_header_stream = (XDR *) NULL;
     }
     if (NULL != decode_header_stream) {
-	xdr_destroy(((XDR *) decode_header_stream));
+	xdr_destroy((reinterpret_cast<XDR *>(decode_header_stream)));
 	free(decode_header_stream);
 	decode_header_stream = (XDR *) NULL;
     }
     if (NULL != encode_queuing_header_stream) {
-	xdr_destroy(((XDR *) encode_queuing_header_stream));
+	xdr_destroy((reinterpret_cast<XDR *>(encode_queuing_header_stream)));
 	free(encode_queuing_header_stream);
 	encode_queuing_header_stream = (XDR *) NULL;
     }
     if (NULL != decode_queuing_header_stream) {
-	xdr_destroy(((XDR *) decode_queuing_header_stream));
+	xdr_destroy((reinterpret_cast<XDR *>(decode_queuing_header_stream)));
 	free(decode_queuing_header_stream);
 	decode_queuing_header_stream = (XDR *) NULL;
     }
@@ -324,10 +322,10 @@ int CMS_XDR_UPDATER::get_encoded_msg_size()
 CMS_STATUS CMS_XDR_UPDATER::update(bool &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(char))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(char))) {
 	return (CMS_UPDATE_ERROR);
     }
-    if (xdr_char(current_stream, (char *) &x) != TRUE) {
+    if (xdr_char(current_stream, reinterpret_cast<char *>(&x)) != TRUE) {
 	rcs_print_error("CMS_XDR_UPDATER: xdr_char failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
@@ -336,23 +334,23 @@ CMS_STATUS CMS_XDR_UPDATER::update(bool &x)
 
 /* Char functions */
 
-CMS_STATUS CMS_XDR_UPDATER::update(char &x)
+CMS_STATUS CMS_XDR_UPDATER::update(int8_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(char))) {
+    if (-1 == check_pointer((char *) &x, sizeof(int8_t))) {
 	return (CMS_UPDATE_ERROR);
     }
-    if (xdr_char(current_stream, &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_char failed.\n");
+    if (xdr_int8_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_uint8_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(char *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(int8_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, len * sizeof(char))) {
+    if (-1 == check_pointer((char *) x, len * sizeof(int8_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -363,23 +361,23 @@ CMS_STATUS CMS_XDR_UPDATER::update(char *x, unsigned int len)
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned char &x)
+CMS_STATUS CMS_XDR_UPDATER::update(uint8_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(char))) {
+    if (-1 == check_pointer((char *) &x, sizeof(uint8_t))) {
 	return (CMS_UPDATE_ERROR);
     }
-    if (xdr_u_char(current_stream, (unsigned char *) &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_u_char failed.\n");
+    if (xdr_uint8_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_uint8_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned char *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(uint8_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, len * sizeof(unsigned char))) {
+    if (-1 == check_pointer((char *) x, len * sizeof(uint8_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -392,61 +390,61 @@ CMS_STATUS CMS_XDR_UPDATER::update(unsigned char *x, unsigned int len)
 
 /* SHORT */
 
-CMS_STATUS CMS_XDR_UPDATER::update(short int &x)
+CMS_STATUS CMS_XDR_UPDATER::update(int16_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(short))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(int16_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_short(current_stream, &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_short failed.\n");
+    if (xdr_int16_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_int16_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(short *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(int16_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, len * sizeof(short))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), len * sizeof(int16_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_vector(current_stream, (char *) x, len, sizeof(short),
-	    (xdrproc_t) xdr_short) != TRUE) {
+    if (xdr_vector(current_stream, reinterpret_cast<char *>(x), len, sizeof(int16_t),
+	    (xdrproc_t) xdr_int16_t) != TRUE) {
 	rcs_print_error
-	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_short) failed.\n");
+	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_int16_t) failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned short int &x)
+CMS_STATUS CMS_XDR_UPDATER::update(uint16_t &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(unsigned short))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(uint16_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_u_short(current_stream, &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_u_short failed.\n");
+    if (xdr_uint16_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_uint16_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
 
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned short *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(uint16_t *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(unsigned short))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), len * sizeof(uint16_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
     if (xdr_vector(current_stream,
-	    (char *) x, len,
-	    sizeof(unsigned short), (xdrproc_t) xdr_u_short) != TRUE) {
+	    reinterpret_cast<char *>(x), len,
+	    sizeof(uint16_t), (xdrproc_t) xdr_uint16_t) != TRUE) {
 	rcs_print_error
-	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_u_short) failed.\n");
+	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_uint16_t) failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
@@ -454,57 +452,57 @@ CMS_STATUS CMS_XDR_UPDATER::update(unsigned short *x, unsigned int len)
 
 /* INT */
 
-CMS_STATUS CMS_XDR_UPDATER::update(int &x)
+CMS_STATUS CMS_XDR_UPDATER::update(int32_t &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(int))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(int32_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_int(current_stream, &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_int failed.\n");
+    if (xdr_int32_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_int32_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(int *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(int32_t *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(int))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), len * sizeof(int32_t))) {
 	return (CMS_UPDATE_ERROR);
     }
-    if (xdr_vector(current_stream, (char *) x, len, sizeof(int),
-	    (xdrproc_t) xdr_int) != TRUE) {
+    if (xdr_vector(current_stream, reinterpret_cast<char *>(x), len, sizeof(int32_t),
+	    (xdrproc_t) xdr_int32_t) != TRUE) {
 	rcs_print_error
-	    ("CMS_XDR_UPDATER: xdr_vector( ... xdr_int) failed.\n");
+	    ("CMS_XDR_UPDATER: xdr_vector( ... xdr_int32_t) failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned int &x)
+CMS_STATUS CMS_XDR_UPDATER::update(uint32_t &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(unsigned int))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(uint32_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_u_int(current_stream, &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_u_int failed.\n");
+    if (xdr_uint32_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_uint32_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned int *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(uint32_t *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(unsigned int))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), len * sizeof(uint32_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
     if (xdr_vector(current_stream,
-	    (char *) x, len,
-	    sizeof(unsigned int), (xdrproc_t) xdr_u_int) != TRUE) {
+	    reinterpret_cast<char *>(x), len,
+	    sizeof(uint32_t), (xdrproc_t) xdr_uint32_t) != TRUE) {
 	rcs_print_error
-	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_u_int) failed.\n");
+	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_uint32_t) failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
@@ -512,59 +510,59 @@ CMS_STATUS CMS_XDR_UPDATER::update(unsigned int *x, unsigned int len)
 
 /* LONG */
 
-CMS_STATUS CMS_XDR_UPDATER::update(long int &x)
+CMS_STATUS CMS_XDR_UPDATER::update(int64_t &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(long))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(int64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_long(current_stream, &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_long failed.\n");
+    if (xdr_int64_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_int64_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(long *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(int64_t *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(long))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), len * sizeof(int64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_vector(current_stream, (char *) x, len, sizeof(long),
-	    (xdrproc_t) xdr_long) != TRUE) {
+    if (xdr_vector(current_stream, reinterpret_cast<char *>(x), len, sizeof(int64_t),
+	    (xdrproc_t) xdr_int64_t) != TRUE) {
 	rcs_print_error
-	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_long) failed.\n");
+	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_int64_t) failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned long int &x)
+CMS_STATUS CMS_XDR_UPDATER::update(uint64_t &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(unsigned long))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(uint64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_u_long(current_stream, &x) != TRUE) {
-	rcs_print_error("CMS_XDR_UPDATER: xdr_u_long failed.\n");
+    if (xdr_uint64_t(current_stream, &x) != TRUE) {
+	rcs_print_error("CMS_XDR_UPDATER: xdr_uint64_t failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
 
     return (status);
 }
 
-CMS_STATUS CMS_XDR_UPDATER::update(unsigned long *x, unsigned int len)
+CMS_STATUS CMS_XDR_UPDATER::update(uint64_t *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(unsigned long))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), len * sizeof(uint64_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
     if (xdr_vector(current_stream,
-	    (char *) x, len, sizeof(unsigned long),
-	    (xdrproc_t) xdr_u_long) != TRUE) {
+	    reinterpret_cast<char *>(x), len, sizeof(uint64_t),
+	    (xdrproc_t) xdr_uint64_t) != TRUE) {
 	rcs_print_error
-	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_u_long) failed.\n");
+	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_uint64_t) failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
     return (status);
@@ -574,7 +572,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(unsigned long *x, unsigned int len)
 
 CMS_STATUS CMS_XDR_UPDATER::update(float &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(float))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(float))) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -587,11 +585,11 @@ CMS_STATUS CMS_XDR_UPDATER::update(float &x)
 
 CMS_STATUS CMS_XDR_UPDATER::update(float *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(float))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), len * sizeof(float))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_vector(current_stream, (char *) x, len, sizeof(float),
+    if (xdr_vector(current_stream, reinterpret_cast<char *>(x), len, sizeof(float),
 	    (xdrproc_t) xdr_float) != TRUE) {
 	rcs_print_error
 	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_float) failed.\n");
@@ -602,7 +600,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(float *x, unsigned int len)
 
 CMS_STATUS CMS_XDR_UPDATER::update(double &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(double))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(double))) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -615,11 +613,11 @@ CMS_STATUS CMS_XDR_UPDATER::update(double &x)
 
 CMS_STATUS CMS_XDR_UPDATER::update(double *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(double))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), len * sizeof(double))) {
 	return (CMS_UPDATE_ERROR);
     }
 
-    if (xdr_vector(current_stream, (char *) x, len, sizeof(double),
+    if (xdr_vector(current_stream, reinterpret_cast<char *>(x), len, sizeof(double),
 	    (xdrproc_t) xdr_double) != TRUE) {
 	rcs_print_error
 	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_double) failed.\n");
@@ -635,7 +633,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(double *x, unsigned int len)
 /* Avoid using long doubles in NML messages. */
 CMS_STATUS CMS_XDR_UPDATER::update(long double &x)
 {
-    if (-1 == check_pointer((char *) &x, sizeof(long double))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(long double))) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -653,7 +651,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(long double &x)
 
 CMS_STATUS CMS_XDR_UPDATER::update(long double *x, unsigned int len)
 {
-    if (-1 == check_pointer((char *) x, len * sizeof(long double))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), len * sizeof(long double))) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -662,7 +660,7 @@ CMS_STATUS CMS_XDR_UPDATER::update(long double *x, unsigned int len)
         y[i] = (double) x[i];
     }
 
-    if (xdr_vector(current_stream, (char *)y.data(), len, sizeof(double),
+    if (xdr_vector(current_stream, reinterpret_cast<char *>(y.data()), len, sizeof(double),
 	    (xdrproc_t) xdr_double) != TRUE) {
 	rcs_print_error
 	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_double) failed.\n");

@@ -2484,7 +2484,7 @@ uncomment selection</property>
                                                       <object class="GtkLabel" id="lbl_frame_code">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
-                                                        <property name="label" translatable="yes">&lt;b&gt;G-Code&lt;/b&gt;</property>
+                                                        <property name="label" translatable="yes">&lt;b&gt;G-Codes&lt;/b&gt;</property>
                                                         <property name="use-markup">True</property>
                                                       </object>
                                                     </child>
@@ -2823,7 +2823,6 @@ uncomment selection</property>
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
                                                     <property name="has-tooltip">True</property>
-                                                    <property name="tooltip-markup">Displays the current velocity</property>
                                                     <property name="tooltip-text" translatable="yes">Displays the current velocity</property>
                                                     <property name="hexpand">True</property>
                                                     <property name="xpad">5</property>
@@ -2945,7 +2944,6 @@ uncomment selection</property>
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
                                                             <property name="has-tooltip">True</property>
-                                                            <property name="tooltip-markup">Displays the programmed feed rate</property>
                                                             <property name="tooltip-text" translatable="yes">Displays the programmed feed rate</property>
                                                             <property name="label">F 275</property>
                                                             <attributes>
@@ -2976,7 +2974,6 @@ uncomment selection</property>
                                                             <property name="can-focus">True</property>
                                                             <property name="receives-default">True</property>
                                                             <property name="has-tooltip">True</property>
-                                                            <property name="tooltip-markup">reset feed override to 100 %</property>
                                                             <property name="tooltip-text" translatable="yes">reset feed override to 100 %</property>
                                                             <signal name="clicked" handler="on_btn_feed_100_clicked" swapped="no"/>
                                                           </object>
@@ -7209,6 +7206,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Reload file</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="use-underline">True</property>
@@ -7353,6 +7351,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Show full screen preview</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="image">img_fullsize_preview1_open</property>
@@ -7733,6 +7732,7 @@ MDI history</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Show preview as split view</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="image">img_split_view</property>
@@ -7752,6 +7752,7 @@ MDI history</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Reload file</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="image">img_edit_menu_reload</property>
@@ -7855,7 +7856,7 @@ MDI history</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="receives-default">False</property>
-                    <property name="tooltip-text" translatable="yes">Show the virtual calculator</property>
+                    <property name="tooltip-text" translatable="yes">Show calculator</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
                     <property name="image">img_edit_menu_calculator</property>

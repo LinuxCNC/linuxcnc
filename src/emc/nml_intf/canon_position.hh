@@ -17,9 +17,9 @@
 #include <stdio.h>		// FILE
 #include <vector>
 
-#include "emcpos.h"
+#include <emcpos.h>
 #include "emctool.h"
-#include "posemath.h"       // For PM_CARTESIAN type
+#include <posemath.h>       // For PM_CARTESIAN type
 
 struct CANON_POSITION {
 #ifndef JAVA_DIAG_APPLET

@@ -16,7 +16,7 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
-#include <inifile.h>
+#include "inifile.h"
 #include <string>
 #include <boost/lexical_cast.hpp>
 
@@ -58,7 +58,7 @@ public:
     bool                        Close();
     bool                        IsOpen(){ return(fp != nullptr); }
 
-    std::optional<const char*>  Find(const char *tag, const char *section = nullptr,
+    std::optional<std::string>  Find(const char *tag, const char *section = nullptr,
                                      int num = 1, int *lineno = nullptr);
 
     template<typename T>

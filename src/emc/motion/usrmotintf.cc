@@ -13,25 +13,25 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#include "emc/linuxcnc.h"     	/* LINELEN definition */
 #include <stdlib.h>		/* exit() */
 #include <sys/stat.h>
 #include <string.h>		/* memcpy() */
 #include <float.h>		/* DBL_MIN */
+#include <rtapi.h>
+#include <linuxcnc.h>     	/* LINELEN definition */
+#include <emcmotcfg.h>		/* EMCMOT_ERROR_NUM,LEN */
+
 #include "motion.h"		/* emcmot_status_t,CMD */
 #include "motion_struct.h"      /* emcmot_struct_t */
-#include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
-#include "_timer.h"
-#include "rcs_print.hh"
+#include "libnml/os_intf/_timer.h"
+#include "libnml/rcs/rcs_print.hh"
 
-#include "inifile.hh"
+#include "libnml/inifile/inifile.hh"
 
 #define READ_TIMEOUT_SEC 0	/* seconds for timeout */
 #define READ_TIMEOUT_USEC 100000	/* microseconds for timeout */
-
-#include "rtapi.h"
 
 #include "dbuf.h"
 #include "stashf.h"
@@ -370,7 +370,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 	    );
 	printf("cmd:          \t%d\n", s->commandEcho);
 	printf("cmd num:      \t%d\n", s->commandNumEcho);
-	printf("heartbeat:    \t%u\n", s->heartbeat);
+	printf("heartbeat:    \t%lu\n", s->heartbeat);
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */

@@ -282,7 +282,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
         self.first_move = True
         x, y, z, a, b, c, u, v, w = self.lo
-        self.lo = (x - xo + self.xo, y - yo + self.yo, z - zo + self.zo, a - ao + self.ao, b - bo + self.bo, c - bo + self.bo,
+        self.lo = (x - xo + self.xo, y - yo + self.yo, z - zo + self.zo, a - ao + self.ao, b - bo + self.bo, c - co + self.co,
           u - uo + self.uo, v - vo + self.vo, w - wo + self.wo)
         self.xo = xo
         self.yo = yo

@@ -86,11 +86,6 @@ USERSRCS += $(SENDKEYS_SRC)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/sendkeys
 
-$(patsubst ./hal/user_comps/%,../include/%,$(wildcard ./hal/user_comps/*.h)): ../include/%.h: ./hal/user_comps/%.h
-	cp $^ $@
-$(patsubst ./hal/user_comps/%,../include/%,$(wildcard ./hal/user_comps/*.hh)): ../include/%.hh: ./hal/user_comps/%.hh
-	cp $^ $@
-
 $(USER_COMP_MANPAGES): ../docs/man/man1/%.1: hal/user_comps/%.comp ../bin/halcompile
 	$(ECHO) Making halcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@) objects/man/man1

@@ -48,7 +48,6 @@ import locale              # for setting the language of the GUI
 import gettext             # to extract the strings to be translated
 from collections import OrderedDict # needed for proper jog button arrangement
 from time import strftime  # needed for the clock in the GUI
-from gladevcp.core import Status
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -549,8 +548,8 @@ class gmoccapy(object):
         messages =[ _("<b>3.5.0 (LinuxCNC 2.10.0): Gmoccapy does no longer automatically retain G43 after a toolchange!</b>\n"\
                     "Automatic reactivation of G43 is possible using a REMAP.\n"\
                     "Examples can be found in the Gmoccapy sim configurations."),
-                    _("<b>3.5.1 (LinuxCNC 2.10.0)</b>\n• The tool table and offset page uses now the calculator for entering values by default. "\
-                    "This can be changed by a button/setting.\n• A button to call the calculator was added in MDI and G-code edit modes."),
+                    _("<b>3.5.1 (LinuxCNC 2.10.0)</b>\n• The tool table and offset page use now the calculator for entering values by default. "\
+                    "This can be changed in the settings/by a button.\n• A button to call the calculator was added in MDI and G-code edit modes."),
                     # _("<b>3.5.2 (LinuxCNC 2.10.x): </b> Example for new feature"),
                     ]
         hide_message = self.prefs.getpref("hide_startup_messsage", 0, int)
@@ -1314,7 +1313,7 @@ class gmoccapy(object):
             num_macros = len(macros)
         LOG.debug("found {0} Macros".format(num_macros))
         if num_macros > 14:
-            message = _("Found more than 16 macros, will use only the first 14.")
+            message = _("Found more than 14 macros, will use only the first 14.")
             LOG.info(message)
             num_macros = 14
         btn = self._new_button_with_predefined_image(
@@ -1371,7 +1370,7 @@ class gmoccapy(object):
             size=_DEFAULT_BB_SIZE,
             image=self.widgets.img_macro_menu_calculator
         )
-        btn.set_property("tooltip-text", _("Press to display the virtual calculator"))
+        btn.set_property("tooltip-text", _("Press to display the calculator"))
         btn.connect("clicked", self.on_btn_show_calc_clicked)
         self.widgets.hbtb_MDI.pack_start(btn,True,True,0)
         btn = self.widgets.btn_macro_menu_toggle_keyboard = self._new_button_with_predefined_image(
@@ -1935,6 +1934,8 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
         for axis in self.axis_list:
             self.widgets.tooledit1.set_visible("{0}".format(axis), True)
+        # hide select column
+        self.widgets.tooledit1.wTree.get_object("s1").set_visible(False)
         # disconnect the key_press handler in the widget
         tv = self.widgets.tooledit1.wTree.get_object("treeview1")
         tv.disconnect_by_func(self.widgets.tooledit1.on_tree_navigate_key_press)
@@ -1947,31 +1948,43 @@ class gmoccapy(object):
         # Modify the button box at the bottom
         buttonbox = self.widgets.tooledit1.wTree.get_object("buttonbox")
         buttonbox.set_layout(Gtk.ButtonBoxStyle.EDGE)
-        buttonbox.set_property("homogeneous", True)
+        buttonbox.set_property("homogeneous", False)
         # Delete button
         btn_delete = self.widgets.tooledit1.wTree.get_object("delete")
         btn_delete.set_size_request(56, 56)
         btn_delete.set_label("")
         btn_delete.set_image(self.widgets.img_tool_delete)
+        btn_delete.set_tooltip_text(_("Delete selected tool"))
         btn_delete.set_always_show_image(True)
+        btn_delete.disconnect_by_func(self.widgets.tooledit1.delete)
+        btn_delete.connect("clicked",self.on_btn_delete_tool_clicked)
         # Add button
         btn_add = self.widgets.tooledit1.wTree.get_object("add")
         btn_add.set_size_request(56, 56)
         btn_add.set_label("")
         btn_add.set_image(self.widgets.img_tool_add)
+        btn_add.set_tooltip_text(_("Add new tool"))
         btn_add.set_always_show_image(True)
+        btn_add.disconnect_by_func(self.widgets.tooledit1.add)
+        btn_add.connect("clicked",self.on_btn_add_tool_clicked)
         # Reload button
         btn_reload = self.widgets.tooledit1.wTree.get_object("reload")
         btn_reload.set_size_request(56, 56)
         btn_reload.set_label("")
         btn_reload.set_image(self.widgets.img_tool_reload)
+        btn_reload.set_tooltip_text(_("Reload tool table from file"))
         btn_reload.set_always_show_image(True)
+        btn_reload.disconnect_by_func(self.widgets.tooledit1.reload)
+        btn_reload.connect("clicked",self.on_btn_reload_tooltable_clicked)
         # Save button
         btn_save = self.widgets.tooledit1.wTree.get_object("apply")
         btn_save.set_size_request(56, 56)
         btn_save.set_label("")
         btn_save.set_image(self.widgets.img_tool_save)
+        btn_save.set_tooltip_text(_("Save tool table to file"))
         btn_save.set_always_show_image(True)
+        btn_save.disconnect_by_func(self.widgets.tooledit1.save)
+        btn_save.connect("clicked",self.on_btn_save_tool_changes_clicked)
         # Create a label for current tool in spindle
         lbl_tool = Gtk.Label()
         self.widgets.tooledit1.lbl_tool = lbl_tool
@@ -1988,18 +2001,31 @@ class gmoccapy(object):
         self.widgets.tooledit1.btn_calculator = btn_calculator
 
         buttonbox.pack_start(btn_calculator,False,False,50)
-        column_cell_ids = ["toggle", "tool#1", "pos1", "x1", "y1", "z1", "a1", "b1", "c1", "u1", "v1", "w1",
-                       "d1", "front1", "back1", "orient1", "cell_comments1"]
+        column_cell_ids = ["toggle", "tool#1", "pos1",
+                           "x1", "y1", "z1", "a1", "b1", "c1", "u1", "v1", "w1",
+                           "d1", "front1", "back1", "orient1", "comments1"]
         for col, name in enumerate(column_cell_ids):
-            if col > 0 and col < 16:
+            if col > 0 and col < 17:
                 temp = self.widgets.tooledit1.wTree.get_object("cell_%s" % name)
-                temp.connect('editing-started', self.on_tool_col_edit_started, col)
-        # override 'tooledit_widget' method 'set_selected_tool'
+                if col < 16: # calulator is only useful for nummeric columns (ie not for 'Comments')
+                    temp.connect('editing-started', self.on_tool_col_edit_started, col)
+                temp.connect('edited', self.on_tool_col_edited)
+        self.widgets.tooledit1.edited = False
+        # override 'tooledit_widget' method 'set_selected_tool' so we can set the label text
+        self.tooledit1_set_selected_tool = self.widgets.tooledit1.set_selected_tool
         self.widgets.tooledit1.set_selected_tool = self.set_selected_tool
+        # override 'tooledit_widget' method 'toolfile_stale' so we can also update toolinfo
+        self.widgets.tooledit1.toolfile_stale = self.toolfile_stale
+
+    def toolfile_stale(self):
+        self._update_toolinfo(self.widgets.tooledit1.toolinfo_num)
+        self.widgets.tooledit1.reload(None)
+        self.widgets.tooledit1.set_selected_tool(self.widgets.tooledit1.toolinfo_num)
 
     def set_selected_tool(self, toolnumber):
-        lbl_tool_text = "Tool loaded: " + str(toolnumber)
+        lbl_tool_text = _("Tool loaded:") + " " + str(toolnumber)
         self.widgets.tooledit1.lbl_tool.set_text(lbl_tool_text)
+        self.tooledit1_set_selected_tool(toolnumber)
 
     def on_tree_navigate_key_press(self, treeview, event, filter):
         keyname = Gdk.keyval_name(event.keyval)
@@ -2056,11 +2082,11 @@ class gmoccapy(object):
                        "Diameter", "Front angle", "Back angle", "Orientation", ";1"]
         toolpage = self.widgets.tooledit1
         toolview = toolpage.view1
-        model, row = toolview.get_selection().get_selected()
+        model, treeiter = toolview.get_selection().get_selected()
         value = self.dialogs.entry_dialog(self,
-                                    data=model[row][col],
+                                    data=model[treeiter][col],
                                     header=_("Enter value"),
-                                    label=_("Tool %s,  %s:" % (model[row][1], captations[col])),
+                                    label=_("Tool") + f" {model[treeiter][1]}, {captations[col]}:",
                                     integer=col in [1,2,15])
         if value == "ERROR":
             LOG.debug("conversion error")
@@ -2069,17 +2095,22 @@ class gmoccapy(object):
         elif value == "CANCEL":
             pass
         else:
-            store = toolpage.wTree.get_object("liststore1")
-            if col in [1,2,15]:
-                store[row][col] = value
-            else:
-                store[row][col] = f"{value:11.4f}"
+            path = model.get_path(treeiter)
+            row = path.get_indices()[0]
+            # Clicking on a cell emits 'editing-started' which leads to the evaluation of the text in edit mode.
+            # To use the return value of the calculator, it must be pretended that there is no editable (=no edit mode).
+            self.widgets.tooledit1.editable = None
+            self.widgets.tooledit1.validate_input(row, f"{value:11.4f}", col)
+            self.widgets.tooledit1.edited = True
         # this is needed to get offsetview out of editing mode
         GLib.timeout_add(50,
                      toolview.set_cursor,
-                     toolpage.model.get_path(row),
+                     toolpage.model.get_path(treeiter),
                      toolview.get_columns()[0],
                      True)
+
+    def on_tool_col_edited (self, *args):
+        self.widgets.tooledit1.edited = True
 
     def _init_themes(self):
         # If there are themes then add them to combo box
@@ -2458,7 +2489,7 @@ class gmoccapy(object):
             offset = self.dialogs.entry_dialog(self,
                                         data=offsetpage.store[row][col],
                                         header=_("Enter value for offset"),
-                                        label=_("%s %s-offset:" % (offsetpage.store[row][0], AXISLIST[col])),
+                                        label=f"{offsetpage.store[row][0]} {AXISLIST[col]}-" + _("offset:"),
                                         integer=False)
             if offset == "ERROR":
                 LOG.debug("conversion error")
@@ -2653,6 +2684,8 @@ class gmoccapy(object):
             self.widgets.ntb_preview.set_property("show-tabs", not state)
             self.widgets.vbx_jog.hide()
             self.widgets.ntb_preview.set_current_page(2)
+            self.widgets.tooledit1.reload(None)
+            self.widgets.tooledit1.edited = False
             self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
             if self.widgets.chk_use_kb_on_tooledit.get_active():
                 self.widgets.ntb_info.set_current_page(1)
@@ -3754,7 +3787,7 @@ class gmoccapy(object):
     def show_try_errors(self):
         exc_type, exc_value, exc_traceback = sys.exc_info()
         formatted_lines = traceback.format_exc().splitlines()
-        LOG.error(_("{0}").format(formatted_lines[0]))
+        LOG.error("{0}".format(formatted_lines[0]))
         traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
         LOG.debug(formatted_lines[-1])
 
@@ -4646,8 +4679,8 @@ class gmoccapy(object):
     # this are the MDI thinks we need
     def on_btn_delete_clicked(self, widget, data=None):
         message = _("Do you really want to delete the MDI history?\n")
-        message += _("This will not delete the MDI History file, but will\n")
-        message += _("delete the listbox entries for this session.")
+        message += _("This will not delete the MDI History file, but will\n"
+                     "delete the listbox entries for this session.")
         result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
@@ -4766,6 +4799,38 @@ class gmoccapy(object):
             self.widgets.tbtn_fullsize_preview0.set_active(False)
             self.on_tbtn_fullsize_preview_toggled(self.widgets.tbtn_fullsize_preview0)
         else:  # else we go to main button on manual
+            if self.widgets.tooledit1.edited:
+                message = _("Discard unsaved changes and exit?")
+                result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+                if not result: # user says no, he want to save
+                    return
+            # check if offset values for current tool have been changed
+            tt = self.stat.tool_table[0]
+            new_offset = (tt.xoffset, tt.yoffset, tt.zoffset,
+                          tt.aoffset, tt.boffset, tt.coffset,
+                          tt.uoffset, tt.voffset, tt.woffset)
+            message = None
+            new_offset_is_nonzero = any(v != 0.0 for v in new_offset)
+            old_offset_is_zero = all(v == 0.0 for v in self.stat.tool_offset)
+            if (new_offset != self.stat.tool_offset) and ("G43" in self.active_gcodes):
+                message = _("Offset values for the tool in the spindle\n" \
+                            "have been changed with tool compensation (G43) active.\n\n" \
+                            "Do you want the new values to be applied as the currently\n" \
+                            "active tool offset?")
+            elif new_offset_is_nonzero and old_offset_is_zero and ("G49" in self.active_gcodes):
+                message = _("Offset values for the tool in the spindle\n" \
+                            "have been changed from zero to non-zero.\n\n" \
+                            "Do you want to activate tool compensation (G43)\n" \
+                            "using the currently active tool offset?")
+            if message:
+                result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+                if result: # user says YES
+                    self.command.mode(linuxcnc.MODE_MDI)
+                    self.command.wait_complete()
+                    self.command.mdi("G43")
+                    self.command.wait_complete()
+                    self.command.mode(linuxcnc.MODE_MANUAL)
+                    self.command.wait_complete()
             self.widgets.ntb_button.set_current_page(_BB_MANUAL)
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.ntb_preview.set_current_page(0)
@@ -5525,26 +5590,32 @@ class gmoccapy(object):
             self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
-        act_tool = self.stat.tool_in_spindle
-        if act_tool == self.widgets.tooledit1.get_selected_tool():
-            message = _("You are trying to delete the tool mounted in the spindle\n")
-            message += _("This is not allowed, please change tool prior to delete it")
+        selected_tool = self.widgets.tooledit1.get_selected_row()
+        if self.stat.tool_in_spindle == selected_tool:
+            message = _("You are trying to delete the tool mounted in the spindle.\n"
+                        "This is not allowed, please change tool prior to delete it.")
             self.dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
             return
-
-        self.widgets.tooledit1.delete(None)
-        self.widgets.tooledit1.set_selected_tool(act_tool)
+        self.widgets.tooledit1.delete_selected_row(widget)
+        self.widgets.tooledit1.edited = True
 
     def on_btn_add_tool_clicked(self, widget, data=None):
         self.widgets.tooledit1.add(None)
+        self.widgets.tooledit1.edited = True
 
     def on_btn_reload_tooltable_clicked(self, widget, data=None):
+        if self.widgets.tooledit1.edited:
+            message = _("Discard unsaved changes and reload the table?")
+            result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+            if not result: # user says no, he want to save
+                return
         self.widgets.tooledit1.reload(None)
+        self.widgets.tooledit1.edited = False
         self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
 
     def on_btn_save_tool_changes_clicked(self, widget, data=None):
         self.widgets.tooledit1.save(None)
-        self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
+        self.widgets.tooledit1.edited = False
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         tool = self.widgets.tooledit1.get_selected_row()
@@ -5602,6 +5673,11 @@ class gmoccapy(object):
 
     # select a tool entering a number
     def on_btn_select_tool_by_no_clicked(self, widget, data=None):
+        if self.widgets.tooledit1.edited:
+            message = _("Discard unsaved changes and change tool?")
+            result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+            if not result: # user says no, he want to save
+                return
         value = self.dialogs.entry_dialog(self, data=None, header=_("Enter the tool number as integer "),
                                      label=_("Select the tool to change"), integer=True)
         if value == "ERROR":
@@ -5624,9 +5700,13 @@ class gmoccapy(object):
             # Next two lines fix issue #3129 caused by GStat missing changes in interpreter mode
             command = "G4 P{0}".format(self.get_ini_info.get_cycle_time()/1000)
             self.command.mdi(command)
-        
     # set tool with M61 Q? or with T? M6
     def on_btn_selected_tool_clicked(self, widget, data=None):
+        if self.widgets.tooledit1.edited:
+            message = _("Discard unsaved changes and change tool?")
+            result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+            if not result: # user says no, he want to save
+                return
         tool = self.widgets.tooledit1.get_selected_row()
         if tool == None:
             message = _("you selected no or more than one tool, the tool selection must be unique")
@@ -6456,7 +6536,7 @@ if __name__ == "__main__":
 
     # Some of these libraries log when imported so logging level must already be set.
     import gladevcp.makepins
-    from gladevcp.core import Info
+    from gladevcp.core import Info, Status
     from gladevcp.combi_dro import Combi_DRO  # we will need it to make the DRO
     from gmoccapy import widgets       # a class to handle the widgets
 

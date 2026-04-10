@@ -12,8 +12,8 @@
 * Last change:
 ********************************************************************/
 
-#ifndef KINEMATICS_H
-#define KINEMATICS_H
+#ifndef __LINUXCNC_KINEMATICS_H
+#define __LINUXCNC_KINEMATICS_H
 
 #include "emcpos.h" /* EmcPose */
 #include "rtapi_bool.h"

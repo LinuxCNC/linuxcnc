@@ -19,7 +19,7 @@ import time
 import json
 import linuxcnc
 
-from PyQt5.QtCore import QObject
+from qtpy.QtCore import QObject
 from qtvcp.core import Status, Action, Info
 
 # Instantiate the libraries with global reference

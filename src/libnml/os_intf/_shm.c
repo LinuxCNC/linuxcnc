@@ -15,7 +15,7 @@
 
 #include "config.h"
 #include "_shm.h"
-#include "rcs_print.hh"
+#include "libnml/rcs/rcs_print.hh"
 #include <stdio.h>		/* NULL */
 #include <stdlib.h>
 #include <stdarg.h>

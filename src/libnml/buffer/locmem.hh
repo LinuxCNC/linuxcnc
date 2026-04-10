@@ -21,8 +21,8 @@
 #ifndef LOCMEM_HH
 #define LOCMEM_HH
 
-#include "cms.hh"		// class CMS
-#include "linklist.hh"		// class LinkedList
+#include "libnml/cms/cms.hh"		// class CMS
+#include "libnml/linklist/linklist.hh"		// class LinkedList
 
 struct BUFFERS_LIST_NODE {
     void *addr;

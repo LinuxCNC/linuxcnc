@@ -14,10 +14,9 @@
 #ifndef SEMAPHORE_HH
 #define SEMAPHORE_HH
 
-extern "C" {
 #include "_sem.h"		/* rcs_sem_t */
 #include <sys/stat.h>		/* S_IRUSR, etc. */
-}
+
 /* rw-rw-rw- permissions */
 #define DEFAULT_SEM_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
 #define RCS_SEMAPHORE_NOCREATE 0x00	/* just attach to existing semaphore */

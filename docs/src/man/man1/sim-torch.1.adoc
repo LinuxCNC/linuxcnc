@@ -19,10 +19,10 @@ _VERSION:_ +
 
 *sim-torch-rt.cut-noise-in* float in (default: _0.75_)::
   the maximum amount of noise during cutting (volts)
-*sim-torch-rt.cycles-in* s32 in*::
+*sim-torch-rt.cycles-in* s32 in::
   the number of cycles that the arc voltage overshoots the cut voltage (cycles)
   (default: _200_)
-*sim-torch-rt.on-delay-in* s32 in*::
+*sim-torch-rt.on-delay-in* s32 in::
   the time from turn on until overshoot begins (cycles)
   (default: _10_)
 *sim-torch-rt.offset-in* float in::
@@ -30,9 +30,9 @@ _VERSION:_ +
 *sim-torch-rt.overshoot-in* s32 in::
   the percentage of the cut voltage that the arc voltage overshoots (percent)
   (default: _50_)
-*sim-torch-rt.ramp-noise-in* float in (default: _5_)*::
+*sim-torch-rt.ramp-noise-in* float in (default: _5_)::
   the maximum amount of noise during overshoot (volts)
-*sim-torch-rt.ramp-up-in s32 in (default: _80_)*::
+*sim-torch-rt.ramp-up-in* s32 in (default: _80_)::
   percent of 'cycles_in' that the arc voltage ramps up (percent)
 *sim-torch-rt.start* bit in:: start the arc
 *sim-torch-rt.voltage-in* float in:: the cut voltage (volts)

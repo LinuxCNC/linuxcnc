@@ -12,10 +12,6 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <string.h>		// memcpy()
 
 #include <signal.h>		// kill()
@@ -24,21 +20,18 @@ extern "C" {
 #include <sys/wait.h>		// waitpid()
 #include <stdlib.h>		// atexit()
 
-#ifdef __cplusplus
-}
-#endif
 #include <rtapi_string.h>	// rtapi_strlcpy()
 #include "nml.hh"
 #include "nmlmsg.hh"
-#include "cms.hh"
+#include "libnml/cms/cms.hh"
 #include "nml_srv.hh"
-#include "rem_msg.hh"		// struct REMOTE_READ_REQUEST
-#include "rcs_print.hh"		// rcs_print_error()
-#include "timer.hh"		// esleep()
-#include "rcs_exit.hh"		// rcs_exit
-#include "linklist.hh"
-#include "physmem.hh"
-#include "cmsdiag.hh"
+#include "libnml/buffer/rem_msg.hh"		// struct REMOTE_READ_REQUEST
+#include "libnml/rcs/rcs_print.hh"		// rcs_print_error()
+#include "libnml/os_intf/timer.hh"		// esleep()
+#include "libnml/rcs/rcs_exit.hh"		// rcs_exit
+#include "libnml/linklist/linklist.hh"
+#include "libnml/buffer/physmem.hh"
+#include "libnml/cms/cmsdiag.hh"
 #include "cmd_msg.hh"		// layering violation ahoy
 NML_SERVER::NML_SERVER(NML * _nml, int _set_to_master):CMS_SERVER()
 {
@@ -191,7 +184,7 @@ REMOTE_READ_REPLY *NML_SERVER_LOCAL_PORT::blocking_read(REMOTE_READ_REQUEST *
     double orig_bytes_moved = 0.0;
 
     REMOTE_BLOCKING_READ_REQUEST *breq =
-	(REMOTE_BLOCKING_READ_REQUEST *) _req;
+	reinterpret_cast<REMOTE_BLOCKING_READ_REQUEST *>(_req);
     breq->_nml = new NML(nml, 1, -1);
 
     NML *nmlcopy = breq->_nml;
@@ -283,7 +276,7 @@ REMOTE_WRITE_REPLY *NML_SERVER_LOCAL_PORT::writer(REMOTE_WRITE_REQUEST * _req)
     cms->header.in_buffer_size = _req->size;
     temp->size = _req->size;
     int *serial_number = cms->serial
-	? &(((RCS_CMD_MSG*)temp)->serial_number)
+	? &(reinterpret_cast<RCS_CMD_MSG*>(temp)->serial_number)
 	: NULL;
 
     switch (_req->access_type) {

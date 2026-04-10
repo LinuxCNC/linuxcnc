@@ -10,8 +10,8 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
-#ifndef EMCMOTCFG_H
-#define EMCMOTCFG_H
+#ifndef __LINUXCNC_EMCMOTCFG_H
+#define __LINUXCNC_EMCMOTCFG_H
 
 /* default name of EMCMOT INI file */
 #define DEFAULT_EMCMOT_INIFILE "emc.ini"	/* same as for EMC-- we're in 

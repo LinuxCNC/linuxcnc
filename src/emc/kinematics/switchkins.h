@@ -4,7 +4,7 @@
 #ifndef SWITCHKINS_H // {
 #define SWITCHKINS_H
 
-#include "kinematics.h"
+#include <kinematics.h>
 
 //hardcoded number of switchkins types (KS,KF,KI):
 #define SWITCHKINS_MAX_TYPES 3

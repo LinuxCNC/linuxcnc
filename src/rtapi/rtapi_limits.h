@@ -15,8 +15,8 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef RTAPI_LIMITS_H
-#define RTAPI_LIMITS_H
+#ifndef __LINUXCNC_RTAPI_LIMITS_H
+#define __LINUXCNC_RTAPI_LIMITS_H
 
 #if defined(__KERNEL__)
 #include <linux/kernel.h>

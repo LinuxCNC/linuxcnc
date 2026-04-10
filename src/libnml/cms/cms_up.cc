@@ -16,16 +16,10 @@
 
 #include "cms.hh"		/* class CMS */
 #include "cms_up.hh"		/* class CMS_UPDATER */
-#include "rcs_print.hh"		/* rcs_print_error() */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdlib.h>		// malloc(), free()
 #include <string.h>		// memset()
-#ifdef __cplusplus
-}
-#endif
 
 CMS_UPDATER::CMS_UPDATER(CMS * _cms_parent, int create_encoded_data,
     long _neutral_size_factor):

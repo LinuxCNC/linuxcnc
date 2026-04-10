@@ -3,9 +3,9 @@
 ############################
 import sys
 import shutil
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from qtpy.QtCore import *
+from qtpy.QtGui import *
+from qtpy.QtWidgets import *
 from qtvcp.core import Status
 ###########################################
 # **** instantiate libraries section **** #

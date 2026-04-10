@@ -18,7 +18,7 @@
 ********************************************************************/
 
 // Include all NML, CMS, and RCS classes and functions
-#include "rcs.hh"
+#include "libnml/rcs/rcs.hh"
 
 // Include command and status message definitions
 #include "canon.hh"
@@ -27,7 +27,7 @@
 #include "emc_nml.hh"
 #include "emcglb.h"
 #include "emcpos.h"
-#include "cms.hh"
+#include "libnml/cms/cms.hh"
 
 //
 // Note: Many methods have a cppcheck suppress line marking to suppress the
@@ -881,7 +881,7 @@ void EMC_AUX_STAT::update(CMS * cms)
 */
 void EMC_TASK_STAT_MSG::update(CMS * cms)
 {
-    cms->update(heartbeat);
+    cms->update(taskbeat);
 }
 
 /*
@@ -1704,6 +1704,7 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(queueFull);
     cms->update(id);
     cms->update(paused);
+    cms->update(single_stepping);
     cms->update(scale);
     cms->update(rapid_scale);
     EmcPose_update(cms, &position);
@@ -1846,6 +1847,7 @@ void EMC_MOTION_STAT::update(CMS * cms)
     EmcPose_update(cms, &eoffset_pose);
     cms->update(numExtraJoints);
     cms->update(jogging_active);
+    cms->update(heartbeat);
 }
 
 /*

@@ -10,15 +10,16 @@
 ********************************************************************/
 
 #include <stdarg.h>
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_string.h"       /* memset */
-#include "hal.h"		/* decls for HAL implementation */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <rtapi_string.h>       /* memset */
+#include <rtapi_math.h>
+#include <hal.h>		/* decls for HAL implementation */
+
+#include "../tp/tp.h"
 #include "motion.h"
 #include "motion_struct.h"
 #include "mot_priv.h"
-#include "tp.h"
-#include "rtapi_math.h"
 #include "homing.h"
 #include "axis.h"
 

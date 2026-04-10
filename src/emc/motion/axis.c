@@ -1,8 +1,9 @@
 
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <emcmotcfg.h>      // EMCMOT_MAX_AXIS
+
 #include "axis.h"
-#include "emcmotcfg.h"      // EMCMOT_MAX_AXIS
-#include "rtapi.h"
-#include "rtapi_math.h"
 #include "simple_tp.h"
 
 typedef struct {
@@ -670,16 +671,17 @@ int axis_calc_motion(double servo_period)
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         axis = &axis_array[axis_num];
+
         // teleop_tp.max_vel is always positive
         if (axis->teleop_tp.max_vel > axis->vel_limit) {
             axis->teleop_tp.max_vel = axis->vel_limit;
         }
         if (update_teleop_with_check(axis_num, &(axis->teleop_tp), servo_period)) {
             violated_teleop_limit = 1;
-        } else {
-            axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
-            axis->pos_cmd = axis->teleop_tp.curr_pos;
         }
+
+        axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
+        axis->pos_cmd = axis->teleop_tp.curr_pos;
 
         if (!axis->teleop_tp.active) {
             axis->kb_ajog_active = 0;

@@ -54,12 +54,12 @@
 #include <ctype.h>		// isspace()
 #include <limits.h>
 #include <algorithm>
+#include <linuxcnc.h>
 #include "config.h"
-#include "emc/linuxcnc.h"
-#include "emc/nml_intf/interp_return.hh"
-#include "emc/nml_intf/canon.hh"
-#include "emc/rs274ngc/interp_base.hh"
-#include "modal_state.hh"
+#include "nml_intf/interp_return.hh"
+#include "nml_intf/canon.hh"
+#include "rs274ngc/interp_base.hh"
+#include "rs274ngc/modal_state.hh"
 
 static char the_command[LINELEN] = { 0 };	// our current command
 static char the_command_name[LINELEN] = { 0 };	// just the name part
@@ -299,7 +299,7 @@ int Canterp::execute(const char *line) {
     }
 
     if (!strcmp(the_command_name, "STRAIGHT_PROBE")) {
-	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+	if (9 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return INTERP_ERROR;
 	}
@@ -325,7 +325,7 @@ int Canterp::execute(const char *line) {
 
 #if 0
     if (!strcmp(the_command_name, "SET_ORIGIN_OFFSETS")) {
-	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+	if (9 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return INTERP_ERROR;
 	}
@@ -389,7 +389,7 @@ int Canterp::execute(const char *line) {
 
 #if 0
     if (!strcmp(the_command_name, "USE_TOOL_LENGTH_OFFSET")) {
-	if (1 != sscanf(the_command_args, "%lf %lf %lf", &d1, &d2, &d3)) {
+	if (3 != sscanf(the_command_args, "%lf %lf %lf", &d1, &d2, &d3)) {
 	    return INTERP_ERROR;
 	}
 	USE_TOOL_LENGTH_OFFSET(d1, d2, d3);
@@ -590,11 +590,11 @@ int Canterp::execute(const char *line) {
 	    return INTERP_ERROR;
 	}
 	if (!strcmp(s1, "CANON_CLOCKWISE")) {
-	    ORIENT_SPINDLE(i1, d2, CANON_CLOCKWISE);
+	    ORIENT_SPINDLE(i1, d1, CANON_CLOCKWISE);
 	    return 0;
 	}
 	if (!strcmp(s1, "CANON_COUNTERCLOCKWISE")) {
-	    ORIENT_SPINDLE(i1, d2, CANON_COUNTERCLOCKWISE);
+	    ORIENT_SPINDLE(i1, d1, CANON_COUNTERCLOCKWISE);
 	    return 0;
 	}
 	return INTERP_ERROR;
@@ -703,6 +703,10 @@ int Canterp::open(const char *newfilename) {
 }
 
 int Canterp::close() {
+    if (f) {
+        fclose(f);
+        f = (FILE*) nullptr;
+    }
     return INTERP_OK;
 }
 

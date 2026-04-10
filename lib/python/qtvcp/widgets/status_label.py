@@ -16,7 +16,7 @@
 
 import time
 import os
-from PyQt5 import QtCore
+from qtpy import QtCore
 
 from qtvcp import logger
 from qtvcp.widgets.simple_widgets import ScaledLabel
@@ -370,7 +370,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -890,80 +890,80 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_halpin_name(self):
         self._halpin_name = ''
 
-    textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
-    alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
-    index_number = QtCore.pyqtProperty(int, get_index, set_index, reset_index)
+    textTemplate = QtCore.Property(str, get_textTemplate, set_textTemplate, reset_textTemplate)
+    alt_textTemplate = QtCore.Property(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
+    index_number = QtCore.Property(int, get_index, set_index, reset_index)
 
-    feed_override_status = QtCore.pyqtProperty(bool, get_feed_override, set_feed_override, reset_feed_override)
-    rapid_override_status = QtCore.pyqtProperty(bool, get_rapid_override, set_rapid_override, reset_rapid_override)
-    max_velocity_override_status = QtCore.pyqtProperty(bool, get_max_velocity_override, set_max_velocity_override, reset_max_velocity_override)
-    spindle_override_status = QtCore.pyqtProperty(bool, get_spindle_override, set_spindle_override,
+    feed_override_status = QtCore.Property(bool, get_feed_override, set_feed_override, reset_feed_override)
+    rapid_override_status = QtCore.Property(bool, get_rapid_override, set_rapid_override, reset_rapid_override)
+    max_velocity_override_status = QtCore.Property(bool, get_max_velocity_override, set_max_velocity_override, reset_max_velocity_override)
+    spindle_override_status = QtCore.Property(bool, get_spindle_override, set_spindle_override,
                                                   reset_spindle_override)
-    jograte_status = QtCore.pyqtProperty(bool, get_jograte, set_jograte, reset_jograte)
-    jograte_angular_status = QtCore.pyqtProperty(bool, get_jograte_angular, set_jograte_angular, reset_jograte_angular)
-    jogincr_status = QtCore.pyqtProperty(bool, get_jogincr, set_jogincr, reset_jogincr)
-    jogincr_angular_status = QtCore.pyqtProperty(bool, get_jogincr_angular, set_jogincr_angular, reset_jogincr_angular)
-    current_feedrate_status = QtCore.pyqtProperty(bool, get_current_feedrate, set_current_feedrate,
+    jograte_status = QtCore.Property(bool, get_jograte, set_jograte, reset_jograte)
+    jograte_angular_status = QtCore.Property(bool, get_jograte_angular, set_jograte_angular, reset_jograte_angular)
+    jogincr_status = QtCore.Property(bool, get_jogincr, set_jogincr, reset_jogincr)
+    jogincr_angular_status = QtCore.Property(bool, get_jogincr_angular, set_jogincr_angular, reset_jogincr_angular)
+    current_feedrate_status = QtCore.Property(bool, get_current_feedrate, set_current_feedrate,
                                                   reset_current_feedrate)
-    current_FPU_status = QtCore.pyqtProperty(bool, get_current_feedunit, set_current_feedunit, reset_current_feedunit)
-    requested_spindle_speed_status = QtCore.pyqtProperty(bool, get_requested_spindle_speed,
+    current_FPU_status = QtCore.Property(bool, get_current_feedunit, set_current_feedunit, reset_current_feedunit)
+    requested_spindle_speed_status = QtCore.Property(bool, get_requested_spindle_speed,
                                                          set_requested_spindle_speed, reset_requested_spindle_speed)
-    actual_spindle_speed_status = QtCore.pyqtProperty(bool, get_actual_spindle_speed, set_actual_spindle_speed,
+    actual_spindle_speed_status = QtCore.Property(bool, get_actual_spindle_speed, set_actual_spindle_speed,
                                                       reset_actual_spindle_speed)
-    user_system_status = QtCore.pyqtProperty(bool, get_user_system, set_user_system, reset_user_system)
-    blendcode_status = QtCore.pyqtProperty(bool, get_blendcode, set_blendcode, reset_blendcode)
-    fcode_status = QtCore.pyqtProperty(bool, get_fcode, set_fcode, reset_fcode)
-    gcodes_status = QtCore.pyqtProperty(bool, get_gcodes, set_gcodes, reset_gcodes)
-    gcode_group0_status = QtCore.pyqtProperty(bool, get_gcode_group0,
+    user_system_status = QtCore.Property(bool, get_user_system, set_user_system, reset_user_system)
+    blendcode_status = QtCore.Property(bool, get_blendcode, set_blendcode, reset_blendcode)
+    fcode_status = QtCore.Property(bool, get_fcode, set_fcode, reset_fcode)
+    gcodes_status = QtCore.Property(bool, get_gcodes, set_gcodes, reset_gcodes)
+    gcode_group0_status = QtCore.Property(bool, get_gcode_group0,
                                               set_gcode_group0, reset_gcode_group0)
-    gcode_group1_status = QtCore.pyqtProperty(bool, get_gcode_group1,
+    gcode_group1_status = QtCore.Property(bool, get_gcode_group1,
                                               set_gcode_group1, reset_gcode_group1)
-    gcode_group2_status = QtCore.pyqtProperty(bool, get_gcode_group2,
+    gcode_group2_status = QtCore.Property(bool, get_gcode_group2,
                                               set_gcode_group2, reset_gcode_group2)
-    gcode_group3_status = QtCore.pyqtProperty(bool, get_gcode_group3,
+    gcode_group3_status = QtCore.Property(bool, get_gcode_group3,
                                               set_gcode_group3, reset_gcode_group3)
-    gcode_group4_status = QtCore.pyqtProperty(bool, get_gcode_group4,
+    gcode_group4_status = QtCore.Property(bool, get_gcode_group4,
                                               set_gcode_group4, reset_gcode_group4)
-    gcode_group5_status = QtCore.pyqtProperty(bool, get_gcode_group5,
+    gcode_group5_status = QtCore.Property(bool, get_gcode_group5,
                                               set_gcode_group5, reset_gcode_group5)
-    gcode_group6_status = QtCore.pyqtProperty(bool, get_gcode_group6,
+    gcode_group6_status = QtCore.Property(bool, get_gcode_group6,
                                               set_gcode_group6, reset_gcode_group6)
-    gcode_group7_status = QtCore.pyqtProperty(bool, get_gcode_group7,
+    gcode_group7_status = QtCore.Property(bool, get_gcode_group7,
                                               set_gcode_group7, reset_gcode_group7)
-    gcode_group8_status = QtCore.pyqtProperty(bool, get_gcode_group8,
+    gcode_group8_status = QtCore.Property(bool, get_gcode_group8,
                                               set_gcode_group8, reset_gcode_group8)
-    gcode_group10_status = QtCore.pyqtProperty(bool, get_gcode_group10,
+    gcode_group10_status = QtCore.Property(bool, get_gcode_group10,
                                               set_gcode_group10, reset_gcode_group10)
-    gcode_group12_status = QtCore.pyqtProperty(bool, get_gcode_group12,
+    gcode_group12_status = QtCore.Property(bool, get_gcode_group12,
                                               set_gcode_group12, reset_gcode_group12)
-    gcode_group13_status = QtCore.pyqtProperty(bool, get_gcode_group13,
+    gcode_group13_status = QtCore.Property(bool, get_gcode_group13,
                                               set_gcode_group13, reset_gcode_group13)
-    gcode_group14_status = QtCore.pyqtProperty(bool, get_gcode_group14,
+    gcode_group14_status = QtCore.Property(bool, get_gcode_group14,
                                               set_gcode_group14, reset_gcode_group14)
-    gcode_group15_status = QtCore.pyqtProperty(bool, get_gcode_group15,
+    gcode_group15_status = QtCore.Property(bool, get_gcode_group15,
                                               set_gcode_group15, reset_gcode_group15)
-    mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
-    tool_diameter_status = QtCore.pyqtProperty(bool, get_tool_diameter, set_tool_diameter, reset_tool_diameter)
-    tool_comment_status = QtCore.pyqtProperty(bool, get_tool_comment, set_tool_comment, reset_tool_comment)
-    tool_number_status = QtCore.pyqtProperty(bool, get_tool_number, set_tool_number, reset_tool_number)
-    tool_offset_status = QtCore.pyqtProperty(bool, get_tool_offset, set_tool_offset, reset_tool_offset)
-    gcode_selected_status = QtCore.pyqtProperty(bool, get_gcode_selected, set_gcode_selected, reset_gcode_selected)
-    actual_surface_speed_status = QtCore.pyqtProperty(bool, get_actual_surface_speed, set_actual_surface_speed,
+    mcodes_status = QtCore.Property(bool, get_mcodes, set_mcodes, reset_mcodes)
+    tool_diameter_status = QtCore.Property(bool, get_tool_diameter, set_tool_diameter, reset_tool_diameter)
+    tool_comment_status = QtCore.Property(bool, get_tool_comment, set_tool_comment, reset_tool_comment)
+    tool_number_status = QtCore.Property(bool, get_tool_number, set_tool_number, reset_tool_number)
+    tool_offset_status = QtCore.Property(bool, get_tool_offset, set_tool_offset, reset_tool_offset)
+    gcode_selected_status = QtCore.Property(bool, get_gcode_selected, set_gcode_selected, reset_gcode_selected)
+    actual_surface_speed_status = QtCore.Property(bool, get_actual_surface_speed, set_actual_surface_speed,
                                                       reset_actual_surface_speed)
-    filename_status = QtCore.pyqtProperty(bool, get_filename, set_filename,
+    filename_status = QtCore.Property(bool, get_filename, set_filename,
                                                       reset_filename)
-    filepath_status = QtCore.pyqtProperty(bool, get_filepath, set_filepath,
+    filepath_status = QtCore.Property(bool, get_filepath, set_filepath,
                                                       reset_filepath)
-    machine_state_status = QtCore.pyqtProperty(bool, get_machine_state, set_machine_state,
+    machine_state_status = QtCore.Property(bool, get_machine_state, set_machine_state,
                                                       reset_machine_state)
-    motion_type_status = QtCore.pyqtProperty(bool, get_motion_type, set_motion_type,
+    motion_type_status = QtCore.Property(bool, get_motion_type, set_motion_type,
                                                       reset_motion_type)
-    time_stamp_status = QtCore.pyqtProperty(bool, get_time_stamp, set_time_stamp,
+    time_stamp_status = QtCore.Property(bool, get_time_stamp, set_time_stamp,
                                                       reset_time_stamp)
-    halpin_status = QtCore.pyqtProperty(bool, get_halpin, set_halpin, reset_halpin)
-    state_label_list = QtCore.pyqtProperty(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_state_label_l, set_state_label_l, reset_state_label_l)
-    motion_type_list = QtCore.pyqtProperty(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_motion_label_l, set_motion_label_l, reset_motion_label_l)
-    halpin_name = QtCore.pyqtProperty(str, get_halpin_name, set_halpin_name, reset_halpin_name)
+    halpin_status = QtCore.Property(bool, get_halpin, set_halpin, reset_halpin)
+    state_label_list = QtCore.Property(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_state_label_l, set_state_label_l, reset_state_label_l)
+    motion_type_list = QtCore.Property(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_motion_label_l, set_motion_label_l, reset_motion_label_l)
+    halpin_name = QtCore.Property(str, get_halpin_name, set_halpin_name, reset_halpin_name)
     # boilder code
     def __getitem__(self, item):
         return getattr(self, item)
@@ -971,9 +971,9 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         return setattr(self, item, value)
 
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from qtpy.QtWidgets import *
+    from qtpy.QtCore import *
+    from qtpy.QtGui import *
 
     import sys
 

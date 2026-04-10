@@ -16,7 +16,7 @@
 
 #include "nml.hh"
 #include "nmlmsg.hh"
-#include "rcs.hh"
+#include "libnml/rcs/rcs.hh"
 
 class RCS_STAT_MSG:public NMLmsg {
   public:
@@ -52,7 +52,7 @@ class RCS_STAT_CHANNEL:public NML {
     // Sub-class calls base-class
     // cppcheck-suppress duplInheritedMember
     RCS_STAT_MSG *get_address() {
-	return ((RCS_STAT_MSG *) NML::get_address());
+	return static_cast<RCS_STAT_MSG *>(NML::get_address());
     };
 };
 

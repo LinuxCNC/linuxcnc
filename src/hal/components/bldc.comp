@@ -129,19 +129,8 @@ If your motor lacks documentation it might be worth trying every pattern.
 
 [cols="1,1,1,1,1,1,1"]
 |===
-h|
-2+^h|Phases
-2+^h|Source
-2+^h|Sink
-
-h|
-h|B-A
-h|C-A
-h|C-B
-h|A-B
-h|A-C
-h|B-C
-
+.2+h|Pattern 6+^h|Phases, Source - Sink
+h|B-A h|C-A h|C-B h|A-B h|A-C h|B-C
 |0|000|001|011|111|110|100
 |1|001|000|010|110|111|101
 |2|000|010|011|111|101|100

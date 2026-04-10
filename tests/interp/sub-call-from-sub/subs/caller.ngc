@@ -1,0 +1,5 @@
+o<caller> sub
+(PRINT,X caller: #1 #2 #3)
+o<helper> call [4] [5] [6]
+o<caller> endsub
+M2

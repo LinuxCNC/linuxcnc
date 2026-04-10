@@ -3,9 +3,9 @@ import sys, time
 import os
 import subprocess
 
-from PyQt5.QtCore import QEvent, pyqtProperty
-from PyQt5.QtGui import QWindow, QResizeEvent, QMoveEvent
-from PyQt5.QtWidgets import QWidget
+from qtpy.QtCore import QEvent, Property
+from qtpy.QtGui import QWindow, QResizeEvent, QMoveEvent
+from qtpy.QtWidgets import QWidget
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 try:
@@ -131,10 +131,10 @@ class XEmbed(XEmbeddable, _HalWidgetBase):
     def reset_command(self):
         self.command = None
 
-    command_string = pyqtProperty(str, get_command, set_command, reset_command)
+    command_string = Property(str, get_command, set_command, reset_command)
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     ex = XEmbed()
     ex.embed('halcmd loadusr gladevcp --xid  ../../gladevcp/offsetpage.glade')

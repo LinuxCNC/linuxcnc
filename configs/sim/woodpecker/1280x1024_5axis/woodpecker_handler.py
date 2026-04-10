@@ -2,10 +2,10 @@ import os
 import linuxcnc
 import hal
 import sys
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5 import QtCore, QtWidgets, QtGui, uic
+from qtpy.QtWidgets import QMessageBox
+from qtpy import QtCore, QtWidgets, QtGui, uic
 try:
-    from PyQt5.QtWebKitWidgets import QWebView
+    from qtpy.QtWebKitWidgets import QWebView
 except ImportError:
     raise Exception("Qtvcp error with woodpecker - is package python-pyqt5.qtwebkit installed?")
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE

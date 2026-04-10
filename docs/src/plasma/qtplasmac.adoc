@@ -305,7 +305,7 @@ For a run in place installation enter the following command in a terminal window
 [[plasma:initial-setup]]
 === Initial Setup
 
-The following heights diagrams will help the user visualize the different heights involved in plasma cutting and how they are measured. There are two different scenarios based on if the user chooses to use **Probe Height** only, or if the user chooses to user **Slat Height** AND **Material Thickness**.
+The following heights diagrams will help the user visualize the different heights involved in plasma cutting and how they are measured. There are two different scenarios based on if the user chooses to use **Probe Height** only, or if the user chooses to use **Slat Height** AND **Material Thickness**.
 
 .*Probe Height Only*
 

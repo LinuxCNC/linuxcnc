@@ -147,9 +147,14 @@ class Calculator( Gtk.Box ):
     def set_value( self, value ):
         val = value
         try:
-            val = str( locale.format_string( "%f", float( val ) ).rstrip( "0" ) )
-            if val[-1] == locale.localeconv()["decimal_point"]:
-                val = val.rstrip( locale.localeconv()["decimal_point"] )
+            if self.use_localization:
+                val = str( locale.format_string( "%f", float( val ) ).rstrip( "0" ) )
+                if val[-1] == locale.localeconv()["decimal_point"]:
+                    val = val.rstrip( locale.localeconv()["decimal_point"] )
+            else:
+                val = str(float( val )).rstrip( "0" )
+                if val[-1] == ".":
+                    val = val.rstrip(".")
         except:
             value = "Error"
         self.delete()
@@ -160,11 +165,12 @@ class Calculator( Gtk.Box ):
         self.compute()
         try:
             value = self.entry.get_text()
-            return locale.atof( value )
+            if self.use_localization:
+                return locale.atof( value )
+            else:
+                return float(value)
         except:
             return None
-#        print( "value in get value = ", value )
-#        print( "converted value in get value = ", locale.atof( value ) )
 
     def get_preset_value( self ):
         return self.preset_value

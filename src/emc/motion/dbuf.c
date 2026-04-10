@@ -19,8 +19,8 @@
 #else
 #include <stdlib.h>
 #endif
-#include "rtapi_string.h"
-#include "rtapi_errno.h"
+#include <rtapi_string.h>
+#include <rtapi_errno.h>
 #include "dbuf.h"
 
 typedef struct dbuf dbuf;

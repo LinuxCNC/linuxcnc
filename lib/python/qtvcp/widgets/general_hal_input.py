@@ -14,11 +14,11 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QWidget
+from qtpy.QtWidgets import QWidget
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from PyQt5.QtCore import pyqtSignal, pyqtProperty
+from qtpy.QtCore import Signal, Property
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -31,7 +31,7 @@ LOG = logger.getLogger(__name__)
 
 ################################################################
 class GeneralHALInput(QWidget, _HalWidgetBase):
-    hal_pin_changed = pyqtSignal([int], [float], [bool])
+    hal_pin_changed = Signal([int], [float], [bool])
     def __init__(self, parent=None):
         super(GeneralHALInput, self).__init__(parent)
         self.istate = False
@@ -64,7 +64,7 @@ class GeneralHALInput(QWidget, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
 
@@ -110,10 +110,10 @@ class GeneralHALInput(QWidget, _HalWidgetBase):
         self._float_pin_type = ''
 
     # designer will show these properties in this order:
-    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
-    bit_pin_type = pyqtProperty(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
-    s32_pin_type = pyqtProperty(bool, get_s32_pin_type, set_s32_pin_type, reset_s32_pin_type)
-    float_pin_type = pyqtProperty(bool, get_float_pin_type, set_float_pin_type, reset_float_pin_type)
+    pin_name = Property(str, get_pin_name, set_pin_name, reset_pin_name)
+    bit_pin_type = Property(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
+    s32_pin_type = Property(bool, get_s32_pin_type, set_s32_pin_type, reset_s32_pin_type)
+    float_pin_type = Property(bool, get_float_pin_type, set_float_pin_type, reset_float_pin_type)
 
     ##############################
     # required class boiler code #

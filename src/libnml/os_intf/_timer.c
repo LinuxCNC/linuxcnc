@@ -15,7 +15,7 @@
 * Last change: 
 ********************************************************************/
 
-#include "rcs_print.hh"		/* rcs_print_error */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error */
 
 #include <stdio.h>		/* NULL */
 #include <errno.h>		/* errno */

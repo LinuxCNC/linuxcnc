@@ -28,7 +28,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string>
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
@@ -6199,7 +6199,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   int idx;
   EmcPose tool_offset;
   ZERO_EMC_POSE(tool_offset);
-
+  settings->g43_with_zero_offset = 0;
+  
   CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
@@ -6237,6 +6238,10 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.u);
     tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.v);
     tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.w);
+    settings->g43_with_zero_offset =
+      !(tool_offset.tran.x || tool_offset.tran.y || tool_offset.tran.z ||
+        tool_offset.a || tool_offset.b || tool_offset.c ||
+        tool_offset.u || tool_offset.v || tool_offset.w);
   } else if (g_code == G_43_1) {
     tool_offset = settings->tool_offset;
     idx = -1;

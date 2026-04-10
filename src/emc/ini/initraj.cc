@@ -16,13 +16,13 @@
 #include <string.h>		// strlen()
 #include <ctype.h>		// isspace()
 
-#include "emc.hh"
-#include "emcpos.h"             // EmcPose
-#include "rcs_print.hh"
-#include "posemath.h"		// PM_POSE, PM_RPY
+#include "nml_intf/emc.hh"
+#include <emcpos.h>             // EmcPose
+#include <posemath.h>		// PM_POSE, PM_RPY
+#include "libnml/rcs/rcs_print.hh"
 #include "emcIniFile.hh"
 #include "initraj.hh"		// these decls
-#include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
+#include "nml_intf/emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
 #include "inihal.hh"
 #include <rtapi_string.h>
 
@@ -109,33 +109,33 @@ static int loadTraj(EmcIniFile *trajInifile)
 
     try{
 	int axismask = 0;
-	const char *coord = trajInifile->Find("COORDINATES", "TRAJ");
+	auto coord = trajInifile->Find("COORDINATES", "TRAJ");
 	if(coord) {
-	    if(strchr(coord, 'x') || strchr(coord, 'X')) {
+	    if(coord->find_first_of("xX") != std::string::npos) {
 	         axismask |= 1;
             }
-	    if(strchr(coord, 'y') || strchr(coord, 'Y')) {
+	    if(coord->find_first_of("yY") != std::string::npos) {
 	         axismask |= 2;
             }
-	    if(strchr(coord, 'z') || strchr(coord, 'Z')) {
+	    if(coord->find_first_of("zZ") != std::string::npos) {
 	         axismask |= 4;
             }
-	    if(strchr(coord, 'a') || strchr(coord, 'A')) {
+	    if(coord->find_first_of("aA") != std::string::npos) {
 	         axismask |= 8;
             }
-	    if(strchr(coord, 'b') || strchr(coord, 'B')) {
+	    if(coord->find_first_of("bB") != std::string::npos) {
 	         axismask |= 16;
             }
-	    if(strchr(coord, 'c') || strchr(coord, 'C')) {
+	    if(coord->find_first_of("cC") != std::string::npos) {
 	         axismask |= 32;
             }
-	    if(strchr(coord, 'u') || strchr(coord, 'U')) {
+	    if(coord->find_first_of("uU") != std::string::npos) {
 	         axismask |= 64;
             }
-	    if(strchr(coord, 'v') || strchr(coord, 'V')) {
+	    if(coord->find_first_of("vV") != std::string::npos) {
 	         axismask |= 128;
             }
-	    if(strchr(coord, 'w') || strchr(coord, 'W')) {
+	    if(coord->find_first_of("wW") != std::string::npos) {
 	         axismask |= 256;
             }
 	} else {
@@ -203,8 +203,8 @@ static int loadTraj(EmcIniFile *trajInifile)
         }
         old_inihal_data.traj_max_acceleration = acc;
 
-        // has to set MAX_* before DEFAULT_*
-        jerk = 0; 
+        // Set max jerk (default to 1e9 if not specified in INI)
+        jerk = 1e9;
         trajInifile->Find(&jerk, "MAX_LINEAR_JERK", "TRAJ");
         if (0 != emcTrajSetMaxJerk(jerk)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -213,18 +213,23 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
         old_inihal_data.traj_max_jerk = jerk;
-                
-        jerk = 0; 
-        trajInifile->Find(&jerk, "DEFAULT_LINEAR_JERK", "TRAJ");
+        // Also set current jerk to max_jerk
         if (0 != emcTrajSetJerk(jerk)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetJerk\n");
             }
             return -1;
         }
-        old_inihal_data.traj_default_jerk = jerk;
         planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve
         trajInifile->Find(&planner_type, "PLANNER_TYPE", "TRAJ");
+        // Only 0 and 1 are supported, set to 0 if invalid
+        // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
+        if (planner_type != 0 && planner_type != 1) {
+            planner_type = 0;
+        }
+        if (planner_type == 1 && jerk < 1.0) {
+            planner_type = 0;
+        }
         if (0 != emcTrajPlannerType(planner_type)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajPlannerType\n");
@@ -290,7 +295,6 @@ static int loadTraj(EmcIniFile *trajInifile)
         return -1;
     }
     try{
-        const char *inistring;
         unsigned char coordinateMark[6] = { 1, 1, 1, 0, 0, 0 };
         int t;
         int len;
@@ -298,14 +302,15 @@ static int loadTraj(EmcIniFile *trajInifile)
         char home[LINELEN];
         EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
         double d;
-        if (NULL != (inistring = trajInifile->Find("HOME", "TRAJ"))) {
+        auto inistring = trajInifile->Find("HOME", "TRAJ");
+        if (inistring) {
             // [TRAJ]HOME is important for genhexkins.c kinetmaticsForward()
             // and probably other non-identity kins that solve the forward
             // kinematics with an iterative algorithm when the homePose
             // is not all zeros
 
             // found it, now interpret it according to coordinateMark[]
-            rtapi_strxcpy(homes, inistring);
+            rtapi_strxcpy(homes, inistring->c_str());
             len = 0;
             for (t = 0; t < 6; t++) {
                 if (!coordinateMark[t]) {
@@ -349,7 +354,7 @@ static int loadTraj(EmcIniFile *trajInifile)
                 } else {
                     // badly formatted entry
                     rcs_print("invalid INI file value for [TRAJ] HOME: %s\n",
-                          inistring);
+                          inistring->c_str());
                         return -1;
                 }
             }  // end of for-loop on coordinateMark[]

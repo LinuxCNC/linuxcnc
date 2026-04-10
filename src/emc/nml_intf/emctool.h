@@ -17,7 +17,7 @@
 #ifndef EMCTOOL_H
 #define EMCTOOL_H
 
-#include "emcpos.h"
+#include <emcpos.h>
 
 /* pocketno: 0..(CANON_POCKETS_MAX-1) (0: spindle)
 ** toolno:   no restrictions          (0: notool)

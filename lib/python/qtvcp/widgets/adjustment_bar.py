@@ -14,9 +14,9 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout, QMenu, QAction
-from PyQt5.QtCore import Qt, pyqtProperty, QBasicTimer, pyqtSignal
-from PyQt5.QtGui import QPainter, QFont, QIcon
+from qtpy.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout, QMenu, QAction
+from qtpy.QtCore import Qt, Property, QBasicTimer, Signal
+from qtpy.QtGui import QPainter, QFont, QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -65,7 +65,7 @@ class LabeledBar(QProgressBar):
 
 
 class HAdjustmentBar(QWidget):
-    valueChanged = pyqtSignal(int)
+    valueChanged = Signal(int)
     def __init__(self, parent=None):
         super(HAdjustmentBar, self).__init__(parent)
         self.value = 50
@@ -266,7 +266,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
            LOG.error('{} no action recognised'.format(self.HAL_NAME_))
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -364,17 +364,17 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     def resetsteprate(self):
         self.steprate = 1
 
-    rapid_rate = pyqtProperty(bool, getrapid, setrapid, resetrapid)
-    feed_rate = pyqtProperty(bool, getfeed, setfeed, resetfeed)
-    spindle_rate = pyqtProperty(bool, getspindle, setspindle, resetspindle)
-    jograte_rate = pyqtProperty(bool, getjograte, setjograte, resetjograte)
-    jograte_angular_rate = pyqtProperty(bool, getjograteangular, setjograteangular, resetjograteangular)
-    max_velocity_rate = pyqtProperty(bool, getmaxv, setmaxv, resetmaxv)
-    show_toggle_button = pyqtProperty(bool, getshowtoggle, setshowtoggle, resetshowtoggle)
-    show_setting_menu = pyqtProperty(bool, getsettingmenu, setsettingmenu, resetsettingmenu)
+    rapid_rate = Property(bool, getrapid, setrapid, resetrapid)
+    feed_rate = Property(bool, getfeed, setfeed, resetfeed)
+    spindle_rate = Property(bool, getspindle, setspindle, resetspindle)
+    jograte_rate = Property(bool, getjograte, setjograte, resetjograte)
+    jograte_angular_rate = Property(bool, getjograteangular, setjograteangular, resetjograteangular)
+    max_velocity_rate = Property(bool, getmaxv, setmaxv, resetmaxv)
+    show_toggle_button = Property(bool, getshowtoggle, setshowtoggle, resetshowtoggle)
+    show_setting_menu = Property(bool, getsettingmenu, setsettingmenu, resetsettingmenu)
 
-    text_template = pyqtProperty(str, gettexttemplate, settexttemplate, resettexttemplate)
-    step_rate = pyqtProperty(int, getsteprate, setsteprate, resetsteprate)
+    text_template = Property(str, gettexttemplate, settexttemplate, resettexttemplate)
+    step_rate = Property(int, getsteprate, setsteprate, resetsteprate)
 
     ##############################
     # required class boiler code #
@@ -388,7 +388,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = StatusAdjustmentBar()
     widget.PREFS_=None

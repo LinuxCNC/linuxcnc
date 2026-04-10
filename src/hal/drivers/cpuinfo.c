@@ -26,7 +26,7 @@ SOFTWARE.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "rtapi.h"
+#include <rtapi.h>
 
 int get_rpi_revision(void)
 {

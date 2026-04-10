@@ -297,12 +297,12 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <hal.h>		/* HAL public API decls */
 
 #include <float.h>
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 
 #define MAX_CHAN 16
 #define MAX_CYCLE 18

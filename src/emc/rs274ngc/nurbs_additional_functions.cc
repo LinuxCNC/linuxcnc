@@ -12,7 +12,7 @@
 
 #include <math.h>
 #include <algorithm>
-#include "canon.hh"
+#include "nml_intf/canon.hh"
 
 static void unit(NURBS_PLANE_POINT &p)
 	{

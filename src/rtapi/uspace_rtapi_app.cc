@@ -16,7 +16,7 @@
  */
 
 #include "config.h"
-#include "linuxcnc.h"
+#include <linuxcnc.h>
 
 #ifdef __linux__
 #include <sys/fsuid.h>
@@ -51,14 +51,14 @@
 #include <pthread_np.h>
 #endif
 
+#include <boost/lockfree/queue.hpp>
+
 #include "rtapi.h"
-#include "hal.h"
+#include <hal.h>
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
 
-#include <boost/lockfree/queue.hpp>
-
-std::atomic<int> WithRoot::level;
+std::atomic_int WithRoot::level;
 static uid_t euid, ruid;
 
 #include "rtapi/uspace_common.h"
@@ -329,6 +329,21 @@ static int do_unload_cmd(const string& name) {
     return 0;
 }
 
+static int do_debug_cmd(const string& value) {
+    try{
+        int new_level = stoi(value);
+        if (new_level < 0 || new_level > 5){
+            rtapi_print_msg(RTAPI_MSG_ERR, "Debug level must be >=0 and <= 5\n");
+            return -EINVAL;
+        }
+        return rtapi_set_msg_level(new_level);
+    }catch(invalid_argument &e){
+        //stoi will throw an exception if parsing is not possible
+        rtapi_print_msg(RTAPI_MSG_ERR, "Debug level is not a number\n");
+        return -EINVAL;
+    }
+}
+
 struct ReadError : std::exception {};
 struct WriteError : std::exception {};
 
@@ -403,6 +418,8 @@ static int handle_command(vector<string> args) {
         return do_newinst_cmd(args[1], args[2], "");
     } else if(args.size() == 4 && args[0] == "newinst") {
         return do_newinst_cmd(args[1], args[2], args[3]);
+    } else if(args.size() == 2 && args[0] == "debug") {
+        return do_debug_cmd(args[1]);
     } else {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "Unrecognized command starting with %s\n",
@@ -693,7 +710,9 @@ static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/)
                         "rtapi_app: caught signal %d - dumping core\n", sig);
         sleep(1); // let syslog drain
         signal(sig, SIG_DFL);
-        raise(sig);
+        // for reasons unknown raise(sig); doesn't lead to core dump file
+        // but this will
+        kill(getpid(), sig);
         break;
     }
     exit(1);

@@ -22,22 +22,26 @@
 #include <tcl.h>
 #include <tk.h>
 
-#include "emc/linuxcnc.h"
-#include "rcs.hh"
-#include "posemath.h"		// PM_POSE, TO_RAD
-#include "emc.hh"		// EMC NML
-#include "emc_nml.hh"		// EMC NML
-#include "canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
-#include "emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
-#include "emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "inifile.hh"		// INIFILE
-#include "rcs_print.hh"
-#include "timer.hh"
 #include <rtapi_string.h>
+#include <linuxcnc.h>
+#include <posemath.h>		// PM_POSE, TO_RAD
+#include "libnml/rcs/rcs.hh"
+#include "nml_intf/emc.hh"		// EMC NML
+#include "nml_intf/emc_nml.hh"		// EMC NML
+#include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
+#include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
+#include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
+#include "libnml/inifile/inifile.hh"		// INIFILE
+#include "libnml/rcs/rcs_print.hh"
+#include "libnml/os_intf/timer.hh"
 
 #include "shcom.hh"
 
 #define setresult(t,s) Tcl_SetObjResult((t), Tcl_NewStringObj((s),-1))
+
+#ifndef CONST
+#define CONST const
+#endif
 
 /*
   Using tcl package Linuxcnc:
@@ -385,7 +389,6 @@ static int emc_ini(ClientData /*clientdata*/,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     IniFile inifile;
-    std::optional<const char *> inistring;
     const char *varstr, *secstr, *defaultstr;
     defaultstr = 0;
 
@@ -405,14 +408,15 @@ static int emc_ini(ClientData /*clientdata*/,
 	defaultstr = Tcl_GetStringFromObj(objv[3], 0);
     }
 
-    if (!(inistring = inifile.Find(varstr, secstr))) {
+    auto inistring = inifile.Find(varstr, secstr);
+    if (!inistring) {
 	if (defaultstr != 0) {
 	    setresult(interp,(char *) defaultstr);
 	}
 	return TCL_OK;
     }
 
-    setresult(interp, *inistring);
+    setresult(interp, inistring->c_str());
 
     // close it
     inifile.Close();
@@ -990,9 +994,8 @@ static int emc_tool_offset(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    char string[1];
     Tcl_Obj *tlobj;
-    string[0] = 'Z'; //default if not specified
+    char ch = 'Z'; //default if not specified
 
     CHECKEMC
     if (objc > 2) {
@@ -1005,10 +1008,10 @@ static int emc_tool_offset(ClientData /*clientdata*/,
     }
 
     if (objc != 1) {
-       strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+       ch = Tcl_GetStringFromObj(objv[1], 0)[0];
     }
 
-    switch (string[0]) {
+    switch (ch) {
     case 'x': case 'X':
         tlobj = Tcl_NewDoubleObj(convertLinearUnits(
                                 emcStatus->task.toolOffset.tran.x));
@@ -1111,7 +1114,6 @@ static int emc_abs_cmd_pos(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1124,9 +1126,9 @@ static int emc_abs_cmd_pos(ClientData /*clientdata*/,
 	updateStatus();
     }
 
-    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+    char ch = Tcl_GetStringFromObj(objv[1], 0)[0];
 
-    switch (string[0]) {
+    switch (ch) {
     case 'x': case 'X':
         posobj = Tcl_NewDoubleObj(convertLinearUnits(
                                   emcStatus->motion.traj.position.tran.x));
@@ -1176,7 +1178,6 @@ static int emc_abs_act_pos(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1189,9 +1190,9 @@ static int emc_abs_act_pos(ClientData /*clientdata*/,
 	updateStatus();
     }
 
-    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+    char ch = Tcl_GetStringFromObj(objv[1], 0)[0];
 
-    switch (string[0]) {
+    switch (ch) {
     case 'x': case 'X':
 	posobj = Tcl_NewDoubleObj(convertLinearUnits(
                                   emcStatus->motion.traj.actualPosition.tran.x));
@@ -1241,7 +1242,6 @@ static int emc_rel_cmd_pos(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1254,10 +1254,10 @@ static int emc_rel_cmd_pos(ClientData /*clientdata*/,
 	updateStatus();
     }
 
-    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+    char ch = Tcl_GetStringFromObj(objv[1], 0)[0];
 
     double d = 0.0;
-    switch (string[0]) {
+    switch (ch) {
     case 'x': case 'X':
         d = convertLinearUnits(emcStatus->motion.traj.position.tran.x -
                                emcStatus->task.g5x_offset.tran.x -
@@ -1325,7 +1325,6 @@ static int emc_rel_act_pos(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
-    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1338,10 +1337,10 @@ static int emc_rel_act_pos(ClientData /*clientdata*/,
 	updateStatus();
     }
 
-    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+    char ch = Tcl_GetStringFromObj(objv[1], 0)[0];
 
     double d = 0.0;
-    switch (string[0]) {
+    switch (ch) {
     case 'x': case 'X':
         d = convertLinearUnits(emcStatus->motion.traj.actualPosition.tran.x -
                                emcStatus->task.g5x_offset.tran.x -
@@ -1438,7 +1437,6 @@ static int emc_pos_offset(ClientData /*clientdata*/,
 			  Tcl_Interp * interp, int objc,
 			  Tcl_Obj * CONST objv[])
 {
-    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -1451,9 +1449,9 @@ static int emc_pos_offset(ClientData /*clientdata*/,
 	updateStatus();
     }
 
-    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+    char ch = Tcl_GetStringFromObj(objv[1], 0)[0];
 
-    switch (string[0]) {
+    switch (ch) {
     case 'x': case 'X':
 	posobj = Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.g5x_offset.tran.x
                                                     +emcStatus->task.g92_offset.tran.x));
@@ -3112,7 +3110,6 @@ static int emc_probed_pos(ClientData /*clientdata*/,
 			  Tcl_Interp * interp, int objc,
 			  Tcl_Obj * CONST objv[])
 {
-    char string[1];
     Tcl_Obj *posobj;
 
     CHECKEMC
@@ -3125,9 +3122,9 @@ static int emc_probed_pos(ClientData /*clientdata*/,
 	updateStatus();
     }
 
-    strncpy(string, Tcl_GetStringFromObj(objv[1], 0),1);
+    char ch = Tcl_GetStringFromObj(objv[1], 0)[0];
 
-    switch (string[0]) {
+    switch (ch) {
     case 'x': case 'X':
         posobj = Tcl_NewDoubleObj(convertLinearUnits(
                                   emcStatus->motion.traj.probedPosition.tran.x));
@@ -3421,7 +3418,7 @@ extern "C"
 int Linuxcnc_Init(Tcl_Interp * interp);
 int Linuxcnc_Init(Tcl_Interp * interp)
 {
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL)
+    if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL)
     {
         return TCL_ERROR;
     }

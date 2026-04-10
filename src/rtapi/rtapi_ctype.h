@@ -1,3 +1,5 @@
+#ifndef __LINUXCNC_RTAPI_CTYPE_H
+#define __LINUXCNC_RTAPI_CTYPE_H
 //    Copyright 2006 Jeff Epler
 //
 //    This program is free software; you can redistribute it and/or modify
@@ -17,4 +19,6 @@
 #include <linux/ctype.h>
 #else
 #include <ctype.h>
+#endif
+
 #endif

@@ -1,6 +1,6 @@
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QObject, Qt
-from PyQt5.QtGui import QDoubleValidator, QIntValidator
-from PyQt5.QtWidgets import QWidget, QPushButton,QLineEdit, QHBoxLayout
+from qtpy.QtCore import Property, Signal, QSize, QObject, Qt
+from qtpy.QtGui import QDoubleValidator, QIntValidator
+from qtpy.QtWidgets import QWidget, QPushButton,QLineEdit, QHBoxLayout
 
 import decimal
 from decimal import Decimal
@@ -8,7 +8,7 @@ from decimal import Decimal
 
 class LineEdit(QLineEdit):
 
-    clicked = pyqtSignal(bool)
+    clicked = Signal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -272,9 +272,9 @@ class TouchDoubleSpinBox(TouchSpinBox):
 
 # for direct testing
 if __name__ == "__main__":
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import *
-    from PyQt5.QtGui import *
+    from qtpy.QtWidgets import *
+    from qtpy.QtCore import *
+    from qtpy.QtGui import *
     import sys
 
     app = QApplication(sys.argv)

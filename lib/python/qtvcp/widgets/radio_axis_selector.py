@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from PyQt5 import QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action
@@ -56,13 +56,13 @@ class RadioAxisSelector(QtWidgets.QRadioButton, _HalWidgetBase):
     def resetJoint(self):
         self.joint = -1
 
-    axis_selection = QtCore.pyqtProperty(str, getAxis, setAxis, resetAxis)
-    joint_selection = QtCore.pyqtProperty(int, getJoint, setJoint, resetJoint)
+    axis_selection = QtCore.Property(str, getAxis, setAxis, resetAxis)
+    joint_selection = QtCore.Property(int, getJoint, setJoint, resetJoint)
 
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = QtWidgets.QWidget()
     layout = QtWidgets.QHBoxLayout()

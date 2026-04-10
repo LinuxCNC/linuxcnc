@@ -6075,7 +6075,7 @@ LOG</string>
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QTabWidget" name="tabWidget_utilities">
+                   <widget class="DetachTabWidget" name="tabWidget_utilities">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
@@ -18086,6 +18086,11 @@ SCROLL</string>
    <class>Gauge</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.round_gauge</header>
+  </customwidget>
+  <customwidget>
+   <class>DetachTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>qtvcp.widgets.detach_tabs</header>
   </customwidget>
  </customwidgets>
  <resources>

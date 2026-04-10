@@ -23,8 +23,8 @@ import time
 
 import subprocess
 
-from PyQt5.QtWidgets import QLineEdit, QApplication
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty
+from qtpy.QtWidgets import QLineEdit, QApplication
+from qtpy.QtCore import Qt, QEvent, Property
 
 from qtvcp.core import Status, Action, Info
 from qtvcp.widgets.entry_widget import SoftInputWidget
@@ -130,7 +130,7 @@ class OperatorValueLine(OperatorValue):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #########################################################################
 
@@ -147,7 +147,7 @@ class OperatorValueLine(OperatorValue):
     def reset_issue_mdi_on_submit(self):
         self.issue_mdi_on_submit = False
 
-    issue_mdi_on_submit_option = pyqtProperty(bool, get_issue_mdi_on_submit, set_issue_mdi_on_submit, reset_issue_mdi_on_submit)
+    issue_mdi_on_submit_option = Property(bool, get_issue_mdi_on_submit, set_issue_mdi_on_submit, reset_issue_mdi_on_submit)
 
     def set_issue_mdi_on_return(self, data):
             self.issue_mdi_on_return = data
@@ -156,7 +156,7 @@ class OperatorValueLine(OperatorValue):
     def reset_issue_mdi_on_return(self):
         self.issue_mdi_on_return = False
 
-    issue_mdi_on_return_option = pyqtProperty(bool, get_issue_mdi_on_return, set_issue_mdi_on_return, reset_issue_mdi_on_return)
+    issue_mdi_on_return_option = Property(bool, get_issue_mdi_on_return, set_issue_mdi_on_return, reset_issue_mdi_on_return)
 
     def set_mdi_command_format(self, data):
         self.mdi_command_format = data
@@ -165,7 +165,7 @@ class OperatorValueLine(OperatorValue):
     def reset_mdi_command_format(self):
         self.mdi_command_format = False
 
-    mdi_command_format_option = pyqtProperty(str, get_mdi_command_format, set_mdi_command_format, reset_mdi_command_format)
+    mdi_command_format_option = Property(str, get_mdi_command_format, set_mdi_command_format, reset_mdi_command_format)
 
 
     def set_soft_keyboard(self, data):
@@ -175,7 +175,7 @@ class OperatorValueLine(OperatorValue):
     def reset_soft_keyboard(self):
         self.soft_keyboard = False
 
-    soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
+    soft_keyboard_option = Property(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
 
     def set_dialog_keyboard(self, data):
         self.dialog_keyboard = data
@@ -184,7 +184,7 @@ class OperatorValueLine(OperatorValue):
     def reset_dialog_keyboard(self):
         self.dialog_keyboard = False
 
-    dialog_keyboard_option = pyqtProperty(bool, get_dialog_keyboard, set_dialog_keyboard, reset_dialog_keyboard)
+    dialog_keyboard_option = Property(bool, get_dialog_keyboard, set_dialog_keyboard, reset_dialog_keyboard)
 
     def set_dialog_code(self, data):
             self.dialog_code = data
@@ -193,7 +193,7 @@ class OperatorValueLine(OperatorValue):
     def reset_dialog_code(self):
             self.dialog_code = False
 
-    dialog_code_option = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    dialog_code_option = Property(str, get_dialog_code, set_dialog_code, reset_dialog_code)
     
     def set_pending_value(self, data):
         self.pending_value = data
@@ -202,13 +202,13 @@ class OperatorValueLine(OperatorValue):
     def reset_pending_value(self):
         self.pending_value = False
 
-    isPendingValue = pyqtProperty(bool, get_pending_value, set_pending_value, reset_pending_value)
+    isPendingValue = Property(bool, get_pending_value, set_pending_value, reset_pending_value)
 
 
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
     app = QApplication(sys.argv)
     widget = OperatorValueLine()
     widget.show()

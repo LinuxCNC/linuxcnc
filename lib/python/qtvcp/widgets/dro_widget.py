@@ -16,9 +16,9 @@
 
 import linuxcnc
 
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMenu, QAction
-from PyQt5.QtGui import QIcon
+from qtpy import QtCore
+from qtpy.QtWidgets import QMenu, QAction
+from qtpy.QtGui import QIcon
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -166,8 +166,8 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         elif mode == linuxcnc.TRAJ_MODE_TELEOP:
             self._mode = True
 
-    @QtCore.pyqtSlot(int)
-    @QtCore.pyqtSlot(float)
+    @QtCore.Slot(int)
+    @QtCore.Slot(float)
     def update_user(self, data):
         self._user = data
 
@@ -326,7 +326,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -350,7 +350,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.force_diameter
     def reset_force_diameter(self):
         self.force_diameter = False
-    always_display_diameter = QtCore.pyqtProperty(bool, get_force_diameter, set_force_diameter, reset_force_diameter)
+    always_display_diameter = QtCore.Property(bool, get_force_diameter, set_force_diameter, reset_force_diameter)
 
     def set_force_radius(self, data):
         self.force_radius = data
@@ -361,7 +361,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.force_radius
     def reset_force_radius(self):
         self.force_radius = False
-    always_display_radius = QtCore.pyqtProperty(bool, get_force_radius, set_force_radius, reset_force_radius)
+    always_display_radius = QtCore.Property(bool, get_force_radius, set_force_radius, reset_force_radius)
 
     def set_follow_m7m8_mode(self, data):
         self.follow_m7m8_mode = data
@@ -371,7 +371,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.follow_m7m8_mode
     def reset_follow_m7m8_mode(self):
         self.follow_m7m8_mode = True
-    display_as_per_m7m8 = QtCore.pyqtProperty(bool, get_follow_m7m8_mode, set_follow_m7m8_mode, reset_follow_m7m8_mode)
+    display_as_per_m7m8 = QtCore.Property(bool, get_follow_m7m8_mode, set_follow_m7m8_mode, reset_follow_m7m8_mode)
 
     def set_follow_reference(self, data):
         self.allow_reference_change_requests = data
@@ -379,7 +379,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.allow_reference_change_requests
     def reset_follow_reference(self):
         self.allow_reference_change_requests = True
-    follow_reference_changes = QtCore.pyqtProperty(bool, get_follow_reference, set_follow_reference, reset_follow_reference)
+    follow_reference_changes = QtCore.Property(bool, get_follow_reference, set_follow_reference, reset_follow_reference)
 
     # JOINT Number TODO this is actually joint index of the 9 axes
     # rather then linuxcnc's idea of joint number
@@ -393,7 +393,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.axis_index
     def resetjoint_number(self):
         self.axis_index = 0
-    Qjoint_number = QtCore.pyqtProperty(int, getjoint_number, setjoint_number, resetjoint_number)
+    Qjoint_number = QtCore.Property(int, getjoint_number, setjoint_number, resetjoint_number)
 
     # user system Number
     def setreference_type(self, data):
@@ -402,7 +402,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.reference_type
     def resetreference_type(self):
         self.reference_type = 0
-    Qreference_type = QtCore.pyqtProperty(int, getreference_type, setreference_type, resetreference_type)
+    Qreference_type = QtCore.Property(int, getreference_type, setreference_type, resetreference_type)
 
     def setmetrictemplate(self, data):
         self.metric_text_template = data
@@ -411,7 +411,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.metric_text_template
     def resetmetrictemplate(self):
         self.metric_text_template =  '%10.3f'
-    metric_template = QtCore.pyqtProperty(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
+    metric_template = QtCore.Property(str, getmetrictemplate, setmetrictemplate, resetmetrictemplate)
 
     def setimperialtexttemplate(self, data):
         self.imperial_text_template = data
@@ -420,7 +420,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.imperial_text_template
     def resetimperialtexttemplate(self):
         self.imperial_text_template =  '%9.4f'
-    imperial_template = QtCore.pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
+    imperial_template = QtCore.Property(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
 
     def setangulartexttemplate(self, data):
         self.angular_text_template = data
@@ -429,14 +429,14 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.angular_text_template
     def resetangulartexttemplate(self):
         self.angular_text_template =  '%9.2f'
-    angular_template = QtCore.pyqtProperty(str, getangulartexttemplate, setangulartexttemplate, resetangulartexttemplate)
+    angular_template = QtCore.Property(str, getangulartexttemplate, setangulartexttemplate, resetangulartexttemplate)
 
     def setisHomed(self, data):
         self._isHomed = data
     def getisHomed(self):
         return self._isHomed
 
-    isHomed = QtCore.pyqtProperty(bool, getisHomed, setisHomed)
+    isHomed = QtCore.Property(bool, getisHomed, setisHomed)
 
     ####################
     ## menu properties
@@ -448,7 +448,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.dialog_code
     def reset_dialog_code(self):
         self.dialog_code = 'CALCULATOR'
-    dialogName = QtCore.pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    dialogName = QtCore.Property(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     def set_showSet(self, data):
         self._showSet = data
@@ -456,7 +456,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self._showSet
     def reset_showSet(self):
         self._showSet = False
-    showSetOrigin = QtCore.pyqtProperty(bool, get_showSet, set_showSet, reset_showSet)
+    showSetOrigin = QtCore.Property(bool, get_showSet, set_showSet, reset_showSet)
 
     def set_showZero(self, data):
         self._showZero = data
@@ -464,7 +464,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self._showZero
     def reset_showZero(self):
         self._showZero = False
-    showZeroOrigin = QtCore.pyqtProperty(bool, get_showZero, set_showZero, reset_showZero)
+    showZeroOrigin = QtCore.Property(bool, get_showZero, set_showZero, reset_showZero)
 
     def set_showGoto(self, data):
         self._showGoto = data
@@ -472,7 +472,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self._showGoto
     def reset_showGoto(self):
         self._showGoto = False
-    showGotoOrigin = QtCore.pyqtProperty(bool, get_showGoto, set_showGoto, reset_showGoto)
+    showGotoOrigin = QtCore.Property(bool, get_showGoto, set_showGoto, reset_showGoto)
 
     def set_showLast(self, data):
         self._showLast = data
@@ -480,7 +480,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self._showLast
     def reset_showLast(self):
         self._showLast = False
-    showLast = QtCore.pyqtProperty(bool, get_showLast, set_showLast, reset_showLast)
+    showLast = QtCore.Property(bool, get_showLast, set_showLast, reset_showLast)
 
     def set_showDivide(self, data):
         self._showDivide = data
@@ -488,7 +488,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self._showDivide
     def reset_showDivide(self):
         self._showDivide = False
-    showDivide = QtCore.pyqtProperty(bool, get_showDivide, set_showDivide, reset_showDivide)
+    showDivide = QtCore.Property(bool, get_showDivide, set_showDivide, reset_showDivide)
 
     ##############################
     # required class boiler code #
@@ -502,7 +502,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from qtpy.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     widget = DROLabel()

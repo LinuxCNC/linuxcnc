@@ -15,7 +15,7 @@
 #
 #################################################################################
 
-from PyQt5 import QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -176,7 +176,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -198,7 +198,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
 
     # designer will show these properties in this order:
     # BOOL
-    linear_option = QtCore.pyqtProperty(bool, get_linear, set_linear, reset_linear)
+    linear_option = QtCore.Property(bool, get_linear, set_linear, reset_linear)
 
     # VARIABLES---------------------------
     def set_pin_name(self, value):
@@ -208,7 +208,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     def reset_pin_name(self):
         self._pin_name = ''
 
-    pinName = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    pinName = QtCore.Property(str, get_pin_name, set_pin_name, reset_pin_name)
 
 if __name__ == "__main__":
 

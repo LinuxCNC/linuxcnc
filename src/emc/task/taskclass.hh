@@ -18,10 +18,10 @@
 #ifndef TASKCLASS_HH
 #define TASKCLASS_HH
 
-#include "emc.hh"
-#include "inifile.hh"
-#include "hal.hh"
-#include "tooldata.hh"
+#include "nml_intf/emc.hh"
+#include "libnml/inifile/inifile.hh"
+#include "../../hal/hal.hh"
+#include "tooldata/tooldata.hh"
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 

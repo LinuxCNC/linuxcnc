@@ -15,7 +15,7 @@
 ###############################################################################
 
 
-from PyQt5 import QtCore
+from qtpy import QtCore
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -66,7 +66,7 @@ class StateLabel(ScaledLabel, _HalWidgetBase):
 
     #########################################################################
     # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
+    # designer will show the Property properties in the editor
     # it will use the get set and reset calls to do those actions
     #
     # _toggle_properties makes it so we can only select one option
@@ -156,16 +156,16 @@ class StateLabel(ScaledLabel, _HalWidgetBase):
 
     # designer will show these properties in this order:
     # BOOL
-    machine_is_metric_status = QtCore.pyqtProperty(bool, get_machine_units, set_machine_units, reset_machine_units)
-    metric_mode_status = QtCore.pyqtProperty(bool, get_metric_mode, set_metric_mode, reset_metric_mode)
-    css_mode_status = QtCore.pyqtProperty(bool, get_css_mode, set_css_mode, reset_css_mode)
-    fpr_mode_status = QtCore.pyqtProperty(bool, get_fpr_mode, set_fpr_mode, reset_fpr_mode)
-    diameter_mode_status = QtCore.pyqtProperty(bool, get_diameter_mode, set_diameter_mode, reset_diameter_mode)
+    machine_is_metric_status = QtCore.Property(bool, get_machine_units, set_machine_units, reset_machine_units)
+    metric_mode_status = QtCore.Property(bool, get_metric_mode, set_metric_mode, reset_metric_mode)
+    css_mode_status = QtCore.Property(bool, get_css_mode, set_css_mode, reset_css_mode)
+    fpr_mode_status = QtCore.Property(bool, get_fpr_mode, set_fpr_mode, reset_fpr_mode)
+    diameter_mode_status = QtCore.Property(bool, get_diameter_mode, set_diameter_mode, reset_diameter_mode)
 
     # Non BOOL
-    true_textTemplate = QtCore.pyqtProperty(str, get_true_textTemplate,
+    true_textTemplate = QtCore.Property(str, get_true_textTemplate,
                                             set_true_textTemplate, reset_true_textTemplate)
-    false_textTemplate = QtCore.pyqtProperty(str, get_false_textTemplate,
+    false_textTemplate = QtCore.Property(str, get_false_textTemplate,
                                              set_false_textTemplate, reset_false_textTemplate)
 
     # boilder code

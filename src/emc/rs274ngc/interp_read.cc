@@ -27,7 +27,7 @@
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #include <cmath>
 #include <rtapi_string.h>	// rtapi_strlcpy()
 
@@ -1716,6 +1716,18 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     {
 	// Check we're not already defining a main- or sub-program
 	CHKS((_setup.defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
+
+	// Check for sub definition inside a called subroutine.
+	// When call_level > 0 and not seeking (skipping_o == NULL),
+	// hitting a sub that doesn't match the current call is an error.
+	if (_setup.call_level > 0 && _setup.skipping_o == NULL) {
+	    const char *current_sub =
+		_setup.sub_context[_setup.call_level].subName;
+	    CHKS((current_sub && strcmp(current_sub, block->o_name) != 0),
+		 _("Nested subroutine definition: 'O%s sub' found inside "
+		   "called subroutine 'O%s'"),
+		 block->o_name, current_sub);
+	}
     }
   // in terms of execution endsub and return do the same thing
   else if ((block->o_type == O_endsub) || (block->o_type == O_return) ||

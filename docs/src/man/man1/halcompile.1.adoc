@@ -6,15 +6,11 @@ halcompile - Build, compile and install LinuxCNC HAL components
 
 == SYNOPSIS
 
-____
 *halcompile* [*--compile*|*--preprocess*|*--document*|*--adoc*|*--view-doc*] compfile...
-____
 
 _sudo_ *halcompile* [*--install*|*--install-doc*] compfile...
 
-____
 *halcompile* *--compile* *--userspace* cfile...
-____
 
 _sudo_ *halcompile* *--install* *--userspace* cfile...
 
@@ -103,7 +99,7 @@ Extra arguments passed to the linker.
 
 == SEE ALSO
 
-* _Halcompile HAL Component Generator_ in the LinuxCNC documentation for a
+* _Halcompile_ / _HAL Component Generator_ in the LinuxCNC documentation for a
   full description of the *.comp* syntax, along with examples
 
 * *pydoc, HAL* and _Creating Non-realtime Python Components_ in the

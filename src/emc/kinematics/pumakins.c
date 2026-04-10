@@ -16,13 +16,13 @@
 * Last change:
 *******************************************************************
 */
+#include <rtapi.h>
+#include <rtapi_math.h>
+#include <rtapi_string.h>
+#include <hal.h>
+#include <kinematics.h>
+
 #include "pumakins.h"
-#include "posemath.h"
-#include "rtapi.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
-#include "hal.h"
-#include "kinematics.h"
 #include "switchkins.h"
 
 struct haldata {

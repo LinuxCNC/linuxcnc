@@ -20,10 +20,6 @@
 * Last change: 
 ********************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <errno.h>		/* errno global variable */
 #include <limits.h>		/* SHORT_MIN, SHOR_MAX, . . . */
 #include <float.h>		/* FLT_MIN, FLT_MAX */
@@ -32,18 +28,22 @@ extern "C" {
 #include <stdio.h>		/* sprintf() */
 #include <ctype.h>		/* isspace() */
 
-#ifdef __cplusplus
-}
-#endif
 #include "cms.hh"		/* class CMS */
 #include "cms_aup.hh"		/* class CMS_ASCII_UPDATER */
-#include "rcs_print.hh"		/* rcs_print_error() */
+#include "libnml/rcs/rcs_print.hh"		/* rcs_print_error() */
+
 #define DEFAULT_WARNING_COUNT_MAX 100
 /* Member functions for CMS_ASCII_UPDATER Class */
 
 CMS_ASCII_UPDATER::CMS_ASCII_UPDATER(CMS * _cms_parent):CMS_UPDATER
 (_cms_parent)
 {
+    fprintf(stderr,
+        "* * * * * * * * - - - - - WARNING - - - - - * * * * * * * *\n"
+        "*   CMS_ASCII_UPDATER may not function properly due to    *\n"
+        "*   range limitations of some of the update() functions.  *\n"
+        "* * * * * * * * - - - - - WARNING - - - - - * * * * * * * *\n");
+
     /* Set pointers to NULL. */
     begin_current_string = (char *) NULL;
     end_current_string = (char *) NULL;
@@ -224,7 +224,7 @@ int safe_strlen(char *string, int max)
 CMS_STATUS CMS_ASCII_UPDATER::update(bool &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(bool))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(bool))) {
 	return (CMS_UPDATE_ERROR);
     }
 
@@ -241,17 +241,17 @@ CMS_STATUS CMS_ASCII_UPDATER::update(bool &x)
 
 /* Char functions */
 
-CMS_STATUS CMS_ASCII_UPDATER::update(char &x)
+CMS_STATUS CMS_ASCII_UPDATER::update(int8_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(char))) {
+    if (-1 == check_pointer((char *) &x, sizeof(int8_t))) {
 	return (CMS_UPDATE_ERROR);
     }
 
     if (encoding) {
-	end_current_string[0] = x;
+	end_current_string[0] = (char)x;
     } else {
-	x = end_current_string[0];
+	x = (int8_t)end_current_string[0];
     }
     end_current_string += 1;
     length_current_string += 1;
@@ -259,10 +259,10 @@ CMS_STATUS CMS_ASCII_UPDATER::update(char &x)
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(char *x, unsigned int len)
+CMS_STATUS CMS_ASCII_UPDATER::update(int8_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(char) * len)) {
+    if (-1 == check_pointer((char *) x, sizeof(int8_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -278,17 +278,17 @@ CMS_STATUS CMS_ASCII_UPDATER::update(char *x, unsigned int len)
 
 /* Char functions */
 
-CMS_STATUS CMS_ASCII_UPDATER::update(unsigned char &x)
+CMS_STATUS CMS_ASCII_UPDATER::update(uint8_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(unsigned char))) {
+    if (-1 == check_pointer((char *) &x, sizeof(uint8_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
     if (encoding) {
-	end_current_string[0] = x;
+	end_current_string[0] = (char)x;
     } else {
-	x = end_current_string[0];
+	x = (uint8_t)end_current_string[0];
     }
     end_current_string += 1;
     length_current_string += 1;
@@ -296,10 +296,10 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned char &x)
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(unsigned char *x, unsigned int len)
+CMS_STATUS CMS_ASCII_UPDATER::update(uint8_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(unsigned char) * len)) {
+    if (-1 == check_pointer((char *) x, sizeof(uint8_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -315,10 +315,10 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned char *x, unsigned int len)
 
 /* Short functions */
 
-CMS_STATUS CMS_ASCII_UPDATER::update(short int &x)
+CMS_STATUS CMS_ASCII_UPDATER::update(int16_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(short))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(int16_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -345,12 +345,12 @@ CMS_STATUS CMS_ASCII_UPDATER::update(short int &x)
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
-	if ((number < SHRT_MIN || SHRT_MAX < number)
+	if ((number < INT16_MIN || INT16_MAX < number)
 	    && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
-		("CMS_ASCII_UPDATER:  (warning) Number %ld out of range for short(%d,%d)\n",
-		number, SHRT_MIN, SHRT_MAX);
+		("CMS_ASCII_UPDATER:  (warning) Number %ld out of range for int16_t(%d,%d)\n",
+		number, INT_MIN, INT_MAX);
 	}
 	x = (short) number;
     }
@@ -360,10 +360,10 @@ CMS_STATUS CMS_ASCII_UPDATER::update(short int &x)
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(short *x, unsigned int len)
+CMS_STATUS CMS_ASCII_UPDATER::update(int16_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(short) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(int16_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -375,10 +375,10 @@ CMS_STATUS CMS_ASCII_UPDATER::update(short *x, unsigned int len)
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(unsigned short int &x)
+CMS_STATUS CMS_ASCII_UPDATER::update(uint16_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(short))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(uint16_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -406,11 +406,11 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned short int &x)
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
-	if (number > USHRT_MAX && warning_count < warning_count_max) {
+	if (number > UINT16_MAX && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Number %lu out of range for unsigned short(0,%d)\n",
-		number, USHRT_MAX);
+		("CMS_ASCII_UPDATER: Number %lu out of range for uint16_t(0,%d)\n",
+		number, UINT16_MAX);
 	}
 	x = (unsigned short) number;
     }
@@ -420,10 +420,10 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned short int &x)
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(unsigned short *x, unsigned int len)
+CMS_STATUS CMS_ASCII_UPDATER::update(uint16_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(unsigned short) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(uint16_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -437,14 +437,15 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned short *x, unsigned int len)
 
 /* Int  functions */
 
-CMS_STATUS CMS_ASCII_UPDATER::update(int &x)
+CMS_STATUS CMS_ASCII_UPDATER::update(int32_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(int))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(int32_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
     if (encoding) {
+        // FIXME: Bad range
 	if (x > 9999999 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -473,11 +474,11 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int &x)
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
-	if ((number < ((long) INT_MIN)) || ((((long) INT_MAX) < number) && (warning_count < warning_count_max))) {
+	if ((number < ((long) INT32_MIN)) || ((((long) INT32_MAX) < number) && (warning_count < warning_count_max))) {
 	    warning_count++;
 	    rcs_print_error
 		("CMS_ASCII_UPDATER: (warning) Number %ld out of range for int(%d,%d)\n",
-		number, INT_MIN, INT_MAX);
+		number, INT32_MIN, INT32_MAX);
 	}
 	x = (int) number;
     }
@@ -487,10 +488,10 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int &x)
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(int *x, unsigned int len)
+CMS_STATUS CMS_ASCII_UPDATER::update(int32_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(int) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(int32_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -502,14 +503,15 @@ CMS_STATUS CMS_ASCII_UPDATER::update(int *x, unsigned int len)
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(unsigned int &x)
+CMS_STATUS CMS_ASCII_UPDATER::update(uint32_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(unsigned int))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(uint32_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
     if (encoding) {
+        // FIXME: Bad range
 	if (x > 9999999 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -539,10 +541,10 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned int &x)
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
-	if (UINT_MAX < number && warning_count < warning_count_max) {
+	if (UINT32_MAX < number && warning_count < warning_count_max) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Number %lu out of range for unsigned int (0,%u)\n",
-		number, UINT_MAX);
+		("CMS_ASCII_UPDATER: Number %lu out of range for uint32_t (0,%u)\n",
+		number, UINT32_MAX);
 	}
 	x = (unsigned int) number;
     }
@@ -552,10 +554,10 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned int &x)
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(unsigned int *x, unsigned int len)
+CMS_STATUS CMS_ASCII_UPDATER::update(uint32_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(unsigned int) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(uint32_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -569,48 +571,48 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned int *x, unsigned int len)
 
 /* Long functions */
 
-CMS_STATUS CMS_ASCII_UPDATER::update(long int &x)
+CMS_STATUS CMS_ASCII_UPDATER::update(int64_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(long))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(int64_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
     if (encoding) {
-	end_current_string[15] = 0;
-	sprintf(end_current_string, "%-14ld", x);
-	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
+	end_current_string[22] = 0;
+	sprintf(end_current_string, "%-21ld", x);
+	if (end_current_string[22] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: (warning) long with value %-14ld caused an overflow\n",
+		("CMS_ASCII_UPDATER: (warning) int64_t with value %-21ld caused an overflow\n",
 		x);
 	}
-	end_current_string[15] = 0;
+	end_current_string[22] = 0;
     } else {
-	if (-1 == safe_strlen(end_current_string, 16)) {
+	if (-1 == safe_strlen(end_current_string, 23)) {
 	    rcs_print_error("CMS_ASCII_UPDATER: String is too long.\n");
 	    return (status = CMS_UPDATE_ERROR);
 	}
 	errno = 0;
-	long number = strtol(end_current_string, (char **) NULL, 10);
+	int64_t number = strtoll(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d occurred during strtol.\n",
+		("CMS_ASCII_UPDATER: Error %d occurred during strtoll.\n",
 		errno);
 	    return (status = CMS_UPDATE_ERROR);
 	}
 	x = number;
     }
-    end_current_string += 16;
-    length_current_string += 16;
+    end_current_string += 23;
+    length_current_string += 23;
 
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(long *x, unsigned int len)
+CMS_STATUS CMS_ASCII_UPDATER::update(int64_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(long) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(int64_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -622,49 +624,49 @@ CMS_STATUS CMS_ASCII_UPDATER::update(long *x, unsigned int len)
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(unsigned long int &x)
+CMS_STATUS CMS_ASCII_UPDATER::update(uint64_t &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(unsigned long))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(uint64_t))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
     if (encoding) {
-	end_current_string[15] = 0;
-	sprintf(end_current_string, "%-14lu", x);
-	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
+	end_current_string[22] = 0;
+	sprintf(end_current_string, "%-21lu", x);
+	if (end_current_string[22] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: (warning) unsigned long with value %-14ld caused an overflow\n",
+		("CMS_ASCII_UPDATER: (warning) uint64_t with value %-21ld caused an overflow\n",
 		x);
 	}
-	end_current_string[15] = 0;
+	end_current_string[22] = 0;
     } else {
-	if (-1 == safe_strlen(end_current_string, 16)) {
+	if (-1 == safe_strlen(end_current_string, 23)) {
 	    rcs_print_error("CMS_ASCII_UPDATER: String is too long.\n");
 	    return (status = CMS_UPDATE_ERROR);
 	}
 	errno = 0;
-	unsigned long
-	    number = strtoul(end_current_string, (char **) NULL, 10);
+	uint64_t
+	    number = strtoull(end_current_string, (char **) NULL, 10);
 	if (errno != 0) {
 	    rcs_print_error
-		("CMS_ASCII_UPDATER: Error %d:%s occurred during strtoul of(%s).\n",
+		("CMS_ASCII_UPDATER: Error %d:%s occurred during strtoull of(%s).\n",
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
 	x = number;
     }
-    end_current_string += 16;
-    length_current_string += 16;
+    end_current_string += 23;
+    length_current_string += 23;
 
     return (status);
 }
 
-CMS_STATUS CMS_ASCII_UPDATER::update(unsigned long *x, unsigned int len)
+CMS_STATUS CMS_ASCII_UPDATER::update(uint64_t *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(unsigned long) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(uint64_t) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -681,7 +683,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned long *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(float &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(float))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(float))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -726,7 +728,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(float &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(float *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(float) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(float) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -743,7 +745,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(float *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(double &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(double))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(double))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -781,7 +783,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(double &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(double *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(double) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(double) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -798,7 +800,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(double *x, unsigned int len)
 CMS_STATUS CMS_ASCII_UPDATER::update(long double &x)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) &x, sizeof(long double))) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(&x), sizeof(long double))) {
 	return (status = CMS_UPDATE_ERROR);
     }
 
@@ -836,7 +838,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(long double &x)
 CMS_STATUS CMS_ASCII_UPDATER::update(long double *x, unsigned int len)
 {
     /* Check to see if the pointers are in the proper range. */
-    if (-1 == check_pointer((char *) x, sizeof(long double) * len)) {
+    if (-1 == check_pointer(reinterpret_cast<char *>(x), sizeof(long double) * len)) {
 	return (status = CMS_UPDATE_ERROR);
     }
 

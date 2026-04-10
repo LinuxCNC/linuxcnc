@@ -16,22 +16,14 @@
 #define TCP_SRV_HH
 
 #include "cms_srv.hh"		/* class CMS_SERVER_REMOTE_PORT */
-#include "linklist.hh"		/* class LinkedList */
-#include "rem_msg.hh"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "libnml/linklist/linklist.hh"		/* class LinkedList */
+#include "libnml/buffer/rem_msg.hh"
 
 #include <string.h>		/* memset(), strerror() */
 #include <netinet/in.h>
 #include <errno.h>		/* errno */
 #include <signal.h>		// SIGPIPE, signal()
 #include <sys/time.h>           /* struct timeval */
-
-#ifdef __cplusplus
-}
-#endif
 
 #ifndef NO_THREADS
 #define NO_THREADS
@@ -86,6 +78,10 @@ class TCP_BUFFER_SUBSCRIPTION_INFO {
   public:
     TCP_BUFFER_SUBSCRIPTION_INFO();
     ~TCP_BUFFER_SUBSCRIPTION_INFO();
+    // Not copyable
+    TCP_BUFFER_SUBSCRIPTION_INFO(const TCP_BUFFER_SUBSCRIPTION_INFO&) = delete;
+    TCP_BUFFER_SUBSCRIPTION_INFO& operator= (const TCP_BUFFER_SUBSCRIPTION_INFO&) = delete;
+
     int buffer_number;
     int min_last_id;
     int list_id;
@@ -113,6 +109,10 @@ class CLIENT_TCP_PORT {
   public:
     CLIENT_TCP_PORT();
     ~CLIENT_TCP_PORT();
+    // Not copyable
+    CLIENT_TCP_PORT(const CLIENT_TCP_PORT&) = delete;
+    CLIENT_TCP_PORT& operator= (const CLIENT_TCP_PORT&) = delete;
+
     long serial_number;
     int errors, max_errors;
     struct sockaddr_in address;

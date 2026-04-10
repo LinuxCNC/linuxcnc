@@ -1,3 +1,5 @@
+#ifndef __LINUXCNC_RTAPI_VSNPRINTF_H
+#define __LINUXCNC_RTAPI_VSNPRINTF_H
 /********************************************************************
 * Description: rtapi_vsnprintf.h
 *   Implementation of vsnprintf for kernel space.
@@ -36,9 +38,9 @@ values (or floating point).
 
 #include <stdarg.h>
 #include <stddef.h>
-#include <rtapi_ctype.h>
-#include <rtapi_math.h>
-#include <rtapi_string.h>
+#include "rtapi_ctype.h"
+#include "rtapi_math.h"
+#include "rtapi_string.h"
 
 /* we use this so that we can do without the string library */
 static int strn_len(const char *s, int count)
@@ -470,3 +472,4 @@ int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args
     /* the trailing null byte doesn't count towards the total * ++str; */
     return str - buf;
 }
+#endif

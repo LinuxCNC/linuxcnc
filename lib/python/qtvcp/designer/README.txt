@@ -7,6 +7,7 @@ gstreamer1.0-tools
 espeak
 espeak-ng
 sound-theme-freedesktop
+python3-qtpy
 python3-opengl
 python3-pyqt5
 python3-pyqt5.qsci

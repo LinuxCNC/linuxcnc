@@ -21,9 +21,9 @@ import re
 import hashlib
 import datetime
 import shutil
-from PyQt5 import QtGui, QtWidgets, QtCore, uic
-from PyQt5.QtCore import QRegExp
-from PyQt5.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLineEdit, QMessageBox
+from qtpy import QtGui, QtWidgets, QtCore, uic
+from qtpy.QtCore import QRegExp
+from qtpy.QtWidgets import QFileDialog, QHBoxLayout, QVBoxLayout, QLabel, QWidget, QLineEdit, QMessageBox
 from qtvcp.core import Action, Info, Path
 from qtvcp import logger
 

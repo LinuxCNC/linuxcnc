@@ -140,15 +140,15 @@ RTAPI_END_DECLS
 #ifdef __cplusplus
 template<class T>
 bool hal_shmchk(T *t) {
-    char *c = (char*)t;
+    char *c = reinterpret_cast<char*>(t);
     return c > hal_shmem_base && c < hal_shmem_base + HAL_SIZE;
 }
 
 template<class T>
-int hal_shmoff(T *t) { return t ? (char*)t - hal_shmem_base : 0; }
+int hal_shmoff(T *t) { return t ? reinterpret_cast<char*>(t) - hal_shmem_base : 0; }
 
 template<class T>
-T *hal_shmptr(int p) { return p ? (T*)(hal_shmem_base + p) : nullptr; }
+T *hal_shmptr(int p) { return p ? reinterpret_cast<T*>(hal_shmem_base + p) : nullptr; }
 
 template<class T>
 class hal_shmfield {
@@ -491,21 +491,5 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 */
 extern int hal_port_alloc(unsigned size, hal_port_t *port);
 
-
-
-#define HAL_STREAM_MAGIC_NUM		0x4649464F
-struct hal_stream_shm {
-    unsigned magic;
-    volatile unsigned in;
-    volatile unsigned out;
-    unsigned this_sample;
-    unsigned depth;
-    int num_pins;
-    unsigned long num_overruns, num_underruns;
-    hal_type_t type[HAL_STREAM_MAX_PINS];
-    union hal_stream_data data[];
-};
-
-extern int halpr_parse_types(hal_type_t type[HAL_STREAM_MAX_PINS], const char *fcg);
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */

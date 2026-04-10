@@ -18,7 +18,7 @@
 #define RS274NGC_INTERP_H
 #include "rs274ngc.hh"
 #include "interp_internal.hh"
-#include "interp_return.hh"
+#include "nml_intf/interp_return.hh"
 
 class Interp : public InterpBase {
 
