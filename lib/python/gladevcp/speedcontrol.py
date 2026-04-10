@@ -100,8 +100,8 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
                 "%.1f", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'do_hide_button' : ( GObject.TYPE_BOOLEAN, 'Hide the button', 'Display the button + and - to alter the values',
                     False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
-        'type'  : ( GObject.TYPE_INT, 'Type of adjustment', 'Set to -1 for general, 0 for jograte',
-                    -1, 0, -1, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'type'  : ( GObject.TYPE_INT, 'Type of adjustment', 'Set to -1 for general, 0 for jograte, 1 for angular jograte',
+                    -1, 1, -1, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
@@ -131,6 +131,7 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
         self._template = template
         self._speed = inc_speed
         self.type_linear_jog = False
+        self.type_angular_jog = False
 
         self.adjustment = Gtk.Adjustment(value = self._value, lower = self._min, upper = self._max, step_increment = self._increment, page_increment = 0)
         self.adjustment.connect("value_changed", self._on_value_changed)
@@ -184,8 +185,11 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
         self.hal_pin_decrease.connect("value-changed", self._on_minus_changed)
 
         if self.type_linear_jog:
-            print('->>',self.type_linear_jog)
+            print('linear jograte ->>',self.type_linear_jog)
             self._status.connect('jograte-changed', lambda w, data: self.set_value(data))
+        elif self.type_angular_jog:
+            print('Angular jograte ->>',self.type_angular_jog)
+            self._status.connect('jograte-angular-changed', lambda w, data: self.set_value(data))
 
     # this draws our widget on the screen
     def expose(self, widget, event):
@@ -472,6 +476,10 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
                     print(name,value)
                     if value == 0:
                         self.type_linear_jog = True
+                        self.type_angular_jog = False
+                    elif value == 1:
+                        self.type_linear_jog = False
+                        self.type_angular_jog = True
                 self._draw_widget()
             else:
                 raise AttributeError('unknown property %s' % property.name)
