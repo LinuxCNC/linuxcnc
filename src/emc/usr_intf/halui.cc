@@ -158,6 +158,7 @@ static int axis_mask = 0;
     ARRAY(hal_bit_t,jjog_increment_minus,EMCMOT_MAX_JOINTS+1) /* Incremental jogging, negative direction */ \
 \
     FIELD(hal_float_t,ajog_speed) /* pin for setting the jog speed (halui internal) */ \
+    FIELD(hal_float_t,ajog_speed_angular) /* pin for setting the angular jog speed (halui internal) */ \
     ARRAY(hal_bit_t,ajog_minus,EMCMOT_MAX_AXIS+1) /* pin to jog in positive direction */ \
     ARRAY(hal_bit_t,ajog_plus,EMCMOT_MAX_AXIS+1) /* pin to jog in negative direction */ \
     ARRAY(hal_float_t,ajog_analog,EMCMOT_MAX_AXIS+1) /* pin for analog jogging (-1..0..1) */ \
@@ -250,6 +251,8 @@ static local_halui_str old_halui_data;
 
 static double lastjogspeed = 0;
 static double internaljogspeed = 0;
+static double lastangularjogspeed = 0;
+static double internalangularjogspeed = 0;
 static int lastaxis = -1;
 
 static char *mdi_commands[MDI_MAX];
@@ -1068,6 +1071,8 @@ int halui_hal_init(void)
 
     retval = halui_export_pin_IN_float(&(halui_data->ajog_speed), "halui.axis.jog-speed");
     if (retval < 0) return retval;
+    retval = halui_export_pin_IN_float(&(halui_data->ajog_speed_angular), "halui.axis.jog-speed-angular");
+    if (retval < 0) return retval;
     retval = halui_export_pin_IN_float(&(halui_data->ajog_deadband), "halui.axis.jog-deadband");
     if (retval < 0) return retval;
 
@@ -1787,6 +1792,7 @@ static void hal_init_pins()
     *(halui_data->ajog_increment_minus[EMCMOT_MAX_AXIS]) = old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS] = 0;
     *(halui_data->ajog_deadband) = 0.2;
     *(halui_data->ajog_speed) = 0;
+    *(halui_data->ajog_speed_angular) = 0;
 
     *(halui_data->joint_selected) = 0; // select joint 0 by default
     *(halui_data->axis_selected) = -1; // select no axis by default
@@ -1890,9 +1896,55 @@ static void py_call_axis_jogspeed(double speed)
         Py_DECREF(pFuncWrite);
 }
 
+static double py_call_axis_get_angular_jogspeed() {
+    double jspd = 0;
+    // check socket messages for angular jogspeed
+    pFuncRead = PyObject_GetAttrString(pInstance, "getJogRateAngular");
+    if (pFuncRead && PyCallable_Check(pFuncRead)) {
+        pValue = PyObject_CallNoArgs(pFuncRead);
+        if (pValue == NULL){
+            fprintf(stderr, "Halui Bridge: getJogRateAngular function failed: returned NULL\n");
+            jspd = 0;
+        }else{
+            if (PyFloat_Check(pValue)) {
+                jspd = PyFloat_AsDouble(pValue);
+                if (PyErr_Occurred()) {
+                    jspd = 0;
+                    // Handle conversion error
+                    PyErr_Print();
+                    // Clear the error state if needed
+                    PyErr_Clear();
+                }
+            }
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncRead);
+    return jspd;
+}
+
+static void py_call_axis_angular_jogspeed(double speed)
+{
+        pFuncWrite = PyObject_GetAttrString(pInstance, "setJogRateAngular");
+
+        if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
+            pValue = PyObject_CallFunction(pFuncWrite, "d", speed);
+            if (pValue == NULL){
+                fprintf(stderr, "halui bridge: setJogRateAngular function failed: returned NULL\n");
+                if (PyErr_Occurred()) PyErr_Print();
+            }
+            Py_DECREF(pValue);
+
+        }else{
+            if (PyErr_Occurred()) PyErr_Print();
+            fprintf(stderr, "halui Bridge: Failed python function");
+        }
+        Py_DECREF(pFuncWrite);
+}
+
 static int py_call_get_axis_selected() {
     int value = 0;
-    // check socket messages for jogspeed
+    // check socket messages for selected axis
     pFuncRead = PyObject_GetAttrString(pInstance, "getSelectedAxis");
     if (pFuncRead && PyCallable_Check(pFuncRead)) {
         pValue = PyObject_CallNoArgs(pFuncRead);
@@ -1968,8 +2020,10 @@ static void check_hal_changes()
     int js;
     hal_float_t floatt;
     double jogspeed;
+    double angularjogspeed;
     int jjog_speed_changed;
     int ajog_speed_changed;
+    int ajog_speed_angular_changed;
     int is_any_axis_selected, deselected;
 
         // get python to process socket messages
@@ -2236,6 +2290,7 @@ static void check_hal_changes()
     } else {
         jjog_speed_changed = 0;
     }
+
 // axis stuff (selection, homing..)
     aselect_changed = -1; // flag to see if the selected joint changed
 
@@ -2259,7 +2314,27 @@ static void check_hal_changes()
         fprintf(stderr, "JogRate value = %f\n", jogspeed );
     }
 
-    
+    // if the ANGULAR jog-speed changes while in a continuous jog, we want to
+    // re-start the jog with the new speed
+    if (fabs(old_halui_data.ajog_speed_angular - new_halui_data.ajog_speed_angular) > 0.00001) {
+        old_halui_data.ajog_speed_angular = new_halui_data.ajog_speed_angular;
+        internalangularjogspeed = new_halui_data.ajog_speed_angular;
+        ajog_speed_angular_changed = 1;
+        py_call_axis_angular_jogspeed(internalangularjogspeed);
+    } else {
+        ajog_speed_angular_changed = 0;
+    }
+
+    // check socket messages for ANGULAR jogspeed
+    angularjogspeed = py_call_axis_get_angular_jogspeed();
+    if (fabs(angularjogspeed - lastangularjogspeed) > 0.00001) {
+        ajog_speed_angular_changed = 1;
+        lastangularjogspeed = angularjogspeed;
+        internalangularjogspeed = angularjogspeed;
+        fprintf(stderr, "angular JogRate value = %f\n", angularjogspeed );
+    }
+
+
     for (joint=0; joint < num_joints; joint++) {
 	if (check_bit_changed(new_halui_data.joint_home[joint], old_halui_data.joint_home[joint]) != 0)
 	    sendHome(joint);
