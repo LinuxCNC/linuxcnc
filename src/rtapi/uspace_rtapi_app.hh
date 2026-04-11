@@ -110,6 +110,8 @@ struct RtapiApp {
     virtual int run_threads(int fd, int (*callback)(int fd)) = 0;
     virtual long long do_get_time(void) = 0;
     virtual void do_delay(long ns) = 0;
+    static int find_rt_cpu_number();
+    static void set_namef(const char *fmt, ...);
     int policy;
     long period;
     static struct rtapi_task *task_array[MAX_TASKS];
@@ -118,9 +120,6 @@ struct RtapiApp {
 template <class T = rtapi_task> T *rtapi_get_task(int task_id) {
     return static_cast<T *>(RtapiApp::get_task(task_id));
 }
-
-int find_rt_cpu_number();
-void set_namef(const char *fmt, ...);
 
 #define WITH_ROOT WithRoot root
 #endif

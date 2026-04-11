@@ -234,7 +234,7 @@ out:
     fclose(fp);
 }
 
-int find_rt_cpu_number() {
+int RtapiApp::find_rt_cpu_number() {
     if (getenv("RTAPI_CPU_NUMBER"))
         return atoi(getenv("RTAPI_CPU_NUMBER"));
 
@@ -269,7 +269,7 @@ int find_rt_cpu_number() {
 #endif
 }
 
-void set_namef(const char *fmt, ...) {
+void RtapiApp::set_namef(const char *fmt, ...) {
     char *buf = NULL;
     va_list ap;
 

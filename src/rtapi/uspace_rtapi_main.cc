@@ -70,7 +70,7 @@ static boost::lockfree::queue<message_t, boost::lockfree::capacity<128>> rtapi_m
 
 static pthread_t queue_thread;
 static void *queue_function(void * /*arg*/) {
-    set_namef("rtapi_app:mesg");
+    RtapiApp::set_namef("rtapi_app:mesg");
     // note: can't use anything in this function that requires App() to exist
     // but it's OK to use functions that aren't safe for realtime (that's the
     // point of running this in a thread)
