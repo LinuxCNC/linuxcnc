@@ -46,7 +46,16 @@ void rtapi_timespec_advance(struct timespec &result, const struct timespec &src,
 struct WithRoot {
     WithRoot();
     ~WithRoot();
+    static void init(uid_t ruid_ini, uid_t euid_ini);
+    static uid_t getRuid(){
+        return ruid;
+    }
+    static uid_t getEuid(){
+        return euid;
+    }
+private:
     static std::atomic_int level;
+    static uid_t ruid, euid;
 };
 
 struct rtapi_task {
@@ -112,8 +121,6 @@ template <class T = rtapi_task> T *rtapi_get_task(int task_id) {
 
 int find_rt_cpu_number();
 void set_namef(const char *fmt, ...);
-
-extern uid_t euid, ruid; //ToDo: Improve
 
 #define WITH_ROOT WithRoot root
 #endif

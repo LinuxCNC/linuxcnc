@@ -116,7 +116,7 @@ shmget_again:
    */
   /* ensure the segment is owned by user, not root */
   if(geteuid() == 0) {
-    stat.shm_perm.uid = ruid;
+    stat.shm_perm.uid = WithRoot::getRuid();
     res = shmctl(shmem->id, IPC_SET, &stat);
     if(res < 0) perror("shmctl IPC_SET");
   }

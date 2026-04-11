@@ -23,7 +23,7 @@
 #include <string.h>
 
 std::atomic_int WithRoot::level;
-uid_t euid, ruid;
+uid_t WithRoot::ruid, WithRoot::euid;
 
 WithRoot::WithRoot() {
     if (!level++) {
@@ -39,6 +39,11 @@ WithRoot::~WithRoot() {
         setfsuid(ruid);
 #endif
     }
+}
+
+void WithRoot::init(uid_t ruid_ini, uid_t euid_ini){
+    ruid=ruid_ini;
+    euid=euid_ini;
 }
 
 rtapi_task::rtapi_task()

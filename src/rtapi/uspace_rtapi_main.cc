@@ -508,8 +508,9 @@ int main(int argc, char **argv) {
         }
         fprintf(stderr, "Running with fallback_uid.  getuid()=%d geteuid()=%d\n", getuid(), geteuid());
     }
-    ruid = getuid();
-    euid = geteuid();
+    uid_t ruid = getuid();
+    uid_t euid = geteuid();
+    WithRoot::init(ruid, euid);
     if (setresuid(euid, euid, ruid) != 0) {
         perror("setresuid");
         abort();
@@ -774,7 +775,7 @@ static RtapiApp *makeDllApp(std::string dllName, int policy) {
 
 static RtapiApp *makeApp() {
     RtapiApp *app;
-    if (euid != 0 || harden_rt() < 0) {
+    if (WithRoot::getEuid() != 0 || harden_rt() < 0) {
         app = makeDllApp("libuspace-posix.so.0", SCHED_OTHER);
     } else {
         WithRoot r;
