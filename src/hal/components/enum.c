@@ -184,6 +184,8 @@ int rtapi_app_main(void){
 
 }
 
+void rtapi_app_exit(void) {}
+
 static void decode(void *v_inst, long period){
     int i;
     enum_inst_t *inst = v_inst;
