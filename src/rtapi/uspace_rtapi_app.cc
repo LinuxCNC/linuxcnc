@@ -48,6 +48,8 @@ rtapi_task::rtapi_task()
 {
 }
 
+struct rtapi_task *RtapiApp::task_array[MAX_TASKS];
+
 /* Priority functions.  Uspace uses POSIX task priorities. */
 
 int RtapiApp::prio_highest() const {

@@ -66,6 +66,10 @@ struct rtapi_task {
     void (*taskcode)(void *); /* pointer to task function */
 };
 
+#define MAX_TASKS 64
+#define TASK_MAGIC 21979 /* random numbers used as signatures */
+#define TASK_MAGIC_INIT ((rtapi_task *)(-1))
+
 struct RtapiApp {
 
     RtapiApp(int policy = SCHED_OTHER) : policy(policy), period(0) {
@@ -99,6 +103,7 @@ struct RtapiApp {
     virtual void do_delay(long ns) = 0;
     int policy;
     long period;
+    static struct rtapi_task *task_array[MAX_TASKS];
 };
 
 template <class T = rtapi_task> T *rtapi_get_task(int task_id) {
@@ -107,12 +112,6 @@ template <class T = rtapi_task> T *rtapi_get_task(int task_id) {
 
 int find_rt_cpu_number();
 void set_namef(const char *fmt, ...);
-
-#define MAX_TASKS 64
-#define TASK_MAGIC 21979 /* random numbers used as signatures */
-#define TASK_MAGIC_INIT ((rtapi_task *)(-1))
-
-extern struct rtapi_task *task_array[MAX_TASKS];
 
 extern uid_t euid, ruid; //ToDo: Improve
 

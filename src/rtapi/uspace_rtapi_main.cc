@@ -59,17 +59,17 @@
 #include "hal/hal_priv.h"
 #include "uspace_common.h"
 
-RtapiApp &App();
+static RtapiApp &App();
 
 struct message_t {
     msg_level_t level;
     char msg[1024 - sizeof(level)];
 };
 
-boost::lockfree::queue<message_t, boost::lockfree::capacity<128>> rtapi_msg_queue;
+static boost::lockfree::queue<message_t, boost::lockfree::capacity<128>> rtapi_msg_queue;
 
-pthread_t queue_thread;
-void *queue_function(void * /*arg*/) {
+static pthread_t queue_thread;
+static void *queue_function(void * /*arg*/) {
     set_namef("rtapi_app:mesg");
     // note: can't use anything in this function that requires App() to exist
     // but it's OK to use functions that aren't safe for realtime (that's the
@@ -163,7 +163,7 @@ static int do_one_item(
     return 0;
 }
 
-void remove_quotes(std::string &s) {
+static void remove_quotes(std::string &s) {
     s.erase(remove_copy(s.begin(), s.end(), s.begin(), '"'), s.end());
 }
 
@@ -624,7 +624,7 @@ static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
     exit(1);
 }
 
-const size_t PRE_ALLOC_SIZE = 1024 * 1024 * 32;
+const static size_t PRE_ALLOC_SIZE = 1024 * 1024 * 32;
 const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
 static void configure_memory() {
     int res = setrlimit(RLIMIT_MEMLOCK, &unlimited);
@@ -799,9 +799,6 @@ RtapiApp &App() {
     static RtapiApp *app = makeApp();
     return *app;
 }
-
-/* data for all tasks */
-struct rtapi_task *task_array[MAX_TASKS];
 
 int rtapi_prio_highest(void) {
     return App().prio_highest();
