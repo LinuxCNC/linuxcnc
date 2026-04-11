@@ -776,17 +776,17 @@ static RtapiApp *makeDllApp(std::string dllName, int policy) {
 static RtapiApp *makeApp() {
     RtapiApp *app;
     if (WithRoot::getEuid() != 0 || harden_rt() < 0) {
-        app = makeDllApp("libuspace-posix.so.0", SCHED_OTHER);
+        app = makeDllApp("liblinuxcnc-uspace-posix.so.0", SCHED_OTHER);
     } else {
         WithRoot r;
         if (detect_xenomai_evl()) {
-            app = makeDllApp("libuspace-xenomai-evl.so.0", SCHED_FIFO);
+            app = makeDllApp("liblinuxcnc-uspace-xenomai-evl.so.0", SCHED_FIFO);
         } else if (detect_xenomai()) {
-            app = makeDllApp("libuspace-xenomai.so.0", SCHED_FIFO);
+            app = makeDllApp("liblinuxcnc-uspace-xenomai.so.0", SCHED_FIFO);
         } else if (detect_rtai()) {
-            app = makeDllApp("libuspace-rtai.so.0", SCHED_FIFO);
+            app = makeDllApp("liblinuxcnc-uspace-rtai.so.0", SCHED_FIFO);
         } else {
-            app = makeDllApp("libuspace-posix.so.0", SCHED_FIFO);
+            app = makeDllApp("liblinuxcnc-uspace-posix.so.0", SCHED_FIFO);
         }
     }
 
