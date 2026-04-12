@@ -285,8 +285,11 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
     # we are not sync, so
     def _on_value_changed(self, widget):
         value = widget.get_value()
+
         if self.type_linear_jog:
             self._action.SET_JOG_RATE(value)
+        elif self.type_angular_jog:
+            self._action.SET_JOG_RATE_ANGULAR(value)
 
         if value != self._value:
             self._value = value
