@@ -242,7 +242,15 @@ int PathSampler::sampleBezier(const Bezier9& bezier,
 
     samples.clear();
 
-    double length = bezier9Length(&bezier);
+    /* Sample only the active sub-range [s_start, s_end].  For full-curve
+     * beziers these default to [0, total_length] so behavior is unchanged. */
+    double s_start = bezier.s_start;
+    double s_end = bezier.s_end;
+    if (s_end <= s_start) {
+        s_start = 0.0;
+        s_end = bezier9Length(&bezier);
+    }
+    double length = s_end - s_start;
 
     int num_samples;
     if (length < 1e-9) {
@@ -262,7 +270,7 @@ int PathSampler::sampleBezier(const Bezier9& bezier,
                           0.0;
 
         EmcPose pose;
-        bezier9Point(&bezier, progress, &pose);
+        bezier9Point(&bezier, s_start + progress, &pose);
 
         PathSample sample;
         if (!computeJoints(pose, sample)) {

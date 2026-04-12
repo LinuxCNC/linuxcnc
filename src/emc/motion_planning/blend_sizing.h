@@ -33,11 +33,23 @@ extern "C" {
 #define BLEND9_VEL_ABS_TOL         0.1
 #define BLEND9_CIRC_MAX_ANGLE      (PM_PI / 3.0)
 #define BLEND9_MIN_THETA           (PM_PI / 180.0)
-#define BLEND9_MAX_SEGMENT_USE     0.45    /* Max fraction of original segment
+#define BLEND9_MAX_SEGMENT_USE     0.499    /* Max fraction of original segment
                                             * each blend may claim (unit-free).
-                                            * Two blends leave ≥10% remnant,
+                                            * Two blends leave ≥2% remnant,
                                             * preventing micro-segment jerk
                                             * spikes at segment junctions. */
+
+/* Residual absorption: when the incoming blend (prev→curr) is prev_tc's
+ * final blend (always true at tpAddLine_9D time), the 0.49*nominal cap
+ * on prev_tc is wasted reservation — no future blend will claim prev_tc.
+ * If the residual that WOULD be left with the normal cap is smaller than
+ * this threshold, absorb it into the blend by extending the cap toward
+ * prev_tc->target.  Leaves BLEND9_MIN_RESIDUAL_SLIVER behind as a safety
+ * margin so trimSegment9 doesn't reject a near-zero target. */
+#define BLEND9_RESIDUAL_ABSORB      1.0    /* mm - absorb residuals smaller than this */
+#define BLEND9_MIN_RESIDUAL_SLIVER  0.05   /* mm - minimum length to leave as residual TC */
+
+/* BLEND9_ACC_RATIO_NORMAL is defined in bezier9.h (shared with RT). */
 
 /**
  * Per-axis velocity and acceleration bounds in 9D.

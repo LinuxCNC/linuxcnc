@@ -390,7 +390,8 @@ static int tcGetPosAtProgress(TC_STRUCT const * const tc,
             break;
 
         case TC_BEZIER:
-            bezier9Point(&tc->coords.bezier, progress, pos);
+            bezier9Point(&tc->coords.bezier,
+                         tc->coords.bezier.s_start + progress, pos);
             return TP_ERR_OK;
 
         default:
@@ -468,7 +469,9 @@ static int tcGetTangentAtProgress(TC_STRUCT const * const tc,
             break;
 
         case TC_BEZIER:
-            bezier9Tangent(&tc->coords.bezier, progress, xyz_out, abc_out, uvw_out);
+            bezier9Tangent(&tc->coords.bezier,
+                           tc->coords.bezier.s_start + progress,
+                           xyz_out, abc_out, uvw_out);
             break;
 
         default:
@@ -588,9 +591,25 @@ double findMaxBlendRegion9(TC_STRUCT const * const prev_tc,
     /* Per-segment usable length.
      * Each blend can claim up to BLEND9_MAX_SEGMENT_USE of the original
      * segment, so two blends on the same segment leave a guaranteed
-     * remnant (≥10% at default 0.45). Unit-free, works in mm or inches. */
+     * remnant (≥2% at 0.49). Unit-free, works in mm or inches.
+     *
+     * Residual absorption on prev_tc: prev_tc is ALWAYS on its final
+     * blend at this call site (nothing after this will trim it further),
+     * so the cap on its side is reserving space for a nonexistent future
+     * blend.  If the residual it would leave is smaller than the absorb
+     * threshold, extend the cap to target - sliver, letting the blend
+     * consume the tiny leftover and the downstream Ruckig profile avoid
+     * a near-zero-velocity linear hop. */
     double l_prev = fmin(prev_tc->target,
                          prev_tc->nominal_length * BLEND9_MAX_SEGMENT_USE);
+    double would_be_residual = prev_tc->target - l_prev;
+    if (would_be_residual > 0.0 &&
+        would_be_residual < BLEND9_RESIDUAL_ABSORB) {
+        double l_prev_absorb = prev_tc->target - BLEND9_MIN_RESIDUAL_SLIVER;
+        if (l_prev_absorb > l_prev) {
+            l_prev = l_prev_absorb;
+        }
+    }
     double l_tc   = fmin(tc->target,
                          tc->nominal_length * BLEND9_MAX_SEGMENT_USE);
 
@@ -777,7 +796,7 @@ int findBlendParameters9(BlendBoundary9 const * const boundary,
     /* Normal acceleration budget from segment limits */
     double a_prev = prev_tc->maxaccel;
     double a_tc = tc->maxaccel;
-    params->a_n_max = fmin(a_prev, a_tc) * BLEND_ACC_RATIO_NORMAL;
+    params->a_n_max = fmin(a_prev, a_tc) * BLEND9_ACC_RATIO_NORMAL;
 
     /* Goal velocity (worst case at max feed override) */
     double v_prev = tcGetMaxTargetVel(prev_tc, max_feed_scale);
@@ -792,7 +811,7 @@ int findBlendParameters9(BlendBoundary9 const * const boundary,
 
         /* Constrain v_goal and a_n_max by per-axis limits */
         params->v_goal = fmin(params->v_goal, v_max_planar);
-        params->a_n_max = fmin(params->a_n_max, a_max_planar * BLEND_ACC_RATIO_NORMAL);
+        params->a_n_max = fmin(params->a_n_max, a_max_planar * BLEND9_ACC_RATIO_NORMAL);
 
         tp_debug_print("  per-axis limits: v_max_planar=%g, a_max_planar=%g\n",
                        v_max_planar, a_max_planar);

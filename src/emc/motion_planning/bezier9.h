@@ -18,6 +18,16 @@ extern "C" {
 #define BEZIER9_CURVATURE_SAMPLES 30
 #define BEZIER9_GOLDEN_RATIO 0.618033988749895
 
+/* 9D-local centripetal acc/jerk budget split. Planner 0/1 use
+ * BLEND_ACC_RATIO_NORMAL=sqrt(1-0.25)=0.866 from blendmath.h, reserving
+ * half the acc circle for tangential speed changes along the blend.
+ * Kept at the symmetric sqrt(1 - 0.5²) split: raising it trades tangential
+ * acceleration for centripetal, which on short blends (where Ruckig
+ * cannot climb to v_plan) costs more in v_entry→v_peak climb rate than
+ * it buys in blend ceiling. Shared between userspace (blend sizing) and
+ * RT (bezier9_rt bezier9AccLimit) so both use the same physics budget. */
+#define BLEND9_ACC_RATIO_NORMAL (pmSqrt(1.0 - 0.25))
+
 /**
  * Bezier9 - 9D quintic Bezier curve for trajectory blending
  *
@@ -50,6 +60,15 @@ typedef struct {
     double min_radius;       // Minimum radius = 1/max_kappa
     double max_dkappa_ds;    // Maximum |dκ/ds| (curvature rate wrt arc length)
     double max_dkappa_ds_9d; // Maximum |dκ/ds| in 9D space (includes ABC/UVW)
+    double s_apex;           // Arc-length position of max-curvature point
+
+    // Sub-range markers within [0, total_length].  Default s_start=0,
+    // s_end=total_length (full curve).  When the apex splitter emits two
+    // TC_BEZIERs sharing one control-point set, each carries a distinct
+    // [s_start, s_end] sub-range and TC->target = s_end - s_start.  RT
+    // sampling adds s_start to the per-cycle progress before evaluating.
+    double s_start;
+    double s_end;
 
     // Arc-length parameterization lookup tables
     // Map arc-length s to Bezier parameter t via binary search + cubic Hermite

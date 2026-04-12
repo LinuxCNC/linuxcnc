@@ -302,7 +302,9 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
             pmCircleTangentVector(&tc->coords.circle.xyz, 0.0, out);
             break;
         case TC_BEZIER:
-            bezier9Tangent(&tc->coords.bezier, 0.0, out, NULL, NULL);
+            bezier9Tangent(&tc->coords.bezier,
+                           tc->coords.bezier.s_start,
+                           out, NULL, NULL);
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
@@ -328,7 +330,9 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
                     tc->coords.circle.xyz.angle, out);
             break;
         case TC_BEZIER:
-            bezier9Tangent(&tc->coords.bezier, tc->coords.bezier.total_length, out, NULL, NULL);
+            bezier9Tangent(&tc->coords.bezier,
+                           tc->coords.bezier.s_end,
+                           out, NULL, NULL);
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
@@ -386,7 +390,9 @@ int tcGetCurrentTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * cons
             }
             break;
         case TC_BEZIER:
-            bezier9Tangent(&tc->coords.bezier, tc->progress, out, NULL, NULL);
+            bezier9Tangent(&tc->coords.bezier,
+                           tc->coords.bezier.s_start + tc->progress,
+                           out, NULL, NULL);
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d in tcGetCurrentTangentUnitVector!\n", tc->motion_type);
@@ -512,7 +518,8 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             uvw = tc->coords.arc.uvw;
             break;
         case TC_BEZIER:
-            bezier9Point(&tc->coords.bezier, progress, pos);
+            bezier9Point(&tc->coords.bezier,
+                         tc->coords.bezier.s_start + progress, pos);
             return TP_ERR_OK;
         case TC_DWELL:
             // Dwell holds position - return start point
