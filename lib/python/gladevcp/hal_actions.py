@@ -66,7 +66,7 @@ class _EMC_ActionBase(_HalWidgetBase):
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         ini = linuxcnc.ini(inifile)
-        self.no_f_home = int(ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
+        self.no_f_home = ini.getbool("TRAJ", "NO_FORCE_HOMING", fallback=False)
 
     def machine_on(self):
         self.stat.poll()

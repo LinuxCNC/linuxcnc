@@ -28,6 +28,8 @@
 #include "taskclass.hh"
 #include <rtapi_string.h>
 
+using namespace linuxcnc;
+
 /********************************************************************
 *
 * Description: iocontrol_hal_init(void)
@@ -133,14 +135,16 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
     tool_status(0)
     {
 
-    IniFile inifile;
+    IniFile inifile(ini_filename);
 
-    if (inifile.Open(ini_filename)) {
-        inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-        if (auto t = inifile.Find("TOOL_TABLE", "EMCIO"))
+    if (inifile) {
+        if (auto inival = inifile.findBool("RANDOM_TOOLCHANGER", "EMCIO")) {
+            random_toolchanger = *inival;
+        }
+        if (auto t = inifile.findString("TOOL_TABLE", "EMCIO"))
             tooltable_filename = strdup(t->c_str());
 
-        if (auto t = inifile.Find("DB_PROGRAM", "EMCIO")) {
+        if (auto t = inifile.findString("DB_PROGRAM", "EMCIO")) {
             db_mode = tooldb_t::DB_ACTIVE;
             tooldata_set_db(db_mode);
             strncpy(db_program, t->c_str(), LINELEN - 1);
@@ -150,7 +154,6 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
             fprintf(stderr,"DB_PROGRAM active: IGNORING tool table file %s\n",
                     tooltable_filename);
         }
-        inifile.Close();
     }
 
 #ifdef TOOL_NML //{
@@ -201,12 +204,13 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
 Task::~Task() {};
 
 // set the have_tool_change_position global
-static int readToolChange(IniFile *toolInifile)
+static int readToolChange(const IniFile &toolInifile)
 {
     int retval = 0;
 
-    auto inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO");
+    auto inistring = toolInifile.findString("TOOL_CHANGE_POSITION", "EMCIO");
     if (inistring) {
+        // FIXME: This should really be a LCNC library call written in C++
 	/* found an entry */
         if (9 == sscanf(inistring->c_str(), "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
                         &tool_change_position.tran.x,
@@ -261,17 +265,15 @@ static int readToolChange(IniFile *toolInifile)
 static int iniTool(const char *filename)
 {
     int retval = 0;
-    IniFile toolInifile;
+    IniFile toolInifile(filename);
 
-    if (toolInifile.Open(filename) == false) {
+    if (!toolInifile) {
 	return -1;
     }
     // read the tool change positions
-    if (0 != readToolChange(&toolInifile)) {
+    if (0 != readToolChange(toolInifile)) {
 	retval = -1;
     }
-    // close the inifile
-    toolInifile.Close();
 
     return retval;
 }

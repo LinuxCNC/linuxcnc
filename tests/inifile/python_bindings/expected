@@ -1,6 +1,109 @@
-value1
-value2
-value3
-Did not find missing value
-a long value
-0.000001
+Missing section was missing
+Present section was present
+Missing variable was missing
+Present [section]variable was present
+Bool 1: True
+Bool 2: True
+Bool 3: True
+Bool 4: True
+Bool 5: False
+Bool 6: False
+Bool 7: False
+Bool 8: False
+Bool 9: None
+Int 1: 42
+Int 2: -42
+Int 3: 42
+Int 4: -42
+Int 5: 42
+Int 6: -42
+Int 7: 42
+Int 8: -42
+Int 9: None
+Unsigned 1: 42
+Unsigned 2: 18446744073709551574
+Unsigned 3: 42
+Unsigned 4: 42
+Unsigned 5: 42
+Unsigned 6: None
+Real 1: 0.1
+Real 2: 4.2e-06
+Real 3: 42.0
+Real 4: -42.0
+Real 5: None
+String 1: 'String without quotes'
+String 2: 'String with double quotes'
+String 3: 'String with single quotes'
+String 4: 'String concat with mixed quotes and so'
+String 5: ''
+String 6: ''
+String 7: ' '
+String 8: 'Smile! 😀😀😀'
+String 9: None
+Sections:
+-> section
+-> booleans
+-> integers
+-> unsigneds
+-> reals
+-> strings
+-> section2
+Variables of [section]:
+-> ('variable', 'value')
+-> ('key2', 'value 2')
+-> ('key3', 'a value with continuation and nothing more')
+-> ('a_long_key_that_spans_a_whole_lot_of_characters_and_is_practically_useless', 'value4')
+-> ('number', '0.000001')
+Variables of all sections:
+-> ('variable', 'value')
+-> ('key2', 'value 2')
+-> ('key3', 'a value with continuation and nothing more')
+-> ('a_long_key_that_spans_a_whole_lot_of_characters_and_is_practically_useless', 'value4')
+-> ('number', '0.000001')
+-> ('bool', 'true')
+-> ('bool', 'yes')
+-> ('bool', '1')
+-> ('bool', 'on')
+-> ('bool', 'false')
+-> ('bool', 'no')
+-> ('bool', '0')
+-> ('bool', 'off')
+-> ('bool', 'invalid')
+-> ('int', '42')
+-> ('int', '-42')
+-> ('int', '0x2a')
+-> ('int', '-0x2a')
+-> ('int', '0o52')
+-> ('int', '-0o52')
+-> ('int', '0b101010')
+-> ('int', '-0b101010')
+-> ('int', 'invalid')
+-> ('unsigned', '42')
+-> ('unsigned', '-42')
+-> ('unsigned', '0x2a')
+-> ('unsigned', '0o52')
+-> ('unsigned', '0b101010')
+-> ('unsigned', 'invalid')
+-> ('real', '0.1')
+-> ('real', '0.0000042')
+-> ('real', '42')
+-> ('real', '-4.2e1')
+-> ('real', 'invalid')
+-> ('string', 'String without quotes')
+-> ('string', 'String with double quotes')
+-> ('string', 'String with single quotes')
+-> ('string', 'String concat with mixed quotes and so')
+-> ('string', '')
+-> ('string', '')
+-> ('string', ' ')
+-> ('string', 'Smile! 😀😀😀')
+-> ('key1', 'value1')
+-> ('key1', 'value2')
+-> ('key1', 'value3')
+-> ('key4', 'value4')
+Variables of non-existent section: []
+values.ini:22: [integers]int='42'
+values.ini:50: [strings]string='String with single quotes'
+None:None: [missing]missing=None
+findall [section2]key1: value1, value2, value3
+findall [section2]: value1, value2, value3, value4

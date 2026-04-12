@@ -14,31 +14,24 @@
 * Last change:
 ********************************************************************/
 
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <math.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <inttypes.h>
+#include <fmt/format.h>
 
 #include <rtapi_string.h>
 #include <posemath.h>		// PM_POSE, TO_RAD
+#include <inifile.hh>
 #include "libnml/rcs/rcs.hh"
 #include "nml_intf/emc.hh"		// EMC NML
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "libnml/inifile/inifile.hh"		// INIFILE
 #include "libnml/nml/nml_oi.hh"            // nmlErrorFormat, NML_ERROR, etc
 #include "libnml/rcs/rcs_print.hh"
 #include "libnml/os_intf/timer.hh"             // esleep
+#include "mapini.hh"
 #include "shcom.hh"             // Common NML communications functions
+
+using namespace linuxcnc;
 
 LINEAR_UNIT_CONVERSION linearUnitConversion = LINEAR_UNITS_AUTO;
 ANGULAR_UNIT_CONVERSION angularUnitConversion = ANGULAR_UNITS_AUTO;
@@ -964,45 +957,20 @@ int sendProbe(double x, double y, double z)
 
 int iniLoad(const char *filename)
 {
-    IniFile inifile;
-    char displayString[LINELEN] = "";
-    int t;
-    int i;
+    IniFile inifile(filename);
 
-    // open it
-    if (inifile.Open(filename) == false) {
+    if (!inifile) {
 	return -1;
     }
 
     // EMC debugging flags
-	emc_debug = 0;  // disabled by default
-    if (auto inistring = inifile.Find("DEBUG", "EMC")) {
-        // parse to global
-        if (sscanf(inistring->c_str(), "%x", &emc_debug) < 1) {
-            perror("failed to parse [EMC] DEBUG");
-        }
-    }
+    emc_debug = (unsigned)inifile.findUIntV("DEBUG", "EMC", 0);
 
     // set output for RCS messages
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
-    if (auto inistring = inifile.Find("RCS_DEBUG_DEST", "EMC")) {
-        static RCS_PRINT_DESTINATION_TYPE type;
-        if (*inistring == "STDOUT") {
-            type = RCS_PRINT_TO_STDOUT;
-        } else if (*inistring == "STDERR") {
-            type = RCS_PRINT_TO_STDERR;
-        } else if (*inistring == "FILE") {
-            type = RCS_PRINT_TO_FILE;
-        } else if (*inistring == "LOGGER") {
-            type = RCS_PRINT_TO_LOGGER;
-        } else if (*inistring == "MSGBOX") {
-            type = RCS_PRINT_TO_MESSAGE_BOX;
-        } else if (*inistring == "NULL") {
-            type = RCS_PRINT_TO_NULL;
-        } else {
-             type = RCS_PRINT_TO_STDOUT;
-        }
-        set_rcs_print_destination(type);
+    if (auto inival = mapRcsDestination(inifile, "RCS_DEBUG_DEST", "EMC")) {
+        set_rcs_print_destination(*inival);
+    } else {
+        set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
     }
 
     // NML/RCS debugging flags
@@ -1014,35 +982,21 @@ int iniLoad(const char *filename)
     }
 
     // set flags if RCS_DEBUG in ini file
-    if (auto inistring = inifile.Find("RCS_DEBUG", "EMC")) {
-        long unsigned int flags;
-        if (sscanf(inistring->c_str(), "%lx", &flags) < 1) {
-            perror("failed to parse [EMC] RCS_DEBUG");
-        }
+    if (auto dbg = inifile.findUInt("RCS_DEBUG", "EMC")) {
         // clear all flags
         clear_rcs_print_flag(PRINT_EVERYTHING);
         // set parsed flags
-        set_rcs_print_flag((long)flags);
+        set_rcs_print_flag((long)*dbg);
     }
     // output infinite RCS errors by default
     max_rcs_errors_to_print = -1;
-    if (auto inistring = inifile.Find("RCS_MAX_ERR", "EMC")) {
-        if (sscanf(inistring->c_str(), "%d", &max_rcs_errors_to_print) < 1) {
-            perror("failed to parse [EMC] RCS_MAX_ERR");
-        }
+    if (auto inival = inifile.findSInt("RCS_MAX_ERR", "EMC")) {
+        max_rcs_errors_to_print = *inival;
     }
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        std::string version = "<unknown>";
-        std::string machine = "<unknown>";
-        if (auto inistring = inifile.Find("VERSION", "EMC")) {
-            version = *inistring;
-        }
-
-        if (auto inistring = inifile.Find("MACHINE", "EMC")) {
-            machine = *inistring;
-        }
-
+        std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
+        std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
         rcs_print(
             "%s (%d) shcom: machine '%s'  version '%s'\n",
@@ -1050,53 +1004,29 @@ int iniLoad(const char *filename)
         );
     }
 
-    if (auto inistring = inifile.Find("NML_FILE", "EMC")) {
+    if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
 	// copy to global
 	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
     } else {
 	// not found, use default
     }
 
-    for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
+    for (int t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	jogPol[t] = 1;		// set to default
-	snprintf(displayString, sizeof(displayString), "JOINT_%d", t);
-	auto inistring = inifile.Find("JOGGING_POLARITY", displayString);
-	if (inistring && 1 == sscanf(inistring->c_str(), "%d", &i) && i == 0) {
+	auto inival = inifile.findSInt("JOGGING_POLARITY", fmt::format("JOINT_{}", t));
+	if (inival && *inival == 0) {
 	    // it read as 0, so override default
 	    jogPol[t] = 0;
 	}
     }
 
-    if (auto inistring = inifile.Find("LINEAR_UNITS", "DISPLAY")) {
-	if (*inistring == "AUTO") {
-	    linearUnitConversion = LINEAR_UNITS_AUTO;
-	} else if (*inistring == "INCH") {
-	    linearUnitConversion = LINEAR_UNITS_INCH;
-	} else if (*inistring == "MM") {
-	    linearUnitConversion = LINEAR_UNITS_MM;
-	} else if (*inistring == "CM") {
-	    linearUnitConversion = LINEAR_UNITS_CM;
-	}
-    } else {
-	// not found, leave default alone
-    }
+    if (auto inival = mapLinearUnits(inifile, "LINEAR_UNITS", "DISPLAY")) {
+        linearUnitConversion = *inival;
+    } // else not found, leave default alone
 
-    if (auto inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY")) {
-	if (*inistring == "AUTO") {
-	    angularUnitConversion = ANGULAR_UNITS_AUTO;
-	} else if (*inistring == "DEG") {
-	    angularUnitConversion = ANGULAR_UNITS_DEG;
-	} else if (*inistring == "RAD") {
-	    angularUnitConversion = ANGULAR_UNITS_RAD;
-	} else if (*inistring == "GRAD") {
-	    angularUnitConversion = ANGULAR_UNITS_GRAD;
-	}
-    } else {
-	// not found, leave default alone
-    }
-
-    // close it
-    inifile.Close();
+    if (auto inival = mapAngularUnits(inifile, "ANGULAR_UNITS", "DISPLAY")) {
+        angularUnitConversion = *inival;
+    } // else not found, leave default alone
 
     return 0;
 }

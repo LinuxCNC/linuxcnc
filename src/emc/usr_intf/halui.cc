@@ -32,12 +32,16 @@
 #include "nml_intf/emc_nml.hh"
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "libnml/inifile/inifile.hh"		// INIFILE
+#include <inifile.hh>
 #include "libnml/rcs/rcs_print.hh"
 #include "libnml/nml/nml_oi.hh"
 #include "libnml/os_intf/timer.hh"
 #include <rtapi_string.h>
 #include "tooldata/tooldata.hh"
+#include "mapini.hh"
+#include "unitenum.hh"
+
+using namespace linuxcnc;
 
 /* Using halui: see the man page */
 
@@ -468,21 +472,8 @@ static void thisQuit()
     exit(0);
 }
 
-static enum {
-    LINEAR_UNITS_CUSTOM = 1,
-    LINEAR_UNITS_AUTO,
-    LINEAR_UNITS_MM,
-    LINEAR_UNITS_INCH,
-    LINEAR_UNITS_CM
-} linearUnitConversion = LINEAR_UNITS_AUTO;
-
-static enum {
-    ANGULAR_UNITS_CUSTOM = 1,
-    ANGULAR_UNITS_AUTO,
-    ANGULAR_UNITS_DEG,
-    ANGULAR_UNITS_RAD,
-    ANGULAR_UNITS_GRAD
-} angularUnitConversion = ANGULAR_UNITS_AUTO;
+static LINEAR_UNIT_CONVERSION linearUnitConversion = LINEAR_UNITS_AUTO;
+static ANGULAR_UNIT_CONVERSION angularUnitConversion = ANGULAR_UNITS_AUTO;
 
 #define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
 #define LINEAR_CLOSENESS 0.0001
@@ -1380,45 +1371,20 @@ static int sendSpindleOverride(int spindle, double override)
 
 static int iniLoad(const char *filename)
 {
-    IniFile inifile;
-    char version[LINELEN], machine[LINELEN];
-    double d;
-    int i;
+    IniFile inifile(filename);
 
-    // open it
-    if (inifile.Open(filename) == false) {
+    if (!inifile) {
 	return -1;
     }
 
     // EMC debugging flags
-	emc_debug = 0;  // disabled by default
-    if (auto inistring = inifile.Find("DEBUG", "EMC")) {
-        // parse to global
-        if (sscanf(inistring->c_str(), "%x", &emc_debug) < 1) {
-            perror("failed to parse [EMC] DEBUG");
-        }
-    }
+    emc_debug = (unsigned)inifile.findUIntV("DEBUG", "EMC", 0);
 
     // set output for RCS messages
-    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
-    if (auto inistring = inifile.Find("RCS_DEBUG_DEST", "EMC")) {
-        static RCS_PRINT_DESTINATION_TYPE type;
-        if (*inistring == "STDOUT") {
-            type = RCS_PRINT_TO_STDOUT;
-        } else if (*inistring == "STDERR") {
-            type = RCS_PRINT_TO_STDERR;
-        } else if (*inistring == "FILE") {
-            type = RCS_PRINT_TO_FILE;
-        } else if (*inistring == "LOGGER") {
-            type = RCS_PRINT_TO_LOGGER;
-        } else if (*inistring == "MSGBOX") {
-            type = RCS_PRINT_TO_MESSAGE_BOX;
-        } else if (*inistring == "NULL") {
-            type = RCS_PRINT_TO_NULL;
-        } else {
-             type = RCS_PRINT_TO_STDOUT;
-        }
-        set_rcs_print_destination(type);
+    if (auto inival = mapRcsDestination(inifile, "RCS_DEBUG_DEST", "EMC")) {
+        set_rcs_print_destination(*inival);
+    } else {
+        set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
     }
 
     // NML/RCS debugging flags
@@ -1430,139 +1396,98 @@ static int iniLoad(const char *filename)
     }
 
     // set flags if RCS_DEBUG in ini file
-    if (auto inistring = inifile.Find("RCS_DEBUG", "EMC")) {
-        long unsigned int flags;
-        if (sscanf(inistring->c_str(), "%lx", &flags) < 1) {
-            perror("failed to parse [EMC] RCS_DEBUG");
-        }
+    if (auto inival = inifile.findUInt("RCS_DEBUG", "EMC")) {
         // clear all flags
         clear_rcs_print_flag(PRINT_EVERYTHING);
         // set parsed flags
-        set_rcs_print_flag((long)flags);
+        set_rcs_print_flag((long)*inival);
     }
     // output infinite RCS errors by default
-    max_rcs_errors_to_print = -1;
-    if (auto inistring = inifile.Find("RCS_MAX_ERR", "EMC")) {
-        if (sscanf(inistring->c_str(), "%d", &max_rcs_errors_to_print) < 1) {
-            perror("failed to parse [EMC] RCS_MAX_ERR");
-        }
-    }
-
-    strncpy(version, "unknown", LINELEN-1);
-    if (auto inistring = inifile.Find("VERSION", "EMC")) {
-	    strncpy(version, inistring->c_str(), LINELEN-1);
-    }
+    max_rcs_errors_to_print = inifile.findIntV("RCS_MAX_ERR", "EMC", -1);
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        if (auto inistring = inifile.Find("MACHINE", "EMC")) {
-            strncpy(machine, inistring->c_str(), LINELEN-1);
-        } else {
-            strncpy(machine, "unknown", LINELEN-1);
-        }
-
+        std::string version = inifile.findStringV("VERSION", "EMC", "<unknown>");
+        std::string machine = inifile.findStringV("MACHINE", "EMC", "<unknown>");
         extern char *program_invocation_short_name;
         rcs_print(
             "%s (%d) halui: machine '%s'  version '%s'\n",
-            program_invocation_short_name, getpid(), machine, version
+            program_invocation_short_name, getpid(), machine.c_str(), version.c_str()
         );
     }
 
-    if (auto inistring = inifile.Find("NML_FILE", "EMC")) {
+    if (auto inistring = inifile.findString("NML_FILE", "EMC")) {
 	// copy to global
 	rtapi_strxcpy(emc_nmlfile, inistring->c_str());
-    } else {
-	// not found, use default
+    } // else not found, use default
+
+    if (auto inival = inifile.findReal("MAX_FEED_OVERRIDE", "DISPLAY")) {
+        if (*inival > 0.0) {
+            maxFeedOverride =  *inival;
+        }
     }
 
-    if (auto inistring = inifile.Find("MAX_FEED_OVERRIDE", "DISPLAY")) {
-	if (1 == sscanf(inistring->c_str(), "%lf", &d) && d > 0.0) {
-	    maxFeedOverride =  d;
-	}
-    }
-
-    if(inifile.Find(&maxMaxVelocity, "MAX_LINEAR_VELOCITY", "TRAJ") &&
-       inifile.Find(&maxMaxVelocity, "MAX_VELOCITY", "AXIS_X"))
+    if(!inifile.isSet("MAX_LINEAR_VELOCITY", "TRAJ") && !inifile.isSet("MAX_VELOCITY", "AXIS_X"))
         maxMaxVelocity = 1.0;
 
-    if (auto inistring = inifile.Find("MIN_SPINDLE_OVERRIDE", "DISPLAY")) {
-	if (1 == sscanf(inistring->c_str(), "%lf", &d) && d > 0.0) {
-	    minSpindleOverride =  d;
-	}
+    if (auto inival = inifile.findReal("MIN_SPINDLE_OVERRIDE", "DISPLAY")) {
+        if (*inival > 0.0) {
+            minSpindleOverride = *inival;
+        }
     }
 
-    if (auto inistring = inifile.Find("MAX_SPINDLE_OVERRIDE", "DISPLAY")) {
-	if (1 == sscanf(inistring->c_str(), "%lf", &d) && d > 0.0) {
-	    maxSpindleOverride =  d;
-	}
+    if (auto inival = inifile.findReal("MAX_SPINDLE_OVERRIDE", "DISPLAY")) {
+        if (*inival > 0.0) {
+            maxSpindleOverride = *inival;
+        }
     }
 
-    auto coord = inifile.Find("COORDINATES", "TRAJ");
     num_axes = 0;
-    if (coord) {
-        if(coord->find_first_of("xX") != std::string::npos) { axis_mask |= 0x0001; num_axes++; }
-        if(coord->find_first_of("yY") != std::string::npos) { axis_mask |= 0x0002; num_axes++; }
-        if(coord->find_first_of("zZ") != std::string::npos) { axis_mask |= 0x0004; num_axes++; }
-        if(coord->find_first_of("aA") != std::string::npos) { axis_mask |= 0x0008; num_axes++; }
-        if(coord->find_first_of("bB") != std::string::npos) { axis_mask |= 0x0010; num_axes++; }
-        if(coord->find_first_of("cC") != std::string::npos) { axis_mask |= 0x0020; num_axes++; }
-        if(coord->find_first_of("uU") != std::string::npos) { axis_mask |= 0x0040; num_axes++; }
-        if(coord->find_first_of("vV") != std::string::npos) { axis_mask |= 0x0080; num_axes++; }
-        if(coord->find_first_of("wW") != std::string::npos) { axis_mask |= 0x0100; num_axes++; }
+    axis_mask = 0;
+    if (auto coord = inifile.findString("COORDINATES", "TRAJ")) {
+        static std::string axes{"XYZABCUVW"};
+        for (auto c : *coord) {
+            size_t pos = axes.find(std::toupper(c & 0xff));
+            if (std::string::npos != pos) {
+                num_axes++;
+                axis_mask |= 1 << pos;
+            }
+            // else we could warn...
+        }
     }
     if (num_axes ==0) {
-       rcs_print("halui: no [TRAJ]COORDINATES specified, enabling all axes\n");
-       num_axes = EMCMOT_MAX_AXIS;
-       axis_mask = 0xFFFF;
+        rcs_print("halui: no [TRAJ]COORDINATES specified, enabling all axes\n");
+        num_axes = EMCMOT_MAX_AXIS;
+        axis_mask = (1 << EMCMOT_MAX_AXIS) - 1;
     }
 
-    if (auto inistring = inifile.Find("JOINTS", "KINS")) {
-        if (1 == sscanf(inistring->c_str(), "%d", &i) && i > 0) {
-            num_joints =  i;
+    if (auto inival = inifile.findSInt("JOINTS", "KINS")) {
+        if (*inival > 0) {
+            num_joints = *inival;
         }
     }
 
-    if (auto inistring = inifile.Find("SPINDLES", "TRAJ")) {
-        if (1 == sscanf(inistring->c_str(), "%d", &i) && i > 0) {
-            num_spindles =  i;
+    if (auto inival = inifile.findSInt("SPINDLES", "TRAJ")) {
+        if (*inival > 0) {
+            num_spindles = *inival;
         }
     }
 
-    if (inifile.Find("HOME_SEQUENCE", "JOINT_0")) {
+    if (!inifile.isSet("HOME_SEQUENCE", "JOINT_0")) {
         have_home_all = 1;
     }
 
-    if (auto inistring = inifile.Find("LINEAR_UNITS", "DISPLAY")) {
-	if (*inistring == "AUTO") {
-	    linearUnitConversion = LINEAR_UNITS_AUTO;
-	} else if (*inistring == "INCH") {
-	    linearUnitConversion = LINEAR_UNITS_INCH;
-	} else if (*inistring == "MM") {
-	    linearUnitConversion = LINEAR_UNITS_MM;
-	} else if (*inistring == "CM") {
-	    linearUnitConversion = LINEAR_UNITS_CM;
-	}
+    if (auto v = mapLinearUnits(inifile, "LINEAR_UNITS", "DISPLAY")) {
+        linearUnitConversion = *v;
     }
-
-    if (auto inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY")) {
-	if (*inistring == "AUTO") {
-	    angularUnitConversion = ANGULAR_UNITS_AUTO;
-	} else if (*inistring == "DEG") {
-	    angularUnitConversion = ANGULAR_UNITS_DEG;
-	} else if (*inistring == "RAD") {
-	    angularUnitConversion = ANGULAR_UNITS_RAD;
-	} else if (*inistring == "GRAD") {
-	    angularUnitConversion = ANGULAR_UNITS_GRAD;
-	}
+    if (auto v = mapAngularUnits(inifile, "ANGULAR_UNITS", "DISPLAY")) {
+        angularUnitConversion = *v;
     }
 
     while(num_mdi_commands < MDI_MAX) {
-        auto mc = inifile.Find("MDI_COMMAND", "HALUI", num_mdi_commands+1);
+        auto mc = inifile.findString(num_mdi_commands+1, "MDI_COMMAND", "HALUI");
         if (!mc) break;
         mdi_commands[num_mdi_commands++] = strdup(mc->c_str());
     }
-
-    // close it
-    inifile.Close();
 
     return 0;
 }

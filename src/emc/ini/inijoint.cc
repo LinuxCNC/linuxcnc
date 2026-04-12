@@ -7,276 +7,222 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
-* Copyright (c) 2004-2009 All rights reserved.
+*
+* Copyright (c) 2004-2009,2026 All rights reserved.
 ********************************************************************/
 
-#include <unistd.h>
-#include <stdio.h>		// NULL
-#include <stdlib.h>		// atol(), _itoa()
-#include <string.h>		// strcmp()
-#include <ctype.h>		// isdigit()
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <fmt/format.h>
 
 #include "nml_intf/emc.hh"
 #include "libnml/rcs/rcs_print.hh"
-#include "emcIniFile.hh"
-#include "inijoint.hh"		// these decls
-#include "nml_intf/emcglb.h"		// EMC_DEBUG
-#include "nml_intf/emccfg.h"		// default values for globals
+#include "nml_intf/emcglb.h"
+#include "nml_intf/emccfg.h"
+#include "inifile.hh"
 
 #include "inihal.hh"
+#include "inijoint.hh"
+
+using namespace linuxcnc;
 
 extern value_inihal_data old_inihal_data;
-/*
-  loadJoint(int joint)
 
-  Loads INI file params for joint, joint = 0, ...
-
-  TYPE <LINEAR ANGULAR>        type of joint
-  MAX_VELOCITY <float>         max vel for joint
-  MAX_ACCELERATION <float>     max accel for joint
-  BACKLASH <float>             backlash
-  MIN_LIMIT <float>            minimum soft position limit
-  MAX_LIMIT <float>            maximum soft position limit
-  FERROR <float>               maximum following error, scaled to max vel
-  MIN_FERROR <float>           minimum following error
-  HOME <float>                 home position (where to go after home)
-  HOME_FINAL_VEL <float>       speed to move from HOME_OFFSET to HOME location (at the end of homing)
-  HOME_OFFSET <float>          home switch/index pulse location
-  HOME_SEARCH_VEL <float>      homing speed, search phase
-  HOME_LATCH_VEL <float>       homing speed, latch phase
-  HOME_USE_INDEX <bool>        use index pulse when homing
-  HOME_IGNORE_LIMITS <bool>    ignore limit switches when homing
-  COMP_FILE <filename>         file of joint compensation points
-
-  calls:
-
-  emcJointSetType(int joint, unsigned char jointType);
-  emcJointSetUnits(int joint, double units);
-  emcJointSetBacklash(int joint, double backlash);
-  emcJointSetMinPositionLimit(int joint, double limit);
-  emcJointSetMaxPositionLimit(int joint, double limit);
-  emcJointSetFerror(int joint, double ferror);
-  emcJointSetMinFerror(int joint, double ferror);
-  emcJointSetHomingParams(int joint, double home, double offset, double home_vel, 
-                          double search_vel, double latch_vel,
-                          int use_index, int encoder_does_not_reset,
-                          int ignore_limits, int is_shared, int sequence, int volatile_home));
-  emcJointActivate(int joint);
-  emcJointSetMaxVelocity(int joint, double vel);
-  emcJointSetMaxAcceleration(int joint, double acc);
-  emcJointLoadComp(int joint, const char * file, int comp_file_type);
-  */
-
-static int loadJoint(int joint, EmcIniFile *jointIniFile)
+static void inline print_dbg_config(const std::string &s)
 {
-    char jointString[16];
-    EmcJointType jointType;
-    double units;
-    double backlash;
-    double offset;
-    double limit;
-    double home;
-    double search_vel;
-    double latch_vel;
-    double final_vel; // moving from OFFSET to HOME
-    bool use_index;
-    bool encoder_does_not_reset;
-    bool ignore_limits;
-    bool is_shared;
-    int sequence;
-    int volatile_home;
-    int locking_indexer;
-    int absolute_encoder;
-    int comp_file_type; //type for the compensation file. type==0 means nom, forw, rev. 
-    double maxVelocity;
-    double maxAcceleration;
-    double maxJerk;
-    double ferror;
-
-    // compose string to match, joint = 0 -> JOINT_0, etc.
-    snprintf(jointString, sizeof(jointString), "JOINT_%d", joint);
-
-    jointIniFile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
-    
-    try {
-        // set joint type
-        jointType = EMC_LINEAR;	// default
-        jointIniFile->Find(&jointType, "TYPE", jointString);
-        if (0 != emcJointSetType(joint, jointType)) {
-            return -1;
-        }
-
-        // set units
-        if(jointType == EMC_LINEAR){
-            units = emcTrajGetLinearUnits();
-        }else{
-            units = emcTrajGetAngularUnits();
-        }
-        if (0 != emcJointSetUnits(joint, units)) {
-            return -1;
-        }
-
-        // set backlash
-        backlash = 0;	                // default
-        jointIniFile->Find(&backlash, "BACKLASH", jointString);
-        if (0 != emcJointSetBacklash(joint, backlash)) {
-            return -1;
-        }
-        old_inihal_data.joint_backlash[joint] = backlash;
-
-        // set min position limit
-        limit = -1e99;	                // default
-        jointIniFile->Find(&limit, "MIN_LIMIT", jointString);
-        if (0 != emcJointSetMinPositionLimit(joint, limit)) {
-             return -1;
-        }
-        old_inihal_data.joint_min_limit[joint] = limit;
-
-        // set max position limit
-        limit = 1e99;	                // default
-        jointIniFile->Find(&limit, "MAX_LIMIT", jointString);
-        if (0 != emcJointSetMaxPositionLimit(joint, limit)) {
-            return -1;
-        }
-        old_inihal_data.joint_max_limit[joint] = limit;
-
-        // set following error limit (at max speed)
-        ferror = 1;	                // default
-        jointIniFile->Find(&ferror, "FERROR", jointString);
-        if (0 != emcJointSetFerror(joint, ferror)) {
-             return -1;
-        }
-        old_inihal_data.joint_ferror[joint] = ferror;
-
-        // do MIN_FERROR, if it's there. If not, use value of maxFerror above
-        jointIniFile->Find(&ferror, "MIN_FERROR", jointString);
-        if (0 != emcJointSetMinFerror(joint, ferror)) {
-            return -1;
-        }
-        old_inihal_data.joint_min_ferror[joint] = ferror;
-
-        // set homing paramsters
-        home = 0;	                // default
-        jointIniFile->Find(&home, "HOME", jointString);
-        old_inihal_data.joint_home[joint] = home;
-
-        offset = 0;	                // default
-        jointIniFile->Find(&offset, "HOME_OFFSET", jointString);
-        old_inihal_data.joint_home_offset[joint] = offset;
-
-        search_vel = 0;	                // default
-        jointIniFile->Find(&search_vel, "HOME_SEARCH_VEL", jointString);
-        latch_vel = 0;	                // default
-        jointIniFile->Find(&latch_vel, "HOME_LATCH_VEL", jointString);
-        final_vel = -1;	                // default (rapid)
-        jointIniFile->Find(&final_vel, "HOME_FINAL_VEL", jointString);
-        is_shared = false;	        // default
-        jointIniFile->Find(&is_shared, "HOME_IS_SHARED", jointString);
-        use_index = false;	        // default
-        jointIniFile->Find(&use_index, "HOME_USE_INDEX", jointString);
-        encoder_does_not_reset = false;	// default
-        jointIniFile->Find(&encoder_does_not_reset, "HOME_INDEX_NO_ENCODER_RESET", jointString);
-        ignore_limits = false;	        // default
-        jointIniFile->Find(&ignore_limits, "HOME_IGNORE_LIMITS", jointString);
-
-        sequence = 999;// default: use unrealizable and positive sequence no.
-                       // so that joints with unspecified HOME_SEQUENCE=
-                       // will not be homed in home-all
-        jointIniFile->Find(&sequence, "HOME_SEQUENCE", jointString);
-        old_inihal_data.joint_home_sequence[joint] = sequence;
-
-        volatile_home = 0;	        // default
-        jointIniFile->Find(&volatile_home, "VOLATILE_HOME", jointString);
-        locking_indexer = false;
-        jointIniFile->Find(&locking_indexer, "LOCKING_INDEXER", jointString);
-        absolute_encoder = false;
-        jointIniFile->Find(&absolute_encoder, "HOME_ABSOLUTE_ENCODER", jointString);
-        // issue NML message to set all params
-        if (0 != emcJointSetHomingParams(joint, home, offset
-                                        ,final_vel, search_vel, latch_vel
-                                        ,(int)use_index
-                                        ,(int)encoder_does_not_reset
-                                        ,(int)ignore_limits
-                                        ,(int)is_shared
-                                        ,sequence
-                                        ,volatile_home
-                                        ,locking_indexer
-                                        ,absolute_encoder
-                                        )) {
-            return -1;
-        }
-
-        // set maximum velocity
-        maxVelocity = DEFAULT_JOINT_MAX_VELOCITY;
-        jointIniFile->Find(&maxVelocity, "MAX_VELOCITY", jointString);
-        if (0 != emcJointSetMaxVelocity(joint, maxVelocity)) {
-            return -1;
-        }
-        old_inihal_data.joint_max_velocity[joint] = maxVelocity;
-
-        maxAcceleration = DEFAULT_JOINT_MAX_ACCELERATION;
-        jointIniFile->Find(&maxAcceleration, "MAX_ACCELERATION", jointString);
-        if (0 != emcJointSetMaxAcceleration(joint, maxAcceleration)) {
-            return -1;
-        }
-        old_inihal_data.joint_max_acceleration[joint] = maxAcceleration;
-
-        maxJerk = DEFAULT_JOINT_MAX_JERK;
-        jointIniFile->Find(&maxJerk, "MAX_JERK", jointString);
-        if (0 != emcJointSetMaxJerk(joint, maxJerk)) {
-            return -1;
-        }
-        old_inihal_data.joint_jerk[joint] = maxJerk;
-
-        comp_file_type = 0;             // default
-        jointIniFile->Find(&comp_file_type, "COMP_FILE_TYPE", jointString);
-        auto comp_file = jointIniFile->Find("COMP_FILE", jointString);
-        if (comp_file) {
-            if (0 != emcJointLoadComp(joint, comp_file->c_str(), comp_file_type)) {
-                return -1;
-            }
-        }
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print_error("%s", (fmt::format("{}: failed\n", s)).c_str());
     }
+}
 
-    catch (EmcIniFile::Exception &e) {
-        e.Print();
+static EmcJointType getJointType(const IniFile &ini, const std::string &var, const std::string &sec, EmcJointType def)
+{
+	static const std::map<const std::string, const EmcJointType, IniFile::caseless> jointTypeMap = {
+		{"LINEAR",  EMC_LINEAR },
+		{"ANGULAR", EMC_ANGULAR}
+	};
+	if(auto c = ini.findMap(jointTypeMap, var, sec))
+		return *c;
+	return def;
+}
+
+//
+// Load INI file params for joint
+//
+// Section [JOINT_n] where 'n' is a number in range [0,EMC_MAX_JOINT-1]
+//
+// [JOINT_n]TYPE <LINEAR,ANGULAR>              Type of joint
+// [JOINT_n]BACKLASH <real>                    Backlash of joint
+// [JOINT_n]MIN_LIMIT <real>                   Minimum soft position limit
+// [JOINT_n]MAX_LIMIT <real>                   Maximum soft position limit
+// [JOINT_n]FERROR <real>                      Maximum following error, scaled to maximum velocity
+// [JOINT_n]MIN_FERROR <real>                  Minimum following error
+// [JOINT_n]HOME <real>                        Home position (where to go after home)
+// [JOINT_n]HOME_OFFSET <real>                 Home switch/index pulse location
+// [JOINT_n]HOME_SEARCH_VEL <real>             Homing speed, search phase
+// [JOINT_n]HOME_LATCH_VEL <real>              Homing speed, latch phase
+// [JOINT_n]HOME_FINAL_VEL <real>              Speed to move from HOME_OFFSET to HOME location (at the end of homing)
+// [JOINT_n]HOME_IS_SHARED <bool>              The home switch input is shared between joints
+// [JOINT_n]HOME_USE_INDEX <bool>              Use index pulse when homing
+// [JOINT_n]HOME_INDEX_NO_ENCODER_RESET <bool>
+// [JOINT_n]HOME_IGNORE_LIMITS <bool>          Ignore limit switches when homing
+// [JOINT_n]VOLATILE_HOME <bool>               Must re-home after estop or machine off
+// [JOINT_n]LOCKING_INDEXER <bool>
+// [JOINT_n]HOME_ABSOLUTE_ENCODER <int>
+// [JOINT_n]HOME_SEQUENCE <int>
+// [JOINT_n]MAX_VELOCITY <real>                Maximum velocity for joint (ds/dt)
+// [JOINT_n]MAX_ACCELERATION <real>            Maximum acceleration for joint (dv/dt)
+// [JOINT_n]MAX_JERK <real>                    Maximum jerk for joint (da/dt)
+// [JOINT_n]COMP_FILE_TYPE <int>               Compensation file format [0,1]
+// [JOINT_n]COMP_FILE <filename>               File of joint compensation points
+//
+static int loadJoint(int joint, const IniFile &ini)
+{
+    std::string jointSection = fmt::format("JOINT_{}", joint);
+
+    EmcJointType jointType = getJointType(ini, "TYPE", jointSection, EMC_LINEAR);
+    if (0 != emcJointSetType(joint, jointType)) {
+        print_dbg_config("emcJointSetType");
         return -1;
     }
 
-    // lastly, activate joint. Do this last so that the motion controller
-    // won't flag errors midway during configuration
+    double units;
+    switch(jointType) {
+    case EMC_LINEAR:  units = emcTrajGetLinearUnits(); break;
+    case EMC_ANGULAR: units = emcTrajGetAngularUnits(); break;
+    default: return -1;
+    }
+    if (0 != emcJointSetUnits(joint, units)) {
+        print_dbg_config("emcJointSetUnits");
+        return -1;
+    }
+
+    double backlash = ini.findRealV("BACKLASH", jointSection, 0.0);
+    if (0 != emcJointSetBacklash(joint, backlash)) {
+        print_dbg_config("emcJointSetBacklash");
+        return -1;
+    }
+    old_inihal_data.joint_backlash[joint] = backlash;
+
+    double limit = ini.findRealV("MIN_LIMIT", jointSection, -1e99);
+    if (0 != emcJointSetMinPositionLimit(joint, limit)) {
+        print_dbg_config("emcJointSetMinPositionLimit");
+         return -1;
+    }
+    old_inihal_data.joint_min_limit[joint] = limit;
+
+    limit = ini.findRealV("MAX_LIMIT", jointSection, 1e99);
+    if (0 != emcJointSetMaxPositionLimit(joint, limit)) {
+        print_dbg_config("emcJointSetMaxPositionLimit");
+        return -1;
+    }
+    old_inihal_data.joint_max_limit[joint] = limit;
+
+    double ferror = ini.findRealV("FERROR", jointSection, 1.0);
+    if (0 != emcJointSetFerror(joint, ferror)) {
+        print_dbg_config("emcJointSetFerror");
+         return -1;
+    }
+    old_inihal_data.joint_ferror[joint] = ferror;
+
+    // MIN_FERROR - uses default from FERROR above
+    ferror = ini.findRealV("MIN_FERROR", jointSection, ferror);
+    if (0 != emcJointSetMinFerror(joint, ferror)) {
+        print_dbg_config("emcJointSetMinFerror");
+        return -1;
+    }
+    old_inihal_data.joint_min_ferror[joint] = ferror;
+
+    // Homing parameters
+    double home   = ini.findRealV("HOME", jointSection, 0.0);
+    old_inihal_data.joint_home[joint] = home;
+    double offset = ini.findRealV("HOME_OFFSET", jointSection, 0.0);
+    old_inihal_data.joint_home_offset[joint] = offset;
+
+    double search_vel  = ini.findRealV("HOME_SEARCH_VEL", jointSection, 0.0);
+    double latch_vel   = ini.findRealV("HOME_LATCH_VEL", jointSection, 0.0);
+    double final_vel   = ini.findRealV("HOME_FINAL_VEL", jointSection, -1.0);
+    bool is_shared     = ini.findBoolV("HOME_IS_SHARED", jointSection, false);
+    bool use_index     = ini.findBoolV("HOME_USE_INDEX", jointSection, false);
+    bool encoder_reset = ini.findBoolV("HOME_INDEX_NO_ENCODER_RESET", jointSection, false);
+    bool ignore_limits = ini.findBoolV("HOME_IGNORE_LIMITS", jointSection, false);
+    bool volatile_home = ini.findBoolV("VOLATILE_HOME", jointSection, false);
+    bool locking_idxer = ini.findBoolV("LOCKING_INDEXER", jointSection, false);
+    int abs_encoder    = ini.findIntV("HOME_ABSOLUTE_ENCODER", jointSection, 0, 0, 2);
+
+    // Sequence defaults to an unrealizable and positive sequence so that
+    // joints with unspecified HOME_SEQUENCE= will not be homed in home-all
+    int sequence = ini.findIntV("HOME_SEQUENCE", jointSection, 999);
+    old_inihal_data.joint_home_sequence[joint] = sequence;
+
+    if (0 != emcJointSetHomingParams(joint, home, offset,
+                                     final_vel, search_vel, latch_vel,
+                                     use_index,
+                                     encoder_reset,
+                                     ignore_limits,
+                                     is_shared,
+                                     sequence,
+                                     volatile_home,
+                                     locking_idxer,
+                                     abs_encoder)) {
+        print_dbg_config("emcJointSetHomingParams");
+        return -1;
+    }
+
+    // Velocity, acceleration and jerk
+    double maxVelocity = ini.findRealV("MAX_VELOCITY", jointSection, DEFAULT_JOINT_MAX_VELOCITY);
+    if (0 != emcJointSetMaxVelocity(joint, maxVelocity)) {
+        print_dbg_config("emcJointSetMaxVelocity");
+        return -1;
+    }
+    old_inihal_data.joint_max_velocity[joint] = maxVelocity;
+
+    double maxAcceleration = ini.findRealV("MAX_ACCELERATION", jointSection, DEFAULT_JOINT_MAX_ACCELERATION);
+    if (0 != emcJointSetMaxAcceleration(joint, maxAcceleration)) {
+        print_dbg_config("emcJointSetMaxAcceleration");
+        return -1;
+    }
+    old_inihal_data.joint_max_acceleration[joint] = maxAcceleration;
+
+    double maxJerk = ini.findRealV("MAX_JERK", jointSection, DEFAULT_JOINT_MAX_JERK);
+    if (0 != emcJointSetMaxJerk(joint, maxJerk)) {
+        print_dbg_config("emcJointSetMaxJerk");
+        return -1;
+    }
+    old_inihal_data.joint_jerk[joint] = maxJerk;
+
+    // Compensation file (backlash alternative)
+    int comp_file_type = ini.findIntV("COMP_FILE_TYPE", jointSection, 0, 0, 1);
+    if(auto comp_file = ini.findString("COMP_FILE", jointSection)) {
+        if (0 != emcJointLoadComp(joint, comp_file->c_str(), comp_file_type)) {
+        print_dbg_config("emcJointLoadComp");
+            return -1;
+        }
+    }
+
+    // Activate joint.
+    // Doing this last should prevent the motion controller to flag errors
+    // during configuration
     if (0 != emcJointActivate(joint)) {
+        print_dbg_config("emcJointActivate");
         return -1;
     }
 
     return 0;
 }
 
-/*
-  iniJoint(int joint, const char *filename)
-
-  Loads INI file parameters for specified joint
-
-  Looks for [KINS]JOINTS for how many to do, up to EMC_JOINT_MAX.
- */
+//
+// iniJoint(int joint, const char *filename)
+// Loads INI file parameters for specified joint
+//
 int iniJoint(int joint, const char *filename)
 {
-    EmcIniFile jointIniFile(EmcIniFile::ERR_TAG_NOT_FOUND |
-                           EmcIniFile::ERR_SECTION_NOT_FOUND |
-                           EmcIniFile::ERR_CONVERSION);
-
-    if (jointIniFile.Open(filename) == false) {
-	return -1;
-    }
-
-    // load its values
-    if (0 != loadJoint(joint, &jointIniFile)) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+        rcs_print_error("iniJoint: Invalid joint '%d'", joint);
         return -1;
     }
 
-    return 0;
-}
+    IniFile ini(filename);
+    if (!ini)
+        return -1;
 
+    return loadJoint(joint, ini);
+}

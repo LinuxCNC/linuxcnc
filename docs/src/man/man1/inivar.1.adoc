@@ -12,6 +12,9 @@ inivar - Query an INI file
 
 == DESCRIPTION
 
+This program has been superseded by **inivalue**(1). The *inivar* program is
+now a script that translates the options and invokes inivalue.
+
 Prints to stdout the INI file result of a variable-in-section search, useful for scripts that want
 to pick things out of INI files.
 
@@ -53,6 +56,10 @@ _section_ will be returned.
 == BUGS
 
 None known at this time.
+
+== SEE ALSO
+
+*inivalue*(1).
 
 == AUTHOR
 

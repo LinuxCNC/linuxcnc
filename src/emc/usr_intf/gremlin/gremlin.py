@@ -194,22 +194,21 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.show_tool = True
         self.show_dtg = True
         self.grid_size = 0.0
-        temp = inifile.find("DISPLAY", "LATHE")
-        self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
-        self.foam_option = bool(inifile.find("DISPLAY", "FOAM"))
+        self.lathe_option = self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
+        self.foam_option = self.inifile.getbool("DISPLAY", "FOAM", fallback=False)
         self.show_offsets = False
         self.use_default_controls = True
         self.mouse_btn_mode = 0
 
-        self.a_axis_wrapped = inifile.find("AXIS_A", "WRAPPED_ROTARY")
-        self.b_axis_wrapped = inifile.find("AXIS_B", "WRAPPED_ROTARY")
-        self.c_axis_wrapped = inifile.find("AXIS_C", "WRAPPED_ROTARY")
+        self.a_axis_wrapped = self.inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
+        self.b_axis_wrapped = self.inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
+        self.c_axis_wrapped = self.inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
 
         live_axis_count = 0
         for i,j in enumerate("XYZABCUVW"):
             if self.stat.axis_mask & (1<<i) == 0: continue
             live_axis_count += 1
-        self.num_joints = int(inifile.find("KINS", "JOINTS") or live_axis_count)
+        self.num_joints = self.inifile.getint("KINS", "JOINTS", fallback=live_axis_count)
         glDrawBuffer(GL_BACK)
         glDisable(GL_CULL_FACE)
         glLineStipple(2, 0x5555)
@@ -318,10 +317,10 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         td = tempfile.mkdtemp()
         self._current_file = filename
         try:
-            random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
+            random = self.inifile.getbool("EMCIO", "RANDOM_TOOLCHANGER", fallback=False)
             canon = StatCanon(self.colors, self.get_geometry(),self.lathe_option, s, random)
-            parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
-            temp_parameter = os.path.join(td, os.path.basename(parameter or "linuxcnc.var"))
+            parameter = self.inifile.getstring("RS274NGC", "PARAMETER_FILE", fallback="linuxcnc.var")
+            temp_parameter = os.path.join(td, os.path.basename(parameter))
             if parameter:
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
@@ -373,11 +372,12 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
         props = {}
         loaded_file = self._current_file
-        max_speed = float(
-            self.inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
-            or self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
-            or self.inifile.find("AXIS_X","MAX_VELOCITY")
-            or 1)
+        if self.inifile.hasvariable("DISPLAY","MAX_LINEAR_VELOCITY"):
+            max_speed = self.inifile.getreal("DISPLAY","MAX_LINEAR_VELOCITY", fallback=1.0)
+        elif self.inifile.hasvariable("TRAJ","MAX_LINEAR_VELOCITY"):
+            max_speed = self.inifile.getreal("TRAJ","MAX_LINEAR_VELOCITY", fallback=1.0)
+        else:
+            max_speed = 1.0
 
         if not loaded_file:
             props['name'] = "No file loaded"

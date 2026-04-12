@@ -48,12 +48,6 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    gbl.ini_file_ptr = fopen(gbl.ini_file_path, "r");
-    if (gbl.ini_file_ptr == NULL) {
-        ERR(gbl.init_dbg, "Unable to open INI file [%s]", gbl.ini_file_path);
-        return -1;
-    }
-
     if (parse_ini_file() != 0) {
         ERR(gbl.init_dbg, "Unable to parse INI file [%s]", gbl.ini_file_path);
         goto QUIT_CLEANUP;

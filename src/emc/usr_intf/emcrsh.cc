@@ -40,8 +40,10 @@
 
 #include "shcom.hh"
 #include "nml_intf/emcglb.h"
-#include "libnml/inifile/inifile.hh"
+#include <inifile.hh>
 #include "libnml/os_intf/timer.hh"
+
+using namespace linuxcnc;
 
 /*
  * Using linuxcncrsh: see man page linuxcncrsh.1
@@ -481,13 +483,11 @@ static int compareNoCase(const std::string &a, const std::string &b)
 
 static std::optional<std::string> getIniVar(const std::string &var, const std::string &section)
 {
-	IniFile inifile;
-	if (!inifile.Open(emc_inifile))
+	IniFile inifile(emc_inifile);
+	if(!inifile)
 		return nullptr;
 
-	auto inistr = inifile.Find(var.c_str(), section.c_str());
-	inifile.Close();
-	return inistr;
+	return inifile.findString(var, section);
 }
 
 static inline bool isEnabled(const connectionRecType &ctx)

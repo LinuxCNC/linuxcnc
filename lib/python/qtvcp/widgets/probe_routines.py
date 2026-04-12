@@ -242,8 +242,8 @@ class ProbeRoutines():
             # if so see if there is enough room in X axis limits
             if self.data_tool_diameter > self.data_ts_diam:
                 # if close to edge of machine X, offset in the opposite direction
-                xplimit = float(INFO.INI.find('AXIS_X','MAX_LIMIT'))
-                xmlimit = float(INFO.INI.find('AXIS_X','MIN_LIMIT'))
+                xplimit = INFO.INI.getreal('AXIS_X','MAX_LIMIT')
+                xmlimit = INFO.INI.getreal('AXIS_X','MIN_LIMIT')
                 if not (self.data_tool_diameter/2+self.data_ts_x) > xplimit:
                     Xoffset = self.data_tool_diameter/2
                 elif not (self.data_ts_x -(self.data_tool_diameter/2)) < xmlimit:
@@ -335,16 +335,16 @@ class ProbeRoutines():
             return 'failed: {}'.format(rtn)
 
         # confirm there is enough axis room to offset for diameters of tool and toolsetter
-        xplimit = float(INFO.INI.find('AXIS_X','MAX_LIMIT'))
-        xmlimit = float(INFO.INI.find('AXIS_X','MIN_LIMIT'))
+        xplimit = INFO.INI.getreal('AXIS_X','MAX_LIMIT')
+        xmlimit = INFO.INI.getreal('AXIS_X','MIN_LIMIT')
         offset = (self.data_tool_diameter+self.data_ts_diam)*.5
         if (offset+self.data_ts_x) > xplimit:
             return 'cannot offset enough in + X for tool radius + toolsetter radius'
         elif (self.data_ts_x -(offset)) < xmlimit:
             return 'cannot offset enough in - X for tool radius + toolsetter radius'
 
-        yplimit = float(INFO.INI.find('AXIS_Y','MAX_LIMIT'))
-        ymlimit = float(INFO.INI.find('AXIS_Y','MIN_LIMIT'))
+        yplimit = INFO.INI.getreal('AXIS_Y','MAX_LIMIT')
+        ymlimit = INFO.INI.getreal('AXIS_Y','MIN_LIMIT')
         if (offset+self.data_ts_y) > yplimit:
             return 'cannot offset enough in + Y for tool radius offset + toolsetter radius'
         elif (self.data_ts_y -(offset)) < ymlimit:

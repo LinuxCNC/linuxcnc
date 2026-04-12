@@ -165,17 +165,9 @@ class ToolEdit(Gtk.Box):
         if toolfile:
             self.reload(None)
         # check the INI file if display-type: LATHE is set
-        try:
-            self.inifile = linuxcnc.ini(INIPATH)
-            test = self.inifile.find("DISPLAY", "LATHE")
-            if test == '1' or test == 'True':
-                self.lathe_display_type = True
-                self.set_lathe_display(True)
-            else:
-                self.lathe_display_type = False
-                self.set_lathe_display(False)
-        except:
-            pass
+        self.inifile = linuxcnc.ini(INIPATH)
+        self.lathe_display_type = self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
+        self.set_lathe_display(self.lathe_display_type)
 
         # check linuxcnc status every second
         GLib.timeout_add(1000, self.periodic_check)

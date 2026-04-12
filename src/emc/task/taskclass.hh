@@ -19,7 +19,7 @@
 #define TASKCLASS_HH
 
 #include "nml_intf/emc.hh"
-#include "libnml/inifile/inifile.hh"
+#include <inifile.hh>
 #include "../../hal/hal.hh"
 #include "tooldata/tooldata.hh"
 

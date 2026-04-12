@@ -2693,7 +2693,7 @@ class HandlerClass:
         self.max_value.connect('value-changed', self._on_max_value_change)
 
         inifile = linuxcnc.ini(os.getenv("INI_FILE_NAME"))
-        mmin = float(inifile.find("METER", "MIN") or 0.0)
+        mmin = inifile.getreal("METER", "MIN", fallback=0.0)
         self.meter = self.builder.get_object('meter')
         self.meter.min = mmin
 

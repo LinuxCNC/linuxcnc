@@ -24,7 +24,7 @@ Each end of line or newline character creates a new element.
 === Comments(((INI File,Components,Comments)))
 
 A comment line is started with a ; or a # mark.
-When the INI reader sees either of these marks at the start a line, the rest of the line is ignored by the software.
+When the INI reader sees either of these marks on a line, the rest of the line is ignored by the software.
 Comments can be used to describe what an INI element will do.
 
 [source,{ini}]
@@ -45,14 +45,17 @@ DISPLAY = axis
 In this list, the DISPLAY variable will be set to axis because the other one is commented out.
 If someone carelessly edits a list like this and leaves two of the lines uncommented, the first one encountered will be used.
 
-Note that inside a variable, the "#" and ";" characters do not denote comments:
+Note that inside a variable's value, the "#" and ";" characters are still comments.
+You should use double or single quoted strings if you need to embed # or ; characters:
 
 [source,{ini}]
 ----
-INCORRECT = value     # and a comment
+# Below results in INCORRECT=value
+# because comments are stripped
+INCORRECT = value # and a comment
 
-# Correct Comment
-CORRECT = value
+# Correct embedding
+CORRECT = "value # and an embedded # char"
 ----
 
 [[sub:ini:sections]]
@@ -62,6 +65,8 @@ Related parts of an INI file are separated into sections.
 A section name is enclosed in brackets like this: `[THIS_SECTION]`.
 The order of sections is unimportant.
 Sections begin at the section name and end at the next section name.
+Section identifiers are case senstive and can only contain letters A-Z, a-z, digits 0-9 and underscore (_).
+Additionally, section identifiers cannot start with a digit.
 
 The following sections are used by LinuxCNC:
 
@@ -84,9 +89,9 @@ The following sections are used by LinuxCNC:
 === Variables(((INI File,Components,Variables)))
 
 A variable line is made up of a variable name, an equals sign (`=`), and a value.
-Everything from the first non-white space character after the `=` up to the end of the line is passed as the value,
-so you can embed spaces in string symbols if you want to or need to.
-A variable name is often called a keyword.
+A variable identifier is case sensitive and may only consist of letters A-Z, a-z, digits 0-9 and underscore (_).
+Additionally, variable identifiers cannot start with a digit.
+White space at the beginning of the line and after the variable identifier, up to the equals sign, is ignored.
 
 .Variable Example
 [source,{ini}]
@@ -95,8 +100,7 @@ MACHINE = My Machine
 ----
 
 A variable line may be extended to multiple lines with a terminal backslash (\) character.
-A maximum of `MAX_EXTEND_LINES` (==20) are allowed.
-There must be no whitespace following the trailing backslash character.
+There may be white space following the trailing backslash character, but this is strongly discouraged.
 
 Section identifiers may not be extended to multiple lines.
 
@@ -112,13 +116,87 @@ ini.1.max_velocity \
 ini.2.max_velocity
 ----
 
-.Boolean Variables
+A specific variable in a specific sections is often denoted in the documentation as [SECTION]VARIABLE.
+This specification mirrors the same way they are specified in HAL files for expansion.
 
-Boolean values can be on one of `TRUE`, `YES` or `1` for true/enabled and one of `FALSE`, `NO` or `0` for false/disabled. The case is ignored.
+Variable values may be quoted to ensure proper space and special character embedding in literal or escaped forms.
+Both single and double quoted values are allowed.
+Mutiple quoted value segments are merged into one value.
+Embedding quotes in quoted values must use the backslash \\ character to escape the embedded quote if it is the same kind as the enclosing quotes.
+Double quotes values also support all common escape formats and full Unicode:
 
-The following sections detail each section of the configuration file, using sample values for the configuration lines.
+* control: \\[abfnrtv]
+* octal: \\[0-2][0-7]{0,2}
+* hex: \\x[0-9a-fA-F]{2}
+* UTF-16: \\u[0-9a-fA-F]{4}
+* UTF-32: \\U[0-9a-fA-F]{8}
+
+The resulting value is always converted into UTF-8 and checked for validity.
+It is not allowed to embed NUL characters either literally or by using an escape.
+
+.Value Quote and Escape Example
+[source,{ini}]
+----
+STRING = "Hello World!"
+STRING = 'Hello World Too!'
+
+# The following would become: Hello World!
+STRING = "Hello" \
+" " \
+'World' \
+"!"
+
+EMBED = "Literal single ' in double"
+EMBED = 'Literal double " in single'
+EMBED = "Literal double \" in double"
+EMBED = 'Literal single \' in single'
+
+SMILE = "\\370\\237\\230\\200 = 😀"
+SMILE = "\\xf0\\x9f\\x98\\x80 = 😀"
+SMILE = "\\ud83d\\ude00 = 😀"
+SMILE = "\\U0001f600 = 😀"
+----
+
+Variables' value can have types associated when they are read by LinuxCNC.
+The types are enforced by the INI file reader when the appropriate function calls are performed.
+All values may always be read as 'string'. Conversion into other types has restrictions.
+Possible types are:
+
+* 'string' - the value is taken as-is
+* 'boolean' - only boolean words are accepted
+* 'signed integer' - whole numbers in decimal, hexadecimal, octal or binary bases
+* 'unsigned integer' - whole numbers in decimal, hexadecimal, octal or binary bases
+* 'real' - floating point values (always using decimal point)
+* 'enumeration' - a restricted set of keys to represent a value or function
+
+Signed and unsigned integers are read and converted as 64-bit numbers when marked as `s64` and `u64`.
+Plain old 32-bit integers are marked `int` and are always signed.
+The default number base is decimal. Alternative bases may be specified using a prefix.
+The complete list of valid integer numbers:
+
+* \[0-9]+ - decimal
+* 0x\[0-9A-Fa-f]+ - hexadecimal
+* 0o\[0-7]+ - octal
+* 0b\[01]+ - binary
+
+Signed integers may be preceded by a plus (+) or minus (-) sign, regardless number base.
+Unsigned integers will generate a warning if they are preceded by a minus (-) sign upon conversion.
+
+Boolean values are case insensitive and allow the following words:
+
+* true/enabled - `TRUE`, `YES` `ON` or `1`
+* false/disabled - `FALSE`, `NO` `OFF` or `0`
+
+Enumerations are a set of keywords defined by LinuxCNC and interpreted to mean a setting, value or functionality.
+The exact values are declared in the individual variable description and the variables are marked with `enum`.
+Most enumerations are interpreted without case.
+It is noted in the variable description if case matters.
+
+Some LinuxCNC variables are special in that their format is interpreted as a multi-valued entry.
+These variables have an appropriate description below of the format expected.
 
 Variables that are used by LinuxCNC must always use the section names and variable names as shown.
+Any custom or private variables and sections are up to the user.
 
 [[sub:ini:custom]]
 === Custom Sections and Variables(((INI File,Components,Custom sections and variables)))
@@ -162,6 +240,9 @@ The value stored in the variable must match the type specified by the component 
 To use the custom variables in G-code, use the global variable syntax `#<_ini[section]variable>`.
 The following example shows a simple Z-axis touch-off routine for a router or mill using a probe plate.
 
+Please note that G-code embedded ini variables are converted to upper case before they are searched in the INI file.
+The `#<_ini[section]variable>` should be called [SECTION]VARIABLE in the INI file.
+
 .G-code Example
 [source,{ngc}]
 ----
@@ -188,7 +269,7 @@ The filename can be specified as:
 * a file in the same directory as the INI file
 * a file located relative to the working directory
 * an absolute file name (starts with a /)
-* a user-home-relative file name (starts with a ~)
+* a user-home-relative file name (starts with a ~/)
 
 Multiple #INCLUDE directives are supported.
 
@@ -202,27 +283,30 @@ Multiple #INCLUDE directives are supported.
 #INCLUDE ~/linuxcnc/myincludes/rs274ngc.inc
 ----
 
-The #INCLUDE directives are supported for one level of expansion only -- an included file may not include additional files.
+The #INCLUDE directives are supported up to 16 levels -- an included file may include additional files up to 16 levels deep.
+Recursive inclusion of files is detected and flagged as an error.
 The recommended file extension is '.inc'.
 Do _not_ use a file extension of '.ini' for included files.
 
 [[sec:ini:sections]]
 == INI File Sections(((INI File,Sections)))
 
+Variables in each section have an associated type as denoted in parentheses after the variable.
+
 [[sub:ini:sec:emc]]
 === [EMC] Section(((INI File,Sections,[EMC] Section)))
 
-* `VERSION = 1.1` - The format version of this configuration.
+* `VERSION = 1.1` - (string) The format version of this configuration.
   Any value other than 1.1 will cause the configuration checker to run and try to update the configuration to the new style joint axes type of configuration.
-* `MACHINE = My Controller` - This is the name of the controller, which is printed out at the top of most graphical interfaces.
+* `MACHINE = My Controller` - (string) This is the name of the controller, which is printed out at the top of most graphical interfaces.
   You can put whatever you want here as long as you make it a single line long.
-* `DEBUG = 0` - Debug level 0 means no messages will be printed when LinuxCNC is run from a <<faq:terminal,terminal>>.
+* `DEBUG = 0` - (u64) Debug level 0 means no messages will be printed when LinuxCNC is run from a <<faq:terminal,terminal>>.
   Debug flags are usually only useful to developers. See src/emc/nml_intf/debugflags.h for other settings.
-* `RCS_DEBUG = 1` RCS debug messages to show. Print only errors (1) by default if EMC_DEBUG_RCS and EMC_DEBUG_RCS bits in
+* `RCS_DEBUG = 1` (u64) RCS debug messages to show. Print only errors (1) by default if EMC_DEBUG_RCS and EMC_DEBUG_RCS bits in
   `DEBUG` are unset, otherwise print all (-1). Use this to select RCS debug messages. See src/libnml/rcs/rcs_print.hh for all MODE flags.
-* `RCS_DEBUG_DEST = STDOUT` - how to output RCS_DEBUG messages (NULL, STDOUT, STDERR, FILE, LOGGER, MSGBOX).
-* `RCS_MAX_ERR = -1` - Number after which RCS errors are not reported anymore (-1 = infinite).
-* `NML_FILE = /usr/share/linuxcnc/linuxcnc.nml` - Set this if you want to use a non-default NML configuration file.
+* `RCS_DEBUG_DEST = STDOUT` - (enum) how to output RCS_DEBUG messages (NULL, STDOUT, STDERR, FILE, LOGGER, MSGBOX).
+* `RCS_MAX_ERR = -1` - (int) Number after which RCS errors are not reported anymore (-1 = infinite).
+* `NML_FILE = /usr/share/linuxcnc/linuxcnc.nml` - (string) Set this if you want to use a non-default NML configuration file.
 
 [[sub:ini:sec:display]]
 === [DISPLAY] Section(((INI File,Sections,[DISPLAY] Section)))
@@ -233,34 +317,34 @@ AXIS is an interface for use with normal computer and monitor, Touchy is for use
 GMOCCAPY can be used both ways and offers also many connections for hardware controls.
 Descriptions of the interfaces are in the Interfaces section of the User Manual.
 
-* `DISPLAY = axis` - The file name of the executable providing the user interface to use.
+* `DISPLAY = axis` - (string) The file name of the executable providing the user interface to use.
   Prominent valid options are (all in lower case): `axis`, `touchy`, `gmoccapy`, `gscreen`, `tklinuxcnc`, `qtvcp`, `qtvcp qtdragon` or `qtvcp qtplasmac`.
-* `POSITION_OFFSET = RELATIVE` - The coordinate system (`RELATIVE` or `MACHINE`) to show on the DRO when the user interface starts.
+* `POSITION_OFFSET = RELATIVE` - (enum) The coordinate system (`RELATIVE` or `MACHINE`) to show on the DRO when the user interface starts.
   The RELATIVE coordinate system reflects the G92 and G5__x__ coordinate offsets currently in effect.
-* `POSITION_FEEDBACK = COMMANDED` - The coordinate value (`COMMANDED` or `ACTUAL`) to show on the DRO when the user interface starts.
+* `POSITION_FEEDBACK = COMMANDED` - (enum) The coordinate value (`COMMANDED` or `ACTUAL`) to show on the DRO when the user interface starts.
   In AXIS this can be changed from the View menu.
   The COMMANDED position is the position requested by LinuxCNC.
   The ACTUAL position is the feedback position of the motors if they have feedback like most servo systems.
   Typically the COMMANDED value is used.
-* `DRO_FORMAT_MM = %+08.6f` - Override the default DRO formatting in metric mode (normally 3 decimal places, padded with spaces to 6 digits to the left).
+* `DRO_FORMAT_MM = %+08.6f` - (string) Override the default DRO formatting in metric mode (normally 3 decimal places, padded with spaces to 6 digits to the left).
   The example above will pad with zeros, display 6 decimal digits and force display of a + sign for positive numbers.
   Formatting follows Python practice: https://docs.python.org/2/library/string.html#format-specification-mini-language .
   An error will be raised if the format can not accept a floating-point value.
-* `DRO_FORMAT_IN = % 4.1f` - Override the default DRO formatting in imperial mode (normally 4 decimal places, padded with spaces to 6 digits to the left).
+* `DRO_FORMAT_IN = % 4.1f` - (string) Override the default DRO formatting in imperial mode (normally 4 decimal places, padded with spaces to 6 digits to the left).
   The example above will display only one decimal digit.
   Formatting follows Python practice: https://docs.python.org/2/library/string.html#format-specification-mini-language .
   An error will be raised if the format can not accept a floating-point value.
-* `CONE_BASESIZE = .25` - Override the default cone/tool base size of .5 in the graphics display. Valid values are between 0.025 and 2.0.
-* `DISABLE_CONE_SCALING = TRUE` - Any non-empty value (including "0") will override the default behavior of scaling the cone/tool size using the extents of the currently loaded G-code program in the graphics display.
-* `MAX_FEED_OVERRIDE = 1.2` - The maximum feed override the user may select.
+* `CONE_BASESIZE = .25` - (real) Override the default cone/tool base size of .5 in the graphics display. Valid values are between 0.025 and 2.0.
+* `DISABLE_CONE_SCALING = TRUE` - (bool) Any non-empty value (including "0") will override the default behavior of scaling the cone/tool size using the extents of the currently loaded G-code program in the graphics display.
+* `MAX_FEED_OVERRIDE = 1.2` - (real) The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
-* `MIN_SPINDLE_OVERRIDE = 0.5` - The minimum spindle override the user may select.
+* `MIN_SPINDLE_OVERRIDE = 0.5` - (real) The minimum spindle override the user may select.
   0.5 means 50% of the programmed spindle speed. (This is used to set the minimum spindle speed.)
-* `MIN_SPINDLE_0_OVERRIDE = 0.5` - The minimum spindle override the user may select.
+* `MIN_SPINDLE_0_OVERRIDE = 0.5` - (real) The minimum spindle override the user may select.
   0.5 means 50% of the programmed spindle speed.  (This is used to set the minimum spindle speed.)
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
-* `MAX_SPINDLE_OVERRIDE = 1.0` - The maximum spindle override the user may select. 1.0 means 100% of the programmed spindle speed.
-* `MAX_SPINDLE_0_OVERRIDE = 1.0` - The maximum feed override the user may select.
+* `MAX_SPINDLE_OVERRIDE = 1.0` - (real) The maximum spindle override the user may select. 1.0 means 100% of the programmed spindle speed.
+* `MAX_SPINDLE_0_OVERRIDE = 1.0` - (real) The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
   On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
 * `DEFAULT_SPINDLE_SPEED = 100` - The default spindle RPM when the spindle is started in manual mode.
@@ -562,7 +646,7 @@ The maximum number of `USER_M_PATH` directories is defined at compile time (typ:
   Chip breaking back-off distance in machine units
 * 'G83_PECK_CLEARANCE = .020' (default: Metric machine: 1mm, imperial machine: .050 inches)
   Clearance distance from last feed depth when machine rapids back to bottom of hole, in machine units.
- 
+
 [NOTE]
 ====
 The above six options were controlled by the `FEATURES` bitmask in versions of LinuxCNC prior to 2.8.
@@ -581,7 +665,7 @@ FEATURES & 0x20 -> OWORD_WARNONLY
 [NOTE]
 `[WIZARD]WIZARD_ROOT` is a valid search path but the Wizard has not been fully implemented and the results of using it are unpredictable.
 
-* `LOG_LEVEL = 0` 
+* `LOG_LEVEL = 0`
   Specify the log_level (default: 0)
 //FIXME: Inconsistent
 * `LOG_FILE = file-name.log` +
@@ -654,9 +738,9 @@ Absolute paths are not recommended as their use may limit relocation of configur
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the INI file directory.
 
 HALFILE items specify files that loadrt HAL components and make signal connections between component pins.
-Common mistakes are 
+Common mistakes are:
 
- . omission of the addf statement needed to add a component's function(s) to a thread, 
+ . omission of the addf statement needed to add a component's function(s) to a thread,
  . incomplete signal (net) specifiers.
 
 Omission of required addf statements is almost always an error.
@@ -704,7 +788,7 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
 
 * `MDI_COMMAND = G53 G0 X0 Y0 Z0` -
   An MDI command can be executed by using `halui.mdi-command-00`. Increment the number for each command listed in the [HALUI] section.
-  It is also possible to start subroutines. `MDI_COMMAND = o<yoursub> CALL [#<yourvariable>]` 
+  It is also possible to start subroutines. `MDI_COMMAND = o<yoursub> CALL [#<yourvariable>]`
 
 [[sub:ini:sec:applications]]
 === [APPLICATIONS] Section(((INI File,Sections,[APPLICATIONS] Section)))
@@ -875,7 +959,7 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
   This can help on smaller machines without home switches.
   If using the Mesa resolver interface this file can be used to emulate absolute encoders and eliminate the need for homing (with no loss of accuracy).
   See the hostmot2 manpage for more details.
-* `NO_FORCE_HOMING = 1` - The default behavior is for LinuxCNC to force the user to home the machine before any MDI command or a program is run.
+* `NO_FORCE_HOMING = 1` - (bool) The default behavior is for LinuxCNC to force the user to home the machine before any MDI command or a program is run.
   Normally, only jogging is allowed before homing.
   For configurations using identity kinematics, setting `NO_FORCE_HOMING = 1` allows the user to make MDI moves and run programs without homing the machine first.
   Interfaces using identity kinematics without homing ability will need to have this option set to 1.
@@ -914,27 +998,27 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
 
 The _<letter>_ specifies one of: X Y Z A B C U V W
 
-* `TYPE = LINEAR` - The type of this axis, either `LINEAR` or `ANGULAR`.
+* `TYPE = LINEAR` - (enum) The type of this axis, either `LINEAR` or `ANGULAR`.
   Required if this axis is not a default axis type.
   The default axis types are X,Y,Z,U,V,W = LINEAR and A,B,C = ANGULAR.
   This setting is effective with the AXIS GUI but note that other
   GUI's may handle things differently.
-* `MAX_VELOCITY = 1.2` - Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
-* `MAX_ACCELERATION = 20.0` - Maximum acceleration for this axis in machine units per second squared.
-* `MAX_JERK = 0.0` - Maximum jerk for this axis in machine units per second cubed.
+* `MAX_VELOCITY = 1.2` - (real) Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
+* `MAX_ACCELERATION = 20.0` - (real) Maximum acceleration for this axis in machine units per second squared.
+* `MAX_JERK = 0.0` - (real) Maximum jerk for this axis in machine units per second cubed.
   Used when S-curve trajectory planning is enabled.
   When set to 0 (default), no per-axis jerk limiting is applied.
-* `MIN_LIMIT = -1000` - (((MIN LIMIT))) The minimum limit (soft limit) for axis motion, in machine units.
+* `MIN_LIMIT = -1000` - (real) (((MIN LIMIT))) The minimum limit (soft limit) for axis motion, in machine units.
   When this limit is exceeded, the controller aborts axis motion.
   The axis must be homed before `MIN_LIMIT` is in force.
   For a rotary axis (A,B,C typ)  with unlimited rotation having no `MIN_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of -1e99 is used.
-* `MAX_LIMIT = 1000` - (((MAX LIMIT))) The maximum limit (soft limit) for axis motion, in machine units.
+* `MAX_LIMIT = 1000` - (real) (((MAX LIMIT))) The maximum limit (soft limit) for axis motion, in machine units.
   When this limit is exceeded, the controller aborts axis motion.
   The axis must be homed before MAX_LIMIT is in force.
   For a rotary axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
-* `WRAPPED_ROTARY = 1` - When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
+* `WRAPPED_ROTARY = 1` - (bool) When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
   Positive Numbers will move the axis in a positive direction and negative numbers will move the axis in the negative direction.
-* `LOCKING_INDEXER_JOINT = 4` - This value selects a joint to use for a locking indexer for the specified axis _<letter>_.
+* `LOCKING_INDEXER_JOINT = 4` - (int) This value selects a joint to use for a locking indexer for the specified axis _<letter>_.
   In this example, the joint is 4 which would correspond to the B axis for a XYZAB system with trivkins (identity) kinematics.
   When set, a G0 move for this axis will initiate an unlock with the `joint.4.unlock pin` then wait for the `joint.4.is-unlocked` pin then move the joint at the rapid rate for that joint.
   After the move the `joint.4.unlock` will be false and motion will wait for `joint.4.is-unlocked` to go false.
@@ -950,7 +1034,7 @@ The jointmask bits are: (LSB)0:joint0, 1:joint1, 2:joint2, ...
 +
 Example: `loadrt motmod ... unlock_joints_mask=0x38` creates unlock-pins for joints 3,4,5.
 
-* `OFFSET_AV_RATIO = 0.1` - If nonzero, this item enables the use of HAL input pins for external axis offsets:
+* `OFFSET_AV_RATIO = 0.1` - (real) If nonzero, this item enables the use of HAL input pins for external axis offsets:
 +
 [source,{ini}]
 ----
@@ -990,22 +1074,22 @@ For example, using trivkins with `coordinates=XZ`, the joint-axes relationships 
 
 For more information on kinematics modules see the manpage 'kins' (on the UNIX terminal type `man kins`).
 
-* `TYPE = LINEAR` - The type of joint, either `LINEAR` or `ANGULAR`.
-* `UNITS = INCH` - (((UNITS)))
+* `TYPE = LINEAR` - (enum) The type of joint, either `LINEAR` or `ANGULAR`.
+* `UNITS = INCH` - (enum) (((UNITS)))
   If specified, this setting overrides the related `[TRAJ] UNITS` setting,
   e.g., `[TRAJ]LINEAR_UNITS` if the `TYPE` of this joint is `LINEAR`, `[TRAJ]ANGULAR_UNITS` if the `TYPE` of this joint is `ANGULAR`.
-* `MAX_VELOCITY = 1.2` - Maximum velocity for this joint in <<sub:ini:sec:traj,machine units>> per second.
-* `MAX_ACCELERATION = 20.0` - Maximum acceleration for this joint in machine units per second squared.
-* `MAX_JERK = 0.0` - Maximum jerk for this joint in machine units per second cubed.
+* `MAX_VELOCITY = 1.2` - (real) Maximum velocity for this joint in <<sub:ini:sec:traj,machine units>> per second.
+* `MAX_ACCELERATION = 20.0` - (real) Maximum acceleration for this joint in machine units per second squared.
+* `MAX_JERK = 0.0` - (real) Maximum jerk for this joint in machine units per second cubed.
   Used when S-curve trajectory planning is enabled.
   When set to 0 (default), no per-joint jerk limiting is applied.
-* `BACKLASH = 0.0000` - (((Backlash))) Backlash in machine units.
+* `BACKLASH = 0.0000` - (real) (((Backlash))) Backlash in machine units.
   Backlash compensation value can be used to make up for small deficiencies in the hardware used to drive an joint.
   If backlash is added to an joint and you are using steppers the `STEPGEN_MAXACCEL` must be increased to 1.5 to 2 times the `MAX_ACCELERATION` for the joint.
   Excessive backlash compensation can cause an joint to jerk as it changes direction.
   If a COMP_FILE is specified for a joint BACKLASH is not used.
 // add a link to machine units
-* `COMP_FILE =`  _file.extension_ - (((Compensation)))
+* `COMP_FILE =`  _file.extension_ - (string) (((Compensation)))
   The compensation file consists of map of position information for the joint.
   Compensation file values are in machine units.
   Each set of values are are on one line separated by a space.
@@ -1018,7 +1102,7 @@ For more information on kinematics modules see the manpage 'kins' (on the UNIX t
 +
 If `COMP_FILE` is specified for a joint, `BACKLASH` is not used.
 
-* `COMP_FILE_TYPE = 0` or `1` - Specifies the type of compensation file.
+* `COMP_FILE_TYPE = 0` or `1` - (int) Specifies the type of compensation file.
   The first value is the nominal (commanded) position for both types. +
   A `COMP_FILE_TYPE` must be specified for each `COMP_FILE`.
 ** 'Type 0:' The second value specifies the actual position as the joint is moving in the positive direction (increasing value).
@@ -1041,11 +1125,11 @@ If `COMP_FILE` is specified for a joint, `BACKLASH` is not used.
 1.000 0.003 -0.004
 ----
 
-* `MIN_LIMIT = -1000` - (((MIN LIMIT)))
+* `MIN_LIMIT = -1000` - (real) (((MIN LIMIT)))
   The minimum limit for joint motion, in machine units.
   When this limit is reached, the controller aborts joint motion.
   For a rotary joint with unlimited rotation having no `MIN_LIMIT` for that joint in the `[JOINT_N]` section a the value -1e99 is used.
-* `MAX_LIMIT = 1000` - (((MAX LIMIT)))
+* `MAX_LIMIT = 1000` - (real) (((MAX LIMIT)))
   The maximum limit for joint motion, in machine units.
   When this limit is reached, the controller aborts joint motion.
   For a rotary joint with unlimited rotation having no `MAX_LIMIT` for that joint in the `[JOINT_N]` section a the value 1e99 is used.
@@ -1067,12 +1151,12 @@ The motion module always detects joint position limit violations and faults if t
 See also related https://github.com/LinuxCNC/linuxcnc/issues/97[GitHub issue #97].
 ====
 
-* `MIN_FERROR = 0.010` - (((MIN FERROR)))
+* `MIN_FERROR = 0.010` - (real) (((MIN FERROR)))
   This is the value in machine units by which the joint is permitted to deviate from commanded position at very low speeds.
   If MIN_FERROR is smaller than FERROR, the two produce a ramp of error trip points.
   You could think of this as a graph where one dimension is speed and the other is permitted following error.
   As speed increases the amount of following error also increases toward the `FERROR` value.
-* `FERROR = 1.0` - (((FERROR))) `FERROR` is the maximum allowable following error, in machine units.
+* `FERROR = 1.0` - (real) (((FERROR))) `FERROR` is the maximum allowable following error, in machine units.
   If the difference between commanded and sensed position exceeds this amount, the controller disables servo calculations,
   sets all the outputs to 0.0, and disables the amplifiers. If `MIN_FERROR` is present in the INI file, velocity-proportional following errors are used.
   Here, the maximum allowable following error is proportional to the speed,
@@ -1080,48 +1164,48 @@ See also related https://github.com/LinuxCNC/linuxcnc/issues/97[GitHub issue #97
   The maximum allowable following error will always be greater than `MIN_FERROR`.
   This prevents small following errors for stationary axes from inadvertently aborting motion.
   Small following errors will always be present due to vibration, etc.
-* `LOCKING_INDEXER = 1` - Indicates the joint is used as a locking indexer.
+* `LOCKING_INDEXER = 1` - (bool) Indicates the joint is used as a locking indexer.
 
 ==== Homing
 
 These parameters are Homing related, for a better explanation read the <<cha:homing-configuration,Homing Configuration>> Chapter.
 
-* `HOME = 0.0` - The position that the joint will go to upon completion of the homing sequence.
-* `HOME_OFFSET = 0.0` -
+* `HOME = 0.0` - (real) The position that the joint will go to upon completion of the homing sequence.
+* `HOME_OFFSET = 0.0` - (real)
   The joint position of the home switch or index pulse, in <<sub:ini:sec:traj,machine units>>.
   When the home point is found during the homing process, this is the position that is assigned to that point.
   When sharing home and limit switches and using a home sequence that will leave the home/limit switch in the toggled state,
   the home offset can be used define the home switch position to be other than 0 if your HOME position is desired to be 0.
-* `HOME_SEARCH_VEL = 0.0` - (((HOME SEARCH VEL))) Initial homing velocity in machine units per second.
+* `HOME_SEARCH_VEL = 0.0` - (real) (((HOME SEARCH VEL))) Initial homing velocity in machine units per second.
   Sign denotes direction of travel.
   A value of zero means assume that the current location is the home position for the machine.
   If your machine has no home switches you will want to leave this value at zero.
-* `HOME_LATCH_VEL = 0.0` -
+* `HOME_LATCH_VEL = 0.0` - (real)
   Homing velocity in machine units per second to the home switch latch position.
   Sign denotes direction of travel.
-* `HOME_FINAL_VEL = 0.0` -
+* `HOME_FINAL_VEL = 0.0` - (real)
   Velocity in machine units per second from home latch position to home position.
   If left at 0 or not included in the joint rapid velocity is used.
   Must be a positive number.
-* `HOME_USE_INDEX = NO` -
+* `HOME_USE_INDEX = NO` - (bool)
   If the encoder used for this joint has an index pulse, and the motion card has provision for this signal you may set it to yes.
   When it is yes, it will affect the kind of home pattern used.
   Currently, you can't home to index with steppers unless you're using StepGen in velocity mode and PID.
-* `HOME_INDEX_NO_ENCODER_RESET = NO` -
+* `HOME_INDEX_NO_ENCODER_RESET = NO` - (bool)
   Use YES if the encoder used for this joint does not reset its counter when an index pulse is detected after assertion of the joint `index_enable` HAL pin.
   Applicable only for `HOME_USE_INDEX = YES`.
-* `HOME_IGNORE_LIMITS = NO` -
+* `HOME_IGNORE_LIMITS = NO` - (bool)
   When you use the limit switch as a home switch and the limit switch this should be set to YES.
   When set to YES the limit switch for this joint is ignored when homing.
   You must configure your homing so that at the end of your home move the home/limit switch is not in the toggled state you will get a limit switch error after the home move.
-* `HOME_IS_SHARED =` _<n>_ -
-  If the home input is shared by more than one joint set _<n>_ to 1 to prevent homing from starting if the one of the shared switches is already closed.
-  Set _<n>_ to 0 to permit homing if a switch is closed.
-* `HOME_ABSOLUTE_ENCODER = 0` | `1` | `2` - Used to indicate the joint uses an absolute encoder.
+* `HOME_IS_SHARED = NO`  - (bool)
+  If the home input is shared by more than one joint set to true to prevent homing from starting if the one of the shared switches is already closed.
+  Set to false (the default) to permit homing if a switch is closed.
+* `HOME_ABSOLUTE_ENCODER = 0` | `1` | `2` - (int) Used to indicate the joint uses an absolute encoder.
   At a request for homing, the current joint value is set to the `HOME_OFFSET` value.
   If the `HOME_ABSOLUTE_ENCODER` setting is 1, the machine makes the usual final move to the `HOME` value.
   If the `HOME_ABSOLUTE_ENCODER` setting is 2, no final move is made.
-* `HOME_SEQUENCE =` _<n>_ - Used to define the "Home All" sequence.
+* `HOME_SEQUENCE =` _<n>_ - (int) Used to define the "Home All" sequence.
   _<n>_ must start at `0` or `1` or `-1`.
   Additional sequences may be specified with numbers increasing by 1 (in absolute value).
   Skipping of sequence numbers is not allowed.
@@ -1129,7 +1213,7 @@ These parameters are Homing related, for a better explanation read the <<cha:hom
   More than one joint can be homed at the same time by specifying the same sequence number for more than one joint.
   A negative sequence number is used to defer the final move for all joints having that (negative or positive) sequence number.
   For additional info, see: <<sec:homing-section,HOME SEQUENCE>>.
-* `VOLATILE_HOME = 0` -
+* `VOLATILE_HOME = 0` - (bool)
   When enabled (set to `1`) this joint will be unhomed if the Machine Power is off or if E-Stop is on.
   This is useful if your machine has home switches and does not have position feedback such as a step and direction driven machine.
 
@@ -1145,7 +1229,7 @@ For more information on custom INI file entries see the <<sub:ini:custom,Custom 
 
 The following items might be used by a PID component and the assumption is that the output is volts.
 
-* `DEADBAND = 0.000015` - How close is close enough to consider the motor in position, in <<sub:ini:sec:traj,machine units>>.
+* `DEADBAND = 0.000015` - (real) How close is close enough to consider the motor in position, in <<sub:ini:sec:traj,machine units>>.
 +
 --
 This is often set to a distance equivalent to 1, 1.5, 2, or 3 encoder counts, but there are no strict rules.
@@ -1343,41 +1427,41 @@ You change these default by setting the following INI variables:
 
 [NOTE]
 These settings are for the motion controller component.
-Control screens can limit these settings further. 
+Control screens can limit these settings further.
 
-* `MAX_FORWARD_VELOCITY = 20000`
+* `MAX_FORWARD_VELOCITY = 20000` - (real)
   The maximum spindle speed (in rpm) for the specified spindle. Optional.
   This will also set MAX_REVERSE_VELOCITY to the negative value unless overridden.
-* `MIN_FORWARD_VELOCITY = 3000`
+* `MIN_FORWARD_VELOCITY = 3000` - (real)
   The minimum spindle speed (in rpm) for the specified spindle. Optional.
   Many spindles have a minimum speed below which they should not be run.
   Any spindle speed command below this limit will be /increased/ to this limit.
-* `MAX_REVERSE_VELOCITY = 20000`
+* `MAX_REVERSE_VELOCITY = 20000` - (real)
   This setting will default to `MAX_FORWARD_VELOCITY` if omitted.
   It can be used in cases where the spindle speed is limited in reverse.
   Set to zero for spindles which must not be run in reverse.
   In this context "max" refers to the absolute magnitude of the spindle speed.
-* `MIN_REVERSE_VELOCITY = 3000``
+* `MIN_REVERSE_VELOCITY = 3000` - (real)
   This setting is equivalent to `MIN_FORWARD_VELOCITY` but for reverse spindle rotation.
   It will default to the MIN_FORWARD_VELOCITY if omitted.
-* `INCREMENT = 200`
+* `INCREMENT = 200` - (real)
   Sets the step size for spindle speed increment / decrement commands.
   This can have a different value for each spindle.
   This setting is effective with AXIS and Touchy but note that some
   control screens may handle things differently.
-* `HOME_SEARCH_VELOCITY = 100` - FIXME: Spindle homing not yet working.
+* `HOME_SEARCH_VELOCITY = 100` - (real) FIXME: Spindle homing not yet working.
   Sets the homing speed (rpm) for the spindle.
   The spindle will rotate at this velocity during the homing sequence until the spindle index is located, at which point the spindle position will be set to zero.
   Note that it makes no sense for the spindle home position to be any value other than zero, and so there is no provision to do so.
-* `HOME_SEQUENCE = 0` - FIXME: Spindle homing not yet working
+* `HOME_SEQUENCE = 0` - (int) FIXME: Spindle homing not yet working
   Controls where in the general homing sequence the spindle homing rotations occur.
   Set the `HOME_SEARCH_VELOCITY` to zero to avoid spindle rotation during the homing sequence.
 
 [[sub:ini:sec:emcio]]
 === [EMCIO] Section(((INI File,Sections,[EMCIO] Section)))
 
-* `TOOL_TABLE = tool.tbl` - The file which contains tool information, described in the User Manual.
-* `DB_PROGRAM = db_program` - Path to an executable program that manages tool data.
+* `TOOL_TABLE = tool.tbl` - (string) The file which contains tool information, described in the User Manual.
+* `DB_PROGRAM = db_program` - (string) Path to an executable program that manages tool data.
   When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored.
 * `TOOL_CHANGE_POSITION = 0 0 2` -
   Specifies the XYZ location to move to when performing a tool change if three digits are used.
@@ -1385,16 +1469,16 @@ Control screens can limit these settings further.
   Specifies the XYZABCUVW location when 9 digits are used.
   Tool Changes can be combined.
   For example if you combine the quill up with change position you can move the Z first then the X and Y.
-* `TOOL_CHANGE_WITH_SPINDLE_ON = 1` -
+* `TOOL_CHANGE_WITH_SPINDLE_ON = 1` - (bool)
   The spindle will be left on during the tool change when the value is 1.
   Useful for lathes or machines where the material is in the spindle, not the tool.
-* `TOOL_CHANGE_QUILL_UP = 1` -
+* `TOOL_CHANGE_QUILL_UP = 1` - (bool)
   The Z axis will be moved to machine zero prior to the tool change when the value is 1.
   This is the same as issuing a `G0 G53 Z0`.
-* `TOOL_CHANGE_AT_G30 = 1` -
+* `TOOL_CHANGE_AT_G30 = 1` - (bool)
   The machine is moved to reference point defined by parameters 5181-5186 for G30 if the value is 1.
   For more information see <<sec:overview-parameters,G-code Parameters>> and <<gcode:g30-g30.1,G-code G30-G30.1>>.
-* `RANDOM_TOOLCHANGER = 1` -
+* `RANDOM_TOOLCHANGER = 1` - (bool)
   This is for machines that cannot place the tool back into the pocket it came from.
   For example, machines that exchange the tool in the active pocket with the tool in the spindle.
 

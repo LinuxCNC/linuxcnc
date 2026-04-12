@@ -38,7 +38,7 @@ class StateEnableGridLayout(QWidget, _HalWidgetBase):
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
         self.inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.ini = linuxcnc.ini(self.inifile)
-        self.no_home_required = int(self.ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
+        self.no_home_required = self.ini.getbool("TRAJ", "NO_FORCE_HOMING", fallback=False)
         self.is_on = False
         self.is_homed = False
         self.is_idle = False

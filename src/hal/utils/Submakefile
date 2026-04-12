@@ -8,12 +8,12 @@ USERSRCS += $(sort $(HALCMDSRCS) $(HALSHSRCS))
 
 $(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
 $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
-../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0
+../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/liblinuxcncini.so.1 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared $^  $(TCL_LIBS) -o $@
 TARGETS += ../tcl/hal.so
 
-../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0 
+../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/liblinuxcncini.so.1 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS)
 TARGETS += ../bin/halcmd

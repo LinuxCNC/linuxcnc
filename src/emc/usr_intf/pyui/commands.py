@@ -16,7 +16,7 @@ JOGTELEOP = 0
 
 inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
-jointcount = int(inifile.find("KINS","JOINTS"))
+jointcount = inifile.getint("KINS","JOINTS")
 
 DBG_state = 0
 def DBG(str):

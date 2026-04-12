@@ -20,8 +20,10 @@
 #include <cmath>
 
 #include <linuxcnc.h>           // INCH_PER_MM
+#include <inifile.hh>
 #include "nml_intf/emc_nml.hh"
 #include "libnml/nml/nml_oi.hh"            // NML_ERROR_LEN
+#include "unitenum.hh"
 
 static inline bool CLOSE(double a, double b, double eps)
 {
@@ -37,22 +39,7 @@ static inline bool CLOSE(double a, double b, double eps)
 #define JOGTELEOP 0
 #define JOGJOINT  1
 
-enum LINEAR_UNIT_CONVERSION {
-    LINEAR_UNITS_CUSTOM = 1,
-    LINEAR_UNITS_AUTO,
-    LINEAR_UNITS_MM,
-    LINEAR_UNITS_INCH,
-    LINEAR_UNITS_CM
-};
 extern LINEAR_UNIT_CONVERSION linearUnitConversion;
-
-enum ANGULAR_UNIT_CONVERSION {
-    ANGULAR_UNITS_CUSTOM = 1,
-    ANGULAR_UNITS_AUTO,
-    ANGULAR_UNITS_DEG,
-    ANGULAR_UNITS_RAD,
-    ANGULAR_UNITS_GRAD
-};
 extern ANGULAR_UNIT_CONVERSION angularUnitConversion;
 
 // the current command numbers, set up updateStatus(), used in main()

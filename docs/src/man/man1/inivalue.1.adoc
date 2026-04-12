@@ -1,0 +1,157 @@
+= inivalue(1)
+
+== NAME
+
+inivalue - Query an INI file
+
+== SYNOPSIS
+
+*inivalue* [**--var**=_variable_] [**--sec**=_section_] [...options...] _INIFILE_
+
+*inivalue* **--variables** [**--sec**=_section_] [...options...] _INIFILE_
+
+*inivalue* **--sections** _INIFILE_
+
+== DESCRIPTION
+
+Prints to stdout the result of a variable-in-section search in _INIFILE_, useful for
+scripts that want to pick things out of INI files.
+
+The search for a variable can be limited by specifying the name of the _section_
+to search with the *--sec* option the name of the _variable_ to search with
+the *--var* option. Neither are required and the program will simply find the
+first matching entry.
+
+A list of variable's content, including optional section name prefix and variable
+name may be obtained with the *--variables* option. The list of sections present
+in _INIFILE_ can be extracted with the *--sections* option.
+
+== OPTIONS
+
+*-V*,*--var* _variable_::
+  The variable to search for, if multiple matches exists and *-num* is not
+  specified, the first match is returned.
+
+*-S*,*-sec* _section_::
+    The section to search in, if omitted, all sections are searched.
+
+*-N*,*--num* _occurrence_number_::
+  The _occurrence_number_ specifies which instance of the _variable_ within
+  the _INIFILE_, and _section_ if provided, should be returned. If omitted,
+  the first matching occurrence is returned.
+
+*-a*,*--all*::
+  Print all matching variables instead of the first matching or the num'th
+  matching. The *--all* option has precedence over the *--num* option.
+
+*-y*,*--type* _cvttype_::
+  Perform type-conversion after the search has been matched. Any errors in
+  conversion will be flagged and print an error message. The _cvttype_
+  can be one of i[nteger], u[nsigned], r[eal], s[tring] or b[oolean]. It
+  defaults to string if not specified.
+
+*-T*,*--tildeexpand*::
+  Replace the tilde in a value containing '~/pathname' with the expansion of
+  the 'HOME' environment variable, as in '$HOME/pathname'. Only relevant for
+  searches that match a single value of string type.
+
+*-m*,*--minimum* _value_::
+  Check the converted value against _value_ in integer, unsigned or real type
+  conversions (see *--type*). The variable must be larger than or equal _value_.
+
+*-M*,*--maximum* _value_::
+  Check the converted value against _value_ in integer, unsigned or real type
+  conversions (see *--type*). The variable must be less than or equal _value_.
+
+*-b*,*--boolnum*::
+  Print boolean values (*--type*=b) using '0' for false and '1' for true instead
+  of 'true' and 'false'.
+
+*-B*,*--boolpy*::
+  Print boolean values (*--type*=b) using 'False' for false and 'True' for true
+  instead of 'true' and 'false'.
+
+*-q*,*--quiet*::
+  Do not print an error message when a variable is not found. The exit value is
+  still 2 if no entry is found, regardless the setting of this option.
+
+*-e*,*--sections*::
+  Print all section names found in the INI-file. This option had highest
+  precedence.
+
+*-o*,*--variables*::
+  Print all variable names found in the INI-file. You can limit the matched list
+  by specifying a section with *--sec* option. This option has second highest
+  precedence after *--sections*.
+
+*-c*,*--content*::
+  Print the content of a variable along with the variable's name in the
+  form "VARNAME=value". This is only relevant when the *--variables* option is
+  specified. This can be combined with the *--prefix* option.
+
+*-p*,*--prefix*::
+  Prefix the variable variable's name with the section's name in the
+  form "[SECTION]VARNAME". This is only relevant when the *--variables* option
+  is specified. This can be combined with the *--content* option.
+
+== INI-FILE FORMAT
+
+The INI-file format uses the common standard for INI-files with a few additions
+and exceptions.
+
+Section names and variable names may only consist of letters a-z, A-Z, digits
+0-9 and underscore (_). The first character in the name cannot be a digit.
+
+Comments are specified with the # or ; character and everything following
+either # or ; is ignored until the end of the line. Embedding a # or ; in a
+value can only be done if the value is single or double quoted.
+
+Values can be free form text or in single or double quoted form. The double
+quoted form supports standard escapes and octal, hex, UTF-16 and UTF-32 escape
+sequences. Multiple quoted segments are concatenated into one value. All values
+are converted into UTF-8 and values are checked to be valid UTF-8.
+
+Line continuation may be performed by adding a \ to the end of the line. A
+continuation merges the current line with the following line.
+
+Ini-files can include other INI-files using the '#INCLUDE filepath' directive.
+It must start in the first column and the 'filepath' following the directive is
+read as if it was text present in the original file. Include files can be nested
+16 levels deep.
+
+== EXIT STATUS
+
+*0*::
+  Success, a matching value has been printed.
+
+*1*::
+  An error in the arguments, a missing INI-file name, an error while parsing
+  the INI-file or an error while performing tilde expansion (missing HOME
+  environment variable).
+
+*2*::
+  The searched _section_, _variable_ and _num_'th entry was not found.
+
+*3*::
+  The matched value failed the minimum/maximum test and was determined to be
+  outside the requested range.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by B.Stultiens, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright (c) 2026 B.Stultiens.
+
+This is free software; see the source for copying conditions.  There
+is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.

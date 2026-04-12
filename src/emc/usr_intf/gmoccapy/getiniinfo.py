@@ -47,9 +47,9 @@ class GetIniInfo:
             sys.exit()
 
     def get_cycle_time(self):
-        temp = self.inifile.find("DISPLAY", "CYCLE_TIME")
+        temp = self.inifile.getint("DISPLAY", "CYCLE_TIME")
         try:
-            return int(temp)
+            return temp
         except:
             message = ("Wrong entry [DISPLAY] CYCLE_TIME in INI File! ")
             message += ("Will use gmoccapy default 150")
@@ -69,7 +69,7 @@ class GetIniInfo:
         # we use gmoccapy.pref in the config dir
         temp = self.inifile.find("DISPLAY", "PREFERENCE_FILE_PATH")
         if not temp:
-            machinename = self.inifile.find("EMC", "MACHINE")
+            machinename = self.inifile.getstring("EMC", "MACHINE", fallback="<unknown>")
             if not machinename:
                 temp = os.path.join(CONFIGPATH, "gmoccapy.pref")
             else:
@@ -79,7 +79,7 @@ class GetIniInfo:
         return temp
 
     def get_coordinates(self):
-        temp = self.inifile.find("TRAJ", "COORDINATES")
+        temp = self.inifile.getstring("TRAJ", "COORDINATES", fallback="")
         # get rid of the spaces, if there are some
         temp = temp.replace(' ','')
 
@@ -89,11 +89,11 @@ class GetIniInfo:
         return temp.lower()
 
     def get_joints(self):
-        temp = self.inifile.find("KINS", "JOINTS")
+        temp = self.inifile.getint("KINS", "JOINTS")
         if not temp:
             LOG.warning("No JOINTS entry found in [KINS] of INI file, will use 3 as default")
             return (3)
-        return int(temp)
+        return temp
 
     def get_axis_list(self):
         axis_list = []
@@ -115,6 +115,7 @@ class GetIniInfo:
 
     def get_joint_axis_relation(self):
         # we will find out the relation between joint and axis.
+        # FIXME: This will crash if [KINS]KINEMATICS is not in the INI-file
         temp = self.inifile.find("KINS", "KINEMATICS").split()
 
         # follow the order given in $ man trivkins
@@ -177,6 +178,7 @@ class GetIniInfo:
         return joint_axis_dic, double_axis_letter
 
     def get_trivial_kinematics(self):
+        # FIXME: This will crash if [KINS]KINEMATICS is not in the INI-file
         temp = self.inifile.find("KINS", "KINEMATICS").split()
         LOG.debug("[KINS] KINESTYPE is {0}".format(temp[0]))
 
@@ -199,10 +201,7 @@ class GetIniInfo:
             return False
 
     def get_no_force_homing(self):
-        temp = self.inifile.find("TRAJ", "NO_FORCE_HOMING")
-        if not temp or temp == "0":
-            return False
-        return True
+        return self.inifile.getbool("TRAJ", "NO_FORCE_HOMING", fallback=False)
 
     def get_position_feedback_actual(self):
         temp = self.inifile.find("DISPLAY", "POSITION_FEEDBACK")
@@ -214,99 +213,90 @@ class GetIniInfo:
             return False
 
     def get_lathe(self):
-        temp = self.inifile.find("DISPLAY", "LATHE")
-        if not temp or temp == "0":
-            return False
-        return True
+        return self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
 
     def get_backtool_lathe(self):
-        temp = self.inifile.find("DISPLAY", "BACK_TOOL_LATHE")
-        if not temp or temp == "0":
-            return False
-        return True
+        return self.inifile.getbool("DISPLAY", "BACK_TOOL_LATHE", fallback=False)
 
     def get_lathe_wear_offsets(self):
-        temp = self.inifile.find("DISPLAY", "LATHE_WEAR_OFFSETS")
-        if not temp or temp == "0":
-            return False
-        return True
+        return self.inifile.getbool("DISPLAY", "LATHE_WEAR_OFFSETS", fallback=False)
 
     def get_jog_vel(self):
         # get default jog velocity
         # must convert from INI's units per second to gmoccapy's units per minute
-        temp = self.inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
+        temp = self.inifile.getreal("TRAJ", "DEFAULT_LINEAR_VELOCITY")
         if not temp:
-            temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY" )
+            temp = self.inifile.getreal("TRAJ", "MAX_LINEAR_VELOCITY" )
             if temp:
-                temp = float(temp) / 2
+                temp = temp / 2
                 LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using half on MAX_LINEAR_VELOCITY.")
             else:
                 temp = 3.0
                 LOG.warning("No DEFAULT_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using default value of 180 units / min.")
-        return float(temp) * 60
+        return temp * 60
 
     def get_max_jog_vel(self):
         # get max jog velocity
         # must convert from INI's units per second to gmoccapy's units per minute
-        temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
+        temp = self.inifile.getreal("TRAJ", "MAX_LINEAR_VELOCITY")
         if not temp:
             temp = 10.0
             LOG.warning("No MAX_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using default value of 600 units / min.")
-        return float(temp) * 60
+        return temp * 60
 
     def get_default_ang_jog_vel(self):
         # get default angular jog velocity
-        temp = self.inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
+        temp = self.inifile.getreal("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
         if not temp:
             temp = 360.0
             LOG.warning("No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 360 degree / min.")
-        return float(temp)
+        return temp
 
     def get_max_ang_jog_vel(self):
         # get max angular velocity
-        temp = self.inifile.find("DISPLAY", "MAX_ANGULAR_VELOCITY")
+        temp = self.inifile.getreal("DISPLAY", "MAX_ANGULAR_VELOCITY")
         if not temp:
             temp = 3600.0
             LOG.warning("No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 3600 degree / min.")
-        return float(temp)
+        return temp
 
     def get_min_ang_jog_vel(self):
         # get min angular velocity
-        temp = self.inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY")
+        temp = self.inifile.getreal("DISPLAY", "MIN_ANGULAR_VELOCITY")
         if not temp:
             temp = 0.1
             LOG.warning("No MIN_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 0.1 degree / min.")
-        return float(temp)
+        return temp
 
     def get_default_spindle_speed(self):
         # check for default spindle speed settings
-        temp = self.inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED")
+        temp = self.inifile.getreal("DISPLAY", "DEFAULT_SPINDLE_SPEED")
         if not temp:
-            temp = 300
+            temp = 300.0
             LOG.warning("No DEFAULT_SPINDLE_SPEED entry found in [DISPLAY] of INI file")
-        return float(temp)
+        return temp
 
     def get_max_spindle_override(self):
         # check for override settings
-        temp = self.inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE")
+        temp = self.inifile.getreal("DISPLAY", "MAX_SPINDLE_OVERRIDE")
         if not temp:
             temp = 1.0
             LOG.warning("No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
-        return float(temp)
+        return temp
 
     def get_min_spindle_override(self):
-        temp = self.inifile.find("DISPLAY", "MIN_SPINDLE_OVERRIDE")
+        temp = self.inifile.getreal("DISPLAY", "MIN_SPINDLE_OVERRIDE")
         if not temp:
             temp = 0.1
             LOG.warning("No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
-        return float(temp)
+        return temp
 
     def get_max_feed_override(self):
-        temp = self.inifile.find("DISPLAY", "MAX_FEED_OVERRIDE")
+        temp = self.inifile.getreal("DISPLAY", "MAX_FEED_OVERRIDE")
         if not temp:
             temp = 1.0
             LOG.warning("No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file")
-        return float(temp)
+        return temp
 
     def get_embedded_tabs(self):
         # Check INI file for embed commands
@@ -331,10 +321,7 @@ class GetIniInfo:
         return tab_names, tab_location, tab_cmd
 
     def get_parameter_file(self):
-        temp = self.inifile.find("RS274NGC", "PARAMETER_FILE")
-        if not temp:
-            return False
-        return temp
+        return self.inifile.getstring("RS274NGC", "PARAMETER_FILE", fallback=False)
 
     def get_program_prefix(self):
         # and we want to set the default path
@@ -379,16 +366,13 @@ class GetIniInfo:
         return jog_increments
 
     def get_toolfile(self):
-        temp = self.inifile.find("EMCIO", "TOOL_TABLE")
-        if not temp:
-            return False
-        return temp
+        return self.inifile.getstring("EMCIO", "TOOL_TABLE", fallback=False)
 
     def get_tool_sensor_data(self):
-        xpos = self.inifile.find("TOOLSENSOR", "X")
-        ypos = self.inifile.find("TOOLSENSOR", "Y")
-        zpos = self.inifile.find("TOOLSENSOR", "Z")
-        maxprobe = self.inifile.find("TOOLSENSOR", "MAXPROBE")
+        xpos = self.inifile.getreal("TOOLSENSOR", "X")
+        ypos = self.inifile.getreal("TOOLSENSOR", "Y")
+        zpos = self.inifile.getreal("TOOLSENSOR", "Z")
+        maxprobe = self.inifile.getreal("TOOLSENSOR", "MAXPROBE")
         return xpos, ypos, zpos, maxprobe
 
     def get_macros(self):
@@ -432,16 +416,10 @@ class GetIniInfo:
 
     def get_axis_2_min_limit(self):
         # needed to calculate the offset for automated tool measurement
-        temp = self.inifile.find("AXIS_2", "MIN_LIMIT")
-        if not temp:
-            return False
-        return float(temp)
+        return self.inifile.getreal("AXIS_2", "MIN_LIMIT", fallback=False)
 
     def get_RS274_start_code(self):
-        temp = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE")
-        if not temp:
-            temp = ""
-        return  temp
+        return self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE", fallback="")
 
     def get_user_messages(self):
         message_text = self.inifile.findall("DISPLAY", "MESSAGE_TEXT")

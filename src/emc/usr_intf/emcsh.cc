@@ -31,11 +31,13 @@
 #include "nml_intf/canon.hh"		// CANON_UNITS, CANON_UNITS_INCHES,MM,CM
 #include "nml_intf/emcglb.h"		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
 #include "nml_intf/emccfg.h"		// DEFAULT_TRAJ_MAX_VELOCITY
-#include "libnml/inifile/inifile.hh"		// INIFILE
+#include <inifile.hh>
 #include "libnml/rcs/rcs_print.hh"
 #include "libnml/os_intf/timer.hh"
 
 #include "shcom.hh"
+
+using namespace linuxcnc;
 
 #define setresult(t,s) Tcl_SetObjResult((t), Tcl_NewStringObj((s),-1))
 
@@ -388,7 +390,7 @@ static int emc_plat(ClientData /*clientdata*/,
 static int emc_ini(ClientData /*clientdata*/,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    IniFile inifile;
+    IniFile inifile(emc_inifile);
     const char *varstr, *secstr, *defaultstr;
     defaultstr = 0;
 
@@ -396,8 +398,8 @@ static int emc_ini(ClientData /*clientdata*/,
 	setresult(interp,"emc_ini: need 'var' and 'section'");
 	return TCL_ERROR;
     }
-    // open it
-    if (inifile.Open(emc_inifile) == false) {
+    if (!inifile) {
+	setresult(interp, "emc_ini: failed to open ini-file'");
 	return TCL_OK;
     }
 
@@ -408,7 +410,7 @@ static int emc_ini(ClientData /*clientdata*/,
 	defaultstr = Tcl_GetStringFromObj(objv[3], 0);
     }
 
-    auto inistring = inifile.Find(varstr, secstr);
+    auto inistring = inifile.findString(varstr, secstr);
     if (!inistring) {
 	if (defaultstr != 0) {
 	    setresult(interp,(char *) defaultstr);
@@ -417,9 +419,6 @@ static int emc_ini(ClientData /*clientdata*/,
     }
 
     setresult(interp, inistring->c_str());
-
-    // close it
-    inifile.Close();
 
     return TCL_OK;
 }

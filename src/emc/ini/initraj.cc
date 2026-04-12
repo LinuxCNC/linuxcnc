@@ -7,369 +7,268 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
-* Copyright (c) 2004 All rights reserved.
+*
+* Copyright (c) 2026 All rights reserved.
 ********************************************************************/
 
-#include <stdio.h>		// NULL
-#include <stdlib.h>		// atol()
-#include <string.h>		// strlen()
-#include <ctype.h>		// isspace()
+#include <stdlib.h>
+#include <fmt/format.h>
 
 #include "nml_intf/emc.hh"
-#include <emcpos.h>             // EmcPose
-#include <posemath.h>		// PM_POSE, PM_RPY
+#include <emcpos.h>
 #include "libnml/rcs/rcs_print.hh"
-#include "emcIniFile.hh"
-#include "initraj.hh"		// these decls
-#include "nml_intf/emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
+#include "nml_intf/emcglb.h"
+#include "inifile.hh"
+
 #include "inihal.hh"
-#include <rtapi_string.h>
+#include "initraj.hh"
+
+using namespace linuxcnc;
 
 extern value_inihal_data old_inihal_data;
 
-/*
-  loadKins()
-
-  JOINTS <int>                  number of joints (DOF) in system
-
-  calls:
-
-  emcTrajSetJoints(int joints);
-*/
-
-static int loadKins(EmcIniFile *trajInifile)
+static void inline print_dbg_config(const std::string &s)
 {
-    trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
-
-    try {
-	int joints = 0;
-	trajInifile->Find(&joints, "JOINTS", "KINS");
-
-        if (0 != emcTrajSetJoints(joints)) {
-            return -1;
-        }
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print_error("%s", (fmt::format("{}: failed\n", s)).c_str());
     }
-   
-    catch (EmcIniFile::Exception &e) {
-        e.Print();
+}
+
+static double findLinearUnits(const IniFile &ini, const std::string &var, const std::string &sec, double def)
+{
+    // The const map holds pairs for linear units which are valid under the
+    // [TRAJ] section. These are of the form {"name", value}.
+    // If the name "name" is encountered in the INI, the value will be used.
+    static const std::map<const std::string, const double> linearUnitsMap = {
+        { "mm",         1.0 },
+        { "metric",     1.0 },
+        { "in",         1/25.4 },
+        { "inch",       1/25.4 },
+        { "imperial",   1/25.4 },
+    };
+
+    if(auto c = ini.findMap(linearUnitsMap, var, sec))
+        return *c;
+    return def;
+}
+
+static double findAngularUnits(const IniFile &ini, const std::string &var, const std::string &sec, double def)
+{
+    // The const map holds pairs for angular units which are valid under
+    // the [TRAJ] section. These are of the form {"name", value}.
+    // If the name "name" is encountered in the INI, the value will be used.
+    static const std::map<const std::string, const double, IniFile::caseless> angularUnitsMap = {
+        { "deg",        1.0 },
+        { "degree",     1.0 },
+        { "grad",       0.9 },
+        { "gon",        0.9 },
+        { "rad",        M_PI / 180.0 },
+        { "radian",     M_PI / 180.0 },
+    };
+
+    if(auto c = ini.findMap(angularUnitsMap, var, sec))
+        return *c;
+    return def;
+}
+
+//
+// loadKins()
+//
+// JOINTS <int>   number of joints (DOF) in system
+//
+static int loadKins(const IniFile &ini)
+{
+    int joints = ini.findIntV("JOINTS", "KINS", 0);
+    if (0 != emcTrajSetJoints(joints)) {
+        print_dbg_config("emcTrajSetJoints");
         return -1;
     }
-    
     return 0;
 }
 
 
-/*
-  loadTraj()
-
-  Loads INI file params for traj
-
-  COORDINATES <char[]>            axes in system
-  LINEAR_UNITS <float>            units per mm
-  ANGULAR_UNITS <float>           units per degree
-  DEFAULT_LINEAR_VELOCITY <float> default linear velocity
-  MAX_LINEAR_VELOCITY <float>     max linear velocity
-  DEFAULT_LINEAR_ACCELERATION <float> default linear acceleration
-  MAX_LINEAR_ACCELERATION <float>     max linear acceleration
-
-  calls:
-
-  emcTrajSetAxes(int axes, int axismask);
-  emcTrajSetUnits(double linearUnits, double angularUnits);
-  emcTrajSetVelocity(double vel, double ini_maxvel);
-  emcTrajSetAcceleration(double acc);
-  emcTrajSetMaxVelocity(double vel);
-  emcTrajSetMaxAcceleration(double acc);
-  */
-
-static int loadTraj(EmcIniFile *trajInifile)
+//
+// loadTraj()
+//
+// Load INI file params for traj
+// Note: MAX_FEED_OVERRIDE comes from the [DISPLAY] section
+//
+// [TRAJ]SPINDLES <int>                      Number of spindles configured
+// [TRAJ]COORDINATES <char[]>                Axes configured in system (sets axis mask)
+// [TRAJ]LINEAR_UNITS <real>                 Units per mm
+// [TRAJ]ANGULAR_UNITS <real>                Units per degree
+// [TRAJ]DEFAULT_LINEAR_VELOCITY <real>      Default linear velocity (ds/dt)
+// [TRAJ]MAX_LINEAR_VELOCITY <real>          Maximum linear velocity (ds/dt)
+// [TRAJ]DEFAULT_LINEAR_ACCELERATION <real>  Default linear acceleration (dv/dt)
+// [TRAJ]MAX_LINEAR_ACCELERATION <real>      Maximum linear acceleration (dv/dt)
+// [TRAJ]MAX_LINEAR_JERK <real>              Maximum linear jerk (da/dt)
+// [TRAJ]PLANNER_TYPE <int>                  Planner type (0=standard, 1=S-curve)
+// [TRAJ]ARC_BLEND_ENABLE <bool>             S-curve planner settings
+// [TRAJ]ARC_BLEND_FALLBACK_ENABLE <bool>    ...
+// [TRAJ]ARC_BLEND_OPTIMIZATION_DEPTH <int>  ...
+// [TRAJ]ARC_BLEND_GAP_CYCLES <int>          ...
+// [TRAJ]ARC_BLEND_RAMP_FREQ <real>          ...
+// [TRAJ]ARC_BLEND_KINK_RATIO <real>         ...
+// [DISPLAY]MAX_FEED_OVERRIDE <real>
+// [TRAJ]NO_PROBE_JOG_ERROR <bool>
+// [TRAJ]NO_PROBE_HOME_ERROR <bool>
+// [TRAJ]HOME <real[]>                       Home position (pose) one coordinate for each axis
+//
+static int loadTraj(const IniFile &ini)
 {
-    EmcLinearUnits linearUnits;
-    EmcAngularUnits angularUnits;
-    double vel;
-    double acc;
-    double jerk;
-    int planner_type;
-
-    trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
-
-    try{
-		int spindles = 1;
-		trajInifile->Find(&spindles, "SPINDLES", "TRAJ");
-		if (0 != emcTrajSetSpindles(spindles)) {
-			return -1;
-		}
-    }
-
-    catch (EmcIniFile::Exception &e) {
-        e.Print();
+    int spindles = ini.findIntV("SPINDLES", "TRAJ", 1);
+    if (0 != emcTrajSetSpindles(spindles)) {
+        print_dbg_config("emcTrajSetSpindles");
         return -1;
     }
 
-    try{
-	int axismask = 0;
-	auto coord = trajInifile->Find("COORDINATES", "TRAJ");
-	if(coord) {
-	    if(coord->find_first_of("xX") != std::string::npos) {
-	         axismask |= 1;
-            }
-	    if(coord->find_first_of("yY") != std::string::npos) {
-	         axismask |= 2;
-            }
-	    if(coord->find_first_of("zZ") != std::string::npos) {
-	         axismask |= 4;
-            }
-	    if(coord->find_first_of("aA") != std::string::npos) {
-	         axismask |= 8;
-            }
-	    if(coord->find_first_of("bB") != std::string::npos) {
-	         axismask |= 16;
-            }
-	    if(coord->find_first_of("cC") != std::string::npos) {
-	         axismask |= 32;
-            }
-	    if(coord->find_first_of("uU") != std::string::npos) {
-	         axismask |= 64;
-            }
-	    if(coord->find_first_of("vV") != std::string::npos) {
-	         axismask |= 128;
-            }
-	    if(coord->find_first_of("wW") != std::string::npos) {
-	         axismask |= 256;
-            }
-	} else {
-	    axismask = 1 | 2 | 4;		// default: XYZ machine
-	}
-        if (0 != emcTrajSetAxes(axismask)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetAxes\n");
-            }
-            return -1;
+    int axismask = 0;
+    if (auto coord = ini.findString("COORDINATES", "TRAJ")) {
+        static const std::string axes{"XYZABCUVW"};
+        for (auto c : *coord) {
+            size_t n = axes.find_first_of(std::toupper(c & 0xff));
+            if (n != std::string::npos)
+                axismask |= 1 << n;
         }
-
-        linearUnits = 0;
-        trajInifile->FindLinearUnits(&linearUnits, "LINEAR_UNITS", "TRAJ");
-        angularUnits = 0;
-        trajInifile->FindAngularUnits(&angularUnits, "ANGULAR_UNITS", "TRAJ");
-        if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
-            rcs_print("emcTrajSetUnits failed to set "
-                      "[TRAJ]LINEAR_UNITS or [TRAJ]ANGULAR_UNITS\n");
-            return -1;
-        }
-
-        vel = 1.0;
-        trajInifile->Find(&vel, "DEFAULT_LINEAR_VELOCITY", "TRAJ");
-        old_inihal_data.traj_default_velocity = vel;
-
-        // and set dynamic value
-        if (0 != emcTrajSetVelocity(0, vel)) { //default velocity on startup 0
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetVelocity\n");
-            }
-            return -1;
-        }
-
-        vel = 1e99; // by default, use AXIS limit
-        trajInifile->Find(&vel, "MAX_LINEAR_VELOCITY", "TRAJ");
-        // XXX CJR merge question: Set something in TrajConfig here?
-        old_inihal_data.traj_max_velocity = vel;
-
-        // and set dynamic value
-        if (0 != emcTrajSetMaxVelocity(vel)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetMaxVelocity\n");
-            }
-            return -1;
-        }
-
-        acc = 1e99; // let the axis values apply
-        trajInifile->Find(&acc, "DEFAULT_LINEAR_ACCELERATION", "TRAJ");
-        if (0 != emcTrajSetAcceleration(acc)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetAcceleration\n");
-            }
-            return -1;
-        }
-        old_inihal_data.traj_default_acceleration = acc;
-
-        acc = 1e99; // let the axis values apply
-        trajInifile->Find(&acc, "MAX_LINEAR_ACCELERATION", "TRAJ");
-        if (0 != emcTrajSetMaxAcceleration(acc)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetMaxAcceleration\n");
-            }
-            return -1;
-        }
-        old_inihal_data.traj_max_acceleration = acc;
-
-        // Set max jerk (default to 1e9 if not specified in INI)
-        jerk = 1e9;
-        trajInifile->Find(&jerk, "MAX_LINEAR_JERK", "TRAJ");
-        if (0 != emcTrajSetMaxJerk(jerk)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetMaxJerk\n");
-            }
-            return -1;
-        }
-        old_inihal_data.traj_max_jerk = jerk;
-        // Also set current jerk to max_jerk
-        if (0 != emcTrajSetJerk(jerk)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetJerk\n");
-            }
-            return -1;
-        }
-        planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve
-        trajInifile->Find(&planner_type, "PLANNER_TYPE", "TRAJ");
-        // Only 0 and 1 are supported, set to 0 if invalid
-        // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
-        if (planner_type != 0 && planner_type != 1) {
-            planner_type = 0;
-        }
-        if (planner_type == 1 && jerk < 1.0) {
-            planner_type = 0;
-        }
-        if (0 != emcTrajPlannerType(planner_type)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajPlannerType\n");
-            }
-            return -1;
-        }
-        old_inihal_data.traj_planner_type = planner_type;
-
-        int arcBlendEnable = 1;
-        int arcBlendFallbackEnable = 0;
-        int arcBlendOptDepth = 50;
-        int arcBlendGapCycles = 4;
-        double arcBlendRampFreq = 100.0;
-        double arcBlendTangentKinkRatio = 0.1;
-
-        trajInifile->Find(&arcBlendEnable, "ARC_BLEND_ENABLE", "TRAJ");
-        trajInifile->Find(&arcBlendFallbackEnable, "ARC_BLEND_FALLBACK_ENABLE", "TRAJ");
-        trajInifile->Find(&arcBlendOptDepth, "ARC_BLEND_OPTIMIZATION_DEPTH", "TRAJ");
-        trajInifile->Find(&arcBlendGapCycles, "ARC_BLEND_GAP_CYCLES", "TRAJ");
-        trajInifile->Find(&arcBlendRampFreq, "ARC_BLEND_RAMP_FREQ", "TRAJ");
-        trajInifile->Find(&arcBlendTangentKinkRatio, "ARC_BLEND_KINK_RATIO", "TRAJ");
-
-        if (0 != emcSetupArcBlends(arcBlendEnable, arcBlendFallbackEnable,
-                    arcBlendOptDepth, arcBlendGapCycles, arcBlendRampFreq, arcBlendTangentKinkRatio)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcSetupArcBlends\n");
-            }
-            return -1;
-        } 
-
-        old_inihal_data.traj_arc_blend_enable = arcBlendEnable;
-        old_inihal_data.traj_arc_blend_fallback_enable = arcBlendFallbackEnable;
-        old_inihal_data.traj_arc_blend_optimization_depth = arcBlendOptDepth;
-        old_inihal_data.traj_arc_blend_gap_cycles = arcBlendGapCycles;
-        old_inihal_data.traj_arc_blend_ramp_freq = arcBlendRampFreq;
-        old_inihal_data.traj_arc_blend_tangent_kink_ratio = arcBlendTangentKinkRatio;
-        //TODO update inihal
-
-        double maxFeedScale = 1.0;
-        trajInifile->Find(&maxFeedScale, "MAX_FEED_OVERRIDE", "DISPLAY");
-
-        if (0 != emcSetMaxFeedOverride(maxFeedScale)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcSetMaxFeedOverride\n");
-            }
-            return -1;
-        } 
-        
-        int j_inhibit = 0;
-        int h_inhibit = 0;
-        trajInifile->Find(&j_inhibit, "NO_PROBE_JOG_ERROR", "TRAJ");
-        trajInifile->Find(&h_inhibit, "NO_PROBE_HOME_ERROR", "TRAJ");
-        if (0 != emcSetProbeErrorInhibit(j_inhibit, h_inhibit)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcSetProbeErrorInhibit\n");
-            }
-            return -1;
-        }
+    } else {
+        axismask = (1<<0) | (1<<1) | (1<<2); // X, Y and Z machine
     }
-
-    catch (EmcIniFile::Exception &e) {
-        e.Print();
+    if (0 != emcTrajSetAxes(axismask)) {
+        print_dbg_config("emcTrajSetAxes");
         return -1;
     }
-    try{
-        unsigned char coordinateMark[6] = { 1, 1, 1, 0, 0, 0 };
-        int t;
-        int len;
-        char homes[LINELEN];
-        char home[LINELEN];
-        EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-        double d;
-        auto inistring = trajInifile->Find("HOME", "TRAJ");
-        if (inistring) {
-            // [TRAJ]HOME is important for genhexkins.c kinetmaticsForward()
-            // and probably other non-identity kins that solve the forward
-            // kinematics with an iterative algorithm when the homePose
-            // is not all zeros
 
-            // found it, now interpret it according to coordinateMark[]
-            rtapi_strxcpy(homes, inistring->c_str());
-            len = 0;
-            for (t = 0; t < 6; t++) {
-                if (!coordinateMark[t]) {
-                    continue;    // position t at index of next non-zero mark
-                }
-                // there is a mark, so read the string for a value
-                if (1 == sscanf(&homes[len], "%254s", home) &&
-                    1 == sscanf(home, "%lf", &d)) {
-                    // got an entry, index into coordinateMark[] is 't'
-                    if (t == 0)
-                        homePose.tran.x = d;
-                    else if (t == 1)
-                        homePose.tran.y = d;
-                    else if (t == 2)
-                        homePose.tran.z = d;
-                    else if (t == 3)
-                        homePose.a = d;
-                    else if (t == 4)
-                        homePose.b = d;
-                    else if (t == 5)
-                        homePose.c = d;
-/*
- * The following have no effect. The loop only counts [0..5].
-                    else if (t == 6)
-                        homePose.u = d;
-                    else if (t == 7)
-                        homePose.v = d;
-                    else
-                        homePose.w = d;
-*/
 
-                    // position string ptr past this value
-                    len += strlen(home);
-                    // and at start of next value
-                    while ((len < LINELEN) && (homes[len] == ' ' || homes[len] == '\t')) {
-                        len++;
-                    }
-                    if (len >= LINELEN) {
-                        break;    // out of for loop
-                    }
-                } else {
-                    // badly formatted entry
-                    rcs_print("invalid INI file value for [TRAJ] HOME: %s\n",
-                          inistring->c_str());
-                        return -1;
-                }
-            }  // end of for-loop on coordinateMark[]
+    double linearUnits  = findLinearUnits(ini, "LINEAR_UNITS", "TRAJ", 0.0);
+    double angularUnits = findAngularUnits(ini, "ANGULAR_UNITS", "TRAJ", 0.0);
+    if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
+        rcs_print("emcTrajSetUnits failed to set [TRAJ]LINEAR_UNITS or [TRAJ]ANGULAR_UNITS\n");
+        return -1;
+    }
+
+    double velocity = ini.findRealV("DEFAULT_LINEAR_VELOCITY", "TRAJ", 1.0);
+    if (0 != emcTrajSetVelocity(0.0, velocity)) { // Default velocity=0.0 on startup
+        print_dbg_config("emcTrajSetVelocity");
+        return -1;
+    }
+    old_inihal_data.traj_default_velocity = velocity;
+
+
+    velocity = ini.findRealV("MAX_LINEAR_VELOCITY", "TRAJ", 1e99);
+    if (0 != emcTrajSetMaxVelocity(velocity)) {
+        print_dbg_config("emcTrajSetMaxVelocity");
+        return -1;
+    }
+    old_inihal_data.traj_max_velocity = velocity;
+
+
+    double accel = ini.findRealV("DEFAULT_LINEAR_ACCELERATION", "TRAJ", 1e99);
+    if (0 != emcTrajSetAcceleration(accel)) {
+        print_dbg_config("emcTrajSetAcceleration");
+        return -1;
+    }
+    old_inihal_data.traj_default_acceleration = accel;
+
+    accel = ini.findRealV("MAX_LINEAR_ACCELERATION", "TRAJ", 1e99);
+    if (0 != emcTrajSetMaxAcceleration(accel)) {
+        print_dbg_config("emcTrajSetMaxAcceleration");
+        return -1;
+    }
+    old_inihal_data.traj_max_acceleration = accel;
+
+    // Set max jerk (default to 1e9 if not specified in INI)
+    double jerk = ini.findRealV("MAX_LINEAR_JERK", "TRAJ", 1e9);
+    // Set both current and max jerk
+    if (0 != emcTrajSetMaxJerk(jerk)) {
+        print_dbg_config("emcTrajSetMaxJerk");
+        return -1;
+    }
+    old_inihal_data.traj_max_jerk = jerk;
+    if (0 != emcTrajSetJerk(jerk)) {
+        print_dbg_config("emcTrajSetJerk");
+        return -1;
+    }
+
+    // Planner: 0 = trapezoidal, 1 = S-curve
+    // Default = 0
+    int planner_type = ini.findIntV("PLANNER_TYPE", "TRAJ", 0, 0, 1);
+    // Also force planner type 0 if max_jerk < 1 (S-curve needs valid jerk)
+    if (planner_type == 1 && jerk < 1.0) {
+        // FIXME: Should write a warning message to the user
+        planner_type = 0;
+    }
+    if (0 != emcTrajPlannerType(planner_type)) {
+        print_dbg_config("emcTrajPlannerType");
+        return -1;
+    }
+    old_inihal_data.traj_planner_type = planner_type;
+
+    int arcBlendEnable = ini.findBoolV("ARC_BLEND_ENABLE", "TRAJ", true);
+    int arcBlendFallbackEnable = ini.findBoolV("ARC_BLEND_FALLBACK_ENABLE", "TRAJ", false);
+    int arcBlendOptDepth = ini.findIntV("ARC_BLEND_OPTIMIZATION_DEPTH", "TRAJ", 50);
+    int arcBlendGapCycles = ini.findIntV("ARC_BLEND_GAP_CYCLES", "TRAJ", 4);
+    double arcBlendRampFreq = ini.findRealV("ARC_BLEND_RAMP_FREQ", "TRAJ", 100.0);
+    double arcBlendTangentKinkRatio = ini.findRealV("ARC_BLEND_KINK_RATIO", "TRAJ", 0.1);
+    if (0 != emcSetupArcBlends(arcBlendEnable, arcBlendFallbackEnable,
+                arcBlendOptDepth, arcBlendGapCycles, arcBlendRampFreq, arcBlendTangentKinkRatio)) {
+        print_dbg_config("emcSetupArcBlends");
+        return -1;
+    }
+    old_inihal_data.traj_arc_blend_enable = arcBlendEnable;
+    old_inihal_data.traj_arc_blend_fallback_enable = arcBlendFallbackEnable;
+    old_inihal_data.traj_arc_blend_optimization_depth = arcBlendOptDepth;
+    old_inihal_data.traj_arc_blend_gap_cycles = arcBlendGapCycles;
+    old_inihal_data.traj_arc_blend_ramp_freq = arcBlendRampFreq;
+    old_inihal_data.traj_arc_blend_tangent_kink_ratio = arcBlendTangentKinkRatio;
+    //TODO update inihal
+
+    double maxFeedScale = ini.findRealV("MAX_FEED_OVERRIDE", "DISPLAY", 1.0);
+    if (0 != emcSetMaxFeedOverride(maxFeedScale)) {
+        print_dbg_config("emcSetMaxFeedOverride");
+        return -1;
+    }
+
+    bool j_inhibit = ini.findBoolV("NO_PROBE_JOG_ERROR", "TRAJ", false);
+    bool h_inhibit = ini.findBoolV("NO_PROBE_HOME_ERROR", "TRAJ", false);
+    if (0 != emcSetProbeErrorInhibit(j_inhibit, h_inhibit)) {
+        print_dbg_config("emcSetProbeErrorInhibit");
+        return -1;
+    }
+
+    if (auto inistring = ini.findString("HOME", "TRAJ")) {
+        std::vector<std::string> toks = IniFile::split(" \t", *inistring);
+	// NOTE: originally, this code would only set axes X, Y and Z and
+	// ignore everything else. Now all axes are set if provided in the
+	// [TRAJ]HOME position.
+	EmcPose homePose{};
+        for (size_t i = 0; i < toks.size() && i <= EMCMOT_MAX_AXIS; i++) {
+            char *eptr;
+            errno = 0;
+            double val = strtod(toks[i].c_str(), &eptr);
+            if (errno || *eptr || eptr == toks[i].c_str()) {
+                rcs_print_error("Invalid value '%s' for axis %zu in homePose\n", toks[i].c_str(), i);
+                return -1;
+            }
+            switch(i) {
+            case 0: homePose.tran.x = val; break;
+            case 1: homePose.tran.y = val; break;
+            case 2: homePose.tran.z = val; break;
+            case 3: homePose.a = val; break;
+            case 4: homePose.b = val; break;
+            case 5: homePose.c = val; break;
+            case 6: homePose.u = val; break;
+            case 7: homePose.v = val; break;
+            case 8: homePose.w = val; break;
+            default:
+                // Should never trigger because of EMCMOT_MAX_AXIS, but you never know
+                rcs_print_error("Value for invalid axis number %zu cannot be part of homePose\n", i);
+                return -1;
+            }
         }
         if (0 != emcTrajSetHome(homePose)) {
-            if (emc_debug & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetHome\n");
-            }
+            print_dbg_config("emcTrajSetHome");
             return -1;
         }
-     } //try
-
-    catch (EmcIniFile::Exception &e) {
-        e.Print();
-        return -1;
     }
     return 0;
 }
@@ -381,19 +280,13 @@ static int loadTraj(EmcIniFile *trajInifile)
  */
 int iniTraj(const char *filename)
 {
-    EmcIniFile trajInifile;
+    IniFile ini(filename);
+    if (!ini)
+        return -1;
 
-    if (trajInifile.Open(filename) == false) {
-	return -1;
-    }
-    // load trajectory values
-    if (0 != loadKins(&trajInifile)) {
-	return -1;
-    }
-    // load trajectory values
-    if (0 != loadTraj(&trajInifile)) {
+    if (loadKins(ini)) {
 	return -1;
     }
 
-    return 0;
+    return loadTraj(ini);
 }

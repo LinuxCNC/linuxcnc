@@ -205,7 +205,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             stat = fakeStatus()
 
         self.inifile = linuxcnc.ini(inifile)
-        self.foam_option = bool(self.inifile.find("DISPLAY", "FOAM"))
+        self.foam_option = self.inifile.getbool("DISPLAY", "FOAM", fallback=False)
         try:
             trajcoordinates = self.inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
         except:
@@ -255,8 +255,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.show_lathe_radius = False
         self.show_dtg = True
         self.grid_size = 0.0
-        temp = self.inifile.find("DISPLAY", "LATHE")
-        self.lathe_option = bool(temp == "1" or temp == "True" or temp == "true" )
+        self.lathe_option = self.inifile.getbool("DISPLAY", "LATHE", fallback=False)
 
         self.show_offsets = False
         self.show_overlay = False
@@ -268,9 +267,9 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.use_gradient_background = False
         self.gradient_color1 = (0.0, 0.0, 1)
         self.gradient_color2 = (0.0, 0.0, 0.0)
-        self.a_axis_wrapped = self.inifile.find("AXIS_A", "WRAPPED_ROTARY")
-        self.b_axis_wrapped = self.inifile.find("AXIS_B", "WRAPPED_ROTARY")
-        self.c_axis_wrapped = self.inifile.find("AXIS_C", "WRAPPED_ROTARY")
+        self.a_axis_wrapped = self.inifile.getbool("AXIS_A", "WRAPPED_ROTARY", fallback=False)
+        self.b_axis_wrapped = self.inifile.getbool("AXIS_B", "WRAPPED_ROTARY", fallback=False)
+        self.c_axis_wrapped = self.inifile.getbool("AXIS_C", "WRAPPED_ROTARY", fallback=False)
 
         self._tool_dia = 0
         self.spindle_speed = 0
@@ -279,7 +278,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         for i,j in enumerate("XYZABCUVW"):
             if self.stat.axis_mask & (1<<i) == 0: continue
             live_axis_count += 1
-        self.num_joints = int(self.inifile.find("KINS", "JOINTS") or live_axis_count)
+        self.num_joints = self.inifile.getint("KINS", "JOINTS", fallback=live_axis_count)
 
         # initialize variables for user view
         self.presetViewSettings(v=None,z=0,
@@ -381,8 +380,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         load_result = True
         canon = None
         try:
-            random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
-            arcdivision = int(self.inifile.find("DISPLAY", "ARCDIVISION") or 64)
+            random = self.inifile.getbool("EMCIO", "RANDOM_TOOLCHANGER", fallback=False)
+            arcdivision = self.inifile.getint("DISPLAY", "ARCDIVISION", fallback=64)
             text = ''
             canon = StatCanon(self.colors,
                                 self.get_geometry(),
@@ -392,8 +391,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                                 progress, arcdivision)
             # monkey patched function to call ours
             canon.output_notify_message = self.output_notify_message
-            parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
-            temp_parameter = os.path.join(td, os.path.basename(parameter or "linuxcnc.var"))
+            parameter = self.inifile.getstring("RS274NGC", "PARAMETER_FILE", fallback="linuxcnc.var")
+            temp_parameter = os.path.join(td, os.path.basename(parameter))
             if parameter:
                 shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
@@ -460,11 +459,14 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         props = {}
         loaded_file = self._current_file
-        max_speed = float(
-            self.inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
-            or self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
-            or self.inifile.find("AXIS_X","MAX_VELOCITY")
-            or 1)
+        if self.inifile.hasvariable("DISPLAY","MAX_LINEAR_VELOCITY"):
+            max_speed = self.inifile.getreal("DISPLAY","MAX_LINEAR_VELOCITY", 1.0)
+        elif self.inifile.hasvariable("TRAJ","MAX_LINEAR_VELOCITY"):
+            max_speed = self.inifile.getreal("TRAJ","MAX_LINEAR_VELOCITY", 1.0)
+        elif self.inifile.hasvariable("AXIS_X","MAX_VELOCITY"):
+            max_speed = self.inifile.getreal("AXIS_X","MAX_VELOCITY", 1.0)
+        else:
+            max_speed = 1.0
 
         if not loaded_file:
             props['name'] = "No file loaded"
@@ -589,7 +591,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def get_current_view(self):
         return self.current_view
     def get_geometry(self):
-        temp = self.inifile.find("DISPLAY", "GEOMETRY") or 'XYZABCUVW'
+        temp = self.inifile.getstring("DISPLAY", "GEOMETRY", fallback='XYZABCUVW')
         if temp:
             _geometry = re.split(" *(-?[XYZABCUVW])", temp.upper())
             self._geometry = "".join(reversed(_geometry))

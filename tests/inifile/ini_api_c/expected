@@ -1,0 +1,82 @@
++++ Running test program for 'initest' +++
+--- test integer/unsigned value
+42
+-42
+42
+xtest.ini:7: warning: Unsigned integer conversion detected a leading minus sign (-)
+18446744073709551574
+42
+-42
+42
+-42
+42
+xtest.ini:8: warning: Unsigned integer conversion detected a leading minus sign (-)
+18446744073709551574
+42
+-42
+42
+-42
+42
+xtest.ini:9: warning: Unsigned integer conversion detected a leading minus sign (-)
+18446744073709551574
+42
+-42
+42
+-42
+42
+xtest.ini:10: warning: Unsigned integer conversion detected a leading minus sign (-)
+18446744073709551574
+42
+-42
+--- test real value
+42
+-42
+--- test boolean value
+true
+false
+true
+false
+true
+false
+true
+false
+true
+false
+true
+false
+true
+false
+--- test bad integer/unsigned value
+xtest.ini:14: error: Invalid signed integer [SECTION]VARBadNum='BadInt42'
+iniFindSInt: Entry not found
+xtest.ini:14: error: Invalid unsigned integer [SECTION]VARBadNum='BadInt42'
+iniFindUInt: Entry not found
+xtest.ini:14: error: Invalid floating point [SECTION]VARBadNum='BadInt42'
+iniFindDouble: Entry not found
+--- test warn integer/unsigned trailing context
+xtest.ini:15: warning: Trailing character(s) in signed integer conversion ([SECTION]VARWarnNum='42Warn')
+42
+xtest.ini:15: warning: Trailing character(s) in unsigned integer conversion ([SECTION]VARWarnNum='42Warn')
+42
+xtest.ini:15: warning: Trailing character(s) in floating point conversion ([SECTION]VARWarnNum='42Warn')
+42
+--- test bad boolean value
+xtest.ini:13: error: Invalid boolean value [SECTION]VARBadBool='BadBool'
+iniFindBool: Entry not found
+--- test string value
+BadInt42
+42Warn
+--- test missing value
+iniFindString: Entry not found
+iniFindSInt: Entry not found
+iniFindUInt: Entry not found
+iniFindBool: Entry not found
+iniFindInt: Entry not found
+--- test missing section
+value to check the rest is missing
+iniFindString: Entry not found
+iniFindSInt: Entry not found
+iniFindUInt: Entry not found
+iniFindBool: Entry not found
+iniFindInt: Entry not found
++++ all done +++

@@ -192,17 +192,11 @@ int main(int argc, char **argv)
 		if (halcmd_inifile == NULL) {
 		    /* it's the first -i (ignore repeats) */
                     /* there is a following arg, and it's not an option */
-                    filename = optarg;
-                    halcmd_inifile = fopen(filename, "r");
+                    halcmd_inifile = strdup(optarg);
                     if (halcmd_inifile == NULL) {
-                        fprintf(stderr,
-                            "Could not open INI file '%s'\n",
-                            filename);
+                        fprintf(stderr, "Could not open INI file '%s'\n", optarg);
                         exit(-1);
                     }
-                    /* make sure file is closed on exec() */
-                    fd = fileno(halcmd_inifile);
-                    fcntl(fd, F_SETFD, FD_CLOEXEC);
 		}
 		break;
 #endif /* NO_INI */

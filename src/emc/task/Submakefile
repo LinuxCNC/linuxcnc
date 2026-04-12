@@ -1,9 +1,11 @@
 
 EMCSVRSRCS := \
-	emc/task/emcsvr.cc
+	emc/task/emcsvr.cc \
+	emc/usr_intf/mapini.cc
+
 USERSRCS += $(EMCSVRSRCS)
 
-../bin/linuxcncsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
+../bin/linuxcncsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.1
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) -o $@ $^ $(LDFLAGS)
 TARGETS += ../bin/linuxcncsvr
@@ -21,17 +23,18 @@ MILLTASKSRCS := \
 	emc/motion/stashf.c \
 	emc/task/taskclass.cc \
 	emc/task/backtrace.cc \
+	emc/usr_intf/mapini.cc
 
 USERSRCS += $(MILLTASKSRCS)
 
 #LDFLAGS +=
 
 ../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a \
-                 ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 \
+                 ../lib/libnml.so.0 ../lib/liblinuxcncini.so.1 ../lib/libposemath.so.0 \
                  ../lib/liblinuxcnchal.so.0 ../lib/libpyplugin.so.0 \
                  ../lib/libtooldata.so.0
 
 
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) -o $@ $^ $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
+	$(CXX) -o $@ $^ $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS) -lfmt
 TARGETS += ../bin/milltask

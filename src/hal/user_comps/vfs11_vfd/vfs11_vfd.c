@@ -62,7 +62,7 @@
 #include <hal.h>
 #include <modbus.h>
 #include <modbus-tcp.h>
-#include "libnml/inifile/inifile.h"
+#include <inifile.h>
 
 /*
  * VFS-11 parameters:
@@ -272,7 +272,6 @@ typedef struct params {
     int tcp_portno;
     char *progname;
     char *section;
-    FILE *fp;
     char *inifile;
     int reconnect_delay;
     modbus_t *ctx;
@@ -312,7 +311,6 @@ static params_type param = {
     .tcp_portno = 1502, // MODBUS_TCP_DEFAULT_PORT (502) would require root privileges
     .progname = "vfs11_vfd",
     .section = "VFS11",
-    .fp = NULL,
     .inifile = NULL,
     .reconnect_delay = 1,
     .ctx = NULL,
@@ -397,20 +395,19 @@ enum kwdresult {NAME_NOT_FOUND, KEYWORD_INVALID, KEYWORD_FOUND};
 
 int findkwd(param_pointer p, const char *name, int *result, const char *keyword, int value, ...)
 {
-    const char *word;
     char wordbuf[INI_MAX_LINELEN];
     va_list ap;
     const char *kwds[MAX_KWD], **s;
     int nargs = 0;
 
-    if ((word = iniFindString(p->fp, name, p->section, wordbuf, sizeof(wordbuf))) == NULL)
+    if (iniFindString(p->inifile, name, p->section, wordbuf, sizeof(wordbuf)))
 	return NAME_NOT_FOUND;
 
     kwds[nargs++] = keyword;
     va_start(ap, value);
 
     while (keyword != NULL) {
-	if (!strcasecmp(word, keyword)) {
+	if (!strcasecmp(wordbuf, keyword)) {
 	    *result = value;
 	    va_end(ap);
 	    return KEYWORD_FOUND;
@@ -421,7 +418,7 @@ int findkwd(param_pointer p, const char *name, int *result, const char *keyword,
 	    value = va_arg(ap, int);
     }  
     fprintf(stderr, "%s: %s:[%s]%s: found '%s' - not one of: ", 
-	    p->progname, p->inifile, p->section, name, word);
+	    p->progname, p->inifile, p->section, name, wordbuf);
     for (s = kwds; *s; s++) 
 	fprintf(stderr, "%s ", *s);
     fprintf(stderr, "\n");
@@ -431,81 +428,74 @@ int findkwd(param_pointer p, const char *name, int *result, const char *keyword,
 
 int read_ini(param_pointer p)
 {
-    const char *s;
     char sbuf[INI_MAX_LINELEN];
     double f;
     int value;
 
-    if ((p->fp = fopen(p->inifile,"r")) != NULL) {
-	if (!p->debug)
-	    iniFindInt(p->fp, "DEBUG", p->section, &p->debug);
-	if (!p->modbus_debug)
-	    iniFindInt(p->fp, "MODBUS_DEBUG", p->section, &p->modbus_debug);
-	iniFindInt(p->fp, "BITS", p->section, &p->bits);
-	iniFindInt(p->fp, "BAUD", p->section, &p->baud);
-	iniFindInt(p->fp, "STOPBITS", p->section, &p->stopbits);
-	iniFindInt(p->fp, "TARGET", p->section, &p->slave);
-	iniFindInt(p->fp, "POLLCYCLES", p->section, &p->pollcycles);
-	iniFindInt(p->fp, "PORT", p->section, &p->tcp_portno);
-	iniFindInt(p->fp, "RECONNECT_DELAY", p->section, &p->reconnect_delay);
+    if (!p->debug)
+        iniFindInt(p->inifile, "DEBUG", p->section, &p->debug);
+    if (!p->modbus_debug)
+        iniFindInt(p->inifile, "MODBUS_DEBUG", p->section, &p->modbus_debug);
+    iniFindInt(p->inifile, "BITS", p->section, &p->bits);
+    iniFindInt(p->inifile, "BAUD", p->section, &p->baud);
+    iniFindInt(p->inifile, "STOPBITS", p->section, &p->stopbits);
+    iniFindInt(p->inifile, "TARGET", p->section, &p->slave);
+    iniFindInt(p->inifile, "POLLCYCLES", p->section, &p->pollcycles);
+    iniFindInt(p->inifile, "PORT", p->section, &p->tcp_portno);
+    iniFindInt(p->inifile, "RECONNECT_DELAY", p->section, &p->reconnect_delay);
 
-	if ((s = iniFindString(p->fp, "TCPDEST", p->section, sbuf, sizeof(sbuf)))) {
-	    p->tcp_destip = strdup(s);
-	}
-	if ((s = iniFindString(p->fp, "DEVICE", p->section, sbuf, sizeof(sbuf)))) {
-	    p->device = strdup(s);
-	}
-	if (iniFindDouble(p->fp, "RESPONSE_TIMEOUT", p->section, &f)) {
-	    p->response_timeout.tv_sec = (int) f;
-	    p->response_timeout.tv_usec = (f-p->response_timeout.tv_sec) * 1000000;
-	}
-	if (iniFindDouble(p->fp, "BYTE_TIMEOUT", p->section, &f)) {
-	    p->byte_timeout.tv_sec = (int) f;
-	    p->byte_timeout.tv_usec = (f-p->byte_timeout.tv_sec) * 1000000;
-	}
-	value = p->parity;
-	if (findkwd(p, "PARITY", &value,
-		    "even",'E', 
-		    "odd", 'O', 
-		    "none", 'N',
-		    (void *)NULL) == KEYWORD_INVALID)
-	    return -1;
-	p->parity = value;
+    if (0 == iniFindString(p->inifile, "TCPDEST", p->section, sbuf, sizeof(sbuf))) {
+        p->tcp_destip = strdup(sbuf);
+    }
+    if (0 == iniFindString(p->inifile, "DEVICE", p->section, sbuf, sizeof(sbuf))) {
+        p->device = strdup(sbuf);
+    }
+    if (iniFindDouble(p->inifile, "RESPONSE_TIMEOUT", p->section, &f)) {
+        p->response_timeout.tv_sec = (int) f;
+        p->response_timeout.tv_usec = (f-p->response_timeout.tv_sec) * 1000000;
+    }
+    if (iniFindDouble(p->inifile, "BYTE_TIMEOUT", p->section, &f)) {
+        p->byte_timeout.tv_sec = (int) f;
+        p->byte_timeout.tv_usec = (f-p->byte_timeout.tv_sec) * 1000000;
+    }
+    value = p->parity;
+    if (findkwd(p, "PARITY", &value,
+	    "even",'E',
+	    "odd", 'O',
+	    "none", 'N',
+	    (void *)NULL) == KEYWORD_INVALID)
+        return -1;
+    p->parity = value;
 
 #ifdef MODBUS_RTU_RTS_UP	
-	if (findkwd(p, "RTS_MODE", &p->rts_mode,
-		    "up", MODBUS_RTU_RTS_UP,
-		    "down", MODBUS_RTU_RTS_DOWN, 
-		    "none", MODBUS_RTU_RTS_NONE,
-		    (void *)NULL) == KEYWORD_INVALID)
-	    return -1;
+    if (findkwd(p, "RTS_MODE", &p->rts_mode,
+	    "up", MODBUS_RTU_RTS_UP,
+	    "down", MODBUS_RTU_RTS_DOWN,
+	    "none", MODBUS_RTU_RTS_NONE,
+	    (void *)NULL) == KEYWORD_INVALID)
+        return -1;
 #else
-	if (iniFindString(p->fp, "RTS_MODE", p->section, sbuf, sizeof(sbuf)) != NULL) {
-	    fprintf(stderr,"%s: warning - the RTS_MODE feature is not available with the installed libmodbus version (%s).\n"
-		    "to enable it, uninstall libmodbus-dev and rebuild with "
-		    "libmodbus built http://github.com/stephane/libmodbus:master .\n",
-		    LIBMODBUS_VERSION_STRING, p->progname);
-	}
+    if (iniFindString(p->inifile, "RTS_MODE", p->section, sbuf, sizeof(sbuf)) != NULL) {
+        fprintf(stderr,"%s: warning - the RTS_MODE feature is not available with the installed libmodbus version (%s).\n"
+	    "to enable it, uninstall libmodbus-dev and rebuild with "
+	    "libmodbus built http://github.com/stephane/libmodbus:master .\n",
+	    LIBMODBUS_VERSION_STRING, p->progname);
+    }
 #endif
-	if (findkwd(p,"SERIAL_MODE", &p->serial_mode,
-		    "rs232", MODBUS_RTU_RS232,
-		    "rs485", MODBUS_RTU_RS485,
-		    (void *)NULL) == KEYWORD_INVALID)
-	    return -1;
+    if (findkwd(p,"SERIAL_MODE", &p->serial_mode,
+	    "rs232", MODBUS_RTU_RS232,
+	    "rs485", MODBUS_RTU_RS485,
+	    (void *)NULL) == KEYWORD_INVALID)
+        return -1;
 
-	if (findkwd(p, "TYPE", &p->type,
-		    "rtu", TYPE_RTU, 
-		    "tcpserver", TYPE_TCP_SERVER, 
-		    "tcpclient", TYPE_TCP_CLIENT, 
-		    (void *)NULL) == NAME_NOT_FOUND) {
-	    fprintf(stderr, "%s: missing required TYPE in section %s\n", 
-		    p->progname, p->section);
-	    return -1;
-	}
-    } else {
-	fprintf(stderr, "%s:can not open inifile '%s'\n", 
-		p->progname, p->inifile);
-	return -1;
+    if (findkwd(p, "TYPE", &p->type,
+	    "rtu", TYPE_RTU,
+	    "tcpserver", TYPE_TCP_SERVER,
+	    "tcpclient", TYPE_TCP_CLIENT,
+	    (void *)NULL) == NAME_NOT_FOUND) {
+        fprintf(stderr, "%s: missing required TYPE in section %s\n",
+	    p->progname, p->section);
+        return -1;
     }
     return 0;
 }

@@ -61,7 +61,7 @@
 #include <hal.h>
 #include <modbus.h>
 #include <modbus-tcp.h>
-#include "libnml/inifile/inifile.h"
+#include <inifile.h>
 
 // command registers for DELTA VFD-B Inverter
 #define REG_COMMAND1                    0x2000  // "Communication command" - start/stop, fwd/reverse, DC break, fault reset, panel override
@@ -160,7 +160,6 @@ typedef struct params {
     int stopbits;
     char *progname;
     char *section;
-    FILE *fp;
     char *inifile;
     int reconnect_delay;
     modbus_t *ctx;
@@ -191,7 +190,6 @@ static params_type param = {
         .stopbits = 1,
         .progname = "vfdb_vfd",
         .section = "VFD-B",
-        .fp = NULL,
         .inifile = NULL,
         .reconnect_delay = 1,
         .ctx = NULL,
@@ -277,20 +275,19 @@ enum kwdresult {NAME_NOT_FOUND, KEYWORD_INVALID, KEYWORD_FOUND};
 
 int findkwd(param_pointer p, const char *name, int *result, const char *keyword, int value, ...)
 {
-    const char *word;
     char wordbuf[INI_MAX_LINELEN];
     va_list ap;
     const char *kwds[MAX_KWD], **s;
     int nargs = 0;
 
-    if ((word = iniFindString(p->fp, name, p->section, wordbuf, sizeof(wordbuf))) == NULL)
+    if (iniFindString(p->inifile, name, p->section, wordbuf, sizeof(wordbuf)))
         return NAME_NOT_FOUND;
 
     kwds[nargs++] = keyword;
     va_start(ap, value);
 
     while (keyword != NULL) {
-        if (!strcasecmp(word, keyword)) {
+        if (!strcasecmp(wordbuf, keyword)) {
             *result = value;
             va_end(ap);
             return KEYWORD_FOUND;
@@ -301,7 +298,7 @@ int findkwd(param_pointer p, const char *name, int *result, const char *keyword,
             value = va_arg(ap, int);
     }  
     fprintf(stderr, "%s: %s:[%s]%s: found '%s' - not one of: ", 
-            p->progname, p->inifile, p->section, name, word);
+            p->progname, p->inifile, p->section, name, wordbuf);
     for (s = kwds; *s; s++) 
         fprintf(stderr, "%s ", *s);
     fprintf(stderr, "\n");
@@ -311,41 +308,34 @@ int findkwd(param_pointer p, const char *name, int *result, const char *keyword,
 
 int read_ini(param_pointer p)
 {
-    const char *s;
     char sbuf[INI_MAX_LINELEN];
     int value;
 
-    if ((p->fp = fopen(p->inifile,"r")) != NULL) {
-        if (!p->debug)
-            iniFindInt(p->fp, "DEBUG", p->section, &p->debug);
-        if (!p->modbus_debug)
-            iniFindInt(p->fp, "MODBUS_DEBUG", p->section, &p->modbus_debug);
-        iniFindInt(p->fp, "BITS", p->section, &p->bits);
-        iniFindInt(p->fp, "BAUD", p->section, &p->baud);
-        iniFindInt(p->fp, "STOPBITS", p->section, &p->stopbits);
-        iniFindInt(p->fp, "TARGET", p->section, &p->slave);
-        iniFindInt(p->fp, "POLLCYCLES", p->section, &p->pollcycles);
-        iniFindInt(p->fp, "RECONNECT_DELAY", p->section, &p->reconnect_delay);
+    if (!p->debug)
+        iniFindInt(p->inifile, "DEBUG", p->section, &p->debug);
+    if (!p->modbus_debug)
+        iniFindInt(p->inifile, "MODBUS_DEBUG", p->section, &p->modbus_debug);
+    iniFindInt(p->inifile, "BITS", p->section, &p->bits);
+    iniFindInt(p->inifile, "BAUD", p->section, &p->baud);
+    iniFindInt(p->inifile, "STOPBITS", p->section, &p->stopbits);
+    iniFindInt(p->inifile, "TARGET", p->section, &p->slave);
+    iniFindInt(p->inifile, "POLLCYCLES", p->section, &p->pollcycles);
+    iniFindInt(p->inifile, "RECONNECT_DELAY", p->section, &p->reconnect_delay);
 
-        iniFindInt(p->fp, "MOTOR_HZ", p->section, &p->motor_hz);
-        iniFindInt(p->fp, "MOTOR_RPM", p->section, &p->motor_rpm);
+    iniFindInt(p->inifile, "MOTOR_HZ", p->section, &p->motor_hz);
+    iniFindInt(p->inifile, "MOTOR_RPM", p->section, &p->motor_rpm);
 
-        if ((s = iniFindString(p->fp, "DEVICE", p->section, sbuf, sizeof(sbuf)))) {
-            p->device = strdup(s);
-        }
-        value = p->parity;
-        if (findkwd(p, "PARITY", &value,
-                "even",'E',
-                "odd", 'O',
-                "none", 'N',
-                (void *)NULL) == KEYWORD_INVALID)
-            return -1;
-        p->parity = value;
-    } else {
-        fprintf(stderr, "%s:can not open INI file '%s'\n",
-                p->progname, p->inifile);
-        return -1;
+    if (0 == iniFindString(p->inifile, "DEVICE", p->section, sbuf, sizeof(sbuf))) {
+        p->device = strdup(sbuf);
     }
+    value = p->parity;
+    if (findkwd(p, "PARITY", &value,
+            "even",'E',
+            "odd", 'O',
+            "none", 'N',
+            (void *)NULL) == KEYWORD_INVALID)
+        return -1;
+    p->parity = value;
     return 0;
 }
 

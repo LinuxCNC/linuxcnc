@@ -1,0 +1,243 @@
++++ Running test program for 'inivalue' +++
+--- test ini-file does not exist
+this_file_does_not_exist_and_will_never_be_here.ini: error: Cannot open ini-file (errno=2 (No such file or directory))
+--- test missing include filename (without blank)
+xtest.ini:1: error: Missing filename after #INCLUDE
+--- test missing include filename (with blank)
+xtest.ini:1: error: Missing filename after #INCLUDE
+--- test include file not found
+this_file_does_not_exist.inc: error: Cannot open ini-file (errno=2 (No such file or directory))
+--- test include file recursion
+xtest.inc:1: error: Include file recursion on loading 'xtest.ini'
+--- test invalid section, missing ']'
+xtest.ini:1: error: Invalid section. Missing ']'
+--- test invalid section, no content
+xtest.ini:1: error: Invalid section. No content between '[' and ']'
+xtest.ini:1: error: Invalid section. No content between '[' and ']'
+--- test invalid section, invalid identifier
+xtest.ini:1: error: Invalid section '0SECTION'. Cannot start with a digit
+xtest.ini:1: error: Invalid section 'xæøåz'. Identifier contains invalid character(s)
+--- test duplicate section merge warning
+xtest.ini:2: warning: Section 'SECTION' already exists. Merging...
+val
+--- test section trailing junk warning
+xtest.ini:1: warning: Section header has trailing content, ignored
+val
+--- test invalid variable name missing '='
+xtest.ini:2: error: Invalid tag 'VAR'. Expected '=' after tag identifier
+--- test invalid variable name missing identifier
+xtest.ini:2: error: Invalid tag. Missing identifier before '='
+--- test invalid variable name missing '='
+xtest.ini:2: error: Invalid tag 'VAR x'. Expected '=' after tag identifier
+--- test invalid variable name identifier
+xtest.ini:2: error: Invalid tag '0VAR'. Tag identifiers cannot start with a digit
+xtest.ini:2: error: Invalid tag name 'VÅR'. Identifier contains invalid character(s)
+xtest.ini:2: error: Invalid tag name 'VAR x'. Identifier contains invalid character(s)
+--- test invalid variable outside section
+xtest.ini:1: error: Tag 'VAR' found without prior section definition
+--- test continuation
+val   more val
+--- test last line has continuation without newline
+xtest.ini:2: error: Last line has a continuation
+--- test last line has continuation with newline
+xtest.ini:2: error: Last line has a continuation
+--- test getting all sections
+S1
+S2
+S3
+--- test get all variable of a name
+s1
+s2a
+s2b
+s2c
+s3
+--- test get all variable of a name from the 3'rd
+s2b
+s2c
+s3
+--- test get all variable of a name from unexisting number
+error: No instance 42 or more of '[]VAR'
+--- test get the 2'nd variable of global name VAR
+s2a
+--- test get the 2'nd variable of name VAR in section
+s2b
+--- test get the unexisting number variable of name VAR in section
+error: Cannot find instance 42 of '[S2]VAR'
+--- test integer/unsigned value
+42
+-42
+42
+xtest.ini:6: warning: Unsigned integer conversion detected a leading minus sign (-)
+18446744073709551574
+42
+-42
+42
+xtest.ini:7: warning: Unsigned integer conversion detected a leading minus sign (-)
+18446744073709551574
+42
+-42
+42
+xtest.ini:8: warning: Unsigned integer conversion detected a leading minus sign (-)
+18446744073709551574
+42
+-42
+42
+xtest.ini:9: warning: Unsigned integer conversion detected a leading minus sign (-)
+18446744073709551574
+--- test real value
+4.200000000000000e+01
+-4.200000000000000e+01
+--- test boolean value
+true
+false
+1
+0
+True
+False
+true
+false
+1
+0
+True
+False
+true
+false
+1
+0
+True
+False
+true
+false
+1
+0
+True
+False
+true
+false
+1
+0
+True
+False
+true
+false
+1
+0
+True
+False
+true
+false
+1
+0
+True
+False
+--- test bad integer/unsigned value
+xtest.ini:13: error: Invalid signed integer [SECTION]VARBadNum='BadInt42'
+error: Invalid integer []VARBadNum='BadInt42' or out of range [-9223372036854775808,9223372036854775807]
+xtest.ini:13: error: Invalid unsigned integer [SECTION]VARBadNum='BadInt42'
+error: Invalid unsigned []VARBadNum='BadInt42' or out of range [0,18446744073709551615]
+xtest.ini:13: error: Invalid floating point [SECTION]VARBadNum='BadInt42'
+error: Invalid real []VARBadNum='BadInt42' or out of range [-1.79769e+308,1.79769e+308]
+--- test warn integer/unsigned trailing context
+xtest.ini:14: warning: Trailing character(s) in signed integer conversion ([SECTION]VARWarnNum='42Warn')
+42
+xtest.ini:14: warning: Trailing character(s) in unsigned integer conversion ([SECTION]VARWarnNum='42Warn')
+42
+xtest.ini:14: warning: Trailing character(s) in floating point conversion ([SECTION]VARWarnNum='42Warn')
+4.200000000000000e+01
+--- test bad boolean value
+xtest.ini:12: error: Invalid boolean value [SECTION]VARBadBool='BadBool'
+--- test bad range
+error: Invalid integer range min '0' > max '-1'
+error: Invalid unsigned range min '1' > max '0'
+error: Invalid real range min '0' > max '-1'
+--- test range tested value
+error: Invalid integer []VARdm='-42' or out of range [-1,0]
+-42
+xtest.ini:6: warning: Unsigned integer conversion detected a leading minus sign (-)
+error: Invalid unsigned []VARdm='-42' or out of range [0,0]
+42
+xtest.ini:6: warning: Unsigned integer conversion detected a leading minus sign (-)
+18446744073709551574
+error: Invalid real []VARrp='+4.2e1' or out of range [8,9.999]
+4.200000000000000e+01
+error: Invalid real []VARrm='-4.2e1' or out of range [-1.21,0]
+-4.200000000000000e+01
+--- test tilde expansion without HOME
+error: Tilde expansion failed on '~/xyz'
+--- test tilde expansion with HOME
+/we/control/home/xyz
+--- reproduce ini-file content
+ini-file reproduction success
+--- comment removal processing
+xtest.ini:3: error: Invalid section. Missing ']'
+blabla
+blabla
+--- string processing single/double quote
+foo
+bar
+--- string merging
+foobar
+barfoo
+foofoo
+--- string quote escapes
+foo s' d"
+bar d" s'
+--- string bad quote escapes
+xtest.ini:3: warning: Improper escape of ' quote, ignored
+foo \" 
+xtest.ini:3: warning: Improper escape of ' quote, ignored
+bar ' 
+--- junk between string merge
+xtest.ini:2: error: Expected single or double quote, got 'b' at position 7 of the value
+xtest.ini:2: error: Expected single or double quote, got 'b' at position 7 of the value
+--- escape fail at end-of-string
+xtest.ini:2: error: Missing terminating " quote
+--- string continuations escaped newlines
+some
+string
+separated on
+lines
+--- embedded nul in values
+xtest.ini:2: error: Embedded literal NUL character not supported
+xtest.ini:2: error: Embedded literal NUL character not supported
+xtest.ini:2: error: Embedded octal NUL character not supported
+xtest.ini:2: error: Embedded hex NUL character not supported
+xtest.ini:2: error: Embedded UTF-16 NUL character not supported
+xtest.ini:2: error: Embedded UTF-32 NUL character not supported
+--- escape invalid and improper hex
+xtest.ini:2: error: Invalid hex 'YZ' in hex escape
+xtest.ini:2: error: Improper hex escape
+xtest.ini:2: error: Invalid hex 'Y ' in hex escape
+xtest.ini:2: error: Invalid hex value 'VWZY' in UTF-16 escape
+xtest.ini:2: error: Improper UTF-16 escape
+xtest.ini:2: error: Invalid hex value 'VWZ ' in UTF-16 escape
+xtest.ini:2: error: Invalid hex value 'vwxyijkl' in UTF-32 escape
+xtest.ini:2: error: Improper UTF-32 escape
+xtest.ini:2: error: Invalid hex value 'vwxyijk ' in UTF-32 escape
+--- UTF-16 surrogates, sigh
+xtest.ini:2: error: Missing low surrogate in UTF-16
+xtest.ini:2: error: Invalid high surrogate value uDC00 in UTF-16
+xtest.ini:2: error: Invalid low surrogate value uD800 in UTF-16
+xtest.ini:2: error: Invalid hex 'dc0 ' in UTF-16 low surrogate escape
+😀
+--- invalid code points
+xtest.ini:2: error: Invalid code point U00110000 in UTF-32 escape
+--- valid code points
+AAAA
+--- invalid UTF-8
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+xtest.ini:2: error: Value contains invalid UTF-8 sequence
+😀
++++ all done +++

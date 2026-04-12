@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <sys/time.h>
@@ -12,7 +13,7 @@
 #include <rtapi_string.h>
 #include <rtapi_errno.h>
 #include <hal.h>
-#include "libnml/inifile/inifile.h"
+#include <inifile.h>
 
 #include <modbus.h>
 
@@ -136,8 +137,7 @@ typedef struct {
 //Reduce functions parameters using this common global structure.
 typedef struct {
     //INI config file
-    FILE *ini_file_ptr;
-    char *ini_file_path;
+    const char *ini_file_path;
     //INI config, common section
     int   init_dbg;
     int   version;

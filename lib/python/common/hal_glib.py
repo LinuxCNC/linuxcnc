@@ -29,13 +29,13 @@ JOGTELEOP = 0
 try:
     inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
     trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ", "")
-    jointcount = int(inifile.find("KINS", "JOINTS"))
+    jointcount = inifile.getint("KINS", "JOINTS")
 except:
     pass
 try:
     # get cycle time which could be in ms or seconds
     # convert to ms - use this to set update time
-    ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or 100)
+    ct = inifile.getreal('DISPLAY', 'CYCLE_TIME', fallback=100)
     if ct < 1:
         CYCLE_TIME = int(ct * 1000)
     else:

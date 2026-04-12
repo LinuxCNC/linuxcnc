@@ -1,1 +1,3 @@
-value1
+missing_section.ini:1: error: Tag 'key1' found without prior section definition
+
+missing_section.ini:1: error: Tag 'key1' found without prior section definition

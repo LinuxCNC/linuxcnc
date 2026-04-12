@@ -21,7 +21,7 @@
 #include "rs274ngc/rs274ngc.hh"
 #include "rs274ngc/rs274ngc_interp.hh"
 #include "rs274ngc/rs274ngc_return.hh"
-#include "libnml/inifile/inifile.hh"		// INIFILE
+#include <inifile.hh>
 #include "nml_intf/canon.hh"		// _parameter_file_name
 #include "config.h"		// LINELEN
 #include <stdio.h>    /* gets, etc. */
@@ -39,6 +39,8 @@
 
 #include "saicanon.hh"
 #include "tooldata/tooldata.hh"
+
+using namespace linuxcnc;
 
 InterpBase *pinterp;
 #define interp_new (*pinterp)
@@ -675,14 +677,13 @@ usage:
     }
   _sai._external_length_units =  0.03937007874016;
   if (inifile!= 0) {
-      IniFile ini;
-      // open it
-      if (ini.Open(inifile) == false) {
-	    fprintf(stderr, "could not open supplied INI file %s\n", inifile);
+      IniFile ini(inifile);
+      if (!ini) {
+        fprintf(stderr, "could not open supplied INI file %s\n", inifile);
         exit(1);
       }
 
-      if (auto inistring = ini.Find("LINEAR_UNITS", "TRAJ")) {
+      if (auto inistring = ini.findString("LINEAR_UNITS", "TRAJ")) {
           if (*inistring == "mm") {
              _sai._external_length_units = 1.0;
           }

@@ -57,7 +57,7 @@ class Override(Gtk.Scale):
         self.override_type = data
         self.inifile = self.emc.ini(INIPATH)
         if self.override_type == 0:
-            MAXFEED = float(self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE") or 2.0)
+            MAXFEED = self.inifile.getreal("DISPLAY","MAX_FEED_OVERRIDE", fallback=2.0)
             #print 'feed',MAXFEED
             adjustment.set_upper(MAXFEED*100)
             adjustment.set_lower(0)
@@ -66,14 +66,14 @@ class Override(Gtk.Scale):
             adjustment.set_upper(100)
             adjustment.set_lower(0)
         elif self.override_type == 2:
-            MINSPINDLE = float(self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE") or .5)
+            MINSPINDLE = self.inifile.getreal("DISPLAY","MIN_SPINDLE_OVERRIDE", fallback=0.5)
             #print 'mins',MINSPINDLE
-            MAXSPINDLE = float(self.inifile.find("DISPLAY","MAX_SPINDLE_OVERRIDE") or 1.5)
+            MAXSPINDLE = self.inifile.getreal("DISPLAY","MAX_SPINDLE_OVERRIDE", fallback=1.5)
             #print 'maxs',MAXSPINDLE
             adjustment.set_upper(MAXSPINDLE*100)
             adjustment.set_lower(MINSPINDLE*100)
         elif self.override_type == 3:
-            MAXVEL = float(self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY") or 100)
+            MAXVEL = self.inifile.getreal("TRAJ","MAX_LINEAR_VELOCITY", fallback=100)
             #print 'maxv',MAXVEL,MAXVEL/100.0
             self.max_vel_convert = MAXVEL/100.0
             adjustment.set_upper(100)
