@@ -1130,19 +1130,20 @@ double tpComputeOptimalVelocity_9D(TC_STRUCT const * const tc,
     // Constraint 2: Current segment velocity limit (scaled to physical mm/s)
     double vf_limit_this = tcGetPlanMaxTargetVel(tc, feed_tc);
 
-    // Constraint 3: Previous segment velocity limit (with kink at its own entry)
-    // prev_tc->kink_vel is the kink at the junction before prev_tc.
+    // Constraint 3: Previous segment velocity limit (with kink at its exit).
+    // prev_tc->kink_vel is the exit kink of prev_tc, which is the kink at the
+    // prev_tc→tc boundary.  This correctly limits prev_tc's exit velocity.
     double v_max_prev = tcGetPlanMaxTargetVel(prev_tc, feed_prev);
     double vf_limit_prev = applyKinkVelLimit(prev_tc, v_max_prev);
 
-    // Constraint 4: Junction kink at the prev_tc→tc boundary.
-    // tc->kink_vel is the physical kink limit for *entering* tc, which equals
-    // the *exit* velocity of prev_tc.  The backward pass must enforce this here
-    // so prev_tc's final_vel never exceeds the junction constraint ahead of it.
-    double vf_kink_tc = (tc->kink_vel > 0.0) ? tc->kink_vel : 1e9;
+    // NOTE: tc->kink_vel is the EXIT kink of tc (at the tc→next boundary),
+    // NOT the entry kink at prev_tc→tc.  Using it here would wrongly apply
+    // a downstream kink constraint to this junction — e.g. a 180° reversal
+    // after tc would cap the blend→tc entry to near-zero.  The exit kink of
+    // tc is already enforced at lines 1007/1052 where seg_exit is capped.
 
     // Return minimum of all constraints
-    double v_optimal = std::min({vs_back, vf_limit_this, vf_limit_prev, vf_kink_tc});
+    double v_optimal = std::min({vs_back, vf_limit_this, vf_limit_prev});
 
     return v_optimal;
 }
