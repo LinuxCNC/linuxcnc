@@ -27,6 +27,7 @@
 #include "usrmotintf.h"		/* these decls */
 #include "libnml/os_intf/_timer.h"
 #include "libnml/rcs/rcs_print.hh"
+#include "tp/tp.h"          /* tpIsDone(), TP_STRUCT */
 
 #include "libnml/inifile/inifile.hh"
 
@@ -38,12 +39,13 @@
 
 static int inited = 0;		/* flag if inited */
 
-static emcmot_command_t *emcmotCommand = 0;
-static emcmot_status_t *emcmotStatus = 0;
-static emcmot_config_t *emcmotConfig = 0;
-static emcmot_internal_t *emcmotInternal = 0;
-static emcmot_error_t *emcmotError = 0;
-static emcmot_struct_t *emcmotStruct = 0;
+/* Export these for libmotion_planning_9d.so (removed static) */
+emcmot_command_t *emcmotCommand = 0;
+emcmot_status_t *emcmotStatus = 0;
+emcmot_config_t *emcmotConfig = 0;
+emcmot_internal_t *emcmotInternal = 0;
+emcmot_error_t *emcmotError = 0;
+emcmot_struct_t *emcmotStruct = 0;
 
 /* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT)
    from named INI file */
@@ -265,7 +267,7 @@ void printTPstruct(TP_STRUCT * tp)
     printf("goalPos :");
     printEmcPose(&tp->goalPos);
     printf("\n");
-    printf("done=%d\n", tp->done);
+    printf("done=%d (computed via tpIsDone())\n", tpIsDone(tp));
     printf("depth=%d\n", tp->depth);
     printf("activeDepth=%d\n", tp->activeDepth);
     printf("aborting=%d\n", tp->aborting);
@@ -618,6 +620,38 @@ int usrmotExit(void)
 
     inited = 0;
     return 0;
+}
+
+/* Returns direct pointer to internal structure for 9D planner optimization */
+emcmot_internal_t *usrmotGetEmcmotInternal(void)
+{
+    return emcmotInternal;
+}
+
+/* Returns direct pointer to status structure */
+emcmot_status_t *usrmotGetEmcmotStatus(void)
+{
+    return emcmotStatus;
+}
+
+/* Returns direct pointer to TP structure for dual-layer architecture.
+   This allows userspace to call tpAddLine(), tpAddCircle(), etc. directly
+   on the shared memory TP structure, bypassing NML messaging.
+   WARNING: This is the actual TP struct shared with the RT process.
+   Use carefully to avoid corruption and data races. */
+TP_STRUCT *usrmotGetTPDataPtr(void)
+{
+    if (!emcmotInternal) {
+        return NULL;
+    }
+    TP_STRUCT *tp = &emcmotInternal->coord_tp;
+    return tp;
+}
+
+/* Returns direct pointer to config structure for TP global initialization */
+emcmot_config_t *usrmotGetEmcmotConfig(void)
+{
+    return emcmotConfig;
 }
 
 /* Loads pairs of comp from the compensation file.

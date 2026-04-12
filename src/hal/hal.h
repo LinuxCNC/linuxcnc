@@ -983,6 +983,31 @@ extern bool hal_stream_writable(hal_stream_t *stream);
 extern void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop);
 #endif
 
+
+/** Named struct API
+ *
+ * Structs live in their own namespace inside HAL shmem, separate from
+ * pins, signals, and parameters.  They are not visible in halcmd show pin/
+ * param/sig output.
+ *
+ * hal_struct_newf() allocates 'size' bytes in HAL shmem, optionally
+ * initialises it from 'defval' (or zeroes if NULL), and registers the blob
+ * in the struct namespace under the printf-style name.  Must be called
+ * before hal_ready().
+ *
+ * hal_struct_attach() finds an entry by name, increments its reference
+ * count, and sets *memptr to point at the data.  May be called from both
+ * RT and userspace after hal_init().
+ *
+ * hal_struct_detach() decrements the reference count.  The data itself
+ * lives for the lifetime of the HAL shmem block.
+ */
+extern int hal_struct_newf(int comp_id, long int size, const void *defval,
+                            const char *fmt, ...)
+    __attribute__((format(printf, 4, 5)));
+extern int hal_struct_attach(const char *name, void **memptr);
+extern int hal_struct_detach(const char *name);
+
 RTAPI_END_DECLS
 
 #endif /* HAL_H */

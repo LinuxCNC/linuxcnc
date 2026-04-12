@@ -7,7 +7,7 @@
 *  2) specify 3 KS,KF,KI functions for switchkins_type=0,1,2
 *  3) the 0th switchkins_type is the startup default
 *  4) sparm is a module string parameter for configuration
-*  5) The directions of the rotational axes are the opposite of the 
+*  5) The directions of the rotational axes are the opposite of the
 *     conventional axis directions.
 */
 
@@ -16,6 +16,8 @@
 #include <emcmotcfg.h>
 
 #include "switchkins.h"
+#include <hal.h>
+#include "kinematics_params.h"
 
 int switchkinsSetup(kparms* kp,
                     KS* kset0, KS* kset1, KS* kset2,
@@ -55,3 +57,85 @@ int switchkinsSetup(kparms* kp,
 
     return 0;
 }
+
+/* ========================================================================
+ * Non-RT interface
+ *
+ * nonrt_attach() is called by kinematics_user.c after dlopen().
+ * It attaches to the kinematics_params_t registered in HAL shmem by
+ * trtKinematicsSetup() via hal_struct_newf() and returns function pointers.
+ * ======================================================================== */
+
+/* TRT math types and functions (defined in trtfuncs.c, linked into this .so) */
+typedef struct {
+    double x_rot_point, y_rot_point, z_rot_point;
+    double x_offset, y_offset, z_offset, tool_offset;
+    int conventional_directions;
+} trt_params_t;
+
+typedef struct {
+    int jx, jy, jz, ja, jb, jc, ju, jv, jw;
+} trt_joints_t;
+
+extern int xyzbc_forward_math(const trt_params_t *, const trt_joints_t *,
+                               const double *, EmcPose *);
+extern int xyzbc_inverse_math(const trt_params_t *, const trt_joints_t *,
+                               const EmcPose *, EmcPose *);
+extern void trt_axis_to_joints(const trt_joints_t *, const EmcPose *, double *);
+
+static kinematics_params_t *uspace_params;
+
+static void nonrt_build_trt(const kinematics_params_t *kp,
+                             trt_params_t *p, trt_joints_t *jm)
+{
+    p->x_rot_point = kp->params.trt.x_rot_point;
+    p->y_rot_point = kp->params.trt.y_rot_point;
+    p->z_rot_point = kp->params.trt.z_rot_point;
+    p->x_offset    = kp->params.trt.x_offset;
+    p->y_offset    = kp->params.trt.y_offset;
+    p->z_offset    = kp->params.trt.z_offset;
+    p->tool_offset = kp->params.trt.tool_offset;
+    p->conventional_directions = kp->params.trt.conventional_directions;
+
+    jm->jx = kp->axis_to_joint[0]; jm->jy = kp->axis_to_joint[1];
+    jm->jz = kp->axis_to_joint[2]; jm->ja = kp->axis_to_joint[3];
+    jm->jb = kp->axis_to_joint[4]; jm->jc = kp->axis_to_joint[5];
+    jm->ju = kp->axis_to_joint[6]; jm->jv = kp->axis_to_joint[7];
+    jm->jw = kp->axis_to_joint[8];
+}
+
+static int nonrt_xyzbc_forward(const double *joints, EmcPose *pos,
+                                const KINEMATICS_FORWARD_FLAGS *ff,
+                                KINEMATICS_INVERSE_FLAGS *if_)
+{
+    (void)ff; (void)if_;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
+    trt_params_t p; trt_joints_t jm;
+    nonrt_build_trt(&local, &p, &jm);
+    return xyzbc_forward_math(&p, &jm, joints, pos);
+}
+
+static int nonrt_xyzbc_inverse(const EmcPose *pos, double *joints,
+                                const KINEMATICS_INVERSE_FLAGS *if_,
+                                KINEMATICS_FORWARD_FLAGS *ff)
+{
+    (void)if_; (void)ff;
+    kinematics_params_t local;
+    KINS_SHMEM_READ(uspace_params, local);
+    trt_params_t p; trt_joints_t jm;
+    EmcPose axis_values;
+    nonrt_build_trt(&local, &p, &jm);
+    xyzbc_inverse_math(&p, &jm, pos, &axis_values);
+    trt_axis_to_joints(&jm, &axis_values, joints);
+    return 0;
+}
+
+void nonrt_attach(nonrt_ops_t *ops)
+{
+    hal_struct_attach("xyzbc-trt-kins.params", (void **)&uspace_params);
+    ops->forward   = nonrt_xyzbc_forward;
+    ops->inverse   = nonrt_xyzbc_inverse;
+}
+
+EXPORT_SYMBOL(nonrt_attach);
