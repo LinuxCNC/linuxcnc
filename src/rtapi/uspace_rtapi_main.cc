@@ -753,7 +753,7 @@ static int harden_rt() {
     return 0;
 }
 
-static RtapiApp *makeDllApp(std::string dllName, int policy) {
+static RtapiApp *makeDllApp(const std::string &dllName, int policy) {
     void *dll = nullptr;
     dll = dlopen(dllName.c_str(), RTLD_NOW);
     if (!dll) {
