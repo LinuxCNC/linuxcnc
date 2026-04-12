@@ -332,7 +332,7 @@ bool IniFileContent::processValue(std::string &value, const std::string &path, u
 	std::string realstr;
 	uint32_t hexval;
 	size_t pos;
-	char quote;
+	char quote = 0;
 	enum { ST_START, ST_COLLECT } state = ST_START;
 	for(pos = 0; pos < value.size(); pos++) {
 		char ch = value[pos];
