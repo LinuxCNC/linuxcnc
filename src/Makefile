@@ -393,6 +393,7 @@ SRCHEADERS := \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     emc/linuxcnc.h \
     emc/kinematics/kinematics.h \
+    emc/kinematics/comp_kins_uspace.h \
     emc/motion/emcmotcfg.h \
     emc/ini/inifile.hh \
     emc/ini/inifile.h \
