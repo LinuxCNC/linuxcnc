@@ -89,7 +89,9 @@ TARGETS += ../lib/libmotion_planning_9d.so ../lib/libmotion_planning_9d.so.0
 # included from emc/tp/tc_types.h).  Internal headers like blend_sizing.h
 # stay local — they reference ../tp/ paths that break in the flat include/.
 MOTION_PLANNING_PUBLIC_H := emc/motion_planning/bezier9.h
+MOTION_PLANNING_PUBLIC_HH := $(wildcard emc/motion_planning/*.hh)
 $(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_PUBLIC_H)): ../include/%.h: emc/motion_planning/%.h
 	cp $^ $@
-$(patsubst emc/motion_planning/%,../include/%,$(wildcard emc/motion_planning/*.hh)): ../include/%.hh: emc/motion_planning/%.hh
+$(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_PUBLIC_HH)): ../include/%.hh: emc/motion_planning/%.hh
 	cp $^ $@
+HEADERS += $(patsubst emc/motion_planning/%,../include/%,$(MOTION_PLANNING_PUBLIC_H) $(MOTION_PLANNING_PUBLIC_HH))
