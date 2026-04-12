@@ -541,7 +541,7 @@ become_master:
 
     // plus one because we use the abstract namespace, it will show up in
     // /proc/net/unix prefixed with an @
-    int result = ::bind(fd, (sockaddr *)&addr, len + sizeof(addr.sun_family) + 1);
+    int result = ::bind(fd, (sockaddr *)&addr, sizeof(addr));
 
     if (result == 0) {
         //If called in master mode with exit command, no need to start master
@@ -562,7 +562,7 @@ become_master:
         gettimeofday(&t0, NULL);
         gettimeofday(&t1, NULL);
         for (int i = 0; i < 3 || (t1.tv_sec < 3 + t0.tv_sec); i++) {
-            result = connect(fd, (sockaddr *)&addr, len + sizeof(addr.sun_family) + 1);
+            result = connect(fd, (sockaddr *)&addr, sizeof(addr));
             if (result == 0)
                 break;
             if (i == 0)
