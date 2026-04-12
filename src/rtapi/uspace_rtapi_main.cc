@@ -605,12 +605,12 @@ static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
     case SIGXCPU:
         // should not happen - must be handled in RTAPI if enabled
         rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: BUG: SIGXCPU received - exiting\n");
-        exit(0);
+        _exit(0);
         break;
 
     case SIGTERM:
         rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: SIGTERM - shutting down\n");
-        exit(0);
+        _exit(0);
         break;
 
     default: // pretty bad
@@ -622,7 +622,7 @@ static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
         kill(getpid(), sig);
         break;
     }
-    exit(1);
+    _exit(1);
 }
 
 const static size_t PRE_ALLOC_SIZE = 1024 * 1024 * 32;
