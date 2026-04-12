@@ -241,6 +241,26 @@ static void build_arc_length_table(Bezier9 * const b)
     }
 }
 
+/* Inverse of arc_length_to_t for the special case where t_table is
+ * built at uniform t-spacing (which build_arc_length_table guarantees:
+ * t_table[i] = i/N).  Returns the arc length s corresponding to a given
+ * Bezier parameter t via direct index + linear interpolation against
+ * s_table.  Used by bezier9MaxCurvature to map the converged apex t
+ * back to an arc-length position. */
+static double t_to_s_uniform(Bezier9 const * const b, double t)
+{
+    if (t <= 0.0) return 0.0;
+    if (t >= 1.0) return b->total_length;
+    int N = b->arc_samples;
+    if (N <= 0) return 0.0;
+    double idx_f = t * (double)N;
+    int lo = (int)idx_f;
+    if (lo < 0) lo = 0;
+    if (lo >= N) lo = N - 1;
+    double frac = idx_f - (double)lo;
+    return b->s_table[lo] + frac * (b->s_table[lo + 1] - b->s_table[lo]);
+}
+
 /**
  * arc_length_to_t - Map arc length s to Bezier parameter t
  *
@@ -424,6 +444,10 @@ int bezier9Init(Bezier9 * const b,
         return ret;
     }
 
+    // Default sub-range = full curve.  Apex splitter overrides per-half.
+    b->s_start = 0.0;
+    b->s_end = b->total_length;
+
     tp_debug_print("bezier9Init: length=%g, max_kappa=%g, min_radius=%g, max_dkappa_ds=%g\n",
                    b->total_length, b->max_kappa, b->min_radius, b->max_dkappa_ds);
 
@@ -515,7 +539,11 @@ int bezier9InitFast(Bezier9 * const b,
 
     build_arc_length_table(b);
     if (b->total_length < BEZIER9_MIN_LENGTH) return TP_ERR_ZERO_LENGTH;
-    return bezier9MaxCurvature(b);
+    int ret = bezier9MaxCurvature(b);
+    if (ret != TP_ERR_OK) return ret;
+    b->s_start = 0.0;
+    b->s_end = b->total_length;
+    return TP_ERR_OK;
 }
 
 void bezier9RebuildFull(Bezier9 * const b)
@@ -523,6 +551,13 @@ void bezier9RebuildFull(Bezier9 * const b)
     if (!b) return;
     b->arc_samples = BEZIER9_ARC_LENGTH_SAMPLES;
     build_arc_length_table(b);
+    /* Curvature stats (max_kappa, min_radius, max_dkappa_ds, s_apex) are
+     * intentionally NOT recomputed.  The optimizer picked this curve based
+     * on the fast-init values; refining them at higher resolution would
+     * change blend_tc->kink_vel and the RT-side velocity cap, perturbing
+     * the planner output without any benefit. */
+    b->s_start = 0.0;
+    b->s_end = b->total_length;
 }
 
 int bezier9Point(Bezier9 const * const b,
@@ -755,7 +790,14 @@ int bezier9MaxCurvature(Bezier9 * const b)
         }
     }
 
-    max_kappa = (k1 > k2) ? k1 : k2;
+    double t_apex;
+    if (k1 > k2) {
+        max_kappa = k1;
+        t_apex = t1;
+    } else {
+        max_kappa = k2;
+        t_apex = t2;
+    }
 
     // Cache results
     b->max_kappa = max_kappa;
@@ -764,6 +806,7 @@ int bezier9MaxCurvature(Bezier9 * const b)
     } else {
         b->min_radius = 1.0e12; // Effectively infinite radius
     }
+    b->s_apex = t_to_s_uniform(b, t_apex);
 
     // Compute max |dκ/ds| using arc-length table nodes.
     // The curvature rate determines the centripetal jerk = v³ · dκ/ds,
@@ -827,7 +870,7 @@ double bezier9AccLimit(Bezier9 const * const b,
     }
 
     // Centripetal acceleration limit: v² · κ ≤ a_normal
-    double a_normal = BLEND_ACC_RATIO_NORMAL * a_max;
+    double a_normal = BLEND9_ACC_RATIO_NORMAL * a_max;
     double v_limit = sqrt(a_normal * b->min_radius);
 
     // Centripetal jerk limit: v³ · dκ/ds ≤ j_normal
@@ -835,7 +878,7 @@ double bezier9AccLimit(Bezier9 const * const b,
     // the blend, preventing jerk spikes at entry/exit where curvature
     // ramps from zero (G2 boundary) to peak.
     if (j_max > 0.0 && b->max_dkappa_ds > BEZIER9_CURVATURE_EPSILON) {
-        double j_normal = BLEND_ACC_RATIO_NORMAL * j_max;
+        double j_normal = BLEND9_ACC_RATIO_NORMAL * j_max;
         double v_jerk = cbrt(j_normal / b->max_dkappa_ds);
         if (v_jerk < v_limit) {
             v_limit = v_jerk;

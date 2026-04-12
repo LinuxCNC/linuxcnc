@@ -549,9 +549,10 @@ static int tcGetTangentRate9D(TC_STRUCT const * const tc, int at_end, double out
             break;
         }
         case TC_BEZIER: {
-            // Bezier blend: get tangent at start or end
+            // Bezier blend: get tangent at start or end of the active sub-range
             PmCartesian xyz_tan = {0,0,0}, abc_tan = {0,0,0}, uvw_tan = {0,0,0};
-            double progress = at_end ? tc->coords.bezier.total_length : 0.0;
+            double progress = at_end ? tc->coords.bezier.s_end
+                                     : tc->coords.bezier.s_start;
             bezier9Tangent(&tc->coords.bezier, progress, &xyz_tan, &abc_tan, &uvw_tan);
             out[0] = xyz_tan.x; out[1] = xyz_tan.y; out[2] = xyz_tan.z;
             out[3] = abc_tan.x; out[4] = abc_tan.y; out[5] = abc_tan.z;
@@ -642,7 +643,8 @@ static int tcGetCentripetalAccelPerV2(TC_STRUCT const * const tc,
             // Get centripetal direction at endpoint from tangent cross second derivative
             // Simplified: use tangent direction rotated 90° (approximate for small blends)
             PmCartesian xyz_tan;
-            double progress = at_end ? tc->coords.bezier.total_length : 0.0;
+            double progress = at_end ? tc->coords.bezier.s_end
+                                     : tc->coords.bezier.s_start;
             bezier9Tangent(&tc->coords.bezier, progress, &xyz_tan, NULL, NULL);
 
             // Centripetal is perpendicular to tangent, magnitude 1/R
@@ -718,9 +720,14 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
         return 0;
     }
 
-    // Guard: skip if either segment is too short for a meaningful blend
-    // (e.g. near-zero-length move like "g1 x0 y0" when already at origin)
-    if (prev_tc->target < 0.1 || tc->target < 0.1) {
+    // Guard: skip if either segment is near-zero-length (e.g. "g1 x0 y0"
+    // when already at origin).  Real short segments (0.1-0.2mm) must be
+    // blendable — falling back to kink velocity on them creates 10+ ms
+    // deep velocity dips that dominate execution time on curvy paths.
+    // The blend optimizer's BLEND9_MIN_THETA check rejects geometrically
+    // degenerate blends downstream, so this guard only needs to catch
+    // true zero-length noise.
+    if (prev_tc->target < 0.01 || tc->target < 0.01) {
         return 0;
     }
 
@@ -903,7 +910,7 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
             }
         }
         if (jlim_eff_min < 1e9)
-            j_max_for_blend = jlim_eff_min / BLEND_ACC_RATIO_NORMAL;
+            j_max_for_blend = jlim_eff_min / BLEND9_ACC_RATIO_NORMAL;
     }
 
     // Run blend optimizer
@@ -990,30 +997,11 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
         }
     }
 
-    double v_entry = v_plan;
-    double v_exit  = v_plan;
-
-    // Set up velocity continuity:
-    // prev_tc → blend at v_entry,  blend → tc at v_exit
-    prev_tc->term_cond = TC_TERM_COND_TANGENT;
-    prev_tc->finalvel = v_entry;
-    atomicStoreDouble(&prev_tc->shared_9d.final_vel, v_entry);
-    atomicStoreDouble(&prev_tc->shared_9d.final_vel_limit, v_entry);
-
-    // Mark prev_tc for Ruckig recomputation (was profiled with finalvel=0)
-    __atomic_store_n((int*)&prev_tc->shared_9d.optimization_state,
-                     TC_PLAN_UNTOUCHED, __ATOMIC_RELEASE);
-
-    // Blend segment: TANGENT exit to tc at v_exit
-    blend_tc.term_cond = TC_TERM_COND_TANGENT;
-    blend_tc.finalvel = v_exit;
-    atomicStoreDouble(&blend_tc.shared_9d.final_vel, v_exit);
-    atomicStoreDouble(&blend_tc.shared_9d.final_vel_limit, v_exit);
-
     // Set jerk limit on blend from per-joint tangential jerk budget.
     // The Pythagorean split BLEND_ACC_RATIO_TANGENTIAL (0.5) allocates
     // the tangential portion of each joint's jerk budget to Ruckig's
-    // velocity transitions through the blend curve.
+    // velocity transitions through the blend curve.  Hoisted above the
+    // single-vs-split branch so both paths can inherit it via struct copy.
     {
         using motion_planning::g_userspace_kins_planner;
         double tangent_proj[9];
@@ -1053,6 +1041,26 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
         blend_tc.maxjerk = (j_tan < 1e8) ? j_tan
                                           : fmin(prev_tc->maxjerk, tc->maxjerk);
     }
+
+    double v_entry = v_plan;
+    double v_exit  = v_plan;
+
+    // Set up velocity continuity:
+    // prev_tc → blend at v_entry,  blend → tc at v_exit
+    prev_tc->term_cond = TC_TERM_COND_TANGENT;
+    prev_tc->finalvel = v_entry;
+    atomicStoreDouble(&prev_tc->shared_9d.final_vel, v_entry);
+    atomicStoreDouble(&prev_tc->shared_9d.final_vel_limit, v_entry);
+
+    // Mark prev_tc for Ruckig recomputation (was profiled with finalvel=0)
+    __atomic_store_n((int*)&prev_tc->shared_9d.optimization_state,
+                     TC_PLAN_UNTOUCHED, __ATOMIC_RELEASE);
+
+    // Blend segment: TANGENT exit to tc at v_exit
+    blend_tc.term_cond = TC_TERM_COND_TANGENT;
+    blend_tc.finalvel = v_exit;
+    atomicStoreDouble(&blend_tc.shared_9d.final_vel, v_exit);
+    atomicStoreDouble(&blend_tc.shared_9d.final_vel_limit, v_exit);
 
     // Pre-compute Ruckig profile for the blend segment so RT has a valid
     // profile when it enters via split cycle.  Without this, the bezier

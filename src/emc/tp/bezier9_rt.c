@@ -18,8 +18,7 @@
  */
 
 #include "posemath.h"
-#include "bezier9.h"
-#include "blendmath.h"      /* BLEND_ACC_RATIO_NORMAL */
+#include "bezier9.h"        /* BLEND9_ACC_RATIO_NORMAL */
 #include "rtapi_math.h"
 #include "tp_types.h"
 
@@ -247,11 +246,11 @@ double bezier9AccLimit(Bezier9 const * const b,
         return 0.0;
     }
 
-    double a_normal = BLEND_ACC_RATIO_NORMAL * a_max;
+    double a_normal = BLEND9_ACC_RATIO_NORMAL * a_max;
     double v_limit = sqrt(a_normal * b->min_radius);
 
     if (j_max > 0.0 && b->max_dkappa_ds > BEZIER9_POS_EPSILON) {
-        double j_normal = BLEND_ACC_RATIO_NORMAL * j_max;
+        double j_normal = BLEND9_ACC_RATIO_NORMAL * j_max;
         double v_jerk = cbrt(j_normal / b->max_dkappa_ds);
         if (v_jerk < v_limit) {
             v_limit = v_jerk;
