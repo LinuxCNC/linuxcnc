@@ -35,7 +35,7 @@ jobs:
         sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
         eatmydata ./autogen.sh
-        eatmydata ./configure --disable-check-runtime-deps
+        eatmydata ./configure --disable-check-runtime-deps --enable-werror
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
         eatmydata ../scripts/rip-environment runtests -p
@@ -61,7 +61,7 @@ jobs:
         sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
         eatmydata ./autogen.sh
-        CC=clang CXX=clang++ eatmydata ./configure --disable-check-runtime-deps
+        CC=clang CXX=clang++ eatmydata ./configure --disable-check-runtime-deps --enable-werror
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
         eatmydata ../scripts/rip-environment runtests -p
