@@ -6,7 +6,7 @@
  *   adapted to produce a single Bezier9 blend curve instead of
  *   two biarc segments.
  *
- * Author: aitekcnc
+ * Author: LinuxCNC
  * License: GPL Version 2
  * System: Linux
  ********************************************************************/
@@ -218,7 +218,7 @@ static int findBlendPlanarLimits9(
 /**
  * Trim a PmCircle to a new angle, properly handling helices and spirals.
  *
- * Port of Tormach's pmCircleCut. Unlike aitekcnc's pmCircleStretch,
+ * Port of Tormach's pmCircleCut. Unlike LinuxCNC's pmCircleStretch,
  * this correctly scales rHelix proportionally on trim.
  *
  * @param circ      Circle to trim (modified in place)
