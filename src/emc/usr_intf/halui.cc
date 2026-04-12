@@ -253,6 +253,7 @@ static double lastjogspeed = 0;
 static double internaljogspeed = 0;
 static double lastangularjogspeed = 0;
 static double internalangularjogspeed = 0;
+static double tempjogspeed = 0;
 static int lastaxis = -1;
 
 static char *mdi_commands[MDI_MAX];
@@ -652,7 +653,7 @@ static int py_call_get_mdi_count() {
     return value;
 }
 
-// turns a undex number into a macro name
+// turns a index number into a macro name
 static char* py_call_get_mdi_name( int num) {
         pFuncWrite = PyObject_GetAttrString(pInstance, "getMdiName");
 
@@ -1733,7 +1734,6 @@ static int iniLoad(const char *filename)
         gui_mdi_commands[num_gui_mdi_commands++] = py_call_get_mdi_name(n);
     }
 
-
     // close it
     inifile.Close();
 
@@ -2009,6 +2009,35 @@ static void py_call_request_MDI( int index)
         Py_DECREF(pFuncWrite);
 }
 
+static int py_call_get_axis_type( int index) {
+    int value = 0;
+    // check socket messages for selected axis
+    pFuncRead = PyObject_GetAttrString(pInstance, "getAxisIndexType");
+    if (pFuncRead && PyCallable_Check(pFuncRead)) {
+        pValue = PyObject_CallFunction(pFuncRead, "i", index);
+        if (pValue == NULL){
+            if (PyErr_Occurred()) PyErr_Print();
+            fprintf(stderr, "Halui Bridge: getSelectAxis function failed: returned NULL\n");
+            value = -1;
+        }else{
+            if (PyLong_Check(pValue)) {
+                value = (int) PyLong_AsLong(pValue);
+                //fprintf(stderr, "axis value %d\n",value);
+                if (PyErr_Occurred()) {
+                    value = -1;
+                    // Handle conversion error
+                    PyErr_Print();
+                    // Clear the error state if needed
+                    PyErr_Clear();
+                }
+            }
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncRead);
+    return value;
+}
+
 // this function looks if any of the hal pins has changed
 // and sends appropriate messages if so
 static void check_hal_changes()
@@ -2023,7 +2052,6 @@ static void check_hal_changes()
     double angularjogspeed;
     int jjog_speed_changed;
     int ajog_speed_changed;
-    int ajog_speed_angular_changed;
     int is_any_axis_selected, deselected;
 
         // get python to process socket messages
@@ -2319,16 +2347,16 @@ static void check_hal_changes()
     if (fabs(old_halui_data.ajog_speed_angular - new_halui_data.ajog_speed_angular) > 0.00001) {
         old_halui_data.ajog_speed_angular = new_halui_data.ajog_speed_angular;
         internalangularjogspeed = new_halui_data.ajog_speed_angular;
-        ajog_speed_angular_changed = 1;
+        ajog_speed_changed = 1;
         py_call_axis_angular_jogspeed(internalangularjogspeed);
     } else {
-        ajog_speed_angular_changed = 0;
+        ajog_speed_changed = 0;
     }
 
     // check socket messages for ANGULAR jogspeed
     angularjogspeed = py_call_axis_get_angular_jogspeed();
     if (fabs(angularjogspeed - lastangularjogspeed) > 0.00001) {
-        ajog_speed_angular_changed = 1;
+        ajog_speed_changed = 1;
         lastangularjogspeed = angularjogspeed;
         internalangularjogspeed = angularjogspeed;
         fprintf(stderr, "angular JogRate value = %f\n", angularjogspeed );
@@ -2422,11 +2450,18 @@ static void check_hal_changes()
 
         if ( !(axis_mask & (1 << axis_num)) ) { continue; }
 
+        // check for axis type: linear/rotary 
+        if (py_call_get_axis_type(axis_num) == 1){
+            tempjogspeed = internaljogspeed;
+        }else{
+            tempjogspeed = internalangularjogspeed;
+        }
+
         // axis jog -
 	bit = new_halui_data.ajog_minus[axis_num];
 	if ((bit != old_halui_data.ajog_minus[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(axis_num,-internaljogspeed,JOGTELEOP);
+		sendJogCont(axis_num,-tempjogspeed,JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_minus[axis_num] = bit;
@@ -2436,7 +2471,7 @@ static void check_hal_changes()
 	bit = new_halui_data.ajog_plus[axis_num];
 	if ((bit != old_halui_data.ajog_plus[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(axis_num,internaljogspeed,JOGTELEOP);
+		sendJogCont(axis_num,tempjogspeed,JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_plus[axis_num] = bit;
@@ -2447,7 +2482,7 @@ static void check_hal_changes()
 	bit = (fabs(floatt) > new_halui_data.ajog_deadband);
 	if ((floatt != old_halui_data.ajog_analog[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit)
-		sendJogCont(axis_num,(internaljogspeed) * (new_halui_data.ajog_analog[axis_num]),JOGTELEOP);
+		sendJogCont(axis_num,(tempjogspeed) * (new_halui_data.ajog_analog[axis_num]),JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_analog[axis_num] = floatt;
@@ -2457,7 +2492,7 @@ static void check_hal_changes()
 	bit = new_halui_data.ajog_increment_plus[axis_num];
 	if (bit != old_halui_data.ajog_increment_plus[axis_num]) {
 	    if (bit)
-		sendJogIncr(axis_num, internaljogspeed, new_halui_data.ajog_increment[axis_num],JOGTELEOP);
+		sendJogIncr(axis_num, tempjogspeed, new_halui_data.ajog_increment[axis_num],JOGTELEOP);
 	    old_halui_data.ajog_increment_plus[axis_num] = bit;
 	}
 
@@ -2465,7 +2500,7 @@ static void check_hal_changes()
 	bit = new_halui_data.ajog_increment_minus[axis_num];
 	if (bit != old_halui_data.ajog_increment_minus[axis_num]) {
 	    if (bit)
-		sendJogIncr(axis_num, internaljogspeed, -(new_halui_data.ajog_increment[axis_num]),JOGTELEOP);
+		sendJogIncr(axis_num, tempjogspeed, -(new_halui_data.ajog_increment[axis_num]),JOGTELEOP);
 	    old_halui_data.ajog_increment_minus[axis_num] = bit;
 	}
 
@@ -2514,12 +2549,20 @@ static void check_hal_changes()
                 sendJogStop(axis_num,JOGTELEOP);
                 }
             } else {
+
+                // check for axis type: linear/rotary 
+                if (py_call_get_axis_type(axis_num) == 1){
+                    tempjogspeed = internaljogspeed;
+                }else{
+                    tempjogspeed = internalangularjogspeed;
+                }
+
                 *(halui_data->axis_is_selected[axis_num]) = 1;
                 if (*halui_data->ajog_plus[num_axes]) {
                     fprintf(stderr, "halui: jog plus: %d\n",num_axes);
-                    sendJogCont(axis_num, internaljogspeed,JOGTELEOP);
+                    sendJogCont(axis_num, tempjogspeed,JOGTELEOP);
                 } else if (*halui_data->ajog_minus[num_axes]) {
-                    sendJogCont(axis_num, -internaljogspeed,JOGTELEOP);
+                    sendJogCont(axis_num, -tempjogspeed,JOGTELEOP);
                 }
             }
         }
@@ -2570,8 +2613,17 @@ static void check_hal_changes()
     bit = new_halui_data.ajog_minus[EMCMOT_MAX_AXIS];
     js = new_halui_data.axis_selected;
     if ((bit != old_halui_data.ajog_minus[EMCMOT_MAX_AXIS]) || (bit && ajog_speed_changed)) {
-        if (bit != 0)
-	    sendJogCont(js, -internaljogspeed,JOGTELEOP);
+        if (bit != 0){
+
+            // check for axis type: linear/rotary 
+            if (py_call_get_axis_type(js) == 1){
+                tempjogspeed = internaljogspeed;
+            }else{
+                tempjogspeed = internalangularjogspeed;
+            }
+
+	    sendJogCont(js, -tempjogspeed,JOGTELEOP);
+        }
 	else
 	    sendJogStop(js,JOGTELEOP);
 	old_halui_data.ajog_minus[EMCMOT_MAX_AXIS] = bit;
@@ -2580,8 +2632,17 @@ static void check_hal_changes()
     bit = new_halui_data.ajog_plus[EMCMOT_MAX_AXIS];
     js = new_halui_data.axis_selected;
     if ((bit != old_halui_data.ajog_plus[EMCMOT_MAX_AXIS]) || (bit && ajog_speed_changed)) {
-        if (bit != 0)
-	    sendJogCont(js,internaljogspeed,JOGTELEOP);
+        if (bit != 0){
+
+            // check for axis type: linear/rotary 
+            if (py_call_get_axis_type(js) == 1){
+                tempjogspeed = internaljogspeed;
+            }else{
+                tempjogspeed = internalangularjogspeed;
+            }
+
+	    sendJogCont(js,tempjogspeed,JOGTELEOP);
+        }
 	else
 	    sendJogStop(js,JOGTELEOP);
 	old_halui_data.ajog_plus[EMCMOT_MAX_AXIS] = bit;
@@ -2591,7 +2652,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if (bit != old_halui_data.ajog_increment_plus[EMCMOT_MAX_AXIS]) {
 	if (bit)
-	    sendJogIncr(js, internaljogspeed, new_halui_data.ajog_increment[EMCMOT_MAX_AXIS],JOGTELEOP);
+	    sendJogIncr(js, tempjogspeed, new_halui_data.ajog_increment[EMCMOT_MAX_AXIS],JOGTELEOP);
 	old_halui_data.ajog_increment_plus[EMCMOT_MAX_AXIS] = bit;
     }
 
@@ -2599,7 +2660,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if (bit != old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS]) {
 	if (bit)
-	    sendJogIncr(js, internaljogspeed, -(new_halui_data.ajog_increment[EMCMOT_MAX_AXIS]),JOGTELEOP);
+	    sendJogIncr(js, tempjogspeed, -(new_halui_data.ajog_increment[EMCMOT_MAX_AXIS]),JOGTELEOP);
 	old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS] = bit;
     }
 

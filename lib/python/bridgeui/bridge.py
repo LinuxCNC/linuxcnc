@@ -227,6 +227,15 @@ class Bridge(object):
             letter = 'XYZABCUVW'[index]
         return int(self.axesSelected[letter])
 
+    def getAxisIndexType(self, axis):
+        try:
+            num = self.INFO.GET_JOINT_NUM_FROM_AXIS_INDEX[axis]
+            flag = self.INFO.JOINT_TYPE_INT[num]
+            return flag
+        except:
+            return 1
+
+
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):
