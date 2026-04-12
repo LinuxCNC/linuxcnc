@@ -66,7 +66,7 @@ pin out float  mean;
 // user may interrogate availablebins to determine this compiled-in limit
 pin out s32 availablebins = 200; //MAXBINNUMBER
 
-function _ fp;
+function _;
 
 variable int bin[200]; // MAXBINNUMBER
 variable int first = 1;

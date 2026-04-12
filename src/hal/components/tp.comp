@@ -26,7 +26,7 @@ param rw float pt "Pulse time in seconds";
 
 variable int in_old; // Value of in on last cycle, for rising edge detection
 
-function _ fp "Update the timer";
+function _ "Update the timer";
 license "GPL";
 author "Chad Woitas";
 ;;

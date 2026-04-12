@@ -18,7 +18,8 @@ The name of the thread
 The interval, in nanoseconds, between iterations of the thread
 
 .IP \fIuses_fp\fR
-Must be nonzero if a function which uses floating-point will be attached to this thread.
+\fBDeprecated.\fR All threads now unconditionally save and restore
+floating-point state.  This parameter is accepted but ignored.
 
 .SH DESCRIPTION
 \fBhal_create_thread\fR establishes a realtime thread that will execute one or more HAL functions periodically.

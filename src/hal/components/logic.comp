@@ -20,7 +20,7 @@ pin out bit or if personality & 0x200;
 pin out bit xor if personality & 0x400;
 pin out bit nand if personality & 0x800;
 pin out bit nor if personality & 0x1000;
-function _ nofp "Read the inputs and toggle the output bit.";
+function _ "Read the inputs and toggle the output bit.";
 description """
 General `logic function' component.  Can perform `and', `or',
 `nand', `nor' and `xor' of up to 16 inputs.

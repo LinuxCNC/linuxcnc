@@ -40,8 +40,8 @@ option extra_setup;
 option extra_cleanup;
 option constructable no;
 
-function read nofp;
-function write nofp;
+function read;
+function write;
 
 license "GPL";
 ;;

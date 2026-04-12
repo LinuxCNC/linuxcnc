@@ -13,7 +13,7 @@ Otherwise,
 \fBout=TRUE\fR
 .RE"""
 ;
-function _ nofp;
+function _;
 see_also """
 \\fBlogic\\fR(9)
 """;

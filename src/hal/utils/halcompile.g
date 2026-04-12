@@ -76,7 +76,7 @@ parser Hal:
                 | {{ return None }}
     rule OptSAssign: "=" SValue {{ return SValue; }}
                 | {{ return None }}
-    rule OptFP: "fp" {{ return 1 }} | "nofp" {{ return 0 }} | {{ return 1 }}
+    rule OptFP: "fp" {{ return optfp_warn(1) }} | "nofp" {{ return optfp_warn(0) }} | {{ return 1 }}
     rule Value: "yes" {{ return 1 }} | "no" {{ return 0 }}  
                 | "true" {{ return 1 }} | "false" {{ return 0 }}  
                 | "TRUE" {{ return 1 }} | "FALSE" {{ return 0 }}  
@@ -168,6 +168,9 @@ def Error(msg, *args):
     if args:
         msg = msg % args
     raise runtime.SyntaxError(S.get_pos(), msg, None)
+
+def optfp_warn(state):
+    return 1
 
 def comp(name, doc):
     docs.append(('component', name, doc))

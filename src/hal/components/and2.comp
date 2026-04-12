@@ -14,7 +14,7 @@ Otherwise,
 \\fBout=FALSE\\fR
 .RE"""
 ;
-function _ nofp;
+function _;
 see_also """
 \\fBlogic\\fR(9),
 \\fBlut5\\fR(9),

@@ -685,9 +685,18 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     }
     task->taskcode = taskcode;
     task->arg = arg;
-    /* call OS to initialize the task - use predetermined CPU */
+    if (!uses_fp) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "RTAPI: WARNING: task created with uses_fp=0, "
+	    "overriding to uses_fp=1. All threads now save FPU state "
+	    "(uses_fp is deprecated).\n");
+    }
+    /* call OS to initialize the task - use predetermined CPU
+       Always enable FPU state save/restore: modern compilers may emit
+       SSE instructions even in code that doesn't explicitly use FP,
+       causing silent XMM register corruption without FPU save. */
     retval = rt_task_init_cpuid(ostask_array[task_id], wrapper, task_id,
-	 stacksize, prio, uses_fp, 0 /* signal */, rtapi_data->rt_cpu );
+	 stacksize, prio, 1 /* always save FPU */, 0 /* signal */, rtapi_data->rt_cpu );
     if (retval != 0) {
 	/* couldn't create task, free task data memory */
 	kfree(ostask_array[task_id]);

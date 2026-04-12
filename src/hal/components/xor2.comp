@@ -13,7 +13,7 @@ to the following rule:
 .TP
 Otherwise,
 \\fBout=FALSE\\fR""";
-function _ nofp;
+function _;
 see_also """
 \\fBand2\\fR(9),
 \\fBlogic\\fR(9),

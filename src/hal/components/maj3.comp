@@ -24,7 +24,7 @@ pin out bit out;
 
 param rw bit invert;
 
-function _ nofp;
+function _;
 
 license "GPL";
 author "Jeff Epler";

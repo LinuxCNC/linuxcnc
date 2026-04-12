@@ -42,7 +42,8 @@ Optionally the number of Digital I/O is set with num_dio. The number of Analog I
 Pin names starting with "\fBjoint\fR"  or "\fBaxis\fR" are are read and updated by the motion-controller function.
 
 .SH DESCRIPTION
-By default, the base thread does not support floating point.  Software stepping, software encoder counting, and software pwm do not use floating point.  \fBbase_thread_fp\fR can be used to enable floating point in the base thread (for example for brushless DC motor control).
+\fBbase_thread_fp\fR is \fBdeprecated\fR and has no effect.  All threads now
+unconditionally save and restore floating-point state.
 
 .P
 These pins and parameters are created by the realtime \fBmotmod\fR module. This module provides a HAL interface for LinuxCNC's motion planner. Basically \fBmotmod\fR takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives.

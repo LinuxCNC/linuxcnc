@@ -40,7 +40,7 @@ pin out unsigned fault_flags.# [15 : (personality & 0xf)]  "Fault flags: 0x1  = 
 variable unsigned data_frame [15];
 variable unsigned state = 1;
 
-function bitbang_spi fp;
+function bitbang_spi;
 license "GPL";
 author "Joseph Calderon";
 
