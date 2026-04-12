@@ -602,15 +602,15 @@ m| gmoccapy.h-button.button-9 | exit if machine is off, otherwise nothing | open
 [cols="10,10,10,10", options="header"]
 |===
 | Pin                        | Settings Mode         | Homing Mode | Touch off Mode
-m|gmoccapy.h-button.button-0 | delete MDI history    |             | edit offsets
-m|gmoccapy.h-button.button-1 |                       | home all    | touch X
-m|gmoccapy.h-button.button-2 |                       |             | touch Y
-m|gmoccapy.h-button.button-3 |                       | home x      | touch Z
+m|gmoccapy.h-button.button-0 | delete MDI history    |             | touch X
+m|gmoccapy.h-button.button-1 |                       | home all    | touch Y
+m|gmoccapy.h-button.button-2 |                       |             | touch Z
+m|gmoccapy.h-button.button-3 |                       | home x      |
 m|gmoccapy.h-button.button-4 | open classic ladder   | home y      |
 m|gmoccapy.h-button.button-5 | open HAL scope        | home z      |
-m|gmoccapy.h-button.button-6 | open HAL status       |             | zero G92
+m|gmoccapy.h-button.button-6 | open HAL status       |             |
 m|gmoccapy.h-button.button-7 | open HAL meter        |             |
-m|gmoccapy.h-button.button-8 | open HAL calibration  | unhome all  | set selected
+m|gmoccapy.h-button.button-8 | open HAL calibration  | unhome all  |
 m|gmoccapy.h-button.button-9 | open HAL show         | back        | back
 |===
 
@@ -619,10 +619,10 @@ m|gmoccapy.h-button.button-9 | open HAL show         | back        | back
 [cols="10,10,10,10", options="header"]
 |===
 | Pin                        | Tool Mode                                | Edit Mode     | Select File
-m|gmoccapy.h-button.button-0 | delete tool(s)                           |               | go to home directory
-m|gmoccapy.h-button.button-1 | new tool                                 | reload file   | one directory level up
-m|gmoccapy.h-button.button-2 | reload tool table                        | save          |
-m|gmoccapy.h-button.button-3 | apply changes                            | save as       | move selection left
+m|gmoccapy.h-button.button-0 |                                          |               | go to home directory
+m|gmoccapy.h-button.button-1 |                                          | reload file   | one directory level up
+m|gmoccapy.h-button.button-2 |                                          | save          |
+m|gmoccapy.h-button.button-3 |                                          | save as       | move selection left
 m|gmoccapy.h-button.button-4 | change tool by number T? M6              |               | move selection right
 m|gmoccapy.h-button.button-5 | set tool by number without change M61 Q? |               | jump to directory as set in settings
 m|gmoccapy.h-button.button-6 | change tool to the selected one          | new file      |
@@ -1134,6 +1134,135 @@ You have three options:
 * _hide cursor_ - Does allow to hide the cursor, what is very useful if you use a touch screen.
 * _hide tooltips_ - Hides the tool tips.
 
+.Jog Area
+
+* _Jog button size_ - Change the size of the job buttons in the manual mode page
+* _Width right panel_ - Change the width of the right part of window (= width of the DRO)
+
+
+[[gmoccapy:turtle-jog]]
+.Turtle Jog
+This settings will have influence on the jog velocities.
+
+* _Hide turtle jog button_ - Will hide the button right of the jog velocity slider.
+  If you hide this button, please take care that the "rabbit mode" is activated,
+  otherwise you will not be able to jog faster than the turtle jog velocity,
+  which is calculated using the turtle jog factor.
+* _Turtle jog factor_ - Sets the scale to apply for turtle jog mode (button pressed, showing the turtle).
+  If you set a factor of 20, the turtle max. jog velocity will be 1/20 of the max. velocity of the machine.
+
+[NOTE]
+This button can be controlled using the <<gmoccapy:jog-velocity,Turtle-Jog HAL Pin>>.
+
+.DRO
+You have the option to select the background colors of the different DRO states.
+So users suffering from protanopia (red/green weakness) are able to select proper colors.
+
+By default, the background colors are:
+
+* _Relative Color_  = black
+* _Absolute Color_  = blue
+* _DTG Color_ = yellow
+
+The foreground color of the DRO can be selected with:
+
+* _Homed Color_   = green
+* _Unhomed Color_ = red
+
+[NOTE]
+You can change through the DRO modes (absolute, relative, distance to go) by clicking the number on the DRO!
+If you click on the left side letter of the DRO a popup window will allow you to set the value of the axes,
+making it easier to set the value, as you will not need to go over the touch off bottom button.
+
+* _size_ - Allows to set the size of the DRO font, default is 28, if you use a bigger  screen you may want to increase the size up to 56.
+  If you do use 4 axes, the DRO font size will be 3/4 of the value, because of space reason.
+* _digits_ - Sets the number of digits of the DRO from 1 to 5.
++
+[NOTE]
+====
+Imperial will show one digit more that metric.
+So if you are in imperial machine units and set the digit value to 1, you will get no digit at all in metric.
+====
+* _Toggle DRO mode by clicking on the DRO_ - If not active, a mouse click on the DRO will not take any action. +
+  By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). +
+  Neverthereless a click on the axis letter will open the popup dialog to set the axis value.
+
+.Preview
+* _Grid Size_ - Sets the grid size of the preview window.
+  Unfortunately the size *has to be set in inches*, even if your machine units are metric.
+  We do hope to fix that in a future release.
++
+NOTE: The grid will not be shown in perspective view.
+
+* _Show DRO_ - Will show the a DRO also in the preview pane, it will be always shown in fullsize preview.
+* _Show DTG_ -  Will show the DTG (direct distance to end point) in the preview pane if Show DRO is active. Otherwise only in full size preview.
+* _Show Offsets_ -  Will show the offsets in the preview pane when Show DRO is active. Otherwise only in full size preview.
+* _Mouse Button Mode_ -  This combobox allows you to select the button behavior of the mouse to rotate, move or zoom within the preview:
+
+** left rotate, middle move, right zoom
+** left zoom, middle move, right rotate
+** left move, middle rotate, right zoom
+** left zoom, middle rotate, right move
+** left move, middle zoom, right rotate
+** left rotate, middle zoom, right move
+
+Default is left move, middle zoom, right rotate. +
+The mouse wheel will still zoom the preview in every mode.
+[TIP]
+====
+If you select an element in the preview,
+the selected element will be taken as rotation center point and in auto mode the corresponding code line will be highlighted.
+====
+
+
+[[gmoccapy:message-behavior]]
+.Gmoccapy Messages
+
+This will display small pop up windows displaying a message or error text, similar to the ones known from AXIS.
+You can delete a specific message by clicking on its close button.
+If you want to delete the last one, just hit the `WINDOWS` key on your keyboard, or delete all messages at once with `Control + Space`.
+
+You are able to set some options:
+
+* _X Pos_ - The position of the top left corner of the message in X counted in pixel from the top left corner of the screen.
+* _Y Pos_ - The position of the top left corner of the message in Y counted in pixel from the top left corner of the screen.
+* _Width_ - The width of the message box.
+* _Max. messages_ - The maximum number of messages you want to see at once.
+  If you set this to 10, the 11^th^ message will delete the first one, so you will only see the last 10.
+* _Font_ - The font and size you want to use to display the messages.
+* _Font filter_ - A filter for the font chooser above.
+* _Use frames_ - If you activate the checkbox, each message will be displayed in a frame,
+  so it is much easier to distinguish the messages. But you will need a little bit more space.
+* _Launch test message_-button - It will show a message, so you can see the changes of your settings without the need to generate an error.
+
+
+.Themes
+
+* _Theme_ - This lets the user select what desktop theme to apply. By default "Follow System Theme" is set.
+
+* _Icon Theme_ - Change the icon theme. Currently there are three themes available:
+  - classic
+  - material
+  - material light
+
++
+For more information and how to create custom icon themes, see section <<gmoccapy:icon-theme-section,Icon Theme>>.
+
+
+* _G-code Theme_ - Select a colour theme for the G-code viewer/editor.
+
+* _G-code Font_ - Select a font for the G-code viewer/editor. Default is "monospace 10".
+
+.Sound
+
+Select what error and messages sounds should be played and if sound should be played at all.
+
+
+=== Behaviour
+
+.GMOCCAPY settings page Behaviour
+image::images/gmoccapy_settings_behaviour.png["Configuration page",align="left"]
+
 .Virtual Keyboard
 
 The checkboxes allow the user to select if he wants the on board keyboard to be shown immediately
@@ -1183,101 +1312,82 @@ This gives the option whether to show the preview tab or the offset page tab whe
 * _show preview_
 * _show offsets_
 
-.DRO Options
-You have the option to select the background colors of the different DRO states.
-So users suffering from protanopia (red/green weakness) are able to select proper colors.
 
-By default, the background colors are:
+.Run from Line
 
-* _Relative Color_  = black
-* _Absolute Color_  = blue
-* _DTG Color_ = yellow
+You can allow or disallow the run from line.
+This will set the corresponding button insensitive (grayed out), so the user will not be able to use this option.
+The default is disable run from line.
 
-The foreground color of the DRO can be selected with:
-
-* _Homed Color_   = green
-* _Unhomed Color_ = red
-
-[NOTE]
-You can change through the DRO modes (absolute, relative, distance to go) by clicking the number on the DRO!
-If you click on the left side letter of the DRO a popup window will allow you to set the value of the axes,
-making it easier to set the value, as you will not need to go over the touch off bottom button.
-
-* _size_ - Allows to set the size of the DRO font, default is 28, if you use a bigger  screen you may want to increase the size up to 56.
-  If you do use 4 axes, the DRO font size will be 3/4 of the value, because of space reason.
-* _digits_ - Sets the number of digits of the DRO from 1 to 5.
-+
-[NOTE]
-====
-Imperial will show one digit more that metric.
-So if you are in imperial machine units and set the digit value to 1, you will get no digit at all in metric.
-====
-* _toggle DRO mode_ - If not active, a mouse click on the DRO will not take any action. +
-  By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). +
-  Neverthereless a click on the axis letter will open the popup dialog to set the axis value.
-
-.Preview
-* _Grid Size_ - Sets the grid size of the preview window.
-  Unfortunately the size *has to be set in inches*, even if your machine units are metric.
-  We do hope to fix that in a future release.
-+
-NOTE: The grid will not be shown in perspective view.
-
-* _Show DRO_ - Will show the a DRO also in the preview pane, it will be always shown in fullsize preview.
-* _Show DTG_ -  Will show the DTG (direct distance to end point) in the preview pane if Show DRO is active. Otherwise only in full size preview.
-* _Show Offsets_ -  Will show the offsets in the preview pane when Show DRO is active. Otherwise only in full size preview.
-* _Mouse Button Mode_ -  This combobox allows you to select the button behavior of the mouse to rotate, move or zoom within the preview:
-
-** left rotate, middle move, right zoom
-** left zoom, middle move, right rotate
-** left move, middle rotate, right zoom
-** left zoom, middle rotate, right move
-** left move, middle zoom, right rotate
-** left rotate, middle zoom, right move
-
-Default is left move, middle zoom, right rotate. +
-The mouse wheel will still zoom the preview in every mode.
-[TIP]
-====
-If you select an element in the preview,
-the selected element will be taken as rotation center point and in auto mode the corresponding code line will be highlighted.
-====
+[WARNING]
+It is not recommend to use run from line, as LinuxCNC will not take care of any previous lines in the code before the starting line.
+So errors or crashes are fairly likely.
 
 
-[[gmoccapy:message-behavior]]
-.Gmoccapy Messages
+.Keyboard shortcuts
 
-This will display small pop up windows displaying a message or error text, similar to the ones known from AXIS.
-You can delete a specific message by clicking on its close button.
-If you want to delete the last one, just hit the `WINDOWS` key on your keyboard, or delete all messages at once with `Control + Space`.
+Some users want to jog their machine using the keyboard buttons and there are others that will never allow this.
+So everybody can select whether to use them or not. +
+Keyboard shortcuts are disabled by default. They can be activated by the checkbox
 
-You are able to set some options:
+* _Use keyboard shortcuts_
 
-* _X Pos_ - The position of the top left corner of the message in X counted in pixel from the top left corner of the screen.
-* _Y Pos_ - The position of the top left corner of the message in Y counted in pixel from the top left corner of the screen.
-* _Width_ - The width of the message box.
-* _Max. messages_ - The maximum number of messages you want to see at once.
-  If you set this to 10, the 11^th^ message will delete the first one, so you will only see the last 10.
-* _Font_ - The font and size you want to use to display the messages.
-* _Use frames_ - If you activate the checkbox, each message will be displayed in a frame,
-  so it is much easier to distinguish the messages. But you will need a little bit more space.
-* _Launch test message_-button - It will show a message, so you can see the changes of your settings without the need to generate an error.
+[WARNING]
+It is not recommended to use keyboard jogging, as it represents a serious risk for operator and machine.
+
+Please take care if you use a lathe, then the shortcuts will be different,
+see the <<gmoccapy:lathe-section,Lathe Specific Section>>.
+****
+General::
+
+ * _F1_ - Trigger Estop (will work even if keyboard shortcuts are disabled)
+ * _F2_ - Toggle machine on/off
+ * _F3_ - Manual mode
+ * _F5_ - MDI mode
+ * _ESC_ - Abort
+
+In Manual Mode::
+
+ * _Arrow_Left_ or _NumPad_Left_ - Jog X minus
+ * _Arrow_Right_ or _NumPad_Right_ - Jog X plus
+ * _Arrow_up_ or _NumPad_Up_ - Jog Y plus
+ * _Arrow_Down_ or _NumPad_Down_ - Jog Y minus
+ * _Page_Up_ or _NumPad_Page_Up_ - Jog Z plus
+ * _Page_Down_ or _NumPad_Page_Down_ - Jog Z minus
+
+In Auto Mode::
+
+ * _R_ or _r_ - Run program
+ * _P_ or _p_ - Pause program
+ * _S_ or _s_ - Resume program
+ * _Control + R_ or _Control + r_ - Reload the loaded file
+
+Message handling (see <<gmoccapy:message-behavior,Message behavior and appearance>>)::
+
+ * _WINDOWS_ - Delete last message
+ * _Control + Space_ - Delete all messages
+****
+
+.File to load on start up
+
+Select the file you want to be loaded on start up.
+If a file is loaded, it can be set by pressing the current button.
+To avoid that any program is loaded at start up, just press the None button.
+
+The file selection screen will use the filters you have set in the INI file,
+if there aren't any filters given, you will only see *NGC files*.
+The path will be set according to the INI settings in `[DISPLAY] PROGRAM_PREFIX`.
+
+.Jump to dir
+
+You can set here the directory to jump to if you press the corresponding button in the file selection dialog.
+
+// image::images/gmoccapy_file_selection_dialog_with_keyboard.png["Directory selection",align="left"]
 
 
-.Themes and Sounds
+.File and folder list
 
-This lets the user select what desktop theme to apply and what error and messages sounds should be played.
-
-By default "Follow System Theme" is set.
-
-It further allows to change the icon theme.
-Currently there are three themes available:
-
-* classic
-* material
-* material light
-
-To create custom icon themes, see section <<gmoccapy:icon-theme-section,Icon Theme>> for details.
+For the file chooser page it is possible to change the sorting options with these parameters.
 
 === Hardware
 
@@ -1318,7 +1428,7 @@ MAX = 6000
 It is no error giving wrong values.
 If you give a maximum of 2000 and your spindle makes 4000 RPM, only the bar level will be wrong on higher speeds than 2000 RPM.
 
-.Unlock options
+.Unlock settings
 
 There are three options to unlock the settings page:
 
@@ -1328,19 +1438,6 @@ There are three options to unlock the settings page:
 
 Default is _use unlock code_ (default code is *123*).
 
-[[gmoccapy:turtle-jog]]
-.Turtle Jog
-This settings will have influence on the jog velocities.
-
-* _Hide turtle jog button_ - Will hide the button right of the jog velocity slider.
-  If you hide this button, please take care that the "rabbit mode" is activated,
-  otherwise you will not be able to jog faster than the turtle jog velocity,
-  which is calculated using the turtle jog factor.
-* _Turtle jog factor_ - Sets the scale to apply for turtle jog mode (button pressed, showing the turtle).
-  If you set a factor of 20, the turtle max. jog velocity will be 1/20 of the max. velocity of the machine.
-
-[NOTE]
-This button can be controlled using the <<gmoccapy:jog-velocity,Turtle-Jog HAL Pin>>.
 
 [[gmoccapy:advanced-settings]]
 === Advanced Settings
@@ -1408,77 +1505,6 @@ The tool will be loaded after all axes are homed, because before it is not
 allowed to execute MDI commands. If you use NO_FORCE_HOMING you can not use
 this feature, because the needed all_homed_signal will never be emitted.
 
-.File to load on start up
-
-Select the file you want to be loaded on start up.
-If a file is loaded, it can be set by pressing the current button.
-To avoid that any program is loaded at start up, just press the None button.
-
-The file selection screen will use the filters you have set in the INI file,
-if there aren't any filters given, you will only see *NGC files*.
-The path will be set according to the INI settings in `[DISPLAY] PROGRAM_PREFIX`.
-
-.Jump to dir
-
-You can set here the directory to jump to if you press the corresponding button in the file selection dialog.
-
-// image::images/gmoccapy_file_selection_dialog_with_keyboard.png["Directory selection",align="left"]
-
-
-.Run from Line
-
-You can allow or disallow the run from line.
-This will set the corresponding button insensitive (grayed out), so the user will not be able to use this option.
-The default is disable run from line.
-
-[WARNING]
-It is not recommend to use run from line, as LinuxCNC will not take care of any previous lines in the code before the starting line.
-So errors or crashes are fairly likely.
-
-
-.Keyboard shortcuts
-
-Some users want to jog their machine using the keyboard buttons and there are others that will never allow this.
-So everybody can select whether to use them or not. +
-Keyboard shortcuts are disabled by default. They can be activated by the checkbox
-
-* _Use keyboard shortcuts_
-
-[WARNING]
-It is not recommended to use keyboard jogging, as it represents a serious risk for operator and machine.
-
-Please take care if you use a lathe, then the shortcuts will be different,
-see the <<gmoccapy:lathe-section,Lathe Specific Section>>.
-****
-General::
-
- * _F1_ - Trigger Estop (will work even if keyboard shortcuts are disabled)
- * _F2_ - Toggle machine on/off
- * _F3_ - Manual mode
- * _F5_ - MDI mode
- * _ESC_ - Abort
-
-In Manual Mode::
-
- * _Arrow_Left_ or _NumPad_Left_ - Jog X minus
- * _Arrow_Right_ or _NumPad_Right_ - Jog X plus
- * _Arrow_up_ or _NumPad_Up_ - Jog Y plus
- * _Arrow_Down_ or _NumPad_Down_ - Jog Y minus
- * _Page_Up_ or _NumPad_Page_Up_ - Jog Z plus
- * _Page_Down_ or _NumPad_Page_Down_ - Jog Z minus
-
-In Auto Mode::
-
- * _R_ or _r_ - Run program
- * _P_ or _p_ - Pause program
- * _S_ or _s_ - Resume program
- * _Control + R_ or _Control + r_ - Reload the loaded file
-
-Message handling (see <<gmoccapy:message-behavior,Message behavior and appearance>>)::
-
- * _WINDOWS_ - Delete last message
- * _Control + Space_ - Delete all messages
-****
 
 [[gmoccapy:icon-theme-section]]
 == Icon Theme

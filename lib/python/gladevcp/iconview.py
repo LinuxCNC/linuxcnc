@@ -48,14 +48,21 @@ LOG = logger.getLogger(__name__)
 
 ### Constants ##
 # Sort order
-_ASCENDING = 0
-_DESCENDING = 1
-_FOLDERFIRST = 2
-_FILEFIRST = 3
-# Sort by date
-_DATE_NONE = 0
-_DATE_ALL = 1
-_DATE_FILESONLY = 2
+_SORTORDER_ASCENDING   = 0
+_SORTORDER_DESCENDING  = 1
+_SORTORDER_FOLDERFIRST = 2 # legacy
+_SORTORDER_FILEFIRST   = 3 # legacy
+
+# Sort order by date
+_SORTBYDATE_NONE       = 0
+_SORTBYDATE_ASCENDING  = 1
+_SORTBYDATE_DESCENDING = 2
+
+# Folder separation
+_FOLDER_FIRST = 0
+_FOLDER_LAST  = 1
+_FOLDER_MIXED = 2
+
 COL_PATH = 0
 COL_PIXBUF = 1
 COL_IS_DIRECTORY = 2
@@ -87,8 +94,11 @@ class IconFileSelection(Gtk.Box):
            'filetypes' : (GObject.TYPE_STRING, 'file filter', 'Sets the filter for the file types to be shown',
                         "ngc,py", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
            'sortorder' : (GObject.TYPE_INT, 'sorting order', '0 = ASCENDING, 1 = DESCENDING, 2 = FOLDERFIRST, 3 = FILEFIRST',
-                        0, 3, 2, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
-           'sortbydate' : (GObject.TYPE_INT, 'sort by date', '0 = none, 1 = files and foders, 2 = files only',
+                        0, 3, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+           # sortbydate overrides parameter sortorder. To sort by name set sortbydate to 0
+           'sortbydate' : (GObject.TYPE_INT, 'sort by date', '0 = DISABLE , 1 = ASCENDING, 2 = DESCENDING',
+                        0, 2, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+           'folderfirst' : (GObject.TYPE_INT, 'folder first', '0 = FOLDERFIRST , 1 = FILEFIRST, 2 = MIXED',
                         0, 2, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
@@ -112,8 +122,9 @@ class IconFileSelection(Gtk.Box):
         self.user_dir = os.path.expanduser('~')
         self.jump_to_dir = os.path.expanduser('/tmp')
         self.filetypes = ("ngc,py")
-        self.sortorder = _FOLDERFIRST
-        self.sort_by_date = _DATE_NONE
+        self.sortorder = _SORTORDER_ASCENDING
+        self.sortbydate = _SORTBYDATE_NONE
+        self.folderfirst = _FOLDER_FIRST
         # This will hold the path we will return
         self.path = ""
         self.button_state = {}
@@ -311,7 +322,7 @@ class IconFileSelection(Gtk.Box):
                 # we don't want to add hidden files
                 if fl[0] == '.':
                     continue
-                # append files with date
+                # append dirs with date
                 if os.path.isdir(os.path.join(self.cur_dir, fl)):
                     try:
                         os.listdir(os.path.join(self.cur_dir, fl))
@@ -320,7 +331,7 @@ class IconFileSelection(Gtk.Box):
                     except OSError:
                         #print ("no rights for ", os.path.join(self.cur_dir, fl), " skip that dir")
                         continue
-                # append dirs with date
+                # append files with date
                 else:
                     try:
                         name, ext = fl.rsplit(".", 1)
@@ -332,16 +343,14 @@ class IconFileSelection(Gtk.Box):
                     except Exception as e:
                         LOG.exception(e)
                         pass
-            if self.sortorder not in [_ASCENDING, _DESCENDING, _FOLDERFIRST, _FILEFIRST]:
-                self.sortorder = _FOLDERFIRST
-
+            ## SORTING ##
             # sort ascending/descending (file/folder mixed)
-            if self.sortorder == _ASCENDING or self.sortorder == _DESCENDING:
+            if self.folderfirst == _FOLDER_MIXED:
                 allobjects = dirs + files
-                if self.sort_by_date:
-                    allobjects.sort(key = lambda x: x[1], reverse = self.sortorder == _ASCENDING)
+                if self.sortbydate == _SORTBYDATE_NONE:
+                    allobjects.sort(key = lambda x: x[0].casefold(), reverse = self.sortorder == _SORTORDER_DESCENDING)
                 else:
-                    allobjects.sort(key = lambda x: x[0].casefold(), reverse = not self.sortorder == _ASCENDING)
+                    allobjects.sort(key = lambda x: x[1], reverse = self.sortorder == _SORTBYDATE_DESCENDING)
                 
                 for obj, date in allobjects:
                     if os.path.isdir(os.path.join(self.cur_dir, obj)):
@@ -350,18 +359,15 @@ class IconFileSelection(Gtk.Box):
                         icon = self._get_icon(obj)
                         self.store.append([obj, icon, False])
     
-            # 2. sort folders/files separately (sortorder _FOLDERFIRST or _FILEFIRST)
+            # sort folders/files separately
             else:
-                if self.sort_by_date:
-                    files.sort(key = lambda x: x[1], reverse = True)
+                if self.sortbydate == _SORTBYDATE_NONE:
+                    files.sort(key = lambda x: x[0].casefold(), reverse = self.sortorder == _SORTORDER_DESCENDING )
+                    dirs.sort (key = lambda x: x[0].casefold(), reverse = self.sortorder == _SORTORDER_DESCENDING )
                 else:
-                    files.sort(key = lambda x: x[0].casefold(), reverse = False)
-                if self.sort_by_date == _DATE_ALL:
-                    dirs.sort (key = lambda x: x[1], reverse = True)
-                else:
-                    dirs.sort (key = lambda x: x[0].casefold(), reverse = False)
-    
-                if self.sortorder == _FOLDERFIRST:
+                    files.sort(key = lambda x: x[1], reverse = self.sortorder == _SORTBYDATE_DESCENDING )
+                    dirs.sort (key = lambda x: x[1], reverse = self.sortorder == _SORTBYDATE_DESCENDING )
+                if self.folderfirst == _FOLDER_FIRST:
                     for dir, date in dirs:
                         self.store.append([dir, self.dirIcon, True])
                     for file, date in files:
@@ -612,16 +618,30 @@ class IconFileSelection(Gtk.Box):
                 if name == 'filetypes':
                     self.set_filetypes(value)
                 if name == 'sortorder':
-                    if value not in [_ASCENDING, _DESCENDING, _FOLDERFIRST, _FILEFIRST]:
+                    if value not in [_SORTORDER_ASCENDING, _SORTORDER_DESCENDING, _SORTORDER_FOLDERFIRST, _SORTORDER_FILEFIRST]:
                         raise AttributeError('unknown property of sortorder %s' % value)
                     else:
-                        self.sortorder = value
+                        # legacy
+                        if value == _SORTORDER_FOLDERFIRST:
+                            self.folderfirst = _FOLDER_FIRST
+                            self.sortorder   = _SORTORDER_ASCENDING
+                        elif value == _SORTORDER_FILEFIRST:
+                            self.folderfirst = _FOLDER_LAST
+                            self.sortorder   = _SORTORDER_ASCENDING
+                        else:
+                            self.sortorder = value
                         self._fill_store()
                 if name == 'sortbydate':
-                    if value not in [_DATE_NONE, _DATE_ALL, _DATE_FILESONLY]:
+                    if value not in [_SORTBYDATE_ASCENDING, _SORTBYDATE_DESCENDING, _SORTBYDATE_NONE]:
                         raise AttributeError('unknown property of sortbydate %s' % value)
                     else:
-                        self.sort_by_date = value
+                        self.sortbydate = value
+                        self._fill_store()
+                if name == 'folderfirst':
+                    if value not in [_FOLDER_FIRST, _FOLDER_LAST, _FOLDER_MIXED]:
+                        raise AttributeError('unknown property of folderfirst %s' % value)
+                    else:
+                        self.folderfirst = value
                         self._fill_store()
             else:
                 raise AttributeError('unknown iconview set_property %s' % property.name)

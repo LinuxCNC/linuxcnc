@@ -1,4 +1,15 @@
-ver 3.5.1 -- LinuxCNC 2.10.0-pre0
+ver 3.5.2 -- LinuxCNC 2.10.0-pre0 (2026-04-10)
+ - Add font chooser for the G-code view, default font is now 'monospace 10' (#3548)
+ - Add toggle button to sort by date in the file view + further sorting settings
+ - Add info messages when exit from tool table about changed G43/G49 (#3792)
+ - Change selection logic of tools in tool table: The checkboxes are gone and 
+   a tool is simply selected by row selection. (#3706)
+ - Save current text of tool table when in edit mode (#3787)
+ - Make value conversion of calculator independent of locale setting (#3691)
+ - Move offsetpage buttons to table frame, add toggle button for calculator use (#3509)
+ - Add button to call calculator in mdi and gcode edit modes (#3496)
+
+ver 3.5.1 -- LinuxCNC 2.10.0-pre0 (2025-06-26)
  - Style velocity/spindle info box (remove S-prefix, add units)
  - Add button "refresh dir" in open file page
  - Add setting for jog button size + right pane width
