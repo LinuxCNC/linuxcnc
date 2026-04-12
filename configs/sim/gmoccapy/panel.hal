@@ -1,4 +1,4 @@
-net rate    halui.axis.jog-speed panel.Jog-rate-f
+net rate    halui.axis.jog-speed panel.jog-rate-f
 
 net sx  halui.axis.x.select  panel.axis-x
 net sy  halui.axis.y.select  panel.axis-y

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>537</height>
+    <width>389</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,56 +22,23 @@
         <property name="title">
          <string>Axis Selection</string>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="PushButton" name="pushbutton_9">
-           <property name="text">
-            <string>None</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="pin_name" stdset="0">
-            <string>axis-none</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="PushButton" name="pushbutton">
-           <property name="text">
-            <string>X</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="pin_name" stdset="0">
-            <string>axis-x</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="PushButton" name="pushbutton_2">
-           <property name="text">
-            <string>Y</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="pin_name" stdset="0">
-            <string>axis-y</string>
-           </property>
-          </widget>
-         </item>
-         <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>3</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>4</number>
+         </property>
+         <item row="0" column="4">
           <widget class="PushButton" name="pushbutton_3">
            <property name="text">
             <string>Z</string>
@@ -87,6 +54,102 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="2">
+          <widget class="PushButton" name="pushbutton">
+           <property name="text">
+            <string>X</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-x</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="PushButton" name="pushbutton_9">
+           <property name="text">
+            <string>None</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-none</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="PushButton" name="pushbutton_2">
+           <property name="text">
+            <string>Y</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-y</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <widget class="PushButton" name="pushbutton_15">
+           <property name="text">
+            <string>C</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-c</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="PushButton" name="pushbutton_14">
+           <property name="text">
+            <string>B</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-b</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="PushButton" name="pushbutton_13">
+           <property name="text">
+            <string>A</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-a</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -96,6 +159,18 @@
          <string>Axis Jog</string>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>3</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
          <item>
           <widget class="PushButton" name="pushbutton_7">
            <property name="text">
@@ -134,7 +209,29 @@
             <enum>Qt::Horizontal</enum>
            </property>
            <property name="pin_name" stdset="0">
-            <string>Jog-rate</string>
+            <string>jog-rate</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_6">
+        <property name="title">
+         <string>jAngular jog rate</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="Slider" name="slider_angular">
+           <property name="maximum">
+            <number>1800</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>jog-rate-angular</string>
            </property>
           </widget>
          </item>
@@ -341,7 +438,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>404</width>
+     <width>389</width>
      <height>22</height>
     </rect>
    </property>
