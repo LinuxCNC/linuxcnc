@@ -6,7 +6,7 @@
  *   adapted to produce a single Bezier9 blend curve instead of
  *   two biarc segments.
  *
- * Author: aitekcnc
+ * Author: LinuxCNC
  * License: GPL Version 2
  * System: Linux
  ********************************************************************/
