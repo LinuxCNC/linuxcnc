@@ -73,11 +73,11 @@
 
 #include <rtapi_slab.h>		/* kmalloc() */
 #include <rtapi_io.h>		/* kmalloc() */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_stdint.h"	// portable ints
-#include "hal.h"		/* HAL public API decls */
-#include "hal_parport.h"
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <rtapi_stdint.h>	// portable ints
+#include <hal.h>		/* HAL public API decls */
+#include <rtapi_parport.h>
 
 #define MAX_BUS 3	/* max number of parports (EPP busses) */
 

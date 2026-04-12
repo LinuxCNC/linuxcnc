@@ -125,10 +125,10 @@
 
 #include <linux/pci.h>
 
-#include "rtapi.h"			// RTAPI realtime OS API.
-#include "rtapi_app.h"			// RTAPI realtime module decls.
-#include "rtapi_stdint.h"		// rtapi_s32 etc
-#include "hal.h"			// HAL public API decls.
+#include <rtapi.h>			// RTAPI realtime OS API.
+#include <rtapi_app.h>			// RTAPI realtime module decls.
+#include <rtapi_stdint.h>	// portable ints
+#include <hal.h>			// HAL public API decls.
 #include "motenc.h"			// Hardware dependent defines.
 
 // Module information.
