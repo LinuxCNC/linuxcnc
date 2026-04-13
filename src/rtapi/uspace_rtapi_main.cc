@@ -489,6 +489,10 @@ static int get_fifo_path_to_addr(struct sockaddr_un *addr) {
     return len;
 }
 
+static double diff_timespec(const struct timespec *time1, const struct timespec *time0) {
+  return (time1->tv_sec - time0->tv_sec) + (time1->tv_nsec - time0->tv_nsec) / 1000000000.0;
+}
+
 int main(int argc, char **argv) {
     if (getuid() == 0) {
         char *fallback_uid_str = getenv("RTAPI_UID");
@@ -561,17 +565,17 @@ become_master:
         result = master(fd, args);
         return result;
     } else if (errno == EADDRINUSE) {
-        struct timeval t0, t1;
-        gettimeofday(&t0, NULL);
-        gettimeofday(&t1, NULL);
-        for (int i = 0; i < 3 || (t1.tv_sec < 3 + t0.tv_sec); i++) {
+        struct timespec start, now;
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        clock_gettime(CLOCK_MONOTONIC, &now);
+        srand48(start.tv_sec ^ start.tv_nsec);
+        while(diff_timespec(&now, &start) < 3.0) {
             result = connect(fd, (sockaddr *)&addr, sizeof(addr));
             if (result == 0)
                 break;
-            if (i == 0)
-                srand48(t0.tv_sec ^ t0.tv_usec);
-            usleep(lrand48() % 100000);
-            gettimeofday(&t1, NULL);
+            
+            usleep(lrand48() % 100000 + 100); //Random sleep min 100us max 100100us
+            clock_gettime(CLOCK_MONOTONIC, &now);
         }
         if (result < 0 && errno == ECONNREFUSED) {
             fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
