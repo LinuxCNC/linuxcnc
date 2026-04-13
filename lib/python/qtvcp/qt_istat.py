@@ -671,21 +671,21 @@ class _IStat(object):
         if result is not None:
             return result
         else:
-            return _opt_default_warn(heading, detail, default, warning)
+            return self._opt_default_warn(heading, detail, default, warning)
 
     def get_error_safe_float(self, heading, detail, default=None, warning = True):
         result = self.INI.getreal(heading, detail)
         if result is not None:
             return result
         else:
-            return _opt_default_warn(heading, detail, default, warning)
+            return self._opt_default_warn(heading, detail, default, warning)
 
     def get_error_safe_setting(self, heading, detail, default=None, warning = True):
         result = self.INI.find(heading, detail)
         if result is not None:
             return result
         else:
-            return _opt_default_warn(heading, detail, default, warning)
+            return self._opt_default_warn(heading, detail, default, warning)
 
     # return a found float or else None by default, anything else by option
     def get_safe_float(self, heading, detail, default=None):
