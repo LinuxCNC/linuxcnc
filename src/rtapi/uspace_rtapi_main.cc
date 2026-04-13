@@ -467,13 +467,13 @@ static std::string get_fifo_path() {
     return s;
 }
 
-static int get_fifo_path(char *buf, size_t bufsize) {
+static int get_fifo_path_to_addr(struct sockaddr_un *addr) {
     int len;
     const std::string s = get_fifo_path();
     if (s.empty()) {
         return -1;
     }
-    if (s.size() + 1 > sizeof(sockaddr_un::sun_path)) {
+    if (s.size() + 1 > sizeof(addr->sun_path)) {
         rtapi_print_msg(
             RTAPI_MSG_ERR,
             "rtapi_app: rtapi fifo path is too long (arch limit %zd): %s\n",
@@ -482,7 +482,10 @@ static int get_fifo_path(char *buf, size_t bufsize) {
         );
         return -1;
     }
-    len = snprintf(buf + 1, bufsize - 1, "%s", s.c_str());
+    //See: https://www.man7.org/linux/man-pages/man7/unix.7.html abstract
+    //sun_path[0] is a null byte ('\0')
+    addr->sun_path[0]=0;
+    len = snprintf(addr->sun_path + 1, sizeof(addr->sun_path) - 1, "%s", s.c_str());
     return len;
 }
 
@@ -536,7 +539,7 @@ become_master:
     struct sockaddr_un addr;
     memset(&addr, 0x0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    if ((len = get_fifo_path(addr.sun_path, sizeof(addr.sun_path))) < 0)
+    if ((len = get_fifo_path_to_addr(&addr)) < 0)
         exit(1);
 
     // plus one because we use the abstract namespace, it will show up in
