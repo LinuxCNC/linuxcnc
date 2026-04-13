@@ -60,23 +60,160 @@ int userspace_kins_init(const char*, int, const char*);
 int userspace_kins_set_joint_limits(int, double, double, double, double);
 }
 
-/* ─── G-code endpoints: flower-another-line2.ngc spike region ─── */
-/* Spike at j0_jrk=204k, X≈62.85 Z≈-16.28 (between g-code lines 93-94) */
-/* Start position: X=67.007, Z=-16.643 (line 87) */
+/* ─── G-code endpoints: flower-another-line2.ngc (full program) ─── */
+/* Start position: X=0.001, Y=0.001, Z=-18.000 (after G1Z-18 at line 5) */
+/* First G1 move is to X=149.866 (line 6), then back through all segments */
 static double gcode[][2] = {
-    {66.474,-16.513},  /* 88 */
-    {65.942,-16.461},  /* 89 */
-    {65.409,-16.470},  /* 90 */
-    {64.743,-16.562},  /* 91 */
-    {64.343,-16.550},  /* 92 */
-    {63.544,-16.436},  /* 93 — spike between here */
-    {62.212,-16.150},  /* 94 — and here (204k j0 jerk) */
-    {60.879,-15.828},  /* 95 */
-    {60.347,-15.641},  /* 96 */
-    {59.414,-15.180},  /* 97 */
-    {59.014,-15.038},  /* 98 */
-    {58.482,-14.922},  /* 99 */
-    {57.949,-14.895},  /* 100 */
+    {149.866, -18.000},  /*  6 */
+    {127.086, -18.000},  /*  7 */
+    {126.953, -17.756},  /*  8 */
+    {126.687, -14.090},  /*  9 */
+    {126.553, -13.508},  /* 10 */
+    {126.287, -13.026},  /* 11 */
+    {126.154, -12.845},  /* 12 */
+    {126.021, -12.700},  /* 13 */
+    {125.754, -12.492},  /* 14 */
+    {125.355, -12.256},  /* 15 */
+    {124.822, -12.014},  /* 16 */
+    {124.422, -11.879},  /* 17 */
+    {123.889, -11.778},  /* 18 */
+    {123.223, -11.706},  /* 19 */
+    {122.557, -11.684},  /* 20 */
+    {121.758, -11.712},  /* 21 */
+    {120.825, -11.807},  /* 22 */
+    {119.760, -11.989},  /* 23 */
+    {118.427, -12.273},  /* 24 */
+    {117.095, -12.602},  /* 25 */
+    {114.564, -13.251},  /* 26 */
+    {112.699, -13.702},  /* 27 */
+    {110.701, -14.178},  /* 28 */
+    {109.103, -14.599},  /* 29 */
+    {108.170, -14.892},  /* 30 */
+    {107.371, -15.185},  /* 31 */
+    {106.838, -15.424},  /* 32 */
+    {106.172, -15.772},  /* 33 */
+    {105.639, -16.131},  /* 34 */
+    {105.239, -16.480},  /* 35 */
+    {104.840, -16.950},  /* 36 */
+    {104.707, -17.130},  /* 37 */
+    {104.440, -17.067},  /* 38 */
+    {103.508, -16.750},  /* 39 */
+    {102.575, -16.362},  /* 40 */
+    {101.776, -15.963},  /* 41 */
+    {100.710, -15.338},  /* 42 */
+    {100.177, -15.108},  /* 43 */
+    { 99.644, -14.969},  /* 44 */
+    { 99.112, -14.916},  /* 45 */
+    { 98.446, -14.932},  /* 46 */
+    { 98.046, -14.995},  /* 47 */
+    { 97.513, -15.153},  /* 48 */
+    { 97.113, -15.323},  /* 49 */
+    { 96.714, -15.553},  /* 50 */
+    { 95.648, -16.313},  /* 51 */
+    { 94.982, -16.751},  /* 52 */
+    { 94.582, -16.128},  /* 53 */
+    { 94.316, -15.818},  /* 54 */
+    { 94.049, -15.580},  /* 55 */
+    { 93.650, -15.312},  /* 56 */
+    { 93.250, -15.125},  /* 57 */
+    { 92.717, -14.971},  /* 58 */
+    { 92.318, -14.907},  /* 59 */
+    { 91.785, -14.898},  /* 60 */
+    { 91.385, -14.943},  /* 61 */
+    { 90.852, -15.077},  /* 62 */
+    { 90.453, -15.241},  /* 63 */
+    { 89.787, -15.585},  /* 64 */
+    { 89.254, -15.786},  /* 65 */
+    { 87.522, -16.211},  /* 66 */
+    { 86.456, -16.437},  /* 67 */
+    { 85.657, -16.549},  /* 68 */
+    { 85.257, -16.561},  /* 69 */
+    { 84.725, -16.481},  /* 70 */
+    { 84.192, -16.455},  /* 71 */
+    { 83.659, -16.497},  /* 72 */
+    { 82.993, -16.640},  /* 73 */
+    { 82.860, -16.648},  /* 74 */
+    { 81.527, -16.376},  /* 75 */
+    { 80.195, -16.160},  /* 76 */
+    { 78.730, -15.979},  /* 77 */
+    { 77.398, -15.873},  /* 78 */
+    { 75.932, -15.806},  /* 79 */
+    { 74.467, -15.797},  /* 80 */
+    { 73.268, -15.832},  /* 81 */
+    { 71.803, -15.933},  /* 82 */
+    { 70.604, -16.055},  /* 83 */
+    { 69.139, -16.261},  /* 84 */
+    { 67.673, -16.531},  /* 85 */
+    { 67.140, -16.648},  /* 86 */
+    { 67.007, -16.643},  /* 87 */
+    { 66.474, -16.513},  /* 88 */
+    { 65.942, -16.461},  /* 89 */
+    { 65.409, -16.470},  /* 90 */
+    { 64.743, -16.562},  /* 91 */
+    { 64.343, -16.550},  /* 92 */
+    { 63.544, -16.436},  /* 93 */
+    { 62.212, -16.150},  /* 94 */
+    { 60.879, -15.828},  /* 95 */
+    { 60.347, -15.641},  /* 96 */
+    { 59.414, -15.180},  /* 97 */
+    { 59.014, -15.038},  /* 98 */
+    { 58.482, -14.922},  /* 99 */
+    { 57.949, -14.895},  /*100 */
+    { 57.416, -14.943},  /*101 */
+    { 56.883, -15.088},  /*102 */
+    { 56.483, -15.252},  /*103 */
+    { 56.084, -15.490},  /*104 */
+    { 55.684, -15.828},  /*105 */
+    { 55.418, -16.138},  /*106 */
+    { 55.151, -16.514},  /*107 */
+    { 55.018, -16.746},  /*108 */
+    { 54.885, -16.716},  /*109 */
+    { 53.952, -16.091},  /*110 */
+    { 53.153, -15.518},  /*111 */
+    { 52.620, -15.229},  /*112 */
+    { 52.087, -15.045},  /*113 */
+    { 51.554, -14.939},  /*114 */
+    { 51.022, -14.912},  /*115 */
+    { 50.356, -14.947},  /*116 */
+    { 49.956, -15.032},  /*117 */
+    { 49.423, -15.223},  /*118 */
+    { 48.890, -15.522},  /*119 */
+    { 48.224, -15.914},  /*120 */
+    { 47.425, -16.317},  /*121 */
+    { 46.492, -16.708},  /*122 */
+    { 45.560, -17.031},  /*123 */
+    { 45.293, -17.086},  /*124 */
+    { 45.160, -16.905},  /*125 */
+    { 44.761, -16.464},  /*126 */
+    { 44.361, -16.117},  /*127 */
+    { 43.828, -15.757},  /*128 */
+    { 43.029, -15.347},  /*129 */
+    { 42.363, -15.075},  /*130 */
+    { 41.297, -14.710},  /*131 */
+    { 39.965, -14.335},  /*132 */
+    { 38.500, -13.968},  /*133 */
+    { 36.501, -13.489},  /*134 */
+    { 34.636, -13.024},  /*135 */
+    { 32.372, -12.432},  /*136 */
+    { 30.906, -12.088},  /*137 */
+    { 29.708, -11.853},  /*138 */
+    { 29.041, -11.751},  /*139 */
+    { 28.109, -11.665},  /*140 */
+    { 27.310, -11.639},  /*141 */
+    { 26.644, -11.674},  /*142 */
+    { 25.711, -11.803},  /*143 */
+    { 25.311, -11.910},  /*144 */
+    { 24.912, -12.066},  /*145 */
+    { 24.246, -12.422},  /*146 */
+    { 23.979, -12.631},  /*147 */
+    { 23.846, -12.775},  /*148 */
+    { 23.713, -12.956},  /*149 */
+    { 23.580, -13.208},  /*150 */
+    { 23.447, -13.598},  /*151 */
+    { 23.313, -14.236},  /*152 */
+    { 23.047, -17.803},  /*153 */
+    { 22.914, -18.000},  /*154 */
+    {  0.001, -18.000},  /*155 */
 };
 static const int N_GCODE = sizeof(gcode)/sizeof(gcode[0]);
 
@@ -103,7 +240,7 @@ int main() {
     g_status.rapid_scale = 1.0;
     g_status.net_feed_scale = 1.0;
     memset(&g_config, 0, sizeof(g_config));
-    g_config.trajCycleTime = 0.001;
+    g_config.trajCycleTime = 0.00025;
     memset(&g_internal, 0, sizeof(g_internal));
 
     setHandoffConfig(100, 50, 100, 200, 500, 50, 0.001, 50000);
@@ -133,12 +270,12 @@ int main() {
 
     /* TP on heap */
     TP_STRUCT *tp = (TP_STRUCT *)calloc(1, sizeof(TP_STRUCT));
-    tp->magic = TP_MAGIC; tp->queue_ready = 1; tp->queueSize = 200;
+    tp->magic = TP_MAGIC; tp->queue_ready = 1; tp->queueSize = 500;
     tcqCreate(&tp->queue, tp->queueSize); tcqInit(&tp->queue);
-    tp->cycleTime = 0.001; tp->vMax = 500; tp->ini_maxvel = 250;
+    tp->cycleTime = 0.00025; tp->vMax = 500; tp->ini_maxvel = 250;
     tp->ini_maxjerk = 50000; tp->vLimit = 500; tp->aMax = 5000;
     tp->termCond = TC_TERM_COND_PARABOLIC; tp->tolerance = 0;
-    tp->currentPos.tran.x = 67.007; tp->currentPos.tran.y = 0.001; tp->currentPos.tran.z = -16.643;
+    tp->currentPos.tran.x = 0.001; tp->currentPos.tran.y = 0.001; tp->currentPos.tran.z = -18.000;
     tp->goalPos = tp->currentPos;
 
     /* ═══ PHASE 1: Feed all segments ═══ */
@@ -203,7 +340,7 @@ int main() {
     }
     printf("Queue: %d segments, %d bezier, %d valid profiles\n", qlen, bezr_n, valid_n);
 
-    /* Print ALL segments */
+    /* Print segments with curvature info for beziers */
     for (int i = 0; i < qlen; i++) {
         TC_STRUCT *t = tcqItem(&tp->queue, i);
         if (!t) continue;
@@ -213,13 +350,25 @@ int main() {
         const char *tc_str = t->term_cond == TC_TERM_COND_TANGENT ? "TAN" :
                              t->term_cond == TC_TERM_COND_STOP ? "STP" :
                              t->term_cond == TC_TERM_COND_EXACT ? "EXA" : "PAR";
-        printf("  [%3d] %s id=%d tgt=%.4f v0=%.2f vf=%.2f kink=%.2f fvel=%.2f maxv=%.1f jrk=%.0f %s valid=%d opt=%d\n",
-               i, tn, t->id, t->target,
-               t->shared_9d.profile.valid ? t->shared_9d.profile.v[0] : -1.0,
-               t->shared_9d.profile.valid ? t->shared_9d.profile.v[RUCKIG_PROFILE_PHASES] : -1.0,
-               t->kink_vel, t->finalvel, t->maxvel, t->maxjerk, tc_str,
-               t->shared_9d.profile.valid,
-               (int)t->shared_9d.optimization_state);
+        if (t->motion_type == TC_BEZIER) {
+            double kappa = t->coords.bezier.max_kappa;
+            double dkds = t->coords.bezier.max_dkappa_ds;
+            double rmin = t->coords.bezier.min_radius;
+            double v_acc_full = sqrt(BLEND9_ACC_RATIO_NORMAL * t->maxaccel * rmin);
+            double v_jrk_full = (dkds > 1e-12) ? cbrt(BLEND9_ACC_RATIO_NORMAL * 50000.0 / dkds) : 999;
+            double v_jrk_tang = (dkds > 1e-12) ? cbrt(BLEND9_ACC_RATIO_NORMAL * t->maxjerk / dkds) : 999;
+            printf("  [%3d] %s id=%d tgt=%.4f kink=%.2f maxv=%.1f mjrk=%.0f v_acc=%.1f v_jrk_full=%.1f v_jrk_tang=%.1f κ=%.2f dκ/ds=%.1f %s X=%.2f..%.2f Z=%.3f..%.3f\n",
+                   i, tn, t->id, t->target,
+                   t->kink_vel, t->maxvel, t->maxjerk, v_acc_full, v_jrk_full, v_jrk_tang,
+                   kappa, dkds, tc_str,
+                   ps.tran.x, pe.tran.x, ps.tran.z, pe.tran.z);
+        } else {
+            printf("  [%3d] %s id=%d tgt=%.4f v0=%.2f vf=%.2f kink=%.2f fvel=%.2f maxv=%.1f %s\n",
+                   i, tn, t->id, t->target,
+                   t->shared_9d.profile.valid ? t->shared_9d.profile.v[0] : -1.0,
+                   t->shared_9d.profile.valid ? t->shared_9d.profile.v[RUCKIG_PROFILE_PHASES] : -1.0,
+                   t->kink_vel, t->finalvel, t->maxvel, tc_str);
+        }
     }
 
     /* ═══ PHASE 2: RT consumption with split-cycle handling ═══ */
@@ -234,11 +383,11 @@ int main() {
      * Displacement-based accumulation ensures split cycles that cross
      * segment boundaries don't produce zero-displacement artifacts.
      */
-    printf("\nPhase 2: RT consumption at 1kHz (with split cycles)...\n");
-    double dt = 0.001;
+    printf("\nPhase 2: RT consumption at 4kHz / 250us (with split cycles)...\n");
+    double dt = 0.00025;
     struct Sample { double x, z; int seg_id, seg_type; double vel; int split; };
     std::vector<Sample> trace;
-    trace.reserve(200000);
+    trace.reserve(800000);
 
     TC_STRUCT *tc = tcqItem(&tp->queue, 0);
     if (!tc || !tc->shared_9d.profile.valid) {
@@ -263,7 +412,7 @@ int main() {
         return false;
     };
 
-    for (int sample = 0; sample < 200000; sample++) {
+    for (int sample = 0; sample < 800000; sample++) {
         if (++opt_counter >= 10) {
             opt_counter = 0;
             tpOptimizePlannedMotions_9D(tp, 200);
@@ -428,8 +577,7 @@ int main() {
             if (fabs(jz)>fabs(max_real_jz)) max_real_jz=jz;
         }
 
-        int spike_region = trace[i].z < -15.5 && trace[i].z > -17.0 && trace[i].x < 65 && trace[i].x > 59;
-        if (viol || spike_region) {
+        if (viol) {
             double vz = (trace[i].z - trace[i-1].z)/dt;
             const char *tn = trace[i].seg_type == TC_BEZIER ? "BEZR" : "LINE";
             const char *tag = near_junc ? " [junc]" : "";

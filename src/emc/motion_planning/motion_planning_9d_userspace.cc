@@ -982,16 +982,18 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
                         v_jerk_cap = v_j;
                 }
             }
-            if (v_jerk_cap < v_plan) {
+            if (v_jerk_cap < v_plan)
                 v_plan = v_jerk_cap;
-                blend_tc.maxvel = v_plan;
-            }
-            // Hard cap on blend exit (like kink_vel, ignores feed override).
-            // Take the min of the per-joint Jacobian cap (v_jerk_cap) and
-            // the INI-based aggregate cap (set by createBlendSegment9).
+            // Hard cap on blend cruise velocity (maxvel), junction velocity
+            // (kink_vel), and prev_tc exit.  createBlendSegment9 sets maxvel
+            // from bezier9AccLimit which uses the full INI jerk budget, but
+            // the actual per-axis budget is reduced by the tangential jerk
+            // share.  Cap maxvel to the per-joint limit so the Ruckig profile
+            // can't cruise above the curvature-jerk budget.
+            if (v_jerk_cap < blend_tc.maxvel)
+                blend_tc.maxvel = v_jerk_cap;
             if (blend_tc.kink_vel <= 0 || v_jerk_cap < blend_tc.kink_vel)
                 blend_tc.kink_vel = v_jerk_cap;
-            // Hard cap on prev_tc exit → blend entry
             if (prev_tc->kink_vel <= 0 || v_jerk_cap < prev_tc->kink_vel)
                 prev_tc->kink_vel = v_jerk_cap;
         }

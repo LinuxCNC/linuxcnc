@@ -4296,13 +4296,10 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         // NOTE: Branch take and brake->main transitions update
         // last_profile_generation above, so this only fires for
         // convergence-driven profile rewrites (the intended case).
-        int _stopwatch_reset = 0;
-        double _old_acc_before_reset = tc->currentacc;
         {
             int prof_gen = __atomic_load_n(&tc->shared_9d.profile.generation, __ATOMIC_ACQUIRE);
             if (prof_gen != tc->last_profile_generation) {
                 // Profile was swapped — reset stopwatch
-                _stopwatch_reset = 1;
                 tc->position_base = tc->progress;  // absorb current progress
                 tc->elapsed_time = 0.0;
                 tc->last_profile_generation = prof_gen;
@@ -4375,17 +4372,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
             tc->currentvel = vel;
             tc->currentacc = acc_ruckig;
             tc->currentjerk = jerk;
-
-            /* JERK_DIAG: log segment state near spike location */
-            if (before.tran.z < -16.7 && before.tran.z > -17.3) {
-                rtapi_print("JERK_DIAG seg=%d type=%d prog=%.4f/%.4f vel=%.2f acc=%.2f jrk=%.1f et=%.4f reset=%d old_acc=%.2f v0=%.2f maxjrk=%.0f Z=%.4f X=%.4f\n",
-                    tc->id, tc->motion_type,
-                    tc->progress, tc->target,
-                    vel, acc_ruckig, jerk,
-                    tc->elapsed_time, _stopwatch_reset, _old_acc_before_reset,
-                    tc->shared_9d.profile.v[0], tc->maxjerk,
-                    before.tran.z, before.tran.x);
-            }
 
             tc->elapsed_time += tc->cycle_time;
 
@@ -4898,26 +4884,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     if (!nexttc) {
         tp_debug_print("no nexttc in split cycle\n");
         return TP_ERR_OK;
-    }
-
-    /* SPLIT_DIAG: log split handoff near spike location */
-    if (before.tran.z < -16.5 && before.tran.z > -17.5) {
-        rtapi_print("SPLIT_DIAG old_seg=%d old_type=%d old_vel=%.2f old_acc=%.2f next_seg=%d next_type=%d Z=%.4f X=%.4f\n",
-            tc->id, tc->motion_type,
-            tc->currentvel, tc->currentacc,
-            nexttc ? nexttc->id : -1,
-            nexttc ? nexttc->motion_type : -1,
-            before.tran.z, before.tran.x);
-        /* Extra: if entering a bezier blend, show curvature stats */
-        if (nexttc && nexttc->motion_type == TC_BEZIER) {
-            rtapi_print("BLEND_STATS seg=%d target=%.4f max_kappa=%.4f min_R=%.4f max_dkds=%.4f kink_vel=%.2f maxvel=%.2f maxacc=%.2f maxjrk=%.0f\n",
-                nexttc->id, nexttc->target,
-                nexttc->coords.bezier.max_kappa,
-                nexttc->coords.bezier.min_radius,
-                nexttc->coords.bezier.max_dkappa_ds,
-                nexttc->kink_vel, nexttc->maxvel,
-                nexttc->maxaccel, nexttc->maxjerk);
-        }
     }
 
     switch (tc->term_cond) {
