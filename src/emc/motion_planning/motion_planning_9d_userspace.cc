@@ -1042,6 +1042,62 @@ static int tpSetupBlend9D(TP_STRUCT *tp, TC_STRUCT *prev_tc, TC_STRUCT *tc)
                                           : fmin(prev_tc->maxjerk, tc->maxjerk);
     }
 
+    // Short-segment velocity-continuity cap.
+    // If prev_tc is short after trimming, it can't transition between
+    // adjacent blend velocities within jerk limits.  The max velocity change
+    // over distance L at velocity v with jerk j is:
+    //   dv_max ≈ 0.5 * j * (L/v)²
+    // Cap this blend's kink_vel (which the optimizer uses as hard junction
+    // velocity limit) so that prev_tc can kinematically reach it from the
+    // previous blend's kink_vel.
+    {
+        TC_QUEUE_STRUCT *queue = &tp->queue;
+        int current_end = __atomic_load_n(&queue->end_atomic, __ATOMIC_ACQUIRE);
+        int current_start = __atomic_load_n(&queue->start_atomic, __ATOMIC_ACQUIRE);
+        int qlen = (current_end - current_start + queue->size) % queue->size;
+
+        if (qlen >= 2) {
+            int prev_prev_idx = (current_end - 2 + queue->size) % queue->size;
+            TC_STRUCT *prev_prev = &queue->queue[prev_prev_idx];
+
+            // Use prev_prev's kink_vel as the entry velocity for prev_tc.
+            // kink_vel is the hard cap the optimizer uses for that junction.
+            double v_entry = prev_prev->kink_vel;
+            double v_exit_target = blend_tc.kink_vel;
+
+            if (v_entry > 1e-3 && prev_tc->target > 0 && v_exit_target > 1e-3) {
+                double L = prev_tc->target;  // already trimmed
+                double j = prev_tc->maxjerk > 0 ? prev_tc->maxjerk : tp->ini_maxjerk;
+                double a = prev_tc->maxaccel;
+
+                // Transit time at entry velocity
+                double t_transit = L / v_entry;
+                // Jerk-limited max velocity change (triangular accel pulse)
+                double dv_jerk = 0.5 * j * t_transit * t_transit;
+                // Accel-limited max velocity change
+                double dv_accel = a * t_transit;
+                double dv_max = fmin(dv_jerk, dv_accel);
+
+                double v_max_achievable = v_entry + dv_max;
+
+                if (v_exit_target > v_max_achievable) {
+                    rtapi_print_msg(RTAPI_MSG_INFO,
+                        "SHORT_SEG_CAP: kink_vel %.2f → %.2f (prev_tc tgt=%.4f, "
+                        "v_entry=%.2f, dv_max=%.3f, j=%.0f)\n",
+                        v_exit_target, v_max_achievable, L,
+                        v_entry, dv_max, j);
+                    blend_tc.kink_vel = v_max_achievable;
+                    if (blend_tc.maxvel > v_max_achievable)
+                        blend_tc.maxvel = v_max_achievable;
+                    if (prev_tc->kink_vel > v_max_achievable)
+                        prev_tc->kink_vel = v_max_achievable;
+                    if (v_plan > v_max_achievable)
+                        v_plan = v_max_achievable;
+                }
+            }
+        }
+    }
+
     double v_entry = v_plan;
     double v_exit  = v_plan;
 
@@ -1538,6 +1594,13 @@ skip_compressor:
 
     // Set motion parameters
     tcSetupMotion_9D(&tc, vel, ini_maxvel, acc);
+    // Set jerk limit from TP (INI) or handoff config default.
+    // Without this, tc.maxjerk stays 0 and blend profile creation fails
+    // when no Jacobian planner is configured.
+    if (tc.maxjerk <= 0.0) {
+        tc.maxjerk = (tp->ini_maxjerk > 0.0) ? tp->ini_maxjerk
+                                               : getDefaultMaxJerk();
+    }
 
     // Set state tag for tracking
     tc.tag = tag;

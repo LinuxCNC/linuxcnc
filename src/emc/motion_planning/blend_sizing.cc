@@ -1186,9 +1186,11 @@ int createBlendSegment9(TC_STRUCT const * const prev_tc,
      * the blend faster than the curvature allows. */
     double v_jerk_limit = bezier9AccLimit(&solution->bezier, v_req, a_max, jerk);
     blend_tc->kink_vel = v_jerk_limit;
-    if (v_jerk_limit < blend_tc->maxvel) {
-        blend_tc->maxvel = v_jerk_limit;
-    }
+    /* Set maxvel to the curvature-limited velocity.  tcSetupMotion sets
+     * maxvel from v_plan which may be 0 (kink_vel carries the real limit).
+     * Without a valid maxvel, the optimizer can't compute Ruckig profiles
+     * for this blend segment. */
+    blend_tc->maxvel = v_jerk_limit;
 
     /* Store bezier curve in coords union */
     blend_tc->coords.bezier = solution->bezier;
