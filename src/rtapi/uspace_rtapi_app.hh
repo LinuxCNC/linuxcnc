@@ -47,13 +47,14 @@ struct WithRoot {
     WithRoot();
     ~WithRoot();
     static void init(uid_t ruid_ini, uid_t euid_ini);
-    static uid_t getRuid(){
+    static uid_t getRuid() {
         return ruid;
     }
-    static uid_t getEuid(){
+    static uid_t getEuid() {
         return euid;
     }
-private:
+
+  private:
     static std::atomic_int level;
     static uid_t ruid, euid;
 };

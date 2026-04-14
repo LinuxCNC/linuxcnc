@@ -519,13 +519,13 @@ static bool get_fifo_path_to_addr(struct sockaddr_un *addr) {
     }
     //See: https://www.man7.org/linux/man-pages/man7/unix.7.html abstract
     //sun_path[0] is a null byte ('\0')
-    addr->sun_path[0]=0;
+    addr->sun_path[0] = 0;
     strncpy(addr->sun_path + 1, s.c_str(), sizeof(addr->sun_path) - 2);
     return true;
 }
 
 static double diff_timespec(const struct timespec *time1, const struct timespec *time0) {
-  return (time1->tv_sec - time0->tv_sec) + (time1->tv_nsec - time0->tv_nsec) / 1000000000.0;
+    return (time1->tv_sec - time0->tv_sec) + (time1->tv_nsec - time0->tv_nsec) / 1000000000.0;
 }
 
 int main(int argc, char **argv) {
@@ -603,11 +603,11 @@ become_master:
         clock_gettime(CLOCK_MONOTONIC, &start);
         clock_gettime(CLOCK_MONOTONIC, &now);
         srand48(start.tv_sec ^ start.tv_nsec);
-        while(diff_timespec(&now, &start) < 3.0) {
+        while (diff_timespec(&now, &start) < 3.0) {
             result = connect(fd, (sockaddr *)&addr, sizeof(addr));
             if (result == 0)
                 break;
-            
+
             usleep(lrand48() % 100000 + 100); //Random sleep min 100us max 100100us
             clock_gettime(CLOCK_MONOTONIC, &now);
         }

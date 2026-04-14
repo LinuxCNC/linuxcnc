@@ -41,9 +41,9 @@ WithRoot::~WithRoot() {
     }
 }
 
-void WithRoot::init(uid_t ruid_ini, uid_t euid_ini){
-    ruid=ruid_ini;
-    euid=euid_ini;
+void WithRoot::init(uid_t ruid_ini, uid_t euid_ini) {
+    ruid = ruid_ini;
+    euid = euid_ini;
 }
 
 rtapi_task::rtapi_task()
