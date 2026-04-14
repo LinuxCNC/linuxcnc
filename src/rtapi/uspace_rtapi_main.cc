@@ -467,26 +467,25 @@ static std::string get_fifo_path() {
     return s;
 }
 
-static int get_fifo_path_to_addr(struct sockaddr_un *addr) {
-    int len;
+static bool get_fifo_path_to_addr(struct sockaddr_un *addr) {
     const std::string s = get_fifo_path();
     if (s.empty()) {
-        return -1;
+        return false;
     }
-    if (s.size() + 1 > sizeof(addr->sun_path)) {
+    if (s.size() + 2 > sizeof(addr->sun_path)) {
         rtapi_print_msg(
             RTAPI_MSG_ERR,
             "rtapi_app: rtapi fifo path is too long (arch limit %zd): %s\n",
             sizeof(sockaddr_un::sun_path),
             s.c_str()
         );
-        return -1;
+        return false;
     }
     //See: https://www.man7.org/linux/man-pages/man7/unix.7.html abstract
     //sun_path[0] is a null byte ('\0')
     addr->sun_path[0]=0;
-    len = snprintf(addr->sun_path + 1, sizeof(addr->sun_path) - 1, "%s", s.c_str());
-    return len;
+    strncpy(addr->sun_path + 1, s.c_str(), sizeof(addr->sun_path) - 2);
+    return true;
 }
 
 static double diff_timespec(const struct timespec *time1, const struct timespec *time0) {
@@ -531,7 +530,6 @@ int main(int argc, char **argv) {
     }
 
 become_master:
-    int len = 0;
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if (fd == -1) {
         perror("socket");
@@ -543,7 +541,7 @@ become_master:
     struct sockaddr_un addr;
     memset(&addr, 0x0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    if ((len = get_fifo_path_to_addr(&addr)) < 0)
+    if (!get_fifo_path_to_addr(&addr))
         exit(1);
 
     // plus one because we use the abstract namespace, it will show up in
