@@ -641,28 +641,33 @@ struct rtapi_module {
 #define MAX_MODULES 64
 #define MODULE_OFFSET 32768
 
+#define WRITE_STDERR_STR(str) ((void)!write(STDERR_FILENO, str, strlen(str)))
 static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
+    //Read: https://www.man7.org/linux/man-pages/man7/signal-safety.7.html
     switch (sig) {
     case SIGXCPU:
-        // should not happen - must be handled in RTAPI if enabled
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: BUG: SIGXCPU received - exiting\n");
-        _exit(0);
+        WRITE_STDERR_STR("rtapi_app: SIGXCPU - shutting down\n");
         break;
-
+    case SIGSEGV:
+        WRITE_STDERR_STR("rtapi_app: SIGSEGV - shutting down\n");
+        break;
+    case SIGILL:
+        WRITE_STDERR_STR("rtapi_app: SIGILL - shutting down\n");
+        break;
+    case SIGFPE:
+        WRITE_STDERR_STR("rtapi_app: SIGFPE - shutting down\n");
+        break;
     case SIGTERM:
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: SIGTERM - shutting down\n");
-        _exit(0);
+        WRITE_STDERR_STR("rtapi_app: SIGTERM - shutting down\n");
         break;
-
-    default: // pretty bad
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: caught signal %d - dumping core\n", sig);
-        sleep(1); // let syslog drain
-        signal(sig, SIG_DFL);
-        // for reasons unknown raise(sig); doesn't lead to core dump file
-        // but this will
-        kill(getpid(), sig);
+    case SIGINT:
+        WRITE_STDERR_STR("rtapi_app: SIGINT - shutting down\n");
+        break;
+    default:
+        WRITE_STDERR_STR("rtapi_app: UNKNOWN - shutting down\n");
         break;
     }
+
     _exit(1);
 }
 
@@ -772,6 +777,7 @@ static int harden_rt() {
     sig_act.sa_sigaction = signal_handler;
     sig_act.sa_flags = SA_SIGINFO;
 
+    sigaction(SIGXCPU, &sig_act, (struct sigaction *)NULL);
     sigaction(SIGSEGV, &sig_act, (struct sigaction *)NULL);
     sigaction(SIGILL, &sig_act, (struct sigaction *)NULL);
     sigaction(SIGFPE, &sig_act, (struct sigaction *)NULL);
