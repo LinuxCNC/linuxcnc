@@ -298,66 +298,98 @@ static int do_debug_cmd(const std::string &value) {
     }
 }
 
-struct ReadError : std::exception {};
-struct WriteError : std::exception {};
+static bool send_result(int fd, int result) {
+    ssize_t res = send(fd, &result, sizeof(int), 0);
+    return res == sizeof(int);
+}
 
-static int read_number(int fd) {
-    int r = 0, neg = 1;
-    char ch;
+static bool recv_result(int fd, int *result) {
+    ssize_t res = recv(fd, result, sizeof(int), 0);
+    return res == sizeof(int);
+}
 
-    while (1) {
-        int res = read(fd, &ch, 1);
-        if (res != 1)
-            return -1;
-        if (ch == '-')
-            neg = -1;
-        else if (ch == ' ')
-            return r * neg;
-        else
-            r = 10 * r + ch - '0';
+static void set_uint16(std::vector<char> &buf, uint16_t value, size_t idx) {
+    buf[idx] = 0xff & (value >> 0);
+    buf[idx + 1] = 0xff & (value >> 8);
+}
+
+static uint16_t get_uint16(std::vector<char> &buf, size_t idx) {
+    return ((uint16_t)buf[idx] << 0) | ((uint16_t)buf[idx + 1] << 8);
+}
+
+static bool recv_args(int fd, std::vector<std::string> &args) {
+    //Get size
+    uint16_t tmp;
+    ssize_t res = recv(fd, &tmp, sizeof(uint16_t), 0);
+    if (res != sizeof(uint16_t)) {
+        return false;
     }
-}
+    size_t buff_size = tmp;
 
-static std::string read_string(int fd) {
-    int len = read_number(fd);
-    if (len < 0)
-        throw ReadError();
-    if (!len)
-        return std::string();
-    std::string str(len, 0);
-    if (read(fd, str.data(), len) != len)
-        throw ReadError();
-    return str;
-}
-
-static std::vector<std::string> read_strings(int fd) {
-    std::vector<std::string> result;
-    int count = read_number(fd);
-    if (count < 0)
-        return result;
-    for (int i = 0; i < count; i++) {
-        result.push_back(read_string(fd));
+    //Get data
+    std::vector<char> buf(buff_size);
+    res = recv(fd, buf.data(), buff_size, 0);
+    if (res != (ssize_t)buff_size) {
+        return false;
     }
-    return result;
-}
 
-static void write_number(std::string &buf, int num) {
-    buf = buf + fmt::format("{} ", num);
-}
-
-static void write_string(std::string &buf, const std::string &s) {
-    write_number(buf, s.size());
-    buf += s;
-}
-
-static void write_strings(int fd, const std::vector<std::string> &strings) {
-    std::string buf;
-    write_number(buf, strings.size());
-    for (unsigned int i = 0; i < strings.size(); i++) {
-        write_string(buf, strings[i]);
+    //Deserialize
+    size_t idx = 0;
+    size_t n_args = get_uint16(buf, idx);
+    idx += sizeof(uint16_t);
+    for (size_t i = 0; i < n_args; i++) {
+        size_t arg_size = get_uint16(buf, idx);
+        idx += sizeof(uint16_t);
+        args.push_back(std::string(buf.begin() + idx, buf.begin() + idx + arg_size));
+        idx += arg_size;
     }
-    if (write(fd, buf.data(), buf.size()) != (ssize_t)buf.size())
-        throw WriteError();
+    if (idx + sizeof(uint16_t) != buff_size) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug recv_args: idx %li != buff_size %li\n", idx, buff_size);
+        return false;
+    }
+
+    return true;
+}
+
+static bool send_args(int fd, const std::vector<std::string> &args) {
+    //Calculate size
+    size_t buff_size = 0;
+    buff_size += 2 * sizeof(uint16_t);
+    for (size_t i = 0; i < args.size(); i++) {
+        buff_size += sizeof(uint16_t);
+        buff_size += args[i].size();
+    }
+
+    //This is the largest value set by set_int16()
+    if (buff_size > std::numeric_limits<uint16_t>::max()) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug send_args: args to big, size = %li!\n", buff_size);
+        return false;
+    }
+
+    //Serialize
+    std::vector<char> buf(buff_size);
+    size_t idx = 0;
+    set_uint16(buf, buff_size, idx);
+    idx += sizeof(uint16_t);
+    set_uint16(buf, args.size(), idx);
+    idx += sizeof(uint16_t);
+    for (size_t i = 0; i < args.size(); i++) {
+        set_uint16(buf, args[i].size(), idx);
+        idx += sizeof(uint16_t);
+        buf.insert(buf.begin() + idx, args[i].begin(), args[i].end());
+        idx += args[i].size();
+    }
+    if (idx != buff_size) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug send_args: idx %li != buff_size %li\n", idx, buff_size);
+        return false;
+    }
+
+    //Send
+    ssize_t res = send(fd, buf.data(), buf.size(), 0);
+    if (res != (ssize_t)buf.size()) {
+        return false;
+    }
+    return true;
 }
 
 static int handle_command(std::vector<std::string> args) {
@@ -386,14 +418,18 @@ static int handle_command(std::vector<std::string> args) {
 }
 
 static int slave(int fd, const std::vector<std::string> &args) {
-    try {
-        write_strings(fd, args);
-    } catch (WriteError &e) {
+    if (!send_args(fd, args)) {
         rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to write to master: %s\n", strerror(errno));
+        return -1;
     }
 
-    int result = read_number(fd);
-    return result;
+    int result = -1;
+    if (!recv_result(fd, &result)) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to read from master: %s\n", strerror(errno));
+        return -1;
+    } else {
+        return result;
+    }
 }
 
 static int callback(int fd) {
@@ -406,18 +442,18 @@ static int callback(int fd) {
         return -1;
     } else {
         int result;
-        try {
-            result = handle_command(read_strings(fd1));
-        } catch (ReadError &e) {
+        std::vector<std::string> args;
+        if (!recv_args(fd1, args)) {
             rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to read from slave: %s\n", strerror(errno));
             close(fd1);
             return -1;
         }
-        std::string buf;
-        write_number(buf, result);
-        if (write(fd1, buf.data(), buf.size()) != (ssize_t)buf.size()) {
+
+        result = handle_command(args);
+
+        if (!send_result(fd1, result)) {
             rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to write to slave: %s\n", strerror(errno));
-        };
+        }
         close(fd1);
     }
     return !force_exit && instance_count > 0;
