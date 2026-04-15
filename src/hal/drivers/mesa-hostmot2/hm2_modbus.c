@@ -2127,6 +2127,11 @@ static rtapi_u16 crc_modbus(const rtapi_u8 *buffer, size_t len)
 /*                     Mbccb file read and validation                      */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+// We shouldn't even run into the mbccb file size limit with 1024 inits, 1024
+// commands and 1024 pins. But it surely spares us from crashing the
+// application or kernel if we try to allocate too large a chunk.
+#define MBCCB_SIZE_MAX	(128*1024)
+
 #if !defined(__KERNEL__)
 // Userspace file read
 static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_modbus_mbccb_header_t **pmbccb)
@@ -2151,6 +2156,13 @@ static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_
 		MSG_ERR("%s: error: Failed to fstat '%s' (error %d)\n", inst->name, fname, errno);
 		close(fd);
 		return rv;
+	}
+
+	// Limit the mbccb file to a sane size
+	if(sb.st_size > MBCCB_SIZE_MAX) {
+		MSG_ERR("%s: error: Mbccb file '%s' too large (%zd > %d bytes)\n", inst->name, fname, (ssize_t)sb.st_size, MBCCB_SIZE_MAX);
+		close(fd);
+		return -EFBIG;
 	}
 
 	// Allocate memory
@@ -2206,6 +2218,13 @@ static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_
 	}
 
 	ssize_t fsize = fp->f_inode->i_size;	// File's inode file size
+
+	// Limit the mbccb file to a sane size
+	if(fsize > MBCCB_SIZE_MAX) {
+		MSG_ERR("%s: error: Mbccb file '%s' too large (%zd > %d bytes)\n", inst->name, fname, fsize, MBCCB_SIZE_MAX);
+		filp_close(fp, NULL);
+		return -EFBIG;
+	}
 
 	// Allocate memory
 	*pmbccb = rtapi_kzalloc(fsize, RTAPI_GFP_KERNEL);
