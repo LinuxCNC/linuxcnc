@@ -289,6 +289,12 @@ static int do_load_cmd(const string& name, const vector<string>& args) {
             modules.erase(name);
             return -1;
         }
+        if(!DLSYM<void(*)(void)>(module, "rtapi_app_exit")) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "%s: component is missing rtapi_app_exit\n", name.c_str());
+            dlclose(module);
+            modules.erase(name);
+            return -1;
+        }
         int result;
 
         result = do_comp_args(module, args);
@@ -320,7 +326,7 @@ static int do_unload_cmd(const string& name) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: not loaded\n", name.c_str());
 	return -1;
     } else {
-        int (*stop)(void) = DLSYM<int(*)(void)>(w, "rtapi_app_exit");
+        void (*stop)(void) = DLSYM<void(*)(void)>(w, "rtapi_app_exit");
 	if(stop) stop();
 	modules.erase(modules.find(name));
         dlclose(w);
