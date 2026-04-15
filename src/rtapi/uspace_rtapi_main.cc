@@ -644,31 +644,47 @@ struct rtapi_module {
 #define WRITE_STDERR_STR(str) ((void)!write(STDERR_FILENO, str, strlen(str)))
 static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
     //Read: https://www.man7.org/linux/man-pages/man7/signal-safety.7.html
+    bool doAbort = true;
     switch (sig) {
     case SIGXCPU:
-        WRITE_STDERR_STR("rtapi_app: SIGXCPU - shutting down\n");
+        WRITE_STDERR_STR("rtapi_app: SIGXCPU - aborting\n");
         break;
     case SIGSEGV:
-        WRITE_STDERR_STR("rtapi_app: SIGSEGV - shutting down\n");
+        WRITE_STDERR_STR("rtapi_app: SIGSEGV - aborting\n");
         break;
     case SIGILL:
-        WRITE_STDERR_STR("rtapi_app: SIGILL - shutting down\n");
+        WRITE_STDERR_STR("rtapi_app: SIGILL - aborting\n");
         break;
     case SIGFPE:
-        WRITE_STDERR_STR("rtapi_app: SIGFPE - shutting down\n");
+        WRITE_STDERR_STR("rtapi_app: SIGFPE - aborting\n");
         break;
     case SIGTERM:
         WRITE_STDERR_STR("rtapi_app: SIGTERM - shutting down\n");
+        doAbort = false; //TERM is a user signal, no need for a coredump
         break;
     case SIGINT:
         WRITE_STDERR_STR("rtapi_app: SIGINT - shutting down\n");
+        doAbort = false; //INT is a user signal, no need for a coredump
         break;
     default:
-        WRITE_STDERR_STR("rtapi_app: UNKNOWN - shutting down\n");
+        WRITE_STDERR_STR("rtapi_app: UNKNOWN - aborting\n");
         break;
     }
 
-    _exit(1);
+    //Write remaining messages
+    rtapi_msg_queue.consume_all([](const message_t &m) {
+        WRITE_STDERR_STR(m.msg);
+    });
+
+    if(doAbort){
+        //Call abort to generate a coredump if enabled
+        //To enable coredumps for setuid applications:
+        //echo 1 | sudo tee /proc/sys/fs/suid_dumpable #rtapi_app is setuid
+        //In general:
+        //ulimit -c unlimited or coredumpctl
+        abort();
+    }
+    _exit(128+sig); //128+n: Fatal error signal "n"
 }
 
 const static size_t PRE_ALLOC_SIZE = 1024 * 1024 * 32;
