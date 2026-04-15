@@ -357,11 +357,12 @@ static bool recv_args(int fd, std::vector<std::string> &args) {
     //Deserialize
     size_t idx = 0;
     size_t n_args = get_uint16(buf, idx);
+    args.resize(n_args);
     idx += sizeof(uint16_t);
     for (size_t i = 0; i < n_args; i++) {
         size_t arg_size = get_uint16(buf, idx);
         idx += sizeof(uint16_t);
-        args.push_back(std::string(buf.begin() + idx, buf.begin() + idx + arg_size));
+        args[i]=std::string(buf.begin() + idx, buf.begin() + idx + arg_size);
         idx += arg_size;
     }
     if (idx + sizeof(uint16_t) != buff_size) {
