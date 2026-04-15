@@ -298,6 +298,27 @@ static int do_debug_cmd(const std::string &value) {
     }
 }
 
+/*
+ * Protocol:
+ * 
+ * client->master: std::vector<std::string> args
+ * master processes the args and returns result
+ * master->client: int result
+ *
+ * Packing:
+ * args are serialized as:
+ * uint16_t size (full package size including the size field)
+ * uint16_t n_args
+ * n_args times:
+ * {
+ *      uint16_t arg_size
+ *      char[arg_size] argument
+ * }
+ * 
+ * result is serialized as:
+ * int
+ */
+
 static bool send_result(int fd, int result) {
     ssize_t res = send(fd, &result, sizeof(int), 0);
     return res == sizeof(int);
@@ -313,7 +334,7 @@ static void set_uint16(std::vector<char> &buf, uint16_t value, size_t idx) {
     buf[idx + 1] = 0xff & (value >> 8);
 }
 
-static uint16_t get_uint16(std::vector<char> &buf, size_t idx) {
+static uint16_t get_uint16(const std::vector<char> &buf, size_t idx) {
     return ((uint16_t)buf[idx] << 0) | ((uint16_t)buf[idx + 1] << 8);
 }
 
