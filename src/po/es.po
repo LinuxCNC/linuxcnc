@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-02-12 15:09+0000\n"
+"PO-Revision-Date: 2026-04-15 11:43+0000\n"
 "Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 5.17.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -9172,7 +9172,7 @@ msgstr "Máquina Off"
 
 #: src/emc/usr_intf/touchy/touchy.glade:541
 msgid "<b>Power</b>"
-msgstr "<b> Energía </b>"
+msgstr "<b>Energía</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:569
 msgid "Unhome All"
@@ -9366,7 +9366,7 @@ msgstr "label26"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1535
 msgid "<b>Spindle</b>"
-msgstr "<b> Husillo </b>"
+msgstr "<b>Husillo</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1586
 msgid "file.ngc"
@@ -9396,7 +9396,7 @@ msgstr "<span foreground=\"blue\" weight=\"bold\">Punto de inicio</span>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2432
 msgid "<b>Loaded File</b>"
-msgstr "<b> Archivo cargado </b>"
+msgstr "<b>Archivo cargado</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2461
 msgid "Loaded file:"
@@ -9583,7 +9583,7 @@ msgstr "Tema:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3230
 msgid "<b>Display Options</b>"
-msgstr "<b> Opciones de visualización </b>"
+msgstr "<b>Opciones de visualización</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3261
 #: src/emc/usr_intf/stepconf/base.glade:69
@@ -9596,7 +9596,7 @@ msgstr "Pulgadas"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3324
 msgid "<b>Position Readout</b>"
-msgstr "<b> Lectura de posición </b>"
+msgstr "<b>Lectura de posición</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3351
 msgid "Workpiece"
@@ -9608,7 +9608,7 @@ msgstr "Fijación"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3382
 msgid "<b>Tool Setting</b>"
-msgstr "<b> Configuración de herramienta </b>"
+msgstr "<b>Configuración de herramienta</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3410
 msgid "Delete / lines"
@@ -9628,7 +9628,7 @@ msgstr "Ignorar M1"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3473
 msgid "<b>Program Options</b>"
-msgstr "<b> Opciones de programa </b>"
+msgstr "<b>Opciones de programa</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3494
 #: src/emc/usr_intf/gscreen/gscreen.glade:2719
@@ -15514,7 +15514,7 @@ msgstr "placa hija 7i48"
 #: src/emc/usr_intf/pncconf/mesa0.glade:733
 #: src/emc/usr_intf/pncconf/mesa1.glade:733
 msgid "<b>Sanity Checks</b>"
-msgstr "<b> Comprobaciones de cordura </b>"
+msgstr "<b>Comprobaciones de cordura</b>"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:765
 #: src/emc/usr_intf/pncconf/mesa1.glade:765
@@ -16854,31 +16854,31 @@ msgstr "/dev/ttyS0"
 
 #: src/emc/usr_intf/pncconf/external.glade:389
 msgid "<b>Serial VFD</b>"
-msgstr "<b> VFD en serie </b>"
+msgstr "<b>VFD en serie</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
-msgstr "<b> Activación de botón externo </b>"
+msgstr "<b>Activación de botón externo</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:454
 msgid "<b>External MPG Jogging</b>"
-msgstr "<b> Activación de MPG externo </b>"
+msgstr "<b>Activación de MPG externo</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:477
 msgid "<b>External Feed Override</b>"
-msgstr "<b> Ajuste de alimentación externa </b>"
+msgstr "<b>Ajuste de alimentación externa</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:500
 msgid "<b>Max Velocity Override</b>"
-msgstr "<b> Ajuste de velocidad máxima </b>"
+msgstr "<b>Ajuste de velocidad máxima</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:523
 msgid "<b>Spindle Override</b>"
-msgstr "<b> Ajuste de husillo </b>"
+msgstr "<b>Ajuste de husillo</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:546
 msgid "<b>USB Jogging</b>"
-msgstr "<b> USB Jogging </b>"
+msgstr "<b>USB Jogging</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:711
 msgid ""
@@ -16924,7 +16924,7 @@ msgstr "mm / min"
 
 #: src/emc/usr_intf/pncconf/external.glade:1034
 msgid " <b>ab)</b>"
-msgstr "<b> ab) </b>"
+msgstr "<b>ab)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1048
 #: src/emc/usr_intf/pncconf/external.glade:2313
@@ -16932,7 +16932,7 @@ msgstr "<b> ab) </b>"
 #: src/emc/usr_intf/pncconf/external.glade:3696
 #: src/emc/usr_intf/pncconf/external.glade:4639
 msgid " <b>b)</b>"
-msgstr "<b> b) </b>"
+msgstr "<b>b)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1060
 #: src/emc/usr_intf/pncconf/external.glade:2301
@@ -16940,7 +16940,7 @@ msgstr "<b> b) </b>"
 #: src/emc/usr_intf/pncconf/external.glade:3684
 #: src/emc/usr_intf/pncconf/external.glade:4627
 msgid " <b>a)</b>"
-msgstr "<b> a) </b>"
+msgstr "<b>a)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1073
 #: src/emc/usr_intf/pncconf/external.glade:2185
@@ -16948,7 +16948,7 @@ msgstr "<b> a) </b>"
 #: src/emc/usr_intf/pncconf/external.glade:3625
 #: src/emc/usr_intf/pncconf/external.glade:4568
 msgid "<b>default</b>"
-msgstr "<b> predeterminado </b>"
+msgstr "<b>predeterminado</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1111
 msgid "Speed B"
@@ -17047,7 +17047,7 @@ msgstr "incrementos de MPG seleccionables"
 #: src/emc/usr_intf/pncconf/external.glade:4207
 #: src/emc/usr_intf/pncconf/external.glade:5150
 msgid " <b>d)</b>"
-msgstr "<b> d) </b>"
+msgstr "<b>d)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1699
 #: src/emc/usr_intf/pncconf/external.glade:3222
@@ -17103,7 +17103,7 @@ msgstr "abc)"
 #: src/emc/usr_intf/pncconf/external.glade:3803
 #: src/emc/usr_intf/pncconf/external.glade:4746
 msgid " <b>c)</b>"
-msgstr "<b> c) </b>"
+msgstr "<b>c)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1974
 #: src/emc/usr_intf/pncconf/external.glade:2885
@@ -17274,7 +17274,7 @@ msgstr "Unidades de máquina:"
 
 #: src/emc/usr_intf/pncconf/base.glade:313
 msgid "<b>Machine Basics</b>"
-msgstr "<b> Conceptos básicos de la máquina </b>"
+msgstr "<b>Conceptos básicos de la máquina</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:364
 msgid "Actual Servo Period:             "
@@ -17294,7 +17294,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:450
 msgid "<b>Computer Response Time</b>"
-msgstr "<b> Tiempo de respuesta de la computadora </b>"
+msgstr "<b>Tiempo de respuesta de la computadora</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:496
 msgid "Mesa0 PCI/ Etho/ Parport Card:"
@@ -17306,7 +17306,7 @@ msgstr "Mesa1 PCI / Etho / Parport Card:"
 
 #: src/emc/usr_intf/pncconf/base.glade:599
 msgid "<b>I/O Control Ports/ Boards</b>"
-msgstr "<b> Puertos / placas de control de E / S </b>"
+msgstr "<b>Puertos/placas de control de E/S</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:642
 msgid "Debounce probe:"
@@ -17360,7 +17360,7 @@ msgstr "Restaurar la posición articulacion después del apagado"
 
 #: src/emc/usr_intf/pncconf/base.glade:894
 msgid "<b>Defaults and Options</b>"
-msgstr "<b> Valores predeterminados y opciones </b>"
+msgstr "<b>Valores predeterminados y opciones</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:161
 msgid "QtDragon"
@@ -17368,7 +17368,7 @@ msgstr "QtDragon"
 
 #: src/emc/usr_intf/pncconf/screen.glade:250
 msgid "<b>GUI Screen list</b>"
-msgstr "<b> Lista de pantallas GUI </b>"
+msgstr "<b>Lista de pantallas GUI</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:418
 msgid "Position_offset"
@@ -17401,7 +17401,7 @@ msgstr "Mostrar geometría"
 
 #: src/emc/usr_intf/pncconf/screen.glade:646
 msgid "<b>General GUI Defaults</b>"
-msgstr "<b> Valores predeterminados de la GUI general </b>"
+msgstr "<b>Valores predeterminados de la GUI general</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:740
 #: src/emc/usr_intf/pncconf/screen.glade:4498
@@ -17559,7 +17559,7 @@ msgstr "Opciones de QtPlasmaC"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:71
 msgid "<b>Virtual Control Panel</b>"
-msgstr "<b> Panel de control virtual </b>"
+msgstr "<b>Panel de control virtual</b>"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:158
 msgid "XYZ buttons (uses Halui)"
@@ -18057,7 +18057,7 @@ msgstr "Usar el índice del codificador"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1179
 #: src/emc/usr_intf/pncconf/s_motor.glade:1612
 msgid "<b>Input Options</b>"
-msgstr "<b> Opciones de entrada </b>"
+msgstr "<b>Opciones de entrada</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1262
 #: src/emc/usr_intf/pncconf/y_motor.glade:1256
@@ -18121,7 +18121,7 @@ msgstr "Corriente máxima 8i20"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1355
 #: src/emc/usr_intf/pncconf/s_motor.glade:1796
 msgid "<b>Output Options</b>"
-msgstr "<b> Opciones de salida </b>"
+msgstr "<b>Opciones de salida</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1481
 #: src/emc/usr_intf/pncconf/y_motor.glade:1475
@@ -18185,7 +18185,7 @@ msgstr "Polos"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1602
 #: src/emc/usr_intf/pncconf/s_motor.glade:2060
 msgid "<b>Configuration</b>"
-msgstr "<b> Configuración </b>"
+msgstr "<b>Configuración</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1700
 #: src/emc/usr_intf/pncconf/y_motor.glade:1694
@@ -18241,7 +18241,7 @@ msgstr "RPM"
 #: src/emc/usr_intf/pncconf/z_motor.glade:1858
 #: src/emc/usr_intf/pncconf/a_motor.glade:1777
 msgid "<b>Use Spindle-At-Speed</b>"
-msgstr "<b> Usar husillo-en-velocidad </b>"
+msgstr "<b>Usar husillo-en-velocidad</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1895
 #: src/emc/usr_intf/pncconf/y_motor.glade:1889
@@ -18255,7 +18255,7 @@ msgstr "Ganancia de filtro:"
 #: src/emc/usr_intf/pncconf/z_motor.glade:1932
 #: src/emc/usr_intf/pncconf/a_motor.glade:1849
 msgid "<b>Spindle Display Filter Settings</b>"
-msgstr "<b> Configuración del filtro de visualización del husillo </b>"
+msgstr "<b>Configuración del filtro de visualización del husillo</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2009
 #: src/emc/usr_intf/pncconf/y_motor.glade:2003
@@ -18477,11 +18477,11 @@ msgstr "Agregue componentes HAL con esta página\"."
 
 #: src/emc/usr_intf/pncconf/realtime.glade:177
 msgid "<b>Component</b>"
-msgstr "<b> Componente </b>"
+msgstr "<b>Componente</b>"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:204
 msgid "<b>number of components</b>"
-msgstr "<b> número de componentes </b>"
+msgstr "<b>número de componentes</b>"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:220
 msgid "PID"
@@ -18521,7 +18521,7 @@ msgstr "Comando de thread"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:513
 msgid "<b>Custom Components Commands</b>"
-msgstr "<b> Comandos de componentes personalizados </b>"
+msgstr "<b>Comandos de componentes personalizados</b>"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:134
 #: src/emc/usr_intf/pncconf/pport2.glade:137
@@ -18828,11 +18828,11 @@ msgstr "Relación de engranaje 2 (Entrada: Salida)"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1575
 msgid "      <b>MOTOR</b> RPM at Max Voltage"
-msgstr "<b> MOTOR </b> RPM a voltaje máximo"
+msgstr "      RPM del <b>MOTOR</b> a voltaje máximo"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1606
 msgid "<b>Spindle Drive Motor</b>"
-msgstr "<b> Motor de accionamiento del husillo </b>"
+msgstr "<b>Motor de accionamiento del husillo</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1646
 #: src/emc/usr_intf/pncconf/dialogs.glade:2452
@@ -18847,7 +18847,7 @@ msgstr "Líneas de encoder por revolución:"
 #: src/emc/usr_intf/pncconf/dialogs.glade:1667
 #: src/emc/usr_intf/pncconf/dialogs.glade:2620
 msgid "<b>Encoder Scale</b>"
-msgstr "<b> Escala de encoder</b>"
+msgstr "<b>Escala de codificador</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1735
 msgid "Spindle RPM at Max Motor Speed -gear 1:"
@@ -18868,7 +18868,7 @@ msgstr "1000"
 #: src/emc/usr_intf/pncconf/dialogs.glade:1805
 #: src/emc/usr_intf/pncconf/dialogs.glade:3241
 msgid "<b>Motion Data</b>"
-msgstr "<b> Datos de movimiento </b>"
+msgstr "<b>Datos de movimiento</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1951
 msgid "TPI "
@@ -18890,7 +18890,7 @@ msgstr "Paso métrico del tornillo"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2271
 msgid "<b>Step Motor Scale</b>"
-msgstr "<b> Escala de motor paso a paso </b>"
+msgstr "<b>Escala de motor paso a paso</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2320
 msgid "TPI"
@@ -18914,7 +18914,7 @@ msgstr "Pasos del motor por unidad:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2733
 msgid "<b>Calculated Scale</b>"
-msgstr "<b> Escala calculada </b>"
+msgstr "<b>Escala calculada</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2801
 msgid "mm / encoder pulse"

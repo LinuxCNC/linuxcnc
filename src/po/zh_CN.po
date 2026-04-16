@@ -8,16 +8,17 @@
 # bobyjx yu <502149532@qq.com>, 2023.
 # hyp90 <jexsp1224@gmail.com>, 2024.
 # 飞飞 <vip74120@gmail.com>, 2024.
-# Tron Lee <472734894@qq.com>, 2024.
+# Tron Lee <472734894@qq.com>, 2024, 2026.
 # Atom <superatom@sohu.com>, 2025.
 # BeginsDuang <enious@outlook.com>, 2026.
+# BsAtHome <bertho@vagrearg.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-01-22 09:09+0000\n"
-"Last-Translator: BeginsDuang <enious@outlook.com>\n"
+"PO-Revision-Date: 2026-04-08 20:41+0000\n"
+"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -25,7 +26,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -139,13 +140,12 @@ msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr "在G5.2和G5.3代码之间，只允许增加G5.2代码。"
 
 #: src/emc/rs274ngc/interp_check.cc:261
-#, fuzzy
-#| msgid ""
-#| "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 G73, G83 or G96 to "
 "use it"
-msgstr "D指令 没有与 G41、G41.1、G42、G42.1、G96 配合使用"
+msgstr ""
+"D指令 没有与 G41、 G41.1、G42、G42.1、 G71、 G71.1、 G71.2、G73、G83 、G96 配"
+"合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:272
 msgid ""
@@ -302,25 +302,23 @@ msgid "Cannot make a nurbs with 0 feedrate"
 msgstr "无法在进给速度为零时生成 NURBS 曲线"
 
 #: src/emc/rs274ngc/interp_convert.cc:503
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "You must specify a number of control points at least equal to the order P = "
 "%d"
-msgstr "您必须指定至少等于L = %d的控制点数"
+msgstr "您必须指定一些控制点数，至少与阶数P相等，P = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:567
 msgid "Cannot convert spline with cutter radius compensation"
 msgstr "不能用刀具半径补偿来转换样条曲线"
 
 #: src/emc/rs274ngc/interp_convert.cc:579
-#, fuzzy
 msgid "Splines may not have motion in A, B, or C"
-msgstr "样条曲线在Z，A，B或C中可能没有运动"
+msgstr "样条曲线在A，B或C上可能没有运动"
 
 #: src/emc/rs274ngc/interp_convert.cc:586
-#, fuzzy
 msgid "Must specify both I and J with G5.1 or G6.1"
-msgstr "必须用G5.1指定I和J"
+msgstr "使用G5.1或G6.1必须同时指定I和J"
 
 #: src/emc/rs274ngc/interp_convert.cc:691
 msgid "Must specify both I and J, or neither"
@@ -1290,15 +1288,14 @@ msgid "F word missing with inverse time g1 move"
 msgstr "反时针g1移动缺少F字"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
-#, fuzzy, c-format
+#, c-format
 msgid "File ended with no percent sign (%%)"
-msgstr "文件结束没有%符号"
+msgstr "文件结尾没有百分号（%%）"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
-#, fuzzy, c-format
-#| msgid "File ended with no percent sign (%) or program end (M2)"
+#, c-format
 msgid "File ended with no percent sign (%%) or program end (M2)"
-msgstr "文件结尾没有百分号（%）或程序结束代码（M2）"
+msgstr "文件结尾没有百分号（%%）或程序结束代码（M2）"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
 msgid "File name too long"
@@ -1910,18 +1907,16 @@ msgstr ""
 
 #: src/hal/utils/scope.c:351
 msgid "Overwrite loaded log file data?"
-msgstr ""
+msgstr "要覆盖已加载的日志文件中的数据吗？"
 
 #: src/hal/utils/scope.c:355
 msgid ""
 "Starting acquisition will clear the data loaded from the CSV file. Continue?"
-msgstr ""
+msgstr "开始采集将清除从CSV文件加载的数据。是否继续？"
 
 #: src/hal/utils/scope.c:547
-#, fuzzy
-#| msgid "O_pen Log File"
 msgid "Open Log File:"
-msgstr "（O）打开日志文件"
+msgstr "打开日志文件："
 
 #: src/hal/utils/scope.c:550 src/hal/utils/scope.c:593
 #: src/hal/utils/scope.c:616 src/hal/utils/scope_horiz.c:791
@@ -2165,22 +2160,17 @@ msgid "Multiplier:"
 msgstr "乘数:"
 
 #: src/hal/utils/scope_horiz.c:649
-#, fuzzy
-#| msgid "%5d samples (16 channels)"
 msgid "Samples (16 channels):"
-msgstr "%5d 采样(16通道)"
+msgstr "样本（16个通道）："
 
 #: src/hal/utils/scope_horiz.c:662
-#, fuzzy, c-format
-#| msgid "%5d samples (1 channel)"
+#, c-format
 msgid "Current: %d samples (%d per channel)"
-msgstr "%5d 采样(1通道)"
+msgstr "当前：%d 个样本(每个通道%d个)"
 
 #: src/hal/utils/scope_horiz.c:693
-#, fuzzy
-#| msgid "Value out of range"
 msgid "Sample count changed"
-msgstr "数值超出范围"
+msgstr "样本数量已更改"
 
 #: src/hal/utils/scope_horiz.c:696
 #, c-format
@@ -2190,6 +2180,10 @@ msgid ""
 "\n"
 "The setting has been saved to the configuration file."
 msgstr ""
+"新的样本数量（%d）将在下次\n"
+"启动halscope时生效。\n"
+"\n"
+"设置已保存到配置文件中。"
 
 #: src/hal/utils/scope_horiz.c:734
 msgid "Realtime thread(s) not running"
@@ -2561,16 +2555,14 @@ msgid "%s move on line %d gave non-finite joint location on joint %d"
 msgstr "%s在行%d关节%d上给出非有限关节位置"
 
 #: src/emc/motion/command.c:261
-#, fuzzy, c-format
-#| msgid "%s move on line %d would exceed joint %d's positive limit"
+#, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit max:[%f]"
-msgstr "%s移动在行%d将超过关节%d's的正极限"
+msgstr "在第 %d 行的%s 移动将超过关节 %d 的正极限最大值：[%f]"
 
 #: src/emc/motion/command.c:267
-#, fuzzy, c-format
-#| msgid "%s move on line %d would exceed joint %d's negative limit"
+#, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit min:[%f]"
-msgstr "%s移动在行%d将超过关节%d's的负极限"
+msgstr "在第 %d 行的%s 移动将超过关节 %d 的负极限最小值：[%f]"
 
 #: src/emc/motion/command.c:586
 msgid "all joints must be homed before going into coordinated mode"
@@ -3398,16 +3390,15 @@ msgid "Inverted"
 msgstr "反向"
 
 #: src/hal/classicladder/config_gtk.c:662
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Error in I/O modbus conf: overflow for I,Q,B,IQ, or WQ mapping "
 "detected...ASKED=%i,MAX=%i\n"
-msgstr "I/O modbus conf出错:检测到 I，B，Q，IQ或WQ映射溢出...ASKED=%i,MAX=%i\n"
+msgstr "I/O modbus conf出错:检测到 I，Q，B，IQ或WQ映射溢出...ASKED=%i,MAX=%i\n"
 
 #: src/hal/classicladder/config_gtk.c:664
-#, fuzzy
 msgid "Overflow error for I,Q,B,IQ,WQ or W mapping detected..."
-msgstr "检测到I，B，Q，IQ或WQ映射的溢出错误..."
+msgstr "检测到I，Q，B，IQ，WQ或W映射的溢出错误..."
 
 #: src/hal/classicladder/config_gtk.c:745
 #, c-format
@@ -3492,9 +3483,9 @@ msgid "Write Coils map from"
 msgstr "写入线圈映射"
 
 #: src/hal/classicladder/config_gtk.c:801
-#, fuzzy, c-format
+#, c-format
 msgid "Read input registers map to"
-msgstr "读取寄存器/保持映射到"
+msgstr "读取输入寄存器映射到"
 
 #: src/hal/classicladder/config_gtk.c:805
 #, c-format
@@ -3502,9 +3493,9 @@ msgid "Read register/holding map to"
 msgstr "读取寄存器/保持映射到"
 
 #: src/hal/classicladder/config_gtk.c:809
-#, fuzzy, c-format
+#, c-format
 msgid "Write hold registers map from"
-msgstr "写入寄存器映射"
+msgstr "写入保持寄存器映射来自"
 
 #: src/hal/classicladder/config_gtk.c:1075
 msgid "Period/object info"
@@ -3632,9 +3623,8 @@ msgid "You must select a boolean variable !"
 msgstr "必须选择布尔变量！"
 
 #: src/hal/classicladder/edit.c:500
-#, fuzzy
 msgid "You must select a read/write variable for a coil!"
-msgstr "必须选择布尔变量！"
+msgstr "您必须为线圈选择一个可读/写的变量！"
 
 #: src/hal/classicladder/edit.c:516 src/hal/classicladder/edit_sequential.c:99
 #: src/hal/classicladder/spy_vars_gtk.c:491
@@ -3656,9 +3646,8 @@ msgid "No more free arithmetic expression for this type available..."
 msgstr "该类型没有更多可用的自由算术表达式..."
 
 #: src/hal/classicladder/edit.c:1425
-#, fuzzy
 msgid "You clicked outside of the current rung actually selected..."
-msgstr "您在当前实际选择的范围之外单击了。。。"
+msgstr "您点击的位置超出了当前实际选中的范围..."
 
 #: src/hal/classicladder/edit_gtk.c:143
 msgid "Current rung in edit mode..."
@@ -3806,27 +3795,27 @@ msgstr "选择错误或不可能..."
 #: src/hal/classicladder/edit_sequential.c:545
 #, c-format
 msgid "DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"
-msgstr ""
+msgstr "完成 执行/取消执行 步骤数 x1=%d，x2=%d，y=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:565
 #, c-format
 msgid "StepActDesact++=%d\n"
-msgstr ""
+msgstr "StepActDesact++=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:624
 #, c-format
 msgid "having num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "-> 已获取过渡段关联编号 linked=%d，对应过渡段 transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:627
 #, c-format
 msgid "->storing num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "->存储过渡段关联编号 linked=%d，对应过渡段 transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:643
 #, c-format
 msgid "=>step to activ=%d, step to desactiv=%d\n"
-msgstr ""
+msgstr "=> 激活步数 activ=%d，取消激活步数 desactiv=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:652
 msgid "Not found at least 2 transitions linked..."
@@ -3981,7 +3970,7 @@ msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:201
 msgid "first var. expression error"
-msgstr "第一个var. 表达式错误"
+msgstr "第一个变量。表达式错误"
 
 #: src/hal/classicladder/emc_mods.c:265
 msgid "Old Timer"
@@ -4120,9 +4109,8 @@ msgid "Ladder"
 msgstr "梯形图"
 
 #: src/hal/classicladder/manager_gtk.c:185
-#, fuzzy
 msgid "This section name already exists or is incorrect !!!"
-msgstr "这个部件名称已存在或不正确!!!"
+msgstr "此部件名称已存在或错误！！！"
 
 #: src/hal/classicladder/manager_gtk.c:214
 msgid "This sub-routine number for calls is already defined !!!"
@@ -4138,14 +4126,12 @@ msgid "Not possible when program running..."
 msgstr "程序运行时无法继续..."
 
 #: src/hal/classicladder/manager_gtk.c:249
-#, fuzzy
 msgid "Add a new section..."
-msgstr "添加部件..."
+msgstr "添加一个新部件..."
 
 #: src/hal/classicladder/manager_gtk.c:280
-#, fuzzy
 msgid "Modify current section"
-msgstr "关于当前子文件"
+msgstr "修改当前部件"
 
 #: src/hal/classicladder/manager_gtk.c:320
 msgid "Do you really want to delete the section ?"
@@ -4160,9 +4146,8 @@ msgid "This section is already executed the first !"
 msgstr "这个部件已经被执行了！"
 
 #: src/hal/classicladder/manager_gtk.c:354
-#, fuzzy
 msgid "This section is already executed the latest !"
-msgstr "这个部件已经被执行了！"
+msgstr "该段程序是最新执行完毕的！"
 
 #: src/hal/classicladder/manager_gtk.c:429
 msgid "Language"
@@ -4282,7 +4267,7 @@ msgstr "串行写入…\n"
 
 #: src/hal/classicladder/serial_linux.c:216
 msgid "Serial port write failed"
-msgstr ""
+msgstr "串口写入错误"
 
 #: src/hal/classicladder/serial_linux.c:235
 #, c-format
@@ -4315,7 +4300,7 @@ msgid "Serial flush all!\n"
 msgstr "刷新所有串行\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
-#, fuzzy, c-format
+#, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"
 msgstr "错误 CLASSICLADDER-   无法创建线程 I/O modbus主站...\n"
 
@@ -5145,9 +5130,8 @@ msgid "loaded"
 msgstr "已加载"
 
 #: tcl/bin/halshow.tcl:1245
-#, fuzzy
 msgid "saved backup for old watchlist in"
-msgstr "保存当前监视列表"
+msgstr "已保存旧监视列表的备份"
 
 #: tcl/bin/halshow.tcl:1256
 msgid "Save current watch list"
@@ -6595,14 +6579,12 @@ msgid "Problem"
 msgstr "探测"
 
 #: tcl/tooledit.tcl:235
-#, fuzzy
 msgid "Bad Entry"
-msgstr "数据输入"
+msgstr "无效输入"
 
 #: tcl/tooledit.tcl:236
-#, fuzzy
 msgid "(must be a number)"
-msgstr "%s必须是一个数字"
+msgstr "（必须是数字）"
 
 #: tcl/tooledit.tcl:244
 #, tcl-format
@@ -6624,9 +6606,8 @@ msgid "Current file:"
 msgstr "当前文件："
 
 #: tcl/tooledit.tcl:293
-#, fuzzy
 msgid "Tooledit already running"
-msgstr "项目已加载并正在运行"
+msgstr "Tooledit（刀具编辑）已在运行"
 
 #: tcl/tooledit.tcl:338
 #, tcl-format
@@ -6823,7 +6804,7 @@ msgstr "对于独立使用，调用as"
 
 #: tcl/tooledit.tcl:986
 msgid "tool_table_filename"
-msgstr ""
+msgstr "刀具_表_文件名"
 
 #: tcl/tooledit.tcl:1006
 #, tcl-format
@@ -6846,9 +6827,9 @@ msgid "%s: Using: %s"
 msgstr "%s:使用: %s"
 
 #: tcl/tooledit.tcl:1042
-#, fuzzy, tcl-format
+#, tcl-format
 msgid "%s"
-msgstr "秒"
+msgstr "%s"
 
 #: tcl/tooledit.tcl:1043
 #, fuzzy, tcl-format
@@ -6860,9 +6841,8 @@ msgstr ""
 "%s"
 
 #: tcl/tooledit.tcl:1046
-#, fuzzy
 msgid "Axis is Running"
-msgstr "轴没有响应"
+msgstr "轴已经在运转"
 
 #: tcl/tooledit.tcl:1061
 msgid "Must be On and Idle to reload tool table"
@@ -7088,9 +7068,8 @@ msgid "Rotate Wheel"
 msgstr "转动滚轮"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:241
-#, fuzzy
 msgid "Ctrl+Left Button"
-msgstr "Ctrl+左键"
+msgstr "Ctrl+鼠标左键"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:244
 msgid "Manual control"
@@ -7302,6 +7281,8 @@ msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
+"在接近%(f)s的第%(seq)d行时：\n"
+"%(error_str)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1510
 #: src/emc/usr_intf/axis/scripts/axis.py:3299 share/axis/tcl/axis.tcl:922
@@ -7425,7 +7406,7 @@ msgstr "继续运行"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1976
 msgid "Homing not possible until current homing process is finished."
-msgstr ""
+msgstr "在当前回零过程完成之前，无法进行回零。"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2060
 msgid "No file loaded"
@@ -7465,9 +7446,8 @@ msgid "G-Code Properties"
 msgstr "G-代码属性"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2252
-#, fuzzy
 msgid "Homing request"
-msgstr "回零"
+msgstr "回零请求"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2252
 msgid ""
@@ -7553,7 +7533,7 @@ msgstr "这个关节已经回零了，你确定要重新回零吗?"
 msgid ""
 "Touch Off ({'system' if touchoff_actual_position is None else 'system "
 "ACTUAL'})"
-msgstr ""
+msgstr "触发（如果touchoff_actual_position为空，则为'system'，否则为'system ACTUAL'）"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2801
 #: src/emc/usr_intf/axis/scripts/axis.py:2845
@@ -7763,14 +7743,13 @@ msgstr ""
 "后自动关闭。"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
-#, fuzzy, python-format
+#, python-format
 msgid "%s: Image to G-code"
-msgstr "%s: 图象到G代码"
+msgstr "%s: 图像转G代码"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
-#, fuzzy
 msgid "Image to G-code"
-msgstr "图象到G代码"
+msgstr "图像转G代码"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:525
 #, python-format
@@ -8017,9 +7996,8 @@ msgid "_Reload"
 msgstr "重新载入"
 
 #: share/axis/tcl/axis.tcl:76
-#, fuzzy
 msgid "_Save G-code as..."
-msgstr "文件另存为.."
+msgstr "G代码另存为..."
 
 #: share/axis/tcl/axis.tcl:80
 msgid "G-code _properties..."
@@ -8648,9 +8626,8 @@ msgid "Set G54 offset for active axis [End]"
 msgstr "为激活轴设置G54偏置 [End]"
 
 #: share/axis/tcl/axis.tcl:2260
-#, fuzzy
 msgid "Set tool offset for loaded tool [Ctrl-End]"
-msgstr "为加载刀具设置刀具偏移[Ctrl+End]"
+msgstr "为加载的刀具设置刀具偏移量[Ctrl+End]"
 
 #: share/axis/tcl/axis.tcl:2261
 msgid "Activate axis [X]"
@@ -9825,24 +9802,23 @@ msgstr "数字输出 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:228
 msgid "Plasma Torch On"
-msgstr ""
+msgstr "等离子割炬开启"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:228
-#, fuzzy
 msgid "Plasma Ohmic Enable"
-msgstr "POT启用"
+msgstr "等离子欧姆探测使能"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:228
 msgid "Plasma Scribe Arm"
-msgstr ""
+msgstr "等离子刻划臂"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:228
 msgid "Plasma Scribe On"
-msgstr ""
+msgstr "等离子刻划启动"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:228
 msgid "Plasma Laser On"
-msgstr ""
+msgstr "等离子定位激光开启"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:229
 #: src/emc/usr_intf/stepconf/stepconf.py:263
@@ -10136,11 +10112,11 @@ msgstr "数字输入 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:261
 msgid "Plasma Arc Voltage"
-msgstr ""
+msgstr "等离子起弧电压"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:261
 msgid "Plasma Arc OK"
-msgstr ""
+msgstr "等离子起弧成功"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:261
 msgid "Plasma Float Switch"
@@ -10148,12 +10124,11 @@ msgstr "等离子流量开关"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:261
 msgid "Plasma Breakaway"
-msgstr ""
+msgstr "等离子碰撞保护"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:262
-#, fuzzy
 msgid "Plasma Ohmic Contact"
-msgstr "POT启用"
+msgstr "等离子欧姆接触 / 割炬已接触板材"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:262
 msgid "Plasma Move Up"
@@ -10255,7 +10230,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:295
 msgid "my-mill"
-msgstr ""
+msgstr "我的铣床"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:644
 #, python-format
@@ -10725,15 +10700,14 @@ msgid "Back"
 msgstr "返回"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:642
-#, fuzzy
 msgid ""
 "This program creates configuration files (INI and HAL) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port.\n"
 "\n"
 "Stepconf requires a minimum 800 X 600 display resolution."
 msgstr ""
-"此程序为连接到PC的并行接口的以“步进和方向”进行控制的铣床与车床创建配置文件 "
-"(.ini 和.hal)\n"
+"此程序为连接到个人电脑并行接口的以“步进和方向”进行控制的铣床与车床创建配置文"
+"件 (.ini 和.hal)。\n"
 "\n"
 "Stepconf需要最低800 X 600的显示分辨率。"
 
@@ -11306,9 +11280,8 @@ msgstr "设置外部引脚编号"
 
 #: src/emc/usr_intf/stepconf/options.glade:1074
 #: src/emc/usr_intf/pncconf/options.glade:732
-#, fuzzy
 msgid "Include Modbus master support"
-msgstr "包括modbus主机支持"
+msgstr "包括Modbus主站支持"
 
 #: src/emc/usr_intf/stepconf/options.glade:1125
 #: src/emc/usr_intf/pncconf/options.glade:925
@@ -11322,9 +11295,8 @@ msgstr "急停梯形图程序"
 
 #: src/emc/usr_intf/stepconf/options.glade:1155
 #: src/emc/usr_intf/pncconf/options.glade:971
-#, fuzzy
 msgid "Serial Modbus program"
-msgstr "串行MODBUS程序"
+msgstr "串行Modbus程序"
 
 #: src/emc/usr_intf/stepconf/options.glade:1240
 #: src/emc/usr_intf/pncconf/options.glade:1057
@@ -11495,7 +11467,7 @@ msgstr "原比例频率（千赫兹）"
 #: src/emc/usr_intf/stepconf/thcad.glade:131
 #: src/emc/usr_intf/pncconf/thcad.glade:116
 msgid "F Jumper"
-msgstr ""
+msgstr "F 跳线"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:143
 #: src/emc/usr_intf/pncconf/thcad.glade:128
@@ -11515,7 +11487,7 @@ msgstr "模式"
 #: src/emc/usr_intf/stepconf/thcad.glade:267
 #: src/emc/usr_intf/pncconf/thcad.glade:251
 msgid "THCAD For Arc Voltage"
-msgstr ""
+msgstr "用于弧压采集的 Mesa THCAD 模块"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:12
 #: src/emc/usr_intf/stepconf/axisy.glade:12
@@ -11556,7 +11528,9 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11830,10 +11804,15 @@ msgid ""
 "doesn't require firmware to be loaded at run time.\n"
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
+"一些较旧的卡片需要固件。\n"
+"您在文件夹 %s 中未下载hostmot2固件，PNCconf将使用其内部固件数据样本，以便您能"
+"继续操作。\n"
+"如果您的板卡已连接且在运行时不需要加载固件，您也可以尝试使用发现选项。\n"
+"“发现”选项需要在此页面上勾选高级选项。"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:696
 msgid "Don't show this again"
-msgstr ""
+msgstr "不再显示"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1029
 msgid "LinuxCNC 'PNCconf' configuration files"
@@ -11847,23 +11826,23 @@ msgstr "看来这个文件中的数据是从太旧版的PNCConf继承。"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1423
 msgid "PIN file is empty:\n"
-msgstr ""
+msgstr "PIN文件为空：\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1424
 msgid "To use PIN file discovery mode, the contents of the"
-msgstr ""
+msgstr "要使用PIN文件发现模式，需先将卡片PIN文件的内容"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1425
 msgid "cards PIN file needs to be pasted into the Input tab"
-msgstr ""
+msgstr "粘贴到“帮助”窗口的“输入”选项卡中，"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1426
 msgid "of the Help window before clicking Board Discovery"
-msgstr ""
+msgstr "然后再点击“板卡发现”。"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1435
 msgid "Address is required for ethernet card"
-msgstr ""
+msgstr "以太网卡需要地址"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1443
 #, python-format
@@ -11872,16 +11851,16 @@ msgstr "%s 没有找到mesa板"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1445
 msgid "Is the address correct?"
-msgstr ""
+msgstr "地址是否正确？"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1449
 #, python-format
 msgid "%s is an unsupported device"
-msgstr ""
+msgstr "%s 是一个不受支持的设备"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1462
 msgid "Unspecified Error with Discovery option"
-msgstr ""
+msgstr "发现选项出现未知错误"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1504
 #, python-format
@@ -11904,11 +11883,11 @@ msgstr "发现不可用\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1733
 msgid "The pasted PIN file may be an invalid format"
-msgstr ""
+msgstr "粘贴的PIN文件可能格式无效"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1735
 msgid "The data returned from discovery is invalid"
-msgstr ""
+msgstr "从发现模式返回的数据无效"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1809
 msgid "USB device Info Search"
@@ -12251,10 +12230,9 @@ msgid "# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"
 msgstr "# MAX_VEL 和 MAX_ACC 需要是对应关节值的两倍"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:369
-#, fuzzy
 msgid ""
 "# ---Chargepump StepGen: 10000 velocity-cmd = 10Khz square wave output---"
-msgstr "# ---充电泵 StepGen: 0.25 速度= 10Khz 方波输出---"
+msgstr "# ---电荷泵 StepGen: 10000 velocity-cmd = 10Khz 方波输出---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:458
 msgid "# connect miscellaneous signals"
@@ -12305,7 +12283,7 @@ msgstr "#       对于 %s 轴手轮"
 #: src/emc/usr_intf/pncconf/build_HAL.py:578
 #, python-format
 msgid "# ---jogwheel signals to mesa encoder - %s axis MPG---"
-msgstr ""
+msgstr "# ---手轮信号接至 Mesa 编码器接口 - %s 轴 手动脉冲发生器---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:597
 msgid "# connect selectable mpg jog increments "
@@ -12370,16 +12348,15 @@ msgstr "#  ---使用外部手动换刀对话窗---"
 #: src/emc/usr_intf/pncconf/build_HAL.py:830
 #: src/emc/usr_intf/pncconf/build_HAL.py:848
 msgid "#  ---signals to show tool offset in the GUI---"
-msgstr ""
+msgstr "# --- 用于在界面中显示刀具补偿量的信号 ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:842
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
 msgstr "#  ---手动换刀信号发送到 gmoccapy对话窗---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:853
-#, fuzzy
 msgid "#  ---spindle-at-speed indicator---"
-msgstr "# ---设置主轴转速信号---"
+msgstr "#   ---spindle-at-speed（主轴转速）指示灯---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:855
 msgid "net spindle-at-speed => gmoccapy.spindle_at_speed_led"
@@ -12863,14 +12840,12 @@ msgid "SSR Output"
 msgstr "固态继电器输出"
 
 #: src/emc/usr_intf/pncconf/private_data.py:119
-#, fuzzy
 msgid "OUTM Output"
-msgstr "POT输出"
+msgstr "OUTM 输出"
 
 #: src/emc/usr_intf/pncconf/private_data.py:121
-#, fuzzy
 msgid "INM Input"
-msgstr "GPIO输入"
+msgstr "INM 输入"
 
 #: src/emc/usr_intf/pncconf/private_data.py:124
 msgid "Quad Enc-A"
@@ -12941,24 +12916,20 @@ msgid "Dir Gen-B"
 msgstr "方向发生器-B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-#, fuzzy
 msgid "StepGen Phase-C"
-msgstr "步进发生器-A"
+msgstr "步进发生器-C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-#, fuzzy
 msgid "StepGen Phase-D"
-msgstr "步进发生器-A"
+msgstr "步进发生器-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "StepGen Phase-E"
-msgstr "步进发生器-A"
+msgstr "步进发生器-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "StepGen Phase-F"
-msgstr "步进发生器-A"
+msgstr "步进发生器-F"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-P"
@@ -13789,14 +13760,12 @@ msgid "Touchoff"
 msgstr "对刀"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
-#, fuzzy
-#| msgid "# laser touchoff"
 msgid "Laser Touchoff"
-msgstr "#激光触发"
+msgstr "激光触发"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
 msgid "Laser Toggle"
-msgstr ""
+msgstr "激光开关"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
 #, fuzzy
@@ -13804,93 +13773,72 @@ msgid "Jog Slow"
 msgstr "点动模式"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
-#, fuzzy
-#| msgid "POT Enable"
 msgid "THC Enable"
-msgstr "POT启用"
+msgstr "THC 启用"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
-#, fuzzy
-#| msgid "Motor Enable"
 msgid "Torch Enable"
-msgstr "电机启用"
+msgstr "等离子起弧使能"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
-#, fuzzy
-#| msgid "Enable"
 msgid "VAD Enable"
-msgstr "启用"
+msgstr "VAD 使能"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
-#, fuzzy
-#| msgid "Spindle Enable"
 msgid "Voidlock Enable"
-msgstr "主轴使能"
+msgstr "真空吸盘使能"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
-#, fuzzy
-#| msgid "Motor Enable"
 msgid "Auto Volts Enable"
-msgstr "电机启用"
+msgstr "自动弧压使能"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
-#, fuzzy
 msgid "Ohmic Probe Enable"
-msgstr "POT启用"
+msgstr "欧姆探测使能"
 
 #: src/emc/usr_intf/pncconf/private_data.py:496
-#, fuzzy
-#| msgid "MDI Mode"
 msgid "Mesh Mode"
-msgstr "MDI 模式"
+msgstr "Mesh 模式"
 
 #: src/emc/usr_intf/pncconf/private_data.py:496
-#, fuzzy
-#| msgid "Ignore M1"
 msgid "Ignore Arc OK"
-msgstr "忽略M1"
+msgstr "忽略起弧成功信号"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
-#, fuzzy
 msgid "Probe Test"
-msgstr "对刀信号"
+msgstr "探针测试"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
 msgid "Pulse Torch"
-msgstr ""
+msgstr "脉冲起弧"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
-#, fuzzy
 msgid "Ohmic Test"
-msgstr "探测"
+msgstr "欧姆探测"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "Change Consumables"
-msgstr ""
+msgstr "更换易损件"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "Frame Job"
-msgstr ""
+msgstr "外框预览"
 
 #: src/emc/usr_intf/pncconf/private_data.py:499
 msgid "Plus"
-msgstr ""
+msgstr "加"
 
 #: src/emc/usr_intf/pncconf/private_data.py:499
 msgid "Minus"
-msgstr ""
+msgstr "减"
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
-#, fuzzy
-#| msgid "POT Enable"
 msgid "MPG Enable"
-msgstr "POT启用"
+msgstr "MPG（手轮）使能"
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
-#, fuzzy
-#| msgid "MPG Jog Controls"
 msgid "MPG Counts"
-msgstr "MPG点动控制"
+msgstr "MPG（手轮）脉冲数 "
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
 #: src/emc/usr_intf/pncconf/x_motor.glade:1606
@@ -13903,44 +13851,43 @@ msgstr "还原"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "North"
-msgstr ""
+msgstr "北"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "South"
-msgstr ""
+msgstr "南"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "East"
-msgstr ""
+msgstr "东"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "West"
-msgstr ""
+msgstr "西"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "NorthEast"
-msgstr ""
+msgstr "东北"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "NorthWest"
-msgstr ""
+msgstr "西北"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "SouthEast"
-msgstr ""
+msgstr "东南"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "SouthWest"
-msgstr ""
+msgstr "西南"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "Arc OK"
 msgstr "电弧OK"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
-#, fuzzy
 msgid "Ohmic Contact"
-msgstr "POT启用"
+msgstr "寻边接触"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "Float Switch"
@@ -13955,28 +13902,20 @@ msgid "Move Up"
 msgstr "上移"
 
 #: src/emc/usr_intf/pncconf/private_data.py:506
-#, fuzzy
-#| msgid "External Controls"
 msgid "External GUI Functions"
-msgstr "外部控制"
+msgstr "外部图形用户界面功能"
 
 #: src/emc/usr_intf/pncconf/private_data.py:507
-#, fuzzy
-#| msgid "User Buttons"
 msgid "External User Buttons"
-msgstr "用户按钮"
+msgstr "外部用户按钮"
 
 #: src/emc/usr_intf/pncconf/private_data.py:508
-#, fuzzy
-#| msgid "<b>External Feed Override</b>"
 msgid "External Height Override"
-msgstr "<b>外部进给倍率</b>"
+msgstr "外部高度覆盖"
 
 #: src/emc/usr_intf/pncconf/private_data.py:509
-#, fuzzy
-#| msgid "External Control"
 msgid "External Cut Recovery"
-msgstr "外部控制"
+msgstr "外部断点续切"
 
 #: src/emc/usr_intf/pncconf/private_data.py:511
 msgid "Unused Input"
@@ -14204,7 +14143,7 @@ msgstr "最大速度倍率"
 
 #: src/emc/usr_intf/pncconf/private_data.py:549
 msgid "Arc Voltage"
-msgstr ""
+msgstr "起弧电压"
 
 #: src/emc/usr_intf/pncconf/private_data.py:551
 msgid "Unused Encoder"
@@ -14263,45 +14202,36 @@ msgid "Force Pin True"
 msgstr "强制引脚微调"
 
 #: src/emc/usr_intf/pncconf/private_data.py:573
-#, fuzzy
 msgid "Ohmic Enable"
-msgstr "POT启用"
+msgstr "寻边使能"
 
 #: src/emc/usr_intf/pncconf/private_data.py:573
 msgid "Scribe Arm"
-msgstr ""
+msgstr "划线臂"
 
 #: src/emc/usr_intf/pncconf/private_data.py:573
-#, fuzzy
 msgid "Scribe On"
-msgstr "电源开启"
+msgstr "划线开启"
 
 #: src/emc/usr_intf/pncconf/private_data.py:573
-#, fuzzy
 msgid "Torch On"
-msgstr "对刀"
+msgstr "起弧"
 
 #: src/emc/usr_intf/pncconf/private_data.py:573
 msgid "Laser On"
-msgstr ""
+msgstr "激光开启"
 
 #: src/emc/usr_intf/pncconf/private_data.py:574
-#, fuzzy
-#| msgid "# external output signals"
 msgid "External Output 0"
-msgstr "# 外部输出信号"
+msgstr "外部输出信号 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:574
-#, fuzzy
-#| msgid "# external output signals"
 msgid "External Output 1"
-msgstr "# 外部输出信号"
+msgstr "外部输出信号 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:574
-#, fuzzy
-#| msgid "# external output signals"
 msgid "External Output 2"
-msgstr "# 外部输出信号"
+msgstr "外部输出信号 2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:576
 msgid "Unused Output"
@@ -18717,7 +18647,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:122
 msgid "Desktop notifications are available"
-msgstr "桌面通知"
+msgstr "桌面通知可用"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:124
 msgid "Desktop notifications are not available"
@@ -18725,21 +18655,21 @@ msgstr "桌面通知不可用"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:126
 msgid "There was a problem initializing the notification module"
-msgstr ""
+msgstr "初始化通知模块时出现问题"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:133
 msgid "Audio alerts are available!"
-msgstr "提供音频警报！"
+msgstr "音频警报可用！"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:136
 msgid ""
 "No audio alerts are available - Is gir1.2-gstreamer-1.0 package installed?"
-msgstr ""
+msgstr "没有可用的音频警报 - 是否已安装 gir1.2-gstreamer-1.0 软件包？"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:286
 #: src/emc/usr_intf/gscreen/gscreen.py:290
 msgid "No widget '{}'"
-msgstr ""
+msgstr "没有小部件“{}”"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:328
 msgid "Manual Mode"
