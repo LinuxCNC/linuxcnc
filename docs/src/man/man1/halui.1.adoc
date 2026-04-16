@@ -271,6 +271,8 @@ _N_ = joint number (0 ... num_joints-1)
 
 === Joint jogging (*N* = joint number (0 ... num_joints-1))
 
+Joint jogging is possible in unhomed state except for joints having a negative HOME_SEQUENCE value. See Section "Homing Configuration" of the documentation.
+
 *halui.joint.jog-deadband* float in::
    pin for setting jog analog deadband (jog analog inputs smaller/slower than this (in absolute value) are ignored).
 *halui.joint.jog-speed* float in::
@@ -324,6 +326,8 @@ _L_ = axis letter (xyzabcuvw)
   Commanded axis position in relative coordinates
 
 === Axis Jogging
+
+This is only possible in homed state.
 
 _L_ = axis letter (xyzabcuvw)
 
