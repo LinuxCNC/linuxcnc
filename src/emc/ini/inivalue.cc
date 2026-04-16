@@ -160,6 +160,42 @@ static std::optional<double> convertReal(const std::string &optval)
 	return r;
 }
 
+// Escape all special characters in a double quoted string
+static const std::string escapeString(const std::string &s)
+{
+	std::string escv{"\a\b\f\n\r\t\v"};
+	std::string escc{"abfnrtv"}; // Letter order from above
+	std::string res;
+	for(size_t i = 0; i < s.size(); i++) {
+		char c = s[i];
+		if(0 == i && ' ' == c) {
+			// First char is a space, must escape
+			res += "\\x20";
+		} else if(s.size()-1 == i && ' ' == c) {
+			// Last char is a space, must escape
+			res += "\\x20";
+		} else if(c < ' ') {
+			// It is a control character
+			auto i = escv.find(c);
+			if(std::string::npos != i) {
+				// One of the standard escapes
+				res += '\\';
+				res += escc[i];
+			} else {
+				// Make it a hex escape
+				res += fmt::format("\\x{:02x}", c & 0xff);
+			}
+		} else if('\\' == c) {
+			// A backslash
+			res += "\\\\";
+		} else {
+			// Nothing special, just add
+			res += c;
+		}
+	}
+	return res;
+}
+
 int main(int argc, char * const argv[])
 {
 	int lose = 0;
@@ -308,7 +344,7 @@ int main(int argc, char * const argv[])
 						std::cout << '[' << sect << ']';
 					std::cout << var.first;
 					if(content)
-						std::cout << '=' << var.second;
+						std::cout << '=' << escapeString(var.second);
 					std::cout << std::endl;
 				}
 			}
@@ -319,7 +355,7 @@ int main(int argc, char * const argv[])
 					std::cout << '[' << section << ']';
 				std::cout << var.first;
 				if(content)
-					std::cout << '=' << var.second;
+					std::cout << '=' << escapeString(var.second);
 				std::cout << std::endl;
 			}
 		}

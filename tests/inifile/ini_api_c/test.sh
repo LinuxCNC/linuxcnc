@@ -13,7 +13,7 @@ true > result
 r "+++ Running test program for 'initest' +++"
 
 ( echo "[SECTION]"
-  echo "VAR='value to check the rest is missing'"
+  echo "VAR=value to check the rest is missing"
   echo "VARdp=42"
   echo "VARxp=0x2a"
   echo "VARop=0o52"

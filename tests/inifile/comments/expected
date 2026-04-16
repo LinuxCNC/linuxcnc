@@ -1,4 +1,4 @@
 value1
-value2
+value2 ; inline not comment
 value3
-value4
+value4 # another inline not comment
