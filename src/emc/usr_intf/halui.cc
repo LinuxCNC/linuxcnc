@@ -1472,7 +1472,15 @@ static int iniLoad(const char *filename)
         }
     }
 
-    if (!inifile.isSet("HOME_SEQUENCE", "JOINT_0")) {
+    // Create halui.home-all pin only if [JOINT_0]HOME_SEQUENCE is properly
+    // defined (original semantics from commit 38d35cdf8e). Commit 2f57090adb
+    // ("ini: Implement a new ini-file parser...") ported the old
+    // `inifile.Find("HOME_SEQUENCE", "JOINT_0")` check to the new API as
+    // `!inifile.isSet("HOME_SEQUENCE", "JOINT_0")`, inadvertently flipping
+    // the polarity — the "!" should not be there. With the polarity
+    // inverted, properly-configured machines (which set HOME_SEQUENCE in
+    // [JOINT_0]) lose the halui.home-all convenience pin.
+    if (inifile.isSet("HOME_SEQUENCE", "JOINT_0")) {
         have_home_all = 1;
     }
 
