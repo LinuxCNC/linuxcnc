@@ -274,6 +274,11 @@ static int do_comp_args(void *module, vector<string> args) {
 static int do_load_cmd(string name, vector<string> args) {
     void *w = modules[name];
     if(w == NULL) {
+        //Sanitize the name
+        if(name.find("/") != std::string::npos || name.find("..") != std::string::npos){
+            rtapi_print_msg(RTAPI_MSG_ERR, "%s: Not allowed as module name. Slashes or with \"..\" (even /a..b/) are not allowed.\n", name.c_str());
+            return -1;
+        }
         char what[LINELEN+1];
         snprintf(what, LINELEN, "%s/%s.so", EMC2_RTLIB_DIR, name.c_str());
         void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_NOW);
