@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-04-16 19:18+0200\n"
-"PO-Revision-Date: 2026-04-12 19:01+0000\n"
+"PO-Revision-Date: 2026-04-16 17:34+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 5.17.1-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1168,10 +1168,8 @@ msgid "<b>Feed Rate</b>"
 msgstr "<b>Vorschub</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:66
-#, fuzzy
-#| msgid "<b>Max. Velocity</b>"
 msgid "<b>Current Velocity</b>"
-msgstr "<b>Max. Geschw.</b>"
+msgstr "<b>Aktuelle Geschw.</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
 msgid "<b>Cooling</b>"
@@ -1327,7 +1325,7 @@ msgstr "Zeige DTG"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "Mouse Button mode:"
-msgstr "Maustasten-Modus"
+msgstr "Maustasten-Modus:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "left rotate,  middle move,  right zoom"
@@ -1560,8 +1558,6 @@ msgid "Descending"
 msgstr "Absteigend"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
-#, fuzzy
-#| msgid "Sort order by date "
 msgid "Sort order by date"
 msgstr "Sortierung nach Datum"
 
