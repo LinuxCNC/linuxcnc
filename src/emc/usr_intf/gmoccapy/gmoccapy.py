@@ -862,7 +862,7 @@ class gmoccapy(object):
             btn.add(image)
         except Exception as e:
             LOG.error(e)
-            message = _("could not resolve the image path '{0}' given for button '{1}'".format(filepath, name))
+            message = _("could not resolve the image path '{0}' given for button '{1}'").format(filepath, name)
             LOG.error(message)
             image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
             btn.add(image)
@@ -1248,7 +1248,7 @@ class gmoccapy(object):
                 LOG.debug("joint button")
                 joint_btn = True
             else:
-                LOG.warning(_("unknown jog command {0}".format(button_name)))
+                LOG.warning(_("unknown jog command {0}").format(button_name))
                 return None
 
         if not joint_btn:
@@ -1276,7 +1276,7 @@ class gmoccapy(object):
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
-                btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
+                btn.set_property("tooltip-text", _("Press to jog axis {0}").format(axis.upper()))
                 # Set name to assign CSS
                 self.widgets.vbx_jog_button.set_property("name", "jog_buttons")
                 btn.set_size_request(self.jog_btn_size, self.jog_btn_size)
@@ -1296,7 +1296,7 @@ class gmoccapy(object):
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
-                btn.set_property("tooltip-text", _("Press to jog joint {0}".format(joint)))
+                btn.set_property("tooltip-text", _("Press to jog joint {0}").format(joint))
                 btn.set_size_request(self.jog_btn_size, self.jog_btn_size)
 
                 self.joints_button_dic[name] = btn
@@ -1342,7 +1342,7 @@ class gmoccapy(object):
                 btn.set_halign(Gtk.Align.CENTER)
                 btn.set_valign(Gtk.Align.CENTER)
                 btn.set_property("name","macro_{0}".format(pos))
-            btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
+            btn.set_property("tooltip-text", _("Press to run macro {0}").format(name))
             btn.connect("clicked", self._on_btn_macro_pressed, name)
             btn.position = pos
             btn.show()
