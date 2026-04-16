@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy_fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 17:24+0200\n"
+"POT-Creation-Date: 2026-04-16 19:18+0200\n"
 "PO-Revision-Date: 2025-11-29 23:09+0000\n"
 "Last-Translator: \"S-G.\" <grimaitres@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
@@ -914,7 +914,7 @@ msgstr ""
 "**** gmoccapy ne démarre pas ****\n"
 "\n"
 
-#: src/emc/usr_intf/gmoccapy/getiniinfo.py:426
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:410
 #, fuzzy
 msgid "No subroutine folder or program prefix is given in the INI file!"
 msgstr ""
@@ -1213,381 +1213,387 @@ msgid "<b>Feed Rate</b>"
 msgstr "<b>Incrementos</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:66
+#, fuzzy
+#| msgid "<b>Max. Velocity</b>"
+msgid "<b>Current Velocity</b>"
+msgstr "<b>Vitesse Max.</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
 msgid "<b>Cooling</b>"
 msgstr "<b>Lubrifiant</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
 msgid "rpm"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:69
 msgid "<b>Spindle</b>"
 msgstr "<b>Broche</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:69
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
 msgid "Main"
 msgstr "Principal"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
 msgid "Start as fullscreen"
 msgstr "Démarrer plein écran"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
 msgid "Start maximized"
 msgstr "Démarrer maximisé"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
 msgid "Start as window"
 msgstr "Démarrer dans une fenêtre"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
 msgid "X Pos."
 msgstr "Pos. X"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
 msgid "Y Pos."
 msgstr "Pos. Y"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
 msgid "Width"
 msgstr "Largeur"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
 msgid "Height"
 msgstr "Hauteur"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
 msgid "Hide title bar"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
 #, fuzzy
 #| msgid "hide cursor"
 msgid "Hide cursor"
 msgstr "masquer le curseur"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
 msgid "Hide tooltips"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
 msgid "<b>Main Window</b>"
 msgstr "<b>Fenêtre principale</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
 msgid "Jog button size"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
 #, fuzzy
 #| msgid "4"
 msgid "40"
 msgstr "4"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
 msgid "Width right panel"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
 #, fuzzy
 #| msgid "3"
 msgid "30"
 msgstr "3"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
 msgid "Hide turtle Jog Button"
 msgstr "Cacher le bouton jog tortue"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:87
 msgid "Factor"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:87
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:88
 #, fuzzy
 #| msgid "<b>Turtle Jog</b>"
 msgid "Turtle Jog"
 msgstr "<b>Jog tortue</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:88
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
 #, fuzzy
 #| msgid "<b>Jog Rates</b>"
 msgid "<b>Jog Area</b>"
 msgstr "<b>Incrementos</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
 msgid "Relative Color"
 msgstr "Mode relatif"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
 msgid "Absolute Color"
 msgstr "Mode absolu"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
 msgid "DTG Color"
 msgstr "Couleur DTG"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
 msgid "Homed color"
 msgstr "Initialisé"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid "Unhomed color"
 msgstr "Non initialisé "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:95
 msgid "Size"
 msgstr "Taille"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:95
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "Digits"
 msgstr "Digits"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid ""
 "Toggle DRO mode by\n"
 "clicking on the DRO"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
 msgid "<b>DRO</b>"
 msgstr "<b>DRO</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
 #, fuzzy
 #| msgid "Grid size"
 msgid "Grid size in Inch"
 msgstr "Taille grille"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "Grid size"
 msgstr "Taille grille"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "Show DRO"
 msgstr "Voir DRO"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid "Show offsets"
 msgstr "Voir les offsets"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
 msgid "Show DTG"
 msgstr "Voir DTG"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 #, fuzzy
 #| msgid "<b>Mouse Button mode</b>"
 msgid "Mouse Button mode:"
 msgstr "<b>Mode boutons souris</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "left rotate,  middle move,  right zoom"
 msgstr "gauche rotation, milieu déplacement, droite zoom"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
 msgid "left zoom,  middle move,  right rotate"
 msgstr "gauche zoom, milieu déplacement, droite rotation"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
 msgid "left move,  middle rotate,  right zoom"
 msgstr "gauche déplacement, milieu rotation, droite zoom"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
 msgid "left zoom,  middle rotate,  right move"
 msgstr "gauche zoom, milieu rotation, droite déplacement"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
 msgid "left move,  middle zoom,  right rotate"
 msgstr "gauche déplacement, milieu zoom, droite rotation"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
 msgid "left rotate,  middle zoom,  right move"
 msgstr "gauche rotation, milieu zoom, droite déplacement"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
 msgid "<b>Preview</b>"
 msgstr "<b>Parcours d'outil</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
 #, fuzzy
 msgid "X-position in pixel from top left corner of the screen"
 msgstr ""
 "La posición X de la ventana, contando del eje arriba izquierdo de la pantalla"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 #, fuzzy
 msgid "Max. messages"
 msgstr "Mensaje"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "Font"
 msgstr "Police"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 #, fuzzy
 msgid "Y-position in pixel from top left corner of the screen"
 msgstr ""
 "La posición Y de la ventana, contando del eje arriba izquierdo de la pantalla"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 #, fuzzy
 msgid "The width of the messages"
 msgstr "Seleccione la anchura de los mensajes"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 #, fuzzy
 msgid "The maximum messages you want to be shown\t"
 msgstr "Numero de cantidad de mensajes a mostrar"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "The font to use"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
 msgid "Use frames"
 msgstr "Utiliser cadres"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
 #, fuzzy
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
 msgstr "Mostrar los offsets en la vista previa"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "Launch test message"
 msgstr "Lancer le message de test"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 #, fuzzy
 msgid "Font filter"
 msgstr "Police"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 #, fuzzy
 msgid "<b>gmoccapy messages</b>"
 msgstr "<b>Mensajes</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
 #, fuzzy
 msgid "Theme"
 msgstr "Thèmes"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
 #, fuzzy
 msgid "Icon Theme"
 msgstr "Thèmes"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
 #, fuzzy
 msgid "G-code Theme"
 msgstr "Thèmes"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
 #, fuzzy
 msgid "G-code Font"
 msgstr "Thèmes"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "Monospace"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "Regular/Medium"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
 #, fuzzy
 #| msgid "<b>Themes and sound</b>"
 msgid "<b>Themes</b>"
 msgstr "<b>Thèmes et sons</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
 msgid "Enable sound"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
 msgid "Warning Audio"
 msgstr "Warning audio"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "Alert Audio"
 msgstr "Alerte audio"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 #, fuzzy
 #| msgid "<b>Spindle</b>"
 msgid "<b>Sound</b>"
 msgstr "<b>Broche</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
 msgid "Appearance"
 msgstr "Apparence"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
 msgid "Show keyboard on offset"
 msgstr "Voir le clavier en offset"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
 msgid "Show keyboard on tooledit"
 msgstr "Voir le clavier en tooledit"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
 msgid "Show keyboard on MDI"
 msgstr "Voir le clavier en MDI"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
 msgid "Show keyboard on EDIT"
 msgstr "Voir le clavier en EDIT"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:144
 msgid "Show keyboard on load file"
 msgstr "Voir le clavier au chargement d'un fichier"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:144
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:145
 #, fuzzy
 msgid "<b>Virtual Keyboard</b>"
 msgstr "<b>Clavier</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:145
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:146
 msgid "show preview"
 msgstr "Voir parcours"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:146
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:147
 msgid "show offsets"
 msgstr "Voir offsets"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:147
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:148
 msgid "<b>On Touch off</b>"
 msgstr "<b>En Toucher</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:148
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
 msgid "Do not use run from line"
 msgstr "Ne pas utiliser, démarrer depuis la ligne"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 msgid "Use run from line"
 msgstr "Utiliser "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:151
 msgid "<b>Run from line</b>"
 msgstr "<b>Démarrer à la ligne</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:151
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:152
 msgid "Use keyboard shortcuts"
 msgstr "Utiliser raccourcis clavier"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:152
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:153
 msgid "<b>Keyboard shortcuts</b>"
 msgstr "<b>Raccourcis clavier</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:153
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:154
 msgid ""
 "current\n"
 "   file"
@@ -1595,153 +1601,153 @@ msgstr ""
 " fichier\n"
 "courant"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:155
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:156
 msgid "none"
 msgstr "aucun"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:156
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:157
 msgid "<b>File to load on start</b>"
 msgstr "<b>Fichier à charger au démarrage</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:157
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:158
 msgid "Select user dir"
 msgstr "Sélectionner le répertoire utilisateur"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:158
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
 #, fuzzy
 msgid "<b>Jump to dir</b>"
 msgstr "<b>Sauter au répertoire</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
 msgid "Sort order by name"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
 msgid "Ascending"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
 msgid "Descending"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
-msgid "Sort order by date "
-msgstr ""
-
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
-msgid "Separate folders/files"
+msgid "Sort order by date"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
-msgid "Folders first"
+msgid "Separate folders/files"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:165
-msgid "Files first"
+msgid "Folders first"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
-msgid "None"
+msgid "Files first"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
+msgid "None"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 #, fuzzy
 #| msgid "<b>File to load on start</b>"
 msgid "<b>File and folder list</b>"
 msgstr "<b>Fichier à charger au démarrage</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
 msgid "Behaviour"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
 msgid "Scale jog velocity"
 msgstr "Échelle vitesse de Jog"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
 #, fuzzy
 msgid "Scale rapid override"
 msgstr "Échelle correcteur broche"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
 msgid "Scale feed override"
 msgstr "Échelle correcteur d'avance"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Scale spindle override"
 msgstr "Échelle correcteur broche"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:174
 msgid "<b>Hardware MPG Scale</b>"
 msgstr "<b>Échelles des MPG</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:174
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:175
 msgid "Starting RPM"
 msgstr "Vitesse de démarrage"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:175
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
 msgid "Spindle bar min"
 msgstr "Min. barre broche"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:177
 msgid "Spindle bar max"
 msgstr "Max. barre broche"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:177
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
 msgid "Use unlock code"
 msgstr "Utiliser code de déverrouillage"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:179
 msgid "Do not use unlock code"
 msgstr "Ne pas utiliser le code de déverrouillage"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:179
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
 msgid "Use hal pin to unlock"
 msgstr "Pin de Hal pour déverrouiller"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:181
 msgid "<b>Unlock settings</b>"
 msgstr "<b>Déverrouiller réglages</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:181
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
 msgid "Hardware"
 msgstr "Matériel"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
 msgid "Use auto tool measurement"
 msgstr "Utiliser mesure d'outil auto"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:184
 msgid "Z Pos."
 msgstr "Pos. Z"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:184
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
 msgid "Max. Probe"
 msgstr "Max. Sonde"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:186
 msgid "Probe Height"
 msgstr "Hauteur de sonde"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:186
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
 #, fuzzy
 msgid "<b>Probe Information</b>"
 msgstr "<b>Informations sonde</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:188
 msgid "Search Vel."
 msgstr "Recherche Vit."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:188
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
 msgid "Probe Vel."
 msgstr "Vit. sonde"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:190
 #, fuzzy
 msgid "<b>Probe velocities</b>"
 msgstr "<b>Vitesse sonde</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:190
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
 #, fuzzy
 msgid ""
 "No valid configuration\n"
@@ -1756,15 +1762,15 @@ msgstr ""
 "documentation comment\n"
 "configurer les réglages."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:195
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
 msgid "<b>Tool Measurement</b>"
 msgstr "<b>Mesure d'outil</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
 msgid "Reload Tool on Start"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:198
 msgid ""
 "If checked, the tool in spindle\n"
 "will be saved on each change\n"
@@ -1773,19 +1779,19 @@ msgid ""
 "length offset will be reloaded.\n"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
 msgid ""
 "You use NO_FORCE_HOMING,\n"
 "so the reload of a tool at start\n"
 "is not possible."
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
 #, fuzzy
 msgid "<b>Reload Tool</b>"
 msgstr "<b>Clavier</b>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
 #, fuzzy
 #| msgid ""
 #| "Advanced\n"
@@ -1795,117 +1801,117 @@ msgstr ""
 "Réglages\n"
 " avancés"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
 msgid "Settings"
 msgstr "Réglages"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
 msgid "User tab 1"
 msgstr "Onglet personnalisé 1"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
 msgid "User tabs"
 msgstr "Onglets personnalisés"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
 #, fuzzy
 msgid ""
 "Estop the machine\n"
 "[F1]"
 msgstr "Arrêt d'urgence machine"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
 #, fuzzy
 msgid ""
 "Turn the machine on/off\n"
 "[F2]"
 msgstr "Marche/Arrêt machine"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
 #, fuzzy
 msgid ""
 "enter manual mode to jog axis by hand or touch off\n"
 "[F3]"
 msgstr "entrer en mode manuel pour jogger les axes ou faire le Toucher d'outil"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 #, fuzzy
 msgid ""
 "enter MDI mode to launch G-code commands\n"
 "[F5]"
 msgstr "entrer en mode MDI pour exécuter des G-code"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
 msgid "enter auto mode to run programs"
 msgstr "entrer en mode auto pour lancer les programmes"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
 msgid "show user tabs"
 msgstr "Voir onglets perso."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
 msgid "Enter the settings page, the default code is \"123\""
 msgstr "Entrer dans la page des réglages, le code par défaut est \"123\""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
 msgid "open homing button list"
 msgstr "ouvrir liste boutons pom"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
 msgid "open touch off button list"
 msgstr "ouvrir liste boutons Toucher"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
 msgid "Open the tooleditor page"
 msgstr "Ouvrir l'éditeur d'outil"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
 msgid ""
 "World\n"
 "Mode"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
 msgid ""
 "Switch motion mode between Joint and World mode\n"
 "F12 or $ key does the same"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
 msgid "make the preview as large as possible"
 msgstr "rendre le parcours le plus grand possible"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "Close gmoccapy / leave the program"
 msgstr "Fermer gmoccapy / l quitter le programme"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "Load a new program"
 msgstr "Charge un nouveau programme"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 #, fuzzy
 #| msgid "Reload"
 msgid "Reload file"
 msgstr "Recharger"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "Run the loaded program"
 msgstr "Lancer le programme"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
 msgid "Stop the running program"
 msgstr "Stopper le programme en cours"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "Pause the running program"
 msgstr "Pause du programme en cours"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 msgid "Run the  loaded program step by step"
 msgstr "Lancer le programme, pas par pas"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
 #, fuzzy
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
@@ -1914,7 +1920,7 @@ msgstr ""
 "exécuter le programme à partir d'une ligne sélectionnée, attention, c'est "
 "dangereux, parce que les lignes précédentes ne seront pas vérifiées!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
 msgid ""
 "Machine or not the optional blocks of the program. If the button is pressed, "
 "the optional blocks will not be machined. The button will indicate this by a "
@@ -1923,123 +1929,123 @@ msgstr ""
 "Usine ou non les blocs optionnels du programme. Si le bouton est pressé, le "
 "bloc optionnel ne sera pas usiné. Le bouton l'indique par un fond jaune."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
 #, fuzzy
 #| msgid "Show offsets in preview"
 msgid "Show full screen preview"
 msgstr "Mostrar offsets en vista previa"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
 msgid "Edit the loaded program"
 msgstr "Éditer le programme chargé"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
 msgid "delete MDI history"
 msgstr "effacer historique MDI"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:243
 #, fuzzy
 msgid ""
 "Delete\n"
 "MDI history"
 msgstr "effacer historique MDI"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:245
 msgid "Cl.-ladder"
 msgstr "Cl.-ladder"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:245
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
 msgid "Open classicladder"
 msgstr "Ouvrir classicladder"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
 msgid "Hal-Scope"
 msgstr "Hal-Scope"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
 msgid "launch hal scope"
 msgstr "lancer hal scope"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
 msgid "Status"
 msgstr "Status"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
 msgid "launch linuxcnc status"
 msgstr "lance statu linuxcnc"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "Hal Meter"
 msgstr "Hal Mètre"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
 msgid "launch hal meter"
 msgstr "lancer hal mètre"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
 msgid "Calibration"
 msgstr "Calibration"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
 msgid "launch calibration"
 msgstr "lancer calibration"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "Halshow"
 msgstr "Halshow"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:256
 msgid "opens the show hal tool"
 msgstr "ouvrir la vue outils hal"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:256
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:257
 msgid "Show preview as split view"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:257
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:258
 msgid "save the file using the original name"
 msgstr "enregistrer le fichier sous son nom d'origine"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:258
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:259
 msgid "save the file with a new name"
 msgstr "enregistrer le fichier avec un nouveau nom"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:259
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:260
 msgid "clear the edit field and make a new file"
 msgstr "effacer le champ d'édition et créer un nouveau fichier"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:260
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:261
 #, fuzzy
 #| msgid "Show or hide the virtual keyboard"
 msgid "Show calculator"
 msgstr "Voir ou cacher le clavier virtuel"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:261
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:262
 msgid "Show or hide the virtual keyboard"
 msgstr "Voir ou cacher le clavier virtuel"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:262
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:263
 msgid "Go back to main button list"
 msgstr "Revenir à la liste de boutons principale"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:263
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:264
 msgid "Select a tool by number"
 msgstr "Sélectionner un outil par son N°"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:264
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:265
 msgid "change tool with the command M61 Q?, no machine move will be done"
 msgstr ""
 "changer d'outil avec la commande M61 Q?, aucun mouvement ne se produira"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:265
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:266
 msgid "change tool to the selected one"
 msgstr "changer d'outil pour celui sélectionné"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:266
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:267
 msgid "touch off the tool and set the value to the tool table"
 msgstr "Toucher l'outil et régler la valeur dans la table d'outils"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:267
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:268
 #, fuzzy
 msgid ""
 "touchoff\n"
@@ -2048,7 +2054,7 @@ msgstr ""
 "toucher\n"
 "  outil x"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:269
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:270
 #, fuzzy
 msgid ""
 "touchoff\n"
@@ -2057,56 +2063,56 @@ msgstr ""
 "toucher\n"
 "  outil z"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:271
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:272
 msgid "Move to your home directory"
 msgstr "Aller dans son répertoire home"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:272
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:273
 msgid "Jump to user defined directory"
 msgstr "Sauter au répertoire défini"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:273
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:274
 #, fuzzy
 msgid "Move to parent directory"
 msgstr "Aller au répertoire parent"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:274
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:275
 #, fuzzy
 msgid "Refresh directory"
 msgstr "Aller au répertoire parent"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:275
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:276
 #, fuzzy
 msgid "Select the previous file"
 msgstr "Sélectionner le fichier précédent"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:276
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:277
 msgid "Select the next file"
 msgstr "Sélectionner le fichier suivant"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:277
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:278
 msgid ""
 "Sort by\n"
 "date"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:279
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:280
 msgid "Sort files by date, newest first"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:280
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:281
 msgid "select the highlighted file and return the path"
 msgstr "sélectionner le fichier en surbrillance et retourner le chemin"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:281
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:282
 msgid "Close without returning a file path"
 msgstr "Fermer sans revenir un chemin de fichier"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:282
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:283
 msgid "Load File"
 msgstr "Charge le fichier"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:283
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:284
 #, fuzzy
 msgid "home joints"
 msgstr "POM de l'axe X"
@@ -2516,9 +2522,6 @@ msgstr "POM de l'axe X"
 #~ msgstr ""
 #~ "  Log\n"
 #~ "actions"
-
-#~ msgid "<b>Max. Velocity</b>"
-#~ msgstr "<b>Vitesse Max.</b>"
 
 #~ msgid "<b>Program</b>"
 #~ msgstr "<b>Programme</b>"
