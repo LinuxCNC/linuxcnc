@@ -11,20 +11,21 @@
 # Luiz Diefenbach <luizhavoc@gmail.com>, 2024.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
 # Th3 Void <chmodxxzrxx@gmail.com>, 2024.
+# BsAtHome <bertho@vagrearg.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Emc2-axis cvs-head to 2.1\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2024-10-27 01:33+0000\n"
-"Last-Translator: Th3 Void <chmodxxzrxx@gmail.com>\n"
+"PO-Revision-Date: 2026-04-08 20:41+0000\n"
+"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
 "Language-Team: Portuguese/Brazil <none>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.8.2-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -2644,9 +2645,9 @@ msgid "kinematicsInverse failed"
 msgstr "kinematicsInverse falhou"
 
 #: src/emc/motion/control.c:1541
-#, fuzzy, c-format
+#, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-msgstr "Excedido limite positivo de software no eixo %d"
+msgstr "Excedido limite positivo de software no eixo %d\n"
 
 #: src/emc/motion/control.c:1544 src/emc/motion/control.c:1553
 #, fuzzy
@@ -2661,9 +2662,9 @@ msgstr ""
 "limite de software"
 
 #: src/emc/motion/control.c:1550
-#, fuzzy, c-format
+#, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
-msgstr "Excedido limite positivo de software no eixo %d"
+msgstr "Excedido limite positivo de software no eixo %d\n"
 
 #: src/emc/motion/command.c:126
 #, c-format
@@ -3026,9 +3027,9 @@ msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr "MOTION: emcmot_hal_data malloc falhou\n"
 
 #: src/emc/motion/motion.c:653
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: spindle %d pin export failed"
-msgstr "MOTION: exportação dos parâmetros/pins do eixo %d falhou\n"
+msgstr "MOTION: exportação dos parâmetros/pins do eixo %d falhou"
 
 #: src/emc/motion/motion.c:663
 #, c-format
@@ -3081,29 +3082,29 @@ msgid "unknown state '%d' during homing sequence"
 msgstr "estado desconhecido durante sequência de homing: %d"
 
 #: src/emc/motion/homing.c:577
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
-msgstr "Impossível remover home do eixo inválido %d (máximo %d)"
+msgstr "Impossível remover home do eixo inválido %d (máximo %d)\n"
 
 #: src/emc/motion/homing.c:584
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
-msgstr "Impossível efetuar jog no eixo quando não habilitado"
+msgstr "Impossível efetuar jog no eixo quando não habilitado\n"
 
 #: src/emc/motion/homing.c:591
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while homing, joint %d\n"
-msgstr "Impossível remover home enquanto está fazendo homing do eixo %d"
+msgstr "Impossível remover home enquanto está fazendo homing do eixo %d\n"
 
 #: src/emc/motion/homing.c:596
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while moving, joint %d\n"
-msgstr "Impossível remover home enquanto movendo eixo %d"
+msgstr "Impossível remover home enquanto movendo eixo %d\n"
 
 #: src/emc/motion/homing.c:602
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome inactive joint %d\n"
-msgstr "Impossível remover home do eixo inativo %d"
+msgstr "Impossível remover home do eixo inativo %d\n"
 
 #: src/emc/motion/homing.c:758
 #, fuzzy, c-format
@@ -4222,9 +4223,9 @@ msgid "Cannot auto assign symbol names-wrong variable name"
 msgstr "Não se pode assinar nome de símbolo - nome de variável errada"
 
 #: src/hal/classicladder/files.c:213
-#, fuzzy, c-format
+#, c-format
 msgid "Rung version not supported...\n"
-msgstr "Ciclos pré-programados não suportados"
+msgstr "Ciclos pré-programados não suportados\n"
 
 #: src/hal/classicladder/files.c:293 src/hal/classicladder/files.c:332
 #, fuzzy, c-format
@@ -4501,18 +4502,18 @@ msgid "Set RTS=%d\n"
 msgstr "Estabelecer RTS=%d\n"
 
 #: src/hal/classicladder/serial_linux.c:198
-#, fuzzy, c-format
+#, c-format
 msgid "Serial writing...\n"
-msgstr "Alternada"
+msgstr "Alternada\n"
 
 #: src/hal/classicladder/serial_linux.c:216
 msgid "Serial port write failed"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:235
-#, fuzzy, c-format
+#, c-format
 msgid "Writing done!\n"
-msgstr "Ar/Névoa"
+msgstr "Ar/Névoa\n"
 
 #: src/hal/classicladder/serial_linux.c:255
 #, c-format
@@ -4525,9 +4526,9 @@ msgid "select() for serial reading...\n"
 msgstr "select() para leitura do serial...\n"
 
 #: src/hal/classicladder/serial_linux.c:281
-#, fuzzy, c-format
+#, c-format
 msgid "Serial reading...\n"
-msgstr "Alternada"
+msgstr "Alternada\n"
 
 #: src/hal/classicladder/serial_linux.c:284
 #, c-format
@@ -7163,9 +7164,9 @@ msgid "Tool %s: <Orientation> must be 0..9 integer"
 msgstr "Ferramenta %s: <Orientação> deve ser um inteiro entre 0..9"
 
 #: tcl/tooledit.tcl:878
-#, fuzzy, tcl-format
+#, tcl-format
 msgid "Tool %s: <%s> must be between -360 and 360"
-msgstr "MOTION: num_dio é %d, precisa ser entre 1 e %d\n"
+msgstr ""
 
 #: tcl/tooledit.tcl:893
 #, tcl-format
@@ -12103,7 +12104,8 @@ msgstr "Positivo"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

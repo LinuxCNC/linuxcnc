@@ -4,20 +4,21 @@
 # hugoalh <hugoalh@users.noreply.hosted.weblate.org>, 2024.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
 # Ricky From Hong Kong <lamricky11@hotmail.com>, 2024.
+# BsAtHome <bertho@vagrearg.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2024-07-23 05:50+0000\n"
-"Last-Translator: Ricky From Hong Kong <lamricky11@hotmail.com>\n"
+"PO-Revision-Date: 2026-04-08 20:41+0000\n"
+"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.7-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -2470,9 +2471,9 @@ msgid "kinematicsInverse failed"
 msgstr ""
 
 #: src/emc/motion/control.c:1541
-#, fuzzy, c-format
+#, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-msgstr "超出 正 軟極限在 Joint %d"
+msgstr "超出 正 軟極限在 Joint %d\n"
 
 #: src/emc/motion/control.c:1544 src/emc/motion/control.c:1553
 #, fuzzy
@@ -2484,9 +2485,9 @@ msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
 
 #: src/emc/motion/control.c:1550
-#, fuzzy, c-format
+#, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
-msgstr "超出 正 軟極限在 Joint %d"
+msgstr "超出 正 軟極限在 Joint %d\n"
 
 #: src/emc/motion/command.c:126
 #, c-format
@@ -2876,29 +2877,29 @@ msgid "unknown state '%d' during homing sequence"
 msgstr ""
 
 #: src/emc/motion/homing.c:577
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
-msgstr "不能 離零 無效的 Joint %d (max %d) "
+msgstr "不能 離零 無效的 Joint %d (max %d)\n"
 
 #: src/emc/motion/homing.c:584
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
-msgstr "不能 慢步 joint 當 未有 允許 "
+msgstr "不能 慢步 joint 當 未有 允許\n"
 
 #: src/emc/motion/homing.c:591
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while homing, joint %d\n"
-msgstr "不能 離零 當 在 歸零中, Joint %d"
+msgstr "不能 離零 當 在 歸零中, Joint %d\n"
 
 #: src/emc/motion/homing.c:596
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while moving, joint %d\n"
-msgstr "不能 離零 當 在 移動 中, Joint %d "
+msgstr "不能 離零 當 在 移動 中, Joint %d\n"
 
 #: src/emc/motion/homing.c:602
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome inactive joint %d\n"
-msgstr "不能 離零 未激活的 Joint %d"
+msgstr "不能 離零 未激活的 Joint %d\n"
 
 #: src/emc/motion/homing.c:758
 #, fuzzy, c-format
@@ -11573,7 +11574,8 @@ msgstr "正"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -18619,9 +18621,8 @@ msgid "There was a problem initializing the notification module"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:133
-#, fuzzy
 msgid "Audio alerts are available!"
-msgstr "PCI 搜索頁面 無法使用\n"
+msgstr "PCI 搜索頁面 無法使用"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:136
 msgid ""
