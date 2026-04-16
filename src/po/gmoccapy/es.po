@@ -7,10 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-04-10 17:24+0200\n"
-"PO-Revision-Date: 2024-09-16 19:09+0000\n"
-"Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
+"PO-Revision-Date: 2026-04-15 11:43+0000\n"
+"Last-Translator: Salvador Peña <salvadorp74@hotmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/es/>\n"
 "Language: es\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.17.1-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -44,10 +44,8 @@ msgstr "La ruta del archivo no debe contener espacios"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:520
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:541
-#, fuzzy
-#| msgid "Error in "
 msgid "Error in"
-msgstr "Error en "
+msgstr "Error en"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:521
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:542
@@ -55,10 +53,8 @@ msgid "Please check the console output."
 msgstr "Por favor, compruebe la salida de la consola."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:545
-#, fuzzy
-#| msgid "Important Warning"
 msgid "Important change(s)"
-msgstr "Advertencia importante"
+msgstr "Cambio(s) importante(s)"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:548
 msgid ""
@@ -67,6 +63,10 @@ msgid ""
 "Automatic reactivation of G43 is possible using a REMAP.\n"
 "Examples can be found in the Gmoccapy sim configurations."
 msgstr ""
+"<b>3.5.0 (LinuxCNC 2.10.0): ¡Gmoccapy ya no mantiene automáticamente G43 "
+"después de un cambio de herramienta!</b>\n"
+"La reactivación automática de G43 es posible usando un REMAP.\n"
+"Hay ejemplos en las simulaciones de configuración de Gmoccapy."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:551
 msgid ""
@@ -75,6 +75,12 @@ msgid ""
 "by default. This can be changed in the settings/by a button.\n"
 "• A button to call the calculator was added in MDI and G-code edit modes."
 msgstr ""
+"<b>3.5.1 (LinuxCNC 2.10.0)</b>\n"
+"• La tabla de herramientas y la página de offsets ahora usan "
+"predeterminadamente una calculadora para introducir valores. Esto se puede "
+"modificar en la configuración con un botón.\n"
+"• Se agregó un botón en los modos de edición de MDI y código G para llamar a "
+"la calculadora."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:558
 msgid ""
@@ -83,6 +89,10 @@ msgid ""
 "For more information see the <a href=\"https://linuxcnc.org/docs/html/gui/"
 "gmoccapy_release_notes.txt\">release notes</a>."
 msgstr ""
+"\n"
+"\n"
+"Para más información vea las <a href=\"https://linuxcnc.org/docs/html/gui/"
+"gmoccapy_release_notes.txt\">notas de versión</a>."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:713
 msgid "axis"
@@ -178,10 +188,8 @@ msgid "Continuous"
 msgstr "Continuo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1135
-#, fuzzy
-#| msgid "Continuous"
 msgid "Continuous jog"
-msgstr "Continuo"
+msgstr "Trote continuo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1251
 #, python-brace-format
@@ -199,10 +207,8 @@ msgid "Press to jog joint {0}"
 msgstr "Presione para mover el motor {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1316
-#, fuzzy
-#| msgid "Found more than 16 macros, will use only the first 16."
 msgid "Found more than 14 macros, will use only the first 14."
-msgstr "Encontradas más de 16 macros, utilizará sólo las 16 primeras."
+msgstr "Encontradas más de 14 macros, utilizará sólo las 14 primeras."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1325
 msgid "Press to display previous macro button"
@@ -218,10 +224,8 @@ msgid "Press to display next macro button"
 msgstr "Presione para mostrar los botones de macro siguientes"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1373
-#, fuzzy
-#| msgid "Press to display the virtual keyboard"
 msgid "Press to display the calculator"
-msgstr "Mostrar o ocultar teclado"
+msgstr "Presione para mostrar la calculadora"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1381
 msgid "Press to display the virtual keyboard"
@@ -291,37 +295,29 @@ msgstr ""
 "No se ha encontrado ningún archivo de herramientas en [EMCIO] TOOL_TABLE"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1957
-#, fuzzy
-#| msgid "delete selected tool or tools"
 msgid "Delete selected tool"
-msgstr "Eliminar herramienta o herramientas seleccionadas"
+msgstr "Eliminar herramienta(s) seleccionada(s)"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1966
 msgid "Add new tool"
-msgstr ""
+msgstr "Agregar nueva herramienta"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1975
-#, fuzzy
-#| msgid "reload tool table from file"
 msgid "Reload tool table from file"
 msgstr "Recargar tabla de herramienta"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1984
-#, fuzzy
-#| msgid "reload tool table from file"
 msgid "Save tool table to file"
-msgstr "Recargar tabla de herramienta"
+msgstr "Guardar tabla de herramienta"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1997
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2452
 msgid "Use calculator to edit numeric values"
-msgstr ""
+msgstr "Use la calculadora para editar valores numéricos"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2026
-#, fuzzy
-#| msgid "No file loaded"
 msgid "Tool loaded:"
-msgstr "Ningún programa cargado"
+msgstr "Herramienta cargada:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2088
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3158
@@ -404,16 +400,12 @@ msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
 msgstr "No se encontró un archivo de parámetros en [RS274NGC] PARAMETER_FILE"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2409
-#, fuzzy
-#| msgid ""
-#| "edit\n"
-#| "offsets"
 msgid ""
 "Edit\n"
 "Offsets"
 msgstr ""
-"editar\n"
-"offsets"
+"Editar\n"
+"Offsets"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2415
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2439
@@ -422,44 +414,32 @@ msgstr ""
 "Oprima para establecer el sistema de coordenadas seleccionado como activo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2421
-#, fuzzy
-#| msgid ""
-#| "Zero\n"
-#| "G92"
 msgid ""
 "Zero\n"
 "G92/G52"
 msgstr ""
 "Cero\n"
-"G92"
+"G92/G52"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2427
 msgid "Press to reset all G92 offsets"
 msgstr "Reestablecer todos los offsets G92"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2433
-#, fuzzy
-#| msgid ""
-#| "set\n"
-#| "selected"
 msgid ""
 "Set\n"
 "Selected"
 msgstr ""
-"establecer\n"
-"seleccionado"
+"Establecer\n"
+"Seleccionado"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2491
-#, fuzzy
-#| msgid "Enter value for diameter"
 msgid "Enter value for offset"
-msgstr "Digite el valor para el diámetro"
+msgstr "Digite el valor para el offset"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2492
-#, fuzzy
-#| msgid "offset z"
 msgid "offset:"
-msgstr "Offset Z"
+msgstr "offset:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2526
 msgid "offsetpage widget error: MDI call error"
@@ -504,14 +484,12 @@ msgstr "No es posible cambiar al modo MDI en este momento"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3159
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4701
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4727
-#, fuzzy
-#| msgid "Enter the value to set"
 msgid "Calculate value to insert"
-msgstr "Digite el valor ha aplicar"
+msgstr "Calcular el valor a insertar"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3181
 msgid "It is not possible to change to Auto Mode at the moment"
-msgstr "No es posible cambiar al modo AUTO en este momento"
+msgstr "No es posible cambiar al modo Auto en este momento"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3366
 msgid "Enter value:"
@@ -551,6 +529,8 @@ msgstr "Solo una advertencia"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4309
 msgid "Homing not possible until current homing process is finished."
 msgstr ""
+"No es posible hacer homing hasta que el proceso de homing actual haya "
+"terminado."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4389
 msgid "INFO:"
@@ -565,12 +545,12 @@ msgid "Do you really want to delete the MDI history?\n"
 msgstr "Esta seguro que quiere borrar el historial MDI?\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4682
-#, fuzzy
-#| msgid "This will not delete the MDI History file, but will\n"
 msgid ""
 "This will not delete the MDI History file, but will\n"
 "delete the listbox entries for this session."
-msgstr "Esto no eliminará el archivo de historial de MDI, pero va a\n"
+msgstr ""
+"Esto no eliminará el archivo de historial de MDI, pero\n"
+"eliminará los elementos de la lista de selección para esta sesión."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4684
 msgid "Attention!!"
@@ -591,7 +571,7 @@ msgstr "¡Atención!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4803
 msgid "Discard unsaved changes and exit?"
-msgstr ""
+msgstr "¿Descartar los cambios no guardados y salir?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4816
 msgid ""
@@ -601,6 +581,11 @@ msgid ""
 "Do you want the new values to be applied as the currently\n"
 "active tool offset?"
 msgstr ""
+"Los valores de offset de la herramienta en el husillo\n"
+"han sido modificados con la compensación de herramienta (G43) activa.\n"
+"\n"
+"¿Desea que los nuevos valores se apliquen como el offset de\n"
+"la herramienta activa actual?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4821
 msgid ""
@@ -610,6 +595,11 @@ msgid ""
 "Do you want to activate tool compensation (G43)\n"
 "using the currently active tool offset?"
 msgstr ""
+"Los valores de offset de la herramienta en el husillo\n"
+"han sido modificados de cero a no-cero.\n"
+"\n"
+"¿Desea activar la compensación de herramienta (G43)\n"
+"usando el offset de la herramienta activa actual?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4904
 msgid "Enter value for diameter"
@@ -727,12 +717,12 @@ msgid "The old tool will remain set!"
 msgstr "La herramienta previa sigue fijada!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5595
-#, fuzzy
-#| msgid "This is not allowed, please change tool prior to delete it"
 msgid ""
 "You are trying to delete the tool mounted in the spindle.\n"
 "This is not allowed, please change tool prior to delete it."
-msgstr "Esto no está permitido, cambie la herramienta antes de eliminarla"
+msgstr ""
+"Usted intenta eliminar la herramienta montada en el husillo.\n"
+"Esto no está permitido, cambie la herramienta antes de eliminarla."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5597
 msgid "Warning Tool can not be deleted!"
@@ -740,14 +730,11 @@ msgstr "Advertencia No se puede eliminar la herramienta!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5608
 msgid "Discard unsaved changes and reload the table?"
-msgstr ""
+msgstr "¿Descartar los cambios no guardados y recargar la tabla?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5623
-#, fuzzy
-#| msgid "No or multiple tools selected in the tool table. "
 msgid "No tool selected in the tool table. "
-msgstr ""
-"Ninguna o varias herramientas seleccionadas en la tabla de herramientas. "
+msgstr "No hay herramienta seleccionada en la tabla de herramientas. "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5624
 msgid "Please select only one tool in the table!"
@@ -809,7 +796,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5677
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5706
 msgid "Discard unsaved changes and change tool?"
-msgstr ""
+msgstr "¿Descartar los cambios sin guardar y cambiar la herramienta?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5681
 msgid "Enter the tool number as integer "
@@ -887,7 +874,7 @@ msgstr "_Ok"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:188
 msgid "Don't show this again"
-msgstr ""
+msgstr "No mostrar esto nuevamente"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:227
 #: src/emc/usr_intf/gmoccapy/dialogs.py:229
@@ -935,6 +922,8 @@ msgid ""
 "Toggle comment/\n"
 "uncomment selection"
 msgstr ""
+"Comentar/descomentar\n"
+"la selección"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:3
 msgid "pause the running program"
@@ -1037,14 +1026,8 @@ msgid "Shows the code to execute"
 msgstr "Muestra el código a ejecutar"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
-#, fuzzy
-#| msgid ""
-#| "Search\n"
-#| "  Text:"
 msgid "Search:"
-msgstr ""
-"Buscar\n"
-"  Texto:"
+msgstr "Buscar:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
 msgid ""
@@ -1071,34 +1054,20 @@ msgid "Redo"
 msgstr "rehacer"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
-#, fuzzy
-#| msgid ""
-#| "Ignore\n"
-#| " Case"
 msgid "Ignore Case"
-msgstr ""
-"Ignorar\n"
-" caso"
+msgstr "Ignorar caso"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:35
-#, fuzzy
-#| msgid ""
-#| "Replace\n"
-#| "   All"
 msgid "Replace All"
-msgstr ""
-"Reemplazar\n"
-"   todo"
+msgstr "Reemplazar todo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid "Replace"
 msgstr "reemplazar"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
-#, fuzzy
-#| msgid "Replace"
 msgid "Replace:"
-msgstr "reemplazar"
+msgstr "Reemplazar:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
 msgid "Information over the tool in spindle"
@@ -1126,7 +1095,7 @@ msgstr "<b>Informacion de herramienta</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
 msgid "G and M code information as well as speed and feed"
-msgstr "Informacion de códigos G y M, asi como de las RPM y el avance"
+msgstr "Información de códigos G y M, así como de velocidad y alimentación"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
 msgid "active_mcodes_label"
@@ -1137,58 +1106,48 @@ msgid "active_gcodes_label"
 msgstr "Códigos G activos"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
-#, fuzzy
-#| msgid "<b>G-Code</b>"
 msgid "<b>G-Codes</b>"
-msgstr "<b>Código G</b>"
+msgstr "<b>Códigos G</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:49
 msgid "Tool info and G-codes"
-msgstr ""
+msgstr "Información de la herramienta y códigos G"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
-#, fuzzy
-#| msgid "Size"
 msgid "Size:"
-msgstr "Tamaño"
+msgstr "Tamaño:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid "Rapid distance:"
-msgstr ""
+msgstr "Distancia de rápidos:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
-#, fuzzy
-#| msgid "select jog distance"
 msgid "Feed distance:"
-msgstr "Seleccione distancia a mover"
+msgstr "Distancia de alimentación:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:53
-#, fuzzy
-#| msgid "No Program loaded"
 msgid "No program loaded"
-msgstr "Ningun programa cargado"
+msgstr "Ningún programa cargado"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:54
 msgid "Run time:"
-msgstr ""
+msgstr "Tiempo de ejecución:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid "X bounds:"
-msgstr ""
+msgstr "Límites X:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid "Y bounds:"
-msgstr ""
+msgstr "Límites Y:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
 msgid "Z bounds:"
-msgstr ""
+msgstr "Límites Z:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
-#, fuzzy
-#| msgid "G-code Theme"
 msgid "G-code properties"
-msgstr "Tema G-code"
+msgstr "Propiedades de código G"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:59
 msgid "Displays the current velocity"
@@ -1207,10 +1166,8 @@ msgid "reset feed override to 100 %"
 msgstr "reajustar el avance de corte a 100 %"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
-#, fuzzy
-#| msgid "<b>Jog Rates</b>"
 msgid "<b>Feed Rate</b>"
-msgstr "<b>Incrementos</b>"
+msgstr "<b>Velocidad de alimentación</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:66
 msgid "<b>Cooling</b>"
@@ -1218,7 +1175,7 @@ msgstr "<b>Refrigerante</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
 msgid "rpm"
-msgstr ""
+msgstr "rpm"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
 msgid "<b>Spindle</b>"
@@ -1257,48 +1214,36 @@ msgid "Height"
 msgstr "Altura"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
-#, fuzzy
-#| msgid "hide title bar"
 msgid "Hide title bar"
-msgstr "ocultar la barra de título"
+msgstr "Ocultar la barra de título"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
-#, fuzzy
-#| msgid "hide cursor"
 msgid "Hide cursor"
-msgstr "ocultar cursor"
+msgstr "Ocultar cursor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
-#, fuzzy
-#| msgid "hide tooltips"
 msgid "Hide tooltips"
-msgstr "ocultar información tooltip"
+msgstr "Ocultar información tooltip"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
 msgid "<b>Main Window</b>"
 msgstr "<b>Ventana principal</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
-#, fuzzy
-#| msgid "no button here"
 msgid "Jog button size"
-msgstr "ningún botton aqui"
+msgstr "Tamaño del botón de trote"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
-#, fuzzy
-#| msgid "4"
 msgid "40"
-msgstr "4"
+msgstr "40"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
 msgid "Width right panel"
-msgstr ""
+msgstr "Ancho del panel derecho"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
-#, fuzzy
-#| msgid "3"
 msgid "30"
-msgstr "3"
+msgstr "30"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
 msgid "Hide turtle Jog Button"
@@ -1306,19 +1251,15 @@ msgstr "Ocultar botón Jog tortuga"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
 msgid "Factor"
-msgstr ""
+msgstr "Factor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:87
-#, fuzzy
-#| msgid "<b>Turtle Jog</b>"
 msgid "Turtle Jog"
-msgstr "<b>Movimiento tortuga</b>"
+msgstr "<b>Trote de tortuga</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:88
-#, fuzzy
-#| msgid "<b>Jog Rates</b>"
 msgid "<b>Jog Area</b>"
-msgstr "<b>Incrementos</b>"
+msgstr "<b>Área de trote</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
 msgid "Relative Color"
@@ -1349,26 +1290,20 @@ msgid "Digits"
 msgstr "digitos"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
-#, fuzzy
-#| msgid ""
-#| "toggle DRO mode\n"
-#| "clicking on the DRO"
 msgid ""
 "Toggle DRO mode by\n"
 "clicking on the DRO"
 msgstr ""
-"cambiar modod DRO\n"
-"hacer click en el DRO"
+"Cambiar modo DRO\n"
+"con clic en el DRO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
 msgid "<b>DRO</b>"
 msgstr "<b>DRO</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
-#, fuzzy
-#| msgid "Grid size"
 msgid "Grid size in Inch"
-msgstr "Tamaño de cuadricula"
+msgstr "Tamaño de cuadrícula en pulgadas"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
 msgid "Grid size"
@@ -1387,10 +1322,8 @@ msgid "Show DTG"
 msgstr "Enseña DTG"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
-#, fuzzy
-#| msgid "<b>Mouse Button mode</b>"
 msgid "Mouse Button mode:"
-msgstr "<b>Modo de botones de mouse</b>"
+msgstr "Modo de botones de ratón:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "left rotate,  middle move,  right zoom"
@@ -1475,10 +1408,8 @@ msgstr ""
 "para probar su configuración."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
-#, fuzzy
-#| msgid "Font size"
 msgid "Font filter"
-msgstr "Tamaño de fuente"
+msgstr "Filtro de fuente"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "<b>gmoccapy messages</b>"
@@ -1497,24 +1428,20 @@ msgid "G-code Theme"
 msgstr "Tema G-code"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
-#, fuzzy
-#| msgid "G-code Theme"
 msgid "G-code Font"
-msgstr "Tema G-code"
+msgstr "Fuente de código G"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
 msgid "Monospace"
-msgstr ""
+msgstr "Monospace"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "Regular/Medium"
-msgstr ""
+msgstr "Normal/Medio"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
-#, fuzzy
-#| msgid "<b>Themes and sound</b>"
 msgid "<b>Themes</b>"
-msgstr "<b>Temas y sonido</b>"
+msgstr "<b>Temas</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
 msgid "Enable sound"
@@ -1529,10 +1456,8 @@ msgid "Alert Audio"
 msgstr "Alerta de Audio"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
-#, fuzzy
-#| msgid "<b>Spindle</b>"
 msgid "<b>Sound</b>"
-msgstr "<b>Husillo</b>"
+msgstr "<b>Sonidos</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Appearance"
@@ -1616,49 +1541,47 @@ msgstr "Elige el directorio del operario"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:158
 msgid "<b>Jump to dir</b>"
-msgstr "<b> Saltar al directorio</b>"
+msgstr "<b>Saltar al directorio</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
 msgid "Sort order by name"
-msgstr ""
+msgstr "Ordenar por nombre"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
 msgid "Ascending"
-msgstr ""
+msgstr "Ascendente"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
 msgid "Descending"
-msgstr ""
+msgstr "Descendente"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
 msgid "Sort order by date "
-msgstr ""
+msgstr "Ordenar por fecha "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "Separate folders/files"
-msgstr ""
+msgstr "Separar directorios/archivos"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
 msgid "Folders first"
-msgstr ""
+msgstr "Primero directorios"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:165
 msgid "Files first"
-msgstr ""
+msgstr "Primero archivos"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
 msgid "None"
-msgstr ""
+msgstr "Ninguno"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
-#, fuzzy
-#| msgid "<b>File to load on start</b>"
 msgid "<b>File and folder list</b>"
-msgstr "<b>Archivo para cargar en el inicio</b>"
+msgstr "<b>Lista de archivos y directorios</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 msgid "Behaviour"
-msgstr ""
+msgstr "Comportamiento"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
 msgid "Scale jog velocity"
@@ -1742,7 +1665,7 @@ msgstr "Vel de sonda."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
 msgid "<b>Probe velocities</b>"
-msgstr "<b> Velocidad de detección</b>"
+msgstr "<b>Velocidad de detección</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:190
 msgid ""
@@ -1795,14 +1718,8 @@ msgid "<b>Reload Tool</b>"
 msgstr "<b>Recarga herramienta</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
-#, fuzzy
-#| msgid ""
-#| "Advanced\n"
-#| " Settings"
 msgid "Advanced"
-msgstr ""
-"Ajustes\n"
-" avanzados"
+msgstr "Avanzados"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
 msgid "Settings"
@@ -1829,7 +1746,7 @@ msgid ""
 "Turn the machine on/off\n"
 "[F2]"
 msgstr ""
-"Apagar maquina ON/OFF\n"
+"Encender/Apagar la máquina\n"
 "[F2]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
@@ -1902,10 +1819,8 @@ msgid "Load a new program"
 msgstr "Cargar un nuevo programa"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
-#, fuzzy
-#| msgid "Reload"
 msgid "Reload file"
-msgstr "Reacargar"
+msgstr "Recargar archivo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "Run the loaded program"
@@ -1941,10 +1856,8 @@ msgstr ""
 "Bloques opcionales esta activo cuando el boton esta de color amarillo."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
-#, fuzzy
-#| msgid "Show offsets in preview"
 msgid "Show full screen preview"
-msgstr "Mostrar offsets en vista previa"
+msgstr "Mostrar vista previa a pantalla completa"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
 msgid "Edit the loaded program"
@@ -2012,7 +1925,7 @@ msgstr "Abrir la herramienta show hal"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:256
 msgid "Show preview as split view"
-msgstr ""
+msgstr "Mostrar vista previa de forma dividida"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:257
 msgid "save the file using the original name"
@@ -2027,10 +1940,8 @@ msgid "clear the edit field and make a new file"
 msgstr "Limpiar el campo de edición y hacer un nuevo archivo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:260
-#, fuzzy
-#| msgid "Show or hide the virtual keyboard"
 msgid "Show calculator"
-msgstr "Mostrar u ocultar teclado virtual"
+msgstr "Mostrar calculadora"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:261
 msgid "Show or hide the virtual keyboard"
@@ -2088,10 +1999,8 @@ msgid "Move to parent directory"
 msgstr "Salta a directorio padre"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:274
-#, fuzzy
-#| msgid "Move to parent directory"
 msgid "Refresh directory"
-msgstr "Salta a directorio padre"
+msgstr "Refrescar directorio"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:275
 msgid "Select the previous file"
@@ -2106,10 +2015,12 @@ msgid ""
 "Sort by\n"
 "date"
 msgstr ""
+"Ordenar por\n"
+"fecha"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:279
 msgid "Sort files by date, newest first"
-msgstr ""
+msgstr "Ordenar archivos por fecha, recientes primero"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:280
 msgid "select the highlighted file and return the path"
