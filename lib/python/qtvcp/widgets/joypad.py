@@ -14,20 +14,23 @@
 # GNU General Public License for more details.
 ###############################################################################
 import sys
+import enum
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt, QPoint, QPointF, QRect, QRectF, QSize, QSizeF, QEvent
-from qtpy.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
-
 try:
-    from qtpy.QtCore import Q_ENUM
-except:
-    # before qt5.10
-    from qtpy.QtCore import Q_ENUMS as Q_ENUM
+    from qtpy.QtCore import QEnum
+except ImportError:
+    try:
+        from qtpy.QtCore import Q_ENUM as QEnum
+    except ImportError:
+        # before Qt 5.10
+        from qtpy.QtCore import Q_ENUMS as QEnum
+from qtpy.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 
-class IndicatorPosition:
+class IndicatorPosition(enum.IntEnum):
     NONE = 0
     LEFT = 1
     RIGHT = 2
@@ -37,9 +40,9 @@ class IndicatorPosition:
     LEFTRIGHT = 6
     TOPBOTTOM = 7
 
-class JoyPad(QtWidgets.QWidget, IndicatorPosition):
+class JoyPad(QtWidgets.QWidget):
     IndicatorPosition = IndicatorPosition
-    Q_ENUM(IndicatorPosition)
+    QEnum(IndicatorPosition)
 
     joy_btn_pressed = QtCore.Signal(str)
     joy_btn_released = QtCore.Signal(str)
@@ -534,17 +537,17 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-class HALPinType:
+class HALPinType(enum.IntEnum):
     NONE = 0
     BIT = hal.HAL_BIT
     S32 = hal.HAL_S32
     FLOAT = hal.HAL_FLOAT
 
-class HALPad(JoyPad, _HalWidgetBase, HALPinType):
+class HALPad(JoyPad, _HalWidgetBase):
     HALPinType = HALPinType
-    Q_ENUM(HALPinType)
+    QEnum(HALPinType)
 
-    # older version of pyqt5 need this as well as Q_ENUM
+    # older version of pyqt5 need this as well as QEnum
     NONE = 0
     BIT = hal.HAL_BIT
     S32 = hal.HAL_S32
@@ -674,5 +677,5 @@ if __name__ == "__main__":
     layout.addWidget(joy)
     w.setLayout(layout)
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

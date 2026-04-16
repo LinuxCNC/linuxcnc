@@ -182,4 +182,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     label = Lcnc_STATUS_Bool_Label()
     label.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

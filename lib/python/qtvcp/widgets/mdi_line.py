@@ -343,6 +343,6 @@ def main():
     app = QApplication(sys.argv)
     widget = MDILine()
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

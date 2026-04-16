@@ -200,7 +200,7 @@ class LED(QWidget, _HalWidgetBase):
     def getAlignment(self):
         return self._alignment
 
-    @Slot(Qt.Alignment)
+    @Slot(object)
     def setAlignment(self, value):
         self._alignment = value
         self.update()
@@ -273,7 +273,7 @@ class LED(QWidget, _HalWidgetBase):
     off_gradient_color = Property(QColor, getOffGradientColor, setOffGradientColor, resetOffGradientColor)
     on_gradient_color = Property(QColor, getOnGradientColor, setOnGradientColor, resetOnGradientColor)
     border_color = Property(QColor, getBorderColor, setBorderColor)
-    alignment = Property(Qt.Alignment, getAlignment, setAlignment, resetAlignment)
+    alignment = Property(int, getAlignment, setAlignment, resetAlignment)
     currentstate = Property(bool, getState, setState, resetState)
     flashing = Property(bool, getFlashState, setFlashState)
     flashRate = Property(int, getFlashRate, setFlashRate)
@@ -296,4 +296,4 @@ if __name__ == "__main__":
     # only flash when this is true
     led.change_state(False)
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

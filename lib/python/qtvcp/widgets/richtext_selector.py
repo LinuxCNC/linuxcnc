@@ -377,7 +377,7 @@ class RichTextEditorDialog(QDialog):
     def showDialog(self, pretext = None):
         if pretext:
             self.window.editor.setText(pretext)
-        retval = self.exec_()
+        retval = self.exec()
         self.hide()
         if retval:
             return self.window.editor.toHtml()
@@ -407,4 +407,4 @@ if __name__ == '__main__':
 
     d.setLayout(l)
     d.show()
-    app.exec_()
+    app.exec()

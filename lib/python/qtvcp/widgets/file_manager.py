@@ -341,7 +341,7 @@ class FileManager(QWidget, _HalWidgetBase):
         order = self.SETTINGS_.value('sortIndicatorOrder', type = int)
         self.SETTINGS_.endGroup()
         if not None in(sect,order):
-            self.table.horizontalHeader().setSortIndicator(sect,order)
+            self.table.horizontalHeader().setSortIndicator(sect, Qt.SortOrder(order))
 
         self.connectSelection()
 
@@ -745,5 +745,5 @@ if __name__ == "__main__":
     gui.onUserClicked()
 #    gui.onMediaClicked()
     gui.setRestricted(True)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 

@@ -18,9 +18,9 @@ import sys
 import os
 import locale
 
-from qtpy.QtCore import Qt, QAbstractTableModel, QVariant, Property, Slot
+from qtpy.QtCore import Qt, QAbstractTableModel, Property, Slot
 from qtpy.QtGui import QColor
-from qtpy.QtWidgets import QTableView, QAbstractItemView, qApp
+from qtpy.QtWidgets import QTableView, QAbstractItemView, QApplication
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -234,7 +234,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                 text = cellContent
 
                 # update the screen
-                qApp.processEvents()
+                QApplication.processEvents()
 
                 # update the dialog
                 self.callDialog(text,newobj,True)
@@ -246,7 +246,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                 text = cellContent
 
                 # update the screen
-                qApp.processEvents()
+                QApplication.processEvents()
 
                 # update the dialog
                 self.callDialog(text,newobj,True)
@@ -528,7 +528,7 @@ class MyTableModel(QAbstractTableModel):
         if role == Qt.EditRole:
             return self.arraydata[index.row()][index.column()]
         if role == Qt.DisplayRole:
-            return QVariant(self.arraydata[index.row()][index.column()])
+            return self.arraydata[index.row()][index.column()]
         elif role == Qt.BackgroundRole:
             value = self.arraydata[index.row()][index.column()]
             if (isinstance(value, int) or isinstance(value, float) or
@@ -536,8 +536,8 @@ class MyTableModel(QAbstractTableModel):
                 if int(index.row()) == self.parent()._system_int + 3:
                     return QColor(self._highlightcolor)
                 else:
-                    return QVariant()
-        return QVariant()
+                    return None
+        return None
 
 
     def flags(self, index):
@@ -580,10 +580,10 @@ class MyTableModel(QAbstractTableModel):
 
     def headerData(self, col, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant(self.headerdata[col])
+            return self.headerdata[col]
         if orientation != Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant(self.Vheaderdata[col])
-        return QVariant()
+            return self.Vheaderdata[col]
+        return None
 
 if __name__ == "__main__":
     from qtpy.QtWidgets import QApplication
@@ -593,4 +593,4 @@ if __name__ == "__main__":
     w._hal_init()
     w.setProperty('styleColorHighlight',QColor('purple'))
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

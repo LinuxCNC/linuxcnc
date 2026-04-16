@@ -18,7 +18,7 @@
 import os
 
 from qtpy import QtWidgets, QtCore, QtGui
-from qtpy.QtWidgets import qApp
+from qtpy.QtWidgets import QApplication
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.entry_widget import TouchInterface
 from qtvcp.core import Status, Action, Info
@@ -40,6 +40,10 @@ if not INFO.LINUXCNC_IS_RUNNING:
     LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 try:
     from qtpy import QtSvg
+    try:
+        from qtpy.QtSvgWidgets import QSvgWidget
+    except (ImportError, AttributeError):
+        QSvgWidget = QtSvg.QSvgWidget
 except:
     LOG.critical("Qtvcp error with macro_widget - is package python3-pyqt5.qtsvg installed?")
 
@@ -83,7 +87,7 @@ class CustomButton(QtWidgets.QPushButton):
 # instantiate it with layer number or
 # set layer number after with setLayerNumbet(int)
 ####################################################
-class CustomSVG(QtSvg.QSvgWidget):
+class CustomSVG(QSvgWidget):
     def __init__(self, parent=None, layer=0):
         super(CustomSVG, self).__init__(parent)
         self.basename = 'layer'
@@ -614,7 +618,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self._oldstyle = widget.styleSheet()
         # change to highlight style
         widget.setStyleSheet(self.hilightStyle) 
-        qApp.processEvents()
+        QApplication.processEvents()
 
         # dialog call
         mess = {'NAME':self._request_name,
@@ -789,4 +793,4 @@ if __name__ == "__main__":
     sw.buildStack(['~/linuxcnc/nc_files/examples/macros/lathe'])
     sw.setGeometry(50, 50, 759, 668)
     sw.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

@@ -18,7 +18,6 @@ import os
 from qtpy import QtCore, QtWidgets, QtGui
 from qtpy.QtWidgets import (QGraphicsBlurEffect,
                 QGraphicsColorizeEffect)
-from qtpy.QtCore import QVariant
 
 import linuxcnc
 
@@ -931,7 +930,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.__blurList
     def reset_blurList(self):
         self.__blurList = []
-    focusBlurList = QtCore.Property(QVariant.typeToName(QVariant.StringList), get_blurList, set_blurList, reset_blurList)
+    focusBlurList = QtCore.Property('QStringList', get_blurList, set_blurList, reset_blurList)
 
     def set_focusTint(self, data):
         self.use_focus_tint = data
@@ -949,7 +948,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.__tintList
     def reset_tintList(self):
         self.__tintList = []
-    focusTintList = QtCore.Property(QVariant.typeToName(QVariant.StringList), get_tintList, set_tintList, reset_tintList)
+    focusTintList = QtCore.Property('QStringList', get_tintList, set_tintList, reset_tintList)
 
     # Dialogs ##########################################
 

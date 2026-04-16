@@ -454,7 +454,7 @@ class ToolBarActions():
         msg.setWindowTitle("Gcode Properties")
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
         msg.show()
-        retval = msg.exec_()
+        retval = msg.exec()
 
     def actOnRun(self, widget, state=None):
         ACTION.RUN()
@@ -580,7 +580,7 @@ class ToolBarActions():
         msg.setIcon(QtWidgets.QMessageBox.Information)
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
         msg.show()
-        retval = msg.exec_()
+        retval = msg.exec()
 
     def actOnRunFromLine(self, widget, state=False):
         STATUS.emit('dialog-request', {'NAME': 'RUNFROMLINE', 'LINE':self.selected_line})

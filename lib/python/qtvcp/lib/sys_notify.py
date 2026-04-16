@@ -283,4 +283,4 @@ if __name__ == "__main__":
     n.onClose(onClose)
 
     n.show()
-    app.exec_()
+    app.exec()

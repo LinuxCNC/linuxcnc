@@ -7,7 +7,7 @@ import atexit
 import shutil
 
 from qtpy import QtGui, QtWidgets, uic
-from qtpy.QtCore import QFile, QRegExp
+from qtpy.QtCore import QFile, QRegularExpression
 from qtpy.QtWidgets import QFileDialog, QMessageBox
 
 from linuxcnc import OPERATOR_ERROR, NML_ERROR
@@ -107,15 +107,15 @@ class Facing(QtWidgets.QWidget):
     def set_validator(self):
         # set valid input formats for lineEdits
         if self.rbtn_inch.isChecked():
-            valid_size = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,4}'))
-            valid_step = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,2}'))
-            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
+            valid_size = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,6}[.][0-9]{0,4}'))
+            valid_step = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,6}[.][0-9]{0,2}'))
+            valid_feed = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,6}[.][0-9]{0,3}'))
         else:
-            valid_size = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
-            valid_step = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
-            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
+            valid_size = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,6}[.][0-9]{0,3}'))
+            valid_step = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,5}[.][0-9]{0,1}'))
+            valid_feed = QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,5}[.][0-9]{0,1}'))
         self.lineEdit_tool.setValidator(valid_size)
-        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
+        self.lineEdit_spindle.setValidator(QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,5}')))
         self.lineEdit_feedrate.setValidator(valid_feed)
         self.lineEdit_stepover.setValidator(valid_step)
         self.lineEdit_size_x.setValidator(valid_size)
@@ -462,5 +462,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = Facing()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

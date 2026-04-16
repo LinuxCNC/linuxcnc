@@ -140,4 +140,4 @@ if __name__ == '__main__':
     ex.embed('halcmd loadusr gladevcp --xid  ../../gladevcp/offsetpage.glade')
     ex.show()
     ex.setWindowTitle('embed')
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

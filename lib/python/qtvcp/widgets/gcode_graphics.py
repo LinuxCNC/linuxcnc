@@ -589,5 +589,5 @@ if __name__ == "__main__":
     widget.use_gradient_background = True
     widget.enable_dro = True
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 

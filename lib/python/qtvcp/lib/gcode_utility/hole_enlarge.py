@@ -57,15 +57,15 @@ class Hole_Enlarge(QtWidgets.QWidget):
         except AttributeError as e:
             print("Error: ", e)
 
-        self.lineEdit_tool.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}')))
-        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}')))
-        self.lineEdit_feed.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}')))
-        self.lineEdit_tool_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,3}[.][0-9]{0,4}')))
-        self.lineEdit_start_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}[.][0-9]{0,4}')))
-        self.lineEdit_final_dia.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,5}[.][0-9]{0,4}')))
-        self.lineEdit_loops.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,2}')))
-        self.lineEdit_cut_depth.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}[.][0-9]{0,4}')))
-        self.lineEdit_z_safe.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('[0-9]{0,4}')))
+        self.lineEdit_tool.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,5}')))
+        self.lineEdit_spindle.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,5}')))
+        self.lineEdit_feed.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,4}')))
+        self.lineEdit_tool_dia.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,3}[.][0-9]{0,4}')))
+        self.lineEdit_start_dia.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,5}[.][0-9]{0,4}')))
+        self.lineEdit_final_dia.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,5}[.][0-9]{0,4}')))
+        self.lineEdit_loops.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,2}')))
+        self.lineEdit_cut_depth.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,4}[.][0-9]{0,4}')))
+        self.lineEdit_z_safe.setValidator(QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('[0-9]{0,4}')))
 
         self.red_border = "border: 2px solid red;"
         self.black_border = "border: 2px solid black;"
@@ -381,5 +381,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = Hole_Enlarge()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

@@ -13,14 +13,17 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-try:
-    from qtpy.QtCore import Q_ENUM
-except:
-    # before qt5.10
-    from qtpy.QtCore import Q_ENUMS as Q_ENUM
-
+import enum
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Property, Slot
+try:
+    from qtpy.QtCore import QEnum
+except ImportError:
+    try:
+        from qtpy.QtCore import Q_ENUM as QEnum
+    except ImportError:
+        # before Qt 5.10
+        from qtpy.QtCore import Q_ENUMS as QEnum
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
         _HalToggleBase, _HalSensitiveBase, _HalScaleBase)
 from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
@@ -40,21 +43,11 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class HALPinType:
+class HALPinType(enum.IntEnum):
     NONE = 0
     BIT = hal.HAL_BIT
     S32 = hal.HAL_S32
     FLOAT = hal.HAL_FLOAT
-
-    def name(enum):
-        if enum == hal.HAL_BIT:
-            return 'BIT'
-        elif enum == hal.HAL_S32:
-            return 'S32'
-        elif enum == hal.HAL_FLOAT:
-            return 'FLOAT'
-        else:
-            return 'NONE'
 
 # reacts to HAL pin changes
 class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
@@ -360,11 +353,11 @@ class IndicatedPushButton(QtWidgets.QPushButton, IndicatedMixIn):
             super(IndicatedPushButton, self).setText(self._false_string)
 
 # button controls HAL pins
-class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
+class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
     HALPinType = HALPinType
-    Q_ENUM(HALPinType)
+    QEnum(HALPinType)
 
-    # older version of pyqt5 need this as well as Q_ENUM
+    # older version of pyqt5 need this as well as QEnum
     NONE = 0
     BIT = hal.HAL_BIT
     S32 = hal.HAL_S32
@@ -437,7 +430,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
                     if not self._pin_type == HALPinType.NONE:
                         ptype = self._pin_type
                         if self._groupPinName == '':
-                            name = HALPinType.name(self._pin_type)
+                            name = HALPinType(self._pin_type).name
                             pname = self.HAL_NAME_ + '.exclusive'+name
                         else:
                             pname = self._groupPinName

@@ -1051,63 +1051,63 @@ class ActionButtonDialog(QtWidgets.QDialog):
         if formWindow:
             # set widget option
             formWindow.cursor().setProperty('indicator_option',
-                                            QtCore.QVariant(self.indicatorCheckBox.isChecked()))
+                                            self.indicatorCheckBox.isChecked())
             formWindow.cursor().setProperty('python_command_option',
-                                            QtCore.QVariant(self.pythonCheckBox.isChecked()))
+                                            self.pythonCheckBox.isChecked())
             formWindow.cursor().setProperty('checked_state_text_option',
-                                            QtCore.QVariant(self.textCheckBox.isChecked()))
+                                            self.textCheckBox.isChecked())
 
             formWindow.cursor().setProperty('indicator_HAL_pin_option',
-                                            QtCore.QVariant(self.halCheckBox.isChecked()))
+                                            self.halCheckBox.isChecked())
             formWindow.cursor().setProperty('indicator_status_option',
-                                            QtCore.QVariant(self.statusCheckBox.isChecked()))
+                                            self.statusCheckBox.isChecked())
             formWindow.cursor().setProperty('indicator_size',
-                                            QtCore.QVariant(self.floatSpinBox.value()))
+                                            self.floatSpinBox.value())
 
             formWindow.cursor().setProperty('right_edge_offset',
-                                            QtCore.QVariant(self.rightedgeoffsetSpinBox.value()))
+                                            self.rightedgeoffsetSpinBox.value())
             formWindow.cursor().setProperty('top_edge_offset',
-                                            QtCore.QVariant(self.topedgeoffsetSpinBox.value()))
+                                            self.topedgeoffsetSpinBox.value())
             formWindow.cursor().setProperty('corner_radius',
-                                            QtCore.QVariant(self.radiusSpinBox.value()))
+                                            self.radiusSpinBox.value())
             formWindow.cursor().setProperty('height_fraction',
-                                            QtCore.QVariant(self.hfractionSpinBox.value()))
+                                            self.hfractionSpinBox.value())
             formWindow.cursor().setProperty('width_fraction',
-                                            QtCore.QVariant(self.wfractionSpinBox.value()))
+                                            self.wfractionSpinBox.value())
 
             formWindow.cursor().setProperty('circle_diameter',
-                                            QtCore.QVariant(self.diamSpinBox.value()))
+                                            self.diamSpinBox.value())
             formWindow.cursor().setProperty('shape_option',
-                                            QtCore.QVariant(self.shapeCombo.itemData(
-                                                self.shapeCombo.currentIndex())))
+                                            self.shapeCombo.itemData(
+                                                self.shapeCombo.currentIndex()))
             formWindow.cursor().setProperty('joint_number_status',
-                                            QtCore.QVariant(self.jnumCombo.itemData(
-                                                self.jnumCombo.currentIndex())))
+                                            self.jnumCombo.itemData(
+                                                self.jnumCombo.currentIndex()))
 
             formWindow.cursor().setProperty('on_color',
-                                            QtCore.QVariant(self._onColor))
+                                            self._onColor)
             formWindow.cursor().setProperty('off_color',
-                                            QtCore.QVariant(self._offColor))
+                                            self._offColor)
 
             formWindow.cursor().setProperty('true_state_string',
-                                            QtCore.QVariant(self.tTextEditBox.text()))
+                                            self.tTextEditBox.text())
             formWindow.cursor().setProperty('false_state_string',
-                                            QtCore.QVariant(self.fTextEditBox.text()))
+                                            self.fTextEditBox.text())
 
             formWindow.cursor().setProperty('true_python_cmd_string',
-                                            QtCore.QVariant(self.tCommandEditBox.text()))
+                                            self.tCommandEditBox.text())
             formWindow.cursor().setProperty('false_python_cmd_string',
-                                            QtCore.QVariant(self.fCommandEditBox.text()))
+                                            self.fCommandEditBox.text())
 
         if formWindow and winProperty == 'unused':
             formWindow.cursor().setProperty('estop_action',
-                                            QtCore.QVariant(True))
+                                            True)
             formWindow.cursor().setProperty('estop_action',
-                                            QtCore.QVariant(False))
+                                            False)
         elif formWindow:
             # set widget option
             formWindow.cursor().setProperty(winProperty + '_action',
-                                            QtCore.QVariant(True))
+                                            True)
         # set status data from combo box
         # we read all data from combo and set each property to its
         # current dialog state (ie. selected is true, all others false)
@@ -1119,43 +1119,43 @@ class ActionButtonDialog(QtWidgets.QDialog):
             else:
                 state = False
             formWindow.cursor().setProperty(propertyText,
-                                            QtCore.QVariant(state))
+                                            state)
         formWindow.cursor().setProperty('invert_the_status',
-                                        QtCore.QVariant(self.invertCheckBox.isChecked()))
+                                        self.invertCheckBox.isChecked())
 
         #####################
         # set related data
         #####################
         formWindow.cursor().setProperty('joint_number',
-                                        QtCore.QVariant(self.JNumSpinBox.value()))
+                                        self.JNumSpinBox.value())
         formWindow.cursor().setProperty('incr_imperial_number',
-                                        QtCore.QVariant(self.jogIncImpSpinBox.value()))
+                                        self.jogIncImpSpinBox.value())
         formWindow.cursor().setProperty('incr_mm_number',
-                                        QtCore.QVariant(self.jogIncMMSpinBox.value()))
+                                        self.jogIncMMSpinBox.value())
         formWindow.cursor().setProperty('incr_angular_number',
-                                        QtCore.QVariant(self.jogIncAngSpinBox.value()))
+                                        self.jogIncAngSpinBox.value())
         formWindow.cursor().setProperty('float_num',
-                                        QtCore.QVariant(self.floatSpinBox.value()))
+                                        self.floatSpinBox.value())
         formWindow.cursor().setProperty('float_alt_num',
-                                        QtCore.QVariant(self.floatAltSpinBox.value()))
+                                        self.floatAltSpinBox.value())
         formWindow.cursor().setProperty('view_type_string',
-                                        QtCore.QVariant(self.viewComboBox.currentText()))
+                                        self.viewComboBox.currentText())
         formWindow.cursor().setProperty('toggle_float_option',
-                                        QtCore.QVariant(self.toggleCheckBox.isChecked()))
+                                        self.toggleCheckBox.isChecked())
         formWindow.cursor().setProperty('command_text_string',
-                                        QtCore.QVariant(self.commandEditBox.text()))
+                                        self.commandEditBox.text())
         formWindow.cursor().setProperty('ini_mdi_number',
-                                        QtCore.QVariant(self.MDISpinBox.value()))
+                                        self.MDISpinBox.value())
         formWindow.cursor().setProperty('template_label_option',
-                                        QtCore.QVariant(self.textTemplateCheckBox.isChecked()))
+                                        self.textTemplateCheckBox.isChecked())
         # block signal so button text doesn't change when selecting action
         self.widget._designer_block_signal = True
         formWindow.cursor().setProperty('text',
-                                        QtCore.QVariant(self.defaultTextTemplateEditBox.text()))
+                                        self.defaultTextTemplateEditBox.text())
         formWindow.cursor().setProperty('textTemplate',
-                                        QtCore.QVariant(self.textTemplateEditBox.text()))
+                                        self.textTemplateEditBox.text())
         formWindow.cursor().setProperty('alt_textTemplate',
-                                        QtCore.QVariant(self.altTextTemplateEditBox.text()))
+                                        self.altTextTemplateEditBox.text())
         self.widget._designer_block_signal = False
 
         self.accept()
@@ -1188,7 +1188,7 @@ class ActionButtonMenuEntry(QPyDesignerTaskMenuExtension):
 
     def updateOptions(self):
         dialog = ActionButtonDialog(self.widget)
-        dialog.exec_()
+        dialog.exec()
 
 
 class ActionButtonTaskMenuFactory(QExtensionFactory):

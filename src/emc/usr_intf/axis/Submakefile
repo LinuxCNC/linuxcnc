@@ -21,7 +21,7 @@ $(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/liblinuxcnc.a ../lib/libnm
 
 $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lepoxy -lXmu $(TCL_LIBS)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lepoxy -lGL -lXmu $(TCL_LIBS)
 
 $(TKDARMODULE): $(call TOOBJS, $(TKDARMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)

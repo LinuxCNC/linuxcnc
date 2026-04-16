@@ -29,7 +29,7 @@
 
 import sys
 
-from qtpy.QtCore import Property, Signal, QSize, QEvent, Qt, QByteArray, QVariant
+from qtpy.QtCore import Property, Signal, QSize, QEvent, Qt, QByteArray
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QMainWindow, QAction,\
          QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
@@ -337,7 +337,7 @@ class GEditor(QMainWindow, _HalWidgetBase):
 
     def saveSettings(self):
         self.SETTINGS_.beginGroup("geditor-{}".format(self.objectName()))
-        self.SETTINGS_.setValue('state', QVariant(self.saveState().data()))
+        self.SETTINGS_.setValue('state', self.saveState().data())
         self.SETTINGS_.endGroup()
 
     def restoreSettings(self):
@@ -554,6 +554,6 @@ This is the end of the test text.''')
     if 0:
         w.label.setText('<b>Edit mode title label</b>')
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 
 

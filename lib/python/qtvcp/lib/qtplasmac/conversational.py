@@ -250,7 +250,7 @@ def conv_save_pressed(P, W):
     dlg.setDefaultSuffix('ngc')
     dlg.setDirectory(P.programPrefix)
     name = ''
-    if dlg.exec_():
+    if dlg.exec():
         name = dlg.selectedFiles()[0]
     if name:
         COPY(P.fNgc, name)
