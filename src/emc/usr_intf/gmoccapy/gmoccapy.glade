@@ -3030,7 +3030,7 @@ uncomment selection</property>
                                           <object class="GtkLabel" id="lbl_frm_current_vel">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="label">&lt;b&gt;Current Velocity&lt;/b&gt;</property>
+                                            <property name="label" translatable="yes">&lt;b&gt;Current Velocity&lt;/b&gt;</property>
                                             <property name="use-markup">True</property>
                                           </object>
                                         </child>
@@ -5652,7 +5652,7 @@ to test your settings.</property>
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
                                         <property name="halign">start</property>
-                                        <property name="label" translatable="yes">Sort order by date </property>
+                                        <property name="label" translatable="yes">Sort order by date</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
