@@ -11,13 +11,14 @@
 # Tron Lee <472734894@qq.com>, 2024, 2026.
 # Atom <superatom@sohu.com>, 2025.
 # BeginsDuang <enious@outlook.com>, 2026.
+# BsAtHome <bertho@vagrearg.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2026-03-11 15:52+0000\n"
-"Last-Translator: Tron Lee <472734894@qq.com>\n"
+"PO-Revision-Date: 2026-04-08 20:41+0000\n"
+"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -3804,12 +3805,12 @@ msgstr "StepActDesact++=%d\n"
 #: src/hal/classicladder/edit_sequential.c:624
 #, c-format
 msgid "having num transi linked=%d for transi=%d\n"
-msgstr "-> 已获取过渡段关联编号 linked=%d，对应过渡段 transi=%d"
+msgstr "-> 已获取过渡段关联编号 linked=%d，对应过渡段 transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:627
 #, c-format
 msgid "->storing num transi linked=%d for transi=%d\n"
-msgstr "->存储过渡段关联编号 linked=%d，对应过渡段 transi=%d"
+msgstr "->存储过渡段关联编号 linked=%d，对应过渡段 transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:643
 #, c-format

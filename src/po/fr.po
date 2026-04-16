@@ -3,13 +3,14 @@
 # Xavier Soltner <soltner.xavier2@gmail.com>, 2023, 2024.
 # Axel BRUA <axel.brua.19@gmail.com>, 2024.
 # Paul Sauvignac <paul.sauvignac@gmail.com>, 2024.
+# BsAtHome <bertho@vagrearg.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2024-10-07 13:42+0000\n"
-"Last-Translator: Xavier Soltner <soltner.xavier2@gmail.com>\n"
+"PO-Revision-Date: 2026-04-08 20:41+0000\n"
+"Last-Translator: BsAtHome <bertho@vagrearg.org>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -17,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -4234,9 +4235,8 @@ msgid " - ok.\n"
 msgstr " - OK.\n"
 
 #: src/hal/classicladder/files.c:313 src/hal/classicladder/files.c:339
-#, fuzzy
 msgid " - not found.\n"
-msgstr "introuvable"
+msgstr "introuvable\n"
 
 #: src/hal/classicladder/files.c:363
 #, fuzzy, c-format
@@ -4499,23 +4499,23 @@ msgid "Set RTS=%d\n"
 msgstr "Définir RTS=%d\n"
 
 #: src/hal/classicladder/serial_linux.c:198
-#, fuzzy, c-format
+#, c-format
 msgid "Serial writing...\n"
-msgstr "Filtrage..."
+msgstr "Filtrage...\n"
 
 #: src/hal/classicladder/serial_linux.c:216
 msgid "Serial port write failed"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:235
-#, fuzzy, c-format
+#, c-format
 msgid "Writing done!\n"
-msgstr "Police listing"
+msgstr "Police listing\n"
 
 #: src/hal/classicladder/serial_linux.c:255
-#, fuzzy, c-format
+#, c-format
 msgid "Serial config...\n"
-msgstr "Configurer HAL"
+msgstr "Configurer HAL\n"
 
 #: src/hal/classicladder/serial_linux.c:276
 #, fuzzy, c-format
@@ -4523,9 +4523,9 @@ msgid "select() for serial reading...\n"
 msgstr "select() pour la lecture série...\n"
 
 #: src/hal/classicladder/serial_linux.c:281
-#, fuzzy, c-format
+#, c-format
 msgid "Serial reading...\n"
-msgstr "Filtrage..."
+msgstr "Filtrage...\n"
 
 #: src/hal/classicladder/serial_linux.c:284
 #, c-format
@@ -9022,9 +9022,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pncconf.py:1948
 #: src/emc/usr_intf/pncconf/pncconf.py:1951
 #: src/emc/usr_intf/gscreen/gscreen.py:1405
-#, fuzzy
 msgid "Follow System Theme"
-msgstr "Suit le thème du système\n"
+msgstr "Suit le thème du système"
 
 #: src/emc/usr_intf/touchy/mdi.py:50 src/emc/usr_intf/stepconf/stepconf.py:224
 #: src/emc/usr_intf/pncconf/private_data.py:557
@@ -10642,7 +10641,6 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:275
 #: src/emc/usr_intf/pncconf/private_data.py:1460
-#, fuzzy
 msgid ""
 "You are using a realtime version of LinuxCNC but didn't load a realtime "
 "kernel so testing / tuning of hardware is                 unavailable.\n"
@@ -10655,7 +10653,7 @@ msgstr ""
 "de kernel temps réel pour ce test / les réglages du matériel seront  "
 "indisponibles.\n"
 "C'est peut-être provoqué par une mise à jour de l'OS qui empêche désormais "
-"le chargement automatique du kernel RTAI.\n"
+"le chargement automatique du kernel RTAI."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:295
 msgid "my-mill"
@@ -12059,7 +12057,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12385,9 +12384,9 @@ msgid "Address is required for ethernet card"
 msgstr "L'adresse est requise pour une carte Ethernet"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1443
-#, fuzzy, python-format
+#, python-format
 msgid "%s board was not found"
-msgstr "Aucune carte n'a été trouvée\n"
+msgstr "Aucune carte n'a été trouvée"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1445
 msgid "Is the address correct?"
@@ -19465,18 +19464,16 @@ msgid "Desktop notifications are available"
 msgstr "Effacer les notifications"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:124
-#, fuzzy
 msgid "Desktop notifications are not available"
-msgstr "Nom de dispositif indisponible\n"
+msgstr "Nom de dispositif indisponible"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:126
 msgid "There was a problem initializing the notification module"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:133
-#, fuzzy
 msgid "Audio alerts are available!"
-msgstr "Nom de broche indisponible\n"
+msgstr "Nom de broche indisponible"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:136
 msgid ""
