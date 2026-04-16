@@ -1472,7 +1472,7 @@ static int iniLoad(const char *filename)
         }
     }
 
-    if (!inifile.isSet("HOME_SEQUENCE", "JOINT_0")) {
+    if (inifile.isSet("HOME_SEQUENCE", "JOINT_0")) {
         have_home_all = 1;
     }
 

@@ -134,10 +134,23 @@ proc linuxcnc::standard_fixed_font {} {
     list [standard_fixed_font_family] [standard_font_size]
 }
 
+#
+# FIXME:
+# This parse_ini() code should be removed. It is inadequate for the new
+# INI-file parser and requires preprocessing. Either it needs to be mapped to
+# the new C++ parser or all the Tcl code depending on INI-file entries need to
+# be ported to python.
+#
 proc parse_ini {filename} {
     # create associative arrays for all ini file sections
     # like: ::EMC(VERSION), ::KINS(JOINTS), ... etc
-    set f [open $filename]
+    # The INI-file for this routine has been pre-formatted by the linuxcnc
+    # startup script to handle includes, strings, comments and continuations.
+    if [catch {set f [open "${filename}.expanded"]} msg] {
+        # This is a fallback open. It happens in test twopass-personality.
+        # When this open is necessary, then a lot of errors are possible.
+        set f [open "${filename}"]
+    }
 
     while {[gets $f line] >= 0} {
         set line [string trim $line]
