@@ -220,6 +220,15 @@ static int do_comp_args(void *module, const std::vector<std::string> &args) {
 static int do_load_cmd(const std::string &name, const std::vector<std::string> &args) {
     void *w = modules[name];
     if (w == NULL) {
+        //Sanitize the name
+        if (name.find("/") != std::string::npos || name.find("..") != std::string::npos) {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR,
+                "%s: Not allowed as module name. Slashes or with \"..\" (even /a..b/) are not allowed.\n",
+                name.c_str()
+            );
+            return -1;
+        }
         std::string what;
         what = fmt::format("{}/{}.so", EMC2_RTLIB_DIR, name);
         void *module = modules[name] = dlopen(what.c_str(), RTLD_GLOBAL | RTLD_NOW);
