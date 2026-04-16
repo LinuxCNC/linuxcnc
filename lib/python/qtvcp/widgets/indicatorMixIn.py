@@ -460,7 +460,7 @@ class IndicatedMixIn( _HalWidgetBase):
                 else:
                     size = int(self.height() * self._size)
 
-                gradient = QtGui.QLinearGradient(top_right- QtCore.QPoint(size, 0), top_right)
+                gradient = QtGui.QLinearGradient(QtCore.QPointF(top_right - QtCore.QPoint(size, 0)), QtCore.QPointF(top_right))
                 gradient.setColorAt(0, QtCore.Qt.white)
                 gradient.setColorAt(1, color)
                 p.setBrush(QtGui.QBrush(gradient))
@@ -475,7 +475,7 @@ class IndicatedMixIn( _HalWidgetBase):
                 if self._doubleIndicator:
                     bot_right = rect.bottomRight() - QtCore.QPoint(self._right_edge_offset,self._top_edge_offset)
 
-                    gradient = QtGui.QLinearGradient(bot_right- QtCore.QPoint(size, 0), bot_right)
+                    gradient = QtGui.QLinearGradient(QtCore.QPointF(bot_right - QtCore.QPoint(size, 0)), QtCore.QPointF(bot_right))
                     gradient.setColorAt(0, QtCore.Qt.white)
                     gradient.setColorAt(1, color2)
                     p.setBrush(QtGui.QBrush(gradient))
@@ -561,7 +561,7 @@ class IndicatedMixIn( _HalWidgetBase):
                 else:
                     size = int(self.height() * self._size)
 
-                gradient = QtGui.QLinearGradient(top_left + QtCore.QPoint(size, 0), top_left)
+                gradient = QtGui.QLinearGradient(QtCore.QPointF(top_left + QtCore.QPoint(size, 0)), QtCore.QPointF(top_left))
                 gradient.setColorAt(0, QtCore.Qt.white)
                 gradient.setColorAt(1, color)
                 p.setBrush(QtGui.QBrush(gradient))
@@ -575,7 +575,7 @@ class IndicatedMixIn( _HalWidgetBase):
                 # second LED
                 if self._doubleIndicator:
                     top_bot = rect.bottomLeft() - QtCore.QPoint(self._right_edge_offset, self._top_edge_offset)
-                    gradient = QtGui.QLinearGradient(top_bot + QtCore.QPoint(size, 0), top_bot)
+                    gradient = QtGui.QLinearGradient(QtCore.QPointF(top_bot + QtCore.QPoint(size, 0)), QtCore.QPointF(top_bot))
                     gradient.setColorAt(0, QtCore.Qt.white)
                     gradient.setColorAt(1, color2)
                     p.setBrush(QtGui.QBrush(gradient))
@@ -1191,6 +1191,6 @@ def main():
     widget._hal_init()
     widget.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()

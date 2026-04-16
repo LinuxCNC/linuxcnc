@@ -229,19 +229,19 @@ class EditorBase(QsciScintilla):
         self.setMarginWidth(1, 0)
 
         # Gcode highlight current line
-        self.currentHandle = self.markerDefine(QsciScintilla.Background,
+        self.currentHandle = self.markerDefine(QsciScintilla.MarkerSymbol.Background,
                           self.CURRENT_MARKER_NUM)
         self.setColorMarkerBackground(self.getColorMarkerBackground())
 
         # User Highlight line (when clicking margin)
-        self.userHandle = self.markerDefine(QsciScintilla.Background,
+        self.userHandle = self.markerDefine(QsciScintilla.MarkerSymbol.Background,
                           self.USER_MARKER_NUM)
         self.setMarkerBackgroundColor(QColor("#ffc0c0"),
                                       self.USER_MARKER_NUM)
 
         # Brace matching: enable for a brace immediately before or after
         # the current position
-        self.setBraceMatching(QsciScintilla.SloppyBraceMatch)
+        self.setBraceMatching(QsciScintilla.BraceMatch.SloppyBraceMatch)
 
         # Current line visible with special background color
         self.setCaretLineVisible(False)
@@ -1221,5 +1221,5 @@ N98765 G0 Z30"""
     if 1:
         w.label.setText('<b>Edit mode title label</b>')
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

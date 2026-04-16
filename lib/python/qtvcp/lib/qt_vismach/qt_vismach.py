@@ -471,7 +471,7 @@ def main(model, tool, work, size=10, hud=None, rotation_vectors=None, lat=0, lon
 
     window.setZoomRange(int(t.near),int(t.far))
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':

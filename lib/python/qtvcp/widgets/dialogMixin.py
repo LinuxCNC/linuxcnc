@@ -1,4 +1,4 @@
-from qtpy.QtWidgets import (QDesktopWidget, QMessageBox)
+from qtpy.QtWidgets import (QApplication, QMessageBox)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp import logger
 
@@ -29,7 +29,7 @@ class GeometryMixin(_HalWidgetBase):
 
     def set_default_geometry(self):
         geom = self.frameGeometry()
-        geom.moveCenter(QDesktopWidget().availableGeometry().center())
+        geom.moveCenter(QApplication.primaryScreen().availableGeometry().center())
         self.setGeometry(geom)
         x = self.geometry().x()
         y = self.geometry().y()
@@ -71,7 +71,7 @@ class GeometryMixin(_HalWidgetBase):
             # add 'always' or the user can reset the dialog
             elif 'center' in self._geometry_string.lower():
                 geom = self.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
+                geom.moveCenter(QApplication.primaryScreen().availableGeometry().center())
                 self.setGeometry(geom)
                 if not 'always' in self._geometry_string.lower():
                     self._geometry_string = self.get_current_geometry()
@@ -80,9 +80,9 @@ class GeometryMixin(_HalWidgetBase):
             # add 'always' or the user can reset the dialog
             elif 'bottomleft' in self._geometry_string.lower():
                 # move to bottom left of parent
-                ph = QDesktopWidget().geometry().height()
-                px = QDesktopWidget().geometry().x()
-                py = QDesktopWidget().geometry().y()
+                ph = QApplication.primaryScreen().geometry().height()
+                px = QApplication.primaryScreen().geometry().x()
+                py = QApplication.primaryScreen().geometry().y()
                 dw = self.geometry().width()
                 dh = self.geometry().height()
                 self.setGeometry(px, py+ph-dh, dw, dh)

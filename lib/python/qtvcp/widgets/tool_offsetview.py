@@ -18,10 +18,20 @@ import sys
 import os
 import operator
 
-from qtpy.QtCore import Qt, QAbstractTableModel, QVariant, Property, QSize, Slot
+from qtpy.QtCore import Qt, QAbstractTableModel, Property, QSize, Slot
 from qtpy.QtGui import QColor, QIcon
 from qtpy.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
-QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate, qApp)
+QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate, QApplication, QHeaderView)
+
+# QVariant type IDs for ItemEditorFactory: use QVariant constants on PyQt5,
+# fall back to the stable Qt metatype integers on PyQt6 where they were removed.
+try:
+    from qtpy.QtCore import QVariant as _QVariant
+    _DOUBLE_TYPE = _QVariant.Double
+    _INT_TYPE = _QVariant.Int
+except AttributeError:
+    _DOUBLE_TYPE = 6   # QMetaType::Double
+    _INT_TYPE = 2      # QMetaType::Int
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Tool, Path
 from qtvcp import logger
@@ -53,13 +63,13 @@ class ItemEditorFactory(QItemEditorFactory):
         super(ItemEditorFactory,self).__init__()
 
     def createEditor(self, userType, parent):
-        if userType == QVariant.Double:
+        if userType == _DOUBLE_TYPE:
             doubleSpinBox = QDoubleSpinBox(parent)
             doubleSpinBox.setDecimals(4)
             doubleSpinBox.setMaximum(99999)
             doubleSpinBox.setMinimum(-99999)
             return doubleSpinBox
-        elif userType == QVariant.Int:
+        elif userType == _INT_TYPE:
             spinBox = QSpinBox(parent)
             spinBox.setMaximum(20000)
             spinBox.setMinimum(1)
@@ -140,7 +150,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         # set horizontal header properties
         hh = self.horizontalHeader()
         # auto adjust to contents
-        hh.setSectionResizeMode(3)
+        hh.setSectionResizeMode(QHeaderView.ResizeToContents)
 
         hh.setStretchLastSection(True)
         hh.setSortIndicator(1,Qt.AscendingOrder)
@@ -228,7 +238,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
                 text = cellContent
 
                 # update the screen
-                qApp.processEvents()
+                QApplication.processEvents()
 
                 # update the dialog
                 self.callDialog(text,newobj,True)
@@ -247,7 +257,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
                 text = cellContent
 
                 # update the screen
-                qApp.processEvents()
+                QApplication.processEvents()
 
                 # update the dialog
                 self.callDialog(text,newobj,True)
@@ -539,7 +549,7 @@ class MyTableModel(QAbstractTableModel):
                 elif self.arraydata[index.row()][0].isChecked():
                     return QColor(self._selectedcolor)
                 else:
-                    return QVariant()
+                    return None
 
         elif role == Qt.CheckStateRole:
             if index.column() == 0:
@@ -556,7 +566,7 @@ class MyTableModel(QAbstractTableModel):
                 and value < 0 ):
                 return QColor('red')
 
-        return QVariant()
+        return None
 
 
     # Returns the item flags for the given index.
@@ -623,10 +633,10 @@ class MyTableModel(QAbstractTableModel):
     # Similarly, for vertical headers, the section number corresponds to the row number.
     def headerData(self, col, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant(self.headerdata[col])
+            return self.headerdata[col]
         if orientation != Qt.Horizontal and role == Qt.DisplayRole:
-            return QVariant('')
-        return QVariant()
+            return ''
+        return None
 
     # Sorts the model by column in the given order.
     def sort(self, Ncol, order):
@@ -650,4 +660,4 @@ if __name__ == "__main__":
     w.highlight('lightblue')
     #w.setProperty('styleColorHighlight',QColor('purple'))
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

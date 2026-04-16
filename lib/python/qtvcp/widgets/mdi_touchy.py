@@ -399,5 +399,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = MDITouchy()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

@@ -18,7 +18,7 @@
 import os
 import hal
 
-from qtpy.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
+from qtpy.QtWidgets import (QMessageBox, QFileDialog,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
         QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget,
         QTextEdit,QLabel)
@@ -244,7 +244,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self.forceDetailsOpen()
 
         if use_exec:
-            retval = self.exec_()
+            retval = self.exec()
             STATUS.emit('focus-overlay-changed', False, None, None)
             LOG.debug('Value of pressed button: {}'.format(retval))
             return self.qualifiedReturn(retval)
@@ -283,7 +283,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
             self.set_geometry()
         else:
             geom = self.frameGeometry()
-            geom.moveCenter(QDesktopWidget().availableGeometry().center())
+            geom.moveCenter(QApplication.primaryScreen().availableGeometry().center())
             self.setGeometry(geom)
         super(LcncDialog, self).showEvent(event)
 
@@ -686,7 +686,7 @@ class FileDialog(QFileDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         fname = None
-        if (self.exec_()):
+        if (self.exec()):
             fname = self.selectedFiles()[0]
             path = self.directory().absolutePath()
             self.setDirectory(path)
@@ -727,7 +727,7 @@ class FileDialog(QFileDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         fname = None
-        if (self.exec_()):
+        if (self.exec()):
             fname = self.selectedFiles()[0]
             path = self.directory().absolutePath()
             self.setDirectory(path)
@@ -813,7 +813,7 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
             b = 'button_%s' % i
             self[b] = QPushButton('Zero %s' % i)
             self[b].clicked.connect(self.zeroPress('%s' % i))
-            buttonBox.addButton(self[b], 3)
+            buttonBox.addButton(self[b], QDialogButtonBox.ActionRole)
 
         v = QVBoxLayout()
         h = QHBoxLayout()
@@ -855,7 +855,7 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', True, 'Set Origin Offsets', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -936,10 +936,10 @@ class ToolOffsetDialog(QDialog, GeometryMixin):
         STATUS.connect('interp-run', lambda w: buttonBox.setEnabled(False))
         self.addtool = QPushButton('Add Tool')
         self.addtool.clicked.connect(lambda: self.addTool())
-        buttonBox.addButton(self.addtool, 3)
+        buttonBox.addButton(self.addtool, QDialogButtonBox.ActionRole)
         self.deletetool = QPushButton('Delete Tool')
         self.deletetool.clicked.connect(lambda: self.deleteTool())
-        buttonBox.addButton(self.deletetool, 3)
+        buttonBox.addButton(self.deletetool, QDialogButtonBox.ActionRole)
         #for i in('X', 'Y', 'Z'):
         #    b = 'button_%s' % i
         #    self[b] = QPushButton('Zero %s' % i)
@@ -989,7 +989,7 @@ class ToolOffsetDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', True, 'Set Tool Offsets', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -1138,7 +1138,7 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', True, 'Tool Chooser', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -1243,7 +1243,7 @@ class CamViewDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', True, 'Cam View Dialog', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
 
     # **********************
@@ -1345,7 +1345,7 @@ class MacroTabDialog(QDialog, GeometryMixin):
         self.tab.stack.setCurrentIndex(0)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -1427,7 +1427,7 @@ class VersaProbeDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', True, 'VersaProbe Dialog', self._color)
         self.set_geometry()
         self.show()
-        self.exec_()
+        self.exec()
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
@@ -1551,7 +1551,7 @@ class EntryDialog(QDialog, GeometryMixin):
         flag = False
         while flag == False:
             self.Num.setFocus()
-            retval = self.exec_()
+            retval = self.exec()
             if retval:
                 try:
                     answer = float(self.Num.text())
@@ -1680,7 +1680,7 @@ class KeyboardDialog(QDialog, GeometryMixin):
             self.edit.setFocus()
             self.edit.setText(str(preload))
             self.edit.deselect()
-        retval = self.exec_()
+        retval = self.exec()
         answer = self.edit.text()
         if retval:
             STATUS.emit('update-machine-log', 'keyboard Entry {}'.format(answer), 'TIME,DEBUG')
@@ -1822,7 +1822,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
         else:
             if overlay:
                 STATUS.emit('focus-overlay-changed', True, '', self._color)
-            retval = self.exec_()
+            retval = self.exec()
             if overlay:
                 STATUS.emit('focus-overlay-changed', False, None, None)
 
@@ -1981,7 +1981,7 @@ class MachineLogDialog(QDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         if nonblock is not None:
-            self.exec_()
+            self.exec()
             STATUS.emit('focus-overlay-changed', False, None, None)
             self.record_geometry()
             return False
@@ -2087,7 +2087,7 @@ class RunFromLineDialog(QDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         if not nonblock:
-            self.exec_()
+            self.exec()
             STATUS.emit('focus-overlay-changed', False, None, None)
             self.record_geometry()
             return False
@@ -2181,7 +2181,7 @@ class AboutDialog(QDialog, GeometryMixin):
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         if nonblock is not None:
-            self.exec_()
+            self.exec()
             STATUS.emit('focus-overlay-changed', False, None, None)
             self.record_geometry()
             return False

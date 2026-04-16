@@ -428,7 +428,7 @@ def main():
     timer2.timeout.connect(lambda:pop() )
     timer2.start(1500)
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':

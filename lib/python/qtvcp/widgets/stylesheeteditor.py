@@ -227,7 +227,7 @@ class StyleSheetEditor(QDialog):
                     'qtvcp/screens',PATH.BASENAME)))
         dialog.setSidebarUrls(urls)
 
-        result = dialog.exec_()
+        result = dialog.exec()
         if result:
             fileName = dialog.selectedFiles()[0]
             file = QFile(fileName)
@@ -267,7 +267,7 @@ class StyleSheetEditor(QDialog):
 
         dialog.setSidebarUrls(urls)
 
-        result = dialog.exec_()
+        result = dialog.exec()
         if result:
             fileName = dialog.selectedFiles()[0]
             self.saveStyleSheet(fileName)

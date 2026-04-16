@@ -118,19 +118,19 @@ class screenOptionsDialog(QtWidgets.QDialog):
 
         if formWindow:
             formWindow.cursor().setProperty("notify_option",
-                                            QtCore.QVariant(self.c_notify.isChecked()))
+                                            self.c_notify.isChecked())
             formWindow.cursor().setProperty("notify_max_messages",
-                                            QtCore.QVariant(self.c_notify_max_msgs.value()))
+                                            self.c_notify_max_msgs.value())
             formWindow.cursor().setProperty("catch_errors_option",
-                                            QtCore.QVariant(self.c_errors.isChecked()))
+                                            self.c_errors.isChecked())
             formWindow.cursor().setProperty("catch_close_option",
-                                            QtCore.QVariant(self.c_close.isChecked()))
+                                            self.c_close.isChecked())
             formWindow.cursor().setProperty("play_sounds_option",
-                                            QtCore.QVariant(self.c_play_sounds.isChecked()))
+                                            self.c_play_sounds.isChecked())
             formWindow.cursor().setProperty("use_pref_file_option",
-                                            QtCore.QVariant(self.c_use_pref_file.isChecked()))
+                                            self.c_use_pref_file.isChecked())
             formWindow.cursor().setProperty("halCompBaseName",
-                                            QtCore.QVariant(self.e_hal_base_name.text()))
+                                            self.e_hal_base_name.text())
         self.accept()
 
 
@@ -152,7 +152,7 @@ class screenOptionsMenuEntry(QPyDesignerTaskMenuExtension):
 
     def updateLocation(self):
         dialog = screenOptionsDialog(self.widget)
-        dialog.exec_()
+        dialog.exec()
 
 
 class screenOptionsTaskMenuFactory(QExtensionFactory):

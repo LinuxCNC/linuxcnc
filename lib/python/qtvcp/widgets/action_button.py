@@ -1692,4 +1692,4 @@ if __name__ == "__main__":
     widget._hal_init()
 
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

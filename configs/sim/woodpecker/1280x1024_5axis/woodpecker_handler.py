@@ -63,7 +63,7 @@ class HandlerClass:
         self.PATHS = paths
         self.gcodes = GCodes(widgets)
         self._last_count = 0
-        self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('-?[0-9]{0,6}[.][0-9]{0,3}'))
+        self.valid = QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('-?[0-9]{0,6}[.][0-9]{0,3}'))
         self.styleeditor = SSE(widgets, paths)
         KEYBIND.add_call('Key_F10','on_keycall_F10')
         KEYBIND.add_call('Key_F11','on_keycall_F11')

@@ -40,7 +40,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         geom = self.w.frameGeometry()
-        geom.moveCenter(QDesktopWidget().availableGeometry().center())
+        geom.moveCenter(QApplication.primaryScreen().availableGeometry().center())
         self.w.setGeometry(geom)
 
         if self.w.USEROPTIONS_ is not None:

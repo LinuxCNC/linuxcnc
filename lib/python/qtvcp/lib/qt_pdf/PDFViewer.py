@@ -150,7 +150,7 @@ def main():
         filename = argv[-1]
     view = pdf_view(filename)
     view.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 if __name__ == '__main__':
     main()

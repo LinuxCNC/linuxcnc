@@ -80,7 +80,7 @@ class HandlerClass:
         self.w = widgets
         self.gcodes = GCodes(widgets)
         # This validator precludes using comma as a decimal
-        self.valid = QtGui.QRegExpValidator(QtCore.QRegExp('-?[0-9]{0,6}[.][0-9]{0,3}'))
+        self.valid = QtGui.QRegularExpressionValidator(QtCore.QRegularExpression('-?[0-9]{0,6}[.][0-9]{0,3}'))
         self.styleeditor = SSE(widgets, paths)
         self.KEYBIND = KEYBIND
         KEYBIND.add_call('Key_F4', 'on_keycall_F4')

@@ -66,7 +66,7 @@ class App(QWidget):
         self.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
         self.setWindowTitle('Powermax Communicator')
         qtRectangle = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
+        centerPoint = QApplication.primaryScreen().availableGeometry().center()
         qtRectangle.moveCenter(centerPoint)
         self.move(qtRectangle.topLeft())
         self.createGridLayout()

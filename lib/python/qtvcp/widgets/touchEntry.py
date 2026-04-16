@@ -282,4 +282,4 @@ if __name__ == "__main__":
     w.show()
     w = TouchDoubleSpinBox()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )

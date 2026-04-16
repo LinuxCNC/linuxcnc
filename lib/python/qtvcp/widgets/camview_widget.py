@@ -111,7 +111,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     ##################################
     def wheelEvent(self, event):
         super(CamView, self).wheelEvent(event)
-        mouse_state = QtWidgets.qApp.mouseButtons()
+        mouse_state = QtWidgets.QApplication.mouseButtons()
         if event.angleDelta().y() < 0:
             if mouse_state == QtCore.Qt.NoButton:
                 self.diameter -= self.rotationIncrement
@@ -671,7 +671,7 @@ class CamAngle(CamView):
             self.diameter = 40
 
     def wheelEvent(self, event):
-        mouse_state = QtWidgets.qApp.mouseButtons()
+        mouse_state = QtWidgets.QApplication.mouseButtons()
         size = self.size()
         w = size.width()
         if event.angleDelta().y() < 0:
@@ -765,4 +765,4 @@ if __name__ == '__main__':
     timer.start(100)
 
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

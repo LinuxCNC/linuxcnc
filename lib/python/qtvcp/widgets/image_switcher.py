@@ -17,7 +17,7 @@
 
 import os
 
-from qtpy.QtCore import Signal, Property, QVariant
+from qtpy.QtCore import Signal, Property
 from qtpy.QtWidgets import QLabel
 from qtpy.QtGui import QPixmap
 
@@ -121,7 +121,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
         return self._imagePath
     def reset_image_l(self):
         self._imagePath = [self._defaultImage]
-    image_list = Property(QVariant.typeToName(QVariant.StringList), get_image_l, set_image_l, reset_image_l)
+    image_list = Property('QStringList', get_image_l, set_image_l, reset_image_l)
 
     def setImagePath(self, data):
         self.defaultPixmap = data
@@ -446,7 +446,7 @@ def main():
     widget._hal_init()
 
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 if __name__ == "__main__":
     main()
 

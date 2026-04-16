@@ -17,7 +17,7 @@
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtpy.QtCore import Property, Slot, QVariant
+from qtpy.QtCore import Property, Slot
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp import logger
 
@@ -167,7 +167,7 @@ class HALLabel(ScaledLabel, _HalWidgetBase):
     use_multi_label = Property(bool, get_use_multi_label, set_use_multi_label, reset_use_multi_label)
     textTemplate = Property(str, get_textTemplate, set_textTemplate, reset_textTemplate)
 
-    multi_label_list = Property(QVariant.typeToName(QVariant.StringList),
+    multi_label_list = Property('QStringList',
             get_multi_label_l, set_multi_label_l, reset_multi_label_l)
     ##############################
     # required class boiler code #

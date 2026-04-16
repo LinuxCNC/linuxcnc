@@ -295,4 +295,4 @@ if __name__ == '__main__':
     w.setWindowTitle("PyQt Dialog demo")
     w.setGeometry(300, 300, 300, 150)
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

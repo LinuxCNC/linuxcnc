@@ -561,4 +561,4 @@ if __name__ == "__main__":
     led = StateLED()
     led.show()
     #led.startFlashing()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

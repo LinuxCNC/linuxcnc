@@ -19,9 +19,9 @@ import sys
 import os
 import hal
 import json
-from qtpy.QtCore import QProcess, QRegExp, QFile, QEvent, Qt, Property
+from qtpy.QtCore import QProcess, QRegularExpression, QFile, QEvent, Qt, Property
 from qtpy import QtGui, QtWidgets, uic, QtCore
-from qtpy.QtWidgets import QDialogButtonBox, QAbstractSlider, QLineEdit, qApp
+from qtpy.QtWidgets import QDialogButtonBox, QAbstractSlider, QLineEdit, QApplication
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path
 from qtvcp.widgets.dialogMixin import GeometryMixin
@@ -56,9 +56,9 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         self.hilightStyle = "border: 2px solid red;"
 
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QRegExpValidator(QRegExp(r'^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
+            self.valid = QtGui.QRegularExpressionValidator(QRegularExpression(r'^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
         else:
-            self.valid = QtGui.QRegExpValidator(QRegExp(r'^[+-]?((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
+            self.valid = QtGui.QRegularExpressionValidator(QRegularExpression(r'^[+-]?((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
         self.setMinimumSize(600, 420)
         # load the widgets ui file
         self.filename = PATH.find_widget_path('basic_probe.ui')
@@ -119,7 +119,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
         self.cmb_probe_select.addItems(self.probe_list)
         self.stackedWidget_probe_buttons.setCurrentIndex(0)
         # define validators for all lineEdit widgets
-        self.lineEdit_probe_tool.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
+        self.lineEdit_probe_tool.setValidator(QtGui.QRegularExpressionValidator(QRegularExpression('[0-9]{0,5}')))
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
 
@@ -272,7 +272,7 @@ class BasicProbeParent(QtWidgets.QWidget, _HalWidgetBase):
     def popEntry(self, obj, next=False):
         STATUS.emit('focus-overlay-changed', False, None, None)
         obj.setStyleSheet(self.hilightStyle)
-        qApp.processEvents()
+        QApplication.processEvents()
 
         mess = {'NAME':self.dialog_code,
                 'ID':'%s__' % self.objectName(),
@@ -663,7 +663,7 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
     def showDialog(self):
         self.setWindowTitle(self._title);
         self.set_geometry()
-        retval = self.exec_()
+        retval = self.exec()
         LOG.debug('Value of pressed button: {}'.format(retval))
 
 # look for a custom version of basicProbe
@@ -685,5 +685,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = BasicProbe()
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import subprocess
 
@@ -12,6 +13,47 @@ log = logger.getLogger(__name__)
 
 # Force the log level for this module
 #log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+# PyQt6 raises KeyError when a .ui file signal connection references an overloaded
+# signal type that no longer exists (e.g. 'bool' subscript on a non-overloaded signal).
+# Patch _handle_connections to skip bad connections rather than aborting the whole load.
+try:
+    from PyQt6.uic import uiparser as _uiparser
+    from PyQt6 import QtCore as _QtCore
+
+    def _tolerant_handle_connections(self, el):
+        def name2object(obj):
+            if obj == self.uiname:
+                return self.toplevelWidget
+            else:
+                return getattr(self.toplevelWidget, obj)
+
+        for conn in el:
+            signal = conn.findtext('signal')
+            signal_name, signal_args = signal.split('(')
+            signal_args = signal_args[:-1].replace(' ', '')
+            sender = name2object(conn.findtext('sender'))
+            bound_signal = getattr(sender, signal_name)
+            slot = self.factory.getSlot(name2object(conn.findtext('receiver')),
+                                        conn.findtext('slot').split('(')[0])
+            try:
+                if signal_args == '':
+                    bound_signal.connect(slot)
+                else:
+                    signal_args_list = signal_args.split(',')
+                    if len(signal_args_list) == 1:
+                        bound_signal[signal_args_list[0]].connect(slot)
+                    else:
+                        bound_signal[tuple(signal_args_list)].connect(slot)
+            except KeyError:
+                log.warning('Skipping ui signal connection {}({}) - no matching PyQt6 overload'.format(
+                    signal_name, signal_args))
+
+        _QtCore.QMetaObject.connectSlotsByName(self.toplevelWidget)
+
+    _uiparser.UIParser._handle_connections = _tolerant_handle_connections
+except ImportError:
+    pass  # Not using PyQt6
 
 class Trampoline(object):
     def __init__(self, methods):
@@ -89,7 +131,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self._idName = "TopObject" # initial name, will be replaced
         self.halcomp = halcomp
         self.has_closing_handler = False
-        self.setFocus(True)
+        self.setFocus()
         self.PATHS = path
         self.PREFS_ = None
         self.originalCloseEvent_ = self.closeEvent
@@ -144,23 +186,35 @@ class _VCPWindow(QtWidgets.QMainWindow):
             log.info('Compiling qrc: {} to \n {}'.format(qrcname, qrcpy))
             try:
                 subprocess.call(["pyrcc5", "-o", "{}".format(qrcpy), "{}".format(qrcname)])
+                return
+            except FileNotFoundError:
+                pass
+            try:
+                rcc = shutil.which("rcc", path="{}{}{}".format(os.getenv("PATH", ""), os.pathsep, "/usr/lib/qt6/libexec")) or "rcc"
+                subprocess.call([rcc, "-g", "python", "-o", "{}".format(qrcpy), "{}".format(qrcname)])
+                # rcc generates PySide6 imports; rewrite to use qtpy
+                with open(qrcpy, 'r') as f:
+                    content = f.read()
+                content = content.replace('from PySide6 import QtCore', 'from qtpy import QtCore')
+                with open(qrcpy, 'w') as f:
+                    f.write(content)
             except OSError as e:
                 log.error(
-                    '{}, pyrcc5 error. try in terminal: sudo apt install pyqt5-dev-tools to install dev tools'.format(
+                    '{}, pyrcc5/rcc error. try in terminal: sudo apt install pyqt5-dev-tools or qt6-base-dev-tools to install dev tools'.format(
                         e))
                 msg = QtWidgets.QMessageBox()
                 msg.setIcon(QtWidgets.QMessageBox.Critical)
                 msg.setText("QTvcp qrc compiling ERROR! ")
                 msg.setInformativeText(
-                    'Qrc Compile error, try: "sudo apt install pyqt5-dev-tools" to install dev tools')
+                    'Qrc Compile error, try: "sudo apt install pyqt5-dev-tools" or "qt6-base-dev-tools" to install dev tools')
                 msg.setWindowTitle("Error")
                 msg.setDetailedText('You can continue but some images may be missing')
                 msg.setStandardButtons(QtWidgets.QMessageBox.Retry | QtWidgets.QMessageBox.Abort)
                 msg.show()
-                retval = msg.exec_()
+                retval = msg.exec()
                 if retval == QtWidgets.QMessageBox.Abort:  # cancel button
                     log.critical("Canceled from qrc compiling Error Dialog.\n")
-                    raise SystemError('pyrcc5 compiling error: try: "sudo apt install pyqt5-dev-tools"')
+                    raise SystemError('pyrcc5/rcc compiling error: try: "sudo apt install pyqt5-dev-tools" or "qt6-base-dev-tools"')
 
         qrcname = self.PATHS.QRC
         qrcpy = self.PATHS.QRCPY
@@ -222,7 +276,7 @@ Python Error:\n {}'''.format(str(e))
             BNAME = self.PATHS.BASENAME
         # apply one word system theme
         if fname in (list(QtWidgets.QStyleFactory.keys())):
-            QtWidgets.qApp.setStyle(fname)
+            QtWidgets.QApplication.instance().setStyle(fname)
             log.info('Applied System Style name: yellow<{}>'.format(fname))
             return
 
@@ -263,7 +317,7 @@ Python Error:\n {}'''.format(str(e))
                 themes = ''
                 log.error('QSS Filepath Error: {}'.format(qssname))
                 log.error("{} theme not available.".format(fname))
-                current_theme = str(QtWidgets.qApp.style().objectName())
+                current_theme = str(QtWidgets.QApplication.instance().style().objectName())
                 for i in (list(QtWidgets.QStyleFactory.keys())):
                     themes += (', {}'.format(i))
                 log.error('QTvcp Available system themes: green<{}> {}'.format(current_theme, themes))
@@ -487,13 +541,13 @@ Python Error:\n {}'''.format(self._idName, str(e))
         return setattr(self, item, value)
 
 class VCPWindow(_VCPWindow):
-    _instance = None
+    _instance = [None]
     _instanceNum = 0
 
     def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = _VCPWindow.__new__(cls, *args, **kwargs)
-        return cls._instance
+        if not cls._instance[0]:
+            cls._instance[0] = _VCPWindow.__new__(cls, *args, **kwargs)
+        return cls._instance[0]
 
     def __getitem__(self, item):
         if item == '':

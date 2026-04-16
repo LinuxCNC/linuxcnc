@@ -1,13 +1,16 @@
+import enum
 from qtpy import QtWidgets
 from qtpy.QtGui import QColor, QBrush, QPainter, QLinearGradient
-from qtpy.QtCore import (Qt, Slot, Property, Signal, QVariant, QRectF,
+from qtpy.QtCore import (Qt, Slot, Property, Signal, QRectF,
     QSize)
-
 try:
-    from qtpy.QtCore import Q_ENUM
-except:
-    # before Qt 5.10
-    from qtpy.QtCore import Q_ENUMS as Q_ENUM
+    from qtpy.QtCore import QEnum
+except ImportError:
+    try:
+        from qtpy.QtCore import Q_ENUM as QEnum
+    except ImportError:
+        # before Qt 5.10
+        from qtpy.QtCore import Q_ENUMS as QEnum
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 import hal
@@ -391,7 +394,7 @@ class Bar(QtWidgets.QWidget):
         self.update()
 
     stepColorList = Property(
-                        QVariant.typeToName(QVariant.StringList),
+                        'QStringList',
                          get_step_color_l, set_step_color_l, reset_step_color_l)
 
     backgroundColor = Property(QColor, getBackgroundColor, setBackgroundColor)
@@ -403,7 +406,7 @@ class Bar(QtWidgets.QWidget):
     setVertical = Property(bool, getVert, setVert, resetVert)
     setInverted = Property(bool, getInvertedAppearance, setInvertedAppearance, resetInvertedAppearance)
 
-class HALPinType:
+class HALPinType(enum.IntEnum):
     NONE = 0
     S32 = hal.HAL_S32
     FLOAT = hal.HAL_FLOAT
@@ -411,9 +414,9 @@ class HALPinType:
 
 class  HalBar(Bar, _HalWidgetBase):
     HALPinType = HALPinType
-    Q_ENUM(HALPinType)
+    QEnum(HALPinType)
 
-    # older version of pyqt5 need this as well as Q_ENUM
+    # older version of pyqt5 need this as well as QEnum
     NONE = 0
     S32 = hal.HAL_S32
     FLOAT = hal.HAL_FLOAT
@@ -537,5 +540,5 @@ if __name__ == '__main__':
     layout.addLayout(lyt)
 
     w.show()
-    app.exec_()
+    app.exec()
 

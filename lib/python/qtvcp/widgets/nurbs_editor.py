@@ -302,5 +302,5 @@ if __name__ == '__main__':
         sys.exit(1)
     window = NurbsEditor(path = inifilename)
     window.load_dialog()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 

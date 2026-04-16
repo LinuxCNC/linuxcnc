@@ -63,9 +63,9 @@ class VersaProbeParent(QtWidgets.QWidget, _HalWidgetBase):
 
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
+            self.valid = QtGui.QRegularExpressionValidator(QtCore.QRegularExpression(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
         else:
-            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
+            self.valid = QtGui.QRegularExpressionValidator(QtCore.QRegularExpression(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
         self.setMinimumSize(600, 420)
         # Load the widgets UI file will use local file if available:
         self.filename = PATH.find_widget_path('versa_probe.ui')
@@ -734,7 +734,7 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
     def showDialog(self):
         self.setWindowTitle(self._title);
         self.set_geometry()
-        retval = self.exec_()
+        retval = self.exec()
         LOG.debug('Value of pressed button: {}'.format(retval))
 
 # look for a custom version of Versa Probe
@@ -758,5 +758,5 @@ if __name__ == "__main__":
     w = VersaProbeParent()
     w.setObjectName('versaprobeParent')
     w.show()
-    sys.exit( app.exec_() )
+    sys.exit( app.exec() )
 

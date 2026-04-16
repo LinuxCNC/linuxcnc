@@ -321,7 +321,7 @@ if __name__ == "__main__":
     h.addWidget(qd)
     h.addWidget(gui)
     w.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 
