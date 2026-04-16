@@ -136,12 +136,37 @@ proc linuxcnc::standard_fixed_font {} {
 
 proc parse_ini {filename} {
     # create associative arrays for all ini file sections
-    # like: ::EMC(VERSION), ::KINS(JOINTS), ... etc
+    # like: ::EMC(VERSION), ::KINS(JOINTS), ... etc.
+    #
+    # #INCLUDE <filename> directives are followed recursively, matching
+    # the semantics of the C++ INI parser's IniFileContent::parseLine()
+    # in src/emc/ini/inifile.cc. Relative includes resolve against the
+    # including file's directory.
+    #
+    # The recursive call uses `uplevel 1` so the included file's
+    # sections land in the same scope as the top-level file's sections
+    # — which for existing callers (check_config.tcl from file scope,
+    # twopass.tcl::tp::pass1 from a proc) matches the historical
+    # single-file upvar 1 semantics at every recursion depth.
     set f [open $filename]
+    set dir [file dirname $filename]
 
     while {[gets $f line] >= 0} {
         set line [string trim $line]
-        if {[regexp {^\[(.*)\]\s*$} $line _ section]} {
+        if {[regexp {^#INCLUDE\s+(.+)$} $line _ include_file]} {
+            # Resolve a relative #INCLUDE against the including file's
+            # directory, matching inifile.cc's dirname-prepend logic.
+            # On error (missing file, unreadable, parse failure), emit
+            # a warning to stderr and continue — matching the C parser's
+            # non-fatal behavior in inifile.cc: it prints a message and
+            # lets the caller see whatever was loaded up to that point.
+            if {[file pathtype $include_file] ne "absolute"} {
+                set include_file [file join $dir $include_file]
+            }
+            if {[catch {uplevel 1 [list parse_ini $include_file]} errmsg]} {
+                puts stderr "parse_ini: $filename: #INCLUDE $include_file: $errmsg"
+            }
+        } elseif {[regexp {^\[(.*)\]\s*$} $line _ section]} {
             # nothing
         } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
             upvar $section s
