@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-04-16 19:18+0200\n"
-"PO-Revision-Date: 2026-04-16 17:34+0000\n"
+"PO-Revision-Date: 2026-04-16 18:47+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -75,9 +75,9 @@ msgid ""
 msgstr ""
 "<b>3.5.1 (LinuxCNC 2.10.0)</b>\n"
 "• Die Werkzeugtabelle und die Offset-Seite verwenden nun standardmäßig den "
-"Rechner für die Eingabe von Werten. Dies kann in den Einstellungen / durch "
-"eine Schaltfläche geändert werden.\n"
-"• Eine Schaltfläche zum Öffnen des Rechners wurde in MDI- und G-Code-"
+"Rechner für die Eingabe von Werten. Dies kann in den Einstellungen bzw. "
+"durch eine Schaltfläche geändert werden.\n"
+"• Eine Schaltfläche zum Öffnen des Rechners wurde im MDI- und G-Code-"
 "Bearbeitungsmodus hinzugefügt."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:558
@@ -126,12 +126,12 @@ msgstr "Drücken um {0} {1} zu referenzieren"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:782
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1046
 msgid "Press to display next homing button"
-msgstr "Drücken um die nächsten Referenz-Button zu zeigen"
+msgstr "Drücken um den nächsten Referenz-Button zu zeigen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:797
 #, python-brace-format
 msgid "Press to unhome all {0}"
-msgstr "Drücken um die Referenz aller Achsen aufzuheben {0}"
+msgstr "Drücken um die Referenzierung aller Achsen aufzuheben {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:806
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1075
