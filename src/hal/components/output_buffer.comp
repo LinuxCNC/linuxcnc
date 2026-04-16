@@ -1,0 +1,48 @@
+component output_buffer "Feed through multiple bits when enable pin is set";
+pin in bit enable "Enable input";
+pin in bit off-level = 0 "Signal level when output is off (enable=0)";
+pin in bit in-#[32 : personality] "Inputs";
+pin out bit out-#[32 : personality] "Outputs (Follow inputs when enable=1)";
+
+function _;
+description """
+Feed through up to 32 bit inputs to their outputs when enable set,
+otherwise outputs will be the value of _off-level_ (default 0).
+
+                            ┌───────────┐
+  output-buffer.N.in-0 ─────┤  ──[>]──  ├───── output-buffer.N.out-0
+                            │   ┌─┘     │
+  output-buffer.N.in-1 ─────┤  ─┼[>]──  ├───── output-buffer.N.out-1
+                            │   ├─┘     │
+  output-buffer.N.in-2 ─────┤  ─┼[>]──  ├───── output-buffer.N.out-2
+                            │   ├─┘     │
+                   ... ─────┤   :       ├───── ...
+                            │   :       │
+  output-buffer.N.in-M ─────┤  ─┼[>]──  ├───── output-buffer.N.out-M
+                            │   ├─┘     │
+                enable ─────┤  ─┘       │
+                            │           │
+             off-level ─────┤ [0/1]     │
+                            └───────────┘
+
+The number of channels are determined by the value of 'personality'.
+""";
+examples """
+*loadrt output_buffer count=1 personality=8* will create a 8 bit buffer.
+""";
+license "GPL"; // indicates GPL v2 or later
+author "Hans Unzner";
+option period no;
+;;
+FUNCTION(_) {
+    if(enable) {
+        for(int i = 0; i < personality; i++) {
+            out(i) = in(i);
+        }
+    } else {
+        bool lvl = off_level;
+        for(int i = 0; i < personality; i++) {
+            out(i) = lvl;
+        }
+    }
+}
