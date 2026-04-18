@@ -663,42 +663,45 @@ struct rtapi_module {
 #define MAX_MODULES 64
 #define MODULE_OFFSET 32768
 
-#define WRITE_STDERR_STR(str) ((void)!write(STDERR_FILENO, str, strlen(str)))
+static inline void write_string(int fd, const char *str) {
+    (void)!write(fd, str, strlen(str));
+}
+
 static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
     //Read: https://www.man7.org/linux/man-pages/man7/signal-safety.7.html
     bool doAbort = true;
     switch (sig) {
     case SIGXCPU:
-        WRITE_STDERR_STR("rtapi_app: SIGXCPU - aborting\n");
+        write_string(STDERR_FILENO, "rtapi_app: SIGXCPU - aborting\n");
         break;
     case SIGSEGV:
-        WRITE_STDERR_STR("rtapi_app: SIGSEGV - aborting\n");
+        write_string(STDERR_FILENO, "rtapi_app: SIGSEGV - aborting\n");
         break;
     case SIGILL:
-        WRITE_STDERR_STR("rtapi_app: SIGILL - aborting\n");
+        write_string(STDERR_FILENO, "rtapi_app: SIGILL - aborting\n");
         break;
     case SIGFPE:
-        WRITE_STDERR_STR("rtapi_app: SIGFPE - aborting\n");
+        write_string(STDERR_FILENO, "rtapi_app: SIGFPE - aborting\n");
         break;
     case SIGTERM:
-        WRITE_STDERR_STR("rtapi_app: SIGTERM - shutting down\n");
+        write_string(STDERR_FILENO, "rtapi_app: SIGTERM - shutting down\n");
         doAbort = false; //TERM is a user signal, no need for a coredump
         break;
     case SIGINT:
-        WRITE_STDERR_STR("rtapi_app: SIGINT - shutting down\n");
+        write_string(STDERR_FILENO, "rtapi_app: SIGINT - shutting down\n");
         doAbort = false; //INT is a user signal, no need for a coredump
         break;
     default:
-        WRITE_STDERR_STR("rtapi_app: UNKNOWN - aborting\n");
+        write_string(STDERR_FILENO, "rtapi_app: UNKNOWN - aborting\n");
         break;
     }
 
     //Write remaining messages
     rtapi_msg_queue.consume_all([](const message_t &m) {
-        WRITE_STDERR_STR(m.msg);
+        write_string(STDERR_FILENO, m.msg);
     });
 
-    if(doAbort){
+    if (doAbort) {
         //Call abort to generate a coredump if enabled
         //To enable coredumps for setuid applications:
         //echo 1 | sudo tee /proc/sys/fs/suid_dumpable #rtapi_app is setuid
@@ -706,7 +709,7 @@ static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
         //ulimit -c unlimited or coredumpctl
         abort();
     }
-    _exit(128+sig); //128+n: Fatal error signal "n"
+    _exit(128 + sig); //128+n: Fatal error signal "n"
 }
 
 const static size_t PRE_ALLOC_SIZE = 1024 * 1024 * 32;
