@@ -440,10 +440,22 @@ void axis_sync_teleop_tp_to_carte_pos(int extfactor, double *pcmd_p[])
 {
     int n;
     // expect extfactor =  -1 || 0 || +1
+    //
+    // This function initializes the teleop trajectory planner to a REST
+    // state at the current cartesian position. Both callers (enabling
+    // motion, entering teleop mode) expect the joint to be stationary
+    // at the synced position. Without resetting curr_vel/curr_acc, stale
+    // values from a previous motion (e.g. a jog that was aborted with
+    // immediate=0, leaving a non-zero ramp-down velocity) would survive
+    // a mode transition and cause the trajectory to drift away from the
+    // synced curr_pos the next time simple_tp_update integrates one
+    // cycle of motion.
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         axis_array[n].teleop_tp.curr_pos = *pcmd_p[n]
                             + extfactor * axis_array[n].ext_offset_tp.curr_pos;
         axis_array[n].teleop_tp.pos_cmd = axis_array[n].teleop_tp.curr_pos;
+        axis_array[n].teleop_tp.curr_vel = 0.0;
+        axis_array[n].teleop_tp.curr_acc = 0.0;
     }
 }
 
