@@ -87,8 +87,6 @@ static void *queue_function(void * /*arg*/) {
     return nullptr;
 }
 
-static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
-
 template <class T> T DLSYM(void *handle, const std::string &name) {
     return (T)(dlsym(handle, name.c_str()));
 }
@@ -454,21 +452,25 @@ static int slave(int fd, const std::vector<std::string> &args) {
     }
 }
 
-static int callback(int fd) {
+//Processes incoming command on socket
+//This function blocks on accept until a client connects
+//return: true if master should continue
+//        false if master should exit
+static bool master_process_socket_command(int fd) {
     struct sockaddr_un client_addr;
     memset(&client_addr, 0, sizeof(client_addr));
     socklen_t len = sizeof(client_addr);
     int fd1 = accept(fd, (sockaddr *)&client_addr, &len);
     if (fd1 < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to accept connection from slave: %s\n", strerror(errno));
-        return -1;
+        return true; //If there is a socket error, just continue
     } else {
         int result;
         std::vector<std::string> args;
         if (!recv_args(fd1, args)) {
             rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to read from slave: %s\n", strerror(errno));
             close(fd1);
-            return -1;
+            return true; //If there is a socket error, just continue
         }
 
         result = handle_command(args);
@@ -501,7 +503,8 @@ static int master(int fd, const std::vector<std::string> &args) {
         if (force_exit || instance_count == 0)
             goto out;
     }
-    sim_rtapi_run_threads(fd, callback);
+    //Process commands as long as master should not exit
+    while(master_process_socket_command(fd));
 out:
     pthread_cancel(queue_thread);
     pthread_join(queue_thread, nullptr);
@@ -960,10 +963,6 @@ unsigned char rtapi_inb(unsigned int port) {
 
 long int simple_strtol(const char *nptr, char **endptr, int base) {
     return strtol(nptr, endptr, base);
-}
-
-int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
-    return App().run_threads(fd, callback);
 }
 
 long long rtapi_get_time() {

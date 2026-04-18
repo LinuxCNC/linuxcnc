@@ -175,13 +175,6 @@ struct RtaiApp : RtapiApp {
 #endif
     }
 
-    int run_threads(int fd, int (*callback)(int fd)) {
-        while (callback(fd)) {
-            /* nothing */
-        }
-        return 0;
-    }
-
     int task_self() {
         struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
         if (!task)
