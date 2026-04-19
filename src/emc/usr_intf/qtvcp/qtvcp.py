@@ -171,6 +171,7 @@ class QTVCP:
         #################
         if SCRN_INIPATH:
             LOG.info('green<Building A LinuxCNC Main Screen with: {}>'.format(ver))
+            LOG.info('green<Qt version: {}>'.format(QtCore.qVersion()))
             import linuxcnc
             # pull info from the INI file
             self.inifile = linuxcnc.ini(SCRN_INIPATH)
