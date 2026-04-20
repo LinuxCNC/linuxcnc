@@ -2,3 +2,4 @@ result
 stderr
 *.var
 *.var.bak
+*.ini.expanded
