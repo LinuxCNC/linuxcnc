@@ -403,7 +403,8 @@ static void push_uint16(std::vector<char> &buf, uint16_t value) {
 }
 
 static uint16_t get_uint16(const std::vector<char> &buf, size_t idx) {
-    return ((uint16_t)buf[idx] << 0) | ((uint16_t)buf[idx + 1] << 8);
+    //at() will check index and throw std::out_of_range
+    return ((uint16_t)buf.at(idx) << 0) | ((uint16_t)buf.at(idx + 1) << 8);
 }
 
 static bool recv_args(int fd, std::vector<std::string> &args) {
@@ -437,18 +438,29 @@ static bool recv_args(int fd, std::vector<std::string> &args) {
     }
 
     //Deserialize
-    size_t idx = 0;
-    size_t n_args = get_uint16(buf, idx);
-    args.resize(n_args);
-    idx += sizeof(uint16_t);
-    for (size_t i = 0; i < n_args; i++) {
-        size_t arg_size = get_uint16(buf, idx);
+    try {
+        size_t idx = 0;
+        size_t n_args = get_uint16(buf, idx);
+        args.resize(n_args);
         idx += sizeof(uint16_t);
-        args[i] = std::string(buf.begin() + idx, buf.begin() + idx + arg_size);
-        idx += arg_size;
-    }
-    if (idx != buff_size) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug recv_args: idx %li != buff_size %li\n", idx, buff_size);
+        for (size_t i = 0; i < n_args; i++) {
+            size_t arg_size = get_uint16(buf, idx);
+            idx += sizeof(uint16_t);
+            //Bound checked, unpack argument
+            auto start = buf.begin() + idx;
+            auto end = start + arg_size;
+            if (end > buf.end()) {
+                throw std::out_of_range("recv_args: arg size not in buffer range");
+            }
+            args[i] = std::string(start, end);
+            idx += arg_size;
+        }
+        if (idx != buff_size) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug recv_args: idx %li != buff_size %li\n", idx, buff_size);
+            return false;
+        }
+    } catch (std::out_of_range &e) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug recv_args: %s\n", e.what());
         return false;
     }
 
@@ -561,7 +573,7 @@ static bool master_process_socket_command(int fd) {
         struct timeval timeout;
         timeout.tv_sec = 10;
         timeout.tv_usec = 0;
-        if (setsockopt(fd1, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0){
+        if (setsockopt(fd1, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: setsockopt timeout failed: %s\n", strerror(errno));
             close(fd1);
             return true; //If there is a socket error, just continue
