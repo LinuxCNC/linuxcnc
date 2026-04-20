@@ -466,7 +466,7 @@ static bool send_args(int fd, const std::vector<std::string> &args) {
 
     //This is the largest value set by set_int16()
     if (buff_size > std::numeric_limits<uint16_t>::max()) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug send_args: args to big, size = %li!\n", buff_size);
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_args: args to big, size = %li!\n", buff_size);
         return false;
     }
 
