@@ -556,6 +556,17 @@ static bool master_process_socket_command(int fd) {
     } else {
         int result;
         std::vector<std::string> args;
+
+        //Set timeout, so master doesn't hang forever
+        struct timeval timeout;
+        timeout.tv_sec = 10;
+        timeout.tv_usec = 0;
+        if (setsockopt(fd1, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0){
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: setsockopt timeout failed: %s\n", strerror(errno));
+            close(fd1);
+            return true; //If there is a socket error, just continue
+        }
+
         if (!recv_args(fd1, args)) {
             rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to read from slave\n");
             close(fd1);
