@@ -367,12 +367,34 @@ static int recv_data(int fd, void *buf, size_t n, int flags) {
 
 static bool send_result(int fd, int result) {
     ssize_t res = send_data(fd, &result, sizeof(int), 0);
-    return res == sizeof(int);
+    if (res != sizeof(int)) {
+        if (res == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_result failed: %s\n", strerror(errno));
+        } else {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "rtapi_app: send_result failed, send only %li of %li bytes\n", res, sizeof(int)
+            );
+        }
+        return false;
+    } else {
+        return true;
+    }
 }
 
 static bool recv_result(int fd, int *result) {
     ssize_t res = recv_data(fd, result, sizeof(int), 0);
-    return res == sizeof(int);
+    if (res != sizeof(int)) {
+        if (res == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: recv_result failed: %s\n", strerror(errno));
+        } else {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "rtapi_app: recv_result failed, recv only %li of %li bytes\n", res, sizeof(int)
+            );
+        }
+        return false;
+    } else {
+        return true;
+    }
 }
 
 static void set_uint16(std::vector<char> &buf, uint16_t value, size_t idx) {
@@ -389,6 +411,13 @@ static bool recv_args(int fd, std::vector<std::string> &args) {
     uint16_t tmp;
     ssize_t res = recv_data(fd, &tmp, sizeof(uint16_t), 0);
     if (res != sizeof(uint16_t)) {
+        if (res == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: recv_args 1 failed: %s\n", strerror(errno));
+        } else {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "rtapi_app: recv_args 1 failed, recv only %li of %li bytes\n", res, sizeof(uint16_t)
+            );
+        }
         return false;
     }
     size_t buff_size = tmp;
@@ -397,6 +426,13 @@ static bool recv_args(int fd, std::vector<std::string> &args) {
     std::vector<char> buf(buff_size);
     res = recv_data(fd, buf.data(), buff_size, 0);
     if (res != (ssize_t)buff_size) {
+        if (res == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: recv_args 2 failed: %s\n", strerror(errno));
+        } else {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "rtapi_app: recv_args 2 failed, recv only %li of %li bytes\n", res, buff_size
+            );
+        }
         return false;
     }
 
@@ -455,6 +491,13 @@ static bool send_args(int fd, const std::vector<std::string> &args) {
     //Send
     ssize_t res = send_data(fd, buf.data(), buf.size(), 0);
     if (res != (ssize_t)buf.size()) {
+        if (res == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: send_args failed: %s\n", strerror(errno));
+        } else {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "rtapi_app: send_args failed, sent only %li of %li bytes\n", res, buf.size()
+            );
+        }
         return false;
     }
     return true;
@@ -487,13 +530,13 @@ static int handle_command(std::vector<std::string> args) {
 
 static int slave(int fd, const std::vector<std::string> &args) {
     if (!send_args(fd, args)) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to write to master: %s\n", strerror(errno));
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to write to master\n");
         return -1;
     }
 
     int result = -1;
     if (!recv_result(fd, &result)) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to read from master: %s\n", strerror(errno));
+        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to read from master\n");
         return -1;
     } else {
         return result;
@@ -516,7 +559,7 @@ static bool master_process_socket_command(int fd) {
         int result;
         std::vector<std::string> args;
         if (!recv_args(fd1, args)) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to read from slave: %s\n", strerror(errno));
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to read from slave\n");
             close(fd1);
             return true; //If there is a socket error, just continue
         }
@@ -524,7 +567,7 @@ static bool master_process_socket_command(int fd) {
         result = handle_command(args);
 
         if (!send_result(fd1, result)) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to write to slave: %s\n", strerror(errno));
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to write to slave\n");
         }
         close(fd1);
     }
