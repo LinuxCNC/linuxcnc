@@ -235,6 +235,14 @@ r "--- reproduce ini-file content"
   echo "VAR=0x2a"
   echo "VAR=0o52"
   echo "VAR=0b101010"
+  echo "[QUOTED]"
+  echo "S='\"single surrounding \\\\ double\"'"
+  echo "D=\"'double surrounding \\\\ single'\""
+  echo "E=embedded \"double\" and 'single'"
+  echo "C=\" spaces and \\x1f newline\\n\""
+  echo "U=\\x20 start spaces"
+  echo "V=end spaces \\x20"
+  echo "W=\\x20 all spaces \\x20"
   echo "[NOTQUINE]"
   echo "This=-42"
   echo "iS=-0x2a"
@@ -258,8 +266,8 @@ r "--- comment removal processing"
   echo "[MUSTFAILHERE" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Must fail @line 3"
 ( echo " [SECTION] ; comment ignored"
-  echo " VARa=blabla # comment ignored"
-  echo " VARb=blabla ; comment ignored"
+  echo " VARa=blabla # comment not ignored"
+  echo " VARb=blabla ; comment not ignored"
 ) > xtest.ini
 tst --var=VARa --sec=SECTION || f "Comment VARa removal"
 tst --var=VARb --sec=SECTION || f "Comment VARb removal"
@@ -271,49 +279,19 @@ r "--- string processing single/double quote"
 tst --var=VARs --sec=SECTION || f "Single quote string"
 tst --var=VARq --sec=SECTION || f "Double quote string"
 
-r "--- string merging"
+r "--- string processing single/double in normal text"
 ( echo "[SECTION]"
-  echo -e "VARs='foo' \t 'bar'"
-  echo -e "VARq=\"bar\" \t \"foo\""
-  echo -e "VARc='foo' \t \"foo\"" ) > xtest.ini
-tst --var=VARs --sec=SECTION || f "Single quote merge string"
-tst --var=VARq --sec=SECTION || f "Double quote merge string"
-tst --var=VARc --sec=SECTION || f "Mixed quote merge string"
-
-r "--- string quote escapes"
-( echo "[SECTION]"
-  echo "VARs='foo s\\' d\"'"
-  echo "VARq=\"bar d\\\" s'\"" ) > xtest.ini
-tst --var=VARs --sec=SECTION || f "Single quote escape string"
-tst --var=VARq --sec=SECTION || f "Double quote escape string"
-
-r "--- string bad quote escapes"
-( echo "[SECTION]"
-  echo "VARs='foo \\\" '"	# This is _not_ improper, just literal backslash followed by double quote
-  echo "VARq=\"bar \\' \"" ) > xtest.ini
-tst --var=VARs --sec=SECTION || f "Single quote non-escape string"
-tst --var=VARq --sec=SECTION || f "Double quote bad escape string"
-
-r "--- junk between string merge"
-( echo "[SECTION]"
-  echo "VAR='bar' bla 'bar'" ) > xtest.ini
-tst --var=VAR --sec=SECTION && t "Junk between SQ string merge"
-
-( echo "[SECTION]"
-  echo "VAR=\"bar\" bla \"bar\"" ) > xtest.ini
-tst --var=VAR --sec=SECTION && t "Junk between DQ string merge"
-
-r "--- escape fail at end-of-string"
-( echo "[SECTION]"
-  echo "VAR=\"bar \\\"" ) > xtest.ini
-tst --var=VAR --sec=SECTION && t "EOS escape"
+  echo "VARs=foo 'quote' bar"
+  echo "VARq=bar \"quote\" foo" ) > xtest.ini
+tst --var=VARs --sec=SECTION || f "Embedded single quote string"
+tst --var=VARq --sec=SECTION || f "Embedded double quote string"
 
 r "--- string continuations escaped newlines"
 ( echo "[SECTION]"
-  echo "VAR=\"some\n\" \\"
-  echo "    \"string\n\" \\"
-  echo "    \"separated on\n\" \\"
-  echo "    \"lines\"" ) > xtest.ini
+  echo "VAR=\"some\n \\"
+  echo "    string\n \\"
+  echo "    separated on\n \\"
+  echo "    lines\"" ) > xtest.ini
 tst --var=VAR --sec=SECTION || f "String collection and continuation"
 
 r "--- embedded nul in values"
@@ -321,45 +299,45 @@ r "--- embedded nul in values"
   echo -e "VAR=val\0val" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Embedded NUL in value"
 ( echo "[SECTION]"
-  echo -e "VAR=\"val\0val\"" ) > xtest.ini
+  echo -e "VAR=val\0val" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Embedded literal NUL"
 ( echo "[SECTION]"
-  echo "VAR=\"\\0\"" ) > xtest.ini
+  echo "VAR=\\0" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Embedded octal NUL"
 ( echo "[SECTION]"
-  echo "VAR=\"\\x00\"" ) > xtest.ini
+  echo "VAR=\\x00" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Embedded hex NUL"
 ( echo "[SECTION]"
-  echo "VAR=\"\\u0000\"" ) > xtest.ini
+  echo "VAR=\\u0000" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Embedded UTF-16 NUL"
 ( echo "[SECTION]"
-  echo "VAR=\"\\U00000000\"" ) > xtest.ini
+  echo "VAR=\\U00000000" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Embedded UTF-32 NUL"
 
 r "--- escape invalid and improper hex"
 ( echo "[SECTION]"
-  echo "VAR=\"\\xYZ\"" ) > xtest.ini
+  echo "VAR=\\xYZ" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid hex escape"
 ( echo "[SECTION]"
-  echo "VAR=\"\\xY\"" ) > xtest.ini
+  echo "VAR=\\xY" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Improper short hex escape"
 ( echo "[SECTION]"
   echo "VAR=\"\\xY \"" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid short hex escape"
 ( echo "[SECTION]"
-  echo "VAR=\"\\uVWZY\"" ) > xtest.ini
+  echo "VAR=\\uVWZY" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid hex UTF-16"
 ( echo "[SECTION]"
-  echo "VAR=\"\\uVWZ\"" ) > xtest.ini
+  echo "VAR=\\uVWZ" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Improper short hex UTF-16"
 ( echo "[SECTION]"
   echo "VAR=\"\\uVWZ \"" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid short hex UTF-16"
 ( echo "[SECTION]"
-  echo "VAR=\"\\Uvwxyijkl\"" ) > xtest.ini
+  echo "VAR=\\Uvwxyijkl" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid hex UTF-32"
 ( echo "[SECTION]"
-  echo "VAR=\"\\Uvwxyijk\"" ) > xtest.ini
+  echo "VAR=\\Uvwxyijk" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Improper short hex UTF-32"
 ( echo "[SECTION]"
   echo "VAR=\"\\Uvwxyijk \"" ) > xtest.ini
@@ -367,31 +345,31 @@ tst --var=VAR --sec=SECTION && t "Invalid short hex UTF-32"
 
 r "--- UTF-16 surrogates, sigh"
 ( echo "[SECTION]"
-  echo "VAR=\"\\ud800\"" ) > xtest.ini
+  echo "VAR=\\ud800" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Missing UTF-16 low surrogate"
 ( echo "[SECTION]"
-  echo "VAR=\"\\udc00\"" ) > xtest.ini
+  echo "VAR=\\udc00" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid UTF-16 high surrogate"
 ( echo "[SECTION]"
-  echo "VAR=\"\\ud800\\ud800\"" ) > xtest.ini
+  echo "VAR=\\ud800\\ud800" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid UTF-16 low surrogate"
 ( echo "[SECTION]"
   echo "VAR=\"\\ud800\\udc0 \"" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid UTF-16 low surrogate"
 ( echo "[SECTION]"
   # &#1f600; smiley
-  echo "VAR=\"\\ud83d\\ude00\"" ) > xtest.ini
+  echo "VAR=\\ud83d\\ude00" ) > xtest.ini
 tst --var=VAR --sec=SECTION || f "Valid UTF-16"
 
 r "--- invalid code points"
 ( echo "[SECTION]"
-  echo "VAR=\"\\U00110000\"" ) > xtest.ini
+  echo "VAR=\\U00110000" ) > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid code point UTF-32"
 
 r "--- valid code points"
 ( echo "[SECTION]"
   # AAAA
-  echo "VAR=\"\\101\\x41\\u0041\\U00000041\"" ) > xtest.ini
+  echo "VAR=\\101\\x41\\u0041\\U00000041" ) > xtest.ini
 tst --var=VAR --sec=SECTION || f "Valid code points"
 
 r "--- invalid UTF-8"
@@ -424,7 +402,7 @@ tst --var=VAR --sec=SECTION && t "Invalid UTF-8 f8 code point"
 echo -e '[SECTION]\nVAR="\\xff "' > xtest.ini
 tst --var=VAR --sec=SECTION && t "Invalid UTF-8 ff code point"
 # &#1f600; smiley: 11110 000  10 011111  10 011000  10 000000
-echo -e '[SECTION]\nVAR="\\xf0\\x9f\\x98\\x80"' > xtest.ini
+echo -e '[SECTION]\nVAR=\\xf0\\x9f\\x98\\x80' > xtest.ini
 tst --var=VAR --sec=SECTION || f "UTF-8 Smiley"
 
 r "+++ all done +++"

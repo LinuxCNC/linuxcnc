@@ -280,14 +280,12 @@ static bool isValidUTF8(const std::string &s)
 //
 // Process a value to find strings
 // Modifies the 'value' argument to its final version
-// A string value is extracted if the value starts with a single "'" or double
-// '"' quote. Otherwise, the value is stripped of optional comments and
-// returned. A string may be broken into parts like:
-//   "foo" "bar" 'zap' "bling"
-// and such string will result in returning "foobarzapbling".
-// Escape substitution is performed only for double quote enclosed strings.
-// Embedding characters with \ooo or \xHH escapes may result in invalid UTF-8
-// strings but that is checked later. Possible escapes:
+// Embedded quotes are no special characters and are copied verbatim to the
+// output. Comments character # and ; are not special in the value and also
+// copied verbatim.
+// Escape substitution is performed on the entire value. Embedding characters
+// with \ooo or \xHH escapes may result in invalid UTF-8 strings but that is
+// checked later. Possible escapes:
 // - \[abfnrtv]         Standard C-type escapes
 // - \[0-3][0-7]{0,2}   Standard C-type octal escape
 // - \x[a-fA-F0-9]{2}   Hex 8-bit character escape
@@ -304,261 +302,175 @@ bool IniFileContent::processValue(std::string &value, const std::string &path, u
 	if(value.empty())
 		return true;
 
-	if(std::string::npos != value.find((char)0)) {
-		print_msg(fmt::format("{}:{}: error: Embedded literal NUL character not supported", path, linenr));
-		return false;
-	}
-
 	// We should be l/r trimmed getting here.
 
-	if('"' != value[0] && '\'' != value[0]) {
-		// No string markers at start, still need to strip comment
-		size_t c = value.find_first_of("#;");
-		if(std::string::npos != c) {
-			// Found comment marker
-			value.erase(c);	// Remove comment
-			IniFile::rtrim(value);	// Remove trailing whitespace
-		}
-		if(std::string::npos != value.find((char)0)) {
-			// Trying to embed a NUL char
-			print_msg(fmt::format("{}:{}: error: NUL character not supported in values", path, linenr));
+	std::string realstr;
+	for(size_t pos = 0; pos < value.size(); pos++) {
+		uint32_t hexval;
+
+		char ch = value[pos];
+		if(0 == ch) {
+			// Trying to add a NUL char
+			print_msg(fmt::format("{}:{}: error: Embedded literal NUL character not supported", path, linenr));
 			return false;
 		}
-		return true;
-	}
 
-	// Detected the string marker 'quote'. Need to start collecting enclosed
-	// strings and parse embedded escapes.
-	std::string realstr;
-	uint32_t hexval;
-	size_t pos;
-	char quote = 0;
-	enum { ST_START, ST_COLLECT } state = ST_START;
-	for(pos = 0; pos < value.size(); pos++) {
-		char ch = value[pos];
-		switch(state) {
-		case ST_START:
-			if('"' == ch || '\'' == ch) {
-				quote = ch;
-				state = ST_COLLECT;
-			} else if (!IniFile::isSpace(ch)) {
-				// Not a space
-				if('#' == ch || ';' == ch) {
-					pos = value.size();	// Comment until end-of-line
-				} else {
-					// Some junk between strings
-					// Can only do all enclosed strings or none enclosed
-					print_msg(fmt::format("{}:{}: error: Expected single or double quote, got '{}' at position {} of the value",
-								path, linenr, ch, pos+1));
-					return false;
-				}
-			} // else it is a space and we just ignore it
-			break;
-		case ST_COLLECT:
-			if(ch == quote) {
-				// End of this string (fragment)
-				state = ST_START;
-				break;
-			}
-			if(0 == ch) {
-				// Trying to add a NUL char
-				print_msg(fmt::format("{}:{}: error: NUL character not supported in quoted values", path, linenr));
+		// Check for an escape
+		if('\\' == ch) {
+			// An escape, see what follows
+			size_t cleft = value.size() - pos - 1; // Nr of characters after the '\'
+			if(cleft < 1) {
+				// Last char is an escape
+				// This should never happen because it would have been seen
+				// as a continuation. The error happens when it fails to
+				// detect the end quote.
+				print_msg(fmt::format("{}:{}: internal error: End of line while parsing '\\' escape", path, linenr));
 				return false;
 			}
-
-			// For single quote strings we (almost) unconditionally append
-			if('\'' == quote) {
-				if('\\' == ch) {
-					// There must always be a following character when we see
-					// an escape, regardless what it contains (char at pos is
-					// 1, next is 2).
-					if(value.size() - pos < 2) {
-						print_msg(fmt::format("{}:{}: error: End of line while parsing '\\' escape", path, linenr));
-						return false;
-					} else if('\'' == value[pos+1]) {
-						// Escapes the single quote
-						pos++; // Eat the '\\' and add the quote
-						realstr += '\'';
-					} else {
-						realstr += ch;	// Just a literal '\\'
+			auto nch =  value[pos+1];	// The letter after the escape
+			switch(nch) {
+			case 'a': realstr += '\a'; break;
+			case 'b': realstr += '\b'; break;
+			case 'f': realstr += '\f'; break;
+			case 'n': realstr += '\n'; break;
+			case 'r': realstr += '\r'; break;
+			case 't': realstr += '\t'; break;
+			case 'v': realstr += '\v'; break;
+			case '\\': realstr += '\\'; break;
+			case '0': // Octal value \0 ... \377
+			case '1':
+			case '2':
+			case '3':
+				// Have at least \o, can have \oo or \ooo
+				hexval = nch - '0';
+				if(cleft >= 2 && value[pos+2] >= '0' && value[pos+2] <= '7') {
+					// Have at least \oo, can have \ooo
+					hexval <<= 3;
+					hexval += value[pos+2] - '0';
+					if(cleft >= 3 && value[pos+3] >= '0' && value[pos+3] <= '7') {
+						// Have \ooo
+						hexval <<= 3;
+						hexval += value[pos+3] - '0';
+						pos++; // Eat the third digit
 					}
-				} else {
-					realstr += ch;	// Just a character
+					pos++; // Eat the second digit
 				}
-				break;	// We're done when single quoted
-			}
-
-			// Now we must have a double quoted string, test escapes
-			if('\\' == ch) {
-				// An escape, see what follows
-				size_t cleft = value.size() - pos - 1; // Nr of characters after the '\'
-				if(cleft < 1) {
-					// Last char is an escape
-					// This should never happen because it would have been seen
-					// as a continuation. The error happens when it fails to
-					// detect the end quote.
-					print_msg(fmt::format("{}:{}: internal error: End of line while parsing '\\' escape", path, linenr));
+				if(!hexval) {
+					// Trying to embed a NUL char
+					print_msg(fmt::format("{}:{}: error: Embedded octal NUL character not supported", path, linenr));
 					return false;
 				}
-				auto nch =  value[pos+1];	// The letter after the escape
-				switch(nch) {
-				case '"':
-				case '\'':
-					if(quote != nch) {
-						// Wrongly escaped quote
-						print_msg(fmt::format("{}:{}: warning: Improper escape of {} quote, ignored", path, linenr, nch));
-					}
-					realstr += nch;
-					break;
-				case 'a': realstr += '\a'; break;
-				case 'b': realstr += '\b'; break;
-				case 'f': realstr += '\f'; break;
-				case 'n': realstr += '\n'; break;
-				case 'r': realstr += '\r'; break;
-				case 't': realstr += '\t'; break;
-				case 'v': realstr += '\v'; break;
-				case '0': // Octal value \0 ... \377
-				case '1':
-				case '2':
-				case '3':
-					// Have at least \o, can have \oo or \ooo
-					hexval = nch - '0';
-					if(cleft >= 2 && value[pos+2] >= '0' && value[pos+2] <= '7') {
-						// Have at least \oo, can have \ooo
-						hexval <<= 3;
-						hexval += value[pos+2] - '0';
-						if(cleft >= 3 && value[pos+3] >= '0' && value[pos+3] <= '7') {
-							// Have \ooo
-							hexval <<= 3;
-							hexval += value[pos+3] - '0';
-							pos++; // Eat the third digit
-						}
-						pos++; // Eat the second digit
-					}
-					if(!hexval) {
-						// Trying to embed a NUL char
-						print_msg(fmt::format("{}:{}: error: Embedded octal NUL character not supported", path, linenr));
-						return false;
-					}
-					// Note that this can result in invalid UTF-8, but we don't care here
-					realstr += (char)hexval;
-					break;
-				case 'x': // Hex value \xHH
-					if(cleft < 3+1) {
-						// Need at least 3 chars for xHH and one for the closing quote
-						print_msg(fmt::format("{}:{}: error: Improper hex escape", path, linenr));
-						return false;
-					}
-					if(!fromHex(value.substr(pos+2, 2), hexval)) {
-						// Invalid hex number
-						print_msg(fmt::format("{}:{}: error: Invalid hex '{}' in hex escape",
-										path, linenr, value.substr(pos+2, 2)));
-						return false;
-					}
-					if(!hexval) {
-						// Trying to embed a NUL char
-						print_msg(fmt::format("{}:{}: error: Embedded hex NUL character not supported", path, linenr));
-						return false;
-					}
-					// Note that this can result in invalid UTF-8, but we don't care here
-					realstr += (char)hexval;
-					pos += 2; // Eat the xHH characters
-					break;
-				case 'u': // 16-bit hex \uXXXX (actually, this is an UTF-16 abomination)
-					if(cleft < 5+1) {
-						// Need at least 5 chars for uXXXX and one for the closing quote
-						print_msg(fmt::format("{}:{}: error: Improper UTF-16 escape", path, linenr));
-						return false;
-					}
-					if(!fromHex(value.substr(pos+2, 4), hexval)) {
-						// Invalid hex number
-						print_msg(fmt::format("{}:{}: error: Invalid hex value '{}' in UTF-16 escape",
-										path, linenr, value.substr(pos+2, 4)));
-						return false;
-					}
-					if(!hexval) {
-						// Trying to embed a NUL char
-						print_msg(fmt::format("{}:{}: error: Embedded UTF-16 NUL character not supported", path, linenr));
-						return false;
-					}
-					if(hexval >= 0xd800 && hexval <= 0xdfff) {
-						// We're in UTF-16 surrogate wonderland
-						if(hexval >= 0xdc00) {
-							// The high surrogate must be 0xd800..0xdbff
-							print_msg(fmt::format("{}:{}: error: Invalid high surrogate value u{:04X} in UTF-16",
-												path, linenr, hexval));
-							return false;
-						}
-						if(cleft < 5+1 + 6 || '\\' != value[pos+6] || 'u' != value[pos+7]) {
-							// We need to have room for the second surrogate: uXXXX\uYYYY (plus the closing quote)
-							print_msg(fmt::format("{}:{}: error: Missing low surrogate in UTF-16",
-												path, linenr, pos));
-							return false;
-						}
-						uint32_t hexsur;
-						if(!fromHex(value.substr(pos+8, 4), hexsur)) {
-							// Invalid hex number
-							print_msg(fmt::format("{}:{}: error: Invalid hex '{}' in UTF-16 low surrogate escape",
-											path, linenr, value.substr(pos+8, 4)));
-							return false;
-						}
-						if(hexsur < 0xdc00 || hexsur > 0xdfff) {
-							// The low surrogate must be 0xdc00..0xdfff
-							print_msg(fmt::format("{}:{}: error: Invalid low surrogate value u{:04X} in UTF-16",
-												path, linenr, hexsur));
-							return false;
-						}
-						hexval = 0x10000 + ((hexval & 0x03ff) << 10) + (hexsur & 0x3ff);
-						pos += 6; // Eat the entire low surrogate \uYYYY
-					}
-					realstr += toUTF8(hexval);
-					pos += 4; // Eat the XXXX characters
-					break;
-				case 'U': // 32-bit hex \UXXXXXXXX (UTF-32)
-					if(cleft < 9+1) {
-						// Need at least 9 chars for UXXXXXXXX plus one for the closing quote
-						print_msg(fmt::format("{}:{}: error: Improper UTF-32 escape", path, linenr));
-						return false;
-					}
-					if(!fromHex(value.substr(pos+2, 8), hexval)) {
-						// Invalid hex number
-						print_msg(fmt::format("{}:{}: error: Invalid hex value '{}' in UTF-32 escape",
-										path, linenr, value.substr(pos+2, 8)));
-						return false;
-					}
-					if(!hexval) {
-						// Trying to embed a NUL char
-						print_msg(fmt::format("{}:{}: error: Embedded UTF-32 NUL character not supported", path, linenr));
-						return false;
-					}
-					if(hexval > 0x10ffff) {
-						// Invalid code point
-						print_msg(fmt::format("{}:{}: error: Invalid code point U{:08X} in UTF-32 escape",
-										path, linenr, hexval));
-						return false;
-					}
-					realstr += toUTF8(hexval);
-					pos += 8; // Eat the XXXXXXXX characters
-					break;
-				default:
-					print_msg(fmt::format("{}:{}: warning: Improper escape of '{}', ignored", path, linenr, nch));
-					realstr += nch;
-					break;
+				// Note that this can result in invalid UTF-8, but we don't care here
+				realstr += (char)hexval;
+				break;
+			case 'x': // Hex value \xHH
+				if(cleft < 3) {
+					// Need at least 3 chars for xHH
+					print_msg(fmt::format("{}:{}: error: Improper hex escape", path, linenr));
+					return false;
 				}
-				pos++;	// Eat the escape char
-			} else {
-				// Not escaped, just copy
-				realstr += ch;
+				if(!fromHex(value.substr(pos+2, 2), hexval)) {
+					// Invalid hex number
+					print_msg(fmt::format("{}:{}: error: Invalid hex '{}' in hex escape",
+									path, linenr, value.substr(pos+2, 2)));
+					return false;
+				}
+				if(!hexval) {
+					// Trying to embed a NUL char
+					print_msg(fmt::format("{}:{}: error: Embedded hex NUL character not supported", path, linenr));
+					return false;
+				}
+				// Note that this can result in invalid UTF-8, but we don't care here
+				realstr += (char)hexval;
+				pos += 2; // Eat the xHH characters
+				break;
+			case 'u': // 16-bit hex \uXXXX (actually, this is an UTF-16 abomination)
+				if(cleft < 5) {
+					// Need at least 5 chars for uXXXX
+					print_msg(fmt::format("{}:{}: error: Improper UTF-16 escape", path, linenr));
+					return false;
+				}
+				if(!fromHex(value.substr(pos+2, 4), hexval)) {
+					// Invalid hex number
+					print_msg(fmt::format("{}:{}: error: Invalid hex value '{}' in UTF-16 escape",
+									path, linenr, value.substr(pos+2, 4)));
+					return false;
+				}
+				if(!hexval) {
+					// Trying to embed a NUL char
+					print_msg(fmt::format("{}:{}: error: Embedded UTF-16 NUL character not supported", path, linenr));
+					return false;
+				}
+				if(hexval >= 0xd800 && hexval <= 0xdfff) {
+					// We're in UTF-16 surrogate wonderland
+					if(hexval >= 0xdc00) {
+						// The high surrogate must be 0xd800..0xdbff
+						print_msg(fmt::format("{}:{}: error: Invalid high surrogate value u{:04X} in UTF-16",
+											path, linenr, hexval));
+						return false;
+					}
+					if(cleft < 5 + 6 || '\\' != value[pos+6] || 'u' != value[pos+7]) {
+						// We need to have room for the second surrogate: uXXXX\uYYYY
+						print_msg(fmt::format("{}:{}: error: Missing low surrogate in UTF-16",
+											path, linenr, pos));
+						return false;
+					}
+					uint32_t hexsur;
+					if(!fromHex(value.substr(pos+8, 4), hexsur)) {
+						// Invalid hex number
+						print_msg(fmt::format("{}:{}: error: Invalid hex '{}' in UTF-16 low surrogate escape",
+										path, linenr, value.substr(pos+8, 4)));
+						return false;
+					}
+					if(hexsur < 0xdc00 || hexsur > 0xdfff) {
+						// The low surrogate must be 0xdc00..0xdfff
+						print_msg(fmt::format("{}:{}: error: Invalid low surrogate value u{:04X} in UTF-16",
+											path, linenr, hexsur));
+						return false;
+					}
+					hexval = 0x10000 + ((hexval & 0x03ff) << 10) + (hexsur & 0x3ff);
+					pos += 6; // Eat the entire low surrogate \uYYYY
+				}
+				realstr += toUTF8(hexval);
+				pos += 4; // Eat the XXXX characters
+				break;
+			case 'U': // 32-bit hex \UXXXXXXXX (UTF-32)
+				if(cleft < 9) {
+					// Need at least 9 chars for UXXXXXXXX
+					print_msg(fmt::format("{}:{}: error: Improper UTF-32 escape", path, linenr));
+					return false;
+				}
+				if(!fromHex(value.substr(pos+2, 8), hexval)) {
+					// Invalid hex number
+					print_msg(fmt::format("{}:{}: error: Invalid hex value '{}' in UTF-32 escape",
+									path, linenr, value.substr(pos+2, 8)));
+					return false;
+				}
+				if(!hexval) {
+					// Trying to embed a NUL char
+					print_msg(fmt::format("{}:{}: error: Embedded UTF-32 NUL character not supported", path, linenr));
+					return false;
+				}
+				if(hexval > 0x10ffff) {
+					// Invalid code point
+					print_msg(fmt::format("{}:{}: error: Invalid code point U{:08X} in UTF-32 escape",
+									path, linenr, hexval));
+					return false;
+				}
+				realstr += toUTF8(hexval);
+				pos += 8; // Eat the XXXXXXXX characters
+				break;
+			default:
+				print_msg(fmt::format("{}:{}: warning: Improper escape of '{}', ignored", path, linenr, nch));
+				realstr += '\\';	// Just add the literal backslash
+				realstr += nch;
+				break;
 			}
-			break;
-		default:
-			print_msg(fmt::format("{}:{}: internal error: Invalid state '{}' in string collector", path, linenr, (int)state));
-			return false;
+			pos++;	// Eat the escape char
+		} else {
+			// Not escaped, just copy
+			realstr += ch;
 		}
-	}
-	if(ST_START != state) {
-		print_msg(fmt::format("{}:{}: error: Missing terminating {} quote", path, linenr, quote));
-		return false;
 	}
 
 	value = realstr;

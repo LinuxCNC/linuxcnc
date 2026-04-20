@@ -170,33 +170,19 @@ error: Tilde expansion failed on '~/xyz'
 ini-file reproduction success
 --- comment removal processing
 xtest.ini:3: error: Invalid section. Missing ']'
-blabla
-blabla
+blabla # comment not ignored
+blabla ; comment not ignored
 --- string processing single/double quote
-foo
-bar
---- string merging
-foobar
-barfoo
-foofoo
---- string quote escapes
-foo s' d"
-bar d" s'
---- string bad quote escapes
-xtest.ini:3: warning: Improper escape of ' quote, ignored
-foo \" 
-xtest.ini:3: warning: Improper escape of ' quote, ignored
-bar ' 
---- junk between string merge
-xtest.ini:2: error: Expected single or double quote, got 'b' at position 7 of the value
-xtest.ini:2: error: Expected single or double quote, got 'b' at position 7 of the value
---- escape fail at end-of-string
-xtest.ini:2: error: Missing terminating " quote
+'foo'
+"bar"
+--- string processing single/double in normal text
+foo 'quote' bar
+bar "quote" foo
 --- string continuations escaped newlines
-some
-string
-separated on
-lines
+"some
+     string
+     separated on
+     lines"
 --- embedded nul in values
 xtest.ini:2: error: Embedded literal NUL character not supported
 xtest.ini:2: error: Embedded literal NUL character not supported

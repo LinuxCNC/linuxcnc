@@ -32,13 +32,13 @@ Real 3: 42.0
 Real 4: -42.0
 Real 5: None
 String 1: 'String without quotes'
-String 2: 'String with double quotes'
-String 3: 'String with single quotes'
-String 4: 'String concat with mixed quotes and so'
-String 5: ''
-String 6: ''
-String 7: ' '
-String 8: 'Smile! 😀😀😀'
+String 2: '"String with double quotes"'
+String 3: ''String with single quotes''
+String 4: '"String concat " "with" ' mixed ' 'quotes' " and so"'
+String 5: '# not empty'
+String 6: '"" # not empty too'
+String 7: '" " # a space, don't know why you'd want that...'
+String 8: '"Smile! 😀😀😀"'
 String 9: None
 Sections:
 -> section
@@ -90,20 +90,20 @@ Variables of all sections:
 -> ('real', '-4.2e1')
 -> ('real', 'invalid')
 -> ('string', 'String without quotes')
--> ('string', 'String with double quotes')
--> ('string', 'String with single quotes')
--> ('string', 'String concat with mixed quotes and so')
--> ('string', '')
--> ('string', '')
--> ('string', ' ')
--> ('string', 'Smile! 😀😀😀')
+-> ('string', '"String with double quotes"')
+-> ('string', "'String with single quotes'")
+-> ('string', '"String concat " "with" \' mixed \' \'quotes\' " and so"')
+-> ('string', '# not empty')
+-> ('string', '"" # not empty too')
+-> ('string', '" " # a space, don\'t know why you\'d want that...')
+-> ('string', '"Smile! 😀😀😀"')
 -> ('key1', 'value1')
 -> ('key1', 'value2')
 -> ('key1', 'value3')
 -> ('key4', 'value4')
 Variables of non-existent section: []
 values.ini:22: [integers]int='42'
-values.ini:50: [strings]string='String with single quotes'
+values.ini:50: [strings]string=''String with single quotes''
 None:None: [missing]missing=None
 findall [section2]key1: value1, value2, value3
 findall [section2]: value1, value2, value3, value4
