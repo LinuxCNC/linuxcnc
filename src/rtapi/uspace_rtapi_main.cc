@@ -297,6 +297,54 @@ static int do_debug_cmd(const std::string &value) {
 }
 
 /*
+ * Fully checked send/recv
+ * Will retry on EINTR, so to abort a send_data/recv_data on a
+ * signal, change to something like while(remaining > 0 && !exit_flag)
+ * and set exit_flag in signal handler
+ */
+static int send_data(int fd, const void *buf, size_t n, int flags) {
+    const uint8_t *ptr = (const uint8_t *)buf;
+    size_t n_rem = n;
+    while (n_rem > 0) {
+        ssize_t n_ret = send(fd, ptr, n_rem, flags);
+        if (n_ret == -1) {
+            if (errno == EINTR) {
+                // Retry
+            } else {
+                return -1; // Other error, fail
+            }
+        } else if (n_ret == 0) {
+            return (n - n_rem); // No more data
+        } else {
+            ptr += n_ret;
+            n_rem -= n_ret;
+        }
+    }
+    return n; // All sent
+}
+
+static int recv_data(int fd, void *buf, size_t n, int flags) {
+    uint8_t *ptr = (uint8_t *)buf;
+    size_t n_rem = n;
+    while (n_rem > 0) {
+        ssize_t n_ret = recv(fd, ptr, n_rem, flags);
+        if (n_ret == -1) {
+            if (errno == EINTR) {
+                // Retry
+            } else {
+                return -1; // Other error, fail
+            }
+        } else if (n_ret == 0) {
+            return (n - n_rem); // No more data
+        } else {
+            ptr += n_ret;
+            n_rem -= n_ret;
+        }
+    }
+    return n; // All read
+}
+
+/*
  * Protocol:
  * 
  * client->master: std::vector<std::string> args
@@ -318,12 +366,12 @@ static int do_debug_cmd(const std::string &value) {
  */
 
 static bool send_result(int fd, int result) {
-    ssize_t res = send(fd, &result, sizeof(int), 0);
+    ssize_t res = send_data(fd, &result, sizeof(int), 0);
     return res == sizeof(int);
 }
 
 static bool recv_result(int fd, int *result) {
-    ssize_t res = recv(fd, result, sizeof(int), 0);
+    ssize_t res = recv_data(fd, result, sizeof(int), 0);
     return res == sizeof(int);
 }
 
@@ -339,7 +387,7 @@ static uint16_t get_uint16(const std::vector<char> &buf, size_t idx) {
 static bool recv_args(int fd, std::vector<std::string> &args) {
     //Get size
     uint16_t tmp;
-    ssize_t res = recv(fd, &tmp, sizeof(uint16_t), 0);
+    ssize_t res = recv_data(fd, &tmp, sizeof(uint16_t), 0);
     if (res != sizeof(uint16_t)) {
         return false;
     }
@@ -347,7 +395,7 @@ static bool recv_args(int fd, std::vector<std::string> &args) {
 
     //Get data
     std::vector<char> buf(buff_size);
-    res = recv(fd, buf.data(), buff_size, 0);
+    res = recv_data(fd, buf.data(), buff_size, 0);
     if (res != (ssize_t)buff_size) {
         return false;
     }
@@ -360,7 +408,7 @@ static bool recv_args(int fd, std::vector<std::string> &args) {
     for (size_t i = 0; i < n_args; i++) {
         size_t arg_size = get_uint16(buf, idx);
         idx += sizeof(uint16_t);
-        args[i]=std::string(buf.begin() + idx, buf.begin() + idx + arg_size);
+        args[i] = std::string(buf.begin() + idx, buf.begin() + idx + arg_size);
         idx += arg_size;
     }
     if (idx + sizeof(uint16_t) != buff_size) {
@@ -405,7 +453,7 @@ static bool send_args(int fd, const std::vector<std::string> &args) {
     }
 
     //Send
-    ssize_t res = send(fd, buf.data(), buf.size(), 0);
+    ssize_t res = send_data(fd, buf.data(), buf.size(), 0);
     if (res != (ssize_t)buf.size()) {
         return false;
     }
@@ -463,7 +511,7 @@ static bool master_process_socket_command(int fd) {
     int fd1 = accept(fd, (sockaddr *)&client_addr, &len);
     if (fd1 < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: failed to accept connection from slave: %s\n", strerror(errno));
-        return true; //If there is a socket error, just continue
+        return true; //If there is a socket error, just continue, no need to check errno
     } else {
         int result;
         std::vector<std::string> args;
@@ -607,7 +655,7 @@ become_master:
 
     // plus one because we use the abstract namespace, it will show up in
     // /proc/net/unix prefixed with an @
-    int result = ::bind(fd, (sockaddr *)&addr, sizeof(addr));
+    int result = bind(fd, (sockaddr *)&addr, sizeof(addr));
 
     if (result == 0) {
         //If called in master mode with exit command, no need to start master
