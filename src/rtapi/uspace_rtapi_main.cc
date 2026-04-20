@@ -397,9 +397,9 @@ static bool recv_result(int fd, int *result) {
     }
 }
 
-static void set_uint16(std::vector<char> &buf, uint16_t value, size_t idx) {
-    buf[idx] = 0xff & (value >> 0);
-    buf[idx + 1] = 0xff & (value >> 8);
+static void push_uint16(std::vector<char> &buf, uint16_t value) {
+    buf.push_back(0xff & (value >> 0));
+    buf.push_back(0xff & (value >> 8));
 }
 
 static uint16_t get_uint16(const std::vector<char> &buf, size_t idx) {
@@ -420,7 +420,7 @@ static bool recv_args(int fd, std::vector<std::string> &args) {
         }
         return false;
     }
-    size_t buff_size = tmp;
+    size_t buff_size = tmp - sizeof(uint16_t); //Size already consumed
 
     //Get data
     std::vector<char> buf(buff_size);
@@ -447,7 +447,7 @@ static bool recv_args(int fd, std::vector<std::string> &args) {
         args[i] = std::string(buf.begin() + idx, buf.begin() + idx + arg_size);
         idx += arg_size;
     }
-    if (idx + sizeof(uint16_t) != buff_size) {
+    if (idx != buff_size) {
         rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug recv_args: idx %li != buff_size %li\n", idx, buff_size);
         return false;
     }
@@ -471,20 +471,18 @@ static bool send_args(int fd, const std::vector<std::string> &args) {
     }
 
     //Serialize
-    std::vector<char> buf(buff_size);
-    size_t idx = 0;
-    set_uint16(buf, buff_size, idx);
-    idx += sizeof(uint16_t);
-    set_uint16(buf, args.size(), idx);
-    idx += sizeof(uint16_t);
+    std::vector<char> buf;
+    buf.reserve(buff_size);
+    push_uint16(buf, buff_size);
+    push_uint16(buf, args.size());
     for (size_t i = 0; i < args.size(); i++) {
-        set_uint16(buf, args[i].size(), idx);
-        idx += sizeof(uint16_t);
-        buf.insert(buf.begin() + idx, args[i].begin(), args[i].end());
-        idx += args[i].size();
+        push_uint16(buf, args[i].size());
+        buf.insert(buf.end(), args[i].begin(), args[i].end());
     }
-    if (idx != buff_size) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app: Bug send_args: idx %li != buff_size %li\n", idx, buff_size);
+    if (buf.size() != buff_size) {
+        rtapi_print_msg(
+            RTAPI_MSG_ERR, "rtapi_app: Bug send_args: buf.size() %li != buff_size %li\n", buf.size(), buff_size
+        );
         return false;
     }
 
