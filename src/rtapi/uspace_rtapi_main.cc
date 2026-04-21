@@ -764,20 +764,6 @@ become_master:
     }
 }
 
-
-/* These structs hold data associated with objects like tasks, etc. */
-/* Task handles are pointers to these structs.                      */
-
-struct rtapi_module {
-    int magic;
-};
-
-#define MODULE_MAGIC 30812
-#define SHMEM_MAGIC 25453
-
-#define MAX_MODULES 64
-#define MODULE_OFFSET 32768
-
 static inline void write_string(int fd, const char *str) {
     (void)!write(fd, str, strlen(str));
 }
