@@ -27,8 +27,8 @@
 #endif
 
 namespace {
-struct PosixTask : rtapi_task {
-    PosixTask() : rtapi_task{}, thr{} {
+struct PosixTask : RtapiTask {
+    PosixTask() : RtapiTask{}, thr{} {
     }
 
     pthread_t thr; /* thread's context */
@@ -42,7 +42,7 @@ struct PosixApp : RtapiApp {
         }
     }
 
-    struct rtapi_task *do_task_new() {
+    RtapiTask *do_task_new() {
         return new PosixTask;
     }
 
@@ -138,14 +138,14 @@ struct PosixApp : RtapiApp {
     }
 
     long long task_pll_get_reference(void) {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
         if (!task)
             return 0;
         return task->nextstart.tv_sec * 1000000000LL + task->nextstart.tv_nsec;
     }
 
     int task_pll_set_correction(long value) {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
         if (!task)
             return -EINVAL;
         if (value > task->pll_correction_limit)
@@ -160,7 +160,7 @@ struct PosixApp : RtapiApp {
         if (do_thread_lock)
             pthread_mutex_unlock(&thread_lock);
         pthread_testcancel();
-        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
         rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
         struct timespec now;
         clock_gettime(CLOCK_MONOTONIC, &now);
@@ -195,7 +195,7 @@ struct PosixApp : RtapiApp {
     }
 
     int task_self() {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
         if (!task)
             return -EINVAL;
         return task->id;

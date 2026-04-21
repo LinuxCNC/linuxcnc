@@ -38,8 +38,8 @@
 #endif
 
 namespace {
-struct EvlTask : rtapi_task {
-    EvlTask() : rtapi_task{}, cancel{}, thr{} {
+struct EvlTask : RtapiTask {
+    EvlTask() : RtapiTask{}, cancel{}, thr{} {
     }
     std::atomic_int cancel;
     pthread_t thr;
@@ -51,7 +51,7 @@ struct EvlApp : RtapiApp {
         pthread_once(&key_once, init_key);
     }
 
-    struct rtapi_task *do_task_new() {
+    RtapiTask *do_task_new() {
         return new EvlTask;
     }
 
@@ -154,14 +154,14 @@ struct EvlApp : RtapiApp {
     }
 
     long long task_pll_get_reference(void) {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
         if (!task)
             return 0;
         return task->nextstart.tv_sec * 1000000000LL + task->nextstart.tv_nsec;
     }
 
     int task_pll_set_correction(long value) {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
         if (!task)
             return -EINVAL;
         if (value > task->pll_correction_limit)
@@ -210,7 +210,7 @@ struct EvlApp : RtapiApp {
     }
 
     int task_self() {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
         if (!task)
             return -EINVAL;
         return task->id;

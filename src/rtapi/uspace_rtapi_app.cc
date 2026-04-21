@@ -46,14 +46,14 @@ void WithRoot::init(uid_t ruid_ini, uid_t euid_ini) {
     euid = euid_ini;
 }
 
-rtapi_task::rtapi_task()
+RtapiTask::RtapiTask()
     : magic{}, id{}, owner{}, uses_fp{}, stacksize{}, prio{}, period{}, nextstart{}, pll_correction{},
       pll_correction_limit{}, arg{}, taskcode{}
 
 {
 }
 
-struct rtapi_task *RtapiApp::task_array[MAX_TASKS];
+RtapiTask *RtapiApp::task_array[MAX_TASKS];
 
 /* Priority functions.  Uspace uses POSIX task priorities. */
 
@@ -111,8 +111,8 @@ int RtapiApp::prio_next_lower(int prio) const {
 
 int RtapiApp::allocate_task_id() {
     for (int n = 0; n < MAX_TASKS; n++) {
-        rtapi_task **taskptr = &(task_array[n]);
-        if (__sync_bool_compare_and_swap(taskptr, (rtapi_task *)0, TASK_MAGIC_INIT))
+        RtapiTask **taskptr = &(task_array[n]);
+        if (__sync_bool_compare_and_swap(taskptr, (RtapiTask *)0, TASK_MAGIC_INIT))
             return n;
     }
     return -ENOSPC;
@@ -138,7 +138,7 @@ int RtapiApp::task_new(
     if (n < 0)
         return n;
 
-    struct rtapi_task *task = do_task_new();
+    RtapiTask *task = do_task_new();
     if (stacksize < (1024 * 1024))
         stacksize = (1024 * 1024);
     task->id = n;
@@ -157,18 +157,18 @@ int RtapiApp::task_new(
     return n;
 }
 
-rtapi_task *RtapiApp::get_task(int task_id) {
+RtapiTask *RtapiApp::get_task(int task_id) {
     if (task_id < 0 || task_id >= MAX_TASKS)
         return NULL;
     /* validate task handle */
-    rtapi_task *task = task_array[task_id];
+    RtapiTask *task = task_array[task_id];
     if (!task || task == TASK_MAGIC_INIT || task->magic != TASK_MAGIC)
         return NULL;
 
     return task;
 }
 
-void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int /*nperiod*/) {
+void RtapiApp::unexpected_realtime_delay(RtapiTask *task, int /*nperiod*/) {
     static int printed = 0;
     if (!printed) {
         rtapi_print_msg(

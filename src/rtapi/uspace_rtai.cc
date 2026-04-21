@@ -29,15 +29,15 @@
 namespace {
 RtapiApp *app;
 
-struct RtaiTask : rtapi_task {
-    RtaiTask() : rtapi_task{}, cancel{}, rt_task{}, thr{} {
+struct RtaiTask : RtapiTask {
+    RtaiTask() : RtapiTask{}, cancel{}, rt_task{}, thr{} {
     }
     std::atomic_int cancel;
     RT_TASK *rt_task;
     pthread_t thr;
 };
 
-template <class T = rtapi_task> T *get_task(int task_id) {
+template <class T = RtapiTask> T *get_task(int task_id) {
     return static_cast<T *>(RtapiApp::get_task(task_id));
 }
 
@@ -47,7 +47,7 @@ struct RtaiApp : RtapiApp {
         pthread_once(&key_once, init_key);
     }
 
-    struct rtapi_task *do_task_new() {
+    RtapiTask *do_task_new() {
         return new RtaiTask;
     }
 
@@ -176,7 +176,7 @@ struct RtaiApp : RtapiApp {
     }
 
     int task_self() {
-        struct rtapi_task *task = reinterpret_cast<rtapi_task *>(pthread_getspecific(key));
+        RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
         if (!task)
             return -EINVAL;
         return task->id;

@@ -59,8 +59,8 @@ struct WithRoot {
     static uid_t ruid, euid;
 };
 
-struct rtapi_task {
-    rtapi_task();
+struct RtapiTask {
+    RtapiTask();
 
     int magic; /* to check for valid handle */
     int id;
@@ -78,7 +78,7 @@ struct rtapi_task {
 
 #define MAX_TASKS 64
 #define TASK_MAGIC 21979 /* random numbers used as signatures */
-#define TASK_MAGIC_INIT ((rtapi_task *)(-1))
+#define TASK_MAGIC_INIT ((RtapiTask *)(-1))
 
 struct RtapiApp {
 
@@ -94,10 +94,10 @@ struct RtapiApp {
     int prio_next_lower(int prio) const;
     long clock_set_period(long int period_nsec);
     int task_new(void (*taskcode)(void *), void *arg, int prio, int owner, unsigned long int stacksize, int uses_fp);
-    virtual rtapi_task *do_task_new() = 0;
+    virtual RtapiTask *do_task_new() = 0;
     static int allocate_task_id();
-    static struct rtapi_task *get_task(int task_id);
-    void unexpected_realtime_delay(rtapi_task *task, int nperiod = 1);
+    static RtapiTask *get_task(int task_id);
+    void unexpected_realtime_delay(RtapiTask *task, int nperiod = 1);
     virtual int task_delete(int id) = 0;
     virtual int task_start(int task_id, unsigned long period_nsec) = 0;
     virtual int task_pause(int task_id) = 0;
@@ -114,10 +114,10 @@ struct RtapiApp {
     static void set_namef(const char *fmt, ...);
     int policy;
     long period;
-    static struct rtapi_task *task_array[MAX_TASKS];
+    static RtapiTask *task_array[MAX_TASKS];
 };
 
-template <class T = rtapi_task> T *rtapi_get_task(int task_id) {
+template <class T = RtapiTask> T *rtapi_get_task(int task_id) {
     return static_cast<T *>(RtapiApp::get_task(task_id));
 }
 
