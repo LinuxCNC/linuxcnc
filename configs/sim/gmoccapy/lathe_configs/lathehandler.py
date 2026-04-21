@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # vim: sts=4 sw=4 et
-#    This is a component of EMC
-#    savestate.py copyright 2013 Andy Pugh
+#    This is a component of LinuxCNC
+#    Copyright 2013 Andy Pugh
 #    based on code from 
 #    probe.py Copyright 2010 Michael Haberler
 #
@@ -41,26 +41,28 @@ from gi.repository import GdkPixbuf
 debug = 0
 notouch = 0
 norun = 0
+svgfile = os.path.join(os.path.dirname(__file__), "LatheMacro.svg")
 
 class HandlerClass:
     active = False
     tab_num = 0
 
     def on_expose(self,nb,data=None):
-        tab_num = nb.get_current_page()
-        tab = nb.get_nth_page(tab_num)
-        alloc = tab.get_allocation()
-        x, y, w, h = (alloc.x, alloc.y, alloc.width, alloc.height)
-        pixbuf = self.svg.get_pixbuf_sub(f'#layer{tab_num}').scale_simple(w-10, h-10, GdkPixbuf.InterpType.BILINEAR)
-        im = self.builder.get_object(f'Image{tab_num}')
-        im.set_from_pixbuf(pixbuf)
-        for c in im.get_parent().get_children():
-            if c.get_has_tooltip():
-                m = re.findall(r'<!--(\d+),(\d+)-->', c.get_tooltip_markup())
-                if len(m) > 0:
-                    x1 = int(m[0][0]); y1 = int(m[0][1])
-                    c.set_margin_left(max(0, w * x1/1500))
-                    c.set_margin_top(max(0, h * y1/1000))
+        if nb.has_focus():
+            tab_num = nb.get_current_page()
+            tab = nb.get_nth_page(tab_num)
+            alloc = tab.get_allocation()
+            x, y, w, h = (alloc.x, alloc.y, alloc.width, alloc.height)
+            pixbuf = self.svg.get_pixbuf_sub(f'#layer{tab_num}').scale_simple(w-10, h-10, GdkPixbuf.InterpType.BILINEAR)
+            im = self.builder.get_object(f'Image{tab_num}')
+            im.set_from_pixbuf(pixbuf)
+            for c in im.get_parent().get_children():
+                if c.get_has_tooltip():
+                    m = re.findall(r'<!--(\d+),(\d+)-->', c.get_tooltip_markup())
+                    if len(m) > 0:
+                        x1 = int(m[0][0]); y1 = int(m[0][1])
+                        c.set_margin_left(max(0, w * x1/1500))
+                        c.set_margin_top(max(0, h * y1/1000))
                 
 
     # decide if our window is active to mask the cycle-start hardware button
@@ -112,17 +114,15 @@ class HandlerClass:
 
         # This connects the expose event to re-draw and scale the SVG frames
         t = self.builder.get_object('tabs1')
-        t.connect_after("draw", self.on_expose)
+        t.connect_after("state-flags-changed", self.on_expose)
         t.connect("destroy", Gtk.main_quit)
         t.add_events(Gdk.EventMask.STRUCTURE_MASK)
-        self.svg = Rsvg.Handle().new_from_file('LatheMacro.svg')
+        self.svg = Rsvg.Handle().new_from_file(svgfile)
         self.active = True
         
         # handle Useropts
         if norun:
-            for c in range(0,6):
-                print(c)
-                print( f'tab{c}.action')
+            for c in range(0,7):
                 self.builder.get_object(f'tab{c}.action').set_visible(False)
 
     def show_keyb(self, obj, data=None):
@@ -148,7 +148,9 @@ class HandlerClass:
 
     def keyb_pm_click(self, obj, data=None):
         data = self.entry.get_text()
-        if data[0] == '-':
+        if not data:
+            data = "-"
+        elif data[0] == '-':
             data = data[1:]
         else:
             data = '-' + data
@@ -212,6 +214,5 @@ def get_handlers(halcomp,builder,useropts):
 
     set_debug(debug)
     return [HandlerClass(halcomp,builder,useropts)]
-
 
 
