@@ -277,13 +277,14 @@ set watchmenu [menu $menubar.watch -tearoff 1]
 
 . configure -menu $menubar
 
+# Creates a window with an entry to add items to watchlist
 proc addToWatch {type name} {
     set var [entrybox "" [msgcat::mc "Add to watch"] $name]
     if {$var != "cancel"} {
         if {[watchHAL $type+$var] == ""} {
             setStatusbar "'$var' [msgcat::mc "added"]"
         }
-    }   
+    }
 }
 
 # frame for scaling ratio
@@ -421,7 +422,7 @@ proc addSubTree {item} {
         set item [regsub "\\+" $item " "]
         set list [eval hal "show $item"]
         regexp ".*(?=\\s)" $item type
-        addToWatch $type $list
+        addToWatchFromSel $type $list
     }
 }
 
@@ -973,9 +974,9 @@ proc popupmenu_text {x y} {
     set m [menu .popupMenuText -tearoff false]
     # add entries
     $m add command -label [msgcat::mc "Copy"] -command {copySelection 0}
-    $m add command -label [msgcat::mc "Add as Pin(s)"] -command {addToWatch "pin" [join [selection get] " "]}
-    $m add command -label [msgcat::mc "Add as Signal(s)"] -command {addToWatch "sig" [join [selection get] " "]}
-    $m add command -label [msgcat::mc "Add as Param(s)"] -command {addToWatch "param" [join [selection get] " "]}
+    $m add command -label [msgcat::mc "Add as Pin(s)"] -command {addToWatchFromSel "pin" [join [selection get] " "]}
+    $m add command -label [msgcat::mc "Add as Signal(s)"] -command {addToWatchFromSel "sig" [join [selection get] " "]}
+    $m add command -label [msgcat::mc "Add as Param(s)"] -command {addToWatchFromSel "param" [join [selection get] " "]}
     # show menu
     tk_popup $m $x $y
     bind $m <FocusOut> [list destroy $m]
@@ -993,7 +994,8 @@ proc popupmenu_tree {x y item} {
     }
 }
 
-proc addToWatch {type selection} {
+# Add pins/signals/parameters from selection to watchlist
+proc addToWatchFromSel {type selection} {
     set varcount 0
     catch {
         foreach item $selection {
