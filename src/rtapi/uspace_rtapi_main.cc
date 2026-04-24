@@ -974,7 +974,15 @@ static RtapiApp *makeDllApp(const std::string &dllName, int policy) {
 
 static RtapiApp *makeApp() {
     RtapiApp *app;
-    if (WithRoot::getEuid() != 0 || harden_rt() < 0) {
+    bool rt_ok = rtapi_is_realtime();
+    if (!rt_ok) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "Note: SCHED_FIFO not permitted for this process, "
+            "falling back to POSIX non-realtime.  "
+            "Run 'sudo make setcap' (preferred) or 'sudo make setuid' "
+            "on rtapi_app to enable realtime scheduling.\n");
+    }
+    if (!rt_ok || harden_rt() < 0) {
         app = makeDllApp("liblinuxcnc-uspace-posix.so.0", SCHED_OTHER);
     } else {
         WithRoot r;

@@ -27,6 +27,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sched.h>
+#include <stdlib.h>
 
 #include <rtapi_errno.h>
 #include <rtapi_mutex.h>
@@ -351,25 +353,6 @@ int rtapi_exit(int module_id)
 }
 
 int rtapi_is_kernelspace() { return 0; }
-static int _rtapi_is_realtime = -1;
-#ifdef __linux__
-static int detect_preempt_rt() {
-    struct utsname u;
-    int crit1 = 0;
-
-    uname(&u);
-    crit1 = strcasestr (u.version, "PREEMPT RT") != 0;
-
-    //"PREEMPT_RT" is used in the version string instead of "PREEMPT RT" starting with kernel version 5.4
-    crit1 = crit1 || (strcasestr(u.version, "PREEMPT_RT") != 0);
-
-    return crit1;
-}
-#else
-static int detect_preempt_rt() {
-    return 0;
-}
-#endif
 #ifdef USPACE_RTAI
 static int detect_rtai() {
     struct utsname u;
@@ -404,22 +387,48 @@ static int detect_xenomai_evl() {
 }
 #endif
 
-static int detect_env_override() {
-    char *p = getenv("LINUXCNC_FORCE_REALTIME");
-    return p != NULL && atoi(p) != 0;
-}
+// Success-probe for realtime scheduling: briefly try to set SCHED_FIFO on
+// the calling thread and restore the previous policy.  Succeeds when the
+// process holds CAP_SYS_NICE (file caps or setuid root) or has a matching
+// RLIMIT_RTPRIO.  Works on any kernel, so the probe also covers the
+// PREEMPT_RT-vs-stock distinction implicitly: if we can actually get
+// SCHED_FIFO, the platform can deliver realtime, regardless of how.
+static int can_set_sched_fifo(void) {
+    struct sched_param old_param, probe_param;
+    int old_policy = sched_getscheduler(0);
+    if(old_policy < 0) return 0;
+    if(sched_getparam(0, &old_param) < 0) return 0;
 
-static int detect_realtime() {
-    struct stat st;
-    if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) < 0)
-            || st.st_uid != 0 || !(st.st_mode & S_ISUID))
+    memset(&probe_param, 0, sizeof(probe_param));
+    probe_param.sched_priority = sched_get_priority_min(SCHED_FIFO);
+    if(sched_setscheduler(0, SCHED_FIFO, &probe_param) < 0)
         return 0;
-    return detect_env_override() || detect_preempt_rt() || detect_rtai() || detect_xenomai() || detect_xenomai_evl();
+
+    // Best-effort restore; if this fails we are still on SCHED_FIFO at
+    // minimum priority, which is no worse than where we started.
+    sched_setscheduler(0, old_policy, &old_param);
+    return 1;
 }
 
+// rtapi_is_realtime() reports whether this process can actually run
+// realtime code.  This matches the convention used by JACK, PipeWire,
+// rtkit, Xenomai, and Klipper: surface the observed capability, not
+// kernel metadata.  The old setuid-root stat check has been removed; it
+// stat()ed EMC2_BIN_DIR/rtapi_app rather than the running binary (breaking
+// wrapper-based installs like NixOS /run/wrappers) and silently masked
+// LINUXCNC_FORCE_REALTIME (see issue #3928).
 int rtapi_is_realtime() {
-    if(_rtapi_is_realtime == -1) _rtapi_is_realtime = detect_realtime();
-    return _rtapi_is_realtime;
+    static int cached = -1;
+    if(cached != -1) return cached;
+
+    const char *force = getenv("LINUXCNC_FORCE_REALTIME");
+    if(force != NULL && atoi(force) != 0)
+        return (cached = 1);
+
+    if(detect_rtai() || detect_xenomai() || detect_xenomai_evl())
+        return (cached = 1);
+
+    return (cached = can_set_sched_fifo());
 }
 
 /* Like clock_nanosleep, except that an optional 'estimate of now' parameter may
