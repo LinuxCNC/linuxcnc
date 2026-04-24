@@ -88,16 +88,16 @@ override_dh_auto_install-arch:
 	rm -f $(DESTDIR)/usr/share/doc/@MAIN_PACKAGE_NAME@/examples/sample-configs/*/*position*.txt
 
 override_dh_installdocs-arch:
-ifeq (,$(filter nodocs,$(DEB_BUILD_OPTIONS)))
-	# Sample configs go in `usr/share/doc/linuxcnc` (not `.../doc/@MAIN_PACKAGE_NAME@`)
-	# because that's where the `linuxcnc` launcher script looks for them,
-	# and that's inconvenient to change.
+	# Sample configs are runtime data read by the launcher, not documentation,
+	# so they must be installed unconditionally (i.e. regardless of
+	# DEB_BUILD_OPTIONS=nodocs).  They go in `usr/share/doc/linuxcnc` (not
+	# `.../doc/@MAIN_PACKAGE_NAME@`) because that's where the `linuxcnc` launcher
+	# script looks for them, and that's inconvenient to change.
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@
 	mkdir -p debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
 	mv debian/@MAIN_PACKAGE_NAME@/usr/share/doc/@MAIN_PACKAGE_NAME@/examples debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
 
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@-dev
-endif
 
 override_dh_auto_install-indep:
 ifeq (,$(filter nodocs,$(DEB_BUILD_OPTIONS)))
