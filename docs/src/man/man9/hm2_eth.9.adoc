@@ -7,7 +7,7 @@ IO boards, with HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ]
+*loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ] [**no_iptables=**__0|1__]
 
 ____
 *config* [default: ""]::
@@ -15,6 +15,17 @@ ____
 *board_ip* [default: ""]::
   The IP address of the board(s), separated by commas.
   As shipped, the board address is 192.168.1.121.
+*no_iptables* [default: 0]::
+  Explicit override that disables all iptables interaction.  By default
+  hm2_eth probes iptables at load time with a read-only listing and
+  silently skips rule installation if the probe fails (for example
+  when rtapi_app is running unprivileged via file capabilities rather
+  than setuid root, since Linux capabilities are not inherited across
+  exec() into the iptables binary).  Set *no_iptables=1* when iptables
+  is reachable but you prefer to manage the firewall externally
+  (nftables, firewalld, systemd units).  In both cases the
+  interface-isolation rules must be provided by the administrator; see
+  the NOTES section below.
 ____
 
 == DESCRIPTION

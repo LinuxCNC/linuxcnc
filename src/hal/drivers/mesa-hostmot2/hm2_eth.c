@@ -97,6 +97,9 @@ RTAPI_MP_ARRAY_STRING(config, MAX_ETH_BOARDS, "config string for the AnyIO board
 int debug = 0;
 RTAPI_MP_INT(debug, "Developer/debug use only!  Enable debug logging.");
 
+static int no_iptables = 0;
+RTAPI_MP_INT(no_iptables, "Skip automatic iptables rule installation; firewall must be configured externally.");
+
 static int boards_count = 0;
 
 int comm_active = 0;
@@ -475,6 +478,22 @@ static bool chain_exists() {
 static int iptables_state = -1;
 static bool use_iptables() {
     if(iptables_state == -1) {
+        if(no_iptables) {
+            LL_PRINT("Skipping iptables setup (no_iptables=1); configure firewall externally.\n");
+            return (iptables_state = 0);
+        }
+        // Pre-flight probe: capabilities held by rtapi_app do not propagate
+        // across exec(), so when we run unprivileged (file-caps instead of
+        // setuid root) iptables cannot touch the kernel tables.  A read-only
+        // list of a built-in chain is the cheapest way to find out without
+        // leaving side effects.
+        if(shell(IPTABLES " -n -L INPUT > /dev/null 2>&1") != EXIT_SUCCESS) {
+            LL_PRINT("iptables is not available to this process "
+                     "(running unprivileged?); skipping automatic rule "
+                     "installation.  Configure firewall externally to "
+                     "isolate the hm2-eth interface.\n");
+            return (iptables_state = 0);
+        }
         if(!chain_exists()) {
             int res = shell(IPTABLES " -N " CHAIN);
             if(res != EXIT_SUCCESS) {
@@ -1595,7 +1614,8 @@ int rtapi_app_main(void) {
         if(!added)
             goto error;
         if(*added) continue;
-        install_iptables_perinterface(ifptr);
+        if(use_iptables())
+            install_iptables_perinterface(ifptr);
         *added = 1;
     }
 
