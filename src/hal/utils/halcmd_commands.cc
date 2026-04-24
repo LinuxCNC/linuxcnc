@@ -1339,7 +1339,11 @@ int do_unloadrt_cmd(char *mod_name)
     } else {
 	all = 0;
     }
-    /* build a list of component(s) to unload */
+    /* Build a list of component(s) to unload. hal_lib inserts new
+       components at the head of comp_list_ptr (see hal_init() in
+       hal_lib.c), so this traversal walks newest-first and produces
+       comps[] in newest-to-oldest order. The unload loop below relies
+       on that invariant: do not change one without the other. */
     n = 0;
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
@@ -1365,16 +1369,25 @@ int do_unloadrt_cmd(char *mod_name)
 	halcmd_error("component '%s' is not loaded\n", mod_name);
 	return -1;
     }
-    /* we now have a list of components, unload them in reverse order */
-    n -= 1;
+    /* Unload newest first so dependent modules release their references
+       before the ones they depend on are removed. This matters for
+       kernel modules (RTAI) where rmmod refuses to unload an in-use
+       module. Uspace dlclose has no such check, which is why a wrong
+       direction here only ever surfaces on RTAI.
+
+       Iterating forward (i = 0 .. n-1) is "newest first" because the
+       array was built by walking comp_list_ptr from its head, and that
+       list is ordered newest-at-head. If you are tempted to "reverse"
+       this loop to match insmod order: you are doing the wrong thing,
+       this IS already reverse-insmod order. See PR #3443 for an
+       example of that exact mistake. */
     retval1 = 0;
-    while ( n >= 0 ) {
+    for ( int i = 0; i < n; i++ ) {
         // special case: initial prefix means it is not a real comp
-        if (strstr(comps[n],HAL_PSEUDO_COMP_PREFIX) == comps[n] ) {
-           n--;
+        if (strstr(comps[i],HAL_PSEUDO_COMP_PREFIX) == comps[i] ) {
            continue;
         }
-	retval = unloadrt_comp(comps[n--]);
+	retval = unloadrt_comp(comps[i]);
 	/* check for fatal error */
 	if ( retval < -1 ) {
 	    return retval;
