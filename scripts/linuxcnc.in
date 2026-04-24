@@ -369,6 +369,14 @@ function make_ini_for_tcl() {
     [ -r "$inifile" ] || { echo "E: Cannot read '$inifile'"; exit 1; }
     inidir="$(dirname "$inifile")"
     outfile="$inidir/$(basename "$inifile").expanded"
+    # Fall back to a per-user cache dir if the inifile's directory is not
+    # writable (e.g. installed sample configs under /usr/share/doc/linuxcnc/).
+    if ! [ -w "$inidir" ]; then
+        cachedir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/linuxcnc-$UID"
+        mkdir -p "$cachedir" || { echo "E: Could not create cache dir '$cachedir'"; exit 1; }
+        outfile="$cachedir/$(basename "$inifile").expanded"
+    fi
+    export LINUXCNC_INI_EXPANDED="$outfile"
     true >|"$outfile" || { echo "E: Could not create expanded inifile '$outfile' for Tcl"; exit 1; }
     {
         echo "#*** Source: $inifile"

@@ -146,7 +146,13 @@ proc parse_ini {filename} {
     # like: ::EMC(VERSION), ::KINS(JOINTS), ... etc
     # The INI-file for this routine has been pre-formatted by the linuxcnc
     # startup script to handle includes, strings, comments and continuations.
-    if [catch {set f [open "${filename}.expanded"]} msg] {
+    # LINUXCNC_INI_EXPANDED is set by the startup script when the inifile's
+    # directory is not writable (e.g. installed sample configs), so the
+    # expanded file lives in a per-user cache dir instead of next to the INI.
+    if {[info exists ::env(LINUXCNC_INI_EXPANDED)]
+        && [file readable $::env(LINUXCNC_INI_EXPANDED)]} {
+        set f [open $::env(LINUXCNC_INI_EXPANDED)]
+    } elseif [catch {set f [open "${filename}.expanded"]} msg] {
         # This is a fallback open. It happens in test twopass-personality.
         # When this open is necessary, then a lot of errors are possible.
         set f [open "${filename}"]
