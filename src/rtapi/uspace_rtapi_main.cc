@@ -826,13 +826,23 @@ static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
 const static size_t PRE_ALLOC_SIZE = 1024 * 1024 * 32;
 const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
 static void configure_memory() {
-    int res = setrlimit(RLIMIT_MEMLOCK, &unlimited);
-    if (res < 0)
-        perror("setrlimit");
+    // Best-effort raise of the soft cap to the hard cap.  Fails on
+    // unprivileged processes without CAP_SYS_RESOURCE or without a
+    // matching setrlimit; CAP_IPC_LOCK alone lets mlockall succeed
+    // regardless of the rlimit, so ignoring the failure is safe.
+    struct rlimit limit;
+    if (getrlimit(RLIMIT_MEMLOCK, &limit) == 0) {
+        limit.rlim_cur = limit.rlim_max;
+        if (setrlimit(RLIMIT_MEMLOCK, &limit) < 0)
+            rtapi_print_msg(RTAPI_MSG_DBG,
+                "setrlimit(RLIMIT_MEMLOCK) failed: %s\n", strerror(errno));
+    }
 
-    res = mlockall(MCL_CURRENT | MCL_FUTURE);
+    int res = mlockall(MCL_CURRENT | MCL_FUTURE);
     if (res < 0)
-        perror("mlockall");
+        rtapi_print_msg(RTAPI_MSG_WARN,
+            "mlockall failed: %s. Realtime latency may suffer.\n",
+            strerror(errno));
 
 #ifdef __linux__
     /* Turn off malloc trimming.*/
