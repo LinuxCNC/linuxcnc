@@ -516,6 +516,12 @@ static void clear_iptables() {
     shell(IPTABLES" -F "CHAIN" > /dev/null 2>&1");
 }
 
+static void cleanup_iptables() {
+    shell(IPTABLES" -F "CHAIN" > /dev/null 2>&1");
+    shell(IPTABLES" -D OUTPUT -j "CHAIN" > /dev/null 2>&1");
+    shell(IPTABLES" -X "CHAIN" > /dev/null 2>&1");
+}
+
 static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
     const char *addr = inet_ntoa(in);
     snprintf(buf, n, "%s", addr);
@@ -1639,7 +1645,7 @@ void rtapi_app_exit(void) {
     for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
         close_board(&boards[i]);
 
-    if(use_iptables()) clear_iptables();
+    if(use_iptables()) cleanup_iptables();
 
     kvlist_free(&board_num);
     kvlist_free(&ifnames);
