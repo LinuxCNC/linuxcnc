@@ -31,6 +31,7 @@ namespace eval linuxcnc {
     variable IMAGEDIR @EMC2_IMAGE_DIR@
     variable REALTIME @REALTIME@
     variable RTS @RTS@
+    variable RUN_IN_PLACE @RUN_IN_PLACE@
     variable CONFIG_DIR {}
     variable _dir
     foreach _dir  [split $CONFIG_PATH :] {

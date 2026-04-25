@@ -181,7 +181,13 @@ proc ok_to_copy_config {filename} {
     #    then it is presumed to be a system dir running from an install (by
     #    a deb install typically) so copy the configuration to user directory.
     #
-    # 2) if the directory is included in ::user_aux_dirs (as
+    # 2) For non-RIP builds, if the file is not under the user's
+    #    myconfigs_node, force copy regardless of filesystem writability.
+    #    This catches distros where installed sample-configs happen to be
+    #    writable by the running user (e.g. Gentoo system-wide installs to
+    #    a group-writable path).
+    #
+    # 3) if the directory is included in ::user_aux_dirs (as
     #    specified by the environmental variable LINUXCNC_AUX_EXAMPLES),
     #    then the config is copied to user directory to avoid overwriting
     #    a developmental source directory.
@@ -198,6 +204,12 @@ proc ok_to_copy_config {filename} {
     if {    [info exists ::env(debug_pickconfig)] \
          && [string first $::myconfigs_node $filename]} {
       set forcecopy 1
+    }
+
+    set is_rip [expr {[info exists ::linuxcnc::RUN_IN_PLACE]
+                      && $::linuxcnc::RUN_IN_PLACE eq "yes"}]
+    if {!$is_rip && [string first $::myconfigs_node $filename] != 0} {
+        set forcecopy 1
     }
 
     if { [info exists ::user_aux_dirs] } {
