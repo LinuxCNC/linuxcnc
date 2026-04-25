@@ -896,7 +896,7 @@ static int harden_rt() {
             RTAPI_MSG_ERR,
             "iopl() failed: %s\n"
             "cannot gain I/O privileges - "
-            "forgot 'sudo make setuid' or using secure boot? -"
+            "missing CAP_SYS_RAWIO or using secure boot? - "
             "parallel port access is not allowed\n",
             strerror(errno)
         );
@@ -905,19 +905,21 @@ static int harden_rt() {
 
     struct sigaction sig_act = {};
 #ifdef __linux__
-    // enable realtime
-    if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0) {
-        rtapi_print_msg(RTAPI_MSG_WARN, "setrlimit(RTLIMIT_RTPRIO): %s\n", strerror(errno));
-        return -errno;
-    }
+    // Best-effort raise of RTPRIO/CORE soft caps.  Setting these to
+    // RLIM_INFINITY requires CAP_SYS_RESOURCE, which neither setuid root
+    // nor file capabilities grant by default.  Without it, threads still
+    // get SCHED_FIFO via CAP_SYS_NICE; the rlimit just gates how high
+    // they can go.  Don't fail harden_rt() when it can't be raised.
+    if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
+        rtapi_print_msg(RTAPI_MSG_DBG,
+            "setrlimit(RLIMIT_RTPRIO): %s\n", strerror(errno));
 
-    // enable core dumps
     if (setrlimit(RLIMIT_CORE, &unlimited) < 0)
         rtapi_print_msg(
             RTAPI_MSG_WARN, "setrlimit: %s - core dumps may be truncated or non-existent\n", strerror(errno)
         );
 
-    // even when setuid root
+    // even when running with elevated capabilities
     if (prctl(PR_SET_DUMPABLE, 1) < 0)
         rtapi_print_msg(
             RTAPI_MSG_WARN,
