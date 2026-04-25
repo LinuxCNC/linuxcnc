@@ -1005,6 +1005,17 @@ static RtapiApp *makeApp() {
         } else if (detect_rtai()) {
             app = makeDllApp("liblinuxcnc-uspace-rtai.so.0", SCHED_FIFO);
         } else {
+            // SCHED_FIFO available but no Xenomai/RTAI backend.  Warn if the
+            // kernel is not PREEMPT_RT: SCHED_FIFO still beats SCHED_OTHER,
+            // but latency on a PREEMPT_DYNAMIC stock kernel can be tens of
+            // milliseconds, which will surprise users who expect the same
+            // bounds as a PREEMPT_RT or Xenomai setup.
+            if (!detect_preempt_rt()) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Note: SCHED_FIFO available but kernel is not PREEMPT_RT.  "
+                    "Latency may be unbounded; install a PREEMPT_RT kernel "
+                    "for hard realtime guarantees.\n");
+            }
             app = makeDllApp("liblinuxcnc-uspace-posix.so.0", SCHED_FIFO);
         }
     }

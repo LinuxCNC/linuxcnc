@@ -353,8 +353,46 @@ int rtapi_exit(int module_id)
 }
 
 int rtapi_is_kernelspace() { return 0; }
+
+#ifdef __linux__
+// detect_preempt_rt() inspects uname for the PREEMPT_RT marker.  Used only
+// for diagnostic warning at startup; callers must not gate behavior on
+// the kernel string, since SCHED_FIFO on a PREEMPT_DYNAMIC kernel is still
+// useful (better than SCHED_OTHER, worse than PREEMPT_RT).
+// Marked unused because uspace_common.h is also included from ULAPI TUs
+// that do not reference it.
+__attribute__((unused))
+static int detect_preempt_rt() {
+    struct utsname u;
+    if(uname(&u) < 0) return 0;
+    return strcasestr(u.version, "PREEMPT RT") != 0
+        || strcasestr(u.version, "PREEMPT_RT") != 0;
+}
+#else
+__attribute__((unused))
+static int detect_preempt_rt() {
+    return 0;
+}
+#endif
+
+// FIXME: detect_rtai/detect_xenomai/detect_xenomai_evl currently gate on
+// setuid because the RTAI/Xenomai backends still need root for iopl()
+// (RTAI) or RTDM device access (Xenomai/EVL).  Long-term these should
+// probe the actual capability the way can_set_sched_fifo() does, paired
+// with udev rules + a 'xenomai'/'evl' group; @hdiethelm has a follow-up
+// planned.  Until then, an unprivileged user on a Xenomai kernel cannot
+// claim the Xenomai backend, and falls back to the SCHED_FIFO probe.
+// Marked unused because the helper is called only when one of the
+// USPACE_RTAI / USPACE_XENOMAI / USPACE_XENOMAI_EVL macros is defined,
+// and the header is included from ULAPI TUs that define none of them.
+__attribute__((unused))
+static int has_setuid_root() {
+    return geteuid() == 0;
+}
+
 #ifdef USPACE_RTAI
 static int detect_rtai() {
+    if(!has_setuid_root()) return 0;
     struct utsname u;
     uname(&u);
     return strcasestr (u.release, "-rtai") != 0;
@@ -366,6 +404,7 @@ static int detect_rtai() {
 #endif
 #ifdef USPACE_XENOMAI
 static int detect_xenomai() {
+    if(!has_setuid_root()) return 0;
     struct stat sb;
     //Running xenomai has /proc/xenomai
     return stat("/proc/xenomai", &sb) == 0;
@@ -377,6 +416,7 @@ static int detect_xenomai() {
 #endif
 #ifdef USPACE_XENOMAI_EVL
 static int detect_xenomai_evl() {
+    if(!has_setuid_root()) return 0;
     struct stat sb;
     //Running xenomai evl has /dev/evl but no /proc/xenomai
     return stat("/dev/evl", &sb) == 0;
