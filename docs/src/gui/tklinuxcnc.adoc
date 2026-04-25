@@ -132,6 +132,7 @@ start the backplot window by selecting View→Backplot.
 === TkLinuxCNC Interpreter / Automatic Program Control
 
 (((TkLinuxCNC Interpreter)))
+
 image::images/tkemc-interp.png["TkLinuxCNC Interpreter / program control",align="center"]
 
 .Control Buttons

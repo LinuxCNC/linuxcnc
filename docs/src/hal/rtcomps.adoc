@@ -26,6 +26,7 @@ Control mode and step type are set independently, and any combination can be sel
 [[fig:stepgen-block-diagram]]
 .Step Pulse Generator Block Diagram position mode
 (((Stepgen Block Diagram)))
+
 image::images/stepgen-block-diag.png[align="center"]
 
 .Loading `stepgen` component
@@ -145,14 +146,17 @@ The maximum frequency is 1,000,000,000 divided by _steplen_, and as in the other
 
 .Two-and-Three-Phase Step Types
 (((Two and Three Phase)))
+
 image::images/stepgen-type2-4.png["Step Types: Two-and-Three-Phase",align="center"]
 
 .Four-Phase Step Types
 (((Four Phase)))
+
 image::images/stepgen-type5-10.png["Step Types: Four-Phase",align="center"]
 
 .Five-Phase Step Types
 (((Five Phase)))
+
 image::images/stepgen-type11-14.png["Step Types: Five-Phase",align="center"]
 
 [[sub:stepgen-functions]]
@@ -284,6 +288,7 @@ The Encoder Counter Block Diagram is a block diagram of one channel of an encode
 [[fig:encoder-block-diagram]]
 .Encoder Counter Block Diagram
 (((Encoder Block Diagram)))
+
 image::images/encoder-block-diag.png[align="center"]
 
 .Loading Encoder
@@ -376,6 +381,7 @@ The PID Loop Block Diagram is a block diagram of a single PID loop.
 [[fig:pid-block-diag]]
 .PID Loop Block Diagram
 (((PID Block Diagram)))
+
 image::images/pid-block-diag.png[align="center"]
 
 .Loading PID
