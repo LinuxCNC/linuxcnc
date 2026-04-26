@@ -396,6 +396,7 @@ These are only sample codes, integrator should choose appropriate codes.
 RS274NGC_STARTUP_CODE = G17 G20 G40 G43H0 G54 G64P0.0005 G80 G90 G94 G97 M5 M9
 ----
 
+[[sec:macro-buttons]]
 === Macro Buttons
 
 QtDragon has up to ten convenience buttons for calling 'macro actions'. +
@@ -405,8 +406,8 @@ In the sample configurations they are labelled for moving between
 current user system origin (zero point) and Machine system origin. +
 User origin is the first MDI command in the INI list, machine origin is the second. +
 This example shows how to move Z axis up first. Commands separated by the ';' are run one after another. +
-The button label text can be set with any text after a comma, the `\n` symbol adds a line break.
-
+The button label text can be set with any text after a comma, the `\n` symbol adds a line break. +
+These commands can be run with external HAL pins, if using the hal_bridge component. See <<cha:bridge,HAL_BRIDGE>>
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
@@ -443,14 +444,16 @@ POSTGUI_HALCMD = loadusr qtvcp test_probe
 POSTGUI_HALCMD = loadusr qtvcp test_led
 POSTGUI_HALCMD = loadusr halmeter
 ----
+[[sec:bridge]]
 === HAL Bridge
 Hal Bridge is similar to HALUI - it has HAL pins that communicate with QtDragon. +
 These pins could be used with HALUI to built a more friendly control panel. +
 
 - It can report/change the current selected Axis button. +
 - The jog rate/increments will be reported. +
-- There is a cycle start and pause pin - these call the code in QtDragon rather then the motion controller. +
-- If there are macros defined in the INI, there will be pins available to initiate them. +
+- There is a cycle start and pause pin - these call the code in QtDragon rather then the motion controller.
+This allows custom behaviour, such as spindle lift to work with external buttons. +
+- If there are macros defined in the INI ()see: <<cha:macro-buttons,Macro Buttons>>), there will be pins available to initiate them. +
 
 .Sample entry. Remove '-d' to quiet debugging messages.
 [source,{ini}]
@@ -477,8 +480,8 @@ Owner   Type  Dir                 Value  Name
     29  float OUT                    15  bridge.jog-rate
     29  float OUT                   360  bridge.jog-rate-angular
     29  s32   OUT                    -1  bridge.joint-selected
-    29  bit   IN                  FALSE  bridge.macro-cmd-MACRO0
-    29  bit   IN                  FALSE  bridge.macro-cmd-MACRO1
+    29  bit   IN                  FALSE  bridge.ini-mdi-cmd-MACRO0
+    29  bit   IN                  FALSE  bridge.ini-mdi-cmd-MACRO1
 ----
 
 === Builtin Sample Configurations
