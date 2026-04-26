@@ -23,9 +23,10 @@ The second is for step type '1' (up/down, or pseudo-PWM), and the third is for s
 The first two diagrams show position mode control, and the third one shows velocity mode.
 Control mode and step type are set independently, and any combination can be selected.
 
+(((Stepgen Block Diagram)))
+
 [[fig:stepgen-block-diagram]]
 .Step Pulse Generator Block Diagram position mode
-(((Stepgen Block Diagram)))
 image::images/stepgen-block-diag.png[align="center"]
 
 .Loading `stepgen` component
@@ -143,16 +144,19 @@ On each step, a state counter is incremented or decremented.
 The Two-and-Three-Phase, Four-Phase, and Five-Phase show the output patterns as a function of the state counter.
 The maximum frequency is 1,000,000,000 divided by _steplen_, and as in the other modes, _maxfreq_ will be lowered if it is above the limit.
 
-.Two-and-Three-Phase Step Types
 (((Two and Three Phase)))
+
+.Two-and-Three-Phase Step Types
 image::images/stepgen-type2-4.png["Step Types: Two-and-Three-Phase",align="center"]
 
-.Four-Phase Step Types
 (((Four Phase)))
+
+.Four-Phase Step Types
 image::images/stepgen-type5-10.png["Step Types: Four-Phase",align="center"]
 
-.Five-Phase Step Types
 (((Five Phase)))
+
+.Five-Phase Step Types
 image::images/stepgen-type11-14.png["Step Types: Five-Phase",align="center"]
 
 [[sub:stepgen-functions]]
@@ -281,9 +285,10 @@ The spindle speed of 3000&#8239;RPM = 50&#8239;RPS (revolutions per second). 400
 
 The Encoder Counter Block Diagram is a block diagram of one channel of an encoder counter.
 
+(((Encoder Block Diagram)))
+
 [[fig:encoder-block-diagram]]
 .Encoder Counter Block Diagram
-(((Encoder Block Diagram)))
 image::images/encoder-block-diag.png[align="center"]
 
 .Loading Encoder
@@ -373,9 +378,10 @@ It is a realtime component only. For simplicity, this discussion assumes that we
 however this component can be used to implement other feedback loops such as speed, torch height, temperature, etc.
 The PID Loop Block Diagram is a block diagram of a single PID loop.
 
+(((PID Block Diagram)))
+
 [[fig:pid-block-diag]]
 .PID Loop Block Diagram
-(((PID Block Diagram)))
 image::images/pid-block-diag.png[align="center"]
 
 .Loading PID

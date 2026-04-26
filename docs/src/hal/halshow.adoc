@@ -139,9 +139,10 @@ You can also add all sub-items of this node by selecting that in the right click
 
 The following figure shows this canvas with several pins.
 
+(((Halshow: Watch Tab)))
+
 [[fig:halshow-watch-tab-1]]
 .Halshow: Watch Tab
-(((Halshow: Watch Tab)))
 image::images/halshow-watch-tab-1.png["Halshow Watch Tab",align="center"]
 
 _Watch_ displays bit type (binary) values using colored circles representing LEDs.

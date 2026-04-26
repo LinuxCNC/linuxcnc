@@ -156,6 +156,7 @@ This driver features:
 * 'VCC' - +3.3V regulated DC
 
 (((pluto-servo pinout)))
+
 .Pluto-Servo Pinout
 image::images/pluto-pinout.png["Pluto-Servo Pinout",align="center"]
 
