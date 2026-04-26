@@ -2465,7 +2465,6 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_G5X_TYPE:
     case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
-    case EMC_TRAJ_PROBE_TYPE:
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
@@ -2473,6 +2472,15 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_FH_ENABLE_TYPE:
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 	return EMC_TASK_EXEC::DONE;
+	break;
+
+    case EMC_TRAJ_PROBE_TYPE:
+	// probe is a queue-buster: do not advance the interp_list past
+	// this command until the probing motion has fully drained. Without
+	// this gate the interpreter can race ahead and read probe params
+	// (#5061..) while the queue is still draining a bouncy probe trip,
+	// triggering "Queue is not empty after probing" (issues #3650, #662, #263).
+	return EMC_TASK_EXEC::WAITING_FOR_PROBE;
 	break;
 
     case EMC_TOOL_PREPARE_TYPE:
@@ -2692,6 +2700,21 @@ static int emcTaskExecute(void)
 	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
 	} else if (emcStatus->motion.status == RCS_STATUS::DONE &&
 		   emcStatus->io.status == RCS_STATUS::DONE) {
+	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+	    emcTaskEager = 1;
+	}
+	break;
+
+    case EMC_TASK_EXEC::WAITING_FOR_PROBE:
+	STEPPING_CHECK();
+	if (emcStatus->motion.status == RCS_STATUS::ERROR) {
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+	} else if (emcStatus->io.status == RCS_STATUS::ERROR) {
+	    emcStatus->task.execState = EMC_TASK_EXEC::ERROR;
+	} else if (emcStatus->motion.status == RCS_STATUS::DONE &&
+		   emcStatus->io.status == RCS_STATUS::DONE &&
+		   emcStatus->motion.traj.queue == 0 &&
+		   !emcStatus->motion.traj.probing) {
 	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
 	    emcTaskEager = 1;
 	}
