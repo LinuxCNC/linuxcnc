@@ -836,6 +836,7 @@ time, you can just start more halmeters. The halmeter window was
 intentionally made very small so you could have a lot of them on the
 screen at once.
 
+include::halshow.adoc[]
 include::halscope.adoc[]
 // vim: set syntax=asciidoc:
 
