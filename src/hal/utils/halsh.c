@@ -19,6 +19,9 @@
 #include <stdio.h>
 #include <tcl.h>
 #include "halcmd.h"
+#include <hal.h>
+
+extern int comp_id; // from halcmd.c, set by halcmd_startup()
 
 Tcl_Interp *target_interp = NULL;
 static int pending_cr = 0;
@@ -86,6 +89,155 @@ static int halCmd(ClientData cd, Tcl_Interp *interp, int argc, const char **argv
     return TCL_ERROR;
 }
 
+// hal_stream: thin Tcl binding over the HAL stream API.
+//
+//   hal_stream attach KEY TYPESTRING   ->  handle (integer)
+//   hal_stream depth HANDLE
+//   hal_stream maxdepth HANDLE
+//   hal_stream readable HANDLE
+//   hal_stream read HANDLE             ->  list of one record's elements
+//   hal_stream drain HANDLE            ->  flat list of all queued records
+//   hal_stream detach HANDLE
+//
+// Streams attach to the HAL component already created by halcmd_startup.
+#define HALSH_MAX_STREAMS 16
+static struct halsh_stream_slot {
+    hal_stream_t stream;
+    int active;
+} halsh_streams[HALSH_MAX_STREAMS];
+
+static int halsh_format_one(Tcl_Interp *interp,
+                            hal_stream_t *s, int idx,
+                            hal_stream_data_u v) {
+    char buf[64];
+    switch(hal_stream_element_type(s, idx)) {
+        case HAL_BIT:   snprintf(buf, sizeof(buf), "%d", v.b ? 1 : 0); break;
+        case HAL_FLOAT: snprintf(buf, sizeof(buf), "%g", v.f); break;
+        case HAL_S32:   snprintf(buf, sizeof(buf), "%lld", (long long)v.s); break;
+        case HAL_U32:   snprintf(buf, sizeof(buf), "%llu", (unsigned long long)v.u); break;
+        case HAL_S64:   snprintf(buf, sizeof(buf), "%lld", (long long)v.l); break;
+        case HAL_U64:   snprintf(buf, sizeof(buf), "%llu", (unsigned long long)v.k); break;
+        default:        snprintf(buf, sizeof(buf), "0"); break;
+    }
+    Tcl_AppendElement(interp, buf);
+    return TCL_OK;
+}
+
+static int halsh_get_handle(Tcl_Interp *interp, const char *s, int *out) {
+    char *end;
+    long v = strtol(s, &end, 10);
+    if (*end != '\0' || v < 0 || v >= HALSH_MAX_STREAMS || !halsh_streams[v].active) {
+        Tcl_AppendResult(interp, "bad hal_stream handle: ", s, NULL);
+        return TCL_ERROR;
+    }
+    *out = (int)v;
+    return TCL_OK;
+}
+
+static int halStreamCmd(ClientData cd, Tcl_Interp *interp, int argc, const char **argv) {
+    (void)cd;
+    Tcl_ResetResult(interp);
+    if (argc < 2) {
+        Tcl_AppendResult(interp,
+            "wrong # args: should be \"", argv[0], " subcommand ?args?\"", NULL);
+        return TCL_ERROR;
+    }
+    const char *sub = argv[1];
+
+    if (strcmp(sub, "attach") == 0) {
+        if (argc != 4) {
+            Tcl_AppendResult(interp, "args: attach KEY TYPESTRING", NULL);
+            return TCL_ERROR;
+        }
+        char *end;
+        long key = strtol(argv[2], &end, 0);
+        if (*end != '\0') {
+            Tcl_AppendResult(interp, "bad key: ", argv[2], NULL);
+            return TCL_ERROR;
+        }
+        int idx = -1;
+        for (int i = 0; i < HALSH_MAX_STREAMS; i++) {
+            if (!halsh_streams[i].active) { idx = i; break; }
+        }
+        if (idx < 0) {
+            Tcl_AppendResult(interp, "no free hal_stream slots", NULL);
+            return TCL_ERROR;
+        }
+        int r = hal_stream_attach(&halsh_streams[idx].stream, comp_id,
+                                  (int)key, argv[3]);
+        if (r < 0) {
+            Tcl_AppendResult(interp, "hal_stream_attach: ",
+                             strerror(-r), NULL);
+            return TCL_ERROR;
+        }
+        halsh_streams[idx].active = 1;
+        char buf[16]; snprintf(buf, sizeof(buf), "%d", idx);
+        Tcl_AppendResult(interp, buf, NULL);
+        return TCL_OK;
+    }
+
+    if (argc < 3) {
+        Tcl_AppendResult(interp, "args: ", sub, " HANDLE", NULL);
+        return TCL_ERROR;
+    }
+    int h;
+    if (halsh_get_handle(interp, argv[2], &h) != TCL_OK) return TCL_ERROR;
+    hal_stream_t *s = &halsh_streams[h].stream;
+
+    if (strcmp(sub, "depth") == 0) {
+        char buf[16]; snprintf(buf, sizeof(buf), "%d", hal_stream_depth(s));
+        Tcl_AppendResult(interp, buf, NULL);
+        return TCL_OK;
+    }
+    if (strcmp(sub, "maxdepth") == 0) {
+        char buf[16]; snprintf(buf, sizeof(buf), "%d", hal_stream_maxdepth(s));
+        Tcl_AppendResult(interp, buf, NULL);
+        return TCL_OK;
+    }
+    if (strcmp(sub, "readable") == 0) {
+        Tcl_AppendResult(interp, hal_stream_readable(s) ? "1" : "0", NULL);
+        return TCL_OK;
+    }
+    if (strcmp(sub, "read") == 0) {
+        int n = hal_stream_element_count(s);
+        if (n <= 0) return TCL_OK;
+        hal_stream_data_u *buf = (hal_stream_data_u*)malloc(sizeof(*buf) * n);
+        if (!buf) {
+            Tcl_AppendResult(interp, "out of memory", NULL);
+            return TCL_ERROR;
+        }
+        unsigned sampleno;
+        int r = hal_stream_read(s, buf, &sampleno);
+        if (r < 0) { free(buf); return TCL_OK; } // empty result
+        for (int i = 0; i < n; i++) halsh_format_one(interp, s, i, buf[i]);
+        free(buf);
+        return TCL_OK;
+    }
+    if (strcmp(sub, "drain") == 0) {
+        int n = hal_stream_element_count(s);
+        if (n <= 0) return TCL_OK;
+        hal_stream_data_u *buf = (hal_stream_data_u*)malloc(sizeof(*buf) * n);
+        if (!buf) {
+            Tcl_AppendResult(interp, "out of memory", NULL);
+            return TCL_ERROR;
+        }
+        unsigned sampleno;
+        while (hal_stream_readable(s)) {
+            if (hal_stream_read(s, buf, &sampleno) < 0) break;
+            for (int i = 0; i < n; i++) halsh_format_one(interp, s, i, buf[i]);
+        }
+        free(buf);
+        return TCL_OK;
+    }
+    if (strcmp(sub, "detach") == 0) {
+        hal_stream_detach(s);
+        halsh_streams[h].active = 0;
+        return TCL_OK;
+    }
+    Tcl_AppendResult(interp, "unknown hal_stream subcommand: ", sub, NULL);
+    return TCL_ERROR;
+}
+
 int Hal_Init(Tcl_Interp *interp) {
     int result = init();
     if(result < 0) {
@@ -100,6 +252,7 @@ int Hal_Init(Tcl_Interp *interp) {
     }
 
     Tcl_CreateCommand(interp, "hal", halCmd, 0, halExit);
+    Tcl_CreateCommand(interp, "hal_stream", halStreamCmd, 0, NULL);
 
     Tcl_PkgProvide(interp, "Hal", "1.0");
     return TCL_OK;
