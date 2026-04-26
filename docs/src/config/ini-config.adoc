@@ -1015,6 +1015,17 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   For a rotary axis (A,B,C typ) with unlimited rotation having no `MAX_LIMIT` for that axis in the `[AXIS_`<letter>`]` section a value of 1e99 is used.
 * `WRAPPED_ROTARY = 1` - (bool) When this is set to 1 for an ANGULAR axis the axis will move 0-359.999 degrees.
   Positive Numbers will move the axis in a positive direction and negative numbers will move the axis in the negative direction.
+  Mutually exclusive with `ROTARY_MODULO` (only one of the two can be set in a configuration).
+* `ROTARY_MODULO = 1` - (bool) Continuous-modulo rotary mode.
+  Absolute moves on this axis take the shortest path: a `G0 A0` from a current position of A=50000 moves only the residual angle (40 deg in this example), not 138 full revolutions.
+  G-code may use absolute values of any magnitude (e.g. `A=200000` for helical-spiral CAM output) without the +/-360 limit imposed by `WRAPPED_ROTARY`.
+  System parameters `#5423`/`#5424`/`#5425` (and the named equivalents `#<_a>`/`#<_b>`/`#<_c>`, `#<_abs_a>`/`#<_abs_b>`/`#<_abs_c>`) report position wrapped to the range 0 up to but not including 360 degrees; probing parameters `#5064`/`#5065`/`#5066` likewise.
+  Internal commanded position and motion-side `motion.traj.position`/`joint.<n>.pos-fb` HAL pins remain accumulated to keep stepgens, encoders and PID loops consistent (no phantom unwind on wrap).
+  The accumulated physical position can still be read into G-code from the HAL pin via the `#<_hal[...]>` syntax (see <<sub:numbered-parameters,Numbered Parameters>> and the `HAL_PIN_VARS` setting in <<sub:ini:sec:rs274ngc,[RS274NGC] Section>>); for example `#<_hal[joint.3.pos-fb]>` returns the unwrapped joint position.
+  Threading (`G33`, `G33.1`, `G76`) is rejected with an error if the modulo axis word is present in the block.
+  If the axis `MIN_LIMIT`/`MAX_LIMIT` range is not approximately 360 deg a startup warning is printed (typical of limited-range tilt axes where modulo is unusual).
+  Mutually exclusive with `WRAPPED_ROTARY` (only one of the two can be set in a configuration).
+  Mid-program restart-from-line and DRO visual wrap in GUIs are not handled by this flag; these are left to the existing restart machinery and to user-side HAL components if visual wrap is desired.
 * `LOCKING_INDEXER_JOINT = 4` - (int) This value selects a joint to use for a locking indexer for the specified axis _<letter>_.
   In this example, the joint is 4 which would correspond to the B axis for a XYZAB system with trivkins (identity) kinematics.
   When set, a G0 move for this axis will initiate an unlock with the `joint.4.unlock pin` then wait for the `joint.4.is-unlocked` pin then move the joint at the rapid rate for that joint.

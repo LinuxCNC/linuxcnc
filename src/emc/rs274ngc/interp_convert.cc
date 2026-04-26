@@ -5398,6 +5398,12 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 				(_("Invalid spindle ($) number in G33 move")));
 		settings->active_spindle = (int)block->dollar_number;
 	}
+    CHKS((block->a_flag && settings->a_rotary_modulo),
+         _("G33 incompatible with ROTARY_MODULO on axis A"));
+    CHKS((block->b_flag && settings->b_rotary_modulo),
+         _("G33 incompatible with ROTARY_MODULO on axis B"));
+    CHKS((block->c_flag && settings->c_rotary_modulo),
+         _("G33 incompatible with ROTARY_MODULO on axis C"));
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
           _("Spindle not turning in G33"));
@@ -5413,6 +5419,12 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 				(_("Invalid spindle ($) number in G33.1 move")));
 		settings->active_spindle = (int)block->dollar_number;
 	}
+    CHKS((block->a_flag && settings->a_rotary_modulo),
+         _("G33.1 incompatible with ROTARY_MODULO on axis A"));
+    CHKS((block->b_flag && settings->b_rotary_modulo),
+         _("G33.1 incompatible with ROTARY_MODULO on axis B"));
+    CHKS((block->c_flag && settings->c_rotary_modulo),
+         _("G33.1 incompatible with ROTARY_MODULO on axis C"));
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
           _("Spindle not turning in G33.1"));
@@ -5433,6 +5445,12 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 				(_("Invalid D-number in G76 cycle")));
 		settings->active_spindle = (int)block->dollar_number;
 	}
+    CHKS((block->a_flag && settings->a_rotary_modulo),
+         _("G76 incompatible with ROTARY_MODULO on axis A"));
+    CHKS((block->b_flag && settings->b_rotary_modulo),
+         _("G76 incompatible with ROTARY_MODULO on axis B"));
+    CHKS((block->c_flag && settings->c_rotary_modulo),
+         _("G76 incompatible with ROTARY_MODULO on axis C"));
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
           _("Chosen spindle (%i) not turning in G76"), settings->active_spindle);

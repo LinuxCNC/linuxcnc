@@ -703,15 +703,18 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_A:  // current position
-	*value = _setup.AA_current;
+	*value = _setup.a_rotary_modulo
+	    ? wrap_rotary_to_360(_setup.AA_current) : _setup.AA_current;
 	break;
 
     case NP_B:  // current position
-	*value = _setup.BB_current;
+	*value = _setup.b_rotary_modulo
+	    ? wrap_rotary_to_360(_setup.BB_current) : _setup.BB_current;
 	break;
 
     case NP_C:  // current position
-	*value = _setup.CC_current;
+	*value = _setup.c_rotary_modulo
+	    ? wrap_rotary_to_360(_setup.CC_current) : _setup.CC_current;
 	break;
 
     case NP_U:  // current position
@@ -751,18 +754,27 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_ABS_A:  // abs position
-	*value = _setup.AA_current + _setup.AA_axis_offset +
-                 _setup.AA_origin_offset + _setup.tool_offset.a;
+	{
+	    double v = _setup.AA_current + _setup.AA_axis_offset +
+	               _setup.AA_origin_offset + _setup.tool_offset.a;
+	    *value = _setup.a_rotary_modulo ? wrap_rotary_to_360(v) : v;
+	}
 	break;
 
     case NP_ABS_B:  // abs position
-	*value = _setup.BB_current + _setup.BB_axis_offset +
-                 _setup.BB_origin_offset + _setup.tool_offset.b;
+	{
+	    double v = _setup.BB_current + _setup.BB_axis_offset +
+	               _setup.BB_origin_offset + _setup.tool_offset.b;
+	    *value = _setup.b_rotary_modulo ? wrap_rotary_to_360(v) : v;
+	}
 	break;
 
     case NP_ABS_C:  // abs position
-	*value = _setup.CC_current + _setup.CC_axis_offset +
-                 _setup.CC_origin_offset + _setup.tool_offset.c;
+	{
+	    double v = _setup.CC_current + _setup.CC_axis_offset +
+	               _setup.CC_origin_offset + _setup.tool_offset.c;
+	    *value = _setup.c_rotary_modulo ? wrap_rotary_to_360(v) : v;
+	}
 	break;
 
 	// o-word subs may optionally have an
