@@ -692,6 +692,7 @@ extern int hal_get_signal_value_by_name(
 extern int hal_get_param_value_by_name(
     const char *name, hal_type_t *type, hal_data_u **data);
 
+
 /***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *
 ************************************************************************/
@@ -982,6 +983,101 @@ extern bool hal_stream_writable(hal_stream_t *stream);
 #ifdef ULAPI
 extern void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop);
 #endif
+
+
+/***********************************************************************
+*                    MISC HELPER FUNCTIONS                             *
+************************************************************************/
+
+
+/** HAL_STATIC_ASSERT wrapper for compile time asserts
+*/
+#if __STDC_VERSION__ >= 202311L || __cplusplus
+#define HAL_STATIC_ASSERT(expression, message) static_assert((expression), message)
+#else
+/* _Static_assert: GCC extension, in C standard since C11, deprecated in favour of
+   static_assert (like C++) from C23 onwards*/
+#define HAL_STATIC_ASSERT(expression, message) _Static_assert((expression), message)
+#endif
+
+
+/** hal_extend_counter() extends a counter value with nbits to 64 bits.
+    
+    For some hardware counters or encoders it may be desireable to
+    extend their range beyond their native width.
+
+    This function maintains a 64bit counter value and counts wrap
+    arounds. It may be useful to e.g. keep track of full rotations on
+    a gray disc absolute encoder.
+    
+    Changes of hardware encoder between calls to this function need to
+    be less than 2**(nbits-1).
+
+    Usage:
+
+    Call with current 64bit counter value to be updated as @param old,
+    new low-width counter value read from hardware as @param newlow 
+    and width of counter as @param nbits.
+    @returns new 64bit counter value which should be stored and
+    supplied as old in the next call.
+     */
+static inline rtapi_s64 hal_extend_counter(rtapi_s64 old, rtapi_s64 newlow, int nbits)
+{
+    /* Extend low-bit-width counter value to 64bit, counting wrap arounds resp.
+       "rotations" in additional bits. 
+
+       see https://github.com/LinuxCNC/linuxcnc/pull/3932#issuecomment-4239206615
+       This code avoids branches and undefined behaviour due to signed overflow.
+       Idea from MicroPython.
+
+       The tricky part is how to efficiently calculate the difference between
+       two counter values that cross from minimum to maximum or vice versa.
+       (underflow/overflow).
+
+       To calculate this difference and avoid costly branches and explicit 
+       verbose code, the difference is calculated from values shifted to the
+       right, the MSB of the counter values are shifted to the MSB of the
+       processor registers (64 bit). This difference is automatically
+       truncated to 64bit and then shifted back right to its original position
+       while preserving the sign (arithmetic right shift). This difference
+       is added to the large counter value.
+       
+       The limit when using N-bit bit-width limited counters is that the maximum
+       count difference between subsequent invocation may not be larger than
+       2**(nshift-1)-1. Otherwise it is impossible to determine the direction of the
+       counter.
+
+       Heuristically, if your encoder can do more than half a rotation between
+       calls to this function, it is impossible to deduce which direction it
+       went.
+
+       Code contributed by Jeff Epler.
+
+       Example with 3bit absolute hardware encoder and 8bit extended counter
+       (nshift would be 5):
+
+       counter at 7, transition from 111 (7) to 000 (0) should increment the
+       extended counter to 8.
+
+       call hal_extend_counter(7, 0, 3)
+       oldlow_shifted = 7<<5 = 224 (1110 0000)
+       newlow_shifted = 0<<5 = 0
+       delta_shifted = 0 - 224 = -224 (1 0010 0000) = 32 (0010 0000) truncated to 8 bits 
+       old + (32 >> 5) = 7 + 1 = 8
+    */
+
+    /* tripwire if somebody tries to use this code on a Cray with wrong
+       compiler flags */
+    HAL_STATIC_ASSERT((-2 >> 1) == -1, 
+        "hal_extend_counter impl only works with arithmetic right shift");
+
+    int nshift = 64 - nbits;
+    rtapi_u64 oldlow_shifted = ((rtapi_u64)old << nshift);
+    rtapi_u64 newlow_shifted = ((rtapi_u64)newlow << nshift);
+    rtapi_s64 diff_shifted = newlow_shifted - oldlow_shifted;
+    return (rtapi_u64)old + (diff_shifted >> nshift); // unsigned to avoid signed overflow
+}
+
 
 RTAPI_END_DECLS
 
