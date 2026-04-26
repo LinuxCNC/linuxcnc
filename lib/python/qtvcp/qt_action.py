@@ -765,6 +765,9 @@ class _Lcnc_Action(object):
     def PLAY_ERROR(self):
         self.PLAY_SOUND('ERROR')
 
+    def PLAY_WARNING(self):
+        self.PLAY_SOUND('WARNING')
+
     def PLAY_DONE(self):
         self.PLAY_SOUND('DONE')
 

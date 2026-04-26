@@ -98,6 +98,7 @@ class Player:
             import distro
             if 'mint' in distro.id().lower():
                 self.error = '/usr/share/sounds/LinuxMint/stereo/dialog-error.ogg'
+                self.warning ='/usr/share/sounds/freedesktop/stereo/dialog-warning.oga'
                 self.ready = '/usr/share/sounds/LinuxMint/stereo/dialog-information.ogg'
                 self.done = '/usr/share/sounds/LinuxMint/stereo/system-ready.ogg'
                 self.attention = '/usr/share/sounds/LinuxMint/stereo/dialog-question.wav'
@@ -111,6 +112,7 @@ class Player:
         except:
             pass
         self.error = '/usr/share/sounds/freedesktop/stereo/dialog-error.oga'
+        self.warning ='/usr/share/sounds/freedesktop/stereo/dialog-warning.oga'
         self.ready = '/usr/share/sounds/freedesktop/stereo/message.oga'
         self.done = '/usr/share/sounds/freedesktop/stereo/complete.oga'
         self.attention = '/usr/share/sounds/freedesktop/stereo/suspend-error.oga'
@@ -192,6 +194,10 @@ class Player:
     # play builtin alert sounds
     def play_error(self):
         self.player.set_property("uri", "file://" + self.error)
+        self.player.set_state(Gst.State.PLAYING)
+
+    def play_warning(self):
+        self.player.set_property("uri", "file://" + self.warning)
         self.player.set_state(Gst.State.PLAYING)
 
     def play_ready(self):
