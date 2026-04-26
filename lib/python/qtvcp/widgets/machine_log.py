@@ -23,7 +23,7 @@ from qtpy.QtCore import QFile, Property
 import qtpy.QtWidgets as QtWidgets
 from qtpy.QtGui import QColor
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Info
+from qtvcp.core import Status, Info, Action
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
@@ -34,6 +34,7 @@ from qtvcp import logger
 # LOG is for running code logging
 STATUS = Status()
 INFO = Info()
+ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 
@@ -42,6 +43,7 @@ class MachineLog(QWidget, _HalWidgetBase):
         super(MachineLog, self).__init__(parent)
         self._delay = 0
         self._hash_code = None
+        self._log_on = True
         self._machine_log = True
         self._machine_log_severity = False
         self._integrator_log = False
@@ -131,6 +133,15 @@ class MachineLog(QWidget, _HalWidgetBase):
                 self.clear()
                 return
 
+        if option == 'ON':
+            self._log_on = True
+            return
+        if option == 'OFF':
+            self._log_on = False
+            return
+        if self._log_on != True:
+            return
+
         if message:
             if option is None: option = ''
 
@@ -163,6 +174,8 @@ class MachineLog(QWidget, _HalWidgetBase):
                 msgItem.setBackground(self._warning_bg_color)
                 dateItem.setBackground(self._warning_bg_color)
                 severityItem.setBackground(self._warning_bg_color)
+                if self.QTVCP_INSTANCE_.OPTIONS_.play_sounds:
+                    ACTION.PLAY_WARNING()
             elif 'ERROR' in option:
                 msgItem.setForeground(self._error_fg_color)
                 dateItem.setForeground(self._error_fg_color)
@@ -170,6 +183,8 @@ class MachineLog(QWidget, _HalWidgetBase):
                 msgItem.setBackground(self._error_bg_color)
                 dateItem.setBackground(self._error_bg_color)
                 severityItem.setBackground(self._error_bg_color)
+                if self.QTVCP_INSTANCE_.OPTIONS_.play_sounds:
+                    ACTION.PLAY_ATTENTION()
             elif 'CRITICAL' in option:
                 msgItem.setForeground(self._critical_fg_color)
                 dateItem.setForeground(self._critical_fg_color)
@@ -177,6 +192,8 @@ class MachineLog(QWidget, _HalWidgetBase):
                 msgItem.setBackground(self._critical_bg_color)
                 dateItem.setBackground(self._critical_bg_color)
                 severityItem.setBackground(self._critical_bg_color)
+                if self.QTVCP_INSTANCE_.OPTIONS_.play_sounds:
+                    ACTION.PLAY_ERROR()
             else:
                 msgItem.setForeground(self._info_fg_color)
                 dateItem.setForeground(self._info_fg_color)
