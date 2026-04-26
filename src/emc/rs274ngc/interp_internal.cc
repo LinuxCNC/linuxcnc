@@ -448,23 +448,20 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
 
   a = GET_EXTERNAL_PROBE_POSITION_A();
-  if(settings->a_axis_wrapped) {
-      a = fmod(a, 360.0);
-      if(a<0) a += 360.0;
+  if(settings->a_axis_wrapped || settings->a_rotary_modulo) {
+      a = wrap_rotary_to_360(a);
   }
   settings->parameters[5064] = a;
 
   b = GET_EXTERNAL_PROBE_POSITION_B();
-  if(settings->b_axis_wrapped) {
-      b = fmod(b, 360.0);
-      if(b<0) b += 360.0;
+  if(settings->b_axis_wrapped || settings->b_rotary_modulo) {
+      b = wrap_rotary_to_360(b);
   }
   settings->parameters[5065] = b;
 
   c = GET_EXTERNAL_PROBE_POSITION_C();
-  if(settings->c_axis_wrapped) {
-      c = fmod(c, 360.0);
-      if(c<0) c += 360.0;
+  if(settings->c_axis_wrapped || settings->c_rotary_modulo) {
+      c = wrap_rotary_to_360(c);
   }
   settings->parameters[5066] = c;
 
