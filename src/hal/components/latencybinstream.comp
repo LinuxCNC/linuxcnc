@@ -1,0 +1,199 @@
+component latencybinstream
+"""comp utility for scripts/latency-histogram.py
+""";
+description """
+Calculates a latency histogram of the thread the component is running in.
+The histogram data is sent in a HAL stream for maximum transfer speed and
+streaming prevents any RT to non-RT data race condition.
+
+Read the *availablebins* pin for the number of bins available.
+Set the *maxbinnumber* pin for the number of ±;bins.
+Ensure *maxbinnumber* ≤ *availablebins*.
+
+For *maxbinnumber* = N, the bins are numbered:
+
+* -N ... 0 ... +N bins +
+  (total effective bins = 2 * maxbinnumber + 1)
+* Any data outside the bins is counted and available at the start and end
+  of the data stream (ntail and ptail, see stream format below).
+
+Set *nsbinsize* pin for the bin width in nanoseconds (ns).
+
+Stream format and how to obtain the histogram data:
+
+* Set *stream* pin to high
+* Read the fifo data when it becomes available. The data streamed has the
+  following sequence:
+** 'ntail -N ... 0 ... N ptail'
+** This gives '2 * maxbinnumber + 1 + 2' values streamed
+* Read the latency pins that reflect the values at the time when *stream*
+  was asserted.
+* Set *stream* pin to low
+
+The reset pin may be used to restart. Note that the reset pin is set to
+high at startup. You must set it to low before data collection begins.
+
+The *latency* pin outputs the instantaneous latency. The average, minimum,
+maximum and variance available from pins *latency-avg*, *latency-min*, *latency-max*
+and *variance* respectively, but they are only updated on the rising edge
+of the *stream* pin.
+
+Maintainers note: hardcoded for MAXBINNUMBER==1000
+""";
+
+pin in  s64 maxbinnumber = 1000 "Number of active bins N on each side (-N...0...N).";  // MAXBINNUMBER
+pin in  s64 nsbinsize    "Time interval for one bin in nanoseconds (ns).";
+pin in  bit reset = 1    "Reset state and bins.";
+pin in  bit stream = 0   "Set to high to stream all bins and tails on rising edge.";
+
+pin out bit stream_error "Set if the data stream did not fit and was never sent.";
+pin out s64 latency      "Last measured latency.";
+pin out s64 latency_avg  "Average latency (when stream pin is asserted).";
+pin out s64 latency_max  "Maximum latency (when stream pin is asserted).";
+pin out s64 latency_min  "Minimum latency (when stream pin is asserted).";
+pin out s64 variance     "Variance of the latency (when stream pin is asserted).";
+pin out s64 stream_time  "The time it took for the stream data to be pushed out in nanoseconds (ns).";
+
+// user may interrogate available bins to determine this compiled-in limit
+// MAXBINNUMBER
+pin out s64 availablebins = 1000 """
+Hard-coded maximum number of bins. You need to change the source code if you need more bins.
+""";
+
+
+function _;
+option extra_setup;
+modparam dummy keys "Stream shmem unique key for each instance";
+
+include <rtapi_bool.h>;
+include <rtapi_stdint.h>;
+
+variable rtapi_s64 last_time = 0;
+variable int last_binmax = 0;
+variable int first = 1;
+variable hal_stream_data_u ptail;  // Positive overflow count
+variable hal_stream_data_u ntail;  // Negative overflow count
+variable hal_stream_data_u pbins[1001]; // MAXBINNUMBER+1
+variable hal_stream_data_u nbins[1001]; // MAXBINNUMBER+1
+
+variable bool last_stream = 0;
+variable hal_stream_t fifo;
+variable rtapi_u64 nsamples;
+variable rtapi_u64 sum;
+variable rtapi_u64 sq_sum;
+variable rtapi_s64 lat_min = INT64_MAX;
+variable rtapi_s64 lat_max = INT64_MIN;
+
+license "GPL2+";
+author "B.Stultiens";
+;;
+
+#define MAXBINNUMBER	1000
+
+#define MAX_INST 8
+static int keys[MAX_INST] = {};
+RTAPI_MP_ARRAY_INT(keys, MAX_INST, "Stream shmem keys");
+
+// Note: the extra setup is run _before_ the pins are created
+EXTRA_SETUP() {
+    (void)prefix;
+
+	if (extra_arg < 0 || extra_arg >= MAX_INST || !keys[extra_arg])
+		return -EINVAL;
+	int err;
+	// The stream buffer should be able to contain one complete set of data
+	if (0 != (err = hal_stream_create(&fifo, comp_id, keys[extra_arg], 2*MAXBINNUMBER + 1 + 2, "u")))
+		return err;
+	// The other side should run hal_stream_attach(&fifo, comp_id, LBSKEY, "u")
+	return 0;
+}
+
+FUNCTION(_) {
+	rtapi_s64 now = rtapi_get_time();
+	rtapi_s64 lat = now - last_time - period;
+	last_time = now;
+
+	rtapi_s64 binmax = maxbinnumber;
+	if (binmax > MAXBINNUMBER) {
+		binmax = MAXBINNUMBER;
+	}
+	last_binmax = binmax;
+
+	if (reset) {
+		first = 1;
+	}
+
+	rtapi_s64 nsbs = nsbinsize;  // May not be zero, important to avoid divide by zero
+	if (first || binmax != last_binmax || !nsbs) {
+		first = 0;
+		lat_min = INT64_MAX;
+		lat_max = INT64_MIN;
+		ptail.u = ntail.u = 0;
+		memset(pbins, 0, sizeof(pbins));
+		memset(nbins, 0, sizeof(nbins));
+		nsamples = 0;
+		sum = 0;
+		sq_sum = 0;
+		latency = 0;
+		variance = 0;
+		latency_avg = 0;
+		latency_min = 0;
+		latency_max = 0;
+	} else {
+		latency = lat;
+		int i = lat/nsbs;
+		if (lat > lat_max) lat_max = lat;
+		if (lat < lat_min) lat_min = lat;
+		if (i >= 0) {
+			if (i > binmax) {
+				ptail.u++;
+			} else {
+				pbins[i].u++;
+			}
+		} else {
+			if (-i > binmax) {
+				ntail.u++;
+			} else {
+				nbins[-i].u++;
+			}
+		}
+		++nsamples;
+		sum    += lat;
+		sq_sum += lat * lat;
+	}
+
+	bool b = stream;
+	// On the low-to-high transition
+	if (b && !last_stream) {
+		if (nsamples > 1) {
+			//          1     (          sum^2 )
+			// s^2 =  ----- * ( sq_sum - ----- )
+			//        n - 1   (            n   )
+			variance = (sq_sum - (sum * sum / nsamples)) / (nsamples - 1);
+			latency_avg = sum / nsamples;
+			latency_min = lat_min;
+			latency_max = lat_max;
+		}
+		int avail = hal_stream_maxdepth(&fifo) - hal_stream_depth(&fifo);
+		if (avail >= 2 * binmax + 1 + 2) {
+			// Negative overflow
+			hal_stream_write(&fifo, &ntail);
+			// All negative bins, _excluding_ 0 (zero)
+			for (int i = 0; i < binmax; i++)
+				hal_stream_write(&fifo, &nbins[binmax - i]);
+			// All poitive bins, _including_ 0 (zero)
+			for (int i = 0; i <= binmax; i++)
+				hal_stream_write(&fifo, &pbins[i]);
+			// Positive overflow
+			hal_stream_write(&fifo, &ptail);
+			stream_error = 0;
+			stream_time = rtapi_get_time() - now;
+		} else {
+			// Else we have not enough room to stream an entire set and
+			// will not stream incomplete data sets.
+			stream_error = 1;
+		}
+	}
+	last_stream = b;
+}
+// vim: ts=4 sw=4 syn=c

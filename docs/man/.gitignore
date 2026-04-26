@@ -356,6 +356,7 @@ man9/kins.9
 man9/knob2float.9
 man9/laserpower.9
 man9/latencybins.9
+man9/latencybinstream.9
 man9/lcd.9
 man9/led_dim.9
 man9/limit_axis.9
