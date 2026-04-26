@@ -57,6 +57,12 @@ class QTPanel():
                 if isinstance(widget, ScreenOptions):
                     self._screenOptions = widget
 
+                    try:
+                        self.window['OPTIONS_'] = widget
+                    except Exception as e:
+                        LOG.warning('Screen OPTIONS instance injection error: {}'.format(e))
+                        self.window['OPTIONS_'] = None
+
                     # change HAL base name to screenOptions setting if
                     # a new base name was not specified on the command line
                     # and screenOptions name is not blank
