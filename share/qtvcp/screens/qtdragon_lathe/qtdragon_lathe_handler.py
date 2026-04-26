@@ -889,29 +889,36 @@ class HandlerClass:
     # called from hal_glib to run macros from external event
     def request_macro_call(self, data):
         if not STATUS.is_mdi_mode():
-            self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), CRITICAL)
+            self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), WARNING)
             return
-
-        for b in range(0,10):
-            button = self.w['macrobutton{}'.format(b)]
-            # prefer named INI MDI commands
-            key = button.property('ini_mdi_key')
-            code = INFO.get_ini_mdi_command(key)
-            if key == '' or code is None:
-                # fallback to legacy nth line
-                key = button.property('ini_mdi_number')
+        if 'ini-macro-cmd' in data:
+            self.add_status(_translate("HandlerClass",'Externally run INI macros not supported yet'), CRITICAL)
+        elif 'ini-mdi-cmd' in data:
+            for b in range(0,10):
+                button = self.w['macrobutton{}'.format(b)]
+                # prefer named INI MDI commands
+                key = button.property('ini_mdi_key')
                 code = INFO.get_ini_mdi_command(key)
-                if code is None:
-                    continue
-            if str(key) == data:
-                #print('match',button.objectName())
-                text = button.text().replace('\n',' ')
-                self.add_status(_translate("HandlerClass",'Running macro: {} {}'.format(key, text)))
-                try:
-                    button.click()
-                except Exception as e:
-                    self.add_status(_translate("HandlerClass",'Running macro: {} {}\n{}'.format(key, text, e)))
-                break
+                #print(data,key,code)
+                if key == '' or code is None:
+                    # fallback to legacy nth line
+                    key = button.property('ini_mdi_number')
+                    code = INFO.get_ini_mdi_command(key)
+                    if code is None:
+                        continue
+                if str(key) in data:
+                    #print('match',button.objectName())
+                    text = button.text().replace('\n',' ')
+                    self.add_status(_translate("HandlerClass",'Running macro: {} {}'.format(key, text)))
+                    try:
+                        button.click()
+                    except Exception as e:
+                        self.add_status(_translate("HandlerClass",'Error running macro: {} {}\n{}'.format(key, text, e)))
+                    break
+            else:
+                self.add_status(_translate(f"HandlerClass",'External requested INI mdi {data} does not match button name/number'), CRITICAL)
+        else:
+            self.add_status(_translate(f"HandlerClass",'External requested INI macro data not recognized:{data}'), CRITICAL)
 
     #######################
     # CALLBACKS FROM FORM #
