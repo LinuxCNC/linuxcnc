@@ -17,15 +17,14 @@ ____
   As shipped, the board address is 192.168.1.121.
 *no_iptables* [default: 0]::
   Explicit override that disables all iptables interaction.  By default
-  hm2_eth probes iptables at load time with a read-only listing and
-  silently skips rule installation if the probe fails (for example
-  when rtapi_app is running unprivileged via file capabilities rather
-  than setuid root, since Linux capabilities are not inherited across
-  exec() into the iptables binary).  Set *no_iptables=1* when iptables
-  is reachable but you prefer to manage the firewall externally
-  (nftables, firewalld, systemd units).  In both cases the
-  interface-isolation rules must be provided by the administrator; see
-  the NOTES section below.
+  hm2_eth installs *iptables* and *ip6tables* rules itself; rtapi_app
+  raises *cap_net_admin* into its ambient capability set at startup so
+  the calls succeed under both setuid-root and rootless (file-cap)
+  installs.  If the cap is not held the probe fails and rule
+  installation is skipped with a warning; in that case configure the
+  rules manually using the recipe in the NOTES section below.  Set
+  *no_iptables=1* when iptables is reachable but you prefer to manage
+  the firewall externally (nftables, firewalld, systemd units).
 ____
 
 == DESCRIPTION
@@ -156,6 +155,53 @@ you can insert a direct jump from OUTPUT to hm2-eth-rules-output in an order app
 At (normal) exit, hm2_eth will remove the rules. After a crash, you can
 manually clear the rules with *sudo iptables -F hm2-eth-rules-output*;
 the rules are also removed by a reboot.
+
+=== Manual iptables configuration
+
+When LinuxCNC is installed without *cap_net_admin* on rtapi_app
+(typically because *sudo make setcap* was not run after the build),
+hm2_eth cannot install its rules and prints a warning.  Set up the
+chain manually as root.  Adjust the IP addresses, UDP destination port,
+and interface name to match your install:
+
+----
+HOST_IP=192.168.1.1
+BOARD_IP=192.168.1.121
+BOARD_DPORT=27181
+IFACE=eth1
+
+iptables -N hm2-eth-rules-output
+iptables -I OUTPUT 1 -j hm2-eth-rules-output
+iptables -A hm2-eth-rules-output \
+    -p udp -m udp -d $BOARD_IP --dport $BOARD_DPORT \
+    -s $HOST_IP -j ACCEPT
+iptables -A hm2-eth-rules-output -o $IFACE -p icmp -j DROP
+iptables -A hm2-eth-rules-output -o $IFACE \
+    -j REJECT --reject-with icmp-admin-prohibited
+ip6tables -N hm2-eth-rules-output
+ip6tables -I OUTPUT 1 -j hm2-eth-rules-output
+ip6tables -A hm2-eth-rules-output -o $IFACE -j DROP
+----
+
+For full IPv6 quiescence (no router solicitations or neighbor discovery
+on the dedicated interface), additionally add this line to
+`/etc/sysctl.d/99-hm2-eth.conf` and reboot:
+
+----
+net.ipv6.conf.IFACE.disable_ipv6 = 1
+----
+
+(The default ip6tables rule above only drops outbound IPv6; the kernel
+still generates the packets.)  Tear down the runtime rules with:
+
+----
+iptables -F hm2-eth-rules-output
+iptables -D OUTPUT -j hm2-eth-rules-output
+iptables -X hm2-eth-rules-output
+ip6tables -F hm2-eth-rules-output
+ip6tables -D OUTPUT -j hm2-eth-rules-output
+ip6tables -X hm2-eth-rules-output
+----
 
 "hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a packet on most systems,
 but on at least some Marvel-chipset NICs it is harmful.
