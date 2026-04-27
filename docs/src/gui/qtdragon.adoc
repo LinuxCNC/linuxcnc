@@ -407,7 +407,8 @@ current user system origin (zero point) and Machine system origin. +
 User origin is the first MDI command in the INI list, machine origin is the second. +
 This example shows how to move Z axis up first. Commands separated by the ';' are run one after another. +
 The button label text can be set with any text after a comma, the `\n` symbol adds a line break. +
-These commands can be run with external HAL pins, if using the hal_bridge component. See <<cha:bridge,HAL_BRIDGE>>
+These commands can be run with external HAL pins, if using the hal_bridge component. See <<sec:bridge,HAL_BRIDGE>>
+
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
@@ -453,7 +454,7 @@ These pins could be used with HALUI to built a more friendly control panel. +
 - The jog rate/increments will be reported. +
 - There is a cycle start and pause pin - these call the code in QtDragon rather then the motion controller.
 This allows custom behaviour, such as spindle lift to work with external buttons. +
-- If there are macros defined in the INI ()see: <<cha:macro-buttons,Macro Buttons>>), there will be pins available to initiate them. +
+- If there are macros defined in the INI ()see: <<sec:macro-buttons,Macro Buttons>>), there will be pins available to initiate them. +
 
 .Sample entry. Remove '-d' to quiet debugging messages.
 [source,{ini}]
