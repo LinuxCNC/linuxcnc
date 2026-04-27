@@ -69,8 +69,9 @@ class _IStat(object):
         self.PREFERENCE_PATH = self.INI.getstring("DISPLAY", "PREFERENCE_FILE_PATH") # or None
         self.PROGRAM_PREFIX = self.get_error_safe_setting("DISPLAY", "PROGRAM_PREFIX", '~/linuxcnc/nc_files')
 
-        if not os.path.exists(os.path.expanduser(self.PROGRAM_PREFIX)):
-            LOG.warning('Path not valid in INI File [DISPLAY] PROGRAM_PREFIX section')
+        temp = os.path.expanduser(self.PROGRAM_PREFIX)
+        if not os.path.exists(temp):
+            LOG.warning(f'Path not valid in INI File [DISPLAY] PROGRAM_PREFIX section: {temp}')
 
         temp = self.INI.getstring("DISPLAY", "USER_COMMAND_FILE")
         if not temp is None:
@@ -83,6 +84,9 @@ class _IStat(object):
         self.SUB_PATH = self.INI.getstring("RS274NGC", "SUBROUTINE_PATH") # or None
         if self.SUB_PATH is not None:
             for mpath in (self.SUB_PATH.split(':')):
+                temp = os.path.expanduser(mpath)
+                if not os.path.exists(temp):
+                    LOG.warning(f'Path not valid in INI File [RS274NGC] SUBROUTINE_PATH section: {temp}')
                 self.SUB_PATH_LIST.append(mpath)
                 if 'macro' in mpath:
                     path = mpath
