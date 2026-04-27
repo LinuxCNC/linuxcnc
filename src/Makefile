@@ -580,6 +580,9 @@ endif
 #   cap_net_admin  - raw socket access for hm2_eth / iptables management
 #   cap_sys_rawio  - iopl() and /dev/mem for parallel port and PCI I/O
 #   cap_sys_nice   - SCHED_FIFO scheduling and CPU affinity
+# Linux capabilities are not inherited across exec(), so /sbin/iptables
+# launched from rtapi_app would run unprivileged.  rtapi_app raises
+# cap_net_admin into its ambient set at startup so it survives execve().
 # Clears any setuid bit left by a prior 'make setuid' so the two paths don't
 # silently stack.
 setcap:

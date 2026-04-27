@@ -359,18 +359,14 @@ int rtapi_is_kernelspace() { return 0; }
 // for diagnostic warning at startup; callers must not gate behavior on
 // the kernel string, since SCHED_FIFO on a PREEMPT_DYNAMIC kernel is still
 // useful (better than SCHED_OTHER, worse than PREEMPT_RT).
-// Marked unused because uspace_common.h is also included from ULAPI TUs
-// that do not reference it.
-__attribute__((unused))
-static int detect_preempt_rt() {
+static inline int detect_preempt_rt() {
     struct utsname u;
     if(uname(&u) < 0) return 0;
     return strcasestr(u.version, "PREEMPT RT") != 0
         || strcasestr(u.version, "PREEMPT_RT") != 0;
 }
 #else
-__attribute__((unused))
-static int detect_preempt_rt() {
+static inline int detect_preempt_rt() {
     return 0;
 }
 #endif
@@ -382,11 +378,7 @@ static int detect_preempt_rt() {
 // with udev rules + a 'xenomai'/'evl' group; @hdiethelm has a follow-up
 // planned.  Until then, an unprivileged user on a Xenomai kernel cannot
 // claim the Xenomai backend, and falls back to the SCHED_FIFO probe.
-// Marked unused because the helper is called only when one of the
-// USPACE_RTAI / USPACE_XENOMAI / USPACE_XENOMAI_EVL macros is defined,
-// and the header is included from ULAPI TUs that define none of them.
-__attribute__((unused))
-static int has_setuid_root() {
+static inline int has_setuid_root() {
     return geteuid() == 0;
 }
 
@@ -427,6 +419,11 @@ static int detect_xenomai_evl() {
 }
 #endif
 
+// errno from the most recent sched_setscheduler(SCHED_FIFO) probe.  Zero
+// when the probe succeeded or has not run yet.  Read via
+// rtapi_sched_fifo_errno() from diagnostic code.
+static int rtapi_sched_fifo_last_errno = 0;
+
 // Success-probe for realtime scheduling: briefly try to set SCHED_FIFO on
 // the calling thread and restore the previous policy.  Succeeds when the
 // process holds CAP_SYS_NICE (file caps or setuid root) or has a matching
@@ -436,19 +433,30 @@ static int detect_xenomai_evl() {
 static int can_set_sched_fifo(void) {
     struct sched_param old_param, probe_param;
     int old_policy = sched_getscheduler(0);
-    if(old_policy < 0) return 0;
-    if(sched_getparam(0, &old_param) < 0) return 0;
+    if(old_policy < 0) {
+        rtapi_sched_fifo_last_errno = errno;
+        return 0;
+    }
+    if(sched_getparam(0, &old_param) < 0) {
+        rtapi_sched_fifo_last_errno = errno;
+        return 0;
+    }
 
     memset(&probe_param, 0, sizeof(probe_param));
     probe_param.sched_priority = sched_get_priority_min(SCHED_FIFO);
-    if(sched_setscheduler(0, SCHED_FIFO, &probe_param) < 0)
+    if(sched_setscheduler(0, SCHED_FIFO, &probe_param) < 0) {
+        rtapi_sched_fifo_last_errno = errno;
         return 0;
+    }
 
     // Best-effort restore; if this fails we are still on SCHED_FIFO at
     // minimum priority, which is no worse than where we started.
     sched_setscheduler(0, old_policy, &old_param);
+    rtapi_sched_fifo_last_errno = 0;
     return 1;
 }
+
+static inline int rtapi_sched_fifo_errno(void) { return rtapi_sched_fifo_last_errno; }
 
 // rtapi_is_realtime() reports whether this process can actually run
 // realtime code.  This matches the convention used by JACK, PipeWire,
