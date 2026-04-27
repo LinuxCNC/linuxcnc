@@ -46,6 +46,7 @@
 #ifdef __linux__
 #include <malloc.h>
 #include <sys/prctl.h>
+#include <sys/capability.h>
 #endif
 #ifdef __FreeBSD__
 #include <pthread_np.h>
@@ -675,6 +676,10 @@ static double diff_timespec(const struct timespec *time1, const struct timespec 
     return (time1->tv_sec - time0->tv_sec) + (time1->tv_nsec - time0->tv_nsec) / 1000000000.0;
 }
 
+#ifdef __linux__
+static void raise_net_admin_ambient(void);
+#endif
+
 int main(int argc, char **argv) {
     if (getuid() == 0) {
         char *fallback_uid_str = getenv("RTAPI_UID");
@@ -706,6 +711,7 @@ int main(int argc, char **argv) {
     }
 #ifdef __linux__
     setfsuid(ruid);
+    raise_net_admin_ambient();
 #endif
     std::vector<std::string> args;
     for (int i = 1; i < argc; i++) {
@@ -984,15 +990,75 @@ static RtapiApp *makeDllApp(const std::string &dllName, int policy) {
     return result;
 }
 
+// Diagnostic helper: report cap_effective state for a single capability.
+// Returns "yes", "no", or "unknown" if libcap could not introspect.
+#ifdef __linux__
+static const char *cap_effective_str(cap_t caps, cap_value_t cap) {
+    if (!caps) return "unknown";
+    cap_flag_value_t v;
+    if (cap_get_flag(caps, cap, CAP_EFFECTIVE, &v) != 0) return "unknown";
+    return v == CAP_SET ? "yes" : "no";
+}
+
+// Raise CAP_NET_ADMIN into the ambient set so it survives execve() into
+// child processes (iptables, ip6tables) launched by HAL drivers like
+// hm2_eth.  Linux file capabilities on rtapi_app give cap_net_admin in
+// the permitted+effective sets but not inheritable/ambient, so without
+// this iptables runs cap-less and fails with EPERM.  No-op when the cap
+// is not held (e.g. running unprivileged).
+static void raise_net_admin_ambient(void) {
+    cap_t caps = cap_get_proc();
+    if (!caps) return;
+
+    cap_value_t cap = CAP_NET_ADMIN;
+    cap_flag_value_t v;
+    if (cap_get_flag(caps, cap, CAP_PERMITTED, &v) == 0 && v == CAP_SET) {
+        if (cap_set_flag(caps, CAP_INHERITABLE, 1, &cap, CAP_SET) == 0
+                && cap_set_proc(caps) == 0) {
+            if (prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_RAISE,
+                      CAP_NET_ADMIN, 0, 0) != 0
+                    && geteuid() != 0) {
+                rtapi_print_msg(RTAPI_MSG_WARN,
+                    "rtapi_app: PR_CAP_AMBIENT_RAISE(CAP_NET_ADMIN) "
+                    "failed: %s; iptables-using drivers may not work "
+                    "under file caps.\n", strerror(errno));
+            }
+        }
+    }
+    cap_free(caps);
+}
+#endif
+
 static RtapiApp *makeApp() {
     RtapiApp *app;
     bool rt_ok = rtapi_is_realtime();
     if (!rt_ok) {
+        // Surface the actual reason so the user does not have to guess
+        // between "no caps", "stock kernel", or "wrong rlimits" (issue
+        // #3928).  errno comes from the SCHED_FIFO probe in
+        // can_set_sched_fifo(); cap state comes from libcap.
+        int sched_err = rtapi_sched_fifo_errno();
+#ifdef __linux__
+        cap_t caps = cap_get_proc();
+        const char *nice_s = cap_effective_str(caps, CAP_SYS_NICE);
+        const char *lock_s = cap_effective_str(caps, CAP_IPC_LOCK);
+#else
+        const char *nice_s = "unknown";
+        const char *lock_s = "unknown";
+#endif
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "Note: SCHED_FIFO not permitted for this process, "
-            "falling back to POSIX non-realtime.  "
-            "Run 'sudo make setcap' (preferred) or 'sudo make setuid' "
-            "on rtapi_app to enable realtime scheduling.\n");
+            "Note: realtime scheduling unavailable "
+            "(sched_setscheduler SCHED_FIFO: %s).\n"
+            "  Process capabilities: cap_sys_nice=%s cap_ipc_lock=%s.\n"
+            "  Falling back to POSIX non-realtime.\n"
+            "  Fix: 'sudo make setcap' (preferred) or 'sudo make setuid' "
+            "on rtapi_app.\n"
+            "  Override (testing only): set LINUXCNC_FORCE_REALTIME=1.\n",
+            sched_err ? strerror(sched_err) : "denied",
+            nice_s, lock_s);
+#ifdef __linux__
+        if (caps) cap_free(caps);
+#endif
     }
     if (!rt_ok || harden_rt() < 0) {
         app = makeDllApp("liblinuxcnc-uspace-posix.so.0", SCHED_OTHER);
