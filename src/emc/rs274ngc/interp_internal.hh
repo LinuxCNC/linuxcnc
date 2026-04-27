@@ -346,6 +346,7 @@ enum phases  {
     STEP_SET_FEED_RATE,
     STEP_SET_SPINDLE_SPEED,
     STEP_PREPARE,
+    STEP_M_3,
     STEP_M_5,
     STEP_M_6,
     STEP_RETAIN_G43,
@@ -810,6 +811,7 @@ struct setup
   int a_rotary_modulo;
   int b_rotary_modulo;
   int c_rotary_modulo;
+  int rotary_modulo_literal;         // M26 = shortest path (default), M27 = literal absolute
 
   int a_indexer_jnum;
   int b_indexer_jnum;

@@ -179,6 +179,7 @@ setup::setup() :
     a_rotary_modulo(0),
     b_rotary_modulo(0),
     c_rotary_modulo(0),
+    rotary_modulo_literal(0),
 
     a_indexer_jnum(0),
     b_indexer_jnum(0),

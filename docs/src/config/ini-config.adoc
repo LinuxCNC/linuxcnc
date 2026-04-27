@@ -1026,6 +1026,7 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   If the axis `MIN_LIMIT`/`MAX_LIMIT` range is not approximately 360 deg a startup warning is printed (typical of limited-range tilt axes where modulo is unusual).
   Mutually exclusive with `WRAPPED_ROTARY` (only one of the two can be set in a configuration).
   Mid-program restart-from-line and DRO visual wrap in GUIs are not handled by this flag; these are left to the existing restart machinery and to user-side HAL components if visual wrap is desired.
+  Path control codes `M26` (shortest, default) and `M27` (literal absolute) are modal: once programmed they persist for all subsequent absolute moves on modulo axes until the other code is programmed. Use `M27` to enter literal mode for a section of multi-turn motion, then `M26` to return to shortest-path. For incremental multi-turn moves, prefer `G91`.
 * `LOCKING_INDEXER_JOINT = 4` - (int) This value selects a joint to use for a locking indexer for the specified axis _<letter>_.
   In this example, the joint is 4 which would correspond to the B axis for a XYZAB system with trivkins (identity) kinematics.
   When set, a G0 move for this axis will initiate an unlock with the `joint.4.unlock pin` then wait for the `joint.4.is-unlocked` pin then move the joint at the rapid rate for that joint.

@@ -862,6 +862,7 @@ int Interp::init()
   _setup.a_rotary_modulo = 0;
   _setup.b_rotary_modulo = 0;
   _setup.c_rotary_modulo = 0;
+  _setup.rotary_modulo_literal = 0;
   _setup.random_toolchanger = 0;
   _setup.a_indexer_jnum = -1; // -1 means not used
   _setup.b_indexer_jnum = -1; // -1 means not used

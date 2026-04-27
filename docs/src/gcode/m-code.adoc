@@ -20,6 +20,7 @@
 |<<mcode:m6,M6>>                | Tool Change
 |<<mcode:m7-m8-m9,M7 M8 M9>>    | Coolant Control
 |<<mcode:m19,M19>>              | Orient Spindle
+|<<mcode:m26-m27,M26 M27>>      | Rotary Modulo Path: Shortest / Literal
 |<<mcode:m48-m49,M48 M49>>      | Feed & Spindle Overrides Enable/Disable
 |<<mcode:m50,M50>>              | Feed Override Control
 |<<mcode:m51,M51>>              | Spindle Override Control
@@ -259,6 +260,47 @@ INI Settings in the [RS274NGC] section:
    cause the orient cycle to abort.
 ** 'spindle.N.locked' (out bit)
    Spindle orient complete pin. Cleared by any of M3,M4,M5.
+
+[[mcode:m26-m27]]
+== M26, M27 Rotary Modulo Path Control
+
+(((M26, M27 Rotary Modulo Path Control)))
+
+* 'M26' - on rotary axes flagged with `[AXIS_<L>] ROTARY_MODULO = 1`, absolute
+  moves take the shortest path: a programmed value is reached by moving at most
+  180 degrees in the shorter direction. This is the default when `ROTARY_MODULO`
+  is enabled.
+
+* 'M27' - on the same axes, force absolute moves to take the literal programmed
+  target. A programmed value of `A720` from a current position of `A0` produces
+  two full forward turns rather than no motion. Use this when a section of
+  G-code must execute the commanded angle literally, for example multi-turn
+  helical winding written in absolute mode.
+
+M26 and M27 are modal (modal group 3) and persist until the other code is
+programmed or the program ends. They have no effect on rotary axes that are not
+flagged `ROTARY_MODULO`, on incremental moves (`G91`), or on parameter readout
+(`#5423`/`#5424`/`#5425` continue to report the wrapped value).
+
+Typical usage:
+
+[source,{ngc}]
+----
+(at this point absolute A moves take the shortest path)
+M27         (enter literal absolute mode for the section that follows)
+G1 A720     (two full forward turns)
+G1 A1080    (one more forward turn)
+M26         (restore shortest path for the rest of the program)
+G0 A0       (now resolves to the nearest equivalent angle)
+----
+
+For incremental multi-turn motion, prefer `G91` over `M27`; `M27` is intended
+for the case where absolute G90 G-code must be honored literally.
+
+M26 and M27 are saved and restored by M70/M72/M73 alongside the other modal
+M-codes.
+
+See also: `ROTARY_MODULO` in <<sub:ini:sec:axis_l,[AXIS_<L>] Section>>.
 
 [[mcode:m48-m49]]
 == M48, M49 Speed and Feed Override Control

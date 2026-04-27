@@ -3518,6 +3518,7 @@ int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
 	    case 6: // speed/feed override
 	    case 7: // adaptive feed
 	    case 8: // feed hold
+	    case 9: // rotary modulo path
 		if (val != -1) {  // unsure..
 		    snprintf(buf,sizeof(buf),"M%d\n", val);
 		    cmd += buf;
@@ -3774,7 +3775,7 @@ This handles four separate types of activity in order:
 1. changing the tool (m6) - which also retracts and stops the spindle.
 2. Turning the spindle on or off (m3, m4, and m5)
 3. Turning coolant on and off (m7, m8, and m9)
-4. turning a-axis clamping on and off (m26, m27) - commented out.
+4. selecting rotary modulo absolute path (m26 = shortest, m27 = literal)
 5. enabling or disabling feed and speed overrides (m49, m49).
 6. changing the loaded toolnumber (m61).
 Within each group, only the first code encountered will be executed.
@@ -4089,22 +4090,16 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       settings->flood = false;
   }
 
-/* No axis clamps in this version
-  if (block->m_modes[2] == 26)
-    {
-#ifdef DEBUG_EMC
-      COMMENT("interpreter: automatic A-axis clamping turned on");
-#endif
-      settings->a_axis_clamping = true;
-    }
-  else if (block->m_modes[2] == 27)
-    {
-#ifdef DEBUG_EMC
-      COMMENT("interpreter: automatic A-axis clamping turned off");
-#endif
-      settings->a_axis_clamping = false;
-    }
-*/
+  /* M26 = rotary modulo absolute path takes shortest delta (default when
+     ROTARY_MODULO=1 is set in INI). M27 = take literal absolute target
+     so a programmed value over 180 deg from current produces a multi-turn
+     move. Modal group 3, persistent until reset by the other code. */
+  if ((block->m_modes[3] == 26) && ONCE_M(3)) {
+      settings->rotary_modulo_literal = 0;
+  } else if ((block->m_modes[3] == 27) && ONCE_M(3)) {
+      settings->rotary_modulo_literal = 1;
+  }
+
 if (is_user_defined_m_code(block, settings, 9) && ONCE_M(9)) {
      return convert_remapped_code(block, settings, STEP_M_9, 'm',
 				   block->m_modes[9]);
