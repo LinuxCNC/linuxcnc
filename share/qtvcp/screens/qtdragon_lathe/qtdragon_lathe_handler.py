@@ -296,6 +296,7 @@ class HandlerClass:
         self.configureMacroButtons()
 
         self.log_version()
+        STATUS.emit('update-machine-log', '', 'OFF')
 
     def init_utils(self):
 
@@ -694,6 +695,9 @@ class HandlerClass:
         return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     def before_loop__(self):
+        # Should be initialized and ready to log good info 
+        STATUS.emit('update-machine-log', '', 'ON')
+
         # no spindle lift without pins connected
         self.spindle_lift_pins_present = True
         for i in ('qtdragon.eoffset-is-active','qtdragon.spindle-inhibit','qtdragon.eoffset-clear',
