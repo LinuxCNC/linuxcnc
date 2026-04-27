@@ -3518,13 +3518,16 @@ int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
 	    case 6: // speed/feed override
 	    case 7: // adaptive feed
 	    case 8: // feed hold
-	    case 9: // rotary modulo path
 		if (val != -1) {  // unsure..
 		    snprintf(buf,sizeof(buf),"M%d\n", val);
 		    cmd += buf;
 		} else {
 		    MSG("------ gen_m_codes: index %d = -1!!\n",i);
 		}
+		break;
+	    case 9: // rotary modulo path: -1 = default (M26), 27 = literal
+		// saved -1 with current 27 needs explicit M26 to restore
+		cmd += (val == 27) ? "M27\n" : "M26\n";
 		break;
 	    }
 	}

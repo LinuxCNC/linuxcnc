@@ -185,7 +185,7 @@ int Interp::write_m_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->feed_hold) ? 53 : -1;
 
   settings->active_m_codes[9] =                      /* 9 rotary modulo path */
-    (settings->rotary_modulo_literal) ? 27 : 26;
+    (settings->rotary_modulo_literal) ? 27 : -1;
 
   return INTERP_OK;
 }
