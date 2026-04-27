@@ -161,14 +161,15 @@ static int do_one_item(
     return 0;
 }
 
-static void remove_quotes(std::string &s) {
-    s.erase(remove_copy(s.begin(), s.end(), s.begin(), '"'), s.end());
+static std::string remove_quotes(const std::string &s) {
+    std::string ret;
+    std::remove_copy(s.begin(), s.end(), std::back_inserter(ret), '"');
+    return ret;
 }
 
-static int do_comp_args(void *module, std::vector<std::string> args) {
-    for (unsigned i = 1; i < args.size(); i++) {
-        std::string &s = args[i];
-        remove_quotes(s);
+static int do_comp_args(void *module, const std::vector<std::string> &args) {
+    for (unsigned i = 0; i < args.size(); i++) {
+        std::string s = remove_quotes(args[i]);
         size_t idx = s.find('=');
         if (idx == std::string::npos) {
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid parameter `%s'\n", s.c_str());
@@ -513,7 +514,7 @@ static bool send_args(int fd, const std::vector<std::string> &args) {
     return true;
 }
 
-static int handle_command(std::vector<std::string> args) {
+static int handle_command(const std::vector<std::string> &args) {
     if (args.size() == 0) {
         return 0;
     }
@@ -522,8 +523,8 @@ static int handle_command(std::vector<std::string> args) {
         return 0;
     } else if (args.size() >= 2 && args[0] == "load") {
         std::string name = args[1];
-        args.erase(args.begin());
-        return do_load_cmd(name, args);
+        std::vector<std::string> args_rem(args.begin() + 2, args.end());
+        return do_load_cmd(name, args_rem);
     } else if (args.size() == 2 && args[0] == "unload") {
         return do_unload_cmd(args[1]);
     } else if (args.size() == 3 && args[0] == "newinst") {
