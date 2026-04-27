@@ -837,6 +837,7 @@ class HandlerClass:
     def all_homed(self, obj):
         self.home_all = True
         self.w.btn_home_all.setText(_translate("HandlerClass","ALL\nHOMED"))
+        self.add_status(_translate("HandlerClass","All homed"))
         if self.first_turnon is True:
             self.first_turnon = False
             if self.w.chk_reload_tool.isChecked():
