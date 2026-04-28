@@ -634,14 +634,10 @@ int rtapi_app_main(void) {
             me->llio.num_leds = 4;
 
             /*
-                Fill memory based on file.
+                Fill memory based on 7i96.
             */
-#if (1)
             size_t pattern_size = (sizeof(me->test_pattern) > sizeof(config_memory_dump)) ? sizeof(config_memory_dump) : sizeof(me->test_pattern);
             (void)memcpy(me->test_pattern.tp8, config_memory_dump, pattern_size);
-#else
-    LL_PRINT("shared memory method for filling test-pattern.\n");
-#endif
             break;
         }
 
