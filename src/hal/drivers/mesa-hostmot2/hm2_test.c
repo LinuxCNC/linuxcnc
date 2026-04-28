@@ -550,6 +550,97 @@ int rtapi_app_main(void) {
             break;
         }
 
+        /*
+            7i96 configuration, enough to load pktUart driver. 
+            Use script based on 
+                mesaflash  --addr 10.10.10.10 --device 7i96 --rpo 0x0100 
+            to find the memory values.         
+        */
+        case 15: {
+            LL_PRINT("test pattern %d, llio and pattern copy\n", test_pattern); 
+            static const char *hm2_7i96_pin_names[] = {
+                "TB3-01",
+                "TB3-02",
+                "TB3-03",
+                "TB3-04",
+                "TB3-05",
+                "TB3-06",
+                "TB3-07",
+                "TB3-08",
+                "TB3-09",
+                "TB3-10",
+                "TB3-11",
+                "TB3-13/TB3-14",
+                "TB3-15/TB3-16",
+                "TB3-17/TB3-18",
+                "TB3-19/TB3-20",
+                "TB3-21/TB3-22",
+                "TB3-23/TB3-24",
+
+                "TB1-02/TB1-03",
+                "TB1-04/TB1-05",
+                "TB1-08/TB1-09",
+                "TB1-10/TB1-11",
+                "TB1-14/TB1-15",
+                "TB1-16/TB1-17",
+                "TB1-20/TB1-21",
+                "TB1-22-TB1-23",
+
+                "TB2-02/TB2-03",
+                "TB2-04/TB2-05",
+                "TB2-07/TB2-08",
+                "TB2-10/TB2-11",
+                "TB2-13/TB2-14",
+                "TB2-16/TB2-17",
+                "TB2-18/TB2-19",
+
+                "internal",  /* SSerial TXEN */
+                "internal",  /* SSR AC Reference pin */
+
+                "P1-01/DB25-01", /* P1 parallel expansion */
+                "P1-02/DB25-14",
+                "P1-03/DB25-02",
+                "P1-04/DB25-15",
+                "P1-05/DB25-03",
+                "P1-06/DB25-16",
+                "P1-07/DB25-04",
+                "P1-08/DB25-17",
+                "P1-09/DB25-05",
+                "P1-11/DB25-06",
+                "P1-13/DB25-07",
+                "P1-15/DB25-08",
+                "P1-17/DB25-09",
+                "P1-19/DB25-10",
+                "P1-21/DB25-11",
+                "P1-23/DB25-12",
+                "P1-25/DB25-13",
+            };
+
+            /*
+                low level needs setup per board.
+                Copy this block from hm2_eth.c for your configuration.
+            */
+            //memcpy(llio_name, "7i96", 4);
+            me->llio.num_ioport_connectors = 3;
+            me->llio.pins_per_connector = 17;
+            me->llio.io_connector_pin_names = (char**)hm2_7i96_pin_names;
+
+            me->llio.ioport_connector_name[0] = "P1";    // DB25, 17 pins used, IO 34 to IO 50
+            me->llio.ioport_connector_name[1] = "TB1";   // terminal block, 8 pins used, Step & Dir 0-3
+            me->llio.ioport_connector_name[2] = "TB2";   // terminal block, 7 pins used, Step & Dir 4, Enc A, B, Z, serial Rx/Tx            
+            me->llio.ioport_connector_name[3] = "TB3";   // terminal block, 11 inputs, 6 SSR outputs
+
+            me->llio.fpga_part_number = "6slx9tqg144";
+            me->llio.num_leds = 4;
+
+            /*
+                Fill memory based on 7i96.
+            */
+            size_t pattern_size = (sizeof(me->test_pattern) > sizeof(config_memory_dump)) ? sizeof(config_memory_dump) : sizeof(me->test_pattern);
+            (void)memcpy(me->test_pattern.tp8, config_memory_dump, pattern_size);
+            break;
+        }
+
         default: {
             LL_ERR("unknown test pattern %d", test_pattern); 
             return -ENODEV;
@@ -593,4 +684,3 @@ void rtapi_app_exit(void) {
     LL_PRINT("driver unloaded\n");
     hal_exit(comp_id);
 }
-
