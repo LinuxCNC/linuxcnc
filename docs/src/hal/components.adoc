@@ -206,6 +206,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man9/not.9.html[not]                 |Inverter ||
 | link:../man/man9/oneshot.9.html[oneshot]         |One-shot pulse generator ||
 | link:../man/man9/or2.9.html[or2]                 |Two-input OR gate ||
+| link:../man/man9/output_buffer.9.html[output_buffer] |Feed through multiple bits when enable pin is set ||
 | link:../man/man9/reset.9.html[reset]             |Resets an IO signal ||
 | link:../man/man9/select8.9.html[select8]         |8-bit binary match detector. ||
 | link:../man/man9/tof.9.html[tof]                 |IEC TOF timer - delay falling edge on a signal ||
