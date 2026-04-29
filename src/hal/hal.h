@@ -992,7 +992,7 @@ extern void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop);
 
 /** HAL_STATIC_ASSERT wrapper for compile time asserts
 */
-#if __STDC_VERSION__ >= 202311L || __cplusplus
+#if __STDC_VERSION__ >= 202311L || defined(__cplusplus)
 #define HAL_STATIC_ASSERT(expression, message) static_assert((expression), message)
 #else
 /* _Static_assert: GCC extension, in C standard since C11, deprecated in favour of
