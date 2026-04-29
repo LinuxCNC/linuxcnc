@@ -158,7 +158,6 @@ DOC_SRCS_EN := \
 	hal/general-ref.adoc \
 	hal/hal-examples.adoc \
 	hal/halmodule.adoc \
-	hal/halshow.adoc \
 	hal/haltcl.adoc \
 	hal/halui-examples.adoc \
 	hal/intro.adoc \

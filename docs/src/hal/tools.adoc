@@ -12,6 +12,8 @@
 
 (((HAL Tools)))
 
+For most of the tools, a more detailed description can be found in the chapter <<cha:hal-tutorial,HAL Tutorial>>
+
 [[sec:halcmd]]
 == Halcmd
 
@@ -40,7 +42,7 @@ usage, and is a good tutorial for `halcmd`.
 == Halmeter
 
 (((Halmeter)))
-Halmeter is a 'voltmeter' for the HAL.
+`halmeter` is like a voltmeter for the HAL.
 It lets you look at a pin, signal, or parameter, and displays the current value of that item.
 It is pretty simple to use.
 Start it by typing `halmeter` in an X windows shell.
@@ -66,7 +68,7 @@ And finally, if you specify an item to display, you can add `-s` before the `pin
 The item name will be displayed in the title bar instead of under the value, and there will be no buttons.
 Useful when you want a lot of meters in a small amount of screen space.
 
-Refer to <<sec:tutorial-halmeter,Halmeter Tutorial>> section for more information.
+In the <<sec:tutorial-halmeter,Halmeter Tutorial>> you will find for more information.
 
 `halmeter` can be loaded from a terminal or from AXIS. `halmeter` is faster than `halshow` at displaying values.
 `halmeter` has two windows, one to pick the pin, signal, or parameter to monitor and one that displays the value.
@@ -89,12 +91,14 @@ image::images/hal-meter02.png["Halmeter watch window"]
 
 == Halshow
 
-`halshow` (<<cha:halshow,complete usage description>>) can be started from the command line
-to show details for selected components, pins, parameters, signals, functions, and threads of a running HAL.
+`halshow` shows the values of chosen pins, parameters or signals of a running HAL. It further provides buttons to also modify those items.
 The WATCH tab provides a continuous display of selected pin, parameters, and signal items.
 The File menu provides buttons to save the watch items to a watch list and to load an existing watch list.
 The watch list items can also be loaded automatically on startup.
-For command line usage:
+
+More detailed information can be found in the section <<sec:halshow,Halshow>> in the tutorial chapter.
+
+It can be started from the command line:
 
 ----
 halshow --help
@@ -111,7 +115,7 @@ Notes:
 ----
 
 .Halshow Watch Tab
-image::images/halshow-4.png["Halshow Watch Tab",align="center"]
+image::images/halshow-4.png["Halshow Watch Tab"]
 
 A watchfile created using the 'File/Save Watch List' menu item is formatted as a single line with tokens "pin+", "param+", "sig=+",
 followed by the appropriate pin, param, or signal name.

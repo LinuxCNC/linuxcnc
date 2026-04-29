@@ -88,6 +88,8 @@ include::hal/basic-hal.adoc[]
 
 include::hal/twopass.adoc[]
 
+include::hal/tools.adoc[]
+
 include::hal/tutorial.adoc[]
 
 include::hal/hal-examples.adoc[]
@@ -109,8 +111,6 @@ include::hal/halui-examples.adoc[]
 include::hal/halmodule.adoc[]
 
 include::hal/canonical-devices.adoc[]
-
-include::hal/tools.adoc[]
 
 
 :leveloffset: 1

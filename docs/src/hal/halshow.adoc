@@ -1,8 +1,8 @@
 :lang: en
 :toc:
 
-[[cha:halshow]]
-= Halshow
+[[sec:halshow]]
+== Halshow
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -20,7 +20,7 @@ When the configuration of LinuxCNC changes, so will the output of halshow be dif
 
 As we will soon see, this ability of HAL to document itself is one key to establish an effective CNC system.
 
-== Starting Halshow
+=== Starting Halshow
 
 Halshow is available
 
@@ -61,9 +61,9 @@ image::images/halshow-layout.png["Halshow Layout",align="center"]
 At the left of its display as shown in above figure is a tree view, resembling what you may have seen as file browsers.
 At the right is a tabbed notebook with tabs for show, watch and settings.
 
-== HAL Tree Area
+=== HAL Tree Area
 
-=== Filter Tree
+.Filter Tree
 
 Per default this entry filters the tree by pin names or tree-nodes by a regular expression.
 For example, entering "lim-sw" would filter the tree to the following:
@@ -81,7 +81,7 @@ joint.3.pos-lim-sw-in
 If you would like to display all `joint.0`-related, you have to click the settings icon and select "Full path".
 Pay attention to escape the regex special characters, so you have to enter "joint\.1\." to explicitly request the dot and not also find joint 10.
 
-=== Tree
+.Tree
 
 The tree shows all of the major parts of a HAL.
 In front of each is a small plus (+) or minus (-) sign in a box to expand or collapse the corresponding section of the tree.
@@ -93,7 +93,7 @@ _Expand All_, _Collapse All_; _Expand Pins_, _Expand Parameters_, _Expand Signal
 _Reload tree view_ is useful when new components are loaded during runtime and should be displayed.
 
 
-== HAL Show Area
+=== HAL Show Area
 
 [[fig:halshow-show-tab]]
 .Halshow: Show Tab
@@ -126,7 +126,7 @@ The Show area allows to add pins from selected text by using the right-click men
 All valid pins that are enclosed in the selection are added to the Watch tab.
 ****
 
-== Watch Tab Area
+=== Watch Tab Area
 
 Clicking the watch tab produces a blank canvas.
 You can add signals and pins to this canvas and watch their values.
@@ -182,7 +182,7 @@ The context menu allows further:
 image::images/halshow-5.png["Halshow: Watch Tab Context Menu",align="center"]
 
 
-== Command Entry
+=== Command Entry
 
 In the lower part is an entry box to test HAL commands.
 The commands you enter here and the effect that they have on the running HAL are not saved.
@@ -206,7 +206,7 @@ An error message from halcmd will be shown when these commands are not properly 
 If you are not certain how to set up a proper command, you'll need to read again the documentation on halcmd and the specific modules that you are working with.
 
 [[sec:halshow-settings]]
-== Settings
+=== Settings
 
 .New in 2.9
 ****
@@ -222,7 +222,7 @@ The further settings should be self-explaining.
 image::images/halshow-settings.png["Halshow Settings",align="center"]
 
 
-== Example/Tutorial
+=== Example/Tutorial
 
 Let's use this editor to add a differential module to a HAL and connect it to axis position so that we could see the rate of change in position, i.e., acceleration.
 We first need to load a HAL component named ddt, add it to the servo thread, then connect it to the position pin of a joint.
