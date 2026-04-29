@@ -1,4 +1,4 @@
-/* Copyright (C) 2016 Jeff Epler <jepler@unpythonic.net>
+/* Copyright (C) 2006-2014 Jeff Epler <jepler@unpythonic.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,43 +14,45 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 #include "config.h"
 #include "rtapi.h"
 #include "uspace_rtapi_app.hh"
-#include <pthread.h>
-#include <errno.h>
 #include <stdio.h>
-#include <cstring>
+#include <stdlib.h>
+#include <string.h>
 #include <stdexcept>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
 
 namespace {
-struct XenomaiTask : RtapiTask {
-    XenomaiTask() : RtapiTask{}, cancel{}, thr{} {
+struct PosixTask : RtapiTask {
+    PosixTask() : RtapiTask{}, thr{} {
     }
-    std::atomic_int cancel;
-    pthread_t thr;
+
+    pthread_t thr; /* thread's context */
 };
 
-
-struct XenomaiApp : RtapiApp {
-    XenomaiApp() : RtapiApp(SCHED_FIFO) {
+struct PosixApp : RtapiApp {
+    PosixApp(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
         pthread_once(&key_once, init_key);
+        if (do_thread_lock) {
+            pthread_once(&lock_once, init_lock);
+        }
     }
 
     RtapiTask *do_task_new() {
-        return new XenomaiTask;
+        return new PosixTask;
     }
 
     int task_delete(int id) {
-        auto task = ::rtapi_get_task<XenomaiTask>(id);
+        auto task = ::rtapi_get_task<PosixTask>(id);
         if (!task)
             return -EINVAL;
 
-        task->cancel = 1;
-        pthread_join(task->thr, nullptr);
+        pthread_cancel(task->thr);
+        pthread_join(task->thr, 0);
         task->magic = 0;
         task_array[id] = 0;
         delete task;
@@ -58,7 +60,7 @@ struct XenomaiApp : RtapiApp {
     }
 
     int task_start(int task_id, unsigned long period_nsec) {
-        auto task = ::rtapi_get_task<XenomaiTask>(task_id);
+        auto task = ::rtapi_get_task<PosixTask>(task_id);
         if (!task)
             return -EINVAL;
 
@@ -89,13 +91,19 @@ struct XenomaiApp : RtapiApp {
             const static int rt_cpu_number = find_rt_cpu_number();
             rtapi_print_msg(RTAPI_MSG_INFO, "rt_cpu_number = %i\n", rt_cpu_number);
             if (rt_cpu_number != -1) {
+#ifdef __FreeBSD__
+                cpuset_t cpuset;
+#else
                 cpu_set_t cpuset;
+#endif
                 CPU_ZERO(&cpuset);
                 CPU_SET(rt_cpu_number, &cpuset);
                 if ((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
                     return -ret;
             }
         }
+        if (do_thread_lock)
+            pthread_mutex_lock(&thread_lock);
         if ((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void *>(task))) != 0)
             return -ret;
 
@@ -103,23 +111,20 @@ struct XenomaiApp : RtapiApp {
     }
 
     static void *wrapper(void *arg) {
-        auto task = reinterpret_cast<XenomaiTask *>(arg);
+        auto task = reinterpret_cast<PosixTask *>(arg);
+
         pthread_setspecific(key, arg);
+        set_namef("rtapi_app:T#%d", task->id);
 
         struct timespec now;
         clock_gettime(CLOCK_MONOTONIC, &now);
-
-        // originally, I used pthread_make_periodic_np here, and
-        // pthread_wait_np in wait(), but in about 1 run in 50 this led to
-        // "xenomai: watchdog triggered" and rtapi_app was killed.
-        //
-        // encountered on: 3.18.20-xenomai-2.6.5 with a 2-thread SMP system
         rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
 
+        /* call the task function with the task argument */
         (task->taskcode)(task->arg);
 
         rtapi_print("ERROR: reached end of wrapper for task %d\n", task->id);
-        return nullptr;
+        return NULL;
     }
 
     int task_pause(int task_id) {
@@ -152,11 +157,10 @@ struct XenomaiApp : RtapiApp {
     }
 
     void wait() {
-        int task_id = task_self();
-        auto task = ::rtapi_get_task<XenomaiTask>(task_id);
-        if (task->cancel) {
-            pthread_exit(nullptr);
-        }
+        if (do_thread_lock)
+            pthread_mutex_unlock(&thread_lock);
+        pthread_testcancel();
+        RtapiTask *task = reinterpret_cast<RtapiTask *>(pthread_getspecific(key));
         rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
         struct timespec now;
         clock_gettime(CLOCK_MONOTONIC, &now);
@@ -168,6 +172,8 @@ struct XenomaiApp : RtapiApp {
             if (res < 0)
                 perror("clock_nanosleep");
         }
+        if (do_thread_lock)
+            pthread_mutex_lock(&thread_lock);
     }
 
     unsigned char do_inb(unsigned int port) {
@@ -195,10 +201,18 @@ struct XenomaiApp : RtapiApp {
         return task->id;
     }
 
+    bool do_thread_lock;
+
     static pthread_once_t key_once;
     static pthread_key_t key;
     static void init_key(void) {
         pthread_key_create(&key, NULL);
+    }
+
+    static pthread_once_t lock_once;
+    static pthread_mutex_t thread_lock;
+    static void init_lock(void) {
+        pthread_mutex_init(&thread_lock, NULL);
     }
 
     long long do_get_time() {
@@ -213,16 +227,20 @@ struct XenomaiApp : RtapiApp {
     }
 };
 
-pthread_once_t XenomaiApp::key_once;
-pthread_key_t XenomaiApp::key;
+pthread_once_t PosixApp::key_once = PTHREAD_ONCE_INIT;
+pthread_once_t PosixApp::lock_once = PTHREAD_ONCE_INIT;
+pthread_key_t PosixApp::key;
+pthread_mutex_t PosixApp::thread_lock;
+
 } // namespace
 
 extern "C" RtapiApp *make(int policy);
 
 RtapiApp *make(int policy) {
-    if (policy != SCHED_FIFO) {
-        throw std::invalid_argument("Only SCHED_FIFO allowed");
+    if (policy == SCHED_OTHER) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
+    } else {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
     }
-    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using XENOMAI (posix-skin) realtime\n");
-    return new XenomaiApp();
+    return new PosixApp(policy);
 }

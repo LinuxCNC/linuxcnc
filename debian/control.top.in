@@ -28,6 +28,7 @@ Build-Depends:
     libgl-dev | libgl1-mesa-dev,
     libglu1-mesa-dev,
     libgtk-3-dev,
+    libcap-dev,
     libmodbus-dev (>= 3.0),
     libgpiod-dev,
     @LIBREADLINE_DEV@,

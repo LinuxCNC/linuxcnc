@@ -34,42 +34,56 @@ static inline void rtapi_timespec_add(timespec &result, const timespec &ta, cons
 }
 
 static inline bool rtapi_timespec_less(const struct timespec &ta, const struct timespec &tb) {
-    if(ta.tv_sec < tb.tv_sec) return 1;
-    if(ta.tv_sec > tb.tv_sec) return 0;
+    if (ta.tv_sec < tb.tv_sec)
+        return 1;
+    if (ta.tv_sec > tb.tv_sec)
+        return 0;
     return ta.tv_nsec < tb.tv_nsec;
 }
 
 void rtapi_timespec_advance(struct timespec &result, const struct timespec &src, unsigned long nsec);
 
-struct WithRoot
-{
+struct WithRoot {
     WithRoot();
     ~WithRoot();
+    static void init(uid_t ruid_ini, uid_t euid_ini);
+    static uid_t getRuid() {
+        return ruid;
+    }
+    static uid_t getEuid() {
+        return euid;
+    }
+
+  private:
     static std::atomic_int level;
+    static uid_t ruid, euid;
 };
 
-struct rtapi_task {
-  rtapi_task();
+struct RtapiTask {
+    RtapiTask();
 
-  int magic;			/* to check for valid handle */
-  int id;
-  int owner;
-  int uses_fp;
-  size_t stacksize;
-  int prio;
-  long period;
-  struct timespec nextstart;
-  unsigned ratio;
-  long pll_correction;
-  long pll_correction_limit;
-  void *arg;
-  void (*taskcode) (void*);	/* pointer to task function */
+    int magic; /* to check for valid handle */
+    int id;
+    int owner;
+    int uses_fp;
+    size_t stacksize;
+    int prio;
+    long period;
+    struct timespec nextstart;
+    long pll_correction;
+    long pll_correction_limit;
+    void *arg;
+    void (*taskcode)(void *); /* pointer to task function */
 };
 
-struct RtapiApp
-{
+#define MAX_TASKS 64
+#define TASK_MAGIC 21979 /* random numbers used as signatures */
+#define TASK_MAGIC_INIT ((RtapiTask *)(-1))
 
-    RtapiApp(int policy = SCHED_OTHER) : policy(policy), period(0) {}
+struct RtapiApp {
+
+    RtapiApp(int policy = SCHED_OTHER) : policy(policy), period(0) {
+    }
 
     virtual int prio_highest() const;
     virtual int prio_lowest() const;
@@ -79,12 +93,11 @@ struct RtapiApp
     int prio_next_higher(int prio) const;
     int prio_next_lower(int prio) const;
     long clock_set_period(long int period_nsec);
-    int task_new(void (*taskcode)(void*), void *arg,
-            int prio, int owner, unsigned long int stacksize, int uses_fp);
-    virtual rtapi_task *do_task_new() = 0;
+    int task_new(void (*taskcode)(void *), void *arg, int prio, int owner, unsigned long int stacksize, int uses_fp);
+    virtual RtapiTask *do_task_new() = 0;
     static int allocate_task_id();
-    static struct rtapi_task *get_task(int task_id);
-    void unexpected_realtime_delay(rtapi_task *task, int nperiod=1);
+    static RtapiTask *get_task(int task_id);
+    void unexpected_realtime_delay(RtapiTask *task, int nperiod = 1);
     virtual int task_delete(int id) = 0;
     virtual int task_start(int task_id, unsigned long period_nsec) = 0;
     virtual int task_pause(int task_id) = 0;
@@ -95,25 +108,18 @@ struct RtapiApp
     virtual void wait() = 0;
     virtual unsigned char do_inb(unsigned int port) = 0;
     virtual void do_outb(unsigned char value, unsigned int port) = 0;
-    virtual int run_threads(int fd, int (*callback)(int fd)) = 0;
     virtual long long do_get_time(void) = 0;
     virtual void do_delay(long ns) = 0;
+    static int find_rt_cpu_number();
+    static void set_namef(const char *fmt, ...);
     int policy;
     long period;
+    static RtapiTask *task_array[MAX_TASKS];
 };
 
-template<class T=rtapi_task>
-T *rtapi_get_task(int task_id) {
-    return static_cast<T*>(RtapiApp::get_task(task_id));
+template <class T = RtapiTask> T *rtapi_get_task(int task_id) {
+    return static_cast<T *>(RtapiApp::get_task(task_id));
 }
-
-int find_rt_cpu_number();
-
-#define MAX_TASKS  64
-#define TASK_MAGIC    21979	/* random numbers used as signatures */
-#define TASK_MAGIC_INIT   ((rtapi_task*)(-1))
-
-extern struct rtapi_task *task_array[MAX_TASKS];
 
 #define WITH_ROOT WithRoot root
 #endif

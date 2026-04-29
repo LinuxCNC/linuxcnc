@@ -1,0 +1,8 @@
+# LinuxCNC - expose realtime tuning knobs to the plugdev group so that
+# rtapi_app can tune latency without CAP_DAC_OVERRIDE when running under
+# file capabilities.  setuid-root builds do not need this rule.
+
+# /dev/cpu_dma_latency: harden_rt() opens this to pin CPU idle states at
+# C0, cutting wake-up jitter on AC-powered machines.  Default is 0600
+# root:root, so an unprivileged rtapi_app would fail to open it.
+KERNEL=="cpu_dma_latency", MODE="0660", GROUP="plugdev"

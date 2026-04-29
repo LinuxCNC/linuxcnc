@@ -57,7 +57,7 @@ endif
 ifeq ($(MAKECMDGOALS),)
 TRIVIAL_BUILD=no
 else
-ifeq ($(filter-out docclean clean setuid install tags swish,$(MAKECMDGOALS)),)
+ifeq ($(filter-out docclean clean setuid setcap install tags swish,$(MAKECMDGOALS)),)
 TRIVIAL_BUILD=yes
 else
 TRIVIAL_BUILD=no
@@ -140,7 +140,13 @@ ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),uspace)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `id -u` = 0 -a -O ../bin/linuxcnc_module_helper -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 else
-	@if [ -f ../bin/rtapi_app ]; then if ! [ `id -u` = 0 -a -O  ../bin/rtapi_app -a -u ../bin/rtapi_app ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place with access to hardware."; fi; fi
+	@if [ -f ../bin/rtapi_app ]; then \
+	    if [ `id -u` = 0 -a -O ../bin/rtapi_app -a -u ../bin/rtapi_app ]; then :; \
+	    elif PATH="/sbin:/usr/sbin:$$PATH" command -v getcap >/dev/null 2>&1 \
+	         && [ -n "`PATH=/sbin:/usr/sbin:$$PATH getcap ../bin/rtapi_app 2>/dev/null`" ]; then :; \
+	    else $(VECHO) "You now need to run 'sudo make setuid' or 'sudo make setcap' in order to run in place with access to hardware."; \
+	    fi; \
+	fi
 endif
 endif
 
@@ -567,6 +573,25 @@ else
 endif
 	chown root ../bin/linuxcnc_module_helper
 	chmod 4750 ../bin/linuxcnc_module_helper
+
+# File capabilities alternative to setuid (uspace only).
+# Grants rtapi_app the kernel privileges it needs without running as root:
+#   cap_ipc_lock   - mlock() for realtime memory
+#   cap_net_admin  - raw socket access for hm2_eth / iptables management
+#   cap_sys_rawio  - iopl() and /dev/mem for parallel port and PCI I/O
+#   cap_sys_nice   - SCHED_FIFO scheduling and CPU affinity
+# Linux capabilities are not inherited across exec(), so /sbin/iptables
+# launched from rtapi_app would run unprivileged.  rtapi_app raises
+# cap_net_admin into its ambient set at startup so it survives execve().
+# Clears any setuid bit left by a prior 'make setuid' so the two paths don't
+# silently stack.
+setcap:
+ifeq ($(BUILD_SYS),uspace)
+	chmod u-s ../bin/rtapi_app
+	setcap cap_ipc_lock,cap_net_admin,cap_sys_rawio,cap_sys_nice+ep ../bin/rtapi_app
+else
+	@echo "setcap target is only supported for uspace builds" >&2; exit 1
+endif
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile

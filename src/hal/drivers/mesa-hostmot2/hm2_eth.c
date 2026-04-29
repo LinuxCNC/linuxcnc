@@ -28,6 +28,7 @@
 #include <ifaddrs.h>
 #include <unistd.h>
 #include <spawn.h>
+#include <stdarg.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -45,7 +46,6 @@
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "hm2_eth.h"
-#include "eshellf.h"
 
 struct kvlist {
     struct rtapi_list_head list;
@@ -96,6 +96,9 @@ RTAPI_MP_ARRAY_STRING(config, MAX_ETH_BOARDS, "config string for the AnyIO board
 
 int debug = 0;
 RTAPI_MP_INT(debug, "Developer/debug use only!  Enable debug logging.");
+
+static int no_iptables = 0;
+RTAPI_MP_INT(no_iptables, "Skip automatic iptables rule installation; firewall must be configured externally.");
 
 static int boards_count = 0;
 
@@ -463,38 +466,115 @@ static hm2_eth_t boards[MAX_ETH_BOARDS];
 static int eth_socket_send(int sockfd, const void *buffer, int len, int flags);
 static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 
-#define IPTABLES "env \"PATH=/usr/sbin:/sbin:${PATH}\" iptables"
+// hm2_eth installs iptables/ip6tables rules to isolate the dedicated Mesa
+// interface from non-realtime traffic.  rtapi_app raises CAP_NET_ADMIN
+// into its ambient set at startup (see uspace_rtapi_main.cc), so the
+// caps survive execve() into the iptables binaries even when we run
+// under file caps instead of setuid root.
+#define IPTABLES_BIN  "/sbin/iptables"
+#define IP6TABLES_BIN "/sbin/ip6tables"
 #define CHAIN "hm2-eth-rules-output"
 
-static bool chain_exists() {
-    int result =
-        shell(IPTABLES" -n -L "CHAIN" > /dev/null 2>&1");
-    return result == EXIT_SUCCESS;
+// run_iptables(): fork+exec the named iptables binary with a
+// NULL-terminated argv list (sentinel == NULL, do not omit).  Returns
+// the child exit status, or -1 on spawn/wait failure.  When quiet, the
+// child's stdout+stderr are suppressed so probe-style "is this rule
+// present?" calls do not spam the log on the (expected) failure path.
+static int run_iptables(const char *bin, int quiet, ...) {
+    char *argv[24];
+    int n = 0;
+    // argv[0] is the program name iptables expects, not the path.
+    argv[n++] = (char *)(strrchr(bin, '/') ? strrchr(bin, '/') + 1 : bin);
+
+    va_list ap;
+    va_start(ap, quiet);
+    while(n < (int)(sizeof(argv)/sizeof(argv[0])) - 1) {
+        char *a = va_arg(ap, char *);
+        if(!a) break;
+        argv[n++] = a;
+    }
+    argv[n] = NULL;
+    va_end(ap);
+
+    posix_spawn_file_actions_t fa, *pfa = NULL;
+    if(quiet && posix_spawn_file_actions_init(&fa) == 0) {
+        if(posix_spawn_file_actions_addopen(&fa, STDOUT_FILENO,
+                "/dev/null", O_WRONLY, 0) == 0
+                && posix_spawn_file_actions_adddup2(&fa, STDOUT_FILENO,
+                        STDERR_FILENO) == 0) {
+            pfa = &fa;
+        }
+    }
+
+    pid_t pid;
+    int r = posix_spawn(&pid, bin, pfa, NULL, argv, environ);
+    if(pfa) posix_spawn_file_actions_destroy(&fa);
+
+    if(r != 0) return -1;
+    int status;
+    if(waitpid(pid, &status, 0) < 0) return -1;
+    if(WIFEXITED(status)) return WEXITSTATUS(status);
+    return -1;
 }
+
+#define IPT(quiet, ...)  run_iptables(IPTABLES_BIN,  (quiet), __VA_ARGS__, NULL)
+#define IP6T(quiet, ...) run_iptables(IP6TABLES_BIN, (quiet), __VA_ARGS__, NULL)
 
 static int iptables_state = -1;
 static bool use_iptables() {
     if(iptables_state == -1) {
-        if(!chain_exists()) {
-            int res = shell(IPTABLES " -N " CHAIN);
-            if(res != EXIT_SUCCESS) {
-                LL_PRINT("ERROR: Failed to create iptables chain "CHAIN);
+        if(no_iptables) {
+            LL_PRINT("Skipping iptables setup (no_iptables=1); "
+                     "configure firewall externally.\n");
+            return (iptables_state = 0);
+        }
+        // Read-only probe: list the INPUT chain.  Fails when the
+        // process lacks CAP_NET_ADMIN (rootless without setcap, or
+        // setcap applied but ambient raise failed in rtapi_app).
+        if(IPT(1, "-n", "-L", "INPUT") != 0) {
+            LL_PRINT("iptables not available (missing CAP_NET_ADMIN?); "
+                     "automatic firewall setup skipped.  See hm2_eth(9) "
+                     "NOTES for the manual rule recipe.\n");
+            return (iptables_state = 0);
+        }
+        // Create chain only if absent; insert OUTPUT jump only if absent.
+        if(IPT(1, "-n", "-L", CHAIN) != 0) {
+            if(IPT(0, "-N", CHAIN) != 0) {
+                LL_PRINT("ERROR: failed to create iptables chain " CHAIN "\n");
                 return (iptables_state = 0);
             }
         }
-        // now add a jump to our chain at the start of the OUTPUT chain if it isn't in the chain already
-        int res = shell(IPTABLES "-C OUTPUT -j " CHAIN " 2>/dev/null || /sbin/iptables -I OUTPUT 1 -j " CHAIN);
-        if(res != EXIT_SUCCESS) {
-            LL_PRINT("ERROR: Failed to insert rule in OUTPUT chain");
-            return (iptables_state = 0);
+        if(IPT(1, "-C", "OUTPUT", "-j", CHAIN) != 0) {
+            if(IPT(0, "-I", "OUTPUT", "1", "-j", CHAIN) != 0) {
+                LL_PRINT("ERROR: failed to insert OUTPUT jump\n");
+                return (iptables_state = 0);
+            }
         }
+        // Mirror the chain for ip6tables so IPv6 isolation can hang off
+        // it.  Best-effort: kernels without IPv6 support cause this to
+        // fail silently and the IPv6 rules are simply absent.
+        if(IP6T(1, "-n", "-L", CHAIN) != 0)
+            IP6T(1, "-N", CHAIN);
+        if(IP6T(1, "-C", "OUTPUT", "-j", CHAIN) != 0)
+            IP6T(1, "-I", "OUTPUT", "1", "-j", CHAIN);
+
         return (iptables_state = 1);
     }
     return iptables_state;
 }
 
 static void clear_iptables() {
-    shell(IPTABLES" -F "CHAIN" > /dev/null 2>&1");
+    IPT(1, "-F", CHAIN);
+    IP6T(1, "-F", CHAIN);
+}
+
+static void cleanup_iptables() {
+    IPT(1, "-F", CHAIN);
+    IPT(1, "-D", "OUTPUT", "-j", CHAIN);
+    IPT(1, "-X", CHAIN);
+    IP6T(1, "-F", CHAIN);
+    IP6T(1, "-D", "OUTPUT", "-j", CHAIN);
+    IP6T(1, "-X", CHAIN);
 }
 
 static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
@@ -530,46 +610,10 @@ static char* fetch_ifname(int sockfd, char *buf, size_t n) {
     return NULL;
 }
 
-static char *vseprintf(char *buf, char *ebuf, const char *fmt, va_list ap) {
-    int result = vsnprintf(buf, ebuf-buf, fmt, ap);
-    if(result < 0) return ebuf;
-    else if(buf + result > ebuf) return ebuf;
-    else return buf + result;
-}
-
-static char *seprintf(char *buf, char *ebuf, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    char *result = vseprintf(buf, ebuf, fmt, ap);
-    va_end(ap);
-    return result;
-}
-
-static int install_iptables_rule(const char *fmt, ...) {
-    char commandbuf[1024], *ptr = commandbuf,
-        *ebuf = commandbuf + sizeof(commandbuf);
-    ptr = seprintf(ptr, ebuf, IPTABLES" -A "CHAIN" ");
-    va_list ap;
-    va_start(ap, fmt);
-    ptr = vseprintf(ptr, ebuf, fmt, ap);
-    va_end(ap);
-
-    if(ptr == ebuf)
-    {
-        LL_PRINT("ERROR: commandbuf too small\n");
-        return -ENOSPC;
-    }
-
-    int res = shell(commandbuf);
-    if(res == EXIT_SUCCESS) return 0;
-
-    LL_PRINT("ERROR: Failed to execute '%s'\n", commandbuf);
-    return -EINVAL;
-}
-
 static int install_iptables_board(int sockfd) {
     struct sockaddr_in srcaddr, dstaddr;
     char srchost[16], dsthost[16]; // enough for 255.255.255.255\0
+    char dport_s[8], sport_s[8];
 
     socklen_t addrlen = sizeof(srcaddr);
     int res = getsockname(sockfd, &srcaddr, &addrlen);
@@ -579,33 +623,48 @@ static int install_iptables_board(int sockfd) {
     res = getpeername(sockfd, &dstaddr, &addrlen);
     if(res < 0) return -errno;
 
-    res = install_iptables_rule(
-        "-p udp -m udp -d %s --dport %d -s %s --sport %d -j ACCEPT",
-        inet_ntoa_buf(dstaddr.sin_addr, dsthost, sizeof(dsthost)),
-        ntohs(dstaddr.sin_port),
-        inet_ntoa_buf(srcaddr.sin_addr, srchost, sizeof(srchost)),
-        ntohs(srcaddr.sin_port));
-    return res;
+    if(!use_iptables()) return 0;
+
+    inet_ntoa_buf(srcaddr.sin_addr, srchost, sizeof(srchost));
+    inet_ntoa_buf(dstaddr.sin_addr, dsthost, sizeof(dsthost));
+    snprintf(dport_s, sizeof(dport_s), "%d", ntohs(dstaddr.sin_port));
+    snprintf(sport_s, sizeof(sport_s), "%d", ntohs(srcaddr.sin_port));
+
+    // --sport is safe here: cleanup_iptables() removes the chain on exit,
+    // so a stale rule from a previous run with a different ephemeral port
+    // cannot block the second invocation.
+    if(IPT(0, "-A", CHAIN,
+           "-p", "udp", "-m", "udp",
+           "-d", dsthost, "--dport", dport_s,
+           "-s", srchost, "--sport", sport_s,
+           "-j", "ACCEPT") != 0)
+        return -EINVAL;
+    return 0;
 }
 
 static int install_iptables_perinterface(const char *ifbuf) {
-    // without this rule, 'ping' spews a lot of messages like
-    //    From 192.168.1.1 icmp_seq=5 Packet filtered
-    // many times for each ping packet sent.  With this rule,
-    // ping prints 'ping: sendmsg: Operation not permitted' once
-    // per second.
-    int res = install_iptables_rule(
-        "-o %s -p icmp -j DROP",
-        ifbuf);
-    if(res < 0) return res;
+    // Without these rules, 'ping' spews a lot of "Packet filtered"
+    // messages.  With them, ping prints 'ping: sendmsg: Operation not
+    // permitted' once per second.
+    //
+    // Outbound IPv6 on the dedicated interface is dropped via ip6tables
+    // rather than disable_ipv6 sysctl: writing the sysctl needs
+    // CAP_DAC_OVERRIDE (file is mode 644 root:root) and we'd rather not
+    // grant it to rtapi_app.  Users who want full IPv6 quiescence (no
+    // router solicitations etc.) can additionally set
+    // 'net.ipv6.conf.<iface>.disable_ipv6=1' in /etc/sysctl.conf.
+    if(!use_iptables()) return 0;
 
-    res = install_iptables_rule(
-        "-o %s -j REJECT --reject-with icmp-admin-prohibited",
-        ifbuf);
-    if(res < 0) return res;
+    if(IPT(0, "-A", CHAIN, "-o", (char *)ifbuf, "-p", "icmp", "-j", "DROP") != 0)
+        return -EINVAL;
+    if(IPT(0, "-A", CHAIN, "-o", (char *)ifbuf,
+           "-j", "REJECT", "--reject-with", "icmp-admin-prohibited") != 0)
+        return -EINVAL;
 
-    res = eshellf(HM2_LLIO_NAME, "/sbin/sysctl -q net.ipv6.conf.%s.disable_ipv6=1", ifbuf);
-    if(res < 0) return res;
+    // ip6tables is best-effort: kernel may not have IPv6 support
+    // compiled in, in which case the chain creation in use_iptables()
+    // already failed and this rule is simply absent.
+    IP6T(1, "-A", CHAIN, "-o", (char *)ifbuf, "-j", "DROP");
 
     return 0;
 }
@@ -709,11 +768,11 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
         return -errno;
     }
 
-    if(use_iptables())
-    {
-        ret = install_iptables_board(board->sockfd);
-        if(ret < 0) return ret;
-    }
+    // install_iptables_board() is a no-op when iptables is unavailable
+    // (rootless install without setcap on hm2_eth_iptables, or
+    // no_iptables=1), so it is safe to call unconditionally.
+    ret = install_iptables_board(board->sockfd);
+    if(ret < 0) return ret;
 
     board->write_packet_ptr = board->write_packet;
     board->read_packet_ptr = board->read_packet;
@@ -1619,7 +1678,7 @@ void rtapi_app_exit(void) {
     for(i = 0; i<MAX_ETH_BOARDS && board_ip[i] && board_ip[i][0]; i++)
         close_board(&boards[i]);
 
-    if(use_iptables()) clear_iptables();
+    if(use_iptables()) cleanup_iptables();
 
     kvlist_free(&board_num);
     kvlist_free(&ifnames);
