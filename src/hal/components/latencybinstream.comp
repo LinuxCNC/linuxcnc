@@ -81,10 +81,10 @@ variable hal_stream_t fifo;
 variable rtapi_u64 nsamples;
 variable rtapi_u64 sum;
 variable rtapi_u64 sq_sum;
-variable rtapi_s64 lat_min = INT64_MAX;
-variable rtapi_s64 lat_max = INT64_MIN;
+variable rtapi_s64 lat_min = RTAPI_INT64_MAX;
+variable rtapi_s64 lat_max = RTAPI_INT64_MIN;
 
-license "GPL2+";
+license "GPL";
 author "B.Stultiens";
 ;;
 
@@ -126,8 +126,8 @@ FUNCTION(_) {
 	rtapi_s64 nsbs = nsbinsize;  // May not be zero, important to avoid divide by zero
 	if (first || binmax != last_binmax || !nsbs) {
 		first = 0;
-		lat_min = INT64_MAX;
-		lat_max = INT64_MIN;
+		lat_min = RTAPI_INT64_MAX;
+		lat_max = RTAPI_INT64_MIN;
 		ptail.u = ntail.u = 0;
 		memset(pbins, 0, sizeof(pbins));
 		memset(nbins, 0, sizeof(nbins));
