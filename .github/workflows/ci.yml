@@ -56,17 +56,26 @@ jobs:
       run: |
         set -x
         sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
-        echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/linuxcnc.gpg] https://www.linuxcnc.org/ trixie base" | sudo tee /etc/apt/sources.list.d/linuxcnc.list > /dev/null
-        GPGTMP=$(mktemp -d /tmp/.gnupgXXXXXX)
-        gpg --homedir $GPGTMP --keyserver hkp://keyserver.ubuntu.com --recv-key e43b5a8e78cc2927
-        gpg --homedir $GPGTMP --export 'LinuxCNC Archive Signing Key' | sudo tee /etc/apt/keyrings/linuxcnc.gpg > /dev/null
-        sudo apt-get --quiet -o Acquire::Retries=5 update
-        sudo apt-get --yes -o Acquire::Retries=5 install linux-headers-5.4.279-rtai-amd64 linux-image-5.4.279-rtai-amd64 rtai-modules-5.4.279
+        #To install the RTAI deb's from linuxcnc base
+        #echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/linuxcnc.gpg] https://www.linuxcnc.org/ trixie base" | sudo tee /etc/apt/sources.list.d/linuxcnc.list > /dev/null
+        #GPGTMP=$(mktemp -d /tmp/.gnupgXXXXXX)
+        #gpg --homedir $GPGTMP --keyserver hkp://keyserver.ubuntu.com --recv-key e43b5a8e78cc2927
+        #gpg --homedir $GPGTMP --export 'LinuxCNC Archive Signing Key' | sudo tee /etc/apt/keyrings/linuxcnc.gpg > /dev/null
+        #sudo apt-get --quiet -o Acquire::Retries=5 update
+        #sudo apt-get --yes -o Acquire::Retries=5 install linux-headers-5.4.279-rtai-amd64 linux-image-5.4.279-rtai-amd64 rtai-modules-5.4.279
+        #-----
+        #To install the RTAI deb's from NTULINUX git
+        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb
+        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb
+        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
+        sudo dpkg -i linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
+        #-----
         eatmydata ./scripts/travis-install-build-deps.sh
         sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
         eatmydata ./autogen.sh
-        eatmydata ./configure --with-realtime=/usr/realtime-5.4.279-rtai-amd64 --disable-check-runtime-deps --enable-werror
+        #eatmydata ./configure --with-realtime=/usr/realtime-5.4.279-rtai-amd64 --disable-check-runtime-deps --enable-werror
+        eatmydata ./configure --with-realtime=/usr/realtime-5.4.302-rtai-amd64 --disable-check-runtime-deps --enable-werror
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
 
   rip-and-test-clang:
