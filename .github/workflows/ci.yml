@@ -21,24 +21,28 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v6
       with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
-    - name: Build RIP & test
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
       run: |
         set -x
-        sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
-        eatmydata ./scripts/travis-install-build-deps.sh
-        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        .github/scripts/install-deps.sh
+    - name: Build RIP GCC
+      run: |
+        set -x
         cd src
-        eatmydata ./autogen.sh
-        eatmydata ./configure --disable-check-runtime-deps --enable-werror
-        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
-        # Note that the package build covers html docs
-        eatmydata ../scripts/rip-environment runtests -p
+        ./autogen.sh
+        ./configure --disable-check-runtime-deps --enable-werror
+        make -O -j$((1+$(nproc))) default pycheck V=1
+    - name: Test
+      run: |
+        set -x
+        scripts/rip-environment runtests -p
 
   rip-rtai:
     runs-on: ubuntu-24.04
@@ -46,37 +50,26 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v6
       with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
+      run: |
+        set -x
+        .github/scripts/install-rtai.sh
+        .github/scripts/install-deps.sh
     - name: Build RIP RTAI
       run: |
         set -x
-        sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
-        #To install the RTAI deb's from linuxcnc base
-        #echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/linuxcnc.gpg] https://www.linuxcnc.org/ trixie base" | sudo tee /etc/apt/sources.list.d/linuxcnc.list > /dev/null
-        #GPGTMP=$(mktemp -d /tmp/.gnupgXXXXXX)
-        #gpg --homedir $GPGTMP --keyserver hkp://keyserver.ubuntu.com --recv-key e43b5a8e78cc2927
-        #gpg --homedir $GPGTMP --export 'LinuxCNC Archive Signing Key' | sudo tee /etc/apt/keyrings/linuxcnc.gpg > /dev/null
-        #sudo apt-get --quiet -o Acquire::Retries=5 update
-        #sudo apt-get --yes -o Acquire::Retries=5 install linux-headers-5.4.279-rtai-amd64 linux-image-5.4.279-rtai-amd64 rtai-modules-5.4.279
-        #-----
-        #To install the RTAI deb's from NTULINUX git
-        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb
-        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb
-        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
-        sudo dpkg -i linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
-        #-----
-        eatmydata ./scripts/travis-install-build-deps.sh
-        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
-        eatmydata ./autogen.sh
-        #eatmydata ./configure --with-realtime=/usr/realtime-5.4.279-rtai-amd64 --disable-check-runtime-deps --enable-werror
-        eatmydata ./configure --with-realtime=/usr/realtime-5.4.302-rtai-amd64 --disable-check-runtime-deps --enable-werror
-        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
+        ./autogen.sh
+        #It is save to assume there is only one /usr/realtime-* folder
+        ./configure --with-realtime=/usr/realtime-* --disable-check-runtime-deps --enable-werror
+        make -O -j$((1+$(nproc))) default pycheck V=1
 
   rip-and-test-clang:
     runs-on: ubuntu-24.04
@@ -84,25 +77,47 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v6
       with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
-    - name: Clang build RIP & test
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
       run: |
         set -x
-        sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
-        eatmydata ./scripts/travis-install-build-deps.sh
-        sudo eatmydata apt-get -y -o Acquire::Retries=5 install clang
-        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        .github/scripts/install-deps.sh
+    - name: Build RIP Clang
+      run: |
+        set -x
         cd src
-        eatmydata ./autogen.sh
-        CC=clang CXX=clang++ eatmydata ./configure --disable-check-runtime-deps --enable-werror
-        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
-        # Note that the package build covers html docs
-        eatmydata ../scripts/rip-environment runtests -p
+        ./autogen.sh
+        CC=clang CXX=clang++ ./configure --disable-check-runtime-deps --enable-werror
+        make -O -j$((1+$(nproc))) default pycheck V=1
+    - name: Test
+      run: |
+        set -x
+        scripts/rip-environment runtests -p
+
+  cppcheck:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        submodules: false
+        fetch-depth: 1
+    - name: Perform Source Code checks that were successful in the past
+      continue-on-error: true
+      run: |
+        set -x
+        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+        sudo apt-get --yes -o Acquire::Retries=5 install cppcheck shellcheck
+        scripts/cppcheck.sh
+    - name: Shellcheck
+      continue-on-error: true
+      run: |
+        scripts/shellcheck.sh
 
   htmldocs:
     runs-on: ubuntu-24.04
@@ -110,23 +125,26 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v6
       with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
+      run: |
+        set -x
+        .github/scripts/install-deps.sh
     - name: Build HTML docmentation
       run: |
-        ./scripts/travis-install-build-deps.sh
-        sudo apt-get -y -o Acquire::Retries=5 install eatmydata
-        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        set -x
         cd src
-        eatmydata ./autogen.sh
-        eatmydata ./configure --disable-check-runtime-deps --enable-build-documentation=html
-        eatmydata make -O -j$((1+$(nproc))) manpages
-        eatmydata make -O -j$((1+$(nproc))) translateddocs
-        eatmydata make -O -j$((1+$(nproc))) docs
+        ./autogen.sh
+        ./configure --disable-check-runtime-deps --enable-build-documentation=html
+        make -O -j$((1+$(nproc))) manpages
+        make -O -j$((1+$(nproc))) translateddocs
+        make -O -j$((1+$(nproc))) docs
         # Note that the package build covers html docs
 
   package-arch:
@@ -139,12 +157,14 @@ jobs:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
-      options: --cpus=2 --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+      options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -152,13 +172,13 @@ jobs:
         set -e
         set -x
         apt-get --quiet -o Acquire::Retries=5 update
-        apt-get --yes --quiet -o Acquire::Retries=5 install eatmydata curl
-        eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        apt-get --yes --quiet -o Acquire::Retries=5 install curl
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
+        apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
+        submodules: false
         # "fetch-depth: 0" fetches all of history, this is needed by
         # our build system to determine the version from tags
         fetch-depth: 0
@@ -176,11 +196,11 @@ jobs:
         esac
         set -e
         set -x
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-recommends gpg software-properties-common
-        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-recommends gpg software-properties-common
+        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
-        eatmydata apt-get --quiet -o Acquire::Retries=5 update
+        add-apt-repository "deb http://linuxcnc.org $DIST base"
+        apt-get --quiet -o Acquire::Retries=5 update
 
     - name: Build architecture-specific Debian packages
       env:
@@ -190,26 +210,26 @@ jobs:
       run: |
         set -e
         set -x
-        eatmydata git config --global --add safe.directory "${PWD}"
-        eatmydata debian/configure
-        eatmydata debian/update-dch-from-git
-        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        eatmydata git diff
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 build-dep --arch-only .
-        eatmydata debuild -us -uc --build=any
+        git config --global --add safe.directory "${PWD}"
+        debian/configure
+        debian/update-dch-from-git
+        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        git diff
+        apt-get --yes --quiet -o Acquire::Retries=5 build-dep --arch-only .
+        debuild -us -uc --build=any
     - name: Test debian packages
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
         set -e
         set -x
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install sudo # some tests run sudo...
-        eatmydata adduser --disabled-password --gecos "" testrunner
-        eatmydata passwd -d testrunner
-        eatmydata adduser testrunner sudo
+        apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
+        apt-get --yes --quiet -o Acquire::Retries=5 install sudo # some tests run sudo...
+        adduser --disabled-password --gecos "" testrunner
+        passwd -d testrunner
+        adduser testrunner sudo
         chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
-        su -c "eatmydata ./scripts/runtests -p ./tests" testrunner
+        su -c "./scripts/runtests -p ./tests" testrunner
     - name: Gather build artifacts
       run: |
         set -e
@@ -229,7 +249,7 @@ jobs:
         echo "arch=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
@@ -245,12 +265,14 @@ jobs:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
-      options: --cpus=2 --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+      options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
 
     - name: Install pre-dependencies
       env:
@@ -259,13 +281,13 @@ jobs:
         set -e
         set -x
         apt-get --quiet -o Acquire::Retries=5 update
-        apt-get --yes --quiet -o Acquire::Retries=5 install eatmydata curl
-        eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        apt-get --yes --quiet -o Acquire::Retries=5 install curl
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
+        apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
+        submodules: false
         # "fetch-depth: 0" fetches all of history, this is needed by
         # our build system to determine the version from tags
         fetch-depth: 0
@@ -283,11 +305,11 @@ jobs:
         esac
         set -e
         set -x
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install gpg software-properties-common
-        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        apt-get --yes --quiet -o Acquire::Retries=5 install gpg software-properties-common
+        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
-        eatmydata apt-get --quiet -o Acquire::Retries=5 update
+        add-apt-repository "deb http://linuxcnc.org $DIST base"
+        apt-get --quiet -o Acquire::Retries=5 update
 
     - name: Build architecture-independent Debian packages
       env:
@@ -297,20 +319,20 @@ jobs:
       run: |
         set -e
         set -x
-        eatmydata git config --global --add safe.directory "${PWD}"
-        eatmydata debian/configure
-        eatmydata debian/update-dch-from-git
-        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        eatmydata git diff
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 build-dep --indep-only .
-        eatmydata debuild -us -uc --build=source,all
+        git config --global --add safe.directory "${PWD}"
+        debian/configure
+        debian/update-dch-from-git
+        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        git diff
+        apt-get --yes --quiet -o Acquire::Retries=5 build-dep --indep-only .
+        debuild -us -uc --build=source,all
     - name: Test install debian packages
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
         set -e
         set -x
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
+        apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
     - name: Gather build artifacts
       run: |
         set -e
@@ -330,32 +352,11 @@ jobs:
         echo "arch=all" >> $GITHUB_OUTPUT
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
         if-no-files-found: error
-
-
-  cppcheck:
-    runs-on: ubuntu-24.04
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-        fetch-depth: 0
-    - name: Perform Source Code checks that were successful in the past
-      continue-on-error: true
-      run: |
-        set -x
-        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-        sudo apt-get --yes -o Acquire::Retries=5 install cppcheck shellcheck
-        scripts/cppcheck.sh
-    - name: Shellcheck
-      continue-on-error: true
-      run: |
-        scripts/shellcheck.sh
-
 
   release:
     name: Release packages
@@ -368,7 +369,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: release_artifacts
     - name: Prepare upload assets
