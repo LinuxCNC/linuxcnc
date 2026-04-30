@@ -21,7 +21,9 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v6
       with:
         submodules: false
@@ -48,7 +50,9 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v6
       with:
         submodules: false
@@ -73,7 +77,9 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v6
       with:
         submodules: false
@@ -119,7 +125,9 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v6
       with:
         submodules: false
@@ -149,12 +157,14 @@ jobs:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
-      options: --cpus=4 --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+      options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -255,12 +265,14 @@ jobs:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
       # SYS_ADMIN is needed for shmctl IPC_SET
-      options: --cpus=4 --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+      options: --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
 
     - name: Install pre-dependencies
       env:
