@@ -859,6 +859,10 @@ int Interp::init()
   _setup.a_axis_wrapped = 0;
   _setup.b_axis_wrapped = 0;
   _setup.c_axis_wrapped = 0;
+  _setup.a_rotary_modulo = 0;
+  _setup.b_rotary_modulo = 0;
+  _setup.c_rotary_modulo = 0;
+  _setup.rotary_modulo_literal = 0;
   _setup.random_toolchanger = 0;
   _setup.a_indexer_jnum = -1; // -1 means not used
   _setup.b_indexer_jnum = -1; // -1 means not used
@@ -888,6 +892,35 @@ int Interp::init()
           _setup.a_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_A", false);
           _setup.b_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_B", false);
           _setup.c_axis_wrapped = inifile.findBoolV("WRAPPED_ROTARY", "AXIS_C", false);
+          _setup.a_rotary_modulo = inifile.findBoolV("ROTARY_MODULO", "AXIS_A", false);
+          _setup.b_rotary_modulo = inifile.findBoolV("ROTARY_MODULO", "AXIS_B", false);
+          _setup.c_rotary_modulo = inifile.findBoolV("ROTARY_MODULO", "AXIS_C", false);
+          {
+              struct { const char *name; int *wrapped; int *modulo; } axes[] = {
+                  {"AXIS_A", &_setup.a_axis_wrapped, &_setup.a_rotary_modulo},
+                  {"AXIS_B", &_setup.b_axis_wrapped, &_setup.b_rotary_modulo},
+                  {"AXIS_C", &_setup.c_axis_wrapped, &_setup.c_rotary_modulo},
+              };
+              for (auto &a : axes) {
+                  if (*a.wrapped && *a.modulo) {
+                      fprintf(stderr,
+                          "%s: WRAPPED_ROTARY and ROTARY_MODULO are mutually exclusive; "
+                          "ROTARY_MODULO disabled\n", a.name);
+                      *a.modulo = 0;
+                  }
+                  if (*a.modulo) {
+                      double lo = inifile.findRealV("MIN_LIMIT", a.name, 0.0);
+                      double hi = inifile.findRealV("MAX_LIMIT", a.name, 0.0);
+                      double range = hi - lo;
+                      if (range > 0.0 && fabs(range - 360.0) > 0.01) {
+                          fprintf(stderr,
+                              "%s: ROTARY_MODULO=1 but MIN/MAX_LIMIT range is %.2f deg "
+                              "(expected ~360); typical for limited-range rotaries (tilt) "
+                              "where modulo is unusual\n", a.name, range);
+                      }
+                  }
+              }
+          }
           _setup.random_toolchanger = inifile.findBoolV("RANDOM_TOOLCHANGER", "EMCIO", false);
           _setup.num_spindles = inifile.findIntV("SPINDLES", "TRAJ", 1);
 
@@ -1612,9 +1645,14 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   _setup.parameters[5420] = _setup.current_x;
   _setup.parameters[5421] = _setup.current_y;
   _setup.parameters[5422] = _setup.current_z;
-  _setup.parameters[5423] = _setup.AA_current;
-  _setup.parameters[5424] = _setup.BB_current;
-  _setup.parameters[5425] = _setup.CC_current;
+  // ROTARY_MODULO axes: present #5423-#5425 wrapped to [0,360); internal
+  // AA/BB/CC_current stay accumulated to keep sync with motion.traj.position.
+  _setup.parameters[5423] = _setup.a_rotary_modulo
+      ? wrap_rotary_to_360(_setup.AA_current) : _setup.AA_current;
+  _setup.parameters[5424] = _setup.b_rotary_modulo
+      ? wrap_rotary_to_360(_setup.BB_current) : _setup.BB_current;
+  _setup.parameters[5425] = _setup.c_rotary_modulo
+      ? wrap_rotary_to_360(_setup.CC_current) : _setup.CC_current;
   _setup.parameters[5426] = _setup.u_current;
   _setup.parameters[5427] = _setup.v_current;
   _setup.parameters[5428] = _setup.w_current;

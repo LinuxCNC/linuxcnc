@@ -20,6 +20,7 @@
 |<<mcode:m6,M6>>                | Tool Change
 |<<mcode:m7-m8-m9,M7 M8 M9>>    | Coolant Control
 |<<mcode:m19,M19>>              | Orient Spindle
+|<<mcode:m26-m27,M26 M27>>      | Rotary Modulo Path: Shortest / Literal
 |<<mcode:m48-m49,M48 M49>>      | Feed & Spindle Overrides Enable/Disable
 |<<mcode:m50,M50>>              | Feed Override Control
 |<<mcode:m51,M51>>              | Spindle Override Control
@@ -259,6 +260,53 @@ INI Settings in the [RS274NGC] section:
    cause the orient cycle to abort.
 ** 'spindle.N.locked' (out bit)
    Spindle orient complete pin. Cleared by any of M3,M4,M5.
+
+[[mcode:m26-m27]]
+== M26, M27 Rotary Modulo Path Control
+
+(((M26, M27 Rotary Modulo Path Control)))
+
+* 'M26' - on rotary axes flagged with `[AXIS_<L>] ROTARY_MODULO = 1`, absolute
+  moves take the shortest path: a programmed value is reached by moving at most
+  180 degrees in the shorter direction. This is the default when `ROTARY_MODULO`
+  is enabled.
+
+* 'M27' - on the same axes, absolute moves take the modulo-with-sign-direction
+  path: the programmed value is reduced mod 360, and the sign of the input
+  picks the direction of approach. A positive (or zero) value approaches in the
+  forward direction; a negative value approaches in the reverse direction. The
+  resulting move is always less than one full turn. Programmed values outside
+  +/-360 are accepted and wrapped, so `A720` is treated as `A0`, `A-540` as
+  `A-180`. Use this when sign convention must select rotation direction
+  explicitly, similar to a wrapped rotary axis or to Heidenhain M127 / Siemens
+  ACP/ACN behavior on a modulo axis.
+
+M26 and M27 are modal (modal group 3) and persist until the other code is
+programmed or the program ends. They have no effect on rotary axes that are not
+flagged `ROTARY_MODULO`, on incremental moves (`G91`), or on parameter readout
+(`#5423`/`#5424`/`#5425` continue to report the wrapped value).
+
+Typical usage:
+
+[source,{ngc}]
+----
+(at this point absolute A moves take the shortest path)
+M27         (enter sign-direction mode for the section that follows)
+G1 A45      (forward to 45 degrees within the current turn)
+G1 A-45     (backward to 45 degrees, taking the long way)
+M26         (restore shortest path for the rest of the program)
+G0 A0       (now resolves to the nearest equivalent angle)
+----
+
+For multi-turn motion (helical winding, wire wrapping, etc.), use `G91`
+incremental mode. `G91 A7200` performs twenty turns regardless of `ROTARY_MODULO`
+or M26/M27 state, and matches the recommended idiom on Heidenhain (IA+) and
+Siemens controls.
+
+M26 and M27 are saved and restored by M70/M72/M73 alongside the other modal
+M-codes.
+
+See also: `ROTARY_MODULO` in <<sub:ini:sec:axis_l,[AXIS_<L>] Section>>.
 
 [[mcode:m48-m49]]
 == M48, M49 Speed and Feed Override Control

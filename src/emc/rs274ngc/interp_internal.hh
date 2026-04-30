@@ -46,6 +46,12 @@ T D2R(T r) { return r * (M_PI / 180.); }
 template<class T>
 T SQ(T a) { return a*a; }
 
+inline double wrap_rotary_to_360(double v) {
+    double m = fmod(v, 360.0);
+    if (m < 0.0) m += 360.0;
+    return m;
+}
+
 template<class T>
 inline int round_to_int(T x) {
     return (int)std::nearbyint(x);
@@ -340,6 +346,7 @@ enum phases  {
     STEP_SET_FEED_RATE,
     STEP_SET_SPINDLE_SPEED,
     STEP_PREPARE,
+    STEP_M_3,
     STEP_M_5,
     STEP_M_6,
     STEP_RETAIN_G43,
@@ -801,6 +808,10 @@ struct setup
   int a_axis_wrapped;
   int b_axis_wrapped;
   int c_axis_wrapped;
+  int a_rotary_modulo;
+  int b_rotary_modulo;
+  int c_rotary_modulo;
+  int rotary_modulo_literal;         // M26 = shortest path (default), M27 = literal absolute
 
   int a_indexer_jnum;
   int b_indexer_jnum;
