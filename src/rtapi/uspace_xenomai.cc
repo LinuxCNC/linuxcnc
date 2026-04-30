@@ -1,8 +1,10 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_uspace.hh"
-#include <posix/pthread.h>
-#include <atomic>
+#include <pthread.h>
+#include <errno.h>
+#include <stdio.h>
+#include <cstring>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
@@ -11,7 +13,7 @@ namespace
 {
 struct RtaiTask : rtapi_task {
     RtaiTask() : rtapi_task{}, cancel{}, thr{} {}
-    std::atomic<int> cancel;
+    std::atomic_int cancel;
     pthread_t thr;
 };
 
@@ -97,10 +99,12 @@ struct XenomaiApp : RtapiApp {
     }
 
     int task_pause(int task_id) {
+        (void)task_id;
         return -ENOSYS;
     }
 
     int task_resume(int task_id) {
+        (void)task_id;
         return -ENOSYS;
     }
 
@@ -143,12 +147,16 @@ struct XenomaiApp : RtapiApp {
     unsigned char do_inb(unsigned int port) {
 #ifdef HAVE_SYS_IO_H
         return inb(port);
+#else
+        return 0;
 #endif
     }
 
     void do_outb(unsigned char val, unsigned int port) {
 #ifdef HAVE_SYS_IO_H
         return outb(val, port);
+#else
+        return 0;
 #endif
     }
 
