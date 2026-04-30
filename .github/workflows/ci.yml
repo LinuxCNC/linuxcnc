@@ -30,8 +30,7 @@ jobs:
     - name: Build RIP & test
       run: |
         set -x
-        ./scripts/travis-install-build-deps.sh
-        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
+        .github/scripts/install-deps.sh
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps --enable-werror
@@ -54,26 +53,12 @@ jobs:
     - name: Build RIP RTAI
       run: |
         set -x
-        #To install the RTAI deb's from linuxcnc base
-        #echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/linuxcnc.gpg] https://www.linuxcnc.org/ trixie base" | sudo tee /etc/apt/sources.list.d/linuxcnc.list > /dev/null
-        #GPGTMP=$(mktemp -d /tmp/.gnupgXXXXXX)
-        #gpg --homedir $GPGTMP --keyserver hkp://keyserver.ubuntu.com --recv-key e43b5a8e78cc2927
-        #gpg --homedir $GPGTMP --export 'LinuxCNC Archive Signing Key' | sudo tee /etc/apt/keyrings/linuxcnc.gpg > /dev/null
-        #sudo apt-get --quiet -o Acquire::Retries=5 update
-        #sudo apt-get --yes -o Acquire::Retries=5 install linux-headers-5.4.279-rtai-amd64 linux-image-5.4.279-rtai-amd64 rtai-modules-5.4.279
-        #-----
-        #To install the RTAI deb's from NTULINUX git
-        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb
-        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb
-        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
-        sudo dpkg -i linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
-        #-----
-        ./scripts/travis-install-build-deps.sh
-        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
+        .github/scripts/install-rtai.sh
+        .github/scripts/install-deps.sh
         cd src
         ./autogen.sh
-        #./configure --with-realtime=/usr/realtime-5.4.279-rtai-amd64 --disable-check-runtime-deps --enable-werror
-        ./configure --with-realtime=/usr/realtime-5.4.302-rtai-amd64 --disable-check-runtime-deps --enable-werror
+        #It is save to assume there is only one /usr/realtime-* folder
+        ./configure --with-realtime=/usr/realtime-* --disable-check-runtime-deps --enable-werror
         make -O -j$((1+$(nproc))) default pycheck V=1
 
   rip-and-test-clang:
@@ -91,9 +76,7 @@ jobs:
     - name: Clang build RIP & test
       run: |
         set -x
-        ./scripts/travis-install-build-deps.sh
-        sudo apt-get -y -o Acquire::Retries=5 install clang
-        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
+        .github/scripts/install-deps.sh
         cd src
         ./autogen.sh
         CC=clang CXX=clang++ ./configure --disable-check-runtime-deps --enable-werror
@@ -115,8 +98,7 @@ jobs:
     - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
     - name: Build HTML docmentation
       run: |
-        ./scripts/travis-install-build-deps.sh
-        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
+        .github/scripts/install-deps.sh
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps --enable-build-documentation=html
@@ -149,7 +131,6 @@ jobs:
         set -x
         apt-get --quiet -o Acquire::Retries=5 update
         apt-get --yes --quiet -o Acquire::Retries=5 install curl
-        apt --yes --quiet -o Acquire::Retries=5 upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
@@ -256,7 +237,6 @@ jobs:
         set -x
         apt-get --quiet -o Acquire::Retries=5 update
         apt-get --yes --quiet -o Acquire::Retries=5 install curl
-        apt --yes --quiet -o Acquire::Retries=5 upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
