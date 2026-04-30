@@ -931,8 +931,6 @@ endif
 ifneq ($(BUILD_SYS),uspace)
 obj-$(CONFIG_PCI_8255) += pci_8255.o
 pci_8255-objs := hal/drivers/pci_8255.o
-obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
-hal_tiro-objs := hal/drivers/hal_tiro.o $(MATHSTUB)
 obj-$(CONFIG_HAL_STG) += hal_stg.o
 hal_stg-objs := hal/drivers/hal_stg.o $(MATHSTUB)
 obj-$(CONFIG_HAL_VTI) += hal_vti.o
@@ -1331,7 +1329,6 @@ endif
 #../rtlib/uparport$(MODULE_EXT): $(addprefix objects/rt,$(uparport-objs))
 ifneq ($(BUILD_SYS),uspace)
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
-../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))
 ../rtlib/hal_vti$(MODULE_EXT): $(addprefix objects/rt,$(hal_vti-objs))
 ../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
