@@ -271,11 +271,15 @@ INI Settings in the [RS274NGC] section:
   180 degrees in the shorter direction. This is the default when `ROTARY_MODULO`
   is enabled.
 
-* 'M27' - on the same axes, force absolute moves to take the literal programmed
-  target. A programmed value of `A720` from a current position of `A0` produces
-  two full forward turns rather than no motion. Use this when a section of
-  G-code must execute the commanded angle literally, for example multi-turn
-  helical winding written in absolute mode.
+* 'M27' - on the same axes, absolute moves take the modulo-with-sign-direction
+  path: the programmed value is reduced mod 360, and the sign of the input
+  picks the direction of approach. A positive (or zero) value approaches in the
+  forward direction; a negative value approaches in the reverse direction. The
+  resulting move is always less than one full turn. Programmed values outside
+  +/-360 are accepted and wrapped, so `A720` is treated as `A0`, `A-540` as
+  `A-180`. Use this when sign convention must select rotation direction
+  explicitly, similar to a wrapped rotary axis or to Heidenhain M127 / Siemens
+  ACP/ACN behavior on a modulo axis.
 
 M26 and M27 are modal (modal group 3) and persist until the other code is
 programmed or the program ends. They have no effect on rotary axes that are not
@@ -287,15 +291,17 @@ Typical usage:
 [source,{ngc}]
 ----
 (at this point absolute A moves take the shortest path)
-M27         (enter literal absolute mode for the section that follows)
-G1 A720     (two full forward turns)
-G1 A1080    (one more forward turn)
+M27         (enter sign-direction mode for the section that follows)
+G1 A45      (forward to 45 degrees within the current turn)
+G1 A-45     (backward to 45 degrees, taking the long way)
 M26         (restore shortest path for the rest of the program)
 G0 A0       (now resolves to the nearest equivalent angle)
 ----
 
-For incremental multi-turn motion, prefer `G91` over `M27`; `M27` is intended
-for the case where absolute G90 G-code must be honored literally.
+For multi-turn motion (helical winding, wire wrapping, etc.), use `G91`
+incremental mode. `G91 A7200` performs twenty turns regardless of `ROTARY_MODULO`
+or M26/M27 state, and matches the recommended idiom on Heidenhain (IA+) and
+Siemens controls.
 
 M26 and M27 are saved and restored by M70/M72/M73 alongside the other modal
 M-codes.
