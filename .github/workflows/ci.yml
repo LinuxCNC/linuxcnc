@@ -30,15 +30,53 @@ jobs:
     - name: Build RIP & test
       run: |
         set -x
-        sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
-        eatmydata ./scripts/travis-install-build-deps.sh
-        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        ./scripts/travis-install-build-deps.sh
+        sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
+        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
-        eatmydata ./autogen.sh
-        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
-        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
+        ./autogen.sh
+        ./configure --disable-check-runtime-deps
+        make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
-        eatmydata ../scripts/rip-environment runtests -p
+        ../scripts/rip-environment runtests -p
+
+  rip-rtai:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
+    - name: Build RIP RTAI
+      run: |
+        set -x
+        #To install the RTAI deb's from linuxcnc base
+        #echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/linuxcnc.gpg] https://www.linuxcnc.org/ trixie base" | sudo tee /etc/apt/sources.list.d/linuxcnc.list > /dev/null
+        #GPGTMP=$(mktemp -d /tmp/.gnupgXXXXXX)
+        #gpg --homedir $GPGTMP --keyserver hkp://keyserver.ubuntu.com --recv-key e43b5a8e78cc2927
+        #gpg --homedir $GPGTMP --export 'LinuxCNC Archive Signing Key' | sudo tee /etc/apt/keyrings/linuxcnc.gpg > /dev/null
+        #sudo apt-get --quiet -o Acquire::Retries=5 update
+        #sudo apt-get --yes -o Acquire::Retries=5 install linux-headers-5.4.279-rtai-amd64 linux-image-5.4.279-rtai-amd64 rtai-modules-5.4.279
+        #-----
+        #To install the RTAI deb's from NTULINUX git
+        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb
+        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb
+        curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
+        sudo dpkg -i linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
+        #-----
+        ./scripts/travis-install-build-deps.sh
+        sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
+        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
+        cd src
+        ./autogen.sh
+        #./configure --with-realtime=/usr/realtime-5.4.279-rtai-amd64 --disable-check-runtime-deps
+        ./configure --with-realtime=/usr/realtime-5.4.302-rtai-amd64 --disable-check-runtime-deps
+        make -O -j$((1+$(nproc))) default pycheck V=1
 
   rip-and-test-clang:
     runs-on: ubuntu-24.04
@@ -55,16 +93,16 @@ jobs:
     - name: Clang build RIP & test
       run: |
         set -x
-        sudo apt-get --yes -o Acquire::Retries=5 install eatmydata
-        eatmydata ./scripts/travis-install-build-deps.sh
-        sudo eatmydata apt-get -y -o Acquire::Retries=5 install clang
-        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        ./scripts/travis-install-build-deps.sh
+        sudo apt-get -y -o Acquire::Retries=5 install clang
+        sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
+        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
-        eatmydata ./autogen.sh
-        CC=clang CXX=clang++ eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
-        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
+        ./autogen.sh
+        CC=clang CXX=clang++ ./configure --disable-check-runtime-deps
+        make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
-        eatmydata ../scripts/rip-environment runtests -p
+        ../scripts/rip-environment runtests -p
 
   htmldocs:
     runs-on: ubuntu-24.04
@@ -81,14 +119,14 @@ jobs:
     - name: Build HTML docmentation
       run: |
         ./scripts/travis-install-build-deps.sh
-        sudo apt-get -y -o Acquire::Retries=5 install eatmydata
-        sudo eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
+        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
         cd src
-        eatmydata ./autogen.sh
-        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
-        eatmydata make -O -j$((1+$(nproc))) manpages
-        eatmydata make -O -j$((1+$(nproc))) translateddocs
-        eatmydata make -O -j$((1+$(nproc))) docs
+        ./autogen.sh
+        ./configure --disable-check-runtime-deps --enable-build-documentation=html
+        make -O -j$((1+$(nproc))) manpages
+        make -O -j$((1+$(nproc))) translateddocs
+        make -O -j$((1+$(nproc))) docs
         # Note that the package build covers html docs
 
   package-arch:
@@ -114,10 +152,10 @@ jobs:
         set -e
         set -x
         apt-get --quiet -o Acquire::Retries=5 update
-        apt-get --yes --quiet -o Acquire::Retries=5 install eatmydata curl
-        eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        apt-get --yes --quiet -o Acquire::Retries=5 install curl
+        apt --yes --quiet -o Acquire::Retries=5 upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
+        apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -138,11 +176,11 @@ jobs:
         esac
         set -e
         set -x
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-recommends gpg software-properties-common
-        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-recommends gpg software-properties-common
+        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
-        eatmydata apt-get --quiet -o Acquire::Retries=5 update
+        add-apt-repository "deb http://linuxcnc.org $DIST base"
+        apt-get --quiet -o Acquire::Retries=5 update
 
     - name: Build architecture-specific Debian packages
       env:
@@ -152,26 +190,26 @@ jobs:
       run: |
         set -e
         set -x
-        eatmydata git config --global --add safe.directory "${PWD}"
-        eatmydata debian/configure
-        eatmydata debian/update-dch-from-git
-        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        eatmydata git diff
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 build-dep --arch-only .
-        eatmydata debuild -us -uc --build=any
+        git config --global --add safe.directory "${PWD}"
+        debian/configure
+        debian/update-dch-from-git
+        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        git diff
+        apt-get --yes --quiet -o Acquire::Retries=5 build-dep --arch-only .
+        debuild -us -uc --build=any
     - name: Test debian packages
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
         set -e
         set -x
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install sudo adduser # some tests run sudo; adduser no longer pulled implicitly on sid
-        eatmydata adduser --disabled-password --gecos "" testrunner
-        eatmydata passwd -d testrunner
-        eatmydata adduser testrunner sudo
+        apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
+        apt-get --yes --quiet -o Acquire::Retries=5 install sudo # some tests run sudo...
+        adduser --disabled-password --gecos "" testrunner
+        passwd -d testrunner
+        adduser testrunner sudo
         chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
-        su -c "eatmydata ./scripts/runtests -p ./tests" testrunner
+        su -c "./scripts/runtests -p ./tests" testrunner
     - name: Gather build artifacts
       run: |
         set -e
@@ -180,7 +218,7 @@ jobs:
         DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
         OUTDIR="artifacts/${DIST}/${ARCH}"
         mkdir -p "$OUTDIR"
-        cp -v ../*.deb ../*.changes ../*.buildinfo "$OUTDIR" || true
+        cp -v $(find .. -maxdepth 1 -type f | LC_ALL=C sort) "$OUTDIR" || true
         (cd "$OUTDIR" && sha256sum * > SHA256SUMS.txt)
         echo "DIST=$DIST" >> "$GITHUB_ENV"
         echo "ARCH=$ARCH" >> "$GITHUB_ENV"
@@ -221,10 +259,10 @@ jobs:
         set -e
         set -x
         apt-get --quiet -o Acquire::Retries=5 update
-        apt-get --yes --quiet -o Acquire::Retries=5 install eatmydata curl
-        eatmydata apt --yes --quiet -o Acquire::Retries=5 upgrade
+        apt-get --yes --quiet -o Acquire::Retries=5 install curl
+        apt --yes --quiet -o Acquire::Retries=5 upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
+        apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -245,11 +283,11 @@ jobs:
         esac
         set -e
         set -x
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install gpg software-properties-common
-        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        apt-get --yes --quiet -o Acquire::Retries=5 install gpg software-properties-common
+        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
-        eatmydata apt-get --quiet -o Acquire::Retries=5 update
+        add-apt-repository "deb http://linuxcnc.org $DIST base"
+        apt-get --quiet -o Acquire::Retries=5 update
 
     - name: Build architecture-independent Debian packages
       env:
@@ -259,20 +297,20 @@ jobs:
       run: |
         set -e
         set -x
-        eatmydata git config --global --add safe.directory "${PWD}"
-        eatmydata debian/configure
-        eatmydata debian/update-dch-from-git
-        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        eatmydata git diff
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 build-dep --indep-only .
-        eatmydata debuild -us -uc --build=all
+        git config --global --add safe.directory "${PWD}"
+        debian/configure
+        debian/update-dch-from-git
+        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        git diff
+        apt-get --yes --quiet -o Acquire::Retries=5 build-dep --indep-only .
+        debuild -us -uc --build=all
     - name: Test install debian packages
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
         set -e
         set -x
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
+        apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
     - name: Gather build artifacts
       run: |
         set -e
@@ -281,7 +319,7 @@ jobs:
         ARCH=all
         OUTDIR="artifacts/${DIST}/${ARCH}"
         mkdir -p "$OUTDIR"
-        cp -v ../*.deb ../*.changes ../*.buildinfo "$OUTDIR" || true
+        cp -v $(find .. -maxdepth 1 -type f | LC_ALL=C sort) "$OUTDIR" || true
         (cd "$OUTDIR" && sha256sum * > SHA256SUMS.txt)
         echo "DIST=$DIST" >> "$GITHUB_ENV"
         echo "ARCH=$ARCH" >> "$GITHUB_ENV"
