@@ -27,16 +27,21 @@ jobs:
         submodules: true
         fetch-depth: 0
     - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
-    - name: Build RIP & test
+    - name: Install dependencies
       run: |
         set -x
         .github/scripts/install-deps.sh
+    - name: Build RIP GCC
+      run: |
+        set -x
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps --enable-werror
         make -O -j$((1+$(nproc))) default pycheck V=1
-        # Note that the package build covers html docs
-        ../scripts/rip-environment runtests -p
+    - name: Test
+      run: |
+        set -x
+        scripts/rip-environment runtests -p
 
   rip-rtai:
     runs-on: ubuntu-24.04
@@ -50,11 +55,14 @@ jobs:
         submodules: true
         fetch-depth: 0
     - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
-    - name: Build RIP RTAI
+    - name: Install dependencies
       run: |
         set -x
         .github/scripts/install-rtai.sh
         .github/scripts/install-deps.sh
+    - name: Build RIP RTAI
+      run: |
+        set -x
         cd src
         ./autogen.sh
         #It is save to assume there is only one /usr/realtime-* folder
@@ -73,16 +81,21 @@ jobs:
         submodules: true
         fetch-depth: 0
     - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
-    - name: Clang build RIP & test
+    - name: Install dependencies
       run: |
         set -x
         .github/scripts/install-deps.sh
+    - name: Build RIP Clang
+      run: |
+        set -x
         cd src
         ./autogen.sh
         CC=clang CXX=clang++ ./configure --disable-check-runtime-deps --enable-werror
         make -O -j$((1+$(nproc))) default pycheck V=1
-        # Note that the package build covers html docs
-        ../scripts/rip-environment runtests -p
+    - name: Test
+      run: |
+        set -x
+        scripts/rip-environment runtests -p
 
   htmldocs:
     runs-on: ubuntu-24.04
@@ -96,9 +109,13 @@ jobs:
         submodules: true
         fetch-depth: 0
     - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
+    - name: Install dependencies
+      run: |
+        set -x
+        .github/scripts/install-deps.sh
     - name: Build HTML docmentation
       run: |
-        .github/scripts/install-deps.sh
+        set -x
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps --enable-build-documentation=html
