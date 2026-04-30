@@ -239,7 +239,7 @@ jobs:
         echo "arch=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
@@ -340,7 +340,7 @@ jobs:
         echo "arch=all" >> $GITHUB_OUTPUT
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
@@ -357,7 +357,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: release_artifacts
     - name: Prepare upload assets
