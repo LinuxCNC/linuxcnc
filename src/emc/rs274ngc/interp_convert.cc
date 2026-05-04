@@ -4116,15 +4116,9 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         }
     }
 
-    settings->parameters[5401] = settings->tool_table[0].offset.tran.x;
-    settings->parameters[5402] = settings->tool_table[0].offset.tran.y;
-    settings->parameters[5403] = settings->tool_table[0].offset.tran.z;
-    settings->parameters[5404] = settings->tool_table[0].offset.a;
-    settings->parameters[5405] = settings->tool_table[0].offset.b;
-    settings->parameters[5406] = settings->tool_table[0].offset.c;
-    settings->parameters[5407] = settings->tool_table[0].offset.u;
-    settings->parameters[5408] = settings->tool_table[0].offset.v;
-    settings->parameters[5409] = settings->tool_table[0].offset.w;
+    // #5401-#5409 reflect the applied tool length offset (G43-family).
+    // G10 L1/L10/L11 modify the tool table but do not apply offsets to
+    // motion, so do not update them here.  See #2994.
     settings->parameters[5410] = settings->tool_table[0].diameter;
     settings->parameters[5411] = settings->tool_table[0].frontangle;
     settings->parameters[5412] = settings->tool_table[0].backangle;
@@ -5758,6 +5752,23 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->w_current += settings->tool_offset.w - tool_offset.w;
 
   settings->tool_offset = tool_offset;
+
+  // Update parameters #5401-#5409 to reflect the actually applied tool
+  // length offset (covers G43Hn with n != loaded tool, G43.1 dynamic
+  // offsets, and G43.2 additive offsets). Without this, params lag the
+  // applied offset and only refresh on M6 / G10 L1.  See issue #2994.
+  // tool_offset here is in program units; params follow the user-unit
+  // convention used elsewhere when populating #5401-#5409.
+  settings->parameters[5401] = PROGRAM_TO_USER_LEN(tool_offset.tran.x);
+  settings->parameters[5402] = PROGRAM_TO_USER_LEN(tool_offset.tran.y);
+  settings->parameters[5403] = PROGRAM_TO_USER_LEN(tool_offset.tran.z);
+  settings->parameters[5404] = PROGRAM_TO_USER_ANG(tool_offset.a);
+  settings->parameters[5405] = PROGRAM_TO_USER_ANG(tool_offset.b);
+  settings->parameters[5406] = PROGRAM_TO_USER_ANG(tool_offset.c);
+  settings->parameters[5407] = PROGRAM_TO_USER_LEN(tool_offset.u);
+  settings->parameters[5408] = PROGRAM_TO_USER_LEN(tool_offset.v);
+  settings->parameters[5409] = PROGRAM_TO_USER_LEN(tool_offset.w);
+
   return INTERP_OK;
 }
 

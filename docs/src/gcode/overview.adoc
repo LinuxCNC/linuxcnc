@@ -340,7 +340,8 @@ example '##2'  means the value of the parameter whose index is the
   Persistent.
 * '5399' - Result of M66 - Check or wait for input. Volatile.
 * '5400' - Tool Number. Volatile.
-* '5401-5409' - Tool Offsets for X, Y, Z, A, B, C, U, V & W. Set by G43. Volatile.
+* '5401-5409' - Currently applied tool length offset for X, Y, Z, A, B, C,
+  U, V & W. Set by `G43`/`G43.1`/`G43.2`, cleared by `G49`. Volatile.
 * '5410' - Tool Diameter. Volatile.
 * '5411' - Tool Front Angle. Volatile.
 * '5412' - Tool Back Angle. Volatile.
