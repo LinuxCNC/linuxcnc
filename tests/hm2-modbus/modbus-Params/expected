@@ -1,0 +1,50 @@
+
+    baudrate = 1200
+    drivedelay = 2
+    icdelay = 16
+    parity = 2
+    rxdelay = 38
+    stopbits = 1
+    txdelay = 40
+
+    baudrate = 19200
+    drivedelay = 1
+    icdelay = 16
+    parity = 3
+    rxdelay = 38
+    stopbits = 1
+    txdelay = 40
+
+    baudrate = 19200
+    drivedelay = 3
+    icdelay = 16
+    parity = 2
+    rxdelay = 38
+    stopbits = 1
+    txdelay = 40
+
+    baudrate = 38400
+    drivedelay = 1
+    icdelay = 29
+    parity = 0
+    rxdelay = 67
+    stopbits = 2
+    txdelay = 69
+
+    baudrate = 115200
+    drivedelay = 1
+    icdelay = 87
+    parity = 2
+    rxdelay = 201
+    stopbits = 1
+    txdelay = 203
+
+    baudrate = 1000000
+    drivedelay = 1
+    icdelay = 255
+    parity = 2
+    rxdelay = 1019
+    stopbits = 1
+    txdelay = 1021
+Number of errors 0
+All tests passed.

@@ -32,12 +32,14 @@ echo "hm2_modbus delay test." >> halrun-stdout
 #
 # Run HAL with each test .mbccb
 #
+TEST_PATTERN=15
 for MBCCB in $(ls *.mbccb)
 do
     echo 
     echo "Processing file: $MBCCB" > halrun-stdout
     TEST_MBCCB=$MBCCB
     export TEST_MBCCB
+    export TEST_PATTERN
 
     halrun -f modbus_test.hal >halrun-stdout 2>halrun-stderr
 
@@ -121,4 +123,9 @@ done
 
 echo "Number of errors $result"
 
+if [ $result -eq 0 ]; then
+    echo "All tests passed."
+else
+    echo "At least one tests failed."
+fi
 exit $result
