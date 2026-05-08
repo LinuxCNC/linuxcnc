@@ -256,6 +256,10 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
     snprintf(db_childname,sizeof(db_childname),"%s",child_argv[0]);
     is_random_toolchanger = random_toolchanger;
 
+	if (access(child_argv[0], F_OK)){
+		fprintf(stderr,"!!!!db_init: <%s> not found\n",child_argv[0]);
+		return -1;	
+	}
     if (access(child_argv[0],X_OK)) {
         fprintf(stderr,"!!!!db_init: <%s> not executable\n",child_argv[0]);
         return -1;
