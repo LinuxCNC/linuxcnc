@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -30,6 +31,7 @@
 #define DB_VERSION "v2.1"
 #define MAX_DB_PROGRAM_ARGS 10
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
+#define MAX_CMD_LEN 1024
 
 static bool db_live  = 0;
 static bool db_show  = 0; // use environmental var: DB_SHOW
@@ -243,6 +245,13 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
     char* child_argv[MAX_DB_PROGRAM_ARGS] = {0};
     char* saveptr;
     char* token = strtok_r(progname_plus_args, " ", &saveptr);
+	int n;
+	char* fork_argv[MAX_DB_PROGRAM_ARGS] = {0};
+	char* cp;
+	char* envpath;
+	char prog_name[MAX_CMD_LEN+1] = "\0";
+	char prog_path[MAX_CMD_LEN+1];
+	struct stat stat_buf;
     while (token != NULL) {
         child_argv[child_argc] = token;
         child_argc++;
@@ -255,17 +264,50 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
     }
     snprintf(db_childname,sizeof(db_childname),"%s",child_argv[0]);
     is_random_toolchanger = random_toolchanger;
-
-	if (access(child_argv[0], F_OK)){
-		fprintf(stderr,"!!!!db_init: <%s> not found\n",child_argv[0]);
+	envpath = getenv( (char*)"PATH");
+	if ( envpath != NULL ) {
+	    while ( *envpath != '\0' ) {
+			/* copy a single directory from the PATH env variable */
+			n = 0;
+			while ( (*envpath != ':') && (*envpath != '\0') && (n < MAX_CMD_LEN)) {
+			    prog_path[n++] = *envpath++;
+			}
+			/* append '/' and program name */
+			if ( n < MAX_CMD_LEN ) {
+			    prog_path[n++] = '/';
+			}
+			cp = child_argv[0];
+			while ((*cp != '\0') && ( n < MAX_CMD_LEN)) {
+			    prog_path[n++] = *cp++;
+			}
+			prog_path[n] = '\0';
+			//fprintf(stdout,"Trying '%s'\n",prog_path);
+			if ( stat(prog_path, &stat_buf) != 0 ) {
+			    /* no luck, clear prog_path to indicate failure */
+			    prog_path[0] = '\0';
+			    /* and get ready to try the next directory */
+			    if ( *envpath == ':' ) {
+			        envpath++;
+			    }
+			} else {
+			    /* success, break out of loop */
+				strncpy(prog_name, child_argv[0], MAX_CMD_LEN);
+				fork_argv[0] = prog_path;
+				
+			    break;
+			}
+	    } 
+	}
+	if (access(prog_path, F_OK)){
+		fprintf(stderr,"!!!!db_init: <%s> not found\n",prog_name);
 		return -1;	
 	}
-    if (access(child_argv[0],X_OK)) {
-        fprintf(stderr,"!!!!db_init: <%s> not executable\n",child_argv[0]);
+    if (access(prog_path,X_OK)) {
+        fprintf(stderr,"!!!!db_init: <%s> not executable\n",prog_name);
         return -1;
     }
     //fprintf(stderr,"=====db_childname=%s\n",db_childname);
-    if (0 == fork_create(child_argc,child_argv) ) {
+    if (0 == fork_create(child_argc,fork_argv) ) {
         //fprintf(stderr,"=====db_init forked %s\n",child_argv[0]);
     } else {
         fprintf(stderr,"!!!!!db_init: fork FAIL\n");
@@ -275,7 +317,7 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
 
     // block for response
     fprintf(stderr,"====Waiting for %s version reply from %s\n",
-            DB_VERSION,child_argv[0]);
+            DB_VERSION,prog_name);
     char reply[CANON_TOOL_ENTRY_LEN];
 
     if (read_reply(reply,sizeof(reply)) < 0 ) {
@@ -290,7 +332,7 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
             db_live = 0;
             return -1;
         } else {
-            fprintf(stderr,"====Connected to %s\n",child_argv[0]);
+            fprintf(stderr,"====Connected to %s\n",prog_name);
         }
     }
     if (db_debug) {
