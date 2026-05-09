@@ -246,7 +246,7 @@ int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
     char* saveptr;
     char* token = strtok_r(progname_plus_args, " ", &saveptr);
 	int n;
-	char* fork_argv[PATH_MAX] = {0};
+	char* fork_argv[MAX_DB_PROGRAM_ARGS] = {0};
 	char* cp;
 	char* envpath;
 	char prog_name[PATH_MAX] = "\0";
