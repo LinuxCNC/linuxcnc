@@ -194,11 +194,10 @@ jobs:
     - name: Install pre-dependencies
       run: |
         set -x
-        apt-get update
+        apt-get -q update
         apt --yes upgrade
-        apt-get --yes install curl
-        # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes install --no-install-suggests git lsb-release python3 devscripts sudo
+        # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package and run tests.
+        apt-get --yes --no-install-recommends install curl git lsb-release python3 devscripts sudo adduser xauth
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
@@ -225,7 +224,7 @@ jobs:
     - name: Install debian packages
       run: |
         set -x
-        apt-get --yes install ../*.deb
+        apt-get --yes --no-install-recommends install ../*.deb
     - name: Test debian packages
       run: |
         set -x
@@ -277,11 +276,10 @@ jobs:
     - name: Install pre-dependencies
       run: |
         set -x
-        apt-get update
+        apt-get -q update
         apt --yes upgrade
-        apt-get --yes install curl
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes install --no-install-suggests git lsb-release python3 devscripts
+        apt-get --yes --no-install-recommends install curl git lsb-release python3 devscripts
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
@@ -308,7 +306,7 @@ jobs:
     - name: Install debian packages
       run: |
         set -x
-        apt-get --yes install ../*.deb
+        apt-get --yes --no-install-recommends install ../*.deb
     - name: Gather build artifacts
       run: |
         set -x
