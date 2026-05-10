@@ -98,6 +98,25 @@ jobs:
         # Note that the package build covers html docs
         ../scripts/rip-environment runtests -p
 
+  cppcheck:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - name: Perform Source Code checks that were successful in the past
+      continue-on-error: true
+      run: |
+        set -x
+        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+        sudo apt-get --yes install cppcheck shellcheck
+        scripts/cppcheck.sh
+    - name: Shellcheck
+      continue-on-error: true
+      run: |
+        scripts/shellcheck.sh
+
   htmldocs:
     runs-on: ubuntu-24.04
     steps:
@@ -173,7 +192,6 @@ jobs:
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
         add-apt-repository "deb http://linuxcnc.org $DIST base"
         apt-get update
-
     - name: Build architecture-specific Debian packages
       env:
         DEBEMAIL: emc-developers@lists.sourceforge.net
@@ -219,7 +237,6 @@ jobs:
       run: |
         echo "dist=$(echo ${{ matrix.image }} | cut -d : -f 2)" >> $GITHUB_OUTPUT
         echo "arch=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
-
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -243,7 +260,6 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
-
     - name: Install pre-dependencies
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -280,7 +296,6 @@ jobs:
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
         add-apt-repository "deb http://linuxcnc.org $DIST base"
         apt-get update
-
     - name: Build architecture-independent Debian packages
       env:
         DEBEMAIL: emc-developers@lists.sourceforge.net
@@ -320,34 +335,12 @@ jobs:
       run: |
         echo "dist=$(echo ${{ matrix.image }} | cut -d : -f 2)" >> $GITHUB_OUTPUT
         echo "arch=all" >> $GITHUB_OUTPUT
-
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
         if-no-files-found: error
-
-
-  cppcheck:
-    runs-on: ubuntu-24.04
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-        fetch-depth: 0
-    - name: Perform Source Code checks that were successful in the past
-      continue-on-error: true
-      run: |
-        set -x
-        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-        sudo apt-get --yes install cppcheck shellcheck
-        scripts/cppcheck.sh
-    - name: Shellcheck
-      continue-on-error: true
-      run: |
-        scripts/shellcheck.sh
-
 
   release:
     name: Release packages
