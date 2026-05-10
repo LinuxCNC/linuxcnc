@@ -35,22 +35,18 @@ jobs:
     - name: Install dependencies
       run: |
         set -x
-        ./scripts/travis-install-build-deps.sh
+        .github/scripts/install-deps.sh
     - name: Build RIP GCC
       run: |
         set -x
-        cd src
-        ./autogen.sh
-        ./configure --disable-check-runtime-deps
-        make -O -j$((1+$(nproc))) default pycheck V=1
-        # Note that the package build covers html docs
+        .github/scripts/build-rip.sh --with-realtime=uspace
     - name: Verify no untracked or modified files after build
       run: |
         .github/scripts/verify-clean-repo.sh
     - name: Test
       run: |
         set -x
-        ./scripts/rip-environment runtests -p
+        scripts/rip-environment runtests -p
     - name: Verify no untracked or modified files after test
       run: |
         .github/scripts/verify-clean-repo.sh
@@ -73,15 +69,11 @@ jobs:
       run: |
         set -x
         .github/scripts/install-rtai.sh trixie
-        ./scripts/travis-install-build-deps.sh
+        .github/scripts/install-deps.sh
     - name: Build RIP RTAI
       run: |
         set -x
-        cd src
-        ./autogen.sh
-        #./configure --with-realtime=/usr/realtime-5.4.279-rtai-amd64 --disable-check-runtime-deps
-        ./configure --with-realtime=/usr/realtime-5.4.302-rtai-amd64 --disable-check-runtime-deps
-        make -O -j$((1+$(nproc))) default pycheck V=1
+        .github/scripts/build-rip.sh --with-realtime=/usr/realtime-*
     - name: Verify no untracked or modified files after build
       run: |
         .github/scripts/verify-clean-repo.sh
@@ -103,23 +95,18 @@ jobs:
     - name: Install dependencies
       run: |
         set -x
-        ./scripts/travis-install-build-deps.sh
-        sudo apt-get -y install clang
+        .github/scripts/install-deps.sh
     - name: Build RIP Clang
       run: |
         set -x
-        cd src
-        ./autogen.sh
-        CC=clang CXX=clang++ ./configure --disable-check-runtime-deps
-        make -O -j$((1+$(nproc))) default pycheck V=1
-        # Note that the package build covers html docs
+        CC=clang CXX=clang++ .github/scripts/build-rip.sh --with-realtime=uspace
     - name: Verify no untracked or modified files after build
       run: |
         .github/scripts/verify-clean-repo.sh
     - name: Test
       run: |
         set -x
-        ./scripts/rip-environment runtests -p
+        scripts/rip-environment runtests -p
     - name: Verify no untracked or modified files after test
       run: |
         .github/scripts/verify-clean-repo.sh
@@ -164,16 +151,11 @@ jobs:
     - name: Install dependencies
       run: |
         set -x
-        ./scripts/travis-install-build-deps.sh
+        .github/scripts/install-deps.sh
     - name: Build HTML docmentation
       run: |
-        cd src
-        ./autogen.sh
-        ./configure --disable-check-runtime-deps --enable-build-documentation=html
-        make -O -j$((1+$(nproc))) manpages
-        make -O -j$((1+$(nproc))) translateddocs
-        make -O -j$((1+$(nproc))) docs
-        # Note that the package build covers html docs
+        set -x
+        .github/scripts/build-doc.sh
     - name: Verify no untracked or modified files after build
       run: |
         #*.po and documentation.pot are modifyed by build. Ignore them for now.
@@ -221,12 +203,7 @@ jobs:
         DEBFULLNAME: LinuxCNC Github CI Robot
       run: |
         set -x
-        debian/configure
-        debian/update-dch-from-git
-        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        git diff
-        apt-get --yes build-dep --arch-only .
-        debuild -us -uc --build=any
+        .github/scripts/build-package-arch.sh
     - name: Verify no untracked or modified files after build
       run: |
         .github/scripts/verify-clean-repo.sh ':(exclude)VERSION' ':(exclude)debian/changelog'
@@ -309,12 +286,7 @@ jobs:
         DEBFULLNAME: LinuxCNC Github CI Robot
       run: |
         set -x
-        debian/configure
-        debian/update-dch-from-git
-        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        git diff
-        apt-get --yes build-dep --indep-only .
-        debuild -us -uc --build=all
+        .github/scripts/build-package-indep.sh
     - name: Verify no untracked or modified files after build
       run: |
         #*.po and documentation.pot are modifyed by build. Ignore them for now.
