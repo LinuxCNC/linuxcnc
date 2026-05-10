@@ -13,6 +13,9 @@ on:
 permissions:
   contents: read #  to fetch code (actions/checkout)
 
+env:
+  DEBIAN_FRONTEND: noninteractive
+
 jobs:
 
   rip-and-test:
@@ -157,10 +160,7 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies
-      env:
-        DEBIAN_FRONTEND: noninteractive
       run: |
-        set -e
         set -x
         apt-get update
         apt --yes upgrade
@@ -173,32 +173,11 @@ jobs:
         # "fetch-depth: 0" fetches all of history, this is needed by
         # our build system to determine the version from tags
         fetch-depth: 0
-
-    - name: Add linuxcnc.org deb archive
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        case "${{matrix.image}}" in
-            debian:sid|debian:bookworm|debian:trixie)
-                exit 0
-                ;;
-            *)
-                ;;
-        esac
-        set -e
-        set -x
-        apt-get --yes install --no-install-recommends gpg software-properties-common
-        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
-        DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        add-apt-repository "deb http://linuxcnc.org $DIST base"
-        apt-get update
     - name: Build architecture-specific Debian packages
       env:
         DEBEMAIL: emc-developers@lists.sourceforge.net
         DEBFULLNAME: LinuxCNC Github CI Robot
-        DEBIAN_FRONTEND: noninteractive
       run: |
-        set -e
         set -x
         git config --global --add safe.directory "${PWD}"
         debian/configure
@@ -208,10 +187,7 @@ jobs:
         apt-get --yes build-dep --arch-only .
         debuild -us -uc --build=any
     - name: Test debian packages
-      env:
-        DEBIAN_FRONTEND: noninteractive
       run: |
-        set -e
         set -x
         apt-get --yes install ../*.deb
         apt-get --yes install sudo # some tests run sudo...
@@ -222,7 +198,6 @@ jobs:
         su -c "./scripts/runtests -p ./tests" testrunner
     - name: Gather build artifacts
       run: |
-        set -e
         set -x
         ARCH=$(dpkg --print-architecture)
         DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
@@ -244,7 +219,6 @@ jobs:
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
         if-no-files-found: error
 
-
   package-indep:
     runs-on: ubuntu-24.04
     strategy:
@@ -261,10 +235,7 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies
-      env:
-        DEBIAN_FRONTEND: noninteractive
       run: |
-        set -e
         set -x
         apt-get update
         apt --yes upgrade
@@ -277,32 +248,11 @@ jobs:
         # "fetch-depth: 0" fetches all of history, this is needed by
         # our build system to determine the version from tags
         fetch-depth: 0
-
-    - name: Add linuxcnc.org deb archive
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        case "${{matrix.image}}" in
-            debian:sid|debian:bookworm|debian:trixie)
-                exit 0
-                ;;
-            *)
-                ;;
-        esac
-        set -e
-        set -x
-        apt-get --yes install gpg software-properties-common
-        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
-        DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        add-apt-repository "deb http://linuxcnc.org $DIST base"
-        apt-get update
     - name: Build architecture-independent Debian packages
       env:
         DEBEMAIL: emc-developers@lists.sourceforge.net
         DEBFULLNAME: LinuxCNC Github CI Robot
-        DEBIAN_FRONTEND: noninteractive
       run: |
-        set -e
         set -x
         git config --global --add safe.directory "${PWD}"
         debian/configure
@@ -312,15 +262,11 @@ jobs:
         apt-get --yes build-dep --indep-only .
         debuild -us -uc --build=all
     - name: Test install debian packages
-      env:
-        DEBIAN_FRONTEND: noninteractive
       run: |
-        set -e
         set -x
         apt-get --yes install ../*.deb
     - name: Gather build artifacts
       run: |
-        set -e
         set -x
         DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
         ARCH=all
@@ -358,7 +304,7 @@ jobs:
         path: release_artifacts
     - name: Prepare upload assets
       run: |
-        set -e
+        set -x
         mkdir -p upload
         echo "Downloaded artifacts layout:" && find release_artifacts -maxdepth 3 -print | sed 's/^/  /'
         for d in release_artifacts/*; do
