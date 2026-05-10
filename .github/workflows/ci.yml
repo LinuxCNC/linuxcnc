@@ -31,8 +31,6 @@ jobs:
       run: |
         set -x
         ./scripts/travis-install-build-deps.sh
-        sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
-        sudo apt --yes upgrade
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps
@@ -70,8 +68,6 @@ jobs:
         sudo dpkg -i linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
         #-----
         ./scripts/travis-install-build-deps.sh
-        sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
-        sudo apt --yes upgrade
         cd src
         ./autogen.sh
         #./configure --with-realtime=/usr/realtime-5.4.279-rtai-amd64 --disable-check-runtime-deps
@@ -95,8 +91,6 @@ jobs:
         set -x
         ./scripts/travis-install-build-deps.sh
         sudo apt-get -y install clang
-        sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
-        sudo apt --yes upgrade
         cd src
         ./autogen.sh
         CC=clang CXX=clang++ ./configure --disable-check-runtime-deps
@@ -119,8 +113,6 @@ jobs:
     - name: Build HTML docmentation
       run: |
         ./scripts/travis-install-build-deps.sh
-        sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
-        sudo apt --yes upgrade
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps --enable-build-documentation=html
@@ -152,8 +144,8 @@ jobs:
         set -e
         set -x
         apt-get update
-        apt-get --yes install curl
         apt --yes upgrade
+        apt-get --yes install curl
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         apt-get --yes install --no-install-suggests git lsb-release python3 devscripts
 
@@ -259,8 +251,8 @@ jobs:
         set -e
         set -x
         apt-get update
-        apt-get --yes install curl
         apt --yes upgrade
+        apt-get --yes install curl
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         apt-get --yes install --no-install-suggests git lsb-release python3 devscripts
 
