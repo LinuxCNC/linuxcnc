@@ -24,22 +24,30 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - name: Checkout repository
+      uses: actions/checkout@v6
       with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
-    - name: Build RIP & test
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
       run: |
         set -x
         ./scripts/travis-install-build-deps.sh
+    - name: Build RIP GCC
+      run: |
+        set -x
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps
         make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
-        ../scripts/rip-environment runtests -p
+    - name: Test
+      run: |
+        set -x
+        ./scripts/rip-environment runtests -p
 
   rip-rtai:
     runs-on: ubuntu-24.04
@@ -47,13 +55,15 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - name: Checkout repository
+      uses: actions/checkout@v6
       with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
-    - name: Build RIP RTAI
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
       run: |
         set -x
         #To install the RTAI deb's from linuxcnc base
@@ -71,6 +81,9 @@ jobs:
         sudo dpkg -i linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb linux-image-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb rtai-modules-5.4.302_5.3.4-linuxcnc_amd64.deb
         #-----
         ./scripts/travis-install-build-deps.sh
+    - name: Build RIP RTAI
+      run: |
+        set -x
         cd src
         ./autogen.sh
         #./configure --with-realtime=/usr/realtime-5.4.279-rtai-amd64 --disable-check-runtime-deps
@@ -83,37 +96,49 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - name: Checkout repository
+      uses: actions/checkout@v6
       with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
-    - name: Clang build RIP & test
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
       run: |
         set -x
         ./scripts/travis-install-build-deps.sh
         sudo apt-get -y install clang
+    - name: Build RIP Clang
+      run: |
+        set -x
         cd src
         ./autogen.sh
         CC=clang CXX=clang++ ./configure --disable-check-runtime-deps
         make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
-        ../scripts/rip-environment runtests -p
+    - name: Test
+      run: |
+        set -x
+        ./scripts/rip-environment runtests -p
 
   cppcheck:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v6
       with:
-        submodules: true
-        fetch-depth: 0
-    - name: Perform Source Code checks that were successful in the past
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
+      run: |
+        set -x
+        sudo apt-get -q update
+        sudo apt-get --yes install cppcheck shellcheck
+    - name: Cppcheck
       continue-on-error: true
       run: |
         set -x
-        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-        sudo apt-get --yes install cppcheck shellcheck
         scripts/cppcheck.sh
     - name: Shellcheck
       continue-on-error: true
@@ -126,15 +151,20 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
+    - name: Checkout repository
+      uses: actions/checkout@v6
       with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
+      run: |
+        set -x
+        ./scripts/travis-install-build-deps.sh
     - name: Build HTML docmentation
       run: |
-        ./scripts/travis-install-build-deps.sh
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps --enable-build-documentation=html
@@ -158,7 +188,9 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies
       run: |
         set -x
@@ -166,31 +198,37 @@ jobs:
         apt --yes upgrade
         apt-get --yes install curl
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes install --no-install-suggests git lsb-release python3 devscripts
-
-    - uses: actions/checkout@v3
+        apt-get --yes install --no-install-suggests git lsb-release python3 devscripts sudo
+    - name: Checkout repository
+      uses: actions/checkout@v6
       with:
+        submodules: false
         # "fetch-depth: 0" fetches all of history, this is needed by
         # our build system to determine the version from tags
         fetch-depth: 0
+    - name: Git config
+      run: |
+        set -x
+        git config --global --add safe.directory ${PWD}
     - name: Build architecture-specific Debian packages
       env:
         DEBEMAIL: emc-developers@lists.sourceforge.net
         DEBFULLNAME: LinuxCNC Github CI Robot
       run: |
         set -x
-        git config --global --add safe.directory "${PWD}"
         debian/configure
         debian/update-dch-from-git
         scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         git diff
         apt-get --yes build-dep --arch-only .
         debuild -us -uc --build=any
-    - name: Test debian packages
+    - name: Install debian packages
       run: |
         set -x
         apt-get --yes install ../*.deb
-        apt-get --yes install sudo # some tests run sudo...
+    - name: Test debian packages
+      run: |
+        set -x
         adduser --disabled-password --gecos "" testrunner
         passwd -d testrunner
         adduser testrunner sudo
@@ -213,7 +251,7 @@ jobs:
         echo "dist=$(echo ${{ matrix.image }} | cut -d : -f 2)" >> $GITHUB_OUTPUT
         echo "arch=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
@@ -233,7 +271,9 @@ jobs:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+      run: |
+        echo Number of CPUs: $(nproc)
+        echo "$GITHUB_CONTEXT"
     - name: Install pre-dependencies
       run: |
         set -x
@@ -242,34 +282,38 @@ jobs:
         apt-get --yes install curl
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         apt-get --yes install --no-install-suggests git lsb-release python3 devscripts
-
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v6
       with:
+        submodules: false
         # "fetch-depth: 0" fetches all of history, this is needed by
         # our build system to determine the version from tags
         fetch-depth: 0
+    - name: Git config
+      run: |
+        set -x
+        git config --global --add safe.directory ${PWD}
     - name: Build architecture-independent Debian packages
       env:
         DEBEMAIL: emc-developers@lists.sourceforge.net
         DEBFULLNAME: LinuxCNC Github CI Robot
       run: |
         set -x
-        git config --global --add safe.directory "${PWD}"
         debian/configure
         debian/update-dch-from-git
         scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         git diff
         apt-get --yes build-dep --indep-only .
         debuild -us -uc --build=all
-    - name: Test install debian packages
+    - name: Install debian packages
       run: |
         set -x
         apt-get --yes install ../*.deb
     - name: Gather build artifacts
       run: |
         set -x
-        DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
         ARCH=all
+        DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
         OUTDIR="artifacts/${DIST}/${ARCH}"
         mkdir -p "$OUTDIR"
         cp -v $(find .. -maxdepth 1 -type f | LC_ALL=C sort) "$OUTDIR" || true
@@ -282,7 +326,7 @@ jobs:
         echo "dist=$(echo ${{ matrix.image }} | cut -d : -f 2)" >> $GITHUB_OUTPUT
         echo "arch=all" >> $GITHUB_OUTPUT
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
@@ -299,7 +343,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: release_artifacts
     - name: Prepare upload assets
@@ -340,7 +384,7 @@ jobs:
           )
         fi
     - name: Create GitHub Release and upload assets
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         files: |
           upload/*
