@@ -32,7 +32,7 @@ jobs:
         set -x
         ./scripts/travis-install-build-deps.sh
         sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
-        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
+        sudo apt --yes upgrade
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps
@@ -60,8 +60,8 @@ jobs:
         #GPGTMP=$(mktemp -d /tmp/.gnupgXXXXXX)
         #gpg --homedir $GPGTMP --keyserver hkp://keyserver.ubuntu.com --recv-key e43b5a8e78cc2927
         #gpg --homedir $GPGTMP --export 'LinuxCNC Archive Signing Key' | sudo tee /etc/apt/keyrings/linuxcnc.gpg > /dev/null
-        #sudo apt-get --quiet -o Acquire::Retries=5 update
-        #sudo apt-get --yes -o Acquire::Retries=5 install linux-headers-5.4.279-rtai-amd64 linux-image-5.4.279-rtai-amd64 rtai-modules-5.4.279
+        #sudo apt-get update
+        #sudo apt-get --yes install linux-headers-5.4.279-rtai-amd64 linux-image-5.4.279-rtai-amd64 rtai-modules-5.4.279
         #-----
         #To install the RTAI deb's from NTULINUX git
         curl -fLO https://github.com/NTULINUX/RTAI/releases/download/v5.3.4/linux-headers-5.4.302-rtai-amd64_5.4.302-rtai-amd64-1_amd64.deb
@@ -71,7 +71,7 @@ jobs:
         #-----
         ./scripts/travis-install-build-deps.sh
         sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
-        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
+        sudo apt --yes upgrade
         cd src
         ./autogen.sh
         #./configure --with-realtime=/usr/realtime-5.4.279-rtai-amd64 --disable-check-runtime-deps
@@ -94,9 +94,9 @@ jobs:
       run: |
         set -x
         ./scripts/travis-install-build-deps.sh
-        sudo apt-get -y -o Acquire::Retries=5 install clang
+        sudo apt-get -y install clang
         sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
-        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
+        sudo apt --yes upgrade
         cd src
         ./autogen.sh
         CC=clang CXX=clang++ ./configure --disable-check-runtime-deps
@@ -120,7 +120,7 @@ jobs:
       run: |
         ./scripts/travis-install-build-deps.sh
         sudo apt-get remove -y firefox firefox-locale-* 2>/dev/null || true
-        sudo apt --yes --quiet -o Acquire::Retries=5 upgrade
+        sudo apt --yes upgrade
         cd src
         ./autogen.sh
         ./configure --disable-check-runtime-deps --enable-build-documentation=html
@@ -151,11 +151,11 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --quiet -o Acquire::Retries=5 update
-        apt-get --yes --quiet -o Acquire::Retries=5 install curl
-        apt --yes --quiet -o Acquire::Retries=5 upgrade
+        apt-get update
+        apt-get --yes install curl
+        apt --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
+        apt-get --yes install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -176,11 +176,11 @@ jobs:
         esac
         set -e
         set -x
-        apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-recommends gpg software-properties-common
+        apt-get --yes install --no-install-recommends gpg software-properties-common
         gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
         add-apt-repository "deb http://linuxcnc.org $DIST base"
-        apt-get --quiet -o Acquire::Retries=5 update
+        apt-get update
 
     - name: Build architecture-specific Debian packages
       env:
@@ -195,7 +195,7 @@ jobs:
         debian/update-dch-from-git
         scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         git diff
-        apt-get --yes --quiet -o Acquire::Retries=5 build-dep --arch-only .
+        apt-get --yes build-dep --arch-only .
         debuild -us -uc --build=any
     - name: Test debian packages
       env:
@@ -203,8 +203,8 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
-        apt-get --yes --quiet -o Acquire::Retries=5 install sudo # some tests run sudo...
+        apt-get --yes install ../*.deb
+        apt-get --yes install sudo # some tests run sudo...
         adduser --disabled-password --gecos "" testrunner
         passwd -d testrunner
         adduser testrunner sudo
@@ -258,11 +258,11 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --quiet -o Acquire::Retries=5 update
-        apt-get --yes --quiet -o Acquire::Retries=5 install curl
-        apt --yes --quiet -o Acquire::Retries=5 upgrade
+        apt-get update
+        apt-get --yes install curl
+        apt --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes --quiet -o Acquire::Retries=5 install --no-install-suggests git lsb-release python3 devscripts
+        apt-get --yes install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -283,11 +283,11 @@ jobs:
         esac
         set -e
         set -x
-        apt-get --yes --quiet -o Acquire::Retries=5 install gpg software-properties-common
+        apt-get --yes install gpg software-properties-common
         gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
         add-apt-repository "deb http://linuxcnc.org $DIST base"
-        apt-get --quiet -o Acquire::Retries=5 update
+        apt-get update
 
     - name: Build architecture-independent Debian packages
       env:
@@ -302,7 +302,7 @@ jobs:
         debian/update-dch-from-git
         scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         git diff
-        apt-get --yes --quiet -o Acquire::Retries=5 build-dep --indep-only .
+        apt-get --yes build-dep --indep-only .
         debuild -us -uc --build=all
     - name: Test install debian packages
       env:
@@ -310,7 +310,7 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
+        apt-get --yes install ../*.deb
     - name: Gather build artifacts
       run: |
         set -e
@@ -349,7 +349,7 @@ jobs:
       run: |
         set -x
         git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-        sudo apt-get --yes -o Acquire::Retries=5 install cppcheck shellcheck
+        sudo apt-get --yes install cppcheck shellcheck
         scripts/cppcheck.sh
     - name: Shellcheck
       continue-on-error: true
