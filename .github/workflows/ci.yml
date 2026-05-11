@@ -166,7 +166,7 @@ jobs:
         set -e
         set -x
         eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install ../*.deb
-        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install sudo # some tests run sudo...
+        eatmydata apt-get --yes --quiet -o Acquire::Retries=5 install sudo adduser # some tests run sudo; adduser no longer pulled implicitly on sid
         eatmydata adduser --disabled-password --gecos "" testrunner
         eatmydata passwd -d testrunner
         eatmydata adduser testrunner sudo
