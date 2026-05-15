@@ -111,28 +111,29 @@ jobs:
       run: |
         .github/scripts/verify-clean-repo.sh
 
-  cppcheck:
-    runs-on: ubuntu-24.04
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v6
-      with:
-        submodules: false
-        fetch-depth: 1
-    - name: Install dependencies
-      run: |
-        set -x
-        sudo apt-get -q update
-        sudo apt-get --yes install cppcheck shellcheck
-    - name: Cppcheck
-      continue-on-error: true
-      run: |
-        set -x
-        scripts/cppcheck.sh
-    - name: Shellcheck
-      continue-on-error: true
-      run: |
-        scripts/shellcheck.sh
+# Not supported on 2.9
+#  cppcheck:
+#    runs-on: ubuntu-24.04
+#    steps:
+#    - name: Checkout repository
+#      uses: actions/checkout@v6
+#      with:
+#        submodules: false
+#        fetch-depth: 1
+#    - name: Install dependencies
+#      run: |
+#        set -x
+#        sudo apt-get -q update
+#        sudo apt-get --yes install cppcheck shellcheck
+#    - name: Cppcheck
+#      continue-on-error: true
+#      run: |
+#        set -x
+#        scripts/cppcheck.sh
+#    - name: Shellcheck
+#      continue-on-error: true
+#      run: |
+#        scripts/shellcheck.sh
 
   htmldocs:
     runs-on: ubuntu-24.04
