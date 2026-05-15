@@ -268,7 +268,7 @@ jobs:
         apt-get -q update
         apt --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes --no-install-recommends install curl git lsb-release python3 devscripts
+        apt-get --yes --no-install-recommends install curl git lsb-release python3 devscripts sudo
     - name: Checkout repository
       uses: actions/checkout@v6
       with:
@@ -276,6 +276,16 @@ jobs:
         # "fetch-depth: 0" fetches all of history, this is needed by
         # our build system to determine the version from tags
         fetch-depth: 0
+    - name: Add linuxcnc.org deb archive
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -x
+        if [ "${{matrix.image}}" = debian:bullseye ] ; then
+          #For "debian:bullseye", po4a from linuxcnc repo is needed for sucessfull build
+          DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
+          .github/scripts/add-linuxcnc-repository.sh $DIST
+        fi
     - name: Git config
       run: |
         set -x

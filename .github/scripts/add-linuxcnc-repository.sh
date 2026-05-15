@@ -5,6 +5,7 @@ set -x
 
 DIST=$1
 
+mkdir -p /etc/apt/keyrings
 echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/linuxcnc.gpg] https://www.linuxcnc.org/ $DIST base" | sudo tee /etc/apt/sources.list.d/linuxcnc.list > /dev/null
 case $DIST in
 	'buster' | 'bullseye' | 'bookworm')
