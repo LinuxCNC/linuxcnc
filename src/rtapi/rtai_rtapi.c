@@ -527,24 +527,6 @@ long long int rtapi_get_time(void)
     return rt_get_cpu_time_ns();    
 }
 
-/* This returns a result in clocks instead of nS, and needs to be used
-   with care around CPUs that change the clock speed to save power and
-   other disgusting, non-realtime oriented behavior.  But at least it
-   doesn't take a week every time you call it.
-*/
-
-long long int rtapi_get_clocks(void)
-{
-    long long int retval;
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
-    retval = rdtsc_ordered();
-#else
-    rdtscll(retval);
-#endif
-    return retval;
-}
-
 void rtapi_delay(long int nsec)
 {
     if (nsec > max_delay) {
@@ -1731,7 +1713,6 @@ EXPORT_SYMBOL(rtapi_set_msg_handler);
 EXPORT_SYMBOL(rtapi_get_msg_handler);
 EXPORT_SYMBOL(rtapi_clock_set_period);
 EXPORT_SYMBOL(rtapi_get_time);
-EXPORT_SYMBOL(rtapi_get_clocks);
 EXPORT_SYMBOL(rtapi_delay);
 EXPORT_SYMBOL(rtapi_delay_max);
 EXPORT_SYMBOL(rtapi_prio_highest);

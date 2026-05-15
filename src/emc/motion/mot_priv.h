@@ -172,8 +172,7 @@ typedef struct {
     hal_float_t tc_acc[4];	/* RPA: traj internals, for debugging */
 
     // realtime overrun detection
-    hal_u32_t   *last_period;	/* pin: last period in clocks */
-    hal_float_t *last_period_ns;	/* pin: last period in nanoseconds */
+    hal_u32_t   *last_period;	/* pin: last period in nanoseconds */
 
     hal_float_t *tooloffset_x;
     hal_float_t *tooloffset_y;
@@ -347,9 +346,5 @@ int joint_is_lockable(int joint_num);
 #define GET_JOINT_FAULT_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_FAULT_BIT ? 1 : 0)
 
 #define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_FAULT_BIT; else (joint)->flag &= ~EMCMOT_JOINT_FAULT_BIT;
-
-#if defined(__KERNEL__)
-#define HAVE_CPU_KHZ
-#endif
 
 #endif /* MOT_PRIV_H */

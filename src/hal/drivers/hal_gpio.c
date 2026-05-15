@@ -50,9 +50,6 @@ MODULE_AUTHOR("Andy Pugh");
 MODULE_DESCRIPTION("GPIO driver using gpiod / libgpiod");
 MODULE_LICENSE("GPL");
 
-static unsigned long ns2tsc_factor;
-#define ns2tsc(x) (((x) * (unsigned long long)ns2tsc_factor) >> 12)
-
 // There isn't really any limit except for in the MP_ARRAY macros. 
 #define MAX_CHAN 128
 
@@ -358,14 +355,6 @@ int rtapi_app_main(void){
     const char *line_name;
 
 rtapi_print_msg(RTAPI_MSG_INFO, "Libgpiod is %i\n", LIBGPIOD_VER);
-
-#ifdef __KERNEL__
-    // this calculation fits in a 32-bit unsigned
-    // as long as CPUs are under about 6GHz
-    ns2tsc_factor = (cpu_khz << 6) / 15625ul;
-#else
-    ns2tsc_factor = 1ll<<12;
-#endif
     
     comp_id = hal_init("hal_gpio");
     if (comp_id < 0) {
@@ -520,7 +509,7 @@ static void hal_gpio_write(void *arg, __attribute__((unused)) long period)
 #endif
     }
     // store the time (in CPU clocks) for the reset function
-    last_reset = rtapi_get_clocks();
+    last_reset = rtapi_get_time();
 }
 
 static void hal_gpio_reset(void *arg, long period)
@@ -537,8 +526,8 @@ static void hal_gpio_reset(void *arg, long period)
 	    }
 	}
 	if (*gpio->reset_ns > period/4) *gpio->reset_ns = period/4;
-	deadline = last_reset + ns2tsc(*gpio->reset_ns);
-        while(rtapi_get_clocks() < deadline) {} // busy-wait!
+	deadline = last_reset + *gpio->reset_ns;
+        while(rtapi_get_time() < deadline) {} // busy-wait!
 #if LIBGPIOD_VER > 200
 	gpiod_line_request_set_values(gpio->out_chips[c].lines, gpio->out_chips[c].vals);
 #else
