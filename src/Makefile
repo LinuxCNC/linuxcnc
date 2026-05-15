@@ -1047,7 +1047,6 @@ hm2_pci-objs  :=			  \
     $(MATHSTUB)
 hm2_eth-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_eth.o   \
-    hal/drivers/mesa-hostmot2/eshellf.o   \
     $(MATHSTUB)
 hm2_spi-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_spi.o   \
@@ -1056,7 +1055,7 @@ hm2_spi-objs  :=			  \
 hm2_rpspi-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_rpspi.o \
     hal/drivers/mesa-hostmot2/llio_info.o \
-    hal/drivers/mesa-hostmot2/eshellf.o   \
+    hal/drivers/mesa-hostmot2/kmod_check.o \
     $(MATHSTUB)
 hm2_spix-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_spix.o  \
@@ -1064,7 +1063,7 @@ hm2_spix-objs  :=			  \
     hal/drivers/mesa-hostmot2/spix_rpi3.o \
     hal/drivers/mesa-hostmot2/spix_spidev.o \
     hal/drivers/mesa-hostmot2/llio_info.o \
-    hal/drivers/mesa-hostmot2/eshellf.o \
+    hal/drivers/mesa-hostmot2/kmod_check.o \
     $(MATHSTUB)
 hm2_modbus-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_modbus.o \

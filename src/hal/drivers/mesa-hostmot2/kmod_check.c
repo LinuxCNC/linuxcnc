@@ -1,8 +1,6 @@
 /*
- * This is a component for hostmot2 board drivers
- * Copyright (c) 2013,2014,2020,2024 Michael Geszkiewicz <micges@wp.pl>,
- *    Jeff Epler <jepler@unpythonic.net>
- *    B.Stultiens <lcnc@vagrearg.org>
+ * Shared helper: check whether a kernel module is loaded.
+ * Copyright (c) 2026 Luca Toniolo
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -17,12 +15,15 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef HAL_HM2_ESHELLF_H
-#define HAL_HM2_ESHELLF_H
 
-int shell(char *command);
-int eshellf(const char *errpfx, const char *fmt, ...);
+#include <stdio.h>
+#include <unistd.h>
 
-#endif
-/* vim: ts=4
- */
+#include "kmod_check.h"
+
+int kernel_module_loaded(const char *name)
+{
+    char path[256];
+    snprintf(path, sizeof(path), "/sys/module/%s", name);
+    return access(path, F_OK) == 0;
+}

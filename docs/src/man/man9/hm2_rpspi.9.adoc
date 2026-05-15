@@ -70,10 +70,14 @@ Mesa's SPI based Anything I/O boards (with the HostMot2 firmware) to the
 LinuxCNC HAL. This driver is not based on the linux spidev driver, but
 on a dedicated BCM2835-SPI driver.
 
-It is *strongly* recommended that you unload/disable the kernel's spidev
-driver by disabling it using *raspi-config*. Please note that having
-both kernel and user-space SPI drivers installed can result in
-unexpected interactions and system instabilities.
+The kernel's *spi_bcm2835* driver conflicts with this user-space driver
+and must be disabled before *hm2_rpspi* will load. Use *raspi-config*
+(Interface Options -> SPI -> Disable) and reboot. If the kernel module
+is still present at load time the driver will refuse to start with
+"Kernel SPI driver spi_bcm2835 is loaded and conflicts" rather than
+fight the kernel for the bus. Having both kernel and user-space SPI
+drivers installed otherwise leads to unexpected interactions and
+system instabilities.
 
 The supported boards are: 7I90HD.
 
