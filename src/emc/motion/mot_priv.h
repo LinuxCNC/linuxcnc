@@ -199,6 +199,19 @@ typedef struct {
     hal_float_t *feed_mm_per_second; /* feed mm per second*/
 
     hal_float_t *switchkins_type;
+    /* Interp State Pins */
+    hal_s32_t   *interp_line_number;
+    hal_s32_t   *interp_motion_type;
+    hal_float_t *interp_feedrate;
+
+    /* New Geometric Metadata Pins */
+    hal_float_t *interp_arc_radius;
+    hal_float_t *interp_arc_center_x;
+    hal_float_t *interp_arc_center_y;
+    hal_float_t *interp_arc_center_z;
+    hal_float_t *interp_straight_heading;
+    hal_float_t *interp_normal_heading;
+    hal_bit_t   *iscircle;
 } emcmot_hal_data_t;
 
 /***********************************************************************

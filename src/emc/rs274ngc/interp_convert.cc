@@ -1148,6 +1148,38 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                         turn, end1, end2, end3, block, settings);
 
+        // We need to determine which 'center' is X and which is Y
+        double abs_x = 0, abs_y = 0, abs_z =0;
+        double abs_cx = 0, abs_cy = 0,abs_cz=0;
+
+        if (settings->plane == CANON_PLANE::XY) {
+                // Plane 1=X, 2=Y, 3=Z
+                abs_x = end1;
+                abs_y = end2;
+                abs_z = end3;
+                abs_cx = center1;
+                abs_cy = center2;
+                abs_cz = *current3;
+        } else if (settings->plane == CANON_PLANE::XZ) {
+                // Plane 1=X, 2=Z, 3=Y
+                abs_x = end1;
+                abs_y = end3; // Or whatever your system expects for non-active axes
+                abs_z = end2;
+                abs_cx = center1;
+                abs_cy = *current3;
+                abs_cz = center2;
+        } else { // YZ plane
+                // Plane 1=Y, 2=Z, 3=X
+                abs_x = end3;
+                abs_y = end1;
+                abs_z = end2;
+                abs_cx = *current3;
+                abs_cy = center1;
+                abs_cz = center2;
+        }
+  // Call tagger with the resolved X, Y, CX, and CY
+  tag_arc(block, abs_x, abs_y, abs_z, abs_cx, abs_cy, abs_cz, move, settings->plane );
+  
   ARC_FEED(block->line_number, end1, end2, center1, center2, turn, end3,
            AA_end, BB_end, CC_end, u, v, w);
   *current1 = end1;
@@ -5373,6 +5405,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     } else ERS("BUG: Invalid plane for cutter compensation");
     CHP(status);
   } else if (move == G_0) {
+        tag_straight(block,end_x, end_y); // Update the heading and clear arc data for ANY straight move
     STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                       AA_end, BB_end, CC_end,
                       u_end, v_end, w_end);
@@ -5380,6 +5413,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_1) {
+        tag_straight(block,end_x, end_y); // Update the heading and clear arc data for ANY straight move
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z,
                   AA_end, BB_end, CC_end,
                   u_end, v_end, w_end);
@@ -6363,3 +6397,154 @@ int Interp::update_tag(StateTag &tag)
     UPDATE_TAG(tag);
     return INTERP_OK;
 }
+
+/****************************************************************************/
+
+/*! tag_straight
+
+Returned Value: int
+   Applies new geometric tags for straight moves  (G0 and G1 segments)
+   Called from convert_arc2
+*/
+
+int Interp::tag_straight(block_pointer block, double x, double y)
+{
+    // Use a static variable to remember the heading between function calls
+    // Initialize to 0.0 or your preferred default start angle
+    static double last_valid_heading = 0.0;
+
+    double start_x = _setup.current_x;
+    double start_y = _setup.current_y;
+
+    double dx = x - start_x;
+    double dy = y - start_y;
+
+    // Only update the heading if there is actual XY motion
+    if (hypot(dx, dy) > 0.0001)
+    {
+        double heading = atan2(dy, dx) * (180.0 / M_PI);
+
+        // Normalization
+        heading = fmod(heading, 360.0);
+        if (heading < 0.0) heading += 360.0;
+
+        // Store it for this block AND for the next Z-only move
+        block->arc_heading = heading;
+        last_valid_heading = heading;
+    }
+    else
+    {
+        // For Z-only moves, reuse the last calculated XY heading
+        block->arc_heading = last_valid_heading;
+    }
+
+    // Reset Arc data for safety
+    block->radius = 0.0;
+    block->arc_center_x = 0.0;
+    block->arc_center_y = 0.0;
+    block->arc_center_z = 0.0;
+    block->iscircle = false;
+
+    // Ship the data to the status registers
+    write_canon_state_tag(block, &_setup);
+
+    return INTERP_OK;
+}
+
+/****************************************************************************/
+
+/*! tag_arcs
+
+Returned Value: int
+   Applies new tags for Arcs (G2 and G3 segments)
+   Called from convert_arc2
+*/
+
+int Interp::tag_arc(block_pointer block, double x, double y, double z, double center_x, double center_y, double center_z, int move, CANON_PLANE plane)
+    {
+
+                // Initialize variables to be populated by the plane logic
+                double dx = 0, dy = 0;
+                bool is_helix = false;
+                bool is_360 = false;
+
+                // Resolve Plane-Specific Deltas (Heading) and Helix (Perpendicular Move)
+                if (plane == CANON_PLANE::XY) {
+                        // Heading axes: X=Horiz, Y=Vert
+                        dx = center_x - _setup.current_x;
+                        dy = center_y - _setup.current_y;
+
+                        // Helix axis: Z
+                        if (fabs(z - _setup.current_z) > TOLERANCE_EQUAL)
+                                is_helix = true;
+
+                        // 360 Check: Do planar endpoints match start?
+                        if (fabs(x - _setup.current_x) < TOLERANCE_EQUAL && fabs(y - _setup.current_y) < TOLERANCE_EQUAL)
+                                is_360 = true;
+                }
+                else if (plane == CANON_PLANE::XZ) {
+                        // Heading axes: Z=Horiz, X=Vert (Standard G18 orientation)
+                        dx = center_z - _setup.current_z;
+                        dy = center_x - _setup.current_x;
+
+                        // Helix axis: Y
+                        if (fabs(y - _setup.current_y) > TOLERANCE_EQUAL)
+                                is_helix = true;
+
+                        if (fabs(x - _setup.current_x) < TOLERANCE_EQUAL && fabs(z - _setup.current_z) < TOLERANCE_EQUAL)
+                                is_360 = true;
+                }
+                else { // plane == CANON_PLANE::YZ
+                        // Heading axes: Y=Horiz, Z=Vert
+                        dx = center_y - _setup.current_y;
+                        dy = center_z - _setup.current_z;
+
+                        // Helix axis: X
+                        if (fabs(x - _setup.current_x) > TOLERANCE_EQUAL)
+                                is_helix = true;
+
+                        if (fabs(y - _setup.current_y) < TOLERANCE_EQUAL && fabs(z - _setup.current_z) < TOLERANCE_EQUAL)
+                                is_360 = true;
+                }
+
+                // Heading Calculation (Using the dx/dy resolved above)
+                double radial_angle = atan2(dy, dx);
+                double tangent_angle = (move == G_3) ? (radial_angle + (M_PI / 2.0)) : (radial_angle - (M_PI / 2.0));
+                double heading = tangent_angle * (180.0 / M_PI);
+
+                // Normalise 0-360
+                while (heading < 0) heading += 360.0;
+                while (heading >= 360.0) heading -= 360.0;
+
+                double radius = hypot(dx, dy);
+
+                // We need to scale the radius if the gcode units are not the same as machine units
+                // If linearUnits > 0.5, it's 1.0 (Metric). If < 0.5, it's 0.03937 (Imperial).
+                int machineUnits = (emcStatus->motion.traj.linearUnits > 0.5) ? CANON_UNITS_MM : CANON_UNITS_INCHES;
+
+                // 3. Identify the active G-code unit type
+                int gcodeUnits = _setup.length_units;
+
+                // 4. If they don't match, scale the radius to Machine Units
+                if (gcodeUnits != machineUnits) {
+                        // longhand below to avoid clang errors
+                        if (gcodeUnits == CANON_UNITS_INCHES) {
+                                // G-code is Inches, Machine is MM -> Scale UP to MM
+                                radius = radius * 25.4;
+                        } else {
+                                // G-code is MM, Machine is Inches -> Scale DOWN to Inches
+                                radius = radius / 25.4;
+                        }
+                }
+
+                // Final Assignments
+                block->iscircle = (is_360 && !is_helix) ? 1 : 0;
+                block->arc_center_x = center_x;
+                block->arc_center_y = center_y;
+                block->arc_center_z = center_z;
+                block->arc_radius = hypot(dx, dy); // Radius in the active plane
+                block->arc_heading = heading;
+
+                write_canon_state_tag(block, &_setup);
+                return INTERP_OK;
+    }

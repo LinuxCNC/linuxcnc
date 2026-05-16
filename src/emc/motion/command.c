@@ -530,6 +530,16 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 		SET_JOINT_FAULT_FLAG(joint, 0);
 	    }
 	    emcmotStatus->paused = 0;
+	    // Clear pins on abort so tests see a clean state
+		if (emcmot_hal_data) {
+				*(emcmot_hal_data->interp_arc_radius) = 0.0;
+				*(emcmot_hal_data->interp_arc_center_x) = 0.0;
+				*(emcmot_hal_data->interp_arc_center_y) = 0.0;
+				*(emcmot_hal_data->interp_arc_center_z) = 0.0;
+				*(emcmot_hal_data->interp_straight_heading) = 0.0;
+				*(emcmot_hal_data->interp_normal_heading) = 0.0;
+				*(emcmot_hal_data->iscircle) = 0.0;
+		}
 	    break;
 
 	case EMCMOT_JOG_ABORT:

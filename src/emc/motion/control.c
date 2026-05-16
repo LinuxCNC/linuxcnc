@@ -34,6 +34,7 @@
 #include "config.h"
 #include "homing.h"
 #include "axis.h"
+#include "state_tag.h"
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -1888,6 +1889,13 @@ static void output_to_hal(void)
     *(emcmot_hal_data->coord_error) = GET_MOTION_ERROR_FLAG();
     *(emcmot_hal_data->on_soft_limit) = emcmotStatus->on_soft_limit;
 
+    /* Performance Metadata */
+    *(emcmot_hal_data->interp_feedrate)         = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED];
+
+    /* Line and Motion Type (Casting to int for s32 HAL pins) */
+    *(emcmot_hal_data->interp_line_number)      = (int)emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER];
+    *(emcmot_hal_data->interp_motion_type)      = (int)emcmotStatus->tag.fields[GM_FIELD_MOTION_MODE];
+    *(emcmot_hal_data->iscircle)                = (hal_bit_t)((emcmotStatus->tag.packed_flags & (1UL << GM_FLAG_IS_CIRCLE)) != 0);
     switch (emcmotStatus->motionType) {
         case EMC_MOTION_TYPE_FEED: //fall thru
         case EMC_MOTION_TYPE_ARC:
@@ -2210,6 +2218,74 @@ static void update_status(void)
       tpPause(&emcmotInternal->coord_tp);
       emcmotStatus->stepping = 0;
       emcmotStatus->paused = 1;
+    }
+    // State Tags handling
+    // Get the current executing trajectory component (the "Source of Truth")
+    /* Update the HAL Output Pins from the active tag */
+    // Line and Motion Type
+    *(emcmot_hal_data->interp_line_number) = (int)emcmotStatus->tag.fields[GM_FIELD_LINE_NUMBER];
+
+    // Performance Metadata
+    *(emcmot_hal_data->interp_feedrate) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED];
+
+    // Geometric Metadata
+    *(emcmot_hal_data->interp_arc_radius) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_RADIUS];
+    *(emcmot_hal_data->interp_arc_center_x) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_CENTER_X];
+    *(emcmot_hal_data->interp_arc_center_y) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Y];
+    *(emcmot_hal_data->interp_arc_center_z) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Z];
+
+    // Get the current motion type from the tag (1=G1, 2=G2, 3=G3)
+    int motion_type = (int)emcmotStatus->tag.fields[GM_FIELD_MOTION_MODE];
+    if (motion_type == 10 || motion_type == 0) {
+        /* --- G1/G0 STATIC HEADING --- */
+        // For linear moves, the heading doesn't change during the segment.
+        *(emcmot_hal_data->interp_straight_heading) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_STRAIGHT_HEADING];
+    }
+    else if (motion_type == 20 || motion_type == 30) {
+        /* --- G2/G3: DYNAMIC ARC HEADING --- */
+
+        // 1. Get Static Center from Tag
+        double cx = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_CENTER_X];
+        double cy = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Y];
+        double cz = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_CENTER_Z];
+
+        // 2. Get Real-Time Feedback Deltas
+        double dx = emcmotStatus->carte_pos_fb.tran.x - cx;
+        double dy = emcmotStatus->carte_pos_fb.tran.y - cy;
+        double dz = emcmotStatus->carte_pos_fb.tran.z - cz;
+
+        // 3. Determine Plane and Radial Angle
+        int plane = emcmotStatus->tag.fields[GM_FIELD_PLANE];
+        double angle_rad = 0.0; // Initialize to prevent "uninitialized" error
+
+        if (plane == 170) {      // XY: X is Horizontal, Y is Verradiustical
+            angle_rad = atan2(dy, dx);
+        }
+        else if (plane == 180) { // XZ: Z is Horizontal, X is Vertical
+            angle_rad = atan2(dx, dz);
+        }
+        else if (plane == 190) { // YZ: Y is Horizontal, Z is Vertical
+            angle_rad = atan2(dz, dy);
+        }
+        // Optional: add an else here for a default plane if 170/180/190 aren't found
+
+        // 4. Calculate Normal Heading (Tool-to-Center)
+        double normal_deg = (angle_rad * (180.0 / M_PI)) + 180.0;
+        while (normal_deg < 0) normal_deg += 360.0;
+        while (normal_deg >= 360.0) normal_deg -= 360.0;
+        *(emcmot_hal_data->interp_normal_heading) = normal_deg;
+
+        // 5. Calculate Tangent Heading (Direction of Travel)
+        double tangent_rad = (motion_type == 30) ? (angle_rad + (M_PI / 2.0)) : (angle_rad - (M_PI / 2.0));
+        double heading_deg = tangent_rad * (180.0 / M_PI);
+
+        // 6. Final Normalization and Assignment
+        while (heading_deg < 0) heading_deg += 360.0;
+        while (heading_deg >= 360.0) heading_deg -= 360.0;
+
+        if (emcmot_hal_data->interp_straight_heading) {
+        *(emcmot_hal_data->interp_straight_heading) = heading_deg;
+        }
     }
 #ifdef WATCH_FLAGS
     /*! \todo FIXME - this is for debugging */

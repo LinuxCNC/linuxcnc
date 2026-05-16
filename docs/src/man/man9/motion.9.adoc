@@ -263,6 +263,52 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 *motion.tp-reverse* OUT BIT::
   Trajectory planning is reversed (reverse run)
 
+=== Interpreter Metadata Pins
+
+These pins provide geometric intent and interpreter state for the segment of motion currently being executed. Unlike standard position feedback, these values are synchronized with the trajectory planner's execution point.
+
+==== Interpreter Status Pins
+
+* `motion.interp.line-number` (s32, out) +
+  The current G-code line number being executed.
+  
+* `motion.interp.motion-type` (s32, out) +
+  The type of motion currently in progress:
+** 0: None
+** 1: Rapid (G0)
+** 2: Feed (G1)
+** 3: Arc (G2, G3)
+** 4: Tool Change/Other
+
+* `motion.interp.feedrate` (float, out) +
+  The interpreted feedrate for the current segment in units per minute.
+
+==== Interpreter Geometric Pins
+
+* `motion.interp.heading` (float, out) +
+  The XY plane heading of the current linear move in degrees. Measured counter-clockwise from the +X axis (0 to 360). This could be used to control a tangential knife.
+
+* `motion.interp.arc-radius` (float, out) +
+  The radius of the current circular move. This value is 0.0 during linear moves. This could be used to modify plasma cutting parameters based on the arc radius and when hole cutting.
+
+* `motion.interp.arc-center-x` (float, out) +
+  The absolute X-coordinate of the center point for the current arc. 0 if in YZ plane
+
+* `motion.interp.arc-center-y` (float, out) +
+  The absolute Y-coordinate of the center point for the current arc. 0 if in XZ plane
+
+* `motion.interp.arc-center-z` (float, out) +
+  The absolute Y-coordinate of the center point for the current arc if in XZ or YZ plane.
+
+* `motion.interp.normal-heading` (float, out) +
+  the heading from the current point back to the arc centre for the current arc.
+  
+ * `motion.interp.iscircle` (bit, out) +
+  True if the current arc is a full circle and not a helix.
+  
+[NOTE]
+These pins represent the *commanded geometric intent* from the interpreter and are updated in real-time as each motion segment is consumed by the trajectory planner.
+
 == AXIS PINS
 
 (*L* is the axis letter, one of: *x y z a b c u v w*)
