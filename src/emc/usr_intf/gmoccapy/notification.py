@@ -109,7 +109,7 @@ class Notification(Gtk.Window):
         hbox.set_property('spacing', 5)
         if self.use_frames:
             frame.add(hbox)
-        labelnumber = Gtk.Label(label = number)
+        labelnumber = Gtk.Label(label = str(number))
         hbox.pack_start(labelnumber, False, False, 0)
         icon = Gtk.Image()
         if message[2]:
