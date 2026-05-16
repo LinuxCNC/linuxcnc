@@ -369,6 +369,9 @@ int Task::emcIoAbort(EMC_ABORT /*reason*/)//EMC_TOOL_ABORT_TYPE
     iocontrol_data.coolant_flood = 0;                /* coolant flood output pin */
     iocontrol_data.tool_change = 0;                /* abort tool change if in progress */
     iocontrol_data.tool_prepare = 0;                /* abort tool prepare if in progress */
+    // release task wait on pending tool-change/prepare (old NML iocontrol
+    // returned RCS_DONE by default; in-process call must do it explicitly)
+    emcioStatus.status = RCS_STATUS::DONE;
     return 0;
 }
 
