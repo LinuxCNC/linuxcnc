@@ -846,16 +846,27 @@ static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
 const static size_t PRE_ALLOC_SIZE = 1024 * 1024 * 32;
 const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
 static void configure_memory() {
-    // Best-effort raise of the soft cap to the hard cap.  Fails on
-    // unprivileged processes without CAP_SYS_RESOURCE or without a
-    // matching setrlimit; CAP_IPC_LOCK alone lets mlockall succeed
-    // regardless of the rlimit, so ignoring the failure is safe.
+    // Best-effort raise of the soft cap to the hard cap.  Needs
+    // CAP_SYS_RESOURCE; absent that, CAP_IPC_LOCK lets mlockall succeed
+    // regardless of the rlimit.  Only warn when neither path is open,
+    // i.e. mlockall is actually going to fail.
+    bool have_ipc_lock = false;
+#ifdef __linux__
+    cap_t caps = cap_get_proc();
+    if (caps) {
+        cap_flag_value_t v;
+        if (cap_get_flag(caps, CAP_IPC_LOCK, CAP_EFFECTIVE, &v) == 0)
+            have_ipc_lock = (v == CAP_SET);
+        cap_free(caps);
+    }
+#endif
     struct rlimit limit;
     if (getrlimit(RLIMIT_MEMLOCK, &limit) == 0) {
         limit.rlim_cur = limit.rlim_max;
-        if (setrlimit(RLIMIT_MEMLOCK, &limit) < 0)
-            rtapi_print_msg(RTAPI_MSG_DBG,
-                "setrlimit(RLIMIT_MEMLOCK) failed: %s\n", strerror(errno));
+        if (setrlimit(RLIMIT_MEMLOCK, &limit) < 0 && !have_ipc_lock)
+            rtapi_print_msg(RTAPI_MSG_WARN,
+                "setrlimit(RLIMIT_MEMLOCK) failed and CAP_IPC_LOCK not held: %s. "
+                "mlockall will likely fail.\n", strerror(errno));
     }
 
     int res = mlockall(MCL_CURRENT | MCL_FUTURE);
