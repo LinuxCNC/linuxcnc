@@ -63,7 +63,7 @@ else:
     log.info('Joint letter for primary   is %s with MIN/MAX limits: %s,%s', joint_letter_primary, primary_min_limit, primary_max_limit)
     category = 'AXIS_' +  joint_letter_secondary
     secondary_min_limit = config.getreal(category, 'MIN_LIMIT', fallback=0.0)
-    secondary_max_limit = config.gerreal(category, 'MAX_LIMIT', fallback=0.0)
+    secondary_max_limit = config.getreal(category, 'MAX_LIMIT', fallback=0.0)
     log.info('Joint letter for secondary is %s with MIN/MAX Limits: %s,%s', joint_letter_secondary, secondary_min_limit, secondary_max_limit)
 
 
