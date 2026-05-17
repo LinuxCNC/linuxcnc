@@ -422,7 +422,7 @@ static void push_uint16(std::vector<char> &buf, uint16_t value) {
 
 static uint16_t get_uint16(const std::vector<char> &buf, size_t idx) {
     //at() will check index and throw std::out_of_range
-    return ((uint16_t)buf.at(idx) << 0) | ((uint16_t)buf.at(idx + 1) << 8);
+    return ((uint16_t)(unsigned char)buf.at(idx)) | ((uint16_t)(unsigned char)buf.at(idx + 1) << 8);
 }
 
 static bool recv_args(int fd, std::vector<std::string> &args) {
