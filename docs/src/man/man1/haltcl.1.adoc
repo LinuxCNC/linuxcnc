@@ -56,7 +56,7 @@ The augmented commands can be listed with the command:
 
 `haltcl: hal --commands`+
 
-`addf alias delf delsig getp gets ptype stype help linkpp linkps linksp list loadrt loadusr lock net newsig save setexact_for_test_suite_only setp sets show source start status stop unalias unlinkp unload unloadrt unloadusr unlock waitusr`
+`addf alias delf delsig getp gets initf ptype stype help linkpp linkps linksp list loadrt loadusr lock net newsig save setexact_for_test_suite_only setp sets show source start status stop unalias unlinkp unload unloadrt unloadusr unlock waitusr`
 
 Two of the augmented commands, 'list' and 'gets', require special treatment
 to avoid conflict with Tcl built-in commands having the same names.

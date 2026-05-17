@@ -98,6 +98,26 @@ addf <function> <thread>
 addf mux4.0 servo-thread
 ----
 
+[[sub:hal-initf]]
+=== initf
+
+(((HAL initf,initf)))
+The `initf` command registers a function to run once in realtime context, on a dedicated init cycle of the thread before the cyclic function list runs.
+It is the realtime-thread analogue of `addf`, intended for one-shot setup that must execute in the realtime task (for example EtherCAT master activation via `lcec.0.activate`).
+
+`initf` adds function _functname_ to the init list of thread _threadname_.
+The init list runs once on the first cycle after `start`, then is drained.
+The cyclic list begins on the following period.
+Once the init cycle has run, further `initf` calls on that thread are rejected.
+`position` has the same meaning as in `addf`.
+
+.initf Syntax and Example
+[source,{hal}]
+----
+initf <function> <thread>
+initf lcec.0.activate servo-thread
+----
+
 [[sub:hal-loadusr]]
 === loadusr
 

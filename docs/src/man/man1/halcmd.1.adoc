@@ -192,6 +192,13 @@ _pinname_ *=* _value_::
   _threadname_. _functname_ will run after any functions that were
   previously added to the thread. Fails if either _functname_ or
   _threadname_ does not exist, or if they are incompatible.
+*initf* _functname_ _threadname_::
+  (__init__ __f__unction) Registers _functname_ to run once in realtime
+  context on a dedicated init cycle of _threadname_, before the cyclic
+  function list executes. Intended for one-shot setup that must run in
+  the realtime task (for example EtherCAT slave configuration). Once
+  the init cycle has run, further *initf* calls on that thread are
+  rejected. Fails if either _functname_ or _threadname_ does not exist.
 *delf* _functname_ _threadname_::
   (__del__ete __f__unction) Removes function _functname_ from realtime
   thread _threadname_. Fails if either _functname_ or _threadname_ does
