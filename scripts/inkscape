@@ -1,10 +1,14 @@
 #!/bin/bash
-# Shim that intercepts the `inkscape -D --export-filename=OUT IN` calls made
-# by dblatex during the LinuxCNC docs build and forwards them to rsvg-convert.
-# Avoids the noisy Pango/GtkRecentManager warnings that headless Inkscape
-# prints on every SVG conversion (see issue #4040). Falls back to the real
-# inkscape whenever the args do not match the expected pattern, when
-# rsvg-convert is missing, or when LINUXCNC_DOCS_NO_RSVG is set.
+# Shim that intercepts the inkscape calls made by dblatex during the
+# LinuxCNC docs build and forwards them to rsvg-convert. Avoids the noisy
+# Pango/GtkRecentManager warnings that headless Inkscape prints on every
+# SVG conversion (see issue #4040). Handles both dblatex syntaxes:
+#   new (Inkscape 1.x): inkscape -D --export-filename=OUT IN
+#   old (Inkscape 0.x): inkscape -z -D --export-png=OUT IN
+#                       (also --export-pdf=, --export-eps=)
+# Falls back to the real inkscape whenever the args do not match the
+# expected pattern, when rsvg-convert is missing, or when
+# LINUXCNC_DOCS_NO_RSVG is set.
 
 set -u
 
@@ -29,17 +33,35 @@ if ! command -v rsvg-convert >/dev/null 2>&1; then
     real_inkscape "$@"
 fi
 
-# Parse just the dblatex call pattern: optional -D, --export-filename=OUT,
-# one positional input. Anything else falls through.
+# Parse the dblatex call pattern. Accepted flags:
+#   -D, -d, -z, --without-gui   (ignored: pose/area/legacy GUI suppression)
+#   --export-filename=OUT       (Inkscape 1.x)
+#   --export-png=OUT            (Inkscape 0.x)
+#   --export-pdf=OUT            (Inkscape 0.x)
+#   --export-eps=OUT            (Inkscape 0.x)
+# One positional input. Anything else falls through to real inkscape.
 out=""
 in=""
+fmt=""
 saw_unknown=0
 for arg in "$@"; do
     case "$arg" in
-        -D|-d)
+        -D|-d|-z|--without-gui)
             ;;
         --export-filename=*)
             out="${arg#--export-filename=}"
+            ;;
+        --export-png=*)
+            out="${arg#--export-png=}"
+            fmt=png
+            ;;
+        --export-pdf=*)
+            out="${arg#--export-pdf=}"
+            fmt=pdf
+            ;;
+        --export-eps=*)
+            out="${arg#--export-eps=}"
+            fmt=eps
             ;;
         -*)
             saw_unknown=1
@@ -58,13 +80,16 @@ if [ "$saw_unknown" = 1 ] || [ -z "$in" ] || [ -z "$out" ]; then
     real_inkscape "$@"
 fi
 
-case "$out" in
-    *.pdf) fmt=pdf ;;
-    *.png) fmt=png ;;
-    *.eps) fmt=eps ;;
-    *.svg) fmt=svg ;;
-    *)     real_inkscape "$@" ;;
-esac
+# If format not yet set (new-syntax --export-filename), infer from extension.
+if [ -z "$fmt" ]; then
+    case "$out" in
+        *.pdf) fmt=pdf ;;
+        *.png) fmt=png ;;
+        *.eps) fmt=eps ;;
+        *.svg) fmt=svg ;;
+        *)     real_inkscape "$@" ;;
+    esac
+fi
 
 if ! rsvg-convert -f "$fmt" -o "$out" "$in"; then
     real_inkscape "$@"
