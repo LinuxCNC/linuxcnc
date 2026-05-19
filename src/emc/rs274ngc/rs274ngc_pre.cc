@@ -2228,9 +2228,14 @@ int Interp::active_modes(int *g_codes,
         tag.flags[GM_FLAG_FEED_HOLD] ? 53 : -1;
 
 
-    // Copy float-type state
-    for (i=0; i<GM_FIELD_FLOAT_MAX_FIELDS; i++)
-	settings[i] = tag.fields_float[i];
+    // Copy float-type state. settings[] is sized ACTIVE_SETTINGS (5);
+    // GM_FIELD_FLOAT_MAX_FIELDS may be larger when extra tag fields are
+    // appended for HAL pin output. Cap at the smaller of the two to avoid
+    // overrunning the caller's stack array.
+    int n = GM_FIELD_FLOAT_MAX_FIELDS < ACTIVE_SETTINGS
+        ? GM_FIELD_FLOAT_MAX_FIELDS : ACTIVE_SETTINGS;
+    for (i=0; i<n; i++)
+        settings[i] = tag.fields_float[i];
     // Line number stored in double; this demonstrates why the current
     // system of unpacking state tags into arrays of fixed type and
     // purpose should be refactored into something more elegant

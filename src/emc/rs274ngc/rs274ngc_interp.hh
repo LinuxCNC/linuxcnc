@@ -657,6 +657,10 @@ int read_inputs(setup_pointer settings);
  void doLog(unsigned int flags, const char *file, int line,
 	    const char *fmt, ...) __attribute__((format(printf,5,6)));
 
+ /* State Tags Helpers */
+ int tag_straight(block_pointer block, double x, double y);
+ int tag_arc(block_pointer block, double x, double y, double z, double center_x, double center_y, double center_z, int move, CANON_PLANE plane);
+       
  const char *interp_status(int status);
 
     //technically this violates encapsulation rules but is needed for

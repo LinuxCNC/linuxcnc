@@ -495,6 +495,15 @@ struct block_struct
   long     offset{};   // start of line in file
   int      o_type{};
   int      call_type{}; // oword-sub, python oword-sub, remap
+  
+  // Add Geometic fields
+  double arc_center_x{};
+  double arc_center_y{};
+  double arc_center_z{};
+  double arc_radius{};
+  double arc_heading{};
+  double normal_heading{};
+  bool iscircle{};
   const char    *o_name{};   // !!!KL be sure to free this
   double   params[INTERP_SUB_PARAMS]{};
   int param_cnt{};
@@ -816,6 +825,15 @@ struct setup
     bool loop_on_main_m99;
 
   int disable_g92_persistence;
+
+// add new geometric fields for our new tags
+  double heading;
+  double radius;
+  double center_x;
+  double center_y;
+  double center_z;
+  double normal_heading;
+  bool iscircle;
 
 #define FEATURE(x) (_setup.feature_set & FEATURE_ ## x)
 #define FEATURE_RETAIN_G43           0x00000001
