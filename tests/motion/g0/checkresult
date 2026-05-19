@@ -127,7 +127,7 @@ for i in range(i, len(samples) - 1):
         sys.exit(1)
 
     if accel_ipc2 == 0:
-        print("line %d: accel phase over" % i)
+        #print("line %d: accel phase over" % i)
         break
 
     old_v_ipc = new_v_ipc
