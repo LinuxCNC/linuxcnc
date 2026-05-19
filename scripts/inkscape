@@ -1,0 +1,71 @@
+#!/bin/bash
+# Shim that intercepts the `inkscape -D --export-filename=OUT IN` calls made
+# by dblatex during the LinuxCNC docs build and forwards them to rsvg-convert.
+# Avoids the noisy Pango/GtkRecentManager warnings that headless Inkscape
+# prints on every SVG conversion (see issue #4040). Falls back to the real
+# inkscape whenever the args do not match the expected pattern, when
+# rsvg-convert is missing, or when LINUXCNC_DOCS_NO_RSVG is set.
+
+set -u
+
+real_inkscape() {
+    # Find the next `inkscape` on PATH after stripping the directory holding
+    # this shim, so we do not recurse into ourselves.
+    local self_dir
+    self_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+    local stripped_path
+    stripped_path=$(printf '%s' "$PATH" | tr ':' '\n' \
+        | grep -vxF "$self_dir" | paste -sd:)
+    PATH="$stripped_path" exec inkscape "$@"
+}
+
+# Escape hatch.
+if [ -n "${LINUXCNC_DOCS_NO_RSVG:-}" ]; then
+    real_inkscape "$@"
+fi
+
+# rsvg-convert must be available.
+if ! command -v rsvg-convert >/dev/null 2>&1; then
+    real_inkscape "$@"
+fi
+
+# Parse just the dblatex call pattern: optional -D, --export-filename=OUT,
+# one positional input. Anything else falls through.
+out=""
+in=""
+saw_unknown=0
+for arg in "$@"; do
+    case "$arg" in
+        -D|-d)
+            ;;
+        --export-filename=*)
+            out="${arg#--export-filename=}"
+            ;;
+        -*)
+            saw_unknown=1
+            ;;
+        *)
+            if [ -n "$in" ]; then
+                saw_unknown=1
+            else
+                in="$arg"
+            fi
+            ;;
+    esac
+done
+
+if [ "$saw_unknown" = 1 ] || [ -z "$in" ] || [ -z "$out" ]; then
+    real_inkscape "$@"
+fi
+
+case "$out" in
+    *.pdf) fmt=pdf ;;
+    *.png) fmt=png ;;
+    *.eps) fmt=eps ;;
+    *.svg) fmt=svg ;;
+    *)     real_inkscape "$@" ;;
+esac
+
+if ! rsvg-convert -f "$fmt" -o "$out" "$in"; then
+    real_inkscape "$@"
+fi
