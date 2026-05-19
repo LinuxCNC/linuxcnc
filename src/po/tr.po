@@ -1,22 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# kemal askan <kemalaskan90@gmail.com>, 2023, 2024.
+# kemal askan <kemalaskan90@gmail.com>, 2023, 2024, 2026.
 # Burak Yeler <burakyeler@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-01-30 18:47+0100\n"
-"PO-Revision-Date: 2024-09-30 20:09+0000\n"
-"Last-Translator: Burak Yeler <burakyeler@gmail.com>\n"
+"PO-Revision-Date: 2026-05-19 22:11+0000\n"
+"Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -102,7 +102,7 @@ msgstr "G4' e G2 veya G3 ile birlikte izin verilmez çünkü ikiside P kullanır
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr ""
+msgstr "G10 satırında L0, L1, L2, L10, L11 veya L20 yok"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
@@ -111,101 +111,117 @@ msgstr "G10 ile kullanılan P değeri bir tamsayı(integer) değil "
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr ""
+msgstr "G10 L%d kullanılırken P değeri geçersiz (0-9 aralığında olmalı)"
 
 #: src/emc/rs274ngc/interp_check.cc:95
 #, c-format
 msgid "P value out of range with G10 L%d"
-msgstr ""
+msgstr "G10 L%d ile birlikte P değeri aralık dışında"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr ""
+msgstr "G5.2 ve G5.3 kodları arasında yalnızca ek G5.2 kodlarına izin verilir."
 
 #: src/emc/rs274ngc/interp_check.cc:261
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 G73, G83 or G96 to "
 "use it"
 msgstr ""
+"D sözcüğü için G41, G41.1, G42, G42.1, G71, G71.1, G71.2, G73, G83 veya G96 "
+"bulunmuyor"
 
 #: src/emc/rs274ngc/interp_check.cc:272
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
 msgstr ""
+"$ (spindle selection) sözcüğüyle birlikte M3, M4, M5, M19, M51, G33, G33.1, "
+"G76, G95, G96 veya G97 bulunmuyor"
 
 #: src/emc/rs274ngc/interp_check.cc:279
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
-msgstr ""
+msgstr "E sözcüğü için kullanılacak G70, G76, M66, M67 veya M68 kodu yok"
 
 #: src/emc/rs274ngc/interp_check.cc:284
 msgid "H word with no G43 or G76 to use it"
-msgstr ""
+msgstr "H sözcüğü için kullanılacak G43 veya G76 kodu yok"
 
 #: src/emc/rs274ngc/interp_check.cc:293
 msgid ""
 "I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
 msgstr ""
+"I sözcüğü için kullanılacak G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76 veya "
+"G87 kodu yok"
 
 #: src/emc/rs274ngc/interp_check.cc:300
 msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
 msgstr ""
+"J sözcüğü için kullanılacak G2, G3, G5, G5.1, G6, G6.1, G10, G76 veya G87 "
+"kodu yok"
 
 #: src/emc/rs274ngc/interp_check.cc:305
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
 msgstr ""
+"K sözcüğü için kullanılacak G2, G3, G6.2, G33, G33.1, G76 veya G87 kodu yok"
 
 #: src/emc/rs274ngc/interp_check.cc:317
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
+"L sözcüğü için kullanılacak G10, takım yarıçap telafisi, hazır çevrim, "
+"dijital/analog giriş, M98 veya NURBS kodu yok"
 
 #: src/emc/rs274ngc/interp_check.cc:334
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
 "M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
+"P sözcüğü için kullanılacak G2, G3, G4, G10, G64, G5, G5.2, G6, G6.2, G76, "
+"G82, G86, G88, G89, M50, M51, M52, M53, M62, M63, M64, M65, M66, M98 veya "
+"kullanıcı M kodu yok"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value not an integer with M19 G2 or G3"
-msgstr ""
+msgstr "M19, G2 veya G3 ile birlikte P değeri tam sayı olmalıdır"
 
 #: src/emc/rs274ngc/interp_check.cc:342
 msgid "P value must be 0,1,or 2 with M19"
-msgstr ""
+msgstr "M19 ile birlikte P değeri 0, 1 veya 2 olmalıdır"
 
 #: src/emc/rs274ngc/interp_check.cc:344
 msgid "P value should be 1 or greater with G2 or G3"
-msgstr ""
+msgstr "G2 veya G3 ile birlikte P değeri 1 veya daha büyük olmalıdır"
 
 #: src/emc/rs274ngc/interp_check.cc:355
 msgid ""
 "Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
+"Q sözcüğü için kullanılacak G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, "
+"M68 veya kullanıcı M kodu yok"
 
 #: src/emc/rs274ngc/interp_check.cc:368
 msgid "R value must be within 0..360 with M19"
-msgstr ""
+msgstr "M19 ile birlikte R değeri 0..360 aralığında olmalıdır"
 
 #: src/emc/rs274ngc/interp_convert.cc:187
 #: src/emc/rs274ngc/interp_convert.cc:380
 msgid "You must specify both X and Y coordinates for Control Points"
-msgstr ""
+msgstr "Kontrol noktaları için hem X hem de Y koordinatları belirtilmelidir"
 
 #: src/emc/rs274ngc/interp_convert.cc:192
 msgid "Can specify P without X and Y only for the first control point"
-msgstr ""
+msgstr "X ve Y olmadan P yalnızca ilk kontrol noktası için belirtilebilir"
 
 #: src/emc/rs274ngc/interp_convert.cc:199
 #: src/emc/rs274ngc/interp_convert.cc:387
 msgid "You must specify both Y and Z coordinates for Control Points"
-msgstr ""
+msgstr "Kontrol noktaları için hem Y hem de Z koordinatları belirtilmelidir"
 
 #: src/emc/rs274ngc/interp_convert.cc:204
 msgid "Can specify P without Y and Z only for the first control point"
-msgstr ""
+msgstr "Y ve Z olmadan P yalnızca ilk kontrol noktası için belirtilebilir"
 
 #: src/emc/rs274ngc/interp_convert.cc:211
 #: src/emc/rs274ngc/interp_convert.cc:394
@@ -11283,7 +11299,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -18958,8 +18975,8 @@ msgid ""
 "Gscreen\n"
 "Fullscreen"
 msgstr ""
-"GEkranı\n"
-"TamEkran"
+"Gekranı\n"
+"Tamekran"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2642
 msgid ""

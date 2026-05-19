@@ -6,17 +6,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2026-04-16 19:18+0200\n"
-"PO-Revision-Date: 2024-02-03 08:59+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2026-05-19 22:11+0000\n"
+"Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
 "Language-Team: none\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:272
 msgid "user mode selected"
@@ -444,10 +444,8 @@ msgid "Enter value for offset"
 msgstr "Ölçü değerini girin"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2492
-#, fuzzy
-#| msgid "offset z"
 msgid "offset:"
-msgstr "ofset z"
+msgstr "ofset:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2526
 msgid "offsetpage widget error: MDI call error"
@@ -561,7 +559,7 @@ msgstr "Dikkat!!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4790
 msgid "Exit and discard changes?"
-msgstr "Çıkış yaptığınızda yapılan her şey eski haline dönsün mü? "
+msgstr "Çıkış yaptığınızda yapılan her şey eski haline dönsün mü ?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4791
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4804
@@ -743,7 +741,7 @@ msgstr "Uyarı Takım dokunma mümkün değil!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5629
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
-msgstr "Spindle miline monte edilmemiş takıma dokunamazsınız !"
+msgstr "Spindle miline monte edilmemiş takıma dokunamazsınız."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5630
 msgid "Your selection has been reset to the tool in spindle."
@@ -1001,14 +999,8 @@ msgid "Shows the code to execute"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
-#, fuzzy
-#| msgid ""
-#| "Search\n"
-#| " back"
 msgid "Search:"
-msgstr ""
-"Arama\n"
-"geri"
+msgstr "Arama:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
 msgid ""
@@ -1041,24 +1033,16 @@ msgid "Ignore Case"
 msgstr "Limitleri yoksay"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:35
-#, fuzzy
-#| msgid ""
-#| "Replace\n"
-#| "   All"
 msgid "Replace All"
-msgstr ""
-"Tümünü\n"
-"   Değiştir"
+msgstr "Tümünü Değiştir"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid "Replace"
 msgstr "Yer değiştirmek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
-#, fuzzy
-#| msgid "Replace"
 msgid "Replace:"
-msgstr "Yer değiştirmek"
+msgstr "Değiştir:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
 msgid "Information over the tool in spindle"
@@ -1107,10 +1091,8 @@ msgid "Tool info and G-codes"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
-#, fuzzy
-#| msgid "Size"
 msgid "Size:"
-msgstr "boyut"
+msgstr "Boyut:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid "Rapid distance:"
@@ -1338,10 +1320,8 @@ msgid "Show DTG"
 msgstr "DTG'yi göster"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
-#, fuzzy
-#| msgid "<b>Mouse Button mode</b>"
 msgid "Mouse Button mode:"
-msgstr "<b>Mouse Düğme modu</b>"
+msgstr "Mouse Düğme modu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "left rotate,  middle move,  right zoom"
