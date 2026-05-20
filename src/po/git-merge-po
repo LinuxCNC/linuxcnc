@@ -9,6 +9,8 @@
 # - When merging branches, conflicts in PO files will be marked with "#-#-#-#"
 #
 set -x
+# O is nerver used. We ignore it.
+# shellcheck disable=SC2034
 O="$1"
 A="$2"
 B="$3"
