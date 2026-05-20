@@ -524,7 +524,9 @@ int main(int argc, char **argv) {
         // Set the response timeout.
         t.tv_sec = 0;
         t.tv_usec = 16 * 1000;
-#if (LIBMODBUS_VERSION_CHECK(3, 1, 2))
+// Cppcheck fails to parse the function-like macro
+//#if (LIBMODBUS_VERSION_CHECK(3, 1, 2))
+#if LIBMODBUS_VERSION_HEX >= 0x030102
         modbus_set_response_timeout(mb, t.tv_sec, t.tv_usec);
 #else
         modbus_set_response_timeout(mb, &t);
@@ -532,7 +534,9 @@ int main(int argc, char **argv) {
 
         // Disable the byte timeout so it just waits for the complete
         // response timeout instead.
-#if (LIBMODBUS_VERSION_CHECK(3, 1, 2))
+// Cppcheck fails to parse the function-like macro
+//#if (LIBMODBUS_VERSION_CHECK(3, 1, 2))
+#if LIBMODBUS_VERSION_HEX >= 0x030102
         t.tv_sec = 0;
         t.tv_usec = 0;
         modbus_set_byte_timeout(mb, t.tv_sec, t.tv_usec);
