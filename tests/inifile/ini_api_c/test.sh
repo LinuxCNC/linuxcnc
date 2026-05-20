@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 FLGS=( -O2 -Wall -Wextra -Werror -I"${HEADERS}" -DULAPI -L"${LIBDIR}" )
 gcc "${FLGS[@]}" -o initest  initest.c -llinuxcncini || { echo "Failed compile"; exit 1; }
 

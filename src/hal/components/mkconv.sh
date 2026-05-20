@@ -73,18 +73,20 @@ minval() {
 #
 
 # Enable (val > MAX) test
+V=1
 test	"$1" = 'float' -o \
 	"$2" = 'bit' -o \
 	\( "$2" = 's32' -a "$1" != 'bit' \) -o \
 	\( "$1" = 'u64' -a "$2" != 'float' \) -o \
-	\( "$1" = 's64' -a "$2" = 'u32' \)
-MAXEN="s,@MAXEN@,$?,g"
+	\( "$1" = 's64' -a "$2" = 'u32' \) && V=0
+MAXEN="s,@MAXEN@,$V,g"
 
 # Enable (val < MIN) test
+V=1
 test	"$1" = 'float' -o \
 	\( "$1" = 's64' -a "$2" != 'float' \) -o \
-	\( "$1" = 's32' -a \( "$2" = 'u32' -o "$2" = 'u64' -o "$2" = 'bit' \) \)
-MINEN="s,@MINEN@,$?,g"
+	\( "$1" = 's32' -a \( "$2" = 'u32' -o "$2" = 'u64' -o "$2" = 'bit' \) \) && V=0
+MINEN="s,@MINEN@,$V,g"
 
 # Disable clamp code
 if test	"$2" = 'float' -o \
