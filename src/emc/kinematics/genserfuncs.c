@@ -48,8 +48,8 @@
 #if __GNUC__ && !defined(__clang__)
 // The matrix and vector storage is just big.
 // genser_kin_jac_inv() is 2112
-// genserKinematicsInverse() is 2576
-  #pragma GCC diagnostic warning "-Wframe-larger-than=2600"
+// genserKinematicsInverse() is 2640
+  #pragma GCC diagnostic warning "-Wframe-larger-than=2648"
 #endif
 
 static struct haldata {

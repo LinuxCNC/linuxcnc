@@ -74,7 +74,9 @@ using namespace linuxcnc;
 
 struct pyIniFile {
     PyObject_HEAD
-    std::string inifile;
+    // The 'inifile' member is a pointer because we don't
+    // have C++ constructor semantics here
+    std::string *inifile;
 };
 
 struct pyStatChannel {
@@ -98,12 +100,15 @@ struct pyErrorChannel {
 static PyObject *m = NULL, *error = NULL;
 
 static int Ini_init(pyIniFile *self, PyObject *a, PyObject * /*k*/) {
-    char *inifile;
+    const char *inifile = NULL;
     if(!PyArg_ParseTuple(a, "s", &inifile)) return -1;
 
-    self->inifile = inifile;
+    if(!inifile)
+        return -1;
 
-    IniFile ini(inifile); // Test open (will parse and cache the file)
+    self->inifile = new std::string(inifile);
+
+    IniFile ini(self->inifile); // Test open (will parse and cache the file)
     if (!ini) {
         PyErr_Format( error, "inifile.open(%s) failed", inifile);
         return -1;
@@ -688,6 +693,10 @@ static PyObject *Ini_get_jointtype(pyIniFile *self, PyObject *args, PyObject *kw
 }
 
 static void Ini_dealloc(pyIniFile *self) {
+    if(self->inifile) {
+        delete self->inifile;
+        self->inifile = NULL;
+    }
     PyObject_Del(self);
 }
 

@@ -1236,9 +1236,9 @@ static void initMain()
     emcStatus = 0;
 
     emcErrorBuffer = 0;
-    error_string[LINELEN-1] = 0;
-    operator_text_string[LINELEN-1] = 0;
-    operator_display_string[LINELEN-1] = 0;
+    error_string.clear();
+    operator_text_string.clear();
+    operator_display_string.clear();
     programStartLine = 0;
 }
 
@@ -1258,7 +1258,7 @@ int main(int argc, char *argv[])
         case 'p': sscanf(optarg, "%d", &port); break;
         case 's': sscanf(optarg, "%d", &maxSessions); break;
         case 'w': snprintf(pwd, sizeof(pwd), "%s", optarg); break;
-        case 'd': snprintf(defaultPath, sizeof(defaultPath), "%s", optarg); break;
+        case 'd': defaultPath = optarg; break;
         }
       }
 

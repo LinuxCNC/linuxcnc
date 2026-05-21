@@ -868,17 +868,17 @@ static int emc_error(ClientData /*clientdata*/,
 
     CHECKEMC
     if (objc == 1) {
-	// get any new error, it's saved in global error_string[]
+	// get any new error, it's saved in global error_string
 	if (0 != updateError()) {
 	    setresult(interp,"emc_error: bad status from EMC");
 	    return TCL_ERROR;
 	}
 	// put error on result list
-	if (error_string[0] == 0) {
+	if (error_string.empty()) {
 	    setresult(interp,"ok");
 	} else {
-	    setresult(interp,error_string);
-	    error_string[0] = 0;
+	    setresult(interp,error_string.c_str());
+	    error_string.clear();
 	}
 	return TCL_OK;
     }
@@ -894,17 +894,17 @@ static int emc_operator_text(ClientData /*clientdata*/,
 
     CHECKEMC
     if (objc == 1) {
-	// get any new string, it's saved in global operator_text_string[]
+	// get any new string, it's saved in global operator_text_string
 	if (0 != updateError()) {
 	    setresult(interp,"emc_operator_text: bad status from EMC");
 	    return TCL_ERROR;
 	}
 	// put error on result list
-	if (operator_text_string[0] == 0) {
+	if (operator_text_string.empty()) {
 	    setresult(interp,"ok");
-	    operator_text_string[0] = 0;
 	} else {
-	    setresult(interp,operator_text_string);
+	    setresult(interp,operator_text_string.c_str());
+	    operator_text_string.clear();
 	}
 	return TCL_OK;
     }
@@ -920,17 +920,17 @@ static int emc_operator_display(ClientData /*clientdata*/,
 
     CHECKEMC
     if (objc == 1) {
-	// get any new string, it's saved in global operator_display_string[]
+	// get any new string, it's saved in global operator_display_string
 	if (0 != updateError()) {
 	    setresult(interp,"emc_operator_display: bad status from EMC");
 	    return TCL_ERROR;
 	}
 	// put error on result list
-	if (operator_display_string[0] == 0) {
+	if (operator_display_string.empty()) {
 	    setresult(interp,"ok");
 	} else {
-	    setresult(interp,operator_display_string);
-	    operator_display_string[0] = 0;
+	    setresult(interp,operator_display_string.c_str());
+	    operator_display_string.clear();
 	}
 	return TCL_OK;
     }
@@ -3640,9 +3640,9 @@ static void initMain()
     emcStatus = 0;
 
     emcErrorBuffer = 0;
-    error_string[LINELEN-1] = 0;
-    operator_text_string[LINELEN-1] = 0;
-    operator_display_string[LINELEN-1] = 0;
+    error_string.clear();
+    operator_text_string.clear();
+    operator_display_string.clear();
     programStartLine = 0;
 }
 

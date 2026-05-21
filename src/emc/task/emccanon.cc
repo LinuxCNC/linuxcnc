@@ -3433,7 +3433,7 @@ void MESSAGE(char *s)
     auto operator_display_msg = std::make_unique<EMC_OPERATOR_DISPLAY>();
 
     flush_segments();
-    strncpy(operator_display_msg->display, s, LINELEN);
+    strncpy(operator_display_msg->display, s, LINELEN-1);
     operator_display_msg->display[LINELEN - 1] = 0;
     interp_list.append(std::move(operator_display_msg));
 }

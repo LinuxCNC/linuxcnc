@@ -1876,12 +1876,11 @@ static cmdResponseType getError(connectionRecType &ctx)
 		return rtError;
 	}
 
-	// FIXME: static buffer 'error_string'
-	if (!error_string[0]) {
+	if (error_string.empty()) {
 		replynl(ctx, "ERROR OK");
 	} else {
 		replynl(ctx, fmt::format("ERROR {}", error_string));
-		error_string[0] = 0;
+		error_string.clear();
 	}
 	return rtOk;
 }
@@ -1894,12 +1893,11 @@ static cmdResponseType getOperatorDisplay(connectionRecType &ctx)
 		return rtError;
 	}
 
-	// FIXME: static buffer 'operator_display_string'
-	if (!operator_display_string[0])
+	if (operator_display_string.empty())
 		replynl(ctx, "OPERATOR_DISPLAY OK");
 	else {
 		replynl(ctx, fmt::format("OPERATOR_DISPLAY {}", operator_display_string));
-		operator_display_string[0] = 0;
+		operator_display_string.clear();
 	}
 	return rtOk;
 }
@@ -1912,12 +1910,11 @@ static cmdResponseType getOperatorText(connectionRecType &ctx)
 		return rtError;
 	}
 
-	// FIXME: static buffer 'operator_text_string'
-	if (!operator_text_string[0])
+	if (operator_text_string.empty())
 		replynl(ctx, "OPERATOR_TEXT OK");
 	else {
 		replynl(ctx, fmt::format("OPERATOR_TEXT {}", operator_text_string));
-		operator_text_string[0] = 0;
+		operator_text_string.clear();
 	}
 	return rtOk;
 }
@@ -3697,10 +3694,9 @@ int main(int argc, char *argv[])
 	emcStatusBuffer = NULL;
 	emcErrorBuffer = NULL;
 	emcStatus = NULL;
-	// FIXME: Get rid of static buffers
-	memset(error_string, 0, sizeof(error_string));
-	memset(operator_text_string, 0, sizeof(operator_text_string));
-	memset(operator_display_string, 0, sizeof(operator_display_string));
+	error_string.clear();
+	operator_text_string.clear();
+	operator_display_string.clear();
 	programStartLine = 0;
 
 	searchPath.push_back(getDefaultPath());

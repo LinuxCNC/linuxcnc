@@ -567,7 +567,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
                 logOword("filename too long: %s", op->filename);
                 ERS(NCE_UNABLE_TO_OPEN_FILE, op->filename);
             }
-            strncpy(settings->filename, op->filename, sizeof(settings->filename));
+            strncpy(settings->filename, op->filename, sizeof(settings->filename)-1);
 
 	    if (newFP) {
 		// close the old file...

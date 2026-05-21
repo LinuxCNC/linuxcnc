@@ -144,6 +144,7 @@ class IniFile
 {
 public:
 	IniFile(const std::string &filePath);
+	IniFile(const std::string *filePath);
 
 	operator bool() const { return isOpen(); }
 	bool isOpen() const { return _inifilecontent != nullptr; }
