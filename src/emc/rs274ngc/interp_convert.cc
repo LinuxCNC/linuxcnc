@@ -6515,28 +6515,6 @@ int Interp::tag_arc(block_pointer block, double x, double y, double z, double ce
                 // Normalise 0-360
                 while (heading < 0) heading += 360.0;
                 while (heading >= 360.0) heading -= 360.0;
-
-                double radius = hypot(dx, dy);
-
-                // We need to scale the radius if the gcode units are not the same as machine units
-                // If linearUnits > 0.5, it's 1.0 (Metric). If < 0.5, it's 0.03937 (Imperial).
-                int machineUnits = (emcStatus->motion.traj.linearUnits > 0.5) ? CANON_UNITS_MM : CANON_UNITS_INCHES;
-
-                // 3. Identify the active G-code unit type
-                int gcodeUnits = _setup.length_units;
-
-                // 4. If they don't match, scale the radius to Machine Units
-                if (gcodeUnits != machineUnits) {
-                        // longhand below to avoid clang errors
-                        if (gcodeUnits == CANON_UNITS_INCHES) {
-                                // G-code is Inches, Machine is MM -> Scale UP to MM
-                                radius = radius * 25.4;
-                        } else {
-                                // G-code is MM, Machine is Inches -> Scale DOWN to Inches
-                                radius = radius / 25.4;
-                        }
-                }
-
                 // Final Assignments
                 block->iscircle = (is_360 && !is_helix) ? 1 : 0;
                 block->arc_center_x = center_x;
