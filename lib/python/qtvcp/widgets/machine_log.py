@@ -78,7 +78,7 @@ class MachineLog(QWidget, _HalWidgetBase):
 
         horizontalHeader = self.logTable.horizontalHeader()
         horizontalHeader.resizeSection(0, 100)
-        horizontalHeader.resizeSection(1, 75)
+        horizontalHeader.resizeSection(1, 100)
         horizontalHeader.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
         horizontalHeader.setVisible(False)
 
