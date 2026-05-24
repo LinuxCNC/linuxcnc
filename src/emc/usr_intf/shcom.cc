@@ -47,10 +47,10 @@ EMC_STAT *emcStatus;
 
 // the NML channel for errors
 NML *emcErrorBuffer;
-char error_string[NML_ERROR_LEN];
-char operator_text_string[NML_TEXT_LEN];
-char operator_display_string[NML_DISPLAY_LEN];
-char defaultPath[80] = DEFAULT_PATH;
+std::string error_string;
+std::string operator_text_string;
+std::string operator_display_string;
+std::string defaultPath = DEFAULT_PATH;
 // default value for timeout, 0 means wait forever
 double emcTimeout;
 int programStartLine;
@@ -173,6 +173,21 @@ int updateStatus()
 
 }
 
+// Copy a static char buffer from nml into a std::string.
+// We know the max size is the orginal buffer's size-1 (the len argument).
+// However, the content does not need to be that long and may be terminated
+// somewhere. Search the first embedded NUL to terminate early. If no embedded
+// NUL is found, then the string /might/ have been unterminated and will be
+// properly limited by the len argument. That way we don't depend on the
+// buffer's termination.
+static void cpy_str(std::string &target, const char *src, size_t len)
+{
+    target = std::string(src, len); // Copy entire buffer
+    size_t pos = target.find_first_of((char)0);  // Find first terminator (embedded NUL)
+    if(std::string::npos != pos)
+        target.erase(pos);          // Remove trailing if terminated before
+}
+
 /*
   updateError() updates "errors," which are true errors and also
   operator display and text messages.
@@ -192,7 +207,7 @@ int updateError()
 
     default:
 	// if not recognized, set the error string
-	snprintf(error_string, sizeof(error_string), "shcom:updateError(): unrecognized error %d", (int)type);
+	error_string = fmt::format("shcom:updateError(): unrecognized error {}", (int)type);
 	return 0;
 
     case 0:
@@ -200,45 +215,39 @@ int updateError()
 	break;
 
     case EMC_OPERATOR_ERROR_TYPE:
-	strncpy(error_string,
+	cpy_str(error_string,
 		(static_cast<EMC_OPERATOR_ERROR *>((emcErrorBuffer->get_address()))->error),
                 LINELEN - 1);
-	error_string[NML_ERROR_LEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_TEXT_TYPE:
-	strncpy(operator_text_string,
+	cpy_str(operator_text_string,
 		(static_cast<EMC_OPERATOR_TEXT *>((emcErrorBuffer->get_address()))->text),
                 LINELEN - 1);
-	operator_text_string[NML_TEXT_LEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_DISPLAY_TYPE:
-	strncpy(operator_display_string,
+	cpy_str(operator_display_string,
 		(static_cast<EMC_OPERATOR_DISPLAY *>((emcErrorBuffer->get_address()))->display),
 		LINELEN - 1);
-	operator_display_string[NML_DISPLAY_LEN - 1] = 0;
 	break;
 
     case NML_ERROR_TYPE:
-	strncpy(error_string,
+        cpy_str(error_string,
 		(static_cast<NML_ERROR *>((emcErrorBuffer->get_address()))->error),
 		NML_ERROR_LEN - 1);
-	error_string[NML_ERROR_LEN - 1] = 0;
 	break;
 
     case NML_TEXT_TYPE:
-	strncpy(operator_text_string,
+	cpy_str(operator_text_string,
 		(static_cast<NML_TEXT *>((emcErrorBuffer->get_address()))->text),
 		NML_TEXT_LEN - 1);
-	operator_text_string[NML_TEXT_LEN - 1] = 0;
 	break;
 
     case NML_DISPLAY_TYPE:
-	strncpy(operator_display_string,
+	cpy_str(operator_display_string,
 		(static_cast<NML_DISPLAY *>((emcErrorBuffer->get_address()))->display),
 		NML_DISPLAY_LEN - 1);
-	operator_display_string[NML_DISPLAY_LEN - 1] = 0;
 	break;
     }
 

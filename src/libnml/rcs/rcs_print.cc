@@ -423,6 +423,8 @@ int set_rcs_print_file(char *_file_name)
 
 int rcs_print(const char *_fmt, ...)
 {
+    if(!_fmt)
+        return rcs_fputs("internal error: rcs_print(NULL) detected\n");
     va_list args;
     // Determine the required size of the buffer (see EXAMPLES in printf(3))
     va_start(args, _fmt);

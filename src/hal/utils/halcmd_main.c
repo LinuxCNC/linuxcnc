@@ -276,7 +276,7 @@ int main(int argc, char **argv)
             newLinePos = (int)strlen(raw_buf) - 1; // interactive
             if (raw_buf[newLinePos] == '\n') { raw_buf[newLinePos]=0; newLinePos--; }  // tty
 
-            if (raw_buf[newLinePos] == '\\') { // backslash
+            if (newLinePos >= 0 && raw_buf[newLinePos] == '\\') { // backslash
                 raw_buf[newLinePos] = 0;
                 newLinePos++;
                 if (!extend_ct) { //first extend

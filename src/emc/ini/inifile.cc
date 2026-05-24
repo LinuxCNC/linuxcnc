@@ -855,6 +855,14 @@ IniFile::IniFile(const std::string &path)
 	Open(path);
 }
 
+IniFile::IniFile(const std::string *path)
+	: _inifilecontent(nullptr),
+	  _filepath{}
+{
+	if(path)
+		Open(*path);
+}
+
 bool IniFile::Open(const std::string &path)
 {
 	Close();

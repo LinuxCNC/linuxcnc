@@ -300,7 +300,7 @@ void updateQueue() {
             queueStatus = qsError;
             }
           sendAuto();
-          rtapi_strxcpy(fileStr, defaultPath);
+          rtapi_strxcpy(fileStr, defaultPath.c_str());
           rtapi_strxcat(fileStr, q.front().getFileName().c_str());
           if (sendProgramOpen(fileStr) != 0) {
             queueStatus = qsError;
