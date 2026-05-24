@@ -108,6 +108,7 @@ class ActionButton(IndicatedPushButton):
         self.mdi_command = False
         self.ini_mdi_command = False
         self.is_in_mdi_mode_check = False
+        self.ini_macro_command = False
         self.dro_relative = False
         self.dro_absolute = False
         self.dro_dtg = False
@@ -126,9 +127,11 @@ class ActionButton(IndicatedPushButton):
         self.float_alt = 50.0
         self.view_type = 'p'
         self.command_text = ''
+        self.ini_mdi_keystring = ''
+        self.ini_macro_keystring = ''
         # legacy attribute
         self.ini_mdi_num = -1
-        self.ini_mdi_keystring = ''
+        self.ini_macro_num = -1
         self._textTemplate = '%1.3f in'
         self._alt_textTemplate = '%1.2f mm'
         self._run_from_line_int = 0
@@ -419,7 +422,7 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
             STATUS.connect('optional-stop-changed', lambda w, data: self._safecheck(data))
-        elif self.mdi_command or self.ini_mdi_command:
+        elif self.mdi_command or self.ini_mdi_command or self.ini_macro_command:
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
@@ -427,6 +430,8 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('not-all-homed', lambda w, axis: self.setEnabled(False))
             if self.ini_mdi_command:
                 self.setMDILabel()
+            elif self.ini_macro_command:
+                self.setMacroLabel()
         elif self.dro_absolute or self.dro_relative or self.dro_dtg:
             pass
         elif True in(self.exit, self.machine_log_dialog):
@@ -743,6 +748,28 @@ class ActionButton(IndicatedPushButton):
                 if self._is_mdi_command_finished:
                     self._watch_command_flag = True
 
+        elif self.ini_macro_command:
+            #print('macro',self.ini_macro_keystring,self.ini_macro_num)
+            # we prefer named INI MACRO commands:
+            if not self.ini_macro_keystring == '' and \
+                    not INFO.get_ini_macro_command(self.ini_macro_keystring) is None:
+                LOG.debug("INI MACRO COMMAND #: {}".format(self.ini_macro_keystring))
+                temp = INFO.MACRO_COMMAND_DICT.get(self.ini_macro_keystring).get('cmd')
+                self.runMacro(temp)
+
+            # legacy version (nth line)
+            elif not self.ini_macro_num <0 and \
+                    not INFO.get_ini_macro_command(self.ini_macro_num) is None:
+                LOG.debug("INI MACRO COMMAND #: {}".format(self.ini_macro_num))
+                temp = INFO.MACRO_COMMAND_DICT.get(str(self.ini_macro_num)).get('cmd')
+                self.runMacro(temp)
+
+            # set the indicator that the MDI command is running
+            # if the indicator option is turned on and a command is started running
+            if not STATUS.get_current_command() == '':
+                if self._is_mdi_command_finished:
+                    self._watch_command_flag = True
+
         elif self.dro_absolute:
             STATUS.emit('dro-reference-change-request', 0)
         elif self.dro_relative:
@@ -901,9 +928,44 @@ class ActionButton(IndicatedPushButton):
             msg = 'MDI_COMMAND_{} Not found under [MDI_COMMAND_LIST] in INI file'.format(key)
             self.setToolTip(msg)
 
-    # re-definable/redirectable
+    # see if the INI specified an optional new label
+    # if so apply it, otherwise skip and use the original text
+    def setMacroLabel(self):
+        key = None
+        # we prefer named INI MDI commands
+        if not self.ini_macro_keystring == '' and \
+                not INFO.get_ini_macro_command(self.ini_macro_keystring) is None:
+            key = self.ini_macro_keystring
+            # legacy version (nth line)
+        elif not self.ini_macro_num <0 and \
+                not INFO.get_ini_macro_command(self.ini_macro_num) is None:
+            key = self.ini_macro_num
+
+        # change the button label if supplied in the INI
+        try:
+            label = INFO.get_ini_macro_label(key)
+            label = label.replace(r'\n', '\n')
+            self.setText(label)
+        except:
+            pass
+
+        # add tool tip of the command
+        try:
+            tooltiplabel = 'INI MDI CMD {}:\n'.format(key)
+            tooltiplabel += INFO.get_ini_macro_command(key).replace(';', '\n')
+            self.setToolTip(tooltiplabel)
+        except Exception as e:
+            # if the MDI command is missing set a tooltip to say so
+            # otherwise set any optional label
+            msg = 'MDI_COMMAND_{} Not found under [MDI_COMMAND_LIST] in INI file'.format(key)
+            self.setToolTip(msg)
+
+    # re-definable
     def noActionFunction(self, widget, state):
         pass
+    # re-definable
+    def runMacro(self, key):
+        ACTION.RUN_MACRO(key)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -929,7 +991,7 @@ class ActionButton(IndicatedPushButton):
                 'launch_calibration',
                  'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot',
                  'origin_offset_dialog', 'run_from_status', 'run_from_slot',
-                 'tool_chooser_dialog', 'lathe_mirror_x', 'no')
+                 'tool_chooser_dialog', 'lathe_mirror_x', 'no', 'ini_macro_command')
 
         for i in data:
             if not i == picked:
@@ -1444,6 +1506,15 @@ class ActionButton(IndicatedPushButton):
     def reset_mdi_mode_check(self):
         self.is_in_mdi_mode_check = False
 
+    def set_ini_macro_command(self, data):
+        self.ini_macro_command = data
+        if data:
+            self._toggle_properties('ini_macro_command')
+    def get_ini_macro_command(self):
+        return self.ini_macro_command
+    def reset_ini_macro_command(self):
+        self.ini_macro_command = False
+
     def set_dro_absolute(self, data):
         self.dro_absolute = data
         if data:
@@ -1585,6 +1656,20 @@ class ActionButton(IndicatedPushButton):
     def reset_ini_mdi_key(self):
         self.ini_mdi_keystring = ''
 
+    def set_ini_macro_key(self, data):
+        self.ini_macro_keystring = data
+    def get_ini_macro_key(self):
+        return self.ini_macro_keystring
+    def reset_ini_macro_key(self):
+        self.ini_macro_keystring = ''
+
+    def set_ini_macro_num(self, data):
+        self.ini_macro_num = data
+    def get_ini_macro_num(self):
+        return self.ini_macro_num
+    def reset_ini_macro_num(self):
+        self.ini_macro_num = -1
+
     # designer will show these properties in this order:
     # BOOL
     no_action = QtCore.Property(bool, get_no_action, set_no_action, reset_no_action)
@@ -1649,6 +1734,7 @@ class ActionButton(IndicatedPushButton):
     mdi_command_action = QtCore.Property(bool, get_mdi_command, set_mdi_command, reset_mdi_command)
     ini_mdi_command_action = QtCore.Property(bool, get_ini_mdi_command, set_ini_mdi_command, reset_ini_mdi_command)
     mdi_mode_check_action = QtCore.Property(bool, get_mdi_mode_check, set_mdi_mode_check, reset_mdi_mode_check)
+    ini_macro_command_action = QtCore.Property(bool, get_ini_macro_command, set_ini_macro_command, reset_ini_macro_command)
     dro_absolute_action = QtCore.Property(bool, get_dro_absolute, set_dro_absolute, reset_dro_absolute)
     dro_relative_action = QtCore.Property(bool, get_dro_relative, set_dro_relative, reset_dro_relative)
     dro_dtg_action = QtCore.Property(bool, get_dro_dtg, set_dro_dtg, reset_dro_dtg)
@@ -1681,6 +1767,8 @@ class ActionButton(IndicatedPushButton):
     command_text_string = QtCore.Property(str, get_command_text, set_command_text, reset_command_text)
     ini_mdi_number = QtCore.Property(int, get_ini_mdi_num, set_ini_mdi_num, reset_ini_mdi_num)
     ini_mdi_key = QtCore.Property(str, get_ini_mdi_key, set_ini_mdi_key, reset_ini_mdi_key)
+    ini_macro_number = QtCore.Property(int, get_ini_macro_num, set_ini_macro_num, reset_ini_macro_num)
+    ini_macro_key = QtCore.Property(str, get_ini_macro_key, set_ini_macro_key, reset_ini_macro_key)
 
     def set_textTemplate(self, data):
         self._textTemplate = data
