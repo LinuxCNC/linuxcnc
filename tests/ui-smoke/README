@@ -1,0 +1,26 @@
+UI smoke tests
+~~~~~~~~~~~~~~
+
+These tests launch each GUI (axis, touchy, gmoccapy, qtdragon) under
+xvfb-run against an existing sim config and verify the GUI starts and
+the NML task is reachable. Phase 1 ("does it start"); functional
+checks (load G-code, jog, MDI) belong in tests/ui-functional/.
+
+Each test directory contains:
+  test.sh       launches the GUI under xvfb-run, runs drive.py
+  checkresult   examines the captured output for crash markers
+  skip          skips this test only when xvfb-run is not on the host
+
+Shared helpers live in _lib/:
+  drive.py            common NML driver, prints UI_SMOKE_OK on success
+  launch.sh           xvfb-run wrapper, signal escalation for shutdown
+  cleanup-runtime.sh  belt-and-suspenders: kill stray daemons, ipcrm
+                      shared memory, drop /tmp/linuxcnc.lock
+  checkresult.sh      shared pass/fail predicate
+  skip-if-missing.sh  shared skip predicate
+
+Skip vs fail policy: the only condition we skip on is xvfb-run absence
+(rare local dev env). Python and gi typelib deps the GUIs need are
+declared in debian/control under !nocheck so apt-get build-dep
+installs them on CI; if they are missing the test should fail loudly
+rather than silently skip, so missing deps surface during review.

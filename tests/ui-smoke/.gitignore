@@ -1,0 +1,7 @@
+# Runtime artifacts left by launch.sh; per Bertho's clean-tree rule,
+# generated build/test outputs must be gitignored or committed.
+linuxcnc.out
+linuxcnc.err
+linuxcnc.pid
+ui-smoke.out
+ui-smoke.err
