@@ -16,6 +16,8 @@
 set -u
 
 CONFIG_INI="$1"
+shift
+DRIVER_ARGS=("$@")
 TEST_DIR="${TEST_DIR:-$(cd "$(dirname "$0")" && pwd)}"
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -28,9 +30,10 @@ rm -f ui-smoke.out ui-smoke.err linuxcnc.pid
 bash "$LIB_DIR/cleanup-runtime.sh"
 
 # Launch linuxcnc inside xvfb-run. The outer timeout is a safety net
-# so a wedged GUI cannot hang CI.
-LINUXCNC_TIMEOUT=240
-DRIVER_TIMEOUT=90
+# so a wedged GUI cannot hang CI. Driver timeout covers connect (60s)
+# + GUI settle (3s) + optional Phase 2 run (estop/home/program ~90s).
+LINUXCNC_TIMEOUT=300
+DRIVER_TIMEOUT=180
 
 # Force software OpenGL (Mesa llvmpipe). CI runners have no GPU and
 # Qt/GL widgets segfault under hardware GL with no display. The Qt-
@@ -71,7 +74,9 @@ xvfb-run -a --server-args="-screen 0 1024x768x24" \
 
         # The driver polls NML readiness itself (BsAtHome review:
         # avoid real-clock waits where status polling will do).
-        timeout "$DRIVER_TIMEOUT" python3 "$LIB_DIR/drive.py" >ui-smoke.out 2>ui-smoke.err
+        # Driver args (Phase 2: --run-program/--expect-pos) come through
+        # as positional $@ from the inner bash -c.
+        timeout "$DRIVER_TIMEOUT" python3 "$LIB_DIR/drive.py" "$@" >ui-smoke.out 2>ui-smoke.err
         DRIVE_RC=$?
 
         # Clean shutdown: GUI-specific quit first (lets linuxcnc end
@@ -97,7 +102,7 @@ xvfb-run -a --server-args="-screen 0 1024x768x24" \
         fi
 
         exit "$DRIVE_RC"
-    '
+    ' _launch "${DRIVER_ARGS[@]}"
 RC=$?
 
 # Surface logs so checkresult and CI artifact upload can see them.
