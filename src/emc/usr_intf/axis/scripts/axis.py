@@ -1914,7 +1914,11 @@ def ja_from_rbutton():
     # radiobuttons for joints set ja_rbutton to numeric value [0,MAX_JOINTS)
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
     ja = vars.ja_rbutton.get()
-    if not all_homed() and lathe and not lathe_historical_config():
+    jjogmode = get_jog_mode()
+    # "xzabcuvw" remap is only valid for joint jog on a lathe missing the Y
+    # joint. Teleop axis indices are fixed (0=X,1=Y,2=Z,...) so the full
+    # "xyzabcuvw" map must be used there, otherwise Z collides into the Y slot.
+    if jjogmode and not all_homed() and lathe and not lathe_historical_config():
         axes = "xzabcuvw"
     else:
         axes = "xyzabcuvw"
@@ -1928,7 +1932,7 @@ def ja_from_rbutton():
         a = axes.index(ja) # letter specifies an axis coordinate
 
     # handle joint jogging for known identity kins
-    if get_jog_mode():
+    if jjogmode:
         # joint jogging
         if lathe_historical_config():
             a = "xyzabcuvw".index(ja)
