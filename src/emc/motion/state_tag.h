@@ -122,7 +122,7 @@ struct state_tag_t {
 
     // Float-type machine settings:  feed, speed, etc., indexed by the
     // StateFieldFloat enum above
-    float fields_float[GM_FIELD_FLOAT_MAX_FIELDS];
+    double fields_float[GM_FIELD_FLOAT_MAX_FIELDS];
 
     // Any G / M code states that doesn't pack nicely into a single bit
     // These are an array mostly because it's easier to pass an
