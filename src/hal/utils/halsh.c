@@ -190,7 +190,7 @@ static int halStreamCmd(ClientData cd, Tcl_Interp *interp, int argc, const char 
         return TCL_OK;
     }
     if (strcmp(sub, "maxdepth") == 0) {
-        char buf[16]; snprintf(buf, sizeof(buf), "%d", hal_stream_maxdepth(s));
+        char buf[16]; snprintf(buf, sizeof(buf), "%u", hal_stream_maxdepth(s));
         Tcl_AppendResult(interp, buf, NULL);
         return TCL_OK;
     }

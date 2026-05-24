@@ -34,10 +34,8 @@
 
 static int comp_id;
 
-#ifdef MODULE_INFO
 MODULE_INFO(linuxcnc, "component:hm2_7i90:LinuxCNC HAL driver for the Mesa Electronics 7i90 EPP Anything IO board with HostMot2 firmware.");
 MODULE_INFO(linuxcnc, "license:GPL");
-#endif // MODULE_INFO
 
 MODULE_LICENSE("GPL");
 

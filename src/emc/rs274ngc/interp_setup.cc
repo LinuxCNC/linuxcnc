@@ -187,6 +187,13 @@ setup::setup() :
     disable_fanuc_style_sub(false),
     loop_on_main_m99(false),
     disable_g92_persistence(0),
+    heading(0.0),
+    radius(0.0),
+    center_x(0.0),
+    center_y(0.0),
+    center_z(0.0),
+    normal_heading(0.0),
+    iscircle(false),
     pythis(),
     on_abort_command(NULL),
     init_once(CANON_STOPPED)

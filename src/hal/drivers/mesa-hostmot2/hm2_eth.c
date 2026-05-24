@@ -84,9 +84,7 @@ static void kvlist_free(struct rtapi_list_head *head) {
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Geszkiewicz");
 MODULE_DESCRIPTION("Driver for HostMot2 on the 7i80 Anything I/O board from Mesa Electronics");
-#ifdef MODULE_SUPPORTED_DEVICE
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-7i80");
-#endif
 
 static char *board_ip[MAX_ETH_BOARDS];
 RTAPI_MP_ARRAY_STRING(board_ip, MAX_ETH_BOARDS, "ip address of ethernet board(s)");

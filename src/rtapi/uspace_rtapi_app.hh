@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "rtapi_atomic.h"
+#include "rtapi_stdint.h"
 
 static inline void rtapi_timespec_add(timespec &result, const timespec &ta, const timespec &tb) {
     result.tv_sec = ta.tv_sec + tb.tv_sec;
@@ -78,7 +79,7 @@ struct RtapiTask {
 
 #define MAX_TASKS 64
 #define TASK_MAGIC 21979 /* random numbers used as signatures */
-#define TASK_MAGIC_INIT ((RtapiTask *)(-1))
+#define TASK_MAGIC_INIT ((RtapiTask *)(rtapi_intptr_t)(-1))
 
 struct RtapiApp {
 
