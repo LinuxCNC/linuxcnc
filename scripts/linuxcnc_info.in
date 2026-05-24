@@ -40,7 +40,7 @@ git_commit () {
   if [ "${dir}" = "/usr/bin" ] ; then
     echo NA
   else
-    echo "$(cd "$dir" && git rev-parse --short HEAD 2>/dev/null)"
+    ( cd "$dir" && git rev-parse --short HEAD 2>/dev/null )
   fi
 }
 

@@ -71,7 +71,7 @@ fi
 #    as parameter for -f ('f filename')
 # or as trailing parameter
 if [ $# -gt 0 ] ; then
-  if [ "X$filename" = "X" ] ; then
+  if [ -z "$filename" ] ; then
     filename=$1
     shift
   else
@@ -151,8 +151,11 @@ if $HAVEFILE ; then
         halcmd_twopass "$filename"; result=$?    
     fi
   elif $IS_HALTCL; then
+    # Arguments need to be word split
+    # shellcheck disable=SC2068
     haltcl $@; result=$?
   else
+    # shellcheck disable=SC2068
     halcmd $@; result=$?
   fi
 fi

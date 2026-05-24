@@ -36,14 +36,16 @@ fi
 ################################################################################
 # 0. Values that come from configure
 ################################################################################
+# Shellcheck doesn't know about substitution
+# shellcheck disable=SC2034
 prefix=@prefix@
+# shellcheck disable=SC2034
 exec_prefix=@exec_prefix@
 
 PIDOF="@PIDOF@ -x"
 PS=@PS@
 AWK=@AWK@
 GREP=@GREP@
-IPCS=@IPCS@
 KILL=@KILL@
 
 LINUXCNC_HOME=@EMC2_HOME@; export LINUXCNC_HOME
@@ -52,11 +54,13 @@ LINUXCNC_BIN_DIR=@EMC2_BIN_DIR@
 LINUXCNC_TCL_DIR=@EMC2_TCL_DIR@
 LINUXCNC_HELP_DIR=@EMC2_HELP_DIR@
 LINUXCNC_RTLIB_DIR=@EMC2_RTLIB_DIR@
+# shellcheck disable=SC2034
 LINUXCNC_CONFIG_PATH="@LINUXCNC_CONFIG_PATH@"
 LINUXCNC_NCFILES_DIR=@EMC2_NCFILES_DIR@
 LINUXCNC_LANG_DIR=@EMC2_LANG_DIR@
 REALTIME=@REALTIME@
 LINUXCNC_IMAGEDIR=@EMC2_IMAGE_DIR@
+# shellcheck disable=SC2034
 LINUXCNC_TCL_LIB_DIR=@EMC2_TCL_LIB_DIR@
 HALLIB_DIR=@HALLIB_DIR@; export HALLIB_DIR
 
@@ -94,7 +98,7 @@ else
 fi
 export PYTHONPATH
 
-if test "xyes" != "x@RUN_IN_PLACE@"; then
+if [ "yes" != "@RUN_IN_PLACE@" ]; then
     if [ -z "$TCLLIBPATH" ]; then
          TCLLIBPATH=$LINUXCNC_HOME/lib/tcltk
     else
@@ -239,7 +243,7 @@ fi
 fi
 
 # Stop complaining unreachable. It is trap code.
-# shellcheck disable=SC2317
+# shellcheck disable=SC2317,SC2329
 function ErrorCheck () {
     result=$?
     if [ -n "$DISPLAY" ]; then
@@ -382,7 +386,7 @@ function run_applications () {
           *) # try local first then PATH
              exe_name=$(pwd)/$app_name
              if [ ! -x "$exe_name" ] ; then
-               exe_name=$(command -v $app_name)
+               exe_name=$(command -v "$app_name")
              fi
        esac
        if [ ! -f "$exe_name" ] ; then
@@ -496,7 +500,7 @@ esac
 # 2.2. get param file
 
 GetFromIni PARAMETER_FILE RS274NGC 
-RS274NGC_PARAMFILE=$retval
+#RS274NGC_PARAMFILE=$retval
 
 # 2.3. get mot information
 GetFromIniEx MOT MOT EMCMOT EMCMOT motmod
@@ -534,8 +538,13 @@ HALBRIDGE=$retval
 
 # 2.8. get display information
 GetFromIni DISPLAY DISPLAY
-EMCDISPLAY=$( (set -- $retval ; echo "$1") )
-EMCDISPLAYARGS=$( (set -- $retval ; shift; echo "$*") )
+# Intentional split to make it values of an array.
+# Then split the array into the program and its args.
+# shellcheck disable=SC2206
+__emcdisplay=( $retval )
+EMCDISPLAY="${__emcdisplay[*]:0:1}"
+EMCDISPLAYARGS=( "${__emcdisplay[@]:1}" )
+unset __emcdisplay
 
 case $EMCDISPLAY in
     tkemc) EMCDISPLAY=tklinuxcnc ;;
@@ -577,17 +586,17 @@ function KillTaskWithTimeout() {
     fi
     local NPROCS
     for KILL_PID in $KILL_PIDS ; do
-        if $PS -o stat= -o comm= "$KILL_PID" | $GREP -q '^Z'; then
+        if "$PS" -o stat= -o comm= "$KILL_PID" | "$GREP" -q '^Z'; then
             echo "Skipping defunct task $KILL_TASK, PID=$KILL_PID" >> "$PRINT_FILE"
             continue
         fi
 	# first a "gentle" kill with signal TERM
-	$KILL "$KILL_PID"
+	"$KILL" "$KILL_PID"
 	WAIT=$KILL_TIMEOUT
 	# wait and see if it disappears
 	while [ $WAIT -gt 1 ] ; do
 	    # see if it's still alive
-            NPROCS=$($PS -o stat= -o comm= "$KILL_PID" | $GREP -v '^Z' | wc -l)
+            NPROCS=$("$PS" -o stat= -o comm= "$KILL_PID" | "$GREP" -v '^Z' | wc -l)
             if [ "$NPROCS" -gt 0 ]; then
 		WAIT=$((WAIT - 1))
 		sleep .1
@@ -598,12 +607,12 @@ function KillTaskWithTimeout() {
 	if [ $WAIT -gt 0 ] ; then
 	    # gentle didn't work, get serious
 	    echo "Timeout, trying kill -9" >> "$PRINT_FILE"
-	    $KILL -9 "$KILL_PID"
+	    "$KILL" -9 "$KILL_PID"
 	    WAIT=$KILL_TIMEOUT
 	    # wait and see if it disappears
 	    while [ $WAIT -gt 1 ] ; do
 		# see if it's still alive
-                NPROCS=$($PS -o stat= -o comm= "$KILL_PID" | $GREP -v '^Z' | wc -l)
+                NPROCS=$("$PS" -o stat= -o comm= "$KILL_PID" | "$GREP" -v '^Z' | wc -l)
                 if [ "$NPROCS" -gt 0 ]; then
 		    WAIT=$((WAIT - 1))
 		    sleep .1
@@ -805,7 +814,10 @@ fi
 # "halcmd loadrt" can find them
 HAL_RTMOD_DIR=$LINUXCNC_RTLIB_DIR; export HAL_RTMOD_DIR
 echo "$(basename "$0") TPMOD=$TPMOD HOMEMOD=$HOMEMOD EMCMOT=${EMCMOT%.*}"
+# The HALCMD variable must be split because it may contain options.
+# shellcheck disable=SC2086
 eval $HALCMD loadrt "$TPMOD"
+# shellcheck disable=SC2086
 eval $HALCMD loadrt "$HOMEMOD"
 
 # 4.3.7. Run task in background
@@ -832,6 +844,8 @@ fi
 # run hal bridge program IF requested
 if [ -n "$HALBRIDGE" ] ; then
     echo "Starting HAL User Interface program: $HALBRIDGE" >> "$PRINT_FILE"
+    # HALBRIDGE must be word split
+    # shellcheck disable=SC2086
     $HALCMD loadusr -Wn bridge $HALBRIDGE
 fi
 
@@ -897,6 +911,8 @@ else
         CFGFILE="$foundfile"
         case $CFGFILE in
         *.tcl)
+            # CFGFILE_ARGS must be word split
+            # shellcheck disable=SC2086
             if ! haltcl -i "$INIFILE" "$CFGFILE" $CFGFILE_ARGS \
                && [ -z "$DASHK" ]; then
                 Cleanup
@@ -944,7 +960,7 @@ run_applications
 # wait for traj to process for up to 10s before screen loading do to race condition
 RACE_TIMEOUT=$((SECONDS + 10))
 chk=$(halcmd getp ini.traj_max_velocity)
-while (( $($AWK 'BEGIN {print ('"$chk"' == 0)}') )); do
+while (( $("$AWK" 'BEGIN {print ('"$chk"' == 0)}') )); do
     if [ $SECONDS -ge $RACE_TIMEOUT ]; then
         echo "ini.traj_max_velocity still 0.0 after $SECONDS seconds" | tee -a "$PRINT_FILE" "$DEBUG_FILE"
         break
@@ -959,11 +975,11 @@ case $EMCDISPLAY in
   tklinuxcnc)
     # tklinuxcnc is in the tcl directory, not the bin directory
     if [ ! -x "$LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl" ] ; then
-	echo "Can't execute DISPLAY program $LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl $EMCDISPLAYARGS"
+	echo "Can't execute DISPLAY program $LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl ${EMCDISPLAYARGS[*]}"
 	Cleanup
 	exit 1
     fi
-    "$LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl" -ini "$INIFILE" $EMCDISPLAYARGS
+    "$LINUXCNC_TCL_DIR/$EMCDISPLAY.tcl" -ini "$INIFILE" "${EMCDISPLAYARGS[@]}"
     result=$?
   ;;
   dummy)
@@ -972,16 +988,16 @@ case $EMCDISPLAY in
     read -r ;
   ;;
   linuxcncrsh)
-    $EMCDISPLAY $EMCDISPLAYARGS "${EXTRA_ARGS[@]}" -- -ini "$INIFILE"
+    $EMCDISPLAY "${EMCDISPLAYARGS[@]}" "${EXTRA_ARGS[@]}" -- -ini "$INIFILE"
   ;;
   *)
     # all other displays are assumed to be commands on the PATH
     if ! program_available "$EMCDISPLAY"; then
-        echo "Can't execute DISPLAY program $EMCDISPLAY $EMCDISPLAYARGS ${EXTRA_ARGS[*]}"
+        echo "Can't execute DISPLAY program $EMCDISPLAY ${EMCDISPLAYARGS[*]} ${EXTRA_ARGS[*]}"
         Cleanup
         exit 1
     fi
-    $EMCDISPLAY -ini "$INIFILE" $EMCDISPLAYARGS "${EXTRA_ARGS[@]}"
+    $EMCDISPLAY -ini "$INIFILE" "${EMCDISPLAYARGS[@]}" "${EXTRA_ARGS[@]}"
     result=$?
   ;;
 esac

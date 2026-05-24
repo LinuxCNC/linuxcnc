@@ -21,7 +21,7 @@ rm -f index.html
     echo "<body><h1>${TITLE}</h1><p>"
 } >> index.html
 
-for F in $(ls -1 ./*.pdf | sort); do
+for F in $(find . -maxdepth 1 -name '*.pdf' | sort); do
     echo "    <a href=\"${F}\">$F</a><br>" >> index.html
 done
 

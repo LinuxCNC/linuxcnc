@@ -46,7 +46,10 @@ if [ $RUN_IN_PLACE = yes ]; then
 fi
 
 CheckConfig(){
+    # Shellcheck doesn't know about substitution
+    # shellcheck disable=SC2034
     prefix=@prefix@
+    # shellcheck disable=SC2034
     exec_prefix=@exec_prefix@
     sysconfdir=@sysconfdir@
     if [ "$RUN_IN_PLACE" = "yes" ]; then
