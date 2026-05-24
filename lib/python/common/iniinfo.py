@@ -634,7 +634,7 @@ class _IStat(object):
             self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO") or None
 
         # suppress error message if there is no section at all
-        if not self.INI_MACROS is None:
+        if self.INI.hassection('MACROS'):
             try:
                 for key,value in self.INI.getvariables('MACROS'):
                     # legacy way: list of repeat 'MACRO=XXXX'
@@ -847,45 +847,56 @@ class _IStat(object):
     # SUBROUTINE_PATH, USER_M_PATH or PROGRAM_PREFIX from INI
     # is an existing path (meaning linuxcnc can find it)
     # fname should just be the filename
-    # returns the full path or None
+    # returns the full path or None - Unless
+    # using the show option then returns path or None and any
+    # error message text
     def check_known_paths(self,fname, prefix = True, sub=True, user_m=True, show=False):
         fname = os.path.split(fname)[1]
+        debugtext = []
 
         if show:
-            LOG.warning(f'Checking known paths for :{fname}')
+            debugtext.append(f'Checking known paths for :{fname}')
 
         if prefix:
             path = os.path.expanduser(os.path.join(self.PROGRAM_PREFIX,fname))
             if show:
-                LOG.warning(f'Program Prefix: {path}')
-            if os.path.exists(path): return path
+                debugtext.append(f'Program Prefix: {path}')
+            if os.path.exists(path):
+                if show:
+                    return path, debugtext
+                return path
         if show:
-            LOG.warning('No Program Prefix path matches in INI')
+            debugtext.append('No Program Prefix path matches in INI')
 
         if sub:
             for i in self.SUB_PATH_LIST:
                 path = os.path.expanduser(os.path.join(i,fname))
                 if show:
-                    LOG.warning(f'Subprogram path: {path}')
+                    debugtext.append(f'Subprogram path: {path}')
                 if os.path.exists(path):
+                    if show:
+                        return path, debugtext
                     return path
             else:
                 if show:
-                    LOG.warning('No Subprogram path matches in INI')
+                    debugtext.append('No Subprogram path matches in INI')
 
         if user_m:
             for i in self.USER_M_PATH_LIST:
                 path = os.path.expanduser(os.path.join(i,fname))
                 if show:
-                    LOG.warning(f'User M path: {path}')
+                    debugtext.append(f'User M code path: {path}')
                 if os.path.exists(path):
+                    if show:
+                        return path, debugtext
                     return path
             else:
                 if show:
-                    LOG.warning('No User M path matches in INI')
+                    debugtext.append('No User M code path matches in INI')
 
         if show:
-            LOG.error('No known path match found')
+            debugtext.append('No INI defined path match found')
+            return None, debugtext
         return None
 
     # same as above but just return True or False
