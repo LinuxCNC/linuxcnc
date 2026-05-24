@@ -43,6 +43,10 @@ export GALLIUM_DRIVER=llvmpipe
 export QT_QUICK_BACKEND=software
 export QSG_RHI_BACKEND=software
 export QT_OPENGL=software
+# Dodge a long-known xcb_glx integration crash that hits QtWebEngine
+# and related Qt5 widgets under xvfb (Launchpad #1761708, QTBUG-67537).
+# Forces the egl path which is what software-GL stacks expect anyway.
+export QT_XCB_GL_INTEGRATION=xcb_egl
 
 # Silence audio: xvfb covers X but not sound. Demote every Gst
 # Audio/Sink and disable canberra/SDL/pulse/ALSA-default paths.

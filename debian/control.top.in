@@ -58,7 +58,6 @@ Build-Depends:
     python3-dbus.mainloop.pyqt5 <!nocheck>,
     python3-qtpy <!nocheck>,
     python3-zmq <!nocheck>,
-    python3-opencv <!nocheck>,
     python3-cairo <!nocheck>,
     python3-gi <!nocheck>,
     python3-gi-cairo <!nocheck>,
