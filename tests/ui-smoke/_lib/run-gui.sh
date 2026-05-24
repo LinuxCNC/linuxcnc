@@ -12,8 +12,17 @@ LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR="${TEST_DIR:-$(cd "$(dirname "$0")" && pwd)}"
 CONFIGS_DIR="$(cd "$LIB_DIR/../../../configs/sim" && pwd)"
 
-INI_REL="$1"
+INI_ARG="$1"
 shift
 
+# Accept either a relative path under configs/sim/ or an absolute path.
+# Absolute paths are used by tests that need to point at a writable
+# mirror of a shipped config (qtdragon writes a log file inside the
+# config dir, which is read-only on CI).
+case "$INI_ARG" in
+    /*) INI_PATH="$INI_ARG" ;;
+    *)  INI_PATH="$CONFIGS_DIR/$INI_ARG" ;;
+esac
+
 export TEST_DIR
-exec "$LIB_DIR/launch.sh" "$CONFIGS_DIR/$INI_REL" "$@"
+exec "$LIB_DIR/launch.sh" "$INI_PATH" "$@"
