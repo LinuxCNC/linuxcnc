@@ -628,6 +628,29 @@ class Calculator(QDialog):
     def applyAction(self):
         pass
 
+    # wait but don't block
+    # return a display value and ok/cancel
+    def getValue(self, title=None):
+        self.setWindowTitle(title)
+        self.show()
+        self.applyNextButton.setVisible(False)
+        self.nextButton.setVisible(False)
+        self.backButton.setVisible(False)
+        self._flag = True
+        while self._flag:
+            QApplication.processEvents()
+        return (self.display.text(), self._result)
+
+    def accept(self):
+        super(Calculator, self).accept()
+        self._result = True
+        self._flag = False
+
+    def reject(self):
+        super(Calculator, self).reject()
+        self._result = False
+        self._flag = False
+
 if __name__ == '__main__':
 
     import sys
