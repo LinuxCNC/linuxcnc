@@ -1,13 +1,18 @@
-component dbounce """alternative debounce component""";
-description """
-This component is similar to the *debounce*(9) component but uses settable
-delay pins for each instance and supports *count*= or *names*= parameters
-(groups are not used)
+component dbounce """alternative debounce component\n
+This component is similar to the \\fBdebounce\\fR component
+(man \\fBdebounce\\fR) but uses settable delay pins for each instance
+and supports \\fBcount\\fR= or \\fBnames\\fR= parameters
+(groups are not used).  It also supports an instant-hit mode for probing moves
+where the output changes immediately but further changes (bounces)
+are ignored until stable.
 """;
 
 pin in  bit in;
 pin out bit out;
-pin in  u32 delay = 5;
+pin in  u32 delay = 5 "delay in cycles when not probing";
+pin in  u32 probedelay = 0 "delay in cycles when probing (if unconnected, uses delay)";
+pin in  s32 motiontype = -1 """connect to motion.motion-type -
+when equal to 5 it means probing""";
 
 variable unsigned state;
 option period no;
@@ -16,10 +21,16 @@ license "GPL";
 author "Dewey Garrett";
 ;;
 FUNCTION(_) {
+    rtapi_u32 d = (motiontype == 5 && probedelay > 0)
+      ? probedelay : delay;
 
     if (in) {
+        /* probing, trigger on first edge.  */
+        if (motiontype == 5 && state == 0) {
+	    state = d / 2;
+            out = 1;
         /* input true, is state at threshold? */
-        if (state < delay) {
+	} else if (state < d) {
             /* no, increment */
             state++;
         } else {
@@ -27,8 +38,12 @@ FUNCTION(_) {
             out = 1;
         }
     } else {
+        /* probing, trigger on first edge.  */
+        if (motiontype == 5 && state >= d) {
+	    state = d / 2;
+	    out = 0;
         /* input false, is state at zero? */
-        if (state > 0) {
+        } else if (state > 0) {
             /* no, decrement */
             state--;
         } else {
