@@ -18,9 +18,14 @@
 #
 # qtdragon embeds a QWebEngineView (Chromium). Under offscreen + xvfb
 # with no GPU and no user namespaces in the CI runner sandbox,
-# QtWebEngine racy-crashes during browser-process spawn. Disable the
-# Chromium sandbox and force single-process + software rendering so
-# the renderer runs in the same process as Qt with no GPU thread.
+# QtWebEngine browser-process init segfaults even with --no-sandbox
+# --single-process --disable-gpu (Chromium logs "Sandboxing disabled
+# by user." then crashes inside the same qtvcp PID). Rather than keep
+# tuning Chromium flags for a widget the smoke test never touches,
+# we shim qtpy.QtWebEngineWidgets to raise ImportError; web_widget.py
+# already has a fallback path that swaps the QWebEngineView for a
+# plain QWidget when the import fails (its "fail safe - mostly for
+# designer" branch). No Chromium spawn = no crash.
 set -u
 
 LIB_DIR="$(cd "$(dirname "$0")/../_lib" && pwd)"
@@ -34,8 +39,34 @@ sed -i 's|^LOG_FILE = qtdragon\.log$|LOG_FILE = ~/qtdragon.log|' \
 
 export LINUXCNC_OPENGL_PLATFORM=offscreen
 export QT_QPA_PLATFORM=offscreen
-export QTWEBENGINE_DISABLE_SANDBOX=1
-export QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-software-rasterizer --single-process --no-zygote"
+
+# sitecustomize.py is auto-imported by Python from any sys.path entry
+# at interpreter startup. Drop a meta_path finder that blocks the
+# qtpy.QtWebEngineWidgets import so WebWidget falls back to QWidget.
+SHIM_DIR="$WORK_DIR/_pyshim"
+mkdir -p "$SHIM_DIR"
+cat >"$SHIM_DIR/sitecustomize.py" <<'PY'
+import sys
+from importlib.abc import MetaPathFinder, Loader
+from importlib.util import spec_from_loader
+
+_BLOCK = {'qtpy.QtWebEngineWidgets', 'PyQt5.QtWebEngineWidgets'}
+
+class _BlockLoader(Loader):
+    def create_module(self, spec):
+        raise ImportError('QtWebEngineWidgets blocked for ui-smoke CI')
+    def exec_module(self, module):
+        pass
+
+class _BlockFinder(MetaPathFinder):
+    def find_spec(self, name, path, target=None):
+        if name in _BLOCK:
+            return spec_from_loader(name, _BlockLoader())
+        return None
+
+sys.meta_path.insert(0, _BlockFinder())
+PY
+export PYTHONPATH="$SHIM_DIR${PYTHONPATH:+:$PYTHONPATH}"
 
 exec "$LIB_DIR/run-gui.sh" "$WORK_DIR/qtdragon_metric.ini" \
     --run-program "$LIB_DIR/smoke.ngc" --expect-delta-mm 1,1,0
