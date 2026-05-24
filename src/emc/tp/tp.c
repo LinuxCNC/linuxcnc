@@ -1011,7 +1011,8 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
 }
 
 
-STATIC tp_err_t tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
+STATIC __attribute__((__noinline__))
+tp_err_t tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
     tp_debug_print("-- Starting LineArc blend arc --\n");
 
@@ -1169,7 +1170,8 @@ STATIC tp_err_t tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
 }
 
 
-STATIC tp_err_t tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
+STATIC __attribute__((__noinline__))
+tp_err_t tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
 
     tp_debug_print("-- Starting ArcLine blend arc --\n");
@@ -1310,7 +1312,8 @@ STATIC tp_err_t tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
     return TP_ERR_OK;
 }
 
-STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
+STATIC __attribute__((__noinline__))
+tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
 
     tp_debug_print("-- Starting ArcArc blend arc --\n");
@@ -1479,7 +1482,8 @@ STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev
 }
 
 
-STATIC tp_err_t tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
+STATIC __attribute__((__noinline__))
+tp_err_t tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
 
@@ -2082,7 +2086,8 @@ static bool tpCreateBlendIfPossible(
  * blend arc. Essentially all of the blend arc functions are called through
  * here to isolate the process.
  */
-STATIC tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
+STATIC __attribute__((__noinline__))
+tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     tp_debug_print("*****************************************\n** Handle Blend Arc **\n");
 
