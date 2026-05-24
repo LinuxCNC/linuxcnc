@@ -4,8 +4,8 @@ import subprocess
 from time import sleep
 from qtpy.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
     QWidget, QGridLayout,QGraphicsBlurEffect, QGraphicsDropShadowEffect,
-                QGraphicsColorizeEffect)
-from qtpy.QtCore import Qt, QProcess
+                QGraphicsColorizeEffect, QMessageBox)
+from qtpy.QtCore import Qt, QProcess, QCoreApplication
 
 import linuxcnc
 
@@ -16,10 +16,11 @@ LOG = logger.getLogger(__name__)
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 from qtvcp.core import Status, Info, Path
-
+from qtvcp.widgets.calculator import Calculator
 INFO = Info()
 STATUS = Status()
 PATH = Path()
+_translate = QCoreApplication.translate
 
 ################################################################
 # Action class
@@ -248,20 +249,39 @@ class _Lcnc_Action(object):
         for code in (mdi_list):
             LOG.debug('CALL_INI_MDI command:{}'.format(code))
             # check for oword and confirm path exists
-            try:
-                result = self.extract_oword_basename(code)
-                if any(char.isupper() for char in result):
-                    LOG.error(f'Oword {result}.ngc: filename cannot have uppercase letters.')
-                    self.SET_ERROR_MESSAGE(f'Oword {result}.ngc: filename cannot have uppercase letters.')
-                    return
-                if not INFO.is_in_known_paths(result+'.ngc'):
-                    LOG.error(f'Oword {result}.ngc path not found in INI paths. See system log')
-                    self.SET_ERROR_MESSAGE(f'Oword {result}.ngc path not found')
-                    INFO.check_known_paths(result+'.ngc', show=True)
-            except Exception as e:
-                print(e)
+            if not self.check_macro_path(code):
+                return
             # run command
             self.cmd.mdi('%s' % code)
+
+    def RUN_MACRO( self, data):
+
+        o_codes = data.split()
+        command = str( "O<" + o_codes[0] + "> call" )
+        # check for oword and confirm path exists
+        if not self.check_macro_path(command):
+            return
+
+        dialog = Calculator()
+        for code in o_codes[1:]:
+            parameter, ok = dialog.getValue(_translate("ActionClass",f"Enter a value for: {code}:"))
+            if not ok:
+                return
+            command = command + " [" + str(parameter) + "] "
+
+        # pop a confirm dialog of the properties
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText(_translate("ActionClass",f"Run Macro Command: {command}"))
+        msg.setWindowTitle(_translate("ActionClass","Confirm To Run Macro Command"))
+        msg.setStandardButtons(QMessageBox.Ok|QMessageBox.Cancel)
+        msg.show()
+        retval = msg.exec_()
+        if retval == QMessageBox.Ok:
+            LOG.debug(f'Run Macro Command:{command}')
+            self.SET_GRAPHICS_VIEW('clear')
+            self.CALL_MDI(command)
+            return
 
     def CALL_OWORD(self, code, time=5):
         LOG.debug('OWORD_COMMAND= {}'.format(code))
@@ -1125,9 +1145,10 @@ class _Lcnc_Action(object):
         self._touchoff_return = None
         self._touchoff_error_return = None
 
+    # find the O word file name eg. owordname from O<owordName>
     def extract_oword_basename(self, code):
         tst = code.replace(' ','')
-        if 'o<' in tst:
+        if 'o<' in tst.lower():
             ci = code.find('<')
             result = code[ci + 1:]
             ci = result.find('>')
@@ -1135,6 +1156,25 @@ class _Lcnc_Action(object):
             return result
         return None
 
+    # check for capital letters in oword file name (not allowed)
+    # check known INI paths for the file
+    def check_macro_path(self, code):
+        try:
+            result = self.extract_oword_basename(code)
+            if result is None:
+                return True
+            if any(char.isupper() for char in result):
+                self.SET_ERROR_MESSAGE(f'Oword {result}.ngc: filename cannot have uppercase letters.')
+                return [f'Oword {result}.ngc: filename cannot have uppercase letters.']
+            if not INFO.is_in_known_paths(result+'.ngc'):
+                self.SET_ERROR_MESSAGE(f'Oword {result}.ngc path not found')
+                path, txt = INFO.check_known_paths(result+'.ngc', show=True)
+                txt.append(f'Oword {result}.ngc path not found in INI paths. See system log')
+                return txt
+        except Exception as e:
+            LOG.error(e)
+            return ['Syntax error']
+        return True
     #------- boiler code
 
     def __getitem__(self, item):
