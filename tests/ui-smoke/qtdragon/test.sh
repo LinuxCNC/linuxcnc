@@ -15,6 +15,12 @@
 # scripts/linuxcnc itself forces QT_QPA_PLATFORM=xcb unless
 # LINUXCNC_OPENGL_PLATFORM is set to something other than glx, so we
 # pin both env vars.
+#
+# qtdragon embeds a QWebEngineView (Chromium). Under offscreen + xvfb
+# with no GPU and no user namespaces in the CI runner sandbox,
+# QtWebEngine racy-crashes during browser-process spawn. Disable the
+# Chromium sandbox and force single-process + software rendering so
+# the renderer runs in the same process as Qt with no GPU thread.
 set -u
 
 LIB_DIR="$(cd "$(dirname "$0")/../_lib" && pwd)"
@@ -28,6 +34,8 @@ sed -i 's|^LOG_FILE = qtdragon\.log$|LOG_FILE = ~/qtdragon.log|' \
 
 export LINUXCNC_OPENGL_PLATFORM=offscreen
 export QT_QPA_PLATFORM=offscreen
+export QTWEBENGINE_DISABLE_SANDBOX=1
+export QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-software-rasterizer --single-process --no-zygote"
 
 exec "$LIB_DIR/run-gui.sh" "$WORK_DIR/qtdragon_metric.ini" \
     --run-program "$LIB_DIR/smoke.ngc" --expect-delta-mm 1,1,0
