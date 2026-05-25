@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read #  to fetch code (actions/checkout)
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 env:
   DEBIAN_FRONTEND: noninteractive
 
