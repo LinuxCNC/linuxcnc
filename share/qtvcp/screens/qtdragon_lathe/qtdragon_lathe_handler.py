@@ -195,6 +195,9 @@ class HandlerClass:
         # override NGCGui path check
         NgcGui.check_linuxcnc_paths_fail = self.check_linuxcnc_paths_fail_override
 
+        # override action class macro run function 
+        ACTION.RUN_MACRO = self.run_macro
+
     def initialized__(self):
         self.init_pins()
         self.init_preferences()
@@ -905,8 +908,16 @@ class HandlerClass:
         if not self.w.chk_auto_mode_ext_macro.isChecked() and not STATUS.is_mdi_mode():
             self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), WARNING)
             return
+
         if 'ini-macro-cmd' in data:
-            self.add_status(_translate("HandlerClass",'Externally run INI macros not supported yet'), CRITICAL)
+            data = data.replace('ini-macro-cmd-','')
+            try:
+                temp = INFO.MACRO_COMMAND_DICT.get(data).get('cmd')
+                self.run_macro(data=temp)
+                return
+            except:
+                self.add_status(_translate(f"HandlerClass",'External requested INI macro data not recognized:{data}'), CRITICAL)
+
         elif 'ini-mdi-cmd' in data:
             for b in range(0,10):
                 button = self.w['macrobutton{}'.format(b)]
@@ -1458,6 +1469,42 @@ class HandlerClass:
 
         #self.set_statusbar('MPG output Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
         self._lastSelectButton = button
+
+    # if a macro has been requested, do path checks and run it
+    def run_macro( self, data = None ):
+        o_codes = data.split()
+        command = str( "O<" + o_codes[0] + "> call" )
+
+        # confirm oword path exists
+        rtn = ACTION.check_macro_path(command)
+        if not rtn is True:
+            for i in rtn:
+                self.add_status(i, WARNING)
+            return
+
+        for code in o_codes[1:]:
+            # wait but don't block:
+            parameter, ok = self.w.calculatorDialog_.getValue(f"Enter a value for: {code}:")
+            if not ok:
+                self.add_status('Macro cancelled')
+                return
+            command = command + " [" + str(parameter) + "] "
+
+        # pop a dialog of the properties
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText(_translate("HandlerClass",f"Run Macro Command: {command}"))
+        msg.setWindowTitle(_translate("HandlerClass","Confirm To Run Macro Command"))
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok|QtWidgets.QMessageBox.Cancel)
+        msg.show()
+        retval = msg.exec_()
+        if retval == QtWidgets.QMessageBox.Ok:
+            self.add_status(f'Run Macro Command:{command}')
+            ACTION.SET_GRAPHICS_VIEW('clear')
+            ACTION.CALL_MDI(command)
+            return
+
+        self.add_status('Macro cancelled')
 
     #####################
     # GENERAL FUNCTIONS #
@@ -2159,6 +2206,48 @@ class HandlerClass:
                 flag = False
             except:
                 button.hide()
+
+        # add any INI defined macros if there is less then
+        # ten INI MDI commands
+        start = len(INFO.MDI_COMMAND_DICT)
+        for b in range(start,10):
+            button = self.w['macrobutton{}'.format(b)]
+            adj = b-start
+            # prefer named INI MDI commands
+            try:
+                # find what ini_mdi button we are going to convert
+                key = button.property('ini_mdi_key')
+
+                code = INFO.get_ini_macro_command(key)
+                if code is None:
+                    code = INFO.get_ini_macro_command(b-start)
+                    if code is None:
+                        raise Exception
+                    else: key = b-start
+
+                flag = False
+                button.show()
+
+                try:
+                    label = INFO.get_ini_macro_label(key)
+                    label = label.replace(r'\n', '\n')
+                    button.setText(label)
+                except:
+                    pass
+
+                try:
+                    tooltiplabel = 'INI MACRO CMD {}:\n'.format(key)
+                    tooltiplabel += INFO.get_ini_macro_command(key).replace(';', '\n')
+                    button.setToolTip(tooltiplabel)
+                except Exception as e:
+                    pass
+                button.setProperty('ini_mdi_command_action', False)
+                button.setProperty('ini_macro_command_action', True)
+                button.setProperty('ini_macro_number',b-start)
+                button.setProperty('ini_macro_key',key)
+            except Exception as e:
+                button.hide()
+
         # no buttons hide frame
         if flag:
             self.w.frame_macro_buttons.hide()
