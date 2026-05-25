@@ -105,10 +105,10 @@ class Bridge(object):
                 self[i] = QHAL.newpin('ini-mdi-cmd-{}'.format(i),QHAL.HAL_BIT, QHAL.HAL_IN)
                 self[i].pinValueChanged.connect(self.runMacroChanged)
 
-        if not self.INFO.INI_MACROS is None:
-            for i in self.INFO.INI_MACROS:
-                name = i.split()[0]
-                LOG.debug('{} {}'.format(name,i))
+        if not self.INFO.MACRO_COMMAND_DICT is None:
+            for name in self.INFO.MACRO_COMMAND_DICT:
+                LOG.debug('{} {}'.format(name,self.INFO.MDI_COMMAND_DICT.get(name)))
+                name = str(name)
                 self[name] = QHAL.newpin('ini-macro-cmd-{}'.format(name),QHAL.HAL_BIT, QHAL.HAL_IN)
                 self[name].pinValueChanged.connect(self.runMacroChanged)
 
