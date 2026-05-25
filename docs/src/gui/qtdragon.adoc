@@ -397,10 +397,10 @@ RS274NGC_STARTUP_CODE = G17 G20 G40 G43H0 G54 G64P0.0005 G80 G90 G94 G97 M5 M9
 ----
 
 [[sec:macro-buttons]]
-=== Macro Buttons
+=== MDI/Macro Buttons
 
-QtDragon has up to ten convenience buttons for calling 'macro actions'. +
-These are under the heading '[MDI_COMMAND_LIST]' as 'MDI_COMMAND_MACRO0 =' to 'MDI_COMMAND_MACRO9 =' +
+QtDragon has up to ten convenience buttons for calling 'MDI actions' or 'macro actions'. +
+MDI actions are defined under the heading '[MDI_COMMAND_LIST]' as 'MDI_COMMAND_MACRO0 =' to 'MDI_COMMAND_MACRO9 =' +
 These could also call OWord routines if desired. +
 In the sample configurations they are labelled for moving between
 current user system origin (zero point) and Machine system origin. +
@@ -418,6 +418,25 @@ These commands can be run with external HAL pins, if using the hal_bridge compon
 MDI_COMMAND_MACRO0 = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
 MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
 ----
+
+It is also possible to call Oword programs that require user input at run time. +
+There are only 10 buttons available split between MDI_COMMAND and MACROS. +
+These are defined in the INI under [MACROS] +
+
+Here we show a sample that defines the call of the Oword program 'increment', which will prompt the user for two values 'xinc' and 'yinc' and will set the button text to 'INCR'. +
+The second entry defines a call to the Oword file 'lost' and will set the button text to 'Lost'. +
+
+[source,{ini}]
+----
+[MACROS]
+MACRO_COMMAND_MACRO2 = increment xinc yinc ,INCR
+MACRO_COMMAND_MACRO3 = lost ,Lost
+----
+
+[NOTE]
+All defined Oword files must be located on the system as defined in the
+[DISPLAY]PROGRAM_PREFIX or [RS274NGC]SUBROUTINE_PATH INI entries. Qtdragon
+ will do checks for the file path when asked to run the Oword macro.
 
 === Post GUI HAL File
 
@@ -483,6 +502,8 @@ Owner   Type  Dir                 Value  Name
     29  bit   IN                  FALSE  bridge.cancel-in
     29  bit   IN                  FALSE  bridge.cycle-pause-in
     29  bit   IN                  FALSE  bridge.cycle-start-in
+    29  bit   IN                  FALSE  bridge.ini-macro-cmd-MACRO2
+    29  bit   IN                  FALSE  bridge.ini-macro-cmd-MACRO3
     29  bit   IN                  FALSE  bridge.ini-mdi-cmd-MACRO0
     29  bit   IN                  FALSE  bridge.ini-mdi-cmd-MACRO1
     29  float OUT                     0  bridge.jog-increment
