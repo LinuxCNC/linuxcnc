@@ -41,6 +41,14 @@ export QT_QUICK_BACKEND=software
 export QSG_RHI_BACKEND=software
 export QT_OPENGL=software
 
+# Silence audio: xvfb covers X but not sound. Demote every Gst
+# Audio/Sink and disable canberra/SDL/pulse/ALSA-default paths.
+export ALSA_CONFIG_PATH="$LIB_DIR/asound.conf"
+export CANBERRA_DRIVER=null
+export GST_PLUGIN_FEATURE_RANK="pulsesink:NONE,alsasink:NONE,osssink:NONE,oss4sink:NONE,jackaudiosink:NONE,pipewiresink:NONE,openalsink:NONE"
+export PULSE_SERVER=/dev/null
+export SDL_AUDIODRIVER=dummy
+
 # Export the per-invocation values so the inner bash -c receives them
 # as proper env vars (avoids embedding paths into the inner script
 # via quoting, which breaks on apostrophes / spaces).
