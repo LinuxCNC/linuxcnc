@@ -3,7 +3,7 @@
 """
 from re import match
 from enum import Enum
-from pyhal import *
+import hal
 from struct import *
 import time
 
@@ -28,7 +28,7 @@ class RasterProgrammer(object):
     """
         The programmer component is used to program the realtime raster component
 
-        The raster component operates one line at a time. 
+        The raster component operates one line at a time.
 
         Example:
             Assuming rastering is done across the X axis.
@@ -38,7 +38,7 @@ class RasterProgrammer(object):
             Because positional data at the hal level is joint position the program must be relative
             to the current position that the machine is at when programming the line.
 
-            Because a port can become full each command waits until the port is available for writing. The commands will 
+            Because a port can become full each command waits until the port is available for writing. The commands will
             raise a ProgrammerException if too much time passes before the write completes. This is usually an indication
             that your PORT buffer isn't large enough
     """
@@ -53,25 +53,27 @@ class RasterProgrammer(object):
                 enabled - BIT IN - link to the raster's enabled pin. Raster programmer uses this to wait on rasters activation
         """
         self.__timeout = 5.0
-        self.component = component(name)
-        self.port = self.component.pinNew("program", halType.PORT, pinDir.OUT)
-        self.faultCode = self.component.pinNew("fault-code", halType.SIGNED, pinDir.IN)
-        self.enabled = self.component.pinNew("enabled", halType.BIT, pinDir.IN)
-        self.run    = self.component.pinNew("run", halType.BIT, pinDir.OUT)
+        self.component = hal.component(name)
+        self.port = self.component.newpin("program", hal.HAL_PORT, hal.HAL_OUT)
+        self.faultCode = self.component.newpin("fault-code", hal.HAL_S32, hal.HAL_IN)
+        self.enabled = self.component.newpin("enabled", hal.HAL_BIT, hal.HAL_IN)
+        self.run    = self.component.newpin("run", hal.HAL_BIT, hal.HAL_OUT)
         self.component.ready()
-
         self.run.value = False
 
     def __del__(self):
-        self.component.exit()
+        if None != self.component:
+            self.component.exit()
 
     def exit(self):
         """unloads this programmer component from hal"""
         self.component.exit()
-            
+        self.component = None
+
     def __waitEnabled(self, enabled):
         timeout = time.process_time() + self.__timeout
         while self.enabled.value != enabled:
+            time.sleep(0.001)
             if time.process_time() > timeout:
                 self.run.value = False
                 raise ProgrammerException("Raster failed to respond before the timeout was reached")
@@ -79,15 +81,15 @@ class RasterProgrammer(object):
             if self.faultCode.value != FaultCodes.OK.value:
                 self.run.value = False
                 raise ProgrammerException("Raster faulted with error {0}".format(FaultCodes(self.faultCode.value)))
-        
+
     def begin(self, offset, bpp, ppu, count):
         """
             Sends the program begin command along with relevant parameters.
-            
+
             offset - The relative starting position that the incoming data starts. Data is always programmed from most negative on the axis to most positive.
             bpp - Bits per pixel in increments of 4 bits, up to 32 bits
             ppu - pixels per unit. The number of pixels per machine unit. count * dpu gives the total span of the raster line
-            count - the number of pixels that will be programmed on the line     
+            count - the number of pixels that will be programmed on the line
         """
         self.run.value = False
         self.__waitEnabled(False)
