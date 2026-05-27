@@ -199,6 +199,7 @@ The __N__ (integer between 0 and 7) substitutes the spindle number.
 === Pins
 
 (((spindle (HAL pins))))
+
 * 'spindle.__N__.at-speed' - (bit, in)
   Motion will pause until this pin is TRUE, under the following conditions:
 ** before the first feed move after each spindle start or speed change;
@@ -308,6 +309,7 @@ iocontrol's HAL pins are turned on and off in non-realtime context.  If you have
 === Pins
 
 (((iocontrol (HAL pins))))
+
 * 'iocontrol.0.coolant-flood' (bit, out) TRUE when flood coolant is requested.
 * 'iocontrol.0.coolant-mist' (bit, out) TRUE when mist coolant is requested.
 * 'iocontrol.0.emc-enable-in' (bit, in) Should be driven FALSE when an external E-Stop condition exists.

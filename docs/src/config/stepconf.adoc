@@ -84,6 +84,7 @@ to those of the driver. You may find it necessary to add some time to the
 drive requirements to allow for this.
 +
 The LinuxCNC Configuration Selector has configs for Sherline already configured.
+
 * 'Step Time' - How long the step pulse is 'on' in nano seconds. If your not
   sure about this setting a value of 20,000 will work with most drives.
 * 'Step Space' - Minimum time between step pulses in nano seconds. If your
