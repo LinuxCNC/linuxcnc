@@ -352,37 +352,48 @@ int upci_find_device(struct upci_dev_info *p)
 
 static int incr_io_usage ( void )
 {
-    int retval, eno;
+    int retval = 0, eno = 0;
 
-    /* make sure we can do I/O */
-    if ( ioaccess == 0 ) {
-	/* enable access */
-	/* this needs privileges */
-	if (seteuid(0) != 0) {
-	    errmsg(__func__, "need root privileges (or setuid root)");
-	    return -1;
-	}
-	/* do it */
-	retval = iopl(3);
-	eno = errno;
-	/* drop privileges */
-	if(seteuid(getuid()) != 0)
-	{
-	    errmsg(__func__, "unable to drop root privileges");
-	    /* Don't continue past this point, because following code may
-	     * execute with unexpected privileges
-	     */
-	    _exit(99);
-	}
-	/* check result */
-	if(retval < 0 || iopl(3) < 0) {
-	    errmsg(__func__,"opening I/O ports: %s", strerror(eno));
-	    return -1;
-	}
+    /* Try iopl(3) with our existing privileges first: succeeds when
+     * the process holds CAP_SYS_RAWIO via file caps or is already
+     * setuid root.  Only fall back to seteuid(0) if that path is closed.
+     */
+    do {
+        if (ioaccess) {
+            break;
+        }
+
+        retval = iopl(3);
+        if (retval == 0) {
+            break;
+        }
+
+        retval = seteuid(0);
+        if (retval != 0) {
+            eno = errno;
+            break;
+        }
+
+        retval = iopl(3);
+        eno = errno;
+
+        if (seteuid(getuid()) != 0) {
+            errmsg(__func__, "unable to drop root privileges");
+            /* Don't continue past this point, because following code may
+             * execute with unexpected privileges
+             */
+            _exit(99);
+        }
+    } while (0);
+
+    if (retval == 0) {
+        /* increment reference count */
+        ioaccess++;
+    } else {
+        errmsg(__func__,"error: %s", strerror(eno));
     }
-    /* increment reference count */
-    ioaccess++;
-    return 0;
+
+    return retval;
 }
 
 static void decr_io_usage ( void )
@@ -401,37 +412,49 @@ static void decr_io_usage ( void )
 
 static int incr_mem_usage ( void )
 {
-    int eno;
+  int retval = 0, eno = 0;
 
-    /* make sure /dev/mem is open */
-    if ( memaccess == 0 ) {
-	/* open it */
-	/* this needs privileges */
-	if (seteuid(0) != 0) {
-	    errmsg(__func__, "need root privileges (or setuid root)");
-	    return -1;
-	}
-	/* do it */
-	memfd = open("/dev/mem", O_RDWR);
-	eno = errno;
-	/* drop privileges */
-	if(seteuid(getuid()) != 0)
-	{
-	    errmsg(__func__, "unable to drop root privileges");
-	    /* Don't continue past this point, because following code may
-	     * execute with unexpected privileges
-	     */
-	    _exit(99);
-	}
-	/* check result */
-	if ( memfd < 0 ) {
-	    errmsg(__func__,"can't open /dev/mem: %s", strerror(eno));
-	    return -1;
-	}
-    }
-    /* increment reference count */
-    memaccess++;
-    return 0;
+  /* Try to open /dev/mem with our existing privileges first: succeeds
+   * when the process holds CAP_SYS_RAWIO via file caps or is already
+   * setuid root.  Only fall back to seteuid(0) if that path is closed.
+   */
+  do {
+      if (memaccess) {
+          break;
+      }
+
+      memfd = open("/dev/mem", O_RDWR);
+      if (memfd >= 0) {
+          break;
+      }
+
+      retval = seteuid(0);
+      if (retval != 0) {
+          eno = errno;
+          break;
+      }
+
+      memfd = open("/dev/mem", O_RDWR);
+      retval = memfd >= 0 ? 0 : memfd;
+      eno = errno;
+
+      if (seteuid(getuid()) != 0) {
+          errmsg(__func__, "unable to drop root privileges");
+          /* Don't continue past this point, because following code may
+           * execute with unexpected privileges
+           */
+          _exit(99);
+      }
+  } while (0);
+
+  if (retval == 0) {
+      /* increment reference count */
+      memaccess++;
+  } else {
+      errmsg(__func__,"error: %s", strerror(eno));
+  }
+
+  return retval;
 }
 
 static void decr_mem_usage ( void )

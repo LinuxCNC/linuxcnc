@@ -27,10 +27,10 @@
 
 #include "hostmot2-lowlevel.h"
 
-#include "eshellf.h"
 #include "spix.h"
 #include "dtcboards.h"
 #include "rp1dev.h"
+#include "kmod_check.h"
 
 //#define RPSPI_DEBUG_PIN	23	// Define for pin-debugging
 
@@ -123,7 +123,6 @@ typedef struct __spisave_t {
 
 static spisave_t spi0save;	// Settings before our setup
 static spisave_t spi1save;
-static int has_spi_module;	// Set to non-zero when the kernel modules dw_spi and dw_spi_mmio are loaded
 static int driver_enabled;	// Set to non-zero when rpi5_setup() is successfully called
 static int port_probe_mask;	// Which ports are requested
 
@@ -526,7 +525,7 @@ static int rpi5_detect(const char *dtcs[])
 
 /*
  * Setup the driver.
- * - remove kernel spidev driver modules if detected
+ * - check for conflicting kernel SPI module
  * - map the I/O memory
  * - setup the GPIO pins and SPI peripheral(s)
  */
@@ -541,12 +540,15 @@ static int rpi5_setup(int probemask)
 
 	port_probe_mask = probemask;	// For peripheral_setup() and peripheral_restore()
 
-	// Now we know what platform we are running, remove kernel SPI module if
-	// detected
-	if((has_spi_module = (0 == shell("/usr/bin/grep -qw ^dw_spi_mmio /proc/modules")))) {
-		if(shell("/sbin/rmmod dw_spi_mmio dw_spi"))
-			LL_ERR("Unable to remove kernel SPI modules dw_spi_mmio and dw_spi. "
-					"Your system may become unstable using LinuxCNC with the " HM2_LLIO_NAME " driver.\n");
+	// The kernel SPI driver conflicts with direct peripheral access. Fail at
+	// load if it is present so the user can disable it deliberately rather
+	// than running a half-working system.
+	if(kernel_module_loaded("dw_spi_mmio")) {
+		LL_ERR("Kernel SPI driver dw_spi_mmio is loaded and conflicts with "
+			HM2_LLIO_NAME ". Blacklist dw_spi_mmio and dw_spi via "
+			"/etc/modprobe.d/blacklist-linuxcnc.conf and reboot. "
+			"See hm2_spix(9) NOTES for the exact recipe.\n");
+		return -EBUSY;
 	}
 
 	// The IO address for the RPi5 is at a fixed address. No need to do fancy
@@ -589,10 +591,6 @@ static int rpi5_cleanup(void)
 		peripheral_restore();
 		munmap(peripheralmem, peripheralsize);
 	}
-
-	// Restore kernel SPI module if it was detected before
-	if(has_spi_module)
-		shell("/sbin/modprobe dw_spi_mmio");
 
 	driver_enabled = 0;
 	return 0;

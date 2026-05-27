@@ -41,8 +41,8 @@
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "spi_common_rpspi.h"
-#include "eshellf.h"
 #include "llio_info.h"
+#include "kmod_check.h"
 
 #define HM2_LLIO_NAME "hm2_rpspi"
 
@@ -1272,7 +1272,6 @@ static void hm2_rpspi_cleanup(void)
 		peripheral_restore();
 		munmap(peripheralmem, peripheralsize);
 	}
-	eshellf(HM2_LLIO_NAME, "/sbin/modprobe spi-bcm2835");
 }
 
 /*************************************************/
@@ -1280,7 +1279,13 @@ int rtapi_app_main()
 {
 	int ret;
 
-	eshellf(HM2_LLIO_NAME, "/sbin/rmmod spi_bcm2835");
+	if(kernel_module_loaded("spi_bcm2835")) {
+		LL_ERR("Kernel SPI driver spi_bcm2835 is loaded and conflicts with "
+			HM2_LLIO_NAME ". Disable it with 'sudo raspi-config' "
+			"(Interface Options -> SPI -> Disable) and reboot. "
+			"See hm2_rpspi(9) for details.\n");
+		return -EBUSY;
+	}
 
 	if((comp_id = ret = hal_init("hm2_rpspi")) < 0)
 		goto fail;

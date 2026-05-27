@@ -46,6 +46,7 @@
 #ifdef __linux__
 #include <malloc.h>
 #include <sys/prctl.h>
+#include <sys/capability.h>
 #endif
 #ifdef __FreeBSD__
 #include <pthread_np.h>
@@ -689,6 +690,10 @@ static double diff_timespec(const struct timespec *time1, const struct timespec 
     return (double)(time1->tv_sec - time0->tv_sec) + (double)(time1->tv_nsec - time0->tv_nsec) / 1000000000.0;
 }
 
+#ifdef __linux__
+static void raise_net_admin_ambient(void);
+#endif
+
 int main(int argc, char **argv) {
     if (getuid() == 0) {
         char *fallback_uid_str = getenv("RTAPI_UID");
@@ -720,6 +725,7 @@ int main(int argc, char **argv) {
     }
 #ifdef __linux__
     setfsuid(ruid);
+    raise_net_admin_ambient();
 #endif
     std::vector<std::string> args;
     for (int i = 1; i < argc; i++) {
@@ -840,13 +846,34 @@ static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/) {
 const static size_t PRE_ALLOC_SIZE = 1024 * 1024 * 32;
 const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
 static void configure_memory() {
-    int res = setrlimit(RLIMIT_MEMLOCK, &unlimited);
-    if (res < 0)
-        perror("setrlimit");
+    // Best-effort raise of the soft cap to the hard cap.  Needs
+    // CAP_SYS_RESOURCE; absent that, CAP_IPC_LOCK lets mlockall succeed
+    // regardless of the rlimit.  Only warn when neither path is open,
+    // i.e. mlockall is actually going to fail.
+    bool have_ipc_lock = false;
+#ifdef __linux__
+    cap_t caps = cap_get_proc();
+    if (caps) {
+        cap_flag_value_t v;
+        if (cap_get_flag(caps, CAP_IPC_LOCK, CAP_EFFECTIVE, &v) == 0)
+            have_ipc_lock = (v == CAP_SET);
+        cap_free(caps);
+    }
+#endif
+    struct rlimit limit;
+    if (getrlimit(RLIMIT_MEMLOCK, &limit) == 0) {
+        limit.rlim_cur = limit.rlim_max;
+        if (setrlimit(RLIMIT_MEMLOCK, &limit) < 0 && !have_ipc_lock)
+            rtapi_print_msg(RTAPI_MSG_WARN,
+                "setrlimit(RLIMIT_MEMLOCK) failed and CAP_IPC_LOCK not held: %s. "
+                "mlockall will likely fail.\n", strerror(errno));
+    }
 
-    res = mlockall(MCL_CURRENT | MCL_FUTURE);
+    int res = mlockall(MCL_CURRENT | MCL_FUTURE);
     if (res < 0)
-        perror("mlockall");
+        rtapi_print_msg(RTAPI_MSG_WARN,
+            "mlockall failed: %s. Realtime latency may suffer.\n",
+            strerror(errno));
 
 #ifdef __linux__
     /* Turn off malloc trimming.*/
@@ -900,7 +927,7 @@ static int harden_rt() {
             RTAPI_MSG_ERR,
             "iopl() failed: %s\n"
             "cannot gain I/O privileges - "
-            "forgot 'sudo make setuid' or using secure boot? -"
+            "missing CAP_SYS_RAWIO or using secure boot? - "
             "parallel port access is not allowed\n",
             strerror(errno)
         );
@@ -909,19 +936,21 @@ static int harden_rt() {
 
     struct sigaction sig_act = {};
 #ifdef __linux__
-    // enable realtime
-    if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0) {
-        rtapi_print_msg(RTAPI_MSG_WARN, "setrlimit(RTLIMIT_RTPRIO): %s\n", strerror(errno));
-        return -errno;
-    }
+    // Best-effort raise of RTPRIO/CORE soft caps.  Setting these to
+    // RLIM_INFINITY requires CAP_SYS_RESOURCE, which neither setuid root
+    // nor file capabilities grant by default.  Without it, threads still
+    // get SCHED_FIFO via CAP_SYS_NICE; the rlimit just gates how high
+    // they can go.  Don't fail harden_rt() when it can't be raised.
+    if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
+        rtapi_print_msg(RTAPI_MSG_DBG,
+            "setrlimit(RLIMIT_RTPRIO): %s\n", strerror(errno));
 
-    // enable core dumps
     if (setrlimit(RLIMIT_CORE, &unlimited) < 0)
         rtapi_print_msg(
             RTAPI_MSG_WARN, "setrlimit: %s - core dumps may be truncated or non-existent\n", strerror(errno)
         );
 
-    // even when setuid root
+    // even when running with elevated capabilities
     if (prctl(PR_SET_DUMPABLE, 1) < 0)
         rtapi_print_msg(
             RTAPI_MSG_WARN,
@@ -985,9 +1014,77 @@ static RtapiApp *makeDllApp(const std::string &dllName, int policy) {
     return result;
 }
 
+// Diagnostic helper: report cap_effective state for a single capability.
+// Returns "yes", "no", or "unknown" if libcap could not introspect.
+#ifdef __linux__
+static const char *cap_effective_str(cap_t caps, cap_value_t cap) {
+    if (!caps) return "unknown";
+    cap_flag_value_t v;
+    if (cap_get_flag(caps, cap, CAP_EFFECTIVE, &v) != 0) return "unknown";
+    return v == CAP_SET ? "yes" : "no";
+}
+
+// Raise CAP_NET_ADMIN into the ambient set so it survives execve() into
+// child processes (iptables, ip6tables) launched by HAL drivers like
+// hm2_eth.  Linux file capabilities on rtapi_app give cap_net_admin in
+// the permitted+effective sets but not inheritable/ambient, so without
+// this iptables runs cap-less and fails with EPERM.  No-op when the cap
+// is not held (e.g. running unprivileged).
+static void raise_net_admin_ambient(void) {
+    cap_t caps = cap_get_proc();
+    if (!caps) return;
+
+    cap_value_t cap = CAP_NET_ADMIN;
+    cap_flag_value_t v;
+    if (cap_get_flag(caps, cap, CAP_PERMITTED, &v) == 0 && v == CAP_SET) {
+        if (cap_set_flag(caps, CAP_INHERITABLE, 1, &cap, CAP_SET) == 0
+                && cap_set_proc(caps) == 0) {
+            if (prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_RAISE,
+                      CAP_NET_ADMIN, 0, 0) != 0
+                    && geteuid() != 0) {
+                rtapi_print_msg(RTAPI_MSG_WARN,
+                    "rtapi_app: PR_CAP_AMBIENT_RAISE(CAP_NET_ADMIN) "
+                    "failed: %s; iptables-using drivers may not work "
+                    "under file caps.\n", strerror(errno));
+            }
+        }
+    }
+    cap_free(caps);
+}
+#endif
+
 static RtapiApp *makeApp() {
     RtapiApp *app;
-    if (WithRoot::getEuid() != 0 || harden_rt() < 0) {
+    bool rt_ok = rtapi_is_realtime();
+    if (!rt_ok) {
+        // Surface the actual reason so the user does not have to guess
+        // between "no caps", "stock kernel", or "wrong rlimits" (issue
+        // #3928).  errno comes from the SCHED_FIFO probe in
+        // can_set_sched_fifo(); cap state comes from libcap.
+        int sched_err = rtapi_sched_fifo_errno();
+#ifdef __linux__
+        cap_t caps = cap_get_proc();
+        const char *nice_s = cap_effective_str(caps, CAP_SYS_NICE);
+        const char *lock_s = cap_effective_str(caps, CAP_IPC_LOCK);
+#else
+        const char *nice_s = "unknown";
+        const char *lock_s = "unknown";
+#endif
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "Note: realtime scheduling unavailable "
+            "(sched_setscheduler SCHED_FIFO: %s).\n"
+            "  Process capabilities: cap_sys_nice=%s cap_ipc_lock=%s.\n"
+            "  Falling back to POSIX non-realtime.\n"
+            "  Fix: 'sudo make setcap' (preferred) or 'sudo make setuid' "
+            "on rtapi_app.\n"
+            "  Override (testing only): set LINUXCNC_FORCE_REALTIME=1.\n",
+            sched_err ? strerror(sched_err) : "denied",
+            nice_s, lock_s);
+#ifdef __linux__
+        if (caps) cap_free(caps);
+#endif
+    }
+    if (!rt_ok || harden_rt() < 0) {
         app = makeDllApp("liblinuxcnc-uspace-posix.so.0", SCHED_OTHER);
     } else {
         WithRoot r;
@@ -998,6 +1095,17 @@ static RtapiApp *makeApp() {
         } else if (detect_rtai()) {
             app = makeDllApp("liblinuxcnc-uspace-rtai.so.0", SCHED_FIFO);
         } else {
+            // SCHED_FIFO available but no Xenomai/RTAI backend.  Warn if the
+            // kernel is not PREEMPT_RT: SCHED_FIFO still beats SCHED_OTHER,
+            // but latency on a PREEMPT_DYNAMIC stock kernel can be tens of
+            // milliseconds, which will surprise users who expect the same
+            // bounds as a PREEMPT_RT or Xenomai setup.
+            if (!detect_preempt_rt()) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Note: SCHED_FIFO available but kernel is not PREEMPT_RT.  "
+                    "Latency may be unbounded; install a PREEMPT_RT kernel "
+                    "for hard realtime guarantees.\n");
+            }
             app = makeDllApp("liblinuxcnc-uspace-posix.so.0", SCHED_FIFO);
         }
     }
