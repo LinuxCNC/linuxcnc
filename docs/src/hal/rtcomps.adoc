@@ -82,6 +82,7 @@ On the step type and control type selected.
 === Parameters
 
 (((HAL stepgen parameters)))
+
 * (float) `stepgen.`__<chan>__`.position-scale` - Steps per position unit. This parameter is used for both output and feedback.
 * (float) `stepgen.`__<chan>__`.maxvel` - Maximum velocity, in position units per second. If 0.0, has no effect.
 * (float) `stepgen.`__<chan>__`.maxaccel` - Maximum accel/decel rate, in positions units per second squared.

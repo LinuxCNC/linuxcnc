@@ -42,6 +42,7 @@
 == M0, M1 Program Pause
 
 (((M0, M1 Program Pause)))(((M0 Mandatory Program Pause)))(((M1 Optional Program Pause)))
+
 * 'M0' - pause a running program temporarily. LinuxCNC remains in the Auto Mode
   so MDI and other manual actions are not enabled. Pressing the resume
   button will restart the program at the following line.
@@ -60,6 +61,7 @@ to stop after each line of input anyway.
 == M2, M30 Program End
 
 (((M2 Program End)))(((M30 Pallet Exchange and Program End)))
+
 * 'M2' - end the program. Pressing `Cycle Start` ("R" in the Axis GUI)
   will restart the program at the beginning of the file.
 * 'M30' - exchange pallet shuttles and end the program.
@@ -91,6 +93,7 @@ on what using % does not do.
 == M60 Pallet Change Pause
 
 (((M60 Pallet Change Pause)))
+
 * 'M60' - exchange pallet shuttles and then pause a running program
   temporarily (regardless of the setting of the optional stop
   switch). Pressing the cycle start button
@@ -100,6 +103,7 @@ on what using % does not do.
 == M3, M4, M5 Spindle Control
 
 (((M3, M4, M5 Spindle Control)))
+
 * 'M3 [$n]' - start the selected spindle clockwise at the 'S' speed.
 * 'M4 [$n]' - start the selected spindle counterclockwise at the 'S' speed.
 * 'M5 [$n]' - stop the selected spindle.
@@ -199,6 +203,7 @@ ClassicLadder.
 == M7, M8, M9 Coolant Control
 
 (((M7, M8, M9 Coolant Control)))
+
 * 'M7' - turn mist coolant on. M7 controls iocontrol.0.coolant-mist pin.
 * 'M8' - turn flood coolant on. M8 controls iocontrol.0.coolant-flood pin.
 * 'M9' - turn both M7 and M8 off.
@@ -264,6 +269,7 @@ INI Settings in the [RS274NGC] section:
 == M48, M49 Speed and Feed Override Control
 
 (((M48, M49 Speed and Feed Override Control)))
+
 * 'M48' - enable the spindle speed and feed rate override controls.
 * 'M49' - disable both controls.
 
@@ -281,6 +287,7 @@ see below.
 == M50 Feed Override Control
 
 (((M50 Feed Override Control)))
+
 * 'M50 <P1>' - enable the feed rate override control. The P1
   is optional.
 * 'M50 P0' - disable the feed rate control.
@@ -293,6 +300,7 @@ and the motion will be executed at programmed feed rate.
 == M51 Spindle Speed Override Control
 
 (((M51 Spindle Speed Override)))
+
 * 'M51 <P1> <$->'- enable the spindle speed override control for the
   selected spindle. The  P1 is optional.
 * 'M51 P0 <$->'  - disable the spindle speed override control program.
@@ -306,6 +314,7 @@ exact program specified value of the S-word
 == M52 Adaptive Feed Control
 
 (((M52 Adaptive Feed Control)))
+
 * 'M52 <P1>' - use an adaptive feed. The P1 is optional.
 * 'M52 P0' - stop using adaptive feed.
 
@@ -326,6 +335,7 @@ cutters and wire spark eroders but it is not limited to such applications.
 == M53 Feed Stop Control
 
 (((M53 Feed Stop Control)))
+
 * 'M53 <P1>' - enable the feed stop switch. The P1 is optional.
   Enabling the feed stop switch will allow motion to be
   interrupted by means of the feed stop control. In LinuxCNC,
@@ -338,6 +348,7 @@ cutters and wire spark eroders but it is not limited to such applications.
 == M61 Set Current Tool
 
 (((M61 Set Current Tool)))
+
 * 'M61 Q-' - change the current tool number while in MDI or Manual mode without
   a tool change. One use is when you power up LinuxCNC with a tool
   currently in the spindle you can set that tool number without
@@ -355,6 +366,7 @@ It is an error if:
 == M62 - M65 Digital Output Control
 
 (((M62 - M65 Digital Output Control)))
+
 * 'M62 P-' - turn on digital output synchronized with motion.
 * 'M63 P-' - turn off digital output synchronized with motion.
 * 'M64 P-' - turn on digital output immediately.

@@ -12,6 +12,7 @@ are entirely licensed under the GNU General Public License and Lesser
 GNU General Public License (GPL and LGPL).
 
 To lower the entry-hurdle, LinuxCNC provides:
+
 * easy discovery and testing without installation with the Live Image,
 * easy installation from the Live Image,
 * easy to use graphical configuration wizards to rapidly create a configuration
@@ -19,6 +20,7 @@ To lower the entry-hurdle, LinuxCNC provides:
 * directly availability as regular packages of recent releases of Debian (since Bookworm) and Ubuntu (since Kinetic Kudu).
 
 LinuxCNC provides a graphical user interface with many flavours to choose from to match your personal preferences and technical needs. Advanced users may directly exploit
+
 * graphical interface creation tools (Glade, Qt),
 * the interpreter for 'G-code' (the RS-274 machine tool programming language),
 * operation of low-level machine electronics such as sensors and motor drives,
@@ -26,6 +28,7 @@ LinuxCNC provides a graphical user interface with many flavours to choose from t
 * a software PLC programmable with ladder diagrams.
 
 Under the hood, LinuxCNC provides
+
 * a realtime motion planning system with look-ahead,
 * support for non-Cartesian motion systems is provided via custom
   kinematics modules. Available architectures include hexapods (Stewart

@@ -16,6 +16,7 @@ image::images/ngcgui.png[align="center"]
 == Overview
 
 (((NGCGUI)))
+
 * 'NGCGUI' is a Tcl application to work with subroutines. It allows you to
   have a conversational interface with LinuxCNC. You can organize the
   subroutines in the order you need them to run and concatenate the

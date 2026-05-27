@@ -886,6 +886,7 @@ If you want to travel along a path at 1 IPS = 60 IPM, and your servo period 
 If you set Naive CAM tolerance to around this min length, overly short segments will be combined together to eliminate this bottleneck.
 Of course, setting the tolerance too high means big path deviations, so you have to play with it a bit to find a good value.
 I'd start at 1/2 of the min_length, then work up as needed.
+
 * `ARC_BLEND_GAP_CYCLES = 4` How short the previous segment must be before the trajectory planner 'consumes' it.
 +
 Often, a circular arc blend will leave short line segments in between the blends.
@@ -894,6 +895,7 @@ Since the trajectory planner has to touch each segment at least once, it means t
 My fix to this way to "consume" the short segment by making it a part of the blend arc.
 Since the line+blend is one segment, we don't have to slow down to hit the very short segment.
 Likely, you won't need to touch this setting.
+
 * `ARC_BLEND_RAMP_FREQ = 20` - This is a 'cutoff' frequency for using ramped velocity.
 +
 'Ramped velocity' in this case just means constant acceleration over the whole segment.
