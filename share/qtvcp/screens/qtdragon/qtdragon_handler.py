@@ -1421,12 +1421,8 @@ class HandlerClass:
 
     def mpg_selection_changed(self, data):
         if data =='MPG0':
-            self.w.btn_mpg_scroll.setChecked(True)
             self.recolorMPGFocusBorder()
         elif data == 'None':
-            self.w.btn_mpg_scroll.group().setExclusive(False)
-            self.w.btn_mpg_scroll.setChecked(False)
-            self.w.btn_mpg_scroll.group().setExclusive(True)
             self.removeMPGFocusBorder()
 
     def MPG_select_changed(self, button):
@@ -1441,12 +1437,9 @@ class HandlerClass:
 
                 if button == self.w.btn_mpg_scroll:
                     self.removeMPGFocusBorder()
-                    if not self.w.btn_mpg_scroll.isChecked():
-                        ACTION.SET_SELECTED_AXIS('None')
                 return
         if button == self.w.btn_mpg_scroll:
             if self.w.btn_mpg_scroll.isChecked():
-                ACTION.SET_SELECTED_AXIS('MPG0')
                 self.recolorMPGFocusBorder()
             else:
                 self.removeMPGFocusBorder()
