@@ -523,6 +523,11 @@ Pressing cancel will close linuxcnc.""" % target)
         LOG.debug('Exiting HAL')
         if not HAL is None:
             try:
+                # Stop the QPin polling timer before hal_exit; otherwise its
+                # next tick dereferences pin->u after hal_exit has unmapped
+                # HAL shmem, causing SIGSEGV on glibc 2.39 (Ubuntu 24.04).
+                from qtvcp.qt_halobjects import QPin
+                QPin.update_stop()
                 HAL.exit()
             except Exception as e:
                 print(e)
