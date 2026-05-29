@@ -1004,6 +1004,9 @@ obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o 
 obj-$(CONFIG_HOSTMOT2) += hm2_modbus.o
 ifeq ($(BUILD_SYS),uspace)
 obj-$(CONFIG_HOSTMOT2) += hm2_eth.o
+ifeq ($(CONFIG_USPACE_XENOMAI_EVL),y)
+obj-$(CONFIG_HOSTMOT2) += hm2_eth_evl.o
+endif
 obj-$(CONFIG_HOSTMOT2) += hm2_spi.o hm2_rpspi.o hm2_spix.o
 endif
 hostmot2-objs :=			  \
@@ -1049,6 +1052,11 @@ hm2_pci-objs  :=			  \
     $(MATHSTUB)
 hm2_eth-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_eth.o   \
+    hal/drivers/mesa-hostmot2/hm2_eth_net.o   \
+    $(MATHSTUB)
+hm2_eth_evl-objs  :=			  \
+    hal/drivers/mesa-hostmot2/hm2_eth.o   \
+    hal/drivers/mesa-hostmot2/hm2_eth_net_evl.o   \
     $(MATHSTUB)
 hm2_spi-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_spi.o   \
@@ -1286,7 +1294,7 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	$(Q)objdump -w -j .rtapi_export -t objects/$*.tmp \
 	| awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
 	> objects/$*.ver
-	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/$*.ver -o $@ $^ -lm $(LDFLAGS)
+	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/$*.ver -o $@ $^ -lm $(XENOMAI_EVL_LDFLAGS) $(LDFLAGS)
 	$(Q)chmod -x $@
 
 RTFLAGS += -fno-strict-aliasing -fwrapv
@@ -1297,7 +1305,7 @@ $(sort $(filter-out objects/rtemc/tp/cruckig/%,$(RTOBJS))) : objects/rt%.o : %.c
 	@rm -f $@
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI \
-		$(EXTRA_CFLAGS) \
+		$(EXTRA_CFLAGS) $(XENOMAI_EVL_CFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 
@@ -1397,6 +1405,7 @@ endif
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
 ../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ../rtlib/hm2_eth$(MODULE_EXT): $(addprefix objects/rt,$(hm2_eth-objs))
+../rtlib/hm2_eth_evl$(MODULE_EXT): $(addprefix objects/rt,$(hm2_eth_evl-objs))
 ../rtlib/hm2_spi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spi-objs))
 ../rtlib/hm2_rpspi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_rpspi-objs))
 ../rtlib/hm2_spix$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spix-objs))

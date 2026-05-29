@@ -42,6 +42,11 @@ typedef struct {
     struct sockaddr_in local_addr;
     struct sockaddr_in server_addr;
 
+    char ip[64];
+    char ifname[64];
+    //Only for evl implementation
+    bool is_evl_oob_active;
+
     rtapi_u8 read_packet[1400];
     rtapi_u8 *read_packet_ptr;
     hm2_read_queue_entry_t queue_reads[MAX_ETH_READS];
@@ -71,5 +76,12 @@ typedef struct {
         hal_bit_t *packet_error_exceeded;
     } *hal;
 } hm2_eth_t;
+
+bool use_firewall();
+int install_firewall_board(int sockfd);
+int install_firewall_perinterface(const char *ifbuf);
+void clear_firewall();
+char* fetch_ifname(int sockfd, char *buf, size_t n);
+int fetch_hwaddr(hm2_eth_t *board, unsigned char buf[6]);
 
 #endif
