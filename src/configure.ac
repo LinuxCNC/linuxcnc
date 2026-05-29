@@ -1544,6 +1544,9 @@ if test "x$HAVE_LIBFMT" = "xno"; then
     AC_MSG_ERROR([libfmt header not found. Install with 'sudo apt-get install libfmt-dev'])
 fi
 
+AC_CHECK_HEADERS([sys/capability.h], [], [
+    AC_MSG_ERROR([libcap header not found. Please install libcap-dev])
+])
 AC_CHECK_HEADERS([editline/readline.h histedit.h], [], [
     AC_MSG_ERROR([libedit headers not found. Please install libedit-dev or libedit-devel.])
 ])
