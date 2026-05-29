@@ -81,6 +81,11 @@ try:
     param = h.getitem("param")
     pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
 
+    pin = h.getpin("s")
+    pin_validate(pin, hal.HAL_S32, hal.HAL_OUT)
+    param = h.getparam("param")
+    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
+
     try_set_pin(pu, 0)
     try_set_pin(pu, -1)
 except:

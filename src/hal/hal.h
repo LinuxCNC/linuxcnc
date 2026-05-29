@@ -869,6 +869,7 @@ extern int hal_set_constructor(int comp_id, constructor make);
   command.
 */
 
+#define HAL_PORT_SIZE_MAX 65536
 
 /** hal_port_read reads count bytes from the port into dest.
     This function should only be called by the component that owns 

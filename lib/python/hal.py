@@ -40,6 +40,10 @@ class _ItemWrap(object):
     def _item_wrap(self, item):
         for f in ['get', 'set', 'get_type', 'get_name', 'get_dir', 'is_pin', '__repr__']:
             setattr(self, f, getattr(item, f))
+        # Only ports can use the extra methods
+        if _hal.HAL_PORT == item.get_type():
+            for f in ['write', 'read', 'peek', 'peek_commit', 'clear', 'size']:
+                setattr(self, f, getattr(item, f))
         return self
 
     def __init__(self, item):

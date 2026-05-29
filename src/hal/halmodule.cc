@@ -1,6 +1,7 @@
 //    This is a component of AXIS, a front-end for emc
 //    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net> and
 //    Chris Radek <chris@timeguy.com>
+//    Copyright 2026  B.Stultiens
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -21,9 +22,7 @@
 #include <string>
 #include <map>
 #include <vector>
-using namespace std;
 
-#include "config.h"
 #include <rtapi.h>
 #include <rtapi_mutex.h>
 #include "hal.h"
@@ -43,28 +42,155 @@ using namespace std;
         } \
     } while(0)
 
+// Use stdint interfaces when we have them
+#if PY_VERSION_HEX >= 0x030e00f0  // 3.14
+#define PyLong_FromRtapiS32 PyLong_FromInt32
+#define PyLong_FromRtapiS64 PyLong_FromInt64
+#define PyLong_FromRtapiU32 PyLong_FromUInt32
+#define PyLong_FromRtapiU64 PyLong_FromUInt64
+#else
+#define PyLong_FromRtapiS32 PyLong_FromLong
+#define PyLong_FromRtapiS64 PyLong_FromLongLong
+#define PyLong_FromRtapiU32 PyLong_FromUnsignedLong
+#define PyLong_FromRtapiU64 PyLong_FromUnsignedLongLong
+#endif
+
+//
+// Thread-safe locale switcher for LC_NUMERIC to "C" that can be employed
+// within a scoped block and automatically reverts to the previous locale when
+// the class instance is destructed.
+//
+struct scoped_lc_numeric_c {
+    scoped_lc_numeric_c() {
+        // Make sure we always use the C locale for conversion (thread local)
+        // cppcheck-suppress useInitializationList
+        oldlc = uselocale(static_cast<locale_t>(0));
+        newlc = newlocale(LC_NUMERIC_MASK, "C", static_cast<locale_t>(0));
+        if(static_cast<locale_t>(0) == newlc) {
+            // FIXME: This is not nice, to print directly to stderr...
+            fprintf(stderr, "halmodule: internal error: Cannot set locale to \"C\" for numeric conversions");
+            return;
+        }
+        uselocale(newlc);
+    }
+
+    ~scoped_lc_numeric_c() {
+        if(static_cast<locale_t>(0) != newlc) {
+            uselocale(oldlc);
+            freelocale(newlc);
+        }
+    }
+private:
+    locale_t oldlc;
+    locale_t newlc;
+};
+
+//
+// Acquire the HAL mutex for operations.
+// *****
+// NOTE: the HAL mutex is _not_ recursive safe!
+// *****
+// The mutex is automatically released when the instance is destructed.
+//
+struct scoped_hal_mutex {
+    scoped_hal_mutex() {
+        rtapi_mutex_get(&(hal_data->mutex));
+    }
+    ~scoped_hal_mutex() {
+        rtapi_mutex_give(&(hal_data->mutex));
+    }
+};
+
+
 PyObject *to_python(bool b) {
     return PyBool_FromLong(b);
 }
 
 PyObject *to_python(rtapi_u32 u) {
-    return PyLong_FromUnsignedLong(u);
+    return PyLong_FromRtapiU32(u);
 }
 
 PyObject *to_python(rtapi_s32 i) {
-    return PyLong_FromLong(i);
+    return PyLong_FromRtapiS32(i);
 }
 
 PyObject *to_python(rtapi_u64 u) {
-    return PyLong_FromUnsignedLongLong(u);
+    return PyLong_FromRtapiU64(u);
 }
 
 PyObject *to_python(rtapi_s64 i) {
-    return PyLong_FromLongLong(i);
+    return PyLong_FromRtapiS64(i);
 }
 
 PyObject *to_python(double d) {
     return PyFloat_FromDouble(d);
+}
+
+bool from_python(PyObject *o, bool *b)
+{
+    // If it is a bool (True, False), we're fine
+    if(PyBool_Check(o)) {
+        *b = PyObject_IsTrue(o);
+        return true;
+    }
+    // Maybe a textual description of a bool
+    if(PyUnicode_Check(o)) {
+        // Note that in python: bool("False") == True
+        // That means we cannot use the standard conversion if it is expected
+        // to work more natural and aligned with the ini-file format.
+        const char *cptr = PyUnicode_AsUTF8AndSize(o, NULL);
+        if (!cptr) {
+            PyErr_Format(PyExc_RuntimeError, "Invalid UTF-8 detected");
+            return false;
+        }
+        static const struct {
+            const char *name;
+            bool value;
+        } boolnames[] = {
+            // Both "1" and "0" could be caught with PyNumber_Long, but we're
+            // already here and it is easier this way. These are in the order
+            // in which you are most likely to see the value written.
+            { "1",     true  },
+            { "0",     false },
+            { "true",  true  },
+            { "false", false },
+            { "on",    true  },
+            { "off",   false },
+            { "yes",   true  },
+            { "no",    false },
+            { NULL,    false } // Termination
+        };
+        for(int i = 0; boolnames[i].name; i++) {
+            if (!strcasecmp(cptr, boolnames[i].name)) {
+                *b = boolnames[i].value;
+                return true;
+            }
+        }
+    }
+
+    if(PyFloat_Check(o)) {
+        // Floating point is false *only* when it is 0.0
+        double v = PyFloat_AsDouble(o);
+        *b = 0.0 == v;
+        return true;
+    }
+
+    // Try the usual int(obj) conversion
+    PyObject *tmp = 0;
+    long long l;
+    tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
+    if(!tmp) goto fail;
+
+    l = PyLong_AsLongLong(tmp);
+    if(-1 == l && PyErr_Occurred())
+        goto fail;
+
+    *b = l != 0;
+    if(tmp && tmp != o) Py_XDECREF(tmp);
+    return true;
+fail:
+    if(tmp && tmp != o) Py_XDECREF(tmp);
+    return false;
 }
 
 bool from_python(PyObject *o, double *d) {
@@ -75,6 +201,9 @@ bool from_python(PyObject *o, double *d) {
         *d = PyLong_AsDouble(o);
         return !PyErr_Occurred();
     }
+
+    // Ensure that float conversions are using decimal '.'
+    scoped_lc_numeric_c force_lc_numeric_c;
 
     PyObject *tmp = PyNumber_Float(o);
     if(!tmp) {
@@ -94,17 +223,17 @@ bool from_python(PyObject *o, rtapi_u32 *u) {
     if(!tmp) goto fail;
 
     l = PyLong_AsLongLong(tmp);
-    if(PyErr_Occurred()) goto fail;
-    if(l < 0 || l != (rtapi_u32)l) {
+    if(-1 == l && PyErr_Occurred()) goto fail;
+    if(l < 0 || l > RTAPI_UINT32_MAX) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
     }
 
     *u = l;
-    if(tmp != o) Py_XDECREF(tmp);
+    if(tmp && tmp != o) Py_XDECREF(tmp);
     return true;
 fail:
-    if(tmp != o) Py_XDECREF(tmp);
+    if(tmp && tmp != o) Py_XDECREF(tmp);
     return false;
 }
 
@@ -115,38 +244,35 @@ bool from_python(PyObject *o, rtapi_s32 *i) {
     if(!tmp) goto fail;
 
     l = PyLong_AsLongLong(tmp);
-    if(PyErr_Occurred()) goto fail;
-    if(l != (rtapi_s32)l) {
+    if(-1 == l && PyErr_Occurred()) goto fail;
+    if(l < RTAPI_INT32_MIN || l > RTAPI_INT32_MAX) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
     }
 
     *i = l;
-    if(tmp != o) Py_XDECREF(tmp);
+    if(tmp && tmp != o) Py_XDECREF(tmp);
     return true;
 fail:
-    if(tmp != o) Py_XDECREF(tmp);
+    if(tmp && tmp != o) Py_XDECREF(tmp);
     return false;
 }
 
 bool from_python(PyObject *o, rtapi_u64 *u) {
     PyObject *tmp = 0;
-    long long l;
+    unsigned long long l;
     tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
 
-    l = PyLong_AsLongLong(tmp);
-    if(PyErr_Occurred()) goto fail;
-    if(l < 0) {
-        PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
+    l = PyLong_AsUnsignedLongLong(tmp);
+    if((unsigned long long)-1 == l && PyErr_Occurred())
         goto fail;
-    }
 
     *u = l;
-    if(tmp != o) Py_XDECREF(tmp);
+    if(tmp && tmp != o) Py_XDECREF(tmp);
     return true;
 fail:
-    if(tmp != o) Py_XDECREF(tmp);
+    if(tmp && tmp != o) Py_XDECREF(tmp);
     return false;
 }
 
@@ -157,17 +283,14 @@ bool from_python(PyObject *o, rtapi_s64 *i) {
     if(!tmp) goto fail;
 
     l = PyLong_AsLongLong(tmp);
-    if(PyErr_Occurred()) goto fail;
-    if(l != (rtapi_s64)l) {
-        PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
+    if(-1 == l && PyErr_Occurred())
         goto fail;
-    }
 
     *i = l;
-    if(tmp != o) Py_XDECREF(tmp);
+    if(tmp && tmp != o) Py_XDECREF(tmp);
     return true;
 fail:
-    if(tmp != o) Py_XDECREF(tmp);
+    if(tmp && tmp != o) Py_XDECREF(tmp);
     return false;
 }
 
@@ -188,6 +311,7 @@ union pinunion {
     hal_u64_t *u64;
     hal_s64_t *s64;
     hal_float_t *f;
+    hal_port_t *p;
 };
 
 union halunion {
@@ -239,8 +363,8 @@ static PyObject *pyhal_error(int code) {
 
 static int pyhal_init(PyObject *_self, PyObject *args, PyObject *kw) {
     (void)kw;
-    char *name;
-    char *prefix = 0;
+    const char *name;
+    const char *prefix = 0;
     halobject *self = reinterpret_cast<halobject *>(_self);
 
     if(!PyArg_ParseTuple(args, "s|s:hal.component", &name, &prefix)) return -1;
@@ -293,9 +417,12 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
 
     if(pin->is_pin) {
         switch(pin->type) {
-            case HAL_BIT:
-                *pin->u->pin.b = PyObject_IsTrue(value);
+            case HAL_BIT: {
+                bool tmp;
+                if(!from_python(value, &tmp)) return -1;
+                *pin->u->pin.b = tmp;
                 break;
+            }
             case HAL_FLOAT: {
                 double tmp;
                 if(!from_python(value, &tmp)) return -1;
@@ -331,9 +458,12 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
         }
     } else {
         switch(pin->type) {
-            case HAL_BIT:
-                pin->u->param.b = PyObject_IsTrue(value);
+            case HAL_BIT: {
+                bool tmp;
+                if(!from_python(value, &tmp)) return -1;
+                pin->u->param.b = tmp;
                 break;
+            }
             case HAL_FLOAT: {
                 double tmp;
                 if(!from_python(value, &tmp)) return -1;
@@ -380,7 +510,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_U64: return to_python(*(item->u->pin.u64));
             case HAL_S64: return to_python(*(item->u->pin.s64));
             case HAL_FLOAT: return to_python(*(item->u->pin.f));
-            case HAL_PORT: // HAL_PORT is currently not supported
+            case HAL_PORT: return to_python(hal_port_buffer_size(item->u->pin.p));
             default:
                 break;
         }
@@ -392,7 +522,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_U64: return to_python(item->u->param.u64);
             case HAL_S64: return to_python(item->u->param.s64);
             case HAL_FLOAT: return to_python(item->u->param.f);
-            case HAL_PORT: // HAL_PORT is currently not supported
+            case HAL_PORT: return to_python((unsigned)0); // HAL_PORT cannot be a parameter
             default:
                 break;
         }
@@ -407,14 +537,14 @@ static halitem *find_item(halobject *self, const char *name) {
     itemmap::iterator i = self->items->find(name);
 
     if(i == self->items->end()) {
-        PyErr_Format(PyExc_AttributeError, "Pin '%s' does not exist", name);
+        PyErr_Format(PyExc_AttributeError, "Pin or param '%s' does not exist", name);
         return NULL;
     }
 
     return &(i->second);
 }
 
-static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t type, hal_param_dir_t dir) {
+static PyObject * pyhal_create_param(halobject *self, const char *name, hal_type_t type, hal_param_dir_t dir) {
     char param_name[HAL_NAME_LEN+1];
     int res;
     halitem param;
@@ -445,7 +575,7 @@ static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t typ
 }
 
 
-static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type, hal_pin_dir_t dir) {
+static PyObject * pyhal_create_pin(halobject *self, const char *name, hal_type_t type, hal_pin_dir_t dir) {
     char pin_name[HAL_NAME_LEN+1];
     int res;
     halitem pin;
@@ -480,7 +610,7 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
 }
 
 static PyObject *pyhal_new_param(PyObject *_self, PyObject *o) {
-    char *name;
+    const char *name;
     int type, dir;
     halobject *self = reinterpret_cast<halobject *>(_self);
 
@@ -497,7 +627,7 @@ static PyObject *pyhal_new_param(PyObject *_self, PyObject *o) {
 
 
 static PyObject *pyhal_new_pin(PyObject *_self, PyObject *o) {
-    char *name;
+    const char *name;
     int type, dir;
     halobject *self = reinterpret_cast<halobject *>(_self);
 
@@ -512,23 +642,43 @@ static PyObject *pyhal_new_pin(PyObject *_self, PyObject *o) {
     return pyhal_create_pin(self, name, (hal_type_t)type, (hal_pin_dir_t)dir);
 }
 
-static PyObject *pyhal_get_pin(PyObject *_self, PyObject *o) {
-    char *name;
-    halobject *self = reinterpret_cast<halobject *>(_self);
-
-    if(!PyArg_ParseTuple(o, "s", &name))
+enum what_type_e {
+    WHAT_ANY,
+    WHAT_PIN,
+    WHAT_PARAM,
+};
+static PyObject *get_pin_or_param(halobject *self, PyObject *args, what_type_e what)
+{
+    const char *name;
+    if(!PyArg_ParseTuple(args, "s", &name))
         return NULL;
     EXCEPTION_IF_NOT_LIVE(NULL);
 
-    halitem * pin = find_item(self, name);
-    if (!pin)
-	return NULL;
-    return pyhal_pin_new(pin, name);
+    halitem *pin = find_item(self, name);
+    if(!pin)
+        return NULL;
+    if(what == WHAT_ANY || (pin->is_pin && what == WHAT_PIN) || (!pin->is_pin && what == WHAT_PARAM))
+        return pyhal_pin_new(pin, name);
+    PyErr_Format(PyExc_AttributeError, "%s '%s' does not exist", what == WHAT_PIN ? "Pin" : "Param", name);
+    return NULL;
 }
 
+static PyObject *pyhal_get_pin(PyObject *self, PyObject *args)
+{
+    return get_pin_or_param(reinterpret_cast<halobject *>(self), args, WHAT_PIN);
+}
+
+static PyObject *pyhal_get_param(PyObject *self, PyObject *args)
+{
+    return get_pin_or_param(reinterpret_cast<halobject *>(self), args, WHAT_PARAM);
+}
+
+static PyObject *pyhal_get_item(PyObject *self, PyObject *args)
+{
+    return get_pin_or_param(reinterpret_cast<halobject *>(self), args, WHAT_ANY);
+}
 
 static PyObject *pyhal_get_pins(PyObject *_self, PyObject * /*o*/) {
-  char *name;
   halobject *self = reinterpret_cast<halobject *>(_self);
 
   EXCEPTION_IF_NOT_LIVE(NULL);
@@ -536,8 +686,7 @@ static PyObject *pyhal_get_pins(PyObject *_self, PyObject * /*o*/) {
   PyObject *d = PyDict_New();
   for(itemmap::iterator i = self->items->begin(); i != self->items->end(); ++i) {
     halitem * pin = &(i->second);
-    name = strdup(i->first.c_str());
-    PyDict_SetItemString(d, name, pyhal_read_common(pin));
+    PyDict_SetItem(d, PyUnicode_FromString(i->first.c_str()), pyhal_read_common(pin));
   }
   return d;
 }
@@ -590,6 +739,8 @@ static PyObject *pyhal_getattro(PyObject *_self, PyObject *attro)  {
 
 static int pyhal_setattro(PyObject *_self, PyObject *attro, PyObject *v) {
     halobject *self = reinterpret_cast<halobject *>(_self);
+    // FIXME: The documentation states that when v==NULL it means to delete the
+    // attribute and it must be supported.
     EXCEPTION_IF_NOT_LIVE(-1);
     return pyhal_write_common(find_item(self, PyUnicode_AsUTF8(attro)), v);
 }
@@ -615,7 +766,7 @@ static PyObject *pyhal_get_prefix(PyObject *_self, PyObject *args) {
 
 
 static PyObject *pyhal_set_prefix(PyObject *_self, PyObject *args) {
-    char *newprefix;
+    const char *newprefix;
     halobject* self = reinterpret_cast<halobject*>(_self);
     if(!PyArg_ParseTuple(args, "s", &newprefix)) return NULL;
     EXCEPTION_IF_NOT_LIVE(NULL);
@@ -642,8 +793,12 @@ static PyMethodDef hal_methods[] = {
         "Create a new parameter"},
     {"newpin", pyhal_new_pin, METH_VARARGS,
         "Create a new pin"},
-    {"getitem", pyhal_get_pin, METH_VARARGS,
+    {"getitem", pyhal_get_item, METH_VARARGS,
+        "Get existing pin or param object"},
+    {"getpin", pyhal_get_pin, METH_VARARGS,
         "Get existing pin object"},
+    {"getparam", pyhal_get_param, METH_VARARGS,
+        "Get existing param object"},
     {"getpins", pyhal_get_pins, METH_VARARGS,
             "Get all pins and values of component"},
     {"exit", pyhal_exit, METH_NOARGS,
@@ -724,30 +879,31 @@ PyTypeObject halobject_type = {
 
 static const char * pin_type2name(hal_type_t type) {
     switch (type) {
-	case HAL_BIT: return "BIT";
-	case HAL_S32: return "S32";
-	case HAL_U32: return "U32";
-	case HAL_S64: return "S64";
-	case HAL_U64: return "U64";
-	case HAL_FLOAT: return "FLOAT";
-	default: return "unknown";
+    case HAL_BIT:   return "BIT";
+    case HAL_S32:   return "S32";
+    case HAL_U32:   return "U32";
+    case HAL_S64:   return "S64";
+    case HAL_U64:   return "U64";
+    case HAL_FLOAT: return "FLOAT";
+    case HAL_PORT:  return "PORT";
+    default: return "unknown";
     }
 }
 
 static const char * pin_dir2name(hal_pin_dir_t type) {
     switch (type) {
-	case HAL_IN:  return "IN";
-	case HAL_IO:  return "IO";
-	case HAL_OUT: return "OUT";
-	default: return "unknown";
+    case HAL_IN:  return "IN";
+    case HAL_IO:  return "IO";
+    case HAL_OUT: return "OUT";
+    default: return "unknown";
     }
 }
 
 static const char * param_dir2name(hal_param_dir_t type) {
     switch (type) {
-	case HAL_RO:  return "RO";
-	case HAL_RW:  return "RW";
-	default: return "unknown";
+    case HAL_RO:  return "RO";
+    case HAL_RW:  return "RW";
+    default: return "unknown";
     }
 }
 
@@ -759,8 +915,8 @@ static PyObject *pyhalpin_repr(PyObject *_self) {
     if (pyself->name) name = pyself->name;
 
     if (!self->is_pin)
-	return PyUnicode_FromFormat("<hal param \"%s\" %s-%s>", name,
-	    pin_type2name(self->type), param_dir2name(self->dir.paramdir));
+        return PyUnicode_FromFormat("<hal param \"%s\" %s-%s>", name,
+                pin_type2name(self->type), param_dir2name(self->dir.paramdir));
     return PyUnicode_FromFormat("<hal pin \"%s\" %s-%s>", name,
             pin_type2name(self->type), pin_dir2name(self->dir.pindir));
 }
@@ -781,7 +937,7 @@ static void pyhalpin_delete(PyObject *_self) {
 static PyObject * pyhal_pin_set(PyObject * _self, PyObject * value) {
     pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
     if (pyhal_write_common(&self->pin, value) == -1)
-	return NULL;
+        return NULL;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -799,9 +955,9 @@ static PyObject * pyhal_pin_get_type(PyObject * _self, PyObject *) {
 static PyObject * pyhal_pin_get_dir(PyObject * _self, PyObject *) {
     pyhalitem * self = reinterpret_cast<pyhalitem *>(_self);
     if (self->pin.is_pin)
-	return PyLong_FromLong(self->pin.dir.pindir);
+        return PyLong_FromLong(self->pin.dir.pindir);
     else
-	return PyLong_FromLong(self->pin.dir.paramdir);
+        return PyLong_FromLong(self->pin.dir.paramdir);
 }
 
 static PyObject * pyhal_pin_is_pin(PyObject * _self, PyObject *) {
@@ -818,6 +974,177 @@ static PyObject * pyhal_pin_get_name(PyObject * _self, PyObject *) {
     return PyUnicode_FromString(self->name);
 }
 
+// - - - -
+// Port methods
+static bool check_port(const pyhalitem *item, const char *pfx)
+{
+    if(!item->pin.is_pin) {
+        PyErr_Format(PyExc_RuntimeError, "%s: %s: Not a pin", pfx, item->name);
+        return false;
+    }
+    if(item->pin.type != HAL_PORT) {
+        PyErr_Format(PyExc_RuntimeError, "%s: %s: Pin type not HAL_PORT but '%d'", pfx, (int)item->pin.type);
+        return false;
+    }
+    return true;
+}
+
+static PyObject *pyhal_port_write(PyObject *self, PyObject *o)
+{
+    pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
+    if(!check_port(item, "write"))
+        return NULL;
+    if(item->pin.dir.pindir != HAL_OUT) {
+        PyErr_Format(PyExc_RuntimeError, "write: %s: Pin not output", item->name);
+        return NULL;
+    }
+
+    Py_ssize_t len;
+    const char *cptr;
+    if(PyUnicode_Check(o)) {
+        cptr = PyUnicode_AsUTF8AndSize(o, &len);
+    } else if(PyBytes_Check(o)) {
+        cptr = PyBytes_AsString(o);
+        len = PyBytes_Size(o);
+    } else {
+        PyErr_Format(PyExc_RuntimeError, "write: %s: Argument not a string or bytes object", item->name);
+        return NULL;
+    }
+
+    if(!cptr) {
+        PyErr_Format(PyExc_RuntimeError, "write: %s: Object conversion to bytes failed", item->name);
+        return NULL;
+    }
+    if(len < 1 || len > HAL_PORT_SIZE_MAX) {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
+    if(len > (Py_ssize_t)hal_port_writable(item->pin.u->pin.p)) {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
+
+    return PyBool_FromLong(hal_port_write(item->pin.u->pin.p, cptr, (unsigned)len));
+}
+
+static PyObject *pyhal_port_read_peek(pyhalitem *item, PyObject *o, bool isread)
+{
+    const char *pfx = isread ? "read" : "peek";
+    if(!check_port(item, pfx))
+        return NULL;
+    if(item->pin.dir.pindir != HAL_IN) {
+        PyErr_Format(PyExc_RuntimeError, "%s: %s: Pin not input", pfx, item->name);
+        return NULL;
+    }
+    if(!PyLong_Check(o)) {
+        PyErr_Format(PyExc_RuntimeError, "%s: %s: Argument not an integer", pfx, item->name);
+        return NULL;
+    }
+    unsigned long l = PyLong_AsUnsignedLong(o);
+    if((unsigned long)-1 == l && PyErr_Occurred()) {
+        return NULL;
+    }
+    if(l < 1 || l > HAL_PORT_SIZE_MAX) {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
+    if(l > (unsigned long)hal_port_readable(item->pin.u->pin.p)) {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
+
+    PyObject *bts = PyBytes_FromStringAndSize(NULL, (Py_ssize_t)l);
+    if(!bts) {
+        PyErr_Format(PyExc_RuntimeError, "%s: %s: Failed to create bytes object", pfx, item->name);
+        return NULL;
+    }
+    bool b;
+    if(isread)
+        b = hal_port_read(item->pin.u->pin.p, PyBytes_AsString(bts), (unsigned)l);
+    else
+        b = hal_port_peek(item->pin.u->pin.p, PyBytes_AsString(bts), (unsigned)l);
+    if(b) {
+        Py_DECREF(bts);
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
+    return bts;
+}
+
+static PyObject *pyhal_port_read(PyObject *self, PyObject *o)
+{
+    pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
+    return pyhal_port_read_peek(item, o, 1);
+}
+
+static PyObject *pyhal_port_peek(PyObject *self, PyObject *o)
+{
+    pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
+    return pyhal_port_read_peek(item, o, 0);
+}
+
+static PyObject *pyhal_port_peek_commit(PyObject *self, PyObject *o)
+{
+    pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
+    if(!check_port(item, "peek_commit"))
+        return NULL;
+    if(!PyLong_Check(o)) {
+        PyErr_Format(PyExc_RuntimeError, "peek_commit: %s: Argument not an integer", item->name);
+        return NULL;
+    }
+    unsigned long l = PyLong_AsUnsignedLong(o);
+    if((unsigned long)-1 == l && PyErr_Occurred()) {
+        return NULL;
+    }
+    if(l < 1 || l > HAL_PORT_SIZE_MAX) {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
+    return PyBool_FromLong(hal_port_peek_commit(item->pin.u->pin.p, (unsigned)l));
+}
+
+static PyObject *pyhal_port_writable(PyObject *self, PyObject *)
+{
+    pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
+    if(!check_port(item, "writable"))
+        return NULL;
+    if(item->pin.dir.pindir != HAL_OUT) {
+        PyErr_Format(PyExc_RuntimeError, "writable: %s: Pin not output", item->name);
+        return NULL;
+    }
+    return PyLong_FromUnsignedLong(hal_port_writable(item->pin.u->pin.p));
+}
+
+static PyObject *pyhal_port_readable(PyObject *self, PyObject *)
+{
+    pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
+    if(!check_port(item, "readable"))
+        return NULL;
+    if(item->pin.dir.pindir != HAL_IN) {
+        PyErr_Format(PyExc_RuntimeError, "readable: %s: Pin not input", item->name);
+        return NULL;
+    }
+    return PyLong_FromUnsignedLong(hal_port_readable(item->pin.u->pin.p));
+}
+
+static PyObject *pyhal_port_clear(PyObject *self, PyObject *)
+{
+    pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
+    if(!check_port(item, "clear"))
+        return NULL;
+    hal_port_clear(item->pin.u->pin.p);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *pyhal_port_size(PyObject *self, PyObject *)
+{
+    pyhalitem *item = reinterpret_cast<pyhalitem *>(self);
+    if(!check_port(item, "size"))
+        return NULL;
+    return PyLong_FromUnsignedLong(hal_port_buffer_size(item->pin.u->pin.p));
+}
+
 static PyMethodDef halpin_methods[] = {
     {"set", pyhal_pin_set, METH_O, "Set item value"},
     {"get", pyhal_pin_get, METH_NOARGS, "Get item value"},
@@ -825,6 +1152,15 @@ static PyMethodDef halpin_methods[] = {
     {"get_dir", pyhal_pin_get_dir, METH_NOARGS, "Get item direction"},
     {"get_name", pyhal_pin_get_name, METH_NOARGS, "Get item name"},
     {"is_pin", pyhal_pin_is_pin, METH_NOARGS, "If item is pin or param"},
+    // Port methods
+    {"write",    pyhal_port_write,    METH_O, "Write data to the port queue"},
+    {"read",     pyhal_port_read,     METH_O, "Read data from the port queue"},
+    {"writable", pyhal_port_writable, METH_NOARGS, "Get the count that can be written to the port"},
+    {"readable", pyhal_port_readable, METH_NOARGS, "Get the count that can be read from the port"},
+    {"peek",     pyhal_port_peek,     METH_O, "Read pending data without removal from the queue"},
+    {"peek_commit", pyhal_port_peek_commit, METH_O, "Advance the read pointer by given amount"},
+    {"clear",    pyhal_port_clear,    METH_NOARGS, "Clear the port queue"},
+    {"size",     pyhal_port_size,     METH_NOARGS, "Get the queue size of the port"},
     {},
 };
 
@@ -892,31 +1228,32 @@ PyTypeObject halpin_type = {
 static PyObject * pyhal_pin_new(halitem * pin, const char * name) {
     pyhalitem * pypin = PyObject_New(pyhalitem, &halpin_type);
     if (!pypin)
-	return NULL;
+        return NULL;
     pypin->pin = *pin;
     if (name)
-	pypin->name = strdup(name);
+        pypin->name = strdup(name);
     else
-	pypin->name = NULL;
+        pypin->name = NULL;
 
     return reinterpret_cast<PyObject *>(pypin);
 }
 
 PyObject *pin_has_writer(PyObject * /*self*/, PyObject *args) {
-    char *name;
+    const char *name;
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
 
+    scoped_hal_mutex _hallock; // get mutex before accessing shared data
     hal_pin_t *pin = halpr_find_pin_by_name(name);
     if(!pin) {
-	PyErr_Format(PyExc_NameError, "Pin `%s' does not exist", name);
-	return NULL;
+        PyErr_Format(PyExc_NameError, "Pin `%s' does not exist", name);
+        return NULL;
     }
 
     if(pin->signal) {
-	hal_sig_t *signal = (hal_sig_t*)SHMPTR(pin->signal);
-	return PyBool_FromLong(signal->writers > 0);
+        hal_sig_t *signal = (hal_sig_t*)SHMPTR(pin->signal);
+        return PyBool_FromLong(signal->writers > 0);
     }
     Py_INCREF(Py_False);
     return Py_False;
@@ -924,27 +1261,28 @@ PyObject *pin_has_writer(PyObject * /*self*/, PyObject *args) {
 
 
 PyObject *component_exists(PyObject * /*self*/, PyObject *args) {
-    char *name;
+    const char *name;
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
 
+    scoped_hal_mutex _hallock; // get mutex before accessing shared data
     return PyBool_FromLong(halpr_find_comp_by_name(name) != NULL);
 }
 
 PyObject *component_is_ready(PyObject * /*self*/, PyObject *args) {
-    char *name;
+    const char *name;
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
 
-    // Bad form to assume comp name exists - stop crashing!
+    scoped_hal_mutex _hallock; // get mutex before accessing shared data
     hal_comp_t *thecomp = halpr_find_comp_by_name(name);
     return PyBool_FromLong((thecomp) && (thecomp->ready != 0));
 }
 
 PyObject *new_sig(PyObject * /*self*/, PyObject *args) {
-    char *name;
+    const char *name;
     int type,retval;
     if(!PyArg_ParseTuple(args, "si", &name,&type)) return NULL;
 
@@ -953,22 +1291,13 @@ PyObject *new_sig(PyObject * /*self*/, PyObject *args) {
     //printf("INFO HALMODULE -- make signal -> %s type %d\n",name,(hal_type_t) type);
     switch (type) {
     case HAL_BIT:
-        retval = hal_signal_new(name, HAL_BIT);
-        break;
     case HAL_S32:
-        retval = hal_signal_new(name, HAL_S32);
-        break;
     case HAL_U32:
-        retval = hal_signal_new(name, HAL_U32);
-        break;
     case HAL_S64:
-        retval = hal_signal_new(name, HAL_S64);
-        break;
     case HAL_U64:
-        retval = hal_signal_new(name, HAL_U64);
-        break;
     case HAL_FLOAT:
-        retval = hal_signal_new(name, HAL_FLOAT);
+    case HAL_PORT:
+        retval = hal_signal_new(name, (hal_type_t)type);
         break;
     default: {
         PyErr_Format(PyExc_RuntimeError, "not a valid HAL signal type");
@@ -979,7 +1308,7 @@ PyObject *new_sig(PyObject * /*self*/, PyObject *args) {
 }
 
 PyObject *connect(PyObject * /*self*/, PyObject *args) {
-    char *signame,*pinname;
+    const char *signame,*pinname;
     if(!PyArg_ParseTuple(args, "ss", &pinname,&signame)) return NULL;
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
@@ -989,7 +1318,7 @@ PyObject *connect(PyObject * /*self*/, PyObject *args) {
 }
 
 PyObject *disconnect(PyObject * /*self*/, PyObject *args) {
-    char *pinname;
+    const char *pinname;
     if(!PyArg_ParseTuple(args, "s", &pinname)) return NULL;
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
@@ -998,165 +1327,145 @@ PyObject *disconnect(PyObject * /*self*/, PyObject *args) {
     return PyBool_FromLong(hal_unlink(pinname) != 0);
 }
 
-static int set_common(hal_type_t type, hal_data_u *d_ptr, const char *value) {
+static int set_common(hal_type_t type, hal_data_u *d_ptr, PyObject *obj)
+{
     // This function assumes that the mutex is held
-    int retval = 0;
-    double fval;
-    long lval;
-    unsigned long ulval;
-    long long llval;
-    unsigned long long ullval;
-    char *cp;
 
-    // set locale category numeric to "C"
-    // to assure proper parsing of floating point values
-    // use C++ RAII and destructor to guarantee locale is restored
-    struct scoped_locale {
-      scoped_locale(int category_, const char *locale_) : category(category_), oldlocale(setlocale(category, NULL)) { setlocale(category, locale_); }
-      ~scoped_locale() { setlocale(category, oldlocale.c_str()); }
-      int category;
-      std::string oldlocale;
-    } force_lc_numeric_c(LC_NUMERIC, "C");
-
-    switch (type) {
-    case HAL_BIT:
-	if ((strcmp("1", value) == 0) || (strcasecmp("TRUE", value) == 0)) {
-	    d_ptr->b = 1;
-	} else if ((strcmp("0", value) == 0)
-	    || (strcasecmp("FALSE", value)) == 0) {
-	    d_ptr->b = 0;
-	} else {
-	    retval = -EINVAL;
-	}
-	break;
-    case HAL_FLOAT:
-	fval = strtod ( value, &cp );
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    // invalid character(s) in string
-	    retval = -EINVAL;
-	} else {
-	    d_ptr->f = fval;
-	}
-	break;
-    case HAL_S32:
-	lval = strtol(value, &cp, 0);
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    // invalid chars in string
-	    retval = -EINVAL;
-	} else {
-	    d_ptr->s = lval;
-	}
-	break;
-    case HAL_U32:
-	ulval = strtoul(value, &cp, 0);
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    // invalid chars in string
-	    retval = -EINVAL;
-	} else {
-	    d_ptr->u = ulval;
-	}
-	break;
-    case HAL_S64:
-	llval = strtoll(value, &cp, 0);
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    // invalid chars in string
-	    retval = -EINVAL;
-	} else {
-	    d_ptr->ls = llval;
-	}
-	break;
-    case HAL_U64:
-	ullval = strtoull(value, &cp, 0);
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    // invalid chars in string
-	    retval = -EINVAL;
-	} else {
-	    d_ptr->lu = ullval;
-	}
-	break;
-    default:
-	// Shouldn't get here, but just in case...
-	retval = -EINVAL;
+    switch(type) {
+    case HAL_BIT: {
+        bool tmp;
+        if(!from_python(obj, &tmp)) return -1;
+        d_ptr->b = tmp;
+        break;
     }
-    return retval;
+    case HAL_FLOAT: {
+        double tmp;
+        if(!from_python(obj, &tmp)) return -1;
+        d_ptr->f = tmp;
+        break;
+    }
+    case HAL_S32: {
+        rtapi_s32 tmp;
+        if(!from_python(obj, &tmp)) return -1;
+        d_ptr->s = tmp;
+        break;
+    }
+    case HAL_U32: {
+        rtapi_u32 tmp;
+        if(!from_python(obj, &tmp)) return -1;
+        d_ptr->u = tmp;
+        break;
+    }
+    case HAL_S64: {
+        rtapi_s64 tmp;
+        if(!from_python(obj, &tmp)) return -1;
+        d_ptr->ls = tmp;
+        break;
+    }
+    case HAL_U64: {
+        rtapi_u64 tmp;
+        if(!from_python(obj, &tmp)) return -1;
+        d_ptr->lu = tmp;
+        break;
+    }
+    case HAL_PORT:
+        if((d_ptr->p != 0) && (hal_port_buffer_size(&d_ptr->p) > 0)) {
+            // port is already allocated
+            PyErr_Format(PyExc_RuntimeError, "port has already memory allocated");
+            return -1;
+        } else {
+            unsigned tmp;
+            if(!from_python(obj, &tmp))
+                return -1;
+            int err = hal_port_alloc(tmp, &d_ptr->p);
+            if(err < 0) {
+                PyErr_Format(PyExc_RuntimeError, "port memory allocation failed");
+            }
+        }
+        break;
+    default:
+        // Shouldn't get here, but just in case...
+        return -1;
+    }
+    return 0;
 }
 
 PyObject *set_p(PyObject * /*self*/, PyObject *args) {
-    const char *name, *value;
+    const char *name;
+    PyObject *obj;
     int retval;
-    hal_param_t *param;
-    hal_pin_t *pin;
     hal_type_t type;
     hal_data_u *d_ptr;
 
-    if(!PyArg_ParseTuple(args, "ss", &name,&value)) return NULL;
+    if(!PyArg_ParseTuple(args, "sO", &name, &obj)) return NULL;
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
 
-    //printf("INFO HALMODULE -- setting pin / param - name:%s value:%s\n",name,value);
-    // get mutex before accessing shared data
-    rtapi_mutex_get(&(hal_data->mutex));
-    // search param list for name
-    param = halpr_find_param_by_name(name);
-    if (param == 0) {
-        pin = halpr_find_pin_by_name(name);
-        if(pin == 0) {
-            rtapi_mutex_give(&(hal_data->mutex));
-            PyErr_Format(PyExc_RuntimeError, "pin not found");
+    scoped_hal_mutex _hallock; // get mutex before accessing shared data
+
+    // Search pin and then param
+    // We are more likely to set a pin than a param
+    hal_pin_t *pin = halpr_find_pin_by_name(name);
+    if(pin == 0) {
+        hal_param_t *param = halpr_find_param_by_name(name);
+        if (param == 0) {
+            // Found neither pin nor param
+            PyErr_Format(PyExc_RuntimeError, "pin or param not found");
             return NULL;
-        } else {
-            // found it
-            type = pin->type;
-            if(pin->dir == HAL_OUT) {
-                rtapi_mutex_give(&(hal_data->mutex));
-                PyErr_Format(PyExc_RuntimeError, "pin not writable");
-                return NULL;
-            }
-            if(pin->signal != 0) {
-                rtapi_mutex_give(&(hal_data->mutex));
-                PyErr_Format(PyExc_RuntimeError, "pin connected to signal");
-                return NULL;
-            }
-            d_ptr = &pin->dummysig;
         }
-    } else {
-        // found it
+        // Found a param
         type = param->type;
         /* is it read only? */
         if (param->dir == HAL_RO) {
-            rtapi_mutex_give(&(hal_data->mutex));
             PyErr_Format(PyExc_RuntimeError, "param not writable");
             return NULL;
         }
         d_ptr = reinterpret_cast<hal_data_u *>(SHMPTR(param->data_ptr));
+    } else {
+        // Found a pin
+        type = pin->type;
+        if(pin->dir == HAL_OUT) {
+            PyErr_Format(PyExc_RuntimeError, "pin not writable");
+            return NULL;
+        }
+        if(pin->type == HAL_PORT) {
+            PyErr_Format(PyExc_RuntimeError, "ports are not writable");
+            return NULL;
+        }
+        if(pin->signal != 0) {
+            PyErr_Format(PyExc_RuntimeError, "pin connected to signal");
+            return NULL;
+        }
+        d_ptr = &pin->dummysig;
     }
-    retval = set_common(type, d_ptr, value);
-    rtapi_mutex_give(&(hal_data->mutex));
-    return PyBool_FromLong(retval != 0);
+
+    retval = set_common(type, d_ptr, obj);
+    if(retval != 0)
+        return NULL;  // set_common has set an exception
+    return PyBool_FromLong(1);
 }
 
 PyObject *set_s(PyObject * /*self*/, PyObject *args) {
-    const char *name, *value;
+    const char *name;
+    PyObject *obj;
     int retval;
     hal_sig_t *sig;
     hal_type_t type;
     hal_data_u *d_ptr;
 
-    if(!PyArg_ParseTuple(args, "ss", &name,&value)) return NULL;
+    if(!PyArg_ParseTuple(args, "sO", &name, &obj)) return NULL;
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
 
-    // get mutex before accessing shared data
-    rtapi_mutex_get(&(hal_data->mutex));
+    scoped_hal_mutex _hallock; // get mutex before accessing shared data
+
     sig = halpr_find_sig_by_name(name);
     if (sig == 0) {
-        rtapi_mutex_give(&(hal_data->mutex));
         PyErr_Format(PyExc_RuntimeError,
             "signal not found");
         return NULL;
     } else {
         if ((sig->type != HAL_PORT) && (sig->writers > 0)) {
-            rtapi_mutex_give(&(hal_data->mutex));
             PyErr_Format(PyExc_RuntimeError,
                 "signal '%s' already has writer(s)\n", name);
             return NULL;
@@ -1164,95 +1473,67 @@ PyObject *set_s(PyObject * /*self*/, PyObject *args) {
         /* no writer, so we can safely set it */
         type = sig->type;
         d_ptr = reinterpret_cast<hal_data_u *>(SHMPTR(sig->data_ptr));
-        retval = set_common(type, d_ptr, value);
-        rtapi_mutex_give(&(hal_data->mutex));
-        return PyBool_FromLong(retval != 0);
+        retval = set_common(type, d_ptr, obj);
+        if(retval != 0)
+            return NULL;  // set_common has set an exception
+        return PyBool_FromLong(1);
     }
 }
 
 /*######################################*/
 /* Get a Pin, Param or signal value     */
+/* Search order: pin, param, signal     */
+
+static PyObject *halref_to_object(hal_data_u *d_ptr, hal_type_t type)
+{
+    switch(type) {
+    case HAL_BIT:   return to_python(d_ptr->b);
+    case HAL_U32:   return to_python(d_ptr->u);
+    case HAL_S32:   return to_python(d_ptr->s);
+    case HAL_U64:   return to_python(d_ptr->lu);
+    case HAL_S64:   return to_python(d_ptr->ls);
+    case HAL_FLOAT: return to_python(d_ptr->f);
+    case HAL_PORT:  return to_python(d_ptr->p);
+    default:
+        PyErr_Format(PyExc_RuntimeError, "halref_to_object: unknown hal type '%d'", (int)type);
+        return NULL;
+    }
+}
+
 PyObject *get_value(PyObject * /*self*/, PyObject *args) {
-    char *name;
-    hal_param_t *param;
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_type_t type;
-    hal_data_u *d_ptr;
+    const char *name;
 
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
 
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
-    /* search param list for name */
-    param = halpr_find_param_by_name(name);
-    if (param) {
-        /* found it */
-        type = param->type;
-        d_ptr = reinterpret_cast<hal_data_u *>(SHMPTR(param->data_ptr));
-        rtapi_mutex_give(&(hal_data->mutex));
-        /* convert to python value */
-        switch(type) {
-            case HAL_BIT: return PyBool_FromLong((long)d_ptr->b);
-            case HAL_U32: return Py_BuildValue("k",   (unsigned long)d_ptr->u);
-            case HAL_S32: return Py_BuildValue("l",   (long)d_ptr->s);
-            case HAL_U64: return Py_BuildValue("K",   (unsigned long long)d_ptr->lu);
-            case HAL_S64: return Py_BuildValue("L",   (long long)d_ptr->ls);
-            case HAL_FLOAT: return Py_BuildValue("d", (double)d_ptr->f);
-            case HAL_PORT: // HAL_PORT is currently not supported
-            default:
-                break;
-        }
-    }
-    /* not found, search pin list for name */
-    pin = halpr_find_pin_by_name(name);
+    scoped_hal_mutex _hallock; /* get mutex before accessing shared data */
+
+    /* search pin list for name */
+    hal_pin_t *pin = halpr_find_pin_by_name(name);
     if(pin) {
-        /* found it */
-        type = pin->type;
+        hal_data_u *d_ptr;
         if (pin->signal != 0) {
-            sig = (hal_sig_t*)SHMPTR(pin->signal);
+            hal_sig_t *sig = (hal_sig_t*)SHMPTR(pin->signal);
             d_ptr = reinterpret_cast<hal_data_u *>(SHMPTR(sig->data_ptr));
         } else {
-            sig = 0;
             d_ptr = &(pin->dummysig);
         }
-        rtapi_mutex_give(&(hal_data->mutex));
-        /* convert to python value */
-        switch(type) {
-            case HAL_BIT: return PyBool_FromLong((long)d_ptr->b);
-            case HAL_U32: return Py_BuildValue("k",   (unsigned long)d_ptr->u);
-            case HAL_S32: return Py_BuildValue("l",   (long)d_ptr->s);
-            case HAL_U64: return Py_BuildValue("K",   (unsigned long long)d_ptr->lu);
-            case HAL_S64: return Py_BuildValue("L",   (long long)d_ptr->ls);
-            case HAL_FLOAT: return Py_BuildValue("d", (double)d_ptr->f);
-            case HAL_PORT: // HAL_PORT is currently not supported
-            default:
-                break;
-        }
+        return halref_to_object(d_ptr, pin->type); /* convert to python value */
     }
-    sig = halpr_find_sig_by_name(name);
-    if (sig != 0) {
-        /* found it */
-        type = sig->type;
-        d_ptr = reinterpret_cast<hal_data_u *>(SHMPTR(sig->data_ptr));
-        rtapi_mutex_give(&(hal_data->mutex));
-        /* convert to python value */
-        switch(type) {
-            case HAL_BIT: return PyBool_FromLong((long)d_ptr->b);
-            case HAL_U32: return Py_BuildValue("k",   (unsigned long)d_ptr->u);
-            case HAL_S32: return Py_BuildValue("l",   (long)d_ptr->s);
-            case HAL_U64: return Py_BuildValue("K",   (unsigned long long)d_ptr->lu);
-            case HAL_S64: return Py_BuildValue("L",   (long long)d_ptr->ls);
-            case HAL_FLOAT: return Py_BuildValue("d", (double)d_ptr->f);
-            case HAL_PORT: // HAL_PORT is currently not supported
-            default:
-                break;
-        }
+    /* search param list for name */
+    hal_param_t *param = halpr_find_param_by_name(name);
+    if (param) {
+        hal_data_u *d_ptr = reinterpret_cast<hal_data_u *>(SHMPTR(param->data_ptr));
+        return halref_to_object(d_ptr, param->type); /* convert to python value */
+    }
+    /* search signal list for name */
+    hal_sig_t *sig = halpr_find_sig_by_name(name);
+    if (sig) {
+        hal_data_u *d_ptr = reinterpret_cast<hal_data_u *>(SHMPTR(sig->data_ptr));
+        return halref_to_object(d_ptr, sig->type); /* convert to python value */
     }
     /* error if here */
-    rtapi_mutex_give(&(hal_data->mutex));
     PyErr_Format(PyExc_RuntimeError, "Can't get value: pin / param %s not found", name);
     return NULL;
 
@@ -1263,10 +1544,10 @@ PyObject *get_value(PyObject * /*self*/, PyObject *args) {
 PyObject *get_info_pins(PyObject * /*self*/, PyObject * /*args*/) {
     SHMFIELD(hal_pin_t) next;
     int type;
-    char str_n[] = "NAME";
-    char str_v[] = "VALUE";
-    char str_t[] = "TYPE";
-    char str_d[] = "DIRECTION";
+    static const char str_n[] = "NAME";
+    static const char str_v[] = "VALUE";
+    static const char str_t[] = "TYPE";
+    static const char str_d[] = "DIRECTION";
     hal_data_u *d_ptr;
 
     hal_pin_t *pin;
@@ -1277,8 +1558,8 @@ PyObject *get_info_pins(PyObject * /*self*/, PyObject * /*args*/) {
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
 
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
+    scoped_hal_mutex _hallock; /* get mutex before accessing shared data */
+
     next = hal_data->pin_list_ptr;
     while (next != 0) {
         pin = SHMPTR(next);
@@ -1308,21 +1589,21 @@ PyObject *get_info_pins(PyObject * /*self*/, PyObject * /*args*/) {
                         str_t, PyLong_FromLong(HAL_U32));
                 break;
             case HAL_S32:
-                obj =  Py_BuildValue("{s:s,s:l,s:N,s:N}",
+                obj = Py_BuildValue("{s:s,s:l,s:N,s:N}",
                         str_n, pin->name,
                         str_v, (long)d_ptr->s,
                         str_d, PyLong_FromLong(pin->dir),
                         str_t, PyLong_FromLong(HAL_S32));
                 break;
             case HAL_U64:
-                obj =  Py_BuildValue("{s:s,s:K,s:N,s:N}",
+                obj = Py_BuildValue("{s:s,s:K,s:N,s:N}",
                         str_n, pin->name,
                         str_v, (unsigned long long)d_ptr->lu,
                         str_d, PyLong_FromLong(pin->dir),
                         str_t, PyLong_FromLong(HAL_S64));
                 break;
             case HAL_S64:
-                obj =  Py_BuildValue("{s:s,s:L,s:N,s:N}",
+                obj = Py_BuildValue("{s:s,s:L,s:N,s:N}",
                         str_n, pin->name,
                         str_v, (long long)d_ptr->ls,
                         str_d, PyLong_FromLong(pin->dir),
@@ -1335,7 +1616,13 @@ PyObject *get_info_pins(PyObject * /*self*/, PyObject * /*args*/) {
                         str_d, PyLong_FromLong(pin->dir),
                         str_t, PyLong_FromLong(HAL_FLOAT));
                 break;
-            case HAL_PORT: // HAL_PORT is currently not supported
+            case HAL_PORT:
+                obj = Py_BuildValue("{s:s,s:l,s:N,s:N}",
+                        str_n, pin->name,
+                        str_v, (long)d_ptr->p,
+                        str_d, PyLong_FromLong(pin->dir),
+                        str_t, PyLong_FromLong(HAL_PORT));
+                break;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
             case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
             default:
@@ -1351,8 +1638,6 @@ PyObject *get_info_pins(PyObject * /*self*/, PyObject * /*args*/) {
         PyList_Append( python_list, obj);
         next = pin->next_ptr;
     }
-    // give back the mutex, so others can use data
-    rtapi_mutex_give(&(hal_data->mutex));
 
     return python_list;
 }
@@ -1362,10 +1647,10 @@ PyObject *get_info_pins(PyObject * /*self*/, PyObject * /*args*/) {
 PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
     SHMFIELD(hal_sig_t) next;
     int type;
-    char str_n[] = "NAME";
-    char str_v[] = "VALUE";
-    char str_t[] = "TYPE";
-    char str_d[] = "DRIVER";
+    static const char str_n[] = "NAME";
+    static const char str_v[] = "VALUE";
+    static const char str_t[] = "TYPE";
+    static const char str_d[] = "DRIVER";
     hal_data_u *d_ptr;
     hal_sig_t *sig;
     hal_pin_t *pin;
@@ -1374,8 +1659,8 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
 
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
+    scoped_hal_mutex _hallock; /* get mutex before accessing shared data */
+
     next = hal_data->sig_list_ptr;
     while (next != 0) {
         sig = SHMPTR(next);
@@ -1405,7 +1690,7 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
                         str_t, PyLong_FromLong(HAL_U32));
                 break;
             case HAL_S32:
-                obj =  Py_BuildValue("{s:s,s:l,s:s,s:N}",
+                obj = Py_BuildValue("{s:s,s:l,s:s,s:N}",
                         str_n, sig->name,
                         str_v, (long)d_ptr->s,
                         str_d, (pin != 0) ? pin->name : NULL,
@@ -1419,7 +1704,7 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
                         str_t, PyLong_FromLong(HAL_U64));
                 break;
             case HAL_S64:
-                obj =  Py_BuildValue("{s:s,s:L,s:s,s:N}",
+                obj = Py_BuildValue("{s:s,s:L,s:s,s:N}",
                         str_n, sig->name,
                         str_v, (long long)d_ptr->ls,
                         str_d, (pin != 0) ? pin->name : NULL,
@@ -1432,7 +1717,13 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
                         str_d, (pin != 0) ? pin->name : NULL,
                         str_t, PyLong_FromLong(HAL_FLOAT));
                 break;
-            case HAL_PORT: // HAL_PORT is currently not supported
+            case HAL_PORT:
+                obj = Py_BuildValue("{s:s,s:l,s:s,s:N}",
+                        str_n, sig->name,
+                        str_v, (long)d_ptr->p,
+                        str_d, (pin != 0) ? pin->name : NULL,
+                        str_t, PyLong_FromLong(HAL_PORT));
+                break;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
             case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
             default:
@@ -1447,7 +1738,6 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
         PyList_Append( python_list, obj);
         next = sig->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
 
     return python_list;
 }
@@ -1457,9 +1747,10 @@ PyObject *get_info_signals(PyObject * /*self*/, PyObject * /*args*/) {
 PyObject *get_info_params(PyObject * /*self*/, PyObject * /*args*/) {
     SHMFIELD(hal_param_t) next;
     int type;
-    char str_n[] = "NAME";
-    char str_v[] = "VALUE";
-    char str_d[] = "DIRECTION";
+    static const char str_n[] = "NAME";
+    static const char str_v[] = "VALUE";
+    static const char str_t[] = "TYPE";
+    static const char str_d[] = "DIRECTION";
     hal_data_u *d_ptr;
     hal_param_t *param;
     PyObject* python_list = PyList_New(0);
@@ -1467,8 +1758,8 @@ PyObject *get_info_params(PyObject * /*self*/, PyObject * /*args*/) {
 
     TEST_HAL_SHMEM_BASE(__FUNCTION__);
 
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
+    scoped_hal_mutex _hallock; /* get mutex before accessing shared data */
+
     next = hal_data->param_list_ptr;
     while (next != 0) {
         param = SHMPTR(next);
@@ -1478,55 +1769,62 @@ PyObject *get_info_params(PyObject * /*self*/, PyObject * /*args*/) {
         /* convert to dict of python values */
         switch(type) {
             case HAL_BIT:
-                obj = Py_BuildValue("{s:s,s:N,s:N}",
+                obj = Py_BuildValue("{s:s,s:N,s:N,s:N}",
                         str_n, param->name,
                         str_d, PyLong_FromLong(param->dir),
-                        str_v, PyBool_FromLong((long)d_ptr->b));
+                        str_v, PyBool_FromLong((long)d_ptr->b),
+                        str_t, PyLong_FromLong(HAL_BIT));
                 break;
             case HAL_U32:
-                obj = Py_BuildValue("{s:s,s:N,s:k}",
+                obj = Py_BuildValue("{s:s,s:N,s:k,s:N}",
                         str_n, param->name,
                         str_d, PyLong_FromLong(param->dir),
-                        str_v, (unsigned long)d_ptr->u);
+                        str_v, (unsigned long)d_ptr->u,
+                        str_t, PyLong_FromLong(HAL_U32));
                 break;
             case HAL_S32:
-                obj =  Py_BuildValue("{s:s,s:N,s:l}",
+                obj =  Py_BuildValue("{s:s,s:N,s:l,s:N}",
                         str_n, param->name,
                         str_d, PyLong_FromLong(param->dir),
-                        str_v, (long)d_ptr->s);
+                        str_v, (long)d_ptr->s,
+                        str_t, PyLong_FromLong(HAL_S32));
                 break;
             case HAL_U64:
-                obj = Py_BuildValue("{s:s,s:N,s:K}",
+                obj = Py_BuildValue("{s:s,s:N,s:K,s:N}",
                         str_n, param->name,
                         str_d, PyLong_FromLong(param->dir),
-                        str_v, (unsigned long long)d_ptr->lu);
+                        str_v, (unsigned long long)d_ptr->lu,
+                        str_t, PyLong_FromLong(HAL_U64));
                 break;
             case HAL_S64:
-                obj =  Py_BuildValue("{s:s,s:N,s:L}",
+                obj =  Py_BuildValue("{s:s,s:N,s:L,s:N}",
                         str_n, param->name,
                         str_d, PyLong_FromLong(param->dir),
-                        str_v, (long long)d_ptr->ls);
+                        str_v, (long long)d_ptr->ls,
+                        str_t, PyLong_FromLong(HAL_S64));
                 break;
             case HAL_FLOAT:
-                obj = Py_BuildValue("{s:s,s:N,s:d}",
+                obj = Py_BuildValue("{s:s,s:N,s:d,s:N}",
                         str_n, param->name,
                         str_d, PyLong_FromLong(param->dir),
-                        str_v, (double)d_ptr->f);
+                        str_v, (double)d_ptr->f,
+                        str_t, PyLong_FromLong(HAL_FLOAT));
                 break;
-            case HAL_PORT: // HAL_PORT is currently not supported
+            case HAL_PORT: // HAL_PORT cannot be a parameter
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
             case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
             default:
-                 obj = Py_BuildValue("{s:s,s:s}",
+                 obj = Py_BuildValue("{s:s,s:s,s:s,s:s}",
                         str_n, param->name,
-                        str_v, NULL);
+                        str_d, NULL,
+                        str_v, NULL,
+                        str_t, NULL);
                  break;
         }
 
         PyList_Append( python_list, obj);
         next = param->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
 
     return python_list;
 }
@@ -1545,16 +1843,15 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
     self->comp = 0;
     self->shm_id = -1;
 
-    if(!PyArg_ParseTuple(args, "O!ik",
-		&halobject_type, &self->comp, &self->key, &self->size))
-	return -1;
+    if(!PyArg_ParseTuple(args, "O!ik", &halobject_type, &self->comp, &self->key, &self->size))
+        return -1;
 
     self->shm_id = rtapi_shmem_new(self->key, self->comp->hal_id, self->size);
     if(self->shm_id < 0) {
-	self->comp = 0;
-	self->size = 0;
-	pyrtapi_error(self->shm_id);
-	return -1;
+        self->comp = 0;
+        self->size = 0;
+        pyrtapi_error(self->shm_id);
+        return -1;
     }
 
     rtapi_shmem_getptr(self->shm_id, &self->buf);
@@ -1566,7 +1863,7 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
 static void pyshm_delete(PyObject *_self) {
     shmobject *self = reinterpret_cast<shmobject *>(_self);
     if(self->comp && self->shm_id > 0)
-	rtapi_shmem_delete(self->shm_id, self->comp->hal_id);
+        rtapi_shmem_delete(self->shm_id, self->comp->hal_id);
     Py_XDECREF(self->comp);
 }
 
@@ -1587,7 +1884,7 @@ static int shm_buffer_getbuffer(PyObject *obj, Py_buffer *view, int /*flags*/) {
 static PyObject *pyshm_repr(PyObject *_self) {
     shmobject *self = reinterpret_cast<shmobject *>(_self);
     return PyUnicode_FromFormat("<shared memory buffer key=%08x id=%d size=%ld>",
-	    self->key, self->shm_id, (unsigned long)self->size);
+            self->key, self->shm_id, (unsigned long)self->size);
 }
 
 static PyObject *shm_setsize(PyObject *_self, PyObject *args) {
@@ -1624,9 +1921,9 @@ static PyBufferProcs shmbuffer_procs = {
 
 static PyMethodDef shm_methods[] = {
     {"getbuffer", shm_getbuffer, METH_NOARGS,
-	"Get a writable buffer object for the shared memory segment"},
+        "Get a writable buffer object for the shared memory segment"},
     {"setsize", shm_setsize, METH_VARARGS,
-	"Set the size of the shared memory segment"},
+        "Set the size of the shared memory segment"},
     {},
 };
 
@@ -1703,7 +2000,7 @@ struct streamobj {
 
 static int pystream_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
     int depth=0;
-    char *typestring=NULL;
+    const char *typestring=NULL;
 
     streamobj *self = reinterpret_cast<streamobj *>(_self);
     self->sampleno = 0;
@@ -1745,12 +2042,12 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject * /*kw*/) {
 
     for(int i=0; i<n; i++) {
         switch(hal_stream_element_type(&self->stream, i)) {
-        case HAL_BIT: tbuf[i] = 'B'; break;
-        case HAL_FLOAT: tbuf[i] = 'F'; break;
-        case HAL_S32: tbuf[i] = 'S'; break;
-        case HAL_U32: tbuf[i] = 'U'; break;
-        case HAL_S64: tbuf[i] = 'L'; break;
-        case HAL_U64: tbuf[i] = 'K'; break;
+        case HAL_BIT: tbuf[i] = 'b'; break;
+        case HAL_FLOAT: tbuf[i] = 'f'; break;
+        case HAL_S32: tbuf[i] = 's'; break;
+        case HAL_U32: tbuf[i] = 'u'; break;
+        case HAL_S64: tbuf[i] = 'l'; break;
+        case HAL_U64: tbuf[i] = 'k'; break;
         default: tbuf[i] = '?'; break;
         }
     }
@@ -1766,7 +2063,7 @@ PyObject *stream_read(PyObject *_self, PyObject * /*unused*/) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    vector<hal_stream_data_u> buf(n);
+    std::vector<hal_stream_data_u> buf(n);
     if(hal_stream_read(&self->stream, buf.data(), &self->sampleno) < 0) {
         Py_INCREF(Py_None);
         return Py_None;
@@ -1780,6 +2077,8 @@ PyObject *stream_read(PyObject *_self, PyObject * /*unused*/) {
         switch(PyBytes_AS_STRING(self->pyelt)[i]) {
         case 'B':
         case 'b': o = to_python(buf[i].b); break;
+        case 'R':
+        case 'r':
         case 'F':
         case 'f': o = to_python(buf[i].f); break;
         case 'S':
@@ -1817,12 +2116,14 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
         return NULL;
     }
 
-    vector<hal_stream_data_u> buf(n);
+    std::vector<hal_stream_data_u> buf(n);
     for(int i=0; i<n; i++) {
         PyObject *o = PyTuple_GET_ITEM(data, i);
         switch(PyBytes_AS_STRING(self->pyelt)[i]) {
         case 'B':
-        case 'b': buf[i].b = PyObject_IsTrue(o); break;
+        case 'b': if(!from_python(o, &buf[i].b)) return NULL; break;
+        case 'R':
+        case 'r':
         case 'F':
         case 'f': if(!from_python(o, &buf[i].f)) return NULL; break;
         case 'S':
@@ -1830,9 +2131,9 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
         case 'U':
         case 'u': if(!from_python(o, &buf[i].u)) return NULL; break;
         case 'L':
-        case 'l': if(!from_python(o, &buf[i].s)) return NULL; break;
+        case 'l': if(!from_python(o, &buf[i].l)) return NULL; break;
         case 'K':
-        case 'k': if(!from_python(o, &buf[i].u)) return NULL; break;
+        case 'k': if(!from_python(o, &buf[i].k)) return NULL; break;
         default: memset(&buf[i], 0, sizeof(buf[i])); break;
         }
     }
@@ -1864,6 +2165,8 @@ PyObject *stream_getter(PyObject *_self, void *vfp) {
 PyObject *stream_element_types(PyObject *_self, void * /*unused*/) {
     streamobj *self = reinterpret_cast<streamobj*>(_self);
     if(!self->pyelt) {
+        PyErr_Format(PyExc_RuntimeError, "Stream type-string object was not set");
+        return NULL;
     }
     Py_INCREF(self->pyelt);
     return self->pyelt;
@@ -1965,13 +2268,13 @@ PyTypeObject stream_type = {
 };
 
 
-PyMethodDef module_methods[] = {
+static PyMethodDef module_methods[] = {
     {"pin_has_writer", pin_has_writer, METH_VARARGS,
 	".pin_has_writer('pin_name'): Return a FALSE value if a pin has no writers and TRUE if it does"},
     {"component_exists", component_exists, METH_VARARGS,
-	".component_exists('component_name'): Return a TRUE value if the named component exists"},
+	".component_exists('component_name'): Return a True value if the named component exists"},
     {"component_is_ready", component_is_ready, METH_VARARGS,
-	".component_is_ready('component_name'): Return a TRUE value if the named component is ready"},
+	".component_is_ready('component_name'): Return a True value if the named component is ready"},
     {"set_msg_level", set_msg_level, METH_VARARGS,
 	".set_msg_level(level): Set the RTAPI message level"},
     {"get_msg_level", get_msg_level, METH_NOARGS,
@@ -1999,7 +2302,7 @@ PyMethodDef module_methods[] = {
     {},
 };
 
-const char *module_doc = "Interface to emc2's hal\n"
+const char *module_doc = "Interface to LinuxCNC's hal\n"
 "\n"
 "This module allows the creation of userspace HAL components in Python.\n"
 "This includes pins and parameters of the various HAL types.\n"
@@ -2042,7 +2345,7 @@ PyMODINIT_FUNC PyInit__hal(void)
 {
     PyObject *m = PyModule_Create(&hal_moduledef);
 
-    pyhal_error_type = PyErr_NewException((char*)"hal.error", NULL, NULL);
+    pyhal_error_type = PyErr_NewException("hal.error", NULL, NULL);
     PyModule_AddObject(m, "error", pyhal_error_type);
 
     PyType_Ready(&halobject_type);
@@ -2067,6 +2370,7 @@ PyMODINIT_FUNC PyInit__hal(void)
     PyModule_AddIntConstant(m, "HAL_U32", HAL_U32);
     PyModule_AddIntConstant(m, "HAL_S64", HAL_S64);
     PyModule_AddIntConstant(m, "HAL_U64", HAL_U64);
+    PyModule_AddIntConstant(m, "HAL_PORT", HAL_PORT);
 
     PyModule_AddIntConstant(m, "HAL_RO", HAL_RO);
     PyModule_AddIntConstant(m, "HAL_RW", HAL_RW);
@@ -2086,7 +2390,7 @@ PyMODINIT_FUNC PyInit__hal(void)
 #ifdef RTAPI_KERNEL_VERSION
     PyModule_AddStringConstant(m, "kernel_version", RTAPI_KERNEL_VERSION);
 #else
-    PyModule_AddStringConstant(m, "kernel_version", (char*)"Not Available");
+    PyModule_AddStringConstant(m, "kernel_version", "Not Available");
 #endif
 
     PyRun_SimpleString(
