@@ -128,3 +128,8 @@ table:
     border_bottom_width: 1
   border_color: CCCCCC
   cell_padding: 4
+
+image:
+  caption:
+    align: inherit
+    text-align: inherit
