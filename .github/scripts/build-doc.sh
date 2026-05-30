@@ -5,7 +5,9 @@ set -x
 
 cd src
 ./autogen.sh
-./configure --disable-check-runtime-deps --enable-build-documentation=html
+./configure --disable-check-runtime-deps \
+            --enable-build-documentation=html \
+            --enable-build-documentation-translation
 make -O -j$((1+$(nproc))) manpages
 make -O -j$((1+$(nproc))) translateddocs
 make -O -j$((1+$(nproc))) docs
