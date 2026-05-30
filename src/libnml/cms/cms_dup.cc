@@ -32,7 +32,12 @@
     CMS_DISPLAY_ASCII_UPDATER::CMS_DISPLAY_ASCII_UPDATER(CMS * _cms_parent):
 CMS_UPDATER(_cms_parent)
 {
-    fprintf(stderr,
+    // This updater is also used transiently by NML::msg2str()/str2msg() for
+    // ASCII string conversion of otherwise xdr-encoded buffers (e.g. task
+    // command logging under EMC_DEBUG_TASK_ISSUE), so the banner fired on
+    // normal startup. Gate it behind the CMS-constructor debug flag instead of
+    // printing unconditionally to stderr.
+    rcs_print_debug(PRINT_CMS_CONSTRUCTORS,
         "* * * * * * * * * * - - - - - WARNING - - - - - * * * * * * * * * *\n"
         "*    CMS_DISPLAY_ASCII_UPDATER may not function properly due      *\n"
         "*    to range limitations of some of the update() functions.      *\n"
