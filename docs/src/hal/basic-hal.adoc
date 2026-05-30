@@ -373,12 +373,13 @@ If you used the Stepper Config Wizard to generate your config you will have up t
 == HAL Parameter
 
 (((HAL Parameters)))
-Two parameters are automatically added to each HAL component when it is created.
-These parameters allow you to scope the execution time of a component.
+One pin and two parameters are automatically added to each HAL component when it is created.
+These allow you to scope the execution time of a component.
 
 [horizontal]
-`.time`(((HAL time))):: Time is the number of CPU cycles it took to execute the function.
-`.tmax`(((HAL tmax))):: Tmax is the maximum number of CPU cycles it took to execute the function.
+`.time`(((HAL time))):: Pin time shows in ns how long it took to execute the function.
+`.tmax`(((HAL tmax))):: Parameter tmax is the maximum time in ns it took to execute the function.
+`.tmax-increased`(((HAL tmax-increased))):: This parameter is set to true for one cycle if tmax increased.
 
 `tmax` is a read/write parameter so the user can set it to 0 to get rid of the first time initialization on the function's execution time.
 

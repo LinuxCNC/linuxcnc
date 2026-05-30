@@ -511,7 +511,6 @@ rtapi_clock_set_period.3
 rtapi_delay.3
 rtapi_delay_max.3
 rtapi_exit.3
-rtapi_get_clocks.3
 rtapi_get_msg_level.3
 rtapi_get_time.3
 rtapi_inb.3
