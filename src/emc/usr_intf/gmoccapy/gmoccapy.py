@@ -51,10 +51,20 @@ from time import strftime  # needed for the clock in the GUI
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
+    # A KeyboardInterrupt reaching the excepthook is a termination request:
+    # either SIGINT, or SIGTERM surfaced into the main loop by PyGObject's
+    # signal bridge. Quit cleanly instead of popping a modal error dialog,
+    # which would block in a nested loop and leave gmoccapy running until the
+    # caller escalates to SIGKILL.
+    if issubclass(exc_type, KeyboardInterrupt):
+        LOG.info("gmoccapy interrupted (signal), shutting down")
+        try:
+            Gtk.main_quit()
+        except Exception:
+            pass
+        return
     try:
         w = app.widgets.window1
-    except KeyboardInterrupt:
-        sys.exit()
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
