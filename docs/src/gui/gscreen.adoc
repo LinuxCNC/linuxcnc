@@ -4,11 +4,6 @@
 [[cha:gscreen]]
 = Gscreen
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Introduction
 
@@ -410,7 +405,7 @@ interact with it.
 
 Under the [DISPLAY] heading:
 
-[source,{ini}]
+[source,ini]
 ----
 DISPLAY = gscreen -c tester
   options:
@@ -449,7 +444,7 @@ MESSAGE_TYPE:: specifies whether its a yes/no, ok, or status message
 
 Here is a sample INI code. It would be under the [DISPLAY] heading.
 
-[source,{ini}]
+[source,ini]
 ----
 # This just shows in the status bar and desktop notify popup.
 MESSAGE_BOLDTEXT = NONE

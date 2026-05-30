@@ -7,7 +7,7 @@ Anything IO board with HostMot2 firmware.
 
 == SYNOPSIS
 
-**loadrt hm2_7i43 [ ioaddr=**__N__[,_N_...] ] [ **ioaddr_hi=**__N__[,_N_...] ] [ **epp_wide=**__N__[,_N_...] ] [ **config="**__str[,str...]**"** ] [**debug_epp=**__N__[,_N_...] ]
+**loadrt hm2_7i43 [ ioaddr=**__N__[,_N_...] ] [ **ioaddr_hi=**__N__[,_N_...] ] [ **epp_wide=**__N__[,_N_...] ] [ pass:[<strong>config=&quot;</strong>]__str[,str...]pass:[<strong>&quot;</strong>] ] [**debug_epp=**__N__[,_N_...] ]
 
 ____
 *ioaddr* [default: 0 (parport0)]::

@@ -4,12 +4,6 @@
 [[cha:haltcl]]
 = HALTCL Files
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 halcmd excels in specifying components and connections but these scripts offer no computational capabilities.
 As a result, INI files are limited in the clarity and brevity that is possible with higher level languages.
 
@@ -20,7 +14,7 @@ The .tcl extension is understood by the main script (`linuxcnc`) that processes 
 Haltcl files are identified in the the HAL section of INI files (just like HAL files).
 
 .Example
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 HALFILE = conventional_file.hal
@@ -38,7 +32,7 @@ The halcmd language used in HAL files has a simple syntax that is actually a sub
 Haltcl files use the Tcl scripting language augmented with the specific commands of the LinuxCNC hardware abstraction layer (HAL).
 The HAL-specific commands are:
 
-[source,{hal}]
+[source,hal]
 ----
 addf, alias,
 delf, delsig,
@@ -68,19 +62,19 @@ list     hal list
 INI file variables are accessible by both `halcmd` and `haltcl` but with differing syntax.
 LinuxCNC INI files use SECTION and ITEM specifiers to identify configuration items:
 
-[source,{ini}]
+[source,ini]
 ----
 [SECTION_A]
 ITEM1 = value_1
 ITEM2 = value_2
-...
+# ...
 [SECTION_B]
-...
+# ...
 ----
 
 The INI file values are accessible by text substitution in HAL files using the form:
 
-[source,{hal}]
+[source,hal]
 ----
 [SECTION]ITEM
 ----
@@ -94,7 +88,7 @@ $::SECTION(ITEM)
 
 For example, an INI file item like:
 
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]
 MAX_VELOCITY = 4
@@ -115,7 +109,7 @@ In Tcl, this is written `[lindex $::SECTION(ITEM) 0]`.
 
 For example: given the following INI values
 
-[source,{ini}]
+[source,ini]
 ----
 [HOSTMOT2]
 DRIVER=hm2_eth
@@ -133,7 +127,7 @@ loadrt $::HOSTMOT2(DRIVER) board_ip=$::HOSTMOT2(IPADDR) config=$::HOSTMOT2(CONFI
 
 Here is the actual command that is run:
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt hm2_eth board_ip={"10.10.10.10"} config={"num_encoders=0 num_pwmgens=0 num_stepgens=6"}
 ----
@@ -190,7 +184,7 @@ Consider the topic of 'stepgen headroom'.
 Software `stepgen` runs best with an acceleration constraint that is "a bit higher" than the one used by the motion planner.
 So, when using `halcmd` files, we force INI files to have a manually calculated value.
 
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]
 MAXACCEL = 10.0

@@ -4,12 +4,6 @@
 [[cha:updating-linuxcnc]]
 = Updating LinuxCNC
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 Updating LinuxCNC to a new minor release (ie to a new version in
 the same stable series, for example from 2.9.7 to 2.9.8) is an
 automatic process if your PC is connected to the internet. You will

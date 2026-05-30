@@ -4,12 +4,6 @@
 [[cha:axis-gui]]
 = AXIS GUI
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((AXIS GUI)))
 
 == Introduction
@@ -45,7 +39,7 @@ Configuration Chapter.
   (will accept time in seconds (.05 -.2) for legacy reasons -
   milliseconds preferred to match other screens).
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 CYCLE_TIME = 100
@@ -57,7 +51,7 @@ CYCLE_TIME = 100
   display. Specifying 0 or leaving the setting out results in no
   timeout.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 PREVIEW_TIMEOUT = 5
@@ -824,7 +818,7 @@ will be displayed in the text area, previewed in the display area, and
 executed by LinuxCNC when 'Run'. The following lines add support for the
 'image-to-gcode' converter included with LinuxCNC:
 
-[source,{ini}]
+[source,ini]
 ----
 [FILTER]
 PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
@@ -834,7 +828,7 @@ gif = image-to-gcode
 
 It is also possible to specify an interpreter:
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .py Python Script
 py = python
@@ -850,7 +844,7 @@ image::images/holes.png["Circular Holes",align="center"]
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
 written to stderr of the form
 
-[source,{ini}]
+[source,ini]
 ----
 FILTER_PROGRESS=%d
 ----
@@ -1006,7 +1000,7 @@ This feature is enabled on an axis by altering the appropriate '[AXIS_x]' sectio
 
 Example:
 
-[source,{ini}]
+[source,ini]
 ----
 [AXIS_Z]
 TOUCHOFF_ACTUAL = MINUS

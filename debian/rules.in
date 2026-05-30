@@ -33,7 +33,8 @@ export TIME:=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 kernel_version = @KERNEL_VERSION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 ifeq (,$(filter nodocs,$(DEB_BUILD_OPTIONS)))
-enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
+enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@ \
+    --enable-build-documentation-translation
 endif
 SRCDIR = $(CURDIR)/src
 DESTDIR=$(CURDIR)/debian/tmp
@@ -123,9 +124,14 @@ ifeq (,$(filter nodocs,$(DEB_BUILD_OPTIONS)))
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-en
 	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
 
-# Remove files for translations created where we do not want Debian packages.
-	for l in ar es fr ru uk zh_CN; do \
-		$(RM) -f debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_*_$$l.pdf; \
+# Remove PDF files for translated locales that have no Debian package.
+# The authoritative locale list lives in docs/po4a.cfg's [po4a_langs]
+# line; only en and de get their own -doc package, every other locale
+# in that list has its PDFs dropped from the tmp staging area.
+	for l in $$(sed -e's/#.*//' docs/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-); do \
+		if [ "$$l" != "de" ]; then \
+			$(RM) -f debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_*_$$l.pdf; \
+		fi; \
 	done
 	$(RM) -f debian/tmp/usr/share/doc/linuxcnc/*_es.adoc
 else

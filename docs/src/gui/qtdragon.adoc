@@ -5,9 +5,6 @@
 [[cha:qtdragon-gui]]
 = QtDragon GUI
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Introduction
 
@@ -75,7 +72,7 @@ In the section `[DISPLAY]` change the `DISPLAY =` assignment to read:
 
 You can add `-v`, `-d`, `-i`, or `-q` for (respectably) verbose, debug, info or quiet output to the terminal.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DISPLAY = qtvcp qtdragon
@@ -89,7 +86,7 @@ It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to repres
 This example will save the file in the config folder of the launch screen.
 (Other options are possible see the QtVCP's screenoption widget docs.)
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
@@ -101,7 +98,7 @@ You can specify where to save history/logs. +
 These file names can be user selected. +
 In the section `[DISPLAY]` add:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MDI_HISTORY_FILE = mdi_history.dat
@@ -113,7 +110,7 @@ LOG_FILE = qtdragon.log
 
 These set qtdragon's override controls (1.0 = 100 percent):
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MAX_SPINDLE_0_OVERRIDE = 1.5
@@ -125,7 +122,7 @@ MAX_FEED_OVERRIDE       = 1.2
 
 Spindle control settings (in rpm and watts):
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DEFAULT_SPINDLE_0_SPEED = 500
@@ -140,7 +137,7 @@ MAX_SPINDLE_POWER = 1500
 Set selectable jogging increments. +
 These increments can be user changed.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 INCREMENTS = Continuous, .001 mm, .01 mm, .1 mm, 1 mm, 1.0 inch, 0.1 inch, 0.01 inch
@@ -154,7 +151,7 @@ This will override the default sizes. +
 The grid selection box is shown when clicking the 'OPTN' button 
 on the graphics display.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 GRIDS = 0, .1 mm, 1 mm, 2 mm, 5 mm, 10 mm, .25 in, .5 in
@@ -164,7 +161,7 @@ GRIDS = 0, .1 mm, 1 mm, 2 mm, 5 mm, 10 mm, .25 in, .5 in
 
 Set jog speed controls (in units per second)
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MIN_LINEAR_VELOCITY     = 0
@@ -183,7 +180,7 @@ See `qtvcp/library/messages` for more information. +
 This example shows how to make a dialog that requires the user to select 'ok' to acknowledge and hide. +
 These dialogs could be used for such things as low lube oil warnings, etc.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MESSAGE_BOLDTEXT = This is the short text
@@ -195,7 +192,7 @@ MESSAGE_PINNAME = oktest
 
 Multimessages use an s32 HAL pin to pop multiple defined messages.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MULTIMESSAGE_ID = VFD
@@ -232,7 +229,7 @@ You also use `WINDOW` to create a pop up window that cab be shown/hidden with an
 
 ==== Embedding Vismach Mill
 .Sample adding a builtin panel to the utilities tab, i.e., a graphical animated machine using the vismach library.
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 EMBED_TAB_NAME = Vismach demo
@@ -245,7 +242,7 @@ EMBED_TAB_LOCATION = tabWidget_utilities
 This example panel is designed to display additional RS485 VFD data and also to configure a 4 sheave, 2 belt spindle drive via a series of buttons.
 
 image::images/qtdragon_spindle_belts.png["QtDragon spindle_belts Panel - Spindle Belts VCP",align="center"]
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 EMBED_TAB_NAME = Spindle Belts
@@ -260,7 +257,7 @@ This sample is typical of what is needed for NgcGui, Basic Probe. and Versa Prob
 These paths will need to be adjusted to point to the actual files on your system.
 <<sub:ini:sec:rs274ngc,RS274NZGC Section Details>>
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs: \
@@ -271,7 +268,7 @@ SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/e
 QtVCP's NGCGUI program also need to know where to open for subroutine selection and pre-selection. +
 NGCGUI_SUBFILE_PATH must point to an actual path on your system and also a path described in SUBROUTINE_PATHS.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # NGCGUI subroutine path.
@@ -302,7 +299,7 @@ You can control what programs are displayed in the filemanager window with progr
 Create a line with the '.' endings you wish to use separated by commas, then a space and the description. +
 You can add multiple lines for different selections in the combo box.
 
-[source,{ini}]
+[source,ini]
 ----
 [FILTER]
 PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code file (*.ngc,*.nc,*.tap)
@@ -320,7 +317,7 @@ This output is what will be displayed in the text area, previewed in the display
 
 The following lines add support for the `image-to-gcode` converter included with LinuxCNC and running Python based filter programs:
 
-[source,{ini}]
+[source,ini]
 ----
 [FILTER]
 PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image
@@ -341,7 +338,7 @@ Comment/uncomment which ever you prefer.
 
 Both perform similar probing routines, though Versa probe optionally handles auto tool measurement.
 
-[source,{ini}]
+[source,ini]
 ----
 [PROBE]
 #USE_PROBE = versaprobe
@@ -354,7 +351,7 @@ By default, LinuxCNC does not report an abort in a useful way for the probe rout
 You need to add a ngc file to print out an error that can be detected.
 <<sub:remap:sec:error-handling, Remap Abort Details>>
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 # on abort, this ngc file is called. required for basic/versa probe routines. +
@@ -364,7 +361,7 @@ ON_ABORT_COMMAND=O <on_abort> call
 This example code will send a message on abort. The probe routines can detect this sample. +
 According to the setting above, it would need to be saved as 'on_abort.ngc' within LinuxCNC's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<on_abort> sub
 
@@ -389,7 +386,7 @@ m2
 You should set default M/G code for start up. These will be overridden by running a NGC file. +
 These are only sample codes, integrator should choose appropriate codes.
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 # start up G/M codes when first loaded
@@ -411,7 +408,7 @@ The buttons can require the mode to be preset to MDI or to automatically switch 
 setting preferences on the settings page. +
 These commands can be run with external HAL pins, if using the hal_bridge component. See <<sec:bridge,HAL_BRIDGE>>
 
-[source,{ini}]
+[source,ini]
 ----
 [MDI_COMMAND_LIST]
 # for macro buttons
@@ -445,7 +442,7 @@ You can add multiple line for multiple file. Each one will be called in the orde
 Calling HAL files after QtDragon is already loaded assures that QtDragon's HAL pins are available.
 
 .Sample with typical entries for the specificion of HAL files to be read after the QtDragon was started. Adjust these lines to match actual requirements.
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 POSTGUI_HALFILE = qtdragon_hd_postgui.hal
@@ -459,7 +456,7 @@ You can add multiple line. Each one will be called in the order they appear. +
 Any HAL command can be used.
 
 .Sample with typical files in INI file to load modules after the GUI is available. Adjust these to match your actual requirements.
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 POSTGUI_HALCMD = loadusr qtvcp test_probe
@@ -483,7 +480,7 @@ setting preferences on the settings page.
 - ok/cancel of dialogs and notify (error) messages
 
 .Sample entry. Remove '-d' to quiet debugging messages.
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 HALBRIDGE= hal_bridge -d
@@ -564,7 +561,7 @@ There are of course are many more HAL pins that must be connected for LinuxCNC t
 If you need a manual tool change prompt, add these lines in your postgui file. +
 QtDragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'.
 
-[source,{hal}]
+[source,hal]
 ----
 net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
@@ -573,14 +570,14 @@ net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-num
 
 Also if you don't have an automatic tool changer make sure these pins are connected in one of the HAL files:
 
-[source,{hal}]
+[source,hal]
 ----
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 ----
 
 This input pin should be connected to indicate probe state.
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.led-probe
 ----
@@ -589,7 +586,7 @@ These pins are inputs related to spindle VFD indicating. +
 The volt and amp pins are used to calculate spindle power.
 You must also set the MAX_SPINDLE_POWER in the INI.
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.spindle-modbus-connection
 qtdragon.spindle-modbus-errors
@@ -601,7 +598,7 @@ qtdragon.spindle-volts
 This bit pin is an output to the spindle control to pause it. +
 You would connect it to `spindle.0.inhibit`.
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.spindle-inhibit
 ----
@@ -611,28 +608,28 @@ QtDragon spindle speed display and spindle-at-speed LED require that
 Encoder or VFD feedback could be used, as long as the feedback is in revolutions per second (RPS). +
 If no feedback is available you can have the display show the requested speed by connecting pins like so:
 
-[source,{hal}]
+[source,hal]
 ----
 net spindle-speed-feedback spindle.0.speed-out-rps => spindle.0.speed-in
 ----
 
 This bit output pin can be connected to turn on a laser:
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.btn-laser-on
 ----
 
 This float output pin indicates the camera rotation in degrees:
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.cam-rotation
 ----
 
 These bit/s32/float pins are related to external offsets if they are used:
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.eoffset-clear
 qtdragon.eoffset-enable
@@ -644,7 +641,7 @@ qtdragon.eoffset-is-active
 
 These float output pins reflect the current slider jograte (in machine units):
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.slider-jogspeed-linear
 qtdragon.slider-jogspeed-angular
@@ -652,7 +649,7 @@ qtdragon.slider-jogspeed-angular
 
 These float output pins reflect the current slider override rates:
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.slider-override-feed
 qtdragon.slider-override-maxv
@@ -663,7 +660,7 @@ qtdragon.slider-override-spindle
 These output pins are available when setting the Versa Probe INI option.
 They can be used for auto-tool-length-probe at tool change - with added remap code.
 
-[source,{hal}]
+[source,hal]
 ----
 qtversaprobe.enable
 qtversaprobe.blockheight
@@ -676,7 +673,7 @@ qtversaprobe.backoffdist
 This pin will be true when the loaded tool equals the number set in the Versa Probe tool number in the preference file. +
 It can be used (for example) to inhibit the spindle when the probe is loaded by connecting it to `spindle.0.inhibit`.
 
-[source,{hal}]
+[source,hal]
 ----
 qtversaprobe.probe-loaded
 ----
@@ -685,20 +682,20 @@ This output pin is available when setting the Basic Probe INI option. +
 This pin will be true when the loaded tool equals the number set in the Basic Probe tool number edit box. +
 It can be used (for example) to inhibit the spindle when the probe is loaded by connecting it to `spindle.0.inhibit`.
 
-[source,{hal}]
+[source,hal]
 ----
 qtbasicprobe.probe-loaded
 ----
 
 This input pin is available to toggle pause/resume of a running program.
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.external-pause
 ----
 
 You can externally operate dialog responses on most qtdragon dialogs.
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.dialog-ok
 qtdragon.dialog-no
@@ -717,7 +714,7 @@ If your machine requires manual tool changes, QtDragon can pop a message box to 
 QtDragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'.
 Hereto you must connect the proper HAL pin in the postgui HAL file, for example:
 
-[source,{hal}]
+[source,hal]
 ----
 net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
@@ -756,7 +753,7 @@ This optional behaviour requires additions to the INI and the QtDragon_postgui H
 
 In the INI, under the AXIS_Z heading.
 
-[source,{ini}]
+[source,ini]
 ----
 [AXIS_Z]
 OFFSET_AV_RATIO  = 0.2
@@ -766,7 +763,7 @@ This will limit max velocity of the machine by 20% +
 
 In the qtdragon_postgui.hal file add:
 
-[source,{hal}]
+[source,hal]
 ----
 # Set up Z axis external offsets
 net eoffset_clear    qtdragon.eoffset-clear          =>  axis.z.eoffset-clear
@@ -832,7 +829,7 @@ This is only available in the QtDragon_hd version.
 If you use auto raise Z to lift the spindle on pause, you must combine the two with a HAL component and feed that to LinuxCNC's motion component.
 
 .Sample postgui HAL file for combined spindle raise and Z Level compensation
-[source,{hal}]
+[source,hal]
 ----
 # load components
 ########################################################################
@@ -1006,7 +1003,7 @@ Pressing the stop button or the keyboard escape key, will abort the probing.
 This can be used to inhibit the spindle when the probe is loaded. +
 You would connect it to spindle.0.inhibit
 
-[source,{hal}]
+[source,hal]
 ----
 qtbasicprobe.probe-loaded
 ----
@@ -1229,10 +1226,12 @@ This is only available in the QtDragon_hd version.
 * displays this help file.
 
 [NOTE]
+====
 * Any 2 points within the machine operating volume can be specified.
 * If the first point is higher than the second, the calculated height will be a positive number.
 * If the first point is lower than the second, the calculated height will be a negative number.
 * Units are irrelevant in this program. The probed values are not saved and only the difference is reported.
+====
 
 [CAUTION]
 Setting incorrect values can lead to crashes into fixtures on the machine work surface.
@@ -1259,7 +1258,7 @@ Modify your INI file to include the following:
 QtDragon allows you to select one of two styles of touch probe routines.
 Versa probe works with a M6 remap to add auto tool probing.
 
-[source,{ini}]
+[source,ini]
 ----
 [PROBE]
 #USE_PROBE = versaprobe
@@ -1275,7 +1274,7 @@ USE_PROBE = basicprobe
 These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/'
 instead of 'linuxcnc/nc_files/'. please check that paths are valid. Custom entries pointing to modified file are possible.
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 
@@ -1317,7 +1316,7 @@ Z_MAX_CLEAR is the Z position to go to before moving to the tool setter when usi
 . rapid move to [VERSA_TOOLSETTER] Z position.
 
 Example settings:
-[source,{ini}]
+[source,ini]
 ----
 [VERSA_TOOLSETTER]
 X = 10
@@ -1334,7 +1333,7 @@ The position to which to move the machine before giving the change tool command.
 All values are in absolute coordinates.
 All values are in machine native units.
 
-[source,{ini}]
+[source,ini]
 ----
 [CHANGE_POSITION]
 X = 10
@@ -1348,7 +1347,7 @@ The Python section sets up what files LinuxCNC's Python interpreter looks for, e
 These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/' instead of 'linuxcnc/nc_files/'.
 Custom entries pointing to modified file are possible.
 
-[source,{ini}]
+[source,ini]
 ----
 # The path start point for all remap searches, i.e. Python's sys.path.append()
 PATH_APPEND = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python
@@ -1361,7 +1360,7 @@ TOPLEVEL = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python/toplevel.py
 Make sure to connect the tool probe input in your HAL file:
 If connected properly, you should be able to toggle the probe LED in QtDragon if you press the probe stylus.
 
-[source,{hal}]
+[source,hal]
 ----
 net probe  motion.probe-input <= <your_input_pin>
 ----
@@ -1639,7 +1638,7 @@ Sometimes these lines will be present and you can change them, otherwise you wil
 
 For instance, to change the DRO font (look for this entry and change the font name):
 
-[source,{ini}]
+[source,ini]
 ----
 DROLabel,
 StatusLabel#status_rpm {
@@ -1651,7 +1650,7 @@ StatusLabel#status_rpm {
 
 To change the DRO display font and display format:
 
-[source,{ini}]
+[source,ini]
 ----
 DROLabel {
     font: 25pt "Lato Heavy";
@@ -1671,7 +1670,7 @@ DROLabel {
 
 Change the axis select button's click menu items:
 
-[source,{ini}]
+[source,ini]
 ----
 AxisToolButton {
     /* Adjust all the menu options */
@@ -1686,7 +1685,7 @@ AxisToolButton {
 
 To change the text of the mist button to 'air' (add these lines)
 
-[source,{ini}]
+[source,ini]
 ----
 #action_mist{
     qproperty-true_state_string: "Air\\nOn";
@@ -1696,7 +1695,7 @@ To change the text of the mist button to 'air' (add these lines)
 
 To change the Offsets display font and format:
 
-[source,{ini}]
+[source,ini]
 ----
 ToolOffsetView {
     font: 20pt "Lato Heavy";
@@ -1714,7 +1713,7 @@ OriginOffsetView {
 
 To stop the blur effect with dialogs:
 
-[source,{ini}]
+[source,ini]
 ----
 #screen_options {
     qproperty-focusBlur_option: false;
@@ -1722,7 +1721,7 @@ To stop the blur effect with dialogs:
 ----
 
 To change status highlight/selection colors:
-[source,{ini}]
+[source,ini]
 ----
 #screen_options {
     qproperty-user1Color: white;     /*  default status     */
@@ -1735,7 +1734,7 @@ To change status highlight/selection colors:
 
 Change the G-code text display colors/fonts:
 
-[source,{ini}]
+[source,ini]
 ----
 EditorBase{
 background:black;
@@ -1764,7 +1763,7 @@ qproperty-styleFont7: "Times,15,-1,5,90,0,0,1,1,0";
 
 To have the manual spindle buttons also incrementally increase/decrease speed:
 
-[source,{ini}]
+[source,ini]
 ----
 #action_spindle_fwd{
     qproperty-spindle_up_action: true;

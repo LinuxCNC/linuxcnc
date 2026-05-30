@@ -110,19 +110,7 @@ elif [ -f /etc/lsb-release ]; then
 fi
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOC_DEPENDS="dblatex (>= 0.2.12),\n    dvipng,\n    fonts-dejavu,\n    graphviz,\n    groff,\n    inkscape,\n    librsvg2-bin,\n    python3-lxml,\n    source-highlight,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-european,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    w3c-linkchecker,\n    xsltproc"
-    
-
-    case $DISTRIB_NAME in
-        Debian-9)
-            ;; # No xetex in Debian 9 Stretch
-        *)
-            # Not quite sure which packages is needed for xetex, but
-            # texlive-xetex seem like a safe choice.  Need xetex to be
-            # able to build Chinese PDF.
-            DOC_DEPENDS="$DOC_DEPENDS,\n    texlive-xetex"
-            ;;
-    esac
+    DOC_DEPENDS="asciidoctor,\n    asciidoctor-pdf | ruby-asciidoctor-pdf,\n    fonts-dejavu,\n    fonts-noto-cjk,\n    ghostscript,\n    graphviz,\n    librsvg2-bin,\n    python3-fonttools,\n    ruby-rouge,\n    w3c-linkchecker"
 else
     DOC_DEPENDS=''
 fi

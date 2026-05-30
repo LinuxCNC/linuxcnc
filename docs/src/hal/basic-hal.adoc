@@ -4,12 +4,6 @@
 [[cha:basic-hal-reference]]
 = HAL Basics
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((HAL Basics)))
 This document provides a reference to the basics of HAL.
 
@@ -34,7 +28,7 @@ Real time component functions need to be added to a thread to be updated at the 
 You cannot load a non-realtime component into the realtime space.
 
 .loadrt Syntax and Example
-[source,{hal}]
+[source,hal]
 ----
 loadrt <component> <options>
 loadrt mux4 count=1
@@ -92,7 +86,7 @@ Realtime Threads:
   This thread handles items that can tolerate a slower response, like the motion controller, ClassicLadder, and the motion command handler.
 
 .addf Syntax and Example
-[source,{hal}]
+[source,hal]
 ----
 addf <function> <thread>
 addf mux4.0 servo-thread
@@ -140,7 +134,7 @@ Flags may be one or more of the following:
 -n:: name a component when it is a valid option for that component.
 
 .Syntax and Examples of `loadusr`
-[source,{hal}]
+[source,hal]
 ----
 loadusr <component> <options>
 loadusr halui
@@ -160,7 +154,7 @@ The optional direction arrows `<=`, `=>` and `<=>` make it easier to follow the 
 The direction arrows must be separated by a space from the pin names.
 
 .Syntax and Examples of `net`
-[source,{hal}]
+[source,hal]
 ----
 net signal-name pin-name <optional arrow> <optional second pin-name>
 net home-x joint.0.home-sw-in <= parport.0.pin-11-in
@@ -184,7 +178,7 @@ image::images/signal-direction.png["Signal Direction",align="center"]
 This example shows the signal xStep with the source being `stepgen.0.out` and with two readers, `parport.0.pin-02-out` and `parport.0.pin-08-out`.
 Basically the value of `stepgen.0.out` is sent to the signal xStep and that value is then sent to `parport.0.pin-02-out` and `parport.0.pin-08-out`.
 
-[source,{hal}]
+[source,hal]
 ----
 #   signal    source            destination          destination
 net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
@@ -193,7 +187,7 @@ net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
 Since the signal xStep contains the value of `stepgen.0.out` (the source) you can use the same signal again to send the value to another reader.
 To do this just use the signal with the readers on another line.
 
-[source,{hal}]
+[source,hal]
 ----
 #   signal       destination2
 net xStep => parport.0.pin-06-out
@@ -215,7 +209,7 @@ Parameters can be set before use or while running as needed.
 You cannot use setp on a pin that is connected to a signal.
 
 .Syntax and Examples of `setp`
-[source,{hal}]
+[source,hal]
 ----
 setp <pin/parameter-name> <value>
 setp parport.0.pin-08-out TRUE
@@ -228,7 +222,7 @@ setp parport.0.pin-08-out TRUE
 The command `sets` sets the value of a signal.
 
 .Syntax and Examples of `sets`
-[source,{hal}]
+[source,hal]
 ----
 sets <signal-name> <value>
 net mysignal and2.0.in0 pyvcp.my-led
@@ -250,7 +244,7 @@ If no signal was connected to the pin prior running the command, nothing happens
 The `unlinkp` command is useful for trouble shooting.
 
 .Syntax and Examples of `unlinkp`
-[source,{hal}]
+[source,hal]
 ----
 unlinkp <pin-name>
 unlinkp parport.0.pin-02-out
@@ -267,7 +261,7 @@ These commands are included so older configurations will still work.
 The command `linksp` creates a 'connection' between a signal and one pin.
 
 .Syntax and Examples of `linksp`
-[source,{hal}]
+[source,hal]
 ----
 linksp <signal-name> <pin-name>
 linksp X-step parport.0.pin-02-out
@@ -281,7 +275,7 @@ The command `linkps` creates a 'connection' between one pin and one signal.
 It is the same as `linksp` but the arguments are reversed.
 
 .Syntax and Examples of `linkps`
-[source,{hal}]
+[source,hal]
 ----
 linkps <pin-name> <signal-name>
 linkps parport.0.pin-02-out X-Step
@@ -295,7 +289,7 @@ the command `newsig` creates a new HAL signal by the name _<signame>_ and the da
 Type must be 'bit', 's32', 'u32', 's64', 'u64' or 'float'. Error if _<signame>_ already exists.
 
 .Syntax and Examples of `newsig`
-[source,{hal}]
+[source,hal]
 ----
 newsig <signame> <type>
 newsig Xstep bit
@@ -534,7 +528,7 @@ xor2.n.out (bit, out)
 
 (((HAL Logic Examples)))
 .Example using `and2`
-[source,{hal}]
+[source,hal]
 ----
 loadrt and2 count=1
 addf and2.0 servo-thread
@@ -564,7 +558,7 @@ It's similar to 'binary coded decimal' but with more options.
 The 'hold' bit interrupts the input processing, so that the 'sum' value no longer changes.
 
 .Syntax for loading component `weighted_sum`
-[source,{hal}]
+[source,hal]
 ----
 loadrt weighted_sum wsum_sizes=size[,size,...]
 ----
@@ -574,7 +568,7 @@ Creates groups of ``weighted_sum``s, each with the given number of input bits (s
 To update the `weighted_sum`, the `process_wsums` must be attached to a thread.
 
 .Add `process_wsums` to servo thread
-[source,{hal}]
+[source,hal]
 ----
 addf process_wsums servo-thread
 ----

@@ -4,12 +4,6 @@
 [[cha:tool-compensation]]
 = Tool Compensation
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((Tool Compensation)))
 
 [[sec:touch-off]]
@@ -213,7 +207,7 @@ Information about configuring a LinuxCNC tool changer is in the <<sub:ini:sec:em
 Manual tool changer (you change the tool by hand) is treated like a fixed location tool changer.
 Manual toolchanges can be aided by a HAL configuration that employs the non-realtime program *hal_manualtoolchange* and is typically specified in an INI file with INI statements:
 
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 HALFILE = axis_manualtoolchange.hal

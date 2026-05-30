@@ -4,11 +4,6 @@
 [[cha:qtplasmac]]
 = QtPlasmaC
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Preamble
 
@@ -373,7 +368,7 @@ To apply a low-pass filter to the arc-voltage, the user would edit the following
 
 For example:
 
-[source,{hal}]
+[source,hal]
 ----
 setp plasmac.lowpass-frequency 100
 ----
@@ -542,7 +537,7 @@ QtPlasmaC has some specific _<machine_name>_.ini file variables as follows:
 
 These variables are mandatory.
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .ngc,.nc,.tap G-code File (*.ngc, *.nc, *.tap)
 ngc               = qtplasmac_gcode
@@ -555,7 +550,7 @@ tap               = qtplasmac_gcode
 
 These variables are mandatory.
 
-[source,{ini}]
+[source,ini]
 ----
 RS274NGC_STARTUP_CODE = G21 G40 G49 G80 G90 G92.1 G94 G97 M52P1
 SUBROUTINE_PATH       = ./:../../nc_files
@@ -573,7 +568,7 @@ SEE <<plasma:path-tolerance,PATH TOLERANCE>> FOR RS274NGC_STARTUP_CODE INFORMATI
 
 These variables are mandatory.
 
-[source,{ini}]
+[source,ini]
 ----
 HALUI           = halui (required)
 HALFILE         = _<machine_name>_.hal (the machine HAL file)
@@ -591,7 +586,7 @@ The user could place custom HAL commands in the custom.hal file as this file is 
 
 This variable  is mandatory.
 
-[source,{ini}]
+[source,ini]
 ----
 DISPLAY = qtvcp qtplasmac      (use 16:9 resolution)
         = qtvcp qtplasmac_9x16 (use 9:16 resolution)
@@ -603,7 +598,7 @@ link:../gui/qtvcp.html#_ini_settings[QtVCP INI Settings]
 
 For example, the following would start a 16:9 resolution QtPlasmaC screen in full screen mode:
 
-[source,{ini}]
+[source,ini]
 ----
 DISPLAY = qtvcp -f qtplasmac
 ----
@@ -612,7 +607,7 @@ DISPLAY = qtvcp -f qtplasmac
 
 This variable is mandatory.
 
-[source,{ini}]
+[source,ini]
 ----
 SPINDLES = 3
 ----
@@ -621,7 +616,7 @@ SPINDLES = 3
 
 These variables are mandatory.
 
-[source,{ini}]
+[source,ini]
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
 MAX_ACCELERATION = double the value in the corresponding joint
@@ -632,7 +627,7 @@ OFFSET_AV_RATIO  = 0.5
 
 These variables are mandatory.
 
-[source,{ini}]
+[source,ini]
 ----
 MAX_VELOCITY     = double the value in the corresponding joint
 MAX_ACCELERATION = double the value in the corresponding joint
@@ -643,7 +638,7 @@ OFFSET_AV_RATIO  = 0.5
 
 These variables are mandatory.
 
-[source,{ini}]
+[source,ini]
 ----
 MIN_LIMIT        = just below the top of the table's slats
 MAX_VELOCITY     = double the value in the corresponding joint
@@ -932,7 +927,7 @@ See <<plasma:shape-library,Conversational Shape Library>> for detailed informati
 
 It is possible to hide this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
-[source,{hal}]
+[source,hal]
 ----
 setp qtplasmac.conv_disable 1
 ----
@@ -950,7 +945,7 @@ This tab is used to display configuration parameters that are modified infrequen
 
 It is possible to hide this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
-[source,{hal}]
+[source,hal]
 ----
 setp qtplasmac.param_disable 1
 ----
@@ -1139,7 +1134,7 @@ This tab is used to display GUI configuration parameters, button text, and shutd
 
 It is possible to hide this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
-[source,{hal}]
+[source,hal]
 ----
 setp qtplasmac.settings_disable 1
 ----
@@ -1286,13 +1281,13 @@ If the metric user wanted to cut the G-code file using imperial material, then t
 The following stanzas are the minimum recommended codes to include in the preamble and postamble of any G-code file to be run by QtPlasmaC:
 
 Metric:
-[source,{ngc}]
+[source,ngc]
 ----
 G21 G40 G49 G64p0.1 G80 G90 G92.1 G94 G97
 ----
 
 Imperial:
-[source,{ngc}]
+[source,ngc]
 ----
 G20 G40 G49 G64p0.004 G80 G90 G92.1 G94 G97
 ----
@@ -1335,14 +1330,14 @@ QtPlasmaC is able to read a material file to load all the required cut parameter
 To enable to G-code file to use the cut feed rate setting from the cut parameters use the following code in the G-code file:
 
 
-[source,{ngc}]
+[source,ngc]
 ----
 F#<_hal[plasmac.cut-feed-rate]>
 ----
 
 It is possible to use the standard G-code *F* word to set the cut feed rate as follows:
 
-[source,{ngc}]
+[source,ngc]
 ----
 F 1000
 ----
@@ -1394,7 +1389,7 @@ WARNING: It is the responsibility of the operator to ensure that the variables a
 
 The material file uses the following format:
 
-[source,{ini}]
+[source,ini]
 ----
 [MATERIAL_NUMBER_1]
 NAME                = name
@@ -1424,14 +1419,14 @@ After any changes have been saved, press *Reload* in the MATERIAL section of the
 For manual material handling, the user would manually select the material from the materials list in the MATERIAL section of the <<plasma:parameters-tab,PARAMETERS Tab>> before starting the G-code program.
 In addition to selecting materials with materials list in the MATERIAL section of the <<plasma:parameters-tab,PARAMETERS Tab>>, the user could use the MDI to change materials with the following command:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M190 Pn
 ----
 
 The following code is the minimum code necessary to have a successful cut using the manual material selection method:
 
-[source,{ngc}]
+[source,ngc]
 ----
 F#<_hal[plasmac.cut-feed-rate]>
 M3 $0 S1
@@ -1457,7 +1452,7 @@ For automatic material handling, the codes MUST be applied in the order shown.
 If a G-code program is loaded which contains one or more material change commands then the first material will be displayed in the top header of the PREVIEW WINDOW on the <<plasma:main-tab,MAIN Tab>> as the program is loading.
 
 .Minimum code necessary to have a successful cut using the automatic material selection method:
-[source,{ngc}]
+[source,ngc]
 ----
 M190 Pn
 M66 P3 L3 Q1
@@ -1539,14 +1534,14 @@ Optional parameters are:
 
 A complete example (metric):
 
-[source,{ngc}]
+[source,ngc]
 ----
 (o=0, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, mt=5, kw=0.5, th=1, ca=40, cv=110, pe=0.1, gp=5, cm=1, jh=0, jd=0)
 ----
 
 A complete example (imperial):
 
-[source,{ngc}]
+[source,ngc]
 ----
 (o=0, nu=2, na=0.197" Mild Steel 40A, ph=0.122, pd=0.1, ch=0.029, fr=118, mt=0.197, kw=0.020, th=1, ca=40, cv=110, pe=0.1, gp=72, cm=1, jh=0, jd=0)
 ----
@@ -1625,7 +1620,7 @@ To use this feature, the user must set the laser's offset from the torch center 
 
 To modify the offsets manually, the user could edit either or both the following options in the *[LASER_OFFSET]* section of the _<machine_name>_.prefs file:
 
-[source,{ini}]
+[source,ini]
 ----
 X axis = n.n
 Y axis = n.n
@@ -1635,7 +1630,7 @@ where _n.n_ is distance from the center line of the torch to the laser's cross h
 
 Additionally, the laser can be tied to any available output to turn the laser on and off via a HAL pin with the following name:
 
-[source,{hal}]
+[source,hal]
 ----
 qtplasmac.laser_on
 ----
@@ -1685,7 +1680,7 @@ To use this feature, the user must set the camera's offset from the torch center
 
 To modify the offsets manually, the user could edit either or both the following axes options in the *[CAMERA_OFFSET]* section of the _<machine_name>_.prefs file:
 
-[source,{ini}]
+[source,ini]
 ----
 X axis = n.n
 Y axis = n.n
@@ -1732,13 +1727,13 @@ If no G64 command is found it will insert a `G64 P0.1` command which sets the pa
 For a imperial config the command will be `G64 P0.004`.
 
 .For Metric:
-[source,{ngc}]
+[source,ngc]
 ----
 G64 P0.1
 ----
 
 .For Imperial:
-[source,{ngc}]
+[source,ngc]
 ----
 G64 P0.004
 ----
@@ -1753,14 +1748,14 @@ This is also a requirement for <<plasma:hole-cutting-velocity-reduction,Hole Cut
 
 To enable *Paused Motion* The preamble of the G-code must contain the following line:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M52 P1
 ----
 
 To turn off *Paused Motion* at any point, use the following command:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M52 P0
 ----
@@ -1931,7 +1926,7 @@ Some float switches can exhibit a large switching hysteresis which shows up in t
 * This speed defaults to 0.001 mm (0.000039") per servo cycle.
 * It is possible to increase this speed by up to a factor of 10 by adding the following line to the custom.hal file:
 
-[source,{hal}]
+[source,hal]
 ----
 setp plasmac.probe-final-speed n
 ----
@@ -1961,7 +1956,7 @@ To use this feature, the user must set the probe's offset from the torch center 
 
 To modify the offsets manually, the user could edit either or both the following options in the *[OFFSET_PROBING]* section of the _<machine_name>_.prefs file:
 
-[source,{ini}]
+[source,ini]
 ----
 X axis = n.n
 Y axis = n.n
@@ -1995,7 +1990,7 @@ There are two ways of enabling this feature:
 . Utilize the default <<plasma:button-cut,custom user button>> to toggle between the cut types.
 . Adding the following line to the G-code program before the first cut to enable *Pierce Only* mode for the current file:
 
-[source,{ngc}]
+[source,ngc]
 ----
 #<pierce-only> = 1
 ----
@@ -2037,14 +2032,14 @@ This is also a requirement for <<plasma:paused-motion,Paused Motion>> during <<p
 
 To enable *Hole Cutting Velocity Reduction* The preamble of the G-code must contain the following line:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M52 P1
 ----
 
 To turn off *Hole Cutting Velocity Reduction* at any point, use the following command:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M52 P0
 ----
@@ -2052,7 +2047,7 @@ M52 P0
 See the <<plasma:velocity_thc,Velocity Based THC>> section.
 
 .Sample code for hole cutting with reduced velocity.
-[source,{ngc}]
+[source,ngc]
 ----
 G21 (metric)
 G64 P0.005
@@ -2095,7 +2090,7 @@ It is important to thoroughly understand the difference between *Synchronized wi
 
 Sample code:
 
-[source,{ngc}]
+[source,ngc]
 ----
 G21 (metric)
 G64 P0.005
@@ -2153,7 +2148,7 @@ It is possible to change this value with the following command in a G-code file:
 This feature can be used in addition to setting the desired hole sensing mode via the appropriate G-code parameter by setting the <<plasma:pause-at-end,Pause At End>> parameter in the MATERIAL frame of the <<plasma:parameters-tab,PARAMETERS Tab>>.
 
 .Sample code:
-[source,{ngc}]
+[source,ngc]
 ----
 G21 (metric)
 G64 P0.005
@@ -2442,7 +2437,7 @@ After the above directions are completed, the scribe may be tested manually by i
 
 To use the scribe from G-code:
 
-[source,{ngc}]
+[source,ngc]
 ----
 ...
 M52 P1 (enable adaptive feed)
@@ -2489,7 +2484,7 @@ For this reason, a minimal movement at a high speed is required to be programmed
 
 An example G-code is:
 
-[source,{ngc}]
+[source,ngc]
 ----
 G21 (metric)
 F99999 (high feed rate)
@@ -2690,14 +2685,14 @@ If the user wishes for the generated G-code to have each code on an individual l
 
 This will place all codes on the same line:
 
-[source,{ngc}]
+[source,ngc]
 ----
 G21 G40 G49 G64p0.1 G80 G90 G92.1 G94 G97
 ----
 
 This will place each code on its own line:
 
-[source,{ngc}]
+[source,ngc]
 ----
 G21\nG40\nG49\nM52P1\nG64p0.1\nG80\nG90\nG92.1\nG94\nG97
 ----
@@ -2863,7 +2858,7 @@ _<machine_name>_.prefs must be edited with QtPlasmaC closed or any changes will 
 
 Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following option in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
-[source,{ini}]
+[source,ini]
 ----
 Flash error = True
 ----
@@ -3044,7 +3039,7 @@ This would be done with the following code in qtplasmac_custom.qss:
 
 Custom style sheets are enabled by setting the following option in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file. This option must be set to the filename of the style sheet as shown below.
 
-[source,{ini}]
+[source,ini]
 ----
 Custom style = the_cool_style.qss
 ----
@@ -3098,7 +3093,7 @@ background of conversational shape buttons
 background of active camera/laser buttons +
 foreground of G-code editor cursor
 |color4 (#36362e) |Alt Background |background of G-code display's active line
-|color5 (#b0b0b0) |foreground of disabled buttons
+|color5 (#b0b0b0) |Disabled |foreground of disabled buttons
 |===
 
 [[plasma:default_styling]]
@@ -3138,7 +3133,7 @@ Custom code can be added in two different ways: a user command file or a user pe
 
 A user command file is specified in the DISPLAY section of the _<machine_name>_.ini file and contains Python code that is processed only once during startup.
 
-[source,{ini}]
+[source,ini]
 ----
 USER_COMMAND_FILE = my_custom_code.py
 ----
@@ -3219,7 +3214,7 @@ All _<machine_name>_.prefs file settings for the buttons are found in the *[BUTT
 
 The text that appears on the button is set the following way:
 
-[source,{ini}]
+[source,ini]
 ----
 n Name = HAL Show
 ----
@@ -3228,14 +3223,14 @@ Where _n_ is the button number and *HAL Show* is the text.
 
 For text on multiple lines, split the text with a \ (backslash):
 
-[source,{ini}]
+[source,ini]
 ----
 n Name = HAL\Show
 ----
 
 If an ampersand is required to be displayed as text then two consecutive ampersands are required:
 
-[source,{ini}]
+[source,ini]
 ----
 n Name = PIERCE&&CUT
 ----
@@ -3270,7 +3265,7 @@ Buttons can run the following:
 
 To run an external command, the command is preceded by a % character.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = %halshow
 ----
@@ -3281,7 +3276,7 @@ n Code = %halshow
 To run an external Python script, the script name is preceded by a % character and it also requires a .py extension.
 It is valid to use the ~ character as a shortcut for the user's home directory.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = %~/user_script.py
 ----
@@ -3291,14 +3286,14 @@ n Code = %~/user_script.py
 
 To run G-code, just enter the code to be run.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = G0 X100
 ----
 
 To run an existing subroutine.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = o<the_subroutine> call
 ----
@@ -3306,7 +3301,7 @@ n Code = o<the_subroutine> call
 _<machine_name>_.ini file variables can be entered by using the standard LinuxCNC G-code format.
 If expressions are included, then they need to be surrounded by brackets.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = G0 X#<_ini[joint_0]home> Y1
 n Code = G53 G0 Z[#<_ini[axis_z]max_limit> - 1.001]
@@ -3316,7 +3311,7 @@ _<machine_name>_.prefs file variables and also _<machine_name>_.ini variables ca
 You must put a space after each *}* if there are any following characters.
 If expressions are included, then they need to be surrounded by brackets.
 
-[source,{ini}]
+[source,ini]
 ----
 BUTTON_n_CODE = G0 X{LASER_OFFSET X axis} Y{LASER_OFFSET Y axis}
 BUTTON_n_CODE = G0 X{JOINT_0 HOME} Y1
@@ -3326,14 +3321,14 @@ BUTTON_n_CODE = G53 G0 Z[{AXIS_Z MAX_LIMIT} - 1.001]
 Multiple codes can be run by separating the codes with a "\" (backslash) character.
 The exception is the special commands which are required to be a single command per button.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = G0 X0 Y0 \ G1 X5 \ G1 Y5
 ----
 
 External commands and G-code may be mixed on the same button.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = %halshow \ g0x.5y.5 \ %halmeter
 ----
@@ -3347,7 +3342,7 @@ The button text will alternate with each button press and the indicator light ma
 It is mandatory to specify the button code in the following order: "dual-code", the first code, the alternate button text, and the second code separated by double semicolons.
 If an indicator is required then optionally add ";; true" at the end.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = dual-code ;; code1 ;; name1 ;; code2 ;; true
 ----
@@ -3360,7 +3355,7 @@ code1 and code2 both follow the rule of the preceding code explanations, <<plasm
 
 The following code will allow the user to use a single button to run two code snippets alternately each button press:
 
-[source,{ini}]
+[source,ini]
 ----
 n Name = X+10
 n Code = dual-code ;; G91\G0X10\G90 ;; X-10 ;; G91\G0X-10\G90
@@ -3378,7 +3373,7 @@ The following commands must be a single command per user button, and the button 
 
 The following code will allow the user to use a button to invert the current state of a HAL bit pin:
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = toggle-halpin the-hal-pin-name
 ----
@@ -3393,7 +3388,7 @@ The button will stay "latched" until the button is clicked again, which will ret
 It is also possible for the user to specify alternate text which will display on the button while ever it is in the latched-on condition.
 To specify the alternate text, use a double semicolon followed by the required text. This must be the last item in the button code.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = toggle-halpin the-hal-pin-name ;; PIN\TOGGLED
 ----
@@ -3404,7 +3399,7 @@ HAL connections to these HAL pins need to be specified in a postgui HAL file as 
 
 For toggle-halpin buttons, it is possible for the user to mark the associated HAL pin as being required to be turned "ON" before starting a cut sequence by adding "cutcritical" after the HAL pin in the button code. If *TORCH ENABLE* is checked and *CYCLE START*, *MANUAL CUT*, or *SINGLE CUT* are initiated while the "cutcritical" button is not "ON" then the user will receive a dialog warning them as such and asking to CONTINUE or CANCEL. The dialog will list all untoggled buttons with a corresponding checkbox and allow the user to choose which of the buttons should be toggled automatically upon clicking CONTINUE.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = toggle-halpin the-hal-pin-name cutcritical
 ----
@@ -3414,7 +3409,7 @@ n Code = toggle-halpin the-hal-pin-name cutcritical
 
 The following code will allow the user to use a button to invert the current state of the alignment laser HAL bit pin:
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = toggle-laser
 ----
@@ -3429,7 +3424,7 @@ which will return the button to the original colors and the alignment laser HAL 
 
 The following code would allow the user to use a button to invert the current state of the alignment laser HAL bit pin and then move the X and Y axes to the offset for the alignment laser as specified in the _<machine_name>_.prefs file:
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = G0 X{LASER_OFFSET X axis} Y{LASER_OFFSET Y axis} \ toggle-laser
 ----
@@ -3441,7 +3436,7 @@ The position of the "toggle-laser" command is not important as it is always the 
 
 The following code will allow the user to use a button to pulse a HAL bit pin for a duration of 0.5 seconds:
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = pulse-halpin the-hal-pin-name 0.5
 ----
@@ -3469,7 +3464,7 @@ If the user has "View Material" selected in the GUI SETTINGS section of the <<pl
 QtPlasmaC will then wait in this state for the time specified (rounded to no decimal places) before returning the Z axis to the starting position.
 An example of a 6 second delay is below. If there is no time specified, then the probe time will default to 10 seconds.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = probe-test 6
 ----
@@ -3483,7 +3478,7 @@ Enabling a user button as a Probe Test button will add an <<plasma:ext-hal-pin,e
 QtPlasmaC will enable the Ohmic Probe Enable output signal and if the Ohmic Probe input is sensed, the LED indicator in the SENSOR Panel will light.
 The main purpose of this is to allow a quick test for a shorted torch tip.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = ohmic-test
 ----
@@ -3497,7 +3492,7 @@ HAL connections to this HAL pin needs to be specified in a postgui HAL file as t
 
 This button if selected will toggle between the two <<plasma:cut-types,cut types>>, Pierce and Cut (default cutting mode) or Pierce Only.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = cut-type
 ----
@@ -3519,7 +3514,7 @@ There are three methods to return to the previous coordinates:
 . Press *CYCLE RESUME* - the torch will return to the original coordinates and the program will resume.
 . Press *CYCLE STOP* - the torch will return to the original coordinates and the program will abort.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = change-consumables X10 Y10 F1000
 ----
@@ -3533,7 +3528,7 @@ HAL connections to this HAL pin needs to be specified in a postgui HAL file as t
 
 Loading a G-code program from the directory specified by the *PROGRAM_PREFIX* variable in the _<machine_name>_.ini file (usually ~/linuxcnc/nc_files) is possible by using the following format:
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = load G-code.ngc
 ----
@@ -3541,7 +3536,7 @@ n Code = load G-code.ngc
 If the user's G-code file is located in a sub-directory of the *PROGRAM_PREFIX* directory, it would be accessed by adding the sub-directory name to the beginning of the G-code file name.
 Example for a sub-directory named *plasma*:
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = load plasma/G-code.ngc
 ----
@@ -3564,7 +3559,7 @@ as will pressing 'Esc' if keyboard shortcuts are enabled in the <<plasma:setting
 If the button is released before the countdown is complete then the torch will turn off at countdown completion,
 holding the button on until after the countdown has completed will cause the torch to remain on until the button has been released.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = torch-pulse 0.5
 ----
@@ -3578,7 +3573,7 @@ HAL connections to this HAL pin needs to be specified in a postgui HAL file as t
 
 Run a single unidirectional cut. This utilises the automatic <<plasma:single-cut,Single Cut>> feature.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = single-cut
 ----
@@ -3610,28 +3605,28 @@ The following GUI buttons and Keyboard Shortcuts (if enabled in the <<plasma:set
 [NOTE]
 IF THE FEED RATE IS CHANGED FOR THE FRAMING MOTION, IT WILL BE NECESSARY TO RETURN THE FEED SLIDER TO 100% BEFORE PRESSING CYCLE START AND CUTTING THE LOADED JOB.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = framing
 ----
 
 It is possible for the user to omit the initial default Z movement and run the framing sequence at the current Z height by adding "usecurrentzheight" after "framing".
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = framing usecurrentzheight
 ----
 
 To specify a feed rate:
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = framing F100
 ----
 
 or:
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = framing usecurrentzheight F100
 ----
@@ -3644,7 +3639,7 @@ HAL connections to this HAL pin needs to be specified in a postgui HAL file as t
 
 Manual Cut functions identically to the *F9* button to begin or end a <<plasma:manual-single-cut,manual cut>>.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = manual-cut
 ----
@@ -3655,7 +3650,7 @@ n Code = manual-cut
 This allows the showing/hiding of an offset viewing screen that displays all machine offsets.
 All relative offsets can be edited and the G54 ~ G59.3 work system coordinates are able to be given custom names.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = offsets-view
 ----
@@ -3666,7 +3661,7 @@ n Code = offsets-view
 This allows the loading of the last modified file in a directory.
 The directory name is optional and if omitted will default to the last directory a file was loaded from.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = latest-file /home/me/linuxcnc/nc_files/qtplasmac-test
 ----
@@ -3677,7 +3672,7 @@ n Code = latest-file /home/me/linuxcnc/nc_files/qtplasmac-test
 This allows the showing/hiding of the online HTML user manual specific to the version of LinuxCNC currently running.
 Note that internet access is required for this functionality.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = user-manual
 ----
@@ -3687,7 +3682,7 @@ n Code = user-manual
 
 This allows the toggling between joint mode and teleop mode. The machine must be on and homed for this button to be active.
 
-[source,{ini}]
+[source,ini]
 ----
 n Code = toggle-joint
 ----
@@ -3741,7 +3736,7 @@ By default, QtPlasmaC will remove all Z motion from a loaded G-code file and add
 If the user wishes to use their table with a marker, drag knife, diamond scribe, etc. mounted in the torch holder,
 QtPlasmaC has the ability to retain the Z movements when executing a program by adding the following command in a G-code file:
 
-[source,{ngc}]
+[source,ngc]
 ----
 #<keep-z-motion> = 1
 ----
@@ -3843,7 +3838,7 @@ The following HAL bit output pins are always created and can be used by either t
 If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP
 then it is possible to hide any or all of these GUI program buttons by adding the following options to the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
-[source,{ini}]
+[source,ini]
 ----
 Hide run = True
 Hide pause = True
@@ -3876,7 +3871,7 @@ There are also two HAL pins that have been provided to allow the user to tune th
 
 The following example would set the number of valid consecutive readings required to 6:
 
-[source,{hal}]
+[source,hal]
 ----
 setp plasmac.arc-ok-counts 6
 ----
@@ -3893,7 +3888,7 @@ It is important to note that the THC will be disabled and locked at the cutting 
 
 The following code would set a delay of 0.1 seconds:
 
-[source,{hal}]
+[source,hal]
 ----
 setp plasmac.arc-lost-delay 0.1
 ----
@@ -3913,7 +3908,7 @@ The pin for adjusting this value is named plasmac.zero-window and the default va
 
 The following example would set the voltage window to be displayed as 0 V from -5 V to +5 V:
 
-[source,{hal}]
+[source,hal]
 ----
 setp plasmac.zero-window 5
 ----
@@ -3928,7 +3923,7 @@ These HAL pins are:
 
 The following example would set the number of on cycles required to 3:
 
-[source,{hal}]
+[source,hal]
 ----
 setp plasmac.void-on-cycles 3
 ----
@@ -3948,7 +3943,7 @@ It is not recommended to use values less than 5 mm as offset overrun may cause
 
 The following example would set the distance from Z MAX_LIMIT to 10 mm:
 
-[source,{hal}]
+[source,hal]
 ----
 setp plasmac.max-offset 10
 ----
@@ -3958,7 +3953,7 @@ setp plasmac.max-offset 10
 By default, all tabs except the <<plasma:main-tab,MAIN Tab>> are disabled during automated motion.
 It is possible for every tab but the <<plasma:conversational-tab,CONVERSATIONAL Tab>> to be enabled during automated motion by setting the following HAL pin True:
 
-[source,{hal}]
+[source,hal]
 ----
 setp qtplasmac.tabs_always_enabled 1
 ----
@@ -4012,7 +4007,7 @@ The plasmac HAL component has a HAL pin named *plasmac.state-out* which can be u
 |24   m|CONSUMABLE_CHANGE_OFF |return from consumable change coordinates
 |25   m|CUT_RECOVERY_ON       |cut recovery is active
 |26   m|CUT_RECOVERY_OFF      |cut recovery is deactivated
-|27   m|DEBUG
+|27   m|DEBUG                 |debug state, for testing purposes only
 |===
 
 The DEBUG state is for testing purposes only and will not normally be encountered.
@@ -4040,7 +4035,7 @@ If the PM_PORT option is not set in the _<machine_name>_.prefs file then the wid
 
 Example showing enabling the Hypertherm PowerMax Communications on USB0:
 
-[source,{ini}]
+[source,ini]
 ----
 [POWERMAX]
 Port = /dev/ttyusb0
@@ -4095,7 +4090,7 @@ A moving pierce allows the torch to move during the pierce delay period. This ha
 Through the use of M159 a moving pierce can be configured.
 
 The syntax for the M159 command is as follows: +
-[source,{ngc}]
+[source,ngc]
 ----
 M159 Pn Qn
 ----
@@ -4140,13 +4135,13 @@ For example:
 This means that the length of the wiggle is 4 x 3 = 12 mm. At the 18 mm/s feed rate, the pierce delay needs to be approx 0.7 seconds to support the wiggle distance at pierce height.
 
 The G-code needed invoke this behaviour is: +
-[source,{ngc}]
+[source,ngc]
 ----
 M159 P601 Q1
 ----
 
 The  G-code needed to reset to standard behaviour is: +
-[source,{ngc}]
+[source,ngc]
 ----
 M159 P609
 ----
@@ -4171,7 +4166,7 @@ As with wiggle pierce it is up the CAM tooling or the user to program a ramping 
 
 Below is a sample of code to setup a ramp pierce: +
 
-[source,{ngc}]
+[source,ngc]
 ----
 (o=0,kw=2, ph=4, pd=1, ch=1.5, fr=490, th=1, cv=99, pe=0.3, jh=0, jd=0)
 
@@ -4673,7 +4668,7 @@ G-code editor is active, MDI is active. When QtPlasmaC is shut down, the Operati
 If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings,
 enter the following option in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
-[source,{ini}]
+[source,ini]
 ----
 Autorepeat all == True
 ----
@@ -4688,7 +4683,7 @@ The user must restart QtPlasmaC to disable the autorepeat feature again.
 
 QtPlasmaC does not currently adhere to the following stanza in the _<machine_name>_.ini file:
 
-[source,{ini}]
+[source,ini]
 ----
 NO_FORCE_HOMING = 1
 ----

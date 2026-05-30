@@ -4,9 +4,6 @@
 [[cha:remap]]
 = Remap Extending G-code
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Introduction: Extending the RS274NGC Interpreter by Remapping Codes
 
@@ -56,7 +53,7 @@ M- and G-codes, and O-words subroutine calls have some fairly different syntax.
 
 O-word procedures, for example, take positional parameters with a specific syntax like so:
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<test> call [1.234] [4.65]
 ----
@@ -132,7 +129,7 @@ In the tool table, tools numbers above 10000 are wear offsets, e.g. in the tool 
 
 Here is what you need in the INI to use them:
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 REMAP=T python=index_lathe_tool_with_wear
@@ -218,7 +215,7 @@ For this reason, you need to choose an appropriate modal group for your code to 
 To give you an idea how the pieces fit together, let's explore a fairly minimal but complete remapped code definition.
 We choose an unallocated M-code and add the following option to the INI file:
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure
@@ -388,7 +385,7 @@ Assume the code is defined as
 
 and `m400.ngc` looks as follows:
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<m400> sub
 (P is required since it is uppercase in the argspec)
@@ -413,7 +410,7 @@ Assume the code is defined as
 
 and `m410.ngc` looks as follows:
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<m410> sub
 (debug, [1]=#1 [2]=#2 [3]=#3)
@@ -567,7 +564,7 @@ $ echo 'import remap' >toplevel.py
 
 Now edit ``/home/user/``__xxx__``/``__xxx__``.ini`` and add the following:
 
-[source,{ini}]
+[source,ini]
 ----
 [PYTHON]
 TOPLEVEL=/home/user/xxx/python/toplevel.py
@@ -734,7 +731,7 @@ You will find that most prolog functions look very similar:
 Our first iteration of the O-word procedure is unexciting - just verify we got parameters right, and signal success by returning a positive value;
 steps 3-5 would eventually be covered here (see <<gcode:ini-hal-params,here>> for the variables referring to INI file settings):
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<change> sub
 (debug, change: current_tool=#<current_tool>)
@@ -788,7 +785,7 @@ However, we don't need the HAL pin wiggling anymore - all `iocontrol` is left to
 This means that the corresponding `iocontrol` pins have no function any more.
 Therefore, we configure `iocontrol` to immediately acknowledge a change by configuring like so:
 
-[source,{hal}]
+[source,hal]
 ----
 # loop change signals when remapping M6
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
@@ -833,7 +830,7 @@ Slightly twisting a built in would look like so (in the case of `M6`):
 REMAP=M6   modalgroup=6  ngc=mychange
 ----
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<mychange> sub
 M6 (use built in M6 behavior)
@@ -858,7 +855,7 @@ What you could do, for instance, is:
 
 Again, the `iocontrol` tool-prepare/tool-prepared pins would be unused and replaced by `motion.*` pins, so those would pins must be looped:
 
-[source,{hal}]
+[source,hal]
 ----
 # loop prepare signals when remapping T
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
@@ -900,7 +897,7 @@ def prepare_prolog(self,**words):
 
 The minimal ngc prepare procedure again looks like so:
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<prepare> sub
 ; returning a positive value to commit:
@@ -947,7 +944,7 @@ which might be used for conditional cleanup.
 
 The reasons are defined in nml_intf/emc.hh
 
-[source,{ini}]
+[source,ini]
 ----
 EMC_ABORT_TASK_EXEC_ERROR = 1,
 EMC_ABORT_AUX_ESTOP = 2,
@@ -962,7 +959,7 @@ EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
 EMC_ABORT_USER = 100  // user-defined abort codes start here
 ----
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 ON_ABORT_COMMAND=O <on_abort> call
@@ -970,7 +967,7 @@ ON_ABORT_COMMAND=O <on_abort> call
 
 The suggested on_abort procedure would look like so (adapt to your needs):
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<on_abort> sub
 
@@ -1021,7 +1018,7 @@ If displaying an operator error message and stopping the current program is good
 use the `(abort, `__<message>__`)` feature to terminate the handler with an error message.
 Note that you can substitute numbered, named, INI and HAL parameters in the text like in this example (see also `tests/interp/abort-hot-comment/test.ngc`):
 
-[source,{ngc}]
+[source,ngc]
 ----
 o100 if [..] (some error condition)
      (abort, Bad Things! p42=#42 q=#<q> INI=#<_ini[a]x> pin=#<_hal[component.pin])
@@ -1074,7 +1071,7 @@ A G-code cycle as used here is meant to behave as follows:
 An example: Assume you have `G84.3` defined as remapped G-code cycle with the following INI segment
 (see <<remap:cycle-stdglue,here>> for a detailed description of +cycle_prolog+ and +cycle_epilog+):
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 # A cycle with an O-word procedure: G84.3 <X- Y- Z- Q- P->
@@ -1083,7 +1080,7 @@ REMAP=G84.3 argspec=xyzabcuvwpr prolog=cycle_prolog ngc=g843 epilog=cycle_epilog
 
 Executing the following lines:
 
-[source,{ngc}]
+[source,ngc]
 ----
 g17
 (1)   g84.3 x1 y2 z3  r1
@@ -1148,7 +1145,7 @@ Note that the interpreter instance is available here as `this`, so you could als
 
 Here is an approach to use an O-word subroutine to read a preference file entry and add it as a G-code parameter.
 
-[source,{ngc}]
+[source,ngc]
 ----
 (filename myofile.ngc)
 o<myofile> sub
@@ -1431,7 +1428,7 @@ def retrieve_param(self, **words):
     return INTERP_OK
 ----
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<testparam> sub
 (debug, call_level=#<_call_level> myname=#<myname>)
@@ -1558,7 +1555,7 @@ def _pi(self):
     return 3.1415926535
 ----
 
-[source,{ngc}]
+[source,ngc]
 ----
 #<circumference> = [2 * #<radius> * #<_pi>]
 ----
@@ -1648,7 +1645,7 @@ and do a more thorough investigation of the block manually in order to give bett
 
 The suggested argspec is as follows:
 
-[source,{ini}]
+[source,ini]
 ----
 REMAP=G<somecode> argspec=xyzabcuvwqplr prolog=cycle_prolog ngc=<ngc procedure> epilog=cycle_epilog modalgroup=1
 ----
@@ -2037,7 +2034,7 @@ the interpreter must be able to predict the machine position after each line of 
 Let's look at a simple example program which does relative moves (G91), and assume the machine starts at x=0,y=0,z=0.
 Relative moves imply that the outcome of the next move relies on the position of the previous one:
 
-[source,{ngc}]
+[source,ngc]
 ----
 N10 G91
 N20 G0 X10 Y-5 Z20
@@ -2056,7 +2053,7 @@ and so can parse the whole program and generate canonical operations well in adv
 However, complete read ahead is only possible when the interpreter can predict the position impact for *every* line in the program in advance.
 Let's look at a modified example:
 
-[source,{ngc}]
+[source,ngc]
 ----
 N10 G91
 N20 G0 X10 Y-5 Z20

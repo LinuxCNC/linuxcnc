@@ -8,12 +8,6 @@ use image:: for equation png files -- no latexmath
 [[cha:5-axis-kinematics]]
 = 5-Axis Kinematics
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((5-Axis Kinematics)))
 
 == Introduction
@@ -306,7 +300,7 @@ using the LinuxCNC vismach facility.
 
 Vismach is a library of python routines to display a dynamic simulation of a CNC machine on the PC screen. The python script for a particular machine is loaded in HAL and data passed by HAL pin connections.  The non-realtime vismach model is loaded by a HAL command like:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -W xyzac-trt-gui
 ----
@@ -329,7 +323,7 @@ image::5-axis-figures/equation__38.png[align="center"]
 
 The required HAL connection (for xyzac-trt) is:
 
-[source,{hal}]
+[source,hal]
 ----
 net :tool-offset motion.tooloffset.z xyzac-trt-kins.tool-offset
 ----
@@ -373,7 +367,7 @@ Once it is compiled and installed you can reference it in your config setup of
 your machine. This is done in the INI file of your config directory. For
 example, the common INI specificaion:
 
-[source,{ini}]
+[source,ini]
 ----
 [KINS]
 KINEMATICS = trivkins
@@ -381,7 +375,7 @@ KINEMATICS = trivkins
 
 is replaced by
 
-[source,{ini}]
+[source,ini]
 ----
 [KINS]
 KINEMATICS = kinsname
@@ -392,7 +386,7 @@ Additional HAL pins may be created by the module for variable configuration item
 such as the D~x~, D~y~, D~z~, tool-offset used in the xyzac-trt kinematics module.
 These pins can be connected to a signal for dynamic control or set once with HAL connections like:
 
-[source,{hal}]
+[source,hal]
 ----
 # set offset parameters
 net :tool-offset motion.tooloffset.z xyzac-trt-kins.tool-offset

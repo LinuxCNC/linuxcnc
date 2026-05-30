@@ -5,12 +5,6 @@
 [[cha:gmoccapy]]
 = GMOCCAPY
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-:css: {basebackend@docbook:'':css}
 
 == Introduction
 
@@ -104,7 +98,7 @@ So let us take a closer look at the INI file and what you need to include to use
 [[gmoccapy:display-section]]
 === The DISPLAY Section
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DISPLAY = gmoccapy
@@ -185,7 +179,7 @@ You are able to execute complete CNC programs in MDI mode by just pushing one bu
 To do so, you first have to specify the search path for macros:
 
 [[gmocappy:rs274ngc]]
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 SUBROUTINE_PATH = macros
@@ -196,7 +190,7 @@ Several subroutine paths can be separated ":".
 Then you just have to add a section like this:
 
 .Configuration of Five Macros to be Shown in the MDI Button List
-[source,{ini}]
+[source,ini]
 ----
 [MACROS]
 MACRO = i_am_lost
@@ -230,7 +224,7 @@ If you have given several subroutine paths, they will be searched in the order o
 The first file found will be used.
 
 GMOCCAPY will also accept macros asking for parameters like:
-[source,{ini}]
+[source,ini]
 ----
 [MACROS]
 MACRO = go_to_position X-pos Y-pos Z-pos
@@ -238,7 +232,7 @@ MACRO = go_to_position X-pos Y-pos Z-pos
 
 The parameters must be separated by spaces.
 This example calls a file 'go_to_position.ngc' with the following content:
-[source,{ngc}]
+[source,ngc]
 ----
 ; Test file "go to position"
 ; will jog the machine to a given position
@@ -284,7 +278,7 @@ If you have never used a Glade panel, I recommend to read the excellent document
 
 .Embedded Tab Example
 
-[source,{ini}]
+[source,ini]
 ----
 EMBED_TAB_NAME = DRO
 EMBED_TAB_LOCATION = ntb_user_tabs
@@ -376,7 +370,7 @@ GMOCCAPY has the ability to create HAL driven user messages.
 To use them you need to introduce some lines in the [DISPLAY] section of the INI file.
 
 These three lines are needed to define a user pop up message dialog:
-[source,{ini}]
+[source,ini]
 ----
 MESSAGE_TEXT    = The text to be displayed, may be pango markup formatted
 MESSAGE_TYPE    = "status" , "okdialog" , "yesnodialog"
@@ -395,7 +389,7 @@ The following three dialog types are available:
 For more detailed information of the pins see <<gmoccapy:user-created-message,User Created Message HAL Pins>>.
 
 .Example of User Message Configuration
-[source,{ini}]
+[source,ini]
 ----
 MESSAGE_TEXT = This is a <span background="#ff0000" foreground="#ffffff">info-message</span> test
 MESSAGE_TYPE = status
@@ -432,7 +426,7 @@ the GUI is displayed. The details of what may be written in the `~/.gmoccapyrc` 
 to change during the development cycle.
 
 A configuration-specific Python file may be specified with an INI file setting
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 USER_COMMAND_FILE=filename.py
@@ -444,7 +438,7 @@ If this file is specified, this file is sourced just after the GMOCCAPY GUI is d
 The following example changes the size of the vertical buttons:
 .Example of .gmoccapyrc file
 [source,python]
------
+----
 self.widgets.vbtb_main.set_size_request(85,-1)
 BB_SIZE = (70, 70) # default = (90, 56)
 self.widgets.tbtn_estop.set_size_request(*BB_SIZE)
@@ -455,7 +449,7 @@ self.widgets.rbt_auto.set_size_request(*BB_SIZE)
 self.widgets.tbtn_setup.set_size_request(*BB_SIZE)
 self.widgets.tbtn_user_tabs.set_size_request(*BB_SIZE)
 self.widgets.btn_exit.set_size_request(*BB_SIZE)
------
+----
 
 The widget names can the looked up in the /usr/share/gmoccapy.glade file
 
@@ -465,7 +459,7 @@ Similar to the User command file it's possible to influence the appearance by ca
 If a file `~/.gmoccapy_css` exists, its contents are loaded into the stylesheet provider and are so being applied to the GUI.
 
 A configuration-specific CSS file may be specified with an INI file setting
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 USER_CSS_FILE=filename.css
@@ -476,7 +470,7 @@ Information what can be controlled by CSS can be found here: link:https://docs.g
 
 Here an example how the color of checked buttons can be set to yellow:
 .Example Yellow color for checked buttons
-[source,{css}]
+[source,css]
 ----
 button:checked {
     background: rgba(250,230,0,0.8);
@@ -492,7 +486,7 @@ The order is _VERBOSE_, _DEBUG_, _INFO_, _WARNING_, _ERROR_, _CRITICAL_.
 Default is _WARNING_, that means _WARNING_, _ERROR_ and _CRITICAL_ are printed.
 
 You can specify the log level in the INI file like this:
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DISPLAY = gmoccapy <log_level_param>
@@ -507,14 +501,14 @@ ERROR       -q
 ----
 
 .Example: Configure logging to print only errors
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DISPLAY = gmoccapy -q
 ----
 
 You can specify where to save the log file:
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 LOG_FILE = gmoccapy.log
@@ -531,7 +525,7 @@ The goal is to get a GUI that may be operated in a tool shop, completely/mostly 
 ====
 You will have to do all connections to GMOCCAPY pins in your postgui.hal file.
 When GMOCCAPY is started, it creates the HAL pins for the GUI then it executes the post-GUI HAL file named in the INI file:
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 POSTGUI_HALFILE=<filename>
@@ -775,7 +769,7 @@ GMOCCAPY offers this HAL pin to toggle between turtle and rabbit jogging:
 === Jog Increment HAL Pins
 
 The jog increments given in the INI file like
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm
@@ -844,7 +838,7 @@ To add a user created message you need to add the message to the INI file in the
 See <<sub:gmocccapy-configuration-user-messages,Configuration of User Created Messages>>.
 
 .User Message Example (INI file)
-[source,{ini}]
+[source,ini]
 ----
 MESSAGE_TEXT = LUBE FAULT
 MESSAGE_TYPE = okdialog
@@ -859,7 +853,7 @@ To connect these new pins you need to do this in the postgui HAL file.
 Here are some example connections which connect the message signals to some place else in the HAL file.
 
 .Example Connection of User Messages (HAL file)
-[source,{hal}]
+[source,hal]
 ----
 net gmoccapy-lube-fault gmoccapy.messages.lube-fault
 net gmoccapy-lube-fault-waiting gmoccapy.messages.lube-fault-waiting
@@ -905,7 +899,7 @@ image::images/gmoccapy_manual_toolchange.png["Manual tool change",align="left"]
 
 Usually they are connected like this for a manual tool change:
 
-[source,{hal}]
+[source,hal]
 ----
 net tool-change gmoccapy.toolchange-change <= iocontrol.0.tool-change
 net tool-changed gmoccapy.toolchange-changed <= iocontrol.0.tool-changed
@@ -931,7 +925,7 @@ The tooloffset-x line is not needed on a mill, and will not be displayed on a mi
 
 To display the current offsets, the pins have to be connected like this in the postgui HAL file:
 
-[source,{hal}]
+[source,hal]
 ----
 net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x
 net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
@@ -994,7 +988,7 @@ These pins are mostly used to be read from a G-code subroutine, so the code can 
 Modify your INI file to include the following sections.
 
 .The RS274NGC Section
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 # is the sub, with is called when a error during tool change happens, not needed on every machine configuration
@@ -1010,7 +1004,7 @@ Make sure INI_VARS and HAL_PIN_VARS are not set to 0. They are set to 1 by defau
 The position of the tool sensor and the start position of the probing movement,
 all values are absolute coordinates, except MAXPROBE, which must be given in relative movement.
 
-[source,{ini}]
+[source,ini]
 ----
 [TOOLSENSOR]
 X = 10
@@ -1023,7 +1017,7 @@ MAXPROBE = -20
 This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and will interfere otherwise.*
 The position to move the machine before giving the change tool command. All values are in absolute coordinates.
 
-[source,{ini}]
+[source,ini]
 ----
 [CHANGE_POSITION]
 X = 10
@@ -1034,7 +1028,7 @@ Z = -2
 .The Python Section
 The Python plug ins serves interpreter and task.
 
-[source,{ini}]
+[source,ini]
 ----
 [PYTHON]
 # The path to start a search for user modules
@@ -1062,7 +1056,7 @@ to the directory specified as `SUBROUTINE_PATH`, see <<gmocappy:rs274ngc,RS274NG
 Open `change.ngc` with a editor and uncomment the following lines (49 and 50):
 
 
-[source,{ngc}]
+[source,ngc]
 ----
 F #<_hal[gmoccapy.probevel]>
 G38.2 Z-4
@@ -1074,7 +1068,7 @@ You may want to modify this file to fit more your needs.
 
 Connect the tool probe in your HAL file like so:
 
-[source,{hal}]
+[source,hal]
 ----
 net probe  motion.probe-input <= <your_input_pin>
 ----
@@ -1082,15 +1076,15 @@ net probe  motion.probe-input <= <your_input_pin>
 The line might look like this:
 
 
-[source,{hal}]
--------
+[source,hal]
+----
 net probe  motion.probe-input <= parport.0.pin-15-in
--------
+----
 
 In your postgui.hal file add the following lines:
 
-[source,{hal}]
--------
+[source,hal]
+----
 # The next lines are only needed if the pins had been connected before
 unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
@@ -1102,7 +1096,7 @@ net tool-change gmoccapy.toolchange-change <= iocontrol.0.tool-change
 net tool-changed gmoccapy.toolchange-changed => iocontrol.0.tool-changed
 net tool-prep-number gmoccapy.toolchange-number <= iocontrol.0.tool-prep-number
 net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
--------
+----
 
 [[gmoccapy:settings-page]]
 == The Settings Page
@@ -1706,8 +1700,8 @@ Change that entry to MAX_VELOCITY = xxx.
 If you use a macro without movement, like this one:
 
 
-[source,{ngc}]
----------
+[source,ngc]
+----
  o<zeroxy> sub
 
 G92.1
@@ -1718,15 +1712,15 @@ G10 L20 P0 X0 Y0
 
 o<zeroxy> endsub
 m2
----------
+----
 
 GMOCCAPY will not see the end of the macro, because the interpreter needs to change its state to IDLE,
 but the macro does not even set the interpreter to a new state.
 To avoid that just add a G4 P0.1 line to get the needed signal.
 The correct macro would be:
 
-[source,{ngc}]
----------
+[source,ngc]
+----
  o<zeroxy> sub
 
 G92.1
@@ -1739,6 +1733,6 @@ G4 P0.1
 
 o<zeroxy> endsub
 m2
----------
+----
 
 // vim: set syntax=asciidoc:

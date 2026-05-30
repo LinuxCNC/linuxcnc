@@ -4,11 +4,6 @@
 [[cha:ini-configuration]]
 = INI Configuration(((INI Configuration)))
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == The INI File Components(((INI File,Components)))
 
@@ -27,7 +22,7 @@ A comment line is started with a ; or a # mark.
 When the INI reader sees either of these marks on a line, the rest of the line is ignored by the software.
 Comments can be used to describe what an INI element will do.
 
-[source,{ini}]
+[source,ini]
 ----
 ; This is my mill configuration file.
 # I set it up on January 12, 2012
@@ -36,7 +31,7 @@ Comments can be used to describe what an INI element will do.
 Comments can also be used to 'turn off' a variable.
 This makes it easier to pick between different variables.
 
-[source,{ini}]
+[source,ini]
 ----
 DISPLAY = axis
 # DISPLAY = touchy
@@ -46,7 +41,7 @@ In this list, the DISPLAY variable will be set to axis because the other one is 
 If someone carelessly edits a list like this and leaves two of the lines uncommented, the first one encountered will be used.
 
 Note that inside a variable's value, the "#" and ";" characters are part of the value:
-[source,{ini}]
+[source,ini]
 ----
 # Below does not result in INCORRECT=value
 # because comments are not interpreted as comments in values
@@ -93,7 +88,7 @@ Additionally, variable identifiers cannot start with a digit.
 White space at the beginning of the line and after the variable identifier, up to the equals sign, is ignored.
 
 .Variable Example
-[source,{ini}]
+[source,ini]
 ----
 MACHINE = My Machine
 ----
@@ -104,7 +99,7 @@ There may be white space following the trailing backslash character, but this is
 Section identifiers may not be extended to multiple lines.
 
 .Variable with Line extends Example
-[source,{ini}]
+[source,ini]
 ----
 APP = sim_pin \
 ini.0.max_acceleration \
@@ -137,7 +132,7 @@ Spaces inside a value are automatically part of the value.
 Tabs and newlines can be added using `\t` and `\n`.
 
 .Value Escape Example
-[source,{ini}]
+[source,ini]
 ----
 STRING = Hello World!
 
@@ -202,18 +197,18 @@ Most sample configurations use custom sections and variables to put all of the s
 To add a custom variable to an existing LinuxCNC section, simply include the variable in that section.
 
 .Custom Variable Example, assigning the value 'LINEAR' to the variable 'TYPE', and the value '16000' to the variable 'SCALE'.
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]
 TYPE = LINEAR
-...
+# ...
 SCALE = 16000
 ----
 
 To introduce a custom section with its own variables, add the section and variables to the INI file.
 
 .Custom Section Example
-[source,{ini}]
+[source,ini]
 ----
 [PROBE]
 Z_FEEDRATE = 50
@@ -224,7 +219,7 @@ Z_SAFE_DISTANCE = -10
 To use the custom variables in your HAL file, put the section and variable name in place of the value.
 
 .HAL Example
-[source,{hal}]
+[source,hal]
 ----
 setp offset.1.offset [PROBE]Z_OFFSET
 setp stepgen.0.position-scale [JOINT_0]SCALE
@@ -240,7 +235,7 @@ Please note that G-code embedded ini variables are converted to upper case befor
 The `#<_ini[section]variable>` should be called [SECTION]VARIABLE in the INI file.
 
 .G-code Example
-[source,{ngc}]
+[source,ngc]
 ----
 G91
 G38.2 Z#<_ini[probe]z_safe_distance> F#<_ini[probe]z_feedrate>
@@ -256,7 +251,7 @@ An INI file may include the contents of another file by using a `#INCLUDE` direc
 The `#INCLUDE` directive must be in upper case, start in the first column of the line and have at least one space after it.
 
 .#INCLUDE Format
-[source,{ini}]
+[source,ini]
 ----
 #INCLUDE filename
 ----
@@ -271,7 +266,7 @@ The filename can be specified as:
 Multiple `#INCLUDE` directives are supported.
 
 .#INCLUDE Examples
-[source,{ini}]
+[source,ini]
 ----
 #INCLUDE joint_0.inc
 #INCLUDE ../parallel/joint_1.inc
@@ -498,14 +493,14 @@ This output is what will be displayed in the text area, previewed in the display
 
 If your post processor outputs files in all caps you might want to add the following line:
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .NGC XYZ Post Processor
 ----
 
 The following lines add support for the image-to-G-code converter included with LinuxCNC.
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .png,.gif,.jpg # Greyscale Depth Image
   png = image-to-gcode
@@ -515,7 +510,7 @@ PROGRAM_EXTENSION = .png,.gif,.jpg # Greyscale Depth Image
 
 An example of a custom G-code converter located in the linuxcnc directory.
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .gcode 3D Printer
   gcode = /home/mill/linuxcnc/convert.py
@@ -525,7 +520,7 @@ NOTE: The program file associated with an extension must have either the full pa
 
 It is also possible to specify an interpreter:
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .py Python Script
   py = python
@@ -747,7 +742,7 @@ Omission of required addf statements is almost always an error.
 Signals usually include one or more input connections and a single output (but both are not strictly required).
 A system library file is provided to make checks for these conditions and report to stdout and in a pop-up GUI:
 
-[source,{ini}]
+[source,ini]
 ----
 HALFILE = LIB:halcheck.tcl [nopopup]
 ----
@@ -806,26 +801,26 @@ The applications can be started after a specified delay to allow for GUI-depende
   Examples:
 ** Simulate inputs to HAL pins for testing (using sim_pin -- a simple GUI to set inputs to parameters, unconnected pins, or signals with no writers):
 
-[source,{ini}]
+[source,ini]
 ----
 APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
 ----
 ** Invoke halshow with a previuosly saved watchlist.
    Since LinuxCNC sets the working directory to the directory for the INI file, you can refer to files in that directory (example: my.halshow):
 
-[source,{ini}]
+[source,ini]
 ----
 APP = halshow my.halshow
 ----
 ** Alternatively, a watchlist file identified with a full pathname could be specified:
 
-[source,{ini}]
+[source,ini]
 ----
 APP = halshow ~/saved_shows/spindle.halshow
 ----
 ** Open halscope using a previously saved configuration:
 
-[source,{ini}]
+[source,ini]
 ----
 APP = halscope -i my.halscope
 ----
@@ -1027,7 +1022,7 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   Moving with other joints is not allowed when moving a locked rotary joint.
   To create the unlock pins, use the motmod parameter:
 +
-[source,{ini}]
+[source,ini]
 ----
 unlock_joints_mask=jointmask
 ----
@@ -1038,7 +1033,7 @@ Example: `loadrt motmod ... unlock_joints_mask=0x38` creates unlock-pins for joi
 
 * `OFFSET_AV_RATIO = 0.1` - (real) If nonzero, this item enables the use of HAL input pins for external axis offsets:
 +
-[source,{ini}]
+[source,hal]
 ----
 axis.<letter>.eoffset-enable
 axis.<letter>.eoffset-count

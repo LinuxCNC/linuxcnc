@@ -4,13 +4,6 @@
 [[cha:external-offsets]]
 = External Axis Offsets
 
-
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((externaloffsets)))
 
 External axis offsets are supported during teleop (world) jogs
@@ -25,7 +18,7 @@ connected to an encoder INI component that counts pulses.
 
 For each axis letter (*L* in xyzabcuvw):
 
-[source,{ini}]
+[source,ini]
 ----
 [AXIS_L]OFFSET_AV_RATIO = value (controls accel/vel for external offsets)
 ----
@@ -201,7 +194,7 @@ man page for details (*$ man eoffset_per_angle*).
 The external axis offset capability is enabled by adding
 an '[AXIS_L]' setting for each candidate axis.  For example:
 
-[source,{ini}]
+[source,ini]
 ----
 [AXIS_Z]
 OFFSET_AV_RATIO = 0.2
@@ -228,7 +221,7 @@ Example INI file settings to simulate the HAL pin
 eoffset connections and display eoffset information for the
 z axis (for identity kinematics with z==joint2):
 
-[source,{ini}]
+[source,ini]
 ----
 [APPLICATIONS]
 APP = sim_pin \

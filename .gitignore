@@ -50,6 +50,8 @@ position.txt
 # Ignore temp files
 *.swp
 *~
+# Ignore checkref leftover output (docs/src/checkref)
+.checklink.*.tmp
 # Ignore po4a temp files
 *.failed.po
 *-new_??.po
@@ -57,3 +59,5 @@ position.txt
 *.*-stamp
 # Ignore VSCode settings
 .vscode/settings.json
+# autoreconf cache from debian/configure
+/autom4te.cache/

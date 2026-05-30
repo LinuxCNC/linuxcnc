@@ -4,11 +4,6 @@
 [[cha:lathe-configuration]]
 = Lathe Configuration
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Default Plane
 
@@ -17,7 +12,7 @@ That is why the default plane is XY (G17). A normal lathe only uses the
 XZ plane (G18). To change the default plane place the following line in
 the INI file in the RS274NGC section.
 
-[source,{ini}]
+[source,ini]
 ----
 RS274NGC_STARTUP_CODE = G18
 ----
@@ -36,12 +31,12 @@ historical settings.
 GMOCCAPY also uses the mentioned settings, but does offer additional settings,
 check the <<cha:gmoccapy,GMOCCAPY>> section for details.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DISPLAY = axis
 LATHE = 1
-...
+# ...
 
 [KINS]
 KINEMATICS = trivkins
@@ -49,27 +44,27 @@ JOINTS = 3
 
 [TRAJ]
 COORDINATES = X Z
-...
+# ...
 
 [JOINT_0]
-...
+# ...
 [JOINT_2]
-...
+# ...
 [AXIS_X]
-...
+# ...
 [AXIS_Z]
-...
+# ...
 ----
 
 With joints_axes incorporation, a simpler configuration can be made with just
 the two required joints by specifying trivkins with the 'coordinates=' parameter:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DISPLAY = axis
 LATHE = 1
-...
+# ...
 
 [KINS]
 KINEMATICS = trivkins coordinates=xz
@@ -77,16 +72,16 @@ JOINTS = 2
 
 [TRAJ]
 COORDINATES = X Z
-...
+# ...
 
 [JOINT_0]
-...
+# ...
 [JOINT_1]
-...
+# ...
 [AXIS_X]
-...
+# ...
 [AXIS_Z]
-...
+# ...
 ----
 
 // vim: set syntax=asciidoc:

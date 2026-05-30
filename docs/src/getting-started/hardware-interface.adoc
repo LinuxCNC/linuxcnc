@@ -4,14 +4,14 @@
 [[cha:hardware-interface]]
 = Hardware Interface(((Hardware Interface)))
 
-= Hardware to run the LinuxCNC software
+== Hardware to run the LinuxCNC software
 A computer is required to run LinuxCNC itself. See <<cha:system-requirements,Computer System Requirements>>
 
 The most common is to use a x86 computer (standard Intel / AMD computer)
 
 ARM computers such as the Raspberry Pi or Orange Pi can be used
 
-= Hardware Interface to CNC machine
+== Hardware Interface to CNC machine
 An interface is necessary to transmit (and convert) signals and information between LinuxCNC (the software on the computer) and CNC hardware (such as stepper / servo drivers, limit switches, inputs and outputs etc.). There are multiple different ways to interface.
 
 Interfaces include:

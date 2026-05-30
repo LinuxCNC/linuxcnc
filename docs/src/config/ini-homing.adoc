@@ -4,11 +4,6 @@
 [[cha:homing-configuration]]
 = Homing Configuration
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Overview
 
@@ -274,7 +269,7 @@ Examples for a 3 joint system
 
 Two sequences (0,1), no synchronization
 
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]HOME_SEQUENCE = 0
 [JOINT_1]HOME_SEQUENCE = 1
@@ -283,7 +278,7 @@ Two sequences (0,1), no synchronization
 
 Two sequences, joints 1 and 2 synchronized
 
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]HOME_SEQUENCE =  0
 [JOINT_1]HOME_SEQUENCE = -1
@@ -292,7 +287,7 @@ Two sequences, joints 1 and 2 synchronized
 
 With mixed positive and negative values, joints 1 and 2 synchronized
 
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]HOME_SEQUENCE =  0
 [JOINT_1]HOME_SEQUENCE = -1
@@ -301,7 +296,7 @@ With mixed positive and negative values, joints 1 and 2 synchronized
 
 One sequence, no synchronization
 
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]HOME_SEQUENCE =  0
 [JOINT_1]HOME_SEQUENCE =  0
@@ -310,7 +305,7 @@ One sequence, no synchronization
 
 One sequence, all joints synchronized
 
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]HOME_SEQUENCE = -1
 [JOINT_1]HOME_SEQUENCE = -1
@@ -360,7 +355,7 @@ This logic should also assert the *motion.homing-inhibit* pin to ensure that hom
 
 Example: Synced joints 0,1 using negative sequence (-1) for synchronized homing with a switch (allow_jjog) that selects a positive sequence (1) for individual *joint* jogging prior to homing (partial HAL code):
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt mux2           names=home_sequence_mux
 loadrt conv_float_s32 names=home_sequence_s32

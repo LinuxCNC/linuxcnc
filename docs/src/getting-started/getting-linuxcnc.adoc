@@ -98,14 +98,14 @@ sha256sum linuxcnc-2.9.8-amd64.iso
 ----
 . Then compare to these checksums
 
------
+----
 amd64 (PC)
 md5sum: cf77d61fcba9641d7205ac33751e5f38
 sha256sum: 72eab92d7c34c238b0429054dc52d240df8dc5f083e769a39194cfac3e4984e8
 arm64 (Pi)
 md5sum: 4547e8a72433efb033f0a5cf166a5cd2
 sha256sum: ff3ba9b8dfb93baf1e2232746655f8521a606bc0fab91bffc04ba74cc3be6bf0
------
+----
 
 .Verify md5sum on Windows or Mac
 
@@ -144,29 +144,29 @@ It looks more complicated but seems to be more compatible with various BIOSes.
   For example, if your storage device showed up as `/dev/sde`,
   then use this command:
 +
------
+----
 dd if=linuxcnc_2.9.8-amd64.hybrid.iso of=/dev/sde bs=4k status=progress
------
+----
 
 === Command line - MacOS
 
 . Open a terminal and type
 +
------
+----
 diskutil list
------
+----
 . Insert the USB and note the name of the new disk that appears, e.g. /dev/disk5.
 . Unmount the USB. The number found above should be substituted in place of the N.
 +
------
+----
 diskutil unmountDisk /dev/diskN
------
+----
 . Transfer the data with dd, as for Linux above.
   Note that the disk name has an added "r" at the beginning.
 +
------
+----
 sudo dd if=linuxcnc_2.9.8-amd64.hybrid.iso of=/dev/rdiskN bs=1m status=progress
------
+----
 
 .Writing the image to a DVD in Linux
 

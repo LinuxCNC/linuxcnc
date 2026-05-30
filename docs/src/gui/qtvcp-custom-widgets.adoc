@@ -604,7 +604,7 @@ Here is a sample stylesheet to change text color based on home state.
 In this case any widget based on the HomeLabel widget above will change text color. +
 You would usually pick specific widgets using `HomeLabel #specific_widget_name[homed=true]`:
 
-[source,{css}]
+[source,css]
 ----
 HomeLabel[homed=true] {
     color: green;
@@ -634,7 +634,7 @@ class Label(QLabel):
 
 Sample stylesheet that sets a custom widget property.
 
-[source,{css}]
+[source,css]
 ----
 Label{
     qproperty-styleFont0: "Times,12,-1,0,90,0,0,0,0,0";

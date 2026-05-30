@@ -85,7 +85,7 @@ The arguments are: pin name suffix, pin type, and pin direction.
 For parameters, the arguments are: parameter name suffix, parameter type, and parameter direction.
 
 .HAL Option Names
-[width="100%",cols="<3s,4*<"]
+[width="100%",cols="<3s,6*<"]
 |===
 |Pin and Parameter Types: |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32 |HAL_S64 |HAL_U64
 |Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  |        |        |

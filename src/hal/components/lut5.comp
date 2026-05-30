@@ -46,7 +46,7 @@ be *FALSE*.
 ^h|Bit 2
 ^h|Bit 1
 ^h|Bit 0
-2+^h|Weight
+^h|Weight
 
 |0|0|0|0|0|0x00000001
 |0|0|0|0|1|0x00000002

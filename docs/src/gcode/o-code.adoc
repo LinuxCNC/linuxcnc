@@ -4,11 +4,6 @@
 [[cha:o-codes]]
 = O Codes(((O Codes)))
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Use of O-codes
 
@@ -41,7 +36,7 @@ Within a single subroutine body (or the main program), each o-number should
 still be used for only one control flow block.
 
 .Numbering Example
-[source,{ngc}]
+[source,ngc]
 ----
 (the start of o100)
 o100 sub
@@ -57,7 +52,7 @@ o100 endsub
 ----
 
 .Reusing Control Flow Numbers Across Subroutines (valid)
-[source,{ngc}]
+[source,ngc]
 ----
 (o100 if in helper.ngc does not conflict with o100 if in another.ngc)
 
@@ -98,7 +93,7 @@ Subroutines starts at 'oNNN sub' and ends at 'oNNN endsub'. The lines between
 with 'oNNN call'. Each subroutine must use a unique number.
 
 .Subroutine Example
-[source,{ngc}]
+[source,ngc]
 ----
 o100 sub
   G53 G0 X0 Y0 Z0 (rapid move to machine home)
@@ -116,7 +111,7 @@ Inside a subroutine, 'o- return' can be executed.
 This immediately returns to the calling code, just as though 'o- endsub' was encountered.
 
 .O- Return Example
-[source,{ngc}]
+[source,ngc]
 ----
 o100 sub
   (test if parameter #2 is greater than 5)
@@ -142,7 +137,7 @@ Because '1 2 3' is parsed as the number 123, the parameters must be enclosed in 
 The following calls a subroutine with 3 arguments:
 
 .O- Call Example
-[source,{ngc}]
+[source,ngc]
 ----
 o100 sub
   (test if parameter #2 is greater than 5)
@@ -163,7 +158,7 @@ Defining a subroutine inside another subroutine is not allowed and will
 produce an error.  For example, the following is *invalid*:
 
 .Invalid Nested Subroutine Definition (produces an error)
-[source,{ngc}]
+[source,ngc]
 ----
 o<outer> sub
   o100 sub       (INVALID: nested subroutine definition)
@@ -177,7 +172,7 @@ valid.  It is the `sub`/`endsub` definition that cannot be nested, not the
 `call`:
 
 .Valid Nested Subroutine Call
-[source,{ngc}]
+[source,ngc]
 ----
 o<outer> sub
   (code here)
@@ -212,7 +207,7 @@ possibility of confusion, the interpreter will raise an error if
 definitions of one style are mixed with calls of another.
 
 .Numbered Subprogram Simple Example
-[source,{ngc}]
+[source,ngc]
 ----
 o1 (Example 1)    ; Main program 1, "Example 1"
 M98 P100          ; Call subprogram 100
@@ -273,7 +268,7 @@ block delete program end `/M30` block might be used to stop the cycle
 at a tidy point when the operator is ready.
 
 .Numbered Subprogram Full Example
-[source,{ngc}]
+[source,ngc]
 ----
 o1                             ; Main program 1
   #1 = 0
@@ -312,7 +307,7 @@ loop runs the code in the loop then checks the test condition. The
 'while/endwhile' loop does the test first.
 
 .While Endwhile Example
-[source,{ngc}]
+[source,ngc]
 ----
 (draw a sawtooth shape)
 G0 X1 Y0 (move to start position)
@@ -327,7 +322,7 @@ M2 (end program)
 ----
 
 .Do While Example
-[source,{ngc}]
+[source,ngc]
 ----
 #1 = 0 (assign parameter #1 the value of 0)
 o100 do
@@ -367,7 +362,7 @@ then the statements following the 'else' are executed. When a condition is
 evaluated to true no more conditions are evaluated in the group.
 
 .If Endif Example
-[source,{ngc}]
+[source,ngc]
 ----
 (if parameter #31 is equal to 3 set S2000)
 o101 if [#31 EQ 3]
@@ -376,7 +371,7 @@ o101 endif
 ----
 
 .If ElseIf Else EndIf Example
-[source,{ngc}]
+[source,ngc]
 ----
 (if parameter #2 is greater than 5 set F100)
 o102 if [#2 GT 5]
@@ -394,7 +389,7 @@ Several conditions may be tested for by 'elseif' statements until the
 'else' path is finally executed if all preceding conditions are false:
 
 .If Elseif Else Endif Example
-[source,{ngc}]
+[source,ngc]
 ----
 (if parameter #2 is greater than 5 set F100)
 o102 if [#2 GT 5]
@@ -417,7 +412,7 @@ you might mill a diagonal series of shapes starting at the present
 position.
 
 .Example with 'repeat'
-[source,{ngc}]
+[source,ngc]
 ----
 (Mill 5 diagonal shapes)
 G91 (Incremental mode)
@@ -434,7 +429,7 @@ G90 (Absolute mode)
 The o-number may be given by a parameter and/or calculation.
 
 .Indirection Example
-[source,{ngc}]
+[source,ngc]
 ----
 o[#101+2] call
 ----
@@ -461,13 +456,13 @@ namespace and can silently conflict across files.  If you need helper
 subroutines, place each one in its own file.
 
 .Named File Example
-[source,{ngc}]
+[source,ngc]
 ----
 o<myfile> call
 ----
 
 .Numbered File Example
-[source,{ngc}]
+[source,ngc]
 ----
 o123 call
 ----
@@ -476,7 +471,7 @@ In the called file you must include the oxxx sub and endsub and the
 file must be a valid file.
 
 .Called File Example
-[source,{ngc}]
+[source,ngc]
 ----
 (filename myfile.ngc)
 o<myfile> sub
@@ -496,7 +491,7 @@ Subroutines may optionally return a value by an optional expression at
 an 'endsub' or 'return' statement.
 
 .Return value example
-[source,{ngc}]
+[source,ngc]
 ----
 o123 return [#2 *5]
 ...

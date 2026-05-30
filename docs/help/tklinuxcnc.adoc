@@ -3,11 +3,6 @@
 
 = TkLinuxCNC
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Menus
 
@@ -157,7 +152,7 @@ To change these settings, use the '@' key for Commanded/Actual, and
 the '#' key for Absolute/Relative. The default values can be set in
 the INI file, e.g.,
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 POSITION_OFFSET =   RELATIVE
@@ -166,7 +161,7 @@ POSITION_FEEDBACK = ACTUAL
 
 or
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 POSITION_OFFSET =   ABSOLUTE

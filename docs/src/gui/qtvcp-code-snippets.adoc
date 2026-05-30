@@ -1065,7 +1065,7 @@ Calling this O-word will update the param 'toolToLoad' +
 This uses 'Python hot comment' to communicate with the embedded python instance. +
 See the Remap section of the Documents for a description.
 
-[source,{ngc}]
+[source,ngc]
 ----
 (filename myofile.ngc)
 o<myofile> sub

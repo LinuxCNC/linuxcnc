@@ -4,12 +4,6 @@
 [[cha:qtvcp:libraries]]
 = QtVCP Libraries modules
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 Libraries are *prebuilt Python modules that give added features to QtVCP*.
 In this way you can select what features you want - yet don't have to build common ones yourself.
 
@@ -1026,7 +1020,7 @@ Here are sample INI message definition code blocks that would be found under the
 
 * Status bar and desktop notify pop up message:
 +
-[source,{ini}]
+[source,ini]
 ----
 MESSAGE_BOLDTEXT = NONE
 MESSAGE_TEXT = This is a statusbar test
@@ -1037,7 +1031,7 @@ MESSAGE_PINNAME = statustest
 
 * Pop up dialog asking a Yes/No question:
 +
-[source,{ini}]
+[source,ini]
 ----
 MESSAGE_BOLDTEXT = NONE
 MESSAGE_TEXT = This is a yes no dialog test
@@ -1048,7 +1042,7 @@ MESSAGE_PINNAME = yndialogtest
 
 * Pop up dialog asking an OK answer + Status bar and desktop notification:
 +
-[source,{ini}]
+[source,ini]
 ----
 MESSAGE_BOLDTEXT = This is the short text
 MESSAGE_TEXT = This is the longer text of the both type test. It can be longer then the status bar text
@@ -1103,7 +1097,7 @@ This allows screen 'focus' dimming/blurring and sounds to be added to alerts.
 
 Here are sample INI message definition code blocks that would be found under the `[DISPLAY]` heading:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MULTIMESSAGE_ID = VFD

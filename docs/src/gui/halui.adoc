@@ -5,11 +5,6 @@
 [[cha:hal-user-interface]]
 = HAL User Interface
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Introduction
 
@@ -20,7 +15,7 @@ is provided by a traditional GUI (AXIS, GMOCCAPY, QtDragon, etc.), is provided b
 The easiest way to add halui is to add the following to the [HAL]
 section of the INI file:
 
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 HALUI = halui
@@ -29,7 +24,7 @@ HALUI = halui
 An alternate way to invoke it (specially if you generate the configuration with StepConf) is to include the following in your `custom.hal` file. +
 Make sure you use the correct path to your INI file.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr halui -ini /path/to/inifile.ini
 ----
@@ -41,14 +36,14 @@ by the activation of a HAL pin.
 This is possible by adding MDI commands to the INI file in the [HALUI] section.
 Example:
 
-[source,{ini}]
+[source,ini]
 ----
 [HALUI]
 MDI_COMMAND = G0 X0
 MDI_COMMAND = G0 G53 Z0
 MDI_COMMAND = G28
 MDI_COMMAND = o<mysub>call
-...
+# ...
 ----
 
 When halui starts it will read the `MDI_COMMAND` fields in the INI and
@@ -62,7 +57,7 @@ control panels like shown in the example <<code:Example-HAL-file-connections, Ex
 .Example for MDI_COMMAND connections
 ====
 .HAL file
-[source,{hal}]
+[source,hal]
 ----
 net quill-up      halui.mdi-command-00 <= pyvcp.quillup
 net reference-pos halui.mdi-command-01 <= pyvcp.referencepos

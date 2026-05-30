@@ -4,11 +4,6 @@
 [[cha:pyvcp]]
 = PyVCP
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Introduction
 
@@ -66,7 +61,7 @@ For a list of widgets and their tags and options, see the
 Once you have created your panel, connecting HAL signals to and from
 the PyVCP pins is done with the halcmd:
 
-[source,{hal}]
+[source,hal]
 ----
 net <signal-name> <pin-name> <opt-direction> <opt-pin-name>signal-name
 ----
@@ -92,7 +87,7 @@ In addition to or instead of displaying a PyVCP panel as described above,
 it is possible to display one or more PyVCP panels as embedded tabs in the AXIS GUI.
 This is achieved by the following in the `[DISPLAY]` section of the INI file:
 
-[source,{ini}]
+[source,ini]
 ----
 EMBED_TAB_NAME    = Spindle
 EMBED_TAB_COMMAND = pyvcp spindle.xml
@@ -125,7 +120,7 @@ and set the maximum value of the bar to 5000 (see <<sec:pyvcp:widgets,widget ref
 To make AXIS aware of this file, and call it at start up,
 we need to specify the following in the `[DISPLAY]` section of the INI file:
 
-[source,{ini}]
+[source,ini]
 ----
 PYVCP = spindle.xml
 ----
@@ -133,7 +128,7 @@ PYVCP = spindle.xml
 If the panel should appear at the bottom of the AXIS user interface
 then we need to specify the following in the `[DISPLAY]` section of the INI file:
 
-[source,{ini}]
+[source,ini]
 ----
 PYVCP_POSITION = BOTTOM
 ----
@@ -143,7 +138,7 @@ Anything other than BOTTOM or omitting this variable will place the PYVCP panel 
 To make our widget actually display the spindle-speed it needs to be hooked up to the appropriate HAL signal.
 A HAL file that will be run once AXIS and PyVCP have started can be specified in the [HAL] section of the INI file:
 
-[source,{ini}]
+[source,ini]
 ----
 POSTGUI_HALFILE = spindle_to_pyvcp.hal
 ----
@@ -151,7 +146,7 @@ POSTGUI_HALFILE = spindle_to_pyvcp.hal
 This change will run the HAL commands specified in 'spindle_to_pyvcp.hal'.
 In our example the contents could look like this:
 
-[source,{hal}]
+[source,hal]
 ----
 net spindle-rpm-filtered => pyvcp.spindle-speed
 ----
@@ -171,7 +166,7 @@ This section describes how PyVCP panels can be displayed on their own with or wi
 
 To load a stand alone PyVCP panel with LinuxCNC use these commands:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -Wn mypanel pyvcp -g WxH+X+Y -c mypanel <path/>panel_file.xml
 ----
@@ -201,14 +196,14 @@ GUI other than AXIS.
 
 To load a 'stand alone' PyVCP panel without LinuxCNC use this command:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -Wn mypanel pyvcp -g 250x500+800+0 -c mypanel mypanel.xml
 ----
 
 The minimum command to load a PyVCP panel is:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr pyvcp mypanel.xml
 ----
@@ -228,7 +223,7 @@ You must add the path name if the panel is not in the directory that the HAL scr
 An optional command to use if you want the panel to stop HAL from continuing commands / shutting down.
 After loading any other components you want the last HAL command to be:
 
-[source,{hal}]
+[source,hal]
 ----
 waitusr panelname
 ----

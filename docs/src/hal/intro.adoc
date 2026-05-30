@@ -5,12 +5,6 @@
 
 = HAL Introduction
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((HAL Introduction)))
 LinuxCNC is about interacting with hardware. But few users have the same exact hardware specifications - similar, but not the same.
 And even for the exact same hardware, there may be different ways to use it, say for different materials or with different mills, which would require adaptations to the control of an already running system.
@@ -184,7 +178,7 @@ image::images/hal_circuit_concept.png["HAL Circuit Concept",align="left"]
 
 Figure one would be written in HAL code like this:
 
-[source,{hal}]
+[source,hal]
 ----
 net signal-blue    component.0.pin1-in      component.1.pin1-out
 net signal-red     component.0.pin3-out     component.1.pin3-in     component.1.pin4-in

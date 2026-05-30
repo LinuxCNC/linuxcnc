@@ -4,9 +4,6 @@
 [[cha:m-codes]]
 = M-Codes
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == M-Code Quick Reference Table
 
@@ -115,7 +112,7 @@ Use $-1 to operate on all active spindles.
 This example will start spindles 0, 1, and 2 simultaneously at different
 speeds:
 
-[source,{ngc}]
+[source,ngc]
 ----
 S100 $0
 S200 $1
@@ -126,14 +123,14 @@ M3 $-1
 This example will then reverse spindle 1 but leave the other spindles
 rotating forwards:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M4 $1
 ----
 
 And this will stop spindle 2 and leave the other spindles rotating:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M5 $2
 ----
@@ -219,7 +216,7 @@ state.
 
 (((M19 Orient Spindle)))
 
-[source,{ngc}]
+[source,ngc]
 ----
 M19 R- Q- [P-] [$-]
 ----
@@ -400,7 +397,7 @@ connected in your HAL file to outputs.
 == M66 Wait on Input
 
 (((M66 Wait on Input)))
-[source,{ngc}]
+[source,ngc]
 ----
 M66 P- | E- <L->
 ----
@@ -422,7 +419,7 @@ M66 P- | E- <L->
 
 .M66 Example Lines
 
-[source,{ngc}]
+[source,ngc]
 ----
 M66 P0 L3 Q5 (wait up to 5 seconds for digital input 0 to turn on)
 ----
@@ -452,7 +449,7 @@ net signal-name motion.digital-in-00 <= parport.0.pin10-in
 == M67 Analog Output, Synchronized
 
 (((M67 Analog Output, Synchronized)))
-[source,{ngc}]
+[source,ngc]
 ----
 M67 E- Q-
 ----
@@ -479,7 +476,7 @@ connected in your HAL file to outputs.
 == M68 Analog Output, Immediate
 
 (((M68 Analog Output)))
-[source,{ngc}]
+[source,ngc]
 ----
 M68 E- Q-
 ----
@@ -588,7 +585,7 @@ modal state around a subroutine call using 'M70' and 'M72'. Note that
 the 'imperialsub' subroutine is not "aware" of the M7x features and can be
 used unmodified:
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
@@ -641,7 +638,7 @@ against inadvertent modal changes. Note the use of
 <<gcode:predefined-named-parameters,predefined named parameters>> in
 the 'showstate' subroutine.
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
@@ -692,7 +689,7 @@ statements. The idea is to remember the modes to be restored at the
 beginning of the subroutine, and restore these before exiting. Here is
 an example, based on snippet of 'nc_files/tool-length-probe.ngc':
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<measure> sub   (measure reference tool)
 ;
@@ -715,7 +712,7 @@ O<measure> endsub
 == M100-M199 User Defined Commands
 
 (((M100-M199 User Defined Commands)))
-[source,{ngc}]
+[source,ngc]
 ----
 M1-- <P- Q->
 ----
@@ -780,7 +777,7 @@ exit 0
 
 To pass a variable to a M1nn file you use the P and Q option like this:
 
-[source,{ngc}]
+[source,ngc]
 ----
 M100 P123.456 Q321.654
 ----

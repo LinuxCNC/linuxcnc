@@ -147,7 +147,7 @@ and the discrete SPI clock frequency (250&#8239;MHz / (2__n__) for _n_ > 1):
 
 |  13 |  9616 |  9.615&#8239;MHz
 
-| 14+ | ....
+| 14+ | ....   | ....
 |===
 
 The lowest selectable SPI clock frequency is 30 kHz (spiclk_rate=30) for

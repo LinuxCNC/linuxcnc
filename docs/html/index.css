@@ -13,3 +13,9 @@ p {
   margin-top: 0em;
   margin-bottom: 0em;
 }
+summary {
+  margin-top: 0.65em;
+  margin-bottom: 0.15em;
+  font-family: sans-serif;
+  cursor: pointer;
+}
