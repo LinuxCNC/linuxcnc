@@ -1,0 +1,130 @@
+# asciidoctor-pdf theme for LinuxCNC docs.
+# Approximates the look and feel of the dblatex output (emc2.sty).
+# Extends the asciidoctor-pdf "default" theme; only set overrides here.
+
+extends: default
+
+font:
+  catalog:
+    merge: true
+    DejaVu Sans Mono:
+      normal: DejaVuSansMono.ttf
+      bold: DejaVuSansMono-Bold.ttf
+      italic: DejaVuSansMono-Oblique.ttf
+      bold_italic: DejaVuSansMono-BoldOblique.ttf
+    Noto Serif CJK SC:
+      normal: NotoSerifCJKsc-Regular.ttf
+      bold: NotoSerifCJKsc-Bold.ttf
+      italic: NotoSerifCJKsc-Regular.ttf
+      bold_italic: NotoSerifCJKsc-Bold.ttf
+  fallbacks:
+    - Noto Serif CJK SC
+
+page:
+  size: A4
+  margin: [0.85in, 0.67in, 0.55in, 0.67in]
+
+base:
+  font_family: Noto Serif
+  font_size: 10
+  line_height_length: 12
+  line_height: $base_line_height_length / 10
+  font_color: 000000
+  text_align: justify
+
+heading:
+  font_family: $base_font_family
+  font_color: 000000
+  font_style: bold
+  text_align: left
+  line_height: 1.2
+  margin_top: 12
+  margin_bottom: 6
+  h1_font_size: 22
+  h2_font_size: 18
+  h3_font_size: 14
+  h4_font_size: 12
+  h5_font_size: 11
+  h6_font_size: 10
+
+title_page:
+  align: center
+  title:
+    top: 55%
+    font_size: 28
+    font_color: 000000
+    font_style: bold
+  subtitle:
+    font_size: 18
+    font_color: 000000
+  authors:
+    margin_top: 12
+    font_size: 12
+    font_color: 000000
+  revision:
+    margin_top: 12
+    font_size: 10
+    font_color: 000000
+
+header:
+  height: 0.6in
+  font_size: 9
+  font_color: 000000
+  border_width: 0.5
+  border_color: 000000
+  vertical_align: middle
+  columns: <40% =20% >40%
+  recto: &header_content
+    left:
+      content: '{document-title}'
+    center:
+      content: '{chapter-title}'
+    right:
+      content: '{page-number} / {page-count}'
+  verso: *header_content
+
+footer:
+  height: 0.4in
+  border_width: 0.5
+  border_color: 000000
+  recto: &footer_content
+    left:
+      content: ''
+    center:
+      content: ''
+    right:
+      content: ''
+  verso: *footer_content
+
+toc:
+  indent: 18
+  line_height: 1.4
+
+codespan:
+  font_family: DejaVu Sans Mono
+  font_color: B12146
+
+code:
+  font_family: DejaVu Sans Mono
+  font_size: 9
+  background_color: F5F5F5
+  border_color: DDDDDD
+  border_width: 0.5
+  border_radius: 2
+  padding: [6, 6, 6, 6]
+
+kbd:
+  font_family: DejaVu Sans Mono
+
+button:
+  font_family: DejaVu Sans Mono
+
+link:
+  font_color: 0000FF
+
+table:
+  head:
+    background_color: E8E8E8
+    border_bottom_width: 1
+  border_color: CCCCCC
+  cell_padding: 4

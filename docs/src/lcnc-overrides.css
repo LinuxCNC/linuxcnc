@@ -1,0 +1,394 @@
+/* LinuxCNC HTML theme overrides.
+
+   Sits on top of asciidoctor's default stylesheet (linked separately
+   as asciidoctor.css).  Dark mode follows the OS / browser preference
+   via @media (prefers-color-scheme: dark); no toggle, no JS.
+
+   Asciidoctor vs static landing pages are distinguished by the
+   asciidoctor-set body classes (.article / .book / .manpage); the
+   static rules use :not() of those classes so they target only
+   index.html / gcode.html.
+*/
+
+/* ======================================================================
+ *  Asciidoctor pages (light)
+ * ====================================================================== */
+
+/* Asciidoctor caps #header / #content / #footnotes / #footer at
+   62.5em (1000px) which leaves big empty margins on HD screens.
+   Use up to 95% of the viewport, capped at 100em (1600px), so wide
+   monitors get a wider content area without losing the line-length
+   ceiling on ultra-wide displays.  #footer is excluded: the dark
+   footer bar spans the full viewport width. */
+body:is(.article,.book,.manpage) #header,
+body:is(.article,.book,.manpage) #content,
+body:is(.article,.book,.manpage) #footnotes {
+  max-width: min(95%, 100em);
+}
+body:is(.article,.book,.manpage) #footer {
+  max-width: none;
+}
+
+/* #text# in compat-mode -> <mark>; drop yellow. */
+body:is(.article,.book,.manpage) mark {
+  background: transparent;
+  color: inherit;
+}
+
+/* Headings + block titles: asciidoctor default is #ba3925 (brick red).
+   Use near-black / very dark blue.  Apply to h1..h6 and to .title
+   (image/listing/table captions) so figure captions like
+   "Figure 1. ..." stop rendering in red. */
+body:is(.article,.book,.manpage) #header h1,
+body:is(.article,.book,.manpage) h1,
+body:is(.article,.book,.manpage) h2,
+body:is(.article,.book,.manpage) h3,
+body:is(.article,.book,.manpage) h4,
+body:is(.article,.book,.manpage) h5,
+body:is(.article,.book,.manpage) h6,
+body:is(.article,.book,.manpage) #toctitle,
+body:is(.article,.book,.manpage) .title {
+  color: #1a3a6c;
+  font-weight: 400;
+}
+
+/* Uniform grey background on every listing block (hal/ini/ngc/plain). */
+body:is(.article,.book,.manpage) .listingblock > .content,
+body:is(.article,.book,.manpage) .literalblock > .content,
+body:is(.article,.book,.manpage) .listingblock pre,
+body:is(.article,.book,.manpage) .literalblock pre,
+body:is(.article,.book,.manpage) .listingblock > .content > pre[class^="highlight"],
+body:is(.article,.book,.manpage) .listingblock > .content > pre:not(.highlight),
+body:is(.article,.book,.manpage) .literalblock pre.highlight {
+  background: #f7f7f7;
+}
+
+/* ======================================================================
+ *  Asciidoctor pages (dark, opt-in via system preference)
+ * ====================================================================== */
+@media (prefers-color-scheme: dark) {
+  body:is(.article,.book,.manpage) {
+    background: #1e1e1e;
+    color: #e0e0e0;
+  }
+  body:is(.article,.book,.manpage) #header h1,
+  body:is(.article,.book,.manpage) h1,
+  body:is(.article,.book,.manpage) h2,
+  body:is(.article,.book,.manpage) h3,
+  body:is(.article,.book,.manpage) h4,
+  body:is(.article,.book,.manpage) h5,
+  body:is(.article,.book,.manpage) h6,
+  body:is(.article,.book,.manpage) #toctitle,
+  body:is(.article,.book,.manpage) .title {
+    color: #7fb8e8;
+    font-weight: 400;
+  }
+  body:is(.article,.book,.manpage) #preamble > .sectionbody > .paragraph p,
+  body:is(.article,.book,.manpage) #preamble > .sectionbody > .paragraph.lead > p {
+    color: #d0d0d0;
+  }
+  body:is(.article,.book,.manpage) a { color: #6fa8dc; }
+  body:is(.article,.book,.manpage) a:visited { color: #b48ead; }
+
+  /* Single dark wrapper around listings: paint .content only, make
+     the inner <pre> transparent.  Painting both gives a double-box. */
+  body:is(.article,.book,.manpage) .listingblock > .content,
+  body:is(.article,.book,.manpage) .literalblock > .content {
+    background: #2a2a2a;
+    color: #f0f0f0;
+  }
+  body:is(.article,.book,.manpage) .listingblock pre,
+  body:is(.article,.book,.manpage) .literalblock pre,
+  body:is(.article,.book,.manpage) .listingblock > .content > pre[class^="highlight"],
+  body:is(.article,.book,.manpage) .listingblock > .content > pre:not(.highlight),
+  body:is(.article,.book,.manpage) .literalblock pre.highlight,
+  body:is(.article,.book,.manpage) pre.rouge {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: inherit;
+  }
+
+  /* Inline code/tt only.  pre code inside listingblock would
+     otherwise paint a second box inside the listing wrapper. */
+  body:is(.article,.book,.manpage) p code,
+  body:is(.article,.book,.manpage) li code,
+  body:is(.article,.book,.manpage) td code,
+  body:is(.article,.book,.manpage) tt {
+    background: #3a3a3a;
+    color: #f0f0f0;
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  body:is(.article,.book,.manpage) pre code,
+  body:is(.article,.book,.manpage) .listingblock code,
+  body:is(.article,.book,.manpage) .literalblock code {
+    background: transparent !important;
+    padding: 0 !important;
+    color: inherit;
+  }
+
+  body:is(.article,.book,.manpage) table.tableblock,
+  body:is(.article,.book,.manpage) table.tableblock th,
+  body:is(.article,.book,.manpage) table.tableblock td {
+    border-color: #444;
+    color: #e0e0e0;
+    background: #1e1e1e;
+  }
+  body:is(.article,.book,.manpage) table.tableblock tbody tr th,
+  body:is(.article,.book,.manpage) table.tableblock tfoot tr th,
+  body:is(.article,.book,.manpage) table.tableblock thead tr th {
+    background: #2a2a2a;
+    color: #f0f0f0;
+  }
+  body:is(.article,.book,.manpage) table.tableblock tbody tr th p,
+  body:is(.article,.book,.manpage) table.tableblock tfoot tr th p {
+    color: #f0f0f0;
+  }
+  body:is(.article,.book,.manpage) table.stripes-all > * > tr,
+  body:is(.article,.book,.manpage) table.stripes-odd > * > tr:nth-of-type(odd),
+  body:is(.article,.book,.manpage) table.stripes-even > * > tr:nth-of-type(even),
+  body:is(.article,.book,.manpage) table.stripes-hover > * > tr:hover {
+    background: #2a2a2a;
+  }
+  body:is(.article,.book,.manpage) .admonitionblock > table td.content {
+    color: #d0d0d0;
+    border-left-color: #444;
+  }
+  body:is(.article,.book,.manpage) .admonitionblock > table td.icon,
+  body:is(.article,.book,.manpage) .admonitionblock > table td.icon .title {
+    color: #e06464;
+    font-weight: bold;
+  }
+
+  /* Inkscape-exported SVG figures are transparent with black strokes
+     and disappear on dark page bg.  Wrap SVGs only in a white card;
+     PNGs/JPEGs usually carry their own background so leave them be. */
+  body:is(.article,.book,.manpage) .imageblock img[src$=".svg"],
+  body:is(.article,.book,.manpage) .image img[src$=".svg"] {
+    background: #fff;
+    padding: 0.5em;
+    border-radius: 4px;
+  }
+
+  /* Asciidoctor's default stylesheet sets explicit dark-on-white colors
+     on these text blocks; without an override they stay black on the
+     dark page bg and become unreadable. */
+  body:is(.article,.book,.manpage) .quoteblock,
+  body:is(.article,.book,.manpage) .quoteblock blockquote,
+  body:is(.article,.book,.manpage) .quoteblock p,
+  body:is(.article,.book,.manpage) .quoteblock dt,
+  body:is(.article,.book,.manpage) .quoteblock .hdlist1,
+  body:is(.article,.book,.manpage) .quoteblock .attribution,
+  body:is(.article,.book,.manpage) .quoteblock .attribution cite,
+  body:is(.article,.book,.manpage) .quoteblock cite,
+  body:is(.article,.book,.manpage) .verseblock,
+  body:is(.article,.book,.manpage) .verseblock pre,
+  body:is(.article,.book,.manpage) .sidebarblock,
+  body:is(.article,.book,.manpage) .exampleblock > .content,
+  body:is(.article,.book,.manpage) dt,
+  body:is(.article,.book,.manpage) .hdlist1 {
+    color: #e0e0e0;
+  }
+  body:is(.article,.book,.manpage) .sidebarblock,
+  body:is(.article,.book,.manpage) .exampleblock > .content {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+  body:is(.article,.book,.manpage) .quoteblock blockquote::before {
+    color: #888;
+  }
+}
+
+
+/* ======================================================================
+ *  Static landing pages (index.html / gcode.html)
+ *
+ *  Mirror asciidoctor's defaults so landing pages blend with the doc
+ *  pages.  Asciidoctor uses Noto Serif body / Open Sans headings /
+ *  #ba3925 heading color / #2156a5 links; we use the dark-blue accent
+ *  in line with the doc pages.
+ * ====================================================================== */
+body:not(.article):not(.book):not(.manpage) {
+  font-family: "Noto Serif", "DejaVu Serif", Georgia, serif;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.85);
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  /* Match the asciidoctor content cap (min 95% viewport, max 100em /
+     1600px) so the static landing pages and the doc pages line up at
+     the same width on HD screens. */
+  max-width: min(95%, 100em);
+  margin: 0 auto;
+  padding: 1em 1.5em;
+}
+/* Override index.css { body { padding-left: 50px } } */
+body:not(.article):not(.book):not(.manpage) { padding-left: 1.5em !important; }
+/* Caption acts as the page title in gcode.html; render it like
+   asciidoctor's h2. */
+body:not(.article):not(.book):not(.manpage) caption {
+  font-family: "Open Sans", "DejaVu Sans", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 2.3125em;
+  color: #1a3a6c;
+  text-rendering: optimizeLegibility;
+  text-align: left;
+  margin: 0.5em 0;
+  caption-side: top;
+}
+body:not(.article):not(.book):not(.manpage) p,
+body:not(.article):not(.book):not(.manpage) dd {
+  font-family: inherit;
+  font-size: 1.0625em;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+/* Link lists on index.html act as a TOC; match asciidoctor's #toc ul
+   styling (Open Sans, tight line-height). */
+body:not(.article):not(.book):not(.manpage) ul,
+body:not(.article):not(.book):not(.manpage) ol {
+  font-family: "Open Sans", "DejaVu Sans", sans-serif;
+}
+body:not(.article):not(.book):not(.manpage) li {
+  line-height: 1.3334;
+  margin-top: 0.3334em;
+}
+body:not(.article):not(.book):not(.manpage) h1,
+body:not(.article):not(.book):not(.manpage) h2,
+body:not(.article):not(.book):not(.manpage) h3,
+body:not(.article):not(.book):not(.manpage) h4,
+body:not(.article):not(.book):not(.manpage) h5,
+body:not(.article):not(.book):not(.manpage) h6 {
+  font-family: "Open Sans", "DejaVu Sans", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  color: #1a3a6c;
+  line-height: 1.2;
+  text-rendering: optimizeLegibility;
+}
+/* Sizes pulled from asciidoctor's desktop cascade. */
+body:not(.article):not(.book):not(.manpage) h2 { font-size: 2.3125em; }
+body:not(.article):not(.book):not(.manpage) h3 { font-size: 1.6875em; }
+body:not(.article):not(.book):not(.manpage) h4 { font-size: 1.4375em; }
+body:not(.article):not(.book):not(.manpage) a {
+  color: #2156a5;
+  text-decoration: none;
+}
+body:not(.article):not(.book):not(.manpage) a:hover {
+  text-decoration: underline;
+}
+body:not(.article):not(.book):not(.manpage) a:visited {
+  color: #1d4b8f;
+}
+body:not(.article):not(.book):not(.manpage) code,
+body:not(.article):not(.book):not(.manpage) pre,
+body:not(.article):not(.book):not(.manpage) tt {
+  font-family: "Droid Sans Mono", "DejaVu Sans Mono", monospace;
+}
+
+/* gcode.html table: redo to mirror asciidoctor's table look.
+   gcode.html ships hard black borders / black header inline; strip
+   the vertical rules, soften horizontals, lighten the header
+   background.  !important overrides inline style="..." on the
+   section-divider rows in the static markup. */
+body:not(.article):not(.book):not(.manpage) table {
+  border-collapse: collapse;
+  border: 1px solid #dddddf !important;
+  margin: 1em auto;
+}
+body:not(.article):not(.book):not(.manpage) td,
+body:not(.article):not(.book):not(.manpage) th {
+  border: none !important;
+  border-bottom: 1px solid #dddddf !important;
+  padding: 0.5em 0.625em !important;
+  vertical-align: top;
+}
+body:not(.article):not(.book):not(.manpage) td {
+  background: #fff;
+  color: rgba(0, 0, 0, 0.85);
+}
+body:not(.article):not(.book):not(.manpage) th {
+  background: #f7f7f8;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: bold;
+  text-align: left;
+}
+body:not(.article):not(.book):not(.manpage) tr.odd td {
+  background: #f8f8f7;
+}
+body:not(.article):not(.book):not(.manpage) tr.head td,
+body:not(.article):not(.book):not(.manpage) tr.head th {
+  background: #f7f7f8;
+  color: rgba(0, 0, 0, 0.85);
+}
+/* Section divider rows in gcode.html.  Two shapes appear:
+     <tr><th>Sec</th><td colspan="2">desc</td></tr>    (Motion, Canned cycles)
+     <tr><th colspan="3">Sec</th></tr>                 (Distance Mode, ...)
+   Paint the row background and let the cells fall through, so the
+   tint covers any colgroup column not spanned by the th/td. */
+body:not(.article):not(.book):not(.manpage) tr:has(> th:first-child:not(:only-child)),
+body:not(.article):not(.book):not(.manpage) tr:has(> th:only-child) {
+  background: #ececef;
+}
+body:not(.article):not(.book):not(.manpage) tr:has(> th:first-child:not(:only-child)) > *,
+body:not(.article):not(.book):not(.manpage) tr:has(> th:only-child) > * {
+  background: transparent !important;
+  font-weight: bold;
+}
+
+/* ======================================================================
+ *  Static landing pages (dark, opt-in via system preference)
+ * ====================================================================== */
+@media (prefers-color-scheme: dark) {
+  body:not(.article):not(.book):not(.manpage) {
+    background: #1e1e1e;
+    color: #e0e0e0;
+  }
+  body:not(.article):not(.book):not(.manpage) h1,
+  body:not(.article):not(.book):not(.manpage) h2,
+  body:not(.article):not(.book):not(.manpage) h3,
+  body:not(.article):not(.book):not(.manpage) h4,
+  body:not(.article):not(.book):not(.manpage) h5,
+  body:not(.article):not(.book):not(.manpage) h6,
+  body:not(.article):not(.book):not(.manpage) caption {
+    color: #7fb8e8;
+  }
+  body:not(.article):not(.book):not(.manpage) a         { color: #6fa8dc; }
+  body:not(.article):not(.book):not(.manpage) a:visited { color: #b48ead; }
+
+  body:not(.article):not(.book):not(.manpage) table {
+    border-color: #444 !important;
+  }
+  body:not(.article):not(.book):not(.manpage) td,
+  body:not(.article):not(.book):not(.manpage) th {
+    border-bottom-color: #444 !important;
+  }
+  body:not(.article):not(.book):not(.manpage) td {
+    background: #2a2a2a;
+    color: #e0e0e0;
+  }
+  body:not(.article):not(.book):not(.manpage) th {
+    background: #1a1a1a;
+    color: #f0f0f0;
+  }
+  body:not(.article):not(.book):not(.manpage) tr.odd td {
+    background: #333;
+  }
+  body:not(.article):not(.book):not(.manpage) tr.head td,
+  body:not(.article):not(.book):not(.manpage) tr.head th {
+    background: #1a1a1a;
+    color: #f0f0f0;
+  }
+  body:not(.article):not(.book):not(.manpage) tr:has(> th:first-child:not(:only-child)),
+  body:not(.article):not(.book):not(.manpage) tr:has(> th:only-child) {
+    background: #161616;
+  }
+  body:not(.article):not(.book):not(.manpage) tr:has(> th:first-child:not(:only-child)) > *,
+  body:not(.article):not(.book):not(.manpage) tr:has(> th:only-child) > * {
+    background: transparent !important;
+    color: #f0f0f0;
+  }
+}
