@@ -789,9 +789,9 @@ class touchy:
                 else:
                         incs = ["0.01", "0.001", "0.0001"]
 
-                self.wTree.get_object("wheelinc1").set_label(incs[0])
-                self.wTree.get_object("wheelinc2").set_label(incs[1])
-                self.wTree.get_object("wheelinc3").set_label(incs[2])
+                set_label(self.wTree.get_object("wheelinc1"), incs[0])
+                set_label(self.wTree.get_object("wheelinc2"), incs[1])
+                set_label(self.wTree.get_object("wheelinc3"), incs[2])
 
                 self.hal.jogincrement(self.wheelinc, list(map(float,incs)))
 
@@ -820,9 +820,9 @@ class touchy:
                         d0 = d * 10 ** (2-self.wheelinc)
                         if d != 0: self.listing.next(None, d0)
 
-                self.wTree.get_object("fo").set_label("FO: %d%%" % self.fo_val)
-                self.wTree.get_object("so").set_label("SO: %d%%" % self.so_val)
-                self.wTree.get_object("mv").set_label("MV: %d" % self.mv_val)
+                set_label(self.wTree.get_object("fo"), "FO: %d%%" % self.fo_val)
+                set_label(self.wTree.get_object("so"), "SO: %d%%" % self.so_val)
+                set_label(self.wTree.get_object("mv"), "MV: %d" % self.mv_val)
 
                         
                 return True
