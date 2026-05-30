@@ -448,8 +448,19 @@ Pressing cancel will close linuxcnc.""" % target)
                 window.setWindowTitle(INITITLE)
 
         # catch control c and terminate signals
-        signal.signal(signal.SIGTERM, self.shutdown)
-        signal.signal(signal.SIGINT, self.shutdown)
+        # Quit the Qt event loop on the signal so APP.exec() returns and the
+        # shutdown() below runs the normal cleanup once. Calling shutdown()
+        # directly from the handler would clean up but leave the loop running.
+        # Quitting the loop also bypasses the window-close confirmation dialog,
+        # which is correct for a terminate request and leaves that interactive
+        # feature untouched. Qt's C++ event loop does not return to Python often
+        # enough to run Python signal handlers, so a periodic no-op timer yields
+        # to the interpreter to let them fire.
+        signal.signal(signal.SIGTERM, lambda *a: APP.quit())
+        signal.signal(signal.SIGINT, lambda *a: APP.quit())
+        self._signal_timer = QtCore.QTimer()
+        self._signal_timer.timeout.connect(lambda: None)
+        self._signal_timer.start(200)
 
         # check for handler file and if it has 'before_loop' function in
         # ineach screen/embedded panel. (screen should be last)
