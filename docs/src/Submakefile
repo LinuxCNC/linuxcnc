@@ -1,10 +1,17 @@
-.PHONY: docs docclean checkref checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_uk checkref_zh_CN
+.PHONY: docs docclean checkref
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 SHELL=/bin/bash
 
 # To make linuxcnc-checklink widely available
 export PATH:=$(BASEPWD)/../scripts:$(PATH)
+
+# Ruby (asciidoctor / asciidoctor-pdf) reads source files in the locale's
+# default external encoding.  Containerised builds often inherit POSIX/C,
+# which makes Ruby treat every UTF-8 byte > 0x7f as an invalid sequence
+# and abort on the first non-ASCII character.  Force UTF-8.
+export LANG := C.UTF-8
+export LC_ALL := C.UTF-8
 
 # Optional helper to convert to uppercase for variable names like $(DOC_TARGETS_HTML_SV)
 # GNU make doesn’t have built-in uppercase, so define one:
@@ -25,8 +32,7 @@ SRCDIR=../src
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
-LOC_HL_DIR=../docs/src/source-highlight
-LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
+ASCIIDOCTOR_DEFAULT_CSS := $(shell ruby -e 'require "asciidoctor"; print Asciidoctor::DATA_DIR' 2>/dev/null)/stylesheets/asciidoctor-default.css
 
 # The following line determines for the Makefile what languages should be addressed.
 # Edit the file po4a.cfg in this source tree to adjust.
@@ -235,13 +241,38 @@ else
   PO4A_VERBOSE =
 endif
 
-$(DOC_DIR)/po/documentation.pot: $(addprefix $(DOC_SRCDIR)/, $(DOC_SRCS_EN))
+# components_gen.adoc is referenced as a translation master in po4a.cfg
+# (so each language has its own translated copy in <lang>/hal/) and is
+# auto-generated from the English manpages by gen_complist.py.  It must
+# exist before po4a is invoked, otherwise po4a aborts with "master file
+# does not exist".  gen_complist.py reads the manpage source list from
+# $(DOC_DIR)/man/, so changes to that set must invalidate the file --
+# hence $(MAN_SRCS) as a real prereq (the script is content-stable via
+# write_if_changed, so re-running over the same set is a no-op for
+# mtime, which keeps downstream po4a from re-firing every build).
+$(DOC_SRCDIR)/hal/components_gen.adoc: $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc $(MAN_SRCS) | manpages
+	python3 $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc
+
+$(DOC_DIR)/po/documentation.pot: $(addprefix $(DOC_SRCDIR)/, $(DOC_SRCS_EN)) $(DOC_SRCDIR)/hal/components_gen.adoc
 	cd $(DOC_DIR) && ${TIME_CMD} po4a $(PO4A_VERBOSE) --msgmerge-opt='-v' --no-translations po4a.cfg
+	@touch $@
 pofiles: $(DOC_DIR)/po/documentation.pot
 
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
-translateddocs: manpages $(DOC_DIR)/po/documentation.pot
+# Stamp-file gate: without it `translateddocs` is a phony-style target with
+# no file output, so make re-runs po4a every build.  po4a rewrites the
+# per-language .adoc files, bumping their mtime past the downstream PDFs
+# and triggering a full translated-PDF rebuild on every invocation.
+#
+# Depend on the committed .po files and components_gen.adoc (a po4a master),
+# NOT documentation.pot: regenerating the pot runs po4a in msgmerge mode,
+# rewriting every docs/po/*.po with a fresh POT-Creation-Date on each build
+# (dirty tree + mtime cascade).  Building needs only `po4a --no-update`;
+# pot/po extraction stays on the explicit `pofiles` target.
+$(DOC_DIR)/.translateddocs-stamp: $(DOC_SRCDIR)/hal/components_gen.adoc $(wildcard $(DOC_DIR)/po/*.po) | manpages
 	cd $(DOC_DIR) && ${TIME_CMD} po4a $(PO4A_VERBOSE) --msgmerge-opt='-v' --no-update po4a.cfg
+	@touch $@
+translateddocs: $(DOC_DIR)/.translateddocs-stamp
 else
 translateddocs:
 endif
@@ -253,16 +284,28 @@ postatus::
 	    echo -n "$$p ";  msgfmt --statistics -o /dev/null $$p; \
 	done
 
-# Automatically define DOC_SRCS_<lang> for each language
+# Automatically define DOC_SRCS_<lang> for each language by reading the
+# translated-file list straight out of po4a.cfg.  Deriving from po4a.cfg
+# (rather than scanning $(L)/ with $(wildcard) or assuming every English
+# source has a translation) gives two properties at once: the list does
+# not depend on po4a having already produced the files (no "build twice"
+# fragility), and it does not include English-only sources like
+# drivers/mesa_modbus.adoc that are absent from the translation pipeline.
+TRANSLATED_DOC_SRCS := $(shell sed -nE 's|^\[type: AsciiDoc_def\] src/([^ ]+).*|\1|p' \
+    $(DOC_DIR)/po4a.cfg)
 $(foreach L,$(LANGUAGES),\
   $(eval DOC_SRCS_$(call toUC,$(L)) := \
-    $$(subst $$(DOC_SRCDIR)/,, \
-      $$(wildcard $$(DOC_SRCDIR)/$(L)/*.adoc) \
-      $$(wildcard $$(DOC_SRCDIR)/$(L)/*/*.adoc))))
+    $$(addprefix $(L)/,$$(TRANSLATED_DOC_SRCS))))
 
-# Define combined DOC_SRCS from all languages
+# Define combined DOC_SRCS from all languages.  Translated sources are
+# only pulled in when BUILD_DOCS_TRANSLATED=yes; otherwise the HTML / PDF
+# target lists derived from DOC_SRCS stay English-only and po4a is never
+# invoked.
 # DOC_SRCS_EN is manually defined at the very beginning of the file
-DOC_SRCS := $(DOC_SRCS_EN) $(foreach L,$(LANGUAGES),$(DOC_SRCS_$(call toUC,$L)))
+DOC_SRCS := $(DOC_SRCS_EN)
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+DOC_SRCS += $(foreach L,$(LANGUAGES),$(DOC_SRCS_$(call toUC,$L)))
+endif
 
 $(foreach L,en $(LANGUAGES),\
   $(eval DOC_SRCS_$(call toUC,$(L))_SMALL := \
@@ -272,32 +315,22 @@ DOC_SRCS_HTML = $(patsubst %.adoc, %.html, $(foreach p, $(DOC_SRCS), $(if $(find
 DOC_TARGETS_HTML = $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML))
 DOC_TARGETS_XML = $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
-DOC_TARGETS_XML_AR = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ar/, $(p)), $p))
-DOC_TARGETS_XML_DE = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /de/, $(p)), $p))
-DOC_TARGETS_XML_ES = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /es/, $(p)), $p))
-DOC_TARGETS_XML_FR = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /fr/, $(p)), $p))
-DOC_TARGETS_XML_NB = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /nb/, $(p)), $p))
-DOC_TARGETS_XML_RU = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ru/, $(p)), $p))
-DOC_TARGETS_XML_SV = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /sv/, $(p)), $p))
-DOC_TARGETS_XML_TA = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ta/, $(p)), $p))
-DOC_TARGETS_XML_TR = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /tr/, $(p)), $p))
-DOC_TARGETS_XML_UK = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /uk/, $(p)), $p))
-DOC_TARGETS_XML_ZH_CN = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /zh_CN/, $(p)), $p))
+# Per-language slices of DOC_TARGETS_XML / DOC_TARGETS_HTML, derived
+# from $(LANGUAGES) (which comes from po4a.cfg).  English is whatever
+# is left after every translated subtree is filtered out.
+$(foreach L,$(LANGUAGES),\
+  $(eval DOC_TARGETS_XML_$(call toUC,$(L)) = \
+    $$(foreach p,$$(DOC_TARGETS_XML),$$(if $$(findstring /$(L)/,$$(p)),$$(p)))))
+DOC_TARGETS_XML_EN = $(filter-out \
+    $(foreach L,$(LANGUAGES),$(DOC_TARGETS_XML_$(call toUC,$(L)))), \
+    $(DOC_TARGETS_XML))
 
-DOC_TARGETS_XML_EN = $(filter-out $(DOC_TARGETS_XML_AR), $(filter-out $(DOC_TARGETS_XML_DE), $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(filter-out $(DOC_TARGETS_XML_NB), $(filter-out $(DOC_TARGETS_XML_RU), $(filter-out $(DOC_TARGETS_XML_SV), $(filter-out $(DOC_TARGETS_XML_TR), $(filter-out $(DOC_TARGETS_XML_UK), $(filter-out $(DOC_TARGETS_XML_ZH_CN), $(DOC_TARGETS_XML)))))))))))
-
-DOC_TARGETS_HTML_AR = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ar/, $(p)), $p))
-DOC_TARGETS_HTML_DE = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /de/, $(p)), $p))
-DOC_TARGETS_HTML_ES = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /es/, $(p)), $p))
-DOC_TARGETS_HTML_FR = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /fr/, $(p)), $p))
-DOC_TARGETS_HTML_NB = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /nb/, $(p)), $p))
-DOC_TARGETS_HTML_RU = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ru/, $(p)), $p))
-DOC_TARGETS_HTML_SV = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /sv/, $(p)), $p))
-DOC_TARGETS_HTML_TA = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ta/, $(p)), $p))
-DOC_TARGETS_HTML_TR = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /tr/, $(p)), $p))
-DOC_TARGETS_HTML_UK = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /uk/, $(p)), $p))
-DOC_TARGETS_HTML_ZH_CN = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /zh_CN/, $(p)), $p))
-DOC_TARGETS_HTML_EN = $(filter-out $(DOC_TARGETS_HTML_AR), $(filter-out $(DOC_TARGETS_HTML_DE), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_NB), $(filter-out $(DOC_TARGETS_HTML_RU), $(filter-out $(DOC_TARGETS_HTML_SV), $(filter-out $(DOC_TARGETS_HTML_TA), $(filter-out $(DOC_TARGETS_HTML_TR), $(filter-out $(DOC_TARGETS_HTML_UK), $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(DOC_TARGETS_HTML))))))))))))
+$(foreach L,$(LANGUAGES),\
+  $(eval DOC_TARGETS_HTML_$(call toUC,$(L)) = \
+    $$(foreach p,$$(DOC_TARGETS_HTML),$$(if $$(findstring /$(L)/,$$(p)),$$(p)))))
+DOC_TARGETS_HTML_EN = $(filter-out \
+    $(foreach L,$(LANGUAGES),$(DOC_TARGETS_HTML_$(call toUC,$(L)))), \
+    $(DOC_TARGETS_HTML))
 
 MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
@@ -306,61 +339,19 @@ PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
         LinuxCNC_Manual_Pages.pdf \
         ) \
 
-PDF_TARGETS_AR = $(addprefix $(DOC_DIR)/, $(subst ar/,, \
-	$(patsubst %.adoc,%_ar.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter ar/Master_%,$(DOC_SRCS_AR))))))
+# Per-language PDF target lists, derived from $(LANGUAGES).
+$(foreach L,$(LANGUAGES),\
+  $(eval PDF_TARGETS_$(call toUC,$(L)) = \
+    $$(addprefix $$(DOC_DIR)/, $$(subst $(L)/,, \
+      $$(patsubst %.adoc,%_$(L).pdf, \
+      $$(subst Master_,LinuxCNC_, $$(filter $(L)/Master_%,$$(DOC_SRCS_$(call toUC,$(L))))))))))
 
-PDF_TARGETS_DE = $(addprefix $(DOC_DIR)/, $(subst de/,, \
-	$(patsubst %.adoc,%_de.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter de/Master_%,$(DOC_SRCS_DE))))))
-
-PDF_TARGETS_ES = $(addprefix $(DOC_DIR)/, $(subst es/,, \
-	$(patsubst %.adoc,%_es.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter es/Master_%,$(DOC_SRCS_ES))))))
-
-PDF_TARGETS_FR = $(addprefix $(DOC_DIR)/, $(subst fr/,, \
-	$(patsubst %.adoc,%_fr.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter fr/Master_%,$(DOC_SRCS_FR))))))
-
-PDF_TARGETS_NB = $(addprefix $(DOC_DIR)/, $(subst nb/,, \
-	$(patsubst %.adoc,%_nb.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter nb/Master_%,$(DOC_SRCS_NB))))))
-
-PDF_TARGETS_RU = $(addprefix $(DOC_DIR)/, $(subst ru/,, \
-	$(patsubst %.adoc,%_ru.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter ru/Master_%,$(DOC_SRCS_RU))))))
-
-PDF_TARGETS_SV = $(addprefix $(DOC_DIR)/, $(subst sv/,, \
-	$(patsubst %.adoc,%_sv.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter sv/Master_%,$(DOC_SRCS_SV))))))
-
-PDF_TARGETS_TA = $(addprefix $(DOC_DIR)/, $(subst ta/,, \
-	$(patsubst %.adoc,%_ta.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter ta/Master_%,$(DOC_SRCS_TA))))))
-
-PDF_TARGETS_TR = $(addprefix $(DOC_DIR)/, $(subst tr/,, \
-	$(patsubst %.adoc,%_tr.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter tr/Master_%,$(DOC_SRCS_TR))))))
-
-PDF_TARGETS_UK = $(addprefix $(DOC_DIR)/, $(subst uk/,, \
-	$(patsubst %.adoc,%_uk.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter uk/Master_%,$(DOC_SRCS_UK))))))
-
-PDF_TARGETS_ZH_CN = $(addprefix $(DOC_DIR)/, $(subst zh_CN/,, \
-	$(patsubst %.adoc,%_zh_CN.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter zh_CN/Master_%,$(DOC_SRCS_ZH_CN))))))
-
-PDF_TARGETS = $(PDF_TARGETS_EN) $(PDF_TARGETS_AR) $(PDF_TARGETS_DE) $(PDF_TARGETS_ES) $(PDF_TARGETS_FR) $(PDF_TARGETS_NB) $(PDF_TARGETS_RU) $(PDF_TARGETS_SV) $(PDF_TARGETS_TA) $(PDF_TARGETS_TR) $(PDF_TARGETS_UK)
-# Do not add $(PDF_TARGETS_ZH_CN) to the line above, it is added below - only if xetex is available
-
-# Chinese PDFs only build with xetex - optional build-dependency on texlive-xetex
-ifneq (, $(shell command -v xetex))
-PDF_TARGETS += $(PDF_TARGETS_ZH_CN)
-DBLATEX_OPTS=--backend xetex
+PDF_TARGETS = $(PDF_TARGETS_EN)
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+PDF_TARGETS += $(foreach L,$(LANGUAGES),$(PDF_TARGETS_$(call toUC,$(L))))
 endif
 
 info::
-	@$(ECHO) PDF_TARGETS_UK: $(PDF_TARGETS_UK)
 	@$(ECHO) PDF_TARGETS: $(PDF_TARGETS)
 
 
@@ -373,19 +364,6 @@ HTML_TARGETS = \
 	$(sort $(patsubst $(DOC_SRCDIR)/index_%.tmpl, \
 		$(DOC_DIR)/html/%/index.html, \
 		$(wildcard $(DOC_DIR)/src/index_*.tmpl)))
-
-A2X = a2x --xsltproc-opts "--nonet \
-			   --stringparam toc.section.depth 3 \
-			   --stringparam toc.max.depth 2 \
-			   --stringparam generate.section.toc.level 2 \
-			   --stringparam generate.toc 'book toc,title chapter toc'" \
-	  --keep-artifacts \
-	  -a "scriptdir=$(DOC_SRCDIR)/" \
-	  --asciidoc-opts="-f $(DOC_SRCDIR)/docbook.conf" \
-	  --asciidoc-opts="-f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \
-	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty \
-			  -P latex.hyperparam=colorlinks,linkcolor=blue,filecolor=blue,urlcolor=blue,citecolor=blue \
-                          $(A2X_LATEX_ENCODING) $(DBLATEX_OPTS)"
 
 ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.adoc, depends/%.d, $(DOC_SRCS))
@@ -422,29 +400,97 @@ pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
 
 htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 
-.htmldoc-stamp: copy_asciidoc_files gen_complist $(HTML_TARGETS) .images-stamp .include-stamp
+# When translations are enabled, the .adoc files in $(L)/ are produced by
+# the translateddocs target (po4a).  Teach make how to ask for them: the
+# rule below has the translated .adoc files depend on translateddocs as
+# an order-only prereq, with an empty recipe.  That gives make a "rule"
+# to satisfy them (so it does not stop with "No rule to make target ..."
+# when depends/%.d is evaluated on a fresh tree) without rebuilding them
+# every time translateddocs ticks.
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+TRANSLATED_ADOC_TARGETS := $(addprefix $(DOC_SRCDIR)/, \
+    $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS)))
+$(TRANSLATED_ADOC_TARGETS): | translateddocs ;
+endif
+
+# Depend on the stamp files, not the phony copy_asciidoc_files /
+# gen_complist aliases: a phony prereq is always "newer", so naming them
+# re-touched .htmldoc-stamp every run, dragging checkref and the css copy
+# with it.  The stamps fire only when their real inputs change.
+.htmldoc-stamp: .copy-asciidoc-stamp $(DOC_DIR)/.gen_complist-stamp $(HTML_TARGETS) .images-stamp .include-stamp $(DOC_DIR)/html/asciidoctor.css $(DOC_DIR)/html/rouge-github.css
 	touch $@
 
-copy_asciidoc_files: $(wildcard /etc/asciidoc/stylesheets/*.css) $(wildcard /etc/asciidoc/javascripts/*.js)
+# Stamp-gated css/js copy; copy_asciidoc_files stays as a phony alias.
+copy_asciidoc_files: .copy-asciidoc-stamp
+.copy-asciidoc-stamp: $(wildcard /etc/asciidoc/stylesheets/*.css) $(wildcard /etc/asciidoc/javascripts/*.js) $(DOC_SRCDIR)/lcnc-overrides.css
 	if test -n "$^"; then cp -f $^ $(DOC_DIR)/html ; fi
+	@touch $@
 
-gen_complist: $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc $(MAN_HTML_TARGETS)
+$(DOC_DIR)/html/asciidoctor.css: $(ASCIIDOCTOR_DEFAULT_CSS)
+	@mkdir -p $(dir $@)
+	cp -f $< $@
+
+# Rouge ships theme CSS in the gem; with -a linkcss asciidoctor emits
+# <link href="<stylesdir>/rouge-<style>.css"> per page but does not copy
+# the file when -a copycss! is set.  Render the theme via the Rouge API
+# so the spans asciidoctor emits get coloured.  Combine light + dark
+# variants (dark gated on prefers-color-scheme) into one file.
+$(DOC_DIR)/html/rouge-github.css:
+	@mkdir -p $(dir $@)
+	ruby -e ' \
+	  require "rouge"; \
+	  t = Rouge::Themes::Github; \
+	  if t.respond_to?(:light!) && t.respond_to?(:dark!); \
+	    t.light!; \
+	    puts t.new(scope: ".rouge").render; \
+	    puts "@media (prefers-color-scheme: dark) {"; \
+	    t.dark!; \
+	    puts t.new(scope: ".rouge").render; \
+	    puts "}"; \
+	  else \
+	    warn "rouge does not support theme modes (Rouge::Themes::Github.light!); dark mode code highlighting will use Monokai"; \
+	    puts t.new(scope: ".rouge").render; \
+	    puts "@media (prefers-color-scheme: dark) {"; \
+	    puts Rouge::Themes::Monokai.new(scope: ".rouge").render; \
+	    puts "}"; \
+	  end' > $@
+
+# Stamp-file gate.  The phony alias was running the python script on
+# every build, rewriting components_gen.adoc with a fresh mtime, which
+# in turn invalidated documentation.pot and re-triggered po4a/HTML.
+#
+# components_gen.adoc itself is produced by the lighter rule above
+# (line ~252) which fires before po4a; that rule's $(MAN_SRCS) prereq
+# keeps the file in sync with the manpage source set.  Re-running
+# gen_complist.py here after MAN_HTML_TARGETS would rewrite the file
+# with HTML-existence-dependent content (different miss_in_man set),
+# bumping mtime past .pot and re-triggering po4a on the next build.
+# Broken-link validation against generated HTML is checkref's job.
+$(DOC_DIR)/.gen_complist-stamp: $(DOC_SRCDIR)/hal/components_gen.adoc $(MAN_HTML_TARGETS)
 	mkdir -p $(DOC_DIR)/html/hal
-	python3 $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc
+	@touch $@
+
+gen_complist: $(DOC_DIR)/.gen_complist-stamp
 
 
 CHECKREF_TARGETS := checkref_en $(foreach L,$(LANGUAGES),checkref_$(L))
-
-#checkref: checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_uk checkref_zh_CN
+.PHONY: $(CHECKREF_TARGETS)
 checkref: $(CHECKREF_TARGETS)
 
-checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
-	$(DOC_SRCDIR)/checkref English $^
+# checkref_* stay phony aliases; the link check lives in stamp-gated rules
+# so it only re-runs when the HTML changes.  .htmldoc-stamp is filtered out
+# of the args so the stamp file is not handed to the link checker.
+checkref_en: $(DOC_DIR)/.checkref-english-stamp
+$(DOC_DIR)/.checkref-english-stamp: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
+	$(DOC_SRCDIR)/checkref English $(filter %.html,$^)
+	@touch $@
 
 # Pattern rule for all languages
-checkref_%: $$(DOC_TARGETS_HTML_$$(call uc,$$*)) \
+checkref_%: $(DOC_DIR)/.checkref-%-stamp ;
+$(DOC_DIR)/.checkref-%-stamp: $$(DOC_TARGETS_HTML_$$(call uc,$$*)) \
              $$(DOC_DIR)/html/%/gcode.html .htmldoc-stamp
-	$(DOC_SRCDIR)/checkref $(call lang_name,$*) $$^
+	$(DOC_SRCDIR)/checkref $(call lang_name,$*) $(filter %.html,$$^)
+	@touch $@
 
 
 MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
@@ -456,11 +502,22 @@ PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(M
 	$(filter man3/hm2%.3, $(MAN_SRCS_NOSO)) \
 	$(filter man9/%, $(MAN_SRCS_NOSO))
 
-$(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
-	@$(ECHO) Formatting manual pages as PDF
-	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
-		| ps2pdf - $@
+# The manual-pages PDF rule lives next to the other PDF rules
+# (further down, after the CJK font setup) so it can pick up
+# CJK_TTFS / DOC_FONT_DIR without forward references.
 
+
+# Files produced by pattern rules but not named as explicit goals are
+# treated as intermediate and deleted at the end of every build, which
+# triggers a full rebuild on the next invocation.  Two groups bite us:
+#  - per-language Master_*.pdf  (chain: .adoc -> %/Master_*.pdf
+#    -> LinuxCNC_*_<lang>.pdf)
+#  - the per-manpage HTML files  (chain: man/% -> html/man/%.html, used
+#    via $(HTML_TARGETS) but never as an explicit goal name)
+# Declaring them .SECONDARY keeps them on disk without affecting precious
+# -on-error semantics.
+.SECONDARY: $(foreach L,$(LANGUAGES),$(foreach D,Getting_Started Documentation Integrator Developer,$(DOC_SRCDIR)/$(L)/Master_$(D).pdf)) \
+            $(MAN_HTML_TARGETS)
 
 PDF_TARGETS_LinuxCNC_Getting_Started := $(DOC_DIR)/LinuxCNC_Getting_Started.pdf $(foreach L,$(LANGUAGES),$(DOC_DIR)/LinuxCNC_Getting_Started_$(L).pdf)
 
@@ -498,11 +555,11 @@ $(DOC_DIR)/LinuxCNC_Developer_%.pdf: $(DOC_SRCDIR)/%/Master_Developer.pdf
 	@ln -f $< $@
 
 
-$(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
+$(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/% $(DOC_SRCDIR)/docinfo.html
 	@$(ECHO) Formatting $(notdir $<) as HTML
 	@mkdir -p $(dir $@)
 	$(Q)if grep -q '^\.so' $<; then \
-		ln -srf ../docs/html/man/$$(awk '{print $$2}' $<).html $@; \
+		ln -srf ../docs/html/man/$$(basename $$(dirname $<))/$$(basename $$(awk '{print $$2}' $<)).html $@; \
 	else \
 		N="$$(basename "$<").adoc"; \
 		D="$$(dirname "$<")"; \
@@ -515,37 +572,27 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 			echo "Error: Cannot find manpage '$<' in adoc format"; \
 			exit 1; \
 		fi; \
-		asciidoc \
+		asciidoctor \
+			-r $(realpath $(DOC_SRCDIR))/extensions/rouge_hal.rb \
+			-r $(realpath $(DOC_SRCDIR))/extensions/rouge_ngc.rb \
+			-r $(realpath $(DOC_SRCDIR))/extensions/rouge_ini.rb \
 			--doctype=manpage \
-			--backend=html \
+			--backend=html5 \
+			-a compat-mode \
 			-a mansource=LinuxCNC \
 			-a manmanual='LinuxCNC Documentation' \
-			-f $(DOC_SRCDIR)/xhtml11.conf \
-			-f $(DOC_SRCDIR)/xhtml11-head-foot.conf \
-			-f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-			-f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-			-a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-			-a disable-javascript \
-			-a autowidth-option \
-			-a "footer-style=none" \
-			-a linkcss \
-			-a "scriptsdir=../.." \
-			-a "stylesdir=../.." \
-			-a stylesheet=linuxcnc.css \
+			-a "lcnc-cssrel=../../" \
+			-a docinfo=shared \
+			-a docinfodir=$(realpath $(DOC_SRCDIR)) \
+			-a source-highlighter=rouge \
+			-a rouge-style=github \
+			-a webfonts! \
+			-a linkcss -a copycss! \
+			-a "stylesdir=../../" \
 			-o $@ \
 			"$$F" \
 			; \
 	fi;
-
-SA := <p><a onclick=\"return toggle('man_
-SB := ')\"><img id=\"man_
-SC := _image\" src=\"plus.png\" alt=\"plus\" style=\"border:0;margin-right:5px;vertical-align:middle\"/>
-
-SD := <div id=\"man_
-SE := \" style=\"-moz-column-width: 25ex; \
-	-moz-column-gap: 4ex; \
-	-webkit-column-width: \
-	25ex; -webkit-column-gap: 4ex;\">
 
 #
 # This function appends a section to the "manpages" HTML fragment called
@@ -556,24 +603,24 @@ SE := \" style=\"-moz-column-width: 25ex; \
 #
 ADD_HTML_MANPAGES = \
 	echo "Adding manpages: $(strip $(1)): $(strip $(2))"; \
-	echo "$(SA)$(strip $(1))$(SB)$(strip $(1))$(SC)$(strip $(2))</a></p>" >> objects/index.incl; \
-	echo "$(SD)$(strip $(1))$(SE)" >> objects/index.incl; \
-	echo "<ul>" >> objects/index.incl; \
+	echo "<details>" >> objects/index.incl; \
+	echo "<summary>man($(strip $(1))) - $(strip $(2))</summary>" >> objects/index.incl; \
+	echo "<div class=\"details-list\"><ul>" >> objects/index.incl; \
 	for HTML_FILE in $(sort $(3)); do \
 		BASENAME=$$(basename $$HTML_FILE .html); \
 		echo "<li><a href=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$${BASENAME%.*}</a></li>"; \
 	done >> objects/index.incl; \
-	echo "</ul></div>" >> objects/index.incl; \
+	echo "</ul></div></details>" >> objects/index.incl; \
 
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	rm -f $@
 	$(call ADD_HTML_MANPAGES, 1, Commands and userspace components, $(filter $(DOC_DIR)/html/man/man1/%.html, $(MAN_HTML_TARGETS))) \
 	$(call ADD_HTML_MANPAGES, 9, Realtime components and kernel modules, $(filter $(DOC_DIR)/html/man/man9/%.html, $(MAN_HTML_TARGETS))) \
-	$(call ADD_HTML_MANPAGES, hal,   API: HAL,      $(filter $(DOC_DIR)/html/man/man3/hal%.html, $(MAN_HTML_TARGETS))) \
-	$(call ADD_HTML_MANPAGES, rtapi, API: RTAPI,    $(filter $(DOC_DIR)/html/man/man3/rtapi%.html, $(MAN_HTML_TARGETS))) \
-	$(call ADD_HTML_MANPAGES, hm2,   API: Hostmot2, $(filter $(DOC_DIR)/html/man/man3/hm2%.html, $(MAN_HTML_TARGETS))) \
-	$(call ADD_HTML_MANPAGES, 3,     API: General,  $(filter-out $(DOC_DIR)/html/man/man3/hal%.html, $(filter-out $(DOC_DIR)/html/man/man3/rtapi%.html, $(filter-out $(DOC_DIR)/html/man/man3/hm2%.html, $(filter $(DOC_DIR)/html/man/man3/%.html, $(MAN_HTML_TARGETS)))))) \
+	$(call ADD_HTML_MANPAGES, 3, API: HAL,      $(filter $(DOC_DIR)/html/man/man3/hal%.html, $(MAN_HTML_TARGETS))) \
+	$(call ADD_HTML_MANPAGES, 3, API: RTAPI,    $(filter $(DOC_DIR)/html/man/man3/rtapi%.html, $(MAN_HTML_TARGETS))) \
+	$(call ADD_HTML_MANPAGES, 3, API: Hostmot2, $(filter $(DOC_DIR)/html/man/man3/hm2%.html, $(MAN_HTML_TARGETS))) \
+	$(call ADD_HTML_MANPAGES, 3, API: General,  $(filter-out $(DOC_DIR)/html/man/man3/hal%.html, $(filter-out $(DOC_DIR)/html/man/man3/rtapi%.html, $(filter-out $(DOC_DIR)/html/man/man3/hm2%.html, $(filter $(DOC_DIR)/html/man/man3/%.html, $(MAN_HTML_TARGETS)))))) \
 	# now make sure all manpages made it into the html index
 	FAIL=0; \
 	for F in $$(find $(DOC_DIR)/man/man* -type f); do \
@@ -600,10 +647,172 @@ $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SR
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/"  | \
 		if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@
 
-$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.adoc svgs_made_from_dots .adoc-images-stamp
+# PDF rule. Uses asciidoctor-pdf with our xref + image preprocessor
+# extensions and the LinuxCNC theme. The xref-root attribute is set
+# to the directory of the source file so each language tree gets
+# its own anchor index (Master_*.adoc under DOC_SRCDIR for English,
+# DOC_SRCDIR/<lang>/Master_*.adoc for translations).
+DOC_FONT_DIR  = objects/.fonts
+# Locations of the NotoSerifCJK Regular / Bold TrueType Collections are
+# discovered by configure (via fontconfig with package-path fallbacks)
+# and exported through Makefile.inc, so the build works on any distro
+# that ships the .ttc, not only the Debian path.
+CJK_TTFS      = $(DOC_FONT_DIR)/NotoSerifCJKsc-Regular.ttf \
+                $(DOC_FONT_DIR)/NotoSerifCJKsc-Bold.ttf
+# DejaVu Sans Mono is the code-block font.  asciidoctor-pdf only looks for
+# fonts in pdf-fontsdir by filename, not via fontconfig, so discover the
+# files at build time and symlink them into DOC_FONT_DIR.  Keeps the
+# pdf-theme.yml portable (no absolute paths baked in).
+DEJAVU_TTFS   = $(DOC_FONT_DIR)/DejaVuSansMono.ttf \
+                $(DOC_FONT_DIR)/DejaVuSansMono-Bold.ttf \
+                $(DOC_FONT_DIR)/DejaVuSansMono-Oblique.ttf \
+                $(DOC_FONT_DIR)/DejaVuSansMono-BoldOblique.ttf
+DOC_FONTS     = $(CJK_TTFS) $(DEJAVU_TTFS)
+
+# Build a TrueType (glyf-based) copy of the Simplified Chinese cut of the
+# Noto Serif CJK font.  The system font is shipped only as a CFF/OTF
+# TrueType Collection and prawn 2.4 corrupts the PDF when asked to embed
+# CFF outlines, so we convert the curves with cu2qu first.  This is the
+# fallback font that lets the translated docs render their few non-Latin
+# characters; the base text is still served by Noto Serif.
+# Scan both docs/src and the po catalogues: the .po files hold the full
+# translated text, so the glyph subset no longer depends on whether po4a
+# has produced the per-language .adoc yet.  Without this the subset can
+# come up empty on a fresh build and the converter falls back to the full
+# ~65k-glyph face (~200s vs ~1.5s).
+$(DOC_FONT_DIR)/NotoSerifCJKsc-Regular.ttf: $(NOTOCJK_REGULAR_TTC) $(DOC_SRCDIR)/otf2ttf.py $(wildcard $(DOC_DIR)/po/*.po)
+	@mkdir -p $(DOC_FONT_DIR)
+	$(ECHO) "Converting CJK font to TTF: $(notdir $@)"
+	$(Q)python3 $(DOC_SRCDIR)/otf2ttf.py --ttc-index 2 --text-from $(DOC_SRCDIR) --text-from $(DOC_DIR)/po $< $@.tmp && mv $@.tmp $@
+
+$(DOC_FONT_DIR)/NotoSerifCJKsc-Bold.ttf: $(NOTOCJK_BOLD_TTC) $(DOC_SRCDIR)/otf2ttf.py $(wildcard $(DOC_DIR)/po/*.po)
+	@mkdir -p $(DOC_FONT_DIR)
+	$(ECHO) "Converting CJK font to TTF: $(notdir $@)"
+	$(Q)python3 $(DOC_SRCDIR)/otf2ttf.py --ttc-index 2 --text-from $(DOC_SRCDIR) --text-from $(DOC_DIR)/po $< $@.tmp && mv $@.tmp $@
+
+# DejaVu Sans Mono discovery: fc-match resolves the canonical .ttf for
+# each style, we symlink it into DOC_FONT_DIR under its expected filename
+# so pdf-theme.yml can stay path-free.
+define DEJAVU_RULE
+$(DOC_FONT_DIR)/$(1): | $(DOC_FONT_DIR)
+	@F=$$$$(fc-match --format='%{file}' '$(2)' 2>/dev/null); \
+	if [ -z "$$$$F" ] || [ ! -r "$$$$F" ]; then \
+	    echo "fc-match could not locate '$(2)'; install fonts-dejavu" >&2; \
+	    exit 1; \
+	fi; \
+	ln -sf "$$$$F" $$@
+endef
+$(eval $(call DEJAVU_RULE,DejaVuSansMono.ttf,DejaVu Sans Mono:style=Book))
+$(eval $(call DEJAVU_RULE,DejaVuSansMono-Bold.ttf,DejaVu Sans Mono:style=Bold))
+$(eval $(call DEJAVU_RULE,DejaVuSansMono-Oblique.ttf,DejaVu Sans Mono:style=Oblique))
+$(eval $(call DEJAVU_RULE,DejaVuSansMono-BoldOblique.ttf,DejaVu Sans Mono:style=Bold Oblique))
+
+$(DOC_FONT_DIR):
+	@mkdir -p $@
+
+# svgs_made_from_dots is .PHONY; as a normal prereq it forces every PDF to
+# rebuild on every run.  Order-only (after the |) instead; the SVGs the PDF
+# embeds are tracked via .adoc-images-stamp.
+$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.adoc .adoc-images-stamp $(DOC_FONTS) | svgs_made_from_dots
 	$(ECHO) Building $@
-	@rm -f $@
-	$(Q)$(A2X) -L -d book -vf pdf $< || (X=$$?; rm -f $@; exit $$X)
+	@rm -f $@ $@.raw
+	$(Q)timeout 900 asciidoctor-pdf \
+		 -r $(realpath $(DOC_SRCDIR))/extensions/xref_resolver.rb \
+		 -r $(realpath $(DOC_SRCDIR))/extensions/image_resolver.rb \
+		 -r $(realpath $(DOC_SRCDIR))/extensions/rouge_hal.rb \
+		 -r $(realpath $(DOC_SRCDIR))/extensions/rouge_ngc.rb \
+		 -r $(realpath $(DOC_SRCDIR))/extensions/rouge_ini.rb \
+		 --sourcemap \
+		 -a compat-mode \
+		 -a "doc-languages=$(LANGUAGES)" \
+		 -a xref-root=$(dir $<) \
+		 -a "xref-exclude=^($(LANGUAGES_MATCH))/" \
+		 -a "scriptdir=$(DOC_SRCDIR)/" \
+		 -a "pdf-fontsdir=$(realpath $(DOC_FONT_DIR));GEM_FONTS_DIR" \
+		 -a "lversion=$(shell cat ../VERSION)" \
+		 -a toc -a numbered \
+		 -a pdf-theme=$(DOC_SRCDIR)/pdf-theme.yml \
+		 -a source-highlighter=rouge \
+		 -a rouge-style=github \
+		 -d book \
+		 -o $@.raw $< || (X=$$?; rm -f $@.raw; \
+		    if [ $$X -eq 124 ]; then echo "asciidoctor-pdf timed out after 15 min on $<"; fi; \
+		    exit $$X)
+	$(Q)gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.5 \
+		 -dPassThroughJPEGImages=true \
+		 -dDownsampleColorImages=false \
+		 -dDownsampleGrayImages=false \
+		 -dDownsampleMonoImages=false \
+		 -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode \
+		 -dAutoFilterGrayImages=false  -dGrayImageFilter=/FlateEncode \
+		 -dNOPAUSE -dQUIET -dBATCH \
+		 -sOutputFile=$@ $@.raw \
+		 && rm -f $@.raw \
+		 || (X=$$?; rm -f $@ $@.raw; exit $$X)
+	@test -f $@
+
+# Manual pages PDF: previously produced from the generated troff files
+# with groff + ps2pdf, which lost syntax highlighting on code samples.
+# Now built from the .adoc sources via asciidoctor-pdf so highlighting
+# survives.  A small master document is generated each build that
+# includes every manpage in PDF_MAN_ORDER as a chapter (leveloffset=+1),
+# with a hard page break between entries.  Component pages whose .adoc
+# lives in objects/man/ (built by halcompile) are picked up alongside
+# the native ones in docs/src/man/.
+objects/LinuxCNC_Manual_Pages.adoc: objects/var-PDF_MAN_ORDER $(MAN_SRCS) $(DOC_SRCDIR)/Submakefile
+	@mkdir -p $(dir $@)
+	$(Q){ \
+	    echo "= LinuxCNC Manual Pages"; \
+	    echo ":doctype: book"; \
+	    echo ":source-highlighter: rouge"; \
+	    echo ":toc:"; \
+	    echo ":numbered:"; \
+	    echo; \
+	    for M in $(PDF_MAN_ORDER); do \
+	        if   [ -r "$(DOC_SRCDIR)/man/$$M.adoc" ]; then \
+	            echo "include::$(realpath $(DOC_SRCDIR))/man/$$M.adoc[leveloffset=+1]"; \
+	        elif [ -r "objects/man/$$M.adoc" ]; then \
+	            echo "include::$(realpath objects)/man/$$M.adoc[leveloffset=+1]"; \
+	        else \
+	            echo "Error: no .adoc source for manpage $$M" >&2; exit 1; \
+	        fi; \
+	        echo; \
+	        echo "<<<"; \
+	        echo; \
+	    done; \
+	} > $@.tmp
+	$(Q)mv -f $@.tmp $@
+
+$(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: objects/LinuxCNC_Manual_Pages.adoc $(DOC_FONTS)
+	@$(ECHO) Formatting manual pages as PDF
+	@rm -f $@ $@.raw
+	$(Q)timeout 900 asciidoctor-pdf \
+	    -r $(realpath $(DOC_SRCDIR))/extensions/rouge_hal.rb \
+	    -r $(realpath $(DOC_SRCDIR))/extensions/rouge_ngc.rb \
+	    -r $(realpath $(DOC_SRCDIR))/extensions/rouge_ini.rb \
+	    -a compat-mode \
+	    -a mansource=LinuxCNC \
+	    -a manmanual='LinuxCNC Documentation' \
+	    -a source-highlighter=rouge \
+		-a rouge-style=github \
+	    -a "pdf-fontsdir=$(realpath $(DOC_FONT_DIR));GEM_FONTS_DIR" \
+	    -a "lversion=$(shell cat ../VERSION)" \
+	    -a pdf-theme=$(DOC_SRCDIR)/pdf-theme.yml \
+	    -d book \
+	    -o $@.raw $< || (X=$$?; rm -f $@.raw; \
+	        if [ $$X -eq 124 ]; then echo "asciidoctor-pdf timed out after 15 min on $<"; fi; \
+	        exit $$X)
+	$(Q)gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.5 \
+	    -dPassThroughJPEGImages=true \
+	    -dDownsampleColorImages=false \
+	    -dDownsampleGrayImages=false \
+	    -dDownsampleMonoImages=false \
+	    -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode \
+	    -dAutoFilterGrayImages=false  -dGrayImageFilter=/FlateEncode \
+	    -dNOPAUSE -dQUIET -dBATCH \
+	    -sOutputFile=$@ $@.raw \
+	    && rm -f $@.raw \
+	    || (X=$$?; rm -f $@ $@.raw; exit $$X)
 	@test -f $@
 
 depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
@@ -611,55 +820,6 @@ depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
 	@mkdir -p $(dir $@)
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
 	@mv $@.tmp $@
-
-objects/%.links-stamp: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/links.xslt
-	@mkdir -p `dirname $@`
-	$(Q)asciidoc -f $(DOC_SRCDIR)/attribute-colon.conf -a "scriptdir=$(DOC_SRCDIR)/" -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm -f $@; exit $$X)
-	$(Q)sh move-if-change $@.tmp $(patsubst %-stamp,%,$@)
-	$(Q)touch $@
-
-objects/%.links: objects/%.links-stamp
-	@:
-
-# Secondary is not working here.
-# See http://www.gnu.org/software/make/manual/make.html#Chained-Rules
-.PRECIOUS: objects/%.links-stamp
-
-objects/xref_en.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_EN_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_ar.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_AR_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_de.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_DE_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_es.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_ES_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_fr.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_FR_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_nb.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_NB_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_ru.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_RU_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_sv.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_SV_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_ta.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_TA_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_tr.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_TR_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_uk.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_UK_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
-
-objects/xref_zh_CN.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_ZH_CN_SMALL))
-	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
 $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	@d=`dirname $*`; \
@@ -672,14 +832,12 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 .html-images-stamp: $(DOC_TARGETS_HTML)
 	set -e; for HTML_FILE in $^; do \
 		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
-		for IMAGE_FILE in $$(xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $$HTML_FILE); do \
+		for IMAGE_FILE in $$(grep -oE 'src="[^"]+"' $$HTML_FILE | sed 's/src="//;s/"$$//' | grep -vE '^https?:|^data:|^/'); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
 			IMAGE_PATH=$$(echo $(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE | sed -E 's%/src/($(LANGUAGES_MATCH))/%/src/%'); \
 			mkdir -p $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_DIR; \
 			cp -f $$IMAGE_PATH $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_FILE; \
 		done; \
-		mkdir -p objects/image-cache; \
-		HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $$HTML_FILE || (X=$$?; rm $$HTML_FILE; exit $$X); \
 	done > $@.new && mv $@.new $@
 
 # Hack to avoid ../../../src/ style include which do not work with
@@ -705,8 +863,13 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	done) > $@.new && mv $@.new $@
 
 # Copy all images used by translated adoc files into the directories
-# with translated adoc files.
-.adoc-images-stamp: translateddocs $(addprefix $(DOC_SRCDIR)/, $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS)))
+# with translated adoc files.  The .translateddocs-stamp prerequisite
+# only exists when BUILD_DOCS_TRANSLATED=yes; without it the rule has
+# no work to do (filter-out yields empty) so we skip the dep too.
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+ADOC_IMAGES_STAMP_DEPS := $(DOC_DIR)/.translateddocs-stamp
+endif
+.adoc-images-stamp: $(ADOC_IMAGES_STAMP_DEPS) $(addprefix $(DOC_SRCDIR)/, $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS)))
 	set -e; for ADOC_FILE in $(addprefix $(DOC_SRCDIR)/, $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS))); do \
 		ADOC_DIR=$$(echo $$(dirname $$ADOC_FILE) | sed s%$(DOC_SRCDIR)/%% ); \
 		echo Processing $$ADOC_FILE, dir $$ADOC_DIR; \
@@ -725,198 +888,43 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 		done; \
 	done > $@.new && mv $@.new $@
 
-# Define a target-specific variable called STYLES_SCRIPTS_DIR, which has
-# the relative path from this html target to the root of the generated
-# document tree (docs/html in the git repo).  This is where the CSS files
-# and javascript files will be installed.
-$(DOC_SRCDIR)/%.html: STYLES_SCRIPTS=$(shell \
-    D=$$(python3 -c "print('../' * '$*'.count('/'))"); \
-    if [ ! -z $$D ]; then \
-        echo "-a 'scriptsdir=$$D' -a 'stylesdir=$$D'"; \
-    fi \
-)
+# Relative path from this html target back to DOC_SRCDIR, used to point
+# the lcnc-overrides.css <link> in docinfo.html at the right place.
+$(DOC_SRCDIR)/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * '$*'.count('/'))")
 
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_en.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'en' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_en.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
+# asciidoctor HTML rule used for every language. $1 is the language tag
+# in lowercase (en, ar, de, ...); $2 is the directory the xref index is
+# rooted at (the source tree root for the language).
+define ASCIIDOCTOR_HTML_RULE
+$$(patsubst %.adoc,$$(DOC_SRCDIR)/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $$(DOC_SRCDIR)/%.html: $$(DOC_SRCDIR)/%.adoc $$(DOC_SRCDIR)/docinfo.html
+	$$(ECHO) "Building '$1' adoc to html: " $$<
+	$$(Q)asciidoctor -r $$(realpath $$(DOC_SRCDIR))/extensions/xref_resolver.rb \
+		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
+		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ngc.rb \
+		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ini.rb \
+		 -a compat-mode \
+		 -a xref-root=$2 \
+		 -a "xref-exclude=$3" \
+		 -a "relindir=$$(shell dirname $$*)" \
+		 -a "lcnc-cssrel=$$(LCNC_CSSREL)" \
+		 -a docinfo=shared \
+		 -a docinfodir=$$(realpath $$(DOC_SRCDIR)) \
+		 -a source-highlighter=rouge \
+		 -a rouge-style=github \
+		 -a webfonts! \
+		 -a linkcss -a copycss! \
+		 -a "stylesdir=$$(LCNC_CSSREL)" \
+		 -d book -a toc -a numbered \
+		 -o $$@ $$< || (X=$$$$?; rm -f $$@; exit $$$$X)
+endef
 
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_AR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_ar.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'ar' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_ar.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
+# English is rooted at the doc tree root so it must exclude all language
+# subdirs from its xref index. Translated languages are rooted at their
+# own subtree so the exclude is empty.
+$(eval $(call ASCIIDOCTOR_HTML_RULE,en,$(DOC_SRCDIR),^($(LANGUAGES_MATCH))/))
+$(foreach lang,$(LANGUAGES),\
+    $(eval $(call ASCIIDOCTOR_HTML_RULE,$(lang),$(DOC_SRCDIR)/$(lang))))
 
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_de.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'de' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_de.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_es.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'es' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_es.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_fr.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'fr' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_fr.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_NB_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_nb.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'nb' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_nb.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_RU_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_ru.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'ru' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_ru.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_SV_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_sv.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'sv' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_sv.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_TA_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_ta.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'ta' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_ta.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_TR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_tr.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'tr' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_tr.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_UK_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_uk.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'uk' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_uk.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ZH_CN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_zh_CN.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'zh_CN' adoc to html: " $<
-	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -a linkcss \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_zh_CN.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-
-# Conversion to HTML
-# Define common prerequisites
-COMMON_DEPS_CONVERSION := $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-
-# Declare all final HTML targets
-HTML_TARGETS := $(foreach L,$(LANGUAGES),$(DOC_DIR)/html/$(L)/xref.html)
-
-$(DOC_DIR)/html/%/xref.html: objects/xref_%.xml $(COMMMON_DEPS_CONVERSION)
-	@$(ECHO) Converting $< to HTML
-	xsltproc --stringparam docname "xref_$*" \
-		--stringparam language $(call lang_name,$*) \
-		--path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
 default: docs
 
@@ -948,6 +956,7 @@ docclean:
 	-rm -f $(DOC_SRCDIR)/*/gui/gmoccapy_release_notes.txt
 	-rm -f $(DOC_DIR)/html/*/drivers/mb2hal_HOWTO.ini
 	-rm -f $(DOC_DIR)/html/drivers/mb2hal_HOWTO.ini
+	-rm -rf $(DOC_FONT_DIR)
 	-rm -f $(DOC_DIR)/html/gui/gmoccapy_release_notes.txt
 	-rm -f $(DOC_DIR)/html/*/gui/gmoccapy_release_notes.txt
 	-rm -f $(DOC_DIR)/html/code/*.*
@@ -970,10 +979,14 @@ docclean:
 	-rm -f $(DOC_DIR)/html/man/man9/*.*
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
 	-rm -f .htmldoc-stamp
+	-rm -f .copy-asciidoc-stamp
 	-rm -f .adoc-images-stamp
 	-rm -f .html-images-stamp
 	-rm -f .images-stamp
 	-rm -f .include-stamp
+	-rm -f $(DOC_DIR)/.translateddocs-stamp
+	-rm -f $(DOC_DIR)/.gen_complist-stamp
+	-rm -f $(DOC_DIR)/.checkref-*-stamp
 	-rm -f $(DOTFILES:.dot=.svg)
 	$(RM) $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc
 
@@ -983,7 +996,7 @@ $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
 	@echo Depending $(notdir $<)
 	@mkdir -p $(dir $@)
 	$(Q)echo -n "$(DOC_DIR)/html/man/$*.html: $<" > $@.tmp
-	$(Q)grep '^\.so ' $< | awk '{printf " \\\n\t$(DOC_DIR)/man/%s", $$2}' >> $@.tmp
+	$(Q)grep '^\.so ' $< | awk '{ if ($$2 ~ /\//) printf " \\\n\t$(DOC_DIR)/man/%s", $$2; else printf " \\\n\t$(DOC_DIR)/man/$(*D)/%s", $$2 }' >> $@.tmp
 	$(Q)echo >> $@.tmp
 	$(Q)mv -f $@.tmp $@
 
@@ -996,7 +1009,7 @@ endif
 	dot -Tpng -o$@ $<
 
 %.svg: %.dot
-	dot -Tsvg -o$@ $<
+	dot -Tsvg -Gbgcolor=transparent -o$@ $<
 
 %.png:; $(error Required image file $@ does not exist)
 %.jpg:; $(error Required image file $@ does not exist)
@@ -1020,26 +1033,14 @@ manpages: $(GENERATED_MANPAGES)
 TARGETS += manpages
 
 # make manpages from all the asciidoc manpage-sources
-# Note that in some versions of asciidoc, including the one in Debian Jessie,
-# a2x spuriously warns that this --destination-dir is ignored.  It is *NOT*
-# ignored, don't remove it trying to fix the diagnostic.
-# For more information, see https://github.com/asciidoc/asciidoc/issues/44
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
 $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
 	$(ECHO) Making manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)a2x --doctype manpage \
-		--format manpage \
-		--destination-dir $(dir $@) \
-		--xsltproc-opts="--nonet" \
+	$(Q)asciidoctor --doctype=manpage \
+		--backend=manpage \
+		--destination-dir="$(dir $@)" \
+		-a compat-mode \
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \
 		$<
-#	$(Q)asciidoctor \
-#		--doctype=manpage \
-#		--backend=manpage \
-#		--destination-dir="$(dir $@)" \
-#		-a mansource=LinuxCNC \
-#		-a manmanual='LinuxCNC Documentation' \
-#		$<
-#	$(Q)../scripts/fixup_man_alias "$<" "$(dir $@)"
