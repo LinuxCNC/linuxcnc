@@ -1061,130 +1061,167 @@ AC_ARG_ENABLE(build-documentation,
         AC_MSG_RESULT([no])
     ])
 
-# Programs required for building all documentation
+# Programs required for building documentation.  Missing PDF-only
+# tools or an invalid CJK font are a hard error whenever PDF was
+# requested (BUILD_DOCS_PDF=yes -- i.e. anything except
+# --enable-build-documentation=html).  =html itself warn-and-disables
+# only the missing PDF tools; users who want PDF best-effort can pass
+# =html and rebuild after installing the missing tools.
 if ( test "$BUILD_DOCS" = "yes" ) ; then
-    AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
-    if ( test "none" = "$ASCIIDOC" ) ; then
-	AC_MSG_WARN([no AsciiDoc, documentation cannot be built])
+    AC_PATH_PROG(ASCIIDOCTOR,asciidoctor,"none")
+    if ( test "none" = "$ASCIIDOCTOR" ) ; then
+        AC_MSG_WARN([no asciidoctor, documentation cannot be built
+install with "sudo apt-get install asciidoctor"])
         BUILD_DOCS=no
-    fi
-
-    AC_PATH_PROG(A2X,a2x,"none")
-    if ( test "none" = "$A2X" ) ; then
-	AC_MSG_WARN([no a2x, documentation cannot be built])
-        BUILD_DOCS=no
-    fi
-
-    AC_MSG_CHECKING([whether to specify latex.encoding])
-    temp_asciidoc=`mktemp --suffix=.txt`
-    cat > $temp_asciidoc <<EOF
-:lang: fr
-:ascii-ids:
-
-....
-Matúš hat Geläut am Fuß
-....
-EOF
-    if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
-    then
-        A2X_LATEX_ENCODING="-P latex.encoding=utf8"
-        AC_MSG_RESULT(yes)
-    else
-        A2X_LATEX_ENCODING=""
-        AC_MSG_RESULT(no)
-    fi
-    AC_SUBST(A2X_LATEX_ENCODING)
-    rm -f $temp_asciidoc ${temp_asciidoc%.txt}.pdf
-
-    AC_PATH_PROG(DBLATEX,dblatex,"none")
-    if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_WARN([no dblatex, documentation cannot be built])
-        BUILD_DOCS=no
-    fi
-
-    if ( test "$BUILD_DOCS" = "yes" ) ; then
-        AC_MSG_CHECKING([dblatex version])
-        set -- `dblatex --version`; DBLATEX_VER=$3
-        set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
-        micro=`echo $3 | sed 's/\([[0-9]]*\).*/\1/g'`
-
-        if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${micro:-0} -lt 12 \) \); then
-            AC_MSG_WARN([dblatex version $DBLATEX_VER less than 0.2.12.
-Documentation cannot be built.])
-            BUILD_DOCS=no
-        else
-            AC_MSG_RESULT([$DBLATEX_VER])
-        fi
-    fi
-
-    if ( test "$BUILD_DOCS" = "yes" ) ; then
-        AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
-        if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
-            AC_MSG_WARN([no source-highlight, documentation cannot be built])
-            BUILD_DOCS=no
-        fi
-    fi
-
-    if ( test "$BUILD_DOCS" = "yes" ) ; then
-        AC_PATH_PROG(CONVERT,convert,"none")
-        if ( test "none" = "$CONVERT" ) ; then
-            AC_MSG_WARN([no convert, documentation cannot be built])
-            BUILD_DOCS=no
-        fi
+        BUILD_DOCS_PDF=no
+        BUILD_DOCS_HTML=no
     fi
 
     if ( test "$BUILD_DOCS" = "yes" ) ; then
         AC_PATH_PROG(GS,gs,"none")
         if ( test "none" = "$GS" ) ; then
-            AC_MSG_WARN([no gs, documentation cannot be built])
+            AC_MSG_WARN([no gs, documentation cannot be built
+install with "sudo apt-get install ghostscript"])
             BUILD_DOCS=no
+            BUILD_DOCS_PDF=no
+            BUILD_DOCS_HTML=no
+        fi
+    fi
+
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(RSVG_CONVERT,rsvg-convert,"none")
+        if ( test "none" = "$RSVG_CONVERT" ) ; then
+            AC_MSG_WARN([no rsvg-convert, documentation cannot be built
+install with "sudo apt-get install librsvg2-bin"])
+            BUILD_DOCS=no
+            BUILD_DOCS_PDF=no
+            BUILD_DOCS_HTML=no
+        fi
+    fi
+
+    # Rouge is required by the custom rouge_hal / rouge_ngc / rouge_ini
+    # extensions loaded by every asciidoctor invocation; without it the
+    # build dies with "cannot load such file -- rouge" deep in the make
+    # log (reported by bertho on Fedora 43 where ruby-rouge wasn't a
+    # transitive dep of asciidoctor).
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_MSG_CHECKING([for ruby rouge gem])
+        if ruby -e 'require "rouge"' 2>/dev/null ; then
+            AC_MSG_RESULT([yes])
+        else
+            AC_MSG_RESULT([no])
+            AC_MSG_WARN([no ruby rouge, documentation cannot be built
+install with "sudo apt-get install ruby-rouge" on Debian / Ubuntu,
+"sudo dnf install rubygem-rouge" on Fedora, or "gem install rouge"])
+            BUILD_DOCS=no
+            BUILD_DOCS_PDF=no
+            BUILD_DOCS_HTML=no
         fi
     fi
 fi
 
 # Programs required only for building the PDF documentation
 if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
-    AC_PATH_PROG(PDFLATEX,pdflatex,"none")
-    if ( test "none" = "$PDFLATEX" ) ; then
-	AC_MSG_WARN([no pdflatex, PDF documentation cannot be built])
-        BUILD_DOCS=no
+    AC_PATH_PROG(ASCIIDOCTOR_PDF,asciidoctor-pdf,"none")
+    if ( test "none" = "$ASCIIDOCTOR_PDF" ) ; then
+        AC_MSG_ERROR([no asciidoctor-pdf, PDF documentation cannot be built
+install with "sudo apt-get install asciidoctor-pdf" (Debian sid/trixie)
+or "sudo apt-get install ruby-asciidoctor-pdf" (Debian bookworm)])
+    fi
+
+    # fontTools (python3-fonttools) is used by otf2ttf.py to convert the
+    # CFF/OTF NotoSerifCJK .ttc into a TrueType the prawn PDF engine can
+    # embed.
+    if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
+        AC_MSG_CHECKING([for python3 fontTools module])
+        if python3 -c 'import fontTools' 2>/dev/null ; then
+            AC_MSG_RESULT([yes])
+        else
+            AC_MSG_RESULT([no])
+            AC_MSG_WARN([no python3 fontTools, PDF documentation cannot be built
+install with "sudo apt-get install python3-fonttools"])
+            BUILD_DOCS_PDF=no
+        fi
+    fi
+
+    if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
+    # NotoSerifCJK is the fallback font that asciidoctor-pdf reaches
+    # for when a glyph (zh_CN, Japanese, Korean) is missing from the
+    # base text font.  We need the .ttc TrueType Collection, because
+    # otf2ttf.py picks index 2 (SC) out of it.  Probe via fontconfig
+    # first, then load through python+fontTools to validate, because
+    # some distros ship a file named .ttc that is not actually a
+    # TrueType Collection (otf2ttf would die mid-build on it).  Probe
+    # failure warn-and-disables PDF on the default =Y path so other
+    # docs still build; explicit =pdf is treated as a hard error.
+    cjk_disable_pdf_reason=""
+    AC_MSG_CHECKING([for NotoSerifCJK Regular .ttc])
+    NOTOCJK_REGULAR_TTC="`fc-match --format='%{file}' 'Noto Serif CJK SC:style=Regular' 2>/dev/null`"
+    case "$NOTOCJK_REGULAR_TTC" in
+        *.ttc) test -r "$NOTOCJK_REGULAR_TTC" || NOTOCJK_REGULAR_TTC="" ;;
+        *)     NOTOCJK_REGULAR_TTC="" ;;
+    esac
+    if test -z "$NOTOCJK_REGULAR_TTC" ; then
+        AC_MSG_RESULT([no])
+        cjk_disable_pdf_reason="no NotoSerifCJK Regular TrueType Collection found via fc-match"
+    else
+        AC_MSG_RESULT([$NOTOCJK_REGULAR_TTC])
+    fi
+
+    if test -z "$cjk_disable_pdf_reason" ; then
+        AC_MSG_CHECKING([for NotoSerifCJK Bold .ttc])
+        NOTOCJK_BOLD_TTC="`fc-match --format='%{file}' 'Noto Serif CJK SC:style=Bold' 2>/dev/null`"
+        case "$NOTOCJK_BOLD_TTC" in
+            *.ttc) test -r "$NOTOCJK_BOLD_TTC" || NOTOCJK_BOLD_TTC="" ;;
+            *)     NOTOCJK_BOLD_TTC="" ;;
+        esac
+        if test -z "$NOTOCJK_BOLD_TTC" ; then
+            AC_MSG_RESULT([no])
+            cjk_disable_pdf_reason="no NotoSerifCJK Bold TrueType Collection found via fc-match"
+        else
+            AC_MSG_RESULT([$NOTOCJK_BOLD_TTC])
+        fi
+    fi
+
+    if test -z "$cjk_disable_pdf_reason" ; then
+        AC_MSG_CHECKING([that NotoSerifCJK .ttc loads as a TrueType Collection])
+        if python3 -c 'import sys; from fontTools.ttLib import TTCollection; TTCollection(sys.argv[[1]]).fonts[[2]]; TTCollection(sys.argv[[2]]).fonts[[2]]' "$NOTOCJK_REGULAR_TTC" "$NOTOCJK_BOLD_TTC" 2>/dev/null ; then
+            AC_MSG_RESULT([yes])
+        else
+            AC_MSG_RESULT([no])
+            cjk_disable_pdf_reason="NotoSerifCJK file at $NOTOCJK_REGULAR_TTC is not a valid TrueType Collection (index 2 unavailable)"
+        fi
+    fi
+
+    if test -n "$cjk_disable_pdf_reason" ; then
+        AC_MSG_ERROR([$cjk_disable_pdf_reason, PDF documentation cannot be built
+install with "sudo apt-get install fonts-noto-cjk" on Debian / Ubuntu,
+"sudo pacman -S noto-fonts-cjk" on Arch, or
+"sudo dnf install google-noto-sans-cjk-fonts google-noto-serif-cjk-fonts" on Fedora.
+fontconfig also picks up user installs under ~/.fonts; run "fc-cache -f" after copying the .ttc there.
+For a fully custom path, set the var directly:
+   ./configure NOTOCJK_REGULAR_TTC=/path/to/NotoSerifCJK-Regular.ttc \
+              NOTOCJK_BOLD_TTC=/path/to/NotoSerifCJK-Bold.ttc])
+    fi
+    AC_SUBST(NOTOCJK_REGULAR_TTC)
+    AC_SUBST(NOTOCJK_BOLD_TTC)
     fi
 fi
 
 # Programs required only for building the HTML documentation
 if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
-    AC_PATH_PROG(XSLTPROC,xsltproc,"none")
-    if ( test "none" = "$XSLTPROC" ) ; then
-	AC_MSG_WARN([no xsltproc, HTML documentation cannot be built])
-        BUILD_DOCS=no
-    fi
-
-    AC_PATH_PROG(DVIPNG,dvipng,"none")
-    if ( test "none" = "$DVIPNG" ) ; then
-	AC_MSG_WARN([no dvipng, HTML documentation cannot be built])
-        BUILD_DOCS=no
-    fi
-
-    AC_MSG_CHECKING([for HTML support in groff])
-    if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
-        AC_MSG_WARN([no groff -Thtml, HTML documentation cannot be built])
-        BUILD_DOCS=no
-    else
-        AC_MSG_RESULT(yes)
-    fi
-
     AC_PATH_PROG(CHECKLINK,checklink,"none")
     if ( test "none" = "$CHECKLINK" ) ; then
-	AC_MSG_WARN([no checklink, HTML documentation cannot be built
+        AC_MSG_WARN([no checklink, HTML documentation cannot be built
 install with "sudo apt-get install w3c-linkchecker"])
-        BUILD_DOCS=no
+        BUILD_DOCS_HTML=no
     fi
 fi
 
 AC_ARG_ENABLE(build-documentation-translation,
     AS_HELP_STRING(
-        [--disable-build-documentation-translation],
-        [Disable building documentation in languages other than English.]
+        [--enable-build-documentation-translation],
+        [Also build translated documentation (po4a, ~5 min extra wall time).  Default off.]
     ),
     [
     case "$enableval" in
@@ -1200,36 +1237,25 @@ AC_ARG_ENABLE(build-documentation-translation,
         BUILD_DOCS_TRANSLATED_EXPLICIT=not_set
     ])
 
-if ( test "$BUILD_DOCS" = "yes" && test "$BUILD_DOCS_TRANSLATED_EXPLICIT" != "no") ; then
+BUILD_DOCS_TRANSLATED=no
+if ( test "$BUILD_DOCS" = "yes" && test "$BUILD_DOCS_TRANSLATED_EXPLICIT" = "yes") ; then
     AC_PATH_PROG(PO4A, po4a, "none")
-    BUILD_DOCS_TRANSLATED=yes
     if test $PO4A = "none"
     then
-        if test "$BUILD_DOCS_TRANSLATED_EXPLICIT" = "not_set"
-        then
-            AC_MSG_WARN([po4a not found, not building translated docs])
-        else
-            AC_MSG_ERROR([po4a not found, not building translated docs])
-        fi
-        BUILD_DOCS_TRANSLATED=no
+        AC_MSG_ERROR([po4a not found, cannot build translated docs])
     else
-        # Version 0.35 support asciidoc without tables
-        # Version 0.56 support the tablecells asciidoc option
-        # Version 0.62 correctly write UTF-8 into translated adocs
-        # Version 0.65 support grouping several doc files into different POTs
-        # Version 0.66 handle empty table cells in asciidoc
-        # Version 0.67 handle enforced linbreaks
+        # Version 0.67 handles enforced linebreaks correctly
         V=$(po4a --version| awk '/po4a version/ {print $3}')
         if dpkg --compare-versions 0.67 gt "$V"; then
-            if test "$BUILD_DOCS_TRANSLATED_EXPLICIT" = "not_set"
-            then
-                AC_MSG_WARN([po4a version too old, need version 0.67 or newer, not building translated docs])
-            else
-                AC_MSG_ERROR([po4a version too old, need version 0.67 or newer, not building translated docs])
-            fi
-	    BUILD_DOCS_TRANSLATED=no
+            AC_MSG_ERROR([po4a version too old, need version 0.67 or newer to build translated docs])
         fi
+        BUILD_DOCS_TRANSLATED=yes
     fi
+fi
+if test "$BUILD_DOCS" = "yes" && test "$BUILD_DOCS_TRANSLATED" = "no" ; then
+    DOC_LANGS=$(sed -e's/#.*//' "$srcdir/../docs/po4a.cfg" 2>/dev/null | grep '^\[po4a_langs\]' | cut -d" " -f2-)
+    DOC_LANGS=$(echo $DOC_LANGS | tr ' ' '/')
+    AC_MSG_NOTICE([documentation will be built for English only; pass --enable-build-documentation-translation to also build ${DOC_LANGS:-translations}])
 fi
 AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
