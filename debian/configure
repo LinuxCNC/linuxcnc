@@ -110,7 +110,7 @@ elif [ -f /etc/lsb-release ]; then
 fi
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOC_DEPENDS="asciidoctor,\n    asciidoctor-pdf | ruby-asciidoctor-pdf,\n    fonts-dejavu,\n    fonts-noto-cjk,\n    ghostscript,\n    graphviz,\n    librsvg2-bin,\n    python3-fonttools,\n    ruby-rouge,\n    w3c-linkchecker"
+    DOC_DEPENDS="asciidoctor-pdf | ruby-asciidoctor-pdf,\n    fonts-dejavu,\n    fonts-noto-cjk,\n    ghostscript,\n    graphviz,\n    librsvg2-bin,\n    python3-fonttools,\n    ruby-rouge,\n    w3c-linkchecker"
 else
     DOC_DEPENDS=''
 fi
