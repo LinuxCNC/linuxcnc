@@ -253,7 +253,7 @@ The *rotation axis and translation vector move with the part*:
   `hal_pin`;; The _name of the HAL pin_ that will animate the motion. +
     This needs to match an existing HAL pin that describes the joint position such as:
 +
-[source,{hal}]
+[source,hal]
 ----
 "joint.2.pos-fb"
 ----

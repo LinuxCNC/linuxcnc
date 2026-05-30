@@ -4,13 +4,6 @@
 [[cha:qtvcp]]
 = QtVCP
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-:css: {basebackend@docbook:'':css}
-
 QtVCP is an *infrastructure to build custom CNC screens or control panels for LinuxCNC*.
 
 It displays a _`.ui` file built with Qt Designer_ screen editor
@@ -88,7 +81,7 @@ It does not add anything visually to the screen but, allows important details to
 
 If you are using QtVCP to make a CNC motion control screen (rather then a HAL based panel), in the INI file, in the `[DISPLAY]` section, add a line with the following pattern:
 
-[source,{ini}]
+[source,ini]
 ----
 DISPLAY = qtvcp <options> <screen_name>
 ----
@@ -127,7 +120,7 @@ QtVCP will first search the LinuxCNC configuration directory that was launched f
 
 .Cycle Times
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 CYCLE_TIME = 100
@@ -220,7 +213,7 @@ Stylesheets can be used to *set Qt properties*.
 If a widget uses properties then they usually can be modified by stylesheets.
 
 .Example of a widget with accompanying style sheet settings.
-[source,{css}]
+[source,css]
 ----
 State_LED #name_of_led{
   qproperty-color: red;
@@ -292,7 +285,7 @@ In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_
 _PATH_ can be any valid path.
 It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to represent QtVCP's idea of those directories, e.g.:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 USER_COMMAND_FILE = CONFIGFOLDER/<screen_name_added_commands>
@@ -449,14 +442,14 @@ image::images/qtvismach.png["QtVismach - 3-Axis Mill Builtin Panel",align="cente
 
 You can load these from the terminal or from a HAL file with this basic command:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp test_panel
 ----
 
 But more typically like this:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -Wn test_panel qtvcp test_panel
 ----
@@ -473,7 +466,7 @@ halrun -I -f my_panel.hal
 ----
 
 .Example HAL file loading a QtVCP panel
-[source,{hal}]
+[source,hal]
 ----
 # load realtime components
 loadrt threads
@@ -686,7 +679,7 @@ It does the minimum required to display the `tester.ui` defined screen and do ba
 
 If you are using QtVCP to make a CNC control screen, under the _INI file_ `[DISPLAY]` heading, set:
 
-[source,{ini}]
+[source,ini]
 ----
 DISPLAY = qtvcp <screen_name>
 ----

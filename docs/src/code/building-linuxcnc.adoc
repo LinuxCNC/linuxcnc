@@ -95,10 +95,10 @@ $ sudo make setuid
 
 After you have successfully built LinuxCNC it is time to run the tests:
 
------
+----
 $ source ../scripts/rip-environment
 $ runtests
------
+----
 
 This might fail, too!
 Read this whole document, especially the section on <<Setting-up-the-environment,Setting up the test environment>>.
@@ -138,9 +138,9 @@ Non-realtime::
   (such as the user interfaces, and some kinds of components and device drivers). +
   To make use of the realtime capabilities of LinuxCNC, certain parts of LinuxCNC need to run with root privileges.
   To enable root for these parts, run this extra command after the `make` that builds LinuxCNC:
------
+----
 $ sudo make setuid
------
+----
 
 == Build modes
 
@@ -344,10 +344,10 @@ You can use this meta-data to easily list the required packages missing from you
 First, go to the source tree of LinuxCNC and initiate its default self-configuration,
 if not already performed:
 
------
+----
 $ cd linuxcnc-dev
 $ ./debian/configure
------
+----
 
 This will prepare the file debian/control that contains lists of Debian packages
 to create with the runtime dependencies for those packages and for our cause also
@@ -474,26 +474,26 @@ When using the RTAI realtime platform it does not have enough privilege, and the
 
 If LinuxCNC displays the following message on startup, the problem is your system's configured limit on locked memory:
 
------
+----
 RTAPI: ERROR: failed to map shmem
 RTAPI: Locked memory limit is 32KiB, recommended at least 20480KiB.
------
+----
 
 To fix this problem, add a file named
 `/etc/security/limits.d/linuxcnc.conf` (as root) with your favorite
 text editor (e.g., `sudo gedit /etc/security/limits.d/linuxcnc.conf`).
 The file should contain the following line:
 
------
+----
 * - memlock 20480
------
+----
 
 Log out and log back in to make the changes take effect.
 Verify that the memory lock limit is raised using the following command:
 
------
+----
 $ ulimit -l
------
+----
 
 == Building on Gentoo
 
@@ -501,45 +501,45 @@ Building on Gentoo is possible, but not supported.  Be sure you are
 running a desktop profile.  This project uses the Tk Widget Set, asciidoc,
 and has some other dependencies.  They should be installed as root:
 
------
+----
 ~ # euse -E tk imagequant
 ~ # emerge -uDNa world
 ~ # emerge -a dev-libs/libmodbus dev-lang/tk dev-tcltk/bwidget dev-tcltk/tclx
 ~ # emerge -a dev-python/pygobject dev-python/pyopengl dev-python/numpy
 ~ # emerge -a app-text/asciidoc app-shells/bash-completion
------
+----
 
 You can switch back to being a normal user for most of the rest of the
 install.  As that user, create a virtual environment for pip, then install
 the pip packages:
 
------
+----
 ~/src $ python -m venv   --system-site-packages ~/src/venv
 ~/src $ . ~/src/venv/bin/activate
 (venv) ~/src $ pip install yapps2
 (venv) ~/src $
------
+----
 
 Then you can contrinue as normally:
 
------
+----
 (venv) ~/src $ git clone https://github.com/LinuxCNC/linuxcnc.git
 (venv) ~/src $ cd linuxcnc
 (venv) ~/src $ cd src
 (venv) ~/src $ ./autogen.sh
 (venv) ~/src $ ./configure --enable-non-distributable=yes
 (venv) ~/src $ make
------
+----
 
 There is no need to run "make suid", just make sure your user is in
 the "dialout" group.  To start linuxcnc, you must be in the Python
 Virtual Environment, and set up the linuxcnc environment:
 
------
+----
 ~ $ . ~/src/venv/bin/activate
 (venv) ~ $ . ~/src/linuxcnc/scripts/rip-environment
 (venv) ~ $ ~/src/linuxcnc $ scripts/linuxcnc
------
+----
 
 
 == Options for checking out the git repo

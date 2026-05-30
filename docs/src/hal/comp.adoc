@@ -4,12 +4,6 @@
 [[cha:hal-component-generator]]
 = HAL Component Generator
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((HAL Component Generator)))
 
 == Introduction
@@ -498,7 +492,7 @@ For example, to allow up to 128 personality times:
 When using components with personality, normal usage is to specify a personality item for *each* specified component instance.
 Example for 3 instances of the logic component:
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt logic names=and4,or3,nand5, personality=0x104,0x203,0x805
 ----
@@ -705,7 +699,7 @@ FUNCTION(_) {
 
 A typical load line for this component might be
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt logic count=3 personality=0x102,0x305,0x503
 ----

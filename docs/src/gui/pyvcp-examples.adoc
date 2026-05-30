@@ -3,11 +3,6 @@
 
 = PyVCP Examples
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == AXIS
 
@@ -174,7 +169,7 @@ image::images/xyz_buttons.png["Jog Buttons Image"]
 To make the connections needed open up your custom_postgui.hal file
 and add the following.
 
-[source,{hal}]
+[source,hal]
 ----
 # connect the X PyVCP buttons
 net my-jogxminus halui.axis.x.minus <= pyvcp.x-minus
@@ -446,7 +441,7 @@ image::images/gs2_panel.png["GS2 Panel"]
 To make it work we add the following code to the custom_postgui.hal
 file.
 
-[source,{hal}]
+[source,hal]
 ----
 # display the rpm based on freq * rpm per hz
 loadrt mult2
@@ -494,7 +489,7 @@ In your configuration directory create the XML file. In this example it's named
 Open your INI file with a text editor and in the [DISPLAY] section add the
 following line. This is what loads the PyVCP panel.
 
-[source,{ini}]
+[source,ini]
 ----
 PYVCP = rth.xml
 ----
@@ -502,7 +497,7 @@ PYVCP = rth.xml
 If you don't have a [HALUI] section in the INI file create it and add the
 following MDI command.
 
-[source,{ini}]
+[source,ini]
 ----
 MDI_COMMAND = G53 G0 X0 Y0 Z0
 ----
@@ -515,7 +510,7 @@ Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes.
 In the [HAL] section if you don't have a post gui file add the following and
 create a file called 'postgui.hal'.
 
-[source,{ini}]
+[source,ini]
 ----
 POSTGUI_HALFILE = postgui.hal
 ----
@@ -523,7 +518,7 @@ POSTGUI_HALFILE = postgui.hal
 In the 'postgui.hal' file add the following code to link the PyVCP button to the
 MDI command.
 
-[source,{hal}]
+[source,hal]
 ----
 net rth halui.mdi-command-00 <= pyvcp.rth-button
 ----

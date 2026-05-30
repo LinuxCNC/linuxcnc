@@ -4,13 +4,6 @@
 [[cha:gui-dev-reference]]
 = GUI Development Reference
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-:css: {basebackend@docbook:'':css}
-
 This document attempts to be a 'best practices' reference for general use screen development. +
 While it is possible to program just about anything to work with LinuxCNC, using a common frame work,
 language and configuration requirements allows easier transition between screens and more developers to maintain them. +
@@ -49,7 +42,7 @@ The most important of is specifying the name of the screen that the LinuxCNC scr
 The screen program usually recognizes switches such as to set full screen. +
 Title is for the window title and icon is used for iconizing the window.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DISPLAY = axis
@@ -62,7 +55,7 @@ If settable, this is how to set the cycle time of the display GUI. +
 This is often the update rate rather then sleep time between updates. +
 A value of 100 ms (0.1 s) is a common setting though a range of 50 - 200 ms is not unheard of.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 CYCLE_TIME = 100
@@ -72,7 +65,7 @@ CYCLE_TIME = 100
 If these functions are available in the screen here is how to specify the path to use. +
 These should reference from the current INI file, or allow '~' for the home folder, or allow use of absolute paths.
 
-[source,{ini}]
+[source,ini]
 ----
 MDI_HISTORY_FILE = mdi_history.txt
 PREFERENCE_FILE_PATH = gui.pref
@@ -85,7 +78,7 @@ The linear increments can be a mix of inches or millimeters. +
 Angular increments are specified in degrees. +
 The word 'continuous' is used to specify continuous jogging and probably should be added even if left out of the INI line.
 
-[source,{ini}]
+[source,ini]
 ----
 INCREMENTS = continuous, 10 mm, 1.0 mm, 0.10 mm, 0.01 mm, 1.0 inch, 0.1 inch, 0.01 inch
 ANGULAR_INCREMENTS = continuous, .5, 1, 45, 90, 360
@@ -96,7 +89,7 @@ The screen often needs to be adjusted based on machine type. Lathes have differe
 differently. Foam machine display the plot differently. +
 The old way to do this was adding switches LATHE = 1, FOAM = 1 etc
 
-[source,{ini}]
+[source,ini]
 ----
 MACHINE_TYPE_HINT = LATHE
 ----
@@ -105,7 +98,7 @@ MACHINE_TYPE_HINT = LATHE
 Overrides allows the user to adjust feed rate or spindle speed on the fly. Usually a slider or dial is used. +
 These settings are in percent.
 
-[source,{ini}]
+[source,ini]
 ----
 MAX_FEED_OVERRIDE       = 120
 MIN_SPINDLE_0_OVERRIDE    = 50
@@ -117,7 +110,7 @@ Most screens have slider controls to adjust the linear and angular jog speed rat
 These settings should be specified in machine units per minute for linear and degrees per minute for angular +
 'Default' refers to the starting rate when the screen is first loaded.
 
-[source,{ini}]
+[source,ini]
 ----
 DEFAULT_LINEAR_VELOCITY =
 MIN_LINEAR_VELOCITY =
@@ -133,7 +126,7 @@ Manual controls for spindle control could be, (or a combinations of) buttons, sl
 You can set limits that are less then the what the machine controller can utilize by setting these entries. +
 If your screen is capable of running multiple spindles, then should accept entries higher then the shown '_0_'.
 
-[source,{ini}]
+[source,ini]
 ----
 SPINDLE_INCREMENT = 100
 DEFAULT_SPINDLE_0_SPEED = 500
@@ -147,7 +140,7 @@ They can be specified like these compact examples. +
 NGC commands separated by colons are run to completion before the next. +
 The optional comma separates text for the button from the NGC code.
 
-[source,{ini}]
+[source,ini]
 ----
 [MDI_COMMAND_LIST]
 MDI_COMMAND_MACRO0 = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
@@ -162,7 +155,7 @@ PROGRAM_EXTENSION = .extension,.extension2[space]Description of extensions +
 The filter program definitions are such: +
 filter extension = program to run
 
-[source,{ini}]
+[source,ini]
 ----
 [FILTER]
 # Controls what programs are shown in the file manager:
@@ -183,7 +176,7 @@ Most screens will need some HAL pins. They need to be connected after the screen
 ==== Postgui Halfile
 These files should be run one after another in order, after all the GUI HAL pins have been made.
 
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 POSTGUI_HALFILE = keypad_postgui.hal
@@ -193,7 +186,7 @@ POSTGUI_HALFILE = vfd_postgui.hal
 ==== Postgui Halcmd
 These files should be run one after another in order, after all the POSTGUI files have been run.
 
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 POSTGUI_HALCMD = show pin qt
@@ -209,7 +202,7 @@ others only the native widget toolkit based panels. +
 Usually these are embedded in tabs or side panel widgets. +
 This is how to describe the optional title, loading command and location widget name: +
 
-[source,{ini}]
+[source,ini]
 ----
 EMBED_TAB_NAME=Vismach demo
 EMBED_TAB_COMMAND=qtvcp vismach_mill_xyz
@@ -220,7 +213,7 @@ User dialogs are used for popping up import information (usually errors), that t
 Some stay up till the problem is fixed, some require acknowledgement, others a yes/no choice. +
 A HAL I/O pin would pop up the dialog, the dialog would reset the I/O pin and set any response output pins.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MESSAGE_BOLDTEXT = This is an information message
@@ -234,7 +227,7 @@ MESSAGE_ICON = INFO
 This style gives multiple messages defined by a number. +
 This example shows 3 possible messages based around a VFD error number.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MULTIMESSAGE_ID = VFD

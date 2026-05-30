@@ -4,12 +4,6 @@
 [[cha:stepper-diagnostics]]
 = Stepper Diagnostics
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((Stepper Diagnostics)))
 If what you get is not what you expect many times you just got some
 experience. Learning from the experience increases your understanding
@@ -114,7 +108,7 @@ the final position will not end up 0.500" that the axis window is
 showing. To test another axis just replace the Z with your axis in the
 G0 lines.
 
-[source,{ngc}]
+[source,ngc]
 ----
 ( test program to see if Z axis loses position )
 ( msg, test 1 of Z axis configuration )

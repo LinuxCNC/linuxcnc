@@ -10,14 +10,6 @@
 // - check wiki vs docs
 // - check other GladeVCP docs branch against this
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-// begin a listing of INI/HAL/NGC files like so:
-//[source,{ini}]
-//[source,{hal}]
-//[source,{ngc}]
-
 == What is GladeVCP?
 
 (((GladeVCP: Glade Virtual Control Panel)))
@@ -252,7 +244,7 @@ CAUTION: Do not add the GladeVCP HAL command file to the AXIS +[HAL]HALFILE=+ in
 
 Place the GladeVCP panel in the righthand side panel by specifying the following in the INI file:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # add GladeVCP panel where PyVCP used to live:
@@ -279,7 +271,7 @@ You may add arbitrary `gladevcp` options here, as long as they dont collide with
 
 It is possible to create a custom HAL component name by adding the +-c+ option:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # add GladeVCP panel where PyVCP used to live:
@@ -305,7 +297,7 @@ It might not be needed in your setup. The relative path specifier ../../nc_files
 
 To do so, edit your INI file and add to the DISPLAY and HAL sections of INI file as follows:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # add GladeVCP panel as a tab next to Preview/DRO:
@@ -337,7 +329,7 @@ Make sure the UI file is the last option passed to GladeVCP in both the `GLADEVC
 
 To do add a GladeVCP tab to 'Touchy', edit your INI file as follows:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # add GladeVCP panel as a tab
@@ -373,7 +365,7 @@ gladevcp gtk_verser_probe
 
 Embedding is the same, no filename extension, but other options are fine:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # add GladeVCP panel as a tab next to Preview/DRO:

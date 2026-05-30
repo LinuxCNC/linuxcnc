@@ -4,11 +4,6 @@
 [[cha:tooledit-gui]]
 = Tool Edit GUI
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Overview
 
@@ -60,14 +55,14 @@ parameters, the columns displayed can be limited with the
 following INI file setting:
 
 .Syntax of INI file
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 TOOL_EDITOR = tooledit column_name column_name ...
 ----
 
 .Example for Z and DIAM columns
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 TOOL_EDITOR = tooledit Z DIAM
@@ -110,7 +105,7 @@ modified file with the ReRead button.
 
 The tool table is specified in the INI file with an entry:
 
-[source,{ini}]
+[source,ini]
 ----
 [EMCIO]TOOL_TABLE = tool_table_filename
 ----
@@ -121,7 +116,7 @@ a word processor).
 The AXIS GUI can optionally use an INI file setting to specify the tool
 editor program:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]TOOL_EDITOR = path_to_editor_program
 ----

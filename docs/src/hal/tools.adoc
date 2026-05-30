@@ -4,12 +4,6 @@
 [[cha:hal-tools]]
 = HAL Tools
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((HAL Tools)))
 
 For most of the tools, a more detailed description can be found in the chapter <<cha:hal-tutorial,HAL Tutorial>>
@@ -76,7 +70,7 @@ Multiple ``halmeter``s can be open at the same time.
 If you use a script to open multiple ``halmeter``s you can set the position of each one with `-g X Y` relative to the upper left corner of your screen.
 For example:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
 ----
@@ -284,7 +278,7 @@ or
 To generate the report for every LinuxCNC startup, include halreport and an output filename as an [APPLICATIONS]APP entry in the INI file.
 
 .halreport Example
-[source,{ini}]
+[source,ini]
 ----
 [APPLICATIONS]
 APP = halreport /tmp/halreport.txt
@@ -326,7 +320,7 @@ SIG:    motor-cmd-0
 
 In the example above, the HALFILE uses halcmd aliases to simplify pin names for an hostmot2 FPGA board with commands like:
 
-[source,{hal}]
+[source,hal]
 ----
 alias pin hm2_7i92.0.stepgen.00.position-fb h.00.position-fb
 ----

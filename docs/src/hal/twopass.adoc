@@ -4,11 +4,6 @@
 [[cha:hal-twopass]]
 = HAL TWOPASS
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == TWOPASS
 
@@ -21,7 +16,7 @@ Normally, a set of one or more LinuxCNC configuration files must use a single, u
 For example, if you use a two-input AND gate component (and2) in three different places in your setup, you would need to have a single line somewhere to specify:
 
 .Example resulting in real-time components with default names `and2.0`, `and2.1`, `and2.2`.
-[source,{hal}]
+[source,hal]
 ----
 loadrt and2 count=3
 ----
@@ -30,7 +25,7 @@ loadrt and2 count=3
 Configurations are more readable if you specify with the `names=` option for components where it is supported, e.g.:
 
 .Example load command resulting in explicitly named components `aa`, `ab`, `ac`.
-[source,{hal}]
+[source,hal]
 ----
 loadrt and2 names=aa,ab,ac
 ----
@@ -39,7 +34,7 @@ It can be a maintenance problem to keep track of the components and their names,
 you must find and update the single loadrt directive applicable to the component.
 
 .TWOPASS processing is enabled by including an INI file parameter in the `[HAL]` section, where "anystring" can be any non-null string.
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 
@@ -48,7 +43,7 @@ TWOPASS = anystring
 
 With TWOPASS enabled, you can have multiple specifications like:
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt and2 names=aa
 ...
@@ -64,7 +59,7 @@ The TWOPASS option can be specified with options to add output for debugging (ve
 The options are separated with commas.
 
 .Example
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 TWOPASS = on,verbose,nodelete
@@ -93,7 +88,7 @@ using the 'count=' method will give arcane component names like ddt.0, ddt.1, dd
 
 Alternatively, using the 'names=' option like:
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt ddt names=xvel,yvel,zvel
 ...
@@ -113,7 +108,7 @@ Two-step processing occurs before the GUI is loaded.
 When using a [HAL]POSTGUI_HALFILE, it is convenient to place all the [HAL]POSTGUI_HALFILE loadrt declarations for the necessary components in a preloaded HAL file.
 
 .Example of a HAL section when using a POSTGUI_HALFILE
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 
@@ -136,15 +131,15 @@ include all loadrt items for components added by postgui HAL files in a separate
 The `addf` commands can also be included in the file.
 
 .Example
-[source,{ini}]
+[source,ini]
 ----
 [HAL]
 TWOPASS = on
 HALFILE = file_1.hal
-...
+# ...
 HALFILE = file_n.hal
 HALFILE = file_with_all_loads_for_postgui.hal
-...
+# ...
 POSTGUI_HALFILE = the_postgui_file.hal
 ----
 

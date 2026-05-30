@@ -4,14 +4,6 @@
 [[cha:mitsub]]
 = Mitsub VFD Driver
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
-:hal: {basebackend@docbook:'':hal}
-
 This is a non-realtime HAL program, written in Python, to control VFDs from
 Mitsubishi. +
 Specifically the A500 F500 E500 A500 D700 E700 F700 series - others may work. +
@@ -25,7 +17,7 @@ One should always have an Estop circuit that kills the power to the unit in case
 
 This component is loaded using the halcmd "loadusr" command:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
 ----
@@ -103,7 +95,7 @@ Where <n> is +mitsub_vfd+ or the name given during loading.
 
 == HAL example
 
-[source,{hal}]
+[source,hal]
 ----
 #
 # example usage of the Mitsubishi VFD driver

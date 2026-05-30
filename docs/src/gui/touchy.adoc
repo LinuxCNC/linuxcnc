@@ -4,10 +4,6 @@
 [[cha:touchy-gui]]
 = The Touchy Graphical User Interface
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((touchygui)))
 Touchy is a user interface for LinuxCNC meant for use on machine control panels,
 and therefore does not require keyboard or mouse.
@@ -106,7 +102,7 @@ Touchy can invoke O-word macros using the MDI interface.  To configure
 this, in the '[MACROS]' section of the INI file, add one or more 'MACRO'
 lines.  Each should be of the following format:
 
-[source,{ini}]
+[source,ini]
 ----
 MACRO=increment xinc yinc
 ----
@@ -119,7 +115,7 @@ Now, place the macro in a file named 'increment.ngc', in the
 
 It should look like:
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<increment> sub
 G91 G0 X#1 Y#2

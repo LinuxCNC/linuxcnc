@@ -6,12 +6,6 @@
 
 (((HAL Examples)))
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 All of these examples assume you are starting with a StepConf-based configuration and have two threads 'base-thread' and 'servo-thread'.
 The StepConf wizard will create an empty custom.hal and a custom_postgui.hal file.
 The custom.hal file will be loaded after the configuration HAL file and the custom_postgui.hal file is loaded after the GUI has been loaded.
@@ -87,7 +81,7 @@ A pin is provided for an external input to indicate the tool change is complete.
 
 This is an example of manual toolchange 'with' the HAL Manual Toolchange component:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -W hal_manualtoolchange
 net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
@@ -99,7 +93,7 @@ net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
 This is an example of manual toolchange 'without' the HAL Manual Toolchange component:
 
-[source,{hal}]
+[source,hal]
 ----
 net tool-number <= iocontrol.0.tool-prep-number
 net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed
@@ -118,7 +112,7 @@ Add the following to your custom.hal file.
 
 Load the realtime components.
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt ddt count=1
 loadrt mult2 count=1
@@ -127,7 +121,7 @@ loadrt abs count=1
 
 Add the functions to a thread so it will get updated.
 
-[source,{hal}]
+[source,hal]
 ----
 addf ddt.0 servo-thread
 addf mult2.0 servo-thread
@@ -136,7 +130,7 @@ addf abs.0 servo-thread
 
 Make the connections.
 
-[source,{hal}]
+[source,hal]
 ----
 setp mult2.in1 60
 net xpos-cmd ddt.0.in
@@ -181,7 +175,7 @@ To find more information on these HAL components check the man pages.
 Place the following in a text file called softstart.hal.
 If you're not familiar with Linux place the file in your home directory.
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt threads period1=1000000 name1=thread
 loadrt siggen
@@ -231,7 +225,7 @@ image::images/softstart-scope.png["Softstart screenshot"]
 To see the effect of changing the set point values of any of the components you can change them in the terminal window.
 To see what different gain settings do for lowpass just type the following in the terminal window and try different settings.
 
-[source,{hal}]
+[source,hal]
 ----
 setp lowpass.0.gain *.01
 ----

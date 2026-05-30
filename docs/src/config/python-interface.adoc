@@ -4,10 +4,6 @@
 [[cha:python-interface]]
 = The LinuxCNC Python module
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 This documentation describes the `linuxcnc` python module, which provides
 a Python API for talking to LinuxCNC.
 

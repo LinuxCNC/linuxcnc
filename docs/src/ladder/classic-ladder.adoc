@@ -4,12 +4,6 @@
 [[cha:cl-programming]]
 = ClassicLadder Programming
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 (((ClassicLadder Programming,CL Programming)))
 
 == Ladder Concepts
@@ -58,7 +52,7 @@ Loading the ClassicLadder real time module (classicladder_rt) is possible from a
 The first line loads real time the ClassicLadder module. The second line adds the function classicladder.0.refresh to the servo thread.
 This line makes ClassicLadder update at the servo thread rate.
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt classicladder_rt
 addf classicladder.0.refresh servo-thread
@@ -109,7 +103,7 @@ numS32in and numS32out control how many HAL signed integers (+- integer range) p
 
 For example (you don't need all of these to change just a few):
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt classicladder_rt numRungs=12 numBits=100 numWords=10
 numTimers=10 numMonostables=10 numCounters=10 numPhysInputs=10
@@ -119,7 +113,7 @@ numS32in=5 numS32out=5
 
 To load the default number of objects:
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt classicladder_rt
 ----
@@ -131,7 +125,7 @@ If you used the Stepper Config Wizard place any ClassicLadder HAL commands in th
 
 To load the non-realtime module:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr classicladder
 ----
@@ -140,7 +134,7 @@ NOTE: Only one .clp file can be loaded. If you need to divide your ladder then u
 
 To load a ladder file:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr classicladder myladder.clp
 ----
@@ -156,7 +150,7 @@ ClassicLadder Loading Options
 
 To use ClassicLadder with HAL without EMC:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -w classicladder
 ----
@@ -904,14 +898,14 @@ This is done by adding a couple of lines to the custom.hal file.
 
 This line loads the real time module:
 
-[source,{hal}]
+[source,hal]
 ----
 loadrt classicladder_rt
 ----
 
 This line adds the ClassicLadder function to the servo thread:
 
-[source,{hal}]
+[source,hal]
 ----
 addf classicladder.0.refresh servo-thread
 ----
@@ -972,7 +966,7 @@ Again if you used the StepConf Wizard to add ClassicLadder you can skip this ste
 To manually add a ladder you need to add add a line to your custom.hal file that will load your ladder file.
 Close your LinuxCNC session and add this line to your custom.hal file.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -w classicladder --nogui MyLadder.clp
 ----

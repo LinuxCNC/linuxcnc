@@ -4,11 +4,6 @@
 [[cha:switchable-kinematics]]
 = Switchable Kinematics (switchkins)
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
 
 == Introduction
 
@@ -54,11 +49,11 @@ for backwards compatibility.  The provided sim configs alter the
 type0/type1 convention by forcing type0==identity kinematics using the
 module string parameter 'sparm' with an INI file setting like:
 
-[source,{ini}]
+[source,ini]
 ----
 [KINS]
 KINEMATICS = xyzac-trt-kins sparm=identityfirst
-...
+# ...
 ----
 
 === Identity letter assignments
@@ -68,7 +63,7 @@ When using an *identity* kinematics type, the module parameter
 arbitrary order from the set of allowed coordinate letters.
 Examples:
 
-[source,{ini}]
+[source,ini]
 ----
 [KINS]
 JOINTS = 6
@@ -141,7 +136,7 @@ Switchkins functionality is enabled by the pin
 analog output pin like motion.analog-out-03 so that it can be
 set by M68 commands.  Example:
 
-[source,{hal}]
+[source,hal]
 ----
 net :kinstype-select <= motion.analog-out-03
 net :kinstype-select => motion.switchkins-type
@@ -151,7 +146,7 @@ net :kinstype-select => motion.switchkins-type
 
 Kinstype selection is managed using G-code sequences like:
 
-[source,{ngc}]
+[source,ngc]
 ----
 ...
 M68 E3 Q1 ;update analog-out-03 to select kinstype 1
@@ -200,7 +195,7 @@ velocity, and acceleration for each applicable coordinate letter
 specified in the configuration INI file.  Example for letter L
 (in the set 'XYZABCUVW'):
 
-[source,{ini}]
+[source,ini]
 ----
 [AXIS_L]
 MIN_LIMIT =
@@ -223,7 +218,7 @@ See the milltask manpage for more information ($ man milltask).
 
 The relevant INI-HAL pins for a joint number (_N_) are:
 
-[source,{hal}]
+[source,hal]
 ----
 ini.N.min_limit
 ini.N.max_limit
@@ -233,7 +228,7 @@ ini.N.max_velocity
 
 The relevant INI-HAL pins for an axis coordinate (_L_) are:
 
-[source,{hal}]
+[source,hal]
 ----
 ini.L.min_limit
 ini.L.max_limit

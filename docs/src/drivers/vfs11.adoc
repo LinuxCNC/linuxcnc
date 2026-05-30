@@ -4,10 +4,6 @@
 [[cha:vfs11-vfd]]
 = VFS11 VFD Driver
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 This is a non-realtime HAL program to control the S11 series of VFDs from Toshiba.
 
 vfs11_vfd supports serial and TCP connections.
@@ -18,7 +14,7 @@ Regardless of the connection type, vfs11_vfd operates as a Modbus master.
 
 This component is loaded using the halcmd "loadusr" command:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -Wn spindle-vfd vfs11_vfd -n spindle-vfd
 ----
@@ -142,8 +138,8 @@ Where <n> is +vfs11_vfd+ or the name given during loading with the -n option.
 This lists all options understood by vfs11_vfd.
 Typical setups for RS-232, RS-485 and TCP can be found in 'src/hal/user_comps/vfs11_vfd/*.ini'.
 
-[source,{ini}]
----------------------------------------------------------------------
+[source,ini]
+----
 [VFS11]
 # serial connection
 TYPE=rtu
@@ -204,12 +200,12 @@ RECONNECT_DELAY=1
 DEBUG=10
 MODBUS_DEBUG=0
 POLLCYCLES=10
----------------------------------------------------------------------
+----
 
 == HAL example
 
-[source,{hal}]
----------------------------------------------------------------------
+[source,hal]
+----
 #
 # example usage of the VF-S11 VFD driver
 #
@@ -240,7 +236,7 @@ net spindle-orient spindle.0.orient spindle-vfd.max-speed spindle-vfd.jog-mode
 
 # take precedence over control panel
 setp spindle-vfd.enable 1
----------------------------------------------------------------------
+----
 
 == Panel operation
 

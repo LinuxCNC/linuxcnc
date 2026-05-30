@@ -5,14 +5,6 @@
 [[cha:overview-of-g-code-programming]]
 = Overview of G-Code Programming
 
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-// begin a listing of INI/HAL/NGC files like so:
-//[source,{ini}]
-//[source,{hal}]
-//[source,{ngc}]
-
 == Overview
 
 The LinuxCNC G-code language is based on the RS274/NGC language.
@@ -621,12 +613,12 @@ to the values of INI file entries and HAL pins.
 
 For example, if the INI file looks like so:
 
-[source,{ini}]
----------------------------------------------------------------------
+[source,ini]
+----
 [SETUP]
 XPOS = 3.145
 YPOS = 2.718
----------------------------------------------------------------------
+----
 
 you may refer to the named parameters `#<_ini[setup]xpos>` and
 `#<_ini[setup]ypos>` within G-code.
@@ -634,14 +626,14 @@ you may refer to the named parameters `#<_ini[setup]xpos>` and
 `EXISTS` can be used to test for presence of a given INI file
 variable:
 
-[source,{ngc}]
----------------------------------------------------------------------
+[source,ngc]
+----
 o100 if [EXISTS[#<_ini[setup]xpos>]]
   (debug, [setup]xpos exists: #<_ini[setup]xpos>)
 o100 else
   (debug, [setup]xpos does not exist)
 o100 endif
----------------------------------------------------------------------
+----
 
 The value is read from the INI file once, and cached in the
 interpreter. These parameters are read-only - assigning a value will
@@ -660,24 +652,24 @@ contain lowercase characters can not be accessed from G-code.
 
 Example:
 
-[source,{ngc}]
----------------------------------------------------------------------
+[source,ngc]
+----
 (debug, #<_hal[motion-controller.time]>)
----------------------------------------------------------------------
+----
 
 Access of HAL items is read-only. Currently, only all-lowercase HAL
 names can be accessed this way.
 
 `EXISTS` can be used to test for the presence of a given HAL item:
 
-[source,{ngc}]
----------------------------------------------------------------------
+[source,ngc]
+----
 o100 if [EXISTS[#<_hal[motion-controller.time]>]]
   (debug, [motion-controller.time] exists: #<_hal[motion-controller.time]>)
 o100 else
   (debug, [motion-controller.time] does not exist)
 o100 endif
----------------------------------------------------------------------
+----
 
 This feature was motivated by the desire for stronger coupling between
 user interface components like `GladeVCP` and `PyVCP` to act as
@@ -787,7 +779,7 @@ It takes only one named parameter and returns 1 if it exists and 0 if it does
 not exist. It is an error if you use a numbered parameter or an expression.
 Here is an example for the usage of the EXISTS function:
 
-[source,{ngc}]
+[source,ngc]
 ----
 o<test> sub
 o10 if [EXISTS[#<_global>]]
@@ -893,7 +885,7 @@ This can be confusing at first how this works in incremental mode.
 For example if you have the following program you might expect it to
 be a square pattern:
 
-[source,{ngc}]
+[source,ngc]
 ----
 F100 G1 @.5 ^90
 G91 @.5 ^90
@@ -913,7 +905,7 @@ image::images/polar01.png["Polar Spiral",align="center"]
 
 The following code will produce our square pattern:
 
-[source,{ngc}]
+[source,ngc]
 ----
 F100 G1 @.5 ^90
 G91 ^90
@@ -1024,7 +1016,7 @@ corresponding parameter. So, 'S100(set speed)F200(feed)' is OK while
 
 Here is an example of a commented program:
 
-[source,{ngc}]
+[source,ngc]
 ----
 G0 (Rapid to start) X1 Y1
 G0 X1 Y1 (Rapid to start; but don't forget the coolant)
@@ -1256,7 +1248,7 @@ over from previous programs and from the MDI commands.
 
 .Example Preamble for a Mill
 
-[source,{ngc}]
+[source,ngc]
 ----
 G17 G20 G40 G49 G54 G80 G90 G94
 ----

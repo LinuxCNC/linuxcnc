@@ -4,12 +4,6 @@
 [[cha:qtvcp:panels]]
 = QtVCP Virtual Control Panels
 
-// Custom lang highlight
-// must come after the doc title, to work around a bug in asciidoc 8.6.6
-:ini: {basebackend@docbook:'':ini}
-:hal: {basebackend@docbook:'':hal}
-:ngc: {basebackend@docbook:'':ngc}
-
 QtVCP can be used to *create control panels* that interface with _HAL_.
 
 [[sec:qtvcp:panels:builtin]]
@@ -28,7 +22,7 @@ Used for *copying QtVCP's builtin Screens/VCP Panels/QtVismach code to a folder*
 
 In a terminal run:
 
-[source,{hal}]
+[source,hal]
 ----
 qtvcp copy
 ----
@@ -81,7 +75,7 @@ EMBED_TAB_LOCATION=tabWidget_utilities
 
 Here is how to load `spindle_belt` from a HAL script:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp spindle_belts
 ----
@@ -109,7 +103,7 @@ The Python handler file also provides a useful template for any custom panel.
 - The output can be scaled with the `spinbox`.
 - A `combobox` can be used to automatically select and connect to a signal.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp test_dial
 ----
@@ -131,7 +125,7 @@ image::images/qtvcp_test_dial.png["QtVCP test_dial Panel - Test Dial VCP",align=
 
 Here is how to load `test_button` from a HAL script:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp test_button
 loadusr qtvcp -o 4 test_button
@@ -155,7 +149,7 @@ image::images/qtvcp_test_button.png["QtVCP test_button - Test Button VCP",align=
 
 Here is how to load `test_led` from a HAL script:
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp test_led
 loadusr qtvcp -o 4 test_led
@@ -173,7 +167,7 @@ image::images/qtvcp_test_led.png["QtVCP test_dial Panel - Test LED VCP",align="c
 *Collection of useful widgets for testing HAL component*, including
 speech of LED state.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp test_panel
 ----
@@ -191,7 +185,7 @@ image::images/qtvcp-cam-align.png["QtVCP cam_align Panel - Camera Based Alignmen
 
 .Usage
 Add these lines to the INI file:
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 EMBED_TAB_NAME = cam_align
@@ -241,7 +235,7 @@ Mouse controls:
 * middle mouse double click - reset circle diameter
 
 To use the top buttons you have to assign a command (or a sub-routine). This could look like this:
-[source,{ini}]
+[source,ini]
 ----
 [MDI_COMMAND_LIST]
 MDI_COMMAND_CAM_ALIGN1=G10 L20 P1 X0 Y0,Set XY\nOrigin
@@ -261,14 +255,14 @@ The selection and control group boxes can be hidden if not needed by using the '
 If you want to hide both, use a comma between them with no spaces. +
 The '-a' option will make the panel always-on-top of all windows.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp sim_panel
 ----
 
 Here we load the panel with no MPG selection buttons and the always-on-top option.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp -a -o hide=groupBoxSelection sim_panel
 ----
@@ -281,7 +275,7 @@ image::images/qtvcp_sim_panel.png["QtVCP sim_panel - Simulated Controls Panel Fo
 
 *Manual tool change dialog* that gives tool description.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr -Wn tool_dialog qtvcp -o speak_on -o audio_on tool_dialog
 ----
@@ -307,7 +301,7 @@ These are also embed-able in other screens such as AXIS or GMOCCAPY.
 
 3D OpenGL view of a _3-Axis milling machine_.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp vismach_mill_xyz
 ----
@@ -321,7 +315,7 @@ image::images/qtvismach.png["QtVCP vismach_mill_xyz - 3-Axis Mill 3D View Panel"
 This particular panel shows how to define and connect the model parts in the handler file,
 rather then importing the pre-built model from QtVCP's vismach library.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp vismach_router_atc
 ----
@@ -333,7 +327,7 @@ image::images/qtvismach_router_atc.png["QtVCP vismach_router_atc - 3-Axis Gantry
 
 3D OpenGL view of a _SCARA based milling machine_.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp vismach_scara
 ----
@@ -345,7 +339,7 @@ image::images/qtvismach_scara.png["QtVCP vismach_scara - SCARA Mill 3D View Pane
 
 3D OpenGL view of a _3-Axis milling machine with an A axis/spindle_.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp vismach_millturn
 ----
@@ -357,7 +351,7 @@ image::images/qtvismach_millturn.png["QtVCP vismach_millturn - 4 Axis MillTurn 3
 
 3D OpenGL view of a _5-Axis gantry type milling machine_.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp vismach_mill_5axis_gantry
 ----
@@ -369,7 +363,7 @@ image::images/qtvismach_5axis_gantry.png["QtVCP vismach_mill_5axis_gantry - 5-Ax
 
 3D openGL view of a _6 joint robotic arm_.
 
-[source,{hal}]
+[source,hal]
 ----
 loadusr qtvcp vismach_fanuc_200f
 ----
@@ -391,7 +385,7 @@ halrun -I -f my_panel.hal
 ----
 
 .Example HAL file loading a QtVCP panel
-[source,{hal}]
+[source,hal]
 ----
 # load realtime components
 loadrt threads
@@ -426,7 +420,7 @@ QtVCP panels can be embedded into most QtVCP screens and avoids problems such as
 === Embedding Commands
 A typical screen such as QtDragon will search the INI file under the heading [DISPLAY] for commands to embed a panel.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 EMBED_TAB_NAME=Embedding demo
@@ -459,7 +453,7 @@ If your panel is to be able to run independently and embedded, you must trap err
 (Note, main screen objects are not available in an independent panel.)
 
 E.g., this would use the panel's preference file if there is one.
-[source,{hal}]
+[source,hal]
 ----
 try:
     belt_en = self.w.PREFS_.getpref('Front_Belt_enabled', 1, int, 'SPINDLE_EXTRAS')
@@ -468,7 +462,7 @@ except:
 ----
 
 This would use the main screen preference file if there is one.
-[source,{hal}]
+[source,hal]
 ----
 try:
     belt_en = self.w.MAIN.PREFS_.getpref('Front_Belt_enabled', 1, int, 'SPINDLE_EXTRAS')
