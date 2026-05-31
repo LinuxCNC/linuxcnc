@@ -45,7 +45,7 @@ DOC_SRCDIR=../docs/src
 #	docs/build/adoc/<lang>/...	# po4a-translated source tree
 #
 # Manpage troff stays at docs/man/ (input to docs build; also written by
-# halcompile and consumed by install-man / mandb).
+# halcompile and consumed by install-man).
 DOC_BUILD     := $(DOC_DIR)/build
 DOC_OUT_HTML  := $(DOC_BUILD)/html
 DOC_OUT_ADOC  := $(DOC_BUILD)/adoc
@@ -89,14 +89,6 @@ $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.a
 info::
 	@echo "I: Expecting the following languages: $(LANGUAGES)"
 	echo $(DOC_SRCS_UK)
-
-ifneq ($(MANDB),)
-docs: $(DOC_DIR)/man/index.db
-$(DOC_DIR)/man/index.db: $(MAN_SRCS)
-	@$(ECHO) "Updating 'whatis' database"
-	$(Q)$(MANDB) $(DOC_DIR)/man
-endif
-
 
 ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS_EN := \
@@ -425,13 +417,11 @@ endif
 
 docs: manpages
 
-clean: clean-manpages clean-mandb clean-translated
+clean: clean-manpages clean-translated
 clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
 	# Remove generated alias man pages too.
 	$(RM) $$(grep -lr '^\.so ' $(DOC_DIR)/man/man*)
-clean-mandb:
-	find $(DOC_SRCDIR) -name index*db -delete
 clean-translated:
 	-$(RM) -r $(GENERATED_TRANSLATED)
 
