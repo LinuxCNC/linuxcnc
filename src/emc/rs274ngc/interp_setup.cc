@@ -187,6 +187,7 @@ setup::setup() :
     disable_fanuc_style_sub(false),
     loop_on_main_m99(false),
     disable_g92_persistence(0),
+    disable_auto_g54(false),
     heading(0.0),
     radius(0.0),
     center_x(0.0),

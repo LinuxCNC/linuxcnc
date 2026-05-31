@@ -176,6 +176,9 @@ class INI:
         print(file=file)
         print("[RS274NGC]", file=file)
         print("PARAMETER_FILE = linuxcnc.var", file=file)
+        print("# Set 'DISABLE_AUTO_G54 = 1' to disable", file=file)
+        print("# automatic resetting of the active WCS to 'G54' on M2 and M30", file=file)
+        print("DISABLE_AUTO_G54 = 0", file=file)
         # qtplasmac has extra rs274ngc variables
         if self.d.frontend == _PD._QTPLASMAC:
             code = 21 if self.d.units == _PD._METRIC else 20

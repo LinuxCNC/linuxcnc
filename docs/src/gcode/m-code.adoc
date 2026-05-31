@@ -67,7 +67,7 @@ to stop after each line of input anyway.
 Both of these commands have the following effects:
 
 * Change from Auto mode to MDI mode.
-* Origin offsets are set to the default (like 'G54').
+* Origin offsets are set to the default (like 'G54') unless disabled by INI setting 'DISABLE_AUTO_G54 = 1'.
 * Selected plane is set to XY plane (like 'G17').
 * Distance mode is set to absolute mode (like 'G90').
 * Feed rate mode is set to units per minute (like 'G94').

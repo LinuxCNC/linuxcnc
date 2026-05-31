@@ -236,6 +236,7 @@ def check_bools():
                 ("RS274NGC", "NO_DOWNCASE_OWORD"),
                 ("RS274NGC", "OWORD_WARN_ONLY"),
                 ("RS274NGC", "DISABLE_G92_PERSISTENCE"),
+                ("RS274NGC", "DISABLE_AUTO_G54"),
                 ("RS274NGC", "DISABLE_FANUC_STYLE_SUB"),
                 ("DISPLAY", "DISABLE_CONE_SCALING"),
                 ("DISPLAY", "HOMING_PROMPT"),
