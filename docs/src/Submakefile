@@ -766,7 +766,8 @@ objects/LinuxCNC_Manual_Pages.adoc: objects/var-PDF_MAN_ORDER $(MAN_SRCS) $(DOC_
 	    echo ":doctype: book"; \
 	    echo ":source-highlighter: rouge"; \
 	    echo ":toc:"; \
-	    echo ":numbered:"; \
+	    echo ":outlinelevels: 1"; \
+	    echo ":toclevels: 1"; \
 	    echo; \
 	    for M in $(PDF_MAN_ORDER); do \
 	        if   [ -r "$(DOC_SRCDIR)/man/$$M.adoc" ]; then \
