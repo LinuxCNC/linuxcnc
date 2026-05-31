@@ -26,6 +26,9 @@
 #       started without using the linuxcnc script and
 #       ::env(HALLIB_DIR) will not exist.
 source [file join [exec linuxcnc_var HALLIB_DIR] hal_procs_lib.tcl]
+# lh_chart canvas bar-chart widget (replaces BLT, which has no Tcl/Tk 9
+# port). Shared with latency-histogram.
+source [file join [exec linuxcnc_var HALLIB_DIR] lh_chart.tcl]
 
 proc threadname_for_pin {pinname} {
   thread_info tmp
@@ -217,17 +220,13 @@ proc config {} {
 } ;# config
 
 proc load_packages {} {
-  if [catch {package require Tclx} msg] {
-    puts $msg
-    puts "To install: sudo apt-get install tclx"
-    exit 1
+  # Tclx is unavailable on Tcl 9; stub `signal` so the one trap call still
+  # works (Ctrl-C then won't run finish, but the GUI Exit button does).
+  if {[catch {package require Tclx}]} {
+    proc signal {args} {} ;# no-op stub
   }
-  signal trap SIGINT finish ;# uses Tclx
-  if [catch {package require BLT} msg] {
-    puts $msg
-    puts "To install: sudo apt-get install blt"
-    exit 1
-  }
+  signal trap SIGINT finish
+  # BLT no longer required: lh_chart draws the histogram on a Tk canvas.
 
   # augment ::auto_path for special case:
   # 1) RIP build (no install)
@@ -242,14 +241,6 @@ proc load_packages {} {
     puts $msg
     puts "For a RIP linuxcnc build, source rip-environment in this shell"
     exit 1
-  }
-  blt::bitmap define nbmap {
-   {8 8}
-   {0xc7,0x8f,0x1f,0x3e,0x7c, 0xf8,0xf1,0xe3}
-  }
-  blt::bitmap define pbmap {
-   {8 8}
-   {0xe3,0xf1,0xf8,0x7c, 0x3e,0x1f,0x8f,0xc7}
   }
 } ;# load_packages
 
@@ -283,10 +274,11 @@ OS: $::tcl_platform(osVersion) [exec hostname]" \
 
   set ::HH(widget) $f.graph
   catch {destroy $::HH(widget)}
-  blt::barchart $::HH(widget) \
+  lh_chart::create $::HH(widget) \
       -plotbackground honeydew1 \
       -cursor arrow \
-      -title ""
+      -title "" \
+      -width 480 -height 384
   pack $::HH(widget) -side left
 
   xaxis
@@ -546,13 +538,6 @@ proc setup_hal {} {
   set ::HH(availablebins) [hal getp $::HH(instance).availablebins]
 
   set ::HH(threadname) [threadname_for_pin $::HH(pinname)]
-
-  thread_info tinfo
-  if !$tinfo($::HH(threadname),fp) {
-    usage \
-"\n$::HH(pinname) must be running on a thread with floating point enabled
-Use the loadrt motmod option: base_thread_fp=1"
-  }
 
   if {[is_connected $::HH(pinname) signame] == "not_connected"} {
     set ::HH(signame) $::HH(signame,prefix,$::HH(pintype))-$idx
@@ -861,9 +846,6 @@ proc usage { {errtxt ""} } {
   puts "  2) If no pinname is specified, default is: $::HH(pinname)"
   puts "  3) This app may be opened for $::HH(max_histos) pins"
   puts "  4) pintypes float, s32, u32, bit are supported"
-  puts "  5) The pin must be associated with a thread supporting floating point"
-  puts "     For a base thread, this may require using:"
-  puts "     loadrt motmod ... base_thread_fp=1"
 
   if {"$errtxt" != ""} {
     puts ""
@@ -875,14 +857,11 @@ proc usage { {errtxt ""} } {
 } ;# usage
 
 #------------------------------------------------------------------
-proc bltCaptureWindow { win } {
-  set image [image create photo]
-  blt::winop snap $win $image
-  return $image
-} ;# bltCaptureWindow
-
 proc windowToFile { win } {
-  set image [bltCaptureWindow $win]
+  if {[catch {set image [lh_chart::capture_window $win]} msg]} {
+    popup $msg
+    return
+  }
   set types {{"Image Files" {.png}}}
   set ifile $::tcl_platform(user)-$::HH(date)-$::HH(elapsed).png
   set filename [tk_getSaveFile -filetypes $types \
