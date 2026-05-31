@@ -302,22 +302,18 @@ variable substitution take place.
 
 Environment variables have the following formats:
 
-____
-*$ENVVAR* followed by end-of-line or whitespace
+- *$ENVVAR* followed by end-of-line or whitespace
 
-*$(ENVVAR)*
-____
+- *$(ENVVAR)*
 
 === INI file variables
 
 INI file variables are available only when an INI file was specified
 with the halcmd *-i* flag. They have the following formats:
 
-____
-*[SECTION]VAR* followed by end-of-line or whitespace
+- *[SECTION]VAR* followed by end-of-line or whitespace
 
-*[SECTION](VAR)*
-____
+- *[SECTION](VAR)*
 
 == LINE CONTINUATION
 

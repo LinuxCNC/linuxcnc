@@ -9,7 +9,6 @@ IO boards, with HostMot2 firmware.
 
 *loadrt hm2_eth* [**config=**"__str__[,__str__...]"] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ] [**no_iptables=**__0|1__]
 
-____
 *config* [default: ""]::
   HostMot2 config strings, described in the hostmot2(9) manpage.
 *board_ip* [default: ""]::
@@ -25,7 +24,6 @@ ____
   rules manually using the recipe in the NOTES section below.  Set
   *no_iptables=1* when iptables is reachable but you prefer to manage
   the firewall externally (nftables, firewalld, systemd units).
-____
 
 == DESCRIPTION
 
