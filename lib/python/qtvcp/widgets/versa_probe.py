@@ -19,6 +19,7 @@ import sys
 import os
 import hal
 import json
+import re
 
 from qtpy import QtGui, QtCore, QtWidgets, uic
 from qtpy.QtCore import QProcess, QEvent, Qt, Property
@@ -687,6 +688,30 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         except Exception as e:
                 t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
 
+    def _set_scaled_html(self, t, html):
+        # QTextEdit scales raster images with a nearest-neighbour filter, which
+        # makes the help diagrams look jagged.  Pre-scale each raster <img> to
+        # its requested size with a smooth filter and register it as a document
+        # resource so Qt draws it 1:1.  SVG images are left untouched so Qt's
+        # vector renderer draws them crisply at any size.
+        doc = t.document()
+        for tag in re.findall(r'<img\b[^>]*>', html):
+            match = re.search(r'src="([^"]+)"', tag)
+            if match is None or match.group(1).lower().endswith('.svg'):
+                continue
+            src = match.group(1)
+            image = QtGui.QImage(src)
+            if image.isNull():
+                continue
+            width = re.search(r'width="(\d+)"', tag)
+            height = re.search(r'height="(\d+)"', tag)
+            if width is not None and int(width.group(1)) != image.width():
+                image = image.scaledToWidth(int(width.group(1)), QtCore.Qt.SmoothTransformation)
+            elif height is not None and int(height.group(1)) != image.height():
+                image = image.scaledToHeight(int(height.group(1)), QtCore.Qt.SmoothTransformation)
+            doc.addResource(QtGui.QTextDocument.ImageResource, QtCore.QUrl(src), image)
+        t.setHtml(html)
+
     def next(self,t,direction=None):
             if direction is None:
                 self.currentHelpPage = 0
@@ -704,8 +729,8 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
                 file.open(QtCore.QFile.ReadOnly)
                 html = file.readAll()
                 html = str(html, encoding='utf8')
-                html = html.replace("../images/probe_icons/","{}/probe_icons/".format(PATH.IMAGEDIR))
-                t.setHtml(html)
+                html = html.replace("../images/","{}/".format(PATH.IMAGEDIR))
+                self._set_scaled_html(t, html)
                 if t.verticalScrollBar().isVisible():
                     t.verticalScrollBar().setPageStep(20)
                     self.pageStepDwnbutton.show()
