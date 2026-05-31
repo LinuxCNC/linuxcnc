@@ -1067,16 +1067,15 @@ AC_ARG_ENABLE(build-documentation,
 # --enable-build-documentation=html).  =html itself warn-and-disables
 # only the missing PDF tools; users who want PDF best-effort can pass
 # =html and rebuild after installing the missing tools.
-if ( test "$BUILD_DOCS" = "yes" ) ; then
-    AC_PATH_PROG(ASCIIDOCTOR,asciidoctor,"none")
-    if ( test "none" = "$ASCIIDOCTOR" ) ; then
-        AC_MSG_WARN([no asciidoctor, documentation cannot be built
-install with "sudo apt-get install asciidoctor"])
-        BUILD_DOCS=no
-        BUILD_DOCS_PDF=no
-        BUILD_DOCS_HTML=no
-    fi
+# halcompile manpages need asciidoctor regardless of BUILD_DOCS.
+AC_PATH_PROG(ASCIIDOCTOR,asciidoctor,"none")
+if ( test "none" = "$ASCIIDOCTOR" ) ; then
+    AC_MSG_ERROR([no asciidoctor, manpages cannot be built
+install with "sudo apt-get install asciidoctor" on Debian / Ubuntu,
+"sudo dnf install rubygem-asciidoctor" on Fedora, or "gem install asciidoctor"])
+fi
 
+if ( test "$BUILD_DOCS" = "yes" ) ; then
     if ( test "$BUILD_DOCS" = "yes" ) ; then
         AC_PATH_PROG(GS,gs,"none")
         if ( test "none" = "$GS" ) ; then

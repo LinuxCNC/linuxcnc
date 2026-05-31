@@ -14,7 +14,7 @@ Build-Depends:
     @EXTRA_BUILD@,
     groff-base <!nodoc>,
     imagemagick <!nodoc>,
-    asciidoctor <!nodoc>,
+    asciidoctor,
     libunicode-linebreak-perl <!nodoc>,
     autoconf,
     automake,
