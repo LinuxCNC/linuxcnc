@@ -194,6 +194,14 @@ The most commonly used arguments are:
   Disable building the translated documentation for all available languages.
   The building of the translated documentation takes a huge amount of time, so it is recommend to skip that if not really needed.
 
+Translation completeness threshold::
+  `make POKEEP=N docs`. Per-master threshold (percent) below which a
+  language-switcher entry is greyed out on the corresponding page.
+  Translated HTML is always emitted; this knob only affects whether
+  the entry stays clickable. Default 80. Translators can lower the
+  threshold (`POKEEP=30`, `POKEEP=0`) to make their work-in-progress
+  show up as live links. See the contributing guide for details.
+
 [[make-arguments]]
 ==== `make` arguments
 

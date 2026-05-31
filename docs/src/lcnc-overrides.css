@@ -63,6 +63,192 @@ body:is(.article,.book,.manpage) .literalblock pre.highlight {
   background: #f7f7f7;
 }
 
+/* Top bar: fixed full-width bar above the page; offsets body content
+   and asciidoctor's :toc: left sidebar so they start below it.  Padding
+   keyed off :has so it also applies to the static landing pages
+   (index.html, gcode.html) that have no asciidoctor body class. */
+body:has(.lcnc-topbar) {
+  padding-top: 3rem;
+}
+/* Static landing pages (index.html, gcode.html) have no asciidoctor
+   #header margin to space them off the topbar -- add some breathing room. */
+body:has(.lcnc-topbar):not(.article):not(.book):not(.manpage) {
+  padding-top: 5rem;
+}
+.lcnc-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  background: rgba(0,0,0,.8);
+  color: hsla(0,0%,100%,.8);
+  font-size: 1rem;
+  z-index: 1100; /* above asciidoctor's toc2 (auto/none) */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.lcnc-topbar-home {
+  color: hsla(0,0%,100%,.8);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+}
+.lcnc-topbar-home img {
+  height: 2.25rem; /* fits inside the 3rem topbar with a little padding */
+  width: auto;
+  aspect-ratio: 1203.31 / 227.01; /* matches the SVG viewBox so width: auto works without intrinsic dims */
+  display: block;
+}
+
+/* Language switcher: hidden checkbox + label drives the dropdown.
+   Total CSS control, no native disclosure widget to fight. */
+.lcnc-lang-switcher {
+  margin-left: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  /* Pin font: index.html and asciidoctor pages use different body fonts
+     (sans-serif vs Noto Serif), which the dropdown would otherwise inherit. */
+  font-family: "Open Sans","DejaVu Sans",sans-serif;
+}
+.lcnc-lang-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.lcnc-lang-label {
+  cursor: pointer;
+  padding: 0 0.75em;
+  color: hsla(0,0%,100%,.8);
+  font-weight: 500;
+  user-select: none;
+}
+.lcnc-lang-label::after {
+  content: " \25BE"; /* ▾ */
+  font-size: 0.8em;
+  margin-left: 0.25em;
+}
+.lcnc-lang-list {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin: 0;
+  padding: 0.25em 0;
+  list-style: none;
+  background: rgba(0,0,0,.85);
+  border-radius: 0 0 4px 4px;
+  min-width: 10em;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  display: none;
+}
+.lcnc-lang-switcher:has(.lcnc-lang-toggle:checked) .lcnc-lang-list {
+  display: block;
+}
+.lcnc-lang-list li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* The #lcnc-topbar id (1,0,0) cleanly outranks the index-page rules
+   body:not(.article):not(.book):not(.manpage) a / a:visited (0,4,2), so
+   visited and unvisited dropdown links both render in white. */
+#lcnc-topbar .lcnc-lang-list a,
+#lcnc-topbar .lcnc-lang-list a:link,
+#lcnc-topbar .lcnc-lang-list a:visited {
+  display: block;
+  padding: 0.4em 1em;
+  color: hsla(0,0%,100%,.85);
+  text-decoration: none;
+}
+#lcnc-topbar .lcnc-lang-list a:hover,
+#lcnc-topbar .lcnc-lang-list a:focus {
+  background: hsla(0,0%,100%,.12);
+  color: #fff;
+}
+/* Languages whose translated counterpart is missing or sparse for the
+   current page get .lcnc-lang-unavail on the <li> from the post-process
+   pass.  Grey the link and disable pointer events so the entry stays in
+   the DOM (idempotent reversible toggling at build time) but reads as
+   "exists but not here". */
+#lcnc-topbar .lcnc-lang-list li.lcnc-lang-unavail a,
+#lcnc-topbar .lcnc-lang-list li.lcnc-lang-unavail a:link,
+#lcnc-topbar .lcnc-lang-list li.lcnc-lang-unavail a:visited {
+  color: hsla(0,0%,100%,.35);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+/* Generic "link is in this index but the target is not built for this
+   language" marker.  Used on translated index.html pages where the
+   manpage list is reused from English; entries whose translated counterpart
+   was not emitted get this class so they read as muted, non-clickable
+   placeholders. */
+li.lcnc-link-unavail a,
+li.lcnc-link-unavail a:link,
+li.lcnc-link-unavail a:visited {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+body:is(.article,.book,.manpage).toc2 #toc.toc2 {
+  top: 3rem;
+}
+
+/* Narrow screens: drop the side TOC, restore full-width content. */
+@media (max-width: 800px) {
+  body:is(.article,.book,.manpage).toc2 {
+    padding-left: 0;
+  }
+  body:is(.article,.book,.manpage).toc2 #toc.toc2 {
+    display: none;
+  }
+}
+
+/* Admonition blocks: tint the whole block by type (borrowed from
+   KiCAD docs).  Asciidoctor renders these as a wrapper div with an
+   inner table whose <table> background is transparent, so the colour
+   on the wrapper shows through.  Icon cell keeps asciidoctor's text
+   label ("Note" / "Warning" / ...). */
+body:is(.article,.book,.manpage) .admonitionblock {
+  border-radius: 4px;
+  padding: 0.5em 0;
+  margin: 1.25em 0;
+}
+body:is(.article,.book,.manpage) .admonitionblock.note,
+body:is(.article,.book,.manpage) .admonitionblock.tip {
+  background-color: #d9edf7;
+  color: #31708f;
+}
+body:is(.article,.book,.manpage) .admonitionblock.warning {
+  background-color: #ffd3d3;
+  color: #8a6d3b;
+}
+body:is(.article,.book,.manpage) .admonitionblock.caution,
+body:is(.article,.book,.manpage) .admonitionblock.important {
+  background-color: #fcf8e3;
+  color: #8a6d3b;
+}
+/* Admonition icons: map asciidoctor's "icons=font" FontAwesome classes
+   to Unicode glyphs so we get an icon (not the word "Note") without
+   loading FontAwesome.  Asciidoctor emits <i class="fa icon-note">
+   etc; default CSS already sizes them via [class^="fa icon-"]. */
+body:is(.article,.book,.manpage) .admonitionblock td.icon .fa::before {
+  font-family: inherit;
+  font-style: normal;
+  text-shadow: none;
+}
+body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-note::before    { content: "\2139"; }   /* ℹ */
+body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-tip::before     { content: "\1F4A1"; }  /* 💡 */
+body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-warning::before { content: "\26A0"; }   /* ⚠ */
+body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-caution::before { content: "\26A1"; }   /* ⚡ */
+body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-important::before { content: "\2757"; } /* ❗ */
+
 /* ======================================================================
  *  Asciidoctor pages (dark, opt-in via system preference)
  * ====================================================================== */
@@ -158,6 +344,28 @@ body:is(.article,.book,.manpage) .literalblock pre.highlight {
   body:is(.article,.book,.manpage) .admonitionblock > table td.icon .title {
     color: #e06464;
     font-weight: bold;
+  }
+  body:is(.article,.book,.manpage) .admonitionblock.note,
+  body:is(.article,.book,.manpage) .admonitionblock.tip {
+    background-color: #1a3a4d;
+    color: #a8d3e8;
+  }
+  body:is(.article,.book,.manpage) .admonitionblock.warning {
+    background-color: #4d2828;
+    color: #f0c0c0;
+  }
+  body:is(.article,.book,.manpage) .admonitionblock.caution,
+  body:is(.article,.book,.manpage) .admonitionblock.important {
+    background-color: #4d4419;
+    color: #f0e090;
+  }
+  body:is(.article,.book,.manpage) #toc.toc2 {
+    background: #1e1e1e;
+    border-right-color: #333;
+    color: #e0e0e0;
+  }
+  body:is(.article,.book,.manpage) #toc.toc2 a {
+    color: #7fb8e8;
   }
 
   /* Inkscape-exported SVG figures are transparent with black strokes

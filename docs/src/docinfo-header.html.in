@@ -1,0 +1,6 @@
+<header id="lcnc-topbar" class="lcnc-topbar">
+  <a class="lcnc-topbar-home" href="{lcnc-cssrel}index.html">
+    <img src="{lcnc-cssrel}lcnc-docs.svg" alt="LinuxCNC Documentation">
+  </a>
+@LANGUAGE_SWITCHER@
+</header>
