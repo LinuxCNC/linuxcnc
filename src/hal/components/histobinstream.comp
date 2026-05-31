@@ -1,19 +1,16 @@
-component histobinstream
-"""histogram bins utility for scripts/hal-histogram""";
+component histobinstream "histogram bins utility for scripts/hal-histogram";
 description """
-Calculates a histogram of an input pin's value. The histogram data is sent
-in a HAL stream for maximum transfer speed and streaming prevents any RT to
-non-RT data race condition. This is the streaming counterpart to the
-*histobins* component, which transfers one bin per cycle and therefore
-smears its snapshot across many cycles.
+Calculates a histogram of an input pin's value.
+The histogram data is sent in a HAL stream for maximum transfer speed and to prevent any RT to non-RT data race conditions.
+This is the streaming counterpart to the *histobins* component.
 
-Read the *availablebins* pin for the number of bins available. Set the
-*minvalue*, *binsize* and *nbins* pins and ensure *nbins* ≤ *availablebins*.
+Read the *availablebins* pin for the number of bins available.
+Set the *minvalue*, *binsize* and *nbins* pins and ensure *nbins* ≤ *availablebins*.
 
-For *nbins* = N, the bins are numbered 0 ... N-1. The value range covered is
-[*minvalue* ... *minvalue* + N * *binsize*). Any input below *minvalue* is
-counted in the negative overflow (*ntail*); any input at or above the upper
-edge is counted in the positive overflow (*ptail*).
+For *nbins* = N, the bins are numbered 0 ... N-1.
+The value range covered is [*minvalue* ... *minvalue* + N * *binsize*).
+Any input below *minvalue* is counted in the negative overflow (*ntail*).
+Any input at or above the upper edge is counted in the positive overflow (*ptail*).
 
 The input used is selected based on pintype:
 [options="header",cols="^1,1"]
@@ -38,31 +35,33 @@ Stream format and how to obtain the histogram data:
   *nsamples*) that reflect the values at the time when *stream* was asserted.
 * Set the *stream* pin to low.
 
-The reset pin may be used to restart. Note that the reset pin is set to high
-at startup. You must set it to low before data collection begins.
+The reset pin may be used to restart.
+Note that the reset pin is set to high at startup.
+You must set it to low before data collection begins.
 
 The *method* input pin selects an alternate variance calculation (0: Welford
 incremental, 1: sum / sum-of-squares).
 
 Maintainers note: hardcoded for MAXBINNUMBER==200
 """;
+// "} make vim syntax highligting happy
 
-pin in  u32   pintype     "Select the input pin (0:input 1:input-s32 2:input-u32 3:input-bit).";
-pin in  float input       "Floating point input value (pintype 0).";
-pin in  s32   input_s32   "Signed input value (pintype 1).";
-pin in  u32   input_u32   "Unsigned input value (pintype 2).";
-pin in  bit   input_bit   "Bit input value (pintype 3).";
+pin in  u32   pintype      "Select the input pin (0:input 1:input-s32 2:input-u32 3:input-bit).";
+pin in  float input        "Floating point input value (pintype 0).";
+pin in  s32   input_s32    "Signed input value (pintype 1).";
+pin in  u32   input_u32    "Unsigned input value (pintype 2).";
+pin in  bit   input_bit    "Bit input value (pintype 3).";
 
 pin in  u32   nbins    = 20 "Number of active bins N (0 ... N-1).";
 pin in  float binsize  = 1  "Width of one bin in input units.";
 pin in  float minvalue = 0  "Lower edge of bin 0.";
 
-pin in  bit   reset = 1   "Reset state and bins.";
-pin in  bit   stream = 0  "Set to high to stream all bins and tails on rising edge.";
-pin in  bit   method = 0  "Variance method (0:Welford incremental, 1:sum of squares).";
+pin in  bit   reset  = 1   "Reset state and bins.";
+pin in  bit   stream = 0   "Set to high to stream all bins and tails on rising edge.";
+pin in  bit   method = 0   "Variance method (0:Welford incremental, 1:sum of squares).";
 
 pin out bit   stream_error "Set if the data stream did not fit and was never sent.";
-pin out bit   input_error  "Set when input rules are violated; updates cease until reset.";
+pin out bit   input_error  "Set when input rules are violated; updates are invalid until fixed and a reset.";
 
 pin out float input_min    "Minimum input value seen (latched on stream rising edge).";
 pin out float input_max    "Maximum input value seen (latched on stream rising edge).";
@@ -75,7 +74,7 @@ pin out s64   stream_time  "The time it took for the stream data to be pushed ou
 pin out s32 availablebins = 200; //MAXBINNUMBER
 
 option period no;
-function _ fp;
+function _;
 option extra_setup;
 modparam dummy keys "Stream shmem unique key for each instance";
 
@@ -84,22 +83,22 @@ include <rtapi_stdint.h>;
 
 variable int first = 1;
 variable unsigned  last_nbins    = 0;
-variable hal_float_t last_binsize  = 0;
-variable hal_float_t last_minvalue = 0;
-variable hal_float_t maxvalue = 0;
+variable real_t last_binsize  = 0;
+variable real_t last_minvalue = 0;
+variable real_t maxvalue = 0;
 
 variable hal_stream_data_u bins[200]; // MAXBINNUMBER
 variable hal_stream_data_u ptail;     // count of inputs >= upper edge
 variable hal_stream_data_u ntail;     // count of inputs <  minvalue
 
 variable rtapi_u64 run_nsamples = 0;
-variable hal_float_t run_min =  1e99;
-variable hal_float_t run_max = -1e99;
-variable hal_float_t run_mean = 0;
-variable hal_float_t run_variance = 0;
-variable hal_float_t sum = 0;
-variable hal_float_t sq_sum = 0;
-variable hal_float_t m2 = 0;
+variable real_t run_min =  1e99;
+variable real_t run_max = -1e99;
+variable real_t run_mean = 0;
+variable real_t run_variance = 0;
+variable real_t sum = 0;
+variable real_t sq_sum = 0;
+variable real_t m2 = 0;
 
 variable bool last_stream = 0;
 variable hal_stream_t fifo;
@@ -120,6 +119,7 @@ EXTRA_SETUP() {
 
     if (extra_arg < 0 || extra_arg >= MAX_INST || !keys[extra_arg])
         return -EINVAL;
+
     int err;
     // The stream buffer should be able to contain one complete set of data:
     // the negative tail, every bin and the positive tail.
@@ -132,8 +132,13 @@ EXTRA_SETUP() {
 FUNCTION(_) {
     rtapi_s64 now = rtapi_get_time();
 
+    // Cache some pins
+    rtapi_u32 c_nbins= nbins;
+    real_t c_binsize = binsize;
+    real_t c_minvalue = minvalue;
+
     // Select the input according to pintype.
-    hal_float_t invalue;
+    real_t invalue;
     switch (pintype) {
         case 0:  invalue = input;     break;
         case 1:  invalue = input_s32; break;
@@ -144,24 +149,24 @@ FUNCTION(_) {
 
     // Validate the requested bin geometry. binsize must be > 0 to avoid a
     // divide by zero and to keep the bin index monotonic.
-    if (nbins < 1 || nbins > (unsigned)availablebins || binsize <= 0) {
+    if (c_nbins < 1 || c_nbins > (unsigned)availablebins || c_binsize <= 0.0) {
         input_error = 1;
         last_stream = stream; // do not act on a stream edge while in error
         return;
     }
-    input_error = 0;
 
     if (reset) {
         first = 1;
+        input_error = 0;
     }
 
     if (   first
-        || nbins    != last_nbins
-        || binsize  != last_binsize
-        || minvalue != last_minvalue) {
+        || c_nbins    != last_nbins
+        || c_binsize  != last_binsize
+        || c_minvalue != last_minvalue) {
         first = 0;
-        maxvalue = minvalue + (hal_float_t)nbins * binsize;
-        for (unsigned i = 0; i < nbins; i++)
+        maxvalue = c_minvalue + (real_t)c_nbins * c_binsize;
+        for (unsigned i = 0; i < c_nbins; i++)
             bins[i].u = 0;
         ptail.u = 0;
         ntail.u = 0;
@@ -178,11 +183,11 @@ FUNCTION(_) {
         // truncates toward zero and would misfile such samples in bin 0.
         // Index-test the high tail to avoid the bin[nbins] overflow that
         // histobins writes at invalue == maxvalue.
-        if (invalue < minvalue) {
+        if (invalue < c_minvalue) {
             ntail.u++;
         } else {
-            int idx = (int)((invalue - minvalue) / binsize);
-            if (idx >= (int)nbins) {
+            int idx = (int)((invalue - c_minvalue) / c_binsize);
+            if (idx >= (int)c_nbins) {
                 ptail.u++;
             } else {
                 bins[idx].u++;
@@ -195,7 +200,7 @@ FUNCTION(_) {
         ++run_nsamples;
         if (run_nsamples >= 2) {
             if (method == 0) {
-                hal_float_t delta = invalue - run_mean;
+                real_t delta = invalue - run_mean;
                 run_mean    += delta / run_nsamples;
                 m2          += delta * (invalue - run_mean);
                 run_variance = m2 / (run_nsamples - 1);
@@ -214,6 +219,10 @@ FUNCTION(_) {
         }
     }
 
+    last_nbins    = c_nbins;
+    last_binsize  = c_binsize;
+    last_minvalue = c_minvalue;
+
     bool b = stream;
     // On the low-to-high transition latch the statistics and push the bins.
     if (b && !last_stream) {
@@ -223,13 +232,13 @@ FUNCTION(_) {
         input_min = run_nsamples ? run_min : 0;
         input_max = run_nsamples ? run_max : 0;
 
-        unsigned need = nbins + 2;
+        unsigned need = c_nbins + 2;
         int avail = hal_stream_maxdepth(&fifo) - hal_stream_depth(&fifo);
         if (avail >= (int)need) {
             // Negative overflow
             hal_stream_write(&fifo, &ntail);
             // All bins, in ascending order
-            for (unsigned i = 0; i < nbins; i++)
+            for (unsigned i = 0; i < c_nbins; i++)
                 hal_stream_write(&fifo, &bins[i]);
             // Positive overflow
             hal_stream_write(&fifo, &ptail);
@@ -242,9 +251,5 @@ FUNCTION(_) {
         }
     }
     last_stream = b;
-
-    last_nbins    = nbins;
-    last_binsize  = binsize;
-    last_minvalue = minvalue;
 }
-// vim: ts=4 sw=4 syn=c
+// vim: ts=4 sw=4 et
