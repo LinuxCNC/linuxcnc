@@ -100,7 +100,7 @@ document, both from the design point of view and from the developers
 point of view (where to find needed data, how to easily extend/modify
 things, etc.).
 
-image::LinuxCNC-block-diagram-small.png[align="center"]
+image::LinuxCNC-block-diagram-small.png[align="center",pdfwidth=100%]
 
 === LinuxCNC software architecture
 
@@ -151,7 +151,7 @@ or command line options.  Custom modules must implement all
 functions used by the default modules.  The halcompile utility
 can be used to create a custom module.
 
-image::LinuxCNC-motion-controller-small.png[align="center"]
+image::LinuxCNC-motion-controller-small.png[align="center",pdfwidth=100%]
 
 == Block diagrams and Data Flow
 
@@ -164,7 +164,7 @@ visible in the block diagram, such as coarse_pos, pos_cmd, and
 motor_pos_fb.
 
 .Joint Controller Block Diagram
-image::emc2-motion-joint-controller-block-diag.png[align="center"]
+image::emc2-motion-joint-controller-block-diag.png[align="center",pdfwidth=100%]
 
 The above figure shows five of the
 seven sets of position information that form the main data flow through
@@ -218,11 +218,11 @@ the motion controller. The seven forms of position data are as follows:
 
 === Homing state diagram
 
-image::homing.svg[align="center"]
+image::homing.svg[align="center",pdfwidth=100%]
 
 === Another homing diagram
 
-image::hss.svg[align="center"]
+image::hss.svg[align="center",pdfwidth=60%]
 
 == Commands
 
@@ -749,7 +749,7 @@ FIXME Backlash and Screw Error Compensation
 Task has three possible internal states: *E-stop*, *E-stop Reset*,
 and *Machine On*.
 
-image::task-state-transitions.svg[align="center"]
+image::task-state-transitions.svg[align="center",pdfwidth=45%]
 
 == IO controller (EMCIO)
 
@@ -859,7 +859,7 @@ use and allow for the message to be encoded if this option is chosen
 (encoded data will be covered later). The following figure is an
 internal view of the buffer space.
 
-image::CMS_buffer.png[align="center"]
+image::CMS_buffer.png[align="center",pdfwidth=35%]
 
 .CMS buffer
 The CMS base class is primarily responsible for creating the

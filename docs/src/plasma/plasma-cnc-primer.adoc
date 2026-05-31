@@ -83,7 +83,7 @@ A slight variation in cut angles may be normal, as long as it is within toleranc
 The ability to precisely control the cutting height in such a hostile and ever changing environment is a very difficult challenge.
 Fortunately there is a very linear relationship between Torch height (Arc length) and arc voltage as this graph shows.
 
-image::images/primer_volts-height.png[width=50%]
+image::images/primer_volts-height.png[width=75%]
 
 This graph was prepared from a sample of about 16,000 readings at varying cut height and the regression analysis shows 7.53 V/mm with 99.4% confidence.
 In this particular instance this sample was taken from an Everlast 50 A machine being controlled by LinuxCNC.
