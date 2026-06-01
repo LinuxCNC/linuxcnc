@@ -852,7 +852,7 @@ class HAL:
                     print(file=f1)
                     print(_("#  ---spindle-at-speed indicator---"), file=f1)
                     print(file=f1)
-                    print(_("net spindle-at-speed => gmoccapy.spindle_at_speed_led"), file=f1)
+                    print("net spindle-at-speed => gmoccapy.spindle_at_speed_led", file=f1)
                     f1.close()
                 elif self.d.frontend == _PD._QTDRAGON:
                     qt = os.path.join(base, "qtvcp_postgui.hal")
