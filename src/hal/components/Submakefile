@@ -33,7 +33,7 @@ CONVERTERS :=  \
     conv_u64_u32.comp \
     conv_u64_s64.comp
 COMPS := $(filter-out hal/components/tpcomp.comp hal/components/homecomp.comp, $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS))))
-COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS)) ../docs/man/man9/tpcomp.9
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS)) ../docs/man/man9/tpcomp.9 ../docs/man/man9/homecomp.9
 ifeq ($(BUILD_SYS),uspace)
 COMP_DRIVERS += hal/drivers/serport.comp
 COMP_DRIVERS += hal/drivers/mesa_7i65.comp
@@ -54,19 +54,38 @@ endif
 
 obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS) $(COMP_DRIVERS)))
 
-$(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/halcompile
-	$(ECHO) Making halcompile manpage $(notdir $@)
-	@mkdir -p $(dir $@) objects/man/man9
-	$(Q)../bin/halcompile -U --document --keep-adoc=$@.adoc -o $@ $<
-	$(Q)sed -i -e's/^\.als /.\\" .als /' $@
-	$(Q)mv -f $@.adoc objects/man/man9/
+COMP_MANPAGE_ADOCS := $(patsubst hal/components/%.comp, objects/man/man9/%.9.adoc, $(COMPS)) objects/man/man9/tpcomp.9.adoc objects/man/man9/homecomp.9.adoc
+COMP_DRIVER_MANPAGE_ADOCS := $(patsubst hal/drivers/%.comp, objects/man/man9/%.9.adoc, $(COMP_DRIVERS))
 
-$(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/halcompile
+# Extract adoc from .comp via halcompile --adoc.  Only needs Python +
+# halcompile.py (yapps-generated, not the C build), so a docs-only build
+# can run this rule without first compiling the rest of LinuxCNC.  The
+# .9.adoc suffix matches the convention the docs HTML manpage rule
+# expects under objects/man/.
+$(COMP_MANPAGE_ADOCS): objects/man/man9/%.9.adoc: hal/components/%.comp ../bin/halcompile
+	$(ECHO) Extracting adoc manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/halcompile -U --adoc -o $@ $<
+
+$(COMP_DRIVER_MANPAGE_ADOCS): objects/man/man9/%.9.adoc: hal/drivers/%.comp ../bin/halcompile
+	$(ECHO) Extracting adoc manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/halcompile -U --adoc -o $@ $<
+
+# Build troff from the adoc via asciidoctor.  Used to be halcompile
+# emitting troff directly with sed post-processing to escape .als / .URL
+# directives that the old dblatex-based PDF pipeline choked on; with the
+# asciidoctor toolchain reading adoc straight through, that hack is gone.
+$(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: objects/man/man9/%.9.adoc
 	$(ECHO) Making halcompile manpage $(notdir $@)
-	@mkdir -p $(dir $@) objects/man/man9
-	$(Q)../bin/halcompile -U --document --keep-adoc=$@.adoc -o $@ $<
-	$(Q)sed -i -e's/^\.als /.\\" .als /' -e's/^\.URL / /' $@
-	$(Q)mv -f $@.adoc objects/man/man9/
+	@mkdir -p $(dir $@)
+	$(Q)asciidoctor --doctype=manpage \
+	    --backend=manpage \
+	    --destination-dir="$(dir $@)" \
+	    -a compat-mode \
+	    -a mansource=LinuxCNC \
+	    -a manmanual='LinuxCNC Documentation' \
+	    $<
 
 objects/%.mak: %.comp hal/components/Submakefile
 	$(ECHO) "Creating $(notdir $@)"
