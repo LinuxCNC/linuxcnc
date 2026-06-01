@@ -119,7 +119,7 @@
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
 #define HAL_VER   0x00000011	/* version code */
-#define HAL_SIZE  (256*4096)
+#define HAL_SIZE  (2*256*4096)
 #define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
 
 /* These pointers are set by hal_init() to point to the shmem block
@@ -309,14 +309,16 @@ struct hal_comp_t {
 
 /** HAL 'pin' data structure.
     This structure contains information about a 'pin' object.
+    The structure layout is matched in the parameter layout.
+    FIXME: Merge with hal_param_t
 */
 struct hal_pin_t {
     SHMFIELD(hal_pin_t) next_ptr;		/* next pin in linked list */
     SHMFIELD(void*) data_ptr_addr;		/* address of pin data pointer */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this pin */
-    SHMFIELD(hal_sig_t) signal;			/* signal to which pin is linked */
-    hal_data_u dummysig;	/* if unlinked, data_ptr points here */
     SHMFIELD(hal_oldname_t) oldname;		/* old name if aliased, else zero */
+    hal_data_u dummysig;	/* if unlinked, data_ptr points here */
+    SHMFIELD(hal_sig_t) signal;			/* signal to which pin is linked */
     hal_type_t type;		/* data type */
     hal_pin_dir_t dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */
@@ -337,12 +339,16 @@ struct hal_sig_t {
 
 /** HAL 'parameter' data structure.
     This structure contains information about a 'parameter' object.
+    The structure layout is matched in the pin layout.
+    FIXME: Merge with hal_pin_t
 */
 struct hal_param_t {
     SHMFIELD(hal_param_t) next_ptr;		/* next parameter in linked list */
     SHMFIELD(void*) data_ptr;		/* offset of parameter value */
     SHMFIELD(hal_comp_t) owner_ptr;		/* component that owns this signal */
     SHMFIELD(hal_oldname_t) oldname;		/* old name if aliased, else zero */
+    hal_data_u data;		/* new API parameter storage is here, data_ptr points here too */
+    SHMFIELD(void*) reserved;	/* reserved to match hal_pin_t layout */
     hal_type_t type;		/* data type */
     hal_param_dir_t dir;	/* data direction */
     char name[HAL_NAME_LEN + 1];	/* parameter name */
@@ -374,7 +380,7 @@ struct hal_funct_t {
     void (*funct) (void *, long);	/* ptr to function code */
     hal_s32_t* runtime;	/* (pin) duration of last run, in CPU cycles */
     hal_s32_t maxtime;	/* (param) duration of longest run, in CPU cycles */
-    hal_bit_t maxtime_increased;	/* on last call, maxtime increased */
+    hal_bit_t maxtime_increased;	/* (param) on last call, maxtime increased */
     char name[HAL_NAME_LEN + 1];	/* function name */
 };
 
