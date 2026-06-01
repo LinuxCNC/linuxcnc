@@ -399,3 +399,9 @@ h1{font-size:revert}
 h2{font-size:revert}
 h3,#toctitle,.sidebarblock>.content>.title{font-size:revert}
 h4,h5{font-size:revert}}
+
+.imageblock.text-left   > .title { text-align: left; }
+.imageblock.text-center > .title { text-align: center; }
+.imageblock.text-right  > .title { text-align: right; }
+.imageblock             > .title { margin-top: 0.5em;}
+  
