@@ -15,43 +15,44 @@ The following component copies the value seen on its input pin ('passthrough.in'
 [source,python]
 ----
 #!/usr/bin/env python3
-import hal, time
+import hal
+import time
 h = hal.component("passthrough")
 h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
 h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
 h.ready()
 try:
-    while 1:
-        time.sleep(1)
+    while True:
         h['out'] = h['in']
+        time.sleep(1)
 except KeyboardInterrupt:
     raise SystemExit
 ----
 
-Copy the above listing into a file named "passthrough", make it executable ('chmod +x'), and place it on your '$PATH'.
-Then try it out:
+Copy the above listing into a file named "passthrough", make it executable ('chmod +x').
+Then try it out (assuming the cpmponent "passthrough" is located in the current directory):
 
 .Screen copy with details on the execution of the newly created passthrough HAL module.
 ----
 $ halrun
 
-halcmd: loadusr passthrough
+halcmd: loadusr ./passthrough
 
 halcmd: show pin
 
-    Component Pins:
-    Owner Type  Dir     Value  Name
-     03   float IN          0  passthrough.in
-     03   float OUT         0  passthrough.out
+Component Pins:
+Owner   Type  Dir     Value  Name
+     4  float IN          0  passthrough.in
+     4  float OUT         0  passthrough.out
 
 halcmd: setp passthrough.in 3.14
 
 halcmd: show pin
 
-    Component Pins:
-    Owner Type  Dir     Value  Name
-     03   float IN       3.14  passthrough.in
-     03   float OUT      3.14  passthrough.out
+Component Pins:
+Owner   Type  Dir     Value  Name
+     4  float IN       3.14  passthrough.in
+     4  float OUT      3.14  passthrough.out
 ----
 
 == Non-realtime components and delays
@@ -66,18 +67,21 @@ but not for sending step pulses to a stepper driver board (delays must always be
 
 == Create pins and parameters
 
+.Create a HAL component
 [source,python]
 ----
-h = hal.component("passthrough")
+mycomp = hal.component("passthrough")
 ----
 
 The component itself is created by a call to the constructor 'hal.component'.
 The arguments are the HAL component name and (optionally) the prefix used for pin and parameter names.
 If the prefix is not specified, the component name is used.
 
+.Create a HAL pin or parameter
 [source,python]
 ----
-h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+mycomp.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+mycomp.newparam("has-feature-rotate", hal.HAL_BIT, hal.HAL_RO)
 ----
 
 Then pins are created by calls to methods on the component object.
@@ -85,23 +89,27 @@ The arguments are: pin name suffix, pin type, and pin direction.
 For parameters, the arguments are: parameter name suffix, parameter type, and parameter direction.
 
 .HAL Option Names
-[width="100%",cols="<3s,6*<"]
+[width="100%",cols="<3s,7*<"]
 |===
-|Pin and Parameter Types: |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32 |HAL_S64 |HAL_U64
-|Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  |        |        |
-|Parameter Directions:    |HAL_RO  |HAL_RW    |        |        |        |
+|Pin and Parameter Types:|`HAL_BIT`|`HAL_FLOAT`|`HAL_S32`|`HAL_U32`|`HAL_S64`|`HAL_U64`|`HAL_PORT`
+|Pin Directions:         |`HAL_IN` |`HAL_OUT`  |`HAL_IO` |         |         |         |
+|Parameter Directions:   |`HAL_RO` |`HAL_RW`   |         |         |         |         |
 |===
+
+[NOTE]
+====
+Only pins and signals can use the `HAL_PORT` type.
+====
 
 The full pin or parameter name is formed by joining the prefix and the
-suffix with a ".", so in the example the pin created is called
-'passthrough.in'.
+suffix with a ".", so in the example the pin created is called 'passthrough.in'.
 
+[source,python]
 ----
-h.ready()
+mycomp.ready()
 ----
 
-Once all the pins and parameters have been created, call the
-'.ready()' method.
+Once all the pins and parameters have been created, call the '.ready()' method.
 
 === Changing the prefix
 
@@ -113,87 +121,87 @@ current prefix can be retrieved by calling the '.getprefix()' method.
 For pins and parameters which are also proper Python identifiers, the
 value may be accessed or set using the attribute syntax:
 
+[source,python]
 ----
-h.out = h.in
+mycomp.out = mycomp.in
 ----
 
 For all pins, whether or not they are also proper Python identifiers,
 the value may be accessed or set using the subscript syntax:
 
+[source,python]
 ----
-h['out'] = h['in']
+mycomp['out'] = mycomp['in']
 ----
 
 To see all pins with their values, getpins returns all values in a dictionary
 of that component.
 
+[source,python]
 ----
-h.getpins()
+mycomp.getpins()
 >>>{'in': 0.0, 'out': 0.0}
 ----
 
 === Driving output (HAL_OUT) pins
 
-Periodically, usually in response to a timer, all HAL_OUT pins should
-be "driven" by assigning them a new value. This should be done whether
-or not the value is different than the last one assigned. When a pin is
-connected to a signal, its old output value is not copied into the
-signal, so the proper value will only appear on the signal once the
-component assigns a new value.
+Periodically, usually in response to a timer, all `HAL_OUT` pins should be "driven" by assigning them a new value.
+This should be done whether or not the value is different than the last one assigned.
+When a pin is connected to a signal, its old output value is not copied into the signal.
+The proper value will only appear on the signal once the component assigns a new value.
 
 === Driving bidirectional (HAL_IO) pins
 
-The above rule does not apply to bidirectional pins. Instead, a
-bidirectional pin should only be driven by the component when the
-component wishes to change the value. For instance, in the canonical
-encoder interface, the encoder component only sets the 'index-enable'
-pin to *FALSE* (when an index pulse is seen and the old value is
-*TRUE*), but never sets it to *TRUE*. Repeatedly driving the pin
-*FALSE*  might cause the other connected component to act as though
-another index pulse had been seen.
+The above rule does not apply to bidirectional pins.
+Instead, a bidirectional pin should only be driven by the component when the component wishes to change the value.
+For instance, in the canonical encoder interface, the encoder component only sets the 'index-enable'
+pin to `False` (when an index pulse is seen and the old value is `True`), but never sets it to `True`.
+Repeatedly driving the pin `False` might cause the other connected component to act as though another index pulse had been seen.
 
 == Exiting
 
-A 'halcmd unload' request for the component is delivered as a
-'KeyboardInterrupt' exception. When an unload request arrives, the
-process should either
+A 'halcmd unload' request for the component is delivered as a 'KeyboardInterrupt' exception.
+When an unload request arrives, the process should either
 exit in a short time, or call the '.exit()' method on the component
 if substantial work (such as reading or
 writing files) must be done to complete the shutdown process.
 
-== Helpful Functions
+== HAL Python module reference
 
-See <<cha:python-hal-interface, Python HAL Interface>> for an overview of available functions.
-
+See <<cha:python-hal-interface, Python HAL Interface>> for an overview and description of available classes and methods.
 
 == Constants
 
 Use these to specify details rather then the value they hold.
 
-* HAL_BIT
-* HAL_FLOAT
-* HAL_S32
-* HAL_U32
-* HAL_S64
-* HAL_U64
-* HAL_IN
-* HAL_OUT
-* HAL_RO
-* HAL_RW
-* MSG_NONE
-* MSG_ALL
-* MSG_DBG
-* MSG_ERR
-* MSG_INFO
-* MSG_WARN
+* Pin, parameter and signal types:
+** `HAL_BIT`
+** `HAL_FLOAT`
+** `HAL_S32`
+** `HAL_U32`
+** `HAL_S64`
+** `HAL_U64`
+* Pin direction:
+** `HAL_IN`
+** `HAL_OUT`
+* Parameter access:
+** `HAL_RO`
+** `HAL_RW`
+* Message severity:
+** `MSG_NONE`
+** `MSG_ALL`
+** `MSG_DBG`
+** `MSG_ERR`
+** `MSG_INFO`
+** `MSG_WARN`
 
 == System Information
 
 Read these to acquire information about the realtime system.
 
-* is_kernelspace
-* is_rt
-* is_sim
-* is_userspace
+* `is_kernelspace`
+* `is_rt`
+* `is_sim`
+* `is_userspace`
 
 // vim: set syntax=asciidoc:
