@@ -306,10 +306,11 @@ endif
 # hence $(MAN_SRCS) as a real prereq (the script is content-stable via
 # write_if_changed, so re-running over the same set is a no-op for
 # mtime, which keeps downstream po4a from re-firing every build).
-$(DOC_SRCDIR)/hal/components_gen.adoc: $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc $(MAN_SRCS) | manpages
+$(DOC_OUT_ADOC)/en/hal/components_gen.adoc: $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc $(MAN_SRCS) | manpages
+	@mkdir -p $(dir $@)
 	python3 $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc
 
-$(DOC_DIR)/po/documentation.pot: $(addprefix $(DOC_SRCDIR)/, $(DOC_SRCS_EN)) $(DOC_SRCDIR)/hal/components_gen.adoc
+$(DOC_DIR)/po/documentation.pot: $(addprefix $(DOC_SRCDIR)/, $(DOC_SRCS_EN)) $(DOC_OUT_ADOC)/en/hal/components_gen.adoc
 	cd $(DOC_DIR) && ${TIME_CMD} po4a $(PO4A_VERBOSE) --msgmerge-opt='-v' --no-translations po4a.cfg
 	@touch $@
 pofiles: $(DOC_DIR)/po/documentation.pot
@@ -325,7 +326,7 @@ ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 # rewriting every docs/po/*.po with a fresh POT-Creation-Date on each build
 # (dirty tree + mtime cascade).  Building needs only `po4a --no-update`;
 # pot/po extraction stays on the explicit `pofiles` target.
-$(DOC_DIR)/.translateddocs-stamp: $(DOC_SRCDIR)/hal/components_gen.adoc $(wildcard $(DOC_DIR)/po/*.po) | manpages
+$(DOC_DIR)/.translateddocs-stamp: $(DOC_OUT_ADOC)/en/hal/components_gen.adoc $(wildcard $(DOC_DIR)/po/*.po) | manpages
 	cd $(DOC_DIR) && ${TIME_CMD} po4a $(PO4A_VERBOSE) --msgmerge-opt='-v' --no-update po4a.cfg
 	@touch $@
 translateddocs: $(DOC_DIR)/.translateddocs-stamp
@@ -674,7 +675,7 @@ $(DOC_OUT_HTML)/rouge-github.css: $(DOC_SRCDIR)/render-rouge-css.rb
 # it does not read their content, and the post-processor rewrites them in
 # place later -- a normal prerequisite would then re-fire this stamp (and the
 # .htmldoc-stamp / checkref that depend on it) on every subsequent make.
-$(DOC_DIR)/.gen_complist-stamp: $(DOC_SRCDIR)/hal/components_gen.adoc | $(MAN_HTML_TARGETS)
+$(DOC_DIR)/.gen_complist-stamp: $(DOC_OUT_ADOC)/en/hal/components_gen.adoc | $(MAN_HTML_TARGETS)
 	mkdir -p $(DOC_OUT_HTML)/en/hal
 	@touch $@
 
@@ -1011,7 +1012,7 @@ $(4)/%.pdf: $(1)/%.adoc .adoc-images-stamp $$(DOC_FONTS) | svgs_made_from_dots
 		|| (X=$$$$?; rm -f $$@ $$@.raw; exit $$$$X)
 	@test -f $$@
 endef
-$(eval $(call ASCIIDOCTOR_PDF_RULE,$(DOC_SRCDIR),^($(LANGUAGES_MATCH))/,en,objects))
+$(eval $(call ASCIIDOCTOR_PDF_RULE,$(DOC_OUT_ADOC)/en,^($(LANGUAGES_MATCH))/,en,objects))
 $(eval $(call ASCIIDOCTOR_PDF_RULE,$(DOC_OUT_ADOC),,$$(firstword $$(subst /, ,$$*)),$(DOC_OUT_ADOC)))
 
 # Manual pages PDF: previously produced from the generated troff files
@@ -1082,7 +1083,7 @@ $(DOC_OUT_HTML)/en/pdf/LinuxCNC_Manual_Pages_en.pdf: objects/LinuxCNC_Manual_Pag
 	    || (X=$$?; rm -f $@ $@.raw; exit $$X)
 	@test -f $@
 
-depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
+depends/%.d: $(DOC_OUT_ADOC)/en/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
 	$(ECHO) Depending $<
 	@mkdir -p $(dir $@)
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
@@ -1106,7 +1107,7 @@ $(foreach L,$(LANGUAGES),$(eval $(call TRANSLATED_DEP_RULE,$(L))))
 # to $(DOC_OUT_HTML)/<lang>/<topic>/X.html (the asciidoctor pattern rule
 # emits the .html sibling to the .adoc; no separate copy step needed for
 # translations).  We model both with one static pattern set per lang.
-$(DOC_TARGETS_HTML_EN): $(DOC_OUT_HTML)/en/%.html: $(DOC_SRCDIR)/%.html
+$(DOC_TARGETS_HTML_EN): $(DOC_OUT_HTML)/en/%.html: $(DOC_OUT_ADOC)/en/%.html
 	@mkdir -p $(dir $@)
 	@cp $< $@
 
@@ -1237,7 +1238,34 @@ $$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/
 		 -o $$@ $$< || (X=$$$$?; rm -f $$@; exit $$$$X)
 endef
 
-$(eval $(call ASCIIDOCTOR_HTML_RULE,en,$(DOC_SRCDIR),$(DOC_SRCDIR),^($(LANGUAGES_MATCH))/))
+# Stage English sources (.adoc, images, code fixtures like
+# gui/panelui_handler.py) into build/adoc/en so English renders from the build
+# tree like translations: docs/src stays clean and includes resolve relatively.
+# components_gen.adoc generates straight into build/adoc/en/hal; svgs_made_from_dots
+# runs first.  find|tar avoids an rsync dependency.  The stamp lives in build/ so
+# docclean drops it and the next build re-stages.
+EN_STAGE_TYPES := -name '*.adoc' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.gif' -o -name '*.svg' -o -name '*.py'
+EN_STAGE_SRCS := $(shell find $(DOC_SRCDIR) \( $(EN_STAGE_TYPES) \))
+$(DOC_BUILD)/.stage-en-stamp: $(EN_STAGE_SRCS) | svgs_made_from_dots
+	@mkdir -p $(DOC_OUT_ADOC)/en
+	$(Q)dest=$$(cd $(DOC_OUT_ADOC)/en && pwd); \
+	cd $(DOC_SRCDIR) && find . \( $(EN_STAGE_TYPES) \) -print0 \
+		| tar --null -cf - -T - | (cd "$$dest" && tar -xpf -)
+	@touch $@
+
+# Staged .adoc come from the stamp.  Order-only (|), like the translated rule
+# above: staging finishes before any consumer reads.  components_gen.adoc keeps
+# its own rule above.  tar -p preserves mtimes, so consumers still rebuild on
+# source change.
+$(DOC_OUT_ADOC)/en/%.adoc: | $(DOC_BUILD)/.stage-en-stamp ;
+
+# Pattern-rule outputs used only as prerequisites: mark .SECONDARY so make does
+# not delete them as intermediates mid -j build (like the .SECONDARY above).
+EN_STAGED_ADOC := $(patsubst $(DOC_SRCDIR)/%,$(DOC_OUT_ADOC)/en/%,$(filter %.adoc,$(EN_STAGE_SRCS)))
+.SECONDARY: $(EN_STAGED_ADOC)
+
+# English now renders from build/adoc/en, the same model as the translations.
+$(eval $(call ASCIIDOCTOR_HTML_RULE,en,$(DOC_OUT_ADOC)/en,$(DOC_OUT_ADOC)/en,^($(LANGUAGES_MATCH))/))
 $(foreach lang,$(LANGUAGES), \
 	$(eval $(call ASCIIDOCTOR_HTML_RULE,$(lang),$(DOC_OUT_ADOC),$(DOC_OUT_ADOC)/$(lang),)))
 

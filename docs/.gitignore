@@ -2,17 +2,13 @@
 # .gitignore).  Paths are relative to docs/.
 
 # Rendered output: HTML, PDF, and po4a-translated .adoc all land under build/.
+# The English docs now render from build/adoc/en too, so nothing is generated
+# beside the sources anymore (components_gen.adoc and the per-topic .html used
+# to live in src/).
 build/
 
 # Legacy publish path: a symlink to build/html for the website sync (Submakefile).
 /html
-
-# Intermediate .html asciidoctor writes beside each source .adoc before the
-# copy step moves it into build/html/.
-src/*/*.html
-
-# Generated component manpage list (gen_complist.py).
-src/hal/components_gen.adoc
 
 # SVGs rendered from the .dot sources in src/code/ (CMS_buffer.svg is committed).
 src/code/homing.svg

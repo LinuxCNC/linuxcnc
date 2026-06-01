@@ -18,6 +18,7 @@ def write_if_changed(path, content):
                 return False
     except FileNotFoundError:
         pass
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w') as f:
         f.write(content)
     return True
@@ -84,7 +85,7 @@ def generate_complist(complist_path):
     file1.close()
     miss_in_list = man_files.difference(complist_doc)
 
-    gen_filename = '../docs/src/hal/components_gen.adoc'
+    gen_filename = '../docs/build/adoc/en/hal/components_gen.adoc'
     parts = []
     if len(miss_in_list) > 0:
         parts.append('\n== Not categorized (auto generated from man pages)\n')
