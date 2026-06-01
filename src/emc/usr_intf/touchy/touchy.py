@@ -905,4 +905,13 @@ if __name__ == "__main__":
                 else:
                     res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
                 if res: raise SystemExit(res)
+
+        # Exit cleanly on SIGTERM. Without this touchy ignores the signal
+        # (GLib/PyGObject absorbs it), so a caller has to escalate to SIGKILL.
+        # The handler defers the quit to the main loop, since GTK calls are not
+        # safe directly from a signal handler.
+        def _signal_quit(signum, frame):
+            GLib.idle_add(Gtk.main_quit)
+        signal.signal(signal.SIGTERM, _signal_quit)
+
         Gtk.main()
