@@ -134,9 +134,11 @@ RTAPI_BEGIN_DECLS
 #include <signal.h>
 #endif
 
+#include "rtapi_stdint.h"
+#include "rtapi_bool.h"
 #include "rtapi_errno.h"
 
-#define HAL_NAME_LEN     47	/* length for pin, signal, etc, names */
+#define HAL_NAME_LEN     55	/* length for pin, signal, etc, names */
 
 /** These locking codes define the state of HAL locking, are used by most functions */
 /** The functions locked will return a -EPERM error message **/
@@ -290,46 +292,78 @@ typedef enum {
     HAL_TYPE_MAX,
 } hal_type_t;
 
-/** HAL pins have a direction attribute.  A pin may be an input to 
-    the HAL component, an output, or it may be bidirectional.
-    Any number of HAL_IN or HAL_IO pins may be connected to the same
-    signal, but only one HAL_OUT pin is permitted.  This is equivalent
-    to connecting two output pins together in an electronic circuit.
-    (HAL_IO pins can be thought of as tri-state outputs.)
-*/
+#define HAL_BOOL HAL_BIT
+#define HAL_REAL HAL_FLOAT
+#define HAL_SINT HAL_S64
+#define HAL_UINT HAL_U64
 
+//
+// hal_pdir_t - Unified HAL pin/param direction type. Specifies the direction
+// of the pins and params while simultaneously allowing us to deduce whether we
+// are dealing with a pin or a param.
+//
+// HAL pins have a direction attribute. A pin may be an input to the HAL
+// component, an output, or it may be bidirectional. Any number of HAL_IN or
+// HAL_IO pins may be connected to the same signal, but only one HAL_OUT pin is
+// permitted. This is equivalent to connecting two output pins together in an
+// electronic circuit. (HAL_IO pins can be thought of as tri-state outputs.)
+//
+// HAL parameters also have a direction attribute. For parameters, the
+// attribute determines whether the user can write the value of the parameter,
+// or simply read it. HAL_RO parameters are read-only, and HAL_RW ones are
+// writable with 'halcmd setp'.
+//
 typedef enum {
     HAL_DIR_UNSPECIFIED = -1,
-    HAL_IN = 16,
-    HAL_OUT = 32,
-    HAL_IO = (HAL_IN | HAL_OUT),
-} hal_pin_dir_t;
+    HAL_IN  = (1 << 4),
+    HAL_OUT = (1 << 5),
+    HAL_IO  = (HAL_IN | HAL_OUT),
+    HAL_RO  = (1 << 6),
+    HAL_WO  = (1 << 7), // Actually fake value not enforced
+    HAL_RW  = (HAL_RO | HAL_WO),
+} hal_pdir_t;
 
-/** HAL parameters also have a direction attribute.  For parameters,
-    the attribute determines whether the user can write the value
-    of the parameter, or simply read it.  HAL_RO parameters are
-    read-only, and HAL_RW ones are writable with 'halcmd setp'.
-*/
+// Map both old direction types to the new combined type
+// FIXME: These should be retired at some point
+typedef hal_pdir_t hal_pin_dir_t;
+typedef hal_pdir_t hal_param_dir_t;
 
-typedef enum {
-    HAL_RO = 64,
-    HAL_RW = HAL_RO | 128 /* HAL_WO */,
-} hal_param_dir_t;
+#define __HAL_ALWAYS_INLINE __attribute__((always_inline))
 
-/* Use these for x86 machines, and anything else that can write to
-   individual bytes in a machine word. */
-#include "rtapi_bool.h"
-#include "rtapi_stdint.h"
+//
+// bool hal_pdir_is_pin(hal_pdir_t)
+// bool hal_pdir_is_param(hal_pdir_t)
+// bool hal_pdir_is_neither(hal_pdir_t)
+//
+// Determine whether an I/O direction is a pin, a param or neither.
+//
+static inline __HAL_ALWAYS_INLINE bool hal_pdir_is_pin(hal_pdir_t v) {
+    // No other bits than in HAL_IO may be set
+    return (0 == (v & ~HAL_IO)) && (0 != (v & HAL_IO));
+}
+static inline __HAL_ALWAYS_INLINE bool hal_pdir_is_param(hal_pdir_t v) {
+    // No other bits than in HAL_RW may be set
+    return (0 == (v & ~HAL_RW)) && (0 != (v & HAL_RW));
+}
+static inline __HAL_ALWAYS_INLINE bool hal_pdir_is_neither(hal_pdir_t v) {
+    // Any other bits than in HAL_IO|HAL_RW set or none of the set's bits
+    return (0 != (v & ~(HAL_IO|HAL_RW))) || (0 == (v & (HAL_IO|HAL_RW)));
+}
+
+// FIXME: These alignment attributes should be removed.
+// HAL now allocates on an 8-byte boundary and the rest should be left to the
+// compiler.
+// ==> Remove when we get rid of old hal_*_t typedefs. <==
+typedef rtapi_real real_t;
+typedef rtapi_u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
+
 typedef volatile bool hal_bit_t;
 typedef volatile rtapi_u32 hal_u32_t;
 typedef volatile rtapi_s32 hal_s32_t;
 typedef volatile rtapi_u64 hal_u64_t;
 typedef volatile rtapi_s64 hal_s64_t;
+typedef volatile real_t hal_float_t;
 typedef volatile int hal_port_t;
-typedef double real_t __attribute__((aligned(8)));
-typedef rtapi_u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
-
-#define hal_float_t volatile real_t
        
 /** HAL "data union" structure
  ** This structure may hold any type of hal data
@@ -343,6 +377,186 @@ typedef union {
     hal_s64_t ls;
     hal_u64_t lu;
 } hal_data_u;
+
+// Fake forward declarations so we can make opaque pointers
+struct __hal_stype_bool_t;
+struct __hal_stype_sint_t;
+struct __hal_stype_uint_t;
+struct __hal_stype_real_t;
+struct __hal_stype_port_t;
+
+typedef struct __hal_stype_bool_t *hal_bool_t;
+typedef struct __hal_stype_sint_t *hal_sint_t;
+typedef struct __hal_stype_uint_t *hal_uint_t;
+typedef struct __hal_stype_real_t *hal_real_t;
+//typedef struct __hal_stype_port_t *hal_port_t;
+
+typedef union {
+    hal_bool_t b;
+    hal_sint_t s;
+    hal_uint_t u;
+    hal_real_t r;
+    //hal_port_t p;
+} hal_refs_u;
+
+// We rely on little-endian memory layout in the union where the smaller
+// types are overlapping the larger type's least significant part.
+#include "rtapi_byteorder.h"
+
+// The 'defined()' clause is specifically added for cppcheck 2.13.0, used in
+// Ubuntu 24.04, which appears to fail somewhere in including rtapi_byteorder.h
+// and hits the #error directive.
+#if defined(RTAPI_LITTLE_ENDIAN) && !RTAPI_LITTLE_ENDIAN
+#error "HAL only supports little endian machines at this moment."
+#endif
+
+// This is a define so we don't export it to other code.
+// It is undef'ed after we're done with it.
+// FIXME: Get rid of the 32-bit types when we have upgraded everything using
+// getter/setter access only so we have guaranteed content.
+#define __HAL_MAPPED_TYPE union __hal_mapped_type { \
+        volatile rtapi_bool _b; \
+        volatile rtapi_s32  _ss; \
+        volatile rtapi_u32  _su; \
+        volatile rtapi_sint _s; \
+        volatile rtapi_uint _u; \
+        volatile rtapi_real _r; \
+    }
+
+
+#if 0
+// The port change must be done later
+// A 'hal_port_t' is a pin/param reference which content represents
+// the integer offset in the HAL shared memory segment to a
+// hal_port_shm_t structure.
+static inline __HAL_ALWAYS_INLINE rtapi_sint hal_get_port(hal_port_t ref) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    return ((union __hal_mapped_type *)ref)->_s;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_sint hal_set_port(hal_port_t ref, rtapi_sint val) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    ((union __hal_mapped_type *)ref)->_s = val; // Store in the larger type
+    return val;
+}
+#endif
+//
+// The hal_{get,set}_si32() and hal_{get,set}_ui32() are only present for
+// compatibility. They may be removed when all the remaining code has been
+// updated properly. However, there is a case for letting them remain as
+// they will simply use implicit truncation.
+// The hal_get_{s,u}i32_clamped() functions will not truncate but clamp the
+// read value to the appropriate min/max of the 32-bit type.
+//
+static inline __HAL_ALWAYS_INLINE rtapi_s32 hal_get_si32_clamped(const hal_sint_t ref) {
+    __HAL_MAPPED_TYPE;
+    // Down conversion from the larger type
+    // cppcheck-suppress dangerousTypeCast
+    rtapi_sint val = ((union __hal_mapped_type *)ref)->_s;
+    if(val <= RTAPI_INT32_MIN) return RTAPI_INT32_MIN;
+    if(val >= RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
+    return (rtapi_s32)val;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_s32 hal_get_si32(const hal_sint_t ref) {
+    __HAL_MAPPED_TYPE;
+    // Implicitly Truncated from the larger type
+    // cppcheck-suppress dangerousTypeCast
+    return ((union __hal_mapped_type *)ref)->_ss;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_s32 hal_set_si32(hal_sint_t ref, rtapi_s32 val) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    ((union __hal_mapped_type *)ref)->_s = val; // Store in the larger type
+    return val;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_u32 hal_get_ui32_clamped(const hal_uint_t ref) {
+    __HAL_MAPPED_TYPE;
+    // Down conversion from the larger type
+    // cppcheck-suppress dangerousTypeCast
+    rtapi_uint val = ((union __hal_mapped_type *)ref)->_u;
+    if(val >= RTAPI_UINT32_MAX) return RTAPI_UINT32_MAX;
+    return (rtapi_u32)val;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_u32 hal_get_ui32(const hal_uint_t ref) {
+    __HAL_MAPPED_TYPE;
+    // Implicitly Truncated from the larger type
+    // cppcheck-suppress dangerousTypeCast
+    return ((union __hal_mapped_type *)ref)->_su;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_u32 hal_set_ui32(hal_uint_t ref, rtapi_u32 val) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    ((union __hal_mapped_type *)ref)->_u = val; // Store in the larger type
+    return val;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_sint hal_get_sint(const hal_sint_t ref) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    return ((union __hal_mapped_type *)ref)->_s;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_sint hal_set_sint(hal_sint_t ref, rtapi_sint val) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    ((union __hal_mapped_type *)ref)->_s = val;
+    return val;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_uint hal_get_uint(const hal_uint_t ref) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    return ((union __hal_mapped_type *)ref)->_u;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_uint hal_set_uint(hal_uint_t ref, rtapi_uint val) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    ((union __hal_mapped_type *)ref)->_u = val;
+    return val;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_real hal_get_real(const hal_real_t ref) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    return ((union __hal_mapped_type *)ref)->_r;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_real hal_set_real(hal_real_t ref, rtapi_real val) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    ((union __hal_mapped_type *)ref)->_r = val;
+    return val;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_bool hal_get_bool(const hal_bool_t ref) {
+    __HAL_MAPPED_TYPE;
+    // cppcheck-suppress dangerousTypeCast
+    return ((union __hal_mapped_type *)ref)->_b;
+}
+static inline __HAL_ALWAYS_INLINE rtapi_bool hal_set_bool(hal_bool_t ref, rtapi_bool val) {
+    __HAL_MAPPED_TYPE;
+    // 'val' is declared bool and will therefore store a one (1)
+    // or a zero (0) in the larger target. This still works if the
+    // call is made using an integer type as original argument.
+    // cppcheck-suppress dangerousTypeCast
+    ((union __hal_mapped_type *)ref)->_u = val;
+    return val;
+}
+#undef __HAL_ALWAYS_INLINE
+#undef __HAL_MAPPED_TYPE
+
+#define __HAL_PFMT(a,b) __attribute__((format(printf,a,b)))
+int hal_pin_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, rtapi_bool def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_pin_new_si32(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s32  def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_pin_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32  def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_pin_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_sint def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_pin_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_uint def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_pin_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real def, const char *fmt, ...) __HAL_PFMT(5,6);
+// Note: port has no initial default as it is an 'internal' reference
+//int hal_pin_new_port(int compid, hal_pin_dir_t dir, hal_port_t *ref, const char *fmt, ...) __HAL_PFMT(4,5);
+
+int hal_param_new_bool(int compid, hal_pdir_t dir, hal_bool_t *ref, rtapi_bool def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_param_new_si32(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_s32  def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_param_new_ui32(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_u32  def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_param_new_sint(int compid, hal_pdir_t dir, hal_sint_t *ref, rtapi_sint def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_param_new_uint(int compid, hal_pdir_t dir, hal_uint_t *ref, rtapi_uint def, const char *fmt, ...) __HAL_PFMT(5,6);
+int hal_param_new_real(int compid, hal_pdir_t dir, hal_real_t *ref, rtapi_real def, const char *fmt, ...) __HAL_PFMT(5,6);
+#undef __HAL_PFMT
 
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
