@@ -483,9 +483,20 @@ clean-manpages:
 clean-translated:
 	-$(RM) -r $(GENERATED_TRANSLATED)
 
-DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
+# Docs .dot render into build/adoc/en/<topic> so docs/src stays clean.  Other
+# .dot (e.g. src/emc/motion/homing.dot, not a doc) still render beside source.
+DOC_DOTFILES := $(shell find $(DOC_SRCDIR) -name '*.dot')
+DOC_DOT_SVGS := $(patsubst $(DOC_SRCDIR)/%.dot,$(DOC_OUT_ADOC)/en/%.svg,$(DOC_DOTFILES))
+OTHER_DOTFILES := $(filter-out $(DOC_DOTFILES),$(shell find . -name '*.dot'))
 .PHONY: svgs_made_from_dots
-svgs_made_from_dots: $(DOTFILES:.dot=.svg)
+svgs_made_from_dots: $(DOC_DOT_SVGS) $(OTHER_DOTFILES:.dot=.svg)
+
+$(DOC_OUT_ADOC)/en/%.svg: $(DOC_SRCDIR)/%.dot
+	@mkdir -p $(@D)
+	dot -Tsvg -Gbgcolor=transparent -o$@ $<
+
+# Pattern-rule outputs; .SECONDARY so the -j build keeps them (see staging rule).
+.SECONDARY: $(DOC_DOT_SVGS)
 
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
@@ -1125,7 +1136,8 @@ $(foreach L,$(LANGUAGES),$(eval $(call HTML_COPY_RULE,$(L))))
 # live at $(DOC_OUT_HTML)/en/<topic>/X.html; for translations at
 # $(DOC_OUT_HTML)/<lang>/<topic>/X.html.  The source images are in
 # $(DOC_SRCDIR)/<topic>/ regardless of language (translations are
-# image-symlinked to English originals via the sed below).
+# image-symlinked to English originals via the sed below).  Generated SVGs are
+# not in src; fall back to the English build tree where they render.
 #
 # src="..." covers displayed images; href="...png" covers click-to-enlarge
 # targets from image:thumb[link=...] (which would otherwise 404).  The
@@ -1143,6 +1155,9 @@ $(foreach L,$(LANGUAGES),$(eval $(call HTML_COPY_RULE,$(L))))
 		for IMAGE_FILE in $$(grep -oE '(src|href)="[^"]+"' $$HTML_FILE | sed -E 's/^(src|href)="//;s/"$$//' | grep -vE '^https?:|^data:|^/|lcnc-docs\.svg' | grep -iE '\.(png|jpe?g|gif|svg|webp)$$'); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
 			IMAGE_PATH=$(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE; \
+			if [ ! -e $$IMAGE_PATH ] ; then \
+				IMAGE_PATH=$(DOC_OUT_ADOC)/en/$$HTML_DIR/$$IMAGE_FILE; \
+			fi; \
 			mkdir -p $(DOC_OUT_HTML)/$$LANG/$$HTML_DIR/$$IMAGE_DIR; \
 			cp -f $$IMAGE_PATH $(DOC_OUT_HTML)/$$LANG/$$HTML_DIR/$$IMAGE_FILE; \
 		done; \
@@ -1186,6 +1201,10 @@ endif
 		for IMAGE_FILE in $$(grep -E ^image:[^[:space:]] $$ADOC_FILE | sed -E "s/image:+([^[]+)\[/\nimage:\1\n/g" | grep image: | cut -d: -f2-); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
 			IMAGE_PATH=$$(echo $(DOC_SRCDIR)/$$ADOC_DIR/$$IMAGE_FILE | sed -E 's%/src/($(LANGUAGES_MATCH))/%/src/%'); \
+			if [ ! -e $$IMAGE_PATH ] ; then \
+				EN_DIR=$$(echo $$ADOC_DIR | sed -E 's%^($(LANGUAGES_MATCH))/%%'); \
+				IMAGE_PATH=$(DOC_OUT_ADOC)/en/$$EN_DIR/$$IMAGE_FILE; \
+			fi; \
 			TIMAGE_PATH=$(DOC_OUT_ADOC)/$$ADOC_DIR/$$IMAGE_FILE; \
 			HIMAGE_PATH=$(DOC_OUT_HTML)/$$ADOC_DIR/$$IMAGE_FILE; \
 			mkdir -p $(DOC_OUT_ADOC)/$$ADOC_DIR/$$IMAGE_DIR; \
@@ -1302,7 +1321,7 @@ docclean:
 	-rm -f $(DOC_DIR)/.translateddocs-stamp
 	-rm -f $(DOC_DIR)/.gen_complist-stamp
 	-rm -f $(DOC_DIR)/.checkref-*-stamp
-	-rm -f $(DOTFILES:.dot=.svg)
+	-rm -f $(OTHER_DOTFILES:.dot=.svg)
 
 
 MAN_DEPS := $(patsubst $(DOC_MAN)/%, depends/%.d, $(MAN_SRCS))
