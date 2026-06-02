@@ -115,6 +115,11 @@ proc check_rt_privileges {} {
   # Without 'sudo make setuid' (or 'sudo make setcap') rtapi_app runs
   # unprivileged: realtime threads get no SCHED_FIFO and no locked memory, so
   # the latency readings are wildly inflated.  Warn rather than mislead.
+  # Only meaningful on an RT-capable kernel; stay quiet on non-RT (e.g. dev).
+  set rt 0
+  if {![catch {exec uname -v} kv] && [string match *PREEMPT_RT* $kv]} {set rt 1}
+  if {[string first rtai [string tolower $::tcl_platform(osVersion)]] >= 0} {set rt 1}
+  if {!$rt} return
   if {![catch {exec id -u} uid] && $uid == 0} return ;# root has every privilege
   if {[catch {which_exe rtapi_app} rtapi]} return ;# cannot locate, stay quiet
   if {![catch {file attributes $rtapi -permissions} mode] && ($mode & 04000)} return ;# setuid root
