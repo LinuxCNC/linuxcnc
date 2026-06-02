@@ -146,12 +146,12 @@ The supported commands are as follows:
 
 *get* _<subcommand>_ [_<parameters>_]::
   The 'GET' command takes one of the LinuxCNC sub-commands
-  (see link:#_linuxcnc_subcommands[*SUBCOMMANDS*] below) and zero or
+  (see link:#_subcommands[*SUBCOMMANDS*] below) and zero or
   more additional subcommand-specific parameters.
 
 *set* _<subcommand>_ [_<parameters>_]::
   The 'SET' command takes one of the LinuxCNC sub-commands
-  (see link:#_linuxcnc_subcommands[*SUBCOMMANDS*] below) and zero or
+  (see link:#_subcommands[*SUBCOMMANDS*] below) and zero or
   more additional parameters.
 
 *quit*::
@@ -164,7 +164,7 @@ The supported commands are as follows:
   The 'SHUTDOWN' command tells LinuxCNC to shutdown and disconnect the
   session. This command may only be issued if the 'HELLO' has been
   successfully negotiated and the connection has control of the CNC
-  (see 'SET ENABLE' sub-command in the link:#_linuxcnc_subcommands[*SUBCOMMANDS*]
+  (see 'SET ENABLE' sub-command in the link:#_subcommands[*SUBCOMMANDS*]
   section below).
   +
   Note that LinuxCNC will only shutdown automatically if *linuxcncrsh*

@@ -1537,7 +1537,7 @@ Enter any of these _case sensitive_ commands to load the respective program or a
 *`CLEAR HISTORY`*::
   _Clears the MDI History_.
 *`net`*::
-  See link:../man/man1/halcmd.1.html#COMMANDS[`halcmd net` commands]. +
+  See link:../man/man1/halcmd.1.html#_commands[`halcmd net` commands]. +
   An error will result if the command is unsuccessful.
   * _Syntax_: `net <signal name> <pin name>`
   * __Example__: `net plasmac:jog-inhibit motion.jog-stop`
