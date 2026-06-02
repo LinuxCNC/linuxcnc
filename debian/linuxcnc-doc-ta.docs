@@ -3,4 +3,4 @@ usr/share/doc/linuxcnc/LinuxCNC_Documentation_ta.pdf
 usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_ta.pdf
 usr/share/doc/linuxcnc/LinuxCNC_Integrator_ta.pdf
 
-docs/html/ta/gcode.html
+docs/build/html/ta/gcode.html

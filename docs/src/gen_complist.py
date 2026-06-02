@@ -30,6 +30,16 @@ man_files = man1_files.union(man9_files)
 complist_doc = set()
 miss_in_man = set()
 
+def link_target_exists(link):
+    """Check whether the manpage source backing an asciidoctor link is
+    present.  Compares against the troff filename set (man_files) rather
+    than the rendered HTML, which does not exist when this script runs
+    early in the build."""
+    m = re.search(r'man[139]/([a-zA-Z0-9_.+-]+)\.html', link)
+    if not m:
+        return True
+    return m.group(1) in man_files
+
 def add_links(lines, add_descr):
     """Apply man-page link substitutions to the given lines (list of str,
     each ending in newline), return the result as a single string."""
@@ -39,7 +49,7 @@ def add_links(lines, add_descr):
             splitted = line.split('|')
             if 'link:' in splitted[1]:
                 link = re.search('(?<=link:).*(?=\\[)', splitted[1]).group()
-                if not os.path.isfile(os.path.join('../docs/html/hal', link)):
+                if not link_target_exists(link):
                     print('gen_complist: Broken link:', link)
             else:
                 comp_man = splitted[1].strip(' ')
@@ -63,7 +73,7 @@ def generate_complist(complist_path):
                 if 'link:' in splitted[1]:
                     link = re.search('(?<=link:).*(?=\\[)', splitted[1]).group()
                     comp_man = re.search("[a-zA-Z0-9-_\\.]+(?=\\.html)", link).group()
-                    if os.path.isfile(os.path.join('../docs/html/hal', link)):
+                    if link_target_exists(link):
                         complist_doc.add(comp_man)
                     else:
                         print('gen_complist: Broken link:', link, file=sys.stderr)

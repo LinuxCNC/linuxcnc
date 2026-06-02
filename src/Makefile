@@ -636,7 +636,7 @@ else
 DOCS=README.adoc INSTALL.adoc AUTHORS
 
 # FIXME figure out how to install translated docs in subdirs
-DOCS_HELP=$(call GLOB,../docs/help/*.adoc)
+DOCS_HELP=$(call GLOB,../docs/src/help/*.adoc)
 
 NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
 TCL=$(call GLOB,../tcl/*.tcl)

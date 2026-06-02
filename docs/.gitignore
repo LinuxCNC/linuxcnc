@@ -1,2 +1,51 @@
-# generated when building pdf docs
-index.html
+# All ignores for the documentation tree live here (not in the top-level
+# .gitignore).  Paths are relative to docs/.
+
+# Rendered output: HTML, PDF, and po4a-translated .adoc all land under build/.
+build/
+
+# Intermediate .html asciidoctor writes beside each source .adoc before the
+# copy step moves it into build/html/.
+src/*/*.html
+
+# Generated component manpage list (gen_complist.py).
+src/hal/components_gen.adoc
+
+# SVGs rendered from the .dot sources in src/code/ (CMS_buffer.svg is committed).
+src/code/homing.svg
+src/code/homing_es.svg
+src/code/hss.svg
+src/code/hss_es.svg
+src/code/task-state-transitions.svg
+src/code/task-state-transitions_es.svg
+
+# Troff manpages generated from .adoc by the asciidoctor manpage backend.
+man/man1/
+man/man3/
+man/man9/
+
+# po4a-translated man trees.
+man/ar/*
+man/bg/*
+man/ckb/*
+man/cs/*
+man/da/*
+man/de/*
+man/es/*
+man/fr/*
+man/hu/*
+man/it/*
+man/ka/*
+man/nb/*
+man/pl/*
+man/pt/*
+man/pt_BR/*
+man/ro/*
+man/ru/*
+man/sai/*
+man/sk/*
+man/sv/*
+man/tr/*
+man/uk/*
+man/vi/*
+man/zh_CN/*
