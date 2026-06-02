@@ -66,7 +66,7 @@ Just like a railroad, LinuxCNC requires everything on a very tight and consisten
 LinuxCNC requires and uses a 'real-time' operating system, which just means it has a low-latency (lateness) response time.
 When LinuxCNC requires and is performing calculations, it cannot be interrupted by lower priority requests (such as user input to screen buttons or drawing etc).
 
-Testing the latency is crucial and a key thing to check before proceeding further. Please follow the directions on the <<sub:install:sec:latency-test,Latency Test>> page before proceeding further.
+Testing the latency is crucial and a key thing to check before proceeding further. Please follow the directions on the <<sec:latency-test,Latency Test>> page before proceeding further.
 
 Now we are happy with the latency and must pick a servo period.
 In most cases a servo period of 1000000 ns is fine (that gives a 1 kHz servo calculation rate - 1000 calculations a second).

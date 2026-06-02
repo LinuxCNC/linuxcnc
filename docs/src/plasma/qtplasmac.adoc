@@ -2590,7 +2590,7 @@ If SLOW jogging is already active, the axis will jog at the displayed jog speed.
 === MDI
 
 In addition to the typical G and M codes that are allowed by LinuxCNC in MDI mode, the MDI in QtPlasmaC can be used to access several other handy features.
-The following link outlines the features and their use: <<sub:qtvcp:widgets:mdiline>>[MDILine Widget]
+The following link outlines the features and their use: <<sub:qtvcp:widgets:mdiline,MDILine Widget>>
 
 [NOTE]
 M3, M4, and M5 are not allowed in the QtPlasmaC MDI.
