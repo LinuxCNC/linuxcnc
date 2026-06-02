@@ -1073,6 +1073,8 @@ int Interp::init()
 
           // INI file g52/g92 offset persistence default setting
           _setup.disable_g92_persistence = inifile.findBoolV("DISABLE_G92_PERSISTENCE", "RS274NGC", false);
+          // INI file automatic reset to g54 on program stop default setting
+          _setup.disable_auto_g54 = inifile.findBoolV("DISABLE_AUTO_G54", "RS274NGC", false);
 
           // INI file m98/m99 subprogram default setting
           _setup.disable_fanuc_style_sub = inifile.findBoolV("DISABLE_FANUC_STYLE_SUB", "RS274NGC", false);
