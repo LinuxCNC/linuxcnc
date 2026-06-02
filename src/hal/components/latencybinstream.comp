@@ -101,8 +101,9 @@ EXTRA_SETUP() {
 	if (extra_arg < 0 || extra_arg >= MAX_INST || !keys[extra_arg])
 		return -EINVAL;
 	int err;
-	// The stream buffer should be able to contain one complete set of data
-	if (0 != (err = hal_stream_create(&fifo, comp_id, keys[extra_arg], 2*MAXBINNUMBER + 1 + 2, "u")))
+	// One complete set is 2*MAXBINNUMBER+1+2 records. The ring buffer's
+	// usable capacity is depth-1 (one slot reserved), so add 1 to fit it.
+	if (0 != (err = hal_stream_create(&fifo, comp_id, keys[extra_arg], 2*MAXBINNUMBER + 1 + 2 + 1, "u")))
 		return err;
 	// The other side should run hal_stream_attach(&fifo, comp_id, LBSKEY, "u")
 	return 0;
