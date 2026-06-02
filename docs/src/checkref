@@ -17,10 +17,28 @@ fi
 
 
 BAD_LINKS=0
+CHECKED=0
+SKIPPED=0
 for F in "$@"; do
     OUT=.checklink.$LANGUAGE.$(basename "$F").tmp
     rm -f "$OUT"
-    linuxcnc-checklink --quiet --exclude "(http|https|irc)://" "$F"  2>&1 | tee "$OUT"
+    # --follow-file-links is required: recent w3c-linkchecker refuses file://
+    # URIs by default, so without it checklink never inspects the local file
+    # and validates nothing.
+    linuxcnc-checklink --quiet --follow-file-links --exclude "(http|https|irc)://" "$F"  2>&1 | tee "$OUT"
+    STATUS=${PIPESTATUS[0]}
+    # Distinguish "checklink never inspected the file" from "checklink ran and
+    # found problems".  It exits 64 when it reports broken links, so a nonzero
+    # exit is not itself a failure; only a shell exec failure (126/127) or an
+    # explicit refusal to read the document means nothing was validated.
+    if [ "$STATUS" -eq 126 ] || [ "$STATUS" -eq 127 ] || \
+       grep -E -q "(Access to 'file' URIs has been disabled|checklink not configured)" "$OUT"; then
+        echo "*** warning: linuxcnc-checklink could not validate $(basename "$F"); skipped" 1>&2
+        SKIPPED=$((SKIPPED + 1))
+        rm -f "$OUT"
+        continue
+    fi
+    CHECKED=$((CHECKED + 1))
     if grep -E -q 'List of (broken links and other issues|duplicate and empty anchors)' "$OUT"; then
         BAD_LINKS=1
     fi
@@ -37,10 +55,22 @@ if [ $BAD_LINKS -eq 1 ]; then
     fi
     echo "***" 1>&2
     exit $RET_VAL
+elif [ $CHECKED -eq 0 ]; then
+    # Nothing validated: warn instead of claiming success, but do not fail
+    # the build (an unusable checklink is an environment problem).
+    echo "***" 1>&2
+    echo "*** warning: link checking skipped for $LANGUAGE docs;" 1>&2
+    echo "*** linuxcnc-checklink validated no files ($SKIPPED skipped)." 1>&2
+    echo "*** install w3c-linkchecker and re-run ./configure to enable it." 1>&2
+    echo "***" 1>&2
 else
     echo "###"
     echo "### language: $LANGUAGE"
-    echo "### all links are good!"
+    if [ $SKIPPED -gt 0 ]; then
+        echo "### checked links are good ($SKIPPED file(s) skipped)!"
+    else
+        echo "### all links are good!"
+    fi
     echo "###"
 fi
 
