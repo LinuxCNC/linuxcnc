@@ -27,7 +27,7 @@ man page is not installed but is accessible in the LinuxCNC main directory
 with the following command:
 
 ----
-$ man -M docs/man halcmd
+$ man -M docs/build/man halcmd
 ----
 
 === Notation

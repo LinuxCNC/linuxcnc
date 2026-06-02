@@ -44,11 +44,26 @@ DOC_SRCDIR=../docs/src
 #	docs/build/html/<lang>/pdf/LinuxCNC_*_<lang>.pdf
 #	docs/build/adoc/<lang>/...	# po4a-translated source tree
 #
-# Manpage troff stays at docs/man/ (input to docs build; also written by
-# halcompile and consumed by install-man).
+# Manpage troff is generated under build/, not committed to the source tree.
+# Written by halcompile and the docs build; consumed by install-man and the
+# run-in-place MANPATH.
+#
+# Layout follows the /usr/share/man hierarchy, NOT the build/html/<lang> and
+# build/adoc/<lang> convention used everywhere else in this tree:
+#
+#	docs/build/man/manN		# English (the C / default locale)
+#	docs/build/man/<lang>/manN	# translations, keyed by locale
+#
+# This asymmetry is deliberate.  man(1) resolves a MANPATH entry by locale,
+# reading <path>/<locale>/manN for a translation and falling back to
+# <path>/manN for the default locale; putting English under an en/ subdir
+# would break a plain `MANPATH=.../build/man` under LANG=C.  The cost is that
+# the English man tree is special-cased below (top-level manN, no en/ prefix),
+# unlike html/adoc which key every language including English under <lang>/.
 DOC_BUILD     := $(DOC_DIR)/build
 DOC_OUT_HTML  := $(DOC_BUILD)/html
 DOC_OUT_ADOC  := $(DOC_BUILD)/adoc
+DOC_MAN       := $(DOC_BUILD)/man
 # PDFs live under the html tree (docs/build/html/<lang>/pdf/) so the html
 # subtree is self-contained and can link them with relative paths.
 
@@ -59,13 +74,13 @@ ASCIIDOCTOR_DEFAULT_CSS := $(shell ruby -e 'require "asciidoctor"; print Asciido
 LANGUAGES := $(strip $(shell sed -e's/#.*//' < $(DOC_DIR)/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-))
 LANGUAGES_MATCH := $(shell echo $(LANGUAGES) | tr " " "|")
 
-GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
-GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.adoc, ../docs/man/%, $(wildcard ../docs/src/man/*/*.adoc))
+GENERATED_MANPAGES += $(DOC_MAN)/man1/linuxcnc.1
+GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.adoc, $(DOC_MAN)/%, $(wildcard ../docs/src/man/man?/*.adoc))
 
 MAN_SRCS = $(sort \
-	$(wildcard $(DOC_DIR)/man/man1/*.1) \
-	$(wildcard $(DOC_DIR)/man/man3/*.3) \
-	$(wildcard $(DOC_DIR)/man/man9/*.9) \
+	$(wildcard $(DOC_MAN)/man1/*.1) \
+	$(wildcard $(DOC_MAN)/man3/*.3) \
+	$(wildcard $(DOC_MAN)/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
 $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.in $(SRCDIR)/config.status
@@ -75,7 +90,7 @@ $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.a
 # linuxcnc.1 troff comes from the build-tree-generated .adoc above; the
 # generic pattern rule at the end of this file expects sources under
 # $(DOC_DIR)/src/man/, so override with an explicit rule.
-../docs/man/man1/linuxcnc.1: $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc
+$(DOC_MAN)/man1/linuxcnc.1: $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc
 	$(ECHO) Making manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)asciidoctor --doctype=manpage \
@@ -248,7 +263,7 @@ endef
 GENERATED_TRANSLATED = $(foreach l, $(LANGUAGES), \
 	$(DOC_OUT_ADOC)/$(l) \
 	$(DOC_OUT_HTML)/$(l) \
-	$(DOC_DIR)/man/$(l) \
+	$(DOC_MAN)/$(l) \
 )
 
 # Time how long po4a takes to run if the system has the `time` command
@@ -270,7 +285,7 @@ endif
 # auto-generated from the English manpages by gen_complist.py.  It must
 # exist before po4a is invoked, otherwise po4a aborts with "master file
 # does not exist".  gen_complist.py reads the manpage source list from
-# $(DOC_DIR)/man/, so changes to that set must invalidate the file --
+# $(DOC_MAN)/, so changes to that set must invalidate the file --
 # hence $(MAN_SRCS) as a real prereq (the script is content-stable via
 # write_if_changed, so re-running over the same set is a no-op for
 # mtime, which keeps downstream po4a from re-firing every build).
@@ -333,9 +348,14 @@ endif
 
 $(foreach L,en $(LANGUAGES),\
   $(eval DOC_SRCS_$(call toUC,$(L))_SMALL := \
-    $(filter-out Master_%,$(DOC_SRCS_$(call toUC,$(L))))))
+    $(filter-out Master_% man/% $(L)/man/%,$(DOC_SRCS_$(call toUC,$(L))))))
 
-DOC_SRCS_HTML = $(patsubst %.adoc, %.html, $(foreach p, $(DOC_SRCS), $(if $(findstring Master_, $(p)),, $p)))
+# Manpages are produced by the translated-manpage pipeline further
+# down (asciidoctor --doctype=manpage), not the generic adoc-to-html
+# rule.  Filter them out so DOC_TARGETS_HTML_<L> does not claim the
+# same html/<L>/man/... output paths.
+DOC_SRCS_HTML = $(patsubst %.adoc, %.html, $(foreach p, $(DOC_SRCS), \
+    $(if $(findstring Master_, $(p)),, $(if $(findstring /man/, /$(p)),, $(p)))))
 
 # Per-language HTML target lists.  English files have no lang/ prefix in
 # their source path; translated files already include $(L)/ in DOC_SRCS_$L.
@@ -349,7 +369,8 @@ $(foreach L,$(LANGUAGES), \
 	$(eval DOC_TARGETS_HTML_$(call toUC,$(L)) := \
 		$$(addprefix $(DOC_OUT_HTML)/, \
 		$$(patsubst %.adoc,%.html, \
-		$$(filter-out $(L)/Master_%, $$(DOC_SRCS_$(call toUC,$(L))))))))
+		$$(filter-out $(L)/Master_% $(L)/man/%, \
+		$$(DOC_SRCS_$(call toUC,$(L))))))))
 DOC_TARGETS_HTML = $(DOC_TARGETS_HTML_EN)
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 DOC_TARGETS_HTML += $(foreach L,$(LANGUAGES),$(DOC_TARGETS_HTML_$(call toUC,$(L))))
@@ -365,15 +386,22 @@ DOC_TARGETS_XML += $(foreach L,$(LANGUAGES),$(DOC_TARGETS_XML_$(call toUC,$(L)))
 endif
 
 # Manpage HTML.  English manpages live at docs/build/html/en/man/manN/X.html;
-# translated manpages mirror the layout under their own lang dir.
-MAN_HTML_TARGETS_EN := $(patsubst $(DOC_DIR)/man/%, $(DOC_OUT_HTML)/en/man/%.html, \
-	$(filter-out $(foreach L,$(LANGUAGES),$(DOC_DIR)/man/$(L)/%), $(MAN_SRCS)))
+# translated manpages mirror the layout under their own lang dir.  The
+# per-lang list is derived from po4a.cfg (authoritative source of which
+# manpages have a translated counterpart) rather than MAN_SRCS, which
+# would close a cycle through components_gen.adoc and over-include.
+MAN_HTML_TARGETS_EN := $(patsubst $(DOC_MAN)/%, $(DOC_OUT_HTML)/en/man/%.html, $(MAN_SRCS))
+PO4A_MANPAGE_STEMS := $(shell sed -ne 's|^\[type: AsciiDoc_def\] src/man/\([^ ]*\)\.adoc .*|\1|p' $(DOC_DIR)/po4a.cfg)
 $(foreach L,$(LANGUAGES), \
 	$(eval MAN_HTML_TARGETS_$(call toUC,$(L)) := \
-		$$(patsubst $(DOC_DIR)/man/$(L)/%, $(DOC_OUT_HTML)/$(L)/man/%.html, \
-		$$(filter $(DOC_DIR)/man/$(L)/%, $$(MAN_SRCS)))))
+		$$(addprefix $(DOC_OUT_HTML)/$(L)/man/, \
+		$$(addsuffix .html, $$(PO4A_MANPAGE_STEMS)))))
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 MAN_HTML_TARGETS = $(MAN_HTML_TARGETS_EN) \
 	$(foreach L,$(LANGUAGES),$(MAN_HTML_TARGETS_$(call toUC,$(L))))
+else
+MAN_HTML_TARGETS = $(MAN_HTML_TARGETS_EN)
+endif
 
 # PDFs live in their own subtree alongside html/ and adoc/ so the html
 # tree zips up cleanly without PDF bloat, matching the rest of the
@@ -421,7 +449,7 @@ clean: clean-manpages clean-translated
 clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
 	# Remove generated alias man pages too.
-	$(RM) $$(grep -lr '^\.so ' $(DOC_DIR)/man/man*)
+	$(RM) $$(grep -lr '^\.so ' $(DOC_MAN)/man*)
 clean-translated:
 	-$(RM) -r $(GENERATED_TRANSLATED)
 
@@ -553,7 +581,7 @@ $(DOC_DIR)/.checkref-%-stamp: $$(DOC_TARGETS_HTML_$$(call uc,$$*)) \
 	@touch $@
 
 
-MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
+MAN_SRCS_NOSO = $(patsubst $(DOC_MAN)/%,%, \
 			$(shell grep -s -L '^\.so ' $(MAN_SRCS)))
 
 PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
@@ -603,8 +631,8 @@ $(foreach L,$(LANGUAGES), \
 
 
 # Manpage HTML rule, parameterised over language tag (en / de / ...).  The
-# English bucket reads troff from docs/man/manN; translated buckets read
-# from docs/man/<lang>/manN.  cssrel is ../../../ for both: each output
+# English bucket reads troff from docs/build/man/manN; translated buckets read
+# from docs/build/man/<lang>/manN.  cssrel is ../../../ for both: each output
 # sits at docs/build/html/<lang>/man/manN/X.html (4 levels under html/).
 define MAN_HTML_RULE
 $(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html
@@ -648,9 +676,9 @@ $(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html
 			; \
 	fi;
 endef
-$(eval $(call MAN_HTML_RULE,en,$(DOC_DIR)/man,$(DOC_SRCDIR)))
+$(eval $(call MAN_HTML_RULE,en,$(DOC_MAN),$(DOC_SRCDIR)))
 $(foreach L,$(LANGUAGES), \
-	$(eval $(call MAN_HTML_RULE,$(L),$(DOC_DIR)/man/$(L),$(DOC_OUT_ADOC)/$(L))))
+	$(eval $(call MAN_HTML_RULE,$(L),$(DOC_MAN)/$(L),$(DOC_OUT_ADOC)/$(L))))
 
 #
 # This function appends a section to the "manpages" HTML fragment called
@@ -681,7 +709,7 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRC
 	$(call ADD_HTML_MANPAGES, 3, API: General,  $(filter-out $(DOC_OUT_HTML)/en/man/man3/hal%.html, $(filter-out $(DOC_OUT_HTML)/en/man/man3/rtapi%.html, $(filter-out $(DOC_OUT_HTML)/en/man/man3/hm2%.html, $(filter $(DOC_OUT_HTML)/en/man/man3/%.html, $(MAN_HTML_TARGETS_EN)))))) \
 	# now make sure all English manpages made it into the html index
 	FAIL=0; \
-	for F in $$(find $(DOC_DIR)/man/man* -maxdepth 2 -type f); do \
+	for F in $$(find $(DOC_MAN)/man* -maxdepth 2 -type f); do \
 		B=$$(basename $$F); \
 		if ! grep -q $$B $@; then \
 			FAIL=1; \
@@ -694,7 +722,7 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRC
 	done; \
 	if [ $$FAIL -ne 0 ]; then exit 1; fi
 	mkdir -p $(DOC_OUT_HTML)/en/man/man/images/
-	find $(DOC_DIR)/man -maxdepth 3 -name "*.png" ! -name "grohtml*" -exec mv {} "$(DOC_OUT_HTML)/en/man/man/images/" \;
+	find $(DOC_MAN) -maxdepth 3 -name "*.png" ! -name "grohtml*" -exec mv {} "$(DOC_OUT_HTML)/en/man/man/images/" \;
 
 $(DOC_OUT_HTML)/%/index.html: $(DOC_OUT_ADOC)/%/index.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
 	@mkdir -p $(dir $@)
@@ -1086,12 +1114,12 @@ docclean:
 	-rm -f $(DOTFILES:.dot=.svg)
 
 
-MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
-$(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
+MAN_DEPS := $(patsubst $(DOC_MAN)/%, depends/%.d, $(MAN_SRCS))
+$(MAN_DEPS): depends/%.d: $(DOC_MAN)/%
 	@echo Depending $(notdir $<)
 	@mkdir -p $(dir $@)
 	$(Q)echo -n "$(DOC_OUT_HTML)/en/man/$*.html: $<" > $@.tmp
-	$(Q)grep '^\.so ' $< | awk '{ if ($$2 ~ /\//) printf " \\\n\t$(DOC_DIR)/man/%s", $$2; else printf " \\\n\t$(DOC_DIR)/man/$(*D)/%s", $$2 }' >> $@.tmp
+	$(Q)grep '^\.so ' $< | awk '{ if ($$2 ~ /\//) printf " \\\n\t$(DOC_MAN)/%s", $$2; else printf " \\\n\t$(DOC_MAN)/$(*D)/%s", $$2 }' >> $@.tmp
 	$(Q)echo >> $@.tmp
 	$(Q)mv -f $@.tmp $@
 
@@ -1127,8 +1155,8 @@ manpages: $(GENERATED_MANPAGES)
 TARGETS += manpages
 
 # make manpages from all the asciidoc manpage-sources
-GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
-$(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
+GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_MAN)/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
+$(DOC_MAN)/%: $(DOC_DIR)/src/man/%.adoc
 	$(ECHO) Making manpage $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)asciidoctor --doctype=manpage \
@@ -1138,3 +1166,37 @@ $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \
 		$<
+
+# Translated manpages.  po4a writes per-lang adocs under
+# $(DOC_OUT_ADOC)/<L>/man/manN/X.adoc; generate troff under
+# $(DOC_MAN)/<L>/manN/X (the path MAN_HTML_RULE expects for translations,
+# alongside the English tree at $(DOC_MAN)/manN).  The MAN_HTML_TARGETS_<L>
+# list is already populated by the general logic earlier in this file once
+# GENERATED_MANPAGES carries the translated paths, so HTML generation reuses
+# MAN_HTML_RULE and avoids duplicate recipes.
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+define TRANSLATED_TROFF_RULE
+$$(DOC_MAN)/$1/%: $$(DOC_OUT_ADOC)/$1/man/%.adoc | $$(DOC_DIR)/.translateddocs-stamp
+	$$(ECHO) Making translated manpage $1 $$(notdir $$@)
+	@mkdir -p $$(dir $$@)
+	$$(Q)asciidoctor --doctype=manpage \
+		--backend=manpage \
+		--destination-dir="$$(dir $$@)" \
+		-a compat-mode \
+		-a mansource=LinuxCNC \
+		-a manmanual='LinuxCNC Documentation' \
+		$$<
+endef
+$(foreach L,$(LANGUAGES),$(eval $(call TRANSLATED_TROFF_RULE,$(L))))
+
+# Wire translated manpages into `docs` only (not `manpages`).  Pulling
+# them into `manpages` would create a cycle: the troff rule's order-only
+# dep on .translateddocs-stamp resolves through po4a -> manpages, and
+# adding the translated manpages back to that node closes the loop.
+TRANSLATED_MAN_HTML_TARGETS := $(foreach L,$(LANGUAGES),$(MAN_HTML_TARGETS_$(call toUC,$(L))))
+TRANSLATED_GENERATED_MANPAGES := $(foreach L,$(LANGUAGES), \
+    $(patsubst $(DOC_OUT_ADOC)/$(L)/man/%.adoc, $(DOC_MAN)/$(L)/%, \
+        $(wildcard $(DOC_OUT_ADOC)/$(L)/man/man?/*.adoc)))
+docs: $(TRANSLATED_MAN_HTML_TARGETS)
+.SECONDARY: $(TRANSLATED_MAN_HTML_TARGETS) $(TRANSLATED_GENERATED_MANPAGES)
+endif

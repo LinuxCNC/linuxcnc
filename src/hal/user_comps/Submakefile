@@ -2,7 +2,7 @@ USER_COMP_PY = pyvcp hal_input gladevcp scorbot-er-3 mitsub_vfd pmx485 sim-torch
 
 USER_COMPS := $(sort $(wildcard hal/user_comps/*.comp))
 USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMPS))
-USER_COMP_MANPAGES := $(patsubst hal/user_comps/%.comp, ../docs/man/man1/%.1, $(USER_COMPS))
+USER_COMP_MANPAGES := $(patsubst hal/user_comps/%.comp, ../docs/build/man/man1/%.1, $(USER_COMPS))
 USER_COMP_SRCS := $(patsubst %.comp, objects/%.c, $(USER_COMPS))
 GENERATED_MANPAGES += $(USER_COMP_MANPAGES)
 USERSRCS += $(USER_COMP_SRCS)
@@ -86,7 +86,7 @@ USERSRCS += $(SENDKEYS_SRC)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/sendkeys
 
-$(USER_COMP_MANPAGES): ../docs/man/man1/%.1: hal/user_comps/%.comp ../bin/halcompile
+$(USER_COMP_MANPAGES): ../docs/build/man/man1/%.1: hal/user_comps/%.comp ../bin/halcompile
 	$(ECHO) Making halcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@) objects/man/man1
 	$(Q)../bin/halcompile -U --userspace --document --keep-adoc=$@.adoc -o $@ $<

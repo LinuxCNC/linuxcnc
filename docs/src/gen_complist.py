@@ -22,9 +22,9 @@ def write_if_changed(path, content):
         f.write(content)
     return True
 
-man1_path = '../docs/man/man1'
+man1_path = '../docs/build/man/man1'
 man1_files = {f for f in os.listdir(man1_path) if f[0] != '.' and os.path.isfile(os.path.join(man1_path, f))}
-man9_path = '../docs/man/man9'
+man9_path = '../docs/build/man/man9'
 man9_files = {f for f in os.listdir(man9_path) if f[0] != '.' and os.path.isfile(os.path.join(man9_path, f))}
 man_files = man1_files.union(man9_files)
 complist_doc = set()
@@ -58,7 +58,7 @@ def add_links(lines, add_descr):
                     line = line.replace(comp_man, 'link:../man/man'+man+'/'+comp_man+'.html['+comp+']', 1)
                     if add_descr:
                         splitted = line.split('|')
-                        splitted[2] = extract_descr('../docs/man/man'+man+'/'+comp_man)\
+                        splitted[2] = extract_descr('../docs/build/man/man'+man+'/'+comp_man)\
                             .replace(comp + ' ', ' ', 1).strip('\n -')
                         line = '|'.join(splitted)
         result.append(line)

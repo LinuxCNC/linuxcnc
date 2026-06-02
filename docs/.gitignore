@@ -18,34 +18,3 @@ src/code/hss.svg
 src/code/hss_es.svg
 src/code/task-state-transitions.svg
 src/code/task-state-transitions_es.svg
-
-# Troff manpages generated from .adoc by the asciidoctor manpage backend.
-man/man1/
-man/man3/
-man/man9/
-
-# po4a-translated man trees.
-man/ar/*
-man/bg/*
-man/ckb/*
-man/cs/*
-man/da/*
-man/de/*
-man/es/*
-man/fr/*
-man/hu/*
-man/it/*
-man/ka/*
-man/nb/*
-man/pl/*
-man/pt/*
-man/pt_BR/*
-man/ro/*
-man/ru/*
-man/sai/*
-man/sk/*
-man/sv/*
-man/tr/*
-man/uk/*
-man/vi/*
-man/zh_CN/*
