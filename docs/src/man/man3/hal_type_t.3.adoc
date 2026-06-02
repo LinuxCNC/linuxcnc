@@ -27,7 +27,7 @@ typedef ... *real_t*;::
 typedef ... *ireal_t*;::
   A nonvolatile unsigned integral type the same size as *hal_float_t*.
 typedef enum *hal_type_t*;::
-  +
+  
   *HAL_BIT*;;
     Corresponds to the type *hal_bit_t*.
   *HAL_FLOAT*;;
@@ -43,10 +43,8 @@ typedef enum *hal_type_t*;::
 larger than just 0 and 1. When testing the value of a *hal_bit_t*, never
 compare it to 1. Prefer one of the following:
 
-____
 * if(b)
 * if(b != 0)
-____
 
 It is often useful to refer to a type that can represent all the values
 as a HAL type, but without the volatile qualifier. The following types

@@ -100,6 +100,7 @@ module LinuxCNCDocs
           if abs
             node.set_attr('target', pdf ? abs : swapped)
             apply_default_width(node) if pdf
+            apply_default_alignment(node) if pdf
             return
           end
         end
@@ -112,6 +113,7 @@ module LinuxCNCDocs
       return unless abs
       node.set_attr('target', abs)
       apply_default_width(node)
+      apply_default_alignment(node) if pdf
     end
 
     # Rewrite an `*_en.<ext>` filename to `*_<lang>.<ext>`.  The check
@@ -206,6 +208,13 @@ module LinuxCNCDocs
       return if node.attr('scaledwidth')
       return if node.attr('width')
       node.set_attr('pdfwidth', '75%')
+    end
+  
+    # center images by default if no alignmen is given
+    def apply_default_alignment(node)
+      return if node.context == :inline_image
+      return if node.attr('align')
+      node.set_attr('align', 'center')
     end
 
     def resolve_extension(path)

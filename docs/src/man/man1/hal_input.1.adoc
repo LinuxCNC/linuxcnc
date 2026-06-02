@@ -57,9 +57,8 @@ with a dash. Each letter in the subset option specifies a device feature
 to *include*. Features that are not specified are excluded. For
 instance, to export keyboard LEDs to HAL without exporting keys, use
 
-____
-hal_input -L _keyboard_ ...
-____
+`hal_input -L keyboard ...`
+
 
 == DEVICE FEATURES SUPPORTED
 

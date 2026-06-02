@@ -22,7 +22,6 @@ VFD-B must be reconfigured via the face plate by the integrator before
 it will work. This section gives a brief description of what changes
 need to be made, consult your Delta VFD-B manual for more details.
 
-____
 Switch the VFD-B to Modbus RTU frame format::
   Switch parameter 09-04 from the factory default of 0 (Ascii framing) to 3, 4, or 5 (RTU framing).
   The setting you choose will determine several serial parameters in addition to the Modbus framing protocol.
@@ -30,7 +29,6 @@ Set the frequency control source to be Modbus, not the keypad::
   Switch parameter 02-00 from factory default of 00 (keypad control) to 5 (control from RS-485).
 Set the run/stop control source to be Modbus, not the keypad:: Switch parameter 02-01 from the factory default of 0 (control from
   keypad) to 3 (control from Modbus, with Stop enabled on the keypad).
-____
 
 == OPTIONS
 

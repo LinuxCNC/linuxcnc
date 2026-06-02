@@ -9,11 +9,10 @@ Anything IO board with HostMot2 firmware.
 
 **loadrt hm2_7i43 [ ioaddr=**__N__[,_N_...] ] [ **ioaddr_hi=**__N__[,_N_...] ] [ **epp_wide=**__N__[,_N_...] ] [ pass:[<strong>config=&quot;</strong>]__str[,str...]pass:[<strong>&quot;</strong>] ] [**debug_epp=**__N__[,_N_...] ]
 
-____
 *ioaddr* [default: 0 (parport0)]::
   The base address of the parallel port.
-
-The number of ioaddr indexes/addresses given is used by the driver to
+  +
+  The number of ioaddr indexes/addresses given is used by the driver to
 determine how many boards to search for.
 
 *ioaddr_hi* [default: 0]::
@@ -27,7 +26,6 @@ determine how many boards to search for.
   HostMot2 config strings, described in the hostmot2(9) manpage.
 *debug_epp* [default: 0]::
   Developer/debug use only! Enable debug logging of most EPP transfers.
-____
 
 == DESCRIPTION
 

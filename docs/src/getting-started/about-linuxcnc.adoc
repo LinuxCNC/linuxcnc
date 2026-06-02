@@ -48,7 +48,7 @@ LinuxCNC expects G-code that if not entered manually is provided by another soft
 == Architecture - Context diagram
 
 .Roles of operators, integrators, developers and hardware
-image::images/LCNC_Architecture_C1.drawio.svg["LinuxCNC Architecture - Context diagram",align="center"]
+image::images/LCNC_Architecture_C1.drawio.svg["LinuxCNC Architecture - Context diagram",align="center",pdfwidth=100%]
 
 The diagram presents the components and players of the LinuxCNC ecosystem and how they interact. It is not intended to help you understand the functionality of LinuxCNC. Please refer to the following chapters for this.
 
