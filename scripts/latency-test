@@ -20,6 +20,11 @@ icalc() { awk "BEGIN { printf \"%.0f\n\", ($1); }" < /dev/null; }
 # unprivileged: realtime threads get no SCHED_FIFO and no locked memory, so the
 # latency readings are wildly inflated.  Warn rather than mislead.
 check_rt_privileges () {
+    # only meaningful on an RT-capable kernel; stay quiet on non-RT (e.g. dev)
+    case "$(uname -v) $(uname -r)" in
+        *PREEMPT_RT*|*rtai*) ;;
+        *) return 0 ;;
+    esac
     [ "$(id -u)" = 0 ] && return 0          # root has every privilege
     rtapi_app=$(command -v rtapi_app) || return 0
     [ -n "$rtapi_app" ] || return 0
