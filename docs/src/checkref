@@ -25,7 +25,11 @@ for F in "$@"; do
     # --follow-file-links is required: recent w3c-linkchecker refuses file://
     # URIs by default, so without it checklink never inspects the local file
     # and validates nothing.
-    linuxcnc-checklink --quiet --follow-file-links --exclude "(http|https|irc)://" "$F"  2>&1 | tee "$OUT"
+    #
+    # Drop checklink's own "uninitialized value ... checklink line N" Perl
+    # noise (not link results).  checklink stays first, so PIPESTATUS[0] holds.
+    linuxcnc-checklink --quiet --follow-file-links --exclude "(http|https|irc)://" "$F" 2>&1 \
+        | grep -vE 'Use of uninitialized value .* at .*checklink line [0-9]+' | tee "$OUT"
     STATUS=${PIPESTATUS[0]}
     # Distinguish "checklink never inspected the file" from "checklink ran and
     # found problems".  It exits 64 when it reports broken links, so a nonzero
