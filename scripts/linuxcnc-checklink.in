@@ -1,2 +1,5 @@
 #!/bin/sh
-exec "@CHECKLINK@" "$@"
+# Fail clearly if configure left @CHECKLINK@ empty, rather than with the
+# cryptic "exec: : Permission denied".
+CHECKLINK="@CHECKLINK@"
+exec "${CHECKLINK:?checklink not configured; install w3c-linkchecker and re-run ./configure}" "$@"
