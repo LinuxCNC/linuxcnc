@@ -683,10 +683,10 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         l.addWidget(bBox)
         self.setLayout(l)
 
-        try:
-            self.next(t)
-        except Exception as e:
-                t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+        # Load the first help page lazily (on first show): pre-scaling its
+        # images at construction can hang or crash qtvcp headless.
+        self._helpText = t
+        self._helpLoaded = False
 
     def _set_scaled_html(self, t, html):
         # QTextEdit scales raster images with a nearest-neighbour filter, which
@@ -757,6 +757,12 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         super(HelpDialog, self).close()
 
     def showDialog(self):
+        if not self._helpLoaded:
+            try:
+                self.next(self._helpText)
+            except Exception as e:
+                self._helpText.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+            self._helpLoaded = True
         self.setWindowTitle(self._title);
         self.set_geometry()
         retval = self.exec()
