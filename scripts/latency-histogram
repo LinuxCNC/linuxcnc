@@ -111,6 +111,26 @@ proc which_exe {name} {
   return -code error "$name: executable not found"
 } ;# which_exe
 
+proc check_rt_privileges {} {
+  # Without 'sudo make setuid' (or 'sudo make setcap') rtapi_app runs
+  # unprivileged: realtime threads get no SCHED_FIFO and no locked memory, so
+  # the latency readings are wildly inflated.  Warn rather than mislead.
+  if {![catch {exec id -u} uid] && $uid == 0} return ;# root has every privilege
+  if {[catch {which_exe rtapi_app} rtapi]} return ;# cannot locate, stay quiet
+  if {![catch {file attributes $rtapi -permissions} mode] && ($mode & 04000)} return ;# setuid root
+  if {![catch {exec getcap $rtapi} caps] && [string match *cap_sys_nice* $caps]} return ;# file caps
+  set msg "Warning: rtapi_app is not setuid root and has no realtime capabilities."
+  append msg "\nRealtime threads get no SCHED_FIFO priority or locked memory,"
+  append msg "\nso the latency shown will be far worse than reality."
+  append msg "\nRun 'sudo make setuid' (or 'sudo make setcap') in src/."
+  puts stderr $msg
+  if {$::LH(use_x)} {
+    package require Tk
+    tk_messageBox -parent . -icon warning -type ok \
+        -title "Latency Warning" -message $msg
+  }
+} ;# check_rt_privileges
+
 proc program_check {plist} {
   foreach prog $plist {
     if [catch {
@@ -972,6 +992,7 @@ proc windowToFile { win } {
 if ![info exists ::LH(start)] {
   set_defaults
   config
+  check_rt_privileges
   progress "Loading packages"
   load_packages
   signal trap SIGINT finish
