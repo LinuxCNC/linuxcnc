@@ -121,9 +121,10 @@ EXTRA_SETUP() {
         return -EINVAL;
 
     int err;
-    // The stream buffer should be able to contain one complete set of data:
-    // the negative tail, every bin and the positive tail.
-    if (0 != (err = hal_stream_create(&fifo, comp_id, keys[extra_arg], MAXBINNUMBER + 2, "u")))
+    // One complete set is MAXBINNUMBER+2 records: the negative tail, every
+    // bin and the positive tail. The ring buffer's usable capacity is depth-1
+    // (one slot reserved), so add 1 to fit it.
+    if (0 != (err = hal_stream_create(&fifo, comp_id, keys[extra_arg], MAXBINNUMBER + 2 + 1, "u")))
         return err;
     // The other side should run hal_stream_attach(&fifo, comp_id, key, "u")
     return 0;
