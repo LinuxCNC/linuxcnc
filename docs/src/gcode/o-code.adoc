@@ -17,6 +17,7 @@ O-codes are also sometimes called o-words and these terms are interchangeable.
 Using the lower case 'o' makes it easier to distinguish from a 0 that might have been mistyped.
 For example 'o100' is easier to see than 'O100' that it is not a '0'.
 
+[[ocode:numbering]]
 == Numbering
 
 There are two categories of o-codes with different scoping rules:
@@ -80,7 +81,7 @@ change in the future.
 The behavior is undefined if:
 
 * The same number is used for more than one block within the same scope
-  (see <<Numbering>> for scoping rules).
+  (see <<ocode:numbering>> for scoping rules).
 * Other words are used on a line with an o-word.
 * Comments are used on a line with an o-word.
 

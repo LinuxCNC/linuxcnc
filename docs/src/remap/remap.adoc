@@ -172,7 +172,6 @@ When done, redefine the existing code to use your remapping setup.
 Let's assume the new code will be defined by an NGC procedure, and needs some parameters, some of which might be required, others might be optional.
 We have the following options to feed values to the procedure:
 
-// . <<remap:extracting-words,extracting words from the current block>>
 . Extracting words from the current block and pass them to the procedure as parameters (like `X22.34` or `P47`),
 . referring to <<gcode:ini-hal-params,INI file variables>>,
 . referring to global variables (like `#2200 = 47.11` or `#<_global_param> = 315.2`).
