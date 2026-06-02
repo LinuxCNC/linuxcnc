@@ -32,6 +32,26 @@ SRCDIR=../src
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
+# Unified output tree.  All asciidoctor-generated artefacts (HTML, PDF,
+# po4a-translated .adoc) live under DOC_BUILD so the source tree stays
+# clean and the rendered docs can be tarballed or rsynced as one unit.
+#
+#	docs/build/html/index.html	# static redirect -> en/index.html
+#	docs/build/html/{asciidoctor,rouge-github,lcnc-overrides}.css
+#	docs/build/html/<lang>/index.html
+#	docs/build/html/<lang>/<topic>/<page>.html
+#	docs/build/html/<lang>/man/manN/<page>.html
+#	docs/build/html/<lang>/pdf/LinuxCNC_*_<lang>.pdf
+#	docs/build/adoc/<lang>/...	# po4a-translated source tree
+#
+# Manpage troff stays at docs/man/ (input to docs build; also written by
+# halcompile and consumed by install-man / mandb).
+DOC_BUILD     := $(DOC_DIR)/build
+DOC_OUT_HTML  := $(DOC_BUILD)/html
+DOC_OUT_ADOC  := $(DOC_BUILD)/adoc
+# PDFs live under the html tree (docs/build/html/<lang>/pdf/) so the html
+# subtree is self-contained and can link them with relative paths.
+
 ASCIIDOCTOR_DEFAULT_CSS := $(shell ruby -e 'require "asciidoctor"; print Asciidoctor::DATA_DIR' 2>/dev/null)/stylesheets/asciidoctor-default.css
 
 # The following line determines for the Makefile what languages should be addressed.
@@ -48,10 +68,23 @@ MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
-$(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.in $(SRCDIR)/config.status
+$(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.in $(SRCDIR)/config.status
+	@mkdir -p $(@D)
 	$(SRCDIR)/config.status --file=$@:$<
 
-../docs/man/man1/linuxcnc.1: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc
+# linuxcnc.1 troff comes from the build-tree-generated .adoc above; the
+# generic pattern rule at the end of this file expects sources under
+# $(DOC_DIR)/src/man/, so override with an explicit rule.
+../docs/man/man1/linuxcnc.1: $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc
+	$(ECHO) Making manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)asciidoctor --doctype=manpage \
+		--backend=manpage \
+		--destination-dir="$(dir $@)" \
+		-a compat-mode \
+		-a mansource=LinuxCNC \
+		-a manmanual='LinuxCNC Documentation' \
+		$<
 
 info::
 	@echo "I: Expecting the following languages: $(LANGUAGES)"
@@ -221,9 +254,8 @@ unknown))))))))))))
 endef
 
 GENERATED_TRANSLATED = $(foreach l, $(LANGUAGES), \
-	$(DOC_SRCDIR)/$(l) \
-	$(DOC_DIR)/help/$(l) \
-	$(DOC_DIR)/html/$(l) \
+	$(DOC_OUT_ADOC)/$(l) \
+	$(DOC_OUT_HTML)/$(l) \
 	$(DOC_DIR)/man/$(l) \
 )
 
@@ -292,10 +324,10 @@ postatus::
 # fragility), and it does not include English-only sources like
 # drivers/mesa_modbus.adoc that are absent from the translation pipeline.
 TRANSLATED_DOC_SRCS := $(shell sed -nE 's|^\[type: AsciiDoc_def\] src/([^ ]+).*|\1|p' \
-    $(DOC_DIR)/po4a.cfg)
+	$(DOC_DIR)/po4a.cfg)
 $(foreach L,$(LANGUAGES),\
   $(eval DOC_SRCS_$(call toUC,$(L)) := \
-    $$(addprefix $(L)/,$$(TRANSLATED_DOC_SRCS))))
+	$$(addprefix $(L)/,$$(TRANSLATED_DOC_SRCS))))
 
 # Define combined DOC_SRCS from all languages.  Translated sources are
 # only pulled in when BUILD_DOCS_TRANSLATED=yes; otherwise the HTML / PDF
@@ -312,39 +344,59 @@ $(foreach L,en $(LANGUAGES),\
     $(filter-out Master_%,$(DOC_SRCS_$(call toUC,$(L))))))
 
 DOC_SRCS_HTML = $(patsubst %.adoc, %.html, $(foreach p, $(DOC_SRCS), $(if $(findstring Master_, $(p)),, $p)))
-DOC_TARGETS_HTML = $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML))
-DOC_TARGETS_XML = $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
-# Per-language slices of DOC_TARGETS_XML / DOC_TARGETS_HTML, derived
-# from $(LANGUAGES) (which comes from po4a.cfg).  English is whatever
-# is left after every translated subtree is filtered out.
-$(foreach L,$(LANGUAGES),\
-  $(eval DOC_TARGETS_XML_$(call toUC,$(L)) = \
-    $$(foreach p,$$(DOC_TARGETS_XML),$$(if $$(findstring /$(L)/,$$(p)),$$(p)))))
-DOC_TARGETS_XML_EN = $(filter-out \
-    $(foreach L,$(LANGUAGES),$(DOC_TARGETS_XML_$(call toUC,$(L)))), \
-    $(DOC_TARGETS_XML))
+# Per-language HTML target lists.  English files have no lang/ prefix in
+# their source path; translated files already include $(L)/ in DOC_SRCS_$L.
+# The English bucket gets an explicit en/ prefix so every language lives
+# under its own subtree under $(DOC_OUT_HTML).
+DOC_TARGETS_HTML_EN := $(addprefix $(DOC_OUT_HTML)/en/, \
+	$(filter-out $(foreach L,$(LANGUAGES),$(L)/%), \
+	$(patsubst %.adoc,%.html, \
+	$(filter-out Master_%, $(DOC_SRCS_EN)))))
+$(foreach L,$(LANGUAGES), \
+	$(eval DOC_TARGETS_HTML_$(call toUC,$(L)) := \
+		$$(addprefix $(DOC_OUT_HTML)/, \
+		$$(patsubst %.adoc,%.html, \
+		$$(filter-out $(L)/Master_%, $$(DOC_SRCS_$(call toUC,$(L))))))))
+DOC_TARGETS_HTML = $(DOC_TARGETS_HTML_EN)
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+DOC_TARGETS_HTML += $(foreach L,$(LANGUAGES),$(DOC_TARGETS_HTML_$(call toUC,$(L))))
+endif
 
-$(foreach L,$(LANGUAGES),\
-  $(eval DOC_TARGETS_HTML_$(call toUC,$(L)) = \
-    $$(foreach p,$$(DOC_TARGETS_HTML),$$(if $$(findstring /$(L)/,$$(p)),$$(p)))))
-DOC_TARGETS_HTML_EN = $(filter-out \
-    $(foreach L,$(LANGUAGES),$(DOC_TARGETS_HTML_$(call toUC,$(L)))), \
-    $(DOC_TARGETS_HTML))
+DOC_TARGETS_XML_EN = $(patsubst $(DOC_OUT_HTML)/en/%.html, objects/%.xml, $(DOC_TARGETS_HTML_EN))
+$(foreach L,$(LANGUAGES), \
+	$(eval DOC_TARGETS_XML_$(call toUC,$(L)) = \
+		$$(patsubst $(DOC_OUT_HTML)/%.html, objects/%.xml, $$(DOC_TARGETS_HTML_$(call toUC,$(L))))))
+DOC_TARGETS_XML = $(DOC_TARGETS_XML_EN)
+ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+DOC_TARGETS_XML += $(foreach L,$(LANGUAGES),$(DOC_TARGETS_XML_$(call toUC,$(L))))
+endif
 
-MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
+# Manpage HTML.  English manpages live at docs/build/html/en/man/manN/X.html;
+# translated manpages mirror the layout under their own lang dir.
+MAN_HTML_TARGETS_EN := $(patsubst $(DOC_DIR)/man/%, $(DOC_OUT_HTML)/en/man/%.html, \
+	$(filter-out $(foreach L,$(LANGUAGES),$(DOC_DIR)/man/$(L)/%), $(MAN_SRCS)))
+$(foreach L,$(LANGUAGES), \
+	$(eval MAN_HTML_TARGETS_$(call toUC,$(L)) := \
+		$$(patsubst $(DOC_DIR)/man/$(L)/%, $(DOC_OUT_HTML)/$(L)/man/%.html, \
+		$$(filter $(DOC_DIR)/man/$(L)/%, $$(MAN_SRCS)))))
+MAN_HTML_TARGETS = $(MAN_HTML_TARGETS_EN) \
+	$(foreach L,$(LANGUAGES),$(MAN_HTML_TARGETS_$(call toUC,$(L))))
 
-PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
-        $(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_EN))))\
-        LinuxCNC_Manual_Pages.pdf \
-        ) \
+# PDFs live in their own subtree alongside html/ and adoc/ so the html
+# tree zips up cleanly without PDF bloat, matching the rest of the
+# docs/build/ layout convention.
+PDF_TARGETS_EN := $(addprefix $(DOC_OUT_HTML)/en/pdf/, \
+	$(patsubst %.adoc,%_en.pdf, \
+	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_EN)))) \
+	LinuxCNC_Manual_Pages_en.pdf)
 
-# Per-language PDF target lists, derived from $(LANGUAGES).
-$(foreach L,$(LANGUAGES),\
-  $(eval PDF_TARGETS_$(call toUC,$(L)) = \
-    $$(addprefix $$(DOC_DIR)/, $$(subst $(L)/,, \
-      $$(patsubst %.adoc,%_$(L).pdf, \
-      $$(subst Master_,LinuxCNC_, $$(filter $(L)/Master_%,$$(DOC_SRCS_$(call toUC,$(L))))))))))
+$(foreach L,$(LANGUAGES), \
+	$(eval PDF_TARGETS_$(call toUC,$(L)) = \
+		$$(addprefix $(DOC_OUT_HTML)/$(L)/pdf/, \
+		$$(subst $(L)/,, \
+		$$(patsubst %.adoc,%_$(L).pdf, \
+		$$(subst Master_,LinuxCNC_, $$(filter $(L)/Master_%,$$(DOC_SRCS_$(call toUC,$(L))))))))))
 
 PDF_TARGETS = $(PDF_TARGETS_EN)
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
@@ -360,10 +412,11 @@ info::
 HTML_TARGETS = \
 	$(DOC_TARGETS_HTML) \
 	$(MAN_HTML_TARGETS) \
-	$(DOC_DIR)/html/index.html \
-	$(sort $(patsubst $(DOC_SRCDIR)/index_%.tmpl, \
-		$(DOC_DIR)/html/%/index.html, \
-		$(wildcard $(DOC_DIR)/src/index_*.tmpl)))
+	$(DOC_OUT_HTML)/index.html \
+	$(DOC_OUT_HTML)/en/index.html \
+	$(sort $(patsubst $(DOC_OUT_ADOC)/%/index.tmpl, \
+		$(DOC_OUT_HTML)/%/index.html, \
+		$(wildcard $(DOC_OUT_ADOC)/*/index.tmpl)))
 
 ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.adoc, depends/%.d, $(DOC_SRCS))
@@ -395,8 +448,23 @@ docs: htmldocs
 install-doc: install-doc-html
 endif
 
-pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
-	../scripts/make-docs-pdf-index
+# debian/linuxcnc-doc-en.docs installs docs/build/html/en/gcode.html, so the
+# English gcode reference must land in the build tree even when only PDF docs
+# are enabled (debian/configure passes --enable-build-documentation=pdf, so
+# .copy-asciidoc-stamp -- which lives under htmldocs -- does not fire).
+docs: $(DOC_OUT_HTML)/en/gcode.html
+$(DOC_OUT_HTML)/en/gcode.html: $(DOC_SRCDIR)/gcode.html
+	@mkdir -p $(@D)
+	cp -f $< $@
+
+pdfdocs: svgs_made_from_dots $(PDF_TARGETS) $(DOC_OUT_HTML)/pdf/index.html
+
+# Flat aggregate of every language's PDF (hardlinks) plus a listing, so the
+# legacy flat /pdf/ URL keeps working next to the per-language html/<lang>/pdf/
+# trees.  Real file target so a no-op second build does not re-fire the script.
+$(DOC_OUT_HTML)/pdf/index.html: $(PDF_TARGETS) ../scripts/make-docs-pdf-index
+	@mkdir -p $(dir $@)
+	$(Q)../scripts/make-docs-pdf-index
 
 htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 
@@ -408,8 +476,8 @@ htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 # when depends/%.d is evaluated on a fresh tree) without rebuilding them
 # every time translateddocs ticks.
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
-TRANSLATED_ADOC_TARGETS := $(addprefix $(DOC_SRCDIR)/, \
-    $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS)))
+TRANSLATED_ADOC_TARGETS := $(addprefix $(DOC_OUT_ADOC)/, \
+	$(filter-out $(DOC_SRCS_EN), $(DOC_SRCS)))
 $(TRANSLATED_ADOC_TARGETS): | translateddocs ;
 endif
 
@@ -417,16 +485,29 @@ endif
 # gen_complist aliases: a phony prereq is always "newer", so naming them
 # re-touched .htmldoc-stamp every run, dragging checkref and the css copy
 # with it.  The stamps fire only when their real inputs change.
-.htmldoc-stamp: .copy-asciidoc-stamp $(DOC_DIR)/.gen_complist-stamp $(HTML_TARGETS) .images-stamp .include-stamp $(DOC_DIR)/html/asciidoctor.css $(DOC_DIR)/html/rouge-github.css
+.htmldoc-stamp: .copy-asciidoc-stamp $(DOC_DIR)/.gen_complist-stamp $(HTML_TARGETS) .images-stamp .include-stamp $(DOC_OUT_HTML)/asciidoctor.css $(DOC_OUT_HTML)/rouge-github.css
 	touch $@
 
-# Stamp-gated css/js copy; copy_asciidoc_files stays as a phony alias.
+# Shared assets at the top of the html tree.  Index templates and the
+# asciidoctor docinfo reference them via ../ relative paths so we ship
+# one copy regardless of how many languages render.  gcode.html is NOT
+# shared: po4a translates it per-language and the per-lang index links
+# to its sibling gcode.html.
+SHARED_HTML_ASSETS = \
+	$(DOC_SRCDIR)/lcnc-overrides.css \
+	$(DOC_SRCDIR)/index.css \
+	$(DOC_SRCDIR)/linuxcnc-logo-chips.png
+
+# Stamp-gated asset copy; copy_asciidoc_files stays as a phony alias.
+# The en/gcode.html copy lives in its own rule above so it fires for PDF-only
+# builds as well; .copy-asciidoc-stamp depends on it for HTML builds.
 copy_asciidoc_files: .copy-asciidoc-stamp
-.copy-asciidoc-stamp: $(wildcard /etc/asciidoc/stylesheets/*.css) $(wildcard /etc/asciidoc/javascripts/*.js) $(DOC_SRCDIR)/lcnc-overrides.css
-	if test -n "$^"; then cp -f $^ $(DOC_DIR)/html ; fi
+.copy-asciidoc-stamp: $(SHARED_HTML_ASSETS) $(DOC_OUT_HTML)/en/gcode.html
+	@mkdir -p $(DOC_OUT_HTML)
+	cp -f $(SHARED_HTML_ASSETS) $(DOC_OUT_HTML)
 	@touch $@
 
-$(DOC_DIR)/html/asciidoctor.css: $(ASCIIDOCTOR_DEFAULT_CSS)
+$(DOC_OUT_HTML)/asciidoctor.css: $(ASCIIDOCTOR_DEFAULT_CSS)
 	@mkdir -p $(dir $@)
 	cp -f $< $@
 
@@ -435,25 +516,9 @@ $(DOC_DIR)/html/asciidoctor.css: $(ASCIIDOCTOR_DEFAULT_CSS)
 # the file when -a copycss! is set.  Render the theme via the Rouge API
 # so the spans asciidoctor emits get coloured.  Combine light + dark
 # variants (dark gated on prefers-color-scheme) into one file.
-$(DOC_DIR)/html/rouge-github.css:
+$(DOC_OUT_HTML)/rouge-github.css: $(DOC_SRCDIR)/render-rouge-css.rb
 	@mkdir -p $(dir $@)
-	ruby -e ' \
-	  require "rouge"; \
-	  t = Rouge::Themes::Github; \
-	  if t.respond_to?(:light!) && t.respond_to?(:dark!); \
-	    t.light!; \
-	    puts t.new(scope: ".rouge").render; \
-	    puts "@media (prefers-color-scheme: dark) {"; \
-	    t.dark!; \
-	    puts t.new(scope: ".rouge").render; \
-	    puts "}"; \
-	  else \
-	    warn "rouge does not support theme modes (Rouge::Themes::Github.light!); dark mode code highlighting will use Monokai"; \
-	    puts t.new(scope: ".rouge").render; \
-	    puts "@media (prefers-color-scheme: dark) {"; \
-	    puts Rouge::Themes::Monokai.new(scope: ".rouge").render; \
-	    puts "}"; \
-	  end' > $@
+	ruby $< > $@
 
 # Stamp-file gate.  The phony alias was running the python script on
 # every build, rewriting components_gen.adoc with a fresh mtime, which
@@ -467,7 +532,7 @@ $(DOC_DIR)/html/rouge-github.css:
 # bumping mtime past .pot and re-triggering po4a on the next build.
 # Broken-link validation against generated HTML is checkref's job.
 $(DOC_DIR)/.gen_complist-stamp: $(DOC_SRCDIR)/hal/components_gen.adoc $(MAN_HTML_TARGETS)
-	mkdir -p $(DOC_DIR)/html/hal
+	mkdir -p $(DOC_OUT_HTML)/en/hal
 	@touch $@
 
 gen_complist: $(DOC_DIR)/.gen_complist-stamp
@@ -485,14 +550,15 @@ checkref_en: $(DOC_DIR)/.checkref-english-stamp
 # (w3c-linkchecker disables file:// URIs), so the tree may carry accumulated
 # broken links.  Report them without breaking the build for now; drop this
 # flag once the backlog is cleared so regressions fail the build again.
-$(DOC_DIR)/.checkref-english-stamp: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
+$(DOC_DIR)/.checkref-english-stamp: $(DOC_TARGETS_HTML_EN) $(DOC_OUT_HTML)/en/index.html $(DOC_OUT_HTML)/en/gcode.html .htmldoc-stamp
 	$(DOC_SRCDIR)/checkref --warn-on-failure English $(filter %.html,$^)
 	@touch $@
 
-# Pattern rule for all languages
+# Pattern rule for all languages.  Per-lang gcode.html is po4a-translated
+# from src/gcode.html and lands as a sibling to each lang's index.html.
 checkref_%: $(DOC_DIR)/.checkref-%-stamp ;
 $(DOC_DIR)/.checkref-%-stamp: $$(DOC_TARGETS_HTML_$$(call uc,$$*)) \
-             $$(DOC_DIR)/html/%/gcode.html .htmldoc-stamp
+			 $$(DOC_OUT_HTML)/%/gcode.html .htmldoc-stamp
 	$(DOC_SRCDIR)/checkref --warn-on-failure $(call lang_name,$*) $(filter %.html,$$^)
 	@touch $@
 
@@ -514,89 +580,87 @@ PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(M
 # Files produced by pattern rules but not named as explicit goals are
 # treated as intermediate and deleted at the end of every build, which
 # triggers a full rebuild on the next invocation.  Two groups bite us:
-#  - per-language Master_*.pdf  (chain: .adoc -> %/Master_*.pdf
-#    -> LinuxCNC_*_<lang>.pdf)
-#  - the per-manpage HTML files  (chain: man/% -> html/man/%.html, used
-#    via $(HTML_TARGETS) but never as an explicit goal name)
+#	- per-language Master_*.pdf  (chain: .adoc -> %/Master_*.pdf
+#	-> LinuxCNC_*_<lang>.pdf)
+#	- the per-manpage HTML files  (chain: man/% -> html/man/%.html, used
+#	via $(HTML_TARGETS) but never as an explicit goal name)
 # Declaring them .SECONDARY keeps them on disk without affecting precious
 # -on-error semantics.
-.SECONDARY: $(foreach L,$(LANGUAGES),$(foreach D,Getting_Started Documentation Integrator Developer,$(DOC_SRCDIR)/$(L)/Master_$(D).pdf)) \
-            $(MAN_HTML_TARGETS)
+.SECONDARY: $(foreach L,$(LANGUAGES),$(foreach D,Getting_Started Documentation Integrator Developer,$(DOC_OUT_ADOC)/$(L)/Master_$(D).pdf)) \
+			$(foreach D,Getting_Started Documentation Integrator Developer,objects/Master_$(D).pdf) \
+			$(MAN_HTML_TARGETS)
 
-PDF_TARGETS_LinuxCNC_Getting_Started := $(DOC_DIR)/LinuxCNC_Getting_Started.pdf $(foreach L,$(LANGUAGES),$(DOC_DIR)/LinuxCNC_Getting_Started_$(L).pdf)
+# Final PDFs are hardlinks into the html tree (cheap, idempotent) from the
+# asciidoctor-pdf intermediates: objects/Master_*.pdf for English,
+# $(DOC_OUT_ADOC)/<lang>/Master_*.pdf for translations.  Every PDF carries a
+# _<lang> suffix (English too) so downloaded files keep their language.
+define PDF_LINK_RULES
+$(DOC_OUT_HTML)/en/pdf/LinuxCNC_$(1)_en.pdf: objects/Master_$(1).pdf
+	@mkdir -p $$(dir $$@)
+	@ln -f $$< $$@
+endef
+$(foreach D,Getting_Started Documentation Integrator Developer, \
+	$(eval $(call PDF_LINK_RULES,$(D))))
 
-$(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
-	@ln -f $< $@
-
-$(DOC_DIR)/LinuxCNC_Getting_Started_%.pdf: $(DOC_SRCDIR)/%/Master_Getting_Started.pdf
-	@ln -f $< $@
-
-
-PDF_TARGETS_LinuxCNC_Documentation := $(DOC_DIR)/LinuxCNC_Documentation.pdf $(foreach L,$(LANGUAGES),$(DOC_DIR)/LinuxCNC_Documentation_$(L).pdf)
-
-$(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
-	@ln -f $< $@
-
-$(DOC_DIR)/LinuxCNC_Documentation_%.pdf: $(DOC_SRCDIR)/%/Master_Documentation.pdf
-	@ln -f $< $@
-
-
-PDF_TARGETS_LinuxCNC_Integrator := $(DOC_DIR)/LinuxCNC_Integrator.pdf $(foreach L,$(LANGUAGES),$(DOC_DIR)/LinuxCNC_Integrator_$(L).pdf)
-
-$(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
-	@ln -f $< $@
-
-$(DOC_DIR)/LinuxCNC_Integrator_%.pdf: $(DOC_SRCDIR)/%/Master_Integrator.pdf
-	@ln -f $< $@
+define PDF_LINK_RULES_LANG
+$(DOC_OUT_HTML)/$(1)/pdf/LinuxCNC_$(2)_$(1).pdf: $(DOC_OUT_ADOC)/$(1)/Master_$(2).pdf
+	@mkdir -p $$(dir $$@)
+	@ln -f $$< $$@
+endef
+$(foreach L,$(LANGUAGES), \
+	$(foreach D,Getting_Started Documentation Integrator Developer, \
+		$(eval $(call PDF_LINK_RULES_LANG,$(L),$(D)))))
 
 
-PDF_TARGETS_LinuxCNC_Developer := $(DOC_DIR)/LinuxCNC_Developer.pdf $(foreach L,$(LANGUAGES),$(DOC_DIR)/LinuxCNC_Developer_$(L).pdf)
-
-$(DOC_DIR)/LinuxCNC_Developer.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
-	@ln -f $< $@
-
-$(DOC_DIR)/LinuxCNC_Developer_%.pdf: $(DOC_SRCDIR)/%/Master_Developer.pdf
-	@ln -f $< $@
-
-
-$(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/% $(DOC_SRCDIR)/docinfo.html
-	@$(ECHO) Formatting $(notdir $<) as HTML
-	@mkdir -p $(dir $@)
-	$(Q)if grep -q '^\.so' $<; then \
-		ln -srf ../docs/html/man/$$(basename $$(dirname $<))/$$(basename $$(awk '{print $$2}' $<)).html $@; \
+# Manpage HTML rule, parameterised over language tag (en / de / ...).  The
+# English bucket reads troff from docs/man/manN; translated buckets read
+# from docs/man/<lang>/manN.  cssrel is ../../../ for both: each output
+# sits at docs/build/html/<lang>/man/manN/X.html (4 levels under html/).
+define MAN_HTML_RULE
+$(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html
+	@$$(ECHO) Formatting $$(notdir $$<) as HTML
+	@mkdir -p $$(dir $$@)
+	$$(Q)if grep -q '^\.so' $$<; then \
+		ln -srf $$(DOC_OUT_HTML)/$(1)/man/$$$$(basename $$$$(dirname $$<))/$$$$(basename $$$$(awk '{print $$$$2}' $$<)).html $$@; \
 	else \
-		N="$$(basename "$<").adoc"; \
-		D="$$(dirname "$<")"; \
-		S="$$(basename "$$D")"; \
-		if [ -r "$(DOC_SRCDIR)/man/$$S/$$N" ]; then \
-			F="$(DOC_SRCDIR)/man/$$S/$$N"; \
-		elif [ -r "objects/man/$$S/$$N" ]; then \
-			F="objects/man/$$S/$$N"; \
+		N="$$$$(basename "$$<").adoc"; \
+		D="$$$$(dirname "$$<")"; \
+		S="$$$$(basename "$$$$D")"; \
+		if [ -r "$(3)/man/$$$$S/$$$$N" ]; then \
+			F="$(3)/man/$$$$S/$$$$N"; \
+		elif [ -r "$(DOC_OUT_ADOC)/$(1)/man/$$$$S/$$$$N" ]; then \
+			F="$(DOC_OUT_ADOC)/$(1)/man/$$$$S/$$$$N"; \
+		elif [ -r "objects/man/$$$$S/$$$$N" ]; then \
+			F="objects/man/$$$$S/$$$$N"; \
 		else \
-			echo "Error: Cannot find manpage '$<' in adoc format"; \
+			echo "Error: Cannot find manpage '$$<' in adoc format"; \
 			exit 1; \
 		fi; \
 		asciidoctor \
-			-r $(realpath $(DOC_SRCDIR))/extensions/rouge_hal.rb \
-			-r $(realpath $(DOC_SRCDIR))/extensions/rouge_ngc.rb \
-			-r $(realpath $(DOC_SRCDIR))/extensions/rouge_ini.rb \
+			-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
+			-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ngc.rb \
+			-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ini.rb \
 			--doctype=manpage \
 			--backend=html5 \
 			-a compat-mode \
 			-a mansource=LinuxCNC \
 			-a manmanual='LinuxCNC Documentation' \
-			-a "lcnc-cssrel=../../" \
+			-a "lcnc-cssrel=../../../" \
 			-a docinfo=shared \
-			-a docinfodir=$(realpath $(DOC_SRCDIR)) \
+			-a docinfodir=$$(realpath $$(DOC_SRCDIR)) \
 			-a source-highlighter=rouge \
 			-a rouge-style=github \
 			-a webfonts! \
 			-a linkcss -a copycss! \
-			-a "stylesdir=../../" \
-			-o $@ \
-			"$$F" \
+			-a "stylesdir=../../../" \
+			-o $$@ \
+			"$$$$F" \
 			; \
 	fi;
+endef
+$(eval $(call MAN_HTML_RULE,en,$(DOC_DIR)/man,$(DOC_SRCDIR)))
+$(foreach L,$(LANGUAGES), \
+	$(eval $(call MAN_HTML_RULE,$(L),$(DOC_DIR)/man/$(L),$(DOC_OUT_ADOC)/$(L))))
 
 #
 # This function appends a section to the "manpages" HTML fragment called
@@ -612,22 +676,22 @@ ADD_HTML_MANPAGES = \
 	echo "<div class=\"details-list\"><ul>" >> objects/index.incl; \
 	for HTML_FILE in $(sort $(3)); do \
 		BASENAME=$$(basename $$HTML_FILE .html); \
-		echo "<li><a href=\"$${HTML_FILE\#$(DOC_DIR)/html/}\">$${BASENAME%.*}</a></li>"; \
+		echo "<li><a href=\"$${HTML_FILE\#$(DOC_OUT_HTML)/en/}\">$${BASENAME%.*}</a></li>"; \
 	done >> objects/index.incl; \
 	echo "</ul></div></details>" >> objects/index.incl; \
 
 
 objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 	rm -f $@
-	$(call ADD_HTML_MANPAGES, 1, Commands and userspace components, $(filter $(DOC_DIR)/html/man/man1/%.html, $(MAN_HTML_TARGETS))) \
-	$(call ADD_HTML_MANPAGES, 9, Realtime components and kernel modules, $(filter $(DOC_DIR)/html/man/man9/%.html, $(MAN_HTML_TARGETS))) \
-	$(call ADD_HTML_MANPAGES, 3, API: HAL,      $(filter $(DOC_DIR)/html/man/man3/hal%.html, $(MAN_HTML_TARGETS))) \
-	$(call ADD_HTML_MANPAGES, 3, API: RTAPI,    $(filter $(DOC_DIR)/html/man/man3/rtapi%.html, $(MAN_HTML_TARGETS))) \
-	$(call ADD_HTML_MANPAGES, 3, API: Hostmot2, $(filter $(DOC_DIR)/html/man/man3/hm2%.html, $(MAN_HTML_TARGETS))) \
-	$(call ADD_HTML_MANPAGES, 3, API: General,  $(filter-out $(DOC_DIR)/html/man/man3/hal%.html, $(filter-out $(DOC_DIR)/html/man/man3/rtapi%.html, $(filter-out $(DOC_DIR)/html/man/man3/hm2%.html, $(filter $(DOC_DIR)/html/man/man3/%.html, $(MAN_HTML_TARGETS)))))) \
-	# now make sure all manpages made it into the html index
+	$(call ADD_HTML_MANPAGES, 1, Commands and userspace components, $(filter $(DOC_OUT_HTML)/en/man/man1/%.html, $(MAN_HTML_TARGETS_EN))) \
+	$(call ADD_HTML_MANPAGES, 9, Realtime components and kernel modules, $(filter $(DOC_OUT_HTML)/en/man/man9/%.html, $(MAN_HTML_TARGETS_EN))) \
+	$(call ADD_HTML_MANPAGES, 3, API: HAL,      $(filter $(DOC_OUT_HTML)/en/man/man3/hal%.html, $(MAN_HTML_TARGETS_EN))) \
+	$(call ADD_HTML_MANPAGES, 3, API: RTAPI,    $(filter $(DOC_OUT_HTML)/en/man/man3/rtapi%.html, $(MAN_HTML_TARGETS_EN))) \
+	$(call ADD_HTML_MANPAGES, 3, API: Hostmot2, $(filter $(DOC_OUT_HTML)/en/man/man3/hm2%.html, $(MAN_HTML_TARGETS_EN))) \
+	$(call ADD_HTML_MANPAGES, 3, API: General,  $(filter-out $(DOC_OUT_HTML)/en/man/man3/hal%.html, $(filter-out $(DOC_OUT_HTML)/en/man/man3/rtapi%.html, $(filter-out $(DOC_OUT_HTML)/en/man/man3/hm2%.html, $(filter $(DOC_OUT_HTML)/en/man/man3/%.html, $(MAN_HTML_TARGETS_EN)))))) \
+	# now make sure all English manpages made it into the html index
 	FAIL=0; \
-	for F in $$(find $(DOC_DIR)/man/man* -type f); do \
+	for F in $$(find $(DOC_DIR)/man/man* -maxdepth 2 -type f); do \
 		B=$$(basename $$F); \
 		if ! grep -q $$B $@; then \
 			FAIL=1; \
@@ -639,17 +703,28 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRC
 		fi; \
 	done; \
 	if [ $$FAIL -ne 0 ]; then exit 1; fi
-	mkdir -p $(DOC_DIR)/html/man/man/images/
-	find $(DOC_DIR)/man -name "*.png" ! -name "grohtml*" -exec mv {} "$(DOC_DIR)/html/man/man/images/" \;
+	mkdir -p $(DOC_OUT_HTML)/en/man/man/images/
+	find $(DOC_DIR)/man -maxdepth 3 -name "*.png" ! -name "grohtml*" -exec mv {} "$(DOC_OUT_HTML)/en/man/man/images/" \;
 
-$(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
+$(DOC_OUT_HTML)/%/index.html: $(DOC_OUT_ADOC)/%/index.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
+	@mkdir -p $(dir $@)
 	cat $(filter-out ../VERSION, $^) | \
 		sed "s/@VERSION@/`cat ../VERSION`/" | \
 		if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@
 
-$(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
+# Rich English landing page lives at <html>/en/index.html (sibling to the
+# translated <html>/<lang>/index.html files), generated from index.tmpl
+# plus the manpage index include.
+$(DOC_OUT_HTML)/en/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
+	@mkdir -p $(dir $@)
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/"  | \
 		if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@
+
+# Tree-root redirect: docs/build/html/index.html bounces to en/.  The
+# page is a checked-in static file under docs/src/; just copy it.
+$(DOC_OUT_HTML)/index.html: $(DOC_SRCDIR)/redirect-index.html
+	@mkdir -p $(dir $@)
+	@cp -f $< $@
 
 # PDF rule. Uses asciidoctor-pdf with our xref + image preprocessor
 # extensions and the LinuxCNC theme. The xref-root attribute is set
@@ -662,15 +737,15 @@ DOC_FONT_DIR  = objects/.fonts
 # and exported through Makefile.inc, so the build works on any distro
 # that ships the .ttc, not only the Debian path.
 CJK_TTFS      = $(DOC_FONT_DIR)/NotoSerifCJKsc-Regular.ttf \
-                $(DOC_FONT_DIR)/NotoSerifCJKsc-Bold.ttf
+				$(DOC_FONT_DIR)/NotoSerifCJKsc-Bold.ttf
 # DejaVu Sans Mono is the code-block font.  asciidoctor-pdf only looks for
 # fonts in pdf-fontsdir by filename, not via fontconfig, so discover the
 # files at build time and symlink them into DOC_FONT_DIR.  Keeps the
 # pdf-theme.yml portable (no absolute paths baked in).
 DEJAVU_TTFS   = $(DOC_FONT_DIR)/DejaVuSansMono.ttf \
-                $(DOC_FONT_DIR)/DejaVuSansMono-Bold.ttf \
-                $(DOC_FONT_DIR)/DejaVuSansMono-Oblique.ttf \
-                $(DOC_FONT_DIR)/DejaVuSansMono-BoldOblique.ttf
+				$(DOC_FONT_DIR)/DejaVuSansMono-Bold.ttf \
+				$(DOC_FONT_DIR)/DejaVuSansMono-Oblique.ttf \
+				$(DOC_FONT_DIR)/DejaVuSansMono-BoldOblique.ttf
 DOC_FONTS     = $(CJK_TTFS) $(DEJAVU_TTFS)
 
 # Build a TrueType (glyf-based) copy of the Simplified Chinese cut of the
@@ -714,46 +789,59 @@ $(eval $(call DEJAVU_RULE,DejaVuSansMono-BoldOblique.ttf,DejaVu Sans Mono:style=
 $(DOC_FONT_DIR):
 	@mkdir -p $@
 
-# svgs_made_from_dots is .PHONY; as a normal prereq it forces every PDF to
-# rebuild on every run.  Order-only (after the |) instead; the SVGs the PDF
-# embeds are tracked via .adoc-images-stamp.
-$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.adoc .adoc-images-stamp $(DOC_FONTS) | svgs_made_from_dots
-	$(ECHO) Building $@
-	@rm -f $@ $@.raw
-	$(Q)timeout 900 asciidoctor-pdf \
-		 -r $(realpath $(DOC_SRCDIR))/extensions/xref_resolver.rb \
-		 -r $(realpath $(DOC_SRCDIR))/extensions/image_resolver.rb \
-		 -r $(realpath $(DOC_SRCDIR))/extensions/rouge_hal.rb \
-		 -r $(realpath $(DOC_SRCDIR))/extensions/rouge_ngc.rb \
-		 -r $(realpath $(DOC_SRCDIR))/extensions/rouge_ini.rb \
-		 --sourcemap \
-		 -a compat-mode \
-		 -a "doc-languages=$(LANGUAGES)" \
-		 -a xref-root=$(dir $<) \
-		 -a "xref-exclude=^($(LANGUAGES_MATCH))/" \
-		 -a "scriptdir=$(DOC_SRCDIR)/" \
-		 -a "pdf-fontsdir=$(realpath $(DOC_FONT_DIR));GEM_FONTS_DIR" \
-		 -a "lversion=$(shell cat ../VERSION)" \
-		 -a toc -a numbered \
-		 -a pdf-theme=$(DOC_SRCDIR)/pdf-theme.yml \
-		 -a source-highlighter=rouge \
-		 -a rouge-style=github \
-		 -d book \
-		 -o $@.raw $< || (X=$$?; rm -f $@.raw; \
-		    if [ $$X -eq 124 ]; then echo "asciidoctor-pdf timed out after 15 min on $<"; fi; \
-		    exit $$X)
-	$(Q)gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.5 \
-		 -dPassThroughJPEGImages=true \
-		 -dDownsampleColorImages=false \
-		 -dDownsampleGrayImages=false \
-		 -dDownsampleMonoImages=false \
-		 -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode \
-		 -dAutoFilterGrayImages=false  -dGrayImageFilter=/FlateEncode \
-		 -dNOPAUSE -dQUIET -dBATCH \
-		 -sOutputFile=$@ $@.raw \
-		 && rm -f $@.raw \
-		 || (X=$$?; rm -f $@ $@.raw; exit $$X)
-	@test -f $@
+# Master_*.adoc -> Master_*.pdf via asciidoctor-pdf.  Two rules with
+# identical bodies: English sources are read from $(DOC_SRCDIR) and need
+# an xref-exclude that filters out the translated language subtrees;
+# translated sources are read from $(DOC_OUT_ADOC)/<lang> (po4a output)
+# and are rooted inside their own lang dir, so the exclude is empty.
+# English PDFs are emitted into objects/ (build scratch) instead of beside
+# the source; translated PDFs stay next to their po4a-generated source.
+#
+# svgs_made_from_dots is .PHONY; as a normal prereq it forces every PDF
+# to rebuild on every run.  Order-only (after the |) instead; the SVGs
+# the PDF embeds are tracked via .adoc-images-stamp.
+define ASCIIDOCTOR_PDF_RULE
+$(4)/%.pdf: $(1)/%.adoc .adoc-images-stamp $$(DOC_FONTS) | svgs_made_from_dots
+	$$(ECHO) Building $$@
+	@mkdir -p $$(dir $$@)
+	@rm -f $$@ $$@.raw
+	$$(Q)timeout 900 asciidoctor-pdf \
+		-r $$(realpath $$(DOC_SRCDIR))/extensions/xref_resolver.rb \
+		-r $$(realpath $$(DOC_SRCDIR))/extensions/image_resolver.rb \
+		-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
+		-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ngc.rb \
+		-r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ini.rb \
+		--sourcemap \
+		-a compat-mode \
+		-a "doc-languages=$$(LANGUAGES)" \
+		-a xref-root=$$(dir $$<) \
+		-a "xref-exclude=$(2)" \
+		-a "scriptdir=$$(DOC_SRCDIR)/" \
+		-a "pdf-fontsdir=$$(realpath $$(DOC_FONT_DIR));GEM_FONTS_DIR" \
+		-a "lversion=$$(shell cat ../VERSION)" \
+		-a toc -a numbered \
+		-a pdf-theme=$$(DOC_SRCDIR)/pdf-theme.yml \
+		-a source-highlighter=rouge \
+		-a rouge-style=github \
+		-d book \
+		-o $$@.raw $$< || (X=$$$$?; rm -f $$@.raw; \
+		if [ $$$$X -eq 124 ]; then echo "asciidoctor-pdf timed out after 15 min on $$<"; fi; \
+		exit $$$$X)
+	$$(Q)gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.5 \
+		-dPassThroughJPEGImages=true \
+		-dDownsampleColorImages=false \
+		-dDownsampleGrayImages=false \
+		-dDownsampleMonoImages=false \
+		-dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode \
+		-dAutoFilterGrayImages=false  -dGrayImageFilter=/FlateEncode \
+		-dNOPAUSE -dQUIET -dBATCH \
+		-sOutputFile=$$@ $$@.raw \
+		&& rm -f $$@.raw \
+		|| (X=$$$$?; rm -f $$@ $$@.raw; exit $$$$X)
+	@test -f $$@
+endef
+$(eval $(call ASCIIDOCTOR_PDF_RULE,$(DOC_SRCDIR),^($(LANGUAGES_MATCH))/,en,objects))
+$(eval $(call ASCIIDOCTOR_PDF_RULE,$(DOC_OUT_ADOC),,$$(firstword $$(subst /, ,$$*)),$(DOC_OUT_ADOC)))
 
 # Manual pages PDF: previously produced from the generated troff files
 # with groff + ps2pdf, which lost syntax highlighting on code samples.
@@ -763,7 +851,7 @@ $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.adoc .adoc-images-stamp $(DOC_FONTS) | svgs
 # with a hard page break between entries.  Component pages whose .adoc
 # lives in objects/man/ (built by halcompile) are picked up alongside
 # the native ones in docs/src/man/.
-objects/LinuxCNC_Manual_Pages.adoc: objects/var-PDF_MAN_ORDER $(MAN_SRCS) $(DOC_SRCDIR)/Submakefile
+objects/LinuxCNC_Manual_Pages.adoc: objects/var-PDF_MAN_ORDER $(MAN_SRCS) $(DOC_OUT_ADOC)/en/man/man1/linuxcnc.1.adoc $(DOC_SRCDIR)/Submakefile
 	@mkdir -p $(dir $@)
 	$(Q){ \
 	    echo "= LinuxCNC Manual Pages"; \
@@ -776,6 +864,8 @@ objects/LinuxCNC_Manual_Pages.adoc: objects/var-PDF_MAN_ORDER $(MAN_SRCS) $(DOC_
 	    for M in $(PDF_MAN_ORDER); do \
 	        if   [ -r "$(DOC_SRCDIR)/man/$$M.adoc" ]; then \
 	            echo "include::$(realpath $(DOC_SRCDIR))/man/$$M.adoc[leveloffset=+1]"; \
+	        elif [ -r "$(DOC_OUT_ADOC)/en/man/$$M.adoc" ]; then \
+	            echo "include::$(realpath $(DOC_OUT_ADOC))/en/man/$$M.adoc[leveloffset=+1]"; \
 	        elif [ -r "objects/man/$$M.adoc" ]; then \
 	            echo "include::$(realpath objects)/man/$$M.adoc[leveloffset=+1]"; \
 	        else \
@@ -788,8 +878,9 @@ objects/LinuxCNC_Manual_Pages.adoc: objects/var-PDF_MAN_ORDER $(MAN_SRCS) $(DOC_
 	} > $@.tmp
 	$(Q)mv -f $@.tmp $@
 
-$(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: objects/LinuxCNC_Manual_Pages.adoc $(DOC_FONTS)
+$(DOC_OUT_HTML)/en/pdf/LinuxCNC_Manual_Pages_en.pdf: objects/LinuxCNC_Manual_Pages.adoc $(DOC_FONTS)
 	@$(ECHO) Formatting manual pages as PDF
+	@mkdir -p $(dir $@)
 	@rm -f $@ $@.raw
 	$(Q)timeout 900 asciidoctor-pdf \
 	    -r $(realpath $(DOC_SRCDIR))/extensions/rouge_hal.rb \
@@ -826,45 +917,79 @@ depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
 	@mv $@.tmp $@
 
-$(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
-	@d=`dirname $*`; \
-	mkdir -p $(shell dirname $@)
+# Translated .adoc lives in $(DOC_OUT_ADOC)/<lang>/; same recipe, just a
+# different source dir so the per-language depends/<lang>/X.d targets
+# resolve.  The pattern only matches paths starting with a known language
+# tag, so the English depends/%.d above wins for non-translated entries.
+define TRANSLATED_DEP_RULE
+depends/$(1)/%.d: $(DOC_OUT_ADOC)/$(1)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
+	$$(ECHO) Depending $$<
+	@mkdir -p $$(dir $$@)
+	$$(Q)$$(DOC_SRCDIR)/asciideps $$< > $$@.tmp
+	@mv $$@.tmp $$@
+endef
+$(foreach L,$(LANGUAGES),$(eval $(call TRANSLATED_DEP_RULE,$(L))))
+
+# English: copy from intermediate $(DOC_SRCDIR)/<topic>/X.html to
+# $(DOC_OUT_HTML)/en/<topic>/X.html.  Translated: copy from $(DOC_OUT_ADOC)/<lang>/<topic>/X.html
+# to $(DOC_OUT_HTML)/<lang>/<topic>/X.html (the asciidoctor pattern rule
+# emits the .html sibling to the .adoc; no separate copy step needed for
+# translations).  We model both with one static pattern set per lang.
+$(DOC_TARGETS_HTML_EN): $(DOC_OUT_HTML)/en/%.html: $(DOC_SRCDIR)/%.html
+	@mkdir -p $(dir $@)
 	@cp $< $@
+
+define HTML_COPY_RULE
+$(DOC_TARGETS_HTML_$(call toUC,$(1))): $(DOC_OUT_HTML)/$(1)/%.html: $(DOC_OUT_ADOC)/$(1)/%.html
+	@mkdir -p $$(dir $$@)
+	@cp $$< $$@
+endef
+$(foreach L,$(LANGUAGES),$(eval $(call HTML_COPY_RULE,$(L))))
 
 .images-stamp: .adoc-images-stamp .html-images-stamp
 	touch $@
 
+# Image copy from sources into the output tree.  HTML files for English
+# live at $(DOC_OUT_HTML)/en/<topic>/X.html; for translations at
+# $(DOC_OUT_HTML)/<lang>/<topic>/X.html.  The source images are in
+# $(DOC_SRCDIR)/<topic>/ regardless of language (translations are
+# image-symlinked to English originals via the sed below).
 .html-images-stamp: $(DOC_TARGETS_HTML)
 	set -e; for HTML_FILE in $^; do \
-		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
+		HTML_REL=$$(echo $$HTML_FILE | sed 's%^$(DOC_OUT_HTML)/%%'); \
+		LANG=$$(echo $$HTML_REL | cut -d/ -f1); \
+		REST=$$(echo $$HTML_REL | cut -d/ -f2-); \
+		HTML_DIR=$$(dirname $$REST | cut -d/ -f1); \
 		for IMAGE_FILE in $$(grep -oE 'src="[^"]+"' $$HTML_FILE | sed 's/src="//;s/"$$//' | grep -vE '^https?:|^data:|^/'); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
-			IMAGE_PATH=$$(echo $(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE | sed -E 's%/src/($(LANGUAGES_MATCH))/%/src/%'); \
-			mkdir -p $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_DIR; \
-			cp -f $$IMAGE_PATH $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_FILE; \
+			IMAGE_PATH=$(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE; \
+			mkdir -p $(DOC_OUT_HTML)/$$LANG/$$HTML_DIR/$$IMAGE_DIR; \
+			cp -f $$IMAGE_PATH $(DOC_OUT_HTML)/$$LANG/$$HTML_DIR/$$IMAGE_FILE; \
 		done; \
 	done > $@.new && mv $@.new $@
 
-# Hack to avoid ../../../src/ style include which do not work with
-# translated documents.  Copy the ini file where the documentation
-# build can find it without ../.. paths.
-.include-stamp: hal/user_comps/mb2hal/mb2hal_HOWTO.ini emc/usr_intf/gmoccapy/release_notes.txt
+# mb2hal_HOWTO.ini lives in the docs source tree next to mb2hal.adoc, so the
+# English build includes it directly.  Copy it into the per-language build
+# trees so the po4a-translated mb2hal.adoc resolves the include, and beside
+# the rendered HTML for the download link.  (gmoccapy's release_notes.txt is
+# still pulled from the code tree pending its own move.)
+.include-stamp: $(DOC_SRCDIR)/drivers/mb2hal_HOWTO.ini emc/usr_intf/gmoccapy/release_notes.txt
 	(set -x; set -e; \
-	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/drivers/;\
-	mkdir -p $(DOC_DIR)/html/drivers/; \
-	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/drivers/;\
-	cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/src/gui/gmoccapy_release_notes.txt;\
-	mkdir -p $(DOC_DIR)/html/gui/; \
-	cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/html/gui/gmoccapy_release_notes.txt;\
+	mkdir -p $(DOC_OUT_ADOC)/en/drivers/; \
+	cp -f $(DOC_SRCDIR)/drivers/mb2hal_HOWTO.ini $(DOC_OUT_ADOC)/en/drivers/;\
+	mkdir -p $(DOC_OUT_HTML)/en/drivers/; \
+	cp -f $(DOC_SRCDIR)/drivers/mb2hal_HOWTO.ini $(DOC_OUT_HTML)/en/drivers/;\
+	mkdir -p $(DOC_OUT_HTML)/en/gui/; \
+	cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_OUT_HTML)/en/gui/gmoccapy_release_notes.txt;\
 	for lang in $(LANGUAGES); do \
-		mkdir -p $(DOC_DIR)/src/$$lang/drivers/; \
-		mkdir -p $(DOC_DIR)/html/$$lang/drivers/; \
-		cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/$$lang/drivers/ ; \
-		cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/$$lang/drivers/ ; \
-		mkdir -p $(DOC_DIR)/src/$$lang/gui/; \
-		mkdir -p $(DOC_DIR)/html/$$lang/gui/; \
-		cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/src/$$lang/gui/gmoccapy_release_notes.txt ; \
-		cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/html/$$lang/gui/gmoccapy_release_notes.txt ; \
+		mkdir -p $(DOC_OUT_ADOC)/$$lang/drivers/; \
+		mkdir -p $(DOC_OUT_HTML)/$$lang/drivers/; \
+		cp -f $(DOC_SRCDIR)/drivers/mb2hal_HOWTO.ini $(DOC_OUT_ADOC)/$$lang/drivers/ ; \
+		cp -f $(DOC_SRCDIR)/drivers/mb2hal_HOWTO.ini $(DOC_OUT_HTML)/$$lang/drivers/ ; \
+		mkdir -p $(DOC_OUT_ADOC)/$$lang/gui/; \
+		mkdir -p $(DOC_OUT_HTML)/$$lang/gui/; \
+		cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_OUT_ADOC)/$$lang/gui/gmoccapy_release_notes.txt ; \
+		cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_OUT_HTML)/$$lang/gui/gmoccapy_release_notes.txt ; \
 	done) > $@.new && mv $@.new $@
 
 # Copy all images used by translated adoc files into the directories
@@ -874,17 +999,17 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 ADOC_IMAGES_STAMP_DEPS := $(DOC_DIR)/.translateddocs-stamp
 endif
-.adoc-images-stamp: $(ADOC_IMAGES_STAMP_DEPS) $(addprefix $(DOC_SRCDIR)/, $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS)))
-	set -e; for ADOC_FILE in $(addprefix $(DOC_SRCDIR)/, $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS))); do \
-		ADOC_DIR=$$(echo $$(dirname $$ADOC_FILE) | sed s%$(DOC_SRCDIR)/%% ); \
+.adoc-images-stamp: $(ADOC_IMAGES_STAMP_DEPS) $(addprefix $(DOC_OUT_ADOC)/, $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS)))
+	set -e; for ADOC_FILE in $(addprefix $(DOC_OUT_ADOC)/, $(filter-out $(DOC_SRCS_EN), $(DOC_SRCS))); do \
+		ADOC_DIR=$$(echo $$(dirname $$ADOC_FILE) | sed s%$(DOC_OUT_ADOC)/%% ); \
 		echo Processing $$ADOC_FILE, dir $$ADOC_DIR; \
 		for IMAGE_FILE in $$(grep -E ^image:[^[:space:]] $$ADOC_FILE | sed -E "s/image:+([^[]+)\[/\nimage:\1\n/g" | grep image: | cut -d: -f2-); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
 			IMAGE_PATH=$$(echo $(DOC_SRCDIR)/$$ADOC_DIR/$$IMAGE_FILE | sed -E 's%/src/($(LANGUAGES_MATCH))/%/src/%'); \
-			TIMAGE_PATH=$(DOC_DIR)/src/$$ADOC_DIR/$$IMAGE_FILE; \
-			HIMAGE_PATH=$(DOC_DIR)/html/$$ADOC_DIR/$$IMAGE_FILE; \
-			mkdir -p $(DOC_DIR)/src/$$ADOC_DIR/$$IMAGE_DIR; \
-			mkdir -p $(DOC_DIR)/html/$$ADOC_DIR/$$IMAGE_DIR; \
+			TIMAGE_PATH=$(DOC_OUT_ADOC)/$$ADOC_DIR/$$IMAGE_FILE; \
+			HIMAGE_PATH=$(DOC_OUT_HTML)/$$ADOC_DIR/$$IMAGE_FILE; \
+			mkdir -p $(DOC_OUT_ADOC)/$$ADOC_DIR/$$IMAGE_DIR; \
+			mkdir -p $(DOC_OUT_HTML)/$$ADOC_DIR/$$IMAGE_DIR; \
 			if [ ! -e $$TIMAGE_PATH ] ; then \
 				echo "Generating $$TIMAGE_PATH for $$ADOC_FILE"; \
 				cp -f $$IMAGE_PATH $$TIMAGE_PATH; \
@@ -893,23 +1018,31 @@ endif
 		done; \
 	done > $@.new && mv $@.new $@
 
-# Relative path from this html target back to DOC_SRCDIR, used to point
-# the lcnc-overrides.css <link> in docinfo.html at the right place.
-$(DOC_SRCDIR)/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * '$*'.count('/'))")
+# Relative path from this html target back to $(DOC_OUT_HTML)/, used to
+# point the lcnc-overrides.css <link> in docinfo.html at the right place.
+# Every output now lives under a $(DOC_OUT_HTML)/<lang>/ subtree, so depth
+# is one greater than the topic-relative slash count.
+$(DOC_SRCDIR)/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * (1 + '$*'.count('/')))")
+$(DOC_OUT_ADOC)/%.html: LCNC_CSSREL=$(shell python3 -c "print('../' * '$*'.count('/'))")
 
-# asciidoctor HTML rule used for every language. $1 is the language tag
-# in lowercase (en, ar, de, ...); $2 is the directory the xref index is
-# rooted at (the source tree root for the language).
+# asciidoctor HTML rule used for every language.
+#	$1 lang tag (en, de, ...)
+#	$2 source root: $(DOC_SRCDIR) for English (DOC_SRCS_EN paths have no
+#	lang/ prefix); $(DOC_OUT_ADOC) for translations (DOC_SRCS_<L> paths
+#	include the leading $(L)/).
+#	$3 xref-root: the language's own subtree (for English same as $2).
+#	$4 xref-exclude pattern (English filters all lang subdirs; translated
+#	trees are rooted inside their own lang dir so the exclude is empty).
 define ASCIIDOCTOR_HTML_RULE
-$$(patsubst %.adoc,$$(DOC_SRCDIR)/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $$(DOC_SRCDIR)/%.html: $$(DOC_SRCDIR)/%.adoc $$(DOC_SRCDIR)/docinfo.html
+$$(patsubst %.adoc,$2/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $2/%.html: $2/%.adoc $$(DOC_SRCDIR)/docinfo.html
 	$$(ECHO) "Building '$1' adoc to html: " $$<
 	$$(Q)asciidoctor -r $$(realpath $$(DOC_SRCDIR))/extensions/xref_resolver.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_hal.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ngc.rb \
 		 -r $$(realpath $$(DOC_SRCDIR))/extensions/rouge_ini.rb \
 		 -a compat-mode \
-		 -a xref-root=$2 \
-		 -a "xref-exclude=$3" \
+		 -a xref-root=$3 \
+		 -a "xref-exclude=$4" \
 		 -a "relindir=$$(shell dirname $$*)" \
 		 -a "lcnc-cssrel=$$(LCNC_CSSREL)" \
 		 -a docinfo=shared \
@@ -923,66 +1056,34 @@ $$(patsubst %.adoc,$$(DOC_SRCDIR)/%.html,$$(DOC_SRCS_$(call toUC,$1)_SMALL)): $$
 		 -o $$@ $$< || (X=$$$$?; rm -f $$@; exit $$$$X)
 endef
 
-# English is rooted at the doc tree root so it must exclude all language
-# subdirs from its xref index. Translated languages are rooted at their
-# own subtree so the exclude is empty.
-$(eval $(call ASCIIDOCTOR_HTML_RULE,en,$(DOC_SRCDIR),^($(LANGUAGES_MATCH))/))
-$(foreach lang,$(LANGUAGES),\
-    $(eval $(call ASCIIDOCTOR_HTML_RULE,$(lang),$(DOC_SRCDIR)/$(lang))))
+$(eval $(call ASCIIDOCTOR_HTML_RULE,en,$(DOC_SRCDIR),$(DOC_SRCDIR),^($(LANGUAGES_MATCH))/))
+$(foreach lang,$(LANGUAGES), \
+	$(eval $(call ASCIIDOCTOR_HTML_RULE,$(lang),$(DOC_OUT_ADOC),$(DOC_OUT_ADOC)/$(lang),)))
 
 
 default: docs
 
 install-doc-pdf:
 	$(DIR) $(DESTDIR)$(docsdir)
-	$(FILE) $(PDF_TARGETS) $(DESTDIR)$(docsdir)
+	# English PDFs install without the _en suffix; desktop launchers and
+	# doc-base entries reference the suffixless names.
+	for f in $(PDF_TARGETS_EN); do \
+		$(FILE) $$f $(DESTDIR)$(docsdir)/$$(basename $$f _en.pdf).pdf; \
+	done
+	# Translated PDFs keep their _<lang> name.
+	TR="$(filter-out $(PDF_TARGETS_EN),$(PDF_TARGETS))"; \
+	[ -z "$$TR" ] || $(FILE) $$TR $(DESTDIR)$(docsdir)
 
 install-doc-html:
 	$(DIR) $(DESTDIR)$(docsdir)
-	cp -a $(DOC_DIR)/html $(DESTDIR)$(docsdir)
+	cp -a $(DOC_OUT_HTML) $(DESTDIR)$(docsdir)
 
 docclean:
-	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_*.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_*.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_*.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Developer.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Developer_*.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf
+	-rm -rf $(DOC_BUILD)
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_SRCDIR)/*/*.html
-	-rm -f $(DOC_SRCDIR)/index_*.tmpl
-	-rm -f $(DOC_SRCDIR)/drivers/mb2hal_HOWTO.ini
-	-rm -f $(DOC_SRCDIR)/*/drivers/mb2hal_HOWTO.ini
-	-rm -f $(DOC_SRCDIR)/gui/gmoccapy_release_notes.txt
-	-rm -f $(DOC_SRCDIR)/*/gui/gmoccapy_release_notes.txt
-	-rm -f $(DOC_DIR)/html/*/drivers/mb2hal_HOWTO.ini
-	-rm -f $(DOC_DIR)/html/drivers/mb2hal_HOWTO.ini
 	-rm -rf $(DOC_FONT_DIR)
-	-rm -f $(DOC_DIR)/html/gui/gmoccapy_release_notes.txt
-	-rm -f $(DOC_DIR)/html/*/gui/gmoccapy_release_notes.txt
-	-rm -f $(DOC_DIR)/html/code/*.*
-	-rm -f $(DOC_DIR)/html/common/images/*.*
-	-rm -f $(DOC_DIR)/html/config/images/*.*
-	-rm -f $(DOC_DIR)/html/drivers/images/*.*
-	-rm -f $(DOC_DIR)/html/examples/images/*.*
-	-rm -f $(DOC_DIR)/html/gcode/images/*.*
-	-rm -f $(DOC_DIR)/html/getting-started/images/*.*
-	-rm -f $(DOC_DIR)/html/gui/images/*.*
-	-rm -f $(DOC_DIR)/html/hal/images/*.*
-	-rm -f $(DOC_DIR)/html/install/images/*.*
-	-rm -f $(DOC_DIR)/html/ladder/images/*.*
-	-rm -f $(DOC_DIR)/html/lathe/images/*.*
-	-rm -f $(DOC_DIR)/html/motion/images/*.*
-	-rm -f $(DOC_DIR)/html/plasma/images/*.*
-	-rm -f $(DOC_DIR)/html/remap/images/*.*
-	-rm -f $(DOC_DIR)/html/man/man1/*.*
-	-rm -f $(DOC_DIR)/html/man/man3/*.*
-	-rm -f $(DOC_DIR)/html/man/man9/*.*
-	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
 	-rm -f .htmldoc-stamp
 	-rm -f .copy-asciidoc-stamp
 	-rm -f .adoc-images-stamp
@@ -993,14 +1094,13 @@ docclean:
 	-rm -f $(DOC_DIR)/.gen_complist-stamp
 	-rm -f $(DOC_DIR)/.checkref-*-stamp
 	-rm -f $(DOTFILES:.dot=.svg)
-	$(RM) $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc
 
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
 $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
 	@echo Depending $(notdir $<)
 	@mkdir -p $(dir $@)
-	$(Q)echo -n "$(DOC_DIR)/html/man/$*.html: $<" > $@.tmp
+	$(Q)echo -n "$(DOC_OUT_HTML)/en/man/$*.html: $<" > $@.tmp
 	$(Q)grep '^\.so ' $< | awk '{ if ($$2 ~ /\//) printf " \\\n\t$(DOC_DIR)/man/%s", $$2; else printf " \\\n\t$(DOC_DIR)/man/$(*D)/%s", $$2 }' >> $@.tmp
 	$(Q)echo >> $@.tmp
 	$(Q)mv -f $@.tmp $@
@@ -1031,7 +1131,6 @@ docs:
 	$(error Cannot build documents, missing AsciiDoc or some other required program, or explicitly disabled in configure)
 
 clean:
-	$(RM) $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc
 endif
 
 manpages: $(GENERATED_MANPAGES)

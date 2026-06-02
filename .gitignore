@@ -12,9 +12,7 @@ build-stamp
 *.cmd
 .tmp*
 src/*.mod
-# Ignore generated html files, 
-/docs/src/*/*.html
-# docs/html/.gitignore is for the html directory
+# Documentation-tree ignores live in docs/.gitignore.
 debian/*.debhelper.log
 rtlib/Module.symvers
 share/*/*.desktop
@@ -26,8 +24,6 @@ share/linuxcnc/mesa_modbus.c.tmpl
 src/modules.order
 /configs/*/emc.nml
 !/configs/common/emc.nml
-/docs/src/source-highlight/local
-docs/src/*/gui/gmoccapy_release_notes.txt
 lib/python/gremlin.py
 lib/python/qt5_graphics.py
 lib/python/touchy

@@ -1,6 +1,10 @@
 #!/bin/bash
 #
-# Make a pretty(?) index page of the PDF docs.
+# Build a flat aggregate of every language's PDF under docs/build/html/pdf/
+# (hardlinks, cheap and idempotent) plus an index listing.  The PDFs
+# themselves live in the per-language trees docs/build/html/<lang>/pdf/; this
+# flat folder keeps the legacy /pdf/ URL working with all languages side by
+# side.
 #
 
 set -e
@@ -9,23 +13,29 @@ set -e
 # --show-toplevel` because when building from dsc we don't have a
 # git repo.
 TOPLEVEL=${PWD}/..
-cd "${TOPLEVEL}"/docs
+HTML="${TOPLEVEL}/docs/build/html"
+DEST="${HTML}/pdf"
+mkdir -p "${DEST}"
+
+# Hardlink every per-language PDF into the flat folder.  Names already carry a
+# _<lang> suffix so there are no collisions.  mindepth 3 skips DEST itself
+# (docs/build/html/pdf/*.pdf is only two levels below html/).
+find "${HTML}" -mindepth 3 -path '*/pdf/*.pdf' -print0 \
+    | while IFS= read -r -d '' F; do
+        ln -f "${F}" "${DEST}/$(basename "${F}")"
+    done
 
 TITLE="LinuxCNC PDF docs ($(cat "${TOPLEVEL}"/VERSION))"
-
-rm -f index.html
+PDF_INDEX="${DEST}/index.html"
+rm -f "${PDF_INDEX}"
 
 {
     echo "<html>"
     echo "<head><title>${TITLE}</title></head>"
     echo "<body><h1>${TITLE}</h1><p>"
-} >> index.html
-
-for F in $(find . -maxdepth 1 -name '*.pdf' | sort); do
-    echo "    <a href=\"${F}\">$F</a><br>" >> index.html
-done
-
-{
+    for F in $(cd "${DEST}" && find . -maxdepth 1 -name '*.pdf' | sort); do
+        echo "    <a href=\"${F#./}\">${F#./}</a><br>"
+    done
     echo "</body>"
     echo "</html>"
-} >> index.html
+} >> "${PDF_INDEX}"
