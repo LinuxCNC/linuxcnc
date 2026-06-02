@@ -135,6 +135,8 @@ proc set_defaults {} {
   set ::HH(warning_active)  0
   set ::HH(reread,ct)       0
   set ::HH(bump,ct)         0
+  set ::HH(timeout,ct)      0
+  set ::HH(timeout,warned)  0
   set ::HH(after,repeat)   ""
   set ::HH(after,monitor)  ""
   set ::HH(p,more)          0
@@ -427,6 +429,25 @@ proc finish {} {
   } ;# avoid some msgs on close
   exit 0
 } ;# finish
+
+# Report an unrecoverable error visibly, then tear down and quit so the
+# tool never lingers in a broken, non-updating state.
+proc fatal {msg} {
+  catch {after cancel $::HH(after,repeat)}
+  popup $msg
+  if {[info exists ::HH(stream,h)]} {
+    catch {hal_stream detach $::HH(stream,h)}
+    unset ::HH(stream,h)
+  }
+  catch {
+    hal delf $::HH(instance) $::HH(threadname)
+    hal unlinkp $::HH(inputpinname)
+    if $::HH(signame_is_new) {
+      hal delsig $::HH(signame)
+    }
+  } ;# avoid some msgs on close
+  exit 1
+} ;# fatal
 
 proc repeat {} {
   after cancel $::HH(after,repeat)
@@ -755,13 +776,23 @@ proc acquire_bins_stream {} {
     if {$tries > 250} {
       hal setp $::HH(instance).stream 0
       if {[hal getp $::HH(instance).stream-error]} {
-        puts "$::HH(prog): stream-error set (FIFO too small for $need records)"
-      } else {
-        puts "$::HH(prog): stream timeout (depth [hal_stream depth $h] < $need)"
+        # Hard error: the RT side reports the FIFO cannot hold a full
+        # set, so it never streams. This cannot recover, so report it
+        # visibly and quit rather than leaving a dead window spinning.
+        fatal "$::HH(prog): stream-error set (FIFO too small for $need records).\n\nThe histobinstream FIFO cannot hold a complete data set.\nThis is a build/configuration error and will not recover."
+      }
+      # A plain timeout may be transient. Surface it visibly once it
+      # persists rather than only spamming the console each cycle.
+      puts "$::HH(prog): stream timeout (depth [hal_stream depth $h] < $need)"
+      incr ::HH(timeout,ct)
+      if {$::HH(timeout,ct) >= 5 && !$::HH(timeout,warned)} {
+        set ::HH(timeout,warned) 1
+        popup "$::HH(prog): repeated stream timeouts (depth < $need).\n\nThe histogram is not updating."
       }
       return ""
     }
   }
+  set ::HH(timeout,ct) 0
   set vals [hal_stream drain $h]
   hal setp $::HH(instance).stream 0
   # After drain the FIFO must be empty; non-zero means we read out of

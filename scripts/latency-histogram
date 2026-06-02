@@ -593,6 +593,8 @@ proc start_collection {} {
   foreach thd $::LH(threads) {
     set ::LH($thd,reread,ct) 0
     set ::LH($thd,bump,ct) 0
+    set ::LH($thd,timeout,ct) 0
+    set ::LH($thd,timeout,warned) 0
     set availablebins [hal getp $::LH($thd,name).availablebins]
     if {$availablebins < $::LH($thd,maxbins)} {
        if $::LH(use_x) { wm iconify . }
@@ -747,13 +749,23 @@ proc update_bin_data {thd} {
       if {$tries > 250} {
         hal setp $::LH($thd,name).stream 0
         if {[hal getp $::LH($thd,name).stream-error]} {
-          puts "$thd: stream-error set (FIFO too small for $need records)"
-        } else {
-          puts "$thd: stream timeout (depth [hal_stream depth $h] < $need)"
+          # Hard error: the RT side reports the FIFO cannot hold a full
+          # set, so it never streams. This cannot recover, so report it
+          # visibly and quit rather than leaving a dead window spinning.
+          fatal "$thd: stream-error set (FIFO too small for $need records).\n\nThe latencybinstream FIFO cannot hold a complete data set.\nThis is a build/configuration error and will not recover."
+        }
+        # A plain timeout may be transient. Surface it visibly once it
+        # persists rather than only spamming the console each cycle.
+        puts "$thd: stream timeout (depth [hal_stream depth $h] < $need)"
+        incr ::LH($thd,timeout,ct)
+        if {$::LH($thd,timeout,ct) >= 5 && !$::LH($thd,timeout,warned)} {
+          set ::LH($thd,timeout,warned) 1
+          popup "$thd: repeated stream timeouts (depth < $need).\n\nThe histogram is not updating for this thread."
         }
         return
       }
     }
+    set ::LH($thd,timeout,ct) 0
     set vals [hal_stream drain $h]
     hal setp $::LH($thd,name).stream 0
     # After drain the FIFO must be empty; non-zero means we read out of
@@ -877,6 +889,22 @@ proc popup {msg} { \
      ]
    puts $msg
 } ;# popup
+
+# Report an unrecoverable error visibly, then tear down and quit so the
+# tool never lingers in a broken, non-updating state.
+proc fatal {msg} {
+  catch {after cancel $::LH(after,repeat)}
+  popup $msg
+  foreach thd $::LH(threads) {
+    if {[info exists ::LH($thd,stream,h)]} {
+      catch {hal_stream detach $::LH($thd,stream,h)}
+      unset ::LH($thd,stream,h)
+    }
+  }
+  catch {exec pkill glxgears}
+  catch {exec halrun -U}
+  exit 1
+} ;# fatal
 
 proc progress {txt} {
   if !$::LH(verbose) return
