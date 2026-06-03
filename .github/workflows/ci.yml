@@ -128,15 +128,29 @@ jobs:
       run: |
         set -x
         sudo apt-get -q update
-        sudo apt-get --yes install cppcheck shellcheck
+        sudo apt-get --yes install cppcheck
     - name: Cppcheck
-      continue-on-error: true
       run: |
         set -x
         scripts/cppcheck.sh
+
+  shellcheck:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: false
+        fetch-depth: 1
+    - name: Install dependencies
+      run: |
+        set -x
+        sudo apt-get -q update
+        sudo apt-get --yes install shellcheck
     - name: Shellcheck
       continue-on-error: true
       run: |
+        set -x
         scripts/shellcheck.sh
 
   htmldocs:
