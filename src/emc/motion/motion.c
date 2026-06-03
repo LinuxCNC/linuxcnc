@@ -217,8 +217,23 @@ static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
     // cppcheck-suppress va_list_usedBeforeStarted
     va_copy(apc, ap);
     // cppcheck-suppress va_list_usedBeforeStarted
-    if(level == RTAPI_MSG_ERR) emcmotErrorPutfv(emcmotError, fmt, apc);
-    if(old_handler) old_handler(level, fmt, ap);
+
+    //Report errors trough emcmotError() so they are shown
+    //in the gui and also on the console in the configured language.
+    if(level == RTAPI_MSG_ERR){
+        emcmotErrorPutfv(emcmotError, fmt, apc);
+    }
+
+    //Report everything trough the old_handler which is typically
+    //the rtapi handler. These messages are shown on the console.
+    //This has the nasty side effect that error messages are shown twice.
+    //However, there is no good solution. If the milltask fails
+    //or stalls due to any reason, this results in the most important
+    //errors not visible any more if old_handler() is not invoked.
+    if(old_handler){
+        old_handler(level, fmt, ap);
+    }
+
     // cppcheck-suppress va_list_usedBeforeStarted
     va_end(apc);
 }
