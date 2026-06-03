@@ -288,20 +288,6 @@ int rtapi_get_msg_level() {
     return msg_level;
 }
 
-#if defined(__i386) || defined(__amd64)
-#define rdtscll(val) ((val) = __builtin_ia32_rdtsc())
-#else
-#define rdtscll(val) ((val) = rtapi_get_time())
-#endif
-
-long long rtapi_get_clocks(void)
-{
-    long long int retval;
-
-    rdtscll(retval);
-    return retval;
-}
-
 typedef struct {
     rtapi_mutex_t mutex;
     int           uuid;

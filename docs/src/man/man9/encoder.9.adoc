@@ -139,7 +139,7 @@ The *encoder*.__N__. format is shown in the following descriptions.
   for counting the output of a single channel (non-quadrature) sensor.
   When false (the default), it counts in quadrature mode.
 **encoder**.__N__.**capture-position.tmax** s32 rw::
-  Maximum number of CPU cycles it took to execute this function.
+  Maximum time in ns it took to execute this function.
 
 == PARAMETERS
 

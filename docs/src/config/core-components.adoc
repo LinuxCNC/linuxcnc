@@ -170,10 +170,8 @@ change or removal at any time.
 * 'motion.debug-float-3' - (float, RO) This is used for debugging purposes.
 * 'motion.debug-s32-0' - (s32, RO) This is used for debugging purposes.
 * 'motion.debug-s32-1' - (s32, RO) This is used for debugging purposes.
-* 'motion.servo.last-period' - (u32, RO) The number of CPU cycles between invocations of the servo thread.
-  Typically, this number divided by the CPU speed gives the time in seconds,
-  and can be used to determine whether the realtime motion controller is meeting its timing constraints
-* 'motion.servo.last-period-ns' - (float, RO)
+* 'motion.servo.last-period' - (u32, RO) The time in ns between invocations of the servo thread.
+  This number can be used to determine whether the realtime motion controller is meeting its timing constraints
 
 === Functions
 

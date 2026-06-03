@@ -808,11 +808,11 @@ static int eth_socket_recv(int sockfd, void *buffer, int len, int flags) {
 }
 
 static int eth_socket_recv_loop(int sockfd, void *buffer, int len, int flags, long timeout) {
-    long long end = rtapi_get_clocks() + timeout;
+    long long end = rtapi_get_time() + timeout;
     int result;
     do {
         result = eth_socket_recv(sockfd, buffer, len, flags);
-    } while(result < 0 && rtapi_get_clocks() < end);
+    } while(result < 0 && rtapi_get_time() < end);
     return result;
 }
 

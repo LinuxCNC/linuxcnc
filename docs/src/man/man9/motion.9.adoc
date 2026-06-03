@@ -106,9 +106,9 @@ digital pins and two analog pins.
 == MOTION PINS
 
 *motion-command-handler.time* OUT S32::
-  Time (in CPU clocks) for the motion module motion-command-handler
+  Time (in ns) for the motion module motion-command-handler
 *motion-controller.time* OUT S32::
-  Time (in CPU clocks) for the motion module motion-controller
+  Time (in ns) for the motion module motion-controller
 *motion.adaptive-feed* IN FLOAT::
   When adaptive feed is enabled with M52 P1, the commanded velocity is
   multiplied by this value. This effect is multiplicative with the
@@ -246,7 +246,7 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   possibly reduced to accommodate machine velocity and acceleration limits.
   The value on this pin does not reflect the feed override or any other adjustments.
 *motion.servo.last-period* OUT U32::
-  The number of CPU clocks between invocations of the servo thread.
+  Time (in ns) between invocations of the servo thread.
   Typically, this number divided by the CPU speed gives the time in seconds,
   and can be used to determine whether the realtime motion
   controller is meeting its timing constraints
@@ -544,12 +544,12 @@ the M19 command fails with an error message.
 Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
 
 *motion-command-handler.tmax* RW S32::
-  Show information about the execution time of these HAL functions in CPU clocks.
+  Show information about the execution time of these HAL functions in ns.
 
 *motion-command-handler.tmax-increased* RO S32::
 
 *motion-controller.tmax* RW S32::
-  Show information about the execution time of these HAL functions in CPU clocks.
+  Show information about the execution time of these HAL functions in ns.
 
 *motion-controller.tmax-increased* RO BIT::
   +
