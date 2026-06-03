@@ -39,6 +39,10 @@ DRIVER_TIMEOUT=180
 # launch-env.sh so launch.sh and quit-launch.sh cannot drift apart.
 . "$LIB_DIR/launch-env.sh"
 
+# Arm a core dump so a GUI segfault can be backtraced after the run.
+. "$LIB_DIR/crashdump.sh"
+crashdump_arm
+
 # Export the per-invocation values so the inner bash -c receives them
 # as proper env vars (avoids embedding paths into the inner script
 # via quoting, which breaks on apostrophes / spaces).
@@ -101,5 +105,8 @@ echo "=== ui-smoke.out ==="
 [ -f ui-smoke.out ] && cat ui-smoke.out
 echo "=== ui-smoke.err ==="
 [ -f ui-smoke.err ] && cat ui-smoke.err
+
+# If the GUI dumped a core, print its native backtrace.
+crashdump_report
 
 exit "$RC"

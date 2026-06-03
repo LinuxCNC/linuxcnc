@@ -39,6 +39,10 @@ QUIT_GRACE=15
 # launch-env.sh so launch.sh and quit-launch.sh cannot drift apart.
 . "$LIB_DIR/launch-env.sh"
 
+# Arm a core dump so a GUI segfault can be backtraced after the run.
+. "$LIB_DIR/crashdump.sh"
+crashdump_arm
+
 export CONFIG_INI LIB_DIR DRIVER_TIMEOUT GUI_MATCH QUIT_GRACE
 
 # shellcheck disable=SC2016
@@ -116,5 +120,8 @@ echo "=== linuxcnc.err ==="
 [ -f linuxcnc.err ] && cat linuxcnc.err
 echo "=== ui-smoke.out ==="
 [ -f ui-smoke.out ] && cat ui-smoke.out
+
+# If the GUI dumped a core, print its native backtrace.
+crashdump_report
 
 exit "$RC"
