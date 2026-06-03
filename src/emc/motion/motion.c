@@ -196,40 +196,66 @@ void emcmot_config_change(void)
     }
 }
 
+static rtapi_msg_handler_t old_handler = NULL;
+
 void reportError(const char *fmt, ...)
 {
     va_list args;
 
     va_start(args, fmt);
+
+    //Report trough emcmotError() so they are shown
+    //in the gui in the configured language.
     emcmotErrorPutfv(emcmotError, fmt, args);
+
     va_end(args);
+
+
+    //Report trough the old_handler which is typically
+    //the rtapi handler. These messages are shown on the console.
+    if(old_handler){
+        //We must add a \n due to reportError() strings normally
+        //don't have a newline at the end but rtapi_print() strings
+        //need one.
+        char fmt_tmp[EMCMOT_ERROR_LEN];
+        size_t fmt_len = strlen(fmt);
+        //Manually check string length and truncate if it is to long
+        if(fmt_len < EMCMOT_ERROR_LEN-1){
+            memcpy(fmt_tmp, fmt, fmt_len);
+            fmt_tmp[fmt_len+0] = '\n';
+            fmt_tmp[fmt_len+1] = '\0';
+        }else{
+            memcpy(fmt_tmp, fmt, EMCMOT_ERROR_LEN-2);
+            fmt_tmp[EMCMOT_ERROR_LEN-2] = '\n';
+            fmt_tmp[EMCMOT_ERROR_LEN-1] = '\0';
+        }
+
+        va_start(args, fmt);
+        old_handler(RTAPI_MSG_ERR, fmt_tmp, args);
+        va_end(args);
+    }
 }
 
 #ifndef va_copy
 #define va_copy(dest, src) ((dest)=(src))
 #endif
 
-static rtapi_msg_handler_t old_handler = NULL;
 static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
 {
     va_list apc;
     // False positive. Cppcheck does not seem to know the properties of va_copy()
     // cppcheck-suppress va_list_usedBeforeStarted
     va_copy(apc, ap);
-    // cppcheck-suppress va_list_usedBeforeStarted
 
     //Report errors trough emcmotError() so they are shown
-    //in the gui and also on the console in the configured language.
+    //in the gui in the configured language.
     if(level == RTAPI_MSG_ERR){
+        // cppcheck-suppress va_list_usedBeforeStarted
         emcmotErrorPutfv(emcmotError, fmt, apc);
     }
 
     //Report everything trough the old_handler which is typically
     //the rtapi handler. These messages are shown on the console.
-    //This has the nasty side effect that error messages are shown twice.
-    //However, there is no good solution. If the milltask fails
-    //or stalls due to any reason, this results in the most important
-    //errors not visible any more if old_handler() is not invoked.
     if(old_handler){
         old_handler(level, fmt, ap);
     }

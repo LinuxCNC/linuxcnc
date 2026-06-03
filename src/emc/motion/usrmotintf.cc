@@ -215,6 +215,7 @@ int usrmotReadEmcmotError(char *e)
     struct dbuf_iter di;
     dbuf_iter_init(&di, &d);
 
+    /* snprintdbuf() translates the language of the message */
     result =  snprintdbuf(e, EMCMOT_ERROR_LEN, &di);
     if(result < 0) return result;
     return 0;
