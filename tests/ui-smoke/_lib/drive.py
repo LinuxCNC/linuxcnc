@@ -13,6 +13,7 @@
 
 import argparse
 import linuxcnc
+import os
 import sys
 import time
 
@@ -32,6 +33,55 @@ ENSURE_ATTEMPT_TIMEOUT_S = 3.0
 STATE_STABILITY_S = 0.5
 STATE_RETRY_BUDGET = 6
 
+# linuxcnc launcher PID, written to linuxcnc.pid by the launcher and read
+# once at startup. The driver watches it so a GUI crash, which tears
+# linuxcnc down, fails the test in ~1s with a clear message instead of
+# waiting out a long NML poll. A dead task keeps serving its last stat
+# buffer, so process liveness is the only reliable crash signal.
+_WATCH_PID = None
+
+
+class LauncherGone(Exception):
+    """linuxcnc process group exited (GUI crashed or task died)."""
+
+
+def _read_pid(path):
+    try:
+        with open(path) as f:
+            return int(f.read().strip())
+    except (OSError, ValueError):
+        return None
+
+
+# Crash markers faulthandler and scripts/linuxcnc write to linuxcnc.err
+# the instant the GUI dies. The launcher PID can linger in Cleanup, so
+# scanning these catches the crash sooner and regardless of which GUI.
+_CRASH_MARKERS = ("Fatal Python error", "Segmentation fault", "Aborted")
+
+
+def _crash_marker_seen():
+    try:
+        with open("linuxcnc.err") as f:
+            return any(m in f.read() for m in _CRASH_MARKERS)
+    except OSError:
+        return False
+
+
+def _watchdog():
+    """Raise LauncherGone if the GUI has crashed: either the launcher PID
+    is gone, or a crash marker appeared in linuxcnc.err. Unknown PID and
+    a missing log count as alive, so a not-yet-written file never
+    false-fails the test."""
+    if _WATCH_PID is not None:
+        try:
+            os.kill(_WATCH_PID, 0)
+        except ProcessLookupError:
+            raise LauncherGone()
+        except PermissionError:
+            pass
+    if _crash_marker_seen():
+        raise LauncherGone()
+
 
 def connect_and_wait_ready(timeout):
     """Wait until linuxcnc.stat().poll() returns without error and
@@ -47,6 +97,7 @@ def connect_and_wait_ready(timeout):
     deadline = time.monotonic() + timeout
     last_err = None
     while time.monotonic() < deadline:
+        _watchdog()
         try:
             stat = linuxcnc.stat()
             stat.poll()
@@ -70,6 +121,7 @@ def wait_until_quiet(stat, predicate, timeout):
     must not happen."""
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
+        _watchdog()
         stat.poll()
         if predicate(stat):
             return True
@@ -195,6 +247,7 @@ def wait_program_started(stat, timeout):
     IDLE; we then read stat.position at (0,0,0)."""
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
+        _watchdog()
         stat.poll()
         if stat.interp_state != linuxcnc.INTERP_IDLE:
             return True
@@ -214,6 +267,7 @@ def wait_program_idle(stat, timeout):
     deadline = time.monotonic() + timeout
     consecutive = 0
     while time.monotonic() < deadline:
+        _watchdog()
         stat.poll()
         idle = (
             stat.interp_state == linuxcnc.INTERP_IDLE
@@ -311,29 +365,40 @@ def main():
     if args.run_program and args.expect_delta_mm is None:
         ap.error("--run-program requires --expect-delta-mm DX,DY,DZ")
 
-    cmd, stat = connect_and_wait_ready(CONNECT_TIMEOUT_S)
-    if cmd is None:
-        return 1
+    global _WATCH_PID
+    _WATCH_PID = _read_pid("linuxcnc.pid")
 
-    # Give the GUI process enough time to finish constructing itself
-    # (load .ui files, compile resources.py if needed, etc.) and
-    # settle. If the GUI was going to crash on startup it has crashed
-    # by now.
-    time.sleep(SETTLE_S)
-
-    # Re-check task is still alive; a GUI crash may have torn linuxcnc
-    # down via Cleanup.
     try:
-        stat.poll()
-    except linuxcnc.error as e:
-        sys.stderr.write(f"UI_SMOKE_FAIL: task disappeared after GUI startup: {e}\n")
-        return 1
-
-    if args.run_program:
-        if not run_program(cmd, stat,
-                           args.run_program, args.expect_delta_mm,
-                           args.tol, args.run_timeout):
+        cmd, stat = connect_and_wait_ready(CONNECT_TIMEOUT_S)
+        if cmd is None:
             return 1
+
+        # Give the GUI process enough time to finish constructing itself
+        # (load .ui files, compile resources.py if needed, etc.) and
+        # settle. If the GUI was going to crash on startup it has crashed
+        # by now.
+        time.sleep(SETTLE_S)
+        _watchdog()
+
+        # Re-check task is still alive; a GUI crash may have torn linuxcnc
+        # down via Cleanup.
+        try:
+            stat.poll()
+        except linuxcnc.error as e:
+            sys.stderr.write(f"UI_SMOKE_FAIL: task disappeared after GUI startup: {e}\n")
+            return 1
+
+        if args.run_program:
+            if not run_program(cmd, stat,
+                               args.run_program, args.expect_delta_mm,
+                               args.tol, args.run_timeout):
+                return 1
+    except LauncherGone:
+        sys.stderr.write(
+            "UI_SMOKE_FAIL: linuxcnc exited before the driver finished; "
+            "the GUI crashed or task died. See linuxcnc.out / linuxcnc.err "
+            "above for the backtrace.\n")
+        return 1
 
     print("UI_SMOKE_OK")
     return 0

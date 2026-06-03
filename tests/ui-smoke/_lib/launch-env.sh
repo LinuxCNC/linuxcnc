@@ -24,3 +24,8 @@ export CANBERRA_DRIVER=null
 export GST_PLUGIN_FEATURE_RANK="pulsesink:NONE,alsasink:NONE,osssink:NONE,oss4sink:NONE,jackaudiosink:NONE,pipewiresink:NONE,openalsink:NONE"
 export PULSE_SERVER=/dev/null
 export SDL_AUDIODRIVER=dummy
+
+# Dump a Python traceback on a fatal signal. For a pure-Python crash this
+# names the line; for a C/C++ crash (Qt, dbus, GL) it shows the Python
+# frame that called in. The native side is captured by crashdump.sh.
+export PYTHONFAULTHANDLER=1
