@@ -29,6 +29,7 @@ src/modules.order
 /docs/src/source-highlight/local
 docs/src/*/gui/gmoccapy_release_notes.txt
 lib/python/gremlin.py
+lib/python/preview_helpers.py
 lib/python/qt5_graphics.py
 lib/python/touchy
 configs/sim/gmoccapy/*.pref

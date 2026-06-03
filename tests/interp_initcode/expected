@@ -1,0 +1,20 @@
+startup gcodes  (0, 800, -1, 170, 400, 200, 900, 940, 540, 430, 990, 640, -1, 970, 911, 80, -1)
+set_g5x_offset (1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+set_g92_offset (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+set_xy_rotation (0.0,)
+# interpreter: feed mode set to units per minute
+set feed rate 0.0
+set plane 1
+# interpreter: cutter radius compensation off
+tool_offset (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+set_g5x_offset (2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+set_g92_offset (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+set_xy_rotation (0.0,)
+# interpreter: retract mode set to r_plane
+straight_traverse  (1.23, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+set feed rate 100.0
+arc_feed  (1.23, 0.0, 21.23, 0.0, -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+straight_traverse  (10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+set_g5x_offset (1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+set_xy_rotation (0.0,)
+set feed rate 0.0
