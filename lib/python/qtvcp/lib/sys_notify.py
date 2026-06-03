@@ -61,39 +61,29 @@ def init(app_name):
     path = "/org/freedesktop/Notifications"
     interface = "org.freedesktop.Notifications"
 
-    mainloop = None
-    bus = None
     try:
-        if DBusQtMainLoop is not None:
-            mainloop = DBusQtMainLoop(set_as_default=True)
+        # Probe on a throwaway no-mainloop connection first. Wiring the
+        # Qt dbus mainloop before a daemon is confirmed leaves a dangling
+        # QSocketNotifier that segfaults on its next dispatch.
+        probe = dbus.SessionBus(private=True)
+        try:
+            present = probe.name_has_owner(name)
+        finally:
+            probe.close()
+        if not present:
+            raise RuntimeError('no notification daemon')
 
-        bus = dbus.SessionBus(mainloop)
+        mainloop = DBusQtMainLoop(set_as_default=True) if DBusQtMainLoop else None
+        bus = dbus.SessionBus(mainloop=mainloop)
         proxy = bus.get_object(name, path)
         DBUS_IFACE = dbus.Interface(proxy, interface)
 
         if mainloop is not None:
-            # We have a mainloop, so connect callbacks
             DBUS_IFACE.connect_to_signal('ActionInvoked', _onActionInvoked)
             DBUS_IFACE.connect_to_signal('NotificationClosed', _onNotificationClosed)
     except Exception as e:
         LOG.warning('Desktop Notify not available:: {}'.format(e))
-        # When the SessionBus is constructed with a PyQt5/PyQt6 mainloop
-        # integration, dbus-python installs a QSocketNotifier on the
-        # connection fd. If the subsequent get_object/Interface setup
-        # raises (e.g. ServiceUnknown when no notification daemon owns
-        # org.freedesktop.Notifications), the Python-side bus reference
-        # is dropped on exception but the QSocketNotifier keeps the
-        # underlying C connection alive in a half-initialized state.
-        # The next QEventLoop tick dispatches a queued message via
-        # dbus_connection_dispatch() and segfaults inside
-        # _dbus_list_unlink. Close the bus explicitly so the notifier
-        # detaches and the connection is fully released.
         DBUS_IFACE = None
-        if bus is not None:
-            try:
-                bus.close()
-            except Exception:
-                pass
 
 
 def _onActionInvoked(nid, action):
