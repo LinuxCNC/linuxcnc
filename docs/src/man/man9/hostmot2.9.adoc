@@ -322,9 +322,7 @@ following pins and parameters:
 *Pins:*
 
 count (s32 out)::
- Number of encoder counts since the previous reset.
-count_64 (s64 out)::
- Number of encoder counts since the previous reset (64 bit).
+ Number of encoder counts since the previous reset. 32-bit truncation of the 64-bit internal counter; position is computed from the full-width internal value so it does not wrap.
 position (float out)::
  Encoder position in position units (count / scale).
 position-interpolated (float out)::
@@ -355,13 +353,9 @@ probe-invert (bit r/w)::
  If set to True, the rising edge of the probe input pin triggers the latch event (if probe-enable is True).
  If set to False, the falling edge triggers. (only present if supported by firmware)
 rawcounts (s32 out)::
- Total number of encoder counts since the start, not adjusted for index or reset.
-rawcounts_64 (s64 out)::
- Total number of encoder counts since the start, not adjusted for index or reset. (64 bit)
+ Total number of encoder counts since the start, not adjusted for index or reset. Truncated view of the internal 64-bit counter.
 count_latch (s32 out)::
- Encoder count at latch event. (index or probe)
-count_latch_64 (s64 out)::
- Encoder count at latch event. (index or probe) (64 bit)
+ Encoder count at latch event (index or probe). Truncated view of the internal 64-bit latched count.
 input-a, input-b, input-index (bit out)::
  Real time filtered values of A,B,Index encoder signals
 quad-error-enable (bit in)::
