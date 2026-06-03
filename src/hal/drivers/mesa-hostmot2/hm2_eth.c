@@ -759,11 +759,17 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
         return ret;
     }
 
+    // Pinning the ARP entry needs CAP_NET_ADMIN; rootless without setcap
+    // fails with EPERM.  Best-effort, not fatal: fall back to dynamic ARP
+    // so the board still loads.  Clear ATF_PERM so the SIOCDARP teardown
+    // in close_board() does not try to remove an entry we never set.
     ret = ioctl_siocsarp(board);
     if(ret < 0) {
-        LL_PRINT("ERROR: ioctl SIOCSARP failed: %s\n", strerror(errno));
+        LL_PRINT("WARNING: ioctl SIOCSARP failed: %s; continuing with "
+                 "dynamic ARP.  Install file capabilities (sudo make "
+                 "setcap) or run setuid to pin the board's ARP entry and "
+                 "avoid occasional transmit latency.\n", strerror(errno));
         board->req.arp_flags &= ~ATF_PERM;
-        return -errno;
     }
 
     // install_iptables_board() is a no-op when iptables is unavailable
