@@ -120,6 +120,8 @@ echo "=== linuxcnc.err ==="
 [ -f linuxcnc.err ] && cat linuxcnc.err
 echo "=== ui-smoke.out ==="
 [ -f ui-smoke.out ] && cat ui-smoke.out
+echo "=== ui-smoke.err ==="
+[ -f ui-smoke.err ] && cat ui-smoke.err
 
 # If the GUI dumped a core, print its native backtrace.
 crashdump_report
