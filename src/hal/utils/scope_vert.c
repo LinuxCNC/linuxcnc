@@ -724,14 +724,22 @@ static gboolean dialog_set_offset(int chan_num)
 
     /* update elements */
     snprintf(data.buf, BUFLEN, "%f", chan->vert_offset);
+    /* get AC coupling setting from channel */
+    data.ac_coupled = chan->ac_offset;
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vert->offset_ac), data.ac_coupled);
+    gtk_widget_set_sensitive(GTK_WIDGET(vert->offset_entry), !data.ac_coupled);
+
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), data.buf);
     gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN-1);
-    /* point at first char */
-    gtk_editable_set_position(GTK_EDITABLE(vert->offset_entry), 0);
-    /* select all chars, so if the user types the original value goes away */
-    gtk_editable_select_region(GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
-    /* make it active so user doesn't have to click on it */
-    gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
+    
+    if (!data.ac_coupled) {
+        /* point at first char */
+        gtk_editable_set_position(GTK_EDITABLE(vert->offset_entry), 0);
+        /* select all chars, so if the user types the original value goes away */
+        gtk_editable_select_region(GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
+        /* make it active so user doesn't have to click on it */
+        gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
+    }
 
     /* signals */
     g_signal_connect(vert->offset_ac, "toggled",
