@@ -52,6 +52,8 @@ PAGE_HEADER_RE = re.compile(r'(<header id="lcnc-topbar".*?</header>)', re.DOTALL
 # A previously injected banner, removed before re-injecting so the pass
 # stays idempotent and reflects the current .po ratio each run.
 BANNER_RE = re.compile(r'\n?[ \t]*<div class="lcnc-trans-banner".*?</div>', re.DOTALL)
+# Previously injected nav tree, stripped before re-inject (idempotent).
+SITENAV_RE = re.compile(r'<nav class="lcnc-sitenav".*?</nav>\n?', re.DOTALL)
 
 
 def parse_po(path):
@@ -207,10 +209,217 @@ def rewrite_details_block(html_dir, block_body):
     return DETAILS_ENTRY_RE.sub(repl, block_body)
 
 
+# Whole-document navigation tree mirroring the Master_*.adoc structure; each
+# page gets the tree with its branch expanded and its entry active.
+SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+SITENAV_ROOTS = []      # built once in main()
+_TITLE_CACHE = {}
+
+
+def _html_escape(s):
+    return (s.replace('&', '&amp;').replace('<', '&lt;')
+             .replace('>', '&gt;').replace('"', '&quot;'))
+
+
+def _clean_title(s):
+    # Drop the " V{lversion}" / attribute tail and any leftover {attr}.
+    s = re.sub(r'\s*V?\{[^}]*\}.*$', '', s)
+    return s.strip()
+
+
+def _humanize(path):
+    return os.path.basename(path).replace('-', ' ').replace('_', ' ').title()
+
+
+def _page_title(path):
+    """First '= Heading' of the page's English source adoc, else humanized."""
+    if path in _TITLE_CACHE:
+        return _TITLE_CACHE[path]
+    title = None
+    src = os.path.join(SRC_DIR, path + '.adoc')
+    try:
+        with open(src, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.startswith('= '):
+                    title = _clean_title(line[2:])
+                    break
+    except OSError:
+        pass
+    title = title or _humanize(path)
+    _TITLE_CACHE[path] = title
+    return title
+
+
+# Books that seed the tree.  promote=True splices the book's parts in at top
+# level instead of nesting them under a redundant book node.
+SITENAV_MASTERS = (('Master_Documentation.adoc', True),
+                   ('Master_Integrator.adoc', False),
+                   ('Master_Developer.adoc', False))
+_INC_RE = re.compile(r'^include::([^\[]+)\.adoc\[')
+_LVL_RE = re.compile(r'^:leveloffset:\s*([+-]?\d+)')
+
+
+def _parse_master(master):
+    """One book node {title, path:None, children:[parts/groups/pages]}."""
+    try:
+        f = open(os.path.join(SRC_DIR, master), 'r', encoding='utf-8')
+    except OSError:
+        return None
+    book = {'title': None, 'path': None, 'children': []}
+    stack = [(-1, book)]          # book holds everything below level 0
+    level = 0
+    with f:
+        for line in f:
+            line = line.rstrip('\n')
+            m = _LVL_RE.match(line)
+            if m:
+                v = m.group(1)
+                level = level + int(v) if v[0] in '+-' else int(v)
+                continue
+            if line.startswith('= '):
+                title = _clean_title(line[2:])
+                if book['title'] is None:
+                    book['title'] = title
+                    continue
+                node = {'title': title, 'path': None, 'children': []}
+                while stack[-1][0] >= level:
+                    stack.pop()
+                stack[-1][1]['children'].append(node)
+                stack.append((level, node))
+                continue
+            mi = _INC_RE.match(line)
+            if mi:
+                path = mi.group(1).strip()
+                stack[-1][1]['children'].append(
+                    {'title': _page_title(path), 'path': path, 'children': []})
+    return book
+
+
+def build_sitenav(masters=SITENAV_MASTERS):
+    """Nested nav model.  Node dicts: group/book = {title, path:None,
+    children:[...]}, page = {title, path, children:[]}."""
+    roots = []
+    for master, promote in masters:
+        book = _parse_master(master)
+        if not book or not book['children']:
+            continue
+        if promote:
+            roots.extend(book['children'])
+        else:
+            roots.append(book)
+    return roots
+
+
+def _has_active(node, active):
+    if node['path'] == active:
+        return True
+    return any(_has_active(c, active) for c in node['children'])
+
+
+def _render_node(node, active, prefix, open_all, page_toc):
+    if node['path'] is not None and not node['children']:
+        is_active = node['path'] == active
+        cls = ' class="lcnc-sn-active"' if is_active else ''
+        af = ' tabindex="-1" autofocus' if is_active else ''
+        href = prefix + node['path'] + '.html'
+        link = f'<a{cls}{af} href="{href}">{_html_escape(node["title"])}</a>'
+        # The current page's own section list nests under its entry.
+        return link + page_toc if is_active and page_toc else link
+    inner = ''.join(_render_node(c, active, prefix, open_all, page_toc)
+                    for c in node['children'])
+    op = ' open' if open_all else ''
+    return (f'<details{op}><summary>{_html_escape(node["title"])}</summary>'
+            f'{inner}</details>')
+
+
+def render_sitenav(active, prefix, page_toc='', orphan_title=None):
+    # The active top-level section is expanded in full; the others collapse.
+    body = ''
+    # A page absent from the master tree (orphan_title set) still gets its own
+    # entry + section list at the top, so it is never left without a TOC.
+    if orphan_title is not None:
+        href = prefix + active + '.html'
+        body += (f'<a class="lcnc-sn-active" tabindex="-1" autofocus '
+                 f'href="{href}">{_html_escape(orphan_title)}</a>{page_toc}')
+    body += ''.join(_render_node(n, active, prefix, _has_active(n, active), page_toc)
+                    for n in SITENAV_ROOTS)
+    return f'<nav class="lcnc-sitenav" aria-label="Documentation">{body}</nav>'
+
+
+def _extract_sectlevel1(html):
+    """The page's own asciidoctor TOC list (balanced <ul class=sectlevel1>)."""
+    start = html.find('<ul class="sectlevel1">')
+    if start < 0:
+        return ''
+    depth = 0
+    for m in re.finditer(r'<ul\b|</ul>', html[start:]):
+        depth += 1 if m.group() == '<ul' else -1
+        if depth == 0:
+            return html[start:start + m.end()]
+    return ''
+
+
+def _toc2_bounds(content):
+    """(inner_start, inner_end, close_end) of the toc2 div, or None."""
+    open_tag = '<div id="toc" class="toc2">'
+    i = content.find(open_tag)
+    if i < 0:
+        return None
+    j = i + len(open_tag)
+    depth = 1
+    for m in re.finditer(r'<div\b|</div>', content[j:]):
+        depth += 1 if m.group() == '<div' else -1
+        if depth == 0:
+            return (j, j + m.start(), j + m.end())
+    return None
+
+
+def _scaffold_sidebar(content, nav):
+    """Section-less pages have no toc2 container; add the body classes and
+    insert the sidebar div after the page <h1>."""
+    def body_cls(m):
+        cls = m.group(1)
+        return m.group(0) if 'toc2' in cls else f'<body class="{cls} toc2 toc-left"'
+    content = re.sub(r'<body class="([^"]*)"', body_cls, content, count=1)
+    div = f'<div id="toc" class="toc2">{nav}</div>\n'
+    return re.sub(r'(<div id="header">.*?</h1>\s*)',
+                  lambda m: m.group(1) + div, content, count=1, flags=re.DOTALL)
+
+
+def inject_sitenav(html_path, html_root, content):
+    """Replace asciidoctor's page-only TOC sidebar with the whole-document
+    tree; scaffold a sidebar for section-less pages that have none."""
+    # Recover the page's section list before stripping any prior nav (on a
+    # re-run it lives nested inside it), so it is never lost.
+    pre = _toc2_bounds(content)
+    page_toc = _extract_sectlevel1(content[pre[0]:pre[1]]) if pre else ''
+    content = SITENAV_RE.sub('', content)
+    if not SITENAV_ROOTS:
+        return content
+    rel = os.path.relpath(html_path, html_root).split('/')
+    if rel and rel[0] in (['en'] + list(LANGUAGES)):
+        rel = rel[1:]
+    page_rel = '/'.join(rel)
+    active = page_rel[:-5] if page_rel.endswith('.html') else page_rel
+    prefix = '../' * page_rel.count('/')
+    in_tree = any(_has_active(n, active) for n in SITENAV_ROOTS)
+    bounds = _toc2_bounds(content)
+    if bounds is not None:
+        orphan = None if in_tree else _page_title(active)
+        nav = render_sitenav(active, prefix, page_toc, orphan_title=orphan)
+        inner_start, inner_end, _close = bounds
+        return content[:inner_start] + nav + content[inner_end:]
+    # No toc2: scaffold only when the page is in the tree (orphans stay bare).
+    if not in_tree:
+        return content
+    return _scaffold_sidebar(content, render_sitenav(active, prefix, page_toc))
+
+
 def process(html_path, html_root, po_ratios):
     with open(html_path, 'r', encoding='utf-8') as f:
         content = f.read()
-    if 'lcnc-lang-list' not in content and 'details-list' not in content:
+    if ('lcnc-lang-list' not in content and 'details-list' not in content
+            and 'id="toc" class="toc2"' not in content):
         return False
     html_dir = os.path.dirname(html_path)
     new_content = content
@@ -236,6 +445,9 @@ def process(html_path, html_root, po_ratios):
                 lambda m: m.group(1) + '\n' + banner_html(pct),
                 new_content, count=1)
 
+    # Whole-document navigation tree in the left sidebar.
+    new_content = inject_sitenav(html_path, html_root, new_content)
+
     if new_content == content:
         return False
     with open(html_path, 'w', encoding='utf-8') as f:
@@ -244,8 +456,9 @@ def process(html_path, html_root, po_ratios):
 
 
 def main(html_root, po_dir, languages):
-    global LANGUAGES
+    global LANGUAGES, SITENAV_ROOTS
     LANGUAGES = languages
+    SITENAV_ROOTS = build_sitenav()
     html_root = os.path.abspath(html_root)
     po_ratios = {}
     for lang in languages:

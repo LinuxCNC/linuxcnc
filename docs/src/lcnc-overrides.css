@@ -219,6 +219,78 @@ li.lcnc-link-unavail a:visited {
     color: #ddd;
   }
 }
+
+/* Whole-document navigation tree at the top of the left TOC. */
+.lcnc-sitenav {
+  font-family: "Open Sans","DejaVu Sans",sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.3334;
+  padding-bottom: 4rem;      /* lets the last entry scroll clear of the edge */
+}
+.lcnc-sitenav details { margin: 0; }
+/* one indent step per nested level */
+.lcnc-sitenav details > details,
+.lcnc-sitenav details > a,
+.lcnc-sitenav details > ul { margin-left: 0.75em; }
+.lcnc-sitenav summary {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  cursor: pointer;
+  padding: 0.18em 0 0.18em 0.5em;
+  font-weight: normal;
+  color: #1a1a1a;            /* heading row, not a link */
+}
+.lcnc-sitenav > details > summary { font-weight: 600; }
+.lcnc-sitenav summary:hover { text-decoration: underline; }
+/* asciidoctor absolutely-places its own summary marker at left:-1.25rem;
+   override it so ours stays in flow, and drop its spacer ::after. */
+.lcnc-sitenav summary::after { content: none; }
+.lcnc-sitenav summary::before {
+  content: "";
+  position: static;
+  flex: 0 0 auto;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid #9b9b9b;   /* closed: right-pointing grey triangle */
+  transform: none;
+}
+.lcnc-sitenav details[open] > summary::before {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid #9b9b9b;    /* ▾ */
+  border-bottom: 0;
+}
+.lcnc-sitenav a {
+  display: block;
+  padding: 0.12em 0;
+  color: #2156a5;
+  text-decoration: none;
+}
+.lcnc-sitenav a:hover { text-decoration: underline; }
+.lcnc-sitenav a.lcnc-sn-active {
+  font-weight: 700;
+  background: hsla(212,80%,50%,0.12);
+}
+.lcnc-sitenav a.lcnc-sn-active:focus { outline: none; }
+/* the active page's own section list */
+.lcnc-sitenav a.lcnc-sn-active + ul.sectlevel1 {
+  margin: 0.15em 0 0.4em 0.9em;
+}
+.lcnc-sitenav ul { list-style: none; margin: 0; padding: 0; }
+.lcnc-sitenav ul a { padding-left: 0.5em; }
+@media (prefers-color-scheme: dark) {
+  .lcnc-sitenav summary { color: #e6e6e6; }
+  .lcnc-sitenav a { color: #7fb0ec; }
+  .lcnc-sitenav summary::before { border-left-color: #888; }
+  .lcnc-sitenav details[open] > summary::before { border-top-color: #888; }
+  .lcnc-sitenav a.lcnc-sn-active {
+    color: #cfe0f8;
+    background: hsla(212,80%,55%,0.20);
+  }
+}
 body:is(.article,.book,.manpage).toc2 #toc.toc2 {
   top: 3rem;
 }
