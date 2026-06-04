@@ -43,6 +43,12 @@ DRIVER_TIMEOUT=180
 . "$LIB_DIR/crashdump.sh"
 crashdump_arm
 
+# Absolute path the offscreen-Qt self-grab writes to. An offscreen GUI
+# runs with its cwd at the (writable) config mirror, not the test dir, so
+# a relative name would land out of reach; pin it to the test dir, which
+# is this shell's cwd. Harmless for the GTK GUIs, which ignore it.
+export UI_SMOKE_QT_SHOT="$PWD/ui-smoke-qt.png"
+
 # Export the per-invocation values so the inner bash -c receives them
 # as proper env vars (avoids embedding paths into the inner script
 # via quoting, which breaks on apostrophes / spaces).
@@ -52,7 +58,7 @@ export CONFIG_INI LIB_DIR DRIVER_TIMEOUT
 # LIB_DIR and DRIVER_TIMEOUT are expanded by the inner bash (which sees
 # them via the exported env), not by the outer shell.
 # shellcheck disable=SC2016
-xvfb-run -a --server-args="-screen 0 1024x768x24" \
+xvfb-run -a --server-args="-screen 0 $UI_SMOKE_XVFB_SCREEN" \
     timeout "$LINUXCNC_TIMEOUT" \
     bash -c '
         # Run linuxcnc in its own process group so we can signal the
@@ -69,6 +75,25 @@ xvfb-run -a --server-args="-screen 0 1024x768x24" \
         # as positional $@ from the inner bash -c.
         timeout "$DRIVER_TIMEOUT" python3 "$LIB_DIR/drive.py" "$@" >ui-smoke.out 2>ui-smoke.err
         DRIVE_RC=$?
+
+        # Photograph the root window before teardown, while DISPLAY is the
+        # Xvfb server and the GUI is still up. On failure the picture shows
+        # the cause (a hung GUI on a blocking modal leaves no core for
+        # crashdump.sh and no Python traceback). On a clean Phase 2 run it
+        # is a confirmation shot of the GUI in its post-movement idle state
+        # (final DRO / toolpath), so a reviewer can eyeball the result. The
+        # short settle lets the GUI repaint the final position first.
+        . "$LIB_DIR/screenshot.sh"
+        if [ "$DRIVE_RC" -ne 0 ]; then
+            screenshot_grab screenshot.png
+        else
+            case " $* " in
+                *" --run-program "*)
+                    sleep 0.5
+                    screenshot_grab confirm.png
+                    ;;
+            esac
+        fi
 
         # Clean shutdown: GUI-specific quit first (lets linuxcnc end
         # its own SIGTERM trap run Cleanup which unloads halrun and
@@ -108,5 +133,10 @@ echo "=== ui-smoke.err ==="
 
 # If the GUI dumped a core, print its native backtrace.
 crashdump_report
+
+# Note any screenshot so the CI artifact step and reviewer know it is
+# there to download: screenshot.png on failure, confirm.png on a clean run.
+[ -f screenshot.png ] && echo "=== screenshot: $TEST_DIR/screenshot.png ==="
+[ -f confirm.png ] && echo "=== confirm: $TEST_DIR/confirm.png ==="
 
 exit "$RC"

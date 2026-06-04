@@ -71,6 +71,46 @@ class _BlockFinder(MetaPathFinder):
         return None
 
 sys.meta_path.insert(0, _BlockFinder())
+
+
+# Native screenshot for the offscreen Qt platform. An X root grab gets a
+# black frame (offscreen never draws to the X server), so the launcher
+# signals this process instead: on SIGUSR1 we grab the main qtvcp window
+# to ui-smoke-qt.png in the cwd (the test dir). The grab is deferred into
+# the Qt event loop via singleShot so it never runs in signal context.
+import os
+import signal
+
+def _ui_smoke_grab():
+    try:
+        from qtpy.QtWidgets import QApplication
+        app = QApplication.instance()
+        if app is None:
+            return
+        target, best = None, -1
+        for w in app.topLevelWidgets():
+            if not w.isVisible():
+                continue
+            area = w.width() * w.height()
+            if area > best:
+                target, best = w, area
+        if target is not None:
+            out = os.environ.get('UI_SMOKE_QT_SHOT', 'ui-smoke-qt.png')
+            target.grab().save(out)
+    except Exception:
+        pass
+
+def _ui_smoke_on_sigusr1(signum, frame):
+    try:
+        from qtpy.QtCore import QTimer
+        QTimer.singleShot(0, _ui_smoke_grab)
+    except Exception:
+        pass
+
+try:
+    signal.signal(signal.SIGUSR1, _ui_smoke_on_sigusr1)
+except Exception:
+    pass
 PY
 export PYTHONPATH="$SHIM_DIR${PYTHONPATH:+:$PYTHONPATH}"
 
