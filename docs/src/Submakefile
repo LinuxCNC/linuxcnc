@@ -390,12 +390,23 @@ endif
 # per-lang list is derived from po4a.cfg (authoritative source of which
 # manpages have a translated counterpart) rather than MAN_SRCS, which
 # would close a cycle through components_gen.adoc and over-include.
-MAN_HTML_TARGETS_EN := $(patsubst $(DOC_MAN)/%, $(DOC_OUT_HTML)/en/man/%.html, $(MAN_SRCS))
+# Every language renders the FULL English manpage set so the docs stay
+# uniform: translated where a po4a leg provides it, English fallback
+# otherwise (the per-page banner shows the completeness).
+MAN_EN_STEMS := $(patsubst $(DOC_MAN)/%, %, $(MAN_SRCS))
+MAN_HTML_TARGETS_EN := $(addprefix $(DOC_OUT_HTML)/en/man/, $(addsuffix .html, $(MAN_EN_STEMS)))
+# Stems that get a po4a-built per-language troff: AsciiDoc_def (committed
+# src/man/*.adoc, rendered per-lang via TRANSLATED_TROFF_RULE) and man_def
+# (the comp manpages, translated troff direct).  Everything else is
+# English-only and gets an English troff copy per language (rule below) so
+# the per-language target set can be the full English set.
 PO4A_MANPAGE_STEMS := $(shell sed -ne 's|^\[type: AsciiDoc_def\] src/man/\([^ ]*\)\.adoc .*|\1|p' $(DOC_DIR)/po4a.cfg)
+PO4A_MANPAGE_STEMS += $(shell sed -ne 's|^\[type: man_def\] build/man/\([^ ]*\) .*|\1|p' $(DOC_DIR)/po4a.cfg)
+MAN_ENONLY_STEMS := $(filter-out $(sort $(PO4A_MANPAGE_STEMS)), $(MAN_EN_STEMS))
 $(foreach L,$(LANGUAGES), \
 	$(eval MAN_HTML_TARGETS_$(call toUC,$(L)) := \
 		$$(addprefix $(DOC_OUT_HTML)/$(L)/man/, \
-		$$(addsuffix .html, $$(PO4A_MANPAGE_STEMS)))))
+		$$(addsuffix .html, $$(MAN_EN_STEMS)))))
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 MAN_HTML_TARGETS = $(MAN_HTML_TARGETS_EN) \
 	$(foreach L,$(LANGUAGES),$(MAN_HTML_TARGETS_$(call toUC,$(L))))
@@ -650,6 +661,10 @@ $(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html
 			F="$(DOC_OUT_ADOC)/$(1)/man/$$$$S/$$$$N"; \
 		elif [ -r "objects/man/$$$$S/$$$$N" ]; then \
 			F="objects/man/$$$$S/$$$$N"; \
+		elif [ -r "$(DOC_SRCDIR)/man/$$$$S/$$$$N" ]; then \
+			F="$(DOC_SRCDIR)/man/$$$$S/$$$$N"; \
+		elif [ -r "$(DOC_OUT_ADOC)/en/man/$$$$S/$$$$N" ]; then \
+			F="$(DOC_OUT_ADOC)/en/man/$$$$S/$$$$N"; \
 		else \
 			echo "Error: Cannot find manpage '$$<' in adoc format"; \
 			exit 1; \
@@ -724,7 +739,10 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRC
 	mkdir -p $(DOC_OUT_HTML)/en/man/man/images/
 	find $(DOC_MAN) -maxdepth 3 -name "*.png" ! -name "grohtml*" -exec mv {} "$(DOC_OUT_HTML)/en/man/man/images/" \;
 
-$(DOC_OUT_HTML)/%/index.html: $(DOC_OUT_ADOC)/%/index.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
+# Translated landing pages append the same manpage index English uses; every
+# language now renders the full manpage set, so the relative man/ hrefs all
+# resolve under <lang>/man/ (no dead links).
+$(DOC_OUT_HTML)/%/index.html: $(DOC_OUT_ADOC)/%/index.tmpl objects/index.incl ../VERSION $(DOC_SRCDIR)/index.foot
 	@mkdir -p $(dir $@)
 	cat $(filter-out ../VERSION, $^) | \
 		sed "s/@VERSION@/`cat ../VERSION`/" | \
@@ -1188,6 +1206,20 @@ $$(DOC_MAN)/$1/%: $$(DOC_OUT_ADOC)/$1/man/%.adoc | $$(DOC_DIR)/.translateddocs-s
 		$$<
 endef
 $(foreach L,$(LANGUAGES),$(eval $(call TRANSLATED_TROFF_RULE,$(L))))
+
+# English-only manpages (no po4a entry on either leg: man3 API reference,
+# some man1/man9) have no translated troff.  Copy the English troff into
+# each language so every language can render the full manpage set, English
+# where untranslated.  Static-pattern targets, so this takes precedence
+# over TRANSLATED_TROFF_RULE's pattern rule (whose translated-adoc prereq
+# does not exist for these stems).  HTML still routes through MAN_HTML_RULE,
+# which resolves the adoc to the committed/objects English source.
+define MAN_ENONLY_TROFF_RULE
+$(addprefix $(DOC_MAN)/$(1)/,$(MAN_ENONLY_STEMS)): $(DOC_MAN)/$(1)/%: $(DOC_MAN)/% | $(DOC_DIR)/.translateddocs-stamp
+	@mkdir -p $$(dir $$@)
+	$(Q)cp $$< $$@
+endef
+$(foreach L,$(LANGUAGES),$(eval $(call MAN_ENONLY_TROFF_RULE,$(L))))
 
 # Wire translated manpages into `docs` only (not `manpages`).  Pulling
 # them into `manpages` would create a cycle: the troff rule's order-only
