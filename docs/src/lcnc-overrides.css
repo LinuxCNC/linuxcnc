@@ -105,6 +105,36 @@ body:has(.lcnc-topbar):not(.article):not(.book):not(.manpage) {
   display: block;
 }
 
+/* Site links, centred in the topbar regardless of logo/switcher widths. */
+.lcnc-topbar-links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: "Open Sans","DejaVu Sans",sans-serif;
+  font-size: 0.95rem;
+}
+/* #lcnc-topbar id outranks the index page's high-specificity a/a:visited. */
+#lcnc-topbar .lcnc-topbar-links a,
+#lcnc-topbar .lcnc-topbar-links a:link,
+#lcnc-topbar .lcnc-topbar-links a:visited {
+  color: hsla(0,0%,100%,.8);
+  text-decoration: none;
+}
+#lcnc-topbar .lcnc-topbar-links a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+.lcnc-topbar-links .lcnc-sep {
+  margin: 0 0.6em;
+  color: hsla(0,0%,100%,.4);
+  user-select: none;
+}
+/* hide the links on narrow screens where they would collide */
+@media (max-width: 900px) { .lcnc-topbar-links { display: none; } }
+
 /* Language switcher: hidden checkbox + label drives the dropdown.
    Total CSS control, no native disclosure widget to fight. */
 .lcnc-lang-switcher {

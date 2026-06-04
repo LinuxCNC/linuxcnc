@@ -2,5 +2,16 @@
   <a class="lcnc-topbar-home" href="{lcnc-cssrel}index.html">
     <img src="{lcnc-cssrel}lcnc-docs.svg" alt="LinuxCNC Documentation">
   </a>
+  <nav class="lcnc-topbar-links">
+    <a data-lcnc-link="0" href="https://linuxcnc.org">LinuxCNC Home Page</a>
+    <span class="lcnc-sep" aria-hidden="true">&bull;</span>
+    <a data-lcnc-link="1" href="https://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki</a>
+    <span class="lcnc-sep" aria-hidden="true">&bull;</span>
+    <a data-lcnc-link="2" href="https://forum.linuxcnc.org">Forum</a>
+    <span class="lcnc-sep" aria-hidden="true">&bull;</span>
+    <a data-lcnc-link="3" href="https://github.com/LinuxCNC/linuxcnc">Source</a>
+    <span class="lcnc-sep" aria-hidden="true">&bull;</span>
+    <a data-lcnc-link="4" href="{lcnc-cssrel}en/gcode.html">G-Code Quick Reference</a>
+  </nav>
 @LANGUAGE_SWITCHER@
 </header>

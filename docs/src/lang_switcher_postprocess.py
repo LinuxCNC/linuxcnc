@@ -54,6 +54,10 @@ PAGE_HEADER_RE = re.compile(r'(<header id="lcnc-topbar".*?</header>)', re.DOTALL
 BANNER_RE = re.compile(r'\n?[ \t]*<div class="lcnc-trans-banner".*?</div>', re.DOTALL)
 # Previously injected nav tree, stripped before re-inject (idempotent).
 SITENAV_RE = re.compile(r'<nav class="lcnc-sitenav".*?</nav>\n?', re.DOTALL)
+# A tagged topbar link (data-lcnc-link="N"); the text is replaced with the
+# per-language label from build/adoc/<lang>/topbar-labels (po4a/weblate).
+TOPBAR_LINK_RE = re.compile(r'(<a data-lcnc-link="(\d+)"[^>]*>)([^<]*)(</a>)')
+TOPBAR_LABELS = {}      # lang -> [label, ...]; filled in main()
 
 
 def parse_po(path):
@@ -415,6 +419,11 @@ def inject_sitenav(html_path, html_root, content):
     return _scaffold_sidebar(content, render_sitenav(active, prefix, page_toc))
 
 
+def _page_lang(html_path, html_root):
+    rel = os.path.relpath(html_path, html_root).split('/')
+    return rel[0] if rel else None
+
+
 def process(html_path, html_root, po_ratios):
     with open(html_path, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -423,6 +432,16 @@ def process(html_path, html_root, po_ratios):
         return False
     html_dir = os.path.dirname(html_path)
     new_content = content
+
+    # Localize the topbar site links for translated pages (English is the
+    # template default).  Labels come from the po4a-translated strings file.
+    labels = TOPBAR_LABELS.get(_page_lang(html_path, html_root))
+    if labels and 'data-lcnc-link=' in new_content:
+        def link_repl(m):
+            i = int(m.group(2))
+            text = labels[i] if i < len(labels) and labels[i] else m.group(3)
+            return m.group(1) + _html_escape(text) + m.group(4)
+        new_content = TOPBAR_LINK_RE.sub(link_repl, new_content)
 
     if 'lcnc-lang-list' in new_content:
         def list_repl(m):
@@ -455,11 +474,25 @@ def process(html_path, html_root, po_ratios):
     return True
 
 
+def _load_topbar_labels(html_root, languages):
+    # build/adoc/<lang>/topbar-labels (po4a output), sibling of build/html.
+    adoc = os.path.join(os.path.dirname(html_root), 'adoc')
+    for lang in languages:
+        path = os.path.join(adoc, lang, 'topbar-labels')
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                # po4a separates the strings by blank lines; keep the order.
+                TOPBAR_LABELS[lang] = [ln.strip() for ln in f if ln.strip()]
+        except OSError:
+            pass
+
+
 def main(html_root, po_dir, languages):
     global LANGUAGES, SITENAV_ROOTS
     LANGUAGES = languages
     SITENAV_ROOTS = build_sitenav()
     html_root = os.path.abspath(html_root)
+    _load_topbar_labels(html_root, languages)
     po_ratios = {}
     for lang in languages:
         po_path = os.path.join(po_dir, f'{lang}.po')
