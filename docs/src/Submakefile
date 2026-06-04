@@ -74,15 +74,13 @@ ASCIIDOCTOR_DEFAULT_CSS := $(shell ruby -e 'require "asciidoctor"; print Asciido
 LANGUAGES := $(strip $(shell sed -e's/#.*//' < $(DOC_DIR)/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-))
 LANGUAGES_MATCH := $(shell echo $(LANGUAGES) | tr " " "|")
 
-# Native display labels used by the topbar language switcher.
-LANG_LABEL_en    := English
-LANG_LABEL_de    := Deutsch
-LANG_LABEL_es    := Español
-LANG_LABEL_fr    := Français
-LANG_LABEL_nb    := Norsk
-LANG_LABEL_ru    := Русский
-LANG_LABEL_uk    := Українська
-LANG_LABEL_zh_CN := 中文
+# Native switcher labels read from docs/src/lang-labels (tag<ws>name);
+# a tag with no entry falls back to its code with a warning.
+LANG_LABEL_FILE := $(DOC_SRCDIR)/lang-labels
+define LANG_LABEL_template
+LANG_LABEL_$(1) := $(or $(shell sed -ne 's/^$(1)[[:space:]][[:space:]]*//p' $(LANG_LABEL_FILE)),$(1)$(warning lang-labels: no entry for '$(1)', using tag))
+endef
+$(foreach L,en $(LANGUAGES),$(eval $(call LANG_LABEL_template,$(L))))
 
 # Minimum per-master translation completeness (percent) below which the
 # language-switcher post-process pass greys out a page's entry for that
@@ -615,9 +613,9 @@ SHARED_HTML_ASSETS = \
 # placeholder expands to one <li> per language (English plus everything
 # in $(LANGUAGES)), labelled via $(LANG_LABEL_<lang>).  asciidoctor then
 # substitutes the {lcnc-cssrel} / {lcnc-lang-label} / {lcnc-subpath}
-# attributes per page.  Po4a.cfg drives the language list and the
-# LANG_LABEL_* mapping above, so po4a.cfg is the single source of truth.
-$(DOC_SRCDIR)/docinfo-header.html: $(DOC_SRCDIR)/docinfo-header.html.in $(DOC_DIR)/po4a.cfg $(DOC_SRCDIR)/Submakefile
+# attributes per page.  po4a.cfg drives the language list, lang-labels
+# the display names.
+$(DOC_SRCDIR)/docinfo-header.html: $(DOC_SRCDIR)/docinfo-header.html.in $(DOC_DIR)/po4a.cfg $(LANG_LABEL_FILE) $(DOC_SRCDIR)/Submakefile
 	@block=$$(mktemp); \
 	    printf '  <div class="lcnc-lang-switcher">\n' > $$block ; \
 	    printf '    <input type="checkbox" id="lcnc-lang-toggle" class="lcnc-lang-toggle">\n' >> $$block ; \
