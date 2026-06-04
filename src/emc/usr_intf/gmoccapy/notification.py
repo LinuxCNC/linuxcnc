@@ -70,7 +70,7 @@ class Notification(Gtk.Window):
     __gproperties = __gproperties__
 
     __gsignals__ = {
-                'message_deleted': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+                'message_deleted': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT, GObject.TYPE_BOOLEAN)),
                }
 
 
@@ -102,6 +102,7 @@ class Notification(Gtk.Window):
     def _show_message(self, message):
         number = message[0]
         text = message[1]
+        show_checkbox = message[3]
         if self.use_frames:
             frame = Gtk.Frame()
             frame.set_label_widget(None)
@@ -122,6 +123,12 @@ class Notification(Gtk.Window):
         pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme, icon_name, self.icon_size, default_style)
         icon.set_from_pixbuf(pixbuf)
         hbox.pack_start(icon, False, False, 3)
+        # vbox in the middle with label and checkbox
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        vbox.set_margin_top(3)
+        vbox.set_margin_bottom(3)
+        vbox.show()
+        hbox.pack_start(vbox, False, False, 0)
         label = Gtk.Label()
         label.set_line_wrap(True)
         label.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
@@ -140,7 +147,12 @@ class Notification(Gtk.Window):
         else:
             label.set_text(text)
         label.set_xalign(0)
-        hbox.pack_start(label, False, False, 0)
+        vbox.pack_start(label, False, False, 0)
+        checkbox = None
+        if show_checkbox:
+            checkbox = Gtk.CheckButton(label="Don't show this again")
+            checkbox.show()
+            vbox.pack_start(checkbox, False, False, 0)
         btn_close = Gtk.Button()
         btn_close.set_name("notification_close")
         image = Gtk.Image()
@@ -148,7 +160,7 @@ class Notification(Gtk.Window):
         image.set_from_pixbuf(pixbuf)
         btn_close.set_image(image)
         btn_close.set_border_width(2)
-        btn_close.connect('clicked', self._on_notification_close_clicked, labelnumber.get_text())
+        btn_close.connect('clicked', self._on_notification_close_clicked, labelnumber.get_text(), checkbox)
         btn_close.set_size_request(48, 48)
         btn_box = Gtk.Box.new(Gtk.Orientation.VERTICAL,0)
         btn_box.set_center_widget(btn_close)
@@ -172,7 +184,7 @@ class Notification(Gtk.Window):
 
     # add a message, the message is a string, it will be line wrapped
     # if to long for the frame
-    def add_message(self, message, icon_name=None):
+    def add_message(self, message, icon_name=None, show_checkbox=False):
         '''Notification.add_message(messagetext, icon_file_name)
 
            messagetext = a string to display
@@ -184,7 +196,7 @@ class Notification(Gtk.Window):
         if number_of_messages == self.max_messages:
             self.del_first()
             number_of_messages = len(self.messages)
-        self.messages.append([number_of_messages, message, icon_name])
+        self.messages.append([number_of_messages, message, icon_name, show_checkbox])
         self._show_message(self.messages[number_of_messages])
         if not self.top_to_bottom:
             self.height = self.popup.get_size()[1]
@@ -200,7 +212,7 @@ class Notification(Gtk.Window):
         if len(self.messages) != 0:
             del self.messages[0]
             self._refill_messages()
-            self.emit("message_deleted", self.messages)
+            self.emit("message_deleted", self.messages, False)
 
     def del_last(self):
         '''del_last()
@@ -209,7 +221,7 @@ class Notification(Gtk.Window):
         if len(self.messages) != 0:
             del self.messages[len(self.messages) - 1]
             self._refill_messages()
-            self.emit("message_deleted", self.messages)
+            self.emit("message_deleted", self.messages, False)
 
     # this will delete a message, if the user gives a valid number it will be deleted,
     # but the user must take care to use the correct number
@@ -221,7 +233,7 @@ class Notification(Gtk.Window):
            messagenumber = integer
                            -1 will erase all messages
         '''
-        self.emit("message_deleted", self.messages)
+        self.emit("message_deleted", self.messages, False)
         if messagenumber == -1:
             self.messages = []
             self._refill_messages()
@@ -238,9 +250,13 @@ class Notification(Gtk.Window):
 
     # this is the recomendet way to delete a message, by clicking the
     # close button of the corresponding frame
-    def _on_notification_close_clicked(self, widget, labelnumber):
+    def _on_notification_close_clicked(self, widget, labelnumber, checkbox):
         del self.messages[int(labelnumber)]
-        self.emit("message_deleted", self.messages)
+        if checkbox is not None:
+            checkbox_state = checkbox.get_active()
+        else:
+            checkbox_state = False
+        self.emit("message_deleted", self.messages, checkbox_state)
         self._refill_messages()
 
     def _refill_messages(self):

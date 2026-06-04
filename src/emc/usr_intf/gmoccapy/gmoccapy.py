@@ -552,7 +552,7 @@ class gmoccapy(object):
                     + _("Please check the console output."), ALERT_ICON)
 
     def _startup_message(self):
-        title = _("Important change(s)")
+        title = _("<b>Important change(s)</b>\n\n")
         # This array holds information about new features or things that changed. They can be hidden using the dialog's checkbox.
         # It is important that strings are only appended to this array (not removed), otherwise some messages could get hidden unwanted.
         messages =[ _("<b>3.5.0 (LinuxCNC 2.10.0): Gmoccapy does no longer automatically retain G43 after a toolchange!</b>\n"\
@@ -564,12 +564,12 @@ class gmoccapy(object):
                     ]
         hide_message = self.prefs.getpref("hide_startup_messsage", 0, int)
         if hide_message < len(messages):
-            message = "\n\n".join(messages[hide_message:])
+            message = title + "\n\n".join(messages[hide_message:])
             message += _('\n\nFor more information see the <a href="https://linuxcnc.org/docs/html/gui/gmoccapy_release_notes.txt">release notes</a>.')
+                 
+            self.notification.add_message(message, INFO_ICON, show_checkbox=True)
+            self.num = len(messages)
 
-            dont_show = self.dialogs.show_user_message(self, message, title, checkbox = True)
-            if dont_show:
-                self.prefs.putpref("hide_startup_messsage", len(messages), str)
 
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
@@ -6222,13 +6222,16 @@ class gmoccapy(object):
                 return
             self.audio.run()
 
-    def _on_message_deleted(self, widget, messages):
+    def _on_message_deleted(self, widget, messages, checkbox_checked):
         number = []
         for message in messages:
             if message[2] == ALERT_ICON:
                 number.append(message[0])
         if len(number) == 0:
             self.halcomp["error"] = False
+        
+        if checkbox_checked:
+            self.prefs.putpref("hide_startup_messsage", self.num, str)
 
     def _del_message_changed(self, pin):
         if pin.get():
