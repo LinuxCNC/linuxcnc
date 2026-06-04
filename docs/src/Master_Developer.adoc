@@ -29,6 +29,8 @@ include::code/adding-configs.adoc[]
 
 include::code/contributing-to-linuxcnc.adoc[]
 
+include::code/writing-tests.adoc[]
+
 include::common/glossary.adoc[]
 
 include::common/gpld-copyright.adoc[]

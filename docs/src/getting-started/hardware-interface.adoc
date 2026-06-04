@@ -74,7 +74,8 @@ Expatria Technologies PicoBOB-DLX was designed for LinuxCNC Remora.
 Remora docs: https://remora-docs.readthedocs.io
 
 As of March 2024:
-```
+
+----
 STM32 based controller boards
 
     NVEM - an STM32F207 based board with Ethernet PHY chip, originally intended for Mach3. [No longer in production, Legacy Support - no new features]
@@ -92,7 +93,7 @@ RP2040 based controller boards
     WIZnet W5500-EVB-Pico - Raspberry Pi RP2040 based development board with on-board W5500 Ethernet SPI adapter
 
     Expatria Technologies PicoBOB-DLX - Raspberry Pi RP2040 based board with on-board W5500 Ethernet SPI adapter designed for Remora
-```
+----
 
 === Litex-CNC
 This project aims to make a generic CNC firmware and driver for FPGA cards which are supported by LiteX. Configuration of the board and driver is done using json-files. The supported boards are the Colorlight boards 5A-75B and 5A-75E, as these are fully supported with the open source toolchain.

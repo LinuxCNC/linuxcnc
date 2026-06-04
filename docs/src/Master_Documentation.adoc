@@ -17,6 +17,8 @@ include::getting-started/about-linuxcnc.adoc[]
 
 include::getting-started/system-requirements.adoc[]
 
+include::getting-started/hardware-interface.adoc[]
+
 include::getting-started/getting-linuxcnc.adoc[]
 
 include::getting-started/running-linuxcnc.adoc[]
@@ -132,6 +134,8 @@ include::drivers/hal_gpio.adoc[]
 include::drivers/hostmot2.adoc[]
 
 include::drivers/mb2hal.adoc[]
+
+include::drivers/mesa_modbus.adoc[]
 
 include::drivers/mitsub-vfd.adoc[]
 
@@ -266,6 +270,8 @@ include::gui/pyvcp-examples.adoc[]
 include::gui/gladevcp.adoc[]
 
 include::gui/gladevcp-libraries.adoc[]
+
+include::gui/gladevcp-panels.adoc[]
 
 include::gui/qtvcp.adoc[]
 
