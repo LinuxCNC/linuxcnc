@@ -714,7 +714,10 @@ ADD_HTML_MANPAGES = \
 	echo "</ul></div></details>" >> objects/index.incl; \
 
 
-objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
+# Depends on the English target list only (the index is built from it); the
+# full 9-language MAN_HTML_TARGETS would overflow a single bash arg
+# (MAX_ARG_STRLEN) once every language renders the whole manpage set.
+objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS_EN $(DOC_SRCDIR)/Submakefile
 	rm -f $@
 	$(call ADD_HTML_MANPAGES, 1, Commands and userspace components, $(filter $(DOC_OUT_HTML)/en/man/man1/%.html, $(MAN_HTML_TARGETS_EN))) \
 	$(call ADD_HTML_MANPAGES, 9, Realtime components and kernel modules, $(filter $(DOC_OUT_HTML)/en/man/man9/%.html, $(MAN_HTML_TARGETS_EN))) \
