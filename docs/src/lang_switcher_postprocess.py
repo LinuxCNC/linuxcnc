@@ -58,6 +58,10 @@ SITENAV_RE = re.compile(r'<nav class="lcnc-sitenav".*?</nav>\n?', re.DOTALL)
 # per-language label from build/adoc/<lang>/topbar-labels (po4a/weblate).
 TOPBAR_LINK_RE = re.compile(r'(<a data-lcnc-link="(\d+)"[^>]*>)([^<]*)(</a>)')
 TOPBAR_LABELS = {}      # lang -> [label, ...]; filled in main()
+# Topbar logo link; retargeted to the current language's home.  Any already
+# inserted <lang>/ is matched and replaced, so re-runs stay idempotent.
+TOPBAR_HOME_RE = re.compile(
+    r'(<a class="lcnc-topbar-home" href=")((?:\.\./)*)(?:[A-Za-z_]+/)?(index\.html")')
 
 
 def parse_po(path):
@@ -432,10 +436,17 @@ def process(html_path, html_root, po_ratios):
         return False
     html_dir = os.path.dirname(html_path)
     new_content = content
+    lang = _page_lang(html_path, html_root)
+
+    # Point the topbar logo at this language's home, not the generic redirect.
+    if lang in (['en'] + list(LANGUAGES)):
+        new_content = TOPBAR_HOME_RE.sub(
+            lambda m: m.group(1) + m.group(2) + lang + '/' + m.group(3),
+            new_content, count=1)
 
     # Localize the topbar site links for translated pages (English is the
     # template default).  Labels come from the po4a-translated strings file.
-    labels = TOPBAR_LABELS.get(_page_lang(html_path, html_root))
+    labels = TOPBAR_LABELS.get(lang)
     if labels and 'data-lcnc-link=' in new_content:
         def link_repl(m):
             i = int(m.group(2))
