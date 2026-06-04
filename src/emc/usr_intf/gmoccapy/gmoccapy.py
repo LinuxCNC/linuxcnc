@@ -59,10 +59,12 @@ def excepthook(exc_type, exc_obj, exc_tb):
     # caller escalates to SIGKILL.
     if issubclass(exc_type, KeyboardInterrupt):
         LOG.info("gmoccapy interrupted (signal), shutting down")
-        try:
+        if Gtk.main_level() > 0:
             Gtk.main_quit()
-        except Exception:
-            pass
+        else:
+            # No loop yet (startup): the interrupt is swallowed at the GTK
+            # C boundary, so returning resumes startup. Force the exit.
+            os._exit(0)
         return
     try:
         w = app.widgets.window1
