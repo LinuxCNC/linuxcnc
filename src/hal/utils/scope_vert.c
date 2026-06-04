@@ -287,6 +287,7 @@ int set_channel_source(int chan_num, int type, char *name)
     vert->data_offset[chan_num - 1] = -1;
     /* set scale and offset to nominal values */
     chan->vert_offset = 0.0;
+    chan->saved_vert_offset = 0.0;
     chan->scale_index = 0;
     /* return success */
     return 0;
@@ -401,6 +402,8 @@ int set_vert_offset(double setting, int ac_coupled)
     /* set the new offset */
     chan->vert_offset = setting;
     chan->ac_offset = ac_coupled;
+    /* copy the offset to restore when toggling AC coupling */
+    chan->saved_vert_offset = chan->vert_offset;
     /* update the offset display */
     if (chan->data_type == HAL_BIT) {
 	snprintf(buf1, BUFLEN, "----");
@@ -723,7 +726,7 @@ static gboolean dialog_set_offset(int chan_num)
             vert->offset_entry, FALSE, TRUE, 0);
 
     /* update elements */
-    snprintf(data.buf, BUFLEN, "%f", chan->vert_offset);
+    snprintf(data.buf, BUFLEN, "%f", chan->saved_vert_offset);
     /* get AC coupling setting from channel */
     data.ac_coupled = chan->ac_offset;
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vert->offset_ac), data.ac_coupled);
@@ -771,6 +774,14 @@ static void offset_changed(GtkEditable * editable, struct offset_data *data)
     data->ac_coupled =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctrl_usr->vert.offset_ac));
     gtk_widget_set_sensitive(ctrl_usr->vert.offset_entry, !data->ac_coupled);
+
+    if (!data->ac_coupled) {
+        /* select all chars, so if the user types the original value goes away */
+        gtk_editable_select_region(
+            GTK_EDITABLE(ctrl_usr->vert.offset_entry), 0, strlen(data->buf));
+        /* make it active so user doesn't have to click on it */
+        gtk_widget_grab_focus(GTK_WIDGET(ctrl_usr->vert.offset_entry));
+    }
 
     /* maybe user typed something, save it in the buffer */
     text = gtk_entry_get_text(GTK_ENTRY(ctrl_usr->vert.offset_entry));
