@@ -29,3 +29,10 @@ export SDL_AUDIODRIVER=dummy
 # names the line; for a C/C++ crash (Qt, dbus, GL) it shows the Python
 # frame that called in. The native side is captured by crashdump.sh.
 export PYTHONFAULTHANDLER=1
+
+# Xvfb virtual screen for the launchers' xvfb-run. There is no window
+# manager under xvfb-run, so a GUI's maximize() is a no-op and it renders
+# at its natural size; a screen smaller than the window clips the grab
+# (the failure/confirm screenshot then misses panels). 1920x1080 fits
+# every sim GUI so the whole window is captured.
+export UI_SMOKE_XVFB_SCREEN="${UI_SMOKE_XVFB_SCREEN:-1920x1080x24}"

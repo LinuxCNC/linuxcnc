@@ -5,3 +5,6 @@ linuxcnc.err
 linuxcnc.pid
 ui-smoke.out
 ui-smoke.err
+screenshot.png
+confirm.png
+ui-smoke-qt.png

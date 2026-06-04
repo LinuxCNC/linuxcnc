@@ -19,6 +19,17 @@ Shared helpers live in _lib/:
   checkresult.sh      shared pass/fail predicate
   skip-if-missing.sh  shared skip predicate
 
+Failure diagnostics (failure path only, no cost on a green run):
+  crashdump.sh   arms a core dump and prints a native backtrace if a GUI
+                 segfaults (the Qt/dbus/GL frames PYTHONFAULTHANDLER misses)
+  screenshot.sh  photographs the Xvfb root window before teardown. On a
+                 failure it captures the cause (a GUI hung on a blocking
+                 modal leaves no core and no traceback); on a clean Phase 2
+                 run it captures confirm.png, the GUI in its post-movement
+                 idle state (final DRO / toolpath) for visual confirmation.
+                 CI uploads both as build artifacts (ui-smoke-screenshots-*
+                 in ci.yml).
+
 Skip vs fail policy: the only condition we skip on is xvfb-run absence
 (rare local dev env). Python and gi typelib deps the GUIs need are
 declared in debian/control under !nocheck so apt-get build-dep
