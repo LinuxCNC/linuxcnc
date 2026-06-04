@@ -78,7 +78,7 @@ class Notification(Gtk.Window):
     def __init__(self):
         self.messages = []
         self.popup = Gtk.Window(type = Gtk.WindowType.POPUP)
-        self.vbox = Gtk.VBox()
+        self.vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
         self.popup.add(self.vbox)
         self.icon_size = 24
         self.message_width = 200
@@ -104,11 +104,13 @@ class Notification(Gtk.Window):
         text = message[1]
         if self.use_frames:
             frame = Gtk.Frame()
-            frame.set_label("")
-        hbox = Gtk.HBox()
-        hbox.set_property('spacing', 5)
+            frame.set_label_widget(None)
+            frame.set_margin_top(1)
+            frame.set_margin_bottom(1)
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         if self.use_frames:
             frame.add(hbox)
+        # we do not show the labelnumber, but we use it for handling
         labelnumber = Gtk.Label(label = str(number))
         hbox.pack_start(labelnumber, False, False, 0)
         icon = Gtk.Image()
@@ -129,8 +131,8 @@ class Notification(Gtk.Window):
         # As messages may contain non Pango conform syntax like "vel <= 0" we will have to check that to avoid an error
         Pango_ok = True
         try:
-            # The GError exception is raised if an error occurs while parsing the markup text.
-            Pango.parse_markup(text)
+            # An exception is raised if an error occurs while parsing the markup text.
+            label.set_markup(text)
         except:
             Pango_ok = False
         if Pango_ok:
@@ -146,7 +148,7 @@ class Notification(Gtk.Window):
         image.set_from_pixbuf(pixbuf)
         btn_close.set_image(image)
         btn_close.set_border_width(2)
-        btn_close.connect('clicked', self._on_btn_close_clicked, labelnumber.get_text())
+        btn_close.connect('clicked', self._on_notification_close_clicked, labelnumber.get_text())
         btn_close.set_size_request(48, 48)
         btn_box = Gtk.Box.new(Gtk.Orientation.VERTICAL,0)
         btn_box.set_center_widget(btn_close)
@@ -166,8 +168,6 @@ class Notification(Gtk.Window):
         btn_close.show()
         hbox.show()
         icon.show()
-# we do not show the labelnumber, but we use it for the handling
-        #labelnumber.show()
         self.vbox.show()
 
     # add a message, the message is a string, it will be line wrapped
@@ -238,7 +238,7 @@ class Notification(Gtk.Window):
 
     # this is the recomendet way to delete a message, by clicking the
     # close button of the corresponding frame
-    def _on_btn_close_clicked(self, widget, labelnumber):
+    def _on_notification_close_clicked(self, widget, labelnumber):
         del self.messages[int(labelnumber)]
         self.emit("message_deleted", self.messages)
         self._refill_messages()
