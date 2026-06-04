@@ -71,7 +71,8 @@ def init(app_name):
         finally:
             probe.close()
         if not present:
-            raise RuntimeError('no notification daemon')
+            # No daemon: pop-up notifications cannot be shown.
+            raise RuntimeError('no notification daemon on the session bus; desktop notifications disabled')
 
         mainloop = DBusQtMainLoop(set_as_default=True) if DBusQtMainLoop else None
         bus = dbus.SessionBus(mainloop=mainloop)
