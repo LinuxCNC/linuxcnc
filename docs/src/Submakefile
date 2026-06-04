@@ -633,9 +633,12 @@ $(DOC_SRCDIR)/docinfo-header.html: $(DOC_SRCDIR)/docinfo-header.html.in $(DOC_DI
 
 # Stamp-gated asset copy; copy_asciidoc_files stays as a phony alias.
 # The en/gcode.html copy lives in its own rule above so it fires for PDF-only
-# builds as well; .copy-asciidoc-stamp depends on it for HTML builds.
+# builds as well; .copy-asciidoc-stamp needs it built for HTML builds but only
+# copies the shared assets, so gcode.html is an order-only prerequisite: the
+# post-processor later rewrites gcode.html in place, and a normal prerequisite
+# would then leave this stamp stale and re-fire the copy every make.
 copy_asciidoc_files: .copy-asciidoc-stamp
-.copy-asciidoc-stamp: $(SHARED_HTML_ASSETS) $(DOC_OUT_HTML)/en/gcode.html
+.copy-asciidoc-stamp: $(SHARED_HTML_ASSETS) | $(DOC_OUT_HTML)/en/gcode.html
 	@mkdir -p $(DOC_OUT_HTML)
 	cp -f $(SHARED_HTML_ASSETS) $(DOC_OUT_HTML)
 	@touch $@
@@ -664,7 +667,11 @@ $(DOC_OUT_HTML)/rouge-github.css: $(DOC_SRCDIR)/render-rouge-css.rb
 # with HTML-existence-dependent content (different miss_in_man set),
 # bumping mtime past .pot and re-triggering po4a on the next build.
 # Broken-link validation against generated HTML is checkref's job.
-$(DOC_DIR)/.gen_complist-stamp: $(DOC_SRCDIR)/hal/components_gen.adoc $(MAN_HTML_TARGETS)
+# MAN_HTML_TARGETS is order-only: this stamp only needs the manpages built,
+# it does not read their content, and the post-processor rewrites them in
+# place later -- a normal prerequisite would then re-fire this stamp (and the
+# .htmldoc-stamp / checkref that depend on it) on every subsequent make.
+$(DOC_DIR)/.gen_complist-stamp: $(DOC_SRCDIR)/hal/components_gen.adoc | $(MAN_HTML_TARGETS)
 	mkdir -p $(DOC_OUT_HTML)/en/hal
 	@touch $@
 
@@ -1119,7 +1126,11 @@ $(foreach L,$(LANGUAGES),$(eval $(call HTML_COPY_RULE,$(L))))
 # src="..." covers displayed images; href="...png" covers click-to-enlarge
 # targets from image:thumb[link=...] (which would otherwise 404).  The
 # extension filter keeps page/anchor hrefs out.
-.html-images-stamp: $(DOC_TARGETS_HTML)
+#
+# Depend on .lang-switcher-stamp so this runs after the post-processor has
+# rewritten the HTML in place; otherwise that later rewrite leaves this stamp
+# older than its inputs and the image copy re-fires on every subsequent make.
+.html-images-stamp: $(DOC_TARGETS_HTML) .lang-switcher-stamp
 	set -e; for HTML_FILE in $^; do \
 		HTML_REL=$$(echo $$HTML_FILE | sed 's%^$(DOC_OUT_HTML)/%%'); \
 		LANG=$$(echo $$HTML_REL | cut -d/ -f1); \
