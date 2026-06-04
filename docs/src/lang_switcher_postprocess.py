@@ -324,32 +324,38 @@ def _has_active(node, active):
     return any(_has_active(c, active) for c in node['children'])
 
 
-def _render_node(node, active, prefix, open_all, page_toc):
+def _page_toc_block(page_toc):
+    # Collapsed so the page's own sections do not push sibling pages out of view.
+    return (f'<details class="lcnc-sn-page"><summary>On this page</summary>'
+            f'{page_toc}</details>')
+
+
+def _render_node(node, active, prefix, page_toc):
     if node['path'] is not None and not node['children']:
         is_active = node['path'] == active
         cls = ' class="lcnc-sn-active"' if is_active else ''
         af = ' tabindex="-1" autofocus' if is_active else ''
         href = prefix + node['path'] + '.html'
         link = f'<a{cls}{af} href="{href}">{_html_escape(node["title"])}</a>'
-        # The current page's own section list nests under its entry.
-        return link + page_toc if is_active and page_toc else link
-    inner = ''.join(_render_node(c, active, prefix, open_all, page_toc)
+        return link + _page_toc_block(page_toc) if is_active and page_toc else link
+    inner = ''.join(_render_node(c, active, prefix, page_toc)
                     for c in node['children'])
-    op = ' open' if open_all else ''
+    # Open only the branch leading to the active page; everything else folds.
+    op = ' open' if _has_active(node, active) else ''
     return (f'<details{op}><summary>{_html_escape(node["title"])}</summary>'
             f'{inner}</details>')
 
 
 def render_sitenav(active, prefix, page_toc='', orphan_title=None):
-    # The active top-level section is expanded in full; the others collapse.
     body = ''
     # A page absent from the master tree (orphan_title set) still gets its own
     # entry + section list at the top, so it is never left without a TOC.
     if orphan_title is not None:
         href = prefix + active + '.html'
+        toc = _page_toc_block(page_toc) if page_toc else ''
         body += (f'<a class="lcnc-sn-active" tabindex="-1" autofocus '
-                 f'href="{href}">{_html_escape(orphan_title)}</a>{page_toc}')
-    body += ''.join(_render_node(n, active, prefix, _has_active(n, active), page_toc)
+                 f'href="{href}">{_html_escape(orphan_title)}</a>{toc}')
+    body += ''.join(_render_node(n, active, prefix, page_toc)
                     for n in SITENAV_ROOTS)
     return f'<nav class="lcnc-sitenav" aria-label="Documentation">{body}</nav>'
 

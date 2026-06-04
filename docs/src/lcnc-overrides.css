@@ -305,8 +305,9 @@ li.lcnc-link-unavail a:visited {
   background: hsla(212,80%,50%,0.12);
 }
 .lcnc-sitenav a.lcnc-sn-active:focus { outline: none; }
-/* the active page's own section list */
-.lcnc-sitenav a.lcnc-sn-active + ul.sectlevel1 {
+/* the active page's own section list, in a collapsed "On this page" details */
+.lcnc-sitenav .lcnc-sn-page > summary { font-weight: normal; }
+.lcnc-sitenav .lcnc-sn-page > ul.sectlevel1 {
   margin: 0.15em 0 0.4em 0.9em;
 }
 .lcnc-sitenav ul { list-style: none; margin: 0; padding: 0; }
