@@ -268,6 +268,7 @@ li.lcnc-link-unavail a:visited {
   gap: 0.45em;
   cursor: pointer;
   padding: 0.18em 0 0.18em 0.5em;
+  font-size: inherit;        /* asciidoctor sizes bare <summary> at 1.0625rem */
   font-weight: normal;
   color: #1a1a1a;            /* heading row, not a link */
 }
@@ -300,13 +301,13 @@ li.lcnc-link-unavail a:visited {
   text-decoration: none;
 }
 .lcnc-sitenav a:hover { text-decoration: underline; }
-.lcnc-sitenav a.lcnc-sn-active {
-  font-weight: 700;
+.lcnc-sitenav .lcnc-sn-active {
+  font-weight: normal;
   background: hsla(212,80%,50%,0.12);
 }
-.lcnc-sitenav a.lcnc-sn-active:focus { outline: none; }
-/* the active page's own section list, in a collapsed "On this page" details */
-.lcnc-sitenav .lcnc-sn-page > summary { font-weight: normal; }
+.lcnc-sitenav .lcnc-sn-active:focus { outline: none; }
+/* the active page is itself the disclosure: its name is the summary (which
+   toggles), its own section list the collapsed body */
 .lcnc-sitenav .lcnc-sn-page > ul.sectlevel1 {
   margin: 0.15em 0 0.4em 0.9em;
 }
@@ -317,7 +318,7 @@ li.lcnc-link-unavail a:visited {
   .lcnc-sitenav a { color: #7fb0ec; }
   .lcnc-sitenav summary::before { border-left-color: #888; }
   .lcnc-sitenav details[open] > summary::before { border-top-color: #888; }
-  .lcnc-sitenav a.lcnc-sn-active {
+  .lcnc-sitenav .lcnc-sn-active {
     color: #cfe0f8;
     background: hsla(212,80%,55%,0.20);
   }

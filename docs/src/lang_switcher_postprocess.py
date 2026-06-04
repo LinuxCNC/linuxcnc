@@ -324,20 +324,24 @@ def _has_active(node, active):
     return any(_has_active(c, active) for c in node['children'])
 
 
-def _page_toc_block(page_toc):
-    # Collapsed so the page's own sections do not push sibling pages out of view.
-    return (f'<details class="lcnc-sn-page"><summary>On this page</summary>'
-            f'{page_toc}</details>')
+def _active_leaf(title, href, page_toc):
+    """The active page entry.  With its own sections it becomes the
+    disclosure itself: the name is the summary (toggles the section list
+    rather than linking back to the page you are on), collapsed so the
+    sections do not push sibling pages out of view."""
+    if not page_toc:
+        return (f'<a class="lcnc-sn-active" tabindex="-1" autofocus '
+                f'href="{href}">{_html_escape(title)}</a>')
+    return (f'<details class="lcnc-sn-page"><summary class="lcnc-sn-active" '
+            f'autofocus>{_html_escape(title)}</summary>{page_toc}</details>')
 
 
 def _render_node(node, active, prefix, page_toc):
     if node['path'] is not None and not node['children']:
-        is_active = node['path'] == active
-        cls = ' class="lcnc-sn-active"' if is_active else ''
-        af = ' tabindex="-1" autofocus' if is_active else ''
         href = prefix + node['path'] + '.html'
-        link = f'<a{cls}{af} href="{href}">{_html_escape(node["title"])}</a>'
-        return link + _page_toc_block(page_toc) if is_active and page_toc else link
+        if node['path'] == active:
+            return _active_leaf(node['title'], href, page_toc)
+        return f'<a href="{href}">{_html_escape(node["title"])}</a>'
     inner = ''.join(_render_node(c, active, prefix, page_toc)
                     for c in node['children'])
     # Open only the branch leading to the active page; everything else folds.
@@ -352,9 +356,7 @@ def render_sitenav(active, prefix, page_toc='', orphan_title=None):
     # entry + section list at the top, so it is never left without a TOC.
     if orphan_title is not None:
         href = prefix + active + '.html'
-        toc = _page_toc_block(page_toc) if page_toc else ''
-        body += (f'<a class="lcnc-sn-active" tabindex="-1" autofocus '
-                 f'href="{href}">{_html_escape(orphan_title)}</a>{toc}')
+        body += _active_leaf(orphan_title, href, page_toc)
     body += ''.join(_render_node(n, active, prefix, page_toc)
                     for n in SITENAV_ROOTS)
     return f'<nav class="lcnc-sitenav" aria-label="Documentation">{body}</nav>'
