@@ -196,6 +196,29 @@ li.lcnc-link-unavail a:visited {
   cursor: not-allowed;
   text-decoration: line-through;
 }
+
+/* Per-page translation-status banner injected just below the topbar by
+   lang_switcher_postprocess.py.  The page supplies only the hue via the
+   --lcnc-pct-hue custom property (red 0 .. green 120); the tint lightness
+   is chosen here so light and dark themes stay legible (no JS). */
+.lcnc-trans-banner {
+  margin: 0.75rem 1.5rem;
+  padding: 0.5em 0.9em;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-family: "Open Sans","DejaVu Sans",sans-serif;
+  background: hsl(var(--lcnc-pct-hue) 80% 90%);
+  border-left: 5px solid hsl(var(--lcnc-pct-hue) 65% 42%);
+  color: #333;
+}
+@media (prefers-color-scheme: dark) {
+  .lcnc-trans-banner {
+    background: hsl(var(--lcnc-pct-hue) 30% 16%);
+    border-left-color: hsl(var(--lcnc-pct-hue) 45% 42%);
+    color: #ddd;
+  }
+}
 body:is(.article,.book,.manpage).toc2 #toc.toc2 {
   top: 3rem;
 }

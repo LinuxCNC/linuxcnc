@@ -1,27 +1,22 @@
 #!/usr/bin/env python3
-"""Post-process every generated HTML page to grey out language-switcher
-entries that point at a poorly-translated counterpart.
+"""Post-process every generated HTML page for translation status.
 
-Each rendered HTML page contains a full switcher (one <li><a href="..."> per
-language) emitted at asciidoctor time before per-page completeness is
-known.  This pass walks the final docs/html/ tree and rewrites entries
-that fall below the threshold to <li><span class="lcnc-lang-unavail">...</span></li>
-so readers know at a glance which translations exist for the page they
-are on.
+Two passes, both reversible so a second run is a no-op (safe to bake into
+the build via a stamp target):
 
-Decision per (page, language):
-  1. If no translated HTML file at the link's target, grey out (the file
-     genuinely is missing, not just sparse).  This covers manpages, the
-     gcode landing page, and any other page outside the AsciiDoc pipeline.
-  2. Otherwise look up the page's master source in the language's .po
-     file, compute (translated / total) over msgids whose location
-     comment points at that master, grey out if below the threshold.
-  3. Pages without a discoverable master (index.html, generated pages)
-     fall back to step 1 (file existence).
+  1. Language switcher: grey a <li><a> only when its target file is
+     genuinely absent (so the switcher never offers a 404).  Sparse but
+     present translations stay clickable -- completeness is conveyed by
+     the banner, not by hiding the link.
+  2. Per-page banner: on a translated page that is not fully translated,
+     inject a no-JS notice just below the topbar stating "this page is
+     N% translated", tinted red(0%)..yellow..green(100%).  N comes from
+     the language's .po: msgids whose location comment points at the
+     page's master source, counted translated / total.
 
-Idempotent: a second run sees the same on-disk state plus the same .po
-ratios, produces the same output, safe to bake into the build via a
-stamp target."""
+Pages without a discoverable master (English, generated index pages) get
+no banner.  Dead links in the manpage index lists are still greyed by
+file existence (separate concern, see rewrite_details_block)."""
 
 import os
 import re
@@ -51,6 +46,12 @@ ENTRY_RE = re.compile(
     r'(\s*)<li(?:\s+class="lcnc-lang-unavail")?>'
     r'<a href="([^"]+)">([^<]+)</a></li>'
 )
+# Topbar header element (HTML5 <header>, distinct from asciidoctor's
+# <div id="header">); the banner is injected right after it.
+PAGE_HEADER_RE = re.compile(r'(<header id="lcnc-topbar".*?</header>)', re.DOTALL)
+# A previously injected banner, removed before re-injecting so the pass
+# stays idempotent and reflects the current .po ratio each run.
+BANNER_RE = re.compile(r'\n?[ \t]*<div class="lcnc-trans-banner".*?</div>', re.DOTALL)
 
 
 def parse_po(path):
@@ -156,24 +157,36 @@ def subpath_to_master(subpath):
 LANGUAGES = []  # populated from CLI
 
 
-def rewrite_block(html_path, html_dir, html_root, po_ratios, threshold, block_body):
+def page_coverage(html_path, html_root, po_ratios):
+    """(translated, total) for this page's own language, or None when the
+    page has no discoverable master (English, generated index pages)."""
+    rel = os.path.relpath(html_path, html_root)
+    parts = rel.split('/')
+    if not parts or parts[0] not in LANGUAGES:
+        return None
+    master = subpath_to_master(rel)
+    tot, tr = po_ratios.get(parts[0], {}).get(master, (0, 0))
+    return (tr, tot) if tot > 0 else None
+
+
+def banner_html(pct):
+    """No-JS translation-status banner.  Only the hue (red 0..green 120)
+    is emitted inline as a custom property; the stylesheet picks the
+    lightness so the light and dark themes each tint it their own way."""
+    hue = int(round(1.2 * pct))  # 0->red, 50->60 yellow, 100->120 green
+    return (f'<div class="lcnc-trans-banner" style="--lcnc-pct-hue:{hue}">'
+            f'This page is {pct}% translated. '
+            f'Untranslated text is shown in English.</div>')
+
+
+def rewrite_block(html_dir, html_root, block_body):
     def repl(m):
         indent, href, label = m.group(1), m.group(2), m.group(3)
         target = os.path.normpath(os.path.join(html_dir, href))
-        unavail = False
-        if target.startswith(html_root):
-            if not os.path.exists(target):
-                unavail = True
-            else:
-                rel = os.path.relpath(target, html_root)
-                parts = rel.split('/')
-                if parts and parts[0] in LANGUAGES:
-                    lang = parts[0]
-                    master = subpath_to_master(rel)
-                    ratios = po_ratios.get(lang, {})
-                    tot, tr = ratios.get(master, (0, 0))
-                    if tot > 0 and (100.0 * tr / tot) < threshold:
-                        unavail = True
+        # Grey only entries whose target file is genuinely absent (avoids a
+        # 404 from the switcher).  Sparse-but-present translations stay
+        # clickable; the per-page banner conveys completeness instead.
+        unavail = target.startswith(html_root) and not os.path.exists(target)
         cls = ' class="lcnc-lang-unavail"' if unavail else ''
         return f'{indent}<li{cls}><a href="{href}">{label}</a></li>'
     return ENTRY_RE.sub(repl, block_body)
@@ -194,7 +207,7 @@ def rewrite_details_block(html_dir, block_body):
     return DETAILS_ENTRY_RE.sub(repl, block_body)
 
 
-def process(html_path, html_root, po_ratios, threshold):
+def process(html_path, html_root, po_ratios):
     with open(html_path, 'r', encoding='utf-8') as f:
         content = f.read()
     if 'lcnc-lang-list' not in content and 'details-list' not in content:
@@ -204,14 +217,24 @@ def process(html_path, html_root, po_ratios, threshold):
 
     if 'lcnc-lang-list' in new_content:
         def list_repl(m):
-            return m.group(1) + rewrite_block(html_path, html_dir, html_root,
-                                              po_ratios, threshold, m.group(2)) + m.group(3)
+            return m.group(1) + rewrite_block(html_dir, html_root, m.group(2)) + m.group(3)
         new_content = LIST_RE.sub(list_repl, new_content)
 
     if 'details-list' in new_content:
         def details_repl(m):
             return m.group(1) + rewrite_details_block(html_dir, m.group(2)) + m.group(3)
         new_content = DETAILS_BLOCK_RE.sub(details_repl, new_content)
+
+    # Translation-status banner: drop any prior one, re-derive from the .po.
+    new_content = BANNER_RE.sub('', new_content)
+    cov = page_coverage(html_path, html_root, po_ratios)
+    if cov is not None:
+        tr, tot = cov
+        if tr < tot:
+            pct = tr * 100 // tot  # floor: 99.6% never reads as 100
+            new_content = PAGE_HEADER_RE.sub(
+                lambda m: m.group(1) + '\n' + banner_html(pct),
+                new_content, count=1)
 
     if new_content == content:
         return False
@@ -220,7 +243,7 @@ def process(html_path, html_root, po_ratios, threshold):
     return True
 
 
-def main(html_root, po_dir, threshold, languages):
+def main(html_root, po_dir, languages):
     global LANGUAGES
     LANGUAGES = languages
     html_root = os.path.abspath(html_root)
@@ -236,14 +259,15 @@ def main(html_root, po_dir, threshold, languages):
             if not name.endswith('.html'):
                 continue
             seen += 1
-            if process(os.path.join(dirpath, name), html_root, po_ratios, threshold):
+            if process(os.path.join(dirpath, name), html_root, po_ratios):
                 changed += 1
-    print(f'lang_switcher_postprocess: scanned {seen} HTML files, rewrote {changed} '
-          f'(threshold {threshold}%)')
+    print(f'lang_switcher_postprocess: scanned {seen} HTML files, rewrote {changed}')
 
 
 if __name__ == '__main__':
+    # argv[3] is the legacy POKEEP threshold slot; banners now show for any
+    # incomplete page, so it is accepted for call compatibility and ignored.
     if len(sys.argv) < 5:
         sys.stderr.write('Usage: lang_switcher_postprocess.py <html-root> <po-dir> <threshold> <lang1> [lang2 ...]\n')
         sys.exit(2)
-    main(sys.argv[1], sys.argv[2], float(sys.argv[3]), sys.argv[4:])
+    main(sys.argv[1], sys.argv[2], sys.argv[4:])
