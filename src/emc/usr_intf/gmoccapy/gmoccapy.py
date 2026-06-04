@@ -291,6 +291,10 @@ class gmoccapy(object):
                     LOG.warning(message)
             if arg.startswith("-smoketest="):
                 self.smoketest_flags = arg.removeprefix("-smoketest=").split(",")
+                valid_flags = {"nowhatsnew"} # to be extended
+                for flag in self.smoketest_flags:
+                    if flag not in valid_flags:
+                        LOG.warning(f"'{flag}' is no valid flag for '-smoketest'")
 
         # check if the user want a Logo (given as command line argument)
         if self.logofile:
