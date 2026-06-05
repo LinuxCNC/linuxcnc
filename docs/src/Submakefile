@@ -607,7 +607,12 @@ SHARED_HTML_ASSETS = \
 	$(DOC_SRCDIR)/lcnc-overrides.css \
 	$(DOC_SRCDIR)/lcnc-docs.svg \
 	$(DOC_SRCDIR)/index.css \
-	$(DOC_SRCDIR)/linuxcnc-logo-chips.png
+	$(DOC_SRCDIR)/linuxcnc-logo-chips.png \
+	$(DOC_SRCDIR)/admon-note.svg \
+	$(DOC_SRCDIR)/admon-tip.svg \
+	$(DOC_SRCDIR)/admon-important.svg \
+	$(DOC_SRCDIR)/admon-warning.svg \
+	$(DOC_SRCDIR)/admon-caution.svg
 
 # docinfo-header.html: generated from .in template.  The @LANGUAGE_SWITCHER@
 # placeholder expands to one <li> per language (English plus everything

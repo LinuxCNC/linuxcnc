@@ -361,20 +361,30 @@ body:is(.article,.book,.manpage) .admonitionblock.important {
   background-color: #fcf8e3;
   color: #8a6d3b;
 }
-/* Admonition icons: map asciidoctor's "icons=font" FontAwesome classes
-   to Unicode glyphs so we get an icon (not the word "Note") without
-   loading FontAwesome.  Asciidoctor emits <i class="fa icon-note">
-   etc; default CSS already sizes them via [class^="fa icon-"]. */
-body:is(.article,.book,.manpage) .admonitionblock td.icon .fa::before {
-  font-family: inherit;
-  font-style: normal;
-  text-shadow: none;
+/* Admonition icons: a Bootstrap Icons SVG used as a mask and painted with
+   the block's colour, so it tints per type and needs no font.  The word in
+   td.icon's .title is kept off-screen as the accessible label. */
+body:is(.article,.book,.manpage) .admonitionblock td.icon .title {
+  display: inline-block;
+  width: 1.6em;
+  height: 1.6em;
+  overflow: hidden;
+  text-indent: -9999px;        /* hide the word, keep it for screen readers */
+  background-color: currentColor;
+  -webkit-mask: var(--admon-icon) center / contain no-repeat;
+  mask: var(--admon-icon) center / contain no-repeat;
 }
-body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-note::before    { content: "\2139"; }   /* ℹ */
-body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-tip::before     { content: "\1F4A1"; }  /* 💡 */
-body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-warning::before { content: "\26A0"; }   /* ⚠ */
-body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-caution::before { content: "\26A1"; }   /* ⚡ */
-body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-important::before { content: "\2757"; } /* ❗ */
+/* asciidoctor's table resets the cell colour, so set the tint directly. */
+body:is(.article,.book,.manpage) .admonitionblock.note  td.icon .title,
+body:is(.article,.book,.manpage) .admonitionblock.tip   td.icon .title { color: #31708f; }
+body:is(.article,.book,.manpage) .admonitionblock.warning td.icon .title,
+body:is(.article,.book,.manpage) .admonitionblock.caution td.icon .title,
+body:is(.article,.book,.manpage) .admonitionblock.important td.icon .title { color: #8a6d3b; }
+body:is(.article,.book,.manpage) .admonitionblock.note  td.icon .title { --admon-icon: url(admon-note.svg); }
+body:is(.article,.book,.manpage) .admonitionblock.tip   td.icon .title { --admon-icon: url(admon-tip.svg); }
+body:is(.article,.book,.manpage) .admonitionblock.important td.icon .title { --admon-icon: url(admon-important.svg); }
+body:is(.article,.book,.manpage) .admonitionblock.warning td.icon .title { --admon-icon: url(admon-warning.svg); }
+body:is(.article,.book,.manpage) .admonitionblock.caution td.icon .title { --admon-icon: url(admon-caution.svg); }
 
 /* ======================================================================
  *  Asciidoctor pages (dark, opt-in via system preference)
@@ -467,11 +477,12 @@ body:is(.article,.book,.manpage) .admonitionblock td.icon .icon-important::befor
     color: #d0d0d0;
     border-left-color: #444;
   }
-  body:is(.article,.book,.manpage) .admonitionblock > table td.icon,
-  body:is(.article,.book,.manpage) .admonitionblock > table td.icon .title {
-    color: #e06464;
-    font-weight: bold;
-  }
+  /* dark per-type tint for the icon mask */
+  body:is(.article,.book,.manpage) .admonitionblock.note  td.icon .title,
+  body:is(.article,.book,.manpage) .admonitionblock.tip   td.icon .title { color: #a8d3e8; }
+  body:is(.article,.book,.manpage) .admonitionblock.warning td.icon .title { color: #f0c0c0; }
+  body:is(.article,.book,.manpage) .admonitionblock.caution td.icon .title,
+  body:is(.article,.book,.manpage) .admonitionblock.important td.icon .title { color: #f0e090; }
   body:is(.article,.book,.manpage) .admonitionblock.note,
   body:is(.article,.book,.manpage) .admonitionblock.tip {
     background-color: #1a3a4d;
