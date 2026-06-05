@@ -76,6 +76,15 @@ xvfb-run -a --server-args="-screen 0 $UI_SMOKE_XVFB_SCREEN" \
         timeout "$DRIVER_TIMEOUT" python3 "$LIB_DIR/drive.py" "$@" >ui-smoke.out 2>ui-smoke.err
         DRIVE_RC=$?
 
+        # Optional window-fit regression check: fail if the GUI window is
+        # larger than the screen (controls pushed off-display). Runs only
+        # when the GUI came up, and folds a failure into DRIVE_RC so the
+        # offending window is photographed below.
+        if [ -n "${UI_SMOKE_FIT_CLASS:-}" ] && [ "$DRIVE_RC" -eq 0 ]; then
+            . "$LIB_DIR/window-fit.sh"
+            window_fit_check "$UI_SMOKE_FIT_CLASS" || DRIVE_RC=1
+        fi
+
         # Photograph the root window before teardown, while DISPLAY is the
         # Xvfb server and the GUI is still up. On failure the picture shows
         # the cause (a hung GUI on a blocking modal leaves no core for
