@@ -112,22 +112,15 @@ proc which_exe {name} {
 } ;# which_exe
 
 proc check_rt_privileges {} {
-  # Without 'sudo make setuid' (or 'sudo make setcap') rtapi_app runs
-  # unprivileged: realtime threads get no SCHED_FIFO and no locked memory, so
-  # the latency readings are wildly inflated.  Warn rather than mislead.
-  # Only meaningful on an RT-capable kernel; stay quiet on non-RT (e.g. dev).
-  set rt 0
-  if {![catch {exec uname -v} kv] && [string match *PREEMPT_RT* $kv]} {set rt 1}
-  if {[string first rtai [string tolower $::tcl_platform(osVersion)]] >= 0} {set rt 1}
-  if {!$rt} return
-  if {![catch {exec id -u} uid] && $uid == 0} return ;# root has every privilege
-  if {[catch {which_exe rtapi_app} rtapi]} return ;# cannot locate, stay quiet
-  if {![catch {file attributes $rtapi -permissions} mode] && ($mode & 04000)} return ;# setuid root
-  if {![catch {exec getcap $rtapi} caps] && [string match *cap_sys_nice* $caps]} return ;# file caps
-  set msg "Warning: rtapi_app is not setuid root and has no realtime capabilities."
-  append msg "\nRealtime threads get no SCHED_FIFO priority or locked memory,"
+  # Ask the realtime layer whether realtime is actually available, via
+  # 'realtime verify' (exits 0 when realtime is up, non-zero otherwise,
+  # usually a missing 'sudo make setuid' or 'sudo make setcap').
+  if {[catch {exec linuxcnc_var REALTIME} rt]} return ;# cannot locate, stay quiet
+  if {![catch {exec $rt verify 2>@1}]} return         ;# realtime available
+  set msg "Warning: realtime is not available."
+  append msg "\nThreads get no SCHED_FIFO priority or locked memory,"
   append msg "\nso the latency shown will be far worse than reality."
-  append msg "\nRun 'sudo make setuid' (or 'sudo make setcap') in src/."
+  append msg "\nOn a run-in-place build, run 'sudo make setuid' (or 'sudo make setcap') in src/."
   puts stderr $msg
   if {$::LH(use_x)} {
     package require Tk
@@ -649,6 +642,7 @@ proc start_collection {} {
     }
   }
   hal start
+  check_rt_privileges
   if {!$::LH(legacy)} {
     # Attach the Tcl hal_stream binding (added in halsh.c) to each
     # thread's latencybinstream FIFO. The handle stays open for the
@@ -997,7 +991,6 @@ proc windowToFile { win } {
 if ![info exists ::LH(start)] {
   set_defaults
   config
-  check_rt_privileges
   progress "Loading packages"
   load_packages
   signal trap SIGINT finish
