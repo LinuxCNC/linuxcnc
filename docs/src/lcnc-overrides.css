@@ -378,8 +378,10 @@ body:is(.article,.book,.manpage) .admonitionblock td.icon .title {
   overflow: hidden;
   text-indent: -9999px;        /* hide the word, keep it for screen readers */
   background-color: currentColor;
-  -webkit-mask: var(--admon-icon) center / contain no-repeat;
-  mask: var(--admon-icon) center / contain no-repeat;
+  /* 85%, not contain: the overflow:hidden box would clip an edge-to-edge
+     icon (e.g. the info circle) where it touches the top. */
+  -webkit-mask: var(--admon-icon) center / 85% no-repeat;
+  mask: var(--admon-icon) center / 85% no-repeat;
 }
 /* asciidoctor's table resets the cell colour, so set the tint directly. */
 body:is(.article,.book,.manpage) .admonitionblock.note  td.icon .title,
