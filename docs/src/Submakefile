@@ -583,13 +583,11 @@ endif
 .htmldoc-stamp: .copy-asciidoc-stamp $(DOC_DIR)/.gen_complist-stamp $(HTML_TARGETS) .images-stamp .include-stamp $(DOC_OUT_HTML)/asciidoctor.css $(DOC_OUT_HTML)/rouge-github.css .lang-switcher-stamp
 	touch $@
 
-# Walk every generated HTML page and grey out language-switcher entries
-# whose translated counterpart is below POKEEP coverage.  Runs at the end
-# of the build (depends on every HTML target so it sees the final tree).
-# The script is idempotent so re-running over a processed tree is a
-# content-stable no-op.  Gated on BUILD_DOCS_TRANSLATED: with English-only
-# builds there is nothing to grey out.
-ifeq ($(BUILD_DOCS_TRANSLATED),yes)
+# Inject the whole-document sidebar/topbar and grey out missing language-
+# switcher entries.  Runs last (depends on every HTML target) and is
+# idempotent.  Gated on BUILD_DOCS_HTML, not translations: the sidebar comes
+# from the Master_*.adoc structure, so English-only builds need it too.
+ifeq ($(BUILD_DOCS_HTML),yes)
 .lang-switcher-stamp: $(DOC_SRCDIR)/lang_switcher_postprocess.py $(HTML_TARGETS) $(TRANSLATED_MAN_HTML_TARGETS) $(wildcard $(DOC_DIR)/po/*.po)
 	$(Q)python3 $(DOC_SRCDIR)/lang_switcher_postprocess.py $(DOC_OUT_HTML) $(DOC_DIR)/po $(POKEEP) $(LANGUAGES)
 	@touch $@

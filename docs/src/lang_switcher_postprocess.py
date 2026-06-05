@@ -530,9 +530,9 @@ def main(html_root, po_dir, languages):
 
 
 if __name__ == '__main__':
-    # argv[3] is the legacy POKEEP threshold slot; banners now show for any
-    # incomplete page, so it is accepted for call compatibility and ignored.
-    if len(sys.argv) < 5:
-        sys.stderr.write('Usage: lang_switcher_postprocess.py <html-root> <po-dir> <threshold> <lang1> [lang2 ...]\n')
+    # argv[3] is the legacy POKEEP slot, accepted and ignored.  The language
+    # list may be empty (English-only build): sidebar/topbar still inject.
+    if len(sys.argv) < 4:
+        sys.stderr.write('Usage: lang_switcher_postprocess.py <html-root> <po-dir> <threshold> [lang1 ...]\n')
         sys.exit(2)
     main(sys.argv[1], sys.argv[2], sys.argv[4:])
