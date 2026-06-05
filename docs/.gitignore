@@ -4,6 +4,9 @@
 # Rendered output: HTML, PDF, and po4a-translated .adoc all land under build/.
 build/
 
+# Legacy publish path: a symlink to build/html for the website sync (Submakefile).
+/html
+
 # Intermediate .html asciidoctor writes beside each source .adoc before the
 # copy step moves it into build/html/.
 src/*/*.html
