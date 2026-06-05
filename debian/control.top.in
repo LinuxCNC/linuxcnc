@@ -47,6 +47,7 @@ Build-Depends:
     tk@TCLTK_VERSION@-dev,
     xvfb <!nocheck>,
     x11-xserver-utils <!nocheck>,
+    x11-utils <!nocheck>,
     imagemagick <!nocheck>,
     python3-opengl <!nocheck>,
     python3-pyqt5 <!nocheck>,
