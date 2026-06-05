@@ -96,6 +96,27 @@ cut off, reduce the DPI setting.
 
 All other font sizes can be changed on the Preferences tab.
 
+=== Fitting the screen
+
+Touchy bounds its window to the monitor and scrolls any tab whose content
+is larger than the screen, so the window never grows past the display
+edge (for example after loading a large tool table). The handwheel column
+is hidden on the Preferences tab so the settings have the full width.
+
+If the interface is still too large for a small screen, Touchy offers,
+once, to shrink the display fonts to fit:
+
+* *Shrink to fit and save* scales the fonts to the largest size that fits
+  and saves them as your preference (the font selectors update to match).
+* *Not now* leaves the fonts unchanged and does not ask again for this
+  screen size; it is offered again only if you move to a smaller screen.
+* *Never ask again* disables the offer on every screen.
+
+To turn the offer back on, tick *Offer to shrink fonts to fit the screen*
+in Preferences / Display Options, or set `fit_fonts = ask` in
+`~/.touchy_preferences` (the *Never ask again* choice stores
+`fit_fonts = never`).
+
 === Macros
 
 Touchy can invoke O-word macros using the MDI interface.  To configure

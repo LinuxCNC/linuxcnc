@@ -3173,7 +3173,7 @@ F1 S1</property>
                                   <object class="GtkTable" id="table3">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="n-rows">5</property>
+                                    <property name="n-rows">6</property>
                                     <property name="n-columns">3</property>
                                     <child>
                                       <placeholder/>
@@ -3400,6 +3400,27 @@ F1 S1</property>
                                         <property name="x-options">GTK_FILL</property>
                                         <property name="y-options"/>
                                         <property name="x-padding">10</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="fitfontscheck">
+                                        <property name="label" translatable="yes">Offer to shrink fonts to fit the screen</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="focus-on-click">False</property>
+                                        <property name="draw-indicator">True</property>
+                                        <signal name="toggled" handler="on_fitfontscheck_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="right-attach">3</property>
+                                        <property name="top-attach">5</property>
+                                        <property name="bottom-attach">6</property>
+                                        <property name="x-options">GTK_FILL</property>
+                                        <property name="y-options"/>
+                                        <property name="x-padding">10</property>
+                                        <property name="y-padding">6</property>
                                       </packing>
                                     </child>
                                   </object>
