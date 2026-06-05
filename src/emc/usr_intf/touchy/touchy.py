@@ -951,6 +951,16 @@ class touchy:
             self.setfont()
 
         def setfont(self):
+                # GTK 3.16 deprecated the per-widget override_font/modify_fg
+                # calls, so tag the widgets with style classes once and drive
+                # their fonts and DRO text colours from a CSS provider that is
+                # reloaded whenever a font or colour preference changes.
+                if not hasattr(self, "_css_provider"):
+                        self._css_provider = Gtk.CssProvider()
+                        Gtk.StyleContext.add_provider_for_screen(
+                                Gdk.Screen.get_default(), self._css_provider,
+                                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
                 # buttons
                 for i in ["1", "2", "3", "4", "5", "6", "7",
                           "8", "9", "0", "minus", "decimal",
@@ -972,26 +982,26 @@ class touchy:
                           "fitfontscheck"]:
                         w = self.wTree.get_object(i)
                         if w:
-                                w.override_font(self.control_font)
+                                self._tag(w, "touchy_control")
                 notebook = self.wTree.get_object('notebook1')
                 for i in range(notebook.get_n_pages()):
                         w = notebook.get_nth_page(i)
-                        notebook.get_tab_label(w).override_font(self.control_font)
+                        self._tag(notebook.get_tab_label(w), "touchy_control")
 
                 # labels
                 for i in range(self.num_mdi_labels):
                         w = self.wTree.get_object("mdi%d" % i)
-                        w.override_font(self.control_font)
+                        self._tag(w, "touchy_control")
                 for i in range(self.num_filechooser_labels):
                         w = self.wTree.get_object("filechooser%d" % i)
-                        w.override_font(self.control_font)
+                        self._tag(w, "touchy_control")
                 for i in range(self.num_listing_labels):
                         w = self.wTree.get_object("listing%d" % i)
-                        w.override_font(self.listing_font)
+                        self._tag(w, "touchy_listing")
                 for i in ["mdi", "startup", "manual", "auto", "preferences", "status",
                           "relative", "absolute", "dtg", "ss2label", "status_spindlespeed2"]:
                         w = self.wTree.get_object(i)
-                        w.override_font(self.control_font)
+                        self._tag(w, "touchy_control")
 
                 # dro
                 for i in ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr',
@@ -999,20 +1009,74 @@ class touchy:
                           'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
                         w = self.wTree.get_object(i)
                         if w:
-                            w.override_font(self.dro_font)
+                            self._tag(w, "touchy_dro")
                             if "r" in i and not self.rel_textcolor == "default":
-                                w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.rel_textcolor))
+                                self._tag(w, "touchy_rel")
                             elif "a" in i and not self.abs_textcolor == "default":
-                                w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.abs_textcolor))
+                                self._tag(w, "touchy_abs")
                             elif "d" in i and not self.dtg_textcolor == "default":
-                                w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.dtg_textcolor))
+                                self._tag(w, "touchy_dtg")
 
                 # status bar
                 for i in ["error"]:
                         w = self.wTree.get_object(i)
-                        w.override_font(self.error_font)
+                        self._tag(w, "touchy_error")
                         if not self.err_textcolor == "default":
-                            w.modify_fg(Gtk.StateFlags.NORMAL,Gdk.color_parse(self.err_textcolor))
+                            self._tag(w, "touchy_err")
+
+                self._reload_font_css()
+
+        def _tag(self, widget, name):
+            # Add a style class once; the shared CSS provider carries the font
+            # and colour for that class.
+            if widget is not None:
+                context = widget.get_style_context()
+                if not context.has_class(name):
+                    context.add_class(name)
+
+        def _font_to_css(self, fd):
+            # Translate a Pango font description into CSS declarations.
+            css = []
+            family = fd.get_family()
+            if family:
+                css.append('font-family: "%s";' % family)
+            if fd.get_size() > 0:
+                unit = "px" if fd.get_size_is_absolute() else "pt"
+                css.append("font-size: %d%s;" % (fd.get_size() // Pango.SCALE, unit))
+            weight = max(100, min(900, int(round(int(fd.get_weight()) / 100.0)) * 100))
+            css.append("font-weight: %d;" % weight)
+            if fd.get_style() == Pango.Style.ITALIC:
+                css.append("font-style: italic;")
+            elif fd.get_style() == Pango.Style.OBLIQUE:
+                css.append("font-style: oblique;")
+            return " ".join(css)
+
+        def _css_color(self, value):
+            # Normalise a stored colour string to a CSS-safe form, or None.
+            rgba = Gdk.RGBA()
+            if rgba.parse(value):
+                return rgba.to_string()
+            return None
+
+        def _reload_font_css(self):
+            rules = [
+                ".touchy_control { %s }" % self._font_to_css(self.control_font),
+                ".touchy_listing { %s }" % self._font_to_css(self.listing_font),
+                ".touchy_dro { %s }" % self._font_to_css(self.dro_font),
+                ".touchy_error { %s }" % self._font_to_css(self.error_font),
+            ]
+            for name, value in (("touchy_rel", self.rel_textcolor),
+                                ("touchy_abs", self.abs_textcolor),
+                                ("touchy_dtg", self.dtg_textcolor),
+                                ("touchy_err", self.err_textcolor)):
+                if value != "default":
+                    colour = self._css_color(value)
+                    if colour:
+                        rules.append(".%s { color: %s; }" % (name, colour))
+            try:
+                self._css_provider.load_from_data("\n".join(rules).encode("utf-8"))
+            except Exception:
+                pass
 
         def mdi_set_tool(self, b):
                 self.mdi_control.set_tool(self.status.get_current_tool(), self.g10l11)
