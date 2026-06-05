@@ -230,6 +230,9 @@ def _html_escape(s):
 
 
 def _clean_title(s):
+    # Drop asciidoctor index terms: (((concealed))) entirely, ((visible)) -> text.
+    s = re.sub(r'\(\(\(.*?\)\)\)', '', s)
+    s = re.sub(r'\(\((.*?)\)\)', r'\1', s)
     # Drop the " V{lversion}" / attribute tail and any leftover {attr}.
     s = re.sub(r'\s*V?\{[^}]*\}.*$', '', s)
     return s.strip()
