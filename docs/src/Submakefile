@@ -418,6 +418,7 @@ endif
 docs: manpages
 
 clean: clean-manpages clean-translated
+	-rm -f $(DOC_DIR)/html
 clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
 	# Remove generated alias man pages too.
@@ -436,7 +437,14 @@ endif
 ifeq ($(BUILD_DOCS_HTML),yes)
 docs: htmldocs
 install-doc: install-doc-html
+docs: $(DOC_DIR)/html
 endif
+
+# Legacy publish path: the website sync uploads docs/html/, which the unified
+# build moved to docs/build/html/.  Expose docs/html as a symlink to the new
+# tree so the (dereferencing) sync keeps publishing.  git-ignored, clean'd.
+$(DOC_DIR)/html:
+	$(Q)ln -sfn build/html $@
 
 # debian/linuxcnc-doc-en.docs installs docs/build/html/en/gcode.html, so the
 # English gcode reference must land in the build tree even when only PDF docs
