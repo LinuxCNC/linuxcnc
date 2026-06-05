@@ -337,6 +337,13 @@ body:is(.article,.book,.manpage).toc2 #toc.toc2 {
   }
 }
 
+/* Page and sidebar scrollbars: declaring scrollbar-color opts out of the
+   fully-hidden overlay so the bar hides but returns on hover, as normal. */
+html,
+body:is(.article,.book,.manpage) #toc.toc2 {
+  scrollbar-color: #b0b0b0 transparent;
+}
+
 /* Admonition blocks: tint the whole block by type (borrowed from
    KiCAD docs).  Asciidoctor renders these as a wrapper div with an
    inner table whose <table> background is transparent, so the colour
@@ -504,6 +511,12 @@ body:is(.article,.book,.manpage) .admonitionblock.caution td.icon .title { --adm
   }
   body:is(.article,.book,.manpage) #toc.toc2 a {
     color: #7fb8e8;
+  }
+
+  /* dark scrollbar to match the rule above */
+  html,
+  body:is(.article,.book,.manpage) #toc.toc2 {
+    scrollbar-color: #555 transparent;
   }
 
   /* Figures are often black line art on a transparent background (Inkscape
