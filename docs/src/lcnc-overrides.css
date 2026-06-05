@@ -506,12 +506,16 @@ body:is(.article,.book,.manpage) .admonitionblock.caution td.icon .title { --adm
     color: #7fb8e8;
   }
 
-  /* Inkscape-exported SVG figures are transparent with black strokes
-     and disappear on dark page bg.  Wrap SVGs only in a white card;
-     PNGs/JPEGs usually carry their own background so leave them be. */
+  /* Figures are often black line art on a transparent background (Inkscape
+     SVGs, some PNGs) and vanish on the dark page.  Back every figure with
+     white; opaque screenshots simply cover it.  The padded white card is
+     kept for SVGs, whose strokes run to the edge. */
+  body:is(.article,.book,.manpage) .imageblock img,
+  body:is(.article,.book,.manpage) .image img {
+    background: #fff;
+  }
   body:is(.article,.book,.manpage) .imageblock img[src$=".svg"],
   body:is(.article,.book,.manpage) .image img[src$=".svg"] {
-    background: #fff;
     padding: 0.5em;
     border-radius: 4px;
   }
