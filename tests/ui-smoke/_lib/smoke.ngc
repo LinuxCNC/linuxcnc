@@ -1,0 +1,13 @@
+(Phase 2 UI smoke program. Force mm input units with G21 so the move)
+(commanded here is the same physical distance regardless of the sim)
+(config's LINEAR_UNITS. Use G91 relative so the move is independent of)
+(each sim's HOME position, then return to G90 absolute and end with M2.)
+(stat.position is still reported in the machine's LINEAR_UNITS; the)
+(driver converts the expected mm delta to machine units via)
+(stat.linear_units before comparing. Note: axis and touchy sims are)
+(inch machines, so a 1mm move shows as ~0.03937 in stat.position.)
+G21
+G91
+G0 X1 Y1
+G90
+M2
