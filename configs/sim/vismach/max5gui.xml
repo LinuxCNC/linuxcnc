@@ -1,0 +1,11 @@
+<halJson>
+  <halJsonRoot path="pins">
+    <halJsonPin name="table" type="float" dir="in"/>
+    <halJsonPin name="saddle" type="float" dir="in"/>
+    <halJsonPin name="head" type="float" dir="in"/>
+    <halJsonPin name="tilt" type="float" dir="in"/>
+    <halJsonPin name="rotate" type="float" dir="in"/>
+    <halJsonPin name="tool-length" type="float" dir="in"/>
+    <halJsonPin name="tool-radius" type="float" dir="in"/>
+  </halJsonRoot>
+</halJson>

@@ -1,4 +1,4 @@
-loadrt comp names=comp_x,comp_z
+load comp <comp_x,comp_z>
 
 addf comp_x servo-thread
 addf comp_z servo-thread

@@ -3,13 +3,13 @@
 # This file will be replaced with a new file if you do!
 
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 
 # motion controller
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 # standard components
-loadrt pid num_chan=4 
+load pid <pid.0,pid.1,pid.2,pid.3>
 
 # hostmot2 driver
 #loadrt [HOSTMOT2](DRIVER) board_ip=[HOSTMOT2](IPADDRESS) config="num_encoders=[HOSTMOT2](ENCODERS)num_stepgens=[HOSTMOT2
@@ -30,12 +30,18 @@ addf pid.3.do-pid-calcs servo-thread
 #addf hm2_[HOSTMOT2](BOARD).0.read servo-thread
 
 # input switch debouncing
-loadrt debounce cfg=4
+load debounce <debounce.0,debounce.1,debounce.2,debounce.3>
 addf debounce.0 servo-thread
+addf debounce.1 servo-thread
+addf debounce.2 servo-thread
+addf debounce.3 servo-thread
 setp debounce.0.delay 4
+setp debounce.1.delay 4
+setp debounce.2.delay 4
+setp debounce.3.delay 4
 
 # near component for spindle at speed
-loadrt near
+load near <near.0>
 addf near.0 servo-thread
 setp near.0.scale 1.01
 

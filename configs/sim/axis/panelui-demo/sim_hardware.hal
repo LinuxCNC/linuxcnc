@@ -1,7 +1,7 @@
 # This file sets up simulated limits/home/spindle encoder hardware.
 # This is a generated file do not edit.
 
-loadrt sim_encoder names=sim-encoder
+load sim_encoder <sim-encoder>
 setp sim-encoder.ppr 100
 setp sim-encoder.scale 1
 
@@ -10,7 +10,7 @@ net fake-spindle-phase-a       sim-encoder.phase-A
 net fake-spindle-phase-b       sim-encoder.phase-B
 net fake-spindle-index         sim-encoder.phase-Z
 
-loadrt sim_axis_hardware names=sim-hardware
+load sim_axis_hardware <sim-hardware>
 
 net Xjoint-pos-fb      joint.0.pos-fb      sim-hardware.Xcurrent-pos
 net Zjoint-pos-fb      joint.1.pos-fb      sim-hardware.Zcurrent-pos

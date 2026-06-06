@@ -1,0 +1,2 @@
+# Load the C stdglue handlers (replaces Python stdglue.py)
+load stdglue

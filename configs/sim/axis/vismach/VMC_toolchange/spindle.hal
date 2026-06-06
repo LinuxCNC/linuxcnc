@@ -10,11 +10,11 @@
 # First load 2x pid components. These would normally have to be loaded at
 # the same time as the Axis PID components
 
-loadrt pid num_chan=2 
+load pid <pid.0,pid.1>
 addf pid.0.do-pid-calcs servo-thread # Velocity
 addf pid.1.do-pid-calcs servo-thread # Position
 
-loadrt orient
+load orient
 addf orient.0 servo-thread
 
 #loadrt mux2 -- This has already been loaded in the sim_vmc.hal

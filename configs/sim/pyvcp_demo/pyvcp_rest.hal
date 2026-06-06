@@ -1,0 +1,3 @@
+# HAL file to load pyvcp panel via gomc-server (REST/WS mode).
+# This runs before the GUI starts, so pins are available for POSTGUI_HALFILE.
+load pyvcp [pyvcp] xml=pyvcp_demo1.xml

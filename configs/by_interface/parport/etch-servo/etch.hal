@@ -1,27 +1,31 @@
 # load realtime modules
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 loadrt hal_parport cfg="0x378"
-loadrt encoder num_chan=2
-loadrt pid num_chan=2
-loadrt pwmgen output_type=1,1
-loadrt ddt count=4
-loadrt constant count=1
+load encoder <encoder.0,encoder.1>
+load pid <pid.0,pid.1>
+load pwmgen <pwmgen.0,pwmgen.1> output_type=1
+load ddt <ddt.0,ddt.1,ddt.2,ddt.3>
+load constant <constant.0>
 
 # define the order of execution for RT code
 addf parport.0.read            base-thread
-addf encoder.update-counters   base-thread
-addf pwmgen.make-pulses        base-thread
+addf encoder.0.update-counters base-thread
+addf encoder.1.update-counters base-thread
+addf pwmgen.0.make-pulses base-thread
+addf pwmgen.1.make-pulses base-thread
 addf parport.0.write           base-thread
 
-addf encoder.capture-position  servo-thread
+addf encoder.0.capture-position servo-thread
+addf encoder.1.capture-position servo-thread
 addf motion-command-handler    servo-thread
 addf motion-controller         servo-thread
 addf pid.0.do-pid-calcs        servo-thread
 addf pid.1.do-pid-calcs        servo-thread
 addf constant.0                servo-thread
-addf pwmgen.update             servo-thread
+addf pwmgen.0.update servo-thread
+addf pwmgen.1.update servo-thread
 addf ddt.0                     servo-thread
 addf ddt.1                     servo-thread
 addf ddt.2                     servo-thread
@@ -103,7 +107,7 @@ net Xenable => pwmgen.0.enable
 net Yenable => pid.1.enable
 net Yenable => pwmgen.1.enable
 
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 net Xpos-cmd => ddt.0.in
 net Xvel <= ddt.0.out
@@ -114,5 +118,5 @@ net Yvel <= ddt.2.out
 net Yvel => ddt.3.in
 net Yacc <= ddt.3.out
 
-net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+net tool-prep-loop iocontrol.tool-prepare iocontrol.tool-prepared
+net tool-change-loop iocontrol.tool-change iocontrol.tool-changed

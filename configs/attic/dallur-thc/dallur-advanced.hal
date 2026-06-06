@@ -56,14 +56,14 @@ net Zdir parport.0.pin-08-out
 
 # Estop signals
 # This signal is the internal or gui estop command from EMC
-net estop-out iocontrol.0.user-enable-out classicladder.0.in-00
+net estop-out iocontrol.user-enable-out classicladder.0.in-00
 # This is a one-shot on timer when signal above goes high.
-net estop-in iocontrol.0.user-request-enable  classicladder.0.in-02
+net estop-in iocontrol.user-request-enable  classicladder.0.in-02
 # This bit is an external estop button connected to parport pin 10 
 net ext-estop parport.0.pin-10-in
 net ext-estop classicladder.0.in-01
 # This bit signal is command to estop from CL to EMC
-net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
+net emc-enable-in iocontrol.emc-enable-in classicladder.0.out-00 
 
 
 # Spindle Signal, forward drives Torch ON
@@ -94,8 +94,9 @@ net limit-reached-z joint.2.neg-lim-sw-in
 
 # This is for Charge Pump which requires a 15khz signal to activate, maxfreq is the limiter 
 loadrt freqgen step_type=0
-loadrt siggen
-loadrt threads name1=fastcp period1=30000 name2=slowcp period2=1000000
+load siggen <siggen.0>
+newthread fastcp 30000
+newthread slowcp 1000000
 
 
 net velcp siggen.0.square
@@ -115,12 +116,12 @@ net stepcp parport.1.pin-17-out
 ###########Torch Height Control ########
 
 # Load the necessary functions
-loadrt mux2 count=7
-loadrt or2 count=4
-loadrt not count=4
-loadrt sum2 count=2
-loadrt comp count=2
-loadrt and2 count=2
+load mux2 <mux2.0,mux2.1,mux2.2,mux2.3,mux2.4,mux2.5,mux2.6>
+load or2 <or2.0,or2.1,or2.2,or2.3>
+load not <not.0,not.1,not.2,not.3>
+load sum2 <sum2.0,sum2.1>
+load comp <comp.0,comp.1>
+load and2 <and2.0,and2.1>
 
 # Make a sensor for the ARC OK signal with an active low
 net senseArcOKInverted <= parport.1.pin-15-in

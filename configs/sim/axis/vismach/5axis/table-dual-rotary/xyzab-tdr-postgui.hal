@@ -1,8 +1,8 @@
 # switchkins pyvcp connections for:
 # xyzab-tdr-kins.ini
 
-net :kinstype.is-0 <= kinstype.is-0 => pyvcp.multilabel.0.legend0
-net :kinstype.is-1 <= kinstype.is-1 => pyvcp.multilabel.0.legend1
+net :kinstype.is-0 <= xyzab_tdr_kins.0.kinstype-is-0 => pyvcp.multilabel.0.legend0
+net :kinstype.is-1 <= xyzab_tdr_kins.0.kinstype-is-1 => pyvcp.multilabel.0.legend1
 
 net :vismach-clear <= pyvcp.vismach-clear => vismach.plotclear
 

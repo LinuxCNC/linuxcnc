@@ -2,12 +2,12 @@
 # when emc2 starts it loads iocontrol
 
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 # next load the PID module, for four PID loops
-loadrt pid num_chan=4
+load pid <pid.0,pid.1,pid.2,pid.3>
 
 # install driver
 #if the stepper controller is not connected to the standard parallel port
@@ -19,10 +19,10 @@ loadrt pid num_chan=4
 loadrt hal_ppmc
 
 # make some signals for the scope for tuning.
-loadrt ddt count=4
+load ddt <ddt.0,ddt.1,ddt.2,ddt.3>
 # add components for E-stop logic
-loadrt estop_latch count=1
-loadrt and2 count=1
+load estop_latch count=1
+load and2 <and2.0>
 
 # set up the realtime thread
 # read inputs first

@@ -1,12 +1,14 @@
-loadusr -W hal_manualtoolchange
+load manualtoolchange
+addf manualtoolchange servo-thread
+loadusr manualtoolchange_ui
 
 # in case they were linked already
-unlinkp iocontrol.0.tool-change
-unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.tool-change
+unlinkp iocontrol.tool-changed
 
-net tool-change hal_manualtoolchange.change iocontrol.0.tool-change
-net tool-changed hal_manualtoolchange.changed iocontrol.0.tool-changed
-net tool-prep-number hal_manualtoolchange.number iocontrol.0.tool-prep-number
+net tool-change manualtoolchange.change iocontrol.tool-change
+net tool-changed manualtoolchange.changed iocontrol.tool-changed
+net tool-prep-number manualtoolchange.number iocontrol.tool-prep-number
 
 net spindle-cmd pyvcp.rpm
 

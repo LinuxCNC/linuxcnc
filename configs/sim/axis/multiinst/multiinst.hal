@@ -1,0 +1,70 @@
+# Multi-instance HAL — two independent motion controllers in one process.
+# Each motmod has its own tpmod, homemod, and trivkins instance.
+
+# Motion controller 1 (mill1)
+load tpmod <tp1> mot_instance=mot1
+load homemod <home1> mot_instance=mot1
+load trivkins <kins1> coordinates=XYZ
+load motmod <mot1> num_spindles=1 kins_instance=kins1 tp_instance=tp1 home_instance=home1
+
+# Motion controller 2 (mill2)
+load tpmod <tp2> mot_instance=mot2
+load homemod <home2> mot_instance=mot2
+load trivkins <kins2> coordinates=XYZ
+load motmod <mot2> num_spindles=1 kins_instance=kins2 tp_instance=tp2 home_instance=home2
+
+# IO controllers (each bound to its tooltable instance)
+load io <io1> tooltable_instance=tt1
+load io <io2> tooltable_instance=tt2
+
+# Separate tool tables per instance
+load tooltable <tt1> db=mill1.db
+load tooltable <tt2> db=mill2.db
+
+# Two milltask instances
+load milltask <mill1> halui=halui motion_instance=mot1 iocontrol_instance=io1 tooltable_instance=tt1
+load milltask <mill2> halui=halui2 motion_instance=mot2 iocontrol_instance=io2 tooltable_instance=tt2
+
+# Preview instances
+load ngcpreview <mill1-preview> namespace=mill1 tooltable_instance=tt1
+load ngcpreview <mill2-preview> namespace=mill2 tooltable_instance=tt2
+
+# RT functions for mot1
+addf mot1.motion-command-handler servo-thread
+addf mot1.motion-controller servo-thread
+
+# RT functions for mot2
+addf mot2.motion-command-handler servo-thread
+addf mot2.motion-controller servo-thread
+
+# ESTOP loop-back
+net estop-loop1 io1.user-enable-out io1.emc-enable-in
+net estop-loop2 io2.user-enable-out io2.emc-enable-in
+
+# === Motion controller 1 (mot1) ===
+# Position loop-back
+net m1-x-pos mot1.joint.0.motor-pos-cmd => mot1.joint.0.motor-pos-fb
+net m1-y-pos mot1.joint.1.motor-pos-cmd => mot1.joint.1.motor-pos-fb
+net m1-z-pos mot1.joint.2.motor-pos-cmd => mot1.joint.2.motor-pos-fb
+
+# Instant home
+setp home1.joint.0.home-sw-in 1
+setp home1.joint.1.home-sw-in 1
+setp home1.joint.2.home-sw-in 1
+
+# Spindle at-speed
+setp mot1.spindle.0.at-speed 1
+
+# === Motion controller 2 (mot2) ===
+# Position loop-back
+net m2-x-pos mot2.joint.0.motor-pos-cmd => mot2.joint.0.motor-pos-fb
+net m2-y-pos mot2.joint.1.motor-pos-cmd => mot2.joint.1.motor-pos-fb
+net m2-z-pos mot2.joint.2.motor-pos-cmd => mot2.joint.2.motor-pos-fb
+
+# Instant home
+setp home2.joint.0.home-sw-in 1
+setp home2.joint.1.home-sw-in 1
+setp home2.joint.2.home-sw-in 1
+
+# Spindle at-speed
+setp mot2.spindle.0.at-speed 1

@@ -195,7 +195,7 @@ class CustomTask(emctask.Task,UserFuncs):
                 self.hal["tool-prepare"] = 1
 
                 # and tell task to wait until status changes to RCS_DONE
-                self.io.status =  self.wait_for_named_pin(1,"iocontrol.0.tool-prepared",self.prepare_complete)
+                self.io.status =  self.wait_for_named_pin(1,"iocontrol.tool-prepared",self.prepare_complete)
         else:
             self.io.tool.pocketPrepped = p
             self.io.status  = emctask.RCS_STATUS.RCS_DONE
@@ -252,7 +252,7 @@ class CustomTask(emctask.Task,UserFuncs):
                 return 0
             if self.io.tool.pocketPrepped != -1:
                 self.hal["tool-change"] = 1
-                self.io.status =  self.wait_for_named_pin(1,"iocontrol.0.tool-changed",self.change_complete)
+                self.io.status =  self.wait_for_named_pin(1,"iocontrol.tool-changed",self.change_complete)
                 return 0
         else:
             if not self.random_toolchanger and (self.io.tool.pocketPrepped == 0):
@@ -338,7 +338,7 @@ class CustomTask(emctask.Task,UserFuncs):
         if self.fault_pins:
             self.hal["emc-reason"] = reason
             self.hal["emc-abort"] = 1
-            self.io.status =  self.wait_for_named_pin(1,"iocontrol.0.emc-abort-ack",self.emc_abort_acked)
+            self.io.status =  self.wait_for_named_pin(1,"iocontrol.emc-abort-ack",self.emc_abort_acked)
             return 0
 
         if self._callback:
@@ -352,10 +352,10 @@ class CustomTask(emctask.Task,UserFuncs):
         self.hal["start-change"] = 0
 
     def emcToolStartChange(self):
-        if debug(): print("py:  emcToolStartChange", "wait for iocontrol.0.start-change-ack" if self.startchange_pins else "noop")
+        if debug(): print("py:  emcToolStartChange", "wait for iocontrol.start-change-ack" if self.startchange_pins else "noop")
         if self.startchange_pins:
                 self.hal["start-change"] = 1
-                self.io.status =  self.wait_for_named_pin(1,"iocontrol.0.start-change-ack",self.start_change_acked)
+                self.io.status =  self.wait_for_named_pin(1,"iocontrol.start-change-ack",self.start_change_acked)
                 return 0
         self.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0

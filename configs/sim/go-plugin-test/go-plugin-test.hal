@@ -1,0 +1,13 @@
+# go-plugin-test.hal — minimal HAL file to test the Go plugin loader
+#
+# The "load" command is a launcher-only command that auto-detects whether
+# a .so is a Go plugin or a C RT module.
+
+# Load the Go passthrough plugin.
+# In RIP mode the plugin is installed at $EMC2_HOME/lib/linuxcnc/go-modules/
+# by "make install" in src/hal/hal-go-plugin-template.
+load mygomodule
+
+# Set a test value on the input pin and verify with show
+setp go-passthrough.in-f 42.0
+show pin go-passthrough

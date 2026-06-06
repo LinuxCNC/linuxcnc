@@ -1,5 +1,5 @@
-loadrt or2 names=or_homesws
-loadrt comp names=comp_j0,comp_j1,comp_j2,comp_j3,comp_j4
+load or2 <or_homesws>
+load comp <comp_j0,comp_j1,comp_j2,comp_j3,comp_j4>
 
 net J0homeswpos => comp_j0.in1
 net J1homeswpos => comp_j1.in1

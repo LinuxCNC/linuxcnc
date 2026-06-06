@@ -25,11 +25,11 @@ net Adir parport.0.pin-08-out
 # create a signal for the estop loopback
 
 net estop-ext <= parport.0.pin-10-in
-net estop-out <= iocontrol.0.user-enable-out
-net estop-out => iocontrol.0.emc-enable-in
+net estop-out <= iocontrol.user-enable-out
+net estop-out => iocontrol.emc-enable-in
 # create signals for tool loading loopback
-#linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-#linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
+#linkpp iocontrol.tool-prepare iocontrol.tool-prepared
+#linkpp iocontrol.tool-change iocontrol.tool-changed
 
 # create a signal for "spindle on"
 #newsig spindle_on bit

@@ -13,13 +13,13 @@
 
 loadusr -W shuttle
 
-loadrt abs_s32 names=abs_s32.sxp
-loadrt select8 names=select8.sxp-jog-speed,select8.sxp-jog-increment
-loadrt mux2 names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog
-loadrt updown names=updown.sxp
-loadrt and2 names=and2.sxp-x-pos,and2.sxp-x-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-z-pos,and2.sxp-z-neg
-loadrt tristate_float names=tristate-float.sxp0,tristate-float.sxp1,tristate-float.sxp2,tristate-float.sxp3,tristate-float.sxp4,tristate-float.sxp5,tristate-float.sxp6,tristate-float.sxp7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
-loadrt ilowpass names=ilowpass.sxp
+load abs_s32 <abs_s32.sxp>
+load select8 <select8.sxp-jog-speed,select8.sxp-jog-increment>
+load mux2 <mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog>
+load updown <updown.sxp>
+load and2 <and2.sxp-x-pos,and2.sxp-x-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-z-pos,and2.sxp-z-neg>
+load tristate_float <tristate-float.sxp0,tristate-float.sxp1,tristate-float.sxp2,tristate-float.sxp3,tristate-float.sxp4,tristate-float.sxp5,tristate-float.sxp6,tristate-float.sxp7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3>
+load ilowpass names=ilowpass.sxp
 
 
 

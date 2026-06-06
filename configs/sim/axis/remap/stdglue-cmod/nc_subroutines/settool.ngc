@@ -1,0 +1,7 @@
+o<settool> sub
+(debug, in settool tool=#<tool>)
+; using the code being remapped here means 'use builtin behaviour'
+m61 q#<tool>
+; signal success be returning a value > 0:
+o<settool> endsub [1]
+m2

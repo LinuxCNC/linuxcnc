@@ -3,32 +3,32 @@
 # Load the core RT modules that will be needed.
 
 # Kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 # PID module, for four PID loops
-loadrt pid num_chan=4
+load pid <pid.0,pid.1,pid.2,pid.3>
 
 # Install motenc driver.
 loadrt hal_motenc
 
 # Install PLC.
-loadrt boss_plc
+load boss_plc <boss_plc.0>
 
 # Install debounce filters for operator console (cycle hold/start,
 # limit override, spindle increase/decrease/status).
-loadrt debounce cfg="6"
+load debounce <debounce.0,debounce.1,debounce.2,debounce.3,debounce.4,debounce.5>
 
 # Load muxes for motion feedback and PID command.
-loadrt mux2 count=8
+load mux2 <mux2.0,mux2.1,mux2.2,mux2.3,mux2.4,mux2.5,mux2.6,mux2.7>
 
 # Load differentiators for debug.
-loadrt ddt count=3
+load ddt <ddt.0,ddt.1,ddt.2>
 
 # Load the signal generator module for tuning.
-loadrt siggen
+load siggen <siggen.0>
 
 # Add functions to servo thread so they will be evaluated
 # every servo period.
@@ -36,6 +36,11 @@ loadrt siggen
 # Inputs are read at the beginning of the thread
 addf mux2.0 servo-thread 1
 addf debounce.0 servo-thread 1
+addf debounce.1 servo-thread 1
+addf debounce.2 servo-thread 1
+addf debounce.3 servo-thread 1
+addf debounce.4 servo-thread 1
+addf debounce.5 servo-thread 1
 addf motenc.0.encoder-read servo-thread 1
 addf motenc.0.misc-update servo-thread 1
 #addf motenc.0.adc-read servo-thread 1
@@ -291,8 +296,8 @@ net aFault boss_plc.0.a-amp-fault-out => joint.3.amp-fault-in
 net spindleSpeed spindle.0.speed-out => boss_plc.0.spindle-speed-in
 net spindleFwd boss_plc.0.spindle-fwd-out => motenc.0.out-11
 net spindleRev boss_plc.0.spindle-rev-out => motenc.0.out-12
-net spindleIsOnSw motenc.0.in-29-not => debounce.0.5.in
-net spindleIsOn debounce.0.5.out => boss_plc.0.spindle-is-on-in
+net spindleIsOnSw motenc.0.in-29-not => debounce.5.in
+net spindleIsOn debounce.5.out => boss_plc.0.spindle-is-on-in
 
 # Connect spindle brake to PLC and PLC brake to I/O.
 setp boss_plc.0.brake-on-delay 500
@@ -303,55 +308,60 @@ net spindleBrakeOn boss_plc.0.brake-en-out => motenc.0.out-02
 # Tool change.
 #
 # Loop back tool prepare pins.
-net toolPrepare iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net toolPrepare iocontrol.tool-prepare iocontrol.tool-prepared
 
 # Connect tool change pins to PLC.
-net toolChange iocontrol.0.tool-change => boss_plc.0.tool-change-in
-net toolChanged boss_plc.0.tool-changed-out => iocontrol.0.tool-changed
+net toolChange iocontrol.tool-change => boss_plc.0.tool-change-in
+net toolChanged boss_plc.0.tool-changed-out => iocontrol.tool-changed
 
 # Coolant.
 #
 # Connect mist/flood coolant to I/O.
-net mistOn iocontrol.0.coolant-mist => motenc.0.out-14
-net floodOn iocontrol.0.coolant-flood => motenc.0.out-15
+net mistOn iocontrol.coolant-mist => motenc.0.out-14
+net floodOn iocontrol.coolant-flood => motenc.0.out-15
 
 # Lube.
 #
 # Connect lube motor run to I/O.
-net lubeOn iocontrol.0.lube => motenc.0.out-13
+net lubeOn iocontrol.lube => motenc.0.out-13
 #net lubeOn spindle.0.on => motenc.0.out-13
 
 # Connect lube level to I/O.
-net lubeLevel motenc.0.in-30-not => iocontrol.0.lube_level
+net lubeLevel motenc.0.in-30-not => iocontrol.lube_level
 
 # Operator console.
 #
 # Set debounce time.
 setp debounce.0.delay 20
+setp debounce.1.delay 20
+setp debounce.2.delay 20
+setp debounce.3.delay 20
+setp debounce.4.delay 20
+setp debounce.5.delay 20
 
 # Connect e-stop I/O.
-net eStopSense motenc.0.in-32 => iocontrol.0.emc-enable-in
-net eStopWrite iocontrol.0.user-enable-out => motenc.0.out-16
+net eStopSense motenc.0.in-32 => iocontrol.emc-enable-in
+net eStopWrite iocontrol.user-enable-out => motenc.0.out-16
 
 # Connect cycle hold/start.
-net cycleHoldSw motenc.0.in-33-not => debounce.0.0.in
-net cycleHold debounce.0.0.out => boss_plc.0.cycle-hold-in
-net cycleStartSw motenc.0.in-34 => debounce.0.1.in
-net cycleStart debounce.0.1.out => boss_plc.0.cycle-start-in
+net cycleHoldSw motenc.0.in-33-not => debounce.0.in
+net cycleHold debounce.0.out => boss_plc.0.cycle-hold-in
+net cycleStartSw motenc.0.in-34 => debounce.1.in
+net cycleStart debounce.1.out => boss_plc.0.cycle-start-in
 net feedHold boss_plc.0.feed-hold-out => motion.feed-hold
 net waitUser boss_plc.0.wait-user-out => motenc.0.out-17
 
 # Connect speed overrides.
-net spindleIncSw motenc.0.enc-04-index => debounce.0.2.in
-net spindleIncDb debounce.0.2.out => boss_plc.0.spindle-inc-in
+net spindleIncSw motenc.0.enc-04-index => debounce.2.in
+net spindleIncDb debounce.2.out => boss_plc.0.spindle-inc-in
 net spindleInc boss_plc.0.spindle-inc-out => motenc.0.out-03
-net spindleDecSw motenc.0.enc-06-index => debounce.0.3.in
-net spindleDecDb debounce.0.3.out => boss_plc.0.spindle-dec-in
+net spindleDecSw motenc.0.enc-06-index => debounce.3.in
+net spindleDecDb debounce.3.out => boss_plc.0.spindle-dec-in
 net spindleDec boss_plc.0.spindle-dec-out => motenc.0.out-04
 
 # Connect limit override.
-net limitOverrideSw motenc.0.in-35-not => debounce.0.4.in
-net limitOverride debounce.0.4.out => boss_plc.0.limit-override-in
+net limitOverrideSw motenc.0.in-35-not => debounce.4.in
+net limitOverride debounce.4.out => boss_plc.0.limit-override-in
 net limitActive boss_plc.0.limit-active-out => motenc.0.out-18
 
 # Connect rapid/feed overrides.

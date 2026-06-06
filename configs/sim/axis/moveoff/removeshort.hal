@@ -14,14 +14,14 @@ delsig Ypos
 delsig Zpos
 
 # add pid components, and addf in right sequence
-loadrt pid names=xpid,ypid,zpid
+load pid <xpid,ypid,zpid>
 addf xpid.do-pid-calcs servo-thread 3
 addf ypid.do-pid-calcs servo-thread 3
 addf zpid.do-pid-calcs servo-thread 3
 
 # add mux2 for sample-hold on output, and addf in right sequence
 # to simulate system with encoder measuring output
-loadrt mux2 names=xmux,ymux,zmux
+load mux2 <xmux,ymux,zmux>
 addf xmux servo-thread 6
 addf ymux servo-thread 6
 addf zmux servo-thread 6

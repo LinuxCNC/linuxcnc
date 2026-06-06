@@ -3,12 +3,11 @@
 #      		Loading real-time modules setup				#
 #########################################################################
 
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 loadrt hal_gm
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
-loadrt not
+load not <not.0>
 loadusr halmeter
-#loadusr halscope -f
 
 #########################################################################
 # 			Adding functions				#
@@ -33,7 +32,7 @@ net pwrEnable motion.motion-enabled => gm.0.power-enable
 
 # create power fault loopback
 net hw_fault gm.0.power-fault => not.0.in
-net estop not.0.out => iocontrol.0.emc-enable-in
+net estop not.0.out => iocontrol.emc-enable-in
 
 # connect enable signals for step generators
 net Xen joint.0.amp-enable-out => gm.0.stepgen.0.enable

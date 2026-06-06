@@ -21,9 +21,9 @@
 # provides controls to set jog counts and the scale
 # factor (machine-units per count).
 
-loadrt mux2           names=home_sequence_mux,jjog_counts_mux
-loadrt conv_float_s32 names=home_sequence_s32
-loadrt oneshot        names=pulse_on_jjdisable
+load mux2 <home_sequence_mux,jjog_counts_mux>
+load conv_float_s32 <home_sequence_s32>
+load oneshot        names=pulse_on_jjdisable
 
 # synchronized homing, no joint1,3 jogging:
 setp home_sequence_mux.in0 -1

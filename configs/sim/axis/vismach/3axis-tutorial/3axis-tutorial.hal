@@ -2,14 +2,14 @@
 
 # first load all the RT modules that will be needed
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 #autoconverted  trivkins
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS 
 # load 6 differentiators (for velocity and accel signals
-loadrt ddt names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
+load ddt <ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv>
 # load additional blocks
-loadrt hypot names=vel_xy,vel_xyz
+load hypot <vel_xy,vel_xyz>
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
@@ -44,13 +44,15 @@ net XYvel vel_xy.out => vel_xyz.in1
 net XYZvel <= vel_xyz.out
 
 # estop loopback
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
-loadusr -W hal_manualtoolchange
-net tool-change  iocontrol.0.tool-change => hal_manualtoolchange.change
-net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
-net tool-number  iocontrol.0.tool-prep-number => hal_manualtoolchange.number
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+load manualtoolchange
+addf manualtoolchange servo-thread
+loadusr manualtoolchange_ui
+net tool-change  iocontrol.tool-change => manualtoolchange.change
+net tool-changed iocontrol.tool-changed <= manualtoolchange.changed
+net tool-number  iocontrol.tool-prep-number => manualtoolchange.number
+net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared
 
 # start 3axis-tutorial vismach addition
 loadusr -W  ./3axis-tutorial

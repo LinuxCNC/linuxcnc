@@ -1,11 +1,11 @@
 # load components
 ########################################################################
 
-loadrt logic names=logic-and personality=0x102
+load logic <logic-and> personality=0x102
 addf logic-and servo-thread
 
 # load a summing component for adding spindle lift and Z compensation
-loadrt scaled_s32_sums
+load scaled_s32_sums <scaled_s32_sums.0>
 addf scaled-s32-sums.0 servo-thread
 
 loadusr -Wn z_level_compensation z_level_compensation
@@ -20,13 +20,13 @@ net spindle-speed-limited  =>  spindle.0.speed-out-rps => spindle.0.speed-in
 
 # the unlink pin commands are only used, because they are connected 
 # in core_sim.hal and we use this file to simulate
-unlinkp iocontrol.0.tool-change
-unlinkp iocontrol.0.tool-changed
-unlinkp iocontrol.0.tool-prep-number
+unlinkp iocontrol.tool-change
+unlinkp iocontrol.tool-changed
+unlinkp iocontrol.tool-prep-number
 
-net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
-net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
-net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+net tool-change      manualtoolchange.change   <=  iocontrol.tool-change 
+net tool-changed     manualtoolchange.changed  <=  iocontrol.tool-changed
+net tool-prep-number manualtoolchange.number   <=  iocontrol.tool-prep-number
 
 net eoffset-clear    axis.z.eoffset-clear
 net eoffset-counts   axis.z.eoffset-counts

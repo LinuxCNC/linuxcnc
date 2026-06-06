@@ -3,19 +3,19 @@
 # first load all the HAL modules we're going to need
 #######################################################
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 # main motion controller module
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # using steppers....
-loadrt stepgen step_type=0,0,0,0
+load stepgen <stepgen.0,stepgen.1,stepgen.2,stepgen.3> step_type=0
 # I/O thru the parport
 loadrt hal_parport cfg="0x0378"
 # counting the spindle encoder in software
-loadrt encoder num_chan=2
+load encoder <encoder.0,encoder.1>
 # simulate the encoder
-loadrt sim_encoder num_chan=1
+load sim_encoder <sim_encoder.0>
 # misc blocks needed to do fun things
-loadrt ddt count=8
+load ddt <ddt.0,ddt.1,ddt.2,ddt.3,ddt.4,ddt.5,ddt.6,ddt.7>
 
 #######################################################
 # add realtime functions to the threads
@@ -23,11 +23,15 @@ loadrt ddt count=8
 #######################################################
 # first we read parport inputs
 addf parport.0.read		base-thread
-addf sim-encoder.make-pulses    base-thread
+addf sim_encoder.0.make-pulses base-thread
 # update encoder counter
-addf encoder.update-counters    base-thread
+addf encoder.0.update-counters base-thread
+addf encoder.1.update-counters base-thread
 # generate step and dir signals
-addf stepgen.make-pulses	base-thread
+addf stepgen.0.make-pulses base-thread
+addf stepgen.1.make-pulses base-thread
+addf stepgen.2.make-pulses base-thread
+addf stepgen.3.make-pulses base-thread
 # write to outputs
 addf parport.0.write		base-thread
 
@@ -36,8 +40,12 @@ addf parport.0.write		base-thread
 # now the servo thread
 ########################################################
 # capture axis and spindle positions
-addf stepgen.capture-position	servo-thread
-addf encoder.capture-position	servo-thread
+addf stepgen.0.capture-position servo-thread
+addf stepgen.1.capture-position servo-thread
+addf stepgen.2.capture-position servo-thread
+addf stepgen.3.capture-position servo-thread
+addf encoder.0.capture-position servo-thread
+addf encoder.1.capture-position servo-thread
 # process motion commands coming from user space
 addf motion-command-handler	servo-thread
 # run main motion controller
@@ -52,8 +60,11 @@ addf ddt.5			servo-thread
 addf ddt.6			servo-thread
 addf ddt.7			servo-thread
 # update output info, axis and spindle
-addf stepgen.update-freq	servo-thread
-addf sim-encoder.update-speed   servo-thread
+addf stepgen.0.update-freq servo-thread
+addf stepgen.1.update-freq servo-thread
+addf stepgen.2.update-freq servo-thread
+addf stepgen.3.update-freq servo-thread
+addf sim_encoder.0.update-speed servo-thread
 
 
 
@@ -105,11 +116,11 @@ net Astep <= stepgen.3.step
 net Adir <= stepgen.3.dir
 
 # create a signal for the estop loopback
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 # create signals for tool loading loopback
-net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+net tool-prep-loop iocontrol.tool-prepare iocontrol.tool-prepared
+net tool-change-loop iocontrol.tool-change iocontrol.tool-changed
 
 # create a signal for "spindle on"
 net spindle_on <= motion.spindle-on
@@ -215,7 +226,7 @@ net Avel => ddt.7.in
 net Aacc <= ddt.7.out
 
 # for spindle velocity estimate
-loadrt lowpass count=1
+load lowpass <lowpass.0>
 net spindle-rpm-raw encoder.0.velocity
 net spindle-rpm-raw lowpass.0.in
 net spindle-rpm-filtered lowpass.0.out

@@ -1,15 +1,15 @@
-unlinkp iocontrol.0.tool-change
-unlinkp iocontrol.0.tool-changed
-net tool-change eztrol.tool-change iocontrol.0.tool-change
-net tool-changed eztrol.tool-changed iocontrol.0.tool-changed
-net tool-prep-number eztrol.tool-prep-number iocontrol.0.tool-prep-number
+unlinkp iocontrol.tool-change
+unlinkp iocontrol.tool-changed
+net tool-change eztrol.tool-change iocontrol.tool-change
+net tool-changed eztrol.tool-changed iocontrol.tool-changed
+net tool-prep-number eztrol.tool-prep-number iocontrol.tool-prep-number
 net Xmax eztrol.x-positive-limit
 net Xmin eztrol.x-negative-limit
 net Ymax eztrol.y-positive-limit
 net Ymin eztrol.y-negative-limit
 net Zmax eztrol.z-positive-limit
 net Zmin eztrol.z-negative-limit
-loadrt mux2
+load mux2 <mux2.0>
 unlinkp motion.spindle-speed-out
 unlinkp pwmgen.0.value
 net spd-mux mux2.0.out pwmgen.0.value eztrol.spindle-rpm-reading

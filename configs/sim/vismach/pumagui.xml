@@ -1,0 +1,10 @@
+<halJson>
+  <halJsonRoot path="pins">
+    <halJsonPin name="joint1" type="float" dir="in"/>
+    <halJsonPin name="joint2" type="float" dir="in"/>
+    <halJsonPin name="joint3" type="float" dir="in"/>
+    <halJsonPin name="joint4" type="float" dir="in"/>
+    <halJsonPin name="joint5" type="float" dir="in"/>
+    <halJsonPin name="joint6" type="float" dir="in"/>
+  </halJsonRoot>
+</halJson>

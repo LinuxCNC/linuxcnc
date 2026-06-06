@@ -1,0 +1,8 @@
+o<setspeed> sub
+(debug, in setspeed speed=#<speed>)
+; using the code being remapped here means 'use builtin behaviour'
+S#<speed>
+; signal success be returning a value > 0:
+o<setspeed> endsub [1]
+m2
+

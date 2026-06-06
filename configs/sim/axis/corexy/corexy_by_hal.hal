@@ -22,7 +22,7 @@ delsig j0pos-fb
 delsig j1pos-fb
 
 # implement corexy kinematics with hal component:
-loadrt corexy_by_hal names=corexy_by_hal
+load corexy_by_hal <corexy_by_hal>
 addf   corexy_by_hal servo-thread
 
 net :j0motor-cmd <= joint.0.motor-pos-cmd

@@ -1,7 +1,7 @@
 Esta configuración está destinada a máquinas "paso a paso" básicas.
 Puede tener un conexionado estándar (estilo LinuxCNC) o un conexionado xylotex, incluyendo uno de los dos archivos .hal. Podrá hacer uno nuevo que se adapte a su propio cableado personalizado.
 
-Hay 3 archivos ini. Uno es para configuraciones en pulgadas (stepper_in.ini) y otro para configuraciones métricas (stepper_mm.ini). Además, hay uno (sim_inch.ini) que no envia pasos al puerto paralelo sino al altavoz del PC. De esa manera puede "escuchar" si está funcionando bien.
+Hay 2 archivos ini. Uno es para configuraciones en pulgadas (stepper_in.ini) y otro para configuraciones métricas (stepper_mm.ini).
 
 Descripción detallada:
 
@@ -10,8 +10,6 @@ Descripción detallada:
 - stepper_inch.ini - configuración para máquina paso a paso en pulgadas.
 
 - stepper_mm.ini - configuración para máquina paso a paso métrica.
-
-- sim_inch.ini - configuración en pulgadas con pasos dirigidos al altavoz del PC en lugar de a un puerto paralelo.
 
 * archivos nml
 
@@ -25,4 +23,4 @@ Descripción detallada:
 
 - xylotex_pinout.hal: incluir en el ini para obtener un conexionado xylotex (por ejemplo, step/dir invertido)
 
-- sim_pinout.hal - incluir en su ini para llevar las señales step/dir al altavoz del PC, no al puerto paralelo.
+

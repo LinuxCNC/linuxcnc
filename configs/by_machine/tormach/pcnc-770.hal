@@ -1,25 +1,41 @@
 
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 loadrt hal_parport cfg=0x378
 setp parport.0.reset-time 4000
-loadrt stepgen step_type=0,0,0,0,0 ctrl_type=p,p,p,p,v
+load stepgen <stepgen.0> step_type=0 ctrl_type=p
+load stepgen <stepgen.1> step_type=0 ctrl_type=p
+load stepgen <stepgen.2> step_type=0 ctrl_type=p
+load stepgen <stepgen.3> step_type=0 ctrl_type=p
+load stepgen <stepgen.4> step_type=0 ctrl_type=v
 
-loadrt estop_latch
+load estop_latch
 net charge-pump <= estop-latch.0.watchdog
 
 addf parport.0.read base-thread
-addf stepgen.make-pulses base-thread
+addf stepgen.0.make-pulses base-thread
+addf stepgen.1.make-pulses base-thread
+addf stepgen.2.make-pulses base-thread
+addf stepgen.3.make-pulses base-thread
+addf stepgen.4.make-pulses base-thread
 addf estop-latch.0 base-thread
 addf parport.0.write base-thread
 addf parport.0.reset base-thread
 
-addf stepgen.capture-position servo-thread
+addf stepgen.0.capture-position servo-thread
+addf stepgen.1.capture-position servo-thread
+addf stepgen.2.capture-position servo-thread
+addf stepgen.3.capture-position servo-thread
+addf stepgen.4.capture-position servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
-addf stepgen.update-freq servo-thread
+addf stepgen.0.update-freq servo-thread
+addf stepgen.1.update-freq servo-thread
+addf stepgen.2.update-freq servo-thread
+addf stepgen.3.update-freq servo-thread
+addf stepgen.4.update-freq servo-thread
 net spindle-cw <= spindle.0.forward
-net coolant-flood <= iocontrol.0.coolant-flood
+net coolant-flood <= iocontrol.coolant-flood
 net spindle-on spindle.0.on stepgen.4.enable
 
 
@@ -39,13 +55,13 @@ net spindle-pwm stepgen.4.step parport.0.pin-01-out
 setp stepgen.4.stepspace 0
 setp stepgen.4.steplen 1
 setp parport.0.pin-01-out-reset 1
-loadrt or2 count=1
+load or2 <or2.0>
 linksp spindle-cw or2.0.in0
 net spindle-ccw spindle.0.reverse or2.0.in1
 
-loadrt toggle count=1
-loadrt not count=1
-loadrt gearchange count=1
+load toggle <toggle.0>
+load not <not.0>
+load gearchange <gearchange.0>
 addf toggle.0 servo-thread
 addf not.0 servo-thread
 addf gearchange.0 servo-thread
@@ -146,15 +162,17 @@ net aenable joint.3.amp-enable-out => stepgen.3.enable
 net home-a => joint.3.home-sw-in
 
 #linksp xenable estop-latch.0.ok-out
-net estop-out <= iocontrol.0.user-enable-out
+net estop-out <= iocontrol.user-enable-out
 net machine-ok => estop-latch.0.ok-in
-net estop estop-latch.0.ok-out => iocontrol.0.emc-enable-in
-net estop-reset iocontrol.0.user-request-enable => estop-latch.0.reset
+net estop estop-latch.0.ok-out => iocontrol.emc-enable-in
+net estop-reset iocontrol.user-request-enable => estop-latch.0.reset
 
-loadusr -W hal_manualtoolchange
-net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
-net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
-net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+load manualtoolchange
+addf manualtoolchange servo-thread
+loadusr manualtoolchange_ui
+net tool-change iocontrol.tool-change => manualtoolchange.change
+net tool-changed iocontrol.tool-changed <= manualtoolchange.changed
+net tool-number iocontrol.tool-prep-number => manualtoolchange.number
+net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared
 
 net probe parport.0.pin-13-in-not => motion.probe-input

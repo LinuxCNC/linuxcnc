@@ -1,0 +1,39 @@
+# stream-test.hal — end-to-end test for sampler + streamer cmods
+#
+# Sampler: captures siggen output (3x float) at servo rate
+# Streamer: receives data from WebSocket, outputs to HAL pins
+#
+# Test procedure:
+#   1. Start: gomc-server configs/sim/stream-test/stream-test.ini
+#   2. Read sampler: halsampler sampler
+#      → should print lines like "1.000000 0.500000 0.000000" at 1kHz
+#   3. Write streamer: echo "3.14 2.71 1.0" | halstreamer streamer
+#      → check with: halcmd show pin streamer
+#   4. Loopback: halsampler -n 10 sampler | halstreamer streamer
+#      → captures 10 samples and feeds them back
+
+# --- Signal generator (provides test data for sampler) ---
+load siggen
+addf siggen servo-thread
+
+setp siggen.frequency 10.0
+setp siggen.amplitude 1.0
+setp siggen.offset    0.5
+
+# --- Sampler: cfg=fff (3x float) depth=100 ---
+load sampler cfg=fff depth=100
+
+addf sampler servo-thread
+
+# Wire siggen outputs to sampler input pins
+net test-sine     siggen.sine     => sampler.pin.0
+net test-cosine   siggen.cosine   => sampler.pin.1
+net test-triangle siggen.triangle => sampler.pin.2
+
+# --- Streamer: cfg=fff (3x float) depth=100 ---
+load streamer cfg=fff depth=100
+
+addf streamer servo-thread
+
+# Expose streamer output pins for observation
+# (connect to scope signals or check with halcmd show pin)

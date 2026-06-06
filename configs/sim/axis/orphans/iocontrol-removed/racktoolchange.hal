@@ -1,2 +1,2 @@
 
-net emc-abort-loop iocontrol.0.emc-abort iocontrol.0.emc-abort-ack
+net emc-abort-loop iocontrol.emc-abort iocontrol.emc-abort-ack

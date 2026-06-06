@@ -13,8 +13,8 @@ USER_M_PATH             = ./:../../nc_files
 
 [HAL]
 TWOPASS                 = ON
-HALFILE                 = sim_no_stepgen.tcl
-#HALFILE                 = sim_stepgen.tcl
+HALFILE                 = sim_no_stepgen.hal
+#HALFILE                 = sim_stepgen.hal
 HALFILE                 = qtplasmac_comp.hal
 HALFILE                 = custom.hal
 POSTGUI_HALFILE         = custom_postgui.hal

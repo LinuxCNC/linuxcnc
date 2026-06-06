@@ -1,8 +1,8 @@
 # counting the spindle encoder in software
-loadrt encoder names=encoder_0
+load encoder <encoder_0>
 # simulate the encoder
-loadrt sim_encoder names=sim_encoder_0
-loadrt limit2 names=limit_speed
+load sim_encoder <sim_encoder_0>
+load limit2 <limit_speed>
 
 addf limit_speed servo-thread
 
@@ -41,8 +41,8 @@ net spindle-index-enable motion.spindle-index-enable <=> encoder_0.index-enable
 net spindle-pos encoder_0.position => motion.spindle-revs
 
 # for spindle velocity estimate
-loadrt lowpass names=lowpass_velocity
-loadrt scale names=scale_to_rpm
+load lowpass <lowpass_velocity>
+load scale <scale_to_rpm>
 net spindle-rps-raw encoder_0.velocity lowpass_velocity.in
 net spindle-rps-filtered lowpass_velocity.out scale_to_rpm.in motion.spindle-speed-in
 net spindle-rpm-filtered scale_to_rpm.out
@@ -52,7 +52,7 @@ addf lowpass_velocity servo-thread
 addf scale_to_rpm servo-thread
 
 # for at-speed detection
-loadrt near names=near_speed
+load near <near_speed>
 addf near_speed servo-thread
 setp near_speed.scale 1.1
 setp near_speed.difference 10
@@ -62,8 +62,8 @@ net spindle-at-speed near_speed.out motion.spindle-at-speed
 
 net  spindle-fwd <= motion.spindle-forward
 
-addf encoder.capture-position servo-thread
-addf sim-encoder.update-speed servo-thread
+addf encoder_0.capture-position servo-thread
+addf sim_encoder_0.update-speed servo-thread
 
-addf sim-encoder.make-pulses    servo-thread
-addf encoder.update-counters    servo-thread
+addf sim_encoder_0.make-pulses servo-thread
+addf encoder_0.update-counters servo-thread

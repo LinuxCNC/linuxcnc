@@ -1,7 +1,7 @@
 # this file contains the HAL configuration for Roland's Mazak
 #
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 # first load the motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD
 
@@ -29,7 +29,7 @@ loadrt hal_parport cfg="0x0378_in"
 #     This adds together the 5 bits (with bit 4 being equal to 13)
 #     and outputs the sum as an S32
 #
-loadrt weighted_sum wsum_sizes=5
+load weighted_sum <weighted_sum.0> num_bits=5
 
 # I/O Mapping - Physical I/O points to driver pins
 # --------------------------------------------------------
@@ -83,24 +83,24 @@ loadrt weighted_sum wsum_sizes=5
 # the rest of these components implement spindle speed
 # scaling (for high/low shifting) and spindle orient
 
-loadrt mux2 count=2
-loadrt mux4 count=1
-loadrt wcomp count=2
-loadrt scale count=3
-loadrt modmath mod_dir=2
-loadrt charge_pump
-loadrt tristate_bit
-loadrt tristate_float count=3
-loadrt conv_s32_float
+load mux2 <mux2.0,mux2.1>
+load mux4 <mux4.0>
+load wcomp <wcomp.0,wcomp.1>
+load scale <scale.0,scale.1,scale.2>
+load modmath <mod-dir.0,mod-dir.1>
+load charge_pump <charge_pump.0>
+load tristate_bit <tristate_bit.0>
+load tristate_float <tristate_float.0,tristate_float.1,tristate_float.2>
+load conv_s32_float <conv_s32_float.0>
 
 # Software encoder counter, for the jogwheel, and possibly a future
 # small manual encoder for a feedrate override knob.
 #
-loadrt encoder num_chan=1
+load encoder <encoder.0>
 
 # PID loops: 3 for axis control and one for spindle orient
 #
-loadrt pid num_chan=4
+load pid <pid.0,pid.1,pid.2,pid.3>
 
 # classicladder for machine logic
 # (load the realtime portion)
@@ -110,8 +110,15 @@ loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=20 numMonost
 loadusr -w classicladder --nogui demo_mazak.clp
 
 # load debounce to handle the pushbuttons on the operator panels
-loadrt debounce cfg="8"
+load debounce <debounce.0,debounce.1,debounce.2,debounce.3,debounce.4,debounce.5,debounce.6,debounce.7>
 setp debounce.0.delay 3
+setp debounce.1.delay 3
+setp debounce.2.delay 3
+setp debounce.3.delay 3
+setp debounce.4.delay 3
+setp debounce.5.delay 3
+setp debounce.6.delay 3
+setp debounce.7.delay 3
 
 # -----------------------------------------------
 
@@ -120,13 +127,13 @@ setp debounce.0.delay 3
 addf motenc.3.encoder-read          servo-thread
 addf motenc.3.digital-in-read       servo-thread
 addf ax5214h.0.read                 servo-thread
-addf encoder.capture-position       servo-thread
+addf encoder.0.capture-position servo-thread
 addf motenc.3.adc-read              servo-thread
 
 # convert IO to internally useful representations
 addf scale.2                        servo-thread
 # converter for tool magazine position
-addf process_wsums                  servo-thread
+addf weighted_sum.0                 servo-thread
 addf mod-dir.0			    servo-thread
 addf mod-dir.1			    servo-thread
 
@@ -177,7 +184,7 @@ addf parport.0.write                servo-thread
 # it to sample the jogwheel signals and count them in software
 
 addf parport.0.read                 base-thread
-addf encoder.update-counters        base-thread
+addf encoder.0.update-counters base-thread
 
 # -------------------------------------------------
 
@@ -187,11 +194,11 @@ addf encoder.update-counters        base-thread
 # ---------------------------------------------------
 # ESTOP and related signals
 net external-estop-ok ax5214h.0.in-24
-net gui-estop-ok iocontrol.0.user-enable-out
+net gui-estop-ok iocontrol.user-enable-out
 net main-estop-ok parport.0.pin-01-out
-net main-estop-ok iocontrol.0.emc-enable-in
+net main-estop-ok iocontrol.emc-enable-in
 net main-estop-ok charge-pump.enable
-net estop-reset iocontrol.0.user-request-enable
+net estop-reset iocontrol.user-request-enable
 net charge-pump parport.0.pin-17-out
 net charge-pump charge-pump.out
 
@@ -364,20 +371,20 @@ net spindle-rpm-cmd spindle.0.speed-out
 # end of spindle control
 
 # ioControl exports some tool pins
-# iocontrol.0.tool-prepare
-# iocontrol.0.tool-prep-number
-# and expects iocontrol.0.tool-prepared (when the tool prep. is done)
-# iocontrol.0.tool-change (output)
-# and expects iocontrol.0.tool-changed (when tool changed)
-# it also exports iocontrol.0.tool-number, which is the current tool
+# iocontrol.tool-prepare
+# iocontrol.tool-prep-number
+# and expects iocontrol.tool-prepared (when the tool prep. is done)
+# iocontrol.tool-change (output)
+# and expects iocontrol.tool-changed (when tool changed)
+# it also exports iocontrol.tool-number, which is the current tool
 # in the spindle and is used when its time to return that tool to
 # the tool magazine
-net tool-prepare iocontrol.0.tool-prepare
-net tool-prepared iocontrol.0.tool-prepared
-net tool-change iocontrol.0.tool-change
-net tool-changed iocontrol.0.tool-changed
-net tool-requested-number iocontrol.0.tool-prep-number
-net tool-current-number iocontrol.0.tool-number
+net tool-prepare iocontrol.tool-prepare
+net tool-prepared iocontrol.tool-prepared
+net tool-change iocontrol.tool-change
+net tool-changed iocontrol.tool-changed
+net tool-requested-number iocontrol.tool-prep-number
+net tool-current-number iocontrol.tool-number
 
 # misc control
 # tool change location push button operators
@@ -456,7 +463,7 @@ net spindle-air-blast ax5214h.0.out-19
 net work-air-blast ax5214h.0.out-18
 net mist-coolant ax5214h.0.out-17
 
-net coolant-flood iocontrol.0.coolant-flood ax5214h.0.out-16
+net coolant-flood iocontrol.coolant-flood ax5214h.0.out-16
 
 # magazine indexing
 net magazine-position mod-dir.0.actual

@@ -20,7 +20,7 @@ net  j:v  axis.x.jog-vel-mode  axis.y.jog-vel-mode   axis.z.jog-vel-mode  axis.b
 sets j:v 1
 
 # simulate a locking rotary joint3
-loadrt timedelay names=timedelay_unlock
+load timedelay names=timedelay_unlock
 addf   timedelay_unlock servo-thread
 
 net B-unlock      joint.3.unlock       => timedelay_unlock.in

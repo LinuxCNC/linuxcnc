@@ -1,7 +1,7 @@
 # Jog Pendant
-loadrt encoder num_chan=1
-loadrt mux4 count=1
-addf encoder.update-counters servo-thread
+load encoder <encoder.0>
+load mux4 <mux4.0>
+addf encoder.0.update-counters servo-thread
 addf mux4.0 servo-thread
 
 # For velocity mode, set to 1

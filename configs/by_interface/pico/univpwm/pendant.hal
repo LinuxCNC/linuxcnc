@@ -1,14 +1,14 @@
-loadrt mux4 count=1
-loadrt ilowpass
-loadrt encoder num_chan=1
+load mux4 <mux4.0>
+load ilowpass
+load encoder <encoder.0>
 
 setp ilowpass.0.scale 100
 setp ilowpass.0.gain 0.01
 
 addf mux4.0 servo-thread
 addf ilowpass.0 servo-thread
-addf encoder.update-counters servo-thread
-addf encoder.capture-position servo-thread
+addf encoder.0.update-counters servo-thread
+addf encoder.0.capture-position servo-thread
 
 net jog-x ppmc.0.din.06.in => axis.0.jog-enable
 net jog-y ppmc.0.din.07.in => axis.1.jog-enable

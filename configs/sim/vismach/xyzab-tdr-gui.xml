@@ -1,0 +1,16 @@
+<halJson>
+  <halJsonRoot path="pins">
+    <halJsonPin name="axis-x" type="float" dir="in"/>
+    <halJsonPin name="axis-y" type="float" dir="in"/>
+    <halJsonPin name="axis-z" type="float" dir="in"/>
+    <halJsonPin name="rotary-a" type="float" dir="in"/>
+    <halJsonPin name="rotary-b" type="float" dir="in"/>
+    <halJsonPin name="x_offset" type="float" dir="in"/>
+    <halJsonPin name="z_offset" type="float" dir="in"/>
+    <halJsonPin name="x-rot-point" type="float" dir="in"/>
+    <halJsonPin name="y-rot-point" type="float" dir="in"/>
+    <halJsonPin name="z-rot-point" type="float" dir="in"/>
+    <halJsonPin name="tool_length" type="float" dir="in"/>
+    <halJsonPin name="tool_diameter" type="float" dir="in"/>
+  </halJsonRoot>
+</halJson>

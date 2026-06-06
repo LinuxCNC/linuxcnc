@@ -6,10 +6,10 @@
 # load the vismach model
 loadusr -W ./vmcgui
 
-loadrt wcomp names=xlim,ylim,zlim,armsw,drawsw,locksw
-loadrt mux2 names=armpos,drawpos,lockpos,mux2.0
-loadrt sum2 names=carpos,spindlepos
-loadrt limit2 names=armlim,drawlim,locklim,spindlelim,carlim
+load wcomp <xlim,ylim,zlim,armsw,drawsw,locksw>
+load mux2 <armpos,drawpos,lockpos,mux2.0>
+load sum2 <carpos,spindlepos>
+load limit2 <armlim,drawlim,locklim,spindlelim,carlim>
 
 addf xlim servo-thread
 addf ylim servo-thread
@@ -59,13 +59,13 @@ setp carlim.maxv 0.01
 net car-vel carlim.in
 net car-vel-lim carlim.out carpos.in0
 net car-pos carpos.out carpos.in1 vmcgui.carousel
-loadrt conv_float_u32
+load conv_float_u32 <conv_float_u32.0>
 addf conv-float-u32.0 servo-thread
 net car-pos conv-float-u32.0.in 
-loadrt bin2gray
+load bin2gray <bin2gray.0>
 addf bin2gray.0 servo-thread
 net sim-pocket-u conv-float-u32.0.out bin2gray.0.in
-loadrt bitslice personality=5
+load bitslice <bitslice.0> personality=5
 addf bitslice.0 servo-thread
 net graycode bin2gray.0.out bitslice.0.in
 
@@ -76,10 +76,10 @@ net bit3 bitslice.0.out-03
 net bit4 bitslice.0.out-04
 
 # pulse and index output variant (untidy modmaths)
-loadrt conv_s32_float count=2
-loadrt conv_float_s32 count=3
-loadrt near count=3
-loadrt scale
+load conv_s32_float <conv_s32_float.0,conv_s32_float.1>
+load conv_float_s32 <conv_float_s32.0,conv_float_s32.1,conv_float_s32.2>
+load near <near.0,near.1,near.2>
+load scale <scale.0>
 addf conv-s32-float.0 servo-thread
 addf conv-float-s32.0 servo-thread
 addf conv-s32-float.1 servo-thread

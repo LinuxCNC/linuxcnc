@@ -2,7 +2,7 @@ net Xmax eztrol.x-positive-limit
 net Xmin eztrol.x-negative-limit
 net Zmax eztrol.z-positive-limit
 net Zmin eztrol.z-negative-limit
-loadrt mux2
+load mux2 <mux2.0>
 unlinkp motion.spindle-speed-out
 unlinkp lowpass.0.in
 net spd-mux mux2.0.out lowpass.0.in

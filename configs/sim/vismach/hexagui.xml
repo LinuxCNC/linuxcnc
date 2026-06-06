@@ -1,0 +1,16 @@
+<halJson>
+  <halJsonRoot path="pins">
+    <halJsonPin name="joint.0" type="float" dir="in"/>
+    <halJsonPin name="joint.1" type="float" dir="in"/>
+    <halJsonPin name="joint.2" type="float" dir="in"/>
+    <halJsonPin name="joint.3" type="float" dir="in"/>
+    <halJsonPin name="joint.4" type="float" dir="in"/>
+    <halJsonPin name="joint.5" type="float" dir="in"/>
+    <halJsonPin name="axis.x" type="float" dir="in"/>
+    <halJsonPin name="axis.y" type="float" dir="in"/>
+    <halJsonPin name="axis.z" type="float" dir="in"/>
+    <halJsonPin name="axis.a" type="float" dir="in"/>
+    <halJsonPin name="axis.b" type="float" dir="in"/>
+    <halJsonPin name="axis.c" type="float" dir="in"/>
+  </halJsonRoot>
+</halJson>

@@ -1,0 +1,9 @@
+(test program - simple moves)
+G21 (metric)
+G90 (absolute)
+G0 X0 Y0 Z0
+G1 X10 F100
+G1 Y10
+G1 X0
+G1 Y0
+M2

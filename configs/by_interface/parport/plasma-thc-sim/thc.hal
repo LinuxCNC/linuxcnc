@@ -2,25 +2,25 @@
 
 # Load realtime hal components for THC
 #3 extra ands for simulator
-loadrt and2 count=12
-loadrt comp count=3
-loadrt updown
-loadrt flipflop count=3
-loadrt hypot
-loadrt logic personality=0x203
-loadrt minmax
-loadrt mult2 count=2
-loadrt mux2 count=7
+load and2 <and2.0,and2.1,and2.2,and2.3,and2.4,and2.5,and2.6,and2.7,and2.8,and2.9,and2.10,and2.11>
+load comp <comp.0,comp.1,comp.2>
+load updown <updown.0>
+load flipflop <flipflop.0,flipflop.1,flipflop.2>
+load hypot <hypot.0>
+load logic <logic.0> personality=0x203
+load minmax <minmax.0>
+load mult2 <mult2.0,mult2.1>
+load mux2 <mux2.0,mux2.1,mux2.2,mux2.3,mux2.4,mux2.5,mux2.6>
 #1 extra not for simulator
-loadrt not count=4
-loadrt oneshot count=4
+load not <not.0,not.1,not.2,not.3>
+load oneshot <oneshot.0,oneshot.1,oneshot.2,oneshot.3>
 #1 extra or for simulator
-loadrt or2 count=10
-loadrt scale
-loadrt sum2 count=5
-loadrt xor2 count=4
-loadrt conv_s32_float
-loadrt edge count=2
+load or2 <or2.0,or2.1,or2.2,or2.3,or2.4,or2.5,or2.6,or2.7,or2.8,or2.9>
+load scale <scale.0>
+load sum2 <sum2.0,sum2.1,sum2.2,sum2.3,sum2.4>
+load xor2 <xor2.0,xor2.1,xor2.2,xor2.3>
+load conv_s32_float <conv_s32_float.0>
+load edge <edge.0,edge.1>
 
 # Attach realtime hal components to a realtime thread
 addf and2.0 servo-thread

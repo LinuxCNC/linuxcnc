@@ -1,4 +1,4 @@
-loadrt flipflop names=ff1
+load flipflop <ff1>
 addf   ff1      servo-thread
 setp   ff1.data 0
 

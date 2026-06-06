@@ -5,7 +5,7 @@
 # This halfile must follow core_sim.hal
 
 # moveoff offsetting component (use names=mv is required):
-loadrt moveoff names=mv
+load moveoff names=mv
 # addf the moveoff funcs in correct sequence:
 addf mv.write-outputs servo-thread 3
 addf mv.read-inputs   servo-thread 1

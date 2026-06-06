@@ -2,18 +2,27 @@
 
 # first load the core RT modules that will be needed
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD
 # stepper module
-loadrt stepgen step_type=0,0,0,0
+load stepgen <stepgen.0,stepgen.1,stepgen.2,stepgen.3> step_type=0
 
 # hook its functions to realtime threads
-addf stepgen.make-pulses base-thread
-addf stepgen.capture-position servo-thread
+addf stepgen.0.make-pulses base-thread
+addf stepgen.1.make-pulses base-thread
+addf stepgen.2.make-pulses base-thread
+addf stepgen.3.make-pulses base-thread
+addf stepgen.0.capture-position servo-thread
+addf stepgen.1.capture-position servo-thread
+addf stepgen.2.capture-position servo-thread
+addf stepgen.3.capture-position servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
-addf stepgen.update-freq servo-thread
+addf stepgen.0.update-freq servo-thread
+addf stepgen.1.update-freq servo-thread
+addf stepgen.2.update-freq servo-thread
+addf stepgen.3.update-freq servo-thread
 
 # connect position commands from motion module to step generator
 net Xpos-cmd <= joint.0.motor-pos-cmd
@@ -39,7 +48,7 @@ net Apos-fb => joint.3.motor-pos-fb
 # send the position commands thru differentiators to
 # generate velocity and accel signals
 # first 8 differentiators
-loadrt ddt count=8
+load ddt <ddt.0,ddt.1,ddt.2,ddt.3,ddt.4,ddt.5,ddt.6,ddt.7>
 # link the differentiator functions into the code
 addf ddt.0 servo-thread
 addf ddt.1 servo-thread

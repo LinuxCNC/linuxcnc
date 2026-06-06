@@ -1,11 +1,11 @@
 
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 #autoconverted  scorbot-kins
 
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
-loadrt differential
+load differential <differential.0>
 
 
 addf motion-command-handler                servo-thread
@@ -19,7 +19,7 @@ loadusr -W scorbot-er-3
 # E-Stop
 #
 
-net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out => iocontrol.emc-enable-in
 
 
 #

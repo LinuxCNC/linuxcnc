@@ -1,0 +1,71 @@
+# GENERIC HAL FILE FOR QTPLASMAC SIM CONFIGS WITH STEPGENS
+{{- $zAxis := 0 -}}
+{{- range $i, $v := .Axes -}}
+{{- if eq (lower $v) "z" -}}{{- $zAxis = $i -}}{{- end -}}
+{{- end}}
+
+# ---LOAD COMPONENTS---
+loadrt {{ini "KINS" "KINEMATICS"}}
+loadrt {{ini "EMCMOT" "EMCMOT"}} base_period_nsec={{ini "EMCMOT" "BASE_PERIOD"}} servo_period_nsec={{ini "EMCMOT" "SERVO_PERIOD"}} num_joints={{.Joints}} num_spindles={{ini "TRAJ" "SPINDLES"}}
+load plasmac <plasmac.0>
+{{- range $jNum := count .Joints}}
+load sim_home_switch <sim-joint.{{$jNum}}.home-switch>
+{{- end}}
+{{- range $jNum := count .Joints}}
+load stepgen <stepgen.{{$jNum}}> step_type=0
+{{- end}}
+
+# ---LINK TO THREADS---
+{{- range $jNum := count .Joints}}
+addf stepgen.{{$jNum}}.make-pulses base-thread
+{{- end}}
+{{- range $jNum := count .Joints}}
+addf stepgen.{{$jNum}}.capture-position servo-thread
+{{- end}}
+addf motion-command-handler   servo-thread
+addf motion-controller        servo-thread
+addf plasmac                  servo-thread
+{{- range $jNum := count .Joints}}
+addf stepgen.{{$jNum}}.update-freq servo-thread
+{{- end}}
+{{- range $jNum := count .Joints}}
+addf sim-joint.{{$jNum}}.home-switch servo-thread
+{{- end}}
+
+# ---JOINT CONNECTIONS---
+{{- range $jNum := count .Joints}}
+setp stepgen.{{$jNum}}.maxaccel       {{ini (printf "JOINT_%d" $jNum) "STEPGEN_MAXACCEL"}}
+setp stepgen.{{$jNum}}.position-scale {{ini (printf "JOINT_%d" $jNum) "STEP_SCALE"}}
+setp stepgen.{{$jNum}}.steplen        {{ini (printf "JOINT_%d" $jNum) "STEPLEN"}}
+setp stepgen.{{$jNum}}.stepspace      {{ini (printf "JOINT_%d" $jNum) "STEPSPACE"}}
+setp stepgen.{{$jNum}}.dirsetup       {{ini (printf "JOINT_%d" $jNum) "DIRSETUP"}}
+setp stepgen.{{$jNum}}.dirhold        {{ini (printf "JOINT_%d" $jNum) "DIRHOLD"}}
+net sim:joint{{$jNum}}.enable  joint.{{$jNum}}.amp-enable-out          => stepgen.{{$jNum}}.enable
+net sim:joint{{$jNum}}.pos-cmd joint.{{$jNum}}.motor-pos-cmd           => stepgen.{{$jNum}}.position-cmd
+net sim:joint{{$jNum}}.pos-fb  stepgen.{{$jNum}}.position-fb           => joint.{{$jNum}}.motor-pos-fb sim-joint.{{$jNum}}.home-switch.cur-pos
+net sim:joint{{$jNum}}.homesw  sim-joint.{{$jNum}}.home-switch.home-sw => joint.{{$jNum}}.home-sw-in
+{{- end}}
+
+# ---INPUT DEBOUNCE---
+load dbounce <db_breakaway,db_float,db_ohmic,db_arc-ok>
+addf db_float     servo-thread
+addf db_ohmic     servo-thread
+addf db_breakaway servo-thread
+addf db_arc-ok    servo-thread
+
+# ---Z JOINT CONNECTION---
+net plasmac:axis-position joint.{{$zAxis}}.pos-fb => plasmac.axis-z-position
+
+# ---TOOL CHANGE PASSTHROUGH
+net sim:tool-number                                    <= iocontrol.tool-prep-number
+net sim:tool-change-loopback  iocontrol.tool-change  => iocontrol.tool-changed
+net sim:tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared
+
+# ---ESTOP HANDLING---
+load or2 <estop_or>
+load not <estop_not,estop_not_1>
+addf estop_or    servo-thread
+addf estop_not   servo-thread
+addf estop_not_1 servo-thread
+net sim:estop-raw estop_or.out  => estop_not.in
+net sim:estop-out estop_not.out => iocontrol.emc-enable-in

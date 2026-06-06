@@ -1,7 +1,7 @@
 # A simulator to simulate all components of a gantry based plasma cutting table with THC
 
 # Load realtime wcomp components
-loadrt wcomp count=6
+load wcomp <wcomp.0,wcomp.1,wcomp.2,wcomp.3,wcomp.4,wcomp.5>
 
 # Add components to servo-thread
 addf and2.9 servo-thread

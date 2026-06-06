@@ -1,10 +1,10 @@
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
-loadrt sim_parport names=parport.0
+load sim_parport <parport.0>
 setp parport.0.reset-time 5000
-loadrt stepgen step_type=0,0
-loadrt encoder num_chan=1
-loadrt pwmgen output_type=1
+load stepgen <stepgen.0,stepgen.1> step_type=0
+load encoder <encoder.0>
+load pwmgen <pwmgen.0> output_type=1
 
 #********************************************************
 # commands needed for panelui loading
@@ -17,7 +17,7 @@ loadrt sampler cfg=u depth=1025
 
 # -d = debug, -v =verbose debug
 loadusr -W panelui -d
-loadrt sim_matrix_kb
+load sim_matrix_kb
 
 net key-scan    sim-matrix-kb.0.out
 net key-scan    sampler.0.pin.0
@@ -26,20 +26,23 @@ net key-scan    sampler.0.pin.0
 addf parport.0.read base-thread
 source sim_hardware.hal
 addf sim-encoder.make-pulses base-thread
-addf stepgen.make-pulses base-thread
-addf encoder.update-counters base-thread
-addf pwmgen.make-pulses base-thread
+addf stepgen.0.make-pulses base-thread
+addf stepgen.1.make-pulses base-thread
+addf encoder.0.update-counters base-thread
+addf pwmgen.0.make-pulses base-thread
 addf parport.0.write base-thread
 addf parport.0.reset base-thread
 
-addf stepgen.capture-position servo-thread
+addf stepgen.0.capture-position servo-thread
+addf stepgen.1.capture-position servo-thread
 addf sim-hardware.update servo-thread
 addf sim-encoder.update-speed servo-thread
-addf encoder.capture-position servo-thread
+addf encoder.0.capture-position servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
-addf stepgen.update-freq servo-thread
-addf pwmgen.update servo-thread
+addf stepgen.0.update-freq servo-thread
+addf stepgen.1.update-freq servo-thread
+addf pwmgen.0.update servo-thread
 
 #********************************************************
 # add panelui components to a thread
@@ -114,11 +117,13 @@ net zstep <= stepgen.1.step
 net zdir <= stepgen.1.dir
 net zenable joint.1.amp-enable-out => stepgen.1.enable
 
-net estop-out <= iocontrol.0.user-enable-out
-net estop-out => iocontrol.0.emc-enable-in
+net estop-out <= iocontrol.user-enable-out
+net estop-out => iocontrol.emc-enable-in
 
-loadusr -W hal_manualtoolchange
-net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
-net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
-net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+load manualtoolchange
+addf manualtoolchange servo-thread
+loadusr manualtoolchange_ui
+net tool-change iocontrol.tool-change => manualtoolchange.change
+net tool-changed iocontrol.tool-changed <= manualtoolchange.changed
+net tool-number iocontrol.tool-prep-number => manualtoolchange.number
+net tool-prepare-loopback iocontrol.tool-prepare => iocontrol.tool-prepared

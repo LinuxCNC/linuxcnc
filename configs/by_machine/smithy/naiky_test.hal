@@ -13,9 +13,10 @@ loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=1 num_pwm
 loadusr -Wn naiky pyvcp -c naiky naiky.xml
 
 # create realtime thread
-loadrt threads name1=base-thread period1=50000 name2=servo-thread period2=1000000
+newthread base-thread 50000
+newthread servo-thread 1000000
 
-loadrt encoder num_chan=1
+load encoder <encoder.0>
 
 # "times 4 mode" one count per full quadrature cycle, instead of the usual one count per edge.  
 # mpg jog wheels often have a full quadrature cycle per "click". 0 for off and 1 for on.
@@ -70,8 +71,8 @@ net RESET encoder.0.reset naiky.reset
 # hook the functions to threads
 # read inputs
 addf hm2_5i20.0.read base-thread
-addf encoder.update-counters base-thread
-addf encoder.capture-position servo-thread
+addf encoder.0.update-counters base-thread
+addf encoder.0.capture-position servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
 

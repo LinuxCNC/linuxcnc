@@ -1,0 +1,9 @@
+o<change> sub
+(debug, in change tool_in_spindle=#<tool_in_spindle> current_pocket=#<current_pocket>)
+(debug, selected_tool=#<selected_tool> selected_pocket=#<selected_pocket>)
+; using the code being remapped here means 'use builtin behaviour'
+M6
+; signal success be returning a value > 0:
+o<change> endsub [1]
+m2
+

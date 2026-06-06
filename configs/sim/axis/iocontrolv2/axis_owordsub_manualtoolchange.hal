@@ -1,6 +1,8 @@
-loadusr -W hal_manualtoolchange
+load manualtoolchange
+addf manualtoolchange servo-thread
+loadusr manualtoolchange_ui
 
-loadrt conv_float_s32 names=f2s32
+load conv_float_s32 <f2s32>
 addf f2s32 servo-thread
 
 # in case they were linked already
@@ -8,9 +10,9 @@ unlinkp motion.digital-out-01
 unlinkp motion.digital-in-01
 
 net tool-prep-number-f  motion.analog-out-00 f2s32.in
-net tool-change hal_manualtoolchange.change motion.digital-out-01
-net tool-changed hal_manualtoolchange.changed motion.digital-in-01
-net tool-prep-number hal_manualtoolchange.number f2s32.out
+net tool-change manualtoolchange.change motion.digital-out-01
+net tool-changed manualtoolchange.changed motion.digital-in-01
+net tool-prep-number manualtoolchange.number f2s32.out
 
 # prepare loopback
 net tool-prepare motion.digital-out-00 motion.digital-in-00

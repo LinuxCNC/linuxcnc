@@ -1,19 +1,28 @@
 ############################ Step Generators #########################################
 
 # Stepper module, four step generators, all using step/dir
-loadrt stepgen step_type=0,0,0,0
+load stepgen <stepgen.0,stepgen.1,stepgen.2,stepgen.3> step_type=0
 
 # Load realtime ddt for velocity calculations used for CHL
-loadrt ddt count=2
+load ddt <ddt.0,ddt.1>
 
 # Hook functions to base thread (high speed thread for step generation)
-addf stepgen.make-pulses base-thread
+addf stepgen.0.make-pulses base-thread
+addf stepgen.1.make-pulses base-thread
+addf stepgen.2.make-pulses base-thread
+addf stepgen.3.make-pulses base-thread
 
 # Hook functions to servo thread
-addf stepgen.capture-position servo-thread
+addf stepgen.0.capture-position servo-thread
+addf stepgen.1.capture-position servo-thread
+addf stepgen.2.capture-position servo-thread
+addf stepgen.3.capture-position servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
-addf stepgen.update-freq servo-thread
+addf stepgen.0.update-freq servo-thread
+addf stepgen.1.update-freq servo-thread
+addf stepgen.2.update-freq servo-thread
+addf stepgen.3.update-freq servo-thread
 addf ddt.0 servo-thread
 addf ddt.1 servo-thread
 

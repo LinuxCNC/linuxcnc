@@ -1,0 +1,87 @@
+<masters>
+  <master idx="0" appTimePeriod="1000000" refClockSyncCycles="1000">
+    <slave idx="0" type="EK1100"/>
+
+    <slave idx="1" type="EL7211">
+      <initCmds filename="AM8121-xFx0-000x_MDP.xml"/>
+      <dcConf assignActivate="700" sync0Cycle="*1" sync0Shift="30000" sync1Cycle="*1" sync1Shift="1000"/>
+    </slave>
+
+    <slave idx="2" type="generic" vid="00000002" pid="14566012" configPdos="true">
+      <initCmds filename="AX5206-AM8032-async.xml"/>
+      <!-- IMPORTANT: in this case (sync1Cycle = n * sync0Cycle) sync1Cycle must be appTimePeriod - sync0Cycle) -->
+      <dcConf assignActivate="730" sync0Cycle="250000" sync0Shift="50000" sync1Cycle="750000" sync1Shift="250000"/>
+
+      <syncManager idx="2" dir="out">
+        <pdo idx="0018">
+          <pdoEntry idx="0086" subIdx="00" bitLen="16" halType="complex">
+            <complexEntry bitLen="6"/>
+            <complexEntry bitLen="1" halPin="srv0-ctrl.realtime-0" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv0-ctrl.realtime-1" halType="bit"/>
+            <complexEntry bitLen="2" halPin="srv0-ctrl.opmode-low" halType="u32"/>
+            <complexEntry bitLen="1" halPin="srv0-ctrl.sync" halType="u32"/>
+            <complexEntry bitLen="1" halPin="srv0-ctrl.opmode-high" halType="bit"/>
+            <complexEntry bitLen="1"/>
+            <complexEntry bitLen="1" halPin="srv0-ctrl.restart" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv0-ctrl.enable" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv0-ctrl.drv-on" halType="bit"/>
+          </pdoEntry>
+          <pdoEntry idx="0018" subIdx="00" bitLen="32" halPin="srv0-vel-cmd" halType="s32"/>
+        </pdo>
+        <pdo idx="1018">
+          <pdoEntry idx="0086" subIdx="01" bitLen="16" halType="complex">
+            <complexEntry bitLen="6"/>
+            <complexEntry bitLen="1" halPin="srv1-ctrl.realtime-0" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv1-ctrl.realtime-1" halType="bit"/>
+            <complexEntry bitLen="2" halPin="srv1-ctrl.opmode-low" halType="u32"/>
+            <complexEntry bitLen="1" halPin="srv1-ctrl.sync" halType="u32"/>
+            <complexEntry bitLen="1" halPin="srv1-ctrl.opmode-high" halType="bit"/>
+            <complexEntry bitLen="1"/>
+            <complexEntry bitLen="1" halPin="srv1-ctrl.restart" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv1-ctrl.enable" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv1-ctrl.drv-on" halType="bit"/>
+          </pdoEntry>
+          <pdoEntry idx="0018" subIdx="01" bitLen="32" halPin="srv1-vel-cmd" halType="s32"/>
+        </pdo>
+      </syncManager>
+      <syncManager idx="3" dir="in">
+        <pdo idx="0010">
+          <pdoEntry idx="0087" subIdx="00" bitLen="16" halType="complex">
+            <complexEntry bitLen="3"/>
+            <complexEntry bitLen="1" halPin="srv0-stat.val-proc" halType="bit"/>
+            <complexEntry bitLen="2"/>
+            <complexEntry bitLen="1" halPin="srv0-stat.realtime-0" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv0-stat.realtime-1" halType="bit"/>
+            <complexEntry bitLen="3" halPin="srv0-stat.opmode" halType="u32"/>
+            <complexEntry bitLen="1" halPin="srv0-stat.c3d-change" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv0-stat.c2d-change" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv0-stat.c1d-error" halType="bit"/>
+            <complexEntry bitLen="2" halPin="srv0-stat.op-ready" halType="u32"/>
+          </pdoEntry>
+          <pdoEntry idx="0033" subIdx="00" bitLen="32" halPin="srv0-pos-fb" halType="s32"/>
+          <pdoEntry idx="0054" subIdx="00" bitLen="16" halPin="srv0-torque-fb" halType="s32"/>
+        </pdo>
+        <pdo idx="1010">
+          <pdoEntry idx="0087" subIdx="01" bitLen="16" halType="complex">
+            <complexEntry bitLen="3"/>
+            <complexEntry bitLen="1" halPin="srv1-stat.val-proc" halType="bit"/>
+            <complexEntry bitLen="2"/>
+            <complexEntry bitLen="1" halPin="srv1-stat.realtime-0" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv1-stat.realtime-1" halType="bit"/>
+            <complexEntry bitLen="3" halPin="srv1-stat.opmode" halType="u32"/>
+            <complexEntry bitLen="1" halPin="srv1-stat.c3d-change" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv1-stat.c2d-change" halType="bit"/>
+            <complexEntry bitLen="1" halPin="srv1-stat.c1d-error" halType="bit"/>
+            <complexEntry bitLen="2" halPin="srv1-stat.op-ready" halType="u32"/>
+          </pdoEntry>
+          <pdoEntry idx="0033" subIdx="01" bitLen="32" halPin="srv1-pos-fb" halType="s32"/>
+          <pdoEntry idx="0054" subIdx="01" bitLen="16" halPin="srv1-torque-fb" halType="s32"/>
+        </pdo>
+      </syncManager>
+    </slave>
+
+  </master>
+</masters>
+
+
+

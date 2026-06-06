@@ -1,5 +1,5 @@
 net srpm pyvcp.command
-loadrt scale count=1
+load scale <scale.0>
 addf scale.0 servo-thread
 setp scale.0.gain 60
 net fb scale.0.in

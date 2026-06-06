@@ -15,7 +15,7 @@ net :jy2 joint.6.pos-fb
 
 # compute pivot-length needed for 5axiskins
 # according to gui pivot_len and tool z offset
-loadrt sum2 names=pivotsum
+load sum2 <pivotsum>
 addf pivotsum servo-thread
 
 net :gui-pivot-len <= 5axisgui.pivot_len

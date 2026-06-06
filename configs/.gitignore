@@ -1,5 +1,8 @@
 *.var
 *.var.bak
+*.db
+*.db-shm
+*.db-wal
 */core_*.hal
 !/cooltool/core_stepper4.hal
 !/hexapod-sim/core_sim_6.hal

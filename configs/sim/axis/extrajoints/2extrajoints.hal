@@ -1,5 +1,5 @@
 # use limit3 for motion planning:
-loadrt limit3 names=j4.limit3,j5.limit3
+load limit3 names=j4.limit3,j5.limit3
 
 # These constraints apply to homing managed by
 # LinuxCNC and post-homing managed by the limit3 component:

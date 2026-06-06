@@ -1,0 +1,84 @@
+# Simulated servo HAL configuration with PID controllers.
+# PID gains are loaded from INI [JOINT_N] sections — this is what
+# emccalib discovers and makes tunable.
+#
+# Uses integ to simulate a velocity-mode servo:
+# PID output (velocity command) → integ → position feedback.
+
+# Load kinematics and motion controller (cmods)
+load [KINS]KINEMATICS
+load [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+# Load integrators to simulate motors (velocity → position)
+load integ <integ.x,integ.y,integ.z>
+
+# Load realtime PID
+load pid <pid.x,pid.y,pid.z>
+
+# Add functions to servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf pid.x.do-pid-calcs servo-thread
+addf pid.y.do-pid-calcs servo-thread
+addf pid.z.do-pid-calcs servo-thread
+addf integ.x servo-thread
+addf integ.y servo-thread
+addf integ.z servo-thread
+
+# --- Joint 0 (X) ---
+net x-enable  joint.0.amp-enable-out => pid.x.enable
+net x-pos-cmd joint.0.motor-pos-cmd  => pid.x.command
+net x-pos-fb  integ.x.out           => joint.0.motor-pos-fb pid.x.feedback
+net x-output  pid.x.output          => integ.x.in
+
+setp pid.x.Pgain     [JOINT_0]P
+setp pid.x.Igain     [JOINT_0]I
+setp pid.x.Dgain     [JOINT_0]D
+setp pid.x.bias      [JOINT_0]BIAS
+setp pid.x.FF0       [JOINT_0]FF0
+setp pid.x.FF1       [JOINT_0]FF1
+setp pid.x.FF2       [JOINT_0]FF2
+setp pid.x.deadband  [JOINT_0]DEADBAND
+setp pid.x.maxoutput [JOINT_0]MAX_OUTPUT
+setp pid.x.maxerror  [JOINT_0]MAX_ERROR
+
+# --- Joint 1 (Y) ---
+net y-enable  joint.1.amp-enable-out => pid.y.enable
+net y-pos-cmd joint.1.motor-pos-cmd  => pid.y.command
+net y-pos-fb  integ.y.out           => joint.1.motor-pos-fb pid.y.feedback
+net y-output  pid.y.output          => integ.y.in
+
+setp pid.y.Pgain     [JOINT_1]P
+setp pid.y.Igain     [JOINT_1]I
+setp pid.y.Dgain     [JOINT_1]D
+setp pid.y.bias      [JOINT_1]BIAS
+setp pid.y.FF0       [JOINT_1]FF0
+setp pid.y.FF1       [JOINT_1]FF1
+setp pid.y.FF2       [JOINT_1]FF2
+setp pid.y.deadband  [JOINT_1]DEADBAND
+setp pid.y.maxoutput [JOINT_1]MAX_OUTPUT
+setp pid.y.maxerror  [JOINT_1]MAX_ERROR
+
+# --- Joint 2 (Z) ---
+net z-enable  joint.2.amp-enable-out => pid.z.enable
+net z-pos-cmd joint.2.motor-pos-cmd  => pid.z.command
+net z-pos-fb  integ.z.out           => joint.2.motor-pos-fb pid.z.feedback
+net z-output  pid.z.output          => integ.z.in
+
+setp pid.z.Pgain     [JOINT_2]P
+setp pid.z.Igain     [JOINT_2]I
+setp pid.z.Dgain     [JOINT_2]D
+setp pid.z.bias      [JOINT_2]BIAS
+setp pid.z.FF0       [JOINT_2]FF0
+setp pid.z.FF1       [JOINT_2]FF1
+setp pid.z.FF2       [JOINT_2]FF2
+setp pid.z.deadband  [JOINT_2]DEADBAND
+setp pid.z.maxoutput [JOINT_2]MAX_OUTPUT
+setp pid.z.maxerror  [JOINT_2]MAX_ERROR
+
+# estop loopback
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
+
+# tool change loopback
+net tool-prep-loop iocontrol.tool-prepare iocontrol.tool-prepared
+net tool-change-loop iocontrol.tool-change iocontrol.tool-changed

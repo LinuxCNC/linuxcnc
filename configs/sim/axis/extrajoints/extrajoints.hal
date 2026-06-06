@@ -1,0 +1,16 @@
+# extrajoints.hal
+# create limit3 and signals for all extra joints
+{{- range $j := seq 0 16}}
+{{- if and (hasJoint $j) (ge $j (len .Axes))}}
+load limit3 names=j{{$j}}.limit3
+addf j{{$j}}.limit3 servo-thread
+setp j{{$j}}.limit3.min  {{ini (printf "JOINT_%d" $j) "MIN_LIMIT"}}
+setp j{{$j}}.limit3.max  {{ini (printf "JOINT_%d" $j) "MAX_LIMIT"}}
+setp j{{$j}}.limit3.maxv {{ini (printf "JOINT_%d" $j) "MAX_VELOCITY"}}
+setp j{{$j}}.limit3.maxa {{ini (printf "JOINT_%d" $j) "MAX_ACCELERATION"}}
+net  J{{$j}}:out    <= j{{$j}}.limit3.out
+net  J{{$j}}:out    => joint.{{$j}}.posthome-cmd
+net  J{{$j}}.enable <= joint.{{$j}}.homed
+net  J{{$j}}.enable => j{{$j}}.limit3.enable
+{{- end}}
+{{- end}}

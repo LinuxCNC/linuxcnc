@@ -1,23 +1,23 @@
 #show pin woodpecker
 
-loadrt and2 count=1
-loadrt near
+load and2 <and2.0>
+load near <near.0>
 addf and2.0 servo-thread
 addf near.0 servo-thread
 setp near.0.scale 1.01
 
-loadrt abs names=abs_spindle_feedback
+load abs <abs_spindle_feedback>
 addf abs_spindle_feedback servo-thread
 
 # the unlink pin commands are only used, because they are connected 
 # in core_sim.hal and we use this file to simulate
-unlinkp iocontrol.0.tool-change
-unlinkp iocontrol.0.tool-changed
-unlinkp iocontrol.0.tool-prep-number
+unlinkp iocontrol.tool-change
+unlinkp iocontrol.tool-changed
+unlinkp iocontrol.tool-prep-number
 
-net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
-net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
-net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+net tool-change      manualtoolchange.change   <=  iocontrol.tool-change 
+net tool-changed     manualtoolchange.changed  <=  iocontrol.tool-changed
+net tool-prep-number manualtoolchange.number   <=  iocontrol.tool-prep-number
 
 # ---setup spindle control signals---
 

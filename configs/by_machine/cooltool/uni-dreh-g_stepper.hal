@@ -1,16 +1,31 @@
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 
 # core HAL config file for steppers
 
 # first load the stepper module
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD
 
-loadrt stepgen step_type=0,0,0,0,0,0
+load stepgen <stepgen.0,stepgen.1,stepgen.2,stepgen.3,stepgen.4,stepgen.5> step_type=0
 
 # hook its functions to realtime threads
-addf stepgen.capture-position servo-thread
-addf stepgen.update-freq servo-thread
-addf stepgen.make-pulses base-thread 
+addf stepgen.0.capture-position servo-thread
+addf stepgen.1.capture-position servo-thread
+addf stepgen.2.capture-position servo-thread
+addf stepgen.3.capture-position servo-thread
+addf stepgen.4.capture-position servo-thread
+addf stepgen.5.capture-position servo-thread
+addf stepgen.0.update-freq servo-thread
+addf stepgen.1.update-freq servo-thread
+addf stepgen.2.update-freq servo-thread
+addf stepgen.3.update-freq servo-thread
+addf stepgen.4.update-freq servo-thread
+addf stepgen.5.update-freq servo-thread
+addf stepgen.0.make-pulses base-thread
+addf stepgen.1.make-pulses base-thread
+addf stepgen.2.make-pulses base-thread
+addf stepgen.3.make-pulses base-thread
+addf stepgen.4.make-pulses base-thread
+addf stepgen.5.make-pulses base-thread
 
 #add motion controller to the threads
 addf motion-command-handler servo-thread
@@ -98,7 +113,4 @@ setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL
 setp stepgen.3.maxaccel [JOINT_3]STEPGEN_MAXACCEL
 setp stepgen.4.maxaccel [JOINT_4]STEPGEN_MAXACCEL
 setp stepgen.5.maxaccel [JOINT_5]STEPGEN_MAXACCEL
-
-# load realtime portion of scope, just to have it handy
-loadrt scope_rt
 

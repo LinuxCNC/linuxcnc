@@ -1,8 +1,8 @@
-loadrt siggen         names=gen
-loadrt scale          names=scalea
-loadrt conv_float_s32 names=cvt
-loadrt not            names=nota
-loadrt or2            names=or2a
+load siggen <gen>
+load scale <scalea>
+load conv_float_s32 <cvt>
+load not <nota>
+load or2 <or2a>
 
 addf   gen.update     servo-thread
 addf   scalea         servo-thread

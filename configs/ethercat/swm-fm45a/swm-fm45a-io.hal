@@ -1,0 +1,94 @@
+###########################################################
+#
+# IO HAL file for SWM FM45A DRO Profi
+#
+# Created 2014/10/21 by Sascha Ittner
+#
+# This file connects internal LCNC HAL signals with
+# external Haldware on the ethercat bus.
+#
+###########################################################
+
+###########################################################
+# Signals for monitorting of the connection state
+# and slave state
+###########################################################
+net ec-slaves-responding <= lcec.slaves-responding
+net ec-link-up <= lcec.link-up
+net ec-all-op <= lcec.all-op
+
+###########################################################
+# digital inputs
+###########################################################
+
+net voltage-on <= lcec.0.D2.din-0
+net x-pos-lim-in <= lcec.0.D2.din-1-not
+net x-neg-lim-in <= lcec.0.D2.din-2-not
+net y-pos-lim-in <= lcec.0.D2.din-3-not
+net y-neg-lim-in <= lcec.0.D2.din-4-not
+net z-pos-lim-in <= lcec.0.D2.din-5-not
+net z-neg-lim-in <= lcec.0.D2.din-6-not
+
+###########################################################
+# digital outputs
+###########################################################
+
+net coolant-on => lcec.0.D6.dout-0
+net spindle-cw <= lcec.0.D6.dout-1
+net spindle-ccw <= lcec.0.D6.dout-2
+net z-brake => lcec.0.D6.dout-6
+
+###########################################################
+# servo controlers
+###########################################################
+
+# X axis
+# HINT: Please refer to lcec_deasda.h for a complete
+# description off all delta driver pins/parameters.
+#
+# voltage is statically enabled as soon as LCNC is running
+setp lcec.0.3A1.srv-enable-volt 1
+# set motor position scale (default 1 motor revolution)
+setp lcec.0.3A1.srv-pos-scale [AXIS_0]SCALE
+setp lcec.0.3A1.srv-extenc-scale [AXIS_0]ENC_SCALE
+# switch on if joint is enables
+# this signal is used for the fault autoreset feature, too
+net x-enable => lcec.0.3A1.srv-switch-on
+# enable operation if joint is enabled
+# The delta driver internally delay this signal
+# till switched-on feedback is set to 1
+net x-enable => lcec.0.3A1.srv-enable
+# check driver fault status
+net x-amp-fault <= lcec.0.3A1.srv-fault
+# output velocity command from position control
+# the scale of this value respects the setting
+# of srv-pos-scale. if scale is set to 1.0 this
+# means 1 motor revolution per second.
+net x-vel-cmd => lcec.0.3A1.srv-vel-cmd
+# motor encoder position is used as joint
+# position feedback
+net x-pos-fb <= lcec.0.3A1.srv-pos-extenc
+
+# Y axis
+# same logic as X axis
+setp lcec.0.3A2.srv-enable-volt 1
+setp lcec.0.3A2.srv-pos-scale [AXIS_1]SCALE
+setp lcec.0.3A2.srv-extenc-scale [AXIS_1]ENC_SCALE
+net y-enable => lcec.0.3A2.srv-switch-on
+net y-enable => lcec.0.3A2.srv-enable
+net y-amp-fault <= lcec.0.3A2.srv-fault
+net y-vel-cmd => lcec.0.3A2.srv-vel-cmd
+net y-pos-fb <= lcec.0.3A2.srv-pos-extenc
+
+# Z axis
+# same logic as X axis
+setp lcec.0.4A3.srv-enable-volt 1
+setp lcec.0.4A3.srv-pos-scale [AXIS_2]SCALE
+setp lcec.0.4A3.srv-extenc-scale [AXIS_2]ENC_SCALE
+net z-enable => lcec.0.4A3.srv-switch-on
+net z-enable => lcec.0.4A3.srv-enable
+net z-amp-fault <= lcec.0.4A3.srv-fault
+net z-vel-cmd => lcec.0.4A3.srv-vel-cmd
+net z-pos-fb <= lcec.0.4A3.srv-pos-extenc
+net z-brake <= lcec.0.4A3.srv-oper-enabled
+

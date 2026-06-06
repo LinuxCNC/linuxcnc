@@ -3,14 +3,13 @@
 #      		Loading real-time modules 				#
 #########################################################################
 
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 loadrt hal_gm
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
-loadrt pid num_chan=3
-loadrt not
+load pid <pid.0,pid.1,pid.2>
+load not <not.0>
 
 loadusr halmeter
-#loadusr halscope -f
 
 #########################################################################
 # 			Adding functions				#
@@ -39,7 +38,7 @@ net pwrEnable motion.motion-enabled => gm.0.power-enable
 
 # create power fault loopback
 net hw_fault gm.0.power-fault => not.0.in
-net estop not.0.out => iocontrol.0.emc-enable-in
+net estop not.0.out => iocontrol.emc-enable-in
 
 # connect enable signals for DAC and PID
 net Xen joint.0.amp-enable-out => gm.0.dac.0.enable

@@ -1,0 +1,21 @@
+###########################################################
+#
+# Spindle HAL file for SWM FM45A DRO Profi
+#
+# Created 2014/10/21 by Sascha Ittner
+#
+# Spindle Interface
+#
+###########################################################
+
+###########################################################
+# motion interface
+###########################################################
+
+net spindle-on <= motion.spindle-on
+net spindle-cw <= motion.spindle-forward
+net spindle-ccw <= motion.spindle-reverse
+
+# coolant
+net coolant-on <= iocontrol.0.coolant-flood
+

@@ -1,28 +1,34 @@
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
-loadrt sim_parport names=parport.0
+load sim_parport <parport.0>
 setp parport.0.reset-time 5000
-loadrt stepgen step_type=0,0,0
-loadrt encoder num_chan=1
-loadrt pwmgen output_type=1
+load stepgen <stepgen.0,stepgen.1,stepgen.2> step_type=0
+load encoder <encoder.0>
+load pwmgen <pwmgen.0> output_type=1
 
 addf parport.0.read base-thread
 source sim_hardware.hal
 addf sim-encoder.make-pulses base-thread
-addf stepgen.make-pulses base-thread
-addf encoder.update-counters base-thread
-addf pwmgen.make-pulses base-thread
+addf stepgen.0.make-pulses base-thread
+addf stepgen.1.make-pulses base-thread
+addf stepgen.2.make-pulses base-thread
+addf encoder.0.update-counters base-thread
+addf pwmgen.0.make-pulses base-thread
 addf parport.0.write base-thread
 addf parport.0.reset base-thread
 
-addf stepgen.capture-position servo-thread
+addf stepgen.0.capture-position servo-thread
+addf stepgen.1.capture-position servo-thread
+addf stepgen.2.capture-position servo-thread
 addf sim-hardware.update servo-thread
 addf sim-encoder.update-speed servo-thread
-addf encoder.capture-position servo-thread
+addf encoder.0.capture-position servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
-addf stepgen.update-freq servo-thread
-addf pwmgen.update servo-thread
+addf stepgen.0.update-freq servo-thread
+addf stepgen.1.update-freq servo-thread
+addf stepgen.2.update-freq servo-thread
+addf pwmgen.0.update servo-thread
 
 net spindle-cmd-rpm => pwmgen.0.value
 net spindle-on <= spindle.0.on => pwmgen.0.enable
@@ -106,5 +112,5 @@ net zdir <= stepgen.2.dir
 net zenable joint.2.amp-enable-out => stepgen.2.enable
 #net all-home => joint.2.home-sw-in
 
-net estop-out <= iocontrol.0.user-enable-out
-net estop-out => iocontrol.0.emc-enable-in
+net estop-out <= iocontrol.user-enable-out
+net estop-out => iocontrol.emc-enable-in

@@ -1,0 +1,122 @@
+###########################################################
+#
+# Axis Controller HAL file for SWM FM45A DRO Profi
+#
+# Created 2014/10/21 by Sascha Ittner
+#
+# Axis interface for Joints
+#
+# This File contains the Position-Controler for each 
+# joint plus the interface to the LCNC motion controller.
+# The motion controller delivers the position command
+# and receives the current position from position
+# feedback (motor encoder or external messurement system).
+# Position command and feedback even feeds into position
+# controller, which generates the velocity command for
+# the external motor drivers.
+#
+# The scale for poosition is mm, for velocity mm/s sould
+# be used (Please ensure that SCALE in the corresponding
+# [AXIS] section in the ini file is set correctly).
+#
+# If the external motor driver has has velocity controll
+# loop, FF1 sould be set accordingly (1.0 in case of
+# a velocity scale in mm/s)
+#
+# Parameters for the position controller are set in
+# the ini file. Please refer to
+# http://linuxcnc.org/docs/html/man/man9/pid.9.html
+# for the descrpition of the parameters
+#
+###########################################################
+
+###########################################################
+# X axis
+###########################################################
+
+# position controler
+setp x-pid.Pgain [AXIS_0]P
+setp x-pid.Igain [AXIS_0]I
+setp x-pid.Dgain [AXIS_0]D
+setp x-pid.FF0 [AXIS_0]FF0
+setp x-pid.FF1 [AXIS_0]FF1
+setp x-pid.FF2 [AXIS_0]FF2
+setp x-pid.deadband [AXIS_0]DEADBAND
+setp x-pid.maxoutput [AXIS_0]MAX_OUTPUT
+net x-enable => x-pid.enable
+net x-pos-cmd => x-pid.command
+net x-pos-fb => x-pid.feedback
+net x-vel-cmd <= x-pid.output
+
+# axis interface
+net x-neg-lim-in => axis.0.home-sw-in
+net x-enable <= axis.0.amp-enable-out
+net x-amp-fault => axis.0.amp-fault-in
+net x-pos-cmd <= axis.0.motor-pos-cmd
+net x-pos-fb => axis.0.motor-pos-fb
+net x-pos-joint <= axis.0.joint-pos-fb
+net x-homed <= axis.0.homed
+net x-homing <= axis.0.homing
+net x-neg-lim-in => axis.0.neg-lim-sw-in
+net x-pos-lim-in => axis.0.pos-lim-sw-in
+
+###########################################################
+# Y axis
+###########################################################
+
+# position controler
+setp y-pid.Pgain [AXIS_1]P
+setp y-pid.Igain [AXIS_1]I
+setp y-pid.Dgain [AXIS_1]D
+setp y-pid.FF0 [AXIS_1]FF0
+setp y-pid.FF1 [AXIS_1]FF1
+setp y-pid.FF2 [AXIS_1]FF2
+setp y-pid.deadband [AXIS_1]DEADBAND
+setp y-pid.maxoutput [AXIS_1]MAX_OUTPUT
+net y-enable => y-pid.enable
+net y-pos-cmd => y-pid.command
+net y-pos-fb => y-pid.feedback
+net y-vel-cmd <= y-pid.output
+
+# axis interface
+net y-pos-lim-in => axis.1.home-sw-in
+net y-enable <= axis.1.amp-enable-out
+net y-amp-fault => axis.1.amp-fault-in
+net y-pos-cmd <= axis.1.motor-pos-cmd
+net y-pos-fb => axis.1.motor-pos-fb
+net y-pos-joint <= axis.1.joint-pos-fb
+net y-homed <= axis.1.homed
+net y-homing <= axis.1.homing
+net y-neg-lim-in => axis.1.neg-lim-sw-in
+net y-pos-lim-in => axis.1.pos-lim-sw-in
+
+###########################################################
+# Z axis
+###########################################################
+
+# position controler
+setp z-pid.Pgain [AXIS_2]P
+setp z-pid.Igain [AXIS_2]I
+setp z-pid.Dgain [AXIS_2]D
+setp z-pid.FF0 [AXIS_2]FF0
+setp z-pid.FF1 [AXIS_2]FF1
+setp z-pid.FF2 [AXIS_2]FF2
+setp z-pid.deadband [AXIS_2]DEADBAND
+setp z-pid.maxoutput [AXIS_2]MAX_OUTPUT
+net z-enable => z-pid.enable
+net z-pos-cmd => z-pid.command
+net z-pos-fb => z-pid.feedback
+net z-vel-cmd <= z-pid.output
+
+# axis interface
+net z-pos-lim-in => axis.2.home-sw-in
+net z-enable <= axis.2.amp-enable-out
+net z-amp-fault => axis.2.amp-fault-in
+net z-pos-cmd <= axis.2.motor-pos-cmd
+net z-pos-fb => axis.2.motor-pos-fb
+net z-pos-joint <= axis.2.joint-pos-fb
+net z-homed <= axis.2.homed
+net z-homing <= axis.2.homing
+net z-neg-lim-in => axis.2.neg-lim-sw-in
+net z-pos-lim-in => axis.2.pos-lim-sw-in
+

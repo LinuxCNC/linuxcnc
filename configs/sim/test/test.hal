@@ -1,0 +1,27 @@
+# Minimal HAL for tasktest — sim loop-back (no real hardware).
+# Connects position commands directly to feedback (perfect following).
+
+load trivkins
+load motmod num_spindles=1
+
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+# ESTOP loop-back: iocontrol requests enable → immediately grant it.
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
+
+# Loop-back: commanded position → feedback
+net x-pos joint.0.motor-pos-cmd => joint.0.motor-pos-fb
+net y-pos joint.1.motor-pos-cmd => joint.1.motor-pos-fb
+net z-pos joint.2.motor-pos-cmd => joint.2.motor-pos-fb
+
+# Simulated home switches (active immediately — instant home)
+setp joint.0.home-sw-in 1
+setp joint.1.home-sw-in 1
+setp joint.2.home-sw-in 1
+
+# Spindle: report at-speed immediately
+setp spindle.0.at-speed 1
+
+# Load the test module (must be after milltask is loaded via linuxcnc.hal)
+load tasktest

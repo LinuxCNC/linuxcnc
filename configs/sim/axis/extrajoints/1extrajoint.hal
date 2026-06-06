@@ -1,12 +1,12 @@
 # 1extrajoint demo
 # immediate homing -- jog joint4 to make a motor-offset before homing
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 net J0:loop <= joint.0.motor-pos-cmd
 net J0:loop => joint.0.motor-pos-fb
@@ -43,7 +43,7 @@ net J4:loop => joint.4.motor-pos-fb
 
 #-----------------------------------------------------------
 # motion planner for extra joint (joint4)
-loadrt limit3 names=j4.limit3
+load limit3 names=j4.limit3
 
 # These constraints apply to homing managed by
 # LinuxCNC and post-homing managed by the limit3 component:
