@@ -63,11 +63,7 @@ uname -r
 
 If you see (as above) `-rt-` in the kernel name then you are running the
 preempt-rt kernel and should install the "uspace" version of LinuxCNC.
-You should also install uspace for "sim" configs on non-realtime kernels
-
-If you see `-rtai-` in the kernel name then you are running RTAI
-realtime. See below for the LinuxCNC version to install. RTAI packages
-are available for Bookworm and Buster but not currently for Bullseye.
+You should also install uspace for "sim" configs on non-realtime kernels.
 
 [[_setting_apt_sources]]
 === Apt Sources Configuration
@@ -95,9 +91,7 @@ are available for Bookworm and Buster but not currently for Bullseye.
 | OS / Realtime Version      | Repository
 | Debian Bullseye - preempt m| deb https://linuxcnc.org bullseye base 2.9-uspace
 | Debian Bookworm - preempt m| deb https://linuxcnc.org bookworm base 2.9-uspace
-| Debian Bookworm - RTAI    m| deb https://linuxcnc.org bookworm base 2.9-rt
 | Debian Trixie - preempt   m| deb https://linuxcnc.org trixie base 2.9-uspace
-| Debian Trixie - RTAI      m| deb https://linuxcnc.org trixie base 2.9-rt
 |===
 
 .Figure with a screenshot of the repository configuration of the synaptic package manager.
@@ -121,7 +115,7 @@ Debian uses the Synaptic Package Manager.
 * Open Synaptic using the instructions in <<_setting_apt_sources,Setting apt sources>> above.
 * Click the `Reload` button.
 * Use the Search function to search for `linuxcnc`.
-* The package is called "linuxcnc" for RTAI kernels and "linuxcnc-uspace" for preempt-rt.
+* The package is called "linuxcnc-uspace" for preempt-rt kernels.
 * Click the check box to mark the new linuxcnc and linuxcnc-doc-* packages for upgrade.
   The package manager may select a number of additional packages to be installed,
   to satisfy dependencies that the new linuxcnc package has.
@@ -151,8 +145,7 @@ Distributor ID: Debian
 Codename:       trixie
 ----
 
-Pick the OS from the list then pick the major version you want like
-2.9-rt for RTAI or 2.9-uspace for preempt-rt.
+Pick the OS from the list then pick the major version you want like 2.9-uspace for preempt-rt.
 
 Next pick the type of computer you have: binary-amd64 for 64-bit PC or
 binary-arm64 (64bit) for Raspberry Pi.

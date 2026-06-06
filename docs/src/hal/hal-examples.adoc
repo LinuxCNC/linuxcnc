@@ -78,9 +78,9 @@ The HAL Manual Toolchange is primarily useful if you have presettable tools and 
 If you need to touch off for each tool change then it is best just to split up your G-code.
 To use the HAL Manual Toolchange window you basically have to
 
-. load the hal_manualtoolchange component,
-. then send the iocontrol 'tool change' to the hal_manualtoolchange 'change' and
-. send the hal_manualtoolchange 'changed' back to the iocontrol 'tool changed'.
+. load the manualtoolchange component and its UI,
+. then send the iocontrol 'tool change' to the manualtoolchange 'change' and
+. send the manualtoolchange 'changed' back to the iocontrol 'tool changed'.
 
 A pin is provided for an external input to indicate the tool change is complete.
 
@@ -88,11 +88,13 @@ This is an example of manual toolchange 'with' the HAL Manual Toolchange compone
 
 [source,{hal}]
 ----
-loadusr -W hal_manualtoolchange
-net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
-net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
-net external-tool-changed hal_manualtoolchange.change_button <= parport.0.pin-12-in
-net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+load manualtoolchange
+addf manualtoolchange servo-thread
+loadusr manualtoolchange_ui
+net tool-change iocontrol.0.tool-change => manualtoolchange.change
+net tool-changed iocontrol.0.tool-changed <= manualtoolchange.changed
+net external-tool-changed manualtoolchange.change_button <= parport.0.pin-12-in
+net tool-number iocontrol.0.tool-prep-number => manualtoolchange.number
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 ----
 
@@ -182,7 +184,7 @@ If you're not familiar with Linux place the file in your home directory.
 
 [source,{hal}]
 ----
-loadrt threads period1=1000000 name1=thread
+newthread thread 1000000
 loadrt siggen
 loadrt lowpass
 loadrt limit2
@@ -256,7 +258,8 @@ In the following example we have created a simple GladeVCP panel with one steppe
 loadusr -Wn winder gladevcp -c winder -u handler.py winder.glade
 
 # load realtime components
-loadrt threads name1=fast period1=50000 fp1=0 name2=slow period2=1000000
+newthread fast 50000 nofp
+newthread slow 1000000
 loadrt stepgen step_type=0 ctrl_type=v
 loadrt hal_parport cfg="0x378 out"
 

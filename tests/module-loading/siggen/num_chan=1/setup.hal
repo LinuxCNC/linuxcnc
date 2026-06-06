@@ -1,4 +1,4 @@
 
-loadrt siggen num_chan=1
+load siggen <siggen.0>
 show pin
 

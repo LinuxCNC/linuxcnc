@@ -1,7 +1,7 @@
 setexact_for_test_suite_only
 
-loadrt threads name1=fast period1=100000
-loadrt edge
+newthread fast 100000
+load edge <edge.0>
 
 loadrt sampler cfg=bbb depth=500
 loadrt streamer cfg=b depth=500

@@ -1,4 +1,4 @@
 
-loadrt or2 names=or2.999
+load or2 <or2.999>
 show pin
 

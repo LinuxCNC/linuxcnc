@@ -1,4 +1,4 @@
 
-loadrt sim_encoder num_chan=0
+load sim_encoder <>
 show pin
 

@@ -1,4 +1,4 @@
 
-loadrt sim_encoder num_chan=8
+load sim_encoder <sim_encoder.0,sim_encoder.1,sim_encoder.2,sim_encoder.3,sim_encoder.4,sim_encoder.5,sim_encoder.6,sim_encoder.7>
 show pin
 

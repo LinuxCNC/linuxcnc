@@ -58,7 +58,8 @@ proc linuxcnc::image_search i {
     error "image $i is not available"
 }
 
-load [file join [file dirname [info script]] linuxcnc[info sharedlibextension]]
+# NML Tcl extension removed — commands now handled via gomc-server
+# load [file join [file dirname [info script]] linuxcnc[info sharedlibextension]]
 
 # Arrange to load hal.so when the 'hal' command is requested
 proc hal {args} {

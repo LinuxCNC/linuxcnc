@@ -5,7 +5,7 @@ setexact_for_test_suite_only
 # This siggen produces test patterns for limit3 to try to follow.
 #
 
-loadrt siggen
+load siggen <siggen.0>
 setp siggen.0.frequency 2
 setp siggen.0.amplitude 100
 setp siggen.0.offset 0
@@ -41,7 +41,7 @@ net input <= mux-gen.00.out-float
 # input sine wave.
 #
 
-loadrt limit3
+load limit3
 setp limit3.0.min -101
 setp limit3.0.max 101
 setp limit3.0.maxv 1500
@@ -56,7 +56,7 @@ net output => mux-gen.00.in-float-05
 # Compute the velocity and acceleration of the limit3 output.
 #
 
-loadrt ddt names=ddt.out-accel,ddt.out-vel
+load ddt <ddt.out-accel,ddt.out-vel>
 
 net output => ddt.out-vel.in
 
@@ -74,21 +74,21 @@ net out-accel <= ddt.out-accel.out
 # and fed to the mux select pin.
 #
 
-loadrt charge_pump
+load charge_pump <charge_pump.0>
 
 # The heartbeat toggles every other time the thread runs (so at 500 Hz).
 net heartbeat <= charge-pump.out
 
 # The scale of the encoder makes the .position output move forward by
 # about 1.0 per second.
-loadrt encoder num_chan=1
+load encoder <encoder.0>
 encoder.0.counter-mode = 1
 encoder.0.position-scale = 500
 
 net heartbeat => encoder.0.phase-A
 net encoder-position <= encoder.0.position
 
-loadrt conv_float_u32
+load conv_float_u32 <conv_float_u32.0>
 net encoder-position => conv-float-u32.0.in
 
 net mux-select <= conv-float-u32.0.out
@@ -108,11 +108,11 @@ net out-accel => sampler.0.pin.3
 net mux-select => sampler.0.pin.4
 
 
-loadrt threads name1=t period1=1000000 fp1=1
+newthread t 1000000
 
 addf charge-pump              t
-addf encoder.update-counters  t
-addf encoder.capture-position t
+addf encoder.0.update-counters t
+addf encoder.0.capture-position t
 addf conv-float-u32.0         t
 
 addf siggen.0.update          t

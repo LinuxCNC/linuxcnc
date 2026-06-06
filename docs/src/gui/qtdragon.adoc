@@ -440,13 +440,13 @@ These pins are specific to the QtDragon screen. +
 There are of course are many more HAL pins that must be connected for LinuxCNC to function.
 
 If you need a manual tool change prompt, add these lines in your postgui file. +
-QtDragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'.
+QtDragon emulates the manualtoolchange HAL pins - don't load the separate HAL component 'manualtoolchange'.
 
 [source,{hal}]
 ----
-net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
-net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
-net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+net tool-change      manualtoolchange.change   <=  iocontrol.0.tool-change
+net tool-changed     manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 ----
 
 Also if you don't have an automatic tool changer make sure these pins are connected in one of the HAL files:
@@ -559,14 +559,14 @@ The QtDragon screen works with 3 or 4 axes with one joint per axis or 3 or 4 axe
 == Manual Tool Changes
 
 If your machine requires manual tool changes, QtDragon can pop a message box to direct you.
-QtDragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'.
+QtDragon emulates the manualtoolchange HAL pins - don't load the separate HAL component 'manualtoolchange'.
 Hereto you must connect the proper HAL pin in the postgui HAL file, for example:
 
 [source,{hal}]
 ----
-net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
-net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
-net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+net tool-change      manualtoolchange.change   <=  iocontrol.0.tool-change
+net tool-changed     manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 ----
 
 == Spindle

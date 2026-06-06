@@ -1,4 +1,4 @@
 
-loadrt siggen names=siggen0
+load siggen <siggen0>
 show pin
 

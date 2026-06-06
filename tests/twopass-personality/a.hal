@@ -1,1 +1,1 @@
-loadrt logic names=gateA,gateB personality=0x104,0x202
+load logic <gateA,gateB> personality=0x104,0x202

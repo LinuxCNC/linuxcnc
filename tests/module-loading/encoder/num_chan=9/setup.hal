@@ -1,4 +1,4 @@
 
-loadrt encoder num_chan=9
+load encoder <encoder.0,encoder.1,encoder.2,encoder.3,encoder.4,encoder.5,encoder.6,encoder.7,encoder.8>
 show pin
 

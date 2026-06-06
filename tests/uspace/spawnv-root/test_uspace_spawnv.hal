@@ -1,2 +1,2 @@
-loadrt and2 count=1
+load and2 <and2.0>
 loadrt test_uspace_spawnv

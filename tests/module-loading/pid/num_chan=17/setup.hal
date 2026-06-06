@@ -1,4 +1,4 @@
 
-loadrt pid num_chan=17
+load pid <pid.0,pid.1,pid.2,pid.3,pid.4,pid.5,pid.6,pid.7,pid.8,pid.9,pid.10,pid.11,pid.12,pid.13,pid.14,pid.15,pid.16>
 show pin
 

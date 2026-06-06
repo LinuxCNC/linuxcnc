@@ -211,7 +211,7 @@ Information about configuring a LinuxCNC tool changer is in the <<sub:ini:sec:em
 
 .Manual Tool Changer
 Manual tool changer (you change the tool by hand) is treated like a fixed location tool changer.
-Manual toolchanges can be aided by a HAL configuration that employs the non-realtime program *hal_manualtoolchange* and is typically specified in an INI file with INI statements:
+Manual toolchanges can be aided by a HAL configuration that employs the *manualtoolchange* component and is typically specified in an INI file with INI statements:
 
 [source,{ini}]
 ----

@@ -115,15 +115,12 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
 
 ##############################################################################
 # Section 2                                                                  #
-# RealTime checking (either RTAI, or RT-Linux)                               #
+# RealTime checking (uspace only - RT_PREEMPT)                               #
 # Subsection 2.1 - arguments to ./configure (--with-realtime)                #
-# Subsection 2.2 - if none specified above, RTDIR needs to be found by search#
-# Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
 ##############################################################################
 
 # set up some default values
 RTDIR=""
-RTAI=""
 RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
@@ -162,12 +159,12 @@ AC_ARG_ENABLE(simulator,
 
 AC_ARG_WITH(realtime,
     AS_HELP_STRING(
-        [--with-realtime=PATH],
-        [Path where RTAI is installed, or "uspace" for POSIX userspace.]
+        [--with-realtime=uspace],
+        [Use "uspace" for POSIX userspace with RT_PREEMPT.]
     ),
     [   case "$withval" in
 	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply a path or "uspace" for --with-realtime.]) ;;
+	    AC_MSG_ERROR([You must supply "uspace" for --with-realtime.]) ;;
 	*)
             RTS="$withval" ;;
         esac
@@ -190,77 +187,16 @@ AC_ARG_ENABLE(toolnml,
     ])
 ##############################################################################
 # Subsection 2.2                                                             #
-# 1. If a RT has been specified by the user it needs to be checked for       #
-# validity. That is done by checking default locations for a certain script  #
-# (similar to 2)                                                             #
-#                                                                            #
-# 2. If no RT has been specified explicitly by the user, one has to be       #
-# found by search. In order to do that the following code will search for a  #
-# RT-specific script:                                                        #
-# rtai-config for RTAI 3.x                                                   #
+# Set up uspace realtime configuration                                       #
 ##############################################################################
 
-#at this point if RTS is empty, we need to find RT ourselves
-AC_MSG_CHECKING([for rtai-config])
-if test -z "$RTDIR"; then
-  DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
-else
-  DIRS="$RTS"
-fi
-  RTAI_CONFIG=none
-  for location in $DIRS; do
-    for subdir in . scripts bin; do
-    for signature in rtai; do
-      candidate=$location/$subdir/$signature-config
-      if test "$RTAI_CONFIG" = "none" -a -x $candidate; then
-        RTAI_CONFIG=$candidate
-      fi
-    done
-  done
-done
-
-AC_MSG_RESULT([$RTAI_CONFIG])
-AC_SUBST([RTAI_CONFIG])
-
-AC_PATH_PROG([XENOMAI_CONFIG], [xeno-config], [none])
-AC_SUBST([XENOMAI_CONFIG])
-
-AC_MSG_CHECKING([for realtime API(s) to use])
-if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
+AC_MSG_CHECKING([for realtime API to use])
+if test -z "$RTS" ; then
   RTS=uspace
-  if test "$RTAI_CONFIG" = "none" ; then
-    USPACE_RTAI=
-    CONFIG_USPACE_RTAI=n
-    RTAI_LXRT_CFLAGS=
-    RTAI_LXRT_LDFLAGS=
-  else
-    USPACE_RTAI=+lxrt
-    CONFIG_USPACE_RTAI=y
-    RTAI_LXRT_CFLAGS=`$RTAI_CONFIG --lxrt-cflags`
-    RTAI_LXRT_LDFLAGS=`$RTAI_CONFIG --lxrt-ldflags`
-    AC_DEFINE([USPACE_RTAI], [], [Define if uspace realtime should optionally support RTAI LXRT])
-  fi
-  AC_SUBST([CONFIG_USPACE_RTAI])
-  AC_SUBST([RTAI_LXRT_CFLAGS])
-  AC_SUBST([RTAI_LXRT_LDFLAGS])
+fi
 
-  if test "$XENOMAI_CONFIG" = "none" ; then
-    USPACE_XENOMAI=
-    CONFIG_USPACE_XENOMAI=n
-    XENOMAI_CFLAGS=
-    XENOMAI_LDFLAGS=
-  else
-    USPACE_XENOMAI=+xenomai
-    CONFIG_USPACE_XENOMAI=y
-    XENOMAI_CFLAGS=`$XENOMAI_CONFIG --skin posix --cflags`
-    XENOMAI_LDFLAGS=`$XENOMAI_CONFIG --skin posix --ldflags`
-    AC_DEFINE([USPACE_XENOMAI], [], [Define if uspace realtime should optionally support Xenomai])
-  fi
-  AC_SUBST([CONFIG_USPACE_XENOMAI])
-  AC_SUBST([XENOMAI_CFLAGS])
-  AC_SUBST([XENOMAI_LDFLAGS])
-
-  AC_MSG_RESULT([$RTS$USPACE_RTAI$USPACE_XENOMAI])
+if test "$RTS" = uspace ; then
+  AC_MSG_RESULT([uspace])
 
   AC_MSG_CHECKING([whether to enable userspace PCI access])
   AC_ARG_ENABLE(userspace-pci,
@@ -301,60 +237,23 @@ if test "$RTS" = uspace || test -z "$RTS" -a "$RTAI_CONFIG" = "none" ; then
   AC_SUBST([LIBUDEV_CFLAGS])
   AC_SUBST([LIBUDEV_LIBS])
 else
-  RTS="$RTAI_CONFIG"
-  AC_MSG_RESULT([$RTS])
+  AC_MSG_ERROR([Only --with-realtime=uspace is supported.])
 fi
-
 
 ##############################################################################
 # Subsection 2.3                                                             #
-# we have the RT-script now, it's time to query it for some values           #
-# it can provide us with default values such as CC, CFLAGS, etc              #
-# see each case for more details                                             #
+# Set up uspace configuration values                                         #
 ##############################################################################
 
 RTARCH=`uname -m | sed s/i.86/i386/`
-case $RTS in
-*/rtai-config)
-    RTPREFIX=rtai
-    RTAI_VERSION=$($RTS --version)
-    RTAI=$(echo $RTAI_VERSION | cut -f 1 -d .)
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --module-cflags`
-    RTFLAGS="$RTFLAGS -DRTAI=$RTAI"
-    KERNELDIR=`$RTS --linux-dir`
-    RTARCH=`$RTS --arch`
-    ULAPI_CFLAGS=`$RTS --lxrt-cflags`
-    ULAPI_LDFLAGS=`$RTS --lxrt-ldflags`
-;;
-uspace|uspace+*)
-    RTPREFIX=uspace
-    RTDIR=$(pwd -P)
-    ULAPI_CFLAGS=""
-    RTFLAGS="-DUSPACE"
-    BUILD_SYS=uspace
-    MODEXT=.so
-    MODULE_DIR=${prefix}/lib/linuxcnc/modules
-    ULAPI_LDFLAGS=""
-esac
+RTPREFIX=uspace
+RTDIR=$(pwd -P)
+ULAPI_CFLAGS=""
+RTFLAGS="-DUSPACE"
+MODEXT=.so
+MODULE_DIR=${prefix}/lib/linuxcnc/modules
+ULAPI_LDFLAGS=""
 
-if test "$RTS" != uspace; then
-    AC_MSG_CHECKING([for location of kernel headers])
-    AC_ARG_WITH(kernel-headers,
-        AS_HELP_STRING(
-            [--with-kernel-headers=PATH],
-            [Location for kernel headers.]
-        ),
-	[
-	    KERNELDIR="$withval"
-	    AC_MSG_RESULT(using specified value: $KERNELDIR)
-	],[
-	    AC_MSG_RESULT(using value from RTS: $KERNELDIR)
-	])
-fi
-
-AC_SUBST([RTAI])
 AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
@@ -363,12 +262,7 @@ AC_SUBST([RTARCH])
 AC_SUBST([ULAPI_CFLAGS])
 AC_SUBST([ULAPI_LDFLAGS])
 
-case "$RTPREFIX" in
-uspace)
-    AC_DEFINE(RTAPI_USPACE, [], [Realtime system is userspace]) ;;
-rtai)
-    AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI]) ;;
-esac
+AC_DEFINE(RTAPI_USPACE, [], [Realtime system is userspace])
 
 
 EMC2_HOME=`(cd .. ; pwd)`
@@ -379,7 +273,7 @@ AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime syste
 ##############################################################################
 # Section 3                                                                  #
 # additional checking                                                        #
-# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Subsection 3.1 - checking for a CC                                         #
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 # Subsection 3.3 - check the moduledir where modules can get installed       #
 # Subsection 3.4 - check for GTK                                             #
@@ -388,18 +282,12 @@ AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime syste
 
 
 ##############################################################################
-# Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
+# Subsection 3.1 - checking for a CC                                         #
 ##############################################################################
 AC_MSG_CHECKING([for cc version])
+AC_MSG_RESULT(not specified)
 
-if (test ${RTS##*/} = rtai-config ) ; then
-  RTSCC=`$RTS --cc`
-  AC_MSG_RESULT(found $RTSCC in rtai-config)
-else
-  AC_MSG_RESULT(not specified)
-fi
-
-AC_PROG_CC([$RTSCC gcc clang])
+AC_PROG_CC([gcc clang])
 AC_PROG_CPP()
 
 if test -z "$CC"; then
@@ -542,6 +430,38 @@ PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 3.0.0],
             AC_SUBST([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`)],
             [AC_MSG_WARN([Could not find libgpiod, not building hal_gpio])])
 
+#
+# check for libcurl (required for libgmi REST client)
+#
+AC_MSG_CHECKING([for libcurl])
+if pkg-config libcurl >/dev/null 2>&1; then
+    AC_MSG_RESULT(yes)
+    LIBCURL_CFLAGS=`pkg-config libcurl --cflags`
+    AC_SUBST([LIBCURL_CFLAGS])
+    LIBCURL_LIBS=`pkg-config libcurl --libs`
+    AC_SUBST([LIBCURL_LIBS])
+else
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([libcurl not found!
+install with "sudo apt-get install libcurl4-openssl-dev"])
+fi
+
+#
+# check for libcjson (required for libgmi JSON parsing)
+#
+AC_MSG_CHECKING([for libcjson])
+if pkg-config libcjson >/dev/null 2>&1; then
+    AC_MSG_RESULT(yes)
+    LIBCJSON_CFLAGS=`pkg-config libcjson --cflags`
+    AC_SUBST([LIBCJSON_CFLAGS])
+    LIBCJSON_LIBS=`pkg-config libcjson --libs`
+    AC_SUBST([LIBCJSON_LIBS])
+else
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([libcjson not found!
+install with "sudo apt-get install libcjson-dev"])
+fi
+
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#
@@ -552,68 +472,8 @@ PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 3.0.0],
 # compiled against.                                                          #
 ##############################################################################
 
-if test $RTS '!=' uspace; then
-AC_MSG_CHECKING([for kernel version string])
-
-if test -e $KERNELDIR/include/linux/utsrelease.h; then
-    VERSION_FILE=$KERNELDIR/include/linux/utsrelease.h
-elif test -e $KERNELDIR/include/generated/utsrelease.h; then
-    VERSION_FILE=$KERNELDIR/include/generated/utsrelease.h
-else
-    VERSION_FILE=$KERNELDIR/include/linux/version.h
-fi
-KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -s -d '"' -f 2`
-
-if test -z "$KERNEL_VERS"; then
-    AC_MSG_ERROR(Kernel version string not found)
-fi
-
-AC_MSG_RESULT([$KERNEL_VERS])
-AC_SUBST([KERNEL_VERS])
-AC_DEFINE_UNQUOTED([RTAPI_KERNEL_VERSION], "$KERNEL_VERS", [Required kernel version])
-
-# Do a quick test for module extension..
-AC_MSG_CHECKING([for kernel module extension])
-MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
-if test "x" = "x$MODEXT"; then
-    MODEXT=".o"
-fi
-AC_MSG_RESULT([$MODEXT])
-
-# This check should see if kbuild is or isn't used
-AC_MSG_CHECKING([kernel build system])
-# FIXME FIXME FIXME
-# right now it will assume based on the kernel module extension
-EXT_RTFLAGS=""
-BUILD_SYS="normal"
-
-if test "x$MODEXT" = "x.ko" ; then
-    BUILD_SYS="kbuild"
-else
-    EXT_RTFLAGS="-DEXPORT_SYMTAB"
-fi
-
-AC_ARG_WITH(kbuild,
-    AS_HELP_STRING(
-        [--with-kbuild],
-        [Specify if your kernel uses kbuild or not.]
-    ),
-    [
-        case "$withval" in
-        "" | y | ye | yes )
-	    BUILD_SYS="kbuild"
-          ;;
-        n | no )
-	    BUILD_SYS="normal"
-          ;;
-        esac
-    ])
-AC_MSG_RESULT([$BUILD_SYS])
-fi
 AC_SUBST([MODEXT])
 AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
-AC_SUBST([BUILD_SYS])
-AC_SUBST([EXT_RTFLAGS])
 
 ##############################################################################
 # Subsection 3.3 - check the moduledir where modules can get installed       #
@@ -709,9 +569,10 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
+    EMC2_GOMOD_DIR=$EMC2_HOME/gomod
+    EMC2_CMOD_DIR=$EMC2_HOME/cmod
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
-    REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
     HALLIB_DIR=$EMC2_HOME/lib/hallib
 else
@@ -731,9 +592,10 @@ else
         */linuxcnc*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
 	*) EMC2_RTLIB_DIR=$MODULE_DIR/linuxcnc
     esac
+    EMC2_GOMOD_DIR=${prefix}/lib/linuxcnc/gomod
+    EMC2_CMOD_DIR=${prefix}/lib/linuxcnc/cmod
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
-    REALTIME=${prefix}/lib/linuxcnc/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
     HALLIB_DIR=${prefix}/share/linuxcnc/hallib
 fi
@@ -743,6 +605,8 @@ AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
 AC_DEFINE_UNQUOTED([EMC2_TCL_DIR], "$EMC2_TCL_DIR", [Directory for tcl scripts])
 AC_DEFINE_UNQUOTED([EMC2_HELP_DIR], "$EMC2_HELP_DIR", [Directory for help files])
 AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory of realtime system])
+AC_DEFINE_UNQUOTED([EMC2_GOMOD_DIR], "$EMC2_GOMOD_DIR", [Directory for Go plugin modules])
+AC_DEFINE_UNQUOTED([EMC2_CMOD_DIR], "$EMC2_CMOD_DIR", [Directory for C plugin modules])
 AC_DEFINE_UNQUOTED([EMC2_LANG_DIR], "$EMC2_LANG_DIR", [Directory for tcl translation files])
 AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
@@ -753,10 +617,11 @@ AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
 AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
+AC_SUBST([EMC2_GOMOD_DIR])
+AC_SUBST([EMC2_CMOD_DIR])
 AC_SUBST([EMC2_LANG_DIR])
 AC_SUBST([LINUXCNC_CONFIG_PATH])
 AC_SUBST([EMC2_NCFILES_DIR])
-AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
 AC_SUBST([EMC2_SCRIPT])
 AC_SUBST([EMC2_LATENCY_SCRIPT])
@@ -907,27 +772,6 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-if test "$RTS" != uspace; then
-    # Module utilities not needed for uspace
-    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-    if test $INSMOD = "none"
-    then
-        AC_MSG_ERROR([insmod not found])
-    fi
-
-    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-    if test $RMMOD = "none"
-    then
-        AC_MSG_ERROR([rmmod not found])
-    fi
-
-    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-    if test $LSMOD = "none"
-    then
-        AC_MSG_ERROR([lsmod not found])
-    fi
-fi
-
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
 if test $PIDOF = "none"
 then
@@ -961,48 +805,6 @@ if test $INTLTOOL_EXTRACT = "none"
 then
     AC_MSG_ERROR([intltool-extract not found])
 fi
-
-AC_ARG_WITH(rmmod,
-    AS_HELP_STRING(
-        [--with-rmmod=PATH],
-        [Location of the rmmod program to use.]
-    ),
-    [
-	case "$withval" in
-	"" | y | ye | yes)
-	    AC_MSG_ERROR([You must supply an argument to --with-rmmod.])
-	  ;;
-	n | no | none)
-	    RMMOD=""
-	  ;;
-	*)
-	    RMMOD="$withval"
-	esac
-    ],
-    [
-            RMMOD="$EMC2_BIN_DIR/linuxcnc_module_helper remove"
-    ])
-
-AC_ARG_WITH(insmod,
-    AS_HELP_STRING(
-        [--with-insmod=PATH],
-        [Location of the insmod program to use.]
-    ),
-    [
-	case "$withval" in
-	"" | y | ye | yes)
-	    AC_MSG_ERROR([You must supply an argument to --with-insmod.])
-	  ;;
-	n | no | none)
-	    INSMOD=""
-	  ;;
-	*)
-	    INSMOD="$withval"
-	esac
-    ],
-    [
-            INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
-    ])
 
 AC_PATH_PROGS(YAPPS, [yapps yapps2])
 if test -z "$YAPPS"; then
@@ -1708,17 +1510,276 @@ AC_SUBST([CXXFLAGS])
 AC_SUBST([LDFLAGS])
 
 ##############################################################################
+# Section 8 - Go compiler detection (optional, for hal-go components)       #
+##############################################################################
+
+# Check for Go compiler (optional, for hal-go components)
+AC_ARG_ENABLE([golang],
+    AS_HELP_STRING([--enable-golang], [Build Golang HAL components (requires Go 1.21+)]),
+    [enable_golang=$enableval],
+    [enable_golang=auto])
+
+AC_MSG_CHECKING([for Go compiler])
+if test "x$enable_golang" != "xno"; then
+    AC_PATH_PROG([GO], [go], [no])
+    if test "x$GO" != "xno"; then
+        GO_VERSION=$($GO version | grep -oP 'go\K[[0-9]]+\.[[0-9]]+' | head -1)
+        GO_MAJOR=$(echo $GO_VERSION | cut -d. -f1)
+        GO_MINOR=$(echo $GO_VERSION | cut -d. -f2)
+        if test "$GO_MAJOR" -ge 1 && test "$GO_MINOR" -ge 21; then
+            AC_MSG_RESULT([yes ($GO_VERSION)])
+            HAVE_GOLANG=yes
+        else
+            AC_MSG_RESULT([no (version $GO_VERSION < 1.21)])
+            HAVE_GOLANG=no
+        fi
+    else
+        AC_MSG_RESULT([no])
+        HAVE_GOLANG=no
+    fi
+else
+    AC_MSG_RESULT([disabled])
+    HAVE_GOLANG=no
+fi
+
+if test "x$enable_golang" = "xyes" && test "x$HAVE_GOLANG" != "xyes"; then
+    AC_MSG_ERROR([Go 1.21+ required but not found])
+fi
+
+AC_SUBST([GO])
+AC_SUBST([HAVE_GOLANG])
+
+# Optional Go modules (only meaningful when HAVE_GOLANG=yes)
+HAVE_ADSSERVER=no
+HAVE_HALSCOPE=no
+HAVE_CLASSICLADDER=no
+HAVE_EMCCALIB=no
+HAVE_HALJSON=no
+HAVE_NGCPREVIEW=no
+HAVE_MILLTASK_GO=no
+HAVE_MQTTBRIDGE=no
+HAVE_PYVCP=no
+HAVE_TASKTEST=no
+HAVE_TOOLTABLE=no
+
+if test "x$HAVE_GOLANG" = "xyes"; then
+    AC_ARG_ENABLE([adsserver],
+        AS_HELP_STRING([--enable-adsserver], [Build ADS server Go module (default: yes)]),
+        [enable_adsserver=$enableval],
+        [enable_adsserver=yes])
+    if test "x$enable_adsserver" = "xyes"; then
+        HAVE_ADSSERVER=yes
+    fi
+
+    AC_ARG_ENABLE([halscope],
+        AS_HELP_STRING([--enable-halscope], [Build HAL oscilloscope Go module (default: yes)]),
+        [enable_halscope=$enableval],
+        [enable_halscope=yes])
+    if test "x$enable_halscope" = "xyes"; then
+        HAVE_HALSCOPE=yes
+    fi
+
+    AC_ARG_ENABLE([classicladder-go],
+        AS_HELP_STRING([--enable-classicladder-go], [Build Classic Ladder PLC Go module (default: yes)]),
+        [enable_classicladder_go=$enableval],
+        [enable_classicladder_go=yes])
+    if test "x$enable_classicladder_go" = "xyes"; then
+        HAVE_CLASSICLADDER=yes
+    fi
+
+    AC_ARG_ENABLE([emccalib],
+        AS_HELP_STRING([--enable-emccalib], [Build calibration tuning Go module (default: yes)]),
+        [enable_emccalib=$enableval],
+        [enable_emccalib=yes])
+    if test "x$enable_emccalib" = "xyes"; then
+        HAVE_EMCCALIB=yes
+    fi
+
+    AC_ARG_ENABLE([haljson],
+        AS_HELP_STRING([--enable-haljson], [Build HAL-to-JSON bridge Go module (default: yes)]),
+        [enable_haljson=$enableval],
+        [enable_haljson=yes])
+    if test "x$enable_haljson" = "xyes"; then
+        HAVE_HALJSON=yes
+    fi
+
+    AC_ARG_ENABLE([ngcpreview],
+        AS_HELP_STRING([--enable-ngcpreview], [Build NGC preview Go module (default: yes)]),
+        [enable_ngcpreview=$enableval],
+        [enable_ngcpreview=yes])
+    if test "x$enable_ngcpreview" = "xyes"; then
+        HAVE_NGCPREVIEW=yes
+    fi
+
+    AC_ARG_ENABLE([milltask-go],
+        AS_HELP_STRING([--enable-milltask-go], [Build Go milltask module (default: yes)]),
+        [enable_milltask_go=$enableval],
+        [enable_milltask_go=yes])
+    if test "x$enable_milltask_go" = "xyes"; then
+        HAVE_MILLTASK_GO=yes
+    fi
+
+    AC_ARG_ENABLE([mqttbridge],
+        AS_HELP_STRING([--enable-mqttbridge], [Build MQTT bridge Go module (default: yes)]),
+        [enable_mqttbridge=$enableval],
+        [enable_mqttbridge=yes])
+    if test "x$enable_mqttbridge" = "xyes"; then
+        HAVE_MQTTBRIDGE=yes
+    fi
+
+    AC_ARG_ENABLE([pyvcp],
+        AS_HELP_STRING([--enable-pyvcp], [Build PyVCP Go module (default: yes)]),
+        [enable_pyvcp=$enableval],
+        [enable_pyvcp=yes])
+    if test "x$enable_pyvcp" = "xyes"; then
+        HAVE_PYVCP=yes
+    fi
+
+    AC_ARG_ENABLE([tasktest],
+        AS_HELP_STRING([--enable-tasktest], [Build task test Go module (default: no)]),
+        [enable_tasktest=$enableval],
+        [enable_tasktest=no])
+    if test "x$enable_tasktest" = "xyes"; then
+        HAVE_TASKTEST=yes
+    fi
+
+    AC_ARG_ENABLE([tooltable],
+        AS_HELP_STRING([--enable-tooltable], [Build tool table Go module (default: yes)]),
+        [enable_tooltable=$enableval],
+        [enable_tooltable=yes])
+    if test "x$enable_tooltable" = "xyes"; then
+        HAVE_TOOLTABLE=yes
+    fi
+fi
+
+AC_SUBST([HAVE_ADSSERVER])
+AC_SUBST([HAVE_HALSCOPE])
+AC_SUBST([HAVE_CLASSICLADDER])
+AC_SUBST([HAVE_EMCCALIB])
+AC_SUBST([HAVE_HALJSON])
+AC_SUBST([HAVE_NGCPREVIEW])
+AC_SUBST([HAVE_MILLTASK_GO])
+AC_SUBST([HAVE_MQTTBRIDGE])
+AC_SUBST([HAVE_PYVCP])
+AC_SUBST([HAVE_TASKTEST])
+AC_SUBST([HAVE_TOOLTABLE])
+
+# Web application build dependencies (Node.js for Vite/Vue webapp builds)
+HAVE_NODEJS=no
+if test "x$HAVE_GOLANG" = "xyes"; then
+    AC_MSG_CHECKING([for node (webapp build)])
+    AC_PATH_PROG([NODEJS], [node], [no])
+    if test "x$NODEJS" = "xno"; then
+        AC_MSG_ERROR([node not found!
+install with "sudo apt-get install nodejs npm"])
+    fi
+    NODE_VERSION=$($NODEJS --version 2>/dev/null)
+    AC_MSG_RESULT([$NODEJS ($NODE_VERSION)])
+    AC_MSG_CHECKING([for npm (webapp build)])
+    AC_PATH_PROG([NPM], [npm], [no])
+    if test "x$NPM" = "xno"; then
+        AC_MSG_ERROR([npm not found!
+install with "sudo apt-get install npm"])
+    fi
+    HAVE_NODEJS=yes
+    AC_MSG_RESULT([$NPM])
+fi
+AC_SUBST([HAVE_NODEJS])
+
+# WebKit2GTK for gmcui (native web UI container)
+HAVE_WEBKIT2GTK=no
+PKG_CHECK_MODULES([WEBKIT2GTK], [webkit2gtk-4.1], [HAVE_WEBKIT2GTK=yes], [
+    AC_MSG_ERROR([webkit2gtk-4.1 not found!
+install with "sudo apt-get install libwebkit2gtk-4.1-dev"])
+])
+AC_SUBST([HAVE_WEBKIT2GTK])
+
+# Check for IgH EtherCAT master library and libexpat (optional, for lcec driver)
+AC_ARG_ENABLE([ethercat],
+    AS_HELP_STRING([--enable-ethercat], [Build EtherCAT HAL driver (requires IgH EtherCAT master and libexpat)]),
+    [enable_ethercat=$enableval],
+    [enable_ethercat=auto])
+
+ETHERCAT_CFLAGS=
+ETHERCAT_LIBS=
+
+if test "x$enable_ethercat" != "xno"; then
+    AC_MSG_CHECKING([for IgH EtherCAT master library])
+    have_libethercat=no
+
+    # 1) Try pkg-config (default paths)
+    if pkg-config libethercat >/dev/null 2>&1; then
+        ETHERCAT_CFLAGS=`pkg-config libethercat --cflags`
+        ETHERCAT_LIBS=`pkg-config libethercat --libs`
+        have_libethercat=yes
+    fi
+
+    # 2) Try pkg-config with /usr/local/lib/pkgconfig
+    if test "x$have_libethercat" != "xyes"; then
+        _ec_pkg="/usr/local/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+        if PKG_CONFIG_PATH="$_ec_pkg" pkg-config libethercat >/dev/null 2>&1; then
+            ETHERCAT_CFLAGS=`PKG_CONFIG_PATH="$_ec_pkg" pkg-config libethercat --cflags`
+            ETHERCAT_LIBS=`PKG_CONFIG_PATH="$_ec_pkg" pkg-config libethercat --libs`
+            have_libethercat=yes
+        fi
+    fi
+
+    # 3) Direct file detection (no .pc file at all)
+    if test "x$have_libethercat" != "xyes"; then
+        for _ec_pfx in /usr /usr/local; do
+            if test -f "$_ec_pfx/include/ecrt.h"; then
+                _ec_cflags=""
+                _ec_libs="-lethercat"
+                if test "$_ec_pfx" != "/usr"; then
+                    _ec_cflags="-I$_ec_pfx/include"
+                    _ec_libs="-L$_ec_pfx/lib -Wl,-rpath,$_ec_pfx/lib -lethercat"
+                fi
+                ETHERCAT_CFLAGS="$_ec_cflags"
+                ETHERCAT_LIBS="$_ec_libs"
+                have_libethercat=yes
+                break
+            fi
+        done
+    fi
+
+    if test "x$have_libethercat" = "xyes"; then
+        AC_MSG_RESULT([yes])
+    else
+        AC_MSG_RESULT([no])
+    fi
+
+    AC_CHECK_HEADER([expat.h], [have_expat_h=yes], [have_expat_h=no])
+    save_LIBS="$LIBS"
+    AC_CHECK_LIB([expat], [XML_ParserCreate], [have_libexpat=yes], [have_libexpat=no])
+    LIBS="$save_LIBS"
+
+    if test "x$have_libethercat" = "xyes" \
+       && test "x$have_expat_h" = "xyes" && test "x$have_libexpat" = "xyes"; then
+        HAVE_ETHERCAT=yes
+    else
+        HAVE_ETHERCAT=no
+    fi
+else
+    HAVE_ETHERCAT=no
+fi
+
+if test "x$enable_ethercat" = "xyes" && test "x$HAVE_ETHERCAT" != "xyes"; then
+    AC_MSG_ERROR([EtherCAT support requested but IgH EtherCAT master library or libexpat not found])
+fi
+
+AC_SUBST([HAVE_ETHERCAT])
+AC_SUBST([ETHERCAT_CFLAGS])
+AC_SUBST([ETHERCAT_LIBS])
+
+##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
 AC_CONFIG_FILES([../scripts/rtapi.conf])
 AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/linuxcnc_info], [chmod +x ../scripts/linuxcnc_info])
-AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
-AC_CONFIG_FILES([../scripts/halcmd_twopass], [chmod +x ../scripts/halcmd_twopass])
-AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES([../scripts/runtests], [chmod +x ../scripts/runtests])
 AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
 AC_CONFIG_FILES([../scripts/linuxcnc-checklink], [chmod +x ../scripts/linuxcnc-checklink])
@@ -1756,6 +1817,25 @@ offbold () {
 }
 
 echo ""
+echo ""
+echo "######################################################################"
+echo "#              Configuration Summary                                 #"
+echo "######################################################################"
+echo ""
+echo "  Build Golang HAL components: $HAVE_GOLANG"
+if test "x$HAVE_GOLANG" = "xyes"; then
+echo "    ADS server module:          $HAVE_ADSSERVER"
+echo "    HAL oscilloscope module:    $HAVE_HALSCOPE"
+echo "    Classic Ladder PLC module:  $HAVE_CLASSICLADDER"
+echo "    Go milltask module:         $HAVE_MILLTASK_GO"
+echo "    MQTT bridge module:         $HAVE_MQTTBRIDGE"
+echo "    PyVCP module:               $HAVE_PYVCP"
+echo "    Task test module:           $HAVE_TASKTEST"
+echo "    Tool table module:          $HAVE_TOOLTABLE"
+echo "    Node.js (webapp build):     $HAVE_NODEJS"
+echo "    WebKit2GTK (gmcui):         $HAVE_WEBKIT2GTK"
+fi
+echo "  Build EtherCAT HAL driver:    $HAVE_ETHERCAT"
 echo ""
 echo "######################################################################"
 echo "#                LinuxCNC - Enhanced Machine Controller              #"

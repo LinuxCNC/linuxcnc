@@ -14,8 +14,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys, os, linuxcnc, hashlib
-import shutil # for backup of tooltable
+import sys, os, locale
+import gmi
+from gmi.constants import STATE_OFF, INTERP_IDLE
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 
@@ -53,8 +54,7 @@ class ToolEdit(Gtk.Box):
 
     def __init__(self,toolfile=None, *a, **kw):
         super(ToolEdit, self).__init__()
-        self.emcstat = linuxcnc.stat()
-        self.hash_check = None 
+        self.emcstat = gmi.Stat()
         self.lathe_display_type = True
         self.toolfile = toolfile
         self.num_of_col = 1
@@ -158,7 +158,7 @@ class ToolEdit(Gtk.Box):
             self.reload(None)
         # check the INI file if display-type: LATHE is set
         try:
-            self.inifile = linuxcnc.ini(INIPATH)
+            self.inifile = gmi.IniFile()
             test = self.inifile.find("DISPLAY", "LATHE")
             if test == '1' or test == 'True':
                 self.lathe_display_type = True
@@ -233,6 +233,7 @@ class ToolEdit(Gtk.Box):
         self.num_of_col +=1
 
         # this is for adding a filename path after the tooleditor is already loaded.
+        # Kept for API compatibility but no longer requires a real file — data comes from REST.
     def set_filename(self,filename):
         self.toolfile = filename
         self.reload(None)
@@ -248,81 +249,42 @@ class ToolEdit(Gtk.Box):
         dialog.run()
         dialog.destroy()
 
-        # Reload the tool file into display
+        # Reload tool table from REST API
     def reload(self,widget):
-        self.hash_code = self.md5sum(self.toolfile)
-        # clear the current liststore, search the tool file, and add each tool
-        if self.toolfile == None:return
         self.model.clear()
-        #print "toolfile:",self.toolfile
-        if not os.path.exists(self.toolfile):
-            print(_("Toolfile does not exist"))
-            return
-        logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = []
-        line_number = 0
-        for rawline in logfile:
-            # strip the comments from line and add directly to array
-            # if index = -1 the delimiter ; is missing - clear comments
-            index = rawline.find(";")
-            # skip lines beginning with a semicolon
-            if index == 0:
-                continue
-            comment =''
-            if not index == -1:
-                comment = (rawline[index+1:])
-                comment = comment.rstrip("\n")
-                line = rawline.rstrip(comment)
-            else:
-                line = rawline
-            line_number += 1
-            array = [0,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,comment]
-            toolinfo_flag = False
-            # search beginning of each word for keyword letters
-            # offset 0 is the checkbutton so ignore it
-            # if i = ';' that is the comment and we have already added it
-            # offset 1 and 2 are integers the rest floats
-            # we strip leading and following spaces from the comments
-            for offset,i in enumerate(KEYWORDS):
-                if offset == 0 or i == ';': continue
-                for word in line.split():
-                    if word.startswith(';'): break
-                    if word.startswith(i):
-                        if offset == 1:
-                            if int(word.lstrip(i)) == self.toolinfo_num:
-                                toolinfo_flag = True
-                        if offset in(1,2):
-                            try:
-                                array[offset]= int(word.lstrip(i))
-                            except:
-                                print(_("Tooledit widget int error"))
-                        elif offset == 15:
-                            try:
-                                # Accept also float for 'orientation' for backward compatibility
-                                value = int(float(word.lstrip(i)))
-                                array[offset] = value
-                                if value not in range(10):
-                                    self.warning_dialog(line_number)
-                                    break
-                            except:
-                                print(_("Tooledit widget float error"))
-                        else:
-                            try:
-                                array[offset]= locale.format_string("%10.4f", float(word.lstrip(i)))
-                            except:
-                                print(_("Tooledit widget float error"))
-                        break
-            if toolinfo_flag:
+        try:
+            tt = gmi.ToolTable()
+            tools = tt.list()
+        except Exception as e:
+            print(_("Error fetching tool table: %s") % e)
+            return
+        for t in tools:
+            toolno = t.get("toolno", 0)
+            pocketno = t.get("pocketno", 0)
+            array = [0, toolno, pocketno,
+                     locale.format_string("%10.4f", t.get("x_offset", 0.0)),
+                     locale.format_string("%10.4f", t.get("y_offset", 0.0)),
+                     locale.format_string("%10.4f", t.get("z_offset", 0.0)),
+                     locale.format_string("%10.4f", t.get("a_offset", 0.0)),
+                     locale.format_string("%10.4f", t.get("b_offset", 0.0)),
+                     locale.format_string("%10.4f", t.get("c_offset", 0.0)),
+                     locale.format_string("%10.4f", t.get("u_offset", 0.0)),
+                     locale.format_string("%10.4f", t.get("v_offset", 0.0)),
+                     locale.format_string("%10.4f", t.get("w_offset", 0.0)),
+                     locale.format_string("%10.4f", t.get("diameter", 0.0)),
+                     locale.format_string("%10.4f", t.get("frontangle", 0.0)),
+                     locale.format_string("%10.4f", t.get("backangle", 0.0)),
+                     t.get("orientation", 0),
+                     t.get("comment", "")]
+            if toolno == self.toolinfo_num:
                 self.toolinfo = array
-            # add array line to liststore
-            self.add(None,array)
+            self.add(None, array)
 
-        # Note we have to save the float info with a decimal even if the locale uses a comma
+        # Save tool table via REST API
     def save(self,widget):
-        if self.toolfile == None:return
         liststore = self.model
-        # pre check before saving the file
-        # if not done before, the file will be saved only until the erroneous line and the rest will be lost
+        # pre check before saving
         line_number = 0
         for row in liststore:
             values = [ value for value in row ]
@@ -331,42 +293,34 @@ class ToolEdit(Gtk.Box):
                 self.warning_dialog(line_number)
                 return
 
-        if(locale.getlocale(locale.LC_NUMERIC)[0] is None):
-            raise ExceptionMessage("\n\n"+_("Something wrong with the locale settings. Will not save the tool table."))
-            return
-
-        shutil.copy(self.toolfile, self.toolfile + ".bak")
-        file = open(self.toolfile, "w")
-        #print self.toolfile
-        for row in liststore:
-            values = [ value for value in row ]
-            #print values
-            line = ""
-            for num,i in enumerate(values):
-                if num == 0: continue
-                elif num in (1,2,15): # tool#, pocket#, orientation
-                    line = line + "%s%d "%(KEYWORDS[num], i)
-                elif num == 16: # comments
-                    test = i.strip()
-                    line = line + "%s%s "%(KEYWORDS[num],test)
-                else:
-                    test = i.lstrip() # localized floats
-                    try:
-                        line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
-                    except ValueError:
-                        raise ExceptionMessage("\n\n"+_("Error converting a float with the given localization setting. A backup file has been created: "
-                                                    + self.toolfile + ".bak"))
-
-            print(line, file=file)
-        # These lines are required to make sure the OS doesn't cache the data
-        # That would make linuxcnc and the widget to be out of synch leading to odd errors
-        file.flush()
-        os.fsync(file.fileno())
-        # tell linuxcnc we changed the tool table entries
         try:
-            linuxcnc.command().load_tool_table()
-        except:
-            print(_("Reloading tooltable into linuxcnc failed"))
+            tt = gmi.ToolTable()
+            for row in liststore:
+                values = [ value for value in row ]
+                toolno = values[1]
+                if toolno <= 0:
+                    continue
+                entry = {
+                    "toolno": toolno,
+                    "pocketno": values[2],
+                    "x_offset": locale.atof(values[3].strip()) if isinstance(values[3], str) else float(values[3]),
+                    "y_offset": locale.atof(values[4].strip()) if isinstance(values[4], str) else float(values[4]),
+                    "z_offset": locale.atof(values[5].strip()) if isinstance(values[5], str) else float(values[5]),
+                    "a_offset": locale.atof(values[6].strip()) if isinstance(values[6], str) else float(values[6]),
+                    "b_offset": locale.atof(values[7].strip()) if isinstance(values[7], str) else float(values[7]),
+                    "c_offset": locale.atof(values[8].strip()) if isinstance(values[8], str) else float(values[8]),
+                    "u_offset": locale.atof(values[9].strip()) if isinstance(values[9], str) else float(values[9]),
+                    "v_offset": locale.atof(values[10].strip()) if isinstance(values[10], str) else float(values[10]),
+                    "w_offset": locale.atof(values[11].strip()) if isinstance(values[11], str) else float(values[11]),
+                    "diameter": locale.atof(values[12].strip()) if isinstance(values[12], str) else float(values[12]),
+                    "frontangle": locale.atof(values[13].strip()) if isinstance(values[13], str) else float(values[13]),
+                    "backangle": locale.atof(values[14].strip()) if isinstance(values[14], str) else float(values[14]),
+                    "orientation": values[15],
+                }
+                tt.put(toolno, entry)
+            tt.reload()
+        except Exception as e:
+            print(_("Error saving tool table: %s") % e)
 
         # This is for changing the display after tool editor was loaded using the style button
         # note that it toggles the display
@@ -502,42 +456,16 @@ class ToolEdit(Gtk.Box):
         model = self.model
         model[path][0] = not model[path][0]
 
-        # check for linnuxcnc ON and IDLE which is the only safe time to edit the tool file.
-        # check to see if the tool file is current
+        # check for linuxcnc ON and IDLE which is the only safe time to edit the tool table.
     def periodic_check(self):
         try:
             self.emcstat.poll()
-            on = self.emcstat.task_state > linuxcnc.STATE_OFF
-            idle = self.emcstat.interp_state == linuxcnc.INTERP_IDLE
+            on = self.emcstat.task_state > STATE_OFF
+            idle = self.emcstat.interp_state == INTERP_IDLE
             self.apply.set_sensitive(bool(on and idle))
         except:
             pass
-        if self.toolfile:
-            self.file_current_check()
         return True
-
-        # create a hash code
-    def md5sum(self,filename):
-        try:
-            f = open(filename, "rb")
-        except IOError:
-            return None
-        else:
-            return hashlib.md5(f.read()).hexdigest()
-
-        # check the hash code on the toolfile against
-        # the saved hash code when last reloaded.
-    def file_current_check(self):
-        m = self.hash_code
-        m1 = self.md5sum(self.toolfile)
-        if m1 and m != m1:
-            self.toolfile_stale()
-
-        # you could overload this to do something else.
-    def toolfile_stale(self):
-        print(_("Tool file was modified since it was last read"))
-        self.reload(None)
-        self.set_selected_tool(self.toolinfo_num)
 
         # Returns the tool information array of the requested toolnumber
         # or current tool if no tool number is specified

@@ -1,9 +1,9 @@
-loadrt threads name1=fast period1=100000
-loadrt and2
-loadrt or2
-loadrt not
-loadrt mux2
-loadrt mux4
+newthread fast 100000
+load and2 <and2.0>
+load or2 <or2.0>
+load not <not.0>
+load mux2 <mux2.0>
+load mux4 <mux4.0>
 
 loadrt sampler depth=1000 cfg=bbbff
 loadrt streamer depth=32 cfg=bbbb

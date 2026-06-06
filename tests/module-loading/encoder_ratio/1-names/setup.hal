@@ -1,4 +1,4 @@
 
-loadrt encoder_ratio names=er0
+load encoder_ratio <er0>
 show pin
 

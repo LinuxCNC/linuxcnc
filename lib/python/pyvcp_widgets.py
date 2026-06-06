@@ -1208,17 +1208,22 @@ class pyvcp_bar(Canvas):
 
     def __init__(self,master,pycomp,fillcolor="green",bgcolor="grey",
                halpin=None,min_=0.0,max_=100.0,range1=None,range2=None,
-               range3=None,format='3.1f', canvas_width=200,
-               canvas_height=50, bar_height=30, bar_width=150,**kw):
+               range3=None,format='3.1f', canvas_width=None,
+               canvas_height=None, bar_width=None, bar_height=None,
+               width=150, height=30, **kw):
 
-        self.cw=canvas_width
-        self.ch=canvas_height
-        self.bh=bar_height
-        self.bw=bar_width
-        #self.cw=200    # canvas width
-        #self.ch=50     # canvas height
-        #self.bh=30     # bar height
-        #self.bw=150    # bar width
+        self.cw=width+50   # canvas width
+        self.ch=height+20  # canvas height
+        self.bw=width      # bar width
+        self.bh=height     # bar height
+        if canvas_width != None:
+            self.cw=canvas_width
+        if canvas_height != None:
+            self.ch=canvas_height
+        if bar_width != None:
+            self.bw=bar_width
+        if bar_height != None:
+            self.bh=bar_height
         self.pad=((self.cw-self.bw)/2)
 
         Canvas.__init__(self,master,width=self.cw,height=self.ch)

@@ -224,7 +224,7 @@ The component called 'threads' that is used to create a new thread.
 Lets create a thread called "test-thread" with a period of 1 ms (1,000 µs or 1,000,000 ns):
 
 ----
-halcmd: loadrt threads name1=test-thread period1=1000000
+halcmd: newthread test-thread 1000000
 ----
 
 Let's see if that worked:
@@ -363,7 +363,7 @@ We don't want to manually enter a bunch of commands every time we want to use th
 halcmd: save
 
 # components
-loadrt threads name1=test-thread period1=1000000
+newthread test-thread 1000000
 loadrt siggen
 # pin aliases
 # signals
@@ -485,7 +485,7 @@ saved file. If not, we can load it just like we did before:
 ----
 halrun
 halcmd: loadrt siggen
-halcmd: loadrt threads name1=test-thread period1=1000000
+halcmd: newthread test-thread 1000000
 halcmd: addf siggen.0.update test-thread
 halcmd: start
 halcmd: setp siggen.0.amplitude 5
@@ -556,7 +556,8 @@ component.
 halrun
 halcmd: loadrt stepgen step_type=0,0 ctrl_type=v,v
 halcmd: loadrt siggen
-halcmd: loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
+halcmd: newthread fast 50000 nofp
+halcmd: newthread slow 1000000
 ----
 
 The first command loads two step generators, both configured to generate stepping type 0.

@@ -1,4 +1,4 @@
 
-loadrt sim_encoder names=simenc0
+load sim_encoder <simenc0>
 show pin
 

@@ -1,4 +1,4 @@
-loadrt and2 count=1
+load and2 <and2.0>
 alias pin and2.0.in0 something
 alias pin and2.0.in1 somethingelse
 alias pin and2.0.out anotherthing

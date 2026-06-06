@@ -1,4 +1,4 @@
 
-loadrt siggen num_chan=17
+load siggen <siggen.0,siggen.1,siggen.2,siggen.3,siggen.4,siggen.5,siggen.6,siggen.7,siggen.8,siggen.9,siggen.10,siggen.11,siggen.12,siggen.13,siggen.14,siggen.15,siggen.16>
 show pin
 

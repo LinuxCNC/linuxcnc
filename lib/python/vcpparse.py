@@ -20,6 +20,7 @@
 """
 
 import xml.dom.minidom
+import io
 import sys, os
 import linuxcnc
 import pyvcp_widgets
@@ -179,6 +180,63 @@ def create_vcp(master, comp = None, compname="pyvcp"):
     pycomp = comp
     widgets[pycomp] = []
     read_file() 
+    updater()
+    return comp
+
+
+def read_xml_string(xml_string):
+    """
+        Parses an XML string (instead of a file) and creates widgets.
+        Used by the REST/WebSocket mode where XML comes from the server.
+    """
+    try:
+        doc = xml.dom.minidom.parseString(xml_string)
+    except xml.parsers.expat.ExpatError as detail:
+        print("Error: could not parse XML string!")
+        print(detail)
+        sys.exit(1)
+    for e in doc.childNodes:
+        if e.nodeType == e.ELEMENT_NODE and e.localName == "pyvcp":
+            break
+    if e.localName != "pyvcp":
+        print("Error: no pyvcp element in XML!")
+        sys.exit()
+    nodeiterator(e, pyvcp0)
+
+
+def create_vcp_rest(master, compname="pyvcp"):
+    """
+        Create a pyVCP panel using REST/WebSocket backend.
+
+        Fetches panel XML and pin definitions from gomc-server,
+        creates widgets using PyVCPCompat (drop-in hal.component replacement),
+        and starts a WebSocket watch thread for pin updates.
+
+        Args:
+            master: Tkinter root window or other master container
+            compname: name of the panel instance on the server
+    """
+    from gmi.pyvcp_compat import PyVCPCompat, fetch_panel_info
+
+    reload(pyvcp_widgets)
+    global pyvcp0, pycomp
+    pyvcp0 = master
+
+    # Fetch panel info from server.
+    info = fetch_panel_info(compname)
+
+    # Create compat layer (drop-in replacement for hal.component).
+    comp = PyVCPCompat(compname, info["pins"])
+
+    pycomp = comp
+    widgets[pycomp] = []
+
+    # Parse XML from server and build widgets.
+    read_xml_string(info["xml"])
+
+    # Start WebSocket connection for pin updates.
+    comp.start()
+
     updater()
     return comp
     

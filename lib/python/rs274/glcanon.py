@@ -20,7 +20,9 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 import math
 import hershey
-import linuxcnc
+import _glhelpers
+import gmi
+from gmi.constants import KINEMATICS_IDENTITY, MAX_AXIS
 import array
 import gcode
 import os
@@ -179,7 +181,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.lineno = self.state.sequence_number
 
     def draw_lines(self, lines, for_selection, j=0, geometry=None):
-        return linuxcnc.draw_lines(geometry or self.geometry, lines, for_selection)
+        return _glhelpers.draw_lines(geometry or self.geometry, lines, for_selection)
 
     def colored_lines(self, color, lines, for_selection, j=0):
         if self.is_foam:
@@ -201,7 +203,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.draw_lines(lines, for_selection, j)
 
     def draw_dwells(self, dwells, alpha, for_selection, j0=0):
-        return linuxcnc.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
+        return _glhelpers.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
 
     def calc_extents(self):
         # in the event of a "blank" gcode file (M2 only for example) this sets each of the extents to [0,0,0]
@@ -352,17 +354,17 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         coords = []
         for line in self.traverse:
             if line[0] != lineno: continue
-            linuxcnc.line9(geometry, line[1], line[2])
+            _glhelpers.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         for line in self.arcfeed:
             if line[0] != lineno: continue
-            linuxcnc.line9(geometry, line[1], line[2])
+            _glhelpers.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         for line in self.feed:
             if line[0] != lineno: continue
-            linuxcnc.line9(geometry, line[1], line[2])
+            _glhelpers.line9(geometry, line[1], line[2])
             coords.append(line[1][:3])
             coords.append(line[2][:3])
         glEnd()
@@ -493,7 +495,7 @@ class GlCanonDraw:
         self.show_small_origin = True
         try:
             if os.environ["INI_FILE_NAME"]:
-                self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
+                self.inifile = gmi.IniFile()
                 if self.inifile.find("DISPLAY", "DRO_FORMAT_IN"):
                     temp = self.inifile.find("DISPLAY", "DRO_FORMAT_IN")
                     try:
@@ -526,13 +528,13 @@ class GlCanonDraw:
     def init_glcanondraw(self,trajcoordinates="XYZABCUVW",kinsmodule="trivkins",msg=""):
         self.trajcoordinates = trajcoordinates.upper().replace(" ","")
         self.kinsmodule = kinsmodule
-        self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
+        self.no_joint_display = self.stat.kinematics_type == KINEMATICS_IDENTITY
         if (msg != ""):
             print("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
                    msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display))
 
         g = self.get_geometry().upper()
-        linuxcnc.gui_respect_offsets(self.trajcoordinates,int('!' in g))
+        _glhelpers.gui_respect_offsets(self.trajcoordinates,int('!' in g))
 
         geometry_chars = "XYZABCUVW-!;"
         dupchars = []; badchars = []
@@ -1127,7 +1129,7 @@ class GlCanonDraw:
             return int(string.replace(" ","").split(":")[0].split("EJ")[1])
 
         if  (    self.get_joints_mode()
-             and (self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY)
+             and (self.stat.kinematics_type != KINEMATICS_IDENTITY)
             ):
             jnum = int(string.replace(" ","").split(":")[0])
             return jnum
@@ -1142,7 +1144,7 @@ class GlCanonDraw:
         aletter = string.replace(" ","").split(":")[0]
         ans = 0
         if (      aletter in ["X","Y","Z","A","B","C","U","V","W","Rad","Dia"]
-              and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY
+              and self.stat.kinematics_type != KINEMATICS_IDENTITY
             ):
             if self.all_joints_homed():     ans = ans -2 # allhomeicon on all letters
             if self.one_or_more_on_limit(): ans = ans -4 # limitedicon on all letters
@@ -1158,7 +1160,7 @@ class GlCanonDraw:
             return  0    # Rad or Dia
 
         if (      aletter in ["X","Y","Z","A","B","C","U","V","W"]
-              and self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
+              and self.stat.kinematics_type == KINEMATICS_IDENTITY
             ):
             return self.jnum_for_aletter(aletter,
                                          self.kinsmodule,
@@ -1186,7 +1188,7 @@ class GlCanonDraw:
         s = self.stat
         s.poll()
 
-        linuxcnc.gui_rot_offsets(s.g5x_offset[0] + s.g92_offset[0],
+        _glhelpers.gui_rot_offsets(s.g5x_offset[0] + s.g92_offset[0],
                                  s.g5x_offset[1] + s.g92_offset[1],
                                  s.g5x_offset[2] + s.g92_offset[2])
 
@@ -1360,7 +1362,11 @@ class GlCanonDraw:
 
         if self.get_show_tool():
             pos = self.lp.last(self.get_show_live_plot())
-            if pos is None: pos = [0] * 6
+            if pos is None:
+                # No backplot points yet — use current stat position so the
+                # tool cone shows at the actual machine position on startup.
+                p = list(s.actual_position[:3]) + list(s.actual_position[3:6])
+                pos = p
             rx, ry, rz = pos[3:6]
             pos = self.to_internal_units(pos[:3])
             if self.is_foam():
@@ -1498,7 +1504,7 @@ class GlCanonDraw:
                     continue
 
                 if  (   self.get_joints_mode()
-                     or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+                     or (self.stat.kinematics_type == KINEMATICS_IDENTITY)
                     ):
                     if homed[idx]:
                         self.show_icon(idx,homeicon)
@@ -1656,7 +1662,7 @@ class GlCanonDraw:
             posstrs = []
             droposstrs = []
             used_letters = []
-            for i in range(linuxcnc.MAX_AXIS):
+            for i in range(MAX_AXIS):
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
                     posstrs.append(format % (a, positions[i]))
@@ -1664,7 +1670,7 @@ class GlCanonDraw:
 
             droposstrs.append("")
 
-            for i in range(linuxcnc.MAX_AXIS):
+            for i in range(MAX_AXIS):
                 index = s.g5x_index
                 if index<7:
                     label = "G5%d" % (index+3)
@@ -1677,7 +1683,7 @@ class GlCanonDraw:
             droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
 
             droposstrs.append("")
-            for i in range(linuxcnc.MAX_AXIS):
+            for i in range(MAX_AXIS):
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
                     droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))

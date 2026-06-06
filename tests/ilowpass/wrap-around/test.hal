@@ -1,5 +1,5 @@
-loadrt threads
-loadrt ilowpass
+newthread thread1 1000000
+load ilowpass
 addf ilowpass.0 thread1
 setp ilowpass.0.scale 100000
 setp ilowpass.0.in 21474

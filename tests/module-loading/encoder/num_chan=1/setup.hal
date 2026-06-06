@@ -1,4 +1,4 @@
 
-loadrt encoder num_chan=1
+load encoder <encoder.0>
 show pin
 

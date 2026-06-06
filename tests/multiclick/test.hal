@@ -1,7 +1,7 @@
 
-loadrt threads name1=millisecond period1=1000000
+newthread millisecond 1000000
 
-loadrt multiclick count=2
+load multiclick <multiclick.0,multiclick.1>
 loadrt sampler depth=100 cfg=bbbbbbbbbsbbbbbbbbbs
 loadrt streamer depth=100 cfg=bb
 

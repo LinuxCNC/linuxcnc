@@ -258,25 +258,22 @@ an 'over-damped' closed-loop system is required, which will require a P
 setting significantly less than half that of the P setting causing
 oscillation.
 
-== RTAI
+== RT_PREEMPT / PREEMPT_RT
 
-The Real Time Application Interface (RTAI) is used to provide the best
-Real Time (RT) performance. The RTAI patched kernel lets you write
-applications with strict timing constraints. RTAI gives you the ability
-to have things like software step generation which require precise
+LinuxCNC uses the RT_PREEMPT (also called PREEMPT_RT) realtime kernel
+for real-time performance. The RT_PREEMPT patch modifies the Linux kernel
+to provide realtime capabilities by making the kernel preemptible, allowing
+high-priority realtime tasks to interrupt kernel code. This gives you the
+ability to have things like software step generation which require precise
 timing.
 
 === ACPI
 
 The Advanced Configuration and Power Interface (ACPI) has a lot of
-different functions, most of which interfere with RT performance (for
-example: power management, CPU power down, CPU frequency scaling, etc).
-The LinuxCNC kernel (and probably all RTAI-patched kernels) has ACPI
-disabled. ACPI also takes care of powering down the system after a
-shutdown has been started, and that's why you might need to push the power
-button to completely turn off your computer. The RTAI group has been
-improving this in recent releases, so your LinuxCNC system may shut off by
-itself after all.
+different functions, most of which can interfere with realtime performance
+(for example: power management, CPU power down, CPU frequency scaling, etc).
+For best realtime performance, it's recommended to disable features like
+CPU frequency scaling in your BIOS or through kernel parameters.
 
 == Computer/Machine Interface Hardware Options
 

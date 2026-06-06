@@ -14,7 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import math, gcode
+import math
+import gcode
 
 class Translated:
     g92_offset_x = g92_offset_y = g92_offset_z = 0
@@ -159,10 +160,10 @@ class StatMixin:
         return empty_spindle_data
 
     def get_external_angular_units(self):
-        return self.s.angular_units or 1.0
+        return float(self.s.angular_units or 1.0)
 
     def get_external_length_units(self):
-        return self.s.linear_units or 1.0
+        return float(self.s.linear_units or 1.0)
 
     def get_axis_mask(self):
         return self.s.axis_mask

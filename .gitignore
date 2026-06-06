@@ -1,5 +1,5 @@
-autosave.halscope
 build-stamp
+.vite/
 *.pyc
 *.o
 *.ko
@@ -23,6 +23,7 @@ share/desktop-directories/linuxcnc-cnc.directory
 share/desktop-directories/linuxcnc-ref.directory
 share/desktop-directories/linuxcnc-doc.directory
 share/linuxcnc/mesa_modbus.c.tmpl
+share/linuxcnc/launcher/
 src/modules.order
 /configs/*/emc.nml
 !/configs/common/emc.nml
@@ -41,6 +42,7 @@ oprofile*
 *.log
 position.txt
 # *.9
+docs/man/man9/sim_torch.9
 *.glade.h
 # Ignore test results
 *.result
@@ -63,3 +65,9 @@ docs/help/vi/*
 docs/help/zh_CN/*
 configs/**/*.tbl.bak
 configs/**/halshow.preferences
+configs/**/halscope_state.json
+
+# Web app build outputs
+share/gomc/
+src/hal/classicladder/classicladder-standalone
+src/share/gomc/webapp/

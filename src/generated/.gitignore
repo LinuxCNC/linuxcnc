@@ -1,0 +1,4 @@
+# Ignore all generated code
+*
+# But keep this .gitignore
+!.gitignore

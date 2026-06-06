@@ -368,9 +368,9 @@ class ToolDialog(LcncDialog, GeometryMixin):
         self.set_default_geometry()
         self.read_preference_geometry('ToolChangeDialog-geometry')
 
-        if not hal.component_exists('hal_manualtoolchange'):
+        if not hal.component_exists('manualtoolchange'):
             oldname = self.HAL_GCOMP_.comp.getprefix()
-            self.HAL_GCOMP_.comp.setprefix('hal_manualtoolchange')
+            self.HAL_GCOMP_.comp.setprefix('manualtoolchange')
             self.hal_pin = self.HAL_GCOMP_.newpin('change', hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect(self.tool_change)
             self.tool_number = self.HAL_GCOMP_.newpin('number', hal.HAL_S32, hal.HAL_IN)
@@ -379,7 +379,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.ext_ack.value_changed.connect(self.external_acknowledge)
             self.HAL_GCOMP_.comp.setprefix(oldname)
         else:
-            LOG.warning("""Detected hal_manualtoolchange component already loaded
+            LOG.warning("""Detected manualtoolchange component already loaded
    Qtvcp recommends to allow use of it's own component by not loading the original. 
    Qtvcp Integrated toolchange dialog will not show until then""")
         if self.PREFS_:

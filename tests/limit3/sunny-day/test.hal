@@ -1,6 +1,6 @@
 setexact_for_test_suite_only
 
-loadrt limit3
+load limit3
 
 # These pos/vel/accel limits are just a hair above the limits of the
 # input sine wave.
@@ -10,12 +10,12 @@ setp limit3.0.maxv 630
 setp limit3.0.maxa 4000
 
 
-loadrt siggen
+load siggen <siggen.0>
 setp siggen.0.amplitude 50
 setp siggen.0.offset -50
 
 
-loadrt ddt names=ddt.in-accel,ddt.in-vel,ddt.out-accel,ddt.out-vel
+load ddt <ddt.in-accel,ddt.in-vel,ddt.out-accel,ddt.out-vel>
 
 
 loadrt sampler depth=2000 cfg=ffffff
@@ -48,7 +48,7 @@ net out-accel <= ddt.out-accel.out
 net out-accel => sampler.0.pin.5
 
 
-loadrt threads name1=t period1=1000000 fp1=1
+newthread t 1000000
 
 addf siggen.0.update t
 addf limit3.0        t

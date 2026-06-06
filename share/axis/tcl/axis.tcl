@@ -92,12 +92,6 @@ setup_menu_accel .menu.file end [_ "Reload tool _data"]
 .menu.file add separator
 
 .menu.file add command \
-        -command {exec classicladder &}
-setup_menu_accel .menu.file end [_ "_Ladder Editor..."]
-
-.menu.file add separator
-
-.menu.file add command \
 	-command {destroy .}
 setup_menu_accel .menu.file end [_ "_Quit"]
 
@@ -171,27 +165,23 @@ setup_menu_accel .menu.machine end [_ "Paste to MDI histor_y"]
 .menu.machine add separator
 
 .menu.machine add command \
-        -command {exec $env(LINUXCNC_TCL_DIR)/bin/emccalib.tcl -- -ini $emcini &}
+        -command {exec emccalib &}
 setup_menu_accel .menu.machine end [_ "_Calibration"]
 
 .menu.machine add command \
-        -command {exec $env(LINUXCNC_TCL_DIR)/bin/halshow.tcl &}
+        -command {exec halshow &}
 setup_menu_accel .menu.machine end [_ "Show _Hal Configuration"]
 
 .menu.machine add command \
-        -command {exec halmeter &}
-setup_menu_accel .menu.machine end [_ "H_al Meter"]
-
-.menu.machine add command \
-        -command {exec halscope -- -ini $emcini &}
+        -command {exec halscope &}
 setup_menu_accel .menu.machine end [_ "Ha_l Scope"]
 
 .menu.machine add command \
-	-command {exec linuxcnctop -ini $emcini &}
+	-command {exec linuxcnctop &}
 setup_menu_accel .menu.machine end [_ "Sho_w LinuxCNC Status"]
 
 .menu.machine add command \
-	-command {exec debuglevel -ini $emcini &}
+	-command {exec debuglevel &}
 setup_menu_accel .menu.machine end [_ "Set _Debug Level"]
 
 .menu.machine add separator
@@ -1816,8 +1806,6 @@ proc update_state {args} {
                 .toolbar.program_stop {.menu.machine "Stop"}
     relief {$interp_state == $INTERP_IDLE} \
                 .toolbar.program_stop
-    state  {$::has_ladder} {.menu.file "_Ladder Editor..."}
-
     state {$task_state == $STATE_ON \
             && $interp_state == $INTERP_IDLE && $highlight_line != -1} \
                 {.menu.machine "Ru_n from selected line"}
@@ -1943,7 +1931,6 @@ set taskfile ""
 set machine ""
 set task_state -1
 set has_editor 1
-set has_ladder 0
 set last_task_state 0
 set task_mode -1
 set task_paused 0

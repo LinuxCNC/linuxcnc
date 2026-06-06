@@ -153,10 +153,10 @@ turning or to use 'M5' when the spindle is already stopped.
 === Manual Tool Change
 
 (((M6-Tool-Change)))
-If the HAL component 'hal_manualtoolchange' is loaded,
+If the HAL component 'manualtoolchange' is loaded,
 M6 will stop the spindle and prompt the user to change the tool
 based on the last 'T-' number programmed.
-For more information on hal_manualtoolchange see
+For more information on manualtoolchange see
 the <<sec:manual-tool-change,Manual Tool Change>> section.
 
 === Tool Changer

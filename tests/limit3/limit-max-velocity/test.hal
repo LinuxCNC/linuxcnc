@@ -1,9 +1,9 @@
 setexact_for_test_suite_only
 
 loadrt sampler cfg=f depth=4096
-#loadrt limit3
-loadrt limit3
-loadrt threads name1=t period1=1000000
+#load limit3
+load limit3
+newthread t 1000000
 setp limit3.0.maxv 500.000000
 
 net n0 limit3.0.out sampler.0.pin.0

@@ -1,5 +1,5 @@
-loadrt threads name1=fast period1=100000
-loadrt flipflop
+newthread fast 100000
+load flipflop <flipflop.0>
 
 loadrt sampler depth=1000 cfg=b
 loadrt streamer depth=32 cfg=bbbb

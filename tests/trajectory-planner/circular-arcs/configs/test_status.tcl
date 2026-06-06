@@ -1,7 +1,7 @@
 # HAL config file to check vel/acc constraints
 # NOTE: needs to be loaded before axis hal files
-loadrt wcomp names=wcomp_xacc,wcomp_xvel,wcomp_yacc,wcomp_yvel,wcomp_zacc,wcomp_zvel,wcomp_aacc,wcomp_avel
-loadrt minmax names=mm_xacc,mm_xvel,mm_yacc,mm_yvel,mm_zacc,mm_zvel,mm_aacc,mm_avel
+load wcomp <wcomp_xacc,wcomp_xvel,wcomp_yacc,wcomp_yvel,wcomp_zacc,wcomp_zvel,wcomp_aacc,wcomp_avel>
+load minmax <mm_xacc,mm_xvel,mm_yacc,mm_yvel,mm_zacc,mm_zvel,mm_aacc,mm_avel>
 
 addf wcomp_xacc servo-thread
 addf wcomp_xvel servo-thread
@@ -39,7 +39,7 @@ net vel-ok-z <= wcomp_zvel.out
 net acc-ok-a <= wcomp_aacc.out
 net vel-ok-a <= wcomp_avel.out
 
-loadrt match8 names=match_all
+load match8 <match_all>
 
 addf match_all servo-thread
 

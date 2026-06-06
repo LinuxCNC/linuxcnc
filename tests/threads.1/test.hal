@@ -1,6 +1,0 @@
-loadrt threads 
-loadrt and2 count=1
-addf and2.0 thread1
-start
-loadusr -w sleep 1
-getp and2.0.tmax

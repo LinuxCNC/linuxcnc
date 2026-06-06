@@ -27,6 +27,7 @@ man9/abs_s64.9
 man9/and2.9
 man9/anglejog.9
 man9/axistest.9
+man9/axisui.9
 man9/bin2gray.9
 man9/biquad.9
 man9/bitslice.9
@@ -130,6 +131,7 @@ man9/logic.9
 man9/lowpass.9
 man9/lut5.9
 man9/maj3.9
+man9/manualtoolchange.9
 man9/match8.9
 man9/matrixkins.9
 man9/max31855.9

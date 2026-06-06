@@ -139,10 +139,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/halcompile.1.html[halcompile] |Build, compile and install LinuxCNC HAL components ||
 | link:../man/man1/halmeter.1.html[halmeter] |Observe HAL pins, signals, and parameters ||
 | link:../man/man1/halcmd.1.html[halcmd] |Manipulate the LinuxCNC HAL from the command line ||
-| link:../man/man1/halcmd_twopass.1.html[halcmd_twopass] |Short description ||
 | link:../man/man1/halreport.1.html[halreport] |Creates a report on the status of the HAL ||
-| link:../man/man1/halrmt.1.html[halrmt] |Short description ||
-| link:../man/man1/halrun.1.html[halrun] |Manipulate the LinuxCNC HAL from the command line ||
 | link:../man/man1/halsampler.1.html[halsampler] |Sample data from HAL in realtime ||
 | link:../man/man1/halscope.1.html[halscope] |Software oscilloscope for viewing real time waveforms of HAL pins and signals ||
 | link:../man/man1/halshow.1.html[halshow]  |Show HAL parameters, pins and signals ||
@@ -307,7 +304,6 @@ the input is a position, this means that the 'position', 'velocity', and 'accele
 |===
 | link:../man/man9/comp.9.html[comp] | Build, compile and install LinuxCNC HAL components. ||
 | link:../man/man9/classicladder.9.html[classicladder] | Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
-| link:../man/man9/threads.9.html[threads] | Creates hard realtime HAL threads. ||
 | link:../man/man9/charge_pump.9.html[charge_pump] | Creates a square-wave for the 'charge pump' input of some controller boards.
 The 'Charge Pump' should be added to the base thread function.
 When enabled, the output is on for one period and off for one period.

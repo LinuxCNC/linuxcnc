@@ -4,16 +4,16 @@ setexact_for_test_suite_only
 
 # first load all the RT modules that will be needed
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 #autoconverted  trivkins
 # motion controller, get name and thread periods from INI file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # load 6 differentiators (for velocity and accel signals
-loadrt ddt count=6
+load ddt <ddt.0,ddt.1,ddt.2,ddt.3,ddt.4,ddt.5>
 # load additional blocks
-loadrt hypot count=2
-loadrt comp count=3
-loadrt or2 count=1
+load hypot <hypot.0,hypot.1>
+load comp <comp.0,comp.1,comp.2>
+load or2 <or2.0>
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
@@ -48,16 +48,16 @@ net XYvel hypot.0.out => hypot.1.in1
 net XYZvel <= hypot.1.out
 
 # estop loopback
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 # create signals for tool loading loopback
-net tool-prepare <= iocontrol.0.tool-prepare
-net tool-prepare => iocontrol.0.tool-prepared
+net tool-prepare <= iocontrol.tool-prepare
+net tool-prepare => iocontrol.tool-prepared
 
-net tool-change <= iocontrol.0.tool-change
-net tool-change => iocontrol.0.tool-changed
+net tool-change <= iocontrol.tool-change
+net tool-change => iocontrol.tool-changed
 
-net tool-number <= iocontrol.0.tool-number
-net tool-prep-number <= iocontrol.0.tool-prep-number
-net tool-prep-pocket <= iocontrol.0.tool-prep-pocket
+net tool-number <= iocontrol.tool-number
+net tool-prep-number <= iocontrol.tool-prep-number
+net tool-prep-pocket <= iocontrol.tool-prep-pocket
 

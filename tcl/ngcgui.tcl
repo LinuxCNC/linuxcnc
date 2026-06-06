@@ -996,10 +996,10 @@ proc ::ngcgui::qid {} {
 proc ::ngcgui::initgui {hdl} {
   if ![info exists ::ngc(embed,hdl)] {set ::ngc(embed,hdl) 0}
   if [info exists ::ngcgui($hdl,afterid)] { return ;# already done }
+  # number of entries in positional frame 30 max positional parameters
+  # 3 frames max so must have pentries >=10
+  if ![info exists ::ngc(any,pentries)] {set ::ngc(any,pentries) 10}
   # fixed initializations
-  set ::ngc(any,pentries)       10 ;# number of entries in positional frame
-                                   ;# 30 max positional parameters
-                                   ;# 3 frames max so must have pentries >=10
   set ::ngc(any,pollms)         2000
 
   set ::ngc(any,color,black)    black
@@ -3428,6 +3428,7 @@ proc ::ngcgui::newpage {creatinghdl} {
               font=$::ngc(any,font) \
               options=$::ngc(input,options) \
               gcmc_include_path=$::ngc(input,gcmc_include_path) \
+              pentries=$::ngc(any,pentries) \
              ]
   $::ngc(any,axis,parent) itemconfigure $pageid \
         -createcmd "::ngcgui::pagecreate $newhdl"\
@@ -3666,6 +3667,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
                   startdir \
                   gcmc_include_path \
                   options \
+                  pentries \
                  }
   foreach item $equalitems {set ::ngc(input,$item) ""}
   foreach input  $args {
@@ -3711,6 +3713,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
      set font [string range $font 1 [expr [string len $font] -2]]
   }
   if {"$font" != ""} {set ::ngc(any,font) $font}
+  if {"$pentries" != ""} {set ::ngc(any,pentries) $pentries}
 
   # specific settings for embedding in axis tab:
   set ::ngc(any,aspect)        horiz

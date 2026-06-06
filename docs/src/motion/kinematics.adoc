@@ -324,18 +324,6 @@ supply defaults for the required kinematicsSwitchable() and
 kinematicsSwitch() functions.
 
 ----
-int kinematicsHome(EmcPose *world, double *joint,
-KINEMATICS_FORWARD_FLAGS *fflags,
-KINEMATICS_INVERSE_FLAGS *iflags)
-----
-
-The home kinematics function sets all its arguments to their proper
-values at the known home position. When called, these should be set,
-when known, to initial values, e.g., from an INI file. If the home
-kinematics can accept arbitrary starting points, these initial values
-should be used.
-
-----
 int rtapi_app_main(void)
 void rtapi_app_exit(void)
 ----

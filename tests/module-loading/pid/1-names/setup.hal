@@ -1,4 +1,4 @@
 
-loadrt pid names=pid0
+load pid <pid0>
 show pin
 

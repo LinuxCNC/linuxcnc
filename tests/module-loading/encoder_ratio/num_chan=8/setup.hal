@@ -1,4 +1,4 @@
 
-loadrt encoder_ratio num_chan=8
+load encoder_ratio <encoder_ratio.0,encoder_ratio.1,encoder_ratio.2,encoder_ratio.3,encoder_ratio.4,encoder_ratio.5,encoder_ratio.6,encoder_ratio.7>
 show pin
 

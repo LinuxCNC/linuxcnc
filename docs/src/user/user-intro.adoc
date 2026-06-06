@@ -158,8 +158,6 @@ These User interfaces are a way to interact with LinuxCNC outside of the graphic
 
 halui:: A HAL based user interface allowing to control LinuxCNC using buttons and switches
 
-linuxcncrsh:: A telnet based user interface allowing to send commands from remote computers.
-
 == Virtual Control Panels
 
 As mentioned above, many of LinuxCNC's GUIs may be customized by the user.

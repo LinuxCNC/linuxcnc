@@ -137,7 +137,7 @@ or it is called by other components that have their own respective triggers.
 
 .Example HAL script for installing a component (ddt) and executing it every millisecond.
 ----
-loadrt threads name1=servo-thread period1=1000000
+newthread servo-thread 1000000
 loadrt ddt
 addf ddt.0 servo-thread
 ----

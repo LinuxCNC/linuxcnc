@@ -704,19 +704,19 @@ file ('--reload'), and making AXIS exit ('--quit').
 == Manual Tool Change
 
 (((AXIS GUI, Manual Tool Change)))(((Manual Tool Change)))
-LinuxCNC includes a non-realtime HAL component called 'hal_manualtoolchange',
-which shows a window prompt telling you what tool is expected when a
-'M6' command is issued. After the OK button is pressed, execution of
-the program will continue.
+LinuxCNC includes a realtime HAL component called 'manualtoolchange',
+which together with the 'manualtoolchange_ui' program shows a window
+prompt telling you what tool is expected when a 'M6' command is issued.
+After the OK button is pressed, execution of the program will continue.
 
-The hal_manualtoolchange component includes a HAL pin for a button that
+The manualtoolchange component includes a HAL pin for a button that
 can be connected to a physical button to complete the tool change and
-remove the window prompt (hal_manualtoolchange.change_button).
+remove the window prompt (manualtoolchange.change_button).
 
 The HAL configuration file 'lib/hallib/axis_manualtoolchange.hal'
 shows the HAL commands necessary to use this component.
 
-hal_manualtoolchange can be used even when AXIS is not used as the GUI.
+manualtoolchange can be used even when AXIS is not used as the GUI.
 This component is most useful if you have presettable tools and
 you use the tool table.
 
@@ -898,7 +898,7 @@ can override them.
 (((AXIS GUI, Jogwheel)))
 To improve the interaction of AXIS with a physical jogwheel, the current
 active axis selected in the GUI is also reported on a 'HAL pin' with a
-name like 'axisui.jog.x'.
+name like 'axisui.jog-x'.
 Except for a short time after the current axis has changed,
 only one of these pins at a time is 'TRUE', the others remain 'FALSE'.
 
@@ -955,7 +955,7 @@ It is executed just after the .axisrc file is called and
 just before any GladeVCP panels / embedded tabs are initialized. +
 This function may be implemented
 within a `~/.axisrc` Python script or a '[DISPLAY]USER_COMMAND_FILE'
-Python script to make custom HAL pins that use the 'axisui.' prefix. +
+Python script to make custom HAL pins. +
 Use 'comp' as the HAL component instance reference. +
 HAL comp.ready() is called just after this function returns.
 
@@ -1005,7 +1005,7 @@ This display can be useful in the AXIS preview when (debug,message) comments are
 (((AXIS GUI, axisui pins)))
 To improve the interaction of AXIS with physical jog wheels, the axis
 currently selected in the GUI is also reported on a pin with a name
-like 'axisui.jog.x'. One of these pins is 'TRUE' at one time, and the rest are
+like 'axisui.jog-x'. One of these pins is 'TRUE' at one time, and the rest are
 'FALSE'. These are meant to control motion's jog-enable pins.
 
 .Axisui Pins
@@ -1013,39 +1013,39 @@ AXIS has HAL pins to indicate which jog radio button is selected in the 'Manual 
 
 ----
 Type Dir  Name
-bit  OUT  axisui.jog.x
-bit  OUT  axisui.jog.y
-bit  OUT  axisui.jog.z
-bit  OUT  axisui.jog.a
-bit  OUT  axisui.jog.b
-bit  OUT  axisui.jog.c
-bit  OUT  axisui.jog.u
-bit  OUT  axisui.jog.v
-bit  OUT  axisui.jog.w
+bit  OUT  axisui.jog-x
+bit  OUT  axisui.jog-y
+bit  OUT  axisui.jog-z
+bit  OUT  axisui.jog-a
+bit  OUT  axisui.jog-b
+bit  OUT  axisui.jog-c
+bit  OUT  axisui.jog-u
+bit  OUT  axisui.jog-v
+bit  OUT  axisui.jog-w
 ----
 
 AXIS has a HAL pin to indicate the jog increment selected on the 'Manual Tab'.
 
 ----
 Type  Dir Name
-float OUT axisui.jog.increment
+float OUT axisui.jog-increment
 ----
 
 AXIS has a HAL output pin that indicates when an abort has occurred. The
-'axisui.abort' pin will be 'TRUE' and come back to 'FALSE' after 0.3ms.
+'axisui.abort-pin' pin will be 'TRUE' and come back to 'FALSE' after 0.3ms.
 
 ----
 Type  Dir    Name
-bit   OUT    axisui.abort
+bit   OUT    axisui.abort-pin
 ----
 
 AXIS has a HAL output pin that indicates when an error has occurred. The
-'axisui.error' pin will remain 'TRUE' until all error notifications have
+'axisui.error-pin' pin will remain 'TRUE' until all error notifications have
 been dismissed.
 
 ----
 Type  Dir    Name
-bit   OUT    axisui.error
+bit   OUT    axisui.error-pin
 ----
 
 AXIS has HAL input pins to clear the pop up notifications for errors and

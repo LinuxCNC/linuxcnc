@@ -1,4 +1,4 @@
 
-loadrt encoder names=enc0
+load encoder <enc0>
 show pin
 

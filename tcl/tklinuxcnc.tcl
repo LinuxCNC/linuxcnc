@@ -773,7 +773,7 @@ $viewmenu add command -label [msgcat::mc "Backplot..."] -command {popupPlot} -un
 # add the Settings menu
 set settingsmenu [menu $menubar.settings -tearoff 0]
 $menubar add cascade -label [msgcat::mc "Settings"] -menu $settingsmenu -underline 0
-$settingsmenu add command -label [msgcat::mc "Calibration..."] -command "exec $linuxcnc::TCL_BIN_DIR/emccalib.tcl -- -ini $EMC_INIFILE &"
+$settingsmenu add command -label [msgcat::mc "Calibration..."] -command {exec emccalib &}
 $settingsmenu add command -label [msgcat::mc "Testing..."] -command {popupTesting} -underline 0 -state disabled
 $settingsmenu add command -label [msgcat::mc "Debug..."] -command {popupDebug} -underline 0
 $settingsmenu add command -label [msgcat::mc "Font..."] -command {popupFont} -underline 0

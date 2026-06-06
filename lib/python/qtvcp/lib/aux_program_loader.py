@@ -42,7 +42,7 @@ class Aux_program_loader:
 
     # opens the calibration program
     def load_calibration(self):
-        p = os.popen("tclsh %s/bin/emccalib.tcl -- -ini %s > /dev/null &" % (TCLPATH, INIPATH), "w")
+        p = os.popen("emccalib &")
 
     # opens the linuxcnc status program
     def load_status(self, *args):

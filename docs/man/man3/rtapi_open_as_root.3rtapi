@@ -30,7 +30,7 @@ PCI interfaces provided in \fB<rtapi_pci.h>\fR.
 
 .SH RETURN VALUE
 In case of success, the nonnegative file descriptor opened.  If the caller does
-not close it, it remains open until rtapi_app exits.
+not close it, it remains open until the launcher process exits.
 
 In case of failure, a negative errno value.
 
