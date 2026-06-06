@@ -1,0 +1,253 @@
+component hy_gt_vfd "Huanyang GT-series VFD Modbus driver";
+
+pin out float SetF                       "Frequency command (Hz)";
+pin out float OutF                       "Output frequency (Hz)";
+pin out float OutA                       "Output current (A)";
+pin out float RoTT                       "Motor RPM";
+pin out float DCV                        "DC bus voltage (V)";
+pin out float ACV                        "AC output voltage (V)";
+pin out float Rone                       "Register 0x300E";
+pin out float Rtwo                       "Register 0x300F";
+pin out float Tmp                        "Inverter temperature (C)";
+pin out float OutC                       "Output current (A, high res)";
+pin out float RH                         "Run hours";
+pin out float PPO                        "Power on hours";
+pin out float voltage                    "Mapped output voltage";
+pin out bit at_speed                     "True when within speed tolerance";
+pin out bit is_stopped                   "True when output frequency is 0";
+pin out bit modbus_ok                    "True after 10 successful transactions";
+pin out signed error_count               "Modbus error counter";
+pin in float speed_command               "Speed command (RPM)";
+pin in bit spindle_on                    "Spindle on/off";
+pin in bit spindle_fwd                   "Spindle forward direction";
+pin in bit spindle_rev                   "Spindle reverse direction";
+pin in bit enable                        "Enable VFD control";
+
+param rw float loop_time = 0.1          "Polling period (seconds)";
+param rw float nameplate_HZ = 50        "Motor nameplate frequency (Hz)";
+param rw float nameplate_RPM = 1410     "Motor nameplate RPM";
+param rw float max_freq = 50            "VFD max frequency (Hz)";
+param rw float tolerance = 0.01         "Speed tolerance for at-speed";
+
+option userspace yes;
+option extra_setup yes;
+option data vfd_data;
+
+modparam string device "Serial device (default: /dev/ttyS0)";
+modparam int baud = 38400 "Baud rate";
+modparam int bits = 8 "Data bits";
+modparam string parity "Parity: even, odd, or none (default: none)";
+modparam int stopbits = 1 "Stop bits";
+modparam int target = 1 "Modbus slave address";
+modparam int modbus_debug = 0 "Enable Modbus debug output";
+
+license "GPLv2 or greater";
+;;
+/*
+    hy_gt_vfd.comp
+
+    Userspace cmod to control a Huanyang GT-series VFD via Modbus RTU.
+
+    Copyright (C) 2019 Sebastian Kuzminsky
+    Copyright (C) 2007, 2008 Stephen Wille Padnos
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation, version 2.
+*/
+
+#include <stdio.h>
+#include <errno.h>
+#include <math.h>
+#include <modbus.h>
+#include <unistd.h>
+#include <poll.h>
+#include <string.h>
+
+/* Huanyang GT status registers */
+#define SR_SET_FREQ     0x3000
+#define SR_OUT_FREQ     0x3001
+#define SR_OUT_CURRENT  0x3002
+#define SR_RPM          0x3003
+#define SR_DCV          0x3004
+#define SR_ACV          0x3005
+#define SR_CONT         0x3006
+#define SR_TMP          0x3007
+#define SR_OUT_CURRENT2 0x3008
+#define SR_RUN_HOURS    0x3009
+#define SR_POWERON_HRS  0x300A
+#define SR_RESVD1       0x300E
+#define SR_RESVD2       0x300F
+#define SR_NUM_REGS     13
+
+/* Command/control registers */
+#define REG_CONTROL     0x1000
+#define REG_FREQ        0x2000
+
+/* Control bits */
+#define CTRL_RUN        0x0001
+#define CTRL_STOP       0x0005
+#define CTRL_FWD        0x0000
+#define CTRL_REV        0x0002
+
+#define MODBUS_MIN_OK   10
+
+typedef struct {
+    modbus_t *ctx;
+    int init_error;
+    int mb_ok_count;
+} vfd_data;
+
+
+static char parse_parity_gt(const char *p) {
+    if (!p || !p[0]) return 'N';
+    if (p[0] == 'e' || p[0] == 'E') return 'E';
+    if (p[0] == 'o' || p[0] == 'O') return 'O';
+    return 'N';
+}
+
+
+EXTRA_SETUP()
+{
+    const char *dev = device ? device : "/dev/ttyS0";
+    char par = parse_parity_gt(parity);
+
+    data.ctx = modbus_new_rtu(dev, baud, par, bits, stopbits);
+    if (!data.ctx) {
+        GOMC_LOG_ERR("modbus_new_rtu(%s): %s\n", dev, modbus_strerror(errno));
+        data.init_error = 1;
+        return 0;
+    }
+
+    modbus_set_slave(data.ctx, target);
+    modbus_set_debug(data.ctx, modbus_debug);
+
+    /* HY-GT uses longer inter-frame delay: 8 chars * 10 bits / baud */
+    struct timeval tv;
+    int usec = (8 * 10 * 1000000) / baud;
+    tv.tv_sec = 0;
+    tv.tv_usec = usec > 5000 ? usec : 5000;
+#if LIBMODBUS_VERSION_CHECK(3, 1, 1)
+    modbus_set_response_timeout(data.ctx, tv.tv_sec, tv.tv_usec);
+#else
+    modbus_set_response_timeout(data.ctx, &tv);
+#endif
+
+    if (modbus_connect(data.ctx) != 0) {
+        GOMC_LOG_ERR("unable to connect to %s: %s\n", dev, modbus_strerror(errno));
+        modbus_free(data.ctx);
+        data.ctx = NULL;
+        data.init_error = 1;
+        return 0;
+    }
+
+    data.mb_ok_count = 0;
+    return 0;
+}
+
+
+void user_mainloop(void) {
+    int efd = GOMC_EXIT_FD();
+
+    while (!GOMC_SHOULD_EXIT()) {
+    FOR_ALL_INSTS() {
+        if (data.init_error) {
+            struct pollfd pfd = { .fd = efd, .events = POLLIN };
+            poll(&pfd, 1, 1000);
+            continue;
+        }
+
+        /* Enforce period bounds */
+        float lt = loop_time;
+        if (lt < 0.001) lt = 0.001;
+        if (lt > 2.0) lt = 2.0;
+        {
+            struct timespec ts;
+            ts.tv_sec = (time_t)lt;
+            ts.tv_nsec = (long)((lt - ts.tv_sec) * 1000000000l);
+            nanosleep(&ts, NULL);
+        }
+
+        /* Read status registers */
+        uint16_t regs[SR_NUM_REGS];
+        if (modbus_read_registers(data.ctx, SR_SET_FREQ, SR_NUM_REGS, regs) == SR_NUM_REGS) {
+            SetF = regs[0] * 0.01;
+            OutF = regs[1] * 0.01;
+            OutA = regs[2] * 0.1;
+            RoTT = regs[3];
+            DCV = regs[4] * 0.1;
+            ACV = regs[5] * 0.1;
+            Rone = regs[6];
+            Rtwo = regs[7];
+            Tmp = regs[8] * 0.1;
+            OutC = regs[9] * 0.01;
+            RH = regs[10];
+            PPO = regs[11];
+
+            is_stopped = (regs[1] == 0);
+            voltage = regs[5] * 0.1;
+
+            /* motor RPM from output frequency */
+            RoTT = regs[1] * 0.01 * (nameplate_RPM / nameplate_HZ);
+            data.mb_ok_count++;
+        } else {
+            error_count++;
+            data.mb_ok_count = 0;
+        }
+
+        /* Write commands */
+        if (enable) {
+            /* Frequency: percentage of max_freq * 10000 */
+            float hz_per_rpm = max_freq / nameplate_RPM;
+            float hz = fabs(speed_command) * hz_per_rpm;
+            if (hz > max_freq) hz = max_freq;
+            int freq_pct = (int)((hz / max_freq) * 10000);
+
+            if (modbus_write_register(data.ctx, REG_FREQ, freq_pct) < 0) {
+                error_count++;
+                data.mb_ok_count = 0;
+            } else {
+                data.mb_ok_count++;
+            }
+
+            /* Control word */
+            int ctrl;
+            if (spindle_on) {
+                ctrl = CTRL_RUN;
+                if (spindle_rev)
+                    ctrl |= CTRL_REV;
+            } else {
+                ctrl = CTRL_STOP;
+            }
+
+            if (modbus_write_register(data.ctx, REG_CONTROL, ctrl) < 0) {
+                error_count++;
+                data.mb_ok_count = 0;
+            } else {
+                data.mb_ok_count++;
+            }
+
+            /* at-speed logic */
+            if (spindle_on && hz > 0.01 &&
+                fabs(1.0 - (OutF / (hz))) < tolerance)
+                at_speed = 1;
+            else
+                at_speed = 0;
+        } else {
+            modbus_write_register(data.ctx, REG_CONTROL, CTRL_STOP);
+            at_speed = 0;
+        }
+
+        modbus_ok = (data.mb_ok_count > MODBUS_MIN_OK);
+    }
+    }
+
+    /* Shutdown */
+    FOR_ALL_INSTS() {
+        if (!data.init_error && data.ctx) {
+            modbus_write_register(data.ctx, REG_CONTROL, CTRL_STOP);
+            modbus_close(data.ctx);
+            modbus_free(data.ctx);
+        }
+    }
+}

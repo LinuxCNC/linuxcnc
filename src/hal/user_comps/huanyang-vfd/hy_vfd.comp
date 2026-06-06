@@ -1,0 +1,445 @@
+component hy_vfd "Huanyang VFD driver (custom protocol)";
+
+pin out float SetF                       "Frequency command (Hz)";
+pin out float OutF                       "Output frequency (Hz)";
+pin out float OutA                       "Output current (A)";
+pin out float Rott                       "Motor RPM";
+pin out float DCV                        "DC bus voltage";
+pin out float ACV                        "AC voltage";
+pin out float Cont                       "Cont register";
+pin out float Tmp                        "Inverter temperature";
+pin out float CNTR                       "Control request register";
+pin out float CNST                       "Control status response";
+pin out bit CNST_run                     "CNST Run bit";
+pin out bit CNST_jog                     "CNST Jog bit";
+pin out bit CNST_command_rf              "CNST command reverse/forward";
+pin out bit CNST_running                 "CNST Running bit";
+pin out bit CNST_jogging                 "CNST Jogging bit";
+pin out bit CNST_running_rf              "CNST running reverse/forward";
+pin out bit CNST_bracking                "CNST braking bit";
+pin out bit CNST_track_start             "CNST track start bit";
+pin out float frequency_command          "Calculated frequency command (Hz)";
+pin out float max_freq                   "Max operating frequency (PD005)";
+pin out float base_freq                  "Base frequency (PD004)";
+pin out float freq_lower_limit           "Lower frequency limit (PD011)";
+pin out float rated_motor_voltage        "Rated motor voltage (PD141)";
+pin out float rated_motor_current        "Rated motor current (PD142)";
+pin out unsigned motor_poles             "Number of motor poles (PD143)";
+pin out float rated_motor_rev            "Motor max speed RPM";
+pin out bit hycomm_ok                    "True after 10 successful transactions";
+pin out float max_rpm                    "Calculated max RPM";
+pin out float spindle_speed_fb           "Spindle speed feedback (RPM)";
+pin out bit spindle_at_speed             "True when at commanded speed";
+pin in float speed_command               "Speed command (RPM)";
+pin in bit spindle_forward               "Spindle forward";
+pin in bit spindle_reverse               "Spindle reverse";
+pin in bit spindle_on                    "Spindle on";
+pin in bit enable                        "Enable VFD communication";
+pin in float spindle_at_speed_tolerance = 0.02 "Speed tolerance for at-speed";
+
+param rw float loop_time = 0.1          "Polling period (seconds)";
+param rw signed error_count              "Communication error counter";
+param rw float retval                    "Return value of last operation";
+
+option userspace yes;
+option extra_setup yes;
+option data vfd_data;
+
+modparam string device "Serial device (default: /dev/ttyS0)";
+modparam int baud = 19200 "Baud rate";
+modparam int bits = 8 "Data bits";
+modparam string parity "Parity: even, odd, or none (default: even)";
+modparam int stopbits = 1 "Stop bits";
+modparam int target = 1 "Slave address";
+modparam int debug_flag = 0 "Enable debug output";
+modparam float cfg_max_freq = 0 "Max frequency override (Hz, PD005)";
+modparam float cfg_min_freq = 0 "Min frequency override (Hz, PD011)";
+modparam float cfg_base_freq = 0 "Base frequency override (Hz, PD004)";
+modparam float cfg_motor_voltage = 0 "Motor voltage override (V, PD141)";
+modparam float cfg_motor_current = 0 "Motor current override (A, PD142)";
+modparam float cfg_motor_speed = 0 "Motor max speed override (RPM)";
+modparam int cfg_motor_poles = 0 "Motor poles override (PD143)";
+
+license "GPLv2 or greater";
+;;
+/*
+    hy_vfd.comp - cmod version
+
+    Userspace component to control a Huanyang VFD via custom protocol.
+
+    Copyright (C) 2009 scotta at CNCZone.com, alan_3301 at CNCZone.com
+    Copyright (C) 2014 Benjamin Brockhaus
+    Copyright (C) 2015 Sebastian Kuzminsky <seb@highlab.com>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+*/
+
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <math.h>
+#include <poll.h>
+
+#include "hy_comm.h"
+
+/* Status data codes */
+#define STATUS_SetF     0x00
+#define STATUS_OutF     0x01
+#define STATUS_OutA     0x02
+#define STATUS_RoTT     0x03
+#define STATUS_DCV      0x04
+#define STATUS_ACV      0x05
+#define STATUS_Cont     0x06
+#define STATUS_Tmp      0x07
+
+/* Control commands */
+#define CONTROL_Run_Fwd     0x01
+#define CONTROL_Run_Rev     0x11
+#define CONTROL_Stop        0x08
+
+/* Control response bits */
+#define CONTROL_Run         0x01
+#define CONTROL_Jog         0x02
+#define CONTROL_Command_rf  0x04
+#define CONTROL_Running     0x08
+#define CONTROL_Jogging     0x10
+#define CONTROL_Running_rf  0x20
+#define CONTROL_Bracking    0x40
+#define CONTROL_Track_Start 0x80
+
+#define HYCOMM_MIN_OK   10
+
+typedef struct {
+    hycomm_param_t hc_param;
+    hycomm_data_t hc_dat;
+    int init_error;
+    int setup_done;
+    int ok_count;
+} vfd_data;
+
+
+EXTRA_SETUP()
+{
+    const char *dev = device ? device : "/dev/ttyS0";
+    const char *par = parity ? parity : "even";
+
+    hycomm_init(&data.hc_param, dev, baud, par, bits, stopbits);
+    data.hc_param.debug = debug_flag;
+    data.hc_param.print_errors = 1;
+    memset(data.hc_param.extra_reg, 0, sizeof(data.hc_param.extra_reg));
+    memset(data.hc_param.extra_val, 0, sizeof(data.hc_param.extra_val));
+
+    if (hycomm_connect(&data.hc_param) != 0) {
+        GOMC_LOG_ERR("cannot open serial device '%s'\n", dev);
+        data.init_error = 1;
+        return 0;
+    }
+
+    data.hc_dat.slave = target;
+    data.setup_done = 0;
+    data.ok_count = 0;
+
+    /* Set initial values from modparams */
+    max_freq = cfg_max_freq;
+    base_freq = cfg_base_freq;
+    freq_lower_limit = cfg_min_freq;
+    rated_motor_voltage = cfg_motor_voltage;
+    rated_motor_current = cfg_motor_current;
+    rated_motor_rev = cfg_motor_speed;
+    motor_poles = cfg_motor_poles;
+
+    GOMC_LOG_INFO("device='%s', baud=%d, parity='%s', target=%d\n",
+                  dev, baud, par, target);
+    return 0;
+}
+
+
+static int hy_read_setup(inst_t *__comp_inst) {
+    hycomm_param_t *hc_param = &data.hc_param;
+    hycomm_data_t *hc_dat = &data.hc_dat;
+    float rpm_at_50hz;
+
+    hc_dat->function = FUNCTION_READ;
+    hc_dat->value = 0x0000;
+
+    /* PD005 Max Operating Frequency */
+    hc_dat->parameter = 5;
+    if (max_freq != 0) {
+        hc_dat->function = FUNCTION_WRITE;
+        hc_dat->value = (uint16_t)(max_freq * 100);
+        if (hy_comm(hc_param, hc_dat) != 0) return -1;
+        hc_dat->function = FUNCTION_READ;
+    }
+    if (hy_comm(hc_param, hc_dat) != 0) return -1;
+    max_freq = hc_dat->ret_data * 0.01;
+
+    /* PD004 Base Frequency */
+    hc_dat->parameter = 4;
+    if (base_freq != 0) {
+        hc_dat->function = FUNCTION_WRITE;
+        hc_dat->value = (uint16_t)(base_freq * 100);
+        if (hy_comm(hc_param, hc_dat) != 0) return -1;
+        hc_dat->function = FUNCTION_READ;
+    }
+    if (hy_comm(hc_param, hc_dat) != 0) return -1;
+    base_freq = hc_dat->ret_data * 0.01;
+
+    /* PD011 Frequency Lower Limit */
+    hc_dat->parameter = 11;
+    if (freq_lower_limit != 0) {
+        hc_dat->function = FUNCTION_WRITE;
+        hc_dat->value = (uint16_t)(freq_lower_limit * 100);
+        if (hy_comm(hc_param, hc_dat) != 0) return -1;
+        hc_dat->function = FUNCTION_READ;
+    }
+    if (hy_comm(hc_param, hc_dat) != 0) return -1;
+    freq_lower_limit = hc_dat->ret_data * 0.01;
+
+    /* PD141 Rated Motor Voltage */
+    hc_dat->parameter = 141;
+    if (rated_motor_voltage != 0) {
+        hc_dat->function = FUNCTION_WRITE;
+        hc_dat->value = (uint16_t)(rated_motor_voltage * 10);
+        if (hy_comm(hc_param, hc_dat) != 0) return -1;
+        hc_dat->function = FUNCTION_READ;
+    }
+    if (hy_comm(hc_param, hc_dat) != 0) return -1;
+    rated_motor_voltage = hc_dat->ret_data * 0.1;
+
+    /* PD142 Rated Motor Current */
+    hc_dat->parameter = 142;
+    if (rated_motor_current != 0) {
+        hc_dat->function = FUNCTION_WRITE;
+        hc_dat->value = (uint16_t)(rated_motor_current * 10);
+        if (hy_comm(hc_param, hc_dat) != 0) return -1;
+        hc_dat->function = FUNCTION_READ;
+    }
+    if (hy_comm(hc_param, hc_dat) != 0) return -1;
+    rated_motor_current = hc_dat->ret_data * 0.1;
+
+    /* PD143 Number of Motor Poles */
+    hc_dat->parameter = 143;
+    if (motor_poles != 0) {
+        hc_dat->function = FUNCTION_WRITE;
+        hc_dat->value = (uint16_t)(motor_poles);
+        if (hy_comm(hc_param, hc_dat) != 0) return -1;
+        hc_dat->function = FUNCTION_READ;
+    }
+    if (hy_comm(hc_param, hc_dat) != 0) return -1;
+    motor_poles = hc_dat->ret_data;
+
+    /* PD144 Rated Motor Rev (at 50 Hz) */
+    hc_dat->parameter = 144;
+    if (rated_motor_rev != 0) {
+        rpm_at_50hz = (rated_motor_rev / max_freq) * 50.0;
+        hc_dat->function = FUNCTION_WRITE;
+        hc_dat->value = (uint16_t)rpm_at_50hz;
+        if (hy_comm(hc_param, hc_dat) != 0) return -1;
+        hc_dat->function = FUNCTION_READ;
+    }
+    if (hy_comm(hc_param, hc_dat) != 0) return -1;
+    rpm_at_50hz = hc_dat->ret_data;
+    rated_motor_rev = (rpm_at_50hz / 50.0) * max_freq;
+
+    max_rpm = rated_motor_rev;
+
+    return 0;
+}
+
+
+static int hy_read_data(inst_t *__comp_inst) {
+    hycomm_param_t *hc_param = &data.hc_param;
+    hycomm_data_t *hc_dat = &data.hc_dat;
+
+    hc_dat->function = READ_CONTROL_STATUS;
+    hc_dat->parameter = 0x00;
+
+    hc_dat->value = STATUS_SetF;
+    if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+    SetF = hc_dat->ret_data * 0.01;
+
+    hc_dat->value = STATUS_OutF;
+    if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+    OutF = hc_dat->ret_data * 0.01;
+
+    /* spindle speed feedback and at-speed */
+    if (spindle_on && (fabs(speed_command) > 0.0) && (SetF > 0.0)) {
+        spindle_speed_fb = (OutF / max_freq) * rated_motor_rev;
+        if (fabs(1.0 - (spindle_speed_fb / fabs(speed_command))) < spindle_at_speed_tolerance)
+            spindle_at_speed = 1;
+        else
+            spindle_at_speed = 0;
+    } else {
+        spindle_speed_fb = 0.0;
+        spindle_at_speed = 0;
+    }
+
+    hc_dat->value = STATUS_OutA;
+    if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+    OutA = hc_dat->ret_data * 0.1;
+
+    hc_dat->value = STATUS_RoTT;
+    if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+    Rott = hc_dat->ret_data;
+
+    hc_dat->value = STATUS_DCV;
+    if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+    DCV = hc_dat->ret_data;
+
+    hc_dat->value = STATUS_ACV;
+    if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+    ACV = hc_dat->ret_data;
+
+    hc_dat->value = STATUS_Cont;
+    if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+    Cont = hc_dat->ret_data;
+
+    hc_dat->value = STATUS_Tmp;
+    if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+    Tmp = hc_dat->ret_data;
+
+    return 0;
+failed:
+    error_count++;
+    return -1;
+}
+
+
+static int hy_write_data(inst_t *__comp_inst) {
+    hycomm_param_t *hc_param = &data.hc_param;
+    hycomm_data_t *hc_dat = &data.hc_dat;
+    float hz_per_rpm;
+    int freq, old_freq, freq_comp;
+    int ctrl, old_ctrl, ctrl_resp;
+
+    /* Calculate frequency */
+    hc_dat->function = WRITE_FREQ_DATA;
+    hc_dat->parameter = 0x00;
+
+    if ((spindle_forward && !spindle_reverse) && spindle_on)
+        freq_comp = 1;
+    else if ((spindle_reverse && !spindle_forward) && spindle_on)
+        freq_comp = -1;
+    else
+        freq_comp = 0;
+
+    hz_per_rpm = max_freq / rated_motor_rev;
+    freq = abs((int)((speed_command + freq_comp) * hz_per_rpm * 100));
+
+    if (freq > (int)(max_freq * 100))
+        freq = (int)(max_freq * 100);
+    if (freq < (int)(freq_lower_limit * 100))
+        freq = (int)(freq_lower_limit * 100);
+
+    old_freq = (int)(frequency_command * 100);
+
+    if (freq != old_freq) {
+        hc_dat->value = freq;
+        if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+        frequency_command = freq * 0.01;
+    }
+
+    /* Control register */
+    hc_dat->function = WRITE_CONTROL_DATA;
+    hc_dat->parameter = 0x00;
+
+    if ((spindle_forward && !spindle_reverse) && spindle_on)
+        ctrl = CONTROL_Run_Fwd;
+    else if ((spindle_reverse && !spindle_forward) && spindle_on)
+        ctrl = CONTROL_Run_Rev;
+    else
+        ctrl = CONTROL_Stop;
+
+    old_ctrl = (int)CNTR;
+    hc_dat->value = old_ctrl;
+    if (hy_comm(hc_param, hc_dat) != 0) goto failed;
+
+    if (ctrl != old_ctrl) {
+        hc_dat->value = ctrl;
+        CNTR = ctrl;
+    }
+
+    ctrl_resp = hc_dat->ret_data;
+    CNST = ctrl_resp;
+
+    CNST_run = (ctrl_resp & CONTROL_Run) ? 1 : 0;
+    CNST_jog = (ctrl_resp & CONTROL_Jog) ? 1 : 0;
+    CNST_command_rf = (ctrl_resp & CONTROL_Command_rf) ? 1 : 0;
+    CNST_running = (ctrl_resp & CONTROL_Running) ? 1 : 0;
+    CNST_jogging = (ctrl_resp & CONTROL_Jogging) ? 1 : 0;
+    CNST_running_rf = (ctrl_resp & CONTROL_Running_rf) ? 1 : 0;
+    CNST_bracking = (ctrl_resp & CONTROL_Bracking) ? 1 : 0;
+    CNST_track_start = (ctrl_resp & CONTROL_Track_Start) ? 1 : 0;
+
+    return 0;
+failed:
+    error_count++;
+    return -1;
+}
+
+
+void user_mainloop(void) {
+    int efd = GOMC_EXIT_FD();
+
+    while (!GOMC_SHOULD_EXIT()) {
+    FOR_ALL_INSTS() {
+        if (data.init_error) {
+            struct pollfd pfd = { .fd = efd, .events = POLLIN };
+            poll(&pfd, 1, 1000);
+            continue;
+        }
+
+        /* Wait for enable */
+        if (!enable) {
+            struct pollfd pfd = { .fd = efd, .events = POLLIN };
+            poll(&pfd, 1, 100);
+            continue;
+        }
+
+        /* One-time setup: read/write VFD parameters */
+        if (!data.setup_done) {
+            if (hy_read_setup(__comp_inst) == 0) {
+                data.setup_done = 1;
+            } else {
+                GOMC_LOG_WARN("error reading setup from VFD, retrying\n");
+                usleep(100 * 1000);
+                continue;
+            }
+        }
+
+        /* Enforce period bounds */
+        float lt = loop_time;
+        if (lt < 0.001) lt = 0.001;
+        if (lt > 1.0) lt = 1.0;
+        struct timespec ts;
+        ts.tv_sec = (time_t)lt;
+        ts.tv_nsec = (long)((lt - ts.tv_sec) * 1000000000l);
+        nanosleep(&ts, NULL);
+
+        /* Read */
+        if (hy_read_data(__comp_inst) < 0)
+            data.ok_count = 0;
+        else
+            data.ok_count++;
+
+        /* Write */
+        if (hy_write_data(__comp_inst) < 0)
+            data.ok_count = 0;
+        else
+            data.ok_count++;
+
+        hycomm_ok = (data.ok_count > HYCOMM_MIN_OK) ? 1 : 0;
+    }
+    }
+
+    /* Shutdown */
+    FOR_ALL_INSTS() {
+        if (!data.init_error)
+            hycomm_close(&data.hc_param);
+    }
+}

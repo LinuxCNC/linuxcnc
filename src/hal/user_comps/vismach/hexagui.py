@@ -7,34 +7,81 @@
 #   net skgui.L  genhexkins.gui.L hexagui.axis.L  (L= x,y,z,a,b,c)
 #   net jN       joint.N.pos-fb   hexagui.joint.N (N= 0..5)
 
+
 from vismach import *
-import hal
+import math
 import sys
+import json
+import threading
+import asyncio
+import websockets
+from gmi import ws_url
 
-for setting in sys.argv[1:]: exec(setting)
 
-#compname must be the same as given in 'loadusr -W' or
-#else the comp will never be ready
-compname = "hexagui"
-#if(randomize): compname += str(random.randrange(0,10000))
-c = hal.component(compname)
-#declare hal pins here
-c.newpin("joint.0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.1", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.2", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.3", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.4", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("joint.5", hal.HAL_FLOAT, hal.HAL_IN)
-#get the tool tip position in cartesian coordinates from emc
-#so we dont have to do kinematics
-c.newpin("axis.x", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.y", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.z", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.a", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.b", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.c", hal.HAL_FLOAT, hal.HAL_IN)
+class WsComponent:
+    """Dict-like object fed by WebSocket subscription, compatible with vismach."""
 
-c.ready()
+    def __init__(self, pins):
+        self._values = {name: 0.0 for name in pins}
+
+    def __getitem__(self, key):
+        return self._values.get(key, 0.0)
+
+    def __setitem__(self, key, value):
+        self._values[key] = float(value)
+
+    def __getattr__(self, key):
+        if key.startswith('_'):
+            raise AttributeError(key)
+        return self._values.get(key.replace('_', '-'), 0.0)
+
+    def update(self, data):
+        """Update pin values from a WS message (full or delta)."""
+        if isinstance(data, dict):
+            for k, v in data.items():
+                if k in self._values:
+                    self._values[k] = float(v)
+
+
+def _ws_thread(comp, instance):
+    """Background thread: subscribe to haljson WS and push updates to comp."""
+    async def _run():
+        url = ws_url()
+        sub_msg = json.dumps({
+            "action": "subscribe",
+            "api": instance,
+            "instance": instance,
+            "func": "pins",
+            "rate_ms": 50,
+        })
+        while True:
+            try:
+                async with websockets.connect(url) as ws:
+                    await ws.send(sub_msg)
+                    async for msg in ws:
+                        data = json.loads(msg)
+                        if data.get("type") == "update":
+                            comp.update(data.get("data", {}))
+            except Exception:
+                await asyncio.sleep(1)
+
+    asyncio.run(_run())
+
+
+# Instance name — matches the haljson instance loaded in the HAL file.
+instance = "hexagui"
+
+for setting in sys.argv[1:]:
+    exec(setting)
+
+c = WsComponent([
+    "joint.0", "joint.1", "joint.2", "joint.3", "joint.4", "joint.5", "axis.x", "axis.y", "axis.z", "axis.a", "axis.b", "axis.c",
+])
+
+# Start WS subscription in background thread.
+t = threading.Thread(target=_ws_thread, args=(c, instance), daemon=True)
+t.start()
+
 
 
 #################################

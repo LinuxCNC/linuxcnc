@@ -12,7 +12,13 @@ pin out float motor_current       "Output current in amps";
 pin out float heatsink_temp       "Temperature of drive heatsink";
 pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
 option userspace yes;
-option userinit yes;
+option extra_setup yes;
+option data vfd_data;
+modparam string device "Serial device (default: /dev/ttyS0)";
+modparam int baud = 9600 "Baud rate";
+modparam int databits = 8 "Data bits (5-8)";
+modparam int stopbits = 1 "Stop bits (1-2)";
+modparam string parity "Parity: N, E, or O (default: N)";
 license "GPLv2 or greater";
 ;;
 /*
@@ -39,12 +45,12 @@ license "GPLv2 or greater";
 */
 #include<stdio.h>
 #include<errno.h>
-#include<getopt.h>
 #include<stdbool.h>
 #include<math.h>
 #include<modbus.h>
 #include<unistd.h>
 #include<ctype.h>
+#include<poll.h>
 
 typedef struct
 {
@@ -144,10 +150,10 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
         return true;
 }
 
-void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
+void print_modbus_error(inst_t *__comp_inst, const char* msg)
 {
-	fprintf(stderr,
-		"Error: wj200_vfd slave(%d): %s - Modbus error (%d) -  %s\n",
+	GOMC_LOG_ERR(
+		"slave(%d): %s - Modbus error (%d) -  %s\n",
 		mbslaveaddr,
 		msg,
 		errno,
@@ -155,125 +161,48 @@ void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
 }
 
 
-/* modbus connection settings*/
-char *device = "/dev/ttyS0";
-int baud = 9600;
-char parity = 'N';
-int data_bits = 8;
-int stop_bits = 1;
-modbus_t *ctx;
+/* Per-instance connection state */
+typedef struct {
+	modbus_t *ctx;
+	int init_error;
+} vfd_data;
 
-void userinit(int argc, char **argv)
-{
-	int opt_index = 0;
-	int c = 0;
+EXTRA_SETUP() {
+	(void)nparams; (void)params;  /* unused - using modparams */
+	const char *dev = device[0] ? device : "/dev/ttyS0";
+	char par = (parity[0] == 'E' || parity[0] == 'e') ? 'E' :
+	           (parity[0] == 'O' || parity[0] == 'o') ? 'O' : 'N';
 
-	static struct option options[] = {
-		{"baud",   required_argument, 0, 0 },
-		{"parity", required_argument, 0, 0 },
-		{"databits", required_argument, 0, 0 },
-		{"stopbits", required_argument, 0, 0 },
-		{"device", required_argument, 0, 0 },
-		{0, 0, 0, 0}
-	};
-
-	while(1) {
-		c = getopt_long(argc, argv, "", options, &opt_index);
-
-		if(c == -1)
-			break;
-
-		switch(opt_index) {
-			case 0:
-				baud = atoi(optarg);
-
-				if(baud == 0)
-				{
-					fprintf(stderr,
-						"Invalid argument: baud must be a number. Given '%s'\n",
-						optarg);
-					exit(1);
-				}
-				break;
-
-			case 1:
-				parity = toupper(optarg[0]);
-
-				if(parity != 'E' && parity != 'O' && parity != 'N')
-				{
-					fprintf(stderr, 
-						"Invalid argument: parity must be 'e', 'o' or 'n'. Given '%s'\n", 
-						optarg);
-					exit(1);
-				}
-				break;
-
-			case 2:
-				data_bits = atoi(optarg);
-
-				if(data_bits == 0)
-				{
-					fprintf(stderr,
-						"Invalid argument: databits must be a number. Given '%s'\n",
-						optarg);
-					exit(1);
-				}
-				break;
-
-			case 3:
-				stop_bits = atoi(optarg);
-
-				if(stop_bits == 0)
-				{
-					fprintf(stderr,
-						"Invalid argument: stopbits must be a number. Given '%s'\n",
-						optarg);
-					exit(1);
-				}
-				break;
-			case 4:
-				device = optarg;
-				break;
-
-
-			default:
-                                fprintf(stderr, "internal error: invalid option index!\n");
-				exit(1);
-		}
-
+	data.ctx = modbus_new_rtu(dev, baud, par, databits, stopbits);
+	if (data.ctx == NULL) {
+		GOMC_LOG_ERR("unable to create libmodbus context for %s - %s\n",
+			dev, modbus_strerror(errno));
+		data.init_error = 1;
+		return -1;
 	}
 
-        if (optind < argc) {
-            fprintf(stderr, "WARNING: unhandled arguments to wj200_vfd driver:\n");
-            for (int i = optind; i < argc; i ++) {
-                fprintf(stderr, "    %s\n", argv[i]);
-            }
-        }
-
-	ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
-
-	if (ctx == NULL) {
-		fprintf(stderr,
-			"ERROR: wj200_vfd unable to create libmodbus context. - %s\n",
-			modbus_strerror(errno));
-		fprintf(stderr, "Check your commandline!\n");
-		exit(1);
+	if (modbus_connect(data.ctx)) {
+		GOMC_LOG_ERR("unable to connect to %s - %s\n",
+			dev, modbus_strerror(errno));
+		modbus_free(data.ctx);
+		data.ctx = NULL;
+		data.init_error = 1;
+		return -1;
 	}
 
-	if (modbus_connect(ctx)) {
-		fprintf(stderr,
-			"ERROR: wj200_vfd unable to create libmodbus connection. - %s\n",
-			modbus_strerror(errno));
-		exit(1);
-	}
+	data.init_error = 0;
+	return 0;
 }
 
 void user_mainloop(void) {
 	wj200_status status;
 	uint16_t calculated_frequency;
     bool last_enable_state = FALSE;
+    int efd = GOMC_EXIT_FD();
 
-	while(1) {
+	if (data.init_error) return;
+
+	while(!GOMC_SHOULD_EXIT()) {
 	FOR_ALL_INSTS() {
 		/*
                   until the params are set we just wait a bit
@@ -283,11 +212,12 @@ void user_mainloop(void) {
                   this could cause bad behavior
 		*/
 		if(mbslaveaddr == 0) {
-			sleep(1);
+			struct pollfd pfd = { .fd = efd, .events = POLLIN };
+			poll(&pfd, 1, 1000);
 			continue;
 		}
 
-		modbus_set_slave(ctx, mbslaveaddr);
+		modbus_set_slave(data.ctx, mbslaveaddr);
 
 		/*
                   for each slave, receive info from the slave,
@@ -299,7 +229,7 @@ void user_mainloop(void) {
 		  the loop.
                 */
 
-        if(!wj200_getStatus(ctx, &status)) {
+        if(!wj200_getStatus(data.ctx, &status)) {
             /*
                Only want to list 'failed to get status' once
                any time enable changes - don't spam the output.
@@ -317,11 +247,11 @@ void user_mainloop(void) {
 		is_ready = status.ready;
 		is_alarm = status.alarm;
 
-		if(!status.alarm && !enable && !wj200_trip(ctx)) {
+		if(!status.alarm && !enable && !wj200_trip(data.ctx)) {
 			print_modbus_error(__comp_inst, "failed to trip");
 			continue;
 		}
-		else if(status.alarm && enable && !wj200_reset(ctx)) {
+		else if(status.alarm && enable && !wj200_reset(data.ctx)) {
 			print_modbus_error(__comp_inst, "failed to reset");
 			continue;
 		}
@@ -329,17 +259,17 @@ void user_mainloop(void) {
 			calculated_frequency = (uint16_t)(fabs(commanded_frequency) * 100);
 
 			if(calculated_frequency != status.frequency
-			   && !wj200_setFrequency(ctx, calculated_frequency)) {
+			   && !wj200_setFrequency(data.ctx, calculated_frequency)) {
 				print_modbus_error(__comp_inst, "failed to set frequency");
 				continue;
 			}
 
-			if(reverse != status.direction && !wj200_setDirection(ctx, reverse)) {
+			if(reverse != status.direction && !wj200_setDirection(data.ctx, reverse)) {
 				print_modbus_error(__comp_inst, "failed to set direction");
 				continue;
 			}
 
-			if(status.running ^ run && !wj200_run(ctx, run)) {
+			if(status.running ^ run && !wj200_run(data.ctx, run)) {
 				print_modbus_error(__comp_inst, "failed to run");
 				continue;
 			}

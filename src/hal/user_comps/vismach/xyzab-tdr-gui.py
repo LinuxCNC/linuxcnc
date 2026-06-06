@@ -26,34 +26,81 @@
 # rotational axes A and B (rotation-point of the rotary-assembly).
 #--------------------------------------------------------------------------
 
+
 from vismach import *
-import hal
 import math
 import sys
+import json
+import threading
+import asyncio
+import websockets
+from gmi import ws_url
 
-c = hal.component("xyzab-tdr-gui")
-# axis-x
-c.newpin("axis-x", hal.HAL_FLOAT, hal.HAL_IN)
-# axis-y
-c.newpin("axis-y", hal.HAL_FLOAT, hal.HAL_IN)
-# axis-z
-c.newpin("axis-z", hal.HAL_FLOAT, hal.HAL_IN)
-# rotary_a
-c.newpin("rotary-a", hal.HAL_FLOAT, hal.HAL_IN)
-# rotary_b
-c.newpin("rotary-b", hal.HAL_FLOAT, hal.HAL_IN)
-# geometric offsets between A and B axes
-c.newpin("x_offset", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("z_offset", hal.HAL_FLOAT, hal.HAL_IN)
-# rot-point offsets
-c.newpin("x-rot-point", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("y-rot-point", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("z-rot-point", hal.HAL_FLOAT, hal.HAL_IN)
-# tool-length offset
-# tool offsets
-c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_diameter", hal.HAL_FLOAT, hal.HAL_IN)
-c.ready()
+
+class WsComponent:
+    """Dict-like object fed by WebSocket subscription, compatible with vismach."""
+
+    def __init__(self, pins):
+        self._values = {name: 0.0 for name in pins}
+
+    def __getitem__(self, key):
+        return self._values.get(key, 0.0)
+
+    def __setitem__(self, key, value):
+        self._values[key] = float(value)
+
+    def __getattr__(self, key):
+        if key.startswith('_'):
+            raise AttributeError(key)
+        return self._values.get(key.replace('_', '-'), 0.0)
+
+    def update(self, data):
+        """Update pin values from a WS message (full or delta)."""
+        if isinstance(data, dict):
+            for k, v in data.items():
+                if k in self._values:
+                    self._values[k] = float(v)
+
+
+def _ws_thread(comp, instance):
+    """Background thread: subscribe to haljson WS and push updates to comp."""
+    async def _run():
+        url = ws_url()
+        sub_msg = json.dumps({
+            "action": "subscribe",
+            "api": instance,
+            "instance": instance,
+            "func": "pins",
+            "rate_ms": 50,
+        })
+        while True:
+            try:
+                async with websockets.connect(url) as ws:
+                    await ws.send(sub_msg)
+                    async for msg in ws:
+                        data = json.loads(msg)
+                        if data.get("type") == "update":
+                            comp.update(data.get("data", {}))
+            except Exception:
+                await asyncio.sleep(1)
+
+    asyncio.run(_run())
+
+
+# Instance name — matches the haljson instance loaded in the HAL file.
+instance = "xyzab-tdr-gui"
+
+for setting in sys.argv[1:]:
+    exec(setting)
+
+c = WsComponent([
+    "axis-x", "axis-y", "axis-z", "rotary-a", "rotary-b", "x_offset", "z_offset", "x-rot-point", "y-rot-point", "z-rot-point", "tool_length", "tool_diameter",
+])
+
+# Start WS subscription in background thread.
+t = threading.Thread(target=_ws_thread, args=(c, instance), daemon=True)
+t.start()
+
 
 # These values are arbitrary and are meant to simulate an absolute
 # machine zero that is offset from the rotation point of the rotary assembly.

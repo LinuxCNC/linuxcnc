@@ -4,40 +4,85 @@
 
 #import libraries
 from vismach import *
-import hal
 import math
 import sys
+import json
+import threading
+import asyncio
+import websockets
+from gmi import ws_url
 
 #----------------------------------------------------------------------------------------------------------------------------------
 # Starting and defining
 
-# used for diameter for versions less than 2.8.
-# it gives us way to access variable values from vismach script.
-import linuxcnc
-s = linuxcnc.stat()
-s.poll()
+
+
+
+class WsComponent:
+    """Dict-like object fed by WebSocket subscription, compatible with vismach."""
+
+    def __init__(self, pins):
+        self._values = {name: 0.0 for name in pins}
+
+    def __getitem__(self, key):
+        return self._values.get(key, 0.0)
+
+    def __setitem__(self, key, value):
+        self._values[key] = float(value)
+
+    def __getattr__(self, key):
+        if key.startswith('_'):
+            raise AttributeError(key)
+        return self._values.get(key.replace('_', '-'), 0.0)
+
+    def update(self, data):
+        """Update pin values from a WS message (full or delta)."""
+        if isinstance(data, dict):
+            for k, v in data.items():
+                if k in self._values:
+                    self._values[k] = float(v)
+
+
+def _ws_thread(comp, instance):
+    """Background thread: subscribe to haljson WS and push updates to comp."""
+    async def _run():
+        url = ws_url()
+        sub_msg = json.dumps({
+            "action": "subscribe",
+            "api": instance,
+            "instance": instance,
+            "func": "pins",
+            "rate_ms": 50,
+        })
+        while True:
+            try:
+                async with websockets.connect(url) as ws:
+                    await ws.send(sub_msg)
+                    async for msg in ws:
+                        data = json.loads(msg)
+                        if data.get("type") == "update":
+                            comp.update(data.get("data", {}))
+            except Exception:
+                await asyncio.sleep(1)
+
+    asyncio.run(_run())
+
+
+# Instance name — matches the haljson instance loaded in the HAL file.
+instance = "millturngui"
+
+for setting in sys.argv[1:]: exec(setting)
 
 # Here is where we define pins that linuxcnc will send
 # data to, in order to make movements.
-# We will need 5 pins, 3 for motion and 2 for tool stats.
-# tooldiameter isn't really used but if you are using 2.8 you can make couple changes
-# in this file, and uncomment last line in HAL file.
-# add joints. Mill has 3.
-c = hal.component("millturngui")
-c.newpin("jointX", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointY", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointZ", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointA", hal.HAL_FLOAT, hal.HAL_IN)
+c = WsComponent([
+    "jointX", "jointY", "jointZ", "jointA",
+    "millkins", "toollength", "tooldiameter", "tool-x-offset",
+])
 
-# kinematics pins
-c.newpin("millkins", hal.HAL_BIT, hal.HAL_IN)
-
-# tool length and diameter pins?
-c.newpin("toollength", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tooldiameter", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool-x-offset", hal.HAL_FLOAT, hal.HAL_IN)
-# tells loadusr pins is ready
-c.ready()
+# Start WS subscription in background thread.
+t = threading.Thread(target=_ws_thread, args=(c, instance), daemon=True)
+t.start()
 
 # Used for tool cylinder
 # it will be updated in shape and length by function below.
@@ -57,7 +102,7 @@ class HalToolTriangle(TriangleXZ):
         self.comp = c
     def coords(self):
         #print(self.comp["tooldiameter"])
-        leng = s.tool_table[s.tool_in_spindle].zoffset
+        leng = self.comp["toollength"]
         x1 = leng
         z1 = -self.comp["tool-x-offset"]
         x2 = 1#self.comp["tool-x-offset"]+10
@@ -95,10 +140,7 @@ class HalToolCylinder(CylinderZ):
         # this instantly updates tool model but tooltip doesn't move till -
         # tooltip, the drawing point will NOT move till g43h(tool number) is called, however.
         # Tool will "crash" if h and tool length does not match.
-        leng = s.tool_table[s.tool_in_spindle].zoffset
-        # Update tool length when g43h(toolnumber) is called, otherwise stays at 0 or previous size.
-        # commented out as I prefer machine to show actual tool size right away.
-        #leng = self.comp["toollength"]
+        leng = self.comp["toollength"]
         return (-leng, rad, 0, rad2)
 
 

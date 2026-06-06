@@ -1,7 +1,7 @@
 #include <sys/time.h>
 #include "mb2hal.h"
 
-retCode fnct_01_read_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+retCode fnct_01_read_coils(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_01_read_coils";
     int counter, ret;
@@ -14,7 +14,7 @@ retCode fnct_01_read_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
         return retERR;
     }
 
-    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+    DBG(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, modbus_get_socket(this_mb_link->modbus),
         this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
@@ -23,7 +23,7 @@ retCode fnct_01_read_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
         if (modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_close(this_mb_link->modbus);
         }
-        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+        ERR(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
             this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
             modbus_get_socket(this_mb_link->modbus));
         return retERR;
@@ -37,7 +37,7 @@ retCode fnct_01_read_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
     return retOK;
 }
 
-retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+retCode fnct_02_read_discrete_inputs(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_02_read_discrete_inputs";
     int counter, ret;
@@ -50,7 +50,7 @@ retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         return retERR;
     }
 
-    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+    DBG(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, modbus_get_socket(this_mb_link->modbus),
         this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
@@ -59,7 +59,7 @@ retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         if (modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_close(this_mb_link->modbus);
         }
-        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+        ERR(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
             this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
             modbus_get_socket(this_mb_link->modbus));
         return retERR;
@@ -67,14 +67,14 @@ retCode fnct_02_read_discrete_inputs(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         *(this_mb_tx->bit[counter]) = bits[counter];
-        if (gbl.version > 1000)
+        if (m->version > 1000)
             *(this_mb_tx->bit_inv[counter]) = !bits[counter];
     }
 
     return retOK;
 }
 
-retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+retCode fnct_03_read_holding_registers(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_03_read_holding_registers";
     int counter, ret;
@@ -87,7 +87,7 @@ retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_l
         return retERR;
     }
 
-    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+    DBG(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
         modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
@@ -96,7 +96,7 @@ retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_l
         if (modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_close(this_mb_link->modbus);
         }
-        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+        ERR(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
             this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
             modbus_get_socket(this_mb_link->modbus));
         return retERR;
@@ -104,8 +104,8 @@ retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_l
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         float val = data[counter];
-        //val *= this_mb_tx->scale[counter];
-        //val += this_mb_tx->offset[counter];
+        if (this_mb_tx->pin_scale)
+            val = val * this_mb_tx->pin_scale[counter] + this_mb_tx->pin_offset[counter];
         *(this_mb_tx->float_value[counter]) = val;
         *(this_mb_tx->int_value[counter]) = data[counter];
     }
@@ -113,7 +113,7 @@ retCode fnct_03_read_holding_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_l
     return retOK;
 }
 
-retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+retCode fnct_04_read_input_registers(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_04_read_input_registers";
     int counter, ret;
@@ -126,7 +126,7 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         return retERR;
     }
 
-    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+    DBG(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
         modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
@@ -135,7 +135,7 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         if (modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_close(this_mb_link->modbus);
         }
-        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+        ERR(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
             this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
             modbus_get_socket(this_mb_link->modbus));
         return retERR;
@@ -143,8 +143,8 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
         float val = data[counter];
-        //val += this_mb_tx->offset[counter];
-        //val *= this_mb_tx->scale[counter];
+        if (this_mb_tx->pin_scale)
+            val = val * this_mb_tx->pin_scale[counter] + this_mb_tx->pin_offset[counter];
         *(this_mb_tx->float_value[counter]) = val;
         *(this_mb_tx->int_value[counter]) = data[counter];
     }
@@ -152,7 +152,7 @@ retCode fnct_04_read_input_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
     return retOK;
 }
 
-retCode fnct_05_write_single_coil(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+retCode fnct_05_write_single_coil(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_05_write_single_coil";
     int ret, bit;
@@ -166,7 +166,7 @@ retCode fnct_05_write_single_coil(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 
     bit = *(this_mb_tx->bit[0]);
 
-    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+    DBG(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
         modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
@@ -175,7 +175,7 @@ retCode fnct_05_write_single_coil(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
         if (modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_close(this_mb_link->modbus);
         }
-        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+        ERR(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
             this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
             modbus_get_socket(this_mb_link->modbus));
         return retERR;
@@ -184,7 +184,7 @@ retCode fnct_05_write_single_coil(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
     return retOK;
 }
 
-retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+retCode fnct_06_write_single_register(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_06_write_single_register";
     int ret, data;
@@ -196,14 +196,19 @@ retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_li
         return retERR;
     }
 
-    data = *(this_mb_tx->float_value[0]);
-    if (gbl.version > 1000)
+    {
+        float fval = *(this_mb_tx->float_value[0]);
+        if (this_mb_tx->pin_scale && this_mb_tx->pin_scale[0] != 0.0)
+            fval = (fval - this_mb_tx->pin_offset[0]) / this_mb_tx->pin_scale[0];
+        data = (int)fval;
+    }
+    if (m->version > 1000)
         data += *(this_mb_tx->int_value[0]);
     if(data > UINT16_MAX) { // prevent wrap on overflow
         data = UINT16_MAX;
     }
     
-    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+    DBG(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
         modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
@@ -212,7 +217,7 @@ retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_li
         if (modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_close(this_mb_link->modbus);
         }
-        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+        ERR(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
             this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
             modbus_get_socket(this_mb_link->modbus));
         return retERR;
@@ -221,7 +226,7 @@ retCode fnct_06_write_single_register(mb_tx_t *this_mb_tx, mb_link_t *this_mb_li
     return retOK;
 }
 
-retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+retCode fnct_15_write_multiple_coils(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_15_write_multiple_coils";
     int counter, ret;
@@ -238,7 +243,7 @@ retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         bits[counter] = *(this_mb_tx->bit[counter]);
     }
 
-    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+    DBG(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
         modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
@@ -247,7 +252,7 @@ retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
         if (modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_close(this_mb_link->modbus);
         }
-        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+        ERR(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
             this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
             modbus_get_socket(this_mb_link->modbus));
         return retERR;
@@ -256,7 +261,7 @@ retCode fnct_15_write_multiple_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_lin
     return retOK;
 }
 
-retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
+retCode fnct_16_write_multiple_registers(mb2hal_module *m, mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
 {
     char *fnct_name = "fnct_16_write_multiple_registers";
     int counter, ret;
@@ -270,10 +275,11 @@ retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb
     }
 
     for (counter = 0; counter < this_mb_tx->mb_tx_nelem; counter++) {
-        //float val = *(this_mb_tx->float_value[counter]) / this_mb_tx->scale[counter];
-        //val -= this_mb_tx->offset[counter];
-        int data32 = (uint16_t) *(this_mb_tx->float_value[counter]);
-        if (gbl.version > 1000)
+        float fval = *(this_mb_tx->float_value[counter]);
+        if (this_mb_tx->pin_scale && this_mb_tx->pin_scale[counter] != 0.0)
+            fval = (fval - this_mb_tx->pin_offset[counter]) / this_mb_tx->pin_scale[counter];
+        int data32 = (uint16_t) fval;
+        if (m->version > 1000)
             data32 += *(this_mb_tx->int_value[counter]);
         if(data32 > UINT16_MAX) { // prevent wrap on overflow
             data[counter] = UINT16_MAX;
@@ -283,7 +289,7 @@ retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb
         }
     }
 
-    DBG(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
+    DBG(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] fd[%d] 1st_addr[%d] nelem[%d]",
         this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id,
         modbus_get_socket(this_mb_link->modbus), this_mb_tx->mb_tx_1st_addr, this_mb_tx->mb_tx_nelem);
 
@@ -292,7 +298,7 @@ retCode fnct_16_write_multiple_registers(mb_tx_t *this_mb_tx, mb_link_t *this_mb
         if (modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_close(this_mb_link->modbus);
         }
-        ERR(this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
+        ERR(m, this_mb_tx->cfg_debug, "mb_tx[%d] mb_links[%d] slave[%d] = ret[%d] fd[%d]",
             this_mb_tx->mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_tx_slave_id, ret,
             modbus_get_socket(this_mb_link->modbus));
         return retERR;

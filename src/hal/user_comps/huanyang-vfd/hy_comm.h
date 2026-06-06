@@ -118,7 +118,7 @@ typedef struct _hycomm_data_t {
 	unsigned char slave;			/* slave address */
 	unsigned char function;			/* function code */
 	unsigned char parameter;		/* PDxxx parameter */
-	int data;						/* Data to send */
+	int value;						/* Data to send */
 	unsigned char ret_length;		/* length of data returned from slave */
 	unsigned char ret_parameter;	/* parameter returned from slave */
 	int ret_data;					/* Data returned from slave */

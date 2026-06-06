@@ -19,18 +19,86 @@
 # Note: items like pivot_len can be set at invocation, example:
 #       5axisgui pivot_len=300
 
+
 from vismach import *
-import hal
 import math
 import sys
+import json
+import threading
+import asyncio
+import websockets
+from gmi import ws_url
 
-pivot_len = 250 # to agree with default in 5axiskins.c
-za =  50
+
+class WsComponent:
+    """Dict-like object fed by WebSocket subscription, compatible with vismach."""
+
+    def __init__(self, pins):
+        self._values = {name: 0.0 for name in pins}
+
+    def __getitem__(self, key):
+        return self._values.get(key, 0.0)
+
+    def __setitem__(self, key, value):
+        self._values[key] = float(value)
+
+    def __getattr__(self, key):
+        if key.startswith('_'):
+            raise AttributeError(key)
+        return self._values.get(key.replace('_', '-'), 0.0)
+
+    def update(self, data):
+        """Update pin values from a WS message (full or delta)."""
+        if isinstance(data, dict):
+            for k, v in data.items():
+                if k in self._values:
+                    self._values[k] = float(v)
+
+
+def _ws_thread(comp, instance):
+    """Background thread: subscribe to haljson WS and push updates to comp."""
+    async def _run():
+        url = ws_url()
+        sub_msg = json.dumps({
+            "action": "subscribe",
+            "api": instance,
+            "instance": instance,
+            "func": "pins",
+            "rate_ms": 50,
+        })
+        while True:
+            try:
+                async with websockets.connect(url) as ws:
+                    await ws.send(sub_msg)
+                    async for msg in ws:
+                        data = json.loads(msg)
+                        if data.get("type") == "update":
+                            comp.update(data.get("data", {}))
+            except Exception:
+                await asyncio.sleep(1)
+
+    asyncio.run(_run())
+
+
+pivot_len = 250  # to agree with default in 5axiskins.c
+za = 50
 zb = 100
 
+# Instance name — matches the haljson instance loaded in the HAL file.
+instance = "5axisgui"
+
 for setting in sys.argv[1:]:
-    print(setting)
     exec(setting)
+
+c = WsComponent([
+    "jx", "jy", "jz", "jb", "jc", "tool_length", "tool_diam", "pivot_len",
+])
+c["pivot_len"] = pivot_len
+
+# Start WS subscription in background thread.
+t = threading.Thread(target=_ws_thread, args=(c, instance), daemon=True)
+t.start()
+
 
 # give endpoint Z values and radii
 # resulting cylinder is on the Z axis
@@ -40,21 +108,10 @@ class HalToolCylinder(CylinderZ):
         self.comp = comp
 
     def coords(self):
-        r = 20 # default if hal pin not set
-        if (c.tool_diam > 0): r=c.tool_diam/2
+        r = 20  # default if hal pin not set
+        if (c.tool_diam > 0): r = c.tool_diam / 2
         return -self.comp.tool_length, r, 0, r
 
-c = hal.component("5axisgui")
-c.newpin("jx", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jy", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jz", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jb", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jc", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_length", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("tool_diam", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("pivot_len", hal.HAL_FLOAT, hal.HAL_OUT)
-c["pivot_len"] = pivot_len
-c.ready()
 
 tooltip = Capture()
 tool = Collection([HalTranslate([tooltip], c, "tool_length", 0,0,-1),

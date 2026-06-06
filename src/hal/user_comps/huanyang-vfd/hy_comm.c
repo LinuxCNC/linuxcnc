@@ -28,14 +28,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 #include <termios.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <errno.h>
 #include <limits.h>
 #include <fcntl.h>
-#include "rtapi.h"
-#include <rtapi_string.h>
 
 #include "hy_comm.h"
  
@@ -497,8 +497,8 @@ int build_query(hycomm_data_t *hc_data, unsigned char *query )
 			query[1] = hc_data->function;
 			query[2] = 0x03;
 			query[3] = hc_data->parameter;
-			query[4] = hc_data->data >> 8;
-			query[5] = hc_data->data & 0x00FF;		
+			query[4] = hc_data->value >> 8;
+			query[5] = hc_data->value & 0x00FF;		
 			return 6;
 			break;
 		
@@ -507,7 +507,7 @@ int build_query(hycomm_data_t *hc_data, unsigned char *query )
 			query[0] = hc_data->slave;
 			query[1] = hc_data->function;
 			query[2] = 0x01;
-			query[3] = hc_data->data & 0x00FF;
+			query[3] = hc_data->value & 0x00FF;
 			return 4;
 			break;	 
 		
@@ -515,8 +515,8 @@ int build_query(hycomm_data_t *hc_data, unsigned char *query )
 			query[0] = hc_data->slave;
 			query[1] = hc_data->function;
 			query[2] = 0x02;
-			query[3] = hc_data->data >> 8; 
-			query[4] = hc_data->data & 0x00FF;
+			query[3] = hc_data->value >> 8; 
+			query[4] = hc_data->value & 0x00FF;
 			return 5;
 		break;	
 		
@@ -658,9 +658,9 @@ void hycomm_init(hycomm_param_t *hc_param, const char *device,
                      int stop_bit)
 {
         memset(hc_param, 0, sizeof(hycomm_param_t));
-        rtapi_strxcpy(hc_param->device, device);
+        snprintf(hc_param->device, sizeof(hc_param->device), "%s", device);
         hc_param->baud = baud;
-        rtapi_strxcpy(hc_param->parity, parity);
+        snprintf(hc_param->parity, sizeof(hc_param->parity), "%s", parity);
         hc_param->debug = FALSE;
         hc_param->data_bit = data_bit;
         hc_param->stop_bit = stop_bit;

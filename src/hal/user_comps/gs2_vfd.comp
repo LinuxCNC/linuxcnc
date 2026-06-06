@@ -1,0 +1,276 @@
+component gs2_vfd "Automation Direct GS2 VFD Modbus driver";
+
+pin out float motor_RPM                  "Motor speed (RPM)";
+pin out float frequency_out              "Output frequency (Hz)";
+pin out float output_current             "Output current (A)";
+pin out float DC_bus_voltage             "DC bus voltage (V)";
+pin out float output_voltage             "Output voltage (V)";
+pin out float inverter_temperature       "Inverter temperature (C)";
+pin out float motor_load_pct             "Motor load (%)";
+pin out signed status_register           "VFD status register";
+pin out signed error_count               "Modbus error counter";
+pin out bit at_speed                     "True when within speed tolerance";
+pin out bit is_stopped                   "True when output frequency is 0";
+pin out bit modbus_ok                    "True after 10 successful transactions";
+pin out bit is_e_stopped                 "True when in E-stop condition";
+pin in float speed_command               "Speed command (RPM)";
+pin in bit spindle_on                    "Spindle on/off";
+pin in bit spindle_fwd                   "Spindle forward";
+pin in bit spindle_rev                   "Spindle reverse";
+pin in bit err_reset                     "Reset VFD fault";
+pin in bit enable                        "Enable VFD control";
+
+param rw float loop_time = 0.1          "Polling period (seconds)";
+param rw float nameplate_HZ = 60        "Motor nameplate frequency (Hz)";
+param rw float nameplate_RPM = 1730     "Motor nameplate RPM";
+param rw float max_freq = 60            "VFD max frequency (Hz)";
+param rw float tolerance = 0.01         "Speed tolerance for at-speed";
+param rw float accel_time = 10.0        "Acceleration time (seconds)";
+param rw float decel_time = 10.0        "Deceleration time (seconds)";
+param rw float braking_resistor = 0     "Braking resistor percent";
+
+option userspace yes;
+option extra_setup yes;
+option data vfd_data;
+
+modparam string device "Serial device (default: /dev/ttyS0)";
+modparam int baud = 38400 "Baud rate";
+modparam int bits = 8 "Data bits";
+modparam string parity "Parity: even, odd, or none (default: odd)";
+modparam int stopbits = 1 "Stop bits";
+modparam int target = 1 "Modbus slave address";
+modparam int modbus_debug = 0 "Enable Modbus debug output";
+
+license "GPLv2 or greater";
+;;
+/*
+    gs2_vfd.comp
+
+    Userspace cmod to control an Automation Direct GS2 VFD via Modbus RTU.
+
+    Copyright (C) 2013 Sebastian Kuzminsky
+    Copyright (C) 2009 John Thornton
+    Copyright (C) 2007, 2008 Stephen Wille Padnos, Thoth Systems, Inc.
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation, version 2.
+*/
+
+#include <stdio.h>
+#include <errno.h>
+#include <math.h>
+#include <modbus.h>
+#include <unistd.h>
+#include <poll.h>
+#include <string.h>
+
+/* GS2 status registers (readable from 0x2100) */
+#define SR_BASE         0x2100
+#define SR_NUM_REGS     13
+
+/* Status register offsets */
+#define SR_STATUS_WORD      0   /* 0x2100 */
+#define SR_FREQ_COMMAND     1   /* 0x2101 */
+#define SR_OUT_FREQ         2   /* 0x2102 */
+#define SR_OUT_CURRENT      3   /* 0x2103 */
+#define SR_DC_BUS_VOLT      4   /* 0x2104 */
+#define SR_OUT_VOLTAGE      5   /* 0x2105 */
+#define SR_RPM              6   /* 0x2106 */
+#define SR_INVERTER_TEMP    7   /* 0x2107 */
+#define SR_RESERVED1        8   /* 0x2108 */
+#define SR_RESERVED2        9   /* 0x2109 */
+#define SR_RESERVED3        10  /* 0x210A */
+#define SR_MOTOR_LOAD       11  /* 0x210B */
+#define SR_RESERVED4        12  /* 0x210C */
+
+/* Write registers */
+#define WR_RUN_COMMAND      0x091A
+#define WR_FREQ_COMMAND     0x091B
+#define WR_ACCEL_TIME       0x0100
+#define WR_DECEL_TIME       0x0101
+#define WR_BRAKING_RESIST   0x0900
+
+/* Run command bits */
+#define GS2_RUN             0x0001
+#define GS2_REVERSE         0x0002
+#define GS2_STOP            0x0004
+#define GS2_FAULT_RESET     0x0008
+#define GS2_ENABLE          0x0010
+
+/* Status bits */
+#define GS2_STAT_RUNNING    0x0001
+#define GS2_STAT_REVERSE    0x0002
+#define GS2_STAT_READY      0x0004
+#define GS2_STAT_FAULT      0x0008
+#define GS2_STAT_ALARM      0x0020
+
+#define MODBUS_MIN_OK       10
+
+typedef struct {
+    modbus_t *ctx;
+    int init_error;
+    int initialized;
+    int mb_ok_count;
+} vfd_data;
+
+
+static char parse_parity_gs2(const char *p) {
+    if (!p || !p[0]) return 'O';
+    if (p[0] == 'e' || p[0] == 'E') return 'E';
+    if (p[0] == 'n' || p[0] == 'N') return 'N';
+    return 'O';
+}
+
+
+EXTRA_SETUP()
+{
+    const char *dev = device ? device : "/dev/ttyS0";
+    char par = parse_parity_gs2(parity);
+
+    data.ctx = modbus_new_rtu(dev, baud, par, bits, stopbits);
+    if (!data.ctx) {
+        GOMC_LOG_ERR("modbus_new_rtu(%s): %s\n", dev, modbus_strerror(errno));
+        data.init_error = 1;
+        return 0;
+    }
+
+    modbus_set_slave(data.ctx, target);
+    modbus_set_debug(data.ctx, modbus_debug);
+
+    if (modbus_connect(data.ctx) != 0) {
+        GOMC_LOG_ERR("unable to connect to %s: %s\n", dev, modbus_strerror(errno));
+        modbus_free(data.ctx);
+        data.ctx = NULL;
+        data.init_error = 1;
+        return 0;
+    }
+
+    data.mb_ok_count = 0;
+    data.initialized = 0;
+    return 0;
+}
+
+
+static void gs2_initialize(inst_t *__comp_inst) {
+    /* Set accel/decel/braking on first enable */
+    int accel_reg = (int)(accel_time * 10);
+    int decel_reg = (int)(decel_time * 10);
+    int brake_reg = (int)(braking_resistor);
+
+    modbus_write_register(data.ctx, WR_ACCEL_TIME, accel_reg);
+    modbus_write_register(data.ctx, WR_DECEL_TIME, decel_reg);
+    if (brake_reg > 0)
+        modbus_write_register(data.ctx, WR_BRAKING_RESIST, brake_reg);
+
+    data.initialized = 1;
+}
+
+
+void user_mainloop(void) {
+    int efd = GOMC_EXIT_FD();
+
+    while (!GOMC_SHOULD_EXIT()) {
+    FOR_ALL_INSTS() {
+        if (data.init_error) {
+            struct pollfd pfd = { .fd = efd, .events = POLLIN };
+            poll(&pfd, 1, 1000);
+            continue;
+        }
+
+        /* Enforce period bounds */
+        float lt = loop_time;
+        if (lt < 0.001) lt = 0.001;
+        if (lt > 2.0) lt = 2.0;
+        {
+            struct timespec ts;
+            ts.tv_sec = (time_t)lt;
+            ts.tv_nsec = (long)((lt - ts.tv_sec) * 1000000000l);
+            nanosleep(&ts, NULL);
+        }
+
+        /* Read status registers in a batch */
+        uint16_t regs[SR_NUM_REGS];
+        if (modbus_read_registers(data.ctx, SR_BASE, SR_NUM_REGS, regs) == SR_NUM_REGS) {
+            status_register = regs[SR_STATUS_WORD];
+            frequency_out = regs[SR_OUT_FREQ] * 0.01;
+            output_current = regs[SR_OUT_CURRENT] * 0.1;
+            DC_bus_voltage = regs[SR_DC_BUS_VOLT] * 0.1;
+            output_voltage = regs[SR_OUT_VOLTAGE] * 0.1;
+            motor_RPM = regs[SR_RPM];
+            inverter_temperature = regs[SR_INVERTER_TEMP] * 0.1;
+            motor_load_pct = regs[SR_MOTOR_LOAD] * 0.1;
+
+            is_stopped = (regs[SR_OUT_FREQ] == 0);
+            is_e_stopped = (regs[SR_STATUS_WORD] & GS2_STAT_FAULT) ? 1 : 0;
+            data.mb_ok_count++;
+        } else {
+            error_count++;
+            data.mb_ok_count = 0;
+        }
+
+        /* Write commands */
+        if (enable) {
+            if (!data.initialized)
+                gs2_initialize(__comp_inst);
+
+            /* Frequency command */
+            float hz_per_rpm = max_freq / nameplate_RPM;
+            float hz = fabs(speed_command) * hz_per_rpm;
+            if (hz > max_freq) hz = max_freq;
+            int freq_reg = (int)(hz * 100);
+
+            /* Run command */
+            int cmd = GS2_ENABLE;
+            if (spindle_on) {
+                cmd |= GS2_RUN;
+                if (spindle_rev)
+                    cmd |= GS2_REVERSE;
+            } else {
+                cmd |= GS2_STOP;
+            }
+
+            if (err_reset) {
+                cmd |= GS2_FAULT_RESET;
+                err_reset = 0;
+            }
+
+            if (modbus_write_register(data.ctx, WR_RUN_COMMAND, cmd) < 0) {
+                error_count++;
+                data.mb_ok_count = 0;
+            } else {
+                data.mb_ok_count++;
+            }
+
+            if (modbus_write_register(data.ctx, WR_FREQ_COMMAND, freq_reg) < 0) {
+                error_count++;
+                data.mb_ok_count = 0;
+            } else {
+                data.mb_ok_count++;
+            }
+
+            /* at-speed logic */
+            if (spindle_on && hz > 0.01 &&
+                fabs(1.0 - frequency_out / (hz)) < tolerance)
+                at_speed = 1;
+            else
+                at_speed = 0;
+        } else {
+            modbus_write_register(data.ctx, WR_RUN_COMMAND, GS2_STOP);
+            at_speed = 0;
+            data.initialized = 0;
+        }
+
+        modbus_ok = (data.mb_ok_count > MODBUS_MIN_OK);
+    }
+    }
+
+    /* Shutdown */
+    FOR_ALL_INSTS() {
+        if (!data.init_error && data.ctx) {
+            modbus_write_register(data.ctx, WR_RUN_COMMAND, GS2_STOP);
+            modbus_close(data.ctx);
+            modbus_free(data.ctx);
+        }
+    }
+}

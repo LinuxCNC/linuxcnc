@@ -1,0 +1,500 @@
+component vfs11_vfd "Toshiba VF-S11 VFD Modbus driver";
+
+pin out signed status                    "VFD status register (FD01)";
+pin out signed trip_code                 "Current trip code";
+pin out signed alarm_code                "Alarm monitor bitmap";
+pin out float frequency_command          "Frequency command sent to VFD (Hz)";
+pin out float frequency_out              "Actual output frequency (Hz)";
+pin out float output_current_percentage  "Output current (%)";
+pin out float output_voltage_percentage  "Output voltage (%)";
+pin out float motor_RPM                  "Estimated motor speed (RPM)";
+pin out float inverter_load_percentage   "Inverter load factor (%)";
+pin out float current_load_percentage    "Load current (%)";
+pin out float max_rpm                    "Calculated max RPM from VFD limit";
+pin out float frequency_limit            "Upper frequency limit from VFD (Hz)";
+pin out bit at_speed                     "True when within speed tolerance";
+pin out bit is_stopped                   "True when output frequency is 0";
+pin out bit is_e_stopped                 "True when emergency stop active";
+pin out bit modbus_ok                    "True after 10 successful transactions";
+pin out signed error_count               "Modbus error count";
+pin in float speed_command               "Speed command (RPM)";
+pin in bit spindle_on                    "Spindle run command";
+pin in bit spindle_fwd                   "Spindle forward direction";
+pin in bit spindle_rev                   "Spindle reverse (output, follows fwd)";
+pin in bit DC_brake                      "Engage DC brake (stops spindle)";
+pin in bit err_reset                     "Reset VFD fault";
+pin in bit estop                         "Trigger VFD emergency stop";
+pin in bit jog_mode                      "Jog run mode";
+pin in bit enable                        "Enable bus control of VFD";
+pin in bit acceleration_pattern          "Select accel/decel pattern 2 (F500/F501)";
+pin in bit max_speed                     "Skip non-essential register reads";
+
+param rw float loop_time = 0.1           "Polling period (seconds)";
+param rw float nameplate_HZ = 50         "Motor nameplate frequency (Hz)";
+param rw float nameplate_RPM = 1410      "Motor nameplate RPM";
+param rw float rpm_limit = 2000          "RPM limit";
+param rw float tolerance = 0.01          "Speed tolerance for at-speed";
+
+option userspace yes;
+option extra_setup yes;
+option data vfd_data;
+
+modparam string device "Serial device (default: /dev/ttyS0)";
+modparam int baud = 19200 "Baud rate";
+modparam int bits = 8 "Data bits";
+modparam string parity "Parity: even, odd, or none (default: even)";
+modparam int stopbits = 1 "Stop bits";
+modparam int target = 1 "Modbus slave address";
+modparam int modbus_debug = 0 "Enable Modbus debug output";
+modparam int pollcycles = 10 "Read less-important registers every N cycles";
+modparam int reconnect_delay = 1 "Seconds between reconnect attempts";
+modparam string inifile "INI file for VFD parameters (optional)";
+modparam string section "INI section name (default: VFS11)";
+modparam int report_device = 0 "Report device info at startup";
+modparam string type "Connection type: rtu, tcpserver, or tcpclient (default from INI)";
+modparam string tcpdest "TCP destination IP (default: 127.0.0.1)";
+modparam int tcp_port = 1502 "TCP port number";
+
+license "GPLv2 or greater";
+;;
+/*
+    vfs11_vfd.comp
+
+    Userspace cmod to control a Toshiba VF-S11 VFD via Modbus.
+
+    Copyright (C) 2007, 2008 Stephen Wille Padnos, Thoth Systems, Inc.
+    Copyright (C) 2009,2010,2011,2012 Michael Haberler
+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation, version 2.
+*/
+
+#include <stdio.h>
+#include <errno.h>
+#include <math.h>
+#include <modbus.h>
+#include <modbus-tcp.h>
+#include <unistd.h>
+#include <poll.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#include "inifile.h"
+
+/* VF-S11 registers */
+#define REG_COMMAND1        0xFA00
+#define REG_FREQUENCY       0xFA01
+#define REG_UPPERLIMIT      0x0012
+
+/* Command bits */
+#define CMD_COMMAND_PRIORITY  0x8000
+#define CMD_FREQUENCY_PRIORITY 0x4000
+#define CMD_FAULT_RESET       0x2000
+#define CMD_EMERGENCY_STOP    0x1000
+#define CMD_COAST_STOP        0x0800
+#define CMD_RUN               0x0400
+#define CMD_REVERSE           0x0200
+#define CMD_JOG_RUN           0x0100
+#define CMD_DC_BRAKE          0x0080
+#define CMD_ACCEL_PATTERN_2   0x0040
+
+/* Status registers */
+#define SR_OP_FREQUENCY       0xFD00
+#define SR_INV_OPSTATUS       0xFD01
+#define SR_ALARM_MONITOR      0xFC91
+#define SR_TRIPCODE           0xFC90
+#define SR_INVERTER_MODEL     0xFB05
+#define SR_RATED_CURRENT      0xFE70
+#define SR_RATED_VOLTAGE      0xFE71
+#define SR_CPU1_VERSION       0xFE08
+#define SR_CPU2_VERSION       0xFE73
+#define SR_EEPROM_VERSION     0xFE09
+#define SR_ESTIMATED_OPFREQ   0xFE16
+#define SR_INV_LOADFACTOR     0xFE27
+#define SR_LOADCURRENT        0xFE03
+#define SR_OUTPUT_VOLTAGE     0xFE05
+
+/* Status bits */
+#define ST_EMERGENCY_STOPPED  0x1000
+#define ST_RUNNING            0x0400
+#define ST_TRIPPED            0x0002
+#define ST_ALARMED            0x0004
+
+#define MODBUS_MIN_OK         10
+
+#define CONN_RTU        0
+#define CONN_TCP_SERVER 1
+#define CONN_TCP_CLIENT 2
+
+typedef struct {
+    modbus_t *ctx;
+    int init_error;
+    int read_initial_done;
+    uint16_t old_cmd1_reg;
+    int mb_ok_count;
+    int pollcount;
+    int cfg_pollcycles;
+    int cfg_reconnect_delay;
+    int cfg_report_device;
+    int conn_type;
+    int tcp_socket;
+} vfd_data;
+
+
+static char parse_parity_vfs11(const char *p) {
+    if (!p || !p[0]) return 'E';
+    if (p[0] == 'o' || p[0] == 'O') return 'O';
+    if (p[0] == 'n' || p[0] == 'N') return 'N';
+    return 'E';
+}
+
+static int parse_conn_type(const char *s) {
+    if (!s || !s[0]) return -1;
+    if (strcasecmp(s, "rtu") == 0) return CONN_RTU;
+    if (strcasecmp(s, "tcpserver") == 0) return CONN_TCP_SERVER;
+    if (strcasecmp(s, "tcpclient") == 0) return CONN_TCP_CLIENT;
+    return -1;
+}
+
+
+EXTRA_SETUP()
+{
+    const char *dev = device ? device : "/dev/ttyS0";
+    char par = parse_parity_vfs11(parity);
+    int cfg_baud = baud;
+    int cfg_bits = bits;
+    int cfg_stopbits = stopbits;
+    int cfg_target = target;
+    int cfg_tcp_port = tcp_port;
+    const char *cfg_tcpdest = tcpdest ? tcpdest : "127.0.0.1";
+    const char *sect = section ? section : "VFS11";
+
+    data.cfg_pollcycles = pollcycles;
+    data.cfg_reconnect_delay = reconnect_delay;
+    data.cfg_report_device = report_device;
+    data.conn_type = type ? parse_conn_type(type) : -1;
+
+    /* Read INI file if provided */
+    if (inifile && inifile[0]) {
+        FILE *fp = fopen(inifile, "r");
+        if (fp) {
+            int val;
+            const char *s;
+            if (iniFindInt(fp, "BAUD", sect, &val) == 0) cfg_baud = val;
+            if (iniFindInt(fp, "BITS", sect, &val) == 0) cfg_bits = val;
+            if (iniFindInt(fp, "STOPBITS", sect, &val) == 0) cfg_stopbits = val;
+            if (iniFindInt(fp, "TARGET", sect, &val) == 0) cfg_target = val;
+            if (iniFindInt(fp, "POLLCYCLES", sect, &val) == 0) data.cfg_pollcycles = val;
+            if (iniFindInt(fp, "PORT", sect, &val) == 0) cfg_tcp_port = val;
+            if (iniFindInt(fp, "RECONNECT_DELAY", sect, &val) == 0) data.cfg_reconnect_delay = val;
+            if ((s = iniFind(fp, "DEVICE", sect)) != NULL) dev = s;
+            if ((s = iniFind(fp, "TCPDEST", sect)) != NULL) cfg_tcpdest = s;
+            if ((s = iniFind(fp, "PARITY", sect)) != NULL) par = parse_parity_vfs11(s);
+            if ((s = iniFind(fp, "TYPE", sect)) != NULL) {
+                data.conn_type = parse_conn_type(s);
+            }
+            fclose(fp);
+        } else {
+            GOMC_LOG_ERR("cannot open INI file '%s'\n", inifile);
+            data.init_error = 1;
+            return 0;
+        }
+    }
+
+    if (data.conn_type < 0) {
+        GOMC_LOG_ERR("connection type must be specified (type=rtu|tcpserver|tcpclient)\n");
+        data.init_error = 1;
+        return 0;
+    }
+
+    switch (data.conn_type) {
+    case CONN_RTU:
+        data.ctx = modbus_new_rtu(dev, cfg_baud, par, cfg_bits, cfg_stopbits);
+        if (!data.ctx) {
+            GOMC_LOG_ERR("modbus_new_rtu(%s): %s\n", dev, modbus_strerror(errno));
+            data.init_error = 1;
+            return 0;
+        }
+        modbus_set_slave(data.ctx, cfg_target);
+        if (modbus_connect(data.ctx) != 0) {
+            GOMC_LOG_ERR("unable to connect to %s: %s\n", dev, modbus_strerror(errno));
+            modbus_free(data.ctx);
+            data.ctx = NULL;
+            data.init_error = 1;
+            return 0;
+        }
+        break;
+
+    case CONN_TCP_SERVER:
+        data.ctx = modbus_new_tcp("127.0.0.1", cfg_tcp_port);
+        if (!data.ctx) {
+            GOMC_LOG_ERR("modbus_new_tcp(port %d): %s\n", cfg_tcp_port, modbus_strerror(errno));
+            data.init_error = 1;
+            return 0;
+        }
+        data.tcp_socket = modbus_tcp_listen(data.ctx, 1);
+        if (data.tcp_socket < 0) {
+            GOMC_LOG_ERR("modbus_tcp_listen(): %s\n", modbus_strerror(errno));
+            modbus_free(data.ctx);
+            data.ctx = NULL;
+            data.init_error = 1;
+            return 0;
+        }
+        if (modbus_tcp_accept(data.ctx, &data.tcp_socket) < 0) {
+            GOMC_LOG_ERR("modbus_tcp_accept(): %s\n", modbus_strerror(errno));
+            modbus_free(data.ctx);
+            data.ctx = NULL;
+            data.init_error = 1;
+            return 0;
+        }
+        break;
+
+    case CONN_TCP_CLIENT:
+        data.ctx = modbus_new_tcp(cfg_tcpdest, cfg_tcp_port);
+        if (!data.ctx) {
+            GOMC_LOG_ERR("modbus_new_tcp(%s:%d): %s\n", cfg_tcpdest, cfg_tcp_port, modbus_strerror(errno));
+            data.init_error = 1;
+            return 0;
+        }
+        if (modbus_connect(data.ctx) < 0) {
+            GOMC_LOG_ERR("TCP connect to %s:%d failed: %s\n", cfg_tcpdest, cfg_tcp_port, modbus_strerror(errno));
+            modbus_free(data.ctx);
+            data.ctx = NULL;
+            data.init_error = 1;
+            return 0;
+        }
+        break;
+    }
+
+    modbus_set_debug(data.ctx, modbus_debug);
+    modbus_set_slave(data.ctx, cfg_target);
+
+    data.old_cmd1_reg = 0;
+    data.mb_ok_count = 0;
+    data.pollcount = 0;
+    data.read_initial_done = 0;
+
+    GOMC_LOG_INFO("type=%d, device='%s', baud=%d, parity='%c', target=%d\n",
+                  data.conn_type, dev, cfg_baud, par, cfg_target);
+    return 0;
+}
+
+
+static int vfs11_read_data(inst_t *__comp_inst) {
+    uint16_t val, status_reg, freq_reg;
+
+    if (!data.read_initial_done) {
+        uint16_t max_freq;
+        if (modbus_read_registers(data.ctx, REG_UPPERLIMIT, 1, &max_freq) != 1) {
+            error_count++;
+            return -1;
+        }
+        frequency_limit = max_freq / 100.0;
+        max_rpm = frequency_limit * nameplate_RPM / nameplate_HZ;
+
+        if (data.cfg_report_device) {
+            uint16_t cur, volt, model, cpu1, cpu2, eeprom;
+            if (modbus_read_registers(data.ctx, SR_RATED_CURRENT, 1, &cur) == 1 &&
+                modbus_read_registers(data.ctx, SR_RATED_VOLTAGE, 1, &volt) == 1 &&
+                modbus_read_registers(data.ctx, SR_INVERTER_MODEL, 1, &model) == 1 &&
+                modbus_read_registers(data.ctx, SR_CPU1_VERSION, 1, &cpu1) == 1 &&
+                modbus_read_registers(data.ctx, SR_CPU2_VERSION, 1, &cpu2) == 1 &&
+                modbus_read_registers(data.ctx, SR_EEPROM_VERSION, 1, &eeprom) == 1) {
+                GOMC_LOG_INFO("model:%d, rated:%.1fV %.1fA, cpu1:%d cpu2:%d eeprom:%d\n",
+                              model, volt/10.0, cur/10.0, cpu1, cpu2, eeprom);
+            }
+        }
+        data.read_initial_done = 1;
+    }
+
+    if (modbus_read_registers(data.ctx, SR_INV_OPSTATUS, 1, &status_reg) != 1) goto failed;
+    status = status_reg;
+
+    if (modbus_read_registers(data.ctx, SR_OP_FREQUENCY, 1, &freq_reg) != 1) goto failed;
+    frequency_out = freq_reg * 0.01;
+    is_stopped = (freq_reg == 0);
+    is_e_stopped = (status_reg & ST_EMERGENCY_STOPPED) ? 1 : 0;
+
+    if (status_reg & ST_TRIPPED) {
+        if (modbus_read_registers(data.ctx, SR_TRIPCODE, 1, &val) == 1)
+            trip_code = val;
+    } else {
+        trip_code = 0;
+    }
+
+    if (status_reg & ST_ALARMED) {
+        if (modbus_read_registers(data.ctx, SR_ALARM_MONITOR, 1, &val) == 1)
+            alarm_code = val;
+    } else {
+        alarm_code = 0;
+    }
+
+    if ((data.pollcount == 0) && !max_speed) {
+        if (modbus_read_registers(data.ctx, SR_ESTIMATED_OPFREQ, 1, &val) == 1)
+            motor_RPM = val * nameplate_HZ / 100.0;
+        if (modbus_read_registers(data.ctx, SR_INV_LOADFACTOR, 1, &val) == 1)
+            inverter_load_percentage = val;
+        if (modbus_read_registers(data.ctx, SR_LOADCURRENT, 1, &val) == 1)
+            current_load_percentage = val * 0.01;
+        if (modbus_read_registers(data.ctx, SR_OUTPUT_VOLTAGE, 1, &val) == 1)
+            output_voltage_percentage = val * 0.01;
+        data.pollcount++;
+    } else {
+        data.pollcount++;
+    }
+    if (data.pollcount >= data.cfg_pollcycles)
+        data.pollcount = 0;
+
+    return 0;
+
+failed:
+    error_count++;
+    return -1;
+}
+
+
+static int vfs11_write_data(inst_t *__comp_inst) {
+    float hzcalc;
+    int cmd1_reg, freq_reg, freq_cap;
+
+    if (!enable) {
+        if (modbus_write_register(data.ctx, REG_COMMAND1, 0) < 0) {
+            error_count++;
+            return -1;
+        }
+        return 0;
+    }
+
+    if (nameplate_HZ < 10) nameplate_HZ = 50;
+    if (nameplate_RPM < 600 || nameplate_RPM > 5000) nameplate_RPM = 1410;
+    hzcalc = nameplate_HZ / nameplate_RPM;
+
+    freq_reg = abs((int)(speed_command * hzcalc * 100));
+    freq_cap = abs((int)(rpm_limit * hzcalc * 100));
+    if (freq_reg > freq_cap)
+        freq_reg = freq_cap;
+
+    frequency_command = freq_reg / 100.0;
+
+    /* Build command register */
+    cmd1_reg = CMD_COMMAND_PRIORITY | CMD_FREQUENCY_PRIORITY;
+
+    if (spindle_on)
+        cmd1_reg |= jog_mode ? CMD_JOG_RUN : CMD_RUN;
+
+    if (acceleration_pattern)
+        cmd1_reg |= CMD_ACCEL_PATTERN_2;
+
+    /* Direction: spindle_rev follows from spindle_fwd */
+    spindle_rev = spindle_fwd ? 0 : 1;
+    if (spindle_rev)
+        cmd1_reg |= CMD_REVERSE;
+
+    /* DC brake */
+    if (DC_brake) {
+        cmd1_reg |= CMD_DC_BRAKE;
+        cmd1_reg &= ~(CMD_RUN | CMD_JOG_RUN);
+        spindle_on = 0;
+        at_speed = 0;
+    }
+
+    /* Fault reset - send only once */
+    if (err_reset && !(data.old_cmd1_reg & CMD_FAULT_RESET)) {
+        cmd1_reg |= CMD_FAULT_RESET;
+        err_reset = 0;
+    }
+
+    /* Emergency stop - send only once */
+    if (estop && !(data.old_cmd1_reg & CMD_EMERGENCY_STOP)) {
+        cmd1_reg |= CMD_EMERGENCY_STOP;
+        estop = 0;
+        spindle_on = 0;
+        at_speed = 0;
+    }
+
+    if (modbus_write_register(data.ctx, REG_COMMAND1, cmd1_reg) < 0) {
+        if (cmd1_reg & CMD_EMERGENCY_STOP) {
+            sleep(2);
+        }
+        error_count++;
+        data.old_cmd1_reg = cmd1_reg;
+        return errno;
+    }
+    data.old_cmd1_reg = cmd1_reg;
+
+    if (modbus_write_register(data.ctx, REG_FREQUENCY, freq_reg) < 0) {
+        error_count++;
+        return errno;
+    }
+
+    /* at-speed logic */
+    if (frequency_command > 0.01 &&
+        (1.0 - frequency_out / frequency_command) < tolerance) {
+        at_speed = 1;
+    } else {
+        at_speed = 0;
+    }
+    if (!spindle_on)
+        at_speed = 0;
+
+    return 0;
+}
+
+
+void user_mainloop(void) {
+    int efd = GOMC_EXIT_FD();
+
+    while (!GOMC_SHOULD_EXIT()) {
+    FOR_ALL_INSTS() {
+        if (data.init_error) {
+            struct pollfd pfd = { .fd = efd, .events = POLLIN };
+            poll(&pfd, 1, 1000);
+            continue;
+        }
+
+        /* Enforce period bounds */
+        float lt = loop_time;
+        if (lt < 0.001) lt = 0.001;
+        if (lt > 2.0) lt = 2.0;
+        if (!max_speed) {
+            struct timespec ts;
+            ts.tv_sec = (time_t)lt;
+            ts.tv_nsec = (long)((lt - ts.tv_sec) * 1000000000l);
+            nanosleep(&ts, NULL);
+        }
+
+        if (vfs11_read_data(__comp_inst) == 0)
+            data.mb_ok_count++;
+        else
+            data.mb_ok_count = 0;
+
+        int wr = vfs11_write_data(__comp_inst);
+        if (wr == 0) {
+            data.mb_ok_count++;
+        } else {
+            data.mb_ok_count = 0;
+            if (wr == EBADF || wr == ECONNRESET || wr == EPIPE) {
+                GOMC_LOG_WARN("connection lost, reconnecting...\n");
+                modbus_close(data.ctx);
+                data.read_initial_done = 0;
+                sleep(data.cfg_reconnect_delay);
+                if (modbus_connect(data.ctx) != 0)
+                    GOMC_LOG_ERR("reconnect failed: %s\n", modbus_strerror(errno));
+            }
+        }
+
+        modbus_ok = (data.mb_ok_count > MODBUS_MIN_OK);
+    }
+    }
+
+    /* Shutdown: release VFD from bus control */
+    FOR_ALL_INSTS() {
+        if (!data.init_error && data.ctx) {
+            modbus_write_register(data.ctx, REG_COMMAND1, 0);
+            modbus_close(data.ctx);
+            modbus_free(data.ctx);
+        }
+    }
+}
