@@ -1,0 +1,1 @@
+{"root":["./src/env.d.ts","./src/main.ts","./src/generated/tools_client.ts","./src/stores/tools.ts","./src/App.vue","./src/components/ToolEditDialog.vue","./src/components/ToolTable.vue"],"version":"5.7.3"}
