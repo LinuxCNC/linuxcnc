@@ -72,7 +72,7 @@ pin out float ohmic_volts                "Calculated ohmic voltage";
 function _;
 license "GPL";
 ;;
-#include <rtapi_math.h>
+#include <math.h>
 
 FUNCTION(_) {
     double thcad_vel_scale = 1/((thcad_max_volt_freq - thcad_0_volt_freq)/thcad_fullscale/thcad_divide);

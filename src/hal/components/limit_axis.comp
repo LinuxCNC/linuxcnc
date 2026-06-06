@@ -72,7 +72,7 @@ FUNCTION(_){
     if (max_range(i) < min_range(i)){
       // Throw Error and skip this range
       if (! error_range(i) ){
-        rtapi_print_msg(RTAPI_MSG_ERR,
+        GOMC_LOG_ERR(
                         "limit_axis: Error in range %d settings! Min: %f > Max: %f \n",
                         i,
                         max_range(i),
@@ -87,7 +87,7 @@ FUNCTION(_){
     if (max_limit(i) < min_limit(i)){
       // Throw Error and skip this range
       if (! error_limit(i)){
-        rtapi_print_msg(RTAPI_MSG_ERR,
+        GOMC_LOG_ERR(
                         "limit_axis: Error in limit %d settings! Min: %f > Max: %f \n",
                         i,
                         max_limit(i),
@@ -106,7 +106,7 @@ FUNCTION(_){
       // Found our limits, stop looking
       error_no_range = 0;
       if (i != current_range){
-        rtapi_print_msg(RTAPI_MSG_INFO, "limit_axis: Switching to Range %d\n", i);
+        GOMC_LOG_INFO( "limit_axis: Switching to Range %d\n", i);
         current_range = i;
       }
       return;
@@ -116,7 +116,7 @@ FUNCTION(_){
   // If we've looked through all our ranges, then it's not there
   if (!error_no_range){
     error_no_range = 1;
-    rtapi_print_msg(RTAPI_MSG_ERR,
+    GOMC_LOG_ERR(
                     "limit_axis: No Range found corresponding to feedback");
 
   }

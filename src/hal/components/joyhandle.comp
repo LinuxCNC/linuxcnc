@@ -47,7 +47,7 @@ function _;
 license "GPL";
 author "Paul Willutzki";
 ;;
-#include <rtapi_math.h>
+#include <math.h>
 
 FUNCTION(_) {
 double p,a,b,alin,clin,xm,ym,xinv,yinv;

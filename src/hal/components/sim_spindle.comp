@@ -16,7 +16,7 @@ author "Michael Haberler";
 function _;
 
 ;;
-#include <rtapi_math.h>
+#include <math.h>
 
 
 FUNCTION(_) {

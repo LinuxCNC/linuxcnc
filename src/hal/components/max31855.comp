@@ -46,7 +46,7 @@ author "Joseph Calderon";
 
 ;;
 
-#include "rtapi_math.h"
+#include <math.h>
 
 static float accpoly(float *v, size_t n, float p) {
   int i;
@@ -179,7 +179,7 @@ FUNCTION(bitbang_spi) {
         fault(i) = (data_frame[i] & 0x7) ? TRUE : FALSE;
         fault_flags(i) = data_frame[i] & 0x7;
         if (isnan(f)) {
-          rtapi_print("max31855: sensor %d detected fault %x\n", i, data_frame[i] & 0x7);
+          GOMC_LOG_DBG("max31855: sensor %d detected fault %x\n", i, data_frame[i] & 0x7);
         } else {
           temp_celsius(i) = f;
           temp_fahrenheit(i) = to_fahrenheit(f);

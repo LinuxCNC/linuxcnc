@@ -1,5 +1,7 @@
 component bldc """BLDC and AC-servo control component 
-.B loadrt bldc cfg=qi6,aH\\fB""";
+.B load bldc cfg=qh [bldc.0]
+.br
+.B load bldc cfg=aH [bldc.1]\\fB""";
 // 1.3.2 (26/1/11 20:10)
 
 pin in bit hall1 if personality & 0x01 "Hall sensor signal 1";
@@ -345,25 +347,23 @@ author "Andy Pugh";
 function _;
 
 option extra_setup yes;
-option count_function yes;
+
+modparam string cfg "Configuration string for motor type (e.g. qh, qhi, n)";
 
 variable int old_init = 0;
 variable char old_ph = 000;
 variable int old_pattern = -1;
 variable double counter = 0;
-variable rtapi_s64 long_rawcounts = 0;
-variable rtapi_s64 old_long_rawcounts = 0;
-variable rtapi_s32 old_rawcounts = 0;
+variable int64_t long_rawcounts = 0;
+variable int64_t old_long_rawcounts = 0;
+variable int32_t old_rawcounts = 0;
 variable int force_trap = 0;
 
 ;;
 
-#include <rtapi_math.h>
-#define MAX_CHAN 8
+#include <math.h>
+#include <stdint.h>
 #define NUM_TAG 8
-
-static char *cfg[NUM_TAG];
-RTAPI_MP_ARRAY_STRING(cfg, MAX_CHAN, "Description of each motor");
 
 /*dir H1 H2 H3 pattern
 000  001  010  011  100  101  110  111 */
@@ -489,7 +489,7 @@ FUNCTION(_) {
             trap = 1;
 
             if (pattern > 47){
-                rtapi_print_msg(RTAPI_MSG_ERR,
+                GOMC_LOG_ERR(
                                 "Only `Hall patterns 0-47 are allowed, you have"
                                 " requested pattern %i\n", pattern);
                 pattern = 0;
@@ -612,7 +612,7 @@ FUNCTION(_) {
                 rotor_angle -= floor(rotor_angle);
             }
             else {
-                rtapi_print_msg(RTAPI_MSG_ERR, "An error has occurred in the "
+                GOMC_LOG_ERR( "An error has occurred in the "
                                 "bldc homing sequence. Init done without state");
                 return;}
             break;
@@ -652,7 +652,7 @@ FUNCTION(_) {
 
         case 0x03:
         case 0x0B:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Both Hall Sensors and Absolute "
+            GOMC_LOG_ERR( "Both Hall Sensors and Absolute "
                             "encoder specified on the same motor. Only the"
                             "Encoder will be used\n");
             in_type = 0x02;
@@ -661,30 +661,30 @@ FUNCTION(_) {
         case 0x07:
         case 0x0E:
         case 0x0F:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Specifying the use of both absolute "
+            GOMC_LOG_ERR( "Specifying the use of both absolute "
                             "and incremental encoders on the same motor is an "
                              "error. Motor disabled\n");
             in_type = -2;
             return;
         case 0x08:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Driving an electronically commutated"
+            GOMC_LOG_ERR( "Driving an electronically commutated"
                             "motor with only an index for feedback is not"
                             "possible. Motor Disabled\n" );
             in_type = -2;
             return;
         case 0x09:
-            rtapi_print_msg(RTAPI_MSG_ERR, "The use of an encoder Index with "
+            GOMC_LOG_ERR( "The use of an encoder Index with "
                             "Hall sensors is not supported. Defaulting to "
                             "trapezoidal commutation\n");
             in_type = 0x01;
             return;
         case 0x0A:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Index is not needed with an Absolute"
+            GOMC_LOG_ERR( "Index is not needed with an Absolute"
                             "encoder and will be ignored\n");
             in_type = 0x02;
             return;
         default:
-        rtapi_print_msg(RTAPI_MSG_ERR, "Unknown input type pattern (%X) in "
+        GOMC_LOG_ERR( "Unknown input type pattern (%X) in "
                         "bldc\n", in_type);
             in_type = -2;
         return;
@@ -812,17 +812,17 @@ FUNCTION(_) {
             return;
 
         case 0x500:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Combinations of Hall Pattern and Bit"
+            GOMC_LOG_ERR( "Combinations of Hall Pattern and Bit"
                             " outputs are not supported. Defaulting to Hall");
             out_type = 0x400;
             return;
         case 0x600:
-            rtapi_print_msg(RTAPI_MSG_ERR, "6-Wire Hall patterns outputs are "
+            GOMC_LOG_ERR( "6-Wire Hall patterns outputs are "
                             "not supported. Defaulting to 3-wire");
             out_type = 0x400;
             return;
         case 0x700:
-            rtapi_print_msg(RTAPI_MSG_ERR, "6-wire combinations of Hall and Bit"
+            GOMC_LOG_ERR( "6-wire combinations of Hall and Bit"
                             " outputs can't be supported. Defaulting to 3-wire"
                             " Hall pattern");
             out_type = 0x400;
@@ -830,18 +830,18 @@ FUNCTION(_) {
         case 0x900:
         case 0xB00:
         case 0xA00:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Combinations of bit level and "
+            GOMC_LOG_ERR( "Combinations of bit level and "
                             " Gray Code outputs are not supported. Defaulting"
                             " to Gray Code");
             out_type = 0x800;
             return;
         case 0xC00:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Hall Sensor and Gray-code outputs"
+            GOMC_LOG_ERR( "Hall Sensor and Gray-code outputs"
                             " can not be combined. defaulting to Hall");
             out_type = 0x400;
             return;
         default:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Unsupported output type (%X) in bldc"
+            GOMC_LOG_ERR( "Unsupported output type (%X) in bldc"
                             , out_type);
             in_type = -2;
             return;
@@ -849,10 +849,16 @@ FUNCTION(_) {
 }
 
 EXTRA_SETUP(){
+    (void)nparams; (void)params;  /* unused */
     int i;
     char c;
-    for (i = 0; cfg[extra_arg][i] != 0 && i < NUM_TAG ; i++){
-        c = cfg[extra_arg][i];
+    if (cfg[0] == '\0') {
+        GOMC_LOG_ERR("The bldc component needs a cfg= parameter.\n"
+                    "Valid tags are h, a, q, i, f, B, 6, H, F, T\n");
+        return -1;
+    }
+    for (i = 0; cfg[i] != 0 && i < NUM_TAG ; i++){
+        c = cfg[i];
         if (c == 'h') personality |= 0x01;
         if (c == 'a') personality |= 0x02;
         if (c == 'q') personality |= 0x04;
@@ -865,16 +871,4 @@ EXTRA_SETUP(){
         if (c == 'T') personality |= 0x8000;
     }
     return 0;
-}
-
-int get_count(void){
-    int i;
-
-    for (i=0; cfg[i] != NULL && i < MAX_CHAN; i++){}
-    if (i == 0){
-        rtapi_print_msg(RTAPI_MSG_ERR, "The bldc component needs at least one "
-                    "feedback type tag.\nValid tags are h, a, q, i, b, 6, n\n" );
-        return 0;
-    }
-    return i;
 }

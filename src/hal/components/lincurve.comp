@@ -63,6 +63,7 @@ FUNCTION(_){
 }
 
 EXTRA_SETUP(){
+	(void)nparams; (void)params;  /* unused */
 	if (personality > 16) personality = 16;
 	if (personality < 2) personality = 2;
 	return 0;

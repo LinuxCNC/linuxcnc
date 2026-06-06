@@ -38,8 +38,9 @@
 component message "Display a message";
  
 description """Allows HAL pins to trigger a message. Example hal commands:
- loadrt message names=oillow,oilpressure,inverterfail messages="Slideway oil low,No oil
-pressure,Spindle inverter fault"
+ load message [oillow] message="Slideway oil low"
+ load message [oilpressure] message="No oil pressure"  
+ load message ]inverterfail] message="Spindle inverter fault"
  addf oillow servo-thread
  addf oilpressure servo-thread
  addf inverterfail servo-thread
@@ -58,17 +59,11 @@ displayed again if the trigger is active""";
 param rw bit edge =TRUE """Selects the desired edge: FALSE means falling, TRUE
 means rising""";
 
-modparam dummy messages """The messages to display. These should be listed,
-comma-delimited, inside a single set of quotes. See the "Description" section
-for an example.
-If there are more messages than "count" or "names" then the excess will be
-ignored. If there are fewer messages than "count" or "names" then an error will
-be raised and the component will not load.""";
+modparam string message "The message to display when triggered";
  
-variable int myidx;
-variable hal_bit_t prev_trigger = FALSE;
-variable hal_bit_t prev_force = TRUE;
-variable hal_bit_t prev_edge = TRUE;
+variable int prev_trigger = 0;
+variable int prev_force = 1;
+variable int prev_edge = 1;
  
 option extra_setup yes;
  
@@ -76,12 +71,11 @@ function _ nofp "Display a message";
 license "GPL v2";
 author "Les Newell";
 ;;
- 
-char *messages[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-RTAPI_MP_ARRAY_STRING(messages, 16, "Displayed strings");
+
+#include <errno.h>
  
 FUNCTION(_){
-    hal_bit_t show = false;    
+    int show = 0;    
     if(!!prev_edge != !!edge) /* edge type has changed */
     {
         prev_edge = edge;
@@ -92,7 +86,7 @@ FUNCTION(_){
         prev_force = force;
         if(force && (!!trigger == !!edge))
         {
-            show = true;
+            show = 1;
         }
     }
     if(!!trigger != !!prev_trigger) /* trigger has changed */
@@ -100,26 +94,20 @@ FUNCTION(_){
         prev_trigger = trigger;
         if(!!trigger == !!edge)
         {
-            show = true;
+            show = 1;
         }
     }
-    if(show && (messages[myidx] != 0))
+    if(show && message != NULL)
     {
-        rtapi_print_msg(RTAPI_MSG_ERR, "%s\n", messages[myidx]);
+        GOMC_LOG_ERR("%s", message);
     }
 }
  
 EXTRA_SETUP(){
-    myidx = extra_arg;
-    if(myidx<0 || myidx >15)
+    if(message == NULL || message[0] == '\0')
     {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Count of names= is outside the allowable range 0..15\n");
+        GOMC_LOG_ERR("message parameter is required");
         return -EINVAL;
     }
-    if(messages[myidx] == 0)
-    {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Message string for index %d missing\n", myidx);
-        return -EINVAL;
-    }
-    return(0);
+    return 0;
 }

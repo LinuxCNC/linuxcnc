@@ -54,8 +54,6 @@ author "John Thornton";
 
 license "GPLv2 or greater";
 
-option singleton yes;
-
 // Input Pins
 pin in float encoder_vel "Connect to hm2_5i20.0.encoder.00.velocity";
 pin in float current_vel "Connect to motion.current-vel";
@@ -89,7 +87,7 @@ function _;
 
 ;;
 
-#include "rtapi_math.h"
+#include <math.h>
 
 FUNCTION(_) {
     // convert encoder velocity to volts

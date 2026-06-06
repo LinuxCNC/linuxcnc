@@ -33,13 +33,11 @@ author "Chad Woitas";
 FUNCTION(_) {
         if(pt < 0) {
             pt = 0;
-            rtapi_print_msg(RTAPI_MSG_WARN,
-                            "tp: Pulse time must be positive, resetting to 0");
+            GOMC_LOG_WARN("tp: Pulse time must be positive, resetting to 0");
         }
         if(et < 0) {
             et = 0;
-            rtapi_print_msg(RTAPI_MSG_WARN,
-                            "tp: Elapsed time rolled over, resetting to 0");
+            GOMC_LOG_WARN("tp: Elapsed time rolled over, resetting to 0");
         }
 
         // Check timers

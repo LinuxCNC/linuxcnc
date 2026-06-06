@@ -31,13 +31,11 @@ author "Chad Woitas";
 FUNCTION(_) {
         if(pt < 0) {
             pt = 0;
-            rtapi_print_msg(RTAPI_MSG_WARN,
-                            "tof: Delay time must be positive, resetting to 0");
+            GOMC_LOG_WARN("tof: Delay time must be positive, resetting to 0");
         }
         if(et < 0) {
             et = 0;
-            rtapi_print_msg(RTAPI_MSG_WARN,
-                            "tof: Elapsed time rolled over, resetting to 0");
+            GOMC_LOG_WARN("tof: Elapsed time rolled over, resetting to 0");
         }
 
         // Check timers

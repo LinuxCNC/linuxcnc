@@ -22,7 +22,7 @@ author "Chris S Morley";
 ;;
 FUNCTION(_) {
     int num = 0;
-    int c, r, cur_button;
+    int c, r, cur_button = 0;
     int allup_flag = true;
 
     for (r = 0; r < 8; r++){
@@ -40,7 +40,7 @@ FUNCTION(_) {
 
             num = r*8+c; // row * number of rows + column
             if ( cur_button != last[num] ){
-                rtapi_print("row: %d column: %d code: %d\n",r,c,num);
+                GOMC_LOG_DBG("row: %d column: %d code: %d\n",r,c,num);
                 last[num] = cur_button;
                 if (cur_button == 1){
                     out = num | keydown;

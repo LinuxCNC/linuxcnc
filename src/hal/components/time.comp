@@ -106,10 +106,10 @@ function _;
 
 ;;
 
-#include "rtapi_math.h"
+#include <math.h>
 
 FUNCTION(_) {
-    rtapi_u32 totalseconds;
+    uint32_t totalseconds;
     int running = start | pause;
     if(running && !old_start) totalnsec = 0;
 

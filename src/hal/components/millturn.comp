@@ -28,143 +28,93 @@ switchable kinematics in particular see the switchkins document
 chapter (docs/src/motion/switchkins.txt)
 
 """;
-// The fpin pin is not accessible in kinematics functions.
-// Use the *_setup() function for pins and params used by kinematics.
-pin out s32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+pin in u32 demo_in = 0 "example input pin";
+pin out u32 demo_out = 0 "example output pin, echoes 'demo-in' after homing";
+pin out s32 fpin = 0 "pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+param rw float param_rw = 0 "example read-write parameter";
+param r  float param_ro = 0 "example read-only parameter";
+pin out bit kinstype_is_0 = 1 "Indicates mill (type 0) kinematics active";
+pin out bit kinstype_is_1 = 0 "Indicates turn (type 1) kinematics active";
 function fdemo;
+gmi_provide kins;
 license "GPL";
 author "David Mueller";
 ;;
 
-#include "rtapi_math.h"
-#include "kinematics.h"
+// ─── GMI kinematics callbacks ───
+//
+// These functions implement the kins_callbacks_t interface.
+// modcompile wires them into the callbacks struct automatically
+// via the gmi_provide directive.
+//
+// With the ctx parameter, gmi_kins_* callbacks can access the
+// component instance by casting:
+//   inst_t *__comp_inst = (inst_t *)ctx;
+// This enables use of HAL pin convenience macros.
 
-static struct haldata {
-  // Example pin pointers:
-  hal_u32_t *in;
-  hal_u32_t *out;
-  // Example parameters:
-  hal_float_t param_rw;
-  hal_float_t param_ro;
+static int32_t switchkins_type;
 
-  //Declare hal pin pointers used for switchable kinematics
-  hal_bit_t   *kinstype_is_0;
-  hal_bit_t   *kinstype_is_1;
-} *haldata;
-
-FUNCTION(fdemo) {
-   // This function can be added to a thread (addf) for
-   // purposes not related to the kinematics functions.
-   if (fpin == 0) {
-       rtapi_print("fdemo function added to thread\n");
-   }
-   fpin++;
-}
-
-static int millturn_setup(void) {
-#define HAL_PREFIX "millturn"
-    int res=0;
-
-    // inherit comp_id from rtapi_main()
-    if (comp_id < 0) goto error;
-    // set unready to allow creation of pins
-    if (hal_set_unready(comp_id)) goto error;
-
-    haldata = hal_malloc(sizeof(struct haldata));
-    if (!haldata) goto error;
-
-    // hal pin examples:
-    res += hal_pin_u32_newf(HAL_IN ,&(haldata->in) ,comp_id,"%s.in" ,HAL_PREFIX);
-    res += hal_pin_u32_newf(HAL_OUT,&(haldata->out),comp_id,"%s.out",HAL_PREFIX);
-    // hal parameter examples:
-    res += hal_param_float_newf(HAL_RW, &haldata->param_rw,comp_id,"%s.param-rw",HAL_PREFIX);
-    res += hal_param_float_newf(HAL_RO, &haldata->param_ro,comp_id,"%s.param-ro",HAL_PREFIX);
-
-    // hal pins required for switchable kinematics:
-    res += hal_pin_bit_new("kinstype.is-0", HAL_OUT, &(haldata->kinstype_is_0), comp_id);
-    res += hal_pin_bit_new("kinstype.is-1", HAL_OUT, &(haldata->kinstype_is_1), comp_id);
-
-    // define default kinematics at startup for switchable kinematics
-    *haldata->kinstype_is_0 = 1; //default at startup -> mill configuration
-    *haldata->kinstype_is_1 = 0; //-> turn configuration
-
-    if (res) goto error;
-    hal_ready(comp_id);
-    rtapi_print("*** %s setup ok\n",__FILE__);
-    return 0;
-error:
-    rtapi_print("\n!!! %s setup failed res=%d\n\n",__FILE__,res);
-    return -1;
-#undef HAL_PREFIX
-}
-
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsSwitchable);
-EXPORT_SYMBOL(kinematicsSwitch);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsForward);
-
-static hal_u32_t switchkins_type;
-
-int kinematicsSwitchable() {return 1;}
-
-int kinematicsSwitch(int new_switchkins_type)
+static kins_kinematics_type_t gmi_kins_type(void *ctx)
 {
+    (void)ctx;
+    return KINS_BOTH;
+}
+
+static int32_t gmi_kins_switchable(void *ctx)
+{
+    (void)ctx;
+    return 1;
+}
+
+static int32_t gmi_kins_switch(void *ctx, int32_t new_switchkins_type)
+{
+    inst_t *__comp_inst = (inst_t *)ctx;
     switchkins_type = new_switchkins_type;
-    rtapi_print("kinematicsSwitch(): type=%d\n",switchkins_type);
-    // create case structure for switchable kinematics
+    gomc_log_infof(__comp_inst->env->log, __comp_inst->name, "kinematicsSwitch(): type=%d", switchkins_type);
     switch (switchkins_type) {
-        case 0: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE0\n");
-                *haldata->kinstype_is_0 = 1;
-                *haldata->kinstype_is_1 = 0;
+        case 0: gomc_log_infof(__comp_inst->env->log, __comp_inst->name, "kinematicsSwitch:TYPE0");
+                kinstype_is_0 = 1;
+                kinstype_is_1 = 0;
                 break;
-        case 1: rtapi_print_msg(RTAPI_MSG_INFO,
-                "kinematicsSwitch:TYPE1\n");
-                *haldata->kinstype_is_0 = 0;
-                *haldata->kinstype_is_1 = 1;
+        case 1: gomc_log_infof(__comp_inst->env->log, __comp_inst->name, "kinematicsSwitch:TYPE1");
+                kinstype_is_0 = 0;
+                kinstype_is_1 = 1;
                 break;
-       default: rtapi_print_msg(RTAPI_MSG_ERR,
-                "kinematicsSwitch:BAD VALUE <%d>\n",
+       default: gomc_log_errorf(__comp_inst->env->log, __comp_inst->name, "kinematicsSwitch:BAD VALUE <%d>",
                 switchkins_type);
-                *haldata->kinstype_is_1 = 0;
-                *haldata->kinstype_is_0 = 0;
+                kinstype_is_0 = 0;
+                kinstype_is_1 = 0;
                 return -1; // FAIL
     }
-    return 0; // ok
+    return 0;
 }
 
-KINEMATICS_TYPE kinematicsType()
+static int32_t gmi_kins_forward(
+    void *ctx,
+    const double joints[KINS_MAX_JOINTS],
+    kins_pose_t *pos,
+    uint64_t fflags,
+    uint64_t *iflags)
 {
-static bool is_setup=0;
-    if (!is_setup) millturn_setup();
-    return KINEMATICS_BOTH; // set as required
-           // Note: If kinematics are identity, using KINEMATICS_BOTH
-           //       may be used in order to allow a gui to display
-           //       joint values in preview prior to homing
-} // kinematicsType()
+    (void)ctx;
+    (void)fflags;
+    (void)iflags;
 
-static bool is_ready=0;
-int kinematicsForward(const double *j,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
-{
-    static bool gave_msg;
-    // define forward kinematic models using case structure for
-    // for switchable kinematics
+    // Switchable forward kinematics:
+    // type 0 (mill): XYZA identity
+    // type 1 (turn): Z-YX remap with A as spindle
     switch (switchkins_type) {
         case 0:
-            pos->tran.x = j[0];
-            pos->tran.y = j[1];
-            pos->tran.z = j[2];
-            pos->a      = j[3];
+            pos->x = joints[0];
+            pos->y = joints[1];
+            pos->z = joints[2];
+            pos->a = joints[3];
             break;
         case 1:
-            pos->tran.x = j[2];
-            pos->tran.y = -j[1];
-            pos->tran.z = j[0];
-            pos->a      = j[3];
+            pos->x = joints[2];
+            pos->y = -joints[1];
+            pos->z = joints[0];
+            pos->a = joints[3];
             break;
     }
     // unused coordinates:
@@ -173,45 +123,46 @@ int kinematicsForward(const double *j,
     pos->u = 0;
     pos->v = 0;
     pos->w = 0;
-
-    if (*haldata->in && !is_ready && !gave_msg) {
-       rtapi_print_msg(RTAPI_MSG_ERR,
-                       "%s the 'in' pin not echoed until Inverse called\n",
-                      __FILE__);
-       gave_msg=1;
-    }
     return 0;
-} // kinematicsForward()
+}
 
-int kinematicsInverse(const EmcPose * pos,
-                      double *j,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+static int32_t gmi_kins_inverse(
+    void *ctx,
+    const kins_pose_t *pos,
+    double joints[KINS_MAX_JOINTS],
+    uint64_t iflags,
+    uint64_t *fflags)
 {
-    is_ready = 1; // Inverse is not called until homed for KINEMATICS_BOTH
+    (void)ctx;
+    (void)iflags;
+    (void)fflags;
 
-    // Update the kinematic joints specified by the
-    // [KINS]JOINTS setting (4 required for this template).
-    // define forward kinematic models using case structure for
-    // for switchable kinematics
+    // Switchable inverse kinematics:
+    // [KINS]JOINTS=4 required for this module
     switch (switchkins_type) {
         case 0:
-            j[0] = pos->tran.x;
-            j[1] = pos->tran.y;
-            j[2] = pos->tran.z;
-            j[3] = pos->a;
+            joints[0] = pos->x;
+            joints[1] = pos->y;
+            joints[2] = pos->z;
+            joints[3] = pos->a;
             break;
         case 1:
-            j[2] = pos->tran.x;
-            j[1] = -pos->tran.y;
-            j[0] = pos->tran.z;
-            j[3] = pos->a;
+            joints[2] = pos->x;
+            joints[1] = -pos->y;
+            joints[0] = pos->z;
+            joints[3] = pos->a;
             break;
     }
-
-    //example hal pin update (homing reqd before kinematicsInverse)
-    *haldata->out = *haldata->in; //dereference
-    //read from param example: *haldata->out = haldata->param_rw;
-
     return 0;
-} // kinematicsInverse()
+}
+
+FUNCTION(fdemo) {
+   // This function can be added to a thread (addf) for
+   // purposes not related to the kinematics functions.
+   if (fpin == 0) {
+       GOMC_LOG_INFO("fdemo function added to thread");
+   }
+   fpin++;
+   // example HAL pin echo (only works in FUNCTION context)
+   demo_out = demo_in;
+}

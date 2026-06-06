@@ -1,0 +1,67 @@
+component manualtoolchange "Manual tool change with REST API for UI";
+
+description
+"""
+Provides HAL pins for iocontrol tool-change handshaking and a REST API
+for a remote UI (manualtoolchange_ui.py).  Replaces the old
+hal_manualtoolchange userspace Python component.
+
+HAL pins (directly wired to iocontrol):
+  - change (bit, in): tool change requested by iocontrol
+  - number (s32, in): requested tool number
+  - change_button (bit, in): external button to confirm change
+  - changed (bit, out): tool change confirmed
+
+REST API (via GMI):
+  - GET  /state   — returns {change, number, changed}
+  - POST /confirm — sets changed=true
+
+The UI polls GET /state, shows a dialog when change goes true,
+and calls POST /confirm when the operator clicks Continue.
+The change_button pin allows confirming without the UI (e.g. a
+physical button wired through HAL).
+""";
+
+pin in bit change "Tool change requested by iocontrol";
+pin in s32 number "Requested tool number (0 = remove tool)";
+pin in bit change_button "External button to confirm tool change";
+pin out bit changed "Tool change confirmed";
+
+function _ nofp;
+
+gmi_provide manualtoolchange;
+license "GPL";
+;;
+
+/* Thread function: handle change_button auto-confirm and
+   reset changed when change goes low. */
+FUNCTION(_) {
+    if (change && change_button && !changed) {
+        changed = 1;
+    }
+    if (!change) {
+        changed = 0;
+    }
+}
+
+/* GMI callbacks — use convenience macros for HAL pin access.
+ * Note: .gmi struct field names must not collide with HAL pin names
+ * (which are preprocessor macros in .comp files). */
+
+static manualtoolchange_tool_change_state_t gmi_manualtoolchange_get_state(void *ctx) {
+    inst_t *__comp_inst = (inst_t *)ctx;
+    manualtoolchange_tool_change_state_t state;
+    state.change_requested = change;
+    state.tool_number      = number;
+    state.change_confirmed = changed;
+    return state;
+}
+
+static bool gmi_manualtoolchange_confirm(void *ctx) {
+    inst_t *__comp_inst = (inst_t *)ctx;
+    if (change && !changed) {
+        changed = 1;
+        return true;
+    }
+    return false;
+}

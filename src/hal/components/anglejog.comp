@@ -61,7 +61,7 @@ function _;
 license "GPL";
 author  "Dewey Garrett";
 ;;
-#include "rtapi_math.h"
+#include <math.h>
 #define TO_RAD M_PI/180
 // replicate simple_tp.h define for tiny magnitude delta:
 #define TINY_DP(max_accel,period) (max_accel*period*period*0.001)
@@ -145,12 +145,12 @@ static int  ifactor = 0;
                 if (   iscale_factor >= MIN_ISCALE_FACTOR
                     && iscale_factor <= MAX_ISCALE_FACTOR) {
                     ifactor = iscale_factor;
-                    rtapi_print("new ifactor=%d\n",ifactor);
+                    GOMC_LOG_DBG("new ifactor=%d\n",ifactor);
                     new_ifactor = 1;
                     gave_msg = 0;
                 } else {
                     if (!gave_msg) {
-                        rtapi_print("BOGUS iscale_factor=%d (min=%d max=%d)\n"
+                        GOMC_LOG_DBG("BOGUS iscale_factor=%d (min=%d max=%d)\n"
                         ,ifactor,MIN_ISCALE_FACTOR,MAX_ISCALE_FACTOR);
                         gave_msg = 1;
                     }

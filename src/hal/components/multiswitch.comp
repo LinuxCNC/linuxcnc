@@ -7,7 +7,9 @@ Copyright 2011
 
 example Hal linkages required:-
 ################################
-loadrt multiswitch cfg=4,6,8
+load multiswitch cfg=4
+load multiswitch cfg=6
+load multiswitch cfg=8
 addf multiswitch.0 servo-thread
 ...
 net toggle-switch multiswitch.0.toggle <= parport.N.pin-nn-out
@@ -30,12 +32,10 @@ param rw signed position      "Current state (may be set in the HAL)";
 
 pin out bit bit-##[32:personality] = false       "Output bits";
 
-modparam dummy cfg              """cfg should be a comma-separated list of sizes, for example cfg=2,4,6 would create 3 instances of 2, 4 and 6 bits respectively.
-Ignore the "personality" parameter, that is auto-generated.""";
+modparam int cfg = 4            "Number of output bits for this instance";
 
 function _ ;
 option extra_setup yes;
-option count_function yes;
 
 variable int old_up = 0;
 variable int old_down = 0;
@@ -43,10 +43,6 @@ variable int old_down = 0;
 author "ArcEye schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org";
 license "GPL";
 ;;
-
-#define MAX_COUNT 32
-int cfg[MAX_COUNT];
-RTAPI_MP_ARRAY_INT(cfg, MAX_COUNT, "array of function sizes");
 
 FUNCTION(_) {
     int i;
@@ -67,18 +63,8 @@ FUNCTION(_) {
 }
 
 EXTRA_SETUP(){
-    personality = cfg[extra_arg];
+    personality = cfg;
     top_position = personality - 1;
     return 0;
-}
-
-int get_count(void){
-    int i;
-    for (i=0; cfg[i] != 0 && i < MAX_COUNT; i++){}
-    if (i == 0){
-        cfg[0] = 4;
-        i = 1;
-    }
-    return i;
 }
 

@@ -1,207 +1,210 @@
-//    Copyright (C) 2023 Andy Pugh
+/*
+ * enum.c — cmod HAL component: convert enumerated ints to/from bit pins.
+ *
+ * Each instance is either an encoder (bits→int) or decoder (int→bits).
+ * The mode and pin names are specified in the 'enums' argument string.
+ *
+ * Usage:
+ *   load enum enums="D;off;on;error" [name=my-decoder]
+ *   load enum enums="E;idle;run;fault" [name=my-encoder]
+ *
+ * The first token after the mode letter (D or E) defines direction:
+ *   D = decode (int input → bit outputs)
+ *   E = encode (bit inputs → int output)
+ * Subsequent ';'-separated tokens are the enumeration names.
+ * Empty tokens (;;) skip an enumeration value.
+ *
+ * Original author: Andy Pugh
+ * Converted to cmod API: 2026
+ * License: GPL Version 2
+ */
 
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-//
-
-// Convert bit pins to enumerated ints and vice-versa
-
-#include "rtapi.h"
-#include "rtapi_slab.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "hal.h"
-
-#if !defined(__KERNEL__)
-#include <stdio.h>
+#include "gomc_env.h"
 #include <stdlib.h>
-#endif
-
-/* module information */
-MODULE_AUTHOR("Andy Pugh");
-MODULE_DESCRIPTION("convert enumerated types to HAL_BIT pins");
-MODULE_LICENSE("GPL");
-
-#define MAX_CHAN 256
+#include <string.h>
+#include <errno.h>
+#include <stdint.h>
 
 typedef struct {
-    hal_bit_t *bit;
-    hal_u32_t *en; // note use index 0 differently
-} enum_hal_t;
+    gomc_hal_bit_t *bit;
+    gomc_hal_u32_t *en;
+} enum_pin_t;
 
-typedef struct{
+typedef struct {
+    cmod_t base;
+    const cmod_env_t *env;
+    int comp_id;
+    char name[GOMC_HAL_NAME_LEN + 1];
+    int dir;         /* GOMC_HAL_IN for encode, GOMC_HAL_OUT for decode */
+    int num_pins;
+    enum_pin_t *pins;
+    gomc_hal_u32_t *int_pin; /* the single int pin (input for decode, output for encode) */
+} inst_t;
+
+static void decode(void *arg, long period) {
+    inst_t *inst = (inst_t *)arg;
+    int i;
+    for (i = 0; i < inst->num_pins; i++) {
+        *(inst->pins[i].bit) = (*(inst->int_pin) == *(inst->pins[i].en)) ? 1 : 0;
+    }
+}
+
+static void encode(void *arg, long period) {
+    inst_t *inst = (inst_t *)arg;
+    int i;
+    *(inst->int_pin) = 0;
+    for (i = 0; i < inst->num_pins; i++) {
+        if (*(inst->pins[i].bit))
+            *(inst->int_pin) = *(inst->pins[i].en);
+    }
+}
+
+static void inst_destroy(cmod_t *self) {
+    inst_t *inst = (inst_t *)self;
+    if (inst->comp_id > 0)
+        inst->env->hal->exit(inst->env->hal->ctx, inst->comp_id);
+    inst->env->rtapi->free(inst->env->rtapi->ctx, inst);
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out) {
+    inst_t *inst;
+    int r, i, j, v;
+    const char *enums_arg = NULL;
+    char *enums_copy = NULL;
+    char *token;
     int dir;
     int num_pins;
-    enum_hal_t *hal;
-} enum_inst_t;
 
-typedef struct {
-    int num_insts;
-    enum_inst_t *insts;
-} enum_t;
+    /* parse arguments */
+    for (i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "enums=", 6) == 0)
+            enums_arg = argv[i] + 6;
+    }
 
-static int comp_id;
-
-static enum_t e;
-
-static char *enums[MAX_CHAN] = {0,};
-RTAPI_MP_ARRAY_STRING(enums, MAX_CHAN, "states, ; delimited");
-static char *names[MAX_CHAN] = {0,};
-RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "component names (optional)");
-
-static void decode(void *inst, long period);
-static void encode(void *inst, long period);
-
-int rtapi_app_main(void){
-    int i, j, v;
-    int retval;
-    char *token;
-
-    if (!enums[0]) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "The enum_decode component requires at least"
-                " one enumeration list\n");
+    if (!enums_arg || !*enums_arg) {
+        gomc_log_errorf(env->log, name,
+                        "enum requires enums= argument (e.g. enums=\"D;off;on;error\")");
         return -EINVAL;
     }
 
-    // count instances
-    e.num_insts = MAX_CHAN;
-    for (i = 0; i < MAX_CHAN; i++){
-        if (! enums[i] && ! names[i]){
-            e.num_insts = i;
-            rtapi_print_msg(RTAPI_MSG_ERR, "making %i instances\n", e.num_insts);
-            break;
-        }
-        if ((! enums[i] && names[i]) || ( ! names[i] && names[0] && enums[i])){
-            rtapi_print_msg(RTAPI_MSG_ERR, "Inconsistent number of names and enums\n");
-           return -EINVAL;
-        }
-    }
+    /* make a mutable copy of the enums string */
+    size_t elen = strlen(enums_arg);
+    enums_copy = env->rtapi->calloc(env->rtapi->ctx, elen + 1);
+    if (!enums_copy) return -ENOMEM;
+    memcpy(enums_copy, enums_arg, elen + 1);
 
-    comp_id = hal_init("enum");
-
-    if (comp_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: hal_init() failed\n");
+    /* determine direction from first character */
+    switch (enums_copy[0]) {
+    case 'E': case 'e':
+        dir = GOMC_HAL_IN;  /* bit pins are inputs (encode) */
+        break;
+    case 'D': case 'd':
+        dir = GOMC_HAL_OUT; /* bit pins are outputs (decode) */
+        break;
+    default:
+        gomc_log_errorf(env->log, name,
+                        "enums string must start with E; or D;");
+        env->rtapi->free(env->rtapi->ctx, enums_copy);
         return -EINVAL;
     }
-    // allocate memory for the base struct
-    e.insts = (enum_inst_t *)rtapi_kmalloc(e.num_insts * sizeof(enum_inst_t), RTAPI_GFP_KERNEL);
-    for (i = 0; i < e.num_insts; i++){
-        enum_inst_t *inst = &(e.insts[i]);
-        char this[HAL_NAME_LEN];
 
-        // Count the pins
-        inst->num_pins = 0;
-        inst->dir = HAL_OUT; // direction of bit pin, out for decode
-        for (j = strlen(enums[i]); j > 0; j--){
-            if (enums[i][j] == ';'){
-                if (enums[i][j-1] != ';' ) inst->num_pins++;
-                // insert a string terminator
-                enums[i][j] = 0;
-            }
-        }
-        inst->hal = (enum_hal_t *)hal_malloc((inst->num_pins + 1) * sizeof(enum_hal_t));
-        token = enums[i];
-        switch (*token){
-            case 'E':
-            case 'e': // encode
-                inst->dir = HAL_IN;
-                break;
-            case 'D':
-            case 'd':
-                inst->dir = HAL_OUT;
-                break;
-            default:
-                rtapi_print_msg(RTAPI_MSG_ERR, "Each enum string must start"
-                        "with either E; or D; to define the mode\n");
-                goto fail0;
-        }
-
-        if (names[i]) {
-            rtapi_snprintf(this, HAL_NAME_LEN, "%s", names[i]);
-        } else if (inst->dir == HAL_IN) {
-            rtapi_snprintf(this, HAL_NAME_LEN, "enum-encode.%02i", i);
-        } else {
-            rtapi_snprintf(this, HAL_NAME_LEN, "enum-decode.%02i", i);
-        }
-
-        // create single per-instance int pin in index 0
-        if (inst->dir == HAL_OUT) {
-            retval = hal_pin_u32_newf(HAL_IN, &(inst->hal[0].en), comp_id,
-                                    "%s.input", this);
-        } else {
-            retval = hal_pin_u32_newf(HAL_OUT, &(inst->hal[0].en), comp_id,
-                                    "%s.output", this);
-        }
-        v = 0;
-        for (j = 1; j <= inst->num_pins; j++){ // 1-based indexing
-            // skip to the next pin name
-            while (*(++token) != 0){}
-            //increment for skipped enumerations
-            while (*(++token) == 0) v++;
-
-            retval = hal_pin_bit_newf(inst->dir, &(inst->hal[j].bit),
-                    comp_id, "%s.%s-%s",this, token,
-                    (inst->dir == HAL_IN)?"in":"out");
-            retval += hal_pin_u32_newf(HAL_IN, &(inst->hal[j].en),
-                    comp_id, "%s.%s-val",this, token);
-            *(inst->hal[j].en) = v++;
-
-            if (retval < 0){
-                rtapi_print_msg(RTAPI_MSG_ERR, "Failed to create HAL pins\n");
-                goto fail0;
-            }
-        }
-        if (inst->dir == HAL_OUT){
-            hal_export_funct(this, decode, inst, 0, 0, comp_id);
-        } else {
-            hal_export_funct(this, encode, inst, 0, 0, comp_id);
-        }
-        if (retval < 0){
-            rtapi_print_msg(RTAPI_MSG_ERR, "Failed to export functions\n");
-            goto fail0;
+    /* count pins: number of ';' that are not consecutive */
+    num_pins = 0;
+    for (j = (int)elen - 1; j > 0; j--) {
+        if (enums_copy[j] == ';') {
+            if (j > 0 && enums_copy[j - 1] != ';')
+                num_pins++;
+            enums_copy[j] = '\0'; /* replace ; with NUL for tokenization */
         }
     }
 
+    if (num_pins < 1) {
+        gomc_log_errorf(env->log, name, "enum: no enumeration values found");
+        env->rtapi->free(env->rtapi->ctx, enums_copy);
+        return -EINVAL;
+    }
 
-    hal_ready(comp_id);
+    /* allocate instance */
+    inst = env->rtapi->calloc(env->rtapi->ctx, sizeof(inst_t));
+    if (!inst) {
+        env->rtapi->free(env->rtapi->ctx, enums_copy);
+        return -ENOMEM;
+    }
+
+    inst->base.Destroy = inst_destroy;
+    inst->env = env;
+    strncpy(inst->name, name, sizeof(inst->name) - 1);
+    inst->dir = dir;
+    inst->num_pins = num_pins;
+
+    inst->comp_id = env->hal->init(env->hal->ctx, name, env->dl_handle,
+                                   GOMC_HAL_COMP_REALTIME);
+    if (inst->comp_id < 0) goto err;
+
+    inst->pins = env->hal->malloc(env->hal->ctx, num_pins * sizeof(enum_pin_t));
+    if (!inst->pins) goto err;
+    memset(inst->pins, 0, num_pins * sizeof(enum_pin_t));
+
+    /* create the single integer pin */
+    if (dir == GOMC_HAL_OUT) {
+        /* decode: int is input */
+        r = gomc_hal_pin_u32_newf(env->hal, GOMC_HAL_IN, &inst->int_pin,
+                                  inst->comp_id, "%s.input", name);
+    } else {
+        /* encode: int is output */
+        r = gomc_hal_pin_u32_newf(env->hal, GOMC_HAL_OUT, &inst->int_pin,
+                                  inst->comp_id, "%s.output", name);
+    }
+    if (r != 0) goto err;
+
+    /* create per-enumeration bit + value pins */
+    token = enums_copy;
+    /* skip past the mode character token */
+    while (*token != '\0') token++;
+    token++; /* skip NUL after mode char */
+
+    v = 0;
+    for (i = 0; i < num_pins; i++) {
+        /* skip empty tokens (consecutive NULs = skipped enum values) */
+        while (*token == '\0') { token++; v++; }
+
+        r = gomc_hal_pin_bit_newf(env->hal, dir, &inst->pins[i].bit,
+                                  inst->comp_id, "%s.%s-%s", name, token,
+                                  (dir == GOMC_HAL_IN) ? "in" : "out");
+        if (r != 0) goto err;
+
+        r = gomc_hal_pin_u32_newf(env->hal, GOMC_HAL_IN, &inst->pins[i].en,
+                                  inst->comp_id, "%s.%s-val", name, token);
+        if (r != 0) goto err;
+        *(inst->pins[i].en) = v++;
+
+        /* advance token past this name */
+        while (*token != '\0') token++;
+        token++;
+    }
+
+    /* export function */
+    if (dir == GOMC_HAL_OUT) {
+        r = env->hal->export_funct(env->hal->ctx, name, decode, inst, 0, 0,
+                                   inst->comp_id);
+    } else {
+        r = env->hal->export_funct(env->hal->ctx, name, encode, inst, 0, 0,
+                                   inst->comp_id);
+    }
+    if (r != 0) goto err;
+
+    r = env->hal->ready(env->hal->ctx, inst->comp_id);
+    if (r != 0) goto err;
+
+    env->rtapi->free(env->rtapi->ctx, enums_copy);
+    *out = &inst->base;
     return 0;
 
-    fail0:
-    rtapi_kfree(e.insts);
-    hal_exit(comp_id);
+err:
+    if (inst->comp_id > 0)
+        env->hal->exit(env->hal->ctx, inst->comp_id);
+    env->rtapi->free(env->rtapi->ctx, enums_copy);
+    env->rtapi->free(env->rtapi->ctx, inst);
     return -1;
-
-}
-
-static void decode(void *v_inst, long period){
-    int i;
-    enum_inst_t *inst = v_inst;
-    for (i = 1; i <= inst->num_pins; i++){
-        if (*(inst->hal[0].en) == *(inst->hal[i].en)){
-           *(inst->hal[i].bit) = 1;
-        } else {
-           *(inst->hal[i].bit) = 0;
-        }
-    }
-}
-static void encode(void *v_inst, long period){
-    int i;
-    enum_inst_t *inst = v_inst;
-    *(inst->hal[0].en) = 0;
-    for (i = 1; i <= inst->num_pins; i++){
-        if (*(inst->hal[i].bit)){
-            *(inst->hal[0].en) = *(inst->hal[i].en);
-        }
-    }
 }

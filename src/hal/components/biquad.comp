@@ -75,7 +75,7 @@ author "Peter G. Vavaroutsos";
 
 
 #include <float.h>
-#include <rtapi_math.h>
+#include <math.h>
 
 
 #define PI                      3.141592653589
@@ -92,7 +92,7 @@ typedef enum {
 
 
 typedef struct {
-    hal_bit_t                   lastEnable;
+    bool                   lastEnable;
 } Internal;
 
 

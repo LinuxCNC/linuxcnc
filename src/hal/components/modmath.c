@@ -1,254 +1,157 @@
-/********************************************************************
-* Description: modmath.c
-*   Assorted modulo arithmetic functions for HAL.
-*
-*   This HAL component has just one function at the moment: closest_dir
-*   this component takes a "actual" input and a "desired" input, and
-*   has one parameter: the "base" (or, number of elements).  It outputs
-*   an up or down bit, depending on which direction has the shortest path
-*   from the actual to the desired input.
-*
-*   Each individual type of block is invoked by a parameter on
-*   the insmdo command line.  Each parameter is of the form:
-*   <blockname>=<number_of_blocks>
-*
-*   For example, mod_dir=2 installs two "closest direction" components.
-*
-*   List of functions currently implemented:
-*      mod_dir: tells the direction to the closest neighbor, for sequences that roll over
-*
-*   Eventually, there should be more functions
-*
-*********************************************************************
-*
-* Author: Stephen Wille Padnos  (swpadnos AT sourceforge DOT net)
-*       Based on a work by John Kasunich (jmkasunich AT att DOT net)
-* License: GPL Version 2
-* Created on: 2006/5/18
-* System: Linux
-*
-* Copyright (c) 2006 All rights reserved.
-*
-********************************************************************/
+/*
+ * modmath.c — cmod HAL component: modulo direction finder.
+ *
+ * Computes the shortest direction (up/down) from actual to desired
+ * in a modular number space, with optional wrap-around.
+ *
+ * Usage:
+ *   load modmath
+ *
+ * Original author: Stephen Wille Padnos
+ * Converted to cmod API: 2026
+ * License: GPL Version 2
+ */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
-
-#include "rtapi_math.h"
-
-/* module information */
-MODULE_AUTHOR("Stephen Wille Padnos");
-MODULE_DESCRIPTION("Modulo math blocks for EMC HAL");
-MODULE_LICENSE("GPL");
-static int mod_dir = 0;	/* number of mod_dirs */
-RTAPI_MP_INT(mod_dir, "Modulo direction blocks");
-
-/***********************************************************************
-*                STRUCTURES AND GLOBAL VARIABLES                       *
-************************************************************************/
-
-/** These structures contain the runtime data for a single block. */
+#include "gomc_env.h"
+#include <string.h>
+#include <errno.h>
+#include <stdint.h>
 
 typedef struct {
-    hal_bit_t *up;		/* output pin: go up to get to the desired position */
-    hal_bit_t *down;		/* output pin: go down to get to the desired position */
-    hal_bit_t *on_target;	/* output pin: go at desired position */
-    hal_s32_t *actual;		/* input pin: actual position */
-    hal_s32_t *desired;		/* input pin: desired position */
-    hal_s32_t *max_num;		/* input/output pin: highest value to allow */
-    hal_s32_t *min_num;		/* input/output pin: lowest value to allow */
-    hal_bit_t *wrap;		/* input/output pin: set true if the array is circular, false if linear */
-} mod_dir_t;
+    gomc_hal_bit_t *up;
+    gomc_hal_bit_t *down;
+    gomc_hal_bit_t *on_target;
+    gomc_hal_s32_t *actual;
+    gomc_hal_s32_t *desired;
+    gomc_hal_s32_t *max_num;
+    gomc_hal_s32_t *min_num;
+    gomc_hal_bit_t *wrap;
+} inst_hal_t;
 
-/* other globals */
-static int comp_id;		/* component ID */
+typedef struct {
+    cmod_t base;
+    const cmod_env_t *env;
+    int comp_id;
+    char name[GOMC_HAL_NAME_LEN + 1];
+    inst_hal_t *hal;
+} inst_t;
 
-/***********************************************************************
-*                  LOCAL FUNCTION DECLARATIONS                         *
-************************************************************************/
+static void mod_dir_funct(void *arg, long period) {
+    inst_t *inst = (inst_t *)arg;
+    inst_hal_t *h = inst->hal;
+    int32_t range, act, des, to_go;
 
-static int export_mod_dir(int num);
+    (void)period;
 
-static void mod_dir_funct(void *arg, long period);
+    range = *(h->max_num) - *(h->min_num) + 1;
+    act = *(h->actual);
+    if (act > *(h->max_num) || act < *(h->min_num))
+        act = *(h->min_num) + ((act - *(h->min_num)) % range);
+    des = *(h->desired);
+    if (des > *(h->max_num) || des < *(h->min_num))
+        des = *(h->min_num) + ((des - *(h->min_num)) % range);
 
+    to_go = des - act;
 
-/***********************************************************************
-*                       INIT AND EXIT CODE                             *
-************************************************************************/
+    if (*(h->wrap) && to_go > range / 2)
+        to_go -= range;
+    if (*(h->wrap) && to_go < -range / 2)
+        to_go += range;
 
-int rtapi_app_main(void)
-{
-    int n;
-
-    /* connect to the HAL */
-    comp_id = hal_init("modmath");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "MODMATH: ERROR: hal_init() failed\n");
-	return -1;
-    }
-    /* allocate and export modulo direction finders */
-    if (mod_dir > 0) {
-	for (n = 0; n < mod_dir; n++) {
-	    if (export_mod_dir(n) != 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		    "MODMATH: ERROR: export_mod_dir(%d) failed\n", n);
-		hal_exit(comp_id);
-		return -1;
-	    }
-	}
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "MODMATH: installed %d mod-dirs\n", mod_dir);
-    }
-    hal_ready(comp_id);
-    return 0;
-}
-
-void rtapi_app_exit(void)
-{
-    hal_exit(comp_id);
-}
-
-/***********************************************************************
-*                     REALTIME BLOCK FUNCTIONS                         *
-************************************************************************/
-
-static void mod_dir_funct(void *arg, long period)
-{
-    mod_dir_t *mod;
-    int range, act, des, to_go;
-
-    /* point to block data */
-    mod = (mod_dir_t *) arg;
-    range = *(mod->max_num) - *(mod->min_num) + 1;
-    act = *(mod->actual);
-    if (act > *(mod->max_num) || act < *(mod->min_num)) {
-	act = *(mod->min_num) + ((act-*(mod->min_num)) % (range));
-    }
-    des = *(mod->desired);
-    if (des > *(mod->max_num) || des < *(mod->min_num)) {
-	des = *(mod->min_num) + ((des-*(mod->min_num)) % (range));
-    }
-
-    to_go = des-act;
-
-    if ((*(mod->wrap)) && (to_go > range/2)) {
-	to_go -= range;
-    }
-    if ((*(mod->wrap)) && (to_go < -range/2)) {
-	to_go += range;
-    }
-
-    /* if (desired-actual) >= (actual+(max-min+1)-desired), output "up" */
     if (to_go == 0) {
-	*(mod->up) = 0;
-	*(mod->down) = 0;
-	*(mod->on_target) = 1;
-    } else if (to_go > 0 ) {
-	*(mod->down) = 0;
-	*(mod->on_target) = 0;
-	*(mod->up) = 1;
+        *(h->up) = 0;
+        *(h->down) = 0;
+        *(h->on_target) = 1;
+    } else if (to_go > 0) {
+        *(h->down) = 0;
+        *(h->on_target) = 0;
+        *(h->up) = 1;
     } else {
-	*(mod->up) = 0;
-	*(mod->on_target) = 0;
-	*(mod->down) = 1;
+        *(h->up) = 0;
+        *(h->on_target) = 0;
+        *(h->down) = 1;
     }
 }
 
-/***********************************************************************
-*                   LOCAL FUNCTION DEFINITIONS                         *
-************************************************************************/
+static void inst_destroy(cmod_t *self) {
+    inst_t *inst = (inst_t *)self;
+    if (inst->comp_id > 0)
+        inst->env->hal->exit(inst->env->hal->ctx, inst->comp_id);
+    inst->env->rtapi->free(inst->env->rtapi->ctx, inst);
+}
 
-static int export_mod_dir(int num)
-{
-    int retval;
-    char buf[HAL_NAME_LEN + 1];
-    mod_dir_t *moddir;
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out) {
+    inst_t *inst;
+    inst_hal_t *h;
+    int r;
 
-    /* allocate shared memory for modulo "closest direction finder" */
-    moddir = hal_malloc(sizeof(mod_dir_t));
-    if (moddir == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: hal_malloc() failed\n");
-	return -1;
-    }
-    /* export output pins */
-    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.up", num);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(moddir->up), comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
-	return retval;
-    }
-    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.down", num);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(moddir->down), comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
-	return retval;
-    }
-    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.on-target", num);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(moddir->on_target), comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
-	return retval;
-    }
+    (void)argc; (void)argv;
 
-    /* export input pins */
-    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.actual", num);
-    retval = hal_pin_s32_new(buf, HAL_IN, &(moddir->actual), comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
-	return retval;
-    }
-    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.desired", num);
-    retval = hal_pin_s32_new(buf, HAL_IN, &(moddir->desired), comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
-	return retval;
-    }
+    inst = env->rtapi->calloc(env->rtapi->ctx, sizeof(*inst));
+    if (!inst) return -ENOMEM;
 
-    /* export pins for max and min values */
-    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.min-num", num);
-    retval = hal_pin_s32_new(buf, HAL_IO, &(moddir->min_num), comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
-	return retval;
-    }
-    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.max-num", num);
-    retval = hal_pin_s32_new(buf, HAL_IO, &(moddir->max_num), comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
-	return retval;
-    }
-    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.wrap", num);
-    retval = hal_pin_bit_new(buf, HAL_IO, &(moddir->wrap), comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' param export failed\n", buf);
-	return retval;
-    }
-    /* export function */
-    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d", num);
-    retval = hal_export_funct(buf, mod_dir_funct, moddir, 1, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MODMATH: ERROR: '%s' funct export failed\n", buf);
-	return -1;
-    }
-    /* set default parameter values */
-    *(moddir->up) = 0;
-    *(moddir->down) = 0;
-    *(moddir->on_target) = 1;
-    *(moddir->min_num) = 0;
-    *(moddir->max_num) = 15;
-    *(moddir->actual) = 0;
-    *(moddir->desired) = 0;
-    *(moddir->wrap) = 1;		/* wrap by default */
+    inst->base.Destroy = inst_destroy;
+    inst->env = env;
+    strncpy(inst->name, name, sizeof(inst->name) - 1);
+
+    inst->comp_id = env->hal->init(env->hal->ctx, name, env->dl_handle,
+                                   GOMC_HAL_COMP_REALTIME);
+    if (inst->comp_id < 0) goto err;
+
+    inst->hal = env->hal->malloc(env->hal->ctx, sizeof(inst_hal_t));
+    if (!inst->hal) goto err;
+    memset(inst->hal, 0, sizeof(inst_hal_t));
+    h = inst->hal;
+
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_OUT, &h->up, inst->comp_id,
+                              "%s.up", name);
+    if (r != 0) goto err;
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_OUT, &h->down, inst->comp_id,
+                              "%s.down", name);
+    if (r != 0) goto err;
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_OUT, &h->on_target, inst->comp_id,
+                              "%s.on-target", name);
+    if (r != 0) goto err;
+    r = gomc_hal_pin_s32_newf(env->hal, GOMC_HAL_IN, &h->actual, inst->comp_id,
+                              "%s.actual", name);
+    if (r != 0) goto err;
+    r = gomc_hal_pin_s32_newf(env->hal, GOMC_HAL_IN, &h->desired, inst->comp_id,
+                              "%s.desired", name);
+    if (r != 0) goto err;
+    r = gomc_hal_pin_s32_newf(env->hal, GOMC_HAL_IO, &h->min_num, inst->comp_id,
+                              "%s.min-num", name);
+    if (r != 0) goto err;
+    r = gomc_hal_pin_s32_newf(env->hal, GOMC_HAL_IO, &h->max_num, inst->comp_id,
+                              "%s.max-num", name);
+    if (r != 0) goto err;
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_IO, &h->wrap, inst->comp_id,
+                              "%s.wrap", name);
+    if (r != 0) goto err;
+
+    /* defaults */
+    *(h->up) = 0;
+    *(h->down) = 0;
+    *(h->on_target) = 1;
+    *(h->min_num) = 0;
+    *(h->max_num) = 15;
+    *(h->actual) = 0;
+    *(h->desired) = 0;
+    *(h->wrap) = 1;
+
+    r = env->hal->export_funct(env->hal->ctx, name, mod_dir_funct, inst, 1, 0,
+                               inst->comp_id);
+    if (r != 0) goto err;
+
+    r = env->hal->ready(env->hal->ctx, inst->comp_id);
+    if (r != 0) goto err;
+
+    *out = &inst->base;
     return 0;
+
+err:
+    if (inst->comp_id > 0)
+        env->hal->exit(env->hal->ctx, inst->comp_id);
+    env->rtapi->free(env->rtapi->ctx, inst);
+    return -1;
 }

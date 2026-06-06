@@ -15,7 +15,7 @@ author "Sebastian Kuzminsky";
 
 ;;
 
-#include <rtapi_math.h>
+#include <math.h>
 
 FUNCTION(_) {
 

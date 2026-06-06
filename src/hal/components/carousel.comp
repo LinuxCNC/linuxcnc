@@ -1,14 +1,11 @@
 component carousel """Orient a toolchanger carousel using various encoding schemes
 
-.B loadrt carousel pockets=\\fIN\\fR[,\\fIN\\fR]
-.B encoding=\\fIssss\\fR[,\\fIsss\\fR]\\fB
-.B num_sense=\\fIN\\fR[,\\fIN\\fR]
-.B dir=\\fIN\\fR[,\\fIN]
+.B load carousel pockets=\\fIN\\fR encoding=\\fIssss\\fR
+.B num_sense=\\fIN\\fR dir=\\fIN\\fR sense_parity=\\fIN\\fR
 
 .RS 4
 .TP
-\\fBpockets\\fR The number of pockets in each toolchanger.
-Use up to 8 numbers separated by commas to create multiple carousel components.
+\\fBpockets\\fR The number of pockets in this toolchanger. Default = 8.
 .TP
 \\fBencoding\\fR The position encoding.
 gray, binary, bcd, index, edge, counts or single. Default = 'gray'
@@ -16,10 +13,10 @@ gray, binary, bcd, index, edge, counts or single. Default = 'gray'
 \\fBnum_sense\\fR The number of position sense pins.
 Default = 4.
 .TP
-\\fBdir\\fR Set to 1 for unidirectional or  2 for bidirectional operation.
-Default = bidirectional
+\\fBdir\\fR Set to 1 for unidirectional or 2 for bidirectional operation.
+Default = 2 (bidirectional)
 .TP
-\\fBparity\\fR Set to 1 for odd parity, 0 for even parity checking.
+\\fBsense_parity\\fR Set to 1 for odd parity, 0 for even parity checking.
 Default = 0 (even)
 .RE""";
 
@@ -39,14 +36,10 @@ changers with pockets on both the rising and falling edges of the position senso
 Both unidirectional and bidirectional systems are supported and those that reverse
 against a stop when in position. 
 
-The number of carousel component instances created depends on the number of
-entries in the 'pockets' modparam. For example
+To create multiple carousel instances, use multiple load commands:
 
-.B loadrt carousel pockets=10,10,8
-
-Would create 3 carousel instances with 10, 10 and 8 pockets. The other 
-parameters are optional. If absent then defaults will be used. Any missing
-entry will assume the previous value.
+.B load carousel pockets=10 encoding=gray
+.B load carousel pockets=8 encoding=bcd
 
 When the enable pin is set to true the component will immediately set the 
 "active" pin to true and then (for a bidirectional instance) calculate the
@@ -149,7 +142,12 @@ param r signed counts-offset "Internal offset of index pin";
 param rw unsigned debounce "How many thread cycles to wait for the position to stabilise";
 param r signed target "Current target pocket, debug";
 
-option count_function;
+modparam int pockets = 8 "The number of pockets in this carousel";
+modparam string encoding = "gray" "Position feedback type: gray, binary, bcd, single, index, edge, counts";
+modparam int dir = 2 "1 for unidirectional, 2 for bidirectional";
+modparam int num_sense = 4 "The number of sense pins to create";
+modparam int sense_parity = 0 "0 for even parity, 1 for odd";
+
 option extra_setup;
 
 license "GPL";
@@ -163,39 +161,16 @@ variable int inst_parity;
 variable int old_index = 0;
 param r signed base_counts = 0;
 variable int old_unhome = 0;
+variable int err_once = 0;
+variable int deb = 0;
 function _ ;
-
-include "rtapi_math.h";
 
 ;;
 
-int default_pockets = 8;
-int default_code = 'G';
-int default_dir = 2;
-int default_sense = 4;
-int default_parity = 0;
-
-static bool err_once = 0;
-
-#define MAX_CHAN 8
-static int pockets[MAX_CHAN] = {-1};
-RTAPI_MP_ARRAY_INT(pockets, MAX_CHAN, "The number of pockets in each carousel")
-static char *encoding[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(encoding, MAX_CHAN, "Position feedback type")
-static int dir[MAX_CHAN] = {-1};
-RTAPI_MP_ARRAY_INT(dir, MAX_CHAN, 
-                    "set to 2 if the carousel is bidirectional")
-static int num_sense[MAX_CHAN] = {-1};
-RTAPI_MP_ARRAY_INT(num_sense, MAX_CHAN, "The number of sense pins to create")
-// We have a hal pin and a modparam with the same name. From the user
-// point of view I think that makes sense. In the code parity[] is the modparam,
-// parity_ is the hal pin.
-static int parity[MAX_CHAN] = {-1};
-RTAPI_MP_ARRAY_INT(parity, MAX_CHAN, "0 for even parity, 1 for odd")
+#include <math.h>
 
 FUNCTION(_){
     int i, d, pow;
-    static int deb = 0;
     int pcalc = 0;
     int mod_pocket = 0;
     int new_pos = 0;
@@ -461,7 +436,7 @@ FUNCTION(_){
         break;
     case 9: //waiting for enable to go false
         if (! ready && ! err_once){
-            rtapi_print_msg(RTAPI_MSG_ERR, "The toolchanger has failed the final alignment check");
+            GOMC_LOG_ERR("The toolchanger has failed the final alignment check");
             err_once = 1;
         }
         if (enable) return;
@@ -530,50 +505,41 @@ FUNCTION(_){
 }
 
 EXTRA_SETUP(){
-    if (pockets[extra_arg] > 0) default_pockets = pockets[extra_arg];
-    if (encoding[extra_arg] == NULL) {
-        //it's already default_code
-    } else if (strncmp(encoding[extra_arg], "gray", 4) == 0) {
-        default_code = 'G';
-    } else if (strncmp(encoding[extra_arg], "binary", 6) == 0) {
-        default_code = 'B';
-    } else if (strncmp(encoding[extra_arg], "bcd", 3) == 0) {
-        default_code = 'D';
-    } else if (strncmp(encoding[extra_arg], "single", 6) == 0) {
-        default_code = 'S';
-    } else if (strncmp(encoding[extra_arg], "index", 5) == 0) {
-        default_code = 'I';
-    } else if (strncmp(encoding[extra_arg], "edge", 4) == 0) {
-        default_code = 'E';
-    } else if (strncmp(encoding[extra_arg], "counts", 6) == 0) {
-        default_code = 'C';
+    int code = 'G'; // default gray
+    int sense = num_sense;
+    
+    // Parse encoding string to code character
+    if (encoding != NULL && encoding[0] != '\0') {
+        if (strncmp(encoding, "gray", 4) == 0) {
+            code = 'G';
+        } else if (strncmp(encoding, "binary", 6) == 0) {
+            code = 'B';
+        } else if (strncmp(encoding, "bcd", 3) == 0) {
+            code = 'D';
+        } else if (strncmp(encoding, "single", 6) == 0) {
+            code = 'S';
+        } else if (strncmp(encoding, "index", 5) == 0) {
+            code = 'I';
+        } else if (strncmp(encoding, "edge", 4) == 0) {
+            code = 'E';
+        } else if (strncmp(encoding, "counts", 6) == 0) {
+            code = 'C';
+        }
     }
 
-    if (dir[extra_arg] > 0)  default_dir = (dir[extra_arg] > 1)? 2:1;
-
-    if (parity[extra_arg] != -1) default_parity = parity[extra_arg];
-    
-    if (default_code == 'I') {
-        default_sense = 2;
-    } else if (num_sense[extra_arg] > 0 ) {
-        default_sense = num_sense[extra_arg];
+    // Index mode requires exactly 2 sense pins
+    if (code == 'I') {
+        sense = 2;
     }
     
-    inst_pockets = default_pockets;
-    inst_code = default_code;
-    inst_dir = default_dir;
-    inst_sense = default_sense;
-    inst_parity = default_parity;
+    inst_pockets = pockets;
+    inst_code = code;
+    inst_dir = (dir > 1) ? 2 : 1;
+    inst_sense = sense;
+    inst_parity = sense_parity;
 
     if (inst_code == 'S' && inst_sense < inst_pockets) inst_sense = inst_pockets;
     personality = inst_sense;
 
     return 0;
-}
-
-int get_count(void){
-    int i;
-    for (i = 0; pockets[i] != 0 && i < MAX_CHAN; i++){}
-    if (i == 0) return 1 ;
-    return i;
 }

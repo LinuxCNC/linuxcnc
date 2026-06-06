@@ -24,8 +24,8 @@ license "GPL";
 author "Stephen Wille Padnos";
 ;;
 FUNCTION(_) {
-    hal_float_t temp_in = speed_in;
-    hal_float_t sign=1;
+    double temp_in = speed_in;
+    double sign=1;
     /* Assume that the output device is scaled so that gear 1 is "Pass-through" */
     /* the other gear(s) need to be scaled by the relative scale for that gear */
     if (scale2 < 1) scale2 = 1;

@@ -9,7 +9,7 @@ author "Jeff Epler";
 
 ;;
 FUNCTION(_) {
-    hal_@IN@_t in = in_;
+    gomc_hal_@IN@_t in = in_;
 @CC@    if(clamp) {
 #if @MAX@ != 0
 @CC@	if(in > @MAX@) { out = @MAX@; out_of_range = 1; return; }

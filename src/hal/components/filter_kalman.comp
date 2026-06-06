@@ -62,32 +62,26 @@ variable float xk_last;
 variable float Pk_last;
 
 variable bool initialized = FALSE;
-variable int cidx = 0;
 
 ;;
-#include <rtapi_math.h>
+#include <math.h>
 
-typedef hal_float_t D; // to Keep code synchronized with C++ based TrivialKalmanFilter implementation.
+typedef double D; // to Keep code synchronized with C++ based TrivialKalmanFilter implementation.
 
 // Based on: https://github.com/dwrobel/TrivialKalmanFilter/blob/master/src/TrivialKalmanFilter.h
-// Assumes simplified model
-static const D k    = 1;
+// Assumes simplified model (k and T kept for reference but not used in simplified form)
+static const D k    __attribute__((unused)) = 1;
 static const D Bk   = 0;
 static const D uk   = 0;
 static const D Fk   = 1;
-static const D T    = 1;
+static const D T    __attribute__((unused)) = 1;
 static const D Fk_T = 1; // pow(Fk, T);
 static const D Hk   = 1;
 static const D Hk_T = 1; // pow(Hk, T);
 static const D I    = 1;
 
-static void print_info(const int id, const D in_val, const D out_val) {
-    // TODO: add support for using component names when they will be more easily available.
-    rtapi_print_msg(RTAPI_MSG_ERR, "filter-kalman.%d %f %f\n", id, in_val, out_val);
-}
-
 EXTRA_SETUP() {
-    cidx = extra_arg; // Let us hope 'extra_arg' will forever contain component index.
+    (void)nparams; (void)params;
     return 0;
 }
 
@@ -102,7 +96,7 @@ FUNCTION(_) {
             xk_out = 0;
 
             if (debug) {
-                print_info(cidx, zk, xk_out);
+                GOMC_LOG_ERR("filter-kalman %f %f\n", zk, xk_out);
             }
 
             return;
@@ -113,7 +107,7 @@ FUNCTION(_) {
         xk_out = zk;
 
         if (debug) {
-            print_info(cidx, zk, xk_out);
+            GOMC_LOG_ERR("filter-kalman %f %f\n", zk, xk_out);
         }
 
         return;
@@ -137,7 +131,7 @@ FUNCTION(_) {
         xk_out     = xk;
 
         if (debug) {
-            print_info(cidx, zk, xk_out);
+            GOMC_LOG_ERR("filter-kalman %f %f\n", zk, xk_out);
         }
     }
 }

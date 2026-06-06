@@ -48,23 +48,23 @@ pin out s32 variance;
 pin out s32 availablebins = 1000; // MAXBINNUMBER
 
 function _ nofp;
-variable rtapi_s64  last_timer = 0;
+variable int64_t  last_timer = 0;
 variable int    last_binmax = 0;
 variable int    first = 1;
 variable int    pbins[1001]; // MAXBINNUMBER+1
 variable int    nbins[1001]; // MAXBINNUMBER+1
 variable int    binmax = 0;
 
-variable rtapi_u32 nsamples;
-variable rtapi_u64 sum;
-variable rtapi_u64 sq_sum;
+variable uint32_t nsamples;
+variable uint64_t sum;
+variable uint64_t sq_sum;
 
 license "GPL";
 author "Dewey Garrett";
 ;;
 
-rtapi_s64     now = rtapi_get_time();
-rtapi_s32   lat32 = (rtapi_s32)(now - last_timer - period);
+int64_t     now = rtapi_get_time();
+int32_t   lat32 = (int32_t)(now - last_timer - period);
                 //(2^31-1)*1nS = 2.147 seconds max
 
 int i;
@@ -116,11 +116,11 @@ if (   first
   sq_sum += lat32 * lat32;
   if (nsamples > 1) {
     // note: division required is: u64/u32
-    rtapi_u64 dividend;
-    rtapi_u64 divisor;
-    dividend = sq_sum - rtapi_div_u64(sum * sum,nsamples);
+    uint64_t dividend;
+    uint64_t divisor;
+    dividend = sq_sum - (sum * sum / nsamples);
     divisor  = nsamples -1;
-    variance = rtapi_div_u64(dividend,divisor);
+    variance = (dividend / divisor);
   }
 }
 

@@ -1,0 +1,113 @@
+component sim_torch "Simulated plasma torch arc voltage";
+
+description """
+Simulates a plasma torch arc voltage signal for testing.
+Generates ramp-up, overshoot, and steady-state voltage with
+configurable noise. No hardware interaction.
+
+Originally a Python userspace component (bin/sim-torch).
+""";
+
+license "GPL";
+author "Phillip A Carter";
+
+pin in  float cut_noise    = 0.75  "noise amplitude during cut (volts)";
+pin in  s32   cycles       = 200   "overshoot duration (servo cycles)";
+pin in  s32   on_delay     = 10    "delay from start until overshoot begins (cycles)";
+pin in  float offset       = 0.0   "cut voltage offset (-10..10 volts)";
+pin in  s32   overshoot    = 50    "overshoot percentage of cut voltage (0..100)";
+pin in  float ramp_noise   = 5.0   "noise amplitude during ramp (volts)";
+pin in  s32   ramp_up      = 80    "ramp up percentage of cycles (0..100)";
+pin in  bit   start        = 0     "arc on command";
+pin in  float voltage_in   = 100.0 "target cut voltage (50..150 volts)";
+pin in  bit   void_sense   = 0     "void detected input";
+pin in  s32   void_ramp    = 0     "voltage rise per cycle during void";
+
+pin out float voltage_out  = 0.0   "simulated arc voltage output";
+
+variable int   current_cycle = 0;
+variable int   void_cycle = 0;
+variable unsigned seed = 12345;
+
+function _;
+
+;;
+
+#include <math.h>
+
+/* Simple xorshift PRNG for noise */
+static float rt_noise(unsigned *sp, float volume) {
+    unsigned s = *sp;
+    s ^= s << 13;
+    s ^= s >> 17;
+    s ^= s << 5;
+    *sp = s;
+    /* Map to -volume .. +volume */
+    return volume * ((float)(int)(s % 2001) - 1000.0f) / 1000.0f;
+}
+
+static float clampf(float v, float lo, float hi) {
+    if (v < lo) return lo;
+    if (v > hi) return hi;
+    return v;
+}
+
+static int clampi(int v, int lo, int hi) {
+    if (v < lo) return lo;
+    if (v > hi) return hi;
+    return v;
+}
+
+FUNCTION(_) {
+    float cut_n   = fabs(cut_noise);
+    int   cyc     = abs(cycles);
+    int   on_del  = clampi(on_delay, 0, 100);
+    float off     = clampf(offset, -10.0f, 10.0f);
+    int   ovs     = clampi(overshoot, 0, 100);
+    float ramp_n  = fabs(ramp_noise);
+    int   ramp_u  = clampi(ramp_up, 0, 100);
+    float volt    = clampf(voltage_in, 50.0f, 150.0f);
+
+    int up_cyc = cyc * ramp_u / 100;
+    int dn_cyc = cyc - up_cyc;
+    float ovs_max   = volt * ovs / 100.0f;
+    float ovs_start = ovs_max * 0.4f;
+
+    if (start) {
+        if (current_cycle < cyc) {
+            if (current_cycle < on_del) {
+                /* initial ramp up to cut voltage */
+                if (on_del > 0)
+                    voltage_out = (volt + ovs_start) * current_cycle / on_del;
+                else
+                    voltage_out = volt + ovs_start;
+            } else if (current_cycle <= up_cyc) {
+                /* ramp up to overshoot voltage */
+                float angle = atan2f(ovs_max - ovs_start, (float)up_cyc);
+                voltage_out = volt + ovs_start + current_cycle * tanf(angle)
+                            + rt_noise(&seed, ramp_n);
+            } else {
+                /* ramp down to cut voltage */
+                float angle = atan2f(ovs_max, (float)dn_cyc);
+                voltage_out = volt + ovs_max - (current_cycle - up_cyc) * tanf(angle)
+                            + rt_noise(&seed, ramp_n);
+            }
+        } else {
+            /* steady state cut voltage */
+            if (void_sense) {
+                void_cycle++;
+                float v = volt + void_ramp * void_cycle;
+                voltage_out = (v < 300.0f) ? v : 300.0f;
+            } else {
+                voltage_out = volt + off + rt_noise(&seed, cut_n);
+                void_cycle = 0;
+            }
+        }
+        current_cycle++;
+    } else {
+        /* arc off */
+        current_cycle = 0;
+        void_cycle = 0;
+        voltage_out = 0.0f;
+    }
+}

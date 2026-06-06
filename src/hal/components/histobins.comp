@@ -72,20 +72,20 @@ variable int bin[200]; // MAXBINNUMBER
 variable int first = 1;
 variable int last_nbins    = 0;
 
-variable hal_float_t maxvalue;
+variable double maxvalue;
 
-variable hal_float_t last_binsize  = 0;
-variable hal_float_t last_minvalue = 0;
+variable double last_binsize  = 0;
+variable double last_minvalue = 0;
 
-variable hal_float_t sum;
-variable hal_float_t sq_sum;
-variable hal_float_t m2;
+variable double sum;
+variable double sq_sum;
+variable double m2;
 
 license "GPL";
 author "Dewey Garrett";
 ;;
 
-hal_float_t invalue;
+double invalue;
 int i;
 int idx;
 check = index;
@@ -155,7 +155,7 @@ if (invalue > input_max) input_max = invalue;
 nsamples++;
 if (nsamples >= 2) {
   if (method == 0 ) {
-    hal_float_t delta;
+    double delta;
     delta    = invalue - mean;
     mean     = mean + delta / nsamples;
     m2       = m2 + delta * (invalue - mean);

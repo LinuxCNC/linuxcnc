@@ -15,13 +15,14 @@ pin out bit probe-out;
 
 function _ nofp "update probe-out based on inputs";
 ;;
+#include <stdint.h>
 #undef abs
 int abs(int x) { if(x < 0) return -x; else return x; }
 
 FUNCTION(_) {
-    rtapi_u64 dx = abs(px-cx), dy=abs(py-cy), dz=abs(pz-cz);
-    rtapi_u64 d2 = dx*dx + dy*dy;
-    rtapi_u64 r2 = (rtapi_s64)r*(rtapi_s64)r;
+    uint64_t dx = abs(px-cx), dy=abs(py-cy), dz=abs(pz-cz);
+    uint64_t d2 = dx*dx + dy*dy;
+    uint64_t r2 = (int64_t)r*(int64_t)r;
     if(d2 > r2) {
         probe_out = pz < cz;
     } else {

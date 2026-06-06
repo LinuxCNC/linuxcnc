@@ -49,7 +49,7 @@ function _;
 license "GPL";
 author "Dewey Garrett";
 ;;
-#include <rtapi_math.h>
+#include <math.h>
 
 typedef struct { int old_start_or_pause; } xhc_data;
 

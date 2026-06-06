@@ -104,7 +104,7 @@ license "GPL";
 author "Dewey Garrett";
 ;;
 
-#include <rtapi_math.h>
+#include <math.h>
 
 #define FINISH_DELAY 0
 #define TO_RAD       M_PI/180
@@ -133,10 +133,8 @@ static      ofunc func0,func1,func2,func3;
 #define OPA_DEBUG
 #undef  OPA_DEBUG
 #ifdef  OPA_DEBUG
-  #define LVL RTAPI_MSG_INFO
   #define dprint(msg,n) do { \
-    rtapi_set_msg_level(LVL); \
-    rtapi_print_msg(LVL,"%20s %5d\n",msg,n); \
+    GOMC_LOG_INFO("%20s %5d\n",msg,n); \
   } while (0)
 #else
   #define dprint(msg,n)
@@ -173,7 +171,7 @@ FUNCTION(_) {
         // require an enable_in 0-->1 transition to advance to READY
         if (enable_in) {
             if (!messaged) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
+                GOMC_LOG_ERR(
                 "eoffset_per_angle: active enable-in not honored at start");
                 messaged = 1;
             }
@@ -266,7 +264,7 @@ FUNCTION(_) {
         dptr->ovalue = 0;
         kcounts      = 0; eoffset_dbg = 0;
         STATE        = STOPPING;
-        rtapi_print_msg(RTAPI_MSG_ERR,
+        GOMC_LOG_ERR(
              "eoffset_per_angle stopping:func%d problem\n",fnum);
         return;
     }
@@ -285,8 +283,7 @@ static int func0 (struct ofunc_data* d)
     double uangle,divisor;
 
     if (d->fmultiplier <= 2) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-             "func0 bad fmultiplier: %g\n",d->fmultiplier);
+        fprintf(stderr, "func0 bad fmultiplier: %g\n",d->fmultiplier);
         return -1;
     }
 
@@ -307,8 +304,7 @@ static int func1 (struct ofunc_data* d)
     double uangle,divisor;
 
     if (d->fmultiplier <= 2) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-             "func1 bad fmultiplier: %g\n",d->fmultiplier);
+        fprintf(stderr, "func1 bad fmultiplier: %g\n",d->fmultiplier);
         return -1;
     }
 

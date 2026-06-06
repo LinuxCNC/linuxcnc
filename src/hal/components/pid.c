@@ -1,165 +1,25 @@
-/********************************************************************
-* Description:  pid.c
-*               This file, 'pid.c', is a HAL component that provides
-*               Proportional/Integral/Derivative control loops.
-*
-* Author: John Kasunich, Peter G. Vavaroutsos, Petter Reinholdtsen
-* License: GPL Version 2
-*    
-* Copyright (c) 2003, 2007, 2022 All rights reserved.
-* Copyright (C) 2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
-*
-* Last change: 
-********************************************************************/
-/** This file, 'pid.c', is a HAL component that provides Proportional/
-    Integral/Derivative control loops.  It is a realtime component.
+/*
+ * pid.c — cmod HAL component: PID controller with auto-tune.
+ *
+ * Single PID loop with P/I/D/FF0/FF1/FF2/FF3 and relay auto-tuner.
+ *
+ * Usage:
+ *   load pid
+ *   load pid debug=1    (exports optional debug pins)
+ *
+ * Original author: John Kasunich, Peter G. Vavaroutsos
+ * Converted to cmod API: 2026
+ * License: GPL Version 2
+ */
 
-    It supports a maximum of 16 PID loops.
+#include "gomc_env.h"
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <stdint.h>
+#include <math.h>
 
-    The number of pid components is set by the module parameter 'num_chan='
-    when the component is insmod'ed.  Alternatively, use the
-    names= specifier and a list of unique names separated by commas.
-    The names= and num_chan= specifiers are mutually exclusive.
-
-    In this documentation, it is assumed that we are discussing position
-    loops.  However this component can be used to implement other loops
-    such as speed loops, torch height control, and others.
-
-    Each loop has a number of pins and parameters, whose names begin
-    with 'pid.x.', where 'x' is the channel number.  Channel numbers
-    start at zero.
-
-    The three most important pins are 'command', 'feedback', and
-    'output'.  For a position loop, 'command' and 'feedback' are
-    in position units.  For a linear axis, this could be inches,
-    mm, metres, or whatever is relevant.  Likewise, for a angular
-    axis, it could be degrees, radians, etc.  The units of the
-    'output' pin represent the change needed to make the feedback
-    match the command.  As such, for a position loop 'Output' is
-    a velocity, in inches/sec, mm/sec, degrees/sec, etc.
-
-    Each loop has several other pins as well.  'error' is equal to
-    'command' minus 'feedback'.  'enable' is a bit that enables
-    the loop.  If 'enable' is false, all integrators are reset,
-    and the output is forced to zero.  If 'enable' is true, the
-    loop operates normally.
-
-    The PID gains, limits, and other 'tunable' features of the
-    loop are implemented as parameters.  These are as follows:
-
-    Pgain	Proportional gain
-    Igain	Integral gain
-    Dgain	Derivative gain
-    bias	Constant offset on output
-    FF0		Zeroth order Feedforward gain
-    FF1		First order Feedforward gain
-    FF2		Second order Feedforward gain
-    FF3		Third order Feedforward gain
-    deadband	Amount of error that will be ignored
-    maxerror	Limit on error
-    maxerrorI	Limit on error integrator
-    maxerrorD	Limit on error differentiator
-    maxcmdD	Limit on command differentiator
-    maxcmdDD	Limit on command 2nd derivative
-    maxcmdDDD	Limit on command 3rd derivative
-    maxoutput	Limit on output value
-
-    All of the limits (max____) are implemented such that if the
-    parameter value is zero, there is no limit.
-
-    A number of internal values which may be useful for testing
-    and tuning are also available as parameters.  To avoid cluttering
-    the parameter list, these are only exported if "debug=1" is
-    specified on the insmod command line.
-
-    errorI	Integral of error
-    errorD	Derivative of error
-    commandD	Derivative of the command
-    commandDD	2nd derivative of the command
-    commandDDD	3rd derivative of the command
-
-    The PID loop calculations are as follows (see the code for
-    all the nitty gritty details):
-
-    error = command - feedback
-    if ( abs(error) < deadband ) then error = 0
-    limit error to +/- maxerror
-    errorI += error * period
-    limit errorI to +/- maxerrorI
-    errorD = (error - previouserror) / period
-    limit errorD to +/- maxerrorD
-    commandD = (command - previouscommand) / period
-    limit commandD to +/- maxcmdD
-    commandDD = (commandD - previouscommandD) / period
-    limit commandDD to +/- maxcmdDD
-    commandDDD = (commandDD - previouscommandDD) / period
-    limit commandDDD to +/- maxcmdDDD
-    output = bias + error * Pgain + errorI * Igain +
-             errorD * Dgain + command * FF0 + commandD * FF1 +
-             commandDD * FF2 + commandDDD * FF3
-    limit output to +/- maxoutput
-
-    This component exports one function called 'pid.x.do-pid-calcs'
-    for each PID loop.  This allows loops to be included in different
-    threads and execute at different rates.
-*/
-
-/** Copyright (C) 2003 John Kasunich
-                       <jmkasunich AT users DOT sourceforge DOT net>
-*/
-
-/** This program is free software; you can redistribute it and/or
-    modify it under the terms of version 2 of the GNU General
-    Public License as published by the Free Software Foundation.
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-    THE AUTHORS OF THIS LIBRARY ACCEPT ABSOLUTELY NO LIABILITY FOR
-    ANY HARM OR LOSS RESULTING FROM ITS USE.  IT IS _EXTREMELY_ UNWISE
-    TO RELY ON SOFTWARE ALONE FOR SAFETY.  Any machinery capable of
-    harming persons must have provisions for completely removing power
-    from all motors, etc, before persons enter any danger area.  All
-    machinery must be designed to comply with local and national safety
-    codes, and the authors of this software can not, and do not, take
-    any responsibility for such compliance.
-
-    This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
-*/
-
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_string.h"
-#include "hal.h"		/* HAL public API decls */
-
-/* module information */
-MODULE_AUTHOR("John Kasunich");
-MODULE_DESCRIPTION("PID Loop Component for EMC HAL with auto tune support");
-MODULE_LICENSE("GPL");
-static int num_chan;		/* number of channels */
-static int default_num_chan = 3;
-RTAPI_MP_INT(num_chan, "number of channels");
-
-static int howmany;
-#define MAX_CHAN 16
-char *names[MAX_CHAN] ={0,};
-RTAPI_MP_ARRAY_STRING(names, MAX_CHAN,"pid names");
-
-static int debug = 0;		/* flag to export optional params */
-RTAPI_MP_INT(debug, "enables optional params");
-
-#define NAME "PID"
-
-#define AUTO_TUNER 1
-#ifdef AUTO_TUNER
-#include "rtapi_math.h"
-#define PI                              3.141592653589
+#define PI 3.141592653589
 
 typedef enum {
     STATE_PID,
@@ -170,809 +30,435 @@ typedef enum {
     STATE_TUNE_ABORT,
 } State;
 
-// Values for tune-type parameter.
 typedef enum {
     TYPE_PID,
     TYPE_PI_FF1,
 } Mode;
-#endif /* AUTO_TUNER */
-
-/***********************************************************************
-*                STRUCTURES AND GLOBAL VARIABLES                       *
-************************************************************************/
-
-/** This structure contains the runtime data for a single PID loop.
-    The data is arranged to optimize speed - they are placed in the
-    order in which they will be accessed, so that when one item is
-    accessed, the next item(s) will be pulled into the cache.  In
-    addition, items that are written are grouped together, so only
-    a few cache lines will need to be written back to main memory.
-*/
 
 typedef struct {
-    hal_bit_t *enable;		/* pin: enable input */
-    hal_float_t *command;	/* pin: commanded value */
-    hal_float_t *commandvds;	/* pin: commanded derivative dummysig */
-    hal_float_t *commandv;	/* pin: commanded derivative value */
-    hal_float_t *feedback;	/* pin: feedback value */
-    hal_float_t *feedbackvds;	/* pin: feedback derivative dummysig */
-    hal_float_t *feedbackv;	/* pin: feedback derivative value */
-    hal_float_t *error;		/* pin: command - feedback */
-    hal_float_t *deadband;	/* pin: deadband */
-    hal_float_t *maxerror;	/* pin: limit for error */
-    hal_float_t *maxerror_i;	/* pin: limit for integrated error */
-    hal_float_t *maxerror_d;	/* pin: limit for differentiated error */
-    hal_float_t *maxcmd_d;	/* pin: limit for differentiated cmd */
-    hal_float_t *maxcmd_dd;	/* pin: limit for 2nd derivative of cmd */
-    hal_float_t *maxcmd_ddd;	/* pin: limit for 3rd derivative of cmd */
-    hal_float_t *error_i;	/* opt. pin: integrated error */
-    double prev_error;		/* previous error for differentiator */
-    hal_float_t *error_d;	/* opt. pin: differentiated error */
-    double prev_cmd;		/* previous command for differentiator */
-    double prev_fb;		/* previous feedback for differentiator */
-    double limit_state;		/* +1 or -1 if in limit, else 0.0 */
-    hal_float_t *cmd_d;		/* opt. pin: differentiated command */
-    hal_float_t *cmd_dd;	/* opt. pin: 2nd derivative of command */
-    hal_float_t *cmd_ddd;	/* opt. pin: 3rd derivative of command */
-    hal_float_t *bias;		/* param: steady state offset */
-    hal_float_t *pgain;		/* pin: proportional gain */
-    hal_float_t *igain;		/* pin: integral gain */
-    hal_float_t *dgain;		/* pin: derivative gain */
-    hal_float_t *ff0gain;	/* pin: feedforward proportional */
-    hal_float_t *ff1gain;	/* pin: feedforward derivative */
-    hal_float_t *ff2gain;	/* pin: feedforward 2nd derivative */
-    hal_float_t *ff3gain;	/* pin: feedforward 3rd derivative */
-    hal_float_t *maxoutput;	/* pin: limit for PID output */
-    hal_float_t *output;	/* pin: the output value */
-    hal_bit_t   *saturated;	/* pin: TRUE when the output is saturated */
-    hal_float_t *saturated_s;  /* pin: the time the output has been saturated */
-    hal_s32_t   *saturated_count;
-			       /* pin: the time the output has been saturated */
-    hal_bit_t *index_enable;   /* pin: to monitor for step changes that would
-                                       otherwise screw up FF */
-    hal_bit_t *error_previous_target; /* pin: measure error as new position vs previous command, to match motion's ideas */
+    gomc_hal_bit_t   *enable;
+    gomc_hal_float_t *command;
+    gomc_hal_float_t *commandv;
+    gomc_hal_float_t *feedback;
+    gomc_hal_float_t *feedbackv;
+    gomc_hal_float_t *error;
+    gomc_hal_float_t *output;
+    gomc_hal_bit_t   *saturated;
+    gomc_hal_float_t *saturated_s;
+    gomc_hal_s32_t   *saturated_count;
+    gomc_hal_float_t *pgain;
+    gomc_hal_float_t *igain;
+    gomc_hal_float_t *dgain;
+    gomc_hal_float_t *ff0gain;
+    gomc_hal_float_t *ff1gain;
+    gomc_hal_float_t *ff2gain;
+    gomc_hal_float_t *ff3gain;
+    gomc_hal_float_t *deadband;
+    gomc_hal_float_t *maxerror;
+    gomc_hal_float_t *maxerror_i;
+    gomc_hal_float_t *maxerror_d;
+    gomc_hal_float_t *maxcmd_d;
+    gomc_hal_float_t *maxcmd_dd;
+    gomc_hal_float_t *maxcmd_ddd;
+    gomc_hal_float_t *bias;
+    gomc_hal_float_t *maxoutput;
+    gomc_hal_bit_t   *index_enable;
+    gomc_hal_bit_t   *error_previous_target;
+    /* auto-tune */
+    gomc_hal_float_t *tuneEffort;
+    gomc_hal_u32_t   *tuneCycles;
+    gomc_hal_u32_t   *tuneType;
+    gomc_hal_bit_t   *pTuneMode;
+    gomc_hal_bit_t   *pTuneStart;
+    /* debug (may point to hal_malloc'd storage if not exported) */
+    gomc_hal_float_t *error_i;
+    gomc_hal_float_t *error_d;
+    gomc_hal_float_t *cmd_d;
+    gomc_hal_float_t *cmd_dd;
+    gomc_hal_float_t *cmd_ddd;
+    gomc_hal_float_t *ultimateGain;
+    gomc_hal_float_t *ultimatePeriod;
+} pid_hal_t;
+
+typedef struct {
+    cmod_t base;
+    const cmod_env_t *env;
+    int comp_id;
+    char name[GOMC_HAL_NAME_LEN + 1];
+    pid_hal_t *hal;
+    int debug;
+    /* internal state */
+    double prev_error;
+    double prev_cmd;
+    double prev_fb;
+    double limit_state;
     char prev_ie;
-
-#ifdef AUTO_TUNER
-    /* Autotune related */
-    hal_float_t *tuneEffort;     /* pin: Control effort for limit cycle. */
-    hal_u32_t *tuneCycles;
-    hal_u32_t *tuneType;
-    hal_bit_t *pTuneMode;       /* pin: 0=PID, 1=tune.*/
-    hal_bit_t *pTuneStart;      /* pin: Set to 1 to start an auto-tune
-				   cycle.  Clears automatically when
-				   the cycle has finished. */
-    hal_float_t *ultimateGain;   /* Calc by auto-tune from limit cycle. */
-    hal_float_t *ultimatePeriod; /* Calc by auto-tune from limit cycle. */
-
-    /* Private data */
+    gomc_hal_float_t *commandvds;
+    gomc_hal_float_t *feedbackvds;
+    /* auto-tune */
     State state;
-    hal_u32_t  cycleCount;
-    hal_u32_t  cyclePeriod;
-    hal_float_t cycleAmplitude;
-    hal_float_t totalTime;
-    hal_float_t avgAmplitude;
-#endif /* AUTO_TUNER */
-} hal_pid_t;
+    uint32_t cycleCount;
+    uint32_t cyclePeriod;
+    double cycleAmplitude;
+    double totalTime;
+    double avgAmplitude;
+} inst_t;
 
-/* pointer to array of pid_t structs in shared memory, 1 per loop */
-static hal_pid_t *pid_array;
+static void pid_autotune(inst_t *inst, long period) {
+    pid_hal_t *h = inst->hal;
+    double error = *(h->command) - *(h->feedback);
+    *(h->error) = error;
 
-/* other globals */
-static int comp_id;		/* component ID */
+    if (!*(h->enable) || !*(h->pTuneMode))
+        inst->state = STATE_TUNE_ABORT;
 
-/***********************************************************************
-*                  LOCAL FUNCTION DECLARATIONS                         *
-************************************************************************/
-
-static int export_pid(hal_pid_t * addr,char * prefix);
-static void calc_pid(void *arg, long period);
-
-/***********************************************************************
-*                       INIT AND EXIT CODE                             *
-************************************************************************/
-
-
-int rtapi_app_main(void)
-{
-    int n, retval,i;
-
-    if(num_chan && names[0]) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
-        return -EINVAL;
-    }
-    if(!num_chan && !names[0]) num_chan = default_num_chan;
-
-    if(num_chan) {
-        howmany = num_chan;
-    } else {
-        howmany = 0;
-        for (i = 0; i < MAX_CHAN; i++) {
-            if ( (names[i] == NULL) || (*names[i] == 0) ){
-                break;
-            }
-            howmany = i + 1;
-        }
-    }
-
-    /* test for number of channels */
-    if ((howmany <= 0) || (howmany > MAX_CHAN)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    NAME ": ERROR: invalid number of channels: %d\n", howmany);
-	return -1;
-    }
-    /* have good config info, connect to the HAL */
-    comp_id = hal_init("pid");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, NAME ": ERROR: hal_init() failed\n");
-	return -1;
-    }
-    /* allocate shared memory for pid loop data */
-    pid_array = hal_malloc(howmany * sizeof(hal_pid_t));
-    if (pid_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, NAME ": ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    /* export variables and function for each PID loop */
-    i = 0; // for names= items
-    for (n = 0; n < howmany; n++) {
-	/* export everything for this loop */
-        if(num_chan) {
-            char buf[HAL_NAME_LEN + 1];
-            rtapi_snprintf(buf, sizeof(buf), "pid.%d", n);
-	    retval = export_pid(&(pid_array[n]), buf);
-        } else {
-	    retval = export_pid(&(pid_array[n]), names[i++]);
-        }
-
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		NAME ": ERROR: loop %d var export failed\n", n);
-	    hal_exit(comp_id);
-	    return -1;
-	}
-    }
-    rtapi_print_msg(RTAPI_MSG_INFO, NAME ": installed %d PID loops\n",
-	howmany);
-    hal_ready(comp_id);
-    return 0;
-}
-
-void rtapi_app_exit(void)
-{
-    hal_exit(comp_id);
-}
-
-#ifdef AUTO_TUNER
-/***********************************************************************
-*                   Auto tuning CALCULATIONS                           *
-************************************************************************/
-
-static void
-Pid_CycleEnd(hal_pid_t *pid)
-{
-    pid->cycleCount++;
-    pid->avgAmplitude += pid->cycleAmplitude / *(pid->tuneCycles);
-    pid->cycleAmplitude = 0;
-    pid->totalTime += pid->cyclePeriod * 0.000000001;
-    pid->cyclePeriod = 0;
-}
-
-/*
- * Perform an auto-tune operation. Sets up a limit cycle using the specified
- * tune effort. Averages the amplitude and period over the specified number of
- * cycles. This characterizes the process and determines the ultimate gain
- * and period, which are then used to calculate PID.
- *
- * CO(t) = P * [ e(t) + 1/Ti * (f e(t)dt) - Td * (d/dt PV(t)) ]
- *
- * Pu = 4/PI * tuneEffort / responseAmplitude
- * Ti = 0.5 * responsePeriod
- * Td = 0.125 * responsePeriod
- *
- * P = 0.6 * Pu
- * I = P * 1/Ti
- * D = P * Td
- */
-static void
-Pid_AutoTune(hal_pid_t *pid, long period)
-{
-    hal_float_t                 error;
-
-    // Calculate the error.
-    error = *pid->command - *pid->feedback;
-    *pid->error = error;
-
-    // Check if enabled and if still in tune mode.
-    if(!*pid->enable || !*pid->pTuneMode){
-        pid->state = STATE_TUNE_ABORT;
-    }
-
-    switch(pid->state){
+    switch (inst->state) {
     case STATE_TUNE_IDLE:
-        // Wait for tune start command.
-        if(*pid->pTuneStart)
-            pid->state = STATE_TUNE_START;
+        if (*(h->pTuneStart)) inst->state = STATE_TUNE_START;
         break;
-
     case STATE_TUNE_START:
-        // Initialize tuning variables and start limit cycle.
-        pid->state = STATE_TUNE_POS;
-        pid->cycleCount = 0;
-        pid->cyclePeriod = 0;
-        pid->cycleAmplitude = 0;
-        pid->totalTime = 0;
-        pid->avgAmplitude = 0;
-        *(pid->ultimateGain) = 0;
-        *(pid->ultimatePeriod) = 0;
-        *pid->output = *(pid->bias) + fabs(*(pid->tuneEffort));
+        inst->state = STATE_TUNE_POS;
+        inst->cycleCount = 0;
+        inst->cyclePeriod = 0;
+        inst->cycleAmplitude = 0;
+        inst->totalTime = 0;
+        inst->avgAmplitude = 0;
+        *(h->ultimateGain) = 0;
+        *(h->ultimatePeriod) = 0;
+        *(h->output) = *(h->bias) + fabs(*(h->tuneEffort));
         break;
-
     case STATE_TUNE_POS:
     case STATE_TUNE_NEG:
-        pid->cyclePeriod += period;
-
-        if(error < 0.0){
-            // Check amplitude.
-            if(-error > pid->cycleAmplitude)
-                pid->cycleAmplitude = -error;
-
-            // Check for end of cycle.
-            if(pid->state == STATE_TUNE_POS){
-                pid->state = STATE_TUNE_NEG;
-                Pid_CycleEnd(pid);
+        inst->cyclePeriod += period;
+        if (error < 0.0) {
+            if (-error > inst->cycleAmplitude) inst->cycleAmplitude = -error;
+            if (inst->state == STATE_TUNE_POS) {
+                inst->state = STATE_TUNE_NEG;
+                inst->cycleCount++;
+                inst->avgAmplitude += inst->cycleAmplitude / *(h->tuneCycles);
+                inst->cycleAmplitude = 0;
+                inst->totalTime += inst->cyclePeriod * 0.000000001;
+                inst->cyclePeriod = 0;
             }
-
-            // Update output so user can ramp effort until movement occurs.
-            *pid->output = *(pid->bias) - fabs(*(pid->tuneEffort));
-        }else{
-            // Check amplitude.
-            if(error > pid->cycleAmplitude)
-                pid->cycleAmplitude = error;
-
-            // Check for end of cycle.
-            if(pid->state == STATE_TUNE_NEG){
-                pid->state = STATE_TUNE_POS;
-                Pid_CycleEnd(pid);
+            *(h->output) = *(h->bias) - fabs(*(h->tuneEffort));
+        } else {
+            if (error > inst->cycleAmplitude) inst->cycleAmplitude = error;
+            if (inst->state == STATE_TUNE_NEG) {
+                inst->state = STATE_TUNE_POS;
+                inst->cycleCount++;
+                inst->avgAmplitude += inst->cycleAmplitude / *(h->tuneCycles);
+                inst->cycleAmplitude = 0;
+                inst->totalTime += inst->cyclePeriod * 0.000000001;
+                inst->cyclePeriod = 0;
             }
-
-            // Update output so user can ramp effort until movement occurs.
-            *pid->output = *(pid->bias) + fabs(*(pid->tuneEffort));
+            *(h->output) = *(h->bias) + fabs(*(h->tuneEffort));
         }
+        if (inst->cycleCount < *(h->tuneCycles)) break;
 
-        // Check if the last cycle just ended. This is really the number
-        // of half cycles.
-        if(pid->cycleCount < *(pid->tuneCycles))
-            break;
-
-        // Calculate PID using Relay (Åström-Hägglund) method
-        *(pid->ultimateGain) = (4.0 * fabs(*(pid->tuneEffort)))/(PI * pid->avgAmplitude);
-        *(pid->ultimatePeriod) = 2.0 * pid->totalTime / *(pid->tuneCycles);
-        *(pid->ff0gain) = 0;
-        *(pid->ff2gain) = 0;
-
-        if(*(pid->tuneType) == TYPE_PID){
-            // insert ultimate gain and period in Ziegler-Nichols PID method
-            *(pid->pgain) = 0.6 * *(pid->ultimateGain);
-            *(pid->igain) = 1.2 * *(pid->ultimateGain) / (*(pid->ultimatePeriod));
-            *(pid->dgain) = (3.0/40.0) * *(pid->ultimateGain) * *(pid->ultimatePeriod);
-            *(pid->ff1gain) = 0;
-        }else{
-            // insert ultimate gain and period in Ziegler-Nichols PI method
-            *(pid->pgain) = 0.45 * *(pid->ultimateGain);
-            *(pid->igain) = 0.54 * *(pid->ultimateGain) / (*(pid->ultimatePeriod));
-            *(pid->dgain) = 0;
-
-            // Scaling must be set so PID output is in user units per second.
-            *(pid->ff1gain) = 1;
+        *(h->ultimateGain) = (4.0 * fabs(*(h->tuneEffort))) / (PI * inst->avgAmplitude);
+        *(h->ultimatePeriod) = 2.0 * inst->totalTime / *(h->tuneCycles);
+        *(h->ff0gain) = 0;
+        *(h->ff2gain) = 0;
+        if (*(h->tuneType) == TYPE_PID) {
+            *(h->pgain) = 0.6 * *(h->ultimateGain);
+            *(h->igain) = 1.2 * *(h->ultimateGain) / *(h->ultimatePeriod);
+            *(h->dgain) = (3.0/40.0) * *(h->ultimateGain) * *(h->ultimatePeriod);
+            *(h->ff1gain) = 0;
+        } else {
+            *(h->pgain) = 0.45 * *(h->ultimateGain);
+            *(h->igain) = 0.54 * *(h->ultimateGain) / *(h->ultimatePeriod);
+            *(h->dgain) = 0;
+            *(h->ff1gain) = 1;
         }
-
-        // Fall through.
-
+        /* fall through */
     case STATE_TUNE_ABORT:
     default:
-        // Force output to bias.
-        *pid->output = *(pid->bias);
-
-        // Abort any tuning cycle in progress.
-        *pid->pTuneStart = 0;
-        pid->state = (*pid->pTuneMode)? STATE_TUNE_IDLE: STATE_PID;
+        *(h->output) = *(h->bias);
+        *(h->pTuneStart) = 0;
+        inst->state = *(h->pTuneMode) ? STATE_TUNE_IDLE : STATE_PID;
+        break;
     }
 }
-#endif /* AUTO_TUNER */
 
-/***********************************************************************
-*                   REALTIME PID LOOP CALCULATIONS                     *
-************************************************************************/
-
-static void calc_pid(void *arg, long period)
-{
-    hal_pid_t *pid;
+static void calc_pid(void *arg, long period) {
+    inst_t *inst = (inst_t *)arg;
+    pid_hal_t *h = inst->hal;
     double tmp1, tmp2, tmp3, command, feedback;
     int enable;
     double periodfp, periodrecip;
 
-    /* point to the data for this PID loop */
-    pid = arg;
-
-#ifdef AUTO_TUNER
-    if(pid->state != STATE_PID){
-        Pid_AutoTune(pid, period);
+    if (inst->state != STATE_PID) {
+        pid_autotune(inst, period);
         return;
     }
-#endif
-    /* precalculate some timing constants */
+
     periodfp = period * 0.000000001;
     periodrecip = 1.0 / periodfp;
-    /* get the enable bit */
-    enable = *(pid->enable);
-    /* read the command and feedback only once */
-    command = *(pid->command);
-    feedback = *(pid->feedback);
-    /* calculate the error */
-    if((!(pid->prev_ie && !*(pid->index_enable))) && 
-       (*(pid->error_previous_target))) {
-        // the user requests ferror against prev_cmd, and we can honor
-        // that request because we haven't just had an index reset that
-        // screwed it up.  Otherwise, if we did just have an index
-        // reset, we will present an unwanted ferror proportional to
-        // velocity for this period, but velocity is usually very small
-        // during index search.
-        tmp1 = pid->prev_cmd - feedback;
-    } else {
+    enable = *(h->enable);
+    command = *(h->command);
+    feedback = *(h->feedback);
+
+    if ((!(inst->prev_ie && !*(h->index_enable))) && *(h->error_previous_target))
+        tmp1 = inst->prev_cmd - feedback;
+    else
         tmp1 = command - feedback;
-    }
-    /* store error to error pin */
-    *(pid->error) = tmp1;
 
-#ifdef AUTO_TUNER
-    /* Check for auto tuning mode request. */
-    if(*pid->pTuneMode){
-        *(pid->error_i) = 0;
-        pid->prev_error = 0;
-        *(pid->error_d) = 0;
-        pid->prev_cmd = 0;
-        pid->limit_state = 0;
-        *(pid->cmd_d) = 0;
-        *(pid->cmd_dd) = 0;
+    *(h->error) = tmp1;
 
-        // Force output to zero.
-        *(pid->output) = 0;
-
-        // Switch to tuning mode.
-        pid->state = STATE_TUNE_IDLE;
-
+    if (*(h->pTuneMode)) {
+        *(h->error_i) = 0; inst->prev_error = 0; *(h->error_d) = 0;
+        inst->prev_cmd = 0; inst->limit_state = 0;
+        *(h->cmd_d) = 0; *(h->cmd_dd) = 0;
+        *(h->output) = 0;
+        inst->state = STATE_TUNE_IDLE;
         return;
     }
-#endif /* AUTO_TUNER */
 
-    /* apply error limits */
-    if (*(pid->maxerror) != 0.0) {
-	if (tmp1 > *(pid->maxerror)) {
-	    tmp1 = *(pid->maxerror);
-	} else if (tmp1 < -*(pid->maxerror)) {
-	    tmp1 = -*(pid->maxerror);
-	}
+    if (*(h->maxerror) != 0.0) {
+        if (tmp1 > *(h->maxerror)) tmp1 = *(h->maxerror);
+        else if (tmp1 < -*(h->maxerror)) tmp1 = -*(h->maxerror);
     }
-    /* apply the deadband */
-    if (tmp1 > *(pid->deadband)) {
-	tmp1 -= *(pid->deadband);
-    } else if (tmp1 < -*(pid->deadband)) {
-	tmp1 += *(pid->deadband);
+    if (tmp1 > *(h->deadband)) tmp1 -= *(h->deadband);
+    else if (tmp1 < -*(h->deadband)) tmp1 += *(h->deadband);
+    else tmp1 = 0;
+
+    if (enable) {
+        if (tmp1 * inst->limit_state <= 0.0)
+            *(h->error_i) += tmp1 * periodfp;
+        if (*(h->maxerror_i) != 0.0) {
+            if (*(h->error_i) > *(h->maxerror_i)) *(h->error_i) = *(h->maxerror_i);
+            else if (*(h->error_i) < -*(h->maxerror_i)) *(h->error_i) = -*(h->maxerror_i);
+        }
     } else {
-	tmp1 = 0;
+        *(h->error_i) = 0;
     }
-    /* do integrator calcs only if enabled */
-    if (enable != 0) {
-	/* if output is in limit, don't let integrator wind up */
-	if ( ( tmp1 * pid->limit_state ) <= 0.0 ) {
-	    /* compute integral term */
-	    *(pid->error_i) += tmp1 * periodfp;
-	}
-	/* apply integrator limits */
-	if (*(pid->maxerror_i) != 0.0) {
-	    if (*(pid->error_i) > *(pid->maxerror_i)) {
-		*(pid->error_i) = *(pid->maxerror_i);
-	    } else if (*(pid->error_i) < -*(pid->maxerror_i)) {
-		*(pid->error_i) = -*(pid->maxerror_i);
-	    }
-	}
+
+    if (!(inst->prev_ie && !*(h->index_enable))) {
+        *(inst->commandvds) = (command - inst->prev_cmd) * periodrecip;
+        *(inst->feedbackvds) = (feedback - inst->prev_fb) * periodrecip;
+    }
+
+    *(h->error_d) = *(h->commandv) - *(h->feedbackv);
+    inst->prev_error = tmp1;
+    if (*(h->maxerror_d) != 0.0) {
+        if (*(h->error_d) > *(h->maxerror_d)) *(h->error_d) = *(h->maxerror_d);
+        else if (*(h->error_d) < -*(h->maxerror_d)) *(h->error_d) = -*(h->maxerror_d);
+    }
+
+    tmp2 = *(h->cmd_d);
+    *(h->cmd_d) = *(h->commandv);
+    inst->prev_ie = *(h->index_enable);
+    inst->prev_cmd = command;
+    inst->prev_fb = feedback;
+
+    if (*(h->maxcmd_d) != 0.0) {
+        if (*(h->cmd_d) > *(h->maxcmd_d)) *(h->cmd_d) = *(h->maxcmd_d);
+        else if (*(h->cmd_d) < -*(h->maxcmd_d)) *(h->cmd_d) = -*(h->maxcmd_d);
+    }
+
+    tmp3 = *(h->cmd_dd);
+    *(h->cmd_dd) = (*(h->cmd_d) - tmp2) * periodrecip;
+    if (*(h->maxcmd_dd) != 0.0) {
+        if (*(h->cmd_dd) > *(h->maxcmd_dd)) *(h->cmd_dd) = *(h->maxcmd_dd);
+        else if (*(h->cmd_dd) < -*(h->maxcmd_dd)) *(h->cmd_dd) = -*(h->maxcmd_dd);
+    }
+
+    *(h->cmd_ddd) = (*(h->cmd_dd) - tmp3) * periodrecip;
+    if (*(h->maxcmd_ddd) != 0.0) {
+        if (*(h->cmd_ddd) > *(h->maxcmd_ddd)) *(h->cmd_ddd) = *(h->maxcmd_ddd);
+        else if (*(h->cmd_ddd) < -*(h->maxcmd_ddd)) *(h->cmd_ddd) = -*(h->maxcmd_ddd);
+    }
+
+    if (enable) {
+        tmp1 = *(h->bias) + *(h->pgain) * tmp1 + *(h->igain) * *(h->error_i) +
+               *(h->dgain) * *(h->error_d);
+        tmp1 += command * *(h->ff0gain) + *(h->cmd_d) * *(h->ff1gain) +
+                *(h->cmd_dd) * *(h->ff2gain) + *(h->cmd_ddd) * *(h->ff3gain);
+        if (*(h->maxoutput) != 0.0) {
+            if (tmp1 > *(h->maxoutput)) { tmp1 = *(h->maxoutput); inst->limit_state = 1.0; }
+            else if (tmp1 < -*(h->maxoutput)) { tmp1 = -*(h->maxoutput); inst->limit_state = -1.0; }
+            else inst->limit_state = 0.0;
+        }
     } else {
-	/* not enabled, reset integrator */
-	*(pid->error_i) = 0;
-    }
-    /* compute command and feedback derivatives to dummysigs */
-    if(!(pid->prev_ie && !*(pid->index_enable))) {
-        *(pid->commandvds) = (command - pid->prev_cmd) * periodrecip;
-        *(pid->feedbackvds) = (feedback - pid->prev_fb) * periodrecip;
-    }
-    /* and calculate derivative term as difference of derivatives */
-    *(pid->error_d) = *(pid->commandv) - *(pid->feedbackv);
-    pid->prev_error = tmp1;
-    /* apply derivative limits */
-    if (*(pid->maxerror_d) != 0.0) {
-	if (*(pid->error_d) > *(pid->maxerror_d)) {
-	    *(pid->error_d) = *(pid->maxerror_d);
-	} else if (*(pid->error_d) < -*(pid->maxerror_d)) {
-	    *(pid->error_d) = -*(pid->maxerror_d);
-	}
-    }
-    /* save old value for 2nd derivative calc later */
-    tmp2 = *(pid->cmd_d);
-    *(pid->cmd_d) = *(pid->commandv);
-
-    // save ie for next time
-    pid->prev_ie = *(pid->index_enable);
-
-    pid->prev_cmd = command;
-    pid->prev_fb = feedback;
-
-    /* apply derivative limits */
-    if (*(pid->maxcmd_d) != 0.0) {
-	if (*(pid->cmd_d) > *(pid->maxcmd_d)) {
-	    *(pid->cmd_d) = *(pid->maxcmd_d);
-	} else if (*(pid->cmd_d) < -*(pid->maxcmd_d)) {
-	    *(pid->cmd_d) = -*(pid->maxcmd_d);
-	}
+        tmp1 = 0.0;
+        inst->limit_state = 0.0;
     }
 
-    /* save old value for 3rd derivative calc later */
-    tmp3 = *(pid->cmd_dd);
-    /* calculate 2nd derivative of command */
-    *(pid->cmd_dd) = (*(pid->cmd_d) - tmp2) * periodrecip;
-    /* apply 2nd derivative limits */
-    if (*(pid->maxcmd_dd) != 0.0) {
-	if (*(pid->cmd_dd) > *(pid->maxcmd_dd)) {
-	    *(pid->cmd_dd) = *(pid->maxcmd_dd);
-	} else if (*(pid->cmd_dd) < -*(pid->maxcmd_dd)) {
-	    *(pid->cmd_dd) = -*(pid->maxcmd_dd);
-	}
-    }
-
-    /* calculate 3rd derivative of command */
-    *(pid->cmd_ddd) = (*(pid->cmd_dd) - tmp3) * periodrecip;
-    /* apply 3rd derivative limits */
-    if (*(pid->maxcmd_ddd) != 0.0) {
-	if (*(pid->cmd_ddd) > *(pid->maxcmd_ddd)) {
-	    *(pid->cmd_ddd) = *(pid->maxcmd_ddd);
-	} else if (*(pid->cmd_ddd) < -*(pid->maxcmd_ddd)) {
-	    *(pid->cmd_ddd) = -*(pid->maxcmd_ddd);
-	}
-    }
-    /* do output calcs only if enabled */
-    if (enable != 0) {
-	/* calculate the output value */
-	tmp1 =
-	    *(pid->bias) + *(pid->pgain) * tmp1 + *(pid->igain) * *(pid->error_i) +
-	    *(pid->dgain) * *(pid->error_d);
-	tmp1 += command * *(pid->ff0gain) + *(pid->cmd_d) * *(pid->ff1gain) +
-	    *(pid->cmd_dd) * *(pid->ff2gain) + *(pid->cmd_ddd) * *(pid->ff3gain);
-	/* apply output limits */
-	if (*(pid->maxoutput) != 0.0) {
-	    if (tmp1 > *(pid->maxoutput)) {
-		tmp1 = *(pid->maxoutput);
-		pid->limit_state = 1.0;
-	    } else if (tmp1 < -*(pid->maxoutput)) {
-		tmp1 = -*(pid->maxoutput);
-		pid->limit_state = -1.0;
-	    } else {
-		pid->limit_state = 0.0;
-	    }
-	}
+    *(h->output) = tmp1;
+    if (inst->limit_state) {
+        *(h->saturated) = 1;
+        *(h->saturated_s) += period * 1e-9;
+        if (*(h->saturated_count) != 2147483647) (*h->saturated_count)++;
     } else {
-	/* not enabled, force output to zero */
-	tmp1 = 0.0;
-	pid->limit_state = 0.0;
+        *(h->saturated) = 0;
+        *(h->saturated_s) = 0;
+        *(h->saturated_count) = 0;
     }
-    /* write final output value to output pin */
-    *(pid->output) = tmp1;
-
-    /* set 'saturated' outputs */
-    if(pid->limit_state) { 
-        *(pid->saturated) = 1;
-        *(pid->saturated_s) += period * 1e-9;
-        if(*(pid->saturated_count) != 2147483647)
-            (*pid->saturated_count) ++;
-    } else {
-        *(pid->saturated) = 0;
-        *(pid->saturated_s) = 0;
-        *(pid->saturated_count) = 0;
-    }
-    /* done */
 }
 
-/***********************************************************************
-*                   LOCAL FUNCTION DEFINITIONS                         *
-************************************************************************/
+static void inst_destroy(cmod_t *self) {
+    inst_t *inst = (inst_t *)self;
+    if (inst->comp_id > 0)
+        inst->env->hal->exit(inst->env->hal->ctx, inst->comp_id);
+    inst->env->rtapi->free(inst->env->rtapi->ctx, inst);
+}
 
-static int export_pid(hal_pid_t * addr, char * prefix)
-{
-    int retval, msg;
-    char buf[HAL_NAME_LEN + 1];
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out) {
+    inst_t *inst;
+    pid_hal_t *h;
+    int r, i;
+    int debug = 0;
+    char buf[GOMC_HAL_NAME_LEN + 1];
 
-    /* This function exports a lot of stuff, which results in a lot of
-       logging if msg_level is at INFO or ALL. So we save the current value
-       of msg_level and restore it later.  If you actually need to log this
-       function's actions, change the second line below */
-    msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
-
-    /* export pins */
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
-			      "%s.enable", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->command), comp_id,
-				"%s.command", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->commandv), comp_id,
-				"%s.command-deriv", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    addr->commandvds = addr->commandv;
-
-    retval = hal_pin_float_newf(HAL_IN, &(addr->feedback), comp_id,
-				"%s.feedback", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->feedbackv), comp_id,
-				"%s.feedback-deriv", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    addr->feedbackvds = addr->feedbackv;
-
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->error), comp_id,
-				"%s.error", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->output), comp_id,
-				"%s.output", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->saturated), comp_id,
-			      "%s.saturated", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->saturated_s), comp_id,
-				"%s.saturated-s", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->saturated_count), comp_id,
-			      "%s.saturated-count", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->pgain), comp_id,
-				"%s.Pgain", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->igain), comp_id,
-				"%s.Igain", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->dgain), comp_id,
-				"%s.Dgain", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->ff0gain), comp_id,
-				"%s.FF0", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->ff1gain), comp_id,
-				"%s.FF1", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->ff2gain), comp_id,
-				"%s.FF2", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->ff3gain), comp_id,
-                "%s.FF3", prefix);
-    if (retval != 0) {
-    return retval;
-    }
-    /* export pins (previously parameters) */
-    retval = hal_pin_float_newf(HAL_IN, &(addr->deadband), comp_id,
-				"%s.deadband", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxerror), comp_id,
-				"%s.maxerror", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxerror_i), comp_id,
-				"%s.maxerrorI", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxerror_d), comp_id,
-				"%s.maxerrorD", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxcmd_d), comp_id,
-				"%s.maxcmdD", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxcmd_dd), comp_id,
-				"%s.maxcmdDD", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxcmd_ddd), comp_id,
-                "%s.maxcmdDDD", prefix);
-    if (retval != 0) {
-    return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->bias), comp_id,
-				"%s.bias", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->maxoutput), comp_id,
-				"%s.maxoutput", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->index_enable), comp_id,
-			      "%s.index-enable", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->error_previous_target), comp_id,
-			      "%s.error-previous-target", prefix);
-    if (retval != 0) {
-	return retval;
-    }
-#ifdef AUTO_TUNER
-    /* Auto tune related */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->tuneEffort), comp_id, "%s.tune-effort", prefix);
-    if(retval != 0){
-        return retval;
+    for (i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "debug=", 6) == 0)
+            debug = atoi(argv[i] + 6);
     }
 
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->tuneCycles), comp_id, "%s.tune-cycles", prefix);
-    if(retval != 0){
-        return retval;
-    }
+    inst = env->rtapi->calloc(env->rtapi->ctx, sizeof(*inst));
+    if (!inst) return -ENOMEM;
 
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->tuneType), comp_id, "%s.tune-type", prefix);
-    if(retval != 0){
-        return retval;
-    }
+    inst->base.Destroy = inst_destroy;
+    inst->env = env;
+    strncpy(inst->name, name, sizeof(inst->name) - 1);
+    inst->debug = debug;
+    inst->state = STATE_PID;
 
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->pTuneMode), comp_id, "%s.tune-mode", prefix);
-    if(retval != 0){
-        return retval;
-    }
+    inst->comp_id = env->hal->init(env->hal->ctx, name, env->dl_handle,
+                                   GOMC_HAL_COMP_REALTIME);
+    if (inst->comp_id < 0) goto err;
 
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->pTuneStart), comp_id, "%s.tune-start", prefix);
-    if(retval != 0){
-        return retval;
-    }
-#endif /* AUTO_TUNER */
+    inst->hal = env->hal->malloc(env->hal->ctx, sizeof(pid_hal_t));
+    if (!inst->hal) goto err;
+    memset(inst->hal, 0, sizeof(pid_hal_t));
+    h = inst->hal;
 
-    /* export optional parameters */
-    if (debug > 0) {
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->error_i), comp_id,
-				    "%s.errorI", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->error_d), comp_id,
-				    "%s.errorD", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->cmd_d), comp_id,
-				    "%s.commandD", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->cmd_dd), comp_id,
-				    "%s.commandDD", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->cmd_ddd), comp_id,
-                    "%s.commandDDD", prefix);
-    if (retval != 0) {
-        return retval;
-    }
+    /* standard pins */
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_IN, &h->enable, inst->comp_id, "%s.enable", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->command, inst->comp_id, "%s.command", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->commandv, inst->comp_id, "%s.command-deriv", name);
+    if (r) goto err;
+    inst->commandvds = h->commandv;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->feedback, inst->comp_id, "%s.feedback", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->feedbackv, inst->comp_id, "%s.feedback-deriv", name);
+    if (r) goto err;
+    inst->feedbackvds = h->feedbackv;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->error, inst->comp_id, "%s.error", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->output, inst->comp_id, "%s.output", name);
+    if (r) goto err;
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_OUT, &h->saturated, inst->comp_id, "%s.saturated", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->saturated_s, inst->comp_id, "%s.saturated-s", name);
+    if (r) goto err;
+    r = gomc_hal_pin_s32_newf(env->hal, GOMC_HAL_OUT, &h->saturated_count, inst->comp_id, "%s.saturated-count", name);
+    if (r) goto err;
 
-#ifdef AUTO_TUNER
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->ultimateGain), comp_id, "%s.ultimate-gain", prefix);
-	if (retval != 0) {
-	    return retval;
-	}
-	retval = hal_pin_float_newf(HAL_OUT, &(addr->ultimatePeriod), comp_id, "%s.ultimate-period", prefix);
-	if (retval != 0) {
-	    return retval;
-        }
-#endif /* AUTO_TUNER */
+    /* gains */
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->pgain, inst->comp_id, "%s.Pgain", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->igain, inst->comp_id, "%s.Igain", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->dgain, inst->comp_id, "%s.Dgain", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->ff0gain, inst->comp_id, "%s.FF0", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->ff1gain, inst->comp_id, "%s.FF1", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->ff2gain, inst->comp_id, "%s.FF2", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->ff3gain, inst->comp_id, "%s.FF3", name);
+    if (r) goto err;
+
+    /* limits */
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->deadband, inst->comp_id, "%s.deadband", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->maxerror, inst->comp_id, "%s.maxerror", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->maxerror_i, inst->comp_id, "%s.maxerrorI", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->maxerror_d, inst->comp_id, "%s.maxerrorD", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->maxcmd_d, inst->comp_id, "%s.maxcmdD", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->maxcmd_dd, inst->comp_id, "%s.maxcmdDD", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->maxcmd_ddd, inst->comp_id, "%s.maxcmdDDD", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->bias, inst->comp_id, "%s.bias", name);
+    if (r) goto err;
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &h->maxoutput, inst->comp_id, "%s.maxoutput", name);
+    if (r) goto err;
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_IN, &h->index_enable, inst->comp_id, "%s.index-enable", name);
+    if (r) goto err;
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_IN, &h->error_previous_target, inst->comp_id, "%s.error-previous-target", name);
+    if (r) goto err;
+
+    /* auto-tune */
+    r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IO, &h->tuneEffort, inst->comp_id, "%s.tune-effort", name);
+    if (r) goto err;
+    r = gomc_hal_pin_u32_newf(env->hal, GOMC_HAL_IO, &h->tuneCycles, inst->comp_id, "%s.tune-cycles", name);
+    if (r) goto err;
+    r = gomc_hal_pin_u32_newf(env->hal, GOMC_HAL_IO, &h->tuneType, inst->comp_id, "%s.tune-type", name);
+    if (r) goto err;
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_IN, &h->pTuneMode, inst->comp_id, "%s.tune-mode", name);
+    if (r) goto err;
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_IO, &h->pTuneStart, inst->comp_id, "%s.tune-start", name);
+    if (r) goto err;
+
+    /* debug/internal pins */
+    if (debug) {
+        r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->error_i, inst->comp_id, "%s.errorI", name);
+        if (r) goto err;
+        r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->error_d, inst->comp_id, "%s.errorD", name);
+        if (r) goto err;
+        r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->cmd_d, inst->comp_id, "%s.commandD", name);
+        if (r) goto err;
+        r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->cmd_dd, inst->comp_id, "%s.commandDD", name);
+        if (r) goto err;
+        r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->cmd_ddd, inst->comp_id, "%s.commandDDD", name);
+        if (r) goto err;
+        r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->ultimateGain, inst->comp_id, "%s.ultimate-gain", name);
+        if (r) goto err;
+        r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &h->ultimatePeriod, inst->comp_id, "%s.ultimate-period", name);
+        if (r) goto err;
     } else {
-	addr->error_i = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->error_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->cmd_d = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->cmd_dd = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->cmd_ddd = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-#ifdef AUTO_TUNER
-	addr->ultimateGain = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-	addr->ultimatePeriod = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
-#endif /* AUTO_TUNER */
+        /* allocate hidden storage */
+        h->error_i = env->hal->malloc(env->hal->ctx, sizeof(gomc_hal_float_t));
+        h->error_d = env->hal->malloc(env->hal->ctx, sizeof(gomc_hal_float_t));
+        h->cmd_d = env->hal->malloc(env->hal->ctx, sizeof(gomc_hal_float_t));
+        h->cmd_dd = env->hal->malloc(env->hal->ctx, sizeof(gomc_hal_float_t));
+        h->cmd_ddd = env->hal->malloc(env->hal->ctx, sizeof(gomc_hal_float_t));
+        h->ultimateGain = env->hal->malloc(env->hal->ctx, sizeof(gomc_hal_float_t));
+        h->ultimatePeriod = env->hal->malloc(env->hal->ctx, sizeof(gomc_hal_float_t));
+        if (!h->error_i || !h->error_d || !h->cmd_d || !h->cmd_dd ||
+            !h->cmd_ddd || !h->ultimateGain || !h->ultimatePeriod)
+            goto err;
     }
 
-    *(addr->error_i) = 0.0;
-    *(addr->error_d) = 0.0;
-    *(addr->cmd_d) = 0.0;
-    *(addr->cmd_dd) = 0.0;
-    *(addr->cmd_ddd) = 0.0;
-    /* init all structure members */
-    *(addr->enable) = 0;
-    *(addr->error_previous_target) = 1;
-    *(addr->command) = 0;
-    *(addr->feedback) = 0;
-    *(addr->error) = 0;
-    *(addr->output) = 0;
-    *(addr->deadband) = 0.0;
-    *(addr->maxerror) = 0.0;
-    *(addr->maxerror_i) = 0.0;
-    *(addr->maxerror_d) = 0.0;
-    *(addr->maxcmd_d) = 0.0;
-    *(addr->maxcmd_dd) = 0.0;
-    *(addr->maxcmd_ddd) = 0.0;
-    addr->prev_error = 0.0;
-    addr->prev_cmd = 0.0;
-    addr->limit_state = 0.0;
-    *(addr->bias) = 0.0;
-    *(addr->pgain) = 1.0;
-    *(addr->igain) = 0.0;
-    *(addr->dgain) = 0.0;
-    *(addr->ff0gain) = 0.0;
-    *(addr->ff1gain) = 0.0;
-    *(addr->ff2gain) = 0.0;
-    *(addr->ff3gain) = 0.0;
-    *(addr->maxoutput) = 0.0;
-#ifdef AUTO_TUNER
-    /* Initialize auto tune related values */
-    addr->state = STATE_PID;
-    *(addr->tuneCycles) = 50;
-    *(addr->tuneEffort) = 0.5;
-    *(addr->tuneType) = TYPE_PID;
-    *(addr->pTuneMode) = 0;
-    *(addr->pTuneStart) = 0;
-#endif /* AUTO_TUNER */
-    /* export function for this loop */
-    rtapi_snprintf(buf, sizeof(buf), "%s.do-pid-calcs", prefix);
-    retval =
-	hal_export_funct(buf, calc_pid, addr, 1, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    NAME ": ERROR: do_pid_calcs funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
-    }
-    /* restore saved message level */
-    rtapi_set_msg_level(msg);
+    /* defaults */
+    *(h->error_previous_target) = 1;
+    *(h->pgain) = 1.0;
+    *(h->tuneCycles) = 50;
+    *(h->tuneEffort) = 0.5;
+
+    snprintf(buf, sizeof(buf), "%s.do-pid-calcs", name);
+    r = env->hal->export_funct(env->hal->ctx, buf, calc_pid, inst, 1, 0, inst->comp_id);
+    if (r) goto err;
+
+    r = env->hal->ready(env->hal->ctx, inst->comp_id);
+    if (r) goto err;
+
+    *out = &inst->base;
     return 0;
+
+err:
+    if (inst->comp_id > 0)
+        env->hal->exit(env->hal->ctx, inst->comp_id);
+    env->rtapi->free(env->rtapi->ctx, inst);
+    return -1;
 }

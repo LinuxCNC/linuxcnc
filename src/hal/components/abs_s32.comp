@@ -26,7 +26,7 @@ license "GPL";
 author "Sebastian Kuzminsky";
 ;;
 FUNCTION(_) {
-    rtapi_s32 tmp = in;
+    int32_t tmp = in;
     if ( tmp >= 0 ) {
 	sign = 0;
 	out = tmp;

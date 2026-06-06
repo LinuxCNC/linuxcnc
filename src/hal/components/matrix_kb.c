@@ -16,43 +16,39 @@
 //
 
 /* A component to convert 7i73 bytecodes to bit pins */
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "hal.h"
+
+#include "gomc_env.h"
+
+#include <string.h>
 
 #define MAX_CHAN 8
 
-/* module information */
-MODULE_AUTHOR("Andy Pugh");
-MODULE_DESCRIPTION("Hal-to-text component for Mesa 7i73 and similar");
-MODULE_LICENSE("GPL");
-
 typedef struct {
     struct {
-        hal_bit_t **key;
-        hal_bit_t **rows;
-        hal_bit_t **cols;
-        hal_u32_t *keycode;
+        gomc_hal_bit_t **key;
+        gomc_hal_bit_t **rows;
+        gomc_hal_bit_t **cols;
+        gomc_hal_u32_t *keycode;
     } hal;
     struct {
-        hal_u32_t rollover;
-        hal_bit_t invert;
+        gomc_hal_u32_t rollover;
+        gomc_hal_bit_t invert;
     } param;
-    hal_u32_t ncols;
-    hal_u32_t nrows;
-    hal_u32_t *now;
-    hal_u32_t *then;
-    hal_bit_t invert;
-    char name[HAL_NAME_LEN + 1];
+    gomc_hal_u32_t ncols;
+    gomc_hal_u32_t nrows;
+    gomc_hal_u32_t *now;
+    gomc_hal_u32_t *then;
+    gomc_hal_bit_t invert;
+    char name[GOMC_HAL_NAME_LEN + 1];
     struct input_dev *key_dev;
-    hal_u32_t index;
+    gomc_hal_u32_t index;
     int keydown;
     int keyup;
     int rowshift;
     int row;
     int num_keys;
-    hal_bit_t scan;
-    hal_bit_t keystroke;
+    gomc_hal_bit_t scan;
+    gomc_hal_bit_t keystroke;
 }kb_inst_t;
 
 typedef struct {
@@ -60,13 +56,14 @@ typedef struct {
     int num_insts;
 }kb_t;
 
-static int comp_id;
-static kb_t *kb;
-
-char *config[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(config, MAX_CHAN, "screen formatting scancodes")
-char *names[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "component names")
+typedef struct {
+    cmod_t cmod;
+    const cmod_env_t *env;
+    int comp_id;
+    kb_t *kb;
+    char *config[MAX_CHAN];
+    char *names[MAX_CHAN];
+} matrix_kb_inst_t;
 
 void keyup(kb_inst_t *inst){
     int r, c;
@@ -77,15 +74,15 @@ void keyup(kb_inst_t *inst){
     
     if  (r < 0 
          || c < 0
-         || r >= inst->nrows 
-         || c >= inst->ncols
-         || inst->hal.key[r * inst->ncols + c] == NULL){
+         || (gomc_hal_u32_t)r >= inst->nrows 
+         || (gomc_hal_u32_t)c >= inst->ncols
+         || inst->hal.key[(gomc_hal_u32_t)r * inst->ncols + (gomc_hal_u32_t)c] == NULL){
         return;
     }
     
     if (inst->num_keys > 0) inst->num_keys--;
     
-    *inst->hal.key[r * inst->ncols + c] = 0;
+    *inst->hal.key[(gomc_hal_u32_t)r * inst->ncols + (gomc_hal_u32_t)c] = 0;
 }
 void keydown(kb_inst_t *inst){
     int r, c;
@@ -96,30 +93,31 @@ void keydown(kb_inst_t *inst){
     
     if  (r < 0 
          || c < 0
-         || r >= inst->nrows 
-         || c >= inst->ncols
-         || inst->hal.key[r * inst->ncols + c] == NULL){
+         || (gomc_hal_u32_t)r >= inst->nrows 
+         || (gomc_hal_u32_t)c >= inst->ncols
+         || inst->hal.key[(gomc_hal_u32_t)r * inst->ncols + (gomc_hal_u32_t)c] == NULL){
         return;
     }
     
-    if (inst->num_keys >= inst->param.rollover) return;
+    if ((gomc_hal_u32_t)inst->num_keys >= inst->param.rollover) return;
     inst->num_keys++;
     
-    *inst->hal.key[r * inst->ncols + c] = 1;
+    *inst->hal.key[(gomc_hal_u32_t)r * inst->ncols + (gomc_hal_u32_t)c] = 1;
 }
 
     void loop(void *arg, long period){
     int c;
-    hal_u32_t scan = 0;
+    gomc_hal_u32_t scan = 0;
     kb_inst_t *inst = arg;
+    (void)period;
     
     if (inst->scan){ //scanning request
-        for (c = 0; c < inst->ncols; c++){
+        for (c = 0; (gomc_hal_u32_t)c < inst->ncols; c++){
             scan += ((*inst->hal.cols[c] != inst->param.invert) << c);
         }
         if (scan == inst->now[inst->row] && scan != inst->then[inst->row]){
             // debounced and changed
-            for (c = 0; c < inst->ncols; c++){
+            for (c = 0; (gomc_hal_u32_t)c < inst->ncols; c++){
                 int mask = 1 << c;
                 if ((inst->then[inst->row] & mask) && !(scan & mask)){ //keyup
                     *inst->hal.keycode = inst->keyup 
@@ -145,16 +143,16 @@ void keydown(kb_inst_t *inst){
         
         *inst->hal.rows[inst->row] = inst->param.invert;
         inst->row++;
-        if (inst->row >= inst->nrows) inst->row = 0;
+        if ((gomc_hal_u32_t)inst->row >= inst->nrows) inst->row = 0;
         *inst->hal.rows[inst->row] = !inst->param.invert;
     }
     else
     {
         if (*inst->hal.keycode == 0x40) return;
-        if ((*inst->hal.keycode & inst->keydown) == inst->keydown){
+        if ((*inst->hal.keycode & (gomc_hal_u32_t)inst->keydown) == (gomc_hal_u32_t)inst->keydown){
             keydown(inst);
         }
-        else if ((*inst->hal.keycode & inst->keydown) == inst->keyup)
+        else if ((*inst->hal.keycode & (gomc_hal_u32_t)inst->keydown) == (gomc_hal_u32_t)inst->keyup)
         {
             keyup(inst);
         }
@@ -162,199 +160,245 @@ void keydown(kb_inst_t *inst){
 }
 
 
-int rtapi_app_main(void){
+static void matrix_kb_parse_argv(matrix_kb_inst_t *inst, int argc, const char **argv) {
+    int ci = 0, ni = 0;
+    for (int i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "config=", 7) == 0 && ci < MAX_CHAN)
+            inst->config[ci++] = (char *)argv[i] + 7;
+        else if (strncmp(argv[i], "names=", 6) == 0 && ni < MAX_CHAN)
+            inst->names[ni++] = (char *)argv[i] + 6;
+    }
+}
+
+static void matrix_kb_destroy(cmod_t *self) {
+    matrix_kb_inst_t *inst = (matrix_kb_inst_t *)self;
+    const gomc_hal_t *hal = inst->env->hal;
+    if (inst->comp_id > 0)
+        hal->exit(hal->ctx, inst->comp_id);
+    inst->env->rtapi->free(inst->env->rtapi->ctx, inst);
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out) {
     int i, j, n;
     int retval;
-    comp_id = hal_init("matrix_kb");
-    if (comp_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: ERROR: hal_init() failed\n");
+    matrix_kb_inst_t *inst;
+    kb_t *kb;
+    const gomc_hal_t *hal = env->hal;
+
+    (void)name;
+
+    inst = (matrix_kb_inst_t *)env->rtapi->calloc(env->rtapi->ctx,
+                sizeof(matrix_kb_inst_t));
+    if (!inst) return -1;
+
+    inst->cmod.Destroy = matrix_kb_destroy;
+    inst->env = env;
+
+    matrix_kb_parse_argv(inst, argc, argv);
+
+    inst->comp_id = env->hal->init(env->hal->ctx, "matrix_kb",
+                                   env->dl_handle, GOMC_HAL_COMP_REALTIME);
+    if (inst->comp_id < 0) {
+        gomc_log_errorf(inst->env->log, "matrix_kb", "matrix_kb: ERROR: hal_init() failed\n");
+        env->rtapi->free(env->rtapi->ctx, inst);
         return -1;
     }
     
     // allocate shared memory for data
-    kb = hal_malloc(sizeof(kb_t));
+    kb = env->hal->malloc(env->hal->ctx, sizeof(kb_t));
     if (kb == 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
+        gomc_log_errorf(inst->env->log, "matrix_kb",
                         "matrix_kb component: Out of Memory\n");
-        hal_exit(comp_id);
+        env->hal->exit(env->hal->ctx, inst->comp_id);
+        env->rtapi->free(env->rtapi->ctx, inst);
         return -1;
     }
+    inst->kb = kb;
     
     // Count the instances.
-    for (kb->num_insts = 0; config[kb->num_insts];kb->num_insts++);
+    for (kb->num_insts = 0; inst->config[kb->num_insts];kb->num_insts++);
     // Count the names.
-    for (n = 0; names[n];n++);
+    for (n = 0; inst->names[n];n++);
     
     if (n && n != kb->num_insts){
-        rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: Number of sizes and number"
+        gomc_log_errorf(inst->env->log, "matrix_kb", "matrix_kb: Number of sizes and number"
                         " of names must match\n");
-        hal_exit(comp_id);
+        env->hal->exit(env->hal->ctx, inst->comp_id);
+        env->rtapi->free(env->rtapi->ctx, inst);
         return -1;
     }
     
-    kb->insts = hal_malloc(kb->num_insts * sizeof(kb_inst_t));
+    kb->insts = env->hal->malloc(env->hal->ctx, kb->num_insts * sizeof(kb_inst_t));
     
     for (i = 0; i < kb->num_insts; i++){
         int a = 0;
-        int c, r;
-        kb_inst_t *inst = &kb->insts[i];
+        gomc_hal_u32_t c, r;
+        kb_inst_t *kinst = &kb->insts[i];
 
-        inst->index = i;
-        inst->nrows = 0;
-        inst->ncols = 0;
-        inst->scan = 0;
-        inst->keystroke = 0;
-        inst->param.invert = 1;
+        kinst->index = i;
+        kinst->nrows = 0;
+        kinst->ncols = 0;
+        kinst->scan = 0;
+        kinst->keystroke = 0;
+        kinst->param.invert = 1;
         
-        for(j = 0; config[i][j] !=0; j++){
-            int n = (config[i][j] | 0x20); //lower case
-            if (n == 'x'){
-                inst->nrows = a;
+        for(j = 0; inst->config[i][j] !=0; j++){
+            int ch = (inst->config[i][j] | 0x20); //lower case
+            if (ch == 'x'){
+                kinst->nrows = a;
                 a = 0;
             }
-            else if (n >= '0' && n <= '9'){
-                a = (a * 10) + (n - '0');
+            else if (ch >= '0' && ch <= '9'){
+                a = (a * 10) + (ch - '0');
             }
-            else if (n == 's'){
-                inst->scan = 1;
+            else if (ch == 's'){
+                kinst->scan = 1;
             }
         }
-        inst->ncols = a;
+        kinst->ncols = a;
         
-        if (inst->ncols == 0 || inst->nrows == 0){
-            rtapi_print_msg(RTAPI_MSG_ERR,
+        if (kinst->ncols == 0 || kinst->nrows == 0){
+            gomc_log_errorf(inst->env->log, "matrix_kb",
                             "matrix_kb: Invalid size format. should be NxN\n");
-            hal_exit(comp_id);
+            env->hal->exit(env->hal->ctx, inst->comp_id);
+            env->rtapi->free(env->rtapi->ctx, inst);
             return -1;
         }
         
-        if (inst->ncols > 32){
-            rtapi_print_msg(RTAPI_MSG_ERR,
+        if (kinst->ncols > 32){
+            gomc_log_errorf(inst->env->log, "matrix_kb",
                             "matrix_kb: maximum number of columns is 32. Sorry\n");
-            hal_exit(comp_id);
+            env->hal->exit(env->hal->ctx, inst->comp_id);
+            env->rtapi->free(env->rtapi->ctx, inst);
             return -1;
         }
         
-        for (inst->rowshift = 1; inst->ncols > (1 << inst->rowshift); inst->rowshift++);
-        for (inst->keydown = 0xC0, inst->keyup = 0x80
-             ; (inst->nrows << inst->rowshift) > inst->keydown
-             ; inst->keydown <<= 1, inst->keyup <<= 1);
+        for (kinst->rowshift = 1; kinst->ncols > (1U << kinst->rowshift); kinst->rowshift++);
+        for (kinst->keydown = 0xC0, kinst->keyup = 0x80
+             ; (int)(kinst->nrows << kinst->rowshift) > kinst->keydown
+             ; kinst->keydown <<= 1, kinst->keyup <<= 1);
         
-        inst->hal.key = (hal_bit_t **)hal_malloc(inst->nrows * inst->ncols * sizeof(hal_bit_t*));
-        inst->now = hal_malloc(inst->nrows * sizeof(hal_u32_t));
-        inst->then = hal_malloc(inst->nrows * sizeof(hal_u32_t));
-        inst->row = 0;
-        inst->param.rollover = 2;
+        kinst->hal.key = (gomc_hal_bit_t **)env->hal->malloc(env->hal->ctx, kinst->nrows * kinst->ncols * sizeof(gomc_hal_bit_t*));
+        kinst->now = env->hal->malloc(env->hal->ctx, kinst->nrows * sizeof(gomc_hal_u32_t));
+        kinst->then = env->hal->malloc(env->hal->ctx, kinst->nrows * sizeof(gomc_hal_u32_t));
+        kinst->row = 0;
+        kinst->param.rollover = 2;
         
         
-        if (names[i]){
-            rtapi_snprintf(inst->name, sizeof(inst->name), "%s", names[i]);
+        if (inst->names[i]){
+            snprintf(kinst->name, sizeof(kinst->name), "%s", inst->names[i]);
         }
         else
         {
-            rtapi_snprintf(inst->name, sizeof(inst->name), "matrix_kb.%i", i);
+            snprintf(kinst->name, sizeof(kinst->name), "matrix_kb.%i", i);
         }
         
-        for (c = 0; c < inst->ncols; c++){
-            for (r = 0; r < inst->nrows; r++){  
-                retval = hal_pin_bit_newf(HAL_OUT,
-                                          &(inst->hal.key[r * inst->ncols + c]), 
-                                          comp_id,
+        for (c = 0; c < kinst->ncols; c++){
+            for (r = 0; r < kinst->nrows; r++){  
+                retval = gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT,
+                                          &(kinst->hal.key[r * kinst->ncols + c]), 
+                                          inst->comp_id,
                                           "%s.key.r%xc%x", 
-                                          inst->name, r, c);
+                                          kinst->name, r, c);
                 if (retval != 0) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
+                    gomc_log_errorf(inst->env->log, "matrix_kb",
                                     "matrix_kb: Failed to create output pin\n");
-                    hal_exit(comp_id);
+                    env->hal->exit(env->hal->ctx, inst->comp_id);
+                    env->rtapi->free(env->rtapi->ctx, inst);
                     return -1;
                 }
             }
         }
         
-        if (inst->scan){ //internally generated scanning
-            inst->hal.rows = (hal_bit_t **)hal_malloc(inst->nrows * sizeof(hal_bit_t*));
-            inst->hal.cols = (hal_bit_t **)hal_malloc(inst->ncols * sizeof(hal_bit_t*));
+        if (kinst->scan){ //internally generated scanning
+            kinst->hal.rows = (gomc_hal_bit_t **)env->hal->malloc(env->hal->ctx, kinst->nrows * sizeof(gomc_hal_bit_t*));
+            kinst->hal.cols = (gomc_hal_bit_t **)env->hal->malloc(env->hal->ctx, kinst->ncols * sizeof(gomc_hal_bit_t*));
             
-            for (r = 0; r < inst->nrows; r++){
-                retval = hal_pin_bit_newf(HAL_OUT,
-                                          &(inst->hal.rows[r]), comp_id,
-                                          "%s.row-%02i-out",inst->name, r);
+            for (r = 0; r < kinst->nrows; r++){
+                retval = gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT,
+                                          &(kinst->hal.rows[r]), inst->comp_id,
+                                          "%s.row-%02i-out",kinst->name, r);
                 if (retval != 0) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
+                    gomc_log_errorf(inst->env->log, "matrix_kb",
                                     "matrix_kb: Failed to create output row pin\n");
-                    hal_exit(comp_id);
+                    env->hal->exit(env->hal->ctx, inst->comp_id);
+                    env->rtapi->free(env->rtapi->ctx, inst);
                     return -1;
                 }
             }
-            for (c = 0; c < inst->ncols; c++){
-                retval = hal_pin_bit_newf(HAL_IN,
-                                          &(inst->hal.cols[c]), comp_id,
-                                          "%s.col-%02i-in",inst->name, c);
+            for (c = 0; c < kinst->ncols; c++){
+                retval = gomc_hal_pin_bit_newf(hal, GOMC_HAL_IN,
+                                          &(kinst->hal.cols[c]), inst->comp_id,
+                                          "%s.col-%02i-in",kinst->name, c);
                 if (retval != 0) {
-                    rtapi_print_msg(RTAPI_MSG_ERR,
+                    gomc_log_errorf(inst->env->log, "matrix_kb",
                                     "matrix_kb: Failed to create input col pin\n");
-                    hal_exit(comp_id);
+                    env->hal->exit(env->hal->ctx, inst->comp_id);
+                    env->rtapi->free(env->rtapi->ctx, inst);
                     return -1;
                 }
             }
                 
-            retval = hal_pin_u32_newf(HAL_OUT,
-                                      &(inst->hal.keycode), comp_id,
-                                      "%s.keycode",inst->name);
+            retval = gomc_hal_pin_u32_newf(hal, GOMC_HAL_OUT,
+                                      &(kinst->hal.keycode), inst->comp_id,
+                                      "%s.keycode",kinst->name);
             if (retval != 0) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
+                gomc_log_errorf(inst->env->log, "matrix_kb",
                                 "matrix_kb: Failed to create output pin\n");
-                hal_exit(comp_id);
+                env->hal->exit(env->hal->ctx, inst->comp_id);
+                env->rtapi->free(env->rtapi->ctx, inst);
                 return -1;
             }
             
-            retval = hal_param_bit_newf(HAL_RW,
-                                      &(inst->param.invert), comp_id,
-                                      "%s.negative-logic",inst->name);
+            retval = gomc_hal_param_bit_newf(hal, GOMC_HAL_RW,
+                                      &(kinst->param.invert), inst->comp_id,
+                                      "%s.negative-logic",kinst->name);
             if (retval != 0) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
+                gomc_log_errorf(inst->env->log, "matrix_kb",
                                 "matrix_kb: Failed to create output pin\n");
-                hal_exit(comp_id);
+                env->hal->exit(env->hal->ctx, inst->comp_id);
+                env->rtapi->free(env->rtapi->ctx, inst);
                 return -1;
             }
             
             
-            retval = hal_param_u32_newf(HAL_RW,
-                                      &(inst->param.rollover), comp_id,
-                                      "%s.key_rollover",inst->name);
+            retval = gomc_hal_param_u32_newf(hal, GOMC_HAL_RW,
+                                      &(kinst->param.rollover), inst->comp_id,
+                                      "%s.key_rollover",kinst->name);
             if (retval != 0) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
+                gomc_log_errorf(inst->env->log, "matrix_kb",
                                 "matrix_kb: Failed to create rollover param\n");
-                hal_exit(comp_id);
+                env->hal->exit(env->hal->ctx, inst->comp_id);
+                env->rtapi->free(env->rtapi->ctx, inst);
                 return -1;
             }
             
         }
         else // scanning by 7i73 or similar
         {
-            retval = hal_pin_u32_newf(HAL_IN,
-                                      &(inst->hal.keycode), comp_id,
-                                      "%s.keycode",inst->name);
+            retval = gomc_hal_pin_u32_newf(hal, GOMC_HAL_IN,
+                                      &(kinst->hal.keycode), inst->comp_id,
+                                      "%s.keycode",kinst->name);
             if (retval != 0) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
+                gomc_log_errorf(inst->env->log, "matrix_kb",
                                 "matrix_kb: Failed to create input pin\n");
-                hal_exit(comp_id);
+                env->hal->exit(env->hal->ctx, inst->comp_id);
+                env->rtapi->free(env->rtapi->ctx, inst);
                 return -1;
             }
         }
         
-        retval = hal_export_funct(inst->name, loop, inst, 1, 0, comp_id); //needs fp?
+        retval = hal->export_funct(hal->ctx, kinst->name, loop, kinst, 1, 0, inst->comp_id); //needs fp?
         if (retval < 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: ERROR: function export failed\n");
+            gomc_log_errorf(inst->env->log, "matrix_kb", "matrix_kb: ERROR: function export failed\n");
+            env->hal->exit(env->hal->ctx, inst->comp_id);
+            env->rtapi->free(env->rtapi->ctx, inst);
             return -1;
         }
     }
-    hal_ready(comp_id);
+    env->hal->ready(env->hal->ctx, inst->comp_id);
     
+    *out = &inst->cmod;
     return 0;
-}
-
-void rtapi_app_exit(void)
-{
-    hal_exit(comp_id);
 }

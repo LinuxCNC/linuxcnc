@@ -28,7 +28,7 @@ author "Stephen Wille Padnos";
 see_also " invert(9), div2(9) ";
 ;;
 
-#include <rtapi_math.h>
+#include <math.h>
 
 FUNCTION(_) {
     double tmp = in;

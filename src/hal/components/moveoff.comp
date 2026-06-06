@@ -136,7 +136,7 @@ license "GPL";
 author "Dewey Garrett and Andy Pugh";
 ;;
 
-#include "rtapi_math.h"
+#include <math.h>
 #define NCHANNELS         9
 #define NWAYPOINTS     1000
 #define TST_NWAYPOINTS   50
@@ -150,21 +150,21 @@ typedef enum {
 
 typedef struct {
 int state[NCHANNELS];
-    hal_float_t old_in[NCHANNELS];
-    hal_float_t old_out[NCHANNELS];
-    hal_float_t old_v[NCHANNELS];
-    hal_float_t old_limited_in[NCHANNELS];
+    double old_in[NCHANNELS];
+    double old_out[NCHANNELS];
+    double old_v[NCHANNELS];
+    double old_limited_in[NCHANNELS];
 } old_values_t;
 
 struct lim3_input {
-    hal_float_t  minlimit;
-    hal_float_t  maxlimit;
-    hal_float_t  maxvlimit;
-    hal_float_t  maxalimit;
-    hal_float_t  in;
-    hal_float_t  old_in;
-    hal_float_t  old_out;
-    hal_float_t  old_v;
+    double  minlimit;
+    double  maxlimit;
+    double  maxvlimit;
+    double  maxalimit;
+    double  in;
+    double  old_in;
+    double  old_out;
+    double  old_v;
 };
 
 static void reset_old(int nchan, old_values_t* d) {
@@ -177,7 +177,7 @@ static void reset_old(int nchan, old_values_t* d) {
     }
 }
 
-static int offset_removed(int nchan, old_values_t d, hal_float_t eps) {
+static int offset_removed(int nchan, old_values_t d, double eps) {
     int removed = 1;
     int i;
     for (i = 0 ; i < nchan ; i++) {
@@ -190,8 +190,8 @@ static int offset_removed(int nchan, old_values_t d, hal_float_t eps) {
 }
 
 static int at_waypoint(int nchan,
-                       hal_float_t g[],
-                       hal_float_t p[],hal_float_t eps) {
+                       double g[],
+                       double p[],double eps) {
     int within_eps = 1;
     int i;
 
@@ -206,17 +206,17 @@ static int at_waypoint(int nchan,
 
 static long theperiod;
 static void lim3(struct lim3_input input,
-                 hal_float_t* old_in,
-                 hal_float_t* limited_out,
-                 hal_float_t* old_v
+                 double* old_in,
+                 double* limited_out,
+                 double* old_v
                 ) {
     /* following code is adapted from limit3.comp */
-    hal_float_t dt = theperiod * 1e-9;
-    hal_float_t in_v, min_v, max_v, avg_v;
-    hal_float_t min_out,max_out;
-    hal_float_t ramp_a, match_time, est_in, est_out;
-    hal_float_t err, dv, dp;
-    hal_float_t limited_in;
+    double dt = theperiod * 1e-9;
+    double in_v, min_v, max_v, avg_v;
+    double min_out,max_out;
+    double ramp_a, match_time, est_in, est_out;
+    double err, dv, dp;
+    double limited_in;
 
     /* apply first order limit */
     limited_in = input.in;
@@ -287,20 +287,20 @@ static void lim3(struct lim3_input input,
 
 static the_state    state = IDLE;
 static int          next_waypoint_index;
-static rtapi_s64    last_waypoint_time;
-static rtapi_s64    now;
-static hal_float_t  time_since_last_sample;
-static hal_float_t  move_threshold;
-static hal_float_t  min_sample_interval;
+static int64_t    last_waypoint_time;
+static int64_t    now;
+static double  time_since_last_sample;
+static double  move_threshold;
+static double  min_sample_interval;
 static bool         backtrack;
 static bool         gave_msg;
 static int          max_waypoints = NWAYPOINTS;
 static struct       lim3_input input;
-static hal_float_t  goal[NCHANNELS];
-static hal_float_t  waypoints[NCHANNELS][NWAYPOINTS];
+static double  goal[NCHANNELS];
+static double  waypoints[NCHANNELS][NWAYPOINTS];
 static old_values_t data;
 
-static hal_float_t  eps_in_use;
+static double  eps_in_use;
 static bool         move_in_progress = 0;
 static the_state    next_state;
 
@@ -313,7 +313,7 @@ static const bool   allow_backtrack_enable_change = 1;
 //       (e.g., unlimited no. of offset samples)
 
 FUNCTION(read_inputs) {
-    hal_float_t last,delta;
+    double last,delta;
     int r;
     bool all_enables  = power_on && move_enable && apply_offsets;
 
@@ -344,7 +344,7 @@ FUNCTION(read_inputs) {
         int r;
         bool sufficient_movement_for_new_waypoint = 0;
 
-        time_since_last_sample = (hal_float_t)(now - last_waypoint_time)/1e9;
+        time_since_last_sample = (double)(now - last_waypoint_time)/1e9;
         switch (state) {
             case IDLE:
                   next_waypoint_index = 0;
@@ -433,7 +433,7 @@ FUNCTION(read_inputs) {
             move_in_progress = 1;
             if (backtrack) {
                 if ( next_waypoint_index > 0 ) {
-                    hal_float_t pcur[NCHANNELS];
+                    double pcur[NCHANNELS];
                     for (r=0; r < personality; r++) {
                         pcur[r] = offset_current(r);
                     }
@@ -470,11 +470,11 @@ FUNCTION(read_inputs) {
             //   2) (no *.resume-inhibit pin) or (-no_resume_inhibit option)
             //      and program resumed with offsets applied
             for (r = 0; r < personality; r++) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
+                GOMC_LOG_ERR(
                            "Index: %i, offset=%f",
                            r, data.old_out[r]);
             }
-            rtapi_print_msg(RTAPI_MSG_ERR,
+            GOMC_LOG_ERR(
             "apply_offsets deasserted before offsets removed "
             "moveoff.comp: WARNING"
             );
@@ -504,7 +504,7 @@ FUNCTION(write_outputs) {
             if ( waypoint_limit && (state == MOVE_AWAY) ) {
                 // no movement in MOVE_AWAY (require: remove enable)
             } else {
-                hal_float_t last_old = data.old_out[r];
+                double last_old = data.old_out[r];
                 lim3(input,
                      &data.old_in[r],
                      &data.old_out[r],

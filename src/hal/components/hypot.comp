@@ -7,7 +7,7 @@ function _;
 license "GPL";
 author "Jeff Epler";
 ;;
-#include <rtapi_math.h>
+#include <math.h>
 FUNCTION(_) {
     double a = in0, b = in1, c = in2;
     out = sqrt(a*a + b*b + c*c);

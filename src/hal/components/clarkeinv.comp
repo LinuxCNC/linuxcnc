@@ -14,7 +14,7 @@ function _;
 license "GPL";
 author "John Kasunich";
 ;;
-#include <rtapi_math.h>
+#include <math.h>
 
 /* for the details, google "clarke transform", or see section 3 of
    http://focus.ti.com/lit/an/bpra048/bpra048.pdf and/or appendix B of

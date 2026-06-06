@@ -1,248 +1,202 @@
-/********************************************************************
-* Description: watchdog.c
-*   Watchdog for HAL
-*
-*   See the "Users Manual" at emc2/docs/Hal_Introduction.pdf
-*
-*
-* This module provides a single module that can monitor heartbeats from
-* several other modules (like a charge pump signal), to make sure that
-* no monitored process or HAL thread dies or takes too long between
-* execution cycles
-*
-*********************************************************************
-*
-* Author: Stephen Wille Padnos (swpadnos AT sourceforge DOT net)
-* License: GPL Version 2
-* Created on: Jue 19, 2010
-* System: Linux
-*
-* Copyright (c) 2010 All rights reserved.
-*
-********************************************************************/
+/*
+ * watchdog.c — cmod HAL component: multiple-input watchdog.
+ *
+ * Monitors N input bits for transitions. If any input stops toggling
+ * within its timeout, the output goes low.
+ *
+ * Usage:
+ *   load watchdog num_inputs=4
+ *
+ * Original author: Stephen Wille Padnos
+ * Converted to cmod API: 2026
+ * License: GPL Version 2
+ */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include "gomc_env.h"
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <stdint.h>
 
-/* module information */
-MODULE_AUTHOR("Stephen Wille Padnos");
-MODULE_DESCRIPTION("Multiple input watchdog for EMC HAL");
-MODULE_LICENSE("GPL");
-int num_inputs=-1;			// must specify a count on the loadrt line
-RTAPI_MP_INT(num_inputs, "Number of inputs");
+#define MAX_INPUTS 32
 
-/***********************************************************************
-*                STRUCTURES AND GLOBAL VARIABLES                       *
-************************************************************************/
-
-/* Data needed for each input */
 typedef struct {
-    hal_bit_t *input;		/* pin: the input bit HAL pin */
-    hal_float_t timeout;	/* param: maximum alloewd timeb without a transition on bit */
-    hal_float_t oldtimeout;	/* internal:  used to determine whether the timeout has changed */
-    hal_s32_t c_secs, c_nsecs;	/* internal:  elapsed seconds and nanoseconds */
-    hal_s32_t t_secs, t_nsecs;	/* internal:  seconds and nanoseconds for timeout */
-    hal_bit_t last;		/* internal:  last value of the input pin */
-} watchdog_input_t;
+    gomc_hal_bit_t *input;
+    int32_t c_secs, c_nsecs;
+    int32_t t_secs, t_nsecs;
+    int32_t old_bit;
+} wd_input_t;
 
-#define MAX_INPUTS	32
-
-/* Base data for a weighted summer. */
 typedef struct {
-  hal_bit_t *output;		/* output pin: high if all inputs are toggling, low otherwise */
-  hal_bit_t *enable;		/* pin: only runs while this is high (kind of like an enable) */
-} watchdog_data_t;
+    gomc_hal_bit_t   *output;
+    gomc_hal_bit_t   *enable;
+    gomc_hal_float_t *timeout;  /* per-input timeout array (HAL params) */
+} wd_pins_t;
 
-/* other globals */
-static int comp_id;		/* component ID */
-watchdog_input_t *inputs;	/* internal: pointer to the input bits and weights */
-watchdog_data_t *data;		/* common data */
-hal_bit_t old_enable;
-/***********************************************************************
-*                  LOCAL FUNCTION DECLARATIONS                         *
-************************************************************************/
+typedef struct {
+    cmod_t base;
+    const cmod_env_t *env;
+    int comp_id;
+    char name[GOMC_HAL_NAME_LEN + 1];
+    int num_inputs;
+    wd_pins_t *pins;
+    wd_input_t *inputs;
+    gomc_hal_float_t **timeouts; /* array of pointers to per-input timeout pins */
+    int32_t old_enable;
+} inst_t;
 
-static void process(void *arg, long period);
-static void set_timeouts(void *arg, long period);
+static void process(void *arg, long period) {
+    inst_t *inst = (inst_t *)arg;
+    int i, fault = 0;
 
-/***********************************************************************
-*                       INIT AND EXIT CODE                             *
-************************************************************************/
+    if (!*(inst->pins->enable) || !*(inst->pins->output))
+        return;
 
-int rtapi_app_main(void)
-{
-    int n, retval;
+    for (i = 0; i < inst->num_inputs; i++) {
+        wd_input_t *inp = &inst->inputs[i];
+        int32_t cur = *(inp->input);
 
+        if (cur != inp->old_bit) {
+            inp->c_secs = inp->t_secs;
+            inp->c_nsecs = inp->t_nsecs;
+        } else {
+            inp->c_nsecs -= period;
+            if (inp->c_nsecs < 0) {
+                inp->c_nsecs += 1000000000;
+                if (inp->c_secs > 0) {
+                    inp->c_secs--;
+                } else {
+                    fault = 1;
+                    inp->c_secs = inp->c_nsecs = 0;
+                }
+            }
+        }
+        inp->old_bit = cur;
+    }
+    if (fault)
+        *(inst->pins->output) = 0;
+}
 
-    /* check that there's at least one valid input requested */
-    if (num_inputs<1) {
-      rtapi_print_msg(RTAPI_MSG_ERR, "WATCHDOG: ERROR: must specify at least one input\n");
-      return -1;
+static void set_timeouts(void *arg, long period) {
+    inst_t *inst = (inst_t *)arg;
+    int i;
+    double temp;
+
+    (void)period;
+
+    for (i = 0; i < inst->num_inputs; i++) {
+        wd_input_t *inp = &inst->inputs[i];
+        temp = *(inst->timeouts[i]);
+        if (temp < 0) temp = 0;
+        inp->t_secs = (int32_t)temp;
+        temp -= inp->t_secs;
+        inp->t_nsecs = (int32_t)(1e9 * temp);
     }
 
-    /* but not too many */
-    if (num_inputs> MAX_INPUTS) {
-      rtapi_print_msg(RTAPI_MSG_ERR, "WATCHDOG: ERROR: too many inputs requested (%d > %d)\n", num_inputs, MAX_INPUTS);
-      return -1;
+    if (!*(inst->pins->output)) {
+        if (*(inst->pins->enable) && !inst->old_enable) {
+            for (i = 0; i < inst->num_inputs; i++) {
+                inst->inputs[i].c_secs = inst->inputs[i].t_secs;
+                inst->inputs[i].c_nsecs = inst->inputs[i].t_nsecs;
+            }
+            *(inst->pins->output) = 1;
+        }
+    }
+    inst->old_enable = *(inst->pins->enable);
+}
+
+static void inst_destroy(cmod_t *self) {
+    inst_t *inst = (inst_t *)self;
+    if (inst->comp_id > 0)
+        inst->env->hal->exit(inst->env->hal->ctx, inst->comp_id);
+    inst->env->rtapi->free(inst->env->rtapi->ctx, inst);
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out) {
+    inst_t *inst;
+    int r, i;
+    int num_inputs = 0;
+    char buf[GOMC_HAL_NAME_LEN + 1];
+
+    for (i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "num_inputs=", 11) == 0)
+            num_inputs = atoi(argv[i] + 11);
     }
 
-    /* have good config info, connect to the HAL */
-    comp_id = hal_init("watchdog");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WATCHDOG: ERROR: hal_init() failed (Return code %d)\n", comp_id);
-	return -1;
+    if (num_inputs < 1 || num_inputs > MAX_INPUTS) {
+        gomc_log_errorf(env->log, name,
+                        "num_inputs=%d out of range (1..%d)", num_inputs, MAX_INPUTS);
+        return -EINVAL;
     }
 
-    /* allocate shared memory for watchdog global and pin info */
-    data = hal_malloc(sizeof(watchdog_data_t));
-    if (data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WATCHDOG: ERROR: hal_malloc() for common data failed\n");
-	hal_exit(comp_id);
-	goto err;
+    /* allocate instance (includes space for inputs and timeout pointers) */
+    size_t sz = sizeof(inst_t) + sizeof(wd_input_t) * num_inputs +
+                sizeof(gomc_hal_float_t *) * num_inputs;
+    inst = env->rtapi->calloc(env->rtapi->ctx, sz);
+    if (!inst) return -ENOMEM;
+
+    inst->base.Destroy = inst_destroy;
+    inst->env = env;
+    strncpy(inst->name, name, sizeof(inst->name) - 1);
+    inst->num_inputs = num_inputs;
+    inst->inputs = (wd_input_t *)((char *)inst + sizeof(inst_t));
+    inst->timeouts = (gomc_hal_float_t **)((char *)inst->inputs +
+                     sizeof(wd_input_t) * num_inputs);
+
+    inst->comp_id = env->hal->init(env->hal->ctx, name, env->dl_handle,
+                                   GOMC_HAL_COMP_REALTIME);
+    if (inst->comp_id < 0) goto err;
+
+    inst->pins = env->hal->malloc(env->hal->ctx,
+                                  sizeof(wd_pins_t) + sizeof(gomc_hal_bit_t *) * num_inputs +
+                                  sizeof(gomc_hal_float_t *) * num_inputs);
+    if (!inst->pins) goto err;
+    memset(inst->pins, 0, sizeof(wd_pins_t));
+
+    /* per-input pins */
+    for (i = 0; i < num_inputs; i++) {
+        r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_IN,
+                                  &inst->inputs[i].input, inst->comp_id,
+                                  "%s.input-%d", name, i);
+        if (r != 0) goto err;
+
+        r = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IO,
+                                    &inst->timeouts[i], inst->comp_id,
+                                    "%s.timeout-%d", name, i);
+        if (r != 0) goto err;
+        *(inst->timeouts[i]) = 0;
     }
 
-    inputs = hal_malloc(num_inputs * sizeof(watchdog_input_t));
-    if (inputs == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WATCHDOG: ERROR: hal_malloc() for input pins failed\n");
-	hal_exit(comp_id);
-	goto err;
-    }
+    /* global pins */
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_OUT, &inst->pins->output,
+                              inst->comp_id, "%s.ok-out", name);
+    if (r != 0) goto err;
 
-    /* export pins/params for all inputs */
-    for (n = 0; n < num_inputs; n++) {
-      retval=hal_pin_bit_newf(HAL_IN, &(inputs[n].input), comp_id, "watchdog.input-%d", n);
-      if (retval != 0) {
-	  rtapi_print_msg(RTAPI_MSG_ERR,
-	      "WATCHDOG: ERROR: couldn't create input pin watchdog.input-%d\n", n);
-	  goto err;
-      }
-      retval=hal_param_float_newf(HAL_RW, &(inputs[n].timeout), comp_id, "watchdog.timeout-%d", n);
-      if (retval != 0) {
-	  rtapi_print_msg(RTAPI_MSG_ERR,
-	      "WATCHDOG: ERROR: couldn't create input parameter watchdog.timeout-%d\n", n);
-	  goto err;
-      }
-      
-      inputs[n].timeout=0;
-      inputs[n].oldtimeout=-1;
-      inputs[n].c_secs = inputs[n].t_secs = 0;
-      inputs[n].c_nsecs = inputs[n].t_nsecs = 0;
-      inputs[n].last = *(inputs[n].input);
-    }
+    r = gomc_hal_pin_bit_newf(env->hal, GOMC_HAL_IN, &inst->pins->enable,
+                              inst->comp_id, "%s.enable-in", name);
+    if (r != 0) goto err;
 
-    /* export "global" pins */
-    retval=hal_pin_bit_newf(HAL_OUT, &(data->output), comp_id, "watchdog.ok-out");
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WATCHDOG: ERROR: couldn't create output pin watchdog.ok-out\n");
-	goto err;
-    }
-    retval=hal_pin_bit_newf(HAL_IN, &(data->enable), comp_id, "watchdog.enable-in");
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WATCHDOG: ERROR: couldn't create input pin watchdog.enable-in\n");
-	goto err;
-    }
-    
     /* export functions */
-    retval = hal_export_funct("watchdog.process", process, inputs, 0, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WATCHDOG: ERROR: process funct export failed\n");
-	goto err;
-    }
+    snprintf(buf, sizeof(buf), "%s.process", name);
+    r = env->hal->export_funct(env->hal->ctx, buf, process, inst, 0, 0,
+                               inst->comp_id);
+    if (r != 0) goto err;
 
-    retval = hal_export_funct("watchdog.set-timeouts", set_timeouts, inputs, 1, 0, comp_id);
-    if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WATCHDOG: ERROR: set_timeouts funct export failed\n");
-	goto err;
-    }
+    snprintf(buf, sizeof(buf), "%s.set-timeouts", name);
+    r = env->hal->export_funct(env->hal->ctx, buf, set_timeouts, inst, 1, 0,
+                               inst->comp_id);
+    if (r != 0) goto err;
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"WATCHDOG: installed watchdog with %d inputs\n", num_inputs);
-    hal_ready(comp_id);
+    r = env->hal->ready(env->hal->ctx, inst->comp_id);
+    if (r != 0) goto err;
+
+    *out = &inst->base;
     return 0;
-    
+
 err:
-    hal_exit(comp_id);
+    if (inst->comp_id > 0)
+        env->hal->exit(env->hal->ctx, inst->comp_id);
+    env->rtapi->free(env->rtapi->ctx, inst);
     return -1;
 }
-
-void rtapi_app_exit(void)
-{
-    hal_exit(comp_id);
-}
-
-/***********************************************************************
-*                     REALTIME FUNCTIONS                               *
-************************************************************************/
-
-/*  This procedude checks all the input bits for changes.  If a change
-    is detected, the corresponding timer is reset.  If no change was
-    detected, "period" is subtracted from the timer.  If any timer gets
-    to zero, the output is cleared and enable must go low and high again
-    to re-start the watchdog.
-*/
-static void process(void *arg, long period)
-{
-    int i, fault=0;
-    // set_timeouts has to turn on the output when it detects a valid
-    // transition on enable
-    if (!(*data->enable) || (!(*data->output))) return;
-    for (i=0;i<num_inputs;i++) {
-      if (*(inputs[i].input) != inputs[i].last) {
-	inputs[i].c_secs = inputs[i].t_secs;
-	inputs[i].c_nsecs = inputs[i].t_nsecs;
-      } else {
-	inputs[i].c_nsecs -= period;
-	if (inputs[i].c_nsecs<0) {
-	  inputs[i].c_nsecs += 1000000000;
-	  if (inputs[i].c_secs>0) {
-	    inputs[i].c_secs--;
-	  } else {
-	    fault=1;
-	    inputs[i].c_secs = inputs[i].c_nsecs = 0;
-	  }
-	}
-      }
-      inputs[i].last=*(inputs[i].input);
-    }
-    if (fault) *(data->output)=0;
-}
-
-static void set_timeouts(void *arg, long period)
-{
-    int i;
-    hal_float_t temp;
-    
-    for (i=0;i<num_inputs;i++) {
-      temp=inputs[i].timeout;
-      if (temp<0) temp=0;	// no negative timeout periods
-      if (temp != inputs[i].oldtimeout) {
-	// new timeout, convert to secs/ns
-	inputs[i].oldtimeout=temp;
-	inputs[i].t_secs=temp;
-	temp -= inputs[i].t_secs;
-	inputs[i].t_nsecs=(1e9*temp);
-      }
-    }
-    if (!*(data->output)) {
-	if (*(data->enable) && !old_enable) {
-	  // rising edge on enable, so we can restart
-	  for (i=0;i<num_inputs;i++) {
-	    inputs[i].c_secs = inputs[i].t_secs;
-	    inputs[i].c_nsecs = inputs[i].t_nsecs;
-	  }
-	  *(data->output) = 1;
-	}
-    }
-    old_enable=*(data->enable);
-}
-/***********************************************************************
-*                   LOCAL FUNCTION DEFINITIONS                         *
-************************************************************************/
