@@ -27,19 +27,12 @@
 #include <unistd.h>
 #include <endian.h>
 
-#include <rtapi.h>
-#include <rtapi_app.h>
-#include <rtapi_bool.h>
-#include <rtapi_gfp.h>
-#include <hal.h>
-
+#include "gomc_env.h"
+#include "hm2_core_api.h"
+#define HM2_LLIO_NAME "hm2_spi"
+static const void *hm2_log;
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Jeff Epler");
-MODULE_DESCRIPTION("Driver for HostMot2 devices connected via SPI");
-MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-7i90");
 
 #define MAX_BOARDS (8)
 
@@ -49,14 +42,7 @@ MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-7i90");
 // turned on uses just 28 words.
 #define MAX_TRX (1024)
 
-static int spidev_rate[MAX_BOARDS] = { [0 ... MAX_BOARDS-1] = 24000 };
-RTAPI_MP_ARRAY_INT(spidev_rate, MAX_BOARDS, "SPI clock rate in kHz");
-
-static char *spidev_path[MAX_BOARDS] = { "/dev/spidev1.0" };
-RTAPI_MP_ARRAY_STRING(spidev_path, MAX_BOARDS, "path to spi device");
-
-static char *config[MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+struct hm2_spi_inst;  // forward declaration
 
 typedef struct {
     hm2_lowlevel_io_t llio;
@@ -66,11 +52,25 @@ typedef struct {
     uint32_t trxbuf[MAX_TRX];
     uint32_t *scatter[MAX_TRX];
     int nbuf;
+
+    struct hm2_spi_inst *inst;  // back-pointer to owning module instance
 } hm2_spi_t;
 
-static hm2_spi_t boards[MAX_BOARDS];
-static int nboards;
-static int comp_id;
+typedef struct hm2_spi_inst {
+    cmod_t cmod;
+    const cmod_env_t *env;
+    const hm2_core_callbacks_t *core;
+    int comp_id;
+
+    int spidev_rate[MAX_BOARDS];
+    char *spidev_path[MAX_BOARDS];
+    char *config[MAX_BOARDS];
+    char cfg_bufs[MAX_BOARDS][256];
+    char path_bufs[MAX_BOARDS][256];
+
+    hm2_spi_t boards[MAX_BOARDS];
+    int nboards;
+} hm2_spi_inst_t;
 
 static char *hm2_7c80_pin_names[] = {
 	"TB07-02/TB07-03",	/* Step/Dir/Misc 5V out */
@@ -219,8 +219,7 @@ static int do_pending(hm2_spi_t *this) {
     }
     int r = ioctl(this->fd, SPI_IOC_MESSAGE(1), &t);
     if(r < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "hm2_spi: SPI_IOC_MESSAGE: %s\n", strerror(errno));
+        gomc_log_errorf(hm2_log, HM2_LLIO_NAME,             "hm2_spi: SPI_IOC_MESSAGE: %s\n", strerror(errno));
         this->nbuf = 0;
         return -errno;
     }
@@ -261,7 +260,7 @@ static int send_queued_writes(hm2_lowlevel_io_t *llio) {
     return do_pending(this) >= 0;
 }
 
-static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size) {
+static int queue_write(hm2_lowlevel_io_t *llio, uint32_t addr, const void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     if(size == 0) return 0;
     if(size % 4) return -EINVAL;
@@ -287,7 +286,7 @@ static int send_queued_reads(hm2_lowlevel_io_t *llio) {
     return do_pending(this) >= 0;
 }
 
-static int queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
+static int queue_read(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     if(size == 0) return 0;
     if(size % 4) return -EINVAL;
@@ -307,14 +306,14 @@ static int queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int
     return 1;
 }
 
-static int do_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size) {
+static int do_write(hm2_lowlevel_io_t *llio, uint32_t addr, const void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     int r = queue_write(llio, addr, buffer, size);
     if(r < 0) return r;
     return do_pending(this) >= 0;
 }
 
-static int do_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
+static int do_read(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer, int size) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
     int r = queue_read(llio, addr, buffer, size);
     if(r < 0) return r;
@@ -383,8 +382,8 @@ static int check_cookie(hm2_spi_t *board) {
     if(r < 0) return -errno;
 
     if(memcmp(cookie, xcookie, sizeof(cookie))) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Invalid cookie\n");
-        rtapi_print_msg(RTAPI_MSG_ERR, "Read: %08x %08x %08x %08x\n",
+        gomc_log_errorf(hm2_log, HM2_LLIO_NAME, "Invalid cookie\n");
+        gomc_log_errorf(hm2_log, HM2_LLIO_NAME, "Read: %08x %08x %08x %08x\n",
             cookie[0], cookie[1], cookie[2], cookie[3]);
         return -ENODEV;
     }
@@ -395,11 +394,12 @@ static int read_ident(hm2_spi_t *board, char *ident) {
     return do_read(&board->llio, 0x40c, ident, 8);
 }
 
-static int probe(char *dev, int rate) {
+static int probe(hm2_spi_inst_t *inst, char *dev, int rate) {
     printf("probe %d\n", rate);
-    if(nboards >= MAX_BOARDS) return -ENOSPC;
+    if(inst->nboards >= MAX_BOARDS) return -ENOSPC;
 
-    hm2_spi_t *board = &boards[nboards];
+    hm2_spi_t *board = &inst->boards[inst->nboards];
+    board->inst = inst;
     board->fd = spidev_open_and_configure(dev, rate);
     if(board->fd < 0) return board->fd;
 
@@ -457,15 +457,15 @@ static int probe(char *dev, int rate) {
     } else {
         // peter's been busy
         int i=0;
-        for(i=0; i<sizeof(ident); i++)
+        for(i=0; (size_t)i<sizeof(ident); i++)
             if(!isprint(ident[i])) ident[i] = '?';
-        rtapi_print_msg(RTAPI_MSG_ERR, "Unknown board: %.8s\n", ident);
+        gomc_log_errorf(hm2_log, HM2_LLIO_NAME, "Unknown board: %.8s\n", ident);
         goto fail;
     }
 
-    rtapi_snprintf(board->llio.name, sizeof(board->llio.name),
-        "%s.%d", base, nboards);
-    board->llio.comp_id = comp_id;
+    snprintf(board->llio.name, sizeof(board->llio.name),
+        "%s.%d", base, inst->nboards);
+    board->llio.comp_id = inst->comp_id;
     board->llio.private = &board;
     board->llio.read = do_read;
     board->llio.write = do_write;
@@ -474,36 +474,95 @@ static int probe(char *dev, int rate) {
     board->llio.queue_write = queue_write;
     board->llio.send_queued_writes = send_queued_writes;
 
-    r = hm2_register(&board->llio, config[nboards]);
+    r = inst->core->register_board(inst->core->ctx, &board->llio, inst->config[inst->nboards]);
     if(r < 0) goto fail;
 
-    nboards++;
+    inst->nboards++;
     return 0;
 fail:
     close(board->fd);
     return r;
 }
 
-int rtapi_app_main() {
+static void hm2_spi_destroy(cmod_t *self);
+
+static void hm2_spi_parse_argv(hm2_spi_inst_t *inst, int argc, const char **argv) {
+    int cfg_idx = 0, rate_idx = 0, path_idx = 0;
+
+    for (int i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "config=", 7) == 0 && cfg_idx < MAX_BOARDS) {
+            strncpy(inst->cfg_bufs[cfg_idx], argv[i] + 7, sizeof(inst->cfg_bufs[0]) - 1);
+            inst->config[cfg_idx] = inst->cfg_bufs[cfg_idx];
+            cfg_idx++;
+        } else if (strncmp(argv[i], "spidev_rate=", 12) == 0 && rate_idx < MAX_BOARDS) {
+            inst->spidev_rate[rate_idx] = simple_strtol(argv[i] + 12, NULL, 0);
+            rate_idx++;
+        } else if (strncmp(argv[i], "spidev_path=", 12) == 0 && path_idx < MAX_BOARDS) {
+            strncpy(inst->path_bufs[path_idx], argv[i] + 12, sizeof(inst->path_bufs[0]) - 1);
+            inst->spidev_path[path_idx] = inst->path_bufs[path_idx];
+            path_idx++;
+        }
+    }
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
+{
+    const gomc_hal_t *hal = env->hal;
+    hm2_log = env->log;
     int ret;
     int i=0;
-    comp_id = ret = hal_init("hm2_spi");
-    if(ret < 0) goto fail;
 
-    for(i=0; i<MAX_BOARDS && spidev_path[i]; i++) {
-        ret = probe(spidev_path[i], 1000 * spidev_rate[i]);
+    hm2_spi_inst_t *inst = calloc(1, sizeof(*inst));
+    if (!inst) return -ENOMEM;
+
+    // Initialize default spidev rates
+    for (i = 0; i < MAX_BOARDS; i++)
+        inst->spidev_rate[i] = 24000;
+
+    // Initialize default spidev path
+    inst->spidev_path[0] = "/dev/spidev1.0";
+
+    inst->env = env;
+
+    hm2_spi_parse_argv(inst, argc, argv);
+
+    inst->core = hm2_core_api_get(env->api, "hostmot2");
+    if (!inst->core) {
+        gomc_log_errorf(env->log, name, "hm2_spi: hostmot2 core API not found (is hostmot2 loaded?)\n");
+        free(inst);
+        return -1;
+    }
+
+    ret = hal->init(hal->ctx, "hm2_spi", env->dl_handle, GOMC_HAL_COMP_REALTIME);
+    if (ret < 0) {
+        free(inst);
+        return ret;
+    }
+    inst->comp_id = ret;
+
+    for(i=0; i<MAX_BOARDS && inst->spidev_path[i]; i++) {
+        ret = probe(inst, inst->spidev_path[i], 1000 * inst->spidev_rate[i]);
         if(ret < 0) goto fail;
     }
 
-    hal_ready(comp_id);
+    hal->ready(hal->ctx, inst->comp_id);
+
+    inst->cmod.Destroy = hm2_spi_destroy;
+    *out = &inst->cmod;
     return 0;
 
 fail:
-    for(i=0; i<MAX_BOARDS && boards[i].fd; i++)
-        close(boards[i].fd);
+    for(i=0; i<MAX_BOARDS && inst->boards[i].fd; i++)
+        close(inst->boards[i].fd);
+    hal->exit(hal->ctx, inst->comp_id);
+    free(inst);
     return ret;
 }
 
-void rtapi_app_exit(void) {
-    hal_exit(comp_id);
+static void hm2_spi_destroy(cmod_t *self) {
+    hm2_spi_inst_t *inst = (hm2_spi_inst_t *)self;
+    const gomc_hal_t *hal = inst->env->hal;
+    hal->exit(hal->ctx, inst->comp_id);
+    free(inst);
 }

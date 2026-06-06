@@ -35,10 +35,7 @@
 //
 
 
-#include <rtapi_slab.h>
 
-#include "rtapi.h"
-#include "hal.h"
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
@@ -82,7 +79,7 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->ssr.clock_freq = md->clock_freq;
     hm2->ssr.version = md->version;
 
-    hm2->ssr.instance = (hm2_ssr_instance_t *)hal_malloc(hm2->ssr.num_instances * sizeof(hm2_ssr_instance_t));
+    hm2->ssr.instance = (hm2_ssr_instance_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, hm2->ssr.num_instances * sizeof(hm2_ssr_instance_t));
     if (hm2->ssr.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -97,7 +94,7 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
             int out;
             for (
                 out = 0;
-                out < sizeof(hm2->ssr.instance[0].hal.pin.out)/sizeof(hm2->ssr.instance[0].hal.pin.out[0]);
+                (size_t)out < sizeof(hm2->ssr.instance[0].hal.pin.out)/sizeof(hm2->ssr.instance[0].hal.pin.out[0]);
                 out ++
             ) {
                 hm2->ssr.instance[inst].hal.pin.out[out] = NULL;
@@ -108,14 +105,14 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->ssr.data_addr = md->base_address + (0 * md->register_stride);
     hm2->ssr.rate_addr = md->base_address + (1 * md->register_stride);
 
-    hm2->ssr.rate_reg = (rtapi_u32*)rtapi_kmalloc(hm2->ssr.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->ssr.rate_reg = (uint32_t*)hm2->llio->rtapi->calloc(hm2->llio->rtapi->ctx, hm2->ssr.num_instances * sizeof(uint32_t));
     if (hm2->ssr.rate_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
 
-    r = hm2_register_tram_write_region(hm2, hm2->ssr.data_addr, (hm2->ssr.num_instances * sizeof(rtapi_u32)), &hm2->ssr.data_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->ssr.data_addr, (hm2->ssr.num_instances * sizeof(uint32_t)), &hm2->ssr.data_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for SSR Data register (%d)\n", r);
         goto fail1;
@@ -127,11 +124,11 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
 
     {
         int i;
-        char name[HAL_NAME_LEN + 1];
+        char name[256];
 
         for (i = 0; i < hm2->ssr.num_instances; i ++) {
-            rtapi_snprintf(name, sizeof(name), "%s.ssr.%02d.rate", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->ssr.instance[i].hal.pin.rate), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.ssr.%02d.rate", hm2->llio->name, i);
+            r = gomc_hal_pin_u32_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->ssr.instance[i].hal.pin.rate), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -160,15 +157,15 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
                             goto fail1;
                         }
 
-                        rtapi_snprintf(name, sizeof(name), "%s.ssr.%02d.out-%02d", hm2->llio->name, i, ssr_number);
-                        r = hal_pin_bit_new(name, HAL_IN, &(hm2->ssr.instance[i].hal.pin.out[ssr_number]), hm2->llio->comp_id);
+                        snprintf(name, sizeof(name), "%s.ssr.%02d.out-%02d", hm2->llio->name, i, ssr_number);
+                        r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->ssr.instance[i].hal.pin.out[ssr_number]), hm2->llio->comp_id, name);
                         if (r < 0) {
                             HM2_ERR("error adding pin '%s', aborting\n", name);
                             r = -ENOMEM;
                             goto fail1;
                         }
-                        rtapi_snprintf(name, sizeof(name), "%s.ssr.%02d.invert-%02d", hm2->llio->name, i, ssr_number);
-                        r = hal_pin_bit_new(name, HAL_IN, &(hm2->ssr.instance[i].hal.pin.invert[ssr_number]), hm2->llio->comp_id);
+                        snprintf(name, sizeof(name), "%s.ssr.%02d.invert-%02d", hm2->llio->name, i, ssr_number);
+                        r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->ssr.instance[i].hal.pin.invert[ssr_number]), hm2->llio->comp_id, name);
                         if (r < 0) {
                             HM2_ERR("error adding pin '%s', aborting\n", name);
                             r = -ENOMEM;
@@ -193,7 +190,7 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
         int i;
         for (i = 0; i < hm2->ssr.num_instances; i ++) {
             int pin;
-            rtapi_u32 zero = 0;
+            uint32_t zero = 0;
 
             *hm2->ssr.instance[i].hal.pin.rate = 1000*1000;
 
@@ -211,7 +208,7 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->ssr.num_instances;
 
 fail1:
-    rtapi_kfree(hm2->ssr.rate_reg);
+    hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->ssr.rate_reg);
 
 fail0:
     hm2->ssr.num_instances = 0;
@@ -230,7 +227,7 @@ static void hm2_ssr_compute_rate_regs(hostmot2_t *hm2) {
     int i;
 
     for (i = 0; i < hm2->ssr.num_instances; i ++) {
-        rtapi_u32 reg;
+        uint32_t reg;
 
         if (*hm2->ssr.instance[i].hal.pin.rate <= 0) {
             // Writing all bits zero to the Rate register clears bit 12,
@@ -292,7 +289,7 @@ void hm2_ssr_force_write(hostmot2_t *hm2) {
         }
     }
 
-    size = hm2->ssr.num_instances * sizeof(rtapi_u32);
+    size = hm2->ssr.num_instances * sizeof(uint32_t);
 
     // Write register values to board.
     hm2->llio->write(hm2->llio, hm2->ssr.rate_addr, hm2->ssr.rate_reg, size);

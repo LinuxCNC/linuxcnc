@@ -17,13 +17,8 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
 
-#include "hal.h"
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
@@ -75,7 +70,7 @@ void hm2_oneshot_update_rate(hostmot2_t *hm2, int i) {
 }
 
 void hm2_oneshot_update_control(hostmot2_t *hm2, int i) {
-    rtapi_u32 controlbuff;
+    uint32_t controlbuff;
     if(*hm2->oneshot.instance[i].hal.pin.trigselect1 > 7) {
         HM2_ERR("oneshot %d has invalid trigger 1 select value , resetting to 0\n", i);
 		  *hm2->oneshot.instance[i].hal.pin.trigselect1 = 0;
@@ -124,12 +119,12 @@ void hm2_oneshot_update_regs(hostmot2_t *hm2) {
 void hm2_oneshot_force_write(hostmot2_t *hm2) {
     hm2_oneshot_update_regs(hm2);
     
-    hm2->llio->write(hm2->llio, hm2->oneshot.width1_addr, hm2->oneshot.width1_reg, (hm2->oneshot.num_instances * sizeof(rtapi_u32)));
-    hm2->llio->write(hm2->llio, hm2->oneshot.width2_addr, hm2->oneshot.width2_reg, (hm2->oneshot.num_instances * sizeof(rtapi_u32)));
-    hm2->llio->write(hm2->llio, hm2->oneshot.filter1_addr, hm2->oneshot.filter1_reg, (hm2->oneshot.num_instances * sizeof(rtapi_u32)));
-    hm2->llio->write(hm2->llio, hm2->oneshot.filter2_addr, hm2->oneshot.filter2_reg, (hm2->oneshot.num_instances * sizeof(rtapi_u32)));
-    hm2->llio->write(hm2->llio, hm2->oneshot.rate_addr, hm2->oneshot.rate_reg, (hm2->oneshot.num_instances * sizeof(rtapi_u32)));
-    hm2->llio->write(hm2->llio, hm2->oneshot.control_addr, hm2->oneshot.control_reg, (hm2->oneshot.num_instances * sizeof(rtapi_u32)));
+    hm2->llio->write(hm2->llio, hm2->oneshot.width1_addr, hm2->oneshot.width1_reg, (hm2->oneshot.num_instances * sizeof(uint32_t)));
+    hm2->llio->write(hm2->llio, hm2->oneshot.width2_addr, hm2->oneshot.width2_reg, (hm2->oneshot.num_instances * sizeof(uint32_t)));
+    hm2->llio->write(hm2->llio, hm2->oneshot.filter1_addr, hm2->oneshot.filter1_reg, (hm2->oneshot.num_instances * sizeof(uint32_t)));
+    hm2->llio->write(hm2->llio, hm2->oneshot.filter2_addr, hm2->oneshot.filter2_reg, (hm2->oneshot.num_instances * sizeof(uint32_t)));
+    hm2->llio->write(hm2->llio, hm2->oneshot.rate_addr, hm2->oneshot.rate_reg, (hm2->oneshot.num_instances * sizeof(uint32_t)));
+    hm2->llio->write(hm2->llio, hm2->oneshot.control_addr, hm2->oneshot.control_reg, (hm2->oneshot.num_instances * sizeof(uint32_t)));
 
     
     if ((*hm2->llio->io_error) != 0) return;
@@ -201,7 +196,7 @@ int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 
-    hm2->oneshot.instance = (hm2_oneshot_instance_t *)hal_malloc(hm2->oneshot.num_instances * sizeof(hm2_oneshot_instance_t));
+    hm2->oneshot.instance = (hm2_oneshot_instance_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, hm2->oneshot.num_instances * sizeof(hm2_oneshot_instance_t));
     if (hm2->oneshot.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -219,43 +214,43 @@ int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->oneshot.control_addr = md->base_address + (5 * md->register_stride);
     hm2->oneshot.control_read_addr = md->base_address + (5 * md->register_stride);
 
-    r = hm2_register_tram_write_region(hm2, hm2->oneshot.width1_addr, (hm2->oneshot.num_instances * sizeof(rtapi_u32)), &hm2->oneshot.width1_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->oneshot.width1_addr, (hm2->oneshot.num_instances * sizeof(uint32_t)), &hm2->oneshot.width1_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for Width1 register (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_write_region(hm2, hm2->oneshot.width2_addr, (hm2->oneshot.num_instances * sizeof(rtapi_u32)), &hm2->oneshot.width2_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->oneshot.width2_addr, (hm2->oneshot.num_instances * sizeof(uint32_t)), &hm2->oneshot.width2_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for Width2 register (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_write_region(hm2, hm2->oneshot.filter1_addr, (hm2->oneshot.num_instances * sizeof(rtapi_u32)), &hm2->oneshot.filter1_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->oneshot.filter1_addr, (hm2->oneshot.num_instances * sizeof(uint32_t)), &hm2->oneshot.filter1_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for Filter1 register (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_write_region(hm2, hm2->oneshot.filter2_addr, (hm2->oneshot.num_instances * sizeof(rtapi_u32)), &hm2->oneshot.filter2_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->oneshot.filter2_addr, (hm2->oneshot.num_instances * sizeof(uint32_t)), &hm2->oneshot.filter2_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for Filter2 register (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_write_region(hm2, hm2->oneshot.rate_addr, (hm2->oneshot.num_instances * sizeof(rtapi_u32)), &hm2->oneshot.rate_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->oneshot.rate_addr, (hm2->oneshot.num_instances * sizeof(uint32_t)), &hm2->oneshot.rate_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for Rate register (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_write_region(hm2, hm2->oneshot.control_addr, (hm2->oneshot.num_instances * sizeof(rtapi_u32)), &hm2->oneshot.control_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->oneshot.control_addr, (hm2->oneshot.num_instances * sizeof(uint32_t)), &hm2->oneshot.control_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for Control register (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_read_region(hm2, hm2->oneshot.control_read_addr, (hm2->oneshot.num_instances * sizeof(rtapi_u32)), &hm2->oneshot.control_read_reg);
+    r = hm2_register_tram_read_region(hm2, hm2->oneshot.control_read_addr, (hm2->oneshot.num_instances * sizeof(uint32_t)), &hm2->oneshot.control_read_reg);
     if (r < 0) {
         HM2_ERR("error registering tram read region for Control register (%d)\n", r);
         goto fail0;
@@ -267,174 +262,174 @@ int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index) {
     {
         int i;
         int r;
-        char name[HAL_NAME_LEN + 1];
+        char name[256];
 
 
         for (i = 0; i < hm2->oneshot.num_instances; i ++) {
             // pins
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.width1", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.width1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.width1", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.width1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.width2", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.width2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.width2", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.width2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.filter1", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.filter1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.filter1", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.filter1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.filter2", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.filter2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.filter2", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.filter2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.rate", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.rate), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.rate", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.rate), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_select1", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_select1", hm2->llio->name, i);
+            r = gomc_hal_pin_u32_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_select2", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_select2", hm2->llio->name, i);
+            r = gomc_hal_pin_u32_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigselect2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.dpll_timer_number", hm2->llio->name, i);
-            r = hal_pin_s32_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.dpll_timer_num), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.dpll_timer_number", hm2->llio->name, i);
+            r = gomc_hal_pin_s32_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.dpll_timer_num), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
   
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_rise1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigrise1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_rise1", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigrise1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_rise2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigrise2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_rise2", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigrise2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_fall1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigfall1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_fall1", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigfall1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_fall2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigfall2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.trigger_on_fall2", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.trigfall2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.retriggerable1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.retrig1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.retriggerable1", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.retrig1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.retriggerable2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.retrig2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.retriggerable2", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.retrig2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.enable1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.enable1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.enable1", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.enable1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.enable2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.enable2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.enable2", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.enable2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.reset1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.reset1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.reset1", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.reset1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.reset2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.reset2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.reset2", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.reset2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.swtrigger1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.swtrig1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.swtrigger1", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.swtrig1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.swtrigger2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->oneshot.instance[i].hal.pin.swtrig2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.swtrigger2", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->oneshot.instance[i].hal.pin.swtrig2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.exttrigger1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.exttrig1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.exttrigger1", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.exttrig1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.exttrigger2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.exttrig2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.exttrigger2", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.exttrig2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
  
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.out1", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.out1), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.out1", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.out1), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.oneshot.%02d.out2", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.out2), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.oneshot.%02d.out2", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->oneshot.instance[i].hal.pin.out2), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
@@ -469,7 +464,7 @@ int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 fail1:
-    rtapi_kfree(hm2->oneshot.control_reg);
+    hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->oneshot.control_reg);
 
 fail0:
     hm2->oneshot.num_instances = 0;
@@ -482,7 +477,7 @@ fail0:
 void hm2_oneshot_cleanup(hostmot2_t *hm2) {
     if (hm2->oneshot.num_instances <= 0) return;
     if (hm2->oneshot.control_reg != NULL) {
-        rtapi_kfree(hm2->oneshot.control_reg);
+        hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->oneshot.control_reg);
         hm2->oneshot.control_reg = NULL;
     }
     hm2->oneshot.num_instances = 0;
@@ -527,7 +522,7 @@ void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2) {
 
 void hm2_oneshot_process_tram_read(hostmot2_t *hm2) {
     int i;
-    rtapi_u32 control = 0;
+    uint32_t control = 0;
     for (i = 0; i < hm2->oneshot.num_instances; i ++) {
         control = hm2->oneshot.control_read_reg[i];
         *hm2->oneshot.instance[i].hal.pin.out1 = ((control & (1 << 8)) != 0);

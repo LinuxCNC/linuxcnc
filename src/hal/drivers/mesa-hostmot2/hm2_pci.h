@@ -136,9 +136,12 @@
 
 
 
+struct hm2_pci_inst;  // forward declaration
+
 typedef struct {
+    struct hm2_pci_inst *inst;  // back-pointer to owning module instance
     struct rtapi_pci_dev *dev;
-    void rtapi__iomem *base;
+    void *base;
     int len;
     unsigned long ctrl_base_addr;
     unsigned long data_base_addr;

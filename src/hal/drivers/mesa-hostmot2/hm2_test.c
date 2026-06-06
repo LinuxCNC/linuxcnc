@@ -1,3 +1,4 @@
+static const void *hm2_log;
 
 //
 //    Copyright (C) 2007-2008 Sebastian Kuzminsky
@@ -26,33 +27,25 @@
 //
 
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
 
-#include "hal.h"
 
+#include "gomc_env.h"
+#include "hm2_core_api.h"
 #include "hostmot2.h"
 #include "hostmot2-lowlevel.h"
 #include "hm2_test.h"
 
 
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Sebastian Kuzminsky");
-MODULE_DESCRIPTION("Test pattern for the hostmot2 driver, does not talk to any hardware");
-
-
-static char *config[HM2_TEST_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, HM2_TEST_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
-
-
-int test_pattern = 0;
-RTAPI_MP_INT(test_pattern, "The test pattern to show to the hostmot2 driver.");
-
-
-static int comp_id;
-
-static hm2_test_t board[1];
+typedef struct {
+    cmod_t cmod;
+    const cmod_env_t *mod_env;
+    const hm2_core_callbacks_t *hm2_core;
+    int comp_id;
+    int test_pattern;
+    char *config[HM2_TEST_MAX_BOARDS];
+    char cfg_bufs[HM2_TEST_MAX_BOARDS][256];
+    hm2_test_t board;
+} hm2_test_inst_t;
 
 
 
@@ -75,41 +68,44 @@ static void set32(hm2_test_t *me, uint16_t addr, uint32_t val) {
 //
 
 
-static int hm2_test_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+static int hm2_test_read(hm2_lowlevel_io_t *this, uint32_t addr, void *buffer, int size) {
     hm2_test_t *me = this->private;
     memcpy(buffer, &me->test_pattern.tp8[addr], size);
     return 1;  // success
 }
 
 
-static int hm2_test_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
+static int hm2_test_write(hm2_lowlevel_io_t *this, uint32_t addr, const void *buffer, int size) {
+    (void)this; (void)addr; (void)buffer; (void)size;
     return 1;  // success
 }
 
 
 static int hm2_test_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
+    (void)this; (void)bitfile;
     return 0;
 }
 
 
 static int hm2_test_reset(hm2_lowlevel_io_t *this) {
+    (void)this;
     return 0;
 }
 
 
 
 
-int rtapi_app_main(void) {
+static int hm2_test_init(hm2_test_inst_t *inst) {
     hm2_test_t *me;
     hm2_lowlevel_io_t *this;
     int r = 0;
 
-    LL_ERR("loading HostMot2 test driver with test pattern %d\n", test_pattern);
+    LL_ERR("loading HostMot2 test driver with test pattern %d\n", inst->test_pattern);
 
-    comp_id = hal_init(HM2_LLIO_NAME);
-    if (comp_id < 0) return comp_id;
+    inst->comp_id = inst->mod_env->hal->init(inst->mod_env->hal->ctx, HM2_LLIO_NAME, inst->mod_env->dl_handle, GOMC_HAL_COMP_REALTIME);
+    if (inst->comp_id < 0) return inst->comp_id;
 
-    me = &board[0];
+    me = &inst->board;
 
     this = &me->llio;
     memset(this, 0, sizeof(hm2_lowlevel_io_t));
@@ -118,7 +114,7 @@ int rtapi_app_main(void) {
     me->llio.pins_per_connector = 24;
     me->llio.ioport_connector_name[0] = "P99";
 
-    switch (test_pattern) {
+    switch (inst->test_pattern) {
 
         // 
         // this one has nothing
@@ -551,20 +547,20 @@ int rtapi_app_main(void) {
         }
 
         default: {
-            LL_ERR("unknown test pattern %d", test_pattern); 
+            LL_ERR("unknown test pattern %d", inst->test_pattern); 
             return -ENODEV;
         }
     }
 
 
-    rtapi_snprintf(me->llio.name, sizeof(me->llio.name), "hm2_test.0");
+    snprintf(me->llio.name, sizeof(me->llio.name), "hm2_test.0");
 
     me->llio.fpga_part_number = "none";
 
     me->llio.program_fpga = hm2_test_program_fpga;
     me->llio.reset = hm2_test_reset;
 
-    me->llio.comp_id = comp_id;
+    me->llio.comp_id = inst->comp_id;
     me->llio.private = me;
 
     me->llio.threadsafe = 1;
@@ -572,25 +568,71 @@ int rtapi_app_main(void) {
     me->llio.read = hm2_test_read;
     me->llio.write = hm2_test_write;
 
-    r = hm2_register(&board->llio, config[0]);
+    r = inst->hm2_core->register_board(inst->hm2_core->ctx, &inst->board.llio, inst->config[0]);
     if (r != 0) {
         THIS_ERR("hm2_test fails HM2 registration\n");
         return -EIO;
     }
 
-    THIS_PRINT("initialized hm2 test-pattern %d\n", test_pattern);
+    THIS_PRINT("initialized hm2 test-pattern %d\n", inst->test_pattern);
 
-    hal_ready(comp_id);
+    inst->mod_env->hal->ready(inst->mod_env->hal->ctx, inst->comp_id);
     return 0;
 }
 
+static void hm2_test_destroy(cmod_t *self);
 
-void rtapi_app_exit(void) {
-    hm2_test_t *me = &board[0];
+static void hm2_test_parse_argv(hm2_test_inst_t *inst, int argc, const char **argv) {
+    int cfg_idx = 0;
 
-    hm2_unregister(&me->llio);
+    for (int i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "config=", 7) == 0 && cfg_idx < HM2_TEST_MAX_BOARDS) {
+            strncpy(inst->cfg_bufs[cfg_idx], argv[i] + 7, sizeof(inst->cfg_bufs[0]) - 1);
+            inst->config[cfg_idx] = inst->cfg_bufs[cfg_idx];
+            cfg_idx++;
+        } else if (strncmp(argv[i], "test_pattern=", 13) == 0) {
+            inst->test_pattern = simple_strtol(argv[i] + 13, NULL, 0);
+        }
+    }
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
+{
+    hm2_test_inst_t *inst = calloc(1, sizeof(*inst));
+    if (!inst) return -ENOMEM;
+
+    inst->mod_env = env;
+    hm2_test_parse_argv(inst, argc, argv);
+
+    inst->hm2_core = hm2_core_api_get(env->api, "hostmot2");
+    if (!inst->hm2_core) {
+        gomc_log_errorf(env->log, name, "hm2_test: hostmot2 core API not found (is hostmot2 loaded?)\n");
+        free(inst);
+        return -1;
+    }
+
+    int ret = hm2_test_init(inst);
+    if (ret != 0) {
+        free(inst);
+        return ret;
+    }
+
+    inst->cmod.Destroy = hm2_test_destroy;
+    inst->cmod.priv = inst;
+    *out = &inst->cmod;
+    return 0;
+}
+
+static void hm2_test_destroy(cmod_t *self) {
+    hm2_test_inst_t *inst = self->priv;
+    const gomc_hal_t *hal = inst->mod_env->hal;
+    hm2_test_t *me = &inst->board;
+
+    inst->hm2_core->unregister_board(inst->hm2_core->ctx, &me->llio);
 
     LL_PRINT("driver unloaded\n");
-    hal_exit(comp_id);
+    hal->exit(hal->ctx, inst->comp_id);
+    free(inst);
 }
 

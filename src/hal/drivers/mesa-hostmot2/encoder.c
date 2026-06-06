@@ -1,3 +1,4 @@
+#include <math.h>
 //
 //    Copyright (C) 2007-2008 Sebastian Kuzminsky
 //
@@ -25,20 +26,15 @@
 //
 
 
-#include <rtapi_slab.h>
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
 
-#include "hal.h"
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 
 
 
-static void do_flag(rtapi_u32 *reg, int condition, rtapi_u32 bits) {
+static void do_flag(uint32_t *reg, int condition, uint32_t bits) {
     if (condition) {
         *reg |= bits;
     } else {
@@ -142,7 +138,7 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
             if ((*e->hal.pin.quadrature_error == 0) && state) {
                 HM2_ERR("Encoder %d: quadrature count error\n", i);
             }
-            *e->hal.pin.quadrature_error = (hal_bit_t) state;
+            *e->hal.pin.quadrature_error = (gomc_hal_bit_t) state;
         } else{ // quadrature error disabled, set reported error to 0
             *e->hal.pin.quadrature_error = 0;
         }
@@ -157,7 +153,7 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
 
 
 static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
-    rtapi_u32 filter_rate = hm2->encoder.clock_frequency/(*hm2->encoder.hal->pin.sample_frequency);
+    uint32_t filter_rate = hm2->encoder.clock_frequency/(*hm2->encoder.hal->pin.sample_frequency);
     
     if (filter_rate == 1) {
         filter_rate = 0xFFF;
@@ -167,9 +163,9 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
     *hm2->encoder.hal->pin.sample_frequency = hm2->encoder.clock_frequency/(filter_rate + 2);
     HM2_DBG("Setting encoder QFilterRate to %d\n", filter_rate);
     if (hm2->encoder.has_skew) {
-        rtapi_u32 divisor = (1e9/hm2->encoder.clock_frequency);
+        uint32_t divisor = (1e9/hm2->encoder.clock_frequency);
         // Unsigned division rounding for integers. This is only valid for unsigned division 
-        rtapi_u32 skew = (*hm2->encoder.hal->pin.skew + (divisor/2))/divisor;
+        uint32_t skew = (*hm2->encoder.hal->pin.skew + (divisor/2))/divisor;
         
         if (skew > 15) {
             skew = 15;
@@ -179,7 +175,7 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
         *hm2->encoder.hal->pin.skew = skew*(1e9/hm2->encoder.clock_frequency);
         hm2->encoder.written_skew = *hm2->encoder.hal->pin.skew;
     }
-    hm2->llio->write(hm2->llio, hm2->encoder.filter_rate_addr, &filter_rate, sizeof(rtapi_u32));
+    hm2->llio->write(hm2->llio, hm2->encoder.filter_rate_addr, &filter_rate, sizeof(uint32_t));
     hm2->encoder.written_sample_frequency = *hm2->encoder.hal->pin.sample_frequency;
 }
 
@@ -298,7 +294,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2) {
         hm2->llio,
         hm2->encoder.latch_control_addr,
         hm2->encoder.control_reg,
-        (hm2->encoder.num_instances * sizeof(rtapi_u32))
+        (hm2->encoder.num_instances * sizeof(uint32_t))
     );
 
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
@@ -309,7 +305,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2) {
         hm2->llio,
         hm2->encoder.timestamp_div_addr,
         &hm2->encoder.timestamp_div_reg,
-        sizeof(rtapi_u32)
+        sizeof(uint32_t)
     );
 
     hm2_encoder_set_filter_rate_and_skew(hm2);
@@ -393,14 +389,14 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
 
 
     // allocate the module-global HAL shared memory
-    hm2->encoder.hal = (hm2_encoder_module_global_t *)hal_malloc(sizeof(hm2_encoder_module_global_t));
+    hm2->encoder.hal = (hm2_encoder_module_global_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, sizeof(hm2_encoder_module_global_t));
     if (hm2->encoder.hal == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
 
-    hm2->encoder.instance = (hm2_encoder_instance_t *)hal_malloc(hm2->encoder.num_instances * sizeof(hm2_encoder_instance_t));
+    hm2->encoder.instance = (hm2_encoder_instance_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, hm2->encoder.num_instances * sizeof(hm2_encoder_instance_t));
     if (hm2->encoder.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -427,26 +423,26 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     // it's important that the TSC gets read *before* the C&T registers below
-    r = hm2_register_tram_read_region(hm2, hm2->encoder.timestamp_count_addr, sizeof(rtapi_u32), &hm2->encoder.timestamp_count_reg);
+    r = hm2_register_tram_read_region(hm2, hm2->encoder.timestamp_count_addr, sizeof(uint32_t), &hm2->encoder.timestamp_count_reg);
     if (r < 0) {
         HM2_ERR("error registering tram read region for Encoder Timestamp Count Register (%d)\n", r);
         goto fail0;
     }
 
     // it's important that the C&T registers get read *after* the TSC register above
-    r = hm2_register_tram_read_region(hm2, hm2->encoder.counter_addr, (hm2->encoder.num_instances * sizeof(rtapi_u32)), &hm2->encoder.counter_reg);
+    r = hm2_register_tram_read_region(hm2, hm2->encoder.counter_addr, (hm2->encoder.num_instances * sizeof(uint32_t)), &hm2->encoder.counter_reg);
     if (r < 0) {
         HM2_ERR("error registering tram read region for Encoder Counter register (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_read_region(hm2, hm2->encoder.latch_control_addr, (hm2->encoder.num_instances * sizeof(rtapi_u32)), &hm2->encoder.read_control_reg);
+    r = hm2_register_tram_read_region(hm2, hm2->encoder.latch_control_addr, (hm2->encoder.num_instances * sizeof(uint32_t)), &hm2->encoder.read_control_reg);
     if (r < 0) {
         HM2_ERR("error registering tram read region for Encoder Latch/Control register (%d)\n", r);
         goto fail0;
     }
 
-    hm2->encoder.control_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->encoder.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->encoder.control_reg = (uint32_t *)hm2->llio->rtapi->calloc(hm2->llio->rtapi->ctx, hm2->encoder.num_instances * sizeof(uint32_t));
     if (hm2->encoder.control_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -459,22 +455,22 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     {
         int i;
         int r;
-        char name[HAL_NAME_LEN + 1];
+        char name[256];
 
         // these hal parameters affect all encoder instances
         if (md->gtag == HM2_GTAG_MUXED_ENCODER) {
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.muxed-sample-frequency", hm2->llio->name);
+            snprintf(name, sizeof(name), "%s.encoder.muxed-sample-frequency", hm2->llio->name);
         } else {
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.sample-frequency", hm2->llio->name);
+            snprintf(name, sizeof(name), "%s.encoder.sample-frequency", hm2->llio->name);
         }
-        r = hal_pin_u32_new(name, HAL_IN, &(hm2->encoder.hal->pin.sample_frequency), hm2->llio->comp_id);
+        r = gomc_hal_pin_u32_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->encoder.hal->pin.sample_frequency), hm2->llio->comp_id, name);
         if (r < 0) {
             HM2_ERR("error adding pin %s, aborting\n", name);
             goto fail1;
         }
         if ((md->gtag == HM2_GTAG_MUXED_ENCODER) && (md->version > 3 )) {   // >3 to include modules with probe enable
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.muxed-skew", hm2->llio->name);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->encoder.hal->pin.skew), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.muxed-skew", hm2->llio->name);
+            r = gomc_hal_pin_u32_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->encoder.hal->pin.skew), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin %s, aborting\n", name);
                 goto fail1;
@@ -482,7 +478,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->encoder.has_skew = 1;
         }
         if(hm2->encoder.dpll_timer_num_addr) {
-            r = hal_pin_s32_newf(HAL_IN, &(hm2->encoder.hal->pin.dpll_timer_num), hm2->llio->comp_id, "%s.encoder.timer-number", hm2->llio->name);
+            r = gomc_hal_pin_s32_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->encoder.hal->pin.dpll_timer_num), hm2->llio->comp_id, "%s.encoder.timer-number", hm2->llio->name);
             if (r < 0) {
                 HM2_ERR("error adding pin %s, aborting\n", name);
                 goto fail1;
@@ -490,8 +486,8 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             *(hm2->encoder.hal->pin.dpll_timer_num) = -1;
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.encoder.hires-timestamp", hm2->llio->name);
-        r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.hal->pin.hires_timestamp), hm2->llio->comp_id);
+        snprintf(name, sizeof(name), "%s.encoder.hires-timestamp", hm2->llio->name);
+        r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->encoder.hal->pin.hires_timestamp), hm2->llio->comp_id, name);
         if (r < 0) {
             HM2_ERR("error adding pin %s, aborting\n", name);
             goto fail1;
@@ -499,173 +495,173 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
 
         for (i = 0; i < hm2->encoder.num_instances; i ++) {
             // pins
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.rawcounts", hm2->llio->name, i);
-            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.rawcounts), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.rawcounts", hm2->llio->name, i);
+            r = gomc_hal_pin_s32_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.rawcounts), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.rawlatch", hm2->llio->name, i);
-            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.rawlatch), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.rawlatch", hm2->llio->name, i);
+            r = gomc_hal_pin_s32_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.rawlatch), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.count", hm2->llio->name, i);
-            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.count), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.count", hm2->llio->name, i);
+            r = gomc_hal_pin_s32_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.count), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.count-latched", hm2->llio->name, i);
-            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.count_latch), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.count-latched", hm2->llio->name, i);
+            r = gomc_hal_pin_s32_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.count_latch), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.position", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.position", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.position-latched", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position_latch), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.position-latched", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position_latch), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.velocity", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.velocity), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.velocity", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.velocity), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.velocity-rpm", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.velocity_rpm), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.velocity-rpm", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.velocity_rpm), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.reset", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.reset), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.reset", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->encoder.instance[i].hal.pin.reset), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.index-enable", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IO, &(hm2->encoder.instance[i].hal.pin.index_enable), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.index-enable", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IO, &(hm2->encoder.instance[i].hal.pin.index_enable), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
  
             if (hm2->encoder.firmware_supports_probe) {
-                rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.probe-enable", hm2->llio->name, i);
-                r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.latch_enable), hm2->llio->comp_id);
+                snprintf(name, sizeof(name), "%s.encoder.%02d.probe-enable", hm2->llio->name, i);
+                r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->encoder.instance[i].hal.pin.latch_enable), hm2->llio->comp_id, name);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     goto fail1;
                 }
     
-                rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.probe-invert", hm2->llio->name, i);
-                r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.latch_polarity), hm2->llio->comp_id);
+                snprintf(name, sizeof(name), "%s.encoder.%02d.probe-invert", hm2->llio->name, i);
+                r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->encoder.instance[i].hal.pin.latch_polarity), hm2->llio->comp_id, name);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     goto fail1;
                 }
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.quad-error", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.quadrature_error), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.quad-error", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.quadrature_error), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
 
-          rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.quad-error-enable", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.quadrature_error_enable), hm2->llio->comp_id);
+          snprintf(name, sizeof(name), "%s.encoder.%02d.quad-error-enable", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->encoder.instance[i].hal.pin.quadrature_error_enable), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.input-a", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.input_a), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.input-a", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.input_a), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.input-b", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.input_b), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.input-b", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.input_b), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.input-index", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.input_idx), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.input-index", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_OUT, &(hm2->encoder.instance[i].hal.pin.input_idx), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
             // parameters
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.scale", hm2->llio->name, i);
-            r = hal_param_float_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.scale), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.scale", hm2->llio->name, i);
+            r = gomc_hal_param_float_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->encoder.instance[i].hal.param.scale), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.index-invert", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.index_invert), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.index-invert", hm2->llio->name, i);
+            r = gomc_hal_param_bit_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->encoder.instance[i].hal.param.index_invert), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.index-mask", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.index_mask), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.index-mask", hm2->llio->name, i);
+            r = gomc_hal_param_bit_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->encoder.instance[i].hal.param.index_mask), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.index-mask-invert", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.index_mask_invert), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.index-mask-invert", hm2->llio->name, i);
+            r = gomc_hal_param_bit_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->encoder.instance[i].hal.param.index_mask_invert), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.counter-mode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.counter_mode), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.counter-mode", hm2->llio->name, i);
+            r = gomc_hal_param_bit_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->encoder.instance[i].hal.param.counter_mode), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.filter", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.filter), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.filter", hm2->llio->name, i);
+            r = gomc_hal_param_bit_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->encoder.instance[i].hal.param.filter), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.vel-timeout", hm2->llio->name, i);
-            r = hal_param_float_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.vel_timeout), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.encoder.%02d.vel-timeout", hm2->llio->name, i);
+            r = gomc_hal_param_float_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->encoder.instance[i].hal.param.vel_timeout), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
@@ -708,7 +704,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->encoder.num_instances;
 
 fail1:
-    rtapi_kfree(hm2->encoder.control_reg);
+    hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->encoder.control_reg);
 
 fail0:
     hm2->encoder.num_instances = 0;
@@ -726,7 +722,7 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
 
     // all the encoders start "stopped where they are"
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
-        rtapi_u16 count;
+        uint16_t count;
 
         count = hm2_encoder_get_reg_count(hm2, i);
 
@@ -776,9 +772,9 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
  */
 
 static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *hm2, int instance) {
-    rtapi_u16 reg_count;
-    rtapi_s32 reg_count_diff;
-    rtapi_s32 prev_rawcounts;
+    uint16_t reg_count;
+    int32_t reg_count_diff;
+    int32_t prev_rawcounts;
 
     hm2_encoder_instance_t *e;
 
@@ -792,7 +788,7 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
 
     reg_count = hm2_encoder_get_reg_count(hm2, instance);
 
-    reg_count_diff = (rtapi_s32)reg_count - (rtapi_s32)e->prev_reg_count;
+    reg_count_diff = (int32_t)reg_count - (int32_t)e->prev_reg_count;
     if (reg_count_diff > 32768) reg_count_diff -= 65536;
     if (reg_count_diff < -32768) reg_count_diff += 65536;
 
@@ -806,16 +802,16 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
     //
 
     if (e->prev_control & HM2_ENCODER_LATCH_ON_INDEX) {
-        rtapi_u32 latch_ctrl = hm2->encoder.read_control_reg[instance];
+        uint32_t latch_ctrl = hm2->encoder.read_control_reg[instance];
 
         if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_INDEX)) {
             // hm2 reports index event occurred
 
-            rtapi_u16 latched_count;
+            uint16_t latched_count;
 
             latched_count = (latch_ctrl >> 16) & 0xffff;
 
-            reg_count_diff = (rtapi_s32)latched_count - (rtapi_s32)e->prev_reg_count;
+            reg_count_diff = (int32_t)latched_count - (int32_t)e->prev_reg_count;
             if (reg_count_diff > 32768) reg_count_diff -= 65536;
             if (reg_count_diff < -32768) reg_count_diff += 65536;
 
@@ -824,16 +820,16 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
         }
     } else if(e->prev_control & HM2_ENCODER_LATCH_ON_PROBE) {
         if (hm2->encoder.firmware_supports_probe) {
-            rtapi_u32 latch_ctrl = hm2->encoder.read_control_reg[instance];
+            uint32_t latch_ctrl = hm2->encoder.read_control_reg[instance];
 
             if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_PROBE)) {
                 // hm2 reports probe event occurred
 
-                rtapi_u16 latched_count;
+                uint16_t latched_count;
 
                 latched_count = (latch_ctrl >> 16) & 0xffff;
 
-                reg_count_diff = (rtapi_s32)latched_count - (rtapi_s32)e->prev_reg_count;
+                reg_count_diff = (int32_t)latched_count - (int32_t)e->prev_reg_count;
                 if (reg_count_diff > 32768) reg_count_diff -= 65536;
                 if (reg_count_diff < -32768) reg_count_diff += 65536;
 
@@ -931,7 +927,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
     switch (e->state) {
 
         case HM2_ENCODER_STOPPED: {
-            rtapi_u16 reg_count;  // the count currently in the register
+            uint16_t reg_count;  // the count currently in the register
 
             // get current count from the FPGA (already read)
             reg_count = hm2_encoder_get_reg_count(hm2, instance);
@@ -962,13 +958,13 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
 
         case HM2_ENCODER_MOVING: {
-            rtapi_u16 reg_count;  // the count currently in the register
-            rtapi_u16 time_of_interest;  // terrible variable name, sorry
+            uint16_t reg_count;  // the count currently in the register
+            uint16_t time_of_interest;  // terrible variable name, sorry
 
-            rtapi_s32 dT_clocks;
+            int32_t dT_clocks;
             double dT_s;
 
-            rtapi_s32 dS_counts;
+            int32_t dS_counts;
             double dS_pos_units;
 
             // get current count from the FPGA (already read)
@@ -1095,6 +1091,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
 
 void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
+    (void)l_period_ns;
     int i;
 
     if (hm2->encoder.num_instances <= 0) return;
@@ -1110,7 +1107,7 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
 void hm2_encoder_cleanup(hostmot2_t *hm2) {
     if (hm2->encoder.num_instances <= 0) return;
-    rtapi_kfree(hm2->encoder.control_reg);
+    hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->encoder.control_reg);
 }
 
 
@@ -1125,7 +1122,7 @@ void hm2_encoder_print_module(hostmot2_t *hm2) {
     HM2_PRINT("    timestamp_div_addr: 0x%04X\n", hm2->encoder.timestamp_div_addr);
     HM2_PRINT("    timestamp_count_addr: 0x%04X\n", hm2->encoder.timestamp_count_addr);
     HM2_PRINT("    filter_rate_addr: 0x%04X\n", hm2->encoder.filter_rate_addr);
-    HM2_PRINT("    timestamp_div: 0x%04X\n", (rtapi_u16)hm2->encoder.timestamp_div_reg);
+    HM2_PRINT("    timestamp_div: 0x%04X\n", (uint16_t)hm2->encoder.timestamp_div_reg);
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         HM2_PRINT("    instance %d:\n", i);
         HM2_PRINT("        hw:\n");

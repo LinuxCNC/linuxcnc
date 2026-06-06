@@ -30,10 +30,7 @@
 // PWM frequency = (register_value+2)/Clocklow
 //
 
-#include <rtapi_slab.h>
 
-#include "rtapi.h"
-#include "hal.h"
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
@@ -77,7 +74,7 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->rcpwmgen.clock_frequency = md->clock_freq;
     hm2->rcpwmgen.version = md->version;
     // allocate the module-instance HAL shared memory
-    hm2->rcpwmgen.instance = (hm2_rcpwmgen_instance_t *)hal_malloc(hm2->rcpwmgen.num_instances * sizeof(hm2_rcpwmgen_instance_t));
+    hm2->rcpwmgen.instance = (hm2_rcpwmgen_instance_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, hm2->rcpwmgen.num_instances * sizeof(hm2_rcpwmgen_instance_t));
     if (hm2->rcpwmgen.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -85,14 +82,14 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     // allocate the module-global HAL shared memory
-    hm2->rcpwmgen.hal = (hm2_rcpwmgen_module_global_t *)hal_malloc(sizeof(hm2_rcpwmgen_module_global_t));
+    hm2->rcpwmgen.hal = (hm2_rcpwmgen_module_global_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, sizeof(hm2_rcpwmgen_module_global_t));
     if (hm2->rcpwmgen.hal == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
     
-    hm2->rcpwmgen.width_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->rcpwmgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->rcpwmgen.width_reg = (uint32_t *)hm2->llio->rtapi->calloc(hm2->llio->rtapi->ctx, hm2->rcpwmgen.num_instances * sizeof(uint32_t));
     if (hm2->rcpwmgen.width_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -104,7 +101,7 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->rcpwmgen.rate_addr = md->base_address + (1 * md->register_stride);
     //
 
-    r = hm2_register_tram_write_region(hm2, hm2->rcpwmgen.width_addr, (hm2->rcpwmgen.num_instances * sizeof(rtapi_u32)), &hm2->rcpwmgen.width_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->rcpwmgen.width_addr, (hm2->rcpwmgen.num_instances * sizeof(uint32_t)), &hm2->rcpwmgen.width_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for rcpwmgen width register (%d)\n", r);
         goto fail1;
@@ -116,25 +113,25 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
     {
         int i;
-        char name[HAL_NAME_LEN + 1];
+        char name[256];
          for (i = 0; i < hm2->rcpwmgen.num_instances; i ++) {
  
-            rtapi_snprintf(name, sizeof(name), "%s.rcpwmgen.%02d.width", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.width), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.rcpwmgen.%02d.width", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.width), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail1;
             }
-            rtapi_snprintf(name, sizeof(name), "%s.rcpwmgen.%02d.scale", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.scale), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.rcpwmgen.%02d.scale", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.scale), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail1;
             }
-            rtapi_snprintf(name, sizeof(name), "%s.rcpwmgen.%02d.offset", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.offset), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.rcpwmgen.%02d.offset", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->rcpwmgen.instance[i].hal.pin.offset), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -142,8 +139,8 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
         }
 
-        rtapi_snprintf(name, sizeof(name), "%s.rcpwmgen.rate", hm2->llio->name);
-        r = hal_pin_float_new(name, HAL_IN, &(hm2->rcpwmgen.hal->pin.rate), hm2->llio->comp_id);
+        snprintf(name, sizeof(name), "%s.rcpwmgen.rate", hm2->llio->name);
+        r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->rcpwmgen.hal->pin.rate), hm2->llio->comp_id, name);
         if (r < 0) {
             HM2_ERR("error adding pin '%s', aborting\n", name);
             goto fail1;
@@ -163,7 +160,7 @@ int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->rcpwmgen.num_instances;
 
 fail1:
-    rtapi_kfree(hm2->rcpwmgen.width_reg);
+    hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->rcpwmgen.width_reg);
 
 fail0:
     hm2->rcpwmgen.num_instances = 0;
@@ -188,7 +185,7 @@ void hm2_rcpwmgen_update_regs(hostmot2_t *hm2) {
          hm2->rcpwmgen.error_throttle-- ;
     }
 
-    rtapi_u32 reg;
+    uint32_t reg;
 
     // Set rate
     double rate = *hm2->rcpwmgen.hal->pin.rate;
@@ -278,7 +275,7 @@ void hm2_rcpwmgen_force_write(hostmot2_t *hm2) {
 
     hm2_rcpwmgen_update_regs(hm2);
     // Write register values to board.
-    hm2->llio->write(hm2->llio, hm2->rcpwmgen.rate_addr, &hm2->rcpwmgen.rate_reg,sizeof(rtapi_u32));
+    hm2->llio->write(hm2->llio, hm2->rcpwmgen.rate_addr, &hm2->rcpwmgen.rate_reg,sizeof(uint32_t));
 
 }
 

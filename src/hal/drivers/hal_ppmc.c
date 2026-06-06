@@ -71,47 +71,40 @@
     information, go to www.linuxcnc.org.
 */
 
-#include <rtapi_slab.h>		/* kmalloc() */
-#include <rtapi_io.h>		/* kmalloc() */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_parport.h"
+#include <sys/io.h>
+#include <string.h>
+#include <stdlib.h>
+		/* RTAPI realtime OS API */
+#include "gomc_env.h"		/* cmod environment */
+		/* HAL public API decls */
+#include "rtapi_parport.h"
 
 #define MAX_BUS 3	/* max number of parports (EPP busses) */
 
 #define	EPSILON		1e-20
 
-/* module information */
-MODULE_AUTHOR("John Kasunich");
-MODULE_DESCRIPTION("HAL driver for Universal PWM Controller");
-MODULE_LICENSE("GPL");
-int port_addr[MAX_BUS] = { 0x378, [1 ... MAX_BUS-1] = -1 };
-    /* default, 1 bus at 0x0378 */
-hal_parport_t port_registration[MAX_BUS];
-RTAPI_MP_ARRAY_INT(port_addr, MAX_BUS, "port address(es) for EPP bus(es)");
-int extradac[MAX_BUS*8] = {
-        -1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
-RTAPI_MP_ARRAY_INT(extradac, MAX_BUS*8, "bus/slot locations of extra DAC modules");
-int extradout[MAX_BUS*8] = {
-        -1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
-RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out modules");
-int timestamp[MAX_BUS*8] = {
-        -1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
-RTAPI_MP_ARRAY_INT(timestamp, MAX_BUS*8, "bus/slot locations of timestamped encoders");
-int enc_clock[MAX_BUS*8] = {
-        -1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1,
-        -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
-RTAPI_MP_ARRAY_INT(enc_clock, MAX_BUS*8, "bus/slot locations of encoder clock settings");
-int  epp_dir[MAX_BUS] = {0 , [1 ... MAX_BUS-1] = 0 };
-RTAPI_MP_ARRAY_INT(epp_dir, MAX_BUS, "EPP is commanded port direction");
+typedef struct bus_data_s bus_data_t; /* forward declaration */
+
+typedef struct {
+    cmod_t cmod;
+    const cmod_env_t *env;
+    int comp_id;
+    bus_data_t *bus_array[MAX_BUS];
+    long read_period;
+    int slotnum;
+    int currentbus;
+    int port_addr[MAX_BUS];
+    rtapi_parport_t port_registration[MAX_BUS];
+    int extradac[MAX_BUS*8];
+    int extradout[MAX_BUS*8];
+    int timestamp[MAX_BUS*8];
+    int enc_clock[MAX_BUS*8];
+    int epp_dir[MAX_BUS];
+} ppmc_inst_t;
+
+static ppmc_inst_t *ppmc_bridge_inst; /* safe: single instance, RT thread access only */
+static const gomc_log_t *ppmc_log;    /* logging context, set in New() */
+static const gomc_hal_t *ppmc_hal;    /* HAL callbacks, set in New() */
 
 /***********************************************************************
 *                DEFINES (MOSTLY REGISTER ADDRESSES)                   *
@@ -219,31 +212,31 @@ an unsafe condition, then the board will immediately return to the ESTOP state.
 
 /* this structure contains the runtime data for a digital output */
 typedef struct {
-    hal_bit_t *data;		/* output pin value */
-    hal_bit_t invert;		/* parameter to invert output pin */
+    gomc_hal_bit_t *data;		/* output pin value */
+    gomc_hal_bit_t invert;		/* parameter to invert output pin */
 } dout_t;
 
 /* this structure contains the runtime data for a digital input */
 typedef struct {
-    hal_bit_t *data;		/* input pin value */
-    hal_bit_t *data_not;	/* inverted input pin value */
+    gomc_hal_bit_t *data;		/* input pin value */
+    gomc_hal_bit_t *data_not;	/* inverted input pin value */
 } din_t;
 
 /* this structure contains the runtime data for a step pulse generator */
 typedef struct {
-    hal_bit_t *enable;		/* enable pin for step generator */
-    hal_float_t *vel;		/* velocity command pin*/
-    hal_float_t scale;		/* parameter: scaling for vel to Hz */
-    hal_float_t max_vel;	/* velocity limit */
-    hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
+    gomc_hal_bit_t *enable;		/* enable pin for step generator */
+    gomc_hal_float_t *vel;		/* velocity command pin*/
+    gomc_hal_float_t scale;		/* parameter: scaling for vel to Hz */
+    gomc_hal_float_t max_vel;	/* velocity limit */
+    gomc_hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
 } stepgen_t;
 
 /* runtime data for a set of 4 step pulse generators */
 typedef struct {
     stepgen_t sg[4];		/* per generator data */
-    hal_u32_t setup_time_ns;	/* setup time in nanoseconds */
-    hal_u32_t pulse_width_ns;	/* pulse width in nanoseconds */
-    hal_u32_t pulse_space_ns;	/* min pulse space in nanoseconds */
+    gomc_hal_u32_t setup_time_ns;	/* setup time in nanoseconds */
+    gomc_hal_u32_t pulse_width_ns;	/* pulse width in nanoseconds */
+    gomc_hal_u32_t pulse_space_ns;	/* min pulse space in nanoseconds */
 } stepgens_t;
 
 #define BOOT_NORMAL 0
@@ -252,13 +245,13 @@ typedef struct {
 
 /* this structure contains the runtime data for a PWM generator */
 typedef struct {
-    hal_bit_t *enable;		/* enable pin for PWM generator */
-    hal_float_t *value;		/* value command pin */
-    hal_float_t scale;		/* parameter: scaling */
-    hal_float_t max_dc;		/* maximum duty cycle 0.0-1.0 */
-    hal_float_t min_dc;		/* minimum duty cycle 0.0-1.0 */
-    hal_float_t duty_cycle;	/* actual duty cycle output */
-    hal_bit_t bootstrap;	/* enable bootstrap mode (pulses at startup) */
+    gomc_hal_bit_t *enable;		/* enable pin for PWM generator */
+    gomc_hal_float_t *value;		/* value command pin */
+    gomc_hal_float_t scale;		/* parameter: scaling */
+    gomc_hal_float_t max_dc;		/* maximum duty cycle 0.0-1.0 */
+    gomc_hal_float_t min_dc;		/* minimum duty cycle 0.0-1.0 */
+    gomc_hal_float_t duty_cycle;	/* actual duty cycle output */
+    gomc_hal_bit_t bootstrap;	/* enable bootstrap mode (pulses at startup) */
     unsigned char boot_state;	/* state for bootstrap state machine */
     unsigned char old_enable;	/* used to detect rising edge, for boot */
 } pwmgen_t;
@@ -266,16 +259,16 @@ typedef struct {
 /* runtime data for a set of 4 PWM generators */
 typedef struct {
     pwmgen_t pg[4];		/* per generator data */
-    hal_float_t freq;		/* PWM frequency */
-    hal_float_t old_freq;	/* previous value, to detect changes */
+    gomc_hal_float_t freq;		/* PWM frequency */
+    gomc_hal_float_t old_freq;	/* previous value, to detect changes */
     unsigned short period;	/* period in clock ticks */
     double period_recip;	/* reciprocal of period */
 } pwmgens_t;
 
 /* this structure contains the runtime data for a 16-bit DAC */
 typedef struct {
-    hal_float_t *value;		/* value command pin */
-    hal_float_t scale;		/* parameter: scaling */
+    gomc_hal_float_t *value;		/* value command pin */
+    gomc_hal_float_t scale;		/* parameter: scaling */
 } DAC_t;
 
 /* runtime data for a 4-channel 16-bit DAC */
@@ -291,19 +284,19 @@ typedef union {
 
 /* runtime data for a single encoder */
 typedef struct {
-  hal_float_t *position;      /* output: scaled position pointer */
-  hal_s32_t *count;           /* output: unscaled encoder counts */
-  hal_s32_t *delta;		/* output: delta counts since last read */
-  hal_s32_t prevdir;		/* local: previous direction  */
-  hal_float_t scale;          /* parameter: scale factor */
-  hal_bit_t *index;           /* output: index flag */
-  hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
-  hal_s32_t oldreading;     /* used to detect overflow / underflow of the counter JE001 */
+  gomc_hal_float_t *position;      /* output: scaled position pointer */
+  gomc_hal_s32_t *count;           /* output: unscaled encoder counts */
+  gomc_hal_s32_t *delta;		/* output: delta counts since last read */
+  gomc_hal_s32_t prevdir;		/* local: previous direction  */
+  gomc_hal_float_t scale;          /* parameter: scale factor */
+  gomc_hal_bit_t *index;           /* output: index flag */
+  gomc_hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
+  gomc_hal_s32_t oldreading;     /* used to detect overflow / underflow of the counter JE001 */
   unsigned int indres;        /* copy of reset-on-index register bits (only valid on 1st encoder of board)*/
   unsigned int indrescnt;    /* counts servo cycles since index reset was turned on */
-  hal_float_t *vel;             /* output: scaled velocity */
-  hal_float_t min_speed;        /* parameter: min speed for velocity estimation */
-  hal_u32_t counts_since_timeout;    /* for velocity estimation */
+  gomc_hal_float_t *vel;             /* output: scaled velocity */
+  gomc_hal_float_t min_speed;        /* parameter: min speed for velocity estimation */
+  gomc_hal_u32_t counts_since_timeout;    /* for velocity estimation */
   unsigned short old_timestamp;
   unsigned short timestamp;
 } encoder_t;
@@ -328,11 +321,11 @@ typedef struct slot_data_s {
     unsigned char strobe;	/* does this slot need a latch strobe */
     unsigned char slot_base;	/* base addr of this 16 byte slot */
     unsigned int port_addr;	/* addr of parport */
-    rtapi_u32 read_bitmap;		/* map showing which registers to read */
+    uint32_t read_bitmap;		/* map showing which registers to read */
     unsigned char num_rd_functs;/* number of read functions */
     unsigned char rd_buf[32];	/* cached data read from epp bus */
     slot_funct_t *rd_functs[MAX_FUNCT];	/* array of read functions */
-    rtapi_u32 write_bitmap;		/* map showing which registers to write */
+    uint32_t write_bitmap;		/* map showing which registers to write */
     unsigned char num_wr_functs;/* number of write functions */
     unsigned char wr_buf[32];	/* cached data to be written to epp bus */
     slot_funct_t *wr_functs[MAX_FUNCT];	/* array of write functions */
@@ -350,7 +343,7 @@ typedef struct slot_data_s {
 
 /* this structure contains the runtime data for a complete EPP bus */
 
-typedef struct {
+struct bus_data_s {
 //    unsigned int port_addr;	/* addr of parport to talk to board */
     int busnum;			/* bus number */
     unsigned char have_master;	/* true if a master has been configured */
@@ -364,19 +357,14 @@ typedef struct {
 //    unsigned int last_extradout;/* used for numbering digital outputs */
     char slot_valid[NUM_SLOTS];	/* tags for slots that are used */
     slot_data_t slot_data[NUM_SLOTS];  /* data for slots on EPP bus */
-} bus_data_t;
+};
 
 
 /***********************************************************************
 *                          GLOBAL VARIABLES                            *
 ************************************************************************/
 
-static bus_data_t *bus_array[MAX_BUS];
-static int comp_id;		/* component ID */
-static long read_period;        /* makes real time period available to called functions */
-static int slotnum;             
-static int currentbus;             /* made global so SelRead can see which parport is being handled */
-                                /* to deal with epp_dir option  */
+/* All former static globals are now in ppmc_inst_t, accessed via ppmc_bridge_inst */
 
 /***********************************************************************
 *                    REALTIME FUNCTION DECLARATIONS                    *
@@ -411,9 +399,9 @@ static void WrtMore(unsigned char byte, unsigned int port_addr);
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static rtapi_u32 block(int min, int max);
-static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot, rtapi_u32 cache_bitmap );
-static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, rtapi_u32 cache_bitmap );
+static uint32_t block(int min, int max);
+static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot, uint32_t cache_bitmap );
+static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, uint32_t cache_bitmap );
 
 static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus);
 static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus);
@@ -431,31 +419,85 @@ static int export_timestamp(slot_data_t *slot, bus_data_t *bus);
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
-void rtapi_app_exit(void);
+static void ppmc_cleanup(ppmc_inst_t *inst);
 
-int rtapi_app_main(void)
+static void ppmc_parse_argv(ppmc_inst_t *inst, int argc, const char **argv) {
+    int pi = 0, edi = 0, edo = 0, tsi = 0, eci = 0, epi = 0;
+    /* Set defaults */
+    inst->port_addr[0] = 0x378;
+    for (int i = 1; i < MAX_BUS; i++) inst->port_addr[i] = -1;
+    for (int i = 0; i < MAX_BUS*8; i++) {
+        inst->extradac[i] = -1;
+        inst->extradout[i] = -1;
+        inst->timestamp[i] = -1;
+        inst->enc_clock[i] = -1;
+    }
+    for (int i = 0; i < MAX_BUS; i++) inst->epp_dir[i] = 0;
+    /* Parse argv */
+    for (int i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "port_addr=", 10) == 0 && pi < MAX_BUS)
+            inst->port_addr[pi++] = (int)strtol(argv[i] + 10, NULL, 0);
+        else if (strncmp(argv[i], "extradac=", 9) == 0 && edi < MAX_BUS*8)
+            inst->extradac[edi++] = (int)strtol(argv[i] + 9, NULL, 0);
+        else if (strncmp(argv[i], "extradout=", 10) == 0 && edo < MAX_BUS*8)
+            inst->extradout[edo++] = (int)strtol(argv[i] + 10, NULL, 0);
+        else if (strncmp(argv[i], "timestamp=", 10) == 0 && tsi < MAX_BUS*8)
+            inst->timestamp[tsi++] = (int)strtol(argv[i] + 10, NULL, 0);
+        else if (strncmp(argv[i], "enc_clock=", 10) == 0 && eci < MAX_BUS*8)
+            inst->enc_clock[eci++] = (int)strtol(argv[i] + 10, NULL, 0);
+        else if (strncmp(argv[i], "epp_dir=", 8) == 0 && epi < MAX_BUS)
+            inst->epp_dir[epi++] = (int)strtol(argv[i] + 8, NULL, 0);
+    }
+}
+
+static void ppmc_destroy(cmod_t *self) {
+    ppmc_inst_t *inst = (ppmc_inst_t *)self;
+    ppmc_cleanup(inst);
+    if (inst->comp_id > 0)
+        inst->env->hal->exit(inst->env->hal->ctx, inst->comp_id);
+    ppmc_bridge_inst = NULL;
+    inst->env->rtapi->free(inst->env->rtapi->ctx, inst);
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
 {
-  int msg, rv, rv1, busnum, slotnum, n, boards;
+    int rv, rv1, busnum, slotnum, n, boards;
     int bus_slot_code, need_extra_dac, need_extra_dout, need_timestamp;
     int idcode, id, ver;
     bus_data_t *bus;
     slot_data_t *slot;
-    char buf[HAL_NAME_LEN + 1];
+    char buf[GOMC_HAL_NAME_LEN + 1];
+    ppmc_inst_t *inst;
+
+    (void)name;
+
+    inst = (ppmc_inst_t *)env->rtapi->calloc(env->rtapi->ctx,
+                sizeof(ppmc_inst_t));
+    if (!inst) return -1;
+
+    inst->cmod.Destroy = ppmc_destroy;
+    inst->env = env;
+    ppmc_bridge_inst = inst;
+    ppmc_log = env->log;
+    ppmc_hal = env->hal;
+
+    ppmc_parse_argv(inst, argc, argv);
 
     /* connect to the HAL */
-    comp_id = hal_init("hal_ppmc");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: ERROR: hal_init() failed\n");
+    inst->comp_id = env->hal->init(env->hal->ctx, "hal_ppmc",
+                                   env->dl_handle, GOMC_HAL_COMP_REALTIME);
+    if (inst->comp_id < 0) {
+	gomc_log_errorf(ppmc_log, "ppmc", "PPMC: ERROR: hal_init() failed\n");
+	ppmc_bridge_inst = NULL;
+	ppmc_bridge_inst->env->rtapi->free(ppmc_bridge_inst->env->rtapi->ctx, inst);
 	return -1;
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: installing driver\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC: installing driver\n");
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
-    msg = rtapi_get_msg_level();
-        rtapi_set_msg_level(RTAPI_MSG_INFO);
-    //    rtapi_set_msg_level(RTAPI_MSG_ERR);
 
     /* validate port addresses */
     n = 0;
@@ -466,51 +508,53 @@ int rtapi_app_main(void)
        might have been allocated before we return. */
     rv = 0;
     for ( busnum = 0 ; busnum < MAX_BUS ; busnum++ ) {
-      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: bus %d epp_dir = %d\n",busnum, epp_dir[busnum]);
+      gomc_log_infof(ppmc_log, "ppmc", "PPMC: bus %d epp_dir = %d\n",busnum, inst->epp_dir[busnum]);
 
 	/* init pointer to bus data */
-	bus_array[busnum] = NULL;
+	inst->bus_array[busnum] = NULL;
 	/* check to see if a port address was specified */
-	if ( port_addr[busnum] == -1 ) {
+	if ( inst->port_addr[busnum] == -1 ) {
 	    /* nope, skip it */
 	    continue;
 	}
 
-        rv = hal_parport_get(comp_id, &port_registration[busnum],
-                port_addr[busnum], 0, PARPORT_MODE_EPP);
+        rv = rtapi_parport_get("ppmc", &inst->port_registration[busnum],
+                inst->port_addr[busnum], 0, PARPORT_MODE_EPP);
 
         if(rv < 0)
             return rv;
 
-        port_addr[busnum] = port_registration[busnum].base;
-        if(port_registration[busnum].base_hi)
-            rtapi_outb(0x80, port_registration[busnum].base_hi + 2);
+        inst->port_addr[busnum] = inst->port_registration[busnum].base;
+        if(inst->port_registration[busnum].base_hi)
+            outb(0x80, inst->port_registration[busnum].base_hi + 2);
 
         /* got a good one */
         n++;
     }
     if ( n == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	gomc_log_errorf(ppmc_log, "ppmc", 
 	    "PPMC: ERROR: no ports specified\n");
-	hal_exit(comp_id);
+	env->hal->exit(env->hal->ctx, inst->comp_id);
+	ppmc_bridge_inst = NULL;
+	ppmc_bridge_inst->env->rtapi->free(ppmc_bridge_inst->env->rtapi->ctx, inst);
 	return -1;
     }
     /* have valid config info */
     /* begin init - loop thru all busses */
     for ( busnum = 0 ; busnum < MAX_BUS ; busnum++ ) {
 	/* check to see if a port address was specified */
-	if ( port_addr[busnum] == -1 ) {
+	if ( inst->port_addr[busnum] == -1 ) {
 	    /* nope, skip to next bus */
 	    continue;
 	}
-	rtapi_print_msg(RTAPI_MSG_INFO,
+	gomc_log_infof(ppmc_log, "ppmc",
 	    "PPMC: checking EPP bus %d at port %04X\n",
-	    busnum, port_addr[busnum]);
+	    busnum, inst->port_addr[busnum]);
 	boards = 0;
 	/* allocate memory for bus data - this is not shared memory */
-	bus = rtapi_kmalloc(sizeof(bus_data_t), RTAPI_GFP_KERNEL);
+	bus = ppmc_bridge_inst->env->rtapi->calloc(ppmc_bridge_inst->env->rtapi->ctx, sizeof(bus_data_t));
 	if (bus == 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    gomc_log_errorf(ppmc_log, "ppmc",
 		"PPMC: ERROR: kmalloc() failed\n");
 	    rv = -1;
 	    /* skip to next bus */
@@ -537,7 +581,7 @@ int rtapi_app_main(void)
 	    slot->ver = 0;
 	    slot->strobe = 0;
 	    slot->slot_base = slotnum * SLOT_SIZE;
-	    slot->port_addr = port_addr[busnum];
+	    slot->port_addr = inst->port_addr[busnum];
 	    slot->read_bitmap = 0;
 	    slot->write_bitmap = 0;
 	    /* clear EPP read and write caches */
@@ -567,7 +611,7 @@ int rtapi_app_main(void)
 	    slot = &(bus->slot_data[slotnum]);
 	    /* rv1 is used to flag errors that fail one bus */
 	    rv1 = 0;
-	    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: slot %d: ", slotnum);
+	    gomc_log_infof(ppmc_log, "ppmc", "PPMC: slot %d: ", slotnum);
 	
 	    /* check slot */
 	    idcode = SelRead(slot->slot_base+SLOT_ID_OFFSET, slot->port_addr);
@@ -576,13 +620,13 @@ int rtapi_app_main(void)
 	    //   being left on the bus by a non-implemented device slot
 		slot->id = 0;
 		slot->ver = 0;
-		rtapi_print_msg(RTAPI_MSG_INFO, "nothing detected at addr %x reads %x\n",
+		gomc_log_infof(ppmc_log, "ppmc", "nothing detected at addr %x reads %x\n",
 				slotnum,idcode);
 		ClrTimeout(slot->port_addr);
 		/* skip to next slot */
 		continue;
 	    }
-	    rtapi_print_msg(RTAPI_MSG_INFO, "ID code: %02X ", idcode);
+	    gomc_log_infof(ppmc_log, "ppmc", "ID code: %02X ", idcode);
 	    slot->id = id = idcode & 0xF0;
 	    slot->ver = ver = idcode & 0x0F;
 	    slot->use_timestamp = 0; /* default is no timestamp */
@@ -594,28 +638,28 @@ int rtapi_app_main(void)
 	    switch ( id ) {
 	    case 0x10:
 		boards++;
-		//		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC encoder card\n");
+		//		gomc_log_infof(ppmc_log, "ppmc", "PPMC encoder card\n");
 		bus_slot_code = (busnum << 4) | slotnum;
-		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC encoder card %x\n",bus_slot_code);
+		gomc_log_infof(ppmc_log, "ppmc", "PPMC encoder card %x\n",bus_slot_code);
 		need_timestamp = 0;
 		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
-		  if ( timestamp[n] == bus_slot_code ) {
+		  if ( inst->timestamp[n] == bus_slot_code ) {
 		    need_timestamp = 1;
-		    timestamp[n] = -1;
+		    inst->timestamp[n] = -1;
 		  }
 		}
 		if ( need_timestamp ) {
 		    rv1 += export_timestamp(slot, bus);
 		}		
 		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
-		  if ( (enc_clock[n] & 0xff) == bus_slot_code) {
-		    //		    rtapi_print_msg(RTAPI_MSG_ERR,"PPMC detected enc_clock parameter%x\n",enc_clock[n]);
+		  if ( (inst->enc_clock[n] & 0xff) == bus_slot_code) {
+		    //		    gomc_log_errorf(ppmc_log, "ppmc","PPMC detected enc_clock parameter%x\n",enc_clock[n]);
 		    if (slot->ver < 4) {
-		      rtapi_print_msg(RTAPI_MSG_ERR, 
+		      gomc_log_errorf(ppmc_log, "ppmc", 
 				      "PPMC encoder does not support adjustable encoder clock, ignoring\n");
 		    }
-		    slot->enc_freq = (enc_clock[n]) >> 8; // the clock selection is in bits 12-8
-		    //		    rtapi_print_msg(RTAPI_MSG_ERR,"PPMC enc_freq=%x\n",slot->enc_freq);
+		    slot->enc_freq = (inst->enc_clock[n]) >> 8; // the clock selection is in bits 12-8
+		    //		    gomc_log_errorf(ppmc_log, "ppmc","PPMC enc_freq=%x\n",slot->enc_freq);
 		  }
 		}
 		// can't export encoder until we know if it uses timestamp
@@ -626,18 +670,18 @@ int rtapi_app_main(void)
 		break;
 	    case 0x20:
 		boards++;
-		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC DAC card\n");
+		gomc_log_infof(ppmc_log, "ppmc", "PPMC DAC card\n");
 		rv1 += export_PPMC_DAC(slot, bus);
 		break;
 	    case 0x30:
 		boards++;
-		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC Digital I/O card\n");
+		gomc_log_infof(ppmc_log, "ppmc", "PPMC Digital I/O card\n");
 		rv1 += export_PPMC_digin(slot, bus);
 		rv1 += export_PPMC_digout(slot, bus);
 		break;
 	    case 0x40:
 		boards++;
-		rtapi_print_msg(RTAPI_MSG_INFO, "Univ. Stepper Controller\n");
+		gomc_log_infof(ppmc_log, "ppmc", "Univ. Stepper Controller\n");
 		rv1 += export_UxC_digin(slot, bus);
 		rv1 += export_UxC_digout(slot, bus);
 		rv1 += export_USC_stepgen(slot, bus);
@@ -646,17 +690,17 @@ int rtapi_app_main(void)
 		need_extra_dac = 0;
 		need_extra_dout = 0;
 		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
-		    if ( extradac[n] == bus_slot_code ) {
+		    if ( inst->extradac[n] == bus_slot_code ) {
 			need_extra_dac = 1;
-			extradac[n] = -1;
+			inst->extradac[n] = -1;
 		    }
-		    if ( extradout[n] == bus_slot_code ) {
+		    if ( inst->extradout[n] == bus_slot_code ) {
 			need_extra_dout = 1;
-			extradout[n] = -1;
+			inst->extradout[n] = -1;
 		    }
 		}
 		if ( need_extra_dac && need_extra_dout ) {
-		    rtapi_print_msg(RTAPI_MSG_ERR,
+		    gomc_log_errorf(ppmc_log, "ppmc",
 			"PPMC: ERROR: Can't have extra DAC and DOUT on same slot\n");
 		} else if ( need_extra_dac ) {
 		    rv1 += export_extra_dac(slot, bus);
@@ -668,7 +712,7 @@ int rtapi_app_main(void)
 		break;
 	    case 0x50:
 		boards++;
-		rtapi_print_msg(RTAPI_MSG_INFO, "Univ. PWM Controller\n");
+		gomc_log_infof(ppmc_log, "ppmc", "Univ. PWM Controller\n");
 		rv1 += export_UxC_digin(slot, bus);
 		rv1 += export_UxC_digout(slot, bus);
 		rv1 += export_UPC_pwmgen(slot, bus);
@@ -677,21 +721,21 @@ int rtapi_app_main(void)
 		need_extra_dout = 0;
 		need_timestamp = 0;
 		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
-		    if ( extradac[n] == bus_slot_code ) {
+		    if ( inst->extradac[n] == bus_slot_code ) {
 			need_extra_dac = 1;
-			extradac[n] = -1;
+			inst->extradac[n] = -1;
 		    }
-		    if ( extradout[n] == bus_slot_code ) {
+		    if ( inst->extradout[n] == bus_slot_code ) {
 			need_extra_dout = 1;
-			extradout[n] = -1;
+			inst->extradout[n] = -1;
 		    }
-		    if ( timestamp[n] == bus_slot_code ) {
+		    if ( inst->timestamp[n] == bus_slot_code ) {
 			need_timestamp = 1;
-			timestamp[n] = -1;
+			inst->timestamp[n] = -1;
 		    }
 		}
 		if ( need_extra_dac && need_extra_dout ) {
-		    rtapi_print_msg(RTAPI_MSG_ERR,
+		    gomc_log_errorf(ppmc_log, "ppmc",
 			"PPMC: ERROR: Can't have extra DAC and DOUT on same slot\n");
 		} else if ( need_extra_dac ) {
 		    rv1 += export_extra_dac(slot, bus);
@@ -707,15 +751,15 @@ int rtapi_app_main(void)
 		slotnum++;
 		break;
 	    default:
-	      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: Check Parallel Port connection.\n");
+	      gomc_log_infof(ppmc_log, "ppmc", "PPMC: Check Parallel Port connection.\n");
 		/* mark slot as empty */
 		bus->slot_valid[slotnum] = 0;
 		/* mark bus failed */
 		rv1 = -1;
 		break;
             }
-	    rtapi_print_msg(RTAPI_MSG_INFO,"read cache bitmap: %08x\n", slot->read_bitmap );
-	    rtapi_print_msg(RTAPI_MSG_INFO,"write cache bitmap: %08x\n", slot->write_bitmap );
+	    gomc_log_infof(ppmc_log, "ppmc","read cache bitmap: %08x\n", slot->read_bitmap );
+	    gomc_log_infof(ppmc_log, "ppmc","write cache bitmap: %08x\n", slot->write_bitmap );
 	} /* end of slot loop */
 	if ( rv1 != 0 ) {
 	    /* error during slot scan, already printed */
@@ -724,78 +768,83 @@ int rtapi_app_main(void)
 	    continue;
 	}
 	if ( boards == 0 ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    gomc_log_errorf(ppmc_log, "ppmc",
 		"PPMC: ERROR: no boards found on bus %d, port %04X\n",
-		busnum, port_addr[busnum] );
+		busnum, inst->port_addr[busnum] );
 	    rv = -1;
 	    /* skip to next bus */
 	    continue;
 	}
 	/* export functions */
-	rtapi_snprintf(buf, sizeof(buf), "ppmc.%d.read", busnum);
-	rv1 = hal_export_funct(buf, read_all, &(bus_array[busnum]),
-	    1, 0, comp_id);
+	snprintf(buf, sizeof(buf), "ppmc.%d.read", busnum);
+	rv1 = ppmc_hal->export_funct(ppmc_hal->ctx, buf, read_all, &(inst->bus_array[busnum]),
+	    1, 0, inst->comp_id);
 	if (rv1 != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    gomc_log_errorf(ppmc_log, "ppmc",
 		"PPMC: ERROR: read funct export failed\n");
 	    rv = -1;
 	    /* skip to next bus */
 	    continue;
 	}
-	rtapi_snprintf(buf, sizeof(buf), "ppmc.%d.write", busnum);
-	rv1 = hal_export_funct(buf, write_all, &(bus_array[busnum]),
-	    1, 0, comp_id);
+	snprintf(buf, sizeof(buf), "ppmc.%d.write", busnum);
+	rv1 = ppmc_hal->export_funct(ppmc_hal->ctx, buf, write_all, &(inst->bus_array[busnum]),
+	    1, 0, inst->comp_id);
 	if (rv1 != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    gomc_log_errorf(ppmc_log, "ppmc",
 		"PPMC: ERROR: write funct export failed\n");
 	    rv = -1;
 	    /* skip to next bus */
 	    continue;
 	}
 	/* save pointer to bus data */
-	bus_array[busnum] = bus;
-	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: bus %d complete\n", busnum);
+	inst->bus_array[busnum] = bus;
+	gomc_log_infof(ppmc_log, "ppmc", "PPMC: bus %d complete\n", busnum);
     }
     for ( n = 0 ; n < MAX_BUS*8 ; n++ ) {
-	if ( extradac[n] != -1 ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	if ( inst->extradac[n] != -1 ) {
+	    gomc_log_errorf(ppmc_log, "ppmc",
 		"PPMC: ERROR: no USC/UPC for extra dac at bus %d, slot %d\n",
-		extradac[n]>>4, extradac[n] & 0x0F );
+		inst->extradac[n]>>4, inst->extradac[n] & 0x0F );
 	    rv = -1;
 	}
-	if ( extradout[n] != -1 ) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	if ( inst->extradout[n] != -1 ) {
+	    gomc_log_errorf(ppmc_log, "ppmc",
 		"PPMC: ERROR: no USC/UPC for extra douts at bus %d, slot %d\n",
-		extradout[n]>>4, extradout[n] & 0x0F );
+		inst->extradout[n]>>4, inst->extradout[n] & 0x0F );
 	    rv = -1;
 	}
     }
     /* restore saved message level */
-    rtapi_set_msg_level(msg);
+    // rtapi_set_msg_level deprecated: (msg);
     /* final check for errors */
     if ( rv != 0 ) {
 	/* something went wrong, cleanup and exit */
-        rtapi_app_exit();
+        ppmc_cleanup(inst);
+        env->hal->exit(env->hal->ctx, inst->comp_id);
+        env->rtapi->free(env->rtapi->ctx, inst);
+        ppmc_bridge_inst = NULL;
 	return rv;
     }    
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: driver installed\n");
-    hal_ready(comp_id);
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC: driver installed\n");
+    env->hal->ready(env->hal->ctx, inst->comp_id);
+
+    *out = &inst->cmod;
     return 0;
 }
 
-void rtapi_app_exit(void)
+static void ppmc_cleanup(ppmc_inst_t *inst)
 {
     int busnum, n, m;
     bus_data_t *bus;
 
-    rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: shutting down\n");
+    gomc_log_errorf(ppmc_log, "ppmc", "PPMC: shutting down\n");
     for ( busnum = 0 ; busnum < MAX_BUS ; busnum++ ) {
 	/* check to see if memory was allocated for bus */
-	if ( bus_array[busnum] != NULL ) {
+	if ( inst->bus_array[busnum] != NULL ) {
 	    /* save ptr to memory block */
-	    bus = bus_array[busnum];
+	    bus = inst->bus_array[busnum];
 	    /* mark it invalid so RT code won't access */
-	    bus_array[busnum] = NULL;
+	    inst->bus_array[busnum] = NULL;
 	    /* want to make sure everything is turned off */
 	    /* write zero to the first byte of each slot */
 	    for ( n = 0 ; n < 256 ; n += 16 ) {
@@ -806,17 +855,14 @@ void rtapi_app_exit(void)
 		}
 	    }
 	    /* and free the memory block */
-	    rtapi_kfree(bus);
+	    ppmc_bridge_inst->env->rtapi->free(ppmc_bridge_inst->env->rtapi->ctx, bus);
 	}
     }
 
     for(busnum = 0; busnum < MAX_BUS; busnum++) {
         /* if ioports were requested, release them */
-        hal_parport_release(&port_registration[busnum]);
+        rtapi_parport_release(&inst->port_registration[busnum]);
     }
-
-    /* disconnect from HAL */
-    hal_exit(comp_id);
 }
 
 /***********************************************************************
@@ -828,11 +874,11 @@ static void read_all(void *arg, long period)
     bus_data_t *bus;
     slot_data_t *slot;
     //    int slotnum, functnum, addr_ok;
-    int functnum, addr_ok;
+    int slotnum, functnum, addr_ok;
     unsigned char n, eppaddr;
-    rtapi_u32 bitmap;
+    uint32_t bitmap;
 
-    read_period = period;          /* make thread period available to called functions */
+    ppmc_bridge_inst->read_period = period;          /* make thread period available to called functions */
     /* get pointer to bus data structure */
     bus = *(bus_data_t **)(arg);
     /* test to make sure it hasn't been freed */
@@ -841,7 +887,7 @@ static void read_all(void *arg, long period)
     }
     /* loop thru all slots */
     for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum++ ) {
-      currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
+      ppmc_bridge_inst->currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
 	/* check for anything in slot */
 	if ( bus->slot_valid[slotnum] ) {
 	    /* point at slot data */
@@ -897,7 +943,8 @@ static void write_all(void *arg, long period)
     slot_data_t *slot;
     int slotnum, functnum, addr_ok;
     unsigned char n, eppaddr;
-    rtapi_u32 bitmap;
+    uint32_t bitmap;
+    (void)period;
 
     /* get pointer to bus data structure */
     bus = *(bus_data_t **)(arg);
@@ -909,7 +956,7 @@ static void write_all(void *arg, long period)
     for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum++ ) {
 	/* check for anything in slot */
 	if ( bus->slot_valid[slotnum] ) {
-	  currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
+	  ppmc_bridge_inst->currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
 	    /* point at slot data */
 	    slot = &(bus->slot_data[slotnum]);
 	    /* loop thru all functions associated with slot */
@@ -1003,7 +1050,7 @@ static void read_PPMC_digins(slot_data_t *slot)
     int b;
     unsigned char indata, mask;
 
-    //    rtapi_print_msg(RTAPI_MSG_INFO, "enter read_digins()\n");
+    //    gomc_log_infof(ppmc_log, "ppmc", "enter read_digins()\n");
     /* read the first 8 inputs */
     indata = slot->rd_buf[DIO_DINA];
     /* split the bits into 16 variables (8 regular, 8 inverted) */
@@ -1044,7 +1091,7 @@ static void write_PPMC_digouts(slot_data_t *slot)
     int b;
     unsigned char outdata, mask;
 
-    //    rtapi_print_msg(RTAPI_MSG_INFO, "enter write_PPMC_digouts()\n");
+    //    gomc_log_infof(ppmc_log, "ppmc", "enter write_PPMC_digouts()\n");
     outdata = 0x00;
     mask = 0x01;
     /* assemble output byte from 8 source variables */
@@ -1078,7 +1125,7 @@ static void read_encoders(slot_data_t *slot)
   int i, byteindex, byteindx2;
   double vel;                    // local temporary velocity
     union pos_tag {
-      hal_s32_t l;              // JE001
+      gomc_hal_s32_t l;              // JE001
         struct byte_tag {
             signed char b0;
             signed char b1;
@@ -1094,8 +1141,8 @@ static void read_encoders(slot_data_t *slot)
       } byte;
     } timebase, timestamp;
     unsigned short delta_time;
-    //    hal_u32_t timestamp;
-    //    hal_u32_t timebase;
+    //    gomc_hal_u32_t timestamp;
+    //    gomc_hal_u32_t timebase;
       
     // sample timebase only on boards so equipped
     if (slot->use_timestamp) {
@@ -1120,11 +1167,11 @@ static void read_encoders(slot_data_t *slot)
                 pos.byte.b3--;
 	*(slot->encoder[i].delta) = pos.l - slot->encoder[i].oldreading;
 	vel = (pos.l - slot->encoder[i].oldreading) /
-	           (read_period * 1e-9 * slot->encoder[i].scale);
+	           (ppmc_bridge_inst->read_period * 1e-9 * slot->encoder[i].scale);
 	/* index processing */
 	if ( (slot->rd_buf[ENCISR] & ( 1 << i )) != 0 ) {
-	  //	  rtapi_print_msg(RTAPI_MSG_INFO, "index seen for axis %d",i);
-	  //	  rtapi_print_msg(RTAPI_MSG_INFO, "indrescnt %d\n",slot->encoder[i].indrescnt);
+	  //	  gomc_log_infof(ppmc_log, "ppmc", "index seen for axis %d",i);
+	  //	  gomc_log_infof(ppmc_log, "ppmc", "indrescnt %d\n",slot->encoder[i].indrescnt);
 	    /* index edge occurred since last time this code ran */
 	    *(slot->encoder[i].index) = 1;
 	    /* index-enable only works on version 2 and up */
@@ -1246,12 +1293,12 @@ static void write_encoders(slot_data_t *slot)
 /* fetch a time parameter (in nS), make sure it is a multiple
    of 100nS, and is between min_ns and 25.4uS, and return the
    value in 10MHz clock pulses. */
-static unsigned int ns2cp( hal_u32_t *pns, unsigned int min_ns )
+static unsigned int ns2cp( gomc_hal_u32_t *pns, unsigned int min_ns )
 {
     int ns, cp;
 
     ns = *pns;
-    if ( ns < min_ns ) ns = min_ns;
+    if ( ns < (int)min_ns ) ns = (int)min_ns;
     if ( ns > 25400 ) ns = 25400;
     cp = ns / 100;
     ns = cp * 100;
@@ -1523,7 +1570,7 @@ static void write_DACs(slot_data_t *slot)
     long dc;
     double volts;
 
-    //    rtapi_print_msg(RTAPI_MSG_INFO, "enter write_DACs()\n");
+    //    gomc_log_infof(ppmc_log, "ppmc", "enter write_DACs()\n");
     /* now do the four individual DACs */
     for ( n = 0 ; n < 4 ; n++ ) {
       /* point to the specific DAC */
@@ -1615,7 +1662,7 @@ static void write_extra_dout(slot_data_t *slot)
     int b;
     unsigned char outdata, mask;
 
-    //    rtapi_print_msg(RTAPI_MSG_INFO, "enter write_extra_dout()\n");
+    //    gomc_log_infof(ppmc_log, "ppmc", "enter write_extra_dout()\n");
     outdata = 0x00;
     mask = 0x01;
     /* assemble output byte from 8 source variables */
@@ -1642,10 +1689,10 @@ static void write_extra_dout(slot_data_t *slot)
    to be passed to add_rd_funct() or add_wr_funct()
 */
 
-static rtapi_u32 block(int min, int max)
+static uint32_t block(int min, int max)
 {
     int n;
-    rtapi_u32 mask;
+    uint32_t mask;
 
     mask = 0;
     for ( n = min ; n <= max ; n++ ) {
@@ -1664,10 +1711,10 @@ static rtapi_u32 block(int min, int max)
 */
 
 static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot,
-			rtapi_u32 cache_bitmap )
+			uint32_t cache_bitmap )
 {
     if ( slot->num_rd_functs >= MAX_FUNCT ) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	gomc_log_errorf(ppmc_log, "ppmc", 
 	    "PPMC: ERROR: too many read functions\n");
 	return -1;
     }
@@ -1677,10 +1724,10 @@ static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot,
 }
 
 static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot,
-			rtapi_u32 cache_bitmap )
+			uint32_t cache_bitmap )
 {
     if ( slot->num_wr_functs >= MAX_FUNCT ) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	gomc_log_errorf(ppmc_log, "ppmc", 
 	    "PPMC: ERROR: too many write functions\n");
 	return -1;
     }
@@ -1693,25 +1740,25 @@ static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus)
 {
     int retval, n;
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting UxC digital inputs\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting UxC digital inputs\n");
 
     /* do hardware init */
 
     /* allocate shared memory for the digital input data */
-    slot->digin = hal_malloc(16 * sizeof(din_t));
+    slot->digin = ppmc_hal->malloc(ppmc_hal->ctx, 16 * sizeof(din_t));
     if (slot->digin == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: hal_malloc() failed\n");
+	gomc_log_errorf(ppmc_log, "ppmc",
+	    "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
 	return -1;
     }
     for ( n = 0 ; n < 16 ; n++ ) {
 	/* export pins for input data */
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[n].data), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->digin[n].data), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.din.%02d.in", bus->busnum, bus->last_digin);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[n].data_not), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->digin[n].data_not), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.din.%02d.in-not", bus->busnum, bus->last_digin);
 	if (retval != 0) {
 	    return retval;
@@ -1727,32 +1774,32 @@ static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus)
 {
     int retval, n;
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting UxC digital outputs\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting UxC digital outputs\n");
 
     /* do hardware init */
     /* turn off all outputs */
     SelWrt(0, slot->slot_base+UxC_DOUTA, slot->port_addr);
     if (bus->last_digout > 7) {   // if not first UxC, set it to slave mode
-      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave UxC addr %x\n",slot->slot_base+UxC_SLAVE);
+      gomc_log_infof(ppmc_log, "ppmc", "PPMC:  slave UxC addr %x\n",slot->slot_base+UxC_SLAVE);
       SelWrt(1,slot->slot_base+UxC_SLAVE,slot->port_addr);
-      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave UxC # %d\n",bus->last_digout);
+      gomc_log_infof(ppmc_log, "ppmc", "PPMC:  slave UxC # %d\n",bus->last_digout);
     }
     /* allocate shared memory for the digital output data */
-    slot->digout = hal_malloc(8 * sizeof(dout_t));
+    slot->digout = ppmc_hal->malloc(ppmc_hal->ctx, 8 * sizeof(dout_t));
     if (slot->digout == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: hal_malloc() failed\n");
+	gomc_log_errorf(ppmc_log, "ppmc",
+	    "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
 	return -1;
     }
     for ( n = 0 ; n < 8 ; n++ ) {
 	/* export pin for output data */
-	retval = hal_pin_bit_newf(HAL_IN, &(slot->digout[n].data), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_IN, &(slot->digout[n].data), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.dout.%02d.out", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* export parameter for inversion */
-	retval = hal_param_bit_newf(HAL_RW, &(slot->digout[n].invert), comp_id,
+	retval = gomc_hal_param_bit_newf(ppmc_hal, GOMC_HAL_RW, &(slot->digout[n].invert), ppmc_bridge_inst->comp_id,
 				    "ppmc.%d.dout.%02d-invert", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
@@ -1769,25 +1816,25 @@ static int export_PPMC_digin(slot_data_t *slot, bus_data_t *bus)
 {
     int retval, n;
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting PPMC digital inputs\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting PPMC digital inputs\n");
 
     /* do hardware init */
 
     /* allocate shared memory for the digital input data */
-    slot->digin = hal_malloc(18 * sizeof(din_t));  // 18 inputs per unit
+    slot->digin = ppmc_hal->malloc(ppmc_hal->ctx, 18 * sizeof(din_t));  // 18 inputs per unit
     if (slot->digin == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: hal_malloc() failed\n");
+	gomc_log_errorf(ppmc_log, "ppmc",
+	    "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
 	return -1;
     }
     for ( n = 0 ; n < 16 ; n++ ) {
 	/* export pins for input data */
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[n].data), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->digin[n].data), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.din.%02d.in", bus->busnum, bus->last_digin);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[n].data_not), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->digin[n].data_not), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.din.%02d.in-not", bus->busnum, bus->last_digin);
 	if (retval != 0) {
 	    return retval;
@@ -1796,32 +1843,32 @@ static int export_PPMC_digin(slot_data_t *slot, bus_data_t *bus)
 	bus->last_digin++;
     }
     if (bus->last_digin < 31) {
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[16].data), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->digin[16].data), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.din.estop.in", bus->busnum);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[16].data_not), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->digin[16].data_not), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.din.estop.in-not", bus->busnum);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[17].data), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->digin[17].data), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.din.fault.in", bus->busnum);
 	if (retval != 0) {
 	    return retval;
 	}
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->digin[17].data_not), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->digin[17].data_not), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.din.fault.in-not", bus->busnum);
 	if (retval != 0) {
 	    return retval;
 	}
     add_rd_funct(read_PPMC_digins, slot, block(DIO_DINA, DIO_ESTOP_IN));
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as MASTER D In\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting as MASTER D In\n");
     }
     else {
       add_rd_funct(read_PPMC_digins, slot, block(DIO_DINA, DIO_DINB));
-      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as SLAVE D In\n");
+      gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting as SLAVE D In\n");
     }
     return 0;
 }
@@ -1830,33 +1877,33 @@ static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus)
 {
     int retval, n;
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting PPMC digital outputs\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting PPMC digital outputs\n");
 
     /* do hardware init */
     /* turn off all outputs */
     SelWrt(0, slot->slot_base+DIO_DOUTA, slot->port_addr);
     if (bus->last_digout > 7) {   // if not first PPMC DIO, set it to slave mode
-      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave DIO addr %x\n",slot->slot_base+DIO_ESTOP_OUT);
+      gomc_log_infof(ppmc_log, "ppmc", "PPMC:  slave DIO addr %x\n",slot->slot_base+DIO_ESTOP_OUT);
       SelWrt(2,slot->slot_base+DIO_ESTOP_OUT,slot->port_addr);
-      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  slave DIO # %d\n",bus->last_digout);
+      gomc_log_infof(ppmc_log, "ppmc", "PPMC:  slave DIO # %d\n",bus->last_digout);
     }
 
     /* allocate shared memory for the digital output data */
-    slot->digout = hal_malloc(9 * sizeof(dout_t));              // 8 outputs per board + estop
+    slot->digout = ppmc_hal->malloc(ppmc_hal->ctx, 9 * sizeof(dout_t));              // 8 outputs per board + estop
     if (slot->digout == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: hal_malloc() failed\n");
+	gomc_log_errorf(ppmc_log, "ppmc",
+	    "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
 	return -1;
     }
     for ( n = 0 ; n < 8 ; n++ ) {
 	/* export pin for output data */
-	retval = hal_pin_bit_newf(HAL_IN, &(slot->digout[n].data), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_IN, &(slot->digout[n].data), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.dout.%02d.out", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* export parameter for inversion */
-	retval = hal_param_bit_newf(HAL_RW, &(slot->digout[n].invert), comp_id,
+	retval = gomc_hal_param_bit_newf(ppmc_hal, GOMC_HAL_RW, &(slot->digout[n].invert), ppmc_bridge_inst->comp_id,
 				    "ppmc.%d.dout.%02d.invert", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
@@ -1867,26 +1914,26 @@ static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus)
     }
 	/* export pin for E-Stop control */
     if (bus->last_digout < 15) {                // only on first DIO board
-      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  master DIO at # %d\n",bus->last_digout);
-      retval = hal_pin_bit_newf(HAL_IN, &(slot->digout[8].data), comp_id,
+      gomc_log_infof(ppmc_log, "ppmc", "PPMC:  master DIO at # %d\n",bus->last_digout);
+      retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_IN, &(slot->digout[8].data), ppmc_bridge_inst->comp_id,
 				"ppmc.%d.dout.Estop.out", bus->busnum);
       if (retval != 0) {
 	return retval;
       }
       /* export parameter for inversion */
-      retval = hal_param_bit_newf(HAL_RW, &(slot->digout[8].invert), comp_id,
+      retval = gomc_hal_param_bit_newf(ppmc_hal, GOMC_HAL_RW, &(slot->digout[8].invert), ppmc_bridge_inst->comp_id,
 				  "ppmc.%d.dout.Estop.invert", bus->busnum);
       if (retval != 0) {
 	return retval;
       }
       slot->digout[8].invert = 0;
       add_wr_funct(write_PPMC_digouts, slot, block(DIO_DOUTA, DIO_ESTOP_OUT));
-      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as MASTER D Out\n");
+      gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting as MASTER D Out\n");
     }
     else {
       add_wr_funct(write_PPMC_digouts, slot, block(DIO_DOUTA, DIO_DOUTA));
       //add_wr_funct(write_PPMC_digouts, slot, DIO_DOUTA, DIO_ESTOP_OUT); // hack to keep slave boards in slave
-      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as SLAVE D Out\n");
+      gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting as SLAVE D Out\n");
       SelWrt(2,slot->slot_base+DIO_ESTOP_OUT,slot->port_addr);
     }
     return 0;
@@ -1897,33 +1944,33 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
     int retval, n;
     stepgen_t *sg;
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting step generators\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting step generators\n");
 
     /* do hardware init */
 
     /* allocate shared memory for the digital output data */
-    slot->stepgen = hal_malloc(sizeof(stepgens_t));
+    slot->stepgen = ppmc_hal->malloc(ppmc_hal->ctx, sizeof(stepgens_t));
     if (slot->stepgen == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: hal_malloc() failed\n");
+	gomc_log_errorf(ppmc_log, "ppmc",
+	    "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
 	return -1;
     }
     /* export params that apply to all four stepgens */
-    retval = hal_param_u32_newf(HAL_RW, &(slot->stepgen->setup_time_ns), comp_id,
+    retval = gomc_hal_param_u32_newf(ppmc_hal, GOMC_HAL_RW, &(slot->stepgen->setup_time_ns), ppmc_bridge_inst->comp_id,
 	"ppmc.%d.stepgen.%02d-%02d.setup-time-ns", bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     if (retval != 0) {
 	return retval;
     }
     /* 10uS default setup time */
     slot->stepgen->setup_time_ns = 10000;
-    retval = hal_param_u32_newf(HAL_RW, &(slot->stepgen->pulse_width_ns), comp_id,
+    retval = gomc_hal_param_u32_newf(ppmc_hal, GOMC_HAL_RW, &(slot->stepgen->pulse_width_ns), ppmc_bridge_inst->comp_id,
 	"ppmc.%d.stepgen.%02d-%02d.pulse-width-ns", bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     if (retval != 0) {
 	return retval;
     }
     /* 4uS default pulse width */
     slot->stepgen->pulse_width_ns = 4000;
-    retval = hal_param_u32_newf(HAL_RW, &(slot->stepgen->pulse_space_ns), comp_id,
+    retval = gomc_hal_param_u32_newf(ppmc_hal, GOMC_HAL_RW, &(slot->stepgen->pulse_space_ns), ppmc_bridge_inst->comp_id,
 	"ppmc.%d.stepgen.%02d-%02d.pulse-space-min-ns", bus->busnum, bus->last_stepgen, bus->last_stepgen+3);
     if (retval != 0) {
 	return retval;
@@ -1935,33 +1982,33 @@ static int export_USC_stepgen(slot_data_t *slot, bus_data_t *bus)
 	/* pointer to the stepgen struct */
 	sg = &(slot->stepgen->sg[n]);
 	/* enable pin */
-	retval = hal_pin_bit_newf(HAL_IN, &(sg->enable), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_IN, &(sg->enable), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.stepgen.%02d.enable", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* velocity command pin */
-	retval = hal_pin_float_newf(HAL_IN, &(sg->vel), comp_id,
+	retval = gomc_hal_pin_float_newf(ppmc_hal, GOMC_HAL_IN, &(sg->vel), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.stepgen.%02d.velocity", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* velocity scaling parameter */
-	retval = hal_param_float_newf(HAL_RW, &(sg->scale), comp_id,
+	retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(sg->scale), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.stepgen.%02d.scale", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	sg->scale = 1.0;
 	/* maximum velocity parameter */
-	retval = hal_param_float_newf(HAL_RW, &(sg->max_vel), comp_id,
+	retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(sg->max_vel), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.stepgen.%02d.max-vel", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	sg->max_vel = 0.0;
 	/* actual frequency parameter */
-	retval = hal_param_float_newf(HAL_RO, &(sg->freq), comp_id,
+	retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RO, &(sg->freq), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.stepgen.%02d.freq", bus->busnum, bus->last_stepgen);
 	if (retval != 0) {
 	    return retval;
@@ -1979,19 +2026,19 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
     int retval, n;
     pwmgen_t *pg;
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting PWM generators\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting PWM generators\n");
 
     /* do hardware init */
 
     /* allocate shared memory for the PWM generators */
-    slot->pwmgen = hal_malloc(sizeof(pwmgens_t));
+    slot->pwmgen = ppmc_hal->malloc(ppmc_hal->ctx, sizeof(pwmgens_t));
     if (slot->pwmgen == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: hal_malloc() failed\n");
+	gomc_log_errorf(ppmc_log, "ppmc",
+	    "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
 	return -1;
     }
     /* export params that apply to all four pwmgens */
-    retval = hal_param_float_newf(HAL_RW, &(slot->pwmgen->freq), comp_id,
+    retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(slot->pwmgen->freq), ppmc_bridge_inst->comp_id,
 	"ppmc.%d.pwm.%02d-%02d.freq", bus->busnum, bus->last_pwmgen, bus->last_pwmgen+3);
     if (retval != 0) {
 	return retval;
@@ -2003,46 +2050,46 @@ static int export_UPC_pwmgen(slot_data_t *slot, bus_data_t *bus)
 	/* pointer to the pwmgen struct */
 	pg = &(slot->pwmgen->pg[n]);
 	/* enable pin */
-	retval = hal_pin_bit_newf(HAL_IN, &(pg->enable), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_IN, &(pg->enable), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.pwm.%02d.enable", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* value command pin */
-	retval = hal_pin_float_newf(HAL_IN, &(pg->value), comp_id,
+	retval = gomc_hal_pin_float_newf(ppmc_hal, GOMC_HAL_IN, &(pg->value), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.pwm.%02d.value", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* output scaling parameter */
-	retval = hal_param_float_newf(HAL_RW, &(pg->scale), comp_id,
+	retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(pg->scale), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.pwm.%02d.scale", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	pg->scale = 1.0;
 	/* maximum duty cycle parameter */
-	retval = hal_param_float_newf(HAL_RW, &(pg->max_dc), comp_id,
+	retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(pg->max_dc), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.pwm.%02d.max-dc", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	pg->max_dc = 1.0;
 	/* minimum duty cycle parameter */
-	retval = hal_param_float_newf(HAL_RW, &(pg->min_dc), comp_id,
+	retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(pg->min_dc), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.pwm.%02d.min-dc", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	pg->min_dc = 0.0;
 	/* actual duty cycle parameter */
-	retval = hal_param_float_newf(HAL_RO, &(pg->duty_cycle), comp_id,
+	retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RO, &(pg->duty_cycle), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.pwm.%02d.duty-cycle", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* bootstrap mode parameter */
-	retval = hal_param_bit_newf(HAL_RW, &(pg->bootstrap), comp_id,
+	retval = gomc_hal_param_bit_newf(ppmc_hal, GOMC_HAL_RW, &(pg->bootstrap), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.pwm.%02d.bootstrap", bus->busnum, bus->last_pwmgen);
 	if (retval != 0) {
 	    return retval;
@@ -2062,15 +2109,15 @@ static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
     int retval, n;
     DAC_t *pg;
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting PPMC DAC\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC:  exporting PPMC DAC\n");
 
     /* do hardware init */
 
     /* allocate shared memory for the DAC */
-    slot->DAC = hal_malloc(sizeof(DACs_t));
+    slot->DAC = ppmc_hal->malloc(ppmc_hal->ctx, sizeof(DACs_t));
     if (slot->DAC == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: hal_malloc() failed\n");
+	gomc_log_errorf(ppmc_log, "ppmc",
+	    "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
 	return -1;
     }
     /* export per-DAC pins and params, and set initial values */
@@ -2078,13 +2125,13 @@ static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
 	/* pointer to the DAC struct */
 	pg = &(slot->DAC->pg[n]);
 	/* value command pin */
-	retval = hal_pin_float_newf(HAL_IN, &(pg->value), comp_id,
+	retval = gomc_hal_pin_float_newf(ppmc_hal, GOMC_HAL_IN, &(pg->value), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.DAC.%02d.value", bus->busnum, bus->last_DAC);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* output scaling parameter */
-	retval = hal_param_float_newf(HAL_RW, &(pg->scale), comp_id,
+	retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(pg->scale), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.DAC.%02d.scale", bus->busnum, bus->last_DAC);
 	if (retval != 0) {
 	    return retval;
@@ -2116,7 +2163,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 {
   int retval, n, m;
     
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: exporting encoder pins / params\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC: exporting encoder pins / params\n");
 
     /* do hardware init */
     /* clear encoder control register */
@@ -2151,10 +2198,10 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
     SelWrt(0x00,slot->slot_base+ENCINDX, slot->port_addr);
 
     /* allocate shared memory for the encoder data */
-    slot->encoder = hal_malloc(4 * sizeof(encoder_t));
+    slot->encoder = ppmc_hal->malloc(ppmc_hal->ctx, 4 * sizeof(encoder_t));
     if (slot->encoder == 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "PPMC: ERROR: hal_malloc() failed\n");
+        gomc_log_errorf(ppmc_log, "ppmc",
+                        "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
         return -1;
     }
     slot->encoder[0].indres = 0;  /* clear reset-on-index reg copy */
@@ -2163,59 +2210,59 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
       switch (slot->enc_freq) {
       case 1:
 	m = 0;
-	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: setting encoder clock to 1 MHz.\n");
+	gomc_log_infof(ppmc_log, "ppmc", "PPMC: setting encoder clock to 1 MHz.\n");
 	break;
       case 2:
 	m = 1;
-	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: setting encoder clock to 2.5 MHz.\n");
+	gomc_log_infof(ppmc_log, "ppmc", "PPMC: setting encoder clock to 2.5 MHz.\n");
 	break;
       case 5:
 	m = 2;
-	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: setting encoder clock to 5 MHz.\n");
+	gomc_log_infof(ppmc_log, "ppmc", "PPMC: setting encoder clock to 5 MHz.\n");
 	break;
       case 10:
 	m = 3;
-	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: setting encoder clock to 10 MHz.\n");
+	gomc_log_infof(ppmc_log, "ppmc", "PPMC: setting encoder clock to 10 MHz.\n");
 	break;
       default:
 	m = 0;
-	rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: invalid encoder clock setting.\n");
+	gomc_log_errorf(ppmc_log, "ppmc", "PPMC: invalid encoder clock setting.\n");
 	break;
       }
       SelWrt(m, slot->slot_base+ENCCLOCK, slot->port_addr);  // make the setting
     }
     for ( n = 0 ; n < 4 ; n++ ) {
         /* scale input parameter */
-        retval = hal_param_float_newf(HAL_RW, &(slot->encoder[n].scale), comp_id,
+        retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(slot->encoder[n].scale), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.encoder.%02d.scale", bus->busnum, bus->last_encoder);
         if (retval != 0) {
             return retval;
         }
         /* scaled encoder position */
-        retval = hal_pin_float_newf(HAL_OUT, &(slot->encoder[n].position), comp_id,
+        retval = gomc_hal_pin_float_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->encoder[n].position), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.encoder.%02d.position", bus->busnum, bus->last_encoder);
         if (retval != 0) {
             return retval;
         }
 	/* raw encoder position */
-	retval = hal_pin_s32_newf(HAL_OUT, &(slot->encoder[n].count), comp_id,
+	retval = gomc_hal_pin_s32_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->encoder[n].count), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.encoder.%02d.count", bus->busnum, bus->last_encoder);
 	if (retval != 0) {
 		return retval;
 	}
 	/* raw encoder delta */
-	retval = hal_pin_s32_newf(HAL_OUT, &(slot->encoder[n].delta), comp_id,
+	retval = gomc_hal_pin_s32_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->encoder[n].delta), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.encoder.%02d.delta", bus->busnum, bus->last_encoder);
 	if (retval != 0) {
 		return retval;
 	}
 	/* encoder index bit */
-	retval = hal_pin_bit_newf(HAL_OUT, &(slot->encoder[n].index), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->encoder[n].index), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.encoder.%02d.index", bus->busnum, bus->last_encoder);
 	if (retval != 0) {
 		return retval;
 	}
-	retval = hal_pin_float_newf(HAL_OUT, &(slot->encoder[n].vel), comp_id,
+	retval = gomc_hal_pin_float_newf(ppmc_hal, GOMC_HAL_OUT, &(slot->encoder[n].vel), ppmc_bridge_inst->comp_id,
 	    "ppmc.%d.encoder.%02d.velocity",bus->busnum,bus->last_encoder);
 	if (retval != 0) {
 	  return retval;
@@ -2224,7 +2271,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	  /* encoder index enable bit */
 	  /* if the ver of the board firmware is >= 2 then the board supports
 	     this function, so export the pin */
-	  retval = hal_pin_bit_newf(HAL_IO, &(slot->encoder[n].index_enable), comp_id,
+	  retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_IO, &(slot->encoder[n].index_enable), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.encoder.%02d.index-enable", bus->busnum, bus->last_encoder);
 	  if (retval != 0) {
 	    return retval;
@@ -2232,7 +2279,7 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	  if (slot->use_timestamp) {
 	    /* encoder time stamp function / velocity estimation */
 	    /* only implemented on latest UPC right now */
-	    retval = hal_param_float_newf(HAL_RW, &(slot->encoder[n].min_speed), comp_id,
+	    retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(slot->encoder[n].min_speed), ppmc_bridge_inst->comp_id,
 		   "ppmc.%d.encoder.%02d.min-speed-estimate", bus->busnum, bus->last_encoder);
 	    if (retval != 0) {
 	      return retval;
@@ -2262,15 +2309,15 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
     if (slot->id == 0x40) n=1;
     if (slot->id == 0x50 && slot->ver >= 2) n=1;
     if ( n == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	gomc_log_errorf(ppmc_log, "ppmc",
 	    "PPMC: ERROR: board firmware doesn't support 'extra' port\n");
 	return -1;
     }
     /* allocate shared memory for the DAC */
-    slot->extra = hal_malloc(sizeof(extra_t));
+    slot->extra = ppmc_hal->malloc(ppmc_hal->ctx, sizeof(extra_t));
     if (slot->extra == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: hal_malloc() failed\n");
+	gomc_log_errorf(ppmc_log, "ppmc",
+	    "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
 	return -1;
     }
     slot->extra_mode = EXTRA_DAC;
@@ -2278,13 +2325,13 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
     /* pointer to the DAC struct */
     pg = &(slot->extra->dac);
     /* value command pin */
-    retval = hal_pin_float_newf(HAL_IN, &(pg->value), comp_id,
+    retval = gomc_hal_pin_float_newf(ppmc_hal, GOMC_HAL_IN, &(pg->value), ppmc_bridge_inst->comp_id,
 	"ppmc.%d.DAC8.%02d.value", bus->busnum, bus->last_extraDAC);
     if (retval != 0) {
 	return retval;
     }
     /* output scaling parameter */
-    retval = hal_param_float_newf(HAL_RW, &(pg->scale), comp_id,
+    retval = gomc_hal_param_float_newf(ppmc_hal, GOMC_HAL_RW, &(pg->scale), ppmc_bridge_inst->comp_id,
 	"ppmc.%d.DAC8.%02d.scale", bus->busnum, bus->last_extraDAC);
     if (retval != 0) {
 	return retval;
@@ -2298,6 +2345,7 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
 
  int export_timestamp(slot_data_t *slot, bus_data_t *bus)
 {
+    (void)bus;
     int n;
 
     /* does the board have the timestamp feature? */
@@ -2306,11 +2354,11 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
     n=0;
     if ((slot->id == 0x10 || slot->id == 0x50) && slot->ver >= 4) n=1;
     if ( n == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	gomc_log_errorf(ppmc_log, "ppmc",
 	    "PPMC: ERROR: board firmware doesn't support encoder timestamp.\n");
 	return -1;
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: exporting encoder timestamp pins\n");
+    gomc_log_infof(ppmc_log, "ppmc", "PPMC: exporting encoder timestamp pins\n");
 
     slot->use_timestamp = 1;    /* tell encoder function to process timestamp */
     return 0;
@@ -2326,28 +2374,28 @@ static int export_extra_dout(slot_data_t *slot, bus_data_t *bus)
     if (slot->id == 0x40) n=1;
     if (slot->id == 0x50 && slot->ver >= 2) n=1;
     if ( n == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	gomc_log_errorf(ppmc_log, "ppmc",
 	    "PPMC: ERROR: board firmware doesn't support 'extra' port\n");
 	return -1;
     }
     /* allocate shared memory for the douts */
-    slot->extra = hal_malloc(sizeof(extra_t));
+    slot->extra = ppmc_hal->malloc(ppmc_hal->ctx, sizeof(extra_t));
     if (slot->extra == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "PPMC: ERROR: hal_malloc() failed\n");
+	gomc_log_errorf(ppmc_log, "ppmc",
+	    "PPMC: ERROR: ppmc_hal->malloc(ppmc_hal->ctx, ) failed\n");
 	return -1;
     }
     slot->extra_mode = EXTRA_DOUT;
     for ( n = 0 ; n < 8 ; n++ ) {
       pg = &(slot->extra->douts[n]);
 	/* export pin for output data */
-	retval = hal_pin_bit_newf(HAL_IN, &(pg->data), comp_id,
+	retval = gomc_hal_pin_bit_newf(ppmc_hal, GOMC_HAL_IN, &(pg->data), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.dout.%02d.out", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* export parameter for inversion */
-	retval = hal_param_bit_newf(HAL_RW, &(pg->invert), comp_id,
+	retval = gomc_hal_param_bit_newf(ppmc_hal, GOMC_HAL_RW, &(pg->invert), ppmc_bridge_inst->comp_id,
 		"ppmc.%d.dout.%02d.invert", bus->busnum, bus->last_digout);
 	if (retval != 0) {
 	    return retval;
@@ -2367,8 +2415,8 @@ static int export_extra_dout(slot_data_t *slot, bus_data_t *bus)
 #if 0  /* FIXME not used */
 static void BusReset(unsigned int port_addr)
 {
-  rtapi_outb(0,CONTROLPORT(port_addr));
-  rtapi_outb(4,CONTROLPORT(port_addr));
+  outb(0,CONTROLPORT(port_addr));
+  outb(4,CONTROLPORT(port_addr));
   return;
 }
 #endif
@@ -2378,7 +2426,7 @@ static int ClrTimeout(unsigned int port_addr)
 {
     unsigned char r;
 
-    r = rtapi_inb(STATUSPORT(port_addr));
+    r = inb(STATUSPORT(port_addr));
     
     if  (!(r & 0x01)) {
 	return 0;
@@ -2387,9 +2435,9 @@ static int ClrTimeout(unsigned int port_addr)
 /* rtapi_print("EPP Bus Timeout!\n" ); */
     /* To clear timeout some chips require double read */
 /*    BusReset(port_addr);  don't do this, it resets all registers in PPMC boards!!  */
-    r = rtapi_inb(STATUSPORT(port_addr));
-    rtapi_outb(r | 0x01, STATUSPORT(port_addr)); /* Some reset by writing 1 */
-    r = rtapi_inb(STATUSPORT(port_addr));
+    r = inb(STATUSPORT(port_addr));
+    outb(r | 0x01, STATUSPORT(port_addr)); /* Some reset by writing 1 */
+    r = inb(STATUSPORT(port_addr));
 
     return !(r & 0x01);
 }
@@ -2401,15 +2449,15 @@ static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
     
     ClrTimeout(port_addr);
     /* set port direction to output */
-    rtapi_outb(0x04,CONTROLPORT(port_addr));
+    outb(0x04,CONTROLPORT(port_addr));
     /* write epp address to port */
-    rtapi_outb(epp_addr,ADDRPORT(port_addr));
-    if (epp_dir[currentbus] == 1) {
+    outb(epp_addr,ADDRPORT(port_addr));
+    if (ppmc_bridge_inst->epp_dir[ppmc_bridge_inst->currentbus] == 1) {
       /* set port direction to input */
-      rtapi_outb(0x24,CONTROLPORT(port_addr));
+      outb(0x24,CONTROLPORT(port_addr));
     }
     /* read data value */
-    b = rtapi_inb(DATAPORT(port_addr));
+    b = inb(DATAPORT(port_addr));
     return b;
 
 }
@@ -2419,7 +2467,7 @@ static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
 static unsigned short ReadMore(unsigned int port_addr)
 {
     unsigned char b;
-    b = rtapi_inb(DATAPORT(port_addr));
+    b = inb(DATAPORT(port_addr));
     return b;
 
 }
@@ -2429,11 +2477,11 @@ static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port
 {
     ClrTimeout(port_addr);
     /* set port direction to output */
-    rtapi_outb(0x04,CONTROLPORT(port_addr));
+    outb(0x04,CONTROLPORT(port_addr));
     /* write epp address to port */
-    rtapi_outb(epp_addr,ADDRPORT(port_addr));
+    outb(epp_addr,ADDRPORT(port_addr));
     /* write data to port */
-    rtapi_outb(byte,DATAPORT(port_addr));
+    outb(byte,DATAPORT(port_addr));
     return;
 }
 
@@ -2441,7 +2489,7 @@ static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port
    when hardware has auto-increment address cntr */
 static void WrtMore(unsigned char byte, unsigned int port_addr)
 {
-    rtapi_outb(byte,DATAPORT(port_addr));
+    outb(byte,DATAPORT(port_addr));
     return;
 }
 

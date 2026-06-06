@@ -1,3 +1,4 @@
+const void *hm2_log;
 /*
  * This is a component for hostmot2 over SPI for linuxcnc.
  * Copyright (c) 2024 B.Stultiens <lcnc@vagrearg.org>
@@ -21,9 +22,8 @@
 #include <string.h>
 #include <errno.h>
 
-#include <rtapi.h>
-#include <rtapi_app.h>
-#include <rtapi_slab.h>
+#include "gomc_env.h"
+#include "hm2_core_api.h"
 
 #define HM2_LLIO_NAME "hm2_spix"
 
@@ -32,11 +32,6 @@
 
 #include "llio_info.h"
 #include "spix.h"
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("B.Stultiens");
-MODULE_DESCRIPTION("Driver for HostMot2 devices connected via SPI");
-MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-7i90,7c80,7c81,7i43");
 
 #define NELEM(x)	(sizeof(x) / sizeof(*(x)))
 
@@ -58,6 +53,8 @@ typedef struct __rxref_t {
 	int		idx;		// Data position index into the board's rbuf data
 } rxref_t;
 
+struct hm2_spix_inst;
+
 /*
  * Our connected HM2 board data container
  */
@@ -68,10 +65,39 @@ typedef struct __spix_board_t {
 	buffer_t		rbuf;		// Queued reads buffer
 	buffer_t		rref;		// Queued read buffer references
 	const spix_port_t *port;	// The low-level hardware port
+	struct hm2_spix_inst *inst;	// Back-pointer to instance
 } spix_board_t;
 
-static spix_board_t boards[SPIX_MAX_BOARDS];	// Connected boards
-static int comp_id;				// Upstream assigned component ID
+/*
+ * Instance struct - all mutable state lives here.
+ */
+typedef struct hm2_spix_inst {
+	cmod_t			cmod;		// Embedded cmod (must be first for container_of)
+	const cmod_env_t *mod_env;
+	const hm2_core_callbacks_t *hm2_core;
+	int				comp_id;
+
+	spix_board_t	boards[SPIX_MAX_BOARDS];
+	const spix_driver_t *hwdriver;
+
+	// Parameters
+	char			*config[SPIX_MAX_BOARDS];
+	int				spiclk_rate[SPIX_MAX_BOARDS];
+	int				spiclk_rate_rd[SPIX_MAX_BOARDS];
+	const char		*force_driver;
+	int				spi_probe;
+	int				spi_noqueue;
+	int				spi_debug;
+	char			*spidev_path[SPIX_MAX_BOARDS];
+	int				spi_pull_miso;
+	int				spi_pull_mosi;
+	int				spi_pull_sclk;
+
+	// Inline storage for parsed string arguments
+	char			cfg_bufs[SPIX_MAX_BOARDS][256];
+	char			path_bufs[SPIX_MAX_BOARDS][256];
+	char			force_buf[256];
+} hm2_spix_inst_t;
 
 /*
  * Supported hardware drivers
@@ -89,8 +115,6 @@ static const spix_driver_t *drivers[] = {
 	&spix_driver_spidev,	// Default spidev driver as fallback
 };
 
-static const spix_driver_t *hwdriver;	// The active driver
-
 // The value of the cookie when read from the board. An actual cookie read
 // consists of four words. The fourth value is the idrom address, which may
 // vary per board.
@@ -101,77 +125,16 @@ static const uint32_t iocookie[3] = {
 	0x32544f4d	// 2TOM
 };
 
-/*
- * Configuration parameters forwarded to hostmot2 hm2_register() call
- */
-static char *config[SPIX_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, SPIX_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
-
-/*
- * SPI clock rates for read and write.
- */
-static int spiclk_rate[SPIX_MAX_BOARDS] = { 25000 };
-static int spiclk_rate_rd[SPIX_MAX_BOARDS];
-RTAPI_MP_ARRAY_INT(spiclk_rate, SPIX_MAX_BOARDS, "SPI clock rates in kHz (default 25000 kHz)")
-RTAPI_MP_ARRAY_INT(spiclk_rate_rd, SPIX_MAX_BOARDS, "SPI clock rates for reading in kHz (default same as spiclk_rate)")
-
-/*
- * Forcefully specify the hardware driver
- */
-static const char *force_driver = NULL;
-RTAPI_MP_STRING(force_driver, "Force one specific hardware driver (default empty, auto detecting hardware))")
-
-/*
- * Which SPI port(s) to probe
- */
-static int spi_probe = SPIX_PROBE_SPI0_CE0;
-RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe (default 1 (SPI0/CE0))")
-
-/*
- * Normally, all requests are queued if requested by upstream and sent in one
- * bulk transfer. This reduces overhead significantly. Disabling the queue make
- * each transfer visible and more easily debugable.
- */
-static int spi_noqueue = 0;
-RTAPI_MP_INT(spi_noqueue, "Disable queued SPI requests, use for debugging only (default 0 (off))")
-
-/*
- * Set the message level for debugging purpose. This has the (side-)effect that
- * all modules within this process will start spitting out messages at the
- * requested level.
- * The upstream message level is not touched if spi_debug == -1.
- */
-static int spi_debug = -1;
-RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)")
-
-/*
- * Spidev driver device node path overrides
- */
-static char *spidev_path[SPIX_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(spidev_path, SPIX_MAX_BOARDS, "The device node path override(s) for the spidev driver (default /dev/spidev{0.[01],1.[012]})")
-
-/*
- * We have these for compatibility with the hm2_rpspi driver. You can simply
- * change the driver name in the ini/hal files without having to switch
- * arguments.
- */
-static int spi_pull_miso = -1;
-static int spi_pull_mosi = -1;
-static int spi_pull_sclk = -1;
-RTAPI_MP_INT(spi_pull_miso, "Obsolete parameter")
-RTAPI_MP_INT(spi_pull_mosi, "Obsolete parameter")
-RTAPI_MP_INT(spi_pull_sclk, "Obsolete parameter")
-
 /*********************************************************************/
 /*
  * Buffer management for queued transfers.
  */
-static int buffer_check_room(buffer_t *b, size_t n, size_t elmsize)
+static int buffer_check_room(const gomc_rtapi_t *rtapi, buffer_t *b, size_t n, size_t elmsize)
 {
 	if(!b->ptr || !b->na) {
 		b->na = 64;	// Default to this many elements
 		b->n = 0;
-		b->ptr = rtapi_kmalloc(elmsize * b->na, RTAPI_GPF_KERNEL);
+		b->ptr = rtapi->calloc(rtapi->ctx, elmsize * b->na);
 		return b->ptr == NULL;
 	}
 
@@ -179,7 +142,7 @@ static int buffer_check_room(buffer_t *b, size_t n, size_t elmsize)
 		do {
 			b->na *= 2;	// Double storage capacity
 		} while(b->n + n > b->na);	// Until we have enough room
-		void *p = rtapi_krealloc(b->ptr, elmsize * b->na, RTAPI_GPF_KERNEL);
+		void *p = rtapi->realloc(rtapi->ctx, b->ptr, elmsize * b->na);
 		if(!p)
 			return 1;
 		b->ptr = p;
@@ -187,10 +150,10 @@ static int buffer_check_room(buffer_t *b, size_t n, size_t elmsize)
 	return 0;
 }
 
-static void buffer_free(buffer_t *b)
+static void buffer_free(const gomc_rtapi_t *rtapi, buffer_t *b)
 {
 	if(b->ptr) {
-		rtapi_kfree(b->ptr);
+		rtapi->free(rtapi->ctx, b->ptr);
 		b->ptr = NULL;
 		b->n = b->na = 0;
 	}
@@ -201,7 +164,7 @@ static void buffer_free(buffer_t *b)
  * HM2 interface: Write buffer to SPI
  * Writes the buffer to SPI, prepended with a command word.
  */
-static int hm2_spix_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size)
+static int hm2_spix_write(hm2_lowlevel_io_t *llio, uint32_t addr, const void *buffer, int size)
 {
 	spix_board_t *brd = (spix_board_t *)llio;
 	int txlen = size / sizeof(uint32_t);	// uint32_t words to transmit
@@ -222,7 +185,7 @@ static int hm2_spix_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *b
  * Reads from SPI after sending the appropriate command. Sends one word with
  * the command followed by writing zeros while reading.
  */
-static int hm2_spix_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size)
+static int hm2_spix_read(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer, int size)
 {
 	spix_board_t *brd = (spix_board_t *)llio;
 	int rxlen = size / sizeof(uint32_t);	// uint32_t words to receive
@@ -245,7 +208,7 @@ static int hm2_spix_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, 
  * HM2 interface: Queue read
  * Collects the read address and buffer for bulk-read later on.
  */
-static int hm2_spix_queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size)
+static int hm2_spix_queue_read(hm2_lowlevel_io_t *llio, uint32_t addr, void *buffer, int size)
 {
 	spix_board_t *brd = (spix_board_t *)llio;
 	int rxlen = size / sizeof(uint32_t);
@@ -255,12 +218,12 @@ static int hm2_spix_queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *bu
 	if((size % sizeof(uint32_t)) || rxlen + 1 > SPIX_MAX_MSG)
 		return 0;	// -EINVAL;
 
-	if(buffer_check_room(&brd->rbuf, rxlen + 1, sizeof(uint32_t))) {
+	if(buffer_check_room(llio->rtapi, &brd->rbuf, rxlen + 1, sizeof(uint32_t))) {
 		LL_ERR("Failed to allocate read buffer memory\n");
 		return 0;	// -ENOMEM;
 	}
 
-	if(buffer_check_room(&brd->rref, 1, sizeof(rxref_t))) {
+	if(buffer_check_room(llio->rtapi, &brd->rref, 1, sizeof(rxref_t))) {
 		LL_ERR("Failed to allocate read queue reference memory\n");
 		return 0;	// -ENOMEM;
 	}
@@ -331,7 +294,7 @@ static int hm2_spix_receive_queued_reads(hm2_lowlevel_io_t *llio)
  * HM2 interface: Queue write
  * Collects the write address and data for bulk-write later on.
  */
-static int hm2_spix_queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size)
+static int hm2_spix_queue_write(hm2_lowlevel_io_t *llio, uint32_t addr, const void *buffer, int size)
 {
 	spix_board_t *brd = (spix_board_t *)llio;
 	int txlen = size / sizeof(uint32_t);
@@ -341,7 +304,7 @@ static int hm2_spix_queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const v
 	if((size % sizeof(uint32_t)) || txlen + 1 > SPIX_MAX_MSG)
 		return 0;	// -EINVAL;
 
-	if(buffer_check_room(&brd->wbuf, txlen + 1, sizeof(uint32_t))) {
+	if(buffer_check_room(llio->rtapi, &brd->wbuf, txlen + 1, sizeof(uint32_t))) {
 		LL_ERR("Failed to allocate write buffer memory\n");
 		return 0;	// -ENOMEM;
 	}
@@ -458,7 +421,7 @@ static int32_t check_cookie(spix_board_t *board)
 }
 
 /*************************************************/
-static int probe_board(spix_board_t *board)
+static int probe_board(hm2_spix_inst_t *inst, spix_board_t *board)
 {
 	const spix_port_t *port = board->port;
 	int32_t ret;
@@ -483,8 +446,8 @@ static int probe_board(spix_board_t *board)
 
 	LL_INFO("%s: Base: %s.%d\n", port->name, base, board->nr);
 
-	rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "%s.%d", base, board->nr);
-	board->llio.comp_id = comp_id;
+	snprintf(board->llio.name, sizeof(board->llio.name), "%s.%d", base, board->nr);
+	board->llio.comp_id = inst->comp_id;
 	board->llio.private = board;	// Self reference
 
 	return 0;
@@ -500,7 +463,7 @@ ssize_t spix_read_file(const char *fname, void *buffer, size_t bufsize)
 
 	memset(buffer, 0, bufsize);
 
-	if((fd = rtapi_open_as_root(fname, O_RDONLY)) < 0) {
+	if((fd = open(fname, O_RDONLY)) < 0) {
 		int e = errno;
 		LL_ERR("Cannot open '%s' for read (errno=%d: %s)\n", fname, e, strerror(e));
 		return -e;
@@ -525,7 +488,7 @@ ssize_t spix_read_file(const char *fname, void *buffer, size_t bufsize)
 
 /*************************************************/
 
-static int spix_setup(void)
+static int spix_setup(hm2_spix_inst_t *inst)
 {
 	int i, j;
 	char buf[256];
@@ -537,32 +500,32 @@ static int spix_setup(void)
 	// Setup the clock rate settings from the arguments.
 	// The driver is responsible for actual checking min/max clock frequency.
 	for(i = 0; i < SPIX_MAX_BOARDS; i++) {
-		if(spiclk_rate[i] < 1)	// If not specified
-			spiclk_rate[i] = spiclk_rate[0];	// use first
+		if(inst->spiclk_rate[i] < 1)	// If not specified
+			inst->spiclk_rate[i] = inst->spiclk_rate[0];	// use first
 
-		if(spiclk_rate_rd[i] < 1)	// If not specified
-			spiclk_rate_rd[i] = spiclk_rate[i];	// use write rate as read rate
+		if(inst->spiclk_rate_rd[i] < 1)	// If not specified
+			inst->spiclk_rate_rd[i] = inst->spiclk_rate[i];	// use write rate as read rate
 
 	}
 
 	// Check if spi_pull_{miso,mosi,sclk} were set and warn if they were
-	if(spi_pull_miso != -1 || spi_pull_mosi != -1 || spi_pull_sclk != -1) {
+	if(inst->spi_pull_miso != -1 || inst->spi_pull_mosi != -1 || inst->spi_pull_sclk != -1) {
 		LL_WARN("Setting spi_pull_{miso,mosi,sclk} has no effect in the hm2_spix driver.\n");
 	}
 
-	if(spi_probe > (1 << SPIX_MAX_BOARDS) - 1) {
+	if(inst->spi_probe > (1 << SPIX_MAX_BOARDS) - 1) {
 		LL_WARN("Probing with spi_probe must not have flags larger than %d included; truncating.\n", 1 << (SPIX_MAX_BOARDS - 1));
-		spi_probe &= (1 << SPIX_MAX_BOARDS) - 1;
+		inst->spi_probe &= (1 << SPIX_MAX_BOARDS) - 1;
 	}
 
-	if(!spi_probe) {
+	if(!inst->spi_probe) {
 		LL_ERR("No SPI ports to probe (spi_probe is zero).\n");
 		return -EINVAL;
 	}
 
 	// Set process-level message level if requested
-	if(spi_debug >= RTAPI_MSG_NONE && spi_debug <= RTAPI_MSG_ALL)
-		rtapi_set_msg_level(spi_debug);
+	if(inst->spi_debug >= RTAPI_MSG_NONE && inst->spi_debug <= RTAPI_MSG_ALL)
+		(void)inst->spi_debug; // TODO: per-module log level
 
 	// Read the 'compatible' string-list from the device-tree
 	buflen = spix_read_file("/proc/device-tree/compatible", buf, sizeof(buf));
@@ -584,44 +547,44 @@ static int spix_setup(void)
 	}
 
 	// If the driver is forced, check if it actually exists
-	if(force_driver) {
-		for(i = 0; i < NELEM(drivers); i++) {
-			if(!strcmp(force_driver, drivers[i]->name))
+	if(inst->force_driver) {
+		for(i = 0; (size_t)i < NELEM(drivers); i++) {
+			if(!strcmp(inst->force_driver, drivers[i]->name))
 				break;
 		}
-		if(i >= NELEM(drivers)) {
-			LL_ERR("Unsupported hardware driver '%s' passed to force_driver option\n", force_driver);
+		if((size_t)i >= NELEM(drivers)) {
+			LL_ERR("Unsupported hardware driver '%s' passed to force_driver option\n", inst->force_driver);
 			return -ENODEV;
 		}
 	}
 
 	// Let each driver do a detect and stop when a match is found.
-	for(i = 0; i < NELEM(drivers); i++) {
-		if(force_driver && strcmp(force_driver, drivers[i]->name))
+	for(i = 0; (size_t)i < NELEM(drivers); i++) {
+		if(inst->force_driver && strcmp(inst->force_driver, drivers[i]->name))
 			continue;
 		if(!drivers[i]->detect(dtcs)) {
-			hwdriver = drivers[i];
+			inst->hwdriver = drivers[i];
 			break;
 		}
 	}
 
-	if(!hwdriver) {
-		if(force_driver) {
-			LL_ERR("Unsupported platform: '%s' for forced driver '%s'\n", buf, hwdriver->name);
+	if(!inst->hwdriver) {
+		if(inst->force_driver) {
+			LL_ERR("Unsupported platform: '%s' for forced driver '%s'\n", buf, inst->force_driver);
 		} else {
 			LL_ERR("Unsupported platform: '%s'\n", buf);
 		}
 		return -ENODEV;
 	}
 
-	if((i = hwdriver->setup(spi_probe)) < 0) {	// Let the hardware driver do its thing
+	if((i = inst->hwdriver->setup(inst->spi_probe)) < 0) {	// Let the hardware driver do its thing
 		LL_INFO("Failed to initialize hardware driver\n");
 		return i;
 	}
 
-	LL_INFO("Platform: '%s' (%s)\n", hwdriver->model, hwdriver->dtc);
+	LL_INFO("Platform: '%s' (%s)\n", inst->hwdriver->model, inst->hwdriver->dtc);
 
-	memset(boards, 0, sizeof(boards));
+	memset(inst->boards, 0, sizeof(inst->boards));
 
 	// Follows SPI0/CE0, SPI0/CE1, SPI1/CE0, SPI1/CE1 and SPI1/CE2
 	for(j = i = 0; i < SPIX_MAX_BOARDS; i++) {
@@ -629,7 +592,7 @@ static int spix_setup(void)
 		int err;
 		spix_args_t sa;
 
-		if(!(spi_probe & (1 << i)))		// Only probe if enabled
+		if(!(inst->spi_probe & (1 << i)))		// Only probe if enabled
 			continue;
 
 		// The clock is increased by 1 kHz to compensate for the truncation of
@@ -641,33 +604,34 @@ static int spix_setup(void)
 		// 33333 kHz, which got truncated. With compensation we use 33334 kHz
 		// as the rate and that gets rounded down to 33333 kHz in the
 		// calculation.
-		sa.clkw = (spiclk_rate[j] + 1) * 1000;
-		sa.clkr = (spiclk_rate_rd[j] + 1) * 1000;
-		sa.spidev = spidev_path[j];
-		if(NULL == (port = hwdriver->open(i, &sa))) {
+		sa.clkw = (inst->spiclk_rate[j] + 1) * 1000;
+		sa.clkr = (inst->spiclk_rate_rd[j] + 1) * 1000;
+		sa.spidev = inst->spidev_path[j];
+		if(NULL == (port = inst->hwdriver->open(i, &sa))) {
 			LL_INFO("Failed to open hardware port index %d\n", i);
 			return i;
 		}
 
 		LL_INFO("%s opened\n", port->name);
 
-		boards[j].nr = j;
-		boards[j].port = port;
-		boards[j].llio.read  = hm2_spix_read;
-		boards[j].llio.write = hm2_spix_write;
-		if(!spi_noqueue) {
-			boards[j].llio.queue_read  = hm2_spix_queue_read;
-			boards[j].llio.send_queued_reads  = hm2_spix_send_queued_reads;
-			boards[j].llio.receive_queued_reads  = hm2_spix_receive_queued_reads;
-			boards[j].llio.queue_write  = hm2_spix_queue_write;
-			boards[j].llio.send_queued_writes  = hm2_spix_send_queued_writes;
+		inst->boards[j].nr = j;
+		inst->boards[j].port = port;
+		inst->boards[j].inst = inst;
+		inst->boards[j].llio.read  = hm2_spix_read;
+		inst->boards[j].llio.write = hm2_spix_write;
+		if(!inst->spi_noqueue) {
+			inst->boards[j].llio.queue_read  = hm2_spix_queue_read;
+			inst->boards[j].llio.send_queued_reads  = hm2_spix_send_queued_reads;
+			inst->boards[j].llio.receive_queued_reads  = hm2_spix_receive_queued_reads;
+			inst->boards[j].llio.queue_write  = hm2_spix_queue_write;
+			inst->boards[j].llio.send_queued_writes  = hm2_spix_send_queued_writes;
 		}
 
-		if((err = probe_board(&boards[j])) < 0) {
+		if((err = probe_board(inst, &inst->boards[j])) < 0) {
 			return err;
 		}
 
-		if((err = hm2_register(&boards[j].llio, config[j])) < 0) {
+		if((err = inst->hm2_core->register_board(inst->hm2_core->ctx, &inst->boards[j].llio, inst->config[j])) < 0) {
 			LL_ERR("%s: hm2_register() failed.\n", port->name);
 			return err;
 		}
@@ -679,46 +643,120 @@ static int spix_setup(void)
 }
 
 /*************************************************/
-static void spix_cleanup(void)
+static void spix_cleanup(hm2_spix_inst_t *inst)
 {
 	int i;
 	// Cleanup memory allocations
 	for(i = 0; i < SPIX_MAX_BOARDS; i++) {
-		buffer_free(&boards[i].wbuf);
-		buffer_free(&boards[i].rbuf);
-		buffer_free(&boards[i].rref);
+		buffer_free(inst->mod_env->rtapi, &inst->boards[i].wbuf);
+		buffer_free(inst->mod_env->rtapi, &inst->boards[i].rbuf);
+		buffer_free(inst->mod_env->rtapi, &inst->boards[i].rref);
 	}
 
-	if(hwdriver) {
-		hwdriver->cleanup();
-		hwdriver = NULL;
+	if(inst->hwdriver) {
+		inst->hwdriver->cleanup();
+		inst->hwdriver = NULL;
 	}
 }
 
 /*************************************************/
-int rtapi_app_main()
+static void hm2_spix_destroy(cmod_t *self);
+
+static void hm2_spix_parse_argv(hm2_spix_inst_t *inst, int argc, const char **argv) {
+    int cfg_idx = 0, rate_idx = 0, raterd_idx = 0, path_idx = 0;
+
+    for (int i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "config=", 7) == 0 && cfg_idx < SPIX_MAX_BOARDS) {
+            strncpy(inst->cfg_bufs[cfg_idx], argv[i] + 7, sizeof(inst->cfg_bufs[0]) - 1);
+            inst->config[cfg_idx] = inst->cfg_bufs[cfg_idx];
+            cfg_idx++;
+        } else if (strncmp(argv[i], "spiclk_rate=", 12) == 0 && rate_idx < SPIX_MAX_BOARDS) {
+            inst->spiclk_rate[rate_idx] = simple_strtol(argv[i] + 12, NULL, 0);
+            rate_idx++;
+        } else if (strncmp(argv[i], "spiclk_rate_rd=", 15) == 0 && raterd_idx < SPIX_MAX_BOARDS) {
+            inst->spiclk_rate_rd[raterd_idx] = simple_strtol(argv[i] + 15, NULL, 0);
+            raterd_idx++;
+        } else if (strncmp(argv[i], "force_driver=", 13) == 0) {
+            strncpy(inst->force_buf, argv[i] + 13, sizeof(inst->force_buf) - 1);
+            inst->force_driver = inst->force_buf;
+        } else if (strncmp(argv[i], "spi_probe=", 10) == 0) {
+            inst->spi_probe = simple_strtol(argv[i] + 10, NULL, 0);
+        } else if (strncmp(argv[i], "spi_noqueue=", 12) == 0) {
+            inst->spi_noqueue = simple_strtol(argv[i] + 12, NULL, 0);
+        } else if (strncmp(argv[i], "spi_debug=", 10) == 0) {
+            inst->spi_debug = simple_strtol(argv[i] + 10, NULL, 0);
+        } else if (strncmp(argv[i], "spidev_path=", 12) == 0 && path_idx < SPIX_MAX_BOARDS) {
+            strncpy(inst->path_bufs[path_idx], argv[i] + 12, sizeof(inst->path_bufs[0]) - 1);
+            inst->spidev_path[path_idx] = inst->path_bufs[path_idx];
+            path_idx++;
+        } else if (strncmp(argv[i], "spi_pull_miso=", 14) == 0) {
+            inst->spi_pull_miso = simple_strtol(argv[i] + 14, NULL, 0);
+        } else if (strncmp(argv[i], "spi_pull_mosi=", 14) == 0) {
+            inst->spi_pull_mosi = simple_strtol(argv[i] + 14, NULL, 0);
+        } else if (strncmp(argv[i], "spi_pull_sclk=", 14) == 0) {
+            inst->spi_pull_sclk = simple_strtol(argv[i] + 14, NULL, 0);
+        }
+    }
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
 {
+	const gomc_hal_t *hal = env->hal;
+	hm2_log = env->log;
 	int ret;
 
-	if((comp_id = ret = hal_init(HM2_LLIO_NAME)) < 0)
+	hm2_spix_inst_t *inst = env->rtapi->calloc(env->rtapi->ctx, sizeof(*inst));
+	if (!inst)
+		return -ENOMEM;
+
+	// Set defaults
+	inst->spiclk_rate[0] = 25000;
+	inst->spi_probe = SPIX_PROBE_SPI0_CE0;
+	inst->spi_debug = -1;
+	inst->spi_pull_miso = -1;
+	inst->spi_pull_mosi = -1;
+	inst->spi_pull_sclk = -1;
+
+	hm2_spix_parse_argv(inst, argc, argv);
+
+	inst->mod_env = env;
+
+	inst->hm2_core = hm2_core_api_get(env->api, "hostmot2");
+	if (!inst->hm2_core) {
+		gomc_log_errorf(env->log, name, "hm2_spix: hostmot2 core API not found (is hostmot2 loaded?)\n");
+		inst->mod_env->rtapi->free(inst->mod_env->rtapi->ctx, inst);
+		return -1;
+	}
+
+	ret = hal->init(hal->ctx, HM2_LLIO_NAME, env->dl_handle, GOMC_HAL_COMP_REALTIME);
+	if (ret < 0) goto fail;
+	inst->comp_id = ret;
+
+	if((ret = spix_setup(inst)) < 0)
 		goto fail;
 
-	if((ret = spix_setup()) < 0)
-		goto fail;
+	hal->ready(hal->ctx, inst->comp_id);
 
-	hal_ready(comp_id);
+	inst->cmod.Destroy = hm2_spix_destroy;
+	inst->cmod.priv = inst;
+	*out = &inst->cmod;
 	return 0;
 
 fail:
-	spix_cleanup();
+	spix_cleanup(inst);
+	inst->mod_env->rtapi->free(inst->mod_env->rtapi->ctx, inst);
 	return ret;
 }
 
 /*************************************************/
-void rtapi_app_exit(void)
+static void hm2_spix_destroy(cmod_t *self)
 {
-	spix_cleanup();
-	hal_exit(comp_id);
+	hm2_spix_inst_t *inst = self->priv;
+	const gomc_hal_t *hal = inst->mod_env->hal;
+	spix_cleanup(inst);
+	hal->exit(hal->ctx, inst->comp_id);
+	inst->mod_env->rtapi->free(inst->mod_env->rtapi->ctx, inst);
 }
 
 // vim: ts=4

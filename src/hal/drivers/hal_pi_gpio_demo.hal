@@ -1,7 +1,7 @@
 
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
-loadrt charge_pump
+load charge_pump [charge_pump.0]
 
 # we need a dir mask and an exclude mask
 #

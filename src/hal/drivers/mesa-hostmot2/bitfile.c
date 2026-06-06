@@ -1,3 +1,4 @@
+static const void *hm2_log;
 
 //
 //    Copyright (C) 2007-2008 Sebastian Kuzminsky
@@ -23,13 +24,8 @@
 //
 
 
-#include <rtapi_firmware.h>
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
 
-#include "hal.h"
 
 #include "hostmot2.h"
 #include "bitfile.h"
@@ -38,7 +34,7 @@
 
 
 static int bitfile_do_small_chunk(const struct rtapi_firmware *fw, bitfile_chunk_t *chunk, int *i) {
-    if (*i + 2 > fw->size) {
+    if ((size_t)(*i + 2) > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
         return -EFAULT;
     }
@@ -46,7 +42,7 @@ static int bitfile_do_small_chunk(const struct rtapi_firmware *fw, bitfile_chunk
     chunk->size = (fw->data[*i] * 256) + fw->data[*i + 1];
     (*i) += 2;
 
-    if (*i + chunk->size > fw->size) {
+    if ((size_t)(*i + chunk->size) > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
         return -EFAULT;
     }
@@ -67,7 +63,7 @@ static int bitfile_do_small_chunk(const struct rtapi_firmware *fw, bitfile_chunk
 
 
 static int bitfile_do_big_chunk(const struct rtapi_firmware *fw, bitfile_chunk_t *chunk, int *i) {
-    if (*i + 4 > fw->size) {
+    if ((size_t)(*i + 4) > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
         return -EFAULT;
     }
@@ -75,7 +71,7 @@ static int bitfile_do_big_chunk(const struct rtapi_firmware *fw, bitfile_chunk_t
     chunk->size = ((uint32_t)fw->data[*i] << 24) + ((uint32_t)fw->data[*i + 1] << 16) + ((uint32_t)fw->data[*i + 2] << 8) + fw->data[*i + 3];
     (*i) += 4;
 
-    if (*i + chunk->size > fw->size) {
+    if ((size_t)(*i + chunk->size) > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
         return -EFAULT;
     }
@@ -95,7 +91,7 @@ static int bitfile_parse_and_verify_chunk(const struct rtapi_firmware *fw, bitfi
     tag = fw->data[*i];
     (*i) ++;
 
-    if ((*i) > fw->size) {
+    if ((size_t)(*i) > fw->size) {
         HM2_PRINT_NO_LL("bitfile chunk '%c' size fell off the end!\n", tag);
         return -EFAULT;
     }
@@ -188,7 +184,7 @@ int bitfile_parse_and_verify(const struct rtapi_firmware *fw, bitfile_t *bitfile
     // parse and verify all the chunks
     //
 
-    while (i < fw->size) {
+    while ((size_t)i < fw->size) {
         r = bitfile_parse_and_verify_chunk(fw, bitfile, &i);
         if (r != 0) return r;
     }
@@ -222,8 +218,8 @@ int bitfile_parse_and_verify(const struct rtapi_firmware *fw, bitfile_t *bitfile
 // is based on the serial interface, and the data needs to be reversed
 //
 
-rtapi_u8 bitfile_reverse_bits(rtapi_u8 data) {
-    static const rtapi_u8 swaptab[256] = {
+uint8_t bitfile_reverse_bits(uint8_t data) {
+    static const uint8_t swaptab[256] = {
 	0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
 	0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8, 0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8,
 	0x04, 0x84, 0x44, 0xC4, 0x24, 0xA4, 0x64, 0xE4, 0x14, 0x94, 0x54, 0xD4, 0x34, 0xB4, 0x74, 0xF4,

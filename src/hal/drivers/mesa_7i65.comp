@@ -23,7 +23,6 @@ param rw bit is-bipolar-# [8] = 1 """Set this value to TRUE for a plus/minus
 "scale" output. Set to 0 for a 0-"scale" output""";
 
 option extra_setup yes;
-option count_function yes;
 
 variable unsigned firstrun;
 
@@ -43,15 +42,29 @@ variable unsigned *AD7329_read[8];
 license "GPL";
 author "Andy Pugh / Cliff Blackburn";
 
-include <hostmot2-serial.h>;
+gmi_consume hm2_serial from hostmot2;
+
+modparam string bspi_chan "BSPI channel name (e.g. hm2_5i23.0.bspi.0)";
+
 ;;
 
-// to parse the modparam
-char *bspi_chans[16] = {0,};
-RTAPI_MP_ARRAY_STRING(bspi_chans, 16, "BSPI Channel names");
+#include <errno.h>
 
-static int read(void *subdata) {
-    struct __comp_state *__comp_inst = subdata;
+/* rtapi compat macros for cmod — map to gomc_log */
+#define RTAPI_MSG_ERR   3
+#define RTAPI_MSG_WARN  2
+#define RTAPI_MSG_INFO  1
+#define rtapi_print_msg(level, fmt, ...) do { \
+    if ((level) >= RTAPI_MSG_ERR) GOMC_LOG_ERR(fmt, ##__VA_ARGS__); \
+    else if ((level) >= RTAPI_MSG_WARN) GOMC_LOG_WARN(fmt, ##__VA_ARGS__); \
+    else GOMC_LOG_INFO(fmt, ##__VA_ARGS__); \
+} while(0)
+
+/* Convenience macro for accessing the consumed hm2_serial API */
+#define HM2_SERIAL (__comp_inst->__gmi_hm2_serial)
+
+static int do_read(void *subdata) {
+    inst_t *__comp_inst = subdata;
     int i;
     double aout[8];
 
@@ -159,31 +172,31 @@ static int read(void *subdata) {
 
 EXTRA_SETUP(){
     int i, r;
-    char *name = bspi_chans[extra_arg]; // This is the string which identifies board and instance
+    const char *chan_name = bspi_chan; // modparam identifies board and instance
 
     firstrun = true;
     // Set up channel descriptors
-    //hm2_bspi_setup_chan(name, chan, cs, bits, mhz, delay(ns), cpol, cpha, /clear, /echo, samplelate)
+    //bspi_setup_chan(name, chan, cs, bits, mhz, delay(ns), cpol, cpha, /clear, /echo, samplelate)
     // CS0 loopback Echo, CS0, ~ 4 MHz, CPOL, 32 bits
-    r = hm2_bspi_setup_chan(name, 0, 0, 32, 4, 0, 1, 0, 0, 0, 0);
+    r = HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 0, 0, 32, 4, 0, 1, 0, 0, 0, 0);
     // CS1 AD5754 No echo, CS1, 25 MHz, CPOL, 24 bits
-    r += hm2_bspi_setup_chan(name, 1, 1, 24, 25, 0, 1, 0, 0, 1, 0);
+    r += HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 1, 1, 24, 25, 0, 1, 0, 0, 1, 0);
     // CS2 AD5754 No echo, CS2, 25 MHz, CPOL, 24 bits
-    r += hm2_bspi_setup_chan(name, 2, 2, 24, 25, 0, 1, 0, 0, 1, 0);
+    r += HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 2, 2, 24, 25, 0, 1, 0, 0, 1, 0);
     // CS3 AD7329 Echo, CS3, ~6 MHz, CPOL, 16 bits
-    r += hm2_bspi_setup_chan(name, 3, 3, 16, 6, 0, 1, 0, 0, 0, 0);
+    r += HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 3, 3, 16, 6, 0, 1, 0, 0, 0, 0);
     // CS4 CPLD Echo, CS4, ~6 MHz, CPOL, 12 bits
-    r += hm2_bspi_setup_chan(name, 4, 4, 12, 6, 0, 1, 0, 0, 0, 0);
+    r += HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 4, 4, 12, 6, 0, 1, 0, 0, 0, 0);
     // CS5 Not Used No echo, CS5, 25 MHz, 2 bits
-    r += hm2_bspi_setup_chan(name, 5, 5, 2, 25, 0, 1, 0, 0, 1, 0);
+    r += HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 5, 5, 2, 25, 0, 1, 0, 0, 1, 0);
     // CS6 Not Used No echo, CS5, 25 MHz, 2 bits
-    r += hm2_bspi_setup_chan(name, 6, 6, 2, 25, 0, 1, 0, 0, 1, 0);
+    r += HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 6, 6, 2, 25, 0, 1, 0, 0, 1, 0);
     // CS7 EEPROM Echo, CS7, ~4 MHz, CPOL,CPHA, 8 bits
-    r += hm2_bspi_setup_chan(name, 7, 7, 8, 4, 0, 1, 1, 0, 0, 0);
+    r += HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 7, 7, 8, 4, 0, 1, 1, 0, 0, 0);
     // CS7 EEPROM No Echo, CS7, ~4 MHz, CPOL,CPHA, 8 bits
-    r += hm2_bspi_setup_chan(name, 8, 7, 8, 4, 0, 1, 1, 0, 1, 0);
+    r += HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 8, 7, 8, 4, 0, 1, 1, 0, 1, 0);
     // CS7 EEPROM No Echo, DontClearFrame, CS7, ~4 MHz,CPOL,CPHA, 8 bits
-    r += hm2_bspi_setup_chan(name, 9, 7, 8, 4, 0, 1, 1, 1, 1, 0);
+    r += HM2_SERIAL->bspi_setup_chan(HM2_SERIAL->ctx, chan_name, 9, 7, 8, 4, 0, 1, 1, 1, 1, 0);
 
     if (r < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -194,11 +207,11 @@ EXTRA_SETUP(){
 
     // Setup ADC
         // ADC, chans 0-3 +/-10V
-    r += hm2_bspi_write_chan(name, 3, 0x0000A000);
+    r += HM2_SERIAL->bspi_write_chan(HM2_SERIAL->ctx, chan_name, 3, 0x0000A000);
         // ADC, chans 4-7 +/-10V
-    r += hm2_bspi_write_chan(name, 3, 0x0000C000);
+    r += HM2_SERIAL->bspi_write_chan(HM2_SERIAL->ctx, chan_name, 3, 0x0000C000);
         // ADC, Sequencer mode 2, Internal Ref, 8x Single Ended
-    r += hm2_bspi_write_chan(name, 3, 0x00009C18);
+    r += HM2_SERIAL->bspi_write_chan(HM2_SERIAL->ctx, chan_name, 3, 0x00009C18);
 
     if (r < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -210,40 +223,40 @@ EXTRA_SETUP(){
     // Clear BSPI Rx & Tx FIFOs.
     // This discards the received data from the ADC setup writes above,
     // and any other old stale data.
-    r = hm2_bspi_clear_fifo(name);
+    r = HM2_SERIAL->bspi_clear_fifo(HM2_SERIAL->ctx, chan_name);
     if (r < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "failed to clear BSPI fifos on %s\n", name);
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to clear BSPI fifos on %s\n", chan_name);
     }
 
     // Add BSPI Frames
     // digital inputs and outputs
-    r += hm2_tram_add_bspi_frame(name, 4, &CPLD_write,
+    r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 4, &CPLD_write,
                             &CPLD_read);
 
     // analog inputs
     for(i = 0; i < 8; i++) {
-        r += hm2_tram_add_bspi_frame(name, 3, &AD7329_write[i],
+        r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 3, &AD7329_write[i],
                                 &AD7329_read[i]);
     }
 
     // analog outputs
-    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1A,0);
-    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1B,0);
-    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1C,0);
-    r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1D,0);
-    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2A,0);
-    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2B,0);
-    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2C,0);
-    r += hm2_tram_add_bspi_frame(name, 2, &AD5754_2D,0);
+    r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 1, &AD5754_1A,0);
+    r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 1, &AD5754_1B,0);
+    r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 1, &AD5754_1C,0);
+    r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 1, &AD5754_1D,0);
+    r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 2, &AD5754_2A,0);
+    r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 2, &AD5754_2B,0);
+    r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 2, &AD5754_2C,0);
+    r += HM2_SERIAL->bspi_tram_add_frame(HM2_SERIAL->ctx, chan_name, 2, &AD5754_2D,0);
 
     // This is required, or nothing happens.
-    r += hm2_allocate_bspi_tram(name);
+    r += HM2_SERIAL->bspi_allocate_tram(HM2_SERIAL->ctx, chan_name);
 
     // Tell the bspi driver which function to call
-    r += hm2_bspi_set_read_function(name, &read, __comp_inst);
+    r += HM2_SERIAL->bspi_set_read_function(HM2_SERIAL->ctx, chan_name, &do_read, __comp_inst);
 
     // no separate write function in this example, but it would be:
-    // r += hm2_bspi_set_write_function(name, &write, __comp_inst);
+    // r += HM2_SERIAL->bspi_set_write_function(HM2_SERIAL->ctx, chan_name, &write, __comp_inst);
 
     if (r < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -252,10 +265,4 @@ EXTRA_SETUP(){
         return -EINVAL;
     }
     return 0;
-}
-
-int get_count(void){
-    int i;
-    for (i= 0; bspi_chans[i] != NULL && i < 16 ; i++){}
-    return i;
 }

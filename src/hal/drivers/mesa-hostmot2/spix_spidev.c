@@ -1,3 +1,5 @@
+#include <errno.h>
+static const void *hm2_log;
 /*
  * This is a component for hostmot2 over SPI for linuxcnc.
  * Copyright (c) 2024 B.Stultiens <lcnc@vagrearg.org>
@@ -21,8 +23,6 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
-
-#include <rtapi.h>
 
 #define HM2_LLIO_NAME "spix_spidev"
 

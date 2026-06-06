@@ -24,8 +24,8 @@
 
 typedef struct {
     union {
-        rtapi_u8 tp8[64 * 1024];
-        rtapi_u32 tp32[16 * 1024];
+        uint8_t tp8[64 * 1024];
+        uint32_t tp32[16 * 1024];
     } test_pattern;
 
     hm2_lowlevel_io_t llio;

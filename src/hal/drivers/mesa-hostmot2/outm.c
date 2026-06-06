@@ -30,10 +30,7 @@
 
 
 
-#include <rtapi_slab.h>
 
-#include "rtapi.h"
-#include "hal.h"
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
@@ -77,7 +74,7 @@ int hm2_outm_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->outm.clock_freq = md->clock_freq;
     hm2->outm.version = md->version;
 
-    hm2->outm.instance = (hm2_outm_instance_t *)hal_malloc(hm2->outm.num_instances * sizeof(hm2_outm_instance_t));
+    hm2->outm.instance = (hm2_outm_instance_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, hm2->outm.num_instances * sizeof(hm2_outm_instance_t));
     if (hm2->outm.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -92,7 +89,7 @@ int hm2_outm_parse_md(hostmot2_t *hm2, int md_index) {
             int out;
             for (
                 out = 0;
-                out < sizeof(hm2->outm.instance[0].hal.pin.out)/sizeof(hm2->outm.instance[0].hal.pin.out[0]);
+                (size_t)out < sizeof(hm2->outm.instance[0].hal.pin.out)/sizeof(hm2->outm.instance[0].hal.pin.out[0]);
                 out ++
             ) {
                 hm2->outm.instance[inst].hal.pin.out[out] = NULL;
@@ -104,7 +101,7 @@ int hm2_outm_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 
-    r = hm2_register_tram_write_region(hm2, hm2->outm.data_addr, (hm2->outm.num_instances * sizeof(rtapi_u32)), &hm2->outm.data_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->outm.data_addr, (hm2->outm.num_instances * sizeof(uint32_t)), &hm2->outm.data_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for outm Data register (%d)\n", r);
         goto fail0;
@@ -116,7 +113,7 @@ int hm2_outm_parse_md(hostmot2_t *hm2, int md_index) {
 
     {
         int i;
-        char name[HAL_NAME_LEN + 1];
+        char name[256];
 
         for (i = 0; i < hm2->outm.num_instances; i ++) {
             int j = 0;
@@ -134,15 +131,15 @@ int hm2_outm_parse_md(hostmot2_t *hm2, int md_index) {
                         r = -EINVAL;
                         goto fail0;
                     }
-                    rtapi_snprintf(name, sizeof(name), "%s.outm.%02d.out-%02d", hm2->llio->name, i, outm_number);
-                    r = hal_pin_bit_new(name, HAL_IN, &(hm2->outm.instance[i].hal.pin.out[outm_number]), hm2->llio->comp_id);
+                    snprintf(name, sizeof(name), "%s.outm.%02d.out-%02d", hm2->llio->name, i, outm_number);
+                    r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->outm.instance[i].hal.pin.out[outm_number]), hm2->llio->comp_id, name);
                     if (r < 0) {
                         HM2_ERR("error adding pin '%s', aborting\n", name);
                         r = -ENOMEM;
                         goto fail0;
                     }
-                    rtapi_snprintf(name, sizeof(name), "%s.outm.%02d.invert-%02d", hm2->llio->name, i, outm_number);
-                    r = hal_pin_bit_new(name, HAL_IN, &(hm2->outm.instance[i].hal.pin.invert[outm_number]), hm2->llio->comp_id);
+                    snprintf(name, sizeof(name), "%s.outm.%02d.invert-%02d", hm2->llio->name, i, outm_number);
+                    r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->outm.instance[i].hal.pin.invert[outm_number]), hm2->llio->comp_id, name);
                     if (r < 0) {
                         HM2_ERR("error adding pin '%s', aborting\n", name);
                         r = -ENOMEM;
@@ -165,7 +162,7 @@ int hm2_outm_parse_md(hostmot2_t *hm2, int md_index) {
         int i;
         for (i = 0; i < hm2->outm.num_instances; i ++) {
             int pin;
-            rtapi_u32 zero = 0;
+            uint32_t zero = 0;
 
 
             for (pin = 0; pin < 32; pin ++) {
@@ -213,7 +210,7 @@ void hm2_outm_force_write(hostmot2_t *hm2) {
         }
     }
 
-    size = hm2->outm.num_instances * sizeof(rtapi_u32);
+    size = hm2->outm.num_instances * sizeof(uint32_t);
 
     // Write register values to board.
 

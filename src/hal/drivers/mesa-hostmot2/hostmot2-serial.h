@@ -168,12 +168,12 @@
 RTAPI_BEGIN_DECLS
 
 typedef struct {
-    rtapi_u32 baudrate;   // RX+TX
-    rtapi_u32 filterrate; // RX only: (set to zero for 2*baudrate)
-    rtapi_u32 drivedelay; // TX only: delay before transmit ([0..31])
-    rtapi_u32 ifdelay;    // RX+TX: Inter-frame delay in bit times ([0..255] or V3+ [0..1020])
-    rtapi_u32 flags;      // RX+TX: enable flags (see HM2_PKTUART_CONFIG_*)
-    rtapi_u32 unused[3];  // Future proof, probably
+    uint32_t baudrate;   // RX+TX
+    uint32_t filterrate; // RX only: (set to zero for 2*baudrate)
+    uint32_t drivedelay; // TX only: delay before transmit ([0..31])
+    uint32_t ifdelay;    // RX+TX: Inter-frame delay in bit times ([0..255] or V3+ [0..1020])
+    uint32_t flags;      // RX+TX: enable flags (see HM2_PKTUART_CONFIG_*)
+    uint32_t unused[3];  // Future proof, probably
 } hm2_pktuart_config_t;
 
 #define HM2_PKTUART_CONFIG_DRIVEEN      0x0001  // TX-only Output driver enable
@@ -194,7 +194,7 @@ int hm2_pktuart_config(const char *name, const hm2_pktuart_config_t *rxcfg, cons
 // DEPRECATED: hm2_pktuart_setup_tx()
 // DEPRECATED: hm2_pktuart_setup_rx()
 // Is replaced by hm2_pktuart_config()
-int hm2_pktuart_setup(const char *name, unsigned bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear) __attribute__((deprecated));
+int hm2_pktuart_setup(const char *name, unsigned bitrate, int32_t tx_mode, int32_t rx_mode, int txclear, int rxclear) __attribute__((deprecated));
 int hm2_pktuart_setup_rx(const char *name, unsigned int bitrate, unsigned int filter_hz, unsigned int parity, int frame_delay, bool rx_enable, bool rx_mask) __attribute__((deprecated));
 int hm2_pktuart_setup_tx(const char *name, unsigned int bitrate, unsigned int parity, int frame_delay, bool drive_enable, bool drive_auto, int enable_delay) __attribute__((deprecated));
 
@@ -203,23 +203,23 @@ void hm2_pktuart_reset(const char *name);
 // Reset but with normal queue processing
 void hm2_pktuart_queue_reset(const char *name);
 
-int hm2_pktuart_send(const char *name, const unsigned char data[], rtapi_u8 *num_frames, const rtapi_u16 frame_sizes[]);
+int hm2_pktuart_send(const char *name, const unsigned char data[], uint8_t *num_frames, const uint16_t frame_sizes[]);
 // The hm2_pkuart_read() function should be declared deprecated because it
 // reads directly bypassing the queue_read function.
 // Unfortunately, it is still used in hal/components/mesa_pktgyro_test.comp
-int hm2_pktuart_read(const char *name, unsigned char data[],  rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[]);
-int hm2_pktuart_queue_get_frame_sizes(const char *name, rtapi_u32 fsizes[]);
-int hm2_pktuart_queue_read_data(const char *name, rtapi_u32 *data, int bytes);
+int hm2_pktuart_read(const char *name, unsigned char data[],  uint8_t *num_frames, uint16_t *max_frame_length, uint16_t frame_sizes[]);
+int hm2_pktuart_queue_get_frame_sizes(const char *name, uint32_t fsizes[]);
+int hm2_pktuart_queue_read_data(const char *name, uint32_t *data, int bytes);
 int hm2_pktuart_get_clock(const char *name);
 int hm2_pktuart_get_version(const char *name);
-rtapi_u32 hm2_pktuart_get_rx_status(const char *name);
-rtapi_u32 hm2_pktuart_get_tx_status(const char *name);
+uint32_t hm2_pktuart_get_rx_status(const char *name);
+uint32_t hm2_pktuart_get_tx_status(const char *name);
 RTAPI_END_DECLS
 
 
 /* Exported UART functions */
 RTAPI_BEGIN_DECLS
-int hm2_uart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode);
+int hm2_uart_setup(char *name, int bitrate, int32_t tx_mode, int32_t rx_mode);
 int hm2_uart_send(char *name, unsigned char data[], int count);
 int hm2_uart_read(char *name, unsigned char data[]);
 RTAPI_END_DECLS
@@ -232,9 +232,9 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
                         int samplelate);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
 int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
-int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val);
+int hm2_bspi_write_chan(char* name, int chan, uint32_t val);
 int hm2_allocate_bspi_tram(char* name);
-int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 **rbuff);
+int hm2_tram_add_bspi_frame(char *name, int chan, uint32_t **wbuff, uint32_t **rbuff);
 int hm2_bspi_clear_fifo(char * name);
 RTAPI_END_DECLS
 

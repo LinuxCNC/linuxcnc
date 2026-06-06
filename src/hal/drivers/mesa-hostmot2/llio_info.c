@@ -19,8 +19,9 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <rtapi.h>
-
+#include "gomc_env.h"
+#define HM2_LLIO_NAME "hm2_spix"
+extern const void *hm2_log;
 #include "hostmot2.h"
 #include "hostmot2-lowlevel.h"
 #include "llio_info.h"
@@ -162,7 +163,7 @@ int hook_7i43(hm2_lowlevel_io_t *llio, const hm2_idrom_t *idrom)
 	switch(idrom->fpga_size) {
 	case 200: llio->fpga_part_number = "3s200tq144"; return 0;
 	default:
-		rtapi_print_msg(RTAPI_MSG_WARN, "hook_7i43(): Unknown fpga_size: %d\n", idrom->fpga_size);
+		gomc_log_warnf(hm2_log, HM2_LLIO_NAME, "hook_7i43(): Unknown fpga_size: %d\n", idrom->fpga_size);
 		/* Fallthrough */
 	case 400: llio->fpga_part_number = "3s400tq144"; return 0;
 	}
@@ -224,7 +225,7 @@ const char *set_llio_info_spi(hm2_lowlevel_io_t *llio, const hm2_idrom_t *idrom)
 
 	/* In the far future, when there are too many boards, use bsearch */
 	/* With few boards, linear search is faster */
-	for(i = 0; i < NELEM(spiboards); i++) {
+	for(i = 0; (size_t)i < NELEM(spiboards); i++) {
 		if(!memcmp(idrom->board_name, spiboards[i].board_name, sizeof(idrom->board_name))) {
 			llio->num_ioport_connectors = spiboards[i].num_ioport_connectors;
 			llio->pins_per_connector = spiboards[i].pins_per_connector;
@@ -245,11 +246,11 @@ const char *set_llio_info_spi(hm2_lowlevel_io_t *llio, const hm2_idrom_t *idrom)
 
 	memcpy(buf, idrom->board_name, sizeof(idrom->board_name));
 	buf[sizeof(idrom->board_name)] = 0;
-	for(i = 0; i < sizeof(idrom->board_name); i++) {
+	for(i = 0; (size_t)i < sizeof(idrom->board_name); i++) {
 		if(!isprint(buf[i]))
 			buf[i] = '?';
 	}
-	rtapi_print_msg(RTAPI_MSG_ERR, "set_llio_info_spi(): Unknown hostmot2 board name: %.8s\n", buf);
+	gomc_log_errorf(hm2_log, HM2_LLIO_NAME, "set_llio_info_spi(): Unknown hostmot2 board name: %.8s\n", buf);
 	return NULL;
 }
 

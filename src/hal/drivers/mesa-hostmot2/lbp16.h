@@ -102,43 +102,43 @@
 #define HI_BYTE(x) (((x) & 0xFF00) >> 8)
 
 typedef struct {
-    rtapi_u8 cmd_hi;
-    rtapi_u8 cmd_lo;
+    uint8_t cmd_hi;
+    uint8_t cmd_lo;
 } lbp16_cmd;
 
 typedef struct {
-    rtapi_u8 cmd_hi;
-    rtapi_u8 cmd_lo;
-    rtapi_u8 addr_hi;
-    rtapi_u8 addr_lo;
+    uint8_t cmd_hi;
+    uint8_t cmd_lo;
+    uint8_t addr_hi;
+    uint8_t addr_lo;
 } lbp16_cmd_addr;
 
 typedef struct {
-    rtapi_u8 cmd_hi;
-    rtapi_u8 cmd_lo;
-    rtapi_u8 addr_hi;
-    rtapi_u8 addr_lo;
-    rtapi_u8 data_hi;
-    rtapi_u8 data_lo;
+    uint8_t cmd_hi;
+    uint8_t cmd_lo;
+    uint8_t addr_hi;
+    uint8_t addr_lo;
+    uint8_t data_hi;
+    uint8_t data_lo;
 } lbp16_cmd_addr_data16;
 
 typedef struct {
-    rtapi_u8 cmd_hi;
-    rtapi_u8 cmd_lo;
-    rtapi_u8 addr_hi;
-    rtapi_u8 addr_lo;
-    rtapi_u8 data1;
-    rtapi_u8 data2;
-    rtapi_u8 data3;
-    rtapi_u8 data4;
+    uint8_t cmd_hi;
+    uint8_t cmd_lo;
+    uint8_t addr_hi;
+    uint8_t addr_lo;
+    uint8_t data1;
+    uint8_t data2;
+    uint8_t data3;
+    uint8_t data4;
 } lbp16_cmd_addr_data32;
 
 typedef struct {
-    rtapi_u8 cmd_hi;
-    rtapi_u8 cmd_lo;
-    rtapi_u8 addr_hi;
-    rtapi_u8 addr_lo;
-    rtapi_u8 page[256];
+    uint8_t cmd_hi;
+    uint8_t cmd_lo;
+    uint8_t addr_hi;
+    uint8_t addr_lo;
+    uint8_t page[256];
 } lbp16_write_flash_page_packet;
 
 typedef struct {
@@ -191,65 +191,65 @@ typedef struct {
     } while (0);
 
 typedef struct {
-    rtapi_u16 cookie;
-    rtapi_u16 size;
-    rtapi_u16 range;
-    rtapi_u16 addr;
-    rtapi_u8  name[8];
+    uint16_t cookie;
+    uint16_t size;
+    uint16_t range;
+    uint16_t addr;
+    uint8_t  name[8];
 } lbp_mem_info_area;
 
 typedef struct {
-    rtapi_u16 reserved1;
-    rtapi_u16 mac_addr_lo;
-    rtapi_u16 mac_addr_mid;
-    rtapi_u16 mac_addr_hi;
-    rtapi_u16 reserved2;
-    rtapi_u16 reserved3;
-    rtapi_u16 reserved4;
-    rtapi_u16 reserved5;
-    rtapi_u8 name[16];
-    rtapi_u16 ip_addr_lo;
-    rtapi_u16 ip_addr_hi;
-    rtapi_u16 reserved6;
-    rtapi_u16 reserved7;
-    rtapi_u16 led_debug;
-    rtapi_u16 reserved8;
-    rtapi_u16 reserved9;
-    rtapi_u16 reserved10;
+    uint16_t reserved1;
+    uint16_t mac_addr_lo;
+    uint16_t mac_addr_mid;
+    uint16_t mac_addr_hi;
+    uint16_t reserved2;
+    uint16_t reserved3;
+    uint16_t reserved4;
+    uint16_t reserved5;
+    uint8_t name[16];
+    uint16_t ip_addr_lo;
+    uint16_t ip_addr_hi;
+    uint16_t reserved6;
+    uint16_t reserved7;
+    uint16_t led_debug;
+    uint16_t reserved8;
+    uint16_t reserved9;
+    uint16_t reserved10;
 } lbp_eth_eeprom_area;
 
 typedef struct {
-    rtapi_u16 uSTimeStampReg;
-    rtapi_u16 WaituSReg;
-    rtapi_u16 HM2Timeout;
-    rtapi_u16 WaitForHM2RefTime;
-    rtapi_u16 WaitForHM2Timer1;
-    rtapi_u16 WaitForHM2Timer2;
-    rtapi_u16 WaitForHM2Timer3;
-    rtapi_u16 WaitForHM2Timer4;
+    uint16_t uSTimeStampReg;
+    uint16_t WaituSReg;
+    uint16_t HM2Timeout;
+    uint16_t WaitForHM2RefTime;
+    uint16_t WaitForHM2Timer1;
+    uint16_t WaitForHM2Timer2;
+    uint16_t WaitForHM2Timer3;
+    uint16_t WaitForHM2Timer4;
 } lbp_timers_area;
 
 typedef struct {
-    rtapi_u16 ErrorReg;
-    rtapi_u16 LBPParseErrors;
-    rtapi_u16 LBPMemErrors;
-    rtapi_u16 LBPWriteErrors;
-    rtapi_u16 RXPacketCount;
-    rtapi_u16 RXUDPCount;
-    rtapi_u16 RXBadCount;
-    rtapi_u16 TXPacketCount;
-    rtapi_u16 TXUDPCount;
-    rtapi_u16 TXBadCount;
-    rtapi_u16 led_mode;
-    rtapi_u16 DebugLEDPtr;
-    rtapi_u16 Scratch;
+    uint16_t ErrorReg;
+    uint16_t LBPParseErrors;
+    uint16_t LBPMemErrors;
+    uint16_t LBPWriteErrors;
+    uint16_t RXPacketCount;
+    uint16_t RXUDPCount;
+    uint16_t RXBadCount;
+    uint16_t TXPacketCount;
+    uint16_t TXUDPCount;
+    uint16_t TXBadCount;
+    uint16_t led_mode;
+    uint16_t DebugLEDPtr;
+    uint16_t Scratch;
 } lbp_status_area;
 
 typedef struct {
-    rtapi_u8 name[16];
-    rtapi_u16 LBP16_version;
-    rtapi_u16 firmware_version;
-    rtapi_u16 jumpers;
+    uint8_t name[16];
+    uint16_t LBP16_version;
+    uint16_t firmware_version;
+    uint16_t jumpers;
 } lbp_info_area;
 
 int lbp16_send_packet(void *packet, int size);
@@ -258,9 +258,9 @@ void lbp16_socket_nonblocking();
 void lbp16_socket_blocking();
 void lbp16_socket_set_dest_ip(char *addr_name);
 char *lbp16_socket_get_src_ip();
-int lbp16_read(rtapi_u16 cmd, rtapi_u32 addr, void *buffer, int size);
-int lbp16_hm2_read(rtapi_u32 addr, void *buffer, int size);
-int lbp16_hm2_write(rtapi_u32 addr, void *buffer, int size);
+int lbp16_read(uint16_t cmd, uint32_t addr, void *buffer, int size);
+int lbp16_hm2_read(uint32_t addr, void *buffer, int size);
+int lbp16_hm2_write(uint32_t addr, void *buffer, int size);
 void lbp16_print_info();
 void lbp16_init();
 void lbp16_release();

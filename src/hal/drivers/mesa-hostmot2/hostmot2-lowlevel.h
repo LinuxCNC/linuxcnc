@@ -20,11 +20,11 @@
 #ifndef HOSTMOT2_LOWLEVEL_H
 #define HOSTMOT2_LOWLEVEL_H
 
-#include <rtapi_device.h>
-#include <rtapi_firmware.h>
-
-#include "rtapi.h"
-#include "hal.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include "rtapi_pci.h"
+#include "rtapi_firmware.h"
+#include "gomc_env.h"
 
 #include "bitfile.h"
 
@@ -34,20 +34,20 @@
 //       The others all use rtapi_print_msg()
 //
 
-#define LL_PRINT(fmt, args...)    rtapi_print(HM2_LLIO_NAME ": " fmt, ## args);
-#define THIS_PRINT(fmt, args...)  rtapi_print("%s: " fmt, this->name, ## args);
+#define LL_PRINT(fmt, args...)    gomc_log_infof(hm2_log, HM2_LLIO_NAME, fmt, ## args);
+#define THIS_PRINT(fmt, args...)  gomc_log_infof(this->log, this->name, fmt, ## args);
 
-#define LL_PRINT_IF(enable, fmt, args...)  if (enable) { rtapi_print(HM2_LLIO_NAME ": " fmt, ## args); }
+#define LL_PRINT_IF(enable, fmt, args...)  if (enable) { gomc_log_infof(hm2_log, HM2_LLIO_NAME, fmt, ## args); }
 
-#define LL_ERR(fmt, args...)   rtapi_print_msg(RTAPI_MSG_ERR,  HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_WARN(fmt, args...)  rtapi_print_msg(RTAPI_MSG_WARN, HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_INFO(fmt, args...)  rtapi_print_msg(RTAPI_MSG_INFO, HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_DBG(fmt, args...)   rtapi_print_msg(RTAPI_MSG_DBG,  HM2_LLIO_NAME ": " fmt, ## args);
+#define LL_ERR(fmt, args...)   gomc_log_errorf(hm2_log, HM2_LLIO_NAME, fmt, ## args);
+#define LL_WARN(fmt, args...)  gomc_log_warnf(hm2_log, HM2_LLIO_NAME, fmt, ## args);
+#define LL_INFO(fmt, args...)  gomc_log_infof(hm2_log, HM2_LLIO_NAME, fmt, ## args);
+#define LL_DBG(fmt, args...)   gomc_log_debugf(hm2_log, HM2_LLIO_NAME, fmt, ## args);
 
-#define THIS_ERR(fmt, args...)   rtapi_print_msg(RTAPI_MSG_ERR,  "%s: " fmt, this->name, ## args);
-#define THIS_WARN(fmt, args...)  rtapi_print_msg(RTAPI_MSG_WARN, "%s: " fmt, this->name, ## args);
-#define THIS_INFO(fmt, args...)  rtapi_print_msg(RTAPI_MSG_INFO, "%s: " fmt, this->name, ## args);
-#define THIS_DBG(fmt, args...)   rtapi_print_msg(RTAPI_MSG_DBG,  "%s: " fmt, this->name, ## args);
+#define THIS_ERR(fmt, args...)   gomc_log_errorf(this->log, this->name, fmt, ## args);
+#define THIS_WARN(fmt, args...)  gomc_log_warnf(this->log, this->name, fmt, ## args);
+#define THIS_INFO(fmt, args...)  gomc_log_infof(this->log, this->name, fmt, ## args);
+#define THIS_DBG(fmt, args...)   gomc_log_debugf(this->log, this->name, fmt, ## args);
 
 
 #define ANYIO_MAX_IOPORT_CONNECTORS (8)
@@ -63,14 +63,17 @@ typedef struct hm2_lowlevel_io_struct hm2_lowlevel_io_t;
 
 // FIXME: this is really a lowlevel io *instance*, or maybe a "board"
 struct hm2_lowlevel_io_struct {
-    char name[HAL_NAME_LEN+1];
+    char name[GOMC_HAL_NAME_LEN+1];
     int comp_id;
+    const void *log;  // gomc_log handle
+    const gomc_hal_t *hal;  // gomc_hal handle
+    const gomc_rtapi_t *rtapi;  // gomc_rtapi handle
 
     // these two are required
     // on success these two return TRUE (not zero)
     // on failure they return FALSE (0) and set *self->io_error (below) to TRUE
-    int (*read)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
-    int (*write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, const void *buffer, int size);
+    int (*read)(hm2_lowlevel_io_t *self, uint32_t addr, void *buffer, int size);
+    int (*write)(hm2_lowlevel_io_t *self, uint32_t addr, const void *buffer, int size);
 
     // these two are optional
     int (*program_fpga)(hm2_lowlevel_io_t *self, const bitfile_t *bitfile);
@@ -94,7 +97,7 @@ struct hm2_lowlevel_io_struct {
     //   * queue_read and send_queued_reads, in which case send_queued_reads must also
     //     receive and process the reads
     //   * all three
-    int (*queue_read)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
+    int (*queue_read)(hm2_lowlevel_io_t *self, uint32_t addr, void *buffer, int size);
     int (*send_queued_reads)(hm2_lowlevel_io_t *self);
     int (*receive_queued_reads)(hm2_lowlevel_io_t *self);
 
@@ -103,7 +106,7 @@ struct hm2_lowlevel_io_struct {
     //   * actually performing the writes
     // these routines are optional; the llio may either provide both of them, or neither
     // (in which case a dummy implementation of ->queue_write delegates to ->write)
-    int (*queue_write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, const void *buffer, int size);
+    int (*queue_write)(hm2_lowlevel_io_t *self, uint32_t addr, const void *buffer, int size);
     int (*send_queued_writes)(hm2_lowlevel_io_t *self);
 
     // setting this to one will enqueue all following writes into a single packet. When set
@@ -122,7 +125,7 @@ struct hm2_lowlevel_io_struct {
     //   hostmot2 driver call into llio to reset the hardware and start
     //   driving it again.
     // 
-    hal_bit_t *io_error;
+    gomc_hal_bit_t *io_error;
 
     // this gets set to TRUE by .read-request and cleared by .read, in order
     // to amortize latency on multiple ethernet devices

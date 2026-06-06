@@ -1,3 +1,5 @@
+#include <errno.h>
+static const void *hm2_log;
 /*
  * This is a component for hostmot2 over SPI for linuxcnc.
  * Copyright (c) 2024 B.Stultiens <lcnc@vagrearg.org>
@@ -24,8 +26,6 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-
-#include <rtapi.h>
 
 #define HM2_LLIO_NAME "spix_rpi3"
 
@@ -398,7 +398,7 @@ static int peripheral_map(uintptr_t membase, size_t memsize)
 
 	peripheralsize = memsize;
 
-	if((fd = rtapi_open_as_root("/dev/mem", O_RDWR | O_SYNC)) < 0) {
+	if((fd = open("/dev/mem", O_RDWR | O_SYNC)) < 0) {
 		LL_ERR("Can't open /dev/mem\n");
 		return -errno;
 	}
@@ -599,7 +599,7 @@ static uint32_t read_spiclkbase(void)
 		}
 	}
 
-	if(err >= sizeof(buf)-1) {
+	if((size_t)err >= sizeof(buf)-1) {
 		// There are probably too many digits in the number
 		// 250000000 (250 MHz) has 9 digits and there is a newline
 		// following the number

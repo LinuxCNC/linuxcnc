@@ -36,14 +36,14 @@ http://linuxcnc.org/docs/html/hal/comp.html""";
 author "Andy Pugh andy@bodgesoc.org";
 license "GPL";
 
-include <hostmot2-serial.h>;
+gmi_consume hm2_serial from hostmot2;
 
 pin in u32 tx-data-##[16] "Data to be transmitted";
 pin out u32 rx-data-##[16] "Data received";
 pin in s32 tx-bytes "Number of bytes to transmit";
 pin out s32 rx-bytes "Number of Bytes received";
 
-variable char *name; // UART name
+variable char *uart_name; // UART name
 
 option extra_setup yes;
 
@@ -52,11 +52,8 @@ function receive;
 
 ;;
 
-/* This uses the RTAPI_MP_ARRAY_STRING macro to load the list of UART channels
-into an array. This is copied into the *name string of each */
-
-char *uart_chans[18] = {0,};
-RTAPI_MP_ARRAY_STRING(uart_chans, 16, "UART Channel names");
+/* Convenience macro for accessing the consumed hm2_serial API */
+#define HM2_SERIAL (__comp_inst->__gmi_hm2_serial)
 
 FUNCTION(send){
 /* This function uses the hm2_uart_send function to transmit data see 
@@ -69,39 +66,24 @@ man hm2_uart_send for more information. Data may be up to 64 bytes in size*/
     for (i = 0 ; i < count ; i++){
         data[i] = tx_data(i) & 0x000000FF; //NB [] index for array and () for pin.
     }
-    count = hm2_uart_send(name, data, count);
+    count = HM2_SERIAL->uart_send(HM2_SERIAL->ctx, uart_name, data, count);
 }
 
 FUNCTION(receive){
-/* This function uses the hm2_uart_send function to transmit data. 
- See man hm2_uart_send for more information. 16 bytes in the Rx buffer*/
+/* This function uses the hm2_uart_read function to receive data. 
+ See man hm2_uart_read for more information. 16 bytes in the Rx buffer*/
     
     int i;
     unsigned char data[16];
-    rx_bytes = hm2_uart_read(name, data);
+    rx_bytes = HM2_SERIAL->uart_read(HM2_SERIAL->ctx, uart_name, data);
     for (i = 0 ; i < rx_bytes ; i++){
          rx_data(i) = data[i];
     }
 }
     
-EXTRA_SETUP(){ // the names parameters are passed in 'prefix'. You just have to know that. 
-    if (prefix[0] == 'm'){ // should be the 'h' of hm2_....
-        rtapi_print_msg(0, "mesa_uart can not be loaded using the 'count' "
-                        "parameter, see man mesa_uart for details\n");
-        return -1;
-    }
-    name = hal_malloc(strlen(prefix)+1);
-    strcpy(name, prefix);
+EXTRA_SETUP(){
+    uart_name = (char *)name;
     // 250000bps, no delay, tx enable)
-    hm2_uart_setup(name, 250000, 0x40, -1);
+    HM2_SERIAL->uart_setup(HM2_SERIAL->ctx, uart_name, 250000, 0x40, -1);
     return 0;
-}
-
-
-
-
-int get_count(void){
-    int i;
-    for (i= 0; uart_chans[i] != NULL && i < 16 ; i++){}
-    return i;
 }

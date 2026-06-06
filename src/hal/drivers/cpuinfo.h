@@ -20,4 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-int get_rpi_revision(void);
+#include "gomc_log.h"
+
+int get_rpi_revision(const gomc_log_t *log);

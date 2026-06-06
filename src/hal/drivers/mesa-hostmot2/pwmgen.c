@@ -1,3 +1,4 @@
+#include <math.h>
 
 //
 //    Copyright (C) 2007-2008 Sebastian Kuzminsky
@@ -17,13 +18,8 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
 
-#include "hal.h"
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
@@ -31,7 +27,7 @@
 
 
 void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
-    rtapi_u32 dds;
+    uint32_t dds;
 
 
     if (hm2->pwmgen.hal->param.pwm_frequency < 1) {
@@ -107,7 +103,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
 
 
 void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
-    rtapi_u32 dds;
+    uint32_t dds;
 
 
     if (hm2->pwmgen.hal->param.pdm_frequency < 1) {
@@ -180,7 +176,7 @@ void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
 
 void hm2_pwmgen_force_write(hostmot2_t *hm2) {
     int i;
-    rtapi_u32 pwm_width;
+    uint32_t pwm_width;
 
     if (hm2->pwmgen.num_instances == 0) return;
 
@@ -215,7 +211,7 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
 
 
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
-        rtapi_u32 double_buffered;
+        uint32_t double_buffered;
 
         hm2->pwmgen.pwm_mode_reg[i] = pwm_width;
 
@@ -282,10 +278,10 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
     }
 
 
-    hm2->llio->write(hm2->llio, hm2->pwmgen.pwm_mode_addr, hm2->pwmgen.pwm_mode_reg, (hm2->pwmgen.num_instances * sizeof(rtapi_u32)));
-    hm2->llio->write(hm2->llio, hm2->pwmgen.enable_addr, &hm2->pwmgen.enable_reg, sizeof(rtapi_u32));
-    hm2->llio->write(hm2->llio, hm2->pwmgen.pwmgen_master_rate_dds_addr, &hm2->pwmgen.pwmgen_master_rate_dds_reg, sizeof(rtapi_u32));
-    hm2->llio->write(hm2->llio, hm2->pwmgen.pdmgen_master_rate_dds_addr, &hm2->pwmgen.pdmgen_master_rate_dds_reg, sizeof(rtapi_u32));
+    hm2->llio->write(hm2->llio, hm2->pwmgen.pwm_mode_addr, hm2->pwmgen.pwm_mode_reg, (hm2->pwmgen.num_instances * sizeof(uint32_t)));
+    hm2->llio->write(hm2->llio, hm2->pwmgen.enable_addr, &hm2->pwmgen.enable_reg, sizeof(uint32_t));
+    hm2->llio->write(hm2->llio, hm2->pwmgen.pwmgen_master_rate_dds_addr, &hm2->pwmgen.pwmgen_master_rate_dds_reg, sizeof(uint32_t));
+    hm2->llio->write(hm2->llio, hm2->pwmgen.pdmgen_master_rate_dds_addr, &hm2->pwmgen.pdmgen_master_rate_dds_reg, sizeof(uint32_t));
 
     if ((*hm2->llio->io_error) != 0) return;
 
@@ -407,7 +403,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
 
     // allocate the module-global HAL shared memory
-    hm2->pwmgen.hal = (hm2_pwmgen_module_global_t *)hal_malloc(sizeof(hm2_pwmgen_module_global_t));
+    hm2->pwmgen.hal = (hm2_pwmgen_module_global_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, sizeof(hm2_pwmgen_module_global_t));
     if (hm2->pwmgen.hal == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -415,7 +411,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
 
-    hm2->pwmgen.instance = (hm2_pwmgen_instance_t *)hal_malloc(hm2->pwmgen.num_instances * sizeof(hm2_pwmgen_instance_t));
+    hm2->pwmgen.instance = (hm2_pwmgen_instance_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, hm2->pwmgen.num_instances * sizeof(hm2_pwmgen_instance_t));
     if (hm2->pwmgen.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -431,13 +427,13 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->pwmgen.pdmgen_master_rate_dds_addr = md->base_address + (3 * md->register_stride);
     hm2->pwmgen.enable_addr = md->base_address + (4 * md->register_stride);
 
-    r = hm2_register_tram_write_region(hm2, hm2->pwmgen.pwm_value_addr, (hm2->pwmgen.num_instances * sizeof(rtapi_u32)), &hm2->pwmgen.pwm_value_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->pwmgen.pwm_value_addr, (hm2->pwmgen.num_instances * sizeof(uint32_t)), &hm2->pwmgen.pwm_value_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for PWM Value register (%d)\n", r);
         goto fail0;
     }
 
-    hm2->pwmgen.pwm_mode_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->pwmgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->pwmgen.pwm_mode_reg = (uint32_t *)hm2->llio->rtapi->calloc(hm2->llio->rtapi->ctx, hm2->pwmgen.num_instances * sizeof(uint32_t));
     if (hm2->pwmgen.pwm_mode_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -449,12 +445,12 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     {
         int i;
         int r;
-        char name[HAL_NAME_LEN + 1];
+        char name[256];
 
 
         // these hal parameters affect all pwmgen instances
-        r = hal_param_u32_newf(
-            HAL_RW,
+        r = gomc_hal_param_u32_newf(hm2->llio->hal, 
+            GOMC_HAL_RW,
             &(hm2->pwmgen.hal->param.pwm_frequency),
             hm2->llio->comp_id,
             "%s.pwmgen.pwm_frequency",
@@ -467,8 +463,8 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
         hm2->pwmgen.hal->param.pwm_frequency = 20000;
         hm2->pwmgen.written_pwm_frequency = 0;
 
-        r = hal_param_u32_newf(
-            HAL_RW,
+        r = gomc_hal_param_u32_newf(hm2->llio->hal, 
+            GOMC_HAL_RW,
             &(hm2->pwmgen.hal->param.pdm_frequency),
             hm2->llio->comp_id,
             "%s.pwmgen.pdm_frequency",
@@ -484,44 +480,44 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
         for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
             // pins
-            rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.value", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->pwmgen.instance[i].hal.pin.value), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.pwmgen.%02d.value", hm2->llio->name, i);
+            r = gomc_hal_pin_float_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->pwmgen.instance[i].hal.pin.value), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.enable", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->pwmgen.instance[i].hal.pin.enable), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.pwmgen.%02d.enable", hm2->llio->name, i);
+            r = gomc_hal_pin_bit_newf(hm2->llio->hal, GOMC_HAL_IN, &(hm2->pwmgen.instance[i].hal.pin.enable), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
  
             // parameters
-            rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.offset-mode", hm2->llio->name, i);
-            r = hal_param_bit_new(name, HAL_RW, &(hm2->pwmgen.instance[i].hal.param.offset_mode), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.pwmgen.%02d.offset-mode", hm2->llio->name, i);
+            r = gomc_hal_param_bit_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->pwmgen.instance[i].hal.param.offset_mode), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
             if (hm2->pwmgen.firmware_supports_dither) {
-                rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.dither", hm2->llio->name, i);
-                r = hal_param_bit_new(name, HAL_RW, &(hm2->pwmgen.instance[i].hal.param.dither), hm2->llio->comp_id);
+                snprintf(name, sizeof(name), "%s.pwmgen.%02d.dither", hm2->llio->name, i);
+                r = gomc_hal_param_bit_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->pwmgen.instance[i].hal.param.dither), hm2->llio->comp_id, name);
                 if (r < 0) {
                      HM2_ERR("error adding param '%s', aborting\n", name);
                     goto fail1;
                 }
             }
-            rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.scale", hm2->llio->name, i);
-            r = hal_param_float_new(name, HAL_RW, &(hm2->pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id);
+            snprintf(name, sizeof(name), "%s.pwmgen.%02d.scale", hm2->llio->name, i);
+            r = gomc_hal_param_float_newf(hm2->llio->hal, GOMC_HAL_RW, &(hm2->pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id, name);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
 
-            r = hal_param_s32_newf(
-                HAL_RW,
+            r = gomc_hal_param_s32_newf(hm2->llio->hal, 
+                GOMC_HAL_RW,
                 &(hm2->pwmgen.instance[i].hal.param.output_type),
                 hm2->llio->comp_id,
                 "%s.pwmgen.%02d.output-type",
@@ -551,7 +547,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 fail1:
-    rtapi_kfree(hm2->pwmgen.pwm_mode_reg);
+    hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->pwmgen.pwm_mode_reg);
 
 fail0:
     hm2->pwmgen.num_instances = 0;
@@ -564,7 +560,7 @@ fail0:
 void hm2_pwmgen_cleanup(hostmot2_t *hm2) {
     if (hm2->pwmgen.num_instances <= 0) return;
     if (hm2->pwmgen.pwm_mode_reg != NULL) {
-        rtapi_kfree(hm2->pwmgen.pwm_mode_reg);
+        hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->pwmgen.pwm_mode_reg);
         hm2->pwmgen.pwm_mode_reg = NULL;
     }
     hm2->pwmgen.num_instances = 0;

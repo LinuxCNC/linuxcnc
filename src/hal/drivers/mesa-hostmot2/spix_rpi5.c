@@ -1,3 +1,5 @@
+#include <errno.h>
+static const void *hm2_log;
 /*
  * This is a component for hostmot2 over SPI for linuxcnc.
  * Copyright (c) 2024 B.Stultiens <lcnc@vagrearg.org>
@@ -20,8 +22,6 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-
-#include <rtapi.h>
 
 #define HM2_LLIO_NAME "spix_rpi5"
 
@@ -290,7 +290,7 @@ static int peripheral_map(uintptr_t membase, size_t memsize)
 
 	peripheralsize = memsize;
 
-	if((fd = rtapi_open_as_root("/dev/mem", O_RDWR | O_SYNC)) < 0) {
+	if((fd = open("/dev/mem", O_RDWR | O_SYNC)) < 0) {
 		LL_ERR("Can't open /dev/mem\n");
 		return -errno;
 	}

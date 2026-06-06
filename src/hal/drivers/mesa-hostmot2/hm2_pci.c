@@ -18,47 +18,55 @@
 //
 
 
-#include <rtapi_pci.h>
-#include <rtapi_io.h>
+#include "rtapi_pci.h"
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
+#if defined(__i386) || defined(__x86_64)
+#include <sys/io.h>
+#else
+#define inl(x) ((unsigned long)0)
+#define outl(x,y) ((void)(x), (void)(y))
+#define outb(x,y) ((void)(x), (void)(y))
+#endif
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <stdio.h>
 
-#include "hal.h"
-
+#include "gomc_env.h"
+#include "hm2_core_api.h"
 #include "bitfile.h"
 #include "hostmot2-lowlevel.h"
 #include "hm2_pci.h"
 
 
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Sebastian Kuzminsky");
-MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[012345], 6i25, 4i6[589], and 3x20 Anything I/O boards from Mesa Electronics");
-MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
+typedef struct hm2_pci_inst {
+    cmod_t cmod;
+    const cmod_env_t *env;
+    const hm2_core_callbacks_t *core;
+    int comp_id;
+    char *config[HM2_PCI_MAX_BOARDS];
+    char cfg_bufs[HM2_PCI_MAX_BOARDS][256];
+    hm2_pci_t hm2_pci_board[HM2_PCI_MAX_BOARDS];
+    int num_boards;
+    int num_5i20;
+    int num_5i21;
+    int num_5i22;
+    int num_5i23;
+    int num_5i24;
+    int num_5i25;
+    int num_6i25;
+    int num_4i65;
+    int num_4i68;
+    int num_4i69;
+    int num_3x20;
+    int failed_errno;
+} hm2_pci_inst_t;
 
-
-static char *config[HM2_PCI_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, HM2_PCI_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
-
-static int comp_id;
-
-
-// FIXME: should probably have a linked list of boards instead of an array
-static hm2_pci_t hm2_pci_board[HM2_PCI_MAX_BOARDS];
-static int num_boards = 0;
-static int num_5i20 = 0;
-static int num_5i21 = 0;
-static int num_5i22 = 0;
-static int num_5i23 = 0;
-static int num_5i24 = 0;
-static int num_5i25 = 0;
-static int num_6i25 = 0;
-static int num_4i65 = 0;
-static int num_4i68 = 0;
-static int num_4i69 = 0;
-static int num_3x20 = 0;
-static int failed_errno=0; // errno of last failed registration
+// Bridge for PCI probe/remove callbacks which cannot receive user context.
+// Safe because: (1) each cmod .so has its own copy, (2) probe runs synchronously
+// during rtapi_pci_register_driver() called from New(), (3) module loading is serialized.
+static hm2_pci_inst_t *pci_bridge_inst;
+static const void *hm2_log;
 
 
 static struct rtapi_pci_device_id hm2_pci_tbl[] = {
@@ -202,7 +210,7 @@ static struct rtapi_pci_device_id hm2_pci_tbl[] = {
     {0,},
 };
 
-MODULE_DEVICE_TABLE(pci, hm2_pci_tbl);
+
 
 
 
@@ -211,12 +219,12 @@ MODULE_DEVICE_TABLE(pci, hm2_pci_tbl);
 // these are the "low-level I/O" functions exported up
 //
 
-static int hm2_pci_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+static int hm2_pci_read(hm2_lowlevel_io_t *this, uint32_t addr, void *buffer, int size) {
     hm2_pci_t *board = this->private;
     void *src = board->base + addr;
 
     while (size > 0) {
-        *(rtapi_u32*)buffer = *(rtapi_u32*)src;
+        *(uint32_t*)buffer = *(uint32_t*)src;
         src += 4;
         buffer += 4;
         size -=4;
@@ -225,12 +233,12 @@ static int hm2_pci_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
     return 1;  // success
 }
 
-static int hm2_pci_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
+static int hm2_pci_write(hm2_lowlevel_io_t *this, uint32_t addr, const void *buffer, int size) {
     hm2_pci_t *board = this->private;
     void *dest = board->base + addr;
 
     while (size > 0) {
-        *(rtapi_u32*)dest = *(rtapi_u32*)buffer;
+        *(uint32_t*)dest = *(uint32_t*)buffer;
         dest += 4;
         buffer += 4;
         size -=4;
@@ -243,20 +251,20 @@ static int hm2_pci_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *bu
 static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
     int i;
-    rtapi_u32 status, control;
+    uint32_t status, control;
 
     // set /WRITE low for data transfer, and turn on LED
-    status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
     control = status & ~_WRITE_MASK & ~_LED_MASK;
-    rtapi_outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
 
     // program the FPGA
     for (i = 0; i < bitfile->e.size; i ++) {
-        rtapi_outb(bitfile_reverse_bits(bitfile->e.data[i]), board->data_base_addr);
+        outb(bitfile_reverse_bits(bitfile->e.data[i]), board->data_base_addr);
     }
 
     // all bytes transferred, make sure FPGA is all set up now
-    status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
     if (!(status & _INIT_MASK)) {
 	// /INIT goes low on CRC error
 	THIS_ERR("FPGA asserted /INIT: CRC error\n");
@@ -269,27 +277,27 @@ static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
 
     // turn off write enable and LED
     control = status | _WRITE_MASK | _LED_MASK;
-    rtapi_outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
 
     return 0;
 
 
 fail:
     // set /PROGRAM low (reset device), /WRITE high and LED off
-    status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
     control = status & ~_PROGRAM_MASK;
     control |= _WRITE_MASK | _LED_MASK;
-    rtapi_outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
     return -EIO;
 }
 
 
 static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
     hm2_pci_t *board = this->private;
-    rtapi_u32 status;
-    rtapi_u32 control;
+    uint32_t status;
+    uint32_t control;
 
-    status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
 
     // set /PROGRAM bit low to reset the FPGA
     control = status & ~_PROGRAM_MASK;
@@ -298,10 +306,10 @@ static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
     control |= _WRITE_MASK | _LED_MASK;
 
     // and write it back
-    rtapi_outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
 
     // verify that /INIT and DONE went low
-    status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
     if (status & (DONE_MASK | _INIT_MASK)) {
 	THIS_ERR(
             "FPGA did not reset: /INIT = %d, DONE = %d\n",
@@ -313,7 +321,7 @@ static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
 
     // set /PROGRAM high, let FPGA come out of reset
     control = status | _PROGRAM_MASK;
-    rtapi_outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
 
     // wait for /INIT to go high when it finishes clearing memory
     // This should take no more than 100uS.  If we assume each PCI read
@@ -324,7 +332,7 @@ static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
         int count = 3300;
 
         do {
-            status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+            status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
             if (status & _INIT_MASK) break;
         } while (count-- > 0);
 
@@ -345,14 +353,14 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
     int i;
 
     for (i = 0; i < 4; i ++) {
-        rtapi_u32 val;
+        uint32_t val;
         int addr = board->ctrl_base_addr + offsets[i];
 
-        val = rtapi_inl(addr);
+        val = inl(addr);
         if (!(val & LASxBRD_READY)) {
             THIS_INFO("LAS%dBRD #READY is off, enabling now\n", i);
             val |= LASxBRD_READY;
-            rtapi_outl(val, addr);
+            outl(val, addr);
         }
     }
 }
@@ -363,16 +371,16 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
 static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
     int i;
-    rtapi_u32 status;
+    uint32_t status;
 
     // program the FPGA
     for (i = 0; i < bitfile->e.size; i ++) {
-        rtapi_outb(bitfile_reverse_bits(bitfile->e.data[i]), board->data_base_addr);
+        outb(bitfile_reverse_bits(bitfile->e.data[i]), board->data_base_addr);
     }
 
     // all bytes transferred, make sure FPGA is all set up now
     for (i = 0; i < DONE_WAIT_5I22; i++) {
-        status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
         if (status & DONE_MASK_5I22) break;
     }
     if (i >= DONE_WAIT_5I22) {
@@ -387,17 +395,17 @@ static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
 static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
     hm2_pci_t *board = this->private;
     int i;
-    rtapi_u32 status, control;
+    uint32_t status, control;
 
     // set GPIO bits to GPIO function
-    status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
     control = status | DONE_ENABLE_5I22 | _PROG_ENABLE_5I22;
-    rtapi_outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
 
     // Turn off /PROGRAM bit and ensure that DONE is not asserted
-    rtapi_outl(control & ~_PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    outl(control & ~_PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
 
-    status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
     if (status & DONE_MASK_5I22) {
         // Note that if we see DONE at the start of programming, it's most
         // likely due to an attempt to access the FPGA at the wrong I/O
@@ -407,13 +415,13 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
     }
 
     // turn on /PROGRAM output bit
-    rtapi_outl(control | _PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
+    outl(control | _PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
 
     // Delay for at least 100 uS. to allow the FPGA to finish its reset
     // sequencing.  3300 reads is at least 100 us, could be as long as a
     // few ms.
     for (i = 0; i < 3300; i++) {
-        status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
+        status = inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
     }
 
     return 0;
@@ -428,12 +436,14 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
 
 
 static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_device_id *id) {
+    (void)id;
     int r;
     hm2_pci_t *board;
     hm2_lowlevel_io_t *this;
+    hm2_pci_inst_t *inst = pci_bridge_inst;
 
 
-    if (num_boards >= HM2_PCI_MAX_BOARDS) {
+    if (inst->num_boards >= HM2_PCI_MAX_BOARDS) {
         LL_PRINT("skipping AnyIO board at %s, this driver can only handle %d\n", rtapi_pci_name(dev), HM2_PCI_MAX_BOARDS);
         return -EINVAL;
     }
@@ -441,19 +451,22 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
     // NOTE: this enables the board's BARs -- this fixes the Arty bug
     if (rtapi_pci_enable_device(dev)) {
         LL_PRINT("skipping AnyIO board at %s, failed to enable PCI device\n", rtapi_pci_name(dev));
-        return failed_errno = -ENODEV;
+        return inst->failed_errno = -ENODEV;
     }
 
 
-    board = &hm2_pci_board[num_boards];
+    board = &inst->hm2_pci_board[inst->num_boards];
+    board->inst = inst;
     this = &board->llio;
     memset(this, 0, sizeof(hm2_lowlevel_io_t));
+    this->log = inst->env->log;
+    this->hal = inst->env->hal;
 
     switch (dev->subsystem_device) {
         case HM2_PCI_SSDEV_5I20: {
             LL_PRINT("discovered 5i20 at %s\n", rtapi_pci_name(dev));
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i20.%d", num_5i20);
-            num_5i20 ++;
+            snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i20.%d", inst->num_5i20);
+            inst->num_5i20 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P2";
@@ -466,8 +479,8 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
 
         case HM2_PCI_SSDEV_5I21: {
             LL_PRINT("discovered 5i21 at %s\n", rtapi_pci_name(dev));
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i21.%d", num_5i21);
-            num_5i21 ++;
+            snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i21.%d", inst->num_5i21);
+            inst->num_5i21 ++;
             board->llio.num_ioport_connectors = 2;
             board->llio.pins_per_connector = 32;
             board->llio.ioport_connector_name[0] = "P1";
@@ -479,8 +492,8 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
 
         case HM2_PCI_SSDEV_4I65: {
             LL_PRINT("discovered 4i65 at %s\n", rtapi_pci_name(dev));
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i65.%d", num_4i65);
-            num_4i65 ++;
+            snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i65.%d", inst->num_4i65);
+            inst->num_4i65 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P1";
@@ -500,8 +513,8 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
                 LL_PRINT("discovered 5i22-1.5M at %s\n", rtapi_pci_name(dev));
                 board->llio.fpga_part_number = "3s1500fg320";
             }
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i22.%d", num_5i22);
-            num_5i22 ++;
+            snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i22.%d", inst->num_5i22);
+            inst->num_5i22 ++;
             board->llio.num_ioport_connectors = 4;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P2";
@@ -514,8 +527,8 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
 
         case HM2_PCI_SSDEV_5I23: {
             LL_PRINT("discovered 5i23 at %s\n", rtapi_pci_name(dev));
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i23.%d", num_5i23);
-            num_5i23 ++;
+            snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i23.%d", inst->num_5i23);
+            inst->num_5i23 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P2";
@@ -528,8 +541,8 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
 
         case HM2_PCI_SSDEV_5I24: {
             LL_PRINT("discovered 5i24 at %s\n", rtapi_pci_name(dev));
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i24.%d", num_5i24);
-            num_5i24 ++;
+            snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i24.%d", inst->num_5i24);
+            inst->num_5i24 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P4";
@@ -544,12 +557,12 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
         case HM2_PCI_SSDEV_6I25: {
             if (dev->subsystem_device == HM2_PCI_SSDEV_5I25) {
                 LL_PRINT("discovered 5i25 at %s\n", rtapi_pci_name(dev));
-                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", num_5i25);
-                num_5i25 ++;
+                snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", inst->num_5i25);
+                inst->num_5i25 ++;
             } else {
                 LL_PRINT("discovered 6i25 at %s\n", rtapi_pci_name(dev));
-                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_6i25.%d", num_6i25);
-                num_6i25 ++;
+                snprintf(board->llio.name, sizeof(board->llio.name), "hm2_6i25.%d", inst->num_6i25);
+                inst->num_6i25 ++;
             }
             board->llio.num_ioport_connectors = 2;
             board->llio.pins_per_connector = 17;
@@ -564,12 +577,12 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
         case HM2_PCI_SSDEV_6I25T: {
             if (dev->subsystem_device == HM2_PCI_SSDEV_5I25T) {
                 LL_PRINT("discovered 5i25t at %s\n", rtapi_pci_name(dev));
-                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", num_5i25);
-                num_5i25 ++;
+                snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", inst->num_5i25);
+                inst->num_5i25 ++;
             } else {
                 LL_PRINT("discovered 6i25t at %s\n", rtapi_pci_name(dev));
-                rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_6i25.%d", num_6i25);
-                num_6i25 ++;
+                snprintf(board->llio.name, sizeof(board->llio.name), "hm2_6i25.%d", inst->num_6i25);
+                inst->num_6i25 ++;
             }
             board->llio.num_ioport_connectors = 2;
             board->llio.pins_per_connector = 17;
@@ -587,8 +600,8 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
             } else {
                 LL_PRINT("discovered 4i68 at %s\n", rtapi_pci_name(dev));
             }
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i68.%d", num_4i68);
-            num_4i68 ++;
+            snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i68.%d", inst->num_4i68);
+            inst->num_4i68 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P1";
@@ -609,8 +622,8 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
                 LL_PRINT("discovered 4I69-25 at %s\n", rtapi_pci_name(dev));
                 board->llio.fpga_part_number = "6slx25ftg256";
             }
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i69.%d", num_4i69);
-            num_4i69 ++;
+            snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i69.%d", inst->num_4i69);
+            inst->num_4i69 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P1";
@@ -632,8 +645,8 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
                 LL_PRINT("discovered 3x20-2.0M at %s\n", rtapi_pci_name(dev));
                 board->llio.fpga_part_number = "3s2000fg456";
             }
-            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_3x20.%d", num_3x20);
-            num_3x20 ++;
+            snprintf(board->llio.name, sizeof(board->llio.name), "hm2_3x20.%d", inst->num_3x20);
+            inst->num_3x20 ++;
             board->llio.num_ioport_connectors = 6;
             board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P4";
@@ -648,7 +661,7 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
 
         default: {
             LL_ERR("unknown subsystem device id 0x%04x\n", dev->subsystem_device);
-            return failed_errno = -ENODEV;
+            return inst->failed_errno = -ENODEV;
         }
     }
 
@@ -726,7 +739,7 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
 
     rtapi_pci_set_drvdata(dev, board);
 
-    board->llio.comp_id = comp_id;
+    board->llio.comp_id = inst->comp_id;
     board->llio.private = board;
 
     board->llio.threadsafe = 1;
@@ -734,7 +747,7 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
     board->llio.read = hm2_pci_read;
     board->llio.write = hm2_pci_write;
 
-    r = hm2_register(&board->llio, config[num_boards]);
+    r = inst->core->register_board(inst->core->ctx, &board->llio, inst->config[inst->num_boards]);
     if (r != 0) {
         THIS_ERR("board fails HM2 registration\n");
         goto fail1;
@@ -742,7 +755,7 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
 
     THIS_PRINT("initialized AnyIO board at %s\n", rtapi_pci_name(dev));
 
-    num_boards ++;
+    inst->num_boards ++;
     return 0;
 
 
@@ -753,21 +766,22 @@ fail1:
 
 fail0:
     rtapi_pci_disable_device(dev);
-    return failed_errno = r;
+    return inst->failed_errno = r;
 }
 
 
 static void hm2_pci_remove(struct rtapi_pci_dev *dev) {
     int i;
+    hm2_pci_inst_t *inst = pci_bridge_inst;
 
-    for (i = 0; i < num_boards; i++) {
-        hm2_pci_t *board = &hm2_pci_board[i];
+    for (i = 0; i < inst->num_boards; i++) {
+        hm2_pci_t *board = &inst->hm2_pci_board[i];
         hm2_lowlevel_io_t *this = &board->llio;
 
         if (board->dev == dev) {
             THIS_PRINT("dropping AnyIO board at %s\n", rtapi_pci_name(dev));
 
-            hm2_unregister(&board->llio);
+            inst->core->unregister_board(inst->core->ctx, &board->llio);
 
             // Unmap board memory
             if (board->base != NULL) {
@@ -791,43 +805,94 @@ static struct rtapi_pci_driver hm2_pci_driver = {
 };
 
 
-int rtapi_app_main(void) {
+static void hm2_pci_destroy(cmod_t *self);
+
+static void hm2_pci_parse_argv(hm2_pci_inst_t *inst, int argc, const char **argv) {
+    int cfg_idx = 0;
+
+    for (int i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "config=", 7) == 0 && cfg_idx < HM2_PCI_MAX_BOARDS) {
+            strncpy(inst->cfg_bufs[cfg_idx], argv[i] + 7, sizeof(inst->cfg_bufs[0]) - 1);
+            inst->config[cfg_idx] = inst->cfg_bufs[cfg_idx];
+            cfg_idx++;
+        }
+    }
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
+{
+    const gomc_hal_t *hal = env->hal;
     int r = 0;
+
+    hm2_pci_inst_t *p = calloc(1, sizeof(*p));
+    if (!p) return -ENOMEM;
+    p->env = env;
+    hm2_log = env->log;
+
+    hm2_pci_parse_argv(p, argc, argv);
+
+    p->core = hm2_core_api_get(env->api, "hostmot2");
+    if (!p->core) {
+        gomc_log_errorf(env->log, name, "hm2_pci: hostmot2 core API not found (is hostmot2 loaded?)\n");
+        free(p);
+        return -1;
+    }
 
     LL_PRINT("loading Mesa AnyIO HostMot2 driver version " HM2_PCI_VERSION "\n");
 
-    comp_id = hal_init(HM2_LLIO_NAME);
-    if (comp_id < 0) return comp_id;
+    r = hal->init(hal->ctx, HM2_LLIO_NAME, env->dl_handle, GOMC_HAL_COMP_REALTIME);
+    if (r < 0) {
+        free(p);
+        return r;
+    }
+    p->comp_id = r;
 
+    pci_bridge_inst = p;
     r = rtapi_pci_register_driver(&hm2_pci_driver);
     if (r != 0) {
         LL_ERR("error registering PCI driver\n");
-        hal_exit(comp_id);
+        pci_bridge_inst = NULL;
+        hal->exit(hal->ctx, p->comp_id);
+        free(p);
         return r;
     }
 
-    if(failed_errno) {
+    if(p->failed_errno) {
 	// at least one card registration failed
-	hal_exit(comp_id);
+	int err = p->failed_errno;
+	pci_bridge_inst = NULL;
+	hal->exit(hal->ctx, p->comp_id);
 	rtapi_pci_unregister_driver(&hm2_pci_driver);
-	return failed_errno;
+	free(p);
+	return err;
     }
 
-    if(num_boards == 0) {
+    if(p->num_boards == 0) {
 	// no cards were detected
-	hal_exit(comp_id);
+	pci_bridge_inst = NULL;
+	hal->exit(hal->ctx, p->comp_id);
 	rtapi_pci_unregister_driver(&hm2_pci_driver);
+	free(p);
 	return -ENODEV;
     }
 
-    hal_ready(comp_id);
+    hal->ready(hal->ctx, p->comp_id);
+
+    p->cmod.Destroy = hm2_pci_destroy;
+    p->cmod.priv = p;
+    *out = &p->cmod;
     return 0;
 }
 
 
-void rtapi_app_exit(void) {
+static void hm2_pci_destroy(cmod_t *self) {
+    hm2_pci_inst_t *p = self->priv;
+    const gomc_hal_t *hal = p->env->hal;
     rtapi_pci_unregister_driver(&hm2_pci_driver);
-    LL_PRINT("driver unloaded\n");
-    hal_exit(comp_id);
+    pci_bridge_inst = NULL;
+    LL_PRINT("driver unloaded");
+    hal->exit(hal->ctx, p->comp_id);
+    free(p);
 }
 

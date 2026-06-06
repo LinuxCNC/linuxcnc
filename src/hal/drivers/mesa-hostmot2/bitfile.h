@@ -47,7 +47,7 @@ typedef struct {
 
 
 int bitfile_parse_and_verify(const struct rtapi_firmware *fw, bitfile_t *bitfile);
-rtapi_u8 bitfile_reverse_bits(rtapi_u8 data);
+uint8_t bitfile_reverse_bits(uint8_t data);
 
 
 

@@ -1,3 +1,4 @@
+#include <float.h>
 // Copyright (C) 2025 B Stultiens
 // Parts from mesa_modbus.c.tmpl Copyright (C) 2023 Andy Pugh
 //
@@ -19,34 +20,29 @@
 /* A generic configurable Modbus component using Mesa PktUART interfaces */
 
 
-#include "rtapi.h"
-#include "rtapi_slab.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
+#include <errno.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <limits.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 #include "rtapi_byteorder.h"
-#include "rtapi_ctype.h"
-#include "rtapi_math.h"
-#include "hal.h"
 #include "hostmot2-serial.h"
+
+#include "gomc_env.h"
+#define HM2_LLIO_NAME "hm2_modbus"
+static const void *hm2_log;
 
 #include "hm2_modbus.h"
 
-#if !defined(__KERNEL__)
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <endian.h>
-static inline rtapi_u32 be32_to_cpu(rtapi_u32 v) { return be32toh(v); }
-static inline rtapi_u16 be16_to_cpu(rtapi_u16 v) { return be16toh(v); }
-#else
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/fs.h>
-#include <linux/file.h>
-#include <linux/uaccess.h>
-#include <linux/byteorder/generic.h>
-#endif
+static inline uint32_t be32_to_cpu(uint32_t v) { return be32toh(v); }
+static inline uint16_t be16_to_cpu(uint16_t v) { return be16toh(v); }
 
 // Define to compile in debug messages
 #define DEBUG
@@ -55,9 +51,6 @@ static inline rtapi_u16 be16_to_cpu(rtapi_u16 v) { return be16toh(v); }
 #endif
 
 /* module information */
-MODULE_AUTHOR("B.Stultiens");
-MODULE_DESCRIPTION("Modbus interface and control using Mesa PktUART");
-MODULE_LICENSE("GPL");
 
 // The number of instances we support
 #define MAX_PORTS 8
@@ -117,7 +110,7 @@ static inline bool mtypeisvalid(unsigned mtype) {
 		!((mtypeformat(mtype) == MBT_A || mtypeformat(mtype) == MBT_B) && mtypetype(mtype) == MBT_F);
 }
 static inline unsigned mtypesize(unsigned mtype) {
-	static const rtapi_u8 s[16] = {1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1};
+	static const uint8_t s[16] = {1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1};
 	return s[mtypeformat(mtype)];
 }
 
@@ -144,11 +137,11 @@ static inline unsigned mtypesize(unsigned mtype) {
 #ifndef DEBUG
 #define MSG_DBG(fmt...)		do{}while(0)
 #else
-#define MSG_DBG(fmt...)		do { rtapi_print_msg(RTAPI_MSG_DBG,  fmt); } while(0)
+#define MSG_DBG(fmt...)		do { gomc_log_debugf(hm2_log, HM2_LLIO_NAME, fmt); } while(0)
 #endif
-#define MSG_INFO(fmt...)	do { rtapi_print_msg(RTAPI_MSG_INFO, fmt); } while(0)
-#define MSG_ERR(fmt...)		do { rtapi_print_msg(RTAPI_MSG_ERR,  fmt); } while(0)
-#define MSG_WARN(fmt...)	do { rtapi_print_msg(RTAPI_MSG_WARN, fmt); } while(0)
+#define MSG_INFO(fmt...)	do { gomc_log_infof(hm2_log, HM2_LLIO_NAME, fmt); } while(0)
+#define MSG_ERR(fmt...)		do { gomc_log_errorf(hm2_log, HM2_LLIO_NAME, fmt); } while(0)
+#define MSG_WARN(fmt...)	do { gomc_log_warnf(hm2_log, HM2_LLIO_NAME, fmt); } while(0)
 
 // State-machine states
 enum {
@@ -179,51 +172,58 @@ static const char *state_names[] = {
 
 // Overlapping types to handle byte-ordering
 typedef union {
-	rtapi_u8	b[4];
-	rtapi_u16	w[2];
-	rtapi_u32	u;
-	rtapi_s32	s;
+	uint8_t	b[4];
+	uint16_t	w[2];
+	uint32_t	u;
+	int32_t	s;
 	float		f;
 } mb_types32_u;
 
 typedef union {
-	rtapi_u8	b[8];
-	rtapi_u16	w[4];
-	rtapi_u64	u;
-	rtapi_s64	s;
+	uint8_t	b[8];
+	uint16_t	w[4];
+	uint64_t	u;
+	int64_t	s;
 	double		f;
 } mb_types64_u;
+
+typedef union {
+	gomc_hal_bit_t b;
+	gomc_hal_s32_t s;
+	gomc_hal_u32_t u;
+	gomc_hal_float_t f;
+} hal_data_u;
 
 typedef struct {
 	hal_data_u	*pin;		// Modbus data pin
 	hal_data_u	*offset;	// Pin offset input
-	hal_float_t *scale;		// Pin scale input
-	hal_float_t	*scaled;	// Pin scaled output
+	gomc_hal_float_t *scale;		// Pin scale input
+	gomc_hal_float_t	*scaled;	// Pin scaled output
 } mbt_pin_hal_t;
 
 typedef struct {
-	hal_bit_t *disable;		// Command disable input
-	hal_bit_t *disabled;	// Command disable output
-	hal_bit_t *reset;		// Reset errors and re-enable on rising edge
-	hal_u32_t *error;		// Command error counter
-	hal_u32_t *errorcode;	// Last error code
+	gomc_hal_bit_t *disable;		// Command disable input
+	gomc_hal_bit_t *disabled;	// Command disable output
+	gomc_hal_bit_t *reset;		// Reset errors and re-enable on rising edge
+	gomc_hal_u32_t *error;		// Command error counter
+	gomc_hal_u32_t *errorcode;	// Last error code
 } mbt_cmd_hal_t;
 
 typedef struct {
 	mbt_pin_hal_t *pins;	// All data pins
 	mbt_cmd_hal_t *cmds;	// Per command pins
-	hal_bit_t *suspend;		// Suspend running commands
-	hal_bit_t *reset;		// Reset command errors and re-enable on rising edge
-	hal_bit_t *fault;
-	hal_u32_t *faultcmd;
-	hal_u32_t *lasterror;
-	hal_u32_t baudrate;	// RO
-	hal_u32_t parity;	// RO
-	hal_u32_t stopbits;	// RO
-	hal_u32_t icdelay;	// RO Inter character delay
-	hal_u32_t txdelay;	// RO Inter frame delay for packets sent
-	hal_u32_t rxdelay;	// RO Inter frame delay for packet end detection in receive
-	hal_u32_t drvdelay;	// RO Delay before sending data (in bit times)
+	gomc_hal_bit_t *suspend;		// Suspend running commands
+	gomc_hal_bit_t *reset;		// Reset command errors and re-enable on rising edge
+	gomc_hal_bit_t *fault;
+	gomc_hal_u32_t *faultcmd;
+	gomc_hal_u32_t *lasterror;
+	gomc_hal_u32_t baudrate;	// RO
+	gomc_hal_u32_t parity;	// RO
+	gomc_hal_u32_t stopbits;	// RO
+	gomc_hal_u32_t icdelay;	// RO Inter character delay
+	gomc_hal_u32_t txdelay;	// RO Inter frame delay for packets sent
+	gomc_hal_u32_t rxdelay;	// RO Inter frame delay for packet end detection in receive
+	gomc_hal_u32_t drvdelay;	// RO Delay before sending data (in bit times)
 } hm2_modbus_hal_t;
 
 // The command structure and data buffer.
@@ -232,14 +232,14 @@ typedef struct {
 typedef struct {
 	hm2_modbus_mbccb_cmds_t cmd;	// In host order
 	hm2_modbus_mbccb_type_t *typeptr;	// The types for this command
-	rtapi_s64	interval;			// The running interval of this command
+	int64_t	interval;			// The running interval of this command
 	int pinref;		// What pin to start with
 	bool disabled;	// Skipped if set
 	bool prevreset;	// To track the rising edge
 	bool prevdisable;	// To track the rising edge
 	int errors;		// Count the errors
 	int datalen;	// Number of bytes in 'data' buffer
-	rtapi_u8 data[MAX_PKT_LEN]; // PDU: 2-byte header, MAX_MSG_LEN payload, 2-byte CRC
+	uint8_t data[MAX_PKT_LEN]; // PDU: 2-byte header, MAX_MSG_LEN payload, 2-byte CRC
 } hm2_modbus_cmd_t;
 
 static inline bool hastimesout(const hm2_modbus_cmd_t *cc)  { return 0 != (cc->cmd.flags & MBCCB_CMDF_TIMESOUT); }
@@ -252,14 +252,14 @@ static inline bool haspinscale(const hm2_modbus_mbccb_type_t *t)  { return 0 != 
 static inline bool haspinclamp(const hm2_modbus_mbccb_type_t *t)  { return 0 != (t->flags & MBCCB_PINF_CLAMP); }
 
 typedef struct {
-	char		name[HAL_NAME_LEN];		// What we call ourselves (hm2_modbus.X)
-	char		uart[HAL_NAME_LEN];		// The PktUART we attached to (like hm2_5i25.Y.pktuart.Z)
+	char		name[GOMC_HAL_NAME_LEN];		// What we call ourselves (hm2_modbus.X)
+	char		uart[GOMC_HAL_NAME_LEN];		// The PktUART we attached to (like hm2_5i25.Y.pktuart.Z)
 
 	hm2_modbus_mbccb_header_t *mbccb;		// Modbus command control binary
 	ssize_t		mbccbsize;					// Buffer/file size
 	const hm2_modbus_mbccb_cmds_t *initptr;	// Pointer to mbccb init section
 	hm2_modbus_mbccb_cmds_t *cmdsptr;		// Pointer to mbccb cmds section
-	const rtapi_u8 *dataptr;				// Pointer to mbccb data section
+	const uint8_t *dataptr;				// Pointer to mbccb data section
 	unsigned	ninit;		// Total number of inits
 	unsigned	ncmds;		// Total number of commands
 	unsigned	npins;		// Total number of pins
@@ -283,10 +283,15 @@ typedef struct {
 	unsigned	maxicharbits;	// The max allowed inter-character delay (in bit-times)
 
 	unsigned	frameidx;	// Which frame we are handling (should only ever be 0)
-	rtapi_u32	fsizes[16];	// See HM2_PKTUART_RCR_* defines for bit-fields
-	rtapi_u32	rxdata[256];	// 0x400 bytes, 0x100 32-bit words
+	uint32_t	fsizes[16];	// See HM2_PKTUART_RCR_* defines for bit-fields
+	uint32_t	rxdata[256];	// 0x400 bytes, 0x100 32-bit words
 
-	rtapi_s64	timeout;	// Timeout timer for commands
+	int64_t	timeout;	// Timeout timer for commands
+#ifdef DEBUG_STATE
+	uint32_t	dbg_oldtx;
+	uint32_t	dbg_oldrx;
+	int			dbg_oldst;
+#endif
 } hm2_modbus_inst_t;
 
 typedef struct {
@@ -294,41 +299,23 @@ typedef struct {
 	hm2_modbus_inst_t *insts;
 } hm2_modbus_t;
 
-
-static int comp_id = -1;	// HAL component ID
-static hm2_modbus_t mb;		// Our instances
+// Module instance struct - all mutable state lives here
+typedef struct hm2_modbus_mod {
+	cmod_t cmod;              // Embedded cmod (must be first for container_of)
+	const cmod_env_t *env;
+	int comp_id;
+	hm2_modbus_t mb;
+	char *ports[MAX_PORTS];
+	char *mbccbs[MAX_PORTS];
+	char port_bufs[MAX_PORTS][256];
+	char mbccb_bufs[MAX_PORTS][256];
+	int debug;
+} hm2_modbus_mod_t;
 
 // Forward declarations
 static int parse_data_frame(hm2_modbus_inst_t *inst);
 static int build_data_frame(hm2_modbus_inst_t *inst);
-static rtapi_u16 crc_modbus(const rtapi_u8 *buffer, size_t len);
-
-
-/*
- * The PktUART interfaces to be linked to the hm2_modbus module. This consists
- * of a list of HAL names like:
- *   ports="hm2_7i95.0.pktuart.0","hm2_5i25.0.pktuart.7"
- */
-static char *ports[MAX_PORTS];
-RTAPI_MP_ARRAY_STRING(ports, MAX_PORTS, "PktUART HAL names");
-
-/*
- * The Modbus configuration and command structure files for each PktUART
- * interface to be read by the hm2_modbus module. This should be a list of
- * absolute path file names like:
- *   files="/usr/share/linuxcnc/modbus/spindle.mbccb","/home/test/xyz.mbccb"
- */
-static char *mbccbs[MAX_PORTS];
-RTAPI_MP_ARRAY_STRING(mbccbs, MAX_PORTS, "Binary Modbus configuration and command sequence absolute path file names");
-
-/*
- * Set the message level for debugging purpose. This has the (side-)effect that
- * all modules within this process will start spitting out messages at the
- * requested level.
- * The upstream message level is not touched if debug == -1.
- */
-static int debug = -1;
-RTAPI_MP_INT(debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)");
+static uint16_t crc_modbus(const uint8_t *buffer, size_t len);
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -489,7 +476,7 @@ static int send_modbus_pkt(hm2_modbus_inst_t *inst)
 	}
 
 	// Append the CRC to the packet
-	rtapi_u16 checksum = crc_modbus(cc->data, cc->datalen);
+	uint16_t checksum = crc_modbus(cc->data, cc->datalen);
 	cc->data[cc->datalen++] = checksum & 0xff;
 	cc->data[cc->datalen++] = (checksum >> 8) & 0xff;
 
@@ -499,8 +486,8 @@ static int send_modbus_pkt(hm2_modbus_inst_t *inst)
 	MSG_DBG("\n");
 #endif
 
-	rtapi_u8  frames = 1;
-	rtapi_u16 fsizes[1] = { cc->datalen };
+	uint8_t  frames = 1;
+	uint16_t fsizes[1] = { cc->datalen };
 	return hm2_pktuart_send(inst->uart, cc->data, &frames, fsizes);
 }
 
@@ -672,7 +659,7 @@ static inline void set_state(hm2_modbus_inst_t *inst, int newstate)
 		// Exiting the START state means we are running a command and need to
 		// setup the timeout. If this is no command, then the timeout setting
 		// will be overridden locally in the code after the state change.
-		inst->timeout = (rtapi_s64)inst->cmds[inst->cmdidx].cmd.ctimeout * 1000;
+		inst->timeout = (int64_t)inst->cmds[inst->cmdidx].cmd.ctimeout * 1000;
 		break;
 	default:
 		break;
@@ -738,11 +725,6 @@ static void do_timeout(hm2_modbus_inst_t *inst)
 //   d) read and handle reply
 // That way we can assure no wrong replies being attached to a sent command.
 //
-#ifdef DEBUG_STATE
-static rtapi_u32 oldtx;
-static rtapi_u32 oldrx;
-static int oldst = -1;
-#endif
 static void process(void *arg, long period)
 {
 	hm2_modbus_inst_t *inst = (hm2_modbus_inst_t *)arg;
@@ -759,10 +741,10 @@ static void process(void *arg, long period)
 	}
 
 	int r;
-	rtapi_u32 frsize;
+	uint32_t frsize;
 
-	rtapi_u32 rxstatus = hm2_pktuart_get_rx_status(inst->uart);
-	rtapi_u32 txstatus = hm2_pktuart_get_tx_status(inst->uart);
+	uint32_t rxstatus = hm2_pktuart_get_rx_status(inst->uart);
+	uint32_t txstatus = hm2_pktuart_get_tx_status(inst->uart);
 
 	if(!handling_inits(inst)) {
 		// Only count timeout when running the command list
@@ -795,11 +777,11 @@ static void process(void *arg, long period)
 	case STATE_START:
 #ifdef DEBUG_STATE
 		{
-			if(oldst != inst->state || oldrx != rxstatus || oldtx != txstatus) {
+			if(inst->dbg_oldst != inst->state || inst->dbg_oldrx != rxstatus || inst->dbg_oldtx != txstatus) {
 				MSG_DBG("START txstatus=0x%08x rxstatus=0x%08x\n", txstatus, rxstatus);
-				oldrx = rxstatus;
-				oldtx = txstatus;
-				oldst = inst->state;
+				inst->dbg_oldrx = rxstatus;
+				inst->dbg_oldtx = txstatus;
+				inst->dbg_oldst = inst->state;
 			}
 		}
 #endif
@@ -835,7 +817,7 @@ retry_next_init:
 				}
 				break;	// Meta commands will always need the next round
 			} else {
-				const rtapi_u8 *dptr = inst->dataptr + cc->cmd.cdataptr;
+				const uint8_t *dptr = inst->dataptr + cc->cmd.cdataptr;
 				memcpy(cc->data, dptr + 1, *dptr);	// Packet is prepared as data
 				cc->datalen = *dptr;
 				if((r = send_modbus_pkt(inst)) < 0) {	// This will attach CRC
@@ -893,7 +875,7 @@ retry_next_init:
 			// Reset to asap if the interval is shorter than the previous
 			// experienced delay.
 			if(cc->cmd.cinterval == 0xffffffff)
-				cc->interval = RTAPI_INT64_MAX;
+				cc->interval = INT64_MAX;
 			else if((cc->interval += cc->cmd.cinterval * 1000) < 0)
 				cc->interval = -1;
 
@@ -938,11 +920,11 @@ retry_next_init:
 	case STATE_WAIT_FOR_TIMEOUT:
 #ifdef DEBUG_STATE
 		{
-			if(oldst != inst->state || oldrx != rxstatus || oldtx != txstatus) {
+			if(inst->dbg_oldst != inst->state || inst->dbg_oldrx != rxstatus || inst->dbg_oldtx != txstatus) {
 				MSG_DBG("WAIT_FOR_TIMEOUT RX 0x%08x TX 0x%08x\n", txstatus, rxstatus);
-				oldrx = rxstatus;
-				oldtx = txstatus;
-				oldst = inst->state;
+				inst->dbg_oldrx = rxstatus;
+				inst->dbg_oldtx = txstatus;
+				inst->dbg_oldst = inst->state;
 			}
 		}
 #endif
@@ -968,11 +950,11 @@ retry_next_init:
 	case STATE_WAIT_FOR_SEND_COMPLETE:
 #ifdef DEBUG_STATE
 		{
-			if(oldst != inst->state || oldrx != rxstatus || oldtx != txstatus) {
+			if(inst->dbg_oldst != inst->state || inst->dbg_oldrx != rxstatus || inst->dbg_oldtx != txstatus) {
 				MSG_DBG("WAIT_FOR_SEND_COMPLETE txstatus=0x%08x rxstatus=0x%08x\n", txstatus, rxstatus);
-				oldrx = rxstatus;
-				oldtx = txstatus;
-				oldst = inst->state;
+				inst->dbg_oldrx = rxstatus;
+				inst->dbg_oldtx = txstatus;
+				inst->dbg_oldst = inst->state;
 			}
 		}
 #endif
@@ -997,11 +979,11 @@ retry_next_init:
 wait_for_data_frame:
 #ifdef DEBUG_STATE
 		{
-			if(oldst != inst->state || oldrx != rxstatus || oldtx != txstatus) {
+			if(inst->dbg_oldst != inst->state || inst->dbg_oldrx != rxstatus || inst->dbg_oldtx != txstatus) {
 				MSG_DBG("WAIT_FOR_DATA_FRAME rxstatus=0x%08x\n", rxstatus);
-				oldrx = rxstatus;
-				oldtx = txstatus;
-				oldst = inst->state;
+				inst->dbg_oldrx = rxstatus;
+				inst->dbg_oldtx = txstatus;
+				inst->dbg_oldst = inst->state;
 			}
 		}
 #endif
@@ -1113,7 +1095,7 @@ fetch_more_data:
 // * -EMSGSIZE On failure
 // * +1        On data change
 //
-static inline int ch_append8(hm2_modbus_cmd_t *cc, rtapi_u8 v)
+static inline int ch_append8(hm2_modbus_cmd_t *cc, uint8_t v)
 {
 	int r = 0;
 	// The +2 is from the header (address and command), already written to the
@@ -1135,20 +1117,20 @@ static inline int ch_append8(hm2_modbus_cmd_t *cc, rtapi_u8 v)
 							return rv; \
 						r += rv; \
 					} while(0)
-static inline int ch_append16_sw(hm2_modbus_cmd_t *cc, rtapi_u16 v, bool reverse)
+static inline int ch_append16_sw(hm2_modbus_cmd_t *cc, uint16_t v, bool reverse)
 {
 	int r = 0;
 	if(reverse) {
-		CHK_RV(ch_append8(cc, (rtapi_u8)(v & 0xFF)));
-		CHK_RV(ch_append8(cc, (rtapi_u8)(v >> 8)));
+		CHK_RV(ch_append8(cc, (uint8_t)(v & 0xFF)));
+		CHK_RV(ch_append8(cc, (uint8_t)(v >> 8)));
 	} else {
-		CHK_RV(ch_append8(cc, (rtapi_u8)(v >> 8)));
-		CHK_RV(ch_append8(cc, (rtapi_u8)(v & 0xFF)));
+		CHK_RV(ch_append8(cc, (uint8_t)(v >> 8)));
+		CHK_RV(ch_append8(cc, (uint8_t)(v & 0xFF)));
 	}
 	return r;
 }
 
-static inline int ch_append16(hm2_modbus_cmd_t *cc, rtapi_u16 v)
+static inline int ch_append16(hm2_modbus_cmd_t *cc, uint16_t v)
 {
 	return ch_append16_sw(cc, v, false);
 }
@@ -1157,7 +1139,7 @@ static inline int ch_append16(hm2_modbus_cmd_t *cc, rtapi_u16 v)
 // The byteswaps array indices MUST follow the MBT_xx, MBT_xxxx and
 // MBT_xxxxxxxx endian defines.
 //
-typedef rtapi_u8 byteswaps_t[8];
+typedef uint8_t byteswaps_t[8];
 static const byteswaps_t byteswaps[2+4+8] = {
 #if RTAPI_BIG_ENDIAN
 	// 2-byte/16-bit
@@ -1204,7 +1186,7 @@ static inline int ch_append32(hm2_modbus_cmd_t *cc, const mb_types32_u *v, unsig
 	unsigned idx = mtypeformat(cc->typeptr[tidx].mtype);
 	if(idx < MBT_ABCD || idx > MBT_DCBA)
 		return -EINVAL;
-	const rtapi_u8 *bs = byteswaps[idx];
+	const uint8_t *bs = byteswaps[idx];
 	for(unsigned i = 0; i < 4; i++)
 		CHK_RV(ch_append8(cc, v->b[*bs++]));
 	return r;
@@ -1216,7 +1198,7 @@ static inline int ch_append64(hm2_modbus_cmd_t *cc, const mb_types64_u *v, unsig
 	unsigned idx = mtypeformat(cc->typeptr[tidx].mtype);
 	if(idx < MBT_ABCDEFGH || idx > MBT_HGFEDCBA)
 		return -EINVAL;
-	const rtapi_u8 *bs = byteswaps[idx];
+	const uint8_t *bs = byteswaps[idx];
 	for(unsigned i = 0; i < 8; i++)
 		CHK_RV(ch_append8(cc, v->b[*bs++]));
 	return r;
@@ -1231,7 +1213,7 @@ static inline int ch_init(hm2_modbus_cmd_t *cc)
 	return r;
 }
 
-static int map_u(hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
+static int map_u(hm2_modbus_cmd_t *cc, uint64_t v, unsigned tidx)
 {
 	int r = 0;
 	mb_types32_u v32;
@@ -1240,21 +1222,21 @@ static int map_u(hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
 	switch(fmt) {
 	case MBT_A:
 	case MBT_B:
-		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_UINT8_MAX) v = RTAPI_UINT8_MAX;
-		CHK_RV(ch_append16_sw(cc, (rtapi_u16)v & 0xff, fmt == MBT_B));
+		if(haspinclamp(&cc->typeptr[tidx]) && v > UINT8_MAX) v = UINT8_MAX;
+		CHK_RV(ch_append16_sw(cc, (uint16_t)v & 0xff, fmt == MBT_B));
 		break;
 
 	case MBT_AB:
 	case MBT_BA:
-		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_UINT16_MAX) v = RTAPI_UINT16_MAX;
-		CHK_RV(ch_append16_sw(cc, (rtapi_u16)v, fmt == MBT_BA));
+		if(haspinclamp(&cc->typeptr[tidx]) && v > UINT16_MAX) v = UINT16_MAX;
+		CHK_RV(ch_append16_sw(cc, (uint16_t)v, fmt == MBT_BA));
 		break;
 
 	case MBT_ABCD:
 	case MBT_BADC:
 	case MBT_CDAB:
 	case MBT_DCBA:
-		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_UINT32_MAX) v = RTAPI_UINT32_MAX;
+		if(haspinclamp(&cc->typeptr[tidx]) && v > UINT32_MAX) v = UINT32_MAX;
 		v32.u = v;
 		CHK_RV(ch_append32(cc, &v32, tidx));
 		break;
@@ -1274,7 +1256,7 @@ static int map_u(hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
 	return r;
 }
 
-static int map_s(hm2_modbus_cmd_t *cc, rtapi_s64 v, unsigned tidx)
+static int map_s(hm2_modbus_cmd_t *cc, int64_t v, unsigned tidx)
 {
 	int r = 0;
 	mb_types32_u v32;
@@ -1283,25 +1265,25 @@ static int map_s(hm2_modbus_cmd_t *cc, rtapi_s64 v, unsigned tidx)
 	switch(fmt) {
 	case MBT_A:
 	case MBT_B:
-		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_INT8_MAX) v = RTAPI_INT8_MAX;
-		if(haspinclamp(&cc->typeptr[tidx]) && v < RTAPI_INT8_MIN) v = RTAPI_INT8_MIN;
-		CHK_RV(ch_append16_sw(cc, (rtapi_u16)v & 0xff, fmt == MBT_B));
+		if(haspinclamp(&cc->typeptr[tidx]) && v > INT8_MAX) v = INT8_MAX;
+		if(haspinclamp(&cc->typeptr[tidx]) && v < INT8_MIN) v = INT8_MIN;
+		CHK_RV(ch_append16_sw(cc, (uint16_t)v & 0xff, fmt == MBT_B));
 		break;
 
 	case MBT_AB:
 	case MBT_BA:
-		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_INT16_MAX) v = RTAPI_INT16_MAX;
-		if(haspinclamp(&cc->typeptr[tidx]) && v < RTAPI_INT16_MIN) v = RTAPI_INT16_MIN;
-		CHK_RV(ch_append16_sw(cc, (rtapi_s16)v, fmt == MBT_BA));
+		if(haspinclamp(&cc->typeptr[tidx]) && v > INT16_MAX) v = INT16_MAX;
+		if(haspinclamp(&cc->typeptr[tidx]) && v < INT16_MIN) v = INT16_MIN;
+		CHK_RV(ch_append16_sw(cc, (int16_t)v, fmt == MBT_BA));
 		break;
 
 	case MBT_ABCD:
 	case MBT_BADC:
 	case MBT_CDAB:
 	case MBT_DCBA:
-		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_INT32_MAX) v = RTAPI_INT32_MAX;
-		if(haspinclamp(&cc->typeptr[tidx]) && v < RTAPI_INT32_MIN) v = RTAPI_INT32_MIN;
-		v32.s = (rtapi_s32)v;
+		if(haspinclamp(&cc->typeptr[tidx]) && v > INT32_MAX) v = INT32_MAX;
+		if(haspinclamp(&cc->typeptr[tidx]) && v < INT32_MIN) v = INT32_MIN;
+		v32.s = (int32_t)v;
 		CHK_RV(ch_append32(cc, &v32, tidx));
 		break;
 
@@ -1325,7 +1307,7 @@ static int map_f(hm2_modbus_cmd_t *cc, double v, unsigned tidx)
 	int r = 0;
 	mb_types32_u v32;
 	mb_types64_u v64;
-	rtapi_u16 w;
+	uint16_t w;
 	unsigned fmt = mtypeformat(cc->typeptr[tidx].mtype);
 	switch(fmt) {
 	case MBT_A:
@@ -1384,45 +1366,45 @@ static int map_f(hm2_modbus_cmd_t *cc, double v, unsigned tidx)
 	return r;
 }
 
-static inline rtapi_s64 map_us(rtapi_u64 v)
+static inline int64_t map_us(uint64_t v)
 {
-	return (rtapi_s64)(v & 0x7ffffffffffffffful);
+	return (int64_t)(v & 0x7ffffffffffffffful);
 }
 
-static inline double map_uf(rtapi_u64 v)
-{
-	return (double)v;
-}
-
-static inline rtapi_u64 map_su(rtapi_s64 v)
-{
-	return v < 0 ? 0 : (rtapi_u64)v;
-}
-
-static inline double map_sf(rtapi_s64 v)
+static inline double map_uf(uint64_t v)
 {
 	return (double)v;
 }
 
-static inline rtapi_s64 map_fs(double v)
+static inline uint64_t map_su(int64_t v)
 {
-	if(v > (double)RTAPI_INT64_MAX) return RTAPI_INT64_MAX;
-	if(v < (double)RTAPI_INT64_MIN) return RTAPI_INT64_MIN;
-	return (rtapi_s64)v;
+	return v < 0 ? 0 : (uint64_t)v;
 }
 
-static inline rtapi_u64 map_fu(double v)
+static inline double map_sf(int64_t v)
+{
+	return (double)v;
+}
+
+static inline int64_t map_fs(double v)
+{
+	if(v > (double)INT64_MAX) return INT64_MAX;
+	if(v < (double)INT64_MIN) return INT64_MIN;
+	return (int64_t)v;
+}
+
+static inline uint64_t map_fu(double v)
 {
 	if(v < 0.0) return 0;
-	if(v > (double)RTAPI_UINT64_MAX) return RTAPI_UINT64_MAX;
-	return (rtapi_u64)v;
+	if(v > (double)UINT64_MAX) return UINT64_MAX;
+	return (uint64_t)v;
 }
 
 static int build_data_frame(hm2_modbus_inst_t *inst)
 {
 	hm2_modbus_cmd_t *cc = current_cmd(inst);
 	hm2_modbus_hal_t *hal = inst->hal;
-	rtapi_u8 acc = 0;
+	uint8_t acc = 0;
 	int r = 0;
 	int p = cc->pinref;
 	mb_types64_u val64;
@@ -1457,17 +1439,17 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 		// The target mtype can only be MBT_AB or MBT_BA (single reg write)
 		CHK_RV(ch_append16(cc, cc->cmd.caddr));
 		switch(cc->typeptr[0].htype) {
-		case HAL_BIT:
+		case GOMC_HAL_BIT:
 			CHK_RV(map_u(cc, hal->pins[p].pin->b ? 1 : 0, 0));
 			break;
-		case HAL_U32:
+		case GOMC_HAL_U32:
 			switch(mtypetype(cc->typeptr[0].mtype)) {
 			case MBT_U: CHK_RV(map_u(cc, hal->pins[p].pin->u, 0)); break;
 			case MBT_S: CHK_RV(map_s(cc, map_us(hal->pins[p].pin->u), 0)); break;
 			case MBT_F: CHK_RV(map_f(cc, map_uf(hal->pins[p].pin->u), 0)); break;
 			}
 			break;
-		case HAL_S32:
+		case GOMC_HAL_S32:
 			if(!haspinscale(&cc->typeptr[0])) {
 				switch(mtypetype(cc->typeptr[0].mtype)) {
 				case MBT_U: CHK_RV(map_u(cc, map_su(hal->pins[p].pin->s), 0)); break;
@@ -1475,7 +1457,7 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 				case MBT_F: CHK_RV(map_f(cc, map_sf(hal->pins[p].pin->s), 0)); break;
 				}
 			} else {
-				val64.f = (real_t)((rtapi_s64)hal->pins[p].pin->s - hal->pins[p].offset->s) * *(hal->pins[p].scale);
+				val64.f = (double)((int64_t)hal->pins[p].pin->s - hal->pins[p].offset->s) * *(hal->pins[p].scale);
 				switch(mtypetype(cc->typeptr[0].mtype)) {
 				case MBT_U: CHK_RV(map_u(cc, map_fu(val64.f), 0)); break;
 				case MBT_S: CHK_RV(map_s(cc, map_fs(val64.f), 0)); break;
@@ -1483,7 +1465,7 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 				}
 			}
 			break;
-		case HAL_FLOAT:
+		case GOMC_HAL_FLOAT:
 			if(!haspinscale(&cc->typeptr[0])) {
 				switch(mtypetype(cc->typeptr[0].mtype)) {
 				case MBT_U: CHK_RV(map_u(cc, map_fu(hal->pins[p].pin->f), 0)); break;
@@ -1530,17 +1512,17 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 				regpos++;
 			}
 			switch(cc->typeptr[i].htype) {
-			case HAL_BIT:
+			case GOMC_HAL_BIT:
 				CHK_RV(map_u(cc, hal->pins[p].pin->b ? 1 : 0, i));
 				break;
-			case HAL_U32:
+			case GOMC_HAL_U32:
 				switch(mtypetype(cc->typeptr[i].mtype)) {
 				case MBT_U: CHK_RV(map_u(cc, hal->pins[p].pin->u, i)); break;
 				case MBT_S: CHK_RV(map_s(cc, map_us(hal->pins[p].pin->u), i)); break;
 				case MBT_F: CHK_RV(map_f(cc, map_uf(hal->pins[p].pin->u), i)); break;
 				}
 				break;
-			case HAL_S32:
+			case GOMC_HAL_S32:
 				if(!haspinscale(&cc->typeptr[i])) {
 					switch(mtypetype(cc->typeptr[i].mtype)) {
 					case MBT_U: CHK_RV(map_u(cc, map_su(hal->pins[p].pin->s), i)); break;
@@ -1548,7 +1530,7 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 					case MBT_F: CHK_RV(map_f(cc, map_sf(hal->pins[p].pin->s), i)); break;
 					}
 				} else {
-					val64.f = (real_t)((rtapi_s64)hal->pins[p].pin->s - hal->pins[p].offset->s) * *(hal->pins[p].scale);
+					val64.f = (double)((int64_t)hal->pins[p].pin->s - hal->pins[p].offset->s) * *(hal->pins[p].scale);
 					switch(mtypetype(cc->typeptr[i].mtype)) {
 					case MBT_U: CHK_RV(map_u(cc, map_fu(val64.f), i)); break;
 					case MBT_S: CHK_RV(map_s(cc, map_fs(val64.f), i)); break;
@@ -1556,7 +1538,7 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 					}
 				}
 				break;
-			case HAL_FLOAT:
+			case GOMC_HAL_FLOAT:
 				if(!haspinscale(&cc->typeptr[i])) {
 					switch(mtypetype(cc->typeptr[i].mtype)) {
 					case MBT_U: CHK_RV(map_u(cc, map_fu(hal->pins[p].pin->f), i)); break;
@@ -1588,7 +1570,7 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 }
 #undef CHK_RV
 
-static int test_bytecount(const hm2_modbus_inst_t *inst, const rtapi_u8 *bytes, unsigned pkt_len, unsigned mini, unsigned maxi)
+static int test_bytecount(const hm2_modbus_inst_t *inst, const uint8_t *bytes, unsigned pkt_len, unsigned mini, unsigned maxi)
 {
 	if(bytes[2] < mini || bytes[2] > maxi) {
 		MSG_ERR("%s: error: Invalid byte count %u in received PDU not in [%u, %u], cmd %u\n", inst->name, bytes[2], mini, maxi, bytes[1]);
@@ -1612,31 +1594,31 @@ static int test_bytecount(const hm2_modbus_inst_t *inst, const rtapi_u8 *bytes, 
 	return 0;
 }
 
-static inline mb_types32_u get32(rtapi_u8 *b, unsigned mtype)
+static inline mb_types32_u get32(uint8_t *b, unsigned mtype)
 {
 	mb_types32_u v;
 	unsigned idx = mtypeformat(mtype);
 	if(idx < MBT_ABCD || idx > MBT_DCBA)
 		idx = MBT_ABCD;
-	const rtapi_u8 *bs = byteswaps[idx];
+	const uint8_t *bs = byteswaps[idx];
 	for(unsigned i = 0; i < 4; i++)
 		v.b[i] = b[*bs++];
 	return v;
 }
 
-static inline mb_types64_u get64(rtapi_u8 *b, unsigned mtype)
+static inline mb_types64_u get64(uint8_t *b, unsigned mtype)
 {
 	mb_types64_u v;
 	unsigned idx = mtypeformat(mtype);
 	if(idx < MBT_ABCDEFGH || idx > MBT_HGFEDCBA)
 		idx = MBT_ABCDEFGH;
-	const rtapi_u8 *bs = byteswaps[idx];
+	const uint8_t *bs = byteswaps[idx];
 	for(unsigned i = 0; i < 8; i++)
 		v.b[i] = b[*bs++];
 	return v;
 }
 
-static inline rtapi_u64 mask_mbtsize(unsigned mtype, rtapi_u64 v)
+static inline uint64_t mask_mbtsize(unsigned mtype, uint64_t v)
 {
 	switch(mtypeformat(mtype)) {
 	case MBT_A:
@@ -1655,100 +1637,100 @@ static inline rtapi_u64 mask_mbtsize(unsigned mtype, rtapi_u64 v)
 	}
 }
 
-static inline rtapi_u32 unmap32_uu(const hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
+static inline uint32_t unmap32_uu(const hm2_modbus_cmd_t *cc, uint64_t v, unsigned tidx)
 {
-	if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_UINT32_MAX)
-		return RTAPI_UINT32_MAX;
-	return (rtapi_u32)v;
+	if(haspinclamp(&cc->typeptr[tidx]) && v > UINT32_MAX)
+		return UINT32_MAX;
+	return (uint32_t)v;
 }
 
-static inline rtapi_u32 unmap32_us(const hm2_modbus_cmd_t *cc, rtapi_s64 v, unsigned tidx)
+static inline uint32_t unmap32_us(const hm2_modbus_cmd_t *cc, int64_t v, unsigned tidx)
 {
 	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
+		if(v > INT32_MAX) return INT32_MAX;
 		if(v < 0) return 0;
 	}
-	return (rtapi_u32)v;
+	return (uint32_t)v;
 }
 
-static inline rtapi_u32 unmap32_uf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
+static inline uint32_t unmap32_uf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
 {
 	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > (double)RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
+		if(v > (double)INT32_MAX) return INT32_MAX;
 		if(v < 0.0) return 0;
 	}
-	return (rtapi_u32)v;
+	return (uint32_t)v;
 }
 
-static inline rtapi_s32 unmap32_su(const hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
+static inline int32_t unmap32_su(const hm2_modbus_cmd_t *cc, uint64_t v, unsigned tidx)
 {
-	if(haspinclamp(&cc->typeptr[tidx]) && v > (rtapi_u64)RTAPI_INT32_MAX)
-		return RTAPI_INT32_MAX;
-	return (rtapi_s32)v;
+	if(haspinclamp(&cc->typeptr[tidx]) && v > (uint64_t)INT32_MAX)
+		return INT32_MAX;
+	return (int32_t)v;
 }
 
-static inline rtapi_s32 unmap32_ss(const hm2_modbus_cmd_t *cc, rtapi_s64 v, unsigned tidx)
-{
-	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > (rtapi_s64)RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
-		if(v < (rtapi_s64)RTAPI_INT32_MIN) return RTAPI_INT32_MIN;
-	}
-	return (rtapi_s32)v;
-}
-
-static inline rtapi_s32 unmap32_sf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
+static inline int32_t unmap32_ss(const hm2_modbus_cmd_t *cc, int64_t v, unsigned tidx)
 {
 	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > (double)RTAPI_INT32_MAX) return RTAPI_INT32_MAX;
-		if(v < (double)RTAPI_INT32_MIN) return RTAPI_INT32_MIN;
+		if(v > (int64_t)INT32_MAX) return INT32_MAX;
+		if(v < (int64_t)INT32_MIN) return INT32_MIN;
 	}
-	return (rtapi_s32)v;
+	return (int32_t)v;
 }
 
-static inline rtapi_u64 unmap64_us(const hm2_modbus_cmd_t *cc, rtapi_s64 v, unsigned tidx)
+static inline int32_t unmap32_sf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
+{
+	if(haspinclamp(&cc->typeptr[tidx])) {
+		if(v > (double)INT32_MAX) return INT32_MAX;
+		if(v < (double)INT32_MIN) return INT32_MIN;
+	}
+	return (int32_t)v;
+}
+
+static inline uint64_t unmap64_us(const hm2_modbus_cmd_t *cc, int64_t v, unsigned tidx)
 {
 	if(haspinclamp(&cc->typeptr[tidx]) && v < 0)
 		return 0;
-	return (rtapi_u64)v;
+	return (uint64_t)v;
 }
 
-static inline rtapi_u64 unmap64_uf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
+static inline uint64_t unmap64_uf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
 {
 	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > (double)RTAPI_INT64_MAX) return RTAPI_INT64_MAX;
+		if(v > (double)INT64_MAX) return INT64_MAX;
 		if(v < 0.0) return 0;
 	}
-	return (rtapi_u64)v;
+	return (uint64_t)v;
 }
 
-static inline rtapi_s64 unmap64_su(const hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
+static inline int64_t unmap64_su(const hm2_modbus_cmd_t *cc, uint64_t v, unsigned tidx)
 {
-	if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_INT64_MAX)
-		return RTAPI_INT64_MAX;
-	return (rtapi_s64)v;
+	if(haspinclamp(&cc->typeptr[tidx]) && v > INT64_MAX)
+		return INT64_MAX;
+	return (int64_t)v;
 }
 
-static inline rtapi_s64 unmap64_sf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
+static inline int64_t unmap64_sf(const hm2_modbus_cmd_t *cc, double v, unsigned tidx)
 {
 	if(haspinclamp(&cc->typeptr[tidx])) {
-		if(v > (double)RTAPI_INT64_MAX) return RTAPI_INT64_MAX;
-		if(v < (double)RTAPI_INT64_MIN) return RTAPI_INT64_MIN;
+		if(v > (double)INT64_MAX) return INT64_MAX;
+		if(v < (double)INT64_MIN) return INT64_MIN;
 	}
-	return (rtapi_s64)v;
+	return (int64_t)v;
 }
 
 static int parse_data_frame(hm2_modbus_inst_t *inst)
 {
 	hm2_modbus_cmd_t *cc = current_cmd(inst);
 	hm2_modbus_hal_t *hal = inst->hal;
-	rtapi_u32 *data = inst->rxdata;
+	uint32_t *data = inst->rxdata;
 	unsigned rxcount = HM2_PKTUART_RCR_NBYTES_VAL(inst->fsizes[inst->frameidx]);
 	int w = 0;
 	int b = 0;
 	int p = cc->pinref;
 
-	rtapi_u8 bytes[MAX_PKT_LEN] = {};
-	rtapi_u16 checksum;
+	uint8_t bytes[MAX_PKT_LEN] = {};
+	uint16_t checksum;
 	mb_types32_u val32 = {};
 	mb_types64_u val64;
 
@@ -1794,7 +1776,7 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 	}
 
 	checksum = crc_modbus(bytes, rxcount - 2);
-	rtapi_u16 retcrc = ((rtapi_u16)bytes[rxcount - 1] << 8) | bytes[rxcount - 2];
+	uint16_t retcrc = ((uint16_t)bytes[rxcount - 1] << 8) | bytes[rxcount - 2];
 	if(retcrc != checksum) {
 		MSG_ERR("%s: error: Modbus checksum error: got 0x%04x, expected 0x%04x\n", inst->name, retcrc, checksum);
 		set_error(inst, EBADE);
@@ -1840,16 +1822,16 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 			// Read bytes according to the size of the mtype
 			switch(mtypeformat(cc->typeptr[i].mtype)) {
 			case MBT_A:	// Always sign-extended
-				val64.s = (rtapi_s64)(rtapi_s8)bytes[pos+1];
+				val64.s = (int64_t)(int8_t)bytes[pos+1];
 				break;
 			case MBT_B:	// Always sign-extended
-				val64.s = (rtapi_s64)(rtapi_s8)bytes[pos];
+				val64.s = (int64_t)(int8_t)bytes[pos];
 				break;
 			case MBT_AB:	// Always sign-extended
-				val64.s = 256 * (rtapi_s64)(rtapi_s8)bytes[pos] + bytes[pos+1];
+				val64.s = 256 * (int64_t)(int8_t)bytes[pos] + bytes[pos+1];
 				break;
 			case MBT_BA:	// Always sign-extended
-				val64.s = 256 * (rtapi_s64)(rtapi_s8)bytes[pos+1] + bytes[pos];
+				val64.s = 256 * (int64_t)(int8_t)bytes[pos+1] + bytes[pos];
 				break;
 
 			case MBT_ABCD:
@@ -1881,7 +1863,7 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 			// val64.s contains the 8 bytes sign extended if necessary
 			// val32 contains the 4-byte sequence
 			if(MBT_F == mtypetype(cc->typeptr[i].mtype)) {
-				rtapi_u64 u;
+				uint64_t u;
 				switch(mtypesize(cc->typeptr[i].mtype)) {
 				case 1:
 					// Promote half to double. Don't rely on compiler
@@ -1893,14 +1875,14 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 					if(!(val64.u & 0x7c00)) {
 						// Zero or subnormal
 						// Keep exponent zero, only mantissa shifted
-						u |= (rtapi_u64)(val64.u & 0x3ff) << (52 - 10);
+						u |= (uint64_t)(val64.u & 0x3ff) << (52 - 10);
 					} else if((val64.u & 0x7c00) == 0x7c00) {
 						// Inf or NaN
 						u |= 0x7ff0000000000000ul;	// Exponent all ones
-						u |= (rtapi_u64)(val64.u & 0x3ff);	// Mantissa --> NaN in lower bits
+						u |= (uint64_t)(val64.u & 0x3ff);	// Mantissa --> NaN in lower bits
 					} else {
-						u |= (rtapi_u64)((((val64.u & 0x7c00) >> 10) - 15 + 1023) & 0x7ff) << 52;	// Exponent
-						u |= (rtapi_u64)(val64.u & 0x3ff) << (52 - 10);	// Mantissa
+						u |= (uint64_t)((((val64.u & 0x7c00) >> 10) - 15 + 1023) & 0x7ff) << 52;	// Exponent
+						u |= (uint64_t)(val64.u & 0x3ff) << (52 - 10);	// Mantissa
 					}
 					val64.u = u;	// val64.f now contains half extended to double
 					break;
@@ -1925,17 +1907,17 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 			}
 
 			switch(cc->typeptr[i].htype) {
-			case HAL_BIT:
+			case GOMC_HAL_BIT:
 				hal->pins[p].pin->b = 0 != val64.u;	// Zero maps to false, anything else to true
 				break;
-			case HAL_U32:
+			case GOMC_HAL_U32:
 				switch(mtypetype(cc->typeptr[i].mtype)) {
 				case MBT_U:	hal->pins[p].pin->u = unmap32_uu(cc, val64.u, i); break;
 				case MBT_S:	hal->pins[p].pin->u = unmap32_us(cc, val64.s, i); break;
 				case MBT_F:	hal->pins[p].pin->u = unmap32_uf(cc, val64.f, i); break;
 				}
 				break;
-			case HAL_S32:
+			case GOMC_HAL_S32:
 				switch(mtypetype(cc->typeptr[i].mtype)) {
 				case MBT_U:	hal->pins[p].pin->s = unmap32_su(cc, val64.u, i); break;
 				case MBT_S:	hal->pins[p].pin->s = unmap32_ss(cc, val64.s, i); break;
@@ -1943,13 +1925,13 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 				}
 				if(haspinscale(&cc->typeptr[i])) {
 					switch(mtypetype(cc->typeptr[i].mtype)) {
-					case MBT_U:	*(hal->pins[p].scaled) = (real_t)(rtapi_s64)(val64.u - hal->pins[p].offset->u) * *(hal->pins[p].scale); break;
-					case MBT_S:	*(hal->pins[p].scaled) = (real_t)(val64.s - hal->pins[p].offset->s) * *(hal->pins[p].scale); break;
+					case MBT_U:	*(hal->pins[p].scaled) = (double)(int64_t)(val64.u - hal->pins[p].offset->u) * *(hal->pins[p].scale); break;
+					case MBT_S:	*(hal->pins[p].scaled) = (double)(val64.s - hal->pins[p].offset->s) * *(hal->pins[p].scale); break;
 					case MBT_F:	*(hal->pins[p].scaled) = (val64.f - hal->pins[p].offset->f) * *(hal->pins[p].scale); break;
 					}
 				}
 				break;
-			case HAL_FLOAT:
+			case GOMC_HAL_FLOAT:
 				switch(mtypetype(cc->typeptr[i].mtype)) {
 				case MBT_U:	hal->pins[p].pin->f = val64.u; break;
 				case MBT_S:	hal->pins[p].pin->f = val64.s; break;
@@ -1957,8 +1939,8 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 				}
 				if(haspinscale(&cc->typeptr[i])) {
 					switch(mtypetype(cc->typeptr[i].mtype)) {
-					case MBT_U:	*(hal->pins[p].scaled) = (real_t)(rtapi_s64)(val64.u - hal->pins[p].offset->u) * *(hal->pins[p].scale); break;
-					case MBT_S:	*(hal->pins[p].scaled) = (real_t)(val64.s - hal->pins[p].offset->s) * *(hal->pins[p].scale); break;
+					case MBT_U:	*(hal->pins[p].scaled) = (double)(int64_t)(val64.u - hal->pins[p].offset->u) * *(hal->pins[p].scale); break;
+					case MBT_S:	*(hal->pins[p].scaled) = (double)(val64.s - hal->pins[p].offset->s) * *(hal->pins[p].scale); break;
 					case MBT_F:	*(hal->pins[p].scaled) = (val64.f - hal->pins[p].offset->f) * *(hal->pins[p].scale); break;
 					}
 				}
@@ -2007,9 +1989,9 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 // Crc poly x^16 + x^15 + x^2 + 1
 // hex 0x8005 (reversed: 0xA001)
 //
-static rtapi_u16 crc_modbus(const rtapi_u8 *buffer, size_t len)
+static uint16_t crc_modbus(const uint8_t *buffer, size_t len)
 {
-	static const rtapi_u8 crctabhi[256] = { // Table of CRC values for high–order byte
+	static const uint8_t crctabhi[256] = { // Table of CRC values for high–order byte
 		0x00, 0xc1, 0x81, 0x40, 0x01, 0xc0, 0x80, 0x41, 0x01, 0xc0, 0x80, 0x41, 0x00, 0xc1, 0x81, 0x40,
 		0x01, 0xc0, 0x80, 0x41, 0x00, 0xc1, 0x81, 0x40, 0x00, 0xc1, 0x81, 0x40, 0x01, 0xc0, 0x80, 0x41,
 		0x01, 0xc0, 0x80, 0x41, 0x00, 0xc1, 0x81, 0x40, 0x00, 0xc1, 0x81, 0x40, 0x01, 0xc0, 0x80, 0x41,
@@ -2028,7 +2010,7 @@ static rtapi_u16 crc_modbus(const rtapi_u8 *buffer, size_t len)
 		0x00, 0xc1, 0x81, 0x40, 0x01, 0xc0, 0x80, 0x41, 0x01, 0xc0, 0x80, 0x41, 0x00, 0xc1, 0x81, 0x40
 	};
 
-	static const rtapi_u8 crctablo[256] = { // Table of CRC values for low–order byte
+	static const uint8_t crctablo[256] = { // Table of CRC values for low–order byte
 		0x00, 0xc0, 0xc1, 0x01, 0xc3, 0x03, 0x02, 0xc2, 0xc6, 0x06, 0x07, 0xc7, 0x05, 0xc5, 0xc4, 0x04,
 		0xcc, 0x0c, 0x0d, 0xcd, 0x0f, 0xcf, 0xce, 0x0e, 0x0a, 0xca, 0xcb, 0x0b, 0xc9, 0x09, 0x08, 0xc8,
 		0xd8, 0x18, 0x19, 0xd9, 0x1b, 0xdb, 0xda, 0x1a, 0x1e, 0xde, 0xdf, 0x1f, 0xdd, 0x1d, 0x1c, 0xdc,
@@ -2047,23 +2029,22 @@ static rtapi_u16 crc_modbus(const rtapi_u8 *buffer, size_t len)
 		0x44, 0x84, 0x85, 0x45, 0x87, 0x47, 0x46, 0x86, 0x82, 0x42, 0x43, 0x83, 0x41, 0x81, 0x80, 0x40
 	};
 
-	rtapi_u8 crch = 0xff;
-	rtapi_u8 crcl = 0xff;
+	uint8_t crch = 0xff;
+	uint8_t crcl = 0xff;
 	while(len--) {
 		unsigned idx = crcl ^ *buffer++;
 		crcl = crch ^ crctabhi[idx];
 		crch = crctablo[idx];
 	}
-	return ((rtapi_u16)crch << 8) | crcl;
+	return ((uint16_t)crch << 8) | crcl;
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /*                     Mbccb file read and validation                      */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#if !defined(__KERNEL__)
 // Userspace file read
-static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_modbus_mbccb_header_t **pmbccb)
+static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const gomc_rtapi_t *rtapi, const char *fname, hm2_modbus_mbccb_header_t **pmbccb)
 {
 	if(!pmbccb)
 		return -EINVAL;
@@ -2088,7 +2069,7 @@ static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_
 	}
 
 	// Allocate memory
-	*pmbccb = rtapi_kzalloc(sb.st_size, RTAPI_GFP_KERNEL);
+	*pmbccb = rtapi->calloc(rtapi->ctx, sb.st_size);
 	if(!*pmbccb) {
 		MSG_ERR("%s: error: Failed to allocate %zd bytes memory for mbccb buffer\n", inst->name, (ssize_t)sb.st_size);
 		close(fd);
@@ -2104,14 +2085,14 @@ retry_read:
 		if(errno == EINTR)
 			goto retry_read;	// Interrupted syscall
 		MSG_ERR("%s: error: Failed to read from '%s' (error %d)\n", inst->name, fname, errno);
-		rtapi_kfree(*pmbccb);
+		rtapi->free(rtapi->ctx, *pmbccb);
 		*pmbccb = NULL;
 		close(fd);
 		return rv;
 	}
 	if(err != (ssize_t)sb.st_size) {
 		MSG_ERR("%s: error: Read %zd bytes instead of %zd bytes from '%s', aborting\n", inst->name, err, (ssize_t)sb.st_size, fname);
-		rtapi_kfree(*pmbccb);
+		rtapi->free(rtapi->ctx, *pmbccb);
 		*pmbccb = NULL;
 		close(fd);
 		return -EIO;
@@ -2120,64 +2101,14 @@ retry_read:
 	return err;	// Read it all, return the size
 }
 
-#else
-
-// In-kernel file read
-static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_modbus_mbccb_header_t **pmbccb)
-{
-	if(!pmbccb)
-		return -EINVAL;
-
-	struct file *fp;
-	*pmbccb = NULL;
-
-	// Open the file
-	fp = filp_open(fname, O_RDONLY, 0);
-	if(IS_ERR(fp)) {
-		MSG_ERR("%s: error: Failed to open '%s' for reading (error %d)\n", inst->name, fname, (int)PTR_ERR(fp));
-		// FIXME: is it necessary to check negative?
-		return PTR_ERR(fp) < 0 ? PTR_ERR(fp) : -PTR_ERR(fp);
-	}
-
-	ssize_t fsize = fp->f_inode->i_size;	// File's inode file size
-
-	// Allocate memory
-	*pmbccb = rtapi_kzalloc(fsize, RTAPI_GFP_KERNEL);
-	if(!*pmbccb) {
-		MSG_ERR("%s: error: Failed to allocate %zd bytes memory for mbccb buffer\n", inst->name, fsize);
-		filp_close(fp, NULL);
-		return -ENOMEM;
-	}
-
-	// Read the entire file
-	ssize_t err = kernel_read(fp, *pmbccb, fsize, NULL);
-	if(err < 0) {
-		MSG_ERR("%s: error: Failed to read from '%s' (error %zd)\n", inst->name, fname, err);
-		rtapi_kfree(*pmbccb);
-		*pmbccb = NULL;
-		filp_close(fp, NULL);
-		return err;
-	}
-	if(err != fsize) {
-		MSG_ERR("%s: error: Read %zd bytes instead of %zd bytes from '%s', aborting\n", inst->name, err, fsize, fname);
-		rtapi_kfree(*pmbccb);
-		*pmbccb = NULL;
-		filp_close(fp, NULL);
-		return -EIO;	// Assume IO error if the sizes do not match
-	}
-	filp_close(fp, NULL);
-	return err;	// Read it all, return the size
-}
-#endif
-
 
 static int check_htype(unsigned type)
 {
 	switch(type) {
-	case HAL_BIT:	// not valid in register read/write
-	case HAL_U32:
-	case HAL_S32:
-	case HAL_FLOAT:
+	case GOMC_HAL_BIT:	// not valid in register read/write
+	case GOMC_HAL_U32:
+	case GOMC_HAL_S32:
+	case GOMC_HAL_FLOAT:
 		return 0;
 	}
 	return -1;
@@ -2187,12 +2118,12 @@ static int check_htype(unsigned type)
 // Returns 0 on success and -errno on failure. A message has been printed in
 // case of error.
 //
-static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
+static int load_mbccb(hm2_modbus_inst_t *inst, const gomc_rtapi_t *rtapi, const char *fname)
 {
 	int rv = -EINVAL;
 
 	hm2_modbus_mbccb_header_t *mbccb;
-	ssize_t mbccblen = read_mbccb(inst, fname, &mbccb);
+	ssize_t mbccblen = read_mbccb(inst, rtapi, fname, &mbccb);
 	if(mbccblen < 0)
 		return (int)mbccblen;
 
@@ -2202,7 +2133,7 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 	}
 
 	// Done reading, now test format
-	static const rtapi_u8 signature[8] = {'M','e','s','a','M','B','0','1'};
+	static const uint8_t signature[8] = {'M','e','s','a','M','B','0','1'};
 	if(memcmp(signature, mbccb->sig, sizeof(signature))) {
 		char buf[sizeof(mbccb->sig)+1];
 		for(unsigned i = 0; i < sizeof(mbccb->sig); i++)
@@ -2282,11 +2213,11 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 
 	// Calculate pointers and sizes
 	size_t ofs = sizeof(hm2_modbus_mbccb_header_t);
-	hm2_modbus_mbccb_cmds_t *initptr = (hm2_modbus_mbccb_cmds_t *)((rtapi_u8 *)mbccb + ofs);
+	hm2_modbus_mbccb_cmds_t *initptr = (hm2_modbus_mbccb_cmds_t *)((uint8_t *)mbccb + ofs);
 	ofs += mbccb->initlen;
-	hm2_modbus_mbccb_cmds_t *cmdsptr = (hm2_modbus_mbccb_cmds_t *)((rtapi_u8 *)mbccb + ofs);
+	hm2_modbus_mbccb_cmds_t *cmdsptr = (hm2_modbus_mbccb_cmds_t *)((uint8_t *)mbccb + ofs);
 	ofs += mbccb->cmdslen;
-	const rtapi_u8 *dataptr = ((rtapi_u8 *)mbccb + ofs);
+	const uint8_t *dataptr = ((uint8_t *)mbccb + ofs);
 	unsigned ninit = mbccb->initlen / sizeof(hm2_modbus_mbccb_cmds_t);
 	unsigned ncmds = mbccb->cmdslen / sizeof(hm2_modbus_mbccb_cmds_t);
 
@@ -2300,8 +2231,8 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 	// Check the data segment fragments to add up to the reported length
 	// Note: zero-length segments are allowed (for alignment) and have one
 	// length byte being zero.
-	rtapi_u32 dl = 0;
-	for(const rtapi_u8 *dptr = dataptr; dptr < dataptr + mbccb->datalen; dptr += *dptr + 1) {
+	uint32_t dl = 0;
+	for(const uint8_t *dptr = dataptr; dptr < dataptr + mbccb->datalen; dptr += *dptr + 1) {
 		dl += *dptr + 1;	// Also count the length byte
 	}
 	if(dl != mbccb->datalen) {
@@ -2309,7 +2240,7 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 		goto errout;
 	}
 
-	const rtapi_u8 *dataptrend = dataptr + mbccb->datalen;
+	const uint8_t *dataptrend = dataptr + mbccb->datalen;
 
 	// Check all init data packets
 	for(unsigned i = 0; i < ninit; i++) {
@@ -2336,7 +2267,7 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 			goto errout;
 		}
 
-		const rtapi_u8 *dp = dataptr + initptr[i].cdataptr;
+		const uint8_t *dp = dataptr + initptr[i].cdataptr;
 		if(initptr[i].cdataptr >= mbccb->datalen) {
 			MSG_ERR("%s: error: Mbccb init %u data size mismatch. Read %u is beyond segment size %u\n",
 						inst->name, i, initptr[i].cdataptr, mbccb->datalen);
@@ -2459,7 +2390,7 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 						inst->name, c, cmdsptr[c].func, cmdsptr[c].cpincnt);
 				goto errout;
 			}
-			// These are implicit HAL_BIT
+			// These are implicit GOMC_HAL_BIT
 			break;
 		case MBCMD_R_REGISTERS:
 		case MBCMD_R_INPUTREGS:
@@ -2552,7 +2483,7 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 		// Check each pin
 		// Strings are pascal strings with 'leading byte == length' and must
 		// additionally be NUL terminated. The NUL is counted in the length.
-		const rtapi_u8 *dp = dataptr + cmdsptr[c].cdataptr;
+		const uint8_t *dp = dataptr + cmdsptr[c].cdataptr;
 		for(unsigned p = 0; p < cmdsptr[c].cpincnt; p++) {
 			if(dp + *dp >= dataptrend) {
 				MSG_ERR("%s: error: Mbccb pin %u:%u outside data segment\n", inst->name, c, p);
@@ -2596,7 +2527,7 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 	return 0;	// Success
 
 errout:
-	rtapi_kfree(mbccb);
+	rtapi->free(rtapi->ctx, mbccb);
 	return rv;
 }
 
@@ -2604,67 +2535,87 @@ errout:
 /*                        Main entry and exit point                        */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-static void docleanup(void)
+static void docleanup(hm2_modbus_mod_t *mod)
 {
-	if(comp_id >= 0)
-		hal_exit(comp_id);
+	if(mod->comp_id >= 0)
+		mod->env->hal->exit(mod->env->hal->ctx, mod->comp_id);
 
-	if(mb.insts) {
-		for(int i = 0; i < mb.ninsts; i++) {
-			if(mb.insts[i].cmds)
-				rtapi_kfree(mb.insts[i].cmds);
-			if(mb.insts[i].mbccb)
-				rtapi_kfree(mb.insts[i].mbccb);
+	if(mod->mb.insts) {
+		for(int i = 0; i < mod->mb.ninsts; i++) {
+			if(mod->mb.insts[i].cmds)
+				mod->env->rtapi->free(mod->env->rtapi->ctx, mod->mb.insts[i].cmds);
+			if(mod->mb.insts[i].mbccb)
+				mod->env->rtapi->free(mod->env->rtapi->ctx, mod->mb.insts[i].mbccb);
 		}
-		rtapi_kfree(mb.insts);
+		mod->env->rtapi->free(mod->env->rtapi->ctx, mod->mb.insts);
 	}
 }
 
-int rtapi_app_main(void)
+static void hm2_modbus_destroy(cmod_t *self);
+
+static void hm2_modbus_parse_argv(hm2_modbus_mod_t *mod, int argc, const char **argv) {
+    int port_idx = 0, mbccb_idx = 0;
+
+    for (int i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "ports=", 6) == 0 && port_idx < MAX_PORTS) {
+            strncpy(mod->port_bufs[port_idx], argv[i] + 6, sizeof(mod->port_bufs[0]) - 1);
+            mod->ports[port_idx] = mod->port_bufs[port_idx];
+            port_idx++;
+        } else if (strncmp(argv[i], "mbccbs=", 7) == 0 && mbccb_idx < MAX_PORTS) {
+            strncpy(mod->mbccb_bufs[mbccb_idx], argv[i] + 7, sizeof(mod->mbccb_bufs[0]) - 1);
+            mod->mbccbs[mbccb_idx] = mod->mbccb_bufs[mbccb_idx];
+            mbccb_idx++;
+        } else if (strncmp(argv[i], "debug=", 6) == 0) {
+            mod->debug = simple_strtol(argv[i] + 6, NULL, 0);
+        }
+    }
+}
+
+static int hm2_modbus_init(hm2_modbus_mod_t *mod)
 {
 	int retval;
 
 	// Only touch the message level if requested
-	if(debug >= 0)
-		rtapi_set_msg_level(debug);
+	if(mod->debug >= 0)
+		(void)mod->debug; // TODO: per-module log level
 
-	if(!ports[0]) {
+	if(!mod->ports[0]) {
 		MSG_ERR(COMP_NAME": The component requires at least one valid pktuart port, eg ports=\"hm2_5i25.0.pktuart.7\"\n");
 		return -EINVAL;
 	}
 
-	comp_id = hal_init(COMP_NAME);
-	if(comp_id < 0) {
+	mod->comp_id = mod->env->hal->init(mod->env->hal->ctx, COMP_NAME, mod->env->dl_handle, GOMC_HAL_COMP_REALTIME);
+	if(mod->comp_id < 0) {
 		MSG_ERR(COMP_NAME": hal_init() failed\n");
-		return comp_id;
+		return mod->comp_id;
 	}
 
 	// Count the instances.
-	for(mb.ninsts = 0; mb.ninsts < MAX_PORTS && ports[mb.ninsts]; mb.ninsts++) {}
+	for(mod->mb.ninsts = 0; mod->mb.ninsts < MAX_PORTS && mod->ports[mod->mb.ninsts]; mod->mb.ninsts++) {}
 	// Allocate memory for the instances
-	if(!(mb.insts = (hm2_modbus_inst_t *)rtapi_kzalloc(mb.ninsts * sizeof(*mb.insts), RTAPI_GFP_KERNEL))) {
+	if(!(mod->mb.insts = (hm2_modbus_inst_t *)mod->env->rtapi->calloc(mod->env->rtapi->ctx, mod->mb.ninsts * sizeof(*mod->mb.insts)))) {
 		MSG_ERR(COMP_NAME": Allocate instance memory failed\n");
-		hal_exit(comp_id);
+		mod->env->hal->exit(mod->env->hal->ctx, mod->comp_id);
 		return -ENOMEM;
 	}
 
 	// Parse the config string and assign to instances
-	for(int i = 0; i < mb.ninsts; i++) {
-		hm2_modbus_inst_t *inst = &mb.insts[i];
+	for(int i = 0; i < mod->mb.ninsts; i++) {
+		hm2_modbus_inst_t *inst = &mod->mb.insts[i];
 
-		rtapi_snprintf(inst->name, sizeof(inst->name), COMP_NAME".%d", i);
-		rtapi_strlcpy(inst->uart, ports[i], sizeof(inst->uart)-1);
+		snprintf(inst->name, sizeof(inst->name), COMP_NAME".%d", i);
+		snprintf(inst->uart, sizeof(inst->uart), "%s", mod->ports[i]);
 
-		if(!mbccbs[i]) {
+		if(!mod->mbccbs[i]) {
 			MSG_ERR("%s: error: Missing mbccb file path for instance %d in 'mbccbs' argument\n", inst->name, i);
 			retval = -EINVAL;
 			goto errout;
 		}
-		if('/' != mbccbs[i][0]) {
-			MSG_WARN("%s: warning: The 'mbccb' file path '%s' for instance %d in 'mbccbs' argument is not absolute\n", inst->name, mbccbs[i], i);
+		if('/' != mod->mbccbs[i][0]) {
+			MSG_WARN("%s: warning: The 'mbccb' file path '%s' for instance %d in 'mbccbs' argument is not absolute\n", inst->name, mod->mbccbs[i], i);
 		}
 
-		if((retval = load_mbccb(inst, mbccbs[i])) < 0) {
+		if((retval = load_mbccb(inst, mod->env->rtapi, mod->mbccbs[i])) < 0) {
 			// Messages printed in load function
 			goto errout;
 		}
@@ -2672,17 +2623,17 @@ int rtapi_app_main(void)
 		// All pointers and counts have been setup in load_mbccb()
 
 		// Allocate HAL memory
-		if(!(inst->hal =  (hm2_modbus_hal_t *)hal_malloc(sizeof(*inst->hal)))) {
+		if(!(inst->hal =  (hm2_modbus_hal_t *)mod->env->hal->malloc(mod->env->hal->ctx, sizeof(*inst->hal)))) {
 			MSG_ERR("%s: error: Failed to allocate HAL memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
-		if(!(inst->hal->pins = (mbt_pin_hal_t *)hal_malloc(inst->npins * sizeof(*inst->hal->pins)))) {
+		if(!(inst->hal->pins = (mbt_pin_hal_t *)mod->env->hal->malloc(mod->env->hal->ctx, inst->npins * sizeof(*inst->hal->pins)))) {
 			MSG_ERR("%s: error: Failed to allocate HAL pins memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
 		}
-		if(!(inst->hal->cmds = (mbt_cmd_hal_t *)hal_malloc(inst->ncmds * sizeof(*inst->hal->cmds)))) {
+		if(!(inst->hal->cmds = (mbt_cmd_hal_t *)mod->env->hal->malloc(mod->env->hal->ctx, inst->ncmds * sizeof(*inst->hal->cmds)))) {
 			MSG_ERR("%s: error: Failed to allocate HAL cmds memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
@@ -2690,7 +2641,7 @@ int rtapi_app_main(void)
 
 		if(inst->ninit > 0) {
 			// Allocate inits memory
-			if(!(inst->_init = rtapi_kzalloc(inst->ninit * sizeof(*inst->_init), RTAPI_GFP_KERNEL))) {
+			if(!(inst->_init = mod->env->rtapi->calloc(mod->env->rtapi->ctx, inst->ninit * sizeof(*inst->_init)))) {
 				MSG_ERR("%s: error: Failed to allocate init commands memory\n", inst->name);
 				retval = -ENOMEM;
 				goto errout;
@@ -2698,7 +2649,7 @@ int rtapi_app_main(void)
 		}
 
 		// Allocate commands memory
-		if(!(inst->_cmds = rtapi_kzalloc(inst->ncmds * sizeof(*inst->_cmds), RTAPI_GFP_KERNEL))) {
+		if(!(inst->_cmds = mod->env->rtapi->calloc(mod->env->rtapi->ctx, inst->ncmds * sizeof(*inst->_cmds)))) {
 			MSG_ERR("%s: error: Failed to allocate commands memory\n", inst->name);
 			retval = -ENOMEM;
 			goto errout;
@@ -2719,9 +2670,9 @@ int rtapi_app_main(void)
 		inst->cmds = inst->ninit ? inst->_init : inst->_cmds;
 
 		// Export the HAL process function
-		char pname[HAL_NAME_LEN+1];
-		rtapi_snprintf(pname, sizeof(pname), COMP_NAME".%d.process", i);
-		if((retval = hal_export_funct(pname, process, inst, 1, 0, comp_id)) < 0) {
+		char pname[GOMC_HAL_NAME_LEN+1];
+		snprintf(pname, sizeof(pname), COMP_NAME".%d.process", i);
+		if((retval = mod->env->hal->export_funct(mod->env->hal->ctx, pname, process, inst, 1, 0, mod->comp_id)) < 0) {
 			MSG_ERR("%s: error: Function export failed\n", inst->name);
 			goto errout;
 		}
@@ -2733,19 +2684,19 @@ int rtapi_app_main(void)
 						goto errout; \
 					} \
 				} while(0)
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->baudrate), comp_id, "%s.baudrate", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->parity),   comp_id, "%s.parity", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->stopbits), comp_id, "%s.stopbits", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->icdelay),  comp_id, "%s.icdelay", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->txdelay),  comp_id, "%s.txdelay", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->rxdelay),  comp_id, "%s.rxdelay", inst->name));
-		CHECK(hal_param_u32_newf(HAL_RO, &(inst->hal->drvdelay), comp_id, "%s.drivedelay", inst->name));
+		CHECK(gomc_hal_param_u32_newf(mod->env->hal, GOMC_HAL_RO, &(inst->hal->baudrate), mod->comp_id, "%s.baudrate", inst->name));
+		CHECK(gomc_hal_param_u32_newf(mod->env->hal, GOMC_HAL_RO, &(inst->hal->parity),   mod->comp_id, "%s.parity", inst->name));
+		CHECK(gomc_hal_param_u32_newf(mod->env->hal, GOMC_HAL_RO, &(inst->hal->stopbits), mod->comp_id, "%s.stopbits", inst->name));
+		CHECK(gomc_hal_param_u32_newf(mod->env->hal, GOMC_HAL_RO, &(inst->hal->icdelay),  mod->comp_id, "%s.icdelay", inst->name));
+		CHECK(gomc_hal_param_u32_newf(mod->env->hal, GOMC_HAL_RO, &(inst->hal->txdelay),  mod->comp_id, "%s.txdelay", inst->name));
+		CHECK(gomc_hal_param_u32_newf(mod->env->hal, GOMC_HAL_RO, &(inst->hal->rxdelay),  mod->comp_id, "%s.rxdelay", inst->name));
+		CHECK(gomc_hal_param_u32_newf(mod->env->hal, GOMC_HAL_RO, &(inst->hal->drvdelay), mod->comp_id, "%s.drivedelay", inst->name));
 
-		CHECK(hal_pin_bit_newf(HAL_IN,  &(inst->hal->suspend),   comp_id, "%s.suspend", inst->name));
-		CHECK(hal_pin_bit_newf(HAL_IN,  &(inst->hal->reset),     comp_id, "%s.reset", inst->name));
-		CHECK(hal_pin_bit_newf(HAL_OUT, &(inst->hal->fault),     comp_id, "%s.fault", inst->name));
-		CHECK(hal_pin_u32_newf(HAL_OUT, &(inst->hal->faultcmd),  comp_id, "%s.fault-command", inst->name));
-		CHECK(hal_pin_u32_newf(HAL_OUT, &(inst->hal->lasterror), comp_id, "%s.last-error-code", inst->name));
+		CHECK(gomc_hal_pin_bit_newf(mod->env->hal, GOMC_HAL_IN,  &(inst->hal->suspend),   mod->comp_id, "%s.suspend", inst->name));
+		CHECK(gomc_hal_pin_bit_newf(mod->env->hal, GOMC_HAL_IN,  &(inst->hal->reset),     mod->comp_id, "%s.reset", inst->name));
+		CHECK(gomc_hal_pin_bit_newf(mod->env->hal, GOMC_HAL_OUT, &(inst->hal->fault),     mod->comp_id, "%s.fault", inst->name));
+		CHECK(gomc_hal_pin_u32_newf(mod->env->hal, GOMC_HAL_OUT, &(inst->hal->faultcmd),  mod->comp_id, "%s.fault-command", inst->name));
+		CHECK(gomc_hal_pin_u32_newf(mod->env->hal, GOMC_HAL_OUT, &(inst->hal->lasterror), mod->comp_id, "%s.last-error-code", inst->name));
 
 		inst->hal->baudrate = inst->cfg_rx.baudrate = inst->cfg_tx.baudrate = inst->mbccb->baudrate;
 		unsigned parity = 0;
@@ -2865,16 +2816,16 @@ int rtapi_app_main(void)
 #define CPTR(x)	((const char *)((x) + 1))
 		for(unsigned c = 0; c < inst->ncmds; c++) {
 			// First create command status pins
-			CHECK(hal_pin_bit_newf(HAL_IN, &(inst->hal->cmds[c].disable),
-					comp_id, "%s.command.%02d.disable", inst->name, c));
-			CHECK(hal_pin_bit_newf(HAL_OUT, &(inst->hal->cmds[c].disabled),
-					comp_id, "%s.command.%02d.disabled", inst->name, c));
-			CHECK(hal_pin_u32_newf(HAL_OUT, &(inst->hal->cmds[c].error),
-					comp_id, "%s.command.%02d.errors", inst->name, c));
-			CHECK(hal_pin_u32_newf(HAL_OUT, &(inst->hal->cmds[c].errorcode),
-					comp_id, "%s.command.%02d.error-code", inst->name, c));
-			CHECK(hal_pin_bit_newf(HAL_IN, &(inst->hal->cmds[c].reset),
-					comp_id, "%s.command.%02d.reset", inst->name, c));
+			CHECK(gomc_hal_pin_bit_newf(mod->env->hal, GOMC_HAL_IN, &(inst->hal->cmds[c].disable),
+					mod->comp_id, "%s.command.%02d.disable", inst->name, c));
+			CHECK(gomc_hal_pin_bit_newf(mod->env->hal, GOMC_HAL_OUT, &(inst->hal->cmds[c].disabled),
+					mod->comp_id, "%s.command.%02d.disabled", inst->name, c));
+			CHECK(gomc_hal_pin_u32_newf(mod->env->hal, GOMC_HAL_OUT, &(inst->hal->cmds[c].error),
+					mod->comp_id, "%s.command.%02d.errors", inst->name, c));
+			CHECK(gomc_hal_pin_u32_newf(mod->env->hal, GOMC_HAL_OUT, &(inst->hal->cmds[c].errorcode),
+					mod->comp_id, "%s.command.%02d.error-code", inst->name, c));
+			CHECK(gomc_hal_pin_bit_newf(mod->env->hal, GOMC_HAL_IN, &(inst->hal->cmds[c].reset),
+					mod->comp_id, "%s.command.%02d.reset", inst->name, c));
 
 			hm2_modbus_cmd_t *cc = &inst->_cmds[c];
 
@@ -2886,97 +2837,97 @@ int rtapi_app_main(void)
 			}
 
 			// Now create the pins associated with the command
-			int dir = HAL_IN;
-			const rtapi_u8 *dptr = inst->dataptr + cc->cmd.cdataptr;
+			int dir = GOMC_HAL_IN;
+			const uint8_t *dptr = inst->dataptr + cc->cmd.cdataptr;
 			cc->pinref = p;
 			for(int j = 0; j < cc->cmd.cpincnt; j++) {
 				switch(cc->cmd.func) {
 				case MBCMD_R_COILS:
 				case MBCMD_R_INPUTS:
-					dir = HAL_OUT;
+					dir = GOMC_HAL_OUT;
 					/* Fallthrough */
 				case MBCMD_W_COIL:
 				case MBCMD_W_COILS:
-					CHECK(hal_pin_bit_newf(dir, (hal_bit_t**)&(inst->hal->pins[p++]),
-							comp_id, "%s.%s", inst->name, CPTR(dptr)));
+					CHECK(gomc_hal_pin_bit_newf(mod->env->hal, dir, (gomc_hal_bit_t**)&(inst->hal->pins[p++]),
+							mod->comp_id, "%s.%s", inst->name, CPTR(dptr)));
 					break;
 
 				case MBCMD_R_INPUTREGS:
 				case MBCMD_R_REGISTERS:
-					dir = HAL_OUT;
+					dir = GOMC_HAL_OUT;
 					/* Fallthrough */
 				case MBCMD_W_REGISTER:	// This has guaranteed pincnt == 1
 				case MBCMD_W_REGISTERS:
 					switch(cc->typeptr[j].htype) {
 					default:
-					case HAL_BIT:
-						CHECK(hal_pin_bit_newf(dir, (hal_bit_t**)&(inst->hal->pins[p++]),
-								comp_id, "%s.%s", inst->name, CPTR(dptr)));
+					case GOMC_HAL_BIT:
+						CHECK(gomc_hal_pin_bit_newf(mod->env->hal, dir, (gomc_hal_bit_t**)&(inst->hal->pins[p++]),
+								mod->comp_id, "%s.%s", inst->name, CPTR(dptr)));
 						break;
 
-					case HAL_U32:
-						CHECK(hal_pin_u32_newf(dir, (hal_u32_t**)&(inst->hal->pins[p++]),
-								comp_id, "%s.%s", inst->name, CPTR(dptr)));
+					case GOMC_HAL_U32:
+						CHECK(gomc_hal_pin_u32_newf(mod->env->hal, dir, (gomc_hal_u32_t**)&(inst->hal->pins[p++]),
+								mod->comp_id, "%s.%s", inst->name, CPTR(dptr)));
 						break;
 
-					case HAL_S32:
-						CHECK(hal_pin_s32_newf(dir, (hal_s32_t**)&(inst->hal->pins[p]),
-								comp_id, "%s.%s", inst->name, CPTR(dptr)));
+					case GOMC_HAL_S32:
+						CHECK(gomc_hal_pin_s32_newf(mod->env->hal, dir, (gomc_hal_s32_t**)&(inst->hal->pins[p]),
+								mod->comp_id, "%s.%s", inst->name, CPTR(dptr)));
 						if(haspinscale(&cc->typeptr[j])) {
-							CHECK(hal_pin_float_newf(HAL_IN, &(inst->hal->pins[p].scale),
-									comp_id, "%s.%s.scale", inst->name, CPTR(dptr)));
+							CHECK(gomc_hal_pin_float_newf(mod->env->hal, GOMC_HAL_IN, &(inst->hal->pins[p].scale),
+									mod->comp_id, "%s.%s.scale", inst->name, CPTR(dptr)));
 							*(inst->hal->pins[p].scale) = 1.0;
-							if(HAL_OUT == dir) {
-								CHECK(hal_pin_float_newf(HAL_OUT, &(inst->hal->pins[p].scaled),
-										comp_id, "%s.%s.scaled", inst->name, CPTR(dptr)));
+							if(GOMC_HAL_OUT == dir) {
+								CHECK(gomc_hal_pin_float_newf(mod->env->hal, GOMC_HAL_OUT, &(inst->hal->pins[p].scaled),
+										mod->comp_id, "%s.%s.scaled", inst->name, CPTR(dptr)));
 								switch(mtypetype(cc->typeptr[j].mtype)) {
 								case MBT_U:
-									CHECK(hal_pin_u32_newf(HAL_IN, (hal_u32_t**)&(inst->hal->pins[p].offset),
-											comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
+									CHECK(gomc_hal_pin_u32_newf(mod->env->hal, GOMC_HAL_IN, (gomc_hal_u32_t**)&(inst->hal->pins[p].offset),
+											mod->comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
 									break;
 								case MBT_S:
-									CHECK(hal_pin_s32_newf(HAL_IN, (hal_s32_t**)&(inst->hal->pins[p].offset),
-											comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
+									CHECK(gomc_hal_pin_s32_newf(mod->env->hal, GOMC_HAL_IN, (gomc_hal_s32_t**)&(inst->hal->pins[p].offset),
+											mod->comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
 									break;
 								case MBT_F:
-									CHECK(hal_pin_float_newf(HAL_IN, (hal_float_t**)&(inst->hal->pins[p].offset),
-											comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
+									CHECK(gomc_hal_pin_float_newf(mod->env->hal, GOMC_HAL_IN, (gomc_hal_float_t**)&(inst->hal->pins[p].offset),
+											mod->comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
 									break;
 								}
 							} else {
-								CHECK(hal_pin_s32_newf(HAL_IN, (hal_s32_t**)&(inst->hal->pins[p].offset),
-										comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
+								CHECK(gomc_hal_pin_s32_newf(mod->env->hal, GOMC_HAL_IN, (gomc_hal_s32_t**)&(inst->hal->pins[p].offset),
+										mod->comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
 							}
 						}
 						p++;
 						break;
-					case HAL_FLOAT:
-						CHECK(hal_pin_float_newf(dir, (hal_float_t**)&(inst->hal->pins[p]),
-								comp_id, "%s.%s", inst->name, CPTR(dptr)));
+					case GOMC_HAL_FLOAT:
+						CHECK(gomc_hal_pin_float_newf(mod->env->hal, dir, (gomc_hal_float_t**)&(inst->hal->pins[p]),
+								mod->comp_id, "%s.%s", inst->name, CPTR(dptr)));
 						if(haspinscale(&cc->typeptr[j])) {
-							CHECK(hal_pin_float_newf(HAL_IN, &(inst->hal->pins[p].scale),
-									comp_id, "%s.%s.scale", inst->name, CPTR(dptr)));
+							CHECK(gomc_hal_pin_float_newf(mod->env->hal, GOMC_HAL_IN, &(inst->hal->pins[p].scale),
+									mod->comp_id, "%s.%s.scale", inst->name, CPTR(dptr)));
 							*(inst->hal->pins[p].scale) = 1.0;
-							if(HAL_OUT == dir) {
-								CHECK(hal_pin_float_newf(HAL_OUT, &(inst->hal->pins[p].scaled),
-										comp_id, "%s.%s.scaled", inst->name, CPTR(dptr)));
+							if(GOMC_HAL_OUT == dir) {
+								CHECK(gomc_hal_pin_float_newf(mod->env->hal, GOMC_HAL_OUT, &(inst->hal->pins[p].scaled),
+										mod->comp_id, "%s.%s.scaled", inst->name, CPTR(dptr)));
 								switch(mtypetype(cc->typeptr[j].mtype)) {
 								case MBT_U:
-									CHECK(hal_pin_u32_newf(HAL_IN, (hal_u32_t**)&(inst->hal->pins[p].offset),
-											comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
+									CHECK(gomc_hal_pin_u32_newf(mod->env->hal, GOMC_HAL_IN, (gomc_hal_u32_t**)&(inst->hal->pins[p].offset),
+											mod->comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
 									break;
 								case MBT_S:
-									CHECK(hal_pin_s32_newf(HAL_IN, (hal_s32_t**)&(inst->hal->pins[p].offset),
-											comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
+									CHECK(gomc_hal_pin_s32_newf(mod->env->hal, GOMC_HAL_IN, (gomc_hal_s32_t**)&(inst->hal->pins[p].offset),
+											mod->comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
 									break;
 								case MBT_F:
-									CHECK(hal_pin_float_newf(HAL_IN, (hal_float_t**)&(inst->hal->pins[p].offset),
-											comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
+									CHECK(gomc_hal_pin_float_newf(mod->env->hal, GOMC_HAL_IN, (gomc_hal_float_t**)&(inst->hal->pins[p].offset),
+											mod->comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
 									break;
 								}
 							} else {
-								CHECK(hal_pin_float_newf(HAL_IN, (hal_float_t**)&(inst->hal->pins[p].offset),
-										comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
+								CHECK(gomc_hal_pin_float_newf(mod->env->hal, GOMC_HAL_IN, (gomc_hal_float_t**)&(inst->hal->pins[p].offset),
+										mod->comp_id, "%s.%s.offset", inst->name, CPTR(dptr)));
 							}
 							inst->hal->pins[p].offset->f = 0.0;
 						}
@@ -3003,16 +2954,43 @@ int rtapi_app_main(void)
 		inst->cfg_rx.flags &= ~HM2_PKTUART_CONFIG_FLUSH;
 		inst->cfg_tx.flags &= ~HM2_PKTUART_CONFIG_FLUSH;
 	}
-	hal_ready(comp_id);
+	mod->env->hal->ready(mod->env->hal->ctx, mod->comp_id);
 	return 0;
 
 errout:
-	docleanup();
+	docleanup(mod);
 	return retval;
 }
 
-void rtapi_app_exit(void)
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
 {
-	docleanup();
+    (void)name;
+    hm2_log = env->log;
+    hm2_modbus_mod_t *mod = env->rtapi->calloc(env->rtapi->ctx, sizeof(*mod));
+    if (!mod) return -ENOMEM;
+    mod->env = env;
+    mod->comp_id = -1;
+    mod->debug = -1;
+
+    hm2_modbus_parse_argv(mod, argc, argv);
+
+    int ret = hm2_modbus_init(mod);
+    if (ret != 0) {
+        mod->env->rtapi->free(mod->env->rtapi->ctx, mod);
+        return ret;
+    }
+
+    mod->cmod.Destroy = hm2_modbus_destroy;
+    mod->cmod.priv = mod;
+    *out = &mod->cmod;
+    return 0;
+}
+
+static void hm2_modbus_destroy(cmod_t *self)
+{
+	hm2_modbus_mod_t *mod = self->priv;
+	docleanup(mod);
+	mod->env->rtapi->free(mod->env->rtapi->ctx, mod);
 }
 // vim: syn=c ts=4

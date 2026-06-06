@@ -31,49 +31,49 @@
 // All values in Big-Endian
 // Must be 32-bit aligned and sizeof() % 4 == 0
 typedef struct {
-	rtapi_u8	sig[8];		// Signature and version {'M','e','s','a','M','B','0','1'}
-	rtapi_u32	baudrate;
-	rtapi_u16	format;		// Parity and stopbits
-	rtapi_u16	txdelay;	// Tx inter-frame timeout (t3.5)
-	rtapi_u16	rxdelay;	// Rx inter-frame timeout (t3.5)
-	rtapi_u16	drvdelay;	// Delay from output enable to tx start
-	rtapi_u16	icdelay;	// Rx inter-character timeout (t1.5)
-	rtapi_u16	unused1;
-	rtapi_u32	unused2[7];
-	rtapi_u32	initlen;	// Length of init section
-	rtapi_u32	cmdslen;	// Length of command section
-	rtapi_u32	datalen;	// Length of data table
+	uint8_t	sig[8];		// Signature and version {'M','e','s','a','M','B','0','1'}
+	uint32_t	baudrate;
+	uint16_t	format;		// Parity and stopbits
+	uint16_t	txdelay;	// Tx inter-frame timeout (t3.5)
+	uint16_t	rxdelay;	// Rx inter-frame timeout (t3.5)
+	uint16_t	drvdelay;	// Delay from output enable to tx start
+	uint16_t	icdelay;	// Rx inter-character timeout (t1.5)
+	uint16_t	unused1;
+	uint32_t	unused2[7];
+	uint32_t	initlen;	// Length of init section
+	uint32_t	cmdslen;	// Length of command section
+	uint32_t	datalen;	// Length of data table
 } hm2_modbus_mbccb_header_t;
 
 // 32 byte structure
 // All values in Big-Endian
 typedef struct {
-	rtapi_u8	mbid;	// Modbus device ID
-	rtapi_u8	func;	// Function code, 0 for init
-	rtapi_u16	flags;	// Mostly quirks to handle, see MBCCB_CMDF_* defines
+	uint8_t	mbid;	// Modbus device ID
+	uint8_t	func;	// Function code, 0 for init
+	uint16_t	flags;	// Mostly quirks to handle, see MBCCB_CMDF_* defines
 	union {
 		struct {	// Command fields
-			rtapi_u16	caddr;		// Address
-			rtapi_u16	cpincnt;		// Number of pins
-			rtapi_u16	cregcnt;		// Number of registers
-			rtapi_u16	unusedp1;	// cmds 0 (drvdly)
-			rtapi_u32	unusedp2;	// cmds 0 (icdelay)
-			rtapi_u32	ctypeptr;	// Type and address offset list
-			rtapi_u32	cinterval;	// The interval to repeat this command
-			rtapi_u32	ctimeout;	// Response timeout or delay in microseconds
+			uint16_t	caddr;		// Address
+			uint16_t	cpincnt;		// Number of pins
+			uint16_t	cregcnt;		// Number of registers
+			uint16_t	unusedp1;	// cmds 0 (drvdly)
+			uint32_t	unusedp2;	// cmds 0 (icdelay)
+			uint32_t	ctypeptr;	// Type and address offset list
+			uint32_t	cinterval;	// The interval to repeat this command
+			uint32_t	ctimeout;	// Response timeout or delay in microseconds
 		};
 		struct {	// Init fields
-			rtapi_u16	imetacmd;	// Meta command
-			rtapi_u16	irxdelay;	// init comm change
-			rtapi_u16	itxdelay;	// init comm change
-			rtapi_u16	idrvdelay;	// init comm change
-			rtapi_u32	iicdelay;	// init comm change (unusedp1)
-			rtapi_u32	unusedi1;	// init 0 (typeptr)
-			rtapi_u32	unusedi2;	// init 0 (interval)
-			rtapi_u32	ibaudrate;	// init comm change
+			uint16_t	imetacmd;	// Meta command
+			uint16_t	irxdelay;	// init comm change
+			uint16_t	itxdelay;	// init comm change
+			uint16_t	idrvdelay;	// init comm change
+			uint32_t	iicdelay;	// init comm change (unusedp1)
+			uint32_t	unusedi1;	// init 0 (typeptr)
+			uint32_t	unusedi2;	// init 0 (interval)
+			uint32_t	ibaudrate;	// init comm change
 		};
 	};
-	rtapi_u32	cdataptr; // Pin names, packet data for init
+	uint32_t	cdataptr; // Pin names, packet data for init
 } hm2_modbus_mbccb_cmds_t;
 
 #define MBCCB_CMDF_TIMESOUT  0x0001	// Don't treat timeout as an error
@@ -95,10 +95,10 @@ typedef struct {
 // Type mapping for pins/PDU register data
 // Only for R_INPUTREGS, R_REGISTERS, W_REGISTER and W_REGISTERS
 typedef struct {
-	rtapi_u8	mtype;	// Modbus type
-	rtapi_u8	htype;	// HAL type
-	rtapi_u8	flags;	// scale and clamp flags (MBCCB_PINF_*)
-	rtapi_u8	regofs;	// PDU register offset for value
+	uint8_t	mtype;	// Modbus type
+	uint8_t	htype;	// HAL type
+	uint8_t	flags;	// scale and clamp flags (MBCCB_PINF_*)
+	uint8_t	regofs;	// PDU register offset for value
 } hm2_modbus_mbccb_type_t;
 
 #endif

@@ -17,13 +17,8 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <rtapi_slab.h>
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
 
-#include "hal.h"
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
@@ -93,7 +88,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
 
     hm2->watchdog.num_instances = 1;
 
-    hm2->watchdog.instance = (hm2_watchdog_instance_t *)hal_malloc(hm2->watchdog.num_instances * sizeof(hm2_watchdog_instance_t));
+    hm2->watchdog.instance = (hm2_watchdog_instance_t *)hm2->llio->hal->malloc(hm2->llio->hal->ctx, hm2->watchdog.num_instances * sizeof(hm2_watchdog_instance_t));
     if (hm2->watchdog.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -108,13 +103,13 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->watchdog.reset_addr = md->base_address + (2 * md->register_stride);
 
 
-    r = hm2_register_tram_read_region(hm2, hm2->watchdog.status_addr, (hm2->watchdog.num_instances * sizeof(rtapi_u32)), &hm2->watchdog.status_reg);
+    r = hm2_register_tram_read_region(hm2, hm2->watchdog.status_addr, (hm2->watchdog.num_instances * sizeof(uint32_t)), &hm2->watchdog.status_reg);
     if (r < 0) {
         HM2_ERR("error registering tram read region for watchdog (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_write_region(hm2, hm2->watchdog.reset_addr, sizeof(rtapi_u32), &hm2->watchdog.reset_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->watchdog.reset_addr, sizeof(uint32_t), &hm2->watchdog.reset_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for watchdog (%d)!\n", r);
         goto fail0;
@@ -124,7 +119,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     // allocate memory for register buffers
     //
 
-    hm2->watchdog.timer_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->watchdog.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->watchdog.timer_reg = (uint32_t *)hm2->llio->rtapi->calloc(hm2->llio->rtapi->ctx, hm2->watchdog.num_instances * sizeof(uint32_t));
     if (hm2->watchdog.timer_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -137,8 +132,8 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
     // pins
-    r = hal_pin_bit_newf(
-        HAL_IO,
+    r = gomc_hal_pin_bit_newf(hm2->llio->hal, 
+        GOMC_HAL_IO,
         &(hm2->watchdog.instance[0].hal.pin.has_bit),
         hm2->llio->comp_id,
         "%s.watchdog.has_bit",
@@ -151,8 +146,8 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     // params
-    r = hal_param_u32_newf(
-        HAL_RW,
+    r = gomc_hal_param_u32_newf(hm2->llio->hal, 
+        GOMC_HAL_RW,
         &(hm2->watchdog.instance[0].hal.param.timeout_ns),
         hm2->llio->comp_id,
         "%s.watchdog.timeout_ns",
@@ -176,7 +171,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 fail1:
-    rtapi_kfree(hm2->watchdog.timer_reg);
+    hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->watchdog.timer_reg);
 
 fail0:
     hm2->watchdog.num_instances = 0;
@@ -204,7 +199,7 @@ void hm2_watchdog_print_module(hostmot2_t *hm2) {
 
 void hm2_watchdog_cleanup(hostmot2_t *hm2) {
     if (hm2->watchdog.num_instances <= 0) return;
-    if (hm2->watchdog.timer_reg != NULL) rtapi_kfree(hm2->watchdog.timer_reg);
+    if (hm2->watchdog.timer_reg != NULL) hm2->llio->rtapi->free(hm2->llio->rtapi->ctx, hm2->watchdog.timer_reg);
 }
 
 
@@ -218,7 +213,7 @@ void hm2_watchdog_prepare_tram_write(hostmot2_t *hm2) {
 // (timeout_s * clock_hz) - 1 = timer_counts
 // (timeout_ns * (1 s/1e9 ns) * clock_hz) - 1 = timer_counts
 void hm2_watchdog_force_write(hostmot2_t *hm2) {
-    rtapi_u64 tmp;
+    uint64_t tmp;
 
     if (hm2->watchdog.num_instances != 1) return;
 
@@ -239,12 +234,12 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
     }
 
     // set the watchdog timeout (we'll check for i/o errors later)
-    hm2->llio->write(hm2->llio, hm2->watchdog.timer_addr, hm2->watchdog.timer_reg, (hm2->watchdog.num_instances * sizeof(rtapi_u32)));
+    hm2->llio->write(hm2->llio, hm2->watchdog.timer_addr, hm2->watchdog.timer_reg, (hm2->watchdog.num_instances * sizeof(uint32_t)));
     hm2->watchdog.instance[0].written_timeout_ns = hm2->watchdog.instance[0].hal.param.timeout_ns;
     hm2->watchdog.instance[0].written_enable = hm2->watchdog.instance[0].enable;
 
     // clear the has-bit bit
-    hm2->llio->write(hm2->llio, hm2->watchdog.status_addr, hm2->watchdog.status_reg, sizeof(rtapi_u32));
+    hm2->llio->write(hm2->llio, hm2->watchdog.status_addr, hm2->watchdog.status_reg, sizeof(uint32_t));
 }
 
 

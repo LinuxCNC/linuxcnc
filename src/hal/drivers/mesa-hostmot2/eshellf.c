@@ -1,3 +1,8 @@
+extern char **environ;
+#include "gomc_env.h"
+#define HM2_LLIO_NAME "hm2_spix"
+extern const void *hm2_log;
+#include "hostmot2-lowlevel.h"
 /*
  * This is a component for hostmot2 board drivers
  * Copyright (c) 2013,2014,2020,2024 Michael Geszkiewicz <micges@wp.pl>,
@@ -24,17 +29,16 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <sys/wait.h>
-
-#include <rtapi.h>
+#include <spawn.h>
 
 
 int shell(char *command)
 {
 	char *const argv[] = {"sh", "-c", command, NULL};
 	pid_t pid;
-	int res = rtapi_spawn_as_root(&pid, "/bin/sh", NULL, NULL, argv, environ);
+	int res = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
 	if(res < 0)
-		perror("rtapi_spawn_as_root");
+		perror("posix_spawn");
 	int status;
 	waitpid(pid, &status, 0);
 	if(WIFEXITED(status))
@@ -56,7 +60,7 @@ int eshellf(const char *errpfx, const char *fmt, ...)
 	if(res == EXIT_SUCCESS)
 		return 0;
 
-	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: Failed to execute '%s'\n", errpfx ? errpfx : "eshellf()", commandbuf);
+	gomc_log_errorf(hm2_log, HM2_LLIO_NAME, "%s: ERROR: Failed to execute '%s'\n", errpfx ? errpfx : "eshellf()", commandbuf);
 	return -EINVAL;
 }
 
