@@ -126,17 +126,11 @@
 #include <rtapi.h>
 RTAPI_BEGIN_DECLS
 
-#if ( !defined RTAPI ) && ( !defined ULAPI )
-#error HAL needs RTAPI/ULAPI, check makefile and flags
-#endif
-
-#ifdef ULAPI
 #include <signal.h>
-#endif
 
 #include <rtapi_errno.h>
 
-#define HAL_NAME_LEN     47	/* length for pin, signal, etc, names */
+#define HAL_NAME_LEN     127	/* length for pin, signal, etc, names */
 
 /** These locking codes define the state of HAL locking, are used by most functions */
 /** The functions locked will return a -EPERM error message **/
@@ -172,6 +166,31 @@ RTAPI_BEGIN_DECLS
     realtime code.
 */
 extern int hal_init(const char *name);
+
+/** Component type classification. */
+typedef enum {
+    COMPONENT_TYPE_UNKNOWN = -1,
+    COMPONENT_TYPE_USER,
+    COMPONENT_TYPE_REALTIME,
+    COMPONENT_TYPE_OTHER
+} component_type_t;
+
+/** 'hal_init_ex()' is an extended version of hal_init() that allows
+    explicit specification of the component type and the dlopen handle
+    of the .so that contains the component's code.
+    'name' is the component name (same rules as hal_init).
+    'dl_handle' is the dlopen() handle of the .so file, or NULL for
+    components not loaded via dlopen.  Used by the launcher to identify
+    which .so files need memory locking for RT components.
+    'type' is the component type (COMPONENT_TYPE_USER or
+    COMPONENT_TYPE_REALTIME).
+    Returns a positive component ID on success, negative error code
+    on failure.
+    Legacy components should continue to use hal_init(), which auto-
+    detects the type based on process identity.
+*/
+extern int hal_init_ex(const char *name, void *dl_handle,
+                       component_type_t type);
 
 /** 'hal_exit()' must be called before a HAL component exits, to
     free resources associated with the component.
@@ -674,8 +693,6 @@ extern int hal_get_param_value_by_name(
 *                   EXECUTION RELATED FUNCTIONS                        *
 ************************************************************************/
 
-#ifdef RTAPI
-
 /** hal_export_funct() makes a realtime function provided by a
     component available to the system.  A subsequent call to
     hal_add_funct_to_thread() can be used to schedule the
@@ -734,6 +751,15 @@ extern int hal_export_funct(const char *name, void (*funct) (void *, long),
 extern int hal_create_thread(const char *name, unsigned long period_nsec,
     int uses_fp);
 
+/** hal_create_thread_cpu() is like hal_create_thread() but also sets
+    the CPU affinity for the thread's realtime task.
+    'cpu' is the CPU core to pin the thread to, or -1 for no affinity.
+    All other parameters and return values are identical to
+    hal_create_thread().
+*/
+extern int hal_create_thread_cpu(const char *name, unsigned long period_nsec,
+    int uses_fp, int cpu);
+
 /** hal_thread_delete() deletes a realtime thread.
     'name' is the name of the thread, which must have been created
     by 'hal_create_thread()'.
@@ -743,8 +769,6 @@ extern int hal_create_thread(const char *name, unsigned long period_nsec,
     space or realtime code.
 */
 extern int hal_thread_delete(const char *name);
-
-#endif /* RTAPI */
 
 /** hal_add_funct_to_thread() adds a function exported by a
     realtime HAL component to a realtime thread.  This determines
@@ -883,8 +907,6 @@ extern unsigned hal_port_buffer_size(hal_port_t port);
 */
 extern void hal_port_clear(hal_port_t port);
 
-
-#ifdef ULAPI
 /** hal_port_wait_readable spin waits on a port until it has at least 
     count bytes available for reading, or *stop > 0
  */
@@ -894,8 +916,6 @@ extern void hal_port_wait_readable(hal_port_t** port, unsigned count, sig_atomic
     count bytes available for writing or *stop > 0
  */
 extern void hal_port_wait_writable(hal_port_t** port, unsigned count, sig_atomic_t* stop);
-#endif
-
 
 
 
@@ -942,15 +962,11 @@ extern int hal_stream_depth(hal_stream_t *stream);
 extern int hal_stream_maxdepth(hal_stream_t *stream);
 extern int hal_stream_num_underruns(hal_stream_t *stream);
 extern int hal_stream_num_overruns(hal_stream_t *stream);
-#ifdef ULAPI
 extern void hal_stream_wait_readable(hal_stream_t *stream, sig_atomic_t *stop);
-#endif
 
 extern int hal_stream_write(hal_stream_t *stream, union hal_stream_data *buf);
 extern bool hal_stream_writable(hal_stream_t *stream);
-#ifdef ULAPI
 extern void hal_stream_wait_writable(hal_stream_t *stream, sig_atomic_t *stop);
-#endif
 
 RTAPI_END_DECLS
 

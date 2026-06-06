@@ -1,0 +1,11 @@
+load manualtoolchange
+addf manualtoolchange servo-thread
+
+# in case they were linked already
+unlinkp iocontrol.tool-change
+unlinkp iocontrol.tool-changed
+
+net tool-change manualtoolchange.change iocontrol.tool-change
+net tool-changed manualtoolchange.changed iocontrol.tool-changed
+net tool-prep-number manualtoolchange.number iocontrol.tool-prep-number
+

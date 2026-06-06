@@ -1,0 +1,9 @@
+# Create HAL threads from [EMCMOT] configuration.
+# Must be loaded as the first HALFILE before any addf commands.
+#
+# Creates servo-thread from [EMCMOT]SERVO_PERIOD (required).
+# Creates base-thread from [EMCMOT]BASE_PERIOD (optional, nofp).
+{{if iniGT0 "EMCMOT" "BASE_PERIOD" -}}
+newthread base-thread [EMCMOT]BASE_PERIOD nofp
+{{end -}}
+newthread servo-thread [EMCMOT]SERVO_PERIOD

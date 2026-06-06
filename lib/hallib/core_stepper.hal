@@ -2,20 +2,26 @@
 
 # first load the core RT modules that will be needed
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 # motion controller, get name and thread periods from INI file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # stepper module, three step generators, all three using step/dir
-loadrt stepgen step_type=0,0,0
+load stepgen <stepgen.0,stepgen.1,stepgen.2> step_type=0
 
 # hook functions to base thread (high speed thread for step generation)
-addf stepgen.make-pulses base-thread
+addf stepgen.0.make-pulses base-thread
+addf stepgen.1.make-pulses base-thread
+addf stepgen.2.make-pulses base-thread
 
 # hook functions to servo thread
-addf stepgen.capture-position servo-thread
+addf stepgen.0.capture-position servo-thread
+addf stepgen.1.capture-position servo-thread
+addf stepgen.2.capture-position servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
-addf stepgen.update-freq servo-thread
+addf stepgen.0.update-freq servo-thread
+addf stepgen.1.update-freq servo-thread
+addf stepgen.2.update-freq servo-thread
 
 # connect position commands from motion module to step generator
 net Xpos-cmd joint.0.motor-pos-cmd => stepgen.0.position-cmd

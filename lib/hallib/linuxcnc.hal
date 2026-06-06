@@ -1,0 +1,14 @@
+# LinuxCNC infrastructure modules.
+# Include as first HALFILE to load the CNC stack.
+# Order matters: later modules depend on APIs registered by earlier ones.
+
+load tpmod
+load homemod
+load io <iocontrol>
+load tooltable
+load milltask halui=halui
+
+# load UI helper
+load ngcpreview
+load halscope
+

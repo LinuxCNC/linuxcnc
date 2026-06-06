@@ -25,7 +25,13 @@
 // it uses RTAPI realtime code and HAL code for memory allocation and input/output.
 // this adaptation was started Jan 2008 by Chris Morley  
 
+#ifndef STANDALONE_MODE
 #include "../config.h"
+#else
+#ifndef EMC2_PO_DIR
+#define EMC2_PO_DIR "/usr/share/locale"
+#endif
+#endif
 #include <locale.h>
 #include <libintl.h>
 #define _(x) gettext(x)
@@ -38,7 +44,11 @@
 #include <unistd.h>
 #endif
 
+#ifdef STANDALONE_MODE
+#include "standalone_compat.h"
+#else
 #include "hal.h"
+#endif
 #include "classicladder.h"
 #include "global.h"
 #include "files_project.h"
@@ -70,7 +80,9 @@
 #endif
 #endif
 
+#ifndef STANDALONE_MODE
 #include <rtapi_string.h>
+#endif
 #ifdef GTK_INTERFACE
 #include <gtk/gtk.h>
 #endif
@@ -191,7 +203,9 @@ void process_options (int argc, char *argv[])
 //for EMC: do_exit
 static void do_exit(int unused) {
 		hal_exit(compId);
+#ifndef STANDALONE_MODE
 		printf(_("ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"));
+#endif
 		exit(0);
 }
 void DoPauseMilliSecs( int Time )
@@ -242,11 +256,15 @@ int main( int   argc, char *argv[] )
          setlocale(LC_CTYPE,"");
          textdomain("linuxcnc");
 	old_level = rtapi_get_msg_level();
+#ifndef STANDALONE_MODE
 	compId=hal_init("classicladder"); //emc
 	if (compId<0) return -1; //emc
 	signal(SIGTERM,do_exit); //emc
+#else
+	signal(SIGTERM,do_exit);
+#endif
 	InitModbusMasterBeforeReadConf( );
-	if (ClassicLadder_AllocAll())
+	if (ClassicLadder_AllocAll(FALSE))
 	{
 		char ProjectLoadedOk=TRUE;		
 		process_options (argc, argv);

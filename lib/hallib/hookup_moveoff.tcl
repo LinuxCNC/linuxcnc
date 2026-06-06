@@ -113,7 +113,7 @@ proc setup_pinnames {} {
 proc install_moveoff {} {
   # note expected name for moveoff_gui is $::m
   set pnumber [expr 1 + $::HU(highest_joint_num)]
-  do_hal loadrt moveoff personality=$pnumber names=$::m
+  do_hal load moveoff personality=$pnumber names=$::m
 
   set mot_thread $::HU(motion-controller,threadname)
 

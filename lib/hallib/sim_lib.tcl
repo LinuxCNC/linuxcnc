@@ -93,7 +93,7 @@ proc check_ini_items {} {
 proc setup_kins {axes} {
   if ![info exists ::KINS(KINEMATICS)] {
     puts stderr "setup_kins: NO \[KINS\]KINEMATICS, trying default trivkins"
-    loadrt trivkins
+    load trivkins
     return
   }
   set kins_kinematics [lindex $::KINS(KINEMATICS) end]
@@ -170,8 +170,8 @@ proc core_sim {axes
   }
   set pid_names [string trimleft $pid_names ,]
   set mux_names [string trimleft $mux_names ,]
-  loadrt pid  names=$pid_names
-  loadrt mux2 names=$mux_names
+  load pid  <$pid_names>
+  load mux2 <$mux_names>
 
   # pid components
   # The pid comp is used as a pass-thru device (FF0=1,all other gains=0)
@@ -193,14 +193,14 @@ proc core_sim {axes
   }
 
   # signal connections:
-  net estop:loop <= iocontrol.0.user-enable-out
-  net estop:loop => iocontrol.0.emc-enable-in
+  net estop:loop <= iocontrol.user-enable-out
+  net estop:loop => iocontrol.emc-enable-in
 
-  net tool:prep-loop <= iocontrol.0.tool-prepare
-  net tool:prep-loop => iocontrol.0.tool-prepared
+  net tool:prep-loop <= iocontrol.tool-prepare
+  net tool:prep-loop => iocontrol.tool-prepared
 
-  net tool:change-loop <= iocontrol.0.tool-change
-  net tool:change-loop => iocontrol.0.tool-changed
+  net tool:change-loop <= iocontrol.tool-change
+  net tool:change-loop => iocontrol.tool-changed
 
   net sample:enable <= motion.motion-enabled
 
@@ -233,7 +233,7 @@ proc make_ddts {number_of_joints} {
     set ddt_names "${ddt_names},J${jno}_vel,J${jno}_accel"
   }
   set ddt_names [string trimleft $ddt_names ,]
-  loadrt ddt names=$ddt_names
+  load ddt <$ddt_names>
   foreach cname [split $ddt_names ,] {
     addf $cname servo-thread
   }
@@ -256,7 +256,7 @@ proc make_ddts {number_of_joints} {
     }
   }
   if $has_xyz {
-    loadrt hypot names=hyp_xy,hyp_xyz ;# vector velocities
+    load hypot <hyp_xy,hyp_xyz> ; # vector velocities
     addf hyp_xy  servo-thread
     addf hyp_xyz servo-thread
     net J$::SIM_LIB(jointidx,x):vel <= J$::SIM_LIB(jointidx,x)_vel.out
@@ -277,23 +277,33 @@ proc make_ddts {number_of_joints} {
 
 proc use_hal_manualtoolchange {} {
   # adapted as haltcl proc from axis_manualtoolchange.hal
-  loadusr -W hal_manualtoolchange
+  load manualtoolchange
+  addf manualtoolchange servo-thread
+  loadusr manualtoolchange_ui
 
   # disconnect if previously connected:
-  unlinkp iocontrol.0.tool-change
-  unlinkp iocontrol.0.tool-changed
+  unlinkp iocontrol.tool-change
+  unlinkp iocontrol.tool-changed
   # remove signal with no connections:
   delsig tool:change-loop
 
-  net tool:change <= iocontrol.0.tool-change
-  net tool:change => hal_manualtoolchange.change
+  net tool:change <= iocontrol.tool-change
+  net tool:change => manualtoolchange.change
 
-  net tool:changed <= hal_manualtoolchange.changed
-  net tool:changed => iocontrol.0.tool-changed
+  net tool:changed <= manualtoolchange.changed
+  net tool:changed => iocontrol.tool-changed
 
-  net tool:prep-number <= hal_manualtoolchange.number
-  net tool:prep-number => iocontrol.0.tool-prep-number
+  net tool:prep-number <= manualtoolchange.number
+  net tool:prep-number => iocontrol.tool-prep-number
 } ;# use_hal_manualtoolchange
+
+proc use_axisui {} {
+  # Load the axisui cmod which provides HAL pins for AXIS GUI
+  # interaction (jog buttons, slider overrides, notifications, status).
+  # The cmod also exposes a WebSocket watch API that axis.py connects to.
+  load axisui
+  addf axisui servo-thread
+} ;# use_axisui
 
 proc simulated_home {number_of_joints} {
   # uses sim_home_switch component
@@ -302,7 +312,7 @@ proc simulated_home {number_of_joints} {
     set switch_names "${switch_names},J${jno}_switch"
   }
   set switch_names [string trimleft $switch_names ,]
-  loadrt sim_home_switch names=$switch_names
+  load sim_home_switch <$switch_names>
   foreach cname [split $switch_names ,] {
     addf $cname servo-thread
   }
@@ -352,13 +362,13 @@ proc simulated_home {number_of_joints} {
 proc sim_spindle {} {
   # adapted as haltcl proc from sim_spindle_encoder.hal
   # simulated spindle encoder (for spindle-synced moves)
-  loadrt sim_spindle names=sim_spindle
+  load sim_spindle names=sim_spindle
   do_setp sim_spindle.scale 0.01666667
 
-  loadrt limit2  names=limit_speed
-  loadrt lowpass names=spindle_mass
-  loadrt near    names=near_speed
-  loadrt scale names=rpm_rps
+  load limit2 <limit_speed>
+  load lowpass <spindle_mass>
+  load near <near_speed>
+  load scale <rpm_rps>
 
   setp rpm_rps.gain .0167
 
@@ -448,8 +458,10 @@ proc save_hal_cmds {savefilename {options ""} } {
 #
 "
   if {[lsearch $options use_hal_manualtoolchange] >= 0} {
-    puts $fd "# user space components"
-    puts $fd "loadusr -W hal_manualtoolchange"
+    puts $fd "# manualtoolchange cmod + UI"
+    puts $fd "load manualtoolchange"
+    puts $fd "addf manualtoolchange servo-thread"
+    puts $fd "loadusr manualtoolchange_ui"
     puts $fd ""
   }
 

@@ -2,30 +2,42 @@
 
 # first load all the RT modules that will be needed
 # kinematics
-loadrt [KINS]KINEMATICS
+load [KINS]KINEMATICS
 # motion controller, get name and thread periods from INI file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # PID module, for three PID loops
-loadrt pid names=pid_x,pid_y,pid_z
+load pid <pid_x,pid_y,pid_z>
 # 6 differentiators (for velocity and accel sigs)
-loadrt ddt names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
+load ddt <ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv>
 # three scale blocks (to simulate motor and leadscrew scaling)
-loadrt scale names=scale_x,scale_y,scale_z
+load scale <scale_x,scale_y,scale_z>
 # three lowpass filters (to simulate motor inertia), and nine
-loadrt lowpass names=lowpass_x,lowpass_y,lowpass_z
+load lowpass <lowpass_x,lowpass_y,lowpass_z>
 # window comparators (to simulate limit and home switches)
-loadrt wcomp names=wcomp_xneg,wcomp_xpos,wcomp_xhome,wcomp_yneg,wcomp_ypos,wcomp_yhome,wcomp_zneg,wcomp_zpos,wcomp_zhome
+load wcomp <wcomp_xneg,wcomp_xpos,wcomp_xhome,wcomp_yneg,wcomp_ypos,wcomp_yhome,wcomp_zneg,wcomp_zpos,wcomp_zhome>
 
 # simulated encoders
-loadrt sim_encoder names=sim_encoder_px,sim_encoder_py,sim_encoder_pz
+load sim_encoder <sim_encoder_px,sim_encoder_py,sim_encoder_pz>
 # software encoder counters, 3 for feedback, 3 for actual axis pos
-loadrt encoder names=encoder_px,encoder_py,encoder_pz,encoder_x,encoder_y,encoder_z
+load encoder <encoder_px,encoder_py,encoder_pz,encoder_x,encoder_y,encoder_z>
 # add encoder counter and simulator functions to high speed thread
-addf sim-encoder.make-pulses base-thread
-addf encoder.update-counters base-thread
+addf sim_encoder_px.make-pulses base-thread
+addf sim_encoder_py.make-pulses base-thread
+addf sim_encoder_pz.make-pulses base-thread
+addf encoder_px.update-counters base-thread
+addf encoder_py.update-counters base-thread
+addf encoder_pz.update-counters base-thread
+addf encoder_x.update-counters base-thread
+addf encoder_y.update-counters base-thread
+addf encoder_z.update-counters base-thread
 
 # add all required functions to servo thread
-addf encoder.capture-position servo-thread
+addf encoder_px.capture-position servo-thread
+addf encoder_py.capture-position servo-thread
+addf encoder_pz.capture-position servo-thread
+addf encoder_x.capture-position servo-thread
+addf encoder_y.capture-position servo-thread
+addf encoder_z.capture-position servo-thread
 addf wcomp_xneg servo-thread
 addf wcomp_xpos servo-thread
 addf wcomp_xhome servo-thread
@@ -46,7 +58,9 @@ addf scale_z servo-thread
 addf lowpass_x servo-thread
 addf lowpass_y servo-thread
 addf lowpass_z servo-thread
-addf sim-encoder.update-speed servo-thread
+addf sim_encoder_px.update-speed servo-thread
+addf sim_encoder_py.update-speed servo-thread
+addf sim_encoder_pz.update-speed servo-thread
 
 # link the differentiator functions into the code
 addf ddt_x servo-thread
@@ -187,11 +201,11 @@ net Zvel ddt_z.out => ddt_zv.in
 net Zacc <= ddt_zv.out
 
 # estop loopback
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.user-enable-out iocontrol.emc-enable-in
 
 # create signals for tool loading loopback
-net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
-net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+net tool-prep-loop iocontrol.tool-prepare iocontrol.tool-prepared
+net tool-change-loop iocontrol.tool-change iocontrol.tool-changed
 
 net xflt => joint.0.amp-fault-in
 net yflt => joint.1.amp-fault-in
@@ -263,7 +277,7 @@ setp wcomp_zhome.min [JOINT_2]HOME_SW_MIN
 setp wcomp_zhome.max [JOINT_2]HOME_SW_MAX
 
 # Configure fake probing
-loadrt sphereprobe names=sphereprobe
+load sphereprobe <sphereprobe>
 
 addf sphereprobe base-thread 2
 

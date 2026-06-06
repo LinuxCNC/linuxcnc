@@ -4,7 +4,7 @@
 # common connections for the plasmac component
 
 # PLASMAC COMPONENT ##########################################################
-loadrt  plasmac
+load plasmac <plasmac.0>
 addf    plasmac  servo-thread
 
 # COMPONENT INPUTS ###########################################################

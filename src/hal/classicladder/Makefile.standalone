@@ -1,0 +1,79 @@
+# Standalone build for classicladder UI (no HAL/RTAPI dependency)
+# Usage: make -f Makefile.standalone
+
+CC ?= gcc
+PKG_CONFIG ?= pkg-config
+
+GTK_CFLAGS := $(shell $(PKG_CONFIG) --cflags gtk+-2.0)
+GTK_LIBS := $(shell $(PKG_CONFIG) --libs gtk+-2.0)
+
+CFLAGS ?= -O2 -g
+CFLAGS += -Wall -Wno-deprecated-declarations -Wno-format-truncation
+CFLAGS += -DSTANDALONE_MODE
+CFLAGS += -DGTK_INTERFACE -DGTK2
+CFLAGS += -DSEQUENTIAL_SUPPORT
+CFLAGS += -DHAL_SUPPORT
+CFLAGS += -DDYNAMIC_PLCSIZE
+CFLAGS += -DRT_SUPPORT
+CFLAGS += -DOLD_TIMERS_MONOS_SUPPORT
+CFLAGS += -DMODBUS_IO_MASTER
+CFLAGS += -DEMC2_PO_DIR=\"/usr/share/locale\"
+CFLAGS += -I. -Istandalone_stubs
+CFLAGS += $(GTK_CFLAGS)
+
+SRCS = \
+	arithm_eval.c \
+	arrays.c \
+	calc.c \
+	calc_sequential.c \
+	classicladder.c \
+	classicladder_gtk.c \
+	config.c \
+	config_gtk.c \
+	drawing.c \
+	drawing_sequential.c \
+	edit.c \
+	edit_gtk.c \
+	edit_sequential.c \
+	editproperties_gtk.c \
+	emc_mods.c \
+	files.c \
+	files_project.c \
+	files_sequential.c \
+	manager.c \
+	manager_gtk.c \
+	protocol_modbus_master.c \
+	protocol_modbus_slave.c \
+	serial_linux.c \
+	socket_modbus_master.c \
+	socket_server.c \
+	spy_vars_gtk.c \
+	symbols.c \
+	symbols_gtk.c \
+	vars_names.c \
+	vars_access.c
+
+OBJS = $(SRCS:.c=.standalone.o)
+TARGET = classicladder-standalone
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(GTK_LIBS) -lpthread
+
+%.standalone.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Provide a stub config.h that ../config.h would normally be
+# We create it on-the-fly since the build-generated one doesn't exist
+standalone_stubs/config.h:
+	@echo '// auto-generated stub' > $@
+	@echo '#define EMC2_PO_DIR "/usr/share/locale"' >> $@
+
+# All objects depend on the stub config.h
+$(OBJS): standalone_stubs/config.h
+
+clean:
+	rm -f $(OBJS) $(TARGET) standalone_stubs/config.h
+
+.PHONY: all clean

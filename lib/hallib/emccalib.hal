@@ -1,0 +1,4 @@
+# Load the emccalib calibration tuning module.
+# Add HALFILE = emccalib.hal (or POSTGUI_HALFILE = emccalib.hal)
+# to your [HAL] section to enable live calibration tuning.
+load emccalib

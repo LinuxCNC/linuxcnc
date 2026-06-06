@@ -34,9 +34,8 @@
 #include "calc.h"
 #include "vars_access.h"
 
-MODULE_LICENSE("LGPL");
-MODULE_AUTHOR("Marc Le Douarain");
-MODULE_DESCRIPTION("ClassicLadder HAL module");
+// Author: Marc Le Douarain
+// Description: ClassicLadder HAL module
 
 int comedi_to_open_mask;
 #ifdef DYNAMIC_PLCSIZE
@@ -44,22 +43,6 @@ int numRungs=NBR_RUNGS_DEF, numBits=NBR_BITS_DEF,numWords=NBR_WORDS_DEF, numTime
 int numCounters=NBR_COUNTERS_DEF,numTimersIec=NBR_TIMERS_IEC_DEF,numPhysInputs=NBR_PHYS_INPUTS_DEF, numPhysOutputs=NBR_PHYS_OUTPUTS_DEF, numArithmExpr=NBR_ARITHM_EXPR_DEF, numSections=NBR_SECTIONS_DEF;
 int numSymbols=NBR_SYMBOLS_DEF,numS32in=NBR_PHYS_WORDS_INPUTS_DEF,numS32out=NBR_PHYS_WORDS_OUTPUTS_DEF;
 int numFloatIn=NBR_PHYS_FLOAT_INPUTS_DEF,numFloatOut=NBR_PHYS_FLOAT_OUTPUTS_DEF;
-RTAPI_MP_INT(numRungs, "i");
-RTAPI_MP_INT(numBits, "i");
-RTAPI_MP_INT(numWords, "i");
-RTAPI_MP_INT(numTimers, "i");
-RTAPI_MP_INT(numMonostables, "i");
-RTAPI_MP_INT(numCounters, "i");
-RTAPI_MP_INT(numTimersIec, "i");
-RTAPI_MP_INT(numPhysInputs, "i");
-RTAPI_MP_INT(numPhysOutputs, "i");
-RTAPI_MP_INT(numArithmExpr, "i");
-RTAPI_MP_INT(numSections, "i");
-RTAPI_MP_INT(numSymbols, "i");
-RTAPI_MP_INT(numS32in, "i");
-RTAPI_MP_INT(numS32out, "i");
-RTAPI_MP_INT(numFloatIn,"i");
-RTAPI_MP_INT(numFloatOut,"i");
 #else
 #define numPhysInputs InfosGene->SizesInfos.nbr_phys_inputs
 #define numPhysOutputs InfosGene->SizesInfos.nbr_phys_outputs
@@ -246,7 +229,7 @@ error:
 	}
 
 	hal_ready(compId);
-	ClassicLadder_AllocAll( );
+	ClassicLadder_AllocAll( TRUE );
 	return 0;
 }
 

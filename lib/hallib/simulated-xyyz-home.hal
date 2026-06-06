@@ -1,6 +1,6 @@
 
-loadrt comp names=comp_j0,comp_j1,comp_j2,comp_j3
-loadrt or2 names=or_homesws
+load comp <comp_j0,comp_j1,comp_j2,comp_j3>
+load or2 <or_homesws>
 
 # Joint 0 = X  axis, home switch is on negative end
 # Joint 1 = Y1 axis, home switch is on negative end

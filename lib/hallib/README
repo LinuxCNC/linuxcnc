@@ -20,7 +20,7 @@ system halfiles.  For example, the button layout files
 
 Hal files (*.hal)          Notes
 -----------------------    ---------------------------------------------
-axis_manualtoolchange.hal  setup for using hal_manualtoolchange
+axis_manualtoolchange.hal  setup for using manualtoolchange cmod + UI
                              (for axis or other guis)
 core_sim.hal               xyz simulator config
 core_servo.hal             xyz servo (pid) config

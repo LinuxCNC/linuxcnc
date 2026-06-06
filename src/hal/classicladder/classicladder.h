@@ -417,21 +417,12 @@ void StopRunIfRunning( void );
 void RunBackIfStopped( void );
 
 void ClassicLadder_InitAllDatas( void );
-int ClassicLadder_AllocAll( void );
+int ClassicLadder_AllocAll( int is_creator );
 void ClassicLadder_FreeAll( char CleanAndRemoveTmpDir );
 
 void UpdateSizesOfConvVarNameTable( void );
 
-#ifdef __RTL__
-#include <rtl_printf.h>
-#define debug_printf rtl_printf
-#endif
-
-#if defined( RTAPI )
-#define debug_printf rtapi_print
-#elif !defined (MODULE)
 #define debug_printf printf
-#endif
 
 //for emc
 #ifdef HAL_SUPPORT
