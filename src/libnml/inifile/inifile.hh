@@ -1,31 +1,22 @@
-/********************************************************************
-* Description: inifile.hh
-*   Declarations for INI file format functions
-*
-*   Derived from a work by Fred Proctor & Will Shackleford
-*
-* Author:
-* License: GPL Version 2
-* System: Linux
-*    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change: 
-********************************************************************/
+/*
+ * inifile.hh - C++ compatibility wrapper over iniparse C API
+ *
+ * This header provides the IniFile class interface used by legacy C++
+ * consumers. New code should use iniparse.h directly.
+ *
+ * License: GPL Version 2
+ */
 
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
-#include <inifile.h>
-#include <string>
-#include <boost/lexical_cast.hpp>
-
-#ifndef __cplusplus
-#warning Inclusion of <inifile.hh> from C programs is deprecated.  Include <inifile.h> instead.
-#endif
+#include <iniparse.h>
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
 
 #ifdef __cplusplus
-#include <fcntl.h>
+
 class IniFile {
 public:
     typedef enum {
@@ -35,134 +26,93 @@ public:
         ERR_TAG_NOT_FOUND       = 0x04,
         ERR_CONVERSION          = 0x08,
         ERR_LIMITS              = 0x10,
-        ERR_OVER_EXTENDED       = 0x20,
     } ErrorCode;
 
-    class Exception {
-    public:
-        ErrorCode               errCode;
-        const char *            tag;
-        const char *            section;
-        int                     num;
-        unsigned int            lineNo;
+                                IniFile(int errMask=0, FILE *_fp=NULL)
+                                    : fp(_fp), owned(false) {}
+                                ~IniFile(void) { Close(); }
 
-        void                    Print(FILE *fp=stderr);
-    };
+    bool                        Open(const char *file) {
+                                    char path[PATH_MAX];
+                                    if (fp && owned) { fclose(fp); fp = NULL; }
+                                    if (ini_tilde_expansion(file, path, sizeof(path)))
+                                        return false;
+                                    fp = fopen(path, "r");
+                                    if (fp) owned = true;
+                                    return fp != NULL;
+                                }
 
+    bool                        Close(void) {
+                                    if (fp && owned) fclose(fp);
+                                    fp = NULL; owned = false;
+                                    return true;
+                                }
 
-                                IniFile(int errMask=0, FILE *fp=NULL);
-                                ~IniFile(void){ Close(); }
-
-    bool                        Open(const char *file);
-    bool                        Close(void);
-    bool                        IsOpen(void){ return(fp != NULL); }
+    bool                        IsOpen(void) { return fp != NULL; }
 
     const char *                Find(const char *tag, const char *section=NULL,
-                                     int num = 1, int *lineno = NULL);
+                                     int num = 1, int *lineno = NULL) {
+                                    (void)lineno;
+                                    return ini_find(fp, tag, section, num);
+                                }
 
-    template<class T>
-    ErrorCode                   Find(T *result, T min, T max,
-                                     const char *tag,const char *section,
+    ErrorCode                   Find(int *result,
+                                     const char *tag, const char *section,
                                      int num=1) {
-        ErrorCode errCode;
-        T tmp;
-        if((errCode = Find(&tmp, tag, section, num)) != ERR_NONE)
-            return(errCode);
+                                    const char *s = Find(tag, section, num);
+                                    if (!s) return ERR_TAG_NOT_FOUND;
+                                    int tmp;
+                                    if (sscanf(s, "%i", &tmp) != 1)
+                                        return ERR_CONVERSION;
+                                    *result = tmp;
+                                    return ERR_NONE;
+                                }
 
-        if((tmp > max) || (tmp < min)) {
-            ThrowException(ERR_LIMITS);
-            return(ERR_LIMITS);
-        }
-
-        *result = tmp;
-
-        return(ERR_NONE);
-    }
-
-    template<class T>
-    ErrorCode                   Find(T *result,
-                                     const char *tag,const char *section,
+    ErrorCode                   Find(double *result,
+                                     const char *tag, const char *section,
                                      int num=1) {
-        ErrorCode errCode;
-        std::string tmp;
-        if((errCode = Find(&tmp, tag, section, num)) != ERR_NONE)
-            return(errCode);
-
-        try {
-            *result = boost::lexical_cast<T>(tmp);
-        } catch (boost::bad_lexical_cast &) {
-            ThrowException(ERR_CONVERSION);
-            return(ERR_CONVERSION);
-        }
-
-        return(ERR_NONE);
-    }
-
-    ErrorCode                   Find(std::string *s,
-                                     const char *tag,const char *section,
-                                     int num=1) {
-        const char *tmp = Find(tag, section, num);
-        if(!tmp)
-            return ERR_TAG_NOT_FOUND; // can't distinguish errors, ugh
-
-        *s = tmp;
-
-        return(ERR_NONE);
-    }
+                                    const char *s = Find(tag, section, num);
+                                    if (!s) return ERR_TAG_NOT_FOUND;
+                                    double tmp;
+                                    if (sscanf(s, "%lf", &tmp) != 1)
+                                        return ERR_CONVERSION;
+                                    *result = tmp;
+                                    return ERR_NONE;
+                                }
 
     const char *                FindString(char *dest, size_t n,
-				     const char *tag, const char *section=NULL,
-				     int num = 1, int *lineno = NULL);
+                                     const char *tag, const char *section=NULL,
+                                     int num = 1, int *lineno = NULL) {
+                                    (void)lineno;
+                                    const char *res = Find(tag, section, num);
+                                    if (!res) return NULL;
+                                    int r = snprintf(dest, n, "%s", res);
+                                    if (r < 0 || (size_t)r >= n) return NULL;
+                                    return dest;
+                                }
+
     const char *                FindPath(char *dest, size_t n,
-				     const char *tag, const char *section=NULL,
-				     int num = 1, int *lineno = NULL);
-    void                        EnableExceptions(int _errMask){
-                                    errMask = _errMask;
+                                     const char *tag, const char *section=NULL,
+                                     int num = 1, int *lineno = NULL) {
+                                    (void)lineno;
+                                    const char *res = Find(tag, section, num);
+                                    if (!res) return NULL;
+                                    if (ini_tilde_expansion(res, dest, n))
+                                        return NULL;
+                                    return dest;
                                 }
 
     ErrorCode                   TildeExpansion(const char *file, char *path,
-					       size_t n);
-
-protected:
-    struct StrIntPair {
-        const char             *pStr;
-        int                     value;
-    };
-
-    struct StrDoublePair {
-        const char              *pStr;
-        double                   value;
-    };
-
-
-    ErrorCode                   Find(double *result, StrDoublePair *,
-                                     const char *tag, const char *section=NULL,
-                                     int num = 1, int *lineno = NULL);
-    ErrorCode                   Find(int *result, StrIntPair *,
-                                     const char *tag, const char *section=NULL,
-                                     int num = 1, int *lineno = NULL);
-
+                                     size_t n) {
+                                    return ini_tilde_expansion(file, path, n)
+                                        ? ERR_CONVERSION : ERR_NONE;
+                                }
 
 private:
     FILE                        *fp;
-    struct flock                lock;
     bool                        owned;
-
-    Exception                   exception;
-    int                         errMask;
-
-    unsigned int                lineNo;
-    const char *                tag;
-    const char *                section;
-    int                         num;
-
-    bool                        CheckIfOpen(void);
-    bool                        LockFile(void);
-    void                        ThrowException(ErrorCode);
-    char                        *AfterEqual(const char *string);
-    char                        *SkipWhite(const char *string);
 };
-#endif
 
+#endif /* __cplusplus */
 
-#endif
+#endif /* INIFILE_HH */
