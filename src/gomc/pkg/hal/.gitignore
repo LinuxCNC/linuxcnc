@@ -1,0 +1,22 @@
+# Compiled binaries
+demo
+examples/*/demo
+examples/demo/demo
+
+# Go build artifacts
+*.o
+*.a
+*.so
+
+# Test binaries
+*.test
+
+# Coverage files
+*.out
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

@@ -1,0 +1,15 @@
+@api watchtest
+@version 1
+@rest_export true
+
+type CounterState {
+    value: i32
+    running: bool
+}
+
+@watch true
+@watch_default_rate 100ms
+func get_counter() -> CounterState
+
+func reset() -> bool
+func increment(amount: i32) -> i32

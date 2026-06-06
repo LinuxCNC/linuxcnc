@@ -1,0 +1,17 @@
+# Built binaries (when running go build from module root)
+/ads-xml-gen
+/gomc-server
+/modcompile
+
+# Generated code (produced by gmicompile from .gmi IDL files)
+/generated/
+
+# External Go modules installed via modcompile add-gomod
+/external/
+
+# Runtime state files (generated from .in base files)
+# These are modified by modcompile add-gomod/rm-gomod at runtime.
+# Base version of go.mod is tracked as go.mod.in.
+/go.mod
+/go.sum
+/cmd/gomc-server/imports_generated.go
