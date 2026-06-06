@@ -1,0 +1,106 @@
+# HostMot2 Serial/BSPI API
+#
+# Provided by the hostmot2 core module.
+# Consumed by application modules (mesa_uart, mesa_7i65, hm2_modbus,
+# mesa_pktgyro_test) that communicate with devices attached to
+# Mesa PktUART, UART, or Buffered SPI channels.
+
+@api hm2_serial
+@version 1
+@prefix hm2_serial
+@rest_export false
+
+# ─── Constants ───
+
+const MAX_PKTUART_FRAMES = 16
+const MAX_PKTUART_DATA = 1024
+
+# ─── Types ───
+
+type PktUartConfig {
+    baudrate: u32
+    filterrate: u32
+    drivedelay: u32
+    ifdelay: u32
+    flags: u32
+}
+
+# ─── PktUART functions ───
+
+@rt_safe "true"
+@doc "Configure PktUART RX and TX channels. Queue=1 defers until next cycle."
+func pktuart_config(name: string, rxcfg: PktUartConfig, txcfg: PktUartConfig, queue: i32) -> i32
+
+@rt_safe "true"
+@doc "Send data frames on a PktUART channel."
+func pktuart_send(name: string, data: ptr, num_frames: u8, frame_sizes: ptr) -> i32
+
+@rt_safe "true"
+@doc "Read received frames from a PktUART channel."
+func pktuart_read(name: string, data: ptr, num_frames: u8 byref, max_frame_length: ptr, frame_sizes: ptr) -> i32
+
+@rt_safe "true"
+@doc "Get frame sizes from the PktUART receive queue."
+func pktuart_queue_get_frame_sizes(name: string, fsizes: ptr) -> i32
+
+@rt_safe "true"
+@doc "Read raw data from the PktUART receive queue."
+func pktuart_queue_read_data(name: string, data: ptr, bytes: i32) -> i32
+
+@doc "Reset PktUART channel immediately (out-of-band)."
+func pktuart_reset(name: string)
+
+@rt_safe "true"
+@doc "Reset PktUART channel via normal queue processing."
+func pktuart_queue_reset(name: string)
+
+@doc "Get the PktUART clock frequency."
+func pktuart_get_clock(name: string) -> i32
+
+@doc "Get the PktUART firmware version."
+func pktuart_get_version(name: string) -> i32
+
+@rt_safe "true"
+@doc "Get PktUART RX status register."
+func pktuart_get_rx_status(name: string) -> u32
+
+@rt_safe "true"
+@doc "Get PktUART TX status register."
+func pktuart_get_tx_status(name: string) -> u32
+
+# ─── UART functions (simple byte-stream UART) ───
+
+@doc "Setup a simple UART channel."
+func uart_setup(name: string, bitrate: i32, tx_mode: i32, rx_mode: i32) -> i32
+
+@rt_safe "true"
+@doc "Send bytes on a UART channel."
+func uart_send(name: string, data: ptr, count: i32) -> i32
+
+@rt_safe "true"
+@doc "Read bytes from a UART channel. Returns number of bytes read."
+func uart_read(name: string, data: ptr) -> i32
+
+# ─── Buffered SPI (BSPI) functions ───
+
+@doc "Setup a BSPI channel."
+func bspi_setup_chan(name: string, chan: i32, cs: i32, bits: i32, mhz: f64, delay: i32, cpol: i32, cpha: i32, noclear: i32, noecho: i32, samplelate: i32) -> i32
+
+@doc "Register a read callback for a BSPI channel."
+func bspi_set_read_function(name: string, func_ptr: ptr, subdata: ptr) -> i32
+
+@doc "Register a write callback for a BSPI channel."
+func bspi_set_write_function(name: string, func_ptr: ptr, subdata: ptr) -> i32
+
+@rt_safe "true"
+@doc "Write a value to a BSPI channel."
+func bspi_write_chan(name: string, chan: i32, val: u32) -> i32
+
+@doc "Allocate TRAM for BSPI."
+func bspi_allocate_tram(name: string) -> i32
+
+@doc "Add a BSPI frame to the TRAM. Returns write/read buffer pointers."
+func bspi_tram_add_frame(name: string, chan: i32, wbuff: ptr, rbuff: ptr) -> i32
+
+@doc "Clear the BSPI FIFO."
+func bspi_clear_fifo(name: string) -> i32

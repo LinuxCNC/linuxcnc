@@ -1,0 +1,51 @@
+# Kinematics API
+# Forward/inverse kinematics for joint↔world coordinate transforms
+
+@api kins
+@version 1
+@prefix kins
+@rest_export false
+
+const MAX_JOINTS = 16
+
+# ─── Types ───
+
+type Pose {
+    x: f64
+    y: f64
+    z: f64
+    a: f64
+    b: f64
+    c: f64
+    u: f64
+    v: f64
+    w: f64
+}
+
+# ─── Enums ───
+
+enum KinematicsType {
+    IDENTITY = 1
+    FORWARD_ONLY = 2
+    INVERSE_ONLY = 3
+    BOTH = 4
+}
+
+# ─── Functions ───
+
+@rt_safe "true"
+@doc "Forward kinematics: joints → world pose"
+func forward(joints: [MAX_JOINTS]f64, world: Pose byref, fflags: u64, iflags: u64 byref) -> i32
+
+@rt_safe "true"
+@doc "Inverse kinematics: world pose → joints"
+func inverse(world: Pose, joints: [MAX_JOINTS]f64 byref, iflags: u64, fflags: u64 byref) -> i32
+
+@doc "Returns the kinematics type"
+func type() -> KinematicsType
+
+@doc "Returns 1 if kinematics are switchable, 0 otherwise"
+func switchable() -> i32
+
+@doc "Switch to a different kinematics mode"
+func switch(switchkins_type: i32) -> i32

@@ -1,0 +1,154 @@
+# Interpreter Extension Context API
+# Runtime context passed to remap/oword handler callbacks.
+#
+# Provider: milltask.so — fills this callback table with Interp method wrappers.
+# Consumer: stdglue.so and other handler cmods receive this at call time.
+#
+# Each function in this API wraps an interpreter operation. The ctx pointer
+# is an opaque interpreter handle (Interp*).
+
+@api interp_ctx
+@version 1
+@rest_export false
+
+# --- Named parameters ---
+
+@doc "Get named parameter value"
+func get_param(name: string) -> f64
+
+@doc "Set named parameter value"
+func set_param(name: string, val: f64) -> i32
+
+# --- Tool table ---
+
+@doc "Find pocket number for a tool"
+func find_tool_pocket(tool_number: i32) -> i32
+
+# --- Error reporting ---
+
+@doc "Set interpreter error message"
+func set_error(msg: string)
+
+# --- Current remap block word access ---
+
+@doc "Returns 1 if T word present in block"
+func block_t_flag() -> i32
+
+@doc "Get T word value from block"
+func block_t_number() -> i32
+
+@doc "Returns 1 if S word present in block"
+func block_s_flag() -> i32
+
+@doc "Get S word value from block"
+func block_s_number() -> f64
+
+@doc "Returns 1 if F word present in block"
+func block_f_flag() -> i32
+
+@doc "Get F word value from block"
+func block_f_number() -> f64
+
+@doc "Returns 1 if Q word present in block"
+func block_q_flag() -> i32
+
+@doc "Get Q word value from block"
+func block_q_number() -> f64
+
+@doc "Returns 1 if builtin was used"
+func block_builtin_used() -> i32
+
+@doc "Get motion code from block (g_modes[1])"
+func block_motion_code() -> i32
+
+# --- Setup state read ---
+
+@doc "Get selected tool number"
+func get_selected_tool() -> i32
+
+@doc "Get selected pocket number"
+func get_selected_pocket() -> i32
+
+@doc "Get current tool number"
+func get_current_tool() -> i32
+
+@doc "Get current pocket number"
+func get_current_pocket() -> i32
+
+@doc "Get cutter compensation side"
+func get_cutter_comp_side() -> i32
+
+@doc "Get value_returned flag"
+func get_value_returned() -> i32
+
+@doc "Get return value"
+func get_return_value() -> f64
+
+@doc "Get feed rate"
+func get_feed_rate() -> f64
+
+@doc "Get feed mode"
+func get_feed_mode() -> i32
+
+@doc "Get spindle speed"
+func get_speed(spindle: i32) -> f64
+
+@doc "Get motion mode"
+func get_motion_mode() -> i32
+
+@doc "Get current plane"
+func get_plane() -> i32
+
+# --- Setup state write ---
+
+@doc "Set selected tool"
+func set_selected_tool(tool: i32)
+
+@doc "Set selected pocket"
+func set_selected_pocket(pocket: i32)
+
+@doc "Set current tool"
+func set_current_tool(tool: i32)
+
+@doc "Set current pocket"
+func set_current_pocket(pocket: i32)
+
+@doc "Set spindle speed value"
+func set_speed_value(spindle: i32, speed: f64)
+
+@doc "Set feed rate value"
+func set_feed_rate_value(feed: f64)
+
+@doc "Set motion mode"
+func set_motion_mode(mode: i32)
+
+@doc "Set tool change flag"
+func set_toolchange_flag(flag: i32)
+
+@doc "Call set_tool_parameters()"
+func call_set_tool_parameters()
+
+# --- Canon calls ---
+
+@doc "Select tool via canon"
+func canon_select_tool(tool: i32)
+
+@doc "Change tool via canon"
+func canon_change_tool(pocket: i32)
+
+@doc "Change tool number via canon"
+func canon_change_tool_number(pocket: i32)
+
+@doc "Enqueue set spindle speed via canon"
+func canon_enqueue_set_spindle_speed(spindle: i32, speed: f64)
+
+@doc "Enqueue set feed rate via canon"
+func canon_enqueue_set_feed_rate(rate: f64)
+
+# --- Runtime state ---
+
+@doc "Get resume phase counter (0 = first call)"
+func get_phase() -> i32
+
+@doc "Get per-registration user data pointer"
+func get_user() -> ptr

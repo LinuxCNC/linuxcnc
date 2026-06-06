@@ -1,0 +1,173 @@
+# halscope — HAL oscilloscope API
+#
+# RT capture cmod + WebSocket UI. The scope_rt cmod is loaded once via
+# HAL config and exposes this API for UI clients to configure channels,
+# trigger, and retrieve captured waveform data.
+#
+# The scope.sample RT function is exported via hal_export_funct() and
+# is NOT part of this API — it runs in the HAL thread context.
+
+@api halscope
+@version 1
+@prefix "halscope"
+@rest_export true
+
+const MAX_CHANNELS = 16
+const MAX_SAMPLES = 65536
+
+enum ScopeState {
+    IDLE = 0
+    INIT = 1
+    PRE_TRIG = 2
+    TRIG_WAIT = 3
+    POST_TRIG = 4
+    DONE = 5
+    RESET = 6
+}
+
+enum TrigEdge {
+    FALLING = 0
+    RISING = 1
+}
+
+enum HalType {
+    BIT = 1
+    FLOAT = 2
+    S32 = 3
+    U32 = 4
+    S64 = 5
+    U64 = 6
+}
+
+type ChannelConfig {
+    channel: i32
+    pinName: string
+}
+
+type ChannelInfo {
+    channel: i32
+    pinName: string
+    dataType: HalType
+    enabled: bool
+}
+
+type TriggerConfig {
+    channel: i32
+    level: f64
+    edge: TrigEdge
+    autoTrig: bool
+}
+
+type CaptureConfig {
+    threadName: string
+    maxChannels: i32
+    samplePeriodMult: i32
+    preTrig: i32
+}
+
+type ChannelOption {
+    maxChannels: i32
+    recLen: i32
+}
+
+type ScopeStatus {
+    state: ScopeState
+    samples: i32
+    recLen: i32
+    preTrig: i32
+    sampleLen: i32
+    maxChannels: i32
+    samplePeriodMult: i32
+    threadPeriodNs: i64
+    threadName: string
+    trigChannel: i32
+    trigLevel: f64
+    trigEdge: TrigEdge
+    trigAutoTrig: bool
+    generation: u32
+    continuous: bool
+    channels: []ChannelInfo
+    channelOptions: []ChannelOption
+}
+
+type ThreadInfo {
+    name: string
+    periodNs: i64
+}
+
+# --- Control functions (non-RT, called via REST/WS) ---
+
+# List all HAL threads (for thread selection in UI).
+@method GET
+@path "/threads"
+func list_threads() -> []ThreadInfo
+
+# Reconfigure capture buffer. Only valid when state is IDLE or DONE.
+# If thread_name is set, the sample function is wired to that thread.
+@method POST
+@path "/configure"
+func configure(config: CaptureConfig) -> i32
+
+# Assign a HAL pin/signal/param to a channel. The cmod resolves the
+# address internally — no SHMPTR passing.
+@method POST
+@path "/channel"
+func set_channel(ch: ChannelConfig) -> i32
+
+# Remove a channel from the capture set.
+@method DELETE
+@path "/channel/{channel}"
+func clear_channel(channel: i32) -> i32
+
+# Set trigger parameters.
+@method POST
+@path "/trigger"
+func set_trigger(trig: TriggerConfig) -> i32
+
+# Arm the capture (transitions IDLE/DONE → INIT → PRE_TRIG).
+@method POST
+@path "/arm"
+func arm() -> i32
+
+# Force-trigger: immediately triggers capture when in TRIG_WAIT.
+# Like the original halscope "Force" button — one-shot command.
+@method POST
+@path "/force_trigger"
+func force_trigger() -> i32
+
+# Enable or disable continuous (auto-rearm) mode. When enabled, the RT
+# state machine automatically transitions DONE → INIT for repeated captures.
+@method POST
+@path "/set_continuous"
+func set_continuous(enabled: bool) -> i32
+
+# Reset / abort an in-progress capture.
+@method POST
+@path "/reset"
+func reset() -> i32
+
+# Get current scope status.
+@method GET
+@path "/status"
+func get_status() -> ScopeStatus
+
+# List available HAL pins/signals/params that can be captured.
+# kind: "pin", "sig", "param", or "" for all (default).
+@method GET
+@path "/pins"
+func list_pins(pattern: string?, kind: string?) -> []string
+
+# --- Watch functions (pushed to WS clients) ---
+
+# State changes pushed to all connected clients.
+@watch true
+@watch_default_rate 100ms
+func watch_state() -> ScopeStatus
+
+# Sample data delivered as binary WS frames on capture complete.
+# Binary layout: header (16 bytes) + raw sample data.
+# Header: [u32le sample_count] [u32le sample_len] [u32le start_offset] [u32le reserved]
+# Data: sample_count × sample_len × 8 bytes (scope_data_t values, little-endian)
+@watch true
+@watch_default_rate 100ms
+func watch_samples() -> []u8

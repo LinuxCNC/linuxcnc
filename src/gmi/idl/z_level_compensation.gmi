@@ -1,0 +1,23 @@
+# Z-Level Compensation API
+# REST interface for probe map management.
+# The cmod exports an RT function for servo-rate Z offset calculation;
+# this API provides load/unload control from the UI.
+
+@api z_level_compensation
+@version 1
+@prefix zlc
+@rest_export true
+
+# Load (or reload) a probe height map.
+# filename: path to probe points file (X Y Z per line, space-separated)
+# scale: counts-to-mm scale factor (e.g. 0.001 = 1 count = 0.001mm)
+@method "POST"
+@path "/load"
+@rt_safe "false"
+func load(filename: string, scale: f64) -> bool
+
+# Unload the current probe map (disables compensation).
+@method "POST"
+@path "/unload"
+@rt_safe "false"
+func unload() -> bool

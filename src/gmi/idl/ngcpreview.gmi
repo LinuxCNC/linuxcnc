@@ -1,0 +1,88 @@
+# NGC Preview API
+# Server-side G-code interpretation for preview geometry generation.
+# Each request creates a fresh interpreter instance (multi-instance safe).
+
+@api ngcpreview
+@version 1
+@prefix ngcpreview
+@rest_export true
+
+# ─── Enums ───
+
+# Segment type classification
+enum SegmentType {
+    TRAVERSE = 1
+    FEED = 2
+    ARC = 3
+    PROBE = 4
+}
+
+# ─── Types ───
+
+# 9-axis position (machine coordinates after rotation/translation)
+type Position {
+    x: f64
+    y: f64
+    z: f64
+    a: f64
+    b: f64
+    c: f64
+    u: f64
+    v: f64
+    w: f64
+}
+
+# A single line segment in the preview
+type Segment {
+    type: SegmentType
+    line_no: i32
+    start: Position
+    end: Position
+    feedrate: f64
+    tool_offset: Position
+    # Arc-specific fields (only set for ARC segments)
+    center_x: f64
+    center_y: f64
+    rotation: i32
+    plane: i32
+}
+
+# A dwell (pause) point
+type Dwell {
+    line_no: i32
+    pos: Position
+    seconds: f64
+    plane: i32
+}
+
+# Tool change event in the preview stream
+type ToolChange {
+    line_no: i32
+    tool_no: i32
+}
+
+# Complete preview result for a G-code file
+type PreviewResult {
+    segments: []Segment
+    dwells: []Dwell
+    tool_changes: []ToolChange
+    error: string
+    max_line: i32
+    # Active G5x offset (index + 9-axis values) for coordinate display
+    g5x_index: i32
+    g5x_offset: Position
+    # Active G92 offset for coordinate display
+    g92_offset: Position
+    # XY rotation angle (radians) for rotated coordinate systems
+    xy_rotation: f64
+    # Active plane (1=XY, 2=YZ, 3=XZ) for arc linearization
+    plane: i32
+}
+
+# ─── Functions ───
+
+# Generate preview geometry from a G-code file on the server.
+# The file path must be accessible on the server filesystem.
+@method "POST"
+@path "/file"
+func gen_preview(filename: string, initcodes: string, unitcode: string) -> PreviewResult

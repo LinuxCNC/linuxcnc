@@ -1,0 +1,351 @@
+# classicladder — Classic Ladder PLC API
+#
+# RT ladder evaluation gomod + GTK/Web UI. The classicladder.refresh RT
+# function runs in a HAL thread (C code via cgo). This API exposes
+# program editing, variable monitoring, and run control for UI clients.
+
+@api classicladder
+@version 1
+@prefix "classicladder"
+@rest_export true
+
+# --- Constants ---
+
+const RUNG_WIDTH = 10
+const RUNG_HEIGHT = 6
+const LGT_LABEL = 10
+const LGT_COMMENT = 30
+const LGT_SECTION_NAME = 20
+const LGT_SYMBOL_STRING = 10
+const LGT_SYMBOL_COMMENT = 50
+const LGT_VAR_NAME = 10
+const ARITHM_EXPR_SIZE = 50
+
+# --- Enums ---
+
+enum LadderState {
+    LOADING = 0
+    STOP = 1
+    RUN = 2
+}
+
+enum SectionLanguage {
+    LADDER = 0
+    SEQUENTIAL = 1
+}
+
+enum TimerIECMode {
+    TON = 0
+    TOF = 1
+    TP = 2
+}
+
+# --- Types ---
+
+type Element {
+    type: i32
+    connectedWithTop: i32
+    varType: i32
+    varNum: i32
+}
+
+type Rung {
+    used: bool
+    prevRung: i32
+    nextRung: i32
+    label: string
+    comment: string
+    elements: [60]Element   # RUNG_WIDTH * RUNG_HEIGHT, row-major
+}
+
+type Section {
+    used: bool
+    name: string
+    language: SectionLanguage
+    subRoutineNumber: i32
+    firstRung: i32
+    lastRung: i32
+    sequentialPage: i32
+}
+
+type Symbol {
+    varName: string
+    symbol: string
+    comment: string
+}
+
+type ArithmExpr {
+    expr: string
+}
+
+type TimerIEC {
+    preset: i32
+    value: i32
+    base: i32
+    mode: TimerIECMode
+    input: bool
+    output: bool
+}
+
+type Timer {
+    preset: i32
+    value: i32
+    base: i32
+    inputEnable: bool
+    inputControl: bool
+    outputDone: bool
+    outputRunning: bool
+}
+
+type Monostable {
+    preset: i32
+    value: i32
+    base: i32
+    input: bool
+    outputRunning: bool
+}
+
+type Counter {
+    preset: i32
+    value: i32
+    inputReset: bool
+    inputPreset: bool
+    inputCountUp: bool
+    inputCountDown: bool
+    outputDone: bool
+    outputEmpty: bool
+    outputFull: bool
+}
+
+type SizeInfo {
+    nbrRungs: i32
+    nbrBits: i32
+    nbrWords: i32
+    nbrTimers: i32
+    nbrMonostables: i32
+    nbrCounters: i32
+    nbrTimersIec: i32
+    nbrPhysInputs: i32
+    nbrPhysOutputs: i32
+    nbrArithmExpr: i32
+    nbrSections: i32
+    nbrSymbols: i32
+    nbrS32in: i32
+    nbrS32out: i32
+    nbrFloatIn: i32
+    nbrFloatOut: i32
+    nbrErrorBits: i32
+}
+
+type Status {
+    state: LadderState
+    scanTimeUs: i32
+    periodicRefreshMs: i32
+    sizes: SizeInfo
+    projectFile: string
+}
+
+type Program {
+    sizes: SizeInfo
+    rungs: []Rung
+    sections: []Section
+    symbols: []Symbol
+    arithmExprs: []ArithmExpr
+    timersIec: []TimerIEC
+    timers: []Timer
+    monostables: []Monostable
+    counters: []Counter
+}
+
+type VarsBool {
+    bits: []bool
+    physInputs: []bool
+    physOutputs: []bool
+    errorBits: []bool
+}
+
+type VarsWord {
+    words: []i32
+    physWordInputs: []i32
+    physWordOutputs: []i32
+}
+
+type VarsFloat {
+    physFloatInputs: []f64
+    physFloatOutputs: []f64
+}
+
+type Variables {
+    bools: VarsBool
+    words: VarsWord
+    floats: VarsFloat
+}
+
+# --- Control functions ---
+
+# Get PLC status (state, scan time, sizes).
+@method GET
+@path "/status"
+func get_status() -> Status
+
+# Set ladder state (RUN/STOP).
+@method POST
+@path "/state"
+func set_state(state: LadderState) -> i32
+
+# Get the full program (rungs, sections, symbols, expressions, timers).
+@method GET
+@path "/program"
+func get_program() -> Program
+
+# Replace the full program (bulk upload from file load or editor).
+@method PUT
+@path "/program"
+func set_program(program: Program) -> i32
+
+# Get a single rung by index.
+@method GET
+@path "/rung/{index}"
+func get_rung(index: i32) -> Rung
+
+# Update a single rung (after edit).
+@method PUT
+@path "/rung/{index}"
+func set_rung(index: i32, rung: Rung) -> i32
+
+# Get a section by index.
+@method GET
+@path "/section/{index}"
+func get_section(index: i32) -> Section
+
+# Update a section.
+@method PUT
+@path "/section/{index}"
+func set_section(index: i32, section: Section) -> i32
+
+# Get all current variable values (for spy window).
+@method GET
+@path "/variables"
+func get_variables() -> Variables
+
+# Set a variable value (for testing/forcing).
+@method POST
+@path "/variable"
+func set_variable(varType: i32, offset: i32, value: i32) -> i32
+
+# Load a .clp project file on the backend.
+@method POST
+@path "/load"
+func load_project(path: string) -> i32
+
+# Save current program to a .clp file.
+@method POST
+@path "/save"
+func save_project(path: string) -> i32
+
+# Get symbol table.
+@method GET
+@path "/symbols"
+func get_symbols() -> []Symbol
+
+# --- Modbus types ---
+
+enum ModbusReqType {
+    COIL_READ = 0       # FC 1
+    COIL_WRITE = 1      # FC 5/15
+    INPUT_READ = 2      # FC 2
+    HOLDING_READ = 3    # FC 3
+    REGISTER_WRITE = 4  # FC 6/16
+    DIAGNOSTIC = 5      # FC 8
+}
+
+type ModbusComParams {
+    serialPort: string
+    serialSpeed: i32
+    serialDataBits: i32
+    serialStopBits: i32
+    serialParity: i32          # 0=none, 1=odd, 2=even
+    serialUseRts: bool
+    elementOffset: i32
+    timeInterFrame: i32        # ms between frames
+    timeOutReceipt: i32        # ms receive timeout
+    timeAfterTransmit: i32     # ms delay after TX (RS485)
+    debugLevel: i32
+    mapCoilRead: i32           # variable type for coil reads
+    mapCoilWrite: i32          # variable type for coil writes
+    mapInputs: i32             # variable type for discrete inputs
+    mapHolding: i32            # variable type for holding registers
+    mapRegisterRead: i32       # variable type for register reads
+    mapRegisterWrite: i32      # variable type for register writes
+}
+
+type ModbusRequest {
+    slaveAddr: string          # IP:port for TCP, slave number for serial
+    typeReq: ModbusReqType
+    firstModbusElement: i32
+    nbrModbusElements: i32
+    logicInverted: bool
+    offsetVarMapped: i32
+}
+
+type ModbusStatus {
+    running: bool
+    currentReq: i32
+    frameCount: i32
+    errorCount: i32
+    slavePort: i32             # TCP slave listen port (0=disabled)
+}
+
+# --- Modbus functions ---
+
+# Get Modbus communication parameters.
+@method GET
+@path "/modbus/com_params"
+func get_modbus_com_params() -> ModbusComParams
+
+# Set Modbus communication parameters (restarts master if running).
+@method PUT
+@path "/modbus/com_params"
+func set_modbus_com_params(params: ModbusComParams) -> i32
+
+# Get all Modbus I/O request definitions.
+@method GET
+@path "/modbus/requests"
+func get_modbus_requests() -> []ModbusRequest
+
+# Replace all Modbus I/O request definitions (restarts master if running).
+@method PUT
+@path "/modbus/requests"
+func set_modbus_requests(requests: []ModbusRequest) -> i32
+
+# Get Modbus runtime status (running, frame/error counts).
+@method GET
+@path "/modbus/status"
+func get_modbus_status() -> ModbusStatus
+
+# Update symbol table.
+@method PUT
+@path "/symbols"
+func set_symbols(symbols: []Symbol) -> i32
+
+# Get arithmetic expressions.
+@method GET
+@path "/expressions"
+func get_expressions() -> []ArithmExpr
+
+# Update arithmetic expressions.
+@method PUT
+@path "/expressions"
+func set_expressions(exprs: []ArithmExpr) -> i32
+
+# --- Watch functions (pushed to WS clients) ---
+
+# Live status pushed to connected clients (state + scan time).
+@watch true
+@watch_default_rate 100ms
+func watch_status() -> Status
+
+# Live variable values pushed to clients (for spy window).
+@watch true
+@watch_default_rate 200ms
+func watch_variables() -> Variables

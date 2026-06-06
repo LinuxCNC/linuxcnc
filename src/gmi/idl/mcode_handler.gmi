@@ -1,0 +1,34 @@
+# M-code Handler Registration API
+# Allows cmods to register handlers for M100-M199 codes.
+#
+# Provider: milltask.so — registers this API in New().
+# Consumer: Any cmod that wants to handle M1xx codes.
+#
+# Handler execution:
+#   Handlers run in a dedicated worker thread, one at a time.
+#   The abort_fd in McodeCall becomes readable when task requests abort
+#   (user pressed stop, estop, etc.). Handlers must poll abort_fd periodically
+#   and return promptly when it becomes readable.
+
+@api mcode_handler
+@version 1
+@rest_export false
+
+# Passed to handler at call time.
+type McodeCall {
+    abort_fd: i32
+    mcode: i32
+    p_number: f64
+    q_number: f64
+}
+
+# Handler function type.
+# Returns 0 on success, non-zero on error.
+# Return values 32-63 are mapped to user_defined_result (existing convention).
+# Must return promptly when abort_fd becomes readable.
+callback handler(call: McodeCall, user_data: ptr) -> i32
+
+# Register a handler for a specific M-code (100-199).
+# The same handler function can be registered for multiple codes.
+# Returns 0 on success, -1 on error (invalid mcode, already registered).
+func register_handler(mcode: i32, fn: handler, user_data: ptr) -> i32

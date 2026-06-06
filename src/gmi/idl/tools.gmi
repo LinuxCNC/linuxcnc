@@ -1,0 +1,66 @@
+# Tool Table API
+# CRUD operations on the tool table via shared memory
+
+@api tools
+@version 1
+@prefix tools
+@rest_export true
+
+# ─── Types ───
+
+type ToolEntry {
+    toolno: i32
+    pocketno: i32
+    x_offset: f64
+    y_offset: f64
+    z_offset: f64
+    a_offset: f64
+    b_offset: f64
+    c_offset: f64
+    u_offset: f64
+    v_offset: f64
+    w_offset: f64
+    diameter: f64
+    frontangle: f64
+    backangle: f64
+    orientation: i32
+    comment: string
+}
+
+type PutToolResult {
+    ok: bool
+    index: i32
+}
+
+# ─── Functions ───
+
+# List all tools in the tool table
+@method "GET"
+@path "/"
+func list_tools() -> []ToolEntry
+
+# Get a single tool by tool number
+@method "GET"
+@path "/{toolno}"
+func get_tool(toolno: i32) -> ToolEntry
+
+# Create or update a tool
+@method "PUT"
+@path "/{toolno}"
+func put_tool(toolno: i32, entry: ToolEntry) -> PutToolResult
+
+# Delete a tool by tool number
+@method "DELETE"
+@path "/{toolno}"
+func delete_tool(toolno: i32) -> CmdResult
+
+# Reload tool table from file
+@method "POST"
+@path "/reload"
+func reload_tools() -> CmdResult
+
+# ─── Shared Types ───
+
+type CmdResult {
+    ok: string
+}

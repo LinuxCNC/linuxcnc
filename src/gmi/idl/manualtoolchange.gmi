@@ -1,0 +1,27 @@
+# Manual Tool Change API
+# REST interface for manual tool change UI
+# The comp exposes HAL pins for iocontrol integration;
+# the REST API provides a clean interface for the UI.
+
+@api manualtoolchange
+@version 1
+@prefix manualtoolchange
+@rest_export true
+
+type ToolChangeState {
+    change_requested: bool  # true when a tool change is requested
+    tool_number: i32        # requested tool number (0 = remove tool)
+    change_confirmed: bool  # true when change has been confirmed
+}
+
+# Query current tool change state
+@method "GET"
+@path "/state"
+@rt_safe "false"
+func get_state() -> ToolChangeState
+
+# Confirm the tool change (called by UI when user clicks Continue)
+@method "POST"
+@path "/confirm"
+@rt_safe "false"
+func confirm() -> bool

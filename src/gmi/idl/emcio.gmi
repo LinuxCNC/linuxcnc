@@ -1,0 +1,101 @@
+# EMC IO API
+# Command/status interface between milltask and iocontrol.
+# Replaces the NML toolCmd/toolSts channels.
+#
+# iocontrol registers as the server (implements the callbacks).
+# milltask is the client (calls the functions).
+# All command functions are synchronous — they block until the
+# HAL handshake completes and return success/error directly.
+
+@api emcio
+@version 1
+@prefix emcio
+@rest_export false
+
+# ─── Enums ───
+
+enum CmdStatus {
+    DONE = 1
+    EXEC = 2
+    ERROR = 3
+}
+
+# ─── Status types ───
+
+type ToolStatus {
+    pocket_prepped: i32         # pocket prepared for next tool change
+    tool_in_spindle: i32        # tool number currently in spindle
+    tool_from_pocket: i32       # pocket the current tool came from
+}
+
+type CoolantStatus {
+    mist: bool
+    flood: bool
+}
+
+type IoStatus {
+    heartbeat: u32              # incremented each IO cycle
+    status: CmdStatus           # last command result
+    reason: i32                 # abort/fault reason code
+    fault: i32                  # 0=ok, 1=fault during M6
+    tool: ToolStatus
+    coolant: CoolantStatus
+    estop: bool                 # true = e-stopped
+    lube_on: bool
+    lube_level: bool            # lube level ok
+    debug: i32
+}
+
+# ─── Commands (milltask → iocontrol) ───
+
+# Abort current IO operation.
+func io_abort(reason: i32) -> i32
+
+# Set debug level.
+func set_debug(debug: i32) -> i32
+
+# E-stop control.
+func estop_on() -> i32
+func estop_off() -> i32
+
+# Coolant control.
+func coolant_mist_on() -> i32
+func coolant_mist_off() -> i32
+func coolant_flood_on() -> i32
+func coolant_flood_off() -> i32
+
+# Lube control.
+func lube_on() -> i32
+func lube_off() -> i32
+
+# Tool change sequencing.
+# prepare selects the pocket; blocks until iocontrol signals tool-prepared.
+func tool_prepare(tool: i32) -> i32
+
+# start_change signals the beginning of the tool change sequence.
+func tool_start_change() -> i32
+
+# tool_load executes the actual tool change; blocks until complete.
+func tool_load() -> i32
+
+# tool_unload removes the tool from the spindle.
+func tool_unload() -> i32
+
+# Reload the tool table from file.
+func tool_load_table(file: string) -> i32
+
+# Set tool geometry offsets (G10 L1/L10/L11).
+func tool_set_offset(pocket: i32, toolno: i32,
+    x: f64, y: f64, z: f64,
+    a: f64, b: f64, c: f64,
+    u: f64, v: f64, w: f64,
+    diameter: f64, frontangle: f64, backangle: f64,
+    orientation: i32) -> i32
+
+# Override the tool number in the spindle.
+func tool_set_number(tool: i32) -> i32
+
+# ─── Status (iocontrol → milltask) ───
+
+# Get current IO status snapshot.
+func get_status() -> IoStatus

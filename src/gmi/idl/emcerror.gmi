@@ -1,0 +1,46 @@
+# EMC Error Channel API
+# Error/info message stream — replaces NML error buffer for UI clients.
+# milltask publishes errors via ring buffer; Go drains and delivers to WS.
+
+@api emcerror
+@version 1
+@prefix emcerror
+@rest_export false
+
+# ─── Enums ───
+
+# Error/message kind (linuxcnc.NML_ERROR, OPERATOR_ERROR, etc.)
+enum ErrorKind {
+    NML_ERROR = 1
+    NML_TEXT = 2
+    NML_DISPLAY = 3
+    OPERATOR_ERROR = 11
+    OPERATOR_TEXT = 12
+    OPERATOR_DISPLAY = 13
+}
+
+# ─── Types ───
+
+type ErrorMessage {
+    kind: ErrorKind
+    text: string
+}
+
+# ─── Publish (C → Go) ───
+
+# milltask calls this to publish operator errors/text/display messages.
+# Written to a lock-free ring buffer, drained by Go goroutine.
+@publish true
+@publish_ring_size 64
+func publish_error(kind: ErrorKind, text: string)
+
+# ─── Watch (Go → WS clients) ───
+
+# Poll for new error/info messages, pushed via WebSocket at 200ms intervals.
+# Returns only messages that arrived since the last poll (drain flushes buffer).
+@watch true
+@watch_source "publish_error"
+@watch_default_rate 200ms
+@method "GET"
+@path "/errors"
+func get_errors() -> []ErrorMessage

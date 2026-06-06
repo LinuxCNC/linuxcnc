@@ -1,0 +1,243 @@
+# Motion Controller Status API
+#
+# Provides a consistent snapshot of the motion controller state.
+# The implementation handles the RT↔non-RT synchronization internally
+# (head/tail protocol, mutex, or direct copy — consumer doesn't care).
+#
+# Provider: motion controller cmod (motmod).
+# Consumer: milltask (gomod), GUI status displays.
+#
+# Status is read by calling get_status() once per task cycle (~10ms).
+# Individual accessors exist for hot-path fields that need per-cycle
+# access without copying the full struct.
+
+@api motstat
+@version 1
+@rest_export false
+
+# ─── Constants ───
+
+const MAX_JOINTS = 16
+const MAX_AXIS = 9
+const MAX_SPINDLES = 8
+const MAX_DIO = 64
+const MAX_AIO = 64
+
+# Motion state
+const MOTION_DISABLED = 0
+const MOTION_FREE = 1
+const MOTION_TELEOP = 2
+const MOTION_COORD = 3
+
+# Command status
+const CMD_OK = 0
+const CMD_UNKNOWN = 1
+const CMD_INVALID = 2
+const CMD_INVALID_PARAMS = 3
+const CMD_BAD_EXEC = 4
+
+# ─── Types ───
+
+type Pose {
+    x: f64
+    y: f64
+    z: f64
+    a: f64
+    b: f64
+    c: f64
+    u: f64
+    v: f64
+    w: f64
+}
+
+const TAG_FIELDS_FLOAT = 5
+const TAG_FIELDS_INT = 8
+
+type StateTag {
+    fields_float: [TAG_FIELDS_FLOAT]f32
+    fields: [TAG_FIELDS_INT]i32
+    packed_flags: u64
+}
+
+# Joint flag bits are flattened into individual booleans
+# to avoid leaking the packed bitfield to consumers.
+type JointStatus {
+    enabled: i32
+    active: i32
+    inpos: i32
+    error: i32
+    fault: i32
+    on_pos_limit: i32
+    on_neg_limit: i32
+    ferror_exceeded: i32
+    homed: i32
+    homing: i32
+    pos_cmd: f64
+    pos_fb: f64
+    vel_cmd: f64
+    ferror: f64
+    ferror_high_mark: f64
+    min_pos_limit: f64
+    max_pos_limit: f64
+    min_ferror: f64
+    max_ferror: f64
+}
+
+type SpindleStatus {
+    speed: f64
+    scale: f64
+    direction: i32
+    state: i32
+    brake: i32
+    orient_fault: i32
+    orient_state: i32
+    at_speed: i32
+    fault: i32
+    homed: i32
+    css_factor: f64
+    max_pos_speed: f64
+    min_pos_speed: f64
+    max_neg_speed: f64
+    min_neg_speed: f64
+}
+
+type AxisStatus {
+    min_pos_limit: f64
+    max_pos_limit: f64
+    vel_limit: f64
+    acc_limit: f64
+}
+
+type ProbeStatus {
+    val: i32
+    tripped: i32
+    probing: i32
+    probe_type: u8
+    pos: Pose
+}
+
+type MotionStatus {
+    # --- Command echo ---
+    command_echo: i32
+    command_num_echo: i32
+    command_status: i32
+
+    # --- Motion state ---
+    motion_state: i32
+    enabled: i32
+    inpos: i32
+    coord: i32
+    teleop: i32
+    error: i32
+    on_soft_limit: i32
+    paused: i32
+    reverse_run: i32
+    stepping: i32
+    jogging_active: i32
+    override_limit_mask: i32
+
+    # --- Scales ---
+    feed_scale: f64
+    rapid_scale: f64
+    net_feed_scale: f64
+
+    # --- Enables ---
+    feed_scale_enabled: i32
+    spindle_scale_enabled: i32
+    adaptive_feed_enabled: i32
+    feed_hold_enabled: i32
+
+    # --- Position ---
+    carte_pos_cmd: Pose
+    carte_pos_fb: Pose
+    carte_pos_cmd_ok: i32
+    carte_pos_fb_ok: i32
+
+    # --- Velocity/acceleration ---
+    vel: f64
+    acc: f64
+    current_vel: f64
+    requested_vel: f64
+
+    # --- Queue ---
+    queue_depth: i32
+    active_depth: i32
+    queue_full: i32
+    tcqlen: u32
+
+    # --- Executing motion ---
+    id: i32
+    motion_type: i32
+    distance_to_go: f64
+    dtg: Pose
+    tag: StateTag
+
+    # --- Probe ---
+    probe: ProbeStatus
+
+    # --- Tool ---
+    tool_offset: Pose
+    atspeed_next_feed: i32
+
+    # --- External offsets ---
+    external_offsets_applied: i32
+    eoffset_pose: Pose
+
+    # --- Runtime counters ---
+    heartbeat: u32
+    config_num: i32
+
+    # --- Config snapshot (from emcmot_config_t, changes tracked by config_num) ---
+    kin_type: i32
+    traj_cycle_time: f64
+    limit_vel: f64
+    debug: i32
+
+    # --- Per-joint status ---
+    joints: [MAX_JOINTS]JointStatus
+
+    # --- Per-spindle status ---
+    spindles: [MAX_SPINDLES]SpindleStatus
+
+    # --- Per-axis status ---
+    axes: [MAX_AXIS]AxisStatus
+
+    # --- Synchronized I/O ---
+    synch_di: [MAX_DIO]i32
+    synch_do: [MAX_DIO]i32
+    analog_input: [MAX_AIO]f64
+    analog_output: [MAX_AIO]f64
+}
+
+# ─── Read Functions ───
+
+@doc "Read a consistent snapshot of the full motion controller status"
+func get_status(status: MotionStatus out) -> i32
+
+# ─── Hot-path accessors (avoid full status copy) ───
+
+@doc "Get commanded Cartesian position"
+func get_pos_cmd(pos: Pose out) -> i32
+
+@doc "Get actual (feedback) Cartesian position"
+func get_pos_fb(pos: Pose out) -> i32
+
+@doc "Get the currently executing motion ID"
+@returns_value
+func get_exec_id() -> i32
+
+@doc "Get motion queue depth"
+@returns_value
+func get_queue_depth() -> i32
+
+@doc "Check if motion is in position (all queues empty, motion done)"
+@returns_value
+func get_inpos() -> i32
+
+@doc "Get command echo number (for verifying command receipt)"
+@returns_value
+func get_command_num_echo() -> i32
+
+@doc "Get command status (CMD_OK, CMD_INVALID, etc.)"
+@returns_value
+func get_command_status() -> i32

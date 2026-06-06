@@ -1,0 +1,35 @@
+# INI File API
+# REST interface for querying parsed INI file values and
+# serving related config files (e.g. the RS274NGC parameter file).
+
+@api ini
+@version 1
+@prefix ini
+@rest_export true
+
+# A single item in a bulk INI query request.
+type IniQueryItem {
+    section: string     # INI section name, e.g. "DISPLAY"
+    key: string         # INI key name, e.g. "CYCLE_TIME"
+    all: bool?          # if true, return all values (findall semantics)
+    namespace: string?  # optional namespace prefix for multi-instance lookups
+}
+
+# A single result from a bulk INI query.
+type IniQueryResult {
+    value: string?      # single value (find semantics); null if not found
+    values: []string?   # all values (findall semantics); set when all=true
+}
+
+# Bulk query: look up one or more INI keys in a single request.
+@method "POST"
+@path "/query"
+@rt_safe "false"
+func query(items: []IniQueryItem) -> []IniQueryResult
+
+# Get the content of the RS274NGC parameter (var) file.
+# The server resolves the path from [RS274NGC]PARAMETER_FILE.
+@method "POST"
+@path "/parameter-file"
+@rt_safe "false"
+func get_parameter_file(namespace: string?) -> string

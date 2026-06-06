@@ -1,0 +1,48 @@
+# Emccalib API
+# REST interface for live calibration tuning.
+# Discovers tunable HAL pins (those set via [SECTION]KEY INI references
+# during HAL file loading) and allows live adjustment + INI save-back.
+
+@api emccalib
+@version 1
+@prefix emccalib
+@rest_export true
+
+type TunableItem {
+    section: string     # INI section name, e.g. "JOINT_0"
+    key: string         # INI key name, e.g. "P"
+    hal_pin: string     # HAL pin/param name, e.g. "pid.0.Pgain"
+    value: f64          # current HAL pin value (live)
+    ini_value: f64      # original value from INI at load time
+}
+
+type TunableSection {
+    name: string        # section base name, e.g. "JOINT_0", "AXIS_X"
+    items: []TunableItem
+}
+
+# Get all discovered tunable sections and their items with current values.
+@method "GET"
+@path "/tunables"
+@rt_safe "false"
+func get_tunables() -> []TunableSection
+
+# Set a tunable pin to a new value (live, does not persist to INI).
+# Returns true on success. Rejects pins not in the discovered tunable list.
+@method "PUT"
+@path "/pin"
+@rt_safe "false"
+func set_pin(section: string, key: string, value: f64) -> bool
+
+# Save all current tunable pin values back to their respective INI files.
+# Creates .bak backup of each modified file. Returns true on success.
+@method "POST"
+@path "/save"
+@rt_safe "false"
+func save_ini() -> bool
+
+# Revert a single tunable pin to its original INI value.
+@method "PUT"
+@path "/revert"
+@rt_safe "false"
+func revert(section: string, key: string) -> bool

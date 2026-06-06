@@ -1,0 +1,335 @@
+# HAL Command API
+# Commands exposed by launcher for HAL manipulation via REST
+# This is the full halcmd replacement - old C halcmd is deprecated
+
+@api halcmd
+@version 1
+@prefix halcmd
+@rest_export true
+
+# ─── Types ───
+
+type CmdResult {
+    success: bool
+    output: string?
+    error: string?
+}
+
+type PinInfo {
+    name: string
+    type: string      # bit, float, s32, u32
+    dir: string       # IN, OUT, IO
+    value: string
+    owner: string     # component name
+    linked: bool
+    signal: string?   # signal name if linked
+    alias: string?    # alias if set
+}
+
+type ParamInfo {
+    name: string
+    type: string      # bit, float, s32, u32
+    dir: string       # RO, RW
+    value: string
+    owner: string
+    alias: string?
+}
+
+type SignalInfo {
+    name: string
+    type: string
+    value: string
+    writers: []string
+    readers: []string
+    bidirs: []string
+}
+
+type ComponentInfo {
+    name: string
+    id: i32
+    type: string      # RT, User, Remote
+    state: string     # Initializing, Unbound, Bound, Ready
+    pid: i32?
+    timer: i64?       # last update time
+}
+
+type FunctionInfo {
+    name: string
+    owner: string     # component name
+    users: i32        # thread usage count
+    runtime: i64      # max runtime in ns
+    fp: bool          # uses floating point
+}
+
+type ThreadInfo {
+    name: string
+    period: i64       # period in ns
+    fp: bool          # floating point thread
+    functions: []string
+}
+
+type HalStatus {
+    rt_lock: bool
+    mem_lock: bool
+    threads_running: bool
+    components: i32
+    pins: i32
+    signals: i32
+    params: i32
+    threads: i32
+    functions: i32
+}
+
+# ─── Query Commands ───
+
+# List pins (show pin)
+@method "GET"
+@path "/pins"
+@rt_safe "false"
+func list_pins(pattern: string?) -> []PinInfo
+
+# List parameters (show param)
+@method "GET"
+@path "/params"
+@rt_safe "false"
+func list_params(pattern: string?) -> []ParamInfo
+
+# List signals (show sig)
+@method "GET"
+@path "/signals"
+@rt_safe "false"
+func list_signals(pattern: string?) -> []SignalInfo
+
+# List components (show comp)
+@method "GET"
+@path "/components"
+@rt_safe "false"
+func list_components(pattern: string?) -> []ComponentInfo
+
+# List functions (show funct)
+@method "GET"
+@path "/functions"
+@rt_safe "false"
+func list_functions(pattern: string?) -> []FunctionInfo
+
+# List threads (show thread)
+@method "GET"
+@path "/threads"
+@rt_safe "false"
+func list_threads(pattern: string?) -> []ThreadInfo
+
+# Get single pin (getp)
+@method "GET"
+@path "/pin/{name}"
+@rt_safe "false"
+func get_pin(name: string) -> PinInfo
+
+# Get single parameter
+@method "GET"
+@path "/param/{name}"
+@rt_safe "false"
+func get_param(name: string) -> ParamInfo
+
+# Get single signal (gets)
+@method "GET"
+@path "/signal/{name}"
+@rt_safe "false"
+func get_signal(name: string) -> SignalInfo
+
+# Get HAL status
+@method "GET"
+@path "/status"
+@rt_safe "false"
+func get_status() -> HalStatus
+
+# ─── Pin/Param Commands ───
+
+# Set pin value (setp)
+@method "PUT"
+@path "/pin/{name}"
+@rt_safe "false"
+func set_pin(name: string, value: string) -> CmdResult
+
+# Set parameter value (setp for params)
+@method "PUT"
+@path "/param/{name}"
+@rt_safe "false"
+func set_param(name: string, value: string) -> CmdResult
+
+# Create pin alias
+@method "POST"
+@path "/pin/{name}/alias"
+@rt_safe "false"
+func alias_pin(name: string, alias: string) -> CmdResult
+
+# Create param alias
+@method "POST"
+@path "/param/{name}/alias"
+@rt_safe "false"
+func alias_param(name: string, alias: string) -> CmdResult
+
+# Remove pin alias
+@method "DELETE"
+@path "/pin/{name}/alias"
+@rt_safe "false"
+func unalias_pin(name: string) -> CmdResult
+
+# Remove param alias
+@method "DELETE"
+@path "/param/{name}/alias"
+@rt_safe "false"
+func unalias_param(name: string) -> CmdResult
+
+# ─── Signal Commands ───
+
+# Set signal value (sets)
+@method "PUT"
+@path "/signal/{name}"
+@rt_safe "false"
+func set_signal(name: string, value: string) -> CmdResult
+
+# Create new signal (newsig)
+@method "POST"
+@path "/signal"
+@rt_safe "false"
+func new_signal(name: string, type: string) -> CmdResult
+
+# Delete signal (delsig)
+@method "DELETE"
+@path "/signal/{name}"
+@rt_safe "false"
+func delete_signal(name: string) -> CmdResult
+
+# ─── Link Commands ───
+
+# Link pin to signal (linksp/linkps/net)
+@method "POST"
+@path "/link"
+@rt_safe "false"
+func link(pin: string, signal: string) -> CmdResult
+
+# Link pin to pin directly (linkpp) - creates implicit signal
+@method "POST"
+@path "/linkpp"
+@rt_safe "false"
+func link_pp(pin1: string, pin2: string) -> CmdResult
+
+# Unlink pin (unlinkp)
+@method "DELETE"
+@path "/link/{pin}"
+@rt_safe "false"
+func unlink(pin: string) -> CmdResult
+
+# Net command - link multiple pins, auto-create signal
+@method "POST"
+@path "/net"
+@rt_safe "false"
+func net(signal: string, pins: []string) -> CmdResult
+
+# ─── Module Commands ───
+
+# Load cmod plugin (load)
+@method "POST"
+@path "/load"
+@rt_safe "false"
+func load(module: string, args: []string?) -> CmdResult
+
+# Unload module by instance name (unload)
+@method "DELETE"
+@path "/module/{name}"
+@rt_safe "false"
+func unload(name: string) -> CmdResult
+
+
+
+# ─── Thread Commands ───
+
+# Create new thread (newthread)
+@method "POST"
+@path "/thread"
+@rt_safe "false"
+func newthread(name: string, period_ns: i64, fp: bool?, cpu_id: i32?) -> CmdResult
+
+# Delete thread (delthread)
+@method "DELETE"
+@path "/thread/{name}"
+@rt_safe "false"
+func delthread(name: string) -> CmdResult
+
+# Add function to thread (addf)
+@method "POST"
+@path "/thread/{thread}/function"
+@rt_safe "false"
+func addf(thread: string, function: string, position: i32?) -> CmdResult
+
+# Remove function from thread (delf)
+@method "DELETE"
+@path "/thread/{thread}/function/{function}"
+@rt_safe "false"
+func delf(thread: string, function: string) -> CmdResult
+
+# Start all threads
+@method "POST"
+@path "/start"
+@rt_safe "false"
+func start() -> CmdResult
+
+# Stop all threads
+@method "POST"
+@path "/stop"
+@rt_safe "false"
+func stop() -> CmdResult
+
+# ─── Lock/Special Commands ───
+
+# Lock HAL (lock)
+@method "POST"
+@path "/lock"
+@rt_safe "false"
+func lock(level: string?) -> CmdResult
+
+# Unlock HAL (unlock)
+@method "POST"
+@path "/unlock"
+@rt_safe "false"
+func unlock(level: string?) -> CmdResult
+
+# Set debug level
+@method "PUT"
+@path "/debug"
+@rt_safe "false"
+func set_debug(level: i32) -> CmdResult
+
+# ─── Save/Restore Commands ───
+
+# Save HAL configuration
+@method "GET"
+@path "/save"
+@rt_safe "false"
+func save(type: string?) -> CmdResult
+
+# ─── Retain Commands ───
+
+# Set retain flag on a signal (preserved across restarts)
+@method "POST"
+@path "/signal/{name}/retain"
+@rt_safe "false"
+func retain(name: string) -> CmdResult
+
+# Clear retain flag on a signal
+@method "DELETE"
+@path "/signal/{name}/retain"
+@rt_safe "false"
+func unretain(name: string) -> CmdResult
+
+# ─── Watch Functions (WebSocket push) ───
+
+# Watch a set of pins — values pushed to clients at the subscribed rate.
+# The names list selects which pins/signals/params to include (required).
+# First response: {meta: [{name, type, dir, kind, owner, linked}], values: {name: value}}
+# Subsequent responses: {name: value} — only items whose raw value changed.
+# Uses per-connection state with direct shmem reads and shadow-buffer diffing.
+@watch true
+@watch_default_rate 100ms
+@watch_factory true
+func watch_items(names: []string?) -> []PinInfo

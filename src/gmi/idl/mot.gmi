@@ -1,0 +1,217 @@
+# Motion Controller Reverse-Callback API
+#
+# Provided by motmod, consumed by tpmod and homemod.
+# Looked up via get_api() at Start() time.
+
+@api mot
+@version 1
+@prefix mot
+@rest_export false
+
+# ─── Types ───
+
+type Pose {
+    x: f64
+    y: f64
+    z: f64
+    a: f64
+    b: f64
+    c: f64
+    u: f64
+    v: f64
+    w: f64
+}
+
+# ─── I/O callbacks ───
+
+@doc "Write a digital output"
+func dio_write(index: i32, value: i8)
+
+@doc "Write an analog output"
+func aio_write(index: i32, value: f64)
+
+# ─── Rotary unlock callbacks ───
+
+@doc "Set rotary unlock state for a joint"
+func set_rotary_unlock(jnum: i32, unlock: i32)
+
+@doc "Get rotary unlock state for a joint"
+func get_rotary_unlock(jnum: i32) -> i32
+
+# ─── Axis limit queries ───
+
+@doc "Get velocity limit for an axis"
+func axis_get_vel_limit(axis: i32) -> f64
+
+@doc "Get acceleration limit for an axis"
+func axis_get_acc_limit(axis: i32) -> f64
+
+# ─── Config getters (emcmot_config_t fields, all read-only) ───
+
+@doc "Get arc blend enable flag"
+func cfg_get_arc_blend_enable() -> i32
+
+@doc "Get arc blend gap cycles"
+func cfg_get_arc_blend_gap_cycles() -> i32
+
+@doc "Get arc blend optimization depth"
+func cfg_get_arc_blend_opt_depth() -> i32
+
+@doc "Get arc blend ramp frequency"
+func cfg_get_arc_blend_ramp_freq() -> f64
+
+@doc "Get arc blend tangent kink ratio"
+func cfg_get_arc_blend_tangent_kink_ratio() -> f64
+
+@doc "Get maximum feed scale"
+func cfg_get_max_feed_scale() -> f64
+
+@doc "Get number of analog I/O"
+func cfg_get_num_aio() -> i32
+
+@doc "Get number of digital I/O"
+func cfg_get_num_dio() -> i32
+
+@doc "Get number of spindles"
+func cfg_get_num_spindles() -> i32
+
+# ─── Status getters (emcmot_status_t fields, read) ───
+
+@doc "Get net feed scale"
+func status_get_net_feed_scale() -> f64
+
+@doc "Get stepping flag"
+func status_get_stepping() -> i32
+
+@doc "Get current velocity"
+func status_get_current_vel() -> f64
+
+@doc "Get spindleSync flag"
+func status_get_spindle_sync() -> i32
+
+@doc "Get spindle revs for a given spindle"
+func status_get_spindle_revs(spindle: i32) -> f64
+
+@doc "Get spindle direction for a given spindle"
+func status_get_spindle_direction(spindle: i32) -> i32
+
+@doc "Get spindle at-speed flag for a given spindle"
+func status_get_spindle_at_speed(spindle: i32) -> i32
+
+@doc "Get spindle speed-in for a given spindle"
+func status_get_spindle_speed_in(spindle: i32) -> f64
+
+@doc "Get spindle index-enable for a given spindle"
+func status_get_spindle_index_enable(spindle: i32) -> i32
+
+@doc "Get enables_new value"
+func status_get_enables_new() -> u8
+
+@doc "Get commanded spindle speed for a given spindle"
+func status_get_spindle_speed(spindle: i32) -> f64
+
+# ─── Status setters (emcmot_status_t fields, write) ───
+
+@doc "Set current velocity"
+func status_set_current_vel(vel: f64)
+
+@doc "Set requested velocity"
+func status_set_requested_vel(vel: f64)
+
+@doc "Set distance to go (scalar)"
+func status_set_distance_to_go(dist: f64)
+
+@doc "Set distance to go (pose)"
+func status_set_dtg(dtg: Pose byref)
+
+@doc "Set or-assign motion flag bits"
+func status_or_motion_flag(bits: u32)
+
+@doc "Set enables_queued"
+func status_set_enables_queued(val: u8)
+
+@doc "Set spindleSync flag"
+func status_set_spindle_sync(val: i32)
+
+@doc "Set tcqlen (queue length for status)"
+func status_set_tcqlen(len: u32)
+
+@doc "Set spindle speed for a given spindle"
+func status_set_spindle_speed(spindle: i32, speed: f64)
+
+@doc "Set spindle index-enable for a given spindle"
+func status_set_spindle_index_enable(spindle: i32, enable: i32)
+
+# ─── Joint access (for homing subsystem) ───
+
+@doc "Get number of joints"
+func get_num_joints() -> i32
+
+@doc "Get joint active flag"
+func joint_get_active_flag(jno: i32) -> i32
+
+@doc "Get joint in-position flag"
+func joint_get_inpos_flag(jno: i32) -> i32
+
+@doc "Get joint free_tp.active"
+func joint_get_free_tp_active(jno: i32) -> i32
+
+@doc "Set joint free_tp.enable"
+func joint_set_free_tp_enable(jno: i32, enable: i32)
+
+@doc "Get joint free_tp.pos_cmd"
+func joint_get_free_tp_pos_cmd(jno: i32) -> f64
+
+@doc "Set joint free_tp.pos_cmd"
+func joint_set_free_tp_pos_cmd(jno: i32, val: f64)
+
+@doc "Get joint free_tp.curr_pos"
+func joint_get_free_tp_curr_pos(jno: i32) -> f64
+
+@doc "Set joint free_tp.curr_pos"
+func joint_set_free_tp_curr_pos(jno: i32, val: f64)
+
+@doc "Set joint free_tp.max_vel"
+func joint_set_free_tp_max_vel(jno: i32, vel: f64)
+
+@doc "Get joint free_tp.max_vel"
+func joint_get_free_tp_max_vel(jno: i32) -> f64
+
+@doc "Get joint pos_cmd"
+func joint_get_pos_cmd(jno: i32) -> f64
+
+@doc "Set joint pos_cmd"
+func joint_set_pos_cmd(jno: i32, val: f64)
+
+@doc "Get joint pos_fb"
+func joint_get_pos_fb(jno: i32) -> f64
+
+@doc "Set joint pos_fb"
+func joint_set_pos_fb(jno: i32, val: f64)
+
+@doc "Get joint motor_pos_fb"
+func joint_get_motor_pos_fb(jno: i32) -> f64
+
+@doc "Get joint motor_offset"
+func joint_get_motor_offset(jno: i32) -> f64
+
+@doc "Set joint motor_offset"
+func joint_set_motor_offset(jno: i32, val: f64)
+
+@doc "Get joint backlash_filt"
+func joint_get_backlash_filt(jno: i32) -> f64
+
+@doc "Get joint vel_limit"
+func joint_get_vel_limit(jno: i32) -> f64
+
+@doc "Get joint max_pos_limit"
+func joint_get_max_pos_limit(jno: i32) -> f64
+
+@doc "Get joint min_pos_limit"
+func joint_get_min_pos_limit(jno: i32) -> f64
+
+@doc "Get joint on_pos_limit"
+func joint_get_on_pos_limit(jno: i32) -> i32
+
+@doc "Get joint on_neg_limit"
+func joint_get_on_neg_limit(jno: i32) -> i32

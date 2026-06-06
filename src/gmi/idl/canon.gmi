@@ -1,0 +1,505 @@
+# Canon Callback Table API
+#
+# Replaces the ~110 free C functions in canon.hh with a per-instance
+# callback table. Each Interp instance receives its own canon_t at
+# construction. The table carries a void *ctx that the implementation
+# uses to reach its private state (CanonConfig, interp_list, emcStatus).
+#
+# Three implementations exist:
+#   1. emccanon (task) — converts units, queues NML messages to motion
+#   2. saicanon (SAI)  — standalone interpreter dummy/simulator
+#   3. gcodemodule     — Python backplot/preview forwarding
+#
+# Design: MILLTASK_CLEANUP.md Phase 1
+
+@api canon
+@version 1
+@prefix canon
+@rest_export false
+
+# ─── Types ───
+
+type ControlPoint {
+    x: f64
+    y: f64
+    w: f64
+}
+
+# Enum parameters (CANON_UNITS, CANON_PLANE, CANON_MOTION_MODE, CANON_DIRECTION,
+# CANON_AXIS) are passed as i32 in the callback table to avoid header coupling
+# with canon.hh. Constants are defined in canon.hh.
+
+# ─── Initialization ───
+
+@doc "Initialize canon state"
+func init_canon()
+
+# ─── Representation / Offsets ───
+
+@doc "Set G5x work coordinate system offset"
+func set_g5x_offset(origin: i32, x: f64, y: f64, z: f64, a: f64, b: f64, c: f64, u: f64, v: f64, w: f64)
+
+@doc "Set G92 offset"
+func set_g92_offset(x: f64, y: f64, z: f64, a: f64, b: f64, c: f64, u: f64, v: f64, w: f64)
+
+@doc "Set XY rotation angle"
+func set_xy_rotation(t: f64)
+
+@doc "Update the end point (no motion)"
+func update_end_point(x: f64, y: f64, z: f64, a: f64, b: f64, c: f64, u: f64, v: f64, w: f64)
+
+@doc "Set length units"
+func use_length_units(units: i32)
+
+@doc "Select active plane"
+func select_plane(plane: i32)
+
+# ─── Free Space Motion ───
+
+@doc "Set traverse (rapid) rate"
+func set_traverse_rate(rate: f64)
+
+@doc "Rapid move to position"
+func straight_traverse(lineno: i32, x: f64, y: f64, z: f64, a: f64, b: f64, c: f64, u: f64, v: f64, w: f64)
+
+# ─── Feed & Motion Control ───
+
+@doc "Set feed rate"
+func set_feed_rate(rate: f64)
+
+@doc "Set feed reference mode (1=workpiece, 2=xyz)"
+func set_feed_reference(reference: i32)
+
+@doc "Set feed mode (units per minute vs units per rev)"
+func set_feed_mode(spindle: i32, mode: i32)
+
+@doc "Set motion control mode with tolerance"
+func set_motion_control_mode(mode: i32, tolerance: f64)
+
+@doc "Set naive CAM tolerance"
+func set_naivecam_tolerance(tolerance: f64)
+
+@doc "Set cutter radius compensation value"
+func set_cutter_radius_compensation(radius: f64)
+
+@doc "Start cutter radius compensation"
+func start_cutter_radius_compensation(direction: i32)
+
+@doc "Stop cutter radius compensation"
+func stop_cutter_radius_compensation()
+
+@doc "Start speed-feed synchronization"
+func start_speed_feed_synch(spindle: i32, feed_per_revolution: f64, velocity_mode: i32)
+
+@doc "Stop speed-feed synchronization"
+func stop_speed_feed_synch()
+
+# ─── Machining Functions ───
+
+@doc "Arc feed move"
+func arc_feed(lineno: i32, first_end: f64, second_end: f64, first_axis: f64, second_axis: f64, rotation: i32, axis_end_point: f64, a: f64, b: f64, c: f64, u: f64, v: f64, w: f64)
+
+@doc "Linear feed move"
+func straight_feed(lineno: i32, x: f64, y: f64, z: f64, a: f64, b: f64, c: f64, u: f64, v: f64, w: f64)
+
+@doc "NURBS feed move"
+func nurbs_feed(lineno: i32, control_points: []ControlPoint, k: u32)
+
+@doc "Rigid tapping cycle"
+func rigid_tap(lineno: i32, x: f64, y: f64, z: f64, scale: f64)
+
+@doc "Straight probe move"
+func straight_probe(lineno: i32, x: f64, y: f64, z: f64, a: f64, b: f64, c: f64, u: f64, v: f64, w: f64, probe_type: u8)
+
+# ─── Motion Control ───
+
+@doc "Stop motion immediately"
+func stop()
+
+@doc "Dwell (pause) for given seconds"
+func dwell(seconds: f64)
+
+@doc "Wait for all queued motion to complete"
+func finish()
+
+# ─── Spindle ───
+
+@doc "Set spindle mode (CSS vs RPM)"
+func set_spindle_mode(spindle: i32, mode: f64)
+
+@doc "Start spindle clockwise"
+func start_spindle_clockwise(spindle: i32, wait_for_atspeed: i32)
+
+@doc "Start spindle counterclockwise"
+func start_spindle_counterclockwise(spindle: i32, wait_for_atspeed: i32)
+
+@doc "Set spindle speed in RPM"
+func set_spindle_speed(spindle: i32, rpm: f64)
+
+@doc "Stop spindle"
+func stop_spindle_turning(spindle: i32)
+
+@doc "Orient spindle to a specific angle"
+func orient_spindle(spindle: i32, orientation: f64, mode: i32)
+
+@doc "Wait for spindle orient to complete"
+func wait_spindle_orient_complete(spindle: i32, timeout: f64)
+
+# ─── Tool ───
+
+@doc "Select a tool for next change"
+func select_tool(tool: i32)
+
+@doc "Signal start of tool change sequence"
+func start_change()
+
+@doc "Execute tool change to given slot"
+func change_tool(slot: i32)
+
+@doc "Change tool number (renumber current tool)"
+func change_tool_number(number: i32)
+
+@doc "Reload tool data from table"
+func reload_tooldata()
+
+@doc "Set a tool table entry"
+func set_tool_table_entry(pocket: i32, toolno: i32, ox: f64, oy: f64, oz: f64, oa: f64, ob: f64, oc: f64, ou: f64, ov: f64, ow: f64, diameter: f64, frontangle: f64, backangle: f64, orientation: i32)
+
+@doc "Apply tool length offset"
+func use_tool_length_offset(x: f64, y: f64, z: f64, a: f64, b: f64, c: f64, u: f64, v: f64, w: f64)
+
+# ─── Coolant ───
+
+@doc "Turn flood coolant on"
+func flood_on()
+
+@doc "Turn flood coolant off"
+func flood_off()
+
+@doc "Turn mist coolant on"
+func mist_on()
+
+@doc "Turn mist coolant off"
+func mist_off()
+
+# ─── Overrides ───
+
+@doc "Enable feed rate override"
+func enable_feed_override()
+
+@doc "Disable feed rate override"
+func disable_feed_override()
+
+@doc "Enable spindle speed override"
+func enable_speed_override(spindle: i32)
+
+@doc "Disable spindle speed override"
+func disable_speed_override(spindle: i32)
+
+@doc "Enable feed hold"
+func enable_feed_hold()
+
+@doc "Disable feed hold"
+func disable_feed_hold()
+
+@doc "Enable adaptive feed"
+func enable_adaptive_feed()
+
+@doc "Disable adaptive feed"
+func disable_adaptive_feed()
+
+# ─── I/O Digital / Analog ───
+
+@doc "Set motion-synchronized digital output bit"
+func set_motion_output_bit(index: i32)
+
+@doc "Clear motion-synchronized digital output bit"
+func clear_motion_output_bit(index: i32)
+
+@doc "Set auxiliary digital output bit"
+func set_aux_output_bit(index: i32)
+
+@doc "Clear auxiliary digital output bit"
+func clear_aux_output_bit(index: i32)
+
+@doc "Set motion-synchronized analog output value"
+func set_motion_output_value(index: i32, value: f64)
+
+@doc "Set auxiliary analog output value"
+func set_aux_output_value(index: i32, value: f64)
+
+@doc "Wait for input condition"
+func wait_input(index: i32, input_type: i32, wait_type: i32, timeout: f64) -> i32
+
+# ─── Clamping / Rotary Lock ───
+
+@doc "Clamp an axis"
+func clamp_axis(axis: i32)
+
+@doc "Unclamp an axis"
+func unclamp_axis(axis: i32)
+
+@doc "Lock a rotary joint"
+func lock_rotary(lineno: i32, joint: i32) -> i32
+
+@doc "Unlock a rotary joint"
+func unlock_rotary(lineno: i32, joint: i32) -> i32
+
+# ─── Program Flow ───
+
+@doc "Program stop (M0)"
+func program_stop()
+
+@doc "Optional program stop (M1)"
+func optional_program_stop()
+
+@doc "Program end (M2/M30)"
+func program_end()
+
+@doc "Pallet shuttle (M60)"
+func pallet_shuttle()
+
+# ─── Messages / Logging ───
+
+@doc "G-code comment"
+func comment(s: string)
+
+@doc "Operator message (MSG,...)"
+func message(s: string)
+
+@doc "Log message"
+func log_msg(s: string)
+
+@doc "Open log file"
+func logopen(s: string)
+
+@doc "Append to log file"
+func logappend(s: string)
+
+@doc "Close log file"
+func logclose()
+
+@doc "Canon error message"
+func canon_error(msg: string)
+
+# ─── Probe ───
+
+@doc "Turn probe on"
+func turn_probe_on()
+
+@doc "Turn probe off"
+func turn_probe_off()
+
+# ─── Block Delete / Optional Stop ───
+
+@doc "Set block delete state"
+func set_block_delete(enabled: i32)
+
+@doc "Get block delete state"
+func get_block_delete() -> i32
+
+@doc "Set optional program stop state"
+func set_optional_program_stop(enabled: i32)
+
+@doc "Get optional program stop state"
+func get_optional_program_stop() -> i32
+
+# ─── State Tag ───
+
+@doc "Update motion state tag (opaque StateTag pointer)"
+func update_tag(tag_ptr: u64)
+
+# ─── Parameter File ───
+
+@doc "Set parameter file name"
+func set_parameter_file_name(name: string)
+
+@doc "Reset handler"
+func on_reset()
+
+@doc "Get user-defined M-code result"
+func get_user_defined_result() -> f64
+
+# ─── Getters (interpreter reads machine state) ───
+
+@doc "Get current feed rate"
+func get_external_feed_rate() -> f64
+
+@doc "Get current traverse rate"
+func get_external_traverse_rate() -> f64
+
+@doc "Get length unit type"
+func get_external_length_unit_type() -> i32
+
+@doc "Get length units conversion factor"
+func get_external_length_units() -> f64
+
+@doc "Get angle units conversion factor"
+func get_external_angle_units() -> f64
+
+@doc "Get motion control mode"
+func get_external_motion_control_mode() -> i32
+
+@doc "Get motion control tolerance"
+func get_external_motion_control_tolerance() -> f64
+
+@doc "Get naive CAM tolerance"
+func get_external_motion_control_naivecam_tolerance() -> f64
+
+@doc "Get flood coolant state"
+func get_external_flood() -> i32
+
+@doc "Get mist coolant state"
+func get_external_mist() -> i32
+
+@doc "Get external position X"
+func get_external_position_x() -> f64
+
+@doc "Get external position Y"
+func get_external_position_y() -> f64
+
+@doc "Get external position Z"
+func get_external_position_z() -> f64
+
+@doc "Get external position A"
+func get_external_position_a() -> f64
+
+@doc "Get external position B"
+func get_external_position_b() -> f64
+
+@doc "Get external position C"
+func get_external_position_c() -> f64
+
+@doc "Get external position U"
+func get_external_position_u() -> f64
+
+@doc "Get external position V"
+func get_external_position_v() -> f64
+
+@doc "Get external position W"
+func get_external_position_w() -> f64
+
+@doc "Get probe position X"
+func get_external_probe_position_x() -> f64
+
+@doc "Get probe position Y"
+func get_external_probe_position_y() -> f64
+
+@doc "Get probe position Z"
+func get_external_probe_position_z() -> f64
+
+@doc "Get probe position A"
+func get_external_probe_position_a() -> f64
+
+@doc "Get probe position B"
+func get_external_probe_position_b() -> f64
+
+@doc "Get probe position C"
+func get_external_probe_position_c() -> f64
+
+@doc "Get probe position U"
+func get_external_probe_position_u() -> f64
+
+@doc "Get probe position V"
+func get_external_probe_position_v() -> f64
+
+@doc "Get probe position W"
+func get_external_probe_position_w() -> f64
+
+@doc "Get probe value"
+func get_external_probe_value() -> f64
+
+@doc "Get probe tripped state"
+func get_external_probe_tripped_value() -> i32
+
+@doc "Get spindle speed"
+func get_external_speed(spindle: i32) -> f64
+
+@doc "Get spindle direction"
+func get_external_spindle(spindle: i32) -> i32
+
+@doc "Get tool length X offset"
+func get_external_tool_length_xoffset() -> f64
+
+@doc "Get tool length Y offset"
+func get_external_tool_length_yoffset() -> f64
+
+@doc "Get tool length Z offset"
+func get_external_tool_length_zoffset() -> f64
+
+@doc "Get tool length A offset"
+func get_external_tool_length_aoffset() -> f64
+
+@doc "Get tool length B offset"
+func get_external_tool_length_boffset() -> f64
+
+@doc "Get tool length C offset"
+func get_external_tool_length_coffset() -> f64
+
+@doc "Get tool length U offset"
+func get_external_tool_length_uoffset() -> f64
+
+@doc "Get tool length V offset"
+func get_external_tool_length_voffset() -> f64
+
+@doc "Get tool length W offset"
+func get_external_tool_length_woffset() -> f64
+
+@doc "Get current tool slot"
+func get_external_tool_slot() -> i32
+
+@doc "Get selected (pending) tool slot"
+func get_external_selected_tool_slot() -> i32
+
+@doc "Get tool table entry (pocket → toolno, offsets, geometry)"
+func get_external_tool_table(pocket: i32, toolno: i32 out, offset: [9]f64 out, diameter: f64 out, frontangle: f64 out, backangle: f64 out, orientation: i32 out) -> i32
+
+@doc "Get tool entry by tool number (returns pocket, offsets, geometry; retval -1 if not found)"
+func get_tool_by_number(toolno: i32, pocket: i32 out, offset: [9]f64 out, diameter: f64 out, frontangle: f64 out, backangle: f64 out, orientation: i32 out) -> i32
+
+@doc "Get tool changer fault status"
+func get_external_tc_fault() -> i32
+
+@doc "Get tool changer fault reason"
+func get_external_tc_reason() -> i32
+
+@doc "Get queue empty status"
+func get_external_queue_empty() -> i32
+
+@doc "Get axis mask (bitmask of active axes)"
+func get_external_axis_mask() -> i32
+
+@doc "Get digital input value"
+func get_external_digital_input(index: i32, def: i32) -> i32
+
+@doc "Get analog input value"
+func get_external_analog_input(index: i32, def: f64) -> f64
+
+@doc "Get feed override enable state"
+func get_external_feed_override_enable() -> i32
+
+@doc "Get spindle override enable state"
+func get_external_spindle_override_enable(spindle: i32) -> i32
+
+@doc "Get adaptive feed enable state"
+func get_external_adaptive_feed_enable() -> i32
+
+@doc "Get feed hold enable state"
+func get_external_feed_hold_enable() -> i32
+
+@doc "Get active plane"
+func get_external_plane() -> i32
+
+@doc "Get parameter file name"
+func get_external_parameter_file_name(buf: string out)
+
+@doc "Get whether external offset is applied"
+func get_external_offset_applied() -> i32
+
+@doc "Get external offsets (9-element pose)"
+func get_external_offsets(offsets: [9]f64 out)
+
+# ─── HAL Access ───
+
+@doc "Get HAL pin/signal/param value by name. Returns value as f64, sets found=1 if found."
+func get_external_hal_value(name: string, found: i32 out) -> f64

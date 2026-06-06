@@ -1,0 +1,200 @@
+# EMC Status API
+# Read-only watchable machine status — replaces linuxcnc.stat() for UI clients.
+# Gateway module (emcgateway) polls NML internally and exposes status via WebSocket.
+#
+# Constants defined here (TaskMode, TaskState, etc.) replace linuxcnc.MODE_*,
+# linuxcnc.STATE_*, etc. Python clients get IntEnum classes.
+
+@api emcstat
+@version 1
+@prefix emcstat
+@rest_export true
+
+# ─── Constants ───
+
+const MAX_JOINTS = 16
+const MAX_AXIS = 9
+
+# ─── Enums ───
+
+# Task mode (linuxcnc.MODE_*)
+enum TaskMode {
+    MANUAL = 1
+    AUTO = 2
+    MDI = 3
+}
+
+# Task state (linuxcnc.STATE_*)
+enum TaskState {
+    ESTOP = 1
+    ESTOP_RESET = 2
+    OFF = 3
+    ON = 4
+}
+
+# Interpreter state (linuxcnc.INTERP_*)
+enum InterpState {
+    IDLE = 1
+    READING = 2
+    PAUSED = 3
+    WAITING = 4
+}
+
+# Execution state (linuxcnc.TASK_EXEC_*)
+enum ExecState {
+    ERROR = 1
+    DONE = 2
+    WAITING_FOR_MOTION = 3
+    WAITING_FOR_MOTION_QUEUE = 4
+    WAITING_FOR_IO = 5
+    WAITING_FOR_MOTION_AND_IO = 7
+    WAITING_FOR_DELAY = 8
+    WAITING_FOR_MCODE_HANDLER = 9
+    WAITING_FOR_SPINDLE_ORIENTED = 10
+}
+
+# Trajectory mode (linuxcnc.TRAJ_MODE_*)
+enum TrajMode {
+    FREE = 1
+    COORD = 2
+    TELEOP = 3
+}
+
+# Kinematics type (linuxcnc.KINEMATICS_*)
+enum KinematicsType {
+    IDENTITY = 1
+    FORWARD_ONLY = 2
+    INVERSE_ONLY = 3
+    BOTH = 4
+}
+
+# ─── Types ───
+
+type Position {
+    x: f64
+    y: f64
+    z: f64
+    a: f64
+    b: f64
+    c: f64
+    u: f64
+    v: f64
+    w: f64
+}
+
+type JointInfo {
+    homed: bool
+    homing: bool
+    enabled: bool
+    fault: bool
+    min_soft_limit: f64
+    max_soft_limit: f64
+    min_hard_limit: bool
+    max_hard_limit: bool
+    override_limits: bool
+    velocity: f64
+    input: f64              # actual position (joint_actual_position)
+    output: f64             # commanded position (joint_position)
+    limit: i32              # bitmask: 1=minHard, 2=maxHard, 4=minSoft, 8=maxSoft
+}
+
+type SpindleInfo {
+    speed: f64
+    direction: i32
+    brake: bool
+    enabled: bool
+    override: f64
+    override_enabled: bool
+    homed: bool
+    orient_state: i32
+    orient_fault: i32
+}
+
+type AxisInfo {
+    velocity: f64
+    min_position_limit: f64
+    max_position_limit: f64
+}
+
+type StatTaskInfo {
+    mode: TaskMode
+    state: TaskState
+    interp_state: InterpState
+    exec_state: ExecState
+    file: string
+    command: string
+    line: i32
+    motion_line: i32
+    current_line: i32
+    read_line: i32
+    queued_mdi_commands: i32
+    optional_stop: bool
+    block_delete: bool
+    task_paused: bool
+    g5x_index: i32
+}
+
+type StatMotionInfo {
+    mode: TrajMode
+    enabled: bool
+    in_position: bool
+    paused: bool
+    feedrate: f64
+    rapidrate: f64
+    max_velocity: f64
+    velocity: f64
+    distance_to_go: f64
+    dtg: Position
+    current_vel: f64
+    motion_id: i32
+    motion_line: i32
+    motion_type: i32        # feed type: 0=traverse, 1=feed, 2=arc, etc.
+}
+
+type StatFull {
+    task: StatTaskInfo
+    motion: StatMotionInfo
+    position: Position
+    actual_position: Position
+    joint_actual_position: [MAX_JOINTS]f64
+    probed_position: Position
+    g5x_offset: Position
+    g92_offset: Position
+    tool_offset: Position
+    rotation_xy: f64
+    joints: []JointInfo
+    spindle: []SpindleInfo
+    axis: []AxisInfo
+    active_gcodes: []i32
+    active_mcodes: []i32
+    active_settings: []f64
+    kinematics_type: KinematicsType
+    joints_count: i32
+    num_extrajoints: i32
+    axis_mask: i32
+    flood: bool
+    mist: bool
+    lube_on: bool
+    tool_in_spindle: i32
+    pocket_prepped: i32
+    linear_units: f64
+    homed: [MAX_JOINTS]bool
+    limit: [MAX_JOINTS]i32
+    state: i32              # RCS state for connectivity check
+    rcs_status: i32         # RCS command status (1=DONE, 2=EXEC, 3=ERROR)
+    debug: i32              # debug flags bitmask
+    jog_axis: i32           # selected jog axis (0=X .. 8=W, -1=none)
+    jog_increment: f64      # current jog increment (0 = continuous)
+    jog_speed: f64          # linear jog speed (units/sec)
+    ajog_speed: f64         # angular jog speed (deg/sec)
+    preview_seq: i32        # increments on any change that invalidates preview
+}
+
+# ─── Functions ───
+
+# Full machine status, pushed via WebSocket at 50ms intervals
+@watch true
+@watch_default_rate 50ms
+@method "GET"
+@path "/stat"
+func get_stat() -> StatFull

@@ -1,0 +1,102 @@
+# Homing API
+# Joint homing state machine for LinuxCNC motion controller
+
+@api home
+@version 1
+@prefix home
+@rest_export false
+
+# ─── Enums ───
+
+enum MotionState {
+    DISABLED = 0
+    FREE = 1
+    TELEOP = 2
+    COORD = 3
+}
+
+# ─── Functions ───
+# All functions use the same callbacks registered by the provider (homemod).
+# The motion controller (motmod) consumes this API.
+
+# --- Initialization ---
+
+# One-time init. Joint access goes through mot API callbacks.
+@doc "Initialize homing subsystem"
+func init(comp_id: i32, servo_period: f64,
+          n_joints: i32, n_extrajoints: i32) -> i32
+
+# --- Per-joint interface parameters ---
+
+@doc "Set one-time homing parameters for a joint"
+func set_joint_params(jno: i32,
+                      offset: f64, home: f64,
+                      home_final_vel: f64,
+                      home_search_vel: f64,
+                      home_latch_vel: f64,
+                      home_flags: i32,
+                      home_sequence: i32,
+                      volatile_home: i32) -> i32
+
+@doc "Update changeable homing parameters (e.g. from inihal pins)"
+func update_joint_params(jno: i32,
+                         home_offset: f64,
+                         home_home: f64,
+                         home_sequence: i32) -> i32
+
+# --- Once-per-servo-period functions ---
+
+@rt_safe "true"
+@doc "Read homing input pins for all joints"
+func read_in_pins(njoints: i32) -> i32
+
+@rt_safe "true"
+@doc "Execute one homing cycle; returns 1 if all joints homed"
+func do_homing() -> i32
+
+@rt_safe "true"
+@doc "Write homing output pins for all joints"
+func write_out_pins(njoints: i32) -> i32
+
+# --- Joint control commands ---
+
+@doc "Start homing a joint"
+func do_home_joint(jno: i32) -> i32
+
+@doc "Cancel homing for a joint"
+func do_cancel(jno: i32) -> i32
+
+@doc "Mark a joint as unhomed"
+func set_unhomed(jno: i32, motstate: MotionState) -> i32
+
+# --- Queries ---
+
+@doc "Returns 1 if all joints are homed"
+func get_allhomed() -> i32
+
+@doc "Returns 1 if any homing operation is active"
+func get_is_active() -> i32
+
+@doc "Get the home sequence number for a joint"
+func get_sequence(jno: i32) -> i32
+
+@doc "Returns 1 if the joint is currently homing"
+func get_homing(jno: i32) -> i32
+
+@doc "Returns 1 if the joint is homed"
+func get_homed(jno: i32) -> i32
+
+@doc "Returns the joint's index-enable state"
+func get_index_enable(jno: i32) -> i32
+
+@doc "Returns 1 if the joint requires unlock before homing"
+func get_needs_unlock_first(jno: i32) -> i32
+
+@doc "Returns 1 if the joint homing state machine is idle"
+func get_is_idle(jno: i32) -> i32
+
+@doc "Returns 1 if the joint homing is synchronized"
+func get_is_synchronized(jno: i32) -> i32
+
+@doc "Returns 1 if homing is waiting at index search"
+func get_at_index_search_wait(jno: i32) -> i32

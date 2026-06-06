@@ -1,0 +1,37 @@
+# Interpreter Extension Registration API
+# Allows cmods to register remap prolog/epilog and O-word handlers.
+#
+# Provider: milltask.so — registers this API after creating its Interp instance.
+# Consumer: stdglue.so and other handler cmods register their handlers here.
+
+@api interp_ext
+@version 1
+@rest_export false
+@import interp_ctx
+
+# Return value constants for handler callbacks
+const OK = 0
+const ERROR = -1
+const EXECUTE_FINISH = 3
+
+# O-word sub handler: O<name> call [#1] [#2] ...
+# args/n_args: positional arguments passed to the sub
+# retval: set by handler if it wants to return a value
+# Returns INTERP_EXT_OK (0), INTERP_EXT_ERROR (-1), or INTERP_EXT_EXECUTE_FINISH (3)
+callback oword_fn(ctx: interp_ctx ptr, name: string,
+                  args: []f64, retval: f64 byref) -> i32
+
+# Remap prolog: validate/transform args before body executes
+callback remap_prolog_fn(ctx: interp_ctx ptr, name: string) -> i32
+
+# Remap epilog: commit results after NGC body returns
+callback remap_epilog_fn(ctx: interp_ctx ptr, name: string) -> i32
+
+@doc "Register an O-word subroutine handler"
+func register_oword(name: string, fn: oword_fn, user: ptr) -> i32
+
+@doc "Register a remap prolog handler"
+func register_remap_prolog(name: string, fn: remap_prolog_fn, user: ptr) -> i32
+
+@doc "Register a remap epilog handler"
+func register_remap_epilog(name: string, fn: remap_epilog_fn, user: ptr) -> i32

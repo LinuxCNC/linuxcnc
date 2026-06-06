@@ -1,0 +1,194 @@
+# EMC Command API
+# Machine commands — replaces linuxcnc.command() for UI clients.
+# Gateway module (emcgateway) translates REST calls to NML command messages.
+
+@api emccmd
+@version 1
+@prefix emccmd
+@rest_export true
+
+# ─── Enums ───
+
+# Auto command sub-type (linuxcnc.AUTO_*)
+enum AutoCmd {
+    AUTO_RUN = 0
+    AUTO_PAUSE = 1
+    AUTO_RESUME = 2
+    AUTO_STEP = 3
+    AUTO_REVERSE = 4
+    AUTO_FORWARD = 5
+}
+
+# Jog type (linuxcnc.JOG_*)
+enum JogType {
+    JOG_STOP = 0
+    JOG_CONTINUOUS = 1
+    JOG_INCREMENT = 2
+}
+
+# Spindle command direction (linuxcnc.SPINDLE_*)
+enum SpindleCmd {
+    SPINDLE_OFF = 0
+    SPINDLE_FORWARD = 1
+    SPINDLE_REVERSE = -1
+    SPINDLE_INCREASE = 10
+    SPINDLE_DECREASE = 11
+    SPINDLE_CONSTANT = 12
+}
+
+# ─── Functions ───
+
+# Set task state (STATE_ESTOP, STATE_ON, etc.)
+@method "POST"
+@path "/state"
+func set_state(state: i32) -> i32
+
+# Set task mode (MODE_MANUAL, MODE_MDI, MODE_AUTO)
+@method "POST"
+@path "/mode"
+func set_mode(mode: i32) -> i32
+
+# Auto program control (run, step, pause, resume, reverse, forward)
+@method "POST"
+@path "/auto"
+func auto_cmd(cmd: AutoCmd, line: i32) -> i32
+
+# Execute MDI command string
+@method "POST"
+@path "/mdi"
+func mdi(command: string) -> i32
+
+# Jog axis or joint
+@method "POST"
+@path "/jog"
+func jog(jog_type: JogType, jjogmode: bool, axis_or_joint: i32, velocity: f64, distance: f64) -> i32
+
+# Stop jog
+@method "POST"
+@path "/jog-stop"
+func jog_stop(jjogmode: bool, axis_or_joint: i32) -> i32
+
+# Spindle control
+@method "POST"
+@path "/spindle"
+func spindle(cmd: SpindleCmd, speed: f64, spindle_num: i32, wait: i32) -> i32
+
+# Home a joint (-1 = all)
+@method "POST"
+@path "/home"
+func home(joint: i32) -> i32
+
+# Unhome a joint (-1 = all)
+@method "POST"
+@path "/unhome"
+func unhome(joint: i32) -> i32
+
+# Override soft limits
+@method "POST"
+@path "/override-limits"
+func override_limits() -> i32
+
+# Enable/disable teleop mode
+@method "POST"
+@path "/teleop"
+func teleop_enable(enable: bool) -> i32
+
+# Set feed override (0.0 - 1.0+)
+@method "POST"
+@path "/feed-override"
+func set_feed_override(rate: f64) -> i32
+
+# Set spindle speed override (0.0 - 1.0+)
+@method "POST"
+@path "/spindle-override"
+func set_spindle_override(rate: f64, spindle_num: i32) -> i32
+
+# Set rapid override (0.0 - 1.0)
+@method "POST"
+@path "/rapid-override"
+func set_rapid_override(rate: f64) -> i32
+
+# Set maximum velocity
+@method "POST"
+@path "/max-velocity"
+func set_max_velocity(velocity: f64) -> i32
+
+# Flood coolant on/off
+@method "POST"
+@path "/flood"
+func flood(on: bool) -> i32
+
+# Mist coolant on/off
+@method "POST"
+@path "/mist"
+func mist(on: bool) -> i32
+
+# Spindle brake engage/release
+@method "POST"
+@path "/brake"
+func brake(on: bool, spindle_num: i32) -> i32
+
+# Lube on/off
+@method "POST"
+@path "/lube"
+func lube(on: bool) -> i32
+
+# Abort current operation
+@method "POST"
+@path "/abort"
+func abort() -> i32
+
+# Synchronize task planner
+@method "POST"
+@path "/task-plan-synch"
+func task_plan_synch() -> i32
+
+# Set optional stop
+@method "POST"
+@path "/optional-stop"
+func set_optional_stop(on: bool) -> i32
+
+# Set block delete
+@method "POST"
+@path "/block-delete"
+func set_block_delete(on: bool) -> i32
+
+# Reload tool table from file
+@method "POST"
+@path "/load-tool-table"
+func load_tool_table() -> i32
+
+# Open a program file
+@method "POST"
+@path "/program-open"
+func program_open(file: string) -> i32
+
+# Wait for command completion (returns RCS_DONE=2, RCS_ERROR=1, or -1 on timeout)
+@method "POST"
+@path "/wait-complete"
+func wait_complete(timeout: f64) -> i32
+
+# Set debug level (bitmask of DEBUG_* flags)
+@method "POST"
+@path "/debug"
+func set_debug(debug: i32) -> i32
+
+# Set selected jog axis (0=X .. 8=W, -1=none)
+@method "POST"
+@path "/jog-axis"
+func set_jog_axis(axis: i32) -> i32
+
+# Set jog increment (0 = continuous)
+@method "POST"
+@path "/jog-increment"
+func set_jog_increment(increment: f64) -> i32
+
+# Set linear jog speed (units/sec)
+@method "POST"
+@path "/jog-speed"
+func set_jog_speed(speed: f64) -> i32
+
+# Set angular jog speed (deg/sec)
+@method "POST"
+@path "/ajog-speed"
+func set_ajog_speed(speed: f64) -> i32

@@ -1,0 +1,20 @@
+# HAL Streamer Stream API
+# Stream data from WebSocket clients onto HAL pins at realtime rate.
+#
+# The bridge goroutine receives WS frames and calls data_received.
+# The cmod buffers incoming data in a ring buffer.
+# The RT function reads from the ring buffer and writes to HAL pins.
+#
+# Usage:
+#   loadrt streamer name=streamer.0 cfg=uffb depth=1000
+
+@api hal_streamer
+@version 1
+@prefix hal_streamer
+@rest_export false
+
+stream_server hal_streamer {
+    new_conn(conn_id: u32) -> i32
+    closed_conn(conn_id: u32)
+    data_received(conn_id: u32, buf: ptr, len: i32) -> i32
+}

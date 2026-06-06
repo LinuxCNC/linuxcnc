@@ -1,0 +1,75 @@
+# HostMot2 Low-Level I/O API
+#
+# Provided by transport drivers (hm2_eth, hm2_pci, hm2_spi, etc.).
+# Consumed by the hostmot2 core module.
+#
+# The transport driver registers this API with board metadata,
+# then the hostmot2 core looks it up and calls into it for all
+# FPGA register access.
+
+@api hm2_llio
+@version 1
+@prefix hm2_llio
+@rest_export false
+
+# ─── Constants ───
+
+const MAX_IOPORT_CONNECTORS = 8
+const MAX_CONNECTOR_NAME_LEN = 32
+
+# ─── Types ───
+
+# Board metadata passed during registration.
+# Static for the lifetime of the transport instance.
+type BoardInfo {
+    num_ioport_connectors: i32
+    pins_per_connector: i32
+    num_leds: i32
+    threadsafe: i32
+    split_read: i32
+    fpga_part_number: string
+}
+
+# ─── I/O functions (RT-safe, called every servo cycle) ───
+
+@rt_safe "true"
+@doc "Read registers from the FPGA. Returns non-zero on success, 0 on error."
+func read(addr: u32, buffer: ptr, size: i32) -> i32
+
+@rt_safe "true"
+@doc "Write registers to the FPGA. Returns non-zero on success, 0 on error."
+func write(addr: u32, buffer: ptr, size: i32) -> i32
+
+# ─── Queued I/O (optional, for high-latency transports) ───
+
+@rt_safe "true"
+@doc "Queue a read for later execution. Buffer must remain stable until receive."
+func queue_read(addr: u32, buffer: ptr, size: i32) -> i32
+
+@rt_safe "true"
+@doc "Send all queued reads to the hardware."
+func send_queued_reads() -> i32
+
+@rt_safe "true"
+@doc "Receive results of previously sent queued reads."
+func receive_queued_reads() -> i32
+
+@rt_safe "true"
+@doc "Queue a write for later execution."
+func queue_write(addr: u32, buffer: ptr, size: i32) -> i32
+
+@rt_safe "true"
+@doc "Send all queued writes to the hardware."
+func send_queued_writes() -> i32
+
+@rt_safe "true"
+@doc "Enable/disable write coalescing into a single packet."
+func set_force_enqueue(enable: i32) -> i32
+
+# ─── Control functions (non-RT, called during init/shutdown) ───
+
+@doc "Program the FPGA with a bitfile. Data is raw bitfile content."
+func program_fpga(bitfile_data: ptr, bitfile_size: i32) -> i32
+
+@doc "Reset the hardware after an I/O error."
+func reset() -> i32

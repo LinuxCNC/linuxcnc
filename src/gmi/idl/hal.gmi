@@ -1,0 +1,77 @@
+# HAL Component API
+# Core functions for HAL component lifecycle and pin/param management
+#
+# NOTE: This API uses opaque pointers (data_ptr, dl_handle, malloc return)
+# that cannot be expressed in the typed IDL. It serves as a design reference
+# but cannot be compiled until those interfaces are redesigned.
+
+@api hal
+@version 1
+@prefix hal
+@rest_export false
+
+# ─── Enums ───
+
+enum ComponentType {
+    UNKNOWN = -1
+    USER = 0
+    REALTIME = 1
+    OTHER = 2
+}
+
+enum PinDir {
+    IN = 16
+    OUT = 32
+    IO = 48
+}
+
+enum PinType {
+    BIT = 1
+    FLOAT = 2
+    S32 = 3
+    U32 = 4
+    PORT = 5
+}
+
+enum ParamDir {
+    RO = 64
+    RW = 192
+}
+
+# ─── Component Lifecycle ───
+
+@rt_safe "false"
+@doc "Initialize HAL component, returns comp_id or negative error"
+func init(name: string) -> i32
+
+@rt_safe "false"
+@doc "Extended init with explicit type and dlopen handle"
+func init_ex(name: string, dl_handle: ptr, type: ComponentType) -> i32
+
+@rt_safe "false"
+@doc "Mark component ready after pin/param creation"
+func ready(comp_id: i32) -> i32
+
+@rt_safe "false"
+@doc "Cleanup and unregister component"
+func exit(comp_id: i32) -> i32
+
+# ─── Pin Creation ───
+
+@rt_safe "false"
+func pin_bit_new(name: string, dir: PinDir, data_ptr: ptr, comp_id: i32) -> i32
+
+@rt_safe "false"
+func pin_float_new(name: string, dir: PinDir, data_ptr: ptr, comp_id: i32) -> i32
+
+@rt_safe "false"
+func pin_s32_new(name: string, dir: PinDir, data_ptr: ptr, comp_id: i32) -> i32
+
+@rt_safe "false"
+func pin_u32_new(name: string, dir: PinDir, data_ptr: ptr, comp_id: i32) -> i32
+
+# ─── Memory ───
+
+@rt_safe "false"
+@doc "Allocate from HAL shared memory"
+func malloc(size: i64) -> ptr

@@ -1,0 +1,68 @@
+# PyVCP API
+# REST + WebSocket interface for PyVCP panels.
+# The gomod parses panel XML, creates HAL components with required pins,
+# and serves pin state via WebSocket for the Tkinter frontend.
+#
+# Data flows:
+#   HAL → UI:  watch pushes all pin values to pyvcp frontend
+#   UI → HAL:  set_pin commands write output pin values from frontend
+
+@api pyvcp
+@version 1
+@prefix pyvcp
+@rest_export true
+
+# --- Types ---
+
+enum HalType {
+    BIT = 1
+    FLOAT = 2
+    S32 = 3
+    U32 = 4
+}
+
+enum PinDir {
+    IN = 16
+    OUT = 32
+}
+
+type PinDef {
+    name: string
+    hal_type: HalType
+    dir: PinDir
+}
+
+type PinValue {
+    name: string
+    value: string
+}
+
+type PanelInfo {
+    name: string
+    xml: string
+    pins: []PinDef
+}
+
+# --- REST endpoints ---
+
+# List all registered panel names
+@method "GET"
+@path "/panels"
+func list_panels() -> []string
+
+# Get panel info (XML + pin definitions)
+@method "GET"
+@path "/panel/{name}"
+func get_panel(name: string) -> PanelInfo
+
+# --- WebSocket watch (HAL → UI) ---
+
+# Push all pin values at 100ms interval
+@watch true
+@watch_default_rate 100ms
+func watch_pins(panel: string) -> []PinValue
+
+# --- WebSocket commands (UI → HAL) ---
+
+# Set an output pin value (string-encoded)
+func set_pin(panel: string, name: string, value: string) -> bool

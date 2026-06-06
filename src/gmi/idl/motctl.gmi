@@ -1,0 +1,315 @@
+# Motion Controller Command API
+#
+# Typed command interface replacing the emcmot_command_t shared memory
+# tagged union. Each function corresponds to one command type, with only
+# the parameters relevant to that command.
+#
+# Provider: motion controller cmod (motmod).
+# Consumer: milltask (gomod), GUI jog/override commands.
+#
+# All functions block until the RT side acknowledges the command.
+# For motion queue commands (set_line, set_circle, etc.) acknowledgment
+# means "queued", not "motion complete". Motion completion is tracked
+# via the motstat status API.
+#
+# Module load parameters (set once at init, not runtime API):
+#   num_joints      — total joint count (1..16)
+#   num_extra_joints — extra joints for kinematics
+#   num_spindles    — spindle count (1..8)
+#   num_dio         — digital I/O count (1..64)
+#   num_aio         — analog I/O count (1..64)
+#   servo_period    — servo cycle time in seconds
+#   traj_period     — trajectory cycle time in seconds
+#   arc_blend_enable, arc_blend_fallback_enable, arc_blend_opt_depth,
+#   arc_blend_gap_cycles, arc_blend_ramp_freq, arc_blend_tangent_kink_ratio
+#   max_feed_override — maximum feed override factor
+#   probe_jog_err_inhibit, probe_home_err_inhibit
+
+@api motctl
+@version 1
+@rest_export false
+
+# ─── Types ───
+
+type Pose {
+    x: f64
+    y: f64
+    z: f64
+    a: f64
+    b: f64
+    c: f64
+    u: f64
+    v: f64
+    w: f64
+}
+
+type Cartesian {
+    x: f64
+    y: f64
+    z: f64
+}
+
+const TAG_FIELDS_FLOAT = 5
+const TAG_FIELDS_INT = 8
+
+type StateTag {
+    fields_float: [TAG_FIELDS_FLOAT]f32
+    fields: [TAG_FIELDS_INT]i32
+    packed_flags: u64
+}
+
+# ─── Motion Queue ───
+
+@doc "Queue a linear move"
+func set_line(pos: Pose, vel: f64, ini_maxvel: f64, acc: f64,
+              motion_type: i32, id: i32, tag: StateTag,
+              indexer_jnum: i32) -> i32
+
+@doc "Queue a circular arc move"
+func set_circle(pos: Pose, center: Cartesian,
+                normal: Cartesian, turn: i32,
+                vel: f64, ini_maxvel: f64, acc: f64,
+                motion_type: i32, id: i32,
+                tag: StateTag) -> i32
+
+@doc "Queue a probe move"
+func probe(pos: Pose, vel: f64, ini_maxvel: f64, acc: f64,
+           motion_type: i32, probe_type: u8, id: i32,
+           tag: StateTag) -> i32
+
+@doc "Queue a rigid tapping move"
+func rigid_tap(pos: Pose, vel: f64, ini_maxvel: f64, acc: f64,
+               scale: f64, id: i32, tag: StateTag) -> i32
+
+# ─── Motion Parameters ───
+
+@doc "Set velocity for subsequent moves"
+func set_vel(vel: f64) -> i32
+
+@doc "Set global velocity limit (tooltip)"
+func set_vel_limit(vel: f64) -> i32
+
+@doc "Set acceleration for subsequent moves"
+func set_acc(acc: f64) -> i32
+
+@doc "Set termination condition: 0=exact stop, 1=blend"
+func set_term_cond(cond: i32, tolerance: f64) -> i32
+
+@doc "Set spindle synchronization for subsequent moves"
+func set_spindlesync(sync: f64, motion_type: i32) -> i32
+
+@doc "Set tool offset (applied to all subsequent moves)"
+func set_offset(offset: Pose) -> i32
+
+# ─── Flow Control ───
+
+@doc "Abort all motion"
+func abort() -> i32
+
+@doc "Pause motion execution"
+func pause() -> i32
+
+@doc "Resume paused motion"
+func resume() -> i32
+
+@doc "Single-step: resume until given motion ID completes"
+func step(id: i32) -> i32
+
+@doc "Run motion queue in reverse"
+func reverse() -> i32
+
+@doc "Run motion queue forward (cancel reverse)"
+func forward() -> i32
+
+# ─── Mode ───
+
+@doc "Switch to free (joint) mode"
+func set_free() -> i32
+
+@doc "Switch to coordinated (world) mode"
+func set_coord() -> i32
+
+@doc "Switch to teleop mode"
+func set_teleop() -> i32
+
+# ─── Jog ───
+# In free mode, num is a joint number.
+# In teleop mode, num is an axis number (0=X .. 8=W).
+
+@doc "Start continuous jog"
+func jog_cont(num: i32, vel: f64, is_teleop: i32) -> i32
+
+@doc "Incremental jog by a given distance"
+func jog_incr(num: i32, vel: f64, incr: f64, is_teleop: i32) -> i32
+
+@doc "Jog to an absolute position"
+func jog_abs(num: i32, vel: f64, pos: f64, is_teleop: i32) -> i32
+
+@doc "Abort jog on a joint or axis"
+func jog_abort(num: i32, is_teleop: i32) -> i32
+
+# ─── Spindle ───
+
+@doc "Turn spindle on. Speed sign sets direction. css_factor/css_offset for CSS mode."
+func spindle_on(spindle: i32, speed: f64,
+                css_factor: f64, css_offset: f64,
+                wait_for_atspeed: i32) -> i32
+
+@doc "Turn spindle off"
+func spindle_off(spindle: i32) -> i32
+
+@doc "Orient spindle to angle. Mode: 0=shortest, 1=CW, 2=CCW."
+func spindle_orient(spindle: i32, orientation: f64, mode: i32) -> i32
+
+@doc "Increase spindle speed"
+func spindle_increase(spindle: i32) -> i32
+
+@doc "Decrease spindle speed"
+func spindle_decrease(spindle: i32) -> i32
+
+@doc "Engage spindle brake"
+func spindle_brake_engage(spindle: i32) -> i32
+
+@doc "Release spindle brake"
+func spindle_brake_release(spindle: i32) -> i32
+
+@doc "Set spindle speed and homing parameters"
+func set_spindle_params(spindle: i32,
+                        max_pos_speed: f64, min_pos_speed: f64,
+                        max_neg_speed: f64, min_neg_speed: f64,
+                        home_search_vel: f64, home_sequence: i32,
+                        increment: f64) -> i32
+
+@doc "Set scale factor for spindle speed"
+func set_spindle_scale(spindle: i32, scale: f64) -> i32
+
+@doc "Enable/disable spindle speed scaling"
+func spindle_scale_enable(spindle: i32, enable: i32) -> i32
+
+# ─── Digital/Analog I/O ───
+
+@doc "Set digital output immediately"
+func set_dout(index: i32, value: i32) -> i32
+
+@doc "Set digital output synchronized to current motion segment"
+func set_dout_synched(index: i32, start_value: i32, end_value: i32) -> i32
+
+@doc "Set analog output immediately"
+func set_aout(index: i32, value: f64) -> i32
+
+@doc "Set analog output synchronized to current motion segment"
+func set_aout_synched(index: i32, start_value: f64, end_value: f64) -> i32
+
+# ─── Overrides ───
+
+@doc "Set feed rate scale factor (0.0 .. max_feed_override)"
+func set_feed_scale(scale: f64) -> i32
+
+@doc "Set rapid traverse scale factor (0.0 .. 1.0)"
+func set_rapid_scale(scale: f64) -> i32
+
+@doc "Enable/disable feed rate scaling"
+func feed_scale_enable(enable: i32) -> i32
+
+@doc "Enable/disable feed hold"
+func feed_hold_enable(enable: i32) -> i32
+
+@doc "Enable/disable adaptive feed"
+func adaptive_feed_enable(enable: i32) -> i32
+
+@doc "Set maximum feed override factor"
+func set_max_feed_override(max: f64) -> i32
+
+# ─── Enable/Disable ───
+
+@doc "Enable servo amplifiers for all active joints"
+func enable() -> i32
+
+@doc "Disable servo amplifiers for all active joints"
+func disable() -> i32
+
+# ─── Joint Configuration ───
+
+@doc "Mark a joint as active (amps will be enabled when system is enabled)"
+func joint_activate(joint: i32) -> i32
+
+@doc "Set joint position limits"
+func set_joint_position_limits(joint: i32, min: f64, max: f64) -> i32
+
+@doc "Set joint backlash compensation"
+func set_joint_backlash(joint: i32, backlash: f64) -> i32
+
+@doc "Set joint maximum following error"
+func set_joint_max_ferror(joint: i32, ferror: f64) -> i32
+
+@doc "Set joint minimum following error"
+func set_joint_min_ferror(joint: i32, ferror: f64) -> i32
+
+@doc "Set joint velocity limit"
+func set_joint_vel_limit(joint: i32, vel: f64) -> i32
+
+@doc "Set joint acceleration limit"
+func set_joint_acc_limit(joint: i32, acc: f64) -> i32
+
+@doc "Set joint jerk limit (0 = disabled)"
+func set_joint_jerk_limit(joint: i32, jerk: f64) -> i32
+
+@doc "Set motor-to-joint offset"
+func set_joint_motor_offset(joint: i32, offset: f64) -> i32
+
+@doc "Set compensation triplet for a joint (backlash/screw comp)"
+func set_joint_comp(joint: i32, nominal: f64, fwd: f64, rev: f64) -> i32
+
+@doc "Temporarily override limits (until next jog completes)"
+func override_limits(joint: i32) -> i32
+
+# ─── Axis Configuration ───
+
+@doc "Set axis position limits"
+func set_axis_position_limits(axis: i32, min: f64, max: f64) -> i32
+
+@doc "Set axis velocity limit (with ext_offset velocity)"
+func set_axis_vel_limit(axis: i32, vel: f64, ext_offset_vel: f64) -> i32
+
+@doc "Set axis acceleration limit (with ext_offset acceleration)"
+func set_axis_acc_limit(axis: i32, acc: f64, ext_offset_acc: f64) -> i32
+
+@doc "Set which joint locks for indexing on this axis"
+func set_axis_locking_joint(axis: i32, joint: i32) -> i32
+
+# ─── Homing ───
+
+@doc "Set homing parameters for a joint"
+func set_joint_homing_params(joint: i32,
+                             offset: f64, home: f64,
+                             home_final_vel: f64,
+                             search_vel: f64, latch_vel: f64,
+                             flags: i32, sequence: i32,
+                             volatile_home: i32) -> i32
+
+@doc "Update changeable homing parameters (from inihal pins)"
+func update_joint_homing_params(joint: i32,
+                                offset: f64, home: f64,
+                                sequence: i32) -> i32
+
+@doc "Start homing for a joint (-1 for all)"
+func joint_home(joint: i32) -> i32
+
+@doc "Mark a joint as unhomed (-1 for all, -2 for volatile)"
+func joint_unhome(joint: i32) -> i32
+
+# ─── Probe Configuration ───
+
+@doc "Clear probe tripped flags"
+func clear_probe_flags() -> i32
+
+@doc "Inhibit probe-tripped errors during jog/homing"
+func set_probe_err_inhibit(jog_inhibit: i32, home_inhibit: i32) -> i32
+
+# ─── Miscellaneous ───
+
+@doc "Set world home position"
+func set_world_home(pos: Pose) -> i32
+
+@doc "Set debug level"
+func set_debug(level: i32) -> i32
