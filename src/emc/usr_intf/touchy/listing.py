@@ -103,7 +103,7 @@ class listing:
                     break
         self.show_line(self.start_line)
         
-    def on_select(self, b):
+    def on_select(self, b, *args):
         pass
 
     def clear_startline(self):

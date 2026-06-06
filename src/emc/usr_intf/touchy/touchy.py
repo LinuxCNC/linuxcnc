@@ -679,6 +679,9 @@ class touchy:
             nb = self.wTree.get_object("notebook1")
             if nb is None:
                 return
+            # Removing/reinserting pages drifts the selection, so remember the
+            # startup page and restore it after wrapping.
+            current = nb.get_current_page()
             self._prefs_index = -1
             for i in range(nb.get_n_pages()):
                 page = nb.get_nth_page(i)
@@ -697,8 +700,49 @@ class touchy:
                 viewport = scroller.get_child()
                 if isinstance(viewport, Gtk.Viewport):
                     viewport.set_shadow_type(Gtk.ShadowType.NONE)
+                self._enable_drag_scroll(scroller)
                 scroller.show_all()
                 nb.insert_page(scroller, label, i)
+            if current >= 0:
+                nb.set_current_page(current)
+
+        def _enable_drag_scroll(self, scroller):
+            # Touchy is a touchscreen UI, so let the user drag the content to
+            # scroll it (finger or mouse), not just the wheel/scrollbar. A drag
+            # gesture pans the adjustments once movement passes a small
+            # threshold; shorter presses fall through so buttons still click.
+            try:
+                gesture = Gtk.GestureDrag.new(scroller)
+            except Exception:
+                return
+            gesture.set_propagation_phase(Gtk.PropagationPhase.BUBBLE)
+            if not hasattr(self, "_drag_gestures"):
+                self._drag_gestures = []
+            self._drag_gestures.append(gesture)
+            start = {}
+
+            def on_begin(g, x, y):
+                va = scroller.get_vadjustment()
+                ha = scroller.get_hadjustment()
+                start["v"] = va.get_value() if va is not None else 0
+                start["h"] = ha.get_value() if ha is not None else 0
+                start["active"] = False
+
+            def on_update(g, off_x, off_y):
+                if not start.get("active"):
+                    if abs(off_x) < 8 and abs(off_y) < 8:
+                        return
+                    start["active"] = True
+                    g.set_state(Gtk.EventSequenceState.CLAIMED)
+                va = scroller.get_vadjustment()
+                ha = scroller.get_hadjustment()
+                if va is not None:
+                    va.set_value(start["v"] - off_y)
+                if ha is not None:
+                    ha.set_value(start["h"] - off_x)
+
+            gesture.connect("drag-begin", on_begin)
+            gesture.connect("drag-update", on_update)
 
         def _constrain_to_monitor(self):
             # Wrap the content in a scroller so the window can be bounded to the
@@ -764,10 +808,16 @@ class touchy:
                 if monitor is None:
                     monitor = display.get_monitor(0)
                 area = monitor.get_workarea()
-                scroller.set_min_content_width(area.width)
+                # Bound the scroller (and thus the window) to the work area so
+                # oversized content scrolls instead of growing off-screen, but
+                # leave the minimum at 0 so the user can still resize smaller.
                 scroller.set_max_content_width(area.width)
-                scroller.set_min_content_height(area.height)
                 scroller.set_max_content_height(area.height)
+                # Open at the content size, capped to the screen; this avoids an
+                # off-screen window without forcing a screen-sized minimum.
+                nat = child.get_preferred_size()[1]
+                win.resize(min(nat.width, area.width),
+                           min(nat.height, area.height))
                 GLib.idle_add(self._offer_fit, child, area)
             except Exception:
                 pass
