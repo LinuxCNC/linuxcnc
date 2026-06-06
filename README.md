@@ -1,87 +1,146 @@
+# GOMC — Golang Machine Controller
 
-[![Badge GPL2]][License]
-[![Badge LGPL]][License]
+> **Working title.** GOMC is an effort to push the high-value but aged concepts of
+> EMC/LinuxCNC to the forefront of modern industrial automation — without carrying
+> the burden of decades-old compatibility constraints.
 
-<div align = center>
+## Motivation
 
-<br>
-  
-# LinuxCNC
-  
-*Controlling CNC Machines*
+LinuxCNC has proven for over 30 years that open-source CNC control is not only
+viable but often superior to proprietary alternatives. Its core ideas — a
+hardware abstraction layer (HAL), real-time motion control, pluggable kinematics,
+and an interpreted G-code engine — remain sound and relevant.
 
-<br>
-  
-[![Badge Translation]][Translation]
-  
-<br>
-  
----
+What has aged is the surrounding infrastructure: NML message passing from the
+1990s, Tcl/Tk user interfaces, a monolithic build system tied to kernel modules,
+and an architecture that resists incremental modernization. Every attempt to
+improve one layer pulls in the weight of all others.
 
-[<kbd> <br> Ｗｅｂｓｉｔｅ <br> </kbd>][Website] 
-[<kbd> <br> Ｉｎｓｔａｌｌ <br> </kbd>][Ｉｎｓｔａｌｌ] 
-[<kbd> <br> Ｂｕｉｌｄ <br> </kbd>][Ｂｕｉｌｄ] 
-[<kbd> <br> Ｄｏｃｕｍｅｎｔａｔｉｏｎ <br> </kbd>][Ｄｏｃｕｍｅｎｔａｔｉｏｎ]  
-  
----
+GOMC takes a different path: **preserve the proven control concepts, rewrite the
+plumbing.**
 
-<br>
-  
-It can drive milling machines, lathes, 3D printers, laser <br>
-cutters, plasma cutters, robot arms, hexapods, and more.
+## Technical Approach
 
-LinuxCNC was initiated 25 years ago and evolved into a very <br>
-international project with contributions from all over the globe.
-  
-With release 2.9 of LinuxCNC we also transitioned the <br>
-documentation to the use of the public crowd translation <br>
-services [Weblate] and invite all our users to contribute.
-  
-The translations we expect to help attract practitioners <br>
-to the project and also helps educating enthusiasts of <br>
-all age groups on automated machining.
+### Single-Process, Mixed Go/C Architecture
 
-<br>
+GOMC runs as a single process with a unified address space:
 
-## DISCLAIMER
-  
-<br>
+- **Go runtime** handles non-real-time tasks: REST API, G-code interpretation,
+  trajectory planning, configuration, MQTT, persistence
+- **C pthreads with SCHED_FIFO** handle hard real-time: servo loops, HAL cyclic
+  components, EtherCAT communication
+- **Direct memory sharing** between Go and C — no IPC serialization,
+  sub-microsecond latency between domains, lock-free ring buffers for
+  streaming data
 
+This eliminates the complexity of LinuxCNC's multi-process NML architecture while
+maintaining strict RT guarantees. If the servo loop crashes, the entire process
+dies and an external watchdog triggers E-stop — clean, predictable failure
+instead of ambiguous partial failures.
+
+### Component Model (cmod + gomod)
+
+Two component types serve different needs:
+
+**cmod** — C shared libraries (`.so`), loaded at runtime. Can combine RT and
+non-RT functions in a single component:
+
+| Execution | Use Case | Scheduling |
+|-----------|----------|-----------|
+| **Cyclic** | PID, filtering, interpolation | Fixed period, SCHED_FIFO |
+| **Triggered** | Homing, tool change, probing | Start signal, busy/result |
+| **Threaded** | Device I/O, protocol handlers | Own thread, non-RT |
+
+**gomod** — Go modules for complex non-RT tasks (MQTT bridge, REST endpoints,
+database persistence, protocol gateways). Full access to Go's ecosystem,
+goroutines, and standard library.
+
+Both types share the same HAL signal namespace and are managed by the gomc
+server process.
+
+### EtherCAT Fieldbus
+
+Native EtherCAT support via IGH EtherLab Master with:
+- YAML-based device configuration
+- Automatic PDO/SDO mapping to HAL signals
+- CiA 402 drive profile state machine
+- FSoE (Fail Safe over EtherCAT) support
+
+Currently requires the `uspace` branch from
+https://github.com/sittner/ethercat.
+
+### Web-Based Tooling
+
+Operator and engineering interfaces are moving to browser-based implementations
+(Vue.js + TypeScript), served directly by the Go process. No X11 dependency, no
+Tcl/Tk, no Python GUI stack required. The REST/WebSocket/GMI architecture gives
+full freedom of choice for UI technology — the GMI compiler can generate client
+bindings for Python, TypeScript, and Go.
+
+**Already migrated:**
+- HAL signal scope (oscilloscope-style waveform viewer)
+- HAL signal browser
+- Tool table editor
+- ClassicLadder logic viewer
+- Machine calibration
+
+**Machine UI:**
+- Modified Axis UI (communicating via REST/WebSocket) — available now
+- Other existing LinuxCNC UIs will be migrated
+- New purpose-built web UIs to follow
+
+### Generic Machine Interface (GMI)
+
+A typed, versioned API layer between the control engine and user-facing tools.
+Defined via IDL, with generated client bindings for Go, Python, and TypeScript.
+Replaces LinuxCNC's untyped NML stat/command channels, moving from asynchronous
+message passing to synchronous function calls with clear request/response
+semantics.
+
+## What This Is Not
+
+- **Not a fork that tries to stay compatible.** INI files, NML tools, and the
+  old Python/Tcl interfaces are deliberately not carried forward.
+- **Not a competing project.** GOMC builds directly on LinuxCNC's proven
+  motion control, trajectory planning, and G-code interpretation. We acknowledge
+  and respect the decades of engineering in that codebase.
+- **Not starting from scratch.** The rs274ngc interpreter, trajectory planner,
+  kinematics modules, and core motion controller are inherited and evolved.
+
+## Target Audience
+
+- **LinuxCNC contributors** frustrated by architectural constraints that prevent
+  meaningful modernization
+- **Machine builders** looking for an open, flexible alternative to proprietary
+  PLCs (Siemens TIA Portal, Beckhoff TwinCAT, 3S CODESYS) without vendor lock-in
+- **Automation engineers** who need modern APIs, web interfaces, and EtherCAT
+  support without the overhead of enterprise licensing
+
+## Building
+
+```bash
+cd src
+./configure
+make -j$(nproc)
 ```
-  
-Ｔｈｅ ａｕｔｈｏｒｓ ｏｆ ｔｈｉｓ ｓｏｆｔｗａｒｅ ａｃｃｅｐｔ
-ａｂｓｏｌｕｔｅｌｙ ｎｏ ｌｉａｂｉｌｉｔｙ ｆｏｒ ａｎｙ
-ｈａｒｍ　ｏｒ ｌｏｓｓ ｒｅｓｕｌｔｉｎｇ ｆｒｏｍ ｉｔｓ ｕｓｅ．
 
-Ｉｔ ｉｓ ＥＸＴＲＥＭＥＬＹ ｕｎｗｉｓｅ ｔｏ　ｒｅｌｙ
-ｏｎ ｓｏｆｔｗａｒｅ ａｌｏｎｅ ｆｏｒ ｓａｆｅｔｙ．
+The build process is essentially the same as classic LinuxCNC (autoconf + make).
+A future goal is migration to CMake.
 
-Any machinery capable of harming persons must have
-provisions for completely removing power from all
-motors, etc., before persons enter any danger area.
+See [README_LINUXCNC.md](README_LINUXCNC.md) for full build options and
+dependencies.
 
-All machinery must be designed to comply with local 
-and national safety codes, and the authors of this 
-software cannot and do not, take any responsibility 
-for such compliance.
-  
-```
+## License
 
-<br>
-  
-</div>
+This project contains code under **GPL-2.0** (inherited from LinuxCNC) and
+**LGPL-3.0** (new components). See [COPYING](COPYING) for details.
 
-<!----------------------------------------------------------------------------->
+## Status
 
-[Badge Translation]: https://hosted.weblate.org/widgets/linuxcnc/-/svg-badge.svg
-[Badge GPL2]: https://img.shields.io/badge/Most-LGPL_3-blue.svg?style=for-the-badge 'The license this software is under'
-[Badge LGPL]: https://img.shields.io/badge/Some-GPL_2-blue.svg?style=for-the-badge 'Some parts are under this license'
+Active development. Not yet suitable for production use.
 
-[Translation]: https://hosted.weblate.org/engage/linuxcnc/
-[Weblate]: https://hosted.weblate.org/projects/linuxcnc/
-[Website]: https://linuxcnc.org/
-
-[Ｄｏｃｕｍｅｎｔａｔｉｏｎ]: http://linuxcnc.org/docs/2.9/html/
-[Ｉｎｓｔａｌｌ]: http://linuxcnc.org/docs/2.9/html/getting-started/getting-linuxcnc.html
-[Ｂｕｉｌｄ]: http://linuxcnc.org/docs/2.9/html/code/building-linuxcnc.html
-[License]: COPYING
+The scope of this architectural migration — touching hundreds of files across
+real-time control, build system, HAL drivers, and UI — would not have been
+feasible for a small team without massive AI-assisted development (GitHub
+Copilot). This enabled rapid prototyping and refactoring at a scale that would
+otherwise require years of manual effort.
