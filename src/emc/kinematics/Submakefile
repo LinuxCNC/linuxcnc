@@ -1,9 +1,4 @@
-#Note: userspace test program ugenserkins.c is deprecated
 INCLUDES += emc/kinematics
-
-GENSERKINSSRCS := emc/kinematics/ugenserkins.c
-GENSERKINSSRCS += emc/kinematics/genserfuncs.c
-USERSRCS += $(GENSERKINSSRCS)
 
 DELTAMODULESRCS := emc/kinematics/lineardeltakins.cc
 PYSRCS += $(DELTAMODULESRCS)
@@ -14,16 +9,6 @@ $(DELTAMODULE): $(call TOOBJS, $(DELTAMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIB)
 PYTARGETS += $(DELTAMODULE)
-
-#ifdef ULAPI
-# userspace test program ../bin/genserkins:
-#   1) has not been maintained
-#   2) does not start up on RTAI
-../bin/genserkins: $(call TOOBJS, $(GENSERKINSSRCS)) ../lib/liblinuxcnchal.so ../lib/libposemath.so
-	$(ECHO) emc/Submakefile:Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
-TARGETS += ../bin/genserkins
-#endif
 
 RDELTAMODULESRCS := emc/kinematics/rotarydeltakins.cc
 PYSRCS += $(RDELTAMODULESRCS)
@@ -39,3 +24,70 @@ $(patsubst ./emc/kinematics/%,../include/%,$(wildcard ./emc/kinematics/*.h)): ..
 	cp $^ $@
 $(patsubst ./emc/kinematics/%,../include/%,$(wildcard ./emc/kinematics/*.hh)): ../include/%.hh: ./emc/kinematics/%.hh
 	cp $^ $@
+
+# ---------------------------------------------------------------------------
+# GMI kinematics cmod modules
+# ---------------------------------------------------------------------------
+
+
+GMI_KINS_INCLUDE := gomc/pkg/cmodule
+GMI_KINS_API_INCLUDE := gomc/generated/gmi/kins
+GMI_KINS_COMMON := emc/kinematics
+
+GMI_KINS_CFLAGS = -fPIC -Os -Wall -Wextra -shared \
+    -I $(GMI_KINS_INCLUDE) \
+    -I $(GMI_KINS_API_INCLUDE) \
+    -I $(GMI_KINS_COMMON)
+
+GMI_KINS_DEPS = gomc/generated/gmi/kins/kins_api.h \
+                $(wildcard gomc/pkg/cmodule/gomc_env.h)
+
+# Helper: build a simple kins cmod .so from a single .c file
+# $(1) = module name  $(2) = source dir relative to src/
+define GMI_KINS_BUILD
+../cmod/$(1).so: $(2)/$(1).c $$(GMI_KINS_DEPS)
+	$$(ECHO) "Compiling GMI cmod $$(notdir $$@)"
+	@mkdir -p $$(dir $$@)
+	$$(Q)$$(CC) $$(GMI_KINS_CFLAGS) -o $$@ $$< -lm
+TARGETS += ../cmod/$(1).so
+modules: ../cmod/$(1).so
+endef
+
+# --- Group 0: trivkins ---
+$(eval $(call GMI_KINS_BUILD,trivkins,emc/kinematics))
+
+# --- Group A: simple non-switchable (no HAL pins) ---
+$(eval $(call GMI_KINS_BUILD,corexykins,emc/kinematics))
+$(eval $(call GMI_KINS_BUILD,rotatekins,emc/kinematics))
+$(eval $(call GMI_KINS_BUILD,scorbot-kins,emc/kinematics))
+
+# --- Group B: non-switchable with HAL pins ---
+$(eval $(call GMI_KINS_BUILD,lineardeltakins,emc/kinematics))
+$(eval $(call GMI_KINS_BUILD,rotarydeltakins,emc/kinematics))
+$(eval $(call GMI_KINS_BUILD,maxkins,emc/kinematics))
+$(eval $(call GMI_KINS_BUILD,rosekins,emc/kinematics))
+$(eval $(call GMI_KINS_BUILD,tripodkins,emc/kinematics))
+
+# --- Group C: switchkins-based ---
+$(eval $(call GMI_KINS_BUILD,5axiskins,emc/kinematics))
+$(eval $(call GMI_KINS_BUILD,xyzac-trt-kins,emc/kinematics))
+$(eval $(call GMI_KINS_BUILD,xyzbc-trt-kins,emc/kinematics))
+$(eval $(call GMI_KINS_BUILD,scarakins,emc/kinematics))
+
+# --- Group D: with posemath linkage ---
+GMI_POSEMATH_INCDIR := libnml/posemath
+
+define GMI_KINS_POSEMATH_BUILD
+../cmod/$(1).so: $(2)/$(1).c ../lib/libposemath.so $$(GMI_KINS_DEPS)
+	$$(ECHO) "Compiling GMI cmod $$(notdir $$@)"
+	@mkdir -p $$(dir $$@)
+	$$(Q)$$(CC) $$(GMI_KINS_CFLAGS) -I $$(GMI_POSEMATH_INCDIR) -I rtapi -o $$@ $$< -L../lib -lposemath -lm
+TARGETS += ../cmod/$(1).so
+modules: ../cmod/$(1).so
+endef
+
+$(eval $(call GMI_KINS_POSEMATH_BUILD,genhexkins,emc/kinematics))
+$(eval $(call GMI_KINS_POSEMATH_BUILD,genserkins,emc/kinematics))
+$(eval $(call GMI_KINS_POSEMATH_BUILD,pumakins,emc/kinematics))
+$(eval $(call GMI_KINS_POSEMATH_BUILD,pentakins,emc/kinematics))
+

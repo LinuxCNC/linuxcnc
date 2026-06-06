@@ -1,0 +1,43 @@
+# gmcui — Generic WebKit container for LinuxCNC web UIs.
+# Build only if webkit2gtk-4.1 was detected by configure.
+
+ifeq ($(BUILD_WEBKIT2GTK),yes)
+
+WEBKIT_CFLAGS := $(shell pkg-config --cflags webkit2gtk-4.1 2>/dev/null)
+WEBKIT_LIBS := $(shell pkg-config --libs webkit2gtk-4.1 2>/dev/null)
+
+GMCUI_SRCS := emc/usr_intf/gmcui/gmcui.c
+USERSRCS += $(GMCUI_SRCS)
+
+$(call TOOBJSDEPS, $(GMCUI_SRCS)): EXTRAFLAGS = $(GTK_CFLAGS) $(WEBKIT_CFLAGS)
+
+../bin/gmcui: $(call TOOBJS, $(GMCUI_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(GTK_LIBS) $(WEBKIT_LIBS) $(LDFLAGS)
+TARGETS += ../bin/gmcui
+
+# Symlink: halscope -> gmcui
+../bin/halscope: ../bin/gmcui
+	$(ECHO) Creating symlink $(notdir $@)
+	$(Q)ln -sf gmcui $@
+TARGETS += ../bin/halscope
+
+# Symlink: halshow -> gmcui
+../bin/halshow: ../bin/gmcui
+	$(ECHO) Creating symlink $(notdir $@)
+	$(Q)ln -sf gmcui $@
+TARGETS += ../bin/halshow
+
+# Symlink: tooledit -> gmcui
+../bin/tooledit: ../bin/gmcui
+	$(ECHO) Creating symlink $(notdir $@)
+	$(Q)ln -sf gmcui $@
+TARGETS += ../bin/tooledit
+
+# Symlink: emccalib -> gmcui
+../bin/emccalib: ../bin/gmcui
+	$(ECHO) Creating symlink $(notdir $@)
+	$(Q)ln -sf gmcui $@
+TARGETS += ../bin/emccalib
+
+endif

@@ -1,0 +1,177 @@
+# ---------------------------------------------------------------------------
+# Web application builds (Vue 3 + TypeScript via Vite)
+# ---------------------------------------------------------------------------
+# Builds web applications from src/webapp/<app>/ into
+# share/gomc/webapp/<app>/ for serving by gomc-server.
+# ---------------------------------------------------------------------------
+
+
+WEBAPP_DIR := webapp
+WEBAPP_DEST := ../share/gomc/webapp
+
+# --- halscope ---
+
+HALSCOPE_WEBAPP_SRC := $(WEBAPP_DIR)/halscope
+HALSCOPE_WEBAPP_DEST := $(WEBAPP_DEST)/halscope
+
+# Use a stamp file to track the build
+HALSCOPE_WEBAPP_STAMP := $(HALSCOPE_WEBAPP_DEST)/.build-stamp
+
+# Source files that trigger a rebuild
+HALSCOPE_WEBAPP_SRCS := $(shell find $(HALSCOPE_WEBAPP_SRC)/src -type f 2>/dev/null) \
+	$(HALSCOPE_WEBAPP_SRC)/index.html \
+	$(HALSCOPE_WEBAPP_SRC)/package.json \
+	$(HALSCOPE_WEBAPP_SRC)/vite.config.ts \
+	$(HALSCOPE_WEBAPP_SRC)/tsconfig.json
+
+# npm install stamp
+HALSCOPE_NPM_STAMP := $(HALSCOPE_WEBAPP_SRC)/node_modules/.install-stamp
+
+$(HALSCOPE_NPM_STAMP): $(HALSCOPE_WEBAPP_SRC)/package.json
+	$(ECHO) "Installing halscope webapp dependencies"
+	$(Q)cd $(HALSCOPE_WEBAPP_SRC) && npm install --no-audit --no-fund
+	$(Q)touch $@
+
+# Generated TS clients that must exist before the webapp can build
+HALSCOPE_GEN_TS := $(WEBAPP_DIR)/halscope/src/generated/halscope_client.ts \
+	$(WEBAPP_DIR)/halscope/src/generated/halscope_watch_client.ts
+
+$(HALSCOPE_WEBAPP_STAMP): $(HALSCOPE_WEBAPP_SRCS) $(HALSCOPE_NPM_STAMP) $(HALSCOPE_GEN_TS)
+	$(ECHO) "Building halscope webapp"
+	$(Q)rm -rf $(HALSCOPE_WEBAPP_DEST)
+	$(Q)cd $(HALSCOPE_WEBAPP_SRC) && npx vite build --outDir $(abspath $(HALSCOPE_WEBAPP_DEST)) --emptyOutDir
+	$(Q)touch $@
+
+TARGETS += $(HALSCOPE_WEBAPP_STAMP)
+
+# --- halshow ---
+
+HALSHOW_WEBAPP_SRC := $(WEBAPP_DIR)/halshow
+HALSHOW_WEBAPP_DEST := $(WEBAPP_DEST)/halshow
+
+HALSHOW_WEBAPP_STAMP := $(HALSHOW_WEBAPP_DEST)/.build-stamp
+
+HALSHOW_WEBAPP_SRCS := $(shell find $(HALSHOW_WEBAPP_SRC)/src -type f 2>/dev/null) \
+	$(HALSHOW_WEBAPP_SRC)/index.html \
+	$(HALSHOW_WEBAPP_SRC)/package.json \
+	$(HALSHOW_WEBAPP_SRC)/vite.config.ts \
+	$(HALSHOW_WEBAPP_SRC)/tsconfig.json
+
+HALSHOW_NPM_STAMP := $(HALSHOW_WEBAPP_SRC)/node_modules/.install-stamp
+
+$(HALSHOW_NPM_STAMP): $(HALSHOW_WEBAPP_SRC)/package.json
+	$(ECHO) "Installing halshow webapp dependencies"
+	$(Q)cd $(HALSHOW_WEBAPP_SRC) && npm install --no-audit --no-fund
+	$(Q)touch $@
+
+HALSHOW_GEN_TS := $(WEBAPP_DIR)/halshow/src/generated/halcmd_client.ts \
+	$(WEBAPP_DIR)/halshow/src/generated/halcmd_watch_client.ts
+
+$(HALSHOW_WEBAPP_STAMP): $(HALSHOW_WEBAPP_SRCS) $(HALSHOW_NPM_STAMP) $(HALSHOW_GEN_TS)
+	$(ECHO) "Building halshow webapp"
+	$(Q)rm -rf $(HALSHOW_WEBAPP_DEST)
+	$(Q)cd $(HALSHOW_WEBAPP_SRC) && npx vite build --outDir $(abspath $(HALSHOW_WEBAPP_DEST)) --emptyOutDir
+	$(Q)touch $@
+
+TARGETS += $(HALSHOW_WEBAPP_STAMP)
+
+# --- emccalib ---
+
+EMCCALIB_WEBAPP_SRC := $(WEBAPP_DIR)/emccalib
+EMCCALIB_WEBAPP_DEST := $(WEBAPP_DEST)/emccalib
+
+EMCCALIB_WEBAPP_STAMP := $(EMCCALIB_WEBAPP_DEST)/.build-stamp
+
+EMCCALIB_WEBAPP_SRCS := $(shell find $(EMCCALIB_WEBAPP_SRC)/src -type f 2>/dev/null) \
+	$(EMCCALIB_WEBAPP_SRC)/index.html \
+	$(EMCCALIB_WEBAPP_SRC)/package.json \
+	$(EMCCALIB_WEBAPP_SRC)/vite.config.ts \
+	$(EMCCALIB_WEBAPP_SRC)/tsconfig.json
+
+EMCCALIB_NPM_STAMP := $(EMCCALIB_WEBAPP_SRC)/node_modules/.install-stamp
+
+$(EMCCALIB_NPM_STAMP): $(EMCCALIB_WEBAPP_SRC)/package.json
+	$(ECHO) "Installing emccalib webapp dependencies"
+	$(Q)cd $(EMCCALIB_WEBAPP_SRC) && npm install --no-audit --no-fund
+	$(Q)touch $@
+
+EMCCALIB_GEN_TS := $(WEBAPP_DIR)/emccalib/src/generated/emccalib_client.ts
+
+$(EMCCALIB_WEBAPP_STAMP): $(EMCCALIB_WEBAPP_SRCS) $(EMCCALIB_NPM_STAMP) $(EMCCALIB_GEN_TS)
+	$(ECHO) "Building emccalib webapp"
+	$(Q)rm -rf $(EMCCALIB_WEBAPP_DEST)
+	$(Q)cd $(EMCCALIB_WEBAPP_SRC) && npx vite build --outDir $(abspath $(EMCCALIB_WEBAPP_DEST)) --emptyOutDir
+	$(Q)touch $@
+
+TARGETS += $(EMCCALIB_WEBAPP_STAMP)
+
+# --- tooledit ---
+
+TOOLEDIT_WEBAPP_SRC := $(WEBAPP_DIR)/tooledit
+TOOLEDIT_WEBAPP_DEST := $(WEBAPP_DEST)/tooledit
+
+TOOLEDIT_WEBAPP_STAMP := $(TOOLEDIT_WEBAPP_DEST)/.build-stamp
+
+TOOLEDIT_WEBAPP_SRCS := $(shell find $(TOOLEDIT_WEBAPP_SRC)/src -type f 2>/dev/null) \
+	$(TOOLEDIT_WEBAPP_SRC)/index.html \
+	$(TOOLEDIT_WEBAPP_SRC)/package.json \
+	$(TOOLEDIT_WEBAPP_SRC)/vite.config.ts \
+	$(TOOLEDIT_WEBAPP_SRC)/tsconfig.json
+
+TOOLEDIT_NPM_STAMP := $(TOOLEDIT_WEBAPP_SRC)/node_modules/.install-stamp
+
+$(TOOLEDIT_NPM_STAMP): $(TOOLEDIT_WEBAPP_SRC)/package.json
+	$(ECHO) "Installing tooledit webapp dependencies"
+	$(Q)cd $(TOOLEDIT_WEBAPP_SRC) && npm install --no-audit --no-fund
+	$(Q)touch $@
+
+TOOLEDIT_GEN_TS := $(WEBAPP_DIR)/tooledit/src/generated/tools_client.ts
+
+$(TOOLEDIT_WEBAPP_STAMP): $(TOOLEDIT_WEBAPP_SRCS) $(TOOLEDIT_NPM_STAMP) $(TOOLEDIT_GEN_TS)
+	$(ECHO) "Building tooledit webapp"
+	$(Q)rm -rf $(TOOLEDIT_WEBAPP_DEST)
+	$(Q)cd $(TOOLEDIT_WEBAPP_SRC) && npx vite build --outDir $(abspath $(TOOLEDIT_WEBAPP_DEST)) --emptyOutDir
+	$(Q)touch $@
+
+TARGETS += $(TOOLEDIT_WEBAPP_STAMP)
+
+# --- classicladder ---
+
+CLASSICLADDER_WEBAPP_SRC := $(WEBAPP_DIR)/classicladder
+CLASSICLADDER_WEBAPP_DEST := $(WEBAPP_DEST)/classicladder
+
+CLASSICLADDER_WEBAPP_STAMP := $(CLASSICLADDER_WEBAPP_DEST)/.build-stamp
+
+CLASSICLADDER_WEBAPP_SRCS := $(shell find $(CLASSICLADDER_WEBAPP_SRC)/src -type f 2>/dev/null) \
+	$(CLASSICLADDER_WEBAPP_SRC)/index.html \
+	$(CLASSICLADDER_WEBAPP_SRC)/package.json \
+	$(CLASSICLADDER_WEBAPP_SRC)/vite.config.ts \
+	$(CLASSICLADDER_WEBAPP_SRC)/tsconfig.json
+
+CLASSICLADDER_NPM_STAMP := $(CLASSICLADDER_WEBAPP_SRC)/node_modules/.install-stamp
+
+$(CLASSICLADDER_NPM_STAMP): $(CLASSICLADDER_WEBAPP_SRC)/package.json
+	$(ECHO) "Installing classicladder webapp dependencies"
+	$(Q)cd $(CLASSICLADDER_WEBAPP_SRC) && npm install --no-audit --no-fund
+	$(Q)touch $@
+
+CLASSICLADDER_GEN_TS := $(WEBAPP_DIR)/classicladder/src/generated/classicladder_client.ts
+
+$(CLASSICLADDER_WEBAPP_STAMP): $(CLASSICLADDER_WEBAPP_SRCS) $(CLASSICLADDER_NPM_STAMP) $(CLASSICLADDER_GEN_TS)
+	$(ECHO) "Building classicladder webapp"
+	$(Q)rm -rf $(CLASSICLADDER_WEBAPP_DEST)
+	$(Q)cd $(CLASSICLADDER_WEBAPP_SRC) && npx vite build --outDir $(abspath $(CLASSICLADDER_WEBAPP_DEST)) --emptyOutDir
+	$(Q)touch $@
+
+TARGETS += $(CLASSICLADDER_WEBAPP_STAMP)
+
+clean: webapp-clean
+.PHONY: webapp-clean
+webapp-clean:
+	rm -rf $(WEBAPP_DEST)
+	rm -rf $(HALSCOPE_WEBAPP_SRC)/node_modules
+	rm -rf $(HALSHOW_WEBAPP_SRC)/node_modules
+	rm -rf $(EMCCALIB_WEBAPP_SRC)/node_modules
+	rm -rf $(TOOLEDIT_WEBAPP_SRC)/node_modules
+	rm -rf $(CLASSICLADDER_WEBAPP_SRC)/node_modules
+

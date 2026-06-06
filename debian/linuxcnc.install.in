@@ -15,13 +15,9 @@ usr/bin/gs2_vfd
 usr/bin/gscreen
 usr/bin/hal-histogram
 usr/bin/hal_input
-usr/bin/hal_manualtoolchange
 usr/bin/halcmd
-usr/bin/halcmd_twopass
-usr/bin/halmeter
 usr/bin/halreport
 usr/bin/halrmt
-usr/bin/halrun
 usr/bin/halsampler
 usr/bin/halscope
 usr/bin/halshow
@@ -42,12 +38,9 @@ usr/bin/latency-test
 usr/bin/lineardelta
 usr/bin/linuxcnc
 usr/bin/linuxcnc_info
-usr/bin/linuxcnc_module_helper
 usr/bin/linuxcnc_var
 usr/bin/linuxcnclcd
 usr/bin/linuxcncmkdesktop
-usr/bin/linuxcncrsh
-usr/bin/linuxcncsvr
 usr/bin/linuxcnctop
 usr/bin/maho600gui
 usr/bin/max5gui
@@ -55,10 +48,8 @@ usr/bin/mb2hal
 usr/bin/mdi
 usr/bin/melfagui
 usr/bin/mesambccc
-usr/bin/milltask
 usr/bin/millturngui
 usr/bin/mitsub_vfd
-usr/bin/mqtt-publisher
 usr/bin/z_level_compensation
 usr/bin/monitor-xhc-hb04
 usr/bin/motion-logger
@@ -82,9 +73,7 @@ usr/bin/qtplasmac_gcode
 usr/bin/qtvcp
 usr/bin/rotarydelta
 usr/bin/rs274
-usr/bin/rtapi_app
 usr/bin/scaragui
-usr/bin/schedrmt
 usr/bin/scorbot-er-3
 usr/bin/sendkeys
 usr/bin/setup_designer

@@ -200,6 +200,26 @@ test(n, executable(n,
 
 endforeach
 
+# Halscope RT unit tests
+halscope_rt_inc = include_directories([
+  'src/gomc/internal/halscope',
+])
+
+halscope_test_files = [
+  'test_halscope_rt',
+  ]
+foreach n : halscope_test_files
+
+test(n, executable(n,
+  join_paths('src/gomc/internal/halscope/testrt', n+'.c'),
+  dependencies : [m_dep],
+  include_directories : [ halscope_rt_inc, unit_test_inc,
+    include_directories('src/gomc/internal/halscope/testrt/testmock'),
+    include_directories('src/gomc/internal/halscope') ],
+  ))
+
+endforeach
+
 
 rs274ngc_external_inc = [
   config_inc,

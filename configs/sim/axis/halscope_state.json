@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "config": {
+    "threadName": "servo-thread",
+    "maxChannels": 1,
+    "samplePeriodMult": 1,
+    "continuous": false
+  },
+  "channels": [
+    {
+      "channel": 0,
+      "pinName": "joint.0.vel-cmd",
+      "dataType": 2
+    }
+  ],
+  "trigger": {
+    "channel": 0,
+    "level": 0,
+    "edge": 1,
+    "autoTrig": false
+  }
+}

@@ -1,0 +1,84 @@
+ifeq ($(BUILD_ETHERCAT),yes)
+
+LCEC_DIR := hal/drivers/ethercat
+
+# ---------- Unified cmod plugin: ethercat.so ----------
+#
+# All RT core sources (main, master, slave, devices, ...) and the
+# configuration sources (conf, conf_util, conf_icmds) are compiled into
+# a single shared library loaded as a cmod plugin by the launcher.
+
+LCEC_RT_SRCS := \
+    $(LCEC_DIR)/main.c \
+    $(LCEC_DIR)/typelist.c \
+    $(LCEC_DIR)/master.c \
+    $(LCEC_DIR)/slave.c \
+    $(LCEC_DIR)/util.c \
+    $(LCEC_DIR)/dcsync_r2m.c \
+    $(LCEC_DIR)/dcsync_m2r.c \
+    $(LCEC_DIR)/classes/class_enc.c \
+    $(LCEC_DIR)/classes/class_ax5.c \
+    $(LCEC_DIR)/devices/generic.c \
+    $(LCEC_DIR)/devices/ax5100.c \
+    $(LCEC_DIR)/devices/ax5200.c \
+    $(LCEC_DIR)/devices/ax5805.c \
+    $(LCEC_DIR)/devices/el1xxx.c \
+    $(LCEC_DIR)/devices/el1252.c \
+    $(LCEC_DIR)/devices/el1859.c \
+    $(LCEC_DIR)/devices/el1904.c \
+    $(LCEC_DIR)/devices/el1918_logic.c \
+    $(LCEC_DIR)/devices/el2202.c \
+    $(LCEC_DIR)/devices/el2521.c \
+    $(LCEC_DIR)/devices/el2904.c \
+    $(LCEC_DIR)/devices/el2xxx.c \
+    $(LCEC_DIR)/devices/el31x2.c \
+    $(LCEC_DIR)/devices/el31x4.c \
+    $(LCEC_DIR)/devices/el32x4.c \
+    $(LCEC_DIR)/devices/el3255.c \
+    $(LCEC_DIR)/devices/el3314.c \
+    $(LCEC_DIR)/devices/el40x1.c \
+    $(LCEC_DIR)/devices/el40x2.c \
+    $(LCEC_DIR)/devices/el40x8.c \
+    $(LCEC_DIR)/devices/el41x2.c \
+    $(LCEC_DIR)/devices/el41x4.c \
+    $(LCEC_DIR)/devices/el5002.c \
+    $(LCEC_DIR)/devices/el5021.c \
+    $(LCEC_DIR)/devices/el5032.c \
+    $(LCEC_DIR)/devices/el5101.c \
+    $(LCEC_DIR)/devices/el5122.c \
+    $(LCEC_DIR)/devices/el5151.c \
+    $(LCEC_DIR)/devices/el5152.c \
+    $(LCEC_DIR)/devices/el6900.c \
+    $(LCEC_DIR)/devices/el7041_1000.c \
+    $(LCEC_DIR)/devices/el70x1.c \
+    $(LCEC_DIR)/devices/el7211.c \
+    $(LCEC_DIR)/devices/el7342.c \
+    $(LCEC_DIR)/devices/el7411.c \
+    $(LCEC_DIR)/devices/el95xx.c \
+    $(LCEC_DIR)/devices/em3712.c \
+    $(LCEC_DIR)/devices/em7004.c \
+    $(LCEC_DIR)/devices/stmds5k.c \
+    $(LCEC_DIR)/devices/deasda.c \
+    $(LCEC_DIR)/devices/dems300.c \
+    $(LCEC_DIR)/devices/omrg5.c \
+    $(LCEC_DIR)/devices/ph3lm2rm.c
+
+LCEC_CONF_SRCS := \
+    $(LCEC_DIR)/conf.c \
+    $(LCEC_DIR)/conf_util.c \
+    $(LCEC_DIR)/conf_icmds.c
+
+LCEC_ALL_SRCS := $(LCEC_RT_SRCS) $(LCEC_CONF_SRCS)
+
+USERSRCS += $(LCEC_ALL_SRCS)
+$(call TOOBJSDEPS, $(LCEC_ALL_SRCS)): EXTRAFLAGS += \
+    -fPIC -DULAPI -URTAPI -I$(BASEPWD)/$(LCEC_DIR) -I$(BASEPWD) $(ETHERCAT_CFLAGS)
+
+../cmod/ethercat.so: $(call TOOBJS, $(LCEC_ALL_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../cmod
+	$(Q)$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS) -lexpat -lm $(ETHERCAT_LIBS)
+
+TARGETS += ../cmod/ethercat.so
+
+endif # BUILD_ETHERCAT

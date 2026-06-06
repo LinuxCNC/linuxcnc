@@ -1,15 +1,19 @@
-IOSRCS := emc/iotask/ioControl.cc
-IOV2SRCS := emc/iotask/ioControl_v2.cc
+IOSRCS := emc/iotask/ioControl.c
+IOV2SRCS := emc/iotask/ioControl_v2.c
 USERSRCS += $(IOSRCS) $(IOV2SRCS)
 
-../bin/io: $(call TOOBJS, $(IOSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
-           ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/libtooldata.so.0
+$(call TOOBJS, $(IOSRCS)): EXTRAFLAGS += -fPIC -Igomc/generated/gmi/emcio -Igomc/generated/gmi/tooltable -Igomc/pkg/cmodule -Iemc/iotask
+$(call TOOBJSDEPS, $(IOSRCS)): gomc/generated/gmi/emcio/emcio_api.h gomc/generated/gmi/tooltable/tooltable_api.h
+../cmod/io.so: $(call TOOBJS, $(IOSRCS))
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
 
-../bin/iov2: $(call TOOBJS, $(IOV2SRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 \
-           ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/libtooldata.so.0
+$(call TOOBJS, $(IOV2SRCS)): EXTRAFLAGS += -fPIC -Igomc/generated/gmi/emcio -Igomc/generated/gmi/tooltable -Igomc/pkg/cmodule -Iemc/iotask
+$(call TOOBJSDEPS, $(IOV2SRCS)): gomc/generated/gmi/emcio/emcio_api.h gomc/generated/gmi/tooltable/tooltable_api.h
+../cmod/iov2.so: $(call TOOBJS, $(IOV2SRCS))
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
 
-TARGETS += ../bin/io ../bin/iov2
+TARGETS += ../cmod/io.so ../cmod/iov2.so

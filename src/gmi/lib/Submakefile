@@ -1,0 +1,49 @@
+# GMI - Generated Message Interface Runtime Library
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# This library provides common utilities for GMI-generated code:
+# - Error handling (gmi_error)
+# - Dynamic buffers (gmi_types)
+# - JSON parsing/building (gmi_json, wraps cJSON)
+# - HTTP client (gmi_http, wraps libcurl)
+#
+# Dependencies (checked by configure):
+# - libcurl: sudo apt install libcurl4-openssl-dev
+# - libcjson: sudo apt install libcjson-dev
+
+# Include path
+INCLUDES += gmi/lib
+
+# Public headers -> ../include/
+../include/gmi.h: gmi/lib/gmi.h
+	cp $< $@
+../include/gmi_error.h: gmi/lib/gmi_error.h
+	cp $< $@
+../include/gmi_types.h: gmi/lib/gmi_types.h
+	cp $< $@
+../include/gmi_json.h: gmi/lib/gmi_json.h
+	cp $< $@
+../include/gmi_http.h: gmi/lib/gmi_http.h
+	cp $< $@
+
+GMI_HEADERS := ../include/gmi.h ../include/gmi_error.h ../include/gmi_types.h \
+               ../include/gmi_json.h ../include/gmi_http.h
+
+# Source files
+GMI_SRCS := gmi/lib/gmi_error.c gmi/lib/gmi_types.c gmi/lib/gmi_json.c gmi/lib/gmi_http.c
+
+# Compile flags for shared library (uses configure-provided vars)
+$(call TOOBJSDEPS, $(GMI_SRCS)): EXTRAFLAGS = -fPIC $(LIBCURL_CFLAGS) $(LIBCJSON_CFLAGS)
+
+USERSRCS += $(GMI_SRCS)
+
+# Targets
+TARGETS += ../lib/libgmi.so ../lib/libgmi.so.0
+
+# Build rule
+../lib/libgmi.so.0: $(call TOOBJS, $(GMI_SRCS)) $(GMI_HEADERS)
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $(call TOOBJS, $(GMI_SRCS)) \
+		$(LIBCURL_LIBS) $(LIBCJSON_LIBS)

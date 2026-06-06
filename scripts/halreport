@@ -933,16 +933,6 @@ proc config_options {} {
 proc ini_file_items {} {
   if [info exists ::env(INI_FILE_NAME)] {
     set ::HR(INI_FILE_NAME) $::env(INI_FILE_NAME)
-  } else {
-    set ans ""
-    catch {set ans [split [exec pgrep -a linuxcncsvr]]}
-    foreach item $ans {
-      if {"$item" == "-ini"} {set found_ini 1;continue}
-      if [info exists found_ini] {
-        set ::HR(INI_FILE_NAME) $item
-        break
-      }
-    }
   }
   if [info exists ::HR(INI_FILE_NAME)] {
     set ::HR(INI_FILE_NAME) [file normalize $::HR(INI_FILE_NAME)]

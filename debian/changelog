@@ -1,3 +1,9 @@
+linuxcnc (1:2.9.8~mds1) UNRELEASED; urgency=medium
+
+  * merged upstream 2.9.8
+
+ -- Sascha Ittner <sascha.ittner@modusoft.de>  Sat, 14 Feb 2026 10:12:31 +0100
+
 linuxcnc (1:2.9.8) UNRELEASED; urgency=medium
 
   * backport #3516 to fix #3679
@@ -302,6 +308,12 @@ linuxcnc (1:2.9.4) UNRELEASED; urgency=medium
 
  -- andypugh <andy@bodgesoc.org>  Sat, 25 Jan 2025 12:20:01 +0000
  
+linuxcnc (1:2.9.3~mds1) UNRELEASED; urgency=medium
+
+  * added modusoft patches
+
+ -- Sascha Ittner <sascha.ittner@modusoft.de>  Fri, 22 Jul 2024 08:51:16 +0200
+
 linuxcnc (1:2.9.3) UNRELEASED; urgency=medium
 
   * Make warning about file endings more explicit for new users. (#3013)

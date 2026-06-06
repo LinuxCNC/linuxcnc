@@ -1,0 +1,56 @@
+.\" -*- mode: troff; coding: utf-8 -*-
+.\"*******************************************************************
+.\"
+.\" This file was generated from hal/components/manualtoolchange.comp using modcompile.
+.\" Modify the source file.
+.\"
+.\"*******************************************************************
+
+.TH MANUALTOOLCHANGE "9" "2026-06-05" "LinuxCNC Documentation" "HAL Component"
+.SH NAME
+
+manualtoolchange \- Manual tool change with REST API for UI
+.SH SYNOPSIS
+.HP
+.B load manualtoolchange [manualtoolchange.\fIN\fB]
+.SH DESCRIPTION
+
+
+Provides HAL pins for iocontrol tool-change handshaking and a REST API
+for a remote UI (manualtoolchange_ui.py).  Replaces the old
+hal_manualtoolchange userspace Python component.
+
+HAL pins (directly wired to iocontrol):
+  - change (bit, in): tool change requested by iocontrol
+  - number (s32, in): requested tool number
+  - change_button (bit, in): external button to confirm change
+  - changed (bit, out): tool change confirmed
+
+REST API (via GMI):
+  - GET  /state   \[u2014] returns {change, number, changed}
+  - POST /confirm \[u2014] sets changed=true
+
+The UI polls GET /state, shows a dialog when change goes true,
+and calls POST /confirm when the operator clicks Continue.
+The change_button pin allows confirming without the UI (e.g. a
+physical button wired through HAL).
+
+.SH FUNCTIONS
+.TP
+\fBmanualtoolchange.\fIN\fB\fR
+.SH PINS
+.TP
+.B manualtoolchange.\fIN\fB.change\fR bit in \fR
+Tool change requested by iocontrol
+.TP
+.B manualtoolchange.\fIN\fB.number\fR s32 in \fR
+Requested tool number (0 = remove tool)
+.TP
+.B manualtoolchange.\fIN\fB.change-button\fR bit in \fR
+External button to confirm tool change
+.TP
+.B manualtoolchange.\fIN\fB.changed\fR bit out \fR
+Tool change confirmed
+.SH LICENSE
+
+GPL

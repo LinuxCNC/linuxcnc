@@ -1,0 +1,311 @@
+# gomc/Submakefile - Go-based LinuxCNC server (gomc-server)
+
+
+# Helper variables for string manipulation
+comma := ,
+space := $(subst ,, )
+
+# Build directory for absolute paths
+TOP := $(shell cd ..; pwd)
+
+# Package path for -ldflags -X injection
+GOMC_LDFLAGS_PKG := github.com/sittner/linuxcnc/src/gomc/internal/config
+
+# Cmod include directory - where gomc_*.h headers are
+ifeq ($(RUN_IN_PLACE),yes)
+EMC2_CMOD_INCLUDE_DIR := $(EMC2_HOME)/src/gomc/pkg/cmodule
+EMC2_GOMC_DIR := $(EMC2_HOME)/src/gomc
+EMC2_WEBAPP_DIR := $(EMC2_HOME)/share/gomc/webapp
+else
+EMC2_CMOD_INCLUDE_DIR := $(includedir)/linuxcnc/cmod
+EMC2_GOMC_DIR := $(datadir)/linuxcnc/gomc
+EMC2_WEBAPP_DIR := $(datadir)/gomc/webapp
+endif
+
+# Comma-separated list of enabled optional Go module tags.
+# modcompile uses this to filter conditional entries in packages.conf.
+GOMC_BUILD_FLAGS := $(subst $(space),$(comma),$(strip \
+    $(if $(filter yes,$(BUILD_ADSSERVER)),ADSSERVER) \
+    $(if $(filter yes,$(BUILD_CLASSICLADDER)),CLASSICLADDER) \
+    $(if $(filter yes,$(BUILD_HALSCOPE)),HALSCOPE) \
+    $(if $(filter yes,$(BUILD_EMCCALIB)),EMCCALIB) \
+    $(if $(filter yes,$(BUILD_HALJSON)),HALJSON) \
+    $(if $(filter yes,$(BUILD_NGCPREVIEW)),NGCPREVIEW) \
+    $(if $(filter yes,$(BUILD_MILLTASK_GO)),MILLTASK_GO) \
+    $(if $(filter yes,$(BUILD_MQTTBRIDGE)),MQTTBRIDGE) \
+    $(if $(filter yes,$(BUILD_PYVCP)),PYVCP) \
+    $(if $(filter yes,$(BUILD_TASKTEST)),TASKTEST) \
+    $(if $(filter yes,$(BUILD_TOOLTABLE)),TOOLTABLE)))
+
+# Compile-time variables injected via -ldflags
+GOMC_LDFLAGS := \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2Home=$(EMC2_HOME)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2BinDir=$(EMC2_BIN_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2TclDir=$(EMC2_TCL_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2HelpDir=$(EMC2_HELP_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2RtlibDir=$(EMC2_RTLIB_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2CmodDir=$(EMC2_CMOD_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2CmodIncludeDir=$(EMC2_CMOD_INCLUDE_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2GomcDir=$(EMC2_GOMC_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).GoBinary=$(GO)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2ConfigPath=$(LINUXCNC_CONFIG_PATH)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2NCFilesDir=$(EMC2_NCFILES_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2LangDir=$(EMC2_LANG_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2ImageDir=$(EMC2_IMAGEDIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2TclLibDir=$(EMC2_TCL_LIB_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).HalibDir=$(HALLIB_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2WebAppDir=$(EMC2_WEBAPP_DIR)' \
+    -X '$(GOMC_LDFLAGS_PKG).EMC2Version=$(EMC2VERSION)' \
+    -X '$(GOMC_LDFLAGS_PKG).RunInPlace=$(RUN_IN_PLACE)' \
+    -X '$(GOMC_LDFLAGS_PKG).DefaultNmlFile=$(DEFAULT_NMLFILE)' \
+    -X '$(GOMC_LDFLAGS_PKG).ModExt=$(MODULE_EXT)' \
+    -X '$(GOMC_LDFLAGS_PKG).KernelVers=$(kernelvers)' \
+    -X '$(GOMC_LDFLAGS_PKG).BuildFlags=$(GOMC_BUILD_FLAGS)'
+
+# All Go source files in the gomc module (recursive wildcard for
+# sub-packages).  Make will rebuild when any .go file or go.mod changes.
+# Hand-written Go sources (no generated files — those are added in GOMC_SRC).
+# Generated imports file for compiled-in Go modules.
+IMPORTS_GENERATED := gomc/cmd/gomc-server/imports_generated.go
+
+# All Go source files in the gomc module (recursive wildcard for
+# sub-packages).  Make will rebuild when any .go file or go.mod changes.
+# Hand-written Go sources (no generated files — those are added in GOMC_SRC).
+GOMC_SRC_BASE := $(filter-out $(IMPORTS_GENERATED),$(wildcard gomc/*.go) \
+    $(wildcard gomc/cmd/*/*.go) \
+    $(wildcard gomc/pkg/*/*.go) \
+    $(wildcard gomc/internal/*/*.go) \
+    $(wildcard gomc/internal/*/*/*.go) \
+    $(wildcard gomc/internal/*/*/*/*.go)) \
+    gomc/go.mod.in \
+    gomc/go.mod
+
+# Full source list including generated files (for the gomc binary).
+GOMC_SRC := $(GOMC_SRC_BASE) \
+    $(wildcard gomc/generated/*/*/*)
+
+# Generated GMI files that the gomc imports.  The wildcard above may be
+# empty on a fresh build (files don't exist yet at parse time), so we list
+# concrete prerequisites here to ensure codegen runs first.
+GMI_KINS_GEN_GO := gomc/generated/gmi/kins/kins_cgo.go
+GMI_TOOLS_GEN_GO := gomc/generated/gmi/tools/tools_cgo.go
+GMI_EMCSTAT_PUSH_GO := gomc/generated/gmi/emcstat/emcstat_push.go
+GMI_MOTCTL_CLIENT_GO := gomc/generated/gmi/motctl/motctl_client_cgo.go
+GMI_MOTSTAT_CLIENT_GO := gomc/generated/gmi/motstat/motstat_client_cgo.go
+GMI_EMCIO_CLIENT_GO := gomc/generated/gmi/emcio/emcio_client_cgo.go
+GMI_CLASSICLADDER_SERVER_GO := gomc/generated/gmi/classicladder/classicladder_cgo.go
+GMI_HAL_SAMPLER_STREAM_GO := gomc/generated/gmi/hal_sampler/hal_sampler_stream.go
+GMI_HAL_STREAMER_STREAM_GO := gomc/generated/gmi/hal_streamer/hal_streamer_stream.go
+
+# Explicit list of ALL generated GMI Go files (one per package with init()).
+# This must be kept in sync with gmi/codegen/Submakefile.
+# Used as prerequisite for imports_generated.go and gomc-server so that
+# codegen completes before the Go build starts.
+GMI_ALL_GEN_GO := \
+    gomc/generated/gmi/canon/canon_cgo.go \
+    gomc/generated/gmi/classicladder/classicladder_cgo.go \
+    gomc/generated/gmi/emccalib/emccalib_cgo.go \
+    gomc/generated/gmi/emccmd/emccmd_cgo.go \
+    gomc/generated/gmi/emcerror/emcerror_cgo.go \
+    gomc/generated/gmi/emcio/emcio_cgo.go \
+    gomc/generated/gmi/emcstat/emcstat_cgo.go \
+    gomc/generated/gmi/halcmd/halcmd_cgo.go \
+    gomc/generated/gmi/halscope/halscope_cgo.go \
+    gomc/generated/gmi/home/home_cgo.go \
+    gomc/generated/gmi/ini/ini_cgo.go \
+    gomc/generated/gmi/interp_ctx/interp_ctx_cgo.go \
+    gomc/generated/gmi/interp_ext/interp_ext_cgo.go \
+    gomc/generated/gmi/kins/kins_cgo.go \
+    gomc/generated/gmi/manualtoolchange/manualtoolchange_cgo.go \
+    gomc/generated/gmi/mcode_handler/mcode_handler_cgo.go \
+    gomc/generated/gmi/mot/mot_cgo.go \
+    gomc/generated/gmi/motctl/motctl_cgo.go \
+    gomc/generated/gmi/motstat/motstat_cgo.go \
+    gomc/generated/gmi/ngcpreview/ngcpreview_cgo.go \
+    gomc/generated/gmi/pyvcp/pyvcp_cgo.go \
+    gomc/generated/gmi/tools/tools_cgo.go \
+    gomc/generated/gmi/tooltable/tooltable_cgo.go \
+    gomc/generated/gmi/tp/tp_cgo.go \
+    gomc/generated/gmi/hal_sampler/hal_sampler_stream.go \
+    gomc/generated/gmi/hal_streamer/hal_streamer_stream.go
+
+# Runtime files generated from .in bases on fresh checkouts.
+# imports_generated.go is produced by modcompile directly from packages.conf
+# plus auto-discovery of GMI and external packages.  No intermediate
+# packages.conf file is needed — modcompile handles filtering internally
+# using build flags baked in at compile time.
+
+gomc/go.mod: gomc/go.mod.in $(wildcard gomc/external/*/go.deps)
+	$(Q)if [ -n "$$(find gomc/external -name go.deps 2>/dev/null)" ] && [ -x $(TOP)/bin/modcompile ]; then \
+		cd gomc && $(TOP)/bin/modcompile regenerate-gomod; \
+	else \
+		cp $< $@; \
+	fi
+	$(Q)cd gomc && $(GO) mod download
+
+$(IMPORTS_GENERATED): gomc/packages.conf ../bin/modcompile $(GMI_ALL_GEN_GO)
+	$(Q)cd gomc && $(TOP)/bin/modcompile regenerate-imports
+
+# Build the gomc-server binary.
+#
+# CGO_LDFLAGS adds -Wl,-rpath so the dynamic linker finds libposemath.so
+# and librs274.so at runtime (RIP and installed builds alike).
+# --disable-new-dtags forces DT_RPATH instead of DT_RUNPATH; RUNPATH is
+# ignored by the dynamic linker when the binary has file capabilities (setcap).
+# LIB_DIR is $(EMC2_HOME)/lib, defined in Makefile.inc.
+#
+# GOFLAGS=-mod=mod allows Go to update go.sum automatically when new local
+# packages appear (e.g. generated GMI code).
+../bin/gomc-server: $(GOMC_SRC) $(GMI_KINS_GEN_GO) $(GMI_TOOLS_GEN_GO) $(GMI_EMCSTAT_PUSH_GO) $(GMI_MOTCTL_CLIENT_GO) $(GMI_MOTSTAT_CLIENT_GO) $(GMI_EMCIO_CLIENT_GO) $(GMI_CLASSICLADDER_SERVER_GO) $(GMI_HAL_SAMPLER_STREAM_GO) $(GMI_HAL_STREAMER_STREAM_GO) $(IMPORTS_GENERATED) gomc/go.mod ../lib/libposemath.so ../lib/librs274.so Makefile.inc
+	$(ECHO) Building gomc-server
+	$(Q)cd gomc && CGO_LDFLAGS="-Wl,-rpath,$(LIB_DIR) -Wl,--disable-new-dtags" GOFLAGS=-mod=mod $(GO) build -ldflags "$(GOMC_LDFLAGS)" -o $(TOP)/bin/gomc-server ./cmd/gomc-server
+
+# ---------------------------------------------------------------------------
+# ADS XML generator tool — built from cmd/ads-xml-gen within the gomc module
+# ---------------------------------------------------------------------------
+
+../bin/ads-xml-gen: $(GOMC_SRC_BASE)
+	$(ECHO) Building ads-xml-gen
+	$(Q)cd gomc && CGO_ENABLED=0 $(GO) build -o $(TOP)/bin/ads-xml-gen ./cmd/ads-xml-gen
+
+# ---------------------------------------------------------------------------
+# halsampler / halstreamer — WebSocket stream clients
+# ---------------------------------------------------------------------------
+
+../bin/halsampler: $(GOMC_SRC_BASE) gomc/cmd/halsampler/main.go
+	$(ECHO) Building halsampler
+	$(Q)cd gomc && CGO_ENABLED=0 GOFLAGS=-mod=mod $(GO) build -o $(TOP)/bin/halsampler ./cmd/halsampler
+
+../bin/halstreamer: $(GOMC_SRC_BASE) gomc/cmd/halstreamer/main.go
+	$(ECHO) Building halstreamer
+	$(Q)cd gomc && CGO_ENABLED=0 GOFLAGS=-mod=mod $(GO) build -o $(TOP)/bin/halstreamer ./cmd/halstreamer
+
+TARGETS += ../bin/halsampler ../bin/halstreamer
+
+# ---------------------------------------------------------------------------
+# Copy gomc public packages to share/ for RIP builds
+# ---------------------------------------------------------------------------
+
+# Files that external Go modules need (hal bindings + gomc interface +
+# inifile parser).
+GOMC_PKG_FILES := \
+    ../share/linuxcnc/gomc/pkg/hal/hal.go \
+    ../share/linuxcnc/gomc/pkg/hal/component.go \
+    ../share/linuxcnc/gomc/pkg/hal/pin.go \
+    ../share/linuxcnc/gomc/pkg/hal/types.go \
+    ../share/linuxcnc/gomc/pkg/hal/errors.go \
+    ../share/linuxcnc/gomc/pkg/hal/cgo.go \
+    ../share/linuxcnc/gomc/pkg/hal/doc.go \
+    ../share/linuxcnc/gomc/pkg/gomc/gomc.go \
+    ../share/linuxcnc/gomc/pkg/inifile/types.go \
+    ../share/linuxcnc/gomc/pkg/inifile/parser.go \
+    ../share/linuxcnc/gomc/pkg/inifile/expand.go \
+    ../share/linuxcnc/gomc/go.mod
+
+../share/linuxcnc/gomc/pkg/%: gomc/pkg/%
+	$(ECHO) Copying gomc pkg file $<
+	@mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+# The installed go.mod must not carry the local replace directive.
+../share/linuxcnc/gomc/go.mod: gomc/go.mod
+	$(ECHO) Generating gomc share go.mod
+	@mkdir -p $(dir $@)
+	$(Q)printf 'module github.com/sittner/linuxcnc/src/gomc\n\ngo 1.22\n' > $@
+
+# ---------------------------------------------------------------------------
+# HAL Go example / test binaries (standalone processes using the hal package)
+# ---------------------------------------------------------------------------
+
+HAL_GO_CGO_CFLAGS := -I$(TOP)/src -I$(TOP)/src/hal -I$(TOP)/src/rtapi -I$(TOP)/include
+HAL_GO_CGO_LDFLAGS :=
+
+TARGETS += ../bin/gomc-server ../bin/ads-xml-gen $(GOMC_PKG_FILES)
+
+# ---------------------------------------------------------------------------
+# modcompile — .comp → cmod C code generator
+# ---------------------------------------------------------------------------
+
+# modcompile only imports cmd/modcompile, internal/config, internal/modcompile,
+# internal/gmicompile, and internal/pkgreg — NOT the server packages.  Use a
+# narrow dep list so server code changes don't trigger cmod rebuilds.
+MODCOMPILE_SRC := $(wildcard gomc/cmd/modcompile/*.go) \
+    $(wildcard gomc/internal/config/*.go) \
+    $(wildcard gomc/internal/modcompile/*/*.go) \
+    $(wildcard gomc/internal/gmicompile/*/*.go) \
+    $(wildcard gomc/internal/pkgreg/*.go) \
+    gomc/go.mod
+
+../bin/modcompile: $(MODCOMPILE_SRC) Makefile.inc
+	$(ECHO) Building modcompile
+	@rm -f $@
+	$(Q)cd gomc && GOFLAGS=-mod=mod $(GO) build -ldflags "$(GOMC_LDFLAGS)" -o $(TOP)/bin/modcompile ./cmd/modcompile
+
+TARGETS += ../bin/modcompile
+
+# ---------------------------------------------------------------------------
+# halcmd — HAL command-line tool (REST-based, replaces legacy C halcmd/halrmt)
+# ---------------------------------------------------------------------------
+
+GMI_HALCMD_GEN_GO := gomc/generated/gmi/halcmdclient/halcmd_client.go
+
+../bin/halcmd: $(GOMC_SRC_BASE) $(GMI_HALCMD_GEN_GO) Makefile.inc
+	$(ECHO) Building halcmd - Go REST client
+	@rm -f $@
+	$(Q)cd gomc && $(GO) build -ldflags "$(GOMC_LDFLAGS)" -o $(TOP)/bin/halcmd ./cmd/halcmd
+
+TARGETS += ../bin/halcmd
+
+# Test target
+.PHONY: test-gomc
+test-gomc:
+	$(Q)cd gomc && $(GO) test ./...
+
+# Clean
+clean: gomc-clean
+.PHONY: gomc-clean
+gomc-clean:
+	rm -f ../bin/gomc-server ../bin/ads-xml-gen
+	rm -f ../bin/modcompile ../bin/halcmd
+	rm -f $(HAL_GO_EXAMPLES)
+	rm -f $(GOMC_PKG_FILES)
+	rm -f gomc/go.mod gomc/go.sum
+	rm -f $(IMPORTS_GENERATED)
+
+# Install
+install: gomc-install
+.PHONY: gomc-install
+gomc-install: ../bin/gomc-server ../bin/ads-xml-gen ../bin/modcompile ../bin/halcmd $(GOMC_PKG_FILES) $(HAL_GO_EXAMPLES)
+	$(DIR) $(DESTDIR)$(EMC2_BIN_DIR)
+	$(INSTALL) -m 0755 ../bin/gomc-server $(DESTDIR)$(EMC2_BIN_DIR)/gomc-server
+	$(INSTALL) -m 0755 ../bin/ads-xml-gen $(DESTDIR)$(EMC2_BIN_DIR)/ads-xml-gen
+	$(INSTALL) -m 0755 ../bin/modcompile $(DESTDIR)$(EMC2_BIN_DIR)/modcompile
+	$(INSTALL) -m 0755 ../bin/halcmd $(DESTDIR)$(EMC2_BIN_DIR)/halcmd
+	$(FILE) $(HAL_GO_EXAMPLES) $(DESTDIR)$(EMC2_BIN_DIR)/
+	# Install full gomc source tree for modcompile rebuild/add-gomod support.
+	# This allows `sudo modcompile add-gomod` to rebuild gomc-server on
+	# installed systems (requires Go toolchain).
+	$(DIR) $(DESTDIR)$(datadir)/linuxcnc/gomc
+	$(Q)cd gomc && find . \
+		-name '*_test.go' -prune -o \
+		-path './internal/gmi/kinstest' -prune -o \
+		-type f \( -name '*.go' -o -name 'go.mod' -o -name 'go.mod.in' -o -name 'go.sum' -o -name 'packages.conf' \) \
+		-print | while read f; do \
+			dest=$(DESTDIR)$(datadir)/linuxcnc/gomc/$$f; \
+			mkdir -p $$(dirname $$dest); \
+			$(INSTALL) -m 0644 $$f $$dest; \
+		done
+	# Install cmodule headers (needed for modcompile --compile on installed systems)
+	$(DIR) $(DESTDIR)$(datadir)/linuxcnc/gomc/pkg/cmodule
+	$(Q)for f in gomc/pkg/cmodule/gomc_*.h gomc/pkg/cmodule/cmodule.h; do \
+		[ -f "$$f" ] && $(INSTALL) -m 0644 $$f \
+			$(DESTDIR)$(datadir)/linuxcnc/gomc/pkg/cmodule/$$(basename $$f); \
+	done
+	# Install generated GMI headers and Go shims
+	$(Q)cd gomc && find generated -type f \( -name '*.h' -o -name '*.go' \) \
+		2>/dev/null | while read f; do \
+			dest=$(DESTDIR)$(datadir)/linuxcnc/gomc/$$f; \
+			mkdir -p $$(dirname $$dest); \
+			$(INSTALL) -m 0644 $$f $$dest; \
+		done
+

@@ -4,3 +4,49 @@ $(patsubst ./emc/motion/%,../include/%,$(wildcard ./emc/motion/*.h)): ../include
 	cp $^ $@
 $(patsubst ./emc/motion/%,../include/%,$(wildcard ./emc/motion/*.hh)): ../include/%.hh: ./emc/motion/%.hh
 	cp $^ $@
+
+# ---------------------------------------------------------------------------
+# cmod build: motmod.so
+# ---------------------------------------------------------------------------
+# Pure cmod — uses New/Destroy lifecycle with gomc_hal/gomc_log/gomc_rtapi
+# callbacks.  No direct link to liblinuxcnchal.
+# ---------------------------------------------------------------------------
+
+
+MOTMOD_CMOD_SRCS := \
+    emc/motion/motion.c \
+    emc/motion/command.c \
+    emc/motion/control.c \
+    emc/motion/axis.c \
+    emc/motion/simple_tp.c \
+    emc/motion/motctl_handlers.c \
+    emc/motion/motstat_handlers.c \
+    emc/kinematics/cubic.c
+
+MOTMOD_CMOD_CFLAGS := \
+    -fPIC -Os -Wall -Wextra \
+    -DUSPACE -D_GNU_SOURCE -Drealtime -DSEQUENTIAL_SUPPORT \
+    -DMOTMOD_INTERNAL \
+    -fno-builtin-sin -fno-builtin-cos -fno-builtin-sincos \
+    -fno-strict-aliasing -fwrapv \
+    -I. -I../include -Igomc/pkg/cmodule -Igomc/generated/gmi/kins -Igomc/generated/gmi/tp -Igomc/generated/gmi/home -Igomc/generated/gmi/mot -Igomc/generated/gmi/motctl -Igomc/generated/gmi/motstat -Iemc/tp -Iemc/motion
+
+../cmod/motmod.so: $(MOTMOD_CMOD_SRCS) \
+                   $(wildcard emc/motion/*.h) \
+                   $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                   gomc/generated/gmi/kins/kins_api.h \
+                   gomc/generated/gmi/tp/tp_api.h \
+                   gomc/generated/gmi/home/home_api.h \
+                   gomc/generated/gmi/mot/mot_api.h \
+                   gomc/generated/gmi/motctl/motctl_api.h \
+                   gomc/generated/gmi/motstat/motstat_api.h \
+                   | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod motmod.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(MOTMOD_CMOD_CFLAGS) \
+	    -o $@ $(MOTMOD_CMOD_SRCS) \
+	    $(CMOD_LDFLAGS) -lrtapi_core -lm
+
+TARGETS += ../cmod/motmod.so
+modules: ../cmod/motmod.so
+

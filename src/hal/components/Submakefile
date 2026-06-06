@@ -1,86 +1,68 @@
-ifneq ($(KERNELRELEASE),)
-COMPS := $(filter-out %/tpcomp.comp, $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp)))
-include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
-else
 CONVERTERS :=  \
     conv_float_s32.comp conv_float_u32.comp \
     conv_bit_s32.comp conv_bit_u32.comp conv_bit_float.comp \
     conv_s32_float.comp conv_s32_bit.comp conv_s32_u32.comp \
     conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
-COMPS := $(filter-out hal/components/tpcomp.comp, $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS))))
-COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS)) ../docs/man/man9/tpcomp.9
-ifeq ($(BUILD_SYS),uspace)
-COMP_DRIVERS += hal/drivers/serport.comp
-COMP_DRIVERS += hal/drivers/mesa_7i65.comp
-COMP_DRIVERS += hal/drivers/mesa_uart.comp
-else
-COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
-endif
+
+# Kinematics .comp modules: built via modcompile with gmi_provide kins.
+# Need the GMI kins API header path at compile time.
+CMOD_KINS_COMP_NAMES := millturn userkins xyzab_tdr_kins
+
+# ---------------------------------------------------------------------------
+# Components built via modcompile (cmod API, output to ../cmod/)
+# ---------------------------------------------------------------------------
+CMOD_COMPS := $(sort $(wildcard hal/components/*.comp))
+CMOD_COMP_NAMES := $(patsubst hal/components/%.comp,%,$(CMOD_COMPS))
+CMOD_TARGETS := $(addprefix ../cmod/, $(addsuffix .so, $(CMOD_COMP_NAMES)))
+
+# Man pages via modcompile
+# Exclude legacy driver .comps that use unsupported features (option singleton, RTAPI_MP_ARRAY_INT)
+COMP_DRIVERS := $(filter-out hal/drivers/pcl720.comp, $(wildcard hal/drivers/*.comp))
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(CMOD_COMPS))
 COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
 TARGETS += manpages
 GENERATED_MANPAGES += $(COMP_MANPAGES)
 GENERATED_MANPAGES += $(COMP_DRIVER_MANPAGES)
 .PHONY: manpages
-ifeq ($(TRIVIAL_BUILD),no)
--include $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
-Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
-endif
-endif
 
-obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS) $(COMP_DRIVERS)))
-
-$(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/halcompile
-	$(ECHO) Making halcompile manpage $(notdir $@)
+$(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/modcompile
+	$(ECHO) Making modcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/halcompile -U --document -o $@.new $< && preconv -r < $@.new > $@
+	$(Q)../bin/modcompile --document -o $@.new $< && preconv -r < $@.new > $@
 	$(RM) $@.new
 
-$(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/halcompile
-	$(ECHO) Making halcompile manpage $(notdir $@)
+$(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/modcompile
+	$(ECHO) Making modcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/halcompile -U --document -o $@ $<
-
-objects/%.mak: %.comp hal/components/Submakefile
-	$(ECHO) "Creating $(notdir $@)"
-	@mkdir -p $(dir $@)
-	$(Q)echo $(notdir $*)-objs := objects/$*.o > $@.tmp
-	$(Q)echo ../rtlib/$(notdir $*)$(MODULE_EXT): objects/rtobjects/$*.o >> $@.tmp
-	$(Q)mv -f $@.tmp $@
-
-objects/%.c: %.comp ../bin/halcompile
-	$(ECHO) "Preprocessing $(notdir $<)"
-	@mkdir -p $(dir $@)
-	$(Q)../bin/halcompile -U -o $@ $<
-
-modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
+	$(Q)../bin/modcompile --document -o $@.new $< && preconv -r < $@.new > $@
+	$(RM) $@.new
 
 # keep this make target in 2.6, remove in 2.7 (just use 'clean-manpages' in 2.7+)
 clean-comp-manpages: clean-manpages
 
-HALSTREAMERSRCS := hal/components/streamer_usr.c
-USERSRCS += $(HALSTREAMERSRCS)
+# Legacy halstreamer/halsampler — replaced by Go WebSocket clients (gomc/Submakefile)
+#HALSTREAMERSRCS := hal/components/streamer_usr.c
+#USERSRCS += $(HALSTREAMERSRCS)
+#../bin/halstreamer: $(call TOOBJS, $(HALSTREAMERSRCS)) ../lib/liblinuxcnchal.so.0
+#	$(ECHO) Linking $(notdir $@)
+#	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+#TARGETS += ../bin/halstreamer
 
-../bin/halstreamer: $(call TOOBJS, $(HALSTREAMERSRCS)) ../lib/liblinuxcnchal.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^
-TARGETS += ../bin/halstreamer
+#HALSAMPLERSRCS := hal/components/sampler_usr.c
+#USERSRCS += $(HALSAMPLERSRCS)
+#../bin/halsampler: $(call TOOBJS, $(HALSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
+#	$(ECHO) Linking $(notdir $@)
+#	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+#TARGETS += ../bin/halsampler
 
-HALSAMPLERSRCS := hal/components/sampler_usr.c
-USERSRCS += $(HALSAMPLERSRCS)
-
-../bin/halsampler: $(call TOOBJS, $(HALSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^
-TARGETS += ../bin/halsampler
-
-PYSAMPLERSRCS := hal/components/panelui.c
-USERSRCS += $(PYSAMPLERSRCS)
+#PYSAMPLERSRCS := hal/components/panelui.c
+#USERSRCS += $(PYSAMPLERSRCS)
 PYFLAGS := $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS) -lrt
 
-../bin/panelui: $(call TOOBJS, $(PYSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -Wl,-z,relro -o $@ $^ $(PYFLAGS)
-TARGETS += ../bin/panelui
+#../bin/panelui: $(call TOOBJS, $(PYSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
+#	$(ECHO) Linking $(notdir $@)
+#	$(Q)$(CC) -Wl,-z,relro -o $@ $^ $(PYFLAGS)
+#TARGETS += ../bin/panelui
 
 hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
@@ -125,3 +107,411 @@ hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkc
 hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@
+
+# ---------------------------------------------------------------------------
+# cmod build rules: .comp → modcompile → .c → gcc -shared → ../cmod/*.so
+# ---------------------------------------------------------------------------
+
+
+CMOD_INCLUDE := gomc/pkg/cmodule
+CMOD_CFLAGS  := -fPIC -Os -Wall -shared -o
+
+# Step 1: .comp → .c via modcompile
+objects/cmod/%.c: hal/components/%.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+# Step 2: .c → .so via gcc -shared
+../cmod/%.so: objects/cmod/%.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+# Step 2b: kinematics comps need the GMI kins API header path.
+# These override the generic pattern rule above for kins modules.
+CMOD_GMI_KINS_API := gomc/generated/gmi/kins
+CMOD_KINS_CFLAGS := -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -I $(CMOD_GMI_KINS_API)
+
+../cmod/userkins.so: objects/cmod/userkins.c $(CMOD_GMI_KINS_API)/kins_api.h
+	$(ECHO) "Compiling cmod (kins) $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(CMOD_KINS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+../cmod/millturn.so: objects/cmod/millturn.c $(CMOD_GMI_KINS_API)/kins_api.h
+	$(ECHO) "Compiling cmod (kins) $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(CMOD_KINS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+../cmod/xyzab_tdr_kins.so: objects/cmod/xyzab_tdr_kins.c $(CMOD_GMI_KINS_API)/kins_api.h
+	$(ECHO) "Compiling cmod (kins) $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(CMOD_KINS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+# Step 2c: homecomp needs the GMI home + mot API header paths.
+CMOD_GMI_HOME_API := gomc/generated/gmi/home
+CMOD_GMI_MOT_API := gomc/generated/gmi/mot
+CMOD_HOME_CFLAGS := -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -I $(CMOD_GMI_HOME_API) -I $(CMOD_GMI_MOT_API)
+
+../cmod/homecomp.so: objects/cmod/homecomp.c $(CMOD_GMI_HOME_API)/home_api.h $(CMOD_GMI_MOT_API)/mot_api.h
+	$(ECHO) "Compiling cmod (home) $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(CMOD_HOME_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+# Step 2d: manualtoolchange needs the GMI manualtoolchange API header path.
+CMOD_GMI_MTC_API := gomc/generated/gmi/manualtoolchange
+CMOD_MTC_CFLAGS := -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -I $(CMOD_GMI_MTC_API)
+
+../cmod/manualtoolchange.so: objects/cmod/manualtoolchange.c $(CMOD_GMI_MTC_API)/manualtoolchange_api.h
+	$(ECHO) "Compiling cmod (manualtoolchange) $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(CMOD_MTC_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+# Step 2e: hm2_serial consumers need the GMI hm2_serial API header path.
+CMOD_GMI_HM2_SERIAL_API := gomc/generated/gmi/hm2_serial
+
+CMOD_HM2_SERIAL_CFLAGS := -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -I $(CMOD_GMI_HM2_SERIAL_API)
+
+# mesa_pktgyro_test (hal/components/)
+../cmod/mesa_pktgyro_test.so: objects/cmod/mesa_pktgyro_test.c $(CMOD_GMI_HM2_SERIAL_API)/hm2_serial_api.h
+	$(ECHO) "Compiling cmod (hm2_serial consumer) $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(CMOD_HM2_SERIAL_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+# mesa_7i65 (hal/drivers/) — needs preprocessing step
+objects/cmod/mesa_7i65.c: hal/drivers/mesa_7i65.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/mesa_7i65.so: objects/cmod/mesa_7i65.c $(CMOD_GMI_HM2_SERIAL_API)/hm2_serial_api.h
+	$(ECHO) "Compiling cmod (hm2_serial consumer) $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(CMOD_HM2_SERIAL_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+TARGETS += ../cmod/mesa_7i65.so
+modules: ../cmod/mesa_7i65.so
+
+# mesa_uart (hal/drivers/) — needs preprocessing step
+objects/cmod/mesa_uart.c: hal/drivers/mesa_uart.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/mesa_uart.so: objects/cmod/mesa_uart.c $(CMOD_GMI_HM2_SERIAL_API)/hm2_serial_api.h
+	$(ECHO) "Compiling cmod (hm2_serial consumer) $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) $(CMOD_HM2_SERIAL_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+TARGETS += ../cmod/mesa_uart.so
+modules: ../cmod/mesa_uart.so
+
+TARGETS += $(CMOD_TARGETS)
+modules: $(CMOD_TARGETS)
+
+# ---------------------------------------------------------------------------
+# cmod native C components (hand-written .c files, not from .comp)
+# ---------------------------------------------------------------------------
+
+CMOD_C_SRCS := spindle supply watchdog modmath weighted_sum counter \
+    debounce siggen encoder_ratio sim_encoder pwmgen encoder pid stepgen \
+    boss_plc enum mux_generic lcd
+CMOD_C_TARGETS := $(addprefix ../cmod/, $(addsuffix .so, $(CMOD_C_SRCS)))
+
+# Generic rule for hand-written cmod C components
+../cmod/%.so: hal/components/%.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -o $@ $< $(CMOD_LDFLAGS) -lm
+
+TARGETS += $(CMOD_C_TARGETS)
+modules: $(CMOD_C_TARGETS)
+
+# ---------------------------------------------------------------------------
+# cmod userspace components (from hal/user_comps/)
+# ---------------------------------------------------------------------------
+
+CMOD_USER_COMPS := thermistor wj200_vfd pi500_vfd svd_ps_vfd hy_gt_vfd gs2_vfd vfdb_vfd vfs11_vfd hy_vfd
+CMOD_USER_TARGETS := $(addprefix ../cmod/, $(addsuffix .so, $(CMOD_USER_COMPS)))
+
+# thermistor: hal/user_comps/thermistor.comp
+objects/cmod/thermistor.c: hal/user_comps/thermistor.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/thermistor.so: objects/cmod/thermistor.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -o $@ $< $(CMOD_LDFLAGS) -lm -lpthread
+
+# wj200_vfd: hal/user_comps/wj200_vfd/wj200_vfd.comp
+objects/cmod/wj200_vfd.c: hal/user_comps/wj200_vfd/wj200_vfd.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/wj200_vfd.so: objects/cmod/wj200_vfd.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) $(LIBMODBUS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm -lpthread -lmodbus
+
+# pi500_vfd: hal/user_comps/pi500_vfd/pi500_vfd.comp
+objects/cmod/pi500_vfd.c: hal/user_comps/pi500_vfd/pi500_vfd.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/pi500_vfd.so: objects/cmod/pi500_vfd.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) $(LIBMODBUS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm -lpthread -lmodbus
+
+# svd_ps_vfd: hal/user_comps/svd-ps_vfd.comp
+objects/cmod/svd_ps_vfd.c: hal/user_comps/svd-ps_vfd.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/svd_ps_vfd.so: objects/cmod/svd_ps_vfd.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) $(LIBMODBUS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm -lpthread -lmodbus
+
+# hy_gt_vfd: hal/user_comps/hy_gt_vfd.comp
+objects/cmod/hy_gt_vfd.c: hal/user_comps/hy_gt_vfd.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/hy_gt_vfd.so: objects/cmod/hy_gt_vfd.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) $(LIBMODBUS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm -lpthread -lmodbus
+
+# gs2_vfd: hal/user_comps/gs2_vfd.comp
+objects/cmod/gs2_vfd.c: hal/user_comps/gs2_vfd.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/gs2_vfd.so: objects/cmod/gs2_vfd.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) $(LIBMODBUS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm -lpthread -lmodbus
+
+# vfdb_vfd: hal/user_comps/vfdb_vfd/vfdb_vfd.comp
+objects/cmod/vfdb_vfd.c: hal/user_comps/vfdb_vfd/vfdb_vfd.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/vfdb_vfd.so: objects/cmod/vfdb_vfd.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -I. -Ilibnml/inifile $(LIBMODBUS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm -lpthread -lmodbus -L../lib -liniparse
+
+# vfs11_vfd: hal/user_comps/vfs11_vfd/vfs11_vfd.comp
+objects/cmod/vfs11_vfd.c: hal/user_comps/vfs11_vfd/vfs11_vfd.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+../cmod/vfs11_vfd.so: objects/cmod/vfs11_vfd.c
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -I. -Ilibnml/inifile $(LIBMODBUS_CFLAGS) -o $@ $< $(CMOD_LDFLAGS) -lm -lpthread -lmodbus -L../lib -liniparse
+
+# hy_vfd: hal/user_comps/huanyang-vfd/hy_vfd.comp + hy_comm.c
+objects/cmod/hy_vfd.c: hal/user_comps/huanyang-vfd/hy_vfd.comp ../bin/modcompile
+	$(ECHO) "Preprocessing cmod $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/modcompile --preprocess $< > $@
+
+objects/cmod/hy_vfd.o: objects/cmod/hy_vfd.c
+	$(ECHO) "Compiling $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -c -I $(CMOD_INCLUDE) -I. -Ihal/user_comps/huanyang-vfd -o $@ $<
+
+objects/cmod/hy_comm.o: hal/user_comps/huanyang-vfd/hy_comm.c
+	$(ECHO) "Compiling $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -c -Ihal/user_comps/huanyang-vfd -o $@ $<
+
+../cmod/hy_vfd.so: objects/cmod/hy_vfd.o objects/cmod/hy_comm.o
+	$(ECHO) "Linking cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS) -lm -lpthread
+
+TARGETS += $(CMOD_USER_TARGETS)
+modules: $(CMOD_USER_TARGETS)
+
+# matrix_kb.so — hand-written cmod (not .comp)
+../cmod/matrix_kb.so: hal/components/matrix_kb.c \
+                      $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                      | headers
+	$(ECHO) "Compiling cmod matrix_kb.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -Wextra -shared \
+	    -DUSPACE -D_GNU_SOURCE -Drealtime \
+	    -I. -I../include -Igomc/pkg/cmodule \
+	    -o $@ hal/components/matrix_kb.c \
+	    $(CMOD_LDFLAGS) -lm
+
+TARGETS += ../cmod/matrix_kb.so
+modules: ../cmod/matrix_kb.so
+
+# sendkeys.so — hand-written cmod (uinput virtual keyboard)
+../cmod/sendkeys.so: hal/user_comps/sendkeys.c \
+                     $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                     | headers
+	$(ECHO) "Compiling cmod sendkeys.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared \
+	    -DUSPACE -D_GNU_SOURCE \
+	    -I. -Igomc/pkg/cmodule \
+	    -o $@ hal/user_comps/sendkeys.c \
+	    -lpthread
+TARGETS += ../cmod/sendkeys.so
+modules: ../cmod/sendkeys.so
+
+# shuttle.so — hand-written cmod (Contour Design USB jog devices)
+../cmod/shuttle.so: hal/user_comps/shuttle.c \
+                    $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                    | headers
+	$(ECHO) "Compiling cmod shuttle.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared \
+	    -DUSPACE -D_GNU_SOURCE \
+	    -I. -Igomc/pkg/cmodule \
+	    -o $@ hal/user_comps/shuttle.c \
+	    -lpthread
+TARGETS += ../cmod/shuttle.so
+modules: ../cmod/shuttle.so
+
+# xhc-hb04.so — hand-written cmod (XHC-HB04 wireless MPG pendant)
+ifdef HAVE_LIBUSB10
+../cmod/xhc-hb04.so: hal/user_comps/xhc-hb04.c \
+                      $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                      | headers ../lib/libiniparse.so
+	$(ECHO) "Compiling cmod xhc-hb04.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared \
+	    -DUSPACE -D_GNU_SOURCE \
+	    -I. -Igomc/pkg/cmodule -Ilibnml/inifile -I../include \
+	    -o $@ hal/user_comps/xhc-hb04.c \
+	    -lpthread $(LIBUSB10_CFLAGS) $(LIBUSB10_LIBS) -L../lib -liniparse
+TARGETS += ../cmod/xhc-hb04.so
+modules: ../cmod/xhc-hb04.so
+
+# xhc-whb04b-6.so — hand-written cmod (XHC-WHB04B-6 wireless MPG pendant)
+../cmod/xhc-whb04b-6.so: hal/user_comps/xhc-whb04b-6.c \
+                          $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                          | headers
+	$(ECHO) "Compiling cmod xhc-whb04b-6.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared \
+	    -DUSPACE -D_GNU_SOURCE \
+	    -I. -Igomc/pkg/cmodule -I../include \
+	    -o $@ hal/user_comps/xhc-whb04b-6.c \
+	    -lpthread $(LIBUSB10_CFLAGS) $(LIBUSB10_LIBS)
+TARGETS += ../cmod/xhc-whb04b-6.so
+modules: ../cmod/xhc-whb04b-6.so
+endif # HAVE_LIBUSB10
+
+# scorbot-er-3.so — hand-written cmod (Scorbot ER-3 robot arm serial driver)
+../cmod/scorbot-er-3.so: hal/user_comps/scorbot-er-3.c \
+                          $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                          | headers
+	$(ECHO) "Compiling cmod scorbot-er-3.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared \
+	    -DUSPACE -D_GNU_SOURCE \
+	    -I. -Igomc/pkg/cmodule -I../include \
+	    -o $@ hal/user_comps/scorbot-er-3.c \
+	    -lpthread
+TARGETS += ../cmod/scorbot-er-3.so
+modules: ../cmod/scorbot-er-3.so
+
+# pmx485.so — hand-written cmod (Hypertherm Powermax RS-485 driver)
+../cmod/pmx485.so: hal/user_comps/pmx485.c \
+                   $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                   | headers
+	$(ECHO) "Compiling cmod pmx485.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared \
+	    -DUSPACE -D_GNU_SOURCE \
+	    -I. -Igomc/pkg/cmodule -I../include \
+	    -o $@ hal/user_comps/pmx485.c \
+	    -lpthread
+TARGETS += ../cmod/pmx485.so
+modules: ../cmod/pmx485.so
+
+# mitsub_vfd.so — hand-written cmod (Mitsubishi VFD COMPUTER-LINK driver)
+../cmod/mitsub_vfd.so: hal/user_comps/mitsub_vfd.c \
+                       $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                       | headers
+	$(ECHO) "Compiling cmod mitsub_vfd.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared \
+	    -DUSPACE -D_GNU_SOURCE \
+	    -I. -Igomc/pkg/cmodule -I../include \
+	    -o $@ hal/user_comps/mitsub_vfd.c \
+	    -lpthread -lm
+TARGETS += ../cmod/mitsub_vfd.so
+modules: ../cmod/mitsub_vfd.so
+
+# hal_input.so — hand-written cmod (Linux evdev input device driver)
+../cmod/hal_input.so: hal/user_comps/hal_input.c \
+                      $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                      | headers
+	$(ECHO) "Compiling cmod hal_input.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared \
+	    -DUSPACE -D_GNU_SOURCE \
+	    -I. -Igomc/pkg/cmodule -I../include \
+	    -o $@ hal/user_comps/hal_input.c \
+	    -lpthread
+TARGETS += ../cmod/hal_input.so
+modules: ../cmod/hal_input.so
+
+# z_level_compensation.so — hand-written cmod (RT Z-axis surface compensation)
+../cmod/z_level_compensation.so: hal/components/z_level_compensation.c \
+                                 $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                                 gomc/generated/gmi/z_level_compensation/z_level_compensation_api.h \
+                                 | headers
+	$(ECHO) "Compiling cmod z_level_compensation.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared \
+	    -DUSPACE -D_GNU_SOURCE \
+	    -I. -Igomc/pkg/cmodule -I../include \
+	    -Igomc/generated/gmi/z_level_compensation \
+	    -o $@ hal/components/z_level_compensation.c \
+	    -lm
+TARGETS += ../cmod/z_level_compensation.so
+modules: ../cmod/z_level_compensation.so
+
+# sampler — streams HAL pin data to WebSocket clients
+CMOD_GMI_HAL_SAMPLER_API := gomc/generated/gmi/hal_sampler
+../cmod/sampler.so: hal/components/sampler.c $(CMOD_GMI_HAL_SAMPLER_API)/hal_sampler_stream_api.h
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -I $(CMOD_GMI_HAL_SAMPLER_API) -o $@ $< $(CMOD_LDFLAGS)
+TARGETS += ../cmod/sampler.so
+modules: ../cmod/sampler.so
+
+# streamer — receives WebSocket data and outputs to HAL pins
+CMOD_GMI_HAL_STREAMER_API := gomc/generated/gmi/hal_streamer
+../cmod/streamer.so: hal/components/streamer.c $(CMOD_GMI_HAL_STREAMER_API)/hal_streamer_stream_api.h
+	$(ECHO) "Compiling cmod $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -shared -I $(CMOD_INCLUDE) -I $(CMOD_GMI_HAL_STREAMER_API) -o $@ $< $(CMOD_LDFLAGS)
+TARGETS += ../cmod/streamer.so
+modules: ../cmod/streamer.so
+
+clean: cmod-comp-clean
+.PHONY: cmod-comp-clean
+cmod-comp-clean:
+	rm -f $(CMOD_TARGETS) $(CMOD_C_TARGETS) $(CMOD_USER_TARGETS)
+	rm -rf objects/cmod/
+

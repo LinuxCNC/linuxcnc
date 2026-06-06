@@ -249,16 +249,6 @@ Files:
  src/hal/utils/miscgtk.h
  src/hal/utils/pci_read.c
  src/hal/utils/pci_write.c
- src/hal/utils/scope.c
- src/hal/utils/scope_disp.c
- src/hal/utils/scope_files.c
- src/hal/utils/scope_horiz.c
- src/hal/utils/scope_rt.c
- src/hal/utils/scope_rt.h
- src/hal/utils/scope_shm.h
- src/hal/utils/scope_trig.c
- src/hal/utils/scope_usr.h
- src/hal/utils/scope_vert.c
  src/hal/utils/upci.c
  src/hal/utils/upci.h
  src/hal/drivers/bcm2835.h

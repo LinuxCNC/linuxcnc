@@ -1,41 +1,118 @@
-hal/drivers/pluto_servo_rbf.h: hal/drivers/pluto_servo_firmware/pluto_servo.rbf hal/drivers/rbf2h.py
-	$(PYTHON) hal/drivers/rbf2h.py -g \
-    -c "This is a component of pluto_servo, a PWM servo driver and" \
-    -c "quadrature counter for emc2" \
-    -c "Copyright (C) 2006, 2007 Jeff Epler" \
-	    $< > $@
+# ---------------------------------------------------------------------------
+# cmod builds: GPIO drivers
+# ---------------------------------------------------------------------------
 
-hal/drivers/pluto_step_rbf.h: hal/drivers/pluto_step_firmware/pluto_step.rbf hal/drivers/rbf2h.py
-	$(PYTHON) hal/drivers/rbf2h.py -g \
-    -c "This is a component of pluto_step, a hardware step generator for emc2" \
-    -c "Copyright (C) 2006, 2007 Jeff Epler" \
-	    $< > $@
 
-clean: pluto_clean
-pluto_clean:
-	rm  -rf \
-	    pluto_servo_firmware/db \
-	    pluto_servo_firmware/pluto_servo.asm.rpt \
-	    pluto_servo_firmware/pluto_servo.done \
-	    pluto_servo_firmware/pluto_servo.fit.rpt \
-	    pluto_servo_firmware/pluto_servo.fit.summary \
-	    pluto_servo_firmware/pluto_servo.flow.rpt \
-	    pluto_servo_firmware/pluto_servo.map.rpt \
-	    pluto_servo_firmware/pluto_servo.map.summary \
-	    pluto_servo_firmware/pluto_servo.pin \
-	    pluto_servo_firmware/pluto_servo.pof \
-	    pluto_servo_firmware/pluto_servo.qws \
-	    pluto_servo_firmware/pluto_servo.rbf \
-	    pluto_servo_firmware/pluto_servo.sof \
-	    pluto_servo_firmware/pluto_servo.tan.rpt \
-	    pluto_servo_firmware/pluto_servo.tan.summary \
-	    pluto_servo_firmware/undo_redo.txt
+GPIO_DIR := hal/drivers
 
-# The kernel's build system won't know how to rebuild generated files
-# so modules must depend on them explicitly
-ifneq ($(BUILD_SYS),uspace)
-modules:                                                         \
-    hal/drivers/pluto_servo_rbf.h                                \
-    hal/drivers/pluto_step_rbf.h
+GPIO_CMOD_CFLAGS := \
+    -fPIC -Os -Wall -Wextra \
+    -DUSPACE -D_GNU_SOURCE -Drealtime \
+    -fno-strict-aliasing -fwrapv \
+    -I. -I../include \
+    -Irtapi/parport \
+    -I$(GPIO_DIR) \
+    -Igomc/pkg/cmodule
+
+GPIO_CMOD_LDFLAGS = $(CMOD_LDFLAGS) -lm
+
+# hal_parport.so (x86 only — uses sys/io.h + librtapi_parport)
+ifeq ($(X86ARCH),true)
+../cmod/hal_parport.so: $(GPIO_DIR)/hal_parport.c \
+                        $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                        | headers ../lib/librtapi_parport.so
+	$(ECHO) "Compiling cmod hal_parport.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(GPIO_CMOD_CFLAGS) \
+	    -o $@ $(GPIO_DIR)/hal_parport.c \
+	    $(GPIO_CMOD_LDFLAGS) -lrtapi_parport
+
+TARGETS += ../cmod/hal_parport.so
+modules: ../cmod/hal_parport.so
 endif
+
+# hal_bb_gpio.so
+../cmod/hal_bb_gpio.so: $(GPIO_DIR)/hal_bb_gpio.c \
+                        $(GPIO_DIR)/beaglebone_gpio.h \
+                        $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                        | headers
+	$(ECHO) "Compiling cmod hal_bb_gpio.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(GPIO_CMOD_CFLAGS) \
+	    -o $@ $(GPIO_DIR)/hal_bb_gpio.c \
+	    $(GPIO_CMOD_LDFLAGS)
+
+TARGETS += ../cmod/hal_bb_gpio.so
+modules: ../cmod/hal_bb_gpio.so
+
+# hal_pi_gpio.so
+../cmod/hal_pi_gpio.so: $(GPIO_DIR)/hal_pi_gpio.c \
+                        $(GPIO_DIR)/cpuinfo.c \
+                        $(GPIO_DIR)/bcm2835.h \
+                        $(GPIO_DIR)/cpuinfo.h \
+                        $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                        | headers
+	$(ECHO) "Compiling cmod hal_pi_gpio.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(GPIO_CMOD_CFLAGS) \
+	    -o $@ $(GPIO_DIR)/hal_pi_gpio.c $(GPIO_DIR)/cpuinfo.c \
+	    $(GPIO_CMOD_LDFLAGS)
+
+TARGETS += ../cmod/hal_pi_gpio.so
+modules: ../cmod/hal_pi_gpio.so
+
+# hal_gpio.so (requires libgpiod)
+ifdef LIBGPIOD_VER
+../cmod/hal_gpio.so: $(GPIO_DIR)/hal_gpio.c \
+                     $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                     | headers
+	$(ECHO) "Compiling cmod hal_gpio.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(GPIO_CMOD_CFLAGS) \
+	    -DLIBGPIOD_VER=$(LIBGPIOD_VER) \
+	    -o $@ $(GPIO_DIR)/hal_gpio.c \
+	    $(GPIO_CMOD_LDFLAGS) -lgpiod
+
+TARGETS += ../cmod/hal_gpio.so
+modules: ../cmod/hal_gpio.so
+endif
+
+# ---------------------------------------------------------------------------
+# hal_gm — General Mechatronics 6-Axis PCI card
+# ---------------------------------------------------------------------------
+../cmod/hal_gm.so: hal/drivers/hal_gm.c \
+                   $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                   | headers ../lib/librtapi_pci.so
+	$(ECHO) "Compiling cmod hal_gm.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -Wextra -shared \
+	    -DUSPACE -D_GNU_SOURCE -Drealtime \
+	    -fno-strict-aliasing -fwrapv \
+	    -I. -I../include -Igomc/pkg/cmodule -Irtapi/pci \
+	    -o $@ hal/drivers/hal_gm.c \
+	    $(CMOD_LDFLAGS) -lrtapi_pci -lm
+
+TARGETS += ../cmod/hal_gm.so
+modules: ../cmod/hal_gm.so
+
+# ---------------------------------------------------------------------------
+# hal_ppmc — Universal PWM Controller (EPP parallel port, x86 only)
+# ---------------------------------------------------------------------------
+ifeq ($(X86ARCH),true)
+../cmod/hal_ppmc.so: hal/drivers/hal_ppmc.c \
+                    $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                    | headers ../lib/librtapi_parport.so
+	$(ECHO) "Compiling cmod hal_ppmc.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -fPIC -Os -Wall -Wextra -shared \
+	    -DUSPACE -D_GNU_SOURCE -Drealtime \
+	    -fno-strict-aliasing -fwrapv \
+	    -I. -I../include -Igomc/pkg/cmodule -Irtapi/parport -Ihal \
+	    -o $@ hal/drivers/hal_ppmc.c \
+	    $(CMOD_LDFLAGS) -lrtapi_parport -lm
+
+TARGETS += ../cmod/hal_ppmc.so
+modules: ../cmod/hal_ppmc.so
+endif
+
 

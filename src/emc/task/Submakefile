@@ -1,40 +1,33 @@
 
-EMCSVRSRCS := \
-	emc/task/emcsvr.cc
-USERSRCS += $(EMCSVRSRCS)
 
-../bin/linuxcncsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
+# stdglue.so — standard remap prolog/epilog handlers
+STDGLUE_SRCS := emc/task/stdglue.c
+USERSRCS += $(STDGLUE_SRCS)
+
+$(call TOOBJSDEPS, $(STDGLUE_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/interp_ext -Igomc/generated/gmi/interp_ctx \
+    -Igomc/pkg/cmodule
+
+$(call TOOBJSDEPS, $(STDGLUE_SRCS)): gomc/generated/gmi/interp_ext/interp_ext_api.h
+$(call TOOBJSDEPS, $(STDGLUE_SRCS)): gomc/generated/gmi/interp_ctx/interp_ctx_api.h
+
+../cmod/stdglue.so: $(call TOOBJS, $(STDGLUE_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $^ $(LDFLAGS)
-TARGETS += ../bin/linuxcncsvr
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/stdglue.so
 
-# disabled:	emc/task/iotaskintf.cc
-MILLTASKSRCS := \
-	emc/motion/emcmotglb.c \
-	emc/task/emctask.cc \
-	emc/task/emccanon.cc \
-	emc/task/emctaskmain.cc \
-	emc/motion/usrmotintf.cc \
-	emc/motion/emcmotutil.c \
-	emc/task/taskintf.cc \
-	emc/motion/dbuf.c \
-	emc/motion/stashf.c \
-	emc/task/taskmodule.cc \
-	emc/task/taskclass.cc \
-	emc/task/backtrace.cc \
+# test_mcode_handler.so — test cmod for M-code handler API
+TEST_MCODE_SRCS := emc/task/test_mcode_handler.c
+USERSRCS += $(TEST_MCODE_SRCS)
 
-$(call TOOBJSDEPS, emc/task/taskmodule.cc): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
+$(call TOOBJSDEPS, $(TEST_MCODE_SRCS)): EXTRAFLAGS += -fPIC \
+    -Igomc/generated/gmi/mcode_handler -Igomc/pkg/cmodule
 
-USERSRCS += $(MILLTASKSRCS)
+$(call TOOBJSDEPS, $(TEST_MCODE_SRCS)): gomc/generated/gmi/mcode_handler/mcode_handler_api.h
 
-#LDFLAGS +=
-
-../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a \
-                 ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 \
-                 ../lib/liblinuxcnchal.so.0 ../lib/libpyplugin.so.0 \
-                 ../lib/libtooldata.so.0
-
-
+../cmod/test_mcode_handler.so: $(call TOOBJS, $(TEST_MCODE_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) -o $@ $^ $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
-TARGETS += ../bin/milltask
+	@mkdir -p ../cmod
+	@$(CC) -shared -o $@ $^ $(CMOD_LDFLAGS)
+TARGETS += ../cmod/test_mcode_handler.so

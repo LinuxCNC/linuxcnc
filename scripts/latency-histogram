@@ -30,11 +30,6 @@ proc set_defaults {} {
   set ::LH(start) [clock seconds]
   # don't include glxgears, error suffices
   program_check {halrun halcmd lsmod pgrep pkill hostname}
-  if {[string first rtai [string tolower $::tcl_platform(osVersion)]] >=0} {
-    set ::LH(rtai) rtai
-    set ::LH(realtime) [exec linuxcnc_var REALTIME]
-    program_check $::LH(realtime)
-  }
 
   set ::LH(use_x)    1
   set ::LH(verbose)  0
@@ -297,12 +292,6 @@ proc load_packages {} {
     exit 1
   }
 
-  if [info exists ::LH(rtai)] {
-    exec $::LH(realtime) start &
-    progress "Delay for realtime startup"
-    after 1000 ;# wait to load Hal package
-  }
-
   # augment ::auto_path for special case:
   # 1) RIP build (no install)
   # 2) linuxcnc script called from Application menu
@@ -537,12 +526,9 @@ proc reset_data {} {
 } ;# reset_data
 
 proc start_collection {} {
-  set i 1; set args ""
   foreach thd $::LH(threads) {
-    set args "$args name$i=t_$thd period$i=$::LH($thd,period,ns)"
-    incr i
+    hal newthread t_$thd $::LH($thd,period,ns)
   }
-  eval hal loadrt threads "$args"
 
   set names ""; set ct 0
   foreach thd $::LH(threads) {

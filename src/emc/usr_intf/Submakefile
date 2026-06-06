@@ -1,41 +1,18 @@
-EMCSHSRCS := emc/usr_intf/emcsh.cc \
-             emc/usr_intf/shcom.cc
-EMCRSHSRCS := emc/usr_intf/emcrsh.cc \
-              emc/usr_intf/shcom.cc
-EMCSCHEDSRCS := emc/usr_intf/schedrmt.cc \
-              emc/usr_intf/emcsched.cc \
-              emc/usr_intf/shcom.cc
-EMCLCDSRCS := emc/usr_intf/emclcd.cc \
-              emc/usr_intf/shcom.cc \
-              emc/usr_intf/sockets.c
+USERSRCS += $(USRMOTSRCS)
 
-HALUISRCS := emc/usr_intf/halui.cc
-
-USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS)
-
-$(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
-
-../tcl/linuxcnc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -shared $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS) -lXinerama
-TARGETS += ../tcl/linuxcnc.so
-
-../bin/linuxcncrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ -lpthread $(LDFLAGS)
-TARGETS += ../bin/linuxcncrsh
-
-../bin/schedrmt: $(call TOOBJS, $(EMCSCHEDSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ -lpthread $(LDFLAGS)
-TARGETS += ../bin/schedrmt
-
-../bin/linuxcnclcd: $(call TOOBJS, $(EMCLCDSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
-TARGETS += ../bin/linuxcnclcd
-
-../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libtooldata.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(CXXFLAGS) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
-TARGETS += ../bin/halui
+# halui.so — DISABLED: halui is now built into milltask gomod (halui= parameter)
+# Source kept as halui_gomc.cc.disabled for reference.
+#HALUI_GOMC_SRCS := emc/usr_intf/halui_gomc.cc
+#
+#USERSRCS += $(HALUI_GOMC_SRCS)
+#
+#$(call TOOBJSDEPS, $(HALUI_GOMC_SRCS)): EXTRAFLAGS += -fPIC -Igomc/generated/gmi/emccmd -Igomc/generated/gmi/emcstat -Igomc/pkg/cmodule
+#$(call TOOBJSDEPS, $(HALUI_GOMC_SRCS)): gomc/generated/gmi/emccmd/emccmd_api.h gomc/generated/gmi/emcstat/emcstat_api.h
+#
+#../cmod/halui.so: $(call TOOBJS, $(HALUI_GOMC_SRCS)) \
+#                  ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 \
+#                  ../lib/libtooldata.so.0
+#	$(ECHO) Linking $(notdir $@)
+#	@mkdir -p ../cmod
+#	@$(CXX) -shared -o $@ $^ $(LDFLAGS)
+#TARGETS += ../cmod/halui.so

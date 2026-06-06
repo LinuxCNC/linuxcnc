@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "config": {
+    "threadName": "servo-thread",
+    "maxChannels": 4,
+    "samplePeriodMult": 1,
+    "continuous": false
+  },
+  "channels": [
+    {
+      "channel": 0,
+      "pinName": "sampler.pin.0",
+      "dataType": 2
+    },
+    {
+      "channel": 1,
+      "pinName": "sampler.pin.1",
+      "dataType": 2
+    },
+    {
+      "channel": 2,
+      "pinName": "sampler.pin.2",
+      "dataType": 2
+    },
+    {
+      "channel": 3,
+      "pinName": "streamer.pin.0",
+      "dataType": 2
+    }
+  ],
+  "trigger": {
+    "channel": 0,
+    "level": 0,
+    "edge": 0,
+    "autoTrig": false
+  }
+}

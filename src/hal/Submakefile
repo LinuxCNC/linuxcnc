@@ -3,30 +3,49 @@ INCLUDES += hal
 ../include/%.h: ./hal/%.h
 	cp $^ $@
 
-HALLIBSRCS := hal/hal_lib.c $(ULAPISRCS)
-$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC $(ULAPI_CFLAGS)
-USERSRCS += $(HALLIBSRCS)
-ifeq ($(BUILD_SYS),uspace)
-HALLIB_LIBS := -pthread -lrt
-else
-HALLIB_LIBS := -lrt
-endif
+# Standalone PCI + firmware library (no hal/rtapi dependency)
+RTAPI_PCI_SRCS := rtapi/pci/rtapi_pci.c
+$(call TOOBJSDEPS, $(RTAPI_PCI_SRCS)): EXTRAFLAGS += -fPIC $(LIBUDEV_CFLAGS)
+USERSRCS += $(RTAPI_PCI_SRCS)
 
-HALLIB := ../lib/liblinuxcnchal.so
+RTAPI_PCI_LIB := ../lib/librtapi_pci.so
 
-$(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
+$(RTAPI_PCI_LIB).0: $(call TOOBJS, $(RTAPI_PCI_SRCS))
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(HALLIB_LIBS) $(ULAPI_LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ $(LIBUDEV_LIBS)
 
-HALMODULESRCS := hal/halmodule.cc
-PYSRCS += $(HALMODULESRCS)
+TARGETS += $(RTAPI_PCI_LIB) ../lib/librtapi_pci.so.0
 
-HALMODULE := ../lib/python/_hal.so
-$(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
-	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+# Standalone parport library (x86_64 only, no hal/rtapi dependency)
+ifeq ($(X86ARCH),true)
+RTAPI_PARPORT_SRCS := rtapi/parport/rtapi_parport.c
+$(call TOOBJSDEPS, $(RTAPI_PARPORT_SRCS)): EXTRAFLAGS += -fPIC
+USERSRCS += $(RTAPI_PARPORT_SRCS)
 
-TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
-PYTARGETS += $(HALMODULE)
+RTAPI_PARPORT_LIB := ../lib/librtapi_parport.so
+
+$(RTAPI_PARPORT_LIB).0: $(call TOOBJS, $(RTAPI_PARPORT_SRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+
+TARGETS += $(RTAPI_PARPORT_LIB) ../lib/librtapi_parport.so.0
+endif
+
+# Standalone core RT library (memory + timing, no hal dependency)
+RTAPI_CORE_SRCS := rtapi/core/rtapi_core.c
+$(call TOOBJSDEPS, $(RTAPI_CORE_SRCS)): EXTRAFLAGS += -fPIC
+USERSRCS += $(RTAPI_CORE_SRCS)
+
+RTAPI_CORE_LIB := ../lib/librtapi_core.so
+
+$(RTAPI_CORE_LIB).0: $(call TOOBJS, $(RTAPI_CORE_SRCS))
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lrt
+
+TARGETS += $(RTAPI_CORE_LIB) ../lib/librtapi_core.so.0

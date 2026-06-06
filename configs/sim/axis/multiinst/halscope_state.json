@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "config": {
+    "threadName": "",
+    "maxChannels": 1,
+    "samplePeriodMult": 1,
+    "continuous": false
+  },
+  "channels": [],
+  "trigger": {
+    "channel": -1,
+    "level": 0,
+    "edge": 0,
+    "autoTrig": false
+  }
+}

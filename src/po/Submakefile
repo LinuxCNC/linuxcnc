@@ -35,13 +35,11 @@ TARGETS += $(patsubst po/gmoccapy/%.po, \
 	$(wildcard po/gmoccapy/*.po))
 
 TCLSRCS := \
-	../tcl/bin/emccalib.tcl \
 	../tcl/bin/emcdebug.tcl \
 	../tcl/bin/emctesting.tcl \
 	../tcl/bin/emctuning.tcl \
 	../tcl/bin/genedit.tcl \
 	../tcl/bin/halconfig.tcl \
-	../tcl/bin/halshow.tcl \
 	../tcl/bin/pickconfig.tcl \
 	../tcl/bin/tkbackplot.tcl \
 	../tcl/show_errors.tcl \

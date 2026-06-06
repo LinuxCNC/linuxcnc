@@ -3,3 +3,267 @@ $(patsubst ./hal/drivers/mesa-hostmot2/%,../include/%,$(wildcard ./hal/drivers/m
 	cp $^ $@
 $(patsubst ./hal/drivers/mesa-hostmot2/%,../include/%,$(wildcard ./hal/drivers/mesa-hostmot2/*.hh)): ../include/%.hh: ./hal/drivers/mesa-hostmot2/%.hh
 	cp $^ $@
+
+# ---------------------------------------------------------------------------
+# cmod builds: hostmot2.so + transport drivers
+# ---------------------------------------------------------------------------
+# The hostmot2 core and each transport driver are separate cmod .so files.
+# The core provides hm2_serial API and consumes hm2_llio API.
+# Transport drivers provide hm2_llio API.
+# ---------------------------------------------------------------------------
+
+
+HM2_DIR := hal/drivers/mesa-hostmot2
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# hostmot2.so — core module
+# ═══════════════════════════════════════════════════════════════════════════════
+
+HM2_CORE_SRCS := \
+    $(HM2_DIR)/hostmot2.c \
+    $(HM2_DIR)/abs_encoder.c \
+    $(HM2_DIR)/bitfile.c \
+    $(HM2_DIR)/bspi.c \
+    $(HM2_DIR)/dpll.c \
+    $(HM2_DIR)/encoder.c \
+    $(HM2_DIR)/hm2_serial_provider.c \
+    $(HM2_DIR)/inm.c \
+    $(HM2_DIR)/inmux.c \
+    $(HM2_DIR)/ioport.c \
+    $(HM2_DIR)/led.c \
+    $(HM2_DIR)/oneshot.c \
+    $(HM2_DIR)/outm.c \
+    $(HM2_DIR)/pins.c \
+    $(HM2_DIR)/pktuart.c \
+    $(HM2_DIR)/pwmgen.c \
+    $(HM2_DIR)/raw.c \
+    $(HM2_DIR)/rcpwmgen.c \
+    $(HM2_DIR)/resolver.c \
+    $(HM2_DIR)/sserial.c \
+    $(HM2_DIR)/ssr.c \
+    $(HM2_DIR)/stepgen.c \
+    $(HM2_DIR)/tp_pwmgen.c \
+    $(HM2_DIR)/tram.c \
+    $(HM2_DIR)/uart.c \
+    $(HM2_DIR)/watchdog.c \
+    $(HM2_DIR)/xy2mod.c
+
+HM2_CMOD_CFLAGS := \
+    -fPIC -Os -Wall -Wextra \
+    -DUSPACE -D_GNU_SOURCE -Drealtime \
+    -fno-strict-aliasing -fwrapv \
+    -Irtapi/pci \
+    -Irtapi/parport \
+    -I. -I../include \
+    -I$(HM2_DIR) \
+    -Igomc/pkg/cmodule \
+    -Igomc/generated/gmi/hm2_llio \
+    -Igomc/generated/gmi/hm2_serial
+
+HM2_CMOD_LDFLAGS = $(CMOD_LDFLAGS) -lrtapi_core -lm
+HM2_CMOD_LDFLAGS_PCI = $(HM2_CMOD_LDFLAGS) -lrtapi_pci
+HM2_CMOD_LDFLAGS_PARPORT = $(HM2_CMOD_LDFLAGS) -lrtapi_parport
+
+../cmod/hostmot2.so: $(HM2_CORE_SRCS) \
+                     $(wildcard $(HM2_DIR)/*.h) \
+                     $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                     gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                     gomc/generated/gmi/hm2_serial/hm2_serial_api.h \
+                     | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod hostmot2.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_CORE_SRCS) \
+	    $(HM2_CMOD_LDFLAGS_PCI)
+
+TARGETS += ../cmod/hostmot2.so
+modules: ../cmod/hostmot2.so
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# hm2_eth.so — Ethernet transport driver
+# ═══════════════════════════════════════════════════════════════════════════════
+
+../cmod/hm2_eth.so: $(HM2_DIR)/hm2_eth.c \
+                    $(wildcard $(HM2_DIR)/*.h) \
+                    $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                    gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                    | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod hm2_eth.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_DIR)/hm2_eth.c \
+	    $(HM2_CMOD_LDFLAGS)
+
+TARGETS += ../cmod/hm2_eth.so
+modules: ../cmod/hm2_eth.so
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# hm2_pci.so — PCI transport driver
+# ═══════════════════════════════════════════════════════════════════════════════
+
+../cmod/hm2_pci.so: $(HM2_DIR)/hm2_pci.c $(HM2_DIR)/bitfile.c \
+                    $(wildcard $(HM2_DIR)/*.h) \
+                    $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                    gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                    | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod hm2_pci.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_DIR)/hm2_pci.c $(HM2_DIR)/bitfile.c \
+	    $(HM2_CMOD_LDFLAGS_PCI)
+
+TARGETS += ../cmod/hm2_pci.so
+modules: ../cmod/hm2_pci.so
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# hm2_7i43.so / hm2_7i90.so — EPP parport transport drivers (x86 only)
+# ═══════════════════════════════════════════════════════════════════════════════
+ifeq ($(X86ARCH),true)
+
+../cmod/hm2_7i43.so: $(HM2_DIR)/hm2_7i43.c $(HM2_DIR)/bitfile.c \
+                     $(wildcard $(HM2_DIR)/*.h) \
+                     $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                     gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                     | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod hm2_7i43.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_DIR)/hm2_7i43.c $(HM2_DIR)/bitfile.c \
+	    $(HM2_CMOD_LDFLAGS_PARPORT)
+
+TARGETS += ../cmod/hm2_7i43.so
+modules: ../cmod/hm2_7i43.so
+
+../cmod/hm2_7i90.so: $(HM2_DIR)/hm2_7i90.c $(HM2_DIR)/bitfile.c \
+                     $(wildcard $(HM2_DIR)/*.h) \
+                     $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                     gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                     | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod hm2_7i90.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_DIR)/hm2_7i90.c $(HM2_DIR)/bitfile.c \
+	    $(HM2_CMOD_LDFLAGS_PARPORT)
+
+TARGETS += ../cmod/hm2_7i90.so
+modules: ../cmod/hm2_7i90.so
+
+endif # X86ARCH
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# hm2_spi.so — SPI transport driver
+# ═══════════════════════════════════════════════════════════════════════════════
+
+../cmod/hm2_spi.so: $(HM2_DIR)/hm2_spi.c \
+                    $(wildcard $(HM2_DIR)/*.h) \
+                    $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                    gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                    | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod hm2_spi.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_DIR)/hm2_spi.c \
+	    $(HM2_CMOD_LDFLAGS)
+
+TARGETS += ../cmod/hm2_spi.so
+modules: ../cmod/hm2_spi.so
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# hm2_rpspi.so — Raspberry Pi SPI transport driver
+# ═══════════════════════════════════════════════════════════════════════════════
+
+../cmod/hm2_rpspi.so: $(HM2_DIR)/hm2_rpspi.c \
+                      $(wildcard $(HM2_DIR)/*.h) \
+                      $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                      gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                      | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod hm2_rpspi.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_DIR)/hm2_rpspi.c \
+	    $(HM2_CMOD_LDFLAGS)
+
+TARGETS += ../cmod/hm2_rpspi.so
+modules: ../cmod/hm2_rpspi.so
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# hm2_spix.so — Universal SPI transport driver (rpi3/5 + spidev)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+HM2_SPIX_SRCS := \
+    $(HM2_DIR)/hm2_spix.c \
+    $(HM2_DIR)/spix_rpi5.c \
+    $(HM2_DIR)/spix_rpi3.c \
+    $(HM2_DIR)/spix_spidev.c \
+    $(HM2_DIR)/llio_info.c \
+    $(HM2_DIR)/eshellf.c
+
+../cmod/hm2_spix.so: $(HM2_SPIX_SRCS) \
+                     $(wildcard $(HM2_DIR)/*.h) \
+                     $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                     gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                     | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod hm2_spix.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_SPIX_SRCS) \
+	    $(HM2_CMOD_LDFLAGS)
+
+TARGETS += ../cmod/hm2_spix.so
+modules: ../cmod/hm2_spix.so
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# hm2_modbus.so — Modbus over PktUART
+# ═══════════════════════════════════════════════════════════════════════════════
+
+../cmod/hm2_modbus.so: $(HM2_DIR)/hm2_modbus.c \
+                       $(wildcard $(HM2_DIR)/*.h) \
+                       $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                       gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                       gomc/generated/gmi/hm2_serial/hm2_serial_api.h \
+                       | headers ../lib/librtapi_core.so ../cmod/hostmot2.so
+	$(ECHO) "Compiling cmod hm2_modbus.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_DIR)/hm2_modbus.c \
+	    ../cmod/hostmot2.so $(HM2_CMOD_LDFLAGS)
+
+TARGETS += ../cmod/hm2_modbus.so
+modules: ../cmod/hm2_modbus.so
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# setsserial.so — Smart-serial configuration utility
+# ═══════════════════════════════════════════════════════════════════════════════
+
+../cmod/setsserial.so: $(HM2_DIR)/setsserial.c \
+                      $(wildcard $(HM2_DIR)/*.h) \
+                      $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                      gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                      | headers ../lib/librtapi_core.so ../cmod/hostmot2.so
+	$(ECHO) "Compiling cmod setsserial.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_DIR)/setsserial.c \
+	    ../cmod/hostmot2.so $(HM2_CMOD_LDFLAGS_PCI)
+
+TARGETS += ../cmod/setsserial.so
+modules: ../cmod/setsserial.so
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# hm2_test.so — Test/simulation transport
+# ═══════════════════════════════════════════════════════════════════════════════
+
+../cmod/hm2_test.so: $(HM2_DIR)/hm2_test.c $(HM2_DIR)/bitfile.c \
+                    $(wildcard $(HM2_DIR)/*.h) \
+                    $(wildcard gomc/pkg/cmodule/gomc_*.h) \
+                    gomc/generated/gmi/hm2_llio/hm2_llio_api.h \
+                    | headers ../lib/librtapi_core.so
+	$(ECHO) "Compiling cmod hm2_test.so"
+	@mkdir -p $(dir $@)
+	$(Q)$(CC) -shared $(HM2_CMOD_CFLAGS) \
+	    -o $@ $(HM2_DIR)/hm2_test.c $(HM2_DIR)/bitfile.c \
+	    $(HM2_CMOD_LDFLAGS)
+
+TARGETS += ../cmod/hm2_test.so
+modules: ../cmod/hm2_test.so
+
