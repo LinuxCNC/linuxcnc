@@ -182,7 +182,8 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
 
 int blendGeom3Init(BlendGeom3 * const geom,
         TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc);
+        TC_STRUCT const * const tc,
+        const void *log, const char *log_comp);
 
 int blendParamKinematics(BlendGeom3 * const geom,
         BlendParameters * const param,
@@ -197,28 +198,32 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
         TC_STRUCT const * const tc,
         PmCartesian const * const acc_bound,
         PmCartesian const * const vel_bound,
-        double maxFeedScale);
+        double maxFeedScale,
+        const void *log, const char *log_comp);
 
 int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
         PmCartesian const * const acc_bound,
         PmCartesian const * const vel_bound,
-        double maxFeedScale);
+        double maxFeedScale,
+        const void *log, const char *log_comp);
 
 int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
         PmCartesian const * const acc_bound,
         PmCartesian const * const vel_bound,
-        double maxFeedScale);
+        double maxFeedScale,
+        const void *log, const char *log_comp);
 
 int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
         PmCartesian const * const acc_bound,
         PmCartesian const * const vel_bound,
-        double maxFeedScale);
+        double maxFeedScale,
+        const void *log, const char *log_comp);
 
 int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * const points_in,
         BlendParameters * const param, BlendGeom3 const * const geom,
@@ -252,11 +257,13 @@ PmCircleLimits pmCircleActualMaxVel(const PmCircle *circle,
         double a_max_nominal);
 
 int findSpiralArcLengthFit(PmCircle const * const circle,
-        SpiralArcLengthFit * const fit);
+        SpiralArcLengthFit * const fit,
+        const void *log, const char *log_comp);
 int pmCircleAngleFromProgress(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
         double progress,
-        double * const angle);
+        double * const angle,
+        const void *log, const char *log_comp);
 double pmCircleEffectiveMinRadius(const PmCircle *circle);
 
 static inline double findVPeak(double a_t_max, double distance)

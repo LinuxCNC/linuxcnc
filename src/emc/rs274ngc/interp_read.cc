@@ -29,7 +29,6 @@
 #include "rs274ngc_interp.hh"
 #include "rtapi_math.h"
 #include <cmath>
-#include <rtapi_string.h>	// rtapi_strlcpy()
 
 using namespace interp_param_global;
 
@@ -1597,8 +1596,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  // context
           if (strlen(_setup.sub_context[_setup.call_level].subName) >= sizeof(oNameBuf))
               ERS(NCE_UNABLE_TO_OPEN_FILE, _setup.sub_context[_setup.call_level].subName);
-	  rtapi_strlcpy(oNameBuf, _setup.sub_context[_setup.call_level].subName,
-                  sizeof(oNameBuf));
+	  snprintf(oNameBuf, sizeof(oNameBuf), "%s", _setup.sub_context[_setup.call_level].subName);
       } else
 	  // any other m-code should have been handled by read_m()
 	  OERR(_("%d: Bug:  Non-m98/m99 M-code passed to read_o(): '%s'"),
@@ -3154,22 +3152,22 @@ int Interp::read_text(
          index--) { // remove space at end of raw_line, especially CR & LF
       raw_line[index] = 0;
     }
-    rtapi_strlcpy(line, raw_line, LINELEN);
+    snprintf(line, LINELEN, "%s", raw_line);
     CHP(close_and_downcase(line));
     if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag)) {
-        FINISH();
+        _setup.canon.finish();
         return INTERP_ENDFILE;
     }
   } else {
     CHKS((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
-    rtapi_strlcpy(raw_line, command, LINELEN);
-    rtapi_strlcpy(line, command, LINELEN);
+    snprintf(raw_line, LINELEN, "%s", command);
+    snprintf(line, LINELEN, "%s", command);
     CHP(close_and_downcase(line));
   }
 
   _setup.parameter_occurrence = 0;      /* initialize parameter buffer */
 
-  if ((line[0] == 0) || ((line[0] == '/') && (GET_BLOCK_DELETE())))
+  if ((line[0] == 0) || ((line[0] == '/') && (_setup.canon.get_block_delete())))
     *length = 0;
   else
     *length = strlen(line);

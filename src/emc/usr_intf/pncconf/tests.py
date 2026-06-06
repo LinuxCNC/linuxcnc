@@ -48,7 +48,7 @@ class TESTS:
         halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null "% {'panelname':panelname,}, "w" )
         if debug:
             halrun.write("echo\n")
-        halrun.write("loadrt threads period1=100000 name1=base-thread fp1=0 period2=%d name2=servo-thread\n"% self.d.servoperiod)
+        halrun.write("newthread base-thread 100000 nofp\nnewthread servo-thread %d\n"% self.d.servoperiod)
         load,read,write = self.a.pport_command_string()
         for i in load:
             halrun.write('%s\n'%i)
@@ -410,7 +410,8 @@ But there is not one in the machine-named folder.."""),True)
         if debug:
             halrun.write("echo\n")
         halrun.write("""
-              loadrt threads period1=%(period)d name1=base-thread fp1=0 period2=%(period2)d name2=servo-thread
+              newthread base-thread %(period)d nofp
+              newthread servo-thread %(period2)d
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d\
                numS32out=%(sout)d numFloatIn=%(fin)d numFloatOut=%(fout)d numBits=%(bmem)d numWords=%(wmem)d
                addf classicladder.0.refresh servo-thread
@@ -572,9 +573,8 @@ But there is not one in the machine-named folder.."""),True)
         self.halrun = halrun = os.popen("halrun -Is > /dev/null", "w")
         if debug:
             halrun.write("echo\n")
-        halrun.write("  loadrt threads fp1=1 period1=%d name1=servo-thread\n"%
+        halrun.write("  newthread servo-thread %d\n"%
                     (self.d.servoperiod ))
-        halrun.write("  loadusr halscope\n")
         halrun.write("  loadrt scale names=scale_to_rpm\n")
         halrun.write("  loadrt axistest\n")
         halrun.write("  loadrt simple_tp  \n")
@@ -950,11 +950,10 @@ But there is not one in the machine-named folder.."""),True)
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.a.findsignal("charge-pump")
         print('fast %d,max %d, ss max %d, dac_scale %d'%(fastdac,max_dac,pwmmaxoutput,dac_scale))
-        halrun.write("loadrt threads period1=%d name1=base-thread fp1=0 period2=%d name2=servo-thread \n" % (100000, self.d.servoperiod  ))
+        halrun.write("newthread base-thread %d nofp\nnewthread servo-thread %d\n" % (100000, self.d.servoperiod  ))
         load,read,write = self.a.hostmot2_command_string()
         for i in load:
             halrun.write('%s\n'%i)
-        halrun.write("loadusr halscope\n")
         for i in read:
             halrun.write('%s\n'%i)
         if pump:
@@ -1216,7 +1215,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.halrun = os.popen("halrun -Is > /dev/null", "w")
         if debug:
             halrun.write("echo\n")
-        self.halrun.write("loadrt threads period1=50000 name1=base-thread fp1=0 period2=1000000 name2=servo-thread\n")
+        self.halrun.write("newthread base-thread 50000 nofp\nnewthread servo-thread 1000000\n")
         load,read,write= self.a.hostmot2_command_string()
         for i in load:
             halrun.write('%s\n'%i)

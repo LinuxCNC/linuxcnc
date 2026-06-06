@@ -409,15 +409,15 @@ int Interp::precedence(int an_operator)
 
 int Interp::refresh_actual_position(setup_pointer settings)
 {
-  settings->current_x = GET_EXTERNAL_POSITION_X();
-  settings->current_y = GET_EXTERNAL_POSITION_Y();
-  settings->current_z = GET_EXTERNAL_POSITION_Z();
-  settings->AA_current = GET_EXTERNAL_POSITION_A();
-  settings->BB_current = GET_EXTERNAL_POSITION_B();
-  settings->CC_current = GET_EXTERNAL_POSITION_C();
-  settings->u_current = GET_EXTERNAL_POSITION_U();
-  settings->v_current = GET_EXTERNAL_POSITION_V();
-  settings->w_current = GET_EXTERNAL_POSITION_W();
+  settings->current_x = _setup.canon.get_external_position_x();
+  settings->current_y = _setup.canon.get_external_position_y();
+  settings->current_z = _setup.canon.get_external_position_z();
+  settings->AA_current = _setup.canon.get_external_position_a();
+  settings->BB_current = _setup.canon.get_external_position_b();
+  settings->CC_current = _setup.canon.get_external_position_c();
+  settings->u_current = _setup.canon.get_external_position_u();
+  settings->v_current = _setup.canon.get_external_position_v();
+  settings->w_current = _setup.canon.get_external_position_w();
 
   return INTERP_OK;
 }
@@ -442,37 +442,37 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
 {
   double a, b, c;
   refresh_actual_position(settings);
-  settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
-  settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
-  settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
+  settings->parameters[5061] = _setup.canon.get_external_probe_position_x();
+  settings->parameters[5062] = _setup.canon.get_external_probe_position_y();
+  settings->parameters[5063] = _setup.canon.get_external_probe_position_z();
 
-  a = GET_EXTERNAL_PROBE_POSITION_A();
+  a = _setup.canon.get_external_probe_position_a();
   if(settings->a_axis_wrapped) {
       a = fmod(a, 360.0);
       if(a<0) a += 360.0;
   }
   settings->parameters[5064] = a;
 
-  b = GET_EXTERNAL_PROBE_POSITION_B();
+  b = _setup.canon.get_external_probe_position_b();
   if(settings->b_axis_wrapped) {
       b = fmod(b, 360.0);
       if(b<0) b += 360.0;
   }
   settings->parameters[5065] = b;
 
-  c = GET_EXTERNAL_PROBE_POSITION_C();
+  c = _setup.canon.get_external_probe_position_c();
   if(settings->c_axis_wrapped) {
       c = fmod(c, 360.0);
       if(c<0) c += 360.0;
   }
   settings->parameters[5066] = c;
 
-  settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
-  settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
-  settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
-  settings->parameters[5070] = (double) GET_EXTERNAL_PROBE_TRIPPED_VALUE();
+  settings->parameters[5067] = _setup.canon.get_external_probe_position_u();
+  settings->parameters[5068] = _setup.canon.get_external_probe_position_v();
+  settings->parameters[5069] = _setup.canon.get_external_probe_position_w();
+  settings->parameters[5070] = (double) _setup.canon.get_external_probe_tripped_value();
 
-  // was an undocumented feature?: settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
+  // was an undocumented feature?: settings->parameters[5067] = _setup.canon.get_external_probe_value();
   return INTERP_OK;
 }
 

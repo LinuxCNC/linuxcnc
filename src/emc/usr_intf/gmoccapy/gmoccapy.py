@@ -3920,7 +3920,7 @@ class gmoccapy(object):
         p = os.popen("tclsh {0}/bin/halshow.tcl &".format(TCLPATH))
 
     def on_btn_calibration_clicked(self, widget, data=None):
-        p = os.popen("tclsh {0}/bin/emccalib.tcl -- -ini {1} > /dev/null &".format(TCLPATH, sys.argv[2]), "w")
+        p = os.popen("emccalib &")
 
     def on_btn_hal_meter_clicked(self, widget, data=None):
         p = os.popen("halmeter &")

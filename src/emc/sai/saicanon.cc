@@ -32,7 +32,14 @@
 ********************************************************************/
 
 #include <saicanon.hh>
-#include "tooldata.hh"
+#include "emctool.h"
+
+/* SAI tool table API (sai_tooltable.cc) */
+extern "C" {
+enum toolidx_t { IDX_OK = 0, IDX_NEW, IDX_FAIL };
+toolidx_t tooldata_get(CANON_TOOL_TABLE *pdata, int idx);
+toolidx_t tooldata_put(CANON_TOOL_TABLE tdata, int idx);
+}
 
 #include "rs274ngc.hh"
 #include "rs274ngc_interp.hh"
@@ -41,7 +48,11 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <rtapi_string.h>
+#include <cstdio>
+
+#define CANON_API_CGO
+#include "gomc/generated/gmi/canon/canon_api.h"
+#undef CANON_API_CGO
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
@@ -455,9 +466,6 @@ void DWELL(double seconds)
 }
 
 /* Spindle Functions */
-void SPINDLE_RETRACT_TRAVERSE()
-{PRINT("SPINDLE_RETRACT_TRAVERSE()\n");}
-
 void SET_SPINDLE_MODE(int spindle, double arg) {
   PRINT("SET_SPINDLE_MODE(%d %.4f)\n", spindle, arg);
 }
@@ -488,9 +496,6 @@ void STOP_SPINDLE_TURNING(int spindle)
   _sai._spindle_turning[spindle] = CANON_STOPPED;
 }
 
-void SPINDLE_RETRACT()
-{PRINT("SPINDLE_RETRACT()\n");}
-
 void ORIENT_SPINDLE(int spindle, double orientation, int mode)
 {PRINT("ORIENT_SPINDLE(%d, %.4f, %d)\n", spindle, orientation, mode);
 }
@@ -499,9 +504,6 @@ void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout)
 {
   PRINT("SPINDLE.%i.WAIT_ORIENT_COMPLETE(%.4f)\n", spindle, timeout);
 }
-
-void USE_NO_SPINDLE_FORCE()
-{PRINT("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
 void SET_TOOL_TABLE_ENTRY(int idx, int toolno, EmcPose offset, double diameter,
@@ -965,17 +967,11 @@ double GET_EXTERNAL_TRAVERSE_RATE()
   return _sai._traverse_rate;
 }
 
-USER_DEFINED_FUNCTION_TYPE USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM] = {0};
 
-int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
+
+double GET_USER_DEFINED_RESULT()
 {
-  if (num < 0 || num >= USER_DEFINED_FUNCTION_NUM) {
-    return -1;
-  }
-
-  USER_DEFINED_FUNCTION[num] = func;
-
-  return 0;
+  return 0.0;
 }
 
 void SET_MOTION_OUTPUT_BIT(int index)
@@ -1123,15 +1119,6 @@ void CANON_ERROR(const char *fmt, ...)
 	}
     }
 }
-void PLUGIN_CALL(int len, const char *call)
-{
-    printf("PLUGIN_CALL(%d)\n",len);
-}
-
-void IO_PLUGIN_CALL(int len, const char *call)
-{
-    printf("IO_PLUGIN_CALL(%d)\n",len);
-}
 void reset_internals()
 {
   _sai = StandaloneInterpInternals();
@@ -1192,4 +1179,346 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
 }
 void UPDATE_TAG(StateTag tag){
     //Do nothing
+}
+
+// ---- SAI canon callback table ----
+// Wraps the local SAI canon functions into the generated callback struct.
+
+static void sc_init_canon(void *) { INIT_CANON(); }
+static void sc_set_g5x_offset(void *ctx, int32_t origin, double x, double y, double z, double a, double b, double c, double u, double v, double w) { SET_G5X_OFFSET(origin, x, y, z, a, b, c, u, v, w); }
+static void sc_set_g92_offset(void *ctx, double x, double y, double z, double a, double b, double c, double u, double v, double w) { SET_G92_OFFSET(x, y, z, a, b, c, u, v, w); }
+static void sc_set_xy_rotation(void *ctx, double t) { SET_XY_ROTATION(t); }
+static void sc_update_end_point(void *ctx, double x, double y, double z, double a, double b, double c, double u, double v, double w) {
+    _sai._program_position_x = x;
+    _sai._program_position_y = y;
+    _sai._program_position_z = z;
+    _sai._program_position_a = a;
+    _sai._program_position_b = b;
+    _sai._program_position_c = c;
+}
+static void sc_use_length_units(void *ctx, int32_t u) { USE_LENGTH_UNITS((CANON_UNITS)u); }
+static void sc_select_plane(void *ctx, int32_t pl) { SELECT_PLANE((CANON_PLANE)pl); }
+static void sc_set_traverse_rate(void *ctx, double rate) { SET_TRAVERSE_RATE(rate); }
+static void sc_straight_traverse(void *ctx, int32_t ln, double x, double y, double z, double a, double b, double c, double u, double v, double w) { STRAIGHT_TRAVERSE(ln, x, y, z, a, b, c, u, v, w); }
+static void sc_set_feed_rate(void *ctx, double rate) { SET_FEED_RATE(rate); }
+static void sc_set_feed_reference(void *ctx, int32_t ref) { SET_FEED_REFERENCE((CANON_FEED_REFERENCE)ref); }
+static void sc_set_feed_mode(void *ctx, int32_t spindle, int32_t mode) { SET_FEED_MODE(spindle, mode); }
+static void sc_set_motion_control_mode(void *ctx, int32_t mode, double tol) { SET_MOTION_CONTROL_MODE((CANON_MOTION_MODE)mode, tol); }
+static void sc_set_naivecam_tolerance(void *ctx, double tol) { SET_NAIVECAM_TOLERANCE(tol); }
+static void sc_set_cutter_radius_compensation(void *ctx, double r) { SET_CUTTER_RADIUS_COMPENSATION(r); }
+static void sc_start_cutter_radius_compensation(void *ctx, int32_t d) { START_CUTTER_RADIUS_COMPENSATION(d); }
+static void sc_stop_cutter_radius_compensation(void *ctx) { STOP_CUTTER_RADIUS_COMPENSATION(); }
+static void sc_start_speed_feed_synch(void *ctx, int32_t spindle, double sync, int32_t vel) { START_SPEED_FEED_SYNCH(spindle, sync, vel); }
+static void sc_stop_speed_feed_synch(void *ctx) { STOP_SPEED_FEED_SYNCH(); }
+static void sc_arc_feed(void *ctx, int32_t ln, double first_end, double second_end, double first_axis, double second_axis, int32_t rotation, double axis_end_point, double a, double b, double c, double u, double v, double w) { ARC_FEED(ln, first_end, second_end, first_axis, second_axis, rotation, axis_end_point, a, b, c, u, v, w); }
+static void sc_straight_feed(void *ctx, int32_t ln, double x, double y, double z, double a, double b, double c, double u, double v, double w) { STRAIGHT_FEED(ln, x, y, z, a, b, c, u, v, w); }
+static void sc_nurbs_feed(void *ctx, int32_t ln, const canon_control_point_t *pts, size_t npts, uint32_t k) {
+    std::vector<CONTROL_POINT> cpts(npts);
+    for (size_t i = 0; i < npts; i++) { cpts[i].X = pts[i].x; cpts[i].Y = pts[i].y; cpts[i].W = pts[i].w; }
+    NURBS_FEED(ln, cpts, k);
+}
+static void sc_rigid_tap(void *ctx, int32_t ln, double x, double y, double z, double scale) { RIGID_TAP(ln, x, y, z, scale); }
+static void sc_straight_probe(void *ctx, int32_t ln, double x, double y, double z, double a, double b, double c, double u, double v, double w, uint8_t pt) { STRAIGHT_PROBE(ln, x, y, z, a, b, c, u, v, w, pt); }
+static void sc_stop(void *ctx) {}
+static void sc_dwell(void *ctx, double s) { DWELL(s); }
+static void sc_finish(void *ctx) { FINISH(); }
+static void sc_set_spindle_mode(void *ctx, int32_t spindle, double m) { SET_SPINDLE_MODE(spindle, m); }
+static void sc_start_spindle_clockwise(void *ctx, int32_t spindle, int32_t wait) { START_SPINDLE_CLOCKWISE(spindle, wait); }
+static void sc_start_spindle_counterclockwise(void *ctx, int32_t spindle, int32_t wait) { START_SPINDLE_COUNTERCLOCKWISE(spindle, wait); }
+static void sc_set_spindle_speed(void *ctx, int32_t spindle, double rpm) { SET_SPINDLE_SPEED(spindle, rpm); }
+static void sc_stop_spindle_turning(void *ctx, int32_t spindle) { STOP_SPINDLE_TURNING(spindle); }
+static void sc_orient_spindle(void *ctx, int32_t spindle, double d, int32_t i) { ORIENT_SPINDLE(spindle, d, i); }
+static void sc_wait_spindle_orient_complete(void *ctx, int32_t s, double t) { WAIT_SPINDLE_ORIENT_COMPLETE(s, t); }
+static void sc_select_tool(void *ctx, int32_t t) { SELECT_TOOL(t); }
+static void sc_start_change(void *ctx) { START_CHANGE(); }
+static void sc_change_tool(void *ctx, int32_t p) { CHANGE_TOOL(p); }
+static void sc_change_tool_number(void *ctx, int32_t p) { CHANGE_TOOL_NUMBER(p); }
+static void sc_reload_tooldata(void *ctx) { RELOAD_TOOLDATA(); }
+static void sc_set_tool_table_entry(void *ctx, int32_t pocket, int32_t toolno, double ox, double oy, double oz, double oa, double ob, double oc, double ou, double ov, double ow, double diameter, double frontangle, double backangle, int32_t orient) {
+    EmcPose offset;
+    offset.tran.x = ox; offset.tran.y = oy; offset.tran.z = oz;
+    offset.a = oa; offset.b = ob; offset.c = oc;
+    offset.u = ou; offset.v = ov; offset.w = ow;
+    SET_TOOL_TABLE_ENTRY(pocket, toolno, offset, diameter, frontangle, backangle, orient);
+}
+static void sc_use_tool_length_offset(void *ctx, double ox, double oy, double oz, double oa, double ob, double oc, double ou, double ov, double ow) {
+    EmcPose offset;
+    offset.tran.x = ox; offset.tran.y = oy; offset.tran.z = oz;
+    offset.a = oa; offset.b = ob; offset.c = oc;
+    offset.u = ou; offset.v = ov; offset.w = ow;
+    USE_TOOL_LENGTH_OFFSET(offset);
+}
+static void sc_flood_on(void *ctx) { FLOOD_ON(); }
+static void sc_flood_off(void *ctx) { FLOOD_OFF(); }
+static void sc_mist_on(void *ctx) { MIST_ON(); }
+static void sc_mist_off(void *ctx) { MIST_OFF(); }
+static void sc_enable_feed_override(void *ctx) { ENABLE_FEED_OVERRIDE(); }
+static void sc_disable_feed_override(void *ctx) { DISABLE_FEED_OVERRIDE(); }
+static void sc_enable_speed_override(void *ctx, int32_t s) { ENABLE_SPEED_OVERRIDE(s); }
+static void sc_disable_speed_override(void *ctx, int32_t s) { DISABLE_SPEED_OVERRIDE(s); }
+static void sc_enable_feed_hold(void *ctx) { ENABLE_FEED_HOLD(); }
+static void sc_disable_feed_hold(void *ctx) { DISABLE_FEED_HOLD(); }
+static void sc_enable_adaptive_feed(void *ctx) { ENABLE_ADAPTIVE_FEED(); }
+static void sc_disable_adaptive_feed(void *ctx) { DISABLE_ADAPTIVE_FEED(); }
+static void sc_set_motion_output_bit(void *ctx, int32_t b) { SET_MOTION_OUTPUT_BIT(b); }
+static void sc_clear_motion_output_bit(void *ctx, int32_t b) { CLEAR_MOTION_OUTPUT_BIT(b); }
+static void sc_set_aux_output_bit(void *ctx, int32_t b) { SET_AUX_OUTPUT_BIT(b); }
+static void sc_clear_aux_output_bit(void *ctx, int32_t b) { CLEAR_AUX_OUTPUT_BIT(b); }
+static void sc_set_motion_output_value(void *ctx, int32_t i, double v) { SET_MOTION_OUTPUT_VALUE(i, v); }
+static void sc_set_aux_output_value(void *ctx, int32_t i, double v) { SET_AUX_OUTPUT_VALUE(i, v); }
+static int32_t sc_wait_input(void *ctx, int32_t index, int32_t input_type, int32_t wait_type, double timeout) { return WAIT(index, input_type, wait_type, timeout); }
+static void sc_clamp_axis(void *ctx, int32_t a) { CLAMP_AXIS((CANON_AXIS)a); }
+static void sc_unclamp_axis(void *ctx, int32_t a) { UNCLAMP_AXIS((CANON_AXIS)a); }
+static int32_t sc_lock_rotary(void *ctx, int32_t ln, int32_t j) { return LOCK_ROTARY(ln, j); }
+static int32_t sc_unlock_rotary(void *ctx, int32_t ln, int32_t j) { return UNLOCK_ROTARY(ln, j); }
+static void sc_program_stop(void *ctx) { PROGRAM_STOP(); }
+static void sc_optional_program_stop(void *ctx) { OPTIONAL_PROGRAM_STOP(); }
+static void sc_program_end(void *ctx) { PROGRAM_END(); }
+static void sc_pallet_shuttle(void *ctx) { PALLET_SHUTTLE(); }
+static void sc_comment(void *ctx, const char *s) { COMMENT(s); }
+static void sc_message(void *ctx, const char *s) { MESSAGE((char*)s); }
+static void sc_log_msg(void *ctx, const char *s) { LOG((char*)s); }
+static void sc_logopen(void *ctx, const char *s) { LOGOPEN((char*)s); }
+static void sc_logappend(void *ctx, const char *s) { LOGAPPEND((char*)s); }
+static void sc_logclose(void *ctx) { LOGCLOSE(); }
+static void sc_canon_error(void *ctx, const char *msg) { CANON_ERROR("%s", msg); }
+static void sc_turn_probe_on(void *ctx) { TURN_PROBE_ON(); }
+static void sc_turn_probe_off(void *ctx) { TURN_PROBE_OFF(); }
+static void sc_set_block_delete(void *ctx, int32_t e) { SET_BLOCK_DELETE(e); }
+static int32_t sc_get_block_delete(void *ctx) { return GET_BLOCK_DELETE(); }
+static void sc_set_optional_program_stop(void *ctx, int32_t e) { SET_OPTIONAL_PROGRAM_STOP(e); }
+static int32_t sc_get_optional_program_stop(void *ctx) { return GET_OPTIONAL_PROGRAM_STOP(); }
+static void sc_update_tag(void *ctx, uint64_t tag) { (void)tag; }
+static void sc_set_parameter_file_name(void *ctx, const char *n) { SET_PARAMETER_FILE_NAME(n); }
+static void sc_on_reset(void *ctx) { ON_RESET(); }
+static double sc_get_user_defined_result(void *ctx) { return GET_USER_DEFINED_RESULT(); }
+static double sc_get_external_feed_rate(void *ctx) { return GET_EXTERNAL_FEED_RATE(); }
+static double sc_get_external_traverse_rate(void *ctx) { return GET_EXTERNAL_TRAVERSE_RATE(); }
+static int32_t sc_get_external_length_unit_type(void *ctx) { return (int32_t)GET_EXTERNAL_LENGTH_UNIT_TYPE(); }
+static double sc_get_external_length_units(void *ctx) { return GET_EXTERNAL_LENGTH_UNITS(); }
+static double sc_get_external_angle_units(void *ctx) { return GET_EXTERNAL_ANGLE_UNITS(); }
+static int32_t sc_get_external_motion_control_mode(void *ctx) { return (int32_t)GET_EXTERNAL_MOTION_CONTROL_MODE(); }
+static double sc_get_external_motion_control_tolerance(void *ctx) { return GET_EXTERNAL_MOTION_CONTROL_TOLERANCE(); }
+static double sc_get_external_motion_control_naivecam_tolerance(void *ctx) { return GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE(); }
+static int32_t sc_get_external_flood(void *ctx) { return GET_EXTERNAL_FLOOD(); }
+static int32_t sc_get_external_mist(void *ctx) { return GET_EXTERNAL_MIST(); }
+static double sc_get_external_position_x(void *ctx) { return GET_EXTERNAL_POSITION_X(); }
+static double sc_get_external_position_y(void *ctx) { return GET_EXTERNAL_POSITION_Y(); }
+static double sc_get_external_position_z(void *ctx) { return GET_EXTERNAL_POSITION_Z(); }
+static double sc_get_external_position_a(void *ctx) { return GET_EXTERNAL_POSITION_A(); }
+static double sc_get_external_position_b(void *ctx) { return GET_EXTERNAL_POSITION_B(); }
+static double sc_get_external_position_c(void *ctx) { return GET_EXTERNAL_POSITION_C(); }
+static double sc_get_external_position_u(void *ctx) { return GET_EXTERNAL_POSITION_U(); }
+static double sc_get_external_position_v(void *ctx) { return GET_EXTERNAL_POSITION_V(); }
+static double sc_get_external_position_w(void *ctx) { return GET_EXTERNAL_POSITION_W(); }
+static double sc_get_external_probe_position_x(void *ctx) { return GET_EXTERNAL_PROBE_POSITION_X(); }
+static double sc_get_external_probe_position_y(void *ctx) { return GET_EXTERNAL_PROBE_POSITION_Y(); }
+static double sc_get_external_probe_position_z(void *ctx) { return GET_EXTERNAL_PROBE_POSITION_Z(); }
+static double sc_get_external_probe_position_a(void *ctx) { return GET_EXTERNAL_PROBE_POSITION_A(); }
+static double sc_get_external_probe_position_b(void *ctx) { return GET_EXTERNAL_PROBE_POSITION_B(); }
+static double sc_get_external_probe_position_c(void *ctx) { return GET_EXTERNAL_PROBE_POSITION_C(); }
+static double sc_get_external_probe_position_u(void *ctx) { return GET_EXTERNAL_PROBE_POSITION_U(); }
+static double sc_get_external_probe_position_v(void *ctx) { return GET_EXTERNAL_PROBE_POSITION_V(); }
+static double sc_get_external_probe_position_w(void *ctx) { return GET_EXTERNAL_PROBE_POSITION_W(); }
+static double sc_get_external_probe_value(void *ctx) { return GET_EXTERNAL_PROBE_VALUE(); }
+static int32_t sc_get_external_probe_tripped_value(void *ctx) { return GET_EXTERNAL_PROBE_TRIPPED_VALUE(); }
+static double sc_get_external_speed(void *ctx, int32_t s) { return GET_EXTERNAL_SPEED(s); }
+static int32_t sc_get_external_spindle(void *ctx, int32_t s) { return (int32_t)GET_EXTERNAL_SPINDLE(s); }
+static double sc_get_external_tool_length_xoffset(void *ctx) { return GET_EXTERNAL_TOOL_LENGTH_XOFFSET(); }
+static double sc_get_external_tool_length_yoffset(void *ctx) { return GET_EXTERNAL_TOOL_LENGTH_YOFFSET(); }
+static double sc_get_external_tool_length_zoffset(void *ctx) { return GET_EXTERNAL_TOOL_LENGTH_ZOFFSET(); }
+static double sc_get_external_tool_length_aoffset(void *ctx) { return GET_EXTERNAL_TOOL_LENGTH_AOFFSET(); }
+static double sc_get_external_tool_length_boffset(void *ctx) { return GET_EXTERNAL_TOOL_LENGTH_BOFFSET(); }
+static double sc_get_external_tool_length_coffset(void *ctx) { return GET_EXTERNAL_TOOL_LENGTH_COFFSET(); }
+static double sc_get_external_tool_length_uoffset(void *ctx) { return GET_EXTERNAL_TOOL_LENGTH_UOFFSET(); }
+static double sc_get_external_tool_length_voffset(void *ctx) { return GET_EXTERNAL_TOOL_LENGTH_VOFFSET(); }
+static double sc_get_external_tool_length_woffset(void *ctx) { return GET_EXTERNAL_TOOL_LENGTH_WOFFSET(); }
+static int32_t sc_get_external_tool_slot(void *ctx) { return GET_EXTERNAL_TOOL_SLOT(); }
+static int32_t sc_get_external_selected_tool_slot(void *ctx) { return GET_EXTERNAL_SELECTED_TOOL_SLOT(); }
+static int32_t sc_get_external_tool_table(void *ctx, int32_t pocket, int32_t *toolno, double offset[9], double *diameter, double *frontangle, double *backangle, int32_t *orientation) {
+    CANON_TOOL_TABLE t = GET_EXTERNAL_TOOL_TABLE(pocket);
+    *toolno = t.toolno;
+    offset[0] = t.offset.tran.x; offset[1] = t.offset.tran.y; offset[2] = t.offset.tran.z;
+    offset[3] = t.offset.a; offset[4] = t.offset.b; offset[5] = t.offset.c;
+    offset[6] = t.offset.u; offset[7] = t.offset.v; offset[8] = t.offset.w;
+    *diameter = t.diameter; *frontangle = t.frontangle; *backangle = t.backangle;
+    *orientation = t.orientation;
+    return 0;
+}
+static int32_t sc_get_external_tc_fault(void *ctx) { return GET_EXTERNAL_TC_FAULT(); }
+static int32_t sc_get_external_tc_reason(void *ctx) { return GET_EXTERNAL_TC_REASON(); }
+static int32_t sc_get_external_queue_empty(void *ctx) { return GET_EXTERNAL_QUEUE_EMPTY(); }
+static int32_t sc_get_external_axis_mask(void *ctx) { return GET_EXTERNAL_AXIS_MASK(); }
+static int32_t sc_get_external_digital_input(void *ctx, int32_t index, int32_t def) { return GET_EXTERNAL_DIGITAL_INPUT(index, def); }
+static double sc_get_external_analog_input(void *ctx, int32_t index, double def) { return GET_EXTERNAL_ANALOG_INPUT(index, def); }
+static int32_t sc_get_external_feed_override_enable(void *ctx) { return GET_EXTERNAL_FEED_OVERRIDE_ENABLE(); }
+static int32_t sc_get_external_spindle_override_enable(void *ctx, int32_t s) { return GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(s); }
+static int32_t sc_get_external_adaptive_feed_enable(void *ctx) { return GET_EXTERNAL_ADAPTIVE_FEED_ENABLE(); }
+static int32_t sc_get_external_feed_hold_enable(void *ctx) { return GET_EXTERNAL_FEED_HOLD_ENABLE(); }
+static int32_t sc_get_external_plane(void *ctx) { return (int32_t)GET_EXTERNAL_PLANE(); }
+static void sc_get_external_parameter_file_name(void *ctx, const char **buf) {
+    static char filename[PARAMETER_FILE_NAME_LENGTH];
+    GET_EXTERNAL_PARAMETER_FILE_NAME(filename, sizeof(filename));
+    *buf = filename;
+}
+static int32_t sc_get_external_offset_applied(void *ctx) { return GET_EXTERNAL_OFFSET_APPLIED(); }
+static double sc_get_external_hal_value(void *ctx, const char *name, int32_t *found) {
+    (void)ctx; (void)name; *found = 0; return 0.0;
+}
+static void sc_get_external_offsets(void *ctx, double offsets[9]) {
+    EmcPose o = GET_EXTERNAL_OFFSETS();
+    offsets[0] = o.tran.x; offsets[1] = o.tran.y; offsets[2] = o.tran.z;
+    offsets[3] = o.a; offsets[4] = o.b; offsets[5] = o.c;
+    offsets[6] = o.u; offsets[7] = o.v; offsets[8] = o.w;
+}
+
+static const canon_callbacks_t saicanon_table = {
+    .init_canon = sc_init_canon,
+    .set_g5x_offset = sc_set_g5x_offset,
+    .set_g92_offset = sc_set_g92_offset,
+    .set_xy_rotation = sc_set_xy_rotation,
+    .update_end_point = sc_update_end_point,
+    .use_length_units = sc_use_length_units,
+    .select_plane = sc_select_plane,
+    .set_traverse_rate = sc_set_traverse_rate,
+    .straight_traverse = sc_straight_traverse,
+    .set_feed_rate = sc_set_feed_rate,
+    .set_feed_reference = sc_set_feed_reference,
+    .set_feed_mode = sc_set_feed_mode,
+    .set_motion_control_mode = sc_set_motion_control_mode,
+    .set_naivecam_tolerance = sc_set_naivecam_tolerance,
+    .set_cutter_radius_compensation = sc_set_cutter_radius_compensation,
+    .start_cutter_radius_compensation = sc_start_cutter_radius_compensation,
+    .stop_cutter_radius_compensation = sc_stop_cutter_radius_compensation,
+    .start_speed_feed_synch = sc_start_speed_feed_synch,
+    .stop_speed_feed_synch = sc_stop_speed_feed_synch,
+    .arc_feed = sc_arc_feed,
+    .straight_feed = sc_straight_feed,
+    .nurbs_feed = sc_nurbs_feed,
+    .rigid_tap = sc_rigid_tap,
+    .straight_probe = sc_straight_probe,
+    .stop = sc_stop,
+    .dwell = sc_dwell,
+    .finish = sc_finish,
+    .set_spindle_mode = sc_set_spindle_mode,
+    .start_spindle_clockwise = sc_start_spindle_clockwise,
+    .start_spindle_counterclockwise = sc_start_spindle_counterclockwise,
+    .set_spindle_speed = sc_set_spindle_speed,
+    .stop_spindle_turning = sc_stop_spindle_turning,
+    .orient_spindle = sc_orient_spindle,
+    .wait_spindle_orient_complete = sc_wait_spindle_orient_complete,
+    .select_tool = sc_select_tool,
+    .start_change = sc_start_change,
+    .change_tool = sc_change_tool,
+    .change_tool_number = sc_change_tool_number,
+    .reload_tooldata = sc_reload_tooldata,
+    .set_tool_table_entry = sc_set_tool_table_entry,
+    .use_tool_length_offset = sc_use_tool_length_offset,
+    .flood_on = sc_flood_on,
+    .flood_off = sc_flood_off,
+    .mist_on = sc_mist_on,
+    .mist_off = sc_mist_off,
+    .enable_feed_override = sc_enable_feed_override,
+    .disable_feed_override = sc_disable_feed_override,
+    .enable_speed_override = sc_enable_speed_override,
+    .disable_speed_override = sc_disable_speed_override,
+    .enable_feed_hold = sc_enable_feed_hold,
+    .disable_feed_hold = sc_disable_feed_hold,
+    .enable_adaptive_feed = sc_enable_adaptive_feed,
+    .disable_adaptive_feed = sc_disable_adaptive_feed,
+    .set_motion_output_bit = sc_set_motion_output_bit,
+    .clear_motion_output_bit = sc_clear_motion_output_bit,
+    .set_aux_output_bit = sc_set_aux_output_bit,
+    .clear_aux_output_bit = sc_clear_aux_output_bit,
+    .set_motion_output_value = sc_set_motion_output_value,
+    .set_aux_output_value = sc_set_aux_output_value,
+    .wait_input = sc_wait_input,
+    .clamp_axis = sc_clamp_axis,
+    .unclamp_axis = sc_unclamp_axis,
+    .lock_rotary = sc_lock_rotary,
+    .unlock_rotary = sc_unlock_rotary,
+    .program_stop = sc_program_stop,
+    .optional_program_stop = sc_optional_program_stop,
+    .program_end = sc_program_end,
+    .pallet_shuttle = sc_pallet_shuttle,
+    .comment = sc_comment,
+    .message = sc_message,
+    .log_msg = sc_log_msg,
+    .logopen = sc_logopen,
+    .logappend = sc_logappend,
+    .logclose = sc_logclose,
+    .canon_error = sc_canon_error,
+    .turn_probe_on = sc_turn_probe_on,
+    .turn_probe_off = sc_turn_probe_off,
+    .set_block_delete = sc_set_block_delete,
+    .get_block_delete = sc_get_block_delete,
+    .set_optional_program_stop = sc_set_optional_program_stop,
+    .get_optional_program_stop = sc_get_optional_program_stop,
+    .update_tag = sc_update_tag,
+    .set_parameter_file_name = sc_set_parameter_file_name,
+    .on_reset = sc_on_reset,
+    .get_user_defined_result = sc_get_user_defined_result,
+    .get_external_feed_rate = sc_get_external_feed_rate,
+    .get_external_traverse_rate = sc_get_external_traverse_rate,
+    .get_external_length_unit_type = sc_get_external_length_unit_type,
+    .get_external_length_units = sc_get_external_length_units,
+    .get_external_angle_units = sc_get_external_angle_units,
+    .get_external_motion_control_mode = sc_get_external_motion_control_mode,
+    .get_external_motion_control_tolerance = sc_get_external_motion_control_tolerance,
+    .get_external_motion_control_naivecam_tolerance = sc_get_external_motion_control_naivecam_tolerance,
+    .get_external_flood = sc_get_external_flood,
+    .get_external_mist = sc_get_external_mist,
+    .get_external_position_x = sc_get_external_position_x,
+    .get_external_position_y = sc_get_external_position_y,
+    .get_external_position_z = sc_get_external_position_z,
+    .get_external_position_a = sc_get_external_position_a,
+    .get_external_position_b = sc_get_external_position_b,
+    .get_external_position_c = sc_get_external_position_c,
+    .get_external_position_u = sc_get_external_position_u,
+    .get_external_position_v = sc_get_external_position_v,
+    .get_external_position_w = sc_get_external_position_w,
+    .get_external_probe_position_x = sc_get_external_probe_position_x,
+    .get_external_probe_position_y = sc_get_external_probe_position_y,
+    .get_external_probe_position_z = sc_get_external_probe_position_z,
+    .get_external_probe_position_a = sc_get_external_probe_position_a,
+    .get_external_probe_position_b = sc_get_external_probe_position_b,
+    .get_external_probe_position_c = sc_get_external_probe_position_c,
+    .get_external_probe_position_u = sc_get_external_probe_position_u,
+    .get_external_probe_position_v = sc_get_external_probe_position_v,
+    .get_external_probe_position_w = sc_get_external_probe_position_w,
+    .get_external_probe_value = sc_get_external_probe_value,
+    .get_external_probe_tripped_value = sc_get_external_probe_tripped_value,
+    .get_external_speed = sc_get_external_speed,
+    .get_external_spindle = sc_get_external_spindle,
+    .get_external_tool_length_xoffset = sc_get_external_tool_length_xoffset,
+    .get_external_tool_length_yoffset = sc_get_external_tool_length_yoffset,
+    .get_external_tool_length_zoffset = sc_get_external_tool_length_zoffset,
+    .get_external_tool_length_aoffset = sc_get_external_tool_length_aoffset,
+    .get_external_tool_length_boffset = sc_get_external_tool_length_boffset,
+    .get_external_tool_length_coffset = sc_get_external_tool_length_coffset,
+    .get_external_tool_length_uoffset = sc_get_external_tool_length_uoffset,
+    .get_external_tool_length_voffset = sc_get_external_tool_length_voffset,
+    .get_external_tool_length_woffset = sc_get_external_tool_length_woffset,
+    .get_external_tool_slot = sc_get_external_tool_slot,
+    .get_external_selected_tool_slot = sc_get_external_selected_tool_slot,
+    .get_external_tool_table = sc_get_external_tool_table,
+    .get_external_tc_fault = sc_get_external_tc_fault,
+    .get_external_tc_reason = sc_get_external_tc_reason,
+    .get_external_queue_empty = sc_get_external_queue_empty,
+    .get_external_axis_mask = sc_get_external_axis_mask,
+    .get_external_digital_input = sc_get_external_digital_input,
+    .get_external_analog_input = sc_get_external_analog_input,
+    .get_external_feed_override_enable = sc_get_external_feed_override_enable,
+    .get_external_spindle_override_enable = sc_get_external_spindle_override_enable,
+    .get_external_adaptive_feed_enable = sc_get_external_adaptive_feed_enable,
+    .get_external_feed_hold_enable = sc_get_external_feed_hold_enable,
+    .get_external_plane = sc_get_external_plane,
+    .get_external_parameter_file_name = sc_get_external_parameter_file_name,
+    .get_external_offset_applied = sc_get_external_offset_applied,
+    .get_external_offsets = sc_get_external_offsets,
+    .get_external_hal_value = sc_get_external_hal_value,
+};
+
+const canon_callbacks_t *saicanon_get_callbacks(void) {
+    return &saicanon_table;
 }

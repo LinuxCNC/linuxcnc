@@ -28,8 +28,6 @@ InterpBase *interp_from_shlib(const char *shlib) {
     char relative_interp[PATH_MAX];
     char const * interp_path;
 
-    dlopen(NULL, RTLD_GLOBAL);
-
     if (shlib[0] ==  '/') {
         // The passed-in .so name is an absolute path, use it directly.
         interp_path = shlib;

@@ -22,6 +22,7 @@
 #include "rs274ngc_interp.hh"
 #include "rs274ngc_return.hh"
 #include "inifile.hh"		// INIFILE
+#include "interp_internal.hh"	// setup_struct (for ini_accessor)
 #include "canon.hh"		// _parameter_file_name
 #include "config.h"		// LINELEN
 #include <stdio.h>    /* gets, etc. */
@@ -38,7 +39,33 @@
 #include <rtapi_string.h>
 
 #include <saicanon.hh>
-#include "tooldata.hh"
+
+/* SAI tool table (sai_tooltable.cc) */
+extern int tooldata_load(const char *filename, char **);
+struct EMC_TOOL_STAT;
+extern int tool_mmap_creator(const EMC_TOOL_STAT *, int);
+
+extern const canon_callbacks_t *saicanon_get_callbacks(void);
+
+// --- SAI INI accessor ---
+// Provides IniFile-backed callbacks matching the interp_ini_accessor interface.
+static IniFile sai_inifile;
+static char sai_ini_buf[LINELEN];
+
+static const char *sai_ini_get(void * /*ctx*/, const char *section, const char *key) {
+    const char *val = sai_inifile.Find(key, section);
+    if (val == NULL) return NULL;
+    // Copy to static buffer (accessor contract: valid until next call)
+    snprintf(sai_ini_buf, sizeof(sai_ini_buf), "%s", val);
+    return sai_ini_buf;
+}
+
+static const char *sai_ini_get_nth(void * /*ctx*/, const char *section, const char *key, int n) {
+    const char *val = sai_inifile.Find(key, section, n);
+    if (val == NULL) return NULL;
+    snprintf(sai_ini_buf, sizeof(sai_ini_buf), "%s", val);
+    return sai_ini_buf;
+}
 
 InterpBase *pinterp;
 #define interp_new (*pinterp)
@@ -250,7 +277,7 @@ int interpret_from_file( /* ARGUMENTS                  */
   int status=0;
   char line[LINELEN];
 
-  SET_BLOCK_DELETE(block_delete);
+  saicanon_get_callbacks()->set_block_delete(NULL, block_delete);
 
   for(; ;)
     {
@@ -532,8 +559,6 @@ instructions are printed to stdout (with printf), the instructions get
 redirected and the user does not see them.
 
 */
-int _task = 0; // control preview behaviour when remapping
-
 int main (int argc, char ** argv)
 {
   int status;
@@ -542,6 +567,7 @@ int main (int argc, char ** argv)
   int block_delete;
   char buffer[80];
   int tool_flag;
+  int task_flag;
   int gees[ACTIVE_G_CODES];
   int ems[ACTIVE_M_CODES];
   double sets[ACTIVE_SETTINGS];
@@ -559,20 +585,12 @@ int main (int argc, char ** argv)
   block_delete = OFF;
   print_stack = OFF;
   tool_flag = 0;
-  SET_PARAMETER_FILE_NAME(default_name);
+  task_flag = 0;
+  saicanon_get_callbacks()->set_parameter_file_name(NULL, default_name);
   _outfile = stdout; /* may be reset below */
   go_flag = 0;
 
-#ifdef TOOL_NML //{
-  tool_nml_register((CANON_TOOL_TABLE*)& _sai._tools);
-#else //}{
-  const int random_toolchanger = 0;
-  tool_mmap_creator((EMC_TOOL_STAT*)NULL,random_toolchanger);
-  /* Notes:
-  **   1) sai does not use toolInSpindle,pocketPrepped
-  **   2) sai does not distinguish changer type
-  */
-#endif //}
+  tool_mmap_creator(NULL, 0); /* no-op stub, inits tool array */
 
   while(1) {
       int c = getopt(argc, argv, "p:t:v:bsn:gi:l:T");
@@ -581,14 +599,14 @@ int main (int argc, char ** argv)
       switch(c) {
           case 'p': interp = optarg; break;
           case 't': read_tool_file(optarg); tool_flag=1; break;
-          case 'v': SET_PARAMETER_FILE_NAME(optarg); break;
+          case 'v': saicanon_get_callbacks()->set_parameter_file_name(NULL, optarg); break;
           case 'b': block_delete = (block_delete == OFF) ? ON : OFF; break;
           case 's': print_stack = (print_stack == OFF) ? ON : OFF; break;
           case 'n': do_next = atoi(optarg); break;
           case 'l': log_level = atoi(optarg); break;
           case 'g': go_flag = !go_flag; break;
           case 'i': inifile = optarg; break;
-          case 'T': _task = 1; break;
+          case 'T': task_flag = 1; break;
           case '?': default: goto usage;
       }
   }
@@ -621,6 +639,11 @@ usage:
     pinterp = interp_from_shlib(interp.c_str());
   }
   if(!pinterp) pinterp = new Interp;
+  pinterp->set_canon_callbacks(saicanon_get_callbacks());
+  {
+      Interp *ip = dynamic_cast<Interp*>(pinterp);
+      if (ip) ip->_setup.task_mode = task_flag;
+  }
 
   for(; !go_flag ;)
     {
@@ -676,22 +699,27 @@ usage:
     }
   _sai._external_length_units =  0.03937007874016;
   if (inifile!= 0) {
-      const char *inistring;
-      IniFile ini;
-      // open it
-      if (ini.Open(inifile) == false) {
+      // Open the INI file and set up the accessor for the interpreter
+      if (sai_inifile.Open(inifile) == false) {
 	    fprintf(stderr, "could not open supplied INI file %s\n", inifile);
         exit(1);
       }
 
-      if (NULL != (inistring = ini.Find("LINEAR_UNITS", "TRAJ"))) {
+      const char *inistring;
+      if (NULL != (inistring = sai_inifile.Find("LINEAR_UNITS", "TRAJ"))) {
           if (!strcmp(inistring, "mm")) {
              _sai._external_length_units = 1.0;
           }
       }
-      setenv("INI_FILE_NAME",inifile,1);
-  } else
-      unsetenv("INI_FILE_NAME");
+
+      // Wire up the INI accessor so the interpreter uses our IniFile
+      Interp *ip = dynamic_cast<Interp*>(pinterp);
+      if (ip) {
+          ip->_setup.ini_accessor.ctx = NULL;
+          ip->_setup.ini_accessor.get = sai_ini_get;
+          ip->_setup.ini_accessor.get_nth = sai_ini_get_nth;
+      }
+  }
 
   if ((status = interp_init()) != INTERP_OK)
     {

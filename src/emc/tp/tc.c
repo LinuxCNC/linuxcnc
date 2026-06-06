@@ -14,8 +14,6 @@
 * Last change:
 ********************************************************************/
 
-#include "rtapi.h"		/* rtapi_print_msg */
-#include "rtapi_math.h"
 #include "posemath.h"
 #include "blendmath.h"
 #include "emcpose.h"
@@ -23,6 +21,9 @@
 #include "tp_types.h"
 #include "spherical_arc.h"
 #include "motion_types.h"
+#include "gomc_log.h"
+#include <math.h>
+#include <float.h>
 
 //Debug output
 #include "tp_debug.h"
@@ -39,8 +40,9 @@ double tcGetMaxTargetVel(TC_STRUCT const * const tc,
             v_max_target = tc->reqvel * max_scale;
             break;
 
-        case TC_SYNC_VELOCITY: //Fallthrough
+        case TC_SYNC_VELOCITY:
             max_scale = 1.0;
+            /* fallthrough */
         case TC_SYNC_POSITION:
             // Assume no spindle override during blend target
         default:
@@ -275,7 +277,8 @@ int pmCircleTangentVector(PmCircle const * const circle,
 /**
  * Calculate the unit tangent vector at the start of a move for any segment.
  */
-int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
+int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out,
+        const void *log, const char *log_comp) {
 
     switch (tc->motion_type) {
         case TC_LINEAR:
@@ -288,7 +291,7 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
             pmCircleTangentVector(&tc->coords.circle.xyz, 0.0, out);
             break;
         default:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
+            gomc_log_errorf(log, log_comp, "Invalid motion type %d!", tc->motion_type);
             return -1;
     }
     return 0;
@@ -297,7 +300,8 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
 /**
  * Calculate the unit tangent vector at the end of a move for any segment.
  */
-int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
+int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out,
+        const void *log, const char *log_comp) {
 
     switch (tc->motion_type) {
         case TC_LINEAR:
@@ -311,7 +315,7 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
                     tc->coords.circle.xyz.angle, out);
             break;
         default:
-            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
+            gomc_log_errorf(log, log_comp, "Invalid motion type %d!", tc->motion_type);
             return -1;
     }
     return 0;
@@ -417,7 +421,7 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
         case TC_CIRCULAR:
             res_fit = pmCircleAngleFromProgress(&tc->coords.circle.xyz,
                     &tc->coords.circle.fit,
-                    progress, &angle);
+                    progress, &angle, NULL, NULL);
             pmCirclePoint(&tc->coords.circle.xyz,
                     angle,
                     &xyz);
@@ -682,7 +686,8 @@ int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp)
 
 int pmLine9Init(PmLine9 * const line9,
         EmcPose const * const start,
-        EmcPose const * const end)
+        EmcPose const * const end,
+        const void *log, const char *log_comp)
 {
     // Scratch variables
     PmCartesian start_xyz, end_xyz;
@@ -699,7 +704,7 @@ int pmLine9Init(PmLine9 * const line9,
     int uvw_fail = pmCartLineInit(&line9->uvw, &start_uvw, &end_uvw);
 
     if (xyz_fail || abc_fail || uvw_fail) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Line9, err codes %d, %d, %d\n",
+        gomc_log_errorf(log, log_comp, "Failed to initialize Line9, err codes %d, %d, %d",
                 xyz_fail,abc_fail,uvw_fail);
         return TP_ERR_FAIL;
     }
@@ -711,7 +716,8 @@ int pmCircle9Init(PmCircle9 * const circ9,
         EmcPose const * const end,
         PmCartesian const * const center,
         PmCartesian const * const normal,
-        int turn)
+        int turn,
+        const void *log, const char *log_comp)
 {
     PmCartesian start_xyz, end_xyz;
     PmCartesian start_uvw, end_uvw;
@@ -725,10 +731,10 @@ int pmCircle9Init(PmCircle9 * const circ9,
     int abc_fail = pmCartLineInit(&circ9->abc, &start_abc, &end_abc);
     int uvw_fail = pmCartLineInit(&circ9->uvw, &start_uvw, &end_uvw);
 
-    int res_fit = findSpiralArcLengthFit(&circ9->xyz,&circ9->fit);
+    int res_fit = findSpiralArcLengthFit(&circ9->xyz, &circ9->fit, log, log_comp);
 
     if (xyz_fail || abc_fail || uvw_fail || res_fit) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d, %d\n",
+        gomc_log_errorf(log, log_comp, "Failed to initialize Circle9, err codes %d, %d, %d, %d",
                 xyz_fail, abc_fail, uvw_fail, res_fit);
         return TP_ERR_FAIL;
     }
@@ -873,7 +879,8 @@ int tcPureRotaryCheck(TC_STRUCT const * const tc)
  * Given a PmCircle and a circular segment, copy the circle in as the XYZ portion of the segment, then update the motion parameters.
  * NOTE: does not yet support ABC or UVW motion!
  */
-int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ)
+int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ,
+        const void *log, const char *log_comp)
 {
 
     //Update targets with new arc length
@@ -881,20 +888,20 @@ int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ)
         return TP_ERR_FAIL;
     }
     if (!tc->coords.circle.abc.tmag_zero || !tc->coords.circle.uvw.tmag_zero) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ does not supportABC or UVW motion\n");
+        gomc_log_errorf(log, log_comp, "SetCircleXYZ does not support ABC or UVW motion");
         return TP_ERR_FAIL;
     }
 
     // Store the new circular segment (or use the current one)
 
     if (!circ) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ missing new circle definition\n");
+        gomc_log_errorf(log, log_comp, "SetCircleXYZ missing new circle definition");
         return TP_ERR_FAIL;
     }
 
     tc->coords.circle.xyz = *circ;
     // Update the arc length fit to this new segment
-    findSpiralArcLengthFit(&tc->coords.circle.xyz, &tc->coords.circle.fit);
+    findSpiralArcLengthFit(&tc->coords.circle.xyz, &tc->coords.circle.fit, log, log_comp);
 
     // compute the new total arc length using the fit and store as new
     // target distance

@@ -18,7 +18,7 @@
 #include "tc_types.h"
 #include "tcq.h"
 
-#include <rtapi_bool.h>
+#include <stdbool.h>
 
 #define TP_DEFAULT_QUEUE_SIZE 32
 /* Minimum length of a segment in cycles (must be greater than 1 to ensure each
@@ -135,6 +135,10 @@ typedef struct {
 
     syncdio_t syncdio; //record tpSetDout's here
 
+    const void *mot;  /* mot_callbacks_t* for accessing motmod services */
+    void *tc_space;   /* TC_STRUCT[] queue storage (in enclosing instance) */
+    const void *log;  /* gomc_log_t* for structured logging */
+    const char *log_comp; /* component name for log messages */
 } TP_STRUCT;
 
 

@@ -77,7 +77,7 @@ class HAL:
             if theme == "Follow System Theme":theme = ""
             else: theme = " -t "+theme
             print("loadusr -Wn gladevcp gladevcp -c gladevcp%s%s%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme,fmax,geo), file=file)
-        print("loadrt [KINS]KINEMATICS", file=file)
+        print("load [KINS]KINEMATICS", file=file)
         # qtplasmac requires 3 spindles
         if self.d.frontend == _PD._QTPLASMAC:
             print("loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_spindles=[TRAJ]SPINDLES", file=file)
@@ -478,8 +478,8 @@ class HAL:
                 print(file=file)
             print(_("#  ---coolant signals---"), file=file)
             print(file=file)
-            print("net coolant-mist      <=  iocontrol.0.coolant-mist", file=file)
-            print("net coolant-flood     <=  iocontrol.0.coolant-flood", file=file)
+            print("net coolant-mist      <=  iocontrol.coolant-mist", file=file)
+            print("net coolant-flood     <=  iocontrol.coolant-flood", file=file)
             print(file=file)
             print(_("#  ---probe signal---"), file=file)
             print(file=file)
@@ -760,39 +760,41 @@ class HAL:
                 print("net %s     =>  motion.digital-in-%02d" % (din, i), file=file)
         print(_("#  ---estop signals---"), file=file)
         print(file=file)
-        print("net estop-out     <=  iocontrol.0.user-enable-out", file=file)
+        print("net estop-out     <=  iocontrol.user-enable-out", file=file)
         if  self.d.classicladder and self.d.ladderhaltype == 1 and self.d.ladderconnect: # external estop program
             print(file=file)
             print(_("# **** Setup for external estop ladder program -START ****"), file=file)
             print(file=file)
             print("net estop-out     => classicladder.0.in-00", file=file)
             print("net estop-ext     => classicladder.0.in-01", file=file)
-            print("net estop-strobe     classicladder.0.in-02   <=  iocontrol.0.user-request-enable", file=file)
-            print("net estop-outcl      classicladder.0.out-00  =>  iocontrol.0.emc-enable-in", file=file)
+            print("net estop-strobe     classicladder.0.in-02   <=  iocontrol.user-request-enable", file=file)
+            print("net estop-outcl      classicladder.0.out-00  =>  iocontrol.emc-enable-in", file=file)
             print(file=file)
             print(_("# **** Setup for external estop ladder program -END ****"), file=file)
         elif estop:
-            print("net estop-ext     =>  iocontrol.0.emc-enable-in", file=file)
+            print("net estop-ext     =>  iocontrol.emc-enable-in", file=file)
         else:
-            print("net estop-out     =>  iocontrol.0.emc-enable-in", file=file)
+            print("net estop-out     =>  iocontrol.emc-enable-in", file=file)
         print(file=file)
         # qtplasmac doesn't require these:
         if self.d.frontend != _PD._QTPLASMAC:
             if self.d.toolchangeprompt:
                 print(_("#  ---manual tool change signals---"), file=file)
                 print(file=file)
-                print("net tool-change-request    <= iocontrol.0.tool-change", file=file)
-                print("net tool-change-confirmed  => iocontrol.0.tool-changed", file=file)
-                print("net tool-number            <= iocontrol.0.tool-prep-number", file=file)
+                print("net tool-change-request    <= iocontrol.tool-change", file=file)
+                print("net tool-change-confirmed  => iocontrol.tool-changed", file=file)
+                print("net tool-number            <= iocontrol.tool-prep-number", file=file)
                 print(file=file)
 
                 if not self.d.frontend in (_PD._QTDRAGON,_PD._GMOCCAPY):
                     print(_("#  ---Use external manual tool change dialog---"), file=file)
                     print(file=file)
-                    print("loadusr -W hal_manualtoolchange", file=file)
-                    print("net tool-change-request    =>  hal_manualtoolchange.change", file=file)
-                    print("net tool-change-confirmed  <=  hal_manualtoolchange.changed", file=file)
-                    print("net tool-number            =>  hal_manualtoolchange.number", file=file)
+                    print("load manualtoolchange", file=file)
+                    print("addf manualtoolchange servo-thread", file=file)
+                    print("loadusr manualtoolchange_ui", file=file)
+                    print("net tool-change-request    =>  manualtoolchange.change", file=file)
+                    print("net tool-change-confirmed  <=  manualtoolchange.changed", file=file)
+                    print("net tool-number            =>  manualtoolchange.number", file=file)
                     print(file=file)
 
                 if self.d.frontend == _PD._GMOCCAPY:
@@ -829,30 +831,30 @@ class HAL:
                         f1 = open(qt, "w")
                         print(_("#  ---manual tool change signals to qtdragon's dialog---"), file=f1)
                         print(file=f1)
-                        print("net tool-change-request    => hal_manualtoolchange.change", file=f1)
-                        print("net tool-change-confirmed  <= hal_manualtoolchange.changed", file=f1)
-                        print("net tool-number            => hal_manualtoolchange.number", file=f1)
+                        print("net tool-change-request    => manualtoolchange.change", file=f1)
+                        print("net tool-change-confirmed  <= manualtoolchange.changed", file=f1)
+                        print("net tool-number            => manualtoolchange.number", file=f1)
                         f1.close()
 
                 print(_("#  ---ignore tool prepare requests---"), file=file)
-                print("net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-prepared", file=file)
+                print("net tool-prepare-loopback   iocontrol.tool-prepare      =>  iocontrol.tool-prepared", file=file)
                 print(file=file)
 
             else:
                 print(_("#  ---toolchange signals for custom tool changer---"), file=file)
                 print(file=file)
-                print("net tool-number             <=  iocontrol.0.tool-prep-number", file=file)
-                print("net tool-change-request     <=  iocontrol.0.tool-change", file=file)
-                print("net tool-change-confirmed   =>  iocontrol.0.tool-changed", file=file)
-                print("net tool-prepare-request    <=  iocontrol.0.tool-prepare", file=file)
-                print("net tool-prepare-confirmed  =>  iocontrol.0.tool-prepared", file=file)
+                print("net tool-number             <=  iocontrol.tool-prep-number", file=file)
+                print("net tool-change-request     <=  iocontrol.tool-change", file=file)
+                print("net tool-change-confirmed   =>  iocontrol.tool-changed", file=file)
+                print("net tool-prepare-request    <=  iocontrol.tool-prepare", file=file)
+                print("net tool-prepare-confirmed  =>  iocontrol.tool-prepared", file=file)
                 print(file=file)
 
         # qtplasmac tool change passthrough
         else:
             print(_("\n# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---"), file=file)
-            print("net tool:change iocontrol.0.tool-change  => iocontrol.0.tool-changed", file=file)
-            print("net tool:prep   iocontrol.0.tool-prepare => iocontrol.0.tool-prepared", file=file)
+            print("net tool:change iocontrol.tool-change  => iocontrol.tool-changed", file=file)
+            print("net tool:prep   iocontrol.tool-prepare => iocontrol.tool-prepared", file=file)
         if self.d.classicladder:
             print(file=file)
             if self.d.modbus:

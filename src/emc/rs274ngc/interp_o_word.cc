@@ -12,10 +12,6 @@
 *
 ********************************************************************/
 
-#define BOOST_PYTHON_MAX_ARITY 4
-#include <boost/python/list.hpp>
-#include <boost/python/tuple.hpp>
-#include <boost/python/dict.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,11 +28,7 @@
 #include "interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
-#include "python_plugin.hh"
-#include "interp_python.hh"
-#include <rtapi_string.h>	// rtapi_strlcpy()
-
-namespace bp = boost::python;
+#include <cassert>
 
 //========================================================================
 // Functions for control stuff (O-words)
@@ -60,7 +52,7 @@ int Interp::findFile( // ARGUMENTS
     snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
     file = fopen(targetPath, "r");
     if (file) {
-        rtapi_strlcpy(foundFileDirect, direct, PATH_MAX);
+        snprintf(foundFileDirect, PATH_MAX, "%s", direct);
         fclose(file);
         return INTERP_OK;
     }
@@ -186,7 +178,6 @@ int Interp::execute_call(setup_pointer settings,
 {
     int status = INTERP_OK;
     int i;
-    bp::list plist;
 
     context_pointer previous_frame = &settings->sub_context[settings->call_level-1];
 
@@ -284,39 +275,17 @@ int Interp::execute_call(setup_pointer settings,
 	break;
 
     case CT_PYTHON_OWORD_SUB:
-	switch (settings->call_state) {
-	case CS_NORMAL:
-	    settings->return_value = 0.0;
-	    settings->value_returned = 0;
-	    previous_frame->sequence_number = settings->sequence_number;
-	    previous_frame->filename = strstore(settings->filename);
-	    plist.append(*settings->pythis); // self
-	    for(int i = 0; i < eblock->param_cnt; i++)
-		plist.append(eblock->params[i]); // positional args
-	    current_frame->pystuff.impl->tupleargs = bp::tuple(plist);
-	    current_frame->pystuff.impl->kwargs = bp::dict();
-
-	case CS_REEXEC_PYOSUB:
-	    if (settings->call_state ==  CS_REEXEC_PYOSUB)
-		CHP(read_inputs(settings));
-	    status = pycall(settings, current_frame, OWORD_MODULE,
-			    current_frame->subName, 
-			    settings->call_state == CS_NORMAL ? PY_OWORDCALL : PY_FINISH_OWORDCALL);
-	    CHKS(status == INTERP_ERROR, "pycall(%s.%s) failed", OWORD_MODULE, current_frame->subName) ;
-	    switch (status = handler_returned(settings, current_frame, current_frame->subName, true)) {
-	    case INTERP_EXECUTE_FINISH:
-		settings->call_state = CS_REEXEC_PYOSUB;
-		break;
-	    default:
-		settings->call_state = CS_NORMAL;
-		settings->sequence_number = previous_frame->sequence_number;
-		CHP(status);
-		// M73 auto-restore is of dubious value in a Python subroutine
-		CHP(leave_context(settings,false)); 
-	    }
-	    break;
+	status = pycall(settings, current_frame, OWORD_MODULE,
+			current_frame->subName, PY_OWORDCALL);
+	if (status == INTERP_ERROR) {
+	    ERS("O<%s> call: handler not registered - "
+		"register a cmod/gomod handler", current_frame->subName);
+	    return INTERP_ERROR;
 	}
-	break;
+	CHP(status);
+	// successful oword call returns directly (no NGC sub to run)
+	settings->call_level--;
+	return status;
 
     case CT_REMAP:
 	block_pointer cblock = &CONTROLLING_BLOCK(*settings);
@@ -324,13 +293,6 @@ int Interp::execute_call(setup_pointer settings,
 
 	switch (settings->call_state) {
 	case CS_NORMAL:
-	    if (remap->remap_py || remap->prolog_func || remap->epilog_func) {
-		CHKS(!PYUSABLE, "%s (remapped) uses Python functions, but the Python plugin is not available", 
-		     remap->name);
-		plist.append(*settings->pythis);   //self
-		current_frame->pystuff.impl->tupleargs = bp::tuple(plist);
-		current_frame->pystuff.impl->kwargs = bp::dict();
-	    }
 	    if (remap->argspec && (strchr(remap->argspec, '@') == NULL)) {
 		// add_parameters will decorate kwargs as per argspec
 		// if named local parameters specified
@@ -456,7 +418,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 	    if (previous_frame->position == -1) {
 		if (settings->file_pointer) fclose(settings->file_pointer);
 		settings->file_pointer = NULL;
-		rtapi_strxcpy(settings->filename, "");
+		snprintf(settings->filename, sizeof(settings->filename), "%s", "");
 	    } else {
 		if(settings->file_pointer == NULL) {
 		    ERS(NCE_FILE_NOT_OPEN);
@@ -470,7 +432,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 			    previous_frame->filename,
 			    strerror(errno));
 		    }
-		    rtapi_strxcpy(settings->filename, previous_frame->filename);
+		    snprintf(settings->filename, sizeof(settings->filename), "%s", previous_frame->filename);
 		}
 		fseek(settings->file_pointer, previous_frame->position, SEEK_SET);
 		settings->sequence_number = previous_frame->sequence_number;
@@ -620,41 +582,11 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 int Interp::handler_returned( setup_pointer settings,  context_pointer active_frame, 
 			      const char *name, bool osub)
 {
-    int status = INTERP_OK;
-    
-    switch (active_frame->pystuff.impl->py_return_type) {
-    case RET_YIELD:
-	// yield <integer> was executed
-	CHP(active_frame->pystuff.impl->py_returned_int);
-	break;
-
-    case RET_STOPITERATION:  // a bare 'return' in a generator - treat as INTERP_OK
-    case RET_NONE:
-	break;
-	
-    case RET_DOUBLE: 
-	if (osub) { // float values are ok for osubs
-	    settings->return_value = active_frame->pystuff.impl->py_returned_double;
-	    settings->value_returned = 1;
-	} else {
-	    ERS("handler_returned: %s returned double: %f - invalid", 
-			name, active_frame->pystuff.impl->py_returned_double);
-	}
-	break;
-
-    case RET_INT: 
-	if (osub) { // let's be liberal with types - widen to double return value
-	    settings->return_value = (double) active_frame->pystuff.impl->py_returned_int;
-	    settings->value_returned = 1;
-	} else 
-	    return active_frame->pystuff.impl->py_returned_int;
-	break;
-    case RET_ERRORMSG:
-	status = INTERP_ERROR;
-	break;
-
-    }
-    return status;
+    // With ext dispatch, pycall() stores its mapped status in the frame.
+    // Return it so callers' switch(status = handler_returned(...)) works.
+    if (active_frame)
+        return active_frame->pystuff.last_status;
+    return INTERP_OK;
 }
  
 
@@ -674,9 +606,6 @@ int Interp::enter_context(setup_pointer settings, block_pointer block)
     // mark frame for finishing remap
     frame->context_status = (block->call_type  == CT_REMAP) ? REMAP_FRAME : 0;
     frame->subName = block->o_name;
-    frame->pystuff.impl->py_returned_int = 0;
-    frame->pystuff.impl->py_returned_double = 0.0;
-    frame->pystuff.impl->py_return_type = -1;
     // distinguish call frames: oword,m99,python,remap
     frame->call_type = block->call_type;
     return INTERP_OK;

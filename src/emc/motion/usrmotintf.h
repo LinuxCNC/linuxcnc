@@ -41,10 +41,6 @@ extern "C" {
    the emcmot controller and puts it in arg */
     extern int usrmotReadEmcmotInternal(emcmot_internal_t * s);
 
-/* usrmotReadEmcmotError() gets the earliest queued error string out of
-   the emcmot controller and puts it in arg */
-    extern int usrmotReadEmcmotError(char *e);
-
 /* usrmotPrintEmcmotStatus() prints the status in s, using which
    arg to select sub-prints */
     extern void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which);

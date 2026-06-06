@@ -24,14 +24,6 @@
 #define _GNU_SOURCE
 #endif
 
-#define BOOST_PYTHON_MAX_ARITY 4
-#include "python_plugin.hh"
-#include <boost/python/dict.hpp>
-#include <boost/python/extract.hpp>
-#include <boost/python/list.hpp>
-#include <boost/python/tuple.hpp>
-namespace bp = boost::python;
-
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,10 +39,6 @@ namespace bp = boost::python;
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
-#include "inifile.hh"
-
-// for HAL pin variables
-#include "hal.h"
 
 enum predefined_named_parameters {
     NP_LINE,
@@ -200,36 +188,33 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
      if ((n > 7) &&
 	((s = (char *) strchr(&nameBuf[6],']')) != NULL)) {
 
-	IniFile inifile;
-	const char *iniFileName;
-	int retval;
 	int closeBracket = s - nameBuf;
 
-	if ((iniFileName = getenv("INI_FILE_NAME")) == NULL) {
-	    logNP("warning: referencing INI parameter '%s': no INI file",nameBuf);
-	    *status = 0;
-	    return INTERP_OK;
-	}
-	if (!inifile.Open(iniFileName)) {
-	    *status = 0;
-	    ERS(_("can\'t open INI file '%s'"), iniFileName);
-	}
-
 	char capName[LINELEN];
-
 	snprintf(capName, LINELEN, "%s", nameBuf);
 	for (char *p = capName; *p != 0; p++)
 	    *p = toupper(*p);
 	capName[closeBracket] = '\0';
 
-	if ((retval = inifile.Find( value, &capName[closeBracket+1], &capName[5])) == 0) {
-	    *status = 1;
-	    inifile.Close();
+	const char *section = &capName[5]; // after "_ini["
+	const char *key = &capName[closeBracket+1];
+
+	// Use accessor for INI lookups
+	if (_setup.ini_accessor.get != NULL) {
+	    const char *val = _setup.ini_accessor.get(
+	        _setup.ini_accessor.ctx, section, key);
+	    if (val != NULL) {
+	        *value = atof(val);
+	        *status = 1;
+	    } else {
+	        *status = 0;
+	        ERS(_("Named INI parameter #<%s> not found"),
+	            nameBuf);
+	    }
 	} else {
-	    inifile.Close();
 	    *status = 0;
-	    ERS(_("Named INI parameter #<%s> not found in INI file '%s': error=0x%x"),
-		nameBuf, iniFileName, retval);
+	    ERS(_("Named INI parameter #<%s>: no INI accessor configured"),
+	        nameBuf);
 	}
     }
     return INTERP_OK;
@@ -241,71 +226,40 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 // the shortest possible INI variable is '_hal[x]' or 7 chars long .
 int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
-    static int comp_id;
-    int retval;
-    hal_type_t type = HAL_TYPE_UNINITIALIZED;
-    hal_data_u* ptr;
-    bool conn;
-    char hal_name[HAL_NAME_LEN];
-
     *status = 0;
-    if (!comp_id) {
-	char hal_comp[HAL_NAME_LEN];
-	snprintf(hal_comp, sizeof(hal_comp),"interp%d",getpid());
-	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
-	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
-	CHKS((retval = hal_ready(comp_id)), _("fetch_hal_param: hal_ready(): %d"),retval);
-    }
-    char *s;
     int n = strlen(nameBuf);
-    if ((n > 6) &&
-	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
+    if (n <= 6)
+        return INTERP_OK;
 
-	int closeBracket = s - nameBuf;
+    char *s = (char *) strchr(&nameBuf[5], ']');
+    if (!s)
+        return INTERP_OK;
 
-	strncpy(hal_name, &nameBuf[5], closeBracket);
-	hal_name[closeBracket - 5] = '\0';
-	if (nameBuf[closeBracket + 1]) {
-	    logOword("%s: trailing garbage after closing bracket", hal_name);
-	    *status = 0;
-	    ERS("%s: trailing garbage after closing bracket", nameBuf);
-	}
-	// the result of these lookups could be cached in the parameter struct, but I'm not sure
-	// this is a good idea - a removed pin/signal will not be noticed
+    int closeBracket = s - nameBuf;
+    char hal_name[128];
+    int name_len = closeBracket - 5;
+    if (name_len >= (int)sizeof(hal_name))
+        ERS("HAL name too long in #<%s>", nameBuf);
+    strncpy(hal_name, &nameBuf[5], name_len);
+    hal_name[name_len] = '\0';
 
-	// I dont think that's needed - no change in pins/sigs/params
-	// rtapi_mutex_get(&(hal_data->mutex)); 
-        // rtapi_mutex_give(&(hal_data->mutex));
-
-        if (hal_get_pin_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
-            if (!conn)
-		logOword("%s: no signal connected", hal_name);
-	    goto assign;
-	}
-        if (hal_get_signal_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
-	    if (!conn)
-		logOword("%s: signal has no writer", hal_name);
-	    goto assign;
-	}
-        if (hal_get_param_value_by_name(hal_name, &type, &ptr) == 0) {
-	    goto assign;
-	}
-	*status = 0;
-	ERS("Named hal parameter #<%s> not found", nameBuf);
+    if (nameBuf[closeBracket + 1]) {
+        logOword("%s: trailing garbage after closing bracket", hal_name);
+        *status = 0;
+        ERS("%s: trailing garbage after closing bracket", nameBuf);
     }
-    return INTERP_OK;
 
-    assign:
-    switch (type) {
-    case HAL_BIT: *value = (double) (ptr->b); break;
-    case HAL_U32: *value = (double) (ptr->u); break;
-    case HAL_S32: *value = (double) (ptr->s); break;
-    case HAL_FLOAT: *value = (double) (ptr->f); break;
-    default: return -1;
+    int32_t found = 0;
+    double val = _setup.canon.get_external_hal_value(hal_name, &found);
+    if (!found) {
+        *status = 0;
+        ERS("Named hal parameter #<%s> not found", nameBuf);
     }
+
+    *value = val;
     logOword("%s: value=%f", hal_name, *value);
     *status = 1;
-    return INTERP_OK; 
+    return INTERP_OK;
 }
 
 int Interp::find_named_param(
@@ -358,42 +312,8 @@ int Interp::find_named_param(
 	  CHP(lookup_named_param(nameBuf, pv->value, value));
 	  *status = 1;
       } else if (pv->attr & PA_PYTHON) {
-	  bp::object retval, tupleargs, kwargs;
-	  bp::list plist;
-
-	  plist.append(*_setup.pythis); // self
-	  tupleargs = bp::tuple(plist);
-	  kwargs = bp::dict();
-
-	  python_plugin->call(NAMEDPARAMS_MODULE, nameBuf, tupleargs, kwargs, retval);
-	  CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
-	       "named param - pycall(%s):\n%s", nameBuf,
-	       python_plugin->last_exception().c_str());
-	  CHKS(retval.ptr() == Py_None, "Python namedparams.%s returns no value", nameBuf);
-      if (PyUnicode_Check(retval.ptr())) {
-	      // returning a string sets the interpreter error message and aborts
-	      *status = 0;
-	      char *msg = bp::extract<char *>(retval);
-	      ERS("%s", msg);
-	  }
-      if (PyLong_Check(retval.ptr())) { // widen
-	      *value = (double) bp::extract<int>(retval);
-	      *status = 1;
-	      return INTERP_OK;
-	  }
-	  if (PyFloat_Check(retval.ptr())) {
-	      *value =  bp::extract<double>(retval);
-	      *status = 1;
-	      return INTERP_OK;
-	  }
-	  // ok, that callable returned something botched.
-	  *status = 0;
-	  PyObject *res_str = PyObject_Str(retval.ptr());
-	  Py_XDECREF(res_str);
-	  ERS("Python call %s.%s returned '%s' - expected double, int or string, got %s",
-	      NAMEDPARAMS_MODULE, nameBuf,
-          PyUnicode_AsUTF8(res_str),
-	      retval.ptr()->ob_type->tp_name);
+	  ERS("Python named parameter '#<%s>' not available - "
+	      "Python support has been removed", nameBuf);
       } else {
 	  *value = pv->value;
 	  *status = 1;
@@ -782,8 +702,7 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 	
     case NP_TASK:
-	extern int _task;  // zero in gcodemodule, 1 in milltask
-	*value = _task;
+	*value = _setup.task_mode;
 	break;
 
     default:
@@ -962,29 +881,13 @@ int Interp::init_named_parameters()
 
 double Interp::inicheck()
 {
-    IniFile inifile;
-    const char *filename;
-    const char *inistring;
-    double result = -1.0;
-
-	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
-	    return -1.0;
+    // Use accessor if available
+    if (_setup.ini_accessor.get != NULL) {
+        const char *val = _setup.ini_accessor.get(
+            _setup.ini_accessor.ctx, "TRAJ", "LINEAR_UNITS");
+        if (val == NULL) return -1.0;
+        if (!strcmp(val, "inch")) return 0.0;
+        return 1.0;
     }
-
-    // open it
-    if (inifile.Open(filename) == false) {
-	    return -1.0;
-    }
-
-    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
-        if (!strcmp(inistring, "inch")) {
-             result = 0.0;
-        } else {
-            result = 1.0;
-        }
-    }
-    // close it
-    inifile.Close();
-
-    return result;
+    return -1.0;
 }

@@ -12,12 +12,12 @@
 ********************************************************************/
 
 /* macros for converting internal (mm/deg) units to external units */
-#define TO_EXT_LEN(mm) ((mm) * GET_EXTERNAL_LENGTH_UNITS())
-#define TO_EXT_ANG(deg) ((deg) * GET_EXTERNAL_ANGLE_UNITS())
+#define TO_EXT_LEN(mm) ((mm) * _setup.canon.get_external_length_units())
+#define TO_EXT_ANG(deg) ((deg) * _setup.canon.get_external_angle_units())
 
 /* macros for converting external units to internal (mm/deg) units */
-#define FROM_EXT_LEN(ext) ((ext) / GET_EXTERNAL_LENGTH_UNITS())
-#define FROM_EXT_ANG(ext) ((ext) / GET_EXTERNAL_ANGLE_UNITS())
+#define FROM_EXT_LEN(ext) ((ext) / _setup.canon.get_external_length_units())
+#define FROM_EXT_ANG(ext) ((ext) / _setup.canon.get_external_angle_units())
 
 /* macros for converting internal (mm/deg) units to program units */
 #define TO_PROG_LEN(mm) ((mm) / (_setup.length_units == CANON_UNITS_INCHES ? 25.4 : _setup.length_units == CANON_UNITS_CM ? 10.0 : 1.0))

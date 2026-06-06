@@ -33,8 +33,22 @@
 #include "motion.h"
 #include "motion_struct.h"
 #include "motion_types.h"
-#include "mot_priv.h"
+#include "mot_hal_types.h"
 #include "axis.h"
+
+/* motion flag macros using this module's emcmotStatus global */
+#define GET_MOTION_ERROR_FLAG()      GET_MOTION_ERROR_FLAG_P(emcmotStatus)
+#define SET_MOTION_ERROR_FLAG(fl)    SET_MOTION_ERROR_FLAG_P(emcmotStatus, fl)
+#define GET_MOTION_COORD_FLAG()      GET_MOTION_COORD_FLAG_P(emcmotStatus)
+#define SET_MOTION_COORD_FLAG(fl)    SET_MOTION_COORD_FLAG_P(emcmotStatus, fl)
+#define GET_MOTION_TELEOP_FLAG()     GET_MOTION_TELEOP_FLAG_P(emcmotStatus)
+#define SET_MOTION_TELEOP_FLAG(fl)   SET_MOTION_TELEOP_FLAG_P(emcmotStatus, fl)
+#define GET_MOTION_INPOS_FLAG()      GET_MOTION_INPOS_FLAG_P(emcmotStatus)
+#define SET_MOTION_INPOS_FLAG(fl)    SET_MOTION_INPOS_FLAG_P(emcmotStatus, fl)
+#define GET_MOTION_ENABLE_FLAG()     GET_MOTION_ENABLE_FLAG_P(emcmotStatus)
+#define SET_MOTION_ENABLE_FLAG(fl)   SET_MOTION_ENABLE_FLAG_P(emcmotStatus, fl)
+
+static axis_inst_t *ml_axis_inst;
 
 static struct motion_logger_data_t {
     hal_bit_t *reopen;
@@ -49,7 +63,6 @@ struct emcmot_command_t *c = 0;
 struct emcmot_status_t *emcmotStatus = 0;
 struct emcmot_config_t *emcmotConfig = 0;
 struct emcmot_internal_t *emcmotInternal = 0;
-struct emcmot_error_t *emcmotError = 0;
 
 int mot_comp_id;
 
@@ -104,7 +117,6 @@ static int init_comm_buffers(void) {
     emcmotStatus = &emcmotStruct->status;
     emcmotConfig = &emcmotStruct->config;
     emcmotInternal = &emcmotStruct->internal;
-    emcmotError = &emcmotStruct->error;
 
     emcmotConfig->numJoints = num_joints;
     emcmotConfig->numSpindles = num_spindles;
@@ -166,12 +178,13 @@ static int init_comm_buffers(void) {
     }
 
     /* init per-axis stuff */
-    axis_init_all();
+    ml_axis_inst = axis_inst_new();
+    axis_init_all(ml_axis_inst);
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-        axis_set_max_pos_limit(axis_num,  1.0);
-        axis_set_min_pos_limit(axis_num, -1.0);
-        axis_set_vel_limit(axis_num, 1.0);
-        axis_set_acc_limit(axis_num, 1.0);
+        axis_set_max_pos_limit(ml_axis_inst, axis_num,  1.0);
+        axis_set_min_pos_limit(ml_axis_inst, axis_num, -1.0);
+        axis_set_vel_limit(ml_axis_inst, axis_num, 1.0);
+        axis_set_acc_limit(ml_axis_inst, axis_num, 1.0);
     }
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_comm_buffers() complete\n");
@@ -497,8 +510,8 @@ int main(int argc, char* argv[]) {
                     "SET_AXIS_POSITION_LIMITS axis=%d, min=%.6g, max=%.6g\n",
                     c->axis, c->minLimit, c->maxLimit
                 );
-                axis_set_min_pos_limit(c->axis, c->minLimit);
-                axis_set_max_pos_limit(c->axis, c->maxLimit);
+                axis_set_min_pos_limit(ml_axis_inst, c->axis, c->minLimit);
+                axis_set_max_pos_limit(ml_axis_inst, c->axis, c->maxLimit);
                 break;
 
             case EMCMOT_SET_AXIS_LOCKING_JOINT:
@@ -506,7 +519,7 @@ int main(int argc, char* argv[]) {
                     "SET_AXIS_LOCKING_JOINT axis=%d, locking_joint=%d\n",
                     c->axis, c->joint
                 );
-                axis_set_locking_joint(c->axis, c->joint);
+                axis_set_locking_joint(ml_axis_inst, c->axis, c->joint);
                 break;
 
             case EMCMOT_SET_JOINT_BACKLASH:

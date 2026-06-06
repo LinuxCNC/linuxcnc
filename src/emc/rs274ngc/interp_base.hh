@@ -29,9 +29,12 @@
 #define ACTIVE_M_CODES 10
 #define ACTIVE_SETTINGS 5
 
+typedef struct canon_callbacks canon_callbacks_t;
+
 class InterpBase : boost::noncopyable {
 public:
     virtual ~InterpBase();
+    virtual void set_canon_callbacks(const canon_callbacks_t *callbacks) = 0;
     virtual char *error_text(int errcode, char *buf, size_t buflen) = 0;
     virtual char *line_text(char *buf, size_t buflen) = 0;
     virtual char *file_name(char *buf, size_t buflen) = 0;

@@ -24,14 +24,14 @@
 #include "canon.hh"
 #include "emcpos.h"
 #include "libintl.h"
-#include <boost/python/object_fwd.hpp>
+
 #include <cmath>
-#include <rtapi_string.h>	// rtapi_strlcpy()
+#include <cstdio>    // snprintf
+#include <cstring>   // strcasecmp, strlen
 #include "interp_parameter_def.hh"
 #include "interp_fwd.hh"
 #include "interp_base.hh"
-#include "tooldata.hh"
-
+#include "canon_interface.hh"
 
 #define _(s) gettext(s)
 
@@ -579,13 +579,10 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define M_MODE_OK(m) ((m > 3) && (m < 11))
 #define G_MODE_OK(m) (m == 1)
 
-struct pycontext_impl;
+// pycontext is kept as an empty struct to avoid modifying all
+// context_struct users. Python support has been removed.
 struct pycontext {
-    pycontext();
-    pycontext(const struct pycontext &);
-    pycontext &operator=(const struct pycontext &);
-    ~pycontext();
-    pycontext_impl *impl;
+    int last_status;  // last ext handler return status (for handler_returned)
 };
 
 struct context_struct {
@@ -605,7 +602,6 @@ struct context_struct {
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
     int call_type; // enum call_types
     pycontext pystuff;
-    // Python-related stuff
 };
 
 // context.context_status
@@ -646,6 +642,8 @@ struct setup
 {
   setup();
   ~setup();
+
+  CanonInterface canon;          // per-instance canon callback table
 
   double AA_axis_offset;        // A-axis g92 offset
   double AA_current;            // current A-axis position
@@ -732,6 +730,7 @@ struct setup
   bool probe_flag;            // flag indicating probing done
   bool input_flag;            // flag indicating waiting for input done
   bool toolchange_flag;       // flag indicating we just had a tool change
+  bool user_defined_flag;     // flag indicating we just had called a user defined function
   int input_index;		// channel queried
   bool input_digital;		// input queried was digital (false=analog)
   bool cutter_comp_firstmove; // this is the first comp move
@@ -816,23 +815,43 @@ struct setup
 #define FEATURE_NO_DOWNCASE_OWORD    0x00000010
 #define FEATURE_OWORD_WARNONLY       0x00000020
 
-    boost::python::object *pythis;  // boost::cref to 'this'
     const char *on_abort_command;
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
-#define INIT_FUNC  "__init__"
-#define DELETE_FUNC  "__delete__"
 
     // task calls upon interp.init() repeatedly
     // protect init() operations which are not idempotent
-    int init_once;  
+    int init_once;
+
+    // --- Multi-instance state (moved from file-scope statics) ---
+    unsigned int nurbs_order;
+    std::vector<CONTROL_POINT> nurbs_control_points;
+    char savedError[LINELEN+1];
+    int trace;
+
+    // Per-call ext handler state (moved from file-scope statics in interp_ext.cc)
+    int ext_phase;
+    void *ext_user;
+
+    // Cutter compensation queue state (moved from file-scope statics in interp_queue.cc)
+    double qc_endpoint[2];
+    int qc_endpoint_valid;
+    void *qc_queue;  // opaque, actually std::vector<queued_canon>*
+
+    // Per-instance task/preview mode and M100-M199 handlers
+    // (moved from globals to support multiple Interp instances)
+    int task_mode;  // 0 = preview, 1 = task (replaces global _task)
+    USER_DEFINED_FUNCTION_TYPE user_defined_function[USER_DEFINED_FUNCTION_NUM];
+
+    // INI accessor callback struct — when set, used instead of file-based
+    // INI lookups for init() and runtime #<_ini[SEC]KEY> named parameters.
+    // Owned by the caller (milltask); lifetime must exceed this setup struct.
+    struct {
+        void *ctx;
+        const char* (*get)(void *ctx, const char *section, const char *key);
+        const char* (*get_nth)(void *ctx, const char *section, const char *key, int n);
+    } ini_accessor;
 };
-
-
-// the externally visible singleton instance
-
-extern class PythonPlugin *python_plugin;
-#define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
 
 inline bool is_a_cycle(int motion) {
     return ((motion > G_80) && (motion < G_90)) || (motion == G_73) || (motion == G_74);
@@ -860,7 +879,7 @@ macros totally crash-proof. If the function call stack is deeper than
     do {                                                   \
         setError (fmt, ## __VA_ARGS__);                    \
         _setup.stack_index = 0;                            \
-        (rtapi_strlcpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN)); \
+        (snprintf(_setup.stack[_setup.stack_index], STACK_ENTRY_LEN, "%s", __PRETTY_FUNCTION__)); \
         _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
         _setup.stack_index++; \
         _setup.stack[_setup.stack_index][0] = 0;           \
@@ -871,7 +890,7 @@ macros totally crash-proof. If the function call stack is deeper than
     do {                                                   \
         setError (fmt, ## __VA_ARGS__);                    \
         _setup.stack_index = 0;                            \
-        (rtapi_strlcpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN)); \
+        (snprintf(_setup.stack[_setup.stack_index], STACK_ENTRY_LEN, "%s", __PRETTY_FUNCTION__)); \
         _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
         _setup.stack_index++; \
         _setup.stack[_setup.stack_index][0] = 0;           \
@@ -882,7 +901,7 @@ macros totally crash-proof. If the function call stack is deeper than
 #define ERN(error_code)                                    \
     do {                                                   \
         _setup.stack_index = 0;                            \
-        (rtapi_strlcpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN)); \
+        (snprintf(_setup.stack[_setup.stack_index], STACK_ENTRY_LEN, "%s", __PRETTY_FUNCTION__)); \
         _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
         _setup.stack_index++; \
         _setup.stack[_setup.stack_index][0] = 0;           \
@@ -894,7 +913,7 @@ macros totally crash-proof. If the function call stack is deeper than
 #define ERP(error_code)                                        \
     do {                                                       \
         if (_setup.stack_index < STACK_LEN - 1) {                         \
-            (rtapi_strlcpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN)); \
+            (snprintf(_setup.stack[_setup.stack_index], STACK_ENTRY_LEN, "%s", __PRETTY_FUNCTION__)); \
             _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0;    \
             _setup.stack_index++;                                       \
             _setup.stack[_setup.stack_index][0] = 0;           \

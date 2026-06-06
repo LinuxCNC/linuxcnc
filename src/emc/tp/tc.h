@@ -37,8 +37,10 @@ int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);
 int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint,  EmcPose * const out);
 int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
-int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
-int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
+int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out,
+        const void *log, const char *log_comp);
+int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out,
+        const void *log, const char *log_comp);
 
 double tcGetDistanceToGo(TC_STRUCT const * const tc, int direction);
 double tcGetTarget(TC_STRUCT const * const tc, int direction);
@@ -70,7 +72,8 @@ double pmLine9Target(PmLine9 * const line9);
 
 int pmLine9Init(PmLine9 * const line9,
         EmcPose const * const start,
-        EmcPose const * const end);
+        EmcPose const * const end,
+        const void *log, const char *log_comp);
 
 double pmCircle9Target(PmCircle9 const * const circ9);
 
@@ -79,7 +82,8 @@ int pmCircle9Init(PmCircle9 * const circ9,
         EmcPose const * const end,
         PmCartesian const * const center,
         PmCartesian const * const normal,
-        int turn);
+        int turn,
+        const void *log, const char *log_comp);
 
 int pmRigidTapInit(PmRigidTap * const tap,
         EmcPose const * const start,
@@ -112,7 +116,8 @@ int tcClampVelocityByLength(TC_STRUCT * const tc);
 
 int tcPureRotaryCheck(TC_STRUCT const * const tc);
 
-int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ);
+int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ,
+        const void *log, const char *log_comp);
 
 int tcClearFlags(TC_STRUCT * const tc);
 #endif				/* TC_H */

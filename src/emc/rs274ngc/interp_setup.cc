@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef BOOST_PYTHON_MAX_ARITY
-#define BOOST_PYTHON_MAX_ARITY 4
-#endif
 #include <string.h>
 #include "rs274ngc_interp.hh"
-#include <boost/python/object.hpp>
+#include "interp_queue.hh"
 
 #pragma GCC diagnostic error "-Wmissing-field-initializers"
 setup::setup() :
+    canon(),
     AA_axis_offset(0.0),
     AA_current(0.0),
     AA_origin_offset(0.0),
@@ -177,16 +175,25 @@ setup::setup() :
     disable_fanuc_style_sub(false),
     loop_on_main_m99(false),
     disable_g92_persistence(0),
-    pythis(),
     on_abort_command(NULL),
-    init_once(CANON_STOPPED)
+    init_once(CANON_STOPPED),
+    ext_phase(0),
+    ext_user(nullptr),
+    qc_endpoint{},
+    qc_endpoint_valid(0),
+    qc_queue(nullptr),
+    task_mode(0),
+    user_defined_function{},
+    ini_accessor{nullptr, nullptr, nullptr}
 {
   std::fill(parameters, parameters + interp_param_global::RS274NGC_MAX_PARAMETERS, 0);
 }
 
 setup::~setup() {
-    assert(!pythis || Py_IsInitialized());
-    if(pythis) delete pythis;
+    if (qc_queue) {
+        delete static_cast<std::vector<queued_canon>*>(qc_queue);
+        qc_queue = nullptr;
+    }
 }
 
 block_struct::block_struct ()

@@ -67,7 +67,7 @@ int Interp::inverse_time_rate_arc(double x1,     //!< x coord of start point of 
   } else {
     rate = length * block->f_number;
   }
-  enqueue_SET_FEED_RATE(rate);
+  enqueue_SET_FEED_RATE(settings, rate);
   settings->feed_rate = rate;
   return INTERP_OK;
 }
@@ -129,7 +129,7 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
     rate = length * block->f_number;
   }
   
-  enqueue_SET_FEED_RATE(rate);
+  enqueue_SET_FEED_RATE(settings, rate);
   settings->feed_rate = rate;
 
   return INTERP_OK;

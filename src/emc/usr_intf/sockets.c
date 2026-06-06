@@ -34,8 +34,9 @@
 
 #include <stdarg.h>
 #include <fcntl.h>
+#include <stdio.h>
 
-#include "rcs_print.hh"
+#define rcs_print_error(...) fprintf(stderr, __VA_ARGS__)
 #include "sockets.h"
 
 /**************************************************

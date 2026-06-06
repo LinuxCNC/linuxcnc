@@ -42,8 +42,7 @@ void update_joint_homing_params (int    jno,
 int  homing_init(int id,
                  double servo_period,
                  int n_joints,            // total no of joints
-                 int n_extrajoints,       // extra joints (non-kins)
-                 emcmot_joint_t* pjoints
+                 int n_extrajoints        // extra joints (non-kins)
                  );
 
 // once-per-servo-period functions:
@@ -76,9 +75,7 @@ bool get_homing_at_index_search_wait(int jno);
 
 //---------------------------------------------------------------------
 // Module interface
-// motmod provided ptrs for functions called by homing:
-void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
-                     ,int( *pGetRotaryUnlock)(int)
-                     );
+// Set mot API callbacks for joint access:
+void homingSetMotAPI(const void *api);
 
 #endif /* HOMING_H */

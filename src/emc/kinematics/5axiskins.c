@@ -1,268 +1,226 @@
-/********************************************************************
-* Description: 5axiskins.c
-*   kinematics for XYZBC 5 axis bridge mill
-*
-*   Derived from a work by Fred Proctor & Will Shackleford
-*
-* Author:
-* License: GPL Version 2
-* System: Linux
-*
-* Copyright (c) 2007 Chris Radek
-*
-* Notes:
-*  1) pivot_length hal pin must agree with mechanical
-*     design (including vismach simulation) and augmented
-*     with current tool z offset
-*     (typ: mechanical_pivot_length + motion.tooloffset.z)
-*  2) C axis: spherical coordinates aziumthal angle (t or theta)
-*     projection of radius to xy plane
-*  3) B axis: spherical coordinates polar angle (p or phi)
-*     wrt z axis
-*  4) W axis: tool motion. Negative values increase tool radial
-*     motion example: drilling into body at b,c angles
-*  5) W axis motion is incorporated into the motion of the
-*     joints used for X,Y,Z positioning and no motor or
-*     hal pin connections are required for the joint specified
-*     as JW.  However, a joint must be configured for W to
-*     support display of the W axis letter value for
-*     complicated reasons. (motion/control.c computes joint
-*     positions only for the number of configured kinematic
-*     joints (NO_OF_KINS_JOINTS) and the joint positions
-*     are needed to display axis letters via inverse
-*     kinematics.
-*  6) If no coordinates module parameter is supplied, kins
-*     will use the required coordinates XYZBCW mapped
-*     to joints 0..5 in sequence.
-*  7) Multiple joints may be assigned to an axis letter
-*     with the module coordinates parameter
-*  8) If a coordinates module parameter is supplied,
-*     the kins will map coordinate letters in sequence
-*     to joint numbers beginning with joint 0.
-*  9) Coordinates XYZBCW are required, AUV may be used
-*     if specified with the coordinates parameter and will
-*     be mapped one-to-one with the assigned joint.
-* 10) The direction of the tilt axis is the opposite of the 
-*     conventional axis direction. See 
-*     https://linuxcnc.org/docs/html/gcode/machining-center.html
-********************************************************************/
+// 5axiskins — XYZBC 5-axis bridge mill kinematics (cmod version)
+// Copyright (c) 2007 Chris Radek. License: GPL Version 2
 
-// non-required coordinates (A,U,V) can be set by using
-// the module coordinates parameter
-#define REQUIRED_COORDINATES "XYZBCW"
-
-#define DEFAULT_PIVOT_LENGTH 250
-
-#include "motion.h"
-#include "hal.h"
-#include "rtapi.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
-#include "rtapi_ctype.h"
-#include "kinematics.h"
-#include "posemath.h"
+#include <math.h>
+#include <string.h>
+#include "gomc_env.h"
 #include "switchkins.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+#define TO_RAD (M_PI / 180.0)
+
+#define REQUIRED_COORDINATES "XYZBCW"
+#define DEFAULT_PIVOT_LENGTH 250
+
+// ─── Module state ───
+
+static const gomc_hal_t  *g_hal;
+static const gomc_log_t  *g_log;
+static int                g_comp_id;
+static sk_map_t           g_map;
+static sk_switch_t        g_sw;
+
 struct haldata {
-    hal_float_t *pivot_length;
-} *haldata;
-static int fiveaxis_max_joints;
+    gomc_hal_float_t *pivot_length;
+};
+static struct haldata *haldata;
 
-static PmCartesian s2r(double r, double t, double p) {
-    // s2r: spherical coordinates to cartesian coordinates
-    // r       = length of vector
-    // p=phi   = angle of vector wrt z axis
-    // t=theta = angle of vector projected onto xy plane
-    //           (projection length in xy plane is r*sin(p)
-    PmCartesian c;
-    t = TO_RAD*t; p = TO_RAD*p; // degrees to radians
+// ─── Spherical-to-rectangular helper ───
 
-    c.x = r * sin(p) * cos(t);
-    c.y = r * sin(p) * sin(t);
-    c.z = r * cos(p);
+typedef struct { double x, y, z; } vec3_t;
 
+static vec3_t s2r(double r, double t, double p) {
+    vec3_t c;
+    double tr = TO_RAD * t, pr = TO_RAD * p;
+    c.x = r * sin(pr) * cos(tr);
+    c.y = r * sin(pr) * sin(tr);
+    c.z = r * cos(pr);
     return c;
-} //s2r()
+}
 
-// assignments of principal joints to axis letters:
-// (-1 means not defined (yet))
-static int JX = -1;
-static int JY = -1;
-static int JZ = -1;
-static int JA = -1;
-static int JB = -1;
-static int JC = -1;
-static int JU = -1;
-static int JV = -1;
-static int JW = -1;
+// ─── Module-specific forward/inverse ───
 
-static int fiveaxis_KinematicsForward(const double *joints,
-                                      EmcPose * pos,
-                                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                                      KINEMATICS_INVERSE_FLAGS * iflags)
+static int32_t fiveaxis_forward(const double joints[KINS_MAX_JOINTS],
+                            kins_pose_t *world)
 {
-    PmCartesian r = s2r(*(haldata->pivot_length) + joints[JW],
-                        joints[JC],
-                        180.0 - joints[JB]);
+    int JX = g_map.principal[0], JY = g_map.principal[1];
+    int JZ = g_map.principal[2], JA = g_map.principal[3];
+    int JB = g_map.principal[4], JC = g_map.principal[5];
+    int JU = g_map.principal[6], JV = g_map.principal[7];
+    int JW = g_map.principal[8];
 
-    // Note: 'principal' joints are used
-    pos->tran.x = joints[JX] + r.x;
-    pos->tran.y = joints[JY] + r.y;
-    pos->tran.z = joints[JZ] + *(haldata->pivot_length) + r.z;
-    pos->b      = joints[JB];
-    pos->c      = joints[JC];
-    pos->w      = joints[JW];
+    vec3_t r = s2r(*(haldata->pivot_length) + joints[JW],
+                   joints[JC], 180.0 - joints[JB]);
 
-    // optional letters (specify with coordinates module parameter)
-    pos->a = (JA != -1)? joints[JA] : 0;
-    pos->u = (JU != -1)? joints[JU] : 0;
-    pos->v = (JV != -1)? joints[JV] : 0;
-
+    world->x = joints[JX] + r.x;
+    world->y = joints[JY] + r.y;
+    world->z = joints[JZ] + *(haldata->pivot_length) + r.z;
+    world->b = joints[JB];
+    world->c = joints[JC];
+    world->w = joints[JW];
+    world->a = (JA >= 0) ? joints[JA] : 0;
+    world->u = (JU >= 0) ? joints[JU] : 0;
+    world->v = (JV >= 0) ? joints[JV] : 0;
     return 0;
-} //fiveaxis_KinematicsForward()
+}
 
-static int fiveaxis_KinematicsInverse(const EmcPose * pos,
-                                      double *joints,
-                                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                                      KINEMATICS_FORWARD_FLAGS * fflags)
+static int32_t fiveaxis_inverse(const kins_pose_t *world,
+                            double joints[KINS_MAX_JOINTS])
 {
-    PmCartesian r = s2r(*(haldata->pivot_length) + pos->w,
-                        pos->c,
-                        180.0 - pos->b);
+    vec3_t r = s2r(*(haldata->pivot_length) + world->w,
+                   world->c, 180.0 - world->b);
 
-    EmcPose P;  // computed position
-    P.tran.x = pos->tran.x - r.x;
-    P.tran.y = pos->tran.y - r.y;
-    P.tran.z = pos->tran.z - *(haldata->pivot_length) - r.z;
+    // Computed position
+    kins_pose_t P;
+    P.x = world->x - r.x;
+    P.y = world->y - r.y;
+    P.z = world->z - *(haldata->pivot_length) - r.z;
+    P.b = world->b;
+    P.c = world->c;
+    P.w = world->w;
+    P.a = (g_map.principal[3] >= 0) ? world->a : 0;
+    P.u = (g_map.principal[6] >= 0) ? world->u : 0;
+    P.v = (g_map.principal[7] >= 0) ? world->v : 0;
 
-    P.b = pos->b;
-    P.c = pos->c;
-    P.w = pos->w;
-
-    // optional letters (specify with coordinates module parameter)
-    P.a = (JA != -1)? pos->a : 0;
-    P.u = (JU != -1)? pos->u : 0;
-    P.v = (JV != -1)? pos->v : 0;
-
-    // update joints with support for
-    // multiple-joints per-coordinate letter:
-    // based on computed position
-    position_to_mapped_joints(fiveaxis_max_joints,
-                              &P,
-                              joints);
+    // Map to joints (handles duplicates)
+    sk_pos_to_joints(&g_map, &P, joints);
     return 0;
-} // fiveaxis_kinematicsInverse()
+}
 
-int fiveaxis_KinematicsSetup(const  int   comp_id,
-                             const  char* coordinates,
-                             kparms*      kp)
+// ─── kins_callbacks_t dispatch ───
+
+static int32_t dispatch_forward(
+    void *ctx,
+    const double joints[KINS_MAX_JOINTS],
+    kins_pose_t *world,
+    uint64_t fflags, uint64_t *iflags)
 {
-    int result=0;
-    int i,jno;
-    int axis_idx_for_jno[EMCMOT_MAX_JOINTS];
-    int minjoints = strlen(kp->required_coordinates);
-    fiveaxis_max_joints = strlen(coordinates); // allow for dup coords
+    (void)ctx;
+    (void)fflags; (void)iflags;
+    int rc;
+    switch (g_sw.current_type) {
+        case 0:  rc = fiveaxis_forward(joints, world); break;
+        default: sk_identity_forward(&g_map, joints, world); rc = 0; break;
+    }
+    return rc;
+}
 
-    if (fiveaxis_max_joints > kp->max_joints) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-             "ERROR %s: coordinates=%s requires %d joints, max joints=%d\n",
-             kp->kinsname,
-             coordinates,
-             fiveaxis_max_joints,
-             kp->max_joints);
-        goto error;
+static int32_t dispatch_inverse(
+    void *ctx,
+    const kins_pose_t *world,
+    double joints[KINS_MAX_JOINTS],
+    uint64_t iflags, uint64_t *fflags)
+{
+    (void)ctx;
+    (void)iflags; (void)fflags;
+    int rc;
+    switch (g_sw.current_type) {
+        case 0:  rc = fiveaxis_inverse(world, joints); break;
+        default: sk_identity_inverse(&g_map, world, joints); rc = 0; break;
+    }
+    return rc;
+}
+
+static kins_kinematics_type_t dispatch_type(void *ctx) {
+    (void)ctx;
+    return KINS_BOTH;
+}
+static int32_t dispatch_switchable(void *ctx) { (void)ctx; return 1; }
+static int32_t dispatch_switch(void *ctx, int32_t t)
+    { (void)ctx; return sk_switch_to(&g_sw, t); }
+
+static kins_callbacks_t fiveaxis_callbacks = {
+    .ctx = NULL,
+    .forward    = dispatch_forward,
+    .inverse    = dispatch_inverse,
+    .type       = dispatch_type,
+    .switchable = dispatch_switchable,
+    .switch_    = dispatch_switch,
+};
+
+// ─── cmod lifecycle ───
+
+static cmod_t fiveaxis_cmod;
+
+static void fiveaxis_destroy(cmod_t *self) {
+    (void)self;
+    if (g_hal && g_comp_id > 0)
+        g_hal->exit(g_hal->ctx, g_comp_id);
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
+{
+    g_log = env->log;
+    if (!env->hal) {
+        gomc_log_errorf(env->log, name, "HAL API not available");
+        return -1;
+    }
+    g_hal = env->hal;
+
+    // Parse parameters
+    const char *coordinates = REQUIRED_COORDINATES;
+    for (int i = 0; i < argc; i++) {
+        if (strncmp(argv[i], "coordinates=", 12) == 0)
+            coordinates = argv[i] + 12;
+    }
+    if (env->ini) {
+        const char *v = env->ini->get(env->ini->ctx, "KINS", "COORDINATES");
+        if (v) coordinates = v;
     }
 
-    if (map_coordinates_to_jnumbers(coordinates,
-                                    kp->max_joints,
-                                    kp->allow_duplicates,
-                                    axis_idx_for_jno)) {
-       goto error;
+    // Coordinate mapping (allow duplicates)
+    if (sk_map_coordinates(&g_map, coordinates, 1) < 0) {
+        gomc_log_errorf(env->log, name, "bad coordinates string: %s",
+                      coordinates);
+        return -1;
     }
-    // require all chars in reqd_coordinates (order doesn't matter)
-    for (i=0; i < minjoints; i++) {
-        char  reqd_char;
-        reqd_char = *(kp->required_coordinates + i);
-        if (   !strchr(coordinates,toupper(reqd_char))
-            && !strchr(coordinates,tolower(reqd_char)) ) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                 "ERROR %s:\nrequired  coordinates:%s\n"
-                           "specified coordinates:%s\n",
-                 kp->kinsname, kp->required_coordinates, coordinates);
-            goto error;
+
+    // Verify required coordinates
+    const char *reqd = REQUIRED_COORDINATES;
+    for (int i = 0; reqd[i]; i++) {
+        int ai = (int)(strchr("XYZABCUVW", reqd[i]) - "XYZABCUVW");
+        if (g_map.principal[ai] < 0) {
+            gomc_log_errorf(env->log, name,
+                "missing required coordinate '%c' in '%s'",
+                reqd[i], coordinates);
+            return -1;
         }
     }
-    // assign principal joint numbers (first found in coordinates map)
-    // duplicates are handled by position_to_mapped_joints()
-    for (jno=0; jno<EMCMOT_MAX_JOINTS; jno++) {
-        if (axis_idx_for_jno[jno] == 0) {if (JX == -1) JX=jno;}
-        if (axis_idx_for_jno[jno] == 1) {if (JY == -1) JY=jno;}
-        if (axis_idx_for_jno[jno] == 2) {if (JZ == -1) JZ=jno;}
-        if (axis_idx_for_jno[jno] == 3) {if (JA == -1) JA=jno;}
-        if (axis_idx_for_jno[jno] == 4) {if (JB == -1) JB=jno;}
-        if (axis_idx_for_jno[jno] == 5) {if (JC == -1) JC=jno;}
-        if (axis_idx_for_jno[jno] == 6) {if (JU == -1) JU=jno;}
-        if (axis_idx_for_jno[jno] == 7) {if (JV == -1) JV=jno;}
-        if (axis_idx_for_jno[jno] == 8) {if (JW == -1) JW=jno;}
+
+    g_comp_id = env->hal->init(env->hal->ctx, name, env->dl_handle,
+                               GOMC_HAL_COMP_REALTIME);
+    if (g_comp_id < 0) return g_comp_id;
+
+    haldata = env->hal->malloc(env->hal->ctx, sizeof(struct haldata));
+    if (!haldata) { g_hal->exit(g_hal->ctx, g_comp_id); return -1; }
+
+    int rc;
+    rc = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN,
+                                 &haldata->pivot_length,
+                                 g_comp_id, "%s.pivot-length", name);
+    if (rc < 0) goto fail;
+    *(haldata->pivot_length) = DEFAULT_PIVOT_LENGTH;
+
+    rc = sk_create_switch_pins(env->hal, g_comp_id, &g_sw);
+    if (rc < 0) goto fail;
+
+    env->hal->ready(env->hal->ctx, g_comp_id);
+
+    rc = kins_api_register(env->api, name, &fiveaxis_callbacks);
+    if (rc != 0) {
+        gomc_log_errorf(env->log, name,
+            "failed to register kinematics API: %d", rc);
+        goto fail;
     }
 
-    haldata = hal_malloc(sizeof(struct haldata));
-
-    result = hal_pin_float_newf(HAL_IN,&(haldata->pivot_length),comp_id,
-                                "%s.pivot-length",kp->halprefix);
-    if(result < 0) goto error;
-
-    *haldata->pivot_length = DEFAULT_PIVOT_LENGTH;
-
-    rtapi_print("Kinematics Module %s\n",__FILE__);
-    rtapi_print("  module name = %s\n"
-                "  coordinates = %s  Requires: [KINS]JOINTS>=%d\n"
-                "  sparm       = %s\n",
-                kp->kinsname,
-                coordinates,fiveaxis_max_joints,
-                kp->sparm?kp->sparm:"NOTSPECIFIED");
-    rtapi_print("  default pivot-length = %.3f\n",*haldata->pivot_length);
-
+    fiveaxis_cmod.Destroy = fiveaxis_destroy;
+    *out = &fiveaxis_cmod;
     return 0;
 
-error:
-    return -1;
-} // fiveaxis_KinematicsSetup()
-
-int switchkinsSetup(kparms* kp,
-                    KS* kset0, KS* kset1, KS* kset2,
-                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
-                    KI* kinv0, KI* kinv1, KI* kinv2
-                   )
-{
-    kp->kinsname    = "5axiskins"; // !!! must agree with filename
-    kp->halprefix   = "5axiskins"; // hal pin names
-    kp->required_coordinates = REQUIRED_COORDINATES;
-    kp->allow_duplicates     = 1;
-    kp->max_joints           = EMCMOT_MAX_JOINTS;
-
-    if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
-        rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
-        *kset0 = identityKinematicsSetup;
-        *kfwd0 = identityKinematicsForward;
-        *kinv0 = identityKinematicsInverse;
-
-        *kset1 = fiveaxis_KinematicsSetup;
-        *kfwd1 = fiveaxis_KinematicsForward;
-        *kinv1 = fiveaxis_KinematicsInverse;
-    } else {
-        rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
-        *kset0 = fiveaxis_KinematicsSetup;
-        *kfwd0 = fiveaxis_KinematicsForward;
-        *kinv0 = fiveaxis_KinematicsInverse;
-
-        *kset1 = identityKinematicsSetup;
-        *kfwd1 = identityKinematicsForward;
-        *kinv1 = identityKinematicsInverse;
-    }
-    *kset2 = userkKinematicsSetup;
-    *kfwd2 = userkKinematicsForward;
-    *kinv2 = userkKinematicsInverse;
-
-    return 0;
-} // switchkinsSetup()
+fail:
+    g_hal->exit(g_hal->ctx, g_comp_id);
+    return rc;
+}

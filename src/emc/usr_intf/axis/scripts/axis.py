@@ -53,11 +53,7 @@ class Tk(OldTk):
 
 Tkinter.Tk = Tk
 
-RTLD_NOW, RTLD_GLOBAL = 0x1, 0x100  # XXX portable?
-old_flags = sys.getdlopenflags()
-sys.setdlopenflags(RTLD_NOW | RTLD_GLOBAL);
 import gcode
-sys.setdlopenflags(old_flags)
 from rs274.OpenGLTk import *
 from rs274.interpret import StatMixin
 from rs274.glcanon import GLCanon, GlCanonDraw
@@ -68,16 +64,17 @@ import nf
 import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
-import linuxcnc
+import gmi
+from gmi.constants import *
 from glnav import *
 
-if "AXIS_NO_HAL" in os.environ:
-    hal_present = 0;
+if "AXIS_NO_SERVER" in os.environ:
+    server_present = 0;
 else:
-    hal_present = 1;
+    server_present = 1;
 
-if hal_present == 1:
-    import hal
+if server_present == 1:
+    import gmi
 
 import configparser
 
@@ -112,10 +109,7 @@ class AxisPreferences(cp):
         self.set("DEFAULT", option, str(value))
         self.write(open(self.fn, "w"))
 
-if sys.argv[1] != "-ini":
-    raise SystemExit("-ini must be first argument")
-
-inifile = linuxcnc.ini(sys.argv[2])
+inifile = gmi.IniFile()
 
 ap = AxisPreferences()
 
@@ -127,24 +121,24 @@ root_window.withdraw()
 nf.start(root_window)
 nf.makecommand(root_window, "_", _)
 rs274.options.install(root_window)
-root_window.tk.call("set", "version", linuxcnc.version)
+root_window.tk.call("set", "version", gmi.version)
 
 try:
-    root_window.tk.call("set","::MAX_JOINTS"         ,linuxcnc.MAX_JOINTS)
-    root_window.tk.call("set","::MAX_AXIS"           ,linuxcnc.MAX_AXIS)
-    root_window.tk.call("set","::STATE_ESTOP"        ,linuxcnc.STATE_ESTOP)
-    root_window.tk.call("set","::STATE_ESTOP_RESET"  ,linuxcnc.STATE_ESTOP_RESET)
-    root_window.tk.call("set","::STATE_OFF"          ,linuxcnc.STATE_OFF)
-    root_window.tk.call("set","::STATE_ON"           ,linuxcnc.STATE_ON)
-    root_window.tk.call("set","::TASK_MODE_MANUAL"   ,linuxcnc.MODE_MANUAL)
-    root_window.tk.call("set","::TASK_MODE_MDI"      ,linuxcnc.MODE_MDI)
-    root_window.tk.call("set","::TASK_MODE_AUTO"     ,linuxcnc.MODE_AUTO)
-    root_window.tk.call("set","::INTERP_IDLE"        ,linuxcnc.INTERP_IDLE)
-    root_window.tk.call("set","::INTERP_READING"     ,linuxcnc.INTERP_READING)
-    root_window.tk.call("set","::INTERP_PAUSED"      ,linuxcnc.INTERP_PAUSED)
-    root_window.tk.call("set","::INTERP_WAITING"     ,linuxcnc.INTERP_WAITING)
-    root_window.tk.call("set","::TRAJ_MODE_FREE"     ,linuxcnc.TRAJ_MODE_FREE)
-    root_window.tk.call("set","::KINEMATICS_IDENTITY",linuxcnc.KINEMATICS_IDENTITY)
+    root_window.tk.call("set","::MAX_JOINTS"         ,MAX_JOINTS)
+    root_window.tk.call("set","::MAX_AXIS"           ,MAX_AXIS)
+    root_window.tk.call("set","::STATE_ESTOP"        ,STATE_ESTOP)
+    root_window.tk.call("set","::STATE_ESTOP_RESET"  ,STATE_ESTOP_RESET)
+    root_window.tk.call("set","::STATE_OFF"          ,STATE_OFF)
+    root_window.tk.call("set","::STATE_ON"           ,STATE_ON)
+    root_window.tk.call("set","::TASK_MODE_MANUAL"   ,MODE_MANUAL)
+    root_window.tk.call("set","::TASK_MODE_MDI"      ,MODE_MDI)
+    root_window.tk.call("set","::TASK_MODE_AUTO"     ,MODE_AUTO)
+    root_window.tk.call("set","::INTERP_IDLE"        ,INTERP_IDLE)
+    root_window.tk.call("set","::INTERP_READING"     ,INTERP_READING)
+    root_window.tk.call("set","::INTERP_PAUSED"      ,INTERP_PAUSED)
+    root_window.tk.call("set","::INTERP_WAITING"     ,INTERP_WAITING)
+    root_window.tk.call("set","::TRAJ_MODE_FREE"     ,TRAJ_MODE_FREE)
+    root_window.tk.call("set","::KINEMATICS_IDENTITY",KINEMATICS_IDENTITY)
     nf.source_lib_tcl(root_window,"axis.tcl")
 except TclError:
     print(root_window.tk.call("set", "errorInfo"))
@@ -166,16 +160,19 @@ mdi_history_max_entries = 1000
 mdi_history_save_filename =\
     inifile.find('DISPLAY', 'MDI_HISTORY_FILE') or "~/.axis_mdi_history"
 
-
 feedrate_blackout = 0
 rapidrate_blackout = 0
 spindlerate_blackout = 0
 maxvel_blackout = 0
+jog_axis_blackout = 0
+jog_incr_blackout = 0
+jog_speed_blackout = 0
+ajog_speed_blackout = 0
 jogincr_index_last = 1
 mdi_history_index= -1
-resume_inhibit = 0
 continuous_jog_in_progress = False
 cjogindices = []
+_jog_refresh_counter = 0
 
 help1 = [
     ("F1", _("Emergency stop")),
@@ -268,7 +265,7 @@ def install_help(app):
     Label(keys, text="    ").grid(row=0, column=2)
 
 def joints_mode():
-    return s.motion_mode == linuxcnc.TRAJ_MODE_FREE
+    return s.motion_mode == TRAJ_MODE_FREE
 
 def set_motion_teleop(value):
     if running(): return
@@ -312,78 +309,126 @@ def from_internal_linear_unit(v, unit=None):
 
 def masked_axes_count():
     ct = 0
-    for i in range(linuxcnc.MAX_JOINTS):
+    for i in range(MAX_JOINTS):
         if s.axis_mask & (1<<i): ct +=1
     return ct
 
 class Notification(Tkinter.Frame):
+    """Notification area driven by the server-side message list.
+
+    Each message has a unique ID. The server pushes the full list via
+    the messages/get_list watch. This widget reconciles its display
+    to match: adds new messages, removes acknowledged ones.
+    """
+
+    # Map error kind → icon name
+    _KIND_ICON = {
+        1: "error",   # NML_ERROR
+        11: "error",  # OPERATOR_ERROR
+        2: "info",    # NML_TEXT
+        12: "info",   # OPERATOR_TEXT
+        3: "info",    # NML_DISPLAY
+        13: "info",   # OPERATOR_DISPLAY
+    }
+
     def __init__(self, master):
-        self.widgets = []
-        self.cache = []
+        self._items = {}  # msg_id → (frame, icon_label, text_label, button, icon_image)
+        self._order = []  # msg_ids in display order
+        self._message_list = None  # set later via set_message_list()
         Tkinter.Frame.__init__(self, master)
 
-    def clear(self,iconname=None):
-        if iconname:
-            cpy = self.widgets[:]
-            for i, item in enumerate(cpy):
-                frame,icon,text,button,iname = item
-                if iname == "icon_std_" + iconname:
-                    self.remove(cpy[i])
+    def set_message_list(self, ml):
+        """Set the gmi.MessageList client for ack commands."""
+        self._message_list = ml
+
+    def has_items(self):
+        return len(self._items) > 0
+
+    def sync(self, messages):
+        """Reconcile display with server message list.
+
+        messages: list of {"id": int, "kind": int, "text": str}
+        """
+        new_ids = set()
+        for msg in messages:
+            msg_id = msg["id"]
+            new_ids.add(msg_id)
+            if msg_id not in self._items:
+                self._add_widget(msg_id, msg["kind"], msg["text"])
+
+        # Remove widgets for messages no longer in the list.
+        for msg_id in list(self._order):
+            if msg_id not in new_ids:
+                self._remove_widget(msg_id)
+
+        if self._items:
+            self.place(relx=1, rely=1, y=-20, anchor="se")
         else:
-            while self.widgets:
-                self.remove(self.widgets[0])
+            self.place_forget()
+
+    def clear(self, iconname=None):
+        """Acknowledge messages via server. The sync callback will update display."""
+        if self._message_list is None:
+            return
+        if iconname == "error":
+            self._message_list.ack_error()
+        elif iconname == "info":
+            self._message_list.ack_text()
+            self._message_list.ack_display()
+        else:
+            self._message_list.ack_all()
 
     def clear_one(self):
-        if self.widgets:
-            self.remove(self.widgets[0])
+        """Acknowledge the oldest message."""
+        if self._order and self._message_list:
+            self._message_list.ack_message(self._order[0])
 
-
-    def add(self, iconname, message):
-        self.place(relx=1, rely=1, y=-20, anchor="se")
+    def _add_widget(self, msg_id, kind, text):
+        iconname = self._KIND_ICON.get(kind, "info")
         iconname_image = self.tk.call("load_image", "std_" + iconname)
         close = self.tk.call("load_image", "close", "notification-close")
-        if len(self.widgets) > 10:
-            self.remove(self.widgets[0])
-        if self.cache:
-            frame, icon, text, button, discard = self.cache.pop()
-            icon.configure(image=iconname_image)
-            text.configure(text=message)
-            widgets = frame, icon, text, button, iconname_image
-        else:
-            frame = Tkinter.Frame(self)
-            icon = Tkinter.Label(frame, image=iconname_image)
-            text = Tkinter.Label(frame, text=message, wraplength=300, justify="left")
-            button = Tkinter.Button(frame, image=close)
-            widgets = frame, icon, text, button, iconname_image
-            text.pack(side="left")
-            icon.pack(side="left")
-            button.pack(side="left")
-        button.configure(command=lambda: self.remove(widgets))
+
+        frame = Tkinter.Frame(self)
+        icon = Tkinter.Label(frame, image=iconname_image)
+        text_label = Tkinter.Label(frame, text=text, wraplength=300, justify="left")
+        button = Tkinter.Button(frame, image=close)
+        button.configure(command=lambda mid=msg_id: self._ack(mid))
+        text_label.pack(side="left")
+        icon.pack(side="left")
+        button.pack(side="left")
         frame.pack(side="top", anchor="e")
-        self.widgets.append(widgets)
-        if iconname == "error":
-           comp["error"] = True
 
-    def remove(self, widgets):
-        self.widgets.remove(widgets)
-        if len(self.cache) < 10:
-            widgets[0].pack_forget()
-            self.cache.append(widgets)
-        else:
+        self._items[msg_id] = (frame, icon, text_label, button, iconname_image)
+        self._order.append(msg_id)
+
+    def _remove_widget(self, msg_id):
+        widgets = self._items.pop(msg_id, None)
+        if widgets:
             widgets[0].destroy()
-        if len(self.widgets) == 0:
-            self.place_forget()
-        if self._remaining_error_count() == 0:
-            comp["error"] = False
+        if msg_id in self._order:
+            self._order.remove(msg_id)
 
-    def _remaining_error_count(self):
-        """ Returns the count of remaining error messages """
-        count = 0
-        for i, item in enumerate(self.widgets):
-            frame, icon, text, button, iname = item
-            if iname == "icon_std_error":
-                count += 1
-        return count
+    def _ack(self, msg_id):
+        """Called when [x] is clicked — acknowledge a single message."""
+        if self._message_list:
+            self._message_list.ack_message(msg_id)
+
+    def _has_error(self):
+        """Check if any error message is currently displayed."""
+        # Not needed for HAL pin — server drives it now
+        return False
+
+    def add(self, iconname, message):
+        """Publish a message through the server-side message list.
+
+        This is used for client-originated messages (e.g. preview timeout).
+        The message will appear via the normal watch update cycle.
+        """
+        if self._message_list is None:
+            return
+        from gmi.messages import OPERATOR_ERROR, OPERATOR_TEXT
+        kind = OPERATOR_ERROR if iconname == "error" else OPERATOR_TEXT
+        self._message_list.publish(kind, message)
 
 
 def soft_limits():
@@ -709,18 +754,10 @@ class LivePlotter:
         self.last_limit = None
         self.last_motion_mode = None
         self.last_joint_position = None
-        self.notifications_clear = False
-        self.notifications_clear_info = False
-        self.notifications_clear_error = False
 
     def start(self):
         if self.running.get(): return
-        if not os.path.exists(linuxcnc.nmlfile):
-            return False
-        try:
-            self.stat = linuxcnc.stat()
-        except linuxcnc.error:
-            return False
+        self.stat = gmi.Stat()
         self.last_task_mode = self.stat.task_mode
         self.last_motion_mode  = self.stat.motion_mode
         def C(s):
@@ -728,7 +765,7 @@ class LivePlotter:
             s = o.colors[s]
             return [int(x * 255) for x in s + (a,)]
 
-        self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
+        self.logger = gmi.positionlogger(None,
             C('backplotjog'),
             C('backplottraverse'),
             C('backplotfeed'),
@@ -757,40 +794,48 @@ class LivePlotter:
         self.running.set(True)
 
     def error_task(self):
-        error = e.poll()
-        while error:
-            kind, text = error
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                icon = "error"
-            else:
-                icon = "info"
-            notifications.add(icon, text)
-            error = e.poll()
-        self.error_after = self.win.after(200, self.error_task)
+        # Message list is now driven by the WS watch callback.
+        # Keep this method as a no-op for the after() scheduling chain
+        # which was started in __init__ — just don't reschedule.
+        pass
 
     def update(self):
         if not self.running.get():
             return
         try:
             self.stat.poll()
-        except linuxcnc.error as detail:
+        except Exception as detail:
             print("error", detail)
             del self.stat
             return
 
         global continuous_jog_in_progress,cjogindices
+        global jog_speed_blackout, ajog_speed_blackout
         if continuous_jog_in_progress and not manual_tab_visible():
             jjogmode = get_jog_mode()
             for idx in cjogindices:
-                 c.jog(linuxcnc.JOG_STOP, jjogmode,idx)
+                 c.jog(JOG_STOP, jjogmode,idx)
             continuous_jog_in_progress = 0
             cjogindices = []
 
-        if  (   (self.stat.motion_mode == linuxcnc.TRAJ_MODE_COORD)
-            and (self.stat.task_mode   == linuxcnc.MODE_MANUAL)
+        # Jog refresh watchdog: re-send active continuous jogs every ~1s
+        # to keep milltask's jog watchdog from timing out.
+        global _jog_refresh_counter
+        _jog_refresh_counter += 1
+        if _jog_refresh_counter >= 10 and continuous_jog_in_progress:
+            _jog_refresh_counter = 0
+            jjogmode = get_jog_mode()
+            for idx in cjogindices:
+                if jog_cont[idx] and jogging[idx] != 0:
+                    c.jog(JOG_CONTINUOUS, jjogmode, idx, jogging[idx])
+        elif _jog_refresh_counter >= 10:
+            _jog_refresh_counter = 0
+
+        if  (   (self.stat.motion_mode == TRAJ_MODE_COORD)
+            and (self.stat.task_mode   == MODE_MANUAL)
             ):
             set_motion_teleop(1)
-        if      ( (self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
+        if      ( (self.stat.motion_mode == TRAJ_MODE_TELEOP)
             and   not vars.teleop_mode.get() ):
             vars.teleop_mode.set(1)
 
@@ -802,16 +847,81 @@ class LivePlotter:
         enable_tab_change = False
         if (     enable_tab_change
             and (self.stat.task_mode != self.last_task_mode)):
-            if (self.stat.task_mode == linuxcnc.MODE_MANUAL):
+            if (self.stat.task_mode == MODE_MANUAL):
                 root_window.tk.eval(pane_top + ".tabs raise manual")
-            if (self.stat.task_mode == linuxcnc.MODE_MDI):
+            if (self.stat.task_mode == MODE_MDI):
                 root_window.tk.eval(pane_top + ".tabs raise mdi")
-            if (self.stat.task_mode == linuxcnc.MODE_AUTO):
+            if (self.stat.task_mode == MODE_AUTO):
                 # not sure if anything needs to be done for this
                 pass
         self.last_task_mode = self.stat.task_mode
 
         self.after = self.win.after(update_ms, self.update)
+
+        # Sync jog axis selection from server (multi-client sync)
+        if time.time() > jog_axis_blackout:
+            try:
+                remote_jog_axis = self.stat.jog_axis
+                if remote_jog_axis >= 0 and remote_jog_axis < 9:
+                    remote_axis_letter = "xyzabcuvw"[remote_jog_axis]
+                    if vars.ja_rbutton.get() != remote_axis_letter:
+                        vars.ja_rbutton.set(remote_axis_letter)
+            except (AttributeError, KeyError):
+                pass
+
+        # Sync jog increment from server (multi-client sync)
+        if time.time() > jog_incr_blackout:
+            try:
+                remote_jog_incr = self.stat.jog_increment
+                jogincr = widgets.jogincr.get()
+                if jogincr == _("Continuous"):
+                    current_incr = 0.0
+                else:
+                    current_incr = parse_increment(jogincr)
+                if abs(remote_jog_incr - current_incr) > 1e-12:
+                    # Find matching increment in the list
+                    if remote_jog_incr == 0:
+                        root_window.call(widgets.jogincr._w, "select", 0)
+                    else:
+                        iterator = root_window.call(widgets.jogincr._w, "list", "get", "0", "end")
+                        for idx, entry in enumerate(iterator):
+                            if entry == _("Continuous"):
+                                continue
+                            try:
+                                val = parse_increment(entry)
+                                if abs(val - remote_jog_incr) < 1e-12:
+                                    root_window.call(widgets.jogincr._w, "select", idx)
+                                    break
+                            except (ValueError, ZeroDivisionError):
+                                continue
+            except (AttributeError, KeyError):
+                pass
+
+        # Sync jog speed from server (multi-client sync)
+        if time.time() > jog_speed_blackout:
+            try:
+                remote_speed = self.stat.jog_speed
+                local_speed = vars.jog_speed.get()
+                if abs(remote_speed - local_speed) > 0.01 and remote_speed > 0:
+                    global _jog_speed_from_remote
+                    _jog_speed_from_remote = True
+                    vars.jog_speed.set(remote_speed)
+                    root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
+                    _jog_speed_from_remote = False
+            except (AttributeError, KeyError):
+                _jog_speed_from_remote = False
+
+        if time.time() > ajog_speed_blackout:
+            try:
+                remote_aspeed = self.stat.ajog_speed
+                local_aspeed = vars.jog_aspeed.get()
+                if abs(remote_aspeed - local_aspeed) > 0.01 and remote_aspeed > 0:
+                    _jog_speed_from_remote = True
+                    vars.jog_aspeed.set(remote_aspeed)
+                    root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
+                    _jog_speed_from_remote = False
+            except (AttributeError, KeyError):
+                _jog_speed_from_remote = False
 
         self.win.set_current_line(self.stat.motion_id or self.stat.motion_line)
 
@@ -822,6 +932,23 @@ class LivePlotter:
         if (   self.stat.tool_offset   != o.last_tool_offset
             or self.stat.tool_in_spindle != o.last_tool):
             o.redraw_dro()
+        # When the server signals that preview-relevant state changed
+        # (offsets, program loaded, tool table), reload the preview.
+        preview_seq = getattr(self.stat, 'preview_seq', 0)
+        if preview_seq != getattr(o, 'last_preview_seq', None):
+            o.last_preview_seq = preview_seq
+            # Multi-client sync: if another client loaded a different file,
+            # update text editor and loaded_file (without re-sending
+            # program_open to avoid infinite seq increment loop).
+            remote_file = self.stat.file
+            file_changed = remote_file and remote_file != loaded_file
+            if file_changed:
+                load_text_and_set_file(remote_file)
+            if loaded_file:
+                if file_changed:
+                    global _pending_autofit
+                    _pending_autofit = True
+                root_window.after_idle(refresh_preview_if_idle)
         if (self.logger.npts != self.lastpts
                 or limits != o.last_limits
                 or self.stat.actual_position != o.last_position
@@ -856,34 +983,19 @@ class LivePlotter:
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
         vupdate(vars.queued_mdi_commands, self.stat.queued_mdi_commands)
-        if hal_present == 1:
-            notifications_clear = comp["notifications-clear"]
-            if self.notifications_clear != notifications_clear:
-                 self.notifications_clear = notifications_clear
-                 if self.notifications_clear:
-                     notifications.clear()
-            notifications_clear_info = comp["notifications-clear-info"]
-            if self.notifications_clear_info != notifications_clear_info:
-                 self.notifications_clear_info = notifications_clear_info
-                 if self.notifications_clear_info:
-                     notifications.clear("info")
-            notifications_clear_error = comp["notifications-clear-error"]
-            if self.notifications_clear_error != notifications_clear_error:
-                 self.notifications_clear_error = notifications_clear_error
-                 if self.notifications_clear_error:
-                     notifications.clear("error")
-            now_resume_inhibit = comp["resume-inhibit"]
-            global resume_inhibit
-            if resume_inhibit != now_resume_inhibit:
-                 resume_inhibit = now_resume_inhibit
-                 if resume_inhibit:
-                     root_window.tk.call("pause_image_override")
-                 else:
-                     root_window.tk.call("pause_image_normal")
+        if server_present == 1:
+            if (self.stat.task_state != STATE_ON or
+                    self.stat.interp_state != INTERP_IDLE):
+                widgets.jogminus.configure(state="disabled")
+                widgets.jogplus.configure(state="disabled")
+            else:
+                widgets.jogminus.configure(state="normal")
+                widgets.jogplus.configure(state="normal")
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
         vupdate(vars.taskfile, self.stat.file)
+
         vupdate(vars.interp_pause, self.stat.paused)
         vupdate(vars.mist, self.stat.mist)
         vupdate(vars.flood, self.stat.flood)
@@ -912,16 +1024,16 @@ class LivePlotter:
         vupdate(vars.on_any_limit, on_any_limit)
         global current_tool
         current_tool = self.stat.tool_table[0]
-        if current_tool:
-            tool_data = {'tool': current_tool[0], 'zo': current_tool[3], 'xo': current_tool[1], 'dia': current_tool[10]}
         if current_tool is None:
             vupdate(vars.tool, _("Unknown tool %d") % self.stat.tool_in_spindle)
-        elif tool_data['tool'] == 0 or tool_data['tool'] == -1:
-            vupdate(vars.tool, _("No tool"))
-        elif current_tool.xoffset == 0 and not lathe:
-            vupdate(vars.tool, _("Tool %(tool)d, offset %(zo)g, diameter %(dia)g") % tool_data)
         else:
-            vupdate(vars.tool, _("Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g") % tool_data)
+            tool_data = {'tool': current_tool[0], 'zo': current_tool[3], 'xo': current_tool[1], 'dia': current_tool[10]}
+            if tool_data['tool'] == 0 or tool_data['tool'] == -1:
+                vupdate(vars.tool, _("No tool"))
+            elif current_tool.xoffset == 0 and not lathe:
+                vupdate(vars.tool, _("Tool %(tool)d, offset %(zo)g, diameter %(dia)g") % tool_data)
+            else:
+                vupdate(vars.tool, _("Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g") % tool_data)
         active_codes = []
         for i in self.stat.gcodes[1:]:
             if i == -1: continue
@@ -960,10 +1072,11 @@ class LivePlotter:
         self.logger.clear()
         o.redraw_soon()
 
+
 def running(do_poll=True):
     if do_poll: s.poll()
-    return ( (s.task_mode == linuxcnc.MODE_AUTO or s.task_mode == linuxcnc.MODE_MDI)
-             and s.interp_state != linuxcnc.INTERP_IDLE)
+    return ( (s.task_mode == MODE_AUTO or s.task_mode == MODE_MDI)
+             and s.interp_state != INTERP_IDLE)
 
 
 def manual_tab_visible():
@@ -978,18 +1091,8 @@ initiated action (whether an MDI command or a jog) is acceptable.
 
 This means this function returns True when the mdi tab is visible."""
     if do_poll: s.poll()
-    if s.task_state != linuxcnc.STATE_ON: return False
-    return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
-
-# If LinuxCNC is not already in one of the modes given, switch it to the
-# first (task) mode MANUAL,MDI,AUTO
-def ensure_mode(m, *p):
-    s.poll()
-    if s.task_mode == m or s.task_mode in p: return True
-    c.mode(m) # task_mode
-    c.wait_complete()
-    s.poll()
-    return True
+    if s.task_state != STATE_ON: return False
+    return s.interp_state == INTERP_IDLE or (s.task_mode == MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
 class DummyProgress:
     def update(self, count): pass
@@ -1043,9 +1146,12 @@ class Progress:
         self.update(0, True)
 
     def done(self):
-        root_window.tk.call("destroy", ".info.progress")
         root_window.tk.call("grab", "release", ".info.progress")
-        root_window.tk.call("focus", self.old_focus)
+        try:
+            root_window.tk.call("focus", self.old_focus)
+        except Exception:
+            pass
+        root_window.tk.call("destroy", ".info.progress")
         root_window.configure(cursor="")
         root_window.tk.call(".menu", "configure", "-cursor", "")
         t.configure(cursor="xterm")
@@ -1171,10 +1277,40 @@ def cancel_open(event=None):
         o.canon.aborted = True
 
 loaded_file = None
+
+def load_text_and_set_file(f):
+    """Load file text into the editor and update loaded_file.
+
+    Used for multi-client sync — does NOT call program_open (the server
+    already has the file open from the other client's action).
+    """
+    global loaded_file
+    loaded_file = f
+    program_filter = get_filter(f)
+    if program_filter:
+        f = os.path.join(tempdir, os.path.basename(f))
+        exitcode, stderr = filter_program(program_filter, loaded_file, f)
+        if exitcode:
+            return
+    try:
+        lines = open(f).readlines()
+        t.configure(state="normal")
+        t.tk.call("delete_all", t)
+        code = []
+        for i, l in enumerate(lines):
+            l = l.expandtabs().replace("\r", "")
+            code.extend(["%6d: " % (i+1), "lineno", l, ""])
+            if i % 1000 == 0:
+                t.insert("end", *code)
+                del code[:]
+        if code:
+            t.insert("end", *code)
+        t.configure(state="disabled")
+    except Exception as e:
+        notifications.add("error", str(e))
+
 def open_file_guts(f, filtered=False, addrecent=True):
     s.poll()
-    save_task_mode = s.task_mode
-    ensure_mode(linuxcnc.MODE_MANUAL)
     if addrecent:
         add_recent_file(f)
     if not filtered:
@@ -1192,14 +1328,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
                             % {'program': program_filter, 'code': exitcode},
                         "error",0,_("OK"))
                 return
-            ensure_mode(save_task_mode)
             return open_file_guts(tempfile, True, False)
 
-    ensure_mode(save_task_mode)
     set_first_line(0)
-    t0 = time.time()
 
-    canon = None
     o.deselect(None) # remove highlight line from last program
     try:
         # Force a sync of the interpreter, which writes out the var file.
@@ -1207,14 +1339,13 @@ def open_file_guts(f, filtered=False, addrecent=True):
         c.wait_complete()
         c.program_open(f)
         lines = open(f).readlines()
-        progress = Progress(2, len(lines))
+        root_window.tk.call("destroy", ".info.progress")
+        progress = Progress(1, len(lines))
         t.configure(state="normal")
         t.tk.call("delete_all", t)
         code = []
-        i = 0
         for i, l in enumerate(lines):
             l = l.expandtabs().replace("\r", "")
-            #t.insert("end", "%6d: " % (i+1), "lineno", l)
             code.extend(["%6d: " % (i+1), "lineno", l, ""])
             if i % 1000 == 0:
                 t.insert("end", *code)
@@ -1222,109 +1353,18 @@ def open_file_guts(f, filtered=False, addrecent=True):
                 progress.update(i)
         if code:
             t.insert("end", *code)
-        progress.nextphase(len(lines))
-        f = os.path.abspath(f)
-        o.canon = canon = AxisCanon(o, widgets.text, i, progress, arcdivision)
-        root_window.bind_class(".info.progress", "<Escape>", cancel_open)
-
-        parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
-        temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
-        if os.path.exists(parameter):
-            shutil.copy(parameter, temp_parameter)
-        canon.parameter_file = temp_parameter
-
-        timeout = inifile.find("DISPLAY", "PREVIEW_TIMEOUT") or ""
-        if timeout:
-            canon.set_timeout(float(timeout))
-
-        initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
-        if initcode == "":
-            initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
-        initcodes = []
-        if initcode:
-            initcodes.append(initcode)
-        if not interpname:
-            unitcode = "G%d" % (20 + (s.linear_units == 1))
-            initcodes.append(unitcode)
-            initcodes.append("g90")
-            initcodes.append("t%d m6" % s.tool_in_spindle)
-            for i in range(9):
-                if s.axis_mask & (1<<i):
-                    axis = "XYZABCUVW"[i]
-
-                    if (axis == "A" and a_axis_wrapped) or\
-                       (axis == "B" and b_axis_wrapped) or\
-                       (axis == "C" and c_axis_wrapped):
-                        pos = s.position[i] % 360.000
-                    else:
-                        pos = s.position[i]
-
-                    position = "g53 g0 %s%.8f" % (axis, pos)
-                    initcodes.append(position)
-            for i, g in enumerate(s.gcodes):
-                # index 0 is "sequence number" and index 2 is the last block's
-                # "g_mode" neither of which should be sent as a startup code.
-                # In particular, after issuing a non-modal G like G10, that
-                # will appear at s.gcodes[2] which caused issue #269
-                if i in (0, 1, 2): continue
-                if g == -1: continue
-                if g == 960: # Issue #1232
-                    initcodes.append("G96 S%.0f" % s.settings[2])
-                else:
-                    initcodes.append("G%.1f" % (g * .1))
-            tool_offset = "G43.1"
-            for i in range(9):
-                if s.axis_mask & (1<<i):
-                    tool_offset += " %s%.8f" % ("XYZABCUVW"[i], s.tool_offset[i])
-            initcodes.append(tool_offset)
-            for i, m in enumerate(s.mcodes):
-                # index 0 is "sequence number", just like s.gcodes[0].  Trying
-                # to set this number as a modal code caused issue #271.
-                # index 1 is the stopping code, which holds M2 after reading
-                # ahead to the end of a program.  Trying to set this number
-                # as a modal code makes the next preview disappear.
-                # (see Interp::write_m_codes)
-                if i in (0,1): continue
-                if m == -1: continue
-                initcodes.append("M%d" % m)
-        try:
-            result, seq = o.load_preview(f, canon, initcodes, interpname)
-        except KeyboardInterrupt:
-            result, seq = 0, 0
-        # According to the documentation, MIN_ERROR is the largest value that is
-        # not an error.  Crazy though that sounds...
-        if result > gcode.MIN_ERROR:
-            error_str = _(gcode.strerror(result))
-            root_window.tk.call("nf_dialog", ".error",
-                    _("G-Code error in %s") % os.path.basename(f),
-                    _("Near line %(seq)d of %(f)s:\n%(error_str)s") % {'seq': seq, 'f': f, 'error_str': error_str},
-                    "error",0,_("OK"))
-
         t.configure(state="disabled")
-        o.lp.set_depth(from_internal_linear_unit(o.get_foam_z()),
-                       from_internal_linear_unit(o.get_foam_w()))
 
     except Exception as e:
         notifications.add("error", str(e))
     finally:
-        # Before unbusying, I update again, so that any keystroke events
-        # that reached the program while it was busy are sent to the
-        # label, not to another window in the application.  If this
-        # update call is removed, the events are only handled after that
-        # widget is destroyed and focus has passed to some other widget,
-        # which will handle the keystrokes instead, leading to the
-        # R-while-loading bug.
-        #print "load_time", time.time() - t0
         root_window.update()
-        root_window.tk.call("destroy", ".info.progress")
         root_window.tk.call("grab", "release", ".info.progress")
-        if canon:
-            canon.progress = DummyProgress()
+        root_window.tk.call("destroy", ".info.progress")
         try:
             progress.done()
         except UnboundLocalError:
             pass
-        o.tkRedraw()
         root_window.tk.call("set_mode_from_tab")
 
 tabs_mdi = str(root_window.tk.call("set", "_tabs_mdi"))
@@ -1359,7 +1399,14 @@ widget_list=[
        ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
        ("override", Checkbutton, tabs_manual + ".jogf.override"),
 
+       ("jogminus", Checkbutton, tabs_manual + ".jogf.jog.jogminus"),
+       ("jogplus", Checkbutton, tabs_manual + ".jogf.jog.jogplus"),
+
        ("ajogspeed", Entry, pane_top + ".ajogspeed"),
+
+       ("ajogspeed_scale", Scale, pane_top + ".ajogspeed.s"),
+       ("jogspeed_scale", Scale, pane_top + ".jogspeed.s"),
+       ("maxvel_scale", Scale, pane_top + ".maxvel.s"),
 
        ("coolant", Label, tabs_manual + ".coolant"),
        ("flood", Checkbutton, tabs_manual + ".flood"),
@@ -1400,7 +1447,7 @@ widget_list=[
        ("unhomemenu", Menu, ".menu.machine.unhome"),
       ]
 widget_list.append( ("joints", Radiobutton, tabs_manual + ".joints") )
-for j in range(linuxcnc.MAX_JOINTS):
+for j in range(MAX_JOINTS):
     widget_list.append( ("joint_"+str(j),
                           Radiobutton,
                           tabs_manual + ".joints.joint"+str(j)) )
@@ -1424,7 +1471,7 @@ widgets.axis_w.configure(value="w")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
-    if get_jog_mode() and (not kins_is_trivkins or (kins_is_trivkins and s.kinematics_type == linuxcnc.KINEMATICS_BOTH)):
+    if get_jog_mode() and (not kins_is_trivkins or (kins_is_trivkins and s.kinematics_type == KINEMATICS_BOTH)):
         # free jogging (joints) if:
         #   non-trivkins config or
         #   trivkins config and kinstype = both
@@ -1484,13 +1531,16 @@ def parse_increment(jogincr):
 
 
 def set_hal_jogincrement():
-    if not 'comp' in globals(): return # this is called once during startup before comp exists
+    global jog_incr_blackout
+    if not server_present: return
+    if 'c' not in globals(): return
+    jog_incr_blackout = time.time() + 1
     jogincr = widgets.jogincr.get()
     if jogincr == _("Continuous"):
         distance = 0
     else:
         distance = parse_increment(jogincr)
-    comp['jog.increment'] = distance
+    c.set_jog_increment(distance)
 
 def jogspeed_listbox_change(dummy, value):
     global jogincr_index_last
@@ -1582,7 +1632,12 @@ def parse_gcode_expression(e):
 
     parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
     temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
-    shutil.copy(parameter, temp_parameter)
+    try:
+        content = gmi.fetch_parameter_file()
+        with open(temp_parameter, 'w') as pf:
+            pf.write(content)
+    except Exception:
+        pass
     canon.parameter_file = temp_parameter
 
     result, seq = gcode.parse("", canon, "M199 P["+e+"]", "M2")
@@ -1910,6 +1965,132 @@ def reload_file(refilter=True):
     if line:
         o.set_highlight_line(line)
 
+_pending_autofit = False
+
+def refresh_preview_if_idle():
+    """Schedule refresh_preview, skipping synch if running."""
+    global _pending_autofit
+    s.poll()
+    if not loaded_file:
+        _pending_autofit = False
+        return
+    do_autofit = _pending_autofit
+    _pending_autofit = False
+    if running(do_poll=False):
+        # Preview interpreter is independent — generate preview without
+        # synching the execution interpreter (which would block/timeout).
+        _do_refresh_preview(skip_synch=True, autofit=do_autofit)
+    else:
+        _do_refresh_preview(skip_synch=False, autofit=do_autofit)
+
+def autofit_view():
+    """Re-fit the current view to the program extents."""
+    vt = vars.view_type.get()
+    if vt == 3:
+        commands.set_view_x()
+    elif vt == 4:
+        commands.set_view_y()
+    elif vt == 1:
+        commands.set_view_z()
+    elif vt == 2:
+        commands.set_view_z2()
+    elif vt == 5:
+        commands.set_view_p()
+    else:
+        # Initial startup (view_type==0): use default for machine type
+        if lathe:
+            if lathe_backtool:
+                commands.set_view_y2()
+            else:
+                commands.set_view_y()
+        else:
+            commands.set_view_z()
+    if o.canon is not None:
+        x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
+        y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
+        z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
+        o.set_centerpoint(x, y, z)
+
+def refresh_preview():
+    """Re-generate preview with current offsets without reloading the file."""
+    if running(): return
+    s.poll()
+    if not loaded_file:
+        return
+    _do_refresh_preview(skip_synch=False)
+
+def _do_refresh_preview(skip_synch=False, autofit=False):
+    """Internal: generate preview, optionally skipping interpreter synch."""
+    if not skip_synch:
+        # Ensure the var file reflects the current interpreter parameters
+        # (e.g. after G10 L20 touchoff which updates in-memory params only).
+        c.task_plan_synch()
+        c.wait_complete()
+    f = loaded_file
+    program_filter = get_filter(f)
+    if program_filter:
+        f = os.path.join(tempdir, os.path.basename(f))
+        if not os.path.exists(f):
+            return  # filtered file not available, need full reload
+    f = os.path.abspath(f)
+    lines = open(f).readlines()
+    canon = AxisCanon(o, widgets.text, len(lines) - 1, DummyProgress(), arcdivision)
+
+    initcodes = []
+    initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
+    if initcode == "":
+        initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+    if initcode:
+        initcodes.append(initcode)
+    if not interpname:
+        unitcode = "G%d" % (20 + (s.linear_units == 1))
+        initcodes.append(unitcode)
+        initcodes.append("g90")
+        initcodes.append("t%d m6" % s.tool_in_spindle)
+        for i in range(9):
+            if s.axis_mask & (1<<i):
+                axis = "XYZABCUVW"[i]
+                if (axis == "A" and a_axis_wrapped) or\
+                   (axis == "B" and b_axis_wrapped) or\
+                   (axis == "C" and c_axis_wrapped):
+                    pos = s.position[i] % 360.000
+                else:
+                    pos = s.position[i]
+                initcodes.append("g53 g0 %s%.8f" % (axis, pos))
+        for i, g in enumerate(s.gcodes):
+            if i in (0, 1, 2): continue
+            if g == -1: continue
+            if g == 960:
+                initcodes.append("G96 S%.0f" % s.settings[2])
+            else:
+                initcodes.append("G%.1f" % (g * .1))
+        tool_offset = "G43.1"
+        for i in range(9):
+            if s.axis_mask & (1<<i):
+                tool_offset += " %s%.8f" % ("XYZABCUVW"[i], s.tool_offset[i])
+        initcodes.append(tool_offset)
+        for i, m in enumerate(s.mcodes):
+            if i in (0, 1): continue
+            if m == -1: continue
+            initcodes.append("M%d" % m)
+    try:
+        o.canon = canon
+        result, seq = o.load_preview(f, canon, initcodes, interpname)
+    except Exception as e:
+        notifications.add("error", str(e))
+        return
+    if result > gcode.MIN_ERROR:
+        error_str = _(gcode.strerror(result))
+        root_window.tk.call("nf_dialog", ".error",
+                _("G-Code error in %s") % os.path.basename(f),
+                _("Near line %(seq)d of %(f)s:\n%(error_str)s") % {'seq': seq, 'f': f, 'error_str': error_str},
+                "error",0,_("OK"))
+    o.lp.set_depth(from_internal_linear_unit(o.get_foam_z()),
+                   from_internal_linear_unit(o.get_foam_w()))
+    if autofit:
+        autofit_view()
+    o.tkRedraw()
+
 def ja_from_rbutton():
     # radiobuttons for joints set ja_rbutton to numeric value [0,MAX_JOINTS)
     # radiobuttons for axes   set ja_rbutton to one of: xyzabcuvw
@@ -1921,7 +2102,7 @@ def ja_from_rbutton():
 
     try: # ja may be a joint number or an axis coordinate letter
         a = int(ja) # invalid for types: 'str' or 'unicode'
-        if a not in list(range(linuxcnc.MAX_JOINTS)):
+        if a not in list(range(MAX_JOINTS)):
             print("ja_from_rbutton:Unexpected joint number",a)
             return "" # can not continue
     except ValueError:
@@ -1932,7 +2113,7 @@ def ja_from_rbutton():
         # joint jogging
         if lathe_historical_config():
             a = "xyzabcuvw".index(ja)
-        elif kins_is_trivkins and s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+        elif kins_is_trivkins and s.kinematics_type == KINEMATICS_IDENTITY:
             # note: if duplicate_coord_letters,
             #       use index for first occurrence of the letter
             a = trajcoordinates.index(ja)
@@ -1955,26 +2136,26 @@ def go_home(num):
 #-----------------------------------------------------------
 # convenience functions
 def motion_modename(x):
-    if x ==   linuxcnc.TRAJ_MODE_FREE: return "FREE"
-    if x ==  linuxcnc.TRAJ_MODE_COORD: return "COORD"
-    if x == linuxcnc.TRAJ_MODE_TELEOP: return "TELEOP"
+    if x ==   TRAJ_MODE_FREE: return "FREE"
+    if x ==  TRAJ_MODE_COORD: return "COORD"
+    if x == TRAJ_MODE_TELEOP: return "TELEOP"
 
 def task_modename(x):
-    if x ==    linuxcnc.MODE_MDI: return "MDI"
-    if x == linuxcnc.MODE_MANUAL: return "MANUAL"
-    if x ==   linuxcnc.MODE_AUTO: return "AUTO"
+    if x ==    MODE_MDI: return "MDI"
+    if x == MODE_MANUAL: return "MANUAL"
+    if x ==   MODE_AUTO: return "AUTO"
 
 def task_statename(x):
-    if x ==       linuxcnc.STATE_ESTOP: return "STATE_ESTOP"
-    if x == linuxcnc.STATE_ESTOP_RESET: return "STATE_ESTOP_RESET"
-    if x ==         linuxcnc.STATE_OFF: return "STATE_OFF"
-    if x ==          linuxcnc.STATE_ON: return "STATE_ON"
+    if x ==       STATE_ESTOP: return "STATE_ESTOP"
+    if x == STATE_ESTOP_RESET: return "STATE_ESTOP_RESET"
+    if x ==         STATE_OFF: return "STATE_OFF"
+    if x ==          STATE_ON: return "STATE_ON"
 
 def interp_statename(x):
-    if x ==    linuxcnc.INTERP_IDLE: return "IDLE"
-    if x == linuxcnc.INTERP_READING: return "READING"
-    if x ==  linuxcnc.INTERP_PAUSED: return "PAUSED"
-    if x == linuxcnc.INTERP_WAITING: return "WAITING"
+    if x ==    INTERP_IDLE: return "IDLE"
+    if x == INTERP_READING: return "READING"
+    if x ==  INTERP_PAUSED: return "PAUSED"
+    if x == INTERP_WAITING: return "WAITING"
 
 def get_states():
     s.poll()
@@ -2021,7 +2202,6 @@ class TclCommands(nf.TclCommands):
         c.set_block_delete(vars.block_delete.get())
         ap.putpref("block_delete", vars.block_delete.get())
         c.wait_complete()
-        ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
         reload_file(False)
@@ -2137,6 +2317,7 @@ class TclCommands(nf.TclCommands):
 
     def reload_tool_table(*args):
         c.load_tool_table()
+        s.invalidate_tool_table()
 
     def program_verify(*args):
         set_first_line(-1)
@@ -2211,17 +2392,17 @@ class TclCommands(nf.TclCommands):
 
     def estop_clicked(event=None):
         s.poll()
-        if s.task_state == linuxcnc.STATE_ESTOP:
-            c.state(linuxcnc.STATE_ESTOP_RESET)
+        if s.task_state == STATE_ESTOP:
+            c.state(STATE_ESTOP_RESET)
         else:
-            c.state(linuxcnc.STATE_ESTOP)
+            c.state(STATE_ESTOP)
 
     def onoff_clicked(event=None):
         s.poll()
-        if s.task_state == linuxcnc.STATE_ESTOP_RESET:
-            c.state(linuxcnc.STATE_ON)
+        if s.task_state == STATE_ESTOP_RESET:
+            c.state(STATE_ON)
         else:
-            c.state(linuxcnc.STATE_OFF)
+            c.state(STATE_OFF)
 
     def open_file(*event):
         if running(): return
@@ -2259,24 +2440,9 @@ class TclCommands(nf.TclCommands):
         return ""
 
     def open_file_name(f):
+        global _pending_autofit
+        _pending_autofit = True
         open_file_guts(f)
-        if str(widgets.view_x['relief']) == "sunken":
-            commands.set_view_x()
-        elif str(widgets.view_y['relief']) == "sunken":
-            commands.set_view_y()
-        elif str(widgets.view_y2['relief']) == "sunken":
-            commands.set_view_y2()
-        elif str(widgets.view_z['relief']) == "sunken":
-            commands.set_view_z()
-        elif  str(widgets.view_z2['relief']) == "sunken":
-            commands.set_view_z2()
-        else:
-            commands.set_view_p()
-        if o.canon is not None:
-            x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
-            y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
-            z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
-            o.set_centerpoint(x, y, z)
 
     def open_pipe(f, c):
         try:
@@ -2348,70 +2514,58 @@ class TclCommands(nf.TclCommands):
 
         global program_start_line, program_start_line_last
         program_start_line_last = program_start_line;
-        ensure_mode(linuxcnc.MODE_AUTO)
-        c.auto(linuxcnc.AUTO_RUN, program_start_line)
+        c.auto(AUTO_RUN, program_start_line)
         program_start_line = 0
         t.tag_remove("ignored", "0.0", "end")
         o.set_highlight_line(None)
 
     def task_step(*event):
-        if s.task_mode != linuxcnc.MODE_AUTO or s.interp_state != linuxcnc.INTERP_IDLE:
+        if s.task_mode != MODE_AUTO or s.interp_state != INTERP_IDLE:
             o.set_highlight_line(None)
             if run_warn(): return
-        ensure_mode(linuxcnc.MODE_AUTO)
-        c.auto(linuxcnc.AUTO_STEP)
+        c.auto(AUTO_STEP)
 
     def task_pause(*event):
-        if s.task_mode != linuxcnc.MODE_AUTO or s.interp_state not in (linuxcnc.INTERP_READING, linuxcnc.INTERP_WAITING):
+        if s.task_mode != MODE_AUTO or s.interp_state not in (INTERP_READING, INTERP_WAITING):
             return
-        ensure_mode(linuxcnc.MODE_AUTO)
-        c.auto(linuxcnc.AUTO_PAUSE)
+        c.auto(AUTO_PAUSE)
 
     def task_reverse(*event):
         s.poll()
-        if s.task_mode != linuxcnc.MODE_AUTO:
+        if s.task_mode != MODE_AUTO:
             return
 
-        ensure_mode(linuxcnc.MODE_AUTO)
-        c.auto(linuxcnc.AUTO_REVERSE)
+        c.auto(AUTO_REVERSE)
 
     def task_forward(*event):
         s.poll()
-        if s.task_mode != linuxcnc.MODE_AUTO:
+        if s.task_mode != MODE_AUTO:
             return
 
-        ensure_mode(linuxcnc.MODE_AUTO)
-        c.auto(linuxcnc.AUTO_FORWARD)
+        c.auto(AUTO_FORWARD)
 
     def task_resume(*event):
         s.poll()
         if not s.paused:
             return
-        if s.task_mode not in (linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI):
+        if s.task_mode not in (MODE_AUTO, MODE_MDI):
             return
-        ensure_mode(linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI)
-        c.auto(linuxcnc.AUTO_RESUME)
+        c.auto(AUTO_RESUME)
 
     def task_pauseresume(*event):
-        if s.task_mode not in (linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI):
+        if s.task_mode not in (MODE_AUTO, MODE_MDI):
             return
-        ensure_mode(linuxcnc.MODE_AUTO, linuxcnc.MODE_MDI)
         s.poll()
         if s.paused:
-            global resume_inhibit
-            if resume_inhibit: return
-            c.auto(linuxcnc.AUTO_RESUME)
-        elif s.interp_state != linuxcnc.INTERP_IDLE:
-            c.auto(linuxcnc.AUTO_PAUSE)
+            c.auto(AUTO_RESUME)
+        elif s.interp_state != INTERP_IDLE:
+            c.auto(AUTO_PAUSE)
 
     def task_stop(*event):
-        if s.task_mode == linuxcnc.MODE_AUTO and vars.running_line.get() != 0:
+        if s.task_mode == MODE_AUTO and vars.running_line.get() != 0:
             o.set_highlight_line(vars.running_line.get())
-        comp["abort"] = True
         c.abort()
         c.wait_complete()
-        time.sleep(0.3)
-        comp["abort"] = False
 
     def mdi_up_cmd(*args):
         if args and args[0].char: return   # e.g., for KP_Up with numlock on
@@ -2459,7 +2613,6 @@ class TclCommands(nf.TclCommands):
         if command != "":
             command= command.lstrip().rstrip()
             vars.mdi_command.set("")
-            ensure_mode(linuxcnc.MODE_MDI)
             widgets.mdi_history.selection_clear(0, "end")
             ## check if input is already in list. If so, then delete old element
             #idx = 0
@@ -2578,20 +2731,17 @@ class TclCommands(nf.TclCommands):
         s.poll()
         if not manual_ok(): return
         if  (     all_homed()
-             and (s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
+             and (s.motion_mode == TRAJ_MODE_TELEOP)
                   or
-                 (s.motion_mode == linuxcnc.TRAJ_MODE_COORD)
+                 (s.motion_mode == TRAJ_MODE_COORD)
             ):
             set_motion_teleop(1)
         else:
-            ensure_mode(linuxcnc.MODE_MANUAL)
             set_motion_teleop(0)
 
     def ensure_mdi(*event):
         # called from axis.tcl on tab raisecmd
         if not manual_ok(): return
-        set_motion_teleop(0)
-        ensure_mode(linuxcnc.MODE_MDI)
         set_motion_teleop(1)
         s.poll()
 
@@ -2688,7 +2838,6 @@ class TclCommands(nf.TclCommands):
 
     def home_all_joints(event=None):
         if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
         isHomed = all_homed()
         doHoming=True
         if isHomed:
@@ -2697,15 +2846,13 @@ class TclCommands(nf.TclCommands):
             go_home(-1)
 
     def unhome_all_joints(event=None):
-        ensure_mode(linuxcnc.MODE_MANUAL)
-        set_motion_teleop(0)
         c.unhome(-1)
 
     def home_joint(event=None):
         if not manual_ok(): return
         jora = vars.ja_rbutton.get()
         if jora in trajcoordinates:
-            if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            if s.kinematics_type != KINEMATICS_IDENTITY:
                 print(_("home_joint <%s> Use joint mode for homing")%jora)
                 return
             if jora in duplicate_coord_letters:
@@ -2720,22 +2867,17 @@ class TclCommands(nf.TclCommands):
         if s.homed[jnum]:
             doHoming=prompt_areyousure(_("Warning"),_("This joint is already homed, are you sure you want to re-home?"))
         if doHoming:
-            ensure_mode(linuxcnc.MODE_MANUAL)
             go_home(jnum)
 
     def home_joint_number(num):
         # invoked by machine menu/home widgets
-        ensure_mode(linuxcnc.MODE_MANUAL)
         go_home(num)
 
     def unhome_joint_number(num):
         # invoked by machine menu/unhome widgets
-        ensure_mode(linuxcnc.MODE_MANUAL)
-        set_motion_teleop(0)
         c.unhome(num)
 
     def clear_offset(num):
-        ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
         if num == "G92":
             clear_command = "G92.1"
@@ -2745,7 +2887,6 @@ class TclCommands(nf.TclCommands):
                 if s.axis_mask & (1<<i): clear_command += " %c0" % a
         c.mdi(clear_command)
         c.wait_complete()
-        ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
         o.tkRedraw()
         reload_file(False)
@@ -2766,9 +2907,7 @@ class TclCommands(nf.TclCommands):
             system = vars.touch_off_system.get()
         if new_axis_value is None: return
 
-        save_task_mode = s.task_mode
         vars.touch_off_system.set(system)
-        ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
         linear_axis = vars.ja_rbutton.get() in "xyzuvw"
@@ -2785,8 +2924,6 @@ class TclCommands(nf.TclCommands):
         s.poll()
         o.tkRedraw()
         reload_file(False)
-        ensure_mode(save_task_mode)
-        set_motion_teleop(1)
         o.redraw_dro()
 
     def touch_off_tool(event=None, new_axis_value = None):
@@ -2807,9 +2944,7 @@ class TclCommands(nf.TclCommands):
             system = vars.touch_off_system.get()
         if new_axis_value is None: return
 
-        save_task_mode = s.task_mode
         vars.touch_off_system.set(system)
-        ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
         linear_axis = vars.ja_rbutton.get() in "xyzuvw"
@@ -2829,8 +2964,6 @@ class TclCommands(nf.TclCommands):
         s.poll()
         o.tkRedraw()
         reload_file(False)
-        ensure_mode(save_task_mode)
-        set_motion_teleop(1)
         o.redraw_dro()
 
     def set_axis_offset(event=None):
@@ -2838,7 +2971,6 @@ class TclCommands(nf.TclCommands):
 
     def brake(event=None):
         if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
         c.brake(vars.brake.get())
     def flood(event=None):
         c.flood(vars.flood.get())
@@ -2846,20 +2978,18 @@ class TclCommands(nf.TclCommands):
         c.mist(vars.mist.get())
     def spindle(event=None):
         if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
         d = vars.spindledir.get()
         if d == 0:
             c.spindle(d)
         else:
             c.spindle(d, default_spindle_speed)
     def spindle_increase(event=None):
-        c.spindle(linuxcnc.SPINDLE_INCREASE)
+        c.spindle(SPINDLE_INCREASE)
     def spindle_decrease(event=None):
-        c.spindle(linuxcnc.SPINDLE_DECREASE)
+        c.spindle(SPINDLE_DECREASE)
     def spindle_constant(event=None):
         if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
-        c.spindle(linuxcnc.SPINDLE_CONSTANT)
+        c.spindle(SPINDLE_CONSTANT)
     def set_first_line(lineno):
         if not manual_ok(): return
         set_first_line(lineno)
@@ -2875,17 +3005,17 @@ class TclCommands(nf.TclCommands):
         if not manual_ok(): return
         s.poll()
         if s.spindle[0]['direction'] == 0:
-            c.spindle(linuxcnc.SPINDLE_FORWARD,default_spindle_speed)
+            c.spindle(SPINDLE_FORWARD,default_spindle_speed)
         else:
-            c.spindle(linuxcnc.SPINDLE_OFF)
+            c.spindle(SPINDLE_OFF)
 
     def spindle_backward_toggle(*args):
         if not manual_ok(): return "break"
         s.poll()
         if s.spindle[0]['direction'] == 0:
-            c.spindle(linuxcnc.SPINDLE_REVERSE,default_spindle_speed)
+            c.spindle(SPINDLE_REVERSE,default_spindle_speed)
         else:
-            c.spindle(linuxcnc.SPINDLE_OFF)
+            c.spindle(SPINDLE_OFF)
         return "break" # bound to F10, don't activate menu
 
     def brake_on(*args):
@@ -2901,7 +3031,7 @@ class TclCommands(nf.TclCommands):
 
     def toggle_teleop_mode(*args):
         s.poll()
-        set_motion_teleop(not (s.motion_mode == linuxcnc.TRAJ_MODE_TELEOP))
+        set_motion_teleop(not (s.motion_mode == TRAJ_MODE_TELEOP))
 
     def toggle_coord_type(*args):
         vars.coord_type.set(not vars.coord_type.get())
@@ -2909,11 +3039,8 @@ class TclCommands(nf.TclCommands):
 
     def toggle_override_limits(*args):
         s.poll()
-        if s.interp_state != linuxcnc.INTERP_IDLE: return
-        if s.joint[0]['override_limits']:
-            ensure_mode(linuxcnc.MODE_AUTO)
-        else:
-            ensure_mode(linuxcnc.MODE_MANUAL)
+        if s.interp_state != INTERP_IDLE: return
+        if not s.joint[0]['override_limits']:
             c.override_limits()
 
     def cycle_view(*args):
@@ -2929,17 +3056,14 @@ class TclCommands(nf.TclCommands):
             commands.set_view_z()
 
     def axis_activated(*args):
+        global jog_axis_blackout
         # this only makes sense if HAL is present on this machine
-        if not hal_present: return
-        comp['jog.x'] = vars.ja_rbutton.get() == "x"
-        comp['jog.y'] = vars.ja_rbutton.get() == "y"
-        comp['jog.z'] = vars.ja_rbutton.get() == "z"
-        comp['jog.a'] = vars.ja_rbutton.get() == "a"
-        comp['jog.b'] = vars.ja_rbutton.get() == "b"
-        comp['jog.c'] = vars.ja_rbutton.get() == "c"
-        comp['jog.u'] = vars.ja_rbutton.get() == "u"
-        comp['jog.v'] = vars.ja_rbutton.get() == "v"
-        comp['jog.w'] = vars.ja_rbutton.get() == "w"
+        if not server_present: return
+        jog_axis_blackout = time.time() + 1
+        axis = vars.ja_rbutton.get()
+        idx = "xyzabcuvw".find(axis)
+        if idx >= 0:
+            c.set_jog_axis(idx)
 
     def set_teleop_mode():
         set_motion_teleop(vars.teleop_mode.get())
@@ -3002,7 +3126,6 @@ vars = nf.Variables(root_window,
     ("task_paused", IntVar),
     ("interp_state", IntVar),
     ("task_mode", IntVar),
-    ("has_ladder", IntVar),
     ("has_editor", IntVar),
     ("ja_rbutton", StringVar),
     ("tto_g11", BooleanVar),
@@ -3093,7 +3216,7 @@ def set_rapidrate(n):
 
 def activate_ja_widget_or_set_feedrate(jora):
     # note: call with integers only
-    if joints_mode() and s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+    if joints_mode() and s.kinematics_type != KINEMATICS_IDENTITY:
         if jora == 10: jora = 0
         activate_ja_widget(jora,True)
         return
@@ -3220,27 +3343,21 @@ def jog(*args):
 
 def get_jog_mode():
     s.poll()
-    if  (    (s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+    if  (    (s.kinematics_type == KINEMATICS_IDENTITY)
         and  all_homed() ):
-        teleop_mode = 1
         jjogmode = False
     else:
         # check motion_mode since other guis (halui) could alter it
-        if s.motion_mode == linuxcnc.TRAJ_MODE_FREE:
-            teleop_mode = 0
+        if s.motion_mode == TRAJ_MODE_FREE:
             jjogmode = True
         else:
-            teleop_mode = 1
             jjogmode = False
-    if (   (    jjogmode and s.motion_mode != linuxcnc.TRAJ_MODE_FREE)
-        or (not jjogmode and s.motion_mode != linuxcnc.TRAJ_MODE_TELEOP) ):
-        set_motion_teleop(teleop_mode)
     return jjogmode
 
-# Note: require linuxcnc.MAX_JOINTS >= linuxcnc.MAX_AXIS
-jog_after = [None]  * linuxcnc.MAX_JOINTS
-jog_cont  = [False] * linuxcnc.MAX_JOINTS
-jogging   = [0]     * linuxcnc.MAX_JOINTS
+# Note: require MAX_JOINTS >= MAX_AXIS
+jog_after = [None]  * MAX_JOINTS
+jog_cont  = [False] * MAX_JOINTS
+jogging   = [0]     * MAX_JOINTS
 def jog_on(a, b):
     if not manual_ok() or not manual_tab_visible() or running(): return
     if a < 3 or a > 5:
@@ -3256,13 +3373,13 @@ def jog_on(a, b):
         s.poll()
         if s.state != 1: return
         distance = parse_increment(jogincr)
-        jog(linuxcnc.JOG_INCREMENT, jjogmode, a, b, distance)
+        jog(JOG_INCREMENT, jjogmode, a, b, distance)
         jog_cont[a] = False
     else:
         global continuous_jog_in_progress,cjogindices
         continuous_jog_in_progress = True
         if not a in cjogindices: cjogindices.append(a)
-        jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
+        jog(JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
     activate_ja_widget(a)
@@ -3279,7 +3396,7 @@ def jog_off_actual(a):
     jogging[a] = 0
     jjogmode = get_jog_mode()
     if jog_cont[a]:
-        jog(linuxcnc.JOG_STOP, jjogmode, a)
+        jog(JOG_STOP, jjogmode, a)
 
 def jog_off_all():
     for i in range(6):
@@ -3326,7 +3443,20 @@ def bind_axis(a, b, d):
     root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off_map(d))
     root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off_map(d))
 
-root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
+def _focusout_handler(e):
+    if str(e.widget) != ".":
+        return
+    # Only stop jogs if focus left the application entirely.
+    # Ignore internal focus changes (e.g. activate_ja_widget calling .focus()).
+    try:
+        if root_window.focus_get() is not None:
+            return
+    except KeyError:
+        # Focused widget is a Tcl-only widget not in Python's tree — still ours.
+        return
+    jog_off_all()
+
+root_window.bind("<FocusOut>", _focusout_handler)
 
 open_directory = "programs"
 
@@ -3338,18 +3468,18 @@ def units(s, d=1.0):
         return unit_values.get(s, d)
 
 random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
-vars.emcini.set(sys.argv[2])
 jointcount = int(inifile.find("KINS", "JOINTS"))
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX") or open_directory
 vars.machine.set(inifile.find("EMC", "MACHINE"))
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
 extensions = [e.split(None, 1) for e in extensions]
 extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
-postgui_halfile = inifile.findall("HAL", "POSTGUI_HALFILE") or None
 max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE") or 1.0)
 max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
+min_spindle_override = float(inifile.find("DISPLAY", "MIN_SPINDLE_OVERRIDE") or 0)
 max_feed_override = int(max_feed_override * 100 + 0.5)
 max_spindle_override = int(max_spindle_override * 100 + 0.5)
+min_spindle_override = int(min_spindle_override * 100 + 0.5)
 default_spindle_speed = int(inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED") or 1)
 geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZABCUVW"
 geometry = re.split(" *(-?[XYZABCUVW])", geometry.upper())
@@ -3368,8 +3498,8 @@ for j in range(jointcount):
     joint_type[j] = inifile.find(section, "TYPE") or "LINEAR"
     joint_sequence[j]  = inifile.find(section, "HOME_SEQUENCE") or ""
 
-axis_type = [None] * linuxcnc.MAX_AXIS
-for a in range(linuxcnc.MAX_AXIS):
+axis_type = [None] * MAX_AXIS
+for a in range(MAX_AXIS):
     # supply defaults, supersede with INI [AXIS_*]TYPE
     letter = "xyzabcuvw"[a]
     if not (letter in trajcoordinates): continue
@@ -3481,10 +3611,9 @@ root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed
 root_window.tk.eval("${pane_top}.maxvel.s set [setval $maxvel_speed $max_maxvel]")
 widgets.feedoverride.configure(to=max_feed_override)
 widgets.rapidoverride.configure(to=100)
-widgets.spinoverride.configure(to=max_spindle_override)
-nmlfile = inifile.find("EMC", "NML_FILE")
-if nmlfile:
-    linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[2]), nmlfile)
+widgets.spinoverride.configure(from_=min_spindle_override, to=max_spindle_override)
+# NML file path is handled internally by the emcgateway gomod.
+# No need to set linuxcnc.nmlfile here.
 vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
@@ -3542,12 +3671,12 @@ else:
     update_ms = int(ct)
 interpname = inifile.find("TASK", "INTERPRETER") or ""
 
-s = linuxcnc.stat();
+s = gmi.Stat();
 s.poll()
 
 statfail=0
 statwait=.01
-while ((s.joints == 0) or (s.kinematics_type < linuxcnc.KINEMATICS_IDENTITY)):
+while ((s.joints == 0) or (s.kinematics_type < KINEMATICS_IDENTITY)):
     print("waiting for s.joints<%d>, s.kinematics_type<%d>"%(s.joints,s.kinematics_type))
     time.sleep(statwait)
     statfail+=1
@@ -3565,7 +3694,7 @@ if s.num_extrajoints > 0:
     # show_offsets)
     vars.show_offsets.set(False)
 
-if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+if s.kinematics_type == KINEMATICS_IDENTITY:
     ja_name = _("Axes")
 else:
     ja_name = _("Joints")
@@ -3638,7 +3767,7 @@ def aletter_for_jnum(jnum):
         if jnum == 2: return "Z"
     if kins_is_trivkins:
         return trivkinscoords.upper()[jnum]
-    if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+    if s.kinematics_type != KINEMATICS_IDENTITY:
         raise SystemExit("aletter_for_jnum: Must be KINEMATICS_IDENTITY")
     else:
         guess = trajcoordinates.upper()[jnum]
@@ -3648,7 +3777,7 @@ def aletter_for_jnum(jnum):
 num_joints = s.joints
 gave_individual_homing_message = ""
 for jnum in range(num_joints):
-    if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+    if s.kinematics_type == KINEMATICS_IDENTITY:
         ja_name = _("Axis ")
         ja_id = aletter_for_jnum(jnum)
         if ja_id.lower() in duplicate_coord_letters:
@@ -3681,7 +3810,7 @@ for jnum in range(num_joints):
             _("Unhome %(name)s _%(id)s") % {"name":ja_name, "id":ja_id})
 
 astep_size = step_size = 1
-for a in range(linuxcnc.MAX_AXIS):
+for a in range(MAX_AXIS):
     a = "XYZABCUVW"[a]
     if s.axis_mask & (1<<i) == 0: continue
     section = "AXIS_%s" % a
@@ -3781,14 +3910,14 @@ root_window.bind("<KeyRelease-equal>", commands.jog_stop)
 opts, args = getopt.getopt(sys.argv[1:], 'd:')
 
 # forget axis radiobuttons not in axis_mask
-for i in range(linuxcnc.MAX_AXIS):
+for i in range(MAX_AXIS):
     if s.axis_mask & (1<<i): continue
     letter = "xyzabcuvw"[i]
     c = getattr(widgets, "axis_%s" % letter)
     c.grid_forget()
 
 # forget joint radiobuttons for joints > num_joints
-for i in range(num_joints, linuxcnc.MAX_JOINTS):
+for i in range(num_joints, MAX_JOINTS):
     c = getattr(widgets, "joint_%d" % i)
     c.grid_forget()
 
@@ -3797,13 +3926,56 @@ if  (       (s.axis_mask & 56 == 0)  # 56==0x38== 000111000 (ABC)
     ):
     widgets.ajogspeed.grid_forget()
 
-c = linuxcnc.command()
-e = linuxcnc.error_channel()
+c = gmi.Command()
+
+_jog_speed_from_remote = False
+
+def _on_jog_speed_changed(*args):
+    global jog_speed_blackout, _jog_speed_from_remote
+    if _jog_speed_from_remote:
+        return
+    try:
+        speed = vars.jog_speed.get()
+        if speed > 0:
+            jog_speed_blackout = time.time() + 1
+            c.set_jog_speed(speed)
+    except Exception:
+        pass
+
+def _on_ajog_speed_changed(*args):
+    global ajog_speed_blackout, _jog_speed_from_remote
+    if _jog_speed_from_remote:
+        return
+    try:
+        speed = vars.jog_aspeed.get()
+        if speed > 0:
+            ajog_speed_blackout = time.time() + 1
+            c.set_ajog_speed(speed)
+    except Exception:
+        pass
+
+root_window.tk.call("trace", "add", "variable", "jog_speed", "write",
+    root_window.register(_on_jog_speed_changed))
+root_window.tk.call("trace", "add", "variable", "jog_aspeed", "write",
+    root_window.register(_on_ajog_speed_changed))
+
+# Send initial jog speeds to server (traces miss the initial set that happened before registration)
+try:
+    speed = vars.jog_speed.get()
+    print("note: initial jog_speed send: %.3f" % speed, file=sys.stderr)
+    if speed > 0:
+        c.set_jog_speed(speed)
+except Exception:
+    pass
+try:
+    speed = vars.jog_aspeed.get()
+    if speed > 0:
+        c.set_ajog_speed(speed)
+except Exception:
+    pass
 
 c.set_block_delete(vars.block_delete.get())
-c.wait_complete()
 c.set_optional_stop(vars.optional_stop.get())
-c.wait_complete()
 
 o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
 o.last_line = 1
@@ -3899,27 +4071,7 @@ t.bind("<Button-4>", scroll_up)
 t.bind("<Button-5>", scroll_down)
 t.configure(state="disabled")
 
-if hal_present == 1 :
-    comp = hal.component("axisui")
-    comp.newpin("jog.x", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.y", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.z", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.a", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.b", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.c", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.u", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
-    comp.newpin("notifications-clear",hal.HAL_BIT,hal.HAL_IN)
-    comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
-    comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
-    comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
-    comp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
-    comp.newpin("abort", hal.HAL_BIT, hal.HAL_OUT)
-
-    vars.has_ladder.set(hal.component_exists('classicladder_rt'))
-
+if server_present == 1 :
     if vcp:
         import vcpparse
         f = Tkinter.Frame(root_window)
@@ -3927,45 +4079,23 @@ if hal_present == 1 :
             f.grid(row=4, column=0, columnspan=6, sticky="nw", padx=4, pady=4)
         else:
             f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
-        vcpparse.filename = vcp
-        vcpcomp = hal.component("pyvcp")
-        vcpparse.create_vcp(f, vcpcomp)
-        vcpcomp.ready()
+        vcpparse.create_vcp_rest(f, compname="pyvcp")
         vcp_frame = f
         root_window.bind("<Control-e>", commands.toggle_show_pyvcppanel)
         help2 += [("Ctrl-E", _("toggle PYVCP panel visibility"))]
     else:
         widgets.menu_view.delete(_("Show PyVCP pan_el").replace("_", ""))
 
-    gladevcp = inifile.find("DISPLAY", "GLADEVCP")
-    if gladevcp:
-        f = Tkinter.Frame(root_window, container=1, borderwidth=0, highlightthickness=0)
-        f.grid(row=0, column=5, rowspan=6, sticky="nsew", padx=4, pady=4)
-    else:
-        f = None
-    gladevcp_frame = f
-
 _dynamic_childs = {}
-# Call this later
-def load_gladevcp_panel():
-    gladevcp = inifile.find("DISPLAY", "GLADEVCP")
-    if gladevcp:
-        gladecmd = gladevcp.split()
-        if '-c' in gladecmd:
-            gladename = gladecmd[gladecmd.index('-c') + 1]
-            del gladecmd[gladecmd.index('-c') + 1]
-            del gladecmd[gladecmd.index('-c')]
-        else:
-            gladename = 'gladevcp'
-        from subprocess import Popen
-        xid = gladevcp_frame.winfo_id()
-        cmd = "halcmd loadusr -Wn {0} gladevcp -c {0}".format(gladename).split()
-        cmd += ['-d', '-x', str(xid)] + gladecmd
-        print(cmd)
-        child = Popen(cmd)
-        _dynamic_childs['{}'.format(gladename)] = (child, cmd, True)
 
 notifications = Notification(root_window)
+
+def _on_message_list_update(messages):
+    """Called from MessageList background thread when list changes."""
+    root_window.after_idle(lambda: notifications.sync(messages))
+
+_message_list = gmi.MessageList(on_update=_on_message_list_update)
+notifications.set_message_list(_message_list)
 
 root_window.bind("<Control-space>", lambda event: notifications.clear())
 widgets.mdi_command.bind("<Control-space>", lambda event: notifications.clear())
@@ -3992,8 +4122,19 @@ if args:
     initialfile = args[0]
 elif "AXIS_OPEN_FILE" in os.environ:
     initialfile = os.environ["AXIS_OPEN_FILE"]
-elif inifile.find("DISPLAY", "OPEN_FILE"):
-    initialfile = inifile.find("DISPLAY", "OPEN_FILE")
+elif s.file:
+    # Server already has a program loaded (e.g. from [DISPLAY]OPEN_FILE or
+    # another UI instance). Load its preview without calling program_open again.
+    # If the system is currently running (auto mode), avoid open_file_guts which
+    # calls task_plan_synch/wait_complete/program_open that block or timeout.
+    initialfile = s.file
+    vars.taskfile.set(s.file)
+    addrecent = False
+    if running(do_poll=False):
+        load_text_and_set_file(initialfile)
+        _pending_autofit = True
+        root_window.after_idle(refresh_preview_if_idle)
+        initialfile = None  # skip open_file_guts below
 elif lathe:
     initialfile = os.path.join(BASE, "share", "axis", "images","axis-lathe.ngc")
     addrecent = False
@@ -4001,7 +4142,8 @@ else:
     initialfile = os.path.join(BASE, "share", "axis", "images", "axis.ngc")
     addrecent = False
 
-if os.path.exists(initialfile):
+if initialfile and os.path.exists(initialfile):
+    _pending_autofit = True
     open_file_guts(initialfile, False, addrecent)
 
 if lathe:
@@ -4052,9 +4194,9 @@ def _dynamic_tabs(inifile):
                 print("Incorrect number of parameters")
                 continue
             try:
+                tab_compname = t.lower().replace(' ','_')
                 f.pack(fill="y", expand=0)
-                vcpparse.filename = pyvcp[1]
-                vcpparse.create_vcp(f, comp=None, compname=t.lower().replace(' ','_'))
+                vcpparse.create_vcp_rest(f, compname=tab_compname)
             except Exception as e:
                 print("Invalid PyVCP tab configuration: EMBED_TAB COMMAND =", c)
                 print(e)
@@ -4087,13 +4229,6 @@ def check_dynamic_tabs():
                              (" ".join(cmd), r))
         raise SystemExit(r)
     else:
-        if postgui_halfile is not None:
-            for f in postgui_halfile:
-                if f.lower().endswith('.tcl'):
-                    res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", vars.emcini.get(), f])
-                else:
-                    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", f])
-                if res: raise SystemExit(res)
         root_window.deiconify()
         destroy_splash()
         return
@@ -4124,7 +4259,7 @@ def balance_ja():
     h = max(widgets.axes.winfo_reqheight(), widgets.joints.winfo_reqheight())
     widgets.axes.configure(width=w, height=h)
     widgets.joints.configure(width=w, height=h)
-if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+if s.kinematics_type != KINEMATICS_IDENTITY:
     set_motion_teleop(0)
     widgets.joints.grid_propagate(0)
     widgets.axes.grid_propagate(0)
@@ -4163,9 +4298,9 @@ commands.set_spindlerate(100)
 
 def forget(widget, *pins):
     if "AXIS_NO_AUTOCONFIGURE" in os.environ: return
-    if hal_present == 1:
+    if server_present == 1:
         for p in pins:
-            if hal.pin_has_writer(p): return
+            if gmi.pin_has_writer(p): return
     m = widget.winfo_manager()
     if m in ("grid", "pack"):
         widget.tk.call(m, "forget", widget._w)
@@ -4192,12 +4327,12 @@ forget(widgets.spinoverridef,
        "spindle.0.speed-out", "spindle.0.speed-out-abs", "spindle.0.speed-out-rps", "spindle.0.speed-out-rps-abs")
 
 has_limit_switch = 0
-for j in range(linuxcnc.MAX_JOINTS):
+for j in range(MAX_JOINTS):
     try:
-        if hal.pin_has_writer("joint.%d.neg-lim-sw-in" % j):
+        if gmi.pin_has_writer("joint.%d.neg-lim-sw-in" % j):
             has_limit_switch=1
             break
-        if hal.pin_has_writer("joint.%d.pos-lim-sw-in" % j):
+        if gmi.pin_has_writer("joint.%d.pos-lim-sw-in" % j):
             has_limit_switch=1
             break
     except NameError as detail:
@@ -4206,9 +4341,9 @@ if not has_limit_switch:
     widgets.override.grid_forget()
 
 
-forget(widgets.mist, "iocontrol.0.coolant-mist")
-forget(widgets.flood, "iocontrol.0.coolant-flood")
-forget(widgets.coolant, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
+forget(widgets.mist, "iocontrol.coolant-mist")
+forget(widgets.flood, "iocontrol.coolant-flood")
+forget(widgets.coolant, "iocontrol.coolant-flood", "iocontrol.coolant-mist")
 
 rcfile = "~/.axisrc"
 user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""
@@ -4226,15 +4361,11 @@ if os.path.exists(rcfile):
 
 # call an empty function that can be overridden
 # by an .axisrc user_hal_pins() function
-# then set HAL component ready if the .axisui didn't
-if hal_present == 1 :
+if server_present == 1 :
     user_hal_pins()
-    if not hal.component_is_ready('axisui'):
-        comp.ready()
 
 _dynamic_tabs(inifile)
-if hal_present == 1:
-    load_gladevcp_panel()
+if server_present == 1:
     check_dynamic_tabs()
 else:
     root_window.deiconify()
@@ -4248,7 +4379,90 @@ install_help(root_window)
 widgets.numbers_text.bind("<Configure>", commands.redraw_soon)
 live_plotter.update()
 live_plotter.error_task()
+
+# --- Integrated manual tool change support ---
+# Detect manualtoolchange REST endpoint and poll for tool change requests.
+_mtc_poller = None
+try:
+    from gmi.manualtoolchange_client import ManualtoolchangeClient
+    _mtc_rest_url = gmi.rest_url()
+    _mtc_instance = gmi.mtc_instance()
+    _mtc_client = ManualtoolchangeClient(_mtc_rest_url)
+    _mtc_client.base_url = f"{_mtc_rest_url}/api/v1/{_mtc_instance}"
+    # Probe endpoint availability with a GET /state
+    _mtc_client.get_state()
+
+    _mtc_prev_change = False
+    _mtc_dialog_active = False
+
+    def _mtc_do_change(tool_number):
+        global _mtc_dialog_active
+        if tool_number:
+            message = _("Insert tool %d and click continue when ready") % tool_number
+        else:
+            message = _("Remove the tool and click continue when ready")
+
+        _mtc_dialog_active = True
+        dismissed = [False]
+
+        def check_still_pending():
+            if dismissed[0]:
+                return
+            try:
+                state = _mtc_client.get_state()
+                if not state.change_requested or state.change_confirmed:
+                    root_window.tk.call("set", "::tkPriv(button)", -1)
+                    dismissed[0] = True
+                    return
+            except Exception:
+                pass
+            root_window.after(1000, check_still_pending)
+
+        root_window.after(1000, check_still_pending)
+
+        try:
+            r = root_window.tk.call("nf_dialog", ".tool_change",
+                                     _("Tool change"), message, "info", 0, _("Continue"))
+        finally:
+            dismissed[0] = True
+            _mtc_dialog_active = False
+
+        if isinstance(r, str):
+            r = int(r)
+        if r == 0:
+            try:
+                _mtc_client.confirm()
+            except Exception:
+                pass
+
+    def _mtc_poll():
+        global _mtc_prev_change
+        if _mtc_dialog_active:
+            root_window.after(1000, _mtc_poll)
+            return
+        try:
+            state = _mtc_client.get_state()
+        except Exception:
+            root_window.after(1000, _mtc_poll)
+            return
+
+        if state.change_requested and not state.change_confirmed and not _mtc_prev_change:
+            _mtc_prev_change = True
+            _mtc_do_change(state.tool_number)
+        elif not state.change_requested:
+            _mtc_prev_change = False
+
+        root_window.after(1000, _mtc_poll)
+
+    root_window.after(1000, _mtc_poll)
+    _mtc_poller = True
+    print("axis: manualtoolchange endpoint detected, integrated tool change UI active")
+except Exception:
+    # Endpoint not available — manualtoolchange not loaded, skip integration
+    pass
+
 o.mainloop()
 live_plotter.stop()
+_message_list.stop()
 
 # vim:sw=4:sts=4:et:

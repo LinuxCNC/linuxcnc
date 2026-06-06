@@ -102,6 +102,8 @@ public:
     void print_state_tag(StateTag const &tag);
     void set_loglevel(int level);
     void set_loop_on_main_m99(bool state);
+    void set_canon_callbacks(const canon_callbacks_t *cb) override { _cb = cb; }
+    const canon_callbacks_t *_cb;
     FILE *f;
     char filename[PATH_MAX];
 };

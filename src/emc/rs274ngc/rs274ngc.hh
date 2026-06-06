@@ -23,7 +23,6 @@
 
 #include <stdio.h>
 #include "canon.hh"
-#include "emc.hh"
 #include "debugflags.h"
 #include "interp_fwd.hh"
 

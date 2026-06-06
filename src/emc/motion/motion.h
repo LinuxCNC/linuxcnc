@@ -70,7 +70,6 @@ to another.
 #include <stdarg.h>
 #include "rtapi_bool.h"
 #include "state_tag.h"
-#include "tp_types.h"
 
 // define a special value to denote an invalid motion ID
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
@@ -169,6 +168,7 @@ extern "C" {
 	EMCMOT_SET_JOINT_MAX_FERROR,    /* maximum following error, input units */
 	EMCMOT_SET_JOINT_VEL_LIMIT,     /* set the max joint vel */
 	EMCMOT_SET_JOINT_ACC_LIMIT,     /* set the max joint accel */
+	EMCMOT_SET_JOINT_JERK_LIMIT,    /* set the max joint jerk */
 	EMCMOT_SET_JOINT_HOMING_PARAMS, /* sets joint homing parameters */
 	EMCMOT_UPDATE_JOINT_HOMING_PARAMS, /* updates some joint homing parameters */
 	EMCMOT_SET_JOINT_MOTOR_OFFSET,  /* set the offset between joint and motor */
@@ -223,6 +223,7 @@ extern "C" {
         int motion_type;        /* this move is because of traverse, feed, arc, or toolchange */
         double spindlesync;     /* user units per spindle revolution, 0 = no sync */
 	double acc;		/* max acceleration */
+	double jerk;		/* max jerk */
 	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
@@ -444,6 +445,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double min_jog_limit;
 	double vel_limit;	/* upper limit of joint speed */
 	double acc_limit;	/* upper limit of joint accel */
+	double jerk_limit;	/* upper limit of joint jerk (0 = disabled) */
 	double min_ferror;	/* zero speed following error limit */
 	double max_ferror;	/* max speed following error limit */
 	double backlash;	/* amount of backlash */
@@ -728,17 +730,6 @@ Suggestion: Split this in to an Error and a Status flag register..
         int inhibit_probe_home_error;
     } emcmot_config_t;
 
-/* error structure - A ring buffer used to pass formatted printf strings to usr space */
-    typedef struct emcmot_error_t {
-	unsigned char head;	/* flag count for mutex detect */
-	char error[EMCMOT_ERROR_NUM][EMCMOT_ERROR_LEN];
-	int start;		/* index of oldest error */
-	int end;		/* index of newest error */
-	int num;		/* number of items */
-	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_error_t;
-
-
 typedef struct emcmot_internal_t {
     unsigned char head; /* flag count for mutex detect */
     unsigned char tail; /* flag count for mutex detect */
@@ -748,16 +739,8 @@ typedef struct emcmot_internal_t {
     int teleoperating;  /* starts up in free mode */
     int overriding;     /* non-zero means we've initiated an joint
                            move while overriding limits */
-    TP_STRUCT coord_tp; /* coordinated mode planner */
     int idForStep;      /* status id while stepping */
     } emcmot_internal_t;
-
-/* error ring buffer access functions */
-    extern int emcmotErrorInit(emcmot_error_t * errlog);
-    extern int emcmotErrorPut(emcmot_error_t * errlog, const char *error);
-    extern int emcmotErrorPutfv(emcmot_error_t * errlog, const char *fmt, va_list ap);
-    extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
-    extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
 
 #define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)
 #define GET_JOINT_INPOS_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0)

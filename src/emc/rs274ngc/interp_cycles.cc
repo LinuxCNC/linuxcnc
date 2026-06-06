@@ -99,7 +99,7 @@ int Interp::convert_cycle_g82(block_pointer block,
                               double dwell)      //!< dwell time
 {
   cycle_feed(block, plane, x, y, bottom_z);
-  DWELL(dwell);
+  _setup.canon.dwell(dwell);
   cycle_traverse(block, plane, x, y, clear_z);
 
   return INTERP_OK;
@@ -299,64 +299,64 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
     int save_feed_override_enable;
     int save_spindle_override_enable;
 
-    save_feed_override_enable = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-    save_spindle_override_enable = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(spindle);
+    save_feed_override_enable = _setup.canon.get_external_feed_override_enable();
+    save_spindle_override_enable = _setup.canon.get_external_spindle_override_enable(spindle);
 
    switch (plane) {
 
     case CANON_PLANE_XY:
-       DISABLE_FEED_OVERRIDE();
-       DISABLE_SPEED_OVERRIDE(spindle);
+       _setup.canon.disable_feed_override();
+       _setup.canon.disable_speed_override(spindle);
        cycle_feed(block, plane, x, y, bottom_z);
-       STOP_SPINDLE_TURNING(spindle);
+       _setup.canon.stop_spindle_turning(spindle);
        // the zero parameter suppresses the wait for at-speed on next feed
        if (motion == G_84)
-           START_SPINDLE_COUNTERCLOCKWISE(spindle);
+           _setup.canon.start_spindle_counterclockwise(spindle);
        else
-           START_SPINDLE_CLOCKWISE(spindle);
-       DWELL(dwell);
+           _setup.canon.start_spindle_clockwise(spindle);
+       _setup.canon.dwell(dwell);
        cycle_feed(block, plane, x, y, clear_z);
-       STOP_SPINDLE_TURNING(spindle);
+       _setup.canon.stop_spindle_turning(spindle);
        if (motion == G_84)
-           START_SPINDLE_CLOCKWISE(spindle);
+           _setup.canon.start_spindle_clockwise(spindle);
        else
-           START_SPINDLE_COUNTERCLOCKWISE(spindle);
+           _setup.canon.start_spindle_counterclockwise(spindle);
        break;
 
     case CANON_PLANE_YZ:
-       DISABLE_FEED_OVERRIDE();
-       DISABLE_SPEED_OVERRIDE(spindle);
+       _setup.canon.disable_feed_override();
+       _setup.canon.disable_speed_override(spindle);
        cycle_feed(block, plane, bottom_z, x, y);
-       STOP_SPINDLE_TURNING(spindle);
+       _setup.canon.stop_spindle_turning(spindle);
        if (motion == G_84)
-           START_SPINDLE_COUNTERCLOCKWISE(spindle);
+           _setup.canon.start_spindle_counterclockwise(spindle);
        else
-           START_SPINDLE_CLOCKWISE(spindle);
-       DWELL(dwell);
+           _setup.canon.start_spindle_clockwise(spindle);
+       _setup.canon.dwell(dwell);
        cycle_feed(block, plane, clear_z, x, y);
-       STOP_SPINDLE_TURNING(spindle);
+       _setup.canon.stop_spindle_turning(spindle);
        if (motion == G_84)
-           START_SPINDLE_CLOCKWISE(spindle);
+           _setup.canon.start_spindle_clockwise(spindle);
        else
-           START_SPINDLE_COUNTERCLOCKWISE(spindle);
+           _setup.canon.start_spindle_counterclockwise(spindle);
        break;
 
     case CANON_PLANE_XZ:
-       DISABLE_FEED_OVERRIDE();
-       DISABLE_SPEED_OVERRIDE(spindle);
+       _setup.canon.disable_feed_override();
+       _setup.canon.disable_speed_override(spindle);
        cycle_feed(block, plane, y, bottom_z, x);
-       STOP_SPINDLE_TURNING(spindle);
+       _setup.canon.stop_spindle_turning(spindle);
        if (motion == G_84)
-           START_SPINDLE_COUNTERCLOCKWISE(spindle);
+           _setup.canon.start_spindle_counterclockwise(spindle);
        else
-           START_SPINDLE_CLOCKWISE(spindle);
-       DWELL(dwell);
+           _setup.canon.start_spindle_clockwise(spindle);
+       _setup.canon.dwell(dwell);
        cycle_feed(block, plane, y, clear_z, x);
-       STOP_SPINDLE_TURNING(spindle);
+       _setup.canon.stop_spindle_turning(spindle);
        if (motion == G_84)
-           START_SPINDLE_CLOCKWISE(spindle);
+           _setup.canon.start_spindle_clockwise(spindle);
        else
-           START_SPINDLE_COUNTERCLOCKWISE(spindle);
+           _setup.canon.start_spindle_counterclockwise(spindle);
        break;
 
     default:
@@ -364,21 +364,21 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
            toString((GCodes)motion).c_str(), plane_name(plane));
     }
    if(save_feed_override_enable)
-    ENABLE_FEED_OVERRIDE();
+    _setup.canon.enable_feed_override();
    if(save_spindle_override_enable)
-    ENABLE_SPEED_OVERRIDE(spindle);
+    _setup.canon.enable_speed_override(spindle);
 
    return INTERP_OK;
 
 #if 0
-  START_SPEED_FEED_SYNCH();
+  _setup.canon.start_speed_feed_synch();
   cycle_feed(block, plane, x, y, bottom_z);
 
   cycle_feed(block, plane, x, y, clear_z);
   if (mode != CANON_SYNCHED)
-    STOP_SPEED_FEED_SYNCH();
-  STOP_SPINDLE_TURNING();
-  START_SPINDLE_CLOCKWISE();
+    _setup.canon.stop_speed_feed_synch();
+  _setup.canon.stop_spindle_turning();
+  _setup.canon.start_spindle_clockwise();
 #endif
 }
 
@@ -468,13 +468,13 @@ int Interp::convert_cycle_g86(block_pointer block,
       NCE_SPINDLE_NOT_TURNING_IN_G86);
 
   cycle_feed(block, plane, x, y, bottom_z);
-  DWELL(dwell);
-  STOP_SPINDLE_TURNING(spindle);
+  _setup.canon.dwell(dwell);
+  _setup.canon.stop_spindle_turning(spindle);
   cycle_traverse(block, plane, x, y, clear_z);
   if (direction == CANON_CLOCKWISE)
-    START_SPINDLE_CLOCKWISE(spindle);
+    _setup.canon.start_spindle_clockwise(spindle);
   else
-    START_SPINDLE_COUNTERCLOCKWISE(spindle);
+    _setup.canon.start_spindle_counterclockwise(spindle);
 
   return INTERP_OK;
 }
@@ -556,25 +556,25 @@ int Interp::convert_cycle_g87(block_pointer block,
       NCE_SPINDLE_NOT_TURNING_IN_G87);
 
   cycle_traverse(block, plane, offset_x, offset_y, r);
-  STOP_SPINDLE_TURNING(spindle);
-  ORIENT_SPINDLE(spindle, 0.0, direction);
+  _setup.canon.stop_spindle_turning(spindle);
+  _setup.canon.orient_spindle(spindle, 0.0, direction);
   cycle_traverse(block, plane, offset_x, offset_y, bottom_z);
   cycle_traverse(block, plane, x, y, bottom_z);
   if (direction == CANON_CLOCKWISE)
-    START_SPINDLE_CLOCKWISE(spindle);
+    _setup.canon.start_spindle_clockwise(spindle);
   else
-    START_SPINDLE_COUNTERCLOCKWISE(spindle);
+    _setup.canon.start_spindle_counterclockwise(spindle);
   cycle_feed(block, plane, x, y, middle_z);
   cycle_feed(block, plane, x, y, bottom_z);
-  STOP_SPINDLE_TURNING(spindle);
-  ORIENT_SPINDLE(spindle,0.0, direction);
+  _setup.canon.stop_spindle_turning(spindle);
+  _setup.canon.orient_spindle(spindle,0.0, direction);
   cycle_traverse(block, plane, offset_x, offset_y, bottom_z);
   cycle_traverse(block, plane, offset_x, offset_y, clear_z);
   cycle_traverse(block, plane, x, y, clear_z);
   if (direction == CANON_CLOCKWISE)
-    START_SPINDLE_CLOCKWISE(spindle);
+    _setup.canon.start_spindle_clockwise(spindle);
   else
-    START_SPINDLE_COUNTERCLOCKWISE(spindle);
+    _setup.canon.start_spindle_counterclockwise(spindle);
 
   return INTERP_OK;
 }
@@ -623,13 +623,13 @@ int Interp::convert_cycle_g88(block_pointer block,
       NCE_SPINDLE_NOT_TURNING_IN_G88);
 
   cycle_feed(block, plane, x, y, bottom_z);
-  DWELL(dwell);
-  STOP_SPINDLE_TURNING(spindle);
-  PROGRAM_STOP();               /* operator retracts the spindle here */
+  _setup.canon.dwell(dwell);
+  _setup.canon.stop_spindle_turning(spindle);
+  _setup.canon.program_stop();               /* operator retracts the spindle here */
   if (direction == CANON_CLOCKWISE)
-    START_SPINDLE_CLOCKWISE(spindle);
+    _setup.canon.start_spindle_clockwise(spindle);
   else
-    START_SPINDLE_COUNTERCLOCKWISE(spindle);
+    _setup.canon.start_spindle_counterclockwise(spindle);
 
   return INTERP_OK;
 }
@@ -667,7 +667,7 @@ int Interp::convert_cycle_g89(block_pointer block,
                               double dwell)      //!< dwell time
 {
   cycle_feed(block, plane, x, y, bottom_z);
-  DWELL(dwell);
+  _setup.canon.dwell(dwell);
   cycle_feed(block, plane, x, y, clear_z);
 
   return INTERP_OK;
@@ -967,7 +967,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
   // First motion of a canned cycle (maybe): if we're below the R plane,
   // rapid straight up to the R plane.
   if (old_cc < r) {
-    STRAIGHT_TRAVERSE(block->line_number, settings->current_x, settings->current_y, r,
+    _setup.canon.straight_traverse(block->line_number, settings->current_x, settings->current_y, r,
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
@@ -975,11 +975,11 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
-  save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+  save_mode = _setup.canon.get_external_motion_control_mode();
+  save_tolerance = _setup.canon.get_external_motion_control_tolerance();
+  save_cam_tolerance = _setup.canon.get_external_motion_control_naivecam_tolerance();
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
+    _setup.canon.set_motion_control_mode(CANON_EXACT_PATH, 0);
 
   switch (motion) {
   case G_81:
@@ -1092,8 +1092,8 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
   settings->cycle_cc = block->z_number;
 
   if (save_mode != CANON_EXACT_PATH) {
-    SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    _setup.canon.set_motion_control_mode(save_mode, save_tolerance);
+    _setup.canon.set_naivecam_tolerance(save_cam_tolerance);
   }
 
   return INTERP_OK;
@@ -1158,7 +1158,7 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
   CHKS((r < cc), NCE_R_LESS_THAN_W_IN_CYCLE_IN_UV_PLANE);
 
   if (old_cc < r) {
-    STRAIGHT_TRAVERSE(block->line_number, settings->current_x, settings->current_y, settings->current_z,
+    _setup.canon.straight_traverse(block->line_number, settings->current_x, settings->current_y, settings->current_z,
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, r);
     old_cc = r;
@@ -1166,11 +1166,11 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
-  save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+  save_mode = _setup.canon.get_external_motion_control_mode();
+  save_tolerance = _setup.canon.get_external_motion_control_tolerance();
+  save_cam_tolerance = _setup.canon.get_external_motion_control_naivecam_tolerance();
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
+    _setup.canon.set_motion_control_mode(CANON_EXACT_PATH, 0);
 
   switch (motion) {
   case G_81:
@@ -1281,8 +1281,8 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
   settings->cycle_cc = block->w_number;
 
   if (save_mode != CANON_EXACT_PATH) {
-    SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    _setup.canon.set_motion_control_mode(save_mode, save_tolerance);
+    _setup.canon.set_naivecam_tolerance(save_cam_tolerance);
   }
 
   return INTERP_OK;
@@ -1395,7 +1395,7 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
   CHKS((r < cc), NCE_R_LESS_THAN_X_IN_CYCLE_IN_YZ_PLANE);
 
   if (old_cc < r) {
-    STRAIGHT_TRAVERSE(block->line_number, r, settings->current_y, settings->current_z,
+    _setup.canon.straight_traverse(block->line_number, r, settings->current_y, settings->current_z,
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
@@ -1403,11 +1403,11 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
-  save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+  save_mode = _setup.canon.get_external_motion_control_mode();
+  save_tolerance = _setup.canon.get_external_motion_control_tolerance();
+  save_cam_tolerance = _setup.canon.get_external_motion_control_naivecam_tolerance();
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
+    _setup.canon.set_motion_control_mode(CANON_EXACT_PATH, 0);
 
   switch (motion) {
   case G_81:
@@ -1518,8 +1518,8 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
   settings->cycle_cc = block->x_number;
 
   if (save_mode != CANON_EXACT_PATH) {
-    SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    _setup.canon.set_motion_control_mode(save_mode, save_tolerance);
+    _setup.canon.set_naivecam_tolerance(save_cam_tolerance);
   }
 
   return INTERP_OK;
@@ -1583,7 +1583,7 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
   CHKS((r < cc), NCE_R_LESS_THAN_U_IN_CYCLE_IN_VW_PLANE);
 
   if (old_cc < r) {
-    STRAIGHT_TRAVERSE(block->line_number, settings->current_x, settings->current_y, settings->current_z,
+    _setup.canon.straight_traverse(block->line_number, settings->current_x, settings->current_y, settings->current_z,
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       r, settings->v_current, settings->w_current);
     old_cc = r;
@@ -1591,11 +1591,11 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
-  save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+  save_mode = _setup.canon.get_external_motion_control_mode();
+  save_tolerance = _setup.canon.get_external_motion_control_tolerance();
+  save_cam_tolerance = _setup.canon.get_external_motion_control_naivecam_tolerance();
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
+    _setup.canon.set_motion_control_mode(CANON_EXACT_PATH, 0);
 
   switch (motion) {
   case G_81:
@@ -1706,8 +1706,8 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
   settings->cycle_cc = block->u_number;
 
   if (save_mode != CANON_EXACT_PATH) {
-    SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    _setup.canon.set_motion_control_mode(save_mode, save_tolerance);
+    _setup.canon.set_naivecam_tolerance(save_cam_tolerance);
   }
 
   return INTERP_OK;
@@ -1828,7 +1828,7 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
   CHKS((r < cc), NCE_R_LESS_THAN_Y_IN_CYCLE_IN_XZ_PLANE);
 
   if (old_cc < r) {
-    STRAIGHT_TRAVERSE(block->line_number, settings->current_x, r, settings->current_z,
+    _setup.canon.straight_traverse(block->line_number, settings->current_x, r, settings->current_z,
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
@@ -1836,11 +1836,11 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
-  save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+  save_mode = _setup.canon.get_external_motion_control_mode();
+  save_tolerance = _setup.canon.get_external_motion_control_tolerance();
+  save_cam_tolerance = _setup.canon.get_external_motion_control_naivecam_tolerance();
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
+    _setup.canon.set_motion_control_mode(CANON_EXACT_PATH, 0);
 
   switch (motion) {
   case G_81:
@@ -1951,8 +1951,8 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
   settings->cycle_cc = block->y_number;
 
   if (save_mode != CANON_EXACT_PATH) {
-    SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    _setup.canon.set_motion_control_mode(save_mode, save_tolerance);
+    _setup.canon.set_naivecam_tolerance(save_cam_tolerance);
   }
 
   return INTERP_OK;
@@ -2015,7 +2015,7 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
   CHKS((r < cc), NCE_R_LESS_THAN_V_IN_CYCLE_IN_UW_PLANE);
 
   if (old_cc < r) {
-    STRAIGHT_TRAVERSE(block->line_number, settings->current_x, settings->current_y, settings->current_z,
+    _setup.canon.straight_traverse(block->line_number, settings->current_x, settings->current_y, settings->current_z,
                       settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, r, settings->w_current);
     old_cc = r;
@@ -2023,11 +2023,11 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
   }
   clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
 
-  save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+  save_mode = _setup.canon.get_external_motion_control_mode();
+  save_tolerance = _setup.canon.get_external_motion_control_tolerance();
+  save_cam_tolerance = _setup.canon.get_external_motion_control_naivecam_tolerance();
   if (save_mode != CANON_EXACT_PATH)
-    SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
+    _setup.canon.set_motion_control_mode(CANON_EXACT_PATH, 0);
 
   switch (motion) {
   case G_81:
@@ -2153,8 +2153,8 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
   settings->cycle_cc = block->v_number;
 
   if (save_mode != CANON_EXACT_PATH) {
-    SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
-    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    _setup.canon.set_motion_control_mode(save_mode, save_tolerance);
+    _setup.canon.set_naivecam_tolerance(save_cam_tolerance);
   }
 
   return INTERP_OK;
@@ -2191,27 +2191,27 @@ int Interp::cycle_feed(block_pointer block,
                        double end3)      //!< third coordinate value
 {
     if (plane == CANON_PLANE_XY)
-        STRAIGHT_FEED(block->line_number, end1, end2, end3,
+        _setup.canon.straight_feed(block->line_number, end1, end2, end3,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       _setup.u_current, _setup.v_current, _setup.w_current);
     else if (plane == CANON_PLANE_YZ)
-        STRAIGHT_FEED(block->line_number, end3, end1, end2,
+        _setup.canon.straight_feed(block->line_number, end3, end1, end2,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       _setup.u_current, _setup.v_current, _setup.w_current);
     else if (plane == CANON_PLANE_XZ)
-        STRAIGHT_FEED(block->line_number, end2, end3, end1,
+        _setup.canon.straight_feed(block->line_number, end2, end3, end1,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       _setup.u_current, _setup.v_current, _setup.w_current);
     else if (plane == CANON_PLANE_UV)
-        STRAIGHT_FEED(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
+        _setup.canon.straight_feed(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       end1, end2, end3);
     else if (plane == CANON_PLANE_VW)
-        STRAIGHT_FEED(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
+        _setup.canon.straight_feed(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       end3, end1, end2);
     else // (plane == CANON_PLANE_UW)
-        STRAIGHT_FEED(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
+        _setup.canon.straight_feed(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       end2, end3, end1);
     return INTERP_OK;
@@ -2250,27 +2250,27 @@ int Interp::cycle_traverse(block_pointer block,
 {
 
     if (plane == CANON_PLANE_XY)
-        STRAIGHT_TRAVERSE(block->line_number, end1, end2, end3,
+        _setup.canon.straight_traverse(block->line_number, end1, end2, end3,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           _setup.u_current, _setup.v_current, _setup.w_current);
     else if (plane == CANON_PLANE_YZ)
-        STRAIGHT_TRAVERSE(block->line_number, end3, end1, end2,
+        _setup.canon.straight_traverse(block->line_number, end3, end1, end2,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           _setup.u_current, _setup.v_current, _setup.w_current);
     else if (plane == CANON_PLANE_XZ)
-        STRAIGHT_TRAVERSE(block->line_number, end2, end3, end1,
+        _setup.canon.straight_traverse(block->line_number, end2, end3, end1,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           _setup.u_current, _setup.v_current, _setup.w_current);
     else if (plane == CANON_PLANE_UV)
-        STRAIGHT_TRAVERSE(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
+        _setup.canon.straight_traverse(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           end1, end2, end3);
     else if (plane == CANON_PLANE_VW)
-        STRAIGHT_TRAVERSE(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
+        _setup.canon.straight_traverse(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           end3, end1, end2);
     else // (plane == CANON_PLANE_UW)
-        STRAIGHT_TRAVERSE(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
+        _setup.canon.straight_traverse(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           end2, end3, end1);
     return INTERP_OK;

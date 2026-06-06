@@ -65,14 +65,6 @@ suppression can produce more concise output. Future versions might
 include an option for suppressing superfluous commands.
 
 ****************************************************************************/
-#define BOOST_PYTHON_MAX_ARITY 4
-#include "python_plugin.hh"
-#include <boost/python/dict.hpp>
-#include <boost/python/extract.hpp>
-#include <boost/python/import.hpp>
-#include <boost/python/list.hpp>
-#include <boost/python/scope.hpp>
-#include <boost/python/tuple.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,10 +81,8 @@ include an option for suppressing superfluous commands.
 #include <set>
 #include <stdexcept>
 #include <new>
-#include <rtapi_string.h>	// rtapi_strlcpy()
+#include <cstdio>
 
-#include "rtapi.h"
-#include "inifile.hh"		// INIFILE
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"	// interpreter private definitions
@@ -105,8 +95,6 @@ include an option for suppressing superfluous commands.
 
 #include <interp_parameter_def.hh>
 using namespace interp_param_global;
-
-namespace bp = boost::python;
 
 extern char * _rs274ngc_errors[];
 
@@ -122,55 +110,13 @@ const char *Interp::interp_status(int status) {
     return statustext;
 }
 
-extern struct _inittab builtin_modules[];
-int trace;
-static char savedError[LINELEN+1];
-
 Interp::Interp()
     : log_file(stderr),
-    _setup{}
+    _setup{},
+    ext_registry(nullptr)
 {
     _setup.init_once = 1;  
-  init_named_parameters();  // need this before Python init.
- 
-  if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
-    Error("Interp ctor: can\'t instantiate Python plugin");
-    return;
-  }
-
-// KLUDGE just to get unit tests to stop complaining about python modules we won't use anyway
-#ifndef UNIT_TEST
-  try {
-    // this import will register the C++->Python converter for Interp
-    bp::object interp_module = bp::import("interpreter");
-
-    // use a boost::cref to avoid per-call instantiation of the
-    // Interp Python wrapper (used for the 'self' parameter in handlers)
-    // since interp.init() may be called repeatedly this would create a new
-    // wrapper instance on every init(), abandoning the old one and all user attributes
-    // tacked onto it, so make sure this is done exactly once
-    _setup.pythis = new bp::object(boost::cref(*this));
-
-    // alias to 'interpreter.this' for the sake of ';py, .... ' comments
-    // besides 'this', eventually use proper instance names to handle
-	// several instances
-    bp::scope(interp_module).attr("this") =  *_setup.pythis;
-
-    // make "this" visible without importing interpreter explicitly
-    bp::object retval;
-    python_plugin->run_string("from interpreter import this", retval, false);
-  }
-  catch (const bp::error_already_set&) {
-    std::string exception_msg;
-    if (PyErr_Occurred()) {
-      exception_msg = handle_pyerror();
-    } else
-      exception_msg = "unknown exception";
-    bp::handle_exception();
-    PyErr_Clear();
-    Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
-  }
-#endif
+    init_named_parameters();
 }
 
 InterpBase *makeInterp()
@@ -179,6 +125,7 @@ InterpBase *makeInterp()
 }
 
 Interp::~Interp() {
+    interp_ext_registry_destroy(ext_registry);
     if(log_file) {
         if(log_file != stderr)
             fclose(log_file);
@@ -346,7 +293,7 @@ int Interp::_execute(const char *command)
       }
       _setup.mdi_interrupt = false;
       if (MDImode) {
-	  FINISH();
+	  _setup.canon.finish();
           _setup.offset_map.clear();
       }
       return INTERP_OK;
@@ -765,31 +712,12 @@ int Interp::exit()
 {
   char file_name[LINELEN];
 
-  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
+  _setup.canon.get_external_parameter_file_name(file_name, (LINELEN - 1));
   save_parameters(((file_name[0] ==
                              0) ?
                             RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
                             file_name), _setup.parameters);
   reset();
-
-  // interpreter shutdown Python hook
-  if (python_plugin->is_callable(NULL, DELETE_FUNC)) {
-
-      bp::object retval, tupleargs, kwargs;
-      bp::list plist;
-
-      plist.append(*_setup.pythis); // self
-      tupleargs = bp::tuple(plist);
-      kwargs = bp::dict();
-
-      python_plugin->call(NULL, DELETE_FUNC, tupleargs, kwargs, retval);
-      if (python_plugin->plugin_status() == PLUGIN_EXCEPTION) {
-	  ERM("pycall(%s):\n%s", INIT_FUNC,
-	      python_plugin->last_exception().c_str());
-	  // this likely wont make it to the UI's any more so bark on stderr
-	  fprintf(stderr, "%s\n",savedError);
-      }
-  }
 
   return INTERP_OK;
 }
@@ -818,21 +746,22 @@ Called By: external programs
 Currently we are running only in CANON_XYZ feed_reference mode.  There
 is no command regarding feed_reference in the rs274 language (we
 should try to get one added). The initialization routine, therefore,
-always calls SET_FEED_REFERENCE(CANON_XYZ).
+always calls _setup.canon.set_feed_reference(CANON_XYZ).
 
 */
+
+void Interp::set_canon_callbacks(const canon_callbacks_t *callbacks)
+{
+  _setup.canon = CanonInterface(callbacks);
+}
 
 int Interp::init()
 {
   int k;                        // starting index in parameters of origin offsets
   char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
-  char *iniFileName;
-  IniFile::ErrorCode r;
 
-  INIT_CANON();
-
-  iniFileName = getenv("INI_FILE_NAME");
+  _setup.canon.init_canon();
 
   // the default log file
   _setup.loggingLevel = 0;
@@ -857,229 +786,145 @@ int Interp::init()
   _setup.center_arc_radius_tolerance_inch = CENTER_ARC_RADIUS_TOLERANCE_INCH;
   _setup.center_arc_radius_tolerance_mm = CENTER_ARC_RADIUS_TOLERANCE_MM;
 
-  if(iniFileName != NULL) {
+  if (_setup.ini_accessor.get != NULL) {
+      // --- Accessor-based INI loading (multi-instance path) ---
+      // The accessor provides namespace-resolved values from the Go INI parser.
+      auto ini_get = [this](const char *section, const char *key) -> const char* {
+          return _setup.ini_accessor.get(_setup.ini_accessor.ctx, section, key);
+      };
+      auto ini_get_nth = [this](const char *section, const char *key, int n) -> const char* {
+          return _setup.ini_accessor.get_nth(_setup.ini_accessor.ctx, section, key, n);
+      };
+      const char *val;
 
-      IniFile inifile;
-      if (inifile.Open(iniFileName) == false) {
-          fprintf(stderr,"Unable to open inifile:%s:\n", iniFileName);
-      } else {
-          bool opt;
-          const char *inistring;
+      if ((val = ini_get("EMCIO", "TOOL_CHANGE_AT_G30")) != NULL)
+          _setup.tool_change_at_g30 = atoi(val);
+      if ((val = ini_get("EMCIO", "TOOL_CHANGE_QUILL_UP")) != NULL)
+          _setup.tool_change_quill_up = atoi(val);
+      if ((val = ini_get("EMCIO", "TOOL_CHANGE_WITH_SPINDLE_ON")) != NULL)
+          _setup.tool_change_with_spindle_on = atoi(val);
+      if ((val = ini_get("AXIS_A", "WRAPPED_ROTARY")) != NULL)
+          _setup.a_axis_wrapped = atoi(val);
+      if ((val = ini_get("AXIS_B", "WRAPPED_ROTARY")) != NULL)
+          _setup.b_axis_wrapped = atoi(val);
+      if ((val = ini_get("AXIS_C", "WRAPPED_ROTARY")) != NULL)
+          _setup.c_axis_wrapped = atoi(val);
+      if ((val = ini_get("EMCIO", "RANDOM_TOOLCHANGER")) != NULL)
+          _setup.random_toolchanger = atoi(val);
+      if ((val = ini_get("TRAJ", "SPINDLES")) != NULL)
+          _setup.num_spindles = atoi(val);
 
-          inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
-          inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
-          inifile.Find(&_setup.tool_change_with_spindle_on, "TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO");
-          inifile.Find(&_setup.a_axis_wrapped, "WRAPPED_ROTARY", "AXIS_A");
-          inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_B");
-          inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
-          inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-          inifile.Find(&_setup.num_spindles, "SPINDLES", "TRAJ");
+      // Features that default to ON
+      if ((val = ini_get("RS274NGC", "INI_VARS")) == NULL || atoi(val) != 0)
+          _setup.feature_set |= FEATURE_INI_VARS;
+      if ((val = ini_get("RS274NGC", "HAL_PIN_VARS")) == NULL || atoi(val) != 0)
+          _setup.feature_set |= FEATURE_HAL_PIN_VARS;
 
-          // First the features that default to ON
-          opt = true;
-          inifile.Find(&opt, "INI_VARS", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_INI_VARS;
-          opt = true;
-          inifile.Find(&opt, "HAL_PIN_VARS", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_HAL_PIN_VARS;
+      // Features that default to OFF
+      if ((val = ini_get("RS274NGC", "RETAIN_G43")) != NULL && atoi(val) != 0)
+          _setup.feature_set |= FEATURE_RETAIN_G43;
+      if ((val = ini_get("RS274NGC", "OWORD_NARGS")) != NULL && atoi(val) != 0)
+          _setup.feature_set |= FEATURE_OWORD_N_ARGS;
+      if ((val = ini_get("RS274NGC", "NO_DOWNCASE_OWORD")) != NULL && atoi(val) != 0)
+          _setup.feature_set |= FEATURE_NO_DOWNCASE_OWORD;
+      if ((val = ini_get("RS274NGC", "OWORD_WARNONLY")) != NULL && atoi(val) != 0)
+          _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
-          // Now those that (currently) default to off
-          opt = false;
-          inifile.Find(&opt, "RETAIN_G43", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_RETAIN_G43;
-          opt = false;
-          inifile.Find(&opt, "OWORD_NARGS", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_OWORD_N_ARGS;
-          opt = false;
-          inifile.Find(&opt, "NO_DOWNCASE_OWORD", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_NO_DOWNCASE_OWORD;
-          opt = false;
-          inifile.Find(&opt, "OWORD_WARNONLY", "RS274NGC");
-          if (opt) _setup.feature_set |= FEATURE_OWORD_WARNONLY;
+      if ((val = ini_get("AXIS_A", "LOCKING_INDEXER_JOINT")) != NULL)
+          _setup.a_indexer_jnum = atol(val);
+      if ((val = ini_get("AXIS_B", "LOCKING_INDEXER_JOINT")) != NULL)
+          _setup.b_indexer_jnum = atol(val);
+      if ((val = ini_get("AXIS_C", "LOCKING_INDEXER_JOINT")) != NULL)
+          _setup.c_indexer_jnum = atol(val);
 
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
-              _setup.a_indexer_jnum = atol(inistring);
-          }
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B"))) {
-              _setup.b_indexer_jnum = atol(inistring);
-          }
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C"))) {
-              _setup.c_indexer_jnum = atol(inistring);
-          }
-          inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
+      if ((val = ini_get("RS274NGC", "ORIENT_OFFSET")) != NULL)
+          _setup.orient_offset = atof(val);
 
-          inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
+      if ((val = ini_get("EMC", "DEBUG")) != NULL)
+          _setup.debugmask = atoi(val);
+      _setup.debugmask |= EMC_DEBUG_UNCONDITIONAL;
 
-	  _setup.debugmask |= EMC_DEBUG_UNCONDITIONAL;
+      if ((val = ini_get("RS274NGC", "LOG_LEVEL")) != NULL)
+          _setup.loggingLevel = atol(val);
 
-          if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
-          {
-              _setup.loggingLevel = atol(inistring);
-          }
+      // Log file — for accessor path, default to stderr (Go handles logging)
+      log_file = stderr;
 
-	  // default the log_file to stderr.
-          if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
-          {
-	      if ((log_file = fopen(inistring, "a"))  == NULL) {
-		  log_file = stderr;
-		  logDebug( "(%d): Unable to open log file:%s, using stderr",
-			  getpid(), inistring);
-	      }
-          } else {
-	      log_file = stderr;
-	  }
+      _setup.use_lazy_close = 1;
 
-          _setup.use_lazy_close = 1;
-
-	  _setup.wizard_root[0] = 0;
-          if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
-          {
-	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring);
-            if (realpath(inistring, _setup.wizard_root) == NULL) {
-        	//realpath didn't find the file
-		logDebug("realpath failed to find wizard_root:%s:", inistring);
-            }
-          }
-          logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
-
-	  _setup.program_prefix[0] = 0;
-          if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
-          {
-	    // found it
-            char expandinistring[LINELEN];
-            if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
-                   logDebug("TildeExpansion failed for: %s",inistring);
-            }
-            if (realpath(expandinistring, _setup.program_prefix) == NULL){
-        	//realpath didn't find the file
-		logDebug("realpath failed to find program_prefix:%s:", inistring);
-            }
-            logDebug("program prefix:%s: prefix:%s:",
-		     inistring, _setup.program_prefix);
-          }
-          else
-          {
-	      logDebug("PROGRAM_PREFIX not found");
-          }
-          logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
-
-          if(NULL != (inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
-          {
-            // found it
-            int dct;
-            char* nextdir;
-            char tmpdirs[PATH_MAX+1];
-
-            for (dct=0; dct < MAX_SUB_DIRS; dct++) {
-                 _setup.subroutines[dct] = NULL;
-            }
-
-            rtapi_strxcpy(tmpdirs,inistring);
-            nextdir = strtok(tmpdirs,":");  // first token
-            dct = 0;
-            while (1) {
-                char tmp_path[PATH_MAX];
-                char expandnextdir[LINELEN];
-                if (inifile.TildeExpansion(nextdir,expandnextdir,sizeof(expandnextdir))) {
-                   logDebug("TildeExpansion failed for: %s",nextdir);
-                }
-                if (realpath(expandnextdir, tmp_path) == NULL){
-                   //realpath didn't find the directory
-                   logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir);
-                    _setup.subroutines[dct] = NULL;
-                } else {
-		    _setup.subroutines[dct] = strstore(tmp_path);
-                    logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
-		    dct++;
-                }
-                if (dct >= MAX_SUB_DIRS) {
-                   logDebug("too many entries in SUBROUTINE_PATH, max=%d", MAX_SUB_DIRS);
-                   break;
-                }
-                nextdir = strtok(NULL,":");
-                if (nextdir == NULL) break; // no more tokens
-             }
-          }
-          else
-          {
-              logDebug("SUBROUTINE_PATH not found");
-          }
-          // subroutine to execute on aborts - for instance to retract
-          // toolchange HAL pins
-          if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
-	      _setup.on_abort_command = strstore(inistring);
-              logDebug("_setup.on_abort_command=%s", _setup.on_abort_command);
-          } else {
-	      _setup.on_abort_command = NULL;
-          }
-
-	  // initialize the Python plugin singleton
-          if (NULL != (inistring = inifile.Find("TOPLEVEL", "PYTHON"))) {
-	      int status = python_plugin->configure(iniFileName,"PYTHON");
-	      if (status != PLUGIN_OK) {
-		  Error("Python plugin configure() failed, status = %d", status);
-	      }
-	  }
- 
-	  int n = 1;
-	  int lineno = -1;
-	  _setup.g_remapped.clear();
-	  _setup.m_remapped.clear();
-	  _setup.remaps.clear();
-	  while (NULL != (inistring = inifile.Find("REMAP", "RS274NGC",
-						   n, &lineno))) {
-
-	      CHP(parse_remap( inistring,  lineno));
-	      n++;
-	  }
-
-          // if exist and within bounds, apply INI file arc tolerances
-          // limiting figures are defined in interp_internal.hh
-
-          r = inifile.Find(
-              &_setup.center_arc_radius_tolerance_inch,
-              MIN_CENTER_ARC_RADIUS_TOLERANCE_INCH,
-              CENTER_ARC_RADIUS_TOLERANCE_INCH,
-              "CENTER_ARC_RADIUS_TOLERANCE_INCH",
-              "RS274NGC"
-          );
-          if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in INI file\n");
-          }
-
-          r = inifile.Find(
-              &_setup.center_arc_radius_tolerance_mm,
-              MIN_CENTER_ARC_RADIUS_TOLERANCE_MM,
-              CENTER_ARC_RADIUS_TOLERANCE_MM,
-              "CENTER_ARC_RADIUS_TOLERANCE_MM",
-              "RS274NGC"
-          );
-          if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in INI file\n");
-          }
-
-	  // INI file g52/g92 offset persistence default setting
-	  inifile.Find(&_setup.disable_g92_persistence,
-		       "DISABLE_G92_PERSISTENCE",
-		       "RS274NGC");
-
-	  // INI file m98/m99 subprogram default setting
-	  inifile.Find(&_setup.disable_fanuc_style_sub,
-		       "DISABLE_FANUC_STYLE_SUB",
-		       "RS274NGC");
-	  logDebug("init:  DISABLE_FANUC_STYLE_SUB = %d",
-		   _setup.disable_fanuc_style_sub);
-
-          // close it
-          inifile.Close();
+      // WIZARD_ROOT
+      _setup.wizard_root[0] = 0;
+      if ((val = ini_get("WIZARD", "WIZARD_ROOT")) != NULL) {
+          if (realpath(val, _setup.wizard_root) == NULL)
+              _setup.wizard_root[0] = 0;
       }
-  }
 
-  _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
-  USE_LENGTH_UNITS(_setup.length_units);
-  GET_EXTERNAL_PARAMETER_FILE_NAME(filename, LINELEN);
+      // PROGRAM_PREFIX — caller should pass resolved paths via accessor
+      _setup.program_prefix[0] = 0;
+      if ((val = ini_get("DISPLAY", "PROGRAM_PREFIX")) != NULL) {
+          if (realpath(val, _setup.program_prefix) == NULL)
+              _setup.program_prefix[0] = 0;
+      }
+
+      // SUBROUTINE_PATH — colon-separated, caller should pass resolved paths
+      for (int dct = 0; dct < MAX_SUB_DIRS; dct++)
+          _setup.subroutines[dct] = NULL;
+      if ((val = ini_get("RS274NGC", "SUBROUTINE_PATH")) != NULL) {
+          char tmpdirs[PATH_MAX+1];
+          snprintf(tmpdirs, sizeof(tmpdirs), "%s", val);
+          char *nextdir = strtok(tmpdirs, ":");
+          int dct = 0;
+          while (nextdir != NULL && dct < MAX_SUB_DIRS) {
+              char tmp_path[PATH_MAX];
+              if (realpath(nextdir, tmp_path) != NULL) {
+                  _setup.subroutines[dct] = strstore(tmp_path);
+                  dct++;
+              }
+              nextdir = strtok(NULL, ":");
+          }
+      }
+
+      // ON_ABORT_COMMAND
+      if ((val = ini_get("RS274NGC", "ON_ABORT_COMMAND")) != NULL)
+          _setup.on_abort_command = strstore(val);
+      else
+          _setup.on_abort_command = NULL;
+
+      // REMAP entries (repeated key)
+      _setup.g_remapped.clear();
+      _setup.m_remapped.clear();
+      _setup.remaps.clear();
+      for (int n = 1; ; n++) {
+          val = ini_get_nth("RS274NGC", "REMAP", n);
+          if (val == NULL) break;
+          CHP(parse_remap(val, n));
+      }
+
+      // Arc radius tolerances
+      if ((val = ini_get("RS274NGC", "CENTER_ARC_RADIUS_TOLERANCE_INCH")) != NULL) {
+          double v = atof(val);
+          if (v >= MIN_CENTER_ARC_RADIUS_TOLERANCE_INCH)
+              _setup.center_arc_radius_tolerance_inch = v;
+      }
+      if ((val = ini_get("RS274NGC", "CENTER_ARC_RADIUS_TOLERANCE_MM")) != NULL) {
+          double v = atof(val);
+          if (v >= MIN_CENTER_ARC_RADIUS_TOLERANCE_MM)
+              _setup.center_arc_radius_tolerance_mm = v;
+      }
+
+      // G92 persistence and Fanuc-style sub
+      if ((val = ini_get("RS274NGC", "DISABLE_G92_PERSISTENCE")) != NULL)
+          _setup.disable_g92_persistence = atoi(val);
+      if ((val = ini_get("RS274NGC", "DISABLE_FANUC_STYLE_SUB")) != NULL)
+          _setup.disable_fanuc_style_sub = atoi(val);
+
+  } // end INI accessor path
+
+  _setup.length_units = _setup.canon.get_external_length_unit_type();
+  _setup.canon.use_length_units(_setup.length_units);
+  _setup.canon.get_external_parameter_file_name(filename, LINELEN);
   if (filename[0] == 0)
-    rtapi_strxcpy(filename, RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
+    snprintf(filename, sizeof(filename), "%s", RS274NGC_PARAMETER_FILE_NAME_DEFAULT);
   CHP(restore_parameters(filename));
   pars = _setup.parameters;
   _setup.origin_index = (int) (pars[5220] + 0.0001);
@@ -1099,7 +944,7 @@ int Interp::init()
   _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
   _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
 
-  SET_G5X_OFFSET(_setup.origin_index,
+  _setup.canon.set_g5x_offset(_setup.origin_index,
                  _setup.origin_offset_x ,
                  _setup.origin_offset_y ,
                  _setup.origin_offset_z ,
@@ -1141,7 +986,7 @@ int Interp::init()
       _setup.w_axis_offset = 0.0;
   }
 
-  SET_G92_OFFSET(_setup.axis_offset_x ,
+  _setup.canon.set_g92_offset(_setup.axis_offset_x ,
                  _setup.axis_offset_y ,
                  _setup.axis_offset_z ,
                  _setup.AA_axis_offset,
@@ -1152,8 +997,8 @@ int Interp::init()
                  _setup.w_axis_offset);
 
   _setup.rotation_xy = pars[k+10];
-  SET_XY_ROTATION(pars[k+10]);
-  SET_FEED_REFERENCE(CANON_XYZ);
+  _setup.canon.set_xy_rotation(pars[k+10]);
+  _setup.canon.set_feed_reference(CANON_XYZ);
 //_setup.active_g_codes initialized below
 //_setup.active_m_codes initialized below
 //_setup.active_settings initialized below
@@ -1189,6 +1034,7 @@ int Interp::init()
 //_setup.plane set in Interp::synch
   _setup.probe_flag = false;
   _setup.toolchange_flag = false;
+  _setup.user_defined_flag = false;
   _setup.input_flag = false;
   _setup.input_index = -1;
   _setup.input_digital = false;
@@ -1224,7 +1070,7 @@ int Interp::init()
 
   memcpy(_readers, default_readers, sizeof(default_readers));
 
-  long axis_mask = GET_EXTERNAL_AXIS_MASK();
+  long axis_mask = _setup.canon.get_external_axis_mask();
   if(!(axis_mask & AXIS_MASK_X)) _readers[(int)'x'] = 0;
   if(!(axis_mask & AXIS_MASK_Y)) _readers[(int)'y'] = 0;
   if(!(axis_mask & AXIS_MASK_Z)) _readers[(int)'z'] = 0;
@@ -1244,53 +1090,6 @@ int Interp::init()
   init_tool_parameters();
   // Synch rest of settings to external world
 
-  // call __init__(self) once in toplevel module if defined
-  // once fully set up and sync()ed
-  if ((iniFileName != NULL) && _setup.init_once && PYUSABLE ) {
-
-      // initialize any python global predefined named parameters
-      // walk the namedparams module for callables and add their names as predefs
-      try {
-	  bp::object npmod =  python_plugin->main_namespace[NAMEDPARAMS_MODULE];
-	  bp::dict predef_dict = bp::extract<bp::dict>(npmod.attr("__dict__"));
-	  bp::list keys = (bp::list) predef_dict.keys();
-	  for (int i = 0; i < bp::len(keys); i++)  {
-	      std::string key = bp::extract<std::string>(keys[i]);
-	      bp::object value = predef_dict[key];
-	      if (PyCallable_Check(value.ptr())) {
-		  CHP(init_python_predef_parameter(key.c_str()));
-	      }
-	  }
-      }
-      catch (const bp::error_already_set&) {
-	  std::string exception_msg;
-	  bool unexpected = false;
-	  // KeyError is ok - this means the namedparams module doesn't exist
-	  if (!PyErr_ExceptionMatches(PyExc_KeyError)) {
-	      // something else, strange
-	      exception_msg = handle_pyerror();
-	      unexpected = true;
-	  }
-	  bp::handle_exception();
-	  PyErr_Clear();
-	  CHKS(unexpected, "exception adding Python predefined named parameter: %s", exception_msg.c_str());
-      }
-
-      if (python_plugin->is_callable(NULL, INIT_FUNC)) {
-
-	  bp::object retval, tupleargs, kwargs;
-	  bp::list plist;
-
-	  plist.append(*_setup.pythis); // self
-	  tupleargs = bp::tuple(plist);
-	  kwargs = bp::dict();
-
-	  python_plugin->call(NULL, INIT_FUNC, tupleargs, kwargs, retval);
-	  CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
-	       "pycall(%s):\n%s", INIT_FUNC,
-	       python_plugin->last_exception().c_str());
-      }
-  }
   _setup.init_once = 0;
 
   return INTERP_OK;
@@ -1306,33 +1105,24 @@ void Interp::set_loop_on_main_m99(bool state) {
 
 /*! Interp::load_tool_table
 
-Returned Value: int
-   If any of the following errors occur, this returns the error code shown.
-   Otherwise, this returns INTERP_OK.
-   1. _setup.tool_max is larger than CANON_TOOL_MAX: NCE_TOOL_MAX_TOO_LARGE
+Returned Value: int (INTERP_OK)
 
 Side Effects:
-   _setup.tool_table[] is modified.
+   _setup.tool_table[0] is loaded (current spindle tool).
+   Tool parameters (#5400-#5413) are updated.
 
 Called By:
    Interp::synch
    external programs
 
-This function calls the canonical interface function GET_EXTERNAL_TOOL_TABLE
-to load the whole tool table into the _setup.
-
-The CANON_TOOL_MAX is an upper limit for this software. The
-_setup.tool_max is intended to be set for a particular machine.
+Loads the current spindle tool (pocket 0) from the canon callback.
+Individual tools are fetched on-demand by find_tool_index/find_tool_pocket.
 
 */
 
 int Interp::load_tool_table()
 {
-  int n;
-
-  for (n = 0; n < CANON_POCKETS_MAX; n++) {
-    _setup.tool_table[n] = GET_EXTERNAL_TOOL_TABLE(n);
-  }
+  _setup.tool_table[0] = _setup.canon.get_external_tool_table(0);
   set_tool_parameters();
   return INTERP_OK;
 }
@@ -1429,7 +1219,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
     _setup.percent_flag = false;
     _setup.sequence_number = 0; // Going back to line 0
   }
-  rtapi_strxcpy(_setup.filename, filename);
+  snprintf(_setup.filename, sizeof(_setup.filename), "%s", filename);
   reset();
   return INTERP_OK;
 }
@@ -1439,34 +1229,41 @@ int Interp::read_inputs(setup_pointer settings)
     // logDebug("read_inputs probe=%d input=%d toolchange=%d",
     // 	     settings->probe_flag, settings->toolchange_flag, settings->input_flag);
     if (settings->probe_flag) {
-	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	CHKS((_setup.canon.get_external_queue_empty() == 0),
 	     NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
 	set_probe_data(&_setup);
 	settings->probe_flag = false;
     }
     if (settings->toolchange_flag) {
-	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	CHKS((_setup.canon.get_external_queue_empty() == 0),
 	     _("Queue is not empty after tool change"));
 	refresh_actual_position(&_setup);
 	load_tool_table();
 	settings->toolchange_flag = false;
     }
     // always track toolchanger-fault and toolchanger-reason codes
-    settings->parameters[5600] = GET_EXTERNAL_TC_FAULT();
-    settings->parameters[5601] = GET_EXTERNAL_TC_REASON();
+    settings->parameters[5600] = _setup.canon.get_external_tc_fault();
+    settings->parameters[5601] = _setup.canon.get_external_tc_reason();
 
     if (settings->input_flag) {
-	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	CHKS((_setup.canon.get_external_queue_empty() == 0),
 	     NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);
 	if (settings->input_digital) { // we are checking for a digital input
 	    settings->parameters[5399] =
-		GET_EXTERNAL_DIGITAL_INPUT(settings->input_index,
+		_setup.canon.get_external_digital_input(settings->input_index,
 					   (settings->parameters[5399] != 0.0));
 	} else { // checking for analog input
 	    settings->parameters[5399] =
-		GET_EXTERNAL_ANALOG_INPUT(settings->input_index, settings->parameters[5399]);
+		_setup.canon.get_external_analog_input(settings->input_index, settings->parameters[5399]);
 	}
 	settings->input_flag = false;
+    }
+
+    if (settings->user_defined_flag) {
+	CHKS((_setup.canon.get_external_queue_empty() == 0),
+	     _("Queue is not empty after user defined function"));
+	settings->parameters[5399] = _setup.canon.get_user_defined_result();
+	settings->user_defined_flag = false;
     }
     return INTERP_OK;
 }
@@ -1514,34 +1311,40 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
 
 #if 0
   if (_setup.probe_flag) {
-    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+    CHKS((_setup.canon.get_external_queue_empty() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
     set_probe_data(&_setup);
     _setup.probe_flag = false;
   }
   if (_setup.toolchange_flag) {
-    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+    CHKS((_setup.canon.get_external_queue_empty() == 0),
          _("Queue is not empty after tool change"));
     refresh_actual_position(&_setup);
     load_tool_table();
     _setup.toolchange_flag = false;
   }
   // always track toolchanger-fault and toolchanger-reason codes
-  _setup.parameters[5600] = GET_EXTERNAL_TC_FAULT();
-  _setup.parameters[5601] = GET_EXTERNAL_TC_REASON();
+  _setup.parameters[5600] = _setup.canon.get_external_tc_fault();
+  _setup.parameters[5601] = _setup.canon.get_external_tc_reason();
 
   if (_setup.input_flag) {
-    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+    CHKS((_setup.canon.get_external_queue_empty() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);
     if (_setup.input_digital) { // we are checking for a digital input
 	_setup.parameters[5399] =
-	    GET_EXTERNAL_DIGITAL_INPUT(_setup.input_index,
+	    _setup.canon.get_external_digital_input(_setup.input_index,
 				      (_setup.parameters[5399] != 0.0));
     } else { // checking for analog input
 	_setup.parameters[5399] =
-	    GET_EXTERNAL_ANALOG_INPUT(_setup.input_index, _setup.parameters[5399]);
+	    _setup.canon.get_external_analog_input(_setup.input_index, _setup.parameters[5399]);
     }
     _setup.input_flag = false;
+  }
+  if (_setup.user_defined_flag) {
+    CHKS((_setup.canon.get_external_queue_empty() == 0),
+         _("Queue is not empty after user defined function"));
+    _setup.parameters[5399] = _setup.canon.get_user_defined_result();
+    _setup.user_defined_flag = false;
   }
 #endif
 
@@ -1703,7 +1506,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 		_setup.file_pointer = fopen(sub->filename, "r");
 		logDebug("unwind_call: reopening '%s' at %ld",
 			 sub->filename, sub->position);
-		rtapi_strxcpy(_setup.filename, sub->filename);
+		snprintf(_setup.filename, sizeof(_setup.filename), "%s", sub->filename);
 	    }
 	    fseek(_setup.file_pointer, sub->position, SEEK_SET);
 	}
@@ -1724,7 +1527,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
     _setup.offset_map.clear();
     _setup.mdi_interrupt = false;
 
-    qc_reset();
+    qc_reset(&_setup);
     return INTERP_OK;
 }
 
@@ -1778,7 +1581,7 @@ int Interp::reset()
     _setup.line_length = 0;
     
     // drop any queued points in canon
-    ON_RESET();
+    _setup.canon.on_reset();
     
     unwind_call(INTERP_OK, __FILE__,__LINE__,__FUNCTION__);
     return INTERP_OK;
@@ -1915,6 +1718,8 @@ complain, but does write it in the output file.
 int Interp::save_parameters(const char *filename,      //!< name of file to write
                              const double parameters[]) //!< parameters to save   
 {
+  if (!_setup.task_mode)
+    return INTERP_OK;
   FORCE_LC_NUMERIC_C;
   FILE *infile;
   FILE *outfile;
@@ -2011,43 +1816,43 @@ int Interp::synch()
 {
 
   char file_name[LINELEN];
-  _setup.current_x  = GET_EXTERNAL_POSITION_X();
-  _setup.current_y  = GET_EXTERNAL_POSITION_Y();
-  _setup.current_z  = GET_EXTERNAL_POSITION_Z();
-  _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  _setup.tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  _setup.naivecam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
-  _setup.AA_current = GET_EXTERNAL_POSITION_A();
-  _setup.BB_current = GET_EXTERNAL_POSITION_B();
-  _setup.CC_current = GET_EXTERNAL_POSITION_C();
-  _setup.u_current  = GET_EXTERNAL_POSITION_U();
-  _setup.v_current  = GET_EXTERNAL_POSITION_V();
-  _setup.w_current  = GET_EXTERNAL_POSITION_W();
+  _setup.current_x  = _setup.canon.get_external_position_x();
+  _setup.current_y  = _setup.canon.get_external_position_y();
+  _setup.current_z  = _setup.canon.get_external_position_z();
+  _setup.control_mode = _setup.canon.get_external_motion_control_mode();
+  _setup.tolerance = _setup.canon.get_external_motion_control_tolerance();
+  _setup.naivecam_tolerance = _setup.canon.get_external_motion_control_naivecam_tolerance();
+  _setup.AA_current = _setup.canon.get_external_position_a();
+  _setup.BB_current = _setup.canon.get_external_position_b();
+  _setup.CC_current = _setup.canon.get_external_position_c();
+  _setup.u_current  = _setup.canon.get_external_position_u();
+  _setup.v_current  = _setup.canon.get_external_position_v();
+  _setup.w_current  = _setup.canon.get_external_position_w();
 
-  _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  _setup.control_mode = _setup.canon.get_external_motion_control_mode();
   /* misnomer: _setup.current_pocket,selected_pocket
   ** These variables are actually indexes to sequential tool
   ** data structs (not real pockets).
   ** Future renaming will affect current usage in python remaps.
   */
-  _setup.current_pocket = GET_EXTERNAL_TOOL_SLOT();
-  _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
-  _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
-  _setup.flood = GET_EXTERNAL_FLOOD();
-  _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
-  _setup.mist = GET_EXTERNAL_MIST();
-  _setup.plane = GET_EXTERNAL_PLANE();
-  _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
-  _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-  _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
-  _setup.feed_hold = GET_EXTERNAL_FEED_HOLD_ENABLE();
+  _setup.current_pocket = _setup.canon.get_external_tool_slot();
+  _setup.selected_pocket = _setup.canon.get_external_selected_tool_slot();
+  _setup.feed_rate = _setup.canon.get_external_feed_rate();
+  _setup.flood = _setup.canon.get_external_flood();
+  _setup.length_units = _setup.canon.get_external_length_unit_type();
+  _setup.mist = _setup.canon.get_external_mist();
+  _setup.plane = _setup.canon.get_external_plane();
+  _setup.traverse_rate = _setup.canon.get_external_traverse_rate();
+  _setup.feed_override = _setup.canon.get_external_feed_override_enable();
+  _setup.adaptive_feed = _setup.canon.get_external_adaptive_feed_enable();
+  _setup.feed_hold = _setup.canon.get_external_feed_hold_enable();
   for (int s = 0; s < EMCMOT_MAX_SPINDLES; s++){
-	  _setup.speed[s] = GET_EXTERNAL_SPEED(s);
-	  _setup.spindle_turning[s] = GET_EXTERNAL_SPINDLE(s);
-	  _setup.speed_override[s] = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(s);
+	  _setup.speed[s] = _setup.canon.get_external_speed(s);
+	  _setup.spindle_turning[s] = _setup.canon.get_external_spindle(s);
+	  _setup.speed_override[s] = _setup.canon.get_external_spindle_override_enable(s);
 	  _setup.spindle_mode[s] = CONSTANT_RPM;
   }
-  GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
+  _setup.canon.get_external_parameter_file_name(file_name, (LINELEN - 1));
   save_parameters(((file_name[0] ==
                              0) ?
                             RS274NGC_PARAMETER_FILE_NAME_DEFAULT :
@@ -2254,21 +2059,21 @@ void Interp::setError(const char *fmt, ...)
 
     va_start(ap, fmt);
 
-    vsnprintf(savedError, LINELEN, fmt, ap);
+    vsnprintf(_setup.savedError, LINELEN, fmt, ap);
 
     va_end(ap);
 }
 
 const char *Interp::getSavedError()
 {
-    return savedError;
+    return _setup.savedError;
 }
 
 // set error message text without going through printf format interpretation
 int Interp::setSavedError(const char *msg)
 {
-    savedError[0] = '\0';
-    strncpy(savedError, msg, LINELEN);
+    _setup.savedError[0] = '\0';
+    strncpy(_setup.savedError, msg, LINELEN);
     return INTERP_OK;
 }
 
@@ -2297,7 +2102,7 @@ char * Interp::error_text(int error_code,        //!< code number of error
 {
     if(error_code == INTERP_ERROR)
     {
-        strncpy(error_text, savedError, max_size);
+        strncpy(error_text, _setup.savedError, max_size);
         error_text[max_size-1] = 0;
 
         return error_text;
@@ -2476,37 +2281,25 @@ VARIABLE_FILE = rs274ngc.var
 */
 
 
-int Interp::ini_load(const char *filename)
+int Interp::ini_load(const char * /*filename*/)
 {
-    IniFile inifile;
-    const char *inistring;
-
-    // open it
-    if (inifile.Open(filename) == false) {
-        logDebug("Unable to open inifile:%s:", filename);
-	return -1;
+    // ini_load is superseded by the accessor-based path (IniLoadAccessor).
+    // The accessor must be set before calling this.
+    if (_setup.ini_accessor.get == NULL) {
+        logDebug("ini_load: no INI accessor configured");
+        return -1;
     }
-
-    logDebug("Opened inifile:%s:", filename);
-
 
     char parameter_file_name[LINELEN]={};
-    if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
-        if (strlen(inistring) >= sizeof(parameter_file_name)) {
-            logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %zu)",
-                     filename, sizeof(parameter_file_name)-1);
-        } else {
-            strncpy(parameter_file_name, inistring, sizeof(parameter_file_name));
-            logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
-        }
+    const char *val = _setup.ini_accessor.get(
+        _setup.ini_accessor.ctx, "RS274NGC", "PARAMETER_FILE");
+    if (val != NULL && strlen(val) < sizeof(parameter_file_name)) {
+        strncpy(parameter_file_name, val, sizeof(parameter_file_name));
+        logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
     } else {
-      // not found, leave RS274NGC_PARAMETER_FILE alone
         logDebug("did not find PARAMETER_FILE");
     }
-    SET_PARAMETER_FILE_NAME(parameter_file_name);
-
-    // close it
-    inifile.Close();
+    _setup.canon.set_parameter_file_name(parameter_file_name);
 
     CHKS((strlen(parameter_file_name) == 0), _("Parameter file name is missing"));
 
@@ -2635,6 +2428,7 @@ int Interp::on_abort(int reason, const char *message)
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
     _setup.input_flag = false;
+    _setup.user_defined_flag = false;
 
     if (_setup.on_abort_command == NULL) {
 	return -1;

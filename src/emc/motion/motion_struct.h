@@ -22,7 +22,6 @@
 
 	struct emcmot_status_t status;	/* Struct used to store RT status */
 	struct emcmot_config_t config;	/* Struct used to store RT config */
-	struct emcmot_error_t error;	/* ring buffer for error messages */
 	struct emcmot_internal_t internal;	/* Struct used to store RT status and debug
 				   data - 2nd largest block */
     } emcmot_struct_t;

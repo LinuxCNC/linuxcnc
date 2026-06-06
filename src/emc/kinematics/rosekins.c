@@ -1,140 +1,169 @@
-/*
-  Copyright 2016 Dewey Garrett <dgarrett@panix.com>
+// rosekins — rose engine / polar kinematics (cmod version)
+// Copyright 2016 Dewey Garrett. License: GPL Version 2
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+#include <math.h>
+#include "gomc_env.h"
+#include "kins_api.h"
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
-
-#include "kinematics.h"
-#include "posemath.h"
-#include "hal.h"
-#include "rtapi.h"
-#include "rtapi_math.h"
-#include "rtapi_app.h"
-
-KINS_NOT_SWITCHABLE
-EXPORT_SYMBOL(kinematicsType);
-EXPORT_SYMBOL(kinematicsInverse);
-EXPORT_SYMBOL(kinematicsForward);
-MODULE_LICENSE("GPL");
-
-#ifndef hypot
-#define hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
 #endif
+#define TO_RAD (M_PI / 180.0)
+#define TO_DEG (180.0 / M_PI)
+#define PM_2_PI (2.0 * M_PI)
+
+static double my_hypot(double a, double b) { return sqrt(a * a + b * b); }
+
+// ─── HAL pins ───
+
+static const gomc_hal_t *g_hal;
+static int               g_comp_id;
 
 struct haldata {
-    hal_float_t *revolutions;
-    hal_float_t *theta_degrees;
-    hal_float_t *bigtheta_degrees;
-} *haldata;
+    gomc_hal_float_t *revolutions;
+    gomc_hal_float_t *theta_degrees;
+    gomc_hal_float_t *bigtheta_degrees;
+};
+static struct haldata *haldata;
 
-int kinematicsForward(const double *joints,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
+// ─── Inverse state ───
+
+static int  oldquad;
+static int  revolutions;
+
+// ─── Forward kinematics ───
+
+static int32_t rosekins_forward(
+    void *ctx,
+    const double joints[KINS_MAX_JOINTS],
+    kins_pose_t *world,
+    uint64_t fflags, uint64_t *iflags)
 {
-    double radius,z,theta;
+    (void)ctx;
+    (void)fflags; (void)iflags;
 
-    radius = joints[0];
-    z      = joints[1];
-    theta  = TO_RAD * joints[2];
+    double radius = joints[0];
+    double z      = joints[1];
+    double theta  = TO_RAD * joints[2];
 
-    pos->tran.x = radius * cos(theta);
-    pos->tran.y = radius * sin(theta);
-    pos->tran.z = z;
-    pos->a = 0;
-    pos->b = 0;
-    pos->c = 0;
-    pos->u = 0;
-    pos->v = 0;
-    pos->w = 0;
+    world->x = radius * cos(theta);
+    world->y = radius * sin(theta);
+    world->z = z;
+    world->a = 0;  world->b = 0;  world->c = 0;
+    world->u = 0;  world->v = 0;  world->w = 0;
 
     return 0;
 }
 
-int kinematicsInverse(const EmcPose * pos,
-                      double *joints,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+// ─── Inverse kinematics ───
+
+static int32_t rosekins_inverse(
+    void *ctx,
+    const kins_pose_t *world,
+    double joints[KINS_MAX_JOINTS],
+    uint64_t iflags, uint64_t *fflags)
 {
-// There is a potential problem when accumulating bigtheta -- loss of
-// precision based on size of mantissa -- but in practice, it is probably ok
+    (void)ctx;
+    (void)iflags; (void)fflags;
 
-    static int oldquad;
-    static int revolutions;
-
-    double     theta,bigtheta;
-    int        nowquad = 0;
-    double     x = pos->tran.x;
-    double     y = pos->tran.y;
-    double     z = pos->tran.z;
+    int nowquad = 0;
+    double x = world->x, y = world->y, z = world->z;
 
     if      (x >= 0 && y >= 0) nowquad = 1;
     else if (x <  0 && y >= 0) nowquad = 2;
     else if (x <  0 && y <  0) nowquad = 3;
     else if (x >= 0 && y <  0) nowquad = 4;
 
-    if (oldquad == 2 && nowquad == 3) {revolutions += 1;}
-    if (oldquad == 3 && nowquad == 2) {revolutions -= 1;}
+    if (oldquad == 2 && nowquad == 3) revolutions += 1;
+    if (oldquad == 3 && nowquad == 2) revolutions -= 1;
 
-    theta     = atan2(y,x);
-    bigtheta  = theta + PM_2_PI * revolutions;
+    double theta    = atan2(y, x);
+    double bigtheta = theta + PM_2_PI * revolutions;
 
-    *(haldata->revolutions) = revolutions;
-    *(haldata->theta_degrees) = theta * TO_DEG;
+    *(haldata->revolutions)      = revolutions;
+    *(haldata->theta_degrees)    = theta * TO_DEG;
     *(haldata->bigtheta_degrees) = bigtheta * TO_DEG;
 
-    joints[0] = hypot(x,y);
+    joints[0] = my_hypot(x, y);
     joints[1] = z;
     joints[2] = TO_DEG * bigtheta;
-    joints[3] = 0;
-    joints[4] = 0;
-    joints[5] = 0;
-    joints[6] = 0;
-    joints[7] = 0;
-    joints[8] = 0;
+    joints[3] = 0; joints[4] = 0; joints[5] = 0;
+    joints[6] = 0; joints[7] = 0; joints[8] = 0;
 
     oldquad = nowquad;
     return 0;
 }
 
-KINEMATICS_TYPE kinematicsType()
-{
-    return KINEMATICS_BOTH;
+static kins_kinematics_type_t rosekins_type(void *ctx) {
+    (void)ctx;
+    return KINS_BOTH;
+}
+static int32_t rosekins_switchable(void *ctx) { (void)ctx; return 0; }
+static int32_t rosekins_switch(void *ctx, int32_t t)
+    { (void)ctx; (void)t; return -1; }
+
+static kins_callbacks_t rosekins_callbacks = {
+    .ctx = NULL,
+    .forward    = rosekins_forward,
+    .inverse    = rosekins_inverse,
+    .type       = rosekins_type,
+    .switchable = rosekins_switchable,
+    .switch_    = rosekins_switch,
+};
+
+// ─── cmod lifecycle ───
+
+static cmod_t rosekins_cmod;
+
+static void rosekins_destroy(cmod_t *self) {
+    (void)self;
+    if (g_hal && g_comp_id > 0)
+        g_hal->exit(g_hal->ctx, g_comp_id);
 }
 
-static int comp_id;
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
+{
+    (void)argc; (void)argv;
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+    if (!env->hal) {
+        gomc_log_errorf(env->log, name, "HAL API not available");
+        return -1;
+    }
+    g_hal = env->hal;
 
-int rtapi_app_main(void) {
-    int ans;
-    comp_id = hal_init("rosekins");
-    if(comp_id < 0) return comp_id;
+    g_comp_id = env->hal->init(env->hal->ctx, name, env->dl_handle,
+                               GOMC_HAL_COMP_REALTIME);
+    if (g_comp_id < 0) return g_comp_id;
 
-    haldata = hal_malloc(sizeof(struct haldata));
+    haldata = env->hal->malloc(env->hal->ctx, sizeof(struct haldata));
+    if (!haldata) { g_hal->exit(g_hal->ctx, g_comp_id); return -1; }
 
-    if((ans = hal_pin_float_new("rosekins.revolutions",
-              HAL_OUT, &(haldata->revolutions), comp_id)) < 0) goto error;
-    if((ans = hal_pin_float_new("rosekins.theta_degrees",
-              HAL_OUT, &(haldata->theta_degrees), comp_id)) < 0) goto error;
-    if((ans = hal_pin_float_new("rosekins.bigtheta_degrees",
-              HAL_OUT, &(haldata->bigtheta_degrees), comp_id)) < 0) goto error;
+    int rc;
+    rc = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &haldata->revolutions,
+                                 g_comp_id, "%s.revolutions", name);
+    if (rc < 0) goto fail;
+    rc = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &haldata->theta_degrees,
+                                 g_comp_id, "%s.theta_degrees", name);
+    if (rc < 0) goto fail;
+    rc = gomc_hal_pin_float_newf(env->hal, GOMC_HAL_OUT, &haldata->bigtheta_degrees,
+                                 g_comp_id, "%s.bigtheta_degrees", name);
+    if (rc < 0) goto fail;
 
-    hal_ready(comp_id);
+    env->hal->ready(env->hal->ctx, g_comp_id);
+
+    rc = kins_api_register(env->api, name, &rosekins_callbacks);
+    if (rc != 0) {
+        gomc_log_errorf(env->log, name,
+            "failed to register kinematics API: %d", rc);
+        goto fail;
+    }
+
+    rosekins_cmod.Destroy = rosekins_destroy;
+    *out = &rosekins_cmod;
     return 0;
 
-error:
-    return ans;
+fail:
+    g_hal->exit(g_hal->ctx, g_comp_id);
+    return rc;
 }

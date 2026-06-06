@@ -1365,7 +1365,8 @@ class StepconfApp:
         self.d.modbus = self.w.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -Is", "w")
         halrun.write(""" 
-              loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
+              newthread fast %(period)d nofp
+              newthread slow 1000000
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d numS32out=%(sout)d\
                      numFloatIn=%(fin)d numFloatOut=%(fout)d\n
               addf classicladder.0.refresh slow\n
@@ -1467,7 +1468,8 @@ class StepconfApp:
                 port2dir =" out"
         halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
         halrun.write("""
-            loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
+            newthread fast %(period)d nofp
+            newthread slow 1000000
             addf stepgen.make-pulses fast
             addf parport.0.write fast
             """%{'period': period})

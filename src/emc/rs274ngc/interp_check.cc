@@ -101,7 +101,12 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
   } else if (mode0 == G_52) {
   } else if (mode0 == G_53) {
-    CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
+    CHKS(((block->motion_to_be != G_0) &&
+          (block->motion_to_be != G_1) &&
+          (block->motion_to_be != G_38_2) &&
+          (block->motion_to_be != G_38_3) &&
+          (block->motion_to_be != G_38_4) &&
+          (block->motion_to_be != G_38_5)),
         NCE_MUST_USE_G0_OR_G1_WITH_G53);
     CHKS(((block->g_modes[GM_DISTANCE_MODE] == G_91) ||
          ((block->g_modes[GM_DISTANCE_MODE] != G_90) &&

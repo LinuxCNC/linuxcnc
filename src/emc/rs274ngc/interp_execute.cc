@@ -325,6 +325,9 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   if (settings->toolchange_flag)
       return (INTERP_EXECUTE_FINISH);
 
+  if (settings->user_defined_flag)
+      return (INTERP_EXECUTE_FINISH);
+
   // All changes to settings are complete
   write_canon_state_tag(block, settings);
   return INTERP_OK;

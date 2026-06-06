@@ -1,67 +1,28 @@
-/*****************************************************************
-* Description: scarakins.c
-*   Kinematics for scara typed robots
-*   Set the params using HAL to fit your robot
-*
-*   Derived from a work by Sagar Behere
-*
-* Author: Sagar Behere
-* License: GPL Version 2
-* System: Linux
-*
-* Copyright (c) 2003 All rights reserved.
-*
-* Last change:
-*******************************************************************
-*/
+// scarakins — SCARA robot kinematics (cmod version)
+// Copyright (c) 2003 Sagar Behere. License: GPL Version 2
 
-#include "rtapi.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
-#include "posemath.h"
-#include "hal.h"
-#include "kinematics.h"
+#include <math.h>
+#include <string.h>
+#include "gomc_env.h"
 #include "switchkins.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+#define REQUIRED_COORDINATES "XYZABC"
+
+// ─── Module state ───
+
+static const gomc_hal_t  *g_hal;
+static int                g_comp_id;
+static sk_map_t           g_map;
+static sk_switch_t        g_sw;
+
 struct scara_data {
-    hal_float_t *d1, *d2, *d3, *d4, *d5, *d6;
-} *haldata = 0;
-
-/* key dimensions
-
-   joint[0] = Entire arm rotates around a vertical axis at its inner end
-                which is attached to the earth.  A value of zero means the
-                inner arm is pointing along the X axis.
-   D1 = Vertical distance from the ground plane to the center of the inner
-                arm.
-   D2 = Horizontal distance between joint[0] axis and joint[1] axis, ie.
-                the length of the inner arm.
-   joint[1] = Outer arm rotates around a vertical axis at its inner end
-                which is attached to the outer end of the inner arm.  A
-                value of zero means the outer arm is parallel to the
-                inner arm (and extending outward).
-   D3 = Vertical distance from the center of the inner arm to the center
-                of the outer arm.  May be positive or negative depending
-                on the structure of the robot.
-   joint[2] = End effector slides along a vertical axis at the outer end
-                of the outer arm.  A value of zero means the end effector
-                is at the same height as the center of the outer arm, and
-                positive values mean downward movement.
-   D4 = Horizontal distance between joint[1] axis and joint[2] axis, ie.
-                the length of the outer arm
-   joint[3] = End effector rotates around the same vertical axis that it
-                slides along.  A value of zero means that the tooltip (if
-                offset from the axis) is pointing in the same direction
-                as the centerline of the outer arm.
-   D5 = Vertical distance from the end effector to the tooltip.  Positive
-                means the tooltip is lower than the end effector, and is
-                the normal case.
-   D6 = Horizontal distance from the centerline of the end effector (and
-                the joints 2 and 3 axis) and the tooltip.  Zero means the
-                tooltip is on the centerline.  Non-zero values should be
-                positive, if negative they introduce a 180 degree offset
-                on the value of joint[3].
-*/
+    gomc_hal_float_t *d1, *d2, *d3, *d4, *d5, *d6;
+};
+static struct scara_data *haldata;
 
 #define D1 (*(haldata->d1))
 #define D2 (*(haldata->d2))
@@ -70,106 +31,6 @@ struct scara_data {
 #define D5 (*(haldata->d5))
 #define D6 (*(haldata->d6))
 
-/* joint[0], joint[1] and joint[3] are in degrees and joint[2] is in length units */
-static
-int scaraKinematicsForward(const double * joint,
-                      EmcPose * world,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
-{
-    double a0, a1, a3;
-    double x, y, z, c;
-
-/* convert joint angles to radians for sin() and cos() */
-
-    a0 = joint[0] * ( PM_PI / 180 );
-    a1 = joint[1] * ( PM_PI / 180 );
-    a3 = joint[3] * ( PM_PI / 180 );
-/* convert angles into world coords */
-
-    a1 = a1 + a0;
-    a3 = a3 + a1;
-
-    x = D2*cos(a0) + D4*cos(a1) + D6*cos(a3);
-    y = D2*sin(a0) + D4*sin(a1) + D6*sin(a3);
-    z = D1 + D3 - joint[2] - D5;
-    c = a3;
-
-    *iflags = 0;
-    if (joint[1] < 90)
-        *iflags = 1;
-
-    world->tran.x = x;
-    world->tran.y = y;
-    world->tran.z = z;
-    world->c = c * 180 / PM_PI;
-
-    world->a = joint[4];
-    world->b = joint[5];
-
-    return (0);
-} //scaraKinematicsForward()
-
-static int scaraKinematicsInverse(const EmcPose * world,
-                                  double * joint,
-                                  const KINEMATICS_INVERSE_FLAGS * iflags,
-                                  KINEMATICS_FORWARD_FLAGS * fflags)
-{
-    double a3;
-    double q0, q1;
-    double xt, yt, rsq, cc;
-    double x, y, z, c;
-
-    x = world->tran.x;
-    y = world->tran.y;
-    z = world->tran.z;
-    c = world->c;
-
-    /* convert degrees to radians */
-    a3 = c * ( PM_PI / 180 );
-
-    /* center of end effector (correct for D6) */
-    xt = x - D6*cos(a3);
-    yt = y - D6*sin(a3);
-
-    /* horizontal distance (squared) from end effector centerline
-        to main column centerline */
-    rsq = xt*xt + yt*yt;
-    /* joint 1 angle needed to make arm length match sqrt(rsq) */
-    cc = (rsq - D2*D2 - D4*D4) / (2*D2*D4);
-    if(cc < -1) cc = -1;
-    if(cc > 1) cc = 1;
-    q1 = acos(cc);
-
-    if (*iflags)
-        q1 = -q1;
-
-    /* angle to end effector */
-    q0 = atan2(yt, xt);
-
-    /* end effector coords in inner arm coord system */
-    xt = D2 + D4*cos(q1);
-    yt = D4*sin(q1);
-
-    /* inner arm angle */
-    q0 = q0 - atan2(yt, xt);
-
-    /* q0 and q1 are still in radians. convert them to degrees */
-    q0 = q0 * (180 / PM_PI);
-    q1 = q1 * (180 / PM_PI);
-
-    joint[0] = q0;
-    joint[1] = q1;
-    joint[2] = D1 + D3 - D5 - z;
-    joint[3] = c - ( q0 + q1);
-    joint[4] = world->a;
-    joint[5] = world->b;
-
-    *fflags = 0;
-
-    return (0);
-} // scaraKinematicsInverse()
-
 #define DEFAULT_D1 490
 #define DEFAULT_D2 340
 #define DEFAULT_D3  50
@@ -177,60 +38,184 @@ static int scaraKinematicsInverse(const EmcPose * world,
 #define DEFAULT_D5  50
 #define DEFAULT_D6  50
 
-static int scaraKinematicsSetup(const  int   comp_id,
-                                const  char* coordinates,
-                                kparms*      kp)
+// ─── SCARA forward ───
+
+static int32_t scara_forward(const double joints[KINS_MAX_JOINTS],
+                         kins_pose_t *world)
 {
-    int res=0;
+    double a0 = joints[0] * (M_PI / 180.0);
+    double a1 = joints[1] * (M_PI / 180.0);
+    double a3 = joints[3] * (M_PI / 180.0);
 
-    haldata = hal_malloc(sizeof(*haldata));
-    if (!haldata) goto error;
+    a1 = a1 + a0;
+    a3 = a3 + a1;
 
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d1), comp_id,"%s.D1",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d2), comp_id,"%s.D2",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d3), comp_id,"%s.D3",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d4), comp_id,"%s.D4",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d5), comp_id,"%s.D5",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d6), comp_id,"%s.D6",kp->halprefix);
-    if (res) { goto error; }
+    world->x = D2 * cos(a0) + D4 * cos(a1) + D6 * cos(a3);
+    world->y = D2 * sin(a0) + D4 * sin(a1) + D6 * sin(a3);
+    world->z = D1 + D3 - joints[2] - D5;
+    world->c = a3 * 180.0 / M_PI;
+    world->a = joints[4];
+    world->b = joints[5];
+    world->u = 0; world->v = 0; world->w = 0;
+    return 0;
+}
 
-    D1 = DEFAULT_D1;
-    D2 = DEFAULT_D2;
-    D3 = DEFAULT_D3;
-    D4 = DEFAULT_D4;
-    D5 = DEFAULT_D5;
-    D6 = DEFAULT_D6;
+// ─── SCARA inverse ───
 
+static int32_t scara_inverse(const kins_pose_t *world,
+                         double joints[KINS_MAX_JOINTS])
+{
+    double a3 = world->c * (M_PI / 180.0);
+    double xt = world->x - D6 * cos(a3);
+    double yt = world->y - D6 * sin(a3);
+
+    double rsq = xt * xt + yt * yt;
+    double cc = (rsq - D2 * D2 - D4 * D4) / (2.0 * D2 * D4);
+    if (cc < -1) cc = -1;
+    if (cc >  1) cc =  1;
+    double q1 = acos(cc);
+
+    // Use current inverse flags convention: stored in world state
+    // In the legacy code, *iflags selects elbow up/down.
+    // Here we use positive q1 by default (elbow up).
+
+    double q0 = atan2(yt, xt);
+    double x2 = D2 + D4 * cos(q1);
+    double y2 = D4 * sin(q1);
+    q0 = q0 - atan2(y2, x2);
+
+    q0 = q0 * (180.0 / M_PI);
+    q1 = q1 * (180.0 / M_PI);
+
+    joints[0] = q0;
+    joints[1] = q1;
+    joints[2] = D1 + D3 - D5 - world->z;
+    joints[3] = world->c - (q0 + q1);
+    joints[4] = world->a;
+    joints[5] = world->b;
+    return 0;
+}
+
+// ─── Dispatch ───
+
+static int32_t dispatch_forward(
+    void *ctx,
+    const double joints[KINS_MAX_JOINTS], kins_pose_t *world,
+    uint64_t fflags, uint64_t *iflags)
+{
+    (void)ctx;
+    (void)fflags; (void)iflags;
+    switch (g_sw.current_type) {
+        case 0:  return scara_forward(joints, world);
+        default: sk_identity_forward(&g_map, joints, world);
+                 return 0;
+    }
+}
+
+static int32_t dispatch_inverse(
+    void *ctx,
+    const kins_pose_t *world, double joints[KINS_MAX_JOINTS],
+    uint64_t iflags, uint64_t *fflags)
+{
+    (void)ctx;
+    (void)iflags; (void)fflags;
+    switch (g_sw.current_type) {
+        case 0:  return scara_inverse(world, joints);
+        default: sk_identity_inverse(&g_map, world, joints);
+                 return 0;
+    }
+}
+
+static kins_kinematics_type_t dispatch_type(void *ctx) {
+    (void)ctx;
+    return KINS_BOTH;
+}
+static int32_t dispatch_switchable(void *ctx) { (void)ctx; return 1; }
+static int32_t dispatch_switch(void *ctx, int32_t t)
+    { (void)ctx; return sk_switch_to(&g_sw, t); }
+
+static kins_callbacks_t scara_callbacks = {
+    .ctx = NULL,
+    .forward    = dispatch_forward,
+    .inverse    = dispatch_inverse,
+    .type       = dispatch_type,
+    .switchable = dispatch_switchable,
+    .switch_    = dispatch_switch,
+};
+
+// ─── cmod lifecycle ───
+
+static cmod_t scara_cmod;
+
+static void scara_destroy(cmod_t *self) {
+    (void)self;
+    if (g_hal && g_comp_id > 0) g_hal->exit(g_hal->ctx, g_comp_id);
+}
+
+int New(const cmod_env_t *env, const char *name,
+        int argc, const char **argv, cmod_t **out)
+{
+    if (!env->hal) {
+        gomc_log_errorf(env->log, name, "HAL API not available");
+        return -1;
+    }
+    g_hal = env->hal;
+
+    const char *coordinates = REQUIRED_COORDINATES;
+    for (int i = 0; i < argc; i++)
+        if (strncmp(argv[i], "coordinates=", 12) == 0)
+            coordinates = argv[i] + 12;
+    if (env->ini) {
+        const char *v = env->ini->get(env->ini->ctx, "KINS", "COORDINATES");
+        if (v) coordinates = v;
+    }
+
+    if (sk_map_coordinates(&g_map, coordinates, 0) < 0) {
+        gomc_log_errorf(env->log, name, "bad coordinates: %s", coordinates);
+        return -1;
+    }
+
+    g_comp_id = env->hal->init(env->hal->ctx, name, env->dl_handle,
+                               GOMC_HAL_COMP_REALTIME);
+    if (g_comp_id < 0) return g_comp_id;
+
+    haldata = env->hal->malloc(env->hal->ctx, sizeof(struct scara_data));
+    if (!haldata) { g_hal->exit(g_hal->ctx, g_comp_id); return -1; }
+
+    int rc = 0;
+    rc |= gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &haldata->d1,
+                                  g_comp_id, "%s.D1", name);
+    rc |= gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &haldata->d2,
+                                  g_comp_id, "%s.D2", name);
+    rc |= gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &haldata->d3,
+                                  g_comp_id, "%s.D3", name);
+    rc |= gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &haldata->d4,
+                                  g_comp_id, "%s.D4", name);
+    rc |= gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &haldata->d5,
+                                  g_comp_id, "%s.D5", name);
+    rc |= gomc_hal_pin_float_newf(env->hal, GOMC_HAL_IN, &haldata->d6,
+                                  g_comp_id, "%s.D6", name);
+    if (rc < 0) goto fail;
+
+    D1 = DEFAULT_D1; D2 = DEFAULT_D2; D3 = DEFAULT_D3;
+    D4 = DEFAULT_D4; D5 = DEFAULT_D5; D6 = DEFAULT_D6;
+
+    rc = sk_create_switch_pins(env->hal, g_comp_id, &g_sw);
+    if (rc < 0) goto fail;
+
+    env->hal->ready(env->hal->ctx, g_comp_id);
+
+    rc = kins_api_register(env->api, name, &scara_callbacks);
+    if (rc != 0) {
+        gomc_log_errorf(env->log, name, "kins_api_register failed: %d", rc);
+        goto fail;
+    }
+
+    scara_cmod.Destroy = scara_destroy;
+    *out = &scara_cmod;
     return 0;
 
-error:
-    return -1;
-} // scaraKinematicsSetup()
-
-int switchkinsSetup(kparms* kp,
-                    KS* kset0, KS* kset1, KS* kset2,
-                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
-                    KI* kinv0, KI* kinv1, KI* kinv2
-                   )
-{
-    kp->kinsname    = "scarakins"; // !!! must agree with filename
-    kp->halprefix   = "scarakins"; // hal pin names
-    kp->required_coordinates = "xyzabc"; // ab are scaragui table tilts
-    kp->allow_duplicates     = 0;
-    kp->max_joints = strlen(kp->required_coordinates);
-
-    rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
-    *kset0 = scaraKinematicsSetup;
-    *kfwd0 = scaraKinematicsForward;
-    *kinv0 = scaraKinematicsInverse;
-
-    *kset1 = identityKinematicsSetup;
-    *kfwd1 = identityKinematicsForward;
-    *kinv1 = identityKinematicsInverse;
-
-    *kset2 = userkKinematicsSetup;
-    *kfwd2 = userkKinematicsForward;
-    *kinv2 = userkKinematicsInverse;
-
-    return 0;
-} // switchkinsSetup()
+fail:
+    g_hal->exit(g_hal->ctx, g_comp_id);
+    return rc;
+}

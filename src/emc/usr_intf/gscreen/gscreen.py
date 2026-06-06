@@ -2415,7 +2415,7 @@ class Gscreen:
         """This is a callback function to launch a calibration program.
         """
         #print("calibration --%s"% self.inipath)
-        p = os.popen("tclsh %s/bin/emccalib.tcl -- -ini %s > /dev/null &" % (TCLPATH,self.inipath),"w")
+        p = os.popen("emccalib &")
 
     # opens the linuxcnc status program
     def on_status(self,*args):

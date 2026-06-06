@@ -485,7 +485,7 @@ if version == "$Revision$" or version < "1.0":
     'halui.joint.selected.is_homed':'halui.joint.selected.is-homed',
     'halui.joint.selected.on-soft-limit':'halui.joint.selected.on-soft-max-limit',
     'num_joints=[TRAJ]AXES':      'num_joints=[KINS]JOINTS',
-    'loadrt(.+kins)':             'loadrt [KINS]KINEMATICS\n#autoconverted \\1',
+    'loadrt(.+kins)':             'load [KINS]KINEMATICS\n#autoconverted \\1',
     'shuttlexpress':              'shuttle',
     'shuttlepro':                 'shuttle',
 

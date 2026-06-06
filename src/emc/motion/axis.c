@@ -1,9 +1,11 @@
 
 #include "axis.h"
 #include "emcmotcfg.h"      // EMCMOT_MAX_AXIS
-#include "rtapi.h"
+#include "gomc_hal.h"
+#include "gomc_log.h"
 #include "rtapi_math.h"
 #include "simple_tp.h"
+#include <stdlib.h>
 
 typedef struct {
     double pos_cmd;                 /* commanded axis position */
@@ -48,40 +50,62 @@ typedef struct {
     hal_float_t *external_offset_requested;
 } axis_hal_t;
 
-
 typedef struct {
     axis_hal_t axis[EMCMOT_MAX_AXIS];   /* data for each axis */
 } axis_hal_data_t;
 
-static emcmot_axis_t axis_array[EMCMOT_MAX_AXIS];
-static axis_hal_data_t *hal_data = NULL;
+/***********************************************************************
+*              PER-INSTANCE STATE                                       *
+************************************************************************/
 
+struct axis_inst {
+    emcmot_axis_t axis_array[EMCMOT_MAX_AXIS];
+    axis_hal_data_t *hal_data;
+    const gomc_log_t *log;
+    int jogwheel_first_pass;
+    int ext_offset_first_pass;
+    int last_eoffset_enable[EMCMOT_MAX_AXIS];
+};
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
 
-void axis_init_all(void)
+axis_inst_t *axis_inst_new(void)
+{
+    axis_inst_t *ai = calloc(1, sizeof(*ai));
+    if (!ai) return NULL;
+    ai->jogwheel_first_pass = 1;
+    ai->ext_offset_first_pass = 1;
+    return ai;
+}
+
+void axis_inst_free(axis_inst_t *ai)
+{
+    free(ai);
+}
+
+void axis_init_all(axis_inst_t *ai)
 {
     int n;
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        emcmot_axis_t *axis = &axis_array[n];
+        emcmot_axis_t *axis = &ai->axis_array[n];
         axis->locking_joint = -1;
     }
 }
 
-void axis_initialize_external_offsets(void)
+void axis_initialize_external_offsets(axis_inst_t *ai)
 {
     int n;
     axis_hal_t *axis_data;
 
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        axis_data = &hal_data->axis[n];
+        axis_data = &ai->hal_data->axis[n];
 
         *(axis_data->external_offset) = 0;
         *(axis_data->external_offset_requested) = 0;
-        axis_array[n].ext_offset_tp.pos_cmd  = 0;
-        axis_array[n].ext_offset_tp.curr_pos = 0;
-        axis_array[n].ext_offset_tp.curr_vel = 0;
+        ai->axis_array[n].ext_offset_tp.pos_cmd  = 0;
+        ai->axis_array[n].ext_offset_tp.curr_pos = 0;
+        ai->axis_array[n].ext_offset_tp.curr_vel = 0;
     }
 }
 
@@ -91,57 +115,54 @@ void axis_initialize_external_offsets(void)
         if (_retval) return _retval;    \
     } while (0);
 
-static int export_axis(int mot_comp_id, char c, axis_hal_t * addr)
+static int export_axis(const gomc_hal_t *hal, int comp_id, char c, axis_hal_t *addr, const char *P)
 {
-    int msg;
+    CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_IN, (gomc_hal_bit_t **)&(addr->ajog_enable), comp_id, "%saxis.%c.jog-enable", P, c));
+    CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_IN, &(addr->ajog_scale), comp_id, "%saxis.%c.jog-scale", P, c));
+    CALL_CHECK(gomc_hal_pin_s32_newf(hal, GOMC_HAL_IN, &(addr->ajog_counts), comp_id, "%saxis.%c.jog-counts", P, c));
+    CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_IN, (gomc_hal_bit_t **)&(addr->ajog_vel_mode), comp_id, "%saxis.%c.jog-vel-mode", P, c));
+    CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, (gomc_hal_bit_t **)&(addr->kb_ajog_active), comp_id, "%saxis.%c.kb-jog-active", P, c));
+    CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, (gomc_hal_bit_t **)&(addr->wheel_ajog_active), comp_id, "%saxis.%c.wheel-jog-active", P, c));
 
-    msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
-
-    CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(addr->ajog_enable), mot_comp_id,"axis.%c.jog-enable", c));
-    CALL_CHECK(hal_pin_float_newf(HAL_IN, &(addr->ajog_scale), mot_comp_id,"axis.%c.jog-scale", c));
-    CALL_CHECK(hal_pin_s32_newf(HAL_IN, &(addr->ajog_counts), mot_comp_id,"axis.%c.jog-counts", c));
-    CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(addr->ajog_vel_mode), mot_comp_id,"axis.%c.jog-vel-mode", c));
-    CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(addr->kb_ajog_active), mot_comp_id,"axis.%c.kb-jog-active", c));
-    CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(addr->wheel_ajog_active), mot_comp_id,"axis.%c.wheel-jog-active", c));
-
-    CALL_CHECK(hal_pin_float_newf(HAL_IN,&(addr->ajog_accel_fraction), mot_comp_id,"axis.%c.jog-accel-fraction", c));
+    CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_IN, &(addr->ajog_accel_fraction), comp_id, "%saxis.%c.jog-accel-fraction", P, c));
     *addr->ajog_accel_fraction = 1.0; // fraction of accel for wheel ajogs
 
-    rtapi_set_msg_level(msg);
     return 0;
 }
 
-int axis_init_hal_io(int mot_comp_id)
+int axis_init_hal_io(axis_inst_t *ai, const gomc_hal_t *hal, const gomc_log_t *log,
+                     int comp_id, const char *pin_prefix)
 {
     int n, retval;
 
-    hal_data = hal_malloc(sizeof(axis_hal_data_t));
-    if (!hal_data) {
-        rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: axis_hal_data hal_malloc() failed\n"));
+    ai->log = log;
+    ai->hal_data = hal->malloc(hal->ctx, sizeof(axis_hal_data_t));
+    if (!ai->hal_data) {
+        gomc_log_errorf(log, "motmod", "MOTION: axis_hal_data hal_malloc() failed");
         return -1;
     }
 
     // export axis pins and parameters
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         char c = "xyzabcuvw"[n];
-        axis_hal_t *axis_data = &(hal_data->axis[n]);
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->pos_cmd, mot_comp_id, "axis.%c.pos-cmd", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->teleop_vel_cmd, mot_comp_id, "axis.%c.teleop-vel-cmd", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->teleop_pos_cmd, mot_comp_id, "axis.%c.teleop-pos-cmd", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->teleop_vel_lim, mot_comp_id, "axis.%c.teleop-vel-lim", c));
-        CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &axis_data->teleop_tp_enable, mot_comp_id, "axis.%c.teleop-tp-enable",c));
-        CALL_CHECK(hal_pin_bit_newf(HAL_IN, &axis_data->eoffset_enable, mot_comp_id, "axis.%c.eoffset-enable", c));
-        CALL_CHECK(hal_pin_bit_newf(HAL_IN, &axis_data->eoffset_clear, mot_comp_id, "axis.%c.eoffset-clear", c));
-        CALL_CHECK(hal_pin_s32_newf(HAL_IN, &axis_data->eoffset_counts, mot_comp_id, "axis.%c.eoffset-counts", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_IN, &axis_data->eoffset_scale, mot_comp_id, "axis.%c.eoffset-scale", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->external_offset, mot_comp_id, "axis.%c.eoffset", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &axis_data->external_offset_requested,
-           mot_comp_id, "axis.%c.eoffset-request", c));
+        const char *P = pin_prefix;
+        axis_hal_t *axis_data = &(ai->hal_data->axis[n]);
+        CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &axis_data->pos_cmd, comp_id, "%saxis.%c.pos-cmd", P, c));
+        CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &axis_data->teleop_vel_cmd, comp_id, "%saxis.%c.teleop-vel-cmd", P, c));
+        CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &axis_data->teleop_pos_cmd, comp_id, "%saxis.%c.teleop-pos-cmd", P, c));
+        CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &axis_data->teleop_vel_lim, comp_id, "%saxis.%c.teleop-vel-lim", P, c));
+        CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_OUT, (gomc_hal_bit_t **)&axis_data->teleop_tp_enable, comp_id, "%saxis.%c.teleop-tp-enable", P, c));
+        CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_IN, (gomc_hal_bit_t **)&axis_data->eoffset_enable, comp_id, "%saxis.%c.eoffset-enable", P, c));
+        CALL_CHECK(gomc_hal_pin_bit_newf(hal, GOMC_HAL_IN, (gomc_hal_bit_t **)&axis_data->eoffset_clear, comp_id, "%saxis.%c.eoffset-clear", P, c));
+        CALL_CHECK(gomc_hal_pin_s32_newf(hal, GOMC_HAL_IN, &axis_data->eoffset_counts, comp_id, "%saxis.%c.eoffset-counts", P, c));
+        CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_IN, &axis_data->eoffset_scale, comp_id, "%saxis.%c.eoffset-scale", P, c));
+        CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &axis_data->external_offset, comp_id, "%saxis.%c.eoffset", P, c));
+        CALL_CHECK(gomc_hal_pin_float_newf(hal, GOMC_HAL_OUT, &axis_data->external_offset_requested,
+           comp_id, "%saxis.%c.eoffset-request", P, c));
 
-        retval = export_axis(mot_comp_id, c, axis_data);
+        retval = export_axis(hal, comp_id, c, axis_data, P);
         if (retval) {
-            rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: axis %c pin/param export failed\n"), c);
+            gomc_log_errorf(log, "motmod", "MOTION: axis %c pin/param export failed", c);
             return -1;
         }
     }
@@ -149,14 +170,14 @@ int axis_init_hal_io(int mot_comp_id)
     return 0;
 }
 
-void axis_output_to_hal(double *pcmd_p[])
+void axis_output_to_hal(axis_inst_t *ai, double *pcmd_p[])
 {
     int n;
 
     // output axis info to HAL for scoping, etc
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        emcmot_axis_t *axis = &axis_array[n];
-        axis_hal_t *axis_data = &hal_data->axis[n];
+        emcmot_axis_t *axis = &ai->axis_array[n];
+        axis_hal_t *axis_data = &ai->hal_data->axis[n];
         *(axis_data->teleop_vel_cmd)    = axis->teleop_vel_cmd;
         *(axis_data->teleop_pos_cmd)    = axis->teleop_tp.pos_cmd;
         *(axis_data->teleop_vel_lim)    = axis->teleop_tp.max_vel;
@@ -170,79 +191,79 @@ void axis_output_to_hal(double *pcmd_p[])
      }
 }
 
-void axis_set_max_pos_limit(int axis_num, double maxLimit)
+void axis_set_max_pos_limit(axis_inst_t *ai, int axis_num, double maxLimit)
 {
-    axis_array[axis_num].max_pos_limit = maxLimit;
+    ai->axis_array[axis_num].max_pos_limit = maxLimit;
 }
 
-void axis_set_min_pos_limit(int axis_num, double minLimit)
+void axis_set_min_pos_limit(axis_inst_t *ai, int axis_num, double minLimit)
 {
-    axis_array[axis_num].min_pos_limit = minLimit;
+    ai->axis_array[axis_num].min_pos_limit = minLimit;
 }
 
-void axis_set_vel_limit(int axis_num, double vel)
+void axis_set_vel_limit(axis_inst_t *ai, int axis_num, double vel)
 {
-    axis_array[axis_num].vel_limit = vel;
+    ai->axis_array[axis_num].vel_limit = vel;
 }
 
-void axis_set_acc_limit(int axis_num, double acc)
+void axis_set_acc_limit(axis_inst_t *ai, int axis_num, double acc)
 {
-    axis_array[axis_num].acc_limit = acc;
+    ai->axis_array[axis_num].acc_limit = acc;
 }
 
-void axis_set_ext_offset_vel_limit(int axis_num, double vel)
+void axis_set_ext_offset_vel_limit(axis_inst_t *ai, int axis_num, double vel)
 {
-    axis_array[axis_num].ext_offset_vel_limit = vel;
+    ai->axis_array[axis_num].ext_offset_vel_limit = vel;
 }
 
-void axis_set_ext_offset_acc_limit(int axis_num, double acc)
+void axis_set_ext_offset_acc_limit(axis_inst_t *ai, int axis_num, double acc)
 {
-    axis_array[axis_num].ext_offset_acc_limit = acc;
+    ai->axis_array[axis_num].ext_offset_acc_limit = acc;
 }
 
-void axis_set_locking_joint(int axis_num, int joint)
+void axis_set_locking_joint(axis_inst_t *ai, int axis_num, int joint)
 {
-    axis_array[axis_num].locking_joint = joint;
+    ai->axis_array[axis_num].locking_joint = joint;
 }
 
 
-double axis_get_min_pos_limit(int axis_num)
+double axis_get_min_pos_limit(axis_inst_t *ai, int axis_num)
 {
-    return axis_array[axis_num].min_pos_limit;
+    return ai->axis_array[axis_num].min_pos_limit;
 }
 
-double axis_get_max_pos_limit(int axis_num)
+double axis_get_max_pos_limit(axis_inst_t *ai, int axis_num)
 {
-    return axis_array[axis_num].max_pos_limit;
+    return ai->axis_array[axis_num].max_pos_limit;
 }
 
-double axis_get_vel_limit(int axis_num)
+double axis_get_vel_limit(axis_inst_t *ai, int axis_num)
 {
-    return axis_array[axis_num].vel_limit;
+    return ai->axis_array[axis_num].vel_limit;
 }
 
-double axis_get_acc_limit(int axis_num)
+double axis_get_acc_limit(axis_inst_t *ai, int axis_num)
 {
-    return axis_array[axis_num].acc_limit;
+    return ai->axis_array[axis_num].acc_limit;
 }
 
-double axis_get_teleop_vel_cmd(int axis_num)
+double axis_get_teleop_vel_cmd(axis_inst_t *ai, int axis_num)
 {
-    return axis_array[axis_num].teleop_vel_cmd;
+    return ai->axis_array[axis_num].teleop_vel_cmd;
 }
 
-int axis_get_locking_joint(int axis_num)
+int axis_get_locking_joint(axis_inst_t *ai, int axis_num)
 {
-    return axis_array[axis_num].locking_joint;
+    return ai->axis_array[axis_num].locking_joint;
 }
 
-double axis_get_compound_velocity(void)
+double axis_get_compound_velocity(axis_inst_t *ai)
 {
     double v2 = 0.0;
     int n;
 
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        emcmot_axis_t *axis = &axis_array[n];
+        emcmot_axis_t *axis = &ai->axis_array[n];
         if (axis->teleop_tp.active) {
             v2 += axis->teleop_vel_cmd * axis->teleop_vel_cmd;
         }
@@ -253,15 +274,16 @@ double axis_get_compound_velocity(void)
     return 0.0;
 }
 
-double axis_get_ext_offset_curr_pos(int axis_num)
+double axis_get_ext_offset_curr_pos(axis_inst_t *ai, int axis_num)
 {
-    return axis_array[axis_num].ext_offset_tp.curr_pos;
+    return ai->axis_array[axis_num].ext_offset_tp.curr_pos;
 }
 
 
-void axis_jog_cont(int axis_num, double vel, long servo_period)
+void axis_jog_cont(axis_inst_t *ai, int axis_num, double vel, long servo_period)
 {
-    emcmot_axis_t *axis = &axis_array[axis_num];
+    (void)servo_period;
+    emcmot_axis_t *axis = &ai->axis_array[axis_num];
 
     if (vel > 0.0) {
         axis->teleop_tp.pos_cmd = axis->max_pos_limit;
@@ -275,9 +297,10 @@ void axis_jog_cont(int axis_num, double vel, long servo_period)
     axis->teleop_tp.enable = 1;
 }
 
-void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
+void axis_jog_incr(axis_inst_t *ai, int axis_num, double offset, double vel, long servo_period)
 {
-    emcmot_axis_t *axis = &axis_array[axis_num];
+    (void)servo_period;
+    emcmot_axis_t *axis = &ai->axis_array[axis_num];
     double tmp1;
 
     if (vel > 0.0) {
@@ -296,9 +319,9 @@ void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
     axis->teleop_tp.enable = 1;
 }
 
-void axis_jog_abs(int axis_num, double offset, double vel)
+void axis_jog_abs(axis_inst_t *ai, int axis_num, double offset, double vel)
 {
-    emcmot_axis_t *axis = &axis_array[axis_num];
+    emcmot_axis_t *axis = &ai->axis_array[axis_num];
     double tmp1;
 
     axis->kb_ajog_active = 1;
@@ -317,10 +340,10 @@ void axis_jog_abs(int axis_num, double offset, double vel)
     axis->teleop_tp.enable = 1;
 }
 
-bool axis_jog_abort(int axis_num, bool immediate)
+bool axis_jog_abort(axis_inst_t *ai, int axis_num, bool immediate)
 {
     bool aborted = 0;
-    emcmot_axis_t *axis = &axis_array[axis_num];
+    emcmot_axis_t *axis = &ai->axis_array[axis_num];
     if (axis->teleop_tp.enable) {
         aborted = 1;
     }
@@ -333,22 +356,22 @@ bool axis_jog_abort(int axis_num, bool immediate)
     return aborted;
 }
 
-bool axis_jog_abort_all(bool immediate)
+bool axis_jog_abort_all(axis_inst_t *ai, bool immediate)
 {
     int n;
     bool aborted = 0;
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        if (axis_jog_abort(n, immediate)) {aborted = 1;}
+        if (axis_jog_abort(ai, n, immediate)) {aborted = 1;}
     }
     return aborted;
 }
 
-bool axis_jog_is_active(void)
+bool axis_jog_is_active(axis_inst_t *ai)
 {
     int n;
     emcmot_axis_t *axis;
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        axis = &axis_array[n];
+        axis = &ai->axis_array[n];
         if (axis->kb_ajog_active || axis->wheel_ajog_active) {
             return 1;
         }
@@ -356,19 +379,18 @@ bool axis_jog_is_active(void)
     return 0;
 }
 
-void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, bool homing_is_active)
+void axis_handle_jogwheels(axis_inst_t *ai, bool motion_teleop_flag, bool motion_enable_flag, bool homing_is_active)
 {
     int axis_num;
     emcmot_axis_t *axis;
     axis_hal_t *axis_data;
     int new_ajog_counts, delta;
     double distance, pos, stop_dist;
-    static int first_pass = 1;	/* used to set initial conditions */
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         double aaccel_limit;
-        axis = &axis_array[axis_num];
-        axis_data = &hal_data->axis[axis_num];
+        axis = &ai->axis_array[axis_num];
+        axis_data = &ai->hal_data->axis[axis_num];
 
         // disallow accel bogus fractions
         if (   (*(axis_data->ajog_accel_fraction) > 1)
@@ -381,7 +403,7 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
         new_ajog_counts = *(axis_data->ajog_counts);
         delta = new_ajog_counts - axis->old_ajog_counts;
         axis->old_ajog_counts = new_ajog_counts;
-        if ( first_pass ) { continue; }
+        if ( ai->jogwheel_first_pass ) { continue; }
         if ( delta == 0 ) {
             //just update counts
             continue;
@@ -396,8 +418,8 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
         if (axis->kb_ajog_active)             { continue; }
 
         if (axis->locking_joint >= 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-            "Cannot wheel jog a locking indexer AXIS_%c\n",
+            gomc_log_errorf(ai->log, "motmod",
+            "Cannot wheel jog a locking indexer AXIS_%c",
             "XYZABCUVW"[axis_num]);
             continue;
         }
@@ -424,59 +446,57 @@ void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, boo
         axis->wheel_ajog_active = 1;
         axis->teleop_tp.enable  = 1;
     }
-    first_pass = 0;
+    ai->jogwheel_first_pass = 0;
 }
 
-void axis_sync_teleop_tp_to_carte_pos(int extfactor, double *pcmd_p[])
+void axis_sync_teleop_tp_to_carte_pos(axis_inst_t *ai, int extfactor, double *pcmd_p[])
 {
     int n;
     // expect extfactor =  -1 || 0 || +1
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        axis_array[n].teleop_tp.curr_pos = *pcmd_p[n]
-                            + extfactor * axis_array[n].ext_offset_tp.curr_pos;
+        ai->axis_array[n].teleop_tp.curr_pos = *pcmd_p[n]
+                            + extfactor * ai->axis_array[n].ext_offset_tp.curr_pos;
     }
 }
 
-void axis_sync_carte_pos_to_teleop_tp(int extfactor, double *pcmd_p[])
+void axis_sync_carte_pos_to_teleop_tp(axis_inst_t *ai, int extfactor, double *pcmd_p[])
 {
     int n;
     // expect extfactor =  -1 || 0 || +1
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        *pcmd_p[n] = axis_array[n].teleop_tp.curr_pos
-                            + extfactor * axis_array[n].ext_offset_tp.curr_pos;
+        *pcmd_p[n] = ai->axis_array[n].teleop_tp.curr_pos
+                            + extfactor * ai->axis_array[n].ext_offset_tp.curr_pos;
     }
 }
 
-void axis_apply_ext_offsets_to_carte_pos(int extfactor, double *pcmd_p[])
+void axis_apply_ext_offsets_to_carte_pos(axis_inst_t *ai, int extfactor, double *pcmd_p[])
 {
     int n;
     // expect extfactor =  -1 || 0 || +1
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         *pcmd_p[n] = *pcmd_p[n]
-                            + extfactor * axis_array[n].ext_offset_tp.curr_pos;
+                            + extfactor * ai->axis_array[n].ext_offset_tp.curr_pos;
     }
 }
 
-hal_bit_t axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bool all_homed)
+bool axis_plan_external_offsets(axis_inst_t *ai, double servo_period, bool motion_enable_flag, bool all_homed)
 {
-    static int first_pass = 1;
     int n;
     emcmot_axis_t *axis;
     axis_hal_t *axis_data;
     int new_eoffset_counts, delta;
-    static int last_eoffset_enable[EMCMOT_MAX_AXIS];
     double ext_offset_epsilon;
     hal_bit_t eoffset_active;
 
     eoffset_active = 0;
 
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        axis = &axis_array[n];
+        axis = &ai->axis_array[n];
         // coord,teleop updates done in get_pos_cmds()
         axis->ext_offset_tp.max_vel = axis->ext_offset_vel_limit;
         axis->ext_offset_tp.max_acc = axis->ext_offset_acc_limit;
 
-        axis_data = &hal_data->axis[n];
+        axis_data = &ai->hal_data->axis[n];
 
         new_eoffset_counts       = *(axis_data->eoffset_counts);
         delta                    = new_eoffset_counts - axis->old_eoffset_counts;
@@ -484,7 +504,7 @@ hal_bit_t axis_plan_external_offsets(double servo_period, bool motion_enable_fla
 
         *(axis_data->external_offset)  = axis->ext_offset_tp.curr_pos;
         axis->ext_offset_tp.enable = 1;
-        if ( first_pass ) {
+        if ( ai->ext_offset_first_pass ) {
             *(axis_data->external_offset) = 0;
             continue;
         }
@@ -499,25 +519,24 @@ hal_bit_t axis_plan_external_offsets(double servo_period, bool motion_enable_fla
             // Detect disabling of eoffsets:
             //   At very high accel, simple planner may terminate with
             //   a larger position value than occurs at more realistic accels.
-            if (last_eoffset_enable[n]
+            if (ai->last_eoffset_enable[n]
                 && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)
                 && motion_enable_flag
                 && axis->ext_offset_tp.enable) {
-                // to stdout only:
-                rtapi_print_msg(RTAPI_MSG_NONE,
-                           "*** Axis_%c External Offset=%.4g eps=%.4g\n"
-                           "*** External Offset disabled while NON-zero\n"
-                           "*** To clear: re-enable & zero or use Machine-Off\n",
+                gomc_log_warnf(ai->log, "motmod",
+                           "Axis_%c External Offset=%.4g eps=%.4g "
+                           "External Offset disabled while NON-zero "
+                           "To clear: re-enable & zero or use Machine-Off",
                            "XYZABCUVW"[n],
                            *(axis_data->external_offset),
                            ext_offset_epsilon);
             }
-            last_eoffset_enable[n] = 0;
+            ai->last_eoffset_enable[n] = 0;
             continue; // Note: if   not eoffset_enable
                       //       then planner disabled and no pos_cmd updates
                       //       useful for eoffset_pid hold
         }
-        last_eoffset_enable[n] = 1;
+        ai->last_eoffset_enable[n] = 1;
         if (*(axis_data->eoffset_clear)) {
             axis->ext_offset_tp.pos_cmd             = 0;
             *(axis_data->external_offset_requested) = 0;
@@ -530,26 +549,26 @@ hal_bit_t axis_plan_external_offsets(double servo_period, bool motion_enable_fla
         axis->ext_offset_tp.pos_cmd   += delta *  *(axis_data->eoffset_scale);
         *(axis_data->external_offset_requested) = axis->ext_offset_tp.pos_cmd;
     } // for n
-    first_pass = 0;
+    ai->ext_offset_first_pass = 0;
 
     return eoffset_active;
 }
 
 /* For each axis, return -1 if over negative limit, 1 if over positive limit,
    or 0 if in range */
-void axis_check_constraints(double pos[], int failing_axes[])
+void axis_check_constraints(axis_inst_t *ai, double pos[], int failing_axes[])
 {
     int axis_num;
     double eps = 1e-308;
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
-        double nl = axis_array[axis_num].min_pos_limit;
-        double pl = axis_array[axis_num].max_pos_limit;
+        double nl = ai->axis_array[axis_num].min_pos_limit;
+        double pl = ai->axis_array[axis_num].max_pos_limit;
         failing_axes[axis_num] = 0;
 
         if (   (fabs(pos[axis_num]) < eps)
-            && (fabs(axis_array[axis_num].min_pos_limit) < eps)
-            && (fabs(axis_array[axis_num].max_pos_limit) < eps) ) {
+            && (fabs(ai->axis_array[axis_num].min_pos_limit) < eps)
+            && (fabs(ai->axis_array[axis_num].max_pos_limit) < eps) ) {
             continue;
         }
 
@@ -563,7 +582,7 @@ void axis_check_constraints(double pos[], int failing_axes[])
     }
 }
 
-int axis_update_coord_with_bound(double *pcmd_p[], double servo_period)
+int axis_update_coord_with_bound(axis_inst_t *ai, double *pcmd_p[], double servo_period)
 {
     int n;
     int ans = 0;
@@ -572,15 +591,15 @@ int axis_update_coord_with_bound(double *pcmd_p[], double servo_period)
     double save_offset_cmd[EMCMOT_MAX_AXIS];
 
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        axis = &axis_array[n];
+        axis = &ai->axis_array[n];
         save_pos_cmd[n]     = *pcmd_p[n];
         save_offset_cmd[n]  = axis->ext_offset_tp.pos_cmd;
         simple_tp_update(&(axis->ext_offset_tp), servo_period);
     }
-    axis_apply_ext_offsets_to_carte_pos(+1, pcmd_p); // add external offsets
+    axis_apply_ext_offsets_to_carte_pos(ai, +1, pcmd_p); // add external offsets
 
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        axis = &axis_array[n];
+        axis = &ai->axis_array[n];
         //workaround: axis letters not in [TRAJ]COORDINATES
         //            have min_pos_limit == max_pos_lim == 0
         if ( (0 == axis->max_pos_limit) && (0 == axis->min_pos_limit) ) {
@@ -618,13 +637,13 @@ int axis_update_coord_with_bound(double *pcmd_p[], double servo_period)
     return 0;
 }
 
-static int update_teleop_with_check(int axis_num, simple_tp_t *the_tp, double servo_period)
+static int update_teleop_with_check(axis_inst_t *ai, int axis_num, simple_tp_t *the_tp, double servo_period)
 {
     // 'the_tp' is the planner to update
     // the tests herein apply to the sum of the offsets for both
     // planners (teleop_tp and ext_offset_tp)
     double save_curr_pos;
-    emcmot_axis_t *axis = &axis_array[axis_num];
+    emcmot_axis_t *axis = &ai->axis_array[axis_num];
 
     save_curr_pos = the_tp->curr_pos;
     simple_tp_update(the_tp, servo_period);
@@ -651,19 +670,19 @@ static int update_teleop_with_check(int axis_num, simple_tp_t *the_tp, double se
     return 0;
 }
 
-int axis_calc_motion(double servo_period)
+int axis_calc_motion(axis_inst_t *ai, double servo_period)
 {
     int axis_num;
     int violated_teleop_limit = 0;
     emcmot_axis_t *axis;
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-        axis = &axis_array[axis_num];
+        axis = &ai->axis_array[axis_num];
         // teleop_tp.max_vel is always positive
         if (axis->teleop_tp.max_vel > axis->vel_limit) {
             axis->teleop_tp.max_vel = axis->vel_limit;
         }
-        if (update_teleop_with_check(axis_num, &(axis->teleop_tp), servo_period)) {
+        if (update_teleop_with_check(ai, axis_num, &(axis->teleop_tp), servo_period)) {
             violated_teleop_limit = 1;
         } else {
             axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
@@ -676,7 +695,7 @@ int axis_calc_motion(double servo_period)
         }
 
         if (axis->ext_offset_tp.enable) {
-            if (update_teleop_with_check(axis_num, &(axis->ext_offset_tp), servo_period)) {
+            if (update_teleop_with_check(ai, axis_num, &(axis->ext_offset_tp), servo_period)) {
                 violated_teleop_limit = 1;
             }
         }
