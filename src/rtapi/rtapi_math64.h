@@ -20,13 +20,6 @@
 
 #include <rtapi_stdint.h>
 
-#ifdef __KERNEL__
-#include <linux/math64.h>
-#define rtapi_div_u64_rem div_u64_rem
-#define rtapi_div_u64 div_u64
-#define rtapi_div_s64_rem div_s64_rem
-#define rtapi_div_s64 div_s64
-#else
 static inline rtapi_u64 rtapi_div_u64_rem(rtapi_u64 dividend, rtapi_u32 divisor, rtapi_u32 *remainder)
 {
 	*remainder = dividend % divisor;
@@ -45,6 +38,5 @@ static inline rtapi_s64 rtapi_div_s64_rem(rtapi_s64 dividend, rtapi_s32 divisor,
 static inline rtapi_s64 rtapi_div_s64(rtapi_s64 dividend, rtapi_s32 divisor) {
 	return dividend / divisor;
 }
-#endif
 
 #endif

@@ -21,11 +21,7 @@
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
-#if defined(__KERNEL__)
-#include <linux/sched.h>	/* for blocking when needed */
-#else
 #include <sched.h>		/* for blocking when needed */
-#endif
 #include "rtapi_bitops.h"	/* atomic bit ops for lightweight mutex */
 
 typedef unsigned long rtapi_mutex_t;
@@ -67,11 +63,7 @@ typedef unsigned long rtapi_mutex_t;
 */
     static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
 	while (test_and_set_bit(0, mutex)) {
-#if defined(__KERNEL__)
-	    schedule();
-#else
 	    sched_yield();
-#endif
 	}
     }
 

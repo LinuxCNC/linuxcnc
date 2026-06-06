@@ -21,17 +21,6 @@
 #ifndef RTAPI_LIST_H
 #define RTAPI_LIST_H
 
-#ifdef __KERNEL__
-#include <linux/list.h>
-#define rtapi_list_head list_head
-#define rtapi_list_for_each(pos,head) list_for_each(pos,head)
-#define rtapi_list_entry(ptr,type,member) list_entry(ptr,type,member)
-#define rtapi_list_add list_add
-#define rtapi_list_add_tail list_add_tail
-#define rtapi_list_del list_del
-#define RTAPI_INIT_LIST_HEAD INIT_LIST_HEAD
-#else
-
 #include <rtapi.h>
 
 RTAPI_BEGIN_DECLS
@@ -88,7 +77,5 @@ static inline void RTAPI_INIT_LIST_HEAD(struct rtapi_list_head *list)
 }
 
 RTAPI_END_DECLS
-
-#endif
 
 #endif

@@ -15,9 +15,7 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifndef RTAPI_BOOL_H
 
-#if defined(__KERNEL__)
-#include <linux/types.h>
-#elif !defined(__cplusplus)
+#if !defined(__cplusplus)
 // a note in gcc's stdbool.h says "supporting <stdbool.h> in C++ is a GCC extension"
 #include <stdbool.h>
 #endif

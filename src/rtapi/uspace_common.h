@@ -29,23 +29,15 @@
 
 #include <rtapi_errno.h>
 #include <rtapi_mutex.h>
-static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
-#include <sys/ipc.h>		/* IPC_* */
-#include <sys/shm.h>		/* shmget() */
 /* These structs hold data associated with objects like tasks, etc. */
 /* Task handles are pointers to these structs.                      */
 
 #include "config.h"
 
-#ifdef RTAPI
-#include "rtapi_uspace.hh"
-#endif
-
 typedef struct {
   int magic;			/* to check for valid handle */
   int key;			/* key to shared memory area */
-  int id;			/* OS identifier for shmem */
   int count;                    /* count of maps in this process */
   unsigned long int size;	/* size of shared memory area */
   void *mem;			/* pointer to the memory */
@@ -59,9 +51,6 @@ static rtapi_shmem_handle shmem_array[MAX_SHM] = {{0},};
 
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
-#ifdef RTAPI
-  WITH_ROOT;
-#endif
   rtapi_shmem_handle *shmem;
   int i;
 
@@ -81,73 +70,11 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     return -ENOMEM;
   }
 
-  /* now get shared memory block from OS */
-  int shmget_retries = 5;
-shmget_again:
-  shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0600);
-  if (shmem->id == -1) {
-      // See below for explanation of why retry against -EPERM here
-      if(shmget_retries-- && errno == -EPERM) {
-          sched_yield();
-          goto shmget_again;
-      }
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget(key=0x%08x): %s\n", key, strerror(errno));
-    return -errno;
-  }
-
-  struct shmid_ds stat;
-  int res = shmctl(shmem->id, IPC_STAT, &stat);
-  if(res < 0) perror("shmctl IPC_STAT");
-
-#ifdef RTAPI
-  /* At present, setuid rtapi_app runs with geteuid() == 0 at all times but the
-   * fsuid is ruid except when WITH_ROOT when it's 0.
-   *
-   * Filesystem operations such as creat() respect the fsuid, but as shmget is
-   * not a filesystem operation, it does not respect the fsuid. So, if
-   * rtapi_app has created the segment in question, its owning uid is root.
-   * Changing the permission here is racy, but it is the best alternative
-   * currently available.
-   *
-   * The race causes a low probability (<1/1000 in testing in a VM) chance of
-   * linuxcnc/halrun to fail to start
-   */
-  /* ensure the segment is owned by user, not root */
-  if(geteuid() == 0) {
-    stat.shm_perm.uid = ruid;
-    res = shmctl(shmem->id, IPC_SET, &stat);
-    if(res < 0) perror("shmctl IPC_SET");
-  }
-
-#ifndef __FreeBSD__ // FreeBSD doesn't implement SHM_LOCK
-  if(rtapi_is_realtime())
-  {
-    /* ensure the segment is locked */
-    res = shmctl(shmem->id, SHM_LOCK, NULL);
-    if(res < 0) perror("shmctl IPC_LOCK");
-
-    res = shmctl(shmem->id, IPC_STAT, &stat);
-    if(res < 0) perror("shmctl IPC_STAT");
-    if((stat.shm_perm.mode & SHM_LOCKED) != SHM_LOCKED)
-      rtapi_print_msg(RTAPI_MSG_ERR,
-          "shared memory segment not locked as requested\n");
-  }
-#endif
-#endif
-
-  /* and map it into process space */
-  shmem->mem = shmat(shmem->id, 0, 0);
-  if ((ssize_t) (shmem->mem) == -1) {
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmat()\n");
-    return -errno;
-  }
-
-  long pagesize = sysconf(_SC_PAGESIZE);
-  /* touch every page */
-  for(size_t off = 0; off < size; off += pagesize)
-  {
-      volatile char i = ((char*)shmem->mem)[off];
-      (void)i;
+  /* allocate RT-hardened memory (mlocked, page-faulted) */
+  shmem->mem = rtapi_calloc(size);
+  if (!shmem->mem) {
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to rtapi_calloc(%lu)\n", size);
+    return -ENOMEM;
   }
 
   /* label as a valid shmem structure */
@@ -182,8 +109,6 @@ int rtapi_shmem_getptr(int handle, void **ptr)
 
 int rtapi_shmem_delete(int handle, int module_id)
 {
-  struct shmid_ds d;
-  int r1, r2;
   rtapi_shmem_handle *shmem;
 
   if(handle < 0 || handle >= MAX_SHM)
@@ -198,42 +123,27 @@ int rtapi_shmem_delete(int handle, int module_id)
   shmem->count --;
   if(shmem->count) return 0;
 
-  /* unmap the shared memory */
-  r1 = shmdt(shmem->mem);
-
-  /* destroy the shared memory */
-  r2 = shmctl(shmem->id, IPC_STAT, &d);
-  if (r2 != 0)
-      rtapi_print_msg(RTAPI_MSG_ERR, "shmctl(%d, IPC_STAT, ...): %s\n", shmem->id, strerror(errno));
-
-  if(r2 == 0 && d.shm_nattch == 0) {
-      r2 = shmctl(shmem->id, IPC_RMID, &d);
-      if (r2 != 0)
-	      rtapi_print_msg(RTAPI_MSG_ERR, "shmctl(%d, IPC_RMID, ...): %s\n", shmem->id, strerror(errno));
-  }
+  /* free the RT-hardened memory */
+  rtapi_free(shmem->mem);
+  shmem->mem = NULL;
 
   /* free the shmem structure */
   shmem->magic = 0;
 
-  if ((r1 != 0) || (r2 != 0))
-    return -EINVAL;
   return 0;
 }
 
 
 
 
-void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap);
-
-static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
-
-rtapi_msg_handler_t rtapi_get_msg_handler(void) {
-    return rtapi_msg_handler;
-}
+// Internal message handler function pointer — set once by gomc-server to
+// connect rtapi_print/rtapi_print_msg to the lock-free log ring.
+// Before the ring is connected, messages are silently discarded.
+typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt, va_list ap);
+static rtapi_msg_handler_t rtapi_msg_handler = NULL;
 
 void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
-    if(handler == NULL) rtapi_msg_handler = default_rtapi_msg_handler;
-    else rtapi_msg_handler = handler;
+    rtapi_msg_handler = handler;
 }
 
 
@@ -241,9 +151,11 @@ void rtapi_print(const char *fmt, ...)
 {
     va_list args;
 
-    va_start(args, fmt);
-    rtapi_msg_handler(RTAPI_MSG_ALL, fmt, args);
-    va_end(args);
+    if (rtapi_msg_handler) {
+        va_start(args, fmt);
+        rtapi_msg_handler(RTAPI_MSG_ALL, fmt, args);
+        va_end(args);
+    }
 }
 
 
@@ -251,36 +163,11 @@ void rtapi_print_msg(msg_level_t level, const char *fmt, ...)
 {
     va_list args;
 
-    if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
-	va_start(args, fmt);
-	rtapi_msg_handler(level, fmt, args);
-	va_end(args);
+    if (rtapi_msg_handler) {
+        va_start(args, fmt);
+        rtapi_msg_handler(level, fmt, args);
+        va_end(args);
     }
-}
-
-int rtapi_snprintf(char *buffer, unsigned long int size, const char *msg, ...) {
-    va_list args;
-    int result;
-
-    va_start(args, msg);
-    /* call the normal library vnsprintf() */
-    result = vsnprintf(buffer, size, msg, args);
-    va_end(args);
-    return result;
-}
-
-int rtapi_vsnprintf(char *buffer, unsigned long int size, const char *fmt,
-	va_list args) {
-    return vsnprintf(buffer, size, fmt, args);
-}
-
-int rtapi_set_msg_level(int level) {
-    msg_level = level;
-    return 0;
-}
-
-int rtapi_get_msg_level() {
-    return msg_level;
 }
 
 #if defined(__i386) || defined(__amd64)
@@ -366,32 +253,10 @@ static int detect_preempt_rt() {
         fclose(fd);
     }
 
-    return crit1 && crit2;
+    return crit1 || crit2;
 }
 #else
 static int detect_preempt_rt() {
-    return 0;
-}
-#endif
-#ifdef USPACE_RTAI
-static int detect_rtai() {
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-rtai") != 0;
-}
-#else
-static int detect_rtai() {
-    return 0;
-}
-#endif
-#ifdef USPACE_XENOMAI
-static int detect_xenomai() {
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-xenomai") != 0;
-}
-#else
-static int detect_xenomai() {
     return 0;
 }
 #endif
@@ -401,11 +266,7 @@ static int detect_env_override() {
 }
 
 static int detect_realtime() {
-    struct stat st;
-    if ((stat(EMC2_BIN_DIR "/rtapi_app", &st) < 0)
-            || st.st_uid != 0 || !(st.st_mode & S_ISUID))
-        return 0;
-    return detect_env_override() || detect_preempt_rt() || detect_rtai() || detect_xenomai();
+    return detect_env_override() || detect_preempt_rt();
 }
 
 int rtapi_is_realtime() {

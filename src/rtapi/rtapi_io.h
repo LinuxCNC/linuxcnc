@@ -18,9 +18,7 @@
 
 #include <rtapi.h>
 
-#ifdef __KERNEL__
-#include <asm/io.h>
-#elif defined(__i386) || defined(__x86_64)
+#if defined(__i386) || defined(__x86_64)
 #include <sys/io.h>
 #endif
 
@@ -34,13 +32,13 @@
 #define rtapi_outl outl
 #define rtapi_ioperm ioperm
 #else
-#define rtapi_inb(x) (0)
-#define rtapi_inw(x) (0)
-#define rtapi_inl(x) (0)
-#define rtapi_outb(x,y) ((void)0)
-#define rtapi_outw(x,y) ((void)0)
-#define rtapi_outl(x,y) ((void)0)
-#define rtapi_ioperm(x,y,z) ((void)0)
+#define rtapi_inb(x) ((void)(x), 0)
+#define rtapi_inw(x) ((void)(x), 0)
+#define rtapi_inl(x) ((void)(x), 0)
+#define rtapi_outb(x,y) ((void)(x), (void)(y))
+#define rtapi_outw(x,y) ((void)(x), (void)(y))
+#define rtapi_outl(x,y) ((void)(x), (void)(y))
+#define rtapi_ioperm(x,y,z) ((void)(x), (void)(y), (void)(z))
 #endif
 
 #endif

@@ -18,10 +18,6 @@
 #ifndef RTAPI_LIMITS_H
 #define RTAPI_LIMITS_H
 
-#if defined(__KERNEL__)
-#include <linux/kernel.h>
-#else
 #include <limits.h>
-#endif
 
 #endif
