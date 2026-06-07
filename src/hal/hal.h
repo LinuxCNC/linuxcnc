@@ -237,6 +237,11 @@ extern int hal_unready(int comp_id);
 */
 extern char* hal_comp_name(int comp_id);
 
+/** hal_get_realtime_type() returns the type of the running real time
+*/
+typedef rtapi_realtime_type_t hal_realtime_type_t;
+extern hal_realtime_type_t hal_get_realtime_type(void);
+
 /** The HAL maintains lists of variables, functions, and so on in
     a central database, located in shared memory so all components
     can access it.  To prevent contention, functions that may

@@ -118,7 +118,7 @@
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000010	/* version code */
+#define HAL_VER   0x00000011	/* version code */
 #define HAL_SIZE  (256*4096)
 #define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
 
@@ -275,6 +275,7 @@ typedef struct hal_data_t {
     SHMFIELD(hal_thread_t) thread_free_ptr;	/* list of free thread structs */
     int exact_base_period;      /* if set, pretend that rtapi satisfied our
 				   period request exactly */
+    rtapi_realtime_type_t realtime_type;	/* reflects the running realtime type */
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
 } hal_data_t;
 

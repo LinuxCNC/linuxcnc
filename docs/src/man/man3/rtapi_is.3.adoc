@@ -18,15 +18,18 @@ int rtapi_is_realtime();
 and zero when they run in userspace (e.g., under uspace).
 
 *rtapi_is_realtime()* returns nonzero when capable of running with realtime guarantees.
+
+Always use *hal_get_realtime_type()* instead. *rtapi_is_realtime()* is only available in realtime context.
+
 For rtai, this always returns nonzero (but actually loading realtime modules will fail if not running under the appropriate kernel).
-For uspace, this returns nonzero when the running kernel indicates it is capable of realtime performance.
-If *rtapi_app* is not setuid root,
-this returns nonzero even though *rtapi_app* will not be able to obtain realtime scheduling or hardware access,
-so e.g., attempting to *loadrt* a hardware driver will fail.
+For uspace, this returns nonzero when the running kernel indicates it is capable of realtime performance and *rtapi_app* has the
+required capabilities or is setuid root.
+If *rtapi_app* is not setuid root or setcap with the proper capabilities,
+this returns zero.
 
 == REALTIME CONSIDERATIONS
 
-May be called from non-realtime or from realtime setup code.
+May only be called from realtime setup code.
 *rtapi_is_realtime()* may perform filesystem I/O.
 
 == RETURN VALUE

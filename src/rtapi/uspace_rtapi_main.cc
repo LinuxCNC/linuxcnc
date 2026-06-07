@@ -862,6 +862,7 @@ static int master(int fd, const std::vector<std::string> &args) {
     //Process commands as long as master should not exit
     while(master_process_socket_command(fd));
 out:
+    do_unload_cmd("hal_lib");
     pthread_cancel(queue_thread);
     pthread_join(queue_thread, nullptr);
     rtapi_msg_queue.consume_all([](const message_t &m) {

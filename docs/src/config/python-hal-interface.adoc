@@ -48,6 +48,17 @@ Message level constants:
 * `hal.MSG_DBG` - Additionally include debugging information
 * `hal.MSG_ALL` - Print all messages encountered, disregarding level
 
+Realtime type constants:
+
+* `hal.REALTIME_TYPE_UNINITIALIZED` - Real time module not running
+* `hal.REALTIME_TYPE_NONE` - No realtime available
+* `hal.REALTIME_TYPE_RTAI` - RTAI kernel mode
+* `hal.REALTIME_TYPE_PREEMPT_DYNAMIC` - Preempt dynamic: avaliable in vanilla kernel, not recommended
+* `hal.REALTIME_TYPE_PREEMPT_RT` - Preempt RT
+* `hal.REALTIME_TYPE_LXRT` - LXRT, userspace implementation for RTAI
+* `hal.REALTIME_TYPE_XENOMAI` - Xenomai 3
+* `hal.REALTIME_TYPE_XENOMAI_EVL` - Xenomai 4 aka Xenomai EVL
+
 System information:
 
 * `hal.is_kernelspace` - One (1) if RTAPI runs in the kernel, otherwise zero (0)
@@ -76,8 +87,13 @@ comp_name = f"halpy{os.getpid()}"
 if not hal.is_initialized():
     comp = hal.component(comp_name)
 
-ret = hal.component_exists("passthrough")
+type = hal.get_realtime_type()
 ----
+
+hal.get_realtime_type()::
+Returns the type of the running realtime system.
+Might return `hal.REALTIME_TYPE_UNINITIALIZED` if `rtapi_app` is not running.
+See xref:_hal_constants[realtime type constants].
 
 hal.component_exists(_name_:string)::
 Returns a boolean to indicate whether or not the specified component exist at this time.

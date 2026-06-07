@@ -986,6 +986,8 @@ int rtapi_spawnp_as_root(pid_t *pid, const char *path,
 
 extern int rtapi_is_kernelspace(void);
 
+//If changing anything here:
+//Update also halmodule.cc PyInit__hal()
 //You can use type > REALTIME_TYPE_NONE to check if you have realtime at all
 typedef enum{
     REALTIME_TYPE_UNINITIALIZED = -1, //Realtime not running, type unknown
@@ -998,8 +1000,10 @@ typedef enum{
     REALTIME_TYPE_XENOMAI_EVL = 6,
 } rtapi_realtime_type_t;
 
-extern int rtapi_is_realtime(void);
 #ifdef RTAPI
+//Only available in real time context
+//Always use hal_get_realtime_type() in components
+extern int rtapi_is_realtime(void);
 extern rtapi_realtime_type_t rtapi_get_realtime_type(void);
 #endif
 
