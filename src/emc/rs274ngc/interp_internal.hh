@@ -824,7 +824,7 @@ struct setup
     // control to skip to beginning of file
     bool loop_on_main_m99;
 
-  int disable_g92_persistence;
+  bool disable_g92_persistence;
   bool disable_auto_g54;
 
 // add new geometric fields for our new tags
