@@ -93,6 +93,7 @@ typedef struct {
     hal_type_t data_type;	/* data type */
     int data_len;		/* data length */
     double vert_offset;		/* offset to be applied */
+    double saved_vert_offset;	/* saved offset when AC coupling is enabled */
     int ac_offset;              /* TRUE if the signal should be AC-coupled */
     int scale_index;		/* scaling (slider setting) */
     int max_index;		/* limits of scale slider */
