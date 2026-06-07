@@ -340,130 +340,14 @@ int rtapi_exit(int module_id)
 
 int rtapi_is_kernelspace() { return 0; }
 
-#ifdef __linux__
-// detect_preempt_rt() inspects uname for the PREEMPT_RT marker.  Used only
-// for diagnostic warning at startup; callers must not gate behavior on
-// the kernel string, since SCHED_FIFO on a PREEMPT_DYNAMIC kernel is still
-// useful (better than SCHED_OTHER, worse than PREEMPT_RT).
-static inline int detect_preempt_rt() {
-    struct utsname u;
-    if(uname(&u) < 0) return 0;
-    return strcasestr(u.version, "PREEMPT RT") != NULL
-        || strcasestr(u.version, "PREEMPT_RT") != NULL;
-}
-#else
-static inline int detect_preempt_rt() {
-    return 0;
-}
-#endif
-
-// FIXME: detect_rtai/detect_xenomai/detect_xenomai_evl currently gate on
-// setuid because the RTAI/Xenomai backends still need root for iopl()
-// (RTAI) or RTDM device access (Xenomai/EVL).  Long-term these should
-// probe the actual capability the way can_set_sched_fifo() does, paired
-// with udev rules + a 'xenomai'/'evl' group; @hdiethelm has a follow-up
-// planned.  Until then, an unprivileged user on a Xenomai kernel cannot
-// claim the Xenomai backend, and falls back to the SCHED_FIFO probe.
-static inline int has_setuid_root() {
-    return geteuid() == 0;
-}
-
-#ifdef USPACE_RTAI
-static int detect_rtai() {
-    if(!has_setuid_root()) return 0;
-    struct utsname u;
-    uname(&u);
-    return strcasestr (u.release, "-rtai") != 0;
-}
-#else
-static int detect_rtai() {
-    return 0;
-}
-#endif
-#ifdef USPACE_XENOMAI
-static int detect_xenomai() {
-    if(!has_setuid_root()) return 0;
-    struct stat sb;
-    //Running xenomai has /proc/xenomai
-    return stat("/proc/xenomai", &sb) == 0;
-}
-#else
-static int detect_xenomai() {
-    return 0;
-}
-#endif
-#ifdef USPACE_XENOMAI_EVL
-static int detect_xenomai_evl() {
-    if(!has_setuid_root()) return 0;
-    struct stat sb;
-    //Running xenomai evl has /dev/evl but no /proc/xenomai
-    return stat("/dev/evl", &sb) == 0;
-}
-#else
-static int detect_xenomai_evl() {
-    return 0;
-}
-#endif
-
-// errno from the most recent sched_setscheduler(SCHED_FIFO) probe.  Zero
-// when the probe succeeded or has not run yet.  Read via
-// rtapi_sched_fifo_errno() from diagnostic code.
-static int rtapi_sched_fifo_last_errno = 0;
-
-// Success-probe for realtime scheduling: briefly try to set SCHED_FIFO on
-// the calling thread and restore the previous policy.  Succeeds when the
-// process holds CAP_SYS_NICE (file caps or setuid root) or has a matching
-// RLIMIT_RTPRIO.  Works on any kernel, so the probe also covers the
-// PREEMPT_RT-vs-stock distinction implicitly: if we can actually get
-// SCHED_FIFO, the platform can deliver realtime, regardless of how.
-static int can_set_sched_fifo(void) {
-    struct sched_param old_param, probe_param;
-    int old_policy = sched_getscheduler(0);
-    if(old_policy < 0) {
-        rtapi_sched_fifo_last_errno = errno;
-        return 0;
-    }
-    if(sched_getparam(0, &old_param) < 0) {
-        rtapi_sched_fifo_last_errno = errno;
-        return 0;
-    }
-
-    memset(&probe_param, 0, sizeof(probe_param));
-    probe_param.sched_priority = sched_get_priority_min(SCHED_FIFO);
-    if(sched_setscheduler(0, SCHED_FIFO, &probe_param) < 0) {
-        rtapi_sched_fifo_last_errno = errno;
-        return 0;
-    }
-
-    // Best-effort restore; if this fails we are still on SCHED_FIFO at
-    // minimum priority, which is no worse than where we started.
-    sched_setscheduler(0, old_policy, &old_param);
-    rtapi_sched_fifo_last_errno = 0;
-    return 1;
-}
-
-static inline int rtapi_sched_fifo_errno(void) { return rtapi_sched_fifo_last_errno; }
-
-// rtapi_is_realtime() reports whether this process can actually run
-// realtime code.  This matches the convention used by JACK, PipeWire,
-// rtkit, Xenomai, and Klipper: surface the observed capability, not
-// kernel metadata.  The old setuid-root stat check has been removed; it
-// stat()ed EMC2_BIN_DIR/rtapi_app rather than the running binary (breaking
-// wrapper-based installs like NixOS /run/wrappers) and silently masked
-// LINUXCNC_FORCE_REALTIME (see issue #3928).
+#ifndef RTAPI
+//For RTAPI, this function is implemented in uspace_rtapi_main.cc
+//For user components, keep it in for now with a warning to avoid link issues
 int rtapi_is_realtime() {
-    static int cached = -1;
-    if(cached != -1) return cached;
-
-    const char *force = getenv("LINUXCNC_FORCE_REALTIME");
-    if(force != NULL && atoi(force) != 0)
-        return (cached = 1);
-
-    if(detect_rtai() || detect_xenomai() || detect_xenomai_evl())
-        return (cached = 1);
-
-    return (cached = can_set_sched_fifo());
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_is_realtime() only allowed in real time context");
+    return 0;
 }
+#endif
 
 /* Like clock_nanosleep, except that an optional 'estimate of now' parameter may
  * optionally be passed in.  This is a very slight optimization for platforms
