@@ -643,6 +643,7 @@ void read_log_file(char *filename)
 
         /* Set default scale and offset */
         chan->vert_offset = 0.0;
+        chan->saved_vert_offset = 0.0;
         chan->ac_offset = 0;
 
         /* Apply position and scale from CSV if available */
