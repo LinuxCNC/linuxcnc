@@ -1,4 +1,4 @@
-VERSION = '016.084'
+VERSION = '016.085'
 LCNCVER = '2.10'
 
 '''
@@ -2261,6 +2261,11 @@ class HandlerClass:
         self.w.gcodegraphics.grid_size = grid
 
     def main_tab_changed(self, tab):
+        # stop an active jog if user changed tabs while holding a jog key
+        if STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle():
+            self.w.releaseKeyboard()
+            for joint in range(len(self.coordinates)):
+                ACTION.JOG(joint, 0, 0, 0)
         t = time.time() + 0.01
         while time.time() < t:
             QApplication.processEvents()
@@ -6320,14 +6325,14 @@ class HandlerClass:
     #         if STATUS.is_joint_mode():
     #             self.kb_jog(state, self.coordinates.index('c'), 1, shift)
     #         else:
-    #             self.kb_jog(state, 4, 1, shift)
+    #             self.kb_jog(state, 5, 1, shift)
 
     # def on_keycall_CNEG(self, event, state, shift, cntrl):
     #     if self.jog_is_valid('c_minus', event):
     #         if STATUS.is_joint_mode():
     #             self.kb_jog(state, self.coordinates.index('c'), -1, shift)
     #         else:
-    #             self.kb_jog(state, 4, -1, shift)
+    #             self.kb_jog(state, 5, -1, shift)
 
     def on_keycall_PLUS(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and self.jogSlow and self.w.jog_slider.isEnabled():
