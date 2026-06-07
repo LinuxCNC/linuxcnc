@@ -59,6 +59,26 @@ System information:
 
 === hal methods
 
+hal.is_initialized()::
+Returns a boolean to indicate whether hal is initialized. The hal is initialized when there is
+at least one component. If this is not the case, many of the following functions will
+fail with the error: `Cannot call before creating component`
+
+.Example:
+[source,python]
+----
+#The hal must be initialized to use many of the hal functions
+#If it is not initialized, create a component which will initialize it
+#The component will be cleaned up after comp goes out of scope
+#Use pid as component identifier, so it is unlikely to collide
+#with existing components
+comp_name = f"halpy{os.getpid()}"
+if not hal.is_initialized():
+    comp = hal.component(comp_name)
+
+ret = hal.component_exists("passthrough")
+----
+
 hal.component_exists(_name_:string)::
 Returns a boolean to indicate whether or not the specified component exist at this time.
 

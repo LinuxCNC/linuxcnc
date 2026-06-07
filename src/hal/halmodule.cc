@@ -1835,6 +1835,10 @@ PyObject *get_info_params(PyObject * /*self*/, PyObject * /*args*/) {
     return python_list;
 }
 
+static PyObject *pyhal_is_initialized(PyObject * /*self*/, PyObject * /*o*/) {
+    return PyBool_FromLong(hal_shmem_base != NULL);
+}
+
 struct shmobject {
     PyObject_HEAD
     halobject *comp;
@@ -2311,6 +2315,8 @@ static PyMethodDef module_methods[] = {
 	".get_info_signals(): Get a list of dicts for all the signals; {NAME:, VALUE:}"},
     {"get_info_params", get_info_params, METH_VARARGS,
 	".get_info_params(): Get a list of dicts for all the parameters; {NAME:, VALUE:}"},
+    {"is_initialized", pyhal_is_initialized, METH_NOARGS,
+        ".is_initialized(): Return true if hal is initialized, false otherwhise"},
     {},
 };
 
