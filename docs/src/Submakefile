@@ -616,12 +616,12 @@ $(foreach L,$(LANGUAGES), \
 # sits at docs/build/html/<lang>/man/manN/X.html (4 levels under html/).
 define MAN_HTML_RULE
 $(DOC_OUT_HTML)/$(1)/man/%.html: $(2)/% $(DOC_SRCDIR)/docinfo.html
-	@$$(ECHO) Formatting $$(notdir $$<) as HTML
 	@mkdir -p $$(dir $$@)
 	$$(Q)if grep -q '^\.so' $$<; then \
 		ln -srf $$(DOC_OUT_HTML)/$(1)/man/$$$$(basename $$$$(dirname $$<))/$$$$(basename $$$$(awk '{print $$$$2}' $$<)).html $$@; \
 	else \
 		N="$$$$(basename "$$<").adoc"; \
+		echo "Formatting $$$$N as HTML"; \
 		D="$$$$(dirname "$$<")"; \
 		S="$$$$(basename "$$$$D")"; \
 		if [ -r "$(3)/man/$$$$S/$$$$N" ]; then \
